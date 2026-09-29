@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    // HTML and SVG are kept by hand: the logo's one-line path gains nothing from a formatter.
+    "includes": ["**", "!**/*.html", "!**/*.svg", "!package-lock.json", "!src-tauri/gen"]
+  },
+  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
+  "javascript": { "formatter": { "quoteStyle": "single", "arrowParentheses": "asNeeded" } },
+  // Imports are sorted: no module runs code when imported (tests/modules.test.mjs checks), so their
+  // order is style only; start-up order is written out in app.js.
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  // Biome reads a .vue file's <script> alone, so bindings the template uses look unused to it.
+  "overrides": [
+    {
+      "includes": ["website/**/*.vue"],
+      "linter": { "rules": { "correctness": { "noUnusedVariables": "off", "noUnusedImports": "off" } } }
+    }
+  ],
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        // It asks every rule ending in the same compound (svg, summary, canvas) to be sorted by
+        // specificity across the whole file, whether or not they could meet on one element. That
+        // interleaves unrelated components; none of its findings here was a real override bug.
+        "noDescendingSpecificity": "off"
+      }
+    }
+  }
+}

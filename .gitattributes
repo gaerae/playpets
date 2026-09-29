@@ -1,0 +1,16 @@
+# Text is stored with LF everywhere, so Windows checkouts build and test the same files.
+* text=auto eol=lf
+*.sh text eol=lf
+
+# Binary assets are never diffed or converted.
+*.png binary
+*.ico binary
+*.icns binary
+*.webp binary
+*.dmg binary
+
+# Generated files stay out of code review and language statistics.
+package-lock.json linguist-generated=true -diff
+src-tauri/Cargo.lock linguist-generated=true -diff
+src-tauri/icons/** linguist-generated=true
+src/logo.svg linguist-generated=true

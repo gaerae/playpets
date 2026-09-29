@@ -1,0 +1,29 @@
+node_modules/
+src-tauri/target/
+src-tauri/gen/schemas/
+release/
+*.log
+# a local data folder for development (docs/getting-started.md)
+.dev-data/
+.DS_Store
+.env*
+# editors and tools
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+# local assistant settings
+.claude/settings.local.json
+# website: generated from docs/ and assets/ by scripts/site-prepare.mjs, built by vitepress
+website/en/dev/
+website/public/icon.svg
+website/public/mascot.svg
+website/public/pets/
+website/.vitepress/cache/
+website/.vitepress/dist/
+website/.vitepress/generated.json
+# keys and certificates never belong here
+*.pem
+*.p12
+*.pfx
+*.key
