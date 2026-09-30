@@ -1,0 +1,49 @@
+[package]
+name = "playpets"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98"
+license = "MIT"
+description = "A yard where your pets talk to each other"
+repository = "https://github.com/gaerae/playpets"
+homepage = "https://gaerae.github.io/playpets/"
+authors = ["gaerae"]
+keywords = ["desktop-pet", "tauri", "ai"]
+publish = false
+
+[features]
+# The e2e harness: PLAYPETS_E2E_EVAL runs a script in the page, e2eLog/e2eWindow answer it,
+# and single-instance and deep-link registration stay off. Never in a shipped build.
+e2e = []
+
+[build-dependencies]
+tauri-build = { version = "2.7", features = [] }
+
+[dependencies]
+tauri = { version = "2.12", features = ["tray-icon", "macos-private-api", "image-png"] }
+tauri-plugin-dialog = "2.8"
+tauri-plugin-clipboard-manager = "2.4"
+tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = { version = "1.0.151", features = ["preserve_order"] }
+uuid = { version = "1.26", features = ["v4"] }
+ureq = { version = "3.4", features = ["json"] }
+# API keys go to the system keychain: Keychain (macOS), Credential Manager (Windows), Secret Service (Linux).
+keyring = "4.2"
+tiny_http = "0.12"
+url = "2.5"
+# Canonical paths without the `\\?\` prefix on Windows, which Explorer and agent configs cannot use.
+dunce = "1"
+sys-locale = "0.3.2"
+tauri-plugin-updater = "2"
+tauri-plugin-deep-link = "2"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6.4"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Console", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
+
+[profile.release]
+strip = true
+lto = true
