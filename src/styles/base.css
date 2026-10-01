@@ -1,0 +1,306 @@
+/* Tokens, elements, buttons and other pieces used everywhere. */
+:root {
+  --ink: #213e43;
+  --muted: #5c6f70;
+  --paper: #f7f9f8;
+  --line: #dfe6e3;
+  --accent: #c45237;
+  --white: #fff;
+  --radius: 22px;
+  font-family:
+    system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR",
+    sans-serif;
+  color: var(--ink);
+  font-size: 14px;
+  font-synthesis: none;
+}
+/* Han characters are drawn in the shapes of the language on screen: a Korean font first would
+   give Japanese text Korean glyph shapes. `lang` on <html> is set by core/i18n.js. */
+:root:lang(ja) {
+  font-family:
+    system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", "Noto Sans JP", "Noto Sans CJK JP",
+    sans-serif;
+}
+/* Simplified Chinese: its own glyph shapes, so the Japanese stack must not come first */
+:root:lang(zh-hans) {
+  font-family:
+    system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC",
+    "Noto Sans CJK SC", sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+button,
+select,
+summary {
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+button,
+a,
+input,
+textarea,
+select,
+summary {
+  outline-offset: 4px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #367b90;
+}
+svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+span[data-icon] {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+h2,
+h3,
+p {
+  margin: 0;
+}
+button {
+  border: 0;
+  background: none;
+  transition:
+    background 0.18s,
+    transform 0.18s;
+}
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+[hidden] {
+  /* biome-ignore lint/complexity/noImportantStyles: `hidden` must win over any display a component sets. */
+  display: none !important;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 11px;
+  font-weight: 650;
+  min-height: 42px;
+  padding: 10px 15px;
+  white-space: nowrap;
+}
+.button.secondary {
+  background: var(--white);
+  border: 1px solid var(--line);
+}
+.button.secondary:hover {
+  background: #edf3f1;
+}
+.button.primary {
+  background: var(--ink);
+  color: var(--white);
+  min-width: 110px;
+}
+.button.primary:hover {
+  background: #31575e;
+}
+.button.text {
+  padding: 8px 0;
+  color: var(--muted);
+}
+.button.text:hover {
+  color: var(--ink);
+}
+.button.small {
+  min-height: 32px;
+  font-size: 12px;
+}
+.button.tiny {
+  min-height: 28px;
+  font-size: 11px;
+}
+.icon-button {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+}
+.icon-button:hover {
+  background: #eaf0ed;
+}
+.eyebrow {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 1.65px;
+  color: #5a7878;
+  margin-bottom: 12px;
+}
+h2 {
+  font-size: 17px;
+  letter-spacing: -0.5px;
+  font-weight: 700;
+}
+input,
+select,
+textarea {
+  border: 1px solid var(--line);
+  background: #fbfcfb;
+  border-radius: 9px;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 12px;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #88a392;
+}
+.button.remove {
+  margin-top: 16px;
+  font-size: 10px;
+  min-height: 30px;
+  width: 100%;
+  color: #77837f;
+  border: 1px dashed #dce4de;
+}
+.button.remove:hover {
+  background: #f8eeea;
+  color: #a64f3b;
+}
+.button.remove svg {
+  width: 13px;
+  height: 13px;
+}
+.tiny {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* Three dots that say an answer is on its way: in the chat, and over the friend in the yard. */
+.waiting-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+.yard-thinking {
+  gap: 3px;
+}
+.waiting-dots i,
+.yard-thinking i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: waiting-dot 1.2s ease-in-out infinite;
+}
+.waiting-dots i:nth-child(2),
+.yard-thinking i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.waiting-dots i:nth-child(3),
+.yard-thinking i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes waiting-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: none;
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+/* The window is hidden or minimized (app.js): nothing on it needs to move. */
+:root[data-unseen] * {
+  /* biome-ignore-start lint/complexity/noImportantStyles: an unseen page pauses every animation. */
+  animation-play-state: paused !important;
+  /* biome-ignore-end lint/complexity/noImportantStyles: an unseen page pauses every animation. */
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    /* biome-ignore-start lint/complexity/noImportantStyles: reduced motion overrides every animation. */
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+    /* biome-ignore-end lint/complexity/noImportantStyles: reduced motion overrides every animation. */
+  }
+}
+@media (max-width: 760px) {
+  #warnings {
+    order: 5;
+  }
+}
+.button.chip:hover {
+  background: #eef3ef;
+}
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%235c6f70' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 11px 8px;
+  padding-right: 32px;
+}
+.button.chip.chip-quiet {
+  color: var(--muted);
+}
+.button.chip.chip-quiet:hover {
+  background: #f8eeea;
+  color: #a64f3b;
+  border-color: #e8cfc7;
+}
+.button.chip {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 4px 12px;
+  min-height: 28px;
+  font-size: 11px;
+  background: var(--white);
+  color: var(--ink);
+  gap: 5px;
+}
+.button.chip svg {
+  width: 13px;
+  height: 13px;
+}
+.button.icon-only {
+  padding: 10px;
+  min-width: 42px;
+}
+.button.icon-only svg {
+  width: 18px;
+  height: 18px;
+}

@@ -1,0 +1,38 @@
+<svg width='1024' height='1024' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'>
+  <!-- Original PlayPets mascot, full-bleed on transparent background (art: assets/mascot.svg) -->
+  <g transform='translate(-58 -30) scale(1.098)'>
+  <!-- PlayPets original mascot: a flat orange cat face drawn from scratch for this project. -->
+  <!-- ears -->
+  <path d="M92 380 L138 70 Q150 34 190 62 L430 232 Z" fill="#F9AE55"/>
+  <path d="M932 380 L886 70 Q874 34 834 62 L594 232 Z" fill="#F9AE55"/>
+  <path d="M158 330 L184 128 Q190 110 212 126 L368 240 Z" fill="#F587A0"/>
+  <path d="M866 330 L840 128 Q834 110 812 126 L656 240 Z" fill="#F587A0"/>
+  <!-- head -->
+  <rect x="64" y="208" width="896" height="752" rx="200" fill="#F9AE55"/>
+  <!-- tabby stripes -->
+  <rect x="422" y="208" width="40" height="96" rx="20" fill="#EA8434"/>
+  <rect x="562" y="208" width="40" height="96" rx="20" fill="#EA8434"/>
+  <rect x="492" y="196" width="40" height="120" rx="20" fill="#EA8434"/>
+  <!-- eyes -->
+  <ellipse cx="348" cy="598" rx="60" ry="74" fill="#3A2A1E"/>
+  <ellipse cx="676" cy="598" rx="60" ry="74" fill="#3A2A1E"/>
+  <circle cx="368" cy="572" r="21" fill="#FFFFFF"/>
+  <circle cx="696" cy="572" r="21" fill="#FFFFFF"/>
+  <circle cx="332" cy="622" r="9" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="660" cy="622" r="9" fill="#FFFFFF" opacity="0.7"/>
+  <!-- blush -->
+  <ellipse cx="188" cy="742" rx="58" ry="36" fill="#F9C0A8" opacity="0.85"/>
+  <ellipse cx="836" cy="742" rx="58" ry="36" fill="#F9C0A8" opacity="0.85"/>
+  <!-- nose and mouth -->
+  <path d="M512 682 L544 706 Q512 736 480 706 Z" fill="#E8686D"/>
+  <path d="M512 730 Q512 764 478 768 Q444 772 430 748" fill="none" stroke="#8A5426" stroke-width="17" stroke-linecap="round"/>
+  <path d="M512 730 Q512 764 546 768 Q580 772 594 748" fill="none" stroke="#8A5426" stroke-width="17" stroke-linecap="round"/>
+  <!-- whiskers -->
+  <g stroke="#E58E3E" stroke-width="15" stroke-linecap="round" fill="none">
+    <path d="M150 640 Q100 634 62 620"/>
+    <path d="M152 692 Q104 700 68 718"/>
+    <path d="M874 640 Q924 634 962 620"/>
+    <path d="M872 692 Q920 700 956 718"/>
+  </g>
+</g>
+</svg>

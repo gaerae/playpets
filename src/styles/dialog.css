@@ -1,0 +1,149 @@
+/* Dialogs and their forms. */
+dialog {
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 28px;
+  color: var(--ink);
+  box-shadow: 0 24px 100px #152e432b;
+}
+dialog::backdrop {
+  background: #20394055;
+  backdrop-filter: blur(3px);
+}
+.dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dialog-heading h2 {
+  font-size: 24px;
+}
+.dialog-heading .eyebrow {
+  font-size: 9px;
+  margin-bottom: 9px;
+}
+.dialog-description {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 14px 0 20px;
+  line-height: 1.6;
+}
+dialog label {
+  display: block;
+  font-size: 12px;
+  margin: 16px 0 7px;
+}
+dialog input,
+dialog select {
+  font-size: 13px;
+  min-height: 42px;
+}
+dialog small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 7px;
+}
+dialog .tiny {
+  margin-top: 16px;
+}
+.dialog-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}
+.form-error {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #a3422c;
+  margin-top: 12px;
+}
+/* Destructive text buttons stay red, hovered or not (they are also .button.text). */
+.button.danger,
+.button.danger:hover {
+  color: #a3422c;
+}
+.model-status {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  min-height: 14px;
+}
+.req {
+  color: var(--accent);
+  margin-left: 3px;
+}
+.model-status.error {
+  color: #a3422c;
+}
+.push-left {
+  margin-right: auto;
+}
+#import-dialog .tiny {
+  margin-top: 14px;
+}
+.size-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -8px 0 16px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.size-row output {
+  min-width: 44px;
+  text-align: right;
+  color: var(--ink);
+  font-weight: 650;
+  font-size: 11px;
+}
+input[type="range"] {
+  flex: 1;
+  width: auto;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  height: 24px;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+#pet-dialog textarea {
+  resize: vertical;
+  min-height: 88px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+#pet-dialog .size-row {
+  margin: 0;
+}
+.intro-chip {
+  margin-top: 8px;
+}
+/* Asking before an action that cannot be taken back: a question, what follows, and two answers. */
+.confirm-dialog {
+  width: 400px;
+  padding: 24px;
+}
+.confirm-dialog h2 {
+  font-size: 17px;
+  line-height: 1.45;
+}
+.confirm-dialog .dialog-description {
+  margin: 10px 0 0;
+}
+/* 취소 gets focus first, so it needs room for its focus ring. */
+.confirm-dialog .dialog-actions {
+  gap: 8px;
+}
+.confirm-dialog .button.text {
+  padding: 8px 14px;
+}
+.button.primary.danger-fill,
+.button.primary.danger-fill:hover {
+  background: #a3422c;
+}

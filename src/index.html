@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' pet-asset: http://pet-asset.localhost data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <title data-i18n="app.title">PlayPets</title>
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/shell.css">
+    <link rel="stylesheet" href="styles/yard.css">
+    <link rel="stylesheet" href="styles/panel.css">
+    <link rel="stylesheet" href="styles/dialog.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" data-i18n-aria-label="app.home"><img class="brand-mark" src="logo.svg" alt="" width="24" height="24">
+        <svg class="wordmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 -743 4072 953" role="img" aria-label="PlayPets">
+          <path fill="currentColor" d="M89 0V-743H341Q423 -743 490 -721Q556 -699 595 -647Q635 -595 635 -505Q635 -419 596 -363Q556 -308 490 -282Q424 -255 345 -255H252V0ZM252 -384H336Q406 -384 441 -415Q476 -446 476 -505Q476 -565 439 -589Q402 -613 331 -613H252ZM858 14Q802 14 769 -9Q736 -32 722 -74Q708 -116 708 -171V-798H870V-165Q870 -138 880 -128Q890 -118 900 -118Q905 -118 909 -118Q913 -119 920 -120L939 0Q926 6 906 10Q886 14 858 14ZM1126 14Q1075 14 1038 -9Q1000 -31 980 -70Q959 -108 959 -156Q959 -246 1035 -296Q1111 -345 1278 -364Q1277 -389 1268 -408Q1258 -427 1239 -438Q1219 -448 1188 -448Q1151 -448 1114 -434Q1077 -420 1036 -397L979 -504Q1015 -526 1053 -542Q1091 -559 1133 -568Q1174 -578 1218 -578Q1291 -578 1340 -550Q1389 -522 1415 -466Q1441 -410 1441 -325V0H1308L1297 -58H1292Q1257 -27 1215 -7Q1174 14 1126 14ZM1181 -113Q1210 -113 1233 -126Q1256 -139 1278 -162V-264Q1217 -257 1180 -243Q1144 -229 1129 -210Q1114 -191 1114 -168Q1114 -139 1132 -126Q1151 -113 1181 -113ZM1598 222Q1572 222 1554 219Q1535 216 1518 211L1548 87Q1556 88 1566 91Q1576 94 1586 94Q1628 94 1651 73Q1675 51 1686 17L1695 -14L1477 -564H1641L1723 -317Q1736 -278 1746 -238Q1757 -198 1769 -157H1774Q1782 -197 1792 -237Q1802 -277 1812 -317L1884 -564H2039L1842 9Q1816 79 1784 126Q1752 173 1708 198Q1664 222 1598 222ZM2096 0V-743H2348Q2430 -743 2497 -721Q2563 -699 2602 -647Q2642 -595 2642 -505Q2642 -419 2603 -363Q2563 -308 2497 -282Q2431 -255 2352 -255H2259V0ZM2259 -384H2343Q2413 -384 2448 -415Q2483 -446 2483 -505Q2483 -565 2446 -589Q2409 -613 2338 -613H2259ZM2966 14Q2885 14 2821 -21Q2757 -57 2719 -123Q2681 -189 2681 -282Q2681 -351 2703 -406Q2725 -460 2763 -499Q2801 -538 2849 -558Q2896 -578 2946 -578Q3026 -578 3079 -543Q3132 -508 3159 -447Q3185 -386 3185 -308Q3185 -285 3183 -266Q3181 -246 3178 -235H2838Q2845 -193 2866 -166Q2887 -138 2918 -124Q2948 -111 2987 -111Q3020 -111 3049 -120Q3079 -130 3110 -148L3164 -49Q3122 -20 3069 -3Q3017 14 2966 14ZM2836 -343H3047Q3047 -392 3024 -423Q3001 -454 2949 -454Q2923 -454 2899 -441Q2875 -429 2858 -405Q2842 -381 2836 -343ZM3472 14Q3403 14 3361 -14Q3318 -41 3299 -90Q3279 -139 3279 -203V-437H3202V-558L3289 -564L3307 -716H3442V-564H3578V-437H3442V-204Q3442 -157 3462 -135Q3482 -113 3516 -113Q3530 -113 3545 -117Q3559 -121 3570 -125L3596 -7Q3574 0 3543 7Q3513 14 3472 14ZM3811 14Q3755 14 3696 -8Q3638 -30 3595 -65L3667 -167Q3706 -138 3742 -122Q3778 -106 3814 -106Q3853 -106 3871 -121Q3889 -135 3889 -159Q3889 -178 3872 -191Q3856 -204 3829 -215Q3803 -226 3774 -237Q3739 -251 3705 -272Q3671 -292 3649 -324Q3626 -356 3626 -403Q3626 -455 3653 -495Q3679 -534 3727 -556Q3776 -578 3840 -578Q3904 -578 3953 -557Q4002 -535 4037 -507L3964 -410Q3934 -432 3904 -445Q3875 -458 3845 -458Q3811 -458 3794 -445Q3778 -432 3778 -410Q3778 -392 3793 -380Q3808 -368 3833 -358Q3858 -349 3888 -338Q3915 -327 3942 -314Q3969 -301 3992 -281Q4014 -261 4027 -234Q4040 -207 4040 -168Q4040 -117 4014 -76Q3988 -34 3937 -10Q3886 14 3811 14Z"/>
+        </svg>
+        <span class="brand-sub" data-i18n="app.tagline"></span></a>
+        <div class="topbar-end">
+          <div class="desktop-controls">
+            <label id="wander-wrap" class="wander-toggle" data-i18n-title="desktop.wander_title" hidden><input type="checkbox" id="desktop-wander"><span class="wander-switch" aria-hidden="true"></span><span data-i18n="desktop.wander"></span></label><button id="desktop" class="button secondary"><span data-icon="monitor"></span><span id="desktop-label" data-i18n="desktop.show"></span></button>
+          </div>
+          <button id="mini" class="button secondary icon-only" data-i18n-title="mini.enter" data-i18n-aria-label="mini.enter"><span data-icon="shrink"></span></button>
+          <nav class="panel-tabs" data-i18n-aria-label="tabs.aria">
+            <button class="panel-tab" data-panel="pet" aria-controls="side-panel" aria-expanded="false"><span data-icon="chat"></span><span data-i18n="tabs.friend"></span></button><button class="panel-tab" data-panel="invite" aria-controls="side-panel" aria-expanded="false"><span data-icon="plus"></span><span data-i18n="tabs.invite"></span></button><button class="panel-tab" data-panel="settings" aria-controls="side-panel" aria-expanded="false"><span data-icon="gear"></span><span data-i18n="tabs.settings"></span></button>
+          </nav>
+          <div class="win-controls" role="group" data-i18n-aria-label="win.group">
+            <button id="win-min" data-i18n-aria-label="win.min" data-i18n-title="win.min"><span data-icon="minus"></span></button><button id="win-max" data-i18n-aria-label="win.max" data-i18n-title="win.max"><span data-icon="square"></span></button><button id="win-close" class="close" data-i18n-aria-label="common.close" data-i18n-title="win.close_title"><span data-icon="close"></span></button>
+          </div>
+        </div>
+      </header>
+      <main id="layout" class="layout">
+        <section class="stage">
+          <div class="yard-frame">
+            <div class="yard-caption">
+              <span><i id="sky-dot" class="sun-dot"></i><span id="scene-caption" data-i18n="caption.clear.day"></span><span id="pet-count" class="caption-count"></span></span><span id="yard-hint" aria-live="polite" data-i18n="hint.pat"></span><span class="caption-right"><label class="sr-only" for="period" data-i18n="period.label"></label>
+              <select id="period" class="weather-select" data-i18n-title="period.title"><option value="auto" data-i18n="period.auto"></option><option value="morning" data-i18n="period.morning"></option><option value="day" data-i18n="period.day"></option><option value="evening" data-i18n="period.evening"></option><option value="night" data-i18n="period.night"></option></select>
+              <label class="sr-only" for="weather" data-i18n="weather.label"></label>
+              <select id="weather" class="weather-select" data-i18n-title="weather.title"><option value="auto" data-i18n="weather.auto"></option><option value="clear" data-i18n="weather.clear"></option><option value="rain" data-i18n="weather.rain"></option><option value="snow" data-i18n="weather.snow"></option></select>
+              </span>
+            </div>
+            <div id="yard" class="yard" data-i18n-aria-label="yard.aria">
+              <svg class="scene-defs" width="0" height="0" aria-hidden="true">
+                <defs>
+                  <linearGradient id="grad-far" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" style="stop-color:var(--far-hi)"/>
+                    <stop offset=".5" style="stop-color:var(--far)"/>
+                  </linearGradient>
+                  <linearGradient id="grad-back" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" style="stop-color:var(--back-hi)"/>
+                    <stop offset=".45" style="stop-color:var(--back)"/>
+                  </linearGradient>
+                  <linearGradient id="grad-front" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" style="stop-color:var(--front-hi)"/>
+                    <stop offset=".5" style="stop-color:var(--front)"/>
+                  </linearGradient>
+                  <symbol id="cloud-a" viewBox="0 0 200 80">
+                    <path style="fill:var(--cloud)" d="M30 70Q8 70 8 54Q8 38 28 36Q32 14 58 14Q74 14 84 26Q96 6 124 8Q154 10 160 36Q188 36 190 54Q190 70 168 70Z"/>
+                    <path style="fill:var(--cloud-shade)" d="M30 70Q8 70 8 54Q34 63 100 63Q166 63 190 54Q190 70 168 70Z"/>
+                  </symbol>
+                  <symbol id="cloud-b" viewBox="0 0 200 80">
+                    <path style="fill:var(--cloud)" d="M24 70Q6 68 8 54Q10 42 30 42Q38 22 64 24Q76 8 102 12Q126 16 132 36Q150 28 168 38Q190 46 190 58Q190 70 172 70Z"/>
+                    <path style="fill:var(--cloud-shade)" d="M24 70Q6 68 8 54Q40 64 100 64Q160 64 190 58Q190 70 172 70Z"/>
+                  </symbol>
+                  <symbol id="tree-round" viewBox="0 0 120 160">
+                    <ellipse cx="60" cy="156" rx="34" ry="4" style="fill:var(--shadow)"/>
+                    <path style="fill:var(--trunk)" d="M53 158L56 96Q60 92 64 96L68 158Z"/>
+                    <path style="fill:var(--trunk-lo)" d="M61 94Q64 94 64 96L68 158H61Z"/>
+                    <path style="fill:var(--trunk);stroke:var(--trunk);stroke-width:4;stroke-linecap:round" d="M59 112L44 98M63 106L78 92"/>
+                    <circle cx="33" cy="76" r="27" style="fill:var(--leaf-lo)"/>
+                    <circle cx="88" cy="78" r="27" style="fill:var(--leaf-lo)"/>
+                    <circle cx="60" cy="56" r="43" style="fill:var(--leaf)"/>
+                    <circle cx="84" cy="66" r="24" style="fill:var(--leaf-lo);opacity:.55"/>
+                    <circle cx="46" cy="40" r="22" style="fill:var(--leaf-hi);opacity:.85"/>
+                    <circle cx="72" cy="30" r="12" style="fill:var(--leaf-hi);opacity:.6"/>
+                    <path style="fill:var(--cap)" d="M20 50Q24 16 60 13Q96 16 100 50Q88 34 76 40Q66 28 54 38Q40 30 20 50Z"/>
+                  </symbol>
+                  <symbol id="tree-pine" viewBox="0 0 80 160">
+                    <ellipse cx="40" cy="156" rx="24" ry="3.5" style="fill:var(--shadow)"/>
+                    <rect x="36" y="128" width="8" height="30" rx="2" style="fill:var(--trunk)"/>
+                    <path style="fill:var(--pine)" d="M40 6Q42 6 43 9L66 58Q68 62 63 62H17Q12 62 14 58L37 9Q38 6 40 6ZM40 38L72 98Q74 102 69 102H11Q6 102 8 98ZM40 74L77 136Q79 140 74 140H6Q1 140 3 136Z"/>
+                    <path style="fill:var(--pine-lo)" d="M40 6Q42 6 43 9L66 58Q68 62 63 62H40ZM40 62L72 98Q74 102 69 102H40ZM40 102L77 136Q79 140 74 140H40Z"/>
+                    <path style="fill:var(--cap)" d="M40 6Q42 6 43 9L54 32Q46 26 40 32Q34 26 26 32L37 9Q38 6 40 6ZM24 68L32 53Q40 60 48 53L56 68Q48 62 40 68Q32 62 24 68ZM18 108L26 93Q40 100 54 93L62 108Q50 102 40 108Q30 102 18 108Z"/>
+                  </symbol>
+                  <symbol id="bush" viewBox="0 0 120 60">
+                    <ellipse cx="60" cy="56" rx="50" ry="4" style="fill:var(--shadow)"/>
+                    <path style="fill:var(--leaf-lo)" d="M8 56Q4 34 26 28Q32 8 58 8Q84 8 92 28Q116 32 112 56Z"/>
+                    <path style="fill:var(--leaf)" d="M14 56Q12 38 30 34Q36 16 58 16Q78 16 84 34Q88 50 70 56Z"/>
+                    <circle cx="50" cy="28" r="10" style="fill:var(--leaf-hi);opacity:.7"/>
+                    <path style="fill:var(--cap)" d="M26 28Q32 8 58 8Q84 8 92 28Q80 20 70 24Q58 14 46 24Q36 20 26 28Z"/>
+                  </symbol>
+                  <symbol id="rock" viewBox="0 0 80 50">
+                    <ellipse cx="40" cy="47" rx="36" ry="3" style="fill:var(--shadow)"/>
+                    <path style="fill:var(--rock)" d="M6 46Q2 26 22 14Q42 2 60 14Q80 28 74 46Z"/>
+                    <path style="fill:var(--rock-hi)" d="M14 30Q18 18 30 13Q44 7 54 13Q40 14 30 22Q20 28 14 30Z"/>
+                    <path style="fill:var(--cap)" d="M12 28Q20 12 40 8Q58 8 68 22Q56 16 46 20Q34 14 12 28Z"/>
+                  </symbol>
+                  <symbol id="flowers" viewBox="0 0 80 40">
+                    <path style="fill:none;stroke:var(--blade);stroke-width:2;stroke-linecap:round" d="M16 40Q15 28 18 20M40 40Q41 24 38 12M64 40Q66 30 62 22M28 40Q26 34 22 32M52 40Q55 34 58 33"/>
+                    <g style="fill:var(--flower-a)">
+                      <circle cx="18" cy="14" r="5"/>
+                      <circle cx="12" cy="19" r="5"/>
+                      <circle cx="24" cy="19" r="5"/>
+                      <circle cx="15" cy="25" r="5"/>
+                      <circle cx="21" cy="25" r="5"/>
+                    </g>
+                    <circle cx="18" cy="20" r="3.4" style="fill:var(--flower-c)"/>
+                    <g style="fill:var(--flower-b)">
+                      <circle cx="38" cy="6" r="5"/>
+                      <circle cx="32" cy="11" r="5"/>
+                      <circle cx="44" cy="11" r="5"/>
+                      <circle cx="35" cy="17" r="5"/>
+                      <circle cx="41" cy="17" r="5"/>
+                    </g>
+                    <circle cx="38" cy="12" r="3.4" style="fill:var(--flower-c)"/>
+                    <g style="fill:var(--flower-a)">
+                      <circle cx="62" cy="16" r="4.4"/>
+                      <circle cx="57" cy="20" r="4.4"/>
+                      <circle cx="67" cy="20" r="4.4"/>
+                      <circle cx="59" cy="25.5" r="4.4"/>
+                      <circle cx="65" cy="25.5" r="4.4"/>
+                    </g>
+                    <circle cx="62" cy="21" r="3" style="fill:var(--flower-c)"/>
+                  </symbol>
+                  <symbol id="tuft" viewBox="0 0 40 30">
+                    <path style="fill:var(--blade)" d="M6 30Q4 16 2 10Q10 18 11 30ZM14 30Q14 12 18 2Q21 14 20 30ZM22 30Q26 16 34 8Q31 20 28 30ZM30 30Q34 22 39 19Q37 25 35 30Z"/>
+                  </symbol>
+                </defs>
+              </svg>
+              <div class="sky-glow">
+              </div>
+              <div class="sky-body">
+              </div>
+              <div class="cloud-lane cloud-one"><svg class="cloud" viewBox="0 0 200 80" aria-hidden="true"><use href="#cloud-a"/></svg></div>
+              <div class="cloud-lane cloud-two"><svg class="cloud" viewBox="0 0 200 80" aria-hidden="true"><use href="#cloud-b"/></svg></div>
+              <div class="cloud-lane cloud-three"><svg class="cloud" viewBox="0 0 200 80" aria-hidden="true"><use href="#cloud-b"/></svg></div>
+              <div class="cloud-lane cloud-four"><svg class="cloud" viewBox="0 0 200 80" aria-hidden="true"><use href="#cloud-a"/></svg></div>
+              <svg class="land" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <path class="land-mount-b" d="M0 50L9 41Q11 39 13 41L20 47L31 31Q33 28 35 31L46 46L55 38Q57 36 59 38L68 48L78 33Q80 30 82 33L92 46L100 39V100H0Z"/>
+                <path class="land-mount-a" d="M0 56L12 46Q14 44 16 46L26 54L38 42Q40 40 42 42L54 55L66 45Q68 43 70 45L82 55L93 47Q95 45 97 47L100 50V100H0Z"/>
+                <path class="land-far" d="M0 57C16 45 33 46 50 53S83 51 100 44V100H0Z"/>
+                <path class="land-back" d="M0 66C20 53 41 56 60 64S87 67 100 59V100H0Z"/>
+                <path class="land-front" d="M0 100V82C24 72 46 77 66 85S90 86 100 79V100Z"/>
+                <path class="land-path" d="M38 100C42 93 55 92 53 87C51 83 58 81 60 83.5L64 84.6C61 84 56 85 58 88C60 93 52 95 50 100Z"/>
+              </svg>
+              <svg class="prop" style="--x:86%;--b:51.5%;--h:17%;--ar:.5" viewBox="0 0 80 160" aria-hidden="true">
+                <use href="#tree-pine"/>
+              </svg>
+              <svg class="prop" style="--x:79%;--b:50%;--h:22%;--ar:.5" viewBox="0 0 80 160" aria-hidden="true">
+                <use href="#tree-pine"/>
+              </svg>
+              <svg class="prop" style="--x:93%;--b:53%;--h:13%;--ar:.5" viewBox="0 0 80 160" aria-hidden="true">
+                <use href="#tree-pine"/>
+              </svg>
+              <svg class="prop" style="--x:36%;--b:50.5%;--h:12%;--ar:.75" viewBox="0 0 120 160" aria-hidden="true">
+                <use href="#tree-round"/>
+              </svg>
+              <svg class="prop" style="--x:12%;--b:38%;--h:34%;--ar:.75" viewBox="0 0 120 160" aria-hidden="true">
+                <use href="#tree-round"/>
+              </svg>
+              <svg class="prop" style="--x:22%;--b:40.5%;--h:24%;--ar:.75" viewBox="0 0 120 160" aria-hidden="true">
+                <use href="#tree-round"/>
+              </svg>
+              <svg class="prop" style="--x:4%;--b:36.5%;--h:9%;--ar:2" viewBox="0 0 120 60" aria-hidden="true">
+                <use href="#bush"/>
+              </svg>
+              <svg class="prop" style="--x:91%;--b:36%;--h:10%;--ar:2" viewBox="0 0 120 60" aria-hidden="true">
+                <use href="#bush"/>
+              </svg>
+              <svg class="prop" style="--x:70%;--b:33%;--h:6%;--ar:1.6" viewBox="0 0 80 50" aria-hidden="true">
+                <use href="#rock"/>
+              </svg>
+              <svg class="prop bloom" style="--x:30%;--b:25%;--h:5.5%;--ar:2" viewBox="0 0 80 40" aria-hidden="true">
+                <use href="#flowers"/>
+              </svg>
+              <svg class="prop bloom" style="--x:83%;--b:17%;--h:6%;--ar:2" viewBox="0 0 80 40" aria-hidden="true">
+                <use href="#flowers"/>
+              </svg>
+              <svg class="prop bloom" style="--x:9%;--b:8%;--h:6.5%;--ar:2" viewBox="0 0 80 40" aria-hidden="true">
+                <use href="#flowers"/>
+              </svg>
+              <svg class="prop blades" style="--x:46%;--b:6%;--h:4.5%;--ar:1.33" viewBox="0 0 40 30" aria-hidden="true">
+                <use href="#tuft"/>
+              </svg>
+              <svg class="prop blades" style="--x:63%;--b:24%;--h:3.5%;--ar:1.33" viewBox="0 0 40 30" aria-hidden="true">
+                <use href="#tuft"/>
+              </svg>
+              <svg class="prop blades" style="--x:18%;--b:21%;--h:4%;--ar:1.33" viewBox="0 0 40 30" aria-hidden="true">
+                <use href="#tuft"/>
+              </svg>
+              <svg class="prop blades" style="--x:95%;--b:9%;--h:5%;--ar:1.33" viewBox="0 0 40 30" aria-hidden="true">
+                <use href="#tuft"/>
+              </svg>
+              <svg class="prop blades" style="--x:52%;--b:38%;--h:3%;--ar:1.33" viewBox="0 0 40 30" aria-hidden="true">
+                <use href="#tuft"/>
+              </svg>
+              <div id="empty-yard" class="empty-yard">
+                <img class="empty-mascot" src="logo.svg" alt="" width="56" height="56">
+                <p data-i18n="steps.title"></p>
+                <ol class="steps-list">
+                  <li data-step="invite"><span class="step-mark" aria-hidden="true"></span><span data-i18n="steps.invite"></span><button id="invite-first" class="button chip" data-i18n="steps.go_invite"></button></li>
+                  <li data-step="ai"><span class="step-mark" aria-hidden="true"></span><span data-i18n="steps.ai"></span><button id="step-ai" class="button chip" data-i18n="steps.go_ai"></button></li>
+                  <li data-step="agent"><span class="step-mark" aria-hidden="true"></span><span data-i18n="steps.agent"></span><button id="step-agent" class="button chip" data-i18n="steps.go_agent"></button></li>
+                </ol>
+                <button id="steps-dismiss" class="button text tiny-dismiss" data-i18n="steps.dismiss" hidden></button>
+              </div>
+              <div id="game-banner" class="game-banner" role="status" aria-live="polite" hidden><small id="banner-label"></small><strong id="banner-title"></strong><span id="banner-sub"></span></div>
+              <div id="treat" class="treat" hidden>
+              </div>
+              <div id="pet-layer">
+              </div>
+              <canvas id="weather-layer" class="weather-layer" aria-hidden="true"></canvas><button id="unmini" class="unmini" data-i18n-title="mini.exit" data-i18n-aria-label="mini.exit"><span data-icon="expand"></span></button>
+            </div>
+            <div class="play-toolbar">
+              <div class="tools">
+                <button id="feed" class="button tool"><span data-icon="treat"></span><span data-i18n="care.treat"></span></button><button id="greet" class="button tool"><span data-icon="spark"></span><span data-i18n="care.greet"></span></button><button id="chatter" class="button tool" data-i18n-title="care.chatter_title"><span data-icon="chat"></span><span data-i18n="care.chatter"></span></button><span class="tool-divider" aria-hidden="true"></span><span class="tool-label" data-i18n="game.label"></span><button class="button tool game" data-game="hide" data-i18n-title="game.hide_title" data-i18n="game.hide"></button><button class="button tool game" data-game="parade" data-i18n-title="game.parade_title" data-i18n="game.parade"></button><button class="button tool game" data-game="tag" data-i18n-title="game.tag_title" data-i18n="game.tag"></button>
+              </div>
+            </div>
+          </div>
+          <div id="toast" class="toast" role="status" hidden></div>
+          <div id="warnings" class="notice warning" hidden>
+          </div>
+        </section>
+        <aside id="side-panel" class="side-panel" aria-labelledby="panel-title" hidden>
+          <div class="panel-head">
+            <h2 id="panel-title" data-i18n="tabs.friend"></h2>
+            <button id="close-panel" class="icon-button" data-i18n-aria-label="panel.close" data-i18n-title="panel.close"><span data-icon="close"></span></button>
+          </div>
+          <div id="panel-pet" class="panel-body" data-title="tabs.friend">
+            <div id="empty-panel" class="empty-panel">
+              <span data-icon="heart"></span>
+              <h2 data-i18n="panel.empty_title"></h2>
+              <p data-i18n="panel.empty_body"></p>
+              <button id="go-invite" class="button secondary" data-i18n="invite.title"></button>
+            </div>
+            <div id="pet-panel" hidden>
+              <div class="friend-head">
+                <span class="avatar"><canvas id="portrait" width="192" height="208" aria-hidden="true"></canvas></span>
+                <div class="friend-id">
+                  <h3 id="selected-name"></h3>
+                  <label class="sr-only" for="friend-select" data-i18n="friend.switch"></label>
+                  <select id="friend-select" class="friend-select" data-i18n-title="friend.switch" hidden></select><span id="status" class="status-pill" data-i18n="status.idle"></span>
+                </div>
+              </div>
+              <div class="friend-actions" role="group" data-i18n-aria-label="friend.actions">
+                <button id="edit-pet" class="button chip" data-i18n-title="friend.settings_title"><span data-icon="gear"></span><span data-i18n="friend.settings"></span></button>
+                <span class="friend-actions-end">
+                  <button id="clear-chat" class="button chip chip-quiet" data-i18n-title="chat.clear_title"><span data-icon="trash"></span><span data-i18n="chat.clear"></span></button><button id="remove-friend" class="button chip chip-quiet" data-i18n-title="friend.send_away_title"><span data-icon="logout"></span><span data-i18n="friend.send_away"></span></button>
+                </span>
+              </div>
+              <div class="provider-row">
+                <label class="sr-only" for="provider-select" data-i18n="chat.provider_label"></label>
+                <select id="provider-select"><option value="" data-i18n="chat.no_ai"></option></select>
+                <button id="configure" class="icon-button" data-i18n-aria-label="connection.settings" data-i18n-title="connection.settings"><span data-icon="gear"></span></button>
+              </div>
+              <div id="friend-chips" class="friend-chips"></div>
+              <details id="companions" class="companions" hidden>
+                <summary><span id="companion-summary" data-i18n="chat.pick_companions"></span><span data-icon="chevron"></span></summary>
+                <div id="companion-chips" class="companion-chips">
+                </div>
+              </details>
+              <div id="chat-log" class="chat-log" role="log" data-i18n-aria-label="chat.log" aria-live="polite">
+              </div>
+              <form id="chat-form" class="chat-form">
+                <label class="sr-only" for="message" data-i18n="chat.message_label"></label>
+                <textarea id="message" data-i18n-placeholder="chat.placeholder" maxlength="4000" rows="1"></textarea>
+                <button id="send" class="send-button" data-i18n-aria-label="chat.send" data-i18n-title="chat.send_title"><span data-icon="enter"></span></button><button id="cancel" class="cancel-button" type="button" data-i18n-aria-label="chat.stop" data-i18n-title="chat.stop" hidden><span data-icon="stop"></span></button>
+              </form>
+              <div class="chat-foot">
+                <p id="chat-note" class="chat-note" data-i18n="chat.note_connect"></p>
+              </div>
+            </div>
+          </div>
+          <div id="panel-invite" class="panel-body" data-title="invite.title" hidden>
+            <section class="shelf-section">
+              <div class="section-heading">
+                <p class="tiny" data-i18n="invite.lead"></p>
+                <button id="import" class="button text"><span data-icon="download"></span><span data-i18n="invite.import"></span></button>
+              </div>
+              <div id="kind-filter" class="kind-filter" role="group" data-i18n-aria-label="invite.kind_label"><button type="button" class="button chip" data-kind="" aria-pressed="true" data-i18n="invite.kind_all"></button><button type="button" class="button chip" data-kind="person" aria-pressed="false" data-i18n="invite.kind_person"></button><button type="button" class="button chip" data-kind="animal" aria-pressed="false" data-i18n="invite.kind_animal"></button><button type="button" class="button chip" data-kind="other" aria-pressed="false" data-i18n="invite.kind_other"></button></div>
+              <div id="shelf" class="shelf">
+              </div>
+              <p id="no-assets" class="notice" data-i18n="invite.none" hidden></p>
+            </section>
+          </div>
+          <div id="panel-settings" class="panel-body" data-title="tabs.settings" hidden>
+            <section class="settings-section" aria-labelledby="language-label">
+              <ul class="link-list">
+                <li class="link-row">
+                  <div>
+                    <strong><label id="language-label" for="language" data-i18n="settings.language"></label></strong><small data-i18n="settings.language_note"></small>
+                  </div>
+                  <select id="language" class="language-select"></select>
+                </li>
+                <li class="link-row">
+                  <div>
+                    <strong data-i18n="settings.update"></strong><small id="update-note"></small>
+                  </div>
+                  <button id="update-button" class="button secondary small" data-i18n="settings.update_check"></button>
+                </li>
+              </ul>
+              <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-chatter"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_chatter"></span><small data-i18n="settings.auto_chatter_note"></small></span></label>
+            </section>
+            <section class="settings-section" aria-labelledby="agent-link-title">
+              <h3 id="agent-link-title" data-i18n="settings.agents"></h3>
+              <p class="settings-lead" data-i18n="settings.agents_lead"></p>
+              <ul class="link-list">
+                <li class="link-row">
+                  <div>
+                    <strong>Claude Code <span class="badge" data-i18n="settings.recommended"></span></strong><small><code data-agent-file="claude">~/.claude/settings.json</code><span data-i18n="settings.each_step"></span></small>
+                  </div>
+                  <label class="agent-pet"><span data-i18n="settings.agent_pet"></span><select class="language-select" data-agent="claude"></select></label><button id="copy-claude" class="button secondary small" data-kind="claude" data-i18n="settings.copy"></button>
+                </li>
+                <li class="link-row">
+                  <div>
+                    <strong>Codex CLI</strong><small><code data-agent-file="codex">~/.codex/config.toml</code><span data-i18n="settings.codex_note"></span></small>
+                  </div>
+                  <label class="agent-pet"><span data-i18n="settings.agent_pet"></span><select class="language-select" data-agent="codex"></select></label><button id="copy-codex" class="button secondary small" data-kind="codex" data-i18n="settings.copy"></button>
+                </li>
+                <li class="link-row">
+                  <div>
+                    <strong>Gemini CLI</strong><small><code data-agent-file="gemini">~/.gemini/settings.json</code><span data-i18n="settings.each_step"></span></small>
+                  </div>
+                  <label class="agent-pet"><span data-i18n="settings.agent_pet"></span><select class="language-select" data-agent="gemini"></select></label><button id="copy-gemini" class="button secondary small" data-kind="gemini" data-i18n="settings.copy"></button>
+                </li>
+                <li class="link-row">
+                  <div>
+                    <strong>Cursor</strong><small><code data-agent-file="cursor">~/.cursor/hooks.json</code><span data-i18n="settings.cursor_note"></span></small>
+                  </div>
+                  <label class="agent-pet"><span data-i18n="settings.agent_pet"></span><select class="language-select" data-agent="cursor"></select></label><button id="copy-cursor" class="button secondary small" data-kind="cursor" data-i18n="settings.copy"></button>
+                </li>
+                <li class="link-row">
+                  <div>
+                    <strong data-i18n="settings.mcp"></strong><small data-i18n="settings.mcp_note"></small>
+                  </div>
+                  <label class="agent-pet"><span data-i18n="settings.agent_pet"></span><select class="language-select" data-agent="mcp"></select></label><button id="copy-mcp" class="button secondary small" data-kind="mcp" data-i18n="settings.copy"></button>
+                </li>
+              </ul>
+              <p class="tiny" data-i18n="settings.privacy"></p>
+            </section>
+            <div class="app-row">
+              <span>PlayPets <span id="app-version" class="version"></span></span><button id="quit-app" class="button secondary quit"><span data-icon="power"></span><span data-i18n="settings.quit"></span></button>
+            </div>
+          </div>
+        </aside>
+      </main>
+    </div>
+    <dialog id="pet-dialog" aria-labelledby="pet-dialog-name">
+      <form id="pet-form">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow" data-i18n="friend.settings"></p>
+            <h2 id="pet-dialog-name" data-i18n="tabs.friend"></h2>
+          </div>
+          <button type="button" id="close-pet-dialog" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button>
+        </div>
+        <label for="pet-name" data-i18n="pet.name"></label><input id="pet-name" maxlength="24" data-i18n-placeholder="pet.name_placeholder"><label for="pet-persona" data-i18n="pet.persona"></label>
+        <textarea id="pet-persona" maxlength="400" rows="4" data-i18n-placeholder="pet.persona_placeholder"></textarea>
+        <small id="persona-help" data-i18n="pet.persona_help"></small><button type="button" id="use-intro" class="button chip intro-chip" data-i18n="pet.use_intro" hidden></button>
+        <div class="relation-row">
+          <div>
+            <label for="pet-relation" data-i18n="pet.relation"></label>
+            <select id="pet-relation" class="language-select"><option value="" data-i18n="relation.friend"></option><option value="partner" data-i18n="relation.partner"></option><option value="senior" data-i18n="relation.senior"></option><option value="junior" data-i18n="relation.junior"></option></select>
+          </div>
+          <div>
+            <label for="pet-call-me" data-i18n="pet.call_me"></label>
+            <input id="pet-call-me" maxlength="24" data-i18n-placeholder="pet.call_me_placeholder">
+          </div>
+        </div>
+        <small data-i18n="pet.relation_help"></small><label for="size-range" data-i18n="pet.size"></label>
+        <div class="size-row">
+          <input id="size-range" type="range" min="64" max="192" step="32" list="size-steps">
+          <datalist id="size-steps"><option value="64"></option><option value="96"></option><option value="128"></option><option value="160"></option><option value="192"></option></datalist>
+          <output id="size-label" for="size-range" data-i18n="size.m"></output>
+        </div>
+        <small data-i18n="pet.size_help"></small><code id="instance-id" class="pet-id"></code>
+        <div class="dialog-actions">
+          <button type="button" id="remove" class="button text danger push-left"><span data-icon="logout"></span><span data-i18n="friend.send_away_long"></span></button><button type="button" id="cancel-pet-dialog" class="button text" data-i18n="confirm.cancel"></button><button type="submit" class="button primary" data-i18n="common.save"></button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="import-dialog">
+      <form id="import-form">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow" data-i18n="invite.community"></p>
+            <h2 data-i18n="invite.import"></h2>
+          </div>
+          <button type="button" id="close-import" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button>
+        </div>
+        <p class="dialog-description" data-i18n="invite.import_lead"></p>
+        <label for="import-url" data-i18n="invite.url"></label><input id="import-url" type="url" required autocomplete="off" data-i18n-placeholder="invite.url_placeholder">
+        <p id="import-error" class="form-error" role="alert"></p>
+        <p class="tiny" data-i18n="invite.browse"></p>
+        <div id="community-links" class="community-links">
+        </div>
+        <div class="dialog-actions">
+          <button type="button" id="import-folder" class="button text push-left"><span data-icon="folder"></span><span data-i18n="invite.from_folder"></span></button><button type="button" id="cancel-import" class="button text" data-i18n="confirm.cancel"></button><button type="submit" id="import-submit" class="button primary" data-i18n="invite.import_go"></button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="connection-dialog">
+      <form id="connection-form">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow" data-i18n="connection.eyebrow"></p>
+            <h2 id="dialog-title" data-i18n="connection.title_new"></h2>
+          </div>
+          <button type="button" id="close-dialog" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button>
+        </div>
+        <p class="dialog-description" data-i18n="connection.lead"></p>
+        <label for="ai-type" data-i18n="connection.type"></label>
+        <select id="ai-type"><option value="claude" data-i18n="connection.type_claude"></option><option value="codex" data-i18n="connection.type_codex"></option><option value="ollama" data-i18n="connection.type_ollama"></option><option value="openai">OpenAI API</option><option value="compatible" data-i18n="connection.type_compatible"></option></select>
+        <p id="detected-note" class="tiny detected-chips" hidden></p>
+        <div id="endpoint-field" hidden>
+          <label for="ai-endpoint"><span data-i18n="connection.endpoint"></span><span class="req">*</span></label><input id="ai-endpoint" type="url" placeholder="https://your-server.example/v1">
+        </div>
+        <div id="key-field">
+          <label for="ai-key"><span data-i18n="connection.key"></span><span class="req">*</span></label><input id="ai-key" type="password" autocomplete="off" data-i18n-placeholder="connection.key_placeholder"><small data-i18n="connection.key_note"></small>
+        </div>
+        <label for="ai-model"><span data-i18n="connection.model"></span><span id="model-req" class="req" hidden>*</span></label><input id="ai-model" required maxlength="200" data-i18n-placeholder="connection.model_placeholder" list="model-list" autocomplete="off">
+        <datalist id="model-list"></datalist>
+        <small id="model-status" class="model-status"></small>
+        <p id="provider-note" class="tiny" data-i18n="connection.note_compatible"></p>
+        <label id="share-all-field" class="wander-toggle share-all" hidden><input type="checkbox" id="ai-share-all"><span class="wander-switch" aria-hidden="true"></span><span id="ai-share-all-label"></span></label>
+        <p id="connection-error" class="form-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button type="button" id="delete-provider" class="button text danger" data-i18n="connection.delete" hidden></button><button type="button" id="cancel-dialog" class="button text" data-i18n="confirm.cancel"></button><button type="submit" id="save-provider" class="button primary" data-i18n="connection.save_new"></button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-body" class="dialog-description"></p>
+      <div class="dialog-actions">
+        <button type="button" id="confirm-cancel" class="button text" data-i18n="confirm.cancel"></button><button type="button" id="confirm-ok" class="button primary"></button>
+      </div>
+    </dialog>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

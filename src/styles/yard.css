@@ -1,0 +1,1159 @@
+/* The yard: scenery, friends, toolbar and the mini view. */
+.button.tool:hover {
+  background: #e9eeea;
+}
+.button.tool.active {
+  background: #dcebc8;
+}
+.yard-caption > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sun-dot {
+  width: 12px;
+  height: 12px;
+  background: #e3b766;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px #e3b76620;
+}
+.yard.aiming {
+  cursor: crosshair;
+}
+.button.tool {
+  font-size: 12px;
+  padding: 9px 10px;
+}
+.yard-pet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  touch-action: none;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  will-change: transform;
+  transition: none;
+  user-select: none;
+}
+.yard-pet:active {
+  cursor: grabbing;
+  transform: none;
+}
+/* the body gives under a press and springs back; the tag and bubble stay put */
+.yard-pet > canvas {
+  transform-origin: 50% 100%;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.yard-pet.pressed > canvas {
+  transform: scale(1.06, 0.92);
+  transition-duration: 0.08s;
+}
+.yard-pet:before {
+  content: "";
+  position: absolute;
+  width: 54%;
+  height: 11%;
+  border-radius: 50%;
+  background: #68865120;
+  bottom: 23px;
+  left: 23%;
+  transform: scaleY(0.5);
+}
+.yard-pet.selected:before {
+  background: #668c632f;
+  outline: 2px solid #79976870;
+  outline-offset: 5px;
+}
+.pet-tag {
+  font-size: 10px;
+  color: #35504c;
+  font-weight: 650;
+  background: #ffffffa6;
+  border-radius: 12px;
+  padding: 3px 8px;
+  max-width: 150px;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+/* the agents that report to this friend, small after the name */
+.pet-tag small {
+  font-size: 9px;
+  font-weight: 600;
+  color: #2f6a92;
+  white-space: nowrap;
+}
+.pet-tag small::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4a9bd6;
+  margin-right: 3px;
+  vertical-align: 1px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.period-night .pet-tag {
+  background: #ffffffd9;
+}
+/* The small window shows the friends alone; a name comes back while the pointer rests on one. */
+body.mini .pet-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  visibility: hidden;
+}
+body.mini .yard-pet:hover .pet-tag,
+body.mini .yard-pet:focus-visible .pet-tag {
+  visibility: visible;
+}
+/* the agent's state, by the head rather than the top of the cell: --head is the cell's empty top
+   (views.js crown); working pulses, the rest are coloured */
+.pet-state-dot {
+  position: absolute;
+  top: calc(var(--head, 8px) + 2px);
+  right: 20%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e5ab56;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px #213e4333;
+}
+.pet-state-dot[data-state="working"] {
+  animation: dot-pulse 1.4s ease-in-out infinite;
+}
+.pet-state-dot[data-state="waiting"] {
+  background: #4a9bd6;
+}
+.pet-state-dot[data-state="done"] {
+  background: #5cb176;
+}
+.pet-state-dot[data-state="error"] {
+  background: #d9534f;
+}
+@keyframes dot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pet-state-dot {
+    animation: none;
+  }
+}
+.particle {
+  position: absolute;
+  font-size: 23px;
+  pointer-events: none;
+  animation: float-up 1.2s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  z-index: 10;
+  color: #bd563c;
+  font-weight: 800;
+  --dx: 0px;
+  --rot: 0deg;
+}
+.particle[data-kind="heart"] {
+  color: #ef7a95;
+  text-shadow: 0 1px 0 #fff;
+}
+.particle[data-kind="spark"] {
+  color: #f2b544;
+  text-shadow: 0 1px 0 #fff;
+}
+@keyframes bubble-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+@keyframes float-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px) scale(0.5) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--dx) * 0.3), -14px) scale(1.15) rotate(var(--rot));
+  }
+  to {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), -72px) scale(1) rotate(var(--rot));
+  }
+}
+@media (max-width: 1100px) {
+  .yard-caption {
+    padding: 14px;
+  }
+  .yard-caption #yard-hint {
+    font-size: 10px;
+  }
+}
+@media (max-width: 760px) {
+  .yard {
+    height: 340px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .particle {
+    display: none;
+  }
+}
+.caption-count {
+  color: #57755d;
+  font-weight: 700;
+  margin-left: 2px;
+}
+.yard-pet.selected .pet-tag {
+  background: var(--accent);
+  color: #fff;
+}
+/* on a coloured tag the agent label turns light with it */
+.yard-pet.selected .pet-tag small,
+.yard-pet.tagger .pet-tag small {
+  color: #ffffffe0;
+}
+.yard-pet.selected .pet-tag small::before,
+.yard-pet.tagger .pet-tag small::before {
+  background: #ffffffb0;
+}
+@media (max-width: 760px) {
+  .yard-frame {
+    order: 1;
+  }
+}
+.yard-bubble {
+  position: absolute;
+  /* just above the head: --head is the cell's empty top, measured per pet (views.js crown) */
+  bottom: calc(100% + 2px - var(--head, 8px));
+  left: 50%;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  animation: bubble-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  width: max-content;
+  max-width: 190px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 12px #213e4314;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ink);
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+  z-index: 3;
+}
+.yard-thinking {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 2px - var(--head, 8px));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 12px #213e4314;
+  color: var(--muted);
+  pointer-events: none;
+  z-index: 3;
+}
+.yard-pet.hiding .yard-thinking {
+  visibility: hidden;
+}
+.yard-pet.thinking .yard-bubble[hidden] + .yard-thinking {
+  display: inline-flex;
+}
+.caption-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.weather-select {
+  width: auto;
+  font-size: 11px;
+  padding: 4px 24px 4px 8px;
+  background-position: right 7px center;
+  background-size: 9px 7px;
+  border-radius: 8px;
+  min-height: 0;
+}
+.sun-dot.moon {
+  background: #e9e4d3;
+  box-shadow:
+    0 0 0 4px #e9e4d320,
+    -3px -2px 0 1px #37506a inset;
+}
+.yard-frame {
+  border: 1px solid #d5e1df;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: 0 6px 18px #213e4305;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.yard-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #edf5f8;
+  color: #49666c;
+  font-size: 11px;
+  padding: 11px 16px;
+  flex: none;
+}
+.play-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #dbe3d5;
+  padding: 8px 12px;
+  gap: 8px;
+  flex: none;
+  position: relative;
+}
+.yard {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  flex: 1;
+  height: auto;
+  min-height: 280px;
+  --sky-a: #9fd0ee;
+  --sky-m: #cfe8f5;
+  --sky-b: #f3f8f2;
+  --mount-a: #b9d3d6;
+  --mount-b: #cfe1e6;
+  --far: #bfdba7;
+  --far-hi: #d3e8bd;
+  --back: #a5cf8a;
+  --back-hi: #bfe0a2;
+  --front: #8cc074;
+  --front-hi: #a8d48c;
+  --rim: #ffffff55;
+  --path: #ecdcae;
+  --cloud: #ffffff;
+  --cloud-shade: #dfeaf3;
+  --leaf: #6fb265;
+  --leaf-hi: #9fd07f;
+  --leaf-lo: #4f9556;
+  --pine: #4f9467;
+  --pine-lo: #3c7a57;
+  --trunk: #9a6f4c;
+  --trunk-lo: #7c563a;
+  --blade: #5fa25a;
+  --rock: #b3b8b4;
+  --rock-hi: #d3d7d2;
+  --flower-a: #f48fa6;
+  --flower-b: #fdfdf6;
+  --flower-c: #f6c445;
+  --shadow: #1d3a2222;
+  --orb: #ffd76a;
+  --orb-glow: #ffe08a66;
+  --cap: transparent;
+  background: linear-gradient(var(--sky-a), var(--sky-m) 34%, var(--sky-b) 60%);
+}
+@media (max-width: 760px) {
+  .yard {
+    flex: none;
+    height: 340px;
+  }
+}
+.yard-pet canvas {
+  display: block;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.4s;
+}
+.yard-pet.hiding canvas {
+  opacity: 0.38;
+  clip-path: inset(0 0 36% 0);
+}
+.yard-pet.hiding .pet-tag,
+.yard-pet.hiding .pet-state-dot {
+  visibility: hidden;
+}
+.yard-pet.hiding:before {
+  display: none;
+}
+.yard-pet.tagger .pet-tag {
+  background: var(--accent);
+  color: #fff;
+}
+.yard.playing .yard-pet {
+  cursor: pointer;
+}
+.scene-defs {
+  position: absolute;
+}
+.land {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+.land path {
+  transition: fill 2.5s;
+}
+.land-mount-a {
+  fill: var(--mount-a);
+}
+.land-mount-b {
+  fill: var(--mount-b);
+}
+.land-far {
+  fill: url(#grad-far);
+}
+.land-back {
+  fill: url(#grad-back);
+}
+.land-front {
+  fill: url(#grad-front);
+}
+.land-path {
+  fill: var(--path);
+  opacity: 0.75;
+}
+.prop {
+  position: absolute;
+  z-index: -1;
+  left: var(--x);
+  bottom: var(--b);
+  height: var(--h);
+  width: auto;
+  aspect-ratio: var(--ar);
+  transform: translateX(-50%);
+  overflow: visible;
+  pointer-events: none;
+}
+.yard.period-morning {
+  --sky-a: #a9cfe9;
+  --sky-m: #fbe2c4;
+  --sky-b: #fdf3e2;
+  --mount-a: #c9d2d2;
+  --mount-b: #e3dcd6;
+  --far: #c8dfae;
+  --far-hi: #e2ecc0;
+  --orb: #ffc37a;
+  --orb-glow: #ffc37a77;
+  --cloud: #fffaf3;
+  --cloud-shade: #f6dfcd;
+}
+.yard.period-evening {
+  --sky-a: #6f7fb8;
+  --sky-m: #f19a7c;
+  --sky-b: #fbd9a5;
+  --mount-a: #a88aa0;
+  --mount-b: #c99aa0;
+  --far: #b9bf88;
+  --far-hi: #e0cf93;
+  --back: #9fb673;
+  --back-hi: #cfc887;
+  --front: #84a562;
+  --front-hi: #b3bd78;
+  --path: #e6c993;
+  --cloud: #ffd9c2;
+  --cloud-shade: #e59a8d;
+  --leaf: #6b9a55;
+  --leaf-hi: #c0bf6d;
+  --leaf-lo: #4b7a4c;
+  --pine: #487a59;
+  --pine-lo: #355f4b;
+  --blade: #5a8c4f;
+  --orb: #ff9a5c;
+  --orb-glow: #ff9a5c88;
+  --rim: #ffe6b055;
+}
+.yard.period-night {
+  --sky-a: #101c3a;
+  --sky-m: #25406a;
+  --sky-b: #4f6f92;
+  --mount-a: #34507a;
+  --mount-b: #3f5f8a;
+  --far: #34594f;
+  --far-hi: #3f6a5c;
+  --back: #2b4d44;
+  --back-hi: #376055;
+  --front: #223f38;
+  --front-hi: #2e5348;
+  --rim: #9fc7ff22;
+  --path: #4f6660;
+  --cloud: #6f86a8;
+  --cloud-shade: #566d90;
+  --leaf: #2a5046;
+  --leaf-hi: #3d6a5a;
+  --leaf-lo: #1f3e38;
+  --pine: #234840;
+  --pine-lo: #1a3832;
+  --trunk: #3e3530;
+  --trunk-lo: #2e2724;
+  --blade: #3c6657;
+  --rock: #56687a;
+  --rock-hi: #6f8296;
+  --flower-a: #8d7fa8;
+  --flower-b: #aab6c8;
+  --flower-c: #b8a86a;
+  --shadow: #00000033;
+  --orb: #f4efd8;
+  --orb-glow: #f4efd83d;
+}
+.yard.weather-rain {
+  --sky-a: #7f93a6;
+  --sky-m: #a9b9c5;
+  --sky-b: #d3dcdf;
+  --mount-a: #9fb0b6;
+  --mount-b: #b3c1c6;
+  --cloud: #8a9aab;
+  --cloud-shade: #70819a;
+  --rim: #ffffff22;
+}
+.yard.weather-rain .land,
+.yard.weather-rain .prop {
+  filter: saturate(0.72) brightness(0.92);
+}
+.yard.weather-rain.period-evening {
+  --sky-a: #6b6f8c;
+  --sky-m: #a88f92;
+  --sky-b: #d6c4b4;
+  --cloud: #8d8492;
+  --cloud-shade: #726a7c;
+}
+.yard.weather-rain.period-night {
+  --sky-a: #0c1527;
+  --sky-m: #1c2c45;
+  --sky-b: #35485f;
+  --cloud: #44566f;
+  --cloud-shade: #35455c;
+}
+.yard.weather-snow {
+  --sky-a: #b4c6d8;
+  --sky-m: #d6e1ea;
+  --sky-b: #f2f5f7;
+  --mount-a: #dfe7ee;
+  --mount-b: #eaf0f4;
+  --far: #e3ebf0;
+  --far-hi: #f4f8fa;
+  --back: #edf2f5;
+  --back-hi: #ffffff;
+  --front: #f6f9fa;
+  --front-hi: #ffffff;
+  --rim: #ffffff;
+  --path: #e3e9ee;
+  --cloud: #f6f9fb;
+  --cloud-shade: #d5dfe8;
+  --leaf: #a9c4b1;
+  --leaf-hi: #cfe0d4;
+  --leaf-lo: #86a894;
+  --pine: #5f927a;
+  --pine-lo: #4a7a66;
+  --rock: #aab3bb;
+  --rock-hi: #ccd4da;
+  --shadow: #5f7a9022;
+  --cap: #ffffff;
+}
+.yard.weather-snow.period-evening {
+  --sky-a: #8f92b8;
+  --sky-m: #e3b3a6;
+  --sky-b: #f5e3d6;
+  --far: #eadfe0;
+  --back: #f3eae8;
+  --front: #faf4f1;
+}
+.yard.weather-snow.period-night {
+  --sky-a: #121e3c;
+  --sky-m: #2c4570;
+  --sky-b: #5a7797;
+  --mount-a: #5f7a9c;
+  --mount-b: #6c88a8;
+  --far: #7f97b3;
+  --far-hi: #93a9c2;
+  --back: #93a8c0;
+  --back-hi: #a9bbcf;
+  --front: #a7b8cc;
+  --front-hi: #bccadb;
+  --rim: #dfe9f5;
+  --path: #8ea3bb;
+  --cloud: #7d93b3;
+  --cloud-shade: #64799a;
+  --leaf: #5f7f86;
+  --leaf-hi: #86a0a8;
+  --leaf-lo: #486870;
+  --pine: #3d6164;
+  --pine-lo: #2f4f54;
+  --rock: #6f8196;
+  --rock-hi: #8a9bb0;
+  --cap: #d9e4f0;
+  --shadow: #0b142833;
+}
+.weather-snow .bloom,
+.weather-snow .blades {
+  display: none;
+}
+.land-far,
+.land-back,
+.land-front {
+  stroke: var(--rim);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+  paint-order: stroke;
+}
+.sky-body {
+  position: absolute;
+  height: 9%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, #fff6, transparent 60%), var(--orb);
+  box-shadow:
+    0 0 0 0.9vh var(--orb-glow),
+    0 0 0 2.2vh #ffffff22,
+    0 0 9vh 4vh var(--orb-glow);
+  z-index: -2;
+  left: 68%;
+  top: 9%;
+  transition: opacity 1.5s;
+}
+.period-morning .sky-body {
+  left: 14%;
+  top: 30%;
+}
+.period-evening .sky-body {
+  left: 78%;
+  top: 33%;
+}
+/* a few stars at night, twinkling in two groups; behind the moon and the hills */
+.yard.period-night::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 42% 0;
+  z-index: -3;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, #fff 0 1.1px, transparent 1.6px),
+    radial-gradient(circle, #ffffffcc 0 0.8px, transparent 1.3px);
+  background-size:
+    230px 170px,
+    170px 120px;
+  background-position:
+    18px 24px,
+    96px 70px;
+  animation: twinkle 3.2s ease-in-out infinite alternate;
+  opacity: 0.85;
+}
+@keyframes twinkle {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 0.95;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yard.period-night::after {
+    animation: none;
+  }
+}
+.period-night .sky-body {
+  left: 74%;
+  top: 9%;
+  height: 8%;
+  background:
+    radial-gradient(circle at 34% 30%, #d9d3b8 0 9%, transparent 10%),
+    radial-gradient(circle at 62% 58%, #dcd6bc 0 13%, transparent 14%),
+    radial-gradient(circle at 36% 70%, #ddd7be 0 7%, transparent 8%), var(--orb);
+  box-shadow: 0 0 6vh 1.5vh var(--orb-glow);
+}
+.weather-rain .sky-body,
+.weather-snow .sky-body {
+  opacity: 0.16;
+}
+.sky-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.5s;
+  background: radial-gradient(ellipse 60% 45% at 80% 52%, #ffd9a0aa, transparent 70%);
+}
+.period-evening.weather-clear .sky-glow {
+  opacity: 1;
+}
+.period-morning.weather-clear .sky-glow {
+  opacity: 0.8;
+  background: radial-gradient(ellipse 55% 40% at 16% 50%, #ffe6bdaa, transparent 70%);
+}
+.cloud-lane {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  /* The lane is as wide as the yard, so a translate percentage here is of the yard's width,
+     whatever the cloud's size. Moved with transform, not left: a left animation lays the whole
+     yard out again on every display frame for a cloud that moves a pixel every 200 ms. */
+  will-change: transform;
+  animation: drift var(--t) linear infinite;
+  animation-delay: var(--d);
+}
+.cloud {
+  position: absolute;
+  background: none;
+  border-radius: 0;
+  height: auto;
+  width: calc(14% * var(--s));
+  aspect-ratio: 2.5;
+  left: 0;
+  top: var(--y);
+  opacity: var(--o, 1);
+  overflow: visible;
+}
+.cloud-one {
+  --x: 12%;
+  --y: 12%;
+  --s: 1;
+  --t: 210s;
+  --d: -30s;
+}
+.cloud-two {
+  --x: 72%;
+  --y: 24%;
+  --s: 0.7;
+  --o: 0.8;
+  --t: 300s;
+  --d: -220s;
+}
+.cloud-three {
+  --x: 40%;
+  --y: 6%;
+  --s: 1.35;
+  --t: 170s;
+  --d: -75s;
+  display: none;
+}
+.cloud-four {
+  --x: 88%;
+  --y: 17%;
+  --s: 0.95;
+  --t: 240s;
+  --d: -200s;
+  display: none;
+}
+.weather-rain .cloud-lane,
+.weather-snow .cloud-lane {
+  display: block;
+  --o: 1;
+}
+/* Without motion the clouds stand where --x puts them. */
+@media (prefers-reduced-motion: reduce) {
+  .cloud {
+    left: var(--x);
+  }
+}
+/* From 22% of the yard's width before its left edge to its right edge. */
+@keyframes drift {
+  from {
+    transform: translateX(-22%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+#pet-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+#pet-layer .yard-pet {
+  pointer-events: auto;
+}
+.weather-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+.yard-frame .yard {
+  border-radius: 0;
+}
+.tools {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 2px;
+}
+.tool-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  margin: 0 8px;
+}
+.tool-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  margin-right: 4px;
+}
+.button.tool.game {
+  padding: 7px 11px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  min-height: 32px;
+  margin-right: 4px;
+  background: var(--white);
+}
+.button.tool.game:hover:not(:disabled) {
+  background: #edf3f1;
+}
+.button.tool.game.playing,
+.button.tool.game.playing:hover:not(:disabled) {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--white);
+}
+.button.tool.game.playing:hover:not(:disabled) {
+  background: #31575e;
+}
+.button.tool.game:disabled {
+  opacity: 0.4;
+}
+.treat {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f0c98c, #d89b55);
+  box-shadow:
+    inset 0 -3px 0 #b9773a,
+    2px 5px 3px #526c5225;
+}
+.treat:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 34%, #7a4326 2.2px, transparent 2.7px),
+    radial-gradient(circle at 68% 42%, #7a4326 2px, transparent 2.5px),
+    radial-gradient(circle at 46% 72%, #7a4326 2.2px, transparent 2.7px);
+}
+.unmini {
+  display: none;
+}
+body.mini .topbar,
+body.mini .empty-yard,
+body.mini .yard-caption,
+body.mini .play-toolbar,
+body.mini .side-panel,
+body.mini #warnings {
+  display: none;
+}
+body.mini .layout {
+  padding: 0;
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+body.mini .yard-frame {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+body.mini .unmini {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #ffffffd9;
+  color: var(--ink);
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.18s;
+  box-shadow: 0 2px 8px #213e4326;
+}
+body.mini .yard:hover .unmini,
+body.mini .unmini:focus-visible {
+  opacity: 1;
+}
+body.mini .unmini svg {
+  width: 15px;
+  height: 15px;
+}
+@media (hover: none) {
+  body.mini .unmini {
+    opacity: 0.85;
+  }
+}
+/* mini is narrower than the narrow-window breakpoint, so it undoes that layout: the yard is the window */
+body.mini .app-shell {
+  padding: 0;
+  height: 100%;
+  min-height: 0;
+}
+body.mini .layout,
+body.mini .layout.panel-open {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+body.mini .stage {
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+}
+body.mini .yard {
+  cursor: grab;
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+/* ---- an empty yard invites the first friend from a card that reads over any sky ---- */
+.empty-yard {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 28px;
+  border-radius: 20px;
+  background: #ffffffeb;
+  box-shadow: 0 10px 30px #213e4322;
+  color: var(--ink);
+  text-align: center;
+  width: max-content;
+  max-width: calc(100% - 32px);
+}
+.empty-mascot {
+  width: 56px;
+  height: 56px;
+}
+.empty-yard p {
+  font-size: 15px;
+  font-weight: 700;
+}
+.empty-yard small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.empty-yard .button {
+  min-height: 36px;
+  font-size: 12.5px;
+  padding: 8px 18px;
+  margin-top: 4px;
+}
+/* once friends are in the yard the card steps aside, small, up in the sky where nobody walks */
+.empty-yard.aside {
+  left: 14px;
+  top: 14px;
+  transform: none;
+  padding: 12px 14px;
+  gap: 6px;
+  text-align: left;
+  align-items: stretch;
+  max-width: 300px;
+}
+.empty-yard.aside .empty-mascot {
+  display: none;
+}
+.empty-yard.aside p {
+  font-size: 12.5px;
+}
+.steps-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+  font-size: 12.5px;
+}
+.steps-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.steps-list li > span:nth-child(2) {
+  flex: 1;
+}
+.steps-list .step-mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  flex: none;
+}
+.steps-list li.done .step-mark {
+  background: var(--ink);
+  border-color: var(--ink);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E");
+  background-size: 11px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.steps-list li.done > span:nth-child(2) {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.steps-list li.done .button {
+  visibility: hidden;
+}
+.empty-yard .steps-list .button {
+  min-height: 26px;
+  font-size: 11px;
+  padding: 3px 10px;
+  margin: 0;
+}
+.empty-yard .tiny-dismiss {
+  min-height: 0;
+  padding: 0;
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+  align-self: flex-end;
+}
+/* ---- what a game is asking for, said large at the head of the yard ---- */
+.game-banner {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 22px 11px;
+  border-radius: 16px;
+  background: #fffffff0;
+  box-shadow: 0 8px 24px #213e4326;
+  color: var(--ink);
+  text-align: center;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  pointer-events: none;
+}
+.game-banner small {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+}
+.game-banner strong {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.game-banner span {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.game-banner.miss {
+  animation: nudge 0.4s;
+}
+.game-banner.miss span {
+  color: var(--accent);
+  font-weight: 650;
+}
+@keyframes nudge {
+  20% {
+    transform: translateX(calc(-50% - 7px));
+  }
+  50% {
+    transform: translateX(calc(-50% + 6px));
+  }
+  80% {
+    transform: translateX(calc(-50% - 3px));
+  }
+}
+body.mini .game-banner {
+  display: none;
+}
+/* The caption stays on one line. In a tight yard the hint gives way first, then the scene words
+   trail off; the friend count and the two pickers always show whole. */
+.yard-caption > span:first-child,
+#scene-caption,
+#yard-hint {
+  white-space: nowrap;
+  min-width: 0;
+}
+.yard-caption > span:first-child,
+#scene-caption,
+#yard-hint {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#yard-hint {
+  flex: 0 1000 auto;
+  margin-left: auto;
+}
+.sun-dot,
+.caption-count,
+.caption-right {
+  flex: none;
+}
+@media (max-width: 1000px) {
+  .layout.panel-open #yard-hint {
+    display: none;
+  }
+}
+/* Beside an open panel in the narrowest windows the games keep one row: their names say what they are. */
+@media (max-width: 900px) {
+  .layout.panel-open .tool-label {
+    display: none;
+  }
+  .layout.panel-open .tool-divider {
+    margin: 0 4px;
+  }
+}
+/* no motion when the system asks for none: the pieces still appear, nothing springs */
+@media (prefers-reduced-motion: reduce) {
+  .yard-bubble {
+    animation: none;
+  }
+  .yard-pet > canvas,
+  .yard-pet.pressed > canvas {
+    transition: none;
+    transform: none;
+  }
+}
