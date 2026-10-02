@@ -1,0 +1,14 @@
+{
+  "id": "playpets-smoky",
+  "displayName": "Smoky",
+  "kind": "animal",
+  "description": "A calm grey cat from the PlayPets yard. Thinks before it speaks.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.png",
+  "source": {
+    "name": "PlayPets",
+    "url": "https://github.com/gaerae/playpets",
+    "creator": "gaerae",
+    "license": "MIT"
+  }
+}

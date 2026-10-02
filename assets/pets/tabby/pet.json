@@ -1,0 +1,14 @@
+{
+  "id": "playpets-tabby",
+  "displayName": "Tabby",
+  "kind": "animal",
+  "description": "The PlayPets mascot: a round orange tabby who loves company.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.png",
+  "source": {
+    "name": "PlayPets",
+    "url": "https://github.com/gaerae/playpets",
+    "creator": "gaerae",
+    "license": "MIT"
+  }
+}

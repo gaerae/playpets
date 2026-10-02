@@ -1,0 +1,14 @@
+{
+  "id": "playpets-mochi",
+  "displayName": "Mochi",
+  "kind": "animal",
+  "description": "A soft cream cat from the PlayPets yard. Always up for a game.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.png",
+  "source": {
+    "name": "PlayPets",
+    "url": "https://github.com/gaerae/playpets",
+    "creator": "gaerae",
+    "license": "MIT"
+  }
+}
