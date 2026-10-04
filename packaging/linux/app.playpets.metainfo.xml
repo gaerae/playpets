@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- What Linux software centers (GNOME Software, KDE Discover, Ubuntu App Center) and Flathub show
+     for PlayPets. The deb and the AppImage install it at /usr/share/metainfo/ (see bundle.linux in
+     src-tauri/tauri.conf.json). The screenshots are made by `npm run art`; `npm run release` adds
+     each version to the release list. Check it with: appstreamcli validate packaging/linux/app.playpets.metainfo.xml
+     Two notes are expected: the id has two parts (it is the app's identifier, app.playpets; a
+     Flathub listing would carry its own three-part id), and AppStream older than 1.0 (Ubuntu 22.04)
+     does not know the <developer> tag that newer software centers and Flathub read. -->
+<component type="desktop-application">
+  <id>app.playpets</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>PlayPets</name>
+  <summary>A yard where your pets talk to each other</summary>
+  <summary xml:lang="ko">서로 이야기하는 펫들의 놀이터</summary>
+  <summary xml:lang="zh_CN">宠物们互相聊天的乐园</summary>
+  <developer id="io.github.gaerae">
+    <name>gaerae</name>
+  </developer>
+  <description>
+    <p>
+      PlayPets is an open-source desktop pet app. It reads Codex pet files as they are, so the
+      community's ten thousand pets come straight in, and several of them live together in a yard
+      where time and weather change.
+    </p>
+    <ul>
+      <li>Each friend talks through its own AI: a Claude Code or Codex subscription, Ollama, or an OpenAI-compatible server.</li>
+      <li>Friends answer in turn in one conversation and keep chatting among themselves.</li>
+      <li>Coding agents (Claude Code, Codex, Gemini CLI, Cursor and MCP tools) show their work as a friend's poses.</li>
+      <li>Play hide and seek, a parade or tag, or send friends out to roam the desktop.</li>
+      <li>Everything stays on your computer: integrations come through a local bridge with a token.</li>
+    </ul>
+    <p>PlayPets is not affiliated with OpenAI. Codex is a trademark of OpenAI.</p>
+  </description>
+  <launchable type="desktop-id">PlayPets.desktop</launchable>
+  <url type="homepage">https://gaerae.github.io/playpets/en/</url>
+  <url type="help">https://gaerae.github.io/playpets/en/guide/</url>
+  <url type="bugtracker">https://github.com/gaerae/playpets/issues</url>
+  <url type="vcs-browser">https://github.com/gaerae/playpets</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Friends talking to each other in the yard</caption>
+      <image>https://gaerae.github.io/playpets/listing/en/yard-talk.jpg</image>
+    </screenshot>
+    <screenshot>
+      <caption>Chatting with a friend that answers through its own AI</caption>
+      <image>https://gaerae.github.io/playpets/listing/en/friend-chat.jpg</image>
+    </screenshot>
+    <screenshot>
+      <caption>Friends roaming the desktop over other windows</caption>
+      <image>https://gaerae.github.io/playpets/listing/en/desktop.jpg</image>
+    </screenshot>
+    <screenshot>
+      <caption>Connecting coding agents in Settings</caption>
+      <image>https://gaerae.github.io/playpets/listing/en/settings-agents.jpg</image>
+    </screenshot>
+  </screenshots>
+  <keywords>
+    <keyword>desktop pet</keyword>
+    <keyword>virtual pet</keyword>
+    <keyword>Codex</keyword>
+    <keyword>Claude Code</keyword>
+    <keyword>AI</keyword>
+  </keywords>
+  <provides>
+    <binary>playpets</binary>
+  </provides>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-10-06" type="development"/>
+  </releases>
+</component>

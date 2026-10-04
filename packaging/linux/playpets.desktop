@@ -1,0 +1,11 @@
+[Desktop Entry]
+Categories=Game;Amusement;
+Comment={{comment}}
+Exec={{exec}} %u
+StartupWMClass={{exec}}
+Icon={{icon}}
+Name={{name}}
+Keywords=desktop pet;virtual pet;Codex;Claude Code;AI;
+Terminal=false
+Type=Application
+MimeType={{mime_type}}
