@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security issues, privately
+    url: https://github.com/gaerae/playpets/security/advisories/new
+    about: Report vulnerabilities here instead of in a public issue.
+  - name: User guide
+    url: https://gaerae.github.io/playpets/en/guide/
+    about: Guides to installing, your first friend, connecting an AI, and coding agent integration. Look here first; the answer may already be there.

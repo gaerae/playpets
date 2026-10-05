@@ -1,0 +1,181 @@
+# Builds every platform for a version tag and puts the files on a draft GitHub release, with the
+# changelog's section for that version as its notes. Start it with `npm run release -- x.y.z`
+# followed by `git push origin HEAD vx.y.z` (see docs/how-to/release.md). A person reads the draft and
+# publishes it.
+#
+# Signing is off until its secrets exist; nothing else changes when they are added.
+#   Updates (the app updating itself; free, independent of OS signing): TAURI_SIGNING_PRIVATE_KEY
+#     (contents of the key made by `npx tauri signer generate`) and TAURI_SIGNING_PRIVATE_KEY_PASSWORD.
+#     With them, updater files and signatures are built and latest.json is added to the release.
+#   macOS (Developer ID + notarization): APPLE_CERTIFICATE (base64 .p12), APPLE_CERTIFICATE_PASSWORD,
+#     APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD (app-specific), APPLE_TEAM_ID
+#   Windows: set bundle.windows.signCommand in src-tauri/tauri.conf.json for the certificate or
+#     signing service you choose; the Store takes the MSIX from `npm run dist:windows` instead.
+name: release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build again (e.g. v0.1.0)
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 26
+      # The tag, package.json and the changelog must agree before anything is built.
+      - id: version
+        name: Tag matches the version and the changelog
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          version="${tag#v}"
+          test "$(node -p "require('./package.json').version")" = "$version" || { echo "package.json is not $version"; exit 1; }
+          node scripts/release-notes.mjs "$version" > /dev/null
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: check
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: macos-latest, name: macos-universal, target: universal-apple-darwin, bundles: "app,dmg"}
+          - {os: windows-latest, name: windows-x64, target: x86_64-pc-windows-msvc, bundles: nsis}
+          - {os: windows-11-arm, name: windows-arm64, target: aarch64-pc-windows-msvc, bundles: nsis}
+          - {os: ubuntu-22.04, name: linux-x64, target: x86_64-unknown-linux-gnu, bundles: "deb,appimage"}
+          - {os: ubuntu-22.04-arm, name: linux-arm64, target: aarch64-unknown-linux-gnu, bundles: "deb,appimage"}
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 26
+      - uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # stable branch
+        with:
+          toolchain: stable
+          # One macOS build runs on both Apple silicon and Intel.
+          targets: ${{ matrix.target == 'universal-apple-darwin' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.target }}
+      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+          key: release-${{ matrix.target }}
+      - name: Linux system libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev libdbus-1-dev patchelf
+      - run: npm ci
+      - name: Unit tests
+        run: npm test
+      # Signing secrets are passed on only when they exist: an empty APPLE_CERTIFICATE would make
+      # the bundler try to import an empty certificate.
+      - name: Build
+        shell: bash
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
+          APPLE_CERTIFICATE_SECRET: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD_SECRET: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY_SECRET: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID_SECRET: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD_SECRET: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID_SECRET: ${{ secrets.APPLE_TEAM_ID }}
+          TAURI_SIGNING_PRIVATE_KEY_SECRET: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD_SECRET: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # Tauri skips the disk image's look (background, icon places) on CI unless told otherwise.
+          TAURI_BUNDLER_DMG_IGNORE_CI: "true"
+        run: |
+          args=(--target ${{ matrix.target }} --bundles ${{ matrix.bundles }})
+          if [ -n "$TAURI_SIGNING_PRIVATE_KEY_SECRET" ]; then
+            export TAURI_SIGNING_PRIVATE_KEY="$TAURI_SIGNING_PRIVATE_KEY_SECRET"
+            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$TAURI_SIGNING_PRIVATE_KEY_PASSWORD_SECRET"
+            args+=(--config '{"bundle":{"createUpdaterArtifacts":true}}')
+          fi
+          if [ "$RUNNER_OS" = "macOS" ] && [ -n "$APPLE_CERTIFICATE_SECRET" ]; then
+            export APPLE_CERTIFICATE="$APPLE_CERTIFICATE_SECRET"
+            export APPLE_CERTIFICATE_PASSWORD="$APPLE_CERTIFICATE_PASSWORD_SECRET"
+            export APPLE_SIGNING_IDENTITY="$APPLE_SIGNING_IDENTITY_SECRET"
+            export APPLE_ID="$APPLE_ID_SECRET"
+            export APPLE_PASSWORD="$APPLE_PASSWORD_SECRET"
+            export APPLE_TEAM_ID="$APPLE_TEAM_ID_SECRET"
+          fi
+          npx tauri build "${args[@]}"
+      # Release files are named by version and platform, so the list on the release page reads
+      # without opening anything.
+      - name: Collect the files
+        shell: bash
+        run: |
+          version="${{ needs.check.outputs.version }}"
+          bundle="src-tauri/target/${{ matrix.target }}/release/bundle"
+          mkdir -p out
+          # Each file keeps its updater signature (.sig) beside it under the same new name, when
+          # updater files were built.
+          put() { cp "$1" "out/$2"; if [ -f "$1.sig" ]; then cp "$1.sig" "out/$2.sig"; fi; }
+          case "${{ matrix.name }}" in
+            macos-*)   cp "$bundle"/dmg/*.dmg "out/PlayPets_${version}_macos-universal.dmg"
+                       if [ -f "$bundle/macos/PlayPets.app.tar.gz" ]; then put "$bundle/macos/PlayPets.app.tar.gz" "PlayPets_${version}_macos-universal.app.tar.gz"; fi ;;
+            windows-*) put "$(ls "$bundle"/nsis/*.exe)" "PlayPets_${version}_${{ matrix.name }}-setup.exe"
+                       # MSVC links WebView2Loader in, so the portable build is the exe alone.
+                       pwsh -NoProfile -Command "Compress-Archive -Path 'src-tauri/target/${{ matrix.target }}/release/playpets.exe' -DestinationPath 'out/PlayPets_${version}_${{ matrix.name }}-portable.zip'" ;;
+            linux-*)   put "$(ls "$bundle"/deb/*.deb)" "PlayPets_${version}_${{ matrix.name }}.deb"
+                       put "$(ls "$bundle"/appimage/*.AppImage)" "PlayPets_${version}_${{ matrix.name }}.AppImage" ;;
+          esac
+          ls -la out
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-${{ matrix.name }}
+          path: out/*
+          if-no-files-found: error
+
+  publish:
+    needs: [check, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 26
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          path: out
+          merge-multiple: true
+      # The updater's manifest, when updater files were signed; the signatures go into it.
+      - name: Updater manifest
+        run: |
+          if ls out/*.sig > /dev/null 2>&1; then
+            node scripts/distribute.mjs updater "${{ needs.check.outputs.version }}" out > latest.json
+            rm out/*.sig
+            mv latest.json out/
+          else
+            echo "No updater signing key: this release has no latest.json, installed apps will not see it."
+          fi
+      - name: Checksums
+        run: cd out && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+      # A draft: nothing is public until a person has looked at it and pressed Publish.
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${{ needs.check.outputs.version }}"
+          node scripts/release-notes.mjs "$version" > notes.md
+          gh release create "v$version" out/* --draft --title "PlayPets $version" --notes-file notes.md --verify-tag

@@ -1,0 +1,99 @@
+# After a release is published: makes the winget manifests and the Homebrew cask from its files,
+# keeps them as a workflow artifact, and hands them on where a token allows it.
+#   WINGET_TOKEN: a GitHub token (public_repo) of an account with a fork of microsoft/winget-pkgs.
+#     With it, wingetcreate opens the pull request to winget-pkgs. The first version of a package
+#     is reviewed by winget's moderators; later versions are merged by their bots once checks pass.
+#   HOMEBREW_TAP_TOKEN: a token that can push to <owner>/homebrew-tap. With it, Casks/playpets.rb
+#     is updated there, so `brew install <owner>/tap/playpets` installs the new version.
+# Without the tokens, download the "store-manifests" artifact and submit by hand (docs/how-to/release.md).
+name: distribute
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published release to distribute (e.g. v0.1.0)
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  manifests:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.files.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag || github.event.release.tag_name }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 26
+      - id: files
+        name: winget manifests and Homebrew cask
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          version="${TAG#v}"
+          gh release download "$TAG" --pattern SHA256SUMS.txt
+          node scripts/distribute.mjs winget "$version" SHA256SUMS.txt store/winget
+          node scripts/distribute.mjs cask "$version" SHA256SUMS.txt store/homebrew
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: store-manifests
+          path: store
+          if-no-files-found: error
+
+  winget:
+    needs: manifests
+    runs-on: windows-latest
+    env:
+      WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: store-manifests
+          path: store
+      - name: Pull request to winget-pkgs
+        if: env.WINGET_TOKEN != ''
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          $manifest = Get-ChildItem -Recurse -Directory store/winget/manifests | Where-Object { $_.Name -eq '${{ needs.manifests.outputs.version }}' } | Select-Object -First 1
+          .\wingetcreate.exe submit $manifest.FullName --token $env:WINGET_TOKEN
+      - name: No token
+        if: env.WINGET_TOKEN == ''
+        run: echo "WINGET_TOKEN is not set; submit store/winget from the store-manifests artifact by hand."
+
+  homebrew:
+    needs: manifests
+    runs-on: ubuntu-latest
+    env:
+      HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: store-manifests
+          path: store
+      - name: Update the tap
+        if: env.HOMEBREW_TAP_TOKEN != ''
+        run: |
+          owner="${GITHUB_REPOSITORY%%/*}"
+          git clone "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/${owner}/homebrew-tap.git" tap
+          mkdir -p tap/Casks
+          cp store/homebrew/Casks/playpets.rb tap/Casks/playpets.rb
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/playpets.rb
+          git diff --cached --quiet && { echo "The cask is already current."; exit 0; }
+          git commit -m "playpets ${{ needs.manifests.outputs.version }}"
+          git push
+      - name: No token
+        if: env.HOMEBREW_TAP_TOKEN == ''
+        run: echo "HOMEBREW_TAP_TOKEN is not set; copy store/homebrew/Casks/playpets.rb into your tap by hand."

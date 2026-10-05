@@ -1,0 +1,14 @@
+name: Idea
+description: Tell us about a feature or a game you would like to have.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would be nice to have?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: When would you use it?
