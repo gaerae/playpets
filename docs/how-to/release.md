@@ -11,6 +11,8 @@ A maintainer does this. You need write access to the repository and a clean loca
 - `CHANGELOG.md` lists this version's changes under `## [Unreleased]`. If it is empty, the release command stops.
 - You chose the version number. Bump the second number when people get new features, and the third when there are only fixes.
 - `git status` is empty locally.
+- The release pages for this version are written in all three site languages: `website/releases/<version>.md` (English), `website/ko/releases/<version>.md` and `website/zh-hans/releases/<version>.md`. Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
+- One-time repository setup is done: in Settings → Pages, the source is "GitHub Actions" (otherwise `pages.yml` cannot publish the site), and in Settings → Advanced Security, private vulnerability reporting is turned on (the security policy sends reports there).
 
 ## Steps
 1. Pull the latest main.
@@ -26,7 +28,7 @@ npm run shots -- 0.2.0
 npm run art
 ```
 
-3. Make the release commit and tag. The changelog section moves to a dated section, and the version changes in `package.json`, `package-lock.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`. The version is also added, dated, to the releases in `packaging/linux/app.playpets.metainfo.xml`. Nothing is pushed.
+3. Make the release commit and tag. The changelog section moves to a dated section, and the version changes in `package.json`, `package-lock.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`. The version is also added, dated, to the releases in `packaging/linux/app.playpets.metainfo.xml`. The command also dates the website release pages: it sets today's date in `website/releases/0.2.0.md`, `website/ko/releases/0.2.0.md` and `website/zh-hans/releases/0.2.0.md`. If the Korean or Chinese page is missing, it stops before changing anything; a missing English page is started from the changelog notes, without highlights, so write all three before you run it. Everything goes into one release commit. Nothing is pushed.
 
 ```bash
 npm run release -- 0.2.0
@@ -63,7 +65,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 
 ## Verification
 - The release page has the files from step 6, and the notes match the `## [0.2.0]` section of `CHANGELOG.md`.
-- In an app with the previous version installed, pressing "업데이트 확인" ("Check for updates") in the Settings tab shows "새 버전 v0.2.0이 있어요" ("Version v0.2.0 is available") (when the updater signing secrets exist).
+- In an app with the previous version installed, pressing "Check for updates" in the Settings tab shows "Version v0.2.0 is available" (when the updater signing secrets exist).
 - The winget PR passes its checks, or `brew upgrade --cask playpets` on a computer with the tap gets the new version.
 
 ## Troubleshooting

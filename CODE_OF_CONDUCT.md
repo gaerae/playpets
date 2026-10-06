@@ -22,7 +22,7 @@ We make a space where anyone can take part free from harassment, regardless of a
 This code applies to issues, pull requests, discussions, and every public space where someone represents the community through an official account.
 
 ## Reporting
-Report problem behavior to the maintainers. If you use the repository's private reporting feature (**Security → Report a vulnerability**), only the maintainers read it. Every report is reviewed promptly and fairly, and the reporter's safety and privacy are protected.
+Report problem behavior to the maintainers privately. The project has no separate conduct inbox yet, so use the repository's private report form ([Security → Report a vulnerability](https://github.com/gaerae/playpets/security/advisories/new)) and start the title with "Conduct:". Only the maintainers can read it, and it is handled as a conduct report, not a vulnerability. If you would rather not use the form, open an issue that only asks for a private channel, without details. Every report is reviewed promptly and fairly, and the reporter's safety and privacy are protected.
 
 ## Enforcement
 Maintainers can remove or edit comments, commits, code and issues that do not follow this code, and for repeated or serious cases they can restrict participation temporarily or permanently. The steps follow the Contributor Covenant enforcement guidelines (correction, warning, temporary ban, permanent ban).

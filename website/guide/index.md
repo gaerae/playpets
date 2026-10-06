@@ -1,33 +1,33 @@
-# 사용 안내
+# Guide
 
-PlayPets는 펫들이 서로 이야기하는 놀이터예요. Codex 펫 1만 마리를 그대로 데려와 친구마다 다른 AI로 말하고, 친구들끼리 이어서 이야기하고, 어느 코딩 에이전트가 일하든 곁에서 함께 일해요. Codex 펫 형식을 따르지만 Codex가 없어도 돼요. 펫은 그림과 소개가 든 캐릭터 파일이고, 그 펫을 놀이터에 초대하면 이름과 성격을 가진 친구가 돼요. 친구는 놀이터를 돌아다니고, 간식을 먹고, 숨바꼭질을 하고, 원하면 바탕화면 위로 나와요. 이미 쓰고 있는 Claude Code나 Codex 구독을 연결하면 친구와 대화할 수 있고, 코딩 에이전트가 일하는 동안 친구가 곁에서 반응해요.
+PlayPets is a yard where your pets talk to each other. Bring the ten thousand Codex pets as they are, give each friend its own AI, let friends keep a conversation going among themselves, and keep any coding agent company. It follows the Codex pet format, but Codex itself is not required. A pet is a character file with artwork and an introduction. Invite that pet into the yard and it becomes a friend with a name and a personality. Friends wander around the yard, eat treats, play hide and seek, and come out onto the desktop if you want. Connect the Claude Code or Codex subscription you already use and you can chat with your friends, and they react beside you while your coding agent works.
 
-## 필요한 것
+## What you need
 
-| 항목 | 내용 |
+| Item | Details |
 |---|---|
-| 운영체제 | macOS, Windows, Linux |
-| AI | 선택이에요. 연결하지 않아도 초대, 놀이, 바탕화면 모드는 모두 돼요 |
-| 코딩 에이전트 | 선택이에요. Claude Code, Codex CLI, Gemini CLI, Cursor, MCP를 쓰는 도구와 이어져요 |
-| 인터넷 | 설치 파일을 받을 때와 업데이트를 확인할 때만 필요해요. Ollama나 구독 CLI로 대화하면 그 도구의 방식에 따라요 |
+| Operating system | macOS, Windows, Linux |
+| AI | Optional. Inviting, playing and desktop mode all work without one |
+| Coding agent | Optional. Works with Claude Code, Codex CLI, Gemini CLI, Cursor and tools that use MCP |
+| Internet | Only to download the installer and to check for updates. Chatting through Ollama or a subscription CLI follows that tool's own rules |
 
-Tauri로 만들어 운영체제의 기본 웹뷰를 써요. 그래서 설치 파일이 작고 메모리를 적게 써요.
+The app is built with Tauri and uses the operating system's built-in webview, so the installer stays small and memory use stays low.
 
-## 두 낱말
+## Two words
 
-- **펫**은 캐릭터 파일이에요. `pet.json`과 스프라이트 시트가 든 폴더 하나가 펫 하나예요. Codex의 펫 폴더에 있는 펫은 자동으로 보이고, 커뮤니티 사이트에서 가져오거나 내 컴퓨터의 폴더를 고를 수도 있어요.
-- **친구**는 놀이터에 초대한 개체예요. 같은 펫을 여러 번 초대하면 친구가 여럿 생기고, 각자 다른 이름과 성격, 크기, AI를 가질 수 있어요.
+- A **pet** is a character file. One folder with a `pet.json` and a sprite sheet is one pet. Pets in Codex's pet folder show up automatically, and you can also import pets from community sites or pick a folder on your computer.
+- A **friend** is a pet you have invited into the yard. Invite the same pet several times and you get several friends, each with their own name, personality, size and AI.
 
-## 이 순서로 읽으세요
+## Read in this order
 
-1. [설치하기](./install.md) — 파일 고르기, 처음 실행할 때 뜨는 경고 지나가기, 업데이트와 데이터 폴더
-2. [첫 친구 초대하기](./first-friend.md) — 초대 탭에서 친구를 만들고 놀이터에서 쓰다듬기
-3. [친구와 대화하기](./chat.md) — AI 연결 종류, 성격 정하기, 친구 여럿이 함께 대화하기
-4. [코딩 에이전트 연동](./agents.md) — 에이전트의 작업 상태가 친구에게 보이게 하기
-5. [바탕화면 모드](./desktop.md) — 친구를 바탕화면으로 내보내기
-6. [놀이터와 놀이](./play.md) — 시간대와 날씨, 숨바꼭질·산책 행렬·꼬리잡기, 작게 보기
-7. [펫 가져오기](./import.md) — 커뮤니티 펫과 내 컴퓨터의 펫 폴더
-8. [설정](./settings.md) — 언어, 업데이트, 종료, 저장되는 것과 저장되지 않는 것
-9. [자주 묻는 질문](./faq.md)
+1. [Install](./install.md) — picking a file, getting past the warning on first launch, updates and the data folder
+2. [Your first friend](./first-friend.md) — making a friend in the Invite tab and patting them in the yard
+3. [Talking with friends](./chat.md) — kinds of AI connections, setting a personality, chatting with several friends at once
+4. [Coding agents](./agents.md) — letting your friend see what the agent is doing
+5. [Desktop mode](./desktop.md) — sending friends out onto the desktop
+6. [The yard and games](./play.md) — time of day and weather, hide and seek, parade and tag, mini mode
+7. [Importing pets](./import.md) — community pets and pet folders on your computer
+8. [Settings](./settings.md) — language, updates, quitting, what is saved and what is not
+9. [FAQ](./faq.md)
 
-처음이라면 1번부터 3번까지만 읽어도 충분해요. 나머지는 필요할 때 펼쳐 보세요.
+If this is your first time, steps 1 to 3 are enough. Open the rest when you need it.

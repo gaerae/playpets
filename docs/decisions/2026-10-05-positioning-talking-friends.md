@@ -1,7 +1,7 @@
 # Decision: Lead with "a yard where your pets talk to each other", and treat Codex pet compatibility and hook reactions as the price of entry
 
 ## Context
-The pre-launch research "[Where does PlayPets fit among open-source desktop pets and pixel-office agent dashboards?](../reference/competitors.md)" (2026-10-05) measured 31 pet apps that react to coding agents and 18 pixel-office agent dashboards. More than ten apps already offer "use the Codex pet format without Codex", and every one of them receives agent status through hooks. On the other hand, PlayPets was the only app that connects a subscription CLI or Ollama to each pet for chat, the only one where pets talk to each other in turn through an LLM, and the only one with both a yard where weather and time pass and a desktop mode. Until then the first line was "Codex pets, now outside Codex too" ("Codex 펫, 이제 Codex 밖에서도").
+Before launch (2026-10-05), we looked at open-source desktop pet apps that react to coding agents, and at pixel-office style agent dashboards. Many pet apps already let people use the Codex pet format without Codex, and they generally receive agent status through hooks, so those two features are common ground rather than something that sets PlayPets apart. What we did not find elsewhere in that survey was the combination PlayPets has: a subscription CLI or Ollama connected to each pet for chat, pets talking to each other in turn through an LLM, and a yard where weather and time pass alongside a desktop mode. Until then the first line was "Codex pets, now outside Codex too" ("Codex 펫, 이제 Codex 밖에서도").
 
 ## Decision
 - The first line is "A yard where your pets talk to each other" (Korean: "서로 이야기하는 펫들의 놀이터"). The site's first screen, the README, the share card and launch posts all start with this line.
@@ -11,13 +11,13 @@ The pre-launch research "[Where does PlayPets fit among open-source desktop pets
 - Pets talking to each other is shown as moving pictures, not text. The screenshot script captures a conversation scene between three friends and puts it in the README GIF.
 
 ## Consequences
-- Positive: We start with a line competitors cannot echo. What we have to defend (chat, the yard) matches what is structurally expensive to copy.
+- Positive: The first line describes what PlayPets does that a status indicator does not. What it leads with (chat, the yard) is also the part that takes the most work to build.
 - Negative: For "people who collect Codex pets", the first line lands a beat late. For them, the first line of the body says "all 10,000 Codex pets, as they are".
 - Neutral: Users who only want a status indicator will find other apps lighter and broader. We do not target them.
 
 ## Alternatives considered
 | Alternative | Why rejected |
 |---|---|
-| Keep "Codex pets, now outside Codex too" | More than ten apps could say the same thing. We would be hanging the price of entry out as our sign |
+| Keep "Codex pets, now outside Codex too" | Many apps could say the same thing. It would put the common ground first instead of what PlayPets adds |
 | Switch to the pixel-office agent dashboard angle | The office group is session-centered and moving toward command features. PlayPets friends are permanent companions and do not send prompts. Borrowing the name would set the wrong expectations |
-| Compete on the number of supported agents | Clawd on Desk supports more than 20. Hard to win and worth little |
+| Compete on the number of supported agents | Some apps already support more than 20 agents. A longer list adds little for the person using the app |

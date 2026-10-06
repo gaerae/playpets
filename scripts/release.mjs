@@ -7,7 +7,15 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { notesFor, release, releasePage, setCargoVersion, setLockVersion, setMetainfoRelease } from './release-lib.mjs';
+import {
+  notesFor,
+  release,
+  releasePage,
+  setCargoVersion,
+  setLockVersion,
+  setMetainfoRelease,
+  setPageDate,
+} from './release-lib.mjs';
 
 const version = process.argv[2];
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
@@ -21,6 +29,17 @@ if (git('status', '--porcelain')) {
 }
 if (git('tag', '--list', `v${version}`)) {
   console.error(`The tag v${version} already exists.`);
+  process.exit(1);
+}
+
+// The website has a page for the version in every language. The English one can be started from the
+// changelog; the Korean and Chinese ones are written ahead of time, so a release without them stops
+// here, before anything changes.
+const english = `website/releases/${version}.md`;
+const pages = [english, `website/ko/releases/${version}.md`, `website/zh-hans/releases/${version}.md`];
+const missing = pages.filter(page => page !== english && !existsSync(page));
+if (missing.length) {
+  console.error(`Write the release page first: ${missing.join(', ')}`);
   process.exit(1);
 }
 
@@ -38,10 +57,11 @@ await edit('src-tauri/Cargo.toml', text => setCargoVersion(text, version));
 await edit('src-tauri/Cargo.lock', text => setLockVersion(text, version));
 const metainfo = 'packaging/linux/app.playpets.metainfo.xml';
 await edit(metainfo, text => setMetainfoRelease(text, version, date));
-// The website gets a page for the version unless one was written ahead of time.
-const page = `website/releases/${version}.md`;
-if (!existsSync(page))
-  await writeFile(page, releasePage(notesFor(await readFile('CHANGELOG.md', 'utf8'), version), version, date));
+// The pages written ahead of time get today's date; a missing English page starts from the changelog.
+for (const page of pages) {
+  if (existsSync(page)) await edit(page, text => setPageDate(text, date));
+  else await writeFile(page, releasePage(notesFor(await readFile('CHANGELOG.md', 'utf8'), version), version, date));
+}
 
 git(
   'add',
@@ -51,7 +71,7 @@ git(
   'src-tauri/Cargo.toml',
   'src-tauri/Cargo.lock',
   metainfo,
-  page,
+  ...pages,
 );
 git('commit', '-m', `Release ${version}`);
 git('tag', '-a', `v${version}`, '-m', `PlayPets ${version}`);

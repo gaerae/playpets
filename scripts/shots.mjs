@@ -2,10 +2,11 @@
 // For each language the release binary starts with an isolated data folder, the three sample pets and a
 // fake AI server, then a scenario (PLAYPETS_E2E_EVAL, as in tests/e2e.mjs) walks it through the
 // states below and reports each one with the window's frame; this script captures that frame with
-// `screencapture`. Files land in website/public/shots/<version>/<lang>/<name>.png (2x on Retina).
+// `screencapture`. The site's languages land in website/public/shots/<version>/<lang>/<name>.webp (2x on
+// Retina); every app language also gets the store pictures under release/store/<lang>/.
 // Every shot is taken over a plain backdrop window (a Chrome app window behind the app), so the
 // rounded corners, the window shadow and the desktop shot never show whatever else is on screen.
-// The ko run also films the yard for a few seconds and writes assets/demo.gif.
+// The English run also films the yard for a few seconds and writes assets/demo.gif.
 
 import { spawn, spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -27,12 +28,16 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, '..');
 const version = process.argv[2] || JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8')).version;
 const languages = (process.env.SHOT_LANGS || Object.keys(LANGUAGES).join(',')).split(',');
+// The languages the website has (website/.vitepress/config.mts locales): the others are captured
+// for the store pictures only.
+const SITE_LANGS = new Set(['ko', 'en', 'zh-hans']);
 const binary = process.env.PLAYPETS_BINARY || path.join(root, 'src-tauri/target/release/playpets');
 // The window sits below the backdrop window's own title bar, which Chrome keeps at the top.
 const WINDOW = { x: 80, y: 170, width: 1180, height: 780 };
 // Room around the window in every picture: the backdrop shows through with the window's shadow.
 const MARGIN = 28;
-const GIF = { frames: 42, everyMs: 140, width: 720 };
+// The README's demo animation, filmed in the README's language.
+const GIF = { lang: 'en', frames: 42, everyMs: 140, width: 720 };
 // Store listings (Microsoft Store, Product Hunt, GitHub's social card) want 16:9 pictures of at
 // least 1366×768: these scenes are also set on a 1920×1080 backdrop, centred with a shadow, as
 // PNGs under release/store/<lang>/ (not part of the site).
@@ -159,7 +164,7 @@ function scenario(lang) {
     $('close-panel').click();await wait(300);$('mini').click();await wait(1500);await shot('mini');$('unmini').click();await wait(1200);
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
     // A few seconds of the yard for the demo animation: a wave together, then a parade.
-    if('${lang}'==='ko'){
+    if('${lang}'===${JSON.stringify(GIF.lang)}){
       const r=(await inv('e2eWindow',['main'])).data;
       await L('gif-start '+JSON.stringify(r));
       $('greet').click();await wait(1500);
@@ -263,7 +268,7 @@ async function toWebp(dir) {
 }
 
 // Scales the filmed frames to GIF.width in Chrome, reads their pixels back and writes the GIF.
-// The demo GIF's frames, filmed during the ko run and encoded after it.
+// The demo GIF's frames, filmed during the English run and encoded after it.
 let gifFrames = null;
 async function writeGif(files, out) {
   if (files.length < 2) return;
@@ -302,9 +307,10 @@ async function writeGif(files, out) {
 }
 
 async function captureAll(lang) {
-  const outDir = path.join(root, 'website/public/shots', version, lang);
-  await mkdir(outDir, { recursive: true });
   const dataDir = await mkdtemp(path.join(os.tmpdir(), 'playpets-shots-'));
+  const onSite = SITE_LANGS.has(lang);
+  const outDir = onSite ? path.join(root, 'website/public/shots', version, lang) : path.join(dataDir, 'shots');
+  await mkdir(outDir, { recursive: true });
   // An empty Codex pet folder: the shelf shows only the pets that ship with the app.
   const codexHome = path.join(dataDir, 'codex');
   await mkdir(path.join(codexHome, 'pets'), { recursive: true });
@@ -315,8 +321,8 @@ async function captureAll(lang) {
   // The frames live in the data folder, so the GIF is written before it goes.
   if (gifFrames) await writeGif(gifFrames, path.join(root, 'assets/demo.gif'));
   gifFrames = null;
+  if (onSite) await toWebp(outDir);
   await rm(dataDir, { recursive: true, force: true });
-  await toWebp(outDir);
   await toStoreSize(path.join(root, 'release/store', lang));
 }
 

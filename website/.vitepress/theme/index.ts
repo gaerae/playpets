@@ -14,9 +14,10 @@ import './style.css';
 export default {
   extends: DefaultTheme,
   enhanceApp({ app, router }) {
-    // The developer docs moved to /en/dev/ when they became English-only. Old addresses (/dev/…, and
-    // the language menu's /zh-hans/dev/…) lead there, whether typed, linked or clicked in the site.
-    const moved = (to: string) => to.replace(/^(\/playpets)\/(?:zh-hans\/)?dev(\/|$)/, '$1/en/dev$2');
+    // The developer docs exist only in English, under /dev/. On a /dev/ page the language menu
+    // offers /ko/dev/… and /zh-hans/dev/…, which have no pages; this sends both to the English
+    // page, whether typed, linked or clicked in the site, so the menu keeps working there.
+    const moved = (to: string) => to.replace(/^(\/playpets)\/(?:ko|zh-hans)\/dev(\/|$)/, '$1/dev$2');
     if (typeof window !== 'undefined') {
       const now = moved(location.pathname);
       if (now !== location.pathname) location.replace(now + location.search + location.hash);

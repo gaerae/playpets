@@ -4,7 +4,7 @@ The app speaks Korean (`ko`), English (`en`), Japanese (`ja`) and Simplified Chi
 
 ## 1. Page strings
 
-1. Copy `src/core/strings/ko.js` to `src/core/strings/<code>.js` and translate the sentences. The file exports three things.
+1. Copy `src/core/strings/ko.js` to `src/core/strings/<code>.js` and translate the sentences. The file exports three required things and two optional ones.
    - `name`: what the language calls itself (shown in the list in the Settings tab).
    - `sentence`: a regular expression that recognizes a sentence in that language (`text.js` uses it to tell error sentences from codes). Use a character range if the writing system gives it away, otherwise punctuation.
    - `strings`: key → sentence. Keys whose value is a list (greetings, chatter) stay lists.
@@ -16,8 +16,8 @@ The app speaks Korean (`ko`), English (`en`), Japanese (`ja`) and Simplified Chi
 
 ## 2. Backend strings
 
-1. Copy `src-tauri/src/i18n/ko.rs` to `src-tauri/src/i18n/<code>.rs`. Rows have to stay in the same order as `ko.rs` (the test checks the order too, so the files can be edited side by side). Put the code and the English name in `SPEC` at the top of the file. The English name is used when telling the AI "answer in this language".
-2. In `src-tauri/src/i18n/mod.rs`, add `mod <code>;` and one entry to `ALL`. That is all; `Lang` refers to a language by its position in `ALL`.
+1. Copy `src-tauri/src/i18n/ko.rs` to `src-tauri/src/i18n/<module>.rs`. The module name is the code with `-` turned into `_`, since a Rust module name cannot contain a hyphen: `zh-hans` is `zh_hans.rs`. Rows have to stay in the same order as `ko.rs` (the test checks the order too, so the files can be edited side by side). Put the code and the English name in `SPEC` at the top of the file. The English name is used when telling the AI "answer in this language".
+2. In `src-tauri/src/i18n/mod.rs`, add `mod <module>;` (for example `mod zh_hans;`), add `&<module>::SPEC` to `ALL`, and increase the array length in its type (`[&Spec; 4]`) by one. That is all; `Lang` refers to a language by its position in `ALL`.
 
 ## 3. Other places
 

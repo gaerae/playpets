@@ -1,14 +1,18 @@
 # Stronger agent integration · community import · personality and activity memory (2026-09-29)
 
-> This document is the design record as of 2026-09-29. The Electron shell, `src/core/prompt.mjs`, and `scripts/playpets.mjs`·`scripts/hooks.mjs` have since been removed (the agent CLI and hooks now live in the app binary under `src-tauri/src/agent/`). For the current structure, follow the folder description in the README.
+> This document is the design record as of 2026-09-29. The Electron shell, `src/core/prompt.mjs`, and `scripts/playpets.mjs`·`scripts/hooks.mjs` have since been removed (the agent CLI and hooks now live in the app binary under `src-tauri/src/agent/`). For the current structure, see [Architecture: PlayPets app](../architecture.md).
 
-User requests: ① bring MCP status integration up to competitor level ② make it easy to import from pet communities (implement it if that is efficient, otherwise link out) ③ competitive features that build on our strengths.
-The user delegated the decisions. This document is the design record. Both shells (Electron·Tauri) get the same behavior.
+Design goals:
+1. Make agent status reach the pets reliably, with the CLI, HTTP and MCP routes other desktop pet apps commonly offer.
+2. Make importing from pet community sites easy: built in where a site allows it cleanly, a link out otherwise.
+3. Add features that build on what PlayPets already does well: chat with a different AI per pet.
+
+Both shells at the time (Electron and Tauri) get the same behavior.
 
 ## 1. Agent status integration
 
-Competitor baseline: alterhq (6 states + CLI), X-T-E-R (CLI + MCP + HTTP, speech bubbles), OpenPetsHQ (status/react/say).
-PlayPets today: 2 MCP tools (list_pets, set_pet_state), petId required, and it only works if the model calls the tool on its own.
+What similar apps commonly offered at the time: a handful of states driven from a CLI, an HTTP or MCP route, speech bubbles, and status/react/say style commands.
+PlayPets at the time: 2 MCP tools (list_pets, set_pet_state), petId required, and it only works if the model calls the tool on its own.
 
 The biggest gap is not the number of tools but **reliability**. If the model forgets to call the MCP tool, the pet does nothing.
 So **hook integration**, which reports automatically from tool events regardless of the model's judgment, comes first.
@@ -25,7 +29,7 @@ So **hook integration**, which reports automatically from tool events regardless
 - Hook mapping (pure functions in `scripts/hooks.mjs`)
   - Claude Code: UserPromptSubmit→working, PreToolUse→working (tool name), Notification→waiting (notification text), Stop→done, SessionEnd→idle
   - Codex `notify`: agent-turn-complete→done (start of the last answer)
-- UI: three copy buttons under "코딩 에이전트 연동" ("Coding agent hooks") — Claude Code hook (recommended), Codex notify, MCP
+- UI: three copy buttons under "Coding agent hooks" — Claude Code hook (recommended), Codex notify, MCP
 - `pet-run.mjs` is folded into `playpets.mjs run` and deleted
 
 ## 2. Community import
@@ -35,7 +39,7 @@ Measured on 2026-09-29:
 | Site | Method | Verdict |
 |---|---|---|
 | Petdex (`petdex.dev`, formerly `petdex.crafter.run`) | Official `GET /api/install-pet/{slug}` — documented as a "JSON contract for program clients", counts installs | Implement |
-| Codex Pets (`codex-pets.net`) | Same-domain `GET /api/pets/{id}` (the Supabase host a competitor used is already gone) | Implement |
+| Codex Pets (`codex-pets.net`) | Same-domain `GET /api/pets/{id}` (an older Supabase host used by some clients is already gone) | Implement |
 | SpriteYard | schema.org JSON-LD `image` on the pet page = the sprite | Implement (generic) |
 | Codex Pet Shop | `/sprites/{slug}.webp` inside the page | Implement (generic) |
 | openpets.dev gallery | OpenPets-only pack format, not Codex-compatible | Link only |
@@ -52,8 +56,8 @@ External links open in the OS browser, only for hosts on the community allowlist
 
 ## 3. Strength features: personality + activity memory
 
-Our strength is "chat at no extra cost through a subscription CLI, with a different AI for each pet". Competitors are status boards.
-Tying the two features together makes PlayPets **the only pet where the status display and the conversation are connected**.
+PlayPets' strength is chat at no extra cost through a subscription CLI, with a different AI for each pet. Agent status so far only changed what a pet does on screen.
+Tying the two together **connects the status display and the conversation**: a pet can talk about what the agent has been doing.
 
 - Personality (persona): up to 400 characters per pet, injected into the system prompt. Saved in the state file.
 - Activity memory: keep the last 8 states and speech bubbles that came in through the bridge, per pet (in memory). In a chat they go into the system prompt as "recent agent activity", so the pet can answer "What were you doing?".
@@ -66,4 +70,4 @@ Tying the two features together makes PlayPets **the only pet where the status d
 - Unit (node): new bridge routes and pet resolution, hook mapping, CLI (hook prints nothing and exits 0), import resolver (fake fetch with the shapes of the 4 sites + rejection cases), model persona, prompt assembly
 - Rust unit: matching tests for the same items
 - Real-use checks: importing real URLs from the 4 sites (both shells), sending hook payloads to the running app
-- Existing: no regressions in smoke, flow 20, Tauri e2e → all 3 + Tauri rebuild
+- Existing: the existing page tests, the end-to-end flow tests and the Tauri E2E all still pass after the change, and the Tauri app was rebuilt and checked by hand

@@ -116,7 +116,7 @@ mod tests {
 
     #[test]
     fn snippets_call_the_app_binary_without_node() {
-        let exe = "/Applications/Play Pets.app/Contents/MacOS/playpets";
+        let exe = "/Applications/PlayPets.app/Contents/MacOS/playpets";
         let bridge = "/Users/me/Library/Application Support/app.playpets/bridge.json";
         let claude: Value = serde_json::from_str(&connection_snippet("claude", exe, bridge, None).unwrap()).unwrap();
         let keys: Vec<&String> = claude["hooks"].as_object().unwrap().keys().collect();
@@ -128,11 +128,11 @@ mod tests {
         assert!(claude["hooks"]["Stop"][0].get("matcher").is_none());
         assert_eq!(
             claude["hooks"]["Stop"][0]["hooks"][0]["command"],
-            r#""/Applications/Play Pets.app/Contents/MacOS/playpets" hook claude --bridge "/Users/me/Library/Application Support/app.playpets/bridge.json""#
+            r#""/Applications/PlayPets.app/Contents/MacOS/playpets" hook claude --bridge "/Users/me/Library/Application Support/app.playpets/bridge.json""#
         );
         assert_eq!(
             connection_snippet("codex", exe, bridge, None).unwrap(),
-            r#"notify = ["/Applications/Play Pets.app/Contents/MacOS/playpets", "hook", "codex", "--bridge", "/Users/me/Library/Application Support/app.playpets/bridge.json"]"#
+            r#"notify = ["/Applications/PlayPets.app/Contents/MacOS/playpets", "hook", "codex", "--bridge", "/Users/me/Library/Application Support/app.playpets/bridge.json"]"#
         );
         assert_eq!(
             connection_snippet(

@@ -10,3 +10,4 @@
 - [ ] `npm run test:e2e`
 - [ ] If the site (`website/`) or `docs/` changed, `npm run site:build`
 - [ ] If the screen changed, captures attached
+- [ ] If the drawing loop or animations changed, `npm run measure` before and after

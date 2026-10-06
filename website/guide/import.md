@@ -1,67 +1,65 @@
 ---
-description: 커뮤니티 사이트의 펫 페이지 주소나 내 컴퓨터의 폴더에서 펫을 가져오는 법
+description: How to import a pet from a pet page address on a community site or from a folder on your computer
 ---
 
-# 펫 가져오기
+# Import a pet
 
-펫은 캐릭터 파일이에요. Codex의 펫 폴더(`~/.codex/pets`)에 있는 펫은 아무것도 하지 않아도 초대 탭에 보이고, 다른 펫은 가져와야 해요.
+A pet is a character file. The starter pets that come with the app and pets in Codex's pet folder (`~/.codex/pets`) show up in the Invite tab without you doing anything. Other pets have to be imported.
 
-## 링크로 한 번에 가져오기 <Since v="0.1.0" />
+## One-click import from a link <Since v="0.1.0" />
 
-펫 갤러리에 **PlayPets에서 열기** 같은 링크가 있으면 누르기만 하면 돼요. 링크는 `playpets://import?url=<펫 페이지 주소>` 꼴이고, PlayPets가 설치돼 있으면 그 펫을 가져온 뒤 초대 탭을 열어요. 갤러리를 운영한다면 펫 페이지에 이 링크를 달아 주세요.
+If a pet gallery offers an **Open in PlayPets** link, just click it. The link looks like `playpets://import?url=<pet page address>`; with PlayPets installed it imports that pet and opens the Invite tab. If you run a gallery, add this link to your pet pages.
 
 ```text
 playpets://import?url=https%3A%2F%2Fpetdex.dev%2Fpets%2Fboba
 ```
 
-## 펫 가져오기 창 <Since v="0.1.0" />
+## The Import a pet window <Since v="0.1.0" />
 
-**초대** 탭 위쪽의 **펫 가져오기**를 누르면 창이 열려요. 두 가지 방법이 있어요.
+Click **Import a pet** at the top of the **Invite** tab and a window opens. There are two ways.
 
-- **펫 페이지 주소**에 커뮤니티 사이트의 펫 페이지 주소나 GitHub 펫 폴더 주소를 붙여 넣고 **가져오기**를 눌러요.
-- **내 컴퓨터의 폴더에서 가져오기**를 눌러 펫 폴더를 골라요.
+- Paste the address of a pet page on a community site, or of a GitHub pet folder, into **Pet page address** and click **Import**. Files are fetched over https only, and only from the site of the address you pasted (and its subdomains); a page pointing at files on another site is not followed.
+- Click **Import from a folder on this computer** and pick a pet folder.
 
-가져오기가 끝나면 그 펫이 바로 놀이터에 친구로 초대돼요. "새 펫을 가져와 놀이터에 초대했어요" 알림이 떠요.
+When the import finishes, that pet is invited into the yard as a friend right away. A notice says "Imported a new pet and invited it into the yard."
 
-파일은 https 주소에서만, 그리고 붙여 넣은 주소의 사이트(와 그 하위 도메인)에서만 받아요. 펫 페이지가 다른 사이트의 파일을 가리키면 가져오지 않아요.
+## Supported sites <Since v="0.1.0" />
 
-## 지원하는 사이트 <Since v="0.1.0" />
+The **Community pets** line at the bottom of the window lists site names as chips. Click a chip and that site opens in your browser. Copy the address from a pet page you like and paste it into the field above.
 
-창 아래의 **커뮤니티 펫** 줄에 사이트 이름이 칩으로 있어요. 칩을 누르면 그 사이트가 브라우저에서 열려요. 마음에 드는 펫 페이지에서 주소를 복사해 위 입력칸에 붙여 넣으면 돼요.
-
-| 사이트 | 주소 |
+| Chip | Site address |
 |---|---|
 | OpenPets Registry | openpets.sh |
-| Petdex | 펫 페이지 주소 |
-| Codex PokéPets | 펫 페이지 주소 |
+| Petdex | petdex.dev |
+| Codex PokéPets | github.com/dnnyngyen/codex-pokepets |
 | Awesome Codex Pet | codexpet.top |
-| codex-pets.net | 펫 페이지 주소 |
-| GitHub | 펫 폴더(`pet.json`이 있는 폴더)의 주소 |
-| codex-pet-share로 만든 사이트 | 펫 페이지 주소 |
+| Codex Pets | codex-pets.net |
 
-지금 목록의 사이트는 모두 가져올 수 있어요. 형식이 달라 가져올 수 없는 사이트가 목록에 들어오면 칩에 **(구경만)**이 붙고, 열어 볼 수는 있지만 펫을 가져오지는 못해요.
+Places without a chip work too: the address of a pet folder on GitHub (a folder containing `pet.json`) and pet page addresses on sites built with codex-pet-share.
 
-주소가 틀리거나 사이트가 응답하지 않으면 창 안에 이유가 나와요. 가져오는 중에는 창을 닫을 수 없어요.
+Every site in the list can be imported from today. Should a site with a different format join the list, its chip gets **(browse only)**: you can open and look at it, but not import pets from it.
 
-## 내 컴퓨터의 폴더 <Since v="0.1.0" />
+If the address is wrong or the site does not respond, the reason is shown in the window. You cannot close the window while an import is in progress.
 
-**내 컴퓨터의 폴더에서 가져오기**로 고른 폴더는 복사하지 않고 그 자리를 그대로 봐요. 그래서 초대 탭에서 **내 컴퓨터에서 고른 펫** 묶음에 폴더 이름과 함께 보여요.
+## A folder on your computer <Since v="0.1.0" />
 
-::: warning 폴더를 옮기면 친구가 빠져요
-친구는 펫 폴더의 경로로 펫을 알아봐요. 고른 폴더를 옮기거나 지우면 다음에 앱을 열 때 그 펫의 친구가 놀이터에서 빠져요. 같은 자리로 되돌리면 다시 나와요.
+A folder picked with **Import from a folder on this computer** is not copied; the app reads it where it is. That is why it shows in the Invite tab under **Pets picked from this computer**, along with the folder name.
+
+::: warning Move the folder and the friend leaves
+A friend recognises its pet by the pet folder's path. If you move or delete the folder you picked, that pet's friend leaves the yard the next time you open the app. Put the folder back in the same place and the friend comes back.
 :::
 
-## 어디에 저장되나요 <Since v="0.1.0" />
+## Where pets are saved <Since v="0.1.0" />
 
-주소로 가져온 펫은 [데이터 폴더](./install.md#데이터-폴더)의 `pets/`에 폴더 하나로 저장돼요. 초대 탭의 **주소로 가져온 펫** 묶음에 **폴더 열기** 버튼이 있어서 그 폴더를 바로 열 수 있어요. Codex 펫 폴더 묶음에도 같은 버튼이 있어요.
+A pet imported from an address is saved as one folder in `pets/` in the [data folder](./install.md#data-folder). The **Pets imported from an address** group in the Invite tab has an **Open folder** button that opens that folder right away. The **PlayPets starter pets** and **Codex pet folder** groups have the same button. The **Pets picked from this computer** group has no button; each card shows its folder name instead.
 
-가져온 펫의 `pet.json`에는 출처가 함께 적혀요. 초대 탭의 카드에 "Petdex · 제작자 · CC BY-NC 4.0"처럼 사이트, 제작자, 라이선스가 한 줄로 보여요. 커뮤니티 펫은 각 제작자의 저작물이니 라이선스를 확인하고 써 주세요.
+The `pet.json` of an imported pet records where it came from. The card in the Invite tab shows the site, creator and license on one line, like "Petdex · creator · CC BY-NC 4.0". Community pets are the work of their creators, so check the license before you use them.
 
-더 쓰지 않는 펫은 `pets/` 안의 폴더를 지우면 돼요. 그 펫으로 만든 친구도 다음 시작 때 빠져요.
+To get rid of a pet you no longer use, delete its folder inside `pets/`. Friends made from that pet leave at the next start.
 
-## 직접 만들기
+## Make your own
 
-펫 하나는 `pet.json`과 스프라이트 시트(PNG 또는 WebP) 한 장이 든 폴더예요. 형식은 Codex 펫과 같아서, Codex용으로 만든 펫이면 그대로 쓸 수 있어요.
+A pet is one folder with a `pet.json` and one sprite sheet (PNG or WebP). The format is the same as Codex pets, so a pet made for Codex works as it is.
 
 ```json
 {
@@ -74,8 +72,8 @@ playpets://import?url=https%3A%2F%2Fpetdex.dev%2Fpets%2Fboba
 }
 ```
 
-- 시트는 너비 1536px이고, 한 칸이 192×208px, 한 행이 8칸이에요. v1은 9행(1872px), v2는 11행(2288px)이에요.
-- 행마다 쉬기, 걷기, 손 흔들기, 점프, 오류, 기다리기, 일하기, 완료가 들어가요. v2는 16방향 시선 두 행이 더 있어서 바탕화면에서 마우스를 따라 봐요.
-- `description`은 새 친구의 처음 성격이 돼요.
+- The sheet is 1536px wide, each cell is 192×208px, and each row has 8 cells. v1 has 9 rows (1872px), v2 has 11 rows (2288px).
+- The nine rows of v1 are, in order, rest, walk right, walk left, wave, jump, error, wait, work and done. v2 has two more rows of 16-direction gaze, so the pet follows the mouse with its eyes on the desktop.
+- `description` becomes a new friend's first personality.
 
-행별 애니메이션과 검사 규칙은 개발자 문서 [펫 파일 형식](/en/dev/standards/pet-files)에 있어요. 만든 폴더는 **내 컴퓨터의 폴더에서 가져오기**로 바로 초대할 수 있어요.
+The animation for each row and the validation rules are in the developer docs under [Pet file format](/dev/standards/pet-files). You can invite the folder you made right away with **Import from a folder on this computer**.

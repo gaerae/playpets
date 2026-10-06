@@ -136,7 +136,7 @@ input[type="range"] {
 .confirm-dialog .dialog-description {
   margin: 10px 0 0;
 }
-/* 취소 gets focus first, so it needs room for its focus ring. */
+/* Cancel gets focus first, so it needs room for its focus ring. */
 .confirm-dialog .dialog-actions {
   gap: 8px;
 }

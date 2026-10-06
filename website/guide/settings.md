@@ -1,82 +1,82 @@
 ---
-description: 언어, 앱 업데이트, 종료, 데이터 폴더와 환경 변수, 저장되는 것과 저장되지 않는 것
+description: Language, app updates, quitting, the data folder and environment variables, what is saved and what is not
 ---
 
-# 설정
+# Settings
 
-**설정** 탭에는 언어, 앱 업데이트, 코딩 에이전트 연동, 앱 종료가 있어요. 코딩 에이전트 연동은 [따로 설명](./agents.md)해요.
+The **Settings** tab has Language, App updates, the auto chatter switch (**Let them chat now and then**), Coding agent hooks and Quit the app. Coding agent hooks are [explained separately](./agents.md).
 
-## 언어 <Since v="0.1.0" />
+## Language <Since v="0.1.0" />
 
-한국어, English, 日本語, 简体中文 중에서 골라요. 처음에는 시스템 언어를 따르고, 바꾸면 놀이터와 바탕화면 창을 모두 새 언어로 다시 불러와요. 트레이 메뉴와 창 제목도 함께 바뀌어요. 고른 언어는 `state.json`의 `language`에 저장돼요.
+Choose from 한국어, English, 日本語 and 简体中文. At first it follows the system language; changing it reloads the yard and the desktop windows in the new language. The tray menu and the window title change too. The chosen language is saved as `language` in `state.json`.
 
-친구의 혼잣말과 인사도 고른 언어로 해요. 다만 AI와 나누는 대화는 성격과 보낸 말에 따르고, 코딩 에이전트와 터미널에는 영어로 말해요.
+Your friends' chatter and greetings use the chosen language as well. Conversations with an AI, though, follow the personality and what you say, and the app speaks English to coding agents and the terminal.
 
-환경 변수 `PLAYPETS_LANG=ko|en|ja`를 주고 실행하면 저장된 언어보다 우선해요. 테스트용이에요.
+Start the app with the environment variable `PLAYPETS_LANG=ko|en|ja|zh-hans` and it takes priority over the saved language. This is for testing.
 
-## 가끔 자기들끼리 이야기해요 <Since v="0.1.0" />
+## App updates <Since v="0.1.0" />
 
-설정 탭 위쪽의 이 스위치를 켜면 20분마다 AI가 붙은 친구들이 짧게 수다를 떨어요. 기본은 꺼져 있어요. 구독 CLI는 추가 요금이 없지만 호출이 늘어나니 원할 때만 켜요. 창이 숨겨져 있거나 누가 답하는 중이면 그 차례는 건너뛰어요.
+The line shows the current version. Click **Check for updates** and the app reads `latest.json` from GitHub releases.
 
-## 앱 업데이트 <Since v="0.1.0" />
+- If you are current, it says "You're up to date".
+- If there is a new version, the button changes to **Install and restart**. Click it to download, verify the signature and, when done, restart on the new version.
 
-줄에 지금 버전이 보여요. **업데이트 확인**을 누르면 GitHub 릴리스의 `latest.json`을 읽어요.
+20 seconds after the app starts, it checks once quietly. If there is a new version, a notice appears. If it could not check, look at your network, and keep in mind that the Windows portable zip is not covered by automatic updates. See [Install](./install.md#updates) for details.
 
-- 최신이면 "최신 버전이에요"라고 알려 줘요.
-- 새 버전이 있으면 버튼이 **설치하고 다시 시작**으로 바뀌어요. 누르면 받아서 서명을 검증하고, 끝나면 새 버전으로 다시 시작해요.
+## Let them chat now and then <Since v="0.1.0" />
 
-앱이 시작한 뒤 20초가 지나면 한 번 조용히 확인해요. 새 버전이 있으면 알림이 떠요. 확인하지 못했다면 네트워크를 보고, Windows 포터블 zip은 자동 업데이트 대상이 아니라는 점을 기억해 주세요. 자세한 내용은 [설치하기](./install.md#업데이트)에 있어요.
+With this switch, right below the Language and App updates rows, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default: subscription CLIs cost nothing extra, but the calls add up, so turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
 
-## 앱 완전히 종료 <Since v="0.1.0" />
+## Quit the app <Since v="0.1.0" />
 
-놀이터 창의 닫기 버튼은 창만 숨기고 앱은 트레이에 남아요. 바탕화면의 친구와 에이전트 연동은 계속 돌아가요.
+The yard window's close button only hides the window; the app stays in the tray. Friends on the desktop and the agent hooks keep running.
 
-정말 끝내려면 설정 탭 아래의 **앱 완전히 종료**를 눌러요. "PlayPets를 종료할까요?" 확인 창이 떠요. 나눈 대화는 저장되지 않고, 바탕화면의 친구들도 함께 사라져요. 트레이 메뉴의 **종료**도 같아요.
+To really quit, click **Quit the app** at the bottom of the Settings tab. A "Quit PlayPets?" confirmation appears. Conversations are not saved, and friends on the desktop go too. **Quit** in the tray menu does the same.
 
-## 데이터 폴더 <Since v="0.1.0" />
+## Data folder <Since v="0.1.0" />
 
-| 운영체제 | 위치 |
+| Operating system | Location |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
 | Windows | `%APPDATA%\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
 
-| 파일 | 내용 |
+| File | Contents |
 |---|---|
-| `state.json` | 친구(이름, 성격과 그 출처, 관계, 크기, 위치, 고른 AI 연결), AI 연결 목록(키는 빼고), 언어, 바탕화면 모드와 돌아다니기, 에이전트별 담당 친구, 자동 수다, 직접 고른 펫 폴더, 파일 형식 번호(`schema`). 새 판이 쓴 파일을 옛 판이 열면 사본을 두고 아는 부분만 읽어요 |
-| `bridge.json` | 에이전트 연동용 포트와 토큰. 앱을 켤 때마다 새로 써요 |
-| `pets/` | 주소로 가져온 펫 폴더 |
-| `builtin/` | 앱에 든 기본 펫 세 마리(타비·스모키·모찌). 켤 때마다 확인해 풀어 둬요 |
+| `state.json` | Friends (name, personality and where it came from, relationship, size, position, chosen AI connection), the list of AI connections (without keys), language, desktop mode and roaming, each agent's friend, auto chatter, hand-picked pet folders, the file's format number (`schema`). A file written by a newer version is copied aside and read for the parts this version knows |
+| `bridge.json` | The port and token for agent hooks. Rewritten every time the app starts |
+| `pets/` | Pet folders imported from an address |
+| `builtin/` | The three starter pets (Tabby, Smoky, Mochi) that come with the app, unpacked at each start |
 
-## 환경 변수
+## Environment variables
 
-| 변수 | 하는 일 |
+| Variable | What it does |
 |---|---|
-| `PLAYPETS_DATA` | 데이터 폴더를 다른 곳으로 바꿔요. 터미널 명령(`playpets say` 등)도 같은 값을 봐요 |
-| `CODEX_HOME` | Codex의 홈 폴더예요. 초대 탭의 Codex 펫 폴더가 `$CODEX_HOME/pets`로 바뀌어요 |
-| `PLAYPETS_LANG` | 언어를 강제해요(`ko`, `en`, `ja`) |
-| `PLAYPETS_PET` | 터미널 명령의 기본 친구. `--pet` 옵션과 같아요 |
-| `PLAYPETS_BRIDGE` | 터미널 명령이 읽을 `bridge.json`의 경로. `--bridge` 옵션과 같아요 |
+| `PLAYPETS_DATA` | Moves the data folder somewhere else. Terminal commands (`playpets say` and so on) read the same value |
+| `CODEX_HOME` | Codex's home folder. The Codex pet folder in the Invite tab becomes `$CODEX_HOME/pets` |
+| `PLAYPETS_LANG` | Forces the language (`ko`, `en`, `ja`, `zh-hans`) |
+| `PLAYPETS_PET` | The default friend for terminal commands. Same as the `--pet` option |
+| `PLAYPETS_BRIDGE` | The path to the `bridge.json` that terminal commands read. Same as the `--bridge` option |
 
-앱을 실행하는 환경에 변수를 두어야 해요. 터미널에서 앱을 열거나, 운영체제의 환경 변수 설정을 써요.
+The variables must be set in the environment the app runs in. Start the app from a terminal, or use your operating system's environment variable settings.
 
-## 저장되는 것과 저장되지 않는 것 <Since v="0.1.0" />
+## What is saved and what is not <Since v="0.1.0" />
 
-**저장돼요**
+**Saved**
 
-- 친구의 이름, 성격, 크기, 놀이터 위치
-- AI 연결의 종류, 서버 주소, 모델 이름
-- 언어, 바탕화면 모드와 돌아다니기, 작게 보기, 고른 시간대와 날씨
-- 가져온 펫 파일과 출처
+- Each friend's name, personality, size and position in the yard
+- The kind, server address and model name of each AI connection
+- Language, desktop mode and strolling, mini mode, the chosen time of day and weather
+- Imported pet files and where they came from
 
-**다르게 저장돼요**
+**Saved differently**
 
-- API 키는 `state.json`에 들어가지 않아요. 이 컴퓨터의 보안 저장소(macOS 키체인, Windows 자격 증명 관리자, Linux Secret Service)에만 저장되고, 연결을 지우면 함께 지워져요.
+- API keys do not go into `state.json`. They are kept only in this computer's secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service), and deleting the connection deletes them too.
 
-**저장되지 않아요**
+**Not saved**
 
-- 친구와 나눈 대화. 메모리에만 있고 앱을 끄면 사라져요.
-- 코딩 에이전트의 최근 활동 기억. 앱을 끄면 사라져요.
-- 놀이 중의 위치. 놀이가 끝나면 원래 자리로 돌아가요.
+- Conversations with your friends. They live only in memory and are gone when you quit the app.
+- The memory of a coding agent's recent activity. Gone when you quit the app.
+- Positions during a game. Friends go back to where they were when the game ends.
 
-앱을 지운 뒤 모든 흔적을 없애려면 데이터 폴더와 보안 저장소의 PlayPets 항목을 함께 지워 주세요.
+To remove every trace after uninstalling the app, delete the data folder and the PlayPets entries in the secure storage as well.

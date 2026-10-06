@@ -39,7 +39,7 @@ Open-source desktop apps keep GitHub releases as the source, and package manager
 |---|---|---|---|
 | GitHub releases | Push a tag and CI builds and uploads | None | The repository's `release.yml` |
 | Official Homebrew cask | `brew install --cask` | Code signing and notarization required, notability review (no numeric threshold) | [Acceptable Casks](https://docs.brew.sh/Acceptable-Casks) checked directly |
-| Own Homebrew tap | `Casks/*.rb` in my `homebrew-tap` repository | No review. Without code signing the first launch is blocked | Same document |
+| Own Homebrew tap | `Casks/*.rb` in your own `homebrew-tap` repository | No review. Without code signing the first launch is blocked | Same document |
 | winget | YAML manifest PR to `microsoft/winget-pkgs`. `wingetcreate` generates and submits it | Free. Public installer URL and SHA256. A person reviews the first version, later ones are merged by a bot | [Submit packages](https://learn.microsoft.com/en-us/windows/package-manager/package/) checked directly |
 | Scoop, Chocolatey, Flathub, AUR | Each has its own manifest | Free | Not researched |
 | Tauri auto-update | Reads `latest.json`, verifies the signature, then installs | Free key pair. Verification cannot be turned off. If the private key is lost, installed apps can never receive another update | [Updater plugin](https://v2.tauri.app/plugin/updater/) checked directly |
@@ -56,10 +56,10 @@ The Tauri updater looks for `<os>-<arch>-<install type>` first (for example `lin
 
 PlayPets already runs without code signing and turns each step on as soon as the secrets are added (decision "[GitHub releases are the source, auto-update, winget and a Homebrew tap point at those files, and code signing turns on with secrets](../decisions/2026-10-01-distribution-channels-and-signing.md)"). So the order is:
 
-1. Create the GitHub repository and push to run CI for the first time.
+1. One-time setup: create the GitHub repository and push, so CI runs for the first time.
 2. Add the update secret key to the repository secrets ([Managing signing keys and secrets](../standards/keys-and-secrets.md)).
 3. Run `npm run release -- 0.1.0`, push the tag, check the draft and publish it ([Release a new version](../how-to/release.md)).
-4. Send the first winget manifest as a PR and create the `homebrew-tap` repository.
+4. Send the first winget manifest as a PR and create the `homebrew-tap` repository (one-time setup).
 5. After joining the Apple Developer Program, add the `APPLE_*` secrets to turn on code signing and notarization, and consider the official Homebrew cask.
 6. For Windows, start with individual registration in the Microsoft Store (free). Revisit Azure Artifact Signing when we become an organization or the region condition for individuals is lifted.
 

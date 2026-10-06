@@ -1,41 +1,41 @@
-# 자주 묻는 질문
+# FAQ
 
-## 돈이 드나요?
+## Does it cost anything?
 
-앱은 무료고 MIT 라이선스의 오픈소스예요. 대화는 이미 쓰고 있는 Claude Code나 Codex CLI 구독으로 하면 추가 요금이 없고, Ollama는 내 컴퓨터에서 돌아가요. OpenAI API나 호환 서버를 연결할 때만 그 서비스의 사용료가 생길 수 있어요.
+The app is free and open source under the MIT license. Chatting through the Claude Code or Codex CLI subscription you already have costs nothing extra, and Ollama runs on your computer. Only when you connect the OpenAI API or a compatible server can that service's fees apply.
 
-## 인터넷 없이 되나요?
+## Does it work without the internet?
 
-초대, 놀이, 바탕화면 모드, 시간대와 날씨는 모두 인터넷 없이 돼요. 날씨 자동도 실제 날씨를 가져오지 않고 시계로 정해요. 인터넷이 필요한 건 커뮤니티 펫 가져오기, 업데이트 확인, 그리고 인터넷을 쓰는 AI와의 대화예요. Ollama로 대화하면 그것도 내 컴퓨터 안에서만 처리돼요.
+Inviting, games, desktop mode, and time of day and weather all work without the internet. Auto weather does not fetch the real weather either; it is decided by the clock. The internet is needed for importing community pets, checking for updates, and chatting with an AI that uses the internet. If you chat through Ollama, that stays on your computer too.
 
-## 내 코드나 프롬프트가 펫에게 가나요?
+## Does my code or my prompt go to the pet?
 
-아니에요. [코딩 에이전트 연동](./agents.md)은 상태와 짧은 문장만 보내고, 에이전트에 입력한 내용이나 코드는 보내지 않아요. 연동은 이 컴퓨터 안(`127.0.0.1`, 토큰 인증)에서만 오가요. 친구와 나누는 대화는 따로 고른 AI 연결로만 가요.
+No. [Coding agent hooks](./agents.md) send only the status and short sentences, never what you type into the agent or your code. The hooks stay on this computer (`127.0.0.1`, token authentication). Conversations with your friend go only to the AI connection you chose separately.
 
-## macOS에서 열리지 않아요.
+## It won't open on macOS.
 
-배포 파일에 서명과 공증이 없어서 Gatekeeper가 처음 실행을 막아요. 시스템 설정 > 개인정보 보호 및 보안으로 가서 아래쪽의 **그래도 열기**를 누르면 돼요. 한 번만 하면 다음부터는 바로 열려요. 자세한 순서는 [설치하기](./install.md#macos)에 있어요.
+The release files are not signed or notarised, so Gatekeeper blocks the first launch. Go to System Settings > Privacy & Security and click **Open Anyway** near the bottom. You only do this once; after that it opens right away. The full steps are in [Install](./install.md#macos).
 
-## Windows에서 경고가 떠요.
+## Windows shows a warning.
 
-같은 이유예요. SmartScreen의 "Windows의 PC 보호" 창에서 **추가 정보**를 누르고 **실행**을 고르면 설치가 이어져요. 코드 서명은 계획에 있어요.
+Same reason. In SmartScreen's "Windows protected your PC" window, click **More info** and choose **Run anyway** and the installation continues. Code signing is planned.
 
-## Windows에서 AI 대화가 안 돼요.
+## AI chat doesn't work on Windows.
 
-Claude Code나 Codex CLI를 npm으로 설치했다면 `%APPDATA%\npm`에 있어야 앱이 찾아요. 터미널에서 `claude`나 `codex`가 실행되는지 먼저 확인하고, 연결 창 위에 "이 컴퓨터에 설치됨"이 나오는지 봐 주세요. Windows 빌드는 실제 기기에서 아직 충분히 확인하지 않았으니, 그래도 안 되면 [이슈](https://github.com/gaerae/playpets/issues)로 알려 주세요.
+If you installed Claude Code or Codex CLI with npm, they must be in `%APPDATA%\npm` for the app to find them. First check that `claude` or `codex` runs in the terminal, then see whether "Installed on this computer" shows above the connection window. The Windows build has not been tested enough on real machines yet, so if it still does not work, let us know in an [issue](https://github.com/gaerae/playpets/issues).
 
-## 펫이 느리거나 배터리를 써요.
+## The pet is slow or uses battery.
 
-친구는 움직임이 있을 때만 자주 그리고, 가만히 있을 때는 드물게 그려요. 놀이터 창을 닫아 숨기면 놀이터는 그리지 않아요. 그래도 많이 쓴다면 친구 수를 줄이거나 **바탕화면에서 돌아다니기**를 꺼 보세요. 어느 상태(놀이터만, 바탕화면만, 둘 다)에서 그런지 함께 알려 주시면 고치는 데 도움이 돼요.
+Friends are drawn often only while they are moving, and rarely when they are still. Close the yard window to hide it and the yard is not drawn at all. If it still uses a lot, try fewer friends or turn off **Stroll around the desktop** in desktop mode. Telling us which state it happens in (yard only, desktop only, or both) helps us fix it.
 
-## 펫을 직접 만들 수 있나요?
+## Can I make my own pet?
 
-네. `pet.json`과 스프라이트 시트가 든 폴더 하나가 펫이에요. 형식은 Codex 펫과 같아요. 만든 폴더는 **펫 가져오기**의 **내 컴퓨터의 폴더에서 가져오기**로 바로 초대할 수 있어요. 자세한 규칙은 [펫 가져오기](./import.md#직접-만들기)와 개발자 문서 [펫 파일 형식](/en/dev/standards/pet-files)에 있어요.
+Yes. One folder with a `pet.json` and a sprite sheet is a pet. The format is the same as Codex pets. You can invite the folder you made right away with **Import from a folder on this computer** in **Import a pet**. The full rules are in [Import a pet](./import.md#make-your-own) and the developer docs under [Pet file format](/dev/standards/pet-files).
 
-## 모니터가 여러 대인데 어떻게 되나요?
+## What about several monitors?
 
-[바탕화면 모드](./desktop.md)에서 친구는 어느 모니터에나 있을 수 있어요. 끌어서 다른 모니터로 데려가면 그곳에 머물러요. 모니터마다 배율이 달라도 돼요.
+In [Desktop mode](./desktop.md) a friend can be on any monitor. Drag a friend to another monitor and they stay there. The monitors can have different scaling.
 
-## 데이터는 어디에 있나요?
+## Where is my data?
 
-macOS는 `~/Library/Application Support/app.playpets/`, Windows는 `%APPDATA%\app.playpets\`, Linux는 `~/.local/share/app.playpets/`예요. 친구와 설정은 `state.json`, 가져온 펫은 `pets/`, 기본 펫은 `builtin/`에 있어요. API 키는 여기 없고 OS의 보안 저장소에 있어요. 대화 기록은 어디에도 저장하지 않아요. 자세한 내용은 [설정](./settings.md#데이터-폴더)에 있어요.
+On macOS it is `~/Library/Application Support/app.playpets/`, on Windows `%APPDATA%\app.playpets\`, and on Linux `~/.local/share/app.playpets/`. Friends and settings are in `state.json`, imported pets in `pets/`, and the starter pets in `builtin/`. API keys are not here; they are in the OS's secure storage. Chat history is not saved anywhere. See [Settings](./settings.md#data-folder) for details.

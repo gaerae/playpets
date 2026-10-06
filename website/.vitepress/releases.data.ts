@@ -25,7 +25,7 @@ export default createContentLoader('**/releases/*.md', {
       .filter(p => p.frontmatter.version)
       .map(p => ({
         url: p.url,
-        lang: p.url.match(/^\/(en|zh-hans)\//)?.[1] ?? 'ko',
+        lang: p.url.match(/^\/(ko|zh-hans)\//)?.[1] ?? 'en',
         version: String(p.frontmatter.version),
         date: String(p.frontmatter.date ?? ''),
         headline: String(p.frontmatter.headline ?? ''),

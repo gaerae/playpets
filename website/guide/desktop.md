@@ -1,56 +1,56 @@
 ---
-description: 친구를 바탕화면으로 내보내고, 창을 닫은 뒤에도 트레이에서 계속 두는 법
+description: How to send friends out onto the desktop and keep them around from the tray after closing the window
 ---
 
-# 바탕화면 모드
+# Desktop mode
 
-친구들을 놀이터 창 밖으로 내보내 바탕화면 위에서 지내게 할 수 있어요. 다른 앱으로 일하는 동안에도 친구가 보여요.
+You can send your friends out of the yard window to live on the desktop. They stay visible while you work in other apps.
 
-<Shot name="desktop" caption="바탕화면 모드. 친구가 다른 창 위에서 지내고, 코딩 에이전트의 상태를 말풍선으로 보여 줘요." />
+<Shot name="desktop" caption="Desktop mode. A friend lives on top of other windows and shows the coding agent's status in a speech bubble." />
 
-## 켜고 끄기 <Since v="0.1.0" />
+## Turning it on and off <Since v="0.1.0" />
 
-놀이터 창 위쪽의 **바탕화면에 보이기**를 눌러요. 친구가 하나도 없으면 버튼이 비활성이에요. 켜면 버튼이 **바탕화면에서 숨기기**로 바뀌고, 그 옆에 **바탕화면에서 돌아다니기** 토글이 나타나요.
+Click **Show on desktop** at the top of the yard window. The button is disabled when you have no friends. Once it is on, the button changes to **Hide from desktop**, and a **Stroll around the desktop** toggle appears next to it.
 
-트레이 아이콘의 메뉴에도 같은 항목이 있어서 놀이터 창을 열지 않고도 켜고 끌 수 있어요.
+The tray icon's menu has the same items, so you can turn it on and off without opening the yard window.
 
-## 바탕화면에서 하는 일 <Since v="0.1.0" />
+## Things to do on the desktop <Since v="0.1.0" />
 
-| 하는 일 | 방법 |
+| Action | How |
 |---|---|
-| 쓰다듬기 | 친구를 왼쪽 버튼으로 한 번 눌러요 |
-| 옮기기 | 친구를 끌어서 놓아요. 다른 모니터로도 옮길 수 있어요 |
-| 대화하기 | 친구를 오른쪽 버튼으로 눌러요. 놀이터 창이 그 친구의 대화로 열려요 |
-| 눈 맞추기 | 쉬고 있는 친구의 얼굴에 마우스를 문지르면 눈이 마우스를 따라와요. 16방향 시선 그림이 든 v2 펫만 돼요 |
+| Pat | Left-click a friend once |
+| Move | Drag a friend and drop them. You can move them to another monitor too |
+| Chat | Right-click a friend. The yard window opens on that friend's chat |
+| Eye contact | Move the mouse over a resting friend's face and their eyes follow it. Only v2 pets with 16-direction gaze artwork can do this |
 
-왼쪽 더블 클릭은 아무 일도 하지 않아요. 옮기다가 실수로 창이 열리지 않게 하려고 대화는 오른쪽 버튼으로만 열어요.
+A left double-click does nothing. Chat opens only with a right-click, so a window does not open by accident while you are moving a friend.
 
-바탕화면에서는 이름표를 그리지 않아요. 책상에 섞여 보이게 두고, 이름은 앱 안에서만 보여요. 대신 [코딩 에이전트](./agents.md)의 상태나 친구가 하는 말은 머리 위 말풍선으로 떠요.
+Name tags are not drawn on the desktop. Friends blend in with your desk, and names are shown only inside the app. Instead, the [coding agent](./agents.md)'s status and whatever the friend says float in a speech bubble above their head.
 
-## 모니터마다 친구 <Since v="0.1.0" />
+## Friends on every monitor <Since v="0.1.0" />
 
-모니터가 여러 대면 친구는 어느 모니터에나 있을 수 있어요. 끌어서 다른 모니터로 데려가면 그 모니터에 머물러요. 모니터마다 배율이 달라도 마우스 위치를 그 모니터의 배율로 맞춰요.
+With several monitors, a friend can be on any of them. Drag a friend to another monitor and they stay there. Even when the monitors have different scaling, the mouse position is matched to that monitor's scale.
 
-## 바탕화면에서 돌아다니기 <Since v="0.1.0" />
+## Stroll around the desktop <Since v="0.1.0" />
 
-**바탕화면에서 돌아다니기** 토글을 켜면 친구들이 바탕화면을 천천히 돌아다녀요. 걷는 방향으로 몸을 돌리고, 가끔 멈춰 쉬어요. 끄면 두었던 자리에 가만히 있어요. 끌고 있는 동안에는 돌아다니지 않아요.
+Turn on the **Stroll around the desktop** toggle and the friends slowly wander around the desktop. They turn to face the way they walk, and stop to rest now and then. Turn it off and they stay where you left them. They do not wander while you are dragging them.
 
-## 다른 앱의 전체 화면 위 <Since v="0.1.0" />
+## On top of other apps' full screen <Since v="0.1.0" />
 
-macOS에서는 다른 앱을 전체 화면으로 쓸 때도 친구가 그 위에 떠요. 바탕화면 창을 특별한 패널로 바꿔서 전체 화면 공간에도 보이게 했어요. Windows와 Linux에서는 보통 창 위에 떠요. Linux의 Wayland 세션은 창을 항상 위에 두거나 마우스 위치를 알려 주는 방법을 앱에 주지 않아서, 친구가 다른 창 뒤로 갈 수 있고 마우스를 따라 보지 않아요. X11 세션에서는 다 돼요.
+On macOS, friends float on top even when another app is in full screen. The desktop window is turned into a special panel so it shows up in full-screen spaces too. On Windows and Linux, they float on top of normal windows. A Wayland session on Linux gives apps no way to stay on top or to know where the mouse is, so there friends can end up behind other windows and do not follow the mouse; an X11 session has it all.
 
-## 창을 닫아도 계속 <Since v="0.1.0" />
+## Still there after you close the window <Since v="0.1.0" />
 
-놀이터 창의 닫기 버튼은 앱을 끝내지 않고 창만 숨겨요. 닫기 버튼에 마우스를 올리면 "닫기 (트레이에서 다시 열 수 있어요)"라고 알려 줘요. 바탕화면의 친구들은 그대로 남고, 에이전트 연동도 계속 돌아가요.
+The yard window's close button does not quit the app; it only hides the window. Hover over the close button and it says "Close (reopen from the tray)". The friends on the desktop stay, and the agent hooks keep running.
 
-- macOS에서는 창을 닫으면 Dock 아이콘도 함께 사라져요. 눌러도 답하지 않는 아이콘을 Dock에 남기지 않으려고요. 놀이터를 다시 열면 Dock 아이콘도 돌아와요.
-- Windows와 Linux에서는 작업 표시줄에서 사라지고 트레이에만 남아요.
+- On macOS, closing the window also removes the Dock icon, so that no icon that does not respond to clicks is left in the Dock. Open the yard again and the Dock icon comes back.
+- On Windows and Linux, it disappears from the taskbar and stays only in the tray.
 
-## 다시 여는 법
+## Opening it again
 
-- 메뉴 막대(macOS)나 작업 표시줄(Windows, Linux)의 트레이 아이콘을 눌러 **놀이터 열기**를 골라요.
-- 바탕화면의 친구를 오른쪽 버튼으로 눌러도 놀이터 창이 열려요.
+- Click the tray icon in the menu bar (macOS) or taskbar (Windows, Linux) and choose **Open the yard**.
+- Right-clicking a friend on the desktop also opens the yard window.
 
-## 완전히 끝내기
+## Quitting for good
 
-앱을 정말 끝내려면 트레이 메뉴의 **종료**를 고르거나, 설정 탭 아래의 **앱 완전히 종료**를 눌러요. 나눈 대화는 저장되지 않고, 바탕화면의 친구들도 함께 사라져요. 친구의 이름, 성격, 크기, 바탕화면 모드가 켜져 있었는지는 기억하고 있어서 다음에 열면 그대로예요.
+To really quit the app, choose **Quit** in the tray menu or click **Quit the app** at the bottom of the Settings tab. Conversations are not saved, and friends on the desktop go too. Each friend's name, personality and size, and whether desktop mode was on, are remembered, so everything is as you left it the next time you open the app.

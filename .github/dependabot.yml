@@ -1,4 +1,4 @@
-# Weekly update PRs for the three kinds of dependencies. Minor and patch updates of each kind come
+# Weekly update PRs for each kind of dependency. Minor and patch updates of each kind come
 # as one PR, so CI checks them together; major updates come one by one.
 version: 2
 updates:
@@ -23,3 +23,8 @@ updates:
     groups:
       actions:
         update-types: [minor, patch]
+  # The local Docker builds (npm run dist:linux / dist:windows).
+  - package-ecosystem: docker
+    directories: [/packaging/linux, /packaging/windows]
+    schedule:
+      interval: weekly

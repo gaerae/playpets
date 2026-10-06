@@ -2,10 +2,10 @@
 // Pure functions; scripts/site-prepare.mjs applies them and tests/website.test.mjs checks them.
 import path from 'node:path/posix';
 
-/** Where a file under docs/ is copied for the site: the English section, since the docs are English. README.md becomes the section index. */
+/** Where a file under docs/ is copied for the site: dev/ in the English root, since the docs are English. README.md becomes the section index. */
 export function destinationFor(source) {
   const rest = source.replace(/^docs\//, '');
-  return `website/en/dev/${rest === 'README.md' ? 'index.md' : rest}`;
+  return `website/dev/${rest === 'README.md' ? 'index.md' : rest}`;
 }
 
 /**

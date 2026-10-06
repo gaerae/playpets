@@ -1,12 +1,12 @@
 # PlayPets
 
-[![Banner: a yard where your pets talk to each other](assets/banner.png)](https://gaerae.github.io/playpets/en/)
+[![Banner: a yard where your pets talk to each other](assets/banner.png)](https://gaerae.github.io/playpets/)
 
 **A yard where your pets talk to each other.** Bring the ten thousand Codex pets as they are. Each friend talks through its own AI: a Claude Code or Codex subscription, Ollama, or an OpenAI-compatible server. Friends keep the conversation going among themselves, and whatever coding agent is working has company. PlayPets is a separate open-source app that follows the Codex pet format. You don't need Codex.
 
-[Website](https://gaerae.github.io/playpets/en/) · [User guide](https://gaerae.github.io/playpets/en/guide/) · [Releases](https://gaerae.github.io/playpets/en/releases/) · [Developer docs](https://gaerae.github.io/playpets/en/dev/)
+[Website](https://gaerae.github.io/playpets/) · [User guide](https://gaerae.github.io/playpets/guide/) · [Releases](https://gaerae.github.io/playpets/releases/) · [Developer docs](https://gaerae.github.io/playpets/dev/)
 
-한국어: [사이트](https://gaerae.github.io/playpets/) · [사용 안내](https://gaerae.github.io/playpets/guide/) · 简体中文: [网站](https://gaerae.github.io/playpets/zh-hans/) · [使用指南](https://gaerae.github.io/playpets/zh-hans/guide/)
+한국어: [사이트](https://gaerae.github.io/playpets/ko/) · [사용 안내](https://gaerae.github.io/playpets/ko/guide/) · 简体中文: [网站](https://gaerae.github.io/playpets/zh-hans/) · [使用指南](https://gaerae.github.io/playpets/zh-hans/guide/)
 
 ![macOS · Windows · Linux](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-Tauri%202-f9ae55) ![MIT](https://img.shields.io/badge/license-MIT-3a2a1e) ![Compatible with the Codex pet format](https://img.shields.io/badge/pets-Codex%20pet%20format%20compatible-4a9bd6)
 
@@ -19,14 +19,14 @@ More than ten pet apps that react to coding agents appeared in 2026, and nearly 
 | Where they live | Inside Codex | One pet over the desktop | A yard with time and weather, and the desktop |
 | How many | One | Usually one | Several |
 | Pet files | Codex format | Own or Codex format | Codex format as is, straight from a gallery address |
-| Agent reactions | Codex | Hooks, several agents | Hooks and MCP, several agents. Same here |
+| Agent reactions | Codex | Hooks, several agents | Hooks and MCP, several agents |
 
 ![Three friends saying hi and going for a walk in the yard](assets/demo.gif)
 
 - **Each friend, its own AI.** Claude Code or Codex CLI on your subscription (no extra fee), Ollama (on your own computer), or OpenAI and compatible APIs. Give each friend a different AI and personality, and pick a relationship: Friend, Partner, Reliable senior or Playful younger sibling.
 - **Friends talk to each other.** When the AI brings another connected friend into the conversation, they answer in turn. Press "Let them chat" in the yard and friends keep talking among themselves. You can also let them chat now and then on their own. In the yard it shows as speech bubbles.
 - **Friends at work.** Claude Code, Gemini CLI and Cursor hooks, Codex notifications and MCP pass thinking, tool use, permission requests and completion on to a friend. Give each agent its own friend. Ask "What were you doing?" and the friend tells you about recent work.
-- **A living yard.** Morning, day, evening and night, and the weather (clear, rain, snow), follow the clock and the sky. You can also pick them yourself. Put down a treat and friends walk over to eat it. Leave them alone and they wander and talk to themselves.
+- **A living yard.** Morning, day, evening and night follow the clock, and the weather (clear, rain, snow) changes on its own. You can also pick them yourself. Put down a treat and friends walk over to eat it. Leave them alone and they wander and talk to themselves.
 - **Desktop mode.** Pets stroll around the desktop (on macOS, even over other apps in full screen).
 - **Play together.** Hide and seek (find the friend whose name is called), parade, and tag.
 - **Three starter pets.** Tabby, Smoky and Mochi are included, so you can invite one the first time you open the app. They are drawn from the mascot in the Codex pet format and are MIT licensed.
@@ -36,7 +36,7 @@ More than ten pet apps that react to coding agents appeared in 2026, and nearly 
 
 ## Install
 
-- Download the macOS dmg, the Windows installer, or the Linux deb or AppImage from [GitHub releases](https://github.com/gaerae/playpets/releases). The builds are not code-signed yet, so macOS and Windows block the first launch once. The [install guide](website/en/guide/install.md) shows how to get past it.
+- Download the macOS dmg, the Windows installer or portable zip, or the Linux deb or AppImage from [GitHub releases](https://github.com/gaerae/playpets/releases). The builds are not code-signed yet, so macOS and Windows block the first launch once. The [install guide](https://gaerae.github.io/playpets/guide/install) shows how to get past it.
 - To build it yourself, see [Development](#development) below.
 
 ## Getting started
@@ -93,6 +93,7 @@ You need Rust (stable, 1.98 or later), Node.js 26, and the [Tauri prerequisites]
 | Live check against community sites | `npm run test:live-import` |
 | Site dev server / build | `npm run site:dev` / `npm run site:build` (includes dead link check) |
 | Site screenshots (macOS) | `npm run shots -- x.y.z` → `website/public/shots/` |
+| Installer art | `npm run art` (DMG window, Windows installer pictures, Linux store screenshots) |
 | macOS distribution file (dmg) | `npm run dist:mac` → `release/macos/` |
 | Linux distribution and E2E | `npm run dist:linux` (Docker) → `release/linux/` (deb and AppImage, E2E under Xvfb) |
 | Windows x64 distribution | `npm run dist:windows` (Docker) → `release/windows/` (MinGW cross build, NSIS installer, portable zip, and an MSIX signed with a test certificate in `msix-test/`) |
@@ -115,12 +116,14 @@ src-tauri/src/    App core (Rust)
   pets/           Pet files, import from an address, friends in the yard
   agent/          Coding agents: the app's CLI mode (hooks, MCP) and the bridge
   desktop/        Desktop overlay and strolling
-  i18n/           Backend strings tables · window, tray, system, store
-tests/            Page unit tests (*.test.mjs) and real-app E2E (e2e.mjs) · Rust tests live in each .rs file
+  i18n/           Backend strings tables
+  *.rs            window, tray, system, store (data files), update, links (playpets://)
+tests/            Page and script unit tests (*.test.mjs) and real-app E2E (e2e.mjs) · Rust tests live in each .rs file
 packaging/        Distribution builds: macos (dmg), linux and windows (Docker, MSIX)
-scripts/          Dev tools (release, distribution channels, site preparation, screenshots, OG images, mascot pets, measurement, icons)
-assets/           Source art (the original cat mascot)
-docs/design/      Design records
+scripts/          Dev tools (release, distribution channels, site preparation, screenshots, installer art, OG images, mascot pets, measurement, icons)
+assets/           Source art: icon, mascot, the three starter pets, banner and demo GIF
+docs/             Developer docs (architecture, standards, how-to, decisions, design records)
+website/          The site (VitePress): landing page, user guide and release pages in English (the root), Korean (ko/) and Simplified Chinese (zh-hans/); developer docs are copied in from docs/ to dev/
 ```
 
 ### Platform notes
@@ -136,11 +139,11 @@ docs/design/      Design records
 
 ## Changelog
 
-`CHANGELOG.md` lists the changes users can see in each release.
+[CHANGELOG.md](CHANGELOG.md) lists the changes users can see in each release.
 
 ## License
 
-MIT. See the `LICENSE` file. The pet mascot art (`assets/`) is under the same license. Community pets you import belong to their creators, and their source is saved alongside them in `pet.json`.
+MIT. See [LICENSE](LICENSE). The pet mascot art (`assets/`) is under the same license. Community pets you import belong to their creators, and their source is saved alongside them in `pet.json`.
 
 ## Trademarks
 

@@ -9,7 +9,7 @@ const { isDark } = useData();
 
 async function render() {
   const mermaid = (await import('mermaid')).default;
-  mermaid.initialize({ startOnLoad: false, theme: isDark.value ? 'dark' : 'neutral', securityLevel: 'loose' });
+  mermaid.initialize({ startOnLoad: false, theme: isDark.value ? 'dark' : 'neutral', securityLevel: 'strict' });
   svg.value = (await mermaid.render(`m-${props.id}`, decodeURIComponent(props.code))).svg;
 }
 onMounted(render);

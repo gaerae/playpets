@@ -84,7 +84,7 @@ gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo gaerae/playpets
 
 ## Verification
 - The new release has `latest.json`.
-- In an app with the new version installed, "업데이트 확인" ("Check for updates") in the Settings tab finds the next release once you make it.
+- In an app with the new version installed, "Check for updates" in the Settings tab finds the next release once you make it.
 - The two lines from diagnosis step 3 match.
 - If it was a leak, the GitHub security log shows no new unknown activity.
 

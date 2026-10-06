@@ -1,5 +1,5 @@
-# 버전
+# Releases
 
-버전마다 무엇이 새로 왔는지, 실제 화면과 함께 적어요. 파일은 GitHub 릴리스에서 받아요.
+What each version brought, with real screens. Files come from GitHub releases.
 
 <ReleaseList />

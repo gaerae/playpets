@@ -1,72 +1,75 @@
 ---
-description: 초대 탭에서 펫을 골라 친구로 만들고, 놀이터에서 쓰다듬고 간식을 주는 법
+description: How to pick a pet in the Invite tab and make it a friend, then pat it and give it treats in the yard
 ---
 
-# 첫 친구 초대하기
+# Invite your first friend
 
-앱을 처음 열면 놀이터가 비어 있고 "첫 친구를 초대해 주세요"라고 나와요. 오른쪽 위의 **초대** 탭을 열어요.
+When you first open the app, a **Three steps to start** card sits in the middle of the empty yard. Click the **Invite tab** button next to the first step, or open the **Invite** tab at the top right.
 
-## 기본 펫 세 마리 <Since v="0.1.0" />
+## Three starter pets <Since v="0.1.0" />
 
-처음 켜면 초대 탭의 **PlayPets 기본 펫**에 타비, 스모키, 모찌가 있어요. 마스코트에서 그린 Codex 펫 형식의 펫이라 다른 펫과 똑같이 초대하고, 바탕화면에 내보내고, AI를 붙일 수 있어요. 펫 파일은 데이터 폴더의 `builtin/` 아래에 풀려 있어요.
+On first start the Invite tab has **PlayPets starter pets**: Tabby, Smoky and Mochi. Their cards show these names in every language. They are Codex-format pets drawn from the mascot, so you invite them, send them to the desktop and give them an AI exactly like any other pet. Their files sit under `builtin/` in the data folder.
 
-## 시작은 세 단계 <Since v="0.1.0" />
+## Three steps to start <Since v="0.1.0" />
 
-처음 켜면 놀이터 가운데 카드가 세 단계를 보여 줘요. 친구를 초대하고, 친구에게 AI를 붙이고, 에이전트에게 담당 친구를 정하는 순서예요. 한 단계가 끝나면 체크되고 카드는 구석으로 비켜서요. 세 개가 다 끝나면 사라지고, 그 전에 치우고 싶으면 **그만 보기**를 눌러요.
+On first start a card in the middle of the yard shows three steps: invite a friend, give a friend an AI, give an agent a friend. The **Invite tab**, **Friend tab** and **Settings tab** buttons beside the steps open the place where each is done. With Claude Code or Codex CLI on this computer, the second button becomes **Connect now** (see [Chat with a friend](./chat.md#making-a-connection)). Each step is ticked when done, and once a friend is in, the card moves to the corner; it disappears when all three are done, or earlier with **Hide this**.
 
-## 초대 탭 <Since v="0.1.0" />
+## The Invite tab <Since v="0.1.0" />
 
-<Shot name="invite" caption="초대 탭은 펫이 있는 곳별로 카드를 묶어 보여 줘요." />
+<Shot name="invite" caption="The Invite tab groups cards by where the pets are." />
 
-초대 탭은 펫 파일이 어디에 있는지에 따라 카드를 세 묶음으로 나눠요.
+The Invite tab splits the cards into four groups, depending on where the pet file lives. A group with no pets is not shown.
 
-| 묶음 | 어디서 온 펫인가 |
+| Group | Where the pets come from |
 |---|---|
-| Codex 펫 폴더 | `~/.codex/pets`에 있는 Codex 펫. 자동으로 보여요 |
-| 주소로 가져온 펫 | **펫 가져오기**로 받은 커뮤니티 펫. 데이터 폴더의 `pets/`에 저장돼요 |
-| 내 컴퓨터에서 고른 펫 | 직접 고른 폴더의 펫. 복사하지 않고 그 폴더를 그대로 봐요 |
+| PlayPets starter pets | The three starter pets that come with the app, unpacked in `builtin/` in the data folder |
+| Codex pet folder | Codex pets in `~/.codex/pets`. They show up automatically |
+| Pets imported from an address | Community pets you got with **Import a pet**. Saved in `pets/` in the data folder |
+| Pets picked from this computer | Pets in a folder you picked yourself. Not copied; the app reads that folder as it is |
 
-앞의 두 묶음에는 **폴더 열기** 버튼이 있어서 그 폴더를 탐색기나 Finder로 열 수 있어요. 카드가 하나도 없으면 [펫 가져오기](./import.md)부터 해 주세요.
+The first three groups have an **Open folder** button that opens the folder in Explorer or Finder. Pets picked from this computer show their folder name on each card. If there are no cards at all, start with [Import a pet](./import.md).
 
-선반 위의 **모양** 칩(전체 · 사람 · 동물 · 그 밖)으로 사람 모양 펫만 추려 볼 수 있어요. 연인이나 선배로 둘 친구를 고를 때 편해요. 펫 파일의 `kind` 값을 따라요.
+The **Shape** chips above the shelf (All · People · Animals · Other) narrow it to human-shaped pets, handy when picking a partner or a senior. They follow the pet file's `kind`.
 
-## 친구 초대하기 <Since v="0.1.0" />
+## Inviting a friend <Since v="0.1.0" />
 
-1. 카드를 눌러요. 카드 오른쪽의 `+` 표시가 "놀이터로 초대"라는 뜻이에요.
-2. 친구가 놀이터에 나타나 손을 흔들어요. 패널은 친구 탭으로 바뀌어요.
-3. 같은 펫을 다시 누르면 "한 명 더 초대"가 돼요. 두 번째 친구부터는 이름 뒤에 번호가 붙어서 구분할 수 있어요.
+1. Click a card. The `+` on the right of the card means "Invite to the yard".
+2. The friend appears in the yard and waves. The panel switches to the Friend tab.
+3. Click the same pet again and it becomes "Invite one more". From the second friend on, a number is added after the name so you can tell them apart.
 
-놀이터에는 친구를 12명까지 둘 수 있어요.
+The yard holds up to 12 friends.
 
-## 친구 설정 <Since v="0.1.0" />
+## Friend settings <Since v="0.1.0" />
 
-친구 탭에서 **친구 설정**을 누르면 이름, 성격, 관계, 나를 부르는 말, 크기를 바꿀 수 있어요.
+Click **Friend settings** in the Friend tab to change the name, personality, relationship, what it calls you, and size.
 
-- **이름**: 놀이터의 이름표와 대화 창에 보여요. 24자까지예요.
-- **성격**: 대화할 때 이 성격으로 답해요. 처음에는 펫 파일의 소개를 성격으로 쓰고, 고치거나 덧붙여 저장하면 그 내용으로 바뀌어요. **펫 파일의 소개 넣기**를 누르면 원래 소개를 다시 가져와요. 400자까지예요. AI를 연결하지 않았다면 성격은 아직 쓰이지 않아요.
-- **크기**: 아주 작게, 작게, 보통, 크게, 아주 크게의 다섯 단계예요. 슬라이더를 밀면 놀이터에서 바로 바뀌어요.
+- **Name**: shown on the name tag in the yard and in the chat. Up to 24 characters.
+- **Personality**: your friend answers in this personality when you chat. At first the pet file's introduction is used as the personality; edit it or add to it and save to change that. Click **Add the pet file's introduction** to bring the original introduction back. Up to 400 characters. If no AI is connected, the personality is not used yet.
+- **Relationship**: Friend, Partner, Reliable senior or Playful younger sibling. It changes how your friend talks to you and asks about your day.
+- **What it calls you**: your friend calls you this. Up to 24 characters. Both are explained in [Chat with a friend](./chat.md#setting-a-relationship).
+- **Size**: five steps, Tiny, Small, Medium, Large and Huge. Slide it and the yard changes right away.
 
-창 아래에는 친구 ID가 보여요. [코딩 에이전트 연동](./agents.md)에서 특정 친구를 가리킬 때 써요.
+The friend ID is shown at the bottom of the window. You use it to point at a specific friend in [Coding agent hooks](./agents.md).
 
-친구를 놀이터에서 보내고 싶으면 **내보내기**를 눌러요. 지금까지 나눈 대화도 함께 지워지지만, 펫은 초대 탭에 그대로 남아 언제든 다시 초대할 수 있어요.
+To send a friend away from the yard, click **Send away**. Your conversation so far goes with them, but the pet stays in the Invite tab, so you can invite them again any time.
 
-## 놀이터에서 하는 일 <Since v="0.1.0" />
+## Things to do in the yard <Since v="0.1.0" />
 
-놀이터 위 설명 줄이 "눌러 쓰다듬기 · 끌어 옮기기 · 두 번 눌러 대화"라고 알려 줘요. 친구에게 할 수 있는 일은 이래요.
+The line above the yard says "Click to pat · drag to move · double-click to chat". Here is what you can do with a friend.
 
-| 하는 일 | 방법 |
+| Action | How |
 |---|---|
-| 쓰다듬기 | 친구를 한 번 눌러요. 친구가 뛰며 하트를 보여요 |
-| 옮기기 | 친구를 끌어서 놓아요. 놀이터의 위치는 기억돼요 |
-| 대화하기 | 친구를 두 번 눌러요. 친구 탭이 그 친구로 열려요 |
-| 간식 놓기 | 도구 막대의 **간식 놓기**를 누른 뒤 놀이터에서 놓을 곳을 눌러요. 친구들이 모두 걸어와 먹고 "냠냠, 고마워요!"라고 해요. 간식은 15초가 지나면 사라져요 |
-| 다 같이 인사 | **다 같이 인사**를 누르면 친구들이 차례로 손을 흔들며 시간대에 맞는 인사를 해요 |
+| Pat | Click a friend once. They jump and show a heart |
+| Move | Drag a friend and drop them. Their place in the yard is remembered |
+| Chat | Double-click a friend. The Friend tab opens on that friend |
+| Put down a treat | Click **Treat** in the toolbar, then click where in the yard to put it. All the friends walk over, eat it and say "Yum, thank you!". The treat disappears after 15 seconds |
+| Say hi together | Click **Say hi** and the friends wave one after another with a greeting that fits the time of day |
 
-친구 위에는 **이름표**가 떠요. 친구 하나를 고르면 이름표가 선택된 모양으로 바뀌고, 코딩 에이전트가 일하는 동안에는 이름표 옆에 상태가 보여요.
+A **name tag** floats above each friend. When you select a friend, the name tag changes to its selected look, and while a coding agent is working, the status is shown next to the name tag.
 
-혼자 두면 친구들은 놀이터를 천천히 돌아다니며 혼잣말을 해요. 비가 오면 "우산 있어요?" 같은 말을 하고, 밤이 되면 졸려 해요. 시간대와 날씨는 [놀이터와 놀이](./play.md)에서 설명해요.
+Left alone, friends slowly wander around the yard and talk to themselves. When it rains they say things like "Got an umbrella?", and at night they get sleepy. Time of day and weather are explained in [The yard and games](./play.md).
 
-## 다음 할 일
+## What next
 
-- 친구와 이야기하고 싶으면 [친구와 대화하기](./chat.md)로 가요.
-- 친구를 바탕화면에 내놓고 싶으면 [바탕화면 모드](./desktop.md)를 봐요.
+- To talk with your friend, go to [Chat with a friend](./chat.md).
+- To put your friend out on the desktop, see [Desktop mode](./desktop.md).

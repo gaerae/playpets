@@ -1,7 +1,7 @@
 # Decision: Publish the introduction, user guide, per-version pages and developer docs as one VitePress site on GitHub Pages
 
 ## Context
-The only place for someone who wanted to use the app was the README, and it had not a single screenshot. The user wanted "a static page with per-version feature descriptions and real screenshots" and "promotion, the developer guide and the user guide in one place". The proposal "[Publish the landing page, user guide, and developer docs as one site on GitHub Pages](../design/2026-10-02-website-on-github-pages.md)" was approved on 2026-10-03, and the survey of open-source desktop app sites, "[How do open-source desktop apps lay out their public websites?](../reference/oss-desktop-app-websites.md)", is the basis for the structure.
+The only place for someone who wanted to use the app was the README, and it had not a single screenshot. The goal was a static page with per-version feature descriptions and real screenshots, with the introduction, the developer guide and the user guide in one place. The decision was made on 2026-10-03, and the survey of open-source desktop app sites, "[How do open-source desktop apps lay out their public websites?](../reference/oss-desktop-app-websites.md)", is the basis for the structure.
 
 ## Decision
 - The site is built with VitePress from `website/` in the repository, and `pages.yml` deploys it to GitHub Pages on every push to `main`. Korean is the default and English is at `/en/`.
@@ -16,11 +16,22 @@ The only place for someone who wanted to use the app was the README, and it had 
 - Negative: Screenshots are automatic only on macOS, and screen recording permission has to be granted once. Screenshot files pile up in the repository at about 1 MB per version. The site loads outside fonts (Google Fonts, and Pretendard from jsDelivr).
 - Neutral: The Japanese introduction and guide are placeholders only. No custom domain has been chosen.
 
+## Follow-up (2026-10-06)
+The one-site decision stands. Some details changed before the first release:
+- The developer docs are English only. The pre-build step generates them into `website/dev/`, and they are served at `/dev/`.
+- The landing page's first screen is now the yard: three sample pets talking in an illustrated scene, or a short intro video for a language that has one (see [Edit and check the website](../how-to/website.md)). This follows the decision to lead with pets talking to each other.
+- A Simplified Chinese site was added at `/zh-hans/`.
+- English became the default at the site root, because the README and the repository are in English; Korean moved to `/ko/`. Nothing had been published at the old addresses yet.
+- The blog was dropped. Per-version pages under `releases/` cover what is new.
+- There is no Japanese site. The app itself still speaks Japanese.
+- `npm run shots` captures 8 screens and saves them as WebP for each site language.
+- The screenshot regression check with a mock bridge and headless Chrome no longer exists.
+
 ## Alternatives considered
 | Alternative | Why rejected |
 |---|---|
 | Docusaurus versioned doc snapshots | The whole guide is copied for every version, which is hard for one person to maintain. Desktop app users are almost always on the latest version |
 | Hand-written HTML | Search, multiple languages and tables of contents would all have to be built by hand |
-| Screenshots with a mock bridge and headless Chrome | Deterministic, but without the macOS window frame and real fonts it is not a "real screen". Still used for regression checks |
+| Screenshots with a mock bridge and headless Chrome | Deterministic, but without the macOS window frame and real fonts it is not a "real screen". It was kept for regression checks at first and has since been removed (see the follow-up) |
 | Screenshots in CI | Permissions and resolution on macOS runners differ from run to run, so the results are unstable |
 | Download links with the version baked in at build time | The site would have to be rebuilt for every release, and it would disagree with draft releases |

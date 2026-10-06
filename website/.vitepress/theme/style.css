@@ -893,12 +893,6 @@ html[lang^="zh"] .landing {
   color: var(--vp-c-text-1);
   font-size: 15px;
 }
-.pets {
-  color: var(--vp-c-text-2);
-  line-height: 1.65;
-  max-width: 720px;
-  margin: 0;
-}
 
 /* release card + final */
 .release-card {
@@ -1146,7 +1140,6 @@ html[lang^="zh"] .landing {
     order: 0;
   }
   .demo-section,
-  .why,
   .why-grid {
     grid-template-columns: 1fr;
   }

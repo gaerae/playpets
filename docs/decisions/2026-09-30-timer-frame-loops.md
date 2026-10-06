@@ -7,7 +7,7 @@ The yard and the desktop overlay draw sprite animation and weather on a canvas. 
 We run page loops on timers at the interval they need (`src/core/ticker.js`). The yard draws every 50 ms when there is walking, a pose, a game, treat aiming, or rain or snow, and every 100 ms when the friends are only standing. The overlay draws every 100 ms. Standing animation advances frames on a shared clock rather than one per friend, so several friends change together. CSS animations move only `transform` and `opacity`, which go through compositing alone, and keyframes do not use CSS variables. When the window is not visible (`document.hidden`, or hidden and minimized as reported by the backend), the loops rest and CSS animations pause too.
 
 ## Consequences
-- Positive: With 3 pets, CPU dropped from 23–25% to around 11% with the yard and the desktop both on, and from 18–30% to around 9% with only the yard on (the method and latest values are in the performance baseline document).
+- Positive: With 3 pets, CPU dropped from 23–25% to around 11% with the yard and the desktop both on, and from 18–30% to around 9% with only the yard on (the method and latest values are in the [Page and backend performance standard](../standards/performance.md)).
 - Negative: Timers are not synced with display refresh, so walking can show slight jitter. In a quiet state it is 10 frames per second, so rain and snow particles get their own 50 ms.
 - Neutral: New loops have to use `every()`, and every new motion condition (`busy`) means measuring the cost again.
 

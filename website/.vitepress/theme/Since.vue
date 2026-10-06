@@ -1,4 +1,4 @@
-<!-- "0.2.0부터": the version a feature arrived in, next to its heading. -->
+<!-- "Since 0.2.0": the version a feature arrived in, next to its heading, in the page's language. -->
 <script setup lang="ts">
 import { useWords } from './words';
 

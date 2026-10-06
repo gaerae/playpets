@@ -81,7 +81,7 @@ export function wingetManifests({ version, date, slug, sums }) {
     [`${dir}/${WINGET_ID}.locale.en-US.yaml`]:
       `${head}PackageLocale: en-US\nPublisher: ${slug.split('/')[0]}\nPublisherUrl: https://github.com/${slug.split('/')[0]}\n` +
       `PackageName: ${APP}\nPackageUrl: ${home}\nLicense: MIT\nLicenseUrl: ${home}/blob/main/LICENSE\n` +
-      `ShortDescription: A desktop pet you can talk to, powered by your own AI subscription\n` +
+      `ShortDescription: A yard where your pets talk to each other\n` +
       `Tags:\n  - desktop-pet\n  - pet\n  - ai\n  - tauri\nReleaseNotesUrl: ${home}/releases/tag/v${version}\n` +
       tail('defaultLocale'),
   };
@@ -96,7 +96,7 @@ export function homebrewCask({ version, slug, sums }) {
 
   url "https://github.com/${slug}/releases/download/v#{version}/${APP}_#{version}_macos-universal.dmg"
   name "${APP}"
-  desc "Desktop pets that play in a yard and react to your coding agents"
+  desc "Yard where your pets talk to each other"
   homepage "https://github.com/${slug}"
 
   # The app updates itself (Tauri updater); brew upgrade leaves it to that.

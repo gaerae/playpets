@@ -26,7 +26,7 @@ E2E launches the release executable with an isolated data folder and runs the sc
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
-- When you change Windows-only code (`#[cfg(windows)]`), confirm it compiles with `npm run dist:windows`. The macOS machine for this repository cannot run Windows, so list anything that needs a run check in the PR description.
+- When you change Windows-only code (`#[cfg(windows)]`), confirm it compiles with `npm run dist:windows`. Compiling is not running: if you cannot run the app on Windows yourself, list anything that needs a run check in the PR description. On a Mac, you can check the installers in a Windows virtual machine (for example UTM on Apple silicon, with Windows 11 on Arm).
 - Check changes that touch Linux (`cfg(unix)`, tray, overlay, file permissions) with `npm run dist:linux`. It builds in Docker and then runs E2E on Xvfb, so you can see Linux runs from a macOS machine.
 - For changes that affect performance, attach the measurements from the [performance standard](performance.md).
 
@@ -38,11 +38,11 @@ Follow these when you can. When you cannot, say why in the PR.
 | An urgent fix with tests added later | A maintainer approves it, and an issue is left for adding the tests |
 
 ## Rationale
-The page has no build step, and the app runs on three operating systems. Unit tests check the rules, watch tests check the strings and module structure, and E2E inside the app checks the real windows and backend. macOS has no WebDriver, so E2E runs inside the app.
+The page has no build step, and the app runs on three operating systems. Unit tests check the rules, guard tests check the strings and module structure, and E2E inside the app checks the real windows and backend. macOS has no WebDriver, so E2E runs inside the app.
 Based on: decision “[Real-app E2E runs a scenario script inside the app](../decisions/2026-09-29-e2e-inside-the-real-app.md)”
 
 ## Automated checks
-`.github/workflows/build.yml` runs lint, unit tests, build, and E2E on every push to main and every PR, on macOS, Windows x64 and arm64, and Linux x64 and arm64 runners. Linux E2E runs on Xvfb. For the site, `npm run site:build` catches dead links, and `tests/website.test.mjs` checks that every version in the changelog has a release page and that the screenshots a page points to exist.
+`.github/workflows/build.yml` runs lint, unit tests, build, and E2E on every push to main and every PR, on macOS, Windows x64 and arm64, and Linux x64 and arm64 runners. Linux E2E runs on Xvfb. For the site, its `site` job runs `npm run site:build`, which catches dead links, and `tests/website.test.mjs` checks that every version in the changelog has a release page and that the screenshots a page points to exist.
 
 ## Change history
 - 2026-10-01 First version — organized "The order for changing and checking" from CONTRIBUTING into rules

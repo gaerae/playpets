@@ -4,8 +4,8 @@
 Add one new backend command that the page calls as `window.playPets.<name>()`. The example name is `centerFriend` (moves a friend to the middle of the yard); when you add a real one, pick a name that says what it does. The full path a command travels is in data flows 1 and 2 of [Architecture: PlayPets app](../architecture.md).
 
 ## Prerequisites
-- You finished [Set up the development environment and run the app](../getting-started.md), and `npm test` and `npm run test:e2e` pass.
-- You read the [backend locks standard](../standards/backend-locks.md) and the [i18n standard](../standards/i18n.md). Commands run inside the app state lock.
+- You finished [Set up a development environment and run the app](../getting-started.md), and `npm test` and `npm run test:e2e` pass.
+- You read the [backend locks standard](../standards/backend-locks.md) and the [i18n standard](../standards/i18n.md). Commands run on a blocking thread, not on the main thread. Each handler takes the app state lock itself with `lock(state)`, and does slow work (network, dialogs, the keychain) without holding it.
 
 ## Steps
 1. Add the new name to the end of the `COMMANDS` list in `src-tauri/src/commands.rs`. The bridge script reads this list to create methods on the page, so a name missing here never becomes `playPets.<name>`.
@@ -23,7 +23,7 @@ pub const COMMANDS: &[&str] = &[
 "centerFriend" => center_friend(&app, &state, text(&args, 0)),
 ```
 
-3. Write the handler in the same file (or in the module that owns the area). Inside the lock, only change state; if you changed it, save and notify every window.
+3. Write the handler in the same file (or in the module that owns the area). Take the lock, change state, and if you changed it, save and notify every window before the lock is released.
 
 ```rust
 fn center_friend(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Value, String> {
@@ -64,5 +64,5 @@ npm run test:e2e
 | Symptom | Cause |
 |---|---|
 | `playPets.centerFriend is not a function` on the page | The name is not in the list from step 1 |
-| Calling it gives "허용되지 않은 요청이에요." ("That request isn't allowed.") | The arm from step 2 is missing, or you called it from the desktop window and skipped step 4 |
+| Calling it gives "That request isn't allowed." | The arm from step 2 is missing, or you called it from the desktop window and skipped step 4 |
 | The app freezes | The handler waits on the main thread or slow work while holding the lock. Check it against the locks standard again |

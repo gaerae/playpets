@@ -50,23 +50,18 @@ try {
     await p.close();
     console.log(`Wrote ${file}`);
   };
-  const title = '서로 이야기하는<b>펫들의 놀이터</b>';
-  const sub =
-    'Codex 펫 1만 마리 그대로. 친구마다 다른 AI로 말하고, 서로 이야기하고, 어느 코딩 에이전트와도 함께 일해요.';
-  await render('website/public/og.png', {
-    width: 1200,
-    height: 630,
-    title,
-    sub,
-    url: 'gaerae.github.io/playpets',
-    scale: 1,
-  });
-  await render('website/public/og-en.png', {
-    width: 1200,
-    height: 630,
+  const english = {
     title: 'A yard where<b>pets talk to each other</b>',
     sub: 'Ten thousand Codex pets as they are. Each friend its own AI, friends talking among themselves, any coding agent in company.',
-    url: 'gaerae.github.io/playpets/en/',
+    url: 'gaerae.github.io/playpets',
+  };
+  await render('website/public/og.png', { width: 1200, height: 630, ...english, scale: 1 });
+  await render('website/public/og-ko.png', {
+    width: 1200,
+    height: 630,
+    title: '서로 이야기하는<b>펫들의 놀이터</b>',
+    sub: 'Codex 펫 1만 마리 그대로. 친구마다 다른 AI로 말하고, 서로 이야기하고, 어느 코딩 에이전트와도 함께 일해요.',
+    url: 'gaerae.github.io/playpets/ko/',
     scale: 1,
   });
   await render('website/public/og-zh-hans.png', {
@@ -78,14 +73,7 @@ try {
     scale: 1,
   });
   // The README is English, so its banner is too.
-  await render('assets/banner.png', {
-    width: 1600,
-    height: 560,
-    title: 'A yard where<b>pets talk to each other</b>',
-    sub: 'Ten thousand Codex pets as they are. Each friend its own AI, friends talking among themselves, any coding agent in company.',
-    url: 'gaerae.github.io/playpets/en/',
-    scale: 1.15,
-  });
+  await render('assets/banner.png', { width: 1600, height: 560, ...english, scale: 1.15 });
 } finally {
   await browser.close();
 }

@@ -1,7 +1,7 @@
 # Architecture: PlayPets app
 
 ## Scope
-This describes the current structure of one PlayPets app install. It covers the yard window, the desktop overlay windows, the Rust backend, the files the app reads and writes, and the outside touchpoints (AI, coding agents, GitHub Releases). The commands and HTTP spec of the agent integration are in [Agent integration architecture](agent-integration.md), and the pet file format is in the [Pet file format standard](standards/pet-files.md). Building and distribution are covered by the [release procedure](how-to/release.md).
+This describes the current structure of one PlayPets app install. It covers the yard window, the desktop overlay windows, the Rust backend, the files the app reads and writes, and the outside touchpoints (AI, coding agents, GitHub Releases). The commands and HTTP spec of the agent integration are in [Architecture: coding agent integration](agent-integration.md), and the pet file format is in the [Pet file format standard](standards/pet-files.md). Building and distribution are covered by the [release procedure](how-to/release.md).
 
 ## Diagram
 A container-level diagram. It shows the three parts inside the app and the touchpoints outside it.
@@ -50,6 +50,7 @@ flowchart LR
 | Windows, tray, OS open | `window.rs`, `tray.rs`, `system.rs` | The main window and mini mode, the tray menu, opening folders and addresses through the OS |
 | Strings | `src-tauri/src/i18n/<language>.rs`, `src/core/strings/<language>.js` | Per-language sentence tables. Registered in `i18n/mod.rs` and `core/strings.js` |
 | Import links | `src-tauri/src/links.rs` | Takes `playpets://import?url=…`, imports the pet through the same path as a pasted address, and opens the Invite tab |
+| Saved files | `src-tauri/src/store.rs` | Reads and writes the JSON files in the data folder atomically. A file that cannot be parsed is kept as a timestamped copy beside it (`state.json.corrupt-…`) so nothing is lost |
 | Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, verifies the signature, then installs and restarts |
 
 ## Data flow
@@ -66,10 +67,10 @@ What each arrow in the diagram actually carries, path by path.
 ## Interfaces
 | Touchpoint | Source | Summary |
 |---|---|---|
-| Page → backend commands | The `COMMANDS` list and `dispatch` in `src-tauri/src/commands.rs` | Friends (add, update, remove, play), pet files (import, openFolder), AI and chat (saveProvider, chat, chatWith), copying agent settings, desktop and windows, language, update, quit. The overlay gets only bootstrap, play, openChat, dragStart, dragStop |
+| Page → backend commands | The `COMMANDS` list and `dispatch` in `src-tauri/src/commands.rs` | Friends (add, update, remove, play), pet files (import, openFolder), AI and chat (saveProvider, chat, chatWith), yard chatter (chatter, setAutoChatter), copying agent settings and choosing which friend an agent reports to (copyConnection, assignAgent), desktop and windows, language, update, quit. The overlay gets only bootstrap, play, openChat, dragStart, dragStop |
 | Backend → page | `app::changed`, `app::push_event` | `change` (full state), `event` (status, say, play, chat-message, select, window, update, persona-saved, history-reset, import-request, pet-moved) |
 | Sprites | `app::sprite_response` | The `pet-asset` custom protocol |
-| Coding agents | [Agent integration architecture](agent-integration.md) | CLI commands, hooks, MCP, HTTP bridge |
+| Coding agents | [Architecture: coding agent integration](agent-integration.md) | CLI commands, hooks, MCP, HTTP bridge |
 
 ## Environment and touchpoints
 The app data folder is named after the app identifier `app.playpets`. The identifier does not change after release.
@@ -89,6 +90,7 @@ The folder holds `state.json` (friends, settings, AI connections), `bridge.json`
 | `PLAYPETS_LANG` | Pins the language to one of `ko`, `en`, `ja`, `zh-hans` |
 | `PLAYPETS_E2E_EVAL` | The E2E scenario script. Honored only by an executable built with the `e2e` feature (`cargo build --features e2e`): it turns off single-instance and deep-link registration, turns on the `e2eLog` and `e2eWindow` commands, and skips the update check. It runs 3 seconds after the page loads |
 | `PLAYPETS_BRIDGE`, `PLAYPETS_PET` | The `bridge.json` path and default friend for CLI mode |
+| `PLAYPETS_DEBUG` | Makes `playpets hook …` print to standard error why it could not reach the app. Without it, a hook stays silent |
 | `PLAYPETS_BINARY` | The executable E2E and measurement launch |
 
 What differs per OS.
@@ -113,3 +115,4 @@ What differs per OS.
 - 2026-09-30 Split the backend into folders by role. Added Korean, English and Japanese. Switched the page loops to timers and set the lock rule
 - 2026-10-01 Added auto-update and distribution channels (winget, Homebrew tap)
 - 2026-10-05 Bundled the three starter pets in the executable and unpacked them into the data folder (`pets/builtin.rs`), and added the import link scheme
+- 2026-10-06 Added Simplified Chinese as the fourth language, relationships between a friend and the person, and yard chatter (friends talking among themselves, on a button or a timer)

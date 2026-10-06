@@ -13,7 +13,7 @@ const TABLE: &[(&str, &str)] = &[
 
     ("tray.open", "Open the yard"),
     ("tray.desktop", "Show / hide pets on the desktop"),
-    ("tray.wander", "Roaming on the desktop on / off"),
+    ("tray.wander", "Stroll around the desktop on / off"),
     ("tray.quit", "Quit"),
 
     ("update.check_failed", "Couldn't check for updates. Check your internet connection."),

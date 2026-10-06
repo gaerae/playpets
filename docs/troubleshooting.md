@@ -21,12 +21,6 @@ Does not apply to: feature requests and design discussion (these come in through
 - First, separate the cases: does it fail even before your change? Check out main and run the same command.
 - If it fails even before your change, it is an environment problem. Compare the prerequisites (Rust, Node, OS packages) against [Getting started](getting-started.md).
 - If it fails only after your change, open the standard the failing test name points to. `i18n` tests map to the [Multilingual strings standard](standards/i18n.md), and `modules` tests to the [Page code structure standard](standards/page-modules.md).
-- If the Windows Docker build (`npm run dist:windows`) fails with `failed to read plugin permissions …/work/tauri/…`, an old path is left in the cache volume. Clear the cache and build again.
-
-```bash
-docker run --rm -v playpets-target-win:/t --entrypoint sh playpets-windows -c 'rm -rf /t/*/release/build /t/*/release/.fingerprint /t/release/build /t/release/.fingerprint'
-```
-
 **CI fails on only one environment**
 - Check whether code specific to that OS (`#[cfg(windows)]`, `cfg(target_os = "macos")`) changed recently. If it did, suspect that change first.
 - For Windows-only code, check that it compiles locally with `npm run dist:windows`. Leave the run check to someone with a Windows machine.
@@ -37,7 +31,7 @@ docker run --rm -v playpets-target-win:/t --entrypoint sh playpets-windows -c 'r
 - Console window: the known cause is fixed (child processes start without a window). If they are on an older version, suggest updating.
 - SmartScreen warning: this is because there is no signature. It is a limit of the decision "[GitHub releases are the source, auto-update, winget and a Homebrew tap point at those files, and code signing turns on with secrets](decisions/2026-10-01-distribution-channels-and-signing.md)", not a code problem.
 - Opening folders: with an MSIX install, data is in the package virtualization path, so Explorer may not see it (a known limit). Otherwise, take it as a bug.
-- AI chat: ask whether Claude or Codex was installed through npm. They must be in `%APPDATA%\npm` for the app to find them.
+- AI chat: ask whether Claude or Codex was installed through npm. The app finds them on `PATH` or in `%APPDATA%\npm`.
 
 **The release workflow fails or files are missing**
 - Find the symptom in the troubleshooting table of [Release a new version](how-to/release.md).

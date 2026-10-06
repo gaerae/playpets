@@ -31,7 +31,7 @@ jobs:
           ref: ${{ inputs.tag || github.event.release.tag_name }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 26
+          node-version-file: .node-version
       - id: files
         name: winget manifests and Homebrew cask
         env:
@@ -62,9 +62,15 @@ jobs:
       - name: Pull request to winget-pkgs
         if: env.WINGET_TOKEN != ''
         shell: pwsh
+        env:
+          VERSION: ${{ needs.manifests.outputs.version }}
+          # A fixed wingetcreate release, checked against its published SHA-256 before it runs with the token.
+          WINGETCREATE_URL: https://github.com/microsoft/winget-create/releases/download/v1.12.13.0/wingetcreate.exe
+          WINGETCREATE_SHA256: 24042bd37915805615e6cf969ac57c6439124c3fe85823327f5f3fb24bd9ffea
         run: |
-          Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
-          $manifest = Get-ChildItem -Recurse -Directory store/winget/manifests | Where-Object { $_.Name -eq '${{ needs.manifests.outputs.version }}' } | Select-Object -First 1
+          Invoke-WebRequest $env:WINGETCREATE_URL -OutFile wingetcreate.exe
+          if ((Get-FileHash wingetcreate.exe -Algorithm SHA256).Hash -ne $env:WINGETCREATE_SHA256) { throw 'wingetcreate.exe does not match the expected SHA-256' }
+          $manifest = Get-ChildItem -Recurse -Directory store/winget/manifests | Where-Object { $_.Name -eq $env:VERSION } | Select-Object -First 1
           .\wingetcreate.exe submit $manifest.FullName --token $env:WINGET_TOKEN
       - name: No token
         if: env.WINGET_TOKEN == ''
@@ -82,6 +88,8 @@ jobs:
           path: store
       - name: Update the tap
         if: env.HOMEBREW_TAP_TOKEN != ''
+        env:
+          VERSION: ${{ needs.manifests.outputs.version }}
         run: |
           owner="${GITHUB_REPOSITORY%%/*}"
           git clone "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/${owner}/homebrew-tap.git" tap
@@ -92,7 +100,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Casks/playpets.rb
           git diff --cached --quiet && { echo "The cask is already current."; exit 0; }
-          git commit -m "playpets ${{ needs.manifests.outputs.version }}"
+          git commit -m "playpets ${VERSION}"
           git push
       - name: No token
         if: env.HOMEBREW_TAP_TOKEN == ''

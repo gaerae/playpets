@@ -5,15 +5,14 @@ import { computed } from 'vue';
 const table = {
   ko: {
     since: v => `${v}부터`,
-    download: 'macOS용 다운로드',
     downloadFor: os => `${os}용 다운로드`,
     otherPlatforms: '다른 환경',
     allFiles: '모든 파일 보기',
     releases: '릴리스 페이지',
-    latest: v => `최신 버전 ${v}`,
     unreleased: '아직 릴리스 전이에요. 첫 릴리스가 나오면 여기에 파일이 생겨요.',
+    lookupFailed: '지금은 최신 버전을 불러오지 못했어요. 파일은 ',
+    lookupFailedEnd: '에서 받을 수 있어요.',
     missingShot: '이 화면은 아직 찍지 않았어요.',
-    release: '릴리스',
     released: '릴리스 날짜',
     github: 'GitHub 릴리스에서 보기',
     changelog: '변경 기록 전체',
@@ -33,15 +32,14 @@ const table = {
   },
   en: {
     since: v => `since ${v}`,
-    download: 'Download for macOS',
     downloadFor: os => `Download for ${os}`,
     otherPlatforms: 'Other platforms',
     allFiles: 'All files',
     releases: 'Releases',
-    latest: v => `Latest ${v}`,
     unreleased: 'Not released yet. Files appear here with the first release.',
+    lookupFailed: 'Could not look up the latest version just now. See ',
+    lookupFailedEnd: ' for the files.',
     missingShot: 'This screen has not been captured yet.',
-    release: 'Release',
     released: 'Released',
     github: 'View on GitHub releases',
     changelog: 'Full changelog',
@@ -61,15 +59,14 @@ const table = {
   },
   'zh-hans': {
     since: v => `${v} 起`,
-    download: '下载 macOS 版',
     downloadFor: os => `下载 ${os} 版`,
     otherPlatforms: '其他平台',
     allFiles: '查看所有文件',
     releases: '发布页面',
-    latest: v => `最新版本 ${v}`,
     unreleased: '尚未发布。第一个版本发布后，文件会出现在这里。',
+    lookupFailed: '暂时无法获取最新版本。文件可以在',
+    lookupFailedEnd: '下载。',
     missingShot: '这个画面还没有截图。',
-    release: '版本',
     released: '发布日期',
     github: '在 GitHub Releases 查看',
     changelog: '完整更新记录',
@@ -93,7 +90,7 @@ export type Lang = keyof typeof table;
 export const FILES = Object.keys(table.ko.files) as (keyof typeof table.ko.files)[];
 
 /** The site's language code (the folder under website/) from the page's language tag. */
-export const codeOf = (tag: string): Lang => (tag.startsWith('en') ? 'en' : tag.startsWith('zh') ? 'zh-hans' : 'ko');
+export const codeOf = (tag: string): Lang => (tag.startsWith('ko') ? 'ko' : tag.startsWith('zh') ? 'zh-hans' : 'en');
 
 export function useWords() {
   const { lang } = useData();

@@ -20,9 +20,9 @@ Go to a document based on what you want to know.
 | What you want to know | Document |
 |---|---|
 | Getting the repo, running tests and starting the app for the first time | [Set up a development environment and run the app](getting-started.md) |
-| How the app is built and what calls what | [PlayPets app architecture](architecture.md) |
-| How coding agents reach the app; CLI, HTTP and MCP specs | [Coding agent integration architecture](agent-integration.md) |
-| Adding a backend command the page can call | [Add a backend command the page can call](how-to/add-a-command.md) |
+| How the app is built and what calls what | [Architecture: PlayPets app](architecture.md) |
+| How coding agents reach the app; CLI, HTTP and MCP specs | [Architecture: coding agent integration](agent-integration.md) |
+| Adding a backend command the page can call | [Add a backend command the page calls](how-to/add-a-command.md) |
 | Releasing a new version and distribution channels | [Release a new version](how-to/release.md) |
 | Changing the site (intro, user guide, version pages) | [Edit and check the website](how-to/website.md) |
 | Adding a language the app speaks | [Add a language](how-to/add-a-language.md) |
@@ -32,25 +32,25 @@ These are the standards to follow. Read the one for an area before changing it.
 
 | Area | Standard |
 |---|---|
-| Page modules, styles | [Page code structure](standards/page-modules.md) |
-| Backend concurrency | [Backend locks and threads](standards/backend-locks.md) |
-| Strings and translation | [Multilingual strings](standards/i18n.md) |
-| Draw loops, animation, overlay | [Page and backend performance](standards/performance.md) |
-| Tests | [Testing](standards/testing.md) |
-| Signing keys, tokens, certificates | [Signing keys and secrets](standards/keys-and-secrets.md) |
-| Pet files | [Pet file format](standards/pet-files.md) |
+| Page modules, styles | [Standard: Page code structure](standards/page-modules.md) |
+| Backend concurrency | [Standard: Backend locks and threads](standards/backend-locks.md) |
+| Strings and translation | [Standard: Multilingual strings](standards/i18n.md) |
+| Draw loops, animation, overlay | [Standard: Page and backend performance](standards/performance.md) |
+| Tests | [Standard: Testing](standards/testing.md) |
+| Signing keys, tokens, certificates | [Standard: Managing signing keys and secrets](standards/keys-and-secrets.md) |
+| Pet files | [Standard: Pet file format](standards/pet-files.md) |
 
 These are the procedures for outages and incidents.
 
 | Situation | Procedure |
 |---|---|
-| Updater signing key lost or leaked | [When the updater signing key is lost or leaked](runbooks/updater-key-lost-or-leaked.md) |
+| Updater signing key lost or leaked | [The updater signing key is lost or leaked](runbooks/updater-key-lost-or-leaked.md) |
 
 ## Getting started
 If you are new, read in this order.
 
 1. Follow [Set up a development environment and run the app](getting-started.md) to get the tests passing and start the app.
-2. Read the diagram and data flow in [PlayPets app architecture](architecture.md). Find which component the part you want to change belongs to.
+2. Read the diagram and data flow in [Architecture: PlayPets app](architecture.md). Find which component the part you want to change belongs to.
 3. Read the standard for the area you are changing (the standards table above). Page changes almost always involve Page code structure and Multilingual strings; backend changes almost always involve Backend locks and threads.
 4. Test in the check order in [CONTRIBUTING](../CONTRIBUTING.md) and open a PR. Add one line to `CHANGELOG.md` for any change users can see.
 
@@ -70,16 +70,13 @@ If you are new, read in this order.
 
 **Design records and research**
 - [Stronger agent integration · community import · personality and activity memory](design/2026-09-29-agent-link-import-persona.md): the design as of 2026-09-29. Some file paths have changed since.
-- [Research on desktop app signing and distribution channels](reference/code-signing-and-distribution.md): cost, units, identity checks, distribution channel requirements, and the order PlayPets takes. Kept up to date.
-- [How do open-source desktop apps build their public sites?](reference/oss-desktop-app-websites.md): the case study behind the site's structure (2026-10-03).
-- [Where does PlayPets stand among open-source desktop pets and pixel-office agent dashboards?](reference/competitors.md): hands-on survey of 49 projects and a positioning recommendation (2026-10-05).
-- [GitHub Pages site proposal](design/2026-10-02-website-on-github-pages.md): the proposal approved on 2026-10-03.
-- [PlayPets launch and promotion plan](design/2026-10-04-launch-plan.md): messages per audience, copy per channel, success metrics, checkpoints. Filled in before and after launch.
+- [What do code signing and distribution channels cost for a desktop app, and in what order does PlayPets take them?](reference/code-signing-and-distribution.md): cost, units, identity checks, distribution channel requirements, and the order PlayPets takes. Kept up to date.
+- [How do open-source desktop apps lay out their public websites?](reference/oss-desktop-app-websites.md): the case study behind the site's structure (2026-10-03).
 
 **Repository automation**
 | File | What it does |
 |---|---|
-| `.github/workflows/build.yml` | Lint, test, build and E2E on five environments for every push to main and every PR |
+| `.github/workflows/build.yml` | `build` job: lint, test, build and E2E on five environments. `site` job: builds the site, so a dead link fails the PR. Runs for every push to main and every PR |
 | `.github/workflows/release.yml` | Builds every environment from a version tag into a release draft |
 | `.github/workflows/distribute.yml` | winget manifest and Homebrew cask from a published release |
 | `.github/workflows/pages.yml` | Builds the site and publishes it to GitHub Pages on every push to main |
@@ -97,7 +94,7 @@ If you are new, read in this order.
 | `npm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |
 | `npm run shots -- x.y.z` | Real-app screenshots in every app language (macOS) |
 | `npm run mascot-pet` | Redraw the sprite sheets of the three sample pets (tabby, smoky, mochi) |
-| `npm run og` | Redraw the share cards (`website/public/og.png`, `og-en.png`, `og-zh-hans.png`) and the README banner |
+| `npm run og` | Redraw the share cards (`website/public/og.png` in English, `og-ko.png`, `og-zh-hans.png`) and the README banner |
 | `npm run art` | Redraw the installer art: the macOS disk image background (`packaging/macos/dmg-background.png`), the Windows installer's sidebar and header (`packaging/windows/nsis-*.bmp`), and the English screenshots Linux software centers show (`website/public/listing/en/`, from the current captures). Where each is used is set in `src-tauri/tauri.conf.json` (`bundle.macOS.dmg`, `bundle.windows.nsis`, `bundle.linux`) and `packaging/linux/app.playpets.metainfo.xml` |
 | `npm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/`) |
 | `npm run release -- x.y.z` | Release commit and tag |

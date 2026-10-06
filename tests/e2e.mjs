@@ -9,6 +9,7 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { strings as KO } from '../src/core/strings/ko.js';
 import { writeFixturePet } from './support/fixture-pet.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -45,6 +46,11 @@ const provider = http.createServer(async (req, res) => {
 await new Promise(r => provider.listen(0, '127.0.0.1', r));
 const endpoint = `http://127.0.0.1:${provider.address().port}`;
 
+// The run uses Korean (PLAYPETS_LANG ko, which exercises the particle rules), so what the scenario
+// reads off the screen comes from the Korean table rather than being typed out here.
+const say = key => JSON.stringify(KO[key]);
+const stopGame = game => KO['game.stop'].replace('{name}', KO[game]);
+const literal = text => text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const scenario = `(async()=>{
   const L=m=>window.__TAURI__.core.invoke('call',{name:'e2eLog',args:[m]});
   const must=async(label,p)=>{const r=await p;await L(label+'='+(r&&r.ok!==undefined?(r.ok?'ok':'err:'+r.error):JSON.stringify(r).slice(0,60)));return r;};
@@ -102,7 +108,7 @@ const scenario = `(async()=>{
     await slow;await new Promise(r=>setTimeout(r,500));
     await L('waiting='+(waitingShown&&!shownLog.querySelector('.waiting')&&!document.querySelector('.yard-pet.thinking')?'shown-then-gone':'err:'+waitingShown));
     // The yard itself: scenery-first layout, greeting bubbles, games.
-    const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||'놀이';
+    const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||${say('game.label')};
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
     // Every tab must actually show its own content, and only its own.
     // macOS keeps its own window buttons over the page; elsewhere the page draws them and the system bar is gone.
@@ -124,10 +130,10 @@ const scenario = `(async()=>{
     else{
       await until(()=>document.querySelectorAll('.yard-pet.hiding').length>=2,8000);const hiding=document.querySelectorAll('.yard-pet.hiding').length;
       // The game names a friend: someone else is a miss and stays hidden, the named one is found.
-      const asked=()=>$('banner-label').textContent==='찾을 친구'?$('banner-title').textContent:null,byName=n=>[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b.querySelector('.pet-tag').textContent===n);
+      const asked=()=>$('banner-label').textContent===${say('hide.find_label')}?$('banner-title').textContent:null,byName=n=>[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b.querySelector('.pet-tag').textContent===n);
       const first=asked(),other=[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b!==byName(first));
       press(other);await wait(200);
-      const miss=document.querySelectorAll('.yard-pet.hiding').length===2&&!$('game-banner').hidden&&$('banner-sub').textContent.includes('아니에요')&&asked()===first;
+      const miss=document.querySelectorAll('.yard-pet.hiding').length===2&&!$('game-banner').hidden&&$('banner-sub').textContent.includes(${say('hide.miss')})&&asked()===first;
       press(byName(first));await wait(300);const second=asked();press(byName(second));await wait(2200);
       const cleared=$('game-banner').hidden;
       await L('hide='+hiding+'/'+document.querySelectorAll('.yard-pet.hiding').length+'/'+gameLabel()+'/'+(miss&&cleared&&second!==first?'by-name':'err:'+miss+':'+first+':'+second));
@@ -156,10 +162,10 @@ const scenario = `(async()=>{
     document.querySelector('.panel-tab[data-panel=pet]').click();await wait(200);
     $('configure').click();await wait(300);const dialogOpen=$('connection-dialog').open;$('cancel-dialog').click();
     await L('pageButtons='+(invited&&dialogOpen?'invite-and-connect':'err:'+invited+'/'+dialogOpen));
-    // Sending a friend away from the friend tab asks first, by name: 취소 keeps everyone, 내보내기 does not.
+    // Sending a friend away from the friend tab asks first, by name: Cancel keeps everyone, confirming does not.
     const guest=after.at(-1);
     $('remove-friend').click();await wait(300);
-    const confirmAsked=$('confirm-dialog').open&&$('confirm-title').textContent.includes('놀이터에서 내보낼까요')&&document.activeElement===$('confirm-cancel');
+    const confirmAsked=$('confirm-dialog').open&&$('confirm-title').textContent.includes(${JSON.stringify(KO['friend.send_away_confirm'].replace(/^\{[^}]*\}\s*/, ''))})&&document.activeElement===$('confirm-cancel');
     $('confirm-cancel').click();await wait(400);
     const kept=!$('confirm-dialog').open&&(await playPets.bootstrap()).data.pets.some(p=>p.id===guest.id);
     $('remove-friend').click();await wait(300);$('confirm-ok').click();await until(async()=>!(await playPets.bootstrap()).data.pets.some(p=>p.id===guest.id)&&document.querySelectorAll('.yard-pet').length===before);
@@ -286,79 +292,92 @@ provider.closeAllConnections?.();
 provider.close();
 
 const expect = [
-  [/^assets=[1-9]/, '카탈로그 스캔'],
-  [/^addPet=ok/, '펫 추가'],
-  [/^intro=A test kitten\. \(animal\)$/, '새 친구의 성격이 펫 파일 소개로 시작'],
-  [/^rename=ok/, '이름·크기 변경'],
-  [/^saveProvider=ok/, '프로바이더 저장'],
-  [/^attach=ok/, '펫에 연결'],
-  [/^assigned=named$/, '에이전트의 담당 친구 지정'],
-  [/^communities=[1-9]/, '커뮤니티 목록 제공'],
-  [/^place=codex\/folder-known$/, '펫이 있는 곳(Codex 펫 폴더) 표시'],
-  [/^agentStatus=working$/, '에이전트 상태 수신(브리지)'],
-  [/^snippet=binary$/, '연동 설정이 앱 바이너리를 가리킴(Node 불필요)'],
-  [/^unseen=true\/false$/, '창을 숨기면 화면이 쉬고, 다시 열면 움직임'],
-  [/^models=2/, '모델 목록 실시간 조회'],
-  [/^chat=\*\*타우리\*\* 응답!/, 'HTTP 대화 왕복'],
-  [/^personaByChat=좋아, 그렇게 할게!\|느긋하고 다정한 고양이$/, '대화로 성격 저장(표식은 답변에서 제거)'],
-  [/^history=2/, '대화 기록 저장'],
-  [/^group=타우리\+둘째$/, '친구들과 함께 대화(차례로 답변)'],
-  [/^groupHistory=peer-tagged$/, '친구의 말이 이름표와 함께 기록됨'],
-  [/^chatter=[2-9]$/, '놀이터의 수다 떨기(친구들끼리 말풍선)'],
-  [/^pageErrors=none$/, '페이지 오류 없음(프레임 루프 포함)'],
-  [/^markdown=styled$/, '답변의 마크다운 강조를 스타일로 표시'],
-  [/^waiting=shown-then-gone$/, '답변을 기다리는 동안 대기 표시'],
-  [/^chrome=(mac-native|custom:0)$/, '타이틀바가 화면과 한 몸(운영체제별)'],
-  [/^panel=toggles$/, '패널 탭 열고 닫기'],
-  [/^stage=yard-first$/, '놀이터가 창의 중심(높이 60% 이상)'],
-  [/^weather=snow-canvas$/, '날씨 캔버스(눈)'],
-  [/^greetBubbles=2$/, '다 같이 인사 말풍선'],
-  [/^hide=(2\/0\/놀이\/by-name|window-hidden\/숨바꼭질 끝내기\/놀이)$/, '숨바꼭질(이름으로 찾기, 틀리면 다시)'],
-  [/^games=1\/산책 행렬 끝내기\/놀이$/, '꼬리잡기·산책 행렬 시작과 종료'],
-  [/^mini=shrinks-and-restores$/, '작게 보기(놀이터만, 원래 크기로 복귀)'],
-  [/^pageFits=true\/true$/, '페이지가 창에 딱 맞음(스크롤바 없음, 보통·작게 보기)'],
-  [/^spriteLoads=1536$/, '펫 스프라이트가 페이지 보안 정책을 통과해 로드됨'],
-  [/^gamesKeepHome=true$/, '놀이 중 위치는 저장하지 않음'],
-  [/^pageButtons=invite-and-connect$/, '화면 버튼으로 초대하고 AI 연결 창 열기'],
-  [/^sendAway=asks-then-removes$/, '친구 탭에서 내보내기(확인 창: 취소는 유지, 내보내기는 삭제)'],
-  [/^desktopOn=ok/, '바탕화면 모드 켜기'],
-  [/^overlayLayout=[1-9]/, '오버레이 레이아웃 생성'],
-  [/^wanderOn=ok/, '배회 토글'],
-  [/^removeProvider=ok/, '연결 삭제'],
-  [/^detached=true/, '삭제 파급(펫 연결 해제)'],
-  [/^overlayClosed=alive$/, '바탕화면 모드를 꺼도 앱이 살아 있음'],
-  [/^DONE$/, '시나리오 완료'],
+  [/^assets=[1-9]/, 'catalog scan'],
+  [/^addPet=ok/, 'add a pet'],
+  [/^intro=A test kitten\. \(animal\)$/, 'a new friend starts with the pet file description as its personality'],
+  [/^rename=ok/, 'rename and resize'],
+  [/^saveProvider=ok/, 'save a provider'],
+  [/^attach=ok/, 'attach a provider to a pet'],
+  [/^assigned=named$/, 'assign a friend to an agent'],
+  [/^communities=[1-9]/, 'list of communities'],
+  [/^place=codex\/folder-known$/, 'where a pet lives (Codex pet folder)'],
+  [/^agentStatus=working$/, 'agent status arrives through the bridge'],
+  [/^snippet=binary$/, 'agent setup points at the app binary (no Node)'],
+  [/^unseen=true\/false$/, 'a hidden window rests and moves again when shown'],
+  [/^models=2/, 'live model list'],
+  [/^chat=\*\*타우리\*\* 응답!/, 'HTTP chat round trip'],
+  [
+    /^personaByChat=좋아, 그렇게 할게!\|느긋하고 다정한 고양이$/,
+    'personality saved through chat (marker removed from the reply)',
+  ],
+  [/^history=2/, 'chat history saved'],
+  [/^group=타우리\+둘째$/, 'group chat (friends answer in turn)'],
+  [/^groupHistory=peer-tagged$/, "a friend's line is recorded with its name"],
+  [/^chatter=[2-9]$/, 'yard chatter (friends talk in bubbles)'],
+  [/^pageErrors=none$/, 'no page errors (frame loops included)'],
+  [/^markdown=styled$/, 'markdown emphasis in replies is styled'],
+  [/^waiting=shown-then-gone$/, 'waiting indicator while a reply is on its way'],
+  [/^chrome=(mac-native|custom:0)$/, 'title bar blends with the page (per OS)'],
+  [/^panel=toggles$/, 'panel tabs open and close'],
+  [/^stage=yard-first$/, 'the yard leads the window (60% of the height or more)'],
+  [/^weather=snow-canvas$/, 'weather canvas (snow)'],
+  [/^greetBubbles=2$/, 'say hi together bubbles'],
+  [
+    new RegExp(
+      `^hide=(2/0/${literal(KO['game.label'])}/by-name|window-hidden/${literal(stopGame('game.hide'))}/${literal(KO['game.label'])})$`,
+    ),
+    'hide and seek (find by name, try again when wrong)',
+  ],
+  [
+    new RegExp(`^games=1/${literal(stopGame('game.parade'))}/${literal(KO['game.label'])}$`),
+    'tag and parade start and stop',
+  ],
+  [/^mini=shrinks-and-restores$/, 'mini view (yard only, back to full size)'],
+  [/^pageFits=true\/true$/, 'the page fits the window (no scroll bars, full and mini)'],
+  [/^spriteLoads=1536$/, 'pet sprites load under the page security policy'],
+  [/^gamesKeepHome=true$/, 'positions during games are not saved'],
+  [/^pageButtons=invite-and-connect$/, 'invite and open the AI connection dialog with page buttons'],
+  [/^sendAway=asks-then-removes$/, 'send a friend away from the friend tab (Cancel keeps, confirm removes)'],
+  [/^desktopOn=ok/, 'turn on desktop mode'],
+  [/^overlayLayout=[1-9]/, 'overlay layout created'],
+  [/^wanderOn=ok/, 'roaming toggle'],
+  [/^removeProvider=ok/, 'delete a provider'],
+  [/^detached=true/, 'deleting a provider detaches it from pets'],
+  [/^overlayClosed=alive$/, 'the app stays alive when desktop mode turns off'],
+  [/^DONE$/, 'scenario finished'],
 ];
 let failed = 0;
 if (lines.some(l => l.startsWith('hide=window-hidden')))
-  console.log('  ! 앱 창이 가려져 있어 숨바꼭질은 시작·종료만 확인했어요(걸어가서 숨는 장면은 건너뜀).');
+  console.log(
+    '  ! The app window was covered, so hide and seek only checked start and stop (walking to hide was skipped).',
+  );
 for (const [re, label] of expect) {
   const hit = lines.some(l => re.test(l));
   console.log(hit ? '  ✓' : '  ✖', label);
   if (!hit) failed++;
 }
 for (const [key, label] of [
-  ['cli', 'CLI 모드 say/react (Node 없이)'],
-  ['hookSilent', 'Claude 훅: 종료코드 0 · 출력 없음'],
-  ['pets', 'CLI pets: 놀이터의 친구 목록(JSON)'],
-  ['badPet', 'CLI status: 없는 펫은 종료코드 1과 안내'],
-  ['run', 'CLI run: 명령의 종료코드를 그대로 돌려줌'],
-  ['geminiJson', 'Gemini 훅: 보고하지 않는 이벤트에도 {} 출력'],
-  ['mcp', 'MCP stdio 서버 (Node 없이)'],
+  ['cli', 'CLI mode say/react (no Node)'],
+  ['hookSilent', 'Claude hook: exit code 0, no output'],
+  ['pets', 'CLI pets: friends in the yard (JSON)'],
+  ['badPet', 'CLI status: an unknown pet gives exit code 1 and a message'],
+  ['run', 'CLI run: passes the command exit code through'],
+  ['geminiJson', 'Gemini hook: prints {} for events it does not report'],
+  ['mcp', 'MCP stdio server (no Node)'],
 ]) {
   console.log(agentChecks[key] ? '  ✓' : '  ✖', label);
   if (!agentChecks[key]) failed++;
 }
 const system = chatRequests[0]?.messages?.[0]?.content || '';
 for (const [ok, label] of [
-  [system.includes('반말로 짧게 대답해요.'), '성격이 시스템 프롬프트에 전달'],
+  [system.includes('반말로 짧게 대답해요.'), 'personality reaches the system prompt'],
   [
     system.includes('loving partner') && system.includes('Call your owner "자기".'),
-    '관계와 호칭이 시스템 프롬프트에 전달',
+    'relationship and form of address reach the system prompt',
   ],
   [
     chatRequests.some(r => r.messages?.[0]?.content.includes("these pets: 타우리 (your owner's partner)")),
-    '친구들이 서로의 관계를 앎',
+    "friends know each other's relationships",
   ],
   [
     chatRequests.some(
@@ -367,21 +386,21 @@ for (const [ok, label] of [
         r.messages[0].content.includes('Character description from the pet file') &&
         r.messages[0].content.includes('A test kitten. (animal)'),
     ),
-    '성격이 비어 있으면 펫 파일 소개를 성격으로 사용',
+    'an empty personality falls back to the pet file description',
   ],
   [
     system.includes('said · 안녕 에이전트') && system.includes('working · Bash 사용 중'),
-    '에이전트 활동이 시스템 프롬프트에 전달',
+    'agent activity reaches the system prompt',
   ],
   [
     chatRequests.some(r => r.messages?.[0]?.content.includes('chatting together with your friends')),
-    '함께 대화 안내가 시스템 프롬프트에 전달',
+    'group chat note reaches the system prompt',
   ],
   [
     chatRequests.some(
       r => r.messages?.[0]?.content.includes('named 둘째') && r.messages[0].content.includes('these pets: 타우리'),
     ) && system.includes('only pet in the yard'),
-    '놀이터의 친구 목록이 시스템 프롬프트에 전달',
+    'the list of friends in the yard reaches the system prompt',
   ],
 ]) {
   console.log(ok ? '  ✓' : '  ✖', label);
@@ -392,10 +411,10 @@ try {
   const saved = JSON.parse(await readFile(path.join(dataDir, 'state.json'), 'utf8'));
   const okPersist =
     saved.pets.length === 1 && saved.pets[0].name === '타우리' && saved.pets[0].persona === '반말로 짧게 대답해요.';
-  console.log(okPersist ? '  ✓' : '  ✖', '상태 영속(state.json)');
+  console.log(okPersist ? '  ✓' : '  ✖', 'state persists (state.json)');
   if (!okPersist) failed++;
 } catch {
-  console.log('  ✖', '상태 영속(state.json)');
+  console.log('  ✖', 'state persists (state.json)');
   failed++;
 }
 await rm(dataDir, { recursive: true, force: true });

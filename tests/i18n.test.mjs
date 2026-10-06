@@ -27,7 +27,9 @@ test('every language says every key, with the same holes', () => {
   }
 });
 
-test('modules and markup keep no Korean of their own', async () => {
+// Comments too: the code and its notes are read by contributors in every language. Only the
+// Korean table and the two modules that handle Korean particles (words.js, i18n.js) show Korean.
+test('modules and markup keep no Korean of their own, comments included', async () => {
   const files = [];
   const walk = async dir => {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -41,8 +43,8 @@ test('modules and markup keep no Korean of their own', async () => {
   for (const file of files) {
     if (allowed.has(file)) continue;
     const lines = (await readFile(file, 'utf8')).split('\n');
-    const hit = lines.findIndex(l => /[가-힣]/.test(l.replace(/\/\/.*$/, '').replace(/\/\*.*?\*\//g, '')));
-    assert.equal(hit, -1, `${file}:${hit + 1} has Korean outside strings/ko.js: ${lines[hit]}`);
+    const hit = lines.findIndex(l => /[가-힣]/.test(l));
+    assert.equal(hit, -1, `${file}:${hit + 1} has Korean outside the Korean table: ${lines[hit]}`);
   }
 });
 

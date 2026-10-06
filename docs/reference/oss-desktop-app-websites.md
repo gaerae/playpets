@@ -11,7 +11,7 @@ Before building the PlayPets site (landing page, user guide, release pages, deve
 | Solo-maker macOS utilities | [Maccy](https://maccy.app), [Rectangle](https://rectangleapp.com), [Ice](https://icemenubar.app), [AltTab](https://alt-tab.app), [Loop](https://github.com/MrKai77/Loop), [Stats](https://github.com/exelban/stats) |
 | Changelogs | [Zed releases](https://zed.dev/releases/stable), [Raycast changelog](https://www.raycast.com/changelog), [Linear changelog](https://linear.app/changelog), [Obsidian changelog](https://obsidian.md/changelog), [Cap changelog](https://cap.so/changelog), [Warp changelog](https://docs.warp.dev/getting-started/changelog) |
 | VitePress docs sites | [Vite](https://vite.dev), [Vitest](https://vitest.dev), [Slidev](https://sli.dev), [UnoCSS](https://unocss.dev), [VitePress](https://vitepress.dev) |
-| Desktop pets | [BongoCat](https://bongocat.pet), [BongoCat README](https://github.com/ayangweb/BongoCat), [OpenPets](https://openpets.dev), [Clawd on Desk](https://github.com/xingfanxia/clawd-on-desk), [clawd-pet](https://zlaxrr.github.io/clawd-pet/), [CoPet](https://github.com/ChanceYu/CoPet), [WindowPet](https://github.com/SeakMengs/WindowPet), [deskpet](https://github.com/Scyyyy4/deskpet), [eSheep](https://adrianotiger.github.io/desktopPet/) |
+| Desktop pets | [BongoCat](https://bongocat.pet), [BongoCat README](https://github.com/ayangweb/BongoCat), [OpenPets](https://openpets.dev), [Clawd on Desk](https://github.com/rullerzhou-afk/clawd-on-desk), [clawd-pet](https://zlaxrr.github.io/clawd-pet/), [CoPet](https://github.com/ChanceYu/CoPet), [WindowPet](https://github.com/SeakMengs/WindowPet), [deskpet](https://github.com/Scyyyy4/deskpet), [eSheep](https://adrianotiger.github.io/desktopPet/) |
 | Tauri showcase | The official showcase was discontinued ([Discussion #7643](https://github.com/tauri-apps/tauri/discussions/7643)). Instead: [awesome-tauri](https://github.com/tauri-apps/awesome-tauri), [madewithtauri.com](https://madewithtauri.com) |
 
 Could not read: the hoppscotch.io landing page (JavaScript only, so there is no body text), Arc release notes (403).
@@ -25,15 +25,15 @@ Could not read: the hoppscotch.io landing page (JavaScript only, so there is no 
 | Cap | "Record. Edit. Share." | "Download free for macOS" + an "Also available on" row of icons |
 | Maccy, Rectangle | Product name as the headline, one sentence | Direct file link, minimum macOS version shown |
 | AltTab | Two sentences | "Download Free for Mac", a block of numbers (downloads, stars) |
-| Spacedrive | "Take back your data." | No download button, only the blog and GitHub — it reads as a blog, not a product |
+| Spacedrive | "Take back your data." | No download button on the first screen, only the blog and GitHub |
 
-What they share: successful sites show what you get within 2 seconds on the first screen, and put one line of trust (free, open source, runs locally) right under the button. Dozens of testimonials, pricing tables, and 10 FAQs are not used by solo open-source projects (even Zed has 5 testimonials).
+What they share: the clearest sites show what you get within 2 seconds on the first screen, and put one line of trust (free, open source, runs locally) right under the button. Dozens of testimonials, pricing tables, and 10 FAQs are not used by solo open-source projects (even Zed has 5 testimonials).
 
 ### Screenshots and motion
 - Ice, Rectangle: one screenshot per feature.
 - Loop, Clawd on Desk: the first screen is a short looping video or GIF.
-- Clawd on Desk: **24 GIFs, one per state, in a 3-column grid** — the only format where the value of a pet app is visible at a glance.
-- OpenPet (dengyie): a pet app without a single picture — an example of what not to do.
+- Clawd on Desk: **24 GIFs, one per state, in a 3-column grid**. For a pet app, this shows what it does at a glance.
+- A pet app page with no pictures at all leaves the visitor guessing what the pet looks like and does.
 
 ### Changelogs and release pages
 | Site | Structure | Worth noting |
@@ -61,21 +61,23 @@ Zed is the only one with download buttons on each version page, and Raycast and 
 - Star count badges: Cap (22k) and Spacedrive (37k) show them in the menu. When the number is small, just the icon.
 - Maccy: a banner warning about fake sites. Stats: "Open source, but not open contribution", stating what to expect from a solo maintainer.
 
-### What looks bad (anti-patterns)
-| Anti-pattern | Where |
+### Patterns PlayPets avoids
+These are patterns that would work against a small desktop app like PlayPets. They are general patterns, not a verdict on any site; several of the sites above make these choices on purpose for their own audience.
+
+| Pattern | Why PlayPets avoids it |
 |---|---|
-| The stock VitePress layout as is (big logo on the right, 2 buttons, 4-card feature grid) | vitepress.dev home — it reads as a docs site, not a product |
-| A product home page without a download button | Spacedrive |
-| Empty download button, no version shown, stale copyright year | Ice |
-| A JavaScript-only landing page | Hoppscotch — crawlers and link previews get no content |
-| 20 sections, pricing table, 9 FAQs | Cap — gives a commercial SaaS impression |
-| A developer tool covered in enterprise jargon | Warp "Open infrastructure for cloud software factories" |
-| No screenshots and no download links in the changelog | Obsidian, Cap |
+| The stock VitePress home layout as is (big logo on the right, 2 buttons, 4-card feature grid) | It reads as a docs site rather than an app |
+| A product home page without a download button | Visitors who want the app have to hunt for it |
+| An empty download button, no version shown, a stale copyright year | It looks unmaintained even when it is not |
+| A landing page that renders only with JavaScript | Crawlers and link previews get no content |
+| Many sections, a pricing table and a long FAQ | It reads as a commercial service rather than a free app |
+| Enterprise jargon on a tool for individuals | The visitor cannot tell what the app does |
+| A changelog with no screenshots and no download links | Visitors cannot see the change or get the version they read about |
 
 ### Limits of this research
 - It was read over one day, and sites change. It reflects 2026-10-03.
 - Visitor response (conversion rates and so on) is unknown. Only structure and appearance were looked at.
-- In our direct competitive space (pets that react to coding agents), Clawd on Desk, CoPet, buddy-desktop, and nchiyi/desktop-pet all had only a README and no site.
+- Among pets that react to coding agents, the projects read (Clawd on Desk, CoPet, buddy-desktop, nchiyi/desktop-pet) were documented in their READMEs and had no separate site.
 
 ## Conclusion and recommendations
 **This is how the PlayPets site is laid out.** This research is the basis for the decision "[Publish the introduction, user guide, per-version pages and developer docs as one VitePress site on GitHub Pages](../decisions/2026-10-03-website-on-github-pages.md)".

@@ -1,5 +1,5 @@
 //! Every sentence the app shows a person, in the languages it speaks. A key names the situation
-//! (`error.pet_missing`), each language's file (ko.rs, en.rs, ja.rs) gives the sentence, and
+//! (`error.pet_missing`), each language's file (ko.rs, en.rs, ja.rs, zh_hans.rs) gives the sentence, and
 //! `{name}`-style holes are filled by `tr`. Adding a language is a new file and one row in `ALL`
 //! (docs/how-to/add-a-language.md). Terminals and coding agents are spoken to in English by agent/cli.rs,
 //! which is not translated; what they report is carried as `@codes` and worded here, so a status
@@ -300,12 +300,12 @@ mod tests {
     // outside their tests (agent/cli.rs speaks English to agents and terminals).
     #[test]
     fn modules_keep_no_korean_of_their_own() {
+        // Comments included: contributors read the notes in every language.
         let hangul = |c: char| ('\u{ac00}'..='\u{d7a3}').contains(&c);
         for (name, body) in sources() {
             for (n, line) in body.lines().enumerate() {
-                let code = line.split("//").next().unwrap();
                 assert!(
-                    !code.chars().any(hangul),
+                    !line.chars().any(hangul),
                     "{name}:{} has Korean outside the table: {line}",
                     n + 1
                 );

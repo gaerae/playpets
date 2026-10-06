@@ -23,18 +23,20 @@ Where each key is stored and where it is used.
 
 - Do not commit private keys, certificates, or tokens to the repository. Keep them only outside the repository (`~/.tauri/`) or in a folder git ignores (`release/`). Git also ignores `.env*` files.
 - Back up the updater signing private key in at least two places (the maintainer machine and one offline store, for example a password manager). If it is lost, updates can never again be sent to apps already installed.
-- Put a password on the updater key before publishing the first release. The current key was created without a password (2026-10-01). Before the first release, creating a new key and replacing the public key does not affect users.
+- The updater signing key has a password. Store the password next to the key in the password manager, and give it to CI as the `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` secret.
 - Workflows pass a secret as an environment variable only when the secret exists. Passing an empty value makes tools fail trying to read an empty certificate (the Build step in `release.yml` follows this pattern).
 - Create GitHub tokens with the narrowest scope and an expiry date (one year or less), and create a new one and replace the secret before it expires.
 - If a key is lost or a leak is suspected, follow [When the updater signing key is lost or leaked](../runbooks/updater-key-lost-or-leaked.md).
 
-The command for building update files locally (macOS). The signed `PlayPets.app.tar.gz` and `.sig` appear in `src-tauri/target/release/bundle/macos/`.
+The commands for building update files locally (macOS). The first two lines ask for the key password without showing it and keep it out of the shell history (they work in both zsh and bash). The signed `PlayPets.app.tar.gz` and `.sig` appear in `src-tauri/target/release/bundle/macos/`.
 
 ```bash
-TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/playpets-updater.key)" TAURI_SIGNING_PRIVATE_KEY_PASSWORD="" npx tauri build --bundles app --config '{"bundle":{"createUpdaterArtifacts":true}}'
+printf 'Key password: '; read -rs TAURI_SIGNING_PRIVATE_KEY_PASSWORD; echo
+export TAURI_SIGNING_PRIVATE_KEY_PASSWORD
+TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/playpets-updater.key)" npx tauri build --bundles app --config '{"bundle":{"createUpdaterArtifacts":true}}'
 ```
 
-The command for creating a new key. When it finishes, put the contents of `~/.tauri/playpets-updater.key.pub` into `pubkey` in `tauri.conf.json`.
+The command for creating a new key. It asks for a password; set one. When it finishes, put the contents of `~/.tauri/playpets-updater.key.pub` into `pubkey` in `tauri.conf.json`.
 
 ```bash
 npx tauri signer generate -w ~/.tauri/playpets-updater.key
@@ -57,7 +59,8 @@ Based on: decision “[GitHub releases are the source, auto-update, winget and a
 ## Automated checks
 - `.gitignore` excludes `release/` and `.env*`.
 - For the update settings, `tests/distribute.test.mjs` checks that the public key exists and that the update address matches the repository in `package.json`.
-- The maintainer turns on secret scanning in settings after creating the GitHub repository. It is not on yet.
+- Secret scanning and push protection are not checked by the repository's own tests. The maintainer turns them on in the repository settings (Settings → Advanced Security).
 
 ## Change history
 - 2026-10-01 First version
+- 2026-10-06 The updater key has a password; the local build asks for it instead of passing it on the command line. Secret scanning is turned on in Settings → Advanced Security

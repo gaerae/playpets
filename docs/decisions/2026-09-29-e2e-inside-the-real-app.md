@@ -13,6 +13,9 @@ The harness fakes whatever the scenario needs from outside. `tests/support/fixtu
 - Negative: The scenario lives inside a JS template string, so a syntax error shows up only as every check failing (the harness parses it first to soften this). WebKit pauses animation when the window is covered, so checks that depend on walking (hide and seek) are skipped. There is no pixel-level screen comparison.
 - Neutral: Two E2E-only paths stay in the product code (`e2eLog` and the environment variable branch). Neither does anything without the environment variable.
 
+## Follow-up (2026-10-06)
+The E2E hooks are now compiled in only with the `e2e` Cargo feature (`[features]` in `src-tauri/Cargo.toml`). `e2e_mode()` in `src-tauri/src/commands.rs` is true only when the build has that feature and `PLAYPETS_E2E_EVAL` is set, so a shipped build ignores the variable: it runs no scenario, has no `e2eLog` or `e2eWindow` command, and keeps the single-instance lock. `npm run test:e2e`, `npm run measure` and `npm run shots` each build the real app with `cargo build --release --features e2e` before they run, and both CPU measurement and screenshots now drive that real app instead of a page on a static server.
+
 ## Alternatives considered
 - **Drive the app from outside with WebDriver (`tauri-driver`):** The standard approach, but it does not support macOS. It cannot run on the main development machine.
 - **Serve only the page from a static server and automate a browser:** Useful for checking the page (we use it for performance measurements and screenshots), but the backend is fake, so it cannot check saving, the overlay or the CLI.

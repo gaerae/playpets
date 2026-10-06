@@ -342,8 +342,6 @@ pub fn sprite_response(app: &AppHandle, uri: &tauri::http::Uri) -> tauri::http::
     }
 }
 
-/// Reads the saved state and the pets on this computer. Whatever cannot be used (a pet whose
-/// file is gone, a connection that no longer validates) is left out rather than failing the start.
 /// The pets on this computer: the samples that ship with the app (first, in their order), Codex's
 /// own pet folder, and the folders brought in by address or picked by hand.
 struct FoundPets {
@@ -421,6 +419,8 @@ fn load_providers(raw: &Value) -> (Vec<Value>, Vec<Value>) {
     (providers, parked)
 }
 
+/// Reads the saved state and the pets on this computer. Whatever cannot be used (a pet whose
+/// file is gone, a connection that no longer validates) is left out rather than failing the start.
 pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
     let data_dir = match std::env::var("PLAYPETS_DATA") {
         Ok(dir) if !dir.is_empty() => PathBuf::from(dir),

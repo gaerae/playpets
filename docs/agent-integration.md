@@ -40,7 +40,7 @@ flowchart LR
 1. **When the app launches:** The bridge opens on `127.0.0.1:0`, and the app writes the port it got and a new token (64 random characters) to `bridge.json` in the data folder. Both change every time the app restarts.
 2. **Hooks:** At each step the agent runs `playpets hook claude --bridge <bridge.json>` and passes the hook JSON on standard input (Codex passes the notification JSON as the last argument). CLI mode turns it into a state and a code and sends it with `POST /events`. So it never blocks the agent's work, a hook is quiet, finishes within 3 seconds, and exits with code 0 even when it fails.
 3. **MCP:** The agent starts `playpets mcp` as an MCP server and sends `initialize`, `tools/list` and `tools/call`. Tool calls go through the same bridge path.
-4. **Commands:** A person or script can call it directly, as in `playpets say "테스트 통과"` ("tests passed"). `playpets run -- npm test` sends `working` while the command runs, then `done` or `error` when it ends.
+4. **Commands:** A person or script can call it directly, as in `playpets say "Tests passed"`. `playpets run -- npm test` sends `working` while the command runs, then `done` or `error` when it ends.
 5. **Inside the app:** The bridge checks the token and the payload and finds the friend (`pet`/`petId` is an id or a name; if absent, the first friend). A code turns into the current language, as in `@tool Bash` → "Using Bash", shows above the friend, and is remembered among that friend's 8 most recent activities.
 
 ## Import links

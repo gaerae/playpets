@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential file patchelf xdg-utils rsync \
       xvfb xauth dbus-x11 \
     && rm -rf /var/lib/apt/lists/*
-# Node.js comes from the official image, so CI builds with the same version as .node-version.
+# Node.js comes from the official image, so the Docker build uses the same Node major as .node-version.
 COPY --from=node:26-bookworm-slim /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:26-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx

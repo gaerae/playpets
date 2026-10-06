@@ -1,71 +1,71 @@
 ---
-description: AI 연결 종류와 만드는 순서, 성격 정하기, 친구 여럿이 함께 대화하기
+description: Kinds of AI connections and how to make one, setting a personality, chatting with several friends at once
 ---
 
-# 친구와 대화하기
+# Chat with a friend
 
-친구와 대화하려면 AI를 하나 연결해야 해요. 연결 없이도 초대와 놀이는 모두 되지만, 대화 창은 "AI를 연결하면 대화할 수 있어요"라고만 보여요.
+To chat with a friend, you need to connect one AI. Inviting and playing work without one, but the chat only shows "Connect an AI to start chatting."
 
-<Shot name="friend-chat" caption="친구 탭에서 AI를 고르고 대화해요. 함께 대화할 친구도 여기서 골라요." />
+<Shot name="friend-chat" caption="Pick an AI and chat in the Friend tab. You also pick friends to chat with here." />
 
-## AI 연결 종류 <Since v="0.1.0" />
+## Kinds of AI connections <Since v="0.1.0" />
 
-| 종류 | 어떻게 대화하나 | 비용과 데이터 |
+| Kind | How it chats | Cost and data |
 |---|---|---|
-| Claude Code (내 구독으로 대화) | 이 컴퓨터에 로그인된 Claude Code를 써요 | 별도 API 요금이 없어요 |
-| Codex CLI (내 구독으로 대화) | 이 컴퓨터에 로그인된 Codex CLI(ChatGPT 플랜)를 써요 | 별도 API 요금이 없어요 |
-| Ollama (내 컴퓨터에서 실행) | `http://127.0.0.1:11434`의 Ollama에 설치한 모델을 써요 | 대화가 내 컴퓨터 안에서만 처리돼요 |
-| OpenAI API | API 키로 OpenAI에 연결해요 | 대화 내용이 OpenAI로 가고, API 사용료가 생길 수 있어요 |
-| OpenAI 호환 서버 | 서버 주소와 API 키를 직접 넣어요 | 대화 내용이 그 서버로 가고, 사용료가 생길 수 있어요 |
+| Claude Code (chat on my subscription) | Uses the Claude Code signed in on this computer | No separate API fees |
+| Codex CLI (chat on my subscription) | Uses the Codex CLI (ChatGPT plan) signed in on this computer | No separate API fees |
+| Ollama (runs on my computer) | Uses a model installed in Ollama at `http://127.0.0.1:11434` | Conversations stay on this computer |
+| OpenAI API | Connects to OpenAI with an API key | Conversations are sent to OpenAI, and API fees may apply |
+| OpenAI-compatible server | You enter the server address and API key yourself | Conversations are sent to that server, and fees may apply |
 
-Claude Code, Codex CLI, Ollama가 이 컴퓨터에 설치돼 있으면 연결 창 위에 "이 컴퓨터에 설치됨"으로 자동 감지돼요. 감지된 이름을 누르면 그 종류로 바로 바뀌어요.
+If Claude Code, Codex CLI or Ollama is installed on this computer, it is detected automatically and listed above the connection window under "Installed on this computer". Click a detected name to switch to that kind right away.
 
-API 키는 이 컴퓨터의 보안 저장소(macOS 키체인, Windows 자격 증명 관리자, Linux Secret Service)에만 저장돼요. 설정 파일에는 들어가지 않아요.
+API keys are kept only in this computer's secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service). They never go into the settings file.
 
-## 연결 만들기 <Since v="0.1.0" />
+## Making a connection <Since v="0.1.0" />
 
-1. **친구** 탭을 열고 대화할 친구를 골라요. 친구가 여럿이면 이름 자리가 목록으로 바뀌어요.
-2. 대화 창의 **AI 연결하기** 버튼을 누르거나, 이름 아래 AI 목록에서 **＋ 새 AI 연결…**을 골라요.
-3. **AI 종류**를 고르고, 종류에 따라 서버 주소나 API 키를 넣어요.
-4. **모델 이름**을 고르거나 적어요. 입력칸을 누르면 그 AI가 제공하는 모델 목록이 떠요. Claude Code와 Codex CLI는 비워 두면 기본 모델을 쓰고, `sonnet`처럼 짧은 이름을 쓰면 항상 최신 버전으로 연결돼요. Ollama와 API 연결은 모델 이름이 필요해요.
-5. **저장하고 연결**을 눌러요. 아직 AI가 없는 다른 친구가 있으면 "다른 친구에게도 이 AI를 써요" 스위치가 켜져 있어, 한 번에 모두 말할 수 있게 돼요.
+1. Open the **Friend** tab and pick the friend to chat with. If you have several friends, the name turns into a list.
+2. Click the **Connect an AI** button in the chat, or choose **＋ Connect a new AI…** from the AI list under the name.
+3. Choose the **Kind of AI** and, depending on the kind, enter the server address or API key.
+4. Pick or type the **Model name**. Click the field and the list of models that AI offers appears. For Claude Code and Codex CLI, leave it empty to use the default model; a short name like `sonnet` always gets the latest version. Ollama and API connections need a model name.
+5. Click **Save and connect**. If other friends still have no AI, the "Also use this AI for the other friends" switch is on, so everyone can talk at once.
 
-처음 켰을 때 Claude Code나 Codex CLI가 이 컴퓨터에 있으면, 놀이터의 시작 카드가 그 이름을 보여 주고 **바로 연결** 한 번으로 모든 친구에게 붙여요. 키는 필요 없어요. 친구가 둘 이상이면 연결 직후 친구들이 서로 이야기를 시작해요.
+On a first start with Claude Code or Codex CLI on this computer, the yard's starting card names it and **Connect now** attaches it to every friend in one step, with no key. With two or more friends, they start talking among themselves right after.
 
-한 번 만든 연결은 다른 친구도 함께 쓸 수 있어요. 친구마다 AI 목록에서 다른 연결을 고르면 친구마다 다른 AI로 대화해요. 연결을 고치거나 지우려면 AI 목록 옆의 톱니 버튼을 눌러요. 연결을 지우면 저장된 키도 함께 지워지고, 그 연결로 대화하던 친구는 AI 없이 놀게 돼요.
+Once you have made a connection, other friends can use it too. Pick a different connection from each friend's AI list and each friend chats with a different AI. To edit or delete a connection, click the gear button next to the AI list. Deleting a connection deletes its saved key too, and friends who were chatting through it play without an AI.
 
-## 대화하기 <Since v="0.1.0" />
+## Chatting <Since v="0.1.0" />
 
-- 아래 입력칸에 쓰고 Enter를 눌러요. Shift+Enter는 줄바꿈이에요.
-- 답을 기다리는 동안 "생각하는 중이에요" 말풍선이 보이고, ■ 버튼으로 멈출 수 있어요.
-- 답은 놀이터의 친구 위에도 말풍선으로 떠요.
-- **대화 비우기**를 누르면 이 친구와 나눈 대화를 모두 지워요. 이름과 성격은 그대로예요.
+- Type in the field at the bottom and press Enter. Shift+Enter makes a new line.
+- While you wait for an answer, a "Thinking" bubble appears, and the ■ button stops it.
+- The answer also floats as a speech bubble above the friend in the yard.
+- Click **Clear chat** to delete the whole conversation with this friend. The name and personality stay.
 
-대화 기록은 메모리에만 있어요. 앱을 끄면 사라지고, 파일로 저장하지 않아요.
+The chat history lives only in memory. It is gone when you quit the app, and it is not saved to a file.
 
-## 성격 정하기 <Since v="0.1.0" />
+## Setting a personality <Since v="0.1.0" />
 
-성격은 친구가 답할 때의 말투와 태도예요. 두 가지 방법으로 정해요.
+The personality is the tone and attitude your friend answers with. There are two ways to set it.
 
-- **친구 설정**에서 직접 써요. "츤데레지만 칭찬에 약해요. 반말로 짧게 대답해요."처럼 적으면 돼요. 저장하면 다음 대화부터 반영돼요.
-- **대화 중에 말해요.** "이제부터 반말로 해 줘"처럼 말하면 친구가 그 내용을 성격으로 저장해요. "친구의 성격을 저장했어요" 알림이 뜨고, 친구 설정에서 확인할 수 있어요.
+- **Write it in Friend settings.** Something like "Acts tough but melts at a compliment. Keeps answers short." is enough. Once saved, it applies from the next chat.
+- **Say it in the chat.** Say something like "be more casual from now on" and your friend saves it as the personality. A "Saved your friend's personality" notice appears, and you can see it in Friend settings.
 
-## 관계 정하기 <Since v="0.1.0" />
+## Setting a relationship <Since v="0.1.0" />
 
-친구 설정의 **관계**에서 이 친구가 나에게 어떤 사이인지 골라요. 친구(기본), 연인, 든든한 선배, 장난꾸러기 동생 가운데 하나예요. 관계를 정하면 말투와 호칭, 안부를 묻는 방식이 달라지고, 친구들끼리 대화할 때도 서로의 관계를 알아요. **나를 부르는 말**에 "자기야"나 이름을 적어 두면 그렇게 불러요. Codex 펫에는 사람 모양 캐릭터가 많아서 연인이나 선배로 두기에 잘 어울려요. 표현의 범위는 앱이 아니라 연결한 AI의 정책을 따라요.
+**Relationship** in Friend settings says what this friend is to you: a friend (the default), a partner, a reliable senior or a playful younger sibling. It shapes how the friend talks to you, what it calls you and how it asks about your day, and friends chatting together know each other's relationship. Write "honey" or your name under **What it calls you** and it will. Many Codex pets are human-shaped, which suits a partner or a senior well. What is said within the relationship follows the policy of the AI you connected, not the app.
 
-## 함께 대화 <Since v="0.1.0" />
+## Chatting together <Since v="0.1.0" />
 
-AI가 연결된 친구가 둘 이상이면 대화 창 위에 **함께 대화할 친구 고르기**가 보여요.
+When two or more friends have an AI connected, **Pick friends to chat with** appears above the chat.
 
-1. 펼쳐서 함께 이야기할 친구를 눌러요. 3명까지 고를 수 있어요.
-2. 메시지를 보내면 지금 친구가 먼저 답하고, 고른 친구들이 차례로 이어서 답해요. 각자 자기 AI와 성격으로 말해요.
-3. 새 메시지 없이 친구들끼리 이어 가게 하려면 놀이터 도구줄의 **수다 떨기**를 눌러요. AI가 붙은 친구들이 지금 시간과 날씨를 두고 한 바퀴 이야기하고, 놀이터에서 말풍선으로 보여요.
+1. Open it and click the friends you want to chat with. You can pick up to 3.
+2. Send a message and the current friend answers first, then the friends you picked answer one after another. Each speaks with their own AI and personality.
+3. To let the friends carry on without a new message, press **Let them chat** in the yard toolbar. The friends with an AI talk for a round about the time and the weather, and it shows as speech bubbles in the yard.
 
-AI 고르기 아래의 작은 칩은 어느 코딩 에이전트가 이 친구에게 보고하는지(담당 · Claude Code)를 보여 줘요.
+The small chip under the AI picker shows which coding agents report to this friend (Reports from · Claude Code).
 
-놀이터에서는 친구들이 말풍선으로 서로 이야기하는 모습이 보여요.
+In the yard you can see the friends talking to each other in speech bubbles.
 
-## "뭐 하고 있었어?" <Since v="0.1.0" />
+## "What were you doing?" <Since v="0.1.0" />
 
-[코딩 에이전트 연동](./agents.md)을 해 두면 친구는 에이전트가 최근에 한 일을 기억해요. 대화에서 "뭐 하고 있었어?"라고 물으면 그 작업을 자기 말로 이야기해 줘요. 연동은 대화용 AI 연결과 따로 동작해요.
+With [Coding agent hooks](./agents.md) set up, your friend remembers what the agent did recently. Ask "what were you doing?" in the chat and they tell you about that work in their own words. The hooks work separately from the AI connection used for chatting.

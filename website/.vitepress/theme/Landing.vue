@@ -18,9 +18,9 @@ const copy = {
     title: ['서로 이야기하는', '펫들의 놀이터'],
     lead: 'Codex 펫 1만 마리를 그대로 데려와요. 친구마다 Claude Code, Codex, Ollama로 말하고, 친구들끼리 이어서 이야기하고, 어느 코딩 에이전트가 일하든 곁에서 함께 일해요. Codex는 없어도 돼요.',
     scene: [
-      ['tabby', '타비', 'Claude Code', '오늘 테스트 다 통과했어!'],
-      ['smoky', '스모키', 'Codex', '리뷰는 내가 봤지.'],
-      ['mochi', '모찌', 'Ollama', '그럼 간식은 언제 먹어?'],
+      ['tabby', 'Tabby', 'Claude Code', '오늘 테스트 다 통과했어!'],
+      ['smoky', 'Smoky', 'Codex', '리뷰는 내가 봤지.'],
+      ['mochi', 'Mochi', 'Ollama', '그럼 간식은 언제 먹어?'],
     ],
     sceneNote: 'Codex 펫 형식 그대로, 커뮤니티 펫 1만 개 이상(2026년 9월 기준). 가져올 수 있는 곳:',
     communities: [
@@ -137,9 +137,9 @@ const copy = {
       ['프롬프트와 코드는 안 보내요', '상태와 짧은 문장만 친구에게 가요.'],
       ['가벼워요', 'Tauri로 만들어 운영체제의 웹뷰를 쓰고, 설치 파일이 작아요.'],
     ],
-    releaseTitle: '첫 공개 버전을 준비하고 있어요',
-    releaseBody: '0.1.0에 들어가는 것과 알려진 제한을 버전 페이지에 적어 두었어요.',
-    releaseLink: '0.1.0 보기',
+    releaseTitle: (v: string) => `PlayPets ${v}`,
+    releaseBody: '이 버전에 들어간 것과 알려진 제한을 버전 페이지에 적어 두었어요.',
+    releaseLink: (v: string) => `${v} 살펴보기`,
     finalTitle: '펫들이 서로 이야기하는 걸 들어 보세요',
     github: 'GitHub에서 보기',
     guide: '사용 안내 읽기',
@@ -269,9 +269,9 @@ const copy = {
       ['No prompts, no code', 'Only a state and a short line reach your friends.'],
       ['Light', 'Built with Tauri on the system webview; the installer stays small.'],
     ],
-    releaseTitle: 'The first public version is on its way',
-    releaseBody: 'What goes into 0.1.0 and its known limits are on the release page.',
-    releaseLink: 'See 0.1.0',
+    releaseTitle: (v: string) => `PlayPets ${v}`,
+    releaseBody: 'What is in this version and its known limits are on the release page.',
+    releaseLink: (v: string) => `See what’s in ${v}`,
     finalTitle: 'Come hear your pets talk to each other',
     github: 'View on GitHub',
     guide: 'Read the guide',
@@ -282,9 +282,9 @@ const copy = {
     title: ['宠物们互相聊天的', '乐园'],
     lead: '把一万只 Codex 宠物原样带来。每位伙伴用 Claude Code、Codex 或 Ollama 说话，伙伴之间接着聊，任何编码代理工作时都有它们陪着。没有 Codex 也可以。',
     scene: [
-      ['tabby', '塔比', 'Claude Code', '今天的测试全过了！'],
-      ['smoky', '烟烟', 'Codex', '评审是我看的。'],
-      ['mochi', '麻糬', 'Ollama', '那什么时候吃零食？'],
+      ['tabby', 'Tabby', 'Claude Code', '今天的测试全过了！'],
+      ['smoky', 'Smoky', 'Codex', '评审是我看的。'],
+      ['mochi', 'Mochi', 'Ollama', '那什么时候吃零食？'],
     ],
     sceneNote: 'Codex 宠物格式原样支持，社区宠物超过一万只（截至 2026 年 9 月）。可以从这些地方带来：',
     communities: [
@@ -391,9 +391,9 @@ const copy = {
       ['不发送提示词和代码', '到伙伴那里的只有状态和一句短话。'],
       ['轻巧', '用 Tauri 构建，使用操作系统的 WebView，安装包很小。'],
     ],
-    releaseTitle: '第一个公开版本正在准备',
-    releaseBody: '0.1.0 里有什么、已知的限制，都写在版本页面上。',
-    releaseLink: '查看 0.1.0',
+    releaseTitle: (v: string) => `PlayPets ${v}`,
+    releaseBody: '这个版本里有什么、已知的限制，都写在版本页面上。',
+    releaseLink: (v: string) => `查看 ${v}`,
     finalTitle: '来听听宠物们互相聊天',
     github: '在 GitHub 上查看',
     guide: '阅读使用指南',
@@ -402,10 +402,16 @@ const copy = {
 };
 const t = computed(() => copy[lang.value]);
 const shotUrl = (name: string) => withBase(`/shots/${generated.version}/${lang.value}/${name}.webp`);
-// The 25-second launch video, once it has been made for this language (site-prepare checks the file).
+// The launch video, once it has been made for this language: site-prepare records whether
+// intro-<lang>.mp4 and its intro-<lang>.jpg poster exist. The WebM is an optional extra source (a
+// browser that finds none falls back to the MP4 without showing anything); the poster is set only
+// when it exists, so a missing JPG never shows as a broken image.
 const videoSrc = computed(() => (generated.video?.[lang.value] ? withBase(`/media/intro-${lang.value}`) : null));
-// A page's address in the current language: the Korean address, under the language's folder.
-const path = (ko: string) => withBase(lang.value === 'ko' ? ko : `/${lang.value}${ko}`);
+const posterSrc = computed(() =>
+  videoSrc.value && generated.poster?.[lang.value] ? `${videoSrc.value}.jpg` : undefined,
+);
+// A page's address in the current language: the English address, under the language's folder.
+const path = (page: string) => withBase(lang.value === 'en' ? page : `/${lang.value}${page}`);
 
 // The scene: three friends take turns doing something.
 const sceneStates = ref(['wave', 'idle', 'idle']);
@@ -471,7 +477,7 @@ const current = computed(() => t.value.demo[Math.max(0, demoShown.value - 1)] ??
           muted
           loop
           playsinline
-          :poster="`${videoSrc}.jpg`"
+          :poster="posterSrc"
         >
           <source :src="`${videoSrc}.webm`" type="video/webm" />
           <source :src="`${videoSrc}.mp4`" type="video/mp4" />
@@ -510,7 +516,6 @@ const current = computed(() => t.value.demo[Math.max(0, demoShown.value - 1)] ??
         <li v-for="c in t.communities" :key="c">{{ c }}</li>
       </ul>
     </div>
-
 
     <section class="why">
       <div class="why-story">
@@ -638,10 +643,10 @@ const current = computed(() => t.value.demo[Math.max(0, demoShown.value - 1)] ??
 
     <section class="release-card">
       <div>
-        <h2>{{ t.releaseTitle }}</h2>
+        <h2>{{ t.releaseTitle(generated.version) }}</h2>
         <p>{{ t.releaseBody }}</p>
       </div>
-      <a :href="path(`/releases/${generated.version}`)" class="more">{{ t.releaseLink }} →</a>
+      <a :href="path(`/releases/${generated.version}`)" class="more">{{ t.releaseLink(generated.version) }} →</a>
     </section>
 
     <section class="final" id="download">

@@ -1,37 +1,36 @@
-# 변경 기록
+# Changelog
 
-이 프로젝트의 사용자에게 보이는 변경을 적습니다. 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/), 버전은 [유의적 버전](https://semver.org/lang/ko/)을 따릅니다.
+Changes people can see in PlayPets, release by release. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
-- 바꾸는 PR에서 `## [Unreleased]` 아래에 한 줄씩 적습니다(추가·바뀜·고침·없앰).
-- 릴리스는 `npm run release -- x.y.z`가 이 구역을 날짜가 붙은 `## [x.y.z]`로 옮기고, 태그를 푸시하면 그 구역이 릴리스 노트가 됩니다.
+- In the PR that makes a change, add one line under `## [Unreleased]` (Added, Changed, Fixed, Removed, Security, Known limitations).
+- At release time, `npm run release -- x.y.z` moves this section into a dated `## [x.y.z]`, and pushing the tag turns that section into the release notes.
 
 ## [Unreleased]
 
-### 추가
-- 설치 화면: macOS 디스크 이미지를 열면 놀이터 그림 위에서 앱을 Applications로 끌어다 놓으라고 안내하고, Windows 설치 프로그램의 첫·끝 화면과 단계 머리에 펫 그림이 들어갑니다. Linux 소프트웨어 센터(Ubuntu App Center, GNOME 소프트웨어, KDE Discover)에는 설명과 스크린샷이 보이고, 앱이 엔터테인먼트 분류에 들어갑니다.
-- 기본 펫: 타비, 스모키, 모찌 세 마리가 앱에 들어 있어 처음 켜도 바로 초대할 수 있습니다. 초대 탭의 "PlayPets 기본 펫"에 보입니다. 꼬리는 엉덩이에서 바깥으로 휘어 올라가는 띠무늬 꼬리라 손과 헷갈리지 않습니다.
-- 수다 떨기와 자동 수다가 관계를 압니다: 연인·선배·동생은 친구들 사이에서도 그 말투로 말합니다.
-- 초대 탭에 모양 필터(전체·사람·동물·그 밖)가 생겼습니다. 펫 파일의 `kind`를 따릅니다.
-- 관계: 친구 설정에서 친구·연인·든든한 선배·장난꾸러기 동생 가운데 고르고 "나를 부르는 말"을 적습니다. 말투와 호칭이 달라지고, 친구들끼리 대화할 때도 서로의 관계를 압니다.
-- 수다 떨기: 놀이터 도구줄에서 AI가 붙은 친구들이 지금 시간과 날씨를 두고 자기들끼리 이야기합니다. 설정에서 20분마다 알아서 이야기하게 둘 수도 있습니다.
-- 처음 켜면 놀이터 카드가 세 단계(초대, AI 붙이기, 담당 친구)를 안내하고, 끝난 단계를 체크합니다. Claude Code나 Codex CLI가 있으면 "바로 연결" 한 번으로 모든 친구에게 키 없이 붙고, 둘 이상이면 곧바로 서로 이야기를 시작합니다. AI 연결 창에는 "다른 친구에게도 이 AI를 써요" 스위치가 있습니다.
-- 담당 에이전트가 이름표와 친구 탭의 칩에 보이고, 여럿이 바쁘면 놀이터 설명 줄이 수를 세어 보여 줍니다.
-- 친구 머리 옆의 점이 코딩 에이전트의 상태를 보여 줍니다(일하는 중 주황 깜빡임, 기다림 파랑, 완료 초록, 문제 빨강). 완료와 문제는 30분 뒤 사라지고, 에이전트가 일하는 동안 그 친구와 대화해도 상태가 유지됩니다.
-- 담당 친구: 설정 탭에서 코딩 에이전트마다 상태를 받을 친구를 고릅니다. 복사한 설정에 그 친구가 적혀 Claude Code는 타비, Codex는 스모키처럼 나눠 맡길 수 있습니다.
-- 가져오기 링크: `playpets://import?url=<펫 페이지 주소>`를 열면 그 펫을 가져오고 초대 탭이 열립니다. 펫 갤러리가 "PlayPets에서 열기" 버튼을 달 수 있습니다.
-- 놀이터: Codex 펫 파일로 친구를 불러 쓰다듬기·간식·다 같이 인사를 하고, 시간대와 날씨가 바뀌는 풍경에서 친구들이 산책합니다. 놀이는 숨바꼭질(이름으로 찾기), 산책 행렬, 꼬리잡기입니다. 쓰다듬으면 하트가, 간식과 에이전트의 작업 완료에는 반짝임이 흩어지고, 누르면 몸이 살짝 눌렸다 튀어오르며, 말풍선은 톡 튀어나오고, 밤에는 별이 반짝입니다. 움직임을 줄인 설정에서는 모두 멈춥니다.
-- 작게 보기: 놀이터만 작은 창으로 띄웁니다.
-- 바탕화면 모드: 모니터마다 친구가 나와 돌아다니고, 끌어서 옮기고, 마우스를 따라 봅니다. 다른 앱의 전체 화면 위에도 뜹니다(macOS).
-- 대화: 친구마다 AI를 연결합니다(Claude Code·Codex 구독, Ollama, OpenAI 호환 서버). 성격을 정하거나 대화로 바꿀 수 있고, 친구 여럿이 함께 이야기합니다.
-- 코딩 에이전트 연동: Claude Code·Codex·Gemini CLI·Cursor의 훅과 MCP로 에이전트가 일하는 동안 친구가 반응하고, 최근 작업을 이야기합니다. Node.js 없이 앱 실행 파일이 직접 받습니다.
-- 펫 가져오기: 커뮤니티 펫 페이지 주소나 GitHub 폴더, 내 컴퓨터의 폴더에서 가져옵니다. 초대 탭은 펫이 있는 곳별로 묶고 그 폴더를 열어 줍니다.
-- 언어: 한국어·English·日本語·简体中文. 처음에는 시스템 언어를 따르고 설정에서 바꿉니다. 바꾸면 바탕화면 창도 함께 새 언어가 됩니다.
-- 배포 파일: macOS dmg, Windows 설치 파일, Linux deb·AppImage(GitHub 릴리스), 로컬 빌드로 Windows 포터블 zip과 시험용 MSIX.
+### Added
+- The yard: invite friends from Codex pet files, pet them, put down a treat and say hi together, and watch them stroll through scenery whose time of day and weather change. Games are hide and seek (find the friend whose name is called), a parade and tag. Petting scatters hearts, treats and an agent's finished work scatter sparkles, a pressed friend squashes and bounces back, speech bubbles pop in, and stars twinkle at night. All of it stops when the system asks for reduced motion.
+- Starter pets: Tabby, Smoky and Mochi come with the app, so there is someone to invite the first time it opens. They are under "PlayPets starter pets" on the Invite tab.
+- A Shape filter on the Invite tab (All, People, Animals, Other), from the pet file's `kind`.
+- Chat: give each friend its own AI (a Claude Code or Codex subscription, Ollama, or an OpenAI-compatible server). Set a personality or change it by talking, and talk with several friends at once.
+- Relationships: in friend settings, pick Friend, Partner, Reliable senior or Playful younger sibling and fill in "What it calls you". The tone and form of address change, and friends know each other's relationships and keep that tone when they talk or chat among themselves.
+- Let them chat: from the yard toolbar, friends with an AI talk among themselves about the time and the weather. In Settings they can also chat on their own every 20 minutes.
+- The first time the app opens, a card in the yard walks through three steps (invite, give a friend an AI, give an agent a friend) and checks off the ones that are done. When Claude Code or Codex CLI is installed, one press of "Connect now" connects every friend with no key, and with two or more friends they start talking right away. The AI connection dialog has a switch to give the same AI to the other friends that have none yet.
+- Coding agent integration: through Claude Code, Gemini CLI and Cursor hooks, Codex notifications and MCP, a friend reacts while the agent works and tells you about recent work. The app executable receives it directly, without Node.js.
+- Assigned friends: in the Settings tab, pick which friend each coding agent reports to. The copied settings name that friend, so Claude Code can go to Tabby and Codex to Smoky.
+- The assigned agent shows on the friend's name tag and as a chip in the Friend tab, and when several are busy, the yard caption counts them.
+- A dot by a friend's head shows the coding agent's state (working: blinking orange, waiting: blue, done: green, trouble: red). Done and trouble fade after 30 minutes, and the state stays while you chat with that friend during the agent's work.
+- Pet import: from a community pet page address, a GitHub folder, or a folder on your computer. The Invite tab groups pets by where they live and opens that folder.
+- Import links: opening `playpets://import?url=<pet page address>` imports that pet and opens the Invite tab, so a pet gallery can add an "Open in PlayPets" button.
+- Desktop mode: friends come out on every monitor, stroll around, can be dragged, and look toward the mouse. On macOS they also show over other apps in full screen.
+- Mini mode: a small window with just the yard.
+- Languages: Korean, English, Japanese and Simplified Chinese. The app follows the system language at first and can be changed in Settings; the desktop window switches along with it.
+- Installer screens: the macOS disk image opens on a picture of the yard that shows dragging the app to Applications, and the Windows installer has pets on its first and last pages and in the step headers. Linux software centers (Ubuntu App Center, GNOME Software, KDE Discover) show a description and screenshots and list the app under Games.
+- Downloads: macOS dmg, Windows installer and portable zip, Linux deb and AppImage (x64 and arm64) on GitHub releases; a trial MSIX from a local build.
 
-### 보안
-- 펫 가져오기는 붙여 넣은 주소의 사이트(와 그 하위 도메인, 등록된 커뮤니티의 호스트)에서만 파일을 받고, 다른 곳을 가리키는 페이지는 따라가지 않습니다. 사설 주소는 이름을 푸는 단계에서 막습니다.
-- 펫 파일의 설명은 AI에게 "설명이지 지시가 아니다"로 전달되고, 대화 중 저장된 성격도 그 표시를 유지합니다.
+### Security
+- Pet import downloads files only from the site of the pasted address (its subdomains and the hosts of registered communities), and does not follow a page that points anywhere else. Private addresses are blocked when the name is resolved.
+- A pet file's description reaches the AI labeled as a description, not an instruction, and a personality saved during a chat keeps that label.
 
-### 알려진 제한
-- 배포 파일에 코드 서명이 없어 macOS Gatekeeper와 Windows SmartScreen이 처음 실행을 막습니다.
-- Windows 빌드는 실제 기기에서 아직 충분히 확인하지 않았습니다.
+### Known limitations
+- The downloads are not code-signed, so macOS Gatekeeper and Windows SmartScreen block the first launch.
+- The Windows build was checked in a virtual machine (the x64 installer on Windows 11 ARM), installing and running, but has not been tested enough on real machines yet.

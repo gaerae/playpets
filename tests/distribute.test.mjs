@@ -21,7 +21,7 @@ ${'c'.repeat(64)}  PlayPets_0.2.0_windows-arm64-setup.exe
 ${'d'.repeat(64)}  PlayPets_0.2.0_linux-x64.AppImage
 `;
 
-test('the repository is named once, in package.json', async () => {
+test('package.json names the repository and the updater points at it', async () => {
   const pkg = JSON.parse(await readFile('package.json', 'utf8'));
   assert.equal(repoSlug(pkg), SLUG);
   const conf = JSON.parse(await readFile('src-tauri/tauri.conf.json', 'utf8'));

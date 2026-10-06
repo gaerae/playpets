@@ -68,7 +68,18 @@ export function setMetainfoRelease(xml, version, date) {
     .replace(element, `\n${indent}<releases>\n${indent}  <release version="${version}" date="${date}"/>\n`);
 }
 
-// The website's page for a version, started from its changelog notes. The maintainer fills the
+// A release page written ahead of time gets the release date in its front matter (ReleaseMeta and the
+// release list show "in preparation" until then).
+export function setPageDate(page, date) {
+  const front = page.match(/^---\n([\s\S]*?)\n---\n/);
+  if (!front) throw new Error('The release page has no front matter.');
+  const lines = front[1].split('\n').filter(line => !line.startsWith('date:'));
+  const at = lines.findIndex(line => line.startsWith('version:'));
+  lines.splice(at + 1, 0, `date: ${date}`);
+  return `---\n${lines.join('\n')}\n---\n${page.slice(front[0].length)}`;
+}
+
+// The website's English page for a version, started from its changelog notes. The maintainer fills the
 // headline and swaps or adds screenshots; the notes stay as the changelog wrote them.
 export function releasePage(notes, version, date) {
   return `---
@@ -87,7 +98,7 @@ headline: ""
 
 ${notes}
 
-## 화면
+## Screens
 
 <Shot name="friend-chat" version="${version}" caption="" />
 

@@ -116,7 +116,7 @@ body.mini .yard-pet:focus-visible .pet-tag {
   visibility: visible;
 }
 /* the agent's state, by the head rather than the top of the cell: --head is the cell's empty top
-   (views.js crown); working pulses, the rest are coloured */
+   (core/sprites.js crown); working pulses, the rest are coloured */
 .pet-state-dot {
   position: absolute;
   top: calc(var(--head, 8px) + 2px);
@@ -240,7 +240,7 @@ body.mini .yard-pet:focus-visible .pet-tag {
 }
 .yard-bubble {
   position: absolute;
-  /* just above the head: --head is the cell's empty top, measured per pet (views.js crown) */
+  /* just above the head: --head is the cell's empty top, measured per pet (core/sprites.js crown) */
   bottom: calc(100% + 2px - var(--head, 8px));
   left: 50%;
   transform: translateX(-50%);

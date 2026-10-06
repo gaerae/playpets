@@ -1,4 +1,4 @@
-// Yard scenery: the time of day comes from the clock, the weather from the person.
+// Yard scenery: the time of day comes from the clock, and the weather changes on its own unless the person picks one.
 import { list, t } from '../core/i18n.js';
 
 export const PERIODS = {
@@ -17,7 +17,7 @@ export function periodFor(hour) {
 export function sceneCaption(period, weather) {
   const p = PERIODS[period] ? period : 'day',
     w = WEATHERS[weather] ? weather : 'clear';
-  // Each language composes its own line: "포근한 아침의 놀이터", "A cosy morning in the yard".
+  // Each language composes its own line from the caption.* keys, e.g. "A cosy morning in the yard".
   return t(`caption.${w}.${p}`);
 }
 // "Auto" lets the sky change on its own: one draw per 20-minute block, mostly clear.

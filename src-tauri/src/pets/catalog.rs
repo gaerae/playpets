@@ -287,7 +287,7 @@ pub fn intro(kind: &str, description: &str) -> String {
     }
 }
 
-/// Pets brought in by address are saved under the app's `downloads` folder; any other folder was picked by hand.
+/// Pets brought in by address are saved under the downloads folder (`<data>/pets`); any other folder was picked by hand.
 pub fn place_of(downloads: &Path, folder: &Path) -> Place {
     // Pet folders are canonical, so the downloads folder is compared in the same form.
     let downloads = dunce::canonicalize(downloads).unwrap_or_else(|_| downloads.to_path_buf());

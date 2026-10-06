@@ -14,30 +14,30 @@ import {
   setMetainfoRelease,
 } from '../scripts/release-lib.mjs';
 
-const CHANGELOG = `# 변경 기록
+const CHANGELOG = `# Changelog
 
 ## [Unreleased]
 
-### 추가
-- 새 놀이
+### Added
+- A new game
 
 ## [0.1.0] - 2026-09-30
 
-### 추가
-- 첫 판
+### Added
+- The first version
 `;
 
 test('a release moves what is unreleased into a dated section and leaves Unreleased empty', () => {
   const out = release(CHANGELOG, '0.2.0', '2026-10-05');
-  assert.match(out, /## \[Unreleased\]\n\n## \[0\.2\.0\] - 2026-10-05\n\n### 추가\n- 새 놀이\n\n## \[0\.1\.0\]/);
+  assert.match(out, /## \[Unreleased\]\n\n## \[0\.2\.0\] - 2026-10-05\n\n### Added\n- A new game\n\n## \[0\.1\.0\]/);
   assert.throws(() => release(out, '0.3.0', '2026-10-06'), /nothing under \[Unreleased\]/i);
   assert.throws(() => release(CHANGELOG, '0.1.0', '2026-10-06'), /already/i);
   assert.throws(() => release(CHANGELOG, '0.2', '2026-10-06'), /x\.y\.z/);
 });
 
 test('the release notes are the section of that version, without its heading', () => {
-  assert.equal(notesFor(CHANGELOG, '0.1.0'), '### 추가\n- 첫 판');
-  assert.equal(notesFor(release(CHANGELOG, '0.2.0', '2026-10-05'), '0.2.0'), '### 추가\n- 새 놀이');
+  assert.equal(notesFor(CHANGELOG, '0.1.0'), '### Added\n- The first version');
+  assert.equal(notesFor(release(CHANGELOG, '0.2.0', '2026-10-05'), '0.2.0'), '### Added\n- A new game');
   assert.throws(() => notesFor(CHANGELOG, '9.9.9'), /no section/i);
 });
 
@@ -96,4 +96,12 @@ test('every script and npm command the workflows call exists', async () => {
       assert.ok(existsSync(path), `${file}: ${path}`);
     for (const [, name] of text.matchAll(/npm run ([\w:-]+)/g)) assert.ok(scripts[name], `${file}: npm run ${name}`);
   }
+});
+
+test('a release page written ahead of time gets the release date, once', async () => {
+  const { setPageDate } = await import('../scripts/release-lib.mjs');
+  const page = '---\nversion: 0.2.0\nheadline: "Hi"\n---\n\n# 0.2.0\n';
+  const dated = setPageDate(page, '2026-11-01');
+  assert.equal(dated, '---\nversion: 0.2.0\ndate: 2026-11-01\nheadline: "Hi"\n---\n\n# 0.2.0\n');
+  assert.equal(setPageDate(dated, '2026-11-02'), dated.replace('2026-11-01', '2026-11-02'));
 });

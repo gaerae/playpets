@@ -85,7 +85,7 @@ cargo build --release --manifest-path src-tauri/Cargo.toml && PLAYPETS_DATA="$PW
 |---|---|
 | `cargo: command not found` | `~/.cargo/bin` is not on PATH. `export PATH="$HOME/.cargo/bin:$PATH"` |
 | `npm run start` opens nothing | An installed PlayPets is running (step 5). Or there is no release build yet (step 4 or 8) |
-| E2E prints "앱 창이 가려져 있어 숨바꼭질은 시작·종료만 확인했어요" ("the app window is covered, so hide and seek only checked start and stop") | This is not a failure. When the window is covered, WebKit pauses animations, so the walking check is skipped |
+| E2E prints "The app window was covered, so hide and seek only checked start and stop" | This is not a failure. When the window is covered, WebKit pauses animations, so the walking check is skipped |
 | The Linux build cannot find `webkit2gtk` | Install the packages from Prerequisites |
 
 For anything else that blocks you, see the [Troubleshooting guide](troubleshooting.md).

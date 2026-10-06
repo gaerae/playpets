@@ -4,7 +4,7 @@ import { $ } from './state.js';
 
 let answer = null;
 
-// Resolves true only when the action button was pressed; Esc, 취소 and a click outside are false.
+// Resolves true only when the action button was pressed; Esc, Cancel and a click outside are false.
 export function confirmAction({ title, body, action, danger = true }) {
   answer?.(false);
   $('confirm-title').textContent = title;

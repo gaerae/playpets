@@ -16,7 +16,7 @@ Agent hooks send codes (`@tool Bash`, `@done`) instead of status sentences, and 
 - Neutral: What an agent says in its own words (the `say` command, Codex's last answer) is not translated and shows as it is.
 
 ## Follow-up (2026-10-05)
-The two-table decision stands. But instead of one file with three languages side by side, each language now has its own file (`src/core/strings/<language>.js`, `src-tauri/src/i18n/<language>.rs`), and the language list is read from a registry (`src/core/strings.js`, and `Spec` in `i18n/mod.rs`). This is so that adding a language does not mean editing every row. The steps are in [Add a language](../how-to/add-a-language.md).
+The two-table decision stands. But instead of one file with three languages side by side, each language now has its own file (`src/core/strings/<language>.js`, `src-tauri/src/i18n/<language>.rs`), and the language list is read from a registry (`src/core/strings.js`, and `Spec` in `i18n/mod.rs`). This is so that adding a language does not mean editing every row. The steps are in [Add a language](../how-to/add-a-language.md). Simplified Chinese (`zh-hans`) was then added this way as the fourth language, after Korean, English and Japanese.
 
 ## Alternatives considered
 - **One JSON file read by both sides:** It would be shared, but the page would need a build step or fetch to load JSON, and the page's CSP blocks outside requests.

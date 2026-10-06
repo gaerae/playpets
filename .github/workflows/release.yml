@@ -36,12 +36,14 @@ jobs:
           ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 26
+          node-version-file: .node-version
       # The tag, package.json and the changelog must agree before anything is built.
       - id: version
         name: Tag matches the version and the changelog
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          tag="${{ inputs.tag || github.ref_name }}"
+          tag="$TAG"
           version="${tag#v}"
           test "$(node -p "require('./package.json').version")" = "$version" || { echo "package.json is not $version"; exit 1; }
           node scripts/release-notes.mjs "$version" > /dev/null
@@ -66,7 +68,8 @@ jobs:
           ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 26
+          node-version-file: .node-version
+          cache: npm
       - uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # stable branch
         with:
           toolchain: stable
@@ -154,7 +157,7 @@ jobs:
           ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 26
+          node-version-file: .node-version
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           path: out

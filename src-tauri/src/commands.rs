@@ -345,6 +345,7 @@ fn open_folder(state: &State<Shared>, which: &str) -> Result<Value, String> {
     let folder = {
         let d = lock(state);
         match which {
+            "builtin" => d.builtin_pets.clone(),
             "codex" => d.codex_pets.clone(),
             "downloaded" => d.store.dir.join("pets"),
             id => d
@@ -431,6 +432,25 @@ fn set_language(app: &AppHandle, state: &State<Shared>, code: &str) -> Result<Va
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn every_pet_folder_the_page_lists_can_be_opened() {
+        // The Invite tab shows an Open folder button for each place in `petFolders`.
+        let app = include_str!("app.rs");
+        let start = app.find("\"petFolders\": {").unwrap();
+        let folders = &app[start..start + app[start..].find('}').unwrap()];
+        let source = include_str!("commands.rs");
+        let open = &source[source.find("fn open_folder(").unwrap()..];
+        let open = &open[..open.find("\n}\n").unwrap()];
+        let parts: Vec<&str> = folders.split('"').skip(3).collect();
+        let keys = parts.windows(2).filter(|w| w[1].starts_with(':')).map(|w| w[0]);
+        for key in keys {
+            assert!(
+                open.contains(&format!("\"{key}\" =>")),
+                "open_folder has no arm for {key}"
+            );
+        }
+    }
 
     #[test]
     fn every_listed_command_has_a_dispatch_arm_and_the_overlay_gets_only_its_own() {

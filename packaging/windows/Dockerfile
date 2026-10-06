@@ -19,7 +19,7 @@ RUN git clone https://github.com/microsoft/msix-packaging.git /opt/msix-packagin
     && install -m 755 .vs/bin/makemsix /usr/local/bin/makemsix \
     && find .vs -name 'libmsix.so*' -exec install -m 644 {} /usr/local/lib/ \; && ldconfig \
     && rm -rf /opt/msix-packaging
-# Node.js comes from the official image, so CI builds with the same version as .node-version.
+# Node.js comes from the official image, so the Docker build uses the same Node major as .node-version.
 COPY --from=node:26-trixie-slim /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:26-trixie-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx

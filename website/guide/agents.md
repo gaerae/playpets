@@ -1,91 +1,90 @@
 ---
-description: 코딩 에이전트의 작업 상태를 친구에게 보내는 설정과 터미널 명령, 보안
+description: Settings that send a coding agent's work status to your friend, terminal commands, and security
 ---
 
-# 코딩 에이전트 연동
+# Coding agent hooks
 
-Claude Code, Codex CLI, Gemini CLI, Cursor 같은 코딩 에이전트가 일하는 동안 친구가 함께 반응해요. 설정 한 조각을 복사해 붙이면 끝이고, Node.js는 필요 없어요.
+While a coding agent such as Claude Code, Codex CLI, Gemini CLI or Cursor works, your friend reacts along with it. Copy and paste one piece of settings and you are done. Node.js is not needed.
 
-## 친구마다 담당 에이전트 <Since v="0.1.0" />
+## A friend for each agent <Since v="0.1.0" />
 
-에이전트마다 상태를 받을 친구를 정할 수 있어요. 설정 탭의 각 도구 줄에 있는 **담당 친구**에서 고르고, **설정 복사**를 다시 눌러 붙여 넣으면 돼요. 복사한 설정에 그 친구가 적혀서(`--pet`), Claude Code는 타비가, Codex는 스모키가 맡는 식으로 나눌 수 있어요. 정하지 않으면("정하지 않음 · 첫 친구가 반응해요") 첫 친구가 받고, 담당 친구를 내보내면 다시 첫 친구에게 가요. 친구마다 다른 에이전트를 맡기면 놀이터가 곧 지금 누가 무엇을 하는지 보여 주는 현황판이 돼요.
+Each agent can report to a friend of your choice. In the Settings tab, pick one under **Reports to** on that tool's row, then press **Copy settings** again and paste. The copied settings name the friend (`--pet`), so Claude Code can report to Tabby and Codex to Smoky. With no choice, the first friend gets it; send the chosen friend away and it goes back to the first friend. Give each friend a different agent and the yard becomes a status board of who is doing what.
 
-## 놀이터에서 보이는 것 <Since v="0.1.0" />
+## What you see in the yard <Since v="0.1.0" />
 
-담당 에이전트가 있는 친구는 이름표에 그 이름이 작게 붙어요(타비 · Claude Code). 놀이터 위의 설명 줄은 한 친구가 바쁘면 그 친구를, 여럿이면 "일하는 친구 2 · 기다리는 친구 1"처럼 세어서 보여 줘요. 친구 탭의 AI 고르기 아래 칩에도 담당 에이전트가 보여요. 친구 위의 작은 점은 에이전트의 상태예요: 일하는 중은 주황색으로 깜빡이고, 기다리는 중은 파랑, 끝나면 초록, 문제가 생기면 빨강이에요. 올려 두면 이름이 보여요. 끝남과 문제 점은 30분이 지나면 사라지고, 일하는 중과 기다리는 중은 에이전트가 다시 알릴 때까지 남아요. 친구 탭의 상태 알약도 에이전트의 상태예요. 대화 답은 대화창에 보이니까요.
+A friend with an agent carries its name on the name tag (Tabby · Claude Code). The line above the yard names one busy friend, or counts them when several are busy ("2 working · 1 waiting"). The chip under the AI picker in the Friend tab shows the agents, too. The small dot by a friend's head is the agent's state: working pulses orange, waiting is blue, done is green, and trouble is red; hover it for the name. Done and trouble fade after 30 minutes; working and waiting stay until the agent reports again. The pill in the Friend tab is the agent's state too: chat answers show in the log.
 
-## 무엇이 일어나나요 <Since v="0.1.0" />
+## What happens <Since v="0.1.0" />
 
-에이전트의 단계가 친구의 상태로 바뀌어요. 상태는 친구 탭의 이름 옆과 놀이터 이름표에 보이고, 바탕화면의 친구 위에도 말풍선으로 떠요.
+The agent's steps become your friend's status. The status shows next to the name in the Friend tab and on the name tag in the yard, and it also floats as a speech bubble above the friend on the desktop.
 
-| 에이전트가 하는 일 | 친구의 상태 |
+| What the agent is doing | Your friend's status |
 |---|---|
-| 생각 중, 도구 사용(예: "Bash 사용 중") | 일하는 중 |
-| 확인이나 답을 기다림 | 답을 기다리는 중 |
-| 작업을 마침 | 작업 완료 |
-| 오류가 남 | 문제가 생겼어요 |
-| 세션이 끝남 | 쉬는 중 |
+| Thinking, using a tool (for example "Using Bash") | Working |
+| Waiting for confirmation or an answer | Waiting for an answer |
+| Finished the task | Done |
+| Hit an error | Something went wrong |
+| Session ended | Resting |
 
-친구는 최근 활동을 8개까지 기억해요. [대화](./chat.md)에서 "뭐 하고 있었어?"라고 물으면 그 내용을 이야기해 줘요.
+Your friend remembers up to 8 recent activities. Ask "what were you doing?" in the [chat](./chat.md) and they tell you about them.
 
-## 설정 복사해 붙이기 <Since v="0.1.0" />
+## Copy and paste the settings <Since v="0.1.0" />
 
-<Shot name="settings-agents" caption="설정 탭의 코딩 에이전트 연동. 도구마다 설정 복사 버튼이 있어요." />
+<Shot name="settings-agents" caption="Coding agent hooks in the Settings tab. Each tool has a Copy settings button." />
 
-1. **설정** 탭의 **코딩 에이전트 연동**으로 가요.
-2. 쓰는 도구 옆의 **설정 복사**를 눌러요. 어느 파일에 붙여야 하는지 알림으로 알려 줘요.
-3. 그 파일을 열어 붙여 넣고 저장해요. 에이전트를 다시 시작하면 바로 이어져요.
+1. Go to **Coding agent hooks** in the **Settings** tab.
+2. Click **Copy settings** next to the tool you use. A notice tells you which file to paste it into.
+3. Open that file, paste, and save. Restart the agent and it connects right away.
 
-| 도구 | 붙여 넣을 곳 | 동작 |
+| Tool | Where to paste | How it works |
 |---|---|---|
-| Claude Code (추천) | `~/.claude/settings.json` | 훅으로 단계마다 알려 줘요 |
-| Codex CLI | `~/.codex/config.toml` 맨 위 | 작업이 끝날 때 알려 줘요 |
-| Gemini CLI | `~/.gemini/settings.json` | 훅으로 단계마다 알려 줘요 |
-| Cursor | `~/.cursor/hooks.json` | 편집·명령·완료를 알려 줘요. 관찰용 훅만 써요 |
-| 그 밖의 MCP 도구 | 도구의 MCP 설정 | AI가 `set_pet_state`, `say`, `react`, `list_pets` 도구로 직접 상태와 말풍선을 보내요 |
+| Claude Code (recommended) | `~/.claude/settings.json` | Reports every step through hooks |
+| Codex CLI | At the top of `~/.codex/config.toml` | Reports when a task finishes |
+| Gemini CLI | `~/.gemini/settings.json` | Reports every step through hooks |
+| Cursor | `~/.cursor/hooks.json` | Reports edits, commands and completion. Only observe-only hooks are used |
+| Other MCP tools | The tool's MCP settings | The AI sends status and speech bubbles itself with the `set_pet_state`, `say`, `react` and `list_pets` tools |
 
-복사한 조각에는 PlayPets 실행 파일의 경로가 들어 있어요. 앱 실행 파일이 곧 연동 명령이라서 따로 설치할 것이 없어요. 앱을 다른 곳으로 옮기면 설정을 다시 복사해 붙여 주세요.
+The copied piece contains the path to the PlayPets executable. The app's executable is the hook command itself, so there is nothing else to install. If you move the app somewhere else, copy and paste the settings again.
 
-이미 `hooks`나 `mcpServers` 항목이 있는 파일이라면, 조각을 그 항목 안에 합쳐 넣어 주세요.
+If the file already has a `hooks` or `mcpServers` entry, merge the piece into that entry.
 
-## 터미널에서 직접 <Since v="0.1.0" />
+## From the terminal <Since v="0.1.0" />
 
-같은 실행 파일을 터미널에서 불러 친구에게 말을 걸 수 있어요. 아래에서 `playpets`는 앱 실행 파일이에요(macOS는 `/Applications/PlayPets.app/Contents/MacOS/playpets`).
+You can call the same executable from the terminal to talk to your friend. Below, `playpets` is the app executable (on macOS, `/Applications/PlayPets.app/Contents/MacOS/playpets`).
 
 ```
-playpets hook claude|gemini|cursor   # 훅 (stdin JSON, 항상 종료 코드 0; Gemini·Cursor에는 {} 출력)
+playpets hook claude|gemini|cursor   # hook (JSON on stdin, always exits 0; prints {} for Gemini and Cursor)
 playpets hook codex <json>      # Codex notify
-playpets mcp                    # MCP stdio 서버
-playpets status <상태> [메시지]   [--pet 이름|ID] [--bridge 파일]
-playpets say <말>
-playpets react <동작>
+playpets mcp                    # MCP server over stdio
+playpets status <state> [message]   [--pet name|ID] [--bridge file]
+playpets say <words>
+playpets react <action>
 playpets pets
-playpets run -- <명령>
+playpets run -- <command>
 ```
 
-자주 쓰는 예는 이래요.
+Common examples:
 
-| 명령 | 하는 일 |
+| Command | What it does |
 |---|---|
-| `playpets pets` | 친구 목록과 지금 상태 |
-| `playpets say "테스트 통과"` | 상태는 그대로 두고 말풍선만 띄워요 |
-| `playpets status working "빌드 중"` | 상태를 바꿔요. `idle`, `working`, `waiting`, `done`, `error` 중 하나 |
-| `playpets react wave` | 한 번 반응해요. `wave`, `jump`, `pet` 중 하나 |
-| `playpets run -- npm test` | 명령이 도는 동안 "일하는 중", 끝나면 "작업 완료" 또는 "문제가 생겼어요" |
+| `playpets pets` | Lists the friends and their current status |
+| `playpets say "Tests passed"` | Shows a speech bubble without changing the status |
+| `playpets status working "Building"` | Changes the status. One of `idle`, `working`, `waiting`, `done`, `error` |
+| `playpets react wave` | Reacts once. One of `wave`, `jump`, `pet` |
+| `playpets run -- npm test` | "Working" while the command runs, then "Done" or "Something went wrong" |
 
-`--pet 이름` 또는 `--pet 친구ID`로 특정 친구를 가리켜요. 없으면 첫 친구에게 가요. 친구 ID는 친구 설정 창 아래에 있어요.
+Use `--pet name` or `--pet friendID` to point at a specific friend. Without it, the first friend gets it. The friend ID is at the bottom of the Friend settings window.
 
-## 보안 <Since v="0.1.0" />
+## Security <Since v="0.1.0" />
 
-- 연동은 이 컴퓨터 안에서만 오가요. 앱이 `127.0.0.1`의 임의 포트를 열고, 요청마다 무작위 토큰을 확인해요. 포트와 토큰은 데이터 폴더의 `bridge.json`에 있고 앱을 다시 켤 때마다 바뀌어요.
-- 에이전트에 입력한 프롬프트나 코드 내용은 친구에게 보내지 않아요. 상태와 짧은 문장만 가요.
-- 훅은 에이전트의 작업을 막지 않아요. 3초 안에 조용히 끝나고, 앱이 꺼져 있어도 에이전트는 그대로 돌아가요.
-- 대화용 AI 연결과는 따로예요. 연동만 해도 친구와 대화가 되는 건 아니에요.
+- The hooks stay on this computer. The app opens a random port on `127.0.0.1` and checks a random token on every request. The port and token are in `bridge.json` in the data folder and change every time the app starts.
+- Nothing you type into the agent, and none of your code, is sent to your friend. Only the status and short sentences go through.
+- The hooks never block the agent's work. They finish quietly within 3 seconds, and the agent keeps running even when the app is closed.
+- This is separate from the AI connection used for chatting. Setting up the hooks alone does not let you chat with your friend.
 
-더 자세한 구조는 개발자 문서 [코딩 에이전트 연동](/en/dev/agent-integration)에 있어요.
+The detailed design is in the developer docs under [Coding agent integration](/dev/agent-integration).
 
-## Windows에서 주의할 점
+## Notes for Windows
 
-- MSIX 패키지로 설치했다면 실행 파일이 `WindowsApps` 아래에 있어 경로로 부를 수 없어요. 이때 복사되는 설정은 실행 별칭 `%LOCALAPPDATA%\Microsoft\WindowsApps\playpets.exe`를 가리켜요.
-- npm으로 설치한 `claude`, `codex`는 `%APPDATA%\npm`에 있어야 앱이 찾아요. 다른 곳에 설치했다면 자동 감지가 안 될 수 있어요.
-- 이전 판에서 콘솔 창이 깜빡이던 문제는 고쳤어요. 보이면 업데이트해 주세요.
+- If you installed the trial MSIX package built locally, the executable is under `WindowsApps` and cannot be called by path. In that case the copied settings point to the execution alias `%LOCALAPPDATA%\Microsoft\WindowsApps\playpets.exe`.
+- `claude` and `codex` installed with npm must be in `%APPDATA%\npm` for the app to find them. If you installed them somewhere else, automatic detection may not work.

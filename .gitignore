@@ -15,15 +15,18 @@ release/
 # local assistant settings
 .claude/settings.local.json
 # website: generated from docs/ and assets/ by scripts/site-prepare.mjs, built by vitepress
-website/en/dev/
+website/dev/
 website/public/icon.svg
-website/public/mascot.svg
 website/public/pets/
 website/.vitepress/cache/
 website/.vitepress/dist/
 website/.vitepress/generated.json
-# keys and certificates never belong here
+# keys and certificates never belong here (an Apple App Store Connect API key is a .p8)
 *.pem
 *.p12
+*.p8
 *.pfx
 *.key
+# Windows folder files
+Thumbs.db
+desktop.ini

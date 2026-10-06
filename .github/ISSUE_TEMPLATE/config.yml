@@ -4,5 +4,5 @@ contact_links:
     url: https://github.com/gaerae/playpets/security/advisories/new
     about: Report vulnerabilities here instead of in a public issue.
   - name: User guide
-    url: https://gaerae.github.io/playpets/en/guide/
+    url: https://gaerae.github.io/playpets/guide/
     about: Guides to installing, your first friend, connecting an AI, and coding agent integration. Look here first; the answer may already be there.
