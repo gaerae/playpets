@@ -41,6 +41,7 @@
       }
     },
     "macOS": {
+      "signingIdentity": "-",
       "dmg": {
         "background": "../packaging/macos/dmg-background.png",
         "windowSize": { "width": 660, "height": 420 },
@@ -52,7 +53,7 @@
   "plugins": {
     "deep-link": { "desktop": { "schemes": ["playpets"] } },
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDZENzYxNTUzMkE3MUE4OUUKUldTZXFIRXFVeFYyYldnYnlHaDRzd0hNT1ZLcWVRU0x6bzN4L3UwZE1VZjJXYXFDYjduaXNhd0IK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVGMUQ2REQxQzlDOTA2QTMKUldTakJzbkowVzBkWDV3RTlEMjhXeGhzRDNYR250VE1XMzRHcHVCMXRiSnp5QmpxbHVGSEdlbUoK",
       "endpoints": ["https://github.com/gaerae/playpets/releases/latest/download/latest.json"],
       "windows": {
         "installMode": "passive"

@@ -32,6 +32,7 @@ jobs:
           - {os: ubuntu-22.04-arm, name: linux-arm64, bundles: "deb,appimage"}
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.name }}
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -61,6 +62,14 @@ jobs:
         run: npx tauri build --bundles ${{ matrix.bundles }}
         env:
           APPIMAGE_EXTRACT_AND_RUN: 1
+          # The release styles the disk image window on CI; doing it here too catches a failure before a tag does.
+          TAURI_BUNDLER_DMG_IGNORE_CI: "true"
+      # An app with only the linker's signature (no sealed resources) opens as "damaged" once it
+      # is downloaded; the bundle is signed ad hoc (tauri.conf.json signingIdentity "-") until a
+      # Developer ID is set up.
+      - name: macOS signature
+        if: runner.os == 'macOS'
+        run: codesign --verify --strict --deep src-tauri/target/release/bundle/macos/PlayPets.app
       - name: E2E (Linux, Xvfb)
         if: runner.os == 'Linux'
         run: dbus-run-session -- xvfb-run -a -s "-screen 0 1920x1080x24" npm run test:e2e

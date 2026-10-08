@@ -3,11 +3,14 @@
 // Both are drawn from the sample pets' real sprite sheets with the headline. Run: npm run og
 // Needs Google Chrome (playwright-core drives it headless, as the e2e tools do).
 
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
 import { loadSheets, cell as sheetCell } from './art-lib.mjs';
 
 const sheets = await loadSheets();
+// The address printed on each card: the site's (package.json "homepage") without the scheme.
+const { homepage } = JSON.parse(await readFile('package.json', 'utf8'));
+const address = folder => `${homepage.replace(/^https?:\/\//, '')}${folder}`.replace(/\/$/, folder ? '/' : '');
 const cell = (id, row, col, scale) => sheetCell(sheets, id, row, col, scale);
 
 const page = ({ width, height, title, sub, url, scale }) => `<!doctype html><meta charset="utf-8"><style>
@@ -53,7 +56,7 @@ try {
   const english = {
     title: 'A yard where<b>pets talk to each other</b>',
     sub: 'Ten thousand Codex pets as they are. Each friend its own AI, friends talking among themselves, any coding agent in company.',
-    url: 'gaerae.github.io/playpets',
+    url: address(''),
   };
   await render('website/public/og.png', { width: 1200, height: 630, ...english, scale: 1 });
   await render('website/public/og-ko.png', {
@@ -61,7 +64,7 @@ try {
     height: 630,
     title: '서로 이야기하는<b>펫들의 놀이터</b>',
     sub: 'Codex 펫 1만 마리 그대로. 친구마다 다른 AI로 말하고, 서로 이야기하고, 어느 코딩 에이전트와도 함께 일해요.',
-    url: 'gaerae.github.io/playpets/ko/',
+    url: address('ko/'),
     scale: 1,
   });
   await render('website/public/og-zh-hans.png', {
@@ -69,7 +72,7 @@ try {
     height: 630,
     title: '宠物们互相聊天的<b>乐园</b>',
     sub: '一万只 Codex 宠物原样带来。每位伙伴各用一个 AI，互相聊天，陪任何编码代理一起工作。',
-    url: 'gaerae.github.io/playpets/zh-hans/',
+    url: address('zh-hans/'),
     scale: 1,
   });
   // The README is English, so its banner is too.

@@ -23,8 +23,10 @@ Go to a document based on what you want to know.
 | How the app is built and what calls what | [Architecture: PlayPets app](architecture.md) |
 | How coding agents reach the app; CLI, HTTP and MCP specs | [Architecture: coding agent integration](agent-integration.md) |
 | Adding a backend command the page can call | [Add a backend command the page calls](how-to/add-a-command.md) |
+| Setting up once: the updater key, the GitHub repository, secrets, the Homebrew tap, winget, signing accounts | [Set up the repository, keys and store accounts](how-to/set-up-the-repository.md) |
 | Releasing a new version and distribution channels | [Release a new version](how-to/release.md) |
 | Changing the site (intro, user guide, version pages) | [Edit and check the website](how-to/website.md) |
+| Moving the site to its own domain (playpets.app) | [Move the site to its own domain](how-to/site-address.md) |
 | Adding a language the app speaks | [Add a language](how-to/add-a-language.md) |
 | Where to look first when stuck | [Troubleshooting guide](troubleshooting.md) |
 

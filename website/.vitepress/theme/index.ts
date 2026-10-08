@@ -13,11 +13,13 @@ import './style.css';
 
 export default {
   extends: DefaultTheme,
-  enhanceApp({ app, router }) {
+  enhanceApp({ app, router, siteData }) {
     // The developer docs exist only in English, under /dev/. On a /dev/ page the language menu
     // offers /ko/dev/… and /zh-hans/dev/…, which have no pages; this sends both to the English
     // page, whether typed, linked or clicked in the site, so the menu keeps working there.
-    const moved = (to: string) => to.replace(/^(\/playpets)\/(?:ko|zh-hans)\/dev(\/|$)/, '$1/dev$2');
+    const base = siteData.value.base;
+    const moved = (to: string) =>
+      to.startsWith(base) ? base + to.slice(base.length).replace(/^(?:ko|zh-hans)\/dev(\/|$)/, 'dev$1') : to;
     if (typeof window !== 'undefined') {
       const now = moved(location.pathname);
       if (now !== location.pathname) location.replace(now + location.search + location.hash);

@@ -12,7 +12,7 @@ A maintainer does this. You need write access to the repository and a clean loca
 - You chose the version number. Bump the second number when people get new features, and the third when there are only fixes.
 - `git status` is empty locally.
 - The release pages for this version are written in all three site languages: `website/releases/<version>.md` (English), `website/ko/releases/<version>.md` and `website/zh-hans/releases/<version>.md`. Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
-- One-time repository setup is done: in Settings → Pages, the source is "GitHub Actions" (otherwise `pages.yml` cannot publish the site), and in Settings → Advanced Security, private vulnerability reporting is turned on (the security policy sends reports there).
+- The one-time repository setup is done ([Set up the repository, keys and store accounts](set-up-the-repository.md)): Pages from GitHub Actions, private vulnerability reporting, the updater signing secrets, and for the stores the Homebrew tap and the winget-pkgs fork.
 
 ## Steps
 1. Pull the latest main.
@@ -55,7 +55,7 @@ git push origin HEAD v0.2.0
 7. Press "Publish release" on the draft. Publishing starts the `distribute` workflow.
 
 8. When the `distribute` run finishes, check the results. Channels without a token are left as the `store-manifests` artifact.
-   - winget: if `WINGET_TOKEN` exists, a PR opens on winget-pkgs. For the first version, submit the artifact's `winget/manifests/…` folder as a PR yourself.
+   - winget: if `WINGET_TOKEN` exists, `wingetcreate` opens the PR on winget-pkgs, the first version too (winget's moderators review a new package by hand; later versions are merged by their bots once checks pass). Without the token, submit the artifact's `winget/manifests/…` folder yourself:
 
 ```powershell
 wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\gaerae\PlayPets\0.2.0 --token <GitHub token>
@@ -67,6 +67,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 - The release page has the files from step 6, and the notes match the `## [0.2.0]` section of `CHANGELOG.md`.
 - In an app with the previous version installed, pressing "Check for updates" in the Settings tab shows "Version v0.2.0 is available" (when the updater signing secrets exist).
 - The winget PR passes its checks, or `brew upgrade --cask playpets` on a computer with the tap gets the new version.
+- With signing secrets, `latest.json` lists every platform the release has, including `linux-x86_64-deb` and `linux-aarch64-deb` entries for deb installs; if those are missing, deb users do not get updates in the app.
 
 ## Troubleshooting
 | Symptom | Fix |
@@ -74,7 +75,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 | `check` fails with "package.json is not x.y.z" | The tag and the version differ. Delete the tag (`git push --delete origin vx.y.z`, `git tag -d vx.y.z`) and start again from step 2 |
 | `check` fails with "no section for x.y.z" | The changelog has no such section. The tag was made without the release command |
 | Only one platform's `build` fails | Read that runner's log and fix it, then run `release` by hand from Actions with the same tag (workflow_dispatch, tag input) |
-| The draft has no `latest.json` | The updater signing secrets are missing. Installed apps cannot find this release. Add the secrets and rebuild with a manual run |
+| The draft has no `latest.json` | The updater signing secrets are missing. Installed apps cannot find this release. Add the secrets, delete the draft, and run `release` by hand with the same tag |
 | `gh release create` fails with "already exists" | A draft for the same tag already exists. Delete that draft and run it by hand |
 
 For wider cases, see the [troubleshooting guide](../troubleshooting.md).

@@ -8,7 +8,7 @@
 
 한국어: [사이트](https://gaerae.github.io/playpets/ko/) · [사용 안내](https://gaerae.github.io/playpets/ko/guide/) · 简体中文: [网站](https://gaerae.github.io/playpets/zh-hans/) · [使用指南](https://gaerae.github.io/playpets/zh-hans/guide/)
 
-![macOS · Windows · Linux](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-Tauri%202-f9ae55) ![MIT](https://img.shields.io/badge/license-MIT-3a2a1e) ![Compatible with the Codex pet format](https://img.shields.io/badge/pets-Codex%20pet%20format%20compatible-4a9bd6)
+[![build](https://github.com/gaerae/playpets/actions/workflows/build.yml/badge.svg)](https://github.com/gaerae/playpets/actions/workflows/build.yml) ![macOS · Windows · Linux](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-Tauri%202-f9ae55) ![MIT](https://img.shields.io/badge/license-MIT-3a2a1e) ![Compatible with the Codex pet format](https://img.shields.io/badge/pets-Codex%20pet%20format%20compatible-4a9bd6)
 
 More than ten pet apps that react to coding agents appeared in 2026, and nearly all are a single pet showing a status. PlayPets starts there and adds conversation and a place to live.
 

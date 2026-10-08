@@ -37,8 +37,10 @@ From macOS 15 the Control-click trick to open is gone, so you have to go through
 
 For the portable zip, unzip it into any folder and run `playpets.exe`. The SmartScreen warning appears here too, and you get past it the same way.
 
+On an ARM PC (Snapdragon and the like), use the arm64 file. The x64 one runs there too, through emulation, but its installer and uninstaller cannot close a running PlayPets for you: quit it from the tray first.
+
 ::: tip
-The Windows build has not been tested enough on real machines yet. If something looks wrong, let us know in a [GitHub issue](https://github.com/gaerae/playpets/issues).
+The Windows build was checked in a virtual machine, but has not been tested enough on real machines yet. If something looks wrong, let us know in a [GitHub issue](https://github.com/gaerae/playpets/issues).
 :::
 
 ## Linux <Since v="0.1.0" />

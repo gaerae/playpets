@@ -13,13 +13,15 @@ const version = ref(props.version ?? '');
 // 'missing': the API said 404, so there is no release yet; 'error': the lookup failed some other way.
 const lookup = ref<'pending' | 'missing' | 'error'>('pending');
 const os = ref<'macOS' | 'Windows' | 'Linux'>('macOS');
+// An ARM PC gets the arm64 file: the x64 one runs there only through emulation.
+const arm = ref(false);
 const releases = `https://github.com/${generated.slug}/releases`;
 const url = (file: string) => `${releases}/download/v${version.value}/PlayPets_${version.value}_${file}`;
 const primaryFile = computed(() =>
   os.value === 'Windows'
-    ? 'windows-x64-setup.exe'
+    ? `windows-${arm.value ? 'arm64' : 'x64'}-setup.exe`
     : os.value === 'Linux'
-      ? 'linux-x64.AppImage'
+      ? `linux-${arm.value ? 'arm64' : 'x64'}.AppImage`
       : 'macos-universal.dmg',
 );
 const others = computed(() => FILES.filter(f => f !== primaryFile.value));
@@ -27,6 +29,19 @@ const others = computed(() => FILES.filter(f => f !== primaryFile.value));
 onMounted(async () => {
   const p = navigator.platform.toLowerCase();
   os.value = p.includes('win') ? 'Windows' : p.includes('linux') ? 'Linux' : 'macOS';
+  // Linux names the CPU in navigator.platform ("Linux aarch64"); Windows only tells Chromium-based
+  // browsers, through the client hints.
+  arm.value = /arm|aarch64/.test(p);
+  const hints = (
+    navigator as Navigator & {
+      userAgentData?: { getHighEntropyValues(keys: string[]): Promise<{ architecture?: string }> };
+    }
+  ).userAgentData;
+  if (!arm.value && os.value === 'Windows' && hints)
+    arm.value = await hints
+      .getHighEntropyValues(['architecture'])
+      .then(v => v.architecture === 'arm')
+      .catch(() => false);
   if (props.version) return;
   try {
     const r = await fetch(`https://api.github.com/repos/${generated.slug}/releases/latest`, {

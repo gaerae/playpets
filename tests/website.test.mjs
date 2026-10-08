@@ -107,3 +107,24 @@ test('the GIF writer makes a GIF89a file with one palette and a frame per input'
   const packed = lzw(Uint8Array.from([0, 0, 0, 1, 1, 1]), 2);
   assert.equal(packed[packed.length - 1], 0);
 });
+
+// The site's address is package.json "homepage". Every other place that names it (README, the
+// security policy, the Linux metainfo, the bundle metadata, the docs) has to agree, so moving the
+// site to its own domain (docs/how-to/site-address.md) is caught here wherever it was missed.
+test('every place that names the site uses the address in package.json', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const { readFile: read } = await import('node:fs/promises');
+  const { homepage } = JSON.parse(await read('package.json', 'utf8'));
+  const files = execFileSync('git', ['ls-files'], { encoding: 'utf8' })
+    .split('\n')
+    .filter(f => /\.(md|json|ya?ml|xml|toml|mts|ts|vue|mjs|js|html)$/.test(f) && !f.startsWith('website/public/'))
+    .filter(f => !/(^|\/)package-lock\.json$|Cargo\.lock$/.test(f));
+  const site = /https?:\/\/[a-z0-9.-]*(?:github\.io\/playpets|gaerae\.com\/playpets|playpets\.app)[^\s)"'<>`]*/g;
+  const wrong = [];
+  for (const file of files) {
+    const text = await read(file, 'utf8').catch(() => '');
+    for (const [url] of text.matchAll(site))
+      if (!url.startsWith(homepage.replace(/\/$/, ''))) wrong.push(`${file}: ${url}`);
+  }
+  assert.deepEqual(wrong, []);
+});

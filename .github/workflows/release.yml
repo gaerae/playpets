@@ -61,6 +61,7 @@ jobs:
           - {os: ubuntu-22.04, name: linux-x64, target: x86_64-unknown-linux-gnu, bundles: "deb,appimage"}
           - {os: ubuntu-22.04-arm, name: linux-arm64, target: aarch64-unknown-linux-gnu, bundles: "deb,appimage"}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
     name: ${{ matrix.name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -119,6 +120,10 @@ jobs:
             export APPLE_TEAM_ID="$APPLE_TEAM_ID_SECRET"
           fi
           npx tauri build "${args[@]}"
+      # Ad hoc or Developer ID, the app's signature has to seal its resources, or a download opens as "damaged".
+      - name: macOS signature
+        if: runner.os == 'macOS'
+        run: codesign --verify --strict --deep "src-tauri/target/${{ matrix.target }}/release/bundle/macos/PlayPets.app"
       # Release files are named by version and platform, so the list on the release page reads
       # without opening anything.
       - name: Collect the files
@@ -173,7 +178,7 @@ jobs:
             echo "No updater signing key: this release has no latest.json, installed apps will not see it."
           fi
       - name: Checksums
-        run: cd out && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+        run: cd out && sha256sum -- * > SHA256SUMS.txt && cat SHA256SUMS.txt
       # A draft: nothing is public until a person has looked at it and pressed Publish.
       - name: Draft release
         env:

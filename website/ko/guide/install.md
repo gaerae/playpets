@@ -37,8 +37,10 @@ macOS 15부터는 Control 키를 누른 채 여는 방법이 없어져서, 시�
 
 포터블 zip은 원하는 폴더에 풀고 `playpets.exe`를 실행하면 돼요. 이때도 SmartScreen 경고는 같은 방법으로 지나가요.
 
+ARM PC(스냅드래곤 등)에서는 arm64 파일을 쓰세요. x64 파일도 에뮬레이션으로 돌아가지만, 그 설치·제거 프로그램은 실행 중인 PlayPets를 대신 닫지 못해요. 먼저 트레이에서 종료해 주세요.
+
 ::: tip
-Windows 빌드는 실제 기기에서 아직 충분히 확인하지 않았어요. 이상한 점이 보이면 [GitHub 이슈](https://github.com/gaerae/playpets/issues)로 알려 주세요.
+Windows 빌드는 가상 머신에서 확인했지만, 실제 기기에서는 아직 충분히 확인하지 않았어요. 이상한 점이 보이면 [GitHub 이슈](https://github.com/gaerae/playpets/issues)로 알려 주세요.
 :::
 
 ## Linux <Since v="0.1.0" />

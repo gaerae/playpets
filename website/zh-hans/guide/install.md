@@ -37,8 +37,10 @@ description: 按操作系统选择安装文件、第一次运行时的警告、�
 
 便携版 zip 解压到想要的文件夹，运行 `playpets.exe` 就行。这时的 SmartScreen 警告也用同样的方法跳过。
 
+在 ARM PC（骁龙等）上请使用 arm64 文件。x64 文件也能通过模拟运行，但它的安装和卸载程序无法替你关闭正在运行的 PlayPets，请先从托盘退出。
+
 ::: tip
-Windows 版还没有在真机上充分验证过。发现异常的话，请到 [GitHub Issues](https://github.com/gaerae/playpets/issues) 告诉我们。
+Windows 版已在虚拟机中确认过，但还没有在真机上充分验证。发现异常的话，请到 [GitHub Issues](https://github.com/gaerae/playpets/issues) 告诉我们。
 :::
 
 ## Linux <Since v="0.1.0" />

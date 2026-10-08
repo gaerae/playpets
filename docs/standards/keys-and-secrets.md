@@ -36,7 +36,7 @@ export TAURI_SIGNING_PRIVATE_KEY_PASSWORD
 TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/playpets-updater.key)" npx tauri build --bundles app --config '{"bundle":{"createUpdaterArtifacts":true}}'
 ```
 
-The command for creating a new key. It asks for a password; set one. When it finishes, put the contents of `~/.tauri/playpets-updater.key.pub` into `pubkey` in `tauri.conf.json`.
+The command for creating a new key. It asks for a password; set one. When it finishes, put the contents of `~/.tauri/playpets-updater.key.pub` into `pubkey` in `tauri.conf.json`. The whole first-time sequence (password manager, backup, secrets, store tokens) is in [Set up the repository, keys and store accounts](../how-to/set-up-the-repository.md).
 
 ```bash
 npx tauri signer generate -w ~/.tauri/playpets-updater.key

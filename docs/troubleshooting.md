@@ -23,15 +23,16 @@ Does not apply to: feature requests and design discussion (these come in through
 - If it fails only after your change, open the standard the failing test name points to. `i18n` tests map to the [Multilingual strings standard](standards/i18n.md), and `modules` tests to the [Page code structure standard](standards/page-modules.md).
 **CI fails on only one environment**
 - Check whether code specific to that OS (`#[cfg(windows)]`, `cfg(target_os = "macos")`) changed recently. If it did, suspect that change first.
-- For Windows-only code, check that it compiles locally with `npm run dist:windows`. Leave the run check to someone with a Windows machine.
+- For Windows-only code, check that it compiles locally with `npm run dist:windows`, and run the installer in a Windows VM (UTM on Apple silicon runs Windows 11 ARM, where the x64 build runs under emulation).
 - If a runner image change (tool versions) is the cause, fix it with a PR that pins the version in the workflow.
 
 **A Windows user reports a problem**
 - First ask for the version and the install method (installer, portable zip, MSIX). The cause differs by method.
-- Console window: the known cause is fixed (child processes start without a window). If they are on an older version, suggest updating.
+- Console window: child processes start without a window, so a console window that appears is a bug; ask what they were doing.
 - SmartScreen warning: this is because there is no signature. It is a limit of the decision "[GitHub releases are the source, auto-update, winget and a Homebrew tap point at those files, and code signing turns on with secrets](decisions/2026-10-01-distribution-channels-and-signing.md)", not a code problem.
 - Opening folders: with an MSIX install, data is in the package virtualization path, so Explorer may not see it (a known limit). Otherwise, take it as a bug.
 - AI chat: ask whether Claude or Codex was installed through npm. The app finds them on `PATH` or in `%APPDATA%\npm`.
+- "Failed to kill PlayPets" from the installer or uninstaller on an ARM PC: they are using the x64 build. Windows' emulation cache service (XtaCache) also holds the x64 exe, so Restart Manager refuses to close the app (`RmShutdown` 350). The arm64 installer does not have this; with x64, quit from the tray first.
 
 **The release workflow fails or files are missing**
 - Find the symptom in the troubleshooting table of [Release a new version](how-to/release.md).

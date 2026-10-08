@@ -56,10 +56,10 @@ The Tauri updater looks for `<os>-<arch>-<install type>` first (for example `lin
 
 PlayPets already runs without code signing and turns each step on as soon as the secrets are added (decision "[GitHub releases are the source, auto-update, winget and a Homebrew tap point at those files, and code signing turns on with secrets](../decisions/2026-10-01-distribution-channels-and-signing.md)"). So the order is:
 
-1. One-time setup: create the GitHub repository and push, so CI runs for the first time.
+1. One-time setup: create the GitHub repository, set it up and push, so CI runs for the first time ([Set up the repository, keys and store accounts](../how-to/set-up-the-repository.md)).
 2. Add the update secret key to the repository secrets ([Managing signing keys and secrets](../standards/keys-and-secrets.md)).
 3. Run `npm run release -- 0.1.0`, push the tag, check the draft and publish it ([Release a new version](../how-to/release.md)).
-4. Send the first winget manifest as a PR and create the `homebrew-tap` repository (one-time setup).
+4. Create the `homebrew-tap` repository and the winget-pkgs fork, and add their tokens; `distribute` then submits each version, the first winget one included (one-time setup).
 5. After joining the Apple Developer Program, add the `APPLE_*` secrets to turn on code signing and notarization, and consider the official Homebrew cask.
 6. For Windows, start with individual registration in the Microsoft Store (free). Revisit Azure Artifact Signing when we become an organization or the region condition for individuals is lifted.
 

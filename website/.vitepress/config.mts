@@ -1,7 +1,12 @@
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vitepress';
 import { devSidebar } from './sidebar-dev.mts';
 
 const repo = 'https://github.com/gaerae/playpets';
+// The site's address is package.json "homepage"; the base path follows from it, so moving the site
+// to its own domain is one edit there (docs/how-to/site-address.md).
+const site: string = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).homepage;
+const base = new URL(site).pathname;
 // "Edit this page" opens the file in the repository: the developer docs live in docs/ (the site
 // has a generated copy under dev/), every other page in website/. VitePress sends this function
 // to the browser as source text, so it names the repository itself instead of using `repo`.
@@ -15,12 +20,12 @@ const editLink = (text: string) => ({
 
 export default defineConfig({
   title: 'PlayPets',
-  base: '/playpets/',
+  base,
   cleanUrls: true,
   lastUpdated: false,
-  sitemap: { hostname: 'https://gaerae.github.io/playpets/' },
+  sitemap: { hostname: site },
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/playpets/icon.svg' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}icon.svg` }],
     ['meta', { name: 'theme-color', content: '#f9ae55' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'PlayPets' }],
@@ -228,7 +233,6 @@ export default defineConfig({
   // and locale.
   transformHead({ pageData, title, description }) {
     const lang = pageData.relativePath.match(/^(ko|zh-hans)\//)?.[1];
-    const site = 'https://gaerae.github.io/playpets/';
     const image = `${site}og${lang ? `-${lang}` : ''}.png`;
     const url = site + pageData.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '');
     const locale = lang === 'ko' ? 'ko_KR' : lang === 'zh-hans' ? 'zh_CN' : 'en_US';
