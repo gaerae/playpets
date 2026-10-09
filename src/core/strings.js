@@ -15,7 +15,5 @@ export const LANGUAGES = each(m => m.name);
 export const STRINGS = each(m => m.strings);
 /** Language code → how a sentence in it is recognised (text.js tells an error sentence from a code). */
 export const SENTENCES = each(m => m.sentence);
-/** Language code → whether its words are long enough that tight rows drop labels for icons. */
-export const COMPACT = each(m => Boolean(m.compact));
 /** Language code → what goes between names in a row ("A, B" or "A、B"). */
 export const LIST_SEPARATOR = each(m => m.listSeparator ?? ', ');

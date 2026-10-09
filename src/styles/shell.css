@@ -279,13 +279,16 @@ html:not(.mac) body {
   border-radius: 50%;
   background: var(--accent);
 }
-@media (max-width: 980px) {
-  .brand-sub {
+/* As the window narrows the top bar gives up words, never controls: the buttons keep their icons
+   and their words stay in the tooltip. First the tagline and the shortest labels, then the rest. */
+@media (max-width: 1100px) {
+  .brand-sub,
+  #update-pill-label,
+  #mini-label {
     display: none;
   }
-  /* The update and desktop buttons keep their icons, like the mini-mode button; their words stay in
-     the tooltip and the label. */
-  #update-pill-label,
+}
+@media (max-width: 980px) {
   #desktop-label {
     display: none;
   }
@@ -330,6 +333,11 @@ html:not(.mac) body {
   max-width: min(520px, calc(100% - 32px));
   box-shadow: 0 8px 25px #213e4333;
 }
+/* In the mini view the toast is small and at the top, clear of the care tools at the bottom. */
 body.mini .toast {
-  bottom: 14px;
+  top: 10px;
+  bottom: auto;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  max-width: calc(100% - 64px);
 }

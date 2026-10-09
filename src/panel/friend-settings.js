@@ -2,7 +2,15 @@
 import { confirmAction } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
 import { $, asset, call, data, guard, name, pet, selected, temporaryMessages, toast } from '../core/state.js';
+import { spoken } from '../core/text.js';
 
+// What the form holds, to tell whether anything changed since the dialog opened.
+const petForm = () => ['pet-name', 'pet-persona', 'pet-relation', 'pet-call-me'].map(id => $(id).value).join('\n');
+let petStart = '';
+// A failure is said inside the dialog: a toast would sit under it, behind the backdrop.
+const petError = e => {
+  $('pet-error').textContent = spoken(e, t('error.generic'));
+};
 const SIZE_NAMES = [t('size.xs'), t('size.s'), t('size.m'), t('size.l'), t('size.xl')];
 export function showSize(size) {
   $('size-range').value = size;
@@ -11,7 +19,7 @@ export function showSize(size) {
 // Wires the friend settings dialog. `refresh` reloads the page's state after a friend leaves. Called once, by app.js.
 export function setupFriendSettings({ refresh }) {
   $('size-range').oninput = () => showSize($('size-range').value);
-  $('size-range').onchange = guard(() => call('updatePet', selected, { size: Number($('size-range').value) }));
+  $('size-range').onchange = () => call('updatePet', selected, { size: Number($('size-range').value) }).catch(petError);
   $('edit-pet').onclick = () => {
     const p = pet();
     if (!p) return;
@@ -30,6 +38,8 @@ export function setupFriendSettings({ refresh }) {
     $('pet-relation').value = p.relation || '';
     $('pet-call-me').value = p.callMe || '';
     showSize(p.size);
+    $('pet-error').textContent = '';
+    petStart = petForm();
     $('pet-dialog').showModal();
     $('pet-name').focus();
   };
@@ -44,17 +54,28 @@ export function setupFriendSettings({ refresh }) {
     box.focus();
   };
   $('close-pet-dialog').onclick = $('cancel-pet-dialog').onclick = () => $('pet-dialog').close();
-  $('pet-form').onsubmit = guard(async e => {
+  // Esc keeps unsaved edits: the dialog says to save or press Cancel.
+  $('pet-dialog').addEventListener('cancel', e => {
+    if (petForm() === petStart) return;
     e.preventDefault();
-    await call('updatePet', selected, {
-      name: $('pet-name').value,
-      persona: $('pet-persona').value,
-      relation: $('pet-relation').value,
-      callMe: $('pet-call-me').value,
-    });
+    $('pet-error').textContent = t('dialog.unsaved');
+  });
+  $('pet-form').onsubmit = async e => {
+    e.preventDefault();
+    try {
+      await call('updatePet', selected, {
+        name: $('pet-name').value,
+        persona: $('pet-persona').value,
+        relation: $('pet-relation').value,
+        callMe: $('pet-call-me').value,
+      });
+    } catch (error) {
+      petError(error);
+      return;
+    }
     $('pet-dialog').close();
     toast(t('toast.pet_saved'));
-  });
+  };
   // The friend tab and the settings dialog send a friend away the same way.
   const sendAway = guard(async () => {
     const p = pet();
@@ -70,6 +91,8 @@ export function setupFriendSettings({ refresh }) {
     temporaryMessages.delete(p.id);
     await refresh();
     toast(t('toast.sent_away', { name: name(p) }));
+    // The button that was pressed is gone with the friend: the panel's heading takes the focus.
+    $('panel-title').focus();
   });
   $('remove').onclick = sendAway;
   $('remove-friend').onclick = sendAway;

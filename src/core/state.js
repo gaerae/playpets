@@ -41,11 +41,19 @@ export const name = p => displayName(p, asset(p), t('friend.default'));
 /** An AI connection as the lists show it: the name, and the model when it has one. */
 export const providerLabel = c => (c?.model ? `${c.name} · ${c.model}` : c?.name || '');
 let toastTimer;
+// A notice stays as long as it takes to read (longer for more words, 3 to 8 seconds), and while the
+// pointer rests on it.
 export function toast(message) {
   $('toast').textContent = message;
   $('toast').hidden = false;
+  toastFor(Math.min(8000, 2500 + String(message).length * 50));
+}
+function toastFor(ms) {
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => ($('toast').hidden = true), 3600);
+  toastTimer = setTimeout(() => {
+    if ($('toast').matches(':hover')) return toastFor(1500);
+    $('toast').hidden = true;
+  }, ms);
 }
 export async function call(method, ...args) {
   const result = await api[method](...args);

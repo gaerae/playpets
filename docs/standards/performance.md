@@ -7,7 +7,9 @@ Not covered: code that runs only when a person clicks once (importing, saving se
 
 ## Rules
 - Drawing loops do not use `requestAnimationFrame`; they use `every(interval, frame)` from `src/core/ticker.js`. The frame function can return the next interval.
-- The yard draws every 50ms while something moves (walking, poses, play, aiming a treat, rain or snow) and every 100ms otherwise. The overlay draws every 100ms. When you add new movement, add a condition to `busy()` in `app.js`.
+- The yard draws every 50ms while a friend moves (walking, poses, play, aiming a treat), every 66ms in rain and while birds or a shooting star cross, every 80ms in snow, and every 100ms otherwise. The overlay draws every 100ms. When you add new movement, add a condition to `interval()` in `app.js`.
+- The weather canvas (`src/yard/scenery.js`) repaints only in a frame where something on it moved. Things drawn once stay drawn (stars; their twinkle is a CSS layer). Small life that would keep the canvas busy all day (butterflies, fireflies, falling petals and leaves) comes in spells with rests in between.
+- Scenery that changes with the clock or the season (colours, the sun and moon, the moon's phase) is set as CSS custom properties once a minute, never animated.
 - Standing animations (state animations that are not poses) pick their cell from the shared clock (`now`), not from a per-friend time.
 - A canvas redraws only when the visible cell changes (do not add a path that skips the cell key comparison in `drawSprite`).
 - CSS animations move only `transform` and `opacity`. They do not animate layout properties such as `left`, `top`, or `width`.
@@ -36,7 +38,7 @@ Follow these when you can. When you cannot, say why in the PR.
 ## Exceptions
 | When | How |
 |---|---|
-| A new game really needs a tighter interval | Add it as a condition in `busy()` so it runs at 50ms only during that game. If it needs less than 50ms, attach measurements to the PR and a maintainer approves it |
+| A new game really needs a tighter interval | Add it as a condition in `interval()` so it runs at 50ms only during that game. If it needs less than 50ms, attach measurements to the PR and a maintainer approves it |
 | A CSS effect cannot move to the compositing stage | Allowed for short effects that run once (the response to a press). No exceptions for effects that loop forever |
 
 ## Rationale

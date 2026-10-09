@@ -3,8 +3,10 @@ import { $, aiming, api, call, game, guard, remember } from './core/state.js';
 import { setAimingMode } from './yard/care.js';
 import { endGame } from './yard/play.js';
 
-// Mini: only the yard, in a small window that stays on top.
+// Mini: only the yard, in a small window that stays on top, where it was last left (the backend
+// keeps the place).
 let mini = false;
+export const isMini = () => mini;
 export async function setMini(on) {
   if (on && game) endGame();
   if (on && aiming) setAimingMode(false);
@@ -27,8 +29,9 @@ export function setupWindow() {
   document.querySelector('.topbar').addEventListener('dblclick', e => {
     if (!e.target.closest(controls)) api.windowMaximize();
   });
+  // In the mini yard an empty spot moves the window, unless a treat is being placed there.
   $('yard').addEventListener('pointerdown', e => {
-    if (mini) grab(e);
+    if (mini && !aiming) grab(e);
   });
   // Windows and Linux: the page draws the window buttons.
   $('win-min').onclick = () => api.windowMinimize();

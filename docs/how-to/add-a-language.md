@@ -4,11 +4,10 @@ The app speaks Korean (`ko`), English (`en`), Japanese (`ja`) and Simplified Chi
 
 ## 1. Page strings
 
-1. Copy `src/core/strings/ko.js` to `src/core/strings/<code>.js` and translate the sentences. The file exports three required things and two optional ones.
+1. Copy `src/core/strings/ko.js` to `src/core/strings/<code>.js` and translate the sentences. The file exports three required things and one optional one.
    - `name`: what the language calls itself (shown in the list in the Settings tab).
    - `sentence`: a regular expression that recognizes a sentence in that language (`text.js` uses it to tell error sentences from codes). Use a character range if the writing system gives it away, otherwise punctuation.
    - `strings`: key → sentence. Keys whose value is a list (greetings, chatter) stay lists.
-   - `compact` (optional): `true` if words are long enough that narrow rows have to hide chip labels and keep only icons. English is like that.
    - `listSeparator` (optional): the separator used when listing names. The default is `', '`; Japanese uses `'、'`.
 2. Add one `import` line and one entry to `MODULES` in `src/core/strings.js`. The language list in the Settings tab comes from here.
 3. `words.js` attaches Korean particles (`{name:을/를}`) only for Korean. Other languages use plain placeholders. When listing names, `joinList` picks that language's comma.

@@ -3,9 +3,24 @@
 import { agentsOf } from '../core/agents.js';
 import { lookAt, renewsClock } from '../core/animation.js';
 import { t } from '../core/i18n.js';
+import { icons } from '../core/icons.js';
 import { clamp } from '../core/math.js';
 import { canvas, reduced } from '../core/sprites.js';
-import { $, aiming, asset, call, data, game, guard, labels, name, selected, views } from '../core/state.js';
+import {
+  $,
+  aiming,
+  asset,
+  call,
+  data,
+  game,
+  guard,
+  labels,
+  name,
+  recall,
+  remember,
+  selected,
+  views,
+} from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { delay, WANDER_DELAY } from './wander.js';
@@ -83,15 +98,23 @@ export function place(v) {
   v.px = 14 + v.x * w;
   v.py = top + v.y * h;
   v.button.style.transform = `translate(${v.px}px,${v.py}px)`;
+  // Nearer the bottom is nearer the viewer: drawn on top, so its tag and its clicks are not covered.
+  // The selected friend stays above the rest. Written only when it changes: this runs every frame.
+  const z = 1 + Math.round(v.y * 100) + (v.button.classList.contains('selected') ? 200 : 0);
+  if (v.z !== z) {
+    v.z = z;
+    v.button.style.zIndex = String(z);
+  }
 }
 // The name on the tag, which says so when the friend is the tagger in a game.
 const tagName = (v, p) => (v.button.classList.contains('tagger') ? t('game.tagger_name', { name: name(p) }) : name(p));
 /** Rewords the tag after the tagger changed; the rest of the tag (agents) stays. */
 export function labelTag(v) {
-  const first = v.tag.firstChild;
-  if (first && first.nodeType === Node.TEXT_NODE) first.textContent = tagName(v, v.pet);
-  else v.tag.prepend(tagName(v, v.pet));
+  v.tagName.textContent = tagName(v, v.pet);
 }
+// The tag is also the way to talk: under the pointer it shows a speech mark, and a click on it
+// (not a drag) opens the conversation, as the name button does on the desktop.
+const onTag = e => !!e.target.closest?.('.pet-tag');
 function createView(p) {
   const button = document.createElement('button');
   button.className = 'yard-pet';
@@ -102,6 +125,15 @@ function createView(p) {
     bubble = document.createElement('span'),
     thinking = document.createElement('span');
   tag.className = 'pet-tag';
+  const talkMark = document.createElement('span'),
+    tagName = document.createElement('span'),
+    agents = document.createElement('small');
+  talkMark.className = 'tag-talk';
+  talkMark.innerHTML = '<span data-icon="chat"></span>';
+  icons(talkMark);
+  tagName.className = 'tag-name';
+  agents.hidden = true;
+  tag.append(talkMark, tagName, agents);
   dot.className = 'pet-state-dot';
   bubble.className = 'yard-bubble';
   bubble.hidden = true;
@@ -114,6 +146,8 @@ function createView(p) {
     button,
     canvas: c,
     tag,
+    tagName,
+    agents,
     dot,
     bubble,
     bubbleTimer: null,
@@ -147,8 +181,11 @@ function createView(p) {
     v.target = null;
     v.targetKind = null;
     rest(v);
-    v.drag = { startX: e.clientX, startY: e.clientY, x: v.x, y: v.y, moved: false };
-    button.setPointerCapture(e.pointerId);
+    v.drag = { startX: e.clientX, startY: e.clientY, x: v.x, y: v.y, moved: false, talk: onTag(e) };
+    // A press that is not a live pointer (a script's) has nothing to capture.
+    try {
+      button.setPointerCapture(e.pointerId);
+    } catch {}
     e.stopPropagation();
   });
   button.addEventListener('pointermove', e => {
@@ -170,18 +207,30 @@ function createView(p) {
   button.addEventListener('pointerleave', () => (v.look = null));
   const end = guard(async e => {
     if (!v.drag) return;
-    const moved = v.drag.moved;
+    const { moved, talk } = v.drag;
     v.drag = null;
     if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
     if (moved) {
       await call('updatePet', p.id, { x: v.x, y: v.y });
+    } else if (talk && e.type === 'pointerup') {
+      on.openChat(p.id);
     } else {
+      // Once someone has patted a friend, the line above the yard stops saying how.
+      if (!recall('patted')) {
+        remember('patted', '1');
+        hint();
+      }
       await call('play', 'pet', p.id);
     }
   });
   button.addEventListener('pointerup', end);
   button.addEventListener('pointercancel', end);
   button.addEventListener('dblclick', () => {
+    if (!game) on.openChat(p.id);
+  });
+  // Right-click chats too, as on the desktop, so one gesture works in both places.
+  button.addEventListener('contextmenu', e => {
+    e.preventDefault();
     if (!game) on.openChat(p.id);
   });
   button.addEventListener(
@@ -232,16 +281,21 @@ export function syncViews() {
     }
     // One agent is named on the tag; more are counted, and the full list is the tooltip.
     const agents = agentsOf(data, p.id);
-    const agentLabel = agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0];
-    v.tag.replaceChildren(
-      tagName(v, p),
-      ...(agentLabel ? [Object.assign(document.createElement('small'), { textContent: agentLabel })] : []),
+    labelTag(v);
+    v.agents.textContent = agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '';
+    v.agents.hidden = !agents.length;
+    v.agents.title = agents.length > 1 ? agents.join(' · ') : '';
+    v.tag.title = t('friend.talk', { name: name(p) });
+    const state = agentState(p);
+    // The dot's colour is said in words too, for anyone who cannot see it.
+    v.button.setAttribute(
+      'aria-label',
+      state === 'idle'
+        ? t('yard.pat_name', { name: name(p) })
+        : t('yard.pat_name_state', { name: name(p), state: labels[state] }),
     );
-    v.tag.title = agents.length > 1 ? agents.join(' · ') : '';
-    v.button.setAttribute('aria-label', t('yard.pat_name', { name: name(p) }));
     v.button.classList.toggle('selected', p.id === selected);
     v.button.classList.toggle('thinking', data.busy.includes(p.id));
-    const state = agentState(p);
     if (state === 'done' && v.dot.dataset.state && v.dot.dataset.state !== 'done') effect(v, '✦');
     v.dot.hidden = state === 'idle';
     v.dot.dataset.state = state;
@@ -253,6 +307,7 @@ export function syncViews() {
 const agentState = p => agentStateOf(data, p.id);
 // The one line above the yard that says what is going on, or what a press will do.
 export function hint() {
+  agentSummary();
   if (game) {
     $('yard-hint').textContent = game.hint;
     return;
@@ -261,22 +316,23 @@ export function hint() {
     $('yard-hint').textContent = t('hint.treat');
     return;
   }
-  // With nobody in the yard there is nothing to press; the card in the middle says what to do.
-  if (!data.pets.length) {
-    $('yard-hint').textContent = '';
-    return;
-  }
+  // What a click or a drag does, until the first pat; agent work has its own place.
+  $('yard-hint').textContent = data.pets.length && !recall('patted') ? t('hint.pat') : '';
+}
+// Agent work beside the friend count: one busy friend is named, several are counted, like a
+// status board.
+function agentSummary() {
   const states = data.pets.map(agentState);
   const working = states.filter(s => s === 'working').length;
   const waiting = states.filter(s => s === 'waiting').length;
   const busyPet = data.pets.find(p => ['working', 'waiting'].includes(agentState(p)));
-  // One busy friend is named; several are counted, like a status board.
-  $('yard-hint').textContent =
+  const text =
     working + waiting > 1
       ? t('yard.busy_summary', { working, waiting })
       : busyPet
         ? `${name(busyPet)} · ${labels[agentState(busyPet)]}`
-        : t('hint.pat');
+        : '';
+  $('agent-summary').textContent = text ? ` · ${text}` : '';
 }
 // `handlers`: gameTap(view), select(id), openChat(id), and resized() once the yard changes size.
 // Called once, by app.js.

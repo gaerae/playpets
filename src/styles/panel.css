@@ -179,7 +179,7 @@
 }
 .version {
   margin-left: 8px;
-  font-size: 9px;
+  font-size: 10px;
   border: 1px solid var(--line);
   border-radius: 5px;
   padding: 2px 4px;
@@ -534,6 +534,8 @@
   grid-template-columns: minmax(0, 1fr) 340px;
 }
 .side-panel {
+  /* Its own width decides how compact its rows get (the friend actions), not the window's. */
+  container: panel / inline-size;
   border: 1px solid var(--line);
   border-radius: 20px;
   background: white;
@@ -793,24 +795,26 @@ details.companions .companion-chips {
   gap: 6px;
   margin-top: 10px;
 }
-/* Three chips share the narrowest panel (262px). In a language with long words (strings/<lang>.js
-   says so with `compact`, and i18n.js sets data-compact) the two quiet chips keep their icon and
-   tooltip and drop the label, so the row stays one line instead of breaking in two. */
+/* Three chips share the panel. When it is narrow (the narrowest windows leave about 260px inside it), the
+   two quiet chips keep their icon, tooltip and spoken label and drop the visible word, so the row
+   stays one line in every language; a wider panel shows the words. */
 .friend-actions .button.chip {
   padding: 4px 9px;
   gap: 4px;
 }
-html[data-compact] .friend-actions .chip-quiet {
-  padding: 5px 8px;
-  gap: 0;
-}
-html[data-compact] .friend-actions .chip-quiet span:not([data-icon]) {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
+@container panel (max-width: 280px) {
+  .friend-actions .chip-quiet {
+    padding: 5px 8px;
+    gap: 0;
+  }
+  .friend-actions .chip-quiet span:not([data-icon]) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 .friend-actions-end {
   margin-left: auto;

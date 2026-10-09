@@ -43,7 +43,11 @@ function renderSteps() {
   const card = $('empty-yard');
   card.hidden = all || (done.invite && recall('steps-dismissed') === '1');
   card.classList.toggle('aside', done.invite);
-  for (const li of card.querySelectorAll('[data-step]')) li.classList.toggle('done', !!done[li.dataset.step]);
+  for (const li of card.querySelectorAll('[data-step]')) {
+    li.classList.toggle('done', !!done[li.dataset.step]);
+    // The later steps wait for a friend: shown, but quiet, until the first one is invited.
+    li.classList.toggle('waiting', li.dataset.step !== 'invite' && !done.invite);
+  }
   // A subscription CLI on this computer makes the AI step one click, and the card says so.
   const tool = done.ai ? null : detectedLabel();
   card.querySelector('[data-step="ai"] [data-i18n]').textContent = tool

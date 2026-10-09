@@ -29,7 +29,8 @@ body {
 .friend {
   position: absolute;
   left: 50%;
-  bottom: 4px;
+  /* the name button's row (FOOT in overlay.js) is under the sprite */
+  bottom: 28px;
   transform: translateX(-50%);
   border: 0;
   padding: 0;
@@ -55,7 +56,7 @@ canvas {
 .bubble {
   position: absolute;
   /* just above the head, but never above the screen: --room is the space over the sprite */
-  bottom: min(calc(100% + 2px - var(--head, 8px)), calc(100% + var(--room, 999px) - 57px));
+  bottom: min(calc(100% + 2px - var(--head, 8px)), calc(100% + var(--room, 999px) - 69px));
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
@@ -67,10 +68,85 @@ canvas {
   border: 1px solid #d3ddd3;
   font-size: 11px;
   line-height: 1.5;
-  max-height: 55px;
+  /* three lines at most, ending in an ellipsis rather than cut through a line */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   overflow: hidden;
   pointer-events: none;
 }
 .bubble[hidden] {
   display: none;
+}
+/* The friend's name, shown while the pointer is on it: a button that opens a conversation. */
+.talk {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  transform: translate(-50%, 3px);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 9px 0 7px;
+  border: 0;
+  border-radius: 11px;
+  background: #fffffff2;
+  color: #213e43;
+  box-shadow: 0 2px 8px #213e4333;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+}
+.talk svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+.talk-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.named .talk {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+.talk:hover {
+  background: #fff;
+  color: #2c6e57;
+}
+/* hearts rise from a petted friend, as in the yard */
+.heart {
+  position: absolute;
+  bottom: 50%;
+  color: #e8798f;
+  font-size: 18px;
+  pointer-events: none;
+  animation: rise 1.2s ease-out both;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx, 0px)), -46px) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .talk {
+    transition: none;
+  }
 }

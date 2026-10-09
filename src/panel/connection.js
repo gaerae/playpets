@@ -75,6 +75,8 @@ function connected(first, able) {
 /** The first-run card's "connect now": a CLI found on this computer is connected to every friend
  * without an AI in one step; otherwise the dialog opens for the selected friend. */
 export async function quickConnect() {
+  // A connection belongs to friends: with none in the yard there is nobody to give it to.
+  if (!data.pets.length) return;
   const d = data.detected || {};
   const type = d.claude ? 'claude' : d.codex ? 'codex' : null;
   if (!type) return openConnectionDialog(null);
@@ -104,8 +106,13 @@ export function openConnectionDialog(current, onChange = () => {}) {
   $('dialog-title').textContent = current ? t('connection.title_edit') : t('connection.title_new');
   $('save-provider').textContent = current ? t('connection.save_edit') : t('connection.save_new');
   updateProviderForm();
+  connectionStart = connectionForm();
   $('connection-dialog').showModal();
 }
+// What the dialog holds, to tell whether anything was typed since it opened.
+const connectionForm = () => ['ai-type', 'ai-model', 'ai-endpoint', 'ai-key'].map(id => $(id).value).join('\n');
+let connectionStart = '';
+const connectionEdited = () => connectionForm() !== connectionStart;
 function updateProviderForm() {
   const d = data.detected || {};
   const form = providerForms[$('ai-type').value] || providerForms.openai;
@@ -186,9 +193,15 @@ export function setupConnection({ first = () => {} } = {}) {
   };
   $('close-dialog').onclick = () => $('connection-dialog').close();
   $('cancel-dialog').onclick = () => $('connection-dialog').close();
-  closeOnBackdrop($('connection-dialog'), () => !dialogSaving);
+  // A click beside the dialog or Esc does not throw away an address or a key being typed: only
+  // Cancel does, and the dialog says so.
+  closeOnBackdrop($('connection-dialog'), () => !dialogSaving && !connectionEdited());
   $('connection-dialog').addEventListener('cancel', e => {
     if (dialogSaving) e.preventDefault();
+    else if (connectionEdited()) {
+      e.preventDefault();
+      $('connection-error').textContent = t('dialog.unsaved');
+    }
   });
   $('connection-form').onsubmit = async e => {
     e.preventDefault();

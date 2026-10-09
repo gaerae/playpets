@@ -97,7 +97,7 @@ const scenario = `(async()=>{
     const h1=await playPets.getChat(p1.data.id);
     await L('groupHistory='+(h1.ok&&h1.data.some(m=>m.name==='둘째'&&m.content.startsWith('[둘째] '))?'peer-tagged':'err'));
     // The yard's chatter button: friends with an AI talk among themselves, shown as bubbles.
-    const chatterButton=document.getElementById('chatter'),chatterOn=!chatterButton.disabled;chatterButton.click();
+    const chatterButton=document.getElementById('chatter'),chatterOn=chatterButton.getAttribute('aria-disabled')!=='true';chatterButton.click();
     const bubbles=()=>document.querySelectorAll('.yard-bubble:not([hidden])').length;await until(()=>bubbles()>=2,6000);const said=bubbles();
     await L('chatter='+(chatterOn?said:'disabled'));await new Promise(r=>setTimeout(r,1500));
     // Answers are Markdown: the chat shows the emphasis, and no mark is left to read.
@@ -138,6 +138,9 @@ const scenario = `(async()=>{
     await L('stage='+($('yard').getBoundingClientRect().height/innerHeight>.6?'yard-first':'small:'+$('yard').getBoundingClientRect().height));
     $('weather').value='snow';$('weather').dispatchEvent(new Event('change'));
     await L('weather='+($('yard').classList.contains('weather-snow')&&$('weather-layer').width>0?'snow-canvas':'err'));
+    // The season colours the yard and the sun or moon stands where the clock puts it.
+    const yardStyle=$('yard').style;
+    await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-shade')!==''?'set':'err:'+$('yard').className));
     $('greet').click();await until(()=>[...document.querySelectorAll('.yard-bubble')].filter(b=>!b.hidden&&b.textContent).length>=2);
     await L('greetBubbles='+[...document.querySelectorAll('.yard-bubble')].filter(b=>!b.hidden&&b.textContent).length);
     document.querySelector('[data-game=hide]').click();
@@ -162,11 +165,33 @@ const scenario = `(async()=>{
     // The page fits its window exactly: no scrollbar, full size or mini.
     const fits=()=>document.body.scrollHeight<=document.body.clientHeight&&document.body.scrollWidth<=document.body.clientWidth;
     const fitsFull=fits();
+    // The mini window first opens in the bottom-right corner of the screen and, left, puts the
+    // window back where it was (each run starts with a new data folder, so no place is kept yet).
+    const fullAt=JSON.stringify(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']}));
     const wide=innerWidth;$('mini').click();await until(()=>document.body.classList.contains('mini')&&innerWidth<wide);await wait(300);
+    const miniAt=(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']})).data,right=screen.availLeft+screen.availWidth-(miniAt.x+miniAt.width),bottom=screen.availTop+screen.availHeight-(miniAt.y+miniAt.height);
+    const corner=right>=0&&right<=40&&bottom>=0&&bottom<=40;
     const small=document.body.classList.contains('mini')&&innerWidth<wide&&innerWidth<=520&&getComputedStyle(document.querySelector('.topbar')).display==='none'&&Math.abs($('yard').getBoundingClientRect().height-innerHeight)<=2&&[...document.querySelectorAll('.yard-pet')].every(b=>b.getBoundingClientRect().bottom<=innerHeight+1);
     const fitsMini=fits();$('unmini').click();await until(()=>!document.body.classList.contains('mini')&&innerWidth===wide);await wait(300);
+    const backAt=JSON.stringify(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']}));
+    await L('miniPlace='+(corner?'corner':'err:'+right+','+bottom)+'/'+(backAt===fullAt?'back':'err:'+backAt+' was '+fullAt));
     await L('pageFits='+fitsFull+'/'+fitsMini);
     await L('mini='+(small&&!document.body.classList.contains('mini')&&innerWidth===wide?'shrinks-and-restores':'err:'+small+'/'+innerWidth+'/'+wide));
+    // A friend asked to chat from the small window (right-click, as on the desktop) brings the full
+    // window back with the friend tab open; and a friend nearer the bottom is drawn over one higher up.
+    $('mini').click();await until(()=>document.body.classList.contains('mini'));await wait(300);
+    document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
+    await until(()=>!document.body.classList.contains('mini')&&innerWidth===wide);await wait(300);
+    const chatFromMini=!document.body.classList.contains('mini')&&!$('panel-pet').hidden;
+    const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().top,z:Number(b.style.zIndex)%200}));
+    const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true));
+    await L('reach='+(chatFromMini?'mini-to-chat':'err-mini')+'/'+(layered?'layered':'err-order'));
+    // A friend's name tag is the way to talk: a click on it (not a drag) opens the conversation.
+    $('close-panel').click();await until(()=>$('side-panel').hidden);
+    const tag=document.querySelector('.yard-pet .pet-tag');
+    tag.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));tag.dispatchEvent(new PointerEvent('pointerup',{button:0,bubbles:true}));
+    await until(()=>!$('side-panel').hidden&&!$('panel-pet').hidden);
+    await L('talkTag='+(!$('side-panel').hidden&&!$('panel-pet').hidden?'opens-chat':'err'));
     const home=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
     await L('gamesKeepHome='+(home===homeBefore));
     // Inviting from the shelf and opening the AI dialog go through the page's own buttons.
@@ -355,6 +380,10 @@ const expect = [
     'tag and parade start and stop',
   ],
   [/^mini=shrinks-and-restores$/, 'mini view (yard only, back to full size)'],
+  [/^miniPlace=corner\/back$/, 'the mini window opens in the screen corner and leaving it puts the window back'],
+  [/^talkTag=opens-chat$/, "a click on a friend's name tag opens the conversation"],
+  [/^season=set$/, 'the season and the clock paint the yard'],
+  [/^reach=mini-to-chat\/layered$/, 'chat from the small window returns to full size; nearer friends are drawn on top'],
   [/^pageFits=true\/true$/, 'the page fits the window (no scroll bars, full and mini)'],
   [/^spriteLoads=1536$/, 'pet sprites load under the page security policy'],
   [/^gamesKeepHome=true$/, 'positions during games are not saved'],

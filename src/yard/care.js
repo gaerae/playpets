@@ -3,7 +3,7 @@
 import { t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
-import { $, aiming, call, data, guard, setAiming, views } from '../core/state.js';
+import { $, aiming, call, data, guard, selected, setAiming, toast, views } from '../core/state.js';
 import { greetingFor } from './scene.js';
 import { scene } from './sky.js';
 import { bubble, effect, FIELD_TOP, geometry, hint, petHeight, pose, rest, sizeOf } from './views.js';
@@ -49,7 +49,9 @@ export function react(event) {
 // The chatter button is for friends with an AI: two or more, and it says so when there are fewer.
 export function syncChatter() {
   const able = data.pets.filter(p => p.providerId).length;
-  $('chatter').disabled = able < 2;
+  // Not disabled: a disabled button cannot be focused or pressed, so the reason would only be a
+  // tooltip. Pressed with fewer than two, it says what is missing.
+  $('chatter').setAttribute('aria-disabled', String(able < 2));
   $('chatter').title = able < 2 ? t('care.chatter_need_two') : t('care.chatter_title');
 }
 /** The friends with an AI have a short talk about the moment (the button, and the timer). */
@@ -59,36 +61,58 @@ export const startChatter = () => call('chatter', scene.period, scene.weather);
 export function setAimingMode(on) {
   setAiming(on);
   $('feed').classList.toggle('active', on);
+  $('feed').setAttribute('aria-pressed', String(on));
   $('yard').classList.toggle('aiming', on);
   hint();
 }
 // Wires the treat, greeting and chatter buttons, and the yard's click for placing a treat. Called once, by app.js.
 export function setupCare() {
   $('greet').onclick = guard(() => call('play', 'wave', null));
-  $('chatter').onclick = guard(startChatter);
-  // Treats are placed, not thrown: every pet walks over and eats when it arrives.
-  $('feed').onclick = () => setAimingMode(!aiming);
+  $('chatter').onclick = guard(async () => {
+    if (data.pets.filter(p => p.providerId).length < 2) return toast(t('care.chatter_need_two'));
+    await startChatter();
+  });
+  // Treats are placed, not thrown: every pet walks over and eats when it arrives. With the mouse the
+  // next click in the yard places it; from the keyboard a second press of the button puts it by the
+  // selected friend (or in the middle of the field), and Esc puts it away.
+  $('feed').onclick = e => {
+    if (aiming && e.detail === 0) return dropNearby();
+    setAimingMode(!aiming);
+  };
   $('yard').addEventListener('click', e => {
     if (!aiming) return;
-    const r = $('yard').getBoundingClientRect(),
-      bx = clamp(e.clientX - r.left, 25, r.width - 25),
-      by = clamp(e.clientY - r.top, r.height * FIELD_TOP, r.height - 28);
-    $('treat').hidden = false;
-    $('treat').style.left = `${bx - 11}px`;
-    $('treat').style.top = `${by - 11}px`;
-    clearTimeout(treatTimer);
-    treatTimer = setTimeout(() => ($('treat').hidden = true), 15000);
-    treatEaters = 0;
-    let i = 0;
-    for (const v of views.values()) {
-      const { w, h, top } = geometry(v.pet);
-      const angle = (i++ / views.size) * Math.PI * 2;
-      v.target = {
-        x: clamp((bx - 14 - sizeOf(v.pet) / 2 + Math.cos(angle) * 34) / w),
-        y: clamp((by - top - petHeight(v.pet) + Math.sin(angle) * 20) / h),
-      };
-      v.targetKind = 'treat';
-    }
-    $('feed').click();
+    const r = $('yard').getBoundingClientRect();
+    dropTreat(e.clientX - r.left, e.clientY - r.top);
   });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && aiming) setAimingMode(false);
+  });
+}
+function dropNearby() {
+  const r = $('yard').getBoundingClientRect(),
+    v = views.get(selected);
+  if (v) dropTreat(v.px + sizeOf(v.pet) + 30, v.py + petHeight(v.pet));
+  else dropTreat(r.width / 2, r.height * 0.78);
+}
+function dropTreat(x, y) {
+  const r = $('yard').getBoundingClientRect(),
+    bx = clamp(x, 25, r.width - 25),
+    by = clamp(y, r.height * FIELD_TOP, r.height - 28);
+  $('treat').hidden = false;
+  $('treat').style.left = `${bx - 11}px`;
+  $('treat').style.top = `${by - 11}px`;
+  clearTimeout(treatTimer);
+  treatTimer = setTimeout(() => ($('treat').hidden = true), 15000);
+  treatEaters = 0;
+  let i = 0;
+  for (const v of views.values()) {
+    const { w, h, top } = geometry(v.pet);
+    const angle = (i++ / views.size) * Math.PI * 2;
+    v.target = {
+      x: clamp((bx - 14 - sizeOf(v.pet) / 2 + Math.cos(angle) * 34) / w),
+      y: clamp((by - top - petHeight(v.pet) + Math.sin(angle) * 20) / h),
+    };
+    v.targetKind = 'treat';
+  }
+  setAimingMode(false);
 }

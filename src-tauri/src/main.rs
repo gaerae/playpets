@@ -110,11 +110,13 @@ fn main() {
                 }
                 // Minimized from the title bar or the taskbar, and back: the page draws only when seen.
                 tauri::WindowEvent::Resized(_) | tauri::WindowEvent::Focused(true) => {
+                    window::moved(&handle);
                     if let Some(w) = handle.get_webview_window("main") {
                         let seen = w.is_visible().unwrap_or(true) && !w.is_minimized().unwrap_or(false);
                         window::shown(&handle, seen);
                     }
                 }
+                tauri::WindowEvent::Moved(_) => window::moved(&handle),
                 _ => {}
             });
 

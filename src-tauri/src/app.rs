@@ -4,6 +4,7 @@ use crate::agent;
 use crate::chat::{self, http, providers};
 use crate::desktop::overlay;
 use crate::pets::{builtin, catalog, importer, model};
+use crate::window;
 use crate::{i18n, store};
 use serde_json::{Map, Value, json};
 use std::collections::{HashMap, HashSet};
@@ -16,7 +17,7 @@ use tauri::{AppHandle, Manager};
 /// used, the unknown ones are carried along unchanged, and a copy of the file is kept first.
 pub const SCHEMA: u64 = 1;
 /// The top-level keys this app writes to state.json; anything else in the file is `extra`.
-const KNOWN_KEYS: [&str; 10] = [
+const KNOWN_KEYS: [&str; 11] = [
     "schema",
     "pets",
     "desktop",
@@ -27,10 +28,11 @@ const KNOWN_KEYS: [&str; 10] = [
     "agentPets",
     "autoChatter",
     "secretIds",
+    "miniRect",
 ];
 
 /// Everything the app knows. Saved to state.json: pets, desktop, wander, language, imports,
-/// providers (with the parked ones), agent_pets, auto_chatter, secret_ids and extra. The rest
+/// providers (with the parked ones), agent_pets, auto_chatter, secret_ids, mini_rect and extra. The rest
 /// lasts until the app quits.
 pub struct AppData {
     pub store: store::Store,
@@ -51,6 +53,8 @@ pub struct AppData {
     pub agent_pets: HashMap<String, String>,
     /// The friends talk among themselves every so often (the page keeps the timer).
     pub auto_chatter: bool,
+    /// Where the mini window was last left (window.rs), so it opens there again.
+    pub mini_rect: Option<window::Rect>,
     pub providers: Vec<Value>,
     /// Connections this app could not read (a kind from a newer app, say): never shown, written back
     /// as they were so a later app finds them again.
@@ -232,6 +236,9 @@ pub fn persist(d: &AppData) -> Result<(), String> {
         "autoChatter": d.auto_chatter,
         "secretIds": d.secret_ids.iter().collect::<Vec<_>>(),
     });
+    if let Some((x, y, width, height)) = d.mini_rect {
+        state["miniRect"] = json!({"x": x, "y": y, "width": width, "height": height});
+    }
     for (key, value) in &d.extra {
         state[key] = value.clone();
     }
@@ -489,6 +496,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         imports,
         agent_pets,
         auto_chatter: raw.get("autoChatter").and_then(|v| v.as_bool()).unwrap_or(false),
+        mini_rect: raw.get("miniRect").and_then(window::rect_of),
         providers,
         parked_providers: parked,
         extra: extras(&raw),

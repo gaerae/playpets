@@ -5,7 +5,7 @@ import { agentLabel, agentOf } from '../core/agents.js';
 import { confirmAction } from '../core/confirm.js';
 import { language, t } from '../core/i18n.js';
 import { projectLinks } from '../core/project.js';
-import { $, call, data, guard, name, toast } from '../core/state.js';
+import { $, call, data, guard, name, recall, remember, toast } from '../core/state.js';
 import { LANGUAGES } from '../core/strings.js';
 import { openPanel } from './tabs.js';
 
@@ -216,7 +216,15 @@ export function setupSettings() {
   });
   for (const button of document.querySelectorAll('button[data-link]'))
     button.onclick = guard(() => call('openExternal', links()[button.dataset.link]));
-  $('desktop').onclick = guard(() => call('toggleDesktop'));
+  $('desktop').onclick = guard(async () => {
+    const turningOn = !data.desktop;
+    await call('toggleDesktop');
+    // The first time friends go out on the desktop, how to talk to them there (it is not a double-click).
+    if (turningOn && recall('desktop-tip') !== '1') {
+      remember('desktop-tip', '1');
+      toast(t('toast.desktop_tip'));
+    }
+  });
   $('desktop-wander').onchange = guard(() => call('toggleDesktopWander'));
   $('auto-chatter').onchange = guard(() => call('setAutoChatter', $('auto-chatter').checked));
 }

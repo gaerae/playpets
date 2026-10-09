@@ -56,6 +56,8 @@ struct Inner {
     drag: Option<Drag>,
     roams: HashMap<String, Roam>,
     ignored: HashMap<String, bool>,
+    /// The friend the pointer is on, as last told to the pages (they show its name button).
+    hover_pet: Option<String>,
     /// Whether any overlay window is (or is being) open; until all are closed the loop keeps its pace.
     open: bool,
     /// The monitors as last asked for, when, and the primary one's scale.
@@ -68,10 +70,15 @@ pub struct Overlay {
     inner: Arc<Mutex<Inner>>,
 }
 
-/// The box a friend of this size takes up: the sprite plus room for its speech bubble.
+/// The box a friend of this size takes up: the sprite, room for its speech bubble above (the
+/// top BUBBLE_ROOM) and for its name below (the bottom FOOT, shown while the pointer is on it).
 fn dims(size: f64) -> (f64, f64) {
-    ((size + 48.0).max(200.0), (size * 208.0 / 192.0 + 88.0).round())
+    ((size + 48.0).max(200.0), (size * 208.0 / 192.0 + 88.0 + FOOT).round())
 }
+/// The top of a friend's box is for its speech bubble, which lets clicks through.
+const BUBBLE_ROOM: f64 = 60.0;
+/// Under the sprite: the name button (src/overlay/overlay.css, `.friend` bottom).
+const FOOT: f64 = 24.0;
 
 fn rand01() -> f64 {
     // A cheap thread-local xorshift: roaming needs variety, not quality.
@@ -129,10 +136,20 @@ fn monitors(app: &AppHandle) -> Vec<Mon> {
         .collect()
 }
 
-/// The monitor whose work area starts closest to a point.
-fn nearest(mons: &[Mon], x: f64, y: f64) -> Option<&Mon> {
-    mons.iter()
-        .min_by_key(|m| ((x - m.area.x).abs() + (y - m.area.y).abs()) as i64)
+/// The monitor a point is on: the work area that holds it, or else the one whose edge is
+/// closest (a point dragged past every screen, or onto a menu bar or taskbar).
+fn monitor_for(mons: &[Mon], x: f64, y: f64) -> Option<&Mon> {
+    let gap = |a: &Bounds| {
+        let dx = (a.x - x).max(0.0).max(x - (a.x + a.w));
+        let dy = (a.y - y).max(0.0).max(y - (a.y + a.h));
+        dx * dx + dy * dy
+    };
+    mons.iter().min_by(|a, b| gap(&a.area).total_cmp(&gap(&b.area)))
+}
+
+/// The monitor a friend's box is on, by the box's centre.
+fn monitor_of_box(mons: &[Mon], x: f64, y: f64, (w, h): (f64, f64)) -> Option<&Mon> {
+    monitor_for(mons, x + w / 2.0, y + h / 2.0)
 }
 
 /// Maps tao's physical cursor into the logical space `monitors` uses (each monitor's
@@ -265,19 +282,14 @@ impl Overlay {
     }
 }
 
-/// Where every friend stands and which monitor's window draws it: the one its centre is nearest to.
+/// Where every friend stands and which monitor's window draws it: the one its centre is on.
 fn layout_of(d: &Inner, mons: &[Mon]) -> Vec<Value> {
     d.pets
         .iter()
         .filter_map(|p| {
             let (x, y) = d.positions.get(&p.id)?;
             let (w, h) = dims(p.size);
-            let (cx, cy) = (x + w / 2.0, y + h / 2.0);
-            let mon = mons.iter().min_by_key(|m| {
-                let dx = (cx - (m.area.x + m.area.w / 2.0)).abs();
-                let dy = (cy - (m.area.y + m.area.h / 2.0)).abs();
-                (dx + dy) as i64
-            })?;
+            let mon = monitor_of_box(mons, *x, *y, (w, h))?;
             Some(
                 json!({"id": p.id, "x": x, "y": y, "width": w, "height": h, "displayId": mon.id,
                     "origin": {"x": mon.area.x, "y": mon.area.y, "width": mon.area.w, "height": mon.area.h}}),
@@ -417,7 +429,7 @@ fn place_newcomers(d: &mut Inner, mons: &[Mon]) -> bool {
             primary.area.y + primary.area.h - h - 25.0 - (index / 6) as f64 * 145.0,
         );
         let start = p.saved.unwrap_or(fallback);
-        let area = &nearest(mons, start.0, start.1).unwrap_or(primary).area;
+        let area = &monitor_of_box(mons, start.0, start.1, (w, h)).unwrap_or(primary).area;
         d.positions.insert(p.id.clone(), clamp_to(area, start.0, start.1, w, h));
         placed = true;
     }
@@ -482,7 +494,7 @@ fn stroll(
         });
         match roaming.target {
             None if now >= roaming.next_at => {
-                let area = nearest(mons, px, py).map(|m| m.area).unwrap_or(Bounds {
+                let area = monitor_of_box(mons, px, py, (w, h)).map(|m| m.area).unwrap_or(Bounds {
                     x: 0.0,
                     y: 0.0,
                     w: 1440.0,
@@ -513,9 +525,11 @@ fn stroll(
 }
 
 /// Per monitor: is the cursor over a friend drawn there? Only then does that window take clicks.
-fn hovered(d: &Inner, layout: &[Value], cursor: Option<(f64, f64)>) -> HashMap<String, bool> {
+/// Also which friend that is.
+fn hovered(d: &Inner, layout: &[Value], cursor: Option<(f64, f64)>) -> (HashMap<String, bool>, Option<String>) {
     let mut hover: HashMap<String, bool> = HashMap::new();
-    let Some(c) = cursor else { return hover };
+    let mut pet_id = None;
+    let Some(c) = cursor else { return (hover, pet_id) };
     for item in layout {
         let display = item["displayId"].as_str().unwrap_or("").to_string();
         let (x, y) = (item["x"].as_f64().unwrap_or(0.0), item["y"].as_f64().unwrap_or(0.0));
@@ -525,20 +539,25 @@ fn hovered(d: &Inner, layout: &[Value], cursor: Option<(f64, f64)>) -> HashMap<S
         );
         let pet = d.pets.iter().find(|p| p.id == item["id"].as_str().unwrap_or(""));
         let margin = pet.map(|p| (w - p.size) / 2.0).unwrap_or(0.0);
-        // The top 60px of the box belong to the speech bubble, which lets clicks through.
-        let inside = c.0 >= x + margin && c.0 <= x + w - margin && c.1 >= y + 60.0 && c.1 <= y + h;
+        let inside = c.0 >= x + margin && c.0 <= x + w - margin && c.1 >= y + BUBBLE_ROOM && c.1 <= y + h;
+        if inside && pet_id.is_none() {
+            pet_id = item["id"].as_str().map(String::from);
+        }
         *hover.entry(display).or_insert(false) |= inside;
     }
-    hover
+    (hover, pet_id)
 }
 
 /// Opens, updates or closes each monitor's window. Windows are built and closed on the main thread.
 fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor: Option<(f64, f64)>, moved: bool) {
-    let (visible, layout, hover, dragging) = {
-        let d = inner.lock().unwrap();
+    let (visible, layout, hover, dragging, hover_changed) = {
+        let mut d = inner.lock().unwrap();
         let layout = layout_of(&d, mons);
-        let hover = hovered(&d, &layout, cursor);
-        (d.visible && !d.pets.is_empty(), layout, hover, d.drag.is_some())
+        let (hover, pet_id) = hovered(&d, &layout, cursor);
+        let changed = d.hover_pet != pet_id;
+        d.hover_pet = pet_id;
+        let event = changed.then(|| json!({"type": "hover", "petId": d.hover_pet}));
+        (d.visible && !d.pets.is_empty(), layout, hover, d.drag.is_some(), event)
     };
     let mut open = visible;
     for mon in mons {
@@ -584,6 +603,9 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
                     let payload = json!({"type": "layout", "layout": layout});
                     let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
                 }
+                if let Some(payload) = &hover_changed {
+                    let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
+                }
             }
             (false, Some(win)) => {
                 let _ = app.run_on_main_thread(move || {
@@ -607,7 +629,7 @@ fn finish_drag(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64
         return;
     };
     let (w, h) = dims(pet.size);
-    let area = nearest(mons, x, y).map(|m| m.area).unwrap_or(Bounds {
+    let area = monitor_of_box(mons, x, y, (w, h)).map(|m| m.area).unwrap_or(Bounds {
         x: 0.0,
         y: 0.0,
         w: 10_000.0,
@@ -639,6 +661,28 @@ mod tests {
             physical: b(px, py, pw, ph),
             scale,
         }
+    }
+
+    #[test]
+    fn a_friend_belongs_to_the_monitor_it_stands_on() {
+        // Two 1920×1080 monitors side by side: a friend set down on the right part of the left
+        // one stays there (the old rule measured to each monitor's top-left corner and moved it).
+        let twins = [
+            mon("0", 0.0, 0.0, 1920.0, 1080.0, 1.0),
+            mon("1", 1920.0, 0.0, 1920.0, 1080.0, 1.0),
+        ];
+        assert_eq!(monitor_for(&twins, 1500.0, 800.0).map(|m| m.id.as_str()), Some("0"));
+        assert_eq!(monitor_for(&twins, 2000.0, 100.0).map(|m| m.id.as_str()), Some("1"));
+        // A wide monitor beside a small one: near the shared edge, still the wide one
+        // (the old layout rule picked the monitor whose centre was closer).
+        let mixed = [
+            mon("0", 0.0, 0.0, 2560.0, 1440.0, 1.0),
+            mon("1", 2560.0, 0.0, 1280.0, 1024.0, 1.0),
+        ];
+        assert_eq!(monitor_for(&mixed, 2300.0, 700.0).map(|m| m.id.as_str()), Some("0"));
+        // Off every monitor (dragged past an edge): the closest one by distance to its edges.
+        assert_eq!(monitor_for(&mixed, 3000.0, 1300.0).map(|m| m.id.as_str()), Some("1"));
+        assert_eq!(monitor_for(&mixed, -50.0, 700.0).map(|m| m.id.as_str()), Some("0"));
     }
 
     #[test]

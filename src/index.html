@@ -24,7 +24,7 @@
           <div class="desktop-controls">
             <label id="wander-wrap" class="wander-toggle" data-i18n-title="desktop.wander_title" hidden><input type="checkbox" id="desktop-wander"><span class="wander-switch" aria-hidden="true"></span><span data-i18n="desktop.wander"></span></label><button id="desktop" class="button secondary"><span data-icon="monitor"></span><span id="desktop-label" data-i18n="desktop.show"></span></button>
           </div>
-          <button id="mini" class="button secondary icon-only" data-i18n-title="mini.enter" data-i18n-aria-label="mini.enter"><span data-icon="shrink"></span></button>
+          <button id="mini" class="button secondary" data-i18n-title="mini.enter" data-i18n-aria-label="mini.enter"><span data-icon="pip"></span><span id="mini-label" data-i18n="mini.label"></span></button>
           <nav class="panel-tabs" data-i18n-aria-label="tabs.aria">
             <button class="panel-tab" data-panel="pet" aria-controls="side-panel" aria-expanded="false"><span data-icon="chat"></span><span data-i18n="tabs.friend"></span></button><button class="panel-tab" data-panel="invite" aria-controls="side-panel" aria-expanded="false"><span data-icon="plus"></span><span data-i18n="tabs.invite"></span></button><button class="panel-tab" data-panel="settings" aria-controls="side-panel" aria-expanded="false"><span data-icon="gear"></span><span data-i18n="tabs.settings"></span></button>
           </nav>
@@ -37,7 +37,7 @@
         <section class="stage">
           <div class="yard-frame">
             <div class="yard-caption">
-              <span><i id="sky-dot" class="sun-dot"></i><span id="scene-caption" data-i18n="caption.clear.day"></span><span id="pet-count" class="caption-count"></span></span><span id="yard-hint" aria-live="polite" data-i18n="hint.pat"></span><span class="caption-right"><label class="sr-only" for="period" data-i18n="period.label"></label>
+              <span><i id="sky-dot" class="sun-dot"></i><span id="scene-caption" data-i18n="caption.clear.day"></span><span id="pet-count" class="caption-count"></span><span id="agent-summary" class="caption-agents" aria-live="polite"></span></span><span id="yard-hint" aria-live="polite" data-i18n="hint.pat"></span><span class="caption-right"><label class="sr-only" for="period" data-i18n="period.label"></label>
               <select id="period" class="weather-select" data-i18n-title="period.title"><option value="auto" data-i18n="period.auto"></option><option value="morning" data-i18n="period.morning"></option><option value="day" data-i18n="period.day"></option><option value="evening" data-i18n="period.evening"></option><option value="night" data-i18n="period.night"></option></select>
               <label class="sr-only" for="weather" data-i18n="weather.label"></label>
               <select id="weather" class="weather-select" data-i18n-title="weather.title"><option value="auto" data-i18n="weather.auto"></option><option value="clear" data-i18n="weather.clear"></option><option value="rain" data-i18n="weather.rain"></option><option value="snow" data-i18n="weather.snow"></option></select>
@@ -71,12 +71,13 @@
                     <path style="fill:var(--trunk)" d="M53 158L56 96Q60 92 64 96L68 158Z"/>
                     <path style="fill:var(--trunk-lo)" d="M61 94Q64 94 64 96L68 158H61Z"/>
                     <path style="fill:var(--trunk);stroke:var(--trunk);stroke-width:4;stroke-linecap:round" d="M59 112L44 98M63 106L78 92"/>
-                    <circle cx="33" cy="76" r="27" style="fill:var(--leaf-lo)"/>
-                    <circle cx="88" cy="78" r="27" style="fill:var(--leaf-lo)"/>
-                    <circle cx="60" cy="56" r="43" style="fill:var(--leaf)"/>
-                    <circle cx="84" cy="66" r="24" style="fill:var(--leaf-lo);opacity:.55"/>
-                    <circle cx="46" cy="40" r="22" style="fill:var(--leaf-hi);opacity:.85"/>
-                    <circle cx="72" cy="30" r="12" style="fill:var(--leaf-hi);opacity:.6"/>
+                    <path style="fill:none;stroke:var(--trunk);stroke-width:3;stroke-linecap:round;stroke-linejoin:round" d="M60 98V46M60 74L40 54M60 64L84 44M44 98L28 78M78 92L94 72M60 46L48 26M60 46L74 24M40 54L26 50M84 44L96 40"/>
+                    <circle cx="33" cy="76" r="27" style="fill:var(--crown-lo, var(--leaf-lo))"/>
+                    <circle cx="88" cy="78" r="27" style="fill:var(--crown-lo, var(--leaf-lo))"/>
+                    <circle cx="60" cy="56" r="43" style="fill:var(--crown, var(--leaf))"/>
+                    <circle cx="84" cy="66" r="24" style="fill:var(--crown-lo, var(--leaf-lo));opacity:.55"/>
+                    <circle cx="46" cy="40" r="22" style="fill:var(--crown-hi, var(--leaf-hi));opacity:.85"/>
+                    <circle cx="72" cy="30" r="12" style="fill:var(--crown-hi, var(--leaf-hi));opacity:.6"/>
                     <path style="fill:var(--cap)" d="M20 50Q24 16 60 13Q96 16 100 50Q88 34 76 40Q66 28 54 38Q40 30 20 50Z"/>
                   </symbol>
                   <symbol id="tree-pine" viewBox="0 0 80 160">
@@ -135,6 +136,7 @@
               </div>
               <div class="sky-body">
               </div>
+              <div class="rainbow"></div>
               <div class="cloud-lane cloud-one"><svg class="cloud" viewBox="0 0 200 80" aria-hidden="true"><use href="#cloud-a"/></svg></div>
               <div class="cloud-lane cloud-two"><svg class="cloud" viewBox="0 0 200 80" aria-hidden="true"><use href="#cloud-b"/></svg></div>
               <div class="cloud-lane cloud-three"><svg class="cloud" viewBox="0 0 200 80" aria-hidden="true"><use href="#cloud-b"/></svg></div>
@@ -162,7 +164,7 @@
               <svg class="prop" style="--x:12%;--b:38%;--h:34%;--ar:.75" viewBox="0 0 120 160" aria-hidden="true">
                 <use href="#tree-round"/>
               </svg>
-              <svg class="prop" style="--x:22%;--b:40.5%;--h:24%;--ar:.75" viewBox="0 0 120 160" aria-hidden="true">
+              <svg class="prop maple" style="--x:22%;--b:40.5%;--h:24%;--ar:.75" viewBox="0 0 120 160" aria-hidden="true">
                 <use href="#tree-round"/>
               </svg>
               <svg class="prop" style="--x:4%;--b:36.5%;--h:9%;--ar:2" viewBox="0 0 120 60" aria-hidden="true">
@@ -217,7 +219,7 @@
             </div>
             <div class="play-toolbar">
               <div class="tools">
-                <button id="feed" class="button tool"><span data-icon="treat"></span><span data-i18n="care.treat"></span></button><button id="greet" class="button tool"><span data-icon="spark"></span><span data-i18n="care.greet"></span></button><button id="chatter" class="button tool" data-i18n-title="care.chatter_title"><span data-icon="chat"></span><span data-i18n="care.chatter"></span></button><span class="tool-divider" aria-hidden="true"></span><span class="tool-label" data-i18n="game.label"></span><button class="button tool game" data-game="hide" data-i18n-title="game.hide_title" data-i18n="game.hide"></button><button class="button tool game" data-game="parade" data-i18n-title="game.parade_title" data-i18n="game.parade"></button><button class="button tool game" data-game="tag" data-i18n-title="game.tag_title" data-i18n="game.tag"></button>
+                <button id="feed" class="button tool" aria-pressed="false" data-i18n-title="care.treat_title"><span data-icon="treat"></span><span data-i18n="care.treat"></span></button><button id="greet" class="button tool" data-i18n-title="care.greet_title"><span data-icon="spark"></span><span data-i18n="care.greet"></span></button><button id="chatter" class="button tool" data-i18n-title="care.chatter_title"><span data-icon="chat"></span><span data-i18n="care.chatter"></span></button><span class="tool-divider" aria-hidden="true"></span><span class="tool-label" data-i18n="game.label"></span><button class="button tool game" data-game="hide" data-i18n-title="game.hide_title" data-i18n="game.hide"></button><button class="button tool game" data-game="parade" data-i18n-title="game.parade_title" data-i18n="game.parade"></button><button class="button tool game" data-game="tag" data-i18n-title="game.tag_title" data-i18n="game.tag"></button>
               </div>
             </div>
           </div>
@@ -227,7 +229,7 @@
         </section>
         <aside id="side-panel" class="side-panel" aria-labelledby="panel-title" hidden>
           <div class="panel-head">
-            <h2 id="panel-title" data-i18n="tabs.friend"></h2>
+            <h2 id="panel-title" data-i18n="tabs.friend" tabindex="-1"></h2>
             <button id="close-panel" class="icon-button" data-i18n-aria-label="panel.close" data-i18n-title="panel.close"><span data-icon="close"></span></button>
           </div>
           <div id="panel-pet" class="panel-body" data-title="tabs.friend">
@@ -247,7 +249,7 @@
                 </div>
               </div>
               <div class="friend-actions" role="group" data-i18n-aria-label="friend.actions">
-                <button id="edit-pet" class="button chip" data-i18n-title="friend.settings_title"><span data-icon="gear"></span><span data-i18n="friend.settings"></span></button>
+                <button id="edit-pet" class="button chip" data-i18n-title="friend.settings_title"><span data-icon="pencil"></span><span data-i18n="friend.edit"></span></button>
                 <span class="friend-actions-end">
                   <button id="clear-chat" class="button chip chip-quiet" data-i18n-title="chat.clear_title"><span data-icon="trash"></span><span data-i18n="chat.clear"></span></button><button id="remove-friend" class="button chip chip-quiet" data-i18n-title="friend.send_away_title"><span data-icon="logout"></span><span data-i18n="friend.send_away"></span></button>
                 </span>
@@ -255,7 +257,7 @@
               <div class="provider-row">
                 <label class="sr-only" for="provider-select" data-i18n="chat.provider_label"></label>
                 <select id="provider-select"><option value="" data-i18n="chat.no_ai"></option></select>
-                <button id="configure" class="icon-button" data-i18n-aria-label="connection.settings" data-i18n-title="connection.settings"><span data-icon="gear"></span></button>
+                <button id="configure" class="icon-button" data-i18n-aria-label="connection.settings" data-i18n-title="connection.settings"><span data-icon="plug"></span></button>
               </div>
               <div id="friend-chips" class="friend-chips"></div>
               <details id="companions" class="companions" hidden>
@@ -284,6 +286,8 @@
               <div id="kind-filter" class="kind-filter" role="group" data-i18n-aria-label="invite.kind_label"><button type="button" class="button chip" data-kind="" aria-pressed="true" data-i18n="invite.kind_all"></button><button type="button" class="button chip" data-kind="person" aria-pressed="false" data-i18n="invite.kind_person"></button><button type="button" class="button chip" data-kind="animal" aria-pressed="false" data-i18n="invite.kind_animal"></button><button type="button" class="button chip" data-kind="other" aria-pressed="false" data-i18n="invite.kind_other"></button></div>
               <div id="shelf" class="shelf">
               </div>
+              <p id="yard-full" class="notice" role="status" hidden></p>
+              <p id="no-kind" class="notice" hidden><span data-i18n="invite.none_of_kind"></span> <button type="button" id="show-all-kinds" class="button text" data-i18n="invite.show_all"></button></p>
               <p id="no-assets" class="notice" data-i18n="invite.none" hidden></p>
             </section>
           </div>
@@ -388,17 +392,18 @@
           <output id="size-label" for="size-range" data-i18n="size.m"></output>
         </div>
         <small data-i18n="pet.size_help"></small><code id="instance-id" class="pet-id"></code>
+        <p id="pet-error" class="form-error" role="alert"></p>
         <div class="dialog-actions">
           <button type="button" id="remove" class="button text danger push-left"><span data-icon="logout"></span><span data-i18n="friend.send_away_long"></span></button><button type="button" id="cancel-pet-dialog" class="button text" data-i18n="confirm.cancel"></button><button type="submit" class="button primary" data-i18n="common.save"></button>
         </div>
       </form>
     </dialog>
-    <dialog id="import-dialog">
+    <dialog id="import-dialog" aria-labelledby="import-title">
       <form id="import-form">
         <div class="dialog-heading">
           <div>
             <p class="eyebrow" data-i18n="invite.community"></p>
-            <h2 data-i18n="invite.import"></h2>
+            <h2 id="import-title" data-i18n="invite.import"></h2>
           </div>
           <button type="button" id="close-import" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button>
         </div>
@@ -413,7 +418,7 @@
         </div>
       </form>
     </dialog>
-    <dialog id="connection-dialog">
+    <dialog id="connection-dialog" aria-labelledby="dialog-title">
       <form id="connection-form">
         <div class="dialog-heading">
           <div>

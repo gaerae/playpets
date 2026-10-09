@@ -21,7 +21,7 @@ dialog::backdrop {
   font-size: 24px;
 }
 .dialog-heading .eyebrow {
-  font-size: 9px;
+  font-size: 10.5px;
   margin-bottom: 9px;
 }
 .dialog-description {
@@ -42,7 +42,7 @@ dialog select {
 }
 dialog small {
   display: block;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   margin-top: 7px;
 }

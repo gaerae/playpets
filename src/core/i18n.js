@@ -5,7 +5,7 @@
 // The language is decided as the modules load, so every constant built from t() is right from
 // the start: what the person chose (localStorage), else what the backend starts the page with,
 // else the system language. Changing it reloads the page.
-import { COMPACT, LANGUAGES, LIST_SEPARATOR, STRINGS } from './strings.js';
+import { LANGUAGES, LIST_SEPARATOR, STRINGS } from './strings.js';
 import { withParticle } from './words.js';
 
 // Chinese comes in two scripts, and systems often say only the region: zh-CN, zh-SG and bare zh
@@ -76,7 +76,6 @@ export function list(key) {
 // data-i18n-title / -placeholder / -aria-label for those attributes.
 export function apply(root = document) {
   document.documentElement.lang = current;
-  document.documentElement.toggleAttribute('data-compact', COMPACT[current]);
   for (const el of root.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
   for (const attr of ['title', 'placeholder', 'aria-label']) {
     const name = `data-i18n-${attr}`;

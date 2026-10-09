@@ -33,7 +33,7 @@ The **Shape** chips above the shelf (All · People · Animals · Other) narrow i
 
 ## Inviting a friend <Since v="0.1.0" />
 
-1. Click a card. The `+` on the right of the card means "Invite to the yard".
+1. Click a card (the `+` on its right). A card for a friend already in the yard says "Invite one more".
 2. The friend appears in the yard and waves. The panel switches to the Friend tab.
 3. Click the same pet again and it becomes "Invite one more". From the second friend on, a number is added after the name so you can tell them apart.
 
@@ -41,7 +41,7 @@ The yard holds up to 12 friends.
 
 ## Friend settings <Since v="0.1.0" />
 
-Click **Friend settings** in the Friend tab to change the name, personality, relationship, what it calls you, and size.
+Click **Edit** (the pencil) in the Friend tab to change the name, personality, relationship, what it calls you, and size.
 
 - **Name**: shown on the name tag in the yard and in the chat. Up to 24 characters.
 - **Personality**: your friend answers in this personality when you chat. At first the pet file's introduction is used as the personality; edit it or add to it and save to change that. Click **Add the pet file's introduction** to bring the original introduction back. Up to 400 characters. If no AI is connected, the personality is not used yet.
@@ -51,21 +51,21 @@ Click **Friend settings** in the Friend tab to change the name, personality, rel
 
 The friend ID is shown at the bottom of the window. You use it to point at a specific friend in [Coding agent hooks](./agents.md).
 
-To send a friend away from the yard, click **Send away**. Your conversation so far goes with them, but the pet stays in the Invite tab, so you can invite them again any time.
+To send a friend away from the yard, click **Send away**. Your conversation with them is deleted too, but the pet stays in the Invite tab, so you can invite them again any time.
 
 ## Things to do in the yard <Since v="0.1.0" />
 
-The line above the yard says "Click to pat · drag to move · double-click to chat". Here is what you can do with a friend.
+Until you first pat a friend, the line above the yard says "Click a friend to pat it, drag to move it", and the first friend you invite tells you how to chat. Here is what you can do with a friend.
 
 | Action | How |
 |---|---|
 | Pat | Click a friend once. They jump and show a heart |
 | Move | Drag a friend and drop them. Their place in the yard is remembered |
-| Chat | Double-click a friend. The Friend tab opens on that friend |
+| Chat | Click the friend's name tag: under the pointer it shows a speech mark. The Friend tab opens on that friend (from the small window too, which goes back to full size). A double-click or right-click on the friend does the same |
 | Put down a treat | Click **Treat** in the toolbar, then click where in the yard to put it. All the friends walk over, eat it and say "Yum, thank you!". The treat disappears after 15 seconds |
 | Say hi together | Click **Say hi** and the friends wave one after another with a greeting that fits the time of day |
 
-A **name tag** floats above each friend. When you select a friend, the name tag changes to its selected look, and while a coding agent is working, the status is shown next to the name tag.
+A **name tag** sits under each friend. When you select a friend, the name tag changes to its selected look, and while a coding agent is working, the status is shown next to the name tag.
 
 Left alone, friends slowly wander around the yard and talk to themselves. When it rains they say things like "Got an umbrella?", and at night they get sleepy. Time of day and weather are explained in [The yard and games](./play.md).
 

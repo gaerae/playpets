@@ -1,4 +1,5 @@
 // The main window: how it is built, and the commands the page uses to move, size and hide it.
+use crate::app::{Shared, lock};
 use crate::commands::{arg, text};
 use crate::i18n;
 use serde_json::{Value, json};
@@ -99,7 +100,8 @@ pub fn command(app: &AppHandle, name: &str, args: &[Value]) -> Result<Value, Str
         "windowHide" => hide(app),
         "windowMini" => {
             let on = arg(args, 0).as_bool().unwrap_or(false);
-            set_mini(&w, on);
+            let saved = app.try_state::<Shared>().and_then(|s| lock(&s).mini_rect);
+            set_mini(&w, on, saved);
             return Ok(Value::Bool(on));
         }
         _ => return Err(i18n::t("error.not_allowed")),
@@ -130,26 +132,108 @@ pub fn e2e_window(app: &AppHandle, args: &[Value]) -> Result<Value, String> {
 }
 
 /// `{x, y, width, height}` with every field a number, else nothing.
-fn rect_of(v: &Value) -> Option<(f64, f64, f64, f64)> {
+pub fn rect_of(v: &Value) -> Option<Rect> {
     let n = |k: &str| v.get(k)?.as_f64();
     Some((n("x")?, n("y")?, n("width")?, n("height")?))
 }
 
-/// Mini: a small always-on-top window showing only the yard. Leaving it restores the size
-/// the window had before.
-fn set_mini(w: &WebviewWindow, on: bool) {
-    static FULL_SIZE: Mutex<Option<LogicalSize<f64>>> = Mutex::new(None);
-    let mut full = FULL_SIZE.lock().unwrap();
+/// A window's place and size in logical points: x, y, width, height.
+pub type Rect = (f64, f64, f64, f64);
+
+/// Where the mini window goes: where the person last left it (`saved`, which the page keeps)
+/// while that still lies on a monitor, else the bottom-right corner of the monitor the full
+/// window is on, the usual place for a small window that stays on top.
+fn mini_rect(saved: Option<Rect>, areas: &[Rect], full: Rect) -> Rect {
+    let on = |a: &Rect, x: f64, y: f64| x >= a.0 && x <= a.0 + a.2 && y >= a.1 && y <= a.1 + a.3;
+    if let Some((x, y, w, h)) = saved {
+        let fits = w >= MINI_MIN.0 && h >= MINI_MIN.1;
+        if let Some(a) = areas.iter().find(|a| fits && on(a, x + w / 2.0, y + h / 2.0)) {
+            let (w, h) = (w.min(a.2), h.min(a.3));
+            return (x.clamp(a.0, a.0 + a.2 - w), y.clamp(a.1, a.1 + a.3 - h), w, h);
+        }
+    }
+    let (cx, cy) = (full.0 + full.2 / 2.0, full.1 + full.3 / 2.0);
+    let (w, h) = MINI_SIZE;
+    match areas.iter().find(|a| on(a, cx, cy)).or(areas.first()) {
+        Some(a) => (a.0 + a.2 - w - MINI_MARGIN, a.1 + a.3 - h - MINI_MARGIN, w, h),
+        None => (full.0, full.1, w, h),
+    }
+}
+/// Room between the mini window and the screen's edges.
+const MINI_MARGIN: f64 = 24.0;
+
+/// The work area of every monitor, in logical points.
+fn work_areas(w: &WebviewWindow) -> Vec<Rect> {
+    w.available_monitors()
+        .unwrap_or_default()
+        .iter()
+        .map(|m| {
+            let (scale, area) = (m.scale_factor(), m.work_area());
+            let (p, s) = (
+                area.position.to_logical::<f64>(scale),
+                area.size.to_logical::<f64>(scale),
+            );
+            (p.x, p.y, s.width, s.height)
+        })
+        .collect()
+}
+
+/// The window's place and size now, in logical points.
+fn rect_now(w: &WebviewWindow) -> Option<Rect> {
+    let scale = w.scale_factor().ok()?;
+    let p = w.outer_position().ok()?.to_logical::<f64>(scale);
+    let s = w.inner_size().ok()?.to_logical::<f64>(scale);
+    Some((p.x, p.y, s.width, s.height))
+}
+
+/// Whether the window is the mini one now: its moves and sizes are then kept (`moved`).
+static MINI: AtomicBool = AtomicBool::new(false);
+
+/// The main window moved or changed size: the mini window's place is kept, saved with the
+/// app's state (so it opens there again after a restart too).
+pub fn moved(app: &AppHandle) {
+    if !MINI.load(Ordering::SeqCst) {
+        return;
+    }
+    let (Some(w), Some(state)) = (app.get_webview_window("main"), app.try_state::<Shared>()) else {
+        return;
+    };
+    let Some(rect) = rect_now(&w) else { return };
+    let mut d = lock(&state);
+    if d.mini_rect != Some(rect) {
+        d.mini_rect = Some(rect);
+        crate::app::persist_soon(app);
+    }
+}
+
+/// Mini: a small always-on-top window showing only the yard, where it was last left (see
+/// mini_rect). Leaving it puts the window back where it was, at the size it had.
+fn set_mini(w: &WebviewWindow, on: bool, saved: Option<Rect>) {
+    static FULL: Mutex<Option<Rect>> = Mutex::new(None);
+    let mut full = FULL.lock().unwrap();
+    // Moves made from here on are the mini window's own only once it stands in its place.
+    MINI.store(false, Ordering::SeqCst);
     if on {
         if full.is_none() {
-            let scale = w.scale_factor().unwrap_or(1.0);
-            *full = w.inner_size().ok().map(|s| s.to_logical::<f64>(scale));
+            *full = rect_now(w);
         }
+        let before = full.unwrap_or((0.0, 0.0, FULL_SIZE_DEFAULT.0, FULL_SIZE_DEFAULT.1));
+        let (x, y, width, height) = mini_rect(saved, &work_areas(w), before);
         // The smaller minimum first, or the window refuses to shrink below the full one.
         let _ = w.set_min_size(Some(size(MINI_MIN)));
-        let _ = w.set_size(size(MINI_SIZE));
+        let _ = w.set_size(size((width, height)));
+        let _ = w.set_position(LogicalPosition::new(x, y));
+        MINI.store(true, Ordering::SeqCst);
     } else {
-        let _ = w.set_size(full.take().unwrap_or(size(FULL_SIZE_DEFAULT)));
+        match full.take() {
+            Some((x, y, width, height)) => {
+                let _ = w.set_size(size((width, height)));
+                let _ = w.set_position(LogicalPosition::new(x, y));
+            }
+            None => {
+                let _ = w.set_size(size(FULL_SIZE_DEFAULT));
+            }
+        }
         let _ = w.set_min_size(Some(size(FULL_MIN)));
     }
     let _ = w.set_always_on_top(on);
@@ -177,8 +261,37 @@ fn set_mini(w: &WebviewWindow, on: bool) {
 
 #[cfg(test)]
 mod tests {
-    use super::rect_of;
+    use super::{MINI_MARGIN, MINI_SIZE, mini_rect, rect_of};
     use serde_json::json;
+
+    #[test]
+    fn the_mini_window_returns_where_it_was_left_or_takes_the_corner() {
+        let areas = [(0.0, 25.0, 1440.0, 875.0), (1440.0, 0.0, 1920.0, 1080.0)];
+        let full = (100.0, 100.0, 1180.0, 780.0);
+        // Never moved: the bottom-right corner of the monitor the full window is on.
+        let (w, h) = MINI_SIZE;
+        assert_eq!(
+            mini_rect(None, &areas, full),
+            (1440.0 - w - MINI_MARGIN, 900.0 - h - MINI_MARGIN, w, h)
+        );
+        // Left on the second monitor at a size of its own: back there.
+        let left = (2000.0, 300.0, 520.0, 360.0);
+        assert_eq!(mini_rect(Some(left), &areas, full), left);
+        // Half off the edge: pulled back in.
+        assert_eq!(
+            mini_rect(Some((1200.0, 650.0, 400.0, 300.0)), &areas, full),
+            (1040.0, 600.0, 400.0, 300.0)
+        );
+        // On a monitor that is gone, or too small to use: the corner again.
+        assert_eq!(
+            mini_rect(Some((5000.0, 300.0, 460.0, 320.0)), &areas, full).0,
+            1440.0 - w - MINI_MARGIN
+        );
+        assert_eq!(
+            mini_rect(Some((300.0, 300.0, 40.0, 30.0)), &areas, full).0,
+            1440.0 - w - MINI_MARGIN
+        );
+    }
 
     #[test]
     fn a_rect_needs_all_four_numbers() {

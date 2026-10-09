@@ -43,6 +43,11 @@ export function syncGameUi() {
     b.disabled = !data.pets.length || (!!game && !mine);
   }
   for (const id of ['feed', 'greet']) $(id).disabled = !data.pets.length || !!game;
+  // The "Games" label fades with its buttons when none of them can be pressed.
+  document.querySelector('.tool-label')?.classList.toggle(
+    'off',
+    gameButtons.every(b => b.disabled),
+  );
   hint();
 }
 function say(text) {

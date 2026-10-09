@@ -3,8 +3,9 @@
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { canvas, drawSprite } from '../core/sprites.js';
-import { $, call, data, guard, setSelected, toast, views } from '../core/state.js';
-import { pose } from '../yard/views.js';
+import { $, call, data, guard, recall, remember, setSelected, toast, views } from '../core/state.js';
+import { spoken } from '../core/text.js';
+import { bubble, pose } from '../yard/views.js';
 
 const previews = new Map();
 let shelfKey = '';
@@ -22,6 +23,11 @@ async function add(assetId) {
   await refresh();
   const v = views.get(created.id);
   if (v) pose(v, 'wave', 1500);
+  // The very first friend says how to talk to it, once.
+  if (v && data.pets.length === 1 && recall('chat-tip') !== '1') {
+    remember('chat-tip', '1');
+    setTimeout(() => views.has(created.id) && bubble(v, t('hint.first_chat'), 7000), 1600);
+  }
 }
 // The shelf is grouped by where the pet files live, so it is plain which folder each one is in.
 // Codex's pet folder and the app's download folder each have one place to open; a folder picked
@@ -106,11 +112,20 @@ export function renderShelf() {
     $('shelf').replaceChildren(...groups.map(([p, list]) => group(p, list)));
     icons($('shelf'));
   }
+  const limit = data.petLimit ?? 12,
+    full = data.pets.length >= limit;
+  // A full yard says why the cards cannot be pressed, and what to do.
+  $('yard-full').hidden = !full;
+  if (full) $('yard-full').textContent = t('invite.full', { limit });
+  // A shape with no pets says so, with the way back to every pet.
+  $('no-kind').hidden = !data.assets.length || data.assets.some(ofKind);
   for (const b of $('shelf').querySelectorAll('.asset-card')) {
-    b.disabled = data.pets.length >= (data.petLimit ?? 12);
-    b.querySelector('.asset-hint').textContent = data.pets.some(p => p.assetId === b.dataset.assetId)
-      ? t('invite.one_more')
-      : t('invite.to_yard');
+    b.disabled = full;
+    // The heading already says a click invites; a card adds a line only when that friend is in the
+    // yard already, to say a click brings another.
+    const hint = b.querySelector('.asset-hint');
+    hint.textContent = data.pets.some(p => p.assetId === b.dataset.assetId) ? t('invite.one_more') : '';
+    hint.hidden = !hint.textContent;
   }
   $('no-assets').hidden = data.assets.length > 0;
 }
@@ -143,24 +158,29 @@ function openImportDialog() {
 let importing = false;
 // Wires the invite tab and the import dialog. `refresh` reloads the page's state once a friend arrives. Called once, by app.js.
 export function setupInvite(hooks) {
-  for (const chip of document.querySelectorAll('#kind-filter .chip'))
-    chip.onclick = () => {
-      kind = chip.dataset.kind;
-      for (const c of document.querySelectorAll('#kind-filter .chip'))
-        c.setAttribute('aria-pressed', String(c === chip));
-      renderShelf();
-    };
+  const chooseKind = chip => {
+    kind = chip.dataset.kind;
+    for (const c of document.querySelectorAll('#kind-filter .chip')) c.setAttribute('aria-pressed', String(c === chip));
+    renderShelf();
+  };
+  for (const chip of document.querySelectorAll('#kind-filter .chip')) chip.onclick = () => chooseKind(chip);
+  $('show-all-kinds').onclick = () => chooseKind(document.querySelector('#kind-filter .chip[data-kind=""]'));
   refresh = hooks.refresh;
   $('import').onclick = openImportDialog;
   $('close-import').onclick = $('cancel-import').onclick = () => $('import-dialog').close();
-  $('import-folder').onclick = guard(async () => {
-    const id = await call('importFolder');
-    if (id) {
+  // A folder that is not a pet is said inside the dialog, beside the address field's errors.
+  $('import-folder').onclick = async () => {
+    $('import-error').textContent = '';
+    try {
+      const id = await call('importFolder');
+      if (!id) return;
       $('import-dialog').close();
       await add(id);
       toast(t('toast.pet_added'));
+    } catch (error) {
+      $('import-error').textContent = spoken(error, t('error.generic'));
     }
-  });
+  };
   $('import-dialog').addEventListener('cancel', e => {
     if (importing) e.preventDefault();
   });

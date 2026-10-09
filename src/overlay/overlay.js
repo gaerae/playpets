@@ -3,8 +3,9 @@
 
 import { lookAt } from '../core/animation.js';
 import { follow, language, t } from '../core/i18n.js';
+import { icons } from '../core/icons.js';
 import { displayName } from '../core/names.js';
-import { canvas, crown, drawSprite } from '../core/sprites.js';
+import { canvas, crown, drawSprite, reduced } from '../core/sprites.js';
 import { stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every } from '../core/ticker.js';
@@ -16,26 +17,37 @@ const api = window.playPets,
 // A look lasts this long after the last pointer move: the window gets no pointerleave once
 // the cursor is off the friend and the window is click-through again.
 const LOOK_MS = 400;
+// The name button stays a moment after the pointer leaves, so it can be reached from the friend.
+const NAME_LINGER_MS = 600;
+// Under the sprite, room for the name button (FOOT in overlay.rs, plus the sprite's own 4px).
+const FOOT = 28;
 let data = { pets: [], assets: [], statuses: {} },
   layout = [];
+const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 function create(pet) {
   const wrap = document.createElement('div');
   wrap.className = 'friend-wrap';
   wrap.dataset.id = pet.id;
   const button = document.createElement('button');
   button.className = 'friend';
-  button.setAttribute('aria-label', t('overlay.pat'));
-  // No name tag on the desktop: pets blend into the desk, the name lives in the app.
+  // Friends blend into the desk: the name shows only while the pointer is on one, as a button
+  // that opens a conversation, so talking needs no hidden gesture.
   const sprite = canvas(),
-    bubble = document.createElement('div');
+    bubble = document.createElement('div'),
+    talk = document.createElement('button');
   bubble.className = 'bubble';
   bubble.hidden = true;
+  talk.className = 'talk';
+  talk.innerHTML = '<span data-icon="chat"></span><span class="talk-name"></span>';
+  icons(talk);
+  talk.onclick = () => api.openChat(pet.id);
   button.append(bubble, sprite);
-  wrap.append(button);
+  wrap.append(button, talk);
   document.getElementById('friends').append(wrap);
   const view = {
     wrap,
     button,
+    talk,
     sprite,
     bubble,
     pet,
@@ -52,6 +64,7 @@ function create(pet) {
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
     view.drag = { x: e.screenX, y: e.screenY, moved: false };
+    wrap.classList.remove('named');
     button.setPointerCapture(e.pointerId);
     await api.dragStart(pet.id);
   };
@@ -80,8 +93,7 @@ function create(pet) {
     if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
     if (!moved) await api.play('pet', pet.id);
   };
-  // Left click pets, drag moves; only right click (or Enter) opens the app, so
-  // repositioning never pops the window from an accidental double click.
+  // Right click (or Enter) opens the app too, as in the yard.
   button.onpointercancel = () => {
     view.drag = null;
     api.dragStop();
@@ -134,12 +146,39 @@ function render() {
     v.sprite.style.height = `${height}px`;
     // How much screen there is above the sprite: near the top edge the bubble slides down over
     // the sprite rather than off the screen.
-    const room = position.y - position.origin.y + position.height - 4 - height;
+    const room = position.y - position.origin.y + position.height - FOOT - height;
     v.button.style.setProperty('--room', `${Math.max(0, Math.round(room))}px`);
-    v.button.setAttribute(
-      'aria-label',
-      t('overlay.pat_name', { name: displayName(pet, v.asset, t('friend.default')) }),
-    );
+    v.button.setAttribute('aria-label', t('yard.pat_name', { name: nameOf(v) }));
+    v.talk.querySelector('.talk-name').textContent = nameOf(v);
+    v.talk.title = t('friend.talk', { name: nameOf(v) });
+    v.talk.setAttribute('aria-label', v.talk.title);
+    v.talk.style.maxWidth = `${Math.max(96, pet.size + 24)}px`;
+  }
+}
+// The friend under the pointer (the backend tells, see overlay.rs) shows its name button.
+let unname = null;
+function showName(id) {
+  clearTimeout(unname);
+  if (id) {
+    for (const [key, v] of views) v.wrap.classList.toggle('named', key === id && !v.drag);
+    return;
+  }
+  unname = setTimeout(() => {
+    for (const v of views.values()) v.wrap.classList.remove('named');
+  }, NAME_LINGER_MS);
+}
+// Hearts for a pat, as in the yard; a treat or a wave says it in words only.
+function hearts(v) {
+  if (reduced.matches) return;
+  for (let i = 0; i < 3; i++) {
+    const heart = document.createElement('span');
+    heart.className = 'heart';
+    heart.textContent = '♥';
+    heart.style.left = `${50 + (i - 1) * 12}%`;
+    heart.style.setProperty('--dx', `${(Math.random() - 0.5) * 30}px`);
+    heart.style.animationDelay = `${i * 90}ms`;
+    v.wrap.append(heart);
+    setTimeout(() => heart.remove(), 1300 + i * 90);
   }
 }
 function say(v, message) {
@@ -159,6 +198,10 @@ api.onEvent(event => {
     render();
     return;
   }
+  if (event.type === 'hover') {
+    showName(event.petId);
+    return;
+  }
   for (const [id, v] of views) {
     if (event.petId && event.petId !== id) continue;
     if (event.type === 'status') {
@@ -170,6 +213,7 @@ api.onEvent(event => {
       v.pose = event.action === 'wave' ? 'wave' : 'jump';
       v.until = performance.now() + 1400;
       v.since = performance.now();
+      if (event.action === 'pet') hearts(v);
       say(v, event.action === 'treat' ? t('care.yum') : event.action === 'wave' ? t('care.hello') : t('care.happy'));
     }
   }

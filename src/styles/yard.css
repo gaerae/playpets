@@ -70,7 +70,7 @@
   outline-offset: 5px;
 }
 .pet-tag {
-  font-size: 10px;
+  font-size: 11px;
   color: #35504c;
   font-weight: 650;
   background: #ffffffa6;
@@ -82,9 +82,48 @@
   align-items: center;
   gap: 5px;
 }
+/* The tag is how to talk: under the pointer it shows a speech mark and lights up (views.js). */
+.pet-tag {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.tag-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tag-talk {
+  display: none;
+  margin-left: -2px;
+}
+.tag-talk svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+.tag-talk > span {
+  display: contents;
+}
+.yard-pet:hover .tag-talk,
+.yard-pet:focus-visible .tag-talk {
+  display: inline-flex;
+}
+.yard-pet .pet-tag:hover {
+  background: #fff;
+  color: #2c6e57;
+  box-shadow: 0 1px 4px #213e4322;
+}
+.yard.playing .tag-talk,
+.yard.aiming .tag-talk {
+  display: none;
+}
+.yard.playing .pet-tag,
+.yard.aiming .pet-tag {
+  cursor: inherit;
+}
 /* the agents that report to this friend, small after the name */
 .pet-tag small {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: #2f6a92;
   white-space: nowrap;
@@ -227,7 +266,8 @@ body.mini .yard-pet:focus-visible .pet-tag {
 /* on a coloured tag the agent label turns light with it */
 .yard-pet.selected .pet-tag small,
 .yard-pet.tagger .pet-tag small {
-  color: #ffffffe0;
+  /* Solid white: the translucent white fell under 4.5:1 on the accent at this size. */
+  color: #fff;
 }
 .yard-pet.selected .pet-tag small::before,
 .yard-pet.tagger .pet-tag small::before {
@@ -621,6 +661,8 @@ body.mini .yard-pet:focus-visible .pet-tag {
   vector-effect: non-scaling-stroke;
   paint-order: stroke;
 }
+/* The sun by day and the moon by night stand where the clock puts them (sky.js sets --orb-x and
+   --orb-y once a minute, the centre of the disc). */
 .sky-body {
   position: absolute;
   height: 9%;
@@ -632,17 +674,10 @@ body.mini .yard-pet:focus-visible .pet-tag {
     0 0 0 2.2vh #ffffff22,
     0 0 9vh 4vh var(--orb-glow);
   z-index: -2;
-  left: 68%;
-  top: 9%;
+  left: var(--orb-x, 68%);
+  top: var(--orb-y, 14%);
+  transform: translate(-50%, -50%);
   transition: opacity 1.5s;
-}
-.period-morning .sky-body {
-  left: 14%;
-  top: 30%;
-}
-.period-evening .sky-body {
-  left: 78%;
-  top: 33%;
 }
 /* a few stars at night, twinkling in two groups; behind the moon and the hills */
 .yard.period-night::after {
@@ -676,19 +711,67 @@ body.mini .yard-pet:focus-visible .pet-tag {
     animation: none;
   }
 }
+/* The moon in tonight's phase: a disc of night sky slides across it (--moon-shade, in percent of
+   its width, from sky.js). */
 .period-night .sky-body {
-  left: 74%;
-  top: 9%;
   height: 8%;
+  overflow: hidden;
   background:
     radial-gradient(circle at 34% 30%, #d9d3b8 0 9%, transparent 10%),
     radial-gradient(circle at 62% 58%, #dcd6bc 0 13%, transparent 14%),
     radial-gradient(circle at 36% 70%, #ddd7be 0 7%, transparent 8%), var(--orb);
   box-shadow: 0 0 6vh 1.5vh var(--orb-glow);
 }
+.period-night .sky-body::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sky-a) 55%, var(--sky-m));
+  opacity: 0.94;
+  transform: translateX(calc(var(--moon-shade, 100) * 1%));
+}
 .weather-rain .sky-body,
 .weather-snow .sky-body {
   opacity: 0.16;
+}
+/* After rain clears in daylight, a rainbow stands behind the hills for a few minutes (sky.js). */
+.rainbow {
+  position: absolute;
+  left: 50%;
+  bottom: 38%;
+  width: 92%;
+  aspect-ratio: 2;
+  z-index: -2;
+  pointer-events: none;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 6s;
+  background: radial-gradient(
+    circle at 50% 100%,
+    transparent 0 60%,
+    #ff7a7a 60% 62.5%,
+    #ffb866 62.5% 65%,
+    #ffe36e 65% 67.5%,
+    #86d48f 67.5% 70%,
+    #74b9ff 70% 72.5%,
+    #a291ff 72.5% 75%,
+    transparent 75%
+  );
+  mask-image: linear-gradient(to top, transparent, #000 35%);
+}
+.yard.after-rain .rainbow {
+  opacity: 0.5;
+}
+/* The tree that turns first in autumn (and blooms paler in spring): sky.js sets --maple. */
+.prop.maple {
+  --crown: var(--maple, var(--leaf));
+  --crown-hi: var(--maple-hi, var(--leaf-hi));
+  --crown-lo: var(--maple-lo, var(--leaf-lo));
+}
+/* Winter fields have no flowers. */
+.season-winter .bloom {
+  display: none;
 }
 .sky-glow {
   position: absolute;
@@ -701,10 +784,11 @@ body.mini .yard-pet:focus-visible .pet-tag {
 }
 .period-evening.weather-clear .sky-glow {
   opacity: 1;
+  background: radial-gradient(ellipse 60% 45% at var(--orb-x, 80%) 52%, #ffd9a0aa, transparent 70%);
 }
 .period-morning.weather-clear .sky-glow {
   opacity: 0.8;
-  background: radial-gradient(ellipse 55% 40% at 16% 50%, #ffe6bdaa, transparent 70%);
+  background: radial-gradient(ellipse 55% 40% at var(--orb-x, 16%) 50%, #ffe6bdaa, transparent 70%);
 }
 .cloud-lane {
   position: absolute;
@@ -821,6 +905,9 @@ body.mini .yard-pet:focus-visible .pet-tag {
   color: var(--muted);
   margin-right: 4px;
 }
+.tool-label.off {
+  opacity: 0.45;
+}
 .button.tool.game {
   padding: 7px 11px;
   border: 1px solid var(--line);
@@ -872,10 +959,63 @@ body.mini .yard-pet:focus-visible .pet-tag {
 body.mini .topbar,
 body.mini .empty-yard,
 body.mini .yard-caption,
-body.mini .play-toolbar,
 body.mini .side-panel,
 body.mini #warnings {
   display: none;
+}
+/* The mini view keeps the care tools: a small bar that rises over the yard while the pointer is
+   on it, icons only (their words stay in the tooltip and for screen readers). */
+body.mini .yard-frame {
+  position: relative;
+}
+body.mini .play-toolbar {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  z-index: 6;
+  padding: 4px;
+  border: 0;
+  border-radius: 14px;
+  background: #ffffffe6;
+  box-shadow: 0 4px 14px #213e4326;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 6px);
+  transition:
+    opacity 0.18s,
+    transform 0.18s;
+}
+body.mini .yard-frame:hover .play-toolbar,
+body.mini .play-toolbar:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+body.mini .tool-divider,
+body.mini .tool-label,
+body.mini .button.tool.game {
+  display: none;
+}
+body.mini .button.tool {
+  padding: 7px;
+  min-height: 32px;
+  min-width: 32px;
+  justify-content: center;
+}
+body.mini .button.tool > span:not([data-icon]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (hover: none) {
+  body.mini .play-toolbar {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
 }
 body.mini .layout {
   padding: 0;
@@ -899,7 +1039,8 @@ body.mini .unmini {
   background: #ffffffd9;
   color: var(--ink);
   z-index: 5;
-  opacity: 0;
+  /* Always findable, quieter until the pointer is over the yard. */
+  opacity: 0.55;
   transition: opacity 0.18s;
   box-shadow: 0 2px 8px #213e4326;
 }
@@ -1032,6 +1173,11 @@ body.mini .yard {
   color: var(--muted);
   text-decoration: line-through;
 }
+/* A step that waits for a friend still leads somewhere (to the invite step), but reads as later. */
+.steps-list li.waiting > span:nth-child(2),
+.steps-list li.waiting .button {
+  opacity: 0.55;
+}
 .steps-list li.done .button {
   visibility: hidden;
 }
@@ -1129,8 +1275,13 @@ body.mini .game-banner {
 }
 .sun-dot,
 .caption-count,
+.caption-agents,
 .caption-right {
   flex: none;
+}
+.caption-agents {
+  color: var(--accent);
+  font-weight: 650;
 }
 @media (max-width: 1000px) {
   .layout.panel-open #yard-hint {

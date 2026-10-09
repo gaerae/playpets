@@ -20,12 +20,12 @@ The tray icon's menu has the same items, so you can turn it on and off without o
 |---|---|
 | Pat | Left-click a friend once |
 | Move | Drag a friend and drop them. You can move them to another monitor too |
-| Chat | Right-click a friend. The yard window opens on that friend's chat |
+| Chat | Point at a friend and its name shows below it with a speech mark. Click the name and the yard window opens on that friend's chat. A right-click does the same |
 | Eye contact | Move the mouse over a resting friend's face and their eyes follow it. Only v2 pets with 16-direction gaze artwork can do this |
 
-A left double-click does nothing. Chat opens only with a right-click, so a window does not open by accident while you are moving a friend.
+A double-click does nothing, so a window does not open by accident while you are moving a friend. The first time desktop mode turns on, a notice says how to chat.
 
-Name tags are not drawn on the desktop. Friends blend in with your desk, and names are shown only inside the app. Instead, the [coding agent](./agents.md)'s status and whatever the friend says float in a speech bubble above their head.
+Names stay hidden until you point at a friend, so friends blend in with your desk. The [coding agent](./agents.md)'s status and whatever the friend says float in a speech bubble above their head; a long line ends with "…" after three lines.
 
 ## Friends on every monitor <Since v="0.1.0" />
 
@@ -49,7 +49,7 @@ The yard window's close button does not quit the app; it only hides the window. 
 ## Opening it again
 
 - Click the tray icon in the menu bar (macOS) or taskbar (Windows, Linux) and choose **Open the yard**.
-- Right-clicking a friend on the desktop also opens the yard window.
+- Clicking a friend's name on the desktop (or right-clicking the friend) also opens the yard window.
 
 ## Quitting for good
 

@@ -134,11 +134,50 @@ export function renderChat(p) {
     : t('chat.pick_companions');
   syncWaiting();
 }
+// The log shows one friend's conversation. A new message is added at the end rather than the whole
+// log redrawn, so a screen reader announces only what is new and someone reading further up is not
+// pulled down; switching friends, clearing, or a reset starts the log over.
+let shown = { pet: null, keys: [] };
+const keyOf = m => `${m.role}|${m.name || ''}|${m.content}`;
+function messageNode(m) {
+  const node = document.createElement('div');
+  if (m.name) {
+    node.className = 'message peer';
+    const who = document.createElement('b');
+    who.textContent = m.name;
+    node.append(who);
+    rich(node, m.content.replace(`[${m.name}] `, ''));
+  } else {
+    node.className = `message ${m.role}`;
+    if (m.role === 'assistant') rich(node, m.content);
+    else node.textContent = m.content;
+  }
+  return node;
+}
+function placeholder(p) {
+  const log = $('chat-log');
+  const hint = document.createElement('p');
+  hint.className = 'chat-placeholder';
+  hint.textContent = p.providerId ? t('chat.empty_connected') : t('chat.empty_no_ai');
+  log.append(hint);
+  if (!p.providerId) {
+    const cta = document.createElement('button');
+    cta.type = 'button';
+    cta.className = 'button secondary connect-cta';
+    cta.textContent = t('connection.title_new');
+    cta.onclick = () => $('configure').click();
+    log.append(cta);
+  }
+}
 export async function refreshChat() {
   const p = pet();
   const epoch = ++chatEpoch;
   if (!p) return;
-  $('chat-log').replaceChildren();
+  const log = $('chat-log');
+  if (shown.pet !== p.id) {
+    log.replaceChildren();
+    shown = { pet: p.id, keys: [] };
+  }
   syncWaiting();
   try {
     const history = await call('getChat', p.id);
@@ -147,37 +186,21 @@ export async function refreshChat() {
     const entries = logEntries(history, pendingMessage);
     hasHistory = history.length > 0;
     $('clear-chat').disabled = data.busy.includes(p.id) || !hasHistory;
-    if (!entries.length) {
-      const hint = document.createElement('p');
-      hint.className = 'chat-placeholder';
-      hint.textContent = p.providerId ? t('chat.empty_connected') : t('chat.empty_no_ai');
-      $('chat-log').append(hint);
-      if (!p.providerId) {
-        const cta = document.createElement('button');
-        cta.type = 'button';
-        cta.className = 'button secondary connect-cta';
-        cta.textContent = t('connection.title_new');
-        cta.onclick = () => $('configure').click();
-        $('chat-log').append(cta);
-      }
+    const keys = entries.map(keyOf);
+    const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 48;
+    // Only the same conversation, grown at its end, keeps what is on screen.
+    const grows =
+      shown.keys.length > 0 && shown.keys.length <= keys.length && shown.keys.every((k, n) => k === keys[n]);
+    if (!grows) {
+      log.replaceChildren();
+      shown.keys = [];
+      if (!entries.length) placeholder(p);
     }
-    for (const m of entries) {
-      const node = document.createElement('div');
-      if (m.name) {
-        node.className = 'message peer';
-        const who = document.createElement('b');
-        who.textContent = m.name;
-        node.append(who);
-        rich(node, m.content.replace(`[${m.name}] `, ''));
-      } else {
-        node.className = `message ${m.role}`;
-        if (m.role === 'assistant') rich(node, m.content);
-        else node.textContent = m.content;
-      }
-      $('chat-log').append(node);
-    }
+    const waiting = log.querySelector('.waiting');
+    for (const m of entries.slice(shown.keys.length)) log.insertBefore(messageNode(m), waiting);
+    shown.keys = keys;
     syncWaiting();
-    $('chat-log').scrollTop = $('chat-log').scrollHeight;
+    if (!grows || atBottom) log.scrollTop = log.scrollHeight;
   } catch (e) {
     toast(spoken(e, t('error.history')));
   }
@@ -255,5 +278,7 @@ export function setupChat() {
     await call('clearChat', p.id);
     temporaryMessages.delete(p.id);
     refreshChat();
+    // The clear button is disabled now (nothing left to clear): the focus goes to the message box.
+    $('message').focus();
   });
 }

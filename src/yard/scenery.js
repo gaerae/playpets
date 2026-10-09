@@ -1,6 +1,11 @@
-// Draws the living part of the yard on one canvas: rain, snow, stars and small creatures.
-// The rules (where drops spawn, how they fall) live in scene.js; this file only paints.
-import { dropCount, spawnDrop, stepDrops } from './scene.js';
+// Draws the living part of the yard on one canvas: rain, snow, petals and leaves, stars and small
+// creatures, now and then a flock of birds. The rules (where drops spawn, how they fall) live in
+// scene.js; this file only paints.
+// Every repaint of the canvas costs a screen update, so it is repainted only when something on it
+// moved. Stars are drawn once (their twinkle is the CSS layer's, yard.css). Butterflies, fireflies
+// and falling petals or leaves come in spells: they are about for a while, leave, and the canvas
+// rests until the next spell.
+import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
 
 const TAU = Math.PI * 2;
 const INK = {
@@ -10,6 +15,15 @@ const INK = {
   firefly: '236,240,150',
 };
 const WINGS = ['#f2a65a', '#e8798f', '#8fb4e8', '#f4d35e'];
+const PETALS = ['#f7c1d2', '#fbd7e3', '#f3a9c1'];
+const LEAVES = ['#e6a03c', '#d65a3a', '#f0c25a', '#c4702f'];
+// A flock crosses the sky now and then on a clear day: this long between flocks.
+const FLOCK_GAP = [45000, 120000];
+// A spell of small life lasts SPELL ms; the rest between spells is drawn from REST.
+const SPELL = 24000,
+  REST = [30000, 60000];
+// Fireflies fade in and out over this long.
+const FADE_MS = 1500;
 export function createScenery(canvas, reduced) {
   const ctx = canvas.getContext('2d');
   // In a small yard everything drawn shrinks with it.
@@ -18,15 +32,59 @@ export function createScenery(canvas, reduced) {
     h = 1,
     period = 'day',
     weather = 'clear',
+    season = 'spring',
     drops = [],
+    fallers = [],
+    flock = null,
+    nextFlock = 0,
     splashes = [],
     stars = [],
     critters = [],
     streak = null,
-    nextStreak = 0;
+    nextStreak = 0,
+    // Whether a spell of small life is on, and when it ends (or the next begins).
+    spell = true,
+    spellTurn = 0,
+    // Something changed that the canvas does not show yet.
+    dirty = true;
   const clear = () => weather === 'clear';
+  // Fireflies on spring and summer nights, butterflies by day until autumn, when one is left.
+  function lifeCount() {
+    const warm = season === 'spring' || season === 'summer',
+      glow = warm && clear() && (period === 'night' || period === 'evening'),
+      flutter = season !== 'winter' && clear() && (period === 'day' || period === 'morning');
+    return { glow, count: glow ? (period === 'night' ? 9 : 4) : flutter ? (warm ? 3 : 1) : 0 };
+  }
+  // The small life of a spell. Arriving, butterflies come in from the sides, fireflies fade in and
+  // petals or leaves start above the yard; at the start they are already about.
+  function spawnLife(arriving) {
+    if (reduced.matches) {
+      critters = [];
+      fallers = [];
+      return;
+    }
+    const { glow, count } = lifeCount();
+    critters = Array.from({ length: count }, (_, i) => {
+      const side = Math.random() < 0.5;
+      return {
+        kind: glow ? 'firefly' : 'butterfly',
+        x: arriving && !glow ? (side ? -15 : w + 15) : Math.random() * w,
+        y: h * (0.5 + Math.random() * 0.4),
+        heading: arriving && !glow ? (side ? 0 : Math.PI) + (Math.random() - 0.5) : Math.random() * TAU,
+        phase: Math.random() * TAU,
+        color: WINGS[i % WINGS.length],
+        light: arriving && glow ? 0 : 1,
+      };
+    });
+    fallers = Array.from({ length: fallerCount(season, period, weather, w) }, () => {
+      const f = spawnFaller(w, h, Math.random);
+      if (arriving) f.y = -10 - Math.random() * h * 0.3;
+      return f;
+    });
+  }
   function populate() {
     drops = Array.from({ length: dropCount(weather, w, h) }, () => spawnDrop(weather, w, h, Math.random));
+    flock = null;
     splashes = [];
     streak = null;
     stars =
@@ -35,22 +93,13 @@ export function createScenery(canvas, reduced) {
             x: Math.random() * w,
             y: Math.random() * h * 0.5,
             r: 0.5 + Math.random() * 1.1,
-            phase: Math.random() * TAU,
-            speed: 0.6 + Math.random() * 1.6,
+            alpha: 0.4 + Math.random() * 0.55,
           }))
         : [];
-    const glow = clear() && (period === 'night' || period === 'evening'),
-      flutter = clear() && (period === 'day' || period === 'morning');
-    critters = reduced.matches
-      ? []
-      : Array.from({ length: glow ? (period === 'night' ? 9 : 4) : flutter ? 3 : 0 }, (_, i) => ({
-          kind: glow ? 'firefly' : 'butterfly',
-          x: Math.random() * w,
-          y: h * (0.5 + Math.random() * 0.4),
-          heading: Math.random() * TAU,
-          phase: Math.random() * TAU,
-          color: WINGS[i % WINGS.length],
-        }));
+    spell = true;
+    spellTurn = 0;
+    spawnLife(false);
+    dirty = true;
   }
   function resize() {
     const r = canvas.getBoundingClientRect(),
@@ -63,23 +112,52 @@ export function createScenery(canvas, reduced) {
     canvas.height = Math.round(h * ratio);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     populate();
-    paint(0);
+    paint(performance.now());
   }
-  function set(nextPeriod, nextWeather) {
-    if (nextPeriod === period && nextWeather === weather) return;
+  function set(nextPeriod, nextWeather, nextSeason = season) {
+    if (nextPeriod === period && nextWeather === weather && nextSeason === season) return;
     period = nextPeriod;
     weather = nextWeather;
+    season = nextSeason;
     populate();
-    paint(0);
+    paint(performance.now());
   }
+  // A small V of three to five birds, from one side to the other, high in the sky.
+  function launchFlock(now) {
+    const dir = Math.random() < 0.5 ? 1 : -1,
+      size = 3 + Math.floor(Math.random() * 3);
+    flock = {
+      x: dir > 0 ? -60 : w + 60,
+      y: h * (0.1 + Math.random() * 0.18),
+      dir,
+      speed: 0.045 + Math.random() * 0.02,
+      since: now,
+      birds: Array.from({ length: size }, (_, i) => ({
+        dx: -dir * Math.ceil(i / 2) * 16,
+        dy: Math.ceil(i / 2) * 7 * (i % 2 ? -0.4 : 1),
+        phase: Math.random() * TAU,
+      })),
+    };
+  }
+  // Moves a creature; returns false once it has left (a butterfly off the side, a firefly faded).
   function roam(c, dt) {
     c.phase += dt * (c.kind === 'butterfly' ? 0.02 : 0.003);
     c.heading += (Math.random() - 0.5) * dt * 0.004;
+    if (c.kind === 'firefly') {
+      c.light = Math.max(0, Math.min(1, c.light + (spell ? 1 : -1) * (dt / FADE_MS)));
+      if (!spell && c.light === 0) return false;
+    } else if (!spell) {
+      // Leaving: it turns gently toward the nearer side.
+      const away = c.x < w / 2 ? Math.PI : 0;
+      c.heading += Math.sin(away - c.heading) * dt * 0.002;
+    }
     const speed = c.kind === 'butterfly' ? 0.035 : 0.014;
     c.x += Math.cos(c.heading) * speed * dt;
     c.y += Math.sin(c.heading) * speed * dt * 0.6 + Math.sin(c.phase * 0.4) * 0.02 * dt;
-    if (c.x < -20) c.x = w + 20;
-    else if (c.x > w + 20) c.x = -20;
+    if (c.x < -20 || c.x > w + 20) {
+      if (!spell) return false;
+      c.x = c.x < -20 ? w + 20 : -20;
+    }
     // Creatures keep to the air just above the field.
     if (c.y < h * 0.42) {
       c.y = h * 0.42;
@@ -88,16 +166,13 @@ export function createScenery(canvas, reduced) {
       c.y = h * 0.94;
       c.heading = -Math.abs(c.heading % TAU);
     }
+    return true;
   }
-  // A clear sky in daylight has nothing to draw: the canvas is cleared once and then left alone.
-  let wasEmpty = false;
   function paint(now) {
-    const empty = !stars.length && !streak && !drops.length && !splashes.length && !critters.length;
-    if (empty && wasEmpty) return;
-    wasEmpty = empty;
+    dirty = false;
     ctx.clearRect(0, 0, w, h);
     for (const s of stars) {
-      ctx.globalAlpha = reduced.matches ? 0.8 : 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(s.phase + now * 0.001 * s.speed));
+      ctx.globalAlpha = s.alpha;
       ctx.fillStyle = `rgb(${INK.star})`;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, TAU);
@@ -156,15 +231,52 @@ export function createScenery(canvas, reduced) {
         }
       }
     }
+    if (flock) {
+      ctx.globalAlpha = period === 'evening' ? 0.6 : 0.5;
+      ctx.strokeStyle = '#34464f';
+      ctx.lineWidth = 1.4 * scale;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      for (const b of flock.birds) {
+        const x = flock.x + b.dx * scale,
+          y = flock.y + b.dy * scale,
+          span = 5.5 * scale,
+          lift = Math.sin(b.phase + now * 0.009) * 2.6 * scale;
+        ctx.beginPath();
+        ctx.moveTo(x - span, y - lift);
+        ctx.quadraticCurveTo(x - span * 0.4, y - 1.5 * scale, x, y);
+        ctx.quadraticCurveTo(x + span * 0.4, y - 1.5 * scale, x + span, y - lift);
+        ctx.stroke();
+      }
+    }
+    for (const f of fallers) {
+      const palette = season === 'spring' ? PETALS : LEAVES;
+      ctx.globalAlpha = 0.6 + f.depth * 0.35;
+      ctx.fillStyle = palette[Math.floor(f.tint * palette.length) % palette.length];
+      ctx.save();
+      ctx.translate(f.x, f.y);
+      ctx.rotate(f.phase * 0.8 + f.spin * now);
+      ctx.scale(1, 0.45 + 0.55 * Math.abs(Math.cos(f.phase)));
+      ctx.beginPath();
+      if (season === 'spring') ctx.ellipse(0, 0, f.size * scale, f.size * 0.6 * scale, 0, 0, TAU);
+      else {
+        const r = f.size * 1.2 * scale;
+        ctx.moveTo(-r, 0);
+        ctx.quadraticCurveTo(0, -r * 0.8, r, 0);
+        ctx.quadraticCurveTo(0, r * 0.8, -r, 0);
+      }
+      ctx.fill();
+      ctx.restore();
+    }
     for (const c of critters) {
       if (c.kind === 'firefly') {
-        const lit = 0.5 + 0.5 * Math.sin(c.phase);
-        ctx.globalAlpha = 0.15 + lit * 0.3;
+        const lit = (0.5 + 0.5 * Math.sin(c.phase)) * c.light;
+        ctx.globalAlpha = (0.15 + lit * 0.3) * c.light;
         ctx.fillStyle = `rgb(${INK.firefly})`;
         ctx.beginPath();
         ctx.arc(c.x, c.y, 6 * scale, 0, TAU);
         ctx.fill();
-        ctx.globalAlpha = 0.4 + lit * 0.6;
+        ctx.globalAlpha = (0.4 + lit * 0.6) * c.light;
         ctx.beginPath();
         ctx.arc(c.x, c.y, 1.7 * scale, 0, TAU);
         ctx.fill();
@@ -191,16 +303,45 @@ export function createScenery(canvas, reduced) {
     }
     ctx.globalAlpha = 1;
   }
+  // One step: moves what is moving and repaints only if something did.
   function frame(now, dt) {
     if (reduced.matches) return;
+    let moved = dirty;
     if (drops.length) {
       for (const s of stepDrops(drops, weather, dt, w, h, Math.random))
         if (weather === 'rain' && splashes.length < 60) splashes.push({ ...s, since: now });
       splashes = splashes.filter(s => now - s.since < 280);
+      moved = true;
     }
-    for (const c of critters) roam(c, dt);
+    // Spells of small life: on for SPELL, then the creatures leave and the petals that are falling
+    // land, and the canvas rests for a while.
+    if (!spellTurn) spellTurn = now + SPELL;
+    if (now >= spellTurn) {
+      spell = !spell;
+      spellTurn = now + (spell ? SPELL : REST[0] + Math.random() * (REST[1] - REST[0]));
+      if (spell) spawnLife(true);
+    }
+    if (critters.length) {
+      critters = critters.filter(c => roam(c, dt));
+      moved = true;
+    }
+    if (fallers.length) {
+      fallers = stepFallers(fallers, dt, w, h, Math.random, spell);
+      moved = true;
+    }
+    if (flock) {
+      flock.x += flock.dir * flock.speed * dt;
+      if (flock.x < -120 || flock.x > w + 120) flock = null;
+      moved = true;
+    } else if (clear() && period !== 'night' && now >= nextFlock) {
+      if (nextFlock) launchFlock(now);
+      nextFlock = now + FLOCK_GAP[0] + Math.random() * (FLOCK_GAP[1] - FLOCK_GAP[0]);
+    }
     if (stars.length) {
-      if (streak && now - streak.since >= streak.life) streak = null;
+      if (streak && now - streak.since >= streak.life) {
+        streak = null;
+        moved = true;
+      }
       if (!streak && now >= nextStreak) {
         if (nextStreak)
           streak = {
@@ -213,8 +354,11 @@ export function createScenery(canvas, reduced) {
           };
         nextStreak = now + 18000 + Math.random() * 30000;
       }
+      if (streak) moved = true;
     }
-    paint(now);
+    if (moved) paint(now);
   }
-  return { resize, set, frame };
+  // Whether the canvas will change on the next frame (app.js runs the yard faster while it does).
+  const busy = () => drops.length > 0 || !!flock || !!streak;
+  return { resize, set, frame, busy };
 }

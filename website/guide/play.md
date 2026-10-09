@@ -17,8 +17,10 @@ The caption line above the yard describes the current scene, such as "A golden e
 | Time of day | Auto time, Morning, Midday, Evening, Night |
 | Weather | Auto weather, Clear, Rain, Snow |
 
-- **Auto time** follows your computer's clock. The colours of the sky and ground change through morning, midday, evening and night.
-- **Auto weather** picks new weather once every 20 minutes. It is mostly clear, with rain or snow now and then. It does not fetch the real weather from the internet.
+- **Auto time** follows your computer's clock. The colours of the sky and ground change through morning, midday, evening and night, the sun crosses the sky from left to right, and at night the moon shows tonight's phase.
+- **Auto weather** picks new weather once every 20 minutes. It is mostly clear, with rain now and then; snow comes only in winter. It does not fetch the real weather from the internet.
+- The yard follows the **season** by the date: cherry blossoms and falling petals in spring, deep green in summer, red and gold leaves drifting down in autumn, bare branches and dry fields in winter. South of the equator (by your computer's time zone) the seasons are the other way round.
+- When rain clears up in daylight, a rainbow stands over the hills for a few minutes. On clear days a flock of birds crosses the sky now and then, butterflies flutter until autumn, and fireflies glow on spring and summer nights.
 - Pick a value yourself and that time of day and weather are fixed. Your choice is remembered, so it is the same the next time you open the app.
 
 When the weather changes, one or two friends say a word about it, like "Rain!" or "Snowman time?". Left alone, they also talk to themselves to fit the time of day.
@@ -40,7 +42,7 @@ Click a button and it changes to something like **Stop Hide and seek**; click it
 <Shot name="play-hide-and-seek" caption="Hide and seek. The banner at the top names the friend to find." />
 
 1. Click **Hide and seek** and the friends scatter to their hiding places. A friend who does not reach a spot within 15 seconds hides where they are.
-2. The banner at the top of the yard says **Find** and the name of the friend to find. Below it are the names of the other friends who are still hiding.
+2. The banner at the top of the yard says **Click to find** and the name of the friend to find. Below it are the names of the other friends who are still hiding.
 3. Find the friend whose name is called and click them. If you are right, they jump out saying "You found me!" and the banner moves on to the next friend.
 4. Click a different friend and you only get an "Oops, that's not them" notice, and that friend keeps hiding. The name to find does not change.
 5. Once you have found everyone, the game ends with "Everyone found!".
@@ -62,15 +64,16 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 
 <Shot name="mini" caption="Mini mode. A small window with only the yard floats on top of other windows." />
 
-Click the **Mini mode (just the yard)** button at the top of the window and the panel and toolbar go away, leaving a small window with only the yard.
+Click the **Mini** button at the top of the window and the panel and toolbar go away, leaving a small window with only the yard.
 
-- The small window always floats on top of other windows.
+- The small window always floats on top of other windows. The first time, it opens in the bottom-right corner of the screen; after that it opens where you last left it, at the size you gave it.
+- Point at the yard and **Treat**, **Say hi** and **Let them chat** rise at the bottom as small buttons.
 - Name tags are hidden; hover over a friend and theirs shows for a moment.
 - Drag an empty spot with no friend and the window moves. Drag a friend and the friend moves.
-- Patting and double-clicking to chat work as before.
+- Patting works as before, and clicking a friend's name tag opens the chat (the window goes back to full size).
 - Entering mini mode during a game ends the game.
 
-To go back, click the **Full size** button in the corner of the small window. Mini mode is remembered, so if you quit while it is small, it opens small the next time too.
+To go back, click the **Full size** button in the corner of the small window; the window returns to where it was. Mini mode is remembered, so if you quit while it is small, it opens small the next time too.
 
 ## Want to see more of your friends?
 
