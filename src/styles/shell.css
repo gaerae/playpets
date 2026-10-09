@@ -239,10 +239,6 @@ html:not(.mac) body {
   width: 15px;
   height: 15px;
 }
-.button.icon-only {
-  padding: 6px;
-  min-width: 34px;
-}
 .desktop-controls,
 .panel-tabs {
   border-radius: 9px;

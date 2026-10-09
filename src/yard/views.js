@@ -71,6 +71,13 @@ export const rest = v => {
 // They shrink with the yard, so a small window still reads as a whole scene.
 export const FIELD_TOP = 0.6;
 let zoom = 1;
+// How much friends shrink in a yard of this size. By the height, so a small window still reads as a
+// whole scene; a strip (much wider than tall, like a bar along the screen's edge) gives the sky
+// away and keeps the friends larger, and a narrow column keeps them from crowding each other.
+export function zoomFor(width, height) {
+  const strip = width > height * 3;
+  return clamp(Math.min(height / (strip ? 380 : 560), width / 640), 0.35, 1);
+}
 export const sizeOf = p => p.size * zoom;
 export const petHeight = p => (sizeOf(p) * 208) / 192;
 function fit(v) {
@@ -340,7 +347,7 @@ export function setupViews(handlers) {
   on = handlers;
   new ResizeObserver(() => {
     measure();
-    zoom = clamp(yardSize.height / 560, 0.35, 1);
+    zoom = zoomFor(yardSize.width, yardSize.height);
     on.resized();
     for (const v of views.values()) fit(v);
   }).observe($('yard'));

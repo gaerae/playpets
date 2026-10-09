@@ -188,6 +188,7 @@ pub fn changed(app: &AppHandle, d: &AppData) {
     if let Some(o) = app.try_state::<OverlayHandle>() {
         o.0.sync(pets_lite(d), d.desktop, d.wander);
     }
+    crate::tray::refresh(app, crate::tray::snapshot(d));
     eval_all(app, &format!("window.__pp&&__pp('change',{})", public_state(app, d)));
 }
 

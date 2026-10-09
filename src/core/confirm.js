@@ -35,11 +35,33 @@ export function setupConfirm() {
 }
 
 // A click on the backdrop (outside the dialog's own box) closes the dialog, unless `canClose`
-// says not now (a save in progress).
+// says not now.
 export function closeOnBackdrop(dialog, canClose = () => true) {
   dialog.addEventListener('click', e => {
-    if (e.target !== dialog || !canClose()) return;
+    if (e.target !== dialog) return;
     const r = dialog.getBoundingClientRect();
-    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close();
+    const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    if (outside && canClose()) dialog.close();
   });
+}
+
+// A dialog with a form keeps what was typed in it: Esc and a click beside it close it only while
+// nothing changed since it opened, and otherwise `unsaved()` says to save or press Cancel. Nothing
+// closes it while `busy()` (a save under way). `read()` gives what the form holds, as one string.
+// Returns `opened()`, to call once the form is filled on opening.
+export function keepEdits(dialog, read, unsaved, busy = () => false) {
+  let start = '';
+  const mayClose = () => {
+    if (busy()) return false;
+    if (read() === start) return true;
+    unsaved();
+    return false;
+  };
+  dialog.addEventListener('cancel', e => {
+    if (!mayClose()) e.preventDefault();
+  });
+  closeOnBackdrop(dialog, mayClose);
+  return () => {
+    start = read();
+  };
 }

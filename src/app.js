@@ -125,6 +125,8 @@ api.onEvent(event => {
   if (event.type === 'check-update') guard(checkForUpdates)();
   if (event.type === 'update-progress') updateProgress(event.percent);
   if (event.type === 'open-panel') showSection(event.panel, event.section);
+  // The tray's "Mini view": the page goes in or out of it, as its own button does.
+  if (event.type === 'mini' && (event.on ? data.pets.length : isMini())) guard(() => setMini(event.on))();
   if (event.type === 'select') openChat(event.petId);
   if (event.type === 'import-request') importRequested(event.url);
   // A friend's saved place changed; the view already stands there, the record follows.

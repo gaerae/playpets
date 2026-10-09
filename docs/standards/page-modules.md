@@ -10,7 +10,7 @@ Not covered: test code in `tests/` and development tools in `scripts/`. Both are
 - Modules do not import each other in a cycle. When a lower layer (a drawing module such as `yard/views.js`) needs behavior from a higher layer (play, opening a panel), it does not import it; it receives the function as a `setup` argument.
 - The `import` paths and names in a new module match the actual file's `export`.
 - Sentences shown on the page are not written in code; use keys from the strings table. Follow the [i18n standard](i18n.md).
-- Style files are loaded in the order `base.css` → `shell.css` → `yard.css` → `panel.css` → `dialog.css`, and new rules go in the file for their area. The order in which media queries apply depends on this order.
+- Style files are loaded in the order `base.css` → `shell.css` → `scenery.css` → `yard.css` → `panel.css` → `dialog.css`, and new rules go in the file for their area (`scenery.css` is what stands behind the friends: sky, hills, trees, weather). The order in which media queries apply depends on this order.
 - Select boxes do not rely on the engine's default look; specify their whole appearance. The same stylesheet has to look the same in WebKit on macOS and Linux and in WebView2 on Windows.
 - Loops and animations that redraw the page follow the [performance standard](performance.md).
 

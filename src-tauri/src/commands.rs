@@ -214,6 +214,7 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
                 Ok(Value::Null)
             }
             "e2eWindow" if e2e_mode() => window::e2e_window(&app, &args),
+            "e2eTray" if e2e_mode() => Ok(crate::tray::e2e_state()),
             _ => Err(i18n::t("error.not_allowed")),
         }
     };

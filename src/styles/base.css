@@ -297,11 +297,3 @@ select {
   width: 13px;
   height: 13px;
 }
-.button.icon-only {
-  padding: 10px;
-  min-width: 42px;
-}
-.button.icon-only svg {
-  width: 18px;
-  height: 18px;
-}

@@ -50,6 +50,10 @@ const endpoint = `http://127.0.0.1:${provider.address().port}`;
 // reads off the screen comes from the Korean table rather than being typed out here.
 const say = key => JSON.stringify(KO[key]);
 const stopGame = game => KO['game.stop'].replace('{name}', KO[game]);
+// The tray speaks from the backend's own Korean table.
+const TRAY_KO_WAITING = (await readFile(path.join(here, '../src-tauri/src/i18n/ko.rs'), 'utf8')).match(
+  /"tray\.state_waiting", "([^"]+)"/,
+)[1];
 const literal = text => text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const scenario = `(async()=>{
   const L=m=>window.__TAURI__.core.invoke('call',{name:'e2eLog',args:[m]});
@@ -72,6 +76,9 @@ const scenario = `(async()=>{
     await until(()=>document.querySelectorAll('#starter-picks .starter').length===3);
     const $$=id=>document.getElementById(id),painted=c=>{const d=c.getContext('2d').getImageData(0,0,192,208).data;for(let i=3;i<d.length;i+=40)if(d[i])return true;return false;};
     await until(()=>[...document.querySelectorAll('#starter-picks canvas')].every(painted));
+    const trayAt=async()=>(await window.__TAURI__.core.invoke('call',{name:'e2eTray',args:[]})).data||{items:[],tooltip:''};
+    const tray0=await until(async()=>(await trayAt()).items.length&&await trayAt());
+    await L('trayEmpty='+(!tray0.items.some(i=>/^(mini|desktop|wander)/.test(i))&&tray0.items[0]==='open'&&tray0.items.at(-1)==='quit'?'no-switches':'err:'+tray0.items.join(',')));
     await L('welcome='+(!$$('empty-yard').hidden&&!$$('welcome').hidden&&$$('next-steps').hidden&&[...document.querySelectorAll('#starter-picks canvas')].every(painted)?'starters':'err')+'/'+(getComputedStyle(document.querySelector('.play-toolbar')).display==='none'?'no-toolbar':'toolbar'));
     // Pets are drawn from the app's own sprite address, which the page's CSP must let in on every system.
     const img=new Image();img.src=fx.spriteUrl;
@@ -238,6 +245,11 @@ const scenario = `(async()=>{
     $('remove-friend').click();await wait(300);$('confirm-ok').click();await until(async()=>!(await playPets.bootstrap()).data.pets.some(p=>p.id===guest.id)&&document.querySelectorAll('.yard-pet').length===before);
     const gone=!(await playPets.bootstrap()).data.pets.some(p=>p.id===guest.id)&&document.querySelectorAll('.yard-pet').length===before;
     await L('sendAway='+(confirmAsked&&kept&&gone?'asks-then-removes':'err:'+confirmAsked+'/'+kept+'/'+gone));
+    // A coding agent waiting for the person shows in the tray's tooltip (and a mark on the icon).
+    await L('ask=waiting');
+    await until(async()=>(await playPets.bootstrap()).data.statuses[p2.data.id]?.state==='waiting',8000);
+    const trayWait=await until(async()=>{const t=await trayAt();return t.tooltip.includes('둘째')&&t;},5000);
+    await L('trayWaiting='+(trayWait&&trayWait.tooltip.includes(${JSON.stringify(TRAY_KO_WAITING)})?'tooltip':'err:'+JSON.stringify(await trayAt())));
     await must('removePet2',playPets.removePet(p2.data.id));
     const snippet=await playPets.copyConnection('claude');
     await L('snippet='+(snippet.ok&&snippet.data.includes('hook claude')&&!snippet.data.includes('node ')?'binary':'err'));
@@ -257,6 +269,8 @@ const scenario = `(async()=>{
     const b2=await playPets.bootstrap();
     await L('overlayLayout='+b2.data.desktopLayout.length);
     await must('wanderOn',playPets.toggleDesktopWander());
+    const trayDesk=await until(async()=>{const t=await trayAt();return t.items.includes('wander:on')&&t;},5000);
+    await L('traySwitches='+(trayDesk&&trayDesk.items.includes('desktop:on')&&trayDesk.items.includes('mini:off')?'checked':'err:'+JSON.stringify(await trayAt())));
     await must('removeProvider',playPets.removeProvider(save.data.id));
     const b3=await playPets.bootstrap();
     await L('detached='+(b3.data.pets[0].providerId===''&&b3.data.providers.length===0));
@@ -299,6 +313,12 @@ child.stdout.on('data', d => {
     console.log(' ', msg);
     if (msg === 'DONE' || msg.startsWith('FATAL')) done = true;
     if (msg === 'attach=ok') agentReports();
+    if (msg === 'ask=waiting')
+      spawnSync(binary, ['status', 'waiting', '--pet', '둘째', '--bridge', path.join(dataDir, 'bridge.json')], {
+        encoding: 'utf8',
+        timeout: 5000,
+        env: { ...process.env, PLAYPETS_E2E_EVAL: '' },
+      });
   }
 });
 // Plays a coding agent through the app binary's own CLI mode — no Node.js involved.
@@ -418,6 +438,9 @@ const expect = [
     'a word for a friend with no AI is sent once one is connected from the dialog cards',
   ],
   [/^welcome=starters\/no-toolbar$/, 'an empty yard shows the starter pets to pick'],
+  [/^trayEmpty=no-switches$/, 'with no friend the tray menu has no switches for showing friends'],
+  [/^trayWaiting=tooltip$/, 'a coding agent waiting for the person shows in the tray tooltip'],
+  [/^traySwitches=checked$/, 'the tray shows desktop mode and strolling with check marks'],
   [/^sendAway=asks-then-removes$/, 'send a friend away from the friend tab (Cancel keeps, confirm removes)'],
   [/^desktopOn=ok/, 'turn on desktop mode'],
   [/^overlayLayout=[1-9]/, 'overlay layout created'],

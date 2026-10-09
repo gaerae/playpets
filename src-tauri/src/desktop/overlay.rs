@@ -1,6 +1,8 @@
 // Desktop overlay: one transparent, click-through window per monitor. Rust owns positions,
 // drags, hover hit-testing and desktop roaming; the page (src/overlay/overlay.js) only draws.
+use super::macos::{float_over_fullscreen, restore_window_class};
 use super::roam::{self, Bounds};
+use super::screens::{Mon, clamp_to, cursor_to_logical, monitor_of_box, monitors};
 use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -94,83 +96,6 @@ fn rand01() -> f64 {
     })
 }
 
-/// A monitor: its work area in logical pixels, and its full rectangle in physical ones.
-#[derive(Clone)]
-struct Mon {
-    id: String,
-    area: Bounds,
-    physical: Bounds,
-    scale: f64,
-}
-
-fn monitors(app: &AppHandle) -> Vec<Mon> {
-    app.available_monitors()
-        .unwrap_or_default()
-        .iter()
-        .enumerate()
-        .map(|(i, m)| {
-            let scale = m.scale_factor();
-            let work = m.work_area();
-            let (pos, size) = (
-                work.position.to_logical::<f64>(scale),
-                work.size.to_logical::<f64>(scale),
-            );
-            let physical = Bounds {
-                x: m.position().x as f64,
-                y: m.position().y as f64,
-                w: m.size().width as f64,
-                h: m.size().height as f64,
-            };
-            Mon {
-                id: i.to_string(),
-                area: Bounds {
-                    x: pos.x,
-                    y: pos.y,
-                    w: size.width,
-                    h: size.height,
-                },
-                physical,
-                scale,
-            }
-        })
-        .collect()
-}
-
-/// The monitor a point is on: the work area that holds it, or else the one whose edge is
-/// closest (a point dragged past every screen, or onto a menu bar or taskbar).
-fn monitor_for(mons: &[Mon], x: f64, y: f64) -> Option<&Mon> {
-    let gap = |a: &Bounds| {
-        let dx = (a.x - x).max(0.0).max(x - (a.x + a.w));
-        let dy = (a.y - y).max(0.0).max(y - (a.y + a.h));
-        dx * dx + dy * dy
-    };
-    mons.iter().min_by(|a, b| gap(&a.area).total_cmp(&gap(&b.area)))
-}
-
-/// The monitor a friend's box is on, by the box's centre.
-fn monitor_of_box(mons: &[Mon], x: f64, y: f64, (w, h): (f64, f64)) -> Option<&Mon> {
-    monitor_for(mons, x + w / 2.0, y + h / 2.0)
-}
-
-/// Maps tao's physical cursor into the logical space `monitors` uses (each monitor's
-/// physical origin divided by its own scale). macOS: tao already scaled the logical
-/// point by the primary monitor's factor. Windows/Linux: the point is raw pixels, so the
-/// monitor under the cursor decides the scale — dividing by the primary scale puts the
-/// cursor in the wrong place on a secondary monitor with a different scale.
-fn cursor_to_logical(p: (f64, f64), mons: &[Mon], primary_scale: f64, macos: bool) -> (f64, f64) {
-    if macos {
-        return (p.0 / primary_scale, p.1 / primary_scale);
-    }
-    let under = mons.iter().find(|m| {
-        p.0 >= m.physical.x
-            && p.0 < m.physical.x + m.physical.w
-            && p.1 >= m.physical.y
-            && p.1 < m.physical.y + m.physical.h
-    });
-    let scale = under.map(|m| m.scale).unwrap_or(primary_scale);
-    (p.0 / scale, p.1 / scale)
-}
-
 /// The monitors, asked for again when the last answer is older than MONITOR_REFRESH.
 /// Never called with `inner` locked: asking goes through the main thread.
 fn current_monitors(app: &AppHandle, inner: &Mutex<Inner>) -> (Vec<Mon>, f64) {
@@ -202,13 +127,6 @@ fn cursor_in(app: &AppHandle, mons: &[Mon], primary_scale: f64) -> Option<(f64, 
         primary_scale,
         cfg!(target_os = "macos"),
     ))
-}
-
-fn clamp_to(area: &Bounds, x: f64, y: f64, w: f64, h: f64) -> (f64, f64) {
-    (
-        x.max(area.x).min(area.x + area.w - w),
-        y.max(area.y).min(area.y + area.h - h),
-    )
 }
 
 impl Overlay {
@@ -297,81 +215,6 @@ fn layout_of(d: &Inner, mons: &[Mon]) -> Vec<Value> {
         })
         .collect()
 }
-
-/// Since macOS 10.14 a regular app's NSWindow cannot float over another app's
-/// fullscreen Space; a non-activating NSPanel can. tao only builds NSWindows, so the
-/// overlay is re-classed as an NSPanel subclass. That is memory-safe because NSPanel
-/// adds no instance variables (same instance size as NSWindow) and the subclass
-/// re-declares tao's single `focusable` ivar at the same position.
-/// tao's own class is remembered so the window can be handed back before it closes.
-#[cfg(target_os = "macos")]
-static TAO_WINDOW_CLASS: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
-#[cfg(target_os = "macos")]
-const NONACTIVATING_PANEL: usize = 1 << 7;
-#[cfg(target_os = "macos")]
-fn float_over_fullscreen(win: &tauri::WebviewWindow) {
-    use objc2::runtime::{AnyClass, AnyObject, Bool, ClassBuilder, Sel};
-    use objc2::{msg_send, sel};
-    use std::sync::OnceLock;
-    const CAN_JOIN_ALL_SPACES: usize = 1 << 0;
-    const STATIONARY: usize = 1 << 4;
-    const IGNORES_CYCLE: usize = 1 << 6;
-    const FULL_SCREEN_AUXILIARY: usize = 1 << 8;
-    const STATUS_WINDOW_LEVEL: isize = 25;
-    extern "C" fn never(_: &AnyObject, _: Sel) -> Bool {
-        Bool::NO
-    }
-    static PANEL: OnceLock<Option<&'static AnyClass>> = OnceLock::new();
-    let panel = PANEL.get_or_init(|| {
-        let superclass = AnyClass::get(c"NSPanel")?;
-        let mut builder = ClassBuilder::new(c"PlayPetsOverlayPanel", superclass)?;
-        builder.add_ivar::<Bool>(c"focusable");
-        unsafe {
-            builder.add_method(sel!(canBecomeKeyWindow), never as extern "C" fn(_, _) -> _);
-            builder.add_method(sel!(canBecomeMainWindow), never as extern "C" fn(_, _) -> _);
-        }
-        Some(builder.register())
-    });
-    let Ok(ptr) = win.ns_window() else { return };
-    let window = ptr as *mut AnyObject;
-    unsafe {
-        let size_matches = AnyClass::get(c"NSPanel")
-            .zip(AnyClass::get(c"NSWindow"))
-            .is_some_and(|(p, w)| p.instance_size() == w.instance_size());
-        if let (Some(panel), true) = (panel, size_matches) {
-            let original = objc2::ffi::object_setClass(window, *panel as *const AnyClass);
-            TAO_WINDOW_CLASS.get_or_init(|| original as usize);
-            let mask: usize = msg_send![window, styleMask];
-            let _: () = msg_send![window, setStyleMask: mask | NONACTIVATING_PANEL];
-            let _: () = msg_send![window, setHidesOnDeactivate: false];
-            let _: () = msg_send![window, setFloatingPanel: true];
-        }
-        let behavior: usize = msg_send![window, collectionBehavior];
-        let _: () = msg_send![window, setCollectionBehavior: behavior | CAN_JOIN_ALL_SPACES | STATIONARY | IGNORES_CYCLE | FULL_SCREEN_AUXILIARY];
-        let _: () = msg_send![window, setLevel: STATUS_WINDOW_LEVEL];
-    }
-}
-#[cfg(not(target_os = "macos"))]
-fn float_over_fullscreen(_win: &tauri::WebviewWindow) {}
-
-/// Closing a re-classed window makes tao's teardown raise an Objective-C exception, which
-/// aborts the whole app. The overlay becomes a plain tao window again before it closes.
-#[cfg(target_os = "macos")]
-fn restore_window_class(win: &tauri::WebviewWindow) {
-    use objc2::msg_send;
-    use objc2::runtime::{AnyClass, AnyObject};
-    let (Some(&original), Ok(ptr)) = (TAO_WINDOW_CLASS.get(), win.ns_window()) else {
-        return;
-    };
-    let window = ptr as *mut AnyObject;
-    unsafe {
-        let mask: usize = msg_send![window, styleMask];
-        let _: () = msg_send![window, setStyleMask: mask & !NONACTIVATING_PANEL];
-        objc2::ffi::object_setClass(window, original as *const AnyClass);
-    }
-}
-#[cfg(not(target_os = "macos"))]
-fn restore_window_class(_win: &tauri::WebviewWindow) {}
 
 fn bridge_js(display: &str) -> String {
     format!("{}\nwindow.__DISPLAY='{}';", crate::commands::bridge_js(), display)
@@ -646,71 +489,5 @@ pub fn stop_drag_and_save(overlay: &Overlay, app: &AppHandle, on_position: &Posi
     finish_drag(&mut overlay.inner.lock().unwrap(), &mons, &mut arrivals);
     for (id, x, y) in arrivals {
         on_position(&id, x, y);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn mon(id: &str, px: f64, py: f64, pw: f64, ph: f64, scale: f64) -> Mon {
-        let b = |x: f64, y: f64, w: f64, h: f64| Bounds { x, y, w, h };
-        Mon {
-            id: id.into(),
-            area: b(px / scale, py / scale, pw / scale, ph / scale),
-            physical: b(px, py, pw, ph),
-            scale,
-        }
-    }
-
-    #[test]
-    fn a_friend_belongs_to_the_monitor_it_stands_on() {
-        // Two 1920×1080 monitors side by side: a friend set down on the right part of the left
-        // one stays there (the old rule measured to each monitor's top-left corner and moved it).
-        let twins = [
-            mon("0", 0.0, 0.0, 1920.0, 1080.0, 1.0),
-            mon("1", 1920.0, 0.0, 1920.0, 1080.0, 1.0),
-        ];
-        assert_eq!(monitor_for(&twins, 1500.0, 800.0).map(|m| m.id.as_str()), Some("0"));
-        assert_eq!(monitor_for(&twins, 2000.0, 100.0).map(|m| m.id.as_str()), Some("1"));
-        // A wide monitor beside a small one: near the shared edge, still the wide one
-        // (the old layout rule picked the monitor whose centre was closer).
-        let mixed = [
-            mon("0", 0.0, 0.0, 2560.0, 1440.0, 1.0),
-            mon("1", 2560.0, 0.0, 1280.0, 1024.0, 1.0),
-        ];
-        assert_eq!(monitor_for(&mixed, 2300.0, 700.0).map(|m| m.id.as_str()), Some("0"));
-        // Off every monitor (dragged past an edge): the closest one by distance to its edges.
-        assert_eq!(monitor_for(&mixed, 3000.0, 1300.0).map(|m| m.id.as_str()), Some("1"));
-        assert_eq!(monitor_for(&mixed, -50.0, 700.0).map(|m| m.id.as_str()), Some("0"));
-    }
-
-    #[test]
-    fn mixed_dpi_cursor_lands_on_the_monitor_under_it() {
-        // Windows: 4K primary at 150%, 1080p secondary at 100% to its right.
-        let mons = [
-            mon("0", 0.0, 0.0, 3840.0, 2160.0, 1.5),
-            mon("1", 3840.0, 0.0, 1920.0, 1080.0, 1.0),
-        ];
-        let on_secondary = cursor_to_logical((4000.0, 100.0), &mons, 1.5, false);
-        assert_eq!(on_secondary, (4000.0, 100.0));
-        let area = &mons[1].area;
-        assert!(
-            on_secondary.0 >= area.x && on_secondary.0 <= area.x + area.w,
-            "old primary-scale math gave x=2666, outside every monitor"
-        );
-        assert_eq!(cursor_to_logical((300.0, 150.0), &mons, 1.5, false), (200.0, 100.0));
-        // Off every monitor (mid-transition): fall back to the primary scale.
-        assert_eq!(cursor_to_logical((-30.0, 0.0), &mons, 1.5, false), (-20.0, 0.0));
-    }
-
-    #[test]
-    fn macos_cursor_uses_the_primary_scale_tao_applied() {
-        // Retina primary (2x) + 1x external: tao returns logical × primary scale everywhere.
-        let mons = [
-            mon("0", 0.0, 0.0, 3456.0, 2234.0, 2.0),
-            mon("1", 1728.0, 0.0, 1920.0, 1080.0, 1.0),
-        ];
-        assert_eq!(cursor_to_logical((3600.0, 200.0), &mons, 2.0, true), (1800.0, 100.0));
     }
 }

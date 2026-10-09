@@ -1,5 +1,5 @@
 // Connecting an AI: one dialog for every kind of provider.
-import { closeOnBackdrop, confirmAction } from '../core/confirm.js';
+import { confirmAction, keepEdits } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
 import { $, call, data, guard, providerLabel, selected, toast } from '../core/state.js';
 
@@ -113,13 +113,12 @@ export function openConnectionDialog(current, onChange = () => {}) {
   $('dialog-title').textContent = current ? t('connection.title_edit') : t('connection.title_new');
   $('save-provider').textContent = current ? t('connection.save_edit') : t('connection.save_new');
   updateProviderForm();
-  connectionStart = connectionForm();
+  connectionOpened();
   $('connection-dialog').showModal();
 }
 // What the dialog holds, to tell whether anything was typed since it opened.
 const connectionForm = () => [aiType(), ...['ai-model', 'ai-endpoint', 'ai-key'].map(id => $(id).value)].join('\n');
-let connectionStart = '';
-const connectionEdited = () => connectionForm() !== connectionStart;
+let connectionOpened = () => {};
 function updateProviderForm() {
   const d = data.detected || {},
     type = aiType();
@@ -209,14 +208,14 @@ export function setupConnection({ first = () => {} } = {}) {
   $('cancel-dialog').onclick = () => $('connection-dialog').close();
   // A click beside the dialog or Esc does not throw away an address or a key being typed: only
   // Cancel does, and the dialog says so.
-  closeOnBackdrop($('connection-dialog'), () => !dialogSaving && !connectionEdited());
-  $('connection-dialog').addEventListener('cancel', e => {
-    if (dialogSaving) e.preventDefault();
-    else if (connectionEdited()) {
-      e.preventDefault();
+  connectionOpened = keepEdits(
+    $('connection-dialog'),
+    connectionForm,
+    () => {
       $('connection-error').textContent = t('dialog.unsaved');
-    }
-  });
+    },
+    () => dialogSaving,
+  );
   $('connection-form').onsubmit = async e => {
     e.preventDefault();
     if (dialogSaving) return;

@@ -21,11 +21,20 @@ pub fn act(app: &AppHandle, id: &str) {
         // The page shows the update when one was found, and checks on its Settings tab otherwise.
         "update" => open(json!({"type": "check-update"})),
         "desktop" | "wander" => {
-            let state = app.state::<Shared>();
-            let mut d = lock(&state);
-            if let Err(e) = crate::app::toggle_flag(app, &mut d, id == "wander") {
-                d.warnings.push(e);
+            {
+                let state = app.state::<Shared>();
+                let mut d = lock(&state);
+                if let Err(e) = crate::app::toggle_flag(app, &mut d, id == "wander") {
+                    d.warnings.push(e);
+                }
             }
+            // A check item ticks itself when clicked: the menu is built again from what is true.
+            crate::tray::rebuild(app);
+        }
+        // The page leaves or enters the mini window (it ends a game first, and keeps its place).
+        "mini" => {
+            open(json!({"type": "mini", "on": !crate::window::is_mini()}));
+            crate::tray::rebuild(app);
         }
         "quit" => quit(app),
         _ => {}

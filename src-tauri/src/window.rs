@@ -102,6 +102,7 @@ pub fn command(app: &AppHandle, name: &str, args: &[Value]) -> Result<Value, Str
             let on = arg(args, 0).as_bool().unwrap_or(false);
             let saved = app.try_state::<Shared>().and_then(|s| lock(&s).mini_rect);
             set_mini(&w, on, saved);
+            crate::tray::retitle(app);
             return Ok(Value::Bool(on));
         }
         _ => return Err(i18n::t("error.not_allowed")),
@@ -188,6 +189,11 @@ fn rect_now(w: &WebviewWindow) -> Option<Rect> {
 
 /// Whether the window is the mini one now: its moves and sizes are then kept (`moved`).
 static MINI: AtomicBool = AtomicBool::new(false);
+
+/// Whether the yard is in its mini window (the tray shows it with a check mark).
+pub fn is_mini() -> bool {
+    MINI.load(Ordering::SeqCst)
+}
 
 /// The main window moved or changed size: the mini window's place is kept, saved with the
 /// app's state (so it opens there again after a restart too).

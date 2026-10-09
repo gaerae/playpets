@@ -1,12 +1,12 @@
 // Friend settings: name, personality, relationship, size, and sending the friend away.
-import { confirmAction } from '../core/confirm.js';
+import { confirmAction, keepEdits } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
 import { $, asset, call, data, guard, name, pet, selected, temporaryMessages, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 
 // What the form holds, to tell whether anything changed since the dialog opened.
 const petForm = () => ['pet-name', 'pet-persona', 'pet-relation', 'pet-call-me'].map(id => $(id).value).join('\n');
-let petStart = '';
+let petOpened = () => {};
 // A failure is said inside the dialog: a toast would sit under it, behind the backdrop.
 const petError = e => {
   $('pet-error').textContent = spoken(e, t('error.generic'));
@@ -39,7 +39,7 @@ export function setupFriendSettings({ refresh }) {
     $('pet-call-me').value = p.callMe || '';
     showSize(p.size);
     $('pet-error').textContent = '';
-    petStart = petForm();
+    petOpened();
     $('pet-dialog').showModal();
     $('pet-name').focus();
   };
@@ -54,10 +54,8 @@ export function setupFriendSettings({ refresh }) {
     box.focus();
   };
   $('close-pet-dialog').onclick = $('cancel-pet-dialog').onclick = () => $('pet-dialog').close();
-  // Esc keeps unsaved edits: the dialog says to save or press Cancel.
-  $('pet-dialog').addEventListener('cancel', e => {
-    if (petForm() === petStart) return;
-    e.preventDefault();
+  // Esc or a click beside it keeps unsaved edits: the dialog says to save or press Cancel.
+  petOpened = keepEdits($('pet-dialog'), petForm, () => {
     $('pet-error').textContent = t('dialog.unsaved');
   });
   $('pet-form').onsubmit = async e => {
