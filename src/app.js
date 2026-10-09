@@ -11,9 +11,9 @@ import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
-import { drawPreviews, setupInvite } from './panel/invite.js';
+import { drawPreviews, invite, setupInvite } from './panel/invite.js';
 import { checkForUpdates, setupSettings, showSection, updateFound, updateProgress } from './panel/settings.js';
-import { openPanel, PANELS, setupTabs } from './panel/tabs.js';
+import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { render } from './render.js';
 import { isMini, setMini, setupWindow } from './window.js';
 import { react, setupCare, startChatter } from './yard/care.js';
@@ -21,6 +21,7 @@ import { moveFriends } from './yard/motion.js';
 import { gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter, scene, scenery, setupSky } from './yard/sky.js';
 import { bubble, setupViews } from './yard/views.js';
+import { drawWelcome, setupWelcome } from './yard/welcome.js';
 
 // A playpets://import link: any web page can open one once the browser remembers the choice,
 // so the person is asked before anything is downloaded. One request at a time.
@@ -79,6 +80,8 @@ setupConnection({
   // The first friend that can talk: with two or more, they start talking among themselves at once
   // (the thing no other pet app does); with one, the chat box is ready for a first word.
   first: async able => {
+    // A word was waiting to be sent (written before the AI was there): it goes now, nothing else.
+    if ($('message').value.trim()) return;
     if (able >= 2) {
       toast(t('toast.connected_many', { count: able }));
       await startChatter();
@@ -91,6 +94,7 @@ setupConnection({
 });
 setupFriendSettings({ refresh });
 setupInvite({ refresh });
+setupWelcome({ invite, more: openInvite });
 setupSettings();
 
 api.onChange(next => {
@@ -174,6 +178,7 @@ function animate(now) {
   else idleChatter(now);
   scenery.frame(now, dt);
   // The panel's own pictures move only while they can be seen (the mini view hides the panel).
+  if (!isMini() && !$('empty-yard').hidden && !$('welcome').hidden) drawWelcome(now);
   if (!isMini() && !$('side-panel').hidden) {
     if (!$('panel-pet').hidden) drawPortrait(now);
     if (!$('panel-invite').hidden) drawPreviews(now);
@@ -184,7 +189,8 @@ try {
   setData(await call('bootstrap'));
   follow(data.language);
   const saved = recall('panel');
-  openPanel(saved === 'closed' ? null : PANELS.includes(saved) ? saved : data.pets.length ? null : 'invite');
+  // A first start opens on the yard alone: its card shows the starter pets.
+  openPanel(PANELS.includes(saved) ? saved : null);
   render();
   if (recall('mini') && data.pets.length) await setMini(true);
   refreshChat();

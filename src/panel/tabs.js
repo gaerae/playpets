@@ -1,7 +1,7 @@
 // One panel, three tabs. Closed, the yard has the whole window.
 import { t } from '../core/i18n.js';
 import { reduced, release } from '../core/sprites.js';
-import { $, data, guard, remember, toast } from '../core/state.js';
+import { $, data, guard, remember } from '../core/state.js';
 import { setMini } from '../window.js';
 import { quickConnect } from './connection.js';
 export const PANELS = ['pet', 'invite', 'settings'];
@@ -27,6 +27,11 @@ export function openPanel(kind) {
     tab.setAttribute('aria-expanded', String(tab.dataset.panel === kind));
   remember('panel', kind || 'closed');
 }
+// The Invite tab, with the first pet card ready for the keyboard.
+export function openInvite() {
+  openPanel('invite');
+  $('shelf').querySelector('.asset-card')?.focus();
+}
 // Wires the tabs and the buttons that open a panel. Called once, by app.js.
 export function setupTabs() {
   for (const tab of document.querySelectorAll('.panel-tab'))
@@ -42,27 +47,14 @@ export function setupTabs() {
     e.preventDefault();
     openPanel(null);
   };
-  const goInvite = () => {
-    openPanel('invite');
-    $('shelf').querySelector('.asset-card')?.focus();
-  };
-  $('invite-first').onclick = $('go-invite').onclick = goInvite;
-  // The other steps need a friend in the yard; before that they lead to the invite step.
-  const needsFriend = () => {
-    if (data.pets.length) return false;
-    goInvite();
-    toast(t('steps.invite_first'));
-    return true;
-  };
-  // The other two first steps lead to where they are done.
+  $('go-invite').onclick = openInvite;
+  // The steps left once a friend is in lead to where they are done.
   // With a CLI on this computer this connects every friend in one go; otherwise it opens the dialog.
   $('step-ai').onclick = guard(async () => {
-    if (needsFriend()) return;
     openPanel('pet');
     await quickConnect();
   });
   $('step-agent').onclick = () => {
-    if (needsFriend()) return;
     openPanel('settings');
     $('agent-link-title').scrollIntoView({ block: 'start', behavior: reduced.matches ? 'auto' : 'smooth' });
   };

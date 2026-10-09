@@ -56,6 +56,7 @@ const TABLE: &[(&str, &str)] = &[
     ("agent.failed", "作業がエラーで終わりました（コード {name}）"),
 
     ("error.friend_missing", "その友達が見つかりません。"),
+    ("error.autostart", "ログイン時に起動する設定を変更できませんでした。システム設定のログイン項目を確認してください。"),
     ("error.not_allowed", "この操作は許可されていません。"),
     ("error.bad_request", "正しくないリクエストです。"),
     ("error.request_failed", "リクエストを処理できませんでした。"),

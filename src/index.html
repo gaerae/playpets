@@ -201,14 +201,21 @@
                 <use href="#tuft"/>
               </svg>
               <div id="empty-yard" class="empty-yard">
-                <img class="empty-mascot" src="logo.svg" alt="" width="56" height="56">
-                <p data-i18n="steps.title"></p>
-                <ol class="steps-list">
-                  <li data-step="invite"><span class="step-mark" aria-hidden="true"></span><span data-i18n="steps.invite"></span><button id="invite-first" class="button chip" data-i18n="steps.go_invite"></button></li>
-                  <li data-step="ai"><span class="step-mark" aria-hidden="true"></span><span data-i18n="steps.ai"></span><button id="step-ai" class="button chip" data-i18n="steps.go_ai"></button></li>
-                  <li data-step="agent"><span class="step-mark" aria-hidden="true"></span><span data-i18n="steps.agent"></span><button id="step-agent" class="button chip" data-i18n="steps.go_agent"></button></li>
-                </ol>
-                <button id="steps-dismiss" class="button text tiny-dismiss" data-i18n="steps.dismiss" hidden></button>
+                <div id="welcome" class="welcome">
+                  <p class="welcome-title" data-i18n="welcome.title"></p>
+                  <small data-i18n="welcome.lead"></small>
+                  <div id="starter-picks" class="starter-picks"></div>
+                  <button id="welcome-more" class="button text" data-i18n="welcome.more"></button>
+                </div>
+                <div id="next-steps" class="next-steps">
+                  <p data-i18n="steps.title"></p>
+                  <ol class="steps-list">
+                    <li data-step="invite"><span class="step-mark" aria-hidden="true"></span><span data-i18n="steps.invite"></span></li>
+                    <li data-step="ai"><span class="step-mark" aria-hidden="true"></span><span data-i18n="steps.ai"></span><button id="step-ai" class="button chip" data-i18n="steps.go_ai"></button></li>
+                    <li data-step="agent"><span class="step-mark" aria-hidden="true"></span><span data-i18n="steps.agent"></span><button id="step-agent" class="button chip" data-i18n="steps.go_agent"></button></li>
+                  </ol>
+                  <button id="steps-dismiss" class="button text tiny-dismiss" data-i18n="steps.dismiss"></button>
+                </div>
               </div>
               <div id="game-banner" class="game-banner" role="status" aria-live="polite" hidden><small id="banner-label"></small><strong id="banner-title"></strong><span id="banner-sub"></span></div>
               <div id="treat" class="treat" hidden>
@@ -302,6 +309,7 @@
                   <select id="language" class="language-select"></select>
                 </li>
               </ul>
+              <label class="wander-toggle auto-chatter"><input type="checkbox" id="autostart"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.autostart"></span><small data-i18n="settings.autostart_note"></small></span></label>
               <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-chatter"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_chatter"></span><small data-i18n="settings.auto_chatter_note"></small></span></label>
             </section>
             <section class="settings-section" aria-labelledby="agent-link-title">
@@ -428,19 +436,22 @@
           <button type="button" id="close-dialog" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button>
         </div>
         <p class="dialog-description" data-i18n="connection.lead"></p>
-        <label for="ai-type" data-i18n="connection.type"></label>
-        <select id="ai-type"><option value="claude" data-i18n="connection.type_claude"></option><option value="codex" data-i18n="connection.type_codex"></option><option value="ollama" data-i18n="connection.type_ollama"></option><option value="openai">OpenAI API</option><option value="compatible" data-i18n="connection.type_compatible"></option></select>
-        <p id="detected-note" class="tiny detected-chips" hidden></p>
-        <div id="endpoint-field" hidden>
-          <label for="ai-endpoint"><span data-i18n="connection.endpoint"></span><span class="req">*</span></label><input id="ai-endpoint" type="url" placeholder="https://your-server.example/v1">
+        <fieldset id="ai-types" class="ai-types">
+          <legend data-i18n="connection.type"></legend>
+          <label class="ai-type" data-type="claude"><input type="radio" name="ai-type" value="claude"><span class="ai-type-name">Claude Code</span><small data-i18n="connection.about_claude"></small><span class="ai-found" data-i18n="connection.found" hidden></span></label><label class="ai-type" data-type="codex"><input type="radio" name="ai-type" value="codex"><span class="ai-type-name">Codex CLI</span><small data-i18n="connection.about_codex"></small><span class="ai-found" data-i18n="connection.found" hidden></span></label><label class="ai-type" data-type="ollama"><input type="radio" name="ai-type" value="ollama"><span class="ai-type-name">Ollama</span><small data-i18n="connection.about_ollama"></small><span class="ai-found" data-i18n="connection.found" hidden></span></label><label class="ai-type" data-type="openai"><input type="radio" name="ai-type" value="openai"><span class="ai-type-name">OpenAI API</span><small data-i18n="connection.about_openai"></small><span class="ai-found" data-i18n="connection.found" hidden></span></label><label class="ai-type" data-type="compatible"><input type="radio" name="ai-type" value="compatible"><span class="ai-type-name" data-i18n="connection.type_compatible"></span><small data-i18n="connection.about_compatible"></small><span class="ai-found" data-i18n="connection.found" hidden></span></label>
+        </fieldset>
+        <div id="type-fields">
+          <div id="endpoint-field" hidden>
+            <label for="ai-endpoint"><span data-i18n="connection.endpoint"></span><span class="req">*</span></label><input id="ai-endpoint" type="url" placeholder="https://your-server.example/v1">
+          </div>
+          <div id="key-field">
+            <label for="ai-key"><span data-i18n="connection.key"></span><span class="req">*</span></label><input id="ai-key" type="password" autocomplete="off" data-i18n-placeholder="connection.key_placeholder"><small data-i18n="connection.key_note"></small>
+          </div>
+          <label for="ai-model"><span data-i18n="connection.model"></span><span id="model-req" class="req" hidden>*</span></label><input id="ai-model" required maxlength="200" data-i18n-placeholder="connection.model_placeholder" list="model-list" autocomplete="off">
+          <datalist id="model-list"></datalist>
+          <small id="model-status" class="model-status"></small>
+          <p id="provider-note" class="tiny" data-i18n="connection.note_compatible"></p>
         </div>
-        <div id="key-field">
-          <label for="ai-key"><span data-i18n="connection.key"></span><span class="req">*</span></label><input id="ai-key" type="password" autocomplete="off" data-i18n-placeholder="connection.key_placeholder"><small data-i18n="connection.key_note"></small>
-        </div>
-        <label for="ai-model"><span data-i18n="connection.model"></span><span id="model-req" class="req" hidden>*</span></label><input id="ai-model" required maxlength="200" data-i18n-placeholder="connection.model_placeholder" list="model-list" autocomplete="off">
-        <datalist id="model-list"></datalist>
-        <small id="model-status" class="model-status"></small>
-        <p id="provider-note" class="tiny" data-i18n="connection.note_compatible"></p>
         <label id="share-all-field" class="wander-toggle share-all" hidden><input type="checkbox" id="ai-share-all"><span class="wander-switch" aria-hidden="true"></span><span id="ai-share-all-label"></span></label>
         <p id="connection-error" class="form-error" role="alert"></p>
         <div class="dialog-actions">

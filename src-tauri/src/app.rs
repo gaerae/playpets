@@ -55,6 +55,8 @@ pub struct AppData {
     pub auto_chatter: bool,
     /// Where the mini window was last left (window.rs), so it opens there again.
     pub mini_rect: Option<window::Rect>,
+    /// Whether the app starts at login, as the system said at start (not saved: the system keeps it).
+    pub autostart: bool,
     pub providers: Vec<Value>,
     /// Connections this app could not read (a kind from a newer app, say): never shown, written back
     /// as they were so a later app finds them again.
@@ -140,6 +142,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "language": d.language.code(),
         "agentPets": d.agent_pets,
         "autoChatter": d.auto_chatter,
+        "autostart": d.autostart,
         "petLimit": model::LIMIT,
         "limits": {"persona": model::PERSONA_MAX},
         "defaults": {"ollamaEndpoint": http::OLLAMA_DEFAULT},
@@ -497,6 +500,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         agent_pets,
         auto_chatter: raw.get("autoChatter").and_then(|v| v.as_bool()).unwrap_or(false),
         mini_rect: raw.get("miniRect").and_then(window::rect_of),
+        autostart: false,
         providers,
         parked_providers: parked,
         extra: extras(&raw),

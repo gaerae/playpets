@@ -4,7 +4,7 @@ description: General settings, About and app updates, menus and shortcuts, quitt
 
 # Settings
 
-The **Settings** tab has three groups: **General** (Language and the auto chatter switch, **Let them chat now and then**), **Coding agent hooks**, and **About PlayPets** (the version, App updates and the project's pages), then Quit the app. Coding agent hooks are [explained separately](./agents.md). Open it from the tab, with <kbd>⌘</kbd> <kbd>,</kbd> or <kbd>Ctrl</kbd> <kbd>,</kbd>, or with **Settings…** in the tray menu.
+The **Settings** tab has three groups: **General** (Language, **Start PlayPets when you log in**, and the auto chatter switch, **Let them chat now and then**), **Coding agent hooks**, and **About PlayPets** (the version, App updates and the project's pages), then Quit the app. Coding agent hooks are [explained separately](./agents.md). Open it from the tab, with <kbd>⌘</kbd> <kbd>,</kbd> or <kbd>Ctrl</kbd> <kbd>,</kbd>, or with **Settings…** in the tray menu.
 
 ## Language <Since v="0.1.0" />
 
@@ -14,9 +14,13 @@ Your friends' chatter and greetings use the chosen language as well. Conversatio
 
 Start the app with the environment variable `PLAYPETS_LANG=ko|en|ja|zh-hans` and it takes priority over the saved language. This is for testing.
 
+## Start PlayPets when you log in <Since v="0.1.0" />
+
+Turn this on and PlayPets starts whenever you log in to your computer. It is off by default. With desktop mode on, the yard window does not open at login: your friends come out on the desktop, and the window waits in the tray. The system keeps this choice (Login Items on macOS, the Run list on Windows, an autostart entry on Linux), so turning it off in either place turns it off.
+
 ## Let them chat now and then <Since v="0.1.0" />
 
-With this switch, right below Language, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default: subscription CLIs cost nothing extra, but the calls add up, so turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
+With this switch, in General, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default: subscription CLIs cost nothing extra, but the calls add up, so turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
 
 ## About PlayPets <Since v="0.1.0" />
 

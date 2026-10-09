@@ -63,6 +63,7 @@ pub const COMMANDS: &[&str] = &[
     "assignAgent",
     "chatter",
     "setAutoChatter",
+    "setAutostart",
     "checkUpdate",
     "installUpdate",
 ];
@@ -149,6 +150,7 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
             "chatWith" => chat::chat_with(&app, &state, &cli, &args),
             "chatter" => chat::chatter(&app, &state, &cli, &args),
             "setAutoChatter" => set_auto_chatter(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
+            "setAutostart" => set_autostart(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
             "getChat" => {
                 let d = lock(&state);
                 let id = text(&args, 0);
@@ -427,6 +429,23 @@ fn set_auto_chatter(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<
     persist(&d)?;
     changed(app, &d);
     Ok(Value::Bool(on))
+}
+
+/// Whether the app starts when the person logs in. The system keeps the answer (a login item on
+/// macOS, the Run key on Windows, an autostart entry on Linux); a test run only pretends.
+fn set_autostart(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
+    let now = if e2e_mode() {
+        on
+    } else {
+        use tauri_plugin_autostart::ManagerExt;
+        let launcher = app.autolaunch();
+        if on { launcher.enable() } else { launcher.disable() }.map_err(|_| i18n::t("error.autostart"))?;
+        launcher.is_enabled().unwrap_or(on)
+    };
+    let mut d = lock(state);
+    d.autostart = now;
+    changed(app, &d);
+    Ok(Value::Bool(now))
 }
 
 /// The language the person chose; the page reloads itself in it, the tray and title follow here.

@@ -333,12 +333,6 @@
     order: 3;
   }
 }
-.detected-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-}
 .friend-chips {
   display: flex;
   flex-wrap: wrap;
@@ -409,20 +403,6 @@
   font-size: 10.5px;
   line-height: 1.45;
   white-space: normal;
-}
-.detect-chip {
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 3px 10px;
-  font-size: 11px;
-  background: var(--white);
-}
-.detect-chip:hover {
-  background: #eef3ef;
-}
-.detect-chip.on {
-  border-color: var(--ink);
-  background: #e9f0ec;
 }
 .button.quit {
   font-size: 12px;
@@ -993,4 +973,77 @@ details.companions .companion-chips {
 /* The connection dialog's "other friends too" switch sits under the note, before the buttons. */
 .share-all {
   margin-top: 10px;
+}
+/* The kinds of AI, as cards to pick from: what each needs is said on it, and what this computer
+   has is marked. The fields for the picked kind follow. */
+.ai-types {
+  border: 0;
+  padding: 0;
+  margin: 0 0 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.ai-types legend {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  padding: 0;
+}
+.ai-type {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.ai-type:hover {
+  border-color: #9fb5ae;
+}
+.ai-type.on {
+  border-color: var(--ink);
+  background: #f1f6f3;
+}
+.ai-type:has(input:focus-visible) {
+  outline: 3px solid #367b90;
+  outline-offset: 2px;
+}
+.ai-type input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ai-type-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+.ai-type small {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.ai-found {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #2c6e57;
+  background: #e3f2ea;
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+.ai-found[hidden] {
+  display: none;
+}
+#type-fields[hidden] {
+  display: none;
 }

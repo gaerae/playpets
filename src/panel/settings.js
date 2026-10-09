@@ -20,7 +20,9 @@ function copied(kind) {
   return t('toast.copied_mcp');
 }
 export function renderDesktopSwitches() {
+  // Both views show friends: with none yet, there is nothing for them to show.
   $('desktop').disabled = !data.pets.length;
+  $('mini').disabled = !data.pets.length;
   const desktopLabel = data.desktop ? t('desktop.hide') : t('desktop.show');
   $('desktop-label').textContent = desktopLabel;
   // A narrow window shows only the icon, so the words are the tooltip and the label too.
@@ -29,6 +31,7 @@ export function renderDesktopSwitches() {
   $('wander-wrap').hidden = !data.desktop;
   $('desktop-wander').checked = !!data.desktopWander;
   $('auto-chatter').checked = !!data.autoChatter;
+  $('autostart').checked = !!data.autostart;
 }
 // App updates. A newer version ({version, notes}) found by a check (the quiet one after start, the
 // Settings row, the tray or the menu bar) shows in three places: a button in the top bar that opens
@@ -227,4 +230,14 @@ export function setupSettings() {
   });
   $('desktop-wander').onchange = guard(() => call('toggleDesktopWander'));
   $('auto-chatter').onchange = guard(() => call('setAutoChatter', $('auto-chatter').checked));
+  // What the system ended up with is shown, also when it refused the change.
+  $('autostart').onchange = guard(async () => {
+    const want = $('autostart').checked;
+    try {
+      $('autostart').checked = await call('setAutostart', want);
+    } catch (e) {
+      $('autostart').checked = !want;
+      throw e;
+    }
+  });
 }

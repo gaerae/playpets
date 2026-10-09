@@ -13,6 +13,7 @@ import {
   pet,
   providerLabel,
   selected,
+  setData,
   temporaryMessages,
   toast,
 } from '../core/state.js';
@@ -102,7 +103,8 @@ export function renderChat(p) {
   const busy = data.busy.includes(p.id);
   $('send').hidden = busy;
   $('cancel').hidden = !busy;
-  $('message').disabled = !p.providerId || busy;
+  // A friend with no AI can still be written to: sending connects one first.
+  $('message').disabled = busy;
   syncSend();
   // Nothing said yet, nothing to clear.
   $('clear-chat').disabled = busy || !hasHistory;
@@ -220,7 +222,8 @@ export function chatEvent(event) {
 // The composer grows with the text; the send button wakes up once there is something to send.
 function syncSend() {
   const box = $('message');
-  $('send').disabled = !pet()?.providerId || !box.value.trim();
+  // With no AI yet, sending opens the connection first (see the form's submit).
+  $('send').disabled = !box.value.trim();
   box.style.height = 'auto';
   box.style.height = `${Math.min(140, box.scrollHeight + 2)}px`;
 }
@@ -242,7 +245,16 @@ export function setupChat() {
     e.preventDefault();
     const id = selected,
       text = $('message').value.trim();
-    if (!text || !pet()?.providerId || data.busy.includes(id)) return;
+    if (!text || data.busy.includes(id)) return;
+    // A word for a friend with no AI yet is kept: connecting one sends it.
+    if (!pet()?.providerId) {
+      openConnectionDialog(null, async () => {
+        setData(await call('bootstrap'));
+        refreshChat();
+        if (selected === id && pet()?.providerId && $('message').value.trim()) $('chat-form').requestSubmit();
+      });
+      return;
+    }
     $('message').value = '';
     syncSend();
     temporaryMessages.set(id, { role: 'user', content: text });

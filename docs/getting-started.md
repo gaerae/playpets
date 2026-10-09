@@ -77,7 +77,7 @@ cargo build --release --manifest-path src-tauri/Cargo.toml && PLAYPETS_DATA="$PW
 ## Verification
 - At the end of `npm test`, Rust prints `test result: ok` and Node prints `fail 0`.
 - At the end of `npm run test:e2e`, `PASS: tauri e2e` is printed.
-- The app opens, and with no pets the yard shows the "Three steps to start" card and the panel asks "Who do you want to play with?".
+- The app opens, and with no pets the yard asks "Who would you like to play with?" over the three starter pets.
 - `.dev-data/state.json` is created, and the friend you invited is in it.
 
 ## Troubleshooting

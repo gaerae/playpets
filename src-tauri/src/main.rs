@@ -38,12 +38,20 @@ fn main() {
     if agent::cli::is_cli(&cli_args) {
         std::process::exit(agent::cli::run(&cli_args[1..]));
     }
+    let at_login = cli_args.iter().any(|a| a == AUTOSTART_ARG);
     let mut builder = tauri::Builder::default();
     // A second launch normally just brings the running app forward and hands over any link it
     // was opened with (the single-instance plugin goes first for that). The e2e harness runs a
     // throwaway instance with its own data folder, so it must not defer to the user's app.
     if !commands::e2e_mode() {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| window::show(app)));
+    }
+    // Starting at login: a test run must not add the app to the person's login items.
+    if !commands::e2e_mode() {
+        builder = builder.plugin(tauri_plugin_autostart::init(
+            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            Some(vec![AUTOSTART_ARG]),
+        ));
     }
     builder = builder
         .plugin(tauri_plugin_dialog::init())
@@ -57,8 +65,15 @@ fn main() {
             tauri::async_runtime::spawn_blocking(move || responder.respond(app::sprite_response(&app, request.uri())));
         })
         .invoke_handler(tauri::generate_handler![commands::call])
-        .setup(|app| {
-            let data = app::load_state(app)?;
+        .setup(move |app| {
+            let mut data = app::load_state(app)?;
+            if !commands::e2e_mode() {
+                use tauri_plugin_autostart::ManagerExt;
+                data.autostart = app.autolaunch().is_enabled().unwrap_or(false);
+            }
+            // Started at login with friends on the desktop, the app stays out of the way: the
+            // friends come out, the yard window waits in the tray.
+            let quiet = at_login && data.desktop;
             app.manage(Mutex::new(data));
             app.manage(CliHandle(chat::cli::CliManager::new()));
             app.manage(update::Found::default());
@@ -120,6 +135,9 @@ fn main() {
                 _ => {}
             });
 
+            if quiet {
+                window::hide(app.handle());
+            }
             tray::build(app)?;
             chat::providers::detect(app.handle().clone());
             agent::start(app);
@@ -140,6 +158,9 @@ fn main() {
             }
         });
 }
+
+/// The argument the system starts the app with at login (see the autostart plugin above).
+const AUTOSTART_ARG: &str = "--autostart";
 
 /// The desktop overlay, told where friends are set down so it is kept for the next start.
 fn start_overlay(app: &tauri::App) {

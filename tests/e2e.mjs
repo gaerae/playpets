@@ -67,6 +67,12 @@ const scenario = `(async()=>{
     const fx=boot.data.assets.find(x=>x.displayName==='Fixture');
     await L('builtin='+boot.data.assets.filter(x=>x.place==='builtin').length);
     await L('place='+fx.place+'/'+(boot.data.petFolders.codex.endsWith('pets')?'folder-known':'err'));
+    // An empty yard asks who to play with: the starter pets, moving, with no toolbar. (Whether the
+    // panel is open depends on the last run: the webview keeps its storage.)
+    await until(()=>document.querySelectorAll('#starter-picks .starter').length===3);
+    const $$=id=>document.getElementById(id),painted=c=>{const d=c.getContext('2d').getImageData(0,0,192,208).data;for(let i=3;i<d.length;i+=40)if(d[i])return true;return false;};
+    await until(()=>[...document.querySelectorAll('#starter-picks canvas')].every(painted));
+    await L('welcome='+(!$$('empty-yard').hidden&&!$$('welcome').hidden&&$$('next-steps').hidden&&[...document.querySelectorAll('#starter-picks canvas')].every(painted)?'starters':'err')+'/'+(getComputedStyle(document.querySelector('.play-toolbar')).display==='none'?'no-toolbar':'toolbar'));
     // Pets are drawn from the app's own sprite address, which the page's CSP must let in on every system.
     const img=new Image();img.src=fx.spriteUrl;
     await L('spriteLoads='+await img.decode().then(()=>img.naturalWidth,e=>'err:'+e.message));
@@ -204,6 +210,25 @@ const scenario = `(async()=>{
     document.querySelector('.panel-tab[data-panel=pet]').click();await wait(200);
     $('configure').click();await wait(300);const dialogOpen=$('connection-dialog').open;$('cancel-dialog').click();
     await L('pageButtons='+(invited&&dialogOpen?'invite-and-connect':'err:'+invited+'/'+dialogOpen));
+    // A word written to a friend with no AI waits for one: sending opens the connection dialog,
+    // picking a kind on its cards and connecting sends the word.
+    const guestId=after.at(-1).id;
+    $('message').value='처음 인사';$('message').dispatchEvent(new Event('input'));
+    const typable=!$('message').disabled&&!$('send').disabled;
+    $('chat-form').requestSubmit();await until(()=>$('connection-dialog').open);
+    document.querySelector('.ai-type[data-type=ollama] input').click();await wait(100);
+    $('ai-endpoint').value='${endpoint}';$('ai-endpoint').dispatchEvent(new Event('change'));$('ai-model').value='flow-model';$('ai-share-all').checked=false;
+    $('save-provider').click();
+    await until(async()=>((await playPets.getChat(guestId)).data||[]).length>=2,15000);
+    const sent=(await playPets.getChat(guestId)).data||[];
+    // Starting at login is one switch in Settings (a test run only pretends to the system).
+    $('autostart').click();await until(async()=>(await playPets.bootstrap()).data.autostart===true);
+    const startsOn=$('autostart').checked;$('autostart').click();await until(async()=>(await playPets.bootstrap()).data.autostart===false);
+    await L('autostart='+(startsOn&&!$('autostart').checked?'switches':'err'));
+    await L('waitingWord='+(typable&&sent[0]?.content==='처음 인사'&&sent.length>=2&&$('message').value===''?'sent-after-connect':'err:'+typable+'/'+JSON.stringify(sent).slice(0,90)));
+    // The connection made here goes again, so the checks below count only their own.
+    const madeHere=(await playPets.bootstrap()).data.pets.find(q=>q.id===guestId)?.providerId;
+    if(madeHere)await playPets.removeProvider(madeHere);
     // Sending a friend away from the friend tab asks first, by name: Cancel keeps everyone, confirming does not.
     const guest=after.at(-1);
     $('remove-friend').click();await wait(300);
@@ -388,6 +413,11 @@ const expect = [
   [/^spriteLoads=1536$/, 'pet sprites load under the page security policy'],
   [/^gamesKeepHome=true$/, 'positions during games are not saved'],
   [/^pageButtons=invite-and-connect$/, 'invite and open the AI connection dialog with page buttons'],
+  [
+    /^waitingWord=sent-after-connect$/,
+    'a word for a friend with no AI is sent once one is connected from the dialog cards',
+  ],
+  [/^welcome=starters\/no-toolbar$/, 'an empty yard shows the starter pets to pick'],
   [/^sendAway=asks-then-removes$/, 'send a friend away from the friend tab (Cancel keeps, confirm removes)'],
   [/^desktopOn=ok/, 'turn on desktop mode'],
   [/^overlayLayout=[1-9]/, 'overlay layout created'],

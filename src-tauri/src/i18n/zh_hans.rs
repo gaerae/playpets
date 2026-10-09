@@ -56,6 +56,7 @@ const TABLE: &[(&str, &str)] = &[
     ("agent.failed", "任务因错误结束（代码 {name}）"),
 
     ("error.friend_missing", "找不到这位伙伴。"),
+    ("error.autostart", "无法更改登录时启动的设置。请检查系统设置中的登录项。"),
     ("error.not_allowed", "不允许的请求。"),
     ("error.bad_request", "无效的请求。"),
     ("error.request_failed", "无法处理请求。"),

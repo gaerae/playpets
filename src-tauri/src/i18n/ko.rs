@@ -56,6 +56,7 @@ const TABLE: &[(&str, &str)] = &[
     ("agent.failed", "작업이 오류로 끝났어요 (코드 {name})"),
 
     ("error.friend_missing", "친구를 찾을 수 없어요."),
+    ("error.autostart", "로그인할 때 시작하도록 바꾸지 못했어요. 시스템 설정의 로그인 항목을 확인해 주세요."),
     ("error.not_allowed", "허용되지 않은 요청이에요."),
     ("error.bad_request", "잘못된 요청이에요."),
     ("error.request_failed", "요청을 처리하지 못했어요."),

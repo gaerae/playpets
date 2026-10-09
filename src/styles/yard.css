@@ -665,7 +665,8 @@ body.mini .yard-pet:focus-visible .pet-tag {
    --orb-y once a minute, the centre of the disc). */
 .sky-body {
   position: absolute;
-  height: 9%;
+  /* in a tall window the disc stops growing, so it stays a sun and not a lamp */
+  height: min(9%, 64px);
   aspect-ratio: 1;
   border-radius: 50%;
   background: radial-gradient(circle at 38% 36%, #fff6, transparent 60%), var(--orb);
@@ -714,7 +715,7 @@ body.mini .yard-pet:focus-visible .pet-tag {
 /* The moon in tonight's phase: a disc of night sky slides across it (--moon-shade, in percent of
    its width, from sky.js). */
 .period-night .sky-body {
-  height: 8%;
+  height: min(8%, 56px);
   overflow: hidden;
   background:
     radial-gradient(circle at 34% 30%, #d9d3b8 0 9%, transparent 10%),
@@ -1101,10 +1102,6 @@ body.mini .yard {
   width: max-content;
   max-width: calc(100% - 32px);
 }
-.empty-mascot {
-  width: 56px;
-  height: 56px;
-}
 .empty-yard p {
   font-size: 15px;
   font-weight: 700;
@@ -1113,11 +1110,66 @@ body.mini .yard {
   font-size: 12px;
   color: var(--muted);
 }
-.empty-yard .button {
-  min-height: 36px;
-  font-size: 12.5px;
-  padding: 8px 18px;
-  margin-top: 4px;
+/* An empty yard asks who to play with: the starter pets, each a big button that waves back. */
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.welcome[hidden],
+.next-steps[hidden] {
+  display: none;
+}
+.welcome-title {
+  font-size: 17px;
+}
+.starter-picks {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 2px;
+}
+.starter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 112px;
+  padding: 8px 6px 10px;
+  border: 1.5px solid transparent;
+  border-radius: 16px;
+  background: #f4f8f3;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.15s;
+}
+.starter canvas {
+  width: 88px;
+  height: 95px;
+}
+.starter:hover {
+  background: #fff;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.starter:active {
+  transform: translateY(0);
+}
+.starter:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.welcome .button.text {
+  font-size: 12px;
+  color: var(--muted);
+  min-height: 28px;
+  padding: 4px 8px;
 }
 /* once friends are in the yard the card steps aside, small, up in the sky where nobody walks */
 .empty-yard.aside {
@@ -1130,8 +1182,10 @@ body.mini .yard {
   align-items: stretch;
   max-width: 300px;
 }
-.empty-yard.aside .empty-mascot {
-  display: none;
+.next-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 .empty-yard.aside p {
   font-size: 12.5px;
@@ -1173,11 +1227,6 @@ body.mini .yard {
   color: var(--muted);
   text-decoration: line-through;
 }
-/* A step that waits for a friend still leads somewhere (to the invite step), but reads as later. */
-.steps-list li.waiting > span:nth-child(2),
-.steps-list li.waiting .button {
-  opacity: 0.55;
-}
 .steps-list li.done .button {
   visibility: hidden;
 }
@@ -1194,6 +1243,10 @@ body.mini .yard {
   font-size: 11px;
   color: var(--muted);
   align-self: flex-end;
+}
+/* With no friend in the yard the toolbar has nothing to act on, and goes. */
+.layout.no-friends .play-toolbar {
+  display: none;
 }
 /* ---- what a game is asking for, said large at the head of the yard ---- */
 .game-banner {

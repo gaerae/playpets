@@ -52,10 +52,17 @@ let editProvider = null;
 let afterChange = () => {};
 // What to do once the very first friend can talk; app.js says (a chat between friends, or the chat box).
 let onFirstConnection = () => {};
+// What this computer has, as a kind to start from; nothing found leaves the choice to the person.
 const detectedType = () => {
   const d = data.detected || {};
-  return d.claude ? 'claude' : d.codex ? 'codex' : d.ollama?.length ? 'ollama' : 'openai';
+  return d.claude ? 'claude' : d.codex ? 'codex' : d.ollama?.length ? 'ollama' : '';
 };
+// The kind of AI picked on the dialog's cards ('' while none is).
+const aiType = () => $('connection-form').querySelector('input[name="ai-type"]:checked')?.value || '';
+function setAiType(type) {
+  for (const input of $('connection-form').querySelectorAll('input[name="ai-type"]'))
+    input.checked = input.value === type;
+}
 /** The subscription CLI found on this computer, by its label, when one is (no key needed). */
 export function detectedLabel() {
   const d = data.detected || {};
@@ -97,7 +104,7 @@ export function openConnectionDialog(current, onChange = () => {}) {
   $('ai-share-all-label').textContent = t('connection.share_all', { count: others });
   $('connection-form').reset();
   $('connection-error').textContent = '';
-  $('ai-type').value = current?.type || detectedType();
+  setAiType(current?.type || detectedType());
   $('ai-model').value = current?.model || '';
   $('ai-endpoint').value = current?.endpoint || '';
   $('ai-key').value = '';
@@ -110,53 +117,59 @@ export function openConnectionDialog(current, onChange = () => {}) {
   $('connection-dialog').showModal();
 }
 // What the dialog holds, to tell whether anything was typed since it opened.
-const connectionForm = () => ['ai-type', 'ai-model', 'ai-endpoint', 'ai-key'].map(id => $(id).value).join('\n');
+const connectionForm = () => [aiType(), ...['ai-model', 'ai-endpoint', 'ai-key'].map(id => $(id).value)].join('\n');
 let connectionStart = '';
 const connectionEdited = () => connectionForm() !== connectionStart;
 function updateProviderForm() {
-  const d = data.detected || {};
-  const form = providerForms[$('ai-type').value] || providerForms.openai;
+  const d = data.detected || {},
+    type = aiType();
+  // What this computer has is marked on its card.
+  const found = { claude: d.claude, codex: d.codex, ollama: d.ollama?.length };
+  for (const card of $('ai-types').querySelectorAll('.ai-type')) {
+    card.querySelector('.ai-found').hidden = !found[card.dataset.type];
+    card.classList.toggle('on', card.dataset.type === type);
+  }
+  // Until a kind is picked there is nothing to fill in.
+  $('type-fields').hidden = !type;
+  $('save-provider').disabled = !type;
+  if (!type) return;
+  const form = providerForms[type];
   $('endpoint-field').hidden = !form.endpoint;
   $('key-field').hidden = !form.key;
   if (form.defaultEndpoint && !$('ai-endpoint').value) $('ai-endpoint').value = data.defaults?.ollamaEndpoint || '';
   $('ai-model').required = form.modelRequired;
   $('ai-model').placeholder =
-    $('ai-type').value === 'ollama' && d.ollama?.length
+    type === 'ollama' && d.ollama?.length
       ? t('connection.model_installed', { example: d.ollama[0] })
       : form.placeholder;
   $('provider-note').textContent = form.note;
   $('model-req').hidden = !form.modelRequired;
-  // Detected backends become one-click chips that switch the type.
-  const found = [
-    d.claude && ['claude', providerForms.claude.label],
-    d.codex && ['codex', providerForms.codex.label],
-    d.ollama?.length && ['ollama', t('connection.ollama_found', { count: d.ollama.length })],
-  ].filter(Boolean);
-  $('detected-note').hidden = !found.length;
-  $('detected-note').replaceChildren(t('connection.detected'));
-  for (const [type, label] of found) {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = `detect-chip${$('ai-type').value === type ? ' on' : ''}`;
-    chip.textContent = label;
-    chip.onclick = () => {
-      $('ai-type').value = type;
-      $('ai-type').dispatchEvent(new Event('change'));
-    };
-    $('detected-note').append(chip);
-  }
   loadModels();
 }
 // Fill the model combobox from the live provider, so people pick instead of typing.
 let modelEpoch = 0;
 async function loadModels() {
-  const epoch = ++modelEpoch;
+  const epoch = ++modelEpoch,
+    type = aiType(),
+    form = providerForms[type];
   $('model-list').replaceChildren();
+  $('model-status').classList.remove('error');
+  if (!form) return;
+  // A server or a key comes first; asking without them only fails.
+  const saved = data.providers.find(c => c.id === editProvider);
+  if (form.endpoint && !$('ai-endpoint').value && !form.defaultEndpoint) {
+    $('model-status').textContent = t('connection.models_after_endpoint');
+    return;
+  }
+  if (form.key && !$('ai-key').value && !saved?.hasKey) {
+    $('model-status').textContent = t('connection.models_after_key');
+    return;
+  }
   $('model-status').textContent = t('connection.models_loading');
   try {
     const list = await call('listModels', {
       id: editProvider,
-      type: $('ai-type').value,
+      type,
       endpoint: $('ai-endpoint').value,
       apiKey: $('ai-key').value,
     });
@@ -167,7 +180,7 @@ async function loadModels() {
       $('model-list').append(option);
     }
     // A CLI takes short aliases too, so the line says so there.
-    const found = providerForms[$('ai-type').value]?.cli ? 'connection.models_found_cli' : 'connection.models_found';
+    const found = form.cli ? 'connection.models_found_cli' : 'connection.models_found';
     $('model-status').classList.remove('error');
     $('model-status').textContent = list.length ? t(found, { count: list.length }) : t('connection.models_none');
   } catch (e) {
@@ -185,10 +198,11 @@ export function setupConnection({ first = () => {} } = {}) {
   onFirstConnection = first;
   $('ai-endpoint').onchange = loadModels;
   $('ai-key').onchange = loadModels;
-  $('ai-type').onchange = () => {
+  $('ai-types').onchange = () => {
     $('ai-endpoint').value = '';
     $('ai-key').value = '';
     $('ai-model').value = '';
+    $('connection-error').textContent = '';
     updateProviderForm();
   };
   $('close-dialog').onclick = () => $('connection-dialog').close();
@@ -217,7 +231,7 @@ export function setupConnection({ first = () => {} } = {}) {
       const first = !data.pets.some(p => p.providerId);
       const config = await call('saveProvider', {
         id: editProvider,
-        type: $('ai-type').value,
+        type: aiType(),
         model: $('ai-model').value,
         endpoint: $('ai-endpoint').value,
         apiKey: $('ai-key').value,

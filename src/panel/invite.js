@@ -11,7 +11,7 @@ const previews = new Map();
 let shelfKey = '';
 // Reloads the page's state; handed in by setupInvite.
 let refresh = async () => {};
-async function add(assetId) {
+export async function invite(assetId) {
   const twins = data.pets.filter(p => p.assetId === assetId).length;
   const created = await call('addPet', assetId);
   setSelected(created.id);
@@ -71,7 +71,7 @@ function card(a) {
     info.append(line);
   }
   card.append(c, info, plus);
-  card.onclick = guard(() => add(a.id));
+  card.onclick = guard(() => invite(a.id));
   previews.set(a.id, c);
   return card;
 }

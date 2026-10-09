@@ -4,15 +4,15 @@ description: How to pick a pet in the Invite tab and make it a friend, then pat 
 
 # Invite your first friend
 
-When you first open the app, a **Three steps to start** card sits in the middle of the empty yard. Click the **Invite tab** button next to the first step, or open the **Invite** tab at the top right.
+When you first open the app, the empty yard asks **Who would you like to play with?** and shows the three starter pets, moving. Click one and it comes into the yard and waves. **See other pets** opens the **Invite** tab with every pet on this computer.
 
 ## Three starter pets <Since v="0.1.0" />
 
 On first start the Invite tab has **PlayPets starter pets**: Tabby, Smoky and Mochi. Their cards show these names in every language. They are Codex-format pets drawn from the mascot, so you invite them, send them to the desktop and give them an AI exactly like any other pet. Their files sit under `builtin/` in the data folder.
 
-## Three steps to start <Since v="0.1.0" />
+## Next up <Since v="0.1.0" />
 
-On first start a card in the middle of the yard shows three steps: invite a friend, give a friend an AI, give an agent a friend. The **Invite tab**, **Friend tab** and **Settings tab** buttons beside the steps open the place where each is done. With Claude Code or Codex CLI on this computer, the second button becomes **Connect now** (see [Chat with a friend](./chat.md#making-a-connection)). Each step is ticked when done, and once a friend is in, the card moves to the corner; it disappears when all three are done, or earlier with **Hide this**.
+Once your first friend is in, a small **Next up** card in the corner shows what is left: give a friend an AI (**Connect**) and pick a friend to bring news from your coding agent (**Choose**). With Claude Code or Codex CLI on this computer, the first button is **Connect now** and attaches it to every friend with no key (see [Chat with a friend](./chat.md#making-a-connection)). Each step is ticked when done; the card disappears when all are done, or earlier with **Hide this**. With no friend in the yard, the toolbar is hidden: there is no one to give a treat to yet.
 
 ## The Invite tab <Since v="0.1.0" />
 

@@ -12,13 +12,13 @@ To chat with a friend, you need to connect one AI. Inviting and playing work wit
 
 | Kind | How it chats | Cost and data |
 |---|---|---|
-| Claude Code (chat on my subscription) | Uses the Claude Code signed in on this computer | No separate API fees |
-| Codex CLI (chat on my subscription) | Uses the Codex CLI (ChatGPT plan) signed in on this computer | No separate API fees |
-| Ollama (runs on my computer) | Uses a model installed in Ollama at `http://127.0.0.1:11434` | Conversations stay on this computer |
+| Claude Code | Uses the Claude Code signed in on this computer | No separate API fees |
+| Codex CLI | Uses the Codex CLI (ChatGPT plan) signed in on this computer | No separate API fees |
+| Ollama | Uses a model installed in Ollama at `http://127.0.0.1:11434` | Conversations stay on this computer |
 | OpenAI API | Connects to OpenAI with an API key | Conversations are sent to OpenAI, and API fees may apply |
 | OpenAI-compatible server | You enter the server address and API key yourself | Conversations are sent to that server, and fees may apply |
 
-If Claude Code, Codex CLI or Ollama is installed on this computer, it is detected automatically and listed above the connection window under "Installed on this computer". Click a detected name to switch to that kind right away.
+The connection window shows each kind as a card that says what it needs. A kind found on this computer (Claude Code, Codex CLI or Ollama) is marked **Installed** and picked for you; with none found, nothing is picked, and the fields appear once you pick a card.
 
 API keys are kept only in this computer's secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service). They never go into the settings file.
 
@@ -26,11 +26,11 @@ API keys are kept only in this computer's secure storage (macOS Keychain, Window
 
 1. Open the **Friend** tab and pick the friend to chat with. If you have several friends, the name turns into a list.
 2. Click the **Connect an AI** button in the chat, or choose **＋ Connect a new AI…** from the AI list under the name.
-3. Choose the **Kind of AI** and, depending on the kind, enter the server address or API key.
-4. Pick or type the **Model name**. Click the field and the list of models that AI offers appears. For Claude Code and Codex CLI, leave it empty to use the default model; a short name like `sonnet` always gets the latest version. Ollama and API connections need a model name.
+3. Pick a card under **Kind of AI** and, depending on the kind, enter the server address or API key.
+4. Pick or type the **Model name**. Click the field and the list of models that AI offers appears (for a kind that needs a key or an address, once you have entered it). For Claude Code and Codex CLI, leave it empty to use the default model; a short name like `sonnet` always gets the latest version. Ollama and API connections need a model name.
 5. Click **Save and connect**. If other friends still have no AI, the "Also use this AI for the other friends" switch is on, so everyone can talk at once.
 
-On a first start with Claude Code or Codex CLI on this computer, the yard's starting card names it and **Connect now** attaches it to every friend in one step, with no key. With two or more friends, they start talking among themselves right after.
+You can also write to a friend before it has an AI: sending opens the connection window, and once it is connected the message goes. On a first start with Claude Code or Codex CLI on this computer, the yard's starting card names it and **Connect now** attaches it to every friend in one step, with no key. With two or more friends, they start talking among themselves right after.
 
 Once you have made a connection, other friends can use it too. Pick a different connection from each friend's AI list and each friend chats with a different AI. To edit or delete a connection, click the gear button next to the AI list. Deleting a connection deletes its saved key too, and friends who were chatting through it play without an AI.
 
