@@ -7,13 +7,23 @@
 
 import { confirmAction } from '../core/confirm.js';
 import { list, t } from '../core/i18n.js';
-import { clamp } from '../core/math.js';
+import { clamp, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, name, toast, views } from '../core/state.js';
-import { spot } from './garden.js';
 import { giftWait, localDay } from './growth.js';
-import { bubble, effect, field, geometry, petHeight, pose, rest, sizeOf } from './views.js';
+import {
+  bubble,
+  effect,
+  field,
+  fieldToYard,
+  footTarget,
+  nearestFree,
+  petHeight,
+  pose,
+  rest,
+  sizeOf,
+  yardToField,
+} from './views.js';
 
-const pick = lines => lines[Math.floor(Math.random() * lines.length)];
 // Each decoration's drawing (its symbol's view box in index.html), and how many yard pixels a unit
 // of it takes at full size; it shrinks with the yard as friends do.
 const VIEW = {
@@ -39,17 +49,12 @@ function size(kind) {
   return { w: w * UNIT * scale, h: h * UNIT * scale };
 }
 function position(v, x, y) {
-  const at = spot({ x, y }),
+  const at = fieldToYard({ x, y }),
     { w, h } = size(v.kind);
   v.button.style.width = `${w}px`;
   v.button.style.height = `${h}px`;
   v.button.style.transform = `translate(${at.x - w / 2}px,${at.y - h}px)`;
   v.button.style.zIndex = String(FLAT.has(v.kind) ? 0 : 1 + Math.round(y * 100));
-}
-/** A point in the yard (pixels) as a place on the field (0 to 1 each way), as plants keep it. */
-function toField(px, py) {
-  const f = field();
-  return { x: clamp((px - 14) / Math.max(1, f.width - 28)), y: clamp((py - f.top) / Math.max(1, f.bottom - f.top)) };
 }
 
 function create(d) {
@@ -76,7 +81,7 @@ function create(d) {
     if (!drag.moved && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) < 5) return;
     drag.moved = true;
     button.classList.add('dragging');
-    drag.at = toField(e.clientX - drag.rect.left, e.clientY - drag.rect.top);
+    drag.at = yardToField(e.clientX - drag.rect.left, e.clientY - drag.rect.top);
     position(v, drag.at.x, drag.at.y);
   });
   const drop = () => {
@@ -142,29 +147,22 @@ export function renderDecor() {
 
 // Sends a friend to a decoration: onto the bench or the blanket, beside the others.
 function walkTo(v, d, kind) {
-  const at = spot(d),
+  const at = fieldToYard(d),
     { w: dw } = size(d.kind),
-    { w, h, top } = geometry(v.pet),
     width = sizeOf(v.pet),
     side = v.px + width / 2 < at.x ? -1 : 1,
     x = ON.has(d.kind) ? at.x + (Math.random() - 0.5) * dw * 0.4 : at.x + side * (dw / 2 + width * 0.3),
     y = at.y + (ON.has(d.kind) ? 3 : 0);
-  v.target = { x: clamp((x - 14 - width / 2) / w), y: clamp((y - top - petHeight(v.pet) + 4) / h) };
+  v.target = footTarget(v, x, y);
   v.targetKind = kind;
   v.visiting = d.kind;
 }
 function visit(id) {
   const d = data.garden?.decor.find(x => x.id === id);
   if (!d || game) return;
-  const at = spot(d);
-  let best = null,
-    bestD = Infinity;
-  for (const v of views.values()) {
-    if (v.drag || v.target || v.away) continue;
-    const dist = Math.hypot(v.px + sizeOf(v.pet) / 2 - at.x, v.py + petHeight(v.pet) - at.y);
-    if (dist < bestD) [best, bestD] = [v, dist];
-  }
-  if (best) walkTo(best, d, 'decor');
+  const at = fieldToYard(d),
+    v = nearestFree(at.x, at.y);
+  if (v) walkTo(v, d, 'decor');
 }
 /** Now and then an idle friend goes to a decoration instead of strolling: the target, or null. */
 export function decorTarget(v) {
@@ -216,7 +214,7 @@ export function giftTick(now) {
   // Set down beside the friend, on the side with more room.
   const width = sizeOf(v.pet),
     right = v.px + width / 2 < field().width / 2,
-    at = toField(v.px + width / 2 + (right ? 1 : -1) * width * 0.9, v.py + petHeight(v.pet));
+    at = yardToField(v.px + width / 2 + (right ? 1 : -1) * width * 0.9, v.py + petHeight(v.pet));
   bringing = true;
   call('receiveGift', at.x, at.y, today)
     .then(d => {

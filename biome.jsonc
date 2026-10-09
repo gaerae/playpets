@@ -21,6 +21,9 @@
     "enabled": true,
     "rules": {
       "preset": "recommended",
+      // A name used but never declared or imported (a missing import) fails at run time only, in
+      // the one path that reaches it; this finds it before then.
+      "correctness": { "noUndeclaredVariables": "error" },
       "style": {
         // It asks every rule ending in the same compound (svg, summary, canvas) to be sorted by
         // specificity across the whole file, whether or not they could meet on one element. That

@@ -17,6 +17,8 @@ pub fn act(app: &AppHandle, id: &str) {
     match id {
         "open" => window::show(app),
         "settings" => open(json!({"type": "open-panel", "panel": "settings"})),
+        "friends" => open(json!({"type": "open-panel", "panel": "pet"})),
+        "invite" => open(json!({"type": "open-panel", "panel": "invite"})),
         "about" => open(json!({"type": "open-panel", "panel": "settings", "section": "about"})),
         // The page shows the update when one was found, and checks on its Settings tab otherwise.
         "update" => open(json!({"type": "check-update"})),
@@ -44,9 +46,14 @@ pub fn act(app: &AppHandle, id: &str) {
 /// The macOS menu bar in the app's language: the app menu (About, Check for Updates, Settings,
 /// hiding, Quit), Edit (so text fields keep cut, copy and paste) and Window.
 #[cfg(target_os = "macos")]
-pub fn app_menu(app: &AppHandle) -> tauri::Result<tauri::menu::Menu<tauri::Wry>> {
+pub fn app_menu(
+    app: &AppHandle,
+    friends: bool,
+    desktop: bool,
+    mini: bool,
+) -> tauri::Result<tauri::menu::Menu<tauri::Wry>> {
     use crate::i18n::t;
-    use tauri::menu::{Menu, MenuItem, PredefinedMenuItem as P, Submenu};
+    use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem as P, Submenu};
     let item = |id: &str, key: &str, accel: Option<&str>| MenuItem::with_id(app, id, t(key), true, accel);
     let line = || P::separator(app);
     let text = |key: &str| Some(t(key));
@@ -81,6 +88,23 @@ pub fn app_menu(app: &AppHandle) -> tauri::Result<tauri::menu::Menu<tauri::Wry>>
             &P::select_all(app, text("menu.select_all").as_deref())?,
         ],
     )?;
+    // View: the panels, and the two ways of showing friends, with the keys a Mac user expects.
+    // The switches have nothing to show without a friend, so they are greyed then, as menu bar
+    // items are (the tray leaves them out instead).
+    let switch =
+        |id: &str, key: &str, accel: &str, on: bool| CheckMenuItem::with_id(app, id, t(key), friends, on, Some(accel));
+    let view = Submenu::with_items(
+        app,
+        t("menu.view"),
+        true,
+        &[
+            &item("friends", "menu.friends", Some("CmdOrCtrl+1"))?,
+            &item("invite", "menu.invite", Some("CmdOrCtrl+2"))?,
+            &line()?,
+            &switch("mini", "tray.mini", "CmdOrCtrl+Shift+M", mini)?,
+            &switch("desktop", "tray.desktop", "CmdOrCtrl+Shift+D", desktop)?,
+        ],
+    )?;
     let window_menu = Submenu::with_items(
         app,
         t("menu.window"),
@@ -90,5 +114,5 @@ pub fn app_menu(app: &AppHandle) -> tauri::Result<tauri::menu::Menu<tauri::Wry>>
             &P::close_window(app, text("menu.close").as_deref())?,
         ],
     )?;
-    Menu::with_items(app, &[&app_menu, &edit, &window_menu])
+    Menu::with_items(app, &[&app_menu, &edit, &view, &window_menu])
 }

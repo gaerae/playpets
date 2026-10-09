@@ -63,7 +63,6 @@ Until you first pat a friend, the line above the yard says "Click a friend to pa
 | Move | Drag a friend and drop them. Their place in the yard is remembered |
 | Chat | Click the friend's name tag: under the pointer it shows a speech mark. The Friend tab opens on that friend (from the small window too, which goes back to full size). A double-click or right-click on the friend does the same |
 | Put down a treat | Click **Treat** in the toolbar, then click where in the yard to put it. All the friends walk over, eat it and say "Yum, thank you!". The treat disappears after 15 seconds |
-| Say hi together | Click **Say hi** and the friends wave one after another with a greeting that fits the time of day |
 
 A **name tag** sits under each friend. When you select a friend, the name tag changes to its selected look, and while a coding agent is working, the status is shown next to the name tag.
 

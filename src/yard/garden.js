@@ -5,14 +5,25 @@
 
 import { confirmAction } from '../core/confirm.js';
 import { list, t } from '../core/i18n.js';
-import { clamp } from '../core/math.js';
+import { clamp, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, toast, views } from '../core/state.js';
 import { setAimingMode } from './care.js';
 import { flowerFor, hoursMinutes, nextFind, stageOf, untilBloom } from './growth.js';
 import { scene } from './sky.js';
-import { bubble, effect, field, geometry, petHeight, pose, rest, sizeOf } from './views.js';
+import {
+  bubble,
+  effect,
+  field,
+  fieldToYard,
+  footTarget,
+  nearestFree,
+  petHeight,
+  pose,
+  rest,
+  sizeOf,
+  yardToField,
+} from './views.js';
 
-const pick = lines => lines[Math.floor(Math.random() * lines.length)];
 // A plant's box at full size; it shrinks with the yard as friends do.
 const PLANT_W = 50,
   PLANT_H = 75;
@@ -22,11 +33,6 @@ const shown = new Map();
 let scale = 1;
 const seedsFull = () => (data.garden?.seeds ?? 0) >= (data.limits?.seeds ?? 20);
 
-/** Where a plant (or a decoration) stands on the field, in yard pixels (its foot). */
-export function spot(plant) {
-  const f = field();
-  return { x: 14 + plant.x * Math.max(1, f.width - 28), y: f.top + plant.y * Math.max(1, f.bottom - f.top) };
-}
 function symbolOf(plant, stage) {
   return stage === 'bloom' ? `bloom-${plant.kind}` : stage;
 }
@@ -84,7 +90,7 @@ export function renderGarden(now = Date.now()) {
       v.use.setAttribute('href', `#plant-${symbol}`);
       v.button.dataset.stage = stage;
     }
-    const { x, y } = spot(plant),
+    const { x, y } = fieldToYard(plant),
       tall = stage === 'bloom' || stage === 'bud' ? STATURE[plant.kind] || 1 : 1,
       w = PLANT_W * scale * tall,
       h = PLANT_H * scale * tall;
@@ -106,32 +112,17 @@ function syncTool() {
   if (!seeds && aiming === 'seed') setAimingMode(false);
 }
 
-// The friend nearest a spot that is free to walk over (not dragged, not on its way somewhere).
-function nearestFree(x, y) {
-  let best = null,
-    bestD = Infinity;
-  for (const v of views.values()) {
-    if (v.drag || v.target || v.away) continue;
-    const d = Math.hypot(v.px + sizeOf(v.pet) / 2 - x, v.py + petHeight(v.pet) - y);
-    if (d < bestD) [best, bestD] = [v, d];
-  }
-  return best;
-}
 // Sends a friend to stand just beside a plant (left or right of it, whichever is nearer).
 function walkTo(v, plant, kind) {
-  const { x, y } = spot(plant),
-    { w, h, top } = geometry(v.pet),
+  const { x, y } = fieldToYard(plant),
     side = v.px + sizeOf(v.pet) / 2 < x ? -1 : 1;
-  v.target = {
-    x: clamp((x + side * (sizeOf(v.pet) * 0.55) - 14 - sizeOf(v.pet) / 2) / w),
-    y: clamp((y - top - petHeight(v.pet) + 4) / h),
-  };
+  v.target = footTarget(v, x + side * sizeOf(v.pet) * 0.55, y);
   v.targetKind = kind;
 }
 function water(id) {
   const plant = data.garden?.plants.find(p => p.id === id);
   if (!plant || game) return;
-  const { x, y } = spot(plant);
+  const { x, y } = fieldToYard(plant);
   const v = nearestFree(x, y);
   if (v) walkTo(v, plant, 'water');
 }
@@ -218,10 +209,8 @@ export function gardenTick(now) {
 // Planting: the tool, then a click on the field. It stays on while there are seeds; Esc or the
 // tool again puts it away.
 function plantAt(cx, cy) {
-  const f = field();
-  if (cy < f.top - 10) return toast(t('garden.on_field'));
-  const x = clamp((cx - 14) / Math.max(1, f.width - 28)),
-    y = clamp((cy - f.top) / Math.max(1, f.bottom - f.top));
+  if (cy < field().top - 10) return toast(t('garden.on_field'));
+  const { x, y } = yardToField(cx, cy);
   return call('plant', flowerFor(scene.season), x, y);
 }
 /** Wires the planting tool and the field's click. Called once, by app.js. */

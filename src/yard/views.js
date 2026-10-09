@@ -94,22 +94,60 @@ function measure() {
   yardSize.width = r.width;
   yardSize.height = r.height;
 }
+// Room kept at each side of the yard, so a friend at the edge is still whole.
+const EDGE = 14;
+// Room kept at the foot of the yard for a friend's name tag, and for the tools floating over the
+// scene (in the mini view they only rise under the pointer, so the tag's room is enough).
+const footRoom = () => (document.body.classList.contains('mini') ? 42 : 76);
 /** The field friends and plants stand on, in yard pixels: its width, the ridge (top) and the
  * front edge (bottom) a foot can reach. */
 export function field() {
   if (!yardSize.width) measure();
   const { width, height } = yardSize;
-  return { width, height, top: height * FIELD_TOP, bottom: height - 42 };
+  return { width, height, top: height * FIELD_TOP, bottom: height - footRoom() };
 }
 export function geometry(p) {
   if (!yardSize.width) measure();
   const r = yardSize,
     top = Math.max(12, r.height * FIELD_TOP - petHeight(p));
-  return { w: Math.max(1, r.width - sizeOf(p) - 28), top, h: Math.max(1, r.height - petHeight(p) - 42 - top) };
+  return {
+    w: Math.max(1, r.width - sizeOf(p) - EDGE * 2),
+    top,
+    h: Math.max(1, r.height - petHeight(p) - footRoom() - top),
+  };
+}
+/** A place on the field (0 to 1 each way, as plants and decorations keep it) in yard pixels. */
+export function fieldToYard({ x, y }) {
+  const f = field();
+  return { x: EDGE + x * Math.max(1, f.width - EDGE * 2), y: f.top + y * Math.max(1, f.bottom - f.top) };
+}
+/** A point in the yard, in pixels, as a place on the field. */
+export function yardToField(px, py) {
+  const f = field();
+  return {
+    x: clamp((px - EDGE) / Math.max(1, f.width - EDGE * 2)),
+    y: clamp((py - f.top) / Math.max(1, f.bottom - f.top)),
+  };
+}
+/** Where a friend heads (its place, 0 to 1 each way) so that its feet come to (px, py) in the yard. */
+export function footTarget(v, px, py, lift = 4) {
+  const { w, h, top } = geometry(v.pet);
+  return { x: clamp((px - EDGE - sizeOf(v.pet) / 2) / w), y: clamp((py - top - petHeight(v.pet) + lift) / h) };
+}
+/** The friend nearest a point in the yard that is free to walk over (not held, not on its way somewhere). */
+export function nearestFree(px, py) {
+  let best = null,
+    bestD = Infinity;
+  for (const v of views.values()) {
+    if (v.drag || v.target || v.away) continue;
+    const d = Math.hypot(v.px + sizeOf(v.pet) / 2 - px, v.py + petHeight(v.pet) - py);
+    if (d < bestD) [best, bestD] = [v, d];
+  }
+  return best;
 }
 export function place(v) {
   const { w, h, top } = geometry(v.pet);
-  v.px = 14 + v.x * w;
+  v.px = EDGE + v.x * w;
   v.py = top + v.y * h;
   v.button.style.transform = `translate(${v.px}px,${v.py}px)`;
   // Nearer the bottom is nearer the viewer: drawn on top, so its tag and its clicks are not covered.

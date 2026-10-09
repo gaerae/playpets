@@ -122,7 +122,7 @@ const scenario = `(async()=>{
     const waitingShown=!!shownLog.querySelector('.waiting')&&document.querySelector('.yard-pet.thinking')!==null;
     await slow;await new Promise(r=>setTimeout(r,500));
     await L('waiting='+(waitingShown&&!shownLog.querySelector('.waiting')&&!document.querySelector('.yard-pet.thinking')?'shown-then-gone':'err:'+waitingShown));
-    // The yard itself: scenery-first layout, greeting bubbles, games.
+    // The yard itself: scenery-first layout, games.
     const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||${say('game.label')};
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
     // Every tab must actually show its own content, and only its own.
@@ -168,8 +168,6 @@ const scenario = `(async()=>{
     await playPets.putAway(gift.id);const away=await until(()=>!document.querySelector('.decor'));
     await L('gift='+(gift.kind==='bench'&&twice.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-once-moved-away':'err:'+JSON.stringify([gift,twice])));
     await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-shade')!==''?'set':'err:'+$('yard').className));
-    $('greet').click();await until(()=>[...document.querySelectorAll('.yard-bubble')].filter(b=>!b.hidden&&b.textContent).length>=2);
-    await L('greetBubbles='+[...document.querySelectorAll('.yard-bubble')].filter(b=>!b.hidden&&b.textContent).length);
     document.querySelector('[data-game=hide]').click();
     // Friends only walk while the window is drawn. Behind other windows (or with the screen off)
     // the webview stops animating, so the walk to the hiding spots cannot be observed.
@@ -427,7 +425,6 @@ const expect = [
   ],
   [/^stage=yard-first$/, 'the yard leads the window (60% of the height or more)'],
   [/^weather=snow-canvas$/, 'weather canvas (snow)'],
-  [/^greetBubbles=2$/, 'say hi together bubbles'],
   [
     new RegExp(
       `^hide=(2/0/${literal(KO['game.label'])}/by-name|window-hidden/${literal(stopGame('game.hide'))}/${literal(KO['game.label'])})$`,

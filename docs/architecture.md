@@ -67,7 +67,7 @@ What each arrow in the diagram actually carries, path by path.
 ## Interfaces
 | Touchpoint | Source | Summary |
 |---|---|---|
-| Page → backend commands | The `COMMANDS` list and `dispatch` in `src-tauri/src/commands.rs` | Friends (add, update, remove, play), pet files (import, openFolder), AI and chat (saveProvider, chat, chatWith), yard chatter (chatter, setAutoChatter), copying agent settings and choosing which friend an agent reports to (copyConnection, assignAgent), desktop and windows, language, update, quit. The overlay gets only bootstrap, play, openChat, dragStart, dragStop |
+| Page → backend commands | The `COMMANDS` list and `dispatch` in `src-tauri/src/commands.rs` | Friends (add, update, remove, play), pet files (import, openFolder), AI and chat (saveProvider, chat, chatWith), yard chatter (chatter, setAutoChatter), the garden and its gifts (findSeed, plant, pullPlant, receiveGift, moveDecor, putAway), copying agent settings and choosing which friend an agent reports to (copyConnection, assignAgent), desktop and windows, language, update, quit. The overlay gets only bootstrap, play, openChat, dragStart, dragStop |
 | Backend → page | `app::changed`, `app::push_event` | `change` (full state), `event` (status, say, play, chat-message, select, window, update, persona-saved, history-reset, import-request, pet-moved) |
 | Sprites | `app::sprite_response` | The `pet-asset` custom protocol |
 | Coding agents | [Architecture: coding agent integration](agent-integration.md) | CLI commands, hooks, MCP, HTTP bridge |

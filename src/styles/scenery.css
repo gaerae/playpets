@@ -9,14 +9,12 @@
   --sky-b: #eef6ef;
   --mount-a: #a9c7d2;
   --mount-b: #c5dae2;
-  --far: #b1d48f;
-  --far-hi: #cbe5a9;
-  --back: #95c86b;
-  --back-hi: #b5db88;
-  --front: #80b85c;
-  --front-hi: #a0cf78;
-  --rim: #ffffff55;
-  --path: #ecdcae;
+  --far: #a3cf7c;
+  --far-hi: #bde09a;
+  --back: #86c25a;
+  --back-hi: #a5d473;
+  --front: #74b04f;
+  --front-hi: #90c666;
   --cloud: #ffffff;
   --cloud-shade: #dfeaf3;
   --leaf: #6fb265;
@@ -97,7 +95,6 @@
   --back-hi: #cfc887;
   --front: #84a562;
   --front-hi: #b3bd78;
-  --path: #e6c993;
   --cloud: #ffd9c2;
   --cloud-shade: #e59a8d;
   --leaf: #6b9a55;
@@ -108,7 +105,6 @@
   --blade: #5a8c4f;
   --orb: #ff9a5c;
   --orb-glow: #ff9a5c88;
-  --rim: #ffe6b055;
 }
 .yard.period-night {
   --sky-a: #101c3a;
@@ -122,8 +118,6 @@
   --back-hi: #376055;
   --front: #223f38;
   --front-hi: #2e5348;
-  --rim: #9fc7ff22;
-  --path: #4f6660;
   --cloud: #6f86a8;
   --cloud-shade: #566d90;
   --leaf: #2a5046;
@@ -151,7 +145,6 @@
   --mount-b: #b3c1c6;
   --cloud: #8a9aab;
   --cloud-shade: #70819a;
-  --rim: #ffffff22;
 }
 .yard.weather-rain.period-evening {
   --sky-a: #6b6f8c;
@@ -179,8 +172,6 @@
   --back-hi: #ffffff;
   --front: #f6f9fa;
   --front-hi: #ffffff;
-  --rim: #ffffff;
-  --path: #e3e9ee;
   --cloud: #f6f9fb;
   --cloud-shade: #d5dfe8;
   --leaf: #a9c4b1;
@@ -213,8 +204,6 @@
   --back-hi: #a9bbcf;
   --front: #a7b8cc;
   --front-hi: #bccadb;
-  --rim: #dfe9f5;
-  --path: #8ea3bb;
   --cloud: #7d93b3;
   --cloud-shade: #64799a;
   --leaf: #5f7f86;
@@ -361,15 +350,11 @@
 }
 .cloud {
   position: absolute;
-  background: none;
-  border-radius: 0;
-  height: auto;
   width: calc(14% * var(--s));
   aspect-ratio: 2.5;
   left: 0;
   top: var(--y);
   opacity: var(--o, 1);
-  overflow: visible;
 }
 .cloud-one {
   --x: 12%;

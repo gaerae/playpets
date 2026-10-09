@@ -1,5 +1,6 @@
 // Yard scenery: the time of day comes from the clock, and the weather changes on its own unless the person picks one.
 import { list, t } from '../core/i18n.js';
+import { pick } from '../core/math.js';
 
 export const PERIODS = {
   morning: t('period.morning'),
@@ -56,11 +57,10 @@ export function seasonFor(date, south = false) {
 const SOUTH =
   /^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham|Fiji|Tongatapu|Apia|Noumea|Efate|Port_Moresby)|^America\/(Argentina|Buenos_Aires|Sao_Paulo|Santiago|Montevideo|Asuncion|La_Paz|Lima|Bahia|Recife|Maceio|Campo_Grande|Cuiaba|Punta_Arenas)|^Africa\/(Johannesburg|Maputo|Harare|Windhoek|Lusaka|Gaborone|Maseru|Mbabane|Blantyre|Lubumbashi)|^Indian\/(Mauritius|Reunion|Antananarivo)|^Atlantic\/Stanley/;
 export const southern = zone => SOUTH.test(zone || '');
-// What each season does to the yard, as colours for the custom properties in yard.css: the round
+// What each season does to the yard, as colours for the custom properties in scenery.css: the round
 // trees (--crown, and --maple for the one that turns first), the bushes (--leaf) and by day the
 // fields. Morning shares the day's colours; evening and night keep their own light on the fields.
-// Winter's crowns are nearly clear, so the bare branches show through.
-// Snow has its own colours for everything (yard.css), so a snowy yard looks the same in any season.
+// Snow has its own colours for everything (scenery.css), so a snowy yard looks the same in any season.
 export const SEASON_COLORS = {
   spring: {
     day: {
@@ -97,12 +97,12 @@ export const SEASON_COLORS = {
       '--maple': '#57a457',
       '--maple-hi': '#8fca70',
       '--maple-lo': '#408649',
-      '--far': '#b3d697',
-      '--far-hi': '#c9e5ac',
-      '--back': '#92c476',
-      '--back-hi': '#aed68f',
-      '--front': '#79b25e',
-      '--front-hi': '#96c879',
+      '--far': '#a0cf7a',
+      '--far-hi': '#b9de95',
+      '--back': '#7dbd55',
+      '--back-hi': '#9dd06c',
+      '--front': '#6aab4a',
+      '--front-hi': '#86c260',
     },
     evening: {},
     night: {},
@@ -125,7 +125,6 @@ export const SEASON_COLORS = {
       '--front': '#adb469',
       '--front-hi': '#c4c47e',
       '--blade': '#9a9f55',
-      '--path': '#e8d3a3',
       '--flower-a': '#f0a35e',
     },
     evening: {
@@ -149,13 +148,14 @@ export const SEASON_COLORS = {
     },
   },
   winter: {
+    // Trees keep a muted winter green (as in Animal Crossing), so no bare branches stand about.
     day: {
-      '--crown': '#a08c7426',
-      '--crown-hi': '#b9a58c1f',
-      '--crown-lo': '#8a77622e',
-      '--maple': '#a08c7426',
-      '--maple-hi': '#b9a58c1f',
-      '--maple-lo': '#8a77622e',
+      '--crown': '#6d8a6a',
+      '--crown-hi': '#93ab87',
+      '--crown-lo': '#506b52',
+      '--maple': '#7d8a68',
+      '--maple-hi': '#a3ad86',
+      '--maple-lo': '#5d6b50',
       '--leaf': '#7f9a76',
       '--leaf-hi': '#a1b597',
       '--leaf-lo': '#637e5d',
@@ -168,20 +168,20 @@ export const SEASON_COLORS = {
       '--blade': '#8c9a78',
     },
     evening: {
-      '--crown': '#8f786a26',
-      '--crown-hi': '#a88f7d1f',
-      '--crown-lo': '#7a65592e',
-      '--maple': '#8f786a26',
-      '--maple-hi': '#a88f7d1f',
-      '--maple-lo': '#7a65592e',
+      '--crown': '#647a5e',
+      '--crown-hi': '#8f9a76',
+      '--crown-lo': '#4a5d48',
+      '--maple': '#6e7859',
+      '--maple-hi': '#99996f',
+      '--maple-lo': '#535c44',
     },
     night: {
-      '--crown': '#3e404826',
-      '--crown-hi': '#4c4f581f',
-      '--crown-lo': '#33353c2e',
-      '--maple': '#3e404826',
-      '--maple-hi': '#4c4f581f',
-      '--maple-lo': '#33353c2e',
+      '--crown': '#2c463f',
+      '--crown-hi': '#3d5a50',
+      '--crown-lo': '#213733',
+      '--maple': '#33473c',
+      '--maple-hi': '#455c4e',
+      '--maple-lo': '#263a32',
     },
   },
 };
@@ -216,7 +216,6 @@ export function moonShade(phase, south = false) {
   const shade = phase < 0.5 ? -(phase / 0.5) * 100 : ((1 - phase) / 0.5) * 100;
   return Math.round(south ? -shade : shade) || 0;
 }
-const pick = (list, rng) => list[Math.min(list.length - 1, Math.floor(rng() * list.length))];
 export const GREETINGS = {
   morning: list('greet.morning'),
   day: list('greet.day'),

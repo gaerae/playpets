@@ -54,6 +54,7 @@ export const strings = {
   'hint.first_chat': '이름표를 눌러서 말 걸어 줘!',
   'toast.desktop_tip':
     '친구들이 바탕화면에 나왔어요. 마우스를 올리면 이름이 보이고, 이름을 누르면 대화해요. 끌어서 옮길 수도 있어요.',
+  'scene.title': '놀이터의 시간대와 날씨',
   'period.label': '시간대',
   'period.title': '놀이터 시간대',
   'period.auto': '시간 자동',
@@ -90,9 +91,7 @@ export const strings = {
   'chatter.evening': ['노을 예쁘다', '배고파요', '오늘 재밌었어'],
   'chatter.night': ['별이 많네', '졸려요…', '달이 밝아요'],
   'care.treat': '간식 놓기',
-  'care.greet': '다 같이 인사',
   'care.treat_title': '간식을 놓으면 친구들이 먹으러 와요',
-  'care.greet_title': '친구들이 다 같이 인사해요',
   'care.chatter': '수다 떨기',
   'care.chatter_need_two': 'AI가 붙은 친구가 둘 이상이면 자기들끼리 수다를 떨어요',
   'care.chatter_title': 'AI가 붙은 친구들이 지금 시간과 날씨를 두고 짧게 이야기해요',

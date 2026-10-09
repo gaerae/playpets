@@ -1,8 +1,10 @@
-// A brush for the painted yard: seeded chance (the yard comes out the same each time it is painted
-// again, only in other light), colours, and the three strokes the backdrop is made of. A wash lays
-// a shape down several times, each a little deformed and nearly clear, so its edges come out soft
-// and uneven like watercolour; a dab is one touch of the brush (a clump of leaves, a petal); a
-// blade is a short curved line (grass). Works on any 2D context and touches nothing else.
+// A brush for the painted yard, in the manner of hand-painted animation backgrounds: flat,
+// opaque colour in a few values (deep shade, shade, body, light), each shape with a crisp edge
+// broken into small bumps where it is foliage or cloud. No soft smudges or noise.
+// Seeded chance makes the yard come out the same each time it is painted again, only in other
+// light. Works on any 2D context and touches nothing else.
+
+const TAU = Math.PI * 2;
 
 /** Chance from a seed: the same seed gives the same numbers (mulberry32). */
 export function seeded(seed) {
@@ -49,114 +51,118 @@ export function css(c, alpha = 1) {
   const [r, g, b, a] = c;
   return `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${+(a * alpha).toFixed(3)})`;
 }
-/** Lighter towards a warm white, as sunlight is. */
-export const light = (c, k) => mix(c, [255, 250, 236, c[3]], k);
-/** Darker towards a cool blue-violet, as shade is under an open sky (never towards black). */
-export const shade = (c, k) => mix(c, [38, 44, 78, c[3]], k);
-/** A little off, so no two touches are quite the same colour. */
-export function vary(c, rng, amount = 10) {
-  const d = gauss(rng) * amount;
-  return [c[0] + d + gauss(rng) * amount * 0.4, c[1] + d, c[2] + d + gauss(rng) * amount * 0.4, c[3]];
-}
+/** Lighter towards a warm, sunny yellow-white. */
+export const light = (c, k) => mix(c, [255, 248, 214, c[3]], k);
+/** Darker towards a deep blue-green, as shade is in these paintings (never towards black). */
+export const shade = (c, k) => mix(c, [22, 48, 64, c[3]], k);
 /** Greyer and a little darker (a rainy day). */
 export function dull(c, k) {
   const grey = (c[0] + c[1] + c[2]) / 3;
   return mix(c, [grey * 0.94, grey * 0.96, grey, c[3]], k);
 }
 
-/** An ellipse as a polygon of n points. */
-export function ellipse(cx, cy, rx, ry, n = 10, rng = null) {
-  const start = rng ? rng() * Math.PI : 0;
-  return Array.from({ length: n }, (_, i) => {
-    const a = start + (i / n) * Math.PI * 2;
-    return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry];
-  });
+/** Adds a closed shape through the points to the current path, its corners rounded off. */
+export function smoothPath(ctx, points) {
+  const n = points.length,
+    mid = i => {
+      const [ax, ay] = points[i % n],
+        [bx, by] = points[(i + 1) % n];
+      return [(ax + bx) / 2, (ay + by) / 2];
+    };
+  ctx.moveTo(...mid(n - 1));
+  for (let i = 0; i < n; i++) ctx.quadraticCurveTo(points[i][0], points[i][1], ...mid(i));
+  ctx.closePath();
 }
 
-/** The polygon with every edge broken in two at a point pushed off it, `depth` times over. */
-export function deform(points, rng, depth, amount) {
-  let out = points;
-  for (let d = 0; d < depth; d++) {
-    const next = [];
-    for (let i = 0; i < out.length; i++) {
-      const [ax, ay] = out[i],
-        [bx, by] = out[(i + 1) % out.length],
-        dx = bx - ax,
-        dy = by - ay,
-        len = Math.hypot(dx, dy) || 1,
-        push = gauss(rng) * len * amount;
-      next.push([ax, ay], [(ax + bx) / 2 - (dy / len) * push, (ay + by) / 2 + (dx / len) * push]);
-    }
-    out = next;
-    amount *= 0.62;
-  }
-  return out;
+/** A closed shape through the points, its corners rounded off, filled flat. */
+export function smooth(ctx, points, c, alpha = 1) {
+  ctx.fillStyle = css(c, alpha);
+  ctx.beginPath();
+  smoothPath(ctx, points);
+  ctx.fill();
 }
 
-function fillPoly(ctx, points) {
+/** A shape with straight sides, filled flat. */
+export function flat(ctx, points, c, alpha = 1) {
+  ctx.fillStyle = css(c, alpha);
   ctx.beginPath();
   ctx.moveTo(points[0][0], points[0][1]);
-  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+  for (const [x, y] of points.slice(1)) ctx.lineTo(x, y);
   ctx.closePath();
   ctx.fill();
 }
 
 /**
- * A watercolour wash of the polygon: laid down `layers` times, each deformed a little more and
- * nearly clear, so the middle builds up and the edge stays soft. `edge` darkens the rim a touch,
- * where pigment gathers as it dries.
+ * Adds a bumpy mass to the current path (see bumpy), for several masses filled as one. Its outline
+ * swells and dips a little around the ellipse and its bumps differ in size, so no two are alike.
  */
-export function wash(ctx, points, c, rng, { layers = 5, alpha = 0.2, depth = 3, amount = 0.28, edge = 0 } = {}) {
-  const base = deform(points, rng, 1, amount);
-  ctx.fillStyle = css(c, alpha);
-  for (let i = 0; i < layers; i++) fillPoly(ctx, deform(base, rng, depth, amount * 0.7));
-  if (edge) {
-    ctx.strokeStyle = css(shade(c, 0.35), edge);
-    ctx.lineWidth = 1;
-    fillPoly(ctx, base);
-    ctx.stroke();
+function bumpyPath(ctx, cx, cy, rx, ry, rng, bump = Math.min(rx, ry) * 0.2) {
+  if (rx <= 0 || ry <= 0) return;
+  bump = Math.max(0.6, Math.min(bump, rx, ry));
+  const p1 = rng() * TAU,
+    p2 = rng() * TAU,
+    wobble = a => 1 + 0.1 * Math.sin(2 * a + p1) + 0.06 * Math.sin(3 * a + p2),
+    ex = Math.max(0.1, rx - bump * 0.8),
+    ey = Math.max(0.1, ry - bump * 0.8);
+  ctx.moveTo(cx + ex, cy);
+  ctx.ellipse(cx, cy, ex, ey, 0, 0, TAU);
+  const n = Math.max(6, Math.round((Math.PI * (rx + ry)) / (bump * 1.1)));
+  for (let i = 0; i < n; i++) {
+    const a = ((i + rng() * 0.4) / n) * TAU,
+      r = bump * (0.55 + rng() * 0.8),
+      k = wobble(a),
+      x = cx + Math.cos(a) * (rx * k - r * 0.85),
+      y = cy + Math.sin(a) * (ry * k - r * 0.85);
+    ctx.moveTo(x + r, y);
+    ctx.arc(x, y, r, 0, TAU);
   }
-}
-
-/** One touch of the brush: a small tilted ellipse. */
-export function dab(ctx, x, y, r, c, alpha = 1, tilt = 0, squash = 0.7) {
-  ctx.fillStyle = css(c, alpha);
-  ctx.beginPath();
-  ctx.ellipse(x, y, r, r * squash, tilt, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-/** A blade of grass from its root, leaning by `lean` (its tip's sideways offset). */
-export function blade(ctx, x, y, length, lean, width, c, alpha = 1) {
-  ctx.strokeStyle = css(c, alpha);
-  ctx.lineWidth = width;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.quadraticCurveTo(x + lean * 0.2, y - length * 0.6, x + lean, y - length);
-  ctx.stroke();
 }
 
 /**
- * Paper grain over what is painted: a faint light and dark speckle, only where there is paint
- * already (the clear sky above the land stays clear), so flat colour reads as paint on paper.
+ * The fill for a mass: one colour, or `{ top, bottom }` for a colour that deepens downwards across
+ * it, as light falls on a mass from above.
  */
-export function grain(ctx, rng, strength = 0.05) {
-  const tile = 128,
-    canvas = new OffscreenCanvas(tile, tile),
-    g = canvas.getContext('2d'),
-    img = g.createImageData(tile, tile);
-  for (let i = 0; i < img.data.length; i += 4) {
-    const v = gauss(rng),
-      tone = v > 0 ? 255 : 0;
-    img.data[i] = img.data[i + 1] = img.data[i + 2] = tone;
-    img.data[i + 3] = Math.min(255, Math.abs(v) * strength * 255);
-  }
-  g.putImageData(img, 0, 0);
-  ctx.save();
-  // Grains a little larger than a pixel, so it reads as paper rather than a screen's noise.
-  ctx.setTransform(1.6, 0, 0, 1.6, 0, 0);
-  ctx.globalCompositeOperation = 'source-atop';
-  ctx.fillStyle = ctx.createPattern(canvas, 'repeat');
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  ctx.restore();
+export function paint(ctx, c, top, bottom, alpha = 1) {
+  if (Array.isArray(c)) return css(c, alpha);
+  const g = ctx.createLinearGradient(0, top, 0, bottom);
+  g.addColorStop(0, css(c.top, alpha));
+  g.addColorStop(1, css(c.bottom, alpha));
+  return g;
+}
+
+/**
+ * A mass of foliage or cloud: an ellipse whose edge is a row of small round bumps, filled flat
+ * (or deepening downwards, see paint). The bumps are one fill with the body, so a see-through
+ * colour does not darken where they overlap.
+ */
+export function bumpy(ctx, cx, cy, rx, ry, c, rng, bump, alpha = 1) {
+  ctx.fillStyle = paint(ctx, c, cy - ry, cy + ry, alpha);
+  ctx.beginPath();
+  bumpyPath(ctx, cx, cy, rx, ry, rng, bump);
+  ctx.fill();
+}
+
+/** A round dot, filled flat. */
+export function dot(ctx, x, y, r, c, alpha = 1) {
+  ctx.fillStyle = css(c, alpha);
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, TAU);
+  ctx.fill();
+}
+
+/** A shape with straight sides, filled with a colour string or a gradient. */
+export function fillShape(ctx, points, style) {
+  ctx.fillStyle = style;
+  ctx.beginPath();
+  ctx.moveTo(points[0][0], points[0][1]);
+  for (const [x, y] of points.slice(1)) ctx.lineTo(x, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/** A gradient from `top` to `bottom`: stops of [where 0..1, colour, opacity]. */
+export function vertical(ctx, top, bottom, stops) {
+  const g = ctx.createLinearGradient(0, top, 0, bottom);
+  for (const [at, c, alpha = 1] of stops) g.addColorStop(at, css(c, alpha));
+  return g;
 }

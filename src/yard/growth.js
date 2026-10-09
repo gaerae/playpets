@@ -23,7 +23,7 @@ export function stageOf(planted, now) {
 /** How long until it flowers (0 once it has). */
 export const untilBloom = (planted, now) => Math.max(0, STAGES.at(-1).at - Math.max(0, now - planted));
 // What grows from a seed planted in each season.
-export const FLOWER_OF = { spring: 'tulip', summer: 'sunflower', autumn: 'cosmos', winter: 'camellia' };
+const FLOWER_OF = { spring: 'tulip', summer: 'sunflower', autumn: 'cosmos', winter: 'camellia' };
 export const flowerFor = season => FLOWER_OF[season] || 'tulip';
 // A friend finds a seed this long after the last find (ms of the app running). The very first one
 // comes soon, so a new yard shows the garden early.

@@ -81,7 +81,7 @@ fn main() {
 
             // Only macOS has a menu bar outside the window; elsewhere it would sit on top of the drawn title bar.
             #[cfg(target_os = "macos")]
-            app.set_menu(menu::app_menu(app.handle())?)?;
+            app.set_menu(menu::app_menu(app.handle(), false, false, false)?)?;
             // The tray's items and the menu bar's come to one handler.
             app.on_menu_event(|app, e| {
                 menu::act(app, e.id().as_ref());

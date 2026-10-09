@@ -55,6 +55,7 @@ export const strings = {
   'hint.first_chat': '名札をクリックして話しかけてね!',
   'toast.desktop_tip':
     '友だちがデスクトップに出てきました。マウスを乗せると名前が出て、名前をクリックするとおしゃべりできます。ドラッグで移動できます。',
+  'scene.title': '庭の時間帯と天気',
   'period.label': '時間帯',
   'period.title': '庭の時間帯',
   'period.auto': '時間おまかせ',
@@ -91,9 +92,7 @@ export const strings = {
   'chatter.evening': ['夕焼けきれい', 'おなかすいた', '今日は楽しかった'],
   'chatter.night': ['星がいっぱい', 'ねむい…', '月が明るいね'],
   'care.treat': 'おやつを置く',
-  'care.greet': 'みんなであいさつ',
   'care.treat_title': 'おやつを置くと友だちが食べに来ます',
-  'care.greet_title': '友だちがみんなであいさつします',
   'care.chatter': 'おしゃべり',
   'care.chatter_need_two': 'AIをつけた友だちが2人以上いると、友だち同士でおしゃべりします',
   'care.chatter_title': 'AIをつけた友だちが、今の時間と天気について短く話します',

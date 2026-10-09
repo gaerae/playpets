@@ -175,7 +175,7 @@ export function setupInvite(hooks) {
       const id = await call('importFolder');
       if (!id) return;
       $('import-dialog').close();
-      await add(id);
+      await invite(id);
       toast(t('toast.pet_added'));
     } catch (error) {
       $('import-error').textContent = spoken(error, t('error.generic'));
@@ -195,7 +195,7 @@ export function setupInvite(hooks) {
     try {
       const id = await call('importUrl', $('import-url').value);
       $('import-dialog').close();
-      await add(id);
+      await invite(id);
       toast(t('toast.pet_added'));
     } catch (error) {
       $('import-error').textContent = error.message;

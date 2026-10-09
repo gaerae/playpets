@@ -1,14 +1,17 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { lightFor, paintLand, paintSky, readPalette } from '../src/yard/backdrop.js';
-import { color, deform, ellipse, mix, seeded } from '../src/yard/brush.js';
+import { paintLand } from '../src/yard/backdrop.js';
+import { color, mix, seeded } from '../src/yard/brush.js';
+import { paintSky } from '../src/yard/clouds.js';
+import { lightFor, readPalette } from '../src/yard/palette.js';
 
 test('colours are read as the stylesheet writes them, with their opacity', () => {
   assert.deepEqual(color('#fff'), [255, 255, 255, 1]);
   assert.deepEqual(color('#4a9bd6'), [74, 155, 214, 1]);
   const clear = color('#a08c7426');
   assert.deepEqual(clear.slice(0, 3), [160, 140, 116]);
-  assert.ok(Math.abs(clear[3] - 0x26 / 255) < 1e-9, "a winter crown's colour is nearly clear");
+  assert.ok(Math.abs(clear[3] - 0x26 / 255) < 1e-9, 'an eight-digit colour keeps its opacity');
   assert.deepEqual(color('rgba(1, 2, 3, 0.5)'), [1, 2, 3, 0.5]);
   assert.deepEqual(color(''), [0, 0, 0, 0], 'nothing set paints nothing');
   assert.deepEqual(mix([0, 0, 0, 1], [100, 200, 50, 1], 0.5), [50, 100, 25, 1]);
@@ -21,9 +24,6 @@ test('the same seed paints the same strokes', () => {
     Array.from({ length: 5 }, () => a()),
     Array.from({ length: 5 }, () => b()),
   );
-  const shape = deform(ellipse(0, 0, 10, 10, 8), seeded(3), 3, 0.3);
-  assert.equal(shape.length, 8 * 2 ** 3, 'every edge is broken in two at each step');
-  assert.deepEqual(shape, deform(ellipse(0, 0, 10, 10, 8), seeded(3), 3, 0.3));
 });
 
 test("a round tree's crown is the bushes' green unless the season gives it its own", () => {
@@ -40,35 +40,30 @@ test('the sun lights from the left in the morning and the right in the evening, 
   assert.ok(lightFor('day', 'rain').strength < lightFor('day', 'clear').strength);
 });
 
-// A 2D context that accepts everything and counts what is filled and stroked.
+// A 2D context that accepts everything, counts what is filled and stroked, and keeps the order of
+// the colours it was given.
 function recorder() {
-  const counts = { fill: 0, stroke: 0, fillRect: 0 };
+  const counts = { fill: 0, stroke: 0, fillRect: 0 },
+    colours = [];
   const gradient = { addColorStop() {} };
   const ctx = new Proxy(
     { canvas: { width: 800, height: 400 } },
     {
       get(target, name) {
         if (name in target) return target[name];
-        if (name === 'createLinearGradient' || name === 'createRadialGradient') return () => gradient;
-        if (name === 'createPattern') return () => ({});
-        if (name === 'createImageData') return (w, h) => ({ data: new Uint8ClampedArray(w * h * 4) });
-        if (name === 'getContext') return () => ctx;
+        if (name === 'createLinearGradient') return () => gradient;
         if (name in counts) return () => counts[name]++;
         return () => {};
       },
       set(target, name, value) {
+        if (name === 'fillStyle' && typeof value === 'string') colours.push(value);
         target[name] = value;
         return true;
       },
     },
   );
-  return { ctx, counts };
+  return { ctx, counts, colours };
 }
-globalThis.OffscreenCanvas ??= class {
-  getContext() {
-    return recorder().ctx;
-  }
-};
 
 const sheet = {
   'sky-a': '#74b6e6',
@@ -82,8 +77,6 @@ const sheet = {
   'back-hi': '#b5db88',
   front: '#80b85c',
   'front-hi': '#a0cf78',
-  rim: '#ffffff55',
-  path: '#ecdcae',
   cloud: '#ffffff',
   'cloud-shade': '#dfeaf3',
   leaf: '#6fb265',
@@ -99,7 +92,6 @@ const sheet = {
   'flower-a': '#f48fa6',
   'flower-b': '#fdfdf6',
   'flower-c': '#f6c445',
-  shadow: '#1d3a2222',
   cap: 'transparent',
 };
 
@@ -112,11 +104,36 @@ test('every time of day, weather and season paints, and comes out the same each 
           sky = recorder();
         paintLand(land.ctx, 800, 400, pal, { period, weather, season });
         paintSky(sky.ctx, 800, 400, pal, { period, weather, season });
-        assert.ok(land.counts.fill > 500, `${season} ${weather} ${period}: the land is painted`);
+        assert.ok(land.counts.fill > 150, `${season} ${weather} ${period}: the land is painted`);
         assert.ok(sky.counts.fillRect > 0);
         if (period !== 'day' || weather !== 'clear') continue;
         const again = recorder();
         paintLand(again.ctx, 800, 400, pal, { period, weather, season });
-        assert.deepEqual(again.counts, land.counts, 'painted again, the same strokes');
+        assert.deepEqual(again.colours, land.colours, 'painted again, the same strokes in the same colours');
       }
+});
+
+test('every colour the painter reads is set in the stylesheet, and every scenery colour is read', async () => {
+  const css = await readFile('src/styles/scenery.css', 'utf8'),
+    painter = (
+      await Promise.all(
+        ['backdrop', 'clouds', 'lake', 'trees', 'palette'].map(f => readFile(`src/yard/${f}.js`, 'utf8')),
+      )
+    ).join('\n'),
+    others = (
+      await Promise.all(['src/index.html', 'src/styles/yard.css', 'src/yard/scene.js'].map(f => readFile(f, 'utf8')))
+    ).join('\n');
+  const names = Object.keys(readPalette(() => ''));
+  // Read by the painter: pal['name'] or pal.name (crown and maple fall back to leaf, cap to none).
+  for (const name of names) {
+    const read = painter.includes(`'${name}'`) || new RegExp(`pal\\.${name}\\b`).test(painter);
+    assert.ok(read, `the painter never uses ${name}`);
+  }
+  // Every custom property set on the yard in scenery.css is read: by the painter, or by var() in
+  // the page's own shapes and styles.
+  const set = new Set([...css.matchAll(/^\s*--([\w-]+):/gm)].map(m => m[1]));
+  for (const prop of set) {
+    const used = names.includes(prop) || css.includes(`var(--${prop}`) || others.includes(`var(--${prop}`);
+    assert.ok(used, `--${prop} is set in scenery.css but nothing reads it`);
+  }
 });

@@ -72,6 +72,20 @@ icons();
 setupConfirm();
 setupWindow();
 setupTabs();
+// Keyboard: the panels and the two views, with the keys the macOS menu bar shows (View menu). On a
+// Mac the menu bar takes the switches' keys, so the page answers them only elsewhere.
+const onMac = /Mac/.test(navigator.platform);
+document.addEventListener('keydown', e => {
+  if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+  const key = e.key.toLowerCase();
+  if (!e.shiftKey && (key === '1' || key === '2')) {
+    e.preventDefault();
+    openPanel(key === '1' ? 'pet' : 'invite');
+  } else if (e.shiftKey && !onMac && data.pets.length && (key === 'm' || key === 'd')) {
+    e.preventDefault();
+    guard(() => (key === 'm' ? setMini(!isMini()) : call('toggleDesktop')))();
+  }
+});
 setupSky();
 setupViews({
   gameTap,

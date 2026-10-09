@@ -42,12 +42,11 @@ export function syncGameUi() {
     b.setAttribute('aria-pressed', String(mine));
     b.disabled = !data.pets.length || (!!game && !mine);
   }
-  for (const id of ['feed', 'greet']) $(id).disabled = !data.pets.length || !!game;
-  // The "Games" label fades with its buttons when none of them can be pressed.
-  document.querySelector('.tool-label')?.classList.toggle(
-    'off',
-    gameButtons.every(b => b.disabled),
-  );
+  $('feed').disabled = !data.pets.length || !!game;
+  // The games share one button on the tools: it opens their menu, and while one is on it ends it.
+  $('games-label').textContent = game ? t('game.stop', { name: GAMES[game.kind] }) : t('game.label');
+  $('games-button').classList.toggle('playing', !!game);
+  $('games-button').disabled = !data.pets.length;
   hint();
 }
 function say(text) {
@@ -314,6 +313,25 @@ export function playGame(now, dt) {
 // Wires the game buttons. Called once, by app.js.
 export function setupPlay() {
   gameButtons = [...document.querySelectorAll('.tools [data-game]')];
+  const menu = $('games-menu'),
+    button = $('games-button'),
+    show = open => {
+      menu.hidden = !open;
+      button.setAttribute('aria-expanded', String(open));
+    };
   for (const b of gameButtons)
-    b.onclick = () => (game?.kind === b.dataset.game ? endGame() : startGame(b.dataset.game));
+    b.onclick = () => {
+      show(false);
+      if (game?.kind === b.dataset.game) endGame();
+      else startGame(b.dataset.game);
+    };
+  button.onclick = () => (game ? endGame() : show(menu.hidden));
+  document.addEventListener('pointerdown', e => {
+    if (!menu.hidden && !menu.contains(e.target) && !button.contains(e.target)) show(false);
+  });
+  menu.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    show(false);
+    button.focus();
+  });
 }

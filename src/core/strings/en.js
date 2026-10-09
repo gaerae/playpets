@@ -53,6 +53,7 @@ export const strings = {
   'hint.first_chat': 'Click my name to chat!',
   'toast.desktop_tip':
     'Your friends are out on the desktop. Point at one to see its name, and click the name to chat. Drag a friend to move it.',
+  'scene.title': 'Time of day and weather in the yard',
   'period.label': 'Time of day',
   'period.title': 'Time of day in the yard',
   'period.auto': 'Auto time',
@@ -89,9 +90,7 @@ export const strings = {
   'chatter.evening': ['Pretty sunset', 'I’m hungry', 'Today was fun'],
   'chatter.night': ['So many stars', 'Sleepy…', 'Bright moon'],
   'care.treat': 'Treat',
-  'care.greet': 'Say hi',
   'care.treat_title': 'Put down a treat and friends come to eat it',
-  'care.greet_title': 'Every friend says hi at once',
   'care.chatter': 'Let them chat',
   'care.chatter_need_two': 'Give two or more friends an AI and they will chat among themselves',
   'care.chatter_title': 'Friends with an AI have a short chat about the time and the weather',

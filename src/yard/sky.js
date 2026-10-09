@@ -1,7 +1,7 @@
 // Scenery: time of day and weather each follow the clock and the sky unless the person picks one.
 // Left alone, friends also remark on it, so the yard is worth leaving open.
 
-import { shuffle } from '../core/math.js';
+import { pick, shuffle } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, data, game, recall, remember, views } from '../core/state.js';
 import { createEasel } from './easel.js';
@@ -108,8 +108,7 @@ export function idleChatter(now) {
   const quiet = [...views.values()].filter(
     v => v.bubble.hidden && !v.drag && (data.statuses[v.pet.id]?.state || 'idle') === 'idle',
   );
-  if (quiet.length)
-    bubble(quiet[Math.floor(Math.random() * quiet.length)], chatterFor(scene.period, scene.weather, Math.random), 3500);
+  if (quiet.length) bubble(pick(quiet), chatterFor(scene.period, scene.weather, Math.random), 3500);
 }
 // Starts the sky: the chosen or automatic time and weather, and the minute-by-minute check. Called once, by app.js.
 export function setupSky() {
@@ -121,6 +120,22 @@ export function setupSky() {
   nextChatter = performance.now() + delay(Math.random, CHATTER_DELAY);
   $('weather').value = weatherChoice;
   $('period').value = periodChoice;
+  // The caption is the button for the time of day and the weather: a small menu under it.
+  const menu = $('scene-menu'),
+    button = $('scene-button'),
+    show = open => {
+      menu.hidden = !open;
+      button.setAttribute('aria-expanded', String(open));
+    };
+  button.onclick = () => show(menu.hidden);
+  document.addEventListener('pointerdown', e => {
+    if (!menu.hidden && !menu.contains(e.target) && !button.contains(e.target)) show(false);
+  });
+  menu.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    show(false);
+    button.focus();
+  });
   $('period').onchange = () => {
     periodChoice = $('period').value;
     remember('period', periodChoice);

@@ -4,8 +4,10 @@
 // changes size, and the new painting fades in over the old one. Nothing here runs in between
 // (docs/standards/performance.md). The colours come from the stylesheet (scenery.css and the
 // season's), read off the yard after sky.js has set them.
-import { lightFor, paintCloud, paintLand, paintSky, readPalette } from './backdrop.js';
+import { paintLand } from './backdrop.js';
 import { seeded } from './brush.js';
+import { paintCloud, paintSky } from './clouds.js';
+import { lightFor, readPalette } from './palette.js';
 
 // Canvas pixels per yard pixel: sharp on a dense screen, but never more than this many in all,
 // so a large window does not hold a huge picture. The sky is soft and needs fewer.
@@ -69,7 +71,7 @@ export function createEasel(yard, reduced) {
       if (!cw || !ch) return;
       const ctx = sized(cloud, cw, ch, density);
       ctx.clearRect(0, 0, cw, ch);
-      paintCloud(ctx, cw / 2, ch * 0.92, cw * 0.92, ch * 0.95, pal, seeded(61 + i * 7), lit);
+      paintCloud(ctx, cw / 2, ch * 0.95, cw * 0.9, ch * 0.72, pal, seeded(61 + i * 7), lit);
     });
   }
   // A yard being resized is painted again once it has settled.

@@ -1,4 +1,4 @@
-// Looking after friends: treats they walk over to, and greetings they answer.
+// Looking after friends: treats they walk over to, and the pats, waves and jumps they answer.
 
 import { t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
@@ -6,7 +6,7 @@ import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, guard, selected, setAiming, toast, views } from '../core/state.js';
 import { greetingFor } from './scene.js';
 import { scene } from './sky.js';
-import { bubble, effect, FIELD_TOP, geometry, hint, petHeight, pose, rest, sizeOf } from './views.js';
+import { bubble, effect, FIELD_TOP, footTarget, hint, petHeight, pose, rest, sizeOf } from './views.js';
 import { delay, SCATTER_DELAY } from './wander.js';
 
 let treatTimer,
@@ -24,7 +24,8 @@ export function ate(v, now) {
 }
 // A pat, a wave or a jump asked for by the person or by a coding agent.
 export function react(event) {
-  // Greeting everyone at once: each friend answers in its own words, a beat apart.
+  // A wave to everyone at once (a coding agent can ask for one): each friend answers in its own
+  // words, a beat apart.
   const together = event.action === 'wave' && !event.petId,
     said = new Set();
   let turn = 0;
@@ -71,9 +72,8 @@ export function setAimingMode(kind) {
   $('yard').classList.toggle('aiming', !!kind);
   hint();
 }
-// Wires the treat, greeting and chatter buttons, and the yard's click for placing a treat. Called once, by app.js.
+// Wires the treat and chatter buttons, and the yard's click for placing a treat. Called once, by app.js.
 export function setupCare() {
-  $('greet').onclick = guard(() => call('play', 'wave', null));
   $('chatter').onclick = guard(async () => {
     if (data.pets.filter(p => p.providerId).length < 2) return toast(t('care.chatter_need_two'));
     await startChatter();
@@ -112,12 +112,8 @@ function dropTreat(x, y) {
   treatEaters = 0;
   let i = 0;
   for (const v of views.values()) {
-    const { w, h, top } = geometry(v.pet);
     const angle = (i++ / views.size) * Math.PI * 2;
-    v.target = {
-      x: clamp((bx - 14 - sizeOf(v.pet) / 2 + Math.cos(angle) * 34) / w),
-      y: clamp((by - top - petHeight(v.pet) + Math.sin(angle) * 20) / h),
-    };
+    v.target = footTarget(v, bx + Math.cos(angle) * 34, by + Math.sin(angle) * 20, 0);
     v.targetKind = 'treat';
   }
   setAimingMode(false);

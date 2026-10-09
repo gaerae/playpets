@@ -47,8 +47,17 @@ To really quit, click **Quit the app** at the bottom of the Settings tab. A "Qui
 ## Menus and shortcuts <Since v="0.1.0" />
 
 - **Tray menu** (the cat in the menu bar or the taskbar): **Open the yard**; then switches with a check mark for **Mini view**, **Show on the desktop** and, while that is on, **Stroll around the desktop** (with no friend yet, these are left out); then **Settings…**, **Check for updates…** (it reads **Update to v…** once a new version is known) and **About PlayPets**, then **Quit**. On Windows a left click on the icon opens the yard and the menu is on the right button. When a coding agent is waiting for you or ran into trouble, the icon gets a small blue or red mark, and its tooltip names the friend.
-- **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **Window**.
-- **Shortcuts**: <kbd>⌘</kbd> <kbd>,</kbd> (macOS) or <kbd>Ctrl</kbd> <kbd>,</kbd> (Windows, Linux) opens Settings; <kbd>⌘</kbd> <kbd>Q</kbd> quits on macOS.
+- **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **View** → **Friends**, **Invite a Friend…**, and **Mini view** and **Show on the desktop** with a check mark (greyed until a friend is in); **Window**.
+- **Shortcuts** (<kbd>⌘</kbd> on macOS, <kbd>Ctrl</kbd> on Windows and Linux):
+
+| Keys | Does |
+|---|---|
+| <kbd>⌘</kbd> <kbd>1</kbd> | Open the Friend tab |
+| <kbd>⌘</kbd> <kbd>2</kbd> | Open the Invite tab |
+| <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings |
+| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Mini view on or off |
+| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>D</kbd> | Show on the desktop, on or off |
+| <kbd>⌘</kbd> <kbd>Q</kbd> | Quit (macOS) |
 
 ## Data folder <Since v="0.1.0" />
 

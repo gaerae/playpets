@@ -85,6 +85,11 @@ fn apply(app: &AppHandle, snap: Snapshot) {
         let state = snap.attention.as_ref().map(|(state, _)| state.as_str());
         let _ = tray.set_icon(Some(icon(state)));
     }
+    // The macOS menu bar's View menu has the same switches, so it follows the same state.
+    #[cfg(target_os = "macos")]
+    if let Ok(bar) = crate::menu::app_menu(app, snap.friends, snap.desktop, key.1) {
+        let _ = app.set_menu(bar);
+    }
     *shown = Some(key);
 }
 
@@ -206,7 +211,8 @@ pub fn rebuild(app: &AppHandle) {
     retitle(app);
 }
 
-/// Everything outside the page that carries words: the window title, the tray, the macOS menu bar.
+/// Everything outside the page that carries words: the window title, the tray and (with it) the
+/// macOS menu bar.
 /// Never called holding the state lock (it reads the state).
 pub fn retitle(app: &AppHandle) {
     if let Some(w) = app.get_webview_window("main") {
@@ -215,11 +221,6 @@ pub fn retitle(app: &AppHandle) {
     if let Some(state) = app.try_state::<Shared>() {
         let snap = snapshot(&lock(&state));
         refresh(app, snap);
-    }
-    // The macOS menu bar is built again in the new language.
-    #[cfg(target_os = "macos")]
-    if let Ok(menu) = crate::menu::app_menu(app) {
-        let _ = app.set_menu(menu);
     }
 }
 

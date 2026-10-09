@@ -10,7 +10,7 @@ The yard changes its look with the time of day, and you can play three games wit
 
 <Shot name="yard-evening" caption="The yard on a golden evening. The time of day follows the clock automatically." />
 
-The caption line above the yard describes the current scene, such as "A golden evening in the yard", and next to it are the lists for choosing the time of day and the weather.
+The label at the top left of the yard describes the current scene, such as "A golden evening in the yard". Click it to open a small menu with the time of day and the weather.
 
 | Choice | Options |
 |---|---|
@@ -19,8 +19,8 @@ The caption line above the yard describes the current scene, such as "A golden e
 
 - **Auto time** follows your computer's clock. The colours of the sky and ground change through morning, midday, evening and night, the sun crosses the sky from left to right, and at night the moon shows tonight's phase.
 - **Auto weather** picks new weather once every 20 minutes. It is mostly clear, with rain now and then; snow comes only in winter. It does not fetch the real weather from the internet.
-- The yard is painted like the background of an animated film, and painted again when the light changes: the sun lights the trees and hills from its side (left in the morning, right in the evening), far mountains fade into the haze, and from evening on the window of the cottage on the hill is lit.
-- The yard follows the **season** by the date: cherry blossoms and falling petals in spring, deep green in summer, red and gold leaves drifting down in autumn, bare branches and dry fields in winter. South of the equator (by your computer's time zone) the seasons are the other way round.
+- The yard is painted like the background of an animated film, and painted again when the light changes: the sun lights the trees and hills from its side (left in the morning, right in the evening), far mountains fade into the haze, and a small lake in the valley mirrors the sky.
+- The yard follows the **season** by the date: cherry blossoms and falling petals in spring, deep green in summer, red and gold leaves drifting down in autumn, muted winter green and dry fields in winter. South of the equator (by your computer's time zone) the seasons are the other way round.
 - When rain clears up in daylight, a rainbow stands over the hills for a few minutes. On clear days a flock of birds crosses the sky now and then, butterflies flutter until autumn, and fireflies glow on spring and summer nights.
 - Pick a value yourself and that time of day and weather are fixed. Your choice is remembered, so it is the same the next time you open the app.
 
@@ -58,7 +58,7 @@ Once a day a friend brings a gift for the yard, after the yard has been open for
 
 ## Games <Since v="0.1.0" />
 
-The **Games** area in the toolbar under the yard has three buttons. You can play only one game at a time, and while a game is on, Treat and Say hi are disabled for a moment. When a game ends, the friends walk back to where they were.
+The tools float at the bottom of the yard. **Games** there opens a small menu with three games. You can play only one game at a time; while a game is on, the same button reads **End …** and ends it, and Treat is disabled for a moment. When a game ends, the friends walk back to where they were.
 
 Click a button and it changes to something like **Stop Hide and seek**; click it again and the game ends right away.
 
@@ -92,7 +92,7 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 Click the **Mini** button at the top of the window and the panel and toolbar go away, leaving a small window with only the yard.
 
 - The small window always floats on top of other windows. The first time, it opens in the bottom-right corner of the screen; after that it opens where you last left it, at the size you gave it.
-- Point at the yard and **Treat**, **Say hi** and **Let them chat** rise at the bottom as small buttons.
+- Point at the yard and **Treat** and **Let them chat** rise at the bottom as small buttons.
 - Name tags are hidden; hover over a friend and theirs shows for a moment.
 - Drag an empty spot with no friend and the window moves. Drag a friend and the friend moves.
 - Patting works as before, and clicking a friend's name tag opens the chat (the window goes back to full size).

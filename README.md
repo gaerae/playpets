@@ -107,7 +107,7 @@ src/              Page (HTML, CSS, JS, used as is with no build tool)
   index.html      Yard window · app.js entry point, render.js draws state, window.js window buttons and mini mode
   overlay.html    Desktop pet window · overlay/ its scripts and styles
   core/           Shared by both windows: state, sprites and animation, strings (i18n, strings), icons
-  yard/           The yard: scenery, friends, games, treats and greetings
+  yard/           The yard: the painted scenery, friends, games, treats, the garden and its gifts
   panel/          Side panel: tabs, friends, chat, friend settings, AI connections, invite, settings
   styles/         Styles by area (base, shell, yard, panel, dialog, loaded in this order)
 src-tauri/src/    App core (Rust)
