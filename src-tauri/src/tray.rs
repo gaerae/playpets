@@ -1,8 +1,7 @@
 // The tray icon and its menu, and the words outside the page (window title, tray) that follow
 // the app's language.
-use crate::app::{Shared, lock, quit};
-use crate::{i18n, window};
-use tauri::menu::{Menu, MenuItem};
+use crate::i18n;
+use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{AppHandle, Manager};
 
@@ -18,22 +17,55 @@ pub fn retitle(app: &AppHandle) {
         let _ = tray.set_tooltip(Some(i18n::t("app.title")));
     }
     if let Some(items) = app.try_state::<TrayItems>() {
+        // Once a newer version is known, the update item names it.
+        let found = crate::update::found_version(app);
         for (key, item) in &items.0 {
-            let _ = item.set_text(i18n::t(key));
+            let text = match (*key, &found) {
+                ("tray.update", Some(version)) => i18n::tr("tray.update_to", &[("version", &format!("v{version}"))]),
+                _ => i18n::t(key),
+            };
+            let _ = item.set_text(text);
         }
+    }
+    // The macOS menu bar is built again in the new language.
+    #[cfg(target_os = "macos")]
+    if let Ok(menu) = crate::menu::app_menu(app) {
+        let _ = app.set_menu(menu);
     }
 }
 
 pub fn build(app: &tauri::App) -> tauri::Result<()> {
-    let open = MenuItem::with_id(app, "open", i18n::t("tray.open"), true, None::<&str>)?;
-    let desk = MenuItem::with_id(app, "desktop", i18n::t("tray.desktop"), true, None::<&str>)?;
-    let roam = MenuItem::with_id(app, "wander", i18n::t("tray.wander"), true, None::<&str>)?;
-    let quit_item = MenuItem::with_id(app, "quit", i18n::t("tray.quit"), true, None::<&str>)?;
-    let menu = Menu::with_items(app, &[&open, &desk, &roam, &quit_item])?;
+    let item = |id: &str, key: &str| MenuItem::with_id(app, id, i18n::t(key), true, None::<&str>);
+    let open = item("open", "tray.open")?;
+    let desk = item("desktop", "tray.desktop")?;
+    let roam = item("wander", "tray.wander")?;
+    let settings = item("settings", "tray.settings")?;
+    let update = item("update", "tray.update")?;
+    let about = item("about", "tray.about")?;
+    let quit_item = item("quit", "tray.quit")?;
+    // Three groups: the yard and the desktop; settings, updates and about; quitting.
+    let line = || PredefinedMenuItem::separator(app);
+    let menu = Menu::with_items(
+        app,
+        &[
+            &open,
+            &desk,
+            &roam,
+            &line()?,
+            &settings,
+            &update,
+            &about,
+            &line()?,
+            &quit_item,
+        ],
+    )?;
     app.manage(TrayItems(vec![
         ("tray.open", open.clone()),
         ("tray.desktop", desk.clone()),
         ("tray.wander", roam.clone()),
+        ("tray.settings", settings.clone()),
+        ("tray.update", update.clone()),
+        ("tray.about", about.clone()),
         ("tray.quit", quit_item.clone()),
     ]));
     // Colored app-icon cat on every platform (matches the Dock/taskbar icon).
@@ -43,18 +75,7 @@ pub fn build(app: &tauri::App) -> tauri::Result<()> {
         .icon(tray_icon)
         .icon_as_template(false)
         .menu(&menu)
-        .on_menu_event(|app, e| match e.id().as_ref() {
-            "open" => window::show(app),
-            "desktop" | "wander" => {
-                let state = app.state::<Shared>();
-                let mut d = lock(&state);
-                if let Err(e) = crate::app::toggle_flag(app, &mut d, e.id().as_ref() == "wander") {
-                    d.warnings.push(e);
-                }
-            }
-            "quit" => quit(app),
-            _ => {}
-        })
+        // Its items are handled with the menu bar's, by the app-wide handler (main.rs, menu::act).
         .build(app)?;
     Ok(())
 }

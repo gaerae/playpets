@@ -141,6 +141,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "defaults": {"ollamaEndpoint": http::OLLAMA_DEFAULT},
         "agents": agent::kinds::agents_json(),
         "version": app.package_info().version.to_string(),
+        "project": {"site": env!("CARGO_PKG_HOMEPAGE"), "repository": env!("CARGO_PKG_REPOSITORY")},
         "assets": d.assets.iter().map(|a| { let mut v = serde_json::to_value(a).unwrap(); v["spriteUrl"] = json!(sprite_url(&a.id)); v }).collect::<Vec<_>>(),
         "providers": d.providers.iter().map(|p| { let mut p = p.clone(); p["hasKey"] = json!(d.secret_ids.contains(providers::id_of(&p))); p }).collect::<Vec<_>>(),
         "detected": d.detected,

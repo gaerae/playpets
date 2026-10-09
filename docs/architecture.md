@@ -47,11 +47,11 @@ flowchart LR
 | Pets | `src-tauri/src/pets/` | Unpacks the starter pets bundled with the app, reads and checks pet folders (in one place, `catalog.rs`), imports from community pages (`importer/`: each site is one record in `sites.rs`), creates and edits friends |
 | Agent | `src-tauri/src/agent/` | The CLI mode of the same executable (hooks, MCP, status commands) and the local HTTP bridge inside the app. The agent list is one table in `kinds.rs`; the settings snippets to paste are in `snippets.rs` |
 | Desktop | `src-tauri/src/desktop/` | Opens and closes the overlay windows, computes friends' strolls and drags, and makes a window take clicks only while the cursor is over a friend |
-| Windows, tray, OS open | `window.rs`, `tray.rs`, `system.rs` | The main window and mini mode, the tray menu, opening folders and addresses through the OS |
+| Windows, tray, menus, OS open | `window.rs`, `tray.rs`, `menu.rs`, `system.rs` | The main window and mini mode, the tray menu and the macOS menu bar (one handler, `menu::act`, for both), opening folders and addresses through the OS |
 | Strings | `src-tauri/src/i18n/<language>.rs`, `src/core/strings/<language>.js` | Per-language sentence tables. Registered in `i18n/mod.rs` and `core/strings.js` |
 | Import links | `src-tauri/src/links.rs` | Takes `playpets://import?url=…`, imports the pet through the same path as a pasted address, and opens the Invite tab |
 | Saved files | `src-tauri/src/store.rs` | Reads and writes the JSON files in the data folder atomically. A file that cannot be parsed is kept as a timestamped copy beside it (`state.json.corrupt-…`) so nothing is lost |
-| Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, verifies the signature, then installs and restarts |
+| Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, renames the tray's update item once a version is found, reports download progress (`update-progress`), verifies the signature, then installs and restarts |
 
 ## Data flow
 What each arrow in the diagram actually carries, path by path.

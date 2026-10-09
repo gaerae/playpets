@@ -56,7 +56,9 @@ const scenario = `(async()=>{
   const must=async(label,p)=>{const r=await p;await L(label+'='+(r&&r.ok!==undefined?(r.ok?'ok':'err:'+r.error):JSON.stringify(r).slice(0,60)));return r;};
   // Polls until f() is truthy (or ms pass) and returns that value, so no check sleeps for a fixed time.
   const until=async(f,ms=5000)=>{const end=Date.now()+ms;let v=await f();while(!v&&Date.now()<end){await new Promise(r=>setTimeout(r,50));v=await f();}return v;};
-  let pageError='';window.addEventListener('error',e=>{if(!pageError)pageError=e.message+' @'+(e.filename||'').split('/').pop()+':'+e.lineno;});
+  // "ResizeObserver loop completed with undelivered notifications" is the browser deferring a
+  // resize to the next frame, not a fault in the page, so it is not counted.
+  let pageError='';window.addEventListener('error',e=>{if(!pageError&&!String(e.message).startsWith('ResizeObserver loop'))pageError=e.message+' @'+(e.filename||'').split('/').pop()+':'+e.lineno;});
   try{
     const boot=await playPets.bootstrap();
     await L('assets='+boot.data.assets.length);
@@ -118,6 +120,21 @@ const scenario = `(async()=>{
     const shown=[];for(const k of ['pet','invite','settings']){document.querySelector('.panel-tab[data-panel='+k+']').click();await wait(150);shown.push(['pet','invite','settings'].filter(o=>$('panel-'+o).getBoundingClientRect().height>40).join(','));}
     const opened=!$('side-panel').hidden;$('close-panel').click();await wait(300);
     await L('panel='+(opened&&$('side-panel').hidden&&shown.join('|')==='pet|invite|settings'?'toggles':'err:'+shown.join('|')));
+    // About: the app's own pages, from the addresses the backend reports; "What's new" waits for an update.
+    const project=(await playPets.bootstrap()).data.project||{};
+    await L('about='+document.querySelectorAll('#panel-settings button[data-link]').length+'/'+(String(project.site).startsWith('https://')&&String(project.repository).startsWith('https://github.com/')?'addresses':'none')+'/'+($('update-notes').hidden?'notes-hidden':'notes-shown'));
+    // An update found in the background: the top-bar button and the Settings dot show it, the button
+    // opens the dialog, and Later puts the button away while the dot stays. Nothing is installed.
+    const sections=[...document.querySelectorAll('#panel-settings .settings-section h3')].map(h=>h.id).join(',');
+    const inAbout=!!document.querySelector('.settings-section.about #update-button');
+    window.__pp('event',{type:'update',update:{version:'9.9.9',notes:''}});await wait(200);
+    const tabDot=document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
+    const pillShown=!$('update-pill').hidden&&$('update-pill-label').textContent==='v9.9.9';
+    $('update-pill').click();await wait(200);
+    const updateDialogOpen=$('update-dialog').open&&$('update-title').textContent.includes('v9.9.9');
+    $('update-later').click();await wait(200);
+    const putAway=!$('update-dialog').open&&$('update-pill').hidden&&document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
+    await L('updateUi='+sections+'/'+(inAbout&&tabDot&&pillShown&&updateDialogOpen&&putAway?'ok':'err:'+[inAbout,tabDot,pillShown,updateDialogOpen,putAway].join(',')));
     await L('stage='+($('yard').getBoundingClientRect().height/innerHeight>.6?'yard-first':'small:'+$('yard').getBoundingClientRect().height));
     $('weather').value='snow';$('weather').dispatchEvent(new Event('change'));
     await L('weather='+($('yard').classList.contains('weather-snow')&&$('weather-layer').width>0?'snow-canvas':'err'));
@@ -319,6 +336,11 @@ const expect = [
   [/^waiting=shown-then-gone$/, 'waiting indicator while a reply is on its way'],
   [/^chrome=(mac-native|custom:0)$/, 'title bar blends with the page (per OS)'],
   [/^panel=toggles$/, 'panel tabs open and close'],
+  [/^about=6\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
+  [
+    /^updateUi=general-title,agent-link-title,about-title\/ok$/,
+    'an update shows in the top bar and on the Settings tab, opens its dialog, and Later puts it away',
+  ],
   [/^stage=yard-first$/, 'the yard leads the window (60% of the height or more)'],
   [/^weather=snow-canvas$/, 'weather canvas (snow)'],
   [/^greetBubbles=2$/, 'say hi together bubbles'],

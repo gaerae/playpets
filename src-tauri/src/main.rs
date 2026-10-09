@@ -7,6 +7,7 @@
 //   agent/    coding agents: the CLI mode and the bridge it reaches the app through
 //   desktop/  friends on the desktop
 //   links     playpets:// links handed to the app
+//   menu      what the tray menu and the macOS menu bar do
 //   window, tray, system, store, i18n, update (the app updating itself)
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
@@ -17,6 +18,7 @@ mod commands;
 mod desktop;
 mod i18n;
 mod links;
+mod menu;
 mod pets;
 mod store;
 mod system;
@@ -64,7 +66,11 @@ fn main() {
 
             // Only macOS has a menu bar outside the window; elsewhere it would sit on top of the drawn title bar.
             #[cfg(target_os = "macos")]
-            app.set_menu(tauri::menu::Menu::default(app.handle())?)?;
+            app.set_menu(menu::app_menu(app.handle())?)?;
+            // The tray's items and the menu bar's come to one handler.
+            app.on_menu_event(|app, e| {
+                menu::act(app, e.id().as_ref());
+            });
             let win = window::build_main(app, &commands::bridge_js())?;
             // playpets://import?url=… from a pet gallery. Windows and Linux register the scheme
             // here for unpackaged builds; installers and the macOS bundle carry it themselves.

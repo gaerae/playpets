@@ -20,6 +20,7 @@
         </svg>
         <span class="brand-sub" data-i18n="app.tagline"></span></a>
         <div class="topbar-end">
+          <button id="update-pill" class="button secondary update-pill" hidden><span data-icon="download"></span><span id="update-pill-label"></span></button>
           <div class="desktop-controls">
             <label id="wander-wrap" class="wander-toggle" data-i18n-title="desktop.wander_title" hidden><input type="checkbox" id="desktop-wander"><span class="wander-switch" aria-hidden="true"></span><span data-i18n="desktop.wander"></span></label><button id="desktop" class="button secondary"><span data-icon="monitor"></span><span id="desktop-label" data-i18n="desktop.show"></span></button>
           </div>
@@ -287,19 +288,14 @@
             </section>
           </div>
           <div id="panel-settings" class="panel-body" data-title="tabs.settings" hidden>
-            <section class="settings-section" aria-labelledby="language-label">
+            <section class="settings-section" aria-labelledby="general-title">
+              <h3 id="general-title" data-i18n="settings.general"></h3>
               <ul class="link-list">
                 <li class="link-row">
                   <div>
                     <strong><label id="language-label" for="language" data-i18n="settings.language"></label></strong><small data-i18n="settings.language_note"></small>
                   </div>
                   <select id="language" class="language-select"></select>
-                </li>
-                <li class="link-row">
-                  <div>
-                    <strong data-i18n="settings.update"></strong><small id="update-note"></small>
-                  </div>
-                  <button id="update-button" class="button secondary small" data-i18n="settings.update_check"></button>
                 </li>
               </ul>
               <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-chatter"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_chatter"></span><small data-i18n="settings.auto_chatter_note"></small></span></label>
@@ -341,8 +337,23 @@
               </ul>
               <p class="tiny" data-i18n="settings.privacy"></p>
             </section>
+            <section class="settings-section about" aria-labelledby="about-title">
+              <h3 id="about-title" data-i18n="about.title"></h3>
+              <p class="settings-lead"><span class="about-name">PlayPets <span id="app-version" class="version"></span></span> <span data-i18n="about.lead"></span></p>
+              <ul class="link-list">
+                <li class="link-row">
+                  <div>
+                    <strong data-i18n="settings.update"></strong><small id="update-note"></small>
+                  </div>
+                  <span class="update-actions"><button id="update-notes" class="button secondary small" data-i18n="settings.update_notes" hidden></button><button id="update-button" class="button secondary small" data-i18n="settings.update_check"></button></span>
+                </li>
+              </ul>
+              <div class="about-links">
+                <button class="button secondary small" data-link="site" data-i18n="about.site"></button><button class="button secondary small" data-link="guide" data-i18n="about.guide"></button><button class="button secondary small" data-link="releases" data-i18n="about.releases"></button><button class="button secondary small" data-link="github" data-i18n="about.github"></button><button class="button secondary small" data-link="report" data-i18n="about.report"></button><button class="button secondary small" data-link="license" data-i18n="about.license"></button>
+              </div>
+            </section>
             <div class="app-row">
-              <span>PlayPets <span id="app-version" class="version"></span></span><button id="quit-app" class="button secondary quit"><span data-icon="power"></span><span data-i18n="settings.quit"></span></button>
+              <button id="quit-app" class="button secondary quit"><span data-icon="power"></span><span data-i18n="settings.quit"></span></button>
             </div>
           </div>
         </aside>
@@ -431,6 +442,15 @@
           <button type="button" id="delete-provider" class="button text danger" data-i18n="connection.delete" hidden></button><button type="button" id="cancel-dialog" class="button text" data-i18n="confirm.cancel"></button><button type="submit" id="save-provider" class="button primary" data-i18n="connection.save_new"></button>
         </div>
       </form>
+    </dialog>
+    <dialog id="update-dialog" class="confirm-dialog update-dialog" aria-labelledby="update-title" aria-describedby="update-body">
+      <h2 id="update-title"></h2>
+      <p id="update-body" class="dialog-description"></p>
+      <button type="button" id="update-dialog-notes" class="button text notes-link" data-i18n="settings.update_notes"></button>
+      <div id="update-progress-wrap" class="update-progress" hidden><progress id="update-progress" max="100" value="0"></progress><small id="update-progress-label"></small></div>
+      <div class="dialog-actions">
+        <button type="button" id="update-later" class="button text" data-i18n="update.later"></button><button type="button" id="update-install" class="button primary" data-i18n="settings.update_install"></button>
+      </div>
     </dialog>
     <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-body">
       <h2 id="confirm-title"></h2>

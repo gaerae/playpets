@@ -4,7 +4,7 @@
 import { confirmAction, setupConfirm } from './core/confirm.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
-import { $, aiming, api, call, data, game, recall, selected, setData, toast, views } from './core/state.js';
+import { $, aiming, api, call, data, game, guard, recall, selected, setData, toast, views } from './core/state.js';
 import { plain, spoken } from './core/text.js';
 import { every } from './core/ticker.js';
 import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
@@ -12,7 +12,7 @@ import { setupConnection } from './panel/connection.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
 import { drawPreviews, setupInvite } from './panel/invite.js';
-import { setupSettings, updateFound } from './panel/settings.js';
+import { checkForUpdates, setupSettings, showSection, updateFound, updateProgress } from './panel/settings.js';
 import { openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { render } from './render.js';
 import { setMini, setupWindow } from './window.js';
@@ -118,6 +118,9 @@ let lastBubbleAt = 0;
 api.onEvent(event => {
   chatEvent(event);
   if (event.type === 'update') updateFound(event.update);
+  if (event.type === 'check-update') guard(checkForUpdates)();
+  if (event.type === 'update-progress') updateProgress(event.percent);
+  if (event.type === 'open-panel') showSection(event.panel, event.section);
   if (event.type === 'select') openChat(event.petId);
   if (event.type === 'import-request') importRequested(event.url);
   // A friend's saved place changed; the view already stands there, the record follows.

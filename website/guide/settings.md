@@ -1,10 +1,10 @@
 ---
-description: Language, app updates, quitting, the data folder and environment variables, what is saved and what is not
+description: General settings, About and app updates, menus and shortcuts, quitting, the data folder and environment variables, what is saved and what is not
 ---
 
 # Settings
 
-The **Settings** tab has Language, App updates, the auto chatter switch (**Let them chat now and then**), Coding agent hooks and Quit the app. Coding agent hooks are [explained separately](./agents.md).
+The **Settings** tab has three groups: **General** (Language and the auto chatter switch, **Let them chat now and then**), **Coding agent hooks**, and **About PlayPets** (the version, App updates and the project's pages), then Quit the app. Coding agent hooks are [explained separately](./agents.md). Open it from the tab, with <kbd>⌘</kbd> <kbd>,</kbd> or <kbd>Ctrl</kbd> <kbd>,</kbd>, or with **Settings…** in the tray menu.
 
 ## Language <Since v="0.1.0" />
 
@@ -14,24 +14,37 @@ Your friends' chatter and greetings use the chosen language as well. Conversatio
 
 Start the app with the environment variable `PLAYPETS_LANG=ko|en|ja|zh-hans` and it takes priority over the saved language. This is for testing.
 
-## App updates <Since v="0.1.0" />
-
-The line shows the current version. Click **Check for updates** and the app reads `latest.json` from GitHub releases.
-
-- If you are current, it says "You're up to date".
-- If there is a new version, the button changes to **Install and restart**. Click it to download, verify the signature and, when done, restart on the new version.
-
-20 seconds after the app starts, it checks once quietly. If there is a new version, a notice appears. If it could not check, look at your network, and keep in mind that the Windows portable zip is not covered by automatic updates. See [Install](./install.md#updates) for details.
-
 ## Let them chat now and then <Since v="0.1.0" />
 
-With this switch, right below the Language and App updates rows, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default: subscription CLIs cost nothing extra, but the calls add up, so turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
+With this switch, right below Language, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default: subscription CLIs cost nothing extra, but the calls add up, so turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
+
+## About PlayPets <Since v="0.1.0" />
+
+The last section of the Settings tab shows the version and holds **App updates**, then opens this site's pages and the project on GitHub: **Website**, **User guide**, **Release notes**, **GitHub**, **Report a problem** (a new issue) and **License** (MIT). They open in your browser.
+
+### App updates <Since v="0.1.0" />
+
+The row shows the current version. Click **Check for updates** and the app reads `latest.json` from GitHub releases; if you are current, it says "You're up to date".
+
+When there is a new version, whether this check, the quiet one 20 seconds after the app starts, or one from the menus found it:
+
+- A button with the new version appears in the top bar (only its icon in a narrow window), and the **Settings** tab gets a dot.
+- The button opens the update window: **What's new** opens that version's page on this site, **Later** puts the top-bar button away until the next start (the row and the dot stay), and **Install and restart** downloads it with a progress bar, verifies its signature and restarts on the new version. Your friends and settings stay.
+- The row in About offers **What's new** and **Install and restart** too.
+
+If it could not check, look at your network, and keep in mind that the Windows portable zip is not covered by automatic updates. See [Install](./install.md#updates) for details.
 
 ## Quit the app <Since v="0.1.0" />
 
 The yard window's close button only hides the window; the app stays in the tray. Friends on the desktop and the agent hooks keep running.
 
 To really quit, click **Quit the app** at the bottom of the Settings tab. A "Quit PlayPets?" confirmation appears. Conversations are not saved, and friends on the desktop go too. **Quit** in the tray menu does the same.
+
+## Menus and shortcuts <Since v="0.1.0" />
+
+- **Tray menu** (the cat in the menu bar or the taskbar): **Open the yard**, **Show / hide pets on the desktop**, **Stroll around the desktop on / off**, then **Settings…**, **Check for updates…** (it reads **Update to v…** once a new version is known) and **About PlayPets**, then **Quit**.
+- **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **Window**.
+- **Shortcuts**: <kbd>⌘</kbd> <kbd>,</kbd> (macOS) or <kbd>Ctrl</kbd> <kbd>,</kbd> (Windows, Linux) opens Settings; <kbd>⌘</kbd> <kbd>Q</kbd> quits on macOS.
 
 ## Data folder <Since v="0.1.0" />
 

@@ -255,9 +255,43 @@ html:not(.mac) body {
   border-radius: 0;
   color: var(--muted);
 }
+/* A newer version, in the top bar until it is installed or put off: the accent colour and the
+   version, nothing else, so it fits beside the other controls at the narrowest window. */
+.topbar .update-pill {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  font-variant-numeric: tabular-nums;
+}
+.topbar .update-pill:hover {
+  background: color-mix(in srgb, var(--accent) 8%, var(--white));
+}
+/* The Settings tab carries a dot while an update waits there. */
+.panel-tab.has-update {
+  position: relative;
+}
+.panel-tab.has-update::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
 @media (max-width: 980px) {
   .brand-sub {
     display: none;
+  }
+  /* The update and desktop buttons keep their icons, like the mini-mode button; their words stay in
+     the tooltip and the label. */
+  #update-pill-label,
+  #desktop-label {
+    display: none;
+  }
+  /* Tighter gaps keep the bar on one line with desktop mode's switch and an update shown (840px). */
+  .topbar-end {
+    gap: 6px;
   }
   .topbar .button {
     padding: 6px 9px;

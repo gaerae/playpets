@@ -364,9 +364,26 @@ fn open_folder(state: &State<Shared>, which: &str) -> Result<Value, String> {
 }
 
 fn open_external(raw: &str) -> Result<Value, String> {
-    let target = importer::openable(raw).ok_or_else(|| i18n::t("error.url_not_openable"))?;
+    let target = importer::openable(raw)
+        .or_else(|| project_page(raw))
+        .ok_or_else(|| i18n::t("error.url_not_openable"))?;
     system::open_url(target.as_str())?;
     Ok(Value::Null)
+}
+
+/// The app's own pages: its site and its repository (Cargo.toml `homepage` and `repository`, which
+/// a test keeps equal to package.json), at those addresses or below them, over https.
+fn project_page(raw: &str) -> Option<url::Url> {
+    let target = url::Url::parse(raw).ok()?;
+    let under = |base: &str| {
+        let base = base.trim_end_matches('/');
+        target
+            .as_str()
+            .strip_prefix(base)
+            .is_some_and(|rest| rest.is_empty() || rest.starts_with(['/', '?', '#']))
+    };
+    let own = under(env!("CARGO_PKG_HOMEPAGE")) || under(env!("CARGO_PKG_REPOSITORY"));
+    (target.scheme() == "https" && own).then_some(target)
 }
 
 /// The settings a coding agent needs to reach this app, put on the clipboard.
@@ -432,6 +449,28 @@ fn set_language(app: &AppHandle, state: &State<Shared>, code: &str) -> Result<Va
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_apps_own_pages_open_and_nothing_next_to_them() {
+        for ok in [
+            "https://gaerae.github.io/playpets/",
+            "https://gaerae.github.io/playpets/ko/releases/0.2.0",
+            "https://github.com/gaerae/playpets",
+            "https://github.com/gaerae/playpets/issues/new/choose",
+        ] {
+            assert!(project_page(ok).is_some(), "{ok}");
+        }
+        for no in [
+            "http://gaerae.github.io/playpets/",
+            "https://gaerae.github.io/other/",
+            "https://github.com/gaerae/playpets-evil",
+            "https://github.com/gaerae",
+            "https://example.com/",
+            "javascript:alert(1)",
+        ] {
+            assert!(project_page(no).is_none(), "{no}");
+        }
+    }
 
     #[test]
     fn every_pet_folder_the_page_lists_can_be_opened() {

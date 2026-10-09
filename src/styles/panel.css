@@ -775,7 +775,7 @@ details.companions .companion-chips {
 .app-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   margin-top: auto;
   padding-top: 16px;
@@ -921,6 +921,44 @@ html[data-compact] .friend-actions .chip-quiet span:not([data-icon]) {
 }
 .link-row .button.small {
   flex: none;
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 11px;
+}
+/* A newer version: "What's new" and the install button take a line of their own under the note, so
+   the note keeps the row's width in every language. */
+.update-actions {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+.link-row:has(#update-notes:not([hidden])) {
+  flex-wrap: wrap;
+}
+.link-row:has(#update-notes:not([hidden])) > div {
+  flex: 1 0 100%;
+}
+.link-row:has(#update-notes:not([hidden])) .update-actions {
+  margin-top: 4px;
+}
+/* About: the version, one line on the license, and the app's own pages as small buttons that wrap.
+   A rule sets it apart from the agent list above it. */
+.settings-section.about {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.about-name {
+  font-weight: 700;
+  color: var(--ink);
+}
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.about-links .button.small {
   min-height: 30px;
   padding: 0 10px;
   font-size: 11px;
