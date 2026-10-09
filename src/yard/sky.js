@@ -4,6 +4,7 @@
 import { shuffle } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, data, game, recall, remember, views } from '../core/state.js';
+import { createEasel } from './easel.js';
 import {
   autoWeather,
   chatterFor,
@@ -24,6 +25,8 @@ import { bubble } from './views.js';
 import { delay } from './wander.js';
 // The weather canvas, made by setupSky once the page is there.
 export let scenery = null;
+// The painted backdrop, made with it.
+let easel = null;
 export const scene = { period: 'day', weather: 'clear', season: 'spring' };
 // South of the equator the seasons and the moon turn the other way (by the system's time zone).
 const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -51,6 +54,7 @@ export function paintScene() {
   $('sky-dot').className = `sun-dot ${scene.period === 'night' ? 'moon' : ''}`;
   $('scene-caption').textContent = sceneCaption(scene.period, scene.weather);
   scenery.set(scene.period, scene.weather, scene.season);
+  easel.set(scene);
   return before !== scene.weather;
 }
 // The season's colours, set on the yard as custom properties (scene.js SEASON_COLORS).
@@ -110,6 +114,7 @@ export function idleChatter(now) {
 // Starts the sky: the chosen or automatic time and weather, and the minute-by-minute check. Called once, by app.js.
 export function setupSky() {
   scenery = createScenery($('weather-layer'), reduced);
+  easel = createEasel($('yard'), reduced);
   const saved = { weather: recall('weather'), period: recall('period') };
   if (saved.weather === 'auto' || WEATHERS[saved.weather]) weatherChoice = saved.weather;
   if (PERIODS[saved.period]) periodChoice = saved.period;

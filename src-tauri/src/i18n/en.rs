@@ -60,6 +60,13 @@ const TABLE: &[(&str, &str)] = &[
 
     ("error.friend_missing", "Couldn't find that friend."),
     ("error.autostart", "Could not change whether PlayPets starts at login. Check the login items in your system settings."),
+    ("error.seeds_full", "Your pocket is full of seeds. Plant some first."),
+    ("error.no_seeds", "No seeds to plant. Friends out for a stroll find one now and then."),
+    ("error.garden_full", "The garden holds {limit} plants. Pull one to plant another."),
+    ("error.plant_missing", "Couldn't find that plant."),
+    ("error.gift_today", "Today's gift has come already. Another comes tomorrow."),
+    ("error.decor_full", "The yard holds {limit} decorations. Put one away to make room."),
+    ("error.decor_missing", "Couldn't find that decoration."),
     ("error.not_allowed", "That request isn't allowed."),
     ("error.bad_request", "That request isn't valid."),
     ("error.request_failed", "Couldn't complete that request."),

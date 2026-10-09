@@ -17,6 +17,8 @@ import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { render } from './render.js';
 import { isMini, setMini, setupWindow } from './window.js';
 import { react, setupCare, startChatter } from './yard/care.js';
+import { giftTick, renderDecor } from './yard/decor.js';
+import { gardenTick, renderGarden, setupGarden } from './yard/garden.js';
 import { moveFriends } from './yard/motion.js';
 import { gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter, scene, scenery, setupSky } from './yard/sky.js';
@@ -71,9 +73,19 @@ setupConfirm();
 setupWindow();
 setupTabs();
 setupSky();
-setupViews({ gameTap, select, openChat, resized: () => scenery.resize() });
+setupViews({
+  gameTap,
+  select,
+  openChat,
+  resized: () => {
+    scenery.resize();
+    renderGarden();
+    renderDecor();
+  },
+});
 setupPlay();
 setupCare();
+setupGarden();
 setupFriend();
 setupChat();
 setupConnection({
@@ -177,7 +189,11 @@ function animate(now) {
   judge(now);
   moveFriends(now, dt);
   if (game) playGame(now, dt);
-  else idleChatter(now);
+  else {
+    idleChatter(now);
+    gardenTick(now);
+    giftTick(now);
+  }
   scenery.frame(now, dt);
   // The panel's own pictures move only while they can be seen (the mini view hides the panel).
   if (!isMini() && !$('empty-yard').hidden && !$('welcome').hidden) drawWelcome(now);

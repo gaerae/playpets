@@ -19,6 +19,7 @@ The caption line above the yard describes the current scene, such as "A golden e
 
 - **Auto time** follows your computer's clock. The colours of the sky and ground change through morning, midday, evening and night, the sun crosses the sky from left to right, and at night the moon shows tonight's phase.
 - **Auto weather** picks new weather once every 20 minutes. It is mostly clear, with rain now and then; snow comes only in winter. It does not fetch the real weather from the internet.
+- The yard is painted like the background of an animated film, and painted again when the light changes: the sun lights the trees and hills from its side (left in the morning, right in the evening), far mountains fade into the haze, and from evening on the window of the cottage on the hill is lit.
 - The yard follows the **season** by the date: cherry blossoms and falling petals in spring, deep green in summer, red and gold leaves drifting down in autumn, bare branches and dry fields in winter. South of the equator (by your computer's time zone) the seasons are the other way round.
 - When rain clears up in daylight, a rainbow stands over the hills for a few minutes. On clear days a flock of birds crosses the sky now and then, butterflies flutter until autumn, and fireflies glow on spring and summer nights.
 - Pick a value yourself and that time of day and weather are fixed. Your choice is remembered, so it is the same the next time you open the app.
@@ -30,6 +31,30 @@ When the weather changes, one or two friends say a word about it, like "Rain!" o
 Press **Let them chat** in the toolbar and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button is off, and hovering it says why. To join in yourself, use [the Friend tab's group chat](./chat.md).
 
 To let them talk on their own now and then, turn on **Let them chat now and then** in the Settings tab. They chat once every 20 minutes, and rest while the window is hidden or someone is answering.
+
+## The garden <Since v="0.1.0" />
+
+Friends out for a stroll find a seed now and then (every 8 to 20 minutes while the yard is open; the first one comes within a couple of minutes). The friend jumps, says so, and leaves a glowing seed at its feet: click it to pick it up. Left alone, the friend pockets it after a minute and a half, so nothing is missed by not watching.
+
+1. Click **Plant a seed** in the toolbar (the number beside it is how many seeds you have).
+2. Click a spot on the field. You can plant several in a row; **Esc** or the tool again stops.
+
+A seed grows by the clock, also while the app is closed: a sprout after 10 minutes, leaves after 40, a bud after 2 hours, a flower after 4. What flowers depends on the season it was planted in: tulips in spring, sunflowers in summer, cosmos in autumn, camellias in winter. Hover over a plant to see what it is and how long until it flowers.
+
+- Click a plant and the nearest friend walks over to water it.
+- Friends also go and look at the flowers on their own.
+- Right-click a plant (or press **Delete** on it) to pull it up. The seed does not come back.
+- You can keep 20 seeds and 24 plants. The garden is saved as `garden` in `state.json`.
+
+### Gifts
+
+Once a day a friend brings a gift for the yard, after the yard has been open for a while that day (20 to 40 minutes; the very first gift comes after 5). It jumps, says so, and sets it down beside it. The first gifts come in this order: a bench, a lantern, a birdhouse, a little pond, a mailbox and a picnic blanket; after that a friend brings one that is not in the yard.
+
+- Drag a decoration to move it anywhere on the field (or select it and use the arrow keys).
+- Click it and the nearest friend walks over. Friends also visit decorations on their own: they sit on the bench, gather on the blanket and look into the pond.
+- The lantern is lit from evening on, the pond mirrors the sky, and a bird sits on the birdhouse by day.
+- Right-click a decoration (or press **Delete** on it) to put it away. A friend may bring it again another day.
+- The yard holds 8 decorations; while it is full, no gift comes.
 
 ## Games <Since v="0.1.0" />
 

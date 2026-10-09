@@ -60,6 +60,13 @@ const TABLE: &[(&str, &str)] = &[
 
     ("error.friend_missing", "친구를 찾을 수 없어요."),
     ("error.autostart", "로그인할 때 시작하도록 바꾸지 못했어요. 시스템 설정의 로그인 항목을 확인해 주세요."),
+    ("error.seeds_full", "주머니에 씨앗이 가득해요. 먼저 몇 개 심어 주세요."),
+    ("error.no_seeds", "심을 씨앗이 없어요. 산책하던 친구가 가끔 씨앗을 찾아와요."),
+    ("error.garden_full", "정원에는 {limit}그루까지 심을 수 있어요. 하나를 뽑으면 다시 심을 수 있어요."),
+    ("error.plant_missing", "그 식물을 찾을 수 없어요."),
+    ("error.gift_today", "오늘 선물은 이미 받았어요. 내일 또 와요."),
+    ("error.decor_full", "놀이터에는 소품을 {limit}개까지 둘 수 있어요. 하나를 치우면 자리가 생겨요."),
+    ("error.decor_missing", "그 소품을 찾을 수 없어요."),
     ("error.not_allowed", "허용되지 않은 요청이에요."),
     ("error.bad_request", "잘못된 요청이에요."),
     ("error.request_failed", "요청을 처리하지 못했어요."),

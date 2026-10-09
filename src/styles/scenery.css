@@ -1,20 +1,20 @@
-/* The scenery behind the friends: sky, sun and moon, clouds, hills, trees and flowers, and the
-   weather canvas. The colours are custom properties on .yard: the time of day and the weather set
-   them here by class (period-*, weather-*), and the season sets its own inline (yard/sky.js).
-   Nothing here moves but the clouds and the night's twinkle, and those only by transform and
-   opacity (docs/standards/performance.md). */
+/* The scenery behind the friends: the painted sky and land, sun and moon, clouds, and the weather
+   canvas. The colours are custom properties on .yard: the time of day and the weather set them
+   here by class (period-*, weather-*), and the season sets its own inline (yard/sky.js); the
+   painter reads them from here (yard/easel.js). Nothing here moves but the clouds and the night's
+   twinkle, and those only by transform and opacity (docs/standards/performance.md). */
 .yard {
-  --sky-a: #9fd0ee;
-  --sky-m: #cfe8f5;
-  --sky-b: #f3f8f2;
-  --mount-a: #b9d3d6;
-  --mount-b: #cfe1e6;
-  --far: #bfdba7;
-  --far-hi: #d3e8bd;
-  --back: #a5cf8a;
-  --back-hi: #bfe0a2;
-  --front: #8cc074;
-  --front-hi: #a8d48c;
+  --sky-a: #74b6e6;
+  --sky-m: #b0daf2;
+  --sky-b: #eef6ef;
+  --mount-a: #a9c7d2;
+  --mount-b: #c5dae2;
+  --far: #b1d48f;
+  --far-hi: #cbe5a9;
+  --back: #95c86b;
+  --back-hi: #b5db88;
+  --front: #80b85c;
+  --front-hi: #a0cf78;
   --rim: #ffffff55;
   --path: #ecdcae;
   --cloud: #ffffff;
@@ -41,46 +41,36 @@
 .scene-defs {
   position: absolute;
 }
-.land {
+/* The painted backdrop (yard/easel.js): the sky behind the sun, moon and clouds, the land in front
+   of them. A new painting fades in over the old one when the light changes. */
+.paint-sky,
+.paint-land {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  pointer-events: none;
+}
+.paint-land {
+  z-index: -1;
+}
+.paint-sky canvas,
+.paint-land canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  opacity: 0;
+  transition: opacity 2.4s;
 }
-.land path {
-  transition: fill 2.5s;
+.paint-sky canvas.shown,
+.paint-land canvas.shown {
+  opacity: 1;
 }
-.land-mount-a {
-  fill: var(--mount-a);
-}
-.land-mount-b {
-  fill: var(--mount-b);
-}
-.land-far {
-  fill: url(#grad-far);
-}
-.land-back {
-  fill: url(#grad-back);
-}
-.land-front {
-  fill: url(#grad-front);
-}
-.land-path {
-  fill: var(--path);
-  opacity: 0.75;
-}
-.prop {
-  position: absolute;
-  z-index: -1;
-  left: var(--x);
-  bottom: var(--b);
-  height: var(--h);
-  width: auto;
-  aspect-ratio: var(--ar);
-  transform: translateX(-50%);
-  overflow: visible;
-  pointer-events: none;
+@media (prefers-reduced-motion: reduce) {
+  .paint-sky canvas,
+  .paint-land canvas {
+    transition: none;
+  }
 }
 .yard.period-morning {
   --sky-a: #a9cfe9;
@@ -163,10 +153,6 @@
   --cloud-shade: #70819a;
   --rim: #ffffff22;
 }
-.yard.weather-rain .land,
-.yard.weather-rain .prop {
-  filter: saturate(0.72) brightness(0.92);
-}
 .yard.weather-rain.period-evening {
   --sky-a: #6b6f8c;
   --sky-m: #a88f92;
@@ -240,18 +226,6 @@
   --rock-hi: #8a9bb0;
   --cap: #d9e4f0;
   --shadow: #0b142833;
-}
-.weather-snow .bloom,
-.weather-snow .blades {
-  display: none;
-}
-.land-far,
-.land-back,
-.land-front {
-  stroke: var(--rim);
-  stroke-width: 2.5;
-  vector-effect: non-scaling-stroke;
-  paint-order: stroke;
 }
 /* The sun by day and the moon by night stand where the clock puts them (sky.js sets --orb-x and
    --orb-y once a minute, the centre of the disc). */
@@ -355,16 +329,6 @@
 }
 .yard.after-rain .rainbow {
   opacity: 0.5;
-}
-/* The tree that turns first in autumn (and blooms paler in spring): sky.js sets --maple. */
-.prop.maple {
-  --crown: var(--maple, var(--leaf));
-  --crown-hi: var(--maple-hi, var(--leaf-hi));
-  --crown-lo: var(--maple-lo, var(--leaf-lo));
-}
-/* Winter fields have no flowers. */
-.season-winter .bloom {
-  display: none;
 }
 .sky-glow {
   position: absolute;

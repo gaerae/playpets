@@ -5,6 +5,8 @@ import { crown, drawSprite, reduced } from '../core/sprites.js';
 import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { ate } from './care.js';
+import { decorTarget, decorVisited } from './decor.js';
+import { visited, visitTarget, watered } from './garden.js';
 import { arrived } from './play.js';
 import { petHeight, place, pose } from './views.js';
 import { delay, idleAction, WANDER_DELAY, wanderTarget } from './wander.js';
@@ -21,12 +23,20 @@ export function moveFriends(now, dt) {
         v.target = null;
         v.targetKind = null;
         if (kind === 'treat') ate(v, now);
+        else if (kind === 'water') watered(v);
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
         if (kind === 'home') v.away = false;
         else if (kind === 'game') arrived(v);
-        else call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic'))));
+        else {
+          if (kind === 'visit') visited(v);
+          else if (kind === 'decor') decorVisited(v);
+          call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic'))));
+        }
       } else {
-        const step = Math.min(1, (dt * (v.speed || (v.targetKind === 'wander' ? 0.00022 : 0.0005))) / distance);
+        const step = Math.min(
+          1,
+          (dt * (v.speed || (['wander', 'visit', 'decor'].includes(v.targetKind) ? 0.00022 : 0.0005))) / distance,
+        );
         v.x += dx * step;
         v.y += dy * step;
         pose(v, dx >= 0 ? 'right' : 'left', 150);
@@ -35,7 +45,7 @@ export function moveFriends(now, dt) {
     } else if (!v.drag && !aiming && !game && !v.away && !reduced.matches && now >= v.nextWander) {
       const action = idleAction(Math.random);
       if (action.type === 'pose') pose(v, action.pose, 1200);
-      else {
+      else if (!visitTarget(v) && !decorTarget(v)) {
         v.target = wanderTarget({ x: v.x, y: v.y }, Math.random);
         v.targetKind = 'wander';
       }

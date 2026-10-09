@@ -9,6 +9,7 @@ export const $ = id => document.getElementById(id);
 export const api = window.playPets;
 export let data = { pets: [], assets: [], providers: [], statuses: {}, busy: [] };
 export let selected = null;
+// What the next click in the yard puts down: false, 'treat' or 'seed'.
 export let aiming = false;
 export let game = null;
 export function setData(value) {

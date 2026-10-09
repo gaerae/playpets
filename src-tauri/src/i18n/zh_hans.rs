@@ -60,6 +60,13 @@ const TABLE: &[(&str, &str)] = &[
 
     ("error.friend_missing", "找不到这位伙伴。"),
     ("error.autostart", "无法更改登录时启动的设置。请检查系统设置中的登录项。"),
+    ("error.seeds_full", "口袋里装满了种子，先种下几颗吧。"),
+    ("error.no_seeds", "没有可以种的种子。散步的伙伴偶尔会找到种子。"),
+    ("error.garden_full", "花园里最多能种 {limit} 株，拔掉一株就能再种。"),
+    ("error.plant_missing", "找不到那株植物。"),
+    ("error.gift_today", "今天的礼物已经收到了，明天还会有。"),
+    ("error.decor_full", "乐园最多放 {limit} 件摆设。收起一件就有地方了。"),
+    ("error.decor_missing", "找不到那件摆设。"),
     ("error.not_allowed", "不允许的请求。"),
     ("error.bad_request", "无效的请求。"),
     ("error.request_failed", "无法处理请求。"),

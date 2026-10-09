@@ -94,6 +94,13 @@ function measure() {
   yardSize.width = r.width;
   yardSize.height = r.height;
 }
+/** The field friends and plants stand on, in yard pixels: its width, the ridge (top) and the
+ * front edge (bottom) a foot can reach. */
+export function field() {
+  if (!yardSize.width) measure();
+  const { width, height } = yardSize;
+  return { width, height, top: height * FIELD_TOP, bottom: height - 42 };
+}
 export function geometry(p) {
   if (!yardSize.width) measure();
   const r = yardSize,
@@ -320,7 +327,7 @@ export function hint() {
     return;
   }
   if (aiming) {
-    $('yard-hint').textContent = t('hint.treat');
+    $('yard-hint').textContent = t(aiming === 'seed' ? 'hint.plant' : 'hint.treat');
     return;
   }
   // What a click or a drag does, until the first pat; agent work has its own place.

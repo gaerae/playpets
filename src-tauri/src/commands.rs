@@ -64,6 +64,12 @@ pub const COMMANDS: &[&str] = &[
     "chatter",
     "setAutoChatter",
     "setAutostart",
+    "findSeed",
+    "plant",
+    "pullPlant",
+    "receiveGift",
+    "moveDecor",
+    "putAway",
     "checkUpdate",
     "installUpdate",
 ];
@@ -89,6 +95,10 @@ pub fn e2e_mode() -> bool {
 
 pub fn arg(args: &[Value], i: usize) -> &Value {
     args.get(i).unwrap_or(&Value::Null)
+}
+/// A number argument; anything else is not a number, which every place check refuses.
+fn float(args: &[Value], i: usize) -> f64 {
+    arg(args, i).as_f64().unwrap_or(f64::NAN)
 }
 pub fn text(args: &[Value], i: usize) -> &str {
     arg(args, i).as_str().unwrap_or("")
@@ -151,6 +161,34 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
             "chatter" => chat::chatter(&app, &state, &cli, &args),
             "setAutoChatter" => set_auto_chatter(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
             "setAutostart" => set_autostart(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
+            "findSeed" => garden_change(&app, &state, |g| g.find().map(Value::from)),
+            "plant" => {
+                let (kind, x, y) = (text(&args, 0), arg(&args, 1).as_f64(), arg(&args, 2).as_f64());
+                let (Some(x), Some(y)) = (x, y) else {
+                    return Err(i18n::t("error.bad_request"));
+                };
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|t| t.as_millis() as u64)
+                    .unwrap_or(0);
+                garden_change(&app, &state, |g| g.plant(kind, x, y, now).map(|p| json!(p)))
+            }
+            "pullPlant" => garden_change(&app, &state, |g| g.pull(text(&args, 0)).map(|_| Value::Null)),
+            "receiveGift" => {
+                let (x, y) = (float(&args, 0), float(&args, 1));
+                let turn = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|t| t.as_secs() as usize)
+                    .unwrap_or(0);
+                garden_change(&app, &state, |g| g.gift(x, y, text(&args, 2), turn).map(|d| json!(d)))
+            }
+            "moveDecor" => {
+                let (x, y) = (float(&args, 1), float(&args, 2));
+                garden_change(&app, &state, |g| {
+                    g.move_decor(text(&args, 0), x, y).map(|_| Value::Null)
+                })
+            }
+            "putAway" => garden_change(&app, &state, |g| g.put_away(text(&args, 0)).map(|_| Value::Null)),
             "getChat" => {
                 let d = lock(&state);
                 let id = text(&args, 0);
@@ -432,6 +470,19 @@ fn set_auto_chatter(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<
     Ok(Value::Bool(on))
 }
 
+/// A change to the garden (a seed found, planted, a plant pulled), saved and shown everywhere.
+fn garden_change(
+    app: &AppHandle,
+    state: &State<Shared>,
+    change: impl FnOnce(&mut crate::pets::garden::Garden) -> Result<Value, String>,
+) -> Result<Value, String> {
+    let mut d = lock(state);
+    let result = change(&mut d.garden)?;
+    persist(&d)?;
+    changed(app, &d);
+    Ok(result)
+}
+
 /// Whether the app starts when the person logs in. The system keeps the answer (a login item on
 /// macOS, the Run key on Windows, an autostart entry on Linux); a test run only pretends.
 fn set_autostart(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
@@ -523,6 +574,21 @@ mod tests {
                 dispatch.contains(&quoted) || window_arms.contains(&quoted),
                 "{name} is listed for the page but nothing handles it"
             );
+        }
+        // And the other way: every arm that handles a page's command is listed, or the page has
+        // no method to call it with (test-only commands are named only in e2e mode).
+        for line in dispatch.lines() {
+            let arm = line.trim_start();
+            let Some(rest) = arm.strip_prefix('"') else { continue };
+            let Some((name, after)) = rest.split_once('"') else {
+                continue;
+            };
+            if after.trim_start().starts_with("=>") && !name.starts_with("e2e") {
+                assert!(
+                    COMMANDS.contains(&name),
+                    "{name} is handled but not listed for the page"
+                );
+            }
         }
         let mut seen = std::collections::HashSet::new();
         assert!(COMMANDS.iter().all(|n| seen.insert(n)), "a command is listed twice");

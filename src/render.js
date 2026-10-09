@@ -7,6 +7,8 @@ import { renderShelf } from './panel/invite.js';
 import { renderAgentPets, renderDesktopSwitches, renderUpdate } from './panel/settings.js';
 import { isMini, setMini } from './window.js';
 import { syncChatter } from './yard/care.js';
+import { renderDecor } from './yard/decor.js';
+import { renderGarden } from './yard/garden.js';
 import { endGameIfSomeoneLeft, syncGameUi } from './yard/play.js';
 import { hint, syncViews } from './yard/views.js';
 import { renderWelcome } from './yard/welcome.js';
@@ -30,6 +32,8 @@ export function render() {
   endGameIfSomeoneLeft();
   syncGameUi();
   syncViews();
+  renderGarden();
+  renderDecor();
   renderShelf();
   $('warnings').hidden = !data.warnings?.length;
   $('warnings').textContent = (data.warnings || []).join('\n');

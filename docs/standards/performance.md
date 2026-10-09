@@ -10,6 +10,7 @@ Not covered: code that runs only when a person clicks once (importing, saving se
 - The yard draws every 50ms while a friend moves (walking, poses, play, aiming a treat), every 66ms in rain and while birds or a shooting star cross, every 80ms in snow, and every 100ms otherwise. The overlay draws every 100ms. When you add new movement, add a condition to `interval()` in `app.js`.
 - The weather canvas (`src/yard/scenery.js`) repaints only in a frame where something on it moved. Things drawn once stay drawn (stars; their twinkle is a CSS layer). Small life that would keep the canvas busy all day (butterflies, fireflies, falling petals and leaves) comes in spells with rests in between.
 - Scenery that changes with the clock or the season (colours, the sun and moon, the moon's phase) is set as CSS custom properties once a minute, never animated.
+- The painted backdrop (`src/yard/easel.js`) is painted only when the time of day, the weather or the season changes, or when the yard changes size, and stands still in between. Do not repaint it on a timer or for something that moves; moving things go on the weather canvas or in a CSS layer.
 - Standing animations (state animations that are not poses) pick their cell from the shared clock (`now`), not from a per-friend time.
 - A canvas redraws only when the visible cell changes (do not add a path that skips the cell key comparison in `drawSprite`).
 - CSS animations move only `transform` and `opacity`. They do not animate layout properties such as `left`, `top`, or `width`.
@@ -23,13 +24,13 @@ The most recent measurements. Each value is the CPU of the app process plus the 
 
 | State | CPU |
 |---|---|
-| Yard + desktop, walking | 11.2% |
-| Yard + desktop, still | 10.5% |
-| Desktop only (yard hidden) | 3.5% |
+| Yard + desktop, walking | 11.0% |
+| Yard + desktop, still | 12.0% |
+| Desktop only (yard hidden) | 2.7% |
 | All hidden | 0.2% |
-| Yard only | 8.8% |
+| Yard only | 6.1% |
 
-Source: measured 2026-10-01, Apple M2 Pro, macOS 26.6.2, `npm run measure` (3 test pets, each state held for 30 seconds and measured from second 4 to second 16). Compare only values from the same machine.
+Source: measured 2026-10-09, Apple M2 Pro, macOS 26.6.2, `npm run measure` (3 test pets, each state held for 30 seconds and measured from second 4 to second 16), after the yard's scenery became two still paintings in place of many SVG shapes. Compare only values from the same machine.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
@@ -50,3 +51,4 @@ There are no automated checks. `npm run measure` is a measurement a person runs 
 
 ## Change history
 - 2026-10-01 First version — measurements are from the first run of `npm run measure`
+- 2026-10-09 The painted backdrop is painted only when the light or the size changes; new measurements

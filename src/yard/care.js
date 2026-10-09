@@ -57,12 +57,18 @@ export function syncChatter() {
 /** The friends with an AI have a short talk about the moment (the button, and the timer). */
 export const startChatter = () => call('chatter', scene.period, scene.weather);
 
-// Placing a treat: the next click in the yard puts it down. Games and the small window turn it off.
-export function setAimingMode(on) {
-  setAiming(on);
-  $('feed').classList.toggle('active', on);
-  $('feed').setAttribute('aria-pressed', String(on));
-  $('yard').classList.toggle('aiming', on);
+// Placing something: the next click in the yard puts down a treat ('treat') or a seed ('seed'),
+// false puts the choice away. Games and the small window turn it off.
+export function setAimingMode(kind) {
+  setAiming(kind || false);
+  for (const [id, what] of [
+    ['feed', 'treat'],
+    ['plant-tool', 'seed'],
+  ]) {
+    $(id).classList.toggle('active', kind === what);
+    $(id).setAttribute('aria-pressed', String(kind === what));
+  }
+  $('yard').classList.toggle('aiming', !!kind);
   hint();
 }
 // Wires the treat, greeting and chatter buttons, and the yard's click for placing a treat. Called once, by app.js.
@@ -76,11 +82,11 @@ export function setupCare() {
   // next click in the yard places it; from the keyboard a second press of the button puts it by the
   // selected friend (or in the middle of the field), and Esc puts it away.
   $('feed').onclick = e => {
-    if (aiming && e.detail === 0) return dropNearby();
-    setAimingMode(!aiming);
+    if (aiming === 'treat' && e.detail === 0) return dropNearby();
+    setAimingMode(aiming === 'treat' ? false : 'treat');
   };
   $('yard').addEventListener('click', e => {
-    if (!aiming) return;
+    if (aiming !== 'treat') return;
     const r = $('yard').getBoundingClientRect();
     dropTreat(e.clientX - r.left, e.clientY - r.top);
   });

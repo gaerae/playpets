@@ -9,6 +9,9 @@ const paths = {
   // A small window over a big one: the mini view, which stays on top.
   pip: '<rect x="3" y="4" width="18" height="15" rx="2"/><rect x="11.5" y="11" width="7" height="5.5" rx="1" fill="currentColor" stroke="none"/>',
   expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  // A seedling: the garden's tool.
+  sprout:
+    '<path d="M12 21v-8"/><path d="M12 13C12 8.5 9 6 4 6c0 4.5 3 7 8 7Z"/><path d="M12 15c0-3.5 2.5-6 7-6 0 4-2.5 6-7 6Z"/>',
   spark: '<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/>',
   download: '<path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/>',
   folder:

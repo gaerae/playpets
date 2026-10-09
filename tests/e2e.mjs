@@ -153,6 +153,20 @@ const scenario = `(async()=>{
     await L('weather='+($('yard').classList.contains('weather-snow')&&$('weather-layer').width>0?'snow-canvas':'err'));
     // The season colours the yard and the sun or moon stands where the clock puts it.
     const yardStyle=$('yard').style;
+    // The garden: a friend's find goes in the pocket, the tool plants it on the field, the backend keeps it.
+    await playPets.findSeed();await until(()=>$('seed-count').textContent==='1');
+    $('plant-tool').click();const yr=$('yard').getBoundingClientRect();
+    $('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:yr.left+yr.width*0.5,clientY:yr.top+yr.height*0.85}));
+    await until(()=>document.querySelectorAll('.plant').length===1);
+    const gb=(await playPets.bootstrap()).data.garden;
+    await L('garden='+(gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant').dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true'?'found-planted':'err:'+JSON.stringify(gb)));
+    // A gift: the backend picks the first kind and allows one a day; a drag moves it and it stays moved; it can be put away.
+    const gift=(await playPets.receiveGift(0.3,0.2,'2031-01-01')).data;await until(()=>document.querySelectorAll('.decor').length===1);
+    const twice=await playPets.receiveGift(0.5,0.5,'2031-01-01');const deco=document.querySelector('.decor'),dr=deco.getBoundingClientRect(),dp={bubbles:true,pointerId:7,button:0,clientX:dr.left+dr.width/2,clientY:dr.bottom-4};
+    deco.dispatchEvent(new PointerEvent('pointerdown',dp));deco.dispatchEvent(new PointerEvent('pointermove',{...dp,clientX:dp.clientX+120}));deco.dispatchEvent(new PointerEvent('pointerup',{...dp,clientX:dp.clientX+120}));
+    const moved=await until(async()=>(await playPets.bootstrap()).data.garden.decor[0]?.x>0.35);
+    await playPets.putAway(gift.id);const away=await until(()=>!document.querySelector('.decor'));
+    await L('gift='+(gift.kind==='bench'&&twice.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-once-moved-away':'err:'+JSON.stringify([gift,twice])));
     await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-shade')!==''?'set':'err:'+$('yard').className));
     $('greet').click();await until(()=>[...document.querySelectorAll('.yard-bubble')].filter(b=>!b.hidden&&b.textContent).length>=2);
     await L('greetBubbles='+[...document.querySelectorAll('.yard-bubble')].filter(b=>!b.hidden&&b.textContent).length);
@@ -428,6 +442,8 @@ const expect = [
   [/^miniPlace=corner\/back$/, 'the mini window opens in the screen corner and leaving it puts the window back'],
   [/^talkTag=opens-chat$/, "a click on a friend's name tag opens the conversation"],
   [/^season=set$/, 'the season and the clock paint the yard'],
+  [/^garden=found-planted$/, 'a found seed is planted on the field with the tool and kept'],
+  [/^gift=bench-once-moved-away$/, 'a gift comes once a day, is dragged to a new place that is kept, and is put away'],
   [/^reach=mini-to-chat\/layered$/, 'chat from the small window returns to full size; nearer friends are drawn on top'],
   [/^pageFits=true\/true$/, 'the page fits the window (no scroll bars, full and mini)'],
   [/^spriteLoads=1536$/, 'pet sprites load under the page security policy'],
