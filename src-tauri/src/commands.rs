@@ -70,6 +70,8 @@ pub const COMMANDS: &[&str] = &[
     "receiveGift",
     "moveDecor",
     "putAway",
+    "catch",
+    "bloomed",
     "checkUpdate",
     "installUpdate",
 ];
@@ -189,6 +191,33 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
                 })
             }
             "putAway" => garden_change(&app, &state, |g| g.put_away(text(&args, 0)).map(|_| Value::Null)),
+            // A plant the page sees in flower: counted in the album the first time.
+            "bloomed" => {
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|t| t.as_millis() as u64)
+                    .unwrap_or(0);
+                let mut d = lock(&state);
+                let Some(kind) = d.garden.bloom(text(&args, 0), now)? else {
+                    return Ok(Value::Null);
+                };
+                let entry = d.album.flowered(&kind, now);
+                persist(&d)?;
+                changed(&app, &d);
+                Ok(json!({"kind": kind, "entry": entry}))
+            }
+            "catch" => {
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|t| t.as_millis() as u64)
+                    .unwrap_or(0);
+                let (kind, id, size) = (text(&args, 0), text(&args, 1), arg(&args, 2).as_f64().unwrap_or(0.0));
+                let mut d = lock(&state);
+                let (entry, first) = d.album.catch(kind, id, size, now)?;
+                persist(&d)?;
+                changed(&app, &d);
+                Ok(json!({"entry": entry, "first": first}))
+            }
             "getChat" => {
                 let d = lock(&state);
                 let id = text(&args, 0);

@@ -14,8 +14,10 @@ Goal: a slow, calm loop that makes each yard different and gives a reason to loo
 4. **Tend**: friends visit flowers on their own; a click on a plant sends the nearest friend to water it.
 
 5. **Gifts**: once a day a friend brings a decoration and sets it down; the person arranges the yard with them.
+6. **Catch**: friends fish at the lake and leap for bugs.
+7. **Album**: one place for all of it, in four books (flowers, fish, bugs, gifts), so the garden, the gifts and the catches are one collection that grows with the year.
 
-Later pieces, each its own change: friendship that deepens with time together, an album of finds.
+Later pieces, each its own change: friendship that deepens with time together.
 
 ## Rules (first piece: the garden)
 
@@ -44,6 +46,17 @@ The backend owns the garden (`state.json` key `garden`: seed count and plants wi
 The backend keeps the decorations in the same `garden` key (`decor`, `received`, `giftDay`) and decides which kind comes next and whether today's gift has come; the page decides when (it knows whether the yard is seen and what day it is for the person).
 
 Interactive things (friends, plants, decorations) are drawn in flat colour with clear edges, like characters in front of an animated film's painted background (docs/design/2026-10-09-a-painted-yard.md), so what can be touched stands out from the painted world.
+
+## Rules (third piece: fishing, bugs and the album)
+
+| Rule | Value | Why |
+|---|---|---|
+| Fishing | a click on the lake sends the nearest free friend to the shore; the fish bites after 3 to 9 seconds and gets away 1.7 seconds after the float dips | a small moment of skill, short enough to fit between two tasks |
+| Bugs | butterflies and dragonflies by day, fireflies on spring and summer nights, in the existing spells of small life; a click within reach catches one | the creatures that already fly become something to do, at no extra cost |
+| Kinds | twelve fish, nine bugs, each with seasons, times of day and a rarity; rain brings up catfish and eels; a fish's size differs every time | a reason to look again in another season and hour; records to beat |
+| Album | four books: flowers (counted by the backend the first time a plant blooms, `bloomed`), fish, bugs, gifts (the garden's `received`); found ones with a count and the biggest fish, the others as silhouettes with when and where to look | the garden, the gifts and the catches read as one collection; a visible goal that grows with the year |
+
+The page owns the catalogue (`src/yard/catalog.js`) and decides what was caught; the backend keeps the album (`state.json` key `album`, `src-tauri/src/pets/album.rs`) and refuses what could not be a catch (an unknown shape of name, a fish longer than 3 m). Drawings come from each kind's description (`src/yard/creatures.js`), in the same flat colours as the decorations.
 
 ## Performance
 

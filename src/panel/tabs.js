@@ -1,4 +1,6 @@
-// One panel, three tabs. Closed, the yard has the whole window.
+// One panel, three tabs. Closed, the yard has the whole window. Friend and Invite open beside the
+// yard (a friend is talked to where it can be seen); Settings, which needs no view of the yard,
+// opens as a wide sheet over it, with an index of its sections.
 import { t } from '../core/i18n.js';
 import { reduced, release } from '../core/sprites.js';
 import { $, data, guard, remember } from '../core/state.js';
@@ -17,7 +19,8 @@ export function openPanel(kind) {
     }, RELEASE_AFTER);
   }
   $('side-panel').hidden = !kind;
-  $('layout').classList.toggle('panel-open', !!kind);
+  $('layout').classList.toggle('panel-open', !!kind && kind !== 'settings');
+  $('layout').classList.toggle('settings-open', kind === 'settings');
   for (const id of PANELS) $(`panel-${id}`).hidden = id !== kind;
   // The small window has no panel: opening one (double-click, the tray, a shortcut) goes back to full size.
   if (kind && document.body.classList.contains('mini')) guard(() => setMini(false))();
@@ -47,6 +50,22 @@ export function setupTabs() {
     e.preventDefault();
     openPanel(null);
   };
+  // The sheet goes with a click beside it or Esc, as sheets do.
+  $('layout').addEventListener('click', e => {
+    if (e.target === $('layout') && $('layout').classList.contains('settings-open')) openPanel(null);
+  });
+  document.addEventListener('keydown', e => {
+    if (
+      e.key === 'Escape' &&
+      $('layout').classList.contains('settings-open') &&
+      !document.querySelector('dialog[open]')
+    )
+      openPanel(null);
+  });
+  // The index jumps to a section.
+  for (const link of document.querySelectorAll('.settings-index [data-section]'))
+    link.onclick = () =>
+      $(link.dataset.section).scrollIntoView({ block: 'start', behavior: reduced.matches ? 'auto' : 'smooth' });
   $('go-invite').onclick = openInvite;
   // The steps left once a friend is in lead to where they are done.
   // With a CLI on this computer this connects every friend in one go; otherwise it opens the dialog.

@@ -8,7 +8,10 @@
 import { confirmAction } from '../core/confirm.js';
 import { list, t } from '../core/i18n.js';
 import { clamp, pick } from '../core/math.js';
-import { $, aiming, call, data, game, guard, name, toast, views } from '../core/state.js';
+import { $, aiming, call, data, game, guard, name, views } from '../core/state.js';
+import { showCard } from './card.js';
+import { GIFTS } from './catalog.js';
+import { giftSvg } from './creatures.js';
 import { giftWait, localDay } from './growth.js';
 import {
   bubble,
@@ -24,16 +27,9 @@ import {
   yardToField,
 } from './views.js';
 
-// Each decoration's drawing (its symbol's view box in index.html), and how many yard pixels a unit
-// of it takes at full size; it shrinks with the yard as friends do.
-const VIEW = {
-  bench: [80, 50],
-  lantern: [30, 72],
-  birdhouse: [36, 74],
-  pond: [100, 40],
-  mailbox: [30, 58],
-  picnic: [100, 34],
-};
+// How many yard pixels a unit of a decoration's drawing (catalog.js GIFTS) takes at full size; it
+// shrinks with the yard as friends do.
+const VIEW = Object.fromEntries(GIFTS.map(g => [g.id, g.view]));
 const UNIT = 1.05;
 // Flat things lie on the ground, under the plants; friends stand on the bench and the blanket.
 const FLAT = new Set(['pond', 'picnic']);
@@ -216,12 +212,20 @@ export function giftTick(now) {
     right = v.px + width / 2 < field().width / 2,
     at = yardToField(v.px + width / 2 + (right ? 1 : -1) * width * 0.9, v.py + petHeight(v.pet));
   bringing = true;
+  const seen = new Set(g.received || []);
   call('receiveGift', at.x, at.y, today)
     .then(d => {
       fresh.add(d.id);
       renderDecor();
       effect(v, '✦');
-      toast(t('decor.brought', { name: name(v.pet), kind: kindName(d.kind) }));
+      const gift = GIFTS.find(g => g.id === d.kind);
+      if (gift)
+        showCard(
+          giftSvg(gift),
+          kindName(d.kind),
+          t('decor.brought', { name: name(v.pet), kind: kindName(d.kind) }),
+          !seen.has(d.kind),
+        );
     })
     .catch(() => {
       // Refused (a gift already came today, the yard is full): look again tomorrow.

@@ -3,7 +3,7 @@
 use crate::agent;
 use crate::chat::{self, http, providers};
 use crate::desktop::overlay;
-use crate::pets::{builtin, catalog, garden, importer, model};
+use crate::pets::{album, builtin, catalog, garden, importer, model};
 use crate::window;
 use crate::{i18n, store};
 use serde_json::{Map, Value, json};
@@ -17,7 +17,7 @@ use tauri::{AppHandle, Manager};
 /// used, the unknown ones are carried along unchanged, and a copy of the file is kept first.
 pub const SCHEMA: u64 = 1;
 /// The top-level keys this app writes to state.json; anything else in the file is `extra`.
-const KNOWN_KEYS: [&str; 12] = [
+const KNOWN_KEYS: [&str; 13] = [
     "schema",
     "pets",
     "desktop",
@@ -30,10 +30,11 @@ const KNOWN_KEYS: [&str; 12] = [
     "secretIds",
     "miniRect",
     "garden",
+    "album",
 ];
 
 /// Everything the app knows. Saved to state.json: pets, desktop, wander, language, imports,
-/// providers (with the parked ones), agent_pets, auto_chatter, secret_ids, mini_rect, garden and extra. The rest
+/// providers (with the parked ones), agent_pets, auto_chatter, secret_ids, mini_rect, garden, album and extra. The rest
 /// lasts until the app quits.
 pub struct AppData {
     pub store: store::Store,
@@ -60,6 +61,7 @@ pub struct AppData {
     pub autostart: bool,
     /// Seeds friends found and the plants grown from them.
     pub garden: garden::Garden,
+    pub album: album::Album,
     pub providers: Vec<Value>,
     /// Connections this app could not read (a kind from a newer app, say): never shown, written back
     /// as they were so a later app finds them again.
@@ -149,6 +151,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "petLimit": model::LIMIT,
         "limits": {"persona": model::PERSONA_MAX, "seeds": garden::SEED_MAX, "plants": garden::PLANT_MAX, "decor": garden::DECOR_MAX},
         "garden": d.garden,
+        "album": d.album,
         "defaults": {"ollamaEndpoint": http::OLLAMA_DEFAULT},
         "agents": agent::kinds::agents_json(),
         "version": app.package_info().version.to_string(),
@@ -244,6 +247,7 @@ pub fn persist(d: &AppData) -> Result<(), String> {
         "autoChatter": d.auto_chatter,
         "secretIds": d.secret_ids.iter().collect::<Vec<_>>(),
         "garden": d.garden,
+        "album": d.album,
     });
     if let Some((x, y, width, height)) = d.mini_rect {
         state["miniRect"] = json!({"x": x, "y": y, "width": width, "height": height});
@@ -508,6 +512,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         mini_rect: raw.get("miniRect").and_then(window::rect_of),
         autostart: false,
         garden: garden::Garden::restore(raw.get("garden")),
+        album: album::Album::restore(raw.get("album")),
         providers,
         parked_providers: parked,
         extra: extras(&raw),

@@ -23,11 +23,13 @@ export function renderDesktopSwitches() {
   // Both views show friends: with none yet, there is nothing for them to show.
   $('desktop').disabled = !data.pets.length;
   $('mini').disabled = !data.pets.length;
-  const desktopLabel = data.desktop ? t('desktop.hide') : t('desktop.show');
+  // A switch, as in the tray and the menu bar: the same words, and pressed while it is on. A narrow
+  // window shows only the icon, so the words are the tooltip and the label too.
+  const desktopLabel = t('desktop.show');
   $('desktop-label').textContent = desktopLabel;
-  // A narrow window shows only the icon, so the words are the tooltip and the label too.
   $('desktop').title = desktopLabel;
   $('desktop').setAttribute('aria-label', desktopLabel);
+  $('desktop').setAttribute('aria-pressed', String(!!data.desktop));
   $('wander-wrap').hidden = !data.desktop;
   $('desktop-wander').checked = !!data.desktopWander;
   $('auto-chatter').checked = !!data.autoChatter;

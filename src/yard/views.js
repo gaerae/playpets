@@ -368,8 +368,10 @@ export function hint() {
     $('yard-hint').textContent = t(aiming === 'seed' ? 'hint.plant' : 'hint.treat');
     return;
   }
-  // What a click or a drag does, until the first pat; agent work has its own place.
-  $('yard-hint').textContent = data.pets.length && !recall('patted') ? t('hint.pat') : '';
+  // What a click or a drag does, until the first pat; then that the lake can be fished, until it
+  // has been (yard/catch.js). Agent work has its own place.
+  const first = !data.pets.length ? '' : !recall('patted') ? 'hint.pat' : recall('fished') !== '1' ? 'hint.fish' : '';
+  $('yard-hint').textContent = first ? t(first) : '';
 }
 // Agent work beside the friend count: one busy friend is named, several are counted, like a
 // status board.

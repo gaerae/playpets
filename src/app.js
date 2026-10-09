@@ -7,6 +7,7 @@ import { icons } from './core/icons.js';
 import { $, aiming, api, call, data, game, guard, recall, selected, setData, toast, views } from './core/state.js';
 import { plain, spoken } from './core/text.js';
 import { every } from './core/ticker.js';
+import { setupAlbum } from './panel/album.js';
 import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
@@ -17,6 +18,7 @@ import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { render } from './render.js';
 import { isMini, setMini, setupWindow } from './window.js';
 import { react, setupCare, startChatter } from './yard/care.js';
+import { setupCatch } from './yard/catch.js';
 import { giftTick, renderDecor } from './yard/decor.js';
 import { gardenTick, renderGarden, setupGarden } from './yard/garden.js';
 import { moveFriends } from './yard/motion.js';
@@ -100,6 +102,8 @@ setupViews({
 setupPlay();
 setupCare();
 setupGarden();
+setupCatch();
+setupAlbum();
 setupFriend();
 setupChat();
 setupConnection({

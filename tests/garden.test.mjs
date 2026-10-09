@@ -74,3 +74,11 @@ test('a gift comes once a day after the yard has been seen a while, the first on
   assert.equal(localDay(new Date(2026, 0, 5, 23, 59)), '2026-01-05', "the person's own day, by their clock");
   assert.equal(localDay(new Date(2026, 9, 9)), '2026-10-09');
 });
+
+test('the backend counts a flower at the same age the page shows it in bloom', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const rust = await readFile('src-tauri/src/pets/garden.rs', 'utf8'),
+    expr = rust.match(/BLOOM_AFTER_MS: u64 = ([\d\s*]+);/)[1],
+    ms = expr.split('*').reduce((product, n) => product * Number(n.trim()), 1);
+  assert.equal(ms, STAGES.at(-1).at);
+});

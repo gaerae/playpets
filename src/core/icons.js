@@ -25,6 +25,7 @@ const paths = {
   pencil: '<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
   logout: '<path d="M10 4H4v16h6m4-12 4 4-4 4m-6-4h10"/>',
   chevron: '<path d="m6 9 6 6 6-6"/>',
+  book: '<path d="M4 5.5c2.5-1.2 5.5-1.2 8 .5 2.5-1.7 5.5-1.7 8-.5v13c-2.5-1.2-5.5-1.2-8 .5-2.5-1.7-5.5-1.7-8-.5z"/><path d="M12 6v13.5"/>',
   power: '<path d="M12 3v8"/><path d="M6.3 6.5a8 8 0 1 0 11.4 0"/>',
   stop: '<rect x="7.5" y="7.5" width="9" height="9" rx="1.5" fill="currentColor" stroke="none"/>',
   minus: '<path d="M5 12h14"/>',

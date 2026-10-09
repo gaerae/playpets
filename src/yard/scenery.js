@@ -5,6 +5,7 @@
 // moved. Stars are drawn once (their twinkle is the CSS layer's, yard.css). Butterflies, fireflies
 // and falling petals or leaves come in spells: they are about for a while, leave, and the canvas
 // rests until the next spell.
+import { flyingBug } from './catalog.js';
 import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
 
 const TAU = Math.PI * 2;
@@ -14,7 +15,6 @@ const INK = {
   star: '255,250,230',
   firefly: '236,240,150',
 };
-const WINGS = ['#f2a65a', '#e8798f', '#8fb4e8', '#f4d35e'];
 const PETALS = ['#f7c1d2', '#fbd7e3', '#f3a9c1'];
 const LEAVES = ['#e6a03c', '#d65a3a', '#f0c25a', '#c4702f'];
 // A flock crosses the sky now and then on a clear day: this long between flocks.
@@ -48,7 +48,8 @@ export function createScenery(canvas, reduced) {
     // Something changed that the canvas does not show yet.
     dirty = true;
   const clear = () => weather === 'clear';
-  // Fireflies on spring and summer nights, butterflies by day until autumn, when one is left.
+  // Fireflies on spring and summer nights, butterflies by day until autumn, when one is left, and
+  // dragonflies with them in summer and autumn. Which kinds fly is the catalogue's (catalog.js).
   function lifeCount() {
     const warm = season === 'spring' || season === 'summer',
       glow = warm && clear() && (period === 'night' || period === 'evening'),
@@ -64,15 +65,22 @@ export function createScenery(canvas, reduced) {
       return;
     }
     const { glow, count } = lifeCount();
-    critters = Array.from({ length: count }, (_, i) => {
-      const side = Math.random() < 0.5;
+    critters = Array.from({ length: count }, () => {
+      const side = Math.random() < 0.5,
+        kind = glow
+          ? 'firefly'
+          : Math.random() < 0.35 && flyingBug('dragonfly', season, period, Math.random)
+            ? 'dragonfly'
+            : 'butterfly',
+        bug = flyingBug(kind, season, period, Math.random);
       return {
-        kind: glow ? 'firefly' : 'butterfly',
+        kind,
+        species: bug?.id || null,
+        look: bug?.look || { wing: '#f6f4ea', edge: '#4a4a44' },
         x: arriving && !glow ? (side ? -15 : w + 15) : Math.random() * w,
         y: h * (0.5 + Math.random() * 0.4),
         heading: arriving && !glow ? (side ? 0 : Math.PI) + (Math.random() - 0.5) : Math.random() * TAU,
         phase: Math.random() * TAU,
-        color: WINGS[i % WINGS.length],
         light: arriving && glow ? 0 : 1,
       };
     });
@@ -141,7 +149,7 @@ export function createScenery(canvas, reduced) {
   }
   // Moves a creature; returns false once it has left (a butterfly off the side, a firefly faded).
   function roam(c, dt) {
-    c.phase += dt * (c.kind === 'butterfly' ? 0.02 : 0.003);
+    c.phase += dt * (c.kind === 'firefly' ? 0.003 : c.kind === 'dragonfly' ? 0.05 : 0.02);
     c.heading += (Math.random() - 0.5) * dt * 0.004;
     if (c.kind === 'firefly') {
       c.light = Math.max(0, Math.min(1, c.light + (spell ? 1 : -1) * (dt / FADE_MS)));
@@ -151,7 +159,7 @@ export function createScenery(canvas, reduced) {
       const away = c.x < w / 2 ? Math.PI : 0;
       c.heading += Math.sin(away - c.heading) * dt * 0.002;
     }
-    const speed = c.kind === 'butterfly' ? 0.035 : 0.014;
+    const speed = c.kind === 'butterfly' ? 0.035 : c.kind === 'dragonfly' ? 0.06 : 0.014;
     c.x += Math.cos(c.heading) * speed * dt;
     c.y += Math.sin(c.heading) * speed * dt * 0.6 + Math.sin(c.phase * 0.4) * 0.02 * dt;
     if (c.x < -20 || c.x > w + 20) {
@@ -280,25 +288,47 @@ export function createScenery(canvas, reduced) {
         ctx.beginPath();
         ctx.arc(c.x, c.y, 1.7 * scale, 0, TAU);
         ctx.fill();
-      } else {
-        const flap = 0.25 + 0.75 * Math.abs(Math.sin(c.phase));
-        ctx.globalAlpha = 0.9;
-        ctx.fillStyle = c.color;
-        for (const side of [-1, 1]) {
+      } else if (c.kind === 'dragonfly') {
+        // Seen from above: two pairs of clear wings and a long body, pointing where it flies.
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.heading + Math.PI / 2);
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = c.look.wing;
+        const shimmer = 0.85 + 0.15 * Math.sin(c.phase);
+        for (const [dx, dy] of [
+          [-1, -1.5],
+          [1, -1.5],
+          [-1, 1],
+          [1, 1],
+        ]) {
           ctx.beginPath();
-          ctx.ellipse(
-            c.x + side * 3.2 * flap * scale,
-            c.y - scale,
-            3.4 * flap * scale,
-            4.4 * scale,
-            side * 0.5,
-            0,
-            TAU,
-          );
+          ctx.ellipse(dx * 5 * scale, dy * scale, 5 * scale * shimmer, 1.5 * scale, 0, 0, TAU);
           ctx.fill();
         }
+        ctx.globalAlpha = 0.95;
+        ctx.fillStyle = c.look.body;
+        ctx.fillRect(-0.8 * scale, -3 * scale, 1.6 * scale, 10 * scale);
+        ctx.beginPath();
+        ctx.arc(0, -3.5 * scale, 1.6 * scale, 0, TAU);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        // A touch larger than life, so one is easy to click.
+        const flap = 0.25 + 0.75 * Math.abs(Math.sin(c.phase)),
+          k = scale * 1.4;
+        ctx.globalAlpha = 0.95;
+        ctx.strokeStyle = c.look.edge;
+        ctx.lineWidth = 0.8 * k;
+        ctx.fillStyle = c.look.wing;
+        for (const side of [-1, 1]) {
+          ctx.beginPath();
+          ctx.ellipse(c.x + side * 3.2 * flap * k, c.y - k, 3.4 * flap * k, 4.4 * k, side * 0.5, 0, TAU);
+          ctx.fill();
+          ctx.stroke();
+        }
         ctx.fillStyle = '#5b4a3f';
-        ctx.fillRect(c.x - 0.6 * scale, c.y - 3.5 * scale, 1.2 * scale, 6 * scale);
+        ctx.fillRect(c.x - 0.6 * k, c.y - 3.5 * k, 1.2 * k, 6 * k);
       }
     }
     ctx.globalAlpha = 1;
@@ -360,5 +390,23 @@ export function createScenery(canvas, reduced) {
   }
   // Whether the canvas will change on the next frame (app.js runs the yard faster while it does).
   const busy = () => drops.length > 0 || !!flock || !!streak;
-  return { resize, set, frame, busy };
+  // The creature within `reach` of a point in the yard, nearest first, or null.
+  function near(x, y, reach = 22) {
+    let best = null,
+      bestD = reach;
+    for (const c of critters) {
+      const d = Math.hypot(c.x - x, c.y - y);
+      if (d < bestD && c.species && (c.kind !== 'firefly' || c.light > 0.3)) [best, bestD] = [c, d];
+    }
+    return best;
+  }
+  /** Catches the creature at a point: it leaves the canvas and its kind is returned, or null. */
+  function catchAt(x, y) {
+    const c = near(x, y);
+    if (!c) return null;
+    critters = critters.filter(other => other !== c);
+    dirty = true;
+    return { kind: c.kind, species: c.species, x: c.x, y: c.y };
+  }
+  return { resize, set, frame, busy, near: (x, y) => !!near(x, y), catchAt };
 }

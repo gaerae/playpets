@@ -4,7 +4,7 @@ description: General settings, About and app updates, menus and shortcuts, quitt
 
 # Settings
 
-The **Settings** tab has three groups: **General** (Language, **Start PlayPets when you log in**, and the auto chatter switch, **Let them chat now and then**), **Coding agent hooks**, and **About PlayPets** (the version, App updates and the project's pages), then Quit the app. Coding agent hooks are [explained separately](./agents.md). Open it from the tab, with <kbd>⌘</kbd> <kbd>,</kbd> or <kbd>Ctrl</kbd> <kbd>,</kbd>, or with **Settings…** in the tray menu.
+The **Settings** tab (the gear at the end of the tabs) opens as a wide sheet over the yard, with an index of its four groups on the left; a click beside it or <kbd>Esc</kbd> closes it. The groups: **General** (Language, **Start PlayPets when you log in**), **The yard** (the auto chatter switch, **Let them chat now and then**), **Coding agent hooks**, and **About PlayPets** (the version, App updates and the project's pages), then Quit the app. Coding agent hooks are [explained separately](./agents.md). Open it from the tab, with <kbd>⌘</kbd> <kbd>,</kbd> or <kbd>Ctrl</kbd> <kbd>,</kbd>, or with **Settings…** in the tray menu.
 
 ## Language <Since v="0.1.0" />
 

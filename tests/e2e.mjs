@@ -167,6 +167,13 @@ const scenario = `(async()=>{
     const moved=await until(async()=>(await playPets.bootstrap()).data.garden.decor[0]?.x>0.35);
     await playPets.putAway(gift.id);const away=await until(()=>!document.querySelector('.decor'));
     await L('gift='+(gift.kind==='bench'&&twice.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-once-moved-away':'err:'+JSON.stringify([gift,twice])));
+    // The album: a catch is kept (the biggest fish, a count), nonsense is refused, and the album shows it.
+    await playPets.catch('fish','carp',41.5);await playPets.catch('fish','carp',33);const tooBig=await playPets.catch('fish','carp',999);
+    await until(async()=>(await playPets.bootstrap()).data.album?.fish?.carp?.count===2);
+    $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);document.querySelector('.album-tabs [data-book=fish]').click();
+    const albumOk=document.querySelectorAll('.album-card').length===12&&document.querySelector('[data-count=fish]').textContent.endsWith('/12')&&document.querySelectorAll('.album-card:not(.unknown)').length===1&&(await playPets.bootstrap()).data.album.fish.carp.best===41.5&&tooBig.ok===false;
+    $('album-dialog').close();
+    await L('album='+(albumOk?'kept-and-shown':'err:'+JSON.stringify((await playPets.bootstrap()).data.album)));
     await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-shade')!==''?'set':'err:'+$('yard').className));
     document.querySelector('[data-game=hide]').click();
     // Friends only walk while the window is drawn. Behind other windows (or with the screen off)
@@ -420,7 +427,7 @@ const expect = [
   [/^panel=toggles$/, 'panel tabs open and close'],
   [/^about=6\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
   [
-    /^updateUi=general-title,agent-link-title,about-title\/ok$/,
+    /^updateUi=general-title,yard-settings-title,agent-link-title,about-title\/ok$/,
     'an update shows in the top bar and on the Settings tab, opens its dialog, and Later puts it away',
   ],
   [/^stage=yard-first$/, 'the yard leads the window (60% of the height or more)'],
@@ -440,6 +447,10 @@ const expect = [
   [/^talkTag=opens-chat$/, "a click on a friend's name tag opens the conversation"],
   [/^season=set$/, 'the season and the clock paint the yard'],
   [/^garden=found-planted$/, 'a found seed is planted on the field with the tool and kept'],
+  [
+    /^album=kept-and-shown$/,
+    'a catch is kept in the album (count, biggest fish), nonsense is refused, and the album shows it',
+  ],
   [/^gift=bench-once-moved-away$/, 'a gift comes once a day, is dragged to a new place that is kept, and is put away'],
   [/^reach=mini-to-chat\/layered$/, 'chat from the small window returns to full size; nearer friends are drawn on top'],
   [/^pageFits=true\/true$/, 'the page fits the window (no scroll bars, full and mini)'],

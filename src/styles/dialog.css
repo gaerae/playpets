@@ -170,3 +170,101 @@ input[type="range"] {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+/* ---- the album: fish and bugs caught, the ones not yet found as silhouettes with a hint ---- */
+.album-dialog {
+  width: min(720px, 94vw);
+}
+.album-total {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+/* the album draws flowers and gifts from the yard's own symbols, in daylight colours */
+.album-card {
+  --shadow: #1d3a2222;
+  --soil: #8a6a4a;
+  --soil-hi: #a88660;
+  --stem: #5d9b52;
+  --leaf: #6fb265;
+  --leaf-hi: #9fd07f;
+  --leaf-lo: #4f9556;
+  --pine: #4f9467;
+  --pine-lo: #3c7a57;
+  --rock: #b3b8b4;
+  --rock-hi: #d3d7d2;
+  --blade: #5fa25a;
+  --trunk: #9a6f4c;
+  --sky-a: #74b6e6;
+  --sky-m: #b0daf2;
+  --wood: #b98257;
+  --wood-hi: #d6a476;
+  --wood-lo: #8a5a38;
+  --iron: #41474c;
+  --lamp: #f2e6c4;
+}
+/* one not found yet: its shape in grey */
+.unknown-art {
+  filter: brightness(0) invert(0.78) opacity(0.7);
+}
+.album-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin: 4px 0 12px;
+  border-radius: 12px;
+  background: #eef3ee;
+}
+.album-tabs button {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  font: inherit;
+  font-weight: 650;
+  color: var(--muted);
+  cursor: pointer;
+}
+.album-tabs button[aria-selected="true"] {
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 1px 4px #213e431f;
+}
+.album-tabs small {
+  font-weight: 600;
+  color: var(--muted);
+}
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  max-height: min(56vh, 460px);
+  overflow-y: auto;
+}
+.album-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px 12px;
+  border-radius: 14px;
+  background: #f5f8f2;
+  text-align: center;
+}
+.album-card svg {
+  width: 100%;
+  height: 58px;
+}
+.album-card strong {
+  font-size: 13px;
+}
+.album-card small {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.album-card.unknown strong {
+  color: var(--muted);
+}

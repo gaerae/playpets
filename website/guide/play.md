@@ -45,6 +45,7 @@ A seed grows by the clock, also while the app is closed: a sprout after 10 minut
 - Friends also go and look at the flowers on their own.
 - Right-click a plant (or press **Delete** on it) to pull it up. The seed does not come back.
 - You can keep 20 seeds and 24 plants. The garden is saved as `garden` in `state.json`.
+- The first time a kind of flower blooms it goes in the **Album** (Flowers), and every gift that comes is in it too (Gifts).
 
 ### Gifts
 
@@ -55,6 +56,14 @@ Once a day a friend brings a gift for the yard, after the yard has been open for
 - The lantern is lit from evening on, the pond mirrors the sky, and a bird sits on the birdhouse by day.
 - Right-click a decoration (or press **Delete** on it) to put it away. A friend may bring it again another day.
 - The yard holds 8 decorations; while it is full, no gift comes.
+
+## Fishing and bugs <Since v="0.1.0" />
+
+- **Fishing**: click the lake and the nearest free friend walks to the shore and casts. Wait for the float to dip under (a **!** appears), then click it. Too early and nothing bites; too late and the fish gets away.
+- **Bugs**: click a butterfly or a dragonfly by day, or a firefly on a spring or summer night, and the nearest friend leaps and catches it.
+- What bites and what flies depends on the season, the time of day and the weather: catfish and eels come out after dark (and more in the rain), pond smelt only in winter, and a golden carp is very rare. Each fish is a different size every time.
+- A card shows what was caught, and says so when it is new.
+- **Album** in the tools has four books, Flowers, Fish, Bugs and Gifts, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
 
 ## Games <Since v="0.1.0" />
 

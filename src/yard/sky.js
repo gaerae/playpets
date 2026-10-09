@@ -1,6 +1,7 @@
 // Scenery: time of day and weather each follow the clock and the sky unless the person picks one.
 // Left alone, friends also remark on it, so the yard is worth leaving open.
 
+import { language } from '../core/i18n.js';
 import { pick, shuffle } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, data, game, recall, remember, views } from '../core/state.js';
@@ -110,6 +111,14 @@ export function idleChatter(now) {
   );
   if (quiet.length) bubble(pick(quiet), chatterFor(scene.period, scene.weather, Math.random), 3500);
 }
+// The clock at the top right: the time and the date in the app's language, changed on the minute.
+const clockTime = new Intl.DateTimeFormat(language(), { hour: 'numeric', minute: '2-digit' }),
+  clockDate = new Intl.DateTimeFormat(language(), { month: 'short', day: 'numeric', weekday: 'short' });
+function tick() {
+  const now = new Date();
+  $('yard-clock').textContent = `${clockTime.format(now)} · ${clockDate.format(now)}`;
+  setTimeout(tick, 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 50);
+}
 // Starts the sky: the chosen or automatic time and weather, and the minute-by-minute check. Called once, by app.js.
 export function setupSky() {
   scenery = createScenery($('weather-layer'), reduced);
@@ -147,6 +156,7 @@ export function setupSky() {
     if (paintScene()) remark();
   };
   paintScene();
+  tick();
   setInterval(() => {
     if (paintScene()) remark();
   }, 60000);

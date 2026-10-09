@@ -251,6 +251,25 @@ html:not(.mac) body {
   border-radius: 0;
   color: var(--muted);
 }
+/* A switch in the top bar (desktop mode): pressed while it is on, as the tray's check mark says. */
+.topbar .button.toggle[aria-pressed="true"] {
+  background: #e3efe6;
+  border-color: #9cc2a8;
+  color: #24503a;
+}
+/* Settings is not an everyday place: an icon at the end of the tabs, its name in the tooltip and
+   for screen readers. */
+.panel-tab.icon-tab {
+  padding: 0 10px;
+}
+.panel-tab.icon-tab > span:not([data-icon]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 /* A newer version, in the top bar until it is installed or put off: the accent colour and the
    version, nothing else, so it fits beside the other controls at the narrowest window. */
 .topbar .update-pill {

@@ -61,7 +61,14 @@ pub struct Plant {
     pub y: f64,
     /// When it went into the ground, in ms since 1970.
     pub planted: u64,
+    /// Whether its flower has been counted in the album.
+    #[serde(default)]
+    pub bloomed: bool,
 }
+
+/// How long a seed takes to flower, as the page grows it (src/yard/growth.js STAGES; a test keeps
+/// the two the same).
+pub const BLOOM_AFTER_MS: u64 = 4 * 60 * 60 * 1000;
 
 fn place(v: f64) -> Option<f64> {
     v.is_finite().then(|| v.clamp(0.0, 1.0))
@@ -154,6 +161,7 @@ impl Garden {
             x,
             y,
             planted: now,
+            bloomed: false,
         };
         self.seeds -= 1;
         self.plants.push(plant.clone());
@@ -168,6 +176,24 @@ impl Garden {
             return Err(i18n::t("error.plant_missing"));
         }
         Ok(())
+    }
+
+    /// A plant has flowered: returns its kind the first time (for the album), nothing after, and
+    /// refuses one that cannot have flowered yet.
+    pub fn bloom(&mut self, id: &str, now: u64) -> Result<Option<String>, String> {
+        let plant = self
+            .plants
+            .iter_mut()
+            .find(|p| p.id == id)
+            .ok_or_else(|| i18n::t("error.plant_missing"))?;
+        if now.saturating_sub(plant.planted) < BLOOM_AFTER_MS {
+            return Err(i18n::t("error.bad_request"));
+        }
+        if plant.bloomed {
+            return Ok(None);
+        }
+        plant.bloomed = true;
+        Ok(Some(plant.kind.clone()))
     }
 
     /// What the next gift is: each kind once, in order; after that one that is not in the yard
@@ -278,6 +304,19 @@ mod tests {
         assert_eq!(g.pull(&id), Ok(()));
         assert!(g.pull(&id).is_err(), "pulled already");
         assert_eq!(g.plants.len(), PLANT_MAX - 1);
+    }
+
+    #[test]
+    fn a_flower_is_counted_once_and_only_once_it_has_flowered() {
+        let mut g = Garden {
+            seeds: 1,
+            ..Default::default()
+        };
+        let id = g.plant("cosmos", 0.5, 0.5, 1_000).unwrap().id;
+        assert!(g.bloom(&id, 1_000 + BLOOM_AFTER_MS - 1).is_err(), "still a bud");
+        assert_eq!(g.bloom(&id, 1_000 + BLOOM_AFTER_MS), Ok(Some("cosmos".into())));
+        assert_eq!(g.bloom(&id, 9_999_999_999), Ok(None), "counted already");
+        assert!(g.bloom("nope", 1).is_err());
     }
 
     #[test]

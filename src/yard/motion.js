@@ -5,6 +5,7 @@ import { crown, drawSprite, reduced } from '../core/sprites.js';
 import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { ate } from './care.js';
+import { fishArrived } from './catch.js';
 import { decorTarget, decorVisited } from './decor.js';
 import { visited, visitTarget, watered } from './garden.js';
 import { arrived } from './play.js';
@@ -24,6 +25,7 @@ export function moveFriends(now, dt) {
         v.targetKind = null;
         if (kind === 'treat') ate(v, now);
         else if (kind === 'water') watered(v);
+        else if (kind === 'fish') fishArrived(v);
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
         if (kind === 'home') v.away = false;
         else if (kind === 'game') arrived(v);

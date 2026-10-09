@@ -2,6 +2,8 @@
 // with time, what flowers in which season, how often a friend finds a seed, and when a gift comes.
 // Design: docs/design/2026-10-09-a-yard-that-grows.md.
 
+import { FLOWERS } from './catalog.js';
+
 const MIN = 60 * 1000,
   HOUR = 60 * MIN;
 // A plant's stages and when each begins, counted from planting.
@@ -22,9 +24,8 @@ export function stageOf(planted, now) {
 }
 /** How long until it flowers (0 once it has). */
 export const untilBloom = (planted, now) => Math.max(0, STAGES.at(-1).at - Math.max(0, now - planted));
-// What grows from a seed planted in each season.
-const FLOWER_OF = { spring: 'tulip', summer: 'sunflower', autumn: 'cosmos', winter: 'camellia' };
-export const flowerFor = season => FLOWER_OF[season] || 'tulip';
+// What grows from a seed planted in each season (the catalogue's flowers).
+export const flowerFor = season => (FLOWERS.find(f => f.season === season) || FLOWERS[0]).id;
 // A friend finds a seed this long after the last find (ms of the app running). The very first one
 // comes soon, so a new yard shows the garden early.
 export const FIND_GAP = [8 * MIN, 20 * MIN];

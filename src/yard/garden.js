@@ -7,7 +7,9 @@ import { confirmAction } from '../core/confirm.js';
 import { list, t } from '../core/i18n.js';
 import { clamp, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, toast, views } from '../core/state.js';
+import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
+import { flowerSvg } from './creatures.js';
 import { flowerFor, hoursMinutes, nextFind, stageOf, untilBloom } from './growth.js';
 import { scene } from './sky.js';
 import {
@@ -85,6 +87,7 @@ export function renderGarden(now = Date.now()) {
     }
     const stage = stageOf(plant.planted, now).name,
       symbol = symbolOf(plant, stage);
+    if (stage === 'bloom' && !plant.bloomed) bloomed(plant);
     if (v.symbol !== symbol) {
       v.symbol = symbol;
       v.use.setAttribute('href', `#plant-${symbol}`);
@@ -103,6 +106,19 @@ export function renderGarden(now = Date.now()) {
     v.button.setAttribute('aria-label', v.button.title);
   }
   syncTool();
+}
+// A flower is counted in the album once (the backend keeps which were); the first of its kind
+// shows its card. Asked once a session per plant, however often the garden is drawn.
+const asked = new Set();
+function bloomed(plant) {
+  if (asked.has(plant.id)) return;
+  asked.add(plant.id);
+  call('bloomed', plant.id)
+    .then(r => {
+      if (r?.entry?.count === 1)
+        showCard(flowerSvg(plant.kind), t(`garden.kind_${plant.kind}`), t('catch.bloomed'), true);
+    })
+    .catch(() => {});
 }
 // The tool says how many seeds there are; with none it stays pressable and says how to get one.
 function syncTool() {

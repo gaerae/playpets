@@ -1,6 +1,7 @@
 // Brings every part of the page in line with the latest state from the backend.
 import { t } from './core/i18n.js';
 import { $, data, recall, selected, setSelected } from './core/state.js';
+import { renderAlbum } from './panel/album.js';
 import { detectedLabel } from './panel/connection.js';
 import { renderPanel } from './panel/friend.js';
 import { renderShelf } from './panel/invite.js';
@@ -34,6 +35,7 @@ export function render() {
   syncViews();
   renderGarden();
   renderDecor();
+  renderAlbum();
   renderShelf();
   $('warnings').hidden = !data.warnings?.length;
   $('warnings').textContent = (data.warnings || []).join('\n');
