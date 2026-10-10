@@ -12,6 +12,9 @@ const paths = {
   // A seedling: the garden's tool.
   sprout:
     '<path d="M12 21v-8"/><path d="M12 13C12 8.5 9 6 4 6c0 4.5 3 7 8 7Z"/><path d="M12 15c0-3.5 2.5-6 7-6 0 4-2.5 6-7 6Z"/>',
+  eye: '<path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/>',
+  paw: '<path d="M12 13c-3 0-5 2.6-5 4.6 0 1.5 1.2 2.4 2.6 2.4 1 0 1.6-.5 2.4-.5s1.4.5 2.4.5c1.4 0 2.6-.9 2.6-2.4 0-2-2-4.6-5-4.6Z"/><circle cx="5.5" cy="10.5" r="1.7"/><circle cx="9.3" cy="6.5" r="1.7"/><circle cx="14.7" cy="6.5" r="1.7"/><circle cx="18.5" cy="10.5" r="1.7"/>',
+  dash: '<path d="M3 8h9M5 12h11M3 16h7"/><circle cx="18.5" cy="12" r="2.5"/>',
   spark: '<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/>',
   download: '<path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/>',
   folder:

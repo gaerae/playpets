@@ -7,6 +7,7 @@ Change or add what is in the yard without touching the code that runs it. The ya
 |---|---|---|
 | The catalogue: fish, bugs, flowers, gifts, the garden's stages | `src/content/catalog.json` | the page (`src/yard/catalog.js`) and the backend (`src-tauri/src/pets/content.rs`, built in) |
 | The scenery's composition: curves, the lake, the field, the layers painted from back to front | `src/content/yard.json` | the page (`src/yard/layout.js`, `src/yard/backdrop.js`) |
+| Seasonal events: when, their gift, what they add to the scenery and how they look | `src/content/events.json` | the page (`src/yard/events.js`, `src/yard/festival.js`) and the backend (its gift's dates, `content.rs`) |
 | Drawings: plant stages, flowers, gifts (and any fish or bug that has its own) | `src/art/<folder>/<id>.svg` | the page (`src/yard/art.js`), as symbols |
 | Colours of the seasons, the light and the weather | `src/styles/scenery.css` | the stylesheet, the painter and every drawing |
 | Names and lines | `src/core/strings/<language>.js` | the page |
@@ -63,6 +64,18 @@ The painters and what each takes are in `src/yard/backdrop.js` (`PAINTERS`); thi
 
 To paint something new, add a painter to `PAINTERS` (or a thing to `THINGS`) and use it from `yard.json`.
 
+### Add a seasonal event
+1. Add an entry to `src/content/events.json`: `id`, `from` and `to` (month-day, `"04-01"`, as north of the equator; south of it the event comes six months later unless `"fixed": true`, as for the new year), and what it brings:
+   - `gift`: the id of a gift that comes only then. Add that gift to `catalog.json` with `"event": "<id>"`; it comes the first time a gift is due during the event, and is not one of the everyday gifts.
+   - `boost`: more small life while it is on: `petals`, `butterflies`, `fireflies` (how many times as many).
+   - `looks`: names of looks; each is a class on the yard (`look-<name>`) whose rules go in `src/styles/scenery.css` (the harvest moon's `fullmoon` makes the moon big and full).
+   - `art`: a drawing for its card, if it has no gift (the new year's sunrise).
+2. A fish or a bug that comes only then: add it to the catalogue with `"event": "<id>"`.
+3. Something painted only then: give a layer in `yard.json` `"when": "<id>"` (the winter lights' `fairyLights`).
+4. Add `event.<id>.name`, `event.<id>.about` (the card's words) and `event.<id>.lines` (what friends say) to every string table.
+
+The scene label shows the event while it is on, a card says it has begun the first time each year, and friends talk about it.
+
 ### Change the colours of a season or a time of day
 The custom properties in `src/styles/scenery.css`, per season, time of day and weather. The painter and every drawing read them.
 
@@ -73,7 +86,8 @@ npm run lint
 npm run test:e2e
 ```
 
-- `tests/content.test.mjs` says what is missing: a name or a line in a language, a drawing file, an effect, a painter, a curve or a colour the content names.
+- `tests/content.test.mjs` says what is missing: a name or a line in a language, a drawing file, an effect, a painter, a curve, a colour, an event's words or gift, or a look's rules.
+- To see an event outside its dates, the screenshot harness and the e2e run can set the date; in the app, the system clock decides.
 - The backend's test `content::tests` checks the catalogue it built in.
 - Look at it: build and run the app as in [getting started](../getting-started.md), and set the time of day and weather from the scene label in the yard to see the new thing in each light.
 

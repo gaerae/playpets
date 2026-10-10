@@ -15,14 +15,17 @@ function when(kind, where) {
     periods = kind.periods.length === 4 ? t('catch.any_time') : kind.periods.map(p => t(`period.${p}`)).join('·');
   return `${seasons} · ${periods} · ${t(where)}`;
 }
+// A kind that comes only during a seasonal event says when.
+const eventHint = k => t('catch.event_hint', { event: t(`event.${k.event}.name`) });
 const caughtLine = (entry, size) =>
   size && entry.best
     ? `${t('catch.count', { count: entry.count })} · ${t('catch.best', { size: entry.best.toFixed(1) })}`
     : t('catch.count', { count: entry.count });
 
 // Each book: its tab's name, its kinds (the catalogue's), what has been found, and how a card draws
-// and describes a kind. A kind added to the catalogue shows up in its book; a new book is one more
-// entry here (its tab is made from it).
+// and describes a kind (`unknown`: what a card not found yet says, when not "not met yet"). A kind
+// added to the catalogue shows up in its book; a new book is one more entry here (its tab is made
+// from it).
 const BOOKS = {
   flower: {
     tab: 'catch.tab_flowers',
@@ -30,6 +33,7 @@ const BOOKS = {
     found: () => data.album?.flowers || {},
     draw: (k, unknown) => flowerSvg(k.id, unknown),
     name: k => t(`garden.kind_${k.id}`),
+    unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('catch.grown', { count: entry.count }),
   },
@@ -39,7 +43,7 @@ const BOOKS = {
     found: () => data.album?.fish || {},
     draw: (k, unknown) => fishSvg(k, unknown),
     name: k => t(`catch.fish_${k.id}`),
-    hint: k => when(k, 'catch.where_lake'),
+    hint: k => (k.event ? `${eventHint(k)} · ${when(k, 'catch.where_lake')}` : when(k, 'catch.where_lake')),
     record: entry => caughtLine(entry, true),
   },
   bug: {
@@ -48,7 +52,7 @@ const BOOKS = {
     found: () => data.album?.bugs || {},
     draw: (k, unknown) => bugSvg(k, unknown),
     name: k => t(`catch.bug_${k.id}`),
-    hint: k => when(k, 'catch.where_air'),
+    hint: k => (k.event ? `${eventHint(k)} · ${when(k, 'catch.where_air')}` : when(k, 'catch.where_air')),
     record: entry => caughtLine(entry, false),
   },
   gift: {
@@ -58,7 +62,8 @@ const BOOKS = {
     found: () => Object.fromEntries((data.garden?.received || []).map(id => [id, { count: 1 }])),
     draw: (k, unknown) => giftSvg(k, unknown),
     name: k => t(`decor.kind_${k.id}`),
-    hint: () => t('catch.gift_hint'),
+    unknown: 'catch.unknown_gift',
+    hint: k => (k.event ? eventHint(k) : t('catch.gift_hint')),
     record: () => t('catch.received'),
   },
 };
@@ -72,7 +77,7 @@ function card(b, kind, entry) {
   el.innerHTML = b.draw(kind, !entry);
   const name = document.createElement('strong'),
     hint = document.createElement('small');
-  name.textContent = entry ? b.name(kind) : t('catch.unknown');
+  name.textContent = entry ? b.name(kind) : t(b.unknown || 'catch.unknown');
   hint.textContent = b.hint(kind);
   el.append(name, hint);
   // A fish or a bug that comes seldom says so, found or not, so it is worth waiting for.

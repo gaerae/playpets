@@ -184,6 +184,27 @@
       "id": "windchime",
       "art": "decor/windchime.svg",
       "effects": ["chime"]
+    },
+    {
+      "id": "cherry_sapling",
+      "art": "decor/cherry_sapling.svg",
+      "event": "blossom"
+    },
+    {
+      "id": "watermelon",
+      "art": "decor/watermelon.svg",
+      "flat": true,
+      "event": "fireflies"
+    },
+    {
+      "id": "pumpkin",
+      "art": "decor/pumpkin.svg",
+      "event": "harvest"
+    },
+    {
+      "id": "snowman",
+      "art": "decor/snowman.svg",
+      "event": "lights"
     }
   ],
   "fish": [
@@ -440,6 +461,22 @@
         "shape": "normal",
         "band": "#d4655a"
       }
+    },
+    {
+      "id": "moon_carp",
+      "size": [40, 80],
+      "seasons": ["autumn"],
+      "periods": ["evening", "night"],
+      "weight": 6,
+      "event": "harvest",
+      "look": {
+        "body": "#f4efe0",
+        "belly": "#ffffff",
+        "fin": "#e8c86a",
+        "shape": "normal",
+        "spots": "#e8a33a",
+        "whiskers": true
+      }
     }
   ],
   "bugs": [
@@ -616,6 +653,18 @@
       "look": {
         "body": "#33302a",
         "glow": "#d9f08a"
+      }
+    },
+    {
+      "id": "golden_firefly",
+      "kind": "firefly",
+      "seasons": ["summer"],
+      "periods": ["evening", "night"],
+      "weight": 1,
+      "event": "fireflies",
+      "look": {
+        "body": "#3a3326",
+        "glow": "#ffd84a"
       }
     }
   ]

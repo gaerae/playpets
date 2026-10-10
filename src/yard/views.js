@@ -80,6 +80,8 @@ function fit(v) {
   v.button.style.width = `${size}px`;
   v.canvas.style.width = `${size}px`;
   v.canvas.style.height = `${petHeight(v.pet)}px`;
+  v.label.style.width = `${size}px`;
+  v.body.style.height = `${petHeight(v.pet)}px`;
   place(v);
 }
 // A friend's trip: where it is headed (`v.target`, its place 0 to 1 each way) and `v.trip`, what
@@ -121,13 +123,21 @@ export function place(v) {
   const { w, h, top } = geometry(v.pet);
   v.px = EDGE + v.x * w;
   v.py = top + v.y * h;
-  v.button.style.transform = `translate(${v.px}px,${v.py}px)`;
-  // Nearer the bottom is nearer the viewer: drawn on top, so its tag and its clicks are not covered.
-  // The selected friend stays above the rest. Written only when it changes: this runs every frame.
-  const z = 1 + Math.round(v.y * 100) + (v.button.classList.contains('selected') ? 200 : 0);
+  const at = `translate(${v.px}px,${v.py}px)`;
+  v.button.style.transform = at;
+  v.label.style.transform = at;
+  // Nearer the bottom is nearer the viewer: drawn on top, in front of what stands behind it (the
+  // garden's plants and gifts share the layer and the scale). Labels are a layer above all of it,
+  // where the selected friend's comes first. Written only when it changes: this runs every frame.
+  const z = 1 + Math.round(v.y * 100);
   if (v.z !== z) {
     v.z = z;
     v.button.style.zIndex = String(z);
+  }
+  const lz = z + (v.button.classList.contains('selected') ? 200 : 0);
+  if (v.lz !== lz) {
+    v.lz = lz;
+    v.label.style.zIndex = String(lz);
   }
 }
 // The name on the tag, which says so when the friend is the tagger in a game.
@@ -139,6 +149,14 @@ export function labelTag(v) {
 // The tag is also the way to talk: under the pointer it shows a speech mark, and a click on it
 // (not a drag) opens the conversation, as the name button does on the desktop.
 const onTag = e => !!e.target.closest?.('.pet-tag');
+// A friend is two elements moved together: its body (a button among the garden's things, so what
+// stands in front of it covers it) and its label (bubble, tag and the agent's dot, in the layer
+// above, so nothing covers them). The label wears the body's state classes, mirrored as they
+// change; `pointing` and `focused` stand for the body's :hover and :focus-visible.
+function mirror(v) {
+  const marks = v.button.className.replace('yard-pet', '').trim();
+  v.label.className = `pet-label${marks ? ` ${marks}` : ''}`;
+}
 function createView(p) {
   const button = document.createElement('button');
   button.className = 'yard-pet';
@@ -168,10 +186,20 @@ function createView(p) {
   thinking.className = 'yard-thinking';
   thinking.setAttribute('aria-hidden', 'true');
   thinking.append(...[0, 1, 2].map(() => document.createElement('i')));
-  button.append(bubble, thinking, c, tag, dot);
+  const label = document.createElement('div'),
+    body = document.createElement('i');
+  label.dataset.id = p.id;
+  // The body button already says the name and state; the label is what the eye reads.
+  label.setAttribute('aria-hidden', 'true');
+  body.className = 'label-body';
+  label.append(bubble, thinking, body, tag, dot);
+  button.append(c);
   $('pet-layer').append(button);
+  $('label-layer').append(label);
   const v = {
     button,
+    label,
+    body,
     canvas: c,
     tag,
     tagName,
@@ -195,11 +223,23 @@ function createView(p) {
     look: null,
     nextWander: performance.now() + between(Math.random, WANDER_DELAY),
   };
+  v.mirror = new MutationObserver(() => mirror(v));
+  v.mirror.observe(button, { attributes: true, attributeFilter: ['class'] });
+  mirror(v);
+  button.addEventListener('pointerenter', () => button.classList.add('pointing'));
+  button.addEventListener('pointerleave', () => button.classList.remove('pointing'));
+  button.addEventListener('focus', () => button.classList.toggle('focused', button.matches(':focus-visible')));
+  button.addEventListener('blur', () => button.classList.remove('focused'));
   // The body gives a little under a press and springs back (the canvas, not the tag or bubble).
+  // A press, drag or click on the tag is one on the friend, as when the tag hung under the body.
   const unpress = () => button.classList.remove('pressed');
-  button.addEventListener('pointerup', unpress);
-  button.addEventListener('pointercancel', unpress);
-  button.addEventListener('pointerdown', e => {
+  const both = (type, handler) => {
+    button.addEventListener(type, handler);
+    tag.addEventListener(type, handler);
+  };
+  both('pointerup', unpress);
+  both('pointercancel', unpress);
+  both('pointerdown', e => {
     if (e.button !== 0 || aiming) return;
     button.classList.add('pressed');
     if (game) {
@@ -213,11 +253,11 @@ function createView(p) {
     v.drag = { startX: e.clientX, startY: e.clientY, x: v.x, y: v.y, moved: false, talk: onTag(e) };
     // A press that is not a live pointer (a script's) has nothing to capture.
     try {
-      button.setPointerCapture(e.pointerId);
+      e.currentTarget.setPointerCapture(e.pointerId);
     } catch {}
     e.stopPropagation();
   });
-  button.addEventListener('pointermove', e => {
+  both('pointermove', e => {
     if (v.drag) {
       const dx = e.clientX - v.drag.startX,
         dy = e.clientY - v.drag.startY;
@@ -238,7 +278,7 @@ function createView(p) {
     if (!v.drag) return;
     const { moved, talk } = v.drag;
     v.drag = null;
-    if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
     if (moved) {
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {
@@ -253,13 +293,13 @@ function createView(p) {
       await call('play', 'pet', p.id);
     }
   });
-  button.addEventListener('pointerup', end);
-  button.addEventListener('pointercancel', end);
-  button.addEventListener('dblclick', () => {
+  both('pointerup', end);
+  both('pointercancel', end);
+  both('dblclick', () => {
     if (!game) on.openChat(p.id);
   });
   // Right-click chats too, as on the desktop, so one gesture works in both places.
-  button.addEventListener('contextmenu', e => {
+  both('contextmenu', e => {
     e.preventDefault();
     if (!game) on.openChat(p.id);
   });
@@ -296,7 +336,9 @@ export function syncViews() {
   for (const [id, v] of views)
     if (!data.pets.some(p => p.id === id)) {
       release(v);
+      v.mirror.disconnect();
       v.button.remove();
+      v.label.remove();
       views.delete(id);
     }
   for (const p of data.pets) {

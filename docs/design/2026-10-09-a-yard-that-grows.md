@@ -17,6 +17,7 @@ Goal: a slow, calm loop that makes each yard different and gives a reason to loo
 6. **Catch**: friends fish at the lake and leap for bugs.
 7. **Album**: one place for all of it, in four books (flowers, fish, bugs, gifts), so the garden, the gifts and the catches are one collection that grows with the year.
 8. **Friendship**: each friend grows closer through time in the yard and everything above done together, and each level changes what the friend does.
+9. **Seasonal events**: a few times a year the yard changes for a while (cherry blossoms, firefly nights, the harvest moon, winter lights, the new year), with a gift and creatures that come only then.
 
 ## Rules (first piece: the garden)
 
@@ -69,6 +70,23 @@ The catalogue is `src/content/catalog.json`, read by the page (`src/yard/catalog
 | Losing it | never: being away takes nothing; a friend that leaves takes its bond with it | no pressure, as for the garden |
 
 The backend keeps the bonds (`state.json` key `bonds`, `src-tauri/src/pets/bond.rs`) and owns what each thing is worth, the daily cap and the levels, so the page only says what happened (`befriend` with a reason and the person's local day) and cannot hand out points of its own. The page decides when (`src/yard/bond.js`) and holds what each level does.
+
+## Rules (fifth piece: seasonal events)
+
+| Event | When (north; south six months later) | What it brings |
+|---|---|---|
+| Cherry blossom festival | April 1 to 20 | 2.5× the falling petals, 2× the butterflies; the cherry sapling |
+| Firefly nights | July 20 to August 20 | 2.5× the fireflies; the golden firefly; the watermelon |
+| Harvest moon | September 25 to October 15 | A big, full, golden moon every night; the moonlight carp at night; the pumpkin |
+| Winter lights | December 10 to 31 | Little lights on the big tree, lit from evening on; the snowman |
+| New Year | January 1 to 7 (the same everywhere) | Greetings |
+
+| Rule | Value | Why |
+|---|---|---|
+| An event's gift | the first gift due during the event is its own; the backend gives it only if the page's local date is in the event's dates (north or south) | something to look forward to each season, that cannot be had early |
+| Event creatures | a fish or bug marked with an event bites or flies only while it is on; the album says when | a reason to open the yard in that season |
+| Showing it | the event's name beside the scene label; a card the first time it is seen each year; friends talk about it now and then (two in five idle remarks) | noticeable without interrupting |
+| Data | `src/content/events.json` (dates, gift, boost, looks, art), events-marked kinds in `catalog.json`, `when: "<event>"` layers in `yard.json` | an event is added or moved with no code (docs/how-to/add-to-the-yard.md) |
 
 ## Performance
 

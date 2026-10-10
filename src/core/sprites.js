@@ -87,3 +87,12 @@ export function canvas() {
   c.setAttribute('aria-hidden', 'true');
   return c;
 }
+/** Draws a friend's resting cell once (a chat avatar), as soon as its sheet is in. */
+export function drawStill(canvas, asset) {
+  if (!asset) return;
+  const image = imageFor(asset);
+  if (image.complete && image.naturalWidth) return drawSprite(canvas, asset);
+  image.addEventListener('load', () => drawSprite(canvas, asset), { once: true });
+  // A sheet that refused CORS is loaded again plainly (load): draw from that one.
+  image.addEventListener('error', () => setTimeout(() => drawStill(canvas, asset)), { once: true });
+}

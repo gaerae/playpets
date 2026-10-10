@@ -10,7 +10,7 @@
 // Where each piece goes is src/content/yard.json (layout.js reads it); the colours and light are
 // palette.js's; trees.js, lake.js and clouds.js paint the pieces; this file has a painter for each
 // kind of layer and paints the layers the composition lists.
-import { bumpy, css, dot, fillShape, flat, gauss, light, mix, seeded, shade, vertical } from './brush.js';
+import { bumpy, color, css, dot, fillShape, flat, gauss, light, mix, seeded, shade, vertical } from './brush.js';
 import { lake } from './lake.js';
 import { composition, down, heightAt, range, trace } from './layout.js';
 import { lightFor, tones, weathered } from './palette.js';
@@ -120,6 +120,8 @@ const THINGS = {
   rock: (ctx, x, y, H, k, rng) => rock(ctx, x, y, H, k.pal, rng, k.lit, k.extras),
   cedar: (ctx, x, y, H, k, rng) => sugi(ctx, x, y, H, k.pal, rng, k.lit, k.extras),
 };
+// The big tree's height: smaller in a narrow yard (the panel open beside it), so it frames rather than fills.
+const treeHeight = (tree, k) => tree.h * k.h * (0.4 + 0.6 * Math.min(1, k.w / k.h / 1.9));
 const PAINTERS = {
   /** A mountain range through `peaks`, in `tone` hazed by `haze`, snow-capped `snowcap`. */
   mountains(ctx, l, k) {
@@ -212,10 +214,53 @@ const PAINTERS = {
   flowers(ctx, l, k) {
     flowerClumps(ctx, k.w, k.h, k.pal, seeded(l.seed), l.at);
   },
-  /** The big tree that frames the yard; smaller in a narrow yard, so it frames rather than fills. */
+  /** The big tree that frames the yard (treeHeight). */
   bigTree(ctx, l, k) {
-    const roomy = Math.min(1, k.w / k.h / 1.9);
-    bigTree(ctx, l.x * k.w, l.y * k.h, l.h * k.h * (0.55 + 0.45 * roomy), k.pal, seeded(l.seed), k.lit, k.extras);
+    bigTree(ctx, l.x * k.w, l.y * k.h, treeHeight(l, k), k.pal, seeded(l.seed), k.lit, k.extras);
+  },
+  /** Strings of little lights draped over the big tree, lit from evening on (the winter lights
+   * event). Each string is [x0, y0, x1, y1, sag] in the tree's heights from its foot. */
+  fairyLights(ctx, l, k) {
+    const tree = composition.layers.find(t => t.paint === 'bigTree');
+    if (!tree) return;
+    const H = treeHeight(tree, k),
+      x = tree.x * k.w,
+      y = tree.y * k.h,
+      lit = k.scene.period === 'evening' || k.scene.period === 'night',
+      rng = seeded(l.seed),
+      colours = (l.colours || ['#ffe9a8']).map(color);
+    for (const [x0, y0, x1, y1, sag] of l.strings) {
+      const ax = x + x0 * H,
+        ay = y - y0 * H,
+        bx = x + x1 * H,
+        by = y - y1 * H,
+        mx = (ax + bx) / 2,
+        my = (ay + by) / 2 + sag * H;
+      ctx.strokeStyle = css(shade(k.pal.trunk, 0.4), 0.7);
+      ctx.lineWidth = Math.max(0.8, H * 0.003);
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.quadraticCurveTo(mx, my, bx, by);
+      ctx.stroke();
+      const n = Math.max(4, Math.round(Math.hypot(bx - ax, by - ay) / (H * 0.045)));
+      for (let i = 1; i < n; i++) {
+        const t = i / n,
+          px = (1 - t) ** 2 * ax + 2 * (1 - t) * t * mx + t * t * bx,
+          py = (1 - t) ** 2 * ay + 2 * (1 - t) * t * my + t * t * by + H * 0.006,
+          c = colours[(i + Math.floor(rng() * 2)) % colours.length],
+          r = Math.max(1.2, H * 0.0065);
+        if (lit) {
+          const glow = ctx.createRadialGradient(px, py, 0, px, py, r * 5);
+          glow.addColorStop(0, css(c, 0.55));
+          glow.addColorStop(1, css(c, 0));
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(px, py, r * 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        dot(ctx, px, py, r, lit ? light(c, 0.35) : mix(c, k.pal.trunk, 0.35));
+      }
+    }
   },
   /** Low shrubs (`at`: x, size) along a line (`y`), such as the near corners. */
   bushes(ctx, l, k) {
@@ -229,13 +274,19 @@ export const PAINTER_NAMES = Object.keys(PAINTERS),
   THING_KINDS = Object.keys(THINGS);
 
 /** The land, painted layer by layer as the composition (yard.json) lists them. */
-export function paintLand(ctx, w, h, palette, { period, weather, season }) {
+export function paintLand(ctx, w, h, palette, { period, weather, season, event = null }) {
   const pal = weathered(palette, weather),
     lit = lightFor(period, weather),
     snowy = weather === 'snow',
     traced = new Map();
-  // A condition a layer can name: a weather, a season or a time of day, or "bloomy" (flowers out).
-  const holds = c => c === weather || c === season || c === period || (c === 'bloomy' && season !== 'winter' && !snowy);
+  // A condition a layer can name: a weather, a season, a time of day, a seasonal event (events.json),
+  // or "bloomy" (flowers out).
+  const holds = c =>
+    c === weather ||
+    c === season ||
+    c === period ||
+    (!!event && c === event) ||
+    (c === 'bloomy' && season !== 'winter' && !snowy);
   const tone = c =>
     typeof c === 'string'
       ? pal[c]
@@ -253,6 +304,7 @@ export function paintLand(ctx, w, h, palette, { period, weather, season }) {
     leaves: tones([pal['leaf-hi'], pal.leaf, pal['leaf-lo']], lit),
     extras: { cap: pal.cap, blossom: season === 'spring' && !snowy },
     tone,
+    scene: { period, weather, season, event },
     when: c => (Array.isArray(c) ? c.some(holds) : !!c && holds(c)),
     curve: name => {
       if (!traced.has(name)) traced.set(name, trace(composition.curves[name], w, h));

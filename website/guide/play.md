@@ -65,6 +65,21 @@ Once a day a friend brings a gift for the yard, after the yard has been open for
 - A card shows what was caught, and says so when it is new.
 - **Album** in the tools has four books, Flowers, Fish, Bugs and Gifts, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
 
+## Seasonal events <Since v="0.1.0" />
+
+A few times a year the yard changes for a while. The event's name shows beside the scene label, a card says it has begun the first time you see it that year, and friends talk about it.
+
+| Event | When | What it brings |
+|---|---|---|
+| Cherry blossom festival | April 1 to 20 | Petals drift everywhere and more butterflies come out; a friend brings a cherry sapling |
+| Firefly nights | July 20 to August 20 | Many more fireflies at night, and a golden one to catch; a friend brings a watermelon |
+| Harvest moon | September 25 to October 15 | A big full moon every night, and the moonlight carp in the lake at night; a friend brings a pumpkin |
+| Winter lights | December 10 to 31 | Little lights on the big tree, glowing from evening on; a friend brings a snowman |
+| New Year | January 1 to 7 | Friends greet the new year |
+
+- The event's gift comes the first time a gift is due during the event, and only then. The album shows when each one comes.
+- South of the equator the seasonal events come six months later, by your computer's time zone (the new year stays in January).
+
 ## Friendship <Since v="0.1.0" />
 
 Each friend grows closer to you through time in the yard and what you do together. Hearts on its name tag show how close it is, and the Friend tab shows its level, how far it is to the next and what the next one brings.

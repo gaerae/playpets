@@ -34,7 +34,9 @@ let gameButtons = [];
 export function syncGameUi() {
   for (const b of gameButtons) {
     const mine = game?.kind === b.dataset.game;
-    b.textContent = mine ? t('game.stop', { name: GAMES[b.dataset.game] }) : GAMES[b.dataset.game];
+    b.querySelector('.game-name').textContent = mine
+      ? t('game.stop', { name: GAMES[b.dataset.game] })
+      : GAMES[b.dataset.game];
     b.classList.toggle('playing', mine);
     b.setAttribute('aria-pressed', String(mine));
     b.disabled = !data.pets.length || (!!game && !mine);

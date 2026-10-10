@@ -186,7 +186,9 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
                 let (x, y) = (float(&args, 0), float(&args, 1));
                 let turn = (now_ms() / 1000) as usize;
                 commit(&app, &state, |d| {
-                    d.garden.gift(x, y, text(&args, 2), turn).map(|d| json!(d))
+                    d.garden
+                        .gift(x, y, text(&args, 2), turn, arg(&args, 3).as_str())
+                        .map(|d| json!(d))
                 })
             }
             "moveDecor" => {

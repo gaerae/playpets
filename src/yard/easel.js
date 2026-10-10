@@ -82,7 +82,7 @@ export function createEasel(yard, reduced) {
   return {
     /** The light changed (or may have): paints again if what it shows is different. */
     set(next) {
-      scene = { period: next.period, weather: next.weather, season: next.season };
+      scene = { period: next.period, weather: next.weather, season: next.season, event: next.event ?? null };
       paint();
     },
   };

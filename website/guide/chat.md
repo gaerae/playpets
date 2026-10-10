@@ -37,6 +37,7 @@ Once you have made a connection, other friends can use it too. Pick a different 
 ## Chatting <Since v="0.1.0" />
 
 - Type in the field at the bottom and press Enter. Shift+Enter makes a new line.
+- In a conversation not yet started, pick one of the first lines shown (such as "What did you do today?") to send it with one click.
 - While you wait for an answer, a "Thinking" bubble appears, and the ■ button stops it.
 - The answer also floats as a speech bubble above the friend in the yard.
 - Choose **Clear chat** from the **⋯** menu by the friend's name to delete the whole conversation with this friend. The name and personality stay.

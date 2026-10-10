@@ -44,7 +44,17 @@ export function idleChatter(now) {
   );
   if (!quiet.length) return;
   const v = pick(quiet);
-  // The closest friends (level 5, bond.js) now and then say something to the person instead.
-  const dear = levelOf(v.pet.id) >= 5 && Math.random() < 0.35;
-  bubble(v, dear ? pick(list('bond.dear')) : chatterFor(scene.period, scene.weather, Math.random), 3500);
+  // The closest friends (level 5, bond.js) now and then say something to the person instead, and
+  // during a seasonal event friends often talk about it.
+  const dear = levelOf(v.pet.id) >= 5 && Math.random() < 0.35,
+    festive = !dear && scene.event && Math.random() < 0.4;
+  bubble(
+    v,
+    dear
+      ? pick(list('bond.dear'))
+      : festive
+        ? pick(list(`event.${scene.event}.lines`))
+        : chatterFor(scene.period, scene.weather, Math.random),
+    3500,
+  );
 }

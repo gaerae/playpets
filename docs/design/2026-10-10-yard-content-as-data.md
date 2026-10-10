@@ -13,6 +13,7 @@ The goal is that **content and behaviour change apart**:
 | Content (files) | Behaviour (code) |
 |---|---|
 | `src/content/catalog.json`: every kind, with its seasons, hours, weights, sizes, looks, colours, drawing, how friends use it, and its effects; the garden's stages | `catalog.js` (when things bite and fly), `growth.js` (stages over time), `album.js` (books), `garden.js` and `decor.js` (props on the field), `content.rs` (what the backend believes) |
+| `src/content/events.json`: the seasonal events, their dates, gifts, boosts and looks | `events.js` (when an event is on), `festival.js` (how it is shown), `content.rs` (its gift's dates) |
 | `src/content/yard.json`: the curves, the field, the lake, and the layers painted from back to front, each naming its painter with its settings | `backdrop.js` `PAINTERS` and `THINGS`, `trees.js`, `lake.js`, `clouds.js` |
 | `src/art/**.svg`: one drawing per plant stage, flower and gift; a fish or a bug may have its own | `art.js` (loads them as symbols), `creatures.js` (draws fish and bugs from their looks) |
 | Effect names on a gift (`"effects": ["glow"]`) | `effects.js` (layers) and the "Effects" rules in `yard.css` |

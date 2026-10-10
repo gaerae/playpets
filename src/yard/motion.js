@@ -51,6 +51,6 @@ export function moveFriends(now, dt) {
     // stand change cells together and the yard is redrawn less often.
     const clock = now < v.until ? now - v.since : now;
     drawSprite(v.canvas, v.asset, state, clock, state === 'idle' ? v.look : null);
-    crown(v.button, v.asset, petHeight(v.pet));
+    crown(v.label, v.asset, petHeight(v.pet));
   }
 }

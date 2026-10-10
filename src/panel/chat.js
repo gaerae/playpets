@@ -3,8 +3,10 @@
 import { logEntries } from '../core/chatlog.js';
 import { confirmAction } from '../core/confirm.js';
 import { joinList, t } from '../core/i18n.js';
+import { canvas, drawStill } from '../core/sprites.js';
 import {
   $,
+  asset,
   call,
   companions,
   data,
@@ -142,7 +144,20 @@ export function renderChat(p) {
 // pulled down; switching friends, clearing, or a reset starts the log over.
 let shown = { pet: null, keys: [] };
 const keyOf = m => `${m.role}|${m.name || ''}|${m.content}`;
-function messageNode(m) {
+// Who said it: a friend in the group by its name, the friend talked with, or the person.
+const speaker = m => m.name || m.role;
+// As in a messenger, a friend's turn opens with its picture beside the first message (the rest of
+// the turn lines up under it).
+function avatar(m) {
+  const friend = m.name ? data.pets.find(p => name(p) === m.name) : pet();
+  const frame = document.createElement('span'),
+    c = canvas();
+  frame.className = 'chat-avatar';
+  frame.append(c);
+  drawStill(c, friend && asset(friend));
+  return frame;
+}
+function messageNode(m, prev) {
   const node = document.createElement('div');
   if (m.name) {
     node.className = 'message peer';
@@ -155,6 +170,10 @@ function messageNode(m) {
     if (m.role === 'assistant') rich(node, m.content);
     else node.textContent = m.content;
   }
+  if ((m.name || m.role === 'assistant') && speaker(m) !== (prev && speaker(prev))) {
+    node.classList.add('turn');
+    node.prepend(avatar(m));
+  }
   return node;
 }
 function placeholder(p) {
@@ -163,7 +182,25 @@ function placeholder(p) {
   hint.className = 'chat-placeholder';
   hint.textContent = p.providerId ? t('chat.empty_connected') : t('chat.empty_no_ai');
   log.append(hint);
-  if (!p.providerId) {
+  // With an AI, a few first lines to pick from, so a new friend is not met with a blank box.
+  if (p.providerId) {
+    const starters = document.createElement('div');
+    starters.className = 'chat-starters';
+    starters.setAttribute('role', 'group');
+    starters.setAttribute('aria-label', t('chat.starters'));
+    for (const key of ['chat.starter_1', 'chat.starter_2', 'chat.starter_3']) {
+      const line = document.createElement('button');
+      line.type = 'button';
+      line.className = 'button chip';
+      line.textContent = t(key);
+      line.onclick = () => {
+        $('message').value = t(key);
+        $('chat-form').requestSubmit();
+      };
+      starters.append(line);
+    }
+    log.append(starters);
+  } else {
     const cta = document.createElement('button');
     cta.type = 'button';
     cta.className = 'button secondary connect-cta';
@@ -200,7 +237,8 @@ export async function refreshChat() {
       if (!entries.length) placeholder(p);
     }
     const waiting = log.querySelector('.waiting');
-    for (const m of entries.slice(shown.keys.length)) log.insertBefore(messageNode(m), waiting);
+    for (let n = shown.keys.length; n < entries.length; n++)
+      log.insertBefore(messageNode(entries[n], entries[n - 1]), waiting);
     shown.keys = keys;
     syncWaiting();
     if (!grows || atBottom) log.scrollTop = log.scrollHeight;

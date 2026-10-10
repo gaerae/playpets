@@ -122,7 +122,7 @@ function nibble() {
 const land = guard(async () => {
   if (!fishing?.biting) return;
   const { v, solo } = fishing,
-    { fish, size } = bite(scene.season, scene.period, scene.weather, Math.random);
+    { fish, size } = bite(scene.season, scene.period, scene.weather, Math.random, scene.event);
   stopFishing();
   befriend(v.pet.id, 'catch');
   cue('splash');

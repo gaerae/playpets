@@ -9,7 +9,7 @@ import { PAINTER_NAMES, THING_KINDS } from '../src/yard/backdrop.js';
 import { artOf } from '../src/yard/catalog.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
-import { catalog, yard } from './support/content.mjs';
+import { catalog, events, yard } from './support/content.mjs';
 
 const LANGUAGES = Object.keys(STRINGS);
 
@@ -25,7 +25,7 @@ test('every kind has its name, and every gift its lines, in every language', () 
 });
 
 test('every drawing the catalogue names is an SVG file with a view box, and nothing in it runs', () => {
-  for (const path of artOf(catalog)) {
+  for (const path of artOf(catalog, events)) {
     const file = new URL(`../src/art/${path}`, import.meta.url);
     assert.ok(existsSync(file), `src/art/${path}`);
     const text = readFileSync(file, 'utf8');
@@ -63,4 +63,25 @@ test('every layer of the scenery names a painter, every thing a kind, and every 
     for (const thing of layer.things || []) assert.ok(THING_KINDS.includes(thing.kind), `a thing "${thing.kind}"`);
   }
   assert.ok(yard.curves[yard.field] && yard.curves[yard.lake.under], 'the field and the lake are on curves there are');
+});
+
+test('every seasonal event has its words, its gift in the catalogue as its own, and real looks', () => {
+  for (const e of events.events) {
+    for (const lang of LANGUAGES)
+      for (const key of ['name', 'about', 'lines'])
+        assert.ok(STRINGS[lang][`event.${e.id}.${key}`], `${lang}: ${e.id}.${key}`);
+    if (e.gift) assert.equal(catalog.gifts.find(g => g.id === e.gift)?.event, e.id, `${e.id}: ${e.gift}`);
+    assert.match(e.from, /^\d\d-\d\d$/);
+    assert.match(e.to, /^\d\d-\d\d$/);
+  }
+  // A kind marked with an event names one there is.
+  for (const k of [...catalog.gifts, ...catalog.fish, ...catalog.bugs])
+    if (k.event)
+      assert.ok(
+        events.events.some(e => e.id === k.event),
+        `${k.id}: ${k.event}`,
+      );
+  // Every look an event names has its rules in the stylesheet.
+  const css = readFileSync(new URL('../src/styles/scenery.css', import.meta.url), 'utf8');
+  for (const look of events.events.flatMap(e => e.looks || [])) assert.ok(css.includes(`.look-${look}`), look);
 });

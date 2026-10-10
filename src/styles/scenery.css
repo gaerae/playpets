@@ -415,3 +415,9 @@
   z-index: 2;
   pointer-events: none;
 }
+/* Seasonal events' looks (events.json "looks"): the harvest moon rises big, full and golden. */
+.look-fullmoon.period-night .sky-body {
+  height: min(11%, 80px);
+  --orb: #fbe6a6;
+  box-shadow: 0 0 9vh 3vh #f6dd9a55;
+}

@@ -19,6 +19,7 @@ import { giftWait, localDay } from './growth.js';
 import { askToRemove, propButton, propScale, reconcile, setDown } from './props.js';
 import { cue } from './sound.js';
 import { bubble, cheer, effect, isFree, nearestFree, rest, sendTo } from './views.js';
+import { scene } from './world.js';
 
 // How many yard pixels a unit of a decoration's drawing takes at full size (its view box is its
 // size); it shrinks with the yard as friends do. Whether it lies flat on the ground, under the
@@ -184,7 +185,8 @@ export function giftTick(now) {
     at = yardToField(v.px + width / 2 + (right ? 1 : -1) * width * 0.9, v.py + petHeight(v.pet));
   bringing = true;
   const seen = new Set(g.received || []);
-  call('receiveGift', at.x, at.y, today)
+  // During a seasonal event, today's gift is its own the first time (the backend checks the dates).
+  call('receiveGift', at.x, at.y, today, scene.event)
     .then(d => {
       fresh.add(d.id);
       renderDecor();

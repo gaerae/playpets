@@ -7,6 +7,7 @@
 // rests until the next spell.
 import { between } from '../core/math.js';
 import { flyingBug } from './catalog.js';
+import { boostOf } from './events.js';
 import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
 
 const TAU = Math.PI * 2;
@@ -34,6 +35,8 @@ export function createScenery(canvas, reduced) {
     period = 'day',
     weather = 'clear',
     season = 'spring',
+    // The seasonal event on (events.js), which can bring more small life and kinds of its own.
+    event = null,
     drops = [],
     fallers = [],
     flock = null,
@@ -55,7 +58,8 @@ export function createScenery(canvas, reduced) {
     const warm = season === 'spring' || season === 'summer',
       glow = warm && clear() && (period === 'night' || period === 'evening'),
       flutter = season !== 'winter' && clear() && (period === 'day' || period === 'morning');
-    return { glow, count: glow ? (period === 'night' ? 9 : 4) : flutter ? (warm ? 3 : 1) : 0 };
+    const count = glow ? (period === 'night' ? 9 : 4) : flutter ? (warm ? 3 : 1) : 0;
+    return { glow, count: Math.round(count * boostOf(event, glow ? 'fireflies' : 'butterflies')) };
   }
   // The small life of a spell. Arriving, butterflies come in from the sides, fireflies fade in and
   // petals or leaves start above the yard; at the start they are already about.
@@ -70,10 +74,10 @@ export function createScenery(canvas, reduced) {
       const side = Math.random() < 0.5,
         kind = glow
           ? 'firefly'
-          : Math.random() < 0.35 && flyingBug('dragonfly', season, period, Math.random)
+          : Math.random() < 0.35 && flyingBug('dragonfly', season, period, Math.random, event)
             ? 'dragonfly'
             : 'butterfly',
-        bug = flyingBug(kind, season, period, Math.random);
+        bug = flyingBug(kind, season, period, Math.random, event);
       return {
         kind,
         species: bug?.id || null,
@@ -85,11 +89,14 @@ export function createScenery(canvas, reduced) {
         light: arriving && glow ? 0 : 1,
       };
     });
-    fallers = Array.from({ length: fallerCount(season, period, weather, w) }, () => {
-      const f = spawnFaller(w, h, Math.random);
-      if (arriving) f.y = -10 - Math.random() * h * 0.3;
-      return f;
-    });
+    fallers = Array.from(
+      { length: Math.round(fallerCount(season, period, weather, w) * boostOf(event, 'petals')) },
+      () => {
+        const f = spawnFaller(w, h, Math.random);
+        if (arriving) f.y = -10 - Math.random() * h * 0.3;
+        return f;
+      },
+    );
   }
   function populate() {
     drops = Array.from({ length: dropCount(weather, w, h) }, () => spawnDrop(weather, w, h, Math.random));
@@ -123,11 +130,12 @@ export function createScenery(canvas, reduced) {
     populate();
     paint(performance.now());
   }
-  function set(nextPeriod, nextWeather, nextSeason = season) {
-    if (nextPeriod === period && nextWeather === weather && nextSeason === season) return;
+  function set(nextPeriod, nextWeather, nextSeason = season, nextEvent = event) {
+    if (nextPeriod === period && nextWeather === weather && nextSeason === season && nextEvent === event) return;
     period = nextPeriod;
     weather = nextWeather;
     season = nextSeason;
+    event = nextEvent;
     populate();
     paint(performance.now());
   }
@@ -281,7 +289,8 @@ export function createScenery(canvas, reduced) {
       if (c.kind === 'firefly') {
         const lit = (0.5 + 0.5 * Math.sin(c.phase)) * c.light;
         ctx.globalAlpha = (0.15 + lit * 0.3) * c.light;
-        ctx.fillStyle = `rgb(${INK.firefly})`;
+        // Each kind glows in its own light (catalog.json look.glow), so a rare one can be found.
+        ctx.fillStyle = c.look.glow || `rgb(${INK.firefly})`;
         ctx.beginPath();
         ctx.arc(c.x, c.y, 6 * scale, 0, TAU);
         ctx.fill();

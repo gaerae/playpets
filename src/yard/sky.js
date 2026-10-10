@@ -5,6 +5,8 @@ import { language } from '../core/i18n.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, game, recall, remember } from '../core/state.js';
 import { createEasel } from './easel.js';
+import { eventOn } from './events.js';
+import { eventChanged } from './festival.js';
 import { remark } from './remarks.js';
 import {
   autoWeather,
@@ -39,21 +41,27 @@ let periodChoice = 'auto';
 // Returns whether the weather changed.
 export function paintScene() {
   const before = scene.weather,
+    was = scene.event,
     now = new Date(),
     yard = $('yard');
   scene.season = seasonFor(now, south);
   scene.period = periodChoice === 'auto' ? periodFor(now.getHours()) : periodChoice;
   scene.weather = weatherChoice === 'auto' ? autoWeather(now.getTime(), scene.season) : weatherChoice;
+  // A seasonal event (events.js): a class on the yard, and one for each way it looks (scenery.css).
+  const event = eventOn(now, south);
+  scene.event = event?.id ?? null;
+  const marks = event ? [` event-${event.id}`, ...(event.looks || []).map(look => ` look-${look}`)].join('') : '';
   const rainbow = yard.classList.contains('after-rain') || (before === 'rain' && scene.weather === 'clear');
-  yard.className = `yard period-${scene.period} weather-${scene.weather} season-${scene.season}${aiming ? ' aiming' : ''}${game ? ' playing' : ''}`;
+  yard.className = `yard period-${scene.period} weather-${scene.weather} season-${scene.season}${marks}${aiming ? ' aiming' : ''}${game ? ' playing' : ''}`;
   paintSeason(yard);
   paintSky(yard, now);
   if (rainbow && scene.weather === 'clear' && scene.period !== 'night') showRainbow(yard);
   $('sky-dot').className = `sun-dot ${scene.period === 'night' ? 'moon' : ''}`;
   $('scene-caption').textContent = sceneCaption(scene.period, scene.weather);
-  scenery.set(scene.period, scene.weather, scene.season);
+  scenery.set(scene.period, scene.weather, scene.season, scene.event);
   easel.set(scene);
   soundScene(scene);
+  if (was !== scene.event) eventChanged(event);
   return before !== scene.weather;
 }
 // The season's colours, set on the yard as custom properties (scene.js SEASON_COLORS).
@@ -70,19 +78,23 @@ function paintSky(yard, now) {
   const { x, y } = sunAt(minutes);
   yard.style.setProperty('--orb-x', `${x.toFixed(1)}%`);
   yard.style.setProperty('--orb-y', `${y.toFixed(1)}%`);
-  yard.style.setProperty('--moon-shade', String(moonShade(moonPhase(now.getTime()), south)));
+  // The harvest moon is full whatever the calendar says (an event's "fullmoon" look).
+  const full = yard.classList.contains('look-fullmoon');
+  yard.style.setProperty('--moon-shade', String(full ? 100 : moonShade(moonPhase(now.getTime()), south)));
 }
 function showRainbow(yard) {
   yard.classList.add('after-rain');
   clearTimeout(rainbowTimer);
   rainbowTimer = setTimeout(() => $('yard').classList.remove('after-rain'), RAINBOW_MS);
 }
-// The clock at the top right: the time and the date in the app's language, changed on the minute.
+// The clock at the top right: the time and the date in the app's language, changed on the minute
+// (a narrow yard shows the time alone, yard.css).
 const clockTime = new Intl.DateTimeFormat(language(), { hour: 'numeric', minute: '2-digit' }),
   clockDate = new Intl.DateTimeFormat(language(), { month: 'short', day: 'numeric', weekday: 'short' });
 function tick() {
   const now = new Date();
-  $('yard-clock').textContent = `${clockTime.format(now)} · ${clockDate.format(now)}`;
+  $('clock-time').textContent = clockTime.format(now);
+  $('clock-date').textContent = ` · ${clockDate.format(now)}`;
   setTimeout(tick, 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 50);
 }
 // Starts the sky: the chosen or automatic time and weather, and the minute-by-minute check. Called once, by app.js.

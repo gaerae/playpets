@@ -133,8 +133,8 @@ const scenario = `(async()=>{
     await L('chrome='+(document.documentElement.classList.contains('mac')?(drawn?'err':'mac-native'):(drawn?'custom:'+(outerHeight-innerHeight):'err')));
     if(!$('side-panel').hidden)$('close-panel').click();
     const shown=[];for(const k of ['pet','invite','settings']){document.querySelector('.panel-tab[data-panel='+k+']').click();await wait(150);shown.push(['pet','invite','settings'].filter(o=>$('panel-'+o).getBoundingClientRect().height>40).join(','));}
-    const opened=!$('side-panel').hidden;$('close-panel').click();await wait(300);
-    await L('panel='+(opened&&$('side-panel').hidden&&shown.join('|')==='pet|invite|settings'?'toggles':'err:'+shown.join('|')));
+    const opened=!$('side-panel').hidden,indexed=document.querySelector('.settings-index [aria-current]')?.dataset.section;$('close-panel').click();await wait(300);
+    await L('panel='+(opened&&$('side-panel').hidden&&shown.join('|')==='pet|invite|settings'?'toggles':'err:'+shown.join('|'))+'/'+indexed);
     // About: the app's own pages, from the addresses the backend reports; "What's new" waits for an update.
     const project=(await playPets.bootstrap()).data.project||{};
     await L('about='+document.querySelectorAll('#panel-settings button[data-link]').length+'/'+(String(project.site).startsWith('https://')&&String(project.repository).startsWith('https://github.com/')?'addresses':'none')+'/'+($('update-notes').hidden?'notes-hidden':'notes-shown'));
@@ -169,6 +169,10 @@ const scenario = `(async()=>{
     const moved=await until(async()=>(await playPets.bootstrap()).data.garden.decor[0]?.x>0.35);
     await playPets.putAway(gift.id);const away=await until(()=>!document.querySelector('.decor'));
     await L('gift='+(gift.kind==='bench'&&twice.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-once-moved-away':'err:'+JSON.stringify([gift,twice])));
+    // A seasonal event: its gift comes on its days (the backend checks them), and the label beside the scene shows the event on now.
+    const snow=(await playPets.receiveGift(0.6,0.3,'2031-12-20','lights')).data;await until(()=>document.querySelectorAll('.decor').length===1);await playPets.putAway(snow.id);
+    const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
+    await L('event='+(snow.kind==='snowman'&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
     // The album: a catch is kept (the biggest fish, a count), nonsense is refused, and the album shows it.
     await playPets.catch('fish','carp',41.5);await playPets.catch('fish','carp',33);const tooBig=await playPets.catch('fish','carp',999);
     await until(async()=>(await playPets.bootstrap()).data.album?.fish?.carp?.count===2);
@@ -196,7 +200,7 @@ const scenario = `(async()=>{
     else{
       await until(()=>document.querySelectorAll('.yard-pet.hiding').length>=2,8000);const hiding=document.querySelectorAll('.yard-pet.hiding').length;
       // The game names a friend: someone else is a miss and stays hidden, the named one is found.
-      const asked=()=>$('banner-label').textContent===${say('hide.find_label')}?$('banner-title').textContent:null,byName=n=>[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b.querySelector('.tag-name').textContent===n);
+      const asked=()=>$('banner-label').textContent===${say('hide.find_label')}?$('banner-title').textContent:null,byName=n=>{const l=[...document.querySelectorAll('.pet-label.hiding')].find(l=>l.querySelector('.tag-name').textContent===n);return l&&document.querySelector('.yard-pet[data-id="'+l.dataset.id+'"]');};
       const first=asked(),other=[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b!==byName(first));
       press(other);await wait(200);
       const miss=document.querySelectorAll('.yard-pet.hiding').length===2&&!$('game-banner').hidden&&$('banner-sub').textContent.includes(${say('hide.miss')})&&asked()===first;
@@ -243,10 +247,12 @@ const scenario = `(async()=>{
     // By where the feet are (the bottom), since friends of different sizes have their tops elsewhere.
     const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().bottom,z:Number(b.style.zIndex)%200}));
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true));
-    await L('reach='+(chatFromMini?'mini-to-chat':'err-mini')+'/'+(layered?'layered':'err-order'));
+    // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
+    const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
+    await L('reach='+(chatFromMini?'mini-to-chat':'err-mini')+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
     // A friend's name tag is the way to talk: a click on it (not a drag) opens the conversation.
     $('close-panel').click();await until(()=>$('side-panel').hidden);
-    const tag=document.querySelector('.yard-pet .pet-tag');
+    const tag=document.querySelector('.pet-label .pet-tag');
     tag.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));tag.dispatchEvent(new PointerEvent('pointerup',{button:0,bubbles:true}));
     await until(()=>!$('side-panel').hidden&&!$('panel-pet').hidden);
     await L('talkTag='+(!$('side-panel').hidden&&!$('panel-pet').hidden?'opens-chat':'err'));
@@ -450,7 +456,10 @@ const expect = [
   [/^markdown=styled$/, 'markdown emphasis in replies is styled'],
   [/^waiting=shown-then-gone$/, 'waiting indicator while a reply is on its way'],
   [/^chrome=(mac-native|custom:0)$/, 'title bar blends with the page (per OS)'],
-  [/^panel=toggles$/, 'panel tabs open and close'],
+  [
+    /^panel=toggles\/general-title$/,
+    'panel tabs open and close, and the Settings index marks the first group when it opens',
+  ],
   [/^about=6\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
   [
     /^updateUi=general-title,yard-settings-title,agent-link-title,about-title\/ok$/,
@@ -486,8 +495,12 @@ const expect = [
     /^sound=off-on-held$/,
     'yard sounds are on by default, the chip turns them off and on, and the volume is held to 0–100',
   ],
+  [/^event=gift-and-label$/, "a seasonal event's gift comes on its days, and the scene label shows the event on now"],
   [/^gift=bench-once-moved-away$/, 'a gift comes once a day, is dragged to a new place that is kept, and is put away'],
-  [/^reach=mini-to-chat\/layered$/, 'chat from the small window returns to full size; nearer friends are drawn on top'],
+  [
+    /^reach=mini-to-chat\/layered\/labels-over$/,
+    'chat from the small window returns to full size; nearer friends are drawn on top, among the garden things, with labels over all',
+  ],
   [/^pageFits=true\/true$/, 'the page fits the window (no scroll bars, full and mini)'],
   [/^spriteLoads=1536$/, 'pet sprites load under the page security policy'],
   [/^gamesKeepHome=true$/, 'positions during games are not saved'],

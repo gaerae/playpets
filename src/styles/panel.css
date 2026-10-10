@@ -129,6 +129,35 @@
   align-self: flex-start;
   border-bottom-left-radius: 3px;
 }
+/* A friend's messages stand right of its picture, which opens each of its turns (chat.js). */
+.message.assistant,
+.message.peer {
+  position: relative;
+  margin-left: 38px;
+  max-width: calc(95% - 38px);
+}
+.chat-avatar {
+  position: absolute;
+  left: -38px;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 70%, #e3eedd, #f4f7f1);
+  box-shadow: inset 0 0 0 1px #213e4314;
+  display: grid;
+  place-items: start center;
+}
+.chat-avatar canvas {
+  width: 36px;
+  height: 39px;
+  margin-top: 2px;
+}
+/* a new turn leaves a little more room above it than the next message of the same turn */
+.message.turn:not(:first-child) {
+  margin-top: 6px;
+}
 .message.error {
   background: #fff1ec;
   color: #a3422c;
@@ -798,6 +827,10 @@
   text-align: left;
   cursor: pointer;
 }
+.settings-index button[aria-current] {
+  background: #eef3ee;
+  color: var(--ink);
+}
 .settings-index button:hover {
   background: #eef3ee;
   color: var(--ink);
@@ -970,12 +1003,13 @@
   background: #ec7d96;
   transition: width 0.6s;
 }
+/* What the next step of the friendship brings, under the name (past the avatar: 46px and the gap). */
 .bond-next {
   flex: none;
-  margin: 8px 0 0;
-  font-size: 10.5px;
+  margin: 6px 0 0 57px;
+  font-size: 11px;
   line-height: 1.5;
-  color: #8c5a66;
+  color: var(--muted);
 }
 .bond-next:empty {
   display: none;
@@ -1078,8 +1112,19 @@
 .chat-log > .message:first-child {
   margin-top: auto;
 }
-.chat-log:has(.connect-cta) .chat-placeholder {
+.chat-log:has(.connect-cta, .chat-starters) .chat-placeholder {
   margin: auto auto 0;
+}
+.chat-starters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 6px 12px auto;
+}
+.chat-starters .button.chip {
+  font-size: 11.5px;
+  min-height: 32px;
 }
 /* The composer: the message, then a bar with the AI the friend talks with, who joins in, and send. */
 .composer {

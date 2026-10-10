@@ -60,7 +60,7 @@
   height: 11%;
   border-radius: 50%;
   background: #68865120;
-  bottom: 23px;
+  bottom: 4px;
   left: 23%;
   transform: scaleY(0.5);
 }
@@ -104,11 +104,12 @@
 .tag-talk > span {
   display: contents;
 }
-.yard-pet:hover .tag-talk,
-.yard-pet:focus-visible .tag-talk {
+.pet-label.pointing .tag-talk,
+.pet-label.focused .tag-talk,
+.pet-tag:hover .tag-talk {
   display: inline-flex;
 }
-.yard-pet .pet-tag:hover {
+.pet-label .pet-tag:hover {
   background: #fff;
   color: #2c6e57;
   box-shadow: 0 1px 4px #213e4322;
@@ -117,7 +118,9 @@
 .yard.aiming .tag-talk {
   display: none;
 }
-.yard.playing .pet-tag,
+.yard.playing .pet-tag {
+  cursor: pointer;
+}
 .yard.aiming .pet-tag {
   cursor: inherit;
 }
@@ -150,8 +153,9 @@ body.mini .pet-tag {
   padding: 2px 6px;
   visibility: hidden;
 }
-body.mini .yard-pet:hover .pet-tag,
-body.mini .yard-pet:focus-visible .pet-tag {
+body.mini .pet-label.pointing .pet-tag,
+body.mini .pet-label.focused .pet-tag,
+body.mini .pet-tag:hover {
   visibility: visible;
 }
 /* the agent's state, by the head rather than the top of the cell: --head is the cell's empty top
@@ -256,18 +260,18 @@ body.mini .yard-pet:focus-visible .pet-tag {
   font-weight: 700;
   margin-left: 2px;
 }
-.yard-pet.selected .pet-tag {
+.pet-label.selected .pet-tag {
   background: var(--accent);
   color: #fff;
 }
 /* on a coloured tag the agent label turns light with it */
-.yard-pet.selected .pet-tag small,
-.yard-pet.tagger .pet-tag small {
+.pet-label.selected .pet-tag small,
+.pet-label.tagger .pet-tag small {
   /* Solid white: the translucent white fell under 4.5:1 on the accent at this size. */
   color: #fff;
 }
-.yard-pet.selected .pet-tag small::before,
-.yard-pet.tagger .pet-tag small::before {
+.pet-label.selected .pet-tag small::before,
+.pet-label.tagger .pet-tag small::before {
   background: #ffffffb0;
 }
 @media (max-width: 760px) {
@@ -314,10 +318,10 @@ body.mini .yard-pet:focus-visible .pet-tag {
   pointer-events: none;
   z-index: 3;
 }
-.yard-pet.hiding .yard-thinking {
+.pet-label.hiding .yard-thinking {
   visibility: hidden;
 }
-.yard-pet.thinking .yard-bubble[hidden] + .yard-thinking {
+.pet-label.thinking .yard-bubble[hidden] + .yard-thinking {
   display: inline-flex;
 }
 .weather-select {
@@ -493,6 +497,19 @@ body.mini .yard-pet:focus-visible .pet-tag {
     display: none;
   }
 }
+/* In a narrower yard the scene's name stays whole: the event goes first (the yard with the panel
+   open beside it has no room for it in every language), then the friend count. */
+@container (max-width: 800px) {
+  .caption-event {
+    display: none;
+  }
+}
+@container (max-width: 560px) {
+  .caption-count,
+  .clock-date {
+    display: none;
+  }
+}
 /* The hint, while there is something to learn, under the view controls at the top right. */
 .yard-hint {
   position: absolute;
@@ -519,6 +536,7 @@ body.mini .yard-pet:focus-visible .pet-tag {
   font: inherit;
   font-weight: 650;
   cursor: pointer;
+  min-width: 0;
 }
 .scene-button:hover,
 .scene-button[aria-expanded="true"] {
@@ -593,25 +611,26 @@ body.mini .yard-pet:focus-visible .pet-tag {
   opacity: 0.38;
   clip-path: inset(0 0 36% 0);
 }
-.yard-pet.hiding .pet-tag,
-.yard-pet.hiding .pet-state-dot {
+.pet-label.hiding .pet-tag,
+.pet-label.hiding .pet-state-dot {
   visibility: hidden;
 }
 .yard-pet.hiding:before {
   display: none;
 }
-.yard-pet.tagger .pet-tag {
+.pet-label.tagger .pet-tag {
   background: var(--accent);
   color: #fff;
 }
 .yard.playing .yard-pet {
   cursor: pointer;
 }
-/* ---- the garden: plants drawn from symbols (index.html), under the friends ---- */
+/* ---- the garden: plants and gifts drawn from symbols, at the friends' depth ---- */
+/* Inside the friends' layer and no layer of its own, so a plant or a gift stands in front of a
+   friend behind it and behind a friend in front (each is set at its depth, props.js setDown). */
 .garden-layer {
   position: absolute;
   inset: 0;
-  z-index: 0;
   pointer-events: none;
 }
 .plant {
@@ -808,6 +827,32 @@ body.mini .yard-pet:focus-visible .pet-tag {
 }
 #pet-layer .yard-pet {
   pointer-events: auto;
+}
+/* Each friend's bubble, tag and agent dot, over everything on the field (views.js mirror): the
+   label is the body's width, with room for the body (.label-body) above the tag. */
+.label-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.pet-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  will-change: transform;
+}
+.label-body {
+  display: block;
+  flex: none;
+}
+.pet-label .pet-tag {
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
 }
 .yard-frame .yard {
   border-radius: 0;
@@ -1305,8 +1350,33 @@ body.mini .game-banner {
 .games-menu[hidden] {
   display: none;
 }
+.games-menu {
+  border: 1px solid var(--line);
+}
+/* Rows like every other menu (the friend's menu, the scene menu), not a stack of buttons. */
 .games-menu .button.tool {
   justify-content: flex-start;
+  gap: 9px;
+  min-height: 0;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  box-shadow: none;
+  font-size: 12.5px;
+}
+.games-menu .button.tool:hover:not(:disabled),
+.games-menu .button.tool:focus-visible {
+  background: var(--paper);
+}
+.games-menu .button.tool svg {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+.games-menu .button.tool.playing {
+  background: #fbe7ef;
+  color: #a8425b;
 }
 /* no motion when the system asks for none: the pieces still appear, nothing springs */
 @media (prefers-reduced-motion: reduce) {
@@ -1394,6 +1464,10 @@ body.mini .game-banner {
   transform: translateX(-50%);
   animation: card-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
+  /* a long line (an event's) wraps in a card of reading width, not across the whole yard */
+  width: max-content;
+  max-width: min(420px, calc(100% - 32px));
+  text-wrap: pretty;
 }
 .catch-card[hidden] {
   display: none;
@@ -1446,8 +1520,38 @@ body.mini #album-button {
 .tag-bond:empty {
   display: none;
 }
-.yard-pet.dear .pet-tag::before {
+.pet-label.dear .pet-tag::before {
   content: "✿";
   margin-right: 3px;
   color: #f2a7b8;
+}
+/* The seasonal event on, beside the scene label (festival.js). */
+.caption-event {
+  flex: none;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: #fbe7ef;
+  color: #a8425b;
+  font-weight: 700;
+}
+.caption-event[hidden] {
+  display: none;
+}
+/* In the mini window the card is a small strip at the top: its drawing and its name, no detail. */
+body.mini .catch-card {
+  top: 8px;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  max-width: calc(100% - 60px);
+}
+body.mini .catch-card svg {
+  width: 40px;
+  height: 28px;
+}
+body.mini .catch-card strong {
+  font-size: 12px;
+}
+body.mini .catch-card small:not(.catch-new) {
+  display: none;
 }

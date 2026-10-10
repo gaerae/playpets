@@ -11,6 +11,8 @@ export const PANELS = ['pet', 'invite', 'settings'];
 // flipping between tabs does not reload and re-decode every sheet.
 let releaseTimer = 0;
 const RELEASE_AFTER = 60_000;
+// Marks the Settings index (set by setupTabs); run when the sheet opens, since nothing has a place while it is hidden.
+let markIndex = () => {};
 export function openPanel(kind) {
   if (!$('panel-invite').hidden && kind !== 'invite') {
     clearTimeout(releaseTimer);
@@ -29,6 +31,7 @@ export function openPanel(kind) {
   for (const tab of document.querySelectorAll('.panel-tab'))
     tab.setAttribute('aria-expanded', String(tab.dataset.panel === kind));
   remember('panel', kind || 'closed');
+  if (kind === 'settings') requestAnimationFrame(markIndex);
 }
 // The Invite tab, with the first pet card ready for the keyboard.
 export function openInvite() {
@@ -63,9 +66,20 @@ export function setupTabs() {
       openPanel(null);
   });
   // The index jumps to a section.
-  for (const link of document.querySelectorAll('.settings-index [data-section]'))
+  const links = [...document.querySelectorAll('.settings-index [data-section]')];
+  for (const link of links)
     link.onclick = () =>
       $(link.dataset.section).scrollIntoView({ block: 'start', behavior: reduced.matches ? 'auto' : 'smooth' });
+  // The index marks the group being read: the last whose heading has scrolled to the top.
+  const panel = $('side-panel');
+  markIndex = () => {
+    if ($('panel-settings').hidden) return;
+    const top = panel.getBoundingClientRect().top + 80;
+    let current = links[0];
+    for (const link of links) if ($(link.dataset.section).getBoundingClientRect().top <= top) current = link;
+    for (const link of links) link.toggleAttribute('aria-current', link === current);
+  };
+  panel.addEventListener('scroll', () => markIndex(), { passive: true });
   $('go-invite').onclick = openInvite;
   // The steps left once a friend is in lead to where they are done.
   // With a CLI on this computer this connects every friend in one go; otherwise it opens the dialog.

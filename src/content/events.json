@@ -1,0 +1,43 @@
+{
+  "events": [
+    {
+      "id": "blossom",
+      "from": "04-01",
+      "to": "04-20",
+      "gift": "cherry_sapling",
+      "boost": {
+        "petals": 2.5,
+        "butterflies": 2
+      }
+    },
+    {
+      "id": "fireflies",
+      "from": "07-20",
+      "to": "08-20",
+      "gift": "watermelon",
+      "boost": {
+        "fireflies": 2.5
+      }
+    },
+    {
+      "id": "harvest",
+      "from": "09-25",
+      "to": "10-15",
+      "gift": "pumpkin",
+      "looks": ["fullmoon"]
+    },
+    {
+      "id": "lights",
+      "from": "12-10",
+      "to": "12-31",
+      "gift": "snowman"
+    },
+    {
+      "id": "newyear",
+      "from": "01-01",
+      "to": "01-07",
+      "fixed": true,
+      "art": "events/newyear.svg"
+    }
+  ]
+}

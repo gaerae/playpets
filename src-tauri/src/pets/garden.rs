@@ -214,7 +214,9 @@ impl Garden {
     }
 
     /// A friend brings today's gift and sets it down at (x, y). `day` is the page's local date.
-    pub fn gift(&mut self, x: f64, y: f64, day: &str, turn: usize) -> Result<Decor, String> {
+    /// During a seasonal event (`event`, which the page says and the dates check), its own gift comes
+    /// the first time instead.
+    pub fn gift(&mut self, x: f64, y: f64, day: &str, turn: usize, event: Option<&str>) -> Result<Decor, String> {
         let (Some(x), Some(y), true) = (place(x), place(y), is_day(day)) else {
             return Err(i18n::t("error.bad_request"));
         };
@@ -224,7 +226,10 @@ impl Garden {
         if self.decor.len() >= DECOR_MAX {
             return Err(i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
         }
-        let kind = self.next_gift(turn);
+        let kind = event
+            .and_then(|e| super::content::event_gift(e, day))
+            .filter(|g| !self.received.iter().any(|r| r == g))
+            .unwrap_or_else(|| self.next_gift(turn));
         let decor = Decor {
             id: Uuid::new_v4().to_string(),
             kind: kind.into(),
@@ -330,29 +335,41 @@ mod tests {
     #[test]
     fn a_gift_comes_once_a_day_each_kind_first_in_order_and_the_yard_holds_so_many() {
         let mut g = Garden::default();
-        assert!(g.gift(0.5, 0.5, "today", 0).is_err(), "a day is a date");
-        let first = g.gift(0.3, 1.7, "2026-10-09", 0).unwrap();
+        assert!(g.gift(0.5, 0.5, "today", 0, None).is_err(), "a day is a date");
+        let first = g.gift(0.3, 1.7, "2026-10-09", 0, None).unwrap();
         assert_eq!((first.kind.as_str(), first.y), ("bench", 1.0));
-        assert!(g.gift(0.5, 0.5, "2026-10-09", 0).is_err(), "one gift a day");
+        assert!(g.gift(0.5, 0.5, "2026-10-09", 0, None).is_err(), "one gift a day");
         let kinds = catalog().gifts();
         let day = |n: usize| format!("2026-11-{:02}", n + 1);
         // The first gifts come in the catalogue's order, until the yard is full.
         for (i, kind) in kinds.iter().enumerate().skip(1).take(DECOR_MAX - 1) {
-            assert_eq!(g.gift(0.5, 0.5, &day(i), 0).unwrap().kind, *kind);
+            assert_eq!(g.gift(0.5, 0.5, &day(i), 0, None).unwrap().kind, *kind);
         }
         assert_eq!(g.decor.len(), DECOR_MAX);
-        assert!(g.gift(0.5, 0.5, &day(28), 0).is_err(), "the yard is full");
+        assert!(g.gift(0.5, 0.5, &day(28), 0, None).is_err(), "the yard is full");
         // Making room each day, the rest come in order too.
         for (i, kind) in kinds.iter().enumerate().skip(DECOR_MAX) {
             let id = g.decor[0].id.clone();
             assert_eq!(g.put_away(&id), Ok(()));
-            assert_eq!(g.gift(0.5, 0.5, &day(i), 0).unwrap().kind, *kind);
+            assert_eq!(g.gift(0.5, 0.5, &day(i), 0, None).unwrap().kind, *kind);
         }
         // Every kind has come: the next is one not in the yard.
         let id = g.decor[0].id.clone();
         assert_eq!(g.put_away(&id), Ok(()));
         let next = g.next_gift(3);
         assert!(!g.decor.iter().any(|d| d.kind == next), "{next} is not in the yard");
+        // During a seasonal event its own gift comes the first time, then the everyday ones again.
+        let mut e = Garden::default();
+        assert_eq!(
+            e.gift(0.5, 0.5, "2026-12-20", 0, Some("lights")).unwrap().kind,
+            "snowman"
+        );
+        assert_eq!(e.gift(0.5, 0.5, "2026-12-21", 0, Some("lights")).unwrap().kind, "bench");
+        assert_eq!(
+            e.gift(0.5, 0.5, "2026-06-01", 0, Some("blossom")).unwrap().kind,
+            "lantern",
+            "not its days"
+        );
         let id = g.decor[1].id.clone();
         assert_eq!(g.move_decor(&id, -1.0, 0.25), Ok(()));
         assert_eq!((g.decor[1].x, g.decor[1].y), (0.0, 0.25));
