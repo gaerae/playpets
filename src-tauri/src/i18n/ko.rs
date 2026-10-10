@@ -137,10 +137,10 @@ const TABLE: &[(&str, &str)] = &[
     ("cli.missing", "{name} CLI를 찾을 수 없어요. 터미널에서 설치해 주세요: {command}"),
     ("cli.spawn_failed", "{name} CLI를 실행하지 못했어요. {detail}"),
     ("cli.error", "{name} CLI 오류: {detail}"),
-    ("cli.exited", "{name} CLI가 종료됐어요. 로그인 상태를 확인해 주세요."),
     ("cli.timeout", "응답 시간이 초과됐어요. 다시 시도해 주세요."),
     ("cli.nothing_to_send", "보낼 메시지가 없어요."),
     ("cli.codex_empty", "Codex CLI 답변이 비어 있어요. 로그인 상태를 확인해 주세요."),
+    ("cli.claude_outdated", "Claude Code CLI 버전이 너무 오래됐어요. 터미널에서 `claude update`로 업데이트해 주세요."),
     ("cli.codex_outdated", "Codex CLI 버전이 너무 오래됐어요. 업데이트해 주세요."),
     ("cli.codex_failed", "Codex CLI 오류 ({code}). {detail}"),
 

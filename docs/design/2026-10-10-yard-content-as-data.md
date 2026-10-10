@@ -36,6 +36,9 @@ The goal is that **content and behaviour change apart**:
 - `content::tests` (Rust) checks the catalogue the backend built in.
 - `tests/backdrop.test.mjs` counts the composition and the drawings among what reads the palette's colours.
 
+## Follow-up (2026-10-10)
+The yard's stylesheet was split by area the same day: the "Effects" rules are now in `src/styles/garden.css`.
+
 ## How to add
 
 [Add to the yard](../how-to/add-to-the-yard.md).

@@ -12,6 +12,8 @@ Anyone who has cloned the repository and run `npm ci`. Only taking new screen ca
 | Node.js 26 and `npm ci` | `node --version` |
 | Screen captures only: macOS, Google Chrome, and a Rust toolchain (`npm run shots` builds the app itself with `--features e2e`) | `cargo --version` |
 
+`package.json` holds two `overrides` for the site's tools: `vite` at 6 (VitePress 1.6.4, the latest stable, still asks for vite 5, whose dev server has known advisories) and `katex` at 0.19 (pulled in by mermaid). Remove them once a stable VitePress asks for a fixed vite and mermaid for a fixed katex, and check that `npm audit` stays clean and the site builds.
+
 ## Steps
 1. Find the file for what you are changing.
 

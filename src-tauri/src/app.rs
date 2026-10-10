@@ -211,7 +211,10 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "communities": importer::communities_json(),
         "petFolders": {"builtin": d.builtin_pets, "codex": d.codex_pets, "downloaded": d.store.dir.join("pets")},
     });
-    carry(&mut state, &d.prefs.json());
+    // The mini window's place is the backend's alone (window.rs); the pages have no use for it.
+    let mut prefs = d.prefs.json();
+    prefs.remove("miniRect");
+    carry(&mut state, &prefs);
     state
 }
 

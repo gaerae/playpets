@@ -140,11 +140,6 @@
 .period-night .decor[data-effects~="glow"] svg {
   filter: none;
 }
-@media (prefers-reduced-motion: reduce) {
-  .decor.arrive svg {
-    animation: none;
-  }
-}
 /* a seed a friend found, at its feet, until it is picked up (a minute and a half at most) */
 .found-seed {
   position: absolute;
@@ -171,10 +166,5 @@
   to {
     transform: scale(1.06);
     opacity: 1;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .found-seed {
-    animation: none;
   }
 }

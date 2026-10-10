@@ -126,13 +126,14 @@ test('every colour the painter reads is set in the stylesheet, and every scenery
       )
     ).join('\n'),
     art = (await readdir('src/art', { recursive: true })).filter(f => f.endsWith('.svg')).map(f => `src/art/${f}`),
-    // The yard's own stylesheets (every one but scenery.css, which sets the colours).
-    styles = (await readdir('src/styles'))
-      .filter(f => f.endsWith('.css') && f !== 'scenery.css')
-      .map(f => `src/styles/${f}`),
+    // The yard's own stylesheets: the ones the page loads after scenery.css (which sets the
+    // colours) and before panel.css. A variable read anywhere else never reaches the yard.
+    links = [...(await readFile('src/index.html', 'utf8')).matchAll(/href="styles\/([\w-]+\.css)"/g)].map(m => m[1]),
+    styles = links.slice(links.indexOf('scenery.css') + 1, links.indexOf('panel.css')).map(f => `src/styles/${f}`),
     others = (
       await Promise.all(['src/index.html', ...styles, 'src/yard/scene.js', ...art].map(f => readFile(f, 'utf8')))
     ).join('\n');
+  assert.ok(styles.includes('src/styles/garden.css'), 'the yard’s stylesheets are found in index.html');
   const names = Object.keys(readPalette(() => ''));
   // Read by the painter: pal['name'] or pal.name (crown and maple fall back to leaf, cap to none).
   for (const name of names) {

@@ -90,9 +90,12 @@ jobs:
         if: env.HOMEBREW_TAP_TOKEN != ''
         env:
           VERSION: ${{ needs.manifests.outputs.version }}
+          # git asks gh for the token (gh auth setup-git), so it is never part of a URL or .git/config.
+          GH_TOKEN: ${{ env.HOMEBREW_TAP_TOKEN }}
         run: |
           owner="${GITHUB_REPOSITORY%%/*}"
-          git clone "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/${owner}/homebrew-tap.git" tap
+          gh auth setup-git
+          git clone "https://github.com/${owner}/homebrew-tap.git" tap
           mkdir -p tap/Casks
           cp store/homebrew/Casks/playpets.rb tap/Casks/playpets.rb
           cd tap

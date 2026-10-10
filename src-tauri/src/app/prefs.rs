@@ -65,7 +65,7 @@ impl Prefs {
         }
     }
 
-    /// As saved and as the pages see them (no `miniRect` until the mini window has been moved).
+    /// As saved (no `miniRect` until the mini window has been moved); the pages get the rest.
     pub fn json(&self) -> Map<String, Value> {
         let mut m = Map::new();
         m.insert("desktop".into(), json!(self.desktop));

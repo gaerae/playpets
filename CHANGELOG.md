@@ -41,6 +41,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Security
 - Pet import downloads files only from the site of the pasted address (its subdomains and the hosts of registered communities), and does not follow a page that points anywhere else. Private addresses are blocked when the name is resolved.
 - A pet file's description reaches the AI labeled as a description, not an instruction, and a personality saved during a chat keeps that label.
+- Claude Code and Codex run in a folder of the app's own that no one else can write to, and get the friend's instructions from a file there or from standard input rather than the command line, where other programs could read them (unless that folder cannot be made).
 
 ### Known limitations
 - The downloads are not code-signed, so macOS Gatekeeper and Windows SmartScreen block the first launch.

@@ -329,15 +329,10 @@
     transform: translate(calc(-50% + var(--dx)), -72px) scale(1) rotate(var(--rot));
   }
 }
-/* no motion when the system asks for none: the pieces still appear, nothing springs */
+/* No motion when the system asks for none (base.css stops every animation and transition): a
+   pressed friend does not squash, and no hearts or sparkles fly. */
 @media (prefers-reduced-motion: reduce) {
-  .yard-bubble,
-  .pet-state-dot[data-state="working"] {
-    animation: none;
-  }
-  .yard-pet > canvas,
   .yard-pet.pressed > canvas {
-    transition: none;
     transform: none;
   }
   .particle {

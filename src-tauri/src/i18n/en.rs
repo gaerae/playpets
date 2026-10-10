@@ -137,10 +137,10 @@ const TABLE: &[(&str, &str)] = &[
     ("cli.missing", "Couldn't find the {name} CLI. Install it in a terminal: {command}"),
     ("cli.spawn_failed", "Couldn't start the {name} CLI. {detail}"),
     ("cli.error", "{name} CLI error: {detail}"),
-    ("cli.exited", "The {name} CLI has quit. Check that you're signed in."),
     ("cli.timeout", "The answer took too long. Please try again."),
     ("cli.nothing_to_send", "There's no message to send."),
     ("cli.codex_empty", "The Codex CLI gave an empty answer. Check that you're signed in."),
+    ("cli.claude_outdated", "This Claude Code CLI is too old. Update it in a terminal: `claude update`"),
     ("cli.codex_outdated", "This Codex CLI is too old. Please update it."),
     ("cli.codex_failed", "Codex CLI error ({code}). {detail}"),
 

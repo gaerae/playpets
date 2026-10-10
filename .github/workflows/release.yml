@@ -85,7 +85,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev libdbus-1-dev patchelf
-      - run: npm ci
+      # No package's install script runs in the job that holds the signing secrets (the only ones
+      # in the tree are esbuild's, for the site, and fsevents').
+      - run: npm ci --ignore-scripts
       - name: Unit tests
         run: npm test
       # Signing secrets are passed on only when they exist: an empty APPLE_CERTIFICATE would make
