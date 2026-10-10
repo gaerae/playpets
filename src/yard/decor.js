@@ -1,67 +1,52 @@
 // Decorations friends bring as gifts, one a day: a bench, a lantern, a birdhouse, a little pond, a
-// mailbox, a picnic blanket. A friend sets the day's gift down beside it; the person drags it
+// mailbox, a picnic blanket (what there is, how each is drawn and its effects: catalog.json). A friend sets the day's gift down beside it; the person drags it
 // wherever they like, or puts it away from its menu (right-click, or Delete). Friends visit them
 // on their own and say something that fits. The backend keeps them and decides which gift comes
 // next (src-tauri/src/pets/garden.rs); when one is due is in growth.js. Drawn once, like plants:
 // nothing here moves on its own, and the lantern's glow is a still layer the evening shows.
 
-import { confirmAction } from '../core/confirm.js';
 import { list, t } from '../core/i18n.js';
 import { clamp, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, name, views } from '../core/state.js';
+import { artSize, artSvg } from './art.js';
 import { befriend } from './bond.js';
 import { showCard } from './card.js';
-import { GIFTS } from './catalog.js';
+import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
+import { effectLayers, effectsVisited } from './effects.js';
+import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { giftWait, localDay } from './growth.js';
+import { askToRemove, propButton, propScale, reconcile, setDown } from './props.js';
 import { cue } from './sound.js';
-import {
-  bubble,
-  effect,
-  field,
-  fieldToYard,
-  footTarget,
-  nearestFree,
-  petHeight,
-  pose,
-  rest,
-  sizeOf,
-  yardToField,
-} from './views.js';
+import { bubble, cheer, effect, isFree, nearestFree, rest, sendTo } from './views.js';
 
-// How many yard pixels a unit of a decoration's drawing (catalog.js GIFTS) takes at full size; it
-// shrinks with the yard as friends do.
-const VIEW = Object.fromEntries(GIFTS.map(g => [g.id, g.view]));
+// How many yard pixels a unit of a decoration's drawing takes at full size (its view box is its
+// size); it shrinks with the yard as friends do. Whether it lies flat on the ground, under the
+// plants ("flat"), and whether friends stand on it or beside it ("stand": "on") is the catalogue's.
 const UNIT = 1.05;
-// Flat things lie on the ground, under the plants; friends stand on the bench and the blanket.
-const FLAT = new Set(['pond', 'picnic']);
-const ON = new Set(['bench', 'picnic']);
+const flat = kind => !!giftKind(kind)?.flat;
+const standOn = kind => giftKind(kind)?.stand === 'on';
 const shown = new Map();
 // Gifts that just came, shown with a little pop the first time they are drawn.
 const fresh = new Set();
-let scale = 1;
 const kindName = kind => t(`decor.kind_${kind}`);
 
 function size(kind) {
-  const [w, h] = VIEW[kind] || [40, 40];
-  return { w: w * UNIT * scale, h: h * UNIT * scale };
+  const [w, h] = artSize(giftKind(kind)?.art);
+  return { w: w * UNIT * propScale(), h: h * UNIT * propScale() };
 }
 function position(v, x, y) {
   const at = fieldToYard({ x, y }),
     { w, h } = size(v.kind);
-  v.button.style.width = `${w}px`;
-  v.button.style.height = `${h}px`;
-  v.button.style.transform = `translate(${at.x - w / 2}px,${at.y - h}px)`;
-  v.button.style.zIndex = String(FLAT.has(v.kind) ? 0 : 1 + Math.round(y * 100));
+  setDown(v.button, at.x, at.y, w, h, flat(v.kind) ? 0 : 1 + Math.round(y * 100));
 }
 
 function create(d) {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'decor';
-  button.dataset.kind = d.kind;
-  const [w, h] = VIEW[d.kind] || [40, 40];
-  button.innerHTML = `${d.kind === 'lantern' ? '<span class="glow"></span>' : ''}<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><use href="#decor-${d.kind}"/></svg>`;
+  const button = propButton('decor', d.kind),
+    gift = giftKind(d.kind),
+    effects = gift?.effects || [];
+  if (effects.length) button.dataset.effects = effects.join(' ');
+  button.innerHTML = `${effectLayers(effects)}${gift ? artSvg(gift.art) : ''}`;
   const v = { id: d.id, kind: d.kind, button, drag: null };
   // Dragging moves it; a press that does not move sends the nearest friend over to it.
   button.addEventListener('pointerdown', e => {
@@ -109,7 +94,6 @@ function create(d) {
       if (d) save(v.id, { x: clamp(d.x + step[0]), y: clamp(d.y + step[1]) });
     } else if (e.key === 'Delete' || e.key === 'Backspace') putAway(v.id);
   });
-  $('garden-layer').append(button);
   return v;
 }
 // Kept here at once so it does not jump back while the backend saves it.
@@ -122,57 +106,47 @@ const save = guard(async (id, at) => {
 
 /** Brings the yard's decorations in line with the backend's garden. */
 export function renderDecor() {
-  const decor = data.garden?.decor || [];
-  for (const [id, v] of shown)
-    if (!decor.some(d => d.id === id)) {
-      v.button.remove();
-      shown.delete(id);
-    }
-  scale = clamp(field().height / 560, 0.5, 1);
-  for (const d of decor) {
-    let v = shown.get(d.id);
-    if (!v) {
-      v = create(d);
-      shown.set(d.id, v);
-      if (fresh.delete(d.id)) v.button.classList.add('arrive');
-    }
+  const make = d => {
+    const v = create(d);
+    if (fresh.delete(d.id)) v.button.classList.add('arrive');
+    return v;
+  };
+  reconcile(shown, data.garden?.decor || [], make, (v, d) => {
     if (!v.drag?.moved) position(v, d.x, d.y);
     const label = t('decor.title', { kind: kindName(d.kind) });
     v.button.title = label;
     v.button.setAttribute('aria-label', label);
-  }
+  });
 }
 
 // Sends a friend to a decoration: onto the bench or the blanket, beside the others.
-function walkTo(v, d, kind) {
+function walkTo(v, d) {
   const at = fieldToYard(d),
     { w: dw } = size(d.kind),
     width = sizeOf(v.pet),
     side = v.px + width / 2 < at.x ? -1 : 1,
-    x = ON.has(d.kind) ? at.x + (Math.random() - 0.5) * dw * 0.4 : at.x + side * (dw / 2 + width * 0.3),
-    y = at.y + (ON.has(d.kind) ? 3 : 0);
-  v.target = footTarget(v, x, y);
-  v.targetKind = kind;
-  v.visiting = d.kind;
+    on = standOn(d.kind),
+    x = on ? at.x + (Math.random() - 0.5) * dw * 0.4 : at.x + side * (dw / 2 + width * 0.3),
+    y = at.y + (on ? 3 : 0);
+  sendTo(v, footTarget(v, x, y), { slow: true, arrive: () => visited(v, d.kind) });
 }
 function visit(id) {
   const d = data.garden?.decor.find(x => x.id === id);
   if (!d || game) return;
   const at = fieldToYard(d),
     v = nearestFree(at.x, at.y);
-  if (v) walkTo(v, d, 'decor');
+  if (v) walkTo(v, d);
 }
 /** Now and then an idle friend goes to a decoration instead of strolling: the target, or null. */
 export function decorTarget(v) {
   const decor = data.garden?.decor || [];
   if (!decor.length || Math.random() > 0.25) return null;
-  walkTo(v, pick(decor), 'decor');
+  walkTo(v, pick(decor));
   return v.target;
 }
-/** Called when a friend reaches the decoration it went to. */
-export function decorVisited(v) {
-  const kind = v.visiting;
-  v.visiting = null;
+// A friend reached the decoration it went to.
+function visited(v, kind) {
+  effectsVisited(giftKind(kind)?.effects, { cue });
   if (kind && Math.random() < 0.6) bubble(v, pick(list(`decor.visit_${kind}`)), 3000);
 }
 
@@ -180,12 +154,8 @@ const putAway = guard(async id => {
   const d = data.garden?.decor.find(x => x.id === id);
   if (!d) return;
   const kind = kindName(d.kind);
-  const sure = await confirmAction({
-    title: t('decor.put_away_confirm', { kind }),
-    body: t('decor.put_away_body'),
-    action: t('decor.put_away'),
-  });
-  if (sure) await call('putAway', id);
+  if (await askToRemove(t('decor.put_away_confirm', { kind }), t('decor.put_away_body'), t('decor.put_away')))
+    await call('putAway', id);
 });
 
 // Today's gift: once the yard has been seen a while today, a friend that is free brings it.
@@ -197,18 +167,17 @@ export function giftTick(now) {
   const g = data.garden;
   if (!g || bringing) return;
   const today = localDay(new Date());
-  if (g.giftDay === today || (g.decor?.length ?? 0) >= (data.limits?.decor ?? 8)) return;
+  if (g.giftDay === today || (g.decor?.length ?? 0) >= (data.limits?.decor ?? 12)) return;
   if (day !== today) {
     day = today;
     dueAt = now + giftWait(Math.random, !g.received?.length);
   }
   if (now < dueAt) return;
-  const free = [...views.values()].filter(v => !v.drag && !v.away && !v.target);
+  const free = [...views.values()].filter(isFree);
   if (!free.length) return;
   const v = pick(free);
   rest(v);
-  pose(v, 'jump', 1100);
-  bubble(v, pick(list('decor.gift')), 3500);
+  cheer(v, 'decor.gift', { mark: '', say: 3500 });
   // Set down beside the friend, on the side with more room.
   const width = sizeOf(v.pet),
     right = v.px + width / 2 < field().width / 2,
@@ -222,7 +191,7 @@ export function giftTick(now) {
       befriend(v.pet.id, 'gift');
       cue('gift');
       effect(v, '✦');
-      const gift = GIFTS.find(g => g.id === d.kind);
+      const gift = giftKind(d.kind);
       if (gift)
         showCard(
           giftSvg(gift),

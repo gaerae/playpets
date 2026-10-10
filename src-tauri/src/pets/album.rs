@@ -1,9 +1,11 @@
 //! The album: every kind of fish caught at the lake, bug caught in the yard and flower grown in
 //! the garden, with how many and, for fish, the biggest. (The gifts in it are the garden's own
-//! record of what came, garden.rs `received`.) The page owns the catalogue (which kinds there are, where and when they
-//! are found: src/yard/catalog.js) and decides what was caught; this keeps the record and its
-//! limits, and refuses what could not be a catch.
+//! record of what came, garden.rs `received`.) The page decides what was caught (where and when
+//! each kind is found: src/yard/catalog.js); this keeps the record and its limits, and refuses what
+//! could not be a catch: a kind the catalogue does not have (content.rs), or a fish longer than its
+//! kind grows.
 //! Design: docs/design/2026-10-09-a-yard-that-grows.md.
+use super::content::catalog;
 use crate::i18n;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -83,13 +85,16 @@ impl Album {
     /// Returns the entry and whether this is the first of its kind.
     pub fn catch(&mut self, kind: &str, id: &str, size: f64, now: u64) -> Result<(Entry, bool), String> {
         let (book, size) = match kind {
-            "fish" if size.is_finite() && size > 0.0 && size <= SIZE_MAX => (&mut self.fish, size),
-            "bug" => (&mut self.bugs, 0.0),
+            "fish"
+                if catalog()
+                    .fish_max(id)
+                    .is_some_and(|max| size.is_finite() && size > 0.0 && size <= max) =>
+            {
+                (&mut self.fish, size)
+            }
+            "bug" if catalog().is_bug(id) => (&mut self.bugs, 0.0),
             _ => return Err(i18n::t("error.bad_request")),
         };
-        if !is_kind(id) {
-            return Err(i18n::t("error.bad_request"));
-        }
         let first = !book.contains_key(id);
         if first && book.len() >= KINDS_MAX {
             return Err(i18n::t("error.bad_request"));

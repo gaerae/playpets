@@ -1,0 +1,622 @@
+{
+  "garden": {
+    "stages": [
+      {
+        "name": "seed",
+        "minutes": 0,
+        "art": "plants/seed.svg"
+      },
+      {
+        "name": "sprout",
+        "minutes": 10,
+        "art": "plants/sprout.svg"
+      },
+      {
+        "name": "leaves",
+        "minutes": 40,
+        "art": "plants/leaves.svg"
+      },
+      {
+        "name": "bud",
+        "minutes": 120,
+        "art": "plants/bud.svg"
+      },
+      {
+        "name": "bloom",
+        "minutes": 240
+      }
+    ]
+  },
+  "flowers": [
+    {
+      "id": "tulip",
+      "season": "spring",
+      "art": "flowers/tulip.svg",
+      "colors": {
+        "petal": "#ef6f8a",
+        "petal-hi": "#f9a3b5",
+        "petal-lo": "#c9496a",
+        "heart": "#f6c445"
+      }
+    },
+    {
+      "id": "daffodil",
+      "season": "spring",
+      "art": "flowers/daffodil.svg",
+      "colors": {
+        "petal": "#f7f0cf",
+        "petal-hi": "#fffbe9",
+        "petal-lo": "#e6d496",
+        "heart": "#f4a53a"
+      }
+    },
+    {
+      "id": "sunflower",
+      "season": "summer",
+      "art": "flowers/sunflower.svg",
+      "stature": 1.4,
+      "colors": {
+        "petal": "#f4bd2c",
+        "petal-hi": "#ffd864",
+        "petal-lo": "#d39a12",
+        "heart": "#7a4b26"
+      }
+    },
+    {
+      "id": "hydrangea",
+      "season": "summer",
+      "art": "flowers/hydrangea.svg",
+      "colors": {
+        "petal": "#8fb4e8",
+        "petal-hi": "#c6dbf7",
+        "petal-lo": "#7290d2",
+        "heart": "#eef2ff"
+      }
+    },
+    {
+      "id": "cosmos",
+      "season": "autumn",
+      "art": "flowers/cosmos.svg",
+      "colors": {
+        "petal": "#f19ac0",
+        "petal-hi": "#fbc6dc",
+        "petal-lo": "#d0709c",
+        "heart": "#f5c542"
+      }
+    },
+    {
+      "id": "chrysanthemum",
+      "season": "autumn",
+      "art": "flowers/chrysanthemum.svg",
+      "colors": {
+        "petal": "#f2c14e",
+        "petal-hi": "#f9dd8c",
+        "petal-lo": "#d8982a",
+        "heart": "#b5762a"
+      }
+    },
+    {
+      "id": "camellia",
+      "season": "winter",
+      "art": "flowers/camellia.svg",
+      "stature": 1.15,
+      "colors": {
+        "petal": "#d8435a",
+        "petal-hi": "#f07386",
+        "petal-lo": "#a92a40",
+        "heart": "#f8d04f"
+      }
+    },
+    {
+      "id": "snowdrop",
+      "season": "winter",
+      "art": "flowers/snowdrop.svg",
+      "colors": {
+        "petal": "#ffffff",
+        "petal-hi": "#ffffff",
+        "petal-lo": "#e3ebe6",
+        "heart": "#7cc47f"
+      }
+    }
+  ],
+  "gifts": [
+    {
+      "id": "bench",
+      "art": "decor/bench.svg",
+      "stand": "on"
+    },
+    {
+      "id": "lantern",
+      "art": "decor/lantern.svg",
+      "effects": ["glow"]
+    },
+    {
+      "id": "birdhouse",
+      "art": "decor/birdhouse.svg"
+    },
+    {
+      "id": "pond",
+      "art": "decor/pond.svg",
+      "flat": true
+    },
+    {
+      "id": "mailbox",
+      "art": "decor/mailbox.svg"
+    },
+    {
+      "id": "picnic",
+      "art": "decor/picnic.svg",
+      "flat": true,
+      "stand": "on"
+    },
+    {
+      "id": "pinwheel",
+      "art": "decor/pinwheel.svg"
+    },
+    {
+      "id": "campfire",
+      "art": "decor/campfire.svg",
+      "effects": ["glow"]
+    },
+    {
+      "id": "swing",
+      "art": "decor/swing.svg",
+      "stand": "on"
+    },
+    {
+      "id": "flowerpot",
+      "art": "decor/flowerpot.svg"
+    },
+    {
+      "id": "stump",
+      "art": "decor/stump.svg",
+      "stand": "on"
+    },
+    {
+      "id": "tent",
+      "art": "decor/tent.svg"
+    },
+    {
+      "id": "signpost",
+      "art": "decor/signpost.svg"
+    },
+    {
+      "id": "windchime",
+      "art": "decor/windchime.svg",
+      "effects": ["chime"]
+    }
+  ],
+  "fish": [
+    {
+      "id": "crucian",
+      "size": [10, 32],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 30,
+      "look": {
+        "body": "#8f8a55",
+        "belly": "#d8d09a",
+        "fin": "#6d6943",
+        "shape": "round"
+      }
+    },
+    {
+      "id": "carp",
+      "size": [30, 80],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 14,
+      "look": {
+        "body": "#9c7a4a",
+        "belly": "#e2c99a",
+        "fin": "#b8643e",
+        "shape": "normal",
+        "whiskers": true
+      }
+    },
+    {
+      "id": "killifish",
+      "size": [2, 4],
+      "seasons": ["spring", "summer"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 22,
+      "look": {
+        "body": "#c8c3a6",
+        "belly": "#ece8d2",
+        "fin": "#b0aa8a",
+        "shape": "normal"
+      }
+    },
+    {
+      "id": "minnow",
+      "size": [8, 15],
+      "seasons": ["spring", "summer", "autumn"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 22,
+      "look": {
+        "body": "#b4c2c8",
+        "belly": "#eef2f2",
+        "fin": "#9eb0b8",
+        "shape": "slender",
+        "stripes": "#e48aa0"
+      }
+    },
+    {
+      "id": "goldfish",
+      "size": [5, 15],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 3,
+      "look": {
+        "body": "#f08a3a",
+        "belly": "#f8c47c",
+        "fin": "#f4a560",
+        "shape": "round",
+        "fancy": true
+      }
+    },
+    {
+      "id": "catfish",
+      "size": [30, 90],
+      "seasons": ["spring", "summer", "autumn"],
+      "periods": ["evening", "night"],
+      "weight": 12,
+      "rain": 2,
+      "look": {
+        "body": "#5e5950",
+        "belly": "#bcb09a",
+        "fin": "#4c4840",
+        "shape": "flat",
+        "whiskers": true
+      }
+    },
+    {
+      "id": "eel",
+      "size": [40, 100],
+      "seasons": ["summer", "autumn"],
+      "periods": ["evening", "night"],
+      "weight": 6,
+      "rain": 2,
+      "look": {
+        "body": "#4f5a45",
+        "belly": "#cbc99c",
+        "fin": "#45503c",
+        "shape": "eel"
+      }
+    },
+    {
+      "id": "smelt",
+      "size": [8, 14],
+      "seasons": ["winter"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 30,
+      "look": {
+        "body": "#c6d2d8",
+        "belly": "#f2f5f6",
+        "fin": "#aebcc4",
+        "shape": "slender"
+      }
+    },
+    {
+      "id": "sweetfish",
+      "size": [15, 25],
+      "seasons": ["summer"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 12,
+      "look": {
+        "body": "#9db0a0",
+        "belly": "#e8e4c8",
+        "fin": "#86998a",
+        "shape": "slender",
+        "spot": "#f0d060"
+      }
+    },
+    {
+      "id": "trout",
+      "size": [20, 40],
+      "seasons": ["spring", "autumn", "winter"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 10,
+      "look": {
+        "body": "#7c8a70",
+        "belly": "#e9dcc6",
+        "fin": "#6a7660",
+        "shape": "normal",
+        "spots": "#3e4636",
+        "band": "#e39a9a"
+      }
+    },
+    {
+      "id": "mandarin",
+      "size": [20, 50],
+      "seasons": ["summer", "autumn"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 6,
+      "look": {
+        "body": "#b39a50",
+        "belly": "#e8d9a6",
+        "fin": "#8c7638",
+        "shape": "normal",
+        "spots": "#4a3f24"
+      }
+    },
+    {
+      "id": "golden_carp",
+      "size": [40, 80],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 1,
+      "look": {
+        "body": "#f2c14e",
+        "belly": "#fbe7a4",
+        "fin": "#e8a33a",
+        "shape": "normal",
+        "whiskers": true
+      }
+    },
+    {
+      "id": "loach",
+      "size": [8, 18],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 18,
+      "rain": 2,
+      "look": {
+        "body": "#8a7a52",
+        "belly": "#d9cc9a",
+        "fin": "#76683f",
+        "shape": "slender",
+        "spots": "#5a4d30",
+        "whiskers": true
+      }
+    },
+    {
+      "id": "bluegill",
+      "size": [10, 25],
+      "seasons": ["summer", "autumn"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 14,
+      "look": {
+        "body": "#6f8a7a",
+        "belly": "#e8b35a",
+        "fin": "#5a7064",
+        "shape": "round",
+        "band": "#4f6a8a"
+      }
+    },
+    {
+      "id": "bass",
+      "size": [25, 60],
+      "seasons": ["spring", "summer", "autumn"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 8,
+      "look": {
+        "body": "#7a8a4f",
+        "belly": "#e3e0b8",
+        "fin": "#66733f",
+        "shape": "normal",
+        "stripes": "#4a5530"
+      }
+    },
+    {
+      "id": "snakehead",
+      "size": [40, 90],
+      "seasons": ["summer"],
+      "periods": ["evening", "night"],
+      "weight": 5,
+      "rain": 2,
+      "look": {
+        "body": "#4a4e3e",
+        "belly": "#b9b394",
+        "fin": "#3d4033",
+        "shape": "flat",
+        "spots": "#2b2e22"
+      }
+    },
+    {
+      "id": "gudgeon",
+      "size": [10, 20],
+      "seasons": ["spring", "summer", "autumn"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 16,
+      "look": {
+        "body": "#c8b98e",
+        "belly": "#efe8cf",
+        "fin": "#b0a378",
+        "shape": "slender",
+        "spots": "#8a7a52"
+      }
+    },
+    {
+      "id": "salmon",
+      "size": [50, 90],
+      "seasons": ["autumn"],
+      "periods": ["morning", "day", "evening", "night"],
+      "weight": 3,
+      "look": {
+        "body": "#8c9aa8",
+        "belly": "#e9a08a",
+        "fin": "#76838f",
+        "shape": "normal",
+        "band": "#d4655a"
+      }
+    }
+  ],
+  "bugs": [
+    {
+      "id": "cabbage_white",
+      "kind": "butterfly",
+      "seasons": ["spring", "summer", "autumn"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 30,
+      "look": {
+        "wing": "#f6f4ea",
+        "edge": "#4a4a44",
+        "spots": "#4a4a44"
+      }
+    },
+    {
+      "id": "yellow_butterfly",
+      "kind": "butterfly",
+      "seasons": ["spring", "summer", "autumn"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 24,
+      "look": {
+        "wing": "#f4d35e",
+        "edge": "#c49a2e"
+      }
+    },
+    {
+      "id": "blue_butterfly",
+      "kind": "butterfly",
+      "seasons": ["spring", "summer"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 16,
+      "look": {
+        "wing": "#8fb4e8",
+        "edge": "#5576ad",
+        "small": true
+      }
+    },
+    {
+      "id": "swallowtail",
+      "kind": "butterfly",
+      "seasons": ["summer"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 10,
+      "look": {
+        "wing": "#f2d36b",
+        "edge": "#2d2d2d",
+        "stripes": "#2d2d2d",
+        "tails": true
+      }
+    },
+    {
+      "id": "black_swallowtail",
+      "kind": "butterfly",
+      "seasons": ["summer"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 4,
+      "look": {
+        "wing": "#2f3a48",
+        "edge": "#1f262e",
+        "sheen": "#4f97a6",
+        "tails": true
+      }
+    },
+    {
+      "id": "peacock",
+      "kind": "butterfly",
+      "seasons": ["autumn"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 6,
+      "look": {
+        "wing": "#c8553d",
+        "edge": "#4a2a22",
+        "eyes": "#3f6fb5"
+      }
+    },
+    {
+      "id": "dragonfly",
+      "kind": "dragonfly",
+      "seasons": ["summer"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 20,
+      "look": {
+        "body": "#6f8fb5",
+        "wing": "#e8f0f4"
+      }
+    },
+    {
+      "id": "red_dragonfly",
+      "kind": "dragonfly",
+      "seasons": ["summer", "autumn"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 24,
+      "look": {
+        "body": "#d9442e",
+        "wing": "#f4ece6"
+      }
+    },
+    {
+      "id": "firefly",
+      "kind": "firefly",
+      "seasons": ["spring", "summer"],
+      "periods": ["evening", "night"],
+      "weight": 1,
+      "look": {
+        "body": "#3a3a32",
+        "glow": "#ecf096"
+      }
+    },
+    {
+      "id": "orange_tip",
+      "kind": "butterfly",
+      "seasons": ["spring"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 14,
+      "look": {
+        "wing": "#f8f4e6",
+        "edge": "#5a5a50",
+        "spots": "#f08a3a"
+      }
+    },
+    {
+      "id": "purple_emperor",
+      "kind": "butterfly",
+      "seasons": ["summer"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 4,
+      "look": {
+        "wing": "#5b4b8a",
+        "edge": "#2e2648",
+        "sheen": "#9a7fe0"
+      }
+    },
+    {
+      "id": "brimstone",
+      "kind": "butterfly",
+      "seasons": ["spring", "autumn"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 12,
+      "look": {
+        "wing": "#f2e27a",
+        "edge": "#c9b347",
+        "small": true
+      }
+    },
+    {
+      "id": "damselfly",
+      "kind": "dragonfly",
+      "seasons": ["spring", "summer"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 18,
+      "look": {
+        "body": "#4fa6c4",
+        "wing": "#eef6f8"
+      }
+    },
+    {
+      "id": "emperor_dragonfly",
+      "kind": "dragonfly",
+      "seasons": ["summer"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 8,
+      "look": {
+        "body": "#5f9e4a",
+        "wing": "#eef2e6"
+      }
+    },
+    {
+      "id": "heike_firefly",
+      "kind": "firefly",
+      "seasons": ["summer"],
+      "periods": ["evening", "night"],
+      "weight": 1,
+      "look": {
+        "body": "#33302a",
+        "glow": "#d9f08a"
+      }
+    }
+  ]
+}

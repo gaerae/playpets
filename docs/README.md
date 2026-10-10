@@ -23,6 +23,7 @@ Go to a document based on what you want to know.
 | How the app is built and what calls what | [Architecture: PlayPets app](architecture.md) |
 | How coding agents reach the app; CLI, HTTP and MCP specs | [Architecture: coding agent integration](agent-integration.md) |
 | Adding a backend command the page can call | [Add a backend command the page calls](how-to/add-a-command.md) |
+| Adding a fish, a bug, a flower or a gift, a drawing or an effect, or changing the scenery | [Add to the yard](how-to/add-to-the-yard.md) |
 | Setting up once: the updater key, the GitHub repository, secrets, the Homebrew tap, winget, signing accounts | [Set up the repository, keys and store accounts](how-to/set-up-the-repository.md) |
 | Releasing a new version and distribution channels | [Release a new version](how-to/release.md) |
 | Changing the site (intro, user guide, version pages) | [Edit and check the website](how-to/website.md) |
@@ -72,6 +73,11 @@ If you are new, read in this order.
 
 **Design records and research**
 - [Stronger agent integration · community import · personality and activity memory](design/2026-09-29-agent-link-import-persona.md): the design as of 2026-09-29. Some file paths have changed since.
+- [A yard that grows with you](design/2026-10-09-a-yard-that-grows.md): the garden, gifts, fishing and bugs, the album and friendship, with their rules.
+- [A painted yard](design/2026-10-09-a-painted-yard.md): how the backdrop is painted after hand-painted animation backgrounds.
+- [Where things live in the window](design/2026-10-09-window-layout.md): one place for each kind of thing, and one name per switch.
+- [Yard sounds](design/2026-10-10-yard-sounds.md): the soundscape and its cues, made with Web Audio, and when they play.
+- [Yard content as data](design/2026-10-10-yard-content-as-data.md): the catalogue, the composition, the drawings and the effects, apart from the code that runs them.
 - [What do code signing and distribution channels cost for a desktop app, and in what order does PlayPets take them?](reference/code-signing-and-distribution.md): cost, units, identity checks, distribution channel requirements, and the order PlayPets takes. Kept up to date.
 - [How do open-source desktop apps lay out their public websites?](reference/oss-desktop-app-websites.md): the case study behind the site's structure (2026-10-03).
 

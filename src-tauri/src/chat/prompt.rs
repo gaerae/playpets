@@ -12,12 +12,7 @@ pub struct Activity {
     pub message: String,
 }
 
-pub fn now_ms() -> u64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(0)
-}
+pub use crate::app::now_ms;
 
 // Agent text is flattened to one line so it can never pose as a new prompt line.
 pub fn record_activity(log: &mut Vec<Activity>, mut entry: Activity) {

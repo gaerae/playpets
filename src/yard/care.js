@@ -1,15 +1,16 @@
 // Looking after friends: treats they walk over to, and the pats, waves and jumps they answer.
 
 import { t } from '../core/i18n.js';
-import { clamp } from '../core/math.js';
+import { between, clamp } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, guard, selected, setAiming, toast, views } from '../core/state.js';
 import { befriend } from './bond.js';
+import { fieldTop, footTarget, petHeight, sizeOf } from './field.js';
 import { greetingFor } from './scene.js';
-import { scene } from './sky.js';
 import { cue } from './sound.js';
-import { bubble, effect, FIELD_TOP, footTarget, hint, petHeight, pose, rest, sizeOf } from './views.js';
-import { delay, SCATTER_DELAY } from './wander.js';
+import { bubble, effect, hint, pose, rest, sendTo } from './views.js';
+import { SCATTER_DELAY } from './wander.js';
+import { scene } from './world.js';
 
 let treatTimer,
   treatEaters = 0;
@@ -20,7 +21,7 @@ export function ate(v, now) {
   pose(v, 'jump', 1100);
   effect(v, '✦');
   bubble(v, t('care.yum'));
-  v.nextWander = now + delay(Math.random, SCATTER_DELAY);
+  v.nextWander = now + between(Math.random, SCATTER_DELAY);
   if (++treatEaters >= views.size) {
     clearTimeout(treatTimer);
     treatTimer = setTimeout(() => ($('treat').hidden = true), 900);
@@ -107,7 +108,7 @@ function dropNearby() {
 function dropTreat(x, y) {
   const r = $('yard').getBoundingClientRect(),
     bx = clamp(x, 25, r.width - 25),
-    by = clamp(y, r.height * FIELD_TOP, r.height - 28);
+    by = clamp(y, r.height * fieldTop(), r.height - 28);
   $('treat').hidden = false;
   $('treat').style.left = `${bx - 11}px`;
   $('treat').style.top = `${by - 11}px`;
@@ -117,8 +118,7 @@ function dropTreat(x, y) {
   let i = 0;
   for (const v of views.values()) {
     const angle = (i++ / views.size) * Math.PI * 2;
-    v.target = footTarget(v, bx + Math.cos(angle) * 34, by + Math.sin(angle) * 20, 0);
-    v.targetKind = 'treat';
+    sendTo(v, footTarget(v, bx + Math.cos(angle) * 34, by + Math.sin(angle) * 20, 0), { arrive: ate });
   }
   setAimingMode(false);
 }

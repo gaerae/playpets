@@ -6,16 +6,18 @@
 // small card. Which fish bite and which bugs fly is the catalogue's (catalog.js).
 
 import { list, t } from '../core/i18n.js';
-import { pick } from '../core/math.js';
+import { between, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, name, remember, toast, views } from '../core/state.js';
+import { cadence } from '../core/ticker.js';
 import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
-import { BACK, heightAt, LAKE, trace } from './layout.js';
-import { scene, scenery } from './sky.js';
+import { field, footTarget, petHeight, sizeOf } from './field.js';
+import { composition, heightAt, trace } from './layout.js';
 import { cue } from './sound.js';
-import { bubble, effect, field, footTarget, hint, nearestFree, petHeight, pose, rest, sizeOf } from './views.js';
+import { bubble, cheer, hint, isFree, nearestFree, release, rest, sendTo } from './views.js';
+import { scene, scenery } from './world.js';
 
 // How long a fish takes to bite (ms), and how long the float stays down before it gets away.
 const BITE_AFTER = [3000, 9000];
@@ -30,8 +32,9 @@ function lake() {
     key = `${width}x${height}`;
   if (key !== lakeKey) {
     lakeKey = key;
-    const ridge = trace(BACK, width, height);
-    lakeArea = { x0: LAKE.from * width, x1: LAKE.to * width, top: LAKE.top * height, ridge: x => heightAt(ridge, x) };
+    const { from, to, top, under } = composition.lake,
+      ridge = trace(composition.curves[under], width, height);
+    lakeArea = { x0: from * width, x1: to * width, top: top * height, ridge: x => heightAt(ridge, x) };
   }
   return lakeArea;
 }
@@ -41,18 +44,22 @@ export function onLake(x, y) {
   return x > l.x0 + 12 && x < l.x1 - 12 && y > l.top - 2 && y < l.ridge(x) + 4;
 }
 
-// Fishing: one friend at a time, at the place on the shore that was clicked.
+// Fishing: one friend at a time, at the place on the shore that was clicked. The walk there is the
+// friend's trip and the fishing its task (views.js), so whatever takes the friend ends the fishing.
 let fishing = null;
+const atLake = { end: () => stopFishing() };
 function stopFishing() {
   if (!fishing) return;
-  clearTimeout(fishing.timer);
-  fishing.float?.remove();
-  fishing.line?.remove();
-  if (fishing.v.fishing) {
-    fishing.v.fishing = false;
-    rest(fishing.v);
-  }
+  const { v, timer, float, line } = fishing;
   fishing = null;
+  clearTimeout(timer);
+  float?.remove();
+  line?.remove();
+  if (v.trip?.arrive === fishArrived) release(v);
+  if (v.doing === atLake) {
+    v.doing = null;
+    rest(v);
+  }
 }
 function startFishing(x, friend) {
   if (fishing) return;
@@ -65,15 +72,13 @@ function startFishing(x, friend) {
     hint();
   }
   // The friend stands on the near shore just left of where the float goes.
-  v.target = footTarget(v, x - sizeOf(v.pet) * 0.55, shore + 6);
-  v.targetKind = 'fish';
+  sendTo(v, footTarget(v, x - sizeOf(v.pet) * 0.55, shore + 6), { arrive: fishArrived, cancel: stopFishing });
   fishing = { v, x, y: l.top + (shore - l.top) * 0.45, solo: !!friend };
 }
-/** Called by the frame loop when a friend reaches the shore it was sent to. */
-export function fishArrived(v) {
+// The friend reached the shore it was sent to.
+function fishArrived(v) {
   if (fishing?.v !== v || game) return stopFishing();
-  v.fishing = true;
-  v.nextWander = Infinity;
+  v.doing = atLake;
   bubble(v, pick(list('catch.casting')), 2600);
   const layer = $('garden-layer'),
     float = document.createElement('button'),
@@ -95,7 +100,7 @@ export function fishArrived(v) {
   line.innerHTML = `<path d="M${rodX} ${rodY}L${tipX} ${tipY}" stroke="#7a5a3a" stroke-width="2.4" stroke-linecap="round"/><path d="M${tipX} ${tipY}Q${(tipX + fishing.x) / 2} ${Math.max(tipY, fishing.y) + 6} ${fishing.x} ${fishing.y - 6}" fill="none" stroke="#f4f1e8" stroke-width="1" opacity=".9"/>`;
   layer.append(line, float);
   Object.assign(fishing, { float, line });
-  fishing.timer = setTimeout(nibble, BITE_AFTER[0] + Math.random() * (BITE_AFTER[1] - BITE_AFTER[0]));
+  fishing.timer = setTimeout(nibble, between(Math.random, BITE_AFTER));
 }
 function nibble() {
   if (!fishing || fishing.v.drag || game) return stopFishing();
@@ -121,14 +126,12 @@ const land = guard(async () => {
   stopFishing();
   befriend(v.pet.id, 'catch');
   cue('splash');
-  pose(v, 'jump', 1200);
-  effect(v, '✦');
-  bubble(v, pick(list('catch.caught')), 3000);
+  cheer(v, 'catch.caught', { ms: 1200 });
   const { first } = await call('catch', 'fish', fish.id, size),
     title = solo
       ? t('bond.solo_catch', { name: name(v.pet), fish: t(`catch.fish_${fish.id}`) })
       : t(`catch.fish_${fish.id}`);
-  showCard(fishSvg(fish.look), title, t('catch.size', { size: size.toFixed(1) }), first);
+  showCard(fishSvg(fish), title, t('catch.size', { size: size.toFixed(1) }), first);
 });
 function reel() {
   if (!fishing) return;
@@ -140,15 +143,11 @@ function reel() {
 // at the lake, and the friend idle.
 const SOLO_EVERY = [12 * 60 * 1000, 25 * 60 * 1000];
 const SOLO_LANDS = 0.75;
-const soloAfter = () => SOLO_EVERY[0] + Math.random() * (SOLO_EVERY[1] - SOLO_EVERY[0]);
-let nextSoloAt = 0;
+const solo = cadence(() => between(Math.random, SOLO_EVERY));
 /** Called by the frame loop while the yard is seen. */
 export function soloFishing(now) {
-  if (!nextSoloAt) nextSoloAt = now + soloAfter();
-  if (now < nextSoloAt) return;
-  nextSoloAt = now + soloAfter();
-  if (fishing || game || aiming) return;
-  const keen = [...views.values()].filter(v => levelOf(v.pet.id) >= 3 && !v.drag && !v.target && !v.fishing && !v.away);
+  if (!solo.due(now) || fishing || game || aiming) return;
+  const keen = [...views.values()].filter(v => isFree(v) && levelOf(v.pet.id) >= 3);
   if (!keen.length) return;
   const l = lake();
   startFishing(l.x0 + (l.x1 - l.x0) * (0.3 + Math.random() * 0.4), pick(keen));
@@ -162,9 +161,7 @@ const catchBug = guard(async caught => {
   if (v) {
     befriend(v.pet.id, 'catch');
     cue('catch');
-    pose(v, 'jump', 1100);
-    effect(v, '✦');
-    bubble(v, pick(list('catch.bug_caught')), 2600);
+    cheer(v, 'catch.bug_caught', { say: 2600 });
   }
   const { first, entry } = await call('catch', 'bug', bug.id, 0);
   showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first);
@@ -197,7 +194,7 @@ export function setupCatch() {
     yard.classList.toggle('can-catch', !!can);
   });
 }
-/** A game, a drag or the yard's size changing ends a fishing trip. */
+/** The yard's size changing ends a fishing trip (the float would be left where the lake was). */
 export function endFishing() {
   stopFishing();
 }

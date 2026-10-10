@@ -1,7 +1,10 @@
-// Drawings of the fish and bugs in the catalogue, as SVG, in the flat colour and clear edges the
-// friends, plants and decorations have. Each is drawn from its `look` (catalog.js); one not yet
-// caught is drawn as a plain silhouette for the album.
+// Drawings of what is in the catalogue, as SVG, in the flat colour and clear edges the friends have.
+// A fish or a bug is drawn from its `look` (catalog.json) by the drawer for its shape or kind, or
+// from its own drawing when it names one (`art`, under src/art/); flowers and gifts are their
+// drawings. One not yet found is a plain silhouette for the album.
+import { artSvg, colorStyle } from './art.js';
 import { color, css, mix } from './brush.js';
+import { flowerKind } from './catalog.js';
 
 const hex = c => css(color(c));
 const darker = (c, k = 0.3) => css(mix(color(c), [30, 36, 40, 1], k));
@@ -25,8 +28,10 @@ function eel(look, unknown) {
   }</svg>`;
 }
 
-/** A fish, facing right. */
-export function fishSvg(look, unknown = false) {
+/** A fish of the catalogue, facing right. */
+export function fishSvg(fish, unknown = false) {
+  if (fish.art) return artSvg(fish.art, unknown ? 'class="unknown-art"' : '');
+  const look = fish.look;
   if (look.shape === 'eel') return eel(look, unknown);
   const { rx, ry } = FISH_SHAPES[look.shape] || FISH_SHAPES.normal,
     cx = 54,
@@ -158,18 +163,25 @@ export function heartSvg(level) {
   return `<svg viewBox="0 0 60 50" aria-hidden="true"><path d="M30 44C14 33 6 25 6 16 6 9 11 5 17 5c5 0 9 3 13 8 4-5 8-8 13-8 6 0 11 4 11 11 0 9-8 17-24 28Z" fill="#f08aa0" stroke="#c9576f" stroke-width="2"/><path d="M14 13c2-3 5-4 8-3" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".7"/><text x="30" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">${level}</text></svg>`;
 }
 
-/** A flower in bloom, from the garden's own drawing (index.html, coloured by scenery and yard.css). */
-export function flowerSvg(kind, unknown = false) {
-  return `<svg viewBox="0 0 40 60" data-flower="${kind}"${unknown ? ' class="unknown-art"' : ''} aria-hidden="true"><use href="#plant-bloom-${kind}"/></svg>`;
+/** A flower in bloom (by its id), from its drawing in its colours. */
+export function flowerSvg(id, unknown = false) {
+  const flower = flowerKind(id);
+  if (!flower) return '';
+  return artSvg(
+    flower.art,
+    `data-flower="${id}" style="${colorStyle(flower.colors)}"${unknown ? ' class="unknown-art"' : ''}`,
+  );
 }
-/** A gift, from the decoration's own drawing. */
+/** A gift, from its drawing. */
 export function giftSvg(gift, unknown = false) {
-  const [w, h] = gift.view;
-  return `<svg viewBox="0 0 ${w} ${h}" class="decor-art${unknown ? ' unknown-art' : ''}" aria-hidden="true"><use href="#decor-${gift.id}"/></svg>`;
+  return artSvg(gift.art, `class="decor-art${unknown ? ' unknown-art' : ''}"`);
 }
 
+// How each kind of bug is drawn; a bug of a kind not here is drawn as a butterfly.
+const BUG_DRAWERS = { butterfly, dragonfly, firefly };
 /** A bug, seen from above. */
 export function bugSvg(bug, unknown = false) {
-  const draw = { butterfly, dragonfly, firefly }[bug.kind] || butterfly;
+  if (bug.art) return artSvg(bug.art, unknown ? 'class="unknown-art"' : '');
+  const draw = BUG_DRAWERS[bug.kind] || butterfly;
   return `<svg viewBox="0 0 60 50" aria-hidden="true">${draw(bug.look, unknown)}</svg>`;
 }

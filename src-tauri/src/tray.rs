@@ -27,10 +27,7 @@ pub struct Snapshot {
 const FADE_MS: u64 = 30 * 60 * 1000;
 
 pub fn snapshot(d: &AppData) -> Snapshot {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|t| t.as_millis() as u64)
-        .unwrap_or(0);
+    let now = crate::app::now_ms();
     let state_of = |id: &str| {
         let s = d.statuses.get(id)?;
         if s.get("source").and_then(|v| v.as_str()) == Some("chat") {

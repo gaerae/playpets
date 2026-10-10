@@ -1,8 +1,8 @@
 // The one command the pages invoke (`call`), and what each of its names does. The bridge script
 // below gives every page `window.playPets`, one method per name.
 use crate::app::{
-    AppData, CliHandle, OverlayHandle, PositionSink, Shared, changed, lock, persist, public_state, push_event,
-    register_asset, require_pet,
+    AppData, CliHandle, OverlayHandle, PositionSink, Shared, changed, commit, lock, now_ms, persist, public_state,
+    push_event, register_asset, require_pet,
 };
 use crate::chat::{self, providers};
 use crate::desktop::overlay;
@@ -165,65 +165,52 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
             "chatter" => chat::chatter(&app, &state, &cli, &args),
             "setAutoChatter" => set_auto_chatter(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
             // (on, volume): either may be null to keep it as it is.
-            "setSound" => {
-                let mut d = lock(&state);
+            "setSound" => commit(&app, &state, |d| {
                 let on = arg(&args, 0).as_bool().unwrap_or(d.sound.on);
                 let volume = arg(&args, 1).as_u64().map_or(d.sound.volume, |v| v.min(100) as u8);
                 d.sound = crate::app::Sound { on, volume };
-                persist(&d)?;
-                changed(&app, &d);
                 Ok(json!(d.sound))
-            }
+            }),
             "setAutostart" => set_autostart(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
-            "findSeed" => garden_change(&app, &state, |g| g.find().map(Value::from)),
+            "findSeed" => commit(&app, &state, |d| d.garden.find().map(Value::from)),
             "plant" => {
                 let (kind, x, y) = (text(&args, 0), arg(&args, 1).as_f64(), arg(&args, 2).as_f64());
                 let (Some(x), Some(y)) = (x, y) else {
                     return Err(i18n::t("error.bad_request"));
                 };
-                let now = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|t| t.as_millis() as u64)
-                    .unwrap_or(0);
-                garden_change(&app, &state, |g| g.plant(kind, x, y, now).map(|p| json!(p)))
+                let now = now_ms();
+                commit(&app, &state, |d| d.garden.plant(kind, x, y, now).map(|p| json!(p)))
             }
-            "pullPlant" => garden_change(&app, &state, |g| g.pull(text(&args, 0)).map(|_| Value::Null)),
+            "pullPlant" => commit(&app, &state, |d| d.garden.pull(text(&args, 0)).map(|_| Value::Null)),
             "receiveGift" => {
                 let (x, y) = (float(&args, 0), float(&args, 1));
-                let turn = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|t| t.as_secs() as usize)
-                    .unwrap_or(0);
-                garden_change(&app, &state, |g| g.gift(x, y, text(&args, 2), turn).map(|d| json!(d)))
+                let turn = (now_ms() / 1000) as usize;
+                commit(&app, &state, |d| {
+                    d.garden.gift(x, y, text(&args, 2), turn).map(|d| json!(d))
+                })
             }
             "moveDecor" => {
                 let (x, y) = (float(&args, 1), float(&args, 2));
-                garden_change(&app, &state, |g| {
-                    g.move_decor(text(&args, 0), x, y).map(|_| Value::Null)
+                commit(&app, &state, |d| {
+                    d.garden.move_decor(text(&args, 0), x, y).map(|_| Value::Null)
                 })
             }
-            "putAway" => garden_change(&app, &state, |g| g.put_away(text(&args, 0)).map(|_| Value::Null)),
+            "putAway" => commit(&app, &state, |d| d.garden.put_away(text(&args, 0)).map(|_| Value::Null)),
             // Something done together with a friend: its bond grows (bond.rs keeps what it is worth).
             "befriend" => {
-                let now = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|t| t.as_millis() as u64)
-                    .unwrap_or(0);
+                let now = now_ms();
                 let (pet, reason, day) = (text(&args, 0), text(&args, 1), text(&args, 2));
-                let mut d = lock(&state);
-                require_pet(&d, pet)?;
-                let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
-                persist(&d)?;
-                changed(&app, &d);
-                Ok(json!({"points": points, "level": level, "up": up}))
+                commit(&app, &state, |d| {
+                    require_pet(d, pet)?;
+                    let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
+                    Ok(json!({"points": points, "level": level, "up": up}))
+                })
             }
             // A plant the page sees in flower: counted in the album the first time.
             "bloomed" => {
-                let now = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|t| t.as_millis() as u64)
-                    .unwrap_or(0);
+                let now = now_ms();
                 let mut d = lock(&state);
+                // Asked again for a plant already counted: nothing changes, nothing is saved.
                 let Some(kind) = d.garden.bloom(text(&args, 0), now)? else {
                     return Ok(Value::Null);
                 };
@@ -233,16 +220,12 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
                 Ok(json!({"kind": kind, "entry": entry}))
             }
             "catch" => {
-                let now = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|t| t.as_millis() as u64)
-                    .unwrap_or(0);
+                let now = now_ms();
                 let (kind, id, size) = (text(&args, 0), text(&args, 1), arg(&args, 2).as_f64().unwrap_or(0.0));
-                let mut d = lock(&state);
-                let (entry, first) = d.album.catch(kind, id, size, now)?;
-                persist(&d)?;
-                changed(&app, &d);
-                Ok(json!({"entry": entry, "first": first}))
+                commit(&app, &state, |d| {
+                    let (entry, first) = d.album.catch(kind, id, size, now)?;
+                    Ok(json!({"entry": entry, "first": first}))
+                })
             }
             "getChat" => {
                 let d = lock(&state);
@@ -331,18 +314,17 @@ fn overlay_owns(app: &AppHandle, label: &str, pet_id: &str) -> bool {
 }
 
 fn add_pet(app: &AppHandle, state: &State<Shared>, asset_id: &str) -> Result<Value, String> {
-    let mut d = lock(state);
-    let Some(intro) = d.assets.iter().find(|a| a.id == asset_id).map(|a| a.intro.clone()) else {
-        return Err(i18n::t("error.pet_missing"));
-    };
-    let mut pet = model::create_pet(asset_id, &d.pets)?;
-    // A new friend starts out as its pet file describes it; people edit from there.
-    pet.persona = intro.chars().take(crate::pets::model::PERSONA_MAX).collect();
-    let out = serde_json::to_value(&pet).unwrap();
-    d.pets.push(pet);
-    persist(&d)?;
-    changed(app, &d);
-    Ok(out)
+    commit(app, state, |d| {
+        let Some(intro) = d.assets.iter().find(|a| a.id == asset_id).map(|a| a.intro.clone()) else {
+            return Err(i18n::t("error.pet_missing"));
+        };
+        let mut pet = model::create_pet(asset_id, &d.pets)?;
+        // A new friend starts out as its pet file describes it; people edit from there.
+        pet.persona = intro.chars().take(crate::pets::model::PERSONA_MAX).collect();
+        let out = serde_json::to_value(&pet).unwrap();
+        d.pets.push(pet);
+        Ok(out)
+    })
 }
 
 fn update_pet(
@@ -389,19 +371,18 @@ fn update_pet(
 }
 
 fn remove_pet(app: &AppHandle, state: &State<Shared>, cli: &chat::cli::CliManager, id: &str) -> Result<Value, String> {
-    let mut d = lock(state);
-    require_pet(&d, id)?;
-    chat::cancel(&d, cli, id);
-    d.pets.retain(|p| p.id != id);
-    chat::reset(&mut d, cli, id);
-    d.statuses.remove(id);
-    d.activity.remove(id);
-    d.bonds.forget(id);
-    // An agent that reported to this friend goes back to the first one.
-    d.agent_pets.retain(|_, pet| pet != id);
-    persist(&d)?;
-    changed(app, &d);
-    Ok(Value::Null)
+    commit(app, state, |d| {
+        require_pet(d, id)?;
+        chat::cancel(d, cli, id);
+        d.pets.retain(|p| p.id != id);
+        chat::reset(d, cli, id);
+        d.statuses.remove(id);
+        d.activity.remove(id);
+        d.bonds.forget(id);
+        // An agent that reported to this friend goes back to the first one.
+        d.agent_pets.retain(|_, pet| pet != id);
+        Ok(Value::Null)
+    })
 }
 
 /// A press, a treat, a wave or a jump; without a friend named, everyone joins in.
@@ -505,38 +486,23 @@ fn assign_agent(app: &AppHandle, state: &State<Shared>, kind: &str, pet: &str) -
     if agent::kinds::by_kind(kind).is_none() {
         return Err(i18n::t("error.unknown_link"));
     }
-    let mut d = lock(state);
-    if pet.is_empty() {
-        d.agent_pets.remove(kind);
-    } else {
-        require_pet(&d, pet)?;
-        d.agent_pets.insert(kind.to_string(), pet.to_string());
-    }
-    persist(&d)?;
-    changed(app, &d);
-    Ok(Value::Null)
+    commit(app, state, |d| {
+        if pet.is_empty() {
+            d.agent_pets.remove(kind);
+        } else {
+            require_pet(d, pet)?;
+            d.agent_pets.insert(kind.to_string(), pet.to_string());
+        }
+        Ok(Value::Null)
+    })
 }
 
 /// Whether the friends chat among themselves now and then without being asked.
 fn set_auto_chatter(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
-    let mut d = lock(state);
-    d.auto_chatter = on;
-    persist(&d)?;
-    changed(app, &d);
-    Ok(Value::Bool(on))
-}
-
-/// A change to the garden (a seed found, planted, a plant pulled), saved and shown everywhere.
-fn garden_change(
-    app: &AppHandle,
-    state: &State<Shared>,
-    change: impl FnOnce(&mut crate::pets::garden::Garden) -> Result<Value, String>,
-) -> Result<Value, String> {
-    let mut d = lock(state);
-    let result = change(&mut d.garden)?;
-    persist(&d)?;
-    changed(app, &d);
-    Ok(result)
+    commit(app, state, |d| {
+        d.auto_chatter = on;
+        Ok(Value::Bool(on))
+    })
 }
 
 /// Whether the app starts when the person logs in. The system keeps the answer (a login item on
@@ -560,12 +526,10 @@ fn set_autostart(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Val
 fn set_language(app: &AppHandle, state: &State<Shared>, code: &str) -> Result<Value, String> {
     let lang = i18n::Lang::parse(code).ok_or_else(|| i18n::t("error.language"))?;
     i18n::set(lang);
-    {
-        let mut d = lock(state);
+    commit(app, state, |d| {
         d.language = lang;
-        persist(&d)?;
-        changed(app, &d);
-    }
+        Ok(Value::Null)
+    })?;
     // Rewording the tray waits on the main thread, which may itself be waiting for the state.
     tray::retitle(app);
     // Every page (the yard, each desktop window) starts over in the new language at once.

@@ -20,9 +20,12 @@ const caughtLine = (entry, size) =>
     ? `${t('catch.count', { count: entry.count })} · ${t('catch.best', { size: entry.best.toFixed(1) })}`
     : t('catch.count', { count: entry.count });
 
-// Each book: its kinds, what has been found, and how a card draws and describes a kind.
+// Each book: its tab's name, its kinds (the catalogue's), what has been found, and how a card draws
+// and describes a kind. A kind added to the catalogue shows up in its book; a new book is one more
+// entry here (its tab is made from it).
 const BOOKS = {
   flower: {
+    tab: 'catch.tab_flowers',
     kinds: FLOWERS,
     found: () => data.album?.flowers || {},
     draw: (k, unknown) => flowerSvg(k.id, unknown),
@@ -31,14 +34,16 @@ const BOOKS = {
     record: entry => t('catch.grown', { count: entry.count }),
   },
   fish: {
+    tab: 'catch.tab_fish',
     kinds: FISH,
     found: () => data.album?.fish || {},
-    draw: (k, unknown) => fishSvg(k.look, unknown),
+    draw: (k, unknown) => fishSvg(k, unknown),
     name: k => t(`catch.fish_${k.id}`),
     hint: k => when(k, 'catch.where_lake'),
     record: entry => caughtLine(entry, true),
   },
   bug: {
+    tab: 'catch.tab_bugs',
     kinds: BUGS,
     found: () => data.album?.bugs || {},
     draw: (k, unknown) => bugSvg(k, unknown),
@@ -47,6 +52,7 @@ const BOOKS = {
     record: entry => caughtLine(entry, false),
   },
   gift: {
+    tab: 'catch.tab_gifts',
     kinds: GIFTS,
     // The garden keeps which gifts have come; each counts once.
     found: () => Object.fromEntries((data.garden?.received || []).map(id => [id, { count: 1 }])),
@@ -57,6 +63,8 @@ const BOOKS = {
   },
 };
 let book = 'flower';
+// A kind this seldom (its weight among those that come at the same time, catalog.json) is rare.
+const RARE = 4;
 
 function card(b, kind, entry) {
   const el = document.createElement('div');
@@ -67,6 +75,13 @@ function card(b, kind, entry) {
   name.textContent = entry ? b.name(kind) : t('catch.unknown');
   hint.textContent = b.hint(kind);
   el.append(name, hint);
+  // A fish or a bug that comes seldom says so, found or not, so it is worth waiting for.
+  if (kind.weight <= RARE) {
+    const rare = document.createElement('span');
+    rare.className = 'album-rare';
+    rare.textContent = t('catch.rare');
+    el.append(rare);
+  }
   if (entry) {
     const record = document.createElement('small');
     record.textContent = b.record(entry);
@@ -94,12 +109,27 @@ export function renderAlbum() {
   $('album-grid').replaceChildren(...b.kinds.map(k => card(b, k, have[k.id])));
 }
 /** Opens the album (the tools' button). */
-export function openAlbum() {
+function openAlbum() {
   $('album-dialog').showModal();
   renderAlbum();
 }
 /** Wires the album's button, tabs and dialog. Called once, by app.js. */
 export function setupAlbum() {
+  $('album-tabs').replaceChildren(
+    ...Object.entries(BOOKS).map(([id, b]) => {
+      const tab = document.createElement('button'),
+        name = document.createElement('span'),
+        count = document.createElement('small');
+      tab.type = 'button';
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-controls', 'album-grid');
+      tab.dataset.book = id;
+      name.textContent = t(b.tab);
+      count.dataset.count = id;
+      tab.append(name, count);
+      return tab;
+    }),
+  );
   $('album-button').onclick = openAlbum;
   $('close-album').onclick = () => $('album-dialog').close();
   closeOnBackdrop($('album-dialog'));

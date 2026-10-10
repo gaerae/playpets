@@ -18,16 +18,20 @@ import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { render } from './render.js';
 import { isMini, setMini, setupWindow } from './window.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
+import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
-import { setupCatch, soloFishing } from './yard/catch.js';
+import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
+import { loadContent } from './yard/content.js';
 import { giftTick, renderDecor } from './yard/decor.js';
 import { gardenTick, renderGarden, setupGarden } from './yard/garden.js';
 import { moveFriends } from './yard/motion.js';
 import { gameTap, judge, playGame, setupPlay } from './yard/play.js';
-import { idleChatter, scene, scenery, setupSky } from './yard/sky.js';
+import { idleChatter } from './yard/remarks.js';
+import { setupSky } from './yard/sky.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { bubble, setupViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
+import { scene, scenery } from './yard/world.js';
 
 // A playpets://import link: any web page can open one once the browser remembers the choice,
 // so the person is asked before anything is downloaded. One request at a time.
@@ -70,6 +74,8 @@ function openChat(id) {
   $('message').focus();
 }
 
+// What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
+await loadContent();
 // Words first: everything below builds its labels from them.
 apply();
 icons();
@@ -100,6 +106,7 @@ setupViews({
   select,
   openChat,
   resized: () => {
+    endFishing();
     scenery.resize();
     renderGarden();
     renderDecor();
@@ -110,6 +117,7 @@ setupCare();
 setupGarden();
 setupCatch();
 setupAlbum();
+setupCard();
 setupSound();
 setupFriend();
 setupChat();
@@ -215,12 +223,13 @@ function animate(now) {
   last = now;
   judge(now);
   moveFriends(now, dt);
+  // Time together counts in games too; the rest of yard life waits for a game to end.
+  bondTick(now);
   if (game) playGame(now, dt);
   else {
     idleChatter(now);
     gardenTick(now);
     giftTick(now);
-    bondTick(now);
     soloFishing(now);
   }
   scenery.frame(now, dt);

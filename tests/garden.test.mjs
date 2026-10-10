@@ -3,6 +3,8 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import './support/content.mjs';
+import { FLOWERS } from '../src/yard/catalog.js';
 import {
   FIND_GAP,
   FIRST_FIND,
@@ -36,10 +38,16 @@ test('a plant goes from seed to flower with time, and says how long until the ne
   for (let i = 1; i < STAGES.length; i++) assert.ok(STAGES[i].at > STAGES[i - 1].at, 'stages come in order');
 });
 
-test('each season has its own flower', () => {
-  const flowers = ['spring', 'summer', 'autumn', 'winter'].map(flowerFor);
-  assert.equal(new Set(flowers).size, 4);
-  assert.equal(flowerFor('bogus'), 'tulip');
+test("a seed grows into one of its season's flowers, and every flower can grow", () => {
+  const grown = new Set();
+  for (const season of ['spring', 'summer', 'autumn', 'winter'])
+    for (const r of [0, 0.3, 0.6, 0.99]) {
+      const id = flowerFor(season, () => r);
+      assert.equal(FLOWERS.find(f => f.id === id).season, season);
+      grown.add(id);
+    }
+  assert.deepEqual([...grown].sort(), FLOWERS.map(f => f.id).sort());
+  assert.equal(flowerFor('bogus'), FLOWERS[0].id);
 });
 
 test('seeds are found now and then, the first one soon', () => {
@@ -75,10 +83,13 @@ test('a gift comes once a day after the yard has been seen a while, the first on
   assert.equal(localDay(new Date(2026, 9, 9)), '2026-10-09');
 });
 
-test('the backend counts a flower at the same age the page shows it in bloom', async () => {
+test("the page's fallback friendship levels are the backend's", async () => {
   const { readFile } = await import('node:fs/promises');
-  const rust = await readFile('src-tauri/src/pets/garden.rs', 'utf8'),
-    expr = rust.match(/BLOOM_AFTER_MS: u64 = ([\d\s*]+);/)[1],
-    ms = expr.split('*').reduce((product, n) => product * Number(n.trim()), 1);
-  assert.equal(ms, STAGES.at(-1).at);
+  const bond = await readFile('src-tauri/src/pets/bond.rs', 'utf8'),
+    page = await readFile('src/yard/bond.js', 'utf8');
+  const numbers = text => text.split(',').map(n => Number(n.trim()));
+  assert.deepEqual(
+    numbers(page.match(/bondLevels \|\| \[([\d, ]+)\]/)[1]),
+    numbers(bond.match(/LEVELS: \[u32; 5\] = \[([\d, ]+)\]/)[1]),
+  );
 });

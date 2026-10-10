@@ -3,6 +3,9 @@
 /** `x` kept within [a, b]. */
 export const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 
+/** A number between `lo` and `hi` at random, such as a wait in a range (`rng` gives numbers in [0, 1)). */
+export const between = (rng, [lo, hi]) => lo + rng() * (hi - lo);
+
 /** One of `list` at random (`rng` gives numbers in [0, 1)). */
 export const pick = (list, rng = Math.random) => list[Math.min(list.length - 1, Math.floor(rng() * list.length))];
 

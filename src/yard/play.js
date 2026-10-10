@@ -9,6 +9,7 @@ import { shuffle } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, data, game, name, selected, setGame, toast, views } from '../core/state.js';
 import { setAimingMode } from './care.js';
+import { petHeight, sizeOf } from './field.js';
 import {
   chaseTarget,
   fleeTarget,
@@ -23,15 +24,11 @@ import {
   touching,
 } from './games.js';
 import { paintScene } from './sky.js';
-import { bubble, effect, hint, labelTag, petHeight, place, pose, rest, sizeOf } from './views.js';
+import { bubble, effect, hint, labelTag, place, pose, release, rest, sendTo } from './views.js';
 
 const party = () => game.ids.map(id => views.get(id)).filter(Boolean);
 const HIDE_WAIT_MS = 15000;
-const send = (v, target, speed) => {
-  v.target = target;
-  v.targetKind = 'game';
-  v.speed = speed;
-};
+const send = (v, target, speed) => sendTo(v, target, { save: false, speed, arrive: arrived });
 const called = id => name(views.get(id).pet);
 let gameButtons = [];
 export function syncGameUi() {
@@ -109,8 +106,7 @@ const hide = {
     game.hideBy = 0;
     for (const v of party())
       if (game.hidden.has(v.pet.id) && !v.button.classList.contains('hiding')) {
-        v.target = null;
-        v.targetKind = null;
+        release(v);
         hide.arrived(v);
       }
   },
@@ -216,7 +212,7 @@ const tag = {
       game.it = v.pet.id;
       game.nextPlan = 0;
       tagger(v, true);
-      v.target = null;
+      release(v);
       v.frozen = true;
       v.frozenUntil = now + 900;
       pose(v, 'jump', 900);
@@ -258,10 +254,10 @@ function startGame(kind) {
   const lead = views.has(selected) ? selected : [...views.keys()][0],
     now = performance.now();
   setGame({ kind, ids: [lead, ...[...views.keys()].filter(id => id !== lead)], hint: '' });
+  // Whatever a friend was doing (a walk, fishing) ends when a game takes it.
   for (const v of party()) {
+    release(v);
     v.away = true;
-    v.target = null;
-    v.targetKind = null;
     v.look = null;
   }
   RULES[kind].start(now, lead);
@@ -275,13 +271,10 @@ export function endGame(message) {
   banner('', '');
   for (const v of views.values()) {
     v.frozen = false;
-    v.speed = 0;
     v.button.classList.remove('hiding');
     tagger(v, false);
-    if (v.away) {
-      v.target = { x: v.pet.x, y: v.pet.y };
-      v.targetKind = 'home';
-    }
+    if (v.away) sendTo(v, { x: v.pet.x, y: v.pet.y }, { save: false, arrive: () => (v.away = false) });
+    else v.speed = 0;
     rest(v);
   }
   RULES[over.kind]?.end?.(over, message);
@@ -293,8 +286,8 @@ export function endGame(message) {
 export function endGameIfSomeoneLeft() {
   if (game?.ids.some(id => !data.pets.some(p => p.id === id))) endGame();
 }
-// Called when a friend reaches where a game sent it.
-export function arrived(v) {
+// A friend reached where a game sent it.
+function arrived(v) {
   if (game) rules().arrived?.(v);
 }
 // A press on a friend during a game.

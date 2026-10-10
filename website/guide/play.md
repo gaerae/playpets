@@ -39,7 +39,7 @@ Friends out for a stroll find a seed now and then (every 8 to 20 minutes while t
 1. Click **Plant a seed** in the toolbar (the number beside it is how many seeds you have).
 2. Click a spot on the field. You can plant several in a row; **Esc** or the tool again stops.
 
-A seed grows by the clock, also while the app is closed: a sprout after 10 minutes, leaves after 40, a bud after 2 hours, a flower after 4. What flowers depends on the season it was planted in: tulips in spring, sunflowers in summer, cosmos in autumn, camellias in winter. Hover over a plant to see what it is and how long until it flowers.
+A seed grows by the clock, also while the app is closed: a sprout after 10 minutes, leaves after 40, a bud after 2 hours, a flower after 4. What flowers depends on the season it was planted in, and each season has two: tulips or daffodils in spring, sunflowers or hydrangeas in summer, cosmos or chrysanthemums in autumn, camellias or snowdrops in winter. Hover over a plant to see what it is and how long until it flowers.
 
 - Click a plant and the nearest friend walks over to water it.
 - Friends also go and look at the flowers on their own.
@@ -49,13 +49,13 @@ A seed grows by the clock, also while the app is closed: a sprout after 10 minut
 
 ### Gifts
 
-Once a day a friend brings a gift for the yard, after the yard has been open for a while that day (20 to 40 minutes; the very first gift comes after 5). It jumps, says so, and sets it down beside it. The first gifts come in this order: a bench, a lantern, a birdhouse, a little pond, a mailbox and a picnic blanket; after that a friend brings one that is not in the yard.
+Once a day a friend brings a gift for the yard, after the yard has been open for a while that day (20 to 40 minutes; the very first gift comes after 5). It jumps, says so, and sets it down beside it. The first gifts come in this order: a bench, a lantern, a birdhouse, a little pond, a mailbox, a picnic blanket, a pinwheel, a campfire, a swing, a flowerpot, a stump stool, a tent, a signpost and a wind chime; after that a friend brings one that is not in the yard. The campfire glows from evening on like the lantern, friends sit on the swing and the stump, and the wind chime rings when a friend visits it.
 
 - Drag a decoration to move it anywhere on the field (or select it and use the arrow keys).
 - Click it and the nearest friend walks over. Friends also visit decorations on their own: they sit on the bench, gather on the blanket and look into the pond.
 - The lantern is lit from evening on, the pond mirrors the sky, and a bird sits on the birdhouse by day.
 - Right-click a decoration (or press **Delete** on it) to put it away. A friend may bring it again another day.
-- The yard holds 8 decorations; while it is full, no gift comes.
+- The yard holds 12 decorations; while it is full, no gift comes. Put one away to make room for the rest.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
@@ -113,7 +113,7 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 
 <Shot name="mini" caption="Mini mode. A small window with only the yard floats on top of other windows." />
 
-Click the **Mini** button at the top of the window and the panel and toolbar go away, leaving a small window with only the yard.
+Click the mini view button (a small window) among the view controls at the top right of the yard and the panel and toolbar go away, leaving a small window with only the yard.
 
 - The small window always floats on top of other windows. The first time, it opens in the bottom-right corner of the screen; after that it opens where you last left it, at the size you gave it.
 - Point at the yard and **Treat** and **Let them chat** rise at the bottom as small buttons.

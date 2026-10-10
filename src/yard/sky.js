@@ -1,15 +1,13 @@
 // Scenery: time of day and weather each follow the clock and the sky unless the person picks one.
-// Left alone, friends also remark on it, so the yard is worth leaving open.
+// A change of weather is remarked on by a friend or two (remarks.js).
 
-import { language, list } from '../core/i18n.js';
-import { pick, shuffle } from '../core/math.js';
+import { language } from '../core/i18n.js';
 import { reduced } from '../core/sprites.js';
-import { $, aiming, data, game, recall, remember, views } from '../core/state.js';
-import { levelOf } from './bond.js';
+import { $, aiming, game, recall, remember } from '../core/state.js';
 import { createEasel } from './easel.js';
+import { remark } from './remarks.js';
 import {
   autoWeather,
-  chatterFor,
   moonPhase,
   moonShade,
   PERIOD_MINUTES,
@@ -24,13 +22,10 @@ import {
 } from './scene.js';
 import { createScenery } from './scenery.js';
 import { soundScene } from './sound.js';
-import { bubble } from './views.js';
-import { delay } from './wander.js';
-// The weather canvas, made by setupSky once the page is there.
-export let scenery = null;
-// The painted backdrop, made with it.
+import { scene, scenery, setScenery } from './world.js';
+
+// The painted backdrop, made with the weather canvas.
 let easel = null;
-export const scene = { period: 'day', weather: 'clear', season: 'spring' };
 // South of the equator the seasons and the moon turn the other way (by the system's time zone).
 const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
 // The season's colours last set on the yard, to be taken off again when they change.
@@ -82,42 +77,6 @@ function showRainbow(yard) {
   clearTimeout(rainbowTimer);
   rainbowTimer = setTimeout(() => $('yard').classList.remove('after-rain'), RAINBOW_MS);
 }
-// A change in the weather is worth a remark from a friend or two.
-// Its first draw is 0, which makes chatterFor talk about the weather; the rest are random.
-function aboutTheWeather() {
-  let first = true;
-  return () => {
-    if (!first) return Math.random();
-    first = false;
-    return 0;
-  };
-}
-function remark() {
-  if (game || scene.weather === 'clear') return;
-  const speakers = shuffle([...views.values()]).slice(0, 2);
-  speakers.forEach((v, i) => {
-    setTimeout(
-      () => {
-        if (!game) bubble(v, chatterFor(scene.period, scene.weather, aboutTheWeather()), 3500);
-      },
-      700 + i * 900,
-    );
-  });
-}
-const CHATTER_DELAY = [40000, 110000];
-let nextChatter = Infinity;
-export function idleChatter(now) {
-  if (now < nextChatter) return;
-  nextChatter = now + delay(Math.random, CHATTER_DELAY);
-  const quiet = [...views.values()].filter(
-    v => v.bubble.hidden && !v.drag && (data.statuses[v.pet.id]?.state || 'idle') === 'idle',
-  );
-  if (!quiet.length) return;
-  const v = pick(quiet);
-  // The closest friends (level 5, bond.js) now and then say something to the person instead.
-  const dear = levelOf(v.pet.id) >= 5 && Math.random() < 0.35;
-  bubble(v, dear ? pick(list('bond.dear')) : chatterFor(scene.period, scene.weather, Math.random), 3500);
-}
 // The clock at the top right: the time and the date in the app's language, changed on the minute.
 const clockTime = new Intl.DateTimeFormat(language(), { hour: 'numeric', minute: '2-digit' }),
   clockDate = new Intl.DateTimeFormat(language(), { month: 'short', day: 'numeric', weekday: 'short' });
@@ -128,12 +87,11 @@ function tick() {
 }
 // Starts the sky: the chosen or automatic time and weather, and the minute-by-minute check. Called once, by app.js.
 export function setupSky() {
-  scenery = createScenery($('weather-layer'), reduced);
+  setScenery(createScenery($('weather-layer'), reduced));
   easel = createEasel($('yard'), reduced);
   const saved = { weather: recall('weather'), period: recall('period') };
   if (saved.weather === 'auto' || WEATHERS[saved.weather]) weatherChoice = saved.weather;
   if (PERIODS[saved.period]) periodChoice = saved.period;
-  nextChatter = performance.now() + delay(Math.random, CHATTER_DELAY);
   $('weather').value = weatherChoice;
   $('period').value = periodChoice;
   // The caption is the button for the time of day and the weather: a small menu under it.

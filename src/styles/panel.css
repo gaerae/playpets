@@ -241,17 +241,6 @@
     width: 64px;
     height: 70px;
   }
-  .chat-log {
-    height: 190px;
-  }
-}
-@media (max-width: 1080px) {
-  .chat-log {
-    height: 210px;
-  }
-}
-.chat-log:has(.connect-cta) .chat-placeholder {
-  margin: auto auto 0;
 }
 .connect-cta {
   align-self: center;
@@ -259,43 +248,6 @@
   min-height: 36px;
   padding: 8px 16px;
   margin: 10px auto auto;
-}
-.provider-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  align-items: center;
-}
-.provider-row select {
-  flex: 1;
-  margin-top: 0;
-}
-.provider-row .icon-button {
-  width: 36px;
-  height: 36px;
-  flex: none;
-  border-radius: 9px;
-}
-.provider-row .icon-button svg {
-  width: 17px;
-  height: 17px;
-}
-#pet-panel {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-.chat-log {
-  overflow-y: auto;
-  padding: 12px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overscroll-behavior: contain;
-  height: auto;
-  flex: 1;
-  min-height: 170px;
 }
 .empty-panel {
   display: flex;
@@ -309,20 +261,6 @@
   min-height: 360px;
   flex: 1;
 }
-.status-pill {
-  position: absolute;
-  bottom: 10px;
-  font-weight: 600;
-  color: #587255;
-  background: #fff;
-  border-radius: 15px;
-  padding: 4px 9px;
-  max-width: 90%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 10px;
-}
 @media (max-width: 760px) {
   .side-panel {
     order: 2;
@@ -332,15 +270,6 @@
   .shelf-section {
     order: 3;
   }
-}
-.friend-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 0 0 10px;
-}
-.friend-chips:empty {
-  display: none;
 }
 .fact-chip {
   border-radius: 20px;
@@ -443,40 +372,6 @@
   width: 15px;
   height: 15px;
 }
-.cancel-button {
-  position: absolute;
-  right: 7px;
-  bottom: 12px;
-  font-size: 10px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  padding: 0;
-  display: grid;
-  place-items: center;
-}
-.cancel-button svg {
-  width: 16px;
-  height: 16px;
-}
-.send-button {
-  border-radius: 50%;
-  background: var(--ink);
-  color: white;
-  position: absolute;
-  right: 8px;
-  bottom: 12px;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-}
-.send-button svg {
-  width: 18px;
-  height: 18px;
-}
 .pet-id {
   display: block;
   font-size: 10px;
@@ -489,20 +384,6 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 8px;
-}
-.companions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  font-size: 11px;
-  color: var(--muted);
-}
-.companion-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
 }
 .message.peer {
   background: #eef2f7;
@@ -599,176 +480,11 @@
     order: 2;
   }
 }
-.friend-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: none;
-}
-.avatar {
-  width: 44px;
-  height: 44px;
-  flex: none;
-  border-radius: 50%;
-  overflow: hidden;
-  background: radial-gradient(circle, #e7f0e2, #f3f6ef);
-  display: grid;
-  place-items: start center;
-}
-.avatar canvas {
-  width: 52px;
-  height: 56px;
-  margin-top: 2px;
-}
-.friend-id {
-  flex: 1;
-  min-width: 0;
-}
-.friend-id h3 {
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.friend-head .status-pill {
-  position: static;
-  display: inline-block;
-  margin-top: 3px;
-  padding: 2px 8px;
-  background: #edf4e9;
-  font-size: 10px;
-  max-width: 100%;
-}
-.side-panel .provider-row {
-  margin-top: 12px;
-}
-.side-panel .chat-log {
-  min-height: 140px;
-  padding: 10px 0;
-  margin-top: 12px;
-  border-top: 1px solid var(--line);
-}
-.chat-form {
-  position: relative;
-  flex: none;
-}
-.chat-form textarea {
-  display: block;
-  resize: none;
-  min-height: 42px;
-  max-height: 140px;
-  padding: 11px 46px 11px 12px;
-  font-size: 12.5px;
-  line-height: 1.5;
-  border-radius: 12px;
-  overflow-y: auto;
-}
-.chat-form textarea:disabled {
-  background: #f3f5f4;
-}
-.send-button,
-.cancel-button {
-  position: absolute;
-  right: 7px;
-  bottom: 7px;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-}
-.send-button svg,
-.cancel-button svg {
-  width: 15px;
-  height: 15px;
-}
-.send-button:disabled {
-  background: var(--line);
-  color: var(--muted);
-  opacity: 1;
-}
-.send-button:hover:not(:disabled) {
-  background: #31575e;
-}
-.chat-note {
-  flex: none;
-  margin-top: 7px;
-  font-size: 10.5px;
-  line-height: 1.5;
-  color: var(--muted);
-}
 #pet-dialog .pet-id {
   margin-top: 16px;
 }
 .layout.panel-open .side-panel {
   align-self: stretch;
-}
-@media (max-width: 760px) {
-  .side-panel .chat-log {
-    min-height: 220px;
-  }
-}
-.friend-select {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  padding: 5px 28px 5px 9px;
-  margin-left: -9px;
-  border-color: transparent;
-  background-color: transparent;
-  width: auto;
-  max-width: 100%;
-  text-overflow: ellipsis;
-}
-.friend-select:hover,
-.friend-select:focus {
-  border-color: var(--line);
-  background-color: var(--white);
-}
-details.companions {
-  display: block;
-  margin-top: 8px;
-  flex: none;
-}
-details.companions summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  list-style: none;
-  padding: 7px 10px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: var(--white);
-  font-size: 11.5px;
-  color: var(--ink);
-}
-details.companions summary::-webkit-details-marker {
-  display: none;
-}
-details.companions summary:hover {
-  background: #edf3f1;
-}
-details.companions summary span:first-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-details.companions summary svg {
-  width: 13px;
-  height: 13px;
-  transition: transform 0.18s;
-}
-details.companions[open] summary svg {
-  transform: rotate(180deg);
-}
-details.companions .companion-chips {
-  padding: 8px 2px 2px;
-  max-height: 96px;
-  overflow-y: auto;
 }
 .badge {
   font-size: 9px;
@@ -788,57 +504,6 @@ details.companions .companion-chips {
   border-top: 1px solid var(--line);
   font-size: 11px;
   color: var(--muted);
-}
-/* Under the friend's name: what can be done to this friend. The everyday action on the left; the two
-   that cannot be taken back sit apart on the right, quiet until pointed at, and both ask first. */
-.friend-actions {
-  flex: none;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-}
-/* Three chips share the panel. When it is narrow (the narrowest windows leave about 260px inside it), the
-   two quiet chips keep their icon, tooltip and spoken label and drop the visible word, so the row
-   stays one line in every language; a wider panel shows the words. */
-.friend-actions .button.chip {
-  padding: 4px 9px;
-  gap: 4px;
-}
-@container panel (max-width: 280px) {
-  .friend-actions .chip-quiet {
-    padding: 5px 8px;
-    gap: 0;
-  }
-  .friend-actions .chip-quiet span:not([data-icon]) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-}
-.friend-actions-end {
-  margin-left: auto;
-  display: flex;
-  gap: 6px;
-}
-/* The conversation sits under a line and gathers at the bottom, next to where the next message is written. */
-.chat-log > .message:first-child {
-  margin-top: auto;
-}
-.chat-foot {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 7px;
-}
-.chat-foot .chat-note {
-  margin-top: 0;
 }
 /* The invite shelf in groups by where the pet files live; each group says where, and can open it. */
 .shelf-group {
@@ -1160,16 +825,118 @@ details.companions .companion-chips {
   }
 }
 
-/* ---- friendship in the Friend panel: the level, a bar to the next, and what the next opens ---- */
-.bond-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
+/* ---- the Friend panel, laid out like a messenger: who you are talking to at the top, the
+   conversation filling the panel, and the composer at the bottom with the AI and who joins in.
+   What is done to the friend (settings, the AI connection, clearing, sending away) is in its menu. */
+#pet-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+/* With a friend open, its name is the panel's heading: the panel title stays for screen readers and
+   the close button sits in the corner beside the friend's menu. */
+.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  margin: 0;
+  z-index: 2;
+}
+.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.side-panel {
+  position: relative;
+  top: auto;
+}
+.friend-head {
+  display: flex;
   align-items: center;
-  gap: 4px 10px;
-  margin: 2px 0 12px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: #fdf1f3;
+  gap: 11px;
+  flex: none;
+  padding: 0 72px 0 0;
+}
+.avatar {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 70%, #e3eedd, #f4f7f1);
+  box-shadow: inset 0 0 0 1px #213e4314;
+  display: grid;
+  place-items: start center;
+}
+.avatar canvas {
+  width: 54px;
+  height: 58px;
+  margin-top: 3px;
+}
+.friend-id {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.friend-id h3 {
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.friend-select {
+  justify-self: start;
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.3px;
+  padding: 2px 26px 2px 8px;
+  margin: 0 0 0 -8px;
+  border-color: transparent;
+  background-color: transparent;
+  width: auto;
+  max-width: 100%;
+  min-height: 0;
+  text-overflow: ellipsis;
+}
+.friend-select:hover,
+.friend-select:focus {
+  border-color: var(--line);
+  background-color: var(--white);
+}
+/* Under the name, one quiet line: what its coding agent is doing, and how close it is. */
+.friend-sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 10.5px;
+}
+.status-pill {
+  flex: none;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: #edf4e9;
+  color: #4c6a49;
+  font-weight: 650;
+}
+.bond-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
 }
 .bond-row[hidden] {
   display: none;
@@ -1177,20 +944,23 @@ details.companions .companion-chips {
 .bond-level {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 12px;
+  gap: 3px;
+  flex: none;
   color: #b2475f;
+  font-weight: 650;
 }
 .bond-level svg {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   fill: #f08aa0;
   stroke: #c9576f;
 }
 .bond-bar {
-  height: 7px;
+  flex: 1;
+  max-width: 90px;
+  height: 5px;
   border-radius: 99px;
-  background: #f6d6dd;
+  background: #f6dde2;
   overflow: hidden;
 }
 .bond-bar i {
@@ -1200,8 +970,275 @@ details.companions .companion-chips {
   background: #ec7d96;
   transition: width 0.6s;
 }
-.bond-row small {
-  grid-column: 1 / -1;
-  font-size: 11px;
+.bond-next {
+  flex: none;
+  margin: 8px 0 0;
+  font-size: 10.5px;
+  line-height: 1.5;
   color: #8c5a66;
+}
+.bond-next:empty {
+  display: none;
+}
+.friend-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 8px 0 0;
+  flex: none;
+}
+.friend-chips:empty {
+  display: none;
+}
+/* The friend's menu, and the close button beside it, in the panel's corner. */
+.menu-anchor {
+  position: absolute;
+  top: 14px;
+  right: 50px;
+  z-index: 3;
+}
+.menu-anchor > .icon-button,
+.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head .icon-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+.menu-anchor > .icon-button svg {
+  width: 16px;
+  height: 16px;
+}
+.menu-anchor > .icon-button[aria-expanded="true"] {
+  background: var(--paper);
+}
+.pop-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 190px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  box-shadow: 0 12px 32px #213e4326;
+  display: grid;
+}
+.pop-menu[hidden] {
+  display: none;
+}
+.pop-menu [role="menuitem"] {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 550;
+  text-align: left;
+  cursor: pointer;
+}
+.pop-menu [role="menuitem"] svg {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+.pop-menu [role="menuitem"]:hover:not(:disabled),
+.pop-menu [role="menuitem"]:focus-visible {
+  background: var(--paper);
+  outline: none;
+}
+.pop-menu [role="menuitem"]:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.pop-menu [role="menuitem"].danger,
+.pop-menu [role="menuitem"].danger svg {
+  color: #b5452e;
+}
+.pop-menu hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 4px 6px;
+}
+/* The conversation fills what is left and gathers at the bottom, next to the composer. */
+.chat-log {
+  flex: 1;
+  min-height: 160px;
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 2px;
+}
+.chat-log > .message:first-child {
+  margin-top: auto;
+}
+.chat-log:has(.connect-cta) .chat-placeholder {
+  margin: auto auto 0;
+}
+/* The composer: the message, then a bar with the AI the friend talks with, who joins in, and send. */
+.composer {
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--white);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.composer:focus-within {
+  border-color: #9fbcb5;
+  box-shadow: 0 0 0 3px #367b901a;
+}
+.composer textarea {
+  display: block;
+  width: 100%;
+  resize: none;
+  min-height: 38px;
+  max-height: 140px;
+  padding: 10px 12px 2px;
+  border: 0;
+  border-radius: 14px 14px 0 0;
+  background: transparent;
+  font-size: 12.5px;
+  line-height: 1.5;
+  overflow-y: auto;
+  box-shadow: none;
+}
+.composer textarea:focus {
+  outline: none;
+  box-shadow: none;
+}
+.composer textarea:disabled {
+  background: transparent;
+  color: var(--muted);
+}
+.composer-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px 6px;
+  min-width: 0;
+}
+.composer-gap {
+  flex: 1;
+}
+.composer-select {
+  width: auto;
+  max-width: 48%;
+  min-height: 0;
+  margin: 0;
+  padding: 4px 22px 4px 8px;
+  border-color: transparent;
+  border-radius: 8px;
+  background-color: transparent;
+  background-position: right 6px center;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--muted);
+  text-overflow: ellipsis;
+}
+.composer-select:hover,
+.composer-select:focus {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+/* Who joins in: a small button that opens the friends with an AI above the composer. */
+.companions {
+  position: relative;
+  min-width: 0;
+}
+.companions[hidden] {
+  display: none;
+}
+.companions summary {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+.companions summary::-webkit-details-marker {
+  display: none;
+}
+.companions summary:hover,
+.companions[open] summary {
+  background: var(--paper);
+  color: var(--ink);
+}
+.companions summary svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+.companion-chips {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  width: max-content;
+  max-width: 240px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  box-shadow: 0 12px 32px #213e4326;
+  z-index: 3;
+}
+.send-button,
+.cancel-button {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+}
+.send-button svg,
+.cancel-button svg {
+  width: 15px;
+  height: 15px;
+}
+.send-button:disabled {
+  background: var(--line);
+  color: var(--muted);
+  opacity: 1;
+}
+.send-button:hover:not(:disabled) {
+  background: #31575e;
+}
+.chat-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+.chat-note {
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+@media (max-width: 760px) {
+  .chat-log {
+    min-height: 220px;
+  }
 }

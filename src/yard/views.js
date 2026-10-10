@@ -2,9 +2,9 @@
 
 import { agentsOf } from '../core/agents.js';
 import { lookAt, renewsClock } from '../core/animation.js';
-import { t } from '../core/i18n.js';
+import { list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
-import { clamp } from '../core/math.js';
+import { between, clamp, pick } from '../core/math.js';
 import { canvas, reduced } from '../core/sprites.js';
 import {
   $,
@@ -23,7 +23,8 @@ import {
 } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
-import { delay, WANDER_DELAY } from './wander.js';
+import { EDGE, geometry, measureYard, petHeight, sizeOf } from './field.js';
+import { WANDER_DELAY } from './wander.js';
 
 // What a press on a friend means is decided above the yard (by a game, or the panel);
 // setupViews hands it in, so the yard needs nothing from those modules.
@@ -64,22 +65,16 @@ export function bubble(v, message, duration = 6000) {
   clearTimeout(v.bubbleTimer);
   v.bubbleTimer = setTimeout(() => (v.bubble.hidden = true), duration);
 }
-export const rest = v => {
-  v.nextWander = performance.now() + delay(Math.random, WANDER_DELAY);
-};
-// Friends stand on the field: y=0 is the ridge, y=1 the front edge of the yard.
-// They shrink with the yard, so a small window still reads as a whole scene.
-export const FIELD_TOP = 0.6;
-let zoom = 1;
-// How much friends shrink in a yard of this size. By the height, so a small window still reads as a
-// whole scene; a strip (much wider than tall, like a bar along the screen's edge) gives the sky
-// away and keeps the friends larger, and a narrow column keeps them from crowding each other.
-export function zoomFor(width, height) {
-  const strip = width > height * 3;
-  return clamp(Math.min(height / (strip ? 380 : 560), width / 640), 0.35, 1);
+/** A friend's reaction to something it did: a pose, a mark above it (✦, ♥ or none) and one of the
+ * lines under `lines` in the string tables. */
+export function cheer(v, lines, { as = 'jump', ms = 1100, mark = '✦', say = 3000 } = {}) {
+  pose(v, as, ms);
+  if (mark) effect(v, mark);
+  bubble(v, pick(list(lines)), say);
 }
-export const sizeOf = p => p.size * zoom;
-export const petHeight = p => (sizeOf(p) * 208) / 192;
+export const rest = v => {
+  v.nextWander = performance.now() + between(Math.random, WANDER_DELAY);
+};
 function fit(v) {
   const size = sizeOf(v.pet);
   v.button.style.width = `${size}px`;
@@ -87,59 +82,36 @@ function fit(v) {
   v.canvas.style.height = `${petHeight(v.pet)}px`;
   place(v);
 }
-// The yard's size is measured when it changes, not every time a friend takes a step.
-const yardSize = { width: 0, height: 0 };
-function measure() {
-  const r = $('yard').getBoundingClientRect();
-  yardSize.width = r.width;
-  yardSize.height = r.height;
+// A friend's trip: where it is headed (`v.target`, its place 0 to 1 each way) and `v.trip`, what
+// happens there: { arrive(v, now), cancel(v), save, slow }. While it does something where it stands
+// (fishing), `v.doing` is { end(v) }. Whatever takes a friend (a press, a game, another trip, the
+// friend leaving) lets go of both first, so the owner of a trip or a task always hears it ended.
+/** Sends a friend to `target`: `arrive(v, now)` runs when it gets there and `cancel(v)` if something
+ * else takes it first; the place it ends at is kept unless `save` is false; `slow` strolls, and a
+ * game gives its own `speed`. */
+export function sendTo(v, target, { arrive, cancel, save = true, slow = false, speed = 0 } = {}) {
+  release(v);
+  v.target = target;
+  v.trip = { arrive, cancel, save, slow };
+  v.speed = speed;
 }
-// Room kept at each side of the yard, so a friend at the edge is still whole.
-const EDGE = 14;
-// Room kept at the foot of the yard for a friend's name tag, and for the tools floating over the
-// scene (in the mini view they only rise under the pointer, so the tag's room is enough).
-const footRoom = () => (document.body.classList.contains('mini') ? 42 : 76);
-/** The field friends and plants stand on, in yard pixels: its width, the ridge (top) and the
- * front edge (bottom) a foot can reach. */
-export function field() {
-  if (!yardSize.width) measure();
-  const { width, height } = yardSize;
-  return { width, height, top: height * FIELD_TOP, bottom: height - footRoom() };
+/** Lets go of whatever a friend was on its way to or doing, telling their owners. */
+export function release(v) {
+  const { trip, doing } = v;
+  v.target = null;
+  v.trip = null;
+  v.doing = null;
+  trip?.cancel?.(v);
+  doing?.end?.(v);
 }
-export function geometry(p) {
-  if (!yardSize.width) measure();
-  const r = yardSize,
-    top = Math.max(12, r.height * FIELD_TOP - petHeight(p));
-  return {
-    w: Math.max(1, r.width - sizeOf(p) - EDGE * 2),
-    top,
-    h: Math.max(1, r.height - petHeight(p) - footRoom() - top),
-  };
-}
-/** A place on the field (0 to 1 each way, as plants and decorations keep it) in yard pixels. */
-export function fieldToYard({ x, y }) {
-  const f = field();
-  return { x: EDGE + x * Math.max(1, f.width - EDGE * 2), y: f.top + y * Math.max(1, f.bottom - f.top) };
-}
-/** A point in the yard, in pixels, as a place on the field. */
-export function yardToField(px, py) {
-  const f = field();
-  return {
-    x: clamp((px - EDGE) / Math.max(1, f.width - EDGE * 2)),
-    y: clamp((py - f.top) / Math.max(1, f.bottom - f.top)),
-  };
-}
-/** Where a friend heads (its place, 0 to 1 each way) so that its feet come to (px, py) in the yard. */
-export function footTarget(v, px, py, lift = 4) {
-  const { w, h, top } = geometry(v.pet);
-  return { x: clamp((px - EDGE - sizeOf(v.pet) / 2) / w), y: clamp((py - top - petHeight(v.pet) + lift) / h) };
-}
-/** The friend nearest a point in the yard that is free to walk over (not held, not on its way somewhere). */
+/** Free to be sent somewhere: not held, not on its way, not in a game, not busy where it stands. */
+export const isFree = v => !v.drag && !v.target && !v.away && !v.doing;
+/** The free friend nearest a point in the yard. */
 export function nearestFree(px, py) {
   let best = null,
     bestD = Infinity;
   for (const v of views.values()) {
-    if (v.drag || v.target || v.away) continue;
+    if (!isFree(v)) continue;
     const d = Math.hypot(v.px + sizeOf(v.pet) / 2 - px, v.py + petHeight(v.pet) - py);
     if (d < bestD) [best, bestD] = [v, d];
   }
@@ -217,10 +189,11 @@ function createView(p) {
     since: performance.now(),
     until: 0,
     target: null,
-    targetKind: null,
+    trip: null,
+    doing: null,
     drag: null,
     look: null,
-    nextWander: performance.now() + delay(Math.random, WANDER_DELAY),
+    nextWander: performance.now() + between(Math.random, WANDER_DELAY),
   };
   // The body gives a little under a press and springs back (the canvas, not the tag or bubble).
   const unpress = () => button.classList.remove('pressed');
@@ -235,8 +208,7 @@ function createView(p) {
       return;
     }
     on.select(p.id);
-    v.target = null;
-    v.targetKind = null;
+    release(v);
     rest(v);
     v.drag = { startX: e.clientX, startY: e.clientY, x: v.x, y: v.y, moved: false, talk: onTag(e) };
     // A press that is not a live pointer (a script's) has nothing to capture.
@@ -323,6 +295,7 @@ function createView(p) {
 export function syncViews() {
   for (const [id, v] of views)
     if (!data.pets.some(p => p.id === id)) {
+      release(v);
       v.button.remove();
       views.delete(id);
     }
@@ -401,8 +374,7 @@ function agentSummary() {
 export function setupViews(handlers) {
   on = handlers;
   new ResizeObserver(() => {
-    measure();
-    zoom = zoomFor(yardSize.width, yardSize.height);
+    measureYard();
     on.resized();
     for (const v of views.values()) fit(v);
   }).observe($('yard'));

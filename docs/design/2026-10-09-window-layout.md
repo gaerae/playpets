@@ -16,12 +16,12 @@ Features were added one at a time (scenery pickers, a greet button, games, a gar
 
 | Place | What is there | Notes |
 |---|---|---|
-| Top bar | Brand; an update when one is known; **Show on desktop** (a switch) with **Stroll around** beside it while on; **Mini view**; the tabs **Friend**, **Invite** and a gear for **Settings** | Words give way to icons as the window narrows, never controls |
+| Top bar | Brand; an update when one is known; the tabs **Friend**, **Invite** and a gear for **Settings** | Only where to go: how the yard is shown moved into the yard (2026-10-10) |
 | Yard, top left | The scene label ("A clear midday in the yard"), which opens the time of day and weather; the friend count and agent work | One chip; the pickers are a menu, not always on screen |
-| Yard, top right | The hint while there is something to learn (patting, then fishing); the sound switch (a speaker) and the clock with the date | The clock changes on the minute |
+| Yard, top right | The view controls, as a video player keeps its controls: **Show on desktop** (a switch, with **Stroll** beside it while on), **Mini view**, and the yard's sounds; the clock with the date; under them, the hint while there is something to learn | How the yard is shown is controlled on the yard; in a narrower yard the desktop switch keeps its icon and its words go to the tooltip |
 | Yard, bottom | The tools as one floating row: **Treat**, **Let them chat** · **Plant a seed** (with the seed count), **Album** · **Games** (a menu; while a game is on it reads "End …") | In a narrow yard the tools keep their icons and drop their names; friends stand clear of them |
 | Yard, in the scene | Friends (pat, drag, the name tag to talk; hearts on the tag for friendship), plants (click to water, right-click to pull), gifts (drag, right-click to put away), the lake (click to fish), butterflies, dragonflies and fireflies (click to catch) | A hand cursor shows over what can be caught |
-| Side panel | Friend (friendship, chat, friend settings) and Invite open beside the yard | A friend is talked to where it can be seen, and a new friend arrives in view |
+| Side panel | Friend and Invite open beside the yard. The Friend panel is laid out like a messenger: the friend's name, its state and friendship at the top with a **⋯** menu (Friend settings, AI connection, Clear chat, Send away); the conversation filling the panel; the composer at the bottom with the AI the friend talks with and **Bring friends in** | A friend is talked to where it can be seen, and a new friend arrives in view |
 | Settings sheet | General (language, start at login), The yard (let them chat, yard sounds and their volume), Coding agents, About and Quit, with an index of the sections | Nothing in Settings needs a view of the yard (what changes the scene, the time of day and the weather, is in the yard's own menu), so it opens wide over the yard and the yard keeps its size; a click beside it or Esc closes it |
 | Album | Four books: Flowers, Fish, Bugs, Gifts, with the total found | Opened from the tools |
 
@@ -34,6 +34,8 @@ Features were added one at a time (scenery pickers, a greet button, games, a gar
 | Shortcuts | ⌘/Ctrl+1 Friend, +2 Invite, +, Settings, +Shift+M Mini view, +Shift+D Show on desktop, +Shift+S yard sounds; on macOS the menu bar takes the switches' keys, elsewhere the page does |
 
 ## What changed
+
+- 2026-10-10: Desktop mode and the mini view left the top bar for the yard's view controls; the Friend panel became a messenger layout, with what is done to the friend in its menu and the AI picker and group chat in the composer.
 
 - The caption bar and the toolbar became chips and a floating row over the scene; the two always-shown pickers became the scene label's menu.
 - The greet button was removed (it did little anyone would miss); games moved into one menu.

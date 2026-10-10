@@ -55,7 +55,7 @@ Interactive things (friends, plants, decorations) are drawn in flat colour with 
 | Kinds | twelve fish, nine bugs, each with seasons, times of day and a rarity; rain brings up catfish and eels; a fish's size differs every time | a reason to look again in another season and hour; records to beat |
 | Album | four books: flowers (counted by the backend the first time a plant blooms, `bloomed`), fish, bugs, gifts (the garden's `received`); found ones with a count and the biggest fish, the others as silhouettes with when and where to look | the garden, the gifts and the catches read as one collection; a visible goal that grows with the year |
 
-The page owns the catalogue (`src/yard/catalog.js`) and decides what was caught; the backend keeps the album (`state.json` key `album`, `src-tauri/src/pets/album.rs`) and refuses what could not be a catch (an unknown shape of name, a fish longer than 3 m). Drawings come from each kind's description (`src/yard/creatures.js`), in the same flat colours as the decorations.
+The catalogue is `src/content/catalog.json`, read by the page (`src/yard/catalog.js`, which decides what was caught) and built into the backend (`src-tauri/src/pets/content.rs`); the backend keeps the album (`state.json` key `album`, `src-tauri/src/pets/album.rs`) and refuses what could not be a catch (a kind the catalogue does not have, a fish longer than its kind grows). Fish and bugs are drawn from each kind's look (`src/yard/creatures.js`), in the same flat colours as the decorations. Since 2026-10-10: [Yard content as data](2026-10-10-yard-content-as-data.md).
 
 ## Rules (fourth piece: friendship)
 

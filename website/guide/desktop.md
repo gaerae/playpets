@@ -10,7 +10,7 @@ You can send your friends out of the yard window to live on the desktop. They st
 
 ## Turning it on and off <Since v="0.1.0" />
 
-Click **Show on desktop** at the top of the yard window. The button is disabled when you have no friends. It is a switch: while it is on the button stays pressed (as the tray's check mark shows), and a **Stroll around the desktop** toggle appears next to it. Click it again to bring your friends back.
+Click **Show on desktop** among the view controls at the top right of the yard, next to the clock. The button is disabled when you have no friends. It is a switch: while it is on the button stays pressed (as the tray's check mark shows), and a **Stroll** switch appears next to it. Click it again to bring your friends back.
 
 The tray icon's menu has the same items, so you can turn it on and off without opening the yard window.
 

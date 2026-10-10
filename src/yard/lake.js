@@ -1,6 +1,6 @@
 // The lake in the valley between the hills, mirroring the sky.
 import { bumpy, css, dot, fillShape, gauss, light, mix, shade, vertical } from './brush.js';
-import { heightAt, LAKE } from './layout.js';
+import { composition, heightAt } from './layout.js';
 import { strand } from './trees.js';
 
 /**
@@ -10,9 +10,10 @@ import { strand } from './trees.js';
  */
 export function lake(ctx, w, h, pal, rng, lit, back) {
   // The far shore: a low arch from the ridge at one end to the ridge at the other.
-  const x0 = LAKE.from * w,
-    x1 = LAKE.to * w,
-    top = LAKE.top * h,
+  const { from, to, top: far } = composition.lake,
+    x0 = from * w,
+    x1 = to * w,
+    top = far * h,
     shore = [];
   for (let k = 0; k <= 24; k++) {
     const f = k / 24,

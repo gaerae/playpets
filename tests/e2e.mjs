@@ -173,7 +173,8 @@ const scenario = `(async()=>{
     await playPets.catch('fish','carp',41.5);await playPets.catch('fish','carp',33);const tooBig=await playPets.catch('fish','carp',999);
     await until(async()=>(await playPets.bootstrap()).data.album?.fish?.carp?.count===2);
     $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);document.querySelector('.album-tabs [data-book=fish]').click();
-    const albumOk=document.querySelectorAll('.album-card').length===12&&document.querySelector('[data-count=fish]').textContent.endsWith('/12')&&document.querySelectorAll('.album-card:not(.unknown)').length===1&&(await playPets.bootstrap()).data.album.fish.carp.best===41.5&&tooBig.ok===false;
+    const fishKinds=(await import('./yard/catalog.js')).FISH.length;
+    const albumOk=document.querySelectorAll('.album-card').length===fishKinds&&document.querySelector('[data-count=fish]').textContent.endsWith('/'+fishKinds)&&document.querySelectorAll('.album-card:not(.unknown)').length===1&&(await playPets.bootstrap()).data.album.fish.carp.best===41.5&&tooBig.ok===false;
     $('album-dialog').close();
     await L('album='+(albumOk?'kept-and-shown':'err:'+JSON.stringify((await playPets.bootstrap()).data.album)));
     // Friendship: the backend decides what a thing is worth and caps a day; hearts show on the name tag.
@@ -207,6 +208,17 @@ const scenario = `(async()=>{
     const tagger=document.querySelectorAll('.yard-pet.tagger').length;playing().click();
     document.querySelector('[data-game=parade]').click();await wait(400);const parading=gameLabel();playing().click();
     await L('games='+tagger+'/'+parading+'/'+gameLabel());
+    // A walk to the lake ends when a game takes the friend, and the lake can be fished again after.
+    const {onLake}=await import('./yard/catch.js'),st=await import('./core/state.js'),lakeBox=$('yard').getBoundingClientRect(),lx=lakeBox.width*0.52;
+    let ly=0;for(let y=0;y<lakeBox.height&&!ly;y+=2)if(onLake(lx,y))ly=y+6;
+    const clickLake=()=>$('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:lakeBox.left+lx,clientY:lakeBox.top+ly}));
+    const toLake=()=>[...st.views.values()].filter(v=>v.trip?.cancel).length;
+    const fishFor=()=>until(()=>{if(!toLake())clickLake();return toLake();},8000);
+    const first=await fishFor();
+    document.querySelector('[data-game=tag]').click();await wait(200);const during=toLake();playing().click();
+    await until(()=>[...st.views.values()].every(v=>!v.away),8000);const again=await fishFor();
+    await L('lakeAgain='+first+'/'+during+'/'+again);
+    (await import('./yard/catch.js')).endFishing();
     // The page fits its window exactly: no scrollbar, full size or mini.
     const fits=()=>document.body.scrollHeight<=document.body.clientHeight&&document.body.scrollWidth<=document.body.clientWidth;
     const fitsFull=fits();
@@ -228,7 +240,8 @@ const scenario = `(async()=>{
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
     await until(()=>!document.body.classList.contains('mini')&&innerWidth===wide);await wait(300);
     const chatFromMini=!document.body.classList.contains('mini')&&!$('panel-pet').hidden;
-    const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().top,z:Number(b.style.zIndex)%200}));
+    // By where the feet are (the bottom), since friends of different sizes have their tops elsewhere.
+    const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().bottom,z:Number(b.style.zIndex)%200}));
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true));
     await L('reach='+(chatFromMini?'mini-to-chat':'err-mini')+'/'+(layered?'layered':'err-order'));
     // A friend's name tag is the way to talk: a click on it (not a drag) opens the conversation.
@@ -457,6 +470,7 @@ const expect = [
   ],
   [/^mini=shrinks-and-restores$/, 'mini view (yard only, back to full size)'],
   [/^miniPlace=corner\/back$/, 'the mini window opens in the screen corner and leaving it puts the window back'],
+  [/^lakeAgain=1\/0\/1$/, 'a walk to the lake ends when a game takes the friend, and the lake can be fished again'],
   [/^talkTag=opens-chat$/, "a click on a friend's name tag opens the conversation"],
   [/^season=set$/, 'the season and the clock paint the yard'],
   [/^garden=found-planted$/, 'a found seed is planted on the field with the tool and kept'],

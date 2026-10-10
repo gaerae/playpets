@@ -12,7 +12,7 @@ Each agent can report to a friend of your choice. In the Settings tab, pick one 
 
 ## What you see in the yard <Since v="0.1.0" />
 
-A friend with an agent carries its name on the name tag (Tabby · Claude Code). The line above the yard names one busy friend, or counts them when several are busy ("2 working · 1 waiting"). The chip under the AI picker in the Friend tab shows the agents, too. The small dot by a friend's head is the agent's state: working pulses orange, waiting is blue, done is green, and trouble is red; hover it for the name. Done and trouble fade after 30 minutes; working and waiting stay until the agent reports again. The pill in the Friend tab is the agent's state too: chat answers show in the log.
+A friend with an agent carries its name on the name tag (Tabby · Claude Code). The line above the yard names one busy friend, or counts them when several are busy ("2 working · 1 waiting"). The chip under the friend's name in the Friend tab shows the agents, too. The small dot by a friend's head is the agent's state: working pulses orange, waiting is blue, done is green, and trouble is red; hover it for the name. Done and trouble fade after 30 minutes; working and waiting stay until the agent reports again. The pill in the Friend tab is the agent's state too: chat answers show in the log.
 
 ## What happens <Since v="0.1.0" />
 

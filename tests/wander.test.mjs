@@ -2,6 +2,7 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { between } from '../src/core/math.js';
 import * as wander from '../src/yard/wander.js';
 
 const rngOf = values => {
@@ -34,15 +35,15 @@ test('idle delays fall inside the configured window and scatter is quicker than 
     [scatterMin, scatterMax] = wander.SCATTER_DELAY;
   assert.ok(scatterMax <= wanderMin, 'pets leave the treat sooner than a fresh idle wander');
   assert.equal(
-    wander.delay(() => 0, wander.WANDER_DELAY),
+    between(() => 0, wander.WANDER_DELAY),
     wanderMin,
   );
   assert.equal(
-    wander.delay(() => 1, wander.WANDER_DELAY),
+    between(() => 1, wander.WANDER_DELAY),
     wanderMax,
   );
   for (let i = 0; i < 100; i++) {
-    const d = wander.delay(Math.random, wander.SCATTER_DELAY);
+    const d = between(Math.random, wander.SCATTER_DELAY);
     assert.ok(d >= scatterMin && d <= scatterMax);
   }
 });

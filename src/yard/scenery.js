@@ -5,6 +5,7 @@
 // moved. Stars are drawn once (their twinkle is the CSS layer's, yard.css). Butterflies, fireflies
 // and falling petals or leaves come in spells: they are about for a while, leave, and the canvas
 // rests until the next spell.
+import { between } from '../core/math.js';
 import { flyingBug } from './catalog.js';
 import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
 
@@ -348,7 +349,7 @@ export function createScenery(canvas, reduced) {
     if (!spellTurn) spellTurn = now + SPELL;
     if (now >= spellTurn) {
       spell = !spell;
-      spellTurn = now + (spell ? SPELL : REST[0] + Math.random() * (REST[1] - REST[0]));
+      spellTurn = now + (spell ? SPELL : between(Math.random, REST));
       if (spell) spawnLife(true);
     }
     if (critters.length) {
@@ -365,7 +366,7 @@ export function createScenery(canvas, reduced) {
       moved = true;
     } else if (clear() && period !== 'night' && now >= nextFlock) {
       if (nextFlock) launchFlock(now);
-      nextFlock = now + FLOCK_GAP[0] + Math.random() * (FLOCK_GAP[1] - FLOCK_GAP[0]);
+      nextFlock = now + between(Math.random, FLOCK_GAP);
     }
     if (stars.length) {
       if (streak && now - streak.since >= streak.life) {

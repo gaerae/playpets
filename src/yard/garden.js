@@ -3,42 +3,31 @@
 // garden and its limits (src-tauri/src/pets/garden.rs). Plants are drawn once and looked at again
 // once a minute; nothing here moves on its own.
 
-import { confirmAction } from '../core/confirm.js';
 import { list, t } from '../core/i18n.js';
-import { clamp, pick } from '../core/math.js';
+import { pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, toast, views } from '../core/state.js';
+import { cadence } from '../core/ticker.js';
+import { artHref, artSize, colorStyle } from './art.js';
 import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
+import { flowerKind, STAGES } from './catalog.js';
 import { flowerSvg } from './creatures.js';
+import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { flowerFor, hoursMinutes, nextFind, stageOf, untilBloom } from './growth.js';
-import { scene } from './sky.js';
+import { askToRemove, propButton, propScale, reconcile, setDown } from './props.js';
 import { cue } from './sound.js';
-import {
-  bubble,
-  effect,
-  field,
-  fieldToYard,
-  footTarget,
-  nearestFree,
-  petHeight,
-  pose,
-  rest,
-  sizeOf,
-  yardToField,
-} from './views.js';
+import { bubble, cheer, effect, isFree, nearestFree, release, rest, sendTo } from './views.js';
+import { scene } from './world.js';
 
-// A plant's box at full size; it shrinks with the yard as friends do.
-const PLANT_W = 50,
-  PLANT_H = 75;
-// Some flowers stand taller than others once grown.
-const STATURE = { sunflower: 1.4, camellia: 1.15 };
+// Yard pixels per unit of a plant's drawing at full size; it shrinks with the yard as friends do.
+const UNIT = 1.25;
 const shown = new Map();
-let scale = 1;
 const seedsFull = () => (data.garden?.seeds ?? 0) >= (data.limits?.seeds ?? 20);
 
-function symbolOf(plant, stage) {
-  return stage === 'bloom' ? `bloom-${plant.kind}` : stage;
+// What a plant is drawn with at a stage: the stage's drawing, or in bloom its flower's.
+function artAt(plant, stage) {
+  return STAGES.find(s => s.name === stage)?.art || flowerKind(plant.kind)?.art || '';
 }
 function wait(ms) {
   const { hours, minutes } = hoursMinutes(ms);
@@ -51,11 +40,10 @@ function label(plant, now) {
   return left ? `${what} · ${t('garden.until', { time: wait(left) })}` : what;
 }
 function create(plant) {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'plant';
-  button.dataset.kind = plant.kind;
-  button.innerHTML = '<svg viewBox="0 0 40 60" aria-hidden="true"><use/></svg>';
+  const button = propButton('plant', plant.kind);
+  // The flower's colours, for the bud and the bloom.
+  button.style.cssText = colorStyle(flowerKind(plant.kind)?.colors);
+  button.innerHTML = '<svg aria-hidden="true"><use/></svg>';
   // A click waters it (the nearest friend walks over); placing a seed, the click plants there.
   button.addEventListener('click', e => {
     if (aiming) return;
@@ -69,44 +57,32 @@ function create(plant) {
   button.addEventListener('keydown', e => {
     if (e.key === 'Delete' || e.key === 'Backspace') pull(plant.id);
   });
-  $('garden-layer').append(button);
-  return { button, use: button.querySelector('use'), symbol: '' };
+  return { button, svg: button.querySelector('svg'), use: button.querySelector('use'), art: '' };
 }
 /** Brings the field in line with the backend's garden, at the stage the clock says. */
 export function renderGarden(now = Date.now()) {
-  const plants = data.garden?.plants || [];
-  for (const [id, v] of shown)
-    if (!plants.some(p => p.id === id)) {
-      v.button.remove();
-      shown.delete(id);
-    }
-  scale = clamp(field().height / 560, 0.5, 1);
-  for (const plant of plants) {
-    let v = shown.get(plant.id);
-    if (!v) {
-      v = create(plant);
-      shown.set(plant.id, v);
-    }
+  const scale = propScale();
+  reconcile(shown, data.garden?.plants || [], create, (v, plant) => {
     const stage = stageOf(plant.planted, now).name,
-      symbol = symbolOf(plant, stage);
+      art = artAt(plant, stage);
     if (stage === 'bloom' && !plant.bloomed) bloomed(plant);
-    if (v.symbol !== symbol) {
-      v.symbol = symbol;
-      v.use.setAttribute('href', `#plant-${symbol}`);
+    if (v.art !== art) {
+      v.art = art;
+      v.use.setAttribute('href', artHref(art));
+      v.svg.setAttribute('viewBox', `0 0 ${artSize(art).join(' ')}`);
       v.button.dataset.stage = stage;
     }
-    const { x, y } = fieldToYard(plant),
-      tall = stage === 'bloom' || stage === 'bud' ? STATURE[plant.kind] || 1 : 1,
-      w = PLANT_W * scale * tall,
-      h = PLANT_H * scale * tall;
-    v.button.style.width = `${w}px`;
-    v.button.style.height = `${h}px`;
-    v.button.style.transform = `translate(${x - w / 2}px,${y - h}px)`;
+    // Some flowers stand taller than others once grown (catalog.json "stature").
+    const [aw, ah] = artSize(art),
+      { x, y } = fieldToYard(plant),
+      tall = stage === 'bloom' || stage === 'bud' ? flowerKind(plant.kind)?.stature || 1 : 1,
+      w = aw * UNIT * scale * tall,
+      h = ah * UNIT * scale * tall;
     // Nearer the front, drawn over the ones behind it.
-    v.button.style.zIndex = String(1 + Math.round(plant.y * 100));
+    setDown(v.button, x, y, w, h, 1 + Math.round(plant.y * 100));
     v.button.title = label(plant, now);
     v.button.setAttribute('aria-label', v.button.title);
-  }
+  });
   syncTool();
 }
 // A flower is counted in the album once (the backend keeps which were); the first of its kind
@@ -131,87 +107,78 @@ function syncTool() {
 }
 
 // Sends a friend to stand just beside a plant (left or right of it, whichever is nearer).
-function walkTo(v, plant, kind) {
+function walkTo(v, plant, trip) {
   const { x, y } = fieldToYard(plant),
     side = v.px + sizeOf(v.pet) / 2 < x ? -1 : 1;
-  v.target = footTarget(v, x + side * sizeOf(v.pet) * 0.55, y);
-  v.targetKind = kind;
+  sendTo(v, footTarget(v, x + side * sizeOf(v.pet) * 0.55, y), trip);
 }
 function water(id) {
   const plant = data.garden?.plants.find(p => p.id === id);
   if (!plant || game) return;
   const { x, y } = fieldToYard(plant);
   const v = nearestFree(x, y);
-  if (v) walkTo(v, plant, 'water');
+  if (v) walkTo(v, plant, { arrive: watered });
 }
-/** Called by the frame loop when a friend reaches the plant it was sent to water. */
-export function watered(v) {
+// A friend reached the plant it was sent to water.
+function watered(v) {
   befriend(v.pet.id, 'water');
   cue('water');
-  pose(v, 'wave', 1300);
-  effect(v, '✦');
-  bubble(v, pick(list('garden.water')), 3000);
+  cheer(v, 'garden.water', { as: 'wave', ms: 1300 });
 }
-/** Called when a friend reaches a flower it went to look at on its own. */
-export function visited(v) {
+// A friend reached a flower it went to look at on its own.
+function visited(v) {
   if (Math.random() < 0.5) bubble(v, pick(list('garden.visit')), 3000);
 }
 /** Now and then an idle friend goes to look at a flower instead of strolling: the target, or null. */
 export function visitTarget(v) {
   const blooms = (data.garden?.plants || []).filter(p => stageOf(p.planted, Date.now()).name === 'bloom');
   if (!blooms.length || Math.random() > 0.3) return null;
-  walkTo(v, pick(blooms), 'visit');
+  walkTo(v, pick(blooms), { arrive: visited, slow: true });
   return v.target;
 }
 const pull = guard(async id => {
   const plant = data.garden?.plants.find(p => p.id === id);
   if (!plant) return;
   const kind = t(`garden.kind_${plant.kind}`);
-  const sure = await confirmAction({
-    title: t('garden.pull_confirm', { kind }),
-    body: t('garden.pull_body'),
-    action: t('garden.pull'),
-  });
-  if (sure) await call('pullPlant', id);
+  if (await askToRemove(t('garden.pull_confirm', { kind }), t('garden.pull_body'), t('garden.pull')))
+    await call('pullPlant', id);
 });
 
 // Finding seeds: an idle friend, now and then, leaves one at its feet. A click picks it up; left
 // alone, the friend pockets it after a while, so nothing is missed by not watching.
 const POCKET_AFTER = 90 * 1000;
 const RETRY_MS = 15 * 1000;
-let nextFindAt = 0,
-  lying = null;
-function collect(how) {
+let lying = null;
+// The first find of a new yard comes soon (growth.js); the rest at the usual gaps.
+let looked = false;
+const finds = cadence(() => {
+  const first = !looked && !(data.garden?.seeds || data.garden?.plants?.length);
+  looked = true;
+  return nextFind(Math.random, first);
+});
+function collect() {
   if (!lying) return;
   const { node, timer } = lying;
   lying = null;
   clearTimeout(timer);
   node.remove();
   call('findSeed').catch(() => {});
-  return how;
 }
 /** Called by the frame loop while the yard is seen and no game is on. */
 export function gardenTick(now) {
-  const first = !(data.garden?.seeds || data.garden?.plants?.length);
-  if (!nextFindAt) nextFindAt = now + nextFind(Math.random, first);
-  if (now < nextFindAt || lying) return;
+  if (lying || !finds.due(now)) return;
   // Anyone strolling about can find one; with nobody free right now, look again shortly.
-  const free = [...views.values()].filter(v => !v.drag && !v.away);
-  if (seedsFull() || !free.length) {
-    nextFindAt = now + RETRY_MS;
-    return;
-  }
+  const free = [...views.values()].filter(v => isFree(v) || v.trip?.slow);
+  if (seedsFull() || !free.length) return finds.after(now, RETRY_MS);
   // A best friend (level 4) finds seeds more often, and is the one who finds them when it can.
   const keen = free.filter(f => levelOf(f.pet.id) >= 4);
-  nextFindAt = now + nextFind(Math.random) * (keen.length ? 0.6 : 1);
+  if (keen.length) finds.after(now, nextFind(Math.random) * 0.6);
   const v = pick(keen.length ? keen : free);
   // It stops where it found it, so the seed lies at its feet.
-  v.target = null;
-  v.targetKind = null;
+  release(v);
   rest(v);
-  pose(v, 'jump', 1100);
   cue('find');
-  bubble(v, pick(list('garden.found')), 3500);
+  cheer(v, 'garden.found', { mark: '', say: 3500 });
   const node = document.createElement('button');
   node.type = 'button';
   node.className = 'found-seed';
@@ -222,11 +189,11 @@ export function gardenTick(now) {
   node.style.top = `${v.py + petHeight(v.pet) - 18}px`;
   node.addEventListener('click', e => {
     e.stopPropagation();
-    collect('click');
+    collect();
     effect(v, '✦');
   });
   $('garden-layer').append(node);
-  lying = { node, timer: setTimeout(() => collect('pocket'), POCKET_AFTER) };
+  lying = { node, timer: setTimeout(collect, POCKET_AFTER) };
 }
 
 // Planting: the tool, then a click on the field. It stays on while there are seeds; Esc or the

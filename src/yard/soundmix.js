@@ -37,6 +37,8 @@ export const CUES = {
   gift: [0, 2, 3, 4],
   level: [0, 2, 3, 5, 7],
   first: [5, 7, 9],
+  // A wind chime a friend visits (effects.js).
+  chime: [3, 5, 4, 7],
 };
 const PENTATONIC = [0, 2, 4, 7, 9];
 /** The frequency of a step of the pentatonic scale above C6. */

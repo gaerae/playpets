@@ -20,19 +20,6 @@ body {
     grid-template-columns: 1fr;
   }
 }
-.desktop-controls {
-  display: flex;
-  align-items: stretch;
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  overflow: hidden;
-}
-.desktop-controls .button.secondary {
-  border: none;
-  border-radius: 0;
-  background: transparent;
-}
 .wander-toggle {
   display: flex;
   align-items: center;
@@ -239,7 +226,6 @@ html:not(.mac) body {
   width: 15px;
   height: 15px;
 }
-.desktop-controls,
 .panel-tabs {
   border-radius: 9px;
 }
@@ -304,9 +290,6 @@ html:not(.mac) body {
   }
 }
 @media (max-width: 980px) {
-  #desktop-label {
-    display: none;
-  }
   /* Tighter gaps keep the bar on one line with desktop mode's switch and an update shown (840px). */
   .topbar-end {
     gap: 6px;

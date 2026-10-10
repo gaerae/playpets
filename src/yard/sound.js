@@ -7,6 +7,7 @@
 
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
+import { between } from '../core/math.js';
 import { $, call, data, guard } from '../core/state.js';
 import { mixFor } from './soundmix.js';
 import { createSoundscape } from './soundscape.js';
@@ -14,7 +15,7 @@ import { createSoundscape } from './soundscape.js';
 let ctx = null,
   scape = null,
   awake = false,
-  seen = !document.hidden,
+  seen = true,
   touched = false,
   mix = mixFor({ period: 'day', weather: 'clear', season: 'spring' });
 const timers = new Set();
@@ -30,22 +31,26 @@ function later(ms, fn) {
   timers.add(id);
 }
 const now = () => ctx.currentTime + 0.05;
-const between = (lo, hi) => lo + Math.random() * (hi - lo);
 
 // What happens by itself while the sound plays: gusts, waves, birds, crickets, raindrops. Each
 // schedules its next time, and looks at the scene's mix when it comes.
 function gusts() {
   if (mix.leaves > 0) scape.gust(now());
-  later(between(6000, 18000), gusts);
+  later(between(Math.random, [6000, 18000]), gusts);
 }
 function waves() {
   scape.lap(now());
-  later(between(1800, 3800), waves);
+  later(between(Math.random, [1800, 3800]), waves);
 }
 function birds() {
   if (mix.birds > 0) {
     const kinds = mix.birds >= 8 ? ['tit', 'trill', 'warble', 'dove'] : ['tit', 'trill', 'warble'];
-    scape.bird(kinds[Math.floor(Math.random() * kinds.length)], now(), between(-0.8, 0.8), Math.random());
+    scape.bird(
+      kinds[Math.floor(Math.random() * kinds.length)],
+      now(),
+      between(Math.random, [-0.8, 0.8]),
+      Math.random(),
+    );
   }
   // A call every so often by the mix's rate, never two on top of each other.
   const every = mix.birds > 0 ? 60000 / mix.birds : 20000;
@@ -61,15 +66,15 @@ function cricketsTick() {
     const until = ctx.currentTime + 2.2;
     for (const c of crickets) {
       if (c.next < ctx.currentTime) c.next = now() + Math.random() * c.every;
-      for (; c.next < until; c.next += c.every * between(0.95, 1.05))
+      for (; c.next < until; c.next += c.every * between(Math.random, [0.95, 1.05]))
         scape.chirp(c.next, c.hz, c.pan, 0.022 * mix.crickets);
     }
   }
   later(2000, cricketsTick);
 }
 function drops() {
-  if (mix.rain > 0) scape.drop(now(), between(0.02, 0.06));
-  later(mix.rain > 0 ? between(120, 380) : 4000, drops);
+  if (mix.rain > 0) scape.drop(now(), between(Math.random, [0.02, 0.06]));
+  later(mix.rain > 0 ? between(Math.random, [120, 380]) : 4000, drops);
 }
 
 function wake() {
@@ -84,7 +89,7 @@ function wake() {
   scape.setMix(mix);
   scape.setVolume(volume(), ctx.currentTime, 1.2);
   for (const c of crickets) c.next = 0;
-  for (const run of [gusts, waves, birds, cricketsTick, drops]) later(between(300, 2500), run);
+  for (const run of [gusts, waves, birds, cricketsTick, drops]) later(between(Math.random, [300, 2500]), run);
 }
 function rest() {
   if (!awake) return;
@@ -166,5 +171,6 @@ export function setupSound() {
   };
   document.addEventListener('pointerdown', first, { once: true, capture: true });
   document.addEventListener('keydown', first, { once: true, capture: true });
+  seen = !document.hidden;
   document.addEventListener('visibilitychange', () => soundSeen(!document.hidden));
 }

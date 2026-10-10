@@ -7,25 +7,12 @@
 // decides the shapes and the light. Each piece has its own seed, so the yard comes out the same
 // each time it is painted again, only in other light.
 // Docs: docs/design/2026-10-09-a-painted-yard.md.
-// The pieces are painted by layout.js (where), palette.js (colours and light), trees.js,
-// lake.js and clouds.js; this file composes the land from them.
+// Where each piece goes is src/content/yard.json (layout.js reads it); the colours and light are
+// palette.js's; trees.js, lake.js and clouds.js paint the pieces; this file has a painter for each
+// kind of layer and paints the layers the composition lists.
 import { bumpy, css, dot, fillShape, flat, gauss, light, mix, seeded, shade, vertical } from './brush.js';
 import { lake } from './lake.js';
-import {
-  BACK,
-  BIG_TREE,
-  down,
-  FAR,
-  FAR_CEDARS,
-  FAR_PEAKS,
-  FRONT,
-  GROVES,
-  heightAt,
-  NEAR_PEAKS,
-  range,
-  STANDING,
-  trace,
-} from './layout.js';
+import { composition, down, heightAt, range, trace } from './layout.js';
 import { lightFor, tones, weathered } from './palette.js';
 import { bigTree, bush, canopy, rock, roundTree, sugi } from './trees.js';
 
@@ -122,122 +109,158 @@ function flowerClumps(ctx, w, h, pal, rng, places) {
   }
 }
 
-/** The land: mountains, the far hill with its groves and lake, the field, the big tree. */
+// Each layer of the composition (yard.json "layers") names its painter here. A painter gets the
+// layer's own settings and what all of them share (`k`: the size, the colours, the light, the
+// scene, the traced curves). Moving, adding or taking out a tree, a grove or a hill is a change to
+// yard.json; a new kind of thing to paint is a new painter here (or a new thing in THINGS).
+const THINGS = {
+  tree: (ctx, x, y, H, k, rng) => roundTree(ctx, x, y, H, k.pal, rng, k.lit, 'crown', k.extras),
+  maple: (ctx, x, y, H, k, rng) => roundTree(ctx, x, y, H, k.pal, rng, k.lit, 'maple', k.extras),
+  bush: (ctx, x, y, H, k, rng) => bush(ctx, x, y, H, k.pal, rng, k.lit, k.extras),
+  rock: (ctx, x, y, H, k, rng) => rock(ctx, x, y, H, k.pal, rng, k.lit, k.extras),
+  cedar: (ctx, x, y, H, k, rng) => sugi(ctx, x, y, H, k.pal, rng, k.lit, k.extras),
+};
+const PAINTERS = {
+  /** A mountain range through `peaks`, in `tone` hazed by `haze`, snow-capped `snowcap`. */
+  mountains(ctx, l, k) {
+    mountains(ctx, k.w, k.h, l.peaks, mix(k.pal[l.tone], k.haze, l.haze), seeded(l.seed), k.when(l.snowcap), k.haze);
+  },
+  /** Woods along a ridge seen from afar, with groves rising from behind it (`groves`: [x, size]). */
+  woods(ctx, l, k) {
+    const ridge = k.curve(l.along),
+      rng = seeded(l.seed),
+      tint = c => mix(c, k.haze, l.haze),
+      t = k.leaves,
+      far = { deep: tint(t.deep), dark: tint(t.dark), body: tint(t.body), glow: tint(t.glow) };
+    woods(
+      ctx,
+      ridge.map(([x, y]) => [x, y + k.h * (l.lower || 0)]),
+      k.w,
+      k.h,
+      k.pal,
+      rng,
+      k.lit,
+      k.haze,
+      l.haze,
+      k.extras.cap,
+    );
+    for (const [gx, size] of l.groves || []) {
+      const x = gx * k.w,
+        R = size * k.h;
+      canopy(ctx, x, heightAt(ridge, x) - R * 0.35, R, far, rng, k.lit, k.extras.cap);
+    }
+  },
+  /** A hill below a curve, coloured from `from` to `to` (fractions of the height) through `stops`. */
+  hill(ctx, l, k) {
+    fillShape(
+      ctx,
+      down(k.curve(l.curve), k.h),
+      vertical(
+        ctx,
+        k.h * l.from,
+        k.h * l.to,
+        l.stops.map(([at, c]) => [at, k.tone(c)]),
+      ),
+    );
+  },
+  /** A hedgerow along a hill, as fields are divided in the country. */
+  hedgerow(ctx, l, k) {
+    const { w, h, pal } = k;
+    ctx.strokeStyle = css(mix(pal.far, k.leaves.dark, 0.55));
+    ctx.lineWidth = Math.max(1.5, h * 0.006);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    for (const [i, [x, y]] of k.curve(l.along).entries()) {
+      const yy = y + h * 0.03 + Math.sin(x / (w * 0.12)) * h * 0.004;
+      i ? ctx.lineTo(x, yy) : ctx.moveTo(x, yy);
+    }
+    ctx.stroke();
+  },
+  /** Cedars standing on a hill, small at that distance (`at`: [x, size]). */
+  cedars(ctx, l, k) {
+    const ridge = k.curve(l.along),
+      rng = seeded(l.seed);
+    for (const [cx, size] of l.at)
+      sugi(ctx, cx * k.w, heightAt(ridge, cx * k.w) + k.h * 0.012, size * k.h, k.pal, rng, k.lit, k.extras);
+  },
+  /** The lake (where it is: yard.json "lake"). */
+  lake(ctx, l, k) {
+    lake(ctx, k.w, k.h, k.pal, seeded(l.seed), k.lit, k.curve(composition.lake.under));
+  },
+  /** Broad bands across a hill, a shade lighter or darker. */
+  bands(ctx, l, k) {
+    bands(ctx, k.curve(l.along), k.h, k.pal[l.tone], k.lit, seeded(l.seed));
+  },
+  /** A thin line of light along a ridge. */
+  ridgeLight(ctx, l, k) {
+    ctx.strokeStyle = css(light(k.pal['back-hi'], 0.3), 0.5 + k.lit.strength * 0.3);
+    ctx.lineWidth = Math.max(1, k.h * 0.003);
+    ctx.beginPath();
+    for (const [i, [x, y]] of k.curve(l.along).entries()) i ? ctx.lineTo(x, y + 1) : ctx.moveTo(x, y + 1);
+    ctx.stroke();
+  },
+  /** Things standing on the field (`things`: kind, x, foot y, height), the farther ones first. */
+  standing(ctx, l, k) {
+    [...l.things]
+      .sort((a, b) => a.y - b.y)
+      .forEach((t, i) => {
+        const paint = THINGS[t.kind] || THINGS.tree;
+        paint(ctx, t.x * k.w, t.y * k.h, t.h * k.h, k, seeded(l.seed + i * 17));
+      });
+  },
+  /** Clumps of flowers (`at`: x, y, size). */
+  flowers(ctx, l, k) {
+    flowerClumps(ctx, k.w, k.h, k.pal, seeded(l.seed), l.at);
+  },
+  /** The big tree that frames the yard; smaller in a narrow yard, so it frames rather than fills. */
+  bigTree(ctx, l, k) {
+    const roomy = Math.min(1, k.w / k.h / 1.9);
+    bigTree(ctx, l.x * k.w, l.y * k.h, l.h * k.h * (0.55 + 0.45 * roomy), k.pal, seeded(l.seed), k.lit, k.extras);
+  },
+  /** Low shrubs (`at`: x, size) along a line (`y`), such as the near corners. */
+  bushes(ctx, l, k) {
+    const rng = seeded(l.seed);
+    for (const [x, size] of l.at) bush(ctx, x * k.w, k.h * l.y, k.h * size, k.pal, rng, k.lit, k.extras);
+  },
+};
+
+/** The painters a layer can name, and the things that can stand on the field (for the tests). */
+export const PAINTER_NAMES = Object.keys(PAINTERS),
+  THING_KINDS = Object.keys(THINGS);
+
+/** The land, painted layer by layer as the composition (yard.json) lists them. */
 export function paintLand(ctx, w, h, palette, { period, weather, season }) {
   const pal = weathered(palette, weather),
     lit = lightFor(period, weather),
     snowy = weather === 'snow',
-    bloomy = season !== 'winter' && !snowy,
-    extras = { cap: pal.cap, blossom: season === 'spring' && !snowy },
-    haze = pal['sky-b'],
-    leaves = tones([pal['leaf-hi'], pal.leaf, pal['leaf-lo']], lit);
-  mountains(ctx, w, h, FAR_PEAKS, mix(pal['mount-b'], haze, 0.15), seeded(31), snowy || season === 'winter', haze);
-  mountains(ctx, w, h, NEAR_PEAKS, mix(pal['mount-a'], haze, 0.1), seeded(37), snowy, haze);
-
-  // The far hill: groves rising from behind it with low woods between them, then the hill itself.
-  const far = trace(FAR, w, h),
-    grng = seeded(41),
-    tint = c => mix(c, haze, 0.22),
-    farLeaves = { deep: tint(leaves.deep), dark: tint(leaves.dark), body: tint(leaves.body), glow: tint(leaves.glow) };
-  woods(
-    ctx,
-    far.map(([x, y]) => [x, y + h * 0.008]),
+    traced = new Map();
+  // A condition a layer can name: a weather, a season or a time of day, or "bloomy" (flowers out).
+  const holds = c => c === weather || c === season || c === period || (c === 'bloomy' && season !== 'winter' && !snowy);
+  const tone = c =>
+    typeof c === 'string'
+      ? pal[c]
+      : c.mix
+        ? mix(tone(c.mix[0]), tone(c.mix[1]), c.mix[2])
+        : c.shade
+          ? shade(tone(c.shade[0]), c.shade[1])
+          : light(tone(c.light[0]), c.light[1]);
+  const k = {
     w,
     h,
     pal,
-    grng,
     lit,
-    haze,
-    0.22,
-    extras.cap,
-  );
-  for (const [gx, size] of GROVES) {
-    const x = gx * w,
-      R = size * h;
-    canopy(ctx, x, heightAt(far, x) - R * 0.35, R, farLeaves, grng, lit, extras.cap);
+    haze: pal['sky-b'],
+    leaves: tones([pal['leaf-hi'], pal.leaf, pal['leaf-lo']], lit),
+    extras: { cap: pal.cap, blossom: season === 'spring' && !snowy },
+    tone,
+    when: c => (Array.isArray(c) ? c.some(holds) : !!c && holds(c)),
+    curve: name => {
+      if (!traced.has(name)) traced.set(name, trace(composition.curves[name], w, h));
+      return traced.get(name);
+    },
+  };
+  for (const layer of composition.layers) {
+    if (layer.when && !k.when(layer.when)) continue;
+    PAINTERS[layer.paint]?.(ctx, layer, k);
   }
-  fillShape(
-    ctx,
-    down(far, h),
-    vertical(ctx, h * 0.44, h * 0.62, [
-      [0, pal['far-hi']],
-      [1, pal.far],
-    ]),
-  );
-  // A hedgerow along the far hill, as fields are divided in the country.
-  ctx.strokeStyle = css(mix(pal.far, leaves.dark, 0.55));
-  ctx.lineWidth = Math.max(1.5, h * 0.006);
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  for (const [k, [x, y]] of far.entries()) {
-    const yy = y + h * 0.03 + Math.sin(x / (w * 0.12)) * h * 0.004;
-    k ? ctx.lineTo(x, yy) : ctx.moveTo(x, yy);
-  }
-  ctx.stroke();
-  const crng = seeded(43);
-  for (const [cx, size] of FAR_CEDARS)
-    sugi(ctx, cx * w, heightAt(far, cx * w) + h * 0.012, size * h, pal, crng, lit, extras);
-  const back = trace(BACK, w, h);
-  lake(ctx, w, h, pal, seeded(73), lit, back);
-
-  // The near hill: the field friends stand on.
-  fillShape(
-    ctx,
-    down(back, h),
-    vertical(ctx, h * 0.53, h, [
-      [0, pal['back-hi']],
-      [0.5, pal.back],
-      [1, shade(pal.back, 0.05)],
-    ]),
-  );
-  bands(ctx, back, h, pal.back, lit, seeded(47));
-  ctx.strokeStyle = css(light(pal['back-hi'], 0.3), 0.5 + lit.strength * 0.3);
-  ctx.lineWidth = Math.max(1, h * 0.003);
-  ctx.beginPath();
-  for (const [i, [x, y]] of back.entries()) i ? ctx.lineTo(x, y + 1) : ctx.moveTo(x, y + 1);
-  ctx.stroke();
-  [...STANDING]
-    .sort((a, b) => a.y - b.y)
-    .forEach((t, i) => {
-      const rng = seeded(101 + i * 17),
-        x = t.x * w,
-        y = t.y * h,
-        H = t.h * h;
-      if (t.kind === 'bush') bush(ctx, x, y, H, pal, rng, lit, extras);
-      else if (t.kind === 'rock') rock(ctx, x, y, H, pal, rng, lit, extras);
-      else roundTree(ctx, x, y, H, pal, rng, lit, t.kind === 'maple' ? 'maple' : 'crown', extras);
-    });
-  if (bloomy)
-    flowerClumps(ctx, w, h, pal, seeded(57), [
-      [0.17, 0.635, 1],
-      [0.8, 0.765, 0.9],
-    ]);
-
-  // The front of the field, the path coming in, and the big tree at the edge.
-  const front = trace(FRONT, w, h);
-  fillShape(
-    ctx,
-    down(front, h),
-    vertical(ctx, h * 0.72, h, [
-      [0, mix(pal.back, pal['front-hi'], 0.6)],
-      [0.4, pal.front],
-      [1, shade(pal.front, 0.12)],
-    ]),
-  );
-  if (bloomy)
-    flowerClumps(ctx, w, h, pal, seeded(59), [
-      [0.35, 0.97, 1.4],
-      [0.62, 0.87, 1],
-    ]);
-  // In a narrow yard (beside an open panel) the big tree is smaller, so it frames rather than fills.
-  const roomy = Math.min(1, w / h / 1.9);
-  bigTree(ctx, BIG_TREE.x * w, BIG_TREE.y * h, BIG_TREE.h * h * (0.55 + 0.45 * roomy), pal, seeded(63), lit, extras);
-  // Low shrubs in the near corners, framing the bottom of the yard.
-  const corner = seeded(61);
-  for (const [x, size] of [
-    [0.03, 0.1],
-    [0.1, 0.065],
-    [0.93, 0.08],
-  ])
-    bush(ctx, x * w, h * 1.02, h * size, pal, corner, lit, extras);
 }

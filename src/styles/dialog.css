@@ -244,6 +244,7 @@ input[type="range"] {
   overflow-y: auto;
 }
 .album-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -267,4 +268,16 @@ input[type="range"] {
 }
 .album-card.unknown strong {
   color: var(--muted);
+}
+/* A kind that comes seldom says so in its corner, found or not. */
+.album-rare {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: #fbefd2;
+  color: #a2741c;
+  font-size: 10px;
+  font-weight: 700;
 }

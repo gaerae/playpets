@@ -1,16 +1,20 @@
 // One frame of yard life: friends walk to where they are headed, idle ones entertain themselves.
+// What happens when a friend arrives belongs to whoever sent it (views.js sendTo).
 
 import { t } from '../core/i18n.js';
+import { between } from '../core/math.js';
 import { crown, drawSprite, reduced } from '../core/sprites.js';
 import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
-import { ate } from './care.js';
-import { fishArrived } from './catch.js';
-import { decorTarget, decorVisited } from './decor.js';
-import { visited, visitTarget, watered } from './garden.js';
-import { arrived } from './play.js';
-import { petHeight, place, pose } from './views.js';
-import { delay, idleAction, WANDER_DELAY, wanderTarget } from './wander.js';
+import { decorTarget } from './decor.js';
+import { petHeight } from './field.js';
+import { visitTarget } from './garden.js';
+import { place, pose, sendTo } from './views.js';
+import { idleAction, WANDER_DELAY, wanderTarget } from './wander.js';
+
+// How far a friend walks in a millisecond, in field units: strolling, and going somewhere.
+const STROLL = 0.00022,
+  WALK = 0.0005;
 export function moveFriends(now, dt) {
   for (const [id, v] of views) {
     if (v.target && !v.drag && !v.frozen) {
@@ -18,40 +22,28 @@ export function moveFriends(now, dt) {
         dy = v.target.y - v.y;
       const distance = Math.hypot(dx, dy);
       if (distance < 0.012 || reduced.matches) {
-        const kind = v.targetKind;
+        const trip = v.trip;
         v.x = v.target.x;
         v.y = v.target.y;
         v.target = null;
-        v.targetKind = null;
-        if (kind === 'treat') ate(v, now);
-        else if (kind === 'water') watered(v);
-        else if (kind === 'fish') fishArrived(v);
+        v.trip = null;
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
-        if (kind === 'home') v.away = false;
-        else if (kind === 'game') arrived(v);
-        else {
-          if (kind === 'visit') visited(v);
-          else if (kind === 'decor') decorVisited(v);
+        if (trip?.save !== false)
           call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic'))));
-        }
+        trip?.arrive?.(v, now);
       } else {
-        const step = Math.min(
-          1,
-          (dt * (v.speed || (['wander', 'visit', 'decor'].includes(v.targetKind) ? 0.00022 : 0.0005))) / distance,
-        );
+        const step = Math.min(1, (dt * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
         v.x += dx * step;
         v.y += dy * step;
         pose(v, dx >= 0 ? 'right' : 'left', 150);
       }
       place(v);
-    } else if (!v.drag && !aiming && !game && !v.away && !reduced.matches && now >= v.nextWander) {
+    } else if (!v.drag && !v.doing && !aiming && !game && !v.away && !reduced.matches && now >= v.nextWander) {
       const action = idleAction(Math.random);
       if (action.type === 'pose') pose(v, action.pose, 1200);
-      else if (!visitTarget(v) && !decorTarget(v)) {
-        v.target = wanderTarget({ x: v.x, y: v.y }, Math.random);
-        v.targetKind = 'wander';
-      }
-      v.nextWander = now + delay(Math.random, WANDER_DELAY);
+      else if (!visitTarget(v) && !decorTarget(v))
+        sendTo(v, wanderTarget({ x: v.x, y: v.y }, Math.random), { slow: true });
+      v.nextWander = now + between(Math.random, WANDER_DELAY);
     }
     const status = data.statuses[id]?.state || 'idle';
     const state = now < v.until ? v.pose : status;

@@ -9,6 +9,7 @@
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
 import { $, call, data, name, selected, views } from '../core/state.js';
+import { cadence } from '../core/ticker.js';
 import { showCard } from './card.js';
 import { heartSvg } from './creatures.js';
 import { localDay } from './growth.js';
@@ -47,13 +48,10 @@ export function befriend(id, reason) {
 }
 
 // Time together: every ten minutes the yard is seen, each friend in it.
-let nextTime = 0;
+const together = cadence(() => TIME_EVERY);
 /** Called by the frame loop while the yard is seen. */
 export function bondTick(now) {
-  if (!nextTime) nextTime = now + TIME_EVERY;
-  if (now < nextTime) return;
-  nextTime = now + TIME_EVERY;
-  for (const id of views.keys()) befriend(id, 'time');
+  if (together.due(now)) for (const id of views.keys()) befriend(id, 'time');
 }
 
 // A welcome back (level 2 and up): after the app starts, and when the yard is seen again after a

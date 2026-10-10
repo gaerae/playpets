@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import './support/content.mjs';
 import { BUGS, bite, FISH, fishHere, flyingBug, weighted } from '../src/yard/catalog.js';
 
 const SEASONS = ['spring', 'summer', 'autumn', 'winter'],
@@ -52,7 +53,8 @@ test('rarer kinds come up less often, and rain brings up the fish of the deep', 
 test('bugs fly by their season and hour: none in winter, fireflies only after dark', () => {
   assert.equal(flyingBug('butterfly', 'winter', 'day', Math.random), null);
   assert.equal(flyingBug('firefly', 'summer', 'day', Math.random), null);
-  assert.equal(flyingBug('firefly', 'summer', 'night', Math.random)?.id, 'firefly');
+  assert.equal(flyingBug('firefly', 'summer', 'night', () => 0)?.kind, 'firefly');
+  assert.equal(flyingBug('firefly', 'spring', 'night', Math.random)?.id, 'firefly', 'in spring only the one kind');
   assert.equal(flyingBug('dragonfly', 'autumn', 'day', () => 0)?.id, 'red_dragonfly');
 });
 

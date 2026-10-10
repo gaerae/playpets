@@ -27,7 +27,10 @@ impl Default for Sound {
 impl Sound {
     fn restore(raw: Option<&Value>) -> Sound {
         raw.and_then(|v| serde_json::from_value::<Sound>(v.clone()).ok())
-            .map(|s| Sound { volume: s.volume.min(100), ..s })
+            .map(|s| Sound {
+                volume: s.volume.min(100),
+                ..s
+            })
             .unwrap_or_default()
     }
 }
@@ -158,6 +161,27 @@ pub fn lock(state: &Mutex<AppData>) -> MutexGuard<'_, AppData> {
     state.lock().unwrap_or_else(std::sync::PoisonError::into_inner)
 }
 
+/// A change to the state, saved and shown everywhere: `change` makes it and says what to answer.
+pub fn commit(
+    app: &AppHandle,
+    state: &Mutex<AppData>,
+    change: impl FnOnce(&mut AppData) -> Result<Value, String>,
+) -> Result<Value, String> {
+    let mut d = lock(state);
+    let answer = change(&mut d)?;
+    persist(&d)?;
+    changed(app, &d);
+    Ok(answer)
+}
+
+/// Milliseconds since 1970 by the system clock (0 if the clock is set before then).
+pub fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|t| t.as_millis() as u64)
+        .unwrap_or(0)
+}
+
 /// The state as the pages see it.
 pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
     let layout = app
@@ -174,7 +198,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "sound": d.sound,
         "autostart": d.autostart,
         "petLimit": model::LIMIT,
-        "limits": {"persona": model::PERSONA_MAX, "seeds": garden::SEED_MAX, "plants": garden::PLANT_MAX, "decor": garden::DECOR_MAX, "bondLevels": bond::LEVELS},
+        "limits": crate::pets::limits(),
         "garden": d.garden,
         "album": d.album,
         "bonds": d.bonds,
@@ -280,10 +304,18 @@ pub fn persist(d: &AppData) -> Result<(), String> {
     if let Some((x, y, width, height)) = d.mini_rect {
         state["miniRect"] = json!({"x": x, "y": y, "width": width, "height": height});
     }
-    for (key, value) in &d.extra {
-        state[key] = value.clone();
-    }
+    carry(&mut state, &d.extra);
     d.store.write("state.json", &state)
+}
+
+/// Adds the keys a newer app wrote to what this one saves, never over a key this one wrote: a key
+/// left out of KNOWN_KEYS by mistake then still saves its new value, not the old one from the file.
+fn carry(state: &mut Value, extra: &Map<String, Value>) {
+    if let Some(object) = state.as_object_mut() {
+        for (key, value) in extra {
+            object.entry(key.clone()).or_insert_with(|| value.clone());
+        }
+    }
 }
 
 /// What a state file holds beyond the keys this app knows.
@@ -314,10 +346,7 @@ pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, messa
         return;
     }
     // The source stays with the state: the yard marks agent work, not a chat answer.
-    let at = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|t| t.as_millis() as u64)
-        .unwrap_or(0);
+    let at = now_ms();
     d.statuses.insert(
         id.into(),
         json!({"state": state, "message": message, "source": source, "at": at}),
@@ -585,6 +614,19 @@ mod tests {
             Sound { on: false, volume: 100 }
         );
         assert_eq!(Sound::restore(Some(&json!("loud"))), Sound::default());
+    }
+
+    #[test]
+    fn carried_keys_never_replace_the_ones_this_app_writes() {
+        let mut state = json!({"sound": {"on": false, "volume": 10}});
+        let extra = extras(&json!({"sound": {"on": true, "volume": 99}, "mood": "sunny"}));
+        // "sound" is known, so it is not an extra at all; were it forgotten, it would still not win.
+        let mut forgotten = extra.clone();
+        forgotten.insert("sound".into(), json!({"on": true, "volume": 99}));
+        carry(&mut state, &forgotten);
+        assert_eq!(state["sound"], json!({"on": false, "volume": 10}));
+        assert_eq!(state["mood"], "sunny");
+        assert!(!extra.contains_key("sound"));
     }
 
     #[test]

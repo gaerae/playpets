@@ -2,18 +2,13 @@
 // with time, what flowers in which season, how often a friend finds a seed, and when a gift comes.
 // Design: docs/design/2026-10-09-a-yard-that-grows.md.
 
-import { FLOWERS } from './catalog.js';
+import { between } from '../core/math.js';
+import { FLOWERS, STAGES, weighted } from './catalog.js';
 
-const MIN = 60 * 1000,
-  HOUR = 60 * MIN;
-// A plant's stages and when each begins, counted from planting.
-export const STAGES = [
-  { name: 'seed', at: 0 },
-  { name: 'sprout', at: 10 * MIN },
-  { name: 'leaves', at: 40 * MIN },
-  { name: 'bud', at: 2 * HOUR },
-  { name: 'bloom', at: 4 * HOUR },
-];
+const MIN = 60 * 1000;
+
+// A plant's stages come from the catalogue (catalog.js STAGES).
+export { STAGES };
 /** The stage a plant planted at `planted` (ms) is in at `now`, and how long until the next one. */
 export function stageOf(planted, now) {
   const age = Math.max(0, now - planted);
@@ -24,15 +19,18 @@ export function stageOf(planted, now) {
 }
 /** How long until it flowers (0 once it has). */
 export const untilBloom = (planted, now) => Math.max(0, STAGES.at(-1).at - Math.max(0, now - planted));
-// What grows from a seed planted in each season (the catalogue's flowers).
-export const flowerFor = season => (FLOWERS.find(f => f.season === season) || FLOWERS[0]).id;
+/** What a seed planted in this season grows into: one of the season's flowers, each as likely as its
+ * weight (catalog.json "weight", 1 if left out). */
+export function flowerFor(season, rng = Math.random) {
+  const here = FLOWERS.filter(f => f.season === season);
+  return here.length ? weighted(here, f => f.weight ?? 1, rng).id : FLOWERS[0].id;
+}
 // A friend finds a seed this long after the last find (ms of the app running). The very first one
 // comes soon, so a new yard shows the garden early.
 export const FIND_GAP = [8 * MIN, 20 * MIN];
 export const FIRST_FIND = [60 * 1000, 120 * 1000];
 export function nextFind(rng, first = false) {
-  const [low, high] = first ? FIRST_FIND : FIND_GAP;
-  return low + rng() * (high - low);
+  return between(rng, first ? FIRST_FIND : FIND_GAP);
 }
 /** A duration said briefly: "1 h 20 min" style parts, for a plant's tooltip. */
 export function hoursMinutes(ms) {
@@ -44,7 +42,7 @@ export function hoursMinutes(ms) {
 export const FIRST_GIFT = 5 * MIN;
 export const GIFT_WAIT = [20 * MIN, 40 * MIN];
 export function giftWait(rng, first = false) {
-  return first ? FIRST_GIFT : GIFT_WAIT[0] + rng() * (GIFT_WAIT[1] - GIFT_WAIT[0]);
+  return first ? FIRST_GIFT : between(rng, GIFT_WAIT);
 }
 /** The day as the person's clock has it, as the backend keeps it: YYYY-MM-DD. */
 export function localDay(date) {

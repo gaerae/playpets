@@ -1,7 +1,9 @@
-// The friend tab's header: who you are talking to, and how they are doing.
+// The friend tab's header: who you are talking to, how they are doing, and the menu of what can be
+// done to them.
 
 import { agentsOf } from '../core/agents.js';
 import { joinList, t } from '../core/i18n.js';
+import { popup } from '../core/menu.js';
 import { drawSprite } from '../core/sprites.js';
 import { $, asset, companions, data, labels, name, pet, selected, setSelected, views } from '../core/state.js';
 import { agentStateOf, stateOf, statusOf } from '../core/status.js';
@@ -27,8 +29,8 @@ export function renderPanel() {
   const agentState = agentStateOf(data, p.id);
   $('status').textContent = labels[agentState];
   $('status').title = agentState === 'idle' ? '' : plain(statusOf(data, p.id)?.message || '');
-  // Under the AI picker: the relationship, and which coding agents report to this friend (the
-  // picker says the AI itself).
+  // Under the header: the relationship, and which coding agents report to this friend (the
+  // composer's picker says the AI itself).
   const agents = agentsOf(data, p.id);
   const chip = (text, cls) =>
     Object.assign(document.createElement('span'), { className: `fact-chip ${cls}`, textContent: text });
@@ -54,4 +56,6 @@ export function drawPortrait(now) {
 // Wires the list that switches who you are talking to. Called once, by app.js.
 export function setupFriend() {
   $('friend-select').onchange = () => select($('friend-select').value);
+  // What is done to the friend (settings, its AI, clearing the chat, sending it away) is in its menu.
+  popup($('friend-menu-button'), $('friend-menu'));
 }

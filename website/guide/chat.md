@@ -6,7 +6,7 @@ description: Kinds of AI connections and how to make one, setting a personality,
 
 To chat with a friend, you need to connect one AI. Inviting and playing work without one, but the chat only shows "Connect an AI to start chatting."
 
-<Shot name="friend-chat" caption="Pick an AI and chat in the Friend tab. You also pick friends to chat with here." />
+<Shot name="friend-chat" caption="Chat in the Friend tab. The AI and the friends who join in are at the bottom of the message box." />
 
 ## Kinds of AI connections <Since v="0.1.0" />
 
@@ -25,7 +25,7 @@ API keys are kept only in this computer's secure storage (macOS Keychain, Window
 ## Making a connection <Since v="0.1.0" />
 
 1. Open the **Friend** tab and pick the friend to chat with. If you have several friends, the name turns into a list.
-2. Click the **Connect an AI** button in the chat, or choose **＋ Connect a new AI…** from the AI list under the name.
+2. Click the **Connect an AI** button in the chat, or choose **＋ Connect a new AI…** from the AI list at the bottom left of the message box.
 3. Pick a card under **Kind of AI** and, depending on the kind, enter the server address or API key.
 4. Pick or type the **Model name**. Click the field and the list of models that AI offers appears (for a kind that needs a key or an address, once you have entered it). For Claude Code and Codex CLI, leave it empty to use the default model; a short name like `sonnet` always gets the latest version. Ollama and API connections need a model name.
 5. Click **Save and connect**. If other friends still have no AI, the "Also use this AI for the other friends" switch is on, so everyone can talk at once.
@@ -39,7 +39,7 @@ Once you have made a connection, other friends can use it too. Pick a different 
 - Type in the field at the bottom and press Enter. Shift+Enter makes a new line.
 - While you wait for an answer, a "Thinking" bubble appears, and the ■ button stops it.
 - The answer also floats as a speech bubble above the friend in the yard.
-- Click **Clear chat** to delete the whole conversation with this friend. The name and personality stay.
+- Choose **Clear chat** from the **⋯** menu by the friend's name to delete the whole conversation with this friend. The name and personality stay.
 
 The chat history lives only in memory. It is gone when you quit the app, and it is not saved to a file.
 
@@ -56,13 +56,13 @@ The personality is the tone and attitude your friend answers with. There are two
 
 ## Chatting together <Since v="0.1.0" />
 
-When two or more friends have an AI connected, **Pick friends to chat with** appears above the chat.
+When two or more friends have an AI connected, **Bring friends in** appears at the bottom of the message box.
 
-1. Open it and click the friends you want to chat with. You can pick up to 3.
+1. Click it and click the friends you want to chat with. You can pick up to 3.
 2. Send a message and the current friend answers first, then the friends you picked answer one after another. Each speaks with their own AI and personality.
 3. To let the friends carry on without a new message, press **Let them chat** in the yard toolbar. The friends with an AI talk for a round about the time and the weather, and it shows as speech bubbles in the yard.
 
-The small chip under the AI picker shows which coding agents report to this friend (Reports from · Claude Code).
+The small chip under the friend's name shows which coding agents report to this friend (Reports from · Claude Code).
 
 In the yard you can see the friends talking to each other in speech bubbles.
 

@@ -20,9 +20,9 @@ const styles = async () =>
 
 test('in-row icon buttons share the rect-input shape language (circles stay for floating controls)', async () => {
   const css = await styles();
-  const rule = css.match(/\.provider-row \.icon-button\{([^}]*)\}/);
-  assert.ok(rule, 'provider-row scopes its icon button');
-  assert.match(rule[1], /border-radius:\s*9px/, 'icon button beside the select matches the 9px input radius');
+  const rule = css.match(/\.menu-anchor>\.icon-button[^{]*\{([^}]*)\}/);
+  assert.ok(rule, "the friend panel's menu button has its own rule");
+  assert.match(rule[1], /border-radius:\s*9px/, 'the icon button in the panel header matches the 9px input radius');
 });
 
 test('select boxes are fully custom-styled so every engine renders them identically', async () => {

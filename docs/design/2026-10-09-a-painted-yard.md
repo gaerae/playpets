@@ -37,12 +37,12 @@ The backdrop is painted in code on two canvases, once per change of light, and s
 | Piece | File | Job |
 |---|---|---|
 | Brush | `src/yard/brush.js` | Seeded chance, colours, and flat shapes: a smooth shape, a straight-sided shape, a dot, and a bumpy mass (an ellipse whose outline swells a little and whose edge is a row of small bumps of different sizes), filled flat or deepening downwards |
-| Where things are | `src/yard/layout.js` | The hills as curves, the mountain peaks, what stands on each hill, the lake; helpers that turn them into yard pixels |
+| Where things are | `src/content/yard.json`, read by `src/yard/layout.js` | The hills as curves, the mountain peaks, what stands on each hill, the lake, and the layers in painting order; helpers that turn them into yard pixels (since 2026-10-10: [Yard content as data](2026-10-10-yard-content-as-data.md)) |
 | Colours and light | `src/yard/palette.js` | The stylesheet's colours as the painter uses them, the sun's side and strength, foliage in four values |
 | Trees | `src/yard/trees.js` | Crowns in value bands, trunks, round trees, bushes, a rock, Japanese cedars, the big tree at the edge |
 | The lake | `src/yard/lake.js` | The sky and the far hill mirrored, a cloud's reflection, ripples, lily pads, reeds |
 | Sky and clouds | `src/yard/clouds.js` | The sky's light, two heaped clouds behind the mountains, the overcast, and each drifting cloud |
-| The land | `src/yard/backdrop.js` | Composes the land: mountains in haze, groves and low woods on the far hill, a hedgerow, the lake, the field in broad bands, what stands on it, the big tree, shrubs in the near corners |
+| The land | `src/yard/backdrop.js` | A painter for each kind of layer (mountains in haze, groves and low woods on the far hill, a hedgerow, the lake, the field in broad bands, what stands on it, the big tree, shrubs in the near corners), run in the order `yard.json` lists the layers |
 | The easel | `src/yard/easel.js` | Reads the colours off the yard, paints when the light or the size changes, and fades the new painting in over the old one |
 
 - **Value bands.** A crown is a ring of clumps. It is painted four times: all clumps in deep shade; again lifted a little and smaller in shade; again lifted more and smaller in the body colour, only the clumps facing the light; and once more in light, only the most sunward. The bands follow the clumps, so the crown reads as heaped and lit from one side.

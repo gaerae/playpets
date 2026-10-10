@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import test from 'node:test';
+import './support/content.mjs';
 import { paintLand } from '../src/yard/backdrop.js';
 import { color, mix, seeded } from '../src/yard/brush.js';
 import { paintSky } from '../src/yard/clouds.js';
@@ -117,16 +118,24 @@ test('every colour the painter reads is set in the stylesheet, and every scenery
   const css = await readFile('src/styles/scenery.css', 'utf8'),
     painter = (
       await Promise.all(
-        ['backdrop', 'clouds', 'lake', 'trees', 'palette'].map(f => readFile(`src/yard/${f}.js`, 'utf8')),
+        [
+          ...['backdrop', 'clouds', 'lake', 'trees', 'palette'].map(f => `src/yard/${f}.js`),
+          // The composition names colours too ("tone", gradient stops).
+          'src/content/yard.json',
+        ].map(f => readFile(f, 'utf8')),
       )
     ).join('\n'),
+    art = (await readdir('src/art', { recursive: true })).filter(f => f.endsWith('.svg')).map(f => `src/art/${f}`),
     others = (
-      await Promise.all(['src/index.html', 'src/styles/yard.css', 'src/yard/scene.js'].map(f => readFile(f, 'utf8')))
+      await Promise.all(
+        ['src/index.html', 'src/styles/yard.css', 'src/yard/scene.js', ...art].map(f => readFile(f, 'utf8')),
+      )
     ).join('\n');
   const names = Object.keys(readPalette(() => ''));
   // Read by the painter: pal['name'] or pal.name (crown and maple fall back to leaf, cap to none).
   for (const name of names) {
-    const read = painter.includes(`'${name}'`) || new RegExp(`pal\\.${name}\\b`).test(painter);
+    const read =
+      painter.includes(`'${name}'`) || painter.includes(`"${name}"`) || new RegExp(`pal\\.${name}\\b`).test(painter);
     assert.ok(read, `the painter never uses ${name}`);
   }
   // Every custom property set on the yard in scenery.css is read: by the painter, or by var() in

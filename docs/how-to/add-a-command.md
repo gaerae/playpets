@@ -23,17 +23,16 @@ pub const COMMANDS: &[&str] = &[
 "centerFriend" => center_friend(&app, &state, text(&args, 0)),
 ```
 
-3. Write the handler in the same file (or in the module that owns the area). Take the lock, change state, and if you changed it, save and notify every window before the lock is released.
+3. Write the handler in the same file (or in the module that owns the area). A handler that changes the state goes through `commit`: it takes the lock, runs your change, then saves and notifies every window once.
 
 ```rust
 fn center_friend(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Value, String> {
-    let mut d = lock(state);
-    let pet = d.pets.iter_mut().find(|p| p.id == id).ok_or_else(|| i18n::t("error.friend_missing"))?;
-    pet.x = 0.5;
-    pet.y = 0.5;
-    persist(&d)?;
-    changed(app, &d);
-    Ok(Value::Null)
+    commit(app, state, |d| {
+        let pet = d.pets.iter_mut().find(|p| p.id == id).ok_or_else(|| i18n::t("error.friend_missing"))?;
+        pet.x = 0.5;
+        pet.y = 0.5;
+        Ok(Value::Null)
+    })
 }
 ```
 

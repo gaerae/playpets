@@ -3,7 +3,6 @@ import { clamp } from '../core/math.js';
 
 export const WANDER_DELAY = [8000, 20000]; // quiet time before a pet entertains itself
 export const SCATTER_DELAY = [2500, 6000]; // how long pets linger where a treat was placed
-export const delay = (rng, [min, max]) => min + rng() * (max - min);
 export function wanderTarget(position, rng) {
   for (let attempt = 0; attempt < 8; attempt++) {
     const angle = rng() * Math.PI * 2,

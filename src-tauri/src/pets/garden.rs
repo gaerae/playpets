@@ -2,8 +2,10 @@
 //! them, and the decorations friends bring as gifts, one a day. The page decides when a friend
 //! finds a seed or brings a gift (it knows who is idle, whether the yard is seen and what day it
 //! is where the person lives); every limit, and which gift comes next, is kept here. Growth is not
-//! stored: a plant's stage follows from when it was planted (src/yard/garden.js).
+//! stored: a plant's stage follows from when it was planted (src/yard/garden.js). What can grow and
+//! what friends bring are the catalogue's (content.rs).
 //! Design: docs/design/2026-10-09-a-yard-that-grows.md.
+use super::content::catalog;
 use crate::i18n;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -13,12 +15,8 @@ use uuid::Uuid;
 pub const SEED_MAX: u32 = 20;
 /// Plants the field holds, so it stays a field.
 pub const PLANT_MAX: usize = 24;
-/// What can grow: one flower for each season it was planted in.
-pub const KINDS: [&str; 4] = ["tulip", "sunflower", "cosmos", "camellia"];
-/// Decorations friends bring, in the order the first ones come.
-pub const DECOR_KINDS: [&str; 6] = ["bench", "lantern", "birdhouse", "pond", "mailbox", "picnic"];
 /// Decorations the yard holds, so friends still have room to play.
-pub const DECOR_MAX: usize = 8;
+pub const DECOR_MAX: usize = 12;
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -66,9 +64,28 @@ pub struct Plant {
     pub bloomed: bool,
 }
 
-/// How long a seed takes to flower, as the page grows it (src/yard/growth.js STAGES; a test keeps
-/// the two the same).
-pub const BLOOM_AFTER_MS: u64 = 4 * 60 * 60 * 1000;
+/// Things kept on the field (plants, decorations) as state.json has them: the ones of a kind there
+/// is, at a place that is a number, brought onto the field, and no more than `max`.
+fn placed<T: serde::de::DeserializeOwned>(
+    raw: Option<&Value>,
+    max: usize,
+    known: impl Fn(&T) -> bool,
+    at: impl Fn(&mut T) -> (&mut f64, &mut f64),
+) -> Vec<T> {
+    raw.and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|v| serde_json::from_value::<T>(v.clone()).ok())
+        .filter(|t| known(t))
+        .filter_map(|mut t| {
+            let (x, y) = at(&mut t);
+            *x = place(*x)?;
+            *y = place(*y)?;
+            Some(t)
+        })
+        .take(max)
+        .collect()
+}
 
 fn place(v: f64) -> Option<f64> {
     v.is_finite().then(|| v.clamp(0.0, 1.0))
@@ -83,38 +100,22 @@ impl Garden {
             .and_then(Value::as_u64)
             .unwrap_or(0)
             .min(SEED_MAX as u64) as u32;
-        let plants = raw
-            .get("plants")
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .filter_map(|p| serde_json::from_value::<Plant>(p.clone()).ok())
-            .filter(|p| KINDS.contains(&p.kind.as_str()) && p.x.is_finite() && p.y.is_finite())
-            .map(|p| Plant {
-                x: p.x.clamp(0.0, 1.0),
-                y: p.y.clamp(0.0, 1.0),
-                ..p
-            })
-            .take(PLANT_MAX)
-            .collect();
-        let decor = raw
-            .get("decor")
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .filter_map(|d| serde_json::from_value::<Decor>(d.clone()).ok())
-            .filter(|d| DECOR_KINDS.contains(&d.kind.as_str()) && d.x.is_finite() && d.y.is_finite())
-            .map(|d| Decor {
-                x: d.x.clamp(0.0, 1.0),
-                y: d.y.clamp(0.0, 1.0),
-                ..d
-            })
-            .take(DECOR_MAX)
-            .collect();
+        let plants = placed(
+            raw.get("plants"),
+            PLANT_MAX,
+            |p: &Plant| catalog().is_flower(&p.kind),
+            |p| (&mut p.x, &mut p.y),
+        );
+        let decor = placed(
+            raw.get("decor"),
+            DECOR_MAX,
+            |d: &Decor| catalog().is_gift(&d.kind),
+            |d| (&mut d.x, &mut d.y),
+        );
         let mut received: Vec<String> = Vec::new();
         for kind in raw.get("received").and_then(Value::as_array).into_iter().flatten() {
             if let Some(kind) = kind.as_str()
-                && DECOR_KINDS.contains(&kind)
+                && catalog().is_gift(kind)
                 && !received.iter().any(|k| k == kind)
             {
                 received.push(kind.into());
@@ -152,7 +153,7 @@ impl Garden {
         if self.plants.len() >= PLANT_MAX {
             return Err(i18n::tr("error.garden_full", &[("limit", &PLANT_MAX.to_string())]));
         }
-        let (Some(x), Some(y), true) = (place(x), place(y), KINDS.contains(&kind)) else {
+        let (Some(x), Some(y), true) = (place(x), place(y), catalog().is_flower(kind)) else {
             return Err(i18n::t("error.bad_request"));
         };
         let plant = Plant {
@@ -186,7 +187,7 @@ impl Garden {
             .iter_mut()
             .find(|p| p.id == id)
             .ok_or_else(|| i18n::t("error.plant_missing"))?;
-        if now.saturating_sub(plant.planted) < BLOOM_AFTER_MS {
+        if now.saturating_sub(plant.planted) < catalog().bloom_after_ms() {
             return Err(i18n::t("error.bad_request"));
         }
         if plant.bloomed {
@@ -199,15 +200,16 @@ impl Garden {
     /// What the next gift is: each kind once, in order; after that one that is not in the yard
     /// (any kind, once every kind is), turned by `turn` so it is not always the same.
     pub fn next_gift(&self, turn: usize) -> &'static str {
-        if let Some(kind) = DECOR_KINDS.iter().find(|k| !self.received.iter().any(|r| r == *k)) {
+        let kinds = catalog().gifts();
+        if let Some(kind) = kinds.iter().find(|k| !self.received.iter().any(|r| r == *k)) {
             return kind;
         }
-        let away: Vec<&'static str> = DECOR_KINDS
+        let away: Vec<&'static str> = kinds
             .iter()
             .copied()
             .filter(|k| !self.decor.iter().any(|d| d.kind == *k))
             .collect();
-        let from = if away.is_empty() { DECOR_KINDS.to_vec() } else { away };
+        let from = if away.is_empty() { kinds } else { away };
         from[turn % from.len()]
     }
 
@@ -313,8 +315,14 @@ mod tests {
             ..Default::default()
         };
         let id = g.plant("cosmos", 0.5, 0.5, 1_000).unwrap().id;
-        assert!(g.bloom(&id, 1_000 + BLOOM_AFTER_MS - 1).is_err(), "still a bud");
-        assert_eq!(g.bloom(&id, 1_000 + BLOOM_AFTER_MS), Ok(Some("cosmos".into())));
+        assert!(
+            g.bloom(&id, 1_000 + catalog().bloom_after_ms() - 1).is_err(),
+            "still a bud"
+        );
+        assert_eq!(
+            g.bloom(&id, 1_000 + catalog().bloom_after_ms()),
+            Ok(Some("cosmos".into()))
+        );
         assert_eq!(g.bloom(&id, 9_999_999_999), Ok(None), "counted already");
         assert!(g.bloom("nope", 1).is_err());
     }
@@ -326,21 +334,25 @@ mod tests {
         let first = g.gift(0.3, 1.7, "2026-10-09", 0).unwrap();
         assert_eq!((first.kind.as_str(), first.y), ("bench", 1.0));
         assert!(g.gift(0.5, 0.5, "2026-10-09", 0).is_err(), "one gift a day");
-        for (i, day) in ["2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14"]
-            .iter()
-            .enumerate()
-        {
-            assert_eq!(g.gift(0.5, 0.5, day, 0).unwrap().kind, DECOR_KINDS[i + 1]);
+        let kinds = catalog().gifts();
+        let day = |n: usize| format!("2026-11-{:02}", n + 1);
+        // The first gifts come in the catalogue's order, until the yard is full.
+        for (i, kind) in kinds.iter().enumerate().skip(1).take(DECOR_MAX - 1) {
+            assert_eq!(g.gift(0.5, 0.5, &day(i), 0).unwrap().kind, *kind);
+        }
+        assert_eq!(g.decor.len(), DECOR_MAX);
+        assert!(g.gift(0.5, 0.5, &day(28), 0).is_err(), "the yard is full");
+        // Making room each day, the rest come in order too.
+        for (i, kind) in kinds.iter().enumerate().skip(DECOR_MAX) {
+            let id = g.decor[0].id.clone();
+            assert_eq!(g.put_away(&id), Ok(()));
+            assert_eq!(g.gift(0.5, 0.5, &day(i), 0).unwrap().kind, *kind);
         }
         // Every kind has come: the next is one not in the yard.
-        let bench = g.decor[0].id.clone();
-        assert_eq!(g.put_away(&bench), Ok(()));
-        assert_eq!(g.next_gift(3), "bench", "the only kind not in the yard");
-        assert_eq!(g.gift(0.5, 0.5, "2026-10-15", 3).unwrap().kind, "bench");
-        g.gift(0.5, 0.5, "2026-10-16", 1).unwrap();
-        g.gift(0.5, 0.5, "2026-10-17", 2).unwrap();
-        assert_eq!(g.decor.len(), DECOR_MAX);
-        assert!(g.gift(0.5, 0.5, "2026-10-18", 0).is_err(), "the yard is full");
+        let id = g.decor[0].id.clone();
+        assert_eq!(g.put_away(&id), Ok(()));
+        let next = g.next_gift(3);
+        assert!(!g.decor.iter().any(|d| d.kind == next), "{next} is not in the yard");
         let id = g.decor[1].id.clone();
         assert_eq!(g.move_decor(&id, -1.0, 0.25), Ok(()));
         assert_eq!((g.decor[1].x, g.decor[1].y), (0.0, 0.25));
