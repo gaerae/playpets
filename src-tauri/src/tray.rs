@@ -46,9 +46,9 @@ pub fn snapshot(d: &AppData) -> Snapshot {
     });
     Snapshot {
         friends: !d.pets.is_empty(),
-        desktop: d.desktop,
-        wander: d.wander,
-        sound: d.sound.on,
+        desktop: d.prefs.desktop,
+        wander: d.prefs.wander,
+        sound: d.prefs.sound.on,
         attention,
     }
 }

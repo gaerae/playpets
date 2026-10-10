@@ -4,6 +4,7 @@
 import { confirmAction, setupConfirm } from './core/confirm.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
+import { onShortcut } from './core/keys.js';
 import { $, aiming, api, call, data, game, guard, recall, selected, setData, toast, views } from './core/state.js';
 import { plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
@@ -82,20 +83,11 @@ icons();
 setupConfirm();
 setupWindow();
 setupTabs();
-// Keyboard: the panels and the two views, with the keys the macOS menu bar shows (View menu). On a
-// Mac the menu bar takes the switches' keys, so the page answers them only elsewhere.
-const onMac = /Mac/.test(navigator.platform);
-document.addEventListener('keydown', e => {
-  if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
-  const key = e.key.toLowerCase();
-  if (!e.shiftKey && (key === '1' || key === '2')) {
-    e.preventDefault();
-    openPanel(key === '1' ? 'pet' : 'invite');
-  } else if (e.shiftKey && !onMac && data.pets.length && (key === 'm' || key === 'd')) {
-    e.preventDefault();
-    guard(() => (key === 'm' ? setMini(!isMini()) : call('toggleDesktop')))();
-  }
-});
+// Keyboard: the panels and the two views, with the keys the macOS menu bar shows (core/keys.js).
+onShortcut('friends', () => openPanel('pet'));
+onShortcut('invite', () => openPanel('invite'));
+onShortcut('mini', () => data.pets.length && guard(() => setMini(!isMini()))());
+onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
 setupSky();
 setupViews({
   gameTap,
@@ -164,40 +156,46 @@ everyMinute(() => {
 // Speech bubbles from one conversation are spaced out by this much.
 const BUBBLE_GAP = 1200;
 let lastBubbleAt = 0;
-api.onEvent(event => {
-  chatEvent(event);
-  if (event.type === 'update') updateFound(event.update);
-  if (event.type === 'check-update') guard(checkForUpdates)();
-  if (event.type === 'update-progress') updateProgress(event.percent);
-  if (event.type === 'open-panel') showSection(event.panel, event.section);
+function speak(event) {
+  const v = views.get(event.petId);
+  if (v) bubble(v, event.message);
+}
+// What each event from the backend does on this page; the chat panel hears every one first.
+const ON_EVENT = {
+  update: e => updateFound(e.update),
+  'check-update': () => guard(checkForUpdates)(),
+  'update-progress': e => updateProgress(e.percent),
+  'open-panel': e => showSection(e.panel, e.section),
   // The tray's "Mini view": the page goes in or out of it, as its own button does.
-  if (event.type === 'mini' && (event.on ? data.pets.length : isMini())) guard(() => setMini(event.on))();
-  if (event.type === 'select') openChat(event.petId);
-  if (event.type === 'import-request') importRequested(event.url);
+  mini: e => (e.on ? data.pets.length : isMini()) && guard(() => setMini(e.on))(),
+  select: e => openChat(e.petId),
+  'import-request': e => importRequested(e.url),
   // A friend's saved place changed; the view already stands there, the record follows.
-  if (event.type === 'pet-moved') {
-    const p = data.pets.find(q => q.id === event.petId);
-    if (p) Object.assign(p, { x: event.x, y: event.y });
-  }
-  if (event.type === 'say' || (event.type === 'status' && event.source === 'agent')) {
-    const v = views.get(event.petId);
-    if (v) bubble(v, event.message);
-  }
-  if (event.type === 'chat-message') {
-    const v = views.get(event.petId);
+  'pet-moved': e => {
+    const p = data.pets.find(q => q.id === e.petId);
+    if (p) Object.assign(p, { x: e.x, y: e.y });
+  },
+  say: speak,
+  status: e => e.source === 'agent' && speak(e),
+  'chat-message': e => {
+    const v = views.get(e.petId);
     // Answers that arrive together are shown one after another, so a group chat reads as one.
     const wait = Math.max(0, lastBubbleAt + BUBBLE_GAP - Date.now());
     lastBubbleAt = Date.now() + wait;
-    if (v) setTimeout(() => bubble(v, plain(event.message).slice(0, 80)), wait);
-  }
-  if (event.type === 'play') react(event);
-  if (event.type === 'window') {
-    shown = event.shown;
+    if (v) setTimeout(() => bubble(v, plain(e.message).slice(0, 80)), wait);
+  },
+  play: react,
+  window: e => {
+    shown = e.shown;
     seen(shown);
     soundSeen(shown);
     // CSS animations (the clouds) rest too; see base.css.
     document.documentElement.toggleAttribute('data-unseen', !shown);
-  }
+  },
+};
+api.onEvent(event => {
+  chatEvent(event);
+  if (Object.hasOwn(ON_EVENT, event.type)) ON_EVENT[event.type](event);
 });
 
 // Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed),
@@ -209,6 +207,8 @@ const BUSY_MS = 50,
   RAIN_MS = 66,
   SNOW_MS = 80,
   CALM_MS = 100;
+// What goes on in the yard between games, looked at every frame: each knows when it is due.
+const YARD_LIFE = [idleChatter, gardenTick, giftTick, soloFishing];
 let last = 0;
 function interval(now) {
   if (game || aiming) return BUSY_MS;
@@ -226,12 +226,7 @@ function animate(now) {
   // Time together counts in games too; the rest of yard life waits for a game to end.
   bondTick(now);
   if (game) playGame(now, dt);
-  else {
-    idleChatter(now);
-    gardenTick(now);
-    giftTick(now);
-    soloFishing(now);
-  }
+  else for (const tick of YARD_LIFE) tick(now);
   scenery.frame(now, dt);
   // The panel's own pictures move only while they can be seen (the mini view hides the panel).
   if (!isMini() && !$('empty-yard').hidden && !$('welcome').hidden) drawWelcome(now);

@@ -73,7 +73,7 @@ fn main() {
             }
             // Started at login with friends on the desktop, the app stays out of the way: the
             // friends come out, the yard window waits in the tray.
-            let quiet = at_login && data.desktop;
+            let quiet = at_login && data.prefs.desktop;
             app.manage(Mutex::new(data));
             app.manage(CliHandle(chat::cli::CliManager::new()));
             app.manage(update::Found::default());
@@ -180,7 +180,7 @@ fn start_overlay(app: &tauri::App) {
     {
         let state = app.state::<Shared>();
         let d = lock(&state);
-        overlay.sync(app::pets_lite(&d), d.desktop, d.wander);
+        overlay.sync(app::pets_lite(&d), d.prefs.desktop, d.prefs.wander);
     }
     app.manage(OverlayHandle(overlay));
 }

@@ -125,7 +125,7 @@ static COMMANDS: &[Command] = &[
     main("getChat", |c| {
         let d = lock(&c.state);
         let id = c.text(0);
-        require_pet(&d, id).map(|_| json!(d.histories.get(id).cloned().unwrap_or_default()))
+        require_pet(&d, id).map(|_| json!(d.talks.history(id)))
     }),
     main("clearChat", |c| chat::clear(&c.state, &c.cli, c.text(0))),
     main("cancelChat", |c| {
@@ -143,10 +143,10 @@ static COMMANDS: &[Command] = &[
     // (on, volume): either may be null to keep it as it is.
     main("setSound", |c| {
         commit(c.app, &c.state, |d| {
-            let on = c.arg(0).as_bool().unwrap_or(d.sound.on);
-            let volume = c.arg(1).as_u64().map_or(d.sound.volume, |v| v.min(100) as u8);
-            d.sound = crate::app::Sound { on, volume };
-            Ok(json!(d.sound))
+            let on = c.arg(0).as_bool().unwrap_or(d.prefs.sound.on);
+            let volume = c.arg(1).as_u64().map_or(d.prefs.sound.volume, |v| v.min(100) as u8);
+            d.prefs.sound = crate::app::Sound { on, volume };
+            Ok(json!(d.prefs.sound))
         })
     }),
     main("setAutostart", |c| {
@@ -424,7 +424,7 @@ fn update_pet(
         if !wanted.is_empty() && providers::find(&d, wanted).is_none() {
             return Err(i18n::t("provider.missing"));
         }
-        if d.pending.contains(id) {
+        if d.talks.busy(id) {
             return Err(i18n::t("provider.busy"));
         }
     }
@@ -586,7 +586,7 @@ fn assign_agent(app: &AppHandle, state: &State<Shared>, kind: &str, pet: &str) -
 /// Whether the friends chat among themselves now and then without being asked.
 fn set_auto_chatter(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
     commit(app, state, |d| {
-        d.auto_chatter = on;
+        d.prefs.auto_chatter = on;
         Ok(Value::Bool(on))
     })
 }
@@ -614,7 +614,7 @@ fn set_language(app: &AppHandle, state: &State<Shared>, code: &str) -> Result<Va
     i18n::set(lang);
     // The language stands even when it could not be saved (commit), so the pages follow it either way.
     let saved = commit(app, state, |d| {
-        d.language = lang;
+        d.prefs.language = lang;
         Ok(Value::Null)
     });
     // Rewording the tray waits on the main thread, which may itself be waiting for the state.

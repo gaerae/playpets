@@ -13,59 +13,38 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use tauri::{AppHandle, Manager};
 
-// Loading the state at start (load.rs) and serving sprite sheets to the pages (sprite.rs).
+// Loading the state at start (load.rs), the person's switches (prefs.rs) and serving sprite
+// sheets to the pages (sprite.rs).
 mod load;
+mod prefs;
 mod sprite;
 pub use load::load_state;
+pub use prefs::{Prefs, Sound};
 pub use sprite::sprite_response;
-
-/// The yard's sounds: on or off, and how loud (0 to 100). On by default, and quiet.
-#[derive(serde::Serialize, serde::Deserialize, Clone, Copy, Debug, PartialEq)]
-pub struct Sound {
-    pub on: bool,
-    pub volume: u8,
-}
-impl Default for Sound {
-    fn default() -> Self {
-        Sound { on: true, volume: 40 }
-    }
-}
-impl Sound {
-    fn restore(raw: Option<&Value>) -> Sound {
-        raw.and_then(|v| serde_json::from_value::<Sound>(v.clone()).ok())
-            .map(|s| Sound {
-                volume: s.volume.min(100),
-                ..s
-            })
-            .unwrap_or_default()
-    }
-}
 
 /// The shape of state.json this app writes. Read from a newer app's file, the known fields are
 /// used, the unknown ones are carried along unchanged, and a copy of the file is kept first.
 pub const SCHEMA: u64 = 1;
-/// The top-level keys this app writes to state.json; anything else in the file is `extra`.
-const KNOWN_KEYS: [&str; 15] = [
+/// The top-level keys this app writes to state.json besides the switches (Prefs::KEYS); anything
+/// else in the file is `extra`.
+const KNOWN_KEYS: [&str; 9] = [
     "schema",
     "pets",
-    "desktop",
-    "desktopWander",
-    "language",
     "imports",
     "providers",
     "agentPets",
-    "autoChatter",
     "secretIds",
-    "miniRect",
     "garden",
     "album",
     "bonds",
-    "sound",
 ];
+fn known(key: &str) -> bool {
+    KNOWN_KEYS.contains(&key) || Prefs::KEYS.contains(&key)
+}
 
-/// Everything the app knows. Saved to state.json: pets (with the parked ones), desktop, wander, language, imports,
-/// providers (with the parked ones), agent_pets, auto_chatter, sound, secret_ids, mini_rect, garden, album, bonds and extra. The rest
-/// lasts until the app quits.
+/// Everything the app knows. Saved to state.json: pets (with the parked ones), prefs, imports,
+/// providers (with the parked ones), agent_pets, secret_ids, garden, album, bonds and extra. The
+/// rest lasts until the app quits.
 pub struct AppData {
     pub store: store::Store,
     /// Codex's own pet folder, read at every start.
@@ -78,20 +57,12 @@ pub struct AppData {
     /// Saved friends whose pet file was not found at this start (model::parked_pets): not shown,
     /// written back as they were, with their bonds, so they come back once the file does.
     pub parked_pets: Vec<Value>,
-    pub desktop: bool,
-    pub wander: bool,
-    /// The language the app speaks to the person in; the pet is asked to answer in it too.
-    pub language: i18n::Lang,
+    /// The person's switches (desktop, roaming, language, chatter, sound, the mini window's place).
+    pub prefs: Prefs,
     /// Folders of pets brought in by hand, read again at every start.
     pub imports: Vec<String>,
     /// Which friend each coding agent reports to (agent kind → pet id). Unset means the first friend.
     pub agent_pets: HashMap<String, String>,
-    /// The friends talk among themselves every so often (the page keeps the timer).
-    pub auto_chatter: bool,
-    /// The yard's sounds (the page plays them; src/yard/sound.js).
-    pub sound: Sound,
-    /// Where the mini window was last left (window.rs), so it opens there again.
-    pub mini_rect: Option<window::Rect>,
     /// Whether the app starts at login, as the system said at start (not saved: the system keeps it).
     pub autostart: bool,
     /// Seeds friends found, the plants grown from them, and the gifts friends brought.
@@ -107,12 +78,8 @@ pub struct AppData {
     /// Providers whose API key is in the keychain.
     pub secret_ids: HashSet<String>,
     pub statuses: Map<String, Value>,
-    pub histories: HashMap<String, Vec<Value>>,
-    /// Entries each history has had since it started, trimming aside (chat CLI sessions go by it).
-    pub history_totals: HashMap<String, u64>,
-    /// Friends waiting for an answer, and the flag that calls each answer off.
-    pub pending: HashSet<String>,
-    pub cancels: HashMap<String, Arc<AtomicBool>>,
+    /// Each friend's conversation, and the answers on their way (chat/mod.rs).
+    pub talks: chat::Talks,
     /// Providers being saved right now.
     pub provider_updates: HashSet<String>,
     pub detected: Value,
@@ -222,14 +189,9 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         .try_state::<OverlayHandle>()
         .map(|o| o.0.layout())
         .unwrap_or_default();
-    json!({
+    let mut state = json!({
         "pets": d.pets,
-        "desktop": d.desktop,
-        "desktopWander": d.wander,
-        "language": d.language.code(),
         "agentPets": live_agent_pets(d),
-        "autoChatter": d.auto_chatter,
-        "sound": d.sound,
         "autostart": d.autostart,
         "limits": crate::pets::limits(),
         "garden": d.garden,
@@ -244,11 +206,13 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "detected": d.detected,
         "warnings": d.warnings,
         "statuses": Value::Object(d.statuses.clone()),
-        "busy": d.pending.iter().collect::<Vec<_>>(),
+        "busy": d.talks.busy_ids().collect::<Vec<_>>(),
         "desktopLayout": layout,
         "communities": importer::communities_json(),
         "petFolders": {"builtin": d.builtin_pets, "codex": d.codex_pets, "downloaded": d.store.dir.join("pets")},
-    })
+    });
+    carry(&mut state, &d.prefs.json());
+    state
 }
 
 /// Runs a script in the main window and in every overlay.
@@ -276,7 +240,7 @@ pub fn push_event(app: &AppHandle, payload: &Value) {
 /// Call after any change to the state: the overlay and every page are brought up to date.
 pub fn changed(app: &AppHandle, d: &AppData) {
     if let Some(o) = app.try_state::<OverlayHandle>() {
-        o.0.sync(pets_lite(d), d.desktop, d.wander);
+        o.0.sync(pets_lite(d), d.prefs.desktop, d.prefs.wander);
     }
     crate::tray::refresh(app, crate::tray::snapshot(d));
     eval_all(app, &format!("window.__pp&&__pp('change',{})", public_state(app, d)));
@@ -323,27 +287,22 @@ pub fn persist(d: &AppData) -> Result<(), String> {
     let mut state = json!({
         "schema": SCHEMA,
         "pets": d.pets.iter().map(|p| json!(p)).chain(d.parked_pets.iter().cloned()).collect::<Vec<_>>(),
-        "desktop": d.desktop, "desktopWander": d.wander,
-        "language": d.language.code(),
         "imports": d.imports,
         "providers": d.providers.iter().chain(&d.parked_providers).collect::<Vec<_>>(),
         "agentPets": d.agent_pets,
-        "autoChatter": d.auto_chatter,
-        "sound": d.sound,
         "secretIds": d.secret_ids.iter().collect::<Vec<_>>(),
         "garden": d.garden,
         "album": d.album,
         "bonds": d.bonds,
     });
-    if let Some((x, y, width, height)) = d.mini_rect {
-        state["miniRect"] = json!({"x": x, "y": y, "width": width, "height": height});
-    }
+    carry(&mut state, &d.prefs.json());
     carry(&mut state, &d.extra);
     d.store.write("state.json", &state)
 }
 
-/// Adds the keys a newer app wrote to what this one saves, never over a key this one wrote: a key
-/// left out of KNOWN_KEYS by mistake then still saves its new value, not the old one from the file.
+/// Adds keys to a state object, never over one already there: the switches, then the keys a newer
+/// app wrote, so a key left out of KNOWN_KEYS by mistake still saves its new value, not the old one
+/// from the file.
 fn carry(state: &mut Value, extra: &Map<String, Value>) {
     if let Some(object) = state.as_object_mut() {
         for (key, value) in extra {
@@ -357,7 +316,7 @@ fn extras(raw: &Value) -> Map<String, Value> {
     raw.as_object()
         .map(|o| {
             o.iter()
-                .filter(|(k, _)| !KNOWN_KEYS.contains(&k.as_str()))
+                .filter(|(k, _)| !known(k))
                 .map(|(k, v)| (k.clone(), v.clone()))
                 .collect()
         })
@@ -366,7 +325,11 @@ fn extras(raw: &Value) -> Map<String, Value> {
 
 /// The desktop switches (friends on the desktop; roaming), flipped from the page or the tray.
 pub fn toggle_flag(app: &AppHandle, d: &mut AppData, wander: bool) -> Result<bool, String> {
-    let flag = if wander { &mut d.wander } else { &mut d.desktop };
+    let flag = if wander {
+        &mut d.prefs.wander
+    } else {
+        &mut d.prefs.desktop
+    };
     *flag = !*flag;
     let now = *flag;
     save_and_show(app, d).map(|()| now)
@@ -424,17 +387,7 @@ mod tests {
             "in the file's own order"
         );
         assert!(extras(&json!("not an object")).is_empty());
-        assert!(KNOWN_KEYS.contains(&"secretIds"));
-    }
-
-    #[test]
-    fn the_yard_sounds_start_on_and_quiet_and_a_saved_volume_is_held_to_100() {
-        assert_eq!(Sound::restore(None), Sound { on: true, volume: 40 });
-        assert_eq!(
-            Sound::restore(Some(&json!({"on": false, "volume": 250}))),
-            Sound { on: false, volume: 100 }
-        );
-        assert_eq!(Sound::restore(Some(&json!("loud"))), Sound::default());
+        assert!(known("secretIds") && known("miniRect"));
     }
 
     #[test]

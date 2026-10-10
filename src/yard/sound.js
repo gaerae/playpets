@@ -7,6 +7,7 @@
 
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
+import { onShortcut } from '../core/keys.js';
 import { between } from '../core/math.js';
 import { $, call, data, guard } from '../core/state.js';
 import { mixFor } from './soundmix.js';
@@ -157,14 +158,8 @@ export function setupSound() {
     if (awake) scape.setVolume(Number(e.target.value), ctx.currentTime, 0.08);
   });
   $('sound-volume').addEventListener('change', e => set(null, Number(e.target.value)));
-  // The macOS View menu has the key; elsewhere the page answers it.
-  if (!/Mac/.test(navigator.platform))
-    document.addEventListener('keydown', e => {
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && !e.altKey && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        toggle();
-      }
-    });
+  // The macOS View menu has the key; elsewhere the page answers it (core/keys.js).
+  onShortcut('sound', toggle);
   const first = () => {
     touched = true;
     update();

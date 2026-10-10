@@ -126,10 +126,12 @@ test('every colour the painter reads is set in the stylesheet, and every scenery
       )
     ).join('\n'),
     art = (await readdir('src/art', { recursive: true })).filter(f => f.endsWith('.svg')).map(f => `src/art/${f}`),
+    // The yard's own stylesheets (every one but scenery.css, which sets the colours).
+    styles = (await readdir('src/styles'))
+      .filter(f => f.endsWith('.css') && f !== 'scenery.css')
+      .map(f => `src/styles/${f}`),
     others = (
-      await Promise.all(
-        ['src/index.html', 'src/styles/yard.css', 'src/yard/scene.js', ...art].map(f => readFile(f, 'utf8')),
-      )
+      await Promise.all(['src/index.html', ...styles, 'src/yard/scene.js', ...art].map(f => readFile(f, 'utf8')))
     ).join('\n');
   const names = Object.keys(readPalette(() => ''));
   // Read by the painter: pal['name'] or pal.name (crown and maple fall back to leaf, cap to none).

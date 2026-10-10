@@ -157,7 +157,7 @@ pub fn update_pet(pets: &mut [Pet], id: &str, patch: &Value) -> Result<(), Strin
 }
 
 /// Unlike a patch, a saved state is never refused: whatever in it is unusable is left out.
-pub fn restore_state(raw: &Value, asset_ids: &[String]) -> (Vec<Pet>, bool, bool) {
+pub fn restore_pets(raw: &Value, asset_ids: &[String]) -> Vec<Pet> {
     let mut pets: Vec<Pet> = Vec::new();
     let mut seen = std::collections::HashSet::new();
     for p in raw.get("pets").and_then(|v| v.as_array()).cloned().unwrap_or_default() {
@@ -199,12 +199,10 @@ pub fn restore_state(raw: &Value, asset_ids: &[String]) -> (Vec<Pet>, bool, bool
         }
         pets.push(pet);
     }
-    let desktop = raw.get("desktop").and_then(|v| v.as_bool()).unwrap_or(false);
-    let wander = raw.get("desktopWander").and_then(|v| v.as_bool()).unwrap_or(false);
-    (pets, desktop, wander)
+    pets
 }
 
-/// The saved friends `restore_state` could not bring back (their pet file was not found this time,
+/// The saved friends `restore_pets` could not bring back (their pet file was not found this time,
 /// a folder unplugged or moved, or there were more than the limit), kept as they were so that a
 /// later start that finds the file has them again, with their bond, instead of losing them.
 /// Only records that could become a friend again are kept (an id and a pet file named), and at
@@ -252,12 +250,11 @@ mod tests {
             {"id": "a", "assetId": "white", "size": 999, "x": "NaN", "y": 0.4},
             {"id": "a", "assetId": "white"},
             {"id": "b", "assetId": "missing"},
-        ], "desktop": "false"});
-        let (pets, desktop, wander) = restore_state(&raw, &["white".into()]);
+        ]});
+        let pets = restore_pets(&raw, &["white".into()]);
         assert_eq!(pets.len(), 1);
         assert_eq!(pets[0].size, 192.0);
         assert!(pets[0].x.is_finite());
-        assert!(!desktop && !wander);
     }
 
     #[test]
@@ -271,7 +268,7 @@ mod tests {
         );
         update_pet(&mut pets, &a.id, &json!({"relation": "overlord"})).unwrap();
         assert_eq!(pets[0].relation, "");
-        let (restored, _, _) = restore_state(
+        let restored = restore_pets(
             &json!({"pets": [{"id": "x", "assetId": "cat", "relation": "senior", "callMe": "선배"}]}),
             &["cat".into()],
         );
@@ -295,7 +292,7 @@ mod tests {
         update_pet(&mut pets, &id, &json!({"persona": "Mine."})).unwrap();
         update_pet(&mut pets, &id, &json!({"persona": ""})).unwrap();
         assert_eq!(pets[0].persona_from, "", "cleared, the introduction speaks again");
-        let (restored, _, _) = restore_state(
+        let restored = restore_pets(
             &json!({"pets": [{"id": "x", "assetId": "cat", "persona": "Soft.", "personaFrom": "chat"}]}),
             &["cat".to_string()],
         );
@@ -312,7 +309,7 @@ mod tests {
         update_pet(&mut pets, &a.id, &json!({"persona": "가".repeat(500)})).unwrap();
         assert_eq!(pets[0].persona.chars().count(), 400);
         assert!(update_pet(&mut pets, &a.id, &json!({"persona": 42})).is_err());
-        let (restored, _, _) = restore_state(
+        let restored = restore_pets(
             &json!({"pets": [{"id": "x", "assetId": "cat", "persona": "나".repeat(999)}, {"id": "y", "assetId": "cat", "persona": 7}]}),
             &["cat".into()],
         );
@@ -329,7 +326,7 @@ mod tests {
             {"id": "", "assetId": "white"},
             {"id": "no-file"}
         ]});
-        let (pets, _, _) = restore_state(&raw, &["white".into()]);
+        let pets = restore_pets(&raw, &["white".into()]);
         let parked = parked_pets(&raw, &pets);
         assert_eq!(pets.len(), 1);
         assert_eq!(parked.len(), 1);

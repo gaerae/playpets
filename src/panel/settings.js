@@ -4,6 +4,7 @@ import { agentFile } from '../core/agent-files.js';
 import { agentLabel, agentOf } from '../core/agents.js';
 import { confirmAction } from '../core/confirm.js';
 import { language, t } from '../core/i18n.js';
+import { onShortcut } from '../core/keys.js';
 import { projectLinks } from '../core/project.js';
 import { $, call, data, guard, name, recall, remember, toast } from '../core/state.js';
 import { LANGUAGES } from '../core/strings.js';
@@ -213,12 +214,7 @@ export function setupSettings() {
     if (installing) event.preventDefault();
   };
   // Cmd+, (macOS, where the menu bar also has it) or Ctrl+, opens Settings, as in most desktop apps.
-  document.addEventListener('keydown', event => {
-    if ((event.metaKey || event.ctrlKey) && event.key === ',') {
-      event.preventDefault();
-      openPanel('settings');
-    }
-  });
+  onShortcut('settings', () => openPanel('settings'));
   for (const button of document.querySelectorAll('button[data-link]'))
     button.onclick = guard(() => call('openExternal', links()[button.dataset.link]));
   $('desktop').onclick = guard(async () => {

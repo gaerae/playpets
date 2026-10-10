@@ -12,7 +12,7 @@ use crate::app::{AppData, Shared, changed, lock, pet_name, push_event, require_p
 use crate::commands::{arg, text};
 use crate::i18n;
 use serde_json::{Value, json};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{AppHandle, State};
@@ -21,6 +21,50 @@ use tauri::{AppHandle, State};
 const HISTORY_LIMIT: usize = 24;
 const MESSAGE_LIMIT: usize = 4000;
 const GROUP_MAX: usize = 4;
+
+/// What the chat keeps while the app runs: each friend's conversation, and the answers on their way.
+#[derive(Default)]
+pub struct Talks {
+    histories: HashMap<String, Vec<Value>>,
+    /// Entries each history has had since it started, trimming aside (chat CLI sessions go by it).
+    totals: HashMap<String, u64>,
+    /// Friends waiting for an answer, each with the flag that calls it off (one flag for every
+    /// friend in a group turn).
+    waiting: HashMap<String, Arc<AtomicBool>>,
+}
+
+impl Talks {
+    pub fn history(&self, id: &str) -> Vec<Value> {
+        self.histories.get(id).cloned().unwrap_or_default()
+    }
+    fn total(&self, id: &str) -> u64 {
+        self.totals.get(id).copied().unwrap_or(0)
+    }
+    fn remember(&mut self, id: &str, entry: Value) {
+        *self.totals.entry(id.into()).or_default() += 1;
+        let history = self.histories.entry(id.into()).or_default();
+        history.push(entry);
+        let extra = history.len().saturating_sub(HISTORY_LIMIT);
+        history.drain(..extra);
+    }
+    fn forget(&mut self, id: &str) {
+        self.histories.remove(id);
+        self.totals.remove(id);
+    }
+    /// Whether a friend is waiting for an answer.
+    pub fn busy(&self, id: &str) -> bool {
+        self.waiting.contains_key(id)
+    }
+    pub fn busy_ids(&self) -> impl Iterator<Item = &String> {
+        self.waiting.keys()
+    }
+    fn wait(&mut self, id: &str, cancel: &Arc<AtomicBool>) {
+        self.waiting.insert(id.into(), cancel.clone());
+    }
+    fn done(&mut self, id: &str) {
+        self.waiting.remove(id);
+    }
+}
 
 fn too_long() -> String {
     i18n::tr("chat.too_long", &[("limit", &MESSAGE_LIMIT.to_string())])
@@ -116,7 +160,7 @@ fn unlock(speakers: &mut [Speaker]) -> Result<(), String> {
 /// already answering, and its AI connection was neither changed nor is being saved meanwhile.
 fn still_ready(d: &AppData, s: &Speaker) -> Result<(), String> {
     require_pet(d, &s.id)?;
-    if d.pending.contains(&s.id) {
+    if d.talks.busy(&s.id) {
         return Err(i18n::t("chat.still_answering"));
     }
     let id = providers::id_of(&s.provider);
@@ -160,15 +204,14 @@ fn ask(
 
 /// Forgets a friend's conversation, and the CLI session that held it.
 pub fn reset(d: &mut AppData, cli: &cli::CliManager, id: &str) {
-    d.histories.remove(id);
-    d.history_totals.remove(id);
+    d.talks.forget(id);
     cli.reset(id);
 }
 
 /// Calls off the answer a friend is waiting for, whichever kind of AI is writing it: its turn's flag
 /// (the one place a cancel is kept, which the CLI turn also watches) and an idle CLI session.
 pub fn cancel(d: &AppData, cli: &cli::CliManager, id: &str) {
-    if let Some(flag) = d.cancels.get(id) {
+    if let Some(flag) = d.talks.waiting.get(id) {
         flag.store(true, Ordering::SeqCst);
     }
     cli.cancel(id);
@@ -178,27 +221,11 @@ pub fn cancel(d: &AppData, cli: &cli::CliManager, id: &str) {
 pub fn clear(state: &State<Shared>, cli: &cli::CliManager, id: &str) -> Result<Value, String> {
     let mut d = lock(state);
     require_pet(&d, id)?;
-    if d.pending.contains(id) {
+    if d.talks.busy(id) {
         return Err(i18n::t("error.cancel_before_clear"));
     }
     reset(&mut d, cli, id);
     Ok(Value::Null)
-}
-
-fn history(d: &AppData, id: &str) -> Vec<Value> {
-    d.histories.get(id).cloned().unwrap_or_default()
-}
-
-fn total(d: &AppData, id: &str) -> u64 {
-    d.history_totals.get(id).copied().unwrap_or(0)
-}
-
-fn remember(d: &mut AppData, id: &str, entry: Value) {
-    *d.history_totals.entry(id.into()).or_default() += 1;
-    let history = d.histories.entry(id.into()).or_default();
-    history.push(entry);
-    let extra = history.len().saturating_sub(HISTORY_LIMIT);
-    history.drain(..extra);
 }
 
 fn preview(text: &str) -> String {
@@ -228,7 +255,7 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
     let mut speaker = {
         let d = lock(state);
         require_pet(&d, &id)?;
-        if d.pending.contains(&id) {
+        if d.talks.busy(&id) {
             return Err(i18n::t("chat.still_answering"));
         }
         speaker(&d, &id, false)?
@@ -237,16 +264,15 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
     let (messages, at, cancel) = {
         let mut d = lock(state);
         still_ready(&d, &speaker)?;
-        let mut messages = history(&d, &id);
+        let mut messages = d.talks.history(&id);
         let at = cli::At {
-            total: total(&d, &id),
+            total: d.talks.total(&id),
             in_history: messages.len(),
             adds: 2,
         };
         messages.push(json!({"role": "user", "content": text.trim()}));
         let cancel = Arc::new(AtomicBool::new(false));
-        d.pending.insert(id.clone());
-        d.cancels.insert(id.clone(), cancel.clone());
+        d.talks.wait(&id, &cancel);
         chat_status(app, &mut d, &id, "working", &i18n::t("chat.thinking"));
         (messages, at, cancel)
     };
@@ -254,8 +280,7 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
     let answer = ask(cli, &speaker, "", messages, at, &cancel);
 
     let mut d = lock(state);
-    d.pending.remove(&id);
-    d.cancels.remove(&id);
+    d.talks.done(&id);
     let cancelled = cancel.load(Ordering::SeqCst);
     match answer {
         Ok(answer) if !cancelled => {
@@ -265,8 +290,8 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
             }
             // The friend may have been sent away while it was thinking.
             if d.pets.iter().any(|p| p.id == id) {
-                remember(&mut d, &id, json!({"role": "user", "content": text.trim()}));
-                remember(&mut d, &id, json!({"role": "assistant", "content": answer}));
+                d.talks.remember(&id, json!({"role": "user", "content": text.trim()}));
+                d.talks.remember(&id, json!({"role": "assistant", "content": answer}));
                 chat_status(app, &mut d, &id, "done", &preview(&answer));
             } else {
                 changed(app, &d);
@@ -320,7 +345,7 @@ pub fn chatter(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, ar
         let d = lock(state);
         let ids = chatty(
             d.pets.iter().map(|p| (p.id.as_str(), !p.provider_id.is_empty())),
-            &d.pending,
+            |id| d.talks.busy(id),
         );
         let bonds = d.pets.iter().any(|p| ids.contains(&p.id) && !p.relation.is_empty());
         (ids, bonds)
@@ -339,8 +364,8 @@ pub fn chatter(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, ar
 }
 
 /// Up to three friends who have an AI and are not already answering, in yard order.
-fn chatty<'a>(pets: impl Iterator<Item = (&'a str, bool)>, pending: &HashSet<String>) -> Vec<String> {
-    pets.filter(|(id, has_ai)| *has_ai && !pending.contains(*id))
+fn chatty<'a>(pets: impl Iterator<Item = (&'a str, bool)>, busy: impl Fn(&str) -> bool) -> Vec<String> {
+    pets.filter(|(id, has_ai)| *has_ai && !busy(id))
         .map(|(id, _)| id.to_string())
         .take(3)
         .collect()
@@ -381,7 +406,7 @@ fn group_round(
         let mut speakers = Vec::new();
         for id in &ids {
             require_pet(&d, id)?;
-            if d.pending.contains(id) {
+            if d.talks.busy(id) {
                 return Err(i18n::t("chat.still_answering"));
             }
             speakers.push(speaker(&d, id, true)?);
@@ -397,10 +422,9 @@ fn group_round(
             still_ready(&d, s)?;
         }
         for s in &speakers {
-            d.pending.insert(s.id.clone());
-            d.cancels.insert(s.id.clone(), cancel.clone());
+            d.talks.wait(&s.id, &cancel);
             if !text.is_empty() {
-                remember(&mut d, &s.id, json!({"role": "user", "content": text}));
+                d.talks.remember(&s.id, json!({"role": "user", "content": text}));
             }
         }
         chat_status(app, &mut d, host, "working", &i18n::t("chat.group_talking"));
@@ -426,8 +450,7 @@ fn group_round(
     let mut d = lock(state);
     let cancelled = cancel.load(Ordering::SeqCst);
     for s in &speakers {
-        d.pending.remove(&s.id);
-        d.cancels.remove(&s.id);
+        d.talks.done(&s.id);
     }
     match (outcome, cancelled) {
         (_, true) => {
@@ -465,7 +488,7 @@ fn one_turn(
         .collect();
     let (mut messages, total) = {
         let d = lock(state);
-        (history(&d, &speaker.id), total(&d, &speaker.id))
+        (d.talks.history(&speaker.id), d.talks.total(&speaker.id))
     };
     // The question and the others' lines are already in the history; this turn adds the answer.
     let at = cli::At {
@@ -500,7 +523,7 @@ fn one_turn(
         } else {
             prompt::peer_entry(&speaker.id, &speaker.name, &answer)
         };
-        remember(&mut d, &s.id, entry);
+        d.talks.remember(&s.id, entry);
     }
     push_event(
         app,
@@ -515,7 +538,7 @@ fn one_turn(
 /// stands until it reports again, so the yard keeps showing the work.
 fn chat_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, message: &str) {
     if agent_busy(d.statuses.get(id)) {
-        // The page still hears that the chat started or ended (pending is part of the state).
+        // The page still hears that the chat started or ended (who is waiting is part of the state).
         changed(app, d);
         return;
     }
@@ -539,11 +562,8 @@ mod tests {
         assert!(!agent_busy(None));
     }
 
-    use std::collections::HashSet;
-
     #[test]
     fn chatter_picks_up_to_three_friends_with_an_ai_who_are_free() {
-        let pending: HashSet<String> = ["b".to_string()].into_iter().collect();
         let pets = [
             ("a", true),
             ("b", true),
@@ -552,8 +572,8 @@ mod tests {
             ("e", true),
             ("f", true),
         ];
-        assert_eq!(chatty(pets.iter().copied(), &pending), ["a", "d", "e"]);
-        assert!(chatty([("x", false)].into_iter(), &HashSet::new()).is_empty());
+        assert_eq!(chatty(pets.iter().copied(), |id| id == "b"), ["a", "d", "e"]);
+        assert!(chatty([("x", false)].into_iter(), |_| false).is_empty());
         let line = opener("evening", "rain", false);
         assert!(!line.contains("partner"));
         assert!(opener("day", "clear", true).contains("partner"));

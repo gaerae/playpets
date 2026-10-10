@@ -1,0 +1,160 @@
+/* The tools at the foot of the yard: care, the garden's planting tool, the album and the games'
+   menu, and the treat a friend goes to eat. */
+.play-toolbar {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 5;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+  padding: 5px 8px;
+  border: 1px solid #ffffff;
+  border-radius: 18px;
+  background: #ffffffeb;
+  box-shadow: 0 6px 20px #213e4329;
+}
+/* With no friend in the yard the toolbar has nothing to act on, and goes. */
+.layout.no-friends .play-toolbar {
+  display: none;
+}
+.tools {
+  display: flex;
+  gap: 4px;
+  flex-wrap: nowrap;
+  align-items: center;
+  row-gap: 2px;
+}
+.button.tool {
+  font-size: 12px;
+  padding: 9px 10px;
+}
+.button.tool:hover {
+  background: #e9eeea;
+}
+.button.tool.active {
+  background: #dcebc8;
+}
+.tool-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  margin: 0 8px;
+}
+/* the number of seeds on the planting tool */
+.tool-count {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #e3f2ea;
+  color: #2c6e57;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+.tool-count:empty {
+  display: none;
+}
+/* The tools keep one row over the scene: in a narrow yard their names go, icons stay (the names are
+   the tooltips and what screen readers say). */
+@container (max-width: 620px) {
+  .tools > .button.tool > span:not([data-icon]),
+  #games-button > #games-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .tools > .button.tool,
+  #games-button {
+    padding: 8px;
+  }
+}
+/* the games' menu rises above the tools */
+.games {
+  position: relative;
+}
+#games-button .scene-chevron svg {
+  transform: rotate(180deg);
+}
+#games-button[aria-expanded="true"] .scene-chevron svg {
+  transform: none;
+}
+#games-button.playing {
+  background: #dcebc8;
+}
+#games-button.playing .scene-chevron {
+  display: none;
+}
+.games-menu {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fffffff5;
+  box-shadow: 0 10px 28px var(--ink-20);
+}
+.games-menu[hidden] {
+  display: none;
+}
+/* Rows like every other menu (the friend's menu, the scene menu), not a stack of buttons. */
+.games-menu .button.tool {
+  justify-content: flex-start;
+  gap: 9px;
+  min-height: 0;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  box-shadow: none;
+  font-size: 12.5px;
+}
+.games-menu .button.tool:hover:not(:disabled),
+.games-menu .button.tool:focus-visible {
+  background: var(--paper);
+}
+.games-menu .button.tool svg {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+/* the game on, whose row ends it */
+.games-menu .button.tool.playing,
+.games-menu .button.tool.playing:hover:not(:disabled) {
+  background: #fbe7ef;
+  color: #a8425b;
+}
+.treat {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f0c98c, #d89b55);
+  box-shadow:
+    inset 0 -3px 0 #b9773a,
+    2px 5px 3px #526c5225;
+}
+.treat:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 34%, #7a4326 2.2px, transparent 2.7px),
+    radial-gradient(circle at 68% 42%, #7a4326 2px, transparent 2.5px),
+    radial-gradient(circle at 46% 72%, #7a4326 2.2px, transparent 2.7px);
+}

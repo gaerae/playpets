@@ -103,7 +103,7 @@ pub fn command(app: &AppHandle, name: &str, args: &[Value]) -> Result<Value, Str
         "windowHide" => hide(app),
         "windowMini" => {
             let on = arg(args, 0).as_bool().unwrap_or(false);
-            let saved = app.try_state::<Shared>().and_then(|s| lock(&s).mini_rect);
+            let saved = app.try_state::<Shared>().and_then(|s| lock(&s).prefs.mini_rect);
             set_mini(&w, on, saved);
             crate::tray::retitle(app);
             return Ok(Value::Bool(on));
@@ -211,8 +211,8 @@ pub fn moved(app: &AppHandle) {
     };
     let Some(rect) = rect_now(&w) else { return };
     let mut d = lock(&state);
-    if d.mini_rect != Some(rect) {
-        d.mini_rect = Some(rect);
+    if d.prefs.mini_rect != Some(rect) {
+        d.prefs.mini_rect = Some(rect);
         crate::app::persist_soon(app);
     }
 }

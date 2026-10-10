@@ -127,7 +127,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
     warnings.extend(found.warnings);
 
     let asset_ids: Vec<String> = assets.iter().map(|a| a.id.clone()).collect();
-    let (mut pets, desktop, wander) = model::restore_state(&raw, &asset_ids);
+    let mut pets = model::restore_pets(&raw, &asset_ids);
     let parked_pets = model::parked_pets(&raw, &pets);
     if !parked_pets.is_empty() {
         warnings.push(i18n::tr("pets.parked", &[("count", &parked_pets.len().to_string())]));
@@ -155,14 +155,9 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         assets,
         warnings,
         pets,
-        desktop,
-        wander,
-        language,
+        prefs: Prefs::restore(&raw, language),
         imports,
         agent_pets,
-        auto_chatter: raw.get("autoChatter").and_then(|v| v.as_bool()).unwrap_or(false),
-        sound: Sound::restore(raw.get("sound")),
-        mini_rect: raw.get("miniRect").and_then(window::rect_of),
         autostart: false,
         garden,
         album: album::Album::restore(raw.get("album")),
@@ -173,10 +168,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         extra: extras(&raw),
         secret_ids: strings("secretIds").into_iter().collect(),
         statuses: Map::new(),
-        histories: HashMap::new(),
-        history_totals: HashMap::new(),
-        pending: HashSet::new(),
-        cancels: HashMap::new(),
+        talks: chat::Talks::default(),
         provider_updates: HashSet::new(),
         detected: json!({"claude": false, "codex": false, "ollama": []}),
         activity: HashMap::new(),

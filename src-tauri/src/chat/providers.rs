@@ -58,7 +58,7 @@ pub fn save(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, raw: 
             .map(|p| id_of(p).to_string())
             .filter(|id| !id.is_empty());
         let id = known.clone().unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
-        if d.provider_updates.contains(&id) || d.pets.iter().any(|p| p.provider_id == id && d.pending.contains(&p.id)) {
+        if d.provider_updates.contains(&id) || d.pets.iter().any(|p| p.provider_id == id && d.talks.busy(&p.id)) {
             return Err(i18n::t("provider.busy"));
         }
         if known.is_none() && d.providers.len() >= LIMIT {

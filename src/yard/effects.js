@@ -1,6 +1,6 @@
 // Effects a gift can have, by name: the catalogue lists a gift's effects (catalog.json "effects"),
 // the decoration carries them as data-effects, and each effect is here: a layer drawn with the gift,
-// something that happens when a friend visits it, and its rules in the stylesheet (yard.css,
+// something that happens when a friend visits it, and its rules in the stylesheet (garden.css,
 // "effects"). A new gift uses an effect by naming it; an effect changes here and in its rules, and
 // every gift that names it follows.
 //   glow: lit from evening on, a warm pool of light around it, and not dimmed at night.

@@ -1,0 +1,291 @@
+/* What floats at the head of the yard: the scene's name and its menu, the clock, how the yard is
+   shown (the view controls) and the hint under them. */
+.yard-caption {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  color: #3f5a5f;
+  font-size: 11.5px;
+  pointer-events: none;
+}
+.yard-caption > * {
+  pointer-events: auto;
+}
+/* chips over the scene: nearly opaque (no backdrop blur, which would recomposite every frame the
+   clouds drift) */
+.caption-main,
+.yard-hint:not(:empty) {
+  background: #ffffffe3;
+  border-radius: 999px;
+  box-shadow: 0 2px 10px var(--ink-12);
+}
+/* The caption stays on one line. In a tight yard the hint gives way first, then the scene words
+   trail off; the friend count and the two pickers always show whole. */
+.caption-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 12px 3px 3px;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#scene-caption {
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sun-dot {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  background: #e3b766;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px #e3b76620;
+}
+.sun-dot.moon {
+  background: #e9e4d3;
+  box-shadow:
+    0 0 0 4px #e9e4d320,
+    -3px -2px 0 1px #37506a inset;
+}
+.caption-count {
+  flex: none;
+  color: #57755d;
+  font-weight: 700;
+  margin-left: 2px;
+}
+.caption-agents {
+  flex: none;
+  color: var(--accent);
+  font-weight: 650;
+}
+/* The seasonal event on, beside the scene label (festival.js). */
+.caption-event {
+  flex: none;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: #fbe7ef;
+  color: #a8425b;
+  font-weight: 700;
+}
+.caption-event[hidden] {
+  display: none;
+}
+.scene-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 8px 4px 9px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  min-width: 0;
+}
+.scene-button:hover,
+.scene-button[aria-expanded="true"] {
+  background: #e8f1ec;
+}
+.scene-chevron {
+  display: inline-flex;
+}
+.scene-chevron svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0.6;
+  transition: transform 0.15s;
+}
+.scene-button[aria-expanded="true"] .scene-chevron svg {
+  transform: rotate(180deg);
+}
+.scene-menu {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fffffff5;
+  box-shadow: 0 10px 28px var(--ink-20);
+  font-weight: 650;
+}
+.scene-menu[hidden] {
+  display: none;
+}
+.weather-select {
+  width: auto;
+  font-size: 11px;
+  padding: 4px 24px 4px 8px;
+  background-position: right 7px center;
+  background-size: 9px 7px;
+  border-radius: 8px;
+  min-height: 0;
+}
+/* the time and the date, as the yard's clock has them */
+.yard-clock {
+  flex: none;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #ffffffe3;
+  box-shadow: 0 2px 10px var(--ink-12);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.yard-clock:empty {
+  display: none;
+}
+/* How the yard is shown, beside the clock, as a video player keeps its controls: on the desktop
+   (a switch, pressed while on, with strolling beside it), the mini window, and the yard's sounds. */
+.caption-end {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.view-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: #ffffffe3;
+  box-shadow: 0 2px 10px var(--ink-12);
+}
+.view-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 27px;
+  min-width: 27px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #3f5a5f;
+  font-size: 11.5px;
+  font-weight: 650;
+  cursor: pointer;
+  justify-content: center;
+}
+.view-button svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.view-button:hover:not(:disabled) {
+  background: #213e430f;
+}
+.view-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.view-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+/* A switch that is on, as the tray's check mark says. */
+#desktop[aria-pressed="true"] {
+  background: #e3efe6;
+  color: #24503a;
+}
+#sound-button[aria-pressed="false"] {
+  color: #8a9a9c;
+}
+.view-wander {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 4px;
+  font-size: 11px;
+  font-weight: 650;
+  color: #3f5a5f;
+  cursor: pointer;
+  user-select: none;
+}
+.view-wander[hidden] {
+  display: none;
+}
+.view-wander input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.view-wander .wander-switch {
+  width: 26px;
+  height: 15px;
+}
+.view-wander .wander-switch::after {
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+}
+.view-wander input:checked ~ .wander-switch {
+  background: var(--accent);
+}
+.view-wander input:checked ~ .wander-switch::after {
+  transform: translateX(11px);
+}
+.view-wander input:focus-visible ~ .wander-switch {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* The hint, while there is something to learn, under the view controls at the top right. */
+.yard-hint {
+  position: absolute;
+  top: 52px;
+  right: 12px;
+  z-index: 5;
+  max-width: calc(100% - 340px);
+  font-size: 11.5px;
+  color: #3f5a5f;
+  pointer-events: none;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.yard-hint:not(:empty) {
+  padding: 6px 12px;
+}
+@media (max-width: 1000px) {
+  .layout.panel-open .yard-hint {
+    display: none;
+  }
+}
+/* In a narrower yard the desktop switch keeps its icon and its words go to the tooltip. */
+@container (max-width: 760px) {
+  .view-label,
+  .view-wander > span:last-child {
+    display: none;
+  }
+}
+/* In a narrower yard the scene's name stays whole: the event goes first (the yard with the panel
+   open beside it has no room for it in every language), then the friend count. */
+@container (max-width: 800px) {
+  .caption-event {
+    display: none;
+  }
+}
+@container (max-width: 560px) {
+  .caption-count,
+  .clock-date {
+    display: none;
+  }
+}

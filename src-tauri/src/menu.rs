@@ -43,7 +43,7 @@ pub fn act(app: &AppHandle, id: &str) {
         "sound" => {
             let state = app.state::<Shared>();
             let flipped = crate::app::commit(app, &state, |d| {
-                d.sound.on = !d.sound.on;
+                d.prefs.sound.on = !d.prefs.sound.on;
                 Ok(Value::Null)
             });
             if let Err(e) = flipped {

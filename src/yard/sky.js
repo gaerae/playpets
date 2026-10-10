@@ -104,7 +104,7 @@ function showRainbow(yard) {
   rainbowTimer = setTimeout(() => $('yard').classList.remove('after-rain'), RAINBOW_MS);
 }
 // The clock at the top right: the time and the date in the app's language, changed on the minute
-// (a narrow yard shows the time alone, yard.css).
+// (a narrow yard shows the time alone, caption.css).
 const clockTime = new Intl.DateTimeFormat(language(), { hour: 'numeric', minute: '2-digit' }),
   clockDate = new Intl.DateTimeFormat(language(), { month: 'short', day: 'numeric', weekday: 'short' });
 function showTime(now) {

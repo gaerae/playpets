@@ -12,7 +12,7 @@ Change or add what is in the yard without touching the code that runs it. The ya
 | Colours of the seasons, the light and the weather | `src/styles/scenery.css` | the stylesheet, the painter and every drawing |
 | Names and lines | `src/core/strings/<language>.js` | the page |
 
-The code holds what things do: the painters (`backdrop.js`, `trees.js`, `lake.js`), the drawers for fish and bugs (`creatures.js`), the effects (`effects.js` and their rules in `yard.css`), and the rules (when fish bite, when a gift comes). A change to one of those changes every thing that uses it; a change to a content file never needs a code change.
+The code holds what things do: the painters (`backdrop.js`, `trees.js`, `lake.js`), the drawers for fish and bugs (`creatures.js`), the effects (`effects.js` and their rules in `garden.css`), and the rules (when fish bite, when a gift comes). A change to one of those changes every thing that uses it; a change to a content file never needs a code change.
 
 ## Prerequisites
 - You finished [Set up a development environment and run the app](../getting-started.md), and `npm test` passes.
@@ -52,7 +52,7 @@ Name it in the gift's `effects`. The effects there are:
 | `glow` | Lit from evening on: a warm pool of light around it, and it is not dimmed at night |
 | `chime` | Rings when a friend visits it (the `chime` sound in `soundmix.js`) |
 
-To make a new effect, add an entry to `EFFECTS` in `src/yard/effects.js`, shaped `{ name: { layer, visited } }`: `layer` is markup drawn with the gift, and `visited` is what happens when a friend visits it (both are optional; leave both out if the effect is only a rule). Put its rules under "Effects" in `src/styles/yard.css`, selecting `.decor[data-effects~="<name>"]`. Every gift that names it follows.
+To make a new effect, add an entry to `EFFECTS` in `src/yard/effects.js`, shaped `{ name: { layer, visited } }`: `layer` is markup drawn with the gift, and `visited` is what happens when a friend visits it (both are optional; leave both out if the effect is only a rule). Put its rules under "Effects" in `src/styles/garden.css`, selecting `.decor[data-effects~="<name>"]`. Every gift that names it follows.
 
 ### Change the scenery
 `src/content/yard.json`:

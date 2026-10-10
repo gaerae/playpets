@@ -1,0 +1,160 @@
+/* The mini window: the yard alone, the tools in a small bar that rises while the pointer is over
+   it, and smaller tags and cards. Last of the yard's files, as it changes what they set. */
+/* What the yard window has besides the yard goes, and so do the parts a small yard has no room for. */
+body.mini .topbar,
+body.mini .empty-yard,
+body.mini .yard-caption,
+body.mini .yard-hint,
+body.mini .side-panel,
+body.mini #warnings,
+body.mini .game-banner,
+body.mini #album-button {
+  display: none;
+}
+/* mini is narrower than the narrow-window breakpoint, so it undoes that layout: the yard is the window */
+body.mini .app-shell {
+  padding: 0;
+  height: 100%;
+  min-height: 0;
+}
+body.mini .layout {
+  padding: 0;
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+body.mini .layout,
+body.mini .layout.panel-open {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+body.mini .stage {
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+}
+body.mini .yard-frame {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+body.mini .yard {
+  cursor: grab;
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+/* The small window shows the friends alone; a name comes back while the pointer rests on one. */
+body.mini .pet-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  visibility: hidden;
+}
+body.mini .pet-label.pointing .pet-tag,
+body.mini .pet-label.focused .pet-tag,
+body.mini .pet-tag:hover {
+  visibility: visible;
+}
+/* The mini view keeps the care tools: a small bar that rises over the yard while the pointer is
+   on it, icons only (their words stay in the tooltip and for screen readers). */
+body.mini .play-toolbar {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  z-index: 6;
+  padding: 4px;
+  border: 0;
+  border-radius: 14px;
+  background: #ffffffe6;
+  box-shadow: 0 4px 14px var(--ink-15);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 6px);
+  transition:
+    opacity 0.18s,
+    transform 0.18s;
+}
+body.mini .yard-frame:hover .play-toolbar,
+body.mini .play-toolbar:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+body.mini .tool-divider,
+body.mini .games {
+  display: none;
+}
+body.mini .button.tool {
+  padding: 7px;
+  min-height: 32px;
+  min-width: 32px;
+  justify-content: center;
+}
+body.mini .button.tool > span:not([data-icon]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (hover: none) {
+  body.mini .play-toolbar {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
+}
+/* the way back to the full window, only in the mini one */
+.unmini {
+  display: none;
+}
+body.mini .unmini {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #ffffffd9;
+  color: var(--ink);
+  z-index: 5;
+  /* Always findable, quieter until the pointer is over the yard. */
+  opacity: 0.55;
+  transition: opacity 0.18s;
+  box-shadow: 0 2px 8px var(--ink-15);
+}
+body.mini .yard:hover .unmini,
+body.mini .unmini:focus-visible {
+  opacity: 1;
+}
+body.mini .unmini svg {
+  width: 15px;
+  height: 15px;
+}
+@media (hover: none) {
+  body.mini .unmini {
+    opacity: 0.85;
+  }
+}
+/* In the mini window the card is a small strip at the top: its drawing and its name, no detail. */
+body.mini .catch-card {
+  top: 8px;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  max-width: calc(100% - 60px);
+}
+body.mini .catch-card svg {
+  width: 40px;
+  height: 28px;
+}
+body.mini .catch-card strong {
+  font-size: 12px;
+}
+body.mini .catch-card small:not(.catch-new) {
+  display: none;
+}

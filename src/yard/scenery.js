@@ -2,7 +2,7 @@
 // creatures, now and then a flock of birds. The rules (where drops spawn, how they fall) live in
 // scene.js; this file only paints.
 // Every repaint of the canvas costs a screen update, so it is repainted only when something on it
-// moved. Stars are drawn once (their twinkle is the CSS layer's, yard.css). Butterflies, fireflies
+// moved. Stars are drawn once (their twinkle is the CSS layer's, scenery.css). Butterflies, fireflies
 // and falling petals or leaves come in spells: they are about for a while, leave, and the canvas
 // rests until the next spell.
 import { between } from '../core/math.js';
