@@ -121,3 +121,56 @@ test('a long credit line on the shelf never widens the invite panel', async () =
     'the credit line is cut with an ellipsis',
   );
 });
+
+// Every declaration can apply: none is always replaced by a later rule for the same selector, in the
+// same media or outside any, across the yard page's stylesheets in the order index.html loads them.
+// (A media rule said before the base rule it means to change never applies.)
+test('no declaration is always replaced by a later rule for the same selector', async () => {
+  const page = await readFile('src/index.html', 'utf8');
+  const files = [...page.matchAll(/href="styles\/([\w-]+\.css)"/g)].map(m => m[1]);
+  const rules = [];
+  const props = body =>
+    Object.fromEntries(
+      body
+        .split(';')
+        .filter(p => p.includes(':'))
+        .map(p => [p.slice(0, p.indexOf(':')).trim(), p.slice(p.indexOf(':') + 1).trim()]),
+    );
+  const add = (file, media, head, body) => {
+    for (const sel of head.split(',')) rules.push({ file, media, sel: sel.trim(), props: props(body) });
+  };
+  for (const file of files) {
+    const css = (await readFile(`src/styles/${file}`, 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+    let i = 0;
+    for (;;) {
+      const open = css.indexOf('{', i);
+      if (open < 0) break;
+      const head = css.slice(i, open).trim();
+      if (head.startsWith('@')) {
+        let depth = 1,
+          k = open + 1;
+        for (; depth; k++) depth += css[k] === '{' ? 1 : css[k] === '}' ? -1 : 0;
+        if (!head.startsWith('@keyframes'))
+          for (const m of css.slice(open + 1, k - 1).matchAll(/([^{}]+)\{([^{}]*)\}/g)) add(file, head, m[1], m[2]);
+        i = k;
+      } else {
+        const close = css.indexOf('}', open);
+        add(file, '', head, css.slice(open + 1, close));
+        i = close + 1;
+      }
+    }
+  }
+  // A group rule refined on purpose right after it.
+  const refined = new Set(['.paint-land z-index']);
+  const replaced = [];
+  rules.forEach((a, n) => {
+    for (const [prop, value] of Object.entries(a.props)) {
+      if (value.endsWith('!important') || refined.has(`${a.sel} ${prop}`)) continue;
+      const later = rules
+        .slice(n + 1)
+        .find(b => b.sel === a.sel && prop in b.props && (b.media === '' || b.media === a.media));
+      if (later) replaced.push(`${a.file} ${a.media} ${a.sel} { ${prop} } ← ${later.file} ${later.media}`);
+    }
+  });
+  assert.deepEqual(replaced, []);
+});

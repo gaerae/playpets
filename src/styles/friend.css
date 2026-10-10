@@ -1,0 +1,288 @@
+/* The Friend tab's head (who the friend is, its relationship and closeness), its menu, and the
+   friend settings dialog's details. The conversation below it is chat.css. */
+.fact-chip {
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--white);
+  border: 1px solid var(--line);
+}
+/* Who the friend is to you, beside how close you are: a chip that opens the choice (friend.js). */
+.relation-chip {
+  flex: none;
+  padding: 1px 8px;
+  border: 1px solid #f1cfe0;
+  border-radius: 99px;
+  background: #fdf0f6;
+  color: #8a3b5c;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+.relation-chip[data-relation="friend"] {
+  border-color: var(--line);
+  background: var(--white);
+  color: var(--muted);
+}
+.relation-chip:hover {
+  border-color: #e3a9c3;
+}
+.relation-chip[data-relation="friend"]:hover {
+  border-color: #c9d3cf;
+  color: var(--ink);
+}
+.fact-chip.agent {
+  color: #6b4b14;
+  border-color: #f0ddb8;
+  background: #fff6e4;
+}
+.pet-id {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 10px;
+  word-break: break-all;
+}
+#pet-dialog .pet-id {
+  margin-top: 6px;
+}
+/* ---- the Friend panel, laid out like a messenger: who you are talking to at the top, the
+   conversation filling the panel, and the composer at the bottom with the AI and who joins in.
+   What is done to the friend (settings, the AI connection, clearing, sending away) is in its menu. */
+#pet-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+/* With a friend open, its name is the panel's heading: the panel title stays for screen readers and
+   the close button sits in the corner beside the friend's menu. */
+.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  margin: 0;
+  z-index: 2;
+}
+.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.friend-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: none;
+  padding: 0 72px 0 0;
+}
+.avatar {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 70%, #e3eedd, #f4f7f1);
+  box-shadow: inset 0 0 0 1px var(--ink-8);
+  display: grid;
+  place-items: start center;
+}
+.avatar canvas {
+  width: 54px;
+  height: 58px;
+  margin-top: 3px;
+}
+.friend-id {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.friend-id h3 {
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.friend-select {
+  justify-self: start;
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.3px;
+  padding: 2px 26px 2px 8px;
+  margin: 0 0 0 -8px;
+  border-color: transparent;
+  background-color: transparent;
+  width: auto;
+  max-width: 100%;
+  min-height: 0;
+  text-overflow: ellipsis;
+}
+.friend-select:hover,
+.friend-select:focus {
+  border-color: var(--line);
+  background-color: var(--white);
+}
+/* Under the name, one quiet line: what its coding agent is doing, and how close it is. */
+.friend-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+  font-size: 10.5px;
+}
+.status-pill[hidden] {
+  display: none;
+}
+.status-pill {
+  flex: none;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: #edf4e9;
+  color: #4c6a49;
+  font-weight: 650;
+}
+.bond-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+.bond-row[hidden] {
+  display: none;
+}
+.bond-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+  color: #b2475f;
+  font-weight: 650;
+}
+.bond-level svg {
+  width: 12px;
+  height: 12px;
+  fill: #f08aa0;
+  stroke: #c9576f;
+}
+.bond-bar {
+  flex: 1;
+  min-width: 40px;
+  max-width: 90px;
+  height: 5px;
+  border-radius: 99px;
+  background: #f6dde2;
+  overflow: hidden;
+}
+.bond-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: #ec7d96;
+  transition: width 0.6s;
+}
+/* What the next step of the friendship brings, under the name (past the avatar: 46px and the gap). */
+.bond-next {
+  flex: none;
+  margin: 6px 0 0 57px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.bond-next:empty {
+  display: none;
+}
+.friend-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 8px 0 0;
+  flex: none;
+}
+.friend-chips:empty {
+  display: none;
+}
+/* The friend's menu, and the close button beside it, in the panel's corner. */
+.menu-anchor {
+  position: absolute;
+  top: 14px;
+  right: 50px;
+  z-index: 3;
+}
+.menu-anchor > .icon-button,
+.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head .icon-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+.menu-anchor > .icon-button svg {
+  width: 16px;
+  height: 16px;
+}
+.menu-anchor > .icon-button[aria-expanded="true"] {
+  background: var(--paper);
+}
+.pop-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 190px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  box-shadow: 0 12px 32px var(--ink-15);
+  display: grid;
+}
+.pop-menu[hidden] {
+  display: none;
+}
+.pop-menu [role="menuitem"] {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 550;
+  text-align: left;
+  cursor: pointer;
+}
+.pop-menu [role="menuitem"] svg {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+.pop-menu [role="menuitem"]:hover:not(:disabled),
+.pop-menu [role="menuitem"]:focus-visible {
+  background: var(--paper);
+  outline: none;
+}
+.pop-menu [role="menuitem"]:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.pop-menu [role="menuitem"].danger,
+.pop-menu [role="menuitem"].danger svg {
+  color: #b5452e;
+}
+.pop-menu hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 4px 6px;
+}

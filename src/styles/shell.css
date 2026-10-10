@@ -3,23 +3,6 @@ body {
   margin: 0;
   background: var(--paper);
 }
-@media (max-width: 1100px) {
-  .app-shell {
-    padding: 0 24px;
-  }
-  .layout {
-    gap: 20px;
-    grid-template-columns: minmax(0, 1fr) 264px;
-  }
-}
-@media (max-width: 760px) {
-  .app-shell {
-    padding: 0 16px;
-  }
-  .layout {
-    grid-template-columns: 1fr;
-  }
-}
 .wander-toggle {
   display: flex;
   align-items: center;
@@ -87,17 +70,6 @@ body {
     font-size: 11px;
     padding: 0 10px;
     gap: 7px;
-  }
-}
-@media (min-width: 1280px) {
-  .layout {
-    grid-template-columns: minmax(0, 1fr) 340px;
-  }
-}
-@media (max-width: 760px) {
-  .layout {
-    display: flex;
-    flex-direction: column;
   }
 }
 html,
@@ -210,14 +182,11 @@ html:not(.mac) body {
   color: var(--muted);
   margin-left: 8px;
 }
-.topbar .button,
-.panel-tab {
+.topbar .button {
   min-height: 34px;
   font-size: 12px;
   font-weight: 650;
   border-radius: 9px;
-}
-.topbar .button {
   padding: 6px 12px;
   gap: 7px;
 }
@@ -226,15 +195,15 @@ html:not(.mac) body {
   width: 15px;
   height: 15px;
 }
-.panel-tabs {
-  border-radius: 9px;
-}
 .panel-tab {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 34px;
   padding: 0 11px;
   border-radius: 0;
+  font-size: 12px;
+  font-weight: 650;
   color: var(--muted);
 }
 /* A switch in the top bar (desktop mode): pressed while it is on, as the tray's check mark says. */

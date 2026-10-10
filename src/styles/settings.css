@@ -1,0 +1,359 @@
+/* Settings, which opens as a wide sheet over the yard with an index of its groups, and the AI
+   connection dialog's choice of AI. */
+.auto-chatter {
+  margin: 6px 0 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--paper);
+  font-size: 12px;
+  align-items: flex-start;
+}
+.auto-chatter > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+.auto-chatter small {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.45;
+  white-space: normal;
+}
+/* The yard sounds' volume, under their switch, in the same card. */
+.auto-chatter.with-volume {
+  margin-bottom: 0;
+  border-radius: 12px 12px 0 0;
+}
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 2px 12px 12px 53px;
+  border-radius: 0 0 12px 12px;
+  background: var(--paper);
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.volume-row input {
+  flex: 1;
+  accent-color: var(--accent);
+}
+.volume-row input:disabled {
+  opacity: 0.45;
+}
+.button.quit {
+  font-size: 12px;
+  min-height: 34px;
+  padding: 7px 13px;
+  color: var(--ink);
+}
+.button.quit:hover {
+  color: var(--danger);
+  border-color: #e4c4b8;
+  background: #fdf6f2;
+}
+.button.quit svg {
+  width: 15px;
+  height: 15px;
+}
+.app-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--muted);
+}
+/* The settings tab: one titled list of agents. Each row names the file to paste into, in the spelling
+   this system uses, and what the agent will tell the friend. */
+.settings-section h3 {
+  font-size: 13px;
+  font-weight: 700;
+}
+.settings-lead {
+  margin: 6px 0 12px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.link-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+.link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 10px 9px 12px;
+}
+.link-row + .link-row {
+  border-top: 1px solid var(--line);
+}
+.link-row > div {
+  min-width: 0;
+}
+.link-row strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.link-row small {
+  display: block;
+  margin-top: 2px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  word-break: keep-all;
+}
+.link-row code {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  color: var(--ink);
+}
+.link-row .button.small {
+  flex: none;
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 11px;
+}
+/* A newer version: "What's new" and the install button take a line of their own under the note, so
+   the note keeps the row's width in every language. */
+.update-actions {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+.link-row:has(#update-notes:not([hidden])) {
+  flex-wrap: wrap;
+}
+.link-row:has(#update-notes:not([hidden])) > div {
+  flex: 1 0 100%;
+}
+.link-row:has(#update-notes:not([hidden])) .update-actions {
+  margin-top: 4px;
+}
+/* About: the version, one line on the license, and the app's own pages as small buttons that wrap.
+   A rule sets it apart from the agent list above it. */
+.settings-section.about {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.about-name {
+  font-weight: 700;
+  color: var(--ink);
+}
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.about-links .button.small {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 11px;
+}
+/* The language picker sits in a row like the agents: a compact select, not a full-width field. */
+/* A row with a friend to pick wraps: text and button first, the pick on its own line below. */
+.link-row:has(.agent-pet) {
+  flex-wrap: wrap;
+}
+.link-row .agent-pet {
+  order: 3;
+  flex: 1 0 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.link-row .language-select {
+  flex: none;
+  width: auto;
+  min-height: 30px;
+  padding: 0 32px 0 10px;
+  font-size: 11px;
+}
+/* The connection dialog's "other friends too" switch sits under the note, before the buttons. */
+.share-all {
+  margin-top: 10px;
+}
+/* The kinds of AI, as cards to pick from: what each needs is said on it, and what this computer
+   has is marked. The fields for the picked kind follow. */
+.ai-types {
+  border: 0;
+  padding: 0;
+  margin: 0 0 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.ai-types legend {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  padding: 0;
+}
+.ai-type {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.ai-type:hover {
+  border-color: #9fb5ae;
+}
+.ai-type.on {
+  border-color: var(--ink);
+  background: #f1f6f3;
+}
+.ai-type:has(input:focus-visible) {
+  outline: 3px solid #367b90;
+  outline-offset: 2px;
+}
+.ai-type input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ai-type-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+.ai-type small {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.ai-found {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #2c6e57;
+  background: #e3f2ea;
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+.ai-found[hidden] {
+  display: none;
+}
+#type-fields[hidden] {
+  display: none;
+}
+/* ---- Settings as a sheet over the yard: it needs no view of the yard, and has a lot to say ---- */
+.layout {
+  position: relative;
+}
+.layout.settings-open::after {
+  content: "";
+  position: absolute;
+  inset: 16px 0 20px;
+  z-index: 19;
+  border-radius: var(--radius);
+  background: #1d2f2a40;
+}
+.layout.settings-open .side-panel {
+  position: absolute;
+  top: 16px;
+  bottom: 20px;
+  left: 50%;
+  z-index: 20;
+  width: min(880px, 100%);
+  /* stretched between top and bottom (a grid item at "start" would grow with its content) */
+  align-self: stretch;
+  transform: translateX(-50%);
+  box-shadow: 0 18px 48px #1d2f2a40;
+}
+.settings-index {
+  display: none;
+}
+.layout.settings-open #panel-settings {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  column-gap: 24px;
+  align-content: start;
+}
+.layout.settings-open #panel-settings[hidden] {
+  display: none;
+}
+.layout.settings-open #panel-settings > :not(.settings-index) {
+  grid-column: 2;
+}
+.layout.settings-open .settings-index {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  grid-column: 1;
+  grid-row: 1 / span 20;
+  align-self: start;
+  position: sticky;
+  top: 0;
+}
+.settings-index button {
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  font: inherit;
+  font-weight: 650;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+}
+.settings-index button[aria-current] {
+  background: #eef3ee;
+  color: var(--ink);
+}
+.settings-index button:hover {
+  background: #eef3ee;
+  color: var(--ink);
+}
+@media (max-width: 760px) {
+  .layout.settings-open #panel-settings {
+    display: flex;
+  }
+  .layout.settings-open .settings-index {
+    display: none;
+  }
+}
+/* In the wide sheet a coding agent keeps one row: what it is, which friend it reports to, the copy. */
+@container panel (min-width: 720px) {
+  .link-row:has(.agent-pet) {
+    flex-wrap: nowrap;
+  }
+  .link-row:has(.agent-pet) > div {
+    flex: 1;
+  }
+  .link-row .agent-pet {
+    order: 0;
+    flex: none;
+    margin-top: 0;
+  }
+}
