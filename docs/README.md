@@ -61,20 +61,20 @@ If you are new, read in this order.
 ## Deep dives and reference
 **Decision records**: why the structure is the way it is. The standards point to them as their basis.
 - "[Real-app E2E runs a scenario script inside the app](decisions/2026-09-29-e2e-inside-the-real-app.md)"
-- "[Page modules run nothing on import and do not import each other in cycles](decisions/2026-09-30-page-modules-run-nothing-on-import.md)"
-- "[Strings live in two per-language tables, one for the page and one for the backend, and agent status is sent as codes](decisions/2026-09-30-strings-in-two-tables.md)"
-- "[Pet pictures in chat (images that fit the moment) are on hold](decisions/2026-10-05-pet-pictures-on-hold.md)"
 - "[The backend is split into folders by role, and main.rs only wires things up](decisions/2026-09-30-backend-modules-by-role.md)"
 - "[Never wait on the main thread while holding the app state lock](decisions/2026-09-30-no-waiting-on-main-thread-under-state-lock.md)"
-- "[The page draws often only when something moves, and drawing loops run on timers](decisions/2026-09-30-timer-frame-loops.md)"
+- "[Page modules run nothing on import and do not import each other in cycles](decisions/2026-09-30-page-modules-run-nothing-on-import.md)"
 - "[The version lives only in package.json, and a version tag creates a draft release](decisions/2026-09-30-releases-from-version-tags.md)"
+- "[Strings live in two per-language tables, one for the page and one for the backend, and agent status is sent as codes](decisions/2026-09-30-strings-in-two-tables.md)"
+- "[The page draws often only when something moves, and drawing loops run on timers](decisions/2026-09-30-timer-frame-loops.md)"
 - "[GitHub releases are the source, auto-update, winget and a Homebrew tap point at those files, and code signing turns on with secrets](decisions/2026-10-01-distribution-channels-and-signing.md)"
 - "[Publish the introduction, user guide, per-version pages and developer docs as one VitePress site on GitHub Pages](decisions/2026-10-03-website-on-github-pages.md)"
+- "[Pet pictures in chat (images that fit the moment) are on hold](decisions/2026-10-05-pet-pictures-on-hold.md)"
 - "[Lead with "a yard where your pets talk to each other", and treat Codex pet compatibility and hook reactions as the price of entry](decisions/2026-10-05-positioning-talking-friends.md)"
 
 **Design records and research**
 - [Stronger agent integration · community import · personality and activity memory](design/2026-09-29-agent-link-import-persona.md): the design as of 2026-09-29. Some file paths have changed since.
-- [A yard that grows with you](design/2026-10-09-a-yard-that-grows.md): the garden, gifts, fishing and bugs, the album and friendship, with their rules.
+- [A yard that grows with you](design/2026-10-09-a-yard-that-grows.md): the garden, gifts, fishing and bugs, the album and closeness, with their rules.
 - [A painted yard](design/2026-10-09-a-painted-yard.md): how the backdrop is painted after hand-painted animation backgrounds.
 - [Where things live in the window](design/2026-10-09-window-layout.md): one place for each kind of thing, and one name per switch.
 - [Yard sounds](design/2026-10-10-yard-sounds.md): the soundscape and its cues, made with Web Audio, and when they play.

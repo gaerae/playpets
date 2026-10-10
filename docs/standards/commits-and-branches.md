@@ -46,3 +46,9 @@ Follow these when you can. When you cannot, say why in the PR.
 
 ## Rationale
 A straight `main` where every commit passes the checks keeps `git bisect` and `git revert` useful, and lets a release be cut from any commit. Titles that say what changed, rather than a type prefix, make `git log --oneline` read as a history of the app; the CHANGELOG holds the user-facing wording, and the release notes come from it. The no-reply address and the list of what never goes in exist because a public history cannot be taken back: anything pushed is copied and indexed before it can be removed.
+
+## Automated checks
+There are no automated checks for commit titles, bodies or branch names beyond the pull request template's checklist (`.github/pull_request_template.md`). A maintainer reviews them before merging. What does run: CI (`build.yml`) runs the tests and lint on every pull request, the repository ruleset refuses deleting `main` and force-pushing to it, and `.gitignore` refuses the usual key and certificate files.
+
+## Change history
+- 2026-10-10 First version

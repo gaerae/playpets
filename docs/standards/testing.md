@@ -9,7 +9,7 @@ Not covered: changes to docs only (`docs/`, README, CHANGELOG). Tests do check t
 - When you change a behavior rule, first change the test that checks the rule, watch the changed test fail, and then change the code.
 - `npm test` (Rust unit tests and the page's Node tests) and `npm run lint` (rustfmt, clippy including warnings, Biome) pass. CI runs the same commands.
 - When you change a flow people see (buttons, windows, saving, agent integration), `npm run test:e2e` passes. When you add a new flow, add a check line to the scenario and the expected list in `tests/e2e.mjs`.
-- Pure rules (calculation, conversion, parsing) are split into functions that run without the page or the app and checked with unit tests (`src/core/`, `src/yard/games.js`, `scripts/*-lib.mjs`, `mod tests` in each Rust module).
+- Pure rules (calculation, conversion, parsing) are split into functions that run without the page or the app and checked with unit tests (`src/core/`, `src/yard/`, `scripts/*-lib.mjs`, `mod tests` in each Rust module). In the yard these include the lake's shape (`lakeShape`, `tests/lake.test.mjs`), closeness (`bondProgress`, `tests/bond.test.mjs`), the hint line (`hintKey`, `tests/hint.test.mjs`), seasonal events (`tests/events.test.mjs`), the catalogue (`tests/catalog.test.mjs`), strolling (`tests/wander.test.mjs`) and the sound mix (`tests/soundmix.test.mjs`).
 - Rust test-only code goes only inside `mod tests` at the end of the file. Watch tests scan only up to that point.
 
 What goes where.
@@ -18,6 +18,9 @@ What goes where.
 |---|---|---|
 | Rust logic | `mod tests` at the end of each `.rs` file | `npm test` |
 | Pure page logic, style contracts, module rules, strings tables | `tests/*.test.mjs` | `npm test` |
+| The yard's content loaded the way the page loads it, for tests of rules that read it | `tests/support/content.mjs` (import it before the module under test) | `npm test` |
+| Seasonal event dates, shared with the backend's `content.rs` test so the page and the backend agree | `tests/fixtures/event-dates.json` | `npm test` |
+| The page's limits and the backend's values kept equal (it reads the Rust source) | `tests/limits.test.mjs` | `npm test` |
 | Rules for generating release and distribution files | `tests/release.test.mjs`, `tests/distribute.test.mjs` | `npm test` |
 | The real app end to end | `tests/e2e.mjs`, test pet in `tests/support/fixture-pet.mjs` | `npm run test:e2e` |
 | Real responses from community sites | Rust `live_import` (skipped by default) | `npm run test:live-import` |
@@ -47,3 +50,4 @@ Based on: decision “[Real-app E2E runs a scenario script inside the app](../de
 ## Change history
 - 2026-10-01 First version — organized "The order for changing and checking" from CONTRIBUTING into rules
 - 2026-10-03 Added the site checks (`tests/website.test.mjs`, dead links) to the automated checks
+- 2026-10-10 Pure functions in `src/yard/` are unit-tested too; the shared content loader, the event dates shared with Rust, and the limits test

@@ -107,11 +107,13 @@ src/              Page (HTML, CSS, JS, used as is with no build tool)
   index.html      Yard window · app.js entry point, render.js draws state, window.js window buttons and mini mode
   overlay.html    Desktop pet window · overlay/ its scripts and styles
   core/           Shared by both windows: state, sprites and animation, strings (i18n, strings), icons
-  yard/           The yard: the painted scenery, friends, games, treats, the garden and its gifts
+  yard/           The yard: the painted scenery, friends, games, treats, the garden and its gifts,
+                  fishing and bugs, closeness, seasonal events and the yard's sounds
+  content/        What the yard is made of, as data: catalogue, composition, events · art/ its drawings
   panel/          Side panel: tabs, friends, chat, friend settings, AI connections, invite, settings
-  styles/         Styles by area (base, shell, yard, panel, dialog, loaded in this order)
+  styles/         Styles by area (base, shell, scenery, yard, panel, dialog, loaded in this order)
 src-tauri/src/    App core (Rust)
-  main.rs         Startup wiring · app.rs state · commands.rs commands the page calls
+  main.rs         Startup wiring · app.rs state (app/ loading, sprites) · commands.rs the COMMANDS table
   chat/           Chat, AI connections (subscription CLIs, HTTP), prompts
   pets/           Pet files, import from an address, friends in the yard
   agent/          Coding agents: the app's CLI mode (hooks, MCP) and the bridge

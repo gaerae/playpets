@@ -1,10 +1,10 @@
 ---
-description: Time of day and weather, the rules of hide and seek, parade and tag, and mini mode that leaves only the yard
+description: Time of day, weather and seasons, the garden and gifts, fishing and bugs, the album, closeness, seasonal events, yard sounds, three games, and mini mode that leaves only the yard
 ---
 
 # The yard and games
 
-The yard changes its look with the time of day, and you can play three games with your friends.
+The yard changes with the time of day, the weather and the season, and it grows over the days. Friends find seeds for the garden and bring gifts, you fish and catch bugs for the album, friends grow closer to you, seasonal events come and go, the yard has its own sounds, and you can play three games with your friends.
 
 ## Time of day and weather <Since v="0.1.0" />
 
@@ -28,7 +28,7 @@ When the weather changes, one or two friends say a word about it, like "Rain!" o
 
 ## Let them chat <Since v="0.1.0" />
 
-Press **Let them chat** in the toolbar and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button is off, and hovering it says why. To join in yourself, use [the Friend tab's group chat](./chat.md).
+Press **Let them chat** in the toolbar and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button looks off, and pressing or hovering it says why. To join in yourself, use [the Friend tab's group chat](./chat.md).
 
 To let them talk on their own now and then, turn on **Let them chat now and then** in the Settings tab. They chat once every 20 minutes, and rest while the window is hidden or someone is answering.
 
@@ -59,7 +59,7 @@ Once a day a friend brings a gift for the yard, after the yard has been open for
 
 ## Fishing and bugs <Since v="0.1.0" />
 
-- **Fishing**: click the lake and the nearest free friend walks to the shore and casts. Wait for the float to dip under (a **!** appears), then click it. Too early and nothing bites; too late and the fish gets away.
+- **Fishing**: click the lake and the nearest free friend walks to the shore and casts. Only a click on the water you can see counts. Wait for the float to dip under (a **!** appears), then click it. Too early and nothing bites; too late and the fish gets away.
 - **Bugs**: click a butterfly or a dragonfly by day, or a firefly on a spring or summer night, and the nearest friend leaps and catches it.
 - What bites and what flies depends on the season, the time of day and the weather: catfish and eels come out after dark (and more in the rain), pond smelt only in winter, and a golden carp is very rare. Each fish is a different size every time.
 - A card shows what was caught, and says so when it is new.
@@ -97,9 +97,7 @@ Each friend grows closer to you through time in the yard and what you do togethe
 
 ## Games <Since v="0.1.0" />
 
-The tools float at the bottom of the yard. **Games** there opens a small menu with three games. You can play only one game at a time; while a game is on, the same button reads **End …** and ends it, and Treat is disabled for a moment. When a game ends, the friends walk back to where they were.
-
-Click a button and it changes to something like **Stop Hide and seek**; click it again and the game ends right away.
+The tools float at the bottom of the yard. **Games** there opens a small menu with three games. You can play only one game at a time. While a game is on, the same button reads **Stop** and the game's name (such as **Stop Hide and seek**); click it and the game ends right away. **Give a treat** stays off for the whole game. When a game ends, the friends walk back to where they were.
 
 ### Hide and seek
 
@@ -122,16 +120,16 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 1. The selected friend is it. They say "I'm it!" and "It" is added to their name tag.
 2. The friend who is it chases the nearest friend, and the other friends run away from them.
 3. When the friend who is it overlaps another friend on screen, that friend is caught. The caught friend becomes it, and the one who caught them is safe for a moment.
-4. After a set time, the game ends with "Tag is over. Everyone ran well!".
+4. After a set time, the game ends with "Tag is over. Good running, everyone!".
 
 ## Mini mode <Since v="0.1.0" />
 
 <Shot name="mini" caption="Mini mode. A small window with only the yard floats on top of other windows." />
 
-Click the mini view button (a small window) among the view controls at the top right of the yard and the panel and toolbar go away, leaving a small window with only the yard.
+Click the **Mini mode** button (a small window) among the view controls at the top right of the yard and the panel and toolbar go away, leaving a small window with only the yard.
 
 - The small window always floats on top of other windows. The first time, it opens in the bottom-right corner of the screen; after that it opens where you last left it, at the size you gave it.
-- Point at the yard and **Treat** and **Let them chat** rise at the bottom as small buttons.
+- Point at the yard and **Give a treat** and **Let them chat** rise at the bottom as small buttons.
 - Name tags are hidden; hover over a friend and theirs shows for a moment.
 - Drag an empty spot with no friend and the window moves. Drag a friend and the friend moves.
 - Patting works as before, and clicking a friend's name tag opens the chat (the window goes back to full size).

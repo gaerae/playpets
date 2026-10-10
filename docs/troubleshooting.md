@@ -21,6 +21,7 @@ Does not apply to: feature requests and design discussion (these come in through
 - First, separate the cases: does it fail even before your change? Check out main and run the same command.
 - If it fails even before your change, it is an environment problem. Compare the prerequisites (Rust, Node, OS packages) against [Getting started](getting-started.md).
 - If it fails only after your change, open the standard the failing test name points to. `i18n` tests map to the [Multilingual strings standard](standards/i18n.md), and `modules` tests to the [Page code structure standard](standards/page-modules.md).
+
 **CI fails on only one environment**
 - Check whether code specific to that OS (`#[cfg(windows)]`, `cfg(target_os = "macos")`) changed recently. If it did, suspect that change first.
 - For Windows-only code, check that it compiles locally with `npm run dist:windows`, and run the installer in a Windows VM (UTM on Apple silicon runs Windows 11 ARM, where the x64 build runs under emulation).

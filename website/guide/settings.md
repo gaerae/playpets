@@ -20,14 +20,14 @@ Turn this on and PlayPets starts whenever you log in to your computer. It is off
 
 ## Let them chat now and then <Since v="0.1.0" />
 
-With this switch, in General, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default: subscription CLIs cost nothing extra, but the calls add up, so turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
+With this switch, in The yard, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default: subscription CLIs cost nothing extra, but the calls add up, so turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
 
 ## Yard sounds <Since v="0.1.0" />
 
-The yard has its own sounds: a breeze, small waves on the lake, gusts through the leaves, birds by day (most in the morning), crickets on summer and autumn nights, and rain when it rains. Friends make small sounds too: a soft note when you pat one, a drop when a fish bites, a splash when it is landed, a little tune for a gift or a new friendship level. They change with the time of day, the weather and the season.
+The yard has its own sounds: a breeze, small waves on the lake, gusts through the leaves, birds by day (most in the morning), crickets on summer and autumn nights, and rain when it rains. Friends make small sounds too: a soft note when you pat one, a drop when a fish bites, a splash when it is landed, a little tune for a gift or a new closeness level. They change with the time of day, the weather and the season.
 
 - They are on by default, at a low volume, and start after your first click in the window.
-- They play only while the yard can be seen. When the window is hidden or minimised, or only the desktop friends are out, the yard is silent. Mini view keeps them.
+- They play only while the yard can be seen. When the window is hidden or minimized, or only the desktop friends are out, the yard is silent. Mini mode keeps them.
 - To turn them off or on, use the speaker by the clock at the top right of the yard, this switch, **View** → **Yard Sounds** in the macOS menu bar, or <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>S</kbd>. The **Volume** slider under the switch sets how loud they are.
 
 ## About PlayPets <Since v="0.1.0" />
@@ -54,8 +54,8 @@ To really quit, click **Quit the app** at the bottom of the Settings tab. A "Qui
 
 ## Menus and shortcuts <Since v="0.1.0" />
 
-- **Tray menu** (the cat in the menu bar or the taskbar): **Open the yard**; then switches with a check mark for **Mini view**, **Show on the desktop** and, while that is on, **Stroll around the desktop** (with no friend yet, these are left out); then **Settings…**, **Check for updates…** (it reads **Update to v…** once a new version is known) and **About PlayPets**, then **Quit**. On Windows a left click on the icon opens the yard and the menu is on the right button. When a coding agent is waiting for you or ran into trouble, the icon gets a small blue or red mark, and its tooltip names the friend.
-- **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **View** → **Friends**, **Invite a Friend…**, and **Mini view** and **Show on the desktop** with a check mark (greyed until a friend is in), and **Yard Sounds** with a check mark; **Window**.
+- **Tray menu** (the cat in the menu bar or the taskbar): **Open the yard**; then switches with a check mark for **Mini mode**, **Show on the desktop** and, while that is on, **Stroll around the desktop** (with no friend yet, these are left out); then **Settings…**, **Check for updates…** (it reads **Update to v…** once a new version is known) and **About PlayPets**, then **Quit**. On Windows a left click on the icon opens the yard and the menu is on the right button. When a coding agent is waiting for you or ran into trouble, the icon gets a small blue or red mark, and its tooltip names the friend.
+- **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **View** → **Friends**, **Invite a Friend…**, and **Mini mode** and **Show on the desktop** with a check mark (greyed until a friend is in), and **Yard Sounds** with a check mark; **Window**.
 - **Shortcuts** (<kbd>⌘</kbd> on macOS, <kbd>Ctrl</kbd> on Windows and Linux):
 
 | Keys | Does |
@@ -63,7 +63,7 @@ To really quit, click **Quit the app** at the bottom of the Settings tab. A "Qui
 | <kbd>⌘</kbd> <kbd>1</kbd> | Open the Friend tab |
 | <kbd>⌘</kbd> <kbd>2</kbd> | Open the Invite tab |
 | <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings |
-| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Mini view on or off |
+| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Mini mode on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>D</kbd> | Show on the desktop, on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>S</kbd> | Yard sounds on or off |
 | <kbd>⌘</kbd> <kbd>Q</kbd> | Quit (macOS) |
@@ -78,7 +78,7 @@ To really quit, click **Quit the app** at the bottom of the Settings tab. A "Qui
 
 | File | Contents |
 |---|---|
-| `state.json` | Friends (name, personality and where it came from, relationship, size, position, chosen AI connection), the list of AI connections (without keys), language, desktop mode and roaming, each agent's friend, auto chatter, yard sounds and their volume, hand-picked pet folders, the file's format number (`schema`). A file written by a newer version is copied aside and read for the parts this version knows |
+| `state.json` | Friends (name, personality and where it came from, relationship, what it calls you, size, position, chosen AI connection), the list of AI connections (without keys), language, desktop mode and roaming, each agent's friend, auto chatter, yard sounds and their volume, the mini window's place and size (`miniRect`), the garden and decorations (`garden`), the album (`album`), closeness (`bonds`), hand-picked pet folders, the file's format number (`schema`). A file written by a newer version is copied aside and read for the parts this version knows |
 | `bridge.json` | The port and token for agent hooks. Rewritten every time the app starts |
 | `pets/` | Pet folders imported from an address |
 | `builtin/` | The three starter pets (Tabby, Smoky, Mochi) that come with the app, unpacked at each start |
@@ -99,9 +99,11 @@ The variables must be set in the environment the app runs in. Start the app from
 
 **Saved**
 
-- Each friend's name, personality, size and position in the yard
+- Each friend's name, personality, relationship, what it calls you, size and position in the yard
+- Each friend's closeness
+- The garden, the decorations in the yard and the album
 - The kind, server address and model name of each AI connection
-- Language, desktop mode and strolling, mini mode, the chosen time of day and weather
+- Language, desktop mode and strolling, mini mode and the mini window's place and size, the chosen time of day and weather
 - Imported pet files and where they came from
 
 **Saved differently**

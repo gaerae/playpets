@@ -22,7 +22,7 @@ Same reason. In SmartScreen's "Windows protected your PC" window, click **More i
 
 ## AI chat doesn't work on Windows.
 
-If you installed Claude Code or Codex CLI with npm, they must be in `%APPDATA%\npm` for the app to find them. First check that `claude` or `codex` runs in the terminal, then see whether "Installed on this computer" shows above the connection window. The Windows build has not been tested enough on real machines yet, so if it still does not work, let us know in an [issue](https://github.com/gaerae/playpets/issues).
+If you installed Claude Code or Codex CLI with npm, they must be in `%APPDATA%\npm` for the app to find them. First check that `claude` or `codex` runs in the terminal, then see whether its card in the connection window is marked "Installed". The Windows build has not been tested enough on real machines yet, so if it still does not work, let us know in an [issue](https://github.com/gaerae/playpets/issues).
 
 ## The pet is slow or uses battery.
 

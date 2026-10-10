@@ -16,6 +16,9 @@ The harness fakes whatever the scenario needs from outside. `tests/support/fixtu
 ## Follow-up (2026-10-06)
 The E2E hooks are now compiled in only with the `e2e` Cargo feature (`[features]` in `src-tauri/Cargo.toml`). `e2e_mode()` in `src-tauri/src/commands.rs` is true only when the build has that feature and `PLAYPETS_E2E_EVAL` is set, so a shipped build ignores the variable: it runs no scenario, has no `e2eLog` or `e2eWindow` command, and keeps the single-instance lock. `npm run test:e2e`, `npm run measure` and `npm run shots` each build the real app with `cargo build --release --features e2e` before they run, and both CPU measurement and screenshots now drive that real app instead of a page on a static server.
 
+## Follow-up (2026-10-10)
+The E2E-only commands are the `test_only` rows of the `COMMANDS` table in `src-tauri/src/commands.rs`: `e2eLog`, `e2eWindow`, `e2eTray` (the tray menu as last built) and `e2eFreshGifts`. They can be called only in an e2e run, and the page's bridge never offers them.
+
 ## Alternatives considered
 - **Drive the app from outside with WebDriver (`tauri-driver`):** The standard approach, but it does not support macOS. It cannot run on the main development machine.
 - **Serve only the page from a static server and automate a browser:** Useful for checking the page (we use it for performance measurements and screenshots), but the backend is fake, so it cannot check saving, the overlay or the CLI.

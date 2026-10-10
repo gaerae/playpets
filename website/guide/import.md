@@ -8,7 +8,7 @@ A pet is a character file. The starter pets that come with the app and pets in C
 
 ## One-click import from a link <Since v="0.1.0" />
 
-If a pet gallery offers an **Open in PlayPets** link, just click it. The link looks like `playpets://import?url=<pet page address>`; with PlayPets installed it imports that pet and opens the Invite tab. If you run a gallery, add this link to your pet pages.
+If a pet gallery offers an **Open in PlayPets** link, just click it. The link looks like `playpets://import?url=<pet page address>`. With PlayPets installed, it first asks "Import this pet?" and shows the site the link comes from; say yes and it imports that pet and opens the Invite tab. If you run a gallery, add this link to your pet pages.
 
 ```text
 playpets://import?url=https%3A%2F%2Fpetdex.dev%2Fpets%2Fboba
@@ -45,8 +45,8 @@ If the address is wrong or the site does not respond, the reason is shown in the
 
 A folder picked with **Import from a folder on this computer** is not copied; the app reads it where it is. That is why it shows in the Invite tab under **Pets picked from this computer**, along with the folder name.
 
-::: warning Move the folder and the friend leaves
-A friend recognises its pet by the pet folder's path. If you move or delete the folder you picked, that pet's friend leaves the yard the next time you open the app. Put the folder back in the same place and the friend comes back.
+::: warning Move the folder and the friend waits
+A friend recognises its pet by the pet folder's path. If you move or delete the folder you picked (or unplug the drive it is on), that pet's friend cannot come into the yard the next time you open the app. It is not removed: it waits, with its closeness kept, and a notice says how many friends are waiting. Put the folder back in the same place and the friend comes back.
 :::
 
 ## Where pets are saved <Since v="0.1.0" />
@@ -55,7 +55,7 @@ A pet imported from an address is saved as one folder in `pets/` in the [data fo
 
 The `pet.json` of an imported pet records where it came from. The card in the Invite tab shows the site, creator and license on one line, like "Petdex · creator · CC BY-NC 4.0". Community pets are the work of their creators, so check the license before you use them.
 
-To get rid of a pet you no longer use, delete its folder inside `pets/`. Friends made from that pet leave at the next start.
+To get rid of a pet you no longer use, delete its folder inside `pets/`. Friends made from that pet wait outside the yard from the next start, as above; send them away first if you want them gone too.
 
 ## Make your own
 

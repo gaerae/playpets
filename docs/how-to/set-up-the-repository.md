@@ -47,6 +47,7 @@ pbcopy < /dev/null
 
 6. Settings before the first push:
    - Settings → Pages → Build and deployment → Source: **GitHub Actions**. If the page only lets you choose after a push, re-run the `pages` workflow from the Actions tab afterwards.
+   - While the account's own site (`gaerae/gaerae.github.io`) has the custom domain `gaerae.com`, GitHub serves this site at `gaerae.com/playpets/` and sends `gaerae.github.io/playpets/` there. In that repository's Settings → Pages, turn on **Enforce HTTPS**, or the redirect lands on plain `http://` (the in-app links and the download buttons go through it). [Move the site to its own domain](site-address.md) is the way out of sharing that domain.
    - Settings → Actions → General → Workflow permissions: **Read repository contents and packages permissions**; leave "Allow GitHub Actions to create and approve pull requests" off. Optional: "Require actions to be pinned to a full-length commit SHA" (every action here is pinned).
    - Settings → Advanced Security: **Private vulnerability reporting: Enable** (`SECURITY.md`, the Code of Conduct and the issue form send reports there); Dependabot alerts and security updates: Enable; make sure secret scanning and push protection are on.
    - Settings → General → Features: Issues on; Wiki, Discussions and Projects off. Social preview: upload `website/public/og.png`.
@@ -63,7 +64,7 @@ git remote add origin https://github.com/gaerae/playpets.git
 git push -u origin main
 ```
 
-8. Watch the Actions tab: `build` (five platforms and `site`) and `pages` run, and `pages` publishes https://gaerae.github.io/playpets/.
+8. Watch the Actions tab: `build` (five platforms and `site`) and `pages` run, and `pages` publishes https://gaerae.github.io/playpets/ (served under `gaerae.com` while the account site has that domain).
 
 ### CI secrets for signed updates
 9. Add the key and its password as repository secrets. The second command asks for the value; paste the password from the password manager.
@@ -122,7 +123,8 @@ gh secret set WINGET_TOKEN --repo gaerae/playpets
     - Build the package with it (`MSIX_PUBLISHER="CN=…" npm run dist:windows`) and submit `release/windows/msix-test/PlayPets_<version>_x64.msix` in Partner Center. Store submissions are by hand; the `distribute` workflow does not do them.
 
 ## Verification
-- The Actions tab shows `build` and `pages` green, and https://gaerae.github.io/playpets/ opens.
+- The Actions tab shows `build` and `pages` green, and https://gaerae.github.io/playpets/ opens on an `https://` address.
+- The repository page shows the description, the website and the topics, and Settings → Rules lists the ruleset for `main`.
 - The Security tab shows "Report a vulnerability".
 - Settings → Secrets and variables → Actions lists `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`, `HOMEBREW_TAP_TOKEN` and `WINGET_TOKEN`.
 - After the first published release: `distribute` is green, `Casks/playpets.rb` is in `gaerae/homebrew-tap`, and a pull request for `gaerae.PlayPets` is open on winget-pkgs.

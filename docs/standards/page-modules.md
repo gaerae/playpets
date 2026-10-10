@@ -7,12 +7,16 @@ Not covered: test code in `tests/` and development tools in `scripts/`. Both are
 
 ## Rules
 - A module does not touch the page when it is imported. Button wiring, timers, and creating canvases and observers go inside `setup…()` functions, and only the entry points (`src/app.js`, `src/overlay/overlay.js`) call those functions. Computing pure values at module level (such as a list built from strings) is fine.
+- Every module but the two entry points imports without a page: nothing at its top level reads `window`, `document`, `matchMedia` or the bridge, so Node can import it and its logic can be tested. Read those inside functions, where they exist.
 - Modules do not import each other in a cycle. When a lower layer (a drawing module such as `yard/views.js`) needs behavior from a higher layer (play, opening a panel), it does not import it; it receives the function as a `setup` argument.
 - The `import` paths and names in a new module match the actual file's `export`.
 - Sentences shown on the page are not written in code; use keys from the strings table. Follow the [i18n standard](i18n.md).
 - Style files are loaded in the order `base.css` → `shell.css` → `scenery.css` → `yard.css` → `panel.css` → `dialog.css`, and new rules go in the file for their area (`scenery.css` is what stands behind the friends: the sky's and land's colours, which the painter in `src/yard/easel.js` reads, the sun and moon, clouds, weather). The order in which media queries apply depends on this order.
 - Select boxes do not rely on the engine's default look; specify their whole appearance. The same stylesheet has to look the same in WebKit on macOS and Linux and in WebView2 on Windows.
 - Loops and animations that redraw the page follow the [performance standard](performance.md).
+- Things that open from a button use `dropdown` (a panel) or `popup` (a menu, with arrow keys) from `src/core/menu.js`, so every menu opens, closes and moves its focus the same way.
+- Each class on the yard element has one owner. The scene (`yard/sky.js`) sets only its own classes: `period-…`, `weather-…`, `season-…`, `event-…` and `look-…`. Whoever sets `aiming` (`care.js`), `playing` (`play.js`), `can-catch` (`catch.js`) or `after-rain` (the rainbow in `sky.js`) owns that class and takes it off again; no other module adds, removes or spares it.
+- A menu whose rows follow something in code is built from a table, not written in the markup. The Games menu is built from the games' rules (`RULES` in `yard/play.js`: icon, name, tooltip), so a new game adds no markup.
 
 This is how a new page feature looks.
 
@@ -49,8 +53,8 @@ The page has no build tool; the browser reads the ES modules directly. If a modu
 Based on: decision “[Page modules run nothing on import and do not import each other in cycles](../decisions/2026-09-30-page-modules-run-nothing-on-import.md)”
 
 ## Automated checks
-- `tests/modules.test.mjs` — catches import cycles, code that runs on import in modules other than entry points, and mismatched import paths and names.
-- `tests/ui-style.test.mjs` — catches style file order, select box appearance, button shape rules, and tab container pairs.
+- `tests/modules.test.mjs` — catches import cycles, code that runs on import in modules other than entry points, a module other than an entry point that cannot be imported without a page, mismatched import paths and names, and a stylesheet the page names that does not exist.
+- `tests/ui-style.test.mjs` — catches select box appearance, button shape rules, the panel tabs as siblings, and other cross-engine rules (no sideways overscroll, the system font, the mini yard filling its window). It does not check the order of the style files; review that.
 - `tests/i18n.test.mjs` — catches Korean left in page code and markup, and keys missing from the table.
 - Biome in `npm run lint` — import sorting and code style.
 
@@ -58,3 +62,4 @@ All of these run with `npm test` and `npm run lint`, and CI runs the same comman
 
 ## Change history
 - 2026-10-01 First version — moved from "Where code lives" in CONTRIBUTING and organized as rules
+- 2026-10-10 Every module but the entry points imports without a page; menus from `core/menu.js`; one owner per class on the yard; menus built from tables; corrected what `ui-style.test.mjs` checks

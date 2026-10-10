@@ -25,6 +25,9 @@ The scripts that build distribution files follow the same rule and live in `pack
 - Negative: Files moved, so following git history needs `git log --follow`. Paths between modules got longer (`crate::chat::providers`).
 - Neutral: Folders go one level deep at most. Splitting further is decided when a file grows.
 
+## Follow-up (2026-10-10)
+The same rule has since gone one level further where files grew. `app.rs` keeps the state, `commit`, the locks and announcing changes, with loading in `app/load.rs` and the sprite protocol in `app/sprite.rs`. `commands.rs` is one `COMMANDS` table, a row per command with who may ask for it and what it does, from which the page's bridge, the access check and the dispatch come. `main.rs` is 186 lines.
+
 ## Alternatives considered
 - **Keep the flat layout and only split main.rs:** `main.rs` shrinks, but the `cli.rs` and `agentcli.rs` confusion stays.
 - **Split into crates with a Cargo workspace:** Boundaries get stronger, but at this size the build configuration and visibility management cost more than they give.

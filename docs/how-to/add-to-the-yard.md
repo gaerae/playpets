@@ -28,11 +28,11 @@ The code holds what things do: the painters (`backdrop.js`, `trees.js`, `lake.js
 It is in the album, it bites or flies when its seasons and hours say, and the backend counts it.
 
 ### Add a flower
-1. Add an entry to `flowers`: `id`, the `season` whose seeds grow into it, `art` (`flowers/<id>.svg`), `colors` (`petal`, `petal-hi`, `petal-lo`, `heart`: the drawing paints with `var(--petal)` and so on, so the same drawing can come in other colours), and optionally `stature` (how much taller than others it stands once grown).
+1. Add an entry to `flowers`: `id`, the `season` whose seeds grow into it, `art` (`flowers/<id>.svg`), `colors` (`petal`, `petal-hi`, `petal-lo`, `heart`: the drawing paints with `var(--petal)` and so on, so the same drawing can come in other colours), and optionally `weight` (how often seeds of its season grow it, among that season's flowers) and `stature` (how much taller than others it stands once grown).
 2. Draw it in `src/art/flowers/<id>.svg`. The garden's stages before the bloom are shared (`src/art/plants/`).
 3. Add `garden.kind_<id>` to every string table.
 
-One flower per season grows from seeds; a second flower for a season is in the album, but seeds of that season grow the first.
+Seeds planted in a season grow one of that season's flowers, picked at random (`flowerFor` in `src/yard/growth.js`; an optional `weight` makes one more likely, 1 if left out). The backend accepts only flowers that are in the catalogue.
 
 ### Add a gift
 1. Add an entry to `gifts`. The order is the order the first gifts come in. Fields: `art` (`decor/<id>.svg`), `flat` (true if it lies on the ground under plants and friends, like the pond), `stand` (`"on"` if friends stand on it, like the bench; left out, they stand beside it) and `effects` (see below).
@@ -50,8 +50,9 @@ Name it in the gift's `effects`. The effects there are:
 | Effect | What it does |
 |---|---|
 | `glow` | Lit from evening on: a warm pool of light around it, and it is not dimmed at night |
+| `chime` | Rings when a friend visits it (the `chime` sound in `soundmix.js`) |
 
-To make a new effect, add its layer to `LAYERS` in `src/yard/effects.js` (or none, if it is only a rule) and its rules under "Effects" in `src/styles/yard.css`, selecting `.decor[data-effects~="<name>"]`. Every gift that names it follows.
+To make a new effect, add an entry to `EFFECTS` in `src/yard/effects.js`, shaped `{ name: { layer, visited } }`: `layer` is markup drawn with the gift, and `visited` is what happens when a friend visits it (both are optional; leave both out if the effect is only a rule). Put its rules under "Effects" in `src/styles/yard.css`, selecting `.decor[data-effects~="<name>"]`. Every gift that names it follows.
 
 ### Change the scenery
 `src/content/yard.json`:
@@ -87,6 +88,8 @@ npm run test:e2e
 ```
 
 - `tests/content.test.mjs` says what is missing: a name or a line in a language, a drawing file, an effect, a painter, a curve, a colour, an event's words or gift, or a look's rules.
+- `tests/events.test.mjs` checks when each event is on, north and south of the equator. The days it checks are in `tests/fixtures/event-dates.json`, which the backend's `content.rs` test reads too, so the page and the backend agree on an event's dates. When you add an event or change its dates, add cases there for the days around its first and last day, north and south.
+- When the composition's lake changes (`lake` or the curve it names in `under`), `tests/lake.test.mjs` checks that the water still shows between the far shore and the hill in front at several yard sizes.
 - To see an event outside its dates, the screenshot harness and the e2e run can set the date; in the app, the system clock decides.
 - The backend's test `content::tests` checks the catalogue it built in.
 - Look at it: build and run the app as in [getting started](../getting-started.md), and set the time of day and weather from the scene label in the yard to see the new thing in each light.
@@ -94,7 +97,7 @@ npm run test:e2e
 ## Troubleshooting
 | Symptom | Cause | Fix |
 |---|---|---|
-| A new gift never comes | The yard holds 8 decorations, or every earlier gift has not come yet | Put some away; gifts come in the catalogue's order, once a day |
+| A new gift never comes | The yard holds 12 decorations (`DECOR_MAX` in `pets/garden.rs`, `decor` in `src/core/limits.js`), or every earlier gift has not come yet | Put some away; gifts come in the catalogue's order, once a day |
 | A new fish is refused (`error.bad_request`) | The backend was built before the catalogue changed | Build the app again: the backend builds the catalogue in |
 | A drawing does not show | The path in `art` does not match the file, or the file has no `viewBox` | `tests/content.test.mjs` names the file |
 | A drawing is black or a single colour | It paints with a colour name the yard does not set | Use the names listed under "Drawings" |

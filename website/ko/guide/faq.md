@@ -22,7 +22,7 @@
 
 ## Windows에서 AI 대화가 안 돼요.
 
-Claude Code나 Codex CLI를 npm으로 설치했다면 `%APPDATA%\npm`에 있어야 앱이 찾아요. 터미널에서 `claude`나 `codex`가 실행되는지 먼저 확인하고, 연결 창 위에 "이 컴퓨터에 설치됨"이 나오는지 봐 주세요. Windows 빌드는 실제 기기에서 아직 충분히 확인하지 않았으니, 그래도 안 되면 [이슈](https://github.com/gaerae/playpets/issues)로 알려 주세요.
+Claude Code나 Codex CLI를 npm으로 설치했다면 `%APPDATA%\npm`에 있어야 앱이 찾아요. 터미널에서 `claude`나 `codex`가 실행되는지 먼저 확인하고, 연결 창의 그 카드에 "설치됨"이 붙어 있는지 봐 주세요. Windows 빌드는 실제 기기에서 아직 충분히 확인하지 않았으니, 그래도 안 되면 [이슈](https://github.com/gaerae/playpets/issues)로 알려 주세요.
 
 ## 펫이 느리거나 배터리를 써요.
 

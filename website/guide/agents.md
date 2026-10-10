@@ -8,7 +8,7 @@ While a coding agent such as Claude Code, Codex CLI, Gemini CLI or Cursor works,
 
 ## A friend for each agent <Since v="0.1.0" />
 
-Each agent can report to a friend of your choice. In the Settings tab, pick one under **Reports to** on that tool's row, then press **Copy settings** again and paste. The copied settings name the friend (`--pet`), so Claude Code can report to Tabby and Codex to Smoky. With no choice, the first friend gets it; send the chosen friend away and it goes back to the first friend. Give each friend a different agent and the yard becomes a status board of who is doing what.
+Each agent can report to a friend of your choice. In the Settings tab, pick one under **Reacting friend** on that tool's row, then press **Copy settings** again and paste. The copied settings name the friend (`--pet`), so Claude Code can report to Tabby and Codex to Smoky. With no choice, the first friend gets it; send the chosen friend away and it goes back to the first friend. Give each friend a different agent and the yard becomes a status board of who is doing what.
 
 ## What you see in the yard <Since v="0.1.0" />
 
@@ -21,7 +21,7 @@ The agent's steps become your friend's status. The status shows next to the name
 | What the agent is doing | Your friend's status |
 |---|---|
 | Thinking, using a tool (for example "Using Bash") | Working |
-| Waiting for confirmation or an answer | Waiting for an answer |
+| Waiting for confirmation or an answer | Waiting for you |
 | Finished the task | Done |
 | Hit an error | Something went wrong |
 | Session ended | Resting |

@@ -4,7 +4,7 @@
 Serve the site from a domain of its own (for example `https://playpets.app/`) instead of `https://gaerae.github.io/playpets/`. The address lives in one place, `homepage` in `package.json`: the site's base path, sitemap, share-card addresses and cards follow from it, and a test lists every other file that still names the old address.
 
 ## Audience and assumptions
-The maintainer, with admin rights on the repository and access to the domain's DNS. Until this is done the site's address is `https://gaerae.github.io/playpets/`. While the account's own site (`gaerae.github.io`) uses the custom domain `gaerae.com`, GitHub sends that address on to `gaerae.com/playpets/`; the links still work.
+The maintainer, with admin rights on the repository and access to the domain's DNS. Until this is done the site's address is `https://gaerae.github.io/playpets/`. While the account's own site (`gaerae.github.io`) uses the custom domain `gaerae.com`, GitHub sends that address on to `gaerae.com/playpets/`; the links still work, over HTTPS only if "Enforce HTTPS" is on in that account site's Pages settings.
 
 ## Prerequisites
 - The domain is registered. A `.app` domain only works over HTTPS (the whole TLD is on the browsers' HSTS preload list); GitHub Pages issues the certificate by itself once DNS points at it.

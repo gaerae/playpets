@@ -55,5 +55,5 @@ npm run test:e2e
 | Symptom | Cause |
 |---|---|
 | `playPets.centerFriend is not a function` on the page | The row from step 1 is missing, or it is `test_only` |
-| Calling it gives "That request isn't allowed." | You called it from the desktop window and the row says `main` (use `overlay`) |
+| Calling it gives "That can't be done here. Reopen the app." (`error.not_allowed`) | You called it from the desktop window and the row says `main` (use `overlay`) |
 | The app freezes | The handler waits on the main thread or slow work while holding the lock. Check it against the locks standard again |

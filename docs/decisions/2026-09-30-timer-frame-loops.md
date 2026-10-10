@@ -11,6 +11,9 @@ We run page loops on timers at the interval they need (`src/core/ticker.js`). Th
 - Negative: Timers are not synced with display refresh, so walking can show slight jitter. In a quiet state it is 10 frames per second, so rain and snow particles get their own 50 ms.
 - Neutral: New loops have to use `every()`, and every new motion condition (`busy`) means measuring the cost again.
 
+## Follow-up (2026-10-10)
+Rain and snow no longer use the 50 ms interval: the yard draws every 66 ms in rain (and while birds or a shooting star cross) and every 80 ms in snow (`RAIN_MS`, `SNOW_MS` in `src/app.js`). The current intervals are kept in the [Page and backend performance standard](../standards/performance.md).
+
 ## Alternatives considered
 - **Keep `requestAnimationFrame` and only draw less:** Even when drawing is skipped, the cost of waking on every refresh and keeping the display link alive remains (confirmed by sampling).
 - **Move sprites as DOM elements instead of a canvas:** Compositing gets cheaper, but sprite sheet cell switching and gaze direction would all have to be rewritten, and no gain was measured.

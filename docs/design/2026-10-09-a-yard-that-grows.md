@@ -91,3 +91,10 @@ The backend keeps the bonds (`state.json` key `bonds`, `src-tauri/src/pets/bond.
 ## Performance
 
 Plants and decorations are static SVG drawn once; a plant's stage is looked at once a minute with the sky. A find or a gift is one short pose and bubble; the lantern's glow is a still layer shown from evening on. Friendship adds a check every ten minutes and redraws a name tag only when its level changes. Nothing new moves continuously (docs/standards/performance.md).
+
+## Since 2026-10-10
+
+Some values above have changed since this record was written; the code and the content files are the current source.
+- The yard holds 12 decorations, not 8 (`DECOR_MAX` in `src-tauri/src/pets/garden.rs`, `decor` in `src/core/limits.js`).
+- Friendship is called closeness in the app (Closeness; levels Just met, At ease, Warm, Very close, Dearest, at the same points). What a friend says at a level and when it welcomes the person back follows its relationship to the person (friend, partner, mentor, younger sibling).
+- There are more kinds than the counts above: more fish, bugs, flowers and gifts, some only during an event. The lists are in `src/content/catalog.json`, and the gifts' order and limits in `src-tauri/src/pets/garden.rs`.

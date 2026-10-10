@@ -102,7 +102,7 @@ const copy = {
       },
       {
         title: '놀이터에서도, 바탕화면에서도',
-        body: '아침, 한낮, 저녁, 밤과 날씨가 시계를 따라 바뀌는 놀이터에서 간식을 먹고 숨바꼭질을 해요. 바탕화면으로 내보내면 모니터마다 나와 다른 창 위를 돌아다녀요.',
+        body: '시계를 따라 시간대와 날씨, 계절이 바뀌는 놀이터는 날이 갈수록 자라요. 친구가 찾아온 씨앗으로 가꾸는 정원, 하루 한 번 오는 선물, 낚시와 채집으로 채우는 도감, 친밀도, 계절 이벤트가 있어요. 바탕화면으로 내보내면 모니터마다 나와 다른 창 위를 돌아다녀요.',
         shot: 'desktop',
         link: '/guide/desktop',
       },
@@ -114,8 +114,8 @@ const copy = {
         '기본 펫 세 마리가 들어 있고, ~/.codex/pets의 펫은 자동으로 보여요. 커뮤니티 펫은 주소를 붙여 넣거나 갤러리의 "PlayPets에서 열기" 링크로 가져와요.',
       ],
       [
-        '친구마다 AI를 붙여요',
-        '친구 탭에서 AI 연결하기를 눌러요. 설치된 Claude Code와 Codex는 자동으로 찾고, Ollama와 OpenAI 호환 서버는 주소만 적어요. 성격은 친구 설정에서요.',
+        '친구마다 AI를 연결해요',
+        '친구 탭에서 AI 연결하기를 눌러요. 설치된 Claude Code와 Codex는 자동으로 찾고, Ollama는 모델 이름만, OpenAI 호환 서버는 주소와 키를 적어요. 성격은 친구 설정에서요.',
       ],
       [
         '에이전트에게 담당 친구를 정해요',
@@ -201,7 +201,7 @@ const copy = {
       'Codex pets are a feature of OpenAI Codex. PlayPets is a separate open-source app that follows that pet file format, and it works without Codex.',
     demoTitle: 'Friends at work',
     demoLead:
-      'Give each coding agent a friend, and that agent’s thinking, waiting and done become that friend’s poses. Prompts and code never leave; only the state does. Ask “What were you up to?” and it tells you.',
+      'Give each coding agent a friend, and that agent’s thinking, waiting and done become that friend’s poses. Prompts and code never leave; only the state does. Ask “What were you doing?” and it tells you about recent work.',
     demo: [
       { line: '$ claude', state: 'idle', tag: '' },
       { line: '> fix the failing test', state: 'idle', tag: '' },
@@ -228,13 +228,13 @@ const copy = {
       },
       {
         title: 'Each friend, its own AI',
-        body: 'Claude Code and Codex work as soon as they are installed, with no extra fee. Ollama works offline. Set a personality and the friend keeps that voice, or change it mid-conversation. Pick a relationship, friend, partner, senior or younger sibling, and the voice and the address follow.',
+        body: 'Claude Code and Codex work as soon as they are installed, with no extra fee. Ollama works offline. Set a personality and the friend keeps that voice, or change it mid-conversation. Pick a relationship, friend, partner, mentor or younger sibling, and the voice and the address follow.',
         shot: 'friend-chat',
         link: '/guide/chat',
       },
       {
         title: 'In the yard, and on the desktop',
-        body: 'Treats and hide-and-seek in a yard where morning, day, evening, night and the weather follow the clock. Send friends out and they roam every monitor over other windows.',
+        body: 'A yard where the time of day, the weather and the seasons follow the clock, and that grows over the days: a garden from the seeds friends find, a gift a day, fishing and bugs for the album, closeness, seasonal events. Send friends out and they roam every monitor over other windows.',
         shot: 'desktop',
         link: '/guide/desktop',
       },
@@ -247,7 +247,7 @@ const copy = {
       ],
       [
         'Give each friend an AI',
-        'In the Friend tab, press Connect an AI. Installed Claude Code and Codex are found by themselves; Ollama and OpenAI-compatible servers just need an address. Personalities live in friend settings.',
+        'In the Friend tab, press Connect an AI. Installed Claude Code and Codex are found by themselves; Ollama needs only a model name, and an OpenAI-compatible server its address and key. Personalities live in friend settings.',
       ],
       [
         'Give each agent a friend',
@@ -356,7 +356,7 @@ const copy = {
       },
       {
         title: '在乐园里，也在桌面上',
-        body: '早晨、白天、傍晚、夜晚和天气跟着时钟变化的乐园里，吃零食、玩捉迷藏。放到桌面上，它们会在每台显示器上、在其他窗口之上走来走去。',
+        body: '乐园的时段、天气和季节跟着时钟变化，还会一天天成长：用伙伴找来的种子种花园，每天收一份礼物，钓鱼捉虫填满图鉴，慢慢变得亲近，还有季节活动。放到桌面上，它们会在每台显示器上、在其他窗口之上走来走去。',
         shot: 'desktop',
         link: '/guide/desktop',
       },
@@ -369,7 +369,7 @@ const copy = {
       ],
       [
         '给每位伙伴接上 AI',
-        '在伙伴标签按“连接 AI”。已安装的 Claude Code 和 Codex 会自动找到，Ollama 和 OpenAI 兼容服务器只需填地址。性格在伙伴设置里。',
+        '在伙伴标签按“连接 AI”。已安装的 Claude Code 和 Codex 会自动找到；Ollama 只需填模型名称，OpenAI 兼容服务器要填地址和密钥。性格在伙伴设置里。',
       ],
       [
         '给代理指定负责的伙伴',
