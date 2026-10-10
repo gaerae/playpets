@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 import { LANGUAGES } from '../src/core/strings.js';
 import { encodeGif } from './gif-lib.mjs';
+import { mainDisplay } from './shots-lib.mjs';
 
 if (process.platform !== 'darwin') {
   console.error(
@@ -196,16 +197,12 @@ function scenario(lang) {
 })();`;
 }
 
-/** The main display's size in points, from the Finder's desktop window. */
+/** The main display's size in points, from system_profiler. (Asking the Finder over AppleScript
+ * makes macOS ask whether the terminal's app may control the Finder, and that prompt then sits in
+ * every picture.) */
 function screenSize() {
-  const out = spawnSync('osascript', ['-e', 'tell application "Finder" to get bounds of window of desktop'], {
-    encoding: 'utf8',
-  }).stdout;
-  const [, , w, h] = out
-    .trim()
-    .split(/\s*,\s*/)
-    .map(Number);
-  return { width: w || 1728, height: h || 1117 };
+  const out = spawnSync('system_profiler', ['SPDisplaysDataType', '-json'], { encoding: 'utf8' }).stdout;
+  return mainDisplay(out) || { width: 1728, height: 1117 };
 }
 
 // A quiet window the desktop friends are photographed over: a wallpaper and a small terminal.

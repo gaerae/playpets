@@ -66,6 +66,8 @@ git push -u origin main
 
 8. Watch the Actions tab: `build` (five platforms and `site`) and `pages` run, and `pages` publishes https://gaerae.github.io/playpets/ (served under `gaerae.com` while the account site has that domain).
 
+Optional, once the code is pushed: automatic reviews from CodeRabbit (free for public repositories). Sign in at https://app.coderabbit.ai with GitHub, install its app with **Only select repositories** → `gaerae/playpets`, and it reviews every pull request from then on. It reads `.coderabbit.yaml` (what to review and how) and, as its guidelines, `AGENTS.md` and `docs/standards/`. Ask it things in a pull request comment with `@coderabbitai`.
+
 ### CI secrets for signed updates
 9. Add the key and its password as repository secrets. The second command asks for the value; paste the password from the password manager.
 

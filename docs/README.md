@@ -3,7 +3,7 @@
 ## Overview and audience
 PlayPets is a pet app whose pets play on the desktop and in the yard window. You connect an AI to a friend to chat with it, and friends react while a coding agent works. It is a Tauri v2 app: the page is web code with no build tool (`src/`), and the backend is Rust (`src-tauri/`). It runs on macOS, Windows and Linux.
 
-This guide is the entry point for people who change the code, build integrations, or handle releases. How to use the app is in the [user guide on the site](https://gaerae.github.io/playpets/guide/) and in the repository [README](../README.md). These documents also appear as is under the site's "Developers" tab. The contribution process (PRs, check order) is in [CONTRIBUTING](../CONTRIBUTING.md).
+This guide is the entry point for people who change the code, build integrations, or handle releases. How to use the app is in the [user guide on the site](https://gaerae.github.io/playpets/guide/) and in the repository [README](../README.md). These documents also appear as is under the site's "Developers" tab. The contribution process (PRs, check order) is in [CONTRIBUTING](../CONTRIBUTING.md). AI agents and review bots working in the repository read [AGENTS.md](../AGENTS.md), a short version of these rules.
 
 ## Key concepts
 - **One app, two windows:** There is the yard window (the main window) and a transparent desktop window, one per monitor. Both windows only draw the state the backend holds.

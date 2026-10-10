@@ -8,6 +8,10 @@
 *.icns binary
 *.webp binary
 *.dmg binary
+*.bmp binary
+*.gif binary
+*.jpg binary
+*.mp4 binary
 
 # Generated files stay out of code review and language statistics.
 package-lock.json linguist-generated=true -diff

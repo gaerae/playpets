@@ -1,0 +1,170 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit reviews pull requests against AGENTS.md and the standards in docs/standards. This file
+# keeps its reviews to what a reader can act on: the rules of this repository, not general style the
+# formatters and CI already enforce.
+language: en-US
+tone_instructions: >-
+  Plain and specific. Say what breaks, for whom, and how to fix it. No praise, no emoji, no filler.
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: true
+  sequence_diagrams: false
+  poem: false
+  in_progress_fortune: false
+  suggested_labels: false
+  suggested_reviewers: false
+  auto_review:
+    enabled: true
+    drafts: false
+    ignore_usernames:
+      - dependabot[bot]
+
+  # Generated or binary files, and lockfiles that only npm and cargo write.
+  path_filters:
+    - "!package-lock.json"
+    - "!src-tauri/Cargo.lock"
+    - "!src-tauri/gen/**"
+    - "!src-tauri/icons/**"
+    - "!assets/**"
+    - "!website/public/**"
+    - "!website/dev/**"
+    - "!website/.vitepress/generated.json"
+    - "!**/*.png"
+    - "!**/*.webp"
+    - "!**/*.gif"
+    - "!**/*.mp4"
+    - "!**/*.bmp"
+
+  path_instructions:
+    - path: "src/core/strings/**"
+      instructions: >-
+        String tables, one file per language (ko is the reference). Every key exists in every
+        language in the same order, with the same {placeholders}. Check the tone of each language
+        and the glossary in docs/standards/i18n.md: Korean UI text uses polite 해요, Japanese UI
+        uses です・ます, Simplified Chinese uses 你 with full-width punctuation, English uses
+        American spelling and sentence case. A friend's own spoken lines are casual in every
+        language. Flag translations that change the meaning or drop part of it.
+    - path: "src-tauri/src/i18n/**"
+      instructions: >-
+        Backend string tables; the same rules as src/core/strings: matching keys and placeholders
+        in all four languages, each language's tone, and the glossary in docs/standards/i18n.md.
+    - path: "src/**/*.js"
+      instructions: >-
+        Plain ES modules with no bundler (docs/standards/page-modules.md). A module does nothing
+        when imported: wiring goes in a setup function that src/app.js or src/overlay/overlay.js
+        calls. No sentence a person reads and no Korean outside src/core/strings. Menus use
+        core/menu.js and shortcuts core/keys.js. Watch for work added to the frame loop and canvases
+        repainted when nothing changed (docs/standards/performance.md).
+    - path: "src/styles/**"
+      instructions: >-
+        One stylesheet per area, loaded in the order src/index.html lists them. A rule moved to
+        another file can change which of two equally specific rules wins; ask how the screen was
+        checked. No declaration should be always replaced by a later rule for the same selector.
+        Colours that repeat belong in the tokens in base.css.
+    - path: "src/content/**"
+      instructions: >-
+        The yard's content as data (docs/how-to/add-to-the-yard.md). New kinds need names in every
+        language and drawings in src/art; the content tests check references, so look at whether
+        the numbers (seasons, hours, rarity, sizes) make sense together.
+    - path: "src-tauri/src/**"
+      instructions: >-
+        Rust backend. A command the page calls is one row of COMMANDS in commands.rs. The state is
+        taken with app::lock and every other mutex with app::hold, and no lock is held while
+        waiting for an AI, the keychain, the network or a child process
+        (docs/standards/backend-locks.md). A state change is saved and shown through commit or
+        save_and_show. Errors a person sees are i18n keys.
+    - path: "src-tauri/src/chat/**"
+      instructions: >-
+        Text from outside (pet files, coding agents' reports, another friend's words, CLI output)
+        is data, never instructions: it is flattened, trimmed and labeled before it reaches an AI
+        (chat/prompt.rs). The chat CLIs run isolated (no tools, no user config) in a private
+        folder; flag anything that widens what they can reach or puts secrets on a command line.
+    - path: "src-tauri/src/agent/**"
+      instructions: >-
+        Text from outside (pet files, coding agents' reports, another friend's words, CLI output)
+        is data, never instructions: it is flattened, trimmed and labeled before it reaches an AI
+        (chat/prompt.rs). The chat CLIs run isolated (no tools, no user config) in a private
+        folder; flag anything that widens what they can reach or puts secrets on a command line.
+    - path: "tests/**"
+      instructions: >-
+        Tests never touch login items, the keychain or other system state, and do not depend on
+        the clock or the machine (docs/standards/testing.md). A changed rule changes its test.
+    - path: "docs/**"
+      instructions: >-
+        Developer docs in English, plain verbs, no RFC words like MUST or SHOULD. Records in
+        docs/decisions and docs/design are dated and not rewritten; a later change adds a
+        follow-up note. Check that paths, commands and names in the text match the code.
+    - path: "website/**"
+      instructions: >-
+        The site in English, Korean and Simplified Chinese. A change to a page in one language has
+        its counterparts in the other two.
+    - path: ".github/workflows/**"
+      instructions: >-
+        Every action is pinned to a full commit SHA with its version as a comment. Permissions are
+        the least the job needs, secrets appear only in the job that uses them, and nothing runs on
+        pull_request_target. Values from the event go through env, never straight into a script.
+    - path: "CHANGELOG.md"
+      instructions: >-
+        One line per change people can see, in English, under the right heading of
+        [Unreleased] (Added, Changed, Fixed, Removed, Security, Known limitations).
+
+  pre_merge_checks:
+    title:
+      mode: warning
+      requirements: >-
+        One English sentence that says what is different for the people using or working on the
+        app, with no type prefix such as "feat:" and no period at the end
+        (docs/standards/commits-and-branches.md).
+    description:
+      mode: warning
+    docstrings:
+      mode: "off"
+
+  tools:
+    # Biome, as CI runs it, so its findings land on the changed lines.
+    biome:
+      enabled: true
+    # Workflows, shell scripts and secrets.
+    actionlint:
+      enabled: true
+    zizmor:
+      enabled: true
+    shellcheck:
+      enabled: true
+    gitleaks:
+      enabled: true
+    # Clippy needs the app's system libraries (GTK, WebKit) to build, which the review sandbox
+    # lacks; CI runs it with warnings as errors on every platform.
+    clippy:
+      enabled: false
+    # Style checkers whose defaults differ from this repository's conventions (headings without a
+    # blank line, long lines in workflows, prose in four languages); the formatters and reviews
+    # cover these.
+    markdownlint:
+      enabled: false
+    languagetool:
+      enabled: false
+    yamllint:
+      enabled: false
+    eslint:
+      enabled: false
+    stylelint:
+      enabled: false
+    htmlhint:
+      enabled: false
+    oxc:
+      enabled: false
+
+chat:
+  art: false
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - AGENTS.md
+      - docs/standards/*.md
