@@ -40,7 +40,10 @@ pub fn build_main(app: &tauri::App, bridge_js: &str) -> tauri::Result<WebviewWin
 /// Only the app's own pages load in its windows (tauri://localhost, or http://tauri.localhost
 /// where the system serves it so); a link to anywhere else is not followed.
 pub fn own_page(url: &tauri::Url) -> bool {
-    url.scheme() == "tauri" || url.host_str() == Some("tauri.localhost") || url.scheme() == "about"
+    let host = url.host_str();
+    (url.scheme() == "tauri" && host == Some("localhost"))
+        || (matches!(url.scheme(), "http" | "https") && host == Some("tauri.localhost"))
+        || url.as_str() == "about:blank"
 }
 
 /// Whether the yard can be seen, as last told to the page.
@@ -269,7 +272,7 @@ fn set_mini(w: &WebviewWindow, on: bool, saved: Option<Rect>) {
 
 #[cfg(test)]
 mod tests {
-    use super::{MINI_MARGIN, MINI_SIZE, mini_rect, rect_of};
+    use super::{MINI_MARGIN, MINI_SIZE, mini_rect, own_page, rect_of};
     use serde_json::json;
 
     #[test]
@@ -303,6 +306,24 @@ mod tests {
         let odd = [(-3194.4, 0.0, 1092.8, 840.0)];
         let (x, _, w, _) = mini_rect(Some((-3194.4, 10.0, 1092.8, 500.0)), &odd, full);
         assert!(x >= odd[0].0 - 0.001 && w <= odd[0].2);
+    }
+
+    #[test]
+    fn only_the_apps_own_pages_load_in_its_windows() {
+        let page = |u: &str| own_page(&tauri::Url::parse(u).unwrap());
+        assert!(page("tauri://localhost/index.html"));
+        assert!(page("http://tauri.localhost/overlay.html"));
+        assert!(page("https://tauri.localhost/"));
+        assert!(page("about:blank"));
+        for no in [
+            "tauri://elsewhere/",
+            "ftp://tauri.localhost/",
+            "about:srcdoc",
+            "https://example.com/",
+            "file:///etc/passwd",
+        ] {
+            assert!(!page(no), "{no}");
+        }
     }
 
     #[test]

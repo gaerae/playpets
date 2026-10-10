@@ -4,6 +4,7 @@
 <!-- #number, if any -->
 
 ## Checked
+- [ ] Commit titles say what changed ([commits, branches and history](../docs/standards/commits-and-branches.md)), and no key, token, personal data or generated file is in the diff
 - [ ] For changes people can see, noted under `[Unreleased]` in `CHANGELOG.md`
 - [ ] `npm run lint`
 - [ ] `npm test`

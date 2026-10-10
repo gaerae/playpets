@@ -194,15 +194,44 @@ fn transcript(prior: &[Value]) -> String {
     prior
         .iter()
         .map(|m| {
+            let content = m.get("content").and_then(|v| v.as_str()).unwrap_or("");
+            // Another friend's line (prompt.rs peer_entry, already one line) says whose it is, so
+            // it never reads as the owner speaking.
+            if let Some(name) = m.get("name").and_then(|v| v.as_str()) {
+                return format!("{name} (another friend, not your owner): {content}");
+            }
             let who = if m.get("role").and_then(|v| v.as_str()) == Some("user") {
                 "User"
             } else {
                 "You"
             };
-            format!("{who}: {}", m.get("content").and_then(|v| v.as_str()).unwrap_or(""))
+            format!("{who}: {content}")
         })
         .collect::<Vec<_>>()
         .join("\n")
+}
+
+/// Where the chat CLIs run: a folder of this app's own (0700 on Unix), made once per run, so no
+/// one else can leave files there that a CLI would read as project instructions (an AGENTS.md or
+/// CLAUDE.md in the shared temp folder, which anyone may write to on Linux).
+fn workdir() -> PathBuf {
+    static DIR: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
+    DIR.get_or_init(|| {
+        let dir = std::env::temp_dir().join(format!("playpets-cli-{}", uuid::Uuid::new_v4()));
+        let mut builder = std::fs::DirBuilder::new();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::DirBuilderExt;
+            builder.mode(0o700);
+        }
+        // Should it fail, the CLI still runs, in the system's temp folder as before.
+        if builder.create(&dir).is_ok() {
+            dir
+        } else {
+            std::env::temp_dir()
+        }
+    })
+    .clone()
 }
 
 struct Session {
@@ -262,12 +291,14 @@ impl Session {
         if !system.is_empty() {
             cmd.args(["--system-prompt", system]);
         }
+        // As one `--model=<name>` argument, so a name the page sent that starts with "-" is never
+        // read as an option of its own.
         if !model.is_empty() {
-            cmd.args(["--model", model]);
+            cmd.arg(format!("--model={model}"));
         }
         setup_child(&mut cmd);
         // Errors arrive as `result` messages on stdout, so stderr is not read.
-        cmd.current_dir(std::env::temp_dir())
+        cmd.current_dir(workdir())
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::null());
@@ -515,7 +546,7 @@ impl CliManager {
 
     fn codex_run(&self, bin: &Path, model: &str, prompt: &str, cancel: &AtomicBool) -> Result<String, CodexError> {
         // The answer lands in a file only this user can read (the temp folder is shared on Linux).
-        let out = std::env::temp_dir().join(format!("playpets-codex-{}.txt", uuid::Uuid::new_v4()));
+        let out = workdir().join(format!("playpets-codex-{}.txt", uuid::Uuid::new_v4()));
         let mut options = std::fs::OpenOptions::new();
         options.write(true).create_new(true);
         #[cfg(unix)]
@@ -536,11 +567,11 @@ impl CliManager {
             .args(CODEX_ISOLATION);
         cmd.arg("--output-last-message").arg(&out);
         if !model.is_empty() {
-            cmd.args(["-m", model]);
+            cmd.arg(format!("--model={model}"));
         }
         cmd.arg("-");
         setup_child(&mut cmd);
-        cmd.current_dir(std::env::temp_dir())
+        cmd.current_dir(workdir())
             .stdin(Stdio::piped())
             .stdout(Stdio::null())
             .stderr(Stdio::piped());
@@ -743,6 +774,19 @@ mod tests {
         ));
         assert!(
             matches!(codex_failure(1, "Not logged in. Run codex login"), CodexError::Failed(m) if m.contains("codex login"))
+        );
+    }
+
+    #[test]
+    fn another_friend_s_line_says_whose_it_is_in_a_transcript() {
+        let lines = transcript(&[
+            serde_json::json!({"role": "user", "content": "hi"}),
+            serde_json::json!({"role": "user", "name": "Mochi", "content": "[Mochi] hello"}),
+            serde_json::json!({"role": "assistant", "content": "hey"}),
+        ]);
+        assert_eq!(
+            lines,
+            "User: hi\nMochi (another friend, not your owner): [Mochi] hello\nYou: hey"
         );
     }
 }

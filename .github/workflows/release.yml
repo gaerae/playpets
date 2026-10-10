@@ -128,8 +128,11 @@ jobs:
       # without opening anything.
       - name: Collect the files
         shell: bash
+        # Outputs reach the script as environment variables, never pasted into its text.
+        env:
+          VERSION: ${{ needs.check.outputs.version }}
         run: |
-          version="${{ needs.check.outputs.version }}"
+          version="$VERSION"
           bundle="src-tauri/target/${{ matrix.target }}/release/bundle"
           mkdir -p out
           # Each file keeps its updater signature (.sig) beside it under the same new name, when
@@ -169,9 +172,11 @@ jobs:
           merge-multiple: true
       # The updater's manifest, when updater files were signed; the signatures go into it.
       - name: Updater manifest
+        env:
+          VERSION: ${{ needs.check.outputs.version }}
         run: |
           if ls out/*.sig > /dev/null 2>&1; then
-            node scripts/distribute.mjs updater "${{ needs.check.outputs.version }}" out > latest.json
+            node scripts/distribute.mjs updater "$VERSION" out > latest.json
             rm out/*.sig
             mv latest.json out/
           else
@@ -183,7 +188,8 @@ jobs:
       - name: Draft release
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.check.outputs.version }}
         run: |
-          version="${{ needs.check.outputs.version }}"
+          version="$VERSION"
           node scripts/release-notes.mjs "$version" > notes.md
           gh release create "v$version" out/* --draft --title "PlayPets $version" --notes-file notes.md --verify-tag

@@ -17,8 +17,10 @@ Follow [Set up a development environment and run the app](docs/getting-started.m
 8. If you changed the site (`website/`) or `docs/`, `npm run site:build` has to pass. Dead links block the build ([Edit and check the website](docs/how-to/website.md)).
 
 ## Commits and PRs
-- Write the commit title as one sentence describing the changed result (in English, no period), like "The yard shows friends talking and working", so readers can tell what is different. Put why you did it that way in the body.
-- Create a branch and open a PR. Small PRs get in faster. Fill in the template's checklist, and add the issue number if there is a related issue.
+The full rules are in [commits, branches and history](docs/standards/commits-and-branches.md); in short:
+- Make a branch from the latest `main`, named `<area>/<topic>` (`yard/lake-shape`, `fix/gift-day`), and open a PR. Small PRs get in faster. Fill in the template's checklist, and add the issue number if there is a related issue.
+- Write the commit title as one sentence describing the changed result (in English, no period), like "The yard shows friends talking and working", so readers can tell what is different. Put what changed, why you did it that way and how you checked it in the body. Every commit passes `npm test` and `npm run lint`.
+- Commit with your GitHub no-reply email (`git config user.email <id>+<name>@users.noreply.github.com`), and never commit keys, tokens, personal data or generated files.
 - A maintainer reviews and merges. If this is your first time, start with issues labeled `good first issue`.
 
 ## Code format

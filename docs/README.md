@@ -40,6 +40,7 @@ These are the standards to follow. Read the one for an area before changing it.
 | Strings and translation | [Standard: Multilingual strings](standards/i18n.md) |
 | Draw loops, animation, overlay | [Standard: Page and backend performance](standards/performance.md) |
 | Tests | [Standard: Testing](standards/testing.md) |
+| Branches, commits, what never goes in, history | [Standard: Commits, branches and history](standards/commits-and-branches.md) |
 | Signing keys, tokens, certificates | [Standard: Managing signing keys and secrets](standards/keys-and-secrets.md) |
 | Pet files | [Standard: Pet file format](standards/pet-files.md) |
 
