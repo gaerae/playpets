@@ -3,10 +3,11 @@
 // a day can bring (src-tauri/src/pets/bond.rs); this tells it what happened, shows how close each
 // friend is (hearts on the name tag, a bar in the Friend panel), celebrates a new level, and holds
 // what the levels open: a welcome back (2), fishing alone (3, catch.js), more seeds (4, garden.js),
-// a flower on the tag and words of its own (5, sky.js).
+// a flower on the tag and words of its own (5, remarks.js).
 // Design: docs/design/2026-10-09-a-yard-that-grows.md.
 
 import { list, t } from '../core/i18n.js';
+import { limit } from '../core/limits.js';
 import { pick } from '../core/math.js';
 import { $, call, data, name, selected, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
@@ -16,12 +17,21 @@ import { localDay } from './growth.js';
 import { cue } from './sound.js';
 import { bubble, effect, pose } from './views.js';
 
+// Time together is said every 10 minutes; the backend counts it at most every 9 (bond.rs
+// TIME_EVERY_MS), so a tick that comes a little early still counts (tests/limits.test.mjs).
 const TIME_EVERY = 10 * 60 * 1000;
-const levels = () => data.limits?.bondLevels || [0, 60, 200, 500, 1000];
+const levels = () => limit(data, 'bondLevels');
 /** A friend's points. */
-export const pointsOf = id => data.bonds?.[id]?.points || 0;
+const pointsOf = id => data.bonds?.[id]?.points || 0;
 /** A friend's level, 1 to 5. */
 export const levelOf = id => levels().filter(at => pointsOf(id) >= at).length;
+/** A friend's line for a moment (`key`: bond.welcome, bond.up_line, bond.dear), in the voice of who
+ * it is to the person: a partner, a senior or a younger sibling has lines of its own (key_relation),
+ * a friend the plain ones. */
+export function lineFor(pet, key) {
+  const own = pet.relation ? list(`${key}_${pet.relation}`) : [];
+  return pick(own.length ? own : list(key));
+}
 
 function celebrate(id, level) {
   const v = views.get(id);
@@ -29,7 +39,7 @@ function celebrate(id, level) {
   pose(v, 'jump', 1300);
   cue('level');
   for (let k = 0; k < 3; k++) setTimeout(() => views.has(id) && effect(v, '♥'), k * 220);
-  bubble(v, pick(list('bond.up_line')), 3200);
+  bubble(v, lineFor(v.pet, 'bond.up_line'), 3200);
   showCard(
     heartSvg(level),
     t('bond.up_card', { name: name(v.pet) }),
@@ -65,7 +75,7 @@ function welcome() {
       () => {
         if (!views.has(v.pet.id)) return;
         pose(v, 'wave', 1500);
-        bubble(v, pick(list('bond.welcome')), 3200);
+        bubble(v, lineFor(v.pet, 'bond.welcome'), 3200);
       },
       600 + i * 700,
     );

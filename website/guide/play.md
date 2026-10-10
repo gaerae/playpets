@@ -80,20 +80,20 @@ A few times a year the yard changes for a while. The event's name shows beside t
 - The event's gift comes the first time a gift is due during the event, and only then. The album shows when each one comes.
 - South of the equator the seasonal events come six months later, by your computer's time zone (the new year stays in January).
 
-## Friendship <Since v="0.1.0" />
+## Closeness <Since v="0.1.0" />
 
-Each friend grows closer to you through time in the yard and what you do together. Hearts on its name tag show how close it is, and the Friend tab shows its level, how far it is to the next and what the next one brings.
+Each friend grows closer to you through time in the yard and what you do together. Hearts on its name tag show how close it is, and the Friend tab shows its level, how far it is to the next and what the next one brings. The levels say how close you are, not what you are to each other, so they read the same for a partner or a sibling as for a friend (that is the [relationship](./chat.md#setting-a-relationship)).
 
 | Level | What it brings |
 |---|---|
-| New friend | |
-| Friend | It welcomes you when the app opens and when you come back after a while |
-| Good friend | It goes fishing on its own now and then |
-| Best friend | It finds seeds more often |
-| Dearest friend | A flower on its name tag, and now and then it says something just for you |
+| Just met | |
+| At ease | It welcomes you when the app opens and when you come back after a while |
+| Warm | It goes fishing on its own now and then |
+| Very close | It finds seeds more often |
+| Dearest | A flower on its name tag, and now and then it says something just for you |
 
 - Time together counts every ten minutes the yard is seen. Patting, treats, chatting, watering, catching and gifts count too, up to a day's worth, so a few minutes of clicking cannot rush it: closeness comes over days.
-- Nothing is ever lost by being away. Friendship is saved as `bonds` in `state.json`.
+- Nothing is ever lost by being away. Closeness is saved as `bonds` in `state.json`.
 
 ## Games <Since v="0.1.0" />
 

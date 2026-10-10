@@ -111,7 +111,7 @@ export function bigTree(ctx, x, y, H, pal, rng, lit, extras) {
 }
 
 /** A ground shadow, cast away from the sun: flat and see-through. */
-export function groundShadow(ctx, x, y, rx, pal, lit) {
+function groundShadow(ctx, x, y, rx, pal, lit) {
   ctx.fillStyle = css(shade(pal.back, 0.55), 0.18 + lit.strength * 0.14);
   ctx.beginPath();
   ctx.ellipse(x - lit.side * rx * 0.25, y, rx, rx * 0.16, 0, 0, Math.PI * 2);

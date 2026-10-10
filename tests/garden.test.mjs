@@ -82,14 +82,3 @@ test('a gift comes once a day after the yard has been seen a while, the first on
   assert.equal(localDay(new Date(2026, 0, 5, 23, 59)), '2026-01-05', "the person's own day, by their clock");
   assert.equal(localDay(new Date(2026, 9, 9)), '2026-10-09');
 });
-
-test("the page's fallback friendship levels are the backend's", async () => {
-  const { readFile } = await import('node:fs/promises');
-  const bond = await readFile('src-tauri/src/pets/bond.rs', 'utf8'),
-    page = await readFile('src/yard/bond.js', 'utf8');
-  const numbers = text => text.split(',').map(n => Number(n.trim()));
-  assert.deepEqual(
-    numbers(page.match(/bondLevels \|\| \[([\d, ]+)\]/)[1]),
-    numbers(bond.match(/LEVELS: \[u32; 5\] = \[([\d, ]+)\]/)[1]),
-  );
-});

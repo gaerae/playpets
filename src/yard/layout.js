@@ -1,12 +1,12 @@
 // Where things are in the painted yard: the composition (src/content/yard.json: the hills as
 // curves, the lake, what stands where, all in fractions of the yard) and the helpers that turn it
-// into yard pixels. The field friends stand on starts at the near hill's ridge (views.js
-// FIELD_TOP), so these shapes and the friends' places agree.
+// into yard pixels. The field friends stand on starts at the near hill's ridge (field.js
+// fieldTop), so these shapes and the friends' places agree.
 import { gauss } from './brush.js';
 
 // The scenery's composition, from src/content/yard.json: its curves (the hills, in fractions of the
 // yard, x across and y down, as cubic curves: a start point, then two control points and an end
-// point for each piece), which curve the field friends stand on starts at (views.js FIELD_TOP), the
+// point for each piece), which curve the field friends stand on starts at (field.js fieldTop), the
 // lake, and the layers painted from the back to the front (each names its painter, backdrop.js).
 export const composition = { curves: {}, field: 'back', lake: { from: 0, to: 0, top: 0, under: 'back' }, layers: [] };
 /** Takes the scenery's composition (the parsed src/content/yard.json). */
@@ -67,3 +67,46 @@ export function range(peaks, w, h, rng) {
 
 /** Closes a ridge down to the bottom of the yard, as a polygon. */
 export const down = (ridge, h) => [...ridge, [ridge[ridge.length - 1][0], h], [ridge[0][0], h]];
+
+/**
+ * The lake as it lies in a yard w × h, the one shape the painter (lake.js) and fishing (catch.js)
+ * share: its far shore is half an oval from `from` to `to` across, rising to `top`, whose ends sink
+ * behind the ridge in front of it (`ridge`, traced), so the water's ends round off where they meet
+ * the hill instead of thinning to a point. `shoreAt(x)` is the far shore's height, `ridgeAt(x)` the
+ * near edge (the hill hides the rest), `ends` where the water shows between, and `onWater(x, y)`.
+ */
+export function lakeShape(w, h, ridge) {
+  const { from, to, top } = composition.lake,
+    x0 = from * w,
+    x1 = to * w,
+    peak = top * h,
+    sink = h * 0.015,
+    left = heightAt(ridge, x0) + sink,
+    right = heightAt(ridge, x1) + sink;
+  const shoreAt = x => {
+    const f = (x - x0) / (x1 - x0);
+    if (f <= 0 || f >= 1) return Infinity;
+    const base = left + (right - left) * f;
+    return base + (peak - base) * Math.sqrt(1 - (2 * f - 1) ** 2) ** 0.7;
+  };
+  const ridgeAt = x => heightAt(ridge, x);
+  // Where the far shore comes out above the ridge, one end and the other.
+  let first = null,
+    last = null;
+  for (let k = 1; k < 200; k++) {
+    const x = x0 + ((x1 - x0) * k) / 200;
+    if (shoreAt(x) < ridgeAt(x)) {
+      first ??= x;
+      last = x;
+    }
+  }
+  return {
+    x0,
+    x1,
+    top: peak,
+    shoreAt,
+    ridgeAt,
+    ends: [first ?? x0, last ?? x1],
+    onWater: (x, y) => y > shoreAt(x) && y < ridgeAt(x),
+  };
+}

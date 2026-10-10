@@ -15,7 +15,7 @@ import { scene } from './world.js';
 let treatTimer,
   treatEaters = 0;
 // Called when a friend reaches the treat.
-export function ate(v, now) {
+function ate(v, now) {
   befriend(v.pet.id, 'treat');
   cue('treat');
   pose(v, 'jump', 1100);

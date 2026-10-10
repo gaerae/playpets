@@ -2,6 +2,7 @@
 // A change of weather is remarked on by a friend or two (remarks.js).
 
 import { language } from '../core/i18n.js';
+import { dropdown } from '../core/menu.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, game, recall, remember } from '../core/state.js';
 import { createEasel } from './easel.js';
@@ -51,11 +52,18 @@ export function paintScene() {
   const event = eventOn(now, south);
   scene.event = event?.id ?? null;
   const marks = event ? [` event-${event.id}`, ...(event.looks || []).map(look => ` look-${look}`)].join('') : '';
-  const rainbow = yard.classList.contains('after-rain') || (before === 'rain' && scene.weather === 'clear');
-  yard.className = `yard period-${scene.period} weather-${scene.weather} season-${scene.season}${marks}${aiming ? ' aiming' : ''}${game ? ' playing' : ''}`;
+  // Classes the scene does not set are kept through a repaint: the rainbow while its time runs,
+  // and the hand over something to catch while catching is possible (catch.js).
+  const kept = ['after-rain', ...(aiming || game ? [] : ['can-catch'])]
+    .filter(c => yard.classList.contains(c))
+    .map(c => ` ${c}`)
+    .join('');
+  yard.className = `yard period-${scene.period} weather-${scene.weather} season-${scene.season}${marks}${aiming ? ' aiming' : ''}${game ? ' playing' : ''}${kept}`;
   paintSeason(yard);
   paintSky(yard, now);
-  if (rainbow && scene.weather === 'clear' && scene.period !== 'night') showRainbow(yard);
+  // Rain clearing in daylight starts the rainbow's few minutes; night or new weather takes it away.
+  if (before === 'rain' && scene.weather === 'clear' && scene.period !== 'night') showRainbow(yard);
+  else if (scene.weather !== 'clear' || scene.period === 'night') yard.classList.remove('after-rain');
   $('sky-dot').className = `sun-dot ${scene.period === 'night' ? 'moon' : ''}`;
   $('scene-caption').textContent = sceneCaption(scene.period, scene.weather);
   scenery.set(scene.period, scene.weather, scene.season, scene.event);
@@ -106,22 +114,8 @@ export function setupSky() {
   if (PERIODS[saved.period]) periodChoice = saved.period;
   $('weather').value = weatherChoice;
   $('period').value = periodChoice;
-  // The caption is the button for the time of day and the weather: a small menu under it.
-  const menu = $('scene-menu'),
-    button = $('scene-button'),
-    show = open => {
-      menu.hidden = !open;
-      button.setAttribute('aria-expanded', String(open));
-    };
-  button.onclick = () => show(menu.hidden);
-  document.addEventListener('pointerdown', e => {
-    if (!menu.hidden && !menu.contains(e.target) && !button.contains(e.target)) show(false);
-  });
-  menu.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
-    show(false);
-    button.focus();
-  });
+  // The caption is the button for the time of day and the weather: a small panel under it.
+  dropdown($('scene-button'), $('scene-menu'), () => $('period').focus());
   $('period').onchange = () => {
     periodChoice = $('period').value;
     remember('period', periodChoice);

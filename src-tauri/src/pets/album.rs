@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
 
-/// Kinds an album keeps, for each of fish and bugs; far more than the catalogue has, so it only
+/// Kinds an album keeps, for each of its books (fish, bugs, flowers); far more than the catalogue has, so it only
 /// stops a file that grew out of hand.
 pub const KINDS_MAX: usize = 64;
 /// The longest fish (cm) the album believes.

@@ -2,7 +2,7 @@
 // never in the state file.
 use super::kind::Kind;
 use super::{cli, http};
-use crate::app::{AppData, Shared, changed, lock, persist, push_event};
+use crate::app::{AppData, Shared, changed, lock, push_event};
 use crate::i18n;
 use serde_json::{Value, json};
 use tauri::{AppHandle, State};
@@ -128,8 +128,7 @@ fn store(
         }
         push_event(app, &json!({"type": "history-reset", "petIds": ids}));
     }
-    persist(&d)?;
-    changed(app, &d);
+    crate::app::save_and_show(app, &d)?;
     Ok(entry)
 }
 
@@ -155,14 +154,14 @@ pub fn remove(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, id:
     }
     d.providers.retain(|p| id_of(p) != id);
     let had_key = d.secret_ids.remove(id);
-    persist(&d)?;
-    changed(app, &d);
+    let saved = crate::app::save_and_show(app, &d);
     drop(d);
-    // The keychain may ask the person; nothing else in the app should wait for that.
+    // The connection is gone either way, so is its key. The keychain may ask the person; nothing
+    // else in the app should wait for that.
     if had_key {
         forget_key(id);
     }
-    Ok(Value::Null)
+    saved.map(|()| Value::Null)
 }
 
 /// Models the dialog can offer. The key typed into the form wins; otherwise the saved one is used.

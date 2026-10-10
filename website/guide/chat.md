@@ -53,7 +53,7 @@ The personality is the tone and attitude your friend answers with. There are two
 
 ## Setting a relationship <Since v="0.1.0" />
 
-**Relationship** in Friend settings says what this friend is to you: a friend (the default), a partner, a reliable senior or a playful younger sibling. It shapes how the friend talks to you, what it calls you and how it asks about your day, and friends chatting together know each other's relationship. Write "honey" or your name under **What it calls you** and it will. Many Codex pets are human-shaped, which suits a partner or a senior well. What is said within the relationship follows the policy of the AI you connected, not the app.
+**Relationship** in Friend settings says what this friend is to you: a friend (the default), a partner, a reliable senior or a playful younger sibling, each card saying the voice it brings. The Friend tab shows it beside the friend's name; click it to change it. It shapes how the friend talks to you, what it calls you and how it asks about your day (even without an AI, a partner, a senior and a younger sibling each welcome you back and speak up in a voice of their own), and friends chatting together know each other's relationship. Write "honey" or your name under **What it calls you** and it will (the example in the box follows the relationship). Many Codex pets are human-shaped, which suits a partner or a senior well. What is said within the relationship follows the policy of the AI you connected, not the app.
 
 ## Chatting together <Since v="0.1.0" />
 

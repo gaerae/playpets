@@ -135,6 +135,12 @@ const scenario = `(async()=>{
     const shown=[];for(const k of ['pet','invite','settings']){document.querySelector('.panel-tab[data-panel='+k+']').click();await wait(150);shown.push(['pet','invite','settings'].filter(o=>$('panel-'+o).getBoundingClientRect().height>40).join(','));}
     const opened=!$('side-panel').hidden,indexed=document.querySelector('.settings-index [aria-current]')?.dataset.section;$('close-panel').click();await wait(300);
     await L('panel='+(opened&&$('side-panel').hidden&&shown.join('|')==='pet|invite|settings'?'toggles':'err:'+shown.join('|'))+'/'+indexed);
+    // The relationship shows beside the friend's closeness, and a click on it opens the settings at the relationship cards.
+    document.querySelector('.panel-tab[data-panel=pet]').click();await wait(200);
+    const relChip=$('relation-chip').textContent;$('relation-chip').click();await wait(200);
+    const relFocus=$('pet-dialog').open&&document.activeElement?.name==='relation'&&document.activeElement.value==='partner'&&$('pet-call-me').placeholder===${say('pet.call_me_partner')};
+    $('cancel-pet-dialog').click();$('close-panel').click();await wait(200);
+    await L('relation='+(relChip===${say('relation.partner')}&&relFocus?'chip-opens-cards':'err:'+relChip+'/'+relFocus));
     // About: the app's own pages, from the addresses the backend reports; "What's new" waits for an update.
     const project=(await playPets.bootstrap()).data.project||{};
     await L('about='+document.querySelectorAll('#panel-settings button[data-link]').length+'/'+(String(project.site).startsWith('https://')&&String(project.repository).startsWith('https://github.com/')?'addresses':'none')+'/'+($('update-notes').hidden?'notes-hidden':'notes-shown'));
@@ -163,14 +169,15 @@ const scenario = `(async()=>{
     const gb=(await playPets.bootstrap()).data.garden;
     await L('garden='+(gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant').dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true'?'found-planted':'err:'+JSON.stringify(gb)));
     // A gift: the backend picks the first kind and allows one a day; a drag moves it and it stays moved; it can be put away.
-    const gift=(await playPets.receiveGift(0.3,0.2,'2031-01-01')).data;await until(()=>document.querySelectorAll('.decor').length===1);
-    const twice=await playPets.receiveGift(0.5,0.5,'2031-01-01');const deco=document.querySelector('.decor'),dr=deco.getBoundingClientRect(),dp={bubbles:true,pointerId:7,button:0,clientX:dr.left+dr.width/2,clientY:dr.bottom-4};
+    await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});await until(()=>!document.querySelector('.decor'));
+    const gift=(await playPets.receiveGift(0.3,0.2,'2025-01-01')).data;await until(()=>document.querySelectorAll('.decor').length===1);
+    const twice=await playPets.receiveGift(0.5,0.5,'2025-01-01');const deco=document.querySelector('.decor'),dr=deco.getBoundingClientRect(),dp={bubbles:true,pointerId:7,button:0,clientX:dr.left+dr.width/2,clientY:dr.bottom-4};
     deco.dispatchEvent(new PointerEvent('pointerdown',dp));deco.dispatchEvent(new PointerEvent('pointermove',{...dp,clientX:dp.clientX+120}));deco.dispatchEvent(new PointerEvent('pointerup',{...dp,clientX:dp.clientX+120}));
     const moved=await until(async()=>(await playPets.bootstrap()).data.garden.decor[0]?.x>0.35);
     await playPets.putAway(gift.id);const away=await until(()=>!document.querySelector('.decor'));
     await L('gift='+(gift.kind==='bench'&&twice.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-once-moved-away':'err:'+JSON.stringify([gift,twice])));
     // A seasonal event: its gift comes on its days (the backend checks them), and the label beside the scene shows the event on now.
-    const snow=(await playPets.receiveGift(0.6,0.3,'2031-12-20','lights')).data;await until(()=>document.querySelectorAll('.decor').length===1);await playPets.putAway(snow.id);
+    const snow=(await playPets.receiveGift(0.6,0.3,'2025-12-20','lights')).data;await until(()=>document.querySelectorAll('.decor').length===1);await playPets.putAway(snow.id);
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
     await L('event='+(snow.kind==='snowman'&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
     // The album: a catch is kept (the biggest fish, a count), nonsense is refused, and the album shows it.
@@ -182,8 +189,8 @@ const scenario = `(async()=>{
     $('album-dialog').close();
     await L('album='+(albumOk?'kept-and-shown':'err:'+JSON.stringify((await playPets.bootstrap()).data.album)));
     // Friendship: the backend decides what a thing is worth and caps a day; hearts show on the name tag.
-    const fid=(await playPets.bootstrap()).data.pets[0].id,p0=(await playPets.bootstrap()).data.bonds?.[fid]?.points||0,bribe=await playPets.befriend(fid,'bribe','2031-01-02');
-    let rose=0;for(const day of ['2031-01-02','2031-01-03'])for(let k=0;k<12;k++)rose+=(await playPets.befriend(fid,'gift',day)).data.up?1:0;
+    const fid=(await playPets.bootstrap()).data.pets[0].id,p0=(await playPets.bootstrap()).data.bonds?.[fid]?.points||0,bribe=await playPets.befriend(fid,'bribe','2026-01-02');
+    let rose=0;for(const day of ['2026-01-02','2026-01-03'])for(let k=0;k<12;k++)rose+=(await playPets.befriend(fid,'gift',day)).data.up?1:0;
     const hearts=await until(()=>document.querySelector('.tag-bond')?.textContent==='♥');
     await L('friendship='+((await playPets.bootstrap()).data.bonds[fid].points-p0)+'/'+rose+'/'+(hearts?'hearts':'none')+'/'+(bribe.ok===false?'refused':'taken'));
     // Yard sounds: on by default; the chip turns them off and on, the volume is kept and held to 0–100.
@@ -216,7 +223,8 @@ const scenario = `(async()=>{
     const {onLake}=await import('./yard/catch.js'),st=await import('./core/state.js'),lakeBox=$('yard').getBoundingClientRect(),lx=lakeBox.width*0.52;
     let ly=0;for(let y=0;y<lakeBox.height&&!ly;y+=2)if(onLake(lx,y))ly=y+6;
     const clickLake=()=>$('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:lakeBox.left+lx,clientY:lakeBox.top+ly}));
-    const toLake=()=>[...st.views.values()].filter(v=>v.trip?.cancel).length;
+    // A trip to the lake: one that can be called off, by a friend not on its way home from a game.
+    const toLake=()=>[...st.views.values()].filter(v=>v.trip?.cancel&&!v.away).length;
     const fishFor=()=>until(()=>{if(!toLake())clickLake();return toLake();},8000);
     const first=await fishFor();
     document.querySelector('[data-game=tag]').click();await wait(200);const during=toLake();playing().click();
@@ -267,7 +275,8 @@ const scenario = `(async()=>{
     const invited=after.length===before+1&&document.querySelectorAll('.yard-pet').length===after.length&&$('friend-select').value===after.at(-1).id;
     document.querySelector('.panel-tab[data-panel=pet]').click();await wait(200);
     $('configure').click();await wait(300);const dialogOpen=$('connection-dialog').open;$('cancel-dialog').click();
-    await L('pageButtons='+(invited&&dialogOpen?'invite-and-connect':'err:'+invited+'/'+dialogOpen));
+    // On a failure, which part: the friend saved, drawn, picked in the Friend tab; the dialog.
+    await L('pageButtons='+(invited&&dialogOpen?'invite-and-connect':'err:'+[after.length-before,document.querySelectorAll('.yard-pet').length-after.length,$('friend-select').value===after.at(-1)?.id,dialogOpen].join('/')));
     // A word written to a friend with no AI waits for one: sending opens the connection dialog,
     // picking a kind on its cards and connecting sends the word.
     const guestId=after.at(-1).id;
@@ -460,6 +469,7 @@ const expect = [
     /^panel=toggles\/general-title$/,
     'panel tabs open and close, and the Settings index marks the first group when it opens',
   ],
+  [/^relation=chip-opens-cards$/, 'the relationship shows in the Friend tab and its chip opens the relationship cards'],
   [/^about=6\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
   [
     /^updateUi=general-title,yard-settings-title,agent-link-title,about-title\/ok$/,

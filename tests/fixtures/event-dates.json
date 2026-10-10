@@ -1,0 +1,325 @@
+{
+  "about": "Seasonal events by date, north and south of the equator, as both the page (src/yard/events.js) and the backend (src-tauri/src/pets/content.rs) must see them. Checked by tests/events.test.mjs and the content.rs tests; written from the page rules, then checked by hand at each boundary.",
+  "cases": [
+    {
+      "day": "2026-03-31",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-03-31",
+      "south": true,
+      "event": "harvest"
+    },
+    {
+      "day": "2026-04-01",
+      "south": false,
+      "event": "blossom"
+    },
+    {
+      "day": "2026-04-01",
+      "south": true,
+      "event": "harvest"
+    },
+    {
+      "day": "2026-04-20",
+      "south": false,
+      "event": "blossom"
+    },
+    {
+      "day": "2026-04-20",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-04-21",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-04-21",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-07-19",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-07-19",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-07-20",
+      "south": false,
+      "event": "fireflies"
+    },
+    {
+      "day": "2026-07-20",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-08-20",
+      "south": false,
+      "event": "fireflies"
+    },
+    {
+      "day": "2026-08-20",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-08-21",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-08-21",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-09-24",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-09-24",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-09-25",
+      "south": false,
+      "event": "harvest"
+    },
+    {
+      "day": "2026-09-25",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-10-15",
+      "south": false,
+      "event": "harvest"
+    },
+    {
+      "day": "2026-10-15",
+      "south": true,
+      "event": "blossom"
+    },
+    {
+      "day": "2026-10-16",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-10-16",
+      "south": true,
+      "event": "blossom"
+    },
+    {
+      "day": "2026-12-09",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-12-09",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-12-10",
+      "south": false,
+      "event": "lights"
+    },
+    {
+      "day": "2026-12-10",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-12-31",
+      "south": false,
+      "event": "lights"
+    },
+    {
+      "day": "2026-12-31",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2027-01-01",
+      "south": false,
+      "event": "newyear"
+    },
+    {
+      "day": "2027-01-01",
+      "south": true,
+      "event": "newyear"
+    },
+    {
+      "day": "2027-01-07",
+      "south": false,
+      "event": "newyear"
+    },
+    {
+      "day": "2027-01-07",
+      "south": true,
+      "event": "newyear"
+    },
+    {
+      "day": "2027-01-08",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2027-01-08",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-10-01",
+      "south": false,
+      "event": "harvest"
+    },
+    {
+      "day": "2026-10-01",
+      "south": true,
+      "event": "blossom"
+    },
+    {
+      "day": "2026-10-20",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-10-20",
+      "south": true,
+      "event": "blossom"
+    },
+    {
+      "day": "2026-10-21",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-10-21",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2027-01-20",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2027-01-20",
+      "south": true,
+      "event": "fireflies"
+    },
+    {
+      "day": "2027-02-20",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2027-02-20",
+      "south": true,
+      "event": "fireflies"
+    },
+    {
+      "day": "2027-02-21",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2027-02-21",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2027-03-25",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2027-03-25",
+      "south": true,
+      "event": "harvest"
+    },
+    {
+      "day": "2027-04-15",
+      "south": false,
+      "event": "blossom"
+    },
+    {
+      "day": "2027-04-15",
+      "south": true,
+      "event": "harvest"
+    },
+    {
+      "day": "2027-04-16",
+      "south": false,
+      "event": "blossom"
+    },
+    {
+      "day": "2027-04-16",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-06-10",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-06-10",
+      "south": true,
+      "event": "lights"
+    },
+    {
+      "day": "2026-06-30",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-06-30",
+      "south": true,
+      "event": "lights"
+    },
+    {
+      "day": "2026-07-01",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-07-01",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2028-02-29",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2028-02-29",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-06-15",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-06-15",
+      "south": true,
+      "event": "lights"
+    }
+  ]
+}

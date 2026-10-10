@@ -26,7 +26,8 @@ const PETS: [(&str, &[u8], &[u8]); 3] = [
 ];
 
 /// Writes the sample pets under `root`, one folder each, unless a file is already there with the
-/// same size (a new build with a redrawn sheet replaces it). A pet that cannot be written is
+/// same size (a new build whose redrawn sheet differs in size replaces it; one of the same size
+/// does not). A pet that cannot be written is
 /// reported and the others still unpack.
 pub fn unpack(root: &Path) -> (PathBuf, Vec<String>) {
     let mut warnings = Vec::new();

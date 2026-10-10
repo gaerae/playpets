@@ -86,18 +86,20 @@ function create(pet) {
   button.onpointerleave = () => {
     view.look = null;
   };
+  // Only the press that started a drag ends one: a right click (which opens the chat) is not a pat.
   button.onpointerup = async e => {
-    const moved = view.drag?.moved;
+    if (!view.drag) return;
+    const moved = view.drag.moved;
     view.drag = null;
     await api.dragStop();
     if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
     if (!moved) await api.play('pet', pet.id);
   };
-  // Right click (or Enter) opens the app too, as in the yard.
   button.onpointercancel = () => {
     view.drag = null;
     api.dragStop();
   };
+  // Right click (or Enter) opens the app too, as in the yard.
   button.oncontextmenu = e => {
     e.preventDefault();
     api.openChat(pet.id);

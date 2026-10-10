@@ -8,18 +8,30 @@ import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { bubble } from './views.js';
 
-/** The event on changed (sky.js, when it paints the scene): `event` is the new one, or null. */
+// The event whose card waits for the window to be shown.
+let waiting = null;
+/** The seasonal event changed (sky.js, when it paints the scene): `event` is the new one, or null. */
 export function eventChanged(event) {
   const chip = $('event-chip');
   chip.hidden = !event;
-  if (!event) return;
+  if (!event) {
+    waiting = null;
+    return;
+  }
   const name = t(`event.${event.id}.name`),
     about = t(`event.${event.id}.about`);
   chip.textContent = name;
   chip.title = about;
-  // Once a year, the first time the yard sees it.
+  // Once a year, the first time the yard is seen with it: a window started hidden (with desktop
+  // mode at login) waits until it is shown, and the friends have come in by then.
   const seen = `event-${event.id}-${new Date().getFullYear()}`;
   if (recall(seen) === '1') return;
+  if (document.hidden) {
+    waiting = event;
+    document.addEventListener('visibilitychange', () => waiting === event && eventChanged(event), { once: true });
+    return;
+  }
+  waiting = null;
   remember(seen, '1');
   setTimeout(() => {
     const art = event.art || giftKind(event.gift)?.art;

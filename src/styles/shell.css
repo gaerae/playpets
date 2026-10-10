@@ -284,8 +284,7 @@ html:not(.mac) body {
    and their words stay in the tooltip. First the tagline and the shortest labels, then the rest. */
 @media (max-width: 1100px) {
   .brand-sub,
-  #update-pill-label,
-  #mini-label {
+  #update-pill-label {
     display: none;
   }
 }

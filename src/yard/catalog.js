@@ -69,7 +69,7 @@ export function bite(season, period, weather, rng, event = null) {
 }
 
 /** The bugs of a kind that fly in this season and time of day. */
-export function bugsHere(kind, season, period, event = null) {
+function bugsHere(kind, season, period, event = null) {
   return BUGS.filter(b => b.kind === kind && now(b, event) && b.seasons.includes(season) && b.periods.includes(period));
 }
 /** Which of a kind flies by now, or null when none does. */

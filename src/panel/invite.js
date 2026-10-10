@@ -2,6 +2,7 @@
 
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
+import { limit } from '../core/limits.js';
 import { canvas, drawSprite } from '../core/sprites.js';
 import { $, call, data, guard, recall, remember, setSelected, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
@@ -112,11 +113,11 @@ export function renderShelf() {
     $('shelf').replaceChildren(...groups.map(([p, list]) => group(p, list)));
     icons($('shelf'));
   }
-  const limit = data.petLimit ?? 12,
-    full = data.pets.length >= limit;
+  const most = limit(data, 'pets'),
+    full = data.pets.length >= most;
   // A full yard says why the cards cannot be pressed, and what to do.
   $('yard-full').hidden = !full;
-  if (full) $('yard-full').textContent = t('invite.full', { limit });
+  if (full) $('yard-full').textContent = t('invite.full', { limit: most });
   // A shape with no pets says so, with the way back to every pet.
   $('no-kind').hidden = !data.assets.length || data.assets.some(ofKind);
   for (const b of $('shelf').querySelectorAll('.asset-card')) {

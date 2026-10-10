@@ -2,7 +2,8 @@
 //! flower, a gift, a fish or a bug is added in one place and both sides know it. Built into the app,
 //! so the backend always holds the catalogue the page was shipped with. Here it decides what a seed
 //! can grow into, which gift comes next, what the album believes was caught, and when a plant has
-//! flowered. How to add to the yard: docs/how-to/add-to-the-yard.md.
+//! flowered; and, from src/content/events.json, which seasonal event's gift a day may bring. How to
+//! add to the yard: docs/how-to/add-to-the-yard.md.
 use serde::Deserialize;
 use std::sync::OnceLock;
 
@@ -76,9 +77,18 @@ fn within(md: u32, from: u32, to: u32) -> bool {
         md >= from || md <= to
     }
 }
-/// Six months on, as the events come south of the equator.
-fn later(md: u32) -> u32 {
-    ((md / 100 + 5) % 12 + 1) * 100 + md % 100
+/// Six months on, as the events come south of the equator, kept inside the month it lands in
+/// (August 31 is the last of February: the 28th as a first day, so no year loses it, the 29th as
+/// a last). The same rule as src/yard/events.js.
+fn later(md: u32, last: bool) -> u32 {
+    let month = (md / 100 + 5) % 12 + 1;
+    let days = match month {
+        2 if last => 29,
+        2 => 28,
+        4 | 6 | 9 | 11 => 30,
+        _ => 31,
+    };
+    month * 100 + (md % 100).min(days)
 }
 
 /// The gift a seasonal event brings, if the event is on that day (the page's local date, north or
@@ -86,7 +96,7 @@ fn later(md: u32) -> u32 {
 pub fn event_gift(event: &str, day: &str) -> Option<&'static str> {
     let e = events().events.iter().find(|e| e.id == event)?;
     let (md, from, to) = (month_day(day)?, month_day(&e.from)?, month_day(&e.to)?);
-    let on = within(md, from, to) || (!e.fixed && within(md, later(from), later(to)));
+    let on = within(md, from, to) || (!e.fixed && within(md, later(from, false), later(to, true)));
     on.then_some(e.gift.as_deref()?)
 }
 
@@ -157,6 +167,21 @@ mod tests {
         assert_eq!(event_gift("lights", "2026-12-31"), Some("snowman"));
         assert_eq!(event_gift("newyear", "2027-01-02"), None, "an event without a gift");
         assert_eq!(event_gift("bogus", "2026-04-05"), None);
+        // The dates the page is checked against too (tests/fixtures/event-dates.json): on every day
+        // the page sees an event with a gift, north or south, the backend gives that gift.
+        let fixture: serde_json::Value =
+            serde_json::from_str(include_str!("../../../tests/fixtures/event-dates.json")).unwrap();
+        for case in fixture["cases"].as_array().unwrap() {
+            let (day, event) = (case["day"].as_str().unwrap(), case["event"].as_str());
+            if let Some(e) = event.and_then(|id| events().events.iter().find(|e| e.id == id)) {
+                assert_eq!(event_gift(&e.id, day), e.gift.as_deref(), "{day}: {}", e.id);
+            }
+        }
+        // Six months on stays inside the month: August 31 starts on February 28 and ends on the 29th.
+        assert_eq!(
+            (later(831, false), later(831, true), later(1231, true)),
+            (228, 229, 630)
+        );
         assert!(c.is_gift("snowman") && !c.gifts().contains(&"snowman"));
         // Every event names a gift that is in the catalogue as that event's.
         for e in &events().events {

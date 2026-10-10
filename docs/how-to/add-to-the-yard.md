@@ -57,7 +57,7 @@ To make a new effect, add its layer to `LAYERS` in `src/yard/effects.js` (or non
 `src/content/yard.json`:
 - `curves`: the hills, as cubic curves in fractions of the yard (x across, y down): a start point, then two control points and an end point for each piece.
 - `field` and `fieldTop`: the curve the field friends stand on starts at, and where its top is (a fraction of the height).
-- `lake`: where the lake starts and ends across (`from`, `to`), its far shore's height (`top`) and the curve that hides its near edge (`under`).
+- `lake`: where the lake starts and ends across (`from`, `to`), its far shore's height at the middle (`top`) and the curve that hides its near half (`under`). The far shore is half an oval whose ends sink behind that curve, so the water shows between where the two cross; the painter and fishing share this shape (`layout.js` `lakeShape`).
 - `layers`: what is painted, from back to front. Each names its painter (`paint`) and that painter's settings; `seed` makes it come out the same each time (change it to get another arrangement of the same parts), and `when` paints it only in a weather, a season or a time of day (`"snow"`, `"winter"`, `"night"`, or `"bloomy"` for when flowers are out).
 
 The painters and what each takes are in `src/yard/backdrop.js` (`PAINTERS`); things that stand on the field (`standing` layer, `things`) are `tree`, `maple`, `bush`, `rock` and `cedar` (`THINGS`). Colours in a layer are the palette's names (`"back-hi"`), or `{ "mix": [a, b, amount] }`, `{ "shade": [a, amount] }`, `{ "light": [a, amount] }`.

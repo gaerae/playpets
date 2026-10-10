@@ -12,7 +12,8 @@ use std::collections::BTreeMap;
 pub const LEVELS: [u32; 5] = [0, 60, 200, 500, 1000];
 /// Points a day can bring from things done together (time together is not counted in this).
 pub const DAILY: u32 = 40;
-/// Time together counts once in this long at most, however often the page says so.
+/// Time together counts once in this long at most, however often the page says so (every 10
+/// minutes, src/yard/bond.js: a little longer, so a timer that fires early still counts).
 pub const TIME_EVERY_MS: u64 = 9 * 60 * 1000;
 
 /// What a thing done together is worth.
@@ -40,6 +41,7 @@ pub struct Bond {
     pub today: u32,
     /// When time together last counted, in ms since 1970.
     #[serde(default)]
+    #[serde(rename = "timeAt", alias = "time_at")]
     pub time_at: u64,
 }
 
@@ -60,7 +62,14 @@ impl Bonds {
             .into_iter()
             .flatten()
             .filter(|(id, _)| pets.contains(id))
-            .filter_map(|(id, v)| Some((id.clone(), serde_json::from_value::<Bond>(v.clone()).ok()?)))
+            .filter_map(|(id, v)| {
+                // A file with both spellings (edited by hand) keeps the new one rather than losing the bond.
+                let mut v = v.clone();
+                if let Some(o) = v.as_object_mut().filter(|o| o.contains_key("timeAt")) {
+                    o.remove("time_at");
+                }
+                Some((id.clone(), serde_json::from_value::<Bond>(v).ok()?))
+            })
             .collect();
         Bonds(map)
     }
@@ -68,6 +77,12 @@ impl Bonds {
     /// Something done together: returns the friend's points, its level and whether it rose.
     pub fn befriend(&mut self, pet: &str, reason: &str, day: &str, now: u64) -> Result<(u32, u32, bool), String> {
         let worth = worth(reason).ok_or_else(|| i18n::t("error.bad_request"))?;
+        // The day counts what a day can bring: it has to be a date (one that has come, checked where
+        // the clock is, commands.rs). Another day starts a new day's worth, so a clock moved back
+        // and forth (travel, a fix) never locks the count.
+        if reason != "time" && !super::garden::is_day(day) {
+            return Err(i18n::t("error.bad_request"));
+        }
         let bond = self.0.entry(pet.to_string()).or_default();
         let before = level(bond.points);
         let gained = if reason == "time" {
@@ -115,6 +130,8 @@ mod tests {
     fn things_done_together_count_up_to_a_day_s_worth_and_time_counts_at_most_so_often() {
         let mut b = Bonds::default();
         assert!(b.befriend("a", "bribe", "2026-10-09", 0).is_err());
+        // Not a date: refused.
+        assert!(b.befriend("a", "pat", "tomorrow", 0).is_err());
         assert_eq!(b.befriend("a", "gift", "2026-10-09", 0), Ok((5, 1, false)));
         for _ in 0..20 {
             b.befriend("a", "water", "2026-10-09", 0).unwrap();
@@ -155,6 +172,9 @@ mod tests {
         let b = Bonds::restore(Some(&raw), &["a".into(), "b".into()]);
         assert_eq!(b.0.keys().collect::<Vec<_>>(), ["a"]);
         assert_eq!(b.0["a"].points, 70);
+        // Saved as timeAt like the rest of state.json; the older time_at is still read.
+        assert_eq!(b.0["a"].time_at, 5);
+        assert_eq!(serde_json::to_value(&b.0["a"]).unwrap()["timeAt"], 5);
         assert_eq!(Bonds::restore(None, &[]), Bonds::default());
     }
 }

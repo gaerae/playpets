@@ -323,7 +323,7 @@ mod tests {
                 .filter(|l| !l.trim_start().starts_with("//"))
                 .collect::<Vec<_>>()
                 .join("\n");
-            for marker in ["t(\"", "tr(\""] {
+            for marker in ["t(\"", "tr(\"", "detail(\"", "detail_for(\""] {
                 for (at, _) in src.match_indices(marker) {
                     let before = src[..at].chars().last().unwrap_or(' ');
                     if before.is_alphanumeric() || before == '_' {

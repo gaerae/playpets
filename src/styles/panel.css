@@ -319,24 +319,29 @@
   border-color: var(--ink);
   color: #fff;
 }
-.fact-chip.bond {
-  color: #8a3b5c;
-  border-color: #f1cfe0;
+/* Who the friend is to you, beside how close you are: a chip that opens the choice (friend.js). */
+.relation-chip {
+  flex: none;
+  padding: 1px 8px;
+  border: 1px solid #f1cfe0;
+  border-radius: 99px;
   background: #fdf0f6;
+  color: #8a3b5c;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
 }
-.relation-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 12px;
+.relation-chip[data-relation="friend"] {
+  border-color: var(--line);
+  background: var(--white);
+  color: var(--muted);
 }
-.relation-row > div {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
+.relation-chip:hover {
+  border-color: #e3a9c3;
 }
-.relation-row label {
-  margin: 0;
+.relation-chip[data-relation="friend"]:hover {
+  border-color: #c9d3cf;
+  color: var(--ink);
 }
 .fact-chip.agent {
   color: #6b4b14;
@@ -510,7 +515,7 @@
   }
 }
 #pet-dialog .pet-id {
-  margin-top: 16px;
+  margin-top: 6px;
 }
 .layout.panel-open .side-panel {
   align-self: stretch;
@@ -947,10 +952,14 @@
 /* Under the name, one quiet line: what its coding agent is doing, and how close it is. */
 .friend-sub {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 4px 8px;
   min-width: 0;
   font-size: 10.5px;
+}
+.status-pill[hidden] {
+  display: none;
 }
 .status-pill {
   flex: none;
@@ -990,6 +999,7 @@
 }
 .bond-bar {
   flex: 1;
+  min-width: 40px;
   max-width: 90px;
   height: 5px;
   border-radius: 99px;

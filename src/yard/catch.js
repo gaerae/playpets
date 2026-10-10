@@ -14,7 +14,7 @@ import { showCard } from './card.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
 import { field, footTarget, petHeight, sizeOf } from './field.js';
-import { composition, heightAt, trace } from './layout.js';
+import { composition, lakeShape, trace } from './layout.js';
 import { cue } from './sound.js';
 import { bubble, cheer, hint, isFree, nearestFree, release, rest, sendTo } from './views.js';
 import { scene, scenery } from './world.js';
@@ -23,8 +23,8 @@ import { scene, scenery } from './world.js';
 const BITE_AFTER = [3000, 9000];
 const BITE_WINDOW = 1700;
 
-// The lake as it lies in the yard now: its two ends, the height of its far shore, and the near
-// hill's ridge that hides its near edge (the same shapes the painter uses, layout.js).
+// The lake as it lies in the yard now: the same shape the painter draws (layout.js lakeShape),
+// made again only when the yard changes size.
 let lakeKey = '',
   lakeArea = null;
 function lake() {
@@ -32,16 +32,14 @@ function lake() {
     key = `${width}x${height}`;
   if (key !== lakeKey) {
     lakeKey = key;
-    const { from, to, top, under } = composition.lake,
-      ridge = trace(composition.curves[under], width, height);
-    lakeArea = { x0: from * width, x1: to * width, top: top * height, ridge: x => heightAt(ridge, x) };
+    lakeArea = lakeShape(width, height, trace(composition.curves[composition.lake.under], width, height));
   }
   return lakeArea;
 }
-/** Whether a point in the yard is on the lake's water. */
+/** Whether a point in the yard is on the lake's water (a few pixels in from where it shows). */
 export function onLake(x, y) {
   const l = lake();
-  return x > l.x0 + 12 && x < l.x1 - 12 && y > l.top - 2 && y < l.ridge(x) + 4;
+  return x > l.ends[0] + 6 && x < l.ends[1] - 6 && l.onWater(x, y + 2);
 }
 
 // Fishing: one friend at a time, at the place on the shore that was clicked. The walk there is the
@@ -64,7 +62,7 @@ function stopFishing() {
 function startFishing(x, friend) {
   if (fishing) return;
   const l = lake(),
-    shore = l.ridge(x),
+    shore = l.ridgeAt(x),
     v = friend || nearestFree(x, shore);
   if (!v) return toast(t('catch.busy'));
   if (!friend) {
@@ -73,7 +71,7 @@ function startFishing(x, friend) {
   }
   // The friend stands on the near shore just left of where the float goes.
   sendTo(v, footTarget(v, x - sizeOf(v.pet) * 0.55, shore + 6), { arrive: fishArrived, cancel: stopFishing });
-  fishing = { v, x, y: l.top + (shore - l.top) * 0.45, solo: !!friend };
+  fishing = { v, x, y: l.shoreAt(x) + (shore - l.shoreAt(x)) * 0.45, solo: !!friend };
 }
 // The friend reached the shore it was sent to.
 function fishArrived(v) {
@@ -150,7 +148,10 @@ export function soloFishing(now) {
   const keen = [...views.values()].filter(v => isFree(v) && levelOf(v.pet.id) >= 3);
   if (!keen.length) return;
   const l = lake();
-  startFishing(l.x0 + (l.x1 - l.x0) * (0.3 + Math.random() * 0.4), pick(keen));
+  const [a, b] = l.ends,
+    x = a + (b - a) * (0.3 + Math.random() * 0.4);
+  // Only where the water shows (a lake drawn lower than the hill in front shows none).
+  if (l.onWater(x, l.ridgeAt(x) - 1)) startFishing(x, pick(keen));
 }
 
 // A bug caught in the air: the nearest friend leaps for it.
@@ -170,7 +171,10 @@ const catchBug = guard(async caught => {
 // What a point in the yard can be caught at: a creature in the air, or the lake.
 function free(e) {
   return (
-    !aiming && !game && data.pets.length && !e.target.closest('.yard-pet, .plant, .decor, .found-seed, .bobber, button')
+    !aiming &&
+    !game &&
+    data.pets.length &&
+    !e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .found-seed, .bobber, button')
   );
 }
 function at(e) {

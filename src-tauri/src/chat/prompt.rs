@@ -12,8 +12,6 @@ pub struct Activity {
     pub message: String,
 }
 
-pub use crate::app::now_ms;
-
 // Agent text is flattened to one line so it can never pose as a new prompt line.
 pub fn record_activity(log: &mut Vec<Activity>, mut entry: Activity) {
     entry.message = entry.message.split_whitespace().collect::<Vec<_>>().join(" ");
@@ -201,9 +199,11 @@ pub fn group_note(me: &str, friends: &[String]) -> String {
     )
 }
 
-/// A friend's line as it is stored in everyone else's history: role user, tagged with the speaker.
-pub fn peer_entry(name: &str, text: &str) -> Value {
-    json!({"role": "user", "name": name, "content": format!("[{name}] {text}")})
+/// A friend's line as it is stored in everyone else's history: role user, tagged with the speaker
+/// (its name for the AI, its id for the page, which shows whose picture it is even when two
+/// friends share a name; providers are sent only the role and the content).
+pub fn peer_entry(id: &str, name: &str, text: &str) -> Value {
+    json!({"role": "user", "name": name, "petId": id, "content": format!("[{name}] {text}")})
 }
 
 #[cfg(test)]
@@ -329,10 +329,10 @@ mod tests {
     fn group_chat_note_and_peer_entries() {
         let note = group_note("망구", &["프리렌".into(), "화이트".into()]);
         assert!(note.contains("프리렌, 화이트") && note.contains("Stay 망구") && note.contains("[their name]"));
-        let entry = peer_entry("프리렌", "안녕!");
+        let entry = peer_entry("f1", "프리렌", "안녕!");
         assert_eq!(
             entry,
-            json!({"role": "user", "name": "프리렌", "content": "[프리렌] 안녕!"})
+            json!({"role": "user", "name": "프리렌", "petId": "f1", "content": "[프리렌] 안녕!"})
         );
     }
 

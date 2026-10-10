@@ -120,20 +120,29 @@ pub fn update_pet(pets: &mut [Pet], id: &str, patch: &Value) -> Result<(), Strin
         .find(|p| p.id == id)
         .ok_or_else(|| i18n::t("error.friend_missing"))?;
     let obj = patch.as_object().ok_or_else(|| i18n::t("error.bad_settings"))?;
+    // Every field is checked before any is set: a patch with one wrong field changes nothing.
+    let mut numbers = Vec::new();
     for (key, min, max) in NUMBER_RANGES {
         if let Some(v) = obj.get(key) {
             let n = v
                 .as_f64()
                 .filter(|n| n.is_finite())
                 .ok_or_else(|| i18n::t("error.number_expected"))?;
-            set_number(pet, key, n, (min, max));
+            numbers.push((key, n, (min, max)));
         }
     }
+    let mut texts = Vec::new();
     for (key, cap) in TEXT_LIMITS {
         if let Some(v) = obj.get(key) {
             let s = v.as_str().ok_or_else(|| i18n::t("error.text_expected"))?;
-            set_text(pet, key, s.trim(), cap);
+            texts.push((key, s.trim(), cap));
         }
+    }
+    for (key, n, range) in numbers {
+        set_number(pet, key, n, range);
+    }
+    for (key, s, cap) in texts {
+        set_text(pet, key, s, cap);
     }
     // A persona written through the settings is the owner's own words; cleared, the pet file's
     // introduction speaks again.
@@ -193,6 +202,27 @@ pub fn restore_state(raw: &Value, asset_ids: &[String]) -> (Vec<Pet>, bool, bool
     let desktop = raw.get("desktop").and_then(|v| v.as_bool()).unwrap_or(false);
     let wander = raw.get("desktopWander").and_then(|v| v.as_bool()).unwrap_or(false);
     (pets, desktop, wander)
+}
+
+/// The saved friends `restore_state` could not bring back (their pet file was not found this time,
+/// a folder unplugged or moved, or there were more than the limit), kept as they were so that a
+/// later start that finds the file has them again, with their bond, instead of losing them.
+/// Only records that could become a friend again are kept (an id and a pet file named), and at
+/// most twice the yard's limit, so the list cannot grow without end.
+pub fn parked_pets(raw: &Value, kept: &[Pet]) -> Vec<Value> {
+    let mut seen: std::collections::HashSet<String> = kept.iter().map(|p| p.id.clone()).collect();
+    raw.get("pets")
+        .and_then(|v| v.as_array())
+        .into_iter()
+        .flatten()
+        .filter(|p| {
+            let id = p.get("id").and_then(|v| v.as_str()).unwrap_or("");
+            let asset = p.get("assetId").and_then(|v| v.as_str()).unwrap_or("");
+            !id.is_empty() && id.len() <= 80 && !asset.is_empty() && seen.insert(id.to_string())
+        })
+        .take(LIMIT * 2)
+        .cloned()
+        .collect()
 }
 
 #[cfg(test)]
@@ -288,5 +318,29 @@ mod tests {
         );
         assert_eq!(restored[0].persona.chars().count(), 400);
         assert_eq!(restored[1].persona, "");
+    }
+
+    #[test]
+    fn a_friend_whose_pet_file_is_missing_is_parked_not_lost() {
+        let raw = json!({"pets": [
+            {"id": "here", "assetId": "white"},
+            {"id": "away", "assetId": "unplugged", "name": "Mochi"},
+            {"id": "away", "assetId": "unplugged"},
+            {"id": "", "assetId": "white"},
+            {"id": "no-file"}
+        ]});
+        let (pets, _, _) = restore_state(&raw, &["white".into()]);
+        let parked = parked_pets(&raw, &pets);
+        assert_eq!(pets.len(), 1);
+        assert_eq!(parked.len(), 1);
+        assert_eq!(parked[0]["name"], "Mochi");
+    }
+
+    #[test]
+    fn a_patch_with_one_wrong_field_changes_nothing() {
+        let mut pets = vec![create_pet("cat", &[]).unwrap()];
+        let id = pets[0].id.clone();
+        assert!(update_pet(&mut pets, &id, &json!({"size": 150, "persona": 5})).is_err());
+        assert_eq!(pets[0].size, 112.0);
     }
 }

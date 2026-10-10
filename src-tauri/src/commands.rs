@@ -1,8 +1,8 @@
 // The one command the pages invoke (`call`), and what each of its names does. The bridge script
 // below gives every page `window.playPets`, one method per name.
 use crate::app::{
-    AppData, CliHandle, OverlayHandle, PositionSink, Shared, changed, commit, lock, now_ms, persist, public_state,
-    push_event, register_asset, require_pet,
+    AppData, CliHandle, OverlayHandle, PositionSink, Shared, changed, commit, lock, now_ms, public_state, push_event,
+    register_asset, require_pet,
 };
 use crate::chat::{self, providers};
 use crate::desktop::overlay;
@@ -185,7 +185,14 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
             "receiveGift" => {
                 let (x, y) = (float(&args, 0), float(&args, 1));
                 let turn = (now_ms() / 1000) as usize;
+                // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
+                if !crate::pets::has_come(text(&args, 2), now_ms()) {
+                    return Err(i18n::t("error.bad_request"));
+                }
                 commit(&app, &state, |d| {
+                    // A clock set ahead and put right while the app ran left a day still to come.
+                    let latest = crate::pets::latest_day(now_ms());
+                    crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &latest);
                     d.garden
                         .gift(x, y, text(&args, 2), turn, arg(&args, 3).as_str())
                         .map(|d| json!(d))
@@ -202,6 +209,10 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
             "befriend" => {
                 let now = now_ms();
                 let (pet, reason, day) = (text(&args, 0), text(&args, 1), text(&args, 2));
+                // Time together counts by the clock, not the day; the rest by a day that has come.
+                if reason != "time" && !crate::pets::has_come(day, now) {
+                    return Err(i18n::t("error.bad_request"));
+                }
                 commit(&app, &state, |d| {
                     require_pet(d, pet)?;
                     let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
@@ -217,8 +228,7 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
                     return Ok(Value::Null);
                 };
                 let entry = d.album.flowered(&kind, now);
-                persist(&d)?;
-                changed(&app, &d);
+                crate::app::save_and_show(&app, &d)?;
                 Ok(json!({"kind": kind, "entry": entry}))
             }
             "catch" => {
@@ -293,6 +303,14 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
             }
             "e2eWindow" if e2e_mode() => window::e2e_window(&app, &args),
             "e2eTray" if e2e_mode() => Ok(crate::tray::e2e_state()),
+            // A garden with no gifts yet, so the gift checks do not depend on whether the page's
+            // own first gift (a few minutes in) came before them.
+            "e2eFreshGifts" if e2e_mode() => commit(&app, &state, |d| {
+                d.garden.gift_day.clear();
+                d.garden.decor.clear();
+                d.garden.received.clear();
+                Ok(Value::Null)
+            }),
             _ => Err(i18n::t("error.not_allowed")),
         }
     };
@@ -366,8 +384,7 @@ fn update_pet(
             push_event(app, &json!({"type": "pet-moved", "petId": id, "x": p.x, "y": p.y}));
         }
     } else {
-        persist(&d)?;
-        changed(app, &d);
+        crate::app::save_and_show(app, &d)?;
     }
     Ok(Value::Null)
 }
@@ -420,7 +437,7 @@ fn import_from_folder(app: &AppHandle, state: &State<Shared>) -> Result<Value, S
     register_asset(app, &mut lock(state), asset)
 }
 
-/// Shows where pets live: "codex" or "downloaded" for those folders, or a pet file's id.
+/// Shows where pets live: "codex", "downloaded" or "builtin" for those folders, or a pet file's id.
 fn open_folder(state: &State<Shared>, which: &str) -> Result<Value, String> {
     let folder = {
         let d = lock(state);
@@ -471,7 +488,12 @@ fn copy_connection(app: &AppHandle, state: &State<Shared>, kind: &str) -> Result
     let exe = std::env::current_exe().map_err(|_| i18n::t("error.exe_missing"))?;
     let (bridge_file, pet) = {
         let d = lock(state);
-        (d.store.dir.join("bridge.json"), d.agent_pets.get(kind).cloned())
+        (
+            d.store.dir.join("bridge.json"),
+            // The real choice, a parked friend too: the bridge sends its events to the first friend
+            // until it is back (agent/bridge.rs resolve_pet), and to it after.
+            d.agent_pets.get(kind).cloned(),
+        )
     };
     let local = std::env::var("LOCALAPPDATA").ok();
     let command = agent::cli::agent_command(&exe.to_string_lossy(), local.as_deref());
@@ -528,15 +550,16 @@ fn set_autostart(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Val
 fn set_language(app: &AppHandle, state: &State<Shared>, code: &str) -> Result<Value, String> {
     let lang = i18n::Lang::parse(code).ok_or_else(|| i18n::t("error.language"))?;
     i18n::set(lang);
-    commit(app, state, |d| {
+    // The language stands even when it could not be saved (commit), so the pages follow it either way.
+    let saved = commit(app, state, |d| {
         d.language = lang;
         Ok(Value::Null)
-    })?;
+    });
     // Rewording the tray waits on the main thread, which may itself be waiting for the state.
     tray::retitle(app);
     // Every page (the yard, each desktop window) starts over in the new language at once.
     crate::app::relanguage(app, lang.code());
-    Ok(json!(lang.code()))
+    saved.map(|_| json!(lang.code()))
 }
 
 #[cfg(test)]

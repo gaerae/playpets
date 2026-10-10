@@ -27,6 +27,17 @@ test('every language says every key, with the same holes', () => {
   }
 });
 
+// Every relationship the friend settings offer (index.html) has its own voice for the moments a
+// friend speaks up on its own (bond.js lineFor); a friend uses the plain lines.
+test('every relationship has its own welcome, closeness and dear lines', async () => {
+  const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
+  const relations = [...html.matchAll(/name="relation" value="(\w+)"/g)].map(m => m[1]);
+  assert.deepEqual(relations, ['partner', 'senior', 'junior']);
+  for (const relation of relations)
+    for (const key of ['bond.welcome', 'bond.up_line', 'bond.dear'])
+      assert.ok(STRINGS.ko[`${key}_${relation}`]?.length >= 2, `${key}_${relation}`);
+});
+
 // Comments too: the code and its notes are read by contributors in every language. Only the
 // Korean table and the two modules that handle Korean particles (words.js, i18n.js) show Korean.
 test('modules and markup keep no Korean of their own, comments included', async () => {

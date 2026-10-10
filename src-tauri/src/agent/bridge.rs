@@ -32,18 +32,29 @@ fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
     a.iter().zip(b).fold(0u8, |acc, (x, y)| acc | (x ^ y)) == 0
 }
 
-/// Instance id first, then case-insensitive name; an empty reference means the first pet.
+/// Instance id first, then case-insensitive name; an empty reference means the first pet. A
+/// friend that is parked (its pet file not found this time, `"parked": true` in the list) is
+/// reported to the first friend until it is back, as the page shows its agent then.
 pub fn resolve_pet(pets: &Value, reference: Option<&str>) -> Option<String> {
     let list = pets.as_array()?;
+    let parked = |p: &Value| p.get("parked").and_then(Value::as_bool).unwrap_or(false);
     let id_of = |p: &Value| p.get("id").and_then(|v| v.as_str()).map(str::to_string);
+    let first = || list.iter().find(|p| !parked(p)).and_then(id_of);
     let key = reference.map(str::trim).unwrap_or("");
     if key.is_empty() {
-        return list.first().and_then(id_of);
+        return first();
+    }
+    if list
+        .iter()
+        .any(|p| parked(p) && p.get("id").and_then(|v| v.as_str()) == Some(key))
+    {
+        return first();
     }
     list.iter()
+        .filter(|p| !parked(p))
         .find(|p| p.get("id").and_then(|v| v.as_str()) == Some(key))
         .or_else(|| {
-            list.iter().find(|p| {
+            list.iter().filter(|p| !parked(p)).find(|p| {
                 p.get("name")
                     .and_then(|v| v.as_str())
                     .map(|n| n.to_lowercase() == key.to_lowercase())
@@ -152,7 +163,15 @@ pub fn start(
             }
             let url = request.url().to_string();
             if *request.method() == Method::Get && url == "/pets" {
-                let _ = request.respond(reply(200, list_pets()));
+                // The friends in the yard; parked ones are only there to be resolved.
+                let here: Vec<Value> = list_pets()
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .filter(|p| p.get("parked").and_then(Value::as_bool) != Some(true))
+                    .cloned()
+                    .collect();
+                let _ = request.respond(reply(200, json!(here)));
                 continue;
             }
             if *request.method() != Method::Post || !["/events", "/say", "/react"].contains(&url.as_str()) {
@@ -200,6 +219,10 @@ mod tests {
         assert_eq!(resolve_pet(&pets, Some("  ")).as_deref(), Some("p1"));
         assert_eq!(resolve_pet(&pets, Some("nobody")), None);
         assert_eq!(resolve_pet(&json!([]), None), None);
+        // A parked friend's events go to the first friend until it is back; it is never the default.
+        let with_parked = json!([{"id": "gone", "parked": true}, {"id": "p1", "name": "Mangu"}]);
+        assert_eq!(resolve_pet(&with_parked, Some("gone")).as_deref(), Some("p1"));
+        assert_eq!(resolve_pet(&with_parked, None).as_deref(), Some("p1"));
     }
 
     #[test]

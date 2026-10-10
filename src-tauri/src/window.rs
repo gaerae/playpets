@@ -141,7 +141,7 @@ pub fn rect_of(v: &Value) -> Option<Rect> {
 /// A window's place and size in logical points: x, y, width, height.
 pub type Rect = (f64, f64, f64, f64);
 
-/// Where the mini window goes: where the person last left it (`saved`, which the page keeps)
+/// Where the mini window goes: where the person last left it (`saved`, kept in the app's data)
 /// while that still lies on a monitor, else the bottom-right corner of the monitor the full
 /// window is on, the usual place for a small window that stays on top.
 fn mini_rect(saved: Option<Rect>, areas: &[Rect], full: Rect) -> Rect {
@@ -150,7 +150,9 @@ fn mini_rect(saved: Option<Rect>, areas: &[Rect], full: Rect) -> Rect {
         let fits = w >= MINI_MIN.0 && h >= MINI_MIN.1;
         if let Some(a) = areas.iter().find(|a| fits && on(a, x + w / 2.0, y + h / 2.0)) {
             let (w, h) = (w.min(a.2), h.min(a.3));
-            return (x.clamp(a.0, a.0 + a.2 - w), y.clamp(a.1, a.1 + a.3 - h), w, h);
+            // Not f64::clamp: a window as big as the area can round its upper bound below the lower.
+            let fit = |v: f64, lo: f64, hi: f64| v.min(hi).max(lo);
+            return (fit(x, a.0, a.0 + a.2 - w), fit(y, a.1, a.1 + a.3 - h), w, h);
         }
     }
     let (cx, cy) = (full.0 + full.2 / 2.0, full.1 + full.3 / 2.0);
@@ -216,7 +218,7 @@ pub fn moved(app: &AppHandle) {
 /// mini_rect). Leaving it puts the window back where it was, at the size it had.
 fn set_mini(w: &WebviewWindow, on: bool, saved: Option<Rect>) {
     static FULL: Mutex<Option<Rect>> = Mutex::new(None);
-    let mut full = FULL.lock().unwrap();
+    let mut full = crate::app::hold(&FULL);
     // Moves made from here on are the mini window's own only once it stands in its place.
     MINI.store(false, Ordering::SeqCst);
     if on {
@@ -297,6 +299,10 @@ mod tests {
             mini_rect(Some((300.0, 300.0, 40.0, 30.0)), &areas, full).0,
             1440.0 - w - MINI_MARGIN
         );
+        // As big as an area whose edges do not add up exactly (a scaled monitor): no panic, inside it.
+        let odd = [(-3194.4, 0.0, 1092.8, 840.0)];
+        let (x, _, w, _) = mini_rect(Some((-3194.4, 10.0, 1092.8, 500.0)), &odd, full);
+        assert!(x >= odd[0].0 - 0.001 && w <= odd[0].2);
     }
 
     #[test]

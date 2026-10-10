@@ -100,7 +100,7 @@ fn rand01() -> f64 {
 /// Never called with `inner` locked: asking goes through the main thread.
 fn current_monitors(app: &AppHandle, inner: &Mutex<Inner>) -> (Vec<Mon>, f64) {
     {
-        let d = inner.lock().unwrap();
+        let d = crate::app::hold(inner);
         if d.mons_at.is_some_and(|at| at.elapsed() < MONITOR_REFRESH) && !d.mons.is_empty() {
             return (d.mons.clone(), d.primary_scale);
         }
@@ -112,7 +112,7 @@ fn current_monitors(app: &AppHandle, inner: &Mutex<Inner>) -> (Vec<Mon>, f64) {
         .flatten()
         .map(|m| m.scale_factor())
         .unwrap_or(1.0);
-    let mut d = inner.lock().unwrap();
+    let mut d = crate::app::hold(inner);
     d.mons = mons.clone();
     d.mons_at = Some(Instant::now());
     d.primary_scale = primary;
@@ -142,7 +142,7 @@ impl Overlay {
             let mut pace = IDLE_TICK;
             loop {
                 let idle = {
-                    let d = inner.lock().unwrap();
+                    let d = crate::app::hold(&inner);
                     !(d.visible && !d.pets.is_empty()) && !d.open
                 };
                 std::thread::sleep(if idle { IDLE_TICK } else { pace });
@@ -158,7 +158,7 @@ impl Overlay {
     }
 
     pub fn sync(&self, pets: Vec<PetLite>, visible: bool, wander: bool) {
-        let mut d = self.inner.lock().unwrap();
+        let mut d = crate::app::hold(&self.inner);
         d.visible = visible;
         d.wander = wander;
         if !wander {
@@ -180,7 +180,7 @@ impl Overlay {
     }
 
     pub fn drag_start(&self, id: &str, cursor: (f64, f64)) {
-        let mut d = self.inner.lock().unwrap();
+        let mut d = crate::app::hold(&self.inner);
         let Some(origin) = d.positions.get(id).copied() else {
             return;
         };
@@ -195,7 +195,7 @@ impl Overlay {
     /// Where every friend stands, by the monitors as last asked for. Asks nothing of the main
     /// thread, so it is safe to call while holding the app's state lock.
     pub fn layout(&self) -> Vec<Value> {
-        let d = self.inner.lock().unwrap();
+        let d = crate::app::hold(&self.inner);
         layout_of(&d, &d.mons)
     }
 }
@@ -227,7 +227,7 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     let cursor = cursor_in(app, &mons, primary);
     let mut arrivals: Vec<(String, i64, i64)> = Vec::new();
     let (moved, busy) = {
-        let mut d = inner.lock().unwrap();
+        let mut d = crate::app::hold(inner);
         let placed = place_newcomers(&mut d, &mons);
         let dragged = follow_drag(&mut d, &mons, cursor, &mut arrivals);
         let strolled = stroll(&mut d, &mons, cursor, dt_ms, &mut arrivals);
@@ -394,7 +394,7 @@ fn hovered(d: &Inner, layout: &[Value], cursor: Option<(f64, f64)>) -> (HashMap<
 /// Opens, updates or closes each monitor's window. Windows are built and closed on the main thread.
 fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor: Option<(f64, f64)>, moved: bool) {
     let (visible, layout, hover, dragging, hover_changed) = {
-        let mut d = inner.lock().unwrap();
+        let mut d = crate::app::hold(inner);
         let layout = layout_of(&d, mons);
         let (hover, pet_id) = hovered(&d, &layout, cursor);
         let changed = d.hover_pet != pet_id;
@@ -438,7 +438,7 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
             }
             (true, Some(win)) => {
                 let ignore = !(hover.get(&mon.id).copied().unwrap_or(false) || dragging);
-                let before = inner.lock().unwrap().ignored.insert(mon.id.clone(), ignore);
+                let before = crate::app::hold(inner).ignored.insert(mon.id.clone(), ignore);
                 if before != Some(ignore) {
                     let _ = win.set_ignore_cursor_events(ignore);
                 }
@@ -459,7 +459,7 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
             (false, None) => {}
         }
     }
-    inner.lock().unwrap().open = open;
+    crate::app::hold(inner).open = open;
 }
 
 /// Ends a drag: the friend is set down inside the nearest work area, and that place is saved.
@@ -486,7 +486,7 @@ fn finish_drag(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64
 pub fn stop_drag_and_save(overlay: &Overlay, app: &AppHandle, on_position: &PositionFn) {
     let (mons, _) = current_monitors(app, &overlay.inner);
     let mut arrivals = Vec::new();
-    finish_drag(&mut overlay.inner.lock().unwrap(), &mons, &mut arrivals);
+    finish_drag(&mut crate::app::hold(&overlay.inner), &mons, &mut arrivals);
     for (id, x, y) in arrivals {
         on_position(&id, x, y);
     }

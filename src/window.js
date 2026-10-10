@@ -18,7 +18,7 @@ export async function setMini(on) {
 // Empty parts of the title bar (and of the mini yard) move the window.
 const controls = 'button,select,input,textarea,a,label';
 const grab = e => {
-  if (e.button === 0 && !e.target.closest(`${controls},.yard-pet`)) api.windowDrag();
+  if (e.button === 0 && !e.target.closest(`${controls},.yard-pet,.pet-tag`)) api.windowDrag();
 };
 // Wires the title bar, the window buttons and mini mode to the page. Called once, by app.js.
 export function setupWindow() {

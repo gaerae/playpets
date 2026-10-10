@@ -8,24 +8,31 @@
 // gift (src-tauri/src/pets/content.rs). How to add one: docs/how-to/add-to-the-yard.md.
 
 /** The events, filled in place from events.json once at start (content.js) or by a test. */
-export const EVENTS = [];
+const EVENTS = [];
 /** Takes the events (the parsed src/content/events.json). */
 export function useEvents(json) {
   EVENTS.splice(0, EVENTS.length, ...(json.events || []));
 }
 
-// A month-day as a number (April 1 is 401), and six months on for the south.
+// A month-day as a number (April 1 is 401), and six months on for the south, kept inside the month
+// it lands in (August 31 is the last of February: the 28th as a first day, so no year loses it,
+// the 29th as a last). The same rule as src-tauri/src/pets/content.rs.
 const day = text => {
   const [m, d] = text.split('-').map(Number);
   return m * 100 + d;
 };
-const later = md => (((Math.floor(md / 100) + 5) % 12) + 1) * 100 + (md % 100);
+const DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const later = (md, last) => {
+  const month = ((Math.floor(md / 100) + 5) % 12) + 1,
+    days = month === 2 && last ? 29 : DAYS[month - 1];
+  return month * 100 + Math.min(md % 100, days);
+};
 
 /** Whether a month-day (MM-DD) falls in an event's dates, north or (`south`) south of the equator. */
 export function inEvent(event, monthDay, south = false) {
   let from = day(event.from),
     to = day(event.to);
-  if (south && !event.fixed) [from, to] = [later(from), later(to)];
+  if (south && !event.fixed) [from, to] = [later(from, false), later(to, true)];
   const md = day(monthDay);
   return from <= to ? md >= from && md <= to : md >= from || md <= to;
 }
@@ -35,6 +42,6 @@ export function eventOn(date, south = false) {
   return EVENTS.find(e => inEvent(e, md, south)) || null;
 }
 /** An event by its id. */
-export const eventById = id => EVENTS.find(e => e.id === id) || null;
+const eventById = id => EVENTS.find(e => e.id === id) || null;
 /** How much an event adds to a kind of small life (1 when it adds nothing). */
 export const boostOf = (id, what) => eventById(id)?.boost?.[what] ?? 1;

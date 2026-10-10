@@ -9,7 +9,7 @@ import { $, asset, companions, data, labels, name, pet, selected, setSelected, v
 import { agentStateOf, stateOf, statusOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { refreshChat, renderChat } from './chat.js';
-import { showSize } from './friend-settings.js';
+import { openFriendSettings } from './friend-settings.js';
 export function select(id) {
   if (selected === id) return;
   setSelected(id);
@@ -24,18 +24,21 @@ export function renderPanel() {
   $('pet-panel').hidden = !p;
   if (!p) return;
   $('selected-name').textContent = name(p);
-  showSize(p.size);
   // The pill is about the coding agent; a chat answer shows in the log, not here.
   const agentState = agentStateOf(data, p.id);
   $('status').textContent = labels[agentState];
+  // Only something to say when an agent is at work, waiting or done: resting is every friend's state.
+  $('status').hidden = agentState === 'idle';
   $('status').title = agentState === 'idle' ? '' : plain(statusOf(data, p.id)?.message || '');
-  // Under the header: the relationship, and which coding agents report to this friend (the
-  // composer's picker says the AI itself).
+  // Who it is to you, beside how close you are: always said (a friend too), and a click changes it.
+  const relation = p.relation || 'friend';
+  $('relation-chip').textContent = t(`relation.${relation}`);
+  $('relation-chip').dataset.relation = relation;
+  // Under the header: which coding agents report to this friend (the composer's picker says the AI itself).
   const agents = agentsOf(data, p.id);
   const chip = (text, cls) =>
     Object.assign(document.createElement('span'), { className: `fact-chip ${cls}`, textContent: text });
   $('friend-chips').replaceChildren(
-    ...(p.relation ? [chip(t(`relation.${p.relation}`), 'bond')] : []),
     ...(agents.length ? [chip(t('friend.agent_chip', { agents: joinList(agents) }), 'agent')] : []),
   );
   renderChat(p);
@@ -58,4 +61,5 @@ export function setupFriend() {
   $('friend-select').onchange = () => select($('friend-select').value);
   // What is done to the friend (settings, its AI, clearing the chat, sending it away) is in its menu.
   popup($('friend-menu-button'), $('friend-menu'));
+  $('relation-chip').onclick = () => openFriendSettings('relation');
 }

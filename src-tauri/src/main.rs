@@ -27,7 +27,7 @@ mod update;
 mod window;
 
 use crate::app::lock;
-use app::{CliHandle, OverlayHandle, PositionSink, Shared, changed};
+use app::{CliHandle, OverlayHandle, PositionSink, Shared};
 use desktop::overlay;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
@@ -171,8 +171,9 @@ fn start_overlay(app: &tauri::App) {
         if let Some(p) = d.pets.iter_mut().find(|p| p.id == id) {
             p.desktop_position = Some(pets::model::Pos { x, y });
         }
+        // Only the overlay, which already has it, uses a friend's place on the desktop: saved with
+        // the next few, without sending every window the whole state again.
         app::persist_soon(&handle);
-        changed(&handle, &d);
     });
     app.manage(PositionSink(sink.clone()));
     let overlay = overlay::Overlay::new(app.handle().clone(), sink);

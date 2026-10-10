@@ -377,7 +377,6 @@ impl Drop for Session {
 #[derive(Default)]
 pub struct CliManager {
     sessions: Mutex<HashMap<String, Session>>,
-    cancels: Mutex<HashMap<String, Arc<AtomicBool>>>,
 }
 
 impl CliManager {
@@ -398,26 +397,25 @@ impl CliManager {
     }
 
     pub fn close(&self) {
-        self.sessions.lock().unwrap().clear();
+        crate::app::hold(&self.sessions).clear();
     }
 
     pub fn reset(&self, pet_id: &str) {
-        self.sessions.lock().unwrap().remove(pet_id);
+        crate::app::hold(&self.sessions).remove(pet_id);
     }
 
+    /// A turn in progress ends by its own flag (the one `chat` was given, which chat/mod.rs sets);
+    /// an idle session goes too, so the next chat starts fresh.
     pub fn cancel(&self, pet_id: &str) {
-        if let Some(flag) = self.cancels.lock().unwrap().get(pet_id) {
-            flag.store(true, Ordering::SeqCst);
-        }
-        // The flag ends a turn in progress (ask() watches it); an idle session goes too, so the
-        // next chat starts fresh.
         self.reset(pet_id);
     }
 
     /// `system` is who the pet is and starts the session; while it stays the same, so does the
     /// session. `notes` change from turn to turn and travel with the message instead.
     /// `turns` are the conversation so far, ending with the message to answer. `config` says
-    /// which CLI (claude or codex) and model.
+    /// which CLI (claude or codex) and model. `cancel` is the turn's flag: set at any point, from
+    /// before the program has started to while it writes, the turn ends as cancelled.
+    #[allow(clippy::too_many_arguments)]
     pub fn chat(
         &self,
         pet_id: &str,
@@ -426,7 +424,9 @@ impl CliManager {
         notes: &str,
         turns: &[Value],
         at: At,
+        cancel: &AtomicBool,
     ) -> Result<String, String> {
+        let cancelled = || Err(i18n::t("chat.cancelled"));
         let (prior, current) = turns.split_at(turns.len().saturating_sub(1));
         let current = current
             .first()
@@ -436,13 +436,13 @@ impl CliManager {
 
         let model = config.model.as_str();
         if config.kind == super::kind::Kind::Codex {
-            return self.codex(pet_id, model, system, prior, &text);
+            return self.codex(model, system, prior, &text, cancel);
         }
 
         let bin = resolve_bin("claude").ok_or_else(|| missing("claude"))?;
         let key = format!("{}|{}|{}", bin.display(), model, system);
         let mut taken = {
-            let mut sessions = self.sessions.lock().unwrap();
+            let mut sessions = crate::app::hold(&self.sessions);
             sessions.remove(pet_id)
         };
         // A live session only needs what it missed (other friends' lines in a group chat);
@@ -460,6 +460,10 @@ impl CliManager {
         };
         if gap.is_none() {
             drop(taken.take());
+            // Starting the program takes a while the first time: a stop pressed meanwhile counts.
+            if cancel.load(Ordering::SeqCst) {
+                return cancelled();
+            }
             let mut fresh = Session::spawn(&bin, model, system)?;
             fresh.key = key.clone();
             if !prior.is_empty() {
@@ -471,24 +475,31 @@ impl CliManager {
             taken = Some(fresh);
         }
         let mut session = taken.unwrap();
-        let cancel = Arc::new(AtomicBool::new(false));
-        self.cancels.lock().unwrap().insert(pet_id.to_string(), cancel.clone());
-        let result = session.ask(&ask_text, &cancel);
-        self.cancels.lock().unwrap().remove(pet_id);
         if cancel.load(Ordering::SeqCst) {
-            return Err(i18n::t("chat.cancelled"));
+            return cancelled();
+        }
+        let result = session.ask(&ask_text, cancel);
+        if cancel.load(Ordering::SeqCst) {
+            return cancelled();
         }
         match result {
             Ok(answer) => {
                 session.seen = at.total + at.adds;
-                self.sessions.lock().unwrap().insert(pet_id.to_string(), session);
+                crate::app::hold(&self.sessions).insert(pet_id.to_string(), session);
                 Ok(answer.chars().take(ANSWER_LIMIT).collect())
             }
             Err(e) => Err(e), // session dropped → child killed
         }
     }
 
-    fn codex(&self, pet_id: &str, model: &str, system: &str, prior: &[Value], text: &str) -> Result<String, String> {
+    fn codex(
+        &self,
+        model: &str,
+        system: &str,
+        prior: &[Value],
+        text: &str,
+        cancel: &AtomicBool,
+    ) -> Result<String, String> {
         let bin = resolve_bin("codex").ok_or_else(|| missing("codex"))?;
         let mut parts = Vec::new();
         if !system.is_empty() {
@@ -501,11 +512,11 @@ impl CliManager {
         let prompt = parts.join("\n\n");
         // A Codex too old to know the isolation options is asked to update rather than run
         // with the person's own config (MCP servers, network) loaded.
-        self.codex_run(&bin, pet_id, model, &prompt)
+        self.codex_run(&bin, model, &prompt, cancel)
             .map_err(CodexError::message)
     }
 
-    fn codex_run(&self, bin: &Path, pet_id: &str, model: &str, prompt: &str) -> Result<String, CodexError> {
+    fn codex_run(&self, bin: &Path, model: &str, prompt: &str, cancel: &AtomicBool) -> Result<String, CodexError> {
         // The answer lands in a file only this user can read (the temp folder is shared on Linux).
         let out = std::env::temp_dir().join(format!("playpets-codex-{}.txt", uuid::Uuid::new_v4()));
         let mut options = std::fs::OpenOptions::new();
@@ -551,8 +562,6 @@ impl CliManager {
             s
         });
 
-        let cancel = Arc::new(AtomicBool::new(false));
-        self.cancels.lock().unwrap().insert(pet_id.to_string(), cancel.clone());
         let deadline = Instant::now() + TURN_TIMEOUT;
         let finished = loop {
             match child.try_wait() {
@@ -570,7 +579,6 @@ impl CliManager {
             }
             std::thread::sleep(Duration::from_millis(50));
         };
-        self.cancels.lock().unwrap().remove(pet_id);
         let answer = finished.map_err(CodexError::Failed).and_then(|status| {
             if !status.success() {
                 return Err(codex_failure(

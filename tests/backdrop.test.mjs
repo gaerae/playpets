@@ -52,7 +52,7 @@ function recorder() {
     {
       get(target, name) {
         if (name in target) return target[name];
-        if (name === 'createLinearGradient') return () => gradient;
+        if (name === 'createLinearGradient' || name === 'createRadialGradient') return () => gradient;
         if (name in counts) return () => counts[name]++;
         return () => {};
       },

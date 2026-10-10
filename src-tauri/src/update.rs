@@ -23,7 +23,7 @@ pub fn check(app: &AppHandle) -> Result<Value, String> {
         _ => i18n::t("update.check_failed"),
     })?;
     let found = update.as_ref().map(|u| json!({"version": u.version, "notes": u.body}));
-    *app.state::<Found>().0.lock().unwrap() = update;
+    *crate::app::hold(&app.state::<Found>().0) = update;
     // The tray's update item names the version once there is one.
     crate::tray::retitle(app);
     Ok(found.unwrap_or(Value::Null))
@@ -32,7 +32,7 @@ pub fn check(app: &AppHandle) -> Result<Value, String> {
 /// The version the last check found, while it waits to be installed.
 pub fn found_version(app: &AppHandle) -> Option<String> {
     let found = app.try_state::<Found>()?;
-    let update = found.0.lock().unwrap();
+    let update = crate::app::hold(&found.0);
     update.as_ref().map(|u| u.version.clone())
 }
 
@@ -57,8 +57,14 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
             }
         }
     };
-    tauri::async_runtime::block_on(update.download_and_install(progress, || {}))
-        .map_err(|_| i18n::t("update.install_failed"))?;
+    // Taken while it installs (a second press finds nothing to start); a failed download or
+    // signature check puts it back, so the person can try again.
+    if tauri::async_runtime::block_on(update.download_and_install(progress, || {})).is_err() {
+        *crate::app::hold(&app.state::<Found>().0) = Some(update);
+        // The tray names the update again (it may have been rebuilt while this one was taken).
+        crate::tray::rebuild(app);
+        return Err(i18n::t("update.install_failed"));
+    }
     crate::app::flush(app);
     app.restart();
 }

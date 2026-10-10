@@ -57,7 +57,7 @@ const KNOWN_KEYS: [&str; 15] = [
     "sound",
 ];
 
-/// Everything the app knows. Saved to state.json: pets, desktop, wander, language, imports,
+/// Everything the app knows. Saved to state.json: pets (with the parked ones), desktop, wander, language, imports,
 /// providers (with the parked ones), agent_pets, auto_chatter, sound, secret_ids, mini_rect, garden, album, bonds and extra. The rest
 /// lasts until the app quits.
 pub struct AppData {
@@ -69,6 +69,9 @@ pub struct AppData {
     pub assets: Vec<catalog::Asset>,
     pub warnings: Vec<String>,
     pub pets: Vec<model::Pet>,
+    /// Saved friends whose pet file was not found at this start (model::parked_pets): not shown,
+    /// written back as they were, with their bonds, so they come back once the file does.
+    pub parked_pets: Vec<Value>,
     pub desktop: bool,
     pub wander: bool,
     /// The language the app speaks to the person in; the pet is asked to answer in it too.
@@ -85,7 +88,7 @@ pub struct AppData {
     pub mini_rect: Option<window::Rect>,
     /// Whether the app starts at login, as the system said at start (not saved: the system keeps it).
     pub autostart: bool,
-    /// Seeds friends found and the plants grown from them.
+    /// Seeds friends found, the plants grown from them, and the gifts friends brought.
     pub garden: garden::Garden,
     pub album: album::Album,
     pub bonds: bond::Bonds,
@@ -161,7 +164,15 @@ pub fn lock(state: &Mutex<AppData>) -> MutexGuard<'_, AppData> {
     state.lock().unwrap_or_else(std::sync::PoisonError::into_inner)
 }
 
+/// Any other lock of the app's (the overlay, CLI sessions, the tray, an update): taken as it is
+/// after a panic elsewhere, as `lock` takes the state, rather than panicking every caller after.
+pub fn hold<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
+    m.lock().unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+
 /// A change to the state, saved and shown everywhere: `change` makes it and says what to answer.
+/// A change that could not be saved (a full disk, say) still stands and is shown, so every page
+/// agrees with what the app holds; it is written with the next save, and the error says so.
 pub fn commit(
     app: &AppHandle,
     state: &Mutex<AppData>,
@@ -169,9 +180,15 @@ pub fn commit(
 ) -> Result<Value, String> {
     let mut d = lock(state);
     let answer = change(&mut d)?;
-    persist(&d)?;
-    changed(app, &d);
-    Ok(answer)
+    save_and_show(app, &d).map(|()| answer)
+}
+
+/// Saves a change made in place and shows it on every page, in that order. As in `commit`, a change
+/// that could not be saved still stands and is shown; the error is returned after.
+pub fn save_and_show(app: &AppHandle, d: &AppData) -> Result<(), String> {
+    let saved = persist(d);
+    changed(app, d);
+    saved
 }
 
 /// Milliseconds since 1970 by the system clock (0 if the clock is set before then).
@@ -180,6 +197,17 @@ pub fn now_ms() -> u64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|t| t.as_millis() as u64)
         .unwrap_or(0)
+}
+
+/// Which friend each coding agent reports to, among the friends here: one parked (its pet file not
+/// found this time) stays saved but shows as unset, the first friend, which is where the bridge
+/// sends its events until it is back (agent/bridge.rs resolve_pet).
+pub fn live_agent_pets(d: &AppData) -> HashMap<String, String> {
+    d.agent_pets
+        .iter()
+        .filter(|(_, pet)| d.pets.iter().any(|p| &p.id == *pet))
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect()
 }
 
 /// The state as the pages see it.
@@ -193,11 +221,10 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "desktop": d.desktop,
         "desktopWander": d.wander,
         "language": d.language.code(),
-        "agentPets": d.agent_pets,
+        "agentPets": live_agent_pets(d),
         "autoChatter": d.auto_chatter,
         "sound": d.sound,
         "autostart": d.autostart,
-        "petLimit": model::LIMIT,
         "limits": crate::pets::limits(),
         "garden": d.garden,
         "album": d.album,
@@ -265,7 +292,7 @@ impl SaveLater {
 static SAVE_LATER: SaveLater = SaveLater(AtomicBool::new(false));
 
 /// For changes that come often and matter little until the app quits (where a friend stopped
-/// walking): written within 2 s, together, and at exit. Everything else saves at once.
+/// walking, where the mini window was left): written within 2 s, together, and at exit. Everything else saves at once.
 pub fn persist_soon(app: &AppHandle) {
     if !SAVE_LATER.ask() {
         return;
@@ -289,7 +316,8 @@ pub fn flush(app: &AppHandle) {
 pub fn persist(d: &AppData) -> Result<(), String> {
     let mut state = json!({
         "schema": SCHEMA,
-        "pets": d.pets, "desktop": d.desktop, "desktopWander": d.wander,
+        "pets": d.pets.iter().map(|p| json!(p)).chain(d.parked_pets.iter().cloned()).collect::<Vec<_>>(),
+        "desktop": d.desktop, "desktopWander": d.wander,
         "language": d.language.code(),
         "imports": d.imports,
         "providers": d.providers.iter().chain(&d.parked_providers).collect::<Vec<_>>(),
@@ -335,9 +363,7 @@ pub fn toggle_flag(app: &AppHandle, d: &mut AppData, wander: bool) -> Result<boo
     let flag = if wander { &mut d.wander } else { &mut d.desktop };
     *flag = !*flag;
     let now = *flag;
-    persist(d)?;
-    changed(app, d);
-    Ok(now)
+    save_and_show(app, d).map(|()| now)
 }
 
 /// A friend's state (idle, working, …) and the line that goes with it, as every page shows it.
@@ -368,8 +394,7 @@ pub fn register_asset(app: &AppHandle, d: &mut AppData, asset: catalog::Asset) -
     if !d.assets.iter().any(|a| a.id == id) {
         d.imports.push(asset.folder.to_string_lossy().into_owned());
         d.assets.push(asset);
-        persist(d)?;
-        changed(app, d);
+        save_and_show(app, d)?;
     }
     Ok(json!(id))
 }
@@ -546,6 +571,10 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
 
     let asset_ids: Vec<String> = assets.iter().map(|a| a.id.clone()).collect();
     let (mut pets, desktop, wander) = model::restore_state(&raw, &asset_ids);
+    let parked_pets = model::parked_pets(&raw, &pets);
+    if !parked_pets.is_empty() {
+        warnings.push(i18n::tr("pets.parked", &[("count", &parked_pets.len().to_string())]));
+    }
     let (providers, parked) = load_providers(&raw);
     for p in pets.iter_mut() {
         if !providers.iter().any(|c| providers::id_of(c) == p.provider_id) {
@@ -553,8 +582,15 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         }
     }
 
-    // A friend that is no longer there takes its bond with it.
-    let bonds = bond::Bonds::restore(raw.get("bonds"), &pets.iter().map(|p| p.id.clone()).collect::<Vec<_>>());
+    // A friend that is no longer there takes its bond with it; a parked one keeps it.
+    let ids: Vec<String> = pets
+        .iter()
+        .map(|p| p.id.clone())
+        .chain(parked_pets.iter().filter_map(|p| p["id"].as_str().map(str::to_string)))
+        .collect();
+    let mut bonds = bond::Bonds::restore(raw.get("bonds"), &ids);
+    let mut garden = garden::Garden::restore(raw.get("garden"));
+    crate::pets::forget_days_after(&mut bonds, &mut garden, &crate::pets::latest_day(now_ms()));
     Ok(AppData {
         store,
         codex_pets: root,
@@ -571,11 +607,12 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         sound: Sound::restore(raw.get("sound")),
         mini_rect: raw.get("miniRect").and_then(window::rect_of),
         autostart: false,
-        garden: garden::Garden::restore(raw.get("garden")),
+        garden,
         album: album::Album::restore(raw.get("album")),
         bonds,
         providers,
         parked_providers: parked,
+        parked_pets,
         extra: extras(&raw),
         secret_ids: strings("secretIds").into_iter().collect(),
         statuses: Map::new(),

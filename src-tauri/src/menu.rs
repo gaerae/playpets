@@ -4,8 +4,15 @@
 // check), so the same words lead to the same place from either.
 use crate::app::{Shared, lock, push_event, quit};
 use crate::window;
-use serde_json::json;
+use serde_json::{Value, json};
 use tauri::{AppHandle, Manager};
+
+/// A switch from the menu that could not be saved: the pages hear why (the change itself was already
+/// shown), since no page asked and so none would get the error.
+fn warn(app: &AppHandle, d: &mut crate::app::AppData, error: String) {
+    d.warnings.push(error);
+    crate::app::changed(app, d);
+}
 
 /// Runs a menu command from the tray or the menu bar. The menu bar's built-in items (copy, hide,
 /// minimize…) are handled by macOS and arrive here only to be ignored.
@@ -27,21 +34,20 @@ pub fn act(app: &AppHandle, id: &str) {
                 let state = app.state::<Shared>();
                 let mut d = lock(&state);
                 if let Err(e) = crate::app::toggle_flag(app, &mut d, id == "wander") {
-                    d.warnings.push(e);
+                    warn(app, &mut d, e);
                 }
             }
             // A check item ticks itself when clicked: the menu is built again from what is true.
             crate::tray::rebuild(app);
         }
         "sound" => {
-            {
-                let state = app.state::<Shared>();
-                let mut d = lock(&state);
+            let state = app.state::<Shared>();
+            let flipped = crate::app::commit(app, &state, |d| {
                 d.sound.on = !d.sound.on;
-                if let Err(e) = crate::app::persist(&d) {
-                    d.warnings.push(e);
-                }
-                crate::app::changed(app, &d);
+                Ok(Value::Null)
+            });
+            if let Err(e) = flipped {
+                warn(app, &mut lock(&state), e);
             }
             crate::tray::rebuild(app);
         }

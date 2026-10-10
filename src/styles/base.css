@@ -275,14 +275,6 @@ select {
   background-size: 11px 8px;
   padding-right: 32px;
 }
-.button.chip.chip-quiet {
-  color: var(--muted);
-}
-.button.chip.chip-quiet:hover {
-  background: #f8eeea;
-  color: #a64f3b;
-  border-color: #e8cfc7;
-}
 .button.chip {
   border: 1px solid var(--line);
   border-radius: 20px;

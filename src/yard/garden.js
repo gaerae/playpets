@@ -4,6 +4,7 @@
 // once a minute; nothing here moves on its own.
 
 import { list, t } from '../core/i18n.js';
+import { limit } from '../core/limits.js';
 import { pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, toast, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
@@ -23,7 +24,7 @@ import { scene } from './world.js';
 // Yard pixels per unit of a plant's drawing at full size; it shrinks with the yard as friends do.
 const UNIT = 1.25;
 const shown = new Map();
-const seedsFull = () => (data.garden?.seeds ?? 0) >= (data.limits?.seeds ?? 20);
+const seedsFull = () => (data.garden?.seeds ?? 0) >= limit(data, 'seeds');
 
 // What a plant is drawn with at a stage: the stage's drawing, or in bloom its flower's.
 function artAt(plant, stage) {

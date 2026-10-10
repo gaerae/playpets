@@ -39,15 +39,17 @@ pub struct Decor {
     pub y: f64,
 }
 
-/// A day as the page writes it: YYYY-MM-DD.
-fn is_day(text: &str) -> bool {
+/// A day as the page writes it: YYYY-MM-DD, with a month and a day of the month that can be.
+pub fn is_day(text: &str) -> bool {
     let b = text.as_bytes();
-    b.len() == 10
+    let digits = b.len() == 10
         && b[4] == b'-'
         && b[7] == b'-'
         && b.iter()
             .enumerate()
-            .all(|(i, c)| i == 4 || i == 7 || c.is_ascii_digit())
+            .all(|(i, c)| i == 4 || i == 7 || c.is_ascii_digit());
+    let number = |r: std::ops::Range<usize>| text[r].parse::<u32>().unwrap_or(0);
+    digits && (1..=12).contains(&number(5..7)) && (1..=31).contains(&number(8..10))
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -210,7 +212,7 @@ impl Garden {
             .filter(|k| !self.decor.iter().any(|d| d.kind == *k))
             .collect();
         let from = if away.is_empty() { kinds } else { away };
-        from[turn % from.len()]
+        from.get(turn % from.len().max(1)).copied().unwrap_or_default()
     }
 
     /// A friend brings today's gift and sets it down at (x, y). `day` is the page's local date.
@@ -220,7 +222,8 @@ impl Garden {
         let (Some(x), Some(y), true) = (place(x), place(y), is_day(day)) else {
             return Err(i18n::t("error.bad_request"));
         };
-        if self.gift_day == day {
+        // One a day: today's has come, or the page's clock went back to a day before it.
+        if !self.gift_day.is_empty() && day <= self.gift_day.as_str() {
             return Err(i18n::t("error.gift_today"));
         }
         if self.decor.len() >= DECOR_MAX {
@@ -230,6 +233,9 @@ impl Garden {
             .and_then(|e| super::content::event_gift(e, day))
             .filter(|g| !self.received.iter().any(|r| r == g))
             .unwrap_or_else(|| self.next_gift(turn));
+        if kind.is_empty() {
+            return Err(i18n::t("error.bad_request"));
+        }
         let decor = Decor {
             id: Uuid::new_v4().to_string(),
             kind: kind.into(),
@@ -365,8 +371,12 @@ mod tests {
             "snowman"
         );
         assert_eq!(e.gift(0.5, 0.5, "2026-12-21", 0, Some("lights")).unwrap().kind, "bench");
+        assert!(
+            e.gift(0.5, 0.5, "2026-12-01", 0, None).is_err(),
+            "not on a day before the last"
+        );
         assert_eq!(
-            e.gift(0.5, 0.5, "2026-06-01", 0, Some("blossom")).unwrap().kind,
+            e.gift(0.5, 0.5, "2027-06-01", 0, Some("blossom")).unwrap().kind,
             "lantern",
             "not its days"
         );

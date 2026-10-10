@@ -45,5 +45,8 @@ fn open(target: &OsStr) -> Result<(), ()> {
     if cfg!(target_os = "macos") && target.to_string_lossy().to_ascii_lowercase().ends_with(".app") {
         cmd.arg("-R");
     }
-    cmd.arg(target).spawn().map(|_| ()).map_err(|_| ())
+    // Waited for on a thread of its own, so it does not stay behind as a finished (zombie) process.
+    let mut child = cmd.arg(target).spawn().map_err(|_| ())?;
+    std::thread::spawn(move || child.wait());
+    Ok(())
 }

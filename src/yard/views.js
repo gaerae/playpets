@@ -28,7 +28,7 @@ import { WANDER_DELAY } from './wander.js';
 
 // What a press on a friend means is decided above the yard (by a game, or the panel);
 // setupViews hands it in, so the yard needs nothing from those modules.
-let on = { gameTap() {}, select() {}, openChat() {}, resized() {} };
+let on = { gameTap() {}, select() {}, openChat() {}, patted() {}, resized() {} };
 // A little burst above the friend: hearts for a pat, sparkles for a treat, one mark for a game.
 // Each piece drifts its own way (--dx, --rot) and starts a beat after the last.
 const BURST = { '♥': 3, '✦': 3 };
@@ -127,14 +127,18 @@ export function place(v) {
   v.button.style.transform = at;
   v.label.style.transform = at;
   // Nearer the bottom is nearer the viewer: drawn on top, in front of what stands behind it (the
-  // garden's plants and gifts share the layer and the scale). Labels are a layer above all of it,
-  // where the selected friend's comes first. Written only when it changes: this runs every frame.
+  // garden's plants and gifts share the layer and the scale). Written only when it changes: this
+  // runs every frame a friend moves.
   const z = 1 + Math.round(v.y * 100);
   if (v.z !== z) {
     v.z = z;
     v.button.style.zIndex = String(z);
   }
-  const lz = z + (v.button.classList.contains('selected') ? 200 : 0);
+  stackLabel(v);
+}
+// Labels are a layer above everything on the field, in the same order, the selected friend's first.
+function stackLabel(v) {
+  const lz = v.z + (v.button.classList.contains('selected') ? 200 : 0);
   if (v.lz !== lz) {
     v.lz = lz;
     v.label.style.zIndex = String(lz);
@@ -156,6 +160,8 @@ const onTag = e => !!e.target.closest?.('.pet-tag');
 function mirror(v) {
   const marks = v.button.className.replace('yard-pet', '').trim();
   v.label.className = `pet-label${marks ? ` ${marks}` : ''}`;
+  // A friend picked from the Friend tab's list stands still: its label comes first here, not in place().
+  if (v.z !== undefined) stackLabel(v);
 }
 function createView(p) {
   const button = document.createElement('button');
@@ -273,7 +279,17 @@ function createView(p) {
       v.look = lookAt(button.getBoundingClientRect(), e.clientX, e.clientY);
     }
   });
-  button.addEventListener('pointerleave', () => (v.look = null));
+  both('pointerleave', () => (v.look = null));
+  // A pat, by pointer or keyboard. Once someone has patted a friend, the line above the yard stops
+  // saying how.
+  const pat = async () => {
+    if (!recall('patted')) {
+      remember('patted', '1');
+      hint();
+    }
+    on.patted(p.id);
+    await call('play', 'pet', p.id);
+  };
   const end = guard(async e => {
     if (!v.drag) return;
     const { moved, talk } = v.drag;
@@ -283,15 +299,7 @@ function createView(p) {
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {
       on.openChat(p.id);
-    } else {
-      // Once someone has patted a friend, the line above the yard stops saying how.
-      if (!recall('patted')) {
-        remember('patted', '1');
-        hint();
-      }
-      on.patted?.(p.id);
-      await call('play', 'pet', p.id);
-    }
+    } else await pat();
   });
   both('pointerup', end);
   both('pointercancel', end);
@@ -316,11 +324,12 @@ function createView(p) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         on.select(p.id);
-        on.patted?.(p.id);
-        await call('play', 'pet', p.id);
+        await pat();
       }
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
         e.preventDefault();
+        // Moved by hand, it stops where it was headed (a trip would put it back where it was going).
+        release(v);
         const patch = {
           x: clamp(v.x + (e.key === 'ArrowRight' ? 0.04 : e.key === 'ArrowLeft' ? -0.04 : 0)),
           y: clamp(v.y + (e.key === 'ArrowDown' ? 0.04 : e.key === 'ArrowUp' ? -0.04 : 0)),

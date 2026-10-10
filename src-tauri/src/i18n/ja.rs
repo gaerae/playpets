@@ -11,6 +11,8 @@ pub(super) static SPEC: super::Spec = super::Spec {
 const TABLE: &[(&str, &str)] = &[
     ("app.title", "PlayPets · ペットの庭"),
 
+    ("pets.parked", "ペットファイルが見つからないか庭がいっぱいのため、友だち{count}人が今回は出てこられませんでした。消してはいないので、ファイルが戻るか空きができればまた出てきます。"),
+
     ("tray.open", "庭を開く"),
     ("tray.desktop", "デスクトップに表示"),
     ("tray.wander", "デスクトップを歩き回る"),

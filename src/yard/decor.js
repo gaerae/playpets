@@ -6,6 +6,7 @@
 // nothing here moves on its own, and the lantern's glow is a still layer the evening shows.
 
 import { list, t } from '../core/i18n.js';
+import { limit } from '../core/limits.js';
 import { clamp, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, name, views } from '../core/state.js';
 import { artSize, artSvg } from './art.js';
@@ -168,7 +169,7 @@ export function giftTick(now) {
   const g = data.garden;
   if (!g || bringing) return;
   const today = localDay(new Date());
-  if (g.giftDay === today || (g.decor?.length ?? 0) >= (data.limits?.decor ?? 12)) return;
+  if (g.giftDay === today || (g.decor?.length ?? 0) >= limit(data, 'decor')) return;
   if (day !== today) {
     day = today;
     dueAt = now + giftWait(Math.random, !g.received?.length);

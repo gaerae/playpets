@@ -8,7 +8,7 @@ pub mod kind;
 pub mod prompt;
 pub mod providers;
 
-use crate::app::{AppData, Shared, changed, lock, persist, pet_name, push_event, require_pet, set_status};
+use crate::app::{AppData, Shared, changed, lock, pet_name, push_event, require_pet, set_status};
 use crate::commands::{arg, text};
 use crate::i18n;
 use serde_json::{Value, json};
@@ -91,7 +91,7 @@ fn speaker(d: &AppData, id: &str, in_group: bool) -> Result<Speaker, String> {
         provider: provider.clone(),
         key_id,
         identity,
-        notes: prompt::activity_notes(activity, prompt::now_ms()),
+        notes: prompt::activity_notes(activity, crate::app::now_ms()),
     })
 }
 
@@ -135,6 +135,7 @@ fn ask(
     extra: &str,
     turns: Vec<Value>,
     at: cli::At,
+    cancel: &AtomicBool,
 ) -> Result<String, String> {
     let identity = if extra.is_empty() {
         speaker.identity.clone()
@@ -142,7 +143,15 @@ fn ask(
         format!("{}\n{extra}", speaker.identity)
     };
     if speaker.config.kind.is_cli() {
-        return cli.chat(&speaker.id, &speaker.config, &identity, &speaker.notes, &turns, at);
+        return cli.chat(
+            &speaker.id,
+            &speaker.config,
+            &identity,
+            &speaker.notes,
+            &turns,
+            at,
+            cancel,
+        );
     }
     let mut messages = vec![json!({"role": "system", "content": format!("{identity}\n{}", speaker.notes)})];
     messages.extend(turns);
@@ -156,7 +165,8 @@ pub fn reset(d: &mut AppData, cli: &cli::CliManager, id: &str) {
     cli.reset(id);
 }
 
-/// Calls off the answer a friend is waiting for, whichever kind of AI is writing it.
+/// Calls off the answer a friend is waiting for, whichever kind of AI is writing it: its turn's flag
+/// (the one place a cancel is kept, which the CLI turn also watches) and an idle CLI session.
 pub fn cancel(d: &AppData, cli: &cli::CliManager, id: &str) {
     if let Some(flag) = d.cancels.get(id) {
         flag.store(true, Ordering::SeqCst);
@@ -202,7 +212,8 @@ fn save_persona(app: &AppHandle, d: &mut AppData, id: &str, persona: String) {
     };
     pet.persona = persona;
     pet.persona_from = "chat".into();
-    if persist(d).is_ok() {
+    // Shown either way (the friend settings read it); the notice only once it is saved.
+    if crate::app::save_and_show(app, d).is_ok() {
         push_event(app, &json!({"type": "persona-saved", "petId": id}));
     }
 }
@@ -240,7 +251,7 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
         (messages, at, cancel)
     };
 
-    let answer = ask(cli, &speaker, "", messages, at);
+    let answer = ask(cli, &speaker, "", messages, at, &cancel);
 
     let mut d = lock(state);
     d.pending.remove(&id);
@@ -358,7 +369,9 @@ fn group_round(
     text: String,
     opener: Option<String>,
 ) -> Result<Value, String> {
-    if ids.len() < 2 || ids.len() > GROUP_MAX {
+    // Each friend once: the same one twice would answer twice and keep the question twice.
+    let unique: std::collections::HashSet<&String> = ids.iter().collect();
+    if ids.len() < 2 || ids.len() > GROUP_MAX || unique.len() != ids.len() {
         return Err(i18n::t("chat.group_size"));
     }
     let host = &ids[0];
@@ -464,7 +477,14 @@ fn one_turn(
     if let Some(nudge) = nudge {
         messages.push(json!({"role": "user", "content": nudge}));
     }
-    let answer = ask(cli, speaker, &prompt::group_note(&speaker.name, &friends), messages, at);
+    let answer = ask(
+        cli,
+        speaker,
+        &prompt::group_note(&speaker.name, &friends),
+        messages,
+        at,
+        cancel,
+    );
     if cancel.load(Ordering::SeqCst) {
         // The answer is dropped, so the CLI session that wrote it no longer matches the history.
         cli.reset(&speaker.id);
@@ -478,7 +498,7 @@ fn one_turn(
         let entry = if s.id == speaker.id {
             json!({"role": "assistant", "content": answer})
         } else {
-            prompt::peer_entry(&speaker.name, &answer)
+            prompt::peer_entry(&speaker.id, &speaker.name, &answer)
         };
         remember(&mut d, &s.id, entry);
     }

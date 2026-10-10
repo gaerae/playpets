@@ -6,6 +6,7 @@
 
 import { joinList, t } from '../core/i18n.js';
 import { shuffle } from '../core/math.js';
+import { popup } from '../core/menu.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, data, game, name, selected, setGame, toast, views } from '../core/state.js';
 import { setAimingMode } from './care.js';
@@ -38,13 +39,15 @@ export function syncGameUi() {
       ? t('game.stop', { name: GAMES[b.dataset.game] })
       : GAMES[b.dataset.game];
     b.classList.toggle('playing', mine);
-    b.setAttribute('aria-pressed', String(mine));
     b.disabled = !data.pets.length || (!!game && !mine);
   }
   $('feed').disabled = !data.pets.length || !!game;
   // The games share one button on the tools: it opens their menu, and while one is on it ends it.
   $('games-label').textContent = game ? t('game.stop', { name: GAMES[game.kind] }) : t('game.label');
   $('games-button').classList.toggle('playing', !!game);
+  // While a game is on the button ends it: it is not a menu then.
+  if (game) $('games-button').removeAttribute('aria-haspopup');
+  else $('games-button').setAttribute('aria-haspopup', 'menu');
   $('games-button').disabled = !data.pets.length;
   hint();
 }
@@ -132,8 +135,10 @@ const hide = {
     pose(v, 'jump', 1200);
     effect(v, '!');
     bubble(v, t('hide.found_bubble'), 2500);
+    // The timers below belong to this round: a game ended and started again in between is not theirs.
+    const round = game;
     setTimeout(() => {
-      if (game?.kind === 'hide') send(v, { x: v.x, y: 0.35 + Math.random() * 0.55 }, 0.0005);
+      if (game === round) send(v, { x: v.x, y: 0.35 + Math.random() * 0.55 }, 0.0005);
     }, 900);
     if (game.hidden.size) ask(t('hide.found', { name: called(id) }));
     else {
@@ -141,7 +146,7 @@ const hide = {
       say(t('hide.all_found'));
       banner(GAMES.hide, t('hide.all_found'));
       setTimeout(() => {
-        if (game?.kind === 'hide') endGame(t('hide.all_found_toast'));
+        if (game === round) endGame(t('hide.all_found_toast'));
       }, 1600);
     }
   },
@@ -183,7 +188,7 @@ const tagger = (v, on) => {
   labelTag(v);
 };
 const tag = {
-  needs: views => (views.size < 2 ? 'game.tag_needs_two' : null),
+  needs: friends => (friends.size < 2 ? 'game.tag_needs_two' : null),
   start(now, lead) {
     game.it = lead;
     game.safe = null;
@@ -275,7 +280,9 @@ export function endGame(message) {
     v.frozen = false;
     v.button.classList.remove('hiding');
     tagger(v, false);
-    if (v.away) sendTo(v, { x: v.pet.x, y: v.pet.y }, { save: false, arrive: () => (v.away = false) });
+    // Home again, or taken on the way (a press, a treat): either way it is no longer away.
+    const home = () => (v.away = false);
+    if (v.away) sendTo(v, { x: v.pet.x, y: v.pet.y }, { save: false, arrive: home, cancel: home });
     else v.speed = 0;
     rest(v);
   }
@@ -308,25 +315,16 @@ export function playGame(now, dt) {
 // Wires the game buttons. Called once, by app.js.
 export function setupPlay() {
   gameButtons = [...document.querySelectorAll('.tools [data-game]')];
-  const menu = $('games-menu'),
-    button = $('games-button'),
-    show = open => {
-      menu.hidden = !open;
-      button.setAttribute('aria-expanded', String(open));
-    };
   for (const b of gameButtons)
     b.onclick = () => {
-      show(false);
       if (game?.kind === b.dataset.game) endGame();
       else startGame(b.dataset.game);
     };
-  button.onclick = () => (game ? endGame() : show(menu.hidden));
-  document.addEventListener('pointerdown', e => {
-    if (!menu.hidden && !menu.contains(e.target) && !button.contains(e.target)) show(false);
+  // While a game is on, the button ends it rather than opening the menu (heard before the menu's own).
+  $('games-button').addEventListener('click', e => {
+    if (!game) return;
+    e.stopImmediatePropagation();
+    endGame();
   });
-  menu.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
-    show(false);
-    button.focus();
-  });
+  popup($('games-button'), $('games-menu'));
 }

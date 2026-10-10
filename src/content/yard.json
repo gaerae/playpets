@@ -8,8 +8,8 @@
   "fieldTop": 0.6,
   "lake": {
     "from": 0.4,
-    "to": 0.64,
-    "top": 0.562,
+    "to": 0.68,
+    "top": 0.546,
     "under": "back"
   },
   "layers": [

@@ -36,7 +36,7 @@ fn on_event(app: &AppHandle, d: &mut AppData, event: bridge::AgentEvent) {
     prompt::record_activity(
         d.activity.entry(pet_id.clone()).or_default(),
         prompt::Activity {
-            at: prompt::now_ms(),
+            at: crate::app::now_ms(),
             kind: kind.into(),
             state: state.clone(),
             message: message.clone(),
@@ -69,6 +69,7 @@ pub fn start(app: &tauri::App) {
                         .unwrap_or("idle");
                     json!({"id": p.id, "name": pet_name(&d, p, ""), "state": status})
                 })
+                .chain(d.parked_pets.iter().map(|p| json!({"id": p["id"], "parked": true})))
                 .collect::<Vec<_>>()
         )
     });

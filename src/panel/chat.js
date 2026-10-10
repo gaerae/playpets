@@ -113,8 +113,10 @@ export function renderChat(p) {
   $('clear-chat').disabled = busy || !hasHistory;
   $('chat-log').setAttribute('aria-busy', String(busy));
   $('chat-note').textContent = busy ? t('chat.note_busy') : p.providerId ? t('chat.note_keys') : t('chat.note_connect');
-  // Friends with an AI of their own can join the conversation.
-  for (const id of companions) if (!data.pets.some(q => q.id === id && q.providerId)) companions.delete(id);
+  // Who joins in is another friend with an AI: the one talked with now (picked again after a friend
+  // left) and friends no longer here or without an AI drop out.
+  for (const id of companions)
+    if (id === p.id || !data.pets.some(q => q.id === id && q.providerId)) companions.delete(id);
   const others = data.pets.filter(q => q.id !== p.id && q.providerId);
   $('companions').hidden = !p.providerId || !others.length;
   $('companion-chips').replaceChildren();
@@ -144,12 +146,20 @@ export function renderChat(p) {
 // pulled down; switching friends, clearing, or a reset starts the log over.
 let shown = { pet: null, keys: [] };
 const keyOf = m => `${m.role}|${m.name || ''}|${m.content}`;
-// Who said it: a friend in the group by its name, the friend talked with, or the person.
-const speaker = m => m.name || m.role;
+// Which friend said it: the friend talked with, or a friend in the group by its id (lines kept
+// before ids were, by its name); none for the person, or a friend no longer here.
+const friendOf = m =>
+  m.role === 'assistant'
+    ? pet()
+    : m.name
+      ? data.pets.find(p => p.id === m.petId) || (!m.petId && data.pets.find(p => name(p) === m.name)) || null
+      : null;
+// Who said it, so a turn is one speaker's run of lines however each line names it.
+const speaker = m => friendOf(m)?.id || m.petId || m.name || m.role;
 // As in a messenger, a friend's turn opens with its picture beside the first message (the rest of
 // the turn lines up under it).
 function avatar(m) {
-  const friend = m.name ? data.pets.find(p => name(p) === m.name) : pet();
+  const friend = friendOf(m);
   const frame = document.createElement('span'),
     c = canvas();
   frame.className = 'chat-avatar';
@@ -310,7 +320,7 @@ export function setupChat() {
     syncSend();
     temporaryMessages.set(id, { role: 'user', content: text });
     refreshChat();
-    const group = [...companions];
+    const group = [...companions].filter(friend => friend !== id);
     try {
       if (group.length) await call('chatWith', [id, ...group], text);
       else await call('chat', id, text);

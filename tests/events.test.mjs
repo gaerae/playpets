@@ -1,6 +1,7 @@
 // Seasonal events: when each is on, north and south of the equator (src/yard/events.js).
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import './support/content.mjs';
 import { bite, flyingBug } from '../src/yard/catalog.js';
@@ -27,6 +28,10 @@ test('south of the equator the seasons come six months later, the new year does 
   // Dates that cross the end of the year.
   assert.ok(inEvent({ from: '12-20', to: '01-05' }, '1-2'));
   assert.ok(!inEvent({ from: '12-20', to: '01-05' }, '6-2'));
+  // Six months on stays inside the month it lands in: August 31 is the last of February.
+  assert.ok(inEvent({ from: '08-31', to: '09-10' }, '2-28', true), 'the first day is not lost');
+  assert.ok(!inEvent({ from: '08-31', to: '09-10' }, '2-27', true));
+  assert.ok(inEvent({ from: '08-20', to: '08-31' }, '2-29', true), 'a leap day at the end');
 });
 
 test('an event brings more small life and kinds of its own, only while it is on', () => {
@@ -42,4 +47,11 @@ test('an event brings more small life and kinds of its own, only while it is on'
       'moon_carp',
       'the moonlight carp waits for its moon',
     );
+});
+
+// The same dates the backend is checked against (src-tauri/src/pets/content.rs), so the two cannot
+// drift apart: every boundary of every event, north and south.
+test('the page sees each event on the dates the backend checks', () => {
+  const { cases } = JSON.parse(readFileSync(new URL('./fixtures/event-dates.json', import.meta.url), 'utf8'));
+  for (const { day, south, event } of cases) assert.equal(on(day, south), event, `${day} ${south ? 'south' : 'north'}`);
 });

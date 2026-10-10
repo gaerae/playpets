@@ -15,7 +15,7 @@ let zoom = 1;
 // How much friends shrink in a yard of this size. By the height, so a small window still reads as a
 // whole scene; a strip (much wider than tall, like a bar along the screen's edge) gives the sky
 // away and keeps the friends larger, and a narrow column keeps them from crowding each other.
-export function zoomFor(width, height) {
+function zoomFor(width, height) {
   const strip = width > height * 3;
   return clamp(Math.min(height / (strip ? 380 : 560), width / 640), 0.35, 1);
 }

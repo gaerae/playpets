@@ -72,7 +72,7 @@ fn apply(app: &AppHandle, snap: Snapshot) {
         crate::update::found_version(app),
         i18n::current().code(),
     );
-    let mut shown = SHOWN.lock().unwrap();
+    let mut shown = crate::app::hold(&SHOWN);
     if shown.as_ref() == Some(&key) {
         return;
     }
@@ -145,7 +145,7 @@ fn menu(app: &AppHandle, (snap, mini, found, _): &Shown) -> tauri::Result<Menu<t
 /// For the e2e scenario: the menu as last built, as `id` or `id:on` / `id:off`, separators as `-`,
 /// and the tooltip.
 pub fn e2e_state() -> serde_json::Value {
-    let shown = SHOWN.lock().unwrap();
+    let shown = crate::app::hold(&SHOWN);
     let Some((snap, mini, _, _)) = shown.as_ref() else {
         return serde_json::Value::Null;
     };
@@ -207,7 +207,7 @@ fn with_mark(rgba: &[u8], w: u32, h: u32, color: [u8; 3]) -> Vec<u8> {
 
 /// The menu built again even if nothing seems to have changed (after a check item ticked itself).
 pub fn rebuild(app: &AppHandle) {
-    *SHOWN.lock().unwrap() = None;
+    *crate::app::hold(&SHOWN) = None;
     retitle(app);
 }
 
@@ -255,7 +255,7 @@ pub fn build(app: &tauri::App) -> tauri::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Line, Snapshot, lines, with_mark};
+    use super::{Line, Snapshot, i18n, lines, with_mark};
 
     fn ids(snap: &Snapshot, mini: bool) -> Vec<String> {
         lines(snap, mini)
@@ -303,6 +303,15 @@ mod tests {
             ..Default::default()
         };
         assert!(ids(&desk, false).contains(&"wander:true".to_string()));
+        // Every item's words come from tray.{id} (built at run time, so the key test cannot see them).
+        for line in lines(&desk, false).iter().chain(&lines(&none, true)) {
+            if let Line::Item(id, _) = line {
+                assert_ne!(i18n::t(&format!("tray.{id}")), format!("tray.{id}"), "tray.{id}");
+            }
+        }
+        for state in ["waiting", "error"] {
+            assert_ne!(i18n::t(&format!("tray.state_{state}")), format!("tray.state_{state}"));
+        }
     }
 
     #[test]

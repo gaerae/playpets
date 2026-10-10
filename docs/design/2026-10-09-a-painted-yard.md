@@ -40,7 +40,7 @@ The backdrop is painted in code on two canvases, once per change of light, and s
 | Where things are | `src/content/yard.json`, read by `src/yard/layout.js` | The hills as curves, the mountain peaks, what stands on each hill, the lake, and the layers in painting order; helpers that turn them into yard pixels (since 2026-10-10: [Yard content as data](2026-10-10-yard-content-as-data.md)) |
 | Colours and light | `src/yard/palette.js` | The stylesheet's colours as the painter uses them, the sun's side and strength, foliage in four values |
 | Trees | `src/yard/trees.js` | Crowns in value bands, trunks, round trees, bushes, a rock, Japanese cedars, the big tree at the edge |
-| The lake | `src/yard/lake.js` | The sky and the far hill mirrored, a cloud's reflection, ripples, lily pads, reeds |
+| The lake | `src/yard/lake.js`, its shape in `layout.js` `lakeShape` | An oval pond whose near half the hill hides, its ends rounding off behind it: the sky and the far bank mirrored, a soft glow of light, a few glints, lily pads by the near bank, reeds where it meets the hill. Fishing (`catch.js`) uses the same shape, so a click counts only on the water that is drawn |
 | Sky and clouds | `src/yard/clouds.js` | The sky's light, two heaped clouds behind the mountains, the overcast, and each drifting cloud |
 | The land | `src/yard/backdrop.js` | A painter for each kind of layer (mountains in haze, groves and low woods on the far hill, a hedgerow, the lake, the field in broad bands, what stands on it, the big tree, shrubs in the near corners), run in the order `yard.json` lists the layers |
 | The easel | `src/yard/easel.js` | Reads the colours off the yard, paints when the light or the size changes, and fades the new painting in over the old one |
@@ -49,7 +49,7 @@ The backdrop is painted in code on two canvases, once per change of light, and s
 - **Colours stay in the stylesheet.** `scenery.css` and the season's colours (`scene.js`) remain the only place colours are set. The painter derives the deep shade and the light from them (shade towards blue-green, light towards warm yellow-green for greens), so every season and time of day keeps working.
 - **Light.** The sun's side follows the time of day (left in the morning, right in the evening); its strength drops in rain and at night.
 - **The same yard in any light.** Every piece has its own seed, so painting again in other light gives the same trees, hills and flowers in other colours.
-- **The layout stays.** The hills keep the curves of the old shapes, so friends, plants and the field's ridge (`views.js` FIELD_TOP) stand where they did.
+- **The layout stays.** The hills keep the curves of the old shapes, so friends, plants and the field's ridge (`field.js` fieldTop) stand where they did.
 - **Order of layers.** The sky canvas is at the back, then the stars, sun, moon, rainbow and drifting clouds, then the land canvas, then the garden and the friends, then the weather canvas.
 
 ## Performance

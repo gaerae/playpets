@@ -1,12 +1,13 @@
 // What friends say on their own, without an AI: a word now and then about the hour and the weather,
 // a remark when the weather changes, and (level 5, bond.js) something for the person. The lines
-// are the string tables' (chatter.*, bond.dear), chosen by scene.js chatterFor.
+// are the string tables' (chatter.*, bond.dear and its lines for each relationship), chosen by
+// scene.js chatterFor and bond.js lineFor.
 
 import { list } from '../core/i18n.js';
 import { between, pick, shuffle } from '../core/math.js';
 import { data, game, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
-import { levelOf } from './bond.js';
+import { levelOf, lineFor } from './bond.js';
 import { chatterFor } from './scene.js';
 import { bubble } from './views.js';
 import { scene } from './world.js';
@@ -51,7 +52,7 @@ export function idleChatter(now) {
   bubble(
     v,
     dear
-      ? pick(list('bond.dear'))
+      ? lineFor(v.pet, 'bond.dear')
       : festive
         ? pick(list(`event.${scene.event}.lines`))
         : chatterFor(scene.period, scene.weather, Math.random),
