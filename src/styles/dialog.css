@@ -58,13 +58,13 @@ dialog .tiny {
 .form-error {
   font-size: 12px;
   line-height: 1.6;
-  color: #a3422c;
+  color: var(--danger);
   margin-top: 12px;
 }
 /* Destructive text buttons stay red, hovered or not (they are also .button.text). */
 .button.danger,
 .button.danger:hover {
-  color: #a3422c;
+  color: var(--danger);
 }
 .model-status {
   display: block;
@@ -78,7 +78,7 @@ dialog .tiny {
   margin-left: 3px;
 }
 .model-status.error {
-  color: #a3422c;
+  color: var(--danger);
 }
 .push-left {
   margin-right: auto;
@@ -213,7 +213,7 @@ dialog .relation-card small {
 }
 .button.primary.danger-fill,
 .button.primary.danger-fill:hover {
-  background: #a3422c;
+  background: var(--danger);
 }
 /* The update dialog: what is new as a link, then the download's progress while it installs. */
 .update-dialog .notes-link {
@@ -298,7 +298,7 @@ dialog .relation-card small {
 .album-tabs button[aria-selected="true"] {
   background: var(--white);
   color: var(--ink);
-  box-shadow: 0 1px 4px #213e431f;
+  box-shadow: 0 1px 4px var(--ink-12);
 }
 .album-tabs small {
   font-weight: 600;

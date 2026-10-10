@@ -6,9 +6,11 @@ import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, guard, selected, setAiming, toast, views } from '../core/state.js';
 import { befriend } from './bond.js';
 import { fieldTop, footTarget, petHeight, sizeOf } from './field.js';
+import { hint } from './hint.js';
 import { greetingFor } from './scene.js';
 import { cue } from './sound.js';
-import { bubble, effect, hint, pose, rest, sendTo } from './views.js';
+import { rest, sendTo } from './trips.js';
+import { bubble, effect, pose } from './views.js';
 import { SCATTER_DELAY } from './wander.js';
 import { scene } from './world.js';
 

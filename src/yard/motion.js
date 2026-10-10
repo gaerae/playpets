@@ -9,7 +9,8 @@ import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
 import { petHeight } from './field.js';
 import { visitTarget } from './garden.js';
-import { place, pose, sendTo } from './views.js';
+import { sendTo } from './trips.js';
+import { place, pose } from './views.js';
 import { idleAction, WANDER_DELAY, wanderTarget } from './wander.js';
 
 // How far a friend walks in a millisecond, in field units: strolling, and going somewhere.

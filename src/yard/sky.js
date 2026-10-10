@@ -4,7 +4,8 @@
 import { language } from '../core/i18n.js';
 import { dropdown } from '../core/menu.js';
 import { reduced } from '../core/sprites.js';
-import { $, aiming, game, recall, remember } from '../core/state.js';
+import { $, recall, remember } from '../core/state.js';
+import { everyMinute } from '../core/ticker.js';
 import { createEasel } from './easel.js';
 import { eventOn } from './events.js';
 import { eventChanged } from './festival.js';
@@ -51,14 +52,14 @@ export function paintScene() {
   // A seasonal event (events.js): a class on the yard, and one for each way it looks (scenery.css).
   const event = eventOn(now, south);
   scene.event = event?.id ?? null;
-  const marks = event ? [` event-${event.id}`, ...(event.looks || []).map(look => ` look-${look}`)].join('') : '';
-  // Classes the scene does not set are kept through a repaint: the rainbow while its time runs,
-  // and the hand over something to catch while catching is possible (catch.js).
-  const kept = ['after-rain', ...(aiming || game ? [] : ['can-catch'])]
-    .filter(c => yard.classList.contains(c))
-    .map(c => ` ${c}`)
-    .join('');
-  yard.className = `yard period-${scene.period} weather-${scene.weather} season-${scene.season}${marks}${aiming ? ' aiming' : ''}${game ? ' playing' : ''}${kept}`;
+  // The scene's own classes on the yard (scenery.css): only these are changed here; the others
+  // belong to whoever sets them (aiming, playing, the catch hand, the rainbow).
+  setMarks(yard, [
+    `period-${scene.period}`,
+    `weather-${scene.weather}`,
+    `season-${scene.season}`,
+    ...(event ? [`event-${event.id}`, ...(event.looks || []).map(look => `look-${look}`)] : []),
+  ]);
   paintSeason(yard);
   paintSky(yard, now);
   // Rain clearing in daylight starts the rainbow's few minutes; night or new weather takes it away.
@@ -71,6 +72,13 @@ export function paintScene() {
   soundScene(scene);
   if (was !== scene.event) eventChanged(event);
   return before !== scene.weather;
+}
+// The classes the scene last set on the yard, to be taken off again when they change.
+let marked = [];
+function setMarks(yard, marks) {
+  yard.classList.remove(...marked.filter(m => !marks.includes(m)));
+  yard.classList.add(...marks);
+  marked = marks;
 }
 // The season's colours, set on the yard as custom properties (scene.js SEASON_COLORS).
 function paintSeason(yard) {
@@ -99,11 +107,9 @@ function showRainbow(yard) {
 // (a narrow yard shows the time alone, yard.css).
 const clockTime = new Intl.DateTimeFormat(language(), { hour: 'numeric', minute: '2-digit' }),
   clockDate = new Intl.DateTimeFormat(language(), { month: 'short', day: 'numeric', weekday: 'short' });
-function tick() {
-  const now = new Date();
+function showTime(now) {
   $('clock-time').textContent = clockTime.format(now);
   $('clock-date').textContent = ` · ${clockDate.format(now)}`;
-  setTimeout(tick, 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 50);
 }
 // Starts the sky: the chosen or automatic time and weather, and the minute-by-minute check. Called once, by app.js.
 export function setupSky() {
@@ -127,8 +133,9 @@ export function setupSky() {
     if (paintScene()) remark();
   };
   paintScene();
-  tick();
-  setInterval(() => {
+  showTime(new Date());
+  everyMinute(now => {
+    showTime(now);
     if (paintScene()) remark();
-  }, 60000);
+  });
 }

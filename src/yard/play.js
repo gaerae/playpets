@@ -5,6 +5,7 @@
 // strings; this file moves the friends and keeps the toolbar in step.
 
 import { joinList, t } from '../core/i18n.js';
+import { icons } from '../core/icons.js';
 import { shuffle } from '../core/math.js';
 import { popup } from '../core/menu.js';
 import { reduced } from '../core/sprites.js';
@@ -24,8 +25,9 @@ import {
   TAG_MS,
   touching,
 } from './games.js';
-import { paintScene } from './sky.js';
-import { bubble, effect, hint, labelTag, place, pose, release, rest, sendTo } from './views.js';
+import { hint } from './hint.js';
+import { release, rest, sendTo } from './trips.js';
+import { bubble, effect, labelTag, place, pose } from './views.js';
 
 const party = () => game.ids.map(id => views.get(id)).filter(Boolean);
 const HIDE_WAIT_MS = 15000;
@@ -94,6 +96,7 @@ function miss() {
   }, 2400);
 }
 const hide = {
+  icon: 'eye',
   start(now) {
     game.hidden = new Set(game.ids);
     const spots = shuffle(hidingSpots(game.ids.length, Math.random));
@@ -153,6 +156,7 @@ const hide = {
 };
 
 const parade = {
+  icon: 'paw',
   start(_now, lead) {
     game.progress = 0;
     game.walking = false;
@@ -188,6 +192,7 @@ const tagger = (v, on) => {
   labelTag(v);
 };
 const tag = {
+  icon: 'dash',
   needs: friends => (friends.size < 2 ? 'game.tag_needs_two' : null),
   start(now, lead) {
     game.it = lead;
@@ -268,7 +273,7 @@ function startGame(kind) {
     v.look = null;
   }
   RULES[kind].start(now, lead);
-  paintScene();
+  $('yard').classList.add('playing');
   syncGameUi();
 }
 export function endGame(message) {
@@ -287,7 +292,7 @@ export function endGame(message) {
     rest(v);
   }
   RULES[over.kind]?.end?.(over, message);
-  paintScene();
+  $('yard').classList.remove('playing');
   syncGameUi();
   if (message) toast(message);
 }
@@ -314,7 +319,25 @@ export function playGame(now, dt) {
 }
 // Wires the game buttons. Called once, by app.js.
 export function setupPlay() {
-  gameButtons = [...document.querySelectorAll('.tools [data-game]')];
+  // The menu has one row per game in RULES, with its icon, name and what it is (the tooltip).
+  $('games-menu').replaceChildren(
+    ...Object.entries(RULES).map(([kind, rules]) => {
+      const row = document.createElement('button'),
+        mark = document.createElement('span'),
+        label = document.createElement('span');
+      row.className = 'button tool game';
+      row.setAttribute('role', 'menuitem');
+      row.dataset.game = kind;
+      row.title = t(`game.${kind}_title`);
+      mark.dataset.icon = rules.icon;
+      label.className = 'game-name';
+      label.textContent = GAMES[kind];
+      row.append(mark, label);
+      return row;
+    }),
+  );
+  icons($('games-menu'));
+  gameButtons = [...$('games-menu').querySelectorAll('[data-game]')];
   for (const b of gameButtons)
     b.onclick = () => {
       if (game?.kind === b.dataset.game) endGame();

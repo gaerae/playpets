@@ -28,59 +28,242 @@ const BRIDGE_JS: &str = r#"(()=>{
   window.playPets=Object.freeze(api);
 })();"#;
 
-/// Everything the pages may ask for, by name; `dispatch` has an arm for each (tested).
-pub const COMMANDS: &[&str] = &[
-    "bootstrap",
-    "addPet",
-    "updatePet",
-    "removePet",
-    "importFolder",
-    "toggleDesktop",
-    "toggleDesktopWander",
-    "play",
-    "saveProvider",
-    "removeProvider",
-    "chat",
-    "chatWith",
-    "cancelChat",
-    "clearChat",
-    "getChat",
-    "copyConnection",
-    "openChat",
-    "dragStart",
-    "dragStop",
-    "quitApp",
-    "listModels",
-    "importUrl",
-    "openExternal",
-    "openFolder",
-    "windowDrag",
-    "windowMini",
-    "windowMinimize",
-    "windowMaximize",
-    "windowHide",
-    "setLanguage",
-    "assignAgent",
-    "chatter",
-    "setAutoChatter",
-    "setSound",
-    "setAutostart",
-    "findSeed",
-    "plant",
-    "pullPlant",
-    "receiveGift",
-    "moveDecor",
-    "putAway",
-    "catch",
-    "bloomed",
-    "befriend",
-    "checkUpdate",
-    "installUpdate",
+/// What a command is handed: the app, its state, the CLI sessions, which window asked, and the
+/// arguments as the page passed them.
+pub struct Ctx<'a> {
+    pub app: &'a AppHandle,
+    pub state: State<'a, Shared>,
+    pub cli: std::sync::Arc<chat::cli::CliManager>,
+    pub sender: &'a str,
+    pub name: &'a str,
+    pub args: &'a [Value],
+}
+impl Ctx<'_> {
+    fn arg(&self, i: usize) -> &Value {
+        arg(self.args, i)
+    }
+    fn text(&self, i: usize) -> &str {
+        text(self.args, i)
+    }
+    fn float(&self, i: usize) -> f64 {
+        float(self.args, i)
+    }
+    /// An overlay window may only act on the friends drawn on its own monitor.
+    fn may_touch(&self, id: &str) -> bool {
+        !self.sender.starts_with("overlay") || overlay_owns(self.app, self.sender, id)
+    }
+}
+
+/// Which windows may ask for a command: the yard window only, the desktop overlays too, or the
+/// e2e scenario (in an e2e run only, and never offered to the page).
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Who {
+    Main,
+    Overlay,
+    Test,
+}
+/// A command the pages may ask for: its name (the page's method), who may, and what it does.
+struct Command {
+    name: &'static str,
+    who: Who,
+    run: fn(&Ctx) -> Result<Value, String>,
+}
+const fn main(name: &'static str, run: fn(&Ctx) -> Result<Value, String>) -> Command {
+    Command {
+        name,
+        who: Who::Main,
+        run,
+    }
+}
+const fn overlay(name: &'static str, run: fn(&Ctx) -> Result<Value, String>) -> Command {
+    Command {
+        name,
+        who: Who::Overlay,
+        run,
+    }
+}
+const fn test_only(name: &'static str, run: fn(&Ctx) -> Result<Value, String>) -> Command {
+    Command {
+        name,
+        who: Who::Test,
+        run,
+    }
+}
+
+/// Every command, in one table: a new one is one row (and its page call). The bridge, who may call
+/// what, and the dispatch all come from here.
+static COMMANDS: &[Command] = &[
+    overlay("bootstrap", |c| Ok(public_state(c.app, &lock(&c.state)))),
+    // Friends in the yard.
+    main("addPet", |c| add_pet(c.app, &c.state, c.text(0))),
+    main("updatePet", |c| {
+        update_pet(c.app, &c.state, &c.cli, c.text(0), c.arg(1))
+    }),
+    main("removePet", |c| remove_pet(c.app, &c.state, &c.cli, c.text(0))),
+    overlay("play", |c| {
+        play(c.app, &c.state, c.text(0), c.arg(1).as_str(), &|id| c.may_touch(id))
+    }),
+    // Pet files.
+    main("importFolder", |c| import_from_folder(c.app, &c.state)),
+    main("importUrl", |c| {
+        let root = lock(&c.state).store.dir.join("pets");
+        let folder = importer::import_from_url(c.text(0), &root, &importer::http_fetch)?;
+        let asset = catalog::read_pet(&folder)?;
+        register_asset(c.app, &mut lock(&c.state), asset)
+    }),
+    main("openFolder", |c| open_folder(&c.state, c.text(0))),
+    main("openExternal", |c| open_external(c.text(0))),
+    // AI connections and chat.
+    main("saveProvider", |c| providers::save(c.app, &c.state, &c.cli, c.arg(0))),
+    main("removeProvider", |c| {
+        providers::remove(c.app, &c.state, &c.cli, c.text(0))
+    }),
+    main("listModels", |c| providers::list_models(&c.state, c.arg(0))),
+    main("chat", |c| chat::chat(c.app, &c.state, &c.cli, c.args)),
+    main("chatWith", |c| chat::chat_with(c.app, &c.state, &c.cli, c.args)),
+    main("chatter", |c| chat::chatter(c.app, &c.state, &c.cli, c.args)),
+    main("getChat", |c| {
+        let d = lock(&c.state);
+        let id = c.text(0);
+        require_pet(&d, id).map(|_| json!(d.histories.get(id).cloned().unwrap_or_default()))
+    }),
+    main("clearChat", |c| chat::clear(&c.state, &c.cli, c.text(0))),
+    main("cancelChat", |c| {
+        let d = lock(&c.state);
+        let id = c.text(0);
+        require_pet(&d, id).map(|_| {
+            chat::cancel(&d, &c.cli, id);
+            Value::Null
+        })
+    }),
+    // Settings.
+    main("setAutoChatter", |c| {
+        set_auto_chatter(c.app, &c.state, c.arg(0).as_bool().unwrap_or(false))
+    }),
+    // (on, volume): either may be null to keep it as it is.
+    main("setSound", |c| {
+        commit(c.app, &c.state, |d| {
+            let on = c.arg(0).as_bool().unwrap_or(d.sound.on);
+            let volume = c.arg(1).as_u64().map_or(d.sound.volume, |v| v.min(100) as u8);
+            d.sound = crate::app::Sound { on, volume };
+            Ok(json!(d.sound))
+        })
+    }),
+    main("setAutostart", |c| {
+        set_autostart(c.app, &c.state, c.arg(0).as_bool().unwrap_or(false))
+    }),
+    main("setLanguage", |c| set_language(c.app, &c.state, c.text(0))),
+    // The garden, gifts, the album and closeness.
+    main("findSeed", |c| {
+        commit(c.app, &c.state, |d| d.garden.find().map(Value::from))
+    }),
+    main("plant", |c| {
+        let (Some(x), Some(y)) = (c.arg(1).as_f64(), c.arg(2).as_f64()) else {
+            return Err(i18n::t("error.bad_request"));
+        };
+        let now = now_ms();
+        commit(c.app, &c.state, |d| {
+            d.garden.plant(c.text(0), x, y, now).map(|p| json!(p))
+        })
+    }),
+    main("pullPlant", |c| {
+        commit(c.app, &c.state, |d| d.garden.pull(c.text(0)).map(|_| Value::Null))
+    }),
+    main("receiveGift", receive_gift),
+    main("moveDecor", |c| {
+        let (x, y) = (c.float(1), c.float(2));
+        commit(c.app, &c.state, |d| {
+            d.garden.move_decor(c.text(0), x, y).map(|_| Value::Null)
+        })
+    }),
+    main("putAway", |c| {
+        commit(c.app, &c.state, |d| d.garden.put_away(c.text(0)).map(|_| Value::Null))
+    }),
+    main("catch", |c| {
+        let now = now_ms();
+        let size = c.arg(2).as_f64().unwrap_or(0.0);
+        commit(c.app, &c.state, |d| {
+            let (entry, first) = d.album.catch(c.text(0), c.text(1), size, now)?;
+            Ok(json!({"entry": entry, "first": first}))
+        })
+    }),
+    main("bloomed", bloomed),
+    main("befriend", befriend),
+    // Coding agents.
+    main("copyConnection", |c| {
+        copy_connection(c.app, &c.state, c.arg(0).as_str().unwrap_or("mcp"))
+    }),
+    main("assignAgent", |c| assign_agent(c.app, &c.state, c.text(0), c.text(1))),
+    // The desktop and the windows.
+    main("toggleDesktop", |c| {
+        crate::app::toggle_flag(c.app, &mut lock(&c.state), false).map(Value::Bool)
+    }),
+    main("toggleDesktopWander", |c| {
+        crate::app::toggle_flag(c.app, &mut lock(&c.state), true).map(Value::Bool)
+    }),
+    overlay("openChat", |c| {
+        let id = c.text(0);
+        require_pet(&lock(&c.state), id)?;
+        if !c.may_touch(id) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        window::show(c.app);
+        push_event(c.app, &json!({"type": "select", "petId": id}));
+        Ok(Value::Null)
+    }),
+    overlay("dragStart", |c| {
+        let id = c.text(0);
+        if c.sender.starts_with("overlay") && overlay_owns(c.app, c.sender, id) {
+            let overlay = &c.app.state::<OverlayHandle>().0;
+            let cursor = overlay.cursor(c.app).unwrap_or((0.0, 0.0));
+            overlay.drag_start(id, cursor);
+        }
+        Ok(Value::Null)
+    }),
+    overlay("dragStop", |c| {
+        let sink = c.app.state::<PositionSink>().0.clone();
+        overlay::stop_drag_and_save(&c.app.state::<OverlayHandle>().0, c.app, &sink);
+        Ok(Value::Null)
+    }),
+    main("windowDrag", |c| window::command(c.app, c.name, c.args)),
+    main("windowMini", |c| window::command(c.app, c.name, c.args)),
+    main("windowMinimize", |c| window::command(c.app, c.name, c.args)),
+    main("windowMaximize", |c| window::command(c.app, c.name, c.args)),
+    main("windowHide", |c| window::command(c.app, c.name, c.args)),
+    // The app itself.
+    main("checkUpdate", |c| crate::update::check(c.app)),
+    main("installUpdate", |c| crate::update::install(c.app)),
+    main("quitApp", |c| {
+        crate::app::quit(c.app);
+        Ok(Value::Null)
+    }),
+    // The e2e scenario reports through stdout; these exist in no other run.
+    test_only("e2eLog", |c| {
+        println!("[e2e] {}", c.text(0));
+        Ok(Value::Null)
+    }),
+    test_only("e2eWindow", |c| window::e2e_window(c.app, c.args)),
+    test_only("e2eTray", |_| Ok(crate::tray::e2e_state())),
+    // A garden with no gifts yet, so the gift checks do not depend on whether the page's own first
+    // gift (a few minutes in) came before them.
+    test_only("e2eFreshGifts", |c| {
+        commit(c.app, &c.state, |d| {
+            d.garden.gift_day.clear();
+            d.garden.decor.clear();
+            d.garden.received.clear();
+            Ok(Value::Null)
+        })
+    }),
 ];
+
+fn command(name: &str) -> Option<&'static Command> {
+    COMMANDS.iter().find(|c| c.name == name)
+}
 
 /// The bridge plus the language the page starts in (its own modules read it as they load).
 pub fn bridge_js() -> String {
-    let list = serde_json::to_string(COMMANDS).unwrap_or_default();
+    let names: Vec<&str> = COMMANDS.iter().filter(|c| c.who != Who::Test).map(|c| c.name).collect();
+    let list = serde_json::to_string(&names).unwrap_or_default();
     format!(
         "{}\nwindow.__PP_LANG='{}';",
         BRIDGE_JS.replace("__COMMANDS__", &list),
@@ -88,8 +271,6 @@ pub fn bridge_js() -> String {
     )
 }
 
-/// What an overlay window may ask for; everything else is for the main window only.
-const OVERLAY_COMMANDS: [&str; 5] = ["bootstrap", "play", "openChat", "dragStart", "dragStop"];
 /// Set by the e2e harness: the scenario to run in the page, which reports through `e2eLog`.
 pub const E2E_ENV: &str = "PLAYPETS_E2E_EVAL";
 /// Whether this run is an e2e run: a build with the `e2e` feature, started with the scenario.
@@ -108,9 +289,15 @@ pub fn text(args: &[Value], i: usize) -> &str {
     arg(args, i).as_str().unwrap_or("")
 }
 
-/// The main window may ask for anything; an overlay only for the few commands it draws with.
+/// The main window may ask for anything but the e2e scenario's own commands (only in an e2e run);
+/// an overlay only for the few commands it draws with.
 fn may_call(label: &str, name: &str) -> bool {
-    label == "main" || (label.starts_with("overlay") && OVERLAY_COMMANDS.contains(&name))
+    match command(name).map(|c| c.who) {
+        Some(Who::Main) => label == "main",
+        Some(Who::Overlay) => label == "main" || label.starts_with("overlay"),
+        Some(Who::Test) => label == "main" && e2e_mode(),
+        None => false,
+    }
 }
 
 #[tauri::command]
@@ -134,190 +321,65 @@ fn fail(msg: impl Into<String>) -> Value {
 /// Commands run on a blocking thread, so waiting for an AI or a download holds nothing up.
 /// Anything slow (network, dialogs, the keychain) is done without holding the state lock.
 fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> Value {
-    let state: State<Shared> = app.state();
-    let cli = app.state::<CliHandle>().0.clone();
-    // An overlay window may only act on the friends drawn on its own monitor.
-    let overlay_may = |id: &str| !sender.starts_with("overlay") || overlay_owns(&app, &sender, id);
-    let result = || -> Result<Value, String> {
-        match name.as_str() {
-            "bootstrap" => Ok(public_state(&app, &lock(&state))),
-            // Friends in the yard.
-            "addPet" => add_pet(&app, &state, text(&args, 0)),
-            "updatePet" => update_pet(&app, &state, &cli, text(&args, 0), arg(&args, 1)),
-            "removePet" => remove_pet(&app, &state, &cli, text(&args, 0)),
-            "play" => play(&app, &state, text(&args, 0), arg(&args, 1).as_str(), &overlay_may),
-            // Pet files.
-            "importFolder" => import_from_folder(&app, &state),
-            "importUrl" => {
-                let root = lock(&state).store.dir.join("pets");
-                let folder = importer::import_from_url(text(&args, 0), &root, &importer::http_fetch)?;
-                let asset = catalog::read_pet(&folder)?;
-                register_asset(&app, &mut lock(&state), asset)
-            }
-            "openFolder" => open_folder(&state, text(&args, 0)),
-            "openExternal" => open_external(text(&args, 0)),
-            // AI connections and chat.
-            "saveProvider" => providers::save(&app, &state, &cli, arg(&args, 0)),
-            "removeProvider" => providers::remove(&app, &state, &cli, text(&args, 0)),
-            "listModels" => providers::list_models(&state, arg(&args, 0)),
-            "chat" => chat::chat(&app, &state, &cli, &args),
-            "chatWith" => chat::chat_with(&app, &state, &cli, &args),
-            "chatter" => chat::chatter(&app, &state, &cli, &args),
-            "setAutoChatter" => set_auto_chatter(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
-            // (on, volume): either may be null to keep it as it is.
-            "setSound" => commit(&app, &state, |d| {
-                let on = arg(&args, 0).as_bool().unwrap_or(d.sound.on);
-                let volume = arg(&args, 1).as_u64().map_or(d.sound.volume, |v| v.min(100) as u8);
-                d.sound = crate::app::Sound { on, volume };
-                Ok(json!(d.sound))
-            }),
-            "setAutostart" => set_autostart(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
-            "findSeed" => commit(&app, &state, |d| d.garden.find().map(Value::from)),
-            "plant" => {
-                let (kind, x, y) = (text(&args, 0), arg(&args, 1).as_f64(), arg(&args, 2).as_f64());
-                let (Some(x), Some(y)) = (x, y) else {
-                    return Err(i18n::t("error.bad_request"));
-                };
-                let now = now_ms();
-                commit(&app, &state, |d| d.garden.plant(kind, x, y, now).map(|p| json!(p)))
-            }
-            "pullPlant" => commit(&app, &state, |d| d.garden.pull(text(&args, 0)).map(|_| Value::Null)),
-            "receiveGift" => {
-                let (x, y) = (float(&args, 0), float(&args, 1));
-                let turn = (now_ms() / 1000) as usize;
-                // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
-                if !crate::pets::has_come(text(&args, 2), now_ms()) {
-                    return Err(i18n::t("error.bad_request"));
-                }
-                commit(&app, &state, |d| {
-                    // A clock set ahead and put right while the app ran left a day still to come.
-                    let latest = crate::pets::latest_day(now_ms());
-                    crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &latest);
-                    d.garden
-                        .gift(x, y, text(&args, 2), turn, arg(&args, 3).as_str())
-                        .map(|d| json!(d))
-                })
-            }
-            "moveDecor" => {
-                let (x, y) = (float(&args, 1), float(&args, 2));
-                commit(&app, &state, |d| {
-                    d.garden.move_decor(text(&args, 0), x, y).map(|_| Value::Null)
-                })
-            }
-            "putAway" => commit(&app, &state, |d| d.garden.put_away(text(&args, 0)).map(|_| Value::Null)),
-            // Something done together with a friend: its bond grows (bond.rs keeps what it is worth).
-            "befriend" => {
-                let now = now_ms();
-                let (pet, reason, day) = (text(&args, 0), text(&args, 1), text(&args, 2));
-                // Time together counts by the clock, not the day; the rest by a day that has come.
-                if reason != "time" && !crate::pets::has_come(day, now) {
-                    return Err(i18n::t("error.bad_request"));
-                }
-                commit(&app, &state, |d| {
-                    require_pet(d, pet)?;
-                    let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
-                    Ok(json!({"points": points, "level": level, "up": up}))
-                })
-            }
-            // A plant the page sees in flower: counted in the album the first time.
-            "bloomed" => {
-                let now = now_ms();
-                let mut d = lock(&state);
-                // Asked again for a plant already counted: nothing changes, nothing is saved.
-                let Some(kind) = d.garden.bloom(text(&args, 0), now)? else {
-                    return Ok(Value::Null);
-                };
-                let entry = d.album.flowered(&kind, now);
-                crate::app::save_and_show(&app, &d)?;
-                Ok(json!({"kind": kind, "entry": entry}))
-            }
-            "catch" => {
-                let now = now_ms();
-                let (kind, id, size) = (text(&args, 0), text(&args, 1), arg(&args, 2).as_f64().unwrap_or(0.0));
-                commit(&app, &state, |d| {
-                    let (entry, first) = d.album.catch(kind, id, size, now)?;
-                    Ok(json!({"entry": entry, "first": first}))
-                })
-            }
-            "getChat" => {
-                let d = lock(&state);
-                let id = text(&args, 0);
-                require_pet(&d, id).map(|_| json!(d.histories.get(id).cloned().unwrap_or_default()))
-            }
-            "clearChat" => chat::clear(&state, &cli, text(&args, 0)),
-            "cancelChat" => {
-                let d = lock(&state);
-                let id = text(&args, 0);
-                require_pet(&d, id).map(|_| {
-                    chat::cancel(&d, &cli, id);
-                    Value::Null
-                })
-            }
-            // Coding agents.
-            "copyConnection" => copy_connection(&app, &state, arg(&args, 0).as_str().unwrap_or("mcp")),
-            "assignAgent" => assign_agent(&app, &state, text(&args, 0), text(&args, 1)),
-            // The desktop and the windows.
-            "toggleDesktop" | "toggleDesktopWander" => {
-                let mut d = lock(&state);
-                crate::app::toggle_flag(&app, &mut d, name == "toggleDesktopWander").map(Value::Bool)
-            }
-            "openChat" => {
-                let id = text(&args, 0);
-                require_pet(&lock(&state), id)?;
-                if !overlay_may(id) {
-                    return Err(i18n::t("error.bad_request"));
-                }
-                window::show(&app);
-                push_event(&app, &json!({"type": "select", "petId": id}));
-                Ok(Value::Null)
-            }
-            "dragStart" => {
-                let id = text(&args, 0);
-                if sender.starts_with("overlay") && overlay_owns(&app, &sender, id) {
-                    let overlay = &app.state::<OverlayHandle>().0;
-                    let cursor = overlay.cursor(&app).unwrap_or((0.0, 0.0));
-                    overlay.drag_start(id, cursor);
-                }
-                Ok(Value::Null)
-            }
-            "dragStop" => {
-                let sink = app.state::<PositionSink>().0.clone();
-                overlay::stop_drag_and_save(&app.state::<OverlayHandle>().0, &app, &sink);
-                Ok(Value::Null)
-            }
-            "windowDrag" | "windowMinimize" | "windowMaximize" | "windowHide" | "windowMini" => {
-                window::command(&app, name.as_str(), &args)
-            }
-            // The app itself.
-            "setLanguage" => set_language(&app, &state, text(&args, 0)),
-            "checkUpdate" => crate::update::check(&app),
-            "installUpdate" => crate::update::install(&app),
-            "quitApp" => {
-                crate::app::quit(&app);
-                Ok(Value::Null)
-            }
-            // The e2e scenario reports through stdout; the command exists in no other run.
-            "e2eLog" if e2e_mode() => {
-                println!("[e2e] {}", text(&args, 0));
-                Ok(Value::Null)
-            }
-            "e2eWindow" if e2e_mode() => window::e2e_window(&app, &args),
-            "e2eTray" if e2e_mode() => Ok(crate::tray::e2e_state()),
-            // A garden with no gifts yet, so the gift checks do not depend on whether the page's
-            // own first gift (a few minutes in) came before them.
-            "e2eFreshGifts" if e2e_mode() => commit(&app, &state, |d| {
-                d.garden.gift_day.clear();
-                d.garden.decor.clear();
-                d.garden.received.clear();
-                Ok(Value::Null)
-            }),
-            _ => Err(i18n::t("error.not_allowed")),
-        }
+    let Some(command) = command(&name) else {
+        return fail(i18n::t("error.not_allowed"));
     };
-    match result() {
+    let ctx = Ctx {
+        app: &app,
+        state: app.state(),
+        cli: app.state::<CliHandle>().0.clone(),
+        sender: &sender,
+        name: &name,
+        args: &args,
+    };
+    match (command.run)(&ctx) {
         Ok(v) => ok(v),
         Err(e) => fail(e),
     }
+}
+
+// Commands with more to them than a line.
+fn receive_gift(c: &Ctx) -> Result<Value, String> {
+    let (x, y) = (c.float(0), c.float(1));
+    let turn = (now_ms() / 1000) as usize;
+    // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
+    if !crate::pets::has_come(c.text(2), now_ms()) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    commit(c.app, &c.state, |d| {
+        // A clock set ahead and put right while the app ran left a day still to come.
+        let latest = crate::pets::latest_day(now_ms());
+        crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &latest);
+        d.garden
+            .gift(x, y, c.text(2), turn, c.arg(3).as_str())
+            .map(|d| json!(d))
+    })
+}
+/// Something done together with a friend: its bond grows (bond.rs keeps what it is worth).
+fn befriend(c: &Ctx) -> Result<Value, String> {
+    let now = now_ms();
+    let (pet, reason, day) = (c.text(0), c.text(1), c.text(2));
+    // Time together counts by the clock, not the day; the rest by a day that has come.
+    if reason != "time" && !crate::pets::has_come(day, now) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    commit(c.app, &c.state, |d| {
+        require_pet(d, pet)?;
+        let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
+        Ok(json!({"points": points, "level": level, "up": up}))
+    })
+}
+/// A plant the page sees in flower: counted in the album the first time.
+fn bloomed(c: &Ctx) -> Result<Value, String> {
+    let now = now_ms();
+    let mut d = lock(&c.state);
+    // Asked again for a plant already counted: nothing changes, nothing is saved.
+    let Some(kind) = d.garden.bloom(c.text(0), now)? else {
+        return Ok(Value::Null);
+    };
+    let entry = d.album.flowered(&kind, now);
+    crate::app::save_and_show(c.app, &d)?;
+    Ok(json!({"kind": kind, "entry": entry}))
 }
 
 /// An overlay window may only act on the friends drawn on its own monitor.
@@ -608,41 +670,42 @@ mod tests {
     }
 
     #[test]
-    fn every_listed_command_has_a_dispatch_arm_and_the_overlay_gets_only_its_own() {
-        let source = include_str!("commands.rs");
-        let start = source.find("fn dispatch(").unwrap();
-        let dispatch = &source[start..start + source[start..].find("\n}\n").unwrap()];
-        let window_arms = include_str!("window.rs");
-        for name in COMMANDS {
-            let quoted = format!("\"{name}\"");
-            assert!(
-                dispatch.contains(&quoted) || window_arms.contains(&quoted),
-                "{name} is listed for the page but nothing handles it"
-            );
-        }
-        // And the other way: every arm that handles a page's command is listed, or the page has
-        // no method to call it with (test-only commands are named only in e2e mode).
-        for line in dispatch.lines() {
-            let arm = line.trim_start();
-            let Some(rest) = arm.strip_prefix('"') else { continue };
-            let Some((name, after)) = rest.split_once('"') else {
-                continue;
-            };
-            if after.trim_start().starts_with("=>") && !name.starts_with("e2e") {
-                assert!(
-                    COMMANDS.contains(&name),
-                    "{name} is handled but not listed for the page"
-                );
-            }
-        }
+    fn each_command_is_named_once_and_each_window_may_ask_only_for_its_own() {
         let mut seen = std::collections::HashSet::new();
-        assert!(COMMANDS.iter().all(|n| seen.insert(n)), "a command is listed twice");
-        assert!(bridge_js().contains("\"bootstrap\",\"addPet\""));
-        for name in OVERLAY_COMMANDS {
-            assert!(COMMANDS.contains(&name) && may_call("overlay0", name));
+        assert!(
+            COMMANDS.iter().all(|c| seen.insert(c.name)),
+            "a command is listed twice"
+        );
+        let bridge = bridge_js();
+        assert!(bridge.contains("\"bootstrap\",\"addPet\""));
+        assert!(
+            !bridge.contains("e2e"),
+            "the e2e scenario's commands are never offered to the page"
+        );
+        let overlay: Vec<&str> = COMMANDS
+            .iter()
+            .filter(|c| c.who == Who::Overlay)
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(overlay, ["bootstrap", "play", "openChat", "dragStart", "dragStop"]);
+        for name in &overlay {
+            assert!(may_call("overlay0", name) && may_call("main", name));
         }
         assert!(may_call("main", "quitApp"));
         assert!(!may_call("overlay1", "quitApp"));
         assert!(!may_call("other", "bootstrap"));
+        assert!(!may_call("main", "nonsense"));
+        assert!(!may_call("main", "e2eLog"), "not outside an e2e run");
+        // Every window command the table sends to window.rs is one window.rs handles.
+        let window_rs = include_str!("window.rs");
+        for name in [
+            "windowDrag",
+            "windowMini",
+            "windowMinimize",
+            "windowMaximize",
+            "windowHide",
+        ] {
+            assert!(command(name).is_some() && window_rs.contains(&format!("\"{name}\" =>")));
+        }
     }
 }

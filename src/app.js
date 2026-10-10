@@ -6,7 +6,7 @@ import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
 import { $, aiming, api, call, data, game, guard, recall, selected, setData, toast, views } from './core/state.js';
 import { plain, spoken } from './core/text.js';
-import { every } from './core/ticker.js';
+import { every, everyMinute } from './core/ticker.js';
 import { setupAlbum } from './panel/album.js';
 import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
@@ -158,9 +158,9 @@ setInterval(() => {
   startChatter().catch(() => {});
 }, AUTO_CHATTER_MS);
 // A finished agent's state fades after a while (core/status.js): the page looks again each minute.
-setInterval(() => {
+everyMinute(() => {
   if (Object.values(data.statuses).some(s => s.at)) render();
-}, 60 * 1000);
+});
 // Speech bubbles from one conversation are spaced out by this much.
 const BUBBLE_GAP = 1200;
 let lastBubbleAt = 0;

@@ -5,6 +5,13 @@
   --paper: #f7f9f8;
   --line: #dfe6e3;
   --accent: #c45237;
+  /* the ink as a shadow or a faint line, by how strong (most box shadows use these) */
+  --ink-8: #213e4314;
+  --ink-12: #213e431f;
+  --ink-15: #213e4326;
+  --ink-20: #213e4333;
+  /* words that warn: an error, sending a friend away */
+  --danger: #a3422c;
   --white: #fff;
   --radius: 22px;
   font-family:

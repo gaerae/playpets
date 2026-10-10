@@ -92,3 +92,13 @@ test('only the entry scripts do anything when imported; every other module only 
     assert.deepEqual(acts, [], `${file} runs code when imported; move it into its setup function`);
   }
 });
+
+// Importing a module runs nothing that needs a page (no window, document or matchMedia at the top
+// level), so every module but the two entry points loads here and its logic can be tested.
+test('every module but the entry points imports without a page', async () => {
+  const entries = new Set(['src/app.js', 'src/overlay/overlay.js']);
+  for (const file of await scripts()) {
+    if (entries.has(file) || file.startsWith('src/core/strings/')) continue;
+    await assert.doesNotReject(import(path.resolve(file)), `${file} needs a page to import`);
+  }
+});

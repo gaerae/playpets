@@ -328,7 +328,7 @@ html:not(.mac) body {
   text-align: center;
   width: max-content;
   max-width: min(520px, calc(100% - 32px));
-  box-shadow: 0 8px 25px #213e4333;
+  box-shadow: 0 8px 25px var(--ink-20);
 }
 /* In the mini view the toast is small and at the top, clear of the care tools at the bottom. */
 body.mini .toast {

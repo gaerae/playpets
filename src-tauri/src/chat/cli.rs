@@ -387,10 +387,7 @@ impl CliManager {
             loop {
                 std::thread::sleep(Duration::from_secs(60));
                 let Some(m) = weak.upgrade() else { break };
-                m.sessions
-                    .lock()
-                    .unwrap()
-                    .retain(|_, s| s.last_used.elapsed() < IDLE_MAX);
+                crate::app::hold(&m.sessions).retain(|_, s| s.last_used.elapsed() < IDLE_MAX);
             }
         });
         m

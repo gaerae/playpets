@@ -6,7 +6,9 @@ import { displayName } from './names.js';
 import { spoken } from './text.js';
 
 export const $ = id => document.getElementById(id);
-export const api = window.playPets;
+// The bridge to the backend (set by the backend before the modules load; absent where there is no
+// page, as in a test, so importing this module never fails).
+export const api = globalThis.playPets;
 export let data = { pets: [], assets: [], providers: [], statuses: {}, busy: [] };
 export let selected = null;
 // What the next click in the yard puts down: false, 'treat' or 'seed'.

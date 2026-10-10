@@ -4,7 +4,7 @@ import { agentsOf } from '../core/agents.js';
 import { lookAt, renewsClock } from '../core/animation.js';
 import { list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
-import { between, clamp, pick } from '../core/math.js';
+import { clamp, pick } from '../core/math.js';
 import { canvas, reduced } from '../core/sprites.js';
 import {
   $,
@@ -24,7 +24,11 @@ import {
 import { agentStateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { EDGE, geometry, measureYard, petHeight, sizeOf } from './field.js';
-import { WANDER_DELAY } from './wander.js';
+import { hint } from './hint.js';
+import { release, rest } from './trips.js';
+
+// The yard's dot is about agent work; see core/status.js.
+const agentState = p => agentStateOf(data, p.id);
 
 // What a press on a friend means is decided above the yard (by a game, or the panel);
 // setupViews hands it in, so the yard needs nothing from those modules.
@@ -72,9 +76,6 @@ export function cheer(v, lines, { as = 'jump', ms = 1100, mark = '✦', say = 30
   if (mark) effect(v, mark);
   bubble(v, pick(list(lines)), say);
 }
-export const rest = v => {
-  v.nextWander = performance.now() + between(Math.random, WANDER_DELAY);
-};
 function fit(v) {
   const size = sizeOf(v.pet);
   v.button.style.width = `${size}px`;
@@ -83,41 +84,6 @@ function fit(v) {
   v.label.style.width = `${size}px`;
   v.body.style.height = `${petHeight(v.pet)}px`;
   place(v);
-}
-// A friend's trip: where it is headed (`v.target`, its place 0 to 1 each way) and `v.trip`, what
-// happens there: { arrive(v, now), cancel(v), save, slow }. While it does something where it stands
-// (fishing), `v.doing` is { end(v) }. Whatever takes a friend (a press, a game, another trip, the
-// friend leaving) lets go of both first, so the owner of a trip or a task always hears it ended.
-/** Sends a friend to `target`: `arrive(v, now)` runs when it gets there and `cancel(v)` if something
- * else takes it first; the place it ends at is kept unless `save` is false; `slow` strolls, and a
- * game gives its own `speed`. */
-export function sendTo(v, target, { arrive, cancel, save = true, slow = false, speed = 0 } = {}) {
-  release(v);
-  v.target = target;
-  v.trip = { arrive, cancel, save, slow };
-  v.speed = speed;
-}
-/** Lets go of whatever a friend was on its way to or doing, telling their owners. */
-export function release(v) {
-  const { trip, doing } = v;
-  v.target = null;
-  v.trip = null;
-  v.doing = null;
-  trip?.cancel?.(v);
-  doing?.end?.(v);
-}
-/** Free to be sent somewhere: not held, not on its way, not in a game, not busy where it stands. */
-export const isFree = v => !v.drag && !v.target && !v.away && !v.doing;
-/** The free friend nearest a point in the yard. */
-export function nearestFree(px, py) {
-  let best = null,
-    bestD = Infinity;
-  for (const v of views.values()) {
-    if (!isFree(v)) continue;
-    const d = Math.hypot(v.px + sizeOf(v.pet) / 2 - px, v.py + petHeight(v.pet) - py);
-    if (d < bestD) [best, bestD] = [v, d];
-  }
-  return best;
 }
 export function place(v) {
   const { w, h, top } = geometry(v.pet);
@@ -227,8 +193,16 @@ function createView(p) {
     doing: null,
     drag: null,
     look: null,
-    nextWander: performance.now() + between(Math.random, WANDER_DELAY),
+    nextWander: 0,
+    // Set by the features that use them: a game (away, speed, frozen, frozenUntil; play.js) and
+    // closeness (bondLevel, the hearts last drawn; bond.js).
+    away: false,
+    speed: 0,
+    frozen: false,
+    frozenUntil: 0,
+    bondLevel: 0,
   };
+  rest(v);
   v.mirror = new MutationObserver(() => mirror(v));
   v.mirror.observe(button, { attributes: true, attributeFilter: ['class'] });
   mirror(v);
@@ -385,39 +359,6 @@ export function syncViews() {
     v.dot.title = state === 'idle' ? '' : labels[state] || '';
     fit(v);
   }
-}
-// The yard's dot and summary are about agent work; see core/status.js.
-const agentState = p => agentStateOf(data, p.id);
-// The one line above the yard that says what is going on, or what a press will do.
-export function hint() {
-  agentSummary();
-  if (game) {
-    $('yard-hint').textContent = game.hint;
-    return;
-  }
-  if (aiming) {
-    $('yard-hint').textContent = t(aiming === 'seed' ? 'hint.plant' : 'hint.treat');
-    return;
-  }
-  // What a click or a drag does, until the first pat; then that the lake can be fished, until it
-  // has been (yard/catch.js). Agent work has its own place.
-  const first = !data.pets.length ? '' : !recall('patted') ? 'hint.pat' : recall('fished') !== '1' ? 'hint.fish' : '';
-  $('yard-hint').textContent = first ? t(first) : '';
-}
-// Agent work beside the friend count: one busy friend is named, several are counted, like a
-// status board.
-function agentSummary() {
-  const states = data.pets.map(agentState);
-  const working = states.filter(s => s === 'working').length;
-  const waiting = states.filter(s => s === 'waiting').length;
-  const busyPet = data.pets.find(p => ['working', 'waiting'].includes(agentState(p)));
-  const text =
-    working + waiting > 1
-      ? t('yard.busy_summary', { working, waiting })
-      : busyPet
-        ? `${name(busyPet)} · ${labels[agentState(busyPet)]}`
-        : '';
-  $('agent-summary').textContent = text ? ` · ${text}` : '';
 }
 // `handlers`: gameTap(view), select(id), openChat(id), patted(id) after a pat, and resized() once
 // the yard changes size.

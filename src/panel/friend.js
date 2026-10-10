@@ -8,6 +8,7 @@ import { drawSprite } from '../core/sprites.js';
 import { $, asset, companions, data, labels, name, pet, selected, setSelected, views } from '../core/state.js';
 import { agentStateOf, stateOf, statusOf } from '../core/status.js';
 import { plain } from '../core/text.js';
+import { progressOf } from '../yard/bond.js';
 import { refreshChat, renderChat } from './chat.js';
 import { openFriendSettings } from './friend-settings.js';
 export function select(id) {
@@ -41,6 +42,7 @@ export function renderPanel() {
   $('friend-chips').replaceChildren(
     ...(agents.length ? [chip(t('friend.agent_chip', { agents: joinList(agents) }), 'agent')] : []),
   );
+  renderCloseness(p);
   renderChat(p);
   // With several friends around, the name becomes a list to switch who you are talking to.
   const many = data.pets.length > 1;
@@ -51,6 +53,16 @@ export function renderPanel() {
     $('friend-select').value = p.id;
   }
   $('instance-id').textContent = t('friend.id', { id: p.id });
+}
+// How close the friend is, under its name, and what the next level brings.
+function renderCloseness(p) {
+  const { level, share, left } = progressOf(p.id);
+  $('bond-row').hidden = false;
+  $('bond-name').textContent = t(`bond.level_${level}`);
+  $('bond-fill').style.width = `${Math.round(share * 100)}%`;
+  $('bond-next').textContent = left
+    ? t('bond.next', { level: t(`bond.level_${level + 1}`), left, unlock: t(`bond.unlock_${level + 1}`) })
+    : t('bond.max');
 }
 export function drawPortrait(now) {
   const p = pet();

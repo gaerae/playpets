@@ -31,3 +31,24 @@ export function every(ms, frame) {
   };
   setTimeout(run, ms);
 }
+
+// What changes by the clock (the clock itself, the scene, a plant's stage, a finished agent's state
+// fading) looks once a minute, on one timer that wakes just after each minute turns.
+const onTheMinute = [];
+/** Calls `fn(new Date())` just after each minute turns, from the first call on. One that throws
+ * does not stop the others. */
+export function everyMinute(fn) {
+  onTheMinute.push(fn);
+  if (onTheMinute.length > 1) return;
+  const wake = () => {
+    const now = new Date();
+    for (const f of onTheMinute)
+      try {
+        f(now);
+      } catch (e) {
+        console.error(e);
+      }
+    setTimeout(wake, 60_000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 50);
+  };
+  setTimeout(wake, 60_000 - (new Date().getSeconds() * 1000 + new Date().getMilliseconds()) + 50);
+}

@@ -11,9 +11,10 @@ import { renderBonds } from './yard/bond.js';
 import { syncChatter } from './yard/care.js';
 import { renderDecor } from './yard/decor.js';
 import { renderGarden } from './yard/garden.js';
+import { hint } from './yard/hint.js';
 import { endGameIfSomeoneLeft, syncGameUi } from './yard/play.js';
 import { renderSound } from './yard/sound.js';
-import { hint, syncViews } from './yard/views.js';
+import { syncViews } from './yard/views.js';
 import { renderWelcome } from './yard/welcome.js';
 export function render() {
   if (!data.pets.some(p => p.id === selected)) setSelected(data.pets[0]?.id || null);

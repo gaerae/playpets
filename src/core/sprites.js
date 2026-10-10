@@ -2,7 +2,8 @@
 import { frameAt, headroom, lookFrame } from './animation.js';
 
 const cache = new Map();
-export const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+// Whether the system asks for less motion (none asked where there is no page, as in a test).
+export const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)') ?? { matches: false };
 // The sheet is asked for with CORS so its pixels may be read (for the headroom under a bubble);
 // should the answer lack the header, a plain load still draws.
 function load(asset, cors) {

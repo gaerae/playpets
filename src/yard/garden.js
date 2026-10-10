@@ -7,7 +7,7 @@ import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, toast, views } from '../core/state.js';
-import { cadence } from '../core/ticker.js';
+import { cadence, everyMinute } from '../core/ticker.js';
 import { artHref, artSize, colorStyle } from './art.js';
 import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
@@ -18,7 +18,8 @@ import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from '
 import { flowerFor, hoursMinutes, nextFind, stageOf, untilBloom } from './growth.js';
 import { askToRemove, propButton, propScale, reconcile, setDown } from './props.js';
 import { cue } from './sound.js';
-import { bubble, cheer, effect, isFree, nearestFree, release, rest, sendTo } from './views.js';
+import { isFree, nearestFree, release, rest, sendTo } from './trips.js';
+import { bubble, cheer, effect } from './views.js';
 import { scene } from './world.js';
 
 // Yard pixels per unit of a plant's drawing at full size; it shrinks with the yard as friends do.
@@ -219,5 +220,5 @@ export function setupGarden() {
     }),
   );
   // Stages change by the clock: a look once a minute is enough.
-  setInterval(() => renderGarden(), 60 * 1000);
+  everyMinute(() => renderGarden());
 }

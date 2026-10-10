@@ -9,7 +9,7 @@
 import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { pick } from '../core/math.js';
-import { $, call, data, name, selected, views } from '../core/state.js';
+import { call, data, name, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { showCard } from './card.js';
 import { heartSvg } from './creatures.js';
@@ -23,8 +23,18 @@ const TIME_EVERY = 10 * 60 * 1000;
 const levels = () => limit(data, 'bondLevels');
 /** A friend's points. */
 const pointsOf = id => data.bonds?.[id]?.points || 0;
+/** How close `points` are on the levels' `steps` (where each level begins): the level, 1 to 5, the
+ * share of the way to the next (1 at the last) and the points left to it (0 at the last). */
+export function bondProgress(points, steps) {
+  const level = steps.filter(at => points >= at).length,
+    from = steps[level - 1],
+    to = steps[level];
+  return { level, share: to ? (points - from) / (to - from) : 1, left: to ? to - points : 0 };
+}
+/** A friend's closeness as it is now (bondProgress). */
+export const progressOf = id => bondProgress(pointsOf(id), levels());
 /** A friend's level, 1 to 5. */
-export const levelOf = id => levels().filter(at => pointsOf(id) >= at).length;
+export const levelOf = id => progressOf(id).level;
 /** A friend's line for a moment (`key`: bond.welcome, bond.up_line, bond.dear), in the voice of who
  * it is to the person: a partner, a senior or a younger sibling has lines of its own (key_relation),
  * a friend the plain ones. */
@@ -91,7 +101,7 @@ export function seen(visible) {
   hiddenAt = 0;
 }
 
-/** Hearts on each friend's name tag, and the Friend panel's friendship row, as the bonds are now. */
+/** Hearts on each friend's name tag as the bonds are now (the Friend panel says it in words, friend.js). */
 export function renderBonds() {
   for (const [id, v] of views) {
     const level = levelOf(id);
@@ -101,23 +111,6 @@ export function renderBonds() {
     v.tagBond.title = t('bond.hearts', { level: t(`bond.level_${level}`) });
     v.button.classList.toggle('dear', level >= 5);
   }
-  const id = selected,
-    row = $('bond-row');
-  if (!id || !data.pets.some(p => p.id === id)) {
-    row.hidden = true;
-    return;
-  }
-  row.hidden = false;
-  const steps = levels(),
-    level = levelOf(id),
-    points = pointsOf(id),
-    from = steps[level - 1],
-    to = steps[level];
-  $('bond-name').textContent = t(`bond.level_${level}`);
-  $('bond-fill').style.width = `${to ? Math.round(((points - from) / (to - from)) * 100) : 100}%`;
-  $('bond-next').textContent = to
-    ? t('bond.next', { level: t(`bond.level_${level + 1}`), left: to - points, unlock: t(`bond.unlock_${level + 1}`) })
-    : t('bond.max');
 }
 /** Starts the welcome after the app opens. Called once, by app.js, once the friends are drawn. */
 export function setupBond() {

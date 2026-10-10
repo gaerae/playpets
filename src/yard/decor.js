@@ -19,7 +19,8 @@ import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from '
 import { giftWait, localDay } from './growth.js';
 import { askToRemove, propButton, propScale, reconcile, setDown } from './props.js';
 import { cue } from './sound.js';
-import { bubble, cheer, effect, isFree, nearestFree, rest, sendTo } from './views.js';
+import { isFree, nearestFree, rest, sendTo } from './trips.js';
+import { bubble, cheer, effect } from './views.js';
 import { scene } from './world.js';
 
 // How many yard pixels a unit of a decoration's drawing takes at full size (its view box is its

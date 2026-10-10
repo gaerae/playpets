@@ -169,7 +169,7 @@ body.mini .pet-tag:hover {
   border-radius: 50%;
   background: #e5ab56;
   border: 2px solid white;
-  box-shadow: 0 1px 3px #213e4333;
+  box-shadow: 0 1px 3px var(--ink-20);
 }
 .pet-state-dot[data-state="working"] {
   animation: dot-pulse 1.4s ease-in-out infinite;
@@ -293,7 +293,7 @@ body.mini .pet-tag:hover {
   border-radius: 12px;
   background: var(--white);
   border: 1px solid var(--line);
-  box-shadow: 0 4px 12px #213e4314;
+  box-shadow: 0 4px 12px var(--ink-8);
   font-size: 11px;
   line-height: 1.45;
   color: var(--ink);
@@ -313,7 +313,7 @@ body.mini .pet-tag:hover {
   border-radius: 12px;
   background: var(--white);
   border: 1px solid var(--line);
-  box-shadow: 0 4px 12px #213e4314;
+  box-shadow: 0 4px 12px var(--ink-8);
   color: var(--muted);
   pointer-events: none;
   z-index: 3;
@@ -376,7 +376,7 @@ body.mini .pet-tag:hover {
 .yard-hint:not(:empty) {
   background: #ffffffe3;
   border-radius: 999px;
-  box-shadow: 0 2px 10px #213e431f;
+  box-shadow: 0 2px 10px var(--ink-12);
 }
 .caption-main {
   padding: 3px 12px 3px 3px;
@@ -387,7 +387,7 @@ body.mini .pet-tag:hover {
   padding: 7px 12px;
   border-radius: 999px;
   background: #ffffffe3;
-  box-shadow: 0 2px 10px #213e431f;
+  box-shadow: 0 2px 10px var(--ink-12);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
@@ -409,7 +409,7 @@ body.mini .pet-tag:hover {
   padding: 3px;
   border-radius: 999px;
   background: #ffffffe3;
-  box-shadow: 0 2px 10px #213e431f;
+  box-shadow: 0 2px 10px var(--ink-12);
 }
 .view-button {
   display: inline-flex;
@@ -565,7 +565,7 @@ body.mini .pet-tag:hover {
   padding: 12px 14px;
   border-radius: 14px;
   background: #fffffff5;
-  box-shadow: 0 10px 28px #213e4333;
+  box-shadow: 0 10px 28px var(--ink-20);
   font-weight: 650;
 }
 .scene-menu[hidden] {
@@ -940,7 +940,7 @@ body.mini .play-toolbar {
   border: 0;
   border-radius: 14px;
   background: #ffffffe6;
-  box-shadow: 0 4px 14px #213e4326;
+  box-shadow: 0 4px 14px var(--ink-15);
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, 6px);
@@ -1004,7 +1004,7 @@ body.mini .unmini {
   /* Always findable, quieter until the pointer is over the yard. */
   opacity: 0.55;
   transition: opacity 0.18s;
-  box-shadow: 0 2px 8px #213e4326;
+  box-shadow: 0 2px 8px var(--ink-15);
 }
 body.mini .yard:hover .unmini,
 body.mini .unmini:focus-visible {
@@ -1224,7 +1224,7 @@ body.mini .yard {
   padding: 10px 22px 11px;
   border-radius: 16px;
   background: #fffffff0;
-  box-shadow: 0 8px 24px #213e4326;
+  box-shadow: 0 8px 24px var(--ink-15);
   color: var(--ink);
   text-align: center;
   width: max-content;
@@ -1345,7 +1345,7 @@ body.mini .game-banner {
   padding: 6px;
   border-radius: 14px;
   background: #fffffff5;
-  box-shadow: 0 10px 28px #213e4333;
+  box-shadow: 0 10px 28px var(--ink-20);
 }
 .games-menu[hidden] {
   display: none;
@@ -1390,7 +1390,8 @@ body.mini .game-banner {
   }
 }
 /* ---- fishing and catching (yard/catch.js): a float on the lake, its line, the card for a catch ---- */
-.yard.can-catch {
+/* the hand over something to catch, unless the next click places something or a game is on */
+.yard.can-catch:not(.aiming, .playing) {
   cursor: pointer;
 }
 .fishing-line {
@@ -1460,7 +1461,7 @@ body.mini .game-banner {
   padding: 10px 18px 10px 12px;
   border-radius: 18px;
   background: #fffffff5;
-  box-shadow: 0 10px 28px #213e4333;
+  box-shadow: 0 10px 28px var(--ink-20);
   transform: translateX(-50%);
   animation: card-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;

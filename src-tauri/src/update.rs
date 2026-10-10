@@ -38,11 +38,7 @@ pub fn found_version(app: &AppHandle) -> Option<String> {
 
 /// Downloads and installs the update found by `check`, then starts the new version.
 pub fn install(app: &AppHandle) -> Result<Value, String> {
-    let update = app
-        .state::<Found>()
-        .0
-        .lock()
-        .unwrap()
+    let update = crate::app::hold(&app.state::<Found>().0)
         .take()
         .ok_or_else(|| i18n::t("update.none"))?;
     // The page shows how much has come down, a step at a time rather than for every chunk.

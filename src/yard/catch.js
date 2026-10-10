@@ -14,9 +14,11 @@ import { showCard } from './card.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
 import { field, footTarget, petHeight, sizeOf } from './field.js';
+import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
 import { cue } from './sound.js';
-import { bubble, cheer, hint, isFree, nearestFree, release, rest, sendTo } from './views.js';
+import { isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
+import { bubble, cheer } from './views.js';
 import { scene, scenery } from './world.js';
 
 // How long a fish takes to bite (ms), and how long the float stays down before it gets away.
@@ -76,7 +78,7 @@ function startFishing(x, friend) {
 // The friend reached the shore it was sent to.
 function fishArrived(v) {
   if (fishing?.v !== v || game) return stopFishing();
-  v.doing = atLake;
+  setDoing(v, atLake);
   bubble(v, pick(list('catch.casting')), 2600);
   const layer = $('garden-layer'),
     float = document.createElement('button'),
