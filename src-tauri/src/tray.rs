@@ -17,6 +17,8 @@ pub struct Snapshot {
     friends: bool,
     desktop: bool,
     wander: bool,
+    /// The yard's sounds are on (the macOS View menu shows it).
+    sound: bool,
     /// A friend whose coding agent needs the person: its state ("waiting" or "error") and name.
     attention: Option<(String, String)>,
 }
@@ -49,6 +51,7 @@ pub fn snapshot(d: &AppData) -> Snapshot {
         friends: !d.pets.is_empty(),
         desktop: d.desktop,
         wander: d.wander,
+        sound: d.sound.on,
         attention,
     }
 }
@@ -87,7 +90,7 @@ fn apply(app: &AppHandle, snap: Snapshot) {
     }
     // The macOS menu bar's View menu has the same switches, so it follows the same state.
     #[cfg(target_os = "macos")]
-    if let Ok(bar) = crate::menu::app_menu(app, snap.friends, snap.desktop, key.1) {
+    if let Ok(bar) = crate::menu::app_menu(app, snap.friends, snap.desktop, key.1, snap.sound) {
         let _ = app.set_menu(bar);
     }
     *shown = Some(key);

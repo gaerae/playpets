@@ -63,6 +63,7 @@ pub const COMMANDS: &[&str] = &[
     "assignAgent",
     "chatter",
     "setAutoChatter",
+    "setSound",
     "setAutostart",
     "findSeed",
     "plant",
@@ -72,6 +73,7 @@ pub const COMMANDS: &[&str] = &[
     "putAway",
     "catch",
     "bloomed",
+    "befriend",
     "checkUpdate",
     "installUpdate",
 ];
@@ -162,6 +164,16 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
             "chatWith" => chat::chat_with(&app, &state, &cli, &args),
             "chatter" => chat::chatter(&app, &state, &cli, &args),
             "setAutoChatter" => set_auto_chatter(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
+            // (on, volume): either may be null to keep it as it is.
+            "setSound" => {
+                let mut d = lock(&state);
+                let on = arg(&args, 0).as_bool().unwrap_or(d.sound.on);
+                let volume = arg(&args, 1).as_u64().map_or(d.sound.volume, |v| v.min(100) as u8);
+                d.sound = crate::app::Sound { on, volume };
+                persist(&d)?;
+                changed(&app, &d);
+                Ok(json!(d.sound))
+            }
             "setAutostart" => set_autostart(&app, &state, arg(&args, 0).as_bool().unwrap_or(false)),
             "findSeed" => garden_change(&app, &state, |g| g.find().map(Value::from)),
             "plant" => {
@@ -191,6 +203,20 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
                 })
             }
             "putAway" => garden_change(&app, &state, |g| g.put_away(text(&args, 0)).map(|_| Value::Null)),
+            // Something done together with a friend: its bond grows (bond.rs keeps what it is worth).
+            "befriend" => {
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|t| t.as_millis() as u64)
+                    .unwrap_or(0);
+                let (pet, reason, day) = (text(&args, 0), text(&args, 1), text(&args, 2));
+                let mut d = lock(&state);
+                require_pet(&d, pet)?;
+                let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
+                persist(&d)?;
+                changed(&app, &d);
+                Ok(json!({"points": points, "level": level, "up": up}))
+            }
             // A plant the page sees in flower: counted in the album the first time.
             "bloomed" => {
                 let now = std::time::SystemTime::now()
@@ -370,6 +396,7 @@ fn remove_pet(app: &AppHandle, state: &State<Shared>, cli: &chat::cli::CliManage
     chat::reset(&mut d, cli, id);
     d.statuses.remove(id);
     d.activity.remove(id);
+    d.bonds.forget(id);
     // An agent that reported to this friend goes back to the first one.
     d.agent_pets.retain(|_, pet| pet != id);
     persist(&d)?;

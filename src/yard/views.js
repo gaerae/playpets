@@ -179,13 +179,17 @@ function createView(p) {
   tag.className = 'pet-tag';
   const talkMark = document.createElement('span'),
     tagName = document.createElement('span'),
+    tagBond = document.createElement('span'),
     agents = document.createElement('small');
   talkMark.className = 'tag-talk';
   talkMark.innerHTML = '<span data-icon="chat"></span>';
   icons(talkMark);
   tagName.className = 'tag-name';
+  // Hearts for how close this friend is (yard/bond.js fills them in; the Friend panel says it in words).
+  tagBond.className = 'tag-bond';
+  tagBond.setAttribute('aria-hidden', 'true');
   agents.hidden = true;
-  tag.append(talkMark, tagName, agents);
+  tag.append(talkMark, tagName, tagBond, agents);
   dot.className = 'pet-state-dot';
   bubble.className = 'yard-bubble';
   bubble.hidden = true;
@@ -199,6 +203,7 @@ function createView(p) {
     canvas: c,
     tag,
     tagName,
+    tagBond,
     agents,
     dot,
     bubble,
@@ -272,6 +277,7 @@ function createView(p) {
         remember('patted', '1');
         hint();
       }
+      on.patted?.(p.id);
       await call('play', 'pet', p.id);
     }
   });
@@ -298,6 +304,7 @@ function createView(p) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         on.select(p.id);
+        on.patted?.(p.id);
         await call('play', 'pet', p.id);
       }
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
@@ -388,7 +395,8 @@ function agentSummary() {
         : '';
   $('agent-summary').textContent = text ? ` · ${text}` : '';
 }
-// `handlers`: gameTap(view), select(id), openChat(id), and resized() once the yard changes size.
+// `handlers`: gameTap(view), select(id), openChat(id), patted(id) after a pat, and resized() once
+// the yard changes size.
 // Called once, by app.js.
 export function setupViews(handlers) {
   on = handlers;

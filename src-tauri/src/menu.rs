@@ -33,6 +33,18 @@ pub fn act(app: &AppHandle, id: &str) {
             // A check item ticks itself when clicked: the menu is built again from what is true.
             crate::tray::rebuild(app);
         }
+        "sound" => {
+            {
+                let state = app.state::<Shared>();
+                let mut d = lock(&state);
+                d.sound.on = !d.sound.on;
+                if let Err(e) = crate::app::persist(&d) {
+                    d.warnings.push(e);
+                }
+                crate::app::changed(app, &d);
+            }
+            crate::tray::rebuild(app);
+        }
         // The page leaves or enters the mini window (it ends a game first, and keeps its place).
         "mini" => {
             open(json!({"type": "mini", "on": !crate::window::is_mini()}));
@@ -51,6 +63,7 @@ pub fn app_menu(
     friends: bool,
     desktop: bool,
     mini: bool,
+    sound: bool,
 ) -> tauri::Result<tauri::menu::Menu<tauri::Wry>> {
     use crate::i18n::t;
     use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem as P, Submenu};
@@ -88,7 +101,7 @@ pub fn app_menu(
             &P::select_all(app, text("menu.select_all").as_deref())?,
         ],
     )?;
-    // View: the panels, and the two ways of showing friends, with the keys a Mac user expects.
+    // View: the panels, the two ways of showing friends and the yard's sounds, with the keys a Mac user expects.
     // The switches have nothing to show without a friend, so they are greyed then, as menu bar
     // items are (the tray leaves them out instead).
     let switch =
@@ -103,6 +116,9 @@ pub fn app_menu(
             &line()?,
             &switch("mini", "tray.mini", "CmdOrCtrl+Shift+M", mini)?,
             &switch("desktop", "tray.desktop", "CmdOrCtrl+Shift+D", desktop)?,
+            &line()?,
+            // The yard's sounds play with or without friends, so this one is never greyed.
+            &CheckMenuItem::with_id(app, "sound", t("menu.sound"), true, sound, Some("CmdOrCtrl+Shift+S"))?,
         ],
     )?;
     let window_menu = Submenu::with_items(

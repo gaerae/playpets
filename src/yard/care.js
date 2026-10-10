@@ -4,8 +4,10 @@ import { t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, guard, selected, setAiming, toast, views } from '../core/state.js';
+import { befriend } from './bond.js';
 import { greetingFor } from './scene.js';
 import { scene } from './sky.js';
+import { cue } from './sound.js';
 import { bubble, effect, FIELD_TOP, footTarget, hint, petHeight, pose, rest, sizeOf } from './views.js';
 import { delay, SCATTER_DELAY } from './wander.js';
 
@@ -13,6 +15,8 @@ let treatTimer,
   treatEaters = 0;
 // Called when a friend reaches the treat.
 export function ate(v, now) {
+  befriend(v.pet.id, 'treat');
+  cue('treat');
   pose(v, 'jump', 1100);
   effect(v, '✦');
   bubble(v, t('care.yum'));

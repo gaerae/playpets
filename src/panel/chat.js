@@ -18,6 +18,7 @@ import {
   toast,
 } from '../core/state.js';
 import { blocks, spoken, waitingLine } from '../core/text.js';
+import { befriend } from '../yard/bond.js';
 import { openConnectionDialog } from './connection.js';
 
 let providerKey = '',
@@ -263,6 +264,8 @@ export function setupChat() {
     try {
       if (group.length) await call('chatWith', [id, ...group], text);
       else await call('chat', id, text);
+      // Talking is time together too, with each friend in the conversation.
+      for (const friend of [id, ...group]) befriend(friend, 'chat');
       temporaryMessages.delete(id);
     } catch (error) {
       temporaryMessages.set(id, { role: 'error', content: error.message });

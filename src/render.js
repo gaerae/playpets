@@ -7,10 +7,12 @@ import { renderPanel } from './panel/friend.js';
 import { renderShelf } from './panel/invite.js';
 import { renderAgentPets, renderDesktopSwitches, renderUpdate } from './panel/settings.js';
 import { isMini, setMini } from './window.js';
+import { renderBonds } from './yard/bond.js';
 import { syncChatter } from './yard/care.js';
 import { renderDecor } from './yard/decor.js';
 import { renderGarden } from './yard/garden.js';
 import { endGameIfSomeoneLeft, syncGameUi } from './yard/play.js';
+import { renderSound } from './yard/sound.js';
 import { hint, syncViews } from './yard/views.js';
 import { renderWelcome } from './yard/welcome.js';
 export function render() {
@@ -36,6 +38,8 @@ export function render() {
   renderGarden();
   renderDecor();
   renderAlbum();
+  renderBonds();
+  renderSound();
   renderShelf();
   $('warnings').hidden = !data.warnings?.length;
   $('warnings').textContent = (data.warnings || []).join('\n');

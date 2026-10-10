@@ -65,6 +65,8 @@ const scenario = `(async()=>{
   let pageError='';window.addEventListener('error',e=>{if(!pageError&&!String(e.message).startsWith('ResizeObserver loop'))pageError=e.message+' @'+(e.filename||'').split('/').pop()+':'+e.lineno;});
   try{
     const boot=await playPets.bootstrap();
+    // The run stays quiet: the yard sounds are on by default (a unit test checks that), so they go off first.
+    const soundDefault=boot.data.sound;await playPets.setSound(false,null);
     await L('assets='+boot.data.assets.length);
     await L('communities='+boot.data.communities.length);
     // The shelf says where each pet file lives: the fixture sits in Codex's pet folder.
@@ -174,6 +176,17 @@ const scenario = `(async()=>{
     const albumOk=document.querySelectorAll('.album-card').length===12&&document.querySelector('[data-count=fish]').textContent.endsWith('/12')&&document.querySelectorAll('.album-card:not(.unknown)').length===1&&(await playPets.bootstrap()).data.album.fish.carp.best===41.5&&tooBig.ok===false;
     $('album-dialog').close();
     await L('album='+(albumOk?'kept-and-shown':'err:'+JSON.stringify((await playPets.bootstrap()).data.album)));
+    // Friendship: the backend decides what a thing is worth and caps a day; hearts show on the name tag.
+    const fid=(await playPets.bootstrap()).data.pets[0].id,p0=(await playPets.bootstrap()).data.bonds?.[fid]?.points||0,bribe=await playPets.befriend(fid,'bribe','2031-01-02');
+    let rose=0;for(const day of ['2031-01-02','2031-01-03'])for(let k=0;k<12;k++)rose+=(await playPets.befriend(fid,'gift',day)).data.up?1:0;
+    const hearts=await until(()=>document.querySelector('.tag-bond')?.textContent==='♥');
+    await L('friendship='+((await playPets.bootstrap()).data.bonds[fid].points-p0)+'/'+rose+'/'+(hearts?'hearts':'none')+'/'+(bribe.ok===false?'refused':'taken'));
+    // Yard sounds: on by default; the chip turns them off and on, the volume is kept and held to 0–100.
+    // The settings change while the yard stays quiet: the volume goes to 0 before the chip turns it on.
+    await playPets.setSound(null,300);const held=(await playPets.bootstrap()).data.sound.volume;await playPets.setSound(null,0);
+    $('sound-button').click();const soundOn=await until(async()=>(await playPets.bootstrap()).data.sound.on===true&&$('sound-button').getAttribute('aria-pressed')==='true'&&$('sound-on').checked);
+    $('sound-button').click();const soundOff=await until(async()=>(await playPets.bootstrap()).data.sound.on===false&&$('sound-button').getAttribute('aria-pressed')==='false');
+    await L('sound='+(soundDefault.on&&soundDefault.volume===40&&held===100&&soundOn&&soundOff?'off-on-held':'err:'+JSON.stringify([soundDefault,held,soundOn,soundOff])));
     await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-shade')!==''?'set':'err:'+$('yard').className));
     document.querySelector('[data-game=hide]').click();
     // Friends only walk while the window is drawn. Behind other windows (or with the screen off)
@@ -182,7 +195,7 @@ const scenario = `(async()=>{
     else{
       await until(()=>document.querySelectorAll('.yard-pet.hiding').length>=2,8000);const hiding=document.querySelectorAll('.yard-pet.hiding').length;
       // The game names a friend: someone else is a miss and stays hidden, the named one is found.
-      const asked=()=>$('banner-label').textContent===${say('hide.find_label')}?$('banner-title').textContent:null,byName=n=>[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b.querySelector('.pet-tag').textContent===n);
+      const asked=()=>$('banner-label').textContent===${say('hide.find_label')}?$('banner-title').textContent:null,byName=n=>[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b.querySelector('.tag-name').textContent===n);
       const first=asked(),other=[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b!==byName(first));
       press(other);await wait(200);
       const miss=document.querySelectorAll('.yard-pet.hiding').length===2&&!$('game-banner').hidden&&$('banner-sub').textContent.includes(${say('hide.miss')})&&asked()===first;
@@ -450,6 +463,14 @@ const expect = [
   [
     /^album=kept-and-shown$/,
     'a catch is kept in the album (count, biggest fish), nonsense is refused, and the album shows it',
+  ],
+  [
+    /^friendship=80\/1\/hearts\/refused$/,
+    'friendship: a day brings so much and no more, a level up shows hearts, nonsense is refused',
+  ],
+  [
+    /^sound=off-on-held$/,
+    'yard sounds are on by default, the chip turns them off and on, and the volume is held to 0–100',
   ],
   [/^gift=bench-once-moved-away$/, 'a gift comes once a day, is dragged to a new place that is kept, and is put away'],
   [/^reach=mini-to-chat\/layered$/, 'chat from the small window returns to full size; nearer friends are drawn on top'],

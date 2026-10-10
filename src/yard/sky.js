@@ -1,10 +1,11 @@
 // Scenery: time of day and weather each follow the clock and the sky unless the person picks one.
 // Left alone, friends also remark on it, so the yard is worth leaving open.
 
-import { language } from '../core/i18n.js';
+import { language, list } from '../core/i18n.js';
 import { pick, shuffle } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, data, game, recall, remember, views } from '../core/state.js';
+import { levelOf } from './bond.js';
 import { createEasel } from './easel.js';
 import {
   autoWeather,
@@ -22,6 +23,7 @@ import {
   WEATHERS,
 } from './scene.js';
 import { createScenery } from './scenery.js';
+import { soundScene } from './sound.js';
 import { bubble } from './views.js';
 import { delay } from './wander.js';
 // The weather canvas, made by setupSky once the page is there.
@@ -56,6 +58,7 @@ export function paintScene() {
   $('scene-caption').textContent = sceneCaption(scene.period, scene.weather);
   scenery.set(scene.period, scene.weather, scene.season);
   easel.set(scene);
+  soundScene(scene);
   return before !== scene.weather;
 }
 // The season's colours, set on the yard as custom properties (scene.js SEASON_COLORS).
@@ -109,7 +112,11 @@ export function idleChatter(now) {
   const quiet = [...views.values()].filter(
     v => v.bubble.hidden && !v.drag && (data.statuses[v.pet.id]?.state || 'idle') === 'idle',
   );
-  if (quiet.length) bubble(pick(quiet), chatterFor(scene.period, scene.weather, Math.random), 3500);
+  if (!quiet.length) return;
+  const v = pick(quiet);
+  // The closest friends (level 5, bond.js) now and then say something to the person instead.
+  const dear = levelOf(v.pet.id) >= 5 && Math.random() < 0.35;
+  bubble(v, dear ? pick(list('bond.dear')) : chatterFor(scene.period, scene.weather, Math.random), 3500);
 }
 // The clock at the top right: the time and the date in the app's language, changed on the minute.
 const clockTime = new Intl.DateTimeFormat(language(), { hour: 'numeric', minute: '2-digit' }),

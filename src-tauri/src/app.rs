@@ -3,7 +3,7 @@
 use crate::agent;
 use crate::chat::{self, http, providers};
 use crate::desktop::overlay;
-use crate::pets::{album, builtin, catalog, garden, importer, model};
+use crate::pets::{album, bond, builtin, catalog, garden, importer, model};
 use crate::window;
 use crate::{i18n, store};
 use serde_json::{Map, Value, json};
@@ -13,11 +13,30 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use tauri::{AppHandle, Manager};
 
+/// The yard's sounds: on or off, and how loud (0 to 100). On by default, and quiet.
+#[derive(serde::Serialize, serde::Deserialize, Clone, Copy, Debug, PartialEq)]
+pub struct Sound {
+    pub on: bool,
+    pub volume: u8,
+}
+impl Default for Sound {
+    fn default() -> Self {
+        Sound { on: true, volume: 40 }
+    }
+}
+impl Sound {
+    fn restore(raw: Option<&Value>) -> Sound {
+        raw.and_then(|v| serde_json::from_value::<Sound>(v.clone()).ok())
+            .map(|s| Sound { volume: s.volume.min(100), ..s })
+            .unwrap_or_default()
+    }
+}
+
 /// The shape of state.json this app writes. Read from a newer app's file, the known fields are
 /// used, the unknown ones are carried along unchanged, and a copy of the file is kept first.
 pub const SCHEMA: u64 = 1;
 /// The top-level keys this app writes to state.json; anything else in the file is `extra`.
-const KNOWN_KEYS: [&str; 13] = [
+const KNOWN_KEYS: [&str; 15] = [
     "schema",
     "pets",
     "desktop",
@@ -31,10 +50,12 @@ const KNOWN_KEYS: [&str; 13] = [
     "miniRect",
     "garden",
     "album",
+    "bonds",
+    "sound",
 ];
 
 /// Everything the app knows. Saved to state.json: pets, desktop, wander, language, imports,
-/// providers (with the parked ones), agent_pets, auto_chatter, secret_ids, mini_rect, garden, album and extra. The rest
+/// providers (with the parked ones), agent_pets, auto_chatter, sound, secret_ids, mini_rect, garden, album, bonds and extra. The rest
 /// lasts until the app quits.
 pub struct AppData {
     pub store: store::Store,
@@ -55,6 +76,8 @@ pub struct AppData {
     pub agent_pets: HashMap<String, String>,
     /// The friends talk among themselves every so often (the page keeps the timer).
     pub auto_chatter: bool,
+    /// The yard's sounds (the page plays them; src/yard/sound.js).
+    pub sound: Sound,
     /// Where the mini window was last left (window.rs), so it opens there again.
     pub mini_rect: Option<window::Rect>,
     /// Whether the app starts at login, as the system said at start (not saved: the system keeps it).
@@ -62,6 +85,7 @@ pub struct AppData {
     /// Seeds friends found and the plants grown from them.
     pub garden: garden::Garden,
     pub album: album::Album,
+    pub bonds: bond::Bonds,
     pub providers: Vec<Value>,
     /// Connections this app could not read (a kind from a newer app, say): never shown, written back
     /// as they were so a later app finds them again.
@@ -147,11 +171,13 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "language": d.language.code(),
         "agentPets": d.agent_pets,
         "autoChatter": d.auto_chatter,
+        "sound": d.sound,
         "autostart": d.autostart,
         "petLimit": model::LIMIT,
-        "limits": {"persona": model::PERSONA_MAX, "seeds": garden::SEED_MAX, "plants": garden::PLANT_MAX, "decor": garden::DECOR_MAX},
+        "limits": {"persona": model::PERSONA_MAX, "seeds": garden::SEED_MAX, "plants": garden::PLANT_MAX, "decor": garden::DECOR_MAX, "bondLevels": bond::LEVELS},
         "garden": d.garden,
         "album": d.album,
+        "bonds": d.bonds,
         "defaults": {"ollamaEndpoint": http::OLLAMA_DEFAULT},
         "agents": agent::kinds::agents_json(),
         "version": app.package_info().version.to_string(),
@@ -245,9 +271,11 @@ pub fn persist(d: &AppData) -> Result<(), String> {
         "providers": d.providers.iter().chain(&d.parked_providers).collect::<Vec<_>>(),
         "agentPets": d.agent_pets,
         "autoChatter": d.auto_chatter,
+        "sound": d.sound,
         "secretIds": d.secret_ids.iter().collect::<Vec<_>>(),
         "garden": d.garden,
         "album": d.album,
+        "bonds": d.bonds,
     });
     if let Some((x, y, width, height)) = d.mini_rect {
         state["miniRect"] = json!({"x": x, "y": y, "width": width, "height": height});
@@ -496,6 +524,8 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         }
     }
 
+    // A friend that is no longer there takes its bond with it.
+    let bonds = bond::Bonds::restore(raw.get("bonds"), &pets.iter().map(|p| p.id.clone()).collect::<Vec<_>>());
     Ok(AppData {
         store,
         codex_pets: root,
@@ -509,10 +539,12 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         imports,
         agent_pets,
         auto_chatter: raw.get("autoChatter").and_then(|v| v.as_bool()).unwrap_or(false),
+        sound: Sound::restore(raw.get("sound")),
         mini_rect: raw.get("miniRect").and_then(window::rect_of),
         autostart: false,
         garden: garden::Garden::restore(raw.get("garden")),
         album: album::Album::restore(raw.get("album")),
+        bonds,
         providers,
         parked_providers: parked,
         extra: extras(&raw),
@@ -543,6 +575,16 @@ mod tests {
         );
         assert!(extras(&json!("not an object")).is_empty());
         assert!(KNOWN_KEYS.contains(&"secretIds"));
+    }
+
+    #[test]
+    fn the_yard_sounds_start_on_and_quiet_and_a_saved_volume_is_held_to_100() {
+        assert_eq!(Sound::restore(None), Sound { on: true, volume: 40 });
+        assert_eq!(
+            Sound::restore(Some(&json!({"on": false, "volume": 250}))),
+            Sound { on: false, volume: 100 }
+        );
+        assert_eq!(Sound::restore(Some(&json!("loud"))), Sound::default());
     }
 
     #[test]

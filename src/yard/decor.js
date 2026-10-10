@@ -9,10 +9,12 @@ import { confirmAction } from '../core/confirm.js';
 import { list, t } from '../core/i18n.js';
 import { clamp, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, name, views } from '../core/state.js';
+import { befriend } from './bond.js';
 import { showCard } from './card.js';
 import { GIFTS } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { giftWait, localDay } from './growth.js';
+import { cue } from './sound.js';
 import {
   bubble,
   effect,
@@ -217,6 +219,8 @@ export function giftTick(now) {
     .then(d => {
       fresh.add(d.id);
       renderDecor();
+      befriend(v.pet.id, 'gift');
+      cue('gift');
       effect(v, '✦');
       const gift = GIFTS.find(g => g.id === d.kind);
       if (gift)

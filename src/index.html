@@ -38,7 +38,7 @@
         <section class="stage">
           <div class="yard-frame">
             <div class="yard-caption">
-              <span class="caption-main"><button id="scene-button" type="button" class="scene-button" aria-expanded="false" aria-controls="scene-menu" data-i18n-title="scene.title"><i id="sky-dot" class="sun-dot"></i><span id="scene-caption" data-i18n="caption.clear.day"></span><span class="scene-chevron" data-icon="chevron"></span></button><span id="pet-count" class="caption-count"></span><span id="agent-summary" class="caption-agents" aria-live="polite"></span></span><span id="yard-hint" aria-live="polite" data-i18n="hint.pat"></span><span id="yard-clock" class="yard-clock"></span>
+              <span class="caption-main"><button id="scene-button" type="button" class="scene-button" aria-expanded="false" aria-controls="scene-menu" data-i18n-title="scene.title"><i id="sky-dot" class="sun-dot"></i><span id="scene-caption" data-i18n="caption.clear.day"></span><span class="scene-chevron" data-icon="chevron"></span></button><span id="pet-count" class="caption-count"></span><span id="agent-summary" class="caption-agents" aria-live="polite"></span></span><span id="yard-hint" aria-live="polite" data-i18n="hint.pat"></span><span class="caption-end"><button id="sound-button" type="button" class="sound-chip" aria-pressed="true" data-i18n-aria-label="sound.label"><span data-icon="sound"></span></button><span id="yard-clock" class="yard-clock"></span></span>
               <div id="scene-menu" class="scene-menu" role="group" data-i18n-aria-label="scene.title" hidden>
                 <label for="period" data-i18n="period.label"></label>
                 <select id="period" class="weather-select" data-i18n-title="period.title"><option value="auto" data-i18n="period.auto"></option><option value="morning" data-i18n="period.morning"></option><option value="day" data-i18n="period.day"></option><option value="evening" data-i18n="period.evening"></option><option value="night" data-i18n="period.night"></option></select>
@@ -135,6 +135,10 @@
                   <select id="friend-select" class="friend-select" data-i18n-title="friend.switch" hidden></select><span id="status" class="status-pill" data-i18n="status.idle"></span>
                 </div>
               </div>
+              <div id="bond-row" class="bond-row" data-i18n-title="bond.how" hidden>
+                <span class="bond-level"><span data-icon="heart"></span><strong id="bond-name"></strong></span><span class="bond-bar" aria-hidden="true"><i id="bond-fill"></i></span>
+                <small id="bond-next"></small>
+              </div>
               <div class="friend-actions" role="group" data-i18n-aria-label="friend.actions">
                 <button id="edit-pet" class="button chip" data-i18n-title="friend.settings_title"><span data-icon="pencil"></span><span data-i18n="friend.edit"></span></button>
                 <span class="friend-actions-end">
@@ -197,6 +201,8 @@
             <section class="settings-section" aria-labelledby="yard-settings-title">
               <h3 id="yard-settings-title" data-i18n="settings.yard"></h3>
               <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-chatter"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_chatter"></span><small data-i18n="settings.auto_chatter_note"></small></span></label>
+              <label class="wander-toggle auto-chatter with-volume"><input type="checkbox" id="sound-on"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.sound"></span><small data-i18n="settings.sound_note"></small></span></label>
+              <label class="volume-row"><span data-i18n="settings.volume"></span><input type="range" id="sound-volume" min="0" max="100" step="5"></label>
             </section>
             <section class="settings-section" aria-labelledby="agent-link-title">
               <h3 id="agent-link-title" data-i18n="settings.agents"></h3>

@@ -17,13 +17,15 @@ import { checkForUpdates, setupSettings, showSection, updateFound, updateProgres
 import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { render } from './render.js';
 import { isMini, setMini, setupWindow } from './window.js';
+import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
 import { react, setupCare, startChatter } from './yard/care.js';
-import { setupCatch } from './yard/catch.js';
+import { setupCatch, soloFishing } from './yard/catch.js';
 import { giftTick, renderDecor } from './yard/decor.js';
 import { gardenTick, renderGarden, setupGarden } from './yard/garden.js';
 import { moveFriends } from './yard/motion.js';
 import { gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter, scene, scenery, setupSky } from './yard/sky.js';
+import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { bubble, setupViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
 
@@ -91,6 +93,10 @@ document.addEventListener('keydown', e => {
 setupSky();
 setupViews({
   gameTap,
+  patted: id => {
+    befriend(id, 'pat');
+    cue('pat');
+  },
   select,
   openChat,
   resized: () => {
@@ -104,6 +110,7 @@ setupCare();
 setupGarden();
 setupCatch();
 setupAlbum();
+setupSound();
 setupFriend();
 setupChat();
 setupConnection({
@@ -178,6 +185,8 @@ api.onEvent(event => {
   if (event.type === 'play') react(event);
   if (event.type === 'window') {
     shown = event.shown;
+    seen(shown);
+    soundSeen(shown);
     // CSS animations (the clouds) rest too; see base.css.
     document.documentElement.toggleAttribute('data-unseen', !shown);
   }
@@ -211,6 +220,8 @@ function animate(now) {
     idleChatter(now);
     gardenTick(now);
     giftTick(now);
+    bondTick(now);
+    soloFishing(now);
   }
   scenery.frame(now, dt);
   // The panel's own pictures move only while they can be seen (the mini view hides the panel).
@@ -228,6 +239,7 @@ try {
   // A first start opens on the yard alone: its card shows the starter pets.
   openPanel(PANELS.includes(saved) ? saved : null);
   render();
+  setupBond();
   if (recall('mini') && data.pets.length) await setMini(true);
   refreshChat();
   last = performance.now();

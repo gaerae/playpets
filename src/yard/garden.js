@@ -7,11 +7,13 @@ import { confirmAction } from '../core/confirm.js';
 import { list, t } from '../core/i18n.js';
 import { clamp, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, toast, views } from '../core/state.js';
+import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
 import { flowerSvg } from './creatures.js';
 import { flowerFor, hoursMinutes, nextFind, stageOf, untilBloom } from './growth.js';
 import { scene } from './sky.js';
+import { cue } from './sound.js';
 import {
   bubble,
   effect,
@@ -144,6 +146,8 @@ function water(id) {
 }
 /** Called by the frame loop when a friend reaches the plant it was sent to water. */
 export function watered(v) {
+  befriend(v.pet.id, 'water');
+  cue('water');
   pose(v, 'wave', 1300);
   effect(v, '✦');
   bubble(v, pick(list('garden.water')), 3000);
@@ -197,13 +201,16 @@ export function gardenTick(now) {
     nextFindAt = now + RETRY_MS;
     return;
   }
-  nextFindAt = now + nextFind(Math.random);
-  const v = pick(free);
+  // A best friend (level 4) finds seeds more often, and is the one who finds them when it can.
+  const keen = free.filter(f => levelOf(f.pet.id) >= 4);
+  nextFindAt = now + nextFind(Math.random) * (keen.length ? 0.6 : 1);
+  const v = pick(keen.length ? keen : free);
   // It stops where it found it, so the seed lies at its feet.
   v.target = null;
   v.targetKind = null;
   rest(v);
   pose(v, 'jump', 1100);
+  cue('find');
   bubble(v, pick(list('garden.found')), 3500);
   const node = document.createElement('button');
   node.type = 'button';

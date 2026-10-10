@@ -153,6 +153,11 @@ function firefly(look, unknown) {
   }<ellipse cx="30" cy="34" rx="5" ry="6" fill="${unknown ? SHADOW : hex(look.glow)}"/><ellipse cx="30" cy="24" rx="7" ry="10" fill="${body}"/><circle cx="30" cy="14" r="4" fill="${unknown ? SHADOW : '#d9573f'}"/><path d="M28 11q-3-5-6-6M32 11q3-5 6-6" fill="none" stroke="${body}" stroke-width="1.1" stroke-linecap="round"/>`;
 }
 
+/** A heart with a friendship level in it, for the card that says two friends grew closer. */
+export function heartSvg(level) {
+  return `<svg viewBox="0 0 60 50" aria-hidden="true"><path d="M30 44C14 33 6 25 6 16 6 9 11 5 17 5c5 0 9 3 13 8 4-5 8-8 13-8 6 0 11 4 11 11 0 9-8 17-24 28Z" fill="#f08aa0" stroke="#c9576f" stroke-width="2"/><path d="M14 13c2-3 5-4 8-3" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".7"/><text x="30" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">${level}</text></svg>`;
+}
+
 /** A flower in bloom, from the garden's own drawing (index.html, coloured by scenery and yard.css). */
 export function flowerSvg(kind, unknown = false) {
   return `<svg viewBox="0 0 40 60" data-flower="${kind}"${unknown ? ' class="unknown-art"' : ''} aria-hidden="true"><use href="#plant-bloom-${kind}"/></svg>`;

@@ -65,6 +65,21 @@ Once a day a friend brings a gift for the yard, after the yard has been open for
 - A card shows what was caught, and says so when it is new.
 - **Album** in the tools has four books, Flowers, Fish, Bugs and Gifts, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
 
+## Friendship <Since v="0.1.0" />
+
+Each friend grows closer to you through time in the yard and what you do together. Hearts on its name tag show how close it is, and the Friend tab shows its level, how far it is to the next and what the next one brings.
+
+| Level | What it brings |
+|---|---|
+| New friend | |
+| Friend | It welcomes you when the app opens and when you come back after a while |
+| Good friend | It goes fishing on its own now and then |
+| Best friend | It finds seeds more often |
+| Dearest friend | A flower on its name tag, and now and then it says something just for you |
+
+- Time together counts every ten minutes the yard is seen. Patting, treats, chatting, watering, catching and gifts count too, up to a day's worth, so a few minutes of clicking cannot rush it: closeness comes over days.
+- Nothing is ever lost by being away. Friendship is saved as `bonds` in `state.json`.
+
 ## Games <Since v="0.1.0" />
 
 The tools float at the bottom of the yard. **Games** there opens a small menu with three games. You can play only one game at a time; while a game is on, the same button reads **End …** and ends it, and Treat is disabled for a moment. When a game ends, the friends walk back to where they were.

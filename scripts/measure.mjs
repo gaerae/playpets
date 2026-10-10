@@ -1,8 +1,9 @@
-// CPU of the app in five states, on this machine: npm run measure (macOS and Linux).
+// CPU of the app in six states, on this machine: npm run measure (macOS and Linux).
 // Runs the release binary with a throwaway data folder and three copies of the test pet, holds
 // each state 30 s and measures seconds 4 to 16 of it (the first seconds settle a change), summing
 // the app process and the WebKit processes it started. Numbers are % of one core.
-//   yard+desktop strolling | yard+desktop still | desktop only | all hidden | yard only
+//   yard+desktop strolling | yard+desktop still | desktop only | all hidden | yard only |
+//   yard only with its sounds playing
 // Compare numbers from the same machine only; docs/standards/performance.md lists the last ones.
 
 import { execSync, spawn } from 'node:child_process';
@@ -29,6 +30,7 @@ const PHASES = {
   P3: 'desktop only (yard hidden)',
   P4: 'all hidden',
   P5: 'yard only',
+  P6: 'yard only, sounds playing',
 };
 const scenario = `(async()=>{const P=window.playPets;const log=m=>window.__TAURI__.core.invoke('call',{name:'e2eLog',args:[m]});
 const w=ms=>new Promise(r=>setTimeout(r,ms));
@@ -38,6 +40,8 @@ await w(${HOLD}*1000);await P.toggleDesktopWander();log('P2');
 await w(${HOLD}*1000);await P.windowHide();log('P3');
 await w(${HOLD}*1000);await P.toggleDesktop();log('P4');
 await w(${HOLD}*1000);await P.openChat((await P.bootstrap()).data.pets[0].id);log('P5');
+await w(${HOLD}*1000);await P.setSound(true,40);document.dispatchEvent(new PointerEvent('pointerdown'));
+const a=new AudioContext();await a.resume().catch(()=>{});log('audio:'+a.state);a.close();log('P6');
 await w(${HOLD}*1000);log('END');})()`;
 
 // CPU seconds so far of every process, from ps.
@@ -64,6 +68,10 @@ child.stdout.on('data', chunk => {
   for (const line of chunk.toString().split('\n')) {
     const phase = line.match(/^\[e2e\] (\S+)/)?.[1];
     if (!phase) continue;
+    if (!PHASES[phase] && phase !== 'END') {
+      console.log(phase);
+      continue;
+    }
     if (phase === 'END') {
       child.kill('SIGTERM');
       continue;
@@ -83,7 +91,7 @@ child.stdout.on('data', chunk => {
   }
 });
 child.on('exit', () => {
-  if (results.length < 5) console.error('The run ended early; see the output above.');
-  process.exit(results.length === 5 ? 0 : 1);
+  if (results.length < 6) console.error('The run ended early; see the output above.');
+  process.exit(results.length === 6 ? 0 : 1);
 });
-setTimeout(() => child.kill('SIGTERM'), (10 + 5 * HOLD + 20) * 1000);
+setTimeout(() => child.kill('SIGTERM'), (10 + 6 * HOLD + 20) * 1000);

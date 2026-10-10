@@ -404,6 +404,30 @@
   line-height: 1.45;
   white-space: normal;
 }
+/* The yard sounds' volume, under their switch, in the same card. */
+.auto-chatter.with-volume {
+  margin-bottom: 0;
+  border-radius: 12px 12px 0 0;
+}
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 2px 12px 12px 53px;
+  border-radius: 0 0 12px 12px;
+  background: var(--paper);
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.volume-row input {
+  flex: 1;
+  accent-color: var(--accent);
+}
+.volume-row input:disabled {
+  opacity: 0.45;
+}
 .button.quit {
   font-size: 12px;
   min-height: 34px;
@@ -1134,4 +1158,50 @@ details.companions .companion-chips {
     flex: none;
     margin-top: 0;
   }
+}
+
+/* ---- friendship in the Friend panel: the level, a bar to the next, and what the next opens ---- */
+.bond-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 2px 0 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #fdf1f3;
+}
+.bond-row[hidden] {
+  display: none;
+}
+.bond-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #b2475f;
+}
+.bond-level svg {
+  width: 14px;
+  height: 14px;
+  fill: #f08aa0;
+  stroke: #c9576f;
+}
+.bond-bar {
+  height: 7px;
+  border-radius: 99px;
+  background: #f6d6dd;
+  overflow: hidden;
+}
+.bond-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: #ec7d96;
+  transition: width 0.6s;
+}
+.bond-row small {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: #8c5a66;
 }

@@ -18,19 +18,21 @@ Not covered: code that runs only when a person clicks once (importing, saving se
 - Do not draw when the window is not visible. Loops return right away when `document.hidden` is set or when the backend reports the window hidden (the `window` event, `<html data-unseen>`), and `data-unseen` stops CSS animations.
 - The overlay thread does not ask the runtime for monitors on every tick (it uses the cache). When nobody is walking, nothing is being dragged, and the cursor is not within 300px of a friend, it rests at 120ms intervals.
 - Frequent changes that are fine to lose (where a friend stopped walking) are batched and saved with `persist_soon`. Other changes are saved right away with `persist`.
+- The yard's sounds (`src/yard/sound.js`) play only while they are on and the yard can be seen; otherwise the audio context is suspended and their timers are cleared. Their beds loop and drift inside the audio graph; the page wakes only for scheduled events (a gust, a wave, a call), never on a fast timer.
 - Do not hold on to resources that decode large (sprite sheets, about 14MB each) for every pet. One minute after the Invite tab closes, the yard releases sheets it does not use.
 
 The most recent measurements. Each value is the CPU of the app process plus the WebKit process, as a percentage of one core.
 
 | State | CPU |
 |---|---|
-| Yard + desktop, walking | 11.0% |
-| Yard + desktop, still | 12.0% |
+| Yard + desktop, walking | 7.5% |
+| Yard + desktop, still | 8.7% |
 | Desktop only (yard hidden) | 2.7% |
 | All hidden | 0.2% |
 | Yard only | 6.1% |
+| Yard only, sounds playing | 8.6% |
 
-Source: measured 2026-10-09, Apple M2 Pro, macOS 26.6.2, `npm run measure` (3 test pets, each state held for 30 seconds and measured from second 4 to second 16), after the yard's scenery became two still paintings in place of many SVG shapes. Compare only values from the same machine.
+Source: measured 2026-10-10, Apple M2 Pro, macOS 26.6.2, `npm run measure` (3 test pets, each state held for 30 seconds and measured from second 4 to second 16), after the yard's sounds were added. Most of the extra cost is WebKit's audio output itself. Compare only values from the same machine.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
@@ -52,3 +54,4 @@ There are no automated checks. `npm run measure` is a measurement a person runs 
 ## Change history
 - 2026-10-01 First version — measurements are from the first run of `npm run measure`
 - 2026-10-09 The painted backdrop is painted only when the light or the size changes; new measurements
+- 2026-10-10 The yard's sounds: they play only while on and seen; a measured state with them playing

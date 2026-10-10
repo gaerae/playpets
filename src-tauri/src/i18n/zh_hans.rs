@@ -16,6 +16,7 @@ const TABLE: &[(&str, &str)] = &[
     ("tray.wander", "在桌面上散步"),
     ("tray.update", "检查更新…"),
     ("tray.mini", "小窗口"),
+    ("menu.sound", "乐园声音"),
     ("tray.state_waiting", "在等你"),
     ("tray.state_error", "遇到了问题"),
     ("tray.quit", "退出"),

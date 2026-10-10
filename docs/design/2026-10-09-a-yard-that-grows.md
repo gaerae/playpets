@@ -16,8 +16,7 @@ Goal: a slow, calm loop that makes each yard different and gives a reason to loo
 5. **Gifts**: once a day a friend brings a decoration and sets it down; the person arranges the yard with them.
 6. **Catch**: friends fish at the lake and leap for bugs.
 7. **Album**: one place for all of it, in four books (flowers, fish, bugs, gifts), so the garden, the gifts and the catches are one collection that grows with the year.
-
-Later pieces, each its own change: friendship that deepens with time together.
+8. **Friendship**: each friend grows closer through time in the yard and everything above done together, and each level changes what the friend does.
 
 ## Rules (first piece: the garden)
 
@@ -58,6 +57,19 @@ Interactive things (friends, plants, decorations) are drawn in flat colour with 
 
 The page owns the catalogue (`src/yard/catalog.js`) and decides what was caught; the backend keeps the album (`state.json` key `album`, `src-tauri/src/pets/album.rs`) and refuses what could not be a catch (an unknown shape of name, a fish longer than 3 m). Drawings come from each kind's description (`src/yard/creatures.js`), in the same flat colours as the decorations.
 
+## Rules (fourth piece: friendship)
+
+| Rule | Value | Why |
+|---|---|---|
+| Time together | 2 points every ten minutes the yard is seen, per friend in it (the backend counts it at most every 9 minutes) | keeping the app open is the main way to grow close, which is what the app is for |
+| Things done together | pat 1, treat 2, chat 2, water 3, catch 3, gift 5; at most 40 points a day from these, per friend | doing things helps, but a few minutes of clicking cannot rush it |
+| Levels | new friend 0, friend 60, good friend 200, best friend 500, dearest friend 1000 points | the second level in the first session or two, the last after weeks of keeping the yard open |
+| What a level brings | 2: a wave and a word when the app opens and when the yard is seen again after 20 minutes away; 3: fishes alone every 12 to 25 minutes and lands three in four bites (the card says it caught it alone); 4: seeds are found at 0.6× the gap and by best friends first; 5: a flower on the name tag and, about a third of the time it chatters, words to the person | each level is something the person sees the friend do, not a number |
+| Showing it | hearts on the name tag (one per level above the first), a row in the Friend tab with the level, a bar, the points to the next level and what it brings; a card when a level is reached | progress is visible where the friend is, and the next goal is always named |
+| Losing it | never: being away takes nothing; a friend that leaves takes its bond with it | no pressure, as for the garden |
+
+The backend keeps the bonds (`state.json` key `bonds`, `src-tauri/src/pets/bond.rs`) and owns what each thing is worth, the daily cap and the levels, so the page only says what happened (`befriend` with a reason and the person's local day) and cannot hand out points of its own. The page decides when (`src/yard/bond.js`) and holds what each level does.
+
 ## Performance
 
-Plants and decorations are static SVG drawn once; a plant's stage is looked at once a minute with the sky. A find or a gift is one short pose and bubble; the lantern's glow is a still layer shown from evening on. Nothing new moves continuously (docs/standards/performance.md).
+Plants and decorations are static SVG drawn once; a plant's stage is looked at once a minute with the sky. A find or a gift is one short pose and bubble; the lantern's glow is a still layer shown from evening on. Friendship adds a check every ten minutes and redraws a name tag only when its level changes. Nothing new moves continuously (docs/standards/performance.md).

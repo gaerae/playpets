@@ -16,6 +16,7 @@ const TABLE: &[(&str, &str)] = &[
     ("tray.wander", "デスクトップを歩き回る"),
     ("tray.update", "アップデートを確認…"),
     ("tray.mini", "小さく表示"),
+    ("menu.sound", "庭の音"),
     ("tray.state_waiting", "待っています"),
     ("tray.state_error", "問題が起きました"),
     ("tray.quit", "終了"),
