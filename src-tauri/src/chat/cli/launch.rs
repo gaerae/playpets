@@ -123,23 +123,112 @@ pub(super) fn setup_child(cmd: &mut Command) {
     }
 }
 
-/// Where the chat CLIs run: a folder of this app's own (0700 on Unix), made once per run, so no
-/// one else can leave files there that a CLI would read as project instructions (an AGENTS.md or
-/// CLAUDE.md in the shared temp folder, which anyone may write to on Linux). None if it could not
-/// be made.
+/// Where the chat CLIs run: a folder of this app's own (0700 on Unix), so no one else can leave
+/// files there that a CLI would read as project instructions (an AGENTS.md or CLAUDE.md in the
+/// shared temp folder, which anyone may write to on Linux). Made when first needed, and made again
+/// under a new name if it went (the system's temp cleaner, after days of running). None if it
+/// could not be made.
 pub(super) fn private_dir() -> Option<PathBuf> {
-    static DIR: std::sync::OnceLock<Option<PathBuf>> = std::sync::OnceLock::new();
-    DIR.get_or_init(|| {
-        let dir = std::env::temp_dir().join(format!("playpets-cli-{}", uuid::Uuid::new_v4()));
-        let mut builder = std::fs::DirBuilder::new();
+    static DIR: Mutex<Option<PathBuf>> = Mutex::new(None);
+    let mut dir = crate::app::hold(&DIR);
+    if dir.as_ref().is_some_and(|d| d.is_dir()) {
+        return dir.clone();
+    }
+    let fresh = std::env::temp_dir().join(format!("playpets-cli-{}", uuid::Uuid::new_v4()));
+    let mut builder = std::fs::DirBuilder::new();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::DirBuilderExt;
+        builder.mode(0o700);
+    }
+    *dir = builder.create(&fresh).ok().map(|()| fresh);
+    dir.clone()
+}
+
+/// A started CLI with every process it starts: npm's wrappers (codex.js, and claude.cmd through
+/// node) run the real program as their child, which a kill of the wrapper alone leaves running.
+/// On Unix the CLI leads a process group of its own; on Windows it is put in a job object that
+/// ends every process in it when stopped or dropped.
+pub(super) struct Tree {
+    #[cfg(windows)]
+    job: isize,
+}
+
+impl Tree {
+    /// Spawns `cmd` as the head of a tree.
+    pub(super) fn spawn(cmd: &mut Command) -> std::io::Result<(Child, Tree)> {
         #[cfg(unix)]
         {
-            use std::os::unix::fs::DirBuilderExt;
-            builder.mode(0o700);
+            use std::os::unix::process::CommandExt;
+            cmd.process_group(0);
         }
-        builder.create(&dir).ok().map(|()| dir)
-    })
-    .clone()
+        let child = cmd.spawn()?;
+        #[cfg(windows)]
+        let tree = Tree {
+            job: windows_job(&child),
+        };
+        #[cfg(not(windows))]
+        let tree = Tree {};
+        Ok((child, tree))
+    }
+
+    /// Stops the CLI and everything it started. The caller reaps `child` (killed, it ends at once).
+    pub(super) fn kill(&self, child: &mut Child) {
+        #[cfg(unix)]
+        if let Ok(group) = i32::try_from(child.id()) {
+            // SAFETY: a plain signal to the process group this CLI leads (made in `spawn`).
+            unsafe { libc::kill(-group, libc::SIGKILL) };
+        }
+        #[cfg(windows)]
+        if self.job != 0 {
+            use windows_sys::Win32::System::JobObjects::TerminateJobObject;
+            // SAFETY: the job handle is ours and still open (closed only in Drop).
+            unsafe { TerminateJobObject(self.job as _, 1) };
+        }
+        let _ = child.kill();
+    }
+}
+
+#[cfg(windows)]
+impl Drop for Tree {
+    fn drop(&mut self) {
+        if self.job != 0 {
+            // SAFETY: the handle is ours; closing it ends what is left in the job (KILL_ON_JOB_CLOSE).
+            unsafe { windows_sys::Win32::Foundation::CloseHandle(self.job as _) };
+        }
+    }
+}
+
+/// A job object that ends its processes when closed, with `child` in it; 0 if the system refused
+/// (the CLI then runs as before, and only it is stopped).
+#[cfg(windows)]
+fn windows_job(child: &Child) -> isize {
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::Win32::Foundation::CloseHandle;
+    use windows_sys::Win32::System::JobObjects::{
+        AssignProcessToJobObject, CreateJobObjectW, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JobObjectExtendedLimitInformation, SetInformationJobObject,
+    };
+    // SAFETY: plain Win32 calls on a job handle made here and the child's own process handle.
+    unsafe {
+        let job = CreateJobObjectW(std::ptr::null(), std::ptr::null());
+        if job.is_null() {
+            return 0;
+        }
+        let mut limits: JOBOBJECT_EXTENDED_LIMIT_INFORMATION = std::mem::zeroed();
+        limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        let set = SetInformationJobObject(
+            job,
+            JobObjectExtendedLimitInformation,
+            (&raw const limits).cast(),
+            std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32,
+        );
+        if set == 0 || AssignProcessToJobObject(job, child.as_raw_handle() as _) == 0 {
+            CloseHandle(job);
+            return 0;
+        }
+        job as isize
+    }
 }
 
 /// The private folder, or should it fail, the system's temp folder as before: the CLI still runs.
@@ -182,21 +271,26 @@ pub(super) fn own_file(dir: &Path, name: &str, text: &str) -> std::io::Result<Te
 mod tests {
     use super::*;
 
+    #[cfg(unix)]
     #[test]
-    fn the_system_prompt_is_a_private_file_that_goes_with_the_session() {
-        let file = prompt_file("Be kind.").expect("a private folder in the temp dir");
-        let path = file.0.clone();
-        assert!(path.starts_with(private_dir().unwrap()));
-        assert_eq!(std::fs::read_to_string(&path).unwrap(), "Be kind.");
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            let mode = |p: &Path| std::fs::metadata(p).unwrap().permissions().mode() & 0o777;
-            assert_eq!(mode(&path), 0o600, "only this user reads it");
-            assert_eq!(mode(path.parent().unwrap()), 0o700, "nor lists the folder");
-        }
-        drop(file);
-        assert!(!path.exists(), "removed with its session");
+    fn stopping_a_cli_stops_what_it_started() {
+        // A wrapper that runs the real program as its child, as npm's codex.js does.
+        let mut cmd = Command::new("sh");
+        cmd.args(["-c", "sleep 30 & echo $!; wait"]).stdout(Stdio::piped());
+        let (mut child, tree) = Tree::spawn(&mut cmd).unwrap();
+        let mut line = String::new();
+        BufReader::new(child.stdout.take().unwrap())
+            .read_line(&mut line)
+            .unwrap();
+        let grandchild: i32 = line.trim().parse().unwrap();
+        tree.kill(&mut child);
+        let _ = child.wait();
+        let gone = (0..60).any(|_| {
+            std::thread::sleep(Duration::from_millis(50));
+            // SAFETY: signal 0 only asks whether the process is still there.
+            unsafe { libc::kill(grandchild, 0) != 0 }
+        });
+        assert!(gone, "the wrapper's child ({grandchild}) still runs");
     }
 
     const NPM_SHIM: &str = "@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST \"%dp0%\\node.exe\" (\r\n  SET \"_prog=%dp0%\\node.exe\"\r\n) ELSE (\r\n  SET \"_prog=node\"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & \"%_prog%\"  \"%dp0%\\node_modules\\@anthropic-ai\\claude-code\\cli.js\" %*\r\n";

@@ -23,16 +23,13 @@ reviews:
     ignore_usernames:
       - dependabot[bot]
 
-  # Generated or binary files, and lockfiles that only npm and cargo write.
+  # Lockfiles that only npm and cargo write, the icons and site media made from other files, and
+  # binary images and video.
   path_filters:
     - "!package-lock.json"
     - "!src-tauri/Cargo.lock"
-    - "!src-tauri/gen/**"
     - "!src-tauri/icons/**"
-    - "!assets/**"
     - "!website/public/**"
-    - "!website/dev/**"
-    - "!website/.vitepress/generated.json"
     - "!**/*.png"
     - "!**/*.webp"
     - "!**/*.gif"
@@ -85,10 +82,11 @@ reviews:
         folder; flag anything that widens what they can reach or puts secrets on a command line.
     - path: "src-tauri/src/agent/**"
       instructions: >-
-        Text from outside (pet files, coding agents' reports, another friend's words, CLI output)
-        is data, never instructions: it is flattened, trimmed and labeled before it reaches an AI
-        (chat/prompt.rs). The chat CLIs run isolated (no tools, no user config) in a private
-        folder; flag anything that widens what they can reach or puts secrets on a command line.
+        The coding-agent bridge and the app's CLI mode. Hook and MCP payloads come from other
+        programs: they are data, clipped before use, and never reach an AI unlabeled. The bridge
+        listens on 127.0.0.1 only, checks its per-run token and refuses browser requests; flag
+        anything that loosens those checks. Settings snippets name only the executable, the
+        bridge file and a friend id, nothing secret.
     - path: "tests/**"
       instructions: >-
         Tests never touch login items, the keychain or other system state, and do not depend on

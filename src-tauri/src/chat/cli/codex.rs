@@ -52,7 +52,7 @@ fn run(bin: &Path, model: &str, prompt: &str, cancel: &AtomicBool) -> Result<Str
         .stdin(Stdio::piped())
         .stdout(Stdio::null())
         .stderr(Stdio::piped());
-    let mut child = cmd.spawn().map_err(|e| {
+    let (mut child, tree) = Tree::spawn(&mut cmd).map_err(|e| {
         CodexError::Failed(if e.kind() == std::io::ErrorKind::NotFound {
             missing("codex")
         } else {
@@ -74,12 +74,16 @@ fn run(bin: &Path, model: &str, prompt: &str, cancel: &AtomicBool) -> Result<Str
             Ok(None) => {}
             Err(e) => break Err(e.to_string()),
         }
+        // A stopped run ends with everything it started (npm's codex.js runs the real codex as its
+        // child, which would go on spending the person's quota), and is reaped so no zombie is left.
         if cancel.load(Ordering::SeqCst) {
-            let _ = child.kill();
+            tree.kill(&mut child);
+            let _ = child.wait();
             break Err(i18n::t("chat.cancelled"));
         }
         if Instant::now() > deadline {
-            let _ = child.kill();
+            tree.kill(&mut child);
+            let _ = child.wait();
             break Err(i18n::t("cli.timeout"));
         }
         std::thread::sleep(Duration::from_millis(50));

@@ -3185,6 +3185,7 @@ version = "0.1.0"
 dependencies = [
  "dunce",
  "keyring",
+ "libc",
  "objc2",
  "serde",
  "serde_json",

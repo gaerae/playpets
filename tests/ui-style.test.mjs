@@ -122,55 +122,210 @@ test('a long credit line on the shelf never widens the invite panel', async () =
   );
 });
 
-// Every declaration can apply: none is always replaced by a later rule for the same selector, in the
-// same media or outside any, across the yard page's stylesheets in the order index.html loads them.
-// (A media rule said before the base rule it means to change never applies.)
-test('no declaration is always replaced by a later rule for the same selector', async () => {
-  const page = await readFile('src/index.html', 'utf8');
-  const files = [...page.matchAll(/href="styles\/([\w-]+\.css)"/g)].map(m => m[1]);
-  const rules = [];
-  const props = body =>
-    Object.fromEntries(
-      body
-        .split(';')
-        .filter(p => p.includes(':'))
-        .map(p => [p.slice(0, p.indexOf(':')).trim(), p.slice(p.indexOf(':') + 1).trim()]),
-    );
-  const add = (file, media, head, body) => {
-    for (const sel of head.split(',')) rules.push({ file, media, sel: sel.trim(), props: props(body) });
-  };
-  for (const file of files) {
-    const css = (await readFile(`src/styles/${file}`, 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
-    let i = 0;
-    for (;;) {
-      const open = css.indexOf('{', i);
-      if (open < 0) break;
-      const head = css.slice(i, open).trim();
-      if (head.startsWith('@')) {
-        let depth = 1,
-          k = open + 1;
-        for (; depth; k++) depth += css[k] === '{' ? 1 : css[k] === '}' ? -1 : 0;
-        if (!head.startsWith('@keyframes'))
-          for (const m of css.slice(open + 1, k - 1).matchAll(/([^{}]+)\{([^{}]*)\}/g)) add(file, head, m[1], m[2]);
-        i = k;
-      } else {
-        const close = css.indexOf('}', open);
-        add(file, '', head, css.slice(open + 1, close));
-        i = close + 1;
-      }
+// Every declaration can apply: none is always replaced by a later rule for the same selector across
+// the yard page's stylesheets, in the order index.html loads them. A later rule replaces an earlier
+// one when it applies whenever the earlier does: outside any media, in the same media, or in a
+// wider width query (max-width: 1100px covers max-width: 760px); and when it sets the property or a
+// shorthand that includes it (padding includes padding-left).
+const SHORTHANDS = {
+  padding: ['padding-top', 'padding-right', 'padding-bottom', 'padding-left', 'padding-block', 'padding-inline'],
+  'padding-block': ['padding-block-start', 'padding-block-end'],
+  'padding-inline': ['padding-inline-start', 'padding-inline-end'],
+  margin: ['margin-top', 'margin-right', 'margin-bottom', 'margin-left', 'margin-block', 'margin-inline'],
+  'margin-block': ['margin-block-start', 'margin-block-end'],
+  'margin-inline': ['margin-inline-start', 'margin-inline-end'],
+  inset: ['top', 'right', 'bottom', 'left', 'inset-block', 'inset-inline'],
+  gap: ['row-gap', 'column-gap'],
+  overflow: ['overflow-x', 'overflow-y'],
+  flex: ['flex-grow', 'flex-shrink', 'flex-basis'],
+  'place-items': ['align-items', 'justify-items'],
+  'place-content': ['align-content', 'justify-content'],
+  'place-self': ['align-self', 'justify-self'],
+  border: [
+    'border-width',
+    'border-style',
+    'border-color',
+    'border-top',
+    'border-right',
+    'border-bottom',
+    'border-left',
+  ],
+  'border-top': ['border-top-width', 'border-top-style', 'border-top-color'],
+  'border-right': ['border-right-width', 'border-right-style', 'border-right-color'],
+  'border-bottom': ['border-bottom-width', 'border-bottom-style', 'border-bottom-color'],
+  'border-left': ['border-left-width', 'border-left-style', 'border-left-color'],
+  'border-width': ['border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width'],
+  'border-style': ['border-top-style', 'border-right-style', 'border-bottom-style', 'border-left-style'],
+  'border-color': ['border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color'],
+  'border-radius': [
+    'border-top-left-radius',
+    'border-top-right-radius',
+    'border-bottom-right-radius',
+    'border-bottom-left-radius',
+  ],
+  background: [
+    'background-color',
+    'background-image',
+    'background-position',
+    'background-size',
+    'background-repeat',
+    'background-clip',
+    'background-origin',
+    'background-attachment',
+  ],
+  font: ['font-size', 'font-weight', 'font-family', 'font-style', 'font-variant', 'font-stretch', 'line-height'],
+  'grid-template': ['grid-template-columns', 'grid-template-rows', 'grid-template-areas'],
+  'text-decoration': [
+    'text-decoration-line',
+    'text-decoration-color',
+    'text-decoration-style',
+    'text-decoration-thickness',
+  ],
+  'list-style': ['list-style-type', 'list-style-position', 'list-style-image'],
+  transition: [
+    'transition-property',
+    'transition-duration',
+    'transition-timing-function',
+    'transition-delay',
+    'transition-behavior',
+  ],
+  animation: [
+    'animation-name',
+    'animation-duration',
+    'animation-timing-function',
+    'animation-delay',
+    'animation-iteration-count',
+    'animation-direction',
+    'animation-fill-mode',
+    'animation-play-state',
+  ],
+  outline: ['outline-width', 'outline-style', 'outline-color'],
+};
+/** Whether setting `later` sets `earlier` too (itself, or a shorthand over it, at any depth). */
+const covers = (later, earlier) => later === earlier || (SHORTHANDS[later] || []).some(part => covers(part, earlier));
+/** One spelling for one selector: spaces around combinators and inside parentheses, quotes. */
+const normalSelector = sel =>
+  sel
+    .replace(/\s+/g, ' ')
+    .replace(/ ?([>+~,]) ?/g, '$1')
+    .replace(/\( /g, '(')
+    .replace(/ \)/g, ')')
+    .replace(/'/g, '"')
+    .trim();
+const important = value => /!\s*important$/i.test(value);
+/** Splits on `sep` outside parentheses and brackets. */
+const splitTop = (text, sep) => {
+  const parts = [];
+  let depth = 0,
+    from = 0;
+  for (let k = 0; k < text.length; k++) {
+    const c = text[k];
+    if (c === '(' || c === '[') depth++;
+    else if (c === ')' || c === ']') depth--;
+    else if (c === sep && depth === 0) {
+      parts.push(text.slice(from, k));
+      from = k + 1;
     }
   }
-  // A group rule refined on purpose right after it.
-  const refined = new Set(['.paint-land z-index']);
+  return [...parts, text.slice(from)].map(p => p.trim()).filter(Boolean);
+};
+/** Whether a rule in `later` media applies whenever one in `earlier` media does. */
+const appliesWhenever = (later, earlier) => {
+  if (later === '' || later === earlier) return true;
+  // One width condition, in a media or a container query (of the same name).
+  const width = at => /^(@media|@container(?: [\w-]+)?) \((max|min)-width: *(\d+)px\)$/.exec(at);
+  const [a, b] = [width(earlier), width(later)];
+  return !!a && !!b && a[1] === b[1] && a[2] === b[2] && (a[2] === 'max' ? +b[3] >= +a[3] : +b[3] <= +a[3]);
+};
+export function parseRules(css, file = '') {
+  // Comments go, and inside strings and url(…) braces, commas and semicolons stand for nothing.
+  const text = css
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    // Statement at-rules (@import, @charset, @layer a, b;) hold no declarations.
+    .replace(/@[a-z-]+[^{};]*;/g, '')
+    .replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|url\([^)]*\)/g, m => m.replace(/[{};,]/g, '\u2400'));
+  const rules = [];
+  const walk = (body, media) => {
+    let i = 0;
+    for (;;) {
+      const open = body.indexOf('{', i);
+      if (open < 0) return;
+      const head = body.slice(i, open).trim();
+      let depth = 1,
+        k = open + 1;
+      for (; depth; k++) depth += body[k] === '{' ? 1 : body[k] === '}' ? -1 : 0;
+      const inner = body.slice(open + 1, k - 1);
+      if (head.startsWith('@keyframes')) {
+        // its steps are not rules
+      } else if (head.startsWith('@')) {
+        const at = head.replace(/\s+/g, ' ');
+        walk(inner, media ? `${media} ${at}` : at);
+      } else {
+        const props = Object.fromEntries(
+          splitTop(inner, ';')
+            // A nested rule (&:hover { … }) is not a declaration.
+            .filter(p => p.includes(':') && !/[{}&]/.test(p))
+            .map(p => [p.slice(0, p.indexOf(':')).trim(), p.slice(p.indexOf(':') + 1).trim()]),
+        );
+        for (const sel of splitTop(head, ',')) rules.push({ file, media, sel: normalSelector(sel), props });
+      }
+      i = k;
+    }
+  };
+  walk(text, '');
+  return rules;
+}
+export function replacedDeclarations(rules, refined = new Set()) {
   const replaced = [];
   rules.forEach((a, n) => {
     for (const [prop, value] of Object.entries(a.props)) {
-      if (value.endsWith('!important') || refined.has(`${a.sel} ${prop}`)) continue;
+      if (refined.has(`${a.sel} ${prop}`)) continue;
+      // An !important declaration gives way only to a later !important one.
       const later = rules
         .slice(n + 1)
-        .find(b => b.sel === a.sel && prop in b.props && (b.media === '' || b.media === a.media));
-      if (later) replaced.push(`${a.file} ${a.media} ${a.sel} { ${prop} } ← ${later.file} ${later.media}`);
+        .find(
+          b =>
+            b.sel === a.sel &&
+            appliesWhenever(b.media, a.media) &&
+            Object.entries(b.props).some(([p, v]) => covers(p, prop) && (!important(value) || important(v))),
+        );
+      if (later)
+        replaced.push(`${a.file} ${a.media} ${a.sel} { ${prop} } ← ${later.file} ${later.media}`.replace(/ +/g, ' '));
     }
   });
-  assert.deepEqual(replaced, []);
+  return replaced;
+}
+
+test('no declaration is always replaced by a later rule for the same selector', async () => {
+  const page = await readFile('src/index.html', 'utf8');
+  const files = [...page.matchAll(/href="styles\/([\w-]+\.css)"/g)].map(m => m[1]);
+  const rules = (
+    await Promise.all(files.map(async f => parseRules(await readFile(`src/styles/${f}`, 'utf8'), f)))
+  ).flat();
+  // A group rule refined on purpose right after it.
+  assert.deepEqual(replacedDeclarations(rules, new Set(['.paint-land z-index'])), []);
+});
+
+test('the replaced-declaration check sees through strings, pseudo-class lists, shorthands and widths', () => {
+  const found = css => replacedDeclarations(parseRules(css)).length;
+  assert.equal(found('.a{color:red}.a{color:blue}'), 1, 'same selector, same property');
+  assert.equal(found('.a{padding-left:3px}.a{padding:0}'), 1, 'a later shorthand');
+  assert.equal(found('.a{padding:0}.a{padding-left:3px}'), 0, 'a later longhand refines');
+  assert.equal(found('@media (max-width: 760px){.a{order:5}}@media (max-width: 1100px){.a{order:6}}'), 1);
+  assert.equal(found('@media (max-width: 1100px){.a{order:6}}@media (max-width: 760px){.a{order:5}}'), 0);
+  assert.equal(found('@media (max-width: 760px){.a{order:5}}.a{order:1}'), 1, 'a later base rule');
+  assert.equal(found('.a{order:1}@media (max-width: 760px){.a{order:5}}'), 0, 'a later media rule refines');
+  assert.equal(found('.a::after{content:"}"}.b{color:red}.b{color:blue}'), 1, 'a brace in a string');
+  assert.equal(found(':is(.a, .b) .c{color:red}:is(.x, .b) .c{color:blue}'), 0, 'commas inside :is()');
+  assert.equal(found('.a{background:url(data:image/svg+xml;charset=utf-8,x)}.a{color:red}'), 0, 'a ; in url()');
+  assert.equal(found('.a>.b{color:red}.a > .b{color:blue}'), 1, 'one selector, two spellings');
+  assert.equal(found(':not(.a,.b){color:red}:not(.a, .b){color:blue}'), 1);
+  assert.equal(found('[data-x="1"]{color:red}[data-x=\'1\']{color:blue}'), 1, 'either quote');
+  assert.equal(found('[title="a,b"]{color:red}[title="a_b"]{color:blue}'), 0, 'masked strings stay apart');
+  assert.equal(found('@layer base, theme;.a{color:red}.a{color:blue}'), 1, 'a statement at-rule');
+  assert.equal(found('@container (max-width: 600px){.a{order:1}}@container (max-width: 800px){.a{order:2}}'), 1);
+  assert.equal(found('.a{border-top-color:red}.a{border:0}'), 1, 'a shorthand two levels up');
+  assert.equal(found('.a{color:red !important}.a{color:blue}'), 0, '!important outlasts a later plain rule');
+  assert.equal(found('.a{color:red ! IMPORTANT}.a{color:blue !important}'), 1, 'and gives way to a later !important');
+  assert.equal(found('.a{color:red;&:hover{color:blue}}'), 0, 'nesting is not a declaration');
 });
