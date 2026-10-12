@@ -47,6 +47,9 @@ export function element(tag = 'div', { rect, ...props } = {}) {
       setProperty(name, value) {
         this[name] = String(value);
       },
+      removeProperty(name) {
+        delete this[name];
+      },
     },
     classList: {
       add(...names) {

@@ -78,3 +78,46 @@ export const worldCopy = {
   discovery: '이미 Codex 펫이 있나요?',
   sceneCaption: (v: string) => `실제 앱 화면 · PlayPets ${v}`,
 };
+export const sections = {
+  galleryCreate: '이 친구로 만들기',
+  petNotes: {
+    daisy: '작은 것들을 눈여겨보는 호기심 많은 탐험가예요.',
+    clover: '작은 발견을 나누는 다정한 고양이 정원사예요.',
+    pip: '친구들에게 인사하기를 좋아하는 강아지 우편배달부예요.',
+    'aria-full': '음악과 조용한 저녁을 좋아하는 성인 공연가예요.',
+    'aria-mini': '음악을 좋아하는 Aria의 작은 친구예요. 별도로 초대해요.',
+    'noah-full': '대화와 도시 산책을 즐기는 성인 공연가예요.',
+    'noah-mini': '도시 산책을 좋아하는 Noah의 작은 친구예요. 별도로 초대해요.',
+    tabby: '씩씩하게 모험을 떠나는 밝은 주황색 아기 고양이예요.',
+    smoky: '말하기 전에 생각하는 차분한 회색 고양이예요.',
+    mochi: '언제든 놀 준비가 된 부드러운 크림색 고양이예요.',
+  },
+  galleryTitle: '자꾸 눈길이 가는 친구들.',
+  galleryLead: '열 친구가 기다리고 있어요. 마음에 드는 친구를 골라 움직임을 살펴보세요.',
+  galleryLabel: '친구 고르기',
+  posesLabel: '자세 미리보기',
+  poses: ['쉬기', '인사하기', '뛰기'],
+  selectedLead: '초대 탭에서 이 친구를 초대해요. 이름과 성격, 나와의 관계를 직접 정할 수 있어요.',
+  galleryGuide: '첫 친구 만나기',
+  connectionsTitle: '같이 놀고, 가끔 이야기해요.',
+  connectionsLead: '놀이와 정원 가꾸기는 AI 계정 없이 즐겨요. 대화할 때 연결한 AI의 사용 한도와 요금이 적용돼요.',
+  connections: [
+    [
+      '오프라인으로 놀아요',
+      '간식을 나누고, 낚시와 채집을 해요. 정원에 어떤 꽃이 피는지도 함께 지켜봐요.',
+      '/guide/play',
+    ],
+    [
+      '내 방식으로 대화해요',
+      '이름과 성격을 정해 내 친구로 만들어요. AI를 연결하면 나와 대화하고, 친구들끼리 이야기를 나눌 수도 있어요.',
+      '/guide/chat',
+    ],
+  ],
+  miniTitle: '하루 한쪽에, 작은 친구.',
+  miniBody: '일하는 창 옆에 작은 놀이터를 두거나, 친구들이 바탕화면을 돌아다니게 해요.',
+  miniLink: '바탕화면 친구 만나기',
+  agentGuide: '코딩 에이전트 연결하기',
+  connectionDetails: '대화 연결과 비용 알아보기',
+  connectionSetup:
+    '로컬 Ollama, 로그인한 Claude Code·Codex CLI, OpenAI 호환 서버를 골라요. CLI는 구독의 사용 한도 안에서 쓰고, API 서버는 별도 비용이 들 수 있어요.',
+};

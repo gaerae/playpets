@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { access, readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { pngSize } from '../scripts/png-lossless-lib.mjs';
 import { LANDING_PETS, localePath, releasePagesFor, SITE_LANGS } from '../scripts/site-content.mjs';
 
 test('website publishing and releases use the same four locale paths', () => {
@@ -23,9 +24,7 @@ test('all ten ordinary built-in pets have distinct landing sources with valid v2
   );
   for (const pet of LANDING_PETS) {
     await access(pet.source);
-    const png = await readFile(pet.source);
-    assert.equal(png.readUInt32BE(16), 1536, pet.id);
-    assert.equal(png.readUInt32BE(20), 2288, pet.id);
+    assert.deepEqual(pngSize(await readFile(pet.source)), { width: 1536, height: 2288 }, pet.id);
   }
   assert.notEqual(
     LANDING_PETS.find(p => p.id === 'aria-full').source,

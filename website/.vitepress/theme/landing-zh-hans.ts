@@ -75,3 +75,42 @@ export const worldCopy = {
   discovery: '已经有 Codex 宠物？',
   sceneCaption: (v: string) => `实际应用画面 · PlayPets ${v}`,
 };
+export const sections = {
+  galleryCreate: '用这位伙伴开始创作',
+  petNotes: {
+    daisy: '留意小事的好奇探险家。',
+    clover: '温柔的小猫园丁，喜欢分享小小的发现。',
+    pip: '喜欢与每位伙伴打招呼的小狗邮递员。',
+    'aria-full': '喜欢音乐和宁静夜晚的成年表演者。',
+    'aria-mini': '热爱音乐的 Aria 小伙伴，可以独立邀请。',
+    'noah-full': '喜欢交谈和城市漫步的成年表演者。',
+    'noah-mini': '喜欢城市漫步的 Noah 小伙伴，可以独立邀请。',
+    tabby: '步伐充满冒险精神的活泼橘色小猫。',
+    smoky: '说话前会思考的沉静灰猫。',
+    mochi: '随时愿意玩耍的柔软奶油色猫咪。',
+  },
+  galleryTitle: '总会多看一眼的伙伴。',
+  galleryLead: '十位伙伴正在等你。选一个喜欢的，看看它的动作。',
+  galleryLabel: '选择伙伴',
+  posesLabel: '预览姿势',
+  poses: ['休息', '挥手', '跳跃'],
+  selectedLead: '在邀请标签页邀请这位伙伴。为它设置名字、性格，以及与你的关系。',
+  galleryGuide: '认识第一位伙伴',
+  connectionsTitle: '一起玩，偶尔聊聊天。',
+  connectionsLead: '游戏和种花无需 AI 账号。聊天时适用所连接 AI 的额度与收费。',
+  connections: [
+    ['离线玩耍', '分享零食、钓鱼、捉虫，一起看看花园会开出什么花。', '/guide/play'],
+    [
+      '按你的方式聊天',
+      '选好名字和性格，让它成为你的伙伴。连接 AI 后，可以与你聊天，也能和其他伙伴交谈。',
+      '/guide/chat',
+    ],
+  ],
+  miniTitle: '一天的一角，有小小的陪伴。',
+  miniBody: '在工作窗口旁放一座小庭院，或让伙伴在桌面上散步。',
+  miniLink: '体验桌面伙伴',
+  agentGuide: '连接编码代理',
+  connectionDetails: '了解聊天设置与费用',
+  connectionSetup:
+    '选择本地 Ollama、已登录的 Claude Code 或 Codex CLI，或兼容 OpenAI 的服务器。CLI 使用受订阅额度限制；API 服务器可能另行收费。',
+};

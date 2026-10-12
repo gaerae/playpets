@@ -71,17 +71,13 @@ fn read_sheet(asset: &catalog::Asset, query: Option<&str>) -> Option<(Vec<u8>, P
     };
     let season = parameter("season").filter(|season| catalog::SEASONS.contains(season));
     let realistic = parameter("style") == Some("realistic");
-    if realistic && parameter("portrait") == Some("1") {
-        return asset
-            .realistic_portrait_path
-            .as_ref()
-            .and_then(|path| read_file(asset, path, true));
-    }
     if parameter("portrait") == Some("1") {
-        return asset
-            .portrait_path
-            .as_ref()
-            .and_then(|path| read_file(asset, path, true));
+        let portrait = if realistic {
+            &asset.realistic_portrait_path
+        } else {
+            &asset.portrait_path
+        };
+        return portrait.as_ref().and_then(|path| read_file(asset, path, true));
     }
     let read = |path: &PathBuf| read_file(asset, path, false);
     if realistic {

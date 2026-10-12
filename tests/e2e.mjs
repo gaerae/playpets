@@ -150,7 +150,7 @@ const scenario = `(async()=>{
     const drawn=getComputedStyle(document.querySelector('.win-controls')).display!=='none';
     await L('chrome='+(document.documentElement.classList.contains('mac')?(drawn?'err':'mac-native'):(drawn?'custom:'+(outerHeight-innerHeight):'err')));
     if(!$('side-panel').hidden)$('close-panel').click();
-    const shown=[];for(const k of ['pet','invite','settings']){document.querySelector('.panel-tab[data-panel='+k+']').click();await wait(150);shown.push(['pet','invite','settings'].filter(o=>$('panel-'+o).getBoundingClientRect().height>40).join(','));}
+    const shown=[];for(const k of ['pet','invite','settings']){document.querySelector('.panel-tab[data-panel='+k+']').click();await until(()=>!$('panel-'+k).hidden);shown.push(['pet','invite','settings'].filter(o=>$('panel-'+o).getBoundingClientRect().height>40).join(','));}
     // Settings wiring runs after Invite; its copy buttons must not replace Invite filters.
     document.querySelector('.panel-tab[data-panel=invite]').click();await until(()=>!$('panel-invite').hidden);
     const allChip=document.querySelector('#kind-filter [data-kind=""]'),peopleChip=document.querySelector('#kind-filter [data-kind=person]');
@@ -164,7 +164,7 @@ const scenario = `(async()=>{
     const realisticInviteAsset=adults[0],miniInviteAsset=boot.data.assets.find(a=>a.sourceId==='playpets-aria'),ordinaryInviteAsset=boot.data.assets.find(a=>a.kind==='animal');
     const inviteBefore=(await playPets.bootstrap()).data.pets,inviteBeforeIds=new Set(inviteBefore.map(p=>p.id));
     const appearanceCard=(mini=false)=>[...document.querySelectorAll('#shelf .asset-card')].find(c=>c.dataset.assetId===(mini?miniInviteAsset:realisticInviteAsset)?.id);
-    const separateEntries=!!appearanceCard()&&!!appearanceCard(true)&&appearanceCard().dataset.entryKey!==appearanceCard(true).dataset.entryKey&&!document.querySelector('#shelf .asset-style');
+    const separateEntries=!!appearanceCard()&&!!appearanceCard(true)&&appearanceCard().dataset.assetId!==appearanceCard(true).dataset.assetId&&!document.querySelector('#shelf .asset-style');
     appearanceCard()?.click();
     const invitedReal=await until(async()=>(await playPets.bootstrap()).data.pets.find(p=>p.assetId===realisticInviteAsset?.id&&!inviteBeforeIds.has(p.id)));
     await until(()=>appearanceCard()&&!appearanceCard().disabled);
@@ -200,13 +200,13 @@ const scenario = `(async()=>{
     document.querySelector('.settings-index [data-section=general-title]').click();await wait(150);
     await L('settingsScroll='+(bodyOnly&&settingsBody.scrollTop===0&&!$('settings-general').hidden?'fixed-navigation-single-body':'err:'+JSON.stringify({...settingsMetrics,resetTop:settingsBody.scrollTop,generalHidden:$('settings-general').hidden})));
     $('close-panel').click();
-    await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',settingsWindow]});await wait(300);
+    await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',settingsWindow]});await until(()=>Math.abs(innerWidth-settingsWindow.width)<2);await wait(100);
     await L('panel='+(opened&&$('side-panel').hidden&&shown.join('|')==='pet|invite|settings'?'toggles':'err:'+shown.join('|'))+'/'+indexed);
     // The relationship shows beside the friend's closeness, and a click on it opens the settings at the relationship cards.
-    document.querySelector('.panel-tab[data-panel=pet]').click();await wait(200);
-    const relChip=$('relation-chip').textContent;$('relation-chip').click();await wait(200);
+    document.querySelector('.panel-tab[data-panel=pet]').click();await until(()=>!$('panel-pet').hidden);
+    const relChip=$('relation-chip').textContent;$('relation-chip').click();await until(()=>$('pet-dialog').open);
     const relFocus=$('pet-dialog').open&&document.activeElement?.name==='relation'&&document.activeElement.value==='partner'&&$('pet-call-me').placeholder===${say('pet.call_me_partner')};
-    $('cancel-pet-dialog').click();$('close-panel').click();await wait(200);
+    $('cancel-pet-dialog').click();$('close-panel').click();await until(()=>!$('pet-dialog').open&&$('side-panel').hidden);
     await L('relation='+(relChip===${say('relation.partner')}&&relFocus?'chip-opens-cards':'err:'+relChip+'/'+relFocus));
     // About: the app's own pages, from the addresses the backend reports; "What's new" waits for an update.
     const project=(await playPets.bootstrap()).data.project||{};
@@ -215,12 +215,12 @@ const scenario = `(async()=>{
     // opens the dialog, and Later puts the button away while the dot stays. Nothing is installed.
     const sections=[...document.querySelectorAll('#panel-settings .settings-section h3')].map(h=>h.id).join(',');
     const inAbout=!!document.querySelector('.settings-section.about #update-button');
-    window.__pp('event',{type:'update',update:{version:'9.9.9',notes:''}});await wait(200);
+    window.__pp('event',{type:'update',update:{version:'9.9.9',notes:''}});await until(()=>!$('update-pill').hidden);
     const tabDot=document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
     const pillShown=!$('update-pill').hidden&&$('update-pill-label').textContent==='v9.9.9';
-    $('update-pill').click();await wait(200);
+    $('update-pill').click();await until(()=>$('update-dialog').open);
     const updateDialogOpen=$('update-dialog').open&&$('update-title').textContent.includes('v9.9.9');
-    $('update-later').click();await wait(200);
+    $('update-later').click();await until(()=>!$('update-dialog').open);
     const putAway=!$('update-dialog').open&&$('update-pill').hidden&&document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
     await L('updateUi='+sections+'/'+(inAbout&&tabDot&&pillShown&&updateDialogOpen&&putAway?'ok':'err:'+[inAbout,tabDot,pillShown,updateDialogOpen,putAway].join(',')));
     await L('stage='+($('yard').getBoundingClientRect().height/innerHeight>.6?'yard-first':'small:'+$('yard').getBoundingClientRect().height));
@@ -230,7 +230,7 @@ const scenario = `(async()=>{
     $('weather').value='snow';$('weather').dispatchEvent(new Event('change'));
     await L('weather='+($('yard').classList.contains('weather-snow')&&$('weather-layer').width>0?'snow-canvas':'err'));
     // A saved season changes the actual yard and wardrobe; Auto returns to the real local calendar.
-    const priorSeason=localStorage.getItem('season'),seasonRules=await import('./yard/scene.js'),seasonSprites=await import('./core/sprites.js');
+    const priorSeason=localStorage.getItem('season'),seasonRules=await import('./core/season.js'),seasonSprites=await import('./core/sprites.js');
     const seasonalAsset=(await import('./core/state.js')).data.assets.find(a=>a.seasonalSpriteUrls?.summer&&a.seasonalSpriteUrls?.winter);
     const chooseSeason=value=>{$('season').value=value;$('season').dispatchEvent(new Event('change'));};
     chooseSeason('winter');
@@ -347,7 +347,7 @@ const scenario = `(async()=>{
     await until(()=>$('yard').classList.contains('world-studio')&&$('yard').dataset.environment==='illustrated');
     const indoor=(await import('./yard/world.js')).scene;
     $('weather').value='rain';$('weather').dispatchEvent(new Event('change'));await wait(150);
-    const {environmentLook,environmentFrame}=await import('./yard/environment.js'),{weatherPanes}=await import('./yard/window-weather.js'),{worldFor}=await import('./yard/worlds.js');
+    const {environmentLook,environmentFrame,weatherPanes}=await import('./yard/environment.js'),{worldFor}=await import('./yard/worlds.js');
     const cityArt=[];for(const period of ['morning','day','evening','night']){$('period').value=period;$('period').dispatchEvent(new Event('change'));cityArt.push(environmentLook(indoor).art);}
     const roomClean=indoor.world==='studio'&&indoor.weather==='rain'&&indoor.event===null&&!onLake(lx,ly)&&!toLake()&&!document.querySelector('.bobber')&&!document.querySelector('.fishing-line')&&!$('weather').disabled&&weatherPanes(lakeBox.width,lakeBox.height,environmentFrame(lakeBox.width,lakeBox.height,indoor),worldFor(indoor.world).windowPanes).length>0;
     await L('studioLight='+(cityArt.join(',')==='studio-modern-city-morning,studio-modern-city-day,studio-modern-city-evening,studio-modern-city-night'?'four-city-views':'err:'+cityArt));
@@ -394,7 +394,7 @@ const scenario = `(async()=>{
     await L('talkTag='+(!$('side-panel').hidden&&!$('panel-pet').hidden?'opens-chat':'err'));
     // Inviting from the shelf and opening the AI dialog go through the page's own buttons.
     const before=(await playPets.bootstrap()).data.pets.length;
-    document.querySelector('.panel-tab[data-panel=invite]').click();await wait(200);
+    document.querySelector('.panel-tab[data-panel=invite]').click();await until(()=>!$('panel-invite').hidden);
     // A loaded machine (a build running beside the test) can take longer than the usual five seconds here.
     document.querySelector('#shelf .asset-card').click();await until(async()=>{
       const pets=(await playPets.bootstrap()).data.pets;
@@ -402,7 +402,7 @@ const scenario = `(async()=>{
     },15000);
     const after=(await playPets.bootstrap()).data.pets;
     const invited=after.length===before+1&&document.querySelectorAll('.yard-pet').length===after.length&&$('friend-select').value===after.at(-1).id;
-    document.querySelector('.panel-tab[data-panel=pet]').click();await wait(200);
+    document.querySelector('.panel-tab[data-panel=pet]').click();await until(()=>!$('panel-pet').hidden);
     const sharingGuest=await must('sharingGuest',playPets.addPet(a));
     await until(()=>document.querySelectorAll('.yard-pet').length===after.length+1);
     $('friend-select').value=after.at(-1).id;$('friend-select').dispatchEvent(new Event('change'));await wait(150);
@@ -436,11 +436,11 @@ const scenario = `(async()=>{
     if(madeHere)await playPets.removeProvider(madeHere);
     // Sending a friend away from the friend tab asks first, by name: Cancel keeps everyone, confirming does not.
     const guest=after.at(-1);
-    $('remove-friend').click();await wait(300);
+    $('remove-friend').click();await until(()=>$('confirm-dialog').open);
     const confirmAsked=$('confirm-dialog').open&&$('confirm-title').textContent.includes(${JSON.stringify(KO['friend.send_away_confirm'].replace(/^\{[^}]*\}\s*/, ''))})&&document.activeElement===$('confirm-cancel');
-    $('confirm-cancel').click();await wait(400);
+    $('confirm-cancel').click();await until(()=>!$('confirm-dialog').open);
     const kept=!$('confirm-dialog').open&&(await playPets.bootstrap()).data.pets.some(p=>p.id===guest.id);
-    $('remove-friend').click();await wait(300);$('confirm-ok').click();await until(async()=>!(await playPets.bootstrap()).data.pets.some(p=>p.id===guest.id)&&document.querySelectorAll('.yard-pet').length===before);
+    $('remove-friend').click();await until(()=>$('confirm-dialog').open);$('confirm-ok').click();await until(async()=>!(await playPets.bootstrap()).data.pets.some(p=>p.id===guest.id)&&document.querySelectorAll('.yard-pet').length===before);
     const gone=!(await playPets.bootstrap()).data.pets.some(p=>p.id===guest.id)&&document.querySelectorAll('.yard-pet').length===before;
     await L('sendAway='+(confirmAsked&&kept&&gone?'asks-then-removes':'err:'+confirmAsked+'/'+kept+'/'+gone));
     // A coding agent waiting for the person shows in the tray's tooltip (and a mark on the icon).

@@ -4,8 +4,12 @@ Run tools from the repository root. Prefer the named npm command when there is
 one. `*-lib.mjs` files and the content/specification modules are reusable helpers;
 import them instead of importing a command that writes files.
 
-The tools that draw pictures (icons, share cards, installer art, creator kits, captures) drive
-an installed Google Chrome through Playwright (`channel: 'chrome'`).
+The tools that draw pictures (icons, share cards, installer art, creator kits, captures, atlas
+packing) start their browser through `launchBrowser()` in `browser-lib.mjs`: an installed Google
+Chrome, or Playwright's own Chromium (`npx playwright install chromium`) when Chrome is missing.
+The capture backdrop in `shots.mjs` alone needs Google Chrome. Shared helpers live with their
+owner: data URLs and sprite-sheet loading in `art-lib.mjs`, pose isolation in `atlas-lib.mjs`, and
+PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 
 | Area | Commands and sources | Outputs |
 | --- | --- | --- |

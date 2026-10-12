@@ -18,6 +18,20 @@
   --soft: #eef3eb;
   /* the keyboard focus ring */
   --focus: #367b90;
+  /* the sheet a friend's things are on: the Friend and Invite tabs, the dialogs about a friend */
+  --sheet: #fffdf7;
+  /* an ink-filled button under the pointer */
+  --ink-hover: #31575e;
+  /* what a friend's picture stands on, in the panel's head and on the invite shelf */
+  --portrait: #edf2e7;
+  /* a switch that is on, as the tray's check mark says */
+  --pressed: #e3efe6;
+  /* a small green mark that something is there: the seeds on a tool, an AI found on this computer */
+  --green-soft: #e3f2ea;
+  --green-ink: #2c6e57;
+  /* something on for now: the season's event, the game being played */
+  --pink-soft: #fbe7ef;
+  --pink-ink: #a8425b;
   color-scheme: light;
   --radius: 22px;
   font-family:
@@ -40,6 +54,18 @@
     --floating: #202c27f0;
     --soft: #384937;
     --focus: #81bdc6;
+    --sheet: #202c27;
+    --ink-hover: #cadcc1;
+    --portrait: #384937;
+    --pressed: #384937;
+    --green-soft: #384937;
+    --green-ink: #d1e8c2;
+    --pink-soft: #49323c;
+    --pink-ink: #f8c6d9;
+    /* Only the dark rules use these two (each light rule has its own colour), so they have no
+       light value: the green line round a picked or hovered card, and a surface that warns. */
+    --green-line: #91b08b;
+    --danger-soft: #49332c;
     --ink-8: #00000024;
     --ink-12: #00000033;
     --ink-15: #00000040;
@@ -152,7 +178,7 @@ button:active:not(:disabled) {
   min-width: 110px;
 }
 .button.primary:hover {
-  background: #31575e;
+  background: var(--ink-hover);
 }
 .button.text {
   padding: 8px 0;
@@ -333,15 +359,12 @@ select {
   .eyebrow {
     color: var(--muted);
   }
-  .button.primary:hover {
-    background: #cadcc1;
-  }
   .button.remove {
     color: var(--muted);
     border-color: var(--line);
   }
   .button.remove:hover {
-    background: #49332c;
+    background: var(--danger-soft);
     color: var(--danger);
   }
 }

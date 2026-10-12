@@ -90,6 +90,8 @@ export const strings = {
   'caption.snow.day': '白天飘雪的乐园',
   'caption.snow.evening': '傍晚飘雪的乐园',
   'caption.snow.night': '雪夜里的乐园',
+  'caption.indoor': '{place} · {period}',
+  'caption.indoor_weather': '{place} · {period} · {weather}',
   'greet.morning': ['早上好！', '睡得好吗？', '今天也加油！', '早晨啦～'],
   'greet.day': ['你好！', '见到你真高兴！', '嗨～', '今天也加油！'],
   'greet.evening': ['晚上好！', '今天辛苦了', '晚霞真美', '嗨～'],

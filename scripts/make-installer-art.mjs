@@ -9,11 +9,11 @@
 // ground under the labels is a green that keeps about 4.5:1 contrast with both. The title bar and
 // Finder's path bar (if the person shows it) cover about 60 points at the bottom, so nothing that
 // matters sits below y = 350.
-// Run: npm run art   (needs Google Chrome; playwright-core drives it headless).
+// Run: npm run art   (needs Google Chrome or Playwright's Chromium; browser-lib.mjs drives it headless).
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { chromium } from 'playwright-core';
-import { bmp, cell, loadEnvironment, loadSheets, withDpi } from './art-lib.mjs';
+import { bmp, cell, dataUrl, dataUrlBytes, loadEnvironment, loadSheets, readDataUrl, withDpi } from './art-lib.mjs';
+import { launchBrowser } from './browser-lib.mjs';
 
 const sheets = await loadSheets();
 const environment = await loadEnvironment();
@@ -117,10 +117,10 @@ async function pixels(browser, html, { width, height }) {
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
   await page.setContent(html);
   await readyArt(page);
-  const png = (await page.screenshot({ type: 'png' })).toString('base64');
-  const data = await page.evaluate(async b64 => {
+  const shot = dataUrl(await page.screenshot({ type: 'png' }));
+  const data = await page.evaluate(async url => {
     const img = new Image();
-    img.src = `data:image/png;base64,${b64}`;
+    img.src = url;
     await img.decode();
     const c = document.createElement('canvas');
     c.width = img.width;
@@ -128,12 +128,12 @@ async function pixels(browser, html, { width, height }) {
     const g = c.getContext('2d');
     g.drawImage(img, 0, 0);
     return Array.from(g.getImageData(0, 0, img.width, img.height).data);
-  }, png);
+  }, shot);
   await page.close();
   return Uint8Array.from(data);
 }
 
-const browser = await chromium.launch({ channel: 'chrome', headless: true });
+const browser = await launchBrowser();
 try {
   const page = await browser.newPage({ viewport: { width: DMG.width, height: DMG.height }, deviceScaleFactor: 2 });
   await page.setContent(dmg);
@@ -145,10 +145,10 @@ try {
   await mkdir('website/public/listing/en', { recursive: true });
   const encoder = await browser.newPage();
   for (const name of LISTING) {
-    const webp = (await readFile(`website/public/shots/${version}/en/${name}.webp`)).toString('base64');
-    const jpeg = await encoder.evaluate(async b64 => {
+    const webp = await readDataUrl(`website/public/shots/${version}/en/${name}.webp`, 'image/webp');
+    const jpeg = await encoder.evaluate(async url => {
       const img = new Image();
-      img.src = `data:image/webp;base64,${b64}`;
+      img.src = url;
       await img.decode();
       const c = document.createElement('canvas');
       c.width = Math.round(img.naturalWidth / 2);
@@ -159,7 +159,7 @@ try {
       return c.toDataURL('image/jpeg', 0.88);
     }, webp);
     const out = `website/public/listing/en/${name}.jpg`;
-    await writeFile(out, Buffer.from(jpeg.split(',')[1], 'base64'));
+    await writeFile(out, dataUrlBytes(jpeg));
     console.log(`Wrote ${out}`);
   }
   await encoder.close();

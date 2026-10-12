@@ -4,11 +4,12 @@
 // style. Three coats share the drawing: the orange tabby (the mascot), a grey and a cream cat, so
 // these historical reference files remain separate from the accepted production artwork.
 // Row order and frame counts follow src/core/animation.js. Run: npm run mascot-pet
-// Needs Google Chrome (playwright-core drives it headless, as the e2e tools do).
+// Needs Google Chrome or Playwright's Chromium (browser-lib.mjs drives it headless).
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { chromium } from 'playwright-core';
+import { dataUrlBytes } from './art-lib.mjs';
+import { launchBrowser } from './browser-lib.mjs';
 
 // The coats. Eyes, nose, blush and whisker tone stay; fur, stripes, belly, paws and ears change.
 const COATS = [
@@ -437,7 +438,7 @@ function drawSheet(coat) {
   return canvas.toDataURL('image/png');
 }
 
-const browser = await chromium.launch({ channel: 'chrome', headless: true });
+const browser = await launchBrowser();
 try {
   const page = await browser.newPage();
   await page.setContent('<!doctype html><html><body></body></html>');
@@ -445,7 +446,7 @@ try {
     const out = `release/legacy-pets/${coat.id}`;
     const dataUrl = await page.evaluate(drawSheet, coat.colors);
     await mkdir(out, { recursive: true });
-    await writeFile(path.join(out, 'spritesheet.png'), Buffer.from(dataUrl.split(',')[1], 'base64'));
+    await writeFile(path.join(out, 'spritesheet.png'), dataUrlBytes(dataUrl));
     await writeFile(
       path.join(out, 'pet.json'),
       `${JSON.stringify(

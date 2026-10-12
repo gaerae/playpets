@@ -1,4 +1,3 @@
-import { weatherPanes } from './window-weather.js';
 import { worldAllows, worldFor } from './worlds.js';
 
 // Raster land shares the live sky's time and weather. Loading stays inside easel setup.
@@ -48,6 +47,20 @@ export function environmentFrame(w, h, scene = {}, sourceWidth = 1536, sourceHei
     height = sourceHeight * scale,
     floor = place.fit === 'cover-bottom' ? 1 : (place.geometry?.fieldTop ?? 0.6);
   return { x: (w - width) / 2, y: (h - height) * floor, width, height };
+}
+
+/** Visible window glass in the same cropped coordinates as the painted room; null means outdoors. */
+export function weatherPanes(w, h, frame, panes) {
+  if (!panes) return null;
+  return panes
+    .map(pane => {
+      const x = Math.max(0, frame.x + pane.x * frame.width),
+        y = Math.max(0, frame.y + pane.y * frame.height),
+        right = Math.min(w, frame.x + (pane.x + pane.width) * frame.width),
+        bottom = Math.min(h, frame.y + (pane.y + pane.height) * frame.height);
+      return { x, y, width: right - x, height: bottom - y };
+    })
+    .filter(pane => pane.width > 0 && pane.height > 0);
 }
 
 /** Paints a loaded transparent land layer without touching the sky behind it. */

@@ -19,7 +19,7 @@ Anyone who has cloned the repository and run `npm ci`. Only taking new screen ca
 
 | To change | File |
 |---|---|
-| Landing page text and layout | `website/.vitepress/theme/Landing.vue`; localized `landing-<language>.ts` modules and `landing-sections.mjs`; `landing.css` and `style.css` |
+| Landing page text and layout | `website/.vitepress/theme/Landing.vue`; one `landing-<language>.ts` per language, each with `copy`, `worldCopy` and `sections`; `landing.css` and `style.css` |
 | User guide | `website/guide/*.md` (English), Korean in `website/ko/guide/*.md`, Japanese in `website/ja/guide/*.md`, Simplified Chinese in `website/zh-hans/guide/*.md` |
 | Release pages | `website/releases/<version>.md` (English), Korean in `website/ko/releases/`, Japanese in `website/ja/releases/`, Simplified Chinese in `website/zh-hans/releases/` |
 | Developer docs | The originals under `docs/` (English only). `website/dev/` is a copy made at build time; do not edit it |

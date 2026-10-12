@@ -1,6 +1,7 @@
 // Yard scenery: the time of day comes from the clock, and the weather changes on its own unless the person picks one.
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
+import { seasonFor } from '../core/season.js';
 
 export const PERIODS = {
   morning: t('period.morning'),
@@ -35,31 +36,6 @@ export function autoWeather(ms, season = seasonFor(new Date(ms))) {
     [clear, rain] = ODDS[season] || ODDS.spring;
   return roll < clear ? 'clear' : roll < rain ? 'rain' : 'snow';
 }
-// The season by the month: March to May is spring north of the equator, autumn south of it.
-const SEASONS = [
-  'winter',
-  'winter',
-  'spring',
-  'spring',
-  'spring',
-  'summer',
-  'summer',
-  'summer',
-  'autumn',
-  'autumn',
-  'autumn',
-  'winter',
-];
-export function seasonFor(date, south = false) {
-  return SEASONS[(date.getMonth() + (south ? 6 : 0)) % 12];
-}
-export function selectedSeason(date, south = false, choice = 'auto') {
-  return ['spring', 'summer', 'autumn', 'winter'].includes(choice) ? choice : seasonFor(date, south);
-}
-// South of the equator, by the time zone the system is set to: no location is asked for.
-const SOUTH =
-  /^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham|Fiji|Tongatapu|Apia|Noumea|Efate|Port_Moresby)|^America\/(Argentina|Buenos_Aires|Sao_Paulo|Santiago|Montevideo|Asuncion|La_Paz|Lima|Bahia|Recife|Maceio|Campo_Grande|Cuiaba|Punta_Arenas)|^Africa\/(Johannesburg|Maputo|Harare|Windhoek|Lusaka|Gaborone|Maseru|Mbabane|Blantyre|Lubumbashi)|^Indian\/(Mauritius|Reunion|Antananarivo)|^Atlantic\/Stanley/;
-export const southern = zone => SOUTH.test(zone || '');
 // What each season does to the yard, as colours for the custom properties in scenery.css: the round
 // trees (--crown, and --maple for the one that turns first), the bushes (--leaf) and by day the
 // fields. Morning shares the day's colours; evening and night keep their own light on the fields.

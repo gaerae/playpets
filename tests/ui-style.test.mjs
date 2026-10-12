@@ -377,3 +377,57 @@ test('no custom property is defined from itself', async () => {
       assert.ok(!value.includes(`var(${name})`) && !value.includes(`var(${name},`), `${file}: ${name}: ${value}`);
   }
 });
+
+// A custom property the page sets from code rather than in a stylesheet, and the file that sets it.
+const SET_FROM_CODE = {
+  '--head': 'src/core/sprites.js',
+  '--orb-x': 'src/yard/sky.js',
+  '--orb-y': 'src/yard/sky.js',
+  '--moon-shade': 'src/yard/sky.js',
+};
+// A misspelt or removed token silently falls back to the property's initial value (no colour, no
+// size), so every one a stylesheet reads has to come from somewhere.
+test('every custom property a stylesheet reads is defined in one or set from code', async () => {
+  const files = (await readdir('src/styles')).sort();
+  const css = (await Promise.all(files.map(f => readFile(`src/styles/${f}`, 'utf8'))))
+    .join('\n')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+  const known = new Set([...css.matchAll(/(--[\w-]+)\s*:/g)].map(m => m[1]));
+  for (const [name, file] of Object.entries(SET_FROM_CODE)) {
+    assert.ok((await readFile(file, 'utf8')).includes(`setProperty('${name}'`), `${file} sets ${name}`);
+    known.add(name);
+  }
+  // The season's colours, which sky.js sets on the yard and the painter (yard/easel.js) reads.
+  const { SEASON_COLORS } = await import('../src/yard/scene.js');
+  for (const periods of Object.values(SEASON_COLORS))
+    for (const colors of Object.values(periods)) for (const name of Object.keys(colors)) known.add(name);
+  const read = new Set([...css.matchAll(/var\(\s*(--[\w-]+)/g)].map(m => m[1]));
+  assert.deepEqual(
+    [...read].filter(name => !known.has(name)),
+    [],
+  );
+});
+
+// A token with only a dark value means nothing in light mode, so only dark rules may read it.
+test('a token defined only for dark mode is read only by dark rules', async () => {
+  const dark = media => media.includes('prefers-color-scheme: dark');
+  const rules = (
+    await Promise.all(
+      (await readdir('src/styles')).map(async f => parseRules(await readFile(`src/styles/${f}`, 'utf8'), f)),
+    )
+  ).flat();
+  const definedIn = new Map();
+  for (const r of rules)
+    for (const prop of Object.keys(r.props))
+      if (prop.startsWith('--')) definedIn.set(prop, [...(definedIn.get(prop) || []), r.media]);
+  const darkOnly = [...definedIn].filter(([, media]) => media.every(dark)).map(([name]) => name);
+  assert.ok(darkOnly.length, 'the dark tokens are found');
+  const misread = rules.flatMap(r =>
+    dark(r.media)
+      ? []
+      : Object.entries(r.props)
+          .filter(([, value]) => darkOnly.some(name => new RegExp(`var\\(\\s*${name}[\\s,)]`).test(value)))
+          .map(([prop]) => `${r.file} ${r.sel} { ${prop} }`),
+  );
+  assert.deepEqual(misread, []);
+});

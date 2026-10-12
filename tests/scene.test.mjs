@@ -2,6 +2,7 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { seasonFor, southern } from '../src/core/season.js';
 import { STRINGS } from '../src/core/strings.js';
 import {
   autoWeather,
@@ -18,9 +19,7 @@ import {
   periodFor,
   SEASON_COLORS,
   sceneCaption,
-  seasonFor,
   seasonVars,
-  southern,
   spawnDrop,
   spawnFaller,
   stepDrops,

@@ -7,7 +7,7 @@
 // during it. Rules only, apart from the page; festival.js shows an event, the backend checks its
 // gift (src-tauri/src/pets/content.rs). How to add one: docs/how-to/add-to-the-yard.md.
 
-import { seasonFor } from './scene.js';
+import { seasonFor } from '../core/season.js';
 
 /** The events, filled in place from events.json once at start (content.js) or by a test. */
 const EVENTS = [];

@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { crc32, deflateSync } from 'node:zlib';
-import { eligiblePng, inspectPng, optimizationProvenance, verifyLossless } from '../scripts/png-lossless-lib.mjs';
+import {
+  eligiblePng,
+  inspectPng,
+  optimizationProvenance,
+  pngSize,
+  unfilterPng,
+  verifyLossless,
+} from '../scripts/png-lossless-lib.mjs';
 
 function chunk(type, data) {
   const body = Buffer.concat([Buffer.from(type), data]);
@@ -38,6 +45,29 @@ test('PNG validation rejects broken CRC, truncated data and invalid filters', ()
   assert.throws(() => inspectPng(corrupt), /PNG/);
   assert.throws(() => inspectPng(png().subarray(0, 45)), /PNG/);
   assert.throws(() => inspectPng(png(undefined, undefined, 5)), /PNG/);
+});
+test('PNG size reads a checked header and refuses anything else', () => {
+  assert.deepEqual(pngSize(png()), { width: 1, height: 1 });
+  assert.throws(() => pngSize(Buffer.from('not an image at all, but long enough')), /PNG header/);
+  const corrupt = png();
+  corrupt[17] ^= 1;
+  assert.throws(() => pngSize(corrupt), /PNG header/);
+  assert.throws(() => pngSize(png().subarray(0, 32)), /PNG header/);
+});
+test('row filters are reversed from the bytes already decoded', () => {
+  // Two RGB pixels in two rows: Sub on the first row, Up on the second, then Paeth on a third.
+  const raw = Buffer.from([1, 10, 20, 30, 5, 5, 5, 2, 1, 1, 1, 1, 1, 1, 4, 0, 0, 0, 0, 0, 0]);
+  assert.deepEqual(
+    [...unfilterPng(raw, 2, 3, 3, () => assert.fail())],
+    [10, 20, 30, 15, 25, 35, 11, 21, 31, 16, 26, 36, 11, 21, 31, 16, 26, 36],
+  );
+  assert.throws(
+    () =>
+      unfilterPng(Buffer.from([5, 0, 0, 0]), 1, 1, 3, () => {
+        throw new Error('bad filter');
+      }),
+    /bad filter/,
+  );
 });
 test('optimization scope excludes generation sources and unrelated files', () => {
   for (const path of [

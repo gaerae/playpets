@@ -92,6 +92,8 @@ export const strings = {
   'caption.snow.day': '雪の降る昼の庭',
   'caption.snow.evening': '雪の降る夕方の庭',
   'caption.snow.night': '雪の降る夜の庭',
+  'caption.indoor': '{place} · {period}',
+  'caption.indoor_weather': '{place} · {period} · {weather}',
   'greet.morning': ['おはよう！', 'よく眠れた？', '今日もがんばろう！', '朝だよ〜'],
   'greet.day': ['やあ！', '会えてうれしい！', 'こんにちは〜', '今日もファイト！'],
   'greet.evening': ['こんばんは！', '今日もおつかれさま', '夕焼けきれいだね', 'やっほ〜'],

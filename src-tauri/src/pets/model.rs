@@ -1,13 +1,29 @@
 // Pet instances: creation, validated updates and restore from saved state.
 use crate::i18n;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
 pub const LIMIT: usize = 12;
-pub const VISUAL_STYLES: [&str; 2] = ["illustrated", "realistic"];
 /// The longest personality a friend keeps.
 pub const PERSONA_MAX: usize = 400;
+
+/// How a friend is drawn: its pet file's own sheet, or the realistic one the file may also ship.
+/// Saved and sent to the page as "illustrated" / "realistic".
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum VisualStyle {
+    #[default]
+    Illustrated,
+    Realistic,
+}
+
+impl VisualStyle {
+    /// The style a JSON value names, if it names one.
+    pub fn from_value(value: &Value) -> Option<Self> {
+        Self::deserialize(value).ok()
+    }
+}
 
 #[derive(Clone, Copy, Debug, Serialize)]
 pub struct Pos {
@@ -22,7 +38,7 @@ pub struct Pet {
     pub asset_id: String,
     pub name: String,
     #[serde(rename = "visualStyle")]
-    pub visual_style: String,
+    pub visual_style: VisualStyle,
     pub size: f64,
     pub x: f64,
     pub y: f64,
@@ -105,7 +121,7 @@ pub fn create_pet(asset_id: &str, pets: &[Pet]) -> Result<Pet, String> {
         id: Uuid::new_v4().to_string(),
         asset_id: asset_id.into(),
         name: String::new(),
-        visual_style: "illustrated".into(),
+        visual_style: VisualStyle::Illustrated,
         size: 112.0,
         x: 0.18 + (pets.len() % 4) as f64 * 0.2,
         y: 0.3 + (n / 4.0).floor() * 0.22,
@@ -141,12 +157,7 @@ pub fn update_pet(pets: &mut [Pet], id: &str, patch: &Value) -> Result<(), Strin
     let obj = patch.as_object().ok_or_else(|| i18n::t("error.bad_settings"))?;
     let visual_style = obj
         .get("visualStyle")
-        .map(|value| {
-            value
-                .as_str()
-                .filter(|style| VISUAL_STYLES.contains(style))
-                .ok_or_else(|| i18n::t("error.bad_settings"))
-        })
+        .map(|value| VisualStyle::from_value(value).ok_or_else(|| i18n::t("error.bad_settings")))
         .transpose()?;
     // Every field is checked before any is set: a patch with one wrong field changes nothing.
     let mut numbers = Vec::new();
@@ -167,7 +178,7 @@ pub fn update_pet(pets: &mut [Pet], id: &str, patch: &Value) -> Result<(), Strin
         }
     }
     if let Some(style) = visual_style {
-        pet.visual_style = style.into();
+        pet.visual_style = style;
     }
     for (key, n, range) in numbers {
         set_number(pet, key, n, range);
@@ -205,13 +216,11 @@ pub fn restore_pets(raw: &Value, asset_ids: &[String]) -> Vec<Pet> {
             break;
         };
         pet.id = id.into();
-        if let Some(style) = p
+        // An unknown or missing style is drawn the pet file's own way rather than losing the friend.
+        pet.visual_style = p
             .get("visualStyle")
-            .and_then(Value::as_str)
-            .filter(|style| VISUAL_STYLES.contains(style))
-        {
-            pet.visual_style = style.into();
-        }
+            .and_then(VisualStyle::from_value)
+            .unwrap_or_default();
         for (key, min, max) in NUMBER_RANGES {
             if let Some(n) = p.get(key).and_then(|v| v.as_f64()).filter(|n| n.is_finite()) {
                 set_number(&mut pet, key, n, (min, max));
@@ -272,14 +281,14 @@ mod tests {
         let chosen =
             create_pet_with_options("same", &existing, &json!({"name":" Aria 2 ","visualStyle":"realistic"})).unwrap();
         assert_eq!(chosen.name, "Aria 2");
-        assert_eq!(chosen.visual_style, "realistic");
+        assert_eq!(chosen.visual_style, VisualStyle::Realistic);
         assert_eq!(existing.len(), 1);
-        assert_eq!(existing[0].visual_style, "illustrated");
+        assert_eq!(existing[0].visual_style, VisualStyle::Illustrated);
         assert_eq!(
             create_pet_with_options("same", &existing, &Value::Null)
                 .unwrap()
                 .visual_style,
-            "illustrated"
+            VisualStyle::Illustrated
         );
         for invalid in [
             json!({"visualStyle":"unknown"}),
@@ -297,24 +306,50 @@ mod tests {
         let a = create_pet("same", &[]).unwrap();
         let b = create_pet("same", std::slice::from_ref(&a)).unwrap();
         let mut pets = vec![a.clone(), b];
-        assert_eq!(pets[0].visual_style, "illustrated");
+        assert_eq!(pets[0].visual_style, VisualStyle::Illustrated);
         update_pet(&mut pets, &a.id, &json!({"visualStyle":"realistic"})).unwrap();
-        assert_eq!(pets[0].visual_style, "realistic");
-        assert_eq!(pets[1].visual_style, "illustrated");
+        assert_eq!(pets[0].visual_style, VisualStyle::Realistic);
+        assert_eq!(pets[1].visual_style, VisualStyle::Illustrated);
         for invalid in [json!("unknown"), json!(12), json!(null)] {
             assert!(update_pet(&mut pets, &a.id, &json!({"size":180,"visualStyle":invalid})).is_err());
             assert_eq!(pets[0].size, a.size, "invalid style rejects the whole patch");
-            assert_eq!(pets[0].visual_style, "realistic");
+            assert_eq!(pets[0].visual_style, VisualStyle::Realistic);
         }
         let saved = json!({"pets":pets});
         let restored = restore_pets(&saved, &["same".into()]);
-        assert_eq!(restored[0].visual_style, "realistic");
+        assert_eq!(restored[0].visual_style, VisualStyle::Realistic);
         for style in [None, Some(json!("unknown")), Some(json!(false))] {
             let mut legacy = json!({"pets":[{"id":"old","assetId":"same"}]});
             if let Some(style) = style {
                 legacy["pets"][0]["visualStyle"] = style;
             }
-            assert_eq!(restore_pets(&legacy, &["same".into()])[0].visual_style, "illustrated");
+            assert_eq!(
+                restore_pets(&legacy, &["same".into()])[0].visual_style,
+                VisualStyle::Illustrated
+            );
+        }
+    }
+
+    #[test]
+    fn the_saved_style_keeps_its_words_and_an_unknown_one_keeps_the_friend() {
+        let mut pet = create_pet("same", &[]).unwrap();
+        assert_eq!(serde_json::to_value(&pet).unwrap()["visualStyle"], "illustrated");
+        pet.visual_style = VisualStyle::Realistic;
+        assert_eq!(serde_json::to_value(&pet).unwrap()["visualStyle"], "realistic");
+        // The page and older saves spell it exactly so; any other spelling is not a style.
+        for unknown in ["Realistic", "photo", ""] {
+            let saved = json!({"pets":[{"id":"old","assetId":"same","name":"Mochi","visualStyle":unknown}]});
+            let restored = restore_pets(&saved, &["same".into()]);
+            assert_eq!(restored.len(), 1, "{unknown:?} keeps the friend");
+            assert_eq!(
+                (restored[0].name.as_str(), restored[0].visual_style),
+                ("Mochi", VisualStyle::Illustrated)
+            );
+            let mut pets = restored;
+            assert_eq!(
+                update_pet(&mut pets, "old", &json!({"visualStyle":unknown})),
+                Err(i18n::t("error.bad_settings"))
+            );
         }
     }
 

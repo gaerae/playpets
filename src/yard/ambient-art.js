@@ -1,28 +1,19 @@
 // Species keep their collection identity while flying; decoding starts only in a living yard.
+import { canvasFor, decodeImage, materialCache } from './raster.js';
+
 const WINGBEAT = [0, 1, 2, 1];
-let bugsReady, birdsReady;
-const decode = async path => {
-  if (typeof Image === 'undefined') return null;
-  const image = new Image();
-  image.src = new URL(path, import.meta.url).href;
-  await image.decode();
-  return image;
-};
+let bugsReady;
 function loadBugs() {
   if (typeof Image === 'undefined') return Promise.resolve(null);
   bugsReady ??= Promise.all([
-    decode('../art/bugs/specimens.png'),
+    decodeImage('../art/bugs/specimens.png'),
     fetch(new URL('../art/collection.json', import.meta.url)).then(r => (r.ok ? r.json() : [])),
   ])
-    .then(([image, entries]) => ({ image, entries }))
+    .then(([image, entries]) => (image ? { image, entries } : null))
     .catch(() => null);
   return bugsReady;
 }
-function loadBirds() {
-  birdsReady ??= decode('../art/ambient/birds.png').catch(() => null);
-  return birdsReady;
-}
-const canvasFor = () => (typeof document === 'undefined' ? null : document.createElement('canvas'));
+const loadBirds = () => decodeImage('../art/ambient/birds.png');
 export function createAmbientArt(
   changed,
   { loadBugs: bugs = loadBugs, loadBirds: birds = loadBirds, makeCanvas = canvasFor } = {},
@@ -34,24 +25,8 @@ export function createAmbientArt(
     wildlife = false,
     sky = false;
   const crops = new Map(),
-    materials = new Map();
-  function material(key, draw) {
-    if (materials.has(key)) return materials.get(key);
-    const canvas = makeCanvas();
-    if (!canvas) {
-      materials.set(key, null);
-      return null;
-    }
-    canvas.width = canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      materials.set(key, null);
-      return null;
-    }
-    draw(ctx);
-    materials.set(key, canvas);
-    return canvas;
-  }
+    materials = materialCache(makeCanvas),
+    { material } = materials;
   function use(living, openSky, creatures = []) {
     wildlife = living;
     sky = openSky;

@@ -1,14 +1,16 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, matchesGlob } from 'node:path';
 import test from 'node:test';
 
 const read = file => readFileSync(file, 'utf8');
 // Git reads the rules of this repository only, not a contributor's global ignores or attributes.
-const emptyConfig = join(mkdtempSync(join(tmpdir(), 'playpets-git-')), 'config');
+const configDir = mkdtempSync(join(tmpdir(), 'playpets-git-'));
+const emptyConfig = join(configDir, 'config');
 writeFileSync(emptyConfig, '');
+process.on('exit', () => rmSync(configDir, { recursive: true, force: true }));
 const git = { env: { ...process.env, GIT_CONFIG_GLOBAL: emptyConfig, GIT_CONFIG_NOSYSTEM: '1' } };
 
 test('Pages redeploys when shared application artwork or publishing inputs change', () => {

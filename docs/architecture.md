@@ -60,7 +60,7 @@ flowchart LR
 `src/content/worlds.json` selects Woodland or Window studio and describes each
 place's activity capabilities, floor and pond geometry, lighting images and
 window panes. `yard/environment.js` paints the accepted raster backdrop;
-`easel.js` retains the procedural loading/error fallback. `window-weather.js`
+`easel.js` retains the procedural loading/error fallback. `weatherPanes` there
 clips studio rain, snow and overcast shading to the authored windows. Woodland
 supports fishing and bugs; studio keeps the same friends, garden, gifts and
 games without those outdoor activities. Changing places ends active trips and

@@ -26,12 +26,14 @@ import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
 import { giftTick, renderDecor } from './yard/decor.js';
 import { gardenTick, renderGarden, setupGarden } from './yard/garden.js';
+import { hint } from './yard/hint.js';
 import { moveFriends } from './yard/motion.js';
-import { gameTap, judge, playGame, setupPlay } from './yard/play.js';
+import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
 import { setupSky } from './yard/sky.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
-import { bubble, setupViews } from './yard/views.js';
+import { release } from './yard/trips.js';
+import { bubble, place, setupViews, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { scene, scenery } from './yard/world.js';
 
@@ -92,6 +94,31 @@ onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'
 setupSky({
   seasonChanged: season => {
     if (setSpriteSeason(season) && data.assets.length) render();
+  },
+  seasonPicked: endFishing,
+  // Another place: the game, the fishing and every trip end in the old one, then the friends, the
+  // garden, the gifts and the hint are laid out in the new one.
+  worldChanged: enter => {
+    endGame();
+    endFishing();
+    for (const v of views.values()) {
+      release(v);
+      v.away = false;
+    }
+    enter();
+    syncViews();
+    renderGarden();
+    renderDecor();
+    hint();
+  },
+  // The land was drawn the other way (its picture, or the painted land when the picture could not
+  // be loaded): the field may begin at another height (field.js fieldTop), so the fishing ends and
+  // the friends, the garden and the gifts stand again on the land that shows.
+  landChanged: () => {
+    endFishing();
+    for (const v of views.values()) place(v);
+    renderGarden();
+    renderDecor();
   },
 });
 setupViews({

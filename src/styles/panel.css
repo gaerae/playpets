@@ -146,7 +146,7 @@
     color: #b6cda5;
   }
   .notice.warning {
-    background: #49332c;
+    background: var(--danger-soft);
     color: #f5c3a9;
   }
 }
@@ -165,4 +165,25 @@
   .side-panel {
     order: 2;
   }
+}
+/* ---- the mini window's brief conversation: the panel floats over the yard (mini.css). Last in
+   the file, so no later panel rule quietly undoes it. ---- */
+body.mini .layout.mini-chat-open .side-panel {
+  display: flex;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: min(340px, calc(100% - 16px));
+  height: min(330px, calc(100% - 16px));
+  max-height: none;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--floating);
+  box-shadow: 0 8px 28px var(--ink-20);
+  overflow: hidden;
+  z-index: 20;
+}
+body.mini .layout.mini-chat-open .panel-head {
+  top: 10px;
+  right: 10px;
 }

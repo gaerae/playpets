@@ -85,3 +85,23 @@ export function atlasPoses(rgba, width, height, columns = 8, rows = 11) {
   }
   return result;
 }
+
+// A pose's own pixels plus a two-pixel fringe of anti-aliasing, cut from the source rectangle
+// (sx, sy, sw, sh) as RGBA; a neighbouring pose that reaches into the rectangle stays out.
+export function isolatePose(rgba, width, pixels, sx, sy, sw, sh) {
+  const mask = new Uint8Array(sw * sh),
+    out = new Uint8ClampedArray(sw * sh * 4);
+  for (const at of pixels) {
+    const px = (at % width) - sx,
+      py = Math.floor(at / width) - sy;
+    for (let y = Math.max(0, py - 2); y <= Math.min(sh - 1, py + 2); y++)
+      for (let x = Math.max(0, px - 2); x <= Math.min(sw - 1, px + 2); x++) mask[y * sw + x] = 1;
+  }
+  for (let y = 0; y < sh; y++)
+    for (let x = 0; x < sw; x++)
+      if (mask[y * sw + x]) {
+        const from = ((sy + y) * width + sx + x) * 4;
+        out.set(rgba.subarray(from, from + 4), (y * sw + x) * 4);
+      }
+  return out;
+}

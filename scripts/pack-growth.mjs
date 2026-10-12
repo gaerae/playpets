@@ -1,11 +1,12 @@
 // Isolate generated growth silhouettes while preserving their shared ground and scale.
-import { readFile, writeFile } from 'node:fs/promises';
-import { chromium } from 'playwright-core';
+import { writeFile } from 'node:fs/promises';
+import { dataUrlBytes, readDataUrl } from './art-lib.mjs';
 import { atlasPoses } from './atlas-lib.mjs';
+import { launchBrowser } from './browser-lib.mjs';
 
 const [source, destination = 'src/art/plants/growth.png'] = process.argv.slice(2);
 if (!source) throw new Error('Usage: node scripts/pack-growth.mjs generated-source.png destination.png');
-const browser = await chromium.launch({ channel: 'chrome', headless: true });
+const browser = await launchBrowser();
 try {
   const page = await browser.newPage();
   await page.addScriptTag({ content: `window.atlasPoses = ${atlasPoses.toString()}` });
@@ -35,11 +36,11 @@ try {
       for (let at = 0; at < mask.length; at++)
         if (mask[at]) packed.data.set(raw.data.subarray(at * 4, at * 4 + 4), at * 4);
       context.putImageData(packed, 0, 0);
-      return canvas.toDataURL('image/png').split(',')[1];
+      return canvas.toDataURL('image/png');
     },
-    `data:image/png;base64,${(await readFile(source)).toString('base64')}`,
+    await readDataUrl(source),
   );
-  await writeFile(destination, Buffer.from(result, 'base64'));
+  await writeFile(destination, dataUrlBytes(result));
 } finally {
   await browser.close();
 }

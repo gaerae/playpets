@@ -52,8 +52,8 @@
   height: 17px;
   padding: 0 5px;
   border-radius: 9px;
-  background: #e3f2ea;
-  color: #2c6e57;
+  background: var(--green-soft);
+  color: var(--green-ink);
   font-size: 10.5px;
   font-weight: 700;
   line-height: 17px;
@@ -137,8 +137,8 @@
 /* the game on, whose row ends it */
 .games-menu .button.tool.playing,
 .games-menu .button.tool.playing:hover:not(:disabled) {
-  background: #fbe7ef;
-  color: #a8425b;
+  background: var(--pink-soft);
+  color: var(--pink-ink);
 }
 .treat {
   position: absolute;
@@ -148,15 +148,4 @@
   height: 24px;
   background: url("../art/ambient/treat.svg") center / contain no-repeat;
   filter: drop-shadow(2px 4px 2px #526c5230);
-}
-@media (prefers-color-scheme: dark) {
-  .tool-count {
-    background: var(--soft);
-    color: #d1e8c2;
-  }
-  .games-menu .button.tool.playing,
-  .games-menu .button.tool.playing:hover:not(:disabled) {
-    background: #49323c;
-    color: #f8c6d9;
-  }
 }

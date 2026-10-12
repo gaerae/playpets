@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { environmentFrame } from '../src/yard/environment.js';
+import { environmentFrame, weatherPanes } from '../src/yard/environment.js';
 import { createScenery } from '../src/yard/scenery.js';
 import { useWorlds } from '../src/yard/worlds.js';
 import { worlds as definitions } from './support/content.mjs';
@@ -171,4 +171,20 @@ test('reduced studio weather paints once while clear and offscreen panes remain 
   assert.equal(log.paints, hidden);
   assert.equal(log.draws.length, 0);
   assert.equal(scenery.busy(), false);
+});
+
+test('window panes follow the crop of the room picture, stop at the edges of the yard and are absent outdoors', () => {
+  const frame = { x: -100, y: -50, width: 1000, height: 500 };
+  assert.equal(weatherPanes(800, 400, frame, undefined), null);
+  assert.deepEqual(
+    weatherPanes(800, 400, frame, [
+      { x: 0.25, y: 0.25, width: 0.25, height: 0.25 },
+      { x: 0.0625, y: 0, width: 0.125, height: 0.25 },
+      { x: 0.9375, y: 0.125, width: 0.0625, height: 0.125 },
+    ]),
+    [
+      { x: 150, y: 75, width: 250, height: 125 },
+      { x: 0, y: 0, width: 87.5, height: 75 },
+    ],
+  );
 });

@@ -74,8 +74,8 @@
   margin-left: 6px;
   padding: 1px 8px;
   border-radius: 99px;
-  background: #fbe7ef;
-  color: #a8425b;
+  background: var(--pink-soft);
+  color: var(--pink-ink);
   font-weight: 700;
 }
 .caption-event[hidden] {
@@ -201,7 +201,7 @@
 }
 /* A switch that is on, as the tray's check mark says. */
 #desktop[aria-pressed="true"] {
-  background: #e3efe6;
+  background: var(--pressed);
   color: #24503a;
 }
 #sound-button[aria-pressed="false"] {
@@ -269,13 +269,8 @@
   .caption-count {
     color: #c8ddbb;
   }
-  .caption-event {
-    background: #49323c;
-    color: #f8c6d9;
-  }
   #desktop[aria-pressed="true"] {
-    background: var(--soft);
-    color: #d1e8c2;
+    color: var(--green-ink);
   }
   #sound-button[aria-pressed="false"] {
     color: var(--muted);

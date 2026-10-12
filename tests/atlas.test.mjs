@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { atlasPoses } from '../scripts/atlas-lib.mjs';
+import { atlasPoses, isolatePose } from '../scripts/atlas-lib.mjs';
 
 test('an incomplete atlas is refused rather than filled with blank frames', () => {
   const pixels = new Uint8Array(12 * 12 * 4);
@@ -44,4 +44,20 @@ test('two figures joined by a narrow alpha bridge become separate poses, not a t
   assert.equal(poses.length, 3);
   assert.ok(poses.every(p => p.bottom - p.top < 12));
   assert.ok(poses[0].bottom < poses[1].top);
+});
+
+test('an isolated pose keeps its own pixels and fringe but not a neighbour inside its rectangle', () => {
+  const width = 10,
+    height = 6,
+    rgba = new Uint8Array(width * height * 4);
+  const paint = (x, y, alpha) => rgba.set([x, y, 7, alpha], (y * width + x) * 4);
+  paint(3, 2, 255);
+  paint(5, 2, 12); // anti-aliasing two pixels away
+  paint(8, 2, 255); // the next pose, three pixels away
+  const out = isolatePose(rgba, width, [2 * width + 3], 1, 0, 8, 5);
+  const at = (x, y) => [...out.subarray((y * 8 + x) * 4, (y * 8 + x) * 4 + 4)];
+  assert.equal(out.length, 8 * 5 * 4);
+  assert.deepEqual(at(2, 2), [3, 2, 7, 255]);
+  assert.deepEqual(at(4, 2), [5, 2, 7, 12]);
+  assert.deepEqual(at(7, 2), [0, 0, 0, 0]);
 });

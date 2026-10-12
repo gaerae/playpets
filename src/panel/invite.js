@@ -1,6 +1,5 @@
 // The invite tab: pets on the shelf, and bringing new ones in from a page or a folder.
 
-import { styledAsset } from '../core/appearance.js';
 import { language, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
@@ -42,16 +41,12 @@ const PLACES = [
 ];
 // Who made a downloaded pet, as the page it came from said: "Petdex · hongtao · CC BY-NC 4.0".
 const creditLine = credit => [credit.site, credit.creator, credit.license].filter(Boolean).join(' · ');
-/** Each catalog asset is one ordinary pet entry, including packages with optional legacy looks. */
-export function shelfEntries(assets) {
-  return assets.map(a => ({ ...a, shelfStyle: 'illustrated', entryKey: a.id }));
-}
 function card(a) {
   const card = document.createElement('button');
   card.className = 'asset-card';
+  // The asset id is the card's key: each catalog asset is one card, packages with optional legacy
+  // looks included.
   card.dataset.assetId = a.id;
-  card.dataset.style = a.shelfStyle;
-  card.dataset.entryKey = a.entryKey;
   card.setAttribute('aria-label', t('invite.add_aria', { name: a.displayName }));
   card.title = a.folderPath;
   const c = canvas(),
@@ -81,22 +76,16 @@ function card(a) {
   card.append(c, info, plus);
   card.onclick = guard(async () => {
     if (card.disabled) return;
-    inviting.add(a.entryKey);
+    inviting.add(a.id);
     renderShelf();
     try {
-      await invite(a.id, a.shelfStyle);
+      await invite(a.id);
     } finally {
-      inviting.delete(a.entryKey);
+      inviting.delete(a.id);
       renderShelf();
     }
   });
-  previews.set(a.entryKey, {
-    canvas: c,
-    asset: styledAsset(
-      data.assets.find(original => original.id === a.id),
-      a.shelfStyle,
-    ),
-  });
+  previews.set(a.id, { canvas: c, asset: a });
   return card;
 }
 function group({ place, title, folder }, assets) {
@@ -139,7 +128,7 @@ export function shelfAssets(assets, type, query = '') {
 }
 export function renderShelf() {
   const query = $('invite-search')?.value || '',
-    shown = shelfAssets(shelfEntries(data.assets), kind, query),
+    shown = shelfAssets(data.assets, kind, query),
     key = JSON.stringify([
       language(),
       kind,
@@ -171,8 +160,8 @@ export function renderShelf() {
   // A shape with no pets says so, with the way back to every pet.
   $('no-kind').hidden = !data.assets.length || shown.length > 0;
   for (const b of $('shelf').querySelectorAll('.asset-card')) {
-    b.disabled = full || inviting.has(b.dataset.entryKey);
-    b.setAttribute('aria-busy', String(inviting.has(b.dataset.entryKey)));
+    b.disabled = full || inviting.has(b.dataset.assetId);
+    b.setAttribute('aria-busy', String(inviting.has(b.dataset.assetId)));
     // The heading already says a click invites; a card adds a line only when that friend is in the
     // yard already, to say a click brings another.
     const hint = b.querySelector('.asset-hint');

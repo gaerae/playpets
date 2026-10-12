@@ -43,8 +43,12 @@ test('sprite previews preserve their space and load only when visible', () => {
 });
 
 test('landing connection and gallery copy has the same contract in every language', async () => {
-  const { sections } = await import('../website/.vitepress/theme/landing-sections.mjs');
   const { SITE_LANGS, LANDING_PETS } = await import('../scripts/site-content.mjs');
+  const sections = Object.fromEntries(
+    await Promise.all(
+      SITE_LANGS.map(async lang => [lang, (await import(`../website/.vitepress/theme/landing-${lang}.ts`)).sections]),
+    ),
+  );
   assert.equal(LANDING_PETS.length, 10);
   assert.deepEqual(
     LANDING_PETS.map(pet => pet.displayName),
@@ -66,7 +70,10 @@ test('localized landing data has one active contract without removed feature tab
   const locales = await Promise.all(
     ['en', 'ko', 'ja', 'zh-hans'].map(lang => import(`../website/.vitepress/theme/landing-${lang}.ts`)),
   );
-  for (const { copy, worldCopy } of locales) {
+  for (const locale of locales) {
+    // Every language file has the same exports, so Landing.vue reads them all the same way.
+    assert.deepEqual(Object.keys(locale).sort(), ['copy', 'sections', 'worldCopy']);
+    const { copy, worldCopy } = locale;
     assert.deepEqual(Object.keys(copy).sort(), Object.keys(locales[0].copy).sort());
     assert.deepEqual(Object.keys(worldCopy).sort(), Object.keys(locales[0].worldCopy).sort());
     for (const key of ['why', 'diff', 'how', 'states', 'agents', 'features', 'title', 'lead', 'scene'])

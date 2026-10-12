@@ -291,7 +291,7 @@
   opacity: 1;
 }
 .send-button:hover:not(:disabled) {
-  background: #31575e;
+  background: var(--ink-hover);
 }
 .chat-foot {
   flex: none;
@@ -326,7 +326,7 @@
     color: #bacfe4;
   }
   .message.error {
-    background: #49332c;
+    background: var(--danger-soft);
   }
   .message code {
     background: #e8eee51a;
@@ -335,13 +335,41 @@
     background: var(--soft);
   }
   .composer textarea::placeholder {
-    color: #b2c0b7;
+    color: var(--muted);
   }
   .chat-starters .button.chip:hover {
     background: var(--soft);
   }
   .send-button:hover:not(:disabled) {
-    background: #cadcc1;
     color: #203425;
   }
+}
+/* ---- the mini window's brief conversation (mini.css): tighter, with the message box alone ---- */
+body.mini .side-panel .chat-foot,
+body.mini .side-panel #provider-select,
+body.mini .side-panel .companions {
+  display: none;
+}
+body.mini .side-panel .chat-log {
+  min-height: 0;
+  margin-top: 6px;
+  padding: 8px 2px;
+  gap: 6px;
+}
+body.mini .side-panel .message {
+  padding: 7px 9px;
+}
+body.mini .side-panel .composer textarea {
+  max-height: 72px;
+  padding: 8px 10px 2px;
+}
+body.mini .side-panel .composer-bar {
+  padding: 2px 5px 5px;
+}
+body.mini .side-panel .chat-starters {
+  margin: 6px 0;
+}
+body.mini .side-panel .chat-starters .button.chip {
+  min-height: 28px;
+  padding: 4px 8px;
 }

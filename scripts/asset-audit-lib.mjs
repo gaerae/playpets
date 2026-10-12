@@ -1,13 +1,15 @@
 // Inventory evidence supplements visual review; a valid file alone does not prove good artwork.
-import { createHash } from 'node:crypto';
 import { access, readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { pngSize, sha256 } from './png-lossless-lib.mjs';
 
 const EXTENSIONS = new Set(['png', 'svg', 'gif', 'webp', 'jpg', 'jpeg', 'bmp', 'ico', 'icns']);
 export function imageSize(bytes, extension) {
   switch (extension) {
-    case 'png':
-      return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+    case 'png': {
+      const { width, height } = pngSize(bytes);
+      return [width, height];
+    }
     case 'gif':
       return [bytes.readUInt16LE(6), bytes.readUInt16LE(8)];
     case 'bmp':
@@ -142,7 +144,7 @@ export async function inventoryAssets(root = '.') {
         width,
         height,
         bytes: bytes.length,
-        sha256: createHash('sha256').update(bytes).digest('hex'),
+        sha256: sha256(bytes),
         missingReferences,
       };
     }),

@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { validatePng } from '../scripts/creator-bundle-lib.mjs';
+import { pngSize } from '../scripts/png-lossless-lib.mjs';
 
 const names = ['idle', 'right', 'left', 'wave', 'jump', 'error', 'waiting', 'working', 'done', 'look', 'look'];
 
@@ -23,7 +24,7 @@ for (const id of ['tabby', 'smoky', 'mochi']) {
     for (const [row, source] of provenance.rows.entries()) {
       assert.equal(source.file, `source-rows/${String(row).padStart(2, '0')}-${names[row]}.png`);
       const png = await readFile(`${root}/${source.file}`);
-      assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1536, 1024]);
+      assert.deepEqual(pngSize(png), { width: 1536, height: 1024 });
       assert.equal(source.sha256, createHash('sha256').update(png).digest('hex'));
       assert.ok((await readFile(`${root}/${source.prompt}`, 'utf8')).includes('Built-in image_gen output:'));
       if (source.normalization) {

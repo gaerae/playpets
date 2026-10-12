@@ -8,11 +8,10 @@
 import { between } from '../core/math.js';
 import { createAmbientArt } from './ambient-art.js';
 import { flyingBug } from './catalog.js';
-import { environmentFrame } from './environment.js';
+import { environmentFrame, weatherPanes } from './environment.js';
 import { boostOf } from './events.js';
 import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
 import { createWeatherArt } from './weather-art.js';
-import { weatherPanes } from './window-weather.js';
 import { worldAllows, worldFor } from './worlds.js';
 
 const TAU = Math.PI * 2;

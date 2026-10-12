@@ -16,12 +16,62 @@ export function eligiblePng(path) {
   );
 }
 
+const SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+
+/** Width and height from the header, after checking the signature and the header chunk itself. */
+export function pngSize(bytes) {
+  if (
+    bytes.length < 33 ||
+    !bytes.subarray(0, 8).equals(SIGNATURE) ||
+    bytes.readUInt32BE(8) !== 13 ||
+    bytes.toString('ascii', 12, 16) !== 'IHDR' ||
+    crc32(bytes.subarray(12, 29)) !== bytes.readUInt32BE(29)
+  )
+    throw new Error('Invalid PNG header');
+  const width = bytes.readUInt32BE(16),
+    height = bytes.readUInt32BE(20);
+  if (!width || !height) throw new Error('Invalid PNG header');
+  return { width, height };
+}
+
+/**
+ * Reverses the per-row filters of 8-bit samples. `raw` is the inflated image data, one filter byte
+ * before each row; an unknown filter calls `fail`, so each reader keeps its own error.
+ */
+export function unfilterPng(raw, width, height, channels, fail) {
+  const stride = width * channels,
+    pixels = Buffer.alloc(stride * height);
+  for (let y = 0; y < height; y++) {
+    const filter = raw[y * (stride + 1)];
+    if (filter > 4) fail();
+    for (let x = 0; x < stride; x++) {
+      const i = y * stride + x,
+        left = x >= channels ? pixels[i - channels] : 0,
+        up = y ? pixels[i - stride] : 0,
+        corner = y && x >= channels ? pixels[i - stride - channels] : 0;
+      let predictor = 0;
+      if (filter === 1) predictor = left;
+      if (filter === 2) predictor = up;
+      if (filter === 3) predictor = Math.floor((left + up) / 2);
+      if (filter === 4) {
+        const p = left + up - corner,
+          a = Math.abs(p - left),
+          b = Math.abs(p - up),
+          c = Math.abs(p - corner);
+        predictor = a <= b && a <= c ? left : b <= c ? up : corner;
+      }
+      pixels[i] = (raw[y * (stride + 1) + 1 + x] + predictor) & 255;
+    }
+  }
+  return pixels;
+}
+
 // Keep the original sample bytes, including RGB hidden by zero alpha.
 export function inspectPng(bytes) {
   const fail = () => {
     throw new Error('Invalid PNG');
   };
-  if (bytes.length < 45 || !bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) fail();
+  if (bytes.length < 45 || !bytes.subarray(0, 8).equals(SIGNATURE)) fail();
   let header,
     ended = false,
     sawData = false,
@@ -65,29 +115,7 @@ export function inspectPng(bytes) {
     expected = (stride + 1) * height;
   const raw = inflateSync(Buffer.concat(compressed), { maxOutputLength: expected });
   if (raw.length !== expected) fail();
-  const pixels = Buffer.alloc(stride * height);
-  for (let y = 0; y < height; y++) {
-    const filter = raw[y * (stride + 1)];
-    if (filter > 4) fail();
-    for (let x = 0; x < stride; x++) {
-      const i = y * stride + x,
-        left = x >= channels ? pixels[i - channels] : 0,
-        up = y ? pixels[i - stride] : 0,
-        corner = y && x >= channels ? pixels[i - stride - channels] : 0;
-      let predictor = 0;
-      if (filter === 1) predictor = left;
-      if (filter === 2) predictor = up;
-      if (filter === 3) predictor = Math.floor((left + up) / 2);
-      if (filter === 4) {
-        const p = left + up - corner,
-          a = Math.abs(p - left),
-          b = Math.abs(p - up),
-          c = Math.abs(p - corner);
-        predictor = a <= b && a <= c ? left : b <= c ? up : corner;
-      }
-      pixels[i] = (raw[y * (stride + 1) + 1 + x] + predictor) & 255;
-    }
-  }
+  const pixels = unfilterPng(raw, width, height, channels, fail);
   return { width, height, channels, header: header.toString('hex'), metadata, pixelSha256: sha256(pixels) };
 }
 

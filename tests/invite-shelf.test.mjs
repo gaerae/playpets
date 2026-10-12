@@ -87,15 +87,12 @@ test('each named pet has one shelf card even when a package has legacy optional 
   invite.renderShelf();
   const entries = nodes.get('shelf').querySelectorAll('.asset-card');
   assert.equal(entries.length, 3);
+  // The asset id is each card's one key: no look or entry key of its own.
   assert.deepEqual(
-    entries.map(c => [c.dataset.assetId, c.dataset.style]),
-    [
-      ['aria', 'illustrated'],
-      ['aria-mini', 'illustrated'],
-      ['cat', 'illustrated'],
-    ],
+    entries.map(c => c.dataset.assetId),
+    ['aria', 'aria-mini', 'cat'],
   );
-  assert.equal(new Set(entries.map(c => c.dataset.entryKey)).size, 3);
+  assert.ok(entries.every(c => !('style' in c.dataset) && !('entryKey' in c.dataset)));
   assert.equal(nodes.get('shelf').querySelectorAll('.asset-style').length, 0);
   nodes.get('invite-search').value = 'Mini';
   invite.renderShelf();
@@ -103,8 +100,8 @@ test('each named pet has one shelf card even when a package has legacy optional 
     nodes
       .get('shelf')
       .querySelectorAll('.asset-card')
-      .map(c => c.dataset.style),
-    ['illustrated'],
+      .map(c => c.dataset.assetId),
+    ['aria-mini'],
   );
 });
 

@@ -1,8 +1,9 @@
 // Packs separately generated high-detail rows into the unchanged v2 pet format.
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { chromium } from 'playwright-core';
-import { atlasPoses } from './atlas-lib.mjs';
+import { dataUrlBytes, readDataUrl } from './art-lib.mjs';
+import { atlasPoses, isolatePose } from './atlas-lib.mjs';
+import { launchBrowser } from './browser-lib.mjs';
 import { batchFrame, frameOrder } from './companion-batches-lib.mjs';
 
 const [directory, destination, target = '163'] = process.argv.slice(2);
@@ -17,16 +18,13 @@ try {
 const order = frameOrder(mapping);
 const names = ['idle', 'right', 'left', 'wave', 'jump', 'error', 'waiting', 'working', 'done', 'look', 'look'];
 const sources = await Promise.all(
-  names.map(
-    async (name, row) =>
-      `data:image/png;base64,${(await readFile(path.join(directory, `${String(row).padStart(2, '0')}-${name}.png`))).toString('base64')}`,
-  ),
+  names.map((name, row) => readDataUrl(path.join(directory, `${String(row).padStart(2, '0')}-${name}.png`))),
 );
-const browser = await chromium.launch({ channel: 'chrome', headless: true });
+const browser = await launchBrowser();
 try {
   const page = await browser.newPage();
   await page.addScriptTag({
-    content: `window.atlasPoses = ${atlasPoses.toString()}; window.batchFrame = ${batchFrame.toString()};`,
+    content: `window.atlasPoses = ${atlasPoses.toString()}; window.batchFrame = ${batchFrame.toString()}; window.isolatePose = ${isolatePose.toString()};`,
   });
   const result = await page.evaluate(
     async ({ sources, target, order }) => {
@@ -63,22 +61,13 @@ try {
           const isolated = document.createElement('canvas');
           isolated.width = sw;
           isolated.height = sh;
-          const isolatedContext = isolated.getContext('2d');
-          const pixels = isolatedContext.createImageData(sw, sh),
-            mask = new Uint8Array(sw * sh);
-          for (const at of pose.pixels) {
-            const px = (at % raw.width) - sx,
-              py = Math.floor(at / raw.width) - sy;
-            for (let y = Math.max(0, py - 2); y <= Math.min(sh - 1, py + 2); y++)
-              for (let x = Math.max(0, px - 2); x <= Math.min(sw - 1, px + 2); x++) mask[y * sw + x] = 1;
-          }
-          for (let y = 0; y < sh; y++)
-            for (let x = 0; x < sw; x++) {
-              if (!mask[y * sw + x]) continue;
-              const from = ((sy + y) * raw.width + sx + x) * 4;
-              pixels.data.set(rgba.subarray(from, from + 4), (y * sw + x) * 4);
-            }
-          isolatedContext.putImageData(pixels, 0, 0);
+          isolated
+            .getContext('2d')
+            .putImageData(
+              new ImageData(window.isolatePose(rgba, raw.width, pose.pixels, sx, sy, sw, sh), sw, sh),
+              0,
+              0,
+            );
           ctx.drawImage(isolated, dx, dy, dw, dh);
           frames.push({ sourceColumn, width: dw, height: dh, lift: lift * scale });
         }
@@ -89,12 +78,12 @@ try {
           frames,
         });
       }
-      return { png: canvas.toDataURL('image/png').split(',')[1], scale, stats };
+      return { png: canvas.toDataURL('image/png'), scale, stats };
     },
     { sources, target: Number(target), order },
   );
   await mkdir(path.dirname(destination), { recursive: true });
-  await writeFile(destination, Buffer.from(result.png, 'base64'));
+  await writeFile(destination, dataUrlBytes(result.png));
   await writeFile(`${destination}.json`, `${JSON.stringify({ scale: result.scale, rows: result.stats }, null, 2)}\n`);
   console.log(`${destination}: 88 poses, shared scale ${result.scale.toFixed(4)}, idle silhouette ${target}px`);
 } finally {

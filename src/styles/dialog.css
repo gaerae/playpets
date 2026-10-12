@@ -412,7 +412,7 @@ dialog .relation-card small {
 #pet-dialog,
 #import-dialog,
 #connection-dialog {
-  background: #fffdf7;
+  background: var(--sheet);
 }
 :is(#pet-dialog, #import-dialog, #connection-dialog)
   label:not(.relation-card, .appearance-card, .ai-type, .wander-toggle) {
@@ -478,22 +478,12 @@ dialog .relation-card small {
   gap: 10px;
 }
 @media (prefers-color-scheme: dark) {
-  #pet-dialog,
-  #import-dialog,
-  #connection-dialog {
-    background: var(--white);
-  }
-  :is(#pet-dialog, #import-dialog, #connection-dialog) input:not([type="range"]),
-  :is(#pet-dialog, #import-dialog, #connection-dialog) select,
-  #pet-dialog textarea {
-    background-color: var(--paper);
-  }
   :is(#pet-dialog, #import-dialog, #connection-dialog) .button.secondary:hover,
   :is(#pet-dialog, #import-dialog, #connection-dialog) .button.chip:hover {
     background: var(--soft);
   }
   .relation-card:hover {
-    border-color: #91b08b;
+    border-color: var(--green-line);
   }
   .album-tabs {
     background: var(--paper);

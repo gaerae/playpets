@@ -1,41 +1,15 @@
 // Textures decode only when their season is visible; small precipitation materials are cached.
-let seasonalImage;
-function loadSeasonalImage() {
-  if (typeof Image === 'undefined') return Promise.resolve(null);
-  if (!seasonalImage) {
-    const image = new Image();
-    image.src = new URL('../art/weather/seasonal.png', import.meta.url).href;
-    seasonalImage = image
-      .decode()
-      .then(() => image)
-      .catch(() => null);
-  }
-  return seasonalImage;
-}
-const canvasFor = () => (typeof document === 'undefined' ? null : document.createElement('canvas'));
+import { canvasFor, decodeImage, materialCache } from './raster.js';
+
+const loadSeasonalImage = () => decodeImage('../art/weather/seasonal.png');
 
 export function createWeatherArt(changed, { loadImage = loadSeasonalImage, makeCanvas = canvasFor } = {}) {
   let image = null,
     pending = null,
     decorative = false,
     season = 'summer';
-  const materials = new Map();
-  function material(key, draw) {
-    if (materials.has(key)) return;
-    const canvas = makeCanvas();
-    if (!canvas) {
-      materials.set(key, null);
-      return;
-    }
-    canvas.width = canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      materials.set(key, null);
-      return;
-    }
-    draw(ctx);
-    materials.set(key, canvas);
-  }
+  const materials = materialCache(makeCanvas),
+    { material } = materials;
   function use(nextSeason, weather, active) {
     season = nextSeason;
     decorative = active && (season === 'spring' || season === 'autumn') && weather === 'clear';

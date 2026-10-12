@@ -86,7 +86,7 @@
   flex: none;
   border-radius: 18px 18px 14px 14px;
   overflow: hidden;
-  background: #edf2e7;
+  background: var(--portrait);
   box-shadow: inset 0 0 0 1px var(--ink-8);
   display: grid;
   place-items: center;
@@ -366,23 +366,17 @@
 }
 /* These surfaces belong to the friend, rather than changing the landscape's daylight colours. */
 .side-panel:has(#panel-pet:not([hidden])) {
-  background: #fffdf7;
+  background: var(--sheet);
 }
 @media (prefers-color-scheme: dark) {
-  .side-panel:has(#panel-pet:not([hidden])) {
-    background: var(--white);
-  }
-  .avatar {
-    background: var(--soft);
-  }
   .relation-chip {
     border-color: #7f5562;
-    background: #49323c;
-    color: #f8c6d9;
+    background: var(--pink-soft);
+    color: var(--pink-ink);
   }
   .status-pill {
     background: #3c4e38;
-    color: #d1e8c2;
+    color: var(--green-ink);
   }
   .bond-level {
     color: #f5aac0;
@@ -399,4 +393,27 @@
   .pop-menu [role="menuitem"].danger svg {
     color: var(--danger);
   }
+}
+/* ---- the mini window's brief conversation (mini.css): a smaller head, only the friend's name ---- */
+body.mini .side-panel .friend-head {
+  gap: 8px;
+  padding-right: 64px;
+}
+body.mini .side-panel .avatar {
+  width: 32px;
+  height: 32px;
+}
+body.mini .side-panel .avatar canvas {
+  width: 38px;
+  height: 41px;
+  margin-top: 1px;
+}
+body.mini .side-panel .friend-select,
+body.mini .side-panel .friend-id h3 {
+  font-size: 13px;
+}
+body.mini .side-panel .friend-sub,
+body.mini .side-panel .bond-next,
+body.mini .side-panel .friend-chips {
+  display: none;
 }

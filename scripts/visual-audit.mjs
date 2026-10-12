@@ -4,7 +4,7 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright-core';
+import { launchBrowser } from './browser-lib.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const out = path.resolve(process.argv[2] || path.join(os.tmpdir(), 'playpets-visual-audit-current'));
@@ -31,7 +31,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-const browser = await chromium.launch({ channel: 'chrome', headless: true });
+const browser = await launchBrowser();
 const page = await browser.newPage({ viewport: { width: 1180, height: 780 } });
 const errors = [];
 page.on('pageerror', error => errors.push(error.message));

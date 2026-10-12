@@ -17,7 +17,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 import { LANGUAGES } from '../src/core/strings.js';
+import { dataUrl, dataUrlBytes } from './art-lib.mjs';
+import { launchBrowser } from './browser-lib.mjs';
 import { encodeGif } from './gif-lib.mjs';
+import { pngSize } from './png-lossless-lib.mjs';
 import { captureWindow, clearCaptureFocus, composeWindow, mainDisplay, seasonalScenes } from './shots-lib.mjs';
 import { SITE_LANGS as siteLanguages } from './site-content.mjs';
 
@@ -306,7 +309,7 @@ async function prepareCapture() {
     { encoding: 'utf8' },
   );
   if (compiled.status !== 0) throw new Error(`Cannot prepare window capture: ${compiled.stderr}`);
-  captureEncoder = await chromium.launch({ channel: 'chrome', headless: true });
+  captureEncoder = await launchBrowser();
   capturePage = await captureEncoder.newPage();
   await capturePage.addScriptTag({ content: `window.composeWindow=${composeWindow.toString()};` });
 }
@@ -341,17 +344,17 @@ async function cleanWindowCapture(pid, rect, file) {
     captureNativeWindow(pid, rect, raw);
     const png = await readFile(raw);
     const result = await capturePage.evaluate(
-      async ({ b64, width, margin }) => {
+      async ({ url, width, margin }) => {
         const image = new Image();
-        image.src = `data:image/png;base64,${b64}`;
+        image.src = url;
         await image.decode();
         const canvas = document.createElement('canvas');
         window.composeWindow(canvas, image, width, margin);
-        return canvas.toDataURL('image/png').split(',')[1];
+        return canvas.toDataURL('image/png');
       },
-      { b64: png.toString('base64'), width: rect.width, margin: MARGIN },
+      { url: dataUrl(png), width: rect.width, margin: MARGIN },
     );
-    await writeFile(file, Buffer.from(result, 'base64'));
+    await writeFile(file, dataUrlBytes(result));
   } finally {
     restorePointer(pointer);
     await rm(raw, { force: true });
@@ -375,24 +378,24 @@ async function desktopCapture(rect, file) {
 
 // PNG from screencapture is large; the site serves WebP. Chrome re-encodes (no image library needed).
 async function toWebp(dir) {
-  const encoder = await chromium.launch({ channel: 'chrome', headless: true });
+  const encoder = await launchBrowser();
   const page = await encoder.newPage();
   for (const name of (await readdir(dir)).filter(f => f.endsWith('.png'))) {
     const png = await readFile(path.join(dir, name));
-    const data = await page.evaluate(async b64 => {
+    const data = await page.evaluate(async url => {
       const img = new Image();
-      img.src = `data:image/png;base64,${b64}`;
+      img.src = url;
       await img.decode();
       const c = document.createElement('canvas');
       c.width = img.naturalWidth;
       c.height = img.naturalHeight;
       c.getContext('2d').drawImage(img, 0, 0);
       return c.toDataURL('image/webp', 0.9);
-    }, png.toString('base64'));
+    }, dataUrl(png));
     const target = path.join(dir, name.replace(/\.png$/, '.webp'));
     const pending = `${target}.tmp`;
     try {
-      await writeFile(pending, Buffer.from(data.split(',')[1], 'base64'));
+      await writeFile(pending, dataUrlBytes(data));
       await rename(pending, target);
     } finally {
       await rm(pending, { force: true });
@@ -407,7 +410,7 @@ async function toWebp(dir) {
 let gifFrames = null;
 async function writeGif(files, out) {
   if (files.length < 2) return;
-  const scaler = await chromium.launch({ channel: 'chrome', headless: true });
+  const scaler = await launchBrowser();
   const page = await scaler.newPage();
   await page.addScriptTag({ content: `window.composeWindow=${composeWindow.toString()};` });
   const frames = [];
@@ -415,9 +418,9 @@ async function writeGif(files, out) {
   for (const capture of files) {
     const png = await readFile(capture.file);
     const got = await page.evaluate(
-      async ([b64, width]) => {
+      async ([url, width]) => {
         const img = new Image();
-        img.src = `data:image/png;base64,${b64}`;
+        img.src = url;
         await img.decode();
         const height = Math.round((img.naturalHeight * width) / img.naturalWidth);
         const c = document.createElement('canvas');
@@ -434,7 +437,7 @@ async function writeGif(files, out) {
           bin += String.fromCharCode.apply(null, data.subarray(i, i + 0x8000));
         return { width, height, b64: btoa(bin) };
       },
-      [png.toString('base64'), GIF.width],
+      [dataUrl(png), GIF.width],
     );
     size = { width: got.width, height: got.height };
     frames.push(new Uint8ClampedArray(Buffer.from(got.b64, 'base64')));
@@ -473,7 +476,7 @@ async function captureAll(lang) {
 // (window + 2 × MARGIN) points wide, at whatever scale the screen has. The desktop scene has none.
 function storeCrop(name, png) {
   if (name.startsWith('desktop')) return 0;
-  const width = png.readUInt32BE(16);
+  const { width } = pngSize(png);
   return Math.round((MARGIN * width) / (WINDOW.width + MARGIN * 2));
 }
 
@@ -482,14 +485,14 @@ function storeCrop(name, png) {
 async function toStoreSize(dir) {
   const files = await readdir(dir).catch(() => []);
   if (!files.some(f => f.endsWith('.png'))) return;
-  const encoder = await chromium.launch({ channel: 'chrome', headless: true });
+  const encoder = await launchBrowser();
   const page = await encoder.newPage();
   for (const name of files.filter(f => f.endsWith('.png') && !/-\d+x\d+\.png$/.test(f))) {
     const png = await readFile(path.join(dir, name));
     const data = await page.evaluate(
-      async ([b64, width, height, pad, crop]) => {
+      async ([url, width, height, pad, crop]) => {
         const img = new Image();
-        img.src = `data:image/png;base64,${b64}`;
+        img.src = url;
         await img.decode();
         const c = document.createElement('canvas');
         c.width = width;
@@ -517,10 +520,10 @@ async function toStoreSize(dir) {
         ctx.drawImage(img, crop, crop, sw, sh, x, y, w, h);
         return c.toDataURL('image/png');
       },
-      [png.toString('base64'), STORE.width, STORE.height, STORE.pad, storeCrop(name, png)],
+      [dataUrl(png), STORE.width, STORE.height, STORE.pad, storeCrop(name, png)],
     );
     const out = path.join(dir, name.replace(/\.png$/, `-${STORE.width}x${STORE.height}.png`));
-    await writeFile(out, Buffer.from(data.split(',')[1], 'base64'));
+    await writeFile(out, dataUrlBytes(data));
     await rm(path.join(dir, name));
     console.log(`  ${path.relative(root, out)}`);
   }

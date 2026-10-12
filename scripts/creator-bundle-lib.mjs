@@ -1,4 +1,5 @@
 import { crc32, inflateSync } from 'node:zlib';
+import { unfilterPng } from './png-lossless-lib.mjs';
 
 export { crc32 };
 
@@ -101,40 +102,17 @@ export function validatePng(bytes, { canonical = false } = {}) {
     expected = (stride + 1) * height;
   const raw = inflateSync(Buffer.concat(compressed), { maxOutputLength: expected });
   if (raw.length !== expected) fail();
-  let previous = new Uint8Array(stride),
-    transparent = 0,
+  const pixels = unfilterPng(raw, width, height, channels, fail);
+  let transparent = 0,
     opaque = 0;
   const colors = new Set();
-  for (let y = 0; y < height; y++) {
-    const filter = raw[y * (stride + 1)],
-      row = new Uint8Array(stride);
-    if (filter > 4) fail();
-    for (let x = 0; x < stride; x++) {
-      const left = x >= channels ? row[x - channels] : 0,
-        up = previous[x],
-        corner = x >= channels ? previous[x - channels] : 0;
-      let predictor = 0;
-      if (filter === 1) predictor = left;
-      if (filter === 2) predictor = up;
-      if (filter === 3) predictor = Math.floor((left + up) / 2);
-      if (filter === 4) {
-        const p = left + up - corner,
-          a = Math.abs(p - left),
-          b = Math.abs(p - up),
-          c = Math.abs(p - corner);
-        predictor = a <= b && a <= c ? left : b <= c ? up : corner;
-      }
-      row[x] = (raw[y * (stride + 1) + 1 + x] + predictor) & 255;
+  for (let i = 0; i < pixels.length; i += channels) {
+    const alpha = channels === 4 ? pixels[i + 3] : 255;
+    if (!alpha) transparent++;
+    else {
+      opaque++;
+      if (colors.size < 32) colors.add(`${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`);
     }
-    for (let x = 0; x < stride; x += channels) {
-      const alpha = channels === 4 ? row[x + 3] : 255;
-      if (!alpha) transparent++;
-      else {
-        opaque++;
-        if (colors.size < 32) colors.add(`${row[x]},${row[x + 1]},${row[x + 2]}`);
-      }
-    }
-    previous = row;
   }
   if (colors.size < 16 || opaque < width * height * 0.01 || (canonical && transparent < width * height * 0.01)) fail();
   return { width, height, transparent, opaque };

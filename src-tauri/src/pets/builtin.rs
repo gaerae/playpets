@@ -76,50 +76,51 @@ pub fn shelf_rank(folder: &Path) -> usize {
     PETS.iter().position(|p| folder.ends_with(p.id)).unwrap_or(usize::MAX)
 }
 
+/// The friends an earlier build drew full-size through the Mini asset and a realistic look:
+/// (the Mini's folder, the full-size pet's folder, the manifest that build shipped for the Mini).
+const LEGACY: [(&str, &str, &str); 2] = [
+    ("aria", "aria-full", include_str!("../../../assets/pets/aria/pet.json")),
+    ("noah", "noah-full", include_str!("../../../assets/pets/noah/pet.json")),
+];
+
+/// Where the bundled pet unpacked into `folder` is in `assets`.
+fn builtin_at(assets: &[crate::pets::catalog::Asset], folder: &str) -> Option<usize> {
+    use crate::pets::catalog::Place;
+    assets
+        .iter()
+        .position(|a| a.place == Place::Builtin && a.folder.ends_with(folder))
+}
+
 /// An interrupted unpack keeps old friends drawable until their new baseline can be loaded: the
 /// realistic sheets an earlier build wrote beside the mini sheets are still on disk (an unpack
 /// never deletes), and a fresh install has no such friends to keep.
 pub fn preserve_legacy_appearances(assets: &mut [crate::pets::catalog::Asset]) {
-    use crate::pets::catalog::{Place, realistic_appearance};
-    for (mini, full, manifest) in [
-        ("aria", "aria-full", include_str!("../../../assets/pets/aria/pet.json")),
-        ("noah", "noah-full", include_str!("../../../assets/pets/noah/pet.json")),
-    ] {
-        if assets
-            .iter()
-            .any(|a| a.place == Place::Builtin && a.folder.ends_with(full))
-        {
+    for (mini, full, manifest) in LEGACY {
+        if builtin_at(assets, full).is_some() {
             continue;
         }
-        if let Some(asset) = assets
-            .iter_mut()
-            .find(|a| a.place == Place::Builtin && a.folder.ends_with(mini))
-        {
+        if let Some(i) = builtin_at(assets, mini) {
+            let asset = &mut assets[i];
             let meta = serde_json::from_str(manifest).expect("bundled compatibility manifest");
             (asset.realistic_sprite_paths, asset.realistic_portrait_path) =
-                realistic_appearance(&asset.folder, asset.version, &meta);
+                crate::pets::catalog::realistic_appearance(&asset.folder, asset.version, &meta);
         }
     }
 }
 
 /// Only the old built-in asset/style pair changes. Friend IDs keep conversations and bonds attached.
 pub fn migrate_friends(pets: &mut [crate::pets::model::Pet], assets: &[crate::pets::catalog::Asset]) {
-    use crate::pets::catalog::Place;
-    for (mini, full) in [("aria", "aria-full"), ("noah", "noah-full")] {
-        let find = |folder| {
-            assets
-                .iter()
-                .find(|a| a.place == Place::Builtin && a.folder.ends_with(folder))
-        };
-        let (Some(old), Some(new)) = (find(mini), find(full)) else {
+    use crate::pets::model::VisualStyle;
+    for (mini, full, _) in LEGACY {
+        let (Some(old), Some(new)) = (builtin_at(assets, mini), builtin_at(assets, full)) else {
             continue;
         };
         for pet in pets
             .iter_mut()
-            .filter(|p| p.asset_id == old.id && p.visual_style == "realistic")
+            .filter(|p| p.asset_id == assets[old].id && p.visual_style == VisualStyle::Realistic)
         {
-            pet.asset_id.clone_from(&new.id);
-            pet.visual_style = "illustrated".into();
+            pet.asset_id.clone_from(&assets[new].id);
+            pet.visual_style = VisualStyle::Illustrated;
         }
     }
 }
@@ -162,12 +163,21 @@ pub fn unpack(root: &Path) -> (PathBuf, Vec<String>) {
 mod tests {
     use super::{migrate_friends, preserve_legacy_appearances, unpack};
     use crate::pets::catalog::{Place, scan_pets};
-    use std::path::Path;
+    use crate::pets::model::VisualStyle;
+    use std::path::{Path, PathBuf};
+
+    /// A whole unpacked set in its own folder, which the test removes when it is done.
+    fn unpacked(name: &str) -> PathBuf {
+        let root = std::env::temp_dir().join(format!("playpets-{name}-{}", uuid::Uuid::new_v4()));
+        let (_, warnings) = unpack(&root);
+        assert!(warnings.is_empty(), "{warnings:?}");
+        root
+    }
 
     #[test]
     fn legacy_appearance_migration_preserves_friends_and_skips_missing_targets() {
-        let root = std::env::temp_dir().join(format!("playpets-migration-{}", uuid::Uuid::new_v4()));
-        let (dir, _) = unpack(&root);
+        let root = unpacked("migration");
+        let dir = root.clone();
         // An earlier build wrote the realistic sheets beside the mini ones.
         std::fs::create_dir_all(dir.join("aria/realistic")).unwrap();
         for name in ["spritesheet.png", "summer.png", "winter.png", "portrait.png"] {
@@ -201,7 +211,7 @@ mod tests {
         migrate_friends(&mut pets, &assets);
         assert_eq!(pets[0].asset_id, mini.id);
         assert_eq!(pets[1].asset_id, full.id);
-        assert_eq!(pets[1].visual_style, "illustrated");
+        assert_eq!(pets[1].visual_style, VisualStyle::Illustrated);
         assert_eq!(pets[1].provider_id, "saved-provider");
         let friend_ids = pets.iter().map(|p| p.id.clone()).collect::<Vec<_>>();
         let bonds = crate::pets::bond::Bonds::restore(raw.get("bonds"), &friend_ids);
@@ -230,9 +240,8 @@ mod tests {
 
     #[test]
     fn imported_legacy_appearances_are_not_catalog_migrations() {
-        let root = std::env::temp_dir().join(format!("playpets-import-migration-{}", uuid::Uuid::new_v4()));
-        let (dir, _) = unpack(&root);
-        let (mut assets, _) = scan_pets(&dir, Place::Builtin);
+        let root = unpacked("import-migration");
+        let (mut assets, _) = scan_pets(&root, Place::Builtin);
         let mut external = assets.iter().find(|a| a.folder.ends_with("aria")).unwrap().clone();
         external.id = "external-aria".into();
         external.place = Place::Folder;
@@ -273,10 +282,10 @@ mod tests {
 
     #[test]
     fn the_companions_and_original_cats_unpack_once_as_valid_sheets() {
-        let root = std::env::temp_dir().join(format!("playpets-builtin-{}", uuid::Uuid::new_v4()));
-        let (dir, warnings) = unpack(&root);
-        assert!(warnings.is_empty(), "{warnings:?}");
-        let (assets, scan_warnings) = scan_pets(&dir, Place::Builtin);
+        // unpacked() checks that nothing failed to write.
+        let root = unpacked("builtin");
+        let dir = root.as_path();
+        let (assets, scan_warnings) = scan_pets(dir, Place::Builtin);
         assert!(scan_warnings.is_empty(), "{scan_warnings:?}");
         let mut names: Vec<_> = assets.iter().map(|a| a.display_name.as_str()).collect();
         names.sort();
@@ -348,7 +357,7 @@ mod tests {
             .unwrap()
             .modified()
             .unwrap();
-        unpack(&root);
+        assert!(unpack(dir).1.is_empty());
         assert_eq!(
             std::fs::metadata(dir.join("tabby/spritesheet.png"))
                 .unwrap()
@@ -356,6 +365,6 @@ mod tests {
                 .unwrap(),
             before
         );
-        let _ = std::fs::remove_dir_all(&root);
+        std::fs::remove_dir_all(&root).unwrap();
     }
 }

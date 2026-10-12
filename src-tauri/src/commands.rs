@@ -406,7 +406,7 @@ fn add_pet(app: &AppHandle, state: &State<Shared>, asset_id: &str, options: &Val
             return Err(i18n::t("error.pet_missing"));
         };
         let mut pet = model::create_pet_with_options(asset_id, &d.pets, options)?;
-        if pet.visual_style == "realistic" && !has_realistic_art(asset) {
+        if pet.visual_style == model::VisualStyle::Realistic && !has_realistic_art(asset) {
             return Err(i18n::t("error.bad_settings"));
         }
         // A new friend starts out as its pet file describes it; people edit from there.
@@ -438,10 +438,11 @@ fn update_pet(
     }
     // Turning a friend realistic needs that art; one already realistic keeps saving its other
     // settings even if its pet file lost the art since.
-    if patch.get("visualStyle").and_then(Value::as_str) == Some("realistic") {
+    if patch.get("visualStyle").and_then(model::VisualStyle::from_value) == Some(model::VisualStyle::Realistic) {
         let pet = d.pets.iter().find(|p| p.id == id);
         let allowed = pet.is_some_and(|p| {
-            p.visual_style == "realistic" || d.assets.iter().any(|a| a.id == p.asset_id && has_realistic_art(a))
+            p.visual_style == model::VisualStyle::Realistic
+                || d.assets.iter().any(|a| a.id == p.asset_id && has_realistic_art(a))
         });
         if !allowed {
             return Err(i18n::t("error.bad_settings"));

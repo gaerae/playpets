@@ -78,3 +78,43 @@ export const worldCopy = {
   discovery: 'Already have a Codex pet?',
   sceneCaption: (v: string) => `Actual app captures · PlayPets ${v}`,
 };
+export const sections = {
+  galleryCreate: 'Create with this friend',
+  petNotes: {
+    daisy: 'A curious explorer who notices little things.',
+    clover: 'A gentle kitten gardener who shares small discoveries.',
+    pip: 'A puppy courier who loves greeting every friend.',
+    'aria-full': 'An adult performer who enjoys music and quiet evenings.',
+    'aria-mini': 'Aria’s separate, small companion, with a love of music.',
+    'noah-full': 'An adult performer who enjoys conversation and city walks.',
+    'noah-mini': 'Noah’s separate, small companion, with a love of city walks.',
+    tabby: 'A cheerful ginger kitten with an adventurous stride.',
+    smoky: 'A calm grey cat who thinks before speaking.',
+    mochi: 'A soft cream cat who is always up for a game.',
+  },
+  galleryTitle: 'Someone you’ll be glad to see.',
+  galleryLead: 'Ten friends are ready to meet you. Choose one to see them move.',
+  galleryLabel: 'Choose a companion',
+  posesLabel: 'Preview a pose',
+  poses: ['Rest', 'Wave', 'Jump'],
+  selectedLead: 'Invite this companion from the Invite tab. Make their name, personality and relationship your own.',
+  galleryGuide: 'Meet your first friend',
+  connectionsTitle: 'Play a little. Talk a little.',
+  connectionsLead:
+    'Games and gardening work without an AI account. Connect an AI for conversations; its limits and charges apply.',
+  connections: [
+    ['Play offline', 'Share treats, catch bugs, fish and see what grows in your garden.', '/guide/play'],
+    [
+      'Talk your way',
+      'Give each friend a name and a personality. Connect an AI when you want to talk, or let your friends chat together.',
+      '/guide/chat',
+    ],
+  ],
+  miniTitle: 'A small corner of your day.',
+  miniBody: 'Keep a little window beside your work, or let your friends wander across your desktop.',
+  miniLink: 'Try desktop companions',
+  agentGuide: 'Connect a coding agent',
+  connectionDetails: 'Conversation setup and costs',
+  connectionSetup:
+    'Use local Ollama, your signed-in Claude Code or Codex CLI, or an OpenAI-compatible server. CLI use stays within subscription limits; API servers may charge separately.',
+};

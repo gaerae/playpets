@@ -288,8 +288,8 @@
   justify-self: start;
   font-size: 10px;
   font-weight: 700;
-  color: #2c6e57;
-  background: #e3f2ea;
+  color: var(--green-ink);
+  background: var(--green-soft);
   border-radius: 8px;
   padding: 1px 6px;
 }
@@ -369,19 +369,12 @@
   text-align: left;
   cursor: pointer;
 }
-.settings-index button[aria-selected="true"] {
-  background: #e3ebdc;
-  color: var(--ink);
-}
+.settings-index button[aria-selected="true"],
 .settings-index button:hover {
   background: #e3ebdc;
   color: var(--ink);
 }
 @media (max-width: 760px) {
-  .app-shell:has(.layout.settings-open) {
-    height: 100%;
-    min-height: 0;
-  }
   .layout.settings-open {
     overflow: hidden;
   }
@@ -434,15 +427,12 @@
   }
   .ai-type.on {
     background: var(--soft);
-    border-color: #91b08b;
-    box-shadow: inset 0 0 0 1px #91b08b;
+    border-color: var(--green-line);
+    box-shadow: inset 0 0 0 1px var(--green-line);
   }
-  .ai-found {
-    background: var(--soft);
-    color: #d1e8c2;
-  }
-  #panel-settings input,
-  #panel-settings select {
+  /* base.css gives fields their paper; said again for the volume slider, which
+     `input[type="range"]` would leave clear */
+  #panel-settings input {
     background-color: var(--paper);
   }
   #panel-settings .button.secondary:hover {
@@ -450,6 +440,6 @@
   }
   #panel-settings .button.quit:hover {
     border-color: var(--danger);
-    background: #49332c;
+    background: var(--danger-soft);
   }
 }

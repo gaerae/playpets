@@ -1,11 +1,11 @@
 // Renders the pictures that travel with a link: the Open Graph cards (website/public/og.png and
 // og-<language>.png, 1200×630) that X, Slack and GeekNews show, and the README banner (assets/banner.png, 1600×560).
 // Both are drawn from the sample pets' real sprite sheets with the headline. Run: npm run og
-// Needs Google Chrome (playwright-core drives it headless, as the e2e tools do).
+// Needs Google Chrome or Playwright's Chromium (browser-lib.mjs drives it headless).
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { chromium } from 'playwright-core';
 import { loadEnvironment, loadSheets, cell as sheetCell } from './art-lib.mjs';
+import { launchBrowser } from './browser-lib.mjs';
 
 const sheets = await loadSheets();
 const environment = await loadEnvironment();
@@ -40,7 +40,7 @@ const page = ({ width, height, title, sub, url, scale }) => `<!doctype html><met
   <div class="url"><i></i>${url}</div>
 </div>`;
 
-const browser = await chromium.launch({ channel: 'chrome', headless: true });
+const browser = await launchBrowser();
 try {
   const render = async (file, opts) => {
     const p = await browser.newPage({ viewport: { width: opts.width, height: opts.height }, deviceScaleFactor: 1 });

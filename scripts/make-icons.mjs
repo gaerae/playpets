@@ -12,7 +12,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { chromium } from 'playwright-core';
+import { launchBrowser } from './browser-lib.mjs';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const icons = path.join(root, 'src-tauri', 'icons');
@@ -21,7 +21,7 @@ const work = await mkdtemp(path.join(os.tmpdir(), 'playpets-icons-'));
 
 // One page renders every variant: artwork centered at inner×inner on a
 // transparent canvas×canvas viewport, so small sizes stay crisp and a margin is just inner<canvas.
-const browser = await chromium.launch({ channel: 'chrome' }).catch(() => chromium.launch());
+const browser = await launchBrowser();
 const page = await browser.newPage({ viewport: { width: 1024, height: 1024 }, deviceScaleFactor: 1 });
 async function render(canvas, inner, name, plate = false) {
   await page.setViewportSize({ width: canvas, height: canvas });

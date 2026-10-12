@@ -91,6 +91,8 @@ export const strings = {
   'caption.snow.day': '눈 내리는 한낮의 놀이터',
   'caption.snow.evening': '눈 내리는 저녁의 놀이터',
   'caption.snow.night': '눈 내리는 밤의 놀이터',
+  'caption.indoor': '{place} · {period}',
+  'caption.indoor_weather': '{place} · {period} · {weather}',
   'greet.morning': ['좋은 아침!', '잘 잤어?', '오늘도 힘내!', '아침이다~'],
   'greet.day': ['안녕!', '반가워!', '안녕~', '오늘도 파이팅!'],
   'greet.evening': ['좋은 저녁!', '오늘도 수고했어', '노을 예쁘다', '안녕~'],

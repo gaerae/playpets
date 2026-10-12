@@ -6,13 +6,12 @@ import { styledAsset } from '../core/appearance.js';
 import { follow, language, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { displayName } from '../core/names.js';
-import { setupSeason } from '../core/season.js';
+import { setupSeason, southern } from '../core/season.js';
 import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/sprites.js';
 import { recall } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
-import { southern } from '../yard/scene.js';
 
 document.documentElement.lang = language();
 const api = window.playPets,

@@ -3,17 +3,13 @@
 
 import { language, t } from '../core/i18n.js';
 import { dropdown } from '../core/menu.js';
+import { isSeason, selectedSeason, southern } from '../core/season.js';
 import { reduced } from '../core/sprites.js';
-import { $, recall, remember, views } from '../core/state.js';
+import { $, recall, remember } from '../core/state.js';
 import { everyMinute } from '../core/ticker.js';
-import { endFishing } from './catch.js';
-import { renderDecor } from './decor.js';
 import { createEasel } from './easel.js';
 import { sceneEvent } from './events.js';
 import { eventChanged } from './festival.js';
-import { renderGarden } from './garden.js';
-import { hint } from './hint.js';
-import { endGame } from './play.js';
 import { cancelRemarks, remark } from './remarks.js';
 import {
   autoWeather,
@@ -24,15 +20,11 @@ import {
   periodFor,
   sceneCaption,
   seasonVars,
-  selectedSeason,
-  southern,
   sunAt,
   WEATHERS,
 } from './scene.js';
 import { createScenery } from './scenery.js';
 import { soundScene } from './sound.js';
-import { release } from './trips.js';
-import { syncViews } from './views.js';
 import { scene, scenery, setScenery } from './world.js';
 import { worldAllows, worldFor, worlds } from './worlds.js';
 
@@ -49,12 +41,16 @@ let rainbowTimer = null;
 let weatherChoice = 'auto';
 let periodChoice = 'auto';
 let seasonChoice = 'auto';
+// What the entry point does as the scene changes (setupSky's options).
 let seasonChanged = () => {};
-/** Indoor weather stays outside the windows, so its caption continues to name the room. */
+/** Indoor weather stays outside the windows, so its caption continues to name the room. Each
+ * language orders the place, the time of day and the weather in its own caption.indoor* line. */
 export function worldCaption(world, period, weather) {
-  return worldAllows(world, 'sky')
-    ? sceneCaption(period, weather)
-    : `${t(worldFor(world).label)} · ${t(`period.${period}`)}${worldAllows(world, 'weather') ? ` · ${t(`weather.${weather}`)}` : ''}`;
+  if (worldAllows(world, 'sky')) return sceneCaption(period, weather);
+  const parts = { place: t(worldFor(world).label), period: t(`period.${period}`) };
+  return worldAllows(world, 'weather')
+    ? t('caption.indoor_weather', { ...parts, weather: t(`weather.${weather}`) })
+    : t('caption.indoor', parts);
 }
 // Returns whether the weather changed.
 export function paintScene() {
@@ -141,24 +137,35 @@ function showTime(now) {
   $('clock-date').textContent = ` · ${clockDate.format(now)}`;
 }
 // Starts the sky: the chosen or automatic time and weather, and the minute-by-minute check. Called once, by app.js.
+// `options`, each optional:
+// - seasonChanged(season): after every repaint, with the season shown;
+// - seasonPicked(): the person picked a season, before the scene is painted in it;
+// - worldChanged(enter): the person picked another place; `enter()` moves the scene there and
+//   paints it, so what has to stop in the old place goes before it and what is laid out again after;
+// - landChanged(): the land was redrawn another way (its picture, or the painted fallback when the
+//   picture could not be loaded), so the field may begin at another height.
 export function setupSky(options = {}) {
-  seasonChanged = options.seasonChanged || (() => {});
+  const none = () => {};
+  seasonChanged = options.seasonChanged || none;
+  const seasonPicked = options.seasonPicked || none,
+    worldChanged = options.worldChanged || (enter => enter()),
+    landChanged = options.landChanged || none;
   setScenery(createScenery($('weather-layer'), reduced));
-  easel = createEasel($('yard'), reduced, endFishing);
+  easel = createEasel($('yard'), reduced, landChanged);
   const saved = {
     world: recall('world'),
     weather: recall('weather'),
     period: recall('period'),
     season: recall('season'),
   };
-  seasonChoice = ['spring', 'summer', 'autumn', 'winter'].includes(saved.season) ? saved.season : 'auto';
+  seasonChoice = isSeason(saved.season) ? saved.season : 'auto';
   $('season').value = seasonChoice;
   $('season').onchange = () => {
     const choice = $('season').value;
-    seasonChoice = ['spring', 'summer', 'autumn', 'winter'].includes(choice) ? choice : 'auto';
+    seasonChoice = isSeason(choice) ? choice : 'auto';
     remember('season', seasonChoice);
     cancelRemarks();
-    endFishing();
+    seasonPicked();
     paintScene();
   };
   scene.world = worldFor(saved.world).id;
@@ -173,19 +180,11 @@ export function setupSky(options = {}) {
   $('world').value = scene.world;
   $('world').onchange = () => {
     cancelRemarks();
-    endGame();
-    endFishing();
-    for (const v of views.values()) {
-      release(v);
-      v.away = false;
-    }
-    scene.world = worldFor($('world').value).id;
-    remember('world', scene.world);
-    paintScene();
-    syncViews();
-    renderGarden();
-    renderDecor();
-    hint();
+    worldChanged(() => {
+      scene.world = worldFor($('world').value).id;
+      remember('world', scene.world);
+      paintScene();
+    });
   };
   if (saved.weather === 'auto' || WEATHERS[saved.weather]) weatherChoice = saved.weather;
   if (PERIODS[saved.period]) periodChoice = saved.period;

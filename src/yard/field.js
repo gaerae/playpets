@@ -6,13 +6,17 @@ import { clamp } from '../core/math.js';
 import { $ } from '../core/state.js';
 import { composition } from './layout.js';
 import { scene } from './world.js';
-import { worldFor } from './worlds.js';
+import { worldAllows, worldFor } from './worlds.js';
 
 // Friends stand on the field: y=0 is its top, y=1 the front edge of the yard. Where its top is
-// (a fraction of the yard's height, at the near hill's ridge) is the composition's (yard.json
-// "fieldTop"). Friends, plants and gifts shrink with the yard, so a small window still reads as a
-// whole scene.
-export const fieldTop = () => worldFor(scene.world).geometry?.fieldTop ?? composition.fieldTop ?? 0.6;
+// (a fraction of the yard's height) follows the land that is shown: the place's picture (its
+// geometry.fieldTop in worlds.json), or, when the picture could not be loaded and the painted
+// land stands in for it (easel.js), that land's near hill (yard.json "fieldTop"), where the painted
+// lake lies too. A place without a sky paints a plain floor instead and keeps its own line.
+// Friends, plants and gifts shrink with the yard, so a small window still reads as a whole scene.
+const paintedLand = () => worldAllows(scene.world, 'sky') && $('yard')?.dataset.environment === 'painted';
+export const fieldTop = () =>
+  (paintedLand() ? composition.fieldTop : worldFor(scene.world).geometry?.fieldTop) ?? composition.fieldTop ?? 0.6;
 let zoom = 1;
 // How much friends shrink in a yard of this size. By the height, so a small window still reads as a
 // whole scene; a strip (much wider than tall, like a bar along the screen's edge) gives the sky

@@ -124,3 +124,29 @@ test('woodland walking floor stays below the visible pond shoreline in a wide st
   const woodland = definitions.find(world => world.id === 'woodland');
   assert.ok(woodland.geometry.fieldTop >= 0.65, 'the source pond reaches about 65% of its image height');
 });
+
+// docs/how-to/add-a-world.md: a place with its own pictures but without "authoredLighting" has each
+// time of day lit by the page; with it, the pictures are shown as painted.
+test('a place with its own pictures is lit by the time of day unless its lighting is authored', async t => {
+  const { useWorlds } = await import('../src/yard/worlds.js');
+  const definitions = JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url)));
+  const art = { day: 'gallery-day', night: 'gallery-night' },
+    capabilities = { sky: false, weather: false };
+  useWorlds([
+    ...definitions,
+    { id: 'gallery', art, capabilities },
+    { id: 'lamplit', art, authoredLighting: true, capabilities },
+  ]);
+  t.after(() => useWorlds(definitions));
+  const look = (world, period) => environmentLook({ world, period, weather: 'clear', season: 'summer' });
+  assert.deepEqual(look('gallery', 'day'), { art: 'gallery-day', filter: 'none', tint: null });
+  assert.equal(look('gallery', 'morning').art, 'gallery-day', 'a missing time of day falls back to the day');
+  assert.equal(look('gallery', 'evening').art, 'gallery-day');
+  assert.equal(look('gallery', 'night').art, 'gallery-night');
+  for (const period of ['morning', 'evening', 'night']) {
+    assert.notEqual(look('gallery', period).filter, 'none', `${period} is lit`);
+    assert.ok(look('gallery', period).tint, `${period} is tinted`);
+    assert.deepEqual(look('lamplit', period), { art: look('gallery', period).art, filter: 'none', tint: null });
+  }
+  assert.notEqual(look('gallery', 'night').filter, look('gallery', 'morning').filter);
+});

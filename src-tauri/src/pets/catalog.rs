@@ -229,15 +229,7 @@ pub fn read_pet(folder: &Path) -> Result<Asset, String> {
         .ok_or_else(sprite_inside)?;
     let sprite_path = validated_sheet(&root, rel, version)?;
     // A missing or invalid wardrobe does not hide an otherwise usable pet.
-    let seasonal_sprite_paths = SEASONS
-        .iter()
-        .filter_map(|season| {
-            let rel = optional_relative(m.get("seasonalSpritesheets")?.get(*season)?)?;
-            validated_sheet(&root, rel, version)
-                .ok()
-                .map(|path| ((*season).to_owned(), path))
-        })
-        .collect();
+    let seasonal_sprite_paths = optional_sheets(&root, version, m.get("seasonalSpritesheets"), &SEASONS);
     let (realistic_sprite_paths, realistic_portrait_path) = realistic_appearance(&root, version, &m);
     let portrait_path = optional_portrait(&root, m.get("portraitPath"));
     // One line each: a description is read into the AI's prompt, where a line break could
@@ -272,21 +264,35 @@ pub fn realistic_appearance(
     version: u32,
     m: &serde_json::Value,
 ) -> (BTreeMap<String, PathBuf>, Option<PathBuf>) {
-    let mut realistic_sprite_paths: BTreeMap<String, PathBuf> = ["default", "summer", "winter"]
-        .iter()
-        .filter_map(|style| {
-            let rel = optional_relative(m.get("realisticSpritesheets")?.get(*style)?)?;
-            validated_sheet(root, rel, version)
-                .ok()
-                .map(|path| ((*style).to_owned(), path))
-        })
-        .collect();
+    let mut realistic_sprite_paths = optional_sheets(
+        root,
+        version,
+        m.get("realisticSpritesheets"),
+        &["default", "summer", "winter"],
+    );
     // A seasonal variant alone cannot advertise a complete alternate appearance.
     if !realistic_sprite_paths.contains_key("default") {
         realistic_sprite_paths.clear();
     }
     let realistic_portrait_path = optional_portrait(root, m.get("realisticPortraitPath"));
     (realistic_sprite_paths, realistic_portrait_path)
+}
+
+/// The sheets a manifest object names under `keys` that pass the baseline's checks; the others are
+/// left out.
+fn optional_sheets(
+    root: &Path,
+    version: u32,
+    names: Option<&serde_json::Value>,
+    keys: &[&str],
+) -> BTreeMap<String, PathBuf> {
+    keys.iter()
+        .filter_map(|key| {
+            let rel = optional_relative(names?.get(*key)?)?;
+            let path = validated_sheet(root, rel, version).ok()?;
+            Some(((*key).to_owned(), path))
+        })
+        .collect()
 }
 
 fn optional_portrait(root: &Path, value: Option<&serde_json::Value>) -> Option<PathBuf> {

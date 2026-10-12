@@ -1,23 +1,31 @@
-// Drawing helpers shared by the scripts that paint pictures from the sample pets (share cards,
-// the README banner, installer art). Pure apart from reading the sprite sheets.
+// Drawing helpers shared by the scripts that paint pictures in a browser page (share cards, the
+// README banner, installer art, atlas packing). Pure apart from reading the source pictures.
 import { readFile } from 'node:fs/promises';
 import { crc32 } from 'node:zlib';
 
+/** Picture bytes as a data URL, the form a drawing page loads them in. */
+export const dataUrl = (bytes, type = 'image/png') => `data:${type};base64,${bytes.toString('base64')}`;
+
+/** A picture file as a data URL. */
+export const readDataUrl = async (file, type = 'image/png') => dataUrl(await readFile(file), type);
+
+/** The bytes of a data URL a page made (canvas.toDataURL). */
+export const dataUrlBytes = url => Buffer.from(url.slice(url.indexOf(',') + 1), 'base64');
+
 /** The bundled sheets as data URLs, keyed by pet id. */
 export async function loadSheets() {
-  const one = async id =>
-    `data:image/png;base64,${(await readFile(`assets/pets/${id}/spritesheet.png`)).toString('base64')}`;
   return Object.fromEntries(
     await Promise.all(
-      ['daisy', 'clover', 'pip', 'aria', 'noah', 'tabby', 'smoky', 'mochi'].map(async id => [id, await one(id)]),
+      ['daisy', 'clover', 'pip', 'aria', 'noah', 'tabby', 'smoky', 'mochi'].map(async id => [
+        id,
+        await readDataUrl(`assets/pets/${id}/spritesheet.png`),
+      ]),
     ),
   );
 }
 
 /** The same detailed forest used by the app, shared by installation and link artwork. */
-export async function loadEnvironment() {
-  return `data:image/png;base64,${(await readFile('src/art/environments/green.png')).toString('base64')}`;
-}
+export const loadEnvironment = () => readDataUrl('src/art/environments/green.png');
 
 /** One cell of a sheet as an element with the sheet as background. row/col follow src/core/animation.js. */
 export const cell = (sheets, id, row, col, scale) =>

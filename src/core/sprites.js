@@ -1,5 +1,6 @@
 // Draws one 192×208 cell of a pet's sprite sheet onto a canvas. Shared by the yard and the desktop overlay.
 import { frameAt, headroom, lookFrame } from './animation.js';
+import { isSeason } from './season.js';
 
 const cache = new Map();
 const cacheKey = asset => `${asset.id}:${asset.spriteStyle || 'illustrated'}`;
@@ -8,7 +9,7 @@ export const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)
 let season = '';
 let revision = 0;
 export function setSpriteSeason(value) {
-  const next = ['spring', 'summer', 'autumn', 'winter'].includes(value) ? value : '';
+  const next = isSeason(value) ? value : '';
   if (next === season) return false;
   season = next;
   return true;

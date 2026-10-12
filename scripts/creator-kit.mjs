@@ -1,11 +1,13 @@
 // Reference collages copy production cells; they never invent a new view or alter source artwork.
 
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
+import { dataUrl, dataUrlBytes } from './art-lib.mjs';
+import { launchBrowser } from './browser-lib.mjs';
 import { publicProvenance, validatePng, zipStore } from './creator-bundle-lib.mjs';
 import { baselineManifest, kitEntries, kitPrompts, kitSpec, petManifest } from './creator-specs.mjs';
+import { pngSize, sha256 } from './png-lossless-lib.mjs';
 
 // A fork's kits credit the fork (package.json, as site-prepare reads it).
 const { repository: slug } = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
@@ -66,15 +68,14 @@ export async function createCreatorKit(destination = 'assets/creator-kit', kits 
       sources: await Promise.all(
         kit.sheets.map(async file => {
           const bytes = await readFile(file);
-          if (bytes.readUInt32BE(16) !== 1536 || bytes.readUInt32BE(20) !== 2288)
-            throw new Error(`Invalid creator-kit source: ${file}`);
-          return `data:image/png;base64,${bytes.toString('base64')}`;
+          const { width, height } = pngSize(bytes);
+          if (width !== 1536 || height !== 2288) throw new Error(`Invalid creator-kit source: ${file}`);
+          return dataUrl(bytes);
         }),
       ),
     })),
   );
-  const { chromium } = await import('playwright-core');
-  const browser = await chromium.launch({ channel: 'chrome', headless: true });
+  const browser = await launchBrowser();
   try {
     const page = await browser.newPage();
     for (const kit of inputs) {
@@ -122,14 +123,14 @@ export async function createCreatorKit(destination = 'assets/creator-kit', kits 
                 ctx.font = '12px sans-serif';
                 ctx.fillText(cell.label, x + 8, y + 226);
               }
-              return [name, canvas.toDataURL('image/png').split(',')[1]];
+              return [name, canvas.toDataURL('image/png')];
             }),
           );
         },
         { kit, referenceSheets },
       );
       for (const [name, bytes] of Object.entries(pictures))
-        await writeFile(`${target}/${name}.png`, Buffer.from(bytes, 'base64'));
+        await writeFile(`${target}/${name}.png`, dataUrlBytes(bytes));
     }
   } finally {
     await browser.close();
@@ -195,10 +196,7 @@ export async function copyCreatorKit(destination = 'website/public/creator-kit',
       ],
       availability: spec.references,
       files: Object.fromEntries(
-        [...files].map(([name, bytes]) => [
-          name,
-          { bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') },
-        ]),
+        [...files].map(([name, bytes]) => [name, { bytes: bytes.length, sha256: sha256(bytes) }]),
       ),
     };
     files.set('kit.json', json(manifest));

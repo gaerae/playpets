@@ -39,3 +39,39 @@ test('the legacy sample generator cannot overwrite the accepted production cats'
   // No path it writes to starts in the shipped pets folder, whatever the variable is called.
   assert.doesNotMatch(source, /['"`]assets\/pets\/|join\(\s*['"]assets['"],\s*['"]pets['"]/);
 });
+
+test('drawing tools start Chrome, fall back to Playwright’s Chromium and name both when neither starts', async () => {
+  const { launchBrowser } = await import('../scripts/browser-lib.mjs');
+  const calls = [];
+  const fake = outcomes => ({
+    launch: async options => {
+      calls.push(options);
+      const outcome = outcomes.shift();
+      if (outcome instanceof Error) throw outcome;
+      return outcome;
+    },
+  });
+  assert.equal(await launchBrowser({}, { chromium: fake(['chrome']) }), 'chrome');
+  assert.deepEqual(calls.pop(), { headless: true, channel: 'chrome' });
+  calls.length = 0;
+  assert.equal(await launchBrowser({}, { chromium: fake([new Error('no chrome'), 'chromium']) }), 'chromium');
+  assert.deepEqual(calls, [{ headless: true, channel: 'chrome' }, { headless: true }]);
+  await assert.rejects(
+    launchBrowser({}, { chromium: fake([new Error('no chrome\nlog'), new Error('no chromium\nlog')]) }),
+    error => /Google Chrome: no chrome\./.test(error.message) && /Chromium: no chromium\./.test(error.message),
+  );
+  // Every tool goes through the launcher; only the capture backdrop needs a real Chrome window.
+  const { readdir } = await import('node:fs/promises');
+  for (const name of (await readdir('scripts')).filter(file => file.endsWith('.mjs') && file !== 'browser-lib.mjs')) {
+    const source = await readFile(`scripts/${name}`, 'utf8');
+    assert.doesNotMatch(source, /chromium\.launch\(/, name);
+  }
+});
+
+test('pictures cross into a drawing page and back as data URLs without changing a byte', async () => {
+  const { dataUrl, dataUrlBytes } = await import('../scripts/art-lib.mjs');
+  const bytes = Buffer.from([0, 1, 2, 250, 255]);
+  assert.equal(dataUrl(bytes), 'data:image/png;base64,AAEC+v8=');
+  assert.equal(dataUrl(bytes, 'image/webp').slice(0, 16), 'data:image/webp;');
+  assert.deepEqual(dataUrlBytes(dataUrl(bytes)), bytes);
+});

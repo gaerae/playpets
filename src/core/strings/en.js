@@ -90,6 +90,8 @@ export const strings = {
   'caption.snow.day': 'A snowy day in the yard',
   'caption.snow.evening': 'A snowy evening in the yard',
   'caption.snow.night': 'A snowy night in the yard',
+  'caption.indoor': '{place} · {period}',
+  'caption.indoor_weather': '{place} · {period} · {weather}',
   'greet.morning': ['Good morning!', 'Sleep well?', 'You’ve got this today!', 'Morning~'],
   'greet.day': ['Hi!', 'Good to see you!', 'Hello there~', 'Go get ’em today!'],
   'greet.evening': ['Good evening!', 'Nice work today', 'Pretty sunset', 'Hey~'],

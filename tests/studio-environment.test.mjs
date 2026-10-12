@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import './support/content.mjs';
 import { setLanguageForTests, t } from '../src/core/i18n.js';
 import { environmentLook, paintEnvironment } from '../src/yard/environment.js';
 import * as sky from '../src/yard/sky.js';
+import { useWorlds } from '../src/yard/worlds.js';
+import { worlds as definitions } from './support/content.mjs';
 
 test('all four authored studio lights retain their artwork without a full-room filter', () => {
   for (const period of ['morning', 'day', 'evening', 'night'])
@@ -46,15 +47,38 @@ test('static rainy and snowy overcast paint is clipped to glass while indoor pix
   }
 });
 
+// An indoor caption is one sentence per language with the place, the time of day and (where the
+// window shows it) the weather as placeholders, so each language puts them in its own order.
 test('studio caption keeps its place name in every language and weather', () => {
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
     setLanguageForTests(lang);
     for (const weather of ['clear', 'rain', 'snow']) {
+      const caption = sky.worldCaption('studio', 'day', weather);
       assert.equal(
-        sky.worldCaption('studio', 'day', weather),
-        `${t('world.studio')} · ${t('period.day')} · ${t(`weather.${weather}`)}`,
+        caption,
+        t('caption.indoor_weather', {
+          place: t('world.studio'),
+          period: t('period.day'),
+          weather: t(`weather.${weather}`),
+        }),
       );
+      for (const part of [t('world.studio'), t('period.day'), t(`weather.${weather}`)])
+        assert.ok(caption.includes(part));
+      assert.ok(!caption.includes('{'), caption);
     }
+  }
+  setLanguageForTests('en');
+});
+
+test('a room without weather names only the place and the time of day', context => {
+  useWorlds([...definitions, { id: 'den', label: 'world.studio', capabilities: { sky: false, weather: false } }]);
+  context.after(() => useWorlds(definitions));
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    setLanguageForTests(lang);
+    const caption = sky.worldCaption('den', 'night', 'rain');
+    assert.equal(caption, t('caption.indoor', { place: t('world.studio'), period: t('period.night') }));
+    assert.ok(caption.includes(t('world.studio')) && caption.includes(t('period.night')));
+    assert.ok(!caption.includes(t('weather.rain')) && !caption.includes('{'), caption);
   }
   setLanguageForTests('en');
 });
