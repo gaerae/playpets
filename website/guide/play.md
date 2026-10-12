@@ -14,13 +14,18 @@ The label at the top left of the yard describes the current scene, such as "A go
 
 | Choice | Options |
 |---|---|
+| Place | Woodland, Window studio |
 | Time of day | Auto time, Morning, Midday, Evening, Night |
 | Weather | Auto weather, Clear, Rain, Snow |
 
+The ivory stone floor, slim metal frame and soft chair give the room a calm city-workspace feel. **Window studio** looks out over a city, river and bridges from a high floor. Morning light, midday, sunset and the illuminated skyline have their own scenes; the room stays warm at night. Clear, rain and snow are available, with weather visible only beyond the glass. You can pet friends, chat and play the three games there. Fishing, wild bugs and seasonal sky effects belong to **Woodland**. Your place is remembered separately from the time and weather choices.
+
+<Shot name="studio-night" caption="Window studio at night: a blue view beyond the glass and warm light on the floor." />
+
 - **Auto time** follows your computer's clock. The colours of the sky and ground change through morning, midday, evening and night, the sun crosses the sky from left to right, and at night the moon shows tonight's phase.
 - **Auto weather** picks new weather once every 20 minutes. It is mostly clear, with rain now and then; snow comes only in winter. It does not fetch the real weather from the internet.
-- The yard is painted like the background of an animated film, and painted again when the light changes: the sun lights the trees and hills from its side (left in the morning, right in the evening), far mountains fade into the haze, and a small lake in the valley mirrors the sky.
-- The yard follows the **season** by the date: cherry blossoms and falling petals in spring, deep green in summer, red and gold leaves drifting down in autumn, muted winter green and dry fields in winter. South of the equator (by your computer's time zone) the seasons are the other way round.
+- The illustrated woodland layers distant mountains, a lake, overlapping forests and an open clearing. Its colours change with the light; the background is repainted only when the scene or window size changes.
+- Woodland follows the **season** by the date: blossoms and falling petals in spring, deep green in summer, red and gold leaves in autumn, and a snowy clearing in winter. South of the equator (by your computer's time zone) the seasons are the other way round.
 - When rain clears up in daylight, a rainbow stands over the hills for a few minutes. On clear days a flock of birds crosses the sky now and then, butterflies flutter until autumn, and fireflies glow on spring and summer nights.
 - Pick a value yourself and that time of day and weather are fixed. Your choice is remembered, so it is the same the next time you open the app.
 
@@ -132,10 +137,13 @@ Click the **Mini mode** button (a small window) among the view controls at the t
 - Point at the yard and **Give a treat** and **Let them chat** rise at the bottom as small buttons.
 - Name tags are hidden; hover over a friend and theirs shows for a moment.
 - Drag an empty spot with no friend and the window moves. Drag a friend and the friend moves.
-- Patting works as before, and clicking a friend's name tag opens the chat (the window goes back to full size).
+- Patting works as before. Clicking a friend's name tag opens a compact conversation inside the small window. Close it with its close button or Escape to return to the yard. Invite and Settings still open the full window.
+- Friends rest longer between strolls and greet quietly instead of jumping on their own.
 - Entering mini mode during a game ends the game.
 
 To go back, click the **Full size** button in the corner of the small window; the window returns to where it was. Mini mode is remembered, so if you quit while it is small, it opens small the next time too.
+
+<Shot name="mini-chat" caption="A quick conversation stays inside the mini yard, beside your work." />
 
 ## Want to see more of your friends?
 

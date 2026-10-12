@@ -1,28 +1,27 @@
 // Drawing helpers shared by the scripts that paint pictures from the sample pets (share cards,
 // the README banner, installer art). Pure apart from reading the sprite sheets.
 import { readFile } from 'node:fs/promises';
+import { crc32 } from 'node:zlib';
 
-/** The three sample sheets as data URLs, keyed by pet id. */
+/** The bundled sheets as data URLs, keyed by pet id. */
 export async function loadSheets() {
   const one = async id =>
     `data:image/png;base64,${(await readFile(`assets/pets/${id}/spritesheet.png`)).toString('base64')}`;
-  return { tabby: await one('tabby'), smoky: await one('smoky'), mochi: await one('mochi') };
+  return Object.fromEntries(
+    await Promise.all(
+      ['daisy', 'clover', 'pip', 'aria', 'noah', 'tabby', 'smoky', 'mochi'].map(async id => [id, await one(id)]),
+    ),
+  );
+}
+
+/** The same detailed forest used by the app, shared by installation and link artwork. */
+export async function loadEnvironment() {
+  return `data:image/png;base64,${(await readFile('src/art/environments/green.png')).toString('base64')}`;
 }
 
 /** One cell of a sheet as an element with the sheet as background. row/col follow src/core/animation.js. */
 export const cell = (sheets, id, row, col, scale) =>
   `<i style="display:block;width:${192 * scale}px;height:${208 * scale}px;background:url(${sheets[id]}) ${-col * 192 * scale}px ${-row * 208 * scale}px / ${1536 * scale}px ${2288 * scale}px no-repeat"></i>`;
-
-const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
-  let c = n;
-  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-  return c >>> 0;
-});
-const crc32 = bytes => {
-  let c = 0xffffffff;
-  for (const b of bytes) c = CRC_TABLE[(c ^ b) & 0xff] ^ (c >>> 8);
-  return (c ^ 0xffffffff) >>> 0;
-};
 
 /**
  * The same PNG marked with a resolution (a pHYs chunk right after the header), so macOS shows a

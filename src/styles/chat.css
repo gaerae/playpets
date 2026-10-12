@@ -66,6 +66,12 @@
   height: 39px;
   margin-top: 2px;
 }
+.chat-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 32%;
+}
 /* a new turn leaves a little more room above it than the next message of the same turn */
 .message.turn:not(:first-child) {
   margin-top: 6px;
@@ -303,5 +309,39 @@
 @media (max-width: 760px) {
   .chat-log {
     min-height: 220px;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .message.user {
+    background: #cadcc1;
+    color: #203425;
+  }
+  .message.assistant {
+    background: #2f4034;
+  }
+  .message.peer {
+    background: #2d3c49;
+  }
+  .message.peer b {
+    color: #bacfe4;
+  }
+  .message.error {
+    background: #49332c;
+  }
+  .message code {
+    background: #e8eee51a;
+  }
+  .chat-avatar {
+    background: var(--soft);
+  }
+  .composer textarea::placeholder {
+    color: #b2c0b7;
+  }
+  .chat-starters .button.chip:hover {
+    background: var(--soft);
+  }
+  .send-button:hover:not(:disabled) {
+    background: #cadcc1;
+    color: #203425;
   }
 }

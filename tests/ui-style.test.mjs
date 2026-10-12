@@ -18,6 +18,15 @@ const styles = async () =>
     (await Promise.all((await readdir('src/styles')).sort().map(f => readFile(`src/styles/${f}`, 'utf8')))).join('\n'),
   );
 
+test('a mini catch card and a toast occupy separate notice lanes without intercepting fishing', async () => {
+  const css = await styles();
+  const notice = css.match(/body\.mini \.stage:has\(\.catch-card:not\(\[hidden\]\)\)\s*\.toast\{([^}]*)\}/);
+  assert.ok(notice, 'a visible catch card moves the mini notice away from its top strip');
+  assert.match(notice[1], /top:auto/);
+  assert.match(notice[1], /bottom:64px/, 'the notice stays above the care toolbar');
+  assert.match(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /pointer-events:none/);
+});
+
 test('in-row icon buttons share the rect-input shape language (circles stay for floating controls)', async () => {
   const css = await styles();
   const rule = css.match(/\.menu-anchor>\.icon-button[^{]*\{([^}]*)\}/);
@@ -120,6 +129,36 @@ test('a long credit line on the shelf never widens the invite panel', async () =
     /\.asset-info \.asset-from\{[^}]*text-overflow:ellipsis/,
     'the credit line is cut with an ellipsis',
   );
+});
+
+test('an agent friend picker shrinks within its row beside the localized label', async () => {
+  const css = await styles();
+  assert.match(
+    css,
+    /\.link-row \.agent-pet \.language-select\{[^}]*flex:1/,
+    'the friend picker shares the remaining row width instead of keeping its intrinsic width',
+  );
+});
+
+test('opening the scene chooser starts keyboard focus at its first field', async () => {
+  const [html, sky] = await Promise.all([readFile('src/index.html', 'utf8'), readFile('src/yard/sky.js', 'utf8')]);
+  const menu = html.slice(html.indexOf('id="scene-menu"'), html.indexOf('id="world-note"'));
+  const first = menu.match(/<select id="([^"]+)"/)?.[1];
+  const focus = sky.match(
+    /dropdown\(\$\('scene-button'\), \$\('scene-menu'\), \(\) => \$\('([^']+)'\)\.focus\(\)\)/,
+  )?.[1];
+  assert.ok(first);
+  assert.equal(focus, first, 'the place field comes before time and weather in the keyboard order');
+});
+
+test('Settings owns a body scroller while its header and navigation stay outside it', async () => {
+  const [html, css] = await Promise.all([readFile('src/index.html', 'utf8'), styles()]);
+  const start = html.indexOf('id="settings-content"');
+  assert.ok(start > html.indexOf('class="settings-index"'));
+  assert.ok(start < html.indexOf('id="settings-general"'));
+  assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*overflow:hidden/);
+  assert.match(css, /\.settings-content\{[^}]*overflow-y:auto/);
+  assert.doesNotMatch(css, /\.layout.settings-open \.settings-index\{[^}]*display:none/);
 });
 
 // Every declaration can apply: none is always replaced by a later rule for the same selector across
@@ -328,4 +367,13 @@ test('the replaced-declaration check sees through strings, pseudo-class lists, s
   assert.equal(found('.a{color:red !important}.a{color:blue}'), 0, '!important outlasts a later plain rule');
   assert.equal(found('.a{color:red ! IMPORTANT}.a{color:blue !important}'), 1, 'and gives way to a later !important');
   assert.equal(found('.a{color:red;&:hover{color:blue}}'), 0, 'nesting is not a declaration');
+});
+
+// A custom property defined as itself is invalid, and the cycle silently empties every use of it.
+test('no custom property is defined from itself', async () => {
+  for (const file of await readdir('src/styles')) {
+    const css = await readFile(`src/styles/${file}`, 'utf8');
+    for (const [, name, value] of css.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g))
+      assert.ok(!value.includes(`var(${name})`) && !value.includes(`var(${name},`), `${file}: ${name}: ${value}`);
+  }
 });

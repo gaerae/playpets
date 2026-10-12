@@ -3,6 +3,8 @@
 import { t } from '../core/i18n.js';
 import { $, aiming, data, game, labels, name, recall } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
+import { scene } from './world.js';
+import { worldAllows } from './worlds.js';
 
 /** The hint's key, or the game's own words: a game first, then the tool in hand, then what there is
  * still to learn (a pat, until the first; then the lake, until it has been fished; catch.js). */
@@ -36,7 +38,7 @@ export function hint() {
     aiming,
     friends: data.pets.length,
     patted: !!recall('patted'),
-    fished: recall('fished') === '1',
+    fished: !worldAllows(scene.world, 'fishing') || recall('fished') === '1',
   });
   $('yard-hint').textContent = !line ? '' : (line.text ?? t(line.key));
 }

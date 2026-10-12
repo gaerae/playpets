@@ -13,6 +13,8 @@ export async function setMini(on) {
   await call('windowMini', on);
   mini = on;
   document.body.classList.toggle('mini', on);
+  // A quick conversation belongs to that stay in mini; the next one starts with the yard alone.
+  if (!on) $('layout')?.classList.toggle('mini-chat-open', false);
   remember('mini', on ? '1' : '');
 }
 // Empty parts of the title bar (and of the mini yard) move the window.

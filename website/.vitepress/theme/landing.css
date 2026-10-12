@@ -1,0 +1,511 @@
+/* A quiet game invitation: scenery first, companions next, setup on request. */
+.landing {
+  --world-ink: #28443d;
+  --world-paper: #f4f7f6;
+  --world-lilac: #e9e3f0;
+  color: var(--world-ink);
+  background: var(--world-paper);
+  overflow: clip;
+  word-break: keep-all;
+}
+html[lang^="zh"] .landing,
+html[lang^="ja"] .landing {
+  word-break: normal;
+}
+.dark .landing {
+  --world-ink: #e2eee7;
+  --world-paper: #172522;
+  --world-lilac: #30303e;
+}
+.landing p {
+  line-height: 1.85;
+}
+.landing h1,
+.landing h2,
+.landing h3 {
+  letter-spacing: -0.045em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.landing h2 {
+  font-size: clamp(30px, 4vw, 48px);
+}
+.landing h3 {
+  font-size: 25px;
+}
+.landing figure {
+  margin: 0;
+}
+.landing a {
+  text-underline-offset: 5px;
+}
+.landing a:hover {
+  text-decoration: underline;
+}
+.landing button,
+.landing summary {
+  cursor: pointer;
+}
+.landing :is(a, button, summary):focus-visible,
+.downloads :is(a, button, summary):focus-visible {
+  outline: 3px solid #a7773a;
+  outline-offset: 5px;
+}
+.landing .eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  margin: 0 0 24px;
+}
+.hero {
+  padding: 48px 32px 0;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at 12% 15%, #e7e9fa80, transparent 55%),
+    radial-gradient(ellipse at 90% 45%, #ddebe680, transparent 55%);
+}
+.hero h1 {
+  font-size: clamp(50px, 5.5vw, 74px);
+  max-width: 1000px;
+  margin: 0 auto 28px;
+}
+.hero h1 span {
+  display: block;
+}
+.hero .lead {
+  max-width: 620px;
+  margin: 0 auto;
+  font-size: 17px;
+}
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin: 30px 0 10px;
+  font-size: 14px;
+}
+.world-button {
+  background: #284d46;
+  color: #fff;
+  border-radius: 100px;
+  padding: 15px 26px;
+  display: inline-flex;
+  gap: 24px;
+  align-items: center;
+}
+.platform-note {
+  font-size: 11px;
+  opacity: 0.7;
+  letter-spacing: 0.08em;
+}
+.world-preview {
+  max-width: 1100px;
+  margin: 52px auto 0;
+}
+.world-frame {
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--world-lilac);
+  box-shadow: 0 24px 65px #17382b18;
+  border: 7px solid #ffffff80;
+}
+.world-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.world-frame figcaption {
+  padding: 8px 16px;
+  font-size: 11px;
+  background: var(--world-paper);
+  opacity: 0.8;
+}
+.world-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  text-align: left;
+  padding: 28px 4px 0;
+}
+.world-picker h2 {
+  font-size: 24px;
+  margin: 0 0 6px;
+}
+.world-picker p {
+  margin: 0;
+  font-size: 13px;
+}
+.scene-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: flex-end;
+  max-width: 520px;
+}
+.scene-choices button,
+.pose-controls button {
+  padding: 10px 15px;
+  min-height: 44px;
+  border-radius: 100px;
+  border: 1px solid #80999060;
+  font-size: 13px;
+}
+.scene-choices button[aria-pressed="true"],
+.pose-controls button[aria-pressed="true"] {
+  color: white;
+  background: #284d46;
+  border-color: #284d46;
+}
+.scene-caption {
+  text-align: left;
+  font-size: 12px;
+  opacity: 0.75;
+  margin: 12px 4px 0;
+  min-height: 24px;
+}
+.pet-gallery {
+  max-width: 1100px;
+  margin: 120px auto 0;
+  padding: 0 32px;
+}
+.pet-gallery header {
+  text-align: center;
+  margin-bottom: 38px;
+}
+.pet-gallery h2 {
+  margin: 0 0 16px;
+}
+.section-lead {
+  font-size: 16px;
+  max-width: 650px;
+  margin: 0 auto;
+}
+.pet-shelf {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+}
+.pet-choice {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px 0;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  min-width: 0;
+}
+.pet-choice span:last-child {
+  font-size: 11px;
+  white-space: normal;
+}
+.pet-shelf .sprite i,
+.preview-paused .sprite i {
+  animation: none;
+}
+.pet-choice[aria-pressed="true"] {
+  background: var(--world-lilac);
+  border-color: #9680aa70;
+}
+.pet-choice:hover {
+  background: var(--world-lilac);
+}
+.pet-detail {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 360px;
+  align-items: center;
+  background: var(--world-lilac);
+  border-radius: 150px 24px 24px 24px;
+  padding: 32px 60px 32px 32px;
+  gap: 30px;
+}
+.pet-portrait {
+  display: grid;
+  place-items: center;
+  min-height: 300px;
+  background: radial-gradient(ellipse at center, #ffffff70, transparent 65%);
+}
+.pet-description h3 {
+  font-size: 38px;
+  margin: 0 0 14px;
+}
+.pet-description p {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+.pose-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 22px 0;
+}
+.more {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.motion-row {
+  max-width: 1040px;
+  margin: 12px auto 0;
+  text-align: right;
+  padding: 0 32px;
+}
+.motion-row button {
+  font-size: 12px;
+  padding: 12px 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.no-motion .sprite i {
+  animation-play-state: paused;
+}
+.feature,
+.connections,
+.creator-story,
+.quiet-details {
+  max-width: 1100px;
+  margin: 110px auto 0;
+  padding: 0 32px;
+}
+.feature {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 60px;
+  align-items: center;
+}
+.feature h2 {
+  margin: 0 0 24px;
+}
+.feature p {
+  font-size: 16px;
+  margin: 0 0 24px;
+}
+.feature-shot {
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px #17382b14;
+}
+.feature-shot img,
+.chat-shot img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.connections header {
+  margin-bottom: 38px;
+}
+.connections h2 {
+  margin: 0 0 16px;
+}
+.connections .section-lead {
+  margin: 0;
+}
+.connection-layout {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 50px;
+  align-items: center;
+}
+.connection-options article {
+  padding: 0 0 28px;
+}
+.connection-options h3 {
+  font-size: 22px;
+  margin: 0 0 10px;
+}
+.connection-options p {
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+.connection-options summary {
+  font-size: 13px;
+  padding: 12px 0;
+}
+.chat-shot {
+  overflow: hidden;
+  border-radius: 24px;
+  box-shadow: 0 18px 50px #17382b14;
+}
+.creator-story {
+  display: grid;
+  grid-template-columns: 0.65fr 1fr;
+  gap: 50px;
+  align-items: center;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  border-top: 1px solid #80999040;
+  border-bottom: 1px solid #80999040;
+}
+.creator-friend {
+  display: grid;
+  place-items: center;
+  min-height: 270px;
+}
+.creator-story h2 {
+  margin: 0 0 22px;
+}
+.creator-story p {
+  font-size: 15px;
+  margin: 0 0 20px;
+}
+.creator-story .discovery {
+  font-size: 12px;
+  margin-top: 20px;
+  opacity: 0.8;
+}
+.quiet-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 70px;
+  margin-top: 55px;
+}
+.quiet-details h3,
+.quiet-details summary {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+.quiet-details p,
+.quiet-details a {
+  font-size: 13px;
+}
+.quiet-details summary {
+  padding-bottom: 12px;
+}
+.landing-download {
+  text-align: center;
+  padding: 110px 24px 80px;
+  margin-top: 70px;
+  background: linear-gradient(transparent, var(--world-lilac));
+}
+.landing-download h2 {
+  margin: 0 0 35px;
+}
+.landing-download .downloads {
+  margin: auto;
+  justify-items: center;
+}
+.landing-download .dl-row {
+  justify-content: center;
+}
+.closing-links {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin-top: 35px;
+}
+@media (max-width: 900px) {
+  .world-picker {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .scene-choices {
+    justify-content: flex-start;
+  }
+  .pet-shelf {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .pet-detail {
+    padding: 24px;
+    gap: 16px;
+  }
+  .feature,
+  .connection-layout {
+    gap: 28px;
+  }
+}
+@media (max-width: 600px) {
+  .hero {
+    padding: 48px 18px 0;
+  }
+  .hero h1 {
+    font-size: 48px;
+  }
+  .hero .lead {
+    font-size: 15px;
+  }
+  .hero-actions {
+    gap: 20px;
+  }
+  .world-preview {
+    margin-top: 36px;
+  }
+  .world-frame {
+    border-radius: 14px;
+    border-width: 3px;
+  }
+  .world-picker {
+    padding-top: 20px;
+    gap: 18px;
+  }
+  .scene-choices button {
+    padding: 8px 13px;
+  }
+  .pet-gallery,
+  .feature,
+  .connections,
+  .creator-story,
+  .quiet-details {
+    margin-top: 70px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .pet-gallery header {
+    margin-bottom: 24px;
+  }
+  .pet-choice > .sprite {
+    --display-scale: 0.28;
+  }
+  .pet-choice span:last-child {
+    font-size: 10px;
+  }
+  .pet-detail,
+  .feature,
+  .connection-layout,
+  .creator-story,
+  .quiet-details {
+    grid-template-columns: 1fr;
+  }
+  .pet-detail {
+    border-radius: 100px 20px 20px 20px;
+  }
+  .pet-portrait {
+    min-height: 240px;
+  }
+  .pet-description {
+    padding: 0 4px 10px;
+  }
+  .feature {
+    gap: 25px;
+  }
+  .creator-story {
+    gap: 20px;
+  }
+  .quiet-details {
+    gap: 28px;
+  }
+  .landing-download {
+    padding-top: 70px;
+    margin-top: 40px;
+  }
+}
+
+.pet-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.pet-create {
+  display: inline-flex;
+  border-radius: 100px;
+  padding: 11px 18px;
+  background: #284d46;
+  color: #fff;
+  font-size: 13px;
+}

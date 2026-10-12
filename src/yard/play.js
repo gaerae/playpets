@@ -34,6 +34,15 @@ const HIDE_WAIT_MS = 15000;
 const send = (v, target, speed) => sendTo(v, target, { save: false, speed, arrive: arrived });
 const called = id => name(views.get(id).pet);
 let gameButtons = [];
+// A round owns its delayed moves and feedback, so cancelling it also cancels its callbacks.
+function after(ms, fn) {
+  const round = game;
+  const timer = setTimeout(() => {
+    round.timers.delete(timer);
+    if (game === round) fn();
+  }, ms);
+  round.timers.add(timer);
+}
 export function syncGameUi() {
   for (const b of gameButtons) {
     const mine = game?.kind === b.dataset.game;
@@ -135,22 +144,18 @@ const hide = {
     if (result !== 'found') return;
     game.hidden.delete(id);
     v.button.classList.remove('hiding');
+    v.button.classList.add('found');
+    after(900, () => v.button.classList.remove('found'));
     pose(v, 'jump', 1200);
     effect(v, '!');
     bubble(v, t('hide.found_bubble'), 2500);
-    // The timers below belong to this round: a game ended and started again in between is not theirs.
-    const round = game;
-    setTimeout(() => {
-      if (game === round) send(v, { x: v.x, y: 0.35 + Math.random() * 0.55 }, 0.0005);
-    }, 900);
+    after(900, () => send(v, { x: v.x, y: 0.35 + Math.random() * 0.55 }, 0.0005));
     if (game.hidden.size) ask(t('hide.found', { name: called(id) }));
     else {
       game.target = null;
       say(t('hide.all_found'));
       banner(GAMES.hide, t('hide.all_found'));
-      setTimeout(() => {
-        if (game === round) endGame(t('hide.all_found_toast'));
-      }, 1600);
+      after(1600, () => endGame(t('hide.all_found_toast')));
     }
   },
 };
@@ -265,7 +270,7 @@ function startGame(kind) {
   $('treat').hidden = true;
   const lead = views.has(selected) ? selected : [...views.keys()][0],
     now = performance.now();
-  setGame({ kind, ids: [lead, ...[...views.keys()].filter(id => id !== lead)], hint: '' });
+  setGame({ kind, ids: [lead, ...[...views.keys()].filter(id => id !== lead)], hint: '', timers: new Set() });
   // Whatever a friend was doing (a walk, fishing) ends when a game takes it.
   for (const v of party()) {
     release(v);
@@ -280,10 +285,12 @@ export function endGame(message) {
   if (!game) return;
   const over = game;
   setGame(null);
+  for (const timer of over.timers) clearTimeout(timer);
   banner('', '');
   for (const v of views.values()) {
     v.frozen = false;
-    v.button.classList.remove('hiding');
+    v.frozenUntil = 0;
+    v.button.classList.remove('hiding', 'found');
     tagger(v, false);
     // Home again, or taken on the way (a press, a treat): either way it is no longer away.
     const home = () => (v.away = false);

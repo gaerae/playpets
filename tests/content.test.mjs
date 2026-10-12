@@ -31,6 +31,10 @@ test('every drawing the catalogue names is an SVG file with a view box, and noth
     const text = readFileSync(file, 'utf8');
     assert.match(text, /^<svg[^>]*viewBox="0 0 [\d.]+ [\d.]+"/, `${path}: an svg with a view box from 0 0`);
     assert.doesNotMatch(text, /<script|\son\w+=/i, path);
+    for (const [, href] of text.matchAll(/<image[^>]+href="([^"]+)"/g)) {
+      assert.match(href, /^art\/[\w/-]+\.png$/, `${path}: raster art stays local`);
+      assert.ok(existsSync(new URL(`../src/${href}`, import.meta.url)), `${path}: ${href} exists`);
+    }
   }
 });
 
@@ -41,6 +45,18 @@ test('the garden grows in stages that each have a drawing, and flowers in its la
   assert.equal(stages.at(-1).name, 'bloom');
   for (const s of stages.slice(0, -1)) assert.ok(s.art, `${s.name} has a drawing`);
   for (const f of catalog.flowers) assert.ok(f.art && f.colors?.petal, `${f.id}: a drawing and its colours`);
+});
+
+test('flower raster specimens resolve locally and share an eight-cell transparent atlas', () => {
+  const sheet = readFileSync(new URL('../src/art/flowers/specimens.png', import.meta.url));
+  assert.equal(sheet.readUInt32BE(16), 1536);
+  assert.equal(sheet.readUInt32BE(20), 1024);
+  assert.equal(sheet[25], 6, 'RGBA preserves transparent specimen edges');
+  for (const flower of catalog.flowers) {
+    const svg = readFileSync(new URL(`../src/art/${flower.art}`, import.meta.url), 'utf8');
+    assert.match(svg, /<image[^>]+href="art\/flowers\/specimens.png"/);
+    assert.match(svg, /overflow="hidden"/, 'a specimen cannot show its neighboring cell');
+  }
 });
 
 test('every effect a gift names exists', () => {

@@ -23,11 +23,9 @@ pub struct Community {
     /// Hosts (without `www.`) whose pet pages belong to this site; empty for a GitHub repository.
     pub hosts: &'static [&'static str],
     pub hint: fn() -> String,
-    pub importable: bool,
     pub(super) route: Route,
 }
-// Curated on 2026-09-29, largest first. Sites with fewer than a dozen pets or no per-pet
-// pages were left out; anything hosted on GitHub imports through the generic GitHub path.
+// Trusted import adapters remain available when a discovery listing is hidden or removed.
 pub const COMMUNITIES: [Community; 5] = [
     Community {
         id: "openpets",
@@ -35,7 +33,6 @@ pub const COMMUNITIES: [Community; 5] = [
         url: "https://openpets.sh/",
         hosts: &["openpets.sh"],
         hint: || i18n::t("import.hint_openpets"),
-        importable: true,
         route: Route::Registry {
             api: "https://openpets.sh/api/pets/",
             page: "https://openpets.sh/pets/",
@@ -47,7 +44,6 @@ pub const COMMUNITIES: [Community; 5] = [
         url: "https://petdex.dev/",
         hosts: &["petdex.dev", "petdex.crafter.run"],
         hint: || i18n::t("import.hint_petdex"),
-        importable: true,
         route: Route::Petdex,
     },
     Community {
@@ -56,7 +52,6 @@ pub const COMMUNITIES: [Community; 5] = [
         url: "https://github.com/dnnyngyen/codex-pokepets",
         hosts: &[],
         hint: || i18n::t("import.hint_pokepets"),
-        importable: true,
         route: Route::GitHub,
     },
     Community {
@@ -65,7 +60,6 @@ pub const COMMUNITIES: [Community; 5] = [
         url: "https://codexpet.top/",
         hosts: &["codexpet.top"],
         hint: || i18n::t("import.hint_awesome"),
-        importable: true,
         // Pets live in the legeling/awesome-codex-pet repo as pets/{id}.
         route: Route::RawFolder {
             base: "https://raw.githubusercontent.com/legeling/awesome-codex-pet/main/pets",
@@ -78,43 +72,103 @@ pub const COMMUNITIES: [Community; 5] = [
         url: "https://codex-pets.net/",
         hosts: &["codex-pets.net"],
         hint: || i18n::t("import.hint_codexpets"),
-        importable: true,
         route: Route::Registry {
             api: "https://codex-pets.net/api/pets/",
             page: "https://codex-pets.net/share/",
         },
     },
 ];
-pub fn communities_json() -> Value {
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(super) struct Discovery {
+    id: String,
+    name: String,
+    url: String,
+    visible: bool,
+}
+
+fn discovery_url(raw: &str) -> Option<Url> {
+    let url = check_url(raw).ok()?;
+    (url.username().is_empty() && url.password().is_none() && url.port().is_none()).then_some(url)
+}
+
+pub(super) fn parse_discovery(raw: &str) -> Result<Vec<Discovery>, String> {
+    let entries: Vec<Discovery> = serde_json::from_str(raw).map_err(|e| e.to_string())?;
+    let mut ids = std::collections::HashSet::new();
+    for entry in &entries {
+        if entry.id.is_empty()
+            || !entry
+                .id
+                .bytes()
+                .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')
+            || !ids.insert(entry.id.as_str())
+            || entry.name.trim().is_empty()
+            || discovery_url(&entry.url).is_none()
+        {
+            return Err(format!("Invalid discovery entry: {}", entry.id));
+        }
+    }
+    Ok(entries)
+}
+
+pub(super) fn discovery_sites() -> &'static [Discovery] {
+    static SITES: std::sync::OnceLock<Vec<Discovery>> = std::sync::OnceLock::new();
+    // A malformed bundled file fails closed; the content regression test reports its cause.
+    SITES.get_or_init(|| parse_discovery(include_str!("../../../../src/content/communities.json")).unwrap_or_default())
+}
+
+pub(super) fn discovery_json(entries: &[Discovery]) -> Value {
     json!(
-        COMMUNITIES
+        entries
             .iter()
-            .map(|c| json!({"name": c.name, "url": c.url, "hint": (c.hint)(), "importable": c.importable}))
+            .filter(|c| c.visible)
+            .map(|c| {
+                let adapter = COMMUNITIES.iter().find(|adapter| {
+                    adapter.id == c.id
+                        && discovery_url(adapter.url)
+                            .zip(discovery_url(&c.url))
+                            .is_some_and(|(base, target)| within_listing(&base, &target))
+                });
+                json!({"id": c.id, "name": c.name, "url": c.url,
+            "hint": adapter.map(|adapter| (adapter.hint)()).unwrap_or_default(),
+            "importable": adapter.is_some()})
+            })
             .collect::<Vec<_>>()
     )
 }
 
-/// Only the community sites the app itself lists are ever opened: https, the same host, and on
-/// a shared host such as github.com the listed address itself (a repository), not the whole site.
+pub fn communities_json() -> Value {
+    discovery_json(discovery_sites())
+}
+
+/// Discovery controls browser links, never the hosts trusted by an import adapter.
 pub fn openable(raw: &str) -> Option<Url> {
-    let target = Url::parse(raw).ok()?;
-    if target.scheme() != "https" {
-        return None;
+    openable_in(raw, discovery_sites())
+}
+
+fn within_listing(base: &Url, target: &Url) -> bool {
+    if base.origin() != target.origin() {
+        return false;
     }
-    let shared_host = |host: &str| host == "github.com" || host.ends_with(".github.io");
-    // github.com/owner/repo may be followed by a path, never by more name (…/repo-evil).
-    let at_listed = |listed: &str| {
-        let base = listed.trim_end_matches('/');
-        target
-            .as_str()
-            .strip_prefix(base)
-            .is_some_and(|rest| rest.is_empty() || rest.starts_with(['/', '?', '#']))
-    };
-    let listed = COMMUNITIES.iter().any(|c| {
-        Url::parse(c.url).is_ok_and(|u| {
-            u.host_str() == target.host_str() && (!u.host_str().is_some_and(shared_host) || at_listed(c.url))
-        })
-    });
+    let shared = base
+        .host_str()
+        .is_some_and(|host| host == "github.com" || host.ends_with(".github.io"));
+    if !shared {
+        return true;
+    }
+    let prefix = base.path().trim_end_matches('/');
+    target
+        .path()
+        .strip_prefix(prefix)
+        .is_some_and(|rest| rest.is_empty() || rest.starts_with('/'))
+}
+
+pub(super) fn openable_in(raw: &str, entries: &[Discovery]) -> Option<Url> {
+    let target = discovery_url(raw)?;
+    let listed = entries
+        .iter()
+        .filter(|c| c.visible)
+        .any(|c| discovery_url(&c.url).is_some_and(|base| within_listing(&base, &target)));
     listed.then_some(target)
 }
 

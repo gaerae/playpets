@@ -78,7 +78,7 @@ Use `--pet name` or `--pet friendID` to point at a specific friend. Without it, 
 ## Security <Since v="0.1.0" />
 
 - The hooks stay on this computer. The app opens a random port on `127.0.0.1` and checks a random token on every request. The port and token are in `bridge.json` in the data folder and change every time the app starts.
-- Nothing you type into the agent, and none of your code, is sent to your friend. Only the status and short sentences go through.
+- [Coding-agent hooks](./agents.md) omit user prompts and tool inputs. The local bridge uses `127.0.0.1` and token authentication. Short completion or notification reports, including a clipped agent answer, may contain work details and can be included in a friend’s conversation with your chosen AI provider. Review what you send through terminal or MCP messages; use a downloaded local model when those details need to stay on this computer.
 - The hooks never block the agent's work. They finish quietly within 3 seconds, and the agent keeps running even when the app is closed.
 - This is separate from the AI connection used for chatting. Setting up the hooks alone does not let you chat with your friend.
 

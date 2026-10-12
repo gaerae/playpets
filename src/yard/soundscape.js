@@ -12,6 +12,11 @@ const BED = { breeze: 0.5, leaves: 0.09, water: 0.3, rain: 0.22 };
 /** A soundscape playing into `destination` of the context `ctx`. */
 export function createSoundscape(ctx, destination) {
   const rand = Math.random;
+  const wildlife = new Set();
+  function track(source) {
+    wildlife.add(source);
+    source.onended = () => wildlife.delete(source);
+  }
   const out = ctx.createGain();
   // A gentle limiter keeps a burst of tones from ever clipping.
   const limit = ctx.createDynamicsCompressor();
@@ -78,7 +83,7 @@ export function createSoundscape(ctx, destination) {
   beds.leaves.motion.gain.value = 0.08;
 
   // One voice of a call: a tone gliding from f0 to f1, panned, into the air.
-  function tone(t, f0, f1, dur, vol, pan = 0, attack = 0.012, type = 'sine') {
+  function tone(t, f0, f1, dur, vol, pan = 0, attack = 0.012, type = 'sine', ambient = true) {
     const o = ctx.createOscillator(),
       g = ctx.createGain(),
       p = ctx.createStereoPanner();
@@ -92,11 +97,12 @@ export function createSoundscape(ctx, destination) {
     o.connect(g).connect(p);
     p.connect(out);
     p.connect(send);
+    if (ambient) track(o);
     o.start(t);
     o.stop(t + dur + 0.02);
   }
   // A burst of noise through a band, for drops and splashes.
-  function burst(t, dur, from, to, vol, pan = 0, q = 1.2) {
+  function burst(t, dur, from, to, vol, pan = 0, q = 1.2, ambient = false) {
     const src = ctx.createBufferSource(),
       f = filter('bandpass', from, q),
       g = ctx.createGain(),
@@ -109,6 +115,7 @@ export function createSoundscape(ctx, destination) {
     p.pan.value = pan;
     src.connect(f).connect(g).connect(p);
     p.connect(out);
+    if (ambient) track(src);
     src.start(t, rand() * 0.5, dur + 0.02);
   }
   // A tine like a kalimba's: the note and a quick bright overtone, dying away in the air.
@@ -171,6 +178,11 @@ export function createSoundscape(ctx, destination) {
     /** Sets each bed's level for the scene (mixFor's numbers), gliding there over a few seconds. */
     setMix(mix, t = ctx.currentTime) {
       for (const [name, b] of Object.entries(beds)) b.level.gain.setTargetAtTime((mix[name] || 0) * b.base, t, 1.6);
+      // Calls are queued ahead of the audio clock; a silent room also cancels those future voices.
+      if (!Object.values(mix).some(level => level > 0)) {
+        for (const source of wildlife) source.stop(t);
+        wildlife.clear();
+      }
     },
     /** The overall loudness, 0 to 100; 0 fades it all out. */
     setVolume(volume, t = ctx.currentTime, glide = 0.5) {
@@ -202,7 +214,7 @@ export function createSoundscape(ctx, destination) {
     },
     /** A drop of rain landing on a leaf at `t`. */
     drop(t, vol) {
-      burst(t, 0.03, 1800 + rand() * 3200, 900, vol, rand() * 1.6 - 0.8, 3);
+      burst(t, 0.03, 1800 + rand() * 3200, 900, vol, rand() * 1.6 - 0.8, 3, true);
     },
     /** A cue for something a friend did (soundmix.js CUES), at `t`. */
     cue(name, t = ctx.currentTime + 0.01) {
@@ -215,7 +227,7 @@ export function createSoundscape(ctx, destination) {
     },
     /** The float dips: a drop into the water. */
     plip(t = ctx.currentTime + 0.01) {
-      tone(t, 1500, 380, 0.1, 0.12, 0, 0.004);
+      tone(t, 1500, 380, 0.1, 0.12, 0, 0.004, 'sine', false);
     },
     /** A fish comes out of the water. */
     splash(t = ctx.currentTime + 0.01) {

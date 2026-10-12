@@ -1,6 +1,7 @@
 // The invite tab: pets on the shelf, and bringing new ones in from a page or a folder.
 
-import { t } from '../core/i18n.js';
+import { styledAsset } from '../core/appearance.js';
+import { language, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
 import { canvas, drawSprite } from '../core/sprites.js';
@@ -9,18 +10,18 @@ import { spoken } from '../core/text.js';
 import { bubble, pose } from '../yard/views.js';
 
 const previews = new Map();
+const inviting = new Set();
 let shelfKey = '';
 // Reloads the page's state; handed in by setupInvite.
 let refresh = async () => {};
 export async function invite(assetId) {
-  const twins = data.pets.filter(p => p.assetId === assetId).length;
-  const created = await call('addPet', assetId);
+  const original = data.assets.find(a => a.id === assetId),
+    patch = { visualStyle: 'illustrated' },
+    twins = data.pets.filter(p => p.assetId === assetId).length,
+    title = original?.displayName || t('friend.default');
+  if (twins > 0) patch.name = `${title} ${twins + 1}`;
+  const created = await call('addPet', assetId, patch);
   setSelected(created.id);
-  // Duplicates get a numbered name so people can tell them apart.
-  if (twins > 0)
-    await call('updatePet', created.id, {
-      name: `${data.assets.find(a => a.id === assetId)?.displayName || t('friend.default')} ${twins + 1}`,
-    });
   await refresh();
   const v = views.get(created.id);
   if (v) pose(v, 'wave', 1500);
@@ -34,17 +35,23 @@ export async function invite(assetId) {
 // Codex's pet folder and the app's download folder each have one place to open; a folder picked
 // by hand is its own place, named on the card.
 const PLACES = [
-  { place: 'builtin', title: t('invite.place_builtin'), folder: 'builtin' },
-  { place: 'codex', title: t('invite.place_codex'), folder: 'codex' },
-  { place: 'downloaded', title: t('invite.place_downloaded'), folder: 'downloaded' },
-  { place: 'folder', title: t('invite.place_folder'), folder: null },
+  { place: 'builtin', title: 'invite.place_builtin', folder: 'builtin' },
+  { place: 'codex', title: 'invite.place_codex', folder: 'codex' },
+  { place: 'downloaded', title: 'invite.place_downloaded', folder: 'downloaded' },
+  { place: 'folder', title: 'invite.place_folder', folder: null },
 ];
 // Who made a downloaded pet, as the page it came from said: "Petdex · hongtao · CC BY-NC 4.0".
 const creditLine = credit => [credit.site, credit.creator, credit.license].filter(Boolean).join(' · ');
+/** Each catalog asset is one ordinary pet entry, including packages with optional legacy looks. */
+export function shelfEntries(assets) {
+  return assets.map(a => ({ ...a, shelfStyle: 'illustrated', entryKey: a.id }));
+}
 function card(a) {
   const card = document.createElement('button');
   card.className = 'asset-card';
   card.dataset.assetId = a.id;
+  card.dataset.style = a.shelfStyle;
+  card.dataset.entryKey = a.entryKey;
   card.setAttribute('aria-label', t('invite.add_aria', { name: a.displayName }));
   card.title = a.folderPath;
   const c = canvas(),
@@ -72,8 +79,24 @@ function card(a) {
     info.append(line);
   }
   card.append(c, info, plus);
-  card.onclick = guard(() => invite(a.id));
-  previews.set(a.id, c);
+  card.onclick = guard(async () => {
+    if (card.disabled) return;
+    inviting.add(a.entryKey);
+    renderShelf();
+    try {
+      await invite(a.id, a.shelfStyle);
+    } finally {
+      inviting.delete(a.entryKey);
+      renderShelf();
+    }
+  });
+  previews.set(a.entryKey, {
+    canvas: c,
+    asset: styledAsset(
+      data.assets.find(original => original.id === a.id),
+      a.shelfStyle,
+    ),
+  });
   return card;
 }
 function group({ place, title, folder }, assets) {
@@ -82,7 +105,7 @@ function group({ place, title, folder }, assets) {
   const head = document.createElement('div'),
     name = document.createElement('h4');
   head.className = 'shelf-group-head';
-  name.textContent = title;
+  name.textContent = t(title);
   head.append(name);
   if (folder) {
     const open = document.createElement('button');
@@ -92,7 +115,7 @@ function group({ place, title, folder }, assets) {
     icon.dataset.icon = 'folder';
     open.append(icon, t('invite.open_folder'));
     open.title = data.petFolders?.[folder] || '';
-    open.setAttribute('aria-label', t('invite.open_aria', { title }));
+    open.setAttribute('aria-label', t('invite.open_aria', { title: t(title) }));
     open.onclick = guard(() => call('openFolder', folder));
     head.append(open);
   }
@@ -102,13 +125,40 @@ function group({ place, title, folder }, assets) {
 }
 // The shelf can show only people, only animals, or the rest, by the pet file's `kind`.
 let kind = '';
-const ofKind = a => !kind || (kind === 'other' ? !['person', 'animal'].includes(a.kind) : a.kind === kind);
+/** Type and search narrow the same shelf; unknown file kinds remain available under Other. */
+export function shelfAssets(assets, type, query = '') {
+  const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  return assets.filter(a => {
+    const raw = String(a.kind || '')
+        .trim()
+        .toLowerCase(),
+      category = ['person', 'human', 'humanoid'].includes(raw) ? 'person' : raw === 'animal' ? 'animal' : 'other',
+      text = [a.displayName, a.credit?.site, a.credit?.creator].filter(Boolean).join(' ').toLowerCase();
+    return (!type || category === type) && words.every(word => text.includes(word));
+  });
+}
 export function renderShelf() {
-  const key = `${kind}|${data.assets.map(a => `${a.id}:${a.place}`).join('|')}`;
+  const query = $('invite-search')?.value || '',
+    shown = shelfAssets(shelfEntries(data.assets), kind, query),
+    key = JSON.stringify([
+      language(),
+      kind,
+      query,
+      data.assets.map(a => [
+        a.id,
+        a.place,
+        a.kind,
+        a.displayName,
+        a.folderPath,
+        a.spriteUrl,
+        a.realisticSpriteUrls,
+        a.realisticPortraitUrl,
+        a.credit,
+      ]),
+    ]);
   if (key !== shelfKey) {
     shelfKey = key;
     previews.clear();
-    const shown = data.assets.filter(ofKind);
     const groups = PLACES.map(p => [p, shown.filter(a => a.place === p.place)]).filter(([, list]) => list.length);
     $('shelf').replaceChildren(...groups.map(([p, list]) => group(p, list)));
     icons($('shelf'));
@@ -119,9 +169,10 @@ export function renderShelf() {
   $('yard-full').hidden = !full;
   if (full) $('yard-full').textContent = t('invite.full', { limit: most });
   // A shape with no pets says so, with the way back to every pet.
-  $('no-kind').hidden = !data.assets.length || data.assets.some(ofKind);
+  $('no-kind').hidden = !data.assets.length || shown.length > 0;
   for (const b of $('shelf').querySelectorAll('.asset-card')) {
-    b.disabled = full;
+    b.disabled = full || inviting.has(b.dataset.entryKey);
+    b.setAttribute('aria-busy', String(inviting.has(b.dataset.entryKey)));
     // The heading already says a click invites; a card adds a line only when that friend is in the
     // yard already, to say a click brings another.
     const hint = b.querySelector('.asset-hint');
@@ -131,15 +182,17 @@ export function renderShelf() {
   $('no-assets').hidden = data.assets.length > 0;
 }
 export function drawPreviews(now) {
-  for (const a of data.assets) {
-    const c = previews.get(a.id);
-    if (c) drawSprite(c, a, 'idle', now);
-  }
+  for (const { canvas, asset } of previews.values()) drawSprite(canvas, asset, 'idle', now);
 }
 function openImportDialog() {
   $('import-form').reset();
   $('import-error').textContent = '';
   $('community-links').replaceChildren();
+  if ($('community-discovery')) {
+    $('community-discovery').open = false;
+    $('community-discovery').hidden = !(data.communities || []).length;
+    $('community-count').textContent = t('invite.discovery_count', { count: (data.communities || []).length });
+  }
   for (const c of data.communities || []) {
     const link = document.createElement('button');
     link.type = 'button';
@@ -151,12 +204,26 @@ function openImportDialog() {
         ? t('invite.open_site_hint', { hint: c.hint, url: c.url })
         : t('invite.open_site', { url: c.url });
     link.onclick = guard(() => call('openExternal', c.url));
-    $('community-links').append(link);
+    const row = document.createElement('div');
+    row.className = 'community-choice';
+    row.dataset.communityId = c.id || '';
+    const hint = document.createElement('small');
+    hint.textContent = !c.importable ? t('invite.not_importable') : c.hint || t('invite.open_site', { url: c.url });
+    row.append(link, hint);
+    $('community-links').append(row);
   }
   $('import-dialog').showModal();
   $('import-url').focus();
 }
 let importing = false;
+// Both import paths share the dialog: another action must not replace a request still running.
+function setImporting(busy) {
+  importing = busy;
+  for (const id of ['close-import', 'cancel-import', 'import-folder', 'import-submit', 'import-url'])
+    $(id).disabled = busy;
+  $('import-form').setAttribute('aria-busy', String(busy));
+  $('import-submit').textContent = t(busy ? 'invite.importing' : 'invite.import_go');
+}
 // Wires the invite tab and the import dialog. `refresh` reloads the page's state once a friend arrives. Called once, by app.js.
 export function setupInvite(hooks) {
   const chooseKind = chip => {
@@ -165,21 +232,31 @@ export function setupInvite(hooks) {
     renderShelf();
   };
   for (const chip of document.querySelectorAll('#kind-filter .chip')) chip.onclick = () => chooseKind(chip);
-  $('show-all-kinds').onclick = () => chooseKind(document.querySelector('#kind-filter .chip[data-kind=""]'));
+  $('show-all-kinds').onclick = () => {
+    if ($('invite-search')) $('invite-search').value = '';
+    chooseKind(document.querySelector('#kind-filter .chip[data-kind=""]'));
+  };
+  if ($('invite-search')) $('invite-search').oninput = renderShelf;
   refresh = hooks.refresh;
   $('import').onclick = openImportDialog;
-  $('close-import').onclick = $('cancel-import').onclick = () => $('import-dialog').close();
+  $('close-import').onclick = $('cancel-import').onclick = () => {
+    if (!importing) $('import-dialog').close();
+  };
   // A folder that is not a pet is said inside the dialog, beside the address field's errors.
   $('import-folder').onclick = async () => {
+    if (importing) return;
+    setImporting(true);
     $('import-error').textContent = '';
     try {
       const id = await call('importFolder');
       if (!id) return;
-      $('import-dialog').close();
       await invite(id);
+      $('import-dialog').close();
       toast(t('toast.pet_added'));
     } catch (error) {
       $('import-error').textContent = spoken(error, t('error.generic'));
+    } finally {
+      setImporting(false);
     }
   };
   $('import-dialog').addEventListener('cancel', e => {
@@ -188,22 +265,17 @@ export function setupInvite(hooks) {
   $('import-form').onsubmit = async e => {
     e.preventDefault();
     if (importing) return;
-    const button = $('import-submit');
-    importing = true;
-    button.disabled = true;
-    button.textContent = t('invite.importing');
+    setImporting(true);
     $('import-error').textContent = '';
     try {
       const id = await call('importUrl', $('import-url').value);
-      $('import-dialog').close();
       await invite(id);
+      $('import-dialog').close();
       toast(t('toast.pet_added'));
     } catch (error) {
-      $('import-error').textContent = error.message;
+      $('import-error').textContent = spoken(error, t('error.generic'));
     } finally {
-      importing = false;
-      button.disabled = false;
-      button.textContent = t('invite.import_go');
+      setImporting(false);
     }
   };
 }

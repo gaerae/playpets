@@ -1,5 +1,20 @@
 /* The garden and the gifts friends bring, drawn from symbols at the friends' depth (yard/garden.js,
    yard/decor.js), and the seeds friends find. */
+/* The colours a vector drawing paints with in the yard, in a plant, a gift or on a catch card
+   (docs/how-to/add-to-the-yard.md): the scenery sets the leaves, trunks and shadow; these add soil,
+   wood, iron and lamplight, which the evening and the weather change below. */
+.plant,
+.decor,
+.catch-card {
+  --soil: #8a6a4c;
+  --soil-hi: #a8835f;
+  --stem: var(--leaf-lo);
+  --wood: #b98257;
+  --wood-hi: #d6a476;
+  --wood-lo: #8a5a38;
+  --iron: #41474c;
+  --lamp: #f2e6c4;
+}
 /* ---- the garden: plants and gifts drawn from symbols, at the friends' depth ---- */
 /* Inside the friends' layer and no layer of its own, so a plant or a gift stands in front of a
    friend behind it and behind a friend in front (each is set at its depth, props.js setDown). */
@@ -17,9 +32,6 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
-  --soil: #8a6a4c;
-  --soil-hi: #a8835f;
-  --stem: var(--leaf-lo);
 }
 .plant svg {
   width: 100%;
@@ -36,7 +48,7 @@
   outline: none;
 }
 .plant:focus-visible svg {
-  filter: drop-shadow(0 0 2px #367b90);
+  filter: drop-shadow(0 0 2px var(--focus));
 }
 .yard.aiming .plant {
   cursor: inherit;
@@ -48,11 +60,6 @@
 }
 /* Decorations friends bring (yard/decor.js): wood and iron in the yard's light, dragged to move. */
 .decor {
-  --wood: #b98257;
-  --wood-hi: #d6a476;
-  --wood-lo: #8a5a38;
-  --iron: #41474c;
-  --lamp: #f2e6c4;
   position: absolute;
   left: 0;
   top: 0;
@@ -83,7 +90,7 @@
   outline: none;
 }
 .decor:focus-visible svg {
-  filter: drop-shadow(0 0 2px #367b90);
+  filter: drop-shadow(0 0 2px var(--focus));
 }
 .yard.aiming .decor {
   cursor: inherit;
@@ -167,4 +174,20 @@
     transform: scale(1.06);
     opacity: 1;
   }
+}
+.yard.period-night .plant[data-stage="bloom"] svg {
+  filter: brightness(0.65) saturate(0.7);
+}
+.yard.period-evening .plant[data-stage="bloom"] svg {
+  filter: brightness(0.88) saturate(0.85);
+}
+/* The evening and night light keeps the focus ring a flower would otherwise lose. */
+.period-night .plant:focus-visible svg {
+  filter: brightness(0.62) saturate(0.75) drop-shadow(0 0 2px var(--focus));
+}
+.yard.period-night .plant[data-stage="bloom"]:focus-visible svg {
+  filter: brightness(0.65) saturate(0.7) drop-shadow(0 0 2px var(--focus));
+}
+.yard.period-evening .plant[data-stage="bloom"]:focus-visible svg {
+  filter: brightness(0.88) saturate(0.85) drop-shadow(0 0 2px var(--focus));
 }

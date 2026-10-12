@@ -10,7 +10,7 @@ const { lang, words } = useWords();
 const missing = ref(false);
 // The frame each capture is taken in (window plus margin), so the page reserves the space
 // before the picture arrives and nothing jumps.
-const RATIO: Record<string, string> = { mini: '516 / 376', desktop: '820 / 480' };
+const RATIO: Record<string, string> = { mini: '516 / 376', 'mini-chat': '516 / 376', desktop: '820 / 480' };
 const ratio = computed(() => RATIO[props.name] ?? '1236 / 836');
 const src = computed(() => withBase(`/shots/${props.version ?? generated.version}/${lang.value}/${props.name}.webp`));
 </script>

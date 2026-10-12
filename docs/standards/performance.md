@@ -21,7 +21,7 @@ Not covered: code that runs only when a person clicks once (importing, saving se
 - The yard's sounds (`src/yard/sound.js`) play only while they are on and the yard can be seen; otherwise the audio context is suspended and their timers are cleared. Their beds loop and drift inside the audio graph; the page wakes only for scheduled events (a gust, a wave, a call), never on a fast timer.
 - Do not hold on to resources that decode large (sprite sheets, about 14MB each) for every pet. One minute after the Invite tab closes, the yard releases sheets it does not use.
 
-The most recent measurements. Each value is the CPU of the app process plus the WebKit process, as a percentage of one core.
+The recorded baseline below predates the later raster artwork and place changes; it is not a benchmark of the current release. Each value is the CPU of the app process plus the WebKit process, as a percentage of one core.
 
 | State | CPU |
 |---|---|

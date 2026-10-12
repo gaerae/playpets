@@ -1,7 +1,7 @@
 # Edit and check the website
 
 ## Purpose
-Edit the landing page, the user guide, the release pages, or the developer docs published on the site, and check them locally before they go out. When `main` is pushed, `pages.yml` builds the site and publishes it to GitHub Pages automatically. The landing page, user guide and release pages are in English (the site root), Korean (`/ko/`) and Simplified Chinese (`/zh-hans/`); the developer docs are in English only and are served at https://gaerae.github.io/playpets/dev/.
+Edit the landing page, the user guide, the release pages, or the developer docs published on the site, and check them locally before they go out. When `main` is pushed, `pages.yml` builds the site and publishes it to GitHub Pages automatically. The landing page, user guide and release pages are in English (the site root), Korean (`/ko/`), Japanese (`/ja/`) and Simplified Chinese (`/zh-hans/`); the developer docs are in English only and are served at https://gaerae.github.io/playpets/dev/.
 
 ## Audience and assumptions
 Anyone who has cloned the repository and run `npm ci`. Only taking new screen captures needs macOS; everything else works on any OS. The layout and the reasons for it are in the decision "[Publish the introduction, user guide, per-version pages and developer docs as one VitePress site on GitHub Pages](../decisions/2026-10-03-website-on-github-pages.md)".
@@ -10,18 +10,18 @@ Anyone who has cloned the repository and run `npm ci`. Only taking new screen ca
 | What you need | Check |
 |---|---|
 | Node.js 26 and `npm ci` | `node --version` |
-| Screen captures only: macOS, Google Chrome, and a Rust toolchain (`npm run shots` builds the app itself with `--features e2e`) | `cargo --version` |
+| Screen captures only: macOS, Google Chrome, a Rust toolchain and Xcode Command Line Tools (`npm run shots` builds the app itself with `--features e2e`; its window-list helper uses Swift) | `cargo --version` and `swiftc --version` |
 
-`package.json` holds two `overrides` for the site's tools: `vite` at 6 (VitePress 1.6.4, the latest stable, still asks for vite 5, whose dev server has known advisories) and `katex` at 0.19 (pulled in by mermaid). Remove them once a stable VitePress asks for a fixed vite and mermaid for a fixed katex, and check that `npm audit` stays clean and the site builds.
+`package.json` holds two `overrides` for the site's tools: `vite` at 6 (the pinned VitePress 1.6.4 still asks for vite 5, whose dev server has known advisories) and `katex` at 0.19 (pulled in by mermaid). Remove them once a stable VitePress asks for a fixed vite and mermaid for a fixed katex, and check that `npm audit` stays clean and the site builds.
 
 ## Steps
 1. Find the file for what you are changing.
 
 | To change | File |
 |---|---|
-| Landing page text and layout | `website/.vitepress/theme/Landing.vue` (English, Korean and Simplified Chinese text live together), styling in `style.css` |
-| User guide | `website/guide/*.md` (English), Korean in `website/ko/guide/*.md`, Simplified Chinese in `website/zh-hans/guide/*.md` |
-| Release pages | `website/releases/<version>.md` (English), Korean in `website/ko/releases/`, Simplified Chinese in `website/zh-hans/releases/` |
+| Landing page text and layout | `website/.vitepress/theme/Landing.vue`; localized `landing-<language>.ts` modules and `landing-sections.mjs`; `landing.css` and `style.css` |
+| User guide | `website/guide/*.md` (English), Korean in `website/ko/guide/*.md`, Japanese in `website/ja/guide/*.md`, Simplified Chinese in `website/zh-hans/guide/*.md` |
+| Release pages | `website/releases/<version>.md` (English), Korean in `website/ko/releases/`, Japanese in `website/ja/releases/`, Simplified Chinese in `website/zh-hans/releases/` |
 | Developer docs | The originals under `docs/` (English only). `website/dev/` is a copy made at build time; do not edit it |
 | Top menu, sidebar, fonts | `website/.vitepress/config.mts`; the developer docs sidebar is built by `sidebar-dev.mts` from `docs/` |
 | What components say (button text and so on) | `website/.vitepress/theme/words.ts` |
@@ -32,10 +32,22 @@ Anyone who has cloned the repository and run `npm ci`. Only taking new screen ca
 npm run site:dev
 ```
 
-3. To add a screen, use `<Shot name="name" caption="One sentence" />`. The name is one of `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`. Without a version, it shows the capture for the current `package.json` version. To add a new state, put it in the scenario in `scripts/shots.mjs` and capture again. Captures are taken over a backdrop window that covers the whole screen, so no other window shows behind the window corners and shadow; on the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README).
+3. To add a screen, use `<Shot name="name" caption="One sentence" />`. The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `studio-day`, `studio-night`, `mini-chat`, `realistic-companions`, `friend-appearance`. Without a version, it shows the capture for the current `package.json` version. To add a new state, put it in the scenario in `scripts/shots.mjs` and capture again. Normal captures and GIF frames target only the isolated app process's window, matched by its PID and outer bounds. A canvas adds the controlled backdrop behind transparent corners and the screenshot margin, so unrelated desktop windows cannot enter those pictures. If the matching window is missing or ambiguous, capture stops. Desktop-overlay pictures bring the prepared backdrop to the foreground before capturing the friends above it. On the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README).
 
 ```bash
 npm run shots -- 0.2.0
+```
+
+For a faster screenshot-only pass, skip recording and encoding the GIF. This preserves the existing demo animation:
+
+```bash
+SKIP_GIF=1 npm run shots -- 0.2.0
+```
+
+To refresh only the two adult appearance pictures in all four site languages, use the abbreviated scene. It shows Aria and Noah alone and leaves the GIF unchanged:
+
+```bash
+SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans npm run shots -- 0.2.0
 ```
 
 4. Mark the version where a feature first arrived with `<Since v="0.2.0" />` at the end of its heading. If you changed the headline or the first-screen text, redraw the share card and banner too.
@@ -52,30 +64,49 @@ npm run site:build && node --test tests/website.test.mjs
 
 6. Commit. Git ignores what `scripts/site-prepare.mjs` generates (`website/dev/`, the icon and pet sheets it copies into `website/public/`, and `website/.vitepress/generated.json`), so they are not included. Captures and intro videos under `website/public/` are committed.
 
-## Landing intro video
-The landing page has a slot for a short intro video in each site language. Without one, the first screen shows the illustrated yard scene (hills, sky and the three sample pets talking).
+## Derived art and creator packages
 
-1. Put the files in `website/public/media/`, named by site language (`ko`, `en`, `zh-hans`).
+`assets/icon.svg` is the accepted Clover source. `npm run icons` exports the
+app, tray and installer icon formats. Site preparation copies that source SVG
+and the generated PNG/ICO fallbacks; the site config uses content-revisioned
+favicon addresses so unchanged paths do not keep an older icon in browser tabs.
+Regenerate these outputs through the scripts and inspect the actual served tab
+icon after changing the source.
 
-| File | Needed |
-|---|---|
-| `intro-<lang>.mp4` | Yes. Its presence is what turns the video on for that language |
-| `intro-<lang>.webm` | Optional. Browsers that play WebM pick it before the MP4 |
-| `intro-<lang>.jpg` | Optional. The poster shown before the video starts |
+`CreatorKit.vue` uses specifications from `scripts/creator-specs.mjs`; site
+preparation runs `scripts/creator-kit.mjs` to copy accepted references and build
+standalone import packages for all ten built-in companions. The studio is also
+a main navigation destination in every site language. Preserve existing kit IDs and bookmarked query links
+when changing presentation. The minimal portable package has one canonical
+`pet.json` and baseline sheet. Optional PlayPets-specific materials do not imply
+compatibility with other hosts. Source provenance, identity locks and references
+travel with reusable creator prompts. `kitEntries` records each pet’s available
+detailed references and seasonal sheets; the UI and bundles use that inventory.
+A runtime collage is not a detailed turnaround. A copied prompt still needs image review,
+packing and validation before its result is a playable pet.
 
-2. Run `npm run site:dev` or `npm run site:build`. `scripts/site-prepare.mjs` checks each language for `intro-<lang>.mp4` and writes the result to `website/.vitepress/generated.json` as `video: { ko, en, "zh-hans" }`, each `true` or `false`.
-3. `website/.vitepress/theme/Landing.vue` reads that file. For a language marked `true`, it shows a `<video>` (autoplay, muted, looping, inline) with the WebM and MP4 sources and the JPG poster. For a language marked `false`, it shows the illustrated scene. Each language is decided on its own, so the Korean page can have a video while the others still show the scene.
+## Landing scenes and motion
 
-Only the MP4 is checked. If you add a WebM without an MP4, the page keeps showing the scene.
+The landing uses actual app captures. `WorldPreview.vue` offers four seasons and
+city day/night; visitors choose a scene rather than waiting for a carousel.
+Refresh the spring, summer and winter captures in all four languages with:
 
-## Verification
-- `website/.vitepress/dist/index.html` exists, and the build output has no `dead link`.
-- Open it with `npm run site:preview` and the pages you changed show up. The address is `http://localhost:4173/playpets/`.
+```bash
+SHOT_SCENE=seasons SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+```
 
-## Troubleshooting
-| Symptom | Cause and fix |
-|---|---|
-| `Found dead link ../README.md in file dev/...` | A link in `docs/` points outside it. `scripts/site-lib.mjs` turns those into GitHub addresses, so this rarely happens. When it does, check that the linked file actually exists |
-| "This screen has not been captured yet." where a screen should be | The capture file for that version and language is missing. Run `npm run shots -- <version>` or put `website/public/shots/<version>/<language>/<name>.webp` in place by hand |
-| A macOS permission dialog shows up in the capture | Screen recording permission is not granted yet. Allow it in the dialog and capture again |
-| The landing page download button shows only "Releases" | No release is published on GitHub, or the API call was blocked. It changes by itself once a release is out |
+The abbreviated capture preserves existing autumn, city and GIF exports.
+Check framing, wardrobe, weather and legible UI before accepting each output.
+Captures use isolated data and do not change the user's friends. The capture
+script clears transient focus and parks the pointer outside the app before each
+image; meaningful selected tabs and settings remain visible.
+
+Companion previews load when visible. The shelf stays still; the selected
+portrait offers three motions and stops off screen. The page pause button and
+the system's reduced-motion preference stop animation. Intro video metadata is
+still available to tools, but the landing does not autoplay a video.
+
+Keep the landing copy in all four language modules. Lead with what a person can
+do, keep AI costs and privacy visible, and put coding integration details in the
+expandable developer note. Check narrow screens, scene selection, keyboard
+focus and reduced motion after changing the layout.

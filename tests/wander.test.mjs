@@ -56,3 +56,8 @@ test('idle actions are mostly strolls with occasional small poses', () => {
   for (let i = 0; i < 1000; i++) if (wander.idleAction(Math.random).type === 'move') moves++;
   assert.ok(moves > 600, 'strolling dominates so pets feel alive, not twitchy');
 });
+
+test('quiet companions greet without spontaneous jumping', () => {
+  assert.deepEqual(wander.idleAction(rngOf([0.1, 0.8]), true), { type: 'pose', pose: 'wave' });
+  assert.deepEqual(wander.idleAction(rngOf([0.9]), true), { type: 'move' });
+});

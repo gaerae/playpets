@@ -12,7 +12,6 @@ const providerForms = {
     key: false,
     modelRequired: false,
     placeholder: t('connection.model_default'),
-    note: t('connection.note_claude'),
   },
   codex: {
     label: 'Codex CLI',
@@ -21,14 +20,12 @@ const providerForms = {
     key: false,
     modelRequired: false,
     placeholder: t('connection.model_default'),
-    note: t('connection.note_codex'),
   },
   ollama: {
     endpoint: true,
     key: false,
     modelRequired: true,
     placeholder: t('connection.model_installed', { example: 'llama3.2' }),
-    note: t('connection.note_ollama'),
     // The address Ollama usually listens at comes from the backend (data.defaults).
     defaultEndpoint: true,
   },
@@ -37,14 +34,12 @@ const providerForms = {
     key: true,
     modelRequired: true,
     placeholder: t('connection.model_placeholder'),
-    note: t('connection.note_openai'),
   },
   compatible: {
     endpoint: true,
     key: true,
     modelRequired: true,
     placeholder: t('connection.model_placeholder'),
-    note: t('connection.note_compatible'),
   },
 };
 let editProvider = null;
@@ -97,12 +92,12 @@ export async function quickConnect() {
 export function openConnectionDialog(current, onChange = () => {}) {
   editProvider = current?.id || null;
   afterChange = onChange;
+  $('connection-form').reset();
   // A new connection can go to every friend still without one, not only the selected friend.
   const others = unconnected(selected).length;
   $('share-all-field').hidden = !!current || !others;
   $('ai-share-all').checked = !current && others > 0;
   $('ai-share-all-label').textContent = t('connection.share_all', { count: others });
-  $('connection-form').reset();
   $('connection-error').textContent = '';
   setAiType(current?.type || detectedType());
   $('ai-model').value = current?.model || '';
@@ -131,6 +126,8 @@ function updateProviderForm() {
   // Until a kind is picked there is nothing to fill in.
   $('type-fields').hidden = !type;
   $('save-provider').disabled = !type;
+  $('connection-help').hidden = !['claude', 'codex', 'ollama'].includes(type);
+  $('connection-help').textContent = ['claude', 'codex', 'ollama'].includes(type) ? t(`connection.help_${type}`) : '';
   if (!type) return;
   const form = providerForms[type];
   $('endpoint-field').hidden = !form.endpoint;
@@ -141,7 +138,7 @@ function updateProviderForm() {
     type === 'ollama' && d.ollama?.length
       ? t('connection.model_installed', { example: d.ollama[0] })
       : form.placeholder;
-  $('provider-note').textContent = form.note;
+  $('provider-note').textContent = t(`connection.note_${type}`);
   $('model-req').hidden = !form.modelRequired;
   loadModels();
 }
@@ -178,6 +175,7 @@ async function loadModels() {
       option.value = name;
       $('model-list').append(option);
     }
+    if (type === 'ollama' && !$('ai-model').value && list.length) $('ai-model').value = list[0];
     // A CLI takes short aliases too, so the line says so there.
     const found = form.cli ? 'connection.models_found_cli' : 'connection.models_found';
     $('model-status').classList.remove('error');

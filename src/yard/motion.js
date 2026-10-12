@@ -31,20 +31,23 @@ export function moveFriends(now, dt) {
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
         if (trip?.save !== false)
           call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic'))));
+        // Arrivals such as fishing anchor their drawings to the friend's pixel position.
+        place(v);
         trip?.arrive?.(v, now);
       } else {
         const step = Math.min(1, (dt * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
         v.x += dx * step;
         v.y += dy * step;
         pose(v, dx >= 0 ? 'right' : 'left', 150);
+        place(v);
       }
-      place(v);
     } else if (!v.drag && !v.doing && !aiming && !game && !v.away && !reduced.matches && now >= v.nextWander) {
-      const action = idleAction(Math.random);
+      const quiet = document.body.classList.contains('mini');
+      const action = idleAction(Math.random, quiet);
       if (action.type === 'pose') pose(v, action.pose, 1200);
       else if (!visitTarget(v) && !decorTarget(v))
         sendTo(v, wanderTarget({ x: v.x, y: v.y }, Math.random), { slow: true });
-      v.nextWander = now + between(Math.random, WANDER_DELAY);
+      v.nextWander = now + between(Math.random, WANDER_DELAY) * (quiet ? 1.8 : 1);
     }
     const status = data.statuses[id]?.state || 'idle';
     const state = now < v.until ? v.pose : status;

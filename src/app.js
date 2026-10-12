@@ -5,6 +5,7 @@ import { confirmAction, setupConfirm } from './core/confirm.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
 import { onShortcut } from './core/keys.js';
+import { setSpriteSeason } from './core/sprites.js';
 import { $, aiming, api, call, data, game, guard, recall, selected, setData, toast, views } from './core/state.js';
 import { plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
@@ -88,7 +89,11 @@ onShortcut('friends', () => openPanel('pet'));
 onShortcut('invite', () => openPanel('invite'));
 onShortcut('mini', () => data.pets.length && guard(() => setMini(!isMini()))());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
-setupSky();
+setupSky({
+  seasonChanged: season => {
+    if (setSpriteSeason(season) && data.assets.length) render();
+  },
+});
 setupViews({
   gameTap,
   patted: id => {
@@ -213,8 +218,8 @@ let last = 0;
 function interval(now) {
   if (game || aiming) return BUSY_MS;
   for (const v of views.values()) if (v.target || v.drag || now < v.until) return BUSY_MS;
-  if (scene.weather === 'snow') return SNOW_MS;
-  if (scene.weather === 'rain' || scenery.busy()) return RAIN_MS;
+  // Weather sets the pace only where it falls (not in a room without windows, nor with reduced motion).
+  if (scenery.busy()) return scene.weather === 'snow' ? SNOW_MS : RAIN_MS;
   return CALM_MS;
 }
 function animate(now) {

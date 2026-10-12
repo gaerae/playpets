@@ -21,22 +21,55 @@ reviews:
     enabled: true
     drafts: false
     ignore_usernames:
-      - dependabot[bot]
+      - dependabot[bot] # Dependency changes still run CI; humans review before merging.
 
-  # Lockfiles that only npm and cargo write, the icons and site media made from other files, and
-  # binary images and video.
+  # Skip generated copies and binary payloads, not their manifests or source provenance.
+  # Lockfile changes remain covered by dependency CI; visual changes need screen review.
   path_filters:
     - "!package-lock.json"
     - "!src-tauri/Cargo.lock"
     - "!src-tauri/icons/**"
-    - "!website/public/**"
+    - "!website/dev/**"
+    - "!website/.vitepress/generated.json"
+    - "!website/public/pets/**"
+    - "!website/public/creator-kit/**"
+    - "!website/public/yard/**"
     - "!**/*.png"
     - "!**/*.webp"
     - "!**/*.gif"
     - "!**/*.mp4"
     - "!**/*.bmp"
+    - "!**/*.jpg"
+    - "!**/*.jpeg"
+    - "!**/*.ico"
+    - "!**/*.icns"
+    - "!**/*.webm"
 
   path_instructions:
+    - path: "**/*"
+      instructions: >-
+        Use docs/repository-layout.md for ownership and generated-file boundaries. A new directory,
+        command, asset source or locale needs its consumer and verification path updated together.
+        Do not request broad reorganization without a concrete failure. For a new environment
+        variable, distinguish public build options from secrets and document the default.
+    - path: "{package.json,.gitignore,.gitattributes,AGENTS.md,.coderabbit.yaml}"
+      instructions: >-
+        Check repository-wide effects: command changes match CI and scripts/README.md, ignores
+        cover local output without hiding source or fixtures, and text normalization never affects
+        binary media. Git ignore rules cannot remove an already tracked secret. Agent rules link
+        current standards instead of copying them; CLAUDE.md remains a pointer to AGENTS.md.
+    - path: "scripts/**"
+      instructions: >-
+        Maintainer tooling can mutate releases, credentials or generated files. Check the documented
+        inputs, output ownership and platform behavior in scripts/README.md. Commands passed to child
+        processes use argument arrays, not shell interpolation of paths or external values. A changed
+        website input also needs the Pages workflow path filter to trigger a rebuild.
+    - path: "{assets,src/art}/**"
+      instructions: >-
+        Accepted artwork and its provenance are source, not disposable output (assets/README.md).
+        New artwork records its source, permission or generation process and its consumer. Review
+        manifest references, atlas geometry and seasonal variants. Binary filtering cannot judge
+        sharpness or composition: require visual evidence at app and mini sizes when those change.
     - path: "src/core/strings/**"
       instructions: >-
         String tables, one file per language (ko is the reference). Every key exists in every
@@ -98,8 +131,12 @@ reviews:
         follow-up note. Check that paths, commands and names in the text match the code.
     - path: "website/**"
       instructions: >-
-        The site in English, Korean and Simplified Chinese. A change to a page in one language has
-        its counterparts in the other two.
+        The site in English, Korean, Japanese and Simplified Chinese. A change to a page in one
+        language has its counterparts in the other three. Developer docs under website/dev are
+        generated in English; do not request manual translations there. Check easy user-facing
+        wording, truthful offline/AI cost claims, localized links and alternative text. Changed
+        landing layouts need mobile, dark-mode and reduced-motion checks; screenshots reflect the
+        shipped app, and season or time labels match the captured scene.
     - path: ".github/workflows/**"
       instructions: >-
         Every action is pinned to a full commit SHA with its version as a comment. Permissions are
@@ -166,3 +203,5 @@ knowledge_base:
     filePatterns:
       - AGENTS.md
       - docs/standards/*.md
+      - docs/repository-layout.md
+      - assets/README.md

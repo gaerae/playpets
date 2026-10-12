@@ -2,13 +2,17 @@
 // monitor and reports presses and drags. Positions, drags and strolls are worked out in overlay.rs.
 
 import { lookAt } from '../core/animation.js';
+import { styledAsset } from '../core/appearance.js';
 import { follow, language, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { displayName } from '../core/names.js';
-import { canvas, crown, drawSprite, reduced } from '../core/sprites.js';
+import { setupSeason } from '../core/season.js';
+import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/sprites.js';
+import { recall } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
-import { every } from '../core/ticker.js';
+import { every, everyMinute } from '../core/ticker.js';
+import { southern } from '../yard/scene.js';
 
 document.documentElement.lang = language();
 const api = window.playPets,
@@ -24,6 +28,15 @@ const FOOT = 28;
 let data = { pets: [], assets: [], statuses: {} },
   layout = [];
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
+const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
+setupSeason({
+  read: () => recall('season'),
+  apply: season => {
+    if (setSpriteSeason(season)) render();
+  },
+  minute: everyMinute,
+  south,
+});
 function create(pet) {
   const wrap = document.createElement('div');
   wrap.className = 'friend-wrap';
@@ -131,7 +144,10 @@ function render() {
       views.set(pet.id, v);
     }
     v.pet = pet;
-    v.asset = data.assets.find(a => a.id === pet.assetId);
+    v.asset = styledAsset(
+      data.assets.find(a => a.id === pet.assetId),
+      pet.visualStyle,
+    );
     v.status = stateOf(data, pet.id);
     v.wrap.style.visibility = 'visible';
     v.wrap.style.width = `${position.width}px`;

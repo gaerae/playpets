@@ -3,15 +3,19 @@
      read from the GitHub API in the browser. When that fails the button leads to the releases page:
      a 404 means nothing is released yet; anything else (a rate limit, no network) only says where the files are. -->
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import generated from '../generated.json';
+import { forgetRelease, latestRelease, watchRelease } from './site-runtime.mjs';
 import { FILES, useWords } from './words';
 
 const props = defineProps<{ version?: string; compact?: boolean }>();
 const { words } = useWords();
 const version = ref(props.version ?? '');
+const available = ref<string[] | null>(null);
 // 'missing': the API said 404, so there is no release yet; 'error': the lookup failed some other way.
-const lookup = ref<'pending' | 'missing' | 'error'>('pending');
+const lookup = ref<'pending' | 'ready' | 'missing' | 'error'>('pending');
+let detach: (() => void) | undefined;
+let active = true;
 const os = ref<'macOS' | 'Windows' | 'Linux'>('macOS');
 // An ARM PC gets the arm64 file: the x64 one runs there only through emulation.
 const arm = ref(false);
@@ -24,7 +28,25 @@ const primaryFile = computed(() =>
       ? `linux-${arm.value ? 'arm64' : 'x64'}.AppImage`
       : 'macos-universal.dmg',
 );
-const others = computed(() => FILES.filter(f => f !== primaryFile.value));
+const hasPrimary = computed(() => available.value === null || available.value.includes(primaryFile.value));
+const others = computed(() =>
+  FILES.filter(f => f !== primaryFile.value && (available.value === null || available.value.includes(f))),
+);
+const releaseUrl = computed(() => (version.value ? `${releases}/tag/v${version.value}` : releases));
+const showRelease = (result: { version: string; files: string[]; status: 'ready' | 'missing' | 'error' }) => {
+  if (!active) return;
+  version.value = result.version;
+  available.value = FILES.filter(f => result.files.includes(`PlayPets_${result.version}_${f}`));
+  lookup.value = result.status;
+};
+const loadRelease = async () => {
+  lookup.value = 'pending';
+  showRelease(await latestRelease(generated.slug));
+};
+const retry = () => {
+  forgetRelease(generated.slug);
+  void loadRelease();
+};
 
 onMounted(async () => {
   const p = navigator.platform.toLowerCase();
@@ -42,30 +64,23 @@ onMounted(async () => {
       .getHighEntropyValues(['architecture'])
       .then(v => v.architecture === 'arm')
       .catch(() => false);
-  if (props.version) return;
-  try {
-    const r = await fetch(`https://api.github.com/repos/${generated.slug}/releases/latest`, {
-      headers: { Accept: 'application/vnd.github+json' },
-    });
-    if (r.status === 404) {
-      lookup.value = 'missing';
-      return;
-    }
-    if (!r.ok) throw new Error(String(r.status));
-    version.value = String((await r.json()).tag_name).replace(/^v/, '');
-  } catch {
-    lookup.value = 'error';
-  }
+  if (props.version || !active) return;
+  detach = watchRelease(generated.slug, showRelease);
+  await loadRelease();
+});
+onBeforeUnmount(() => {
+  active = false;
+  detach?.();
 });
 </script>
 
 <template>
-  <div class="downloads" :class="{ compact }">
+  <div class="downloads" :class="{ compact }" :aria-busy="lookup === 'pending' && !version">
     <template v-if="version">
       <div class="dl-row">
-        <a class="dl-primary" :href="url(primaryFile)">
-          <span>{{ words.downloadFor(os) }}</span>
-          <small>{{ words.files[primaryFile] }} · {{ version }}</small>
+        <a class="dl-primary" :href="hasPrimary ? url(primaryFile) : releaseUrl">
+          <span>{{ hasPrimary ? words.downloadFor(os) : words.releases }}</span>
+          <small>{{ hasPrimary ? words.files[primaryFile] : 'GitHub' }} · {{ version }}</small>
         </a>
         <slot />
       </div>
@@ -85,9 +100,10 @@ onMounted(async () => {
         </a>
         <slot />
       </div>
-      <p v-if="lookup === 'missing'" class="dl-note">{{ words.unreleased }}</p>
-      <p v-else-if="lookup === 'error'" class="dl-note">
+      <p v-if="lookup === 'missing'" class="dl-note" role="status">{{ words.unreleased }}</p>
+      <p v-else-if="lookup === 'error'" class="dl-note" role="status">
         {{ words.lookupFailed }}<a :href="releases">{{ words.releases }}</a>{{ words.lookupFailedEnd }}
+        <button type="button" class="dl-retry" @click="retry">{{ words.retry }}</button>
       </p>
     </template>
     <p v-if="!compact" class="dl-free">{{ words.free }}</p>

@@ -1,0 +1,9 @@
+# Smoky sculpted sprite sources
+
+The eleven source rows were generated with the built-in OpenAI image generator from the approved Smoky identity reference. They preserve the silver-gray coat, three darker forehead stripes, pink nose and ears, ivory belly, dark eyes, and charcoal-tipped tail. Exact prompts and original generated output filenames are retained beside each source PNG.
+
+`ART-SOURCES.json` records hashes, the 150-pixel idle-height target, and the reproducible packing command. Packing and optional normalization require Chrome through the repository Playwright dependency. Rows 01, 02, and 04 had intact figures crossing internal source grid boundaries. Their whole alpha-connected silhouettes were recentered by integer horizontal translation, preserving each retained RGBA pixel and all vertical jump offsets. The originals remain under `generated-originals/`; normalization metadata records bounds, translations, pixel counts, and hashes. No anatomy was redrawn, filtered, or sharpened by scripts.
+
+The walk is a gentle alternating-foot shuffle, rather than a fast run. The first five jump poses show crouch, takeoff, airborne motion and landing. Waiting retains a chin-paw gesture; working retains a small laptop; error and celebration retain distinct expressions and paw gestures. Sixteen gaze cells change head and eye direction. All 88 packed cells were inspected. Browser comparisons at 176, 110, and 75 CSS pixels at DPR 1 and 2 are generated under `release/legacy-cats/smoky/`. The original flat sprite remains recoverable in Git and the legacy generator.
+
+`identity-reference.png` retains the original canonical idle-cell reference. Subsequent generated rows use the accepted `source-rows/00-idle.png` identity lock. The walk is a modest alternating-foot shuffle, not a fast run.

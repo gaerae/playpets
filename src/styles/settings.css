@@ -1,35 +1,47 @@
 /* Settings, which opens as a wide sheet over the yard with an index of its groups, and the AI
    connection dialog's choice of AI. */
 .auto-chatter {
-  margin: 6px 0 14px;
-  padding: 10px 12px;
+  position: relative;
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--paper);
   font-size: 12px;
   align-items: flex-start;
 }
+/* The native checkbox stays focusable without inheriting a full-width field's invisible box. */
+.auto-chatter input[type="checkbox"] {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+}
 .auto-chatter > span:last-child {
   display: grid;
-  gap: 2px;
+  gap: 4px;
 }
 .auto-chatter small {
   font-weight: 400;
   color: var(--muted);
-  font-size: 10.5px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.6;
   white-space: normal;
 }
 /* The yard sounds' volume, under their switch, in the same card. */
 .auto-chatter.with-volume {
   margin-bottom: 0;
   border-radius: 12px 12px 0 0;
+  border-bottom: 0;
 }
 .volume-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0 0 14px;
-  padding: 2px 12px 12px 53px;
+  margin: 0;
+  padding: 2px 14px 14px 55px;
+  border: 1px solid var(--line);
+  border-top: 0;
   border-radius: 0 0 12px 12px;
   background: var(--paper);
   font-size: 12px;
@@ -71,19 +83,28 @@
 }
 /* The settings tab: one titled list of agents. Each row names the file to paste into, in the spelling
    this system uses, and what the agent will tell the friend. */
+.settings-section {
+  min-width: 0;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+}
 .settings-section h3 {
-  font-size: 13px;
+  margin-bottom: 10px;
+  font-size: 15px;
   font-weight: 700;
 }
 .settings-lead {
-  margin: 6px 0 12px;
-  font-size: 11.5px;
+  margin: 0 0 14px;
+  font-size: 12px;
   line-height: 1.6;
   color: var(--muted);
 }
 .link-list {
   list-style: none;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -94,7 +115,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 9px 10px 9px 12px;
+  padding: 12px;
 }
 .link-row + .link-row {
   border-top: 1px solid var(--line);
@@ -111,7 +132,7 @@
 .link-row small {
   display: block;
   margin-top: 2px;
-  font-size: 10.5px;
+  font-size: 11.5px;
   line-height: 1.5;
   color: var(--muted);
   word-break: keep-all;
@@ -119,12 +140,13 @@
 .link-row code {
   display: block;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 10px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
   color: var(--ink);
 }
 .link-row .button.small {
   flex: none;
-  min-height: 30px;
+  min-height: 34px;
   padding: 0 10px;
   font-size: 11px;
 }
@@ -147,9 +169,7 @@
 /* About: the version, one line on the license, and the app's own pages as small buttons that wrap.
    A rule sets it apart from the agent list above it. */
 .settings-section.about {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
+  margin-top: 0;
 }
 .about-name {
   font-weight: 700;
@@ -162,7 +182,7 @@
   margin-bottom: 12px;
 }
 .about-links .button.small {
-  min-height: 30px;
+  min-height: 34px;
   padding: 0 10px;
   font-size: 11px;
 }
@@ -181,13 +201,20 @@
   font-size: 11px;
   color: var(--muted);
   white-space: nowrap;
+  min-width: 0;
 }
 .link-row .language-select {
   flex: none;
   width: auto;
-  min-height: 30px;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 34px;
   padding: 0 32px 0 10px;
   font-size: 11px;
+}
+.link-row .agent-pet .language-select {
+  flex: 1;
+  width: 0;
 }
 /* The connection dialog's "other friends too" switch sits under the note, before the buttons. */
 .share-all {
@@ -212,9 +239,10 @@
 .ai-type {
   position: relative;
   display: grid;
-  gap: 2px;
+  gap: 5px;
   margin: 0;
-  padding: 10px 12px;
+  padding: 14px;
+  min-height: 90px;
   border: 1.5px solid var(--line);
   border-radius: 12px;
   background: var(--white);
@@ -227,17 +255,23 @@
   border-color: #9fb5ae;
 }
 .ai-type.on {
-  border-color: var(--ink);
-  background: #f1f6f3;
+  border-color: #617b59;
+  background: #eef3e8;
+  box-shadow: inset 0 0 0 1px #617b59;
 }
 .ai-type:has(input:focus-visible) {
-  outline: 3px solid #367b90;
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 .ai-type input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
+  width: 1px;
+  min-height: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
 }
 .ai-type-name {
   font-size: 13px;
@@ -245,14 +279,13 @@
 }
 .ai-type small {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 1.5;
   color: var(--muted);
   font-weight: 400;
 }
 .ai-found {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+  justify-self: start;
   font-size: 10px;
   font-weight: 700;
   color: #2c6e57;
@@ -289,34 +322,43 @@
   align-self: stretch;
   transform: translateX(-50%);
   box-shadow: 0 18px 48px #1d2f2a40;
+  background: #f6f5ed;
+  overflow: hidden;
 }
 .settings-index {
   display: none;
 }
 .layout.settings-open #panel-settings {
   display: grid;
-  grid-template-columns: 170px minmax(0, 1fr);
-  column-gap: 24px;
-  align-content: start;
+  grid-template-columns: 156px minmax(0, 1fr);
+  column-gap: 20px;
+  overflow: hidden;
 }
 .layout.settings-open #panel-settings[hidden] {
   display: none;
 }
-.layout.settings-open #panel-settings > :not(.settings-index) {
-  grid-column: 2;
+.settings-content {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 2px 6px 4px 2px;
+}
+.settings-content > .settings-section {
+  margin-bottom: 0;
 }
 .layout.settings-open .settings-index {
   display: flex;
   flex-direction: column;
   gap: 2px;
   grid-column: 1;
-  grid-row: 1 / span 20;
-  align-self: start;
-  position: sticky;
-  top: 0;
+  align-self: stretch;
+  overflow-y: auto;
+  padding: 2px;
 }
 .settings-index button {
-  padding: 8px 12px;
+  padding: 11px 12px;
   border: 0;
   border-radius: 9px;
   background: none;
@@ -327,24 +369,49 @@
   text-align: left;
   cursor: pointer;
 }
-.settings-index button[aria-current] {
-  background: #eef3ee;
+.settings-index button[aria-selected="true"] {
+  background: #e3ebdc;
   color: var(--ink);
 }
 .settings-index button:hover {
-  background: #eef3ee;
+  background: #e3ebdc;
   color: var(--ink);
 }
 @media (max-width: 760px) {
+  .app-shell:has(.layout.settings-open) {
+    height: 100%;
+    min-height: 0;
+  }
+  .layout.settings-open {
+    overflow: hidden;
+  }
   .layout.settings-open #panel-settings {
-    display: flex;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    row-gap: 12px;
   }
   .layout.settings-open .settings-index {
-    display: none;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+  }
+  .settings-index button {
+    padding: 9px 6px;
+    font-size: 12px;
+    text-align: center;
+  }
+}
+@media (max-width: 420px) {
+  .link-row:has(#season) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .layout.settings-open .settings-index {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 /* In the wide sheet a coding agent keeps one row: what it is, which friend it reports to, the copy. */
-@container panel (min-width: 720px) {
+@container panel (min-width: 860px) {
   .link-row:has(.agent-pet) {
     flex-wrap: nowrap;
   }
@@ -355,5 +422,34 @@
     order: 0;
     flex: none;
     margin-top: 0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .layout.settings-open .side-panel {
+    background: var(--shell);
+  }
+  .settings-index button[aria-selected="true"],
+  .settings-index button:hover {
+    background: var(--soft);
+  }
+  .ai-type.on {
+    background: var(--soft);
+    border-color: #91b08b;
+    box-shadow: inset 0 0 0 1px #91b08b;
+  }
+  .ai-found {
+    background: var(--soft);
+    color: #d1e8c2;
+  }
+  #panel-settings input,
+  #panel-settings select {
+    background-color: var(--paper);
+  }
+  #panel-settings .button.secondary:hover {
+    background: var(--soft);
+  }
+  #panel-settings .button.quit:hover {
+    border-color: var(--danger);
+    background: #49332c;
   }
 }

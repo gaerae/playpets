@@ -1,8 +1,8 @@
 // Draws the PlayPets mascot (assets/mascot.svg) as Codex pets: a v2 sprite sheet (1536×2288,
-// 8 columns × 11 rows of 192×208 cells) plus pet.json per coat in assets/pets/<id>/. The face
+// 8 columns × 11 rows of 192×208 cells) plus pet.json per coat in release/legacy-pets/<id>/. The face
 // reuses the mascot's own SVG paths; the body, paws and tail are drawn here in the same flat
 // style. Three coats share the drawing: the orange tabby (the mascot), a grey and a cream cat, so
-// the yard in the screenshots and on the website shows several different friends.
+// these historical reference files remain separate from the accepted production artwork.
 // Row order and frame counts follow src/core/animation.js. Run: npm run mascot-pet
 // Needs Google Chrome (playwright-core drives it headless, as the e2e tools do).
 
@@ -442,7 +442,7 @@ try {
   const page = await browser.newPage();
   await page.setContent('<!doctype html><html><body></body></html>');
   for (const coat of COATS) {
-    const out = `assets/pets/${coat.id}`;
+    const out = `release/legacy-pets/${coat.id}`;
     const dataUrl = await page.evaluate(drawSheet, coat.colors);
     await mkdir(out, { recursive: true });
     await writeFile(path.join(out, 'spritesheet.png'), Buffer.from(dataUrl.split(',')[1], 'base64'));

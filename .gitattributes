@@ -11,10 +11,30 @@
 *.bmp binary
 *.gif binary
 *.jpg binary
+*.jpeg binary
+*.avif binary
 *.mp4 binary
+*.webm binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+*.gz binary
+*.pdf binary
 
 # Generated files stay out of code review and language statistics.
 package-lock.json linguist-generated=true -diff
 src-tauri/Cargo.lock linguist-generated=true -diff
 src-tauri/icons/** linguist-generated=true
 src/logo.svg linguist-generated=true
+
+# Tracked exports: regenerate through scripts/README.md. Keep provenance JSON and SVG sources diffable.
+website/public/shots/** linguist-generated=true
+website/public/listing/** linguist-generated=true
+website/public/og*.png linguist-generated=true
+packaging/macos/dmg-background.png linguist-generated=true
+packaging/windows/nsis-*.bmp linguist-generated=true
+assets/banner.png linguist-generated=true
+assets/demo.gif linguist-generated=true

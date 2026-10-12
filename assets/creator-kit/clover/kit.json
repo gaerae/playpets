@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "id": "clover",
+  "identity": "identity.json",
+  "references": [
+    "turnaround.png",
+    "face-detail.png",
+    "identity-reference.png",
+    "expression-reference.png",
+    "motion-reference.png",
+    "wardrobe-reference.png"
+  ],
+  "availability": {
+    "detail": "available",
+    "seasons": ["summer", "winter"]
+  },
+  "files": {
+    "turnaround.png": {
+      "bytes": 1938095,
+      "sha256": "3361c0bb2942a70dca8f575a80c70e8dc3d0b0785dc6c9deb8c64bb84011742e"
+    },
+    "face-detail.png": {
+      "bytes": 2309593,
+      "sha256": "38e4904dc8e87d87a3562600f842b501a5a5bbb6b23a2683651a1e3f9d49b5e5"
+    },
+    "identity-reference.png": {
+      "bytes": 231780,
+      "sha256": "32ba07487b15e3f2276c1c4ef2a9add6e520ce6ec29f8152a6466d7ab43ad25f"
+    },
+    "expression-reference.png": {
+      "bytes": 251657,
+      "sha256": "44b64d9aaa70d6914b8f5b33790a32faa2c7b417566d56e5c478a04f857e3b7c"
+    },
+    "motion-reference.png": {
+      "bytes": 3359939,
+      "sha256": "f64ff3c754505f16bdf9126c522e634393522aaaa4e78cdd2a6d4f699ef93ebe"
+    },
+    "wardrobe-reference.png": {
+      "bytes": 119502,
+      "sha256": "96b1f0f355e57d0130a5dfe31c3720890a12d5352cff3d84edc01bd6134445f9"
+    },
+    "spritesheet.png": {
+      "bytes": 3625182,
+      "sha256": "bd733acedd978ad3639c1ae6f69b2907ddebdbb2706f3b3e53f74d2dd4324cf7"
+    },
+    "summer.png": {
+      "bytes": 3655867,
+      "sha256": "fd3be4a9c920cb6d770570a999d6490df2ffee88b0f85ef8f8df117169497c9f"
+    },
+    "winter.png": {
+      "bytes": 3470859,
+      "sha256": "258e9c9d79d44bf2928b4feacc6fe439f2e52d6430a8906b6073f1fd174879a3"
+    },
+    "identity.json": {
+      "bytes": 2775,
+      "sha256": "a1355b473187a812d09c8d6519f30bf96dd4d8807b16560b6847d804a5056a8d"
+    },
+    "prompts/01-identity-lock.txt": {
+      "bytes": 1724,
+      "sha256": "6de99c70644f58572f66b59fd68aa64c4931e4bf8b8db46b77da5f264241afb7"
+    },
+    "prompts/02-face-detail.txt": {
+      "bytes": 1666,
+      "sha256": "c2093b998d04011329950740cfb4400877f528824bcd9b91ca7514e190a73d59"
+    },
+    "prompts/03-wardrobe.txt": {
+      "bytes": 2088,
+      "sha256": "232353c78421d85ca8f15c75728eecf8dd893dc9029ec509d9f8172383e74e8d"
+    },
+    "prompts/04-state-row.txt": {
+      "bytes": 2029,
+      "sha256": "48b5b65ccbf4fe0c7f46d27986016264397cae7eea2d2c6ba9f601d6a57a287b"
+    },
+    "prompts/05-canonical-export.txt": {
+      "bytes": 1879,
+      "sha256": "fc4ab4f374fe13ef48639b5edb40bc7b004ecdcff1d222d8ee58230a7de005da"
+    },
+    "pet.json": {
+      "bytes": 519,
+      "sha256": "e7d91d84ee2c6b38c3339fe6adc63aa8e45188e8c8789459304b5df4d8c50d06"
+    },
+    "provenance/turnaround.generation.txt": {
+      "bytes": 6764,
+      "sha256": "3cf6a3601c4913661ff3474114e338746265b1e6811fe4377264740968601855"
+    },
+    "provenance/face-detail.generation.txt": {
+      "bytes": 5074,
+      "sha256": "8bd38371f099830a0f61909e6e02294dc442ec17c36788e907f7ee68b5cf2e1b"
+    },
+    "README.txt": {
+      "bytes": 1234,
+      "sha256": "db075d06bf7966fd199bb3ecaed01f441a7df58ef07fdebbd55a2fae6120c98e"
+    }
+  }
+}

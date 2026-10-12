@@ -11,6 +11,11 @@ const rows = {
   working: [7, [120, 120, 120, 120, 120, 220]],
   done: [8, [150, 150, 150, 150, 150, 280]],
 };
+// Website previews follow the runtime contract without keeping a second state table.
+export function animationSpec(state) {
+  const [row, durations] = rows[state] || rows.idle;
+  return { row, frames: durations.length, seconds: durations.reduce((a, b) => a + b, 0) / 1000 };
+}
 export function frameAt(state, elapsed) {
   const [row, durations] = rows[state] || rows.idle;
   let tick = Math.max(0, elapsed) % durations.reduce((a, b) => a + b, 0);

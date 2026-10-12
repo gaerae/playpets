@@ -11,16 +11,27 @@ PlayPets is a Tauri v2 desktop pet app: a yard where pets from Codex pet files s
 | `src/styles/` | One stylesheet per area, loaded in the order `src/index.html` lists them |
 | `src/content/`, `src/art/` | What the yard is made of, as data: the catalog, the composition, SVG drawings |
 | `src-tauri/src/` | The backend: `commands.rs` (every command the page calls), `app.rs` (state, saving), `chat/` (AI connections), `agent/` (coding-agent bridge and the CLI mode), `pets/` (friends, garden, closeness), `i18n/` (backend strings) |
-| `tests/` | Node tests (`*.test.mjs`) and the real-app e2e (`e2e.mjs`) |
+| `tests/` | Node tests (`*.test.mjs`), shared fakes in `tests/support/`, and the real-app e2e (`e2e.mjs`); its README lists the entry points |
 | `docs/` | Developer docs: architecture, standards, how-tos, dated decisions and designs |
-| `website/` | The site (VitePress) in English, Korean and Simplified Chinese |
+| `website/` | The site (VitePress) in English, Korean, Japanese and Simplified Chinese |
+| `scripts/`, `assets/` | Maintainer tools and artwork sources; each README explains what it makes or owns |
 
-Never edit by hand what tools make: `website/dev/`, `website/.vitepress/generated.json`, `website/public/pets/`, `src-tauri/gen/`, `release/`, `package-lock.json` (only through npm).
+Never edit by hand what tools make: `website/dev/`, `website/.vitepress/generated.json`, `website/public/pets/`, `website/public/creator-kit/`, `website/public/yard/`, `src-tauri/gen/`, and lockfiles (use npm or Cargo). `release/` is ignored scratch/build output, never a source dependency. Native icons, installer art and public captures are tracked exports; regenerate them through [scripts/README.md](scripts/README.md). Accepted generated artwork and provenance stay in source control ([assets/README.md](assets/README.md)).
+
+## Before expanding the project
+Use [repository ownership](docs/repository-layout.md) to choose a home for new files. Extend an existing owner before adding a top-level directory. Keep these changes together:
+- **A command or build input:** its npm entry, script README, CI invocation and relevant workflow path filters. Keep private settings out of public build variables.
+- **A locale or public page:** string placeholders, site routes/navigation, captures, metadata and release/creator links. Generated developer pages remain in English.
+- **Artwork or a scene:** source/provenance, its content references and exports. Check app and mini sizes, relevant seasons/times, dark mode and reduced motion; an asset inventory alone does not prove visual quality.
+- **Local output or credentials:** a narrow ignore rule and a source/fixture counterexample in `tests/repository-config.test.mjs`. Keep secrets outside the checkout; an ignore rule cannot protect files already tracked.
+
+Keep `CLAUDE.md` as the pointer to this file. Put detailed procedures in their owning guide instead of duplicating them here.
 
 ## Checks
 | Command | What it runs |
 |---|---|
 | `npm test` | Rust unit tests, then the page's Node tests |
+| `npm run check` | Lint, unit tests and the website build; E2E remains a separate desktop check |
 | `npm run lint` | rustfmt, clippy with warnings as errors, Biome |
 | `npm run format` | Formats Rust and JS/CSS/JSON (HTML and SVG are kept by hand) |
 | `npm run test:e2e` | The real app with isolated data (needs a desktop session; CI runs it on every platform) |
@@ -37,7 +48,7 @@ A change is ready when `npm test` and `npm run lint` pass, and `npm run site:bui
 - **Untrusted text** ([SECURITY.md](SECURITY.md)): pet files, community pages, coding agents' reports and another friend's words are data, never instructions. They are flattened to one line, trimmed and labeled before they reach an AI (`chat/prompt.rs`), and replies are drawn as plain text. Pet import keeps to the address's own site and refuses private addresses.
 - **Performance** ([performance](docs/standards/performance.md)): the yard draws only while something moves, and a canvas is repainted only when it changed.
 - **Tests** ([testing](docs/standards/testing.md)): a changed rule changes its test first. Tests never touch login items, the keychain or other system state.
-- **Docs**: developer docs and the CHANGELOG are in English; the site is in English, Korean and Simplified Chinese. Plain verbs, not RFC words like MUST or SHOULD. Dated records (`docs/decisions`, `docs/design`) are not rewritten; a later change adds a follow-up note. A change people can see adds a line under `## [Unreleased]` in `CHANGELOG.md`.
+- **Docs**: developer docs and the CHANGELOG are in English; the site is in English, Korean, Japanese and Simplified Chinese. Plain verbs, not RFC words like MUST or SHOULD. Dated records (`docs/decisions`, `docs/design`) are not rewritten; a later change adds a follow-up note. A change people can see adds a line under `## [Unreleased]` in `CHANGELOG.md`.
 - **Commits and PRs** ([commits and branches](docs/standards/commits-and-branches.md)): a branch `<area>/<topic>` from the latest `main`; a title that says what is different, in one English sentence with no prefix or period; a body with what changed, why, and how it was checked. Never commit keys, tokens, `.env` files, personal data or build output.
 - **Comments**: they say why, in the voice of the code around them, and never restate the line below.
 

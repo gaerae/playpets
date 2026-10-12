@@ -165,12 +165,13 @@ const putAway = guard(async id => {
 let day = '',
   dueAt = 0,
   bringing = false;
+const GIFT_RETRY_MS = 60 * 1000;
 /** Called by the frame loop while the yard is seen and no game is on. */
 export function giftTick(now) {
   const g = data.garden;
   if (!g || bringing) return;
   const today = localDay(new Date());
-  if (g.giftDay === today || (g.decor?.length ?? 0) >= limit(data, 'decor')) return;
+  if (g.giftDay >= today || (g.decor?.length ?? 0) >= limit(data, 'decor')) return;
   if (day !== today) {
     day = today;
     dueAt = now + giftWait(Math.random, !g.received?.length);
@@ -180,7 +181,6 @@ export function giftTick(now) {
   if (!free.length) return;
   const v = pick(free);
   rest(v);
-  cheer(v, 'decor.gift', { mark: '', say: 3500 });
   // Set down beside the friend, on the side with more room.
   const width = sizeOf(v.pet),
     right = v.px + width / 2 < field().width / 2,
@@ -190,6 +190,7 @@ export function giftTick(now) {
   // During a seasonal event, today's gift is its own the first time (the backend checks the dates).
   call('receiveGift', at.x, at.y, today, scene.event)
     .then(d => {
+      cheer(v, 'decor.gift', { mark: '', say: 3500 });
       fresh.add(d.id);
       renderDecor();
       befriend(v.pet.id, 'gift');
@@ -205,7 +206,8 @@ export function giftTick(now) {
         );
     })
     .catch(() => {
-      // Refused (a gift already came today, the yard is full): look again tomorrow.
+      // A failed save must not replay the gift and its request on every frame.
+      dueAt = performance.now() + GIFT_RETRY_MS;
     })
     .finally(() => {
       bringing = false;

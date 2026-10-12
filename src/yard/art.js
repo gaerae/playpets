@@ -1,8 +1,9 @@
 // The yard's drawings (src/art/): each SVG file becomes a symbol in the page's sprite (#art in
 // index.html) once at start, so a plant, a gift or a flower is drawn with <use> and takes the
 // yard's colours. A drawing paints with the stylesheet's colours (fill:var(--leaf), --wood,
-// --shadow, --sky-a…), so the season, the light and the weather colour it with no code; the list
-// of those names is in docs/how-to/add-to-the-yard.md. Its view box is its size in the yard.
+// --sky-a…), so the season, the light and the weather colour it with no code; the list
+// of those names is in docs/how-to/add-to-the-yard.md. The shipped drawings wrap painted PNG
+// atlases instead and take none of them. A drawing's view box is its size in the yard.
 
 const NS = 'http://www.w3.org/2000/svg';
 const sizes = new Map();

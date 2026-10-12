@@ -11,7 +11,8 @@ export function release(changelog, version, date) {
   if (!SEMVER.test(version)) throw new Error(`The version must look like x.y.z, not "${version}".`);
   if (changelog.includes(`${heading(version)} `) || changelog.includes(`${heading(version)}\n`))
     throw new Error(`The changelog already has a section for ${version}.`);
-  const at = changelog.indexOf(`${UNRELEASED}\n`);
+  // The heading at the start of a line, not the same words quoted in the instructions above it.
+  const at = changelog.search(/^## \[Unreleased\]\n/m);
   if (at < 0) throw new Error(`The changelog has no "${UNRELEASED}" heading.`);
   const bodyStart = at + UNRELEASED.length + 1;
   const next = changelog.indexOf('\n## [', bodyStart);

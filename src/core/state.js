@@ -1,6 +1,8 @@
 // What every part of the app shares: the latest state from the backend, who is selected,
 // and the few helpers everything else is built from. Other modules read these bindings live
 // and change them only through the setters.
+
+import { styledAsset } from './appearance.js';
 import { t } from './i18n.js';
 import { displayName } from './names.js';
 import { spoken } from './text.js';
@@ -39,7 +41,11 @@ export const labels = {
   error: t('status.error'),
 };
 export const pet = () => data.pets.find(p => p.id === selected);
-export const asset = p => data.assets.find(a => a.id === p?.assetId);
+export const asset = p =>
+  styledAsset(
+    data.assets.find(a => a.id === p?.assetId),
+    p?.visualStyle,
+  );
 export const name = p => displayName(p, asset(p), t('friend.default'));
 /** An AI connection as the lists show it: the name, and the model when it has one. */
 export const providerLabel = c => (c?.model ? `${c.name} · ${c.model}` : c?.name || '');

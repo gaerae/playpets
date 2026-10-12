@@ -3,7 +3,7 @@
 import { logEntries } from '../core/chatlog.js';
 import { confirmAction } from '../core/confirm.js';
 import { joinList, t } from '../core/i18n.js';
-import { canvas, drawStill } from '../core/sprites.js';
+import { canvas, drawStill, spriteSource } from '../core/sprites.js';
 import {
   $,
   asset,
@@ -25,6 +25,8 @@ import { openConnectionDialog } from './connection.js';
 
 let providerKey = '',
   chatEpoch = 0;
+// The bridge may reject before its first busy-state update reaches the page.
+const pendingChats = new Set();
 // An answer shown with the styles its Markdown asked for. Every piece is set as text, never as markup.
 const STYLE_TAGS = { bold: 'strong', italic: 'em', code: 'code' };
 function rich(node, text) {
@@ -124,13 +126,16 @@ export function renderChat(p) {
     const chip = document.createElement('button');
     chip.type = 'button';
     chip.className = `detect-chip${companions.has(q.id) ? ' on' : ''}`;
+    chip.setAttribute('aria-pressed', String(companions.has(q.id)));
     chip.textContent = name(q);
     chip.disabled = busy;
     chip.onclick = () => {
       if (companions.has(q.id)) companions.delete(q.id);
       else if (companions.size < 3) companions.add(q.id);
       else return toast(t('chat.max_companions'));
+      const focused = document.activeElement === chip;
       renderChat(p);
+      if (focused) $('companion-chips').children[others.indexOf(q)]?.focus();
     };
     $('companion-chips').append(chip);
   }
@@ -160,12 +165,36 @@ const speaker = m => friendOf(m)?.id || m.petId || m.name || m.role;
 // the turn lines up under it).
 function avatar(m) {
   const friend = friendOf(m);
-  const frame = document.createElement('span'),
-    c = canvas();
+  const frame = document.createElement('span');
   frame.className = 'chat-avatar';
-  frame.append(c);
-  drawStill(c, friend && asset(friend));
+  frame.dataset.friendId = friend?.id || '';
+  paintAvatar(frame, friend && asset(friend));
   return frame;
+}
+const appearanceKey = art => JSON.stringify([spriteSource(art), art?.portraitUrl]);
+function paintAvatar(frame, art) {
+  frame.dataset.appearance = appearanceKey(art);
+  const c = canvas();
+  frame.replaceChildren(c);
+  drawStill(c, art);
+  if (art?.portraitUrl) {
+    const image = document.createElement('img');
+    image.alt = '';
+    image.hidden = true;
+    image.onload = () => {
+      image.hidden = false;
+      c.hidden = true;
+    };
+    image.src = art.portraitUrl;
+    frame.append(image);
+  }
+}
+function refreshAvatars(log) {
+  for (const frame of log.querySelectorAll('.chat-avatar')) {
+    const friend = data.pets.find(p => p.id === frame.dataset.friendId);
+    const art = friend && asset(friend);
+    if (frame.dataset.appearance !== appearanceKey(art)) paintAvatar(frame, art);
+  }
 }
 function messageNode(m, prev) {
   const node = document.createElement('div');
@@ -250,6 +279,7 @@ export async function refreshChat() {
     for (let n = shown.keys.length; n < entries.length; n++)
       log.insertBefore(messageNode(entries[n], entries[n - 1]), waiting);
     shown.keys = keys;
+    refreshAvatars(log);
     syncWaiting();
     if (!grows || atBottom) log.scrollTop = log.scrollHeight;
   } catch (e) {
@@ -272,7 +302,7 @@ export function chatEvent(event) {
 function syncSend() {
   const box = $('message');
   // With no AI yet, sending opens the connection first (see the form's submit).
-  $('send').disabled = !box.value.trim();
+  $('send').disabled = !box.value.trim() || pendingChats.has(selected);
   box.style.height = 'auto';
   box.style.height = `${Math.min(140, box.scrollHeight + 2)}px`;
 }
@@ -298,7 +328,16 @@ export function setupChat() {
       openConnectionDialog(null, refreshChat);
       return;
     }
-    await call('updatePet', selected, { providerId: $('provider-select').value });
+    const id = selected;
+    $('provider-select').disabled = true;
+    try {
+      await call('updatePet', id, { providerId: $('provider-select').value });
+    } catch (error) {
+      if (selected === id && pet()) $('provider-select').value = pet().providerId || '';
+      throw error;
+    } finally {
+      if (selected === id) $('provider-select').disabled = data.busy.includes(id);
+    }
     refreshChat();
   });
   // The conversation itself.
@@ -306,7 +345,7 @@ export function setupChat() {
     e.preventDefault();
     const id = selected,
       text = $('message').value.trim();
-    if (!text || data.busy.includes(id)) return;
+    if (!text || data.busy.includes(id) || pendingChats.has(id)) return;
     // A word for a friend with no AI yet is kept: connecting one sends it.
     if (!pet()?.providerId) {
       openConnectionDialog(null, async () => {
@@ -316,6 +355,7 @@ export function setupChat() {
       });
       return;
     }
+    pendingChats.add(id);
     $('message').value = '';
     syncSend();
     temporaryMessages.set(id, { role: 'user', content: text });
@@ -329,7 +369,10 @@ export function setupChat() {
       temporaryMessages.delete(id);
     } catch (error) {
       temporaryMessages.set(id, { role: 'error', content: error.message });
-      if (selected === id) $('message').value = text;
+      if (selected === id && !$('message').value.trim()) $('message').value = text;
+    } finally {
+      pendingChats.delete(id);
+      if (selected === id) syncSend();
     }
     if (selected === id) refreshChat();
   };

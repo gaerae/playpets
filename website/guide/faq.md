@@ -2,23 +2,23 @@
 
 ## Does it cost anything?
 
-The app is free and open source under the MIT license. Chatting through the Claude Code or Codex CLI subscription you already have costs nothing extra, and Ollama runs on your computer. Only when you connect the OpenAI API or a compatible server can that service's fees apply.
+The app is free and open source under the MIT license. Chatting through a signed-in Claude Code or Codex CLI subscription uses your plan's allowance without a separate API bill; plan limits and optional purchased credits still apply. Local Ollama models run on your computer without hosted inference fees. API-key connections, compatible servers and Ollama cloud models follow their provider's billing. See [AI connections](./chat.md#kinds-of-ai-connections).
 
 ## Does it work without the internet?
 
-Inviting, games, desktop mode, and time of day and weather all work without the internet. Auto weather does not fetch the real weather either; it is decided by the clock. The internet is needed for importing community pets, checking for updates, and chatting with an AI that uses the internet. If you chat through Ollama, that stays on your computer too.
+Inviting, games, desktop mode, and time of day and weather all work without the internet. Auto weather does not fetch the real weather either; it is decided by the clock. The internet is needed for importing community pets, checking for updates, and chatting with an AI that uses the internet. A downloaded local Ollama model can chat offline and keeps conversations on your computer. An Ollama cloud model needs the internet.
 
 ## Does my code or my prompt go to the pet?
 
-No. [Coding agent hooks](./agents.md) send only the status and short sentences, never what you type into the agent or your code. The hooks stay on this computer (`127.0.0.1`, token authentication). Conversations with your friend go only to the AI connection you chose separately.
+[Coding-agent hooks](./agents.md) omit user prompts and tool inputs. The local bridge uses `127.0.0.1` and token authentication. Short completion or notification reports, including a clipped agent answer, may contain work details and can be included in a friend’s conversation with your chosen AI provider. Review what you send through terminal or MCP messages; use a downloaded local model when those details need to stay on this computer.
 
 ## It won't open on macOS.
 
-The release files are not signed or notarised, so Gatekeeper blocks the first launch. Go to System Settings > Privacy & Security and click **Open Anyway** near the bottom. You only do this once; after that it opens right away. The full steps are in [Install](./install.md#macos).
+The release files are not signed or notarised, so macOS may show a warning. Check that the download came from this project's release page. If your system offers **Open Anyway**, the [install guide](./install.md#macos) explains the steps. Available options depend on the warning and your system's policy.
 
 ## Windows shows a warning.
 
-Same reason. In SmartScreen's "Windows protected your PC" window, click **More info** and choose **Run anyway** and the installation continues. Code signing is planned.
+SmartScreen may warn about an unsigned or unfamiliar download. Check its source first. Some systems offer **More info** and **Run anyway**; managed devices may prevent this. See the [install guide](./install.md#windows) for details. Code signing is planned.
 
 ## AI chat doesn't work on Windows.
 
@@ -38,4 +38,4 @@ In [Desktop mode](./desktop.md) a friend can be on any monitor. Drag a friend to
 
 ## Where is my data?
 
-On macOS it is `~/Library/Application Support/app.playpets/`, on Windows `%APPDATA%\app.playpets\`, and on Linux `~/.local/share/app.playpets/`. Friends and settings are in `state.json`, imported pets in `pets/`, and the starter pets in `builtin/`. API keys are not here; they are in the OS's secure storage. Chat history is not saved anywhere. See [Settings](./settings.md#data-folder) for details.
+On macOS it is `~/Library/Application Support/app.playpets/`, on Windows `%APPDATA%\app.playpets\`, and on Linux `~/.local/share/app.playpets/`. Friends and settings are in `state.json`, imported pets in `pets/`, and the starter pets in `builtin/`. API keys are not here; they are in the OS's secure storage. PlayPets does not save chat history to files; it lasts only for the current app session. The connected provider may have its own retention policy. See [Settings](./settings.md#data-folder) for details.

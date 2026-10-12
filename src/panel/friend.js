@@ -66,7 +66,28 @@ function renderCloseness(p) {
 }
 export function drawPortrait(now) {
   const p = pet();
-  if (p) drawSprite($('portrait'), asset(p), stateOf(data, p.id), now);
+  if (!p) return;
+  const art = asset(p),
+    photo = $('portrait-photo'),
+    sprite = $('portrait');
+  const url = art?.portraitUrl || '';
+  if (photo.dataset.source !== url) {
+    photo.dataset.source = url;
+    photo.hidden = true;
+    sprite.hidden = false;
+    photo.onload = () => {
+      if (photo.dataset.source !== url) return;
+      photo.hidden = false;
+      sprite.hidden = true;
+    };
+    photo.onerror = () => {
+      photo.hidden = true;
+      sprite.hidden = false;
+    };
+    if (url) photo.src = url;
+    else photo.removeAttribute('src');
+  }
+  if (!sprite.hidden) drawSprite(sprite, art, stateOf(data, p.id), now);
 }
 // Wires the list that switches who you are talking to. Called once, by app.js.
 export function setupFriend() {

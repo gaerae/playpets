@@ -1,6 +1,7 @@
 // Codex pet catalog: pet.json + spritesheet validation with path-escape checks.
 use crate::i18n;
 use serde::Serialize;
+use std::collections::BTreeMap;
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -45,6 +46,14 @@ pub struct Asset {
     pub folder: PathBuf,
     #[serde(skip)]
     pub sprite_path: PathBuf,
+    #[serde(skip)]
+    pub seasonal_sprite_paths: BTreeMap<String, PathBuf>,
+    #[serde(skip)]
+    pub realistic_sprite_paths: BTreeMap<String, PathBuf>,
+    #[serde(skip)]
+    pub realistic_portrait_path: Option<PathBuf>,
+    #[serde(skip)]
+    pub portrait_path: Option<PathBuf>,
 }
 
 /// A Codex pet sheet is 8 cells of 192px across and one 208px row per animation.
@@ -218,33 +227,19 @@ pub fn read_pet(folder: &Path) -> Result<Asset, String> {
         .get("spritesheetPath")
         .and_then(|v| v.as_str())
         .ok_or_else(sprite_inside)?;
-    let sprite_path = dunce::canonicalize(root.join(rel)).map_err(|_| sprite_inside())?;
-    if !sprite_path.starts_with(&root) {
-        return Err(sprite_inside());
-    }
-    let smeta = fs::metadata(&sprite_path).map_err(|e| i18n::detail("pet.unreadable", e))?;
-    if !smeta.is_file() {
-        return Err(i18n::t("pet.sprite_not_file"));
-    }
-    if smeta.len() > SPRITE_LIMIT as u64 {
-        return Err(i18n::t("pet.sprite_too_big"));
-    }
-    // The size is in the first bytes; the sheet itself (megabytes) is read only when drawn.
-    let mut head = Vec::with_capacity(HEAD_BYTES);
-    fs::File::open(&sprite_path)
-        .and_then(|f| f.take(HEAD_BYTES as u64).read_to_end(&mut head))
-        .map_err(|e| i18n::detail("pet.unreadable", e))?;
-    let (w, h) = image_size(&head)?;
-    if w != SHEET_WIDTH || h != rows * ROW_HEIGHT {
-        return Err(i18n::tr(
-            "pet.sprite_size",
-            &[
-                ("version", &version.to_string()),
-                ("width", &SHEET_WIDTH.to_string()),
-                ("height", &(rows * ROW_HEIGHT).to_string()),
-            ],
-        ));
-    }
+    let sprite_path = validated_sheet(&root, rel, version)?;
+    // A missing or invalid wardrobe does not hide an otherwise usable pet.
+    let seasonal_sprite_paths = SEASONS
+        .iter()
+        .filter_map(|season| {
+            let rel = optional_relative(m.get("seasonalSpritesheets")?.get(*season)?)?;
+            validated_sheet(&root, rel, version)
+                .ok()
+                .map(|path| ((*season).to_owned(), path))
+        })
+        .collect();
+    let (realistic_sprite_paths, realistic_portrait_path) = realistic_appearance(&root, version, &m);
+    let portrait_path = optional_portrait(&root, m.get("portraitPath"));
     // One line each: a description is read into the AI's prompt, where a line break could
     // pass off the rest as a new instruction.
     let description = tidy(m.get("description").and_then(|v| v.as_str()).unwrap_or(""), 300);
@@ -264,7 +259,98 @@ pub fn read_pet(folder: &Path) -> Result<Asset, String> {
         credit,
         folder: root,
         sprite_path,
+        seasonal_sprite_paths,
+        realistic_sprite_paths,
+        realistic_portrait_path,
+        portrait_path,
     })
+}
+
+/// Reads the optional realistic appearance through the same path and image validation as a baseline.
+pub fn realistic_appearance(
+    root: &Path,
+    version: u32,
+    m: &serde_json::Value,
+) -> (BTreeMap<String, PathBuf>, Option<PathBuf>) {
+    let mut realistic_sprite_paths: BTreeMap<String, PathBuf> = ["default", "summer", "winter"]
+        .iter()
+        .filter_map(|style| {
+            let rel = optional_relative(m.get("realisticSpritesheets")?.get(*style)?)?;
+            validated_sheet(root, rel, version)
+                .ok()
+                .map(|path| ((*style).to_owned(), path))
+        })
+        .collect();
+    // A seasonal variant alone cannot advertise a complete alternate appearance.
+    if !realistic_sprite_paths.contains_key("default") {
+        realistic_sprite_paths.clear();
+    }
+    let realistic_portrait_path = optional_portrait(root, m.get("realisticPortraitPath"));
+    (realistic_sprite_paths, realistic_portrait_path)
+}
+
+fn optional_portrait(root: &Path, value: Option<&serde_json::Value>) -> Option<PathBuf> {
+    value.and_then(optional_relative).and_then(|rel| {
+        let (path, size) = validated_image(root, rel, PORTRAIT_LIMIT).ok()?;
+        portrait_size(size).then_some(path)
+    })
+}
+
+pub const SEASONS: [&str; 4] = ["spring", "summer", "autumn", "winter"];
+
+pub const PORTRAIT_LIMIT: usize = 8 * 1024 * 1024;
+pub fn portrait_size((width, height): (u32, u32)) -> bool {
+    width > 0 && height > 0 && width <= 4096 && height <= 4096
+}
+fn optional_relative(value: &serde_json::Value) -> Option<&str> {
+    let path = value.as_str()?;
+    (path.len() <= 1024 && !Path::new(path).is_absolute()).then_some(path)
+}
+/// Opens an image file that resolves inside `root` and is no larger than `limit`: the one gate both
+/// scanning a pet and serving its pictures (app/sprite.rs) go through, so the two never disagree.
+pub fn open_image(root: &Path, path: &Path, limit: usize) -> Result<(fs::File, PathBuf), String> {
+    let path = dunce::canonicalize(path).map_err(|_| sprite_inside())?;
+    if !path.starts_with(root) {
+        return Err(sprite_inside());
+    }
+    let meta = fs::metadata(&path).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    if !meta.is_file() {
+        return Err(i18n::t("pet.sprite_not_file"));
+    }
+    if meta.len() > limit as u64 {
+        return Err(i18n::t("pet.sprite_too_big"));
+    }
+    let file = fs::File::open(&path).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    Ok((file, path))
+}
+/// Whether an image of this size is a whole sheet with `rows` rows.
+pub fn sheet_fits((width, height): (u32, u32), rows: u32) -> bool {
+    width == SHEET_WIDTH && height == rows * ROW_HEIGHT
+}
+fn validated_image(root: &Path, relative: &str, limit: usize) -> Result<(PathBuf, (u32, u32)), String> {
+    let (file, sprite_path) = open_image(root, &root.join(relative), limit)?;
+    // The size is in the first bytes; the sheet itself (megabytes) is read only when drawn.
+    let mut head = Vec::with_capacity(HEAD_BYTES);
+    file.take(HEAD_BYTES as u64)
+        .read_to_end(&mut head)
+        .map_err(|e| i18n::detail("pet.unreadable", e))?;
+    let size = image_size(&head)?;
+    Ok((sprite_path, size))
+}
+fn validated_sheet(root: &Path, relative: &str, version: u32) -> Result<PathBuf, String> {
+    let rows = rows_of(version).ok_or_else(|| i18n::t("pet.version"))?;
+    let (sprite_path, size) = validated_image(root, relative, SPRITE_LIMIT)?;
+    if !sheet_fits(size, rows) {
+        return Err(i18n::tr(
+            "pet.sprite_size",
+            &[
+                ("version", &version.to_string()),
+                ("width", &SHEET_WIDTH.to_string()),
+                ("height", &(rows * ROW_HEIGHT).to_string()),
+            ],
+        ));
+    }
+    Ok(sprite_path)
 }
 
 fn credit(source: &serde_json::Value) -> Option<Credit> {
@@ -320,6 +406,40 @@ pub fn scan_pets(root: &Path, place: Place) -> (Vec<Asset>, Vec<String>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn baseline_portrait_is_optional_bounded_and_confined_to_the_pet_folder() {
+        let base = std::env::temp_dir().join(format!("playpets-baseline-portrait-{}", uuid::Uuid::new_v4()));
+        let root = base.join("pet");
+        fs::create_dir_all(&root).unwrap();
+        fs::write(root.join("sprite.png"), png_header(1536, 1872)).unwrap();
+        fs::write(root.join("portrait.png"), png_header(1024, 1024)).unwrap();
+        // A real picture outside the folder, so refusing it proves the folder check.
+        fs::write(base.join("portrait.png"), png_header(1024, 1024)).unwrap();
+        for (portrait, expected) in [
+            (None, false),
+            (Some("portrait.png"), true),
+            (Some("missing.png"), false),
+            (Some("../portrait.png"), false),
+        ] {
+            let mut manifest = serde_json::json!({"id":"base","displayName":"Base","spritesheetPath":"sprite.png"});
+            if let Some(path) = portrait {
+                manifest["portraitPath"] = serde_json::json!(path);
+            }
+            fs::write(root.join("pet.json"), manifest.to_string()).unwrap();
+            assert_eq!(read_pet(&root).unwrap().portrait_path.is_some(), expected);
+        }
+        fs::write(
+            root.join("pet.json"),
+            r#"{"id":"base","displayName":"Base","spritesheetPath":"sprite.png","portraitPath":"portrait.png"}"#,
+        )
+        .unwrap();
+        for size in [(0, 1024), (4097, 1024), (1024, 4097)] {
+            fs::write(root.join("portrait.png"), png_header(size.0, size.1)).unwrap();
+            assert!(read_pet(&root).unwrap().portrait_path.is_none());
+        }
+        fs::remove_dir_all(base).unwrap();
+    }
 
     #[test]
     fn the_size_is_read_from_the_head_of_a_file() {
@@ -390,6 +510,76 @@ mod tests {
         .unwrap();
         assert_eq!(read_pet(&good).unwrap_err(), i18n::t("pet.sprite_inside"));
         let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn realistic_art_requires_valid_default_and_bounds_portraits() {
+        let root = std::env::temp_dir().join(format!("playpets-realistic-{}", uuid::Uuid::new_v4()));
+        let pet = root.join("pet");
+        fs::create_dir_all(&pet).unwrap();
+        fs::write(pet.join("base.png"), png_header(1536, 2288)).unwrap();
+        fs::write(pet.join("real.png"), png_header(1536, 2288)).unwrap();
+        fs::write(pet.join("portrait.png"), png_header(1024, 1024)).unwrap();
+        fs::write(root.join("outside.png"), png_header(1536, 2288)).unwrap();
+        let manifest = serde_json::json!({"id":"adult","displayName":"Adult","spriteVersionNumber":2,"spritesheetPath":"base.png","realisticSpritesheets":{"default":"real.png","summer":"base.png","winter":"../outside.png","unknown":"base.png"},"realisticPortraitPath":"portrait.png"});
+        fs::write(pet.join("pet.json"), manifest.to_string()).unwrap();
+        let asset = read_pet(&pet).unwrap();
+        assert_eq!(asset.realistic_sprite_paths.len(), 2);
+        assert!(asset.realistic_portrait_path.is_some());
+        assert!(
+            serde_json::to_value(&asset)
+                .unwrap()
+                .get("realistic_sprite_paths")
+                .is_none()
+        );
+        fs::write(pet.join("portrait.png"), png_header(4097, 1024)).unwrap();
+        assert!(read_pet(&pet).unwrap().realistic_portrait_path.is_none());
+        fs::write(pet.join("portrait.png"), png_header(0, 1024)).unwrap();
+        assert!(read_pet(&pet).unwrap().realistic_portrait_path.is_none());
+        fs::OpenOptions::new()
+            .write(true)
+            .open(pet.join("portrait.png"))
+            .unwrap()
+            .set_len(PORTRAIT_LIMIT as u64 + 1)
+            .unwrap();
+        assert!(read_pet(&pet).unwrap().realistic_portrait_path.is_none());
+        #[cfg(unix)]
+        {
+            fs::remove_file(pet.join("portrait.png")).unwrap();
+            std::os::unix::fs::symlink(root.join("outside.png"), pet.join("portrait.png")).unwrap();
+            assert!(read_pet(&pet).unwrap().realistic_portrait_path.is_none());
+        }
+        fs::write(pet.join("real.png"), png_header(1536, 1872)).unwrap();
+        assert!(read_pet(&pet).unwrap().realistic_sprite_paths.is_empty());
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn seasonal_sheets_are_optional_validated_and_private() {
+        let root = std::env::temp_dir().join(format!("playpets-seasons-{}", uuid::Uuid::new_v4()));
+        let pet = root.join("pet");
+        fs::create_dir_all(pet.join("seasonal")).unwrap();
+        fs::write(pet.join("sprite.png"), png_header(1536, 2288)).unwrap();
+        fs::write(pet.join("seasonal/spring.png"), png_header(1536, 2288)).unwrap();
+        fs::write(pet.join("seasonal/summer.png"), png_header(1536, 1872)).unwrap();
+        fs::write(root.join("outside.png"), png_header(1536, 2288)).unwrap();
+        fs::write(pet.join("pet.json"), r#"{"id":"wardrobe","displayName":"Wardrobe","spriteVersionNumber":2,"spritesheetPath":"sprite.png","seasonalSpritesheets":{"spring":"seasonal/spring.png","summer":"seasonal/summer.png","autumn":"../outside.png","winter":"missing.png","unknown":"sprite.png"}}"#).unwrap();
+        let asset = read_pet(&pet).unwrap();
+        assert_eq!(asset.seasonal_sprite_paths.len(), 1);
+        assert!(asset.seasonal_sprite_paths.contains_key("spring"));
+        let json = serde_json::to_value(&asset).unwrap();
+        assert!(json.get("seasonal_sprite_paths").is_none());
+        assert!(json.get("seasonalSpritesheets").is_none());
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(root.join("outside.png"), pet.join("seasonal/winter.png")).unwrap();
+            let manifest = fs::read_to_string(pet.join("pet.json"))
+                .unwrap()
+                .replace("missing.png", "seasonal/winter.png");
+            fs::write(pet.join("pet.json"), manifest).unwrap();
+            assert!(!read_pet(&pet).unwrap().seasonal_sprite_paths.contains_key("winter"));
+        }
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

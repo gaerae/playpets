@@ -1,0 +1,90 @@
+{
+  "tool": "OpenAI built-in image_gen",
+  "format": "v2, 1536x2288, 8 columns x 11 rows, 192x208 cells",
+  "targetIdleHeight": 150,
+  "sha256": "40d81447e4af08db66aa609ec82d7e1091e465f34d57eca8621dd770c93a30ec",
+  "repack": "node scripts/pack-companion-batches.mjs assets/pets/smoky/source-rows assets/pets/smoky/spritesheet.png 150",
+  "normalization": "Rows 01, 02 and 04 retain all eight poses. scripts/normalize-cat-row.mjs discovers full-image alpha>24 silhouettes with two-pixel antialiasing fringe and translates the unchanged RGBA components horizontally into cells. No scaling, repainting or vertical jump changes. Original generated PNGs and exact transformation/hash metadata are retained.",
+  "rows": [
+    {
+      "file": "source-rows/00-idle.png",
+      "sha256": "19353c8e90bf1914ea6c5dd194c186757fe993387481169f235d9800e087c639",
+      "prompt": "source-rows/00-idle.prompt.txt"
+    },
+    {
+      "file": "source-rows/01-right.png",
+      "sha256": "ae3fbcc791f3a6d3b140f2a42955217e7fccb66d6f9d1642c247bddec4f8a1a2",
+      "prompt": "source-rows/01-right.prompt.txt",
+      "original": "generated-originals/01-right.png",
+      "originalSha256": "0cb14473f01644439e76add7d02b987135e7a1bc51cd1ce7881292a3c4e1627c",
+      "normalization": "source-rows/01-right.normalization.json"
+    },
+    {
+      "file": "source-rows/02-left.png",
+      "sha256": "d3b73a2f88fe121e51057861fdeeaa2722748783584083a2ed430d32ca2dedfa",
+      "prompt": "source-rows/02-left.prompt.txt",
+      "original": "generated-originals/02-left.png",
+      "originalSha256": "12bf8d26c412fc40c50ca18d8a17e8aa315fd1fa952d59f51dc7595da1e413f8",
+      "normalization": "source-rows/02-left.normalization.json"
+    },
+    {
+      "file": "source-rows/03-wave.png",
+      "sha256": "107d0bd241c9c4f3c189bafe0c0098db68eed04b4cdac1dc5a6206203dcf7c69",
+      "prompt": "source-rows/03-wave.prompt.txt"
+    },
+    {
+      "file": "source-rows/04-jump.png",
+      "sha256": "45c802840a85150ae913badc7d1905f641cd930bde819c0176cf4f59dc47b9ba",
+      "prompt": "source-rows/04-jump.prompt.txt",
+      "original": "generated-originals/04-jump.png",
+      "originalSha256": "5ea69c14daf4806280053d5c709272982c0cc21929e312569b98cb61cf257480",
+      "normalization": "source-rows/04-jump.normalization.json"
+    },
+    {
+      "file": "source-rows/05-error.png",
+      "sha256": "311d8a7e08318e17c6805066192433e70afb5ad81e247984136689242f2765b9",
+      "prompt": "source-rows/05-error.prompt.txt"
+    },
+    {
+      "file": "source-rows/06-waiting.png",
+      "sha256": "8cd8dc65cf556c0e821108b171b6a8e34f5792a23bbd7bb186e06785b328fce1",
+      "prompt": "source-rows/06-waiting.prompt.txt"
+    },
+    {
+      "file": "source-rows/07-working.png",
+      "sha256": "cda99f0ddebc6c4467a62fb7becc0a98c0de7228978b6b6165c44a0535953636",
+      "prompt": "source-rows/07-working.prompt.txt"
+    },
+    {
+      "file": "source-rows/08-done.png",
+      "sha256": "b441b08cb6d75522561926b743726df3d223d27f2fa29d67dde40c1b9e957251",
+      "prompt": "source-rows/08-done.prompt.txt"
+    },
+    {
+      "file": "source-rows/09-look.png",
+      "sha256": "58faeddb4a1116de5e01b1c577bc85b574b503d78767b4258a8e8db1109479f4",
+      "prompt": "source-rows/09-look.prompt.txt"
+    },
+    {
+      "file": "source-rows/10-look.png",
+      "sha256": "3f79ae8ab1f192179877a7a2c4595c768cd15aeba7172abdf0ffe242d942ad82",
+      "prompt": "source-rows/10-look.prompt.txt"
+    }
+  ],
+  "identityReference": {
+    "file": "identity-reference.png",
+    "sha256": "ce72ab07313719f4a2e27a8867d2f500b0941ffcad4862d4de60e12cc8e5667c",
+    "purpose": "Original canonical idle-cell identity reference used to develop the approved sculpted idle proof."
+  },
+  "generationReferences": "Initial idle proof uses the original identity reference. Other rows use source-rows/00-idle.png as the approved sculpted identity lock.",
+  "optimizations": [
+    {
+      "tool": "oxipng 10.2.1",
+      "arguments": "-o 2 --nx",
+      "beforeSha256": "486c7025573668b61e79fc89e3c7888cd6cc92229d9b8569c044799001a3704b",
+      "afterSha256": "40d81447e4af08db66aa609ec82d7e1091e465f34d57eca8621dd770c93a30ec",
+      "pixelSha256": "6c7bb7a3bc2278e8f9cb70c52db162dfc81c95eca35a2c313b1fa3c0bd3f310d",
+      "verification": "Identical 8-bit decoded sample bytes, IHDR and ancillary chunks"
+    }
+  ]
+}

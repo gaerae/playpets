@@ -1,0 +1,82 @@
+{
+  "tool": "OpenAI built-in image_gen",
+  "format": "v2, 1536x2288, 8 columns x 11 rows, 192x208 cells",
+  "targetIdleHeight": 150,
+  "sha256": "59fc22c9cc85a44564fa69e846c3c4e2ada015de6d310d3c8955f476ced6b7da",
+  "repack": "node scripts/pack-companion-batches.mjs assets/pets/tabby/source-rows assets/pets/tabby/spritesheet.png 150",
+  "frameMap": "source-rows/frame-map.json",
+  "curation": "Right-walk output frame 0 uses source frame 6, an accepted matching lifted-foot stride. Source frame 0 crosses its source cell edge and is excluded. All other cells preserve their corresponding generated source pose.",
+  "rows": [
+    {
+      "file": "source-rows/00-idle.png",
+      "sha256": "9fe9e5572ded916ad21d689ff307d6a52f2e803e47a6beafe94f337e59b91024",
+      "prompt": "source-rows/00-idle.prompt.txt"
+    },
+    {
+      "file": "source-rows/01-right.png",
+      "sha256": "7b67c16ed8a06b4ea00524f86ee6cf843b645fd54d08f1f40d8f0fe71efc4205",
+      "prompt": "source-rows/01-right.prompt.txt"
+    },
+    {
+      "file": "source-rows/02-left.png",
+      "sha256": "390c859d6b52faf5880dc1f365f68f680b829dd52fdfec2e93bc61dbe2d36b28",
+      "prompt": "source-rows/02-left.prompt.txt"
+    },
+    {
+      "file": "source-rows/03-wave.png",
+      "sha256": "eb6e3a27e81ba8e0faeb964d546db6fe1f293d70844208cc7f3ebb8e02a22592",
+      "prompt": "source-rows/03-wave.prompt.txt"
+    },
+    {
+      "file": "source-rows/04-jump.png",
+      "sha256": "ce7258e0ad3e4d0090cdf7b9e8495596a84e010311871f563697ffdce1a26f60",
+      "prompt": "source-rows/04-jump.prompt.txt"
+    },
+    {
+      "file": "source-rows/05-error.png",
+      "sha256": "75ee6f6683b904218a89cf05a3076c6160d6c93d6bf5c626b56875988d18ffff",
+      "prompt": "source-rows/05-error.prompt.txt"
+    },
+    {
+      "file": "source-rows/06-waiting.png",
+      "sha256": "633c60aab8d12428d347167a4a5bc23e1ac8912dbf46f1d7bdf1ee48e4ff8ba5",
+      "prompt": "source-rows/06-waiting.prompt.txt"
+    },
+    {
+      "file": "source-rows/07-working.png",
+      "sha256": "079940ae3099d2ed7bede0d7eb6bb35344186afea645ab78f8ddd5fcdedd9e9a",
+      "prompt": "source-rows/07-working.prompt.txt"
+    },
+    {
+      "file": "source-rows/08-done.png",
+      "sha256": "879c03094b464181bd7b47b22611c5335bfdbeaad955d6dc601fd0f30c9716cf",
+      "prompt": "source-rows/08-done.prompt.txt"
+    },
+    {
+      "file": "source-rows/09-look.png",
+      "sha256": "d347dcef1fa46ff1a619fe7cbf18a7d2289b7397401a9541c0c51c38fbfa80e3",
+      "prompt": "source-rows/09-look.prompt.txt"
+    },
+    {
+      "file": "source-rows/10-look.png",
+      "sha256": "45e5d39b09fe0a1d13c7bd61b66c7e3c6c49e4d7cc0384a8fa127dbca3d362a5",
+      "prompt": "source-rows/10-look.prompt.txt"
+    }
+  ],
+  "identityReference": {
+    "file": "identity-reference.png",
+    "sha256": "d864e196c5a4c316be4254dbfd90b194c63ba69a2afef3c418525ec93235db7d",
+    "purpose": "Original canonical idle-cell identity reference used to develop the approved sculpted idle proof."
+  },
+  "generationReferences": "Initial idle proof uses the original identity reference. Other rows use source-rows/00-idle.png as the approved sculpted identity lock.",
+  "optimizations": [
+    {
+      "tool": "oxipng 10.2.1",
+      "arguments": "-o 2 --nx",
+      "beforeSha256": "5f5d9af5f6929209f8bda74491b5fc7e5b46057e5a6b031daa8bfc96f0f70117",
+      "afterSha256": "59fc22c9cc85a44564fa69e846c3c4e2ada015de6d310d3c8955f476ced6b7da",
+      "pixelSha256": "8688a562fc640adc033778b65c32ac891e4ccc716002d4dbdacd4ca143696158",
+      "verification": "Identical 8-bit decoded sample bytes, IHDR and ancillary chunks"
+    }
+  ]
+}

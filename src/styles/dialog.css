@@ -6,6 +6,7 @@ dialog {
   border-radius: 22px;
   padding: 28px;
   color: var(--ink);
+  background: var(--white);
   box-shadow: 0 24px 100px #152e432b;
 }
 dialog::backdrop {
@@ -121,20 +122,47 @@ input[type="range"] {
 /* Friend settings hold the most fields of any dialog: a little less room between them, so the
    buttons fit in a window of the usual height without scrolling. */
 #pet-dialog {
-  padding: 24px 28px;
+  padding: 20px 28px;
+  width: 480px;
 }
-#pet-dialog label:not(.relation-card) {
-  margin-top: 13px;
+#pet-form {
+  display: flex;
+  flex-direction: column;
+  max-height: min(720px, calc(100dvh - 76px));
+}
+#pet-form > .dialog-actions {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+@media (max-width: 400px) {
+  #pet-form > .dialog-actions > #remove {
+    flex-basis: 100%;
+  }
+}
+.friend-dialog-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 3px 3px;
+  margin: 0 -3px;
+}
+#pet-form > .dialog-heading,
+#pet-form > .dialog-actions {
+  flex: none;
+}
+#pet-dialog label:not(.relation-card, .appearance-card) {
+  margin-top: 10px;
 }
 #pet-dialog .dialog-actions {
   margin-top: 12px;
 }
 #pet-error:empty {
-  height: 10px;
+  height: 0;
+  margin-top: 4px;
 }
 /* The relationship: four cards, each with the voice it brings; the picked one is outlined. */
 .relation-picker {
-  margin: 13px 0 0;
+  margin: 10px 0 0;
   padding: 0;
   border: 0;
 }
@@ -142,6 +170,7 @@ input[type="range"] {
   padding: 0;
   margin-bottom: 7px;
   font-size: 12px;
+  font-weight: 650;
 }
 .relation-cards {
   display: grid;
@@ -151,9 +180,10 @@ input[type="range"] {
 dialog .relation-card {
   position: relative;
   display: grid;
-  gap: 2px;
+  gap: 5px;
   margin: 0;
-  padding: 9px 12px;
+  padding: 10px 12px;
+  min-height: 64px;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--white);
@@ -166,13 +196,19 @@ dialog .relation-card {
   position: absolute;
   opacity: 0;
   pointer-events: none;
+  width: 1px;
+  min-height: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
 }
 .relation-card strong {
   font-size: 12.5px;
 }
 dialog .relation-card small {
   margin: 0;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.5;
 }
 .relation-card:hover {
   border-color: #c9d3cf;
@@ -249,7 +285,6 @@ dialog .relation-card small {
 }
 /* the album draws flowers and gifts from the yard's own symbols, in daylight colours */
 .album-card {
-  --shadow: #1d3a2222;
   --soil: #8a6a4a;
   --soil-hi: #a88660;
   --stem: #5d9b52;
@@ -272,7 +307,7 @@ dialog .relation-card small {
 }
 /* one not found yet: its shape in grey */
 .unknown-art {
-  filter: brightness(0) invert(0.78) opacity(0.7);
+  filter: brightness(0) invert(0.4);
 }
 .album-tabs {
   display: inline-flex;
@@ -316,11 +351,27 @@ dialog .relation-card small {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 10px 8px 12px;
-  border-radius: 14px;
-  background: #f5f8f2;
+  gap: 4px;
+  padding: 12px 8px 14px;
+  border: 1px solid var(--ink-12);
+  border-radius: 18px;
+  background: linear-gradient(160deg, var(--white), #eaf1e4);
+  box-shadow: 0 3px 0 var(--ink-12);
   text-align: center;
+}
+.album-specimen {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 88px;
+  margin-bottom: 4px;
+  border-radius: 12px;
+  background:
+    radial-gradient(ellipse at 50% 66%, #b5c6a53d 0 24%, transparent 25%),
+    radial-gradient(ellipse at 50% 50%, #ffffffb3, #d6e3cc66 70%, transparent 71%);
+}
+.album-specimen > svg:not(.unknown-art) {
+  filter: drop-shadow(0 5px 2px #28473120);
 }
 /* Each drawing in the same box, so a wide pond or picnic blanket does not outweigh a lantern. */
 .album-card svg {
@@ -350,4 +401,117 @@ dialog .relation-card small {
   color: #a2741c;
   font-size: 10px;
   font-weight: 700;
+}
+.connection-help {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+}
+#pet-dialog,
+#import-dialog,
+#connection-dialog {
+  background: #fffdf7;
+}
+:is(#pet-dialog, #import-dialog, #connection-dialog)
+  label:not(.relation-card, .appearance-card, .ai-type, .wander-toggle) {
+  font-weight: 650;
+}
+:is(#pet-dialog, #import-dialog, #connection-dialog) .dialog-description {
+  font-size: 13px;
+}
+#import-dialog .community-links {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+/* The community sites to browse, folded under the import address. */
+#import-dialog .community-discovery {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+}
+.community-discovery summary {
+  cursor: pointer;
+  min-height: 24px;
+  font-size: 12px;
+  font-weight: 650;
+}
+.community-discovery summary small {
+  margin-left: 8px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.community-discovery summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+#import-dialog .community-discovery .community-choice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  padding: 7px 0;
+  border-top: 1px solid var(--line);
+}
+#import-dialog .community-discovery .community-choice .button {
+  justify-self: start;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font-weight: 650;
+  color: var(--ink);
+}
+#import-dialog .community-discovery .community-choice small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+#import-dialog .dialog-actions {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  #pet-dialog,
+  #import-dialog,
+  #connection-dialog {
+    background: var(--white);
+  }
+  :is(#pet-dialog, #import-dialog, #connection-dialog) input:not([type="range"]),
+  :is(#pet-dialog, #import-dialog, #connection-dialog) select,
+  #pet-dialog textarea {
+    background-color: var(--paper);
+  }
+  :is(#pet-dialog, #import-dialog, #connection-dialog) .button.secondary:hover,
+  :is(#pet-dialog, #import-dialog, #connection-dialog) .button.chip:hover {
+    background: var(--soft);
+  }
+  .relation-card:hover {
+    border-color: #91b08b;
+  }
+  .album-tabs {
+    background: var(--paper);
+  }
+  .album-card {
+    border-color: var(--line);
+    background: var(--paper);
+  }
+  .album-specimen {
+    background:
+      radial-gradient(ellipse at 50% 66%, #9cb48b3d 0 24%, transparent 25%),
+      radial-gradient(ellipse at 50% 50%, #526a43b3, #40543866 70%, transparent 71%);
+  }
+  .album-rare {
+    background: #493e29;
+    color: #f0d399;
+  }
+  .unknown-art {
+    filter: brightness(0) invert(0.7);
+  }
 }

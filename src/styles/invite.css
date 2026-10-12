@@ -1,19 +1,19 @@
 /* The Invite tab: pets on the shelf, grouped by where their files live, and the Type filter. */
 .kind-filter {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin: 10px 0 12px;
+  margin: 12px 0;
 }
 .kind-filter .chip[aria-pressed="true"] {
   background: var(--ink);
   border-color: var(--ink);
-  color: #fff;
+  color: var(--white);
 }
 .shelf {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
 }
 @media (max-width: 760px) {
   .shelf-section {
@@ -24,7 +24,7 @@
 .shelf-group {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 .shelf-group-head {
   display: flex;
@@ -35,12 +35,12 @@
 }
 .shelf-group-head h4 {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--muted);
 }
 .button.text.shelf-open {
-  padding: 2px 0;
+  padding: 5px 0;
   font-size: 11px;
   gap: 4px;
 }
@@ -51,26 +51,28 @@
 /* A pet on the shelf: a row with its picture, its name and where it is from, and a plus. */
 .asset-card {
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 6px 10px 6px 8px;
+  border-radius: 15px;
+  padding: 9px 12px 9px 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   text-align: left;
-  background: white;
+  background: var(--white);
   position: relative;
-  min-height: 0;
+  min-height: 78px;
   min-width: 0;
   max-width: 100%;
 }
 .asset-card:hover {
   border-color: #9ab39a;
   background: #f2f6ee;
-  transform: translateY(-2px);
+  box-shadow: 0 3px 10px var(--ink-8);
 }
 .asset-card canvas {
-  width: 44px;
-  height: 48px;
+  width: 54px;
+  height: 59px;
+  border-radius: 12px;
+  background: #edf2e7;
   flex-shrink: 0;
 }
 .asset-info {
@@ -79,15 +81,17 @@
 }
 .asset-info strong {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.45;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .asset-info small {
   display: block;
-  font-size: 10px;
-  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 3px;
   color: var(--muted);
 }
 .asset-info .asset-from {
@@ -99,23 +103,65 @@
   color: #5c7565;
   background: #eef3eb;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
+  flex: none;
   display: grid;
   place-items: center;
   font-size: 19px;
   font-weight: 400;
 }
-@media (max-width: 1100px) {
-  .add-mark {
-    width: 19px;
-    height: 19px;
-    font-size: 16px;
-  }
+.invite-search-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
 }
-.community-links {
-  display: flex;
+.invite-search {
+  width: 100%;
+  margin-bottom: 18px;
+}
+.side-panel:has(#panel-invite:not([hidden])) {
+  background: #fffdf7;
+}
+#panel-invite .section-heading {
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+  align-items: flex-start;
+  gap: 8px;
+}
+#panel-invite .section-heading p {
+  margin-top: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+#panel-invite #import {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--white);
+  color: var(--ink);
+}
+#panel-invite .notice {
+  margin-top: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  .side-panel:has(#panel-invite:not([hidden])) {
+    background: var(--white);
+  }
+  .asset-card canvas,
+  .add-mark {
+    background: var(--soft);
+    color: #d1e8c2;
+  }
+  .asset-card:hover {
+    border-color: #91b08b;
+    background: #2e3d31;
+  }
+  #panel-invite .notice {
+    background: var(--paper);
+  }
+  #panel-invite .button.chip:hover:not([aria-pressed="true"]) {
+    background: var(--soft);
+  }
 }

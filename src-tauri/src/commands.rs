@@ -95,7 +95,7 @@ const fn test_only(name: &'static str, run: fn(&Ctx) -> Result<Value, String>) -
 static COMMANDS: &[Command] = &[
     overlay("bootstrap", |c| Ok(public_state(c.app, &lock(&c.state)))),
     // Friends in the yard.
-    main("addPet", |c| add_pet(c.app, &c.state, c.text(0))),
+    main("addPet", |c| add_pet(c.app, &c.state, c.text(0), c.arg(1))),
     main("updatePet", |c| {
         update_pet(c.app, &c.state, &c.cli, c.text(0), c.arg(1))
     }),
@@ -395,14 +395,22 @@ fn overlay_owns(app: &AppHandle, label: &str, pet_id: &str) -> bool {
         .any(|item| item["id"].as_str() == Some(pet_id) && item["displayId"].as_str() == Some(display))
 }
 
-fn add_pet(app: &AppHandle, state: &State<Shared>, asset_id: &str) -> Result<Value, String> {
+/// The realistic look is a choice only for a pet file that has one (catalog::realistic_appearance).
+fn has_realistic_art(asset: &catalog::Asset) -> bool {
+    asset.realistic_sprite_paths.contains_key("default")
+}
+
+fn add_pet(app: &AppHandle, state: &State<Shared>, asset_id: &str, options: &Value) -> Result<Value, String> {
     commit(app, state, |d| {
-        let Some(intro) = d.assets.iter().find(|a| a.id == asset_id).map(|a| a.intro.clone()) else {
+        let Some(asset) = d.assets.iter().find(|a| a.id == asset_id) else {
             return Err(i18n::t("error.pet_missing"));
         };
-        let mut pet = model::create_pet(asset_id, &d.pets)?;
+        let mut pet = model::create_pet_with_options(asset_id, &d.pets, options)?;
+        if pet.visual_style == "realistic" && !has_realistic_art(asset) {
+            return Err(i18n::t("error.bad_settings"));
+        }
         // A new friend starts out as its pet file describes it; people edit from there.
-        pet.persona = intro.chars().take(crate::pets::model::PERSONA_MAX).collect();
+        pet.persona = asset.intro.chars().take(crate::pets::model::PERSONA_MAX).collect();
         let out = serde_json::to_value(&pet).unwrap();
         d.pets.push(pet);
         Ok(out)
@@ -426,6 +434,17 @@ fn update_pet(
         }
         if d.talks.busy(id) {
             return Err(i18n::t("provider.busy"));
+        }
+    }
+    // Turning a friend realistic needs that art; one already realistic keeps saving its other
+    // settings even if its pet file lost the art since.
+    if patch.get("visualStyle").and_then(Value::as_str) == Some("realistic") {
+        let pet = d.pets.iter().find(|p| p.id == id);
+        let allowed = pet.is_some_and(|p| {
+            p.visual_style == "realistic" || d.assets.iter().any(|a| a.id == p.asset_id && has_realistic_art(a))
+        });
+        if !allowed {
+            return Err(i18n::t("error.bad_settings"));
         }
     }
     let before = provider_of(&d);

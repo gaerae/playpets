@@ -438,55 +438,129 @@ mod tests {
     }
 
     #[test]
-    fn only_the_listed_community_sites_open_and_a_shared_host_only_at_its_listed_address() {
-        let site = COMMUNITIES.iter().find(|c| !c.url.contains("github")).unwrap();
-        assert!(openable(site.url).is_some());
-        assert!(openable(&site.url.replace("https://", "http://")).is_none());
-        assert!(openable("https://example.com/").is_none());
-        assert!(openable("javascript:alert(1)").is_none());
-        if let Some(repo) = COMMUNITIES.iter().find(|c| c.url.contains("github.com")) {
-            assert!(openable(repo.url).is_some());
-            assert!(openable(&format!("{}/tree/main/pets", repo.url)).is_some());
-            assert!(openable(&format!("{}-evil", repo.url)).is_none());
-            assert!(openable("https://github.com/someone/else").is_none());
+    fn discovery_visibility_and_order_do_not_change_trusted_import_routes() {
+        let entries = parse_discovery(
+            r#"[
+          {"id":"petdex","name":"Petdex","url":"https://petdex.dev/","visible":false},
+          {"id":"codex-pets","name":"Codex Pets","url":"https://codex-pets.net/","visible":true},
+          {"id":"openpets","name":"OpenPets","url":"https://openpets.sh/","visible":true}
+        ]"#,
+        )
+        .unwrap();
+        let shown = discovery_json(&entries);
+        assert_eq!(shown[0]["id"], "codex-pets");
+        assert_eq!(shown[1]["id"], "openpets");
+        assert_eq!(shown.as_array().unwrap().len(), 2);
+        assert!(openable_in("https://petdex.dev/", &entries).is_none());
+        let url = Url::parse("https://petdex.dev/pets/boba").unwrap();
+        assert_eq!(community_for(&url).unwrap().id, "petdex");
+        assert_eq!(identify(&url).unwrap(), ("petdex".into(), "boba".into()));
+    }
+
+    #[test]
+    fn new_discovery_entries_are_browse_only_and_do_not_grant_import_hosts() {
+        let entries =
+            parse_discovery(r#"[{"id":"sample","name":"Sample","url":"https://example.com/pets/","visible":true}]"#)
+                .unwrap();
+        let shown = discovery_json(&entries);
+        assert_eq!(shown[0]["importable"], false);
+        assert_eq!(shown[0]["hint"], "");
+        assert!(openable_in("https://example.com/pets/", &entries).is_some());
+        assert!(openable_in("https://example.com.evil.com/pets/", &entries).is_none());
+        assert!(community_for(&Url::parse("https://example.com/pets/cat").unwrap()).is_none());
+        assert!(!on_site(
+            &Url::parse("https://example.com/sprite.png").unwrap(),
+            &["petdex.dev".into()]
+        ));
+    }
+
+    #[test]
+    fn known_discovery_ids_only_advertise_their_trusted_site() {
+        for (id, url) in [
+            ("petdex", "https://example.com/"),
+            ("petdex", "https://petdex.dev.evil.com/"),
+            ("github", "https://github.com/other/repo"),
+            ("github", "https://github.com/dnnyngyen/codex-pokepets-evil"),
+        ] {
+            let entries =
+                parse_discovery(&json!([{"id":id,"name":"Gallery","url":url,"visible":true}]).to_string()).unwrap();
+            let shown = discovery_json(&entries);
+            assert_eq!(shown[0]["importable"], false, "{url}");
+            assert_eq!(shown[0]["hint"], "", "{url}");
+        }
+        let entries = parse_discovery(r#"[{"id":"github","name":"Gallery","url":"https://github.com/dnnyngyen/codex-pokepets/tree/main/pets","visible":true}]"#).unwrap();
+        assert_eq!(discovery_json(&entries)[0]["importable"], true);
+    }
+
+    #[test]
+    fn discovery_registry_rejects_invalid_configuration_and_external_boundaries() {
+        for url in [
+            "http://example.com",
+            "https://user:secret@example.com",
+            "https://example.com:444",
+            "https://127.0.0.1",
+            "https://localhost/",
+        ] {
+            assert!(
+                parse_discovery(&json!([{"id":"sample","name":"Sample","url":url,"visible":true}]).to_string())
+                    .is_err(),
+                "{url}"
+            );
+        }
+        let entry = json!({"id":"sample","name":"Sample","url":"https://example.com","visible":true});
+        assert!(parse_discovery(&json!([entry.clone(), entry]).to_string()).is_err());
+        for id in ["", "Bad-ID", "two words", "../site"] {
+            assert!(
+                parse_discovery(
+                    &json!([{"id":id,"name":"Sample","url":"https://example.com","visible":true}]).to_string()
+                )
+                .is_err()
+            );
+        }
+        assert!(parse_discovery("[]").unwrap().is_empty());
+        assert!(
+            parse_discovery(
+                r#"[{"id":"sample","name":"Sample","url":"https://example.com","visible":true,"route":"Petdex"}]"#
+            )
+            .is_err()
+        );
+        let entries =
+            parse_discovery(r#"[{"id":"repo","name":"Repo","url":"https://github.com/team/pets","visible":true}]"#)
+                .unwrap();
+        assert!(openable_in("https://github.com/team/pets/tree/main", &entries).is_some());
+        for url in [
+            "https://github.com/team/pets-evil",
+            "https://github.com/other/repo",
+            "https://user@github.com/team/pets",
+            "https://github.com:444/team/pets",
+            "https://github.com/team/pets/../other",
+        ] {
+            assert!(openable_in(url, &entries).is_none(), "{url}");
         }
     }
 
     #[test]
-    fn community_list_is_the_curated_set_largest_first() {
-        let names: Vec<&str> = COMMUNITIES.iter().map(|c| c.name).collect();
-        assert_eq!(
-            names,
-            [
-                "OpenPets Registry",
-                "Petdex",
-                "Codex PokéPets",
-                "Awesome Codex Pet",
-                "Codex Pets"
-            ]
-        );
-        assert!(
-            COMMUNITIES
-                .iter()
-                .all(|c| c.importable && c.url.starts_with("https://"))
-        );
-        // Every listed site is reachable by its host or, for a repository, through GitHub.
-        for c in &COMMUNITIES {
-            let url = Url::parse(c.url).unwrap();
-            assert!(
-                c.hosts.contains(&bare_host(&url))
-                    || github_folder(&url).is_ok_and(|g| g.is_some())
-                    || c.url.contains("github.com"),
-                "{} has no route",
-                c.name
-            );
-            assert!(
-                c.hosts.iter().all(|h| !h.starts_with("www.")),
-                "{} hosts are bare",
-                c.name
-            );
+    fn only_visible_configured_discovery_sites_open() {
+        for entry in communities_json().as_array().unwrap() {
+            let url = entry["url"].as_str().unwrap();
+            assert!(openable(url).is_some());
+            assert!(openable(&url.replace("https://", "http://")).is_none());
         }
-        assert!(communities_json()[2]["hint"].as_str().unwrap().contains("GitHub"));
+        assert!(openable("javascript:alert(1)").is_none());
+    }
+
+    #[test]
+    fn every_bundled_discovery_site_can_be_imported_from() {
+        let entries = parse_discovery(include_str!("../../../../src/content/communities.json")).unwrap();
+        let listed = discovery_json(&entries);
+        assert_eq!(listed.as_array().unwrap().len(), entries.len());
+        for site in listed.as_array().unwrap() {
+            assert_eq!(site["importable"], true, "{site}");
+            assert!(!site["hint"].as_str().unwrap().is_empty(), "{site}");
+        }
+        for adapter in &COMMUNITIES {
+            assert!(adapter.hosts.iter().all(|h| !h.starts_with("www.")));
+        }
     }
 
     #[test]

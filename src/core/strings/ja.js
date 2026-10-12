@@ -8,6 +8,19 @@ export const sentence = /[぀-ヿ一-鿿]/;
 // 名前を並べるときの区切り。
 export const listSeparator = '、';
 export const strings = {
+  'world.label': '場所',
+  'world.title': '友だちが過ごす場所を選びます',
+  'world.woodland': '森の遊び場',
+  'world.woodland.about': '仲間と池で釣りをしたり、虫をとったり、花を育てたりできます。',
+  'world.studio': '窓辺のアトリエ',
+  'world.studio.about':
+    '窓の外の街に雨や雪が降っても、室内で会話や遊び、種まきを楽しめます。釣りや虫とりは森の遊び場でできます。',
+  'world.studio.lines': [
+    'この小さな部屋、落ち着くね。',
+    'しばらく窓辺でのんびりしようよ。',
+    'あの灯り、なんだかほっとするね。',
+    'ここに一緒にいてくれてうれしいな。',
+  ],
   'app.title': 'PlayPets · ペットの庭',
   'app.home': 'PlayPets ホーム',
   'app.tagline': '友だち同士でおしゃべり',
@@ -40,7 +53,7 @@ export const strings = {
   'welcome.pick_aria': '{name}を庭に連れてくる',
   'steps.invite': '友だちを招待する',
   'steps.ai': '友だちにAIをつける',
-  'steps.agent': 'コーディングエージェントの知らせを届ける友だちを選ぶ',
+  'steps.agent': '必要ならコーディングエージェントの知らせも受け取る',
   'steps.go_ai': 'つなぐ',
   'steps.go_agent': '選ぶ',
   'steps.dismiss': '表示しない',
@@ -53,7 +66,7 @@ export const strings = {
   'hint.first_chat': '名札をクリックして話しかけてね！',
   'toast.desktop_tip':
     '友だちがデスクトップに出てきました。マウスを乗せると名前が出て、名前をクリックするとおしゃべりできます。ドラッグで移動できます。',
-  'scene.title': '庭の時間帯と天気',
+  'scene.title': '友だちが過ごす場所、時間帯と天気',
   'period.label': '時間帯',
   'period.title': '庭の時間帯',
   'period.auto': '時間おまかせ',
@@ -201,6 +214,7 @@ export const strings = {
   'bond.solo_catch': '{name}がひとりで{fish}を釣りました',
   'bond.hearts': 'なかよし度: {level}',
   'catch.album': '図鑑',
+  'catch.reel': '魚を釣り上げる',
   'catch.album_title': '友だちが捕まえた魚と虫',
   'catch.album_heading': '図鑑',
   'catch.album_lead':
@@ -355,7 +369,6 @@ export const strings = {
   'invite.import': 'ペットを取り込む',
   'invite.none':
     'まだペットがいません。「ペットを取り込む」を押して、コミュニティのペットページのURLを貼り付けてみましょう。',
-  'invite.none_of_kind': 'この種類のペットはまだいません。',
   'invite.show_all': 'すべて表示',
   'invite.full': '庭がいっぱいです（友だち{limit}人）。ほかの友だちを招待するには、1人とお別れしてください。',
   'invite.place_builtin': 'PlayPetsの基本ペット',
@@ -409,6 +422,11 @@ export const strings = {
   'pet.call_me_senior': '例: ゆいちゃん',
   'pet.call_me_junior': '例: お兄ちゃん、お姉ちゃん',
   'friend.relation_title': '関係を変える',
+  'pet.appearance': '見た目',
+  'pet.style_illustrated': '元の姿',
+  'pet.style_realistic': 'リアル',
+  'pet.appearance_help':
+    'このペットに含まれる姿を選びます。名前、性格、会話はそのままです。季節の衣装がない場合は、選んだ姿の基本衣装を使います。',
   'pet.size': '大きさ',
   'size.xs': 'とても小さい',
   'size.s': '小さい',
@@ -424,7 +442,7 @@ export const strings = {
   'connection.type_compatible': 'OpenAI互換サーバー',
   'connection.about_claude': 'Claudeのプランで · キー不要',
   'connection.about_codex': 'ChatGPTのプランで · キー不要',
-  'connection.about_ollama': 'このコンピューターで · 無料',
+  'connection.about_ollama': 'ローカルモデル · API料金なし',
   'connection.about_openai': 'OpenAI APIキーで',
   'connection.about_compatible': 'サーバーのアドレスとキーで',
   'connection.found': 'インストール済み',
@@ -440,10 +458,17 @@ export const strings = {
   'connection.model_placeholder': '使うモデル名',
   'connection.model_default': '空のままなら標準のモデルを使います',
   'connection.model_installed': 'インストール済みのモデル名 (例: {example})',
-  'connection.note_claude': 'このパソコンでログイン中のClaude Codeのサブスクで会話します。別途API料金はかかりません。',
+  'connection.note_claude': 'ログイン中のClaude Codeプランを使います。プランの利用上限や追加利用料が適用されます。',
   'connection.note_codex':
-    'このパソコンでログイン中のCodex CLI (ChatGPTプラン) で会話します。別途API料金はかかりません。',
-  'connection.note_ollama': '会話はこのパソコンの中だけで処理されます。',
+    'ログイン中のCodex CLIプランを使います。プランの利用上限が適用され、APIキーでログインした場合は別途課金されます。',
+  'connection.note_ollama':
+    'ローカルモデルは選んだパソコンで動き、サーバーの推論料金はかかりません。リモートサーバーやクラウドモデルでは会話がこのパソコンの外に送信されます。',
+  'connection.help_claude':
+    'Claude Codeをインストールし、claudeを一度実行してログインしてから戻ってください。モデル名を空にすると標準モデルを使います。',
+  'connection.help_codex':
+    'Codex CLIをインストールし、codexを一度実行してChatGPTでログインしてから戻ってください。モデル名を空にすると標準モデルを使います。',
+  'connection.help_ollama':
+    'Ollamaをインストールし、ollama pull llama3.2などでローカルモデルを取得してください。Ollamaを起動したまま、インストール済みのモデルを選びます。',
   'connection.note_openai': '会話の内容はOpenAIに送信されます。API利用料がかかることがあります。',
   'connection.note_compatible': '会話の内容は選んだサーバーに送信されます。利用料がかかることがあります。',
   'connection.models_loading': 'モデル一覧を読み込み中…',
@@ -473,6 +498,8 @@ export const strings = {
   'settings.update_notes': '変更点を見る',
   'about.title': 'PlayPets について',
   'about.lead': 'MIT ライセンスのオープンソースです。OpenAI とは関係がなく、Codex は OpenAI の商標です。',
+  'about.publication_note':
+    'リンクはブラウザーで公開プロジェクトページを開きます。サイトやリポジトリの内容が公開されるまでは、一部のページを利用できない場合があります。',
   'about.site': 'ウェブサイト',
   'about.guide': '使い方',
   'about.releases': 'リリースノート',
@@ -480,6 +507,13 @@ export const strings = {
   'about.report': '問題を報告',
   'about.license': 'ライセンス',
   'settings.general': '一般',
+  'settings.season': '季節',
+  'settings.season_note': '風景と季節の衣装を変えます。自動では現地の暦に従い、お祭りは実際の日付に開かれます。',
+  'settings.season_auto': '自動（暦に合わせる）',
+  'settings.season_spring': '春',
+  'settings.season_summer': '夏',
+  'settings.season_autumn': '秋',
+  'settings.season_winter': '冬',
   'settings.yard': '庭',
   'update.pill_title': '新しいバージョンがあります',
   'update.title': 'PlayPets {version} が出ました',
@@ -512,7 +546,7 @@ export const strings = {
   'settings.agent_pet_first': '未設定 · 最初の友だちが反応',
   'settings.agent_pet_changed': '{name} が担当します。設定をもう一度コピーして貼り付けてください。',
   'settings.privacy':
-    '連携はこのパソコンの中だけで行われます。エージェントに入力した内容やコードは友だちに送られません。友だちと会話するAI接続とは別のものです。',
+    'フックはこのパソコンで動作し、プロンプトやツールへの入力は送りません。通知やCodexの最後の回答などの短い活動報告は、会話の際に友だちに接続したAIへ送られることがあります。',
   'settings.quit': 'アプリを完全に終了',
   'quit.title': 'PlayPetsを終了しますか？',
   'quit.body': '会話は保存されません。デスクトップの友だちも一緒にいなくなります。',
@@ -530,6 +564,11 @@ export const strings = {
   'error.start': '起動できませんでした。アプリをもう一度開いてください。',
   'error.generic': '今回はうまくいきませんでした。',
   'error.history': '会話の履歴を読み込めませんでした。',
+  'invite.search': 'ペットを検索',
+  'invite.search_placeholder': '名前や作者',
+  'invite.no_matches': '条件に合うペットがありません。',
+  'invite.discovery': 'ほかのペットを探す',
+  'invite.discovery_count': '{count}件のサイト',
   'invite.kind_label': '種類',
   'invite.kind_all': 'すべて',
   'invite.kind_person': '人',

@@ -19,7 +19,7 @@ export function wanderTarget(position, rng) {
     y: clamp(position.y + (position.y < 0.5 ? 0.15 : -0.15)),
   };
 }
-export function idleAction(rng) {
+export function idleAction(rng, quiet = false) {
   if (rng() >= 0.25) return { type: 'move' };
-  return { type: 'pose', pose: rng() < 0.5 ? 'wave' : 'jump' };
+  return { type: 'pose', pose: quiet || rng() < 0.5 ? 'wave' : 'jump' };
 }

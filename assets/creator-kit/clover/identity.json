@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "references": {
+    "detail": "available",
+    "seasons": ["summer", "winter"]
+  },
+  "id": "clover",
+  "character": "clover",
+  "name": "Clover",
+  "age": null,
+  "kind": "animal",
+  "identity": {
+    "description": "Fictional cream-and-ginger kitten gardener; animal companion, not a human.",
+    "face": {
+      "eyes": "large round green eyes with dark pupils and clear bright highlights",
+      "nose": "tiny pink triangular feline nose",
+      "mouth": "small curved feline mouth on a pale cream muzzle; no human lips"
+    },
+    "hair": "soft cream fur, ginger ear and forehead patches, visible triangular ears, soft ginger-and-cream tail matching the accepted markings",
+    "accessories": [
+      "baseline straw gardener hat with sage ribbon and leaf/bow decoration; summer/winter add the approved white daisy. Baseline leaf/bow sits on the character’s anatomical RIGHT; preserve the exact attachment side shown in each season reference, never mirror it"
+    ],
+    "wardrobe": {
+      "baseline": "teal bib overalls with a small gold motif, straw hat with sage ribbon and leaf/bow decoration",
+      "summer": "light mint linen shorts-overalls and sage/straw daisy hat",
+      "winter": "fitted teal quilted coat, ivory knitted scarf and sage knit beanie with white daisy; ears remain visible"
+    }
+  },
+  "style": "illustrated",
+  "anatomy": "Large round head and short soft body; retain the approved animal anatomy, paws, ears and tail.",
+  "workingAction": "focused laptop work with visible typing gestures, preserving the accepted seated or standing pose",
+  "targetIdleHeight": 168,
+  "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
+  "facePanels": {
+    "top": ["front", "profile facing viewer right", "three-quarter facing viewer right"],
+    "bottom": ["eyes", "nose", "mouth", "ear", "fur", "signature accessory"]
+  },
+  "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
+  "canonical": {
+    "width": 1536,
+    "height": 2288,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "columns": 8,
+    "rows": 11,
+    "usedFrames": [6, 8, 8, 4, 5, 8, 6, 6, 6],
+    "gaze": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+  }
+}

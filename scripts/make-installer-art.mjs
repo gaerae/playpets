@@ -13,9 +13,10 @@
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
-import { bmp, cell, loadSheets, withDpi } from './art-lib.mjs';
+import { bmp, cell, loadEnvironment, loadSheets, withDpi } from './art-lib.mjs';
 
 const sheets = await loadSheets();
+const environment = await loadEnvironment();
 const DMG = { width: 660, height: 420, app: [165, 215], folder: [495, 215] };
 
 // The arrow from the app to the Applications folder: one gentle arc centred between the two icons
@@ -57,25 +58,24 @@ function arrow() {
 
 const dmg = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${DMG.width}px;height:${DMG.height}px;overflow:hidden;font-family:-apple-system,system-ui,sans-serif}
-  .bg{position:relative;width:100%;height:100%;background:linear-gradient(180deg,#bfdcf2 0%,#e3eff8 52%,#eef4ea 100%)}
-  .sun{position:absolute;right:46px;top:30px;width:44px;height:44px;border-radius:50%;background:#ffe08a;box-shadow:0 0 0 12px rgba(255,224,138,.3)}
-  .far{position:absolute;left:-12%;right:38%;top:150px;height:120px;border-radius:50% 50% 0 0/100% 100% 0 0;background:#c3dfb0}
-  .ground{position:absolute;left:-18%;right:-18%;top:176px;bottom:-40px;border-radius:50% 50% 0 0/60px 60px 0 0;
-    background:linear-gradient(180deg,#8fc77a 0,#5f9d53 46px,#478643 92px)}
-  h1{position:absolute;left:0;right:0;top:38px;margin:0;text-align:center;font-size:17px;font-weight:650;letter-spacing:-.01em;color:#3a2a1e}
-  h1 small{display:block;margin-top:6px;font-size:12.5px;font-weight:500;color:#5b4a3b}
-  svg{position:absolute;left:0;top:0}
-  .pet{position:absolute}
+  .bg{position:relative;width:100%;height:100%;background:#d9eaf3}
+  .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 45%}
+  .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(#fbfcf5eb 0%,#fbfcf566 26%,transparent 44%);pointer-events:none}
+  .label-field{position:absolute;left:85px;top:268px;width:160px;height:48px;border-radius:14px;background:#637a70}.label-field.second{left:415px}
+  h1{position:absolute;left:0;right:0;top:38px;margin:0;text-align:center;font-size:18px;font-weight:700;letter-spacing:-.01em;color:#244d43;z-index:1}
+  h1 small{display:block;margin-top:6px;font-size:12.5px;font-weight:500;color:#42675b}
+  svg{position:absolute;left:0;top:0;z-index:1}
+  .pet{position:absolute;z-index:1}
 </style><div class="bg">
-  <i class="sun"></i><div class="far"></div><div class="ground"></div>
+  <img class="environment" src="${environment}" alt=""><div class="label-field"></div><div class="label-field second"></div>
   <h1>Drag PlayPets to Applications<small>Then open it from Launchpad or the Applications folder.</small></h1>
   ${arrow()}
-  <div class="pet" style="left:30px;top:262px">${cell(sheets, 'mochi', 4, 2, 0.36)}</div>
-  <div class="pet" style="right:28px;top:256px">${cell(sheets, 'smoky', 0, 0, 0.4)}</div>
+  <div class="pet" style="left:30px;top:262px">${cell(sheets, 'pip', 4, 2, 0.36)}</div>
+  <div class="pet" style="right:28px;top:256px">${cell(sheets, 'daisy', 0, 0, 0.4)}</div>
 </div>`;
 
 // The Windows installer draws its pictures at their pixel size beside white page text: a tall
-// sidebar with the yard and Tabby saying hello, and a small header that sits on the white strip.
+// sidebar with the yard and Clover saying hello, and a small header that sits on the white strip.
 // Tauri's installer puts the header picture at the left end of the strip, so the hill runs off
 // the left edge and comes down before the page title on the right.
 const SIDEBAR = { width: 164, height: 314 };
@@ -83,28 +83,40 @@ const SIDEBAR = { width: 164, height: 314 };
 const LISTING = ['yard-talk', 'friend-chat', 'desktop', 'settings-agents'];
 const sidebar = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${SIDEBAR.width}px;height:${SIDEBAR.height}px;overflow:hidden;font-family:'Segoe UI',-apple-system,system-ui,sans-serif}
-  .bg{position:relative;width:100%;height:100%;background:linear-gradient(180deg,#bfdcf2 0%,#e3eff8 60%,#eef4ea 100%)}
-  .sun{position:absolute;right:18px;top:22px;width:26px;height:26px;border-radius:50%;background:#ffe08a;box-shadow:0 0 0 7px rgba(255,224,138,.3)}
-  .far{position:absolute;left:-40%;right:10%;top:196px;height:80px;border-radius:50% 50% 0 0/100% 100% 0 0;background:#c3dfb0}
-  .ground{position:absolute;left:-30%;right:-30%;top:224px;bottom:-20px;border-radius:50% 50% 0 0/40px 40px 0 0;background:linear-gradient(180deg,#8fc77a,#6fae5a)}
-  h1{position:absolute;left:18px;top:62px;margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em;color:#3a2a1e}
-  p{position:absolute;left:18px;right:16px;top:96px;margin:0;font-size:12px;line-height:1.45;color:#5b4a3b;text-wrap:balance}
-  .pet{position:absolute;left:50%;bottom:28px;transform:translateX(-50%)}
-</style><div class="bg"><i class="sun"></i><div class="far"></div><div class="ground"></div>
+  .bg{position:relative;width:100%;height:100%;background:#d9eaf3}
+  .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:47% bottom}
+  .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(#fbfcf5f5 0%,#fbfcf5ed 45%,#fbfcf500 70%)}
+  h1{position:absolute;left:18px;top:62px;margin:0;font-size:24px;font-weight:750;letter-spacing:-.02em;color:#244d43;z-index:1}
+  p{position:absolute;left:18px;right:16px;top:96px;margin:0;font-size:12px;line-height:1.5;color:#42675b;text-wrap:balance;z-index:1}
+  .pet{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:1}
+</style><div class="bg"><img class="environment" src="${environment}" alt="">
   <h1>PlayPets</h1><p>A yard where your pets talk to each other.</p>
-  <div class="pet">${cell(sheets, 'tabby', 3, 0, 0.5)}</div></div>`;
+  <div class="pet">${cell(sheets, 'clover', 3, 0, 0.5)}</div></div>`;
 const HEADER = { width: 150, height: 57 };
 const header = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${HEADER.width}px;height:${HEADER.height}px;overflow:hidden;background:#fff}
-  .hill{position:absolute;left:-40px;right:18px;bottom:-30px;height:48px;border-radius:50% 50% 0 0/100% 100% 0 0;background:#c3dfb0}
+  .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;opacity:.35}
   .pets{position:absolute;left:12px;bottom:1px;display:flex;align-items:flex-end;gap:4px}
-</style><div class="hill"></div><div class="pets">${cell(sheets, 'tabby', 3, 0, 0.28)}${cell(sheets, 'smoky', 0, 0, 0.26)}</div>`;
+</style><img class="environment" src="${environment}" alt=""><div class="pets">${cell(sheets, 'clover', 3, 0, 0.28)}${cell(sheets, 'daisy', 0, 0, 0.26)}</div>`;
+
+async function readyArt(page) {
+  await page.evaluate(async sources => {
+    await Promise.all(
+      sources.map(src => {
+        const image = new Image();
+        image.src = src;
+        return image.decode();
+      }),
+    );
+    await Promise.all(Array.from(document.images, image => image.decode()));
+  }, Object.values(sheets));
+}
 
 /** Renders a page at 1× and returns its RGBA pixels. */
 async function pixels(browser, html, { width, height }) {
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
   await page.setContent(html);
-  await page.waitForTimeout(300);
+  await readyArt(page);
   const png = (await page.screenshot({ type: 'png' })).toString('base64');
   const data = await page.evaluate(async b64 => {
     const img = new Image();
@@ -125,7 +137,7 @@ const browser = await chromium.launch({ channel: 'chrome', headless: true });
 try {
   const page = await browser.newPage({ viewport: { width: DMG.width, height: DMG.height }, deviceScaleFactor: 2 });
   await page.setContent(dmg);
-  await page.waitForTimeout(300);
+  await readyArt(page);
   const file = 'packaging/macos/dmg-background.png';
   await writeFile(file, withDpi(await page.screenshot({ type: 'png' }), 144));
   console.log(`Wrote ${file} (${DMG.width * 2}×${DMG.height * 2} at 144 dpi)`);

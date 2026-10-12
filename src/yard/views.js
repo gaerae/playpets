@@ -42,10 +42,12 @@ export function effect(view, text) {
   for (let i = 0; i < count; i++) {
     const node = document.createElement('span');
     node.className = 'particle';
-    node.dataset.kind = text === '♥' ? 'heart' : text === '✦' ? 'spark' : 'mark';
-    node.textContent = text;
-    node.style.left = `${view.px + sizeOf(view.pet) / 2 + (i - (count - 1) / 2) * 14}px`;
-    node.style.top = `${view.py + sizeOf(view.pet) / 3}px`;
+    node.dataset.kind = text === '♥' ? 'heart' : text === '✦' ? 'spark' : text === '!' ? 'notice' : 'mark';
+    node.textContent = node.dataset.kind === 'mark' ? text : '';
+    node.setAttribute('aria-hidden', 'true');
+    const origin = node.dataset.kind === 'notice' ? sizeOf(view.pet) + 10 : sizeOf(view.pet) / 2;
+    node.style.left = `${view.px + origin + (i - (count - 1) / 2) * 14}px`;
+    node.style.top = `${Math.max(4, view.py - 12)}px`;
     node.style.setProperty('--dx', `${(Math.random() - 0.5) * 36}px`);
     node.style.setProperty('--rot', `${(Math.random() - 0.5) * 40}deg`);
     node.style.animationDelay = `${i * 90}ms`;
@@ -266,9 +268,15 @@ function createView(p) {
   };
   const end = guard(async e => {
     if (!v.drag) return;
-    const { moved, talk } = v.drag;
+    const { moved, talk, x, y } = v.drag;
     v.drag = null;
     if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+    if (e.type === 'pointercancel') {
+      v.x = x;
+      v.y = y;
+      place(v);
+      return;
+    }
     if (moved) {
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {

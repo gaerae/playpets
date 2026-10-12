@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "references": {
+    "detail": "not-created",
+    "seasons": []
+  },
+  "id": "tabby",
+  "character": "tabby",
+  "name": "Tabby",
+  "age": null,
+  "kind": "animal",
+  "identity": {
+    "description": "Fictional ginger-orange kitten; animal companion, not a human.",
+    "face": {
+      "eyes": "dark brown glossy eyes; preserve the accepted spacing and eyelid shape",
+      "nose": "tiny pink feline nose",
+      "mouth": "small curved feline mouth and short whiskers; no human lips"
+    },
+    "hair": "ginger-orange short soft fur; three darker orange forehead stripes, cream belly patch and dark tail tip; keep the accepted anatomical tail side",
+    "accessories": ["No clothes, collar or accessories in the approved baseline"],
+    "wardrobe": {
+      "baseline": "Natural fur only, no clothing or accessories"
+    }
+  },
+  "style": "illustrated",
+  "anatomy": "Large round head and short soft body; retain the approved animal anatomy, paws, ears and tail.",
+  "workingAction": "focused laptop work with visible typing gestures, preserving the accepted seated or standing pose",
+  "targetIdleHeight": 151,
+  "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
+  "facePanels": {
+    "top": ["front", "profile facing viewer left", "three-quarter facing viewer left"],
+    "bottom": ["eyes", "nose", "mouth", "ear", "hair", "signature accessory"]
+  },
+  "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
+  "canonical": {
+    "width": 1536,
+    "height": 2288,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "columns": 8,
+    "rows": 11,
+    "usedFrames": [6, 8, 8, 4, 5, 8, 6, 6, 6],
+    "gaze": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+  }
+}

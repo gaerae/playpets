@@ -1,7 +1,7 @@
 /* The window: title bar, overall layout, toast. */
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--shell);
 }
 .wander-toggle {
   display: flex;
@@ -23,6 +23,10 @@ body {
   position: absolute;
   opacity: 0;
   pointer-events: none;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
 }
 .wander-switch {
   width: 32px;
@@ -41,7 +45,7 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--white);
+  background: #fff;
   box-shadow: 0 1px 2px rgba(33, 62, 67, 0.25);
   transition: transform 0.18s;
 }
@@ -128,7 +132,7 @@ body {
   height: 15px;
 }
 .win-controls button:hover {
-  background: #e6ecea;
+  background: var(--soft);
   color: var(--ink);
 }
 .win-controls button.close:hover {
@@ -284,6 +288,7 @@ html:not(.mac) body {
 }
 .toast {
   position: absolute;
+  pointer-events: none;
   left: 50%;
   bottom: 78px;
   transform: translateX(-50%);
@@ -306,4 +311,23 @@ body.mini .toast {
   padding: 6px 12px;
   font-size: 11.5px;
   max-width: calc(100% - 64px);
+}
+/* A catch already uses the mini top strip; its companion notice sits above the care tools. */
+body.mini .stage:has(.catch-card:not([hidden])) .toast {
+  top: auto;
+  bottom: 64px;
+}
+@media (prefers-color-scheme: dark) {
+  /* Every switch the same way: a light knob on the dark track, a dark one on the lit accent. */
+  .wander-switch::after {
+    background: var(--ink);
+  }
+  .wander-toggle input:checked ~ .wander-switch::after {
+    background: var(--white);
+  }
+  .topbar .button.toggle[aria-pressed="true"] {
+    background: var(--soft);
+    border-color: #91b08b;
+    color: var(--ink);
+  }
 }

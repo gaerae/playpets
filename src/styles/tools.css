@@ -11,9 +11,10 @@
   gap: 8px;
   max-width: calc(100% - 24px);
   padding: 5px 8px;
-  border: 1px solid #ffffff;
+  border: 1px solid var(--line);
   border-radius: 18px;
-  background: #ffffffeb;
+  background: var(--floating);
+  color: var(--ink);
   box-shadow: 0 6px 20px #213e4329;
 }
 /* With no friend in the yard the toolbar has nothing to act on, and goes. */
@@ -32,10 +33,12 @@
   padding: 9px 10px;
 }
 .button.tool:hover {
-  background: #e9eeea;
+  background: var(--soft);
 }
+/* An armed tool (a treat or a seed being placed) keeps a ring, so a hovered one never looks the same. */
 .button.tool.active {
-  background: #dcebc8;
+  background: var(--soft);
+  box-shadow: inset 0 0 0 1.5px var(--muted);
 }
 .tool-divider {
   width: 1px;
@@ -87,7 +90,8 @@
   transform: none;
 }
 #games-button.playing {
-  background: #dcebc8;
+  background: var(--soft);
+  box-shadow: inset 0 0 0 1.5px var(--muted);
 }
 #games-button.playing .scene-chevron {
   display: none;
@@ -103,7 +107,7 @@
   padding: 6px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #fffffff5;
+  background: var(--floating);
   box-shadow: 0 10px 28px var(--ink-20);
 }
 .games-menu[hidden] {
@@ -142,19 +146,17 @@
   z-index: 1;
   width: 24px;
   height: 24px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #f0c98c, #d89b55);
-  box-shadow:
-    inset 0 -3px 0 #b9773a,
-    2px 5px 3px #526c5225;
+  background: url("../art/ambient/treat.svg") center / contain no-repeat;
+  filter: drop-shadow(2px 4px 2px #526c5230);
 }
-.treat:after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 34%, #7a4326 2.2px, transparent 2.7px),
-    radial-gradient(circle at 68% 42%, #7a4326 2px, transparent 2.5px),
-    radial-gradient(circle at 46% 72%, #7a4326 2.2px, transparent 2.7px);
+@media (prefers-color-scheme: dark) {
+  .tool-count {
+    background: var(--soft);
+    color: #d1e8c2;
+  }
+  .games-menu .button.tool.playing,
+  .games-menu .button.tool.playing:hover:not(:disabled) {
+    background: #49323c;
+    color: #f8c6d9;
+  }
 }

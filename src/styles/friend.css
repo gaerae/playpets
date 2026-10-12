@@ -11,7 +11,7 @@
 /* Who the friend is to you, beside how close you are: a chip that opens the choice (friend.js). */
 .relation-chip {
   flex: none;
-  padding: 1px 8px;
+  padding: 3px 9px;
   border: 1px solid #f1cfe0;
   border-radius: 99px;
   background: #fdf0f6;
@@ -76,25 +76,99 @@
 .friend-head {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   flex: none;
   padding: 0 72px 0 0;
 }
 .avatar {
-  width: 46px;
-  height: 46px;
+  width: 54px;
+  height: 60px;
   flex: none;
-  border-radius: 50%;
+  border-radius: 18px 18px 14px 14px;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 70%, #e3eedd, #f4f7f1);
+  background: #edf2e7;
   box-shadow: inset 0 0 0 1px var(--ink-8);
   display: grid;
-  place-items: start center;
+  place-items: center;
 }
 .avatar canvas {
-  width: 54px;
-  height: 58px;
-  margin-top: 3px;
+  width: 60px;
+  height: 65px;
+  margin-top: 0;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 32%;
+}
+.appearance-picker {
+  border: 0;
+  padding: 0;
+  margin: 16px 0;
+  min-width: 0;
+}
+.appearance-picker legend {
+  padding: 0;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.appearance-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.appearance-picker .appearance-card {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+  cursor: pointer;
+  margin: 0;
+}
+.appearance-card:has(:checked) {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.appearance-card:has(:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.appearance-card input {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+.appearance-preview {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  height: 120px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--soft);
+}
+.appearance-preview canvas {
+  width: 110px;
+  height: 119px;
+}
+.appearance-preview img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  object-position: center 32%;
+}
+.appearance-card strong {
+  font-size: 13px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .friend-id {
   flex: 1;
@@ -115,13 +189,13 @@
   font-size: 16px;
   font-weight: 750;
   letter-spacing: -0.3px;
-  padding: 2px 26px 2px 8px;
+  padding: 5px 26px 5px 8px;
   margin: 0 0 0 -8px;
   border-color: transparent;
   background-color: transparent;
   width: auto;
   max-width: 100%;
-  min-height: 0;
+  min-height: 32px;
   text-overflow: ellipsis;
 }
 .friend-select:hover,
@@ -136,7 +210,7 @@
   align-items: center;
   gap: 4px 8px;
   min-width: 0;
-  font-size: 10.5px;
+  font-size: 11px;
 }
 .status-pill[hidden] {
   display: none;
@@ -193,12 +267,16 @@
   background: #ec7d96;
   transition: width 0.6s;
 }
-/* What the next step of the friendship brings, under the name (past the avatar: 46px and the gap). */
+/* The next step has its own quiet card, so it can wrap without crowding the friend's name. */
 .bond-next {
   flex: none;
-  margin: 6px 0 0 57px;
-  font-size: 11px;
-  line-height: 1.5;
+  margin: 12px 0 0;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  font-size: 11.5px;
+  line-height: 1.6;
   color: var(--muted);
 }
 .bond-next:empty {
@@ -208,7 +286,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   flex: none;
 }
 .friend-chips:empty {
@@ -285,4 +363,40 @@
   border: 0;
   border-top: 1px solid var(--line);
   margin: 4px 6px;
+}
+/* These surfaces belong to the friend, rather than changing the landscape's daylight colours. */
+.side-panel:has(#panel-pet:not([hidden])) {
+  background: #fffdf7;
+}
+@media (prefers-color-scheme: dark) {
+  .side-panel:has(#panel-pet:not([hidden])) {
+    background: var(--white);
+  }
+  .avatar {
+    background: var(--soft);
+  }
+  .relation-chip {
+    border-color: #7f5562;
+    background: #49323c;
+    color: #f8c6d9;
+  }
+  .status-pill {
+    background: #3c4e38;
+    color: #d1e8c2;
+  }
+  .bond-level {
+    color: #f5aac0;
+  }
+  .bond-bar {
+    background: #69424e;
+  }
+  .fact-chip.agent {
+    background: #493e29;
+    border-color: #796d4e;
+    color: #f0d399;
+  }
+  .pop-menu [role="menuitem"].danger,
+  .pop-menu [role="menuitem"].danger svg {
+    color: var(--danger);
+  }
 }

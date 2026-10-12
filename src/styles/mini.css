@@ -67,7 +67,7 @@ body.mini .play-toolbar {
   padding: 4px;
   border: 0;
   border-radius: 14px;
-  background: #ffffffe6;
+  background: var(--floating);
   box-shadow: 0 4px 14px var(--ink-15);
   opacity: 0;
   pointer-events: none;
@@ -120,7 +120,7 @@ body.mini .unmini {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: #ffffffd9;
+  background: var(--floating);
   color: var(--ink);
   z-index: 5;
   /* Always findable, quieter until the pointer is over the yard. */
@@ -152,9 +152,85 @@ body.mini .catch-card svg {
   width: 40px;
   height: 28px;
 }
+body.mini .catch-specimen {
+  flex-basis: 44px;
+  height: 34px;
+  border-radius: 8px;
+}
 body.mini .catch-card strong {
   font-size: 12px;
 }
 body.mini .catch-card small:not(.catch-new) {
   display: none;
+}
+/* A brief conversation stays in the always-on yard instead of expanding the window. */
+body.mini .layout {
+  position: relative;
+}
+body.mini .layout.mini-chat-open .side-panel {
+  display: flex;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: min(340px, calc(100% - 16px));
+  height: min(330px, calc(100% - 16px));
+  max-height: none;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--floating);
+  box-shadow: 0 8px 28px var(--ink-20);
+  overflow: hidden;
+  z-index: 20;
+}
+body.mini .layout.mini-chat-open .panel-head {
+  top: 10px;
+  right: 10px;
+}
+body.mini .side-panel .friend-head {
+  gap: 8px;
+  padding-right: 64px;
+}
+body.mini .side-panel .avatar {
+  width: 32px;
+  height: 32px;
+}
+body.mini .side-panel .avatar canvas {
+  width: 38px;
+  height: 41px;
+  margin-top: 1px;
+}
+body.mini .side-panel .friend-select,
+body.mini .side-panel .friend-id h3 {
+  font-size: 13px;
+}
+body.mini .side-panel .friend-sub,
+body.mini .side-panel .bond-next,
+body.mini .side-panel .friend-chips,
+body.mini .side-panel .chat-foot,
+body.mini .side-panel #provider-select,
+body.mini .side-panel .companions {
+  display: none;
+}
+body.mini .side-panel .chat-log {
+  min-height: 0;
+  margin-top: 6px;
+  padding: 8px 2px;
+  gap: 6px;
+}
+body.mini .side-panel .message {
+  padding: 7px 9px;
+}
+body.mini .side-panel .composer textarea {
+  max-height: 72px;
+  padding: 8px 10px 2px;
+}
+body.mini .side-panel .composer-bar {
+  padding: 2px 5px 5px;
+}
+body.mini .side-panel .chat-starters {
+  margin: 6px 0;
+}
+body.mini .side-panel .chat-starters .button.chip {
+  min-height: 28px;
+  padding: 4px 8px;
 }

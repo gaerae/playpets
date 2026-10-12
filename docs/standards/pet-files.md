@@ -1,7 +1,7 @@
 # Standard: Pet file format
 
 ## Applies to
-Every pet file PlayPets reads. This covers the starter pets bundled with the app (packed into the executable and unpacked into `builtin/` in the data folder; `assets/pets/` is the source), the Codex pet folder (`~/.codex/pets`, which `CODEX_HOME` can change), pets imported from an address and saved in `pets/` in the data folder, and folders a person picks. The format is the same as the Codex pet format.
+Every pet file PlayPets reads. This covers the starter pets bundled with the app (packed into the executable and unpacked into `builtin/` in the data folder; `assets/pets/` is the source), the Codex pet folder (`~/.codex/pets`, which `CODEX_HOME` can change), pets imported from an address and saved in `pets/` in the data folder, and folders a person picks. The required baseline follows the Codex pet format. Optional PlayPets artwork fields are described below; other hosts may ignore them.
 
 Not covered: the source web pages and per-site JSON during import. `pets/importer/` turns those into pet folders, and the saved result follows this format.
 
@@ -41,7 +41,72 @@ The animation in each row. `src/core/animation.js` is the source for how many ce
 | 8 | Done | 6 |
 | 9, 10 | Gaze in 16 directions (v2 only) | 8 |
 
-The value that identifies a pet is made from its folder path (the first 24 characters of the path's SHA-256). Friends refer to pets by this value, so if a pet folder moves, that pet's friends leave the yard at the next start. This calculation is tied to saved state and does not change.
+The value that identifies a pet is made from its folder path (the first 24 characters of the path's SHA-256). Friends refer to pets by this value, so if a pet folder moves, its existing friends are parked at the next start. Their saved records and closeness remain; returning the folder to its original path makes them available again. This calculation is tied to saved state and does not change. Built-in Aria/Noah entries also have an explicit legacy asset/style migration; this does not merge independently invited friends.
+
+## Identity and optional artwork
+
+A drawing style is not a pet type. An ordinary baseline sheet may be pixel art,
+paper, plush, sculpted or realistic. Aria, Aria Mini, Noah and Noah Mini are
+separate starter entries with separate baseline files. Each invitation creates
+an independent friend, including another invitation of the same pet. Names,
+relationships, personality and closeness belong to that friend. Conversations
+belong to the current app session and are not written to saved state. Restarting
+or migrating saved assets does not restore chat logs.
+The bundled adult entry manifests are `assets/pets/{aria,noah}/builtin-mini.json`
+and `builtin-full.json`; `pets/builtin.rs` embeds each as the runtime folder’s
+`pet.json` and reuses the accepted source sheets. The original
+`assets/pets/{aria,noah}/pet.json` files remain source/provenance manifests and
+do not define the four built-in shelf entries directly.
+
+The named Mini entries do not restrict window modes: every pet supports the yard,
+mini window and desktop.
+
+The reader accepts these optional PlayPets fields without requiring them for an
+ordinary import:
+
+```json
+{
+  "portraitPath": "portrait.png",
+  "seasonalSpritesheets": {
+    "summer": "seasonal/summer.png",
+    "winter": "seasonal/winter.png"
+  },
+  "realisticSpritesheets": {
+    "default": "alternate/spritesheet.png",
+    "summer": "alternate/summer.png",
+    "winter": "alternate/winter.png"
+  },
+  "realisticPortraitPath": "alternate/portrait.png"
+}
+```
+
+- `seasonalSpritesheets` recognizes `spring`, `summer`, `autumn` and `winter`.
+  Each sheet has the baseline's version and dimensions. Missing or invalid
+  entries use the baseline, without making the pet unavailable.
+- `realisticSpritesheets` is a legacy compatibility field, not a general
+  appearance contract. It recognizes `default`, `summer` and `winter` and needs
+  a valid `default` before its alternate appearance is offered. A missing
+  seasonal sheet uses that appearance's default. Friend settings offer this
+  control only for a pet with a usable alternate baseline.
+- `portraitPath` is an optional baseline PNG/WebP chat portrait, at most 8 MiB,
+  with each dimension from 1 to 4096 pixels. An ordinary pet needs no portrait.
+  `realisticPortraitPath` applies the same validation to a legacy alternate portrait.
+- Optional paths stay relative and inside the pet folder, with the same file and
+  symlink checks as the baseline. Invalid optional material is ignored. Sprite
+  serving checks the files again because they can change after scanning.
+
+Changing a supported alternate appearance keeps the same friend and its current-session chat.
+Importing a different pet folder adds another asset; it does not replace an
+existing friend's look. The runtime currently has nine action states and, in v2,
+sixteen gaze directions. Additional design poses do not add runtime states.
+Creator-named arbitrary appearance IDs remain a proposal in the
+[companions design](../design/2026-10-11-companions.md).
+
+For a portable download, provide `pet.json` and its canonical baseline sheet as
+an independent package. Rich PlayPets wardrobes and portraits do not establish
+support in another host. Preserve source attribution and the source images,
+prompts and packing metadata for generated materials; detailed turnaround and
+face references are design sources, not playable sheets.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
@@ -51,7 +116,7 @@ Follow these when you can. When you cannot, say why in the PR.
 ## Exceptions
 | When | How |
 |---|---|
-| Pets from a community site with a different format | Not imported. Listing the site with `importable: false` in the site list (`COMMUNITIES` in `importer/`) shows it as "browse only" in the Invite tab (no site in the current list is like this) |
+| Pets from a community site with a different format | Not imported. The discovery registry in `src/content/communities.json` can list a browse-only site; `importer/sites.rs` derives `importable` from the trusted adapter ID and address. A discovery link does not add an importer or alter the generic importer’s security checks |
 | The Codex pet format changes | Accept it in a PR that adds a new version number. The `SHEET_VERSIONS` table in `pets/catalog.rs` is the single source for versions and row counts (reading and importing both use it). If the meaning of a row changes, also update `src/core/animation.js` and this document |
 
 ## Rationale
@@ -64,3 +129,4 @@ Based on: design record “[Stronger agent integration · community import · pe
 
 ## Change history
 - 2026-10-01 First version
+- 2026-10-11 Document optional wardrobes, legacy appearances, separate named pets and parked identities

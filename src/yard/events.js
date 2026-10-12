@@ -7,6 +7,8 @@
 // during it. Rules only, apart from the page; festival.js shows an event, the backend checks its
 // gift (src-tauri/src/pets/content.rs). How to add one: docs/how-to/add-to-the-yard.md.
 
+import { seasonFor } from './scene.js';
+
 /** The events, filled in place from events.json once at start (content.js) or by a test. */
 const EVENTS = [];
 /** Takes the events (the parsed src/content/events.json). */
@@ -40,6 +42,11 @@ export function inEvent(event, monthDay, south = false) {
 export function eventOn(date, south = false) {
   const md = `${date.getMonth() + 1}-${date.getDate()}`;
   return EVENTS.find(e => inEvent(e, md, south)) || null;
+}
+/** A chosen landscape does not move calendar festivals or their date-checked gifts. */
+export function sceneEvent(date, south = false, season = seasonFor(date, south)) {
+  const event = eventOn(date, south);
+  return event && (event.fixed || season === seasonFor(date, south)) ? event : null;
 }
 /** An event by its id. */
 const eventById = id => EVENTS.find(e => e.id === id) || null;

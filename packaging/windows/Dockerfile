@@ -2,9 +2,8 @@
 # Makes the NSIS installer, the portable zip and an MSIX package signed with a test certificate.
 # trixie: NSIS 3.10 ships Win\RestartManager.nsh, which the Tauri installer template needs.
 # (appindicator is only there because the Tauri CLI probes the host for it even for Windows targets.)
-# From the repo root: npm run dist:windows, which runs
-#   docker build -t playpets-windows packaging/windows
-#   docker run --rm -v "$PWD":/src:ro -v playpets-cargo-win:/usr/local/cargo/registry -v playpets-target-win:/work/src-tauri/target -v "$PWD/release/windows":/out playpets-windows
+# From the repo root: npm run dist:windows. scripts/local.mjs mounts sources read-only,
+# preserves the build cache and forwards MSIX_PUBLISHER when set on the host.
 FROM rust:1-trixie
 RUN apt-get update && apt-get install -y --no-install-recommends mingw-w64 nsis rsync zip libayatana-appindicator3-dev \
       osslsigncode openssl cmake clang git zlib1g-dev libicu-dev libssl-dev \

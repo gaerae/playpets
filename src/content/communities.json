@@ -1,0 +1,32 @@
+[
+  {
+    "id": "openpets",
+    "name": "OpenPets Registry",
+    "url": "https://openpets.sh/",
+    "visible": true
+  },
+  {
+    "id": "petdex",
+    "name": "Petdex",
+    "url": "https://petdex.dev/",
+    "visible": true
+  },
+  {
+    "id": "github",
+    "name": "Codex PokéPets",
+    "url": "https://github.com/dnnyngyen/codex-pokepets",
+    "visible": true
+  },
+  {
+    "id": "codexpet",
+    "name": "Awesome Codex Pet",
+    "url": "https://codexpet.top/",
+    "visible": true
+  },
+  {
+    "id": "codex-pets",
+    "name": "Codex Pets",
+    "url": "https://codex-pets.net/",
+    "visible": true
+  }
+]

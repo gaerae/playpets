@@ -1,0 +1,89 @@
+{
+  "tool": "OpenAI built-in image_gen",
+  "format": "v2, 1536x2288, 8 columns x 11 rows, 192x208 cells",
+  "targetIdleHeight": 150,
+  "sha256": "7ddbc71f092bdab80c24f8284988dcac62f7704d8b505ec95a2a24ed577bd7f5",
+  "repack": "node scripts/pack-companion-batches.mjs assets/pets/mochi/source-rows assets/pets/mochi/spritesheet.png 150",
+  "normalization": "Rows 02 and 06 retain all eight complete figures. scripts/normalize-cat-row.mjs translates the unchanged connected RGBA silhouettes horizontally into cells with two-pixel antialiasing fringe. No scaling, repainting or vertical translation; original generated PNGs and exact transformation/hash metadata are retained. Row 06 first received a built-in imagegen layout edit to restore vertical gutters; the earlier rejected generated source and exact prompt are retained.",
+  "motionNotes": "Walking directions are distinct; foot and paw motion is a gentle shuffle rather than a perfect authored eight-phase alternating gait. Jump is a restrained crouch, joyful hop and landing. Working is seated laptop typing; waiting uses a thoughtful chin-paw gesture; error uses concerned clasped/downcast expressions; done raises both paws.",
+  "rows": [
+    {
+      "file": "source-rows/00-idle.png",
+      "sha256": "21af1706f4730c9c3c180d184f7939e5a7799cc6b0ca266e6a8c077688815b3f",
+      "prompt": "source-rows/00-idle.prompt.txt"
+    },
+    {
+      "file": "source-rows/01-right.png",
+      "sha256": "5864ec12b714f4506067b59ef7e09b2bb6bae4fa468018a94a939f54372abd4a",
+      "prompt": "source-rows/01-right.prompt.txt"
+    },
+    {
+      "file": "source-rows/02-left.png",
+      "sha256": "2be75b768465e87b7a1d2c7bd3fbe307490a3e1bc9596e52b833084307cc3dbd",
+      "prompt": "source-rows/02-left.prompt.txt",
+      "original": "generated-originals/02-left.png",
+      "originalSha256": "d155061a58832ec2df5d2b1e5c0840d01631fd3a22589347fca1d4516bfa8d94",
+      "normalization": "source-rows/02-left.normalization.json"
+    },
+    {
+      "file": "source-rows/03-wave.png",
+      "sha256": "ef0ec6ecde272a6f6d54bc54680e3728476448a86955d1474ab67359a958a4ba",
+      "prompt": "source-rows/03-wave.prompt.txt"
+    },
+    {
+      "file": "source-rows/04-jump.png",
+      "sha256": "6389d706aaa9c0f5d19b6b7349f985371c80f84704b96c38204ec9420a35e803",
+      "prompt": "source-rows/04-jump.prompt.txt"
+    },
+    {
+      "file": "source-rows/05-error.png",
+      "sha256": "c1d208313735ee4b546500c985fa507418bd32fdeff7b72161e7cba5b44eef71",
+      "prompt": "source-rows/05-error.prompt.txt"
+    },
+    {
+      "file": "source-rows/06-waiting.png",
+      "sha256": "04cc37377d8d6118428455371143f452fd4f70ad9d1604d95fa84ab2d51dffc4",
+      "prompt": "source-rows/06-waiting.prompt.txt",
+      "original": "generated-originals/06-waiting.png",
+      "originalSha256": "b2dffe6ed526b6d686d2c8db9b1d3ccc883f49bd9e067ba0729eb5d9f685bd77",
+      "normalization": "source-rows/06-waiting.normalization.json"
+    },
+    {
+      "file": "source-rows/07-working.png",
+      "sha256": "8f15bd6a24a27b4b9af1ac8ccc528b9c2cd572eb450a25934922f4a775d3a723",
+      "prompt": "source-rows/07-working.prompt.txt"
+    },
+    {
+      "file": "source-rows/08-done.png",
+      "sha256": "b1a7aa463add1cbbf676fa2877f9dec09f802abef9502a357ee40911f4e053a7",
+      "prompt": "source-rows/08-done.prompt.txt"
+    },
+    {
+      "file": "source-rows/09-look.png",
+      "sha256": "9a5eff4b3584043878571a01a95cd85e4d137eb70b06ed0110817a9a7df53858",
+      "prompt": "source-rows/09-look.prompt.txt"
+    },
+    {
+      "file": "source-rows/10-look.png",
+      "sha256": "2dfa336a7868d3d2b37a14e5a71be755b00b716ed19cb578b4c3717203195f2c",
+      "prompt": "source-rows/10-look.prompt.txt"
+    }
+  ],
+  "identityReference": {
+    "file": "identity-reference.png",
+    "sha256": "a0e550210d538822157aea1e3ba3954c6cadc72636af53604f919be72c082719",
+    "purpose": "Original canonical idle-cell identity reference used to develop the approved sculpted idle proof."
+  },
+  "generationReferences": "Initial idle proof uses the original identity reference and accepted sculpted Tabby style. Other rows use source-rows/00-idle.png as approved identity lock. Targeted corrections retain earlier generated references in generated-originals.",
+  "review": "88 complete poses passed shared-scale strict clipping guards and large-source review. Compared original and replacement at 176, 110 and 75.428571 CSS pixels at DPR 1 and 2; actual frameAt RAF playback checked in isolated Chromium.",
+  "optimizations": [
+    {
+      "tool": "oxipng 10.2.1",
+      "arguments": "-o 2 --nx",
+      "beforeSha256": "acda4b3767c8c012dbd0fb85f655ae069a8011e533d1923fc3daa934dff9acb5",
+      "afterSha256": "7ddbc71f092bdab80c24f8284988dcac62f7704d8b505ec95a2a24ed577bd7f5",
+      "pixelSha256": "f51fb3eb8209295e82ea9980232878b5221f82fa634987178fc26e0052699e54",
+      "verification": "Identical 8-bit decoded sample bytes, IHDR and ancillary chunks"
+    }
+  ]
+}

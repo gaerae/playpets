@@ -1,5 +1,5 @@
 // Renders assets/icon.svg into every app icon:
-//   src-tauri/icons/icon.icns   macOS (Apple icon grid: a rounded plate of 824/1024 with the cat on it;
+//   src-tauri/icons/icon.icns   macOS (Apple icon grid: a rounded plate of 824/1024 with Clover on it;
 //                               macOS 26 puts free-form icons on a grey plate of its own otherwise)
 //   src-tauri/icons/icon.ico    Windows (full-bleed, PNG-embedded)
 //   src-tauri/icons/icon.png    Linux (512px)
@@ -29,7 +29,7 @@ async function render(canvas, inner, name, plate = false) {
     `<style>*{margin:0}html,body{background:transparent;overflow:hidden}body{width:${canvas}px;height:${canvas}px;display:grid;place-items:center}svg{width:${inner}px;height:${inner}px;display:block}</style>${plate ? `<div class="plate">${svg}</div>` : svg}`.replace(
       '</style>',
       plate
-        ? `.plate{width:${inner}px;height:${inner}px;border-radius:${inner * 0.225}px;background:linear-gradient(#fffaf1,#ffe9c9);display:grid;place-items:center;overflow:hidden}.plate svg{width:${inner * 0.8}px;height:${inner * 0.8}px;margin-top:${inner * 0.04}px}</style>`
+        ? `.plate{width:${inner}px;height:${inner}px;border-radius:${inner * 0.225}px;background:linear-gradient(#fffaf1,#edf2e4);display:grid;place-items:center;overflow:hidden}.plate svg{width:${inner * 0.8}px;height:${inner * 0.8}px;margin-top:${inner * 0.04}px}</style>`
         : '</style>',
     ),
     { waitUntil: 'networkidle' },

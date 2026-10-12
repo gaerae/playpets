@@ -12,15 +12,17 @@ To chat with a friend, you need to connect one AI. Inviting and playing work wit
 
 | Kind | How it chats | Cost and data |
 |---|---|---|
-| Claude Code | Uses the Claude Code signed in on this computer | No separate API fees |
-| Codex CLI | Uses the Codex CLI (ChatGPT plan) signed in on this computer | No separate API fees |
-| Ollama | Uses a model installed in Ollama at `http://127.0.0.1:11434` | Conversations stay on this computer |
+| Claude Code | Uses the Claude Code signed in on this computer | Subscription sign-in uses your plan allowance; API-key sign-in uses API billing |
+| Codex CLI | Uses the Codex CLI signed in on this computer | ChatGPT sign-in uses your plan allowance; API-key sign-in uses API billing |
+| Ollama | Uses a model through Ollama at `http://127.0.0.1:11434` | Local models keep conversations on this computer without hosted inference fees; cloud models use their service's terms |
 | OpenAI API | Connects to OpenAI with an API key | Conversations are sent to OpenAI, and API fees may apply |
 | OpenAI-compatible server | You enter the server address and API key yourself | Conversations are sent to that server, and fees may apply |
 
 The connection window shows each kind as a card that says what it needs. A kind found on this computer (Claude Code, Codex CLI or Ollama) is marked **Installed** and picked for you; with none found, nothing is picked, and the fields appear once you pick a card.
 
 API keys are kept only in this computer's secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service). They never go into the settings file.
+
+With subscription sign-in, CLI chat has no separate API bill, but it consumes the same usage allowance as your other CLI work. Plan limits apply, and optional purchased credits can cost extra. For offline chat, choose a downloaded local Ollama model; using an Ollama cloud model still sends the conversation to its service.
 
 ## Making a connection <Since v="0.1.0" />
 

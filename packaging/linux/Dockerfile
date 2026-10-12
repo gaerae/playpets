@@ -1,7 +1,6 @@
 # Linux build (deb + AppImage) and headless e2e for PlayPets.
-# From the repo root: npm run dist:linux, which runs
-#   docker build -t playpets-linux packaging/linux
-#   docker run --rm -v "$PWD":/src:ro -v playpets-cargo:/usr/local/cargo/registry -v playpets-target:/work/src-tauri/target -v "$PWD/release/linux":/out playpets-linux
+# From the repo root: npm run dist:linux. scripts/local.mjs mounts sources read-only,
+# preserves the build cache and forwards BUNDLES when set on the host.
 # bookworm is the oldest Debian with webkit2gtk-4.1. The released deb and AppImage are built by CI on
 # Ubuntu 22.04 instead (an older glibc, so they run on more systems); this image is for local builds.
 FROM rust:1-bookworm

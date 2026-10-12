@@ -132,7 +132,7 @@ export function lzw(indices, minCodeSize) {
 
 /**
  * The GIF file. `frames` are RGBA arrays of width×height; `delay` is the time per frame in
- * hundredths of a second. The animation loops forever.
+ * hundredths of a second, or an array of per-frame delays. The animation loops forever.
  */
 export function encodeGif(frames, width, height, delay = 12) {
   const colors = palette(frames);
@@ -143,8 +143,9 @@ export function encodeGif(frames, width, height, delay = 12) {
   parts.push(Buffer.from([...u16(width), ...u16(height), 0xf7, 0, 0]));
   parts.push(Buffer.from(colors.flat()));
   parts.push(Buffer.from([0x21, 0xff, 11, ...Buffer.from('NETSCAPE2.0', 'ascii'), 3, 1, 0, 0, 0]));
-  for (const frame of frames) {
-    parts.push(Buffer.from([0x21, 0xf9, 4, 0, ...u16(delay), 0, 0]));
+  for (const [index, frame] of frames.entries()) {
+    const hold = Array.isArray(delay) ? delay[index] : delay;
+    parts.push(Buffer.from([0x21, 0xf9, 4, 0, ...u16(hold), 0, 0]));
     parts.push(Buffer.from([0x2c, 0, 0, 0, 0, ...u16(width), ...u16(height), 0, 8]));
     parts.push(Buffer.from(lzw(indexFrame(frame, colors), 8)));
   }

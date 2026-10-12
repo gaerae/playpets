@@ -25,9 +25,9 @@ When the import finishes, that pet is invited into the yard as a friend right aw
 
 ## Supported sites <Since v="0.1.0" />
 
-The **Community pets** line at the bottom of the window lists site names as chips. Click a chip and that site opens in your browser. Copy the address from a pet page you like and paste it into the field above.
+**Find more pets** starts collapsed, so the pet address and import actions stay easy to find. Expand it to see compact site rows and their import guidance. Click a site to open it in your browser, then copy a pet page address into the field above. These are community links; listing a site does not imply a partnership.
 
-| Chip | Site address |
+| Site | Site address |
 |---|---|
 | OpenPets Registry | openpets.sh |
 | Petdex | petdex.dev |
@@ -37,7 +37,7 @@ The **Community pets** line at the bottom of the window lists site names as chip
 
 Places without a chip work too: the address of a pet folder on GitHub (a folder containing `pet.json`) and pet page addresses on sites built with codex-pet-share.
 
-Every site in the list can be imported from today. Should a site with a different format join the list, its chip gets **(browse only)**: you can open and look at it, but not import pets from it.
+The sites above have dedicated import support. A discovery entry marked **(browse only)** has no dedicated importer: you can open it in your browser, and compatible generic pet pages may still work when pasted. Listing a new site does not by itself add import support.
 
 If the address is wrong or the site does not respond, the reason is shown in the window. You cannot close the window while an import is in progress.
 

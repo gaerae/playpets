@@ -4,7 +4,13 @@ description: General settings, About and app updates, menus and shortcuts, quitt
 
 # Settings
 
-The **Settings** tab (the gear at the end of the tabs) opens as a wide sheet over the yard, with an index of its four groups on the left; a click beside it or <kbd>Esc</kbd> closes it. The groups: **General** (Language, **Start PlayPets when you log in**), **The yard** (the auto chatter switch, **Let them chat now and then**, and **Yard sounds** with its volume), **Coding agent hooks**, and **About PlayPets** (the version, App updates and the project's pages), then Quit the app. Coding agent hooks are [explained separately](./agents.md). Open it from the tab, with <kbd>⌘</kbd> <kbd>,</kbd> or <kbd>Ctrl</kbd> <kbd>,</kbd>, or with **Settings…** in the tray menu.
+The **Settings** tab (the gear at the end of the tabs) opens as a wide sheet over the yard, with an index of its four groups on the left; a click beside it or <kbd>Esc</kbd> closes it. The groups: **General** (Language, **Start PlayPets when you log in**), **The yard** (the auto chatter switch, **Let them chat now and then**, and **Yard sounds** with its volume), **Coding agent hooks**, and **About PlayPets** (the version, App updates and the project's pages). Coding agent hooks are [explained separately](./agents.md). Open it from the tab, with <kbd>⌘</kbd> <kbd>,</kbd> or <kbd>Ctrl</kbd> <kbd>,</kbd>, or with **Settings…** in the tray menu.
+
+The title and section menu stay visible while only the selected section scrolls. Select another group to change its contents; the app remembers the last group while you reopen Settings. Quit is in **About PlayPets**.
+
+## Season
+
+Open **Settings → Yard → Season** to choose Auto, Spring, Summer, Autumn or Winter. Auto follows the local calendar. Your choice is saved and changes the scenery and seasonal companion outfits in normal and mini mode. Desktop companions also follow it; synchronization can take up to a minute. Spring and autumn use the layered everyday outfits. Festivals still follow their real dates.
 
 ## Language <Since v="0.1.0" />
 
@@ -20,7 +26,7 @@ Turn this on and PlayPets starts whenever you log in to your computer. It is off
 
 ## Let them chat now and then <Since v="0.1.0" />
 
-With this switch, in The yard, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default: subscription CLIs cost nothing extra, but the calls add up, so turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
+With this switch, in The yard, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default. These calls use your subscription allowance or your provider's billing; local Ollama models have no hosted inference fee. Turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
 
 ## Yard sounds <Since v="0.1.0" />
 
@@ -81,7 +87,7 @@ To really quit, click **Quit the app** at the bottom of the Settings tab. A "Qui
 | `state.json` | Friends (name, personality and where it came from, relationship, what it calls you, size, position, chosen AI connection), the list of AI connections (without keys), language, desktop mode and roaming, each agent's friend, auto chatter, yard sounds and their volume, the mini window's place and size (`miniRect`), the garden and decorations (`garden`), the album (`album`), closeness (`bonds`), hand-picked pet folders, the file's format number (`schema`). A file written by a newer version is copied aside and read for the parts this version knows |
 | `bridge.json` | The port and token for agent hooks. Rewritten every time the app starts |
 | `pets/` | Pet folders imported from an address |
-| `builtin/` | The three starter pets (Tabby, Smoky, Mochi) that come with the app, unpacked at each start |
+| `builtin/` | Ten bundled starter entries, unpacked and checked at each start. Aria and Aria Mini, and Noah and Noah Mini, have independent baseline assets |
 
 ## Environment variables
 
@@ -103,7 +109,7 @@ The variables must be set in the environment the app runs in. Start the app from
 - Each friend's closeness
 - The garden, the decorations in the yard and the album
 - The kind, server address and model name of each AI connection
-- Language, desktop mode and strolling, mini mode and the mini window's place and size, the chosen time of day and weather
+- Language, desktop mode and strolling, mini mode and the mini window's place and size, the chosen time of day, weather and season
 - Imported pet files and where they came from
 
 **Saved differently**

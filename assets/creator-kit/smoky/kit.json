@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "id": "smoky",
+  "identity": "identity.json",
+  "references": [
+    "identity-reference.png",
+    "expression-reference.png",
+    "motion-reference.png",
+    "wardrobe-reference.png"
+  ],
+  "availability": {
+    "detail": "not-created",
+    "seasons": []
+  },
+  "files": {
+    "identity-reference.png": {
+      "bytes": 158522,
+      "sha256": "d6d51c7569978f872b15028ffa4dcba6dc5cd548a571a0b4e782e7d481b83dca"
+    },
+    "expression-reference.png": {
+      "bytes": 164985,
+      "sha256": "31b5fce52a648fbf5c6c5591f56c9fe3955caf6c1e390b3e75eb58fb16310983"
+    },
+    "motion-reference.png": {
+      "bytes": 2213924,
+      "sha256": "96677c2d67f1e2d3875204e7aae01476f4321886684a7ec079a14dbe8187125e"
+    },
+    "wardrobe-reference.png": {
+      "bytes": 34288,
+      "sha256": "14d3228c8fe74a77c09694a058c95344bf7635b97dcb44c4134f7cb0a70422f8"
+    },
+    "spritesheet.png": {
+      "bytes": 2396969,
+      "sha256": "40d81447e4af08db66aa609ec82d7e1091e465f34d57eca8621dd770c93a30ec"
+    },
+    "identity.json": {
+      "bytes": 2279,
+      "sha256": "5b922d15bb0d9b6084232053eff7e228ebc034a9fbc1d4073da7accda99b0008"
+    },
+    "prompts/01-identity-lock.txt": {
+      "bytes": 1624,
+      "sha256": "064742f2ca51d668ea15e3b7bc4fff022026d53cb7a483a545afff1faf3b64af"
+    },
+    "prompts/02-face-detail.txt": {
+      "bytes": 1609,
+      "sha256": "1e962a7c4ceb90d171cf836415d6003fda1cad7cbf9e72c7e7d22a4d2b6f63e9"
+    },
+    "prompts/03-wardrobe.txt": {
+      "bytes": 1919,
+      "sha256": "040658b57f4fdfbab06e3780eb912dd2dfe7fd639a29b865dde4323a8f5c8550"
+    },
+    "prompts/04-state-row.txt": {
+      "bytes": 1929,
+      "sha256": "cd35623fe10685d5d6350b3fc6bf4648b0f0d80b48c7f94d9530d8efc095556d"
+    },
+    "prompts/05-canonical-export.txt": {
+      "bytes": 1779,
+      "sha256": "d13924297f492039125ffcee2dea14391f6ef152f69339cae953331b46434c64"
+    },
+    "pet.json": {
+      "bytes": 413,
+      "sha256": "cafa782b514e414582e14a4449a91921370b5d8c28e426f89044b48096396856"
+    },
+    "README.txt": {
+      "bytes": 1326,
+      "sha256": "fc75f949a64ab56463b31764f1f6e3a965c2a7d355068391553ca397f23d7c74"
+    }
+  }
+}

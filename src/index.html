@@ -47,10 +47,13 @@
             <div class="yard-caption">
               <span class="caption-main"><button id="scene-button" type="button" class="scene-button" aria-expanded="false" aria-controls="scene-menu" data-i18n-title="scene.title"><i id="sky-dot" class="sun-dot"></i><span id="scene-caption" data-i18n="caption.clear.day"></span><span class="scene-chevron" data-icon="chevron"></span></button><span id="pet-count" class="caption-count"></span><span id="agent-summary" class="caption-agents" aria-live="polite"></span><span id="event-chip" class="caption-event" hidden></span></span><span class="caption-end"><span class="view-controls" role="group" data-i18n-aria-label="view.group"><label id="wander-wrap" class="view-wander" data-i18n-title="desktop.wander_title" hidden><input type="checkbox" id="desktop-wander"><span class="wander-switch" aria-hidden="true"></span><span data-i18n="desktop.wander"></span></label><button id="desktop" type="button" class="view-button" aria-pressed="false"><span data-icon="monitor"></span><span id="desktop-label" class="view-label" data-i18n="desktop.show"></span></button><button id="mini" type="button" class="view-button" data-i18n-title="mini.enter" data-i18n-aria-label="mini.enter"><span data-icon="pip"></span></button><button id="sound-button" type="button" class="view-button" aria-pressed="true" data-i18n-aria-label="sound.label"><span data-icon="sound"></span></button></span><span class="yard-clock"><span id="clock-time"></span><span id="clock-date" class="clock-date"></span></span></span>
               <div id="scene-menu" class="scene-menu" role="group" data-i18n-aria-label="scene.title" hidden>
+                <label for="world" data-i18n="world.label"></label>
+                <select id="world" class="weather-select" data-i18n-title="world.title"></select>
                 <label for="period" data-i18n="period.label"></label>
                 <select id="period" class="weather-select" data-i18n-title="period.title"><option value="auto" data-i18n="period.auto"></option><option value="morning" data-i18n="period.morning"></option><option value="day" data-i18n="period.day"></option><option value="evening" data-i18n="period.evening"></option><option value="night" data-i18n="period.night"></option></select>
                 <label for="weather" data-i18n="weather.label"></label>
                 <select id="weather" class="weather-select" data-i18n-title="weather.title"><option value="auto" data-i18n="weather.auto"></option><option value="clear" data-i18n="weather.clear"></option><option value="rain" data-i18n="weather.rain"></option><option value="snow" data-i18n="weather.snow"></option></select>
+                <p id="world-note" class="scene-world-note" hidden></p>
               </div>
             <span id="yard-hint" class="yard-hint" aria-live="polite" data-i18n="hint.pat"></span>
             </div>
@@ -119,7 +122,7 @@
             </div>
             <div id="pet-panel" hidden>
               <div class="friend-head">
-                <span class="avatar"><canvas id="portrait" width="192" height="208" aria-hidden="true"></canvas></span>
+                <span class="avatar"><canvas id="portrait" width="192" height="208" aria-hidden="true"></canvas><img id="portrait-photo" alt="" hidden></span>
                 <div class="friend-id">
                   <h3 id="selected-name"></h3>
                   <label class="sr-only" for="friend-select" data-i18n="friend.switch"></label>
@@ -170,19 +173,22 @@
                 <button id="import" class="button text"><span data-icon="download"></span><span data-i18n="invite.import"></span></button>
               </div>
               <div id="kind-filter" class="kind-filter" role="group" data-i18n-aria-label="invite.kind_label"><button type="button" class="button chip" data-kind="" aria-pressed="true" data-i18n="invite.kind_all"></button><button type="button" class="button chip" data-kind="person" aria-pressed="false" data-i18n="invite.kind_person"></button><button type="button" class="button chip" data-kind="animal" aria-pressed="false" data-i18n="invite.kind_animal"></button><button type="button" class="button chip" data-kind="other" aria-pressed="false" data-i18n="invite.kind_other"></button></div>
+              <label class="invite-search-label" for="invite-search" data-i18n="invite.search"></label>
+              <input id="invite-search" class="invite-search" type="search" autocomplete="off" data-i18n-placeholder="invite.search_placeholder">
               <div id="shelf" class="shelf">
               </div>
               <p id="yard-full" class="notice" role="status" hidden></p>
-              <p id="no-kind" class="notice" hidden><span data-i18n="invite.none_of_kind"></span> <button type="button" id="show-all-kinds" class="button text" data-i18n="invite.show_all"></button></p>
+              <p id="no-kind" class="notice" role="status" hidden><span data-i18n="invite.no_matches"></span> <button type="button" id="show-all-kinds" class="button text" data-i18n="invite.show_all"></button></p>
               <p id="no-assets" class="notice" data-i18n="invite.none" hidden></p>
             </section>
           </div>
           <div id="panel-settings" class="panel-body" data-title="tabs.settings" hidden>
-            <nav class="settings-index" data-i18n-aria-label="tabs.settings">
-              <button type="button" data-section="general-title" data-i18n="settings.general"></button><button type="button" data-section="yard-settings-title" data-i18n="settings.yard"></button><button type="button" data-section="agent-link-title" data-i18n="settings.agents"></button><button type="button" data-section="about-title" data-i18n="about.title"></button>
+            <nav class="settings-index" role="tablist" data-i18n-aria-label="tabs.settings">
+              <button id="settings-general-tab" type="button" role="tab" aria-controls="settings-general" aria-selected="true" data-section="general-title" data-i18n="settings.general"></button><button id="settings-yard-tab" type="button" role="tab" aria-controls="settings-yard" aria-selected="false" tabindex="-1" data-section="yard-settings-title" data-i18n="settings.yard"></button><button id="settings-agents-tab" type="button" role="tab" aria-controls="settings-agents" aria-selected="false" tabindex="-1" data-section="agent-link-title" data-i18n="settings.agents"></button><button id="settings-about-tab" type="button" role="tab" aria-controls="settings-about" aria-selected="false" tabindex="-1" data-section="about-title" data-i18n="about.title"></button>
             </nav>
-            <section class="settings-section" aria-labelledby="general-title">
-              <h3 id="general-title" data-i18n="settings.general"></h3>
+            <div id="settings-content" class="settings-content">
+            <section id="settings-general" class="settings-section" data-settings-section="general-title" role="tabpanel" aria-labelledby="settings-general-tab">
+              <h3 id="general-title" tabindex="-1" data-i18n="settings.general"></h3>
               <ul class="link-list">
                 <li class="link-row">
                   <div>
@@ -193,14 +199,15 @@
               </ul>
               <label class="wander-toggle auto-chatter"><input type="checkbox" id="autostart"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.autostart"></span><small data-i18n="settings.autostart_note"></small></span></label>
             </section>
-            <section class="settings-section" aria-labelledby="yard-settings-title">
-              <h3 id="yard-settings-title" data-i18n="settings.yard"></h3>
+            <section id="settings-yard" class="settings-section" data-settings-section="yard-settings-title" role="tabpanel" aria-labelledby="settings-yard-tab" hidden>
+              <h3 id="yard-settings-title" tabindex="-1" data-i18n="settings.yard"></h3>
+              <ul class="link-list"><li class="link-row"><div><strong><label for="season" data-i18n="settings.season"></label></strong><small id="season-note" data-i18n="settings.season_note"></small></div><select id="season" class="language-select" aria-describedby="season-note"><option value="auto" data-i18n="settings.season_auto"></option><option value="spring" data-i18n="settings.season_spring"></option><option value="summer" data-i18n="settings.season_summer"></option><option value="autumn" data-i18n="settings.season_autumn"></option><option value="winter" data-i18n="settings.season_winter"></option></select></li></ul>
               <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-chatter"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_chatter"></span><small data-i18n="settings.auto_chatter_note"></small></span></label>
               <label class="wander-toggle auto-chatter with-volume"><input type="checkbox" id="sound-on"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.sound"></span><small data-i18n="settings.sound_note"></small></span></label>
               <label class="volume-row"><span data-i18n="settings.volume"></span><input type="range" id="sound-volume" min="0" max="100" step="5"></label>
             </section>
-            <section class="settings-section" aria-labelledby="agent-link-title">
-              <h3 id="agent-link-title" data-i18n="settings.agents"></h3>
+            <section id="settings-agents" class="settings-section" data-settings-section="agent-link-title" role="tabpanel" aria-labelledby="settings-agents-tab" hidden>
+              <h3 id="agent-link-title" tabindex="-1" data-i18n="settings.agents"></h3>
               <p class="settings-lead" data-i18n="settings.agents_lead"></p>
               <ul class="link-list">
                 <li class="link-row">
@@ -236,8 +243,8 @@
               </ul>
               <p class="tiny" data-i18n="settings.privacy"></p>
             </section>
-            <section class="settings-section about" aria-labelledby="about-title">
-              <h3 id="about-title" data-i18n="about.title"></h3>
+            <section id="settings-about" class="settings-section about" data-settings-section="about-title" role="tabpanel" aria-labelledby="settings-about-tab" hidden>
+              <h3 id="about-title" tabindex="-1" data-i18n="about.title"></h3>
               <p class="settings-lead"><span class="about-name">PlayPets <span id="app-version" class="version"></span></span> <span data-i18n="about.lead"></span></p>
               <ul class="link-list">
                 <li class="link-row">
@@ -247,12 +254,14 @@
                   <span class="update-actions"><button id="update-notes" class="button secondary small" data-i18n="settings.update_notes" hidden></button><button id="update-button" class="button secondary small" data-i18n="settings.update_check"></button></span>
                 </li>
               </ul>
+              <p class="settings-lead" data-i18n="about.publication_note"></p>
               <div class="about-links">
                 <button class="button secondary small" data-link="site" data-i18n="about.site"></button><button class="button secondary small" data-link="guide" data-i18n="about.guide"></button><button class="button secondary small" data-link="releases" data-i18n="about.releases"></button><button class="button secondary small" data-link="github" data-i18n="about.github"></button><button class="button secondary small" data-link="report" data-i18n="about.report"></button><button class="button secondary small" data-link="license" data-i18n="about.license"></button>
               </div>
-            </section>
             <div class="app-row">
               <button id="quit-app" class="button secondary quit"><span data-icon="power"></span><span data-i18n="settings.quit"></span></button>
+            </div>
+            </section>
             </div>
           </div>
         </aside>
@@ -267,6 +276,7 @@
           </div>
           <button type="button" id="close-pet-dialog" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button>
         </div>
+        <div class="friend-dialog-body">
         <label for="pet-name" data-i18n="pet.name"></label><input id="pet-name" maxlength="24" data-i18n-placeholder="pet.name_placeholder"><label for="pet-persona" data-i18n="pet.persona"></label>
         <textarea id="pet-persona" maxlength="400" rows="3" data-i18n-placeholder="pet.persona_placeholder"></textarea>
         <small id="persona-help" data-i18n="pet.persona_help"></small><button type="button" id="use-intro" class="button chip intro-chip" data-i18n="pet.use_intro" hidden></button>
@@ -275,6 +285,14 @@
           <div class="relation-cards">
             <label class="relation-card"><input type="radio" name="relation" value=""><strong data-i18n="relation.friend"></strong><small data-i18n="relation.friend_about"></small></label><label class="relation-card"><input type="radio" name="relation" value="partner"><strong data-i18n="relation.partner"></strong><small data-i18n="relation.partner_about"></small></label><label class="relation-card"><input type="radio" name="relation" value="senior"><strong data-i18n="relation.senior"></strong><small data-i18n="relation.senior_about"></small></label><label class="relation-card"><input type="radio" name="relation" value="junior"><strong data-i18n="relation.junior"></strong><small data-i18n="relation.junior_about"></small></label>
           </div>
+        </fieldset>
+        <fieldset id="pet-appearance" class="appearance-picker" hidden>
+          <legend data-i18n="pet.appearance"></legend>
+          <div class="appearance-cards">
+            <label class="appearance-card"><input type="radio" name="visualStyle" value="illustrated" checked><span class="appearance-preview"><canvas id="style-illustrated" width="192" height="208" aria-hidden="true"></canvas></span><strong data-i18n="pet.style_illustrated"></strong></label>
+            <label class="appearance-card"><input type="radio" name="visualStyle" value="realistic"><span class="appearance-preview"><canvas id="style-realistic" width="192" height="208" aria-hidden="true"></canvas><img id="style-realistic-photo" alt="" hidden></span><strong data-i18n="pet.style_realistic"></strong></label>
+          </div>
+          <small data-i18n="pet.appearance_help"></small>
         </fieldset>
         <label for="pet-call-me" data-i18n="pet.call_me"></label><input id="pet-call-me" maxlength="24">
         <small data-i18n="pet.relation_help"></small><label for="size-range" data-i18n="pet.size"></label>
@@ -285,6 +303,7 @@
         </div>
         <code id="instance-id" class="pet-id"></code>
         <p id="pet-error" class="form-error" role="alert"></p>
+        </div>
         <div class="dialog-actions">
           <button type="button" id="remove" class="button text danger push-left"><span data-icon="logout"></span><span data-i18n="friend.send_away_long"></span></button><button type="button" id="cancel-pet-dialog" class="button text" data-i18n="confirm.cancel"></button><button type="submit" class="button primary" data-i18n="common.save"></button>
         </div>
@@ -302,9 +321,11 @@
         <p class="dialog-description" data-i18n="invite.import_lead"></p>
         <label for="import-url" data-i18n="invite.url"></label><input id="import-url" type="url" required autocomplete="off" data-i18n-placeholder="invite.url_placeholder">
         <p id="import-error" class="form-error" role="alert"></p>
-        <p class="tiny" data-i18n="invite.browse"></p>
-        <div id="community-links" class="community-links">
-        </div>
+        <details id="community-discovery" class="community-discovery">
+          <summary><span data-i18n="invite.discovery"></span><small id="community-count"></small></summary>
+          <p class="tiny" data-i18n="invite.browse"></p>
+          <div id="community-links" class="community-links"></div>
+        </details>
         <div class="dialog-actions">
           <button type="button" id="import-folder" class="button text push-left"><span data-icon="folder"></span><span data-i18n="invite.from_folder"></span></button><button type="button" id="cancel-import" class="button text" data-i18n="confirm.cancel"></button><button type="submit" id="import-submit" class="button primary" data-i18n="invite.import_go"></button>
         </div>
@@ -335,6 +356,7 @@
           <datalist id="model-list"></datalist>
           <small id="model-status" class="model-status"></small>
           <p id="provider-note" class="tiny" data-i18n="connection.note_compatible"></p>
+          <p id="connection-help" class="connection-help tiny" hidden></p>
         </div>
         <label id="share-all-field" class="wander-toggle share-all" hidden><input type="checkbox" id="ai-share-all"><span class="wander-switch" aria-hidden="true"></span><span id="ai-share-all-label"></span></label>
         <p id="connection-error" class="form-error" role="alert"></p>
@@ -362,7 +384,7 @@
       </div>
       <p class="dialog-description" data-i18n="catch.album_lead"></p>
       <div id="album-tabs" class="album-tabs" role="tablist"></div>
-      <div id="album-grid" class="album-grid" role="tabpanel"></div>
+      <div id="album-grid" class="album-grid" role="tabpanel" tabindex="0"></div>
     </dialog>
     <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-body">
       <h2 id="confirm-title"></h2>

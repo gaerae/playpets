@@ -8,6 +8,14 @@ import { $, data, guard } from '../core/state.js';
 let on = { invite: async () => {}, more() {} };
 let shownKey = '';
 let picks = [];
+export function onboardingSteps(pets, agents, dismissed) {
+  const done = {
+    invite: pets.length > 0,
+    ai: pets.some(p => p.providerId),
+    agent: Object.keys(agents || {}).length > 0,
+  };
+  return { done, hidden: done.invite && (done.ai || dismissed) };
+}
 // The starter pets that come with the app, or else the first pet files found; three at most.
 function starters() {
   const builtin = data.assets.filter(a => a.place === 'builtin');

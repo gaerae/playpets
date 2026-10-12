@@ -14,3 +14,59 @@ export function mainDisplay(json) {
   const m = /^(\d+)\s*x\s*(\d+)/.exec(main?._spdisplays_resolution || '');
   return m ? { width: Number(m[1]), height: Number(m[2]) } : null;
 }
+
+// Never fall back to a screen region: a missing app window must stop the capture.
+export function captureWindow(windows, pid, rect) {
+  const keys = ['x', 'y', 'width', 'height'];
+  const matches = Array.isArray(windows)
+    ? windows.filter(
+        w =>
+          Number.isInteger(w.id) &&
+          w.id > 0 &&
+          w.pid === pid &&
+          Number.isInteger(w.layer) &&
+          w.layer >= 0 &&
+          keys.every(
+            k => Number.isFinite(rect?.[k]) && Number.isFinite(w.bounds?.[k]) && Math.abs(w.bounds[k] - rect[k]) <= 2,
+          ),
+      )
+    : [];
+  if (matches.length !== 1 || !(rect.width > 0 && rect.height > 0))
+    throw new Error(`Cannot identify capture window for PID ${pid}: ${matches.length} matches`);
+  return matches[0];
+}
+
+// Window alpha reveals only this controlled backdrop, regardless of desktop focus.
+export function composeWindow(canvas, image, logicalWidth, margin = 0) {
+  const ratio = image.naturalWidth / logicalWidth;
+  const pad = Math.round(margin * ratio);
+  canvas.width = image.naturalWidth + pad * 2;
+  canvas.height = image.naturalHeight + pad * 2;
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, '#1d2b3a');
+  gradient.addColorStop(0.55, '#2c4a63');
+  gradient.addColorStop(1, '#3f6e86');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (margin) {
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = 18 * ratio;
+    ctx.shadowOffsetY = 6 * ratio;
+  }
+  ctx.drawImage(image, pad, pad);
+}
+
+// Explicit choices keep seasonal marketing captures independent of the host's date and last UI state.
+export function seasonalScenes() {
+  return [
+    { name: 'yard-spring', season: 'spring', weather: 'clear' },
+    { name: 'yard-summer', season: 'summer', weather: 'clear' },
+    { name: 'yard-winter', season: 'winter', weather: 'snow' },
+  ];
+}
+
+// Keep actual selected tabs, games and options; only a resting cursor and focus are absent.
+export function clearCaptureFocus(doc) {
+  doc.activeElement?.blur?.();
+}

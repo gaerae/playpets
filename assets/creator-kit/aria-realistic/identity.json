@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "references": {
+    "detail": "available",
+    "seasons": ["summer", "winter"]
+  },
+  "id": "aria-realistic",
+  "character": "aria",
+  "name": "Aria",
+  "age": 25,
+  "kind": "person",
+  "identity": {
+    "description": "Fictional adult woman, age 25; warm, thoughtful performer. Not a real person or celebrity.",
+    "face": {
+      "eyes": "warm brown eyes, gentle curved brows and a steady welcoming gaze",
+      "nose": "small softly defined nose with a rounded tip",
+      "mouth": "soft pink lips with a subtle upward smile; preserve the cupid bow and mouth width"
+    },
+    "hair": "chestnut, shoulder-length flowing waves with the same part and curled ends",
+    "accessories": ["rose-gold flower pin on anatomical LEFT side of hair; never mirror it"],
+    "wardrobe": {
+      "baseline": "cropped ivory jacket over a rose bow blouse, dusty-rose pleated midi skirt, brown belt and ivory ankle boots",
+      "summer": "light ivory short-sleeve bow blouse, dusty-rose pleated skirt and cream summer shoes, same flower pin",
+      "winter": "ivory coat, dusty-rose knit scarf, dark leggings and ivory ankle boots over the rose skirt, same flower pin"
+    }
+  },
+  "style": "realistic",
+  "anatomy": "Preserve the accepted mature adult proportions, natural limbs and shoulders. Preserve the accepted face/head scale; no chibi conversion.",
+  "workingAction": "standing focused book reading, visible small open book and reading hands",
+  "targetIdleHeight": 176,
+  "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
+  "facePanels": {
+    "top": ["front", "profile facing viewer left", "three-quarter facing viewer right"],
+    "bottom": [
+      "open eye",
+      "closed eye",
+      "nose front",
+      "nose profile",
+      "neutral mouth",
+      "smiling mouth",
+      "ear",
+      "flower pin"
+    ]
+  },
+  "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
+  "canonical": {
+    "width": 1536,
+    "height": 2288,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "columns": 8,
+    "rows": 11,
+    "usedFrames": [6, 8, 8, 4, 5, 8, 6, 6, 6],
+    "gaze": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+  }
+}

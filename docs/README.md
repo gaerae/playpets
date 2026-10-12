@@ -9,7 +9,7 @@ This guide is the entry point for people who change the code, build integrations
 - **One app, two windows:** There is the yard window (the main window) and a transparent desktop window, one per monitor. Both windows only draw the state the backend holds.
 - **Commands and notifications:** The page calls the backend through a single `window.playPets.<command>()`. When state changes, the backend sends the new state (`change`) to every window, and sends one-off happenings as events (`event`).
 - **Pets and friends:** A pet is a character file (`pet.json` plus a sprite sheet, in the Codex pet format). A friend is a pet invited into the yard. Each friend has a name, a personality, a size and an AI connection.
-- **AI connection:** The AI a friend uses to chat. Claude Code and Codex are asked through the user's subscription CLI; Ollama and OpenAI-compatible servers are asked over HTTP. API keys live only in the OS secure storage.
+- **AI connection:** Optional for ordinary movement, games, gardening and collecting; it gives a friend AI conversation. Claude Code and Codex use their signed-in CLIs; subscription allowances and any paid extra usage apply, and API-key CLI sign-in can incur separate charges. Ollama and OpenAI-compatible servers use HTTP. Local models need no hosted inference fees; remote services use their provider’s billing. API keys saved by PlayPets live only in the OS secure storage.
 - **Agent integration:** Running the app executable as `playpets hook …` or `playpets mcp` runs it in CLI mode with no window, and it sends status to the running app through a local HTTP bridge. Node.js is not needed.
 - **Strings tables:** Sentences shown to people live in two tables, one for the page and one for the backend, in Korean, English, Japanese and Simplified Chinese. Code uses only keys.
 - **Lock rule and page redraws:** The backend never waits on the main thread while holding the state lock. The page redraws often only while something moves. These two rules exist to prevent freezes and battery drain.
@@ -20,10 +20,14 @@ Go to a document based on what you want to know.
 | What you want to know | Document |
 |---|---|
 | Getting the repo, running tests and starting the app for the first time | [Set up a development environment and run the app](getting-started.md) |
+| Root settings, directory ownership, generated files and common maintenance commands | [Repository layout and tooling](repository-layout.md) |
 | How the app is built and what calls what | [Architecture: PlayPets app](architecture.md) |
 | How coding agents reach the app; CLI, HTTP and MCP specs | [Architecture: coding agent integration](agent-integration.md) |
 | Adding a backend command the page can call | [Add a backend command the page calls](how-to/add-a-command.md) |
+| Adding, hiding or reordering community discovery links | [Add or change a discovery site](how-to/add-discovery-site.md) |
+| Adding a selectable indoor or outdoor place | [Add a place for friends](how-to/add-a-world.md) |
 | Adding a fish, a bug, a flower or a gift, a drawing or an effect, or changing the scenery | [Add to the yard](how-to/add-to-the-yard.md) |
+| Reproducing seasonal, game, collection and audio review fixtures | [Visual review](how-to/visual-review.md) |
 | Setting up once: the updater key, the GitHub repository, secrets, the Homebrew tap, winget, signing accounts | [Set up the repository, keys and store accounts](how-to/set-up-the-repository.md) |
 | Releasing a new version and distribution channels | [Release a new version](how-to/release.md) |
 | Changing the site (intro, user guide, version pages) | [Edit and check the website](how-to/website.md) |
@@ -60,6 +64,8 @@ If you are new, read in this order.
 
 ## Deep dives and reference
 **Decision records**: why the structure is the way it is. The standards point to them as their basis.
+- [Keep source art and optimize accepted exports](decisions/2026-10-12-art-storage.md)
+- [Consolidate the October design reports into topic records before the first publication](decisions/2026-10-13-design-records.md)
 - "[Real-app E2E runs a scenario script inside the app](decisions/2026-09-29-e2e-inside-the-real-app.md)"
 - "[The backend is split into folders by role, and main.rs only wires things up](decisions/2026-09-30-backend-modules-by-role.md)"
 - "[Never wait on the main thread while holding the app state lock](decisions/2026-09-30-no-waiting-on-main-thread-under-state-lock.md)"
@@ -73,6 +79,14 @@ If you are new, read in this order.
 - "[Lead with "a yard where your pets talk to each other", and treat Codex pet compatibility and hook reactions as the price of entry](decisions/2026-10-05-positioning-talking-friends.md)"
 
 **Design records and research**
+
+Records are dated and not rewritten; when two disagree, the later one holds. The five records of 2026-10-11 and 2026-10-12 consolidate that period's design work ([decision](decisions/2026-10-13-design-records.md)).
+
+- [The website](design/2026-10-12-website.md) (2026-10-12): four languages and their parity, the world-first landing, the companion gallery, the creator studio, release pages and captures.
+- [Places: Woodland and Window studio](design/2026-10-11-places.md) (2026-10-11): the place registry, capabilities, floor geometry and fit, authored lighting, weather behind window panes and switching places.
+- [Companions and pet identity](design/2026-10-11-companions.md) (2026-10-11): the ten companions, ordinary independent entries, seasonal wardrobes, realistic sheets and portraits, the compatibility migration, adult partner companions and the creator contract.
+- [Art direction and the art pipeline](design/2026-10-11-art-direction.md) (2026-10-11): the sculpted cozy-game look, depth cues, raster layers and the procedural fallback, specimen art, accepting new art, the brand and where sources live.
+- [Product direction](design/2026-10-11-product-direction.md) (2026-10-11): companions who talk to you and each other, claims kept precise, interface commitments and the bar for the first release.
 - [Stronger agent integration · community import · personality and activity memory](design/2026-09-29-agent-link-import-persona.md): the design as of 2026-09-29. Some file paths have changed since.
 - [A yard that grows with you](design/2026-10-09-a-yard-that-grows.md): the garden, gifts, fishing and bugs, the album and closeness, with their rules.
 - [A painted yard](design/2026-10-09-a-painted-yard.md): how the backdrop is painted after hand-painted animation backgrounds.
@@ -88,7 +102,7 @@ If you are new, read in this order.
 | `.github/workflows/build.yml` | `build` job: lint, test, build and E2E on five environments. `site` job: builds the site, so a dead link fails the PR. Runs for every push to main and every PR |
 | `.github/workflows/release.yml` | Builds every environment from a version tag into a release draft |
 | `.github/workflows/distribute.yml` | winget manifest and Homebrew cask from a published release |
-| `.github/workflows/pages.yml` | Builds the site and publishes it to GitHub Pages on every push to main |
+| `.github/workflows/pages.yml` | Builds and publishes GitHub Pages when its source or shared inputs change on main |
 | `website/` | The VitePress site. Developer docs are copied from `docs/` at build time |
 | `packaging/` | Local distribution builds (macOS dmg; Linux and Windows through Docker) |
 | `scripts/` | Icon generation, release, distribution file generation, CPU measurement, site preparation, screen capture, mascot pets |
@@ -97,13 +111,17 @@ If you are new, read in this order.
 | Command | What it does |
 |---|---|
 | `npm test` | Rust unit tests and page tests |
+| `npm run check` | Lint, unit tests and site build; run E2E separately |
+| `npm run test:js` / `test:rust` | Focused Node / Rust tests |
+| `npm run build:app` / `start` | Build the normal native executable / run that existing build |
+| `npm run assets:audit` | Check image dimensions and references; save an inventory under ignored `release/asset-audit/` |
 | `npm run lint` / `npm run format` | Check / tidy code layout (rustfmt, clippy, Biome) |
 | `npm run test:e2e` | Real-app E2E |
 | `npm run measure` | CPU measurement in five states (macOS, Linux) |
 | `npm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |
 | `npm run shots -- x.y.z` | Real-app screenshots in every app language (macOS) |
-| `npm run mascot-pet` | Redraw the sprite sheets of the three sample pets (tabby, smoky, mochi) |
-| `npm run og` | Redraw the share cards (`website/public/og.png` in English, `og-ko.png`, `og-zh-hans.png`) and the README banner |
+| `npm run mascot-pet` | Draw historical flat sample sheets into `release/legacy-pets/`, without overwriting current companions |
+| `npm run og` | Redraw the four share cards (`website/public/og.png` in English, `og-ko.png`, `og-ja.png`, `og-zh-hans.png`) and the README banner |
 | `npm run art` | Redraw the installer art: the macOS disk image background (`packaging/macos/dmg-background.png`), the Windows installer's sidebar and header (`packaging/windows/nsis-*.bmp`), and the English screenshots Linux software centers show (`website/public/listing/en/`, from the current captures). Where each is used is set in `src-tauri/tauri.conf.json` (`bundle.macOS.dmg`, `bundle.windows.nsis`, `bundle.linux`) and `packaging/linux/app.playpets.metainfo.xml` |
 | `npm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/`) |
 | `npm run release -- x.y.z` | Release commit and tag |

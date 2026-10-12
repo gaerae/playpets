@@ -1,5 +1,7 @@
-import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'vitepress';
+import { alternateLinks } from './locale-head.mjs';
 import { devSidebar } from './sidebar-dev.mts';
 
 const repo = 'https://github.com/gaerae/playpets';
@@ -7,6 +9,11 @@ const repo = 'https://github.com/gaerae/playpets';
 // to its own domain is one edit there (docs/how-to/site-address.md).
 const site: string = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).homepage;
 const base = new URL(site).pathname;
+// Browsers can retain a tab icon independently of the page's normal image cache.
+const iconRevision = createHash('sha256')
+  .update(readFileSync(new URL('../../assets/icon.svg', import.meta.url)))
+  .digest('hex')
+  .slice(0, 12);
 // "Edit this page" opens the file in the repository: the developer docs live in docs/ (the site
 // has a generated copy under dev/), every other page in website/. VitePress sends this function
 // to the browser as source text, so it names the repository itself instead of using `repo`.
@@ -25,8 +32,10 @@ export default defineConfig({
   lastUpdated: false,
   sitemap: { hostname: site },
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}icon.svg` }],
-    ['meta', { name: 'theme-color', content: '#f9ae55' }],
+    ['link', { rel: 'shortcut icon', type: 'image/x-icon', href: `${base}favicon.ico?v=${iconRevision}` }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${base}favicon.png?v=${iconRevision}` }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', sizes: 'any', href: `${base}icon.svg?v=${iconRevision}` }],
+    ['meta', { name: 'theme-color', content: '#244d43' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'PlayPets' }],
     ['meta', { property: 'og:image:width', content: '1200' }],
@@ -57,7 +66,8 @@ export default defineConfig({
         'A yard where your pets talk to each other. An open-source desktop pet that brings the ten thousand Codex pets as they are, gives each friend its own AI, lets friends talk among themselves, and keeps any coding agent company.',
       themeConfig: {
         nav: [
-          { text: 'Guide', link: '/guide/', activeMatch: '^/guide/' },
+          { text: 'Creator studio', link: '/guide/creator-kit', activeMatch: '^/guide/creator-kit' },
+          { text: 'Guide', link: '/guide/', activeMatch: '^/guide/(?!creator-kit)' },
           { text: 'Releases', link: '/releases/', activeMatch: '^/releases/' },
           { text: 'Developers', link: '/dev/', activeMatch: '^/dev/' },
         ],
@@ -74,6 +84,7 @@ export default defineConfig({
                 { text: 'Desktop mode', link: '/guide/desktop' },
                 { text: 'The yard and games', link: '/guide/play' },
                 { text: 'Importing pets', link: '/guide/import' },
+                { text: 'Creator kit', link: '/guide/creator-kit' },
                 { text: 'Settings', link: '/guide/settings' },
                 { text: 'FAQ', link: '/guide/faq' },
               ],
@@ -98,7 +109,8 @@ export default defineConfig({
         '서로 이야기하는 펫들의 놀이터. Codex 펫 1만 마리를 그대로 데려와 친구마다 다른 AI로 말하고, 친구들끼리 이어서 이야기하고, 어느 코딩 에이전트든 곁에서 함께 일하는 오픈소스 데스크톱 펫이에요.',
       themeConfig: {
         nav: [
-          { text: '사용 안내', link: '/ko/guide/', activeMatch: '^/ko/guide/' },
+          { text: '캐릭터 제작실', link: '/ko/guide/creator-kit', activeMatch: '^/ko/guide/creator-kit' },
+          { text: '사용 안내', link: '/ko/guide/', activeMatch: '^/ko/guide/(?!creator-kit)' },
           { text: '버전', link: '/ko/releases/', activeMatch: '^/ko/releases/' },
           { text: '개발(영어)', link: '/dev/' },
         ],
@@ -115,6 +127,7 @@ export default defineConfig({
                 { text: '바탕화면 모드', link: '/ko/guide/desktop' },
                 { text: '놀이터와 놀이', link: '/ko/guide/play' },
                 { text: '펫 가져오기', link: '/ko/guide/import' },
+                { text: '제작 키트', link: '/ko/guide/creator-kit' },
                 { text: '설정', link: '/ko/guide/settings' },
                 { text: '자주 묻는 질문', link: '/ko/guide/faq' },
               ],
@@ -141,6 +154,61 @@ export default defineConfig({
         },
       },
     },
+    ja: {
+      label: '日本語',
+      lang: 'ja-JP',
+      link: '/ja/',
+      description:
+        '森の庭や街を望む部屋で、ペットたちと暮らすオープンソースのデスクトップアプリです。友だちごとの性格と関係、会話、遊び、ガーデニング、コーディングのお供に。',
+      themeConfig: {
+        nav: [
+          { text: '制作室', link: '/ja/guide/creator-kit', activeMatch: '^/ja/guide/creator-kit' },
+          { text: '使い方', link: '/ja/guide/', activeMatch: '^/ja/guide/(?!creator-kit)' },
+          { text: 'リリース', link: '/ja/releases/', activeMatch: '^/ja/releases/' },
+          { text: '開発者向け（英語）', link: '/dev/' },
+        ],
+        sidebar: {
+          '/ja/guide/': [
+            {
+              text: '使い方',
+              items: [
+                { text: 'ここから始める', link: '/ja/guide/' },
+                { text: 'インストール', link: '/ja/guide/install' },
+                { text: '最初の友だち', link: '/ja/guide/first-friend' },
+                { text: '友だちと話す', link: '/ja/guide/chat' },
+                { text: 'コーディングエージェント', link: '/ja/guide/agents' },
+                { text: 'デスクトップモード', link: '/ja/guide/desktop' },
+                { text: '庭と遊び', link: '/ja/guide/play' },
+                { text: 'ペットを取り込む', link: '/ja/guide/import' },
+                { text: '制作キット', link: '/ja/guide/creator-kit' },
+                { text: '設定', link: '/ja/guide/settings' },
+                { text: 'よくある質問', link: '/ja/guide/faq' },
+              ],
+            },
+          ],
+          '/ja/releases/': [{ text: 'リリース', items: [{ text: 'すべてのリリース', link: '/ja/releases/' }] }],
+        },
+        outline: { label: 'このページ', level: [2, 3] },
+        docFooter: { prev: '前のページ', next: '次のページ' },
+        returnToTopLabel: '先頭へ戻る',
+        sidebarMenuLabel: '目次',
+        darkModeSwitchLabel: '画面モード',
+        lightModeSwitchTitle: '明るい画面に切り替える',
+        darkModeSwitchTitle: '暗い画面に切り替える',
+        langMenuLabel: '言語',
+        editLink: editLink('このページを編集'),
+        footer: {
+          message: 'MITライセンスの無料オープンソースです。OpenAIとは関係がありません。CodexはOpenAIの商標です。',
+          copyright: '© 2026 gaerae',
+        },
+        notFound: {
+          title: 'ページが見つかりません',
+          quote: '友だちがかくれんぼで道に迷ったようです。アドレスを確認してください。',
+          linkLabel: 'ホームへ',
+          linkText: 'ホームへ戻る',
+        },
+      },
+    },
     'zh-hans': {
       label: '简体中文',
       lang: 'zh-Hans',
@@ -149,7 +217,8 @@ export default defineConfig({
         '宠物们互相聊天的乐园。把一万只 Codex 宠物原样带来，每位伙伴用不同的 AI 说话，伙伴之间接着聊，任何编码代理工作时都有它们陪着。开源桌面宠物应用。',
       themeConfig: {
         nav: [
-          { text: '使用指南', link: '/zh-hans/guide/', activeMatch: '^/zh-hans/guide/' },
+          { text: '角色制作室', link: '/zh-hans/guide/creator-kit', activeMatch: '^/zh-hans/guide/creator-kit' },
+          { text: '使用指南', link: '/zh-hans/guide/', activeMatch: '^/zh-hans/guide/(?!creator-kit)' },
           { text: '版本', link: '/zh-hans/releases/', activeMatch: '^/zh-hans/releases/' },
           { text: '开发者（英文）', link: '/dev/' },
         ],
@@ -166,6 +235,7 @@ export default defineConfig({
                 { text: '桌面模式', link: '/zh-hans/guide/desktop' },
                 { text: '乐园和游戏', link: '/zh-hans/guide/play' },
                 { text: '导入宠物', link: '/zh-hans/guide/import' },
+                { text: '创作套件', link: '/zh-hans/guide/creator-kit' },
                 { text: '设置', link: '/zh-hans/guide/settings' },
                 { text: '常见问题', link: '/zh-hans/guide/faq' },
               ],
@@ -211,6 +281,18 @@ export default defineConfig({
               },
             },
           },
+          ja: {
+            translations: {
+              button: { buttonText: '検索', buttonAriaLabel: '検索' },
+              modal: {
+                displayDetails: '詳細を表示',
+                resetButtonTitle: '消去',
+                backButtonTitle: '閉じる',
+                noResultsText: '見つかりません：',
+                footer: { selectText: '開く', navigateText: '移動', closeText: '閉じる' },
+              },
+            },
+          },
           'zh-hans': {
             translations: {
               button: { buttonText: '搜索', buttonAriaLabel: '搜索' },
@@ -232,11 +314,13 @@ export default defineConfig({
   // with the page's own title, description, address (clean URLs: no .html, index → the folder)
   // and locale.
   transformHead({ pageData, title, description }) {
-    const lang = pageData.relativePath.match(/^(ko|zh-hans)\//)?.[1];
+    const lang = pageData.relativePath.match(/^(ko|ja|zh-hans)\//)?.[1];
     const image = `${site}og${lang ? `-${lang}` : ''}.png`;
     const url = site + pageData.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '');
-    const locale = lang === 'ko' ? 'ko_KR' : lang === 'zh-hans' ? 'zh_CN' : 'en_US';
+    const locale = lang === 'ko' ? 'ko_KR' : lang === 'ja' ? 'ja_JP' : lang === 'zh-hans' ? 'zh_CN' : 'en_US';
     return [
+      ['link', { rel: 'canonical', href: url }],
+      ...alternateLinks(pageData.relativePath, site, path => existsSync(new URL(`../${path}`, import.meta.url))),
       ['meta', { property: 'og:title', content: title }],
       ['meta', { property: 'og:description', content: description }],
       ['meta', { property: 'og:url', content: url }],

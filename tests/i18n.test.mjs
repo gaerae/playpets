@@ -13,7 +13,7 @@ test('every language says every key, with the same holes', () => {
   const keys = Object.keys(STRINGS.ko);
   assert.ok(keys.length > 0);
   assert.deepEqual(Object.keys(STRINGS), Object.keys(LANGUAGES), 'the registry names each language once');
-  for (const lang of Object.keys(STRINGS).filter(l => l !== 'ko')) {
+  for (const lang of Object.keys(STRINGS)) {
     assert.deepEqual(Object.keys(STRINGS[lang]).sort(), [...keys].sort(), `${lang} names the same keys as ko`);
     for (const key of keys) {
       assert.deepEqual(holes(STRINGS[lang][key]), holes(STRINGS.ko[key]), `${key}: holes differ in ${lang}`);
@@ -22,7 +22,10 @@ test('every language says every key, with the same holes', () => {
         Array.isArray(STRINGS.ko[key]),
         `${key}: list in one, sentence in another`,
       );
-      assert.ok(String(STRINGS[lang][key]).trim().length > 0, `${key} is empty in ${lang}`);
+      const values = Array.isArray(STRINGS[lang][key]) ? STRINGS[lang][key] : [STRINGS[lang][key]];
+      assert.ok(values.length > 0, `${key} has no lines in ${lang}`);
+      for (const value of values)
+        assert.ok(typeof value === 'string' && value.trim().length > 0, `${key} has an empty line in ${lang}`);
     }
   }
 });
@@ -35,7 +38,8 @@ test('every relationship has its own welcome, closeness and dear lines', async (
   assert.deepEqual(relations, ['partner', 'senior', 'junior']);
   for (const relation of relations)
     for (const key of ['bond.welcome', 'bond.up_line', 'bond.dear'])
-      assert.ok(STRINGS.ko[`${key}_${relation}`]?.length >= 2, `${key}_${relation}`);
+      for (const [lang, strings] of Object.entries(STRINGS))
+        assert.ok(strings[`${key}_${relation}`]?.length >= 2, `${key}_${relation} in ${lang}`);
 });
 
 // Comments too: the code and its notes are read by contributors in every language. Only the
@@ -90,4 +94,22 @@ test('every key the page names is in the table', async () => {
   assert.ok(named.size > 150, `found the keys the page names (${named.size})`);
   const missing = [...named].filter(([key]) => !known.has(key)).map(([key, file]) => `${key} (${file})`);
   assert.deepEqual(missing, [], 'keys named but not in the language files');
+});
+
+// Current contributor guidance stays readable in English; dated records preserve their history.
+test('current developer guidance keeps Korean in the language tables', async () => {
+  const files = ['README.md', 'CONTRIBUTING.md'];
+  const walk = async dir => {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const path = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) await walk(path);
+      else if (entry.name.endsWith('.md') && !/^\d{4}-\d{2}-\d{2}-/.test(entry.name)) files.push(path);
+    }
+  };
+  await walk('docs');
+  for (const file of files) {
+    const lines = (await readFile(file, 'utf8')).split('\n');
+    const hit = lines.findIndex(line => /[가-힣]/.test(line));
+    assert.equal(hit, -1, `${file}:${hit + 1} has Korean in current developer guidance`);
+  }
 });

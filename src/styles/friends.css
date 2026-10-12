@@ -91,6 +91,34 @@
 .yard-pet.hiding:before {
   display: none;
 }
+.yard-pet.found::after {
+  content: "";
+  position: absolute;
+  left: 16%;
+  bottom: 4%;
+  width: 68%;
+  height: 32%;
+  border: 3px solid #fff5c8;
+  border-radius: 50%;
+  box-shadow: 0 0 14px #ffe49899;
+  pointer-events: none;
+  animation: found-ring 0.85s ease-out both;
+}
+@keyframes found-ring {
+  from {
+    opacity: 0.95;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yard-pet.found::after {
+    display: none;
+  }
+}
 .yard.playing .yard-pet {
   cursor: pointer;
 }
@@ -308,12 +336,22 @@
   --rot: 0deg;
 }
 .particle[data-kind="heart"] {
-  color: #ef7a95;
-  text-shadow: 0 1px 0 #fff;
+  width: 1em;
+  height: 1em;
+  background: url("../art/ambient/heart.svg") center / contain no-repeat;
+  filter: drop-shadow(0 1px 1px #5c344530);
 }
 .particle[data-kind="spark"] {
-  color: #f2b544;
-  text-shadow: 0 1px 0 #fff;
+  width: 1em;
+  height: 1em;
+  background: url("../art/ambient/spark.svg") center / contain no-repeat;
+  filter: drop-shadow(0 1px 1px #77582630);
+}
+.particle[data-kind="notice"] {
+  width: 1em;
+  height: 1em;
+  background: url("../art/ambient/notice.svg") center / contain no-repeat;
+  filter: drop-shadow(0 1px 1px #77582630);
 }
 @keyframes float-up {
   from {
@@ -337,5 +375,11 @@
   }
   .particle {
     display: none;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .pet-label.selected .pet-tag,
+  .pet-label.tagger .pet-tag {
+    background: #a3422c;
   }
 }

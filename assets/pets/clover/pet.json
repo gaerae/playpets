@@ -1,0 +1,13 @@
+{
+  "id": "playpets-clover",
+  "displayName": "Clover",
+  "kind": "animal",
+  "description": "A gentle cream-and-ginger kitten gardener in teal overalls and a straw hat. Loves growing flowers and sharing small discoveries.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.png",
+  "seasonalSpritesheets": {
+    "summer": "seasonal/summer.png",
+    "winter": "seasonal/winter.png"
+  },
+  "source": { "name": "PlayPets", "url": "https://github.com/gaerae/playpets", "creator": "gaerae", "license": "MIT" }
+}

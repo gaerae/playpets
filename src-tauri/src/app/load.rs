@@ -21,12 +21,8 @@ fn load_assets(app: &tauri::App, store: &store::Store, imports: &[String]) -> Fo
     let (builtin_root, unpack_warnings) = builtin::unpack(&store.dir.join("builtin"));
     warnings.extend(unpack_warnings);
     let (mut assets, builtin_warnings) = catalog::scan_pets(&builtin_root, catalog::Place::Builtin);
-    assets.sort_by_key(|a| {
-        builtin::ORDER
-            .iter()
-            .position(|id| a.folder.ends_with(id))
-            .unwrap_or(usize::MAX)
-    });
+    builtin::preserve_legacy_appearances(&mut assets);
+    assets.sort_by_key(|a| builtin::shelf_rank(&a.folder));
     warnings.extend(builtin_warnings);
     let (codex_assets, scan_warnings) = catalog::scan_pets(&codex_root, catalog::Place::Codex);
     assets.extend(codex_assets);
@@ -128,6 +124,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
 
     let asset_ids: Vec<String> = assets.iter().map(|a| a.id.clone()).collect();
     let mut pets = model::restore_pets(&raw, &asset_ids);
+    builtin::migrate_friends(&mut pets, &assets);
     let parked_pets = model::parked_pets(&raw, &pets);
     if !parked_pets.is_empty() {
         warnings.push(i18n::tr("pets.parked", &[("count", &parked_pets.len().to_string())]));

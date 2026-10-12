@@ -1,0 +1,45 @@
+[
+  {
+    "id": "woodland",
+    "label": "world.woodland",
+    "about": "world.woodland.about",
+    "fit": "cover-floor",
+    "geometry": { "fieldTop": 0.66, "lake": { "from": 0.34, "to": 0.79, "center": 0.595, "radius": 0.03 } },
+    "capabilities": {
+      "sky": true,
+      "weather": true,
+      "wildlife": true,
+      "fishing": true,
+      "seasonalEffects": true,
+      "ambient": true
+    }
+  },
+  {
+    "id": "studio",
+    "label": "world.studio",
+    "about": "world.studio.about",
+    "chatter": "world.studio.lines",
+    "art": {
+      "morning": "studio-modern-city-morning",
+      "day": "studio-modern-city-day",
+      "evening": "studio-modern-city-evening",
+      "night": "studio-modern-city-night"
+    },
+    "authoredLighting": true,
+    "windowPanes": [
+      { "x": 0.244, "y": 0.043, "width": 0.115, "height": 0.366 },
+      { "x": 0.389, "y": 0.043, "width": 0.248, "height": 0.366 },
+      { "x": 0.664, "y": 0.043, "width": 0.118, "height": 0.366 }
+    ],
+    "fit": "cover-floor",
+    "geometry": { "fieldTop": 0.55, "lake": null },
+    "capabilities": {
+      "sky": false,
+      "weather": true,
+      "wildlife": false,
+      "fishing": false,
+      "seasonalEffects": false,
+      "ambient": false
+    }
+  }
+]

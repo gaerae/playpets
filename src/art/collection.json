@@ -1,0 +1,425 @@
+[
+  {
+    "id": "crucian",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [32, 17, 300, 210],
+    "size": [100, 50],
+    "art": "fish/crucian.svg"
+  },
+  {
+    "id": "carp",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [368, 13, 343, 213],
+    "size": [100, 50],
+    "art": "fish/carp.svg"
+  },
+  {
+    "id": "killifish",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [758, 64, 295, 133],
+    "size": [100, 50],
+    "art": "fish/killifish.svg"
+  },
+  {
+    "id": "minnow",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [1090, 52, 340, 149],
+    "size": [100, 50],
+    "art": "fish/minnow.svg"
+  },
+  {
+    "id": "goldfish",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [12, 225, 320, 231],
+    "size": [100, 50],
+    "art": "fish/goldfish.svg"
+  },
+  {
+    "id": "catfish",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [366, 243, 357, 196],
+    "size": [100, 50],
+    "art": "fish/catfish.svg"
+  },
+  {
+    "id": "eel",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [731, 247, 349, 193],
+    "size": [100, 50],
+    "art": "fish/eel.svg"
+  },
+  {
+    "id": "smelt",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [1096, 261, 337, 152],
+    "size": [100, 50],
+    "art": "fish/smelt.svg"
+  },
+  {
+    "id": "sweetfish",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [17, 469, 337, 151],
+    "size": [100, 50],
+    "art": "fish/sweetfish.svg"
+  },
+  {
+    "id": "trout",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [369, 457, 347, 161],
+    "size": [100, 50],
+    "art": "fish/trout.svg"
+  },
+  {
+    "id": "mandarin",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [732, 442, 340, 196],
+    "size": [100, 50],
+    "art": "fish/mandarin.svg"
+  },
+  {
+    "id": "golden_carp",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [1084, 437, 346, 204],
+    "size": [100, 50],
+    "art": "fish/golden_carp.svg"
+  },
+  {
+    "id": "loach",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [15, 667, 346, 136],
+    "size": [100, 50],
+    "art": "fish/loach.svg"
+  },
+  {
+    "id": "bluegill",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [383, 619, 299, 221],
+    "size": [100, 50],
+    "art": "fish/bluegill.svg"
+  },
+  {
+    "id": "bass",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [726, 650, 348, 180],
+    "size": [100, 50],
+    "art": "fish/bass.svg"
+  },
+  {
+    "id": "snakehead",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [1081, 671, 352, 129],
+    "size": [100, 50],
+    "art": "fish/snakehead.svg"
+  },
+  {
+    "id": "gudgeon",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [26, 865, 317, 147],
+    "size": [100, 50],
+    "art": "fish/gudgeon.svg"
+  },
+  {
+    "id": "salmon",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [365, 855, 358, 167],
+    "size": [100, 50],
+    "art": "fish/salmon.svg"
+  },
+  {
+    "id": "moon_carp",
+    "kind": "fish",
+    "atlas": "fish/specimens.png",
+    "atlasSize": [1448, 1086],
+    "crop": [727, 844, 355, 206],
+    "size": [100, 50],
+    "art": "fish/moon_carp.svg"
+  },
+  {
+    "id": "cabbage_white",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [14, 74, 290, 209],
+    "size": [60, 50],
+    "art": "bugs/cabbage_white.svg"
+  },
+  {
+    "id": "yellow_butterfly",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [335, 63, 274, 217],
+    "size": [60, 50],
+    "art": "bugs/yellow_butterfly.svg"
+  },
+  {
+    "id": "blue_butterfly",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [655, 87, 263, 190],
+    "size": [60, 50],
+    "art": "bugs/blue_butterfly.svg"
+  },
+  {
+    "id": "swallowtail",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [943, 39, 301, 272],
+    "size": [60, 50],
+    "art": "bugs/swallowtail.svg"
+  },
+  {
+    "id": "black_swallowtail",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [10, 332, 297, 266],
+    "size": [60, 50],
+    "art": "bugs/black_swallowtail.svg"
+  },
+  {
+    "id": "peacock",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [317, 349, 308, 221],
+    "size": [60, 50],
+    "art": "bugs/peacock.svg"
+  },
+  {
+    "id": "dragonfly",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [634, 342, 299, 276],
+    "size": [60, 50],
+    "art": "bugs/dragonfly.svg"
+  },
+  {
+    "id": "red_dragonfly",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [950, 341, 294, 265],
+    "size": [60, 50],
+    "art": "bugs/red_dragonfly.svg"
+  },
+  {
+    "id": "firefly",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [70, 622, 175, 275],
+    "size": [60, 50],
+    "art": "bugs/firefly.svg"
+  },
+  {
+    "id": "orange_tip",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [324, 664, 294, 212],
+    "size": [60, 50],
+    "art": "bugs/orange_tip.svg"
+  },
+  {
+    "id": "purple_emperor",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [630, 652, 311, 233],
+    "size": [60, 50],
+    "art": "bugs/purple_emperor.svg"
+  },
+  {
+    "id": "brimstone",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [945, 639, 304, 246],
+    "size": [60, 50],
+    "art": "bugs/brimstone.svg"
+  },
+  {
+    "id": "damselfly",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [17, 926, 281, 294],
+    "size": [60, 50],
+    "art": "bugs/damselfly.svg"
+  },
+  {
+    "id": "emperor_dragonfly",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [306, 909, 332, 311],
+    "size": [60, 50],
+    "art": "bugs/emperor_dragonfly.svg"
+  },
+  {
+    "id": "heike_firefly",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [703, 933, 163, 256],
+    "size": [60, 50],
+    "art": "bugs/heike_firefly.svg"
+  },
+  {
+    "id": "golden_firefly",
+    "kind": "bugs",
+    "atlas": "bugs/specimens.png",
+    "atlasSize": [1254, 1254],
+    "crop": [1009, 928, 175, 273],
+    "size": [60, 50],
+    "art": "bugs/golden_firefly.svg"
+  },
+  {
+    "id": "lantern",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [124, 14, 155, 362],
+    "size": [30, 72],
+    "art": "decor/sculpted/lantern.svg"
+  },
+  {
+    "id": "birdhouse",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [449, 20, 213, 362],
+    "size": [36, 74],
+    "art": "decor/sculpted/birdhouse.svg"
+  },
+  {
+    "id": "pinwheel",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [796, 58, 205, 315],
+    "size": [30, 64],
+    "art": "decor/sculpted/pinwheel.svg"
+  },
+  {
+    "id": "swing",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [1089, 58, 330, 306],
+    "size": [80, 70],
+    "art": "decor/sculpted/swing.svg"
+  },
+  {
+    "id": "flowerpot",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [64, 387, 260, 310],
+    "size": [32, 44],
+    "art": "decor/sculpted/flowerpot.svg"
+  },
+  {
+    "id": "stump",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [406, 443, 301, 244],
+    "size": [44, 32],
+    "art": "decor/sculpted/stump.svg"
+  },
+  {
+    "id": "signpost",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [767, 381, 288, 325],
+    "size": [40, 68],
+    "art": "decor/sculpted/signpost.svg"
+  },
+  {
+    "id": "windchime",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [1180, 373, 199, 321],
+    "size": [36, 72],
+    "art": "decor/sculpted/windchime.svg"
+  },
+  {
+    "id": "cherry_sapling",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [55, 705, 275, 339],
+    "size": [36, 58],
+    "art": "decor/sculpted/cherry_sapling.svg"
+  },
+  {
+    "id": "watermelon",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [409, 728, 285, 293],
+    "size": [60, 34],
+    "art": "decor/sculpted/watermelon.svg"
+  },
+  {
+    "id": "pumpkin",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [761, 734, 285, 278],
+    "size": [46, 40],
+    "art": "decor/sculpted/pumpkin.svg"
+  },
+  {
+    "id": "snowman",
+    "kind": "gifts",
+    "atlas": "decor/collection.png",
+    "atlasSize": [1448, 1086],
+    "crop": [1112, 701, 299, 343],
+    "size": [40, 60],
+    "art": "decor/sculpted/snowman.svg"
+  }
+]

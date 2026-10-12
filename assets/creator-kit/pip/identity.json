@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "references": {
+    "detail": "not-created",
+    "seasons": ["summer", "winter"]
+  },
+  "id": "pip",
+  "character": "pip",
+  "name": "Pip",
+  "age": null,
+  "kind": "animal",
+  "identity": {
+    "description": "Fictional cheerful caramel floppy-eared puppy courier; animal companion, not a human.",
+    "face": {
+      "eyes": "warm dark eyes with the accepted spacing and gentle expression",
+      "nose": "small dark canine nose; preserve accepted shape",
+      "mouth": "soft pale canine muzzle and friendly mouth; no human lips"
+    },
+    "hair": "caramel puppy fur, floppy ears and pale muzzle; preserve accepted markings and tail",
+    "accessories": [
+      "tan courier mailbag and shoulder strap; retain the exact anatomical side of the approved reference"
+    ],
+    "wardrobe": {
+      "baseline": "blue jacket, red scarf, tan courier mailbag and exposed furry paws",
+      "summer": "light blue short-sleeve cotton shirt, thin red neckerchief, original tan courier mailbag and exposed furry paws",
+      "winter": "padded navy winter coat, red wool scarf, original tan courier mailbag and exposed furry paws; no hat"
+    }
+  },
+  "style": "illustrated",
+  "anatomy": "Large round head and short soft body; retain the approved animal anatomy, paws, ears and tail.",
+  "workingAction": "focused laptop work with visible typing gestures, preserving the accepted seated or standing pose",
+  "targetIdleHeight": 164,
+  "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
+  "facePanels": {
+    "top": ["front", "profile facing viewer left", "three-quarter facing viewer left"],
+    "bottom": ["eyes", "nose", "mouth", "ear", "hair", "signature accessory"]
+  },
+  "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
+  "canonical": {
+    "width": 1536,
+    "height": 2288,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "columns": 8,
+    "rows": 11,
+    "usedFrames": [6, 8, 8, 4, 5, 8, 6, 6, 6],
+    "gaze": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+  }
+}

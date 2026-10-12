@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { access, readFile } from 'node:fs/promises';
+import test from 'node:test';
+import { LANDING_PETS, localePath, releasePagesFor, SITE_LANGS } from '../scripts/site-content.mjs';
+
+test('website publishing and releases use the same four locale paths', () => {
+  assert.deepEqual(SITE_LANGS, ['en', 'ko', 'ja', 'zh-hans']);
+  assert.equal(localePath('en', '/guide/'), '/guide/');
+  assert.equal(localePath('ja', '/guide/'), '/ja/guide/');
+  assert.deepEqual(
+    releasePagesFor('0.1.0'),
+    SITE_LANGS.map(lang => `website${lang === 'en' ? '' : `/${lang}`}/releases/0.1.0.md`),
+  );
+  assert.throws(() => localePath('unknown', '/guide/'));
+});
+
+test('all ten ordinary built-in pets have distinct landing sources with valid v2 dimensions', async () => {
+  assert.equal(LANDING_PETS.length, 10);
+  assert.equal(new Set(LANDING_PETS.map(p => p.id)).size, 10);
+  assert.deepEqual(
+    LANDING_PETS.map(p => p.displayName),
+    ['Daisy', 'Clover', 'Pip', 'Aria', 'Aria Mini', 'Noah', 'Noah Mini', 'Tabby', 'Smoky', 'Mochi'],
+  );
+  for (const pet of LANDING_PETS) {
+    await access(pet.source);
+    const png = await readFile(pet.source);
+    assert.equal(png.readUInt32BE(16), 1536, pet.id);
+    assert.equal(png.readUInt32BE(20), 2288, pet.id);
+  }
+  assert.notEqual(
+    LANDING_PETS.find(p => p.id === 'aria-full').source,
+    LANDING_PETS.find(p => p.id === 'aria-mini').source,
+  );
+});

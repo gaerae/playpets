@@ -33,6 +33,11 @@ test('a release moves what is unreleased into a dated section and leaves Unrelea
   assert.throws(() => release(out, '0.3.0', '2026-10-06'), /nothing under \[Unreleased\]/i);
   assert.throws(() => release(CHANGELOG, '0.1.0', '2026-10-06'), /already/i);
   assert.throws(() => release(CHANGELOG, '0.2', '2026-10-06'), /x\.y\.z/);
+  const quoted = CHANGELOG.replace(
+    '## [Unreleased]',
+    'Add a line under `## [Unreleased]\n` when it ships.\n\n## [Unreleased]',
+  );
+  assert.match(release(quoted, '0.2.0', '2026-10-05'), /when it ships\.\n\n## \[Unreleased\]\n\n## \[0\.2\.0\]/);
 });
 
 test('the release notes are the section of that version, without its heading', () => {
@@ -82,6 +87,9 @@ test('every place that states the version states the same one, and the changelog
   assert.equal(lockVersion(await readFile('src-tauri/Cargo.lock', 'utf8')), pkg.version);
   const changelog = await readFile('CHANGELOG.md', 'utf8');
   assert.match(changelog, /^## \[Unreleased\]$/m);
+  // Every line of a release sits under a heading, so its notes read as Added, Fixed and so on.
+  const unreleased = changelog.split(/^## \[Unreleased\]\n/m)[1].split(/^## /m)[0];
+  assert.match(unreleased.trim(), /^### /);
 });
 
 // The workflows call scripts and npm commands by name; a rename on one side must not leave the

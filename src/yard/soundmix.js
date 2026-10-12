@@ -2,8 +2,11 @@
 // (calls a minute). Pure, so the rules can be tested; src/yard/sound.js plays them.
 // Design: docs/design/2026-10-10-yard-sounds.md.
 
+import { worldAllows } from './worlds.js';
+
 /** The layers' levels and the birds' rate for a time of day, a weather and a season. */
-export function mixFor({ period, weather, season }) {
+export function mixFor({ period, weather, season, world }) {
+  if (!worldAllows(world, 'ambient')) return { breeze: 0, leaves: 0, water: 0, rain: 0, birds: 0, crickets: 0 };
   const night = period === 'night',
     evening = period === 'evening',
     rain = weather === 'rain',

@@ -74,7 +74,10 @@ const RARE = 4;
 function card(b, kind, entry) {
   const el = document.createElement('div');
   el.className = `album-card${entry ? '' : ' unknown'}`;
-  el.innerHTML = b.draw(kind, !entry);
+  const stage = document.createElement('div');
+  stage.className = 'album-specimen';
+  stage.innerHTML = b.draw(kind, !entry);
+  el.append(stage);
   const name = document.createElement('strong'),
     hint = document.createElement('small');
   name.textContent = entry ? b.name(kind) : t(b.unknown || 'catch.unknown');
@@ -107,8 +110,12 @@ export function renderAlbum() {
     document.querySelector(`[data-count="${id}"]`).textContent = `${count}/${b.kinds.length}`;
   }
   $('album-total').textContent = t('catch.total', { caught: found, total });
-  for (const tab of document.querySelectorAll('.album-tabs [data-book]'))
-    tab.setAttribute('aria-selected', String(tab.dataset.book === book));
+  for (const tab of document.querySelectorAll('.album-tabs [data-book]')) {
+    const active = tab.dataset.book === book;
+    tab.setAttribute('aria-selected', String(active));
+    tab.tabIndex = active ? 0 : -1;
+    if (active) $('album-grid').setAttribute('aria-labelledby', tab.id);
+  }
   const b = BOOKS[book],
     have = b.found();
   $('album-grid').replaceChildren(...b.kinds.map(k => card(b, k, have[k.id])));
@@ -126,6 +133,7 @@ export function setupAlbum() {
         name = document.createElement('span'),
         count = document.createElement('small');
       tab.type = 'button';
+      tab.id = `album-tab-${id}`;
       tab.setAttribute('role', 'tab');
       tab.setAttribute('aria-controls', 'album-grid');
       tab.dataset.book = id;
@@ -138,9 +146,23 @@ export function setupAlbum() {
   $('album-button').onclick = openAlbum;
   $('close-album').onclick = () => $('album-dialog').close();
   closeOnBackdrop($('album-dialog'));
-  for (const tab of document.querySelectorAll('.album-tabs [data-book]'))
+  const tabs = [...document.querySelectorAll('.album-tabs [data-book]')];
+  for (const [index, tab] of tabs.entries()) {
     tab.onclick = () => {
       book = tab.dataset.book;
       renderAlbum();
     };
+    tab.onkeydown = e => {
+      const next = {
+        ArrowRight: (index + 1) % tabs.length,
+        ArrowLeft: (index + tabs.length - 1) % tabs.length,
+        Home: 0,
+        End: tabs.length - 1,
+      }[e.key];
+      if (next === undefined) return;
+      e.preventDefault();
+      tabs[next].onclick();
+      tabs[next].focus();
+    };
+  }
 }

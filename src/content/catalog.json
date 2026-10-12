@@ -127,12 +127,12 @@
     },
     {
       "id": "lantern",
-      "art": "decor/lantern.svg",
+      "art": "decor/sculpted/lantern.svg",
       "effects": ["glow"]
     },
     {
       "id": "birdhouse",
-      "art": "decor/birdhouse.svg"
+      "art": "decor/sculpted/birdhouse.svg"
     },
     {
       "id": "pond",
@@ -151,7 +151,7 @@
     },
     {
       "id": "pinwheel",
-      "art": "decor/pinwheel.svg"
+      "art": "decor/sculpted/pinwheel.svg"
     },
     {
       "id": "campfire",
@@ -160,16 +160,16 @@
     },
     {
       "id": "swing",
-      "art": "decor/swing.svg",
+      "art": "decor/sculpted/swing.svg",
       "stand": "on"
     },
     {
       "id": "flowerpot",
-      "art": "decor/flowerpot.svg"
+      "art": "decor/sculpted/flowerpot.svg"
     },
     {
       "id": "stump",
-      "art": "decor/stump.svg",
+      "art": "decor/sculpted/stump.svg",
       "stand": "on"
     },
     {
@@ -178,32 +178,32 @@
     },
     {
       "id": "signpost",
-      "art": "decor/signpost.svg"
+      "art": "decor/sculpted/signpost.svg"
     },
     {
       "id": "windchime",
-      "art": "decor/windchime.svg",
+      "art": "decor/sculpted/windchime.svg",
       "effects": ["chime"]
     },
     {
       "id": "cherry_sapling",
-      "art": "decor/cherry_sapling.svg",
+      "art": "decor/sculpted/cherry_sapling.svg",
       "event": "blossom"
     },
     {
       "id": "watermelon",
-      "art": "decor/watermelon.svg",
+      "art": "decor/sculpted/watermelon.svg",
       "flat": true,
       "event": "fireflies"
     },
     {
       "id": "pumpkin",
-      "art": "decor/pumpkin.svg",
+      "art": "decor/sculpted/pumpkin.svg",
       "event": "harvest"
     },
     {
       "id": "snowman",
-      "art": "decor/snowman.svg",
+      "art": "decor/sculpted/snowman.svg",
       "event": "lights"
     }
   ],
@@ -219,7 +219,8 @@
         "belly": "#d8d09a",
         "fin": "#6d6943",
         "shape": "round"
-      }
+      },
+      "art": "fish/crucian.svg"
     },
     {
       "id": "carp",
@@ -233,7 +234,8 @@
         "fin": "#b8643e",
         "shape": "normal",
         "whiskers": true
-      }
+      },
+      "art": "fish/carp.svg"
     },
     {
       "id": "killifish",
@@ -246,7 +248,8 @@
         "belly": "#ece8d2",
         "fin": "#b0aa8a",
         "shape": "normal"
-      }
+      },
+      "art": "fish/killifish.svg"
     },
     {
       "id": "minnow",
@@ -260,7 +263,8 @@
         "fin": "#9eb0b8",
         "shape": "slender",
         "stripes": "#e48aa0"
-      }
+      },
+      "art": "fish/minnow.svg"
     },
     {
       "id": "goldfish",
@@ -274,7 +278,8 @@
         "fin": "#f4a560",
         "shape": "round",
         "fancy": true
-      }
+      },
+      "art": "fish/goldfish.svg"
     },
     {
       "id": "catfish",
@@ -289,7 +294,8 @@
         "fin": "#4c4840",
         "shape": "flat",
         "whiskers": true
-      }
+      },
+      "art": "fish/catfish.svg"
     },
     {
       "id": "eel",
@@ -303,7 +309,8 @@
         "belly": "#cbc99c",
         "fin": "#45503c",
         "shape": "eel"
-      }
+      },
+      "art": "fish/eel.svg"
     },
     {
       "id": "smelt",
@@ -316,7 +323,8 @@
         "belly": "#f2f5f6",
         "fin": "#aebcc4",
         "shape": "slender"
-      }
+      },
+      "art": "fish/smelt.svg"
     },
     {
       "id": "sweetfish",
@@ -330,7 +338,8 @@
         "fin": "#86998a",
         "shape": "slender",
         "spot": "#f0d060"
-      }
+      },
+      "art": "fish/sweetfish.svg"
     },
     {
       "id": "trout",
@@ -345,7 +354,8 @@
         "shape": "normal",
         "spots": "#3e4636",
         "band": "#e39a9a"
-      }
+      },
+      "art": "fish/trout.svg"
     },
     {
       "id": "mandarin",
@@ -359,7 +369,8 @@
         "fin": "#8c7638",
         "shape": "normal",
         "spots": "#4a3f24"
-      }
+      },
+      "art": "fish/mandarin.svg"
     },
     {
       "id": "golden_carp",
@@ -373,7 +384,8 @@
         "fin": "#e8a33a",
         "shape": "normal",
         "whiskers": true
-      }
+      },
+      "art": "fish/golden_carp.svg"
     },
     {
       "id": "loach",
@@ -389,7 +401,8 @@
         "shape": "slender",
         "spots": "#5a4d30",
         "whiskers": true
-      }
+      },
+      "art": "fish/loach.svg"
     },
     {
       "id": "bluegill",
@@ -403,7 +416,8 @@
         "fin": "#5a7064",
         "shape": "round",
         "band": "#4f6a8a"
-      }
+      },
+      "art": "fish/bluegill.svg"
     },
     {
       "id": "bass",
@@ -417,7 +431,8 @@
         "fin": "#66733f",
         "shape": "normal",
         "stripes": "#4a5530"
-      }
+      },
+      "art": "fish/bass.svg"
     },
     {
       "id": "snakehead",
@@ -432,7 +447,8 @@
         "fin": "#3d4033",
         "shape": "flat",
         "spots": "#2b2e22"
-      }
+      },
+      "art": "fish/snakehead.svg"
     },
     {
       "id": "gudgeon",
@@ -446,7 +462,8 @@
         "fin": "#b0a378",
         "shape": "slender",
         "spots": "#8a7a52"
-      }
+      },
+      "art": "fish/gudgeon.svg"
     },
     {
       "id": "salmon",
@@ -460,7 +477,8 @@
         "fin": "#76838f",
         "shape": "normal",
         "band": "#d4655a"
-      }
+      },
+      "art": "fish/salmon.svg"
     },
     {
       "id": "moon_carp",
@@ -476,7 +494,8 @@
         "shape": "normal",
         "spots": "#e8a33a",
         "whiskers": true
-      }
+      },
+      "art": "fish/moon_carp.svg"
     }
   ],
   "bugs": [
@@ -490,7 +509,8 @@
         "wing": "#f6f4ea",
         "edge": "#4a4a44",
         "spots": "#4a4a44"
-      }
+      },
+      "art": "bugs/cabbage_white.svg"
     },
     {
       "id": "yellow_butterfly",
@@ -501,7 +521,8 @@
       "look": {
         "wing": "#f4d35e",
         "edge": "#c49a2e"
-      }
+      },
+      "art": "bugs/yellow_butterfly.svg"
     },
     {
       "id": "blue_butterfly",
@@ -513,7 +534,8 @@
         "wing": "#8fb4e8",
         "edge": "#5576ad",
         "small": true
-      }
+      },
+      "art": "bugs/blue_butterfly.svg"
     },
     {
       "id": "swallowtail",
@@ -526,7 +548,8 @@
         "edge": "#2d2d2d",
         "stripes": "#2d2d2d",
         "tails": true
-      }
+      },
+      "art": "bugs/swallowtail.svg"
     },
     {
       "id": "black_swallowtail",
@@ -539,7 +562,8 @@
         "edge": "#1f262e",
         "sheen": "#4f97a6",
         "tails": true
-      }
+      },
+      "art": "bugs/black_swallowtail.svg"
     },
     {
       "id": "peacock",
@@ -551,7 +575,8 @@
         "wing": "#c8553d",
         "edge": "#4a2a22",
         "eyes": "#3f6fb5"
-      }
+      },
+      "art": "bugs/peacock.svg"
     },
     {
       "id": "dragonfly",
@@ -562,7 +587,8 @@
       "look": {
         "body": "#6f8fb5",
         "wing": "#e8f0f4"
-      }
+      },
+      "art": "bugs/dragonfly.svg"
     },
     {
       "id": "red_dragonfly",
@@ -573,7 +599,8 @@
       "look": {
         "body": "#d9442e",
         "wing": "#f4ece6"
-      }
+      },
+      "art": "bugs/red_dragonfly.svg"
     },
     {
       "id": "firefly",
@@ -584,7 +611,8 @@
       "look": {
         "body": "#3a3a32",
         "glow": "#ecf096"
-      }
+      },
+      "art": "bugs/firefly.svg"
     },
     {
       "id": "orange_tip",
@@ -596,7 +624,8 @@
         "wing": "#f8f4e6",
         "edge": "#5a5a50",
         "spots": "#f08a3a"
-      }
+      },
+      "art": "bugs/orange_tip.svg"
     },
     {
       "id": "purple_emperor",
@@ -608,7 +637,8 @@
         "wing": "#5b4b8a",
         "edge": "#2e2648",
         "sheen": "#9a7fe0"
-      }
+      },
+      "art": "bugs/purple_emperor.svg"
     },
     {
       "id": "brimstone",
@@ -620,7 +650,8 @@
         "wing": "#f2e27a",
         "edge": "#c9b347",
         "small": true
-      }
+      },
+      "art": "bugs/brimstone.svg"
     },
     {
       "id": "damselfly",
@@ -631,7 +662,8 @@
       "look": {
         "body": "#4fa6c4",
         "wing": "#eef6f8"
-      }
+      },
+      "art": "bugs/damselfly.svg"
     },
     {
       "id": "emperor_dragonfly",
@@ -642,7 +674,8 @@
       "look": {
         "body": "#5f9e4a",
         "wing": "#eef2e6"
-      }
+      },
+      "art": "bugs/emperor_dragonfly.svg"
     },
     {
       "id": "heike_firefly",
@@ -653,7 +686,8 @@
       "look": {
         "body": "#33302a",
         "glow": "#d9f08a"
-      }
+      },
+      "art": "bugs/heike_firefly.svg"
     },
     {
       "id": "golden_firefly",
@@ -665,7 +699,8 @@
       "look": {
         "body": "#3a3326",
         "glow": "#ffd84a"
-      }
+      },
+      "art": "bugs/golden_firefly.svg"
     }
   ]
 }

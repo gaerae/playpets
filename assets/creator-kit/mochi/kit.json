@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "id": "mochi",
+  "identity": "identity.json",
+  "references": [
+    "identity-reference.png",
+    "expression-reference.png",
+    "motion-reference.png",
+    "wardrobe-reference.png"
+  ],
+  "availability": {
+    "detail": "not-created",
+    "seasons": []
+  },
+  "files": {
+    "identity-reference.png": {
+      "bytes": 151727,
+      "sha256": "e652c0bd262d43c617970ce5d6a65e9f8e1d75844072053a5cc946bcd3e6b3c0"
+    },
+    "expression-reference.png": {
+      "bytes": 156764,
+      "sha256": "25f7468c2fb3bf98d42ed8bf856434727d38bba3b3ab2e1f642dd1b3130547d4"
+    },
+    "motion-reference.png": {
+      "bytes": 2102217,
+      "sha256": "fe96a9a124663721b6c9a68213f25369f6dd3e7a291ffc4e20f31aee6894d69a"
+    },
+    "wardrobe-reference.png": {
+      "bytes": 31779,
+      "sha256": "4c84fbfff660e0c7cd2cd4912ff48bbafdcf5963eaa81d11807933e91e4dfd4b"
+    },
+    "spritesheet.png": {
+      "bytes": 2281264,
+      "sha256": "7ddbc71f092bdab80c24f8284988dcac62f7704d8b505ec95a2a24ed577bd7f5"
+    },
+    "identity.json": {
+      "bytes": 2280,
+      "sha256": "91981512ceeee3cbb81dcd406888ec4e53ef344336222660396dc0c687b3baf6"
+    },
+    "prompts/01-identity-lock.txt": {
+      "bytes": 1625,
+      "sha256": "2d5c4dc741dc853b067b356f35dc393101fc319def1f4af681a831fe5b0f0e77"
+    },
+    "prompts/02-face-detail.txt": {
+      "bytes": 1610,
+      "sha256": "6e12791525b9df7bb2709104adf9ee08b654322d3ab3d4e6a918fb58f83d57ed"
+    },
+    "prompts/03-wardrobe.txt": {
+      "bytes": 1920,
+      "sha256": "b060e30d630aa6a2ed5a6ac4835e9fad03410777a4c65606a8f7eae879076d48"
+    },
+    "prompts/04-state-row.txt": {
+      "bytes": 1930,
+      "sha256": "6acb70798ab8d542e46cb0bfaba685c62d92a5ba97656389785f99ba5df18fbd"
+    },
+    "prompts/05-canonical-export.txt": {
+      "bytes": 1780,
+      "sha256": "2ef14f6c8ae47a18f709aa52b0118368436e4db23fb94bd35dbb1829d9b800ac"
+    },
+    "pet.json": {
+      "bytes": 414,
+      "sha256": "92f8e5d9b3e9ad9302bfaabc7f599c9ff5b73a2f9796326b336f173652439758"
+    },
+    "README.txt": {
+      "bytes": 1326,
+      "sha256": "945b12d4340793af2ec57344fd12296cb3cc58819f986c971bf6d469f85b33ad"
+    }
+  }
+}

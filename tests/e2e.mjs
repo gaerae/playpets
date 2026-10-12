@@ -72,12 +72,31 @@ const scenario = `(async()=>{
     // The shelf says where each pet file lives: the fixture sits in Codex's pet folder.
     const fx=boot.data.assets.find(x=>x.displayName==='Fixture');
     await L('builtin='+boot.data.assets.filter(x=>x.place==='builtin').length);
+    const adults=boot.data.assets.filter(x=>['playpets-aria-full','playpets-noah-full'].includes(x.sourceId));
+    await L('adultCompanions='+adults.length+'/'+(adults.every(x=>x.kind==='person'&&/adult/.test(x.description))?'adult-personas':'err'));
     await L('place='+fx.place+'/'+(boot.data.petFolders.codex.endsWith('pets')?'folder-known':'err'));
     // An empty yard asks who to play with: the starter pets, moving, with no toolbar. (Whether the
     // panel is open depends on the last run: the webview keeps its storage.)
     await until(()=>document.querySelectorAll('#starter-picks .starter').length===3);
     const $$=id=>document.getElementById(id),painted=c=>{const d=c.getContext('2d').getImageData(0,0,192,208).data;for(let i=3;i<d.length;i+=40)if(d[i])return true;return false;};
     await until(()=>[...document.querySelectorAll('#starter-picks canvas')].every(painted));
+    const wardrobes=boot.data.assets.filter(x=>Object.keys(x.seasonalSpriteUrls||{}).length===2);
+    const wardrobeImages=await Promise.all(wardrobes.flatMap(x=>Object.values(x.seasonalSpriteUrls)).map(async url=>{const image=new Image();image.src=url;await image.decode();return image.naturalWidth===1536&&image.naturalHeight===2288;}));
+    const sprites=await import('./core/sprites.js'),wardrobe=wardrobes.find(x=>x.sourceId==='playpets-aria'),wardrobeCanvas=sprites.canvas();
+    const wardrobePaints=[];
+    for(const season of ['spring','summer','winter']){
+      sprites.setSpriteSeason(season);
+      await until(()=>{sprites.drawSprite(wardrobeCanvas,wardrobe);return painted(wardrobeCanvas);});
+      const pixels=wardrobeCanvas.getContext('2d').getImageData(0,0,192,208).data;
+      wardrobePaints.push(pixels.reduce((sum,value,i)=>(sum+value*((i%29)+1))%2147483647,0));
+      wardrobeCanvas.getContext('2d').clearRect(0,0,192,208);
+    }
+    const world=await import('./yard/world.js');sprites.setSpriteSeason(world.scene.season);
+    await L('wardrobes='+wardrobes.length+'/'+wardrobeImages.length+'/'+(wardrobeImages.every(Boolean)&&new Set(wardrobePaints).size===3?'decoded-and-change':'err'));
+    const realisticImages=await Promise.all(adults.flatMap(x=>[x.spriteUrl,...Object.values(x.seasonalSpriteUrls||{})]).map(async url=>{const image=new Image();image.src=url;await image.decode();return image.naturalWidth===1536&&image.naturalHeight===2288;}));
+    const baselinePortraits=await Promise.all(adults.map(async x=>{const image=new Image();image.src=x.portraitUrl;await image.decode();return image.naturalWidth>=512&&image.naturalWidth===image.naturalHeight;}));
+    await L('realisticAssets='+realisticImages.length+'/'+baselinePortraits.length+'/'+(realisticImages.every(Boolean)&&baselinePortraits.every(Boolean)?'decoded':'err'));
+
     const trayAt=async()=>(await window.__TAURI__.core.invoke('call',{name:'e2eTray',args:[]})).data||{items:[],tooltip:''};
     const tray0=await until(async()=>(await trayAt()).items.length&&await trayAt());
     await L('trayEmpty='+(!tray0.items.some(i=>/^(mini|desktop|wander)/.test(i))&&tray0.items[0]==='open'&&tray0.items.at(-1)==='quit'?'no-switches':'err:'+tray0.items.join(',')));
@@ -106,7 +125,6 @@ const scenario = `(async()=>{
     await L('history='+(hist.ok?hist.data.length:'err'));
     const p2=await must('addPet2',playPets.addPet(a));
     await must('attach2',playPets.updatePet(p2.data.id,{name:'둘째',providerId:save.data.id,persona:''}));
-    const homeBefore=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
     const group=await playPets.chatWith([p1.data.id,p2.data.id],'둘 다 안녕');
     await L('group='+(group.ok?group.data.map(r=>r.name).join('+'):'err:'+group.error));
     const h1=await playPets.getChat(p1.data.id);
@@ -133,7 +151,56 @@ const scenario = `(async()=>{
     await L('chrome='+(document.documentElement.classList.contains('mac')?(drawn?'err':'mac-native'):(drawn?'custom:'+(outerHeight-innerHeight):'err')));
     if(!$('side-panel').hidden)$('close-panel').click();
     const shown=[];for(const k of ['pet','invite','settings']){document.querySelector('.panel-tab[data-panel='+k+']').click();await wait(150);shown.push(['pet','invite','settings'].filter(o=>$('panel-'+o).getBoundingClientRect().height>40).join(','));}
-    const opened=!$('side-panel').hidden,indexed=document.querySelector('.settings-index [aria-current]')?.dataset.section;$('close-panel').click();await wait(300);
+    // Settings wiring runs after Invite; its copy buttons must not replace Invite filters.
+    document.querySelector('.panel-tab[data-panel=invite]').click();await until(()=>!$('panel-invite').hidden);
+    const allChip=document.querySelector('#kind-filter [data-kind=""]'),peopleChip=document.querySelector('#kind-filter [data-kind=person]');
+    allChip.click();await until(()=>allChip.getAttribute('aria-pressed')==='true');const allCount=document.querySelectorAll('#shelf .asset-card').length;
+    peopleChip.click();await until(()=>peopleChip.getAttribute('aria-pressed')==='true');const peopleIds=[...document.querySelectorAll('#shelf .asset-card')].map(el=>el.dataset.assetId);
+    const wantedPeople=boot.data.assets.filter(a=>['person','human','humanoid'].includes(String(a.kind||'').trim().toLowerCase())).map(a=>a.id);
+    const filtered=peopleChip.getAttribute('aria-pressed')==='true'&&peopleIds.length===wantedPeople.length&&peopleIds.every(id=>wantedPeople.includes(id))&&allCount>peopleIds.length;
+    allChip.click();await until(()=>allChip.getAttribute('aria-pressed')==='true');
+    await L('inviteFilters='+(filtered&&allChip.getAttribute('aria-pressed')==='true'&&document.querySelectorAll('#shelf .asset-card').length===allCount?'all-person-restore':'err:'+allCount+'/'+peopleIds.join(',')));
+    // Each named baseline has its own catalog asset and independent invitations.
+    const realisticInviteAsset=adults[0],miniInviteAsset=boot.data.assets.find(a=>a.sourceId==='playpets-aria'),ordinaryInviteAsset=boot.data.assets.find(a=>a.kind==='animal');
+    const inviteBefore=(await playPets.bootstrap()).data.pets,inviteBeforeIds=new Set(inviteBefore.map(p=>p.id));
+    const appearanceCard=(mini=false)=>[...document.querySelectorAll('#shelf .asset-card')].find(c=>c.dataset.assetId===(mini?miniInviteAsset:realisticInviteAsset)?.id);
+    const separateEntries=!!appearanceCard()&&!!appearanceCard(true)&&appearanceCard().dataset.entryKey!==appearanceCard(true).dataset.entryKey&&!document.querySelector('#shelf .asset-style');
+    appearanceCard()?.click();
+    const invitedReal=await until(async()=>(await playPets.bootstrap()).data.pets.find(p=>p.assetId===realisticInviteAsset?.id&&!inviteBeforeIds.has(p.id)));
+    await until(()=>appearanceCard()&&!appearanceCard().disabled);
+    appearanceCard()?.click();
+    const invitedTwin=await until(async()=>(await playPets.bootstrap()).data.pets.find(p=>p.assetId===realisticInviteAsset?.id&&!inviteBeforeIds.has(p.id)&&p.id!==invitedReal?.id));
+    const initialTwins=inviteBefore.filter(p=>p.assetId===realisticInviteAsset?.id).length;
+    appearanceCard(true)?.click();
+    const invitedMini=await until(async()=>(await playPets.bootstrap()).data.pets.find(p=>p.assetId===miniInviteAsset?.id&&!inviteBeforeIds.has(p.id)));
+    const initialMinis=inviteBefore.filter(p=>p.assetId===miniInviteAsset?.id).length;
+    const miniName=initialMinis?miniInviteAsset.displayName+' '+(initialMinis+1):'';
+    await L('inviteAppearance='+(separateEntries&&invitedReal?.visualStyle==='illustrated'&&invitedTwin?.name===realisticInviteAsset?.displayName+' '+(initialTwins+2)&&invitedMini?.name===miniName&&invitedMini.assetId!==invitedReal.assetId?'separate-saved-duplicate':'err'));
+    const rejectionCount=(await playPets.bootstrap()).data.pets.length;
+    const invalidInvite=await playPets.addPet(realisticInviteAsset?.id,{visualStyle:'unknown'}),forbiddenInvite=await playPets.addPet(realisticInviteAsset?.id,{providerId:'unchecked'}),unsupportedInvite=await playPets.addPet(ordinaryInviteAsset?.id,{visualStyle:'realistic'});
+    await L('inviteAtomic='+(invalidInvite.ok===false&&forbiddenInvite.ok===false&&unsupportedInvite.ok===false&&(await playPets.bootstrap()).data.pets.length===rejectionCount?'rejected-no-orphans':'err'));
+    const legacyInvite=await playPets.addPet(ordinaryInviteAsset?.id);
+    await L('inviteLegacy='+(legacyInvite.ok&&legacyInvite.data.visualStyle==='illustrated'?'default-illustrated':'err'));
+    for(const added of [invitedReal,invitedTwin,invitedMini,legacyInvite.data])if(added?.id)await playPets.removePet(added.id);
+    await until(async()=>(await playPets.bootstrap()).data.pets.length===inviteBefore.length&&document.querySelectorAll('.yard-pet').length===inviteBefore.length);
+    await playPets.openChat(p1.data.id);document.querySelector('.panel-tab[data-panel=invite]').click();await until(()=>!$('panel-invite').hidden);
+    $('import').click();await until(()=>$('import-dialog').open);const discovery=$('community-discovery'),discoveryClosed=!discovery.open;
+    discovery.querySelector('summary').click();await until(()=>discovery.open);
+    await L('inviteDiscovery='+(discoveryClosed&&discovery.open&&document.querySelectorAll('#community-links [data-community-id]').length===boot.data.communities.length?'collapsed-expandable':'err'));
+    $('cancel-import').click();document.querySelector('.panel-tab[data-panel=settings]').click();await until(()=>!$('panel-settings').hidden);
+    const opened=!$('side-panel').hidden,indexed=document.querySelector('.settings-index [aria-selected=true]')?.dataset.section;
+    const settingsWindow=(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']})).data;
+    await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',{...settingsWindow,width:840,height:660}]});await until(()=>Math.abs(innerWidth-840)<2);await wait(100);
+    const settingsNav=document.querySelector('.settings-index'),settingsHead=$('panel-title'),settingsBody=$('settings-content');
+    document.querySelector('.settings-index [data-section=agent-link-title]').click();await wait(150);
+    const navTop=settingsNav.getBoundingClientRect().top,headTop=settingsHead.getBoundingClientRect().top;
+    settingsBody.scrollTop=settingsBody.scrollHeight;await wait(150);
+    const settingsMetrics={scrollTop:settingsBody.scrollTop,scrollHeight:settingsBody.scrollHeight,clientHeight:settingsBody.clientHeight,visible:[...document.querySelectorAll('.settings-section[data-settings-section]')].filter(el=>!el.hidden).length,navShift:settingsNav.getBoundingClientRect().top-navTop,headShift:settingsHead.getBoundingClientRect().top-headTop,outerScroll:$('side-panel').scrollTop};
+    const bodyOnly=settingsBody.scrollTop>0&&[...document.querySelectorAll('.settings-section[data-settings-section]')].filter(el=>!el.hidden).length===1&&Math.abs(settingsNav.getBoundingClientRect().top-navTop)<1&&Math.abs(settingsHead.getBoundingClientRect().top-headTop)<1&&$('side-panel').scrollTop===0;
+    document.querySelector('.settings-index [data-section=general-title]').click();await wait(150);
+    await L('settingsScroll='+(bodyOnly&&settingsBody.scrollTop===0&&!$('settings-general').hidden?'fixed-navigation-single-body':'err:'+JSON.stringify({...settingsMetrics,resetTop:settingsBody.scrollTop,generalHidden:$('settings-general').hidden})));
+    $('close-panel').click();
+    await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',settingsWindow]});await wait(300);
     await L('panel='+(opened&&$('side-panel').hidden&&shown.join('|')==='pet|invite|settings'?'toggles':'err:'+shown.join('|'))+'/'+indexed);
     // The relationship shows beside the friend's closeness, and a click on it opens the settings at the relationship cards.
     document.querySelector('.panel-tab[data-panel=pet]').click();await wait(200);
@@ -157,8 +224,26 @@ const scenario = `(async()=>{
     const putAway=!$('update-dialog').open&&$('update-pill').hidden&&document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
     await L('updateUi='+sections+'/'+(inAbout&&tabDot&&pillShown&&updateDialogOpen&&putAway?'ok':'err:'+[inAbout,tabDot,pillShown,updateDialogOpen,putAway].join(',')));
     await L('stage='+($('yard').getBoundingClientRect().height/innerHeight>.6?'yard-first':'small:'+$('yard').getBoundingClientRect().height));
+    // The webview retains its last place across isolated backend runs; outdoor checks choose it explicitly.
+    $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
+    await until(()=>$('yard').classList.contains('world-woodland')&&$('yard').dataset.environment==='illustrated');
     $('weather').value='snow';$('weather').dispatchEvent(new Event('change'));
     await L('weather='+($('yard').classList.contains('weather-snow')&&$('weather-layer').width>0?'snow-canvas':'err'));
+    // A saved season changes the actual yard and wardrobe; Auto returns to the real local calendar.
+    const priorSeason=localStorage.getItem('season'),seasonRules=await import('./yard/scene.js'),seasonSprites=await import('./core/sprites.js');
+    const seasonalAsset=(await import('./core/state.js')).data.assets.find(a=>a.seasonalSpriteUrls?.summer&&a.seasonalSpriteUrls?.winter);
+    const chooseSeason=value=>{$('season').value=value;$('season').dispatchEvent(new Event('change'));};
+    chooseSeason('winter');
+    const chosenWinter=$('yard').classList.contains('season-winter')&&localStorage.getItem('season')==='winter'&&seasonalAsset&&seasonSprites.spriteSource(seasonalAsset)===seasonalAsset.seasonalSpriteUrls.winter;
+    chooseSeason('summer');
+    const chosenSummer=$('yard').classList.contains('season-summer')&&localStorage.getItem('season')==='summer'&&seasonalAsset&&seasonSprites.spriteSource(seasonalAsset)===seasonalAsset.seasonalSpriteUrls.summer;
+    chooseSeason('auto');
+    const calendarSeason=seasonRules.selectedSeason(new Date(),seasonRules.southern(Intl.DateTimeFormat().resolvedOptions().timeZone),'auto');
+    const chosenAuto=$('yard').classList.contains('season-'+calendarSeason)&&localStorage.getItem('season')==='auto';
+    chooseSeason(['spring','summer','autumn','winter'].includes(priorSeason)?priorSeason:'auto');
+    if(priorSeason===null)localStorage.removeItem('season');
+    await until(()=>$('yard').dataset.environment==='illustrated');
+    await L('seasonChoice='+(chosenWinter&&chosenSummer&&chosenAuto?'saved-yard-wardrobe-auto':'err'));
     // The season colours the yard and the sun or moon stands where the clock puts it.
     const yardStyle=$('yard').style;
     // The garden: a friend's find goes in the pocket, the tool plants it on the field, the backend keeps it.
@@ -200,6 +285,7 @@ const scenario = `(async()=>{
     $('sound-button').click();const soundOff=await until(async()=>(await playPets.bootstrap()).data.sound.on===false&&$('sound-button').getAttribute('aria-pressed')==='false');
     await L('sound='+(soundDefault.on&&soundDefault.volume===40&&held===100&&soundOn&&soundOff?'off-on-held':'err:'+JSON.stringify([soundDefault,held,soundOn,soundOff])));
     await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-shade')!==''?'set':'err:'+$('yard').className));
+    const homeBefore=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
     document.querySelector('[data-game=hide]').click();
     // Friends only walk while the window is drawn. Behind other windows (or with the screen off)
     // the webview stops animating, so the walk to the hiding spots cannot be observed.
@@ -216,9 +302,21 @@ const scenario = `(async()=>{
       await L('hide='+hiding+'/'+document.querySelectorAll('.yard-pet.hiding').length+'/'+gameLabel()+'/'+(miss&&cleared&&second!==first?'by-name':'err:'+miss+':'+first+':'+second));
     }
     document.querySelector('[data-game=tag]').click();await wait(400);
-    const tagger=document.querySelectorAll('.yard-pet.tagger').length;playing().click();
+    const tagger=document.querySelectorAll('.yard-pet.tagger').length;
+    const gameState=await import('./core/state.js'),gamePlay=await import('./yard/play.js');
+    const previousIt=gameState.game.it,catcher=gameState.views.get(previousIt),caught=[...gameState.views.values()].find(v=>v.pet.id!==previousIt);
+    caught.px=catcher.px;caught.py=catcher.py;gamePlay.judge(Math.max(performance.now(),gameState.game.safeUntil,catcher.frozenUntil)+1);
+    const transferred=gameState.game.it===caught.pet.id&&caught.frozen&&caught.button.classList.contains('tagger');
+    gamePlay.playGame(gameState.game.until+1,40);
+    const tagFinished=!gameState.game&&[...gameState.views.values()].every(v=>!v.frozen&&!v.frozenUntil)&&!document.querySelector('.yard-pet.tagger');
     document.querySelector('[data-game=parade]').click();await wait(400);const parading=gameLabel();playing().click();
     await L('games='+tagger+'/'+parading+'/'+gameLabel());
+    document.querySelector('[data-game=parade]').click();
+    for(const v of gameState.views.values()){v.target=null;v.trip=null;}
+    gamePlay.playGame(performance.now(),26001);
+    await L('gameCompletion='+(transferred&&tagFinished&&!gameState.game&&!$('yard').classList.contains('playing')?'tag-transfer-and-both-end':'err:'+JSON.stringify([transferred,tagFinished,!!gameState.game])));
+    const home=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
+    await L('gamesKeepHome='+(home===homeBefore));
     // A walk to the lake ends when a game takes the friend, and the lake can be fished again after.
     const {onLake}=await import('./yard/catch.js'),st=await import('./core/state.js'),lakeBox=$('yard').getBoundingClientRect(),lx=lakeBox.width*0.52;
     let ly=0;for(let y=0;y<lakeBox.height&&!ly;y+=2)if(onLake(lx,y))ly=y+6;
@@ -230,7 +328,36 @@ const scenario = `(async()=>{
     document.querySelector('[data-game=tag]').click();await wait(200);const during=toLake();playing().click();
     await until(()=>[...st.views.values()].every(v=>!v.away),8000);const again=await fishFor();
     await L('lakeAgain='+first+'/'+during+'/'+again);
-    (await import('./yard/catch.js')).endFishing();
+    const catchModule=await import('./yard/catch.js');
+    const cast=await until(()=>document.querySelector('.bobber'),10000);
+    const countFish=async()=>Object.values((await playPets.bootstrap()).data.album.fish||{}).reduce((sum,item)=>sum+item.count,0);
+    const fishBefore=await countFish();
+    if(cast)cast.click();
+    const early=cast&&!cast.classList.contains('bite')&&document.querySelector('.bobber')===cast;
+    const bite=await until(()=>document.querySelector('.bobber.bite'),12000);
+    if(bite)bite.click();
+    const fishSaved=await until(async()=>(await countFish())===fishBefore+1);
+    await L('fishingFlow='+(early&&bite&&fishSaved&&!document.querySelector('.bobber')&&!document.querySelector('.fishing-line')&&!$('catch-card').hidden?'cast-bite-reward-clean':'err'));
+    catchModule.endFishing();
+    // Switching rooms cancels an outdoor trip and leaves no invisible fishing target indoors.
+    await until(()=>[...st.views.values()].every(v=>!v.away),8000);
+    await fishFor();
+    const worldSelect=$('world');
+    worldSelect.value='studio';worldSelect.dispatchEvent(new Event('change'));
+    await until(()=>$('yard').classList.contains('world-studio')&&$('yard').dataset.environment==='illustrated');
+    const indoor=(await import('./yard/world.js')).scene;
+    $('weather').value='rain';$('weather').dispatchEvent(new Event('change'));await wait(150);
+    const {environmentLook,environmentFrame}=await import('./yard/environment.js'),{weatherPanes}=await import('./yard/window-weather.js'),{worldFor}=await import('./yard/worlds.js');
+    const cityArt=[];for(const period of ['morning','day','evening','night']){$('period').value=period;$('period').dispatchEvent(new Event('change'));cityArt.push(environmentLook(indoor).art);}
+    const roomClean=indoor.world==='studio'&&indoor.weather==='rain'&&indoor.event===null&&!onLake(lx,ly)&&!toLake()&&!document.querySelector('.bobber')&&!document.querySelector('.fishing-line')&&!$('weather').disabled&&weatherPanes(lakeBox.width,lakeBox.height,environmentFrame(lakeBox.width,lakeBox.height,indoor),worldFor(indoor.world).windowPanes).length>0;
+    await L('studioLight='+(cityArt.join(',')==='studio-modern-city-morning,studio-modern-city-day,studio-modern-city-evening,studio-modern-city-night'?'four-city-views':'err:'+cityArt));
+    document.querySelector('[data-game=tag]').click();await wait(200);
+    const indoorGame=st.game?.kind==='tag';
+    worldSelect.value='woodland';worldSelect.dispatchEvent(new Event('change'));
+    $('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
+    $('period').value='day';$('period').dispatchEvent(new Event('change'));
+    await until(()=>$('yard').classList.contains('world-woodland'));
+    await L('worldSwitch='+(roomClean&&indoorGame&&!st.game&&!$('weather').disabled&&onLake(lx,ly)?'indoor-clean-and-games-outdoor-restored':'err'));
     // The page fits its window exactly: no scrollbar, full size or mini.
     const fits=()=>document.body.scrollHeight<=document.body.clientHeight&&document.body.scrollWidth<=document.body.clientWidth;
     const fitsFull=fits();
@@ -246,35 +373,44 @@ const scenario = `(async()=>{
     await L('miniPlace='+(corner?'corner':'err:'+right+','+bottom)+'/'+(backAt===fullAt?'back':'err:'+backAt+' was '+fullAt));
     await L('pageFits='+fitsFull+'/'+fitsMini);
     await L('mini='+(small&&!document.body.classList.contains('mini')&&innerWidth===wide?'shrinks-and-restores':'err:'+small+'/'+innerWidth+'/'+wide));
-    // A friend asked to chat from the small window (right-click, as on the desktop) brings the full
-    // window back with the friend tab open; and a friend nearer the bottom is drawn over one higher up.
+    // A quick chat stays inside mini; a friend nearer the bottom is drawn over one higher up.
     $('mini').click();await until(()=>document.body.classList.contains('mini'));await wait(300);
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
-    await until(()=>!document.body.classList.contains('mini')&&innerWidth===wide);await wait(300);
-    const chatFromMini=!document.body.classList.contains('mini')&&!$('panel-pet').hidden;
+    await until(()=>!$('panel-pet').hidden&&getComputedStyle($('side-panel')).display!=='none');await wait(300);
+    const composer=$('message').getBoundingClientRect(),sendBox=$('send').getBoundingClientRect();
+    const chatFromMini=document.body.classList.contains('mini')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth;
     // By where the feet are (the bottom), since friends of different sizes have their tops elsewhere.
     const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().bottom,z:Number(b.style.zIndex)%200}));
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true));
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
-    await L('reach='+(chatFromMini?'mini-to-chat':'err-mini')+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
+    await L('reach='+(chatFromMini?'compact-chat':'err-mini')+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
     // A friend's name tag is the way to talk: a click on it (not a drag) opens the conversation.
     $('close-panel').click();await until(()=>$('side-panel').hidden);
+    $('unmini').click();await until(()=>!document.body.classList.contains('mini')&&innerWidth===wide);await wait(200);
     const tag=document.querySelector('.pet-label .pet-tag');
     tag.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));tag.dispatchEvent(new PointerEvent('pointerup',{button:0,bubbles:true}));
     await until(()=>!$('side-panel').hidden&&!$('panel-pet').hidden);
     await L('talkTag='+(!$('side-panel').hidden&&!$('panel-pet').hidden?'opens-chat':'err'));
-    const home=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
-    await L('gamesKeepHome='+(home===homeBefore));
     // Inviting from the shelf and opening the AI dialog go through the page's own buttons.
     const before=(await playPets.bootstrap()).data.pets.length;
     document.querySelector('.panel-tab[data-panel=invite]').click();await wait(200);
     // A loaded machine (a build running beside the test) can take longer than the usual five seconds here.
-    document.querySelector('#shelf .asset-card').click();await until(async()=>(await playPets.bootstrap()).data.pets.length===before+1&&document.querySelectorAll('.yard-pet').length===before+1,15000);
+    document.querySelector('#shelf .asset-card').click();await until(async()=>{
+      const pets=(await playPets.bootstrap()).data.pets;
+      return pets.length===before+1&&document.querySelectorAll('.yard-pet').length===pets.length&&$('friend-select').value===pets.at(-1)?.id;
+    },15000);
     const after=(await playPets.bootstrap()).data.pets;
     const invited=after.length===before+1&&document.querySelectorAll('.yard-pet').length===after.length&&$('friend-select').value===after.at(-1).id;
     document.querySelector('.panel-tab[data-panel=pet]').click();await wait(200);
-    $('configure').click();await wait(300);const dialogOpen=$('connection-dialog').open;$('cancel-dialog').click();
+    const sharingGuest=await must('sharingGuest',playPets.addPet(a));
+    await until(()=>document.querySelectorAll('.yard-pet').length===after.length+1);
+    $('friend-select').value=after.at(-1).id;$('friend-select').dispatchEvent(new Event('change'));await wait(150);
+    $('configure').click();await until(()=>$('connection-dialog').open);const dialogOpen=$('connection-dialog').open;
+    await L('shareConnection='+(!$('share-all-field').hidden&&$('ai-share-all').checked?'on-by-default':'err'));
+    $('cancel-dialog').click();
+    await playPets.removePet(sharingGuest.data.id);
+    await until(()=>document.querySelectorAll('.yard-pet').length===after.length);
     // On a failure, which part: the friend saved, drawn, picked in the Friend tab; the dialog.
     await L('pageButtons='+(invited&&dialogOpen?'invite-and-connect':'err:'+[after.length-before,document.querySelectorAll('.yard-pet').length-after.length,$('friend-select').value===after.at(-1)?.id,dialogOpen].join('/')));
     // A word written to a friend with no AI waits for one: sending opens the connection dialog,
@@ -289,9 +425,11 @@ const scenario = `(async()=>{
     await until(async()=>((await playPets.getChat(guestId)).data||[]).length>=2,15000);
     const sent=(await playPets.getChat(guestId)).data||[];
     // Starting at login is one switch in Settings (a test run only pretends to the system).
+    const {openPanel}=await import('./panel/tabs.js');openPanel('settings','general-title');await until(()=>!$('panel-settings').hidden&&!$('settings-general').hidden);
     $('autostart').click();await until(async()=>(await playPets.bootstrap()).data.autostart===true);
     const startsOn=$('autostart').checked;$('autostart').click();await until(async()=>(await playPets.bootstrap()).data.autostart===false);
     await L('autostart='+(startsOn&&!$('autostart').checked?'switches':'err'));
+    openPanel('pet');
     await L('waitingWord='+(typable&&sent[0]?.content==='처음 인사'&&sent.length>=2&&$('message').value===''?'sent-after-connect':'err:'+typable+'/'+JSON.stringify(sent).slice(0,90)));
     // The connection made here goes again, so the checks below count only their own.
     const madeHere=(await playPets.bootstrap()).data.pets.find(q=>q.id===guestId)?.providerId;
@@ -338,6 +476,24 @@ const scenario = `(async()=>{
     // Closing the overlay once aborted the whole app a moment later; stay around long enough to notice.
     await new Promise(r=>setTimeout(r,2500));
     await L('overlayClosed=alive');
+    // Named Mini entries have ordinary settings and cannot become the taller companion.
+    const aria=adults.find(x=>x.sourceId==='playpets-aria-full'),miniAria=boot.data.assets.find(x=>x.sourceId==='playpets-aria');
+    const adultA=(await playPets.addPet(aria.id)).data,adultB=(await playPets.addPet(miniAria.id)).data;
+    await playPets.openChat(adultA.id);await until(async()=>(await import('./core/state.js')).selected===adultA.id);
+    const fullPortrait=await until(()=>!$('portrait-photo').hidden&&$('portrait-photo').naturalWidth>0&&$('portrait-photo').src===aria.portraitUrl);
+    await playPets.openChat(adultB.id);await until(async()=>(await import('./core/state.js')).selected===adultB.id);
+    const miniPortraitAbsent=!miniAria.portraitUrl&&await until(()=>$('portrait-photo').hidden);
+    $('edit-pet').click();await until(()=>$('pet-dialog').open);
+    const ordinarySettings=$('pet-appearance').hidden;
+    $('pet-name').value='My Mini';$('pet-form').requestSubmit();
+    await until(async()=>!$('pet-dialog').open&&(await playPets.bootstrap()).data.pets.find(x=>x.id===adultB.id)?.name==='My Mini');
+    const chosen=(await playPets.bootstrap()).data.pets;
+    const independent=chosen.find(x=>x.id===adultA.id)?.assetId===aria.id&&chosen.find(x=>x.id===adultB.id)?.assetId===miniAria.id;
+    const appearanceCanvas=sprites.canvas();
+    await until(()=>{sprites.drawSprite(appearanceCanvas,aria);return painted(appearanceCanvas);});
+    await L('realisticChoice='+(independent&&ordinarySettings&&fullPortrait&&miniPortraitAbsent&&painted(appearanceCanvas)?'ordinary-independent':'err'));
+    await playPets.removePet(adultA.id);await playPets.removePet(adultB.id);await playPets.openChat(p1.data.id);
+
     await L('pageErrors='+(pageError||'none'));
     await L('DONE');
   }catch(e){await L('FATAL:'+String(e).slice(0,140));}
@@ -440,6 +596,13 @@ provider.close();
 
 const expect = [
   [/^assets=[1-9]/, 'catalog scan'],
+  [
+    /^wardrobes=7\/14\/decoded-and-change$/,
+    'all seven seasonal wardrobes load and repaint with distinct artwork under native security policy',
+  ],
+  [/^adultCompanions=2\/adult-personas$/, 'adult partner examples have distinct adult person identities'],
+  [/^realisticAssets=6\/2\/decoded$/, 'taller baseline wardrobes decode through the native protocol'],
+  [/^realisticChoice=ordinary-independent$/, 'the Mini friend editor preserves its independent baseline identity'],
   [/^addPet=ok/, 'add a pet'],
   [/^intro=A test kitten\. \(animal\)$/, 'a new friend starts with the pet file description as its personality'],
   [/^rename=ok/, 'rename and resize'],
@@ -447,6 +610,14 @@ const expect = [
   [/^attach=ok/, 'attach a provider to a pet'],
   [/^assigned=named$/, 'assign a friend to an agent'],
   [/^communities=[1-9]/, 'list of communities'],
+  [/^inviteFilters=all-person-restore$/, 'Invite filters survive Settings wiring'],
+  [
+    /^inviteAppearance=separate-saved-duplicate$/,
+    'realistic and Mini shelf entries persist independently with numbered duplicates',
+  ],
+  [/^inviteAtomic=rejected-no-orphans$/, 'invalid or unsupported invitation options add no friend'],
+  [/^inviteLegacy=default-illustrated$/, 'legacy invitations keep the illustrated default'],
+  [/^inviteDiscovery=collapsed-expandable$/, 'discovery sites start collapsed and can expand'],
   [/^place=codex\/folder-known$/, 'where a pet lives (Codex pet folder)'],
   [/^agentStatus=working$/, 'agent status arrives through the bridge'],
   [/^snippet=binary$/, 'agent setup points at the app binary (no Node)'],
@@ -469,6 +640,7 @@ const expect = [
     /^panel=toggles\/general-title$/,
     'panel tabs open and close, and the Settings index marks the first group when it opens',
   ],
+  [/^settingsScroll=fixed-navigation-single-body$/, 'Settings scrolls one body while its menu and title stay fixed'],
   [/^relation=chip-opens-cards$/, 'the relationship shows in the Friend tab and its chip opens the relationship cards'],
   [/^about=6\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
   [
@@ -477,6 +649,10 @@ const expect = [
   ],
   [/^stage=yard-first$/, 'the yard leads the window (60% of the height or more)'],
   [/^weather=snow-canvas$/, 'weather canvas (snow)'],
+  [
+    /^seasonChoice=saved-yard-wardrobe-auto$/,
+    'season setting updates yard and wardrobe, saves the choice and restores Auto',
+  ],
   [
     new RegExp(
       `^hide=(2/0/${literal(KO['game.label'])}/by-name|window-hidden/${literal(stopGame('game.hide'))}/${literal(KO['game.label'])})$`,
@@ -490,6 +666,19 @@ const expect = [
   [/^mini=shrinks-and-restores$/, 'mini view (yard only, back to full size)'],
   [/^miniPlace=corner\/back$/, 'the mini window opens in the screen corner and leaving it puts the window back'],
   [/^lakeAgain=1\/0\/1$/, 'a walk to the lake ends when a game takes the friend, and the lake can be fished again'],
+  [
+    /^gameCompletion=tag-transfer-and-both-end$/,
+    'tag transfers on contact, tag and parade complete, and game effects clear',
+  ],
+  [
+    /^fishingFlow=cast-bite-reward-clean$/,
+    'fishing rejects an early reel, saves a bitten fish and removes its float and line',
+  ],
+  [
+    /^worldSwitch=indoor-clean-and-games-outdoor-restored$/,
+    'room switching clears fishing and games, disables indoor outdoor activities and restores the woodland',
+  ],
+  [/^studioLight=four-city-views$/, 'the city studio uses distinct authored art for all four times of day'],
   [/^talkTag=opens-chat$/, "a click on a friend's name tag opens the conversation"],
   [/^season=set$/, 'the season and the clock paint the yard'],
   [/^garden=found-planted$/, 'a found seed is planted on the field with the tool and kept'],
@@ -508,13 +697,14 @@ const expect = [
   [/^event=gift-and-label$/, "a seasonal event's gift comes on its days, and the scene label shows the event on now"],
   [/^gift=bench-once-moved-away$/, 'a gift comes once a day, is dragged to a new place that is kept, and is put away'],
   [
-    /^reach=mini-to-chat\/layered\/labels-over$/,
-    'chat from the small window returns to full size; nearer friends are drawn on top, among the garden things, with labels over all',
+    /^reach=compact-chat\/layered\/labels-over$/,
+    'chat stays in the small window; nearer friends are drawn on top, among the garden things, with labels over all',
   ],
   [/^pageFits=true\/true$/, 'the page fits the window (no scroll bars, full and mini)'],
   [/^spriteLoads=1536$/, 'pet sprites load under the page security policy'],
   [/^gamesKeepHome=true$/, 'positions during games are not saved'],
   [/^pageButtons=invite-and-connect$/, 'invite and open the AI connection dialog with page buttons'],
+  [/^shareConnection=on-by-default$/, 'a new connection includes other unconnected friends by default'],
   [
     /^waitingWord=sent-after-connect$/,
     'a word for a friend with no AI is sent once one is connected from the dialog cards',

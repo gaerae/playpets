@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "references": {
+    "detail": "available",
+    "seasons": ["summer", "winter"]
+  },
+  "id": "noah",
+  "character": "noah",
+  "name": "Noah",
+  "age": 26,
+  "kind": "person",
+  "identity": {
+    "description": "Fictional adult man, age 26; gentle attentive performer. Not a real person or celebrity.",
+    "face": {
+      "eyes": "warm brown almond-shaped eyes beneath soft straight brows",
+      "nose": "slim straight nose with a softly rounded tip",
+      "mouth": "natural rose lips, defined upper lip and a restrained friendly smile"
+    },
+    "hair": "dark brown wavy curtain hair, center part, unchanged forehead and side volume",
+    "accessories": ["brown watch on anatomical LEFT wrist; never mirror it"],
+    "wardrobe": {
+      "baseline": "sage overshirt open over ivory tee, navy trousers and cream sneakers",
+      "summer": "powder-blue short-sleeve linen overshirt open over ivory tee, beige trousers and cream sneakers",
+      "winter": "dark navy coat, ivory knit scarf, dark trousers and dark brown ankle boots"
+    }
+  },
+  "style": "illustrated",
+  "anatomy": "Deliberately stylized large-head illustrated proportions, short compact body; preserve the character’s adult identity and age.",
+  "workingAction": "focused laptop work with visible typing gestures, preserving the accepted seated or standing pose",
+  "targetIdleHeight": 163,
+  "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
+  "facePanels": {
+    "top": ["front", "profile facing viewer left", "three-quarter facing viewer left"],
+    "bottom": ["eyes", "nose", "mouth", "ear", "hair", "signature accessory"]
+  },
+  "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
+  "canonical": {
+    "width": 1536,
+    "height": 2288,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "columns": 8,
+    "rows": 11,
+    "usedFrames": [6, 8, 8, 4, 5, 8, 6, 6, 6],
+    "gaze": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+  }
+}

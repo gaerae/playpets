@@ -111,8 +111,7 @@ async function check() {
 }
 // A part of a panel, opened from the tray or the menu bar ("about" is the About section).
 export function showSection(panel, section) {
-  openPanel(panel);
-  if (section) $(`${section}-title`)?.scrollIntoView({ block: 'start' });
+  openPanel(panel, section);
 }
 // From the tray or the menu bar: a known update opens its dialog; otherwise the Settings tab checks,
 // so the answer has a place to show, and a newer version found there opens the dialog too.
@@ -125,6 +124,9 @@ export async function checkForUpdates() {
   try {
     await check();
     if (found) openUpdateDialog();
+  } catch (error) {
+    renderUpdate();
+    throw error;
   } finally {
     button.disabled = false;
   }
@@ -178,11 +180,22 @@ export function setupSettings() {
   // Which friend each agent reports to. The copied settings carry the choice, so they must be pasted again.
   for (const select of document.querySelectorAll('select[data-agent]'))
     select.onchange = guard(async () => {
-      await call('assignAgent', select.dataset.agent, select.value);
-      const chosen = data.pets.find(p => p.id === select.value);
-      toast(t('settings.agent_pet_changed', { name: chosen ? name(chosen) : t('settings.agent_pet_first') }));
+      const kind = select.dataset.agent,
+        requested = select.value;
+      select.disabled = true;
+      try {
+        await call('assignAgent', kind, requested);
+        const chosen = data.pets.find(p => p.id === requested);
+        toast(t('settings.agent_pet_changed', { name: chosen ? name(chosen) : t('settings.agent_pet_first') }));
+      } catch (error) {
+        const current = data.agentPets?.[kind] || '';
+        select.value = data.pets.some(p => p.id === current) ? current : '';
+        throw error;
+      } finally {
+        select.disabled = !data.pets.length;
+      }
     });
-  for (const button of document.querySelectorAll('button[data-kind]'))
+  for (const button of document.querySelectorAll('#panel-settings button[data-kind]'))
     button.onclick = guard(async () => {
       const kind = button.dataset.kind;
       await call('copyConnection', kind);
@@ -226,8 +239,23 @@ export function setupSettings() {
       toast(t('toast.desktop_tip'));
     }
   });
-  $('desktop-wander').onchange = guard(() => call('toggleDesktopWander'));
-  $('auto-chatter').onchange = guard(() => call('setAutoChatter', $('auto-chatter').checked));
+  for (const [id, method, key] of [
+    ['desktop-wander', 'toggleDesktopWander', 'desktopWander'],
+    ['auto-chatter', 'setAutoChatter', 'autoChatter'],
+  ]) {
+    const input = $(id);
+    input.onchange = guard(async () => {
+      input.disabled = true;
+      try {
+        await call(method, ...(id === 'auto-chatter' ? [input.checked] : []));
+      } catch (error) {
+        input.checked = !!data[key];
+        throw error;
+      } finally {
+        input.disabled = false;
+      }
+    });
+  }
   // What the system ended up with is shown, also when it refused the change.
   $('autostart').onchange = guard(async () => {
     const want = $('autostart').checked;

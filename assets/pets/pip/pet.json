@@ -1,0 +1,13 @@
+{
+  "id": "playpets-pip",
+  "displayName": "Pip",
+  "kind": "animal",
+  "description": "A cheerful floppy-eared puppy courier in a blue jacket and red scarf. Carries a little mailbag and loves greeting every friend.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.png",
+  "seasonalSpritesheets": {
+    "summer": "seasonal/summer.png",
+    "winter": "seasonal/winter.png"
+  },
+  "source": { "name": "PlayPets", "url": "https://github.com/gaerae/playpets", "creator": "gaerae", "license": "MIT" }
+}

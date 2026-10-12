@@ -12,15 +12,17 @@ description: AI 连接的种类和创建步骤、设定性格、几位伙伴一�
 
 | 种类 | 怎么聊 | 费用和数据 |
 |---|---|---|
-| Claude Code | 用本机已登录的 Claude Code | 没有额外的 API 费用 |
-| Codex CLI | 用本机已登录的 Codex CLI（ChatGPT 套餐） | 没有额外的 API 费用 |
-| Ollama | 用安装在 `http://127.0.0.1:11434` 的 Ollama 上的模型 | 对话只在本机内处理 |
+| Claude Code | 用本机已登录的 Claude Code | 订阅登录使用套餐额度，API 密钥登录按 API 计费 |
+| Codex CLI | 用本机已登录的 Codex CLI | ChatGPT 登录使用套餐额度，API 密钥登录按 API 计费 |
+| Ollama | 通过 `http://127.0.0.1:11434` 的 Ollama 使用模型 | 本地模型的对话留在本机，无托管推理费用；云端模型遵循服务条款 |
 | OpenAI API | 用 API 密钥连接 OpenAI | 对话内容会发送给 OpenAI，可能产生 API 费用 |
 | OpenAI 兼容服务器 | 自己填服务器地址和 API 密钥 | 对话内容会发送到那台服务器，可能产生费用 |
 
 连接窗口会把每种 AI 显示成卡片，并写明需要什么。本机找到的种类（Claude Code、Codex CLI、Ollama）会标上**已安装**并预先选好；什么都没找到时不会预选，选了卡片后才会出现需要填写的输入框。
 
 API 密钥只保存在本机的安全存储里（macOS 钥匙串、Windows 凭据管理器、Linux Secret Service），不会写进设置文件。
+
+通过订阅登录的 CLI 聊天无需另付 API 账单，但会与其他 CLI 工作共用额度。套餐限制仍然适用，主动购买额外点数也可能产生费用。想离线聊天，请选择已下载的本地 Ollama 模型；使用 Ollama 云端模型时，对话仍会发送到相应服务。
 
 ## 创建连接 <Since v="0.1.0" />
 

@@ -7,11 +7,15 @@ import { artSvg } from './art.js';
 import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { bubble } from './views.js';
+import { scene } from './world.js';
+import { worldAllows } from './worlds.js';
 
 // The event whose card waits for the window to be shown.
-let waiting = null;
+let waiting = null,
+  revealTimer;
 /** The seasonal event changed (sky.js, when it paints the scene): `event` is the new one, or null. */
 export function eventChanged(event) {
+  clearTimeout(revealTimer);
   const chip = $('event-chip');
   chip.hidden = !event;
   if (!event) {
@@ -32,8 +36,13 @@ export function eventChanged(event) {
     return;
   }
   waiting = null;
-  remember(seen, '1');
-  setTimeout(() => {
+  revealTimer = setTimeout(() => {
+    if (!worldAllows(scene.world, 'seasonalEffects') || scene.event !== event.id) return;
+    if (document.hidden) {
+      eventChanged(event);
+      return;
+    }
+    remember(seen, '1');
     const art = event.art || giftKind(event.gift)?.art;
     showCard(art ? artSvg(art, 'class="decor-art"') : '', t('event.started', { name }), about, false);
     const friend = pick([...views.values()]);

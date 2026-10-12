@@ -6,9 +6,14 @@
 // and falling petals or leaves come in spells: they are about for a while, leave, and the canvas
 // rests until the next spell.
 import { between } from '../core/math.js';
+import { createAmbientArt } from './ambient-art.js';
 import { flyingBug } from './catalog.js';
+import { environmentFrame } from './environment.js';
 import { boostOf } from './events.js';
 import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
+import { createWeatherArt } from './weather-art.js';
+import { weatherPanes } from './window-weather.js';
+import { worldAllows, worldFor } from './worlds.js';
 
 const TAU = Math.PI * 2;
 const INK = {
@@ -26,10 +31,11 @@ const SPELL = 24000,
   REST = [30000, 60000];
 // Fireflies fade in and out over this long.
 const FADE_MS = 1500;
-export function createScenery(canvas, reduced) {
+export function createScenery(canvas, reduced, artOptions, ambientOptions) {
   const ctx = canvas.getContext('2d');
   // In a small yard everything drawn shrinks with it.
-  let scale = 1;
+  let scale = 1,
+    still = reduced.matches;
   let w = 1,
     h = 1,
     period = 'day',
@@ -37,6 +43,8 @@ export function createScenery(canvas, reduced) {
     season = 'spring',
     // The seasonal event on (events.js), which can bring more small life and kinds of its own.
     event = null,
+    world = 'woodland',
+    panes = null,
     drops = [],
     fallers = [],
     flock = null,
@@ -44,6 +52,7 @@ export function createScenery(canvas, reduced) {
     splashes = [],
     stars = [],
     critters = [],
+    refillAt = 0,
     streak = null,
     nextStreak = 0,
     // Whether a spell of small life is on, and when it ends (or the next begins).
@@ -51,10 +60,20 @@ export function createScenery(canvas, reduced) {
     spellTurn = 0,
     // Something changed that the canvas does not show yet.
     dirty = true;
+  const art = createWeatherArt(() => {
+    if (!reduced.matches && worldAllows(world, 'seasonalEffects') && fallers.length) dirty = true;
+  }, artOptions);
+  const ambient = createAmbientArt(() => {
+    if (worldAllows(world, 'wildlife') || worldAllows(world, 'sky')) dirty = true;
+  }, ambientOptions);
+  const precipitation = () => worldAllows(world, 'weather') && weather !== 'clear' && (!panes || panes.length > 0);
+  const enabled = () =>
+    precipitation() || ['sky', 'wildlife', 'seasonalEffects'].some(capability => worldAllows(world, capability));
   const clear = () => weather === 'clear';
   // Fireflies on spring and summer nights, butterflies by day until autumn, when one is left, and
   // dragonflies with them in summer and autumn. Which kinds fly is the catalogue's (catalog.js).
   function lifeCount() {
+    if (!worldAllows(world, 'wildlife')) return { glow: false, count: 0 };
     const warm = season === 'spring' || season === 'summer',
       glow = warm && clear() && (period === 'night' || period === 'evening'),
       flutter = season !== 'winter' && clear() && (period === 'day' || period === 'morning');
@@ -64,11 +83,8 @@ export function createScenery(canvas, reduced) {
   // The small life of a spell. Arriving, butterflies come in from the sides, fireflies fade in and
   // petals or leaves start above the yard; at the start they are already about.
   function spawnLife(arriving) {
-    if (reduced.matches) {
-      critters = [];
-      fallers = [];
-      return;
-    }
+    refillAt = 0;
+    arriving = arriving && !reduced.matches;
     const { glow, count } = lifeCount();
     critters = Array.from({ length: count }, () => {
       const side = Math.random() < 0.5,
@@ -89,22 +105,30 @@ export function createScenery(canvas, reduced) {
         light: arriving && glow ? 0 : 1,
       };
     });
-    fallers = Array.from(
-      { length: Math.round(fallerCount(season, period, weather, w) * boostOf(event, 'petals')) },
-      () => {
-        const f = spawnFaller(w, h, Math.random);
-        if (arriving) f.y = -10 - Math.random() * h * 0.3;
-        return f;
-      },
-    );
+    fallers =
+      reduced.matches || !worldAllows(world, 'seasonalEffects')
+        ? []
+        : Array.from({ length: Math.round(fallerCount(season, period, weather, w) * boostOf(event, 'petals')) }, () => {
+            const f = spawnFaller(w, h, Math.random);
+            if (arriving) f.y = -10 - Math.random() * h * 0.3;
+            return f;
+          });
+    art.use(season, precipitation() ? weather : 'clear', !reduced.matches && worldAllows(world, 'seasonalEffects'));
+    ambient.use(worldAllows(world, 'wildlife'), worldAllows(world, 'sky'), critters);
   }
   function populate() {
-    drops = Array.from({ length: dropCount(weather, w, h) }, () => spawnDrop(weather, w, h, Math.random));
+    panes = weatherPanes(w, h, environmentFrame(w, h, { world }), worldFor(world).windowPanes);
+    art.use(season, precipitation() ? weather : 'clear', !reduced.matches && worldAllows(world, 'seasonalEffects'));
+    fallers = [];
+    refillAt = 0;
+    drops = Array.from({ length: precipitation() ? dropCount(weather, w, h) : 0 }, () =>
+      spawnDrop(weather, w, h, Math.random),
+    );
     flock = null;
     splashes = [];
     streak = null;
     stars =
-      period === 'night' && clear()
+      worldAllows(world, 'sky') && period === 'night' && clear()
         ? Array.from({ length: Math.round(Math.min(90, w / 9)) }, () => ({
             x: Math.random() * w,
             y: Math.random() * h * 0.5,
@@ -130,8 +154,16 @@ export function createScenery(canvas, reduced) {
     populate();
     paint(performance.now());
   }
-  function set(nextPeriod, nextWeather, nextSeason = season, nextEvent = event) {
-    if (nextPeriod === period && nextWeather === weather && nextSeason === season && nextEvent === event) return;
+  function set(nextPeriod, nextWeather, nextSeason = season, nextEvent = event, nextWorld = 'woodland') {
+    if (
+      nextPeriod === period &&
+      nextWeather === weather &&
+      nextSeason === season &&
+      nextEvent === event &&
+      nextWorld === world
+    )
+      return;
+    world = nextWorld;
     period = nextPeriod;
     weather = nextWeather;
     season = nextSeason;
@@ -188,8 +220,10 @@ export function createScenery(canvas, reduced) {
   function paint(now) {
     dirty = false;
     ctx.clearRect(0, 0, w, h);
+    if (!enabled()) return;
     for (const s of stars) {
       ctx.globalAlpha = s.alpha;
+      if (ambient.star(ctx, s)) continue;
       ctx.fillStyle = `rgb(${INK.star})`;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, TAU);
@@ -198,26 +232,42 @@ export function createScenery(canvas, reduced) {
     if (streak) {
       const t = (now - streak.since) / streak.life,
         x = streak.x + streak.dx * t,
-        y = streak.y + streak.dy * t,
-        tail = ctx.createLinearGradient(x, y, x - streak.dx * 0.22, y - streak.dy * 0.22);
-      tail.addColorStop(0, `rgba(${INK.star},${0.9 * (1 - t)})`);
-      tail.addColorStop(1, `rgba(${INK.star},0)`);
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = tail;
-      ctx.lineWidth = 1.6;
-      ctx.lineCap = 'round';
+        y = streak.y + streak.dy * t;
+      ctx.globalAlpha = 0.9 * (1 - t);
+      if (!ambient.streak(ctx, x, y, streak.dx, streak.dy)) {
+        const tail = ctx.createLinearGradient(x, y, x - streak.dx * 0.22, y - streak.dy * 0.22);
+        tail.addColorStop(0, `rgba(${INK.star},${0.9 * (1 - t)})`);
+        tail.addColorStop(1, `rgba(${INK.star},0)`);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = tail;
+        ctx.lineWidth = 1.6;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - streak.dx * 0.22, y - streak.dy * 0.22);
+        ctx.stroke();
+      }
+    }
+    // Indoors only the glass shows the weather: drops elsewhere are stepped but not drawn.
+    const seen = panes
+      ? d => panes.some(p => d.x > p.x - 24 && d.x < p.x + p.width + 24 && d.y > p.y - 32 && d.y < p.y + p.height + 32)
+      : () => true;
+    if (drops.length && panes) {
+      ctx.save();
       ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x - streak.dx * 0.22, y - streak.dy * 0.22);
-      ctx.stroke();
+      for (const pane of panes) ctx.rect(pane.x, pane.y, pane.width, pane.height);
+      ctx.clip();
     }
     if (weather === 'rain') {
-      const ink = INK.rain[period === 'night' ? 'night' : 'day'];
+      // Bright city glass needs darker drops; outdoors keeps its softer sky rain.
+      const ink = panes && period !== 'night' ? '70,97,123' : INK.rain[period === 'night' ? 'night' : 'day'];
       ctx.lineCap = 'round';
       ctx.strokeStyle = `rgb(${ink})`;
       for (const d of drops) {
-        ctx.globalAlpha = 0.22 + d.depth * 0.4;
-        ctx.lineWidth = (0.6 + d.depth * 0.9) * scale;
+        if (!seen(d)) continue;
+        ctx.globalAlpha = panes ? 0.55 + d.depth * 0.35 : 0.22 + d.depth * 0.4;
+        ctx.lineWidth = ((panes ? 0.9 : 0.6) + d.depth * 0.9) * scale;
+        if (art.rain(ctx, d, scale, !!panes, period === 'night')) continue;
         ctx.beginPath();
         ctx.moveTo(d.x, d.y);
         ctx.lineTo(d.x - (d.vx / d.vy) * d.size * scale, d.y - d.size * scale);
@@ -228,6 +278,7 @@ export function createScenery(canvas, reduced) {
         const t = (now - s.since) / 280,
           r = (2 + s.depth * 5) * t;
         ctx.globalAlpha = (1 - t) * (0.3 + s.depth * 0.4);
+        if (art.ripple(ctx, s, scale, t, period === 'night')) continue;
         ctx.beginPath();
         ctx.ellipse(s.x, s.y, r * 1.8, r * 0.6, 0, 0, TAU);
         ctx.stroke();
@@ -236,7 +287,9 @@ export function createScenery(canvas, reduced) {
     if (weather === 'snow') {
       ctx.fillStyle = `rgb(${INK.snow})`;
       for (const d of drops) {
+        if (!seen(d)) continue;
         ctx.globalAlpha = 0.55 + d.depth * 0.45;
+        if (art.snow(ctx, d, scale)) continue;
         ctx.beginPath();
         ctx.arc(d.x, d.y, d.size * scale, 0, TAU);
         ctx.fill();
@@ -248,6 +301,7 @@ export function createScenery(canvas, reduced) {
         }
       }
     }
+    if (drops.length && panes) ctx.restore();
     if (flock) {
       ctx.globalAlpha = period === 'evening' ? 0.6 : 0.5;
       ctx.strokeStyle = '#34464f';
@@ -259,6 +313,7 @@ export function createScenery(canvas, reduced) {
           y = flock.y + b.dy * scale,
           span = 5.5 * scale,
           lift = Math.sin(b.phase + now * 0.009) * 2.6 * scale;
+        if (ambient.bird(ctx, x, y, b.phase, flock.dir, scale, now)) continue;
         ctx.beginPath();
         ctx.moveTo(x - span, y - lift);
         ctx.quadraticCurveTo(x - span * 0.4, y - 1.5 * scale, x, y);
@@ -269,6 +324,7 @@ export function createScenery(canvas, reduced) {
     for (const f of fallers) {
       const palette = season === 'spring' ? PETALS : LEAVES;
       ctx.globalAlpha = 0.6 + f.depth * 0.35;
+      if (art.faller(ctx, f, season, scale, now)) continue;
       ctx.fillStyle = palette[Math.floor(f.tint * palette.length) % palette.length];
       ctx.save();
       ctx.translate(f.x, f.y);
@@ -290,6 +346,10 @@ export function createScenery(canvas, reduced) {
         const lit = (0.5 + 0.5 * Math.sin(c.phase)) * c.light;
         ctx.globalAlpha = (0.15 + lit * 0.3) * c.light;
         // Each kind glows in its own light (catalog.json look.glow), so a rare one can be found.
+        if (ambient.glow(ctx, c, scale)) {
+          ctx.globalAlpha = (0.55 + lit * 0.45) * c.light;
+          if (ambient.bug(ctx, c, scale)) continue;
+        }
         ctx.fillStyle = c.look.glow || `rgb(${INK.firefly})`;
         ctx.beginPath();
         ctx.arc(c.x, c.y, 6 * scale, 0, TAU);
@@ -299,6 +359,8 @@ export function createScenery(canvas, reduced) {
         ctx.arc(c.x, c.y, 1.7 * scale, 0, TAU);
         ctx.fill();
       } else if (c.kind === 'dragonfly') {
+        ctx.globalAlpha = 0.95;
+        if (ambient.bug(ctx, c, scale)) continue;
         // Seen from above: two pairs of clear wings and a long body, pointing where it flies.
         ctx.save();
         ctx.translate(c.x, c.y);
@@ -324,6 +386,8 @@ export function createScenery(canvas, reduced) {
         ctx.fill();
         ctx.restore();
       } else {
+        ctx.globalAlpha = 0.95;
+        if (ambient.bug(ctx, c, scale)) continue;
         // A touch larger than life, so one is easy to click.
         const flap = 0.25 + 0.75 * Math.abs(Math.sin(c.phase)),
           k = scale * 1.4;
@@ -345,11 +409,36 @@ export function createScenery(canvas, reduced) {
   }
   // One step: moves what is moving and repaints only if something did.
   function frame(now, dt) {
-    if (reduced.matches) return;
+    if (!enabled()) return;
+    if (still !== reduced.matches) {
+      still = reduced.matches;
+      if (still) {
+        fallers = [];
+        flock = null;
+        streak = null;
+        splashes = [];
+        // Creatures arriving from outside or fading in remain available to catch.
+        for (const c of critters) {
+          c.x = Math.max(12, Math.min(w - 12, c.x));
+          c.light = 1;
+        }
+        if (!critters.length && !refillAt && lifeCount().count > 0) refillAt = now + between(Math.random, REST);
+        dirty = true;
+      }
+    }
+    if (still) {
+      // Reduced motion keeps collecting available, with one still refill after the usual rest.
+      if (!critters.length && refillAt && now >= refillAt) {
+        spawnLife(false);
+        dirty = true;
+      }
+      if (dirty) paint(now);
+      return;
+    }
     let moved = dirty;
     if (drops.length) {
       for (const s of stepDrops(drops, weather, dt, w, h, Math.random))
-        if (weather === 'rain' && splashes.length < 60) splashes.push({ ...s, since: now });
+        if (!panes && weather === 'rain' && splashes.length < 60) splashes.push({ ...s, since: now });
       splashes = splashes.filter(s => now - s.since < 280);
       moved = true;
     }
@@ -373,7 +462,7 @@ export function createScenery(canvas, reduced) {
       flock.x += flock.dir * flock.speed * dt;
       if (flock.x < -120 || flock.x > w + 120) flock = null;
       moved = true;
-    } else if (clear() && period !== 'night' && now >= nextFlock) {
+    } else if (worldAllows(world, 'wildlife') && clear() && period !== 'night' && now >= nextFlock) {
       if (nextFlock) launchFlock(now);
       nextFlock = now + between(Math.random, FLOCK_GAP);
     }
@@ -399,9 +488,10 @@ export function createScenery(canvas, reduced) {
     if (moved) paint(now);
   }
   // Whether the canvas will change on the next frame (app.js runs the yard faster while it does).
-  const busy = () => drops.length > 0 || !!flock || !!streak;
+  const busy = () => enabled() && !reduced.matches && (drops.length > 0 || !!flock || !!streak);
   // The creature within `reach` of a point in the yard, nearest first, or null.
   function near(x, y, reach = 22) {
+    if (!worldAllows(world, 'wildlife')) return null;
     let best = null,
       bestD = reach;
     for (const c of critters) {
@@ -415,6 +505,7 @@ export function createScenery(canvas, reduced) {
     const c = near(x, y);
     if (!c) return null;
     critters = critters.filter(other => other !== c);
+    if (!critters.length) refillAt = performance.now() + between(Math.random, REST);
     dirty = true;
     return { kind: c.kind, species: c.species, x: c.x, y: c.y };
   }

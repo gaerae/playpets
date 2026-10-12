@@ -30,7 +30,6 @@
   --flower-a: #f48fa6;
   --flower-b: #fdfdf6;
   --flower-c: #f6c445;
-  --shadow: #1d3a2222;
   --orb: #ffd76a;
   --orb-glow: #ffe08a66;
   --cap: transparent;
@@ -133,7 +132,6 @@
   --flower-a: #8d7fa8;
   --flower-b: #aab6c8;
   --flower-c: #b8a86a;
-  --shadow: #00000033;
   --orb: #f4efd8;
   --orb-glow: #f4efd83d;
 }
@@ -181,7 +179,6 @@
   --pine-lo: #4a7a66;
   --rock: #aab3bb;
   --rock-hi: #ccd4da;
-  --shadow: #5f7a9022;
   --cap: #ffffff;
 }
 .yard.weather-snow.period-evening {
@@ -214,7 +211,6 @@
   --rock: #6f8196;
   --rock-hi: #8a9bb0;
   --cap: #d9e4f0;
-  --shadow: #0b142833;
 }
 /* The sun by day and the moon by night stand where the clock puts them (sky.js sets --orb-x and
    --orb-y once a minute, the centre of the disc). */
@@ -224,11 +220,10 @@
   height: min(9%, 64px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 36%, #fff6, transparent 60%), var(--orb);
-  box-shadow:
-    0 0 0 0.9vh var(--orb-glow),
-    0 0 0 2.2vh #ffffff22,
-    0 0 9vh 4vh var(--orb-glow);
+  background:
+    url("../art/sky/sun.png") center / cover,
+    var(--orb);
+  box-shadow: 0 0 5vh 1.5vh var(--orb-glow);
   z-index: -2;
   left: var(--orb-x, 68%);
   top: var(--orb-y, 14%);
@@ -251,7 +246,7 @@
   background-position:
     18px 24px,
     96px 70px;
-  animation: twinkle 3.2s ease-in-out infinite alternate;
+  animation: twinkle 9s ease-in-out infinite alternate;
   opacity: 0.85;
 }
 @keyframes twinkle {
@@ -273,9 +268,8 @@
   height: min(8%, 56px);
   overflow: hidden;
   background:
-    radial-gradient(circle at 34% 30%, #d9d3b8 0 9%, transparent 10%),
-    radial-gradient(circle at 62% 58%, #dcd6bc 0 13%, transparent 14%),
-    radial-gradient(circle at 36% 70%, #ddd7be 0 7%, transparent 8%), var(--orb);
+    url("../art/sky/moon.png") center / cover,
+    var(--orb);
   box-shadow: 0 0 6vh 1.5vh var(--orb-glow);
 }
 .period-night .sky-body::after {
@@ -420,4 +414,15 @@
   height: min(11%, 80px);
   --orb: #fbe6a6;
   box-shadow: 0 0 9vh 3vh #f6dd9a55;
+}
+
+/* An interior is a complete room painting; outdoor overlays never cross its window glass. */
+.yard[data-sky="false"] .paint-sky,
+.yard[data-sky="false"] .sky-glow,
+.yard[data-sky="false"] .sky-body,
+.yard[data-sky="false"] .rainbow,
+.yard[data-sky="false"] .cloud-lane,
+.yard[data-sky="false"]::after,
+.yard[data-scenery="false"] .weather-layer {
+  display: none;
 }

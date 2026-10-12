@@ -6,6 +6,19 @@ export const name = 'English';
 // An English sentence ends like one.
 export const sentence = /[.!?]$/;
 export const strings = {
+  'world.label': 'Place',
+  'world.title': 'Choose a place for your friends',
+  'world.woodland': 'Woodland',
+  'world.woodland.about': 'Fish by the pond, catch bugs and grow flowers with your friends.',
+  'world.studio': 'Window studio',
+  'world.studio.about':
+    'Chat, play and plant indoors, with city rain or snow outside the windows. Visit Woodland for fishing and bugs.',
+  'world.studio.lines': [
+    'This little room feels so cozy.',
+    'Let’s sit by the window for a while.',
+    'That lamp makes everything feel softer.',
+    'I like having you here with me.',
+  ],
   'app.title': 'PlayPets · Pet yard',
   'app.home': 'PlayPets home',
   'app.tagline': 'Friends who talk to each other',
@@ -38,7 +51,7 @@ export const strings = {
   'welcome.pick_aria': 'Bring {name} to the yard',
   'steps.invite': 'Invite a friend',
   'steps.ai': 'Connect an AI to a friend',
-  'steps.agent': 'Pick a friend to bring news from your coding agent',
+  'steps.agent': 'Optional: bring news from your coding agent',
   'steps.go_ai': 'Connect',
   'steps.go_agent': 'Choose',
   'steps.dismiss': 'Hide this',
@@ -51,7 +64,7 @@ export const strings = {
   'hint.first_chat': 'Click my name to chat!',
   'toast.desktop_tip':
     'Your friends are out on the desktop. Point at one to see its name, and click the name to chat. Drag a friend to move it.',
-  'scene.title': 'Time of day and weather in the yard',
+  'scene.title': 'Place, time of day and weather for your friends',
   'period.label': 'Time of day',
   'period.title': 'Time of day in the yard',
   'period.auto': 'Auto time',
@@ -142,7 +155,7 @@ export const strings = {
   'decor.put_away_confirm': 'Put this away? ({kind})',
   'decor.put_away_body': 'A friend may bring it again another day.',
   'decor.visit_bench': ['Time for a little rest.', 'What a nice view from here.', 'Ahh, comfy.'],
-  'decor.visit_lantern': ['So warm and bright.', 'It glows at night!', 'Cosy light~'],
+  'decor.visit_lantern': ['So warm and bright.', 'It glows at night!', 'Cozy light~'],
   'decor.visit_birdhouse': ['Is someone home?', 'Tweet tweet!', 'A little house for birds.'],
   'decor.visit_pond': ['I can see the sky in it.', 'Splash!', 'The water is so clear.'],
   'decor.visit_mailbox': ['Any letters today?', 'I will check the mail!', 'Nothing yet...'],
@@ -203,6 +216,7 @@ export const strings = {
   'bond.solo_catch': '{name} caught a fish on its own: {fish}',
   'bond.hearts': 'Closeness: {level}',
   'catch.album': 'Album',
+  'catch.reel': 'Reel in the fish',
   'catch.album_title': 'Flowers, gifts, fish and bugs',
   'catch.album_heading': 'Album',
   'catch.album_lead':
@@ -356,7 +370,6 @@ export const strings = {
   'invite.lead': 'Click one to invite it into the yard',
   'invite.import': 'Import a pet',
   'invite.none': 'No pets yet. Click ‘Import a pet’ and paste the address of a community pet page.',
-  'invite.none_of_kind': 'No pets of this type yet.',
   'invite.show_all': 'Show all',
   'invite.full': 'The yard is full ({limit} friends). Send a friend away to invite another.',
   'invite.place_builtin': 'PlayPets starter pets',
@@ -411,6 +424,11 @@ export const strings = {
   'pet.call_me_senior': 'e.g. kiddo, Sam',
   'pet.call_me_junior': 'e.g. big sis, boss',
   'friend.relation_title': 'Change the relationship',
+  'pet.appearance': 'Appearance',
+  'pet.style_illustrated': 'Original',
+  'pet.style_realistic': 'Realistic',
+  'pet.appearance_help':
+    'Choose an appearance supplied with this pet. Your friend keeps its name, personality and chat; missing seasonal outfits use the selected appearance’s default.',
   'pet.size': 'Size',
   'size.xs': 'Tiny',
   'size.s': 'Small',
@@ -426,7 +444,7 @@ export const strings = {
   'connection.type_compatible': 'OpenAI-compatible server',
   'connection.about_claude': 'Your Claude plan, no key',
   'connection.about_codex': 'Your ChatGPT plan, no key',
-  'connection.about_ollama': 'On this computer, free',
+  'connection.about_ollama': 'Local models, no API bill',
   'connection.about_openai': 'With an OpenAI API key',
   'connection.about_compatible': 'A server address and key',
   'connection.found': 'Installed',
@@ -443,10 +461,17 @@ export const strings = {
   'connection.model_default': 'Leave empty for the default model',
   'connection.model_installed': 'An installed model (e.g. {example})',
   'connection.note_claude':
-    'Chats through the Claude Code subscription signed in on this computer. No separate API fees.',
+    'Uses the signed-in Claude Code plan. Subscription limits and paid extra usage still apply.',
   'connection.note_codex':
-    'Chats through the Codex CLI (ChatGPT plan) signed in on this computer. No separate API fees.',
-  'connection.note_ollama': 'Conversations stay on this computer.',
+    'Uses the signed-in Codex CLI plan. Subscription limits apply; API-key sign-in is billed separately.',
+  'connection.note_ollama':
+    'Local models run on the chosen computer without hosted inference fees. Remote servers and cloud models send conversations outside this computer.',
+  'connection.help_claude':
+    'Install Claude Code and run claude once to sign in. Then return here; the default model needs no model name.',
+  'connection.help_codex':
+    'Install Codex CLI and run codex once to sign in with ChatGPT. Then return here; leave the model name empty for the default.',
+  'connection.help_ollama':
+    'Install Ollama and download a local model, for example with ollama pull llama3.2. Keep Ollama running, then choose an installed model here.',
   'connection.note_openai': 'Conversations are sent to OpenAI. API fees may apply.',
   'connection.note_compatible': 'Conversations are sent to the chosen server. Fees may apply.',
   'connection.models_loading': 'Loading the model list…',
@@ -477,6 +502,8 @@ export const strings = {
   'settings.update_notes': "What's new",
   'about.title': 'About PlayPets',
   'about.lead': 'Open source under the MIT license. Not affiliated with OpenAI; Codex is a trademark of OpenAI.',
+  'about.publication_note':
+    'Links open public project pages in your browser. Some pages may be unavailable until the website and repository contents are published.',
   'about.site': 'Website',
   'about.guide': 'User guide',
   'about.releases': 'Release notes',
@@ -484,6 +511,14 @@ export const strings = {
   'about.report': 'Report a problem',
   'about.license': 'License',
   'settings.general': 'General',
+  'settings.season': 'Season',
+  'settings.season_note':
+    'Changes the scenery and seasonal outfits. Auto follows your local calendar; festivals keep their real dates.',
+  'settings.season_auto': 'Auto (calendar)',
+  'settings.season_spring': 'Spring',
+  'settings.season_summer': 'Summer',
+  'settings.season_autumn': 'Autumn',
+  'settings.season_winter': 'Winter',
   'settings.yard': 'The yard',
   'update.pill_title': 'A new version is available',
   'update.title': 'PlayPets {version} is available',
@@ -516,7 +551,7 @@ export const strings = {
   'settings.agent_pet_first': 'Not set · the first friend reacts',
   'settings.agent_pet_changed': '{name} reacts now. Copy the settings again and paste them in.',
   'settings.privacy':
-    'Hooks stay on this computer. Nothing you type into the agent, and none of your code, is sent to your friend. This is separate from the AI connection your friend chats with.',
+    'Hooks run on this computer and omit prompts and tool inputs. Short reports, including notifications and Codex’s last answer, may reach the AI connected to your friend when you chat.',
   'settings.quit': 'Quit the app',
   'quit.title': 'Quit PlayPets?',
   'quit.body': 'Conversations aren’t saved. Friends on the desktop go too.',
@@ -534,6 +569,11 @@ export const strings = {
   'error.start': 'Couldn’t start. Please open the app again.',
   'error.generic': 'Something went wrong. Please try again.',
   'error.history': 'Couldn’t load the chat history.',
+  'invite.search': 'Search pets',
+  'invite.search_placeholder': 'Name or creator',
+  'invite.no_matches': 'No pets match these filters.',
+  'invite.discovery': 'Find more pets',
+  'invite.discovery_count': '{count} sites',
   'invite.kind_label': 'Type',
   'invite.kind_all': 'All',
   'invite.kind_person': 'People',

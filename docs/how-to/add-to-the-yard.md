@@ -1,7 +1,7 @@
 # Add to the yard: kinds, drawings, effects and scenery
 
 ## Purpose
-Change or add what is in the yard without touching the code that runs it. The yard is made of three kinds of files, and each change below touches only those:
+Change or add what is in the yard without touching the code that runs it. The yard is described by content and artwork files. Most additions reuse the existing rendering rules:
 
 | What | Where | Read by |
 |---|---|---|
@@ -12,11 +12,11 @@ Change or add what is in the yard without touching the code that runs it. The ya
 | Colours of the seasons, the light and the weather | `src/styles/scenery.css` | the stylesheet, the painter and every drawing |
 | Names and lines | `src/core/strings/<language>.js` | the page |
 
-The code holds what things do: the painters (`backdrop.js`, `trees.js`, `lake.js`), the drawers for fish and bugs (`creatures.js`), the effects (`effects.js` and their rules in `garden.css`), and the rules (when fish bite, when a gift comes). A change to one of those changes every thing that uses it; a change to a content file never needs a code change.
+The code holds what things do: the painters (`backdrop.js`, `trees.js`, `lake.js`), the drawers for fish and bugs (`creatures.js`), the effects (`effects.js` and their rules in `garden.css`), and the rules (when fish bite, when a gift comes). A change to one of those changes every thing that uses it; a content addition within an existing schema usually reuses that code. New rendering or activity rules need their own implementation and tests.
 
 ## Prerequisites
 - You finished [Set up a development environment and run the app](../getting-started.md), and `npm test` passes.
-- To see the result without the app, the page also runs in a browser served from `src/` (the e2e and screenshot scripts do this).
+- To see the result without the app, use the isolated browser fixtures in `scripts/visual-audit.mjs`. Native E2E and the normal screenshot script launch the real app instead.
 
 ## Steps
 
@@ -40,8 +40,17 @@ Seeds planted in a season grow one of that season's flowers, picked at random (`
 3. Add `decor.kind_<id>` (its name) and `decor.visit_<id>` (a list of things friends say when they visit it) to every string table.
 
 ### Drawings
+Current collection art uses generated transparent atlases and SVG crop wrappers.
+`src/art/collection.json` records each specimen's atlas, reviewed crop and display
+size; `scripts/pack-collection.mjs` reproduces its wrapper. Preserve the accepted
+PNG source and record prompts and provenance alongside it. Measure each crop
+rather than assuming equally spaced generated cells. Review the complete body,
+alpha, neighboring-cell isolation and the real album/yard size. See
+`src/art/COLLECTION.md` and the related specimen and atlas tests. Original vector
+and procedural drawings remain fallback/reference material.
+
 - One SVG per file, with a `viewBox` from `0 0`. The view box is its size in the yard (a plant's 40 × 60 units stand 50 × 75 pixels in a full-size yard; a gift's units are 1.05 pixels), and its foot is at the bottom centre.
-- Paint with the yard's colours, `style="fill:var(--leaf)"`, so the season, the light and the weather colour it. What drawings use now: `--leaf`, `--leaf-hi`, `--leaf-lo`, `--pine`, `--pine-lo`, `--trunk`, `--blade`, `--rock`, `--rock-hi`, `--soil`, `--soil-hi`, `--stem`, `--shadow` (the contact shadow), `--wood`, `--wood-hi`, `--wood-lo`, `--iron`, `--sky-a`, `--sky-m` (a water surface mirroring the sky), `--lamp` (warm from evening on), `--bird` (1 by day, 0 at night and in rain or snow; use it as an opacity), and a flower's `--petal`, `--petal-hi`, `--petal-lo`, `--heart`. A fixed colour (`fill:#c45c4a`) stays the same in every light.
+- Paint with the yard's colours, `style="fill:var(--leaf)"`, so the season, the light and the weather colour it. What drawings use now: `--leaf`, `--leaf-hi`, `--leaf-lo`, `--pine`, `--pine-lo`, `--trunk`, `--blade`, `--rock`, `--rock-hi`, `--soil`, `--soil-hi`, `--stem`, `--wood`, `--wood-hi`, `--wood-lo`, `--iron`, `--sky-a`, `--sky-m` (a water surface mirroring the sky), `--lamp` (warm from evening on), `--bird` (1 by day, 0 at night and in rain or snow; use it as an opacity), and a flower's `--petal`, `--petal-hi`, `--petal-lo`, `--heart`. A fixed colour (`fill:#c45c4a`) stays the same in every light. The shipped drawings now wrap painted atlases (an `<image>` of a PNG cell) and use none of these names; they remain the way a vector drawing takes the yard's light. A drawing the content no longer names moves to `assets/sources/` rather than staying in `src/art/`, which ships inside the app.
 - Nothing in a drawing runs: scripts and `on…` attributes are taken out when it loads, and a test refuses them.
 
 ### Give a gift an effect
@@ -55,7 +64,7 @@ Name it in the gift's `effects`. The effects there are:
 To make a new effect, add an entry to `EFFECTS` in `src/yard/effects.js`, shaped `{ name: { layer, visited } }`: `layer` is markup drawn with the gift, and `visited` is what happens when a friend visits it (both are optional; leave both out if the effect is only a rule). Put its rules under "Effects" in `src/styles/garden.css`, selecting `.decor[data-effects~="<name>"]`. Every gift that names it follows.
 
 ### Change the scenery
-`src/content/yard.json`:
+The normal backdrop comes from `src/content/worlds.json` and accepted raster environments; follow [Add a place](add-a-world.md) for geometry, lighting and capabilities. `src/content/yard.json` describes the procedural loading/error fallback and shared composition:
 - `curves`: the hills, as cubic curves in fractions of the yard (x across, y down): a start point, then two control points and an end point for each piece.
 - `field` and `fieldTop`: the curve the field friends stand on starts at, and where its top is (a fraction of the height).
 - `lake`: where the lake starts and ends across (`from`, `to`), its far shore's height at the middle (`top`) and the curve that hides its near half (`under`). The far shore is half an oval whose ends sink behind that curve, so the water shows between where the two cross; the painter and fishing share this shape (`layout.js` `lakeShape`).

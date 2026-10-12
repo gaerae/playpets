@@ -3,7 +3,7 @@
 ## Scope
 This describes the current structure of the path through which coding agents (Claude Code, Codex, Gemini CLI, Cursor, and tools that use MCP) tell PlayPets friends their status. It is for people adding a new integration or building tools on the agent side. The architecture of the whole app is in [PlayPets app architecture](architecture.md).
 
-The integration stays inside this computer. What you type into the agent and your code are not sent to friends; only states and short sentences are.
+The bridge stays inside this computer. Hook adapters omit user prompts and tool inputs, but they forward short notifications and Codex’s last answer. MCP and direct commands can also supply sentences. The app retains recent reports and includes them as labeled status notes in the connected friend’s AI prompt when you chat. That AI may run outside this computer.
 
 ## Diagram
 A container-level diagram. It shows everything from what the agent runs to what appears on the friend.

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "id": "pip",
+  "identity": "identity.json",
+  "references": [
+    "identity-reference.png",
+    "expression-reference.png",
+    "motion-reference.png",
+    "wardrobe-reference.png"
+  ],
+  "availability": {
+    "detail": "not-created",
+    "seasons": ["summer", "winter"]
+  },
+  "files": {
+    "identity-reference.png": {
+      "bytes": 246880,
+      "sha256": "6e79d16b40fb6e88453ba397e64216ebce21fd85f3037be8bd5eafaa4c57c5d9"
+    },
+    "expression-reference.png": {
+      "bytes": 248975,
+      "sha256": "bbdc4b35c04ddb681edfb1265a0ecce62970acfa6c45ae2a9481bc735c96abfb"
+    },
+    "motion-reference.png": {
+      "bytes": 3443994,
+      "sha256": "b6ef5c53046b1e04c1f30729bda2258d775f15b4d4dfec66fb24e01f7ff7e7d5"
+    },
+    "wardrobe-reference.png": {
+      "bytes": 120080,
+      "sha256": "6ce10349837ad1a20e3ed588c44ff7860bc9eea972cb041baee08c333deb49aa"
+    },
+    "spritesheet.png": {
+      "bytes": 3752002,
+      "sha256": "d2500576bc3b0b4cd30ab0957b37609064fc4678d112e92089db9f2cd1891a70"
+    },
+    "summer.png": {
+      "bytes": 3543565,
+      "sha256": "0ab5f7b3d3492a3c73e1df7fd4d30895f391e50c64dcb064a1d3d3d8c9577062"
+    },
+    "winter.png": {
+      "bytes": 3842640,
+      "sha256": "9880f1b0f57fad58f1ae22cc6070fd3f9f75d1b90dcd4defdc984ad12f06c03d"
+    },
+    "identity.json": {
+      "bytes": 2597,
+      "sha256": "4a738403fa3b210194e2705a342cc46aad96f5f2d9f6c6d34e7650909d3b20a4"
+    },
+    "prompts/01-identity-lock.txt": {
+      "bytes": 1659,
+      "sha256": "150bdf230f094e94acb102c752f1e4183b2c375ad2974de51a49f388163b0761"
+    },
+    "prompts/02-face-detail.txt": {
+      "bytes": 1644,
+      "sha256": "ac960c777a2de9f39500f8d064f9e5ee84b2be20d56438560627fd84987e1a93"
+    },
+    "prompts/03-wardrobe.txt": {
+      "bytes": 2073,
+      "sha256": "724bf03b8a76e49655238cd6be2686b57cc63c39ee44a65ae6f7ca83f4b03b00"
+    },
+    "prompts/04-state-row.txt": {
+      "bytes": 1964,
+      "sha256": "ebe1d6ce61f5519fec9326b283bc6a1486f8079961d4923a318dc6b5219b540e"
+    },
+    "prompts/05-canonical-export.txt": {
+      "bytes": 1814,
+      "sha256": "6ba688179f386efbe5674e5b49f28a97e946a2f6ed95acb7e56f0c28f8792819"
+    },
+    "pet.json": {
+      "bytes": 524,
+      "sha256": "d148158a7042d5bd16a3cfcb41b8f8147b115459fc811ed89bdc16b719fd00eb"
+    },
+    "README.txt": {
+      "bytes": 1324,
+      "sha256": "93ef6732afc22730b98b3f485086fe417eb909a286ea0ee413b8cc298bb9f2f6"
+    }
+  }
+}

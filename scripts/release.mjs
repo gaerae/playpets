@@ -16,6 +16,7 @@ import {
   setMetainfoRelease,
   setPageDate,
 } from './release-lib.mjs';
+import { releasePagesFor } from './site-content.mjs';
 
 const version = process.argv[2];
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
@@ -33,10 +34,10 @@ if (git('tag', '--list', `v${version}`)) {
 }
 
 // The website has a page for the version in every language. The English one can be started from the
-// changelog; the Korean and Chinese ones are written ahead of time, so a release without them stops
+// changelog; the Korean, Japanese and Chinese ones are written ahead of time, so a release without them stops
 // here, before anything changes.
 const english = `website/releases/${version}.md`;
-const pages = [english, `website/ko/releases/${version}.md`, `website/zh-hans/releases/${version}.md`];
+const pages = releasePagesFor(version);
 const missing = pages.filter(page => page !== english && !existsSync(page));
 if (missing.length) {
   console.error(`Write the release page first: ${missing.join(', ')}`);

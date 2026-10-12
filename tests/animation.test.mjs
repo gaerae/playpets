@@ -2,7 +2,27 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { frameAt, headroom, lookAt, lookFrame, renewsClock } from '../src/core/animation.js';
+import { animationSpec, frameAt, headroom, lookAt, lookFrame, renewsClock } from '../src/core/animation.js';
+
+test('site preview descriptors follow the runtime rows, frame counts and loop lengths', () => {
+  const states = ['idle', 'right', 'left', 'wave', 'jump', 'error', 'waiting', 'working', 'done'];
+  const counts = [6, 8, 8, 4, 5, 8, 6, 6, 6];
+  for (const [row, state] of states.entries()) {
+    const spec = animationSpec(state);
+    assert.equal(spec.row, row);
+    assert.equal(spec.frames, counts[row]);
+    assert.deepEqual(frameAt(state, Math.round(spec.seconds * 1000) - 1), { row, column: spec.frames - 1 });
+    assert.deepEqual(frameAt(state, Math.round(spec.seconds * 1000)), { row, column: 0 });
+  }
+  assert.deepEqual(animationSpec('unknown'), animationSpec('idle'));
+});
+
+test('changing a preview descriptor cannot change runtime animation', () => {
+  const spec = animationSpec('wave');
+  spec.frames = 88;
+  assert.equal(animationSpec('wave').frames, 4);
+  assert.deepEqual(frameAt('wave', 699), { row: 3, column: 3 });
+});
 
 test('a friend looks toward the pointer, and nowhere while it is on its middle', () => {
   const rect = { x: 100, y: 100, width: 200, height: 200 };

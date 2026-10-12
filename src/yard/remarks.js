@@ -11,6 +11,14 @@ import { levelOf, lineFor } from './bond.js';
 import { chatterFor } from './scene.js';
 import { bubble } from './views.js';
 import { scene } from './world.js';
+import { worldAllows, worldFor } from './worlds.js';
+
+const remarkTimers = new Set();
+/** A place change cancels remarks queued for its previous weather. */
+export function cancelRemarks() {
+  for (const timer of remarkTimers) clearTimeout(timer);
+  remarkTimers.clear();
+}
 
 // A change in the weather is worth a remark from a friend or two.
 // Its first draw is 0, which makes chatterFor talk about the weather; the rest are random.
@@ -24,15 +32,29 @@ function aboutTheWeather() {
 }
 /** The weather changed: a friend or two say something about it. */
 export function remark() {
-  if (game || scene.weather === 'clear') return;
+  if (game || !worldAllows(scene.world, 'sky') || !worldAllows(scene.world, 'weather') || scene.weather === 'clear')
+    return;
+  cancelRemarks();
+  const when = { world: scene.world, period: scene.period, weather: scene.weather };
   const speakers = shuffle([...views.values()]).slice(0, 2);
   speakers.forEach((v, i) => {
-    setTimeout(
+    const timer = setTimeout(
       () => {
-        if (!game) bubble(v, chatterFor(scene.period, scene.weather, aboutTheWeather()), 3500);
+        remarkTimers.delete(timer);
+        if (
+          !game &&
+          views.get(v.pet.id) === v &&
+          worldAllows(scene.world, 'sky') &&
+          worldAllows(scene.world, 'weather') &&
+          scene.world === when.world &&
+          scene.period === when.period &&
+          scene.weather === when.weather
+        )
+          bubble(v, chatterFor(when.period, when.weather, aboutTheWeather()), 3500);
       },
       700 + i * 900,
     );
+    remarkTimers.add(timer);
   });
 }
 const CHATTER_DELAY = [40000, 110000];
@@ -55,7 +77,9 @@ export function idleChatter(now) {
       ? lineFor(v.pet, 'bond.dear')
       : festive
         ? pick(list(`event.${scene.event}.lines`))
-        : chatterFor(scene.period, scene.weather, Math.random),
+        : worldFor(scene.world).chatter
+          ? pick(list(worldFor(scene.world).chatter))
+          : chatterFor(scene.period, scene.weather, Math.random),
     3500,
   );
 }

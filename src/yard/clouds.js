@@ -32,7 +32,7 @@ export function paintCloud(ctx, cx, bottom, width, height, pal, rng, lit) {
 }
 
 /** The sky: its light from the top down to the haze, and the clouds that stand still in it. */
-export function paintSky(ctx, w, h, palette, { period, weather, season }) {
+export function paintSky(ctx, w, h, palette, { period, weather, season }, images = new Map()) {
   const pal = palette,
     lit = lightFor(period, weather),
     rng = seeded(23);
@@ -43,6 +43,18 @@ export function paintSky(ctx, w, h, palette, { period, weather, season }) {
     [1, pal['sky-b']],
   ]);
   ctx.fillRect(0, 0, w, h);
+  if (weather === 'clear' ? images.has('cumulus') && images.has('small') : images.has('overcast')) {
+    ctx.save();
+    ctx.globalAlpha = period === 'night' ? 0.2 : period === 'evening' ? 0.65 : 0.9;
+    if (weather === 'clear' && period !== 'night') {
+      ctx.drawImage(images.get('cumulus'), w * 0.07, h * 0.13, w * 0.27, (w * 0.27 * 295) / 512);
+      ctx.drawImage(images.get('small'), w * 0.58, h * 0.2, w * 0.19, (w * 0.19 * 226) / 475);
+    } else if (weather !== 'clear') {
+      for (const x of [-0.12, 0.25, 0.62]) ctx.drawImage(images.get('overcast'), w * x, -h * 0.08, w * 0.5, h * 0.43);
+    }
+    ctx.restore();
+    return;
+  }
   if (weather === 'clear' && period !== 'night') {
     // A heap of cloud towering behind the mountains, taller in summer, and a smaller one.
     const tall = season === 'summer' ? 1.4 : 1;

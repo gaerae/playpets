@@ -11,6 +11,7 @@ The same commands run on macOS, Linux and Windows. Command examples use a macOS 
 |---|---|---|
 | Rust | stable, 1.98 or later | `rustc --version` |
 | Node.js | 26 (`.node-version`) | `node --version` |
+| npm | 11 or later, included with Node.js 26 | `npm --version` |
 | git | any version | `git --version` |
 | Tauri prerequisites | per OS | below |
 
@@ -54,30 +55,35 @@ npm run test:e2e
 
 5. If an installed PlayPets is running, quit it with "Quit" in the tray menu. If it is running, the newly started app brings the running one to the front and exits right away.
 
-6. Run the app you built with an isolated data folder. This leaves the friends and settings you normally use untouched.
+6. Build the normal app executable and run it with an isolated data folder. The
+E2E build has test-only features, so rebuild before trying ordinary application
+behavior. This leaves the friends and settings you normally use untouched.
 
 ```bash
+npm run build:app
 PLAYPETS_DATA="$PWD/.dev-data" npm run start
 ```
 
 In Windows PowerShell, start it like this.
 
 ```powershell
-$env:PLAYPETS_DATA = "$PWD\.dev-data"; src-tauri\target\release\playpets.exe
+npm run build:app
+$env:PLAYPETS_DATA = "$PWD\.dev-data"
+npm run start
 ```
 
-7. Pick a pet in the Invite tab. The three starter pets are always there, and pets in `~/.codex/pets` and community pets pasted in through "Import a pet" show on the shelf too.
+7. Pick a pet in the Invite tab. The ten starter entries are always there, and pets in `~/.codex/pets` and community pets pasted in through "Import a pet" show on the shelf too.
 
 8. After changing page code, build again and start the app. Page files go into the executable at build time, so you need a build to see your change.
 
 ```bash
-cargo build --release --manifest-path src-tauri/Cargo.toml && PLAYPETS_DATA="$PWD/.dev-data" npm run start
+npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
 ```
 
 ## Verification
 - At the end of `npm test`, Rust prints `test result: ok` and Node prints `fail 0`.
 - At the end of `npm run test:e2e`, `PASS: tauri e2e` is printed.
-- The app opens, and with no pets the yard asks "Who would you like to play with?" over the three starter pets.
+- The app opens, and with no pets the yard asks "Who would you like to play with?" over the first three starter pets.
 - `.dev-data/state.json` is created, and the friend you invited is in it.
 
 ## Troubleshooting

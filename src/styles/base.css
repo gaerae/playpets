@@ -13,6 +13,12 @@
   /* words that warn: an error, sending a friend away */
   --danger: #a3422c;
   --white: #fff;
+  --shell: #f7f9f8;
+  --floating: #fffffff0;
+  --soft: #eef3eb;
+  /* the keyboard focus ring */
+  --focus: #367b90;
+  color-scheme: light;
   --radius: 22px;
   font-family:
     system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR",
@@ -20,6 +26,26 @@
   color: var(--ink);
   font-size: 14px;
   font-synthesis: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e8eee5;
+    --muted: #b2c0b7;
+    --paper: #2a3731;
+    --line: #46574b;
+    --accent: #efa888;
+    --danger: #f2a68d;
+    --white: #202c27;
+    --shell: #1b2520;
+    --floating: #202c27f0;
+    --soft: #384937;
+    --focus: #81bdc6;
+    --ink-8: #00000024;
+    --ink-12: #00000033;
+    --ink-15: #00000040;
+    --ink-20: #00000052;
+    color-scheme: dark;
+  }
 }
 /* Han characters are drawn in the shapes of the language on screen: a Korean font first would
    give Japanese text Korean glyph shapes. `lang` on <html> is set by core/i18n.js. */
@@ -68,7 +94,7 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 summary:focus-visible {
-  outline: 3px solid #367b90;
+  outline: 3px solid var(--focus);
 }
 svg {
   width: 20px;
@@ -118,7 +144,7 @@ button:active:not(:disabled) {
   border: 1px solid var(--line);
 }
 .button.secondary:hover {
-  background: #edf3f1;
+  background: var(--soft);
 }
 .button.primary {
   background: var(--ink);
@@ -153,7 +179,7 @@ button:active:not(:disabled) {
   background: var(--white);
 }
 .icon-button:hover {
-  background: #eaf0ed;
+  background: var(--soft);
 }
 .eyebrow {
   font-size: 10px;
@@ -271,7 +297,7 @@ select:focus {
   }
 }
 .button.chip:hover {
-  background: #eef3ef;
+  background: var(--soft);
 }
 select {
   -webkit-appearance: none;
@@ -295,4 +321,27 @@ select {
 .button.chip svg {
   width: 13px;
   height: 13px;
+}
+@media (prefers-color-scheme: dark) {
+  input,
+  select,
+  textarea {
+    background-color: var(--paper);
+  }
+  input::placeholder,
+  textarea::placeholder,
+  .eyebrow {
+    color: var(--muted);
+  }
+  .button.primary:hover {
+    background: #cadcc1;
+  }
+  .button.remove {
+    color: var(--muted);
+    border-color: var(--line);
+  }
+  .button.remove:hover {
+    background: #49332c;
+    color: var(--danger);
+  }
 }

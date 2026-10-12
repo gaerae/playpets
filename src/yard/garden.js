@@ -7,6 +7,7 @@ import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, toast, views } from '../core/state.js';
+import { spoken } from '../core/text.js';
 import { cadence, everyMinute } from '../core/ticker.js';
 import { artHref, artSize, colorStyle } from './art.js';
 import { befriend, levelOf } from './bond.js';
@@ -67,7 +68,7 @@ export function renderGarden(now = Date.now()) {
   reconcile(shown, data.garden?.plants || [], create, (v, plant) => {
     const stage = stageOf(plant.planted, now).name,
       art = artAt(plant, stage);
-    if (stage === 'bloom' && !plant.bloomed) bloomed(plant);
+    if (stage === 'bloom' && !plant.bloomed) bloomed(plant, now);
     if (v.art !== art) {
       v.art = art;
       v.use.setAttribute('href', artHref(art));
@@ -88,17 +89,27 @@ export function renderGarden(now = Date.now()) {
   syncTool();
 }
 // A flower is counted in the album once (the backend keeps which were); the first of its kind
-// shows its card. Asked once a session per plant, however often the garden is drawn.
+// shows its card. Pending calls stay separate from successful counts so a failed save can retry.
 const asked = new Set();
-function bloomed(plant) {
-  if (asked.has(plant.id)) return;
-  asked.add(plant.id);
+const bloomRetry = new Map();
+const bloomFailed = new Set();
+function bloomed(plant, now) {
+  if (asked.has(plant.id) || now < (bloomRetry.get(plant.id) || 0)) return;
+  bloomRetry.set(plant.id, Infinity);
   call('bloomed', plant.id)
     .then(r => {
+      asked.add(plant.id);
+      bloomRetry.delete(plant.id);
       if (r?.entry?.count === 1)
         showCard(flowerSvg(plant.kind), t(`garden.kind_${plant.kind}`), t('catch.bloomed'), true);
     })
-    .catch(() => {});
+    .catch(error => {
+      // Retried quietly after the first message, so a backend that keeps refusing does not
+      // repeat it every few seconds.
+      if (!bloomFailed.has(plant.id)) toast(spoken(error, t('error.generic')));
+      bloomFailed.add(plant.id);
+      bloomRetry.set(plant.id, Date.now() + RETRY_MS);
+    });
 }
 // The tool says how many seeds there are; with none it stays pressable and says how to get one.
 function syncTool() {
@@ -158,13 +169,29 @@ const finds = cadence(() => {
   looked = true;
   return nextFind(Math.random, first);
 });
-function collect() {
-  if (!lying) return;
-  const { node, timer } = lying;
-  lying = null;
+// A pickup by hand always says when it fails; the friend's own retries say so only the first time.
+async function collect(byHand = false) {
+  if (!lying || lying.pending) return false;
+  const seed = lying;
+  const { node, timer } = seed;
+  seed.pending = true;
+  node.disabled = true;
   clearTimeout(timer);
-  node.remove();
-  call('findSeed').catch(() => {});
+  try {
+    await call('findSeed');
+    lying = null;
+    node.remove();
+    return true;
+  } catch (error) {
+    if (byHand || !seed.failed) toast(spoken(error, t('error.generic')));
+    seed.failed = true;
+    // The seed stays where it was found; clicks can retry, and pocketing gets a slower retry too.
+    seed.timer = setTimeout(collect, RETRY_MS);
+    return false;
+  } finally {
+    seed.pending = false;
+    node.disabled = false;
+  }
 }
 /** Called by the frame loop while the yard is seen and no game is on. */
 export function gardenTick(now) {
@@ -189,10 +216,9 @@ export function gardenTick(now) {
   // Placed by left and top: its glow uses transform.
   node.style.left = `${v.px + sizeOf(v.pet) * 0.75}px`;
   node.style.top = `${v.py + petHeight(v.pet) - 18}px`;
-  node.addEventListener('click', e => {
+  node.addEventListener('click', async e => {
     e.stopPropagation();
-    collect();
-    effect(v, '✦');
+    if (await collect(true)) effect(v, '✦');
   });
   $('garden-layer').append(node);
   lying = { node, timer: setTimeout(collect, POCKET_AFTER) };

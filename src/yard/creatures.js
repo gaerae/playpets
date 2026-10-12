@@ -160,7 +160,7 @@ function firefly(look, unknown) {
 
 /** A heart with a friendship level in it, for the card that says two friends grew closer. */
 export function heartSvg(level) {
-  return `<svg viewBox="0 0 60 50" aria-hidden="true"><path d="M30 44C14 33 6 25 6 16 6 9 11 5 17 5c5 0 9 3 13 8 4-5 8-8 13-8 6 0 11 4 11 11 0 9-8 17-24 28Z" fill="#f08aa0" stroke="#c9576f" stroke-width="2"/><path d="M14 13c2-3 5-4 8-3" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".7"/><text x="30" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">${level}</text></svg>`;
+  return `<svg viewBox="0 0 60 50" aria-hidden="true"><image href="art/ambient/heart.svg" x="5" y="0" width="50" height="50"/><text x="30" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#682a42" stroke="#ffe8ee" stroke-width=".7" paint-order="stroke">${level}</text></svg>`;
 }
 
 /** A flower in bloom (by its id), from its drawing in its colours. */

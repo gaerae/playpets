@@ -1,0 +1,79 @@
+{
+  "sourceSha256": "0cb14473f01644439e76add7d02b987135e7a1bc51cd1ce7881292a3c4e1627c",
+  "normalizedSha256": "ae3fbcc791f3a6d3b140f2a42955217e7fccb66d6f9d1642c247bddec4f8a1a2",
+  "method": "Eight alpha>24 silhouette components with the existing packer's two-pixel low-alpha fringe; integer horizontal translation only; retained RGBA pixels unchanged; no resampling or vertical translation.",
+  "poses": [
+    {
+      "left": 29,
+      "right": 386,
+      "top": 32,
+      "bottom": 488,
+      "dx": -16,
+      "dy": 0,
+      "pixelCount": 104115
+    },
+    {
+      "left": 415,
+      "right": 758,
+      "top": 32,
+      "bottom": 491,
+      "dx": -11,
+      "dy": 0,
+      "pixelCount": 99639
+    },
+    {
+      "left": 790,
+      "right": 1131,
+      "top": 29,
+      "bottom": 489,
+      "dx": -1,
+      "dy": 0,
+      "pixelCount": 99759
+    },
+    {
+      "left": 1163,
+      "right": 1523,
+      "top": 31,
+      "bottom": 488,
+      "dx": 0,
+      "dy": 0,
+      "pixelCount": 105500
+    },
+    {
+      "left": 27,
+      "right": 391,
+      "top": 534,
+      "bottom": 995,
+      "dx": -18,
+      "dy": 0,
+      "pixelCount": 100498
+    },
+    {
+      "left": 409,
+      "right": 760,
+      "top": 532,
+      "bottom": 989,
+      "dx": -9,
+      "dy": 0,
+      "pixelCount": 104115
+    },
+    {
+      "left": 789,
+      "right": 1138,
+      "top": 531,
+      "bottom": 991,
+      "dx": -4,
+      "dy": 0,
+      "pixelCount": 99711
+    },
+    {
+      "left": 1163,
+      "right": 1526,
+      "top": 531,
+      "bottom": 993,
+      "dx": -1,
+      "dy": 0,
+      "pixelCount": 106239
+    }
+  ]
+}

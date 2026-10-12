@@ -2,48 +2,49 @@
 
 [![Banner: a yard where your pets talk to each other](assets/banner.png)](https://gaerae.github.io/playpets/)
 
-**A yard where your pets talk to each other.** Bring the ten thousand Codex pets as they are. Each friend talks through its own AI: a Claude Code or Codex subscription, Ollama, or an OpenAI-compatible server. Friends keep the conversation going among themselves, and whatever coding agent is working has company. PlayPets is a separate open-source app that follows the Codex pet format. You don't need Codex.
+**A little yard for companions who talk to you—and each other.** Invite community pets, give each a personality, and choose a relationship: friend, partner, mentor or younger sibling. They wander, play and chat together while you work or unwind. Connect a local Ollama model, a signed-in Claude Code or Codex CLI, or an OpenAI-compatible server. PlayPets is a separate open-source app that reads compatible Codex pet files. You don't need Codex.
 
 [Website](https://gaerae.github.io/playpets/) · [User guide](https://gaerae.github.io/playpets/guide/) · [Releases](https://gaerae.github.io/playpets/releases/) · [Developer docs](https://gaerae.github.io/playpets/dev/)
 
-한국어: [사이트](https://gaerae.github.io/playpets/ko/) · [사용 안내](https://gaerae.github.io/playpets/ko/guide/) · 简体中文: [网站](https://gaerae.github.io/playpets/zh-hans/) · [使用指南](https://gaerae.github.io/playpets/zh-hans/guide/)
+Korean: [Website](https://gaerae.github.io/playpets/ko/) · [User guide](https://gaerae.github.io/playpets/ko/guide/) · Japanese: [Website](https://gaerae.github.io/playpets/ja/) · [User guide](https://gaerae.github.io/playpets/ja/guide/) · Simplified Chinese: [Website](https://gaerae.github.io/playpets/zh-hans/) · [User guide](https://gaerae.github.io/playpets/zh-hans/guide/)
 
 [![build](https://github.com/gaerae/playpets/actions/workflows/build.yml/badge.svg)](https://github.com/gaerae/playpets/actions/workflows/build.yml) ![macOS · Windows · Linux](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-Tauri%202-f9ae55) ![MIT](https://img.shields.io/badge/license-MIT-3a2a1e) ![Compatible with the Codex pet format](https://img.shields.io/badge/pets-Codex%20pet%20format%20compatible-4a9bd6)
 
-More than ten pet apps that react to coding agents appeared in 2026, and nearly all are a single pet showing a status. PlayPets starts there and adds conversation and a place to live.
+Build a small community on your desktop, with a voice and a place for every friend.
 
-| | Codex pet | Most pet apps | PlayPets |
-|---|---|---|---|
-| Chat with a pet | No | No | Each friend: Claude Code, Codex, Ollama, OpenAI-compatible |
-| Pets talking to each other | No | Scripted only | The AIs keep the conversation going |
-| Where they live | Inside Codex | One pet over the desktop | A yard with time and weather, and the desktop |
-| How many | One | Usually one | Several |
-| Pet files | Codex format | Own or Codex format | Codex format as is, straight from a gallery address |
-| Agent reactions | Codex | Hooks, several agents | Hooks and MCP, several agents |
+| In PlayPets | Your choices |
+|---|---|
+| Companions | Ten starters or compatible community pet files |
+| Appearance | Separate Aria, Aria Mini, Noah and Noah Mini pets; seasonal clothes for seven entries |
+| Relationships | Friend, Partner, Dependable mentor or Playful younger sibling |
+| Conversations | Chat with a friend, bring friends in, or let them talk together |
+| AI connections | Signed-in Claude Code or Codex CLI, local Ollama, or an OpenAI-compatible server |
+| Places to play | A yard with time and weather, a small always-on-top window, or the desktop |
+| Coding company | Optional hooks and MCP for several coding agents |
 
 ![Three friends saying hi and going for a walk in the yard](assets/demo.gif)
 
-- **Each friend, its own AI.** Claude Code or Codex CLI on your subscription (no extra fee), Ollama (on your own computer), or OpenAI and compatible APIs. Give each friend a different AI and personality, and pick a relationship: Friend, Partner, Reliable senior or Playful younger sibling.
+- **Each friend, its own AI.** Chat through your signed-in Claude Code or Codex CLI subscription, within its usage allowance; paid extra usage can still apply. API-key CLI sign-in uses separate billing. Local Ollama models run on your computer without hosted inference fees; OpenAI and compatible APIs use the provider's billing. Give each friend a different AI and personality, and pick a relationship: Friend, Partner, Dependable mentor or Playful younger sibling.
 - **Friends talk to each other.** When the AI brings another connected friend into the conversation, they answer in turn. Press "Let them chat" in the yard and friends keep talking among themselves. You can also let them chat now and then on their own. In the yard it shows as speech bubbles.
 - **Friends at work.** Claude Code, Gemini CLI and Cursor hooks, Codex notifications and MCP pass thinking, tool use, permission requests and completion on to a friend. Give each agent its own friend. Ask "What were you doing?" and the friend tells you about recent work.
 - **A living yard.** Morning, day, evening and night follow the clock, and the weather (clear, rain, snow) changes on its own. You can also pick them yourself. Put down a treat and friends walk over to eat it. Leave them alone and they wander and talk to themselves.
 - **Desktop mode.** Pets stroll around the desktop (on macOS, even over other apps in full screen).
 - **Play together.** Hide and seek (find the friend whose name is called), parade, and tag.
-- **Three starter pets.** Tabby, Smoky and Mochi are included, so you can invite one the first time you open the app. They are drawn from the mascot in the Codex pet format and are MIT licensed.
+- **Ten starter companions.** Daisy the explorer, Clover the kitten gardener and Pip the puppy courier join separate fictional adult pets Aria, Aria Mini, Noah and Noah Mini and the original mascot cats Tabby, Smoky and Mochi. Clover is the main mascot; seven entries have seasonal wardrobes. They use the Codex pet format and are MIT licensed.
 - **Import community pets.** Paste the address of a pet page from OpenPets Registry (openpets.sh), Petdex, Codex PokéPets, Awesome Codex Pet (codexpet.top) or codex-pets.net, and the pet comes straight in. GitHub pet folder addresses and other sites built with codex-pet-share work too. Codex pets in `~/.codex/pets` load on their own. When a gallery adds a `playpets://import?url=<pet page>` link, one click brings the pet in.
 - **Mini mode.** Keep a small window with just the yard, always on top.
 - **Light.** Built with Tauri (Rust and the system webview), so the installer is small. The app redraws often only while something moves.
 
 ## Install
 
-- Download the macOS dmg, the Windows installer or portable zip, or the Linux deb or AppImage from [GitHub releases](https://github.com/gaerae/playpets/releases). The builds are not code-signed yet, so macOS and Windows block the first launch once. The [install guide](https://gaerae.github.io/playpets/guide/install) shows how to get past it.
+- Download the macOS dmg, the Windows installer or portable zip, or the Linux deb or AppImage from [GitHub releases](https://github.com/gaerae/playpets/releases). The builds are not code-signed yet, so macOS or Windows may show a security warning. Read the [install guide](https://gaerae.github.io/playpets/guide/install) for the checks and options available on your system.
 - To build it yourself, see [Development](#development) below.
 
 ## Getting started
 
-1. In the **Invite** tab, invite one of the starter pets (Tabby, Smoky or Mochi) into the yard.
+1. In the **Invite** tab, invite a starter companion into the yard. Daisy, Clover and Pip lead the shelf; the original three cats are also available.
 2. In the **Friend** tab, connect an AI. Installed Claude Code and Codex are found automatically. Ollama and OpenAI-compatible servers just need an address.
-3. In the **Settings** tab, under coding agent hooks, copy the settings for your tool and paste them in. Now a friend reacts while your agent works.
+3. In **Friend settings**, choose a personality, relationship and what the friend calls you. For company while coding, add your tool's hooks from the **Settings** tab.
 
 ## Coding agent integration
 
@@ -123,9 +124,9 @@ src-tauri/src/    App core (Rust)
 tests/            Page and script unit tests (*.test.mjs) and real-app E2E (e2e.mjs) · Rust tests live in each .rs file
 packaging/        Distribution builds: macos (dmg), linux and windows (Docker, MSIX)
 scripts/          Dev tools (release, distribution channels, site preparation, screenshots, installer art, OG images, mascot pets, measurement, icons)
-assets/           Source art: icon, mascot, the three starter pets, banner and demo GIF
+assets/           Source art: icon, mascot, starter companions, banner and demo GIF
 docs/             Developer docs (architecture, standards, how-to, decisions, design records)
-website/          The site (VitePress): landing page, user guide and release pages in English (the root), Korean (ko/) and Simplified Chinese (zh-hans/); developer docs are copied in from docs/ to dev/
+website/          The site (VitePress): landing page, user guide and release pages in English (the root), Korean (ko/), Japanese (ja/) and Simplified Chinese (zh-hans/); developer docs are copied in from docs/ to dev/
 ```
 
 ### Platform notes

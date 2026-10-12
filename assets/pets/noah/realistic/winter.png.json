@@ -1,0 +1,610 @@
+{
+  "scale": 0.352,
+  "rows": [
+    {
+      "row": 0,
+      "source": [1536, 1024],
+      "transparentFraction": 0.6844692230224609,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 63.007999999999996,
+          "height": 177.408,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 62.656,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 63.36,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 63.36,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 63.711999999999996,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 64.064,
+          "height": 177.408,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 63.711999999999996,
+          "height": 177.408,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 63.36,
+          "height": 177.05599999999998,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 1,
+      "source": [1536, 1024],
+      "transparentFraction": 0.6860612233479818,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 70.752,
+          "height": 174.23999999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 72.86399999999999,
+          "height": 174.23999999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 79.55199999999999,
+          "height": 173.536,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 76.032,
+          "height": 174.944,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 77.44,
+          "height": 176,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 81.312,
+          "height": 175.296,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 73.568,
+          "height": 175.648,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 78.496,
+          "height": 176,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 2,
+      "source": [1536, 1024],
+      "transparentFraction": 0.6874440511067709,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 75.32799999999999,
+          "height": 173.536,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 73.568,
+          "height": 173.88799999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 77.792,
+          "height": 174.23999999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 74.976,
+          "height": 173.88799999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 78.14399999999999,
+          "height": 173.536,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 77.088,
+          "height": 173.88799999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 78.14399999999999,
+          "height": 173.536,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 73.568,
+          "height": 173.536,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 3,
+      "source": [1536, 1024],
+      "transparentFraction": 0.6836833953857422,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 71.45599999999999,
+          "height": 177.76,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 71.45599999999999,
+          "height": 177.76,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 66.88,
+          "height": 177.408,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 67.232,
+          "height": 177.408,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 70.39999999999999,
+          "height": 178.464,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 65.824,
+          "height": 178.464,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 64.416,
+          "height": 178.112,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 64.768,
+          "height": 178.464,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 4,
+      "source": [1536, 1024],
+      "transparentFraction": 0.6950276692708334,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 71.80799999999999,
+          "height": 120.38399999999999,
+          "lift": 9.504
+        },
+        {
+          "sourceColumn": 1,
+          "width": 67.93599999999999,
+          "height": 158.048,
+          "lift": 9.152
+        },
+        {
+          "sourceColumn": 2,
+          "width": 70.048,
+          "height": 146.432,
+          "lift": 23.936
+        },
+        {
+          "sourceColumn": 3,
+          "width": 71.45599999999999,
+          "height": 134.112,
+          "lift": 9.504
+        },
+        {
+          "sourceColumn": 4,
+          "width": 65.824,
+          "height": 185.856,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 64.768,
+          "height": 184.79999999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 66.176,
+          "height": 184.09599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 64.768,
+          "height": 185.152,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 5,
+      "source": [1536, 1024],
+      "transparentFraction": 0.6896082560221354,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 59.839999999999996,
+          "height": 179.16799999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 60.544,
+          "height": 178.112,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 60.19199999999999,
+          "height": 177.76,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 60.544,
+          "height": 176.352,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 58.784,
+          "height": 178.816,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 58.784,
+          "height": 178.112,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 61.248,
+          "height": 175.648,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 61.248,
+          "height": 177.05599999999998,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 6,
+      "source": [1536, 1024],
+      "transparentFraction": 0.7063350677490234,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 59.488,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 58.08,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 58.784,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 58.431999999999995,
+          "height": 176.70399999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 60.19199999999999,
+          "height": 178.464,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 60.544,
+          "height": 178.464,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 60.544,
+          "height": 178.112,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 60.19199999999999,
+          "height": 178.464,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 7,
+      "source": [1536, 1024],
+      "transparentFraction": 0.6834163665771484,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 71.104,
+          "height": 178.112,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 71.45599999999999,
+          "height": 177.408,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 71.104,
+          "height": 177.76,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 70.39999999999999,
+          "height": 177.408,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 71.80799999999999,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 71.104,
+          "height": 176.70399999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 72.512,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 71.104,
+          "height": 176.70399999999998,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 8,
+      "source": [1536, 1024],
+      "transparentFraction": 0.6644426981608073,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 76.73599999999999,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 82.01599999999999,
+          "height": 176.70399999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 71.80799999999999,
+          "height": 176.70399999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 79.55199999999999,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 79.904,
+          "height": 180.576,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 96.09599999999999,
+          "height": 180.928,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 79.904,
+          "height": 179.51999999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 85.536,
+          "height": 179.87199999999999,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 9,
+      "source": [1536, 1024],
+      "transparentFraction": 0.675445556640625,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 64.768,
+          "height": 178.464,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 64.768,
+          "height": 177.76,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 64.768,
+          "height": 177.408,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 64.768,
+          "height": 177.05599999999998,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 65.11999999999999,
+          "height": 178.816,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 65.11999999999999,
+          "height": 178.464,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 65.11999999999999,
+          "height": 178.112,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 64.768,
+          "height": 178.464,
+          "lift": 0
+        }
+      ]
+    },
+    {
+      "row": 10,
+      "source": [1536, 1024],
+      "transparentFraction": 0.6734288533528646,
+      "frames": [
+        {
+          "sourceColumn": 0,
+          "width": 65.824,
+          "height": 177.76,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 1,
+          "width": 66.176,
+          "height": 177.76,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 2,
+          "width": 65.824,
+          "height": 178.112,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 3,
+          "width": 65.11999999999999,
+          "height": 178.112,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 4,
+          "width": 66.176,
+          "height": 179.87199999999999,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 5,
+          "width": 66.176,
+          "height": 179.87199999999999,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 6,
+          "width": 65.824,
+          "height": 179.87199999999999,
+          "lift": 0
+        },
+        {
+          "sourceColumn": 7,
+          "width": 65.11999999999999,
+          "height": 179.87199999999999,
+          "lift": 0
+        }
+      ]
+    }
+  ]
+}

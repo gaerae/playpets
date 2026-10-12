@@ -7,6 +7,14 @@ import { LANGUAGES } from '../src/core/strings.js';
 
 const repo = 'https://github.com/gaerae/playpets/blob/main';
 
+test('companion choices remain exposed to assistive technology', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const source = await readFile('website/.vitepress/theme/PetGallery.vue', 'utf8');
+  assert.match(source, /class="pet-choice"/);
+  // A static aria-hidden on a container hides the choices; a bound one (:aria-hidden) is judged at run time.
+  assert.doesNotMatch(source, /<(?:section|div)\b[^>]*[^:]aria-hidden="true"/);
+});
+
 test('a docs file lands under dev/ and the index keeps its folder', () => {
   assert.equal(destinationFor('docs/README.md'), 'website/dev/index.md');
   assert.equal(destinationFor('docs/how-to/release.md'), 'website/dev/how-to/release.md');
@@ -34,7 +42,7 @@ test('web links and anchors are left alone', () => {
 
 test('each sample pet is a valid v2 sheet with its pet.json', async () => {
   const { readFile: read } = await import('node:fs/promises');
-  for (const id of ['tabby', 'smoky', 'mochi']) {
+  for (const id of ['daisy', 'clover', 'pip', 'aria', 'noah', 'tabby', 'smoky', 'mochi']) {
     const png = await read(`assets/pets/${id}/spritesheet.png`);
     assert.equal(png.readUInt32BE(16), 1536, id);
     assert.equal(png.readUInt32BE(20), 2288, id);
@@ -56,11 +64,19 @@ test('a release page is made from the changelog section: front matter, downloads
   assert.ok(page.includes('### Added\n- The yard has weather.'));
 });
 
+test('the capture scenario only presses controls present in the yard page', async () => {
+  const { readFile: read } = await import('node:fs/promises');
+  const script = await read('scripts/shots.mjs', 'utf8'),
+    html = await read('src/index.html', 'utf8');
+  for (const [, id] of script.matchAll(/\$\('([^']+)'\)/g))
+    assert.ok(html.includes(`id="${id}"`), `capture control ${id} is missing from the page`);
+});
+
 test('every released version in the changelog has a page in each site language, and every screenshot a page names exists', async () => {
   const { readdir, readFile: read, access } = await import('node:fs/promises');
   const changelog = await read('CHANGELOG.md', 'utf8');
   for (const [, version] of changelog.matchAll(/^## \[(\d+\.\d+\.\d+)\]/gm))
-    for (const dir of ['website', 'website/ko', 'website/zh-hans'])
+    for (const dir of ['website', 'website/ko', 'website/ja', 'website/zh-hans'])
       await access(`${dir}/releases/${version}.md`).catch(() =>
         assert.fail(`${dir}/releases/${version}.md is missing`),
       );
@@ -81,7 +97,12 @@ test('every released version in the changelog has a page in each site language, 
 
 test('the share card exists at 1200×630', async () => {
   const { readFile: read } = await import('node:fs/promises');
-  for (const file of ['website/public/og.png', 'website/public/og-ko.png', 'website/public/og-zh-hans.png']) {
+  for (const file of [
+    'website/public/og.png',
+    'website/public/og-ko.png',
+    'website/public/og-ja.png',
+    'website/public/og-zh-hans.png',
+  ]) {
     const png = await read(file);
     assert.equal(png.readUInt32BE(16), 1200, file);
     assert.equal(png.readUInt32BE(20), 630, file);
@@ -97,6 +118,11 @@ test('the GIF writer makes a GIF89a file with one palette and a frame per input'
   const blue = new Uint8ClampedArray(w * h * 4).fill(255);
   for (let i = 0; i < blue.length; i += 4) blue[i] = blue[i + 1] = 0;
   const gif = encodeGif([red, blue], w, h, 10);
+  const timed = encodeGif([red, blue], w, h, [18, 27]);
+  const delays = [];
+  for (let i = 0; i < timed.length - 7; i++)
+    if (timed[i] === 0x21 && timed[i + 1] === 0xf9 && timed[i + 2] === 4) delays.push(timed.readUInt16LE(i + 4));
+  assert.deepEqual(delays, [18, 27], 'capture timing survives encoding');
   assert.equal(gif.subarray(0, 6).toString('ascii'), 'GIF89a');
   assert.equal(gif.readUInt16LE(6), w);
   assert.equal(gif.readUInt16LE(8), h);
@@ -129,4 +155,33 @@ test('every place that names the site uses the address in package.json', async (
       if (!url.startsWith(homepage.replace(/\/$/, ''))) wrong.push(`${file}: ${url}`);
   }
   assert.deepEqual(wrong, []);
+});
+
+// Shot.vue reserves each capture's frame before the picture loads; a wrong ratio squashes it.
+test('every screenshot has the shape its page reserves for it', async () => {
+  const { readdir, readFile } = await import('node:fs/promises');
+  const shot = await readFile('website/.vitepress/theme/Shot.vue', 'utf8');
+  const ratios = Object.fromEntries(
+    [...shot.match(/const RATIO[^{]*\{([^}]*)\}/)[1].matchAll(/'?([\w-]+)'?: '(\d+) \/ (\d+)'/g)].map(m => [
+      m[1],
+      m[2] / m[3],
+    ]),
+  );
+  const fallback = shot.match(/\?\? '(\d+) \/ (\d+)'/).slice(1, 3);
+  const size = buffer => {
+    const kind = buffer.toString('latin1', 12, 16);
+    if (kind === 'VP8X') return [1 + buffer.readUIntLE(24, 3), 1 + buffer.readUIntLE(27, 3)];
+    if (kind === 'VP8L') {
+      const n = buffer.readUInt32LE(21);
+      return [(n & 0x3fff) + 1, ((n >> 14) & 0x3fff) + 1];
+    }
+    return [buffer.readUInt16LE(26) & 0x3fff, buffer.readUInt16LE(28) & 0x3fff];
+  };
+  for (const version of await readdir('website/public/shots'))
+    for (const lang of await readdir(`website/public/shots/${version}`))
+      for (const file of await readdir(`website/public/shots/${version}/${lang}`)) {
+        const [width, height] = size(await readFile(`website/public/shots/${version}/${lang}/${file}`));
+        const want = ratios[file.replace('.webp', '')] ?? fallback[0] / fallback[1];
+        assert.ok(Math.abs(width / height - want) < 0.01, `${version}/${lang}/${file}: ${width}×${height}`);
+      }
 });

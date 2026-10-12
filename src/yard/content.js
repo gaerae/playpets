@@ -8,14 +8,18 @@ import { loadArt } from './art.js';
 import { artOf, useCatalog } from './catalog.js';
 import { useEvents } from './events.js';
 import { useScenery } from './layout.js';
+import { useWorlds } from './worlds.js';
 
 /** Loads the catalogue, the scenery and the drawings. */
 export async function loadContent() {
-  const [catalog, yard, events] = await Promise.all(
-    ['content/catalog.json', 'content/yard.json', 'content/events.json'].map(path => fetch(path).then(r => r.json())),
+  const [catalog, yard, events, worlds] = await Promise.all(
+    ['content/catalog.json', 'content/yard.json', 'content/events.json', 'content/worlds.json'].map(path =>
+      fetch(path).then(r => r.json()),
+    ),
   );
   useCatalog(catalog);
   useScenery(yard);
   useEvents(events);
+  useWorlds(worlds);
   await loadArt(artOf(catalog, events));
 }

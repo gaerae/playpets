@@ -4,10 +4,14 @@ import { readFileSync } from 'node:fs';
 import { useCatalog } from '../../src/yard/catalog.js';
 import { useEvents } from '../../src/yard/events.js';
 import { useScenery } from '../../src/yard/layout.js';
+import { useWorlds } from '../../src/yard/worlds.js';
 
-export const catalog = JSON.parse(readFileSync(new URL('../../src/content/catalog.json', import.meta.url), 'utf8'));
-export const yard = JSON.parse(readFileSync(new URL('../../src/content/yard.json', import.meta.url), 'utf8'));
-export const events = JSON.parse(readFileSync(new URL('../../src/content/events.json', import.meta.url), 'utf8'));
+const content = name => JSON.parse(readFileSync(new URL(`../../src/content/${name}.json`, import.meta.url), 'utf8'));
+export const catalog = content('catalog');
+export const yard = content('yard');
+export const events = content('events');
+export const worlds = content('worlds');
 useCatalog(catalog);
 useScenery(yard);
 useEvents(events);
+useWorlds(worlds);

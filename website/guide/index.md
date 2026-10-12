@@ -1,6 +1,8 @@
 # Guide
 
-PlayPets is a yard where your pets talk to each other. Bring the ten thousand Codex pets as they are, give each friend its own AI, let friends keep a conversation going among themselves, and keep any coding agent company. It follows the Codex pet format, but Codex itself is not required. A pet is a character file with artwork and an introduction. Invite that pet into the yard and it becomes a friend with a name and a personality. Friends wander around a yard that follows the time of day, the weather and the seasons, eat treats, play three games, and come out onto the desktop if you want. The yard grows over the days: friends find seeds for the garden and bring gifts, you fish and catch bugs for the album, friends grow closer to you, and seasonal events and the yard's own sounds come and go. Connect the Claude Code or Codex subscription you already use and you can chat with your friends, and they react beside you while your coding agent works.
+PlayPets is a shared yard for companions who talk to you and each other. Invite a starter or import a compatible community pet file, then choose a name, personality and relationship. Codex itself is not required.
+
+The yard follows the time of day, weather and seasons. Friends stroll, eat treats, play three games, find seeds and bring gifts. Grow flowers, fish and catch bugs for the album, and grow closer over time. Mini mode keeps the yard beside your work; desktop mode lets friends roam over other windows. Conversation needs a local model, a signed-in CLI or another AI connection. Coding-agent hooks are optional.
 
 ## What you need
 

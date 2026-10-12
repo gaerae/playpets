@@ -15,7 +15,7 @@ import { hint } from './yard/hint.js';
 import { endGameIfSomeoneLeft, syncGameUi } from './yard/play.js';
 import { renderSound } from './yard/sound.js';
 import { syncViews } from './yard/views.js';
-import { renderWelcome } from './yard/welcome.js';
+import { onboardingSteps, renderWelcome } from './yard/welcome.js';
 export function render() {
   if (!data.pets.some(p => p.id === selected)) setSelected(data.pets[0]?.id || null);
   $('app-version').textContent = data.version ? `v${data.version}` : '';
@@ -47,17 +47,11 @@ export function render() {
   renderPanel();
 }
 // The first-run card. An empty yard asks who to play with and shows the starter pets; once a friend
-// is in, the card steps aside with what is left (give an AI, give an agent a friend), ticking what
-// is done, and goes once all is done or when it is dismissed.
+// is in, the card steps aside. Connecting an AI completes setup; coding hooks are optional.
 function renderSteps() {
-  const done = {
-    invite: data.pets.length > 0,
-    ai: data.pets.some(p => p.providerId),
-    agent: Object.keys(data.agentPets || {}).length > 0,
-  };
-  const all = done.invite && done.ai && done.agent;
+  const { done, hidden } = onboardingSteps(data.pets, data.agentPets, recall('steps-dismissed') === '1');
   const card = $('empty-yard');
-  card.hidden = done.invite && (all || recall('steps-dismissed') === '1');
+  card.hidden = hidden;
   card.classList.toggle('aside', done.invite);
   $('welcome').hidden = done.invite;
   $('next-steps').hidden = !done.invite;

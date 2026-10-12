@@ -3,10 +3,22 @@ src-tauri/target/
 src-tauri/gen/schemas/
 release/
 *.log
+# Sanitized parser fixtures are source, not local process logs.
+!tests/fixtures/**/*.log
 # a local data folder for development (docs/getting-started.md)
-.dev-data/
+/.dev-data/
+/.dev-data-*/
+# Optional local npm/browser caches and test reports; fixtures remain visible.
+/.npm/
+/.cache/
+/coverage/
+/.nyc_output/
+/test-results/
+/playwright-report/
 .DS_Store
 .env*
+# A future template contains placeholders only; never copy live credentials into it.
+!/.env.example
 # editors and tools
 .idea/
 .vscode/*
@@ -17,11 +29,16 @@ release/
 # website: generated from docs/ and assets/ by scripts/site-prepare.mjs, built by vitepress
 website/dev/
 website/public/icon.svg
+website/public/favicon.png
+website/public/favicon.ico
 website/public/pets/
+website/public/creator-kit/
+website/public/yard/
 website/.vitepress/cache/
 website/.vitepress/dist/
 website/.vitepress/generated.json
 # keys and certificates never belong here (an Apple App Store Connect API key is a .p8)
+/.credentials/
 *.pem
 *.p12
 *.p8
@@ -30,3 +47,6 @@ website/.vitepress/generated.json
 # Windows folder files
 Thumbs.db
 desktop.ini
+
+# Ownership and regeneration commands: docs/repository-layout.md.
+# Ignore rules do not remove files already tracked by Git.

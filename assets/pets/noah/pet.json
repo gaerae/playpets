@@ -1,0 +1,24 @@
+{
+  "id": "playpets-noah",
+  "displayName": "Noah",
+  "kind": "person",
+  "description": "A fictional adult man, age 26, with dark curtain hair and a soft sage overshirt. A gentle, attentive performer who enjoys music, good conversation and city walks. He starts as a friend; choose Partner in friend settings for an adult romantic companion.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.png",
+  "seasonalSpritesheets": {
+    "summer": "seasonal/summer.png",
+    "winter": "seasonal/winter.png"
+  },
+  "source": {
+    "name": "PlayPets",
+    "url": "https://github.com/gaerae/playpets",
+    "creator": "gaerae",
+    "license": "MIT"
+  },
+  "realisticSpritesheets": {
+    "default": "realistic/spritesheet.png",
+    "summer": "realistic/summer.png",
+    "winter": "realistic/winter.png"
+  },
+  "realisticPortraitPath": "realistic/portrait.png"
+}

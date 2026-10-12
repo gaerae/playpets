@@ -10,7 +10,7 @@ The app speaks Korean (`ko`), English (`en`), Japanese (`ja`) and Simplified Chi
    - `strings`: key → sentence. Keys whose value is a list (greetings, chatter) stay lists.
    - `listSeparator` (optional): the separator used when listing names. The default is `', '`; Japanese uses `'、'`.
 2. Add one `import` line and one entry to `MODULES` in `src/core/strings.js`. The language list in the Settings tab comes from here.
-3. `words.js` attaches Korean particles (`{name:을/를}`) only for Korean. Other languages use plain placeholders. When listing names, `joinList` picks that language's comma.
+3. `words.js` attaches Korean particles (a placeholder with the two particle forms after a colon) only for Korean. Other languages use plain placeholders. When listing names, `joinList` picks that language's comma.
 4. If the writing system is different, add a font stack for the language in `src/styles/base.css`, like `:root:lang(ja)` (Chinese drawn with Japanese fonts gets different glyph shapes).
 
 ## 2. Backend strings
@@ -20,7 +20,7 @@ The app speaks Korean (`ko`), English (`en`), Japanese (`ja`) and Simplified Chi
 
 ## 3. Other places
 
-- Site: `locales` in `website/.vitepress/config.mts` and the docs in `website/<code>/guide/`. The site picks its languages separately, so it can have fewer than the app (today the landing page, user guide and release pages are in Korean, English and Simplified Chinese, and the developer docs are in English only). Add one set per language to `copy` in `Landing.vue` for the landing page text, and to `theme/words.ts` for what the components say.
+- Site: `locales` in `website/.vitepress/config.mts` and the docs in `website/<code>/guide/`. The site picks its languages separately, so it can have fewer than the app (today the landing page, user guide and release pages are in Korean, English, Japanese and Simplified Chinese, and the developer docs are in English only). Register the locale in `scripts/site-content.mjs`, add `theme/landing-<code>.ts` and its active copy contract, and update `theme/words.ts` and the creator components. `Landing.vue` composes those modules; publishing, captures and release validation share the locale registry. Add an Open Graph card, guide pages and release notes, then test canonical and alternate links.
 - Captures: add the language's names, personalities and sample conversation to `script` in `scripts/shots.mjs`, and `npm run shots` captures screens in that language too (it reads the language list from `strings.js`). You can choose languages, like `SHOT_LANGS=ko,en`. Once the site has docs in that language, `tests/website.test.mjs` looks for the captures used by `website/<code>/` in that language's folder.
 - The supported-languages line in the doc `docs/standards/i18n.md`.
 - OG images: `scripts/make-og.mjs` makes one image per language the site has. Add the language once the site has it.

@@ -17,6 +17,27 @@ Homebrew and winget need no account of their own: both are GitHub repositories.
 
 ## Steps
 
+### Check an existing setup first
+
+For an existing repository, inspect it before creating keys or accounts again.
+Check `git remote -v` and `git status --short` locally, and use the repository's
+Settings pages to confirm Pages, the default-branch ruleset, workflow permissions,
+private vulnerability reporting and secret scanning. A configured but empty
+repository still needs its first code push before Actions can validate the app
+and publish the site.
+
+Do not replace an existing updater key just because the secret values cannot be
+read back from GitHub. Confirm the saved public key matches `plugins.updater.pubkey`
+and retain its private-key backup. Secret names alone do not prove that the private
+key and password are correct; a signed release build and update test confirm that.
+
+The local repository includes `.gitignore`, `.gitattributes`, `.editorconfig`,
+`.node-version`, Biome and editor recommendations, issue and pull-request templates,
+Dependabot, review guidance and four Actions workflows. `npm test` checks ignored
+generated/secret paths, pinned actions and the Pages input paths. Run `actionlint`
+too when it is available. `CODEOWNERS` and funding metadata are optional; add them
+when there are review owners or a real funding destination to name.
+
 ### The updater signing key
 Installed apps accept an update only if it is signed with this key, so it is made once, with a password, and never lost.
 
@@ -51,7 +72,7 @@ pbcopy < /dev/null
    - Settings → Actions → General → Workflow permissions: **Read repository contents and packages permissions**; leave "Allow GitHub Actions to create and approve pull requests" off. Optional: "Require actions to be pinned to a full-length commit SHA" (every action here is pinned).
    - Settings → Advanced Security: **Private vulnerability reporting: Enable** (`SECURITY.md`, the Code of Conduct and the issue form send reports there); Dependabot alerts and security updates: Enable; make sure secret scanning and push protection are on.
    - Settings → General → Features: Issues on; Wiki, Discussions and Projects off. Social preview: upload `website/public/og.png`.
-   - The gear next to About on the repository page: description `A yard where your pets talk to each other. Desktop pets for Codex and Claude Code users.`, website "Use your GitHub Pages website", topics `desktop-pet`, `tauri`, `codex-pet`, `claude-code`, `coding-agent`, `ollama`, `rust`.
+   - The gear next to About on the repository page: description `A little yard for companions who talk to you and each other. Optional AI connections and coding-agent reactions.`, website "Use your GitHub Pages website", topics `desktop-pet`, `tauri`, `codex-pet`, `claude-code`, `coding-agent`, `ollama`, `rust`.
    - Settings → Rules → Rulesets → New branch ruleset for the default branch: "Restrict deletions" and "Block force pushes". The release command pushes its commit straight to `main`, so add "Require a pull request" or "Require status checks" only with Repository admin on the bypass list.
 
 7. Push. Do not push with `--all` or `--tags`.

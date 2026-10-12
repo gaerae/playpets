@@ -13,6 +13,7 @@ import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
+import { environmentLake } from './environment.js';
 import { field, footTarget, petHeight, sizeOf } from './field.js';
 import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
@@ -20,6 +21,7 @@ import { cue } from './sound.js';
 import { isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
 import { bubble, cheer } from './views.js';
 import { scene, scenery } from './world.js';
+import { worldAllows } from './worlds.js';
 
 // How long a fish takes to bite (ms), and how long the float stays down before it gets away.
 const BITE_AFTER = [3000, 9000];
@@ -31,15 +33,19 @@ let lakeKey = '',
   lakeArea = null;
 function lake() {
   const { width, height } = field(),
-    key = `${width}x${height}`;
+    illustrated = $('yard').dataset.environment === 'illustrated',
+    key = `${width}x${height}:${illustrated}:${scene.world}`;
   if (key !== lakeKey) {
     lakeKey = key;
-    lakeArea = lakeShape(width, height, trace(composition.curves[composition.lake.under], width, height));
+    lakeArea = illustrated
+      ? environmentLake(width, height, scene)
+      : lakeShape(width, height, trace(composition.curves[composition.lake.under], width, height));
   }
   return lakeArea;
 }
 /** Whether a point in the yard is on the lake's water (a few pixels in from where it shows). */
 export function onLake(x, y) {
+  if (!worldAllows(scene.world, 'fishing')) return false;
   const l = lake();
   return x > l.ends[0] + 6 && x < l.ends[1] - 6 && l.onWater(x, y + 2);
 }
@@ -62,6 +68,7 @@ function stopFishing() {
   }
 }
 function startFishing(x, friend) {
+  if (!worldAllows(scene.world, 'fishing')) return;
   if (fishing) return;
   const l = lake(),
     shore = l.ridgeAt(x),
@@ -83,10 +90,10 @@ function fishArrived(v) {
   const layer = $('garden-layer'),
     float = document.createElement('button'),
     line = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-    rodX = v.px + sizeOf(v.pet) * 0.78,
-    rodY = v.py + petHeight(v.pet) * 0.55,
-    tipX = rodX + sizeOf(v.pet) * 0.35,
-    tipY = rodY - petHeight(v.pet) * 0.55;
+    rodX = v.px + sizeOf(v.pet) * 0.6,
+    rodY = v.py + petHeight(v.pet) * 0.74,
+    tipX = rodX + sizeOf(v.pet) * 0.68,
+    tipY = rodY - petHeight(v.pet) * 0.52;
   float.type = 'button';
   float.className = 'bobber';
   float.setAttribute('aria-label', t('catch.too_soon'));
@@ -97,7 +104,12 @@ function fishArrived(v) {
     reel();
   });
   line.setAttribute('class', 'fishing-line');
-  line.innerHTML = `<path d="M${rodX} ${rodY}L${tipX} ${tipY}" stroke="#7a5a3a" stroke-width="2.4" stroke-linecap="round"/><path d="M${tipX} ${tipY}Q${(tipX + fishing.x) / 2} ${Math.max(tipY, fishing.y) + 6} ${fishing.x} ${fishing.y - 6}" fill="none" stroke="#f4f1e8" stroke-width="1" opacity=".9"/>`;
+  line.setAttribute('aria-hidden', 'true');
+  line.setAttribute('fill', 'none');
+  line.style.zIndex = String(Math.max(0, (v.z || 0) - 1));
+  const shaft = `M${rodX} ${rodY}Q${rodX + sizeOf(v.pet) * 0.28} ${rodY - petHeight(v.pet) * 0.3} ${tipX} ${tipY}`,
+    cord = `M${tipX} ${tipY}Q${(tipX + fishing.x) / 2 + 3} ${(tipY + fishing.y) / 2 + 5} ${fishing.x} ${fishing.y - 6}`;
+  line.innerHTML = `<path d="${shaft}" stroke="#473b2c" stroke-width="3.8" stroke-linecap="round"/><path d="${shaft}" stroke="#c9a36c" stroke-width="2.2" stroke-linecap="round"/><path d="M${rodX} ${rodY}l${sizeOf(v.pet) * 0.055} ${-petHeight(v.pet) * 0.09}" stroke="#695240" stroke-width="4.2" stroke-linecap="round"/><path d="${cord}" stroke="#243c42" stroke-width="2.5" opacity=".55"/><path d="${cord}" stroke="#f4efe0" stroke-width="1.1" opacity=".95"/>`;
   layer.append(line, float);
   Object.assign(fishing, { float, line });
   fishing.timer = setTimeout(nibble, between(Math.random, BITE_AFTER));
@@ -107,7 +119,7 @@ function nibble() {
   fishing.biting = true;
   fishing.float.classList.add('bite');
   cue('plip');
-  fishing.float.setAttribute('aria-label', t('catch.album'));
+  fishing.float.setAttribute('aria-label', t('catch.reel'));
   // Fishing alone, the friend reels in itself, and lands most of what bites.
   if (fishing.solo && Math.random() < SOLO_LANDS) {
     fishing.timer = setTimeout(land, 500 + Math.random() * 700);
@@ -121,16 +133,21 @@ function nibble() {
 }
 const land = guard(async () => {
   if (!fishing?.biting) return;
-  const { v, solo } = fishing,
+  const world = scene.world,
+    { v, solo } = fishing,
     { fish, size } = bite(scene.season, scene.period, scene.weather, Math.random, scene.event);
   stopFishing();
-  befriend(v.pet.id, 'catch');
-  cue('splash');
-  cheer(v, 'catch.caught', { ms: 1200 });
-  const { first } = await call('catch', 'fish', fish.id, size),
-    title = solo
-      ? t('bond.solo_catch', { name: name(v.pet), fish: t(`catch.fish_${fish.id}`) })
-      : t(`catch.fish_${fish.id}`);
+  const { first } = await call('catch', 'fish', fish.id, size);
+  if (views.get(v.pet.id) === v) {
+    befriend(v.pet.id, 'catch');
+    if (scene.world === world && !game) {
+      cue('splash');
+      cheer(v, 'catch.caught', { ms: 1200 });
+    }
+  }
+  const title = solo
+    ? t('bond.solo_catch', { name: name(v.pet), fish: t(`catch.fish_${fish.id}`) })
+    : t(`catch.fish_${fish.id}`);
   showCard(fishSvg(fish), title, t('catch.size', { size: size.toFixed(1) }), first);
 });
 function reel() {
@@ -146,7 +163,7 @@ const SOLO_LANDS = 0.75;
 const solo = cadence(() => between(Math.random, SOLO_EVERY));
 /** Called by the frame loop while the yard is seen. */
 export function soloFishing(now) {
-  if (!solo.due(now) || fishing || game || aiming) return;
+  if (!worldAllows(scene.world, 'fishing') || !solo.due(now) || fishing || game || aiming) return;
   const keen = [...views.values()].filter(v => isFree(v) && levelOf(v.pet.id) >= 3);
   if (!keen.length) return;
   const l = lake();
@@ -156,17 +173,46 @@ export function soloFishing(now) {
   if (l.onWater(x, l.ridgeAt(x) - 1)) startFishing(x, pick(keen));
 }
 
+const nets = new Set();
+function sweepNet(v) {
+  const net = document.createElement('span'),
+    width = Math.max(36, sizeOf(v.pet) * 0.6),
+    leftSide = v.px + sizeOf(v.pet) + width * 0.6 > field().width - 10;
+  net.className = 'bug-net';
+  net.setAttribute('aria-hidden', 'true');
+  net.dataset.side = leftSide ? 'left' : 'right';
+  net.style.width = `${width}px`;
+  net.style.height = `${width * 1.4}px`;
+  net.style.top = `${petHeight(v.pet) * 0.74 - width * 1.4 * 0.9}px`;
+  net.style[leftSide ? 'right' : 'left'] = `${sizeOf(v.pet) * 0.58 - (width * 12) / 90}px`;
+  net.innerHTML =
+    '<svg viewBox="0 0 90 126" fill="none"><g class="net-sweep"><path d="M12 114L53 44" stroke="#493e30" stroke-width="6" stroke-linecap="round"/><path d="M12 114L53 44" stroke="#cda56c" stroke-width="3.6" stroke-linecap="round"/><path d="M12 114L20 100" stroke="#765840" stroke-width="5" stroke-linecap="round"/><g transform="rotate(-22 65 29)"><path d="M42 25Q43 60 65 59Q87 58 88 25" fill="#e9f4dc33" stroke="#496158" stroke-width="1.8"/><path d="M47 34Q65 43 83 34M50 44Q65 52 80 44M55 52Q65 57 75 52M52 26Q51 47 60 57M65 29V59M78 26Q79 47 70 57" stroke="#f4f4dc" stroke-width="1.3"/><ellipse cx="65" cy="25" rx="23" ry="12" fill="#e9f4dc22" stroke="#3a544a" stroke-width="4"/><ellipse cx="65" cy="25" rx="23" ry="12" stroke="#dbe8c7" stroke-width="2"/></g></g></svg>';
+  // A child of the friend follows its movement and stays behind its painted face.
+  v.button.append(net);
+  const remove = () => {
+    clearTimeout(entry.timer);
+    net.remove();
+    nets.delete(entry);
+  };
+  const entry = { remove, timer: setTimeout(remove, 850) };
+  nets.add(entry);
+}
+
 // A bug caught in the air: the nearest friend leaps for it.
 const catchBug = guard(async caught => {
   const bug = kindOf('bug', caught.species);
   if (!bug) return;
-  const v = nearestFree(caught.x, caught.y) || [...views.values()].find(f => !f.drag);
-  if (v) {
-    befriend(v.pet.id, 'catch');
-    cue('catch');
-    cheer(v, 'catch.bug_caught', { say: 2600 });
-  }
+  const world = scene.world,
+    v = nearestFree(caught.x, caught.y) || [...views.values()].find(f => !f.drag);
   const { first, entry } = await call('catch', 'bug', bug.id, 0);
+  if (v && views.get(v.pet.id) === v) {
+    befriend(v.pet.id, 'catch');
+    if (scene.world === world && !game) {
+      cue('catch');
+      sweepNet(v);
+      cheer(v, 'catch.bug_caught', { say: 2600 });
+    }
+  }
   showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first);
 });
 
@@ -203,4 +249,6 @@ export function setupCatch() {
 /** The yard's size changing ends a fishing trip (the float would be left where the lake was). */
 export function endFishing() {
   stopFishing();
+  for (const net of nets) net.remove();
+  $('yard').classList.remove('can-catch');
 }

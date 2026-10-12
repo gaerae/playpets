@@ -1,0 +1,6 @@
+Tool: built-in image_gen
+Source output: exec-aa72d9e9-f622-4ad2-b014-b4069a5a80c7.png
+Reference: assets/pets/noah/realistic/portrait.png
+Review: identity, outfit, true rear view, both profiles and facial details compared to accepted production sources. Rear geometry is newly inferred reference artwork, not recovered original rig.
+Prompt:
+Use case: identity-preserve. Reusable professional FACE DETAIL MODEL SHEET for EXACT fictional adult man Noah age26 in reference, natural realistic adult face proportions, dark curtain waves, brown almond eyes, straight refined nose, natural peach lips, same jawline/hairline and skin. Clean pale ivorybackground wide2:1 approximately2048x1024. Toprow three equal largehead/bust views FRONT, exact LEFT PROFILE nosepointsleft, THREEQUARTER facingright; ivoryshirt and sagecollar subtle atbottom. Bottomrow distinctmagnifiedpanels of sameperson's LEFT EYE and eyebrow OPEN; sameeye CLOSED; NOSE front andprofile together; MOUTH neutral andsmall closedsmile together; EAR and hairwhorl/hairline closeups. Allfineanatomicfeatures coherentwithoriginal, no newface/nochibi/no makeup, no inventedjewelry. Crisp naturalskin and individualhairstrands, softevenstudiolight, generousspacing, no decorativeobjects, not animationatlas, no text/watermarks.

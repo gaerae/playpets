@@ -18,8 +18,12 @@ test('the about links point at the site in the app language and at the repositor
   assert.equal(projectLinks(project, 'zh-hans').guide, 'https://gaerae.github.io/playpets/zh-hans/guide/');
 });
 
+test('Japanese uses its translated site and guide', () => {
+  assert.equal(projectLinks(project, 'ja').guide, 'https://gaerae.github.io/playpets/ja/guide/');
+});
+
 test('English, and app languages the site does not have, use the site root', () => {
-  for (const lang of ['en', 'ja']) {
+  for (const lang of ['en', 'fr']) {
     const links = projectLinks(project, lang);
     assert.equal(links.site, 'https://gaerae.github.io/playpets/');
     assert.equal(links.notes('0.2.0'), 'https://gaerae.github.io/playpets/releases/0.2.0');

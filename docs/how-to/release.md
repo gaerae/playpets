@@ -11,7 +11,7 @@ A maintainer does this. You need write access to the repository and a clean loca
 - `CHANGELOG.md` lists this version's changes under `## [Unreleased]`. If it is empty, the release command stops.
 - You chose the version number. Bump the second number when people get new features, and the third when there are only fixes.
 - `git status` is empty locally.
-- The release pages for this version are written in all three site languages: `website/releases/<version>.md` (English), `website/ko/releases/<version>.md` and `website/zh-hans/releases/<version>.md`. Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
+- The release pages for this version are written in all four site languages: `website/releases/<version>.md` (English), `website/ko/releases/<version>.md`, `website/ja/releases/<version>.md` and `website/zh-hans/releases/<version>.md`. Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
 - The one-time repository setup is done ([Set up the repository, keys and store accounts](set-up-the-repository.md)): Pages from GitHub Actions, private vulnerability reporting, the updater signing secrets, and for the stores the Homebrew tap and the winget-pkgs fork.
 
 ## Steps
@@ -28,7 +28,7 @@ npm run shots -- 0.2.0
 npm run art
 ```
 
-3. Make the release commit and tag. The changelog section moves to a dated section, and the version changes in `package.json`, `package-lock.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`. The version is also added, dated, to the releases in `packaging/linux/app.playpets.metainfo.xml`. The command also dates the website release pages: it sets today's date in `website/releases/0.2.0.md`, `website/ko/releases/0.2.0.md` and `website/zh-hans/releases/0.2.0.md`. If the Korean or Chinese page is missing, it stops before changing anything; a missing English page is started from the changelog notes, without highlights, so write all three before you run it. Everything goes into one release commit. Nothing is pushed.
+3. Make the release commit and tag. The changelog section moves to a dated section, and the version changes in `package.json`, `package-lock.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`. The version is also added, dated, to the releases in `packaging/linux/app.playpets.metainfo.xml`. The command also dates the website release pages: it sets today's date in `website/releases/0.2.0.md`, `website/ko/releases/0.2.0.md`, `website/ja/releases/0.2.0.md` and `website/zh-hans/releases/0.2.0.md`. If the Korean, Japanese or Chinese page is missing, it stops before changing anything; a missing English page is started from the changelog notes, without highlights, so write all four before you run it. Everything goes into one release commit. Nothing is pushed.
 
 ```bash
 npm run release -- 0.2.0

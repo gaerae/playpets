@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "references": {
+    "detail": "not-created",
+    "seasons": ["summer", "winter"]
+  },
+  "id": "daisy",
+  "character": "daisy",
+  "name": "Daisy",
+  "age": null,
+  "kind": "person",
+  "identity": {
+    "description": "Fictional young explorer with a curious, friendly personality; preserve the accepted youthful age and appearance. Not a real person.",
+    "face": {
+      "eyes": "warm brown eyes with the accepted rounded shape and spacing",
+      "nose": "small softly rounded nose and subtle freckles",
+      "mouth": "small friendly smile; retain the accepted shape"
+    },
+    "hair": "chestnut bob, unchanged bangs and curled ends",
+    "accessories": [
+      "sage beret with white daisy and green leaf satchel; preserve each anatomical attachment side from the approved reference"
+    ],
+    "wardrobe": {
+      "baseline": "sage daisy beret, ivory blouse, apricot dungaree dress, brown boots and green leaf satchel",
+      "summer": "airy ivory short-sleeve blouse, light apricot linen dungaree dress, sage daisy beret, light brown shoes and original green satchel",
+      "winter": "warm apricot wool coat over leggings, sage knit scarf, green knit beret with white daisy, brown winter boots and original green satchel"
+    }
+  },
+  "style": "illustrated",
+  "anatomy": "Stylized large-head explorer, short compact body; preserve the accepted youthful age and proportions.",
+  "workingAction": "focused laptop work with visible typing gestures, preserving the accepted seated or standing pose",
+  "targetIdleHeight": 163,
+  "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
+  "facePanels": {
+    "top": ["front", "profile facing viewer left", "three-quarter facing viewer left"],
+    "bottom": ["eyes", "nose", "mouth", "ear", "hair", "signature accessory"]
+  },
+  "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
+  "canonical": {
+    "width": 1536,
+    "height": 2288,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "columns": 8,
+    "rows": 11,
+    "usedFrames": [6, 8, 8, 4, 5, 8, 6, 6, 6],
+    "gaze": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+  }
+}
