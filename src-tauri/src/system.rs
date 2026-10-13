@@ -46,6 +46,10 @@ fn open(target: &OsStr, folder: bool) -> Result<(), ()> {
     if cfg!(target_os = "macos") && folder {
         cmd.arg("-R");
     }
+    #[cfg(target_os = "linux")]
+    if let Some(name) = crate::window::renderer_switch_set_here() {
+        cmd.env_remove(name);
+    }
     // Waited for on a thread of its own, so it does not stay behind as a finished (zombie) process.
     let mut child = cmd.arg(target).spawn().map_err(|_| ())?;
     std::thread::spawn(move || child.wait());

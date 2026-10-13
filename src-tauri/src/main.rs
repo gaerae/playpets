@@ -38,6 +38,9 @@ fn main() {
     if agent::cli::is_cli(&cli_args) {
         std::process::exit(agent::cli::run(&cli_args[1..]));
     }
+    // Before any thread starts: it sets an environment variable WebKitGTK reads (window.rs).
+    #[cfg(target_os = "linux")]
+    window::choose_renderer();
     let at_login = cli_args.iter().any(|a| a == AUTOSTART_ARG);
     let mut builder = tauri::Builder::default();
     // A second launch normally just brings the running app forward and hands over any link it

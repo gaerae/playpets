@@ -17,7 +17,5 @@ rm -f /out/PlayPets_*.deb /out/PlayPets_*.AppImage
 cp src-tauri/target/release/bundle/deb/*.deb /out/
 cp src-tauri/target/release/bundle/appimage/*.AppImage /out/ 2>/dev/null || true
 echo "== e2e ($arch, Xvfb)"
-# Under Xvfb's software GL, WebKitGTK's DMA-BUF renderer ends the page's web process partway through
-# the run; the shared-memory renderer does not.
-WEBKIT_DISABLE_DMABUF_RENDERER=1 dbus-run-session -- xvfb-run -a -s "-screen 0 1920x1080x24" npm run test:e2e | tee /out/e2e.log
+dbus-run-session -- xvfb-run -a -s "-screen 0 1920x1080x24" npm run test:e2e | tee /out/e2e.log
 grep -q "^PASS: tauri e2e" /out/e2e.log

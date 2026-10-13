@@ -52,4 +52,5 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Known limitations
 - The downloads are not code-signed, so macOS Gatekeeper and Windows SmartScreen block the first launch.
+- On Linux the window is drawn with WebKitGTK's shared-memory renderer, because its DMA-BUF renderer leaves the window blank or frozen where there is no usable GPU (a virtual machine, a remote desktop, some drivers).
 - The Windows build was checked in a virtual machine (the x64 installer on Windows 11 ARM), installing and running, but has not been tested enough on real machines yet.

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-function fixture(t, { oldKey = false, key = true } = {}) {
+function fixture(t, { oldKey = false, oldCert = true, key = true, strayCert = false, verifies = true } = {}) {
   const root = mkdtempSync(path.join(tmpdir(), 'playpets-msix-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const put = (name, contents) => {
@@ -21,12 +21,14 @@ function fixture(t, { oldKey = false, key = true } = {}) {
   // Builds before the key volume kept the key beside the package; newer ones keep it in /keys.
   if (oldKey) {
     put('out/msix-test/PlayPets-test.pfx', 'existing private certificate');
-    put('out/msix-test/PlayPets-test.cer', 'existing public certificate');
+    if (oldCert) put('out/msix-test/PlayPets-test.cer', 'existing public certificate');
   }
   if (key) {
     put('keys/PlayPets-test.pfx', 'existing private certificate');
     put('keys/PlayPets-test.cer', 'existing public certificate');
   }
+  // A certificate whose key was removed from the volume by hand.
+  if (strayCert) put('keys/PlayPets-test.cer', 'certificate of a removed key');
   for (const name of ['AppxManifest.xml', 'README-test.txt'])
     put(`templates/${name}`, readFileSync(`packaging/windows/msix/${name}`, 'utf8'));
   put(
@@ -64,7 +66,8 @@ osslsigncode() {
     cp "$input" "$output"
     echo SIGNED >> "$output"
   else
-    echo 'Signature verification: succeeded'
+    echo 'Signature verification: ok'
+    echo "$VERIFY_RESULT"
   fi
 }
 source "$TEST_ROOT/build.sh"
@@ -75,7 +78,13 @@ source "$TEST_ROOT/build.sh"
     run: publisher =>
       spawnSync('bash', [path.join(root, 'harness.sh')], {
         encoding: 'utf8',
-        env: { ...process.env, TEST_ROOT: root, TMPDIR: root, MSIX_PUBLISHER: publisher },
+        env: {
+          ...process.env,
+          TEST_ROOT: root,
+          TMPDIR: root,
+          MSIX_PUBLISHER: publisher,
+          VERIFY_RESULT: verifies ? 'Succeeded' : 'Failed',
+        },
       }),
     read: name => readFileSync(path.join(root, name), 'utf8'),
   };
@@ -135,4 +144,24 @@ test('the first MSIX build makes a key in the key volume', {
   assert.ok(existsSync(path.join(f.root, 'keys/PlayPets-test.pfx')));
   assert.ok(existsSync(path.join(f.root, 'out/msix-test/PlayPets-test.cer')));
   assert.equal(existsSync(path.join(f.root, 'out/msix-test/PlayPets-test.pfx')), false);
+});
+
+test('a certificate left without its key is replaced by one made from the moved key', {
+  skip: process.platform === 'win32',
+}, t => {
+  const f = fixture(t, { oldKey: true, oldCert: false, key: false, strayCert: true });
+  const result = f.run('');
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(f.read('keys/PlayPets-test.pfx'), 'existing private certificate');
+  assert.match(f.read('calls'), /openssl pkcs12 -in \S+\/keys\/PlayPets-test\.pfx/);
+  assert.notEqual(f.read('out/msix-test/PlayPets-test.cer'), 'certificate of a removed key');
+});
+
+test('a test MSIX whose signature does not verify stops the build', {
+  skip: process.platform === 'win32',
+}, t => {
+  const f = fixture(t, { verifies: false });
+  const result = f.run('');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /does not verify against PlayPets-test\.cer/);
 });

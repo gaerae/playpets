@@ -12,6 +12,37 @@ const FULL_MIN: (f64, f64) = (840.0, 660.0);
 const MINI_SIZE: (f64, f64) = (460.0, 320.0);
 const MINI_MIN: (f64, f64) = (300.0, 210.0);
 
+/// WebKitGTK's DMA-BUF renderer ends the page's web process where it finds no usable GPU (a VM,
+/// a remote desktop, some drivers, Xvfb), leaving a blank or frozen window. The shared-memory
+/// renderer draws everywhere, and the yard repaints only while something moves, so the copy it
+/// costs is small. A value the person set is left as it is.
+#[cfg(target_os = "linux")]
+pub fn choose_renderer() {
+    if let Some((name, value)) = renderer_default(std::env::var_os(DMABUF_SWITCH).as_deref()) {
+        // SAFETY: main calls this before the app starts a thread, so nothing reads the environment meanwhile.
+        unsafe { std::env::set_var(name, value) };
+        RENDERER_SET_HERE.store(true, Ordering::Relaxed);
+    }
+}
+
+/// The variable `choose_renderer` set, if it did. A program the app opens (a browser, a file manager)
+/// starts without it, so the app's choice never turns off another program's GPU drawing.
+#[cfg(target_os = "linux")]
+pub fn renderer_switch_set_here() -> Option<&'static str> {
+    RENDERER_SET_HERE.load(Ordering::Relaxed).then_some(DMABUF_SWITCH)
+}
+
+#[cfg(target_os = "linux")]
+static RENDERER_SET_HERE: AtomicBool = AtomicBool::new(false);
+
+#[cfg(target_os = "linux")]
+const DMABUF_SWITCH: &str = "WEBKIT_DISABLE_DMABUF_RENDERER";
+
+#[cfg(target_os = "linux")]
+fn renderer_default(set: Option<&std::ffi::OsStr>) -> Option<(&'static str, &'static str)> {
+    set.is_none().then_some((DMABUF_SWITCH, "1"))
+}
+
 fn size((width, height): (f64, f64)) -> LogicalSize<f64> {
     LogicalSize::new(width, height)
 }
@@ -334,5 +365,14 @@ mod tests {
         );
         assert_eq!(rect_of(&json!({"x": 1, "y": 2, "width": "wide", "height": 200})), None);
         assert_eq!(rect_of(&json!(null)), None);
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn the_renderer_switch_is_set_only_when_the_person_left_it_unset() {
+        use super::renderer_default;
+        assert_eq!(renderer_default(None), Some(("WEBKIT_DISABLE_DMABUF_RENDERER", "1")));
+        assert_eq!(renderer_default(Some(std::ffi::OsStr::new("0"))), None);
+        assert_eq!(renderer_default(Some(std::ffi::OsStr::new(""))), None);
     }
 }

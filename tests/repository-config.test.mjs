@@ -269,15 +269,6 @@ test('the capabilities folder Tauri watches is kept in the repository', () => {
   assert.equal(ignored.status, 1, String(ignored.stdout));
 });
 
-// Without a GPU, WebKitGTK's DMA-BUF renderer ends the page's web process partway through the e2e.
-test('e2e runs under Xvfb use the shared-memory renderer', () => {
-  for (const file of ['.github/workflows/build.yml', 'packaging/linux/build.sh']) {
-    const text = read(file);
-    assert.match(text, /xvfb-run/, file);
-    assert.match(text, /WEBKIT_DISABLE_DMABUF_RENDERER(=|: )1/, file);
-  }
-});
-
 test('checkouts drop the job token, and the job holding signing secrets restores no cache', () => {
   for (const file of readdirSync('.github/workflows')) {
     const steps = read(`.github/workflows/${file}`).split(/\n(?=\s*- )/);
@@ -311,4 +302,23 @@ test('Node has one major version: .node-version, package.json engines and the Do
       new RegExp(`^FROM node:${major}-\\S+ AS node$`, 'm'),
       platform,
     );
+});
+
+// CI runs the e2e from its release build instead of test:e2e's own profile (build.yml). A change to
+// test:e2e fails here until the workflow's E2E steps make the same change.
+test('the CI e2e builds and runs what npm run test:e2e does', () => {
+  const local = JSON.parse(read('package.json')).scripts['test:e2e'];
+  assert.equal(
+    local,
+    'cargo build --profile e2e --features e2e --manifest-path src-tauri/Cargo.toml && node tests/e2e.mjs',
+    'test:e2e changed: update the E2E steps in .github/workflows/build.yml too',
+  );
+  const workflow = read('.github/workflows/build.yml');
+  assert.match(workflow, /run: cargo build --release --features e2e --manifest-path src-tauri\/Cargo\.toml\n/);
+  assert.equal([...workflow.matchAll(/run: .*node tests\/e2e\.mjs\n/g)].length, 2);
+  const binaries = [
+    ...workflow.matchAll(/PLAYPETS_BINARY: \$\{\{ github\.workspace \}\}\/src-tauri\/target\/release\/playpets/g),
+  ];
+  assert.equal(binaries.length, 2);
+  assert.doesNotMatch(workflow, /npm run test:e2e/);
 });

@@ -41,6 +41,9 @@ if [ -z "${MSIX_PUBLISHER:-}" ]; then
   mkdir -p /keys
   if [ ! -f "$key" ] && [ -f "$msix/PlayPets-test.pfx" ]; then
     mv "$msix/PlayPets-test.pfx" "$key"
+    # A certificate left in the volume belongs to another key; the one beside the old key, or one
+    # made from it below, replaces it.
+    rm -f "$cert"
     if [ -f "$msix/PlayPets-test.cer" ]; then cp "$msix/PlayPets-test.cer" "$cert"; fi
   fi
   if [ ! -f "$key" ]; then
@@ -57,7 +60,10 @@ if [ -z "${MSIX_PUBLISHER:-}" ]; then
   cp "$cert" "$msix/PlayPets-test.cer"
   osslsigncode sign -pkcs12 "$key" -pass "" -h sha256 -in "$package" -out "$package.signed"
   mv "$package.signed" "$package"
-  osslsigncode verify -CAfile <(openssl x509 -inform DER -in "$cert") "$package" | grep -E "Signature verification|Succeeded|Failed" || true
+  # A package whose signature does not verify against the certificate handed out stops the build.
+  verified="$(osslsigncode verify -CAfile <(openssl x509 -inform DER -in "$cert") "$package" 2>&1)" || true
+  grep -E "Signature verification|Succeeded|Failed" <<<"$verified" || true
+  grep -qx "Succeeded" <<<"$verified" || { echo "The test MSIX does not verify against PlayPets-test.cer." >&2; exit 1; }
   sed -e "s/@VERSION@/${version}/" -e "s/@PUBLISHER@/${publisher}/" /usr/local/share/playpets-msix/README-test.txt > "$msix/README.txt"
 fi
 rm -rf "$stage"
