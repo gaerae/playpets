@@ -4,6 +4,9 @@
 # (appindicator is only there because the Tauri CLI probes the host for it even for Windows targets.)
 # From the repo root: npm run dist:windows. scripts/local.mjs mounts sources read-only,
 # preserves the build cache and forwards MSIX_PUBLISHER when set on the host.
+# Node.js comes from the official image, so the build uses the same Node major as .node-version. A
+# stage of its own, so Dependabot sees the tag (it reads FROM lines).
+FROM node:26-trixie-slim AS node
 FROM rust:1-trixie
 RUN apt-get update && apt-get install -y --no-install-recommends mingw-w64 nsis rsync zip libayatana-appindicator3-dev \
       osslsigncode openssl cmake clang git zlib1g-dev libicu-dev libssl-dev \
@@ -18,9 +21,8 @@ RUN git clone https://github.com/microsoft/msix-packaging.git /opt/msix-packagin
     && install -m 755 .vs/bin/makemsix /usr/local/bin/makemsix \
     && find .vs -name 'libmsix.so*' -exec install -m 644 {} /usr/local/lib/ \; && ldconfig \
     && rm -rf /opt/msix-packaging
-# Node.js comes from the official image, so the Docker build uses the same Node major as .node-version.
-COPY --from=node:26-trixie-slim /usr/local/bin/node /usr/local/bin/node
-COPY --from=node:26-trixie-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 COPY build.sh /usr/local/bin/windows-build.sh
 COPY msix /usr/local/share/playpets-msix

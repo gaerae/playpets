@@ -47,7 +47,7 @@ npm test
 npm run lint
 ```
 
-4. Run the real-app E2E. It builds the release executable, so the first run takes a few minutes.
+4. Run the real-app E2E. It builds a test executable of its own in `src-tauri/target/e2e/`, so the first run takes a few minutes.
 
 ```bash
 npm run test:e2e
@@ -56,8 +56,9 @@ npm run test:e2e
 5. If an installed PlayPets is running, quit it with "Quit" in the tray menu. If it is running, the newly started app brings the running one to the front and exits right away.
 
 6. Build the normal app executable and run it with an isolated data folder. The
-E2E build has test-only features, so rebuild before trying ordinary application
-behavior. This leaves the friends and settings you normally use untouched.
+E2E build has test-only features and stays in its own folder, so `npm run start`
+runs only what `npm run build:app` made. This leaves the friends and settings you
+normally use untouched.
 
 ```bash
 npm run build:app

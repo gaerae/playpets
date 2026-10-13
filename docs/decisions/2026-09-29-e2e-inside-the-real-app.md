@@ -19,6 +19,9 @@ The E2E hooks are now compiled in only with the `e2e` Cargo feature (`[features]
 ## Follow-up (2026-10-10)
 The E2E-only commands are the `test_only` rows of the `COMMANDS` table in `src-tauri/src/commands.rs`: `e2eLog`, `e2eWindow`, `e2eTray` (the tray menu as last built) and `e2eFreshGifts`. They can be called only in an e2e run, and the page's bridge never offers them.
 
+## Follow-up (2026-10-13)
+The e2e, capture and measurement builds use their own Cargo profile (`cargo build --profile e2e --features e2e`, `[profile.e2e]` inheriting `release`), so they land in `src-tauri/target/e2e/` and no longer replace the executable in `target/release/` that `npm start` runs.
+
 ## Alternatives considered
 - **Drive the app from outside with WebDriver (`tauri-driver`):** The standard approach, but it does not support macOS. It cannot run on the main development machine.
 - **Serve only the page from a static server and automate a browser:** Useful for checking the page (we use it for performance measurements and screenshots), but the backend is fake, so it cannot check saving, the overlay or the CLI.

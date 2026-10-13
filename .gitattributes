@@ -31,6 +31,9 @@
 *.heic binary
 *.psd binary
 *.kra binary
+*.aseprite binary
+*.ase binary
+*.svgz binary
 *.mov binary
 *.m4a binary
 *.flac binary
@@ -38,6 +41,7 @@
 *.ttf binary
 *.otf binary
 *.eot binary
+*.ttc binary
 *.7z binary
 *.tar binary
 *.tgz binary
@@ -46,6 +50,8 @@
 # Packages, executables and certificates: ignored where they are built, binary if one is ever added.
 *.exe binary
 *.dll binary
+*.dylib binary
+*.so binary
 *.msix binary
 *.appx binary
 *.deb binary

@@ -27,6 +27,11 @@ src-tauri/gen/schemas/
 .vscode/*
 !.vscode/extensions.json
 *.swp
+*.swo
+# editor backups and leftovers of a merge or patch that did not apply cleanly
+*~
+*.orig
+*.rej
 # local assistant settings and the worktrees agent sessions make inside the checkout
 .claude/settings.local.json
 .claude/worktrees/

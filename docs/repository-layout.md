@@ -81,16 +81,16 @@ and translated release pages. Avoid a second independent version source.
 | Format one tool's files | `npm run format:js` / `npm run format:rust` |
 | Build a normal app executable | `npm run build:app` |
 | Run the already-built executable | `npm start` |
-| Build a native application bundle | `npm run build` |
+| Build this platform's packages (macOS `.app`, Windows NSIS installer, Linux deb and AppImage, as CI does) | `npm run build` |
 | Run isolated desktop checks | `npm run test:e2e` |
 | Prepare generated site inputs | `npm run site:prepare` |
-| Run or build the site | `npm run site:dev` / `npm run site:build` |
+| Run, build or preview the built site | `npm run site:dev` / `npm run site:build` / `npm run site:preview` |
 | Check artwork files and references | `npm run assets:audit` |
 
 `check` does not launch the desktop app, generate artwork or release anything.
-E2E still needs a desktop session and changes the local executable to its
-test-feature build. Use `build:app` before manually trying normal behavior after
-E2E. `start` does not rebuild or change the data directory; follow
+E2E still needs a desktop session. Its test-feature build goes to
+`src-tauri/target/e2e/`, so it never replaces the executable `start` runs.
+`start` does not rebuild or change the data directory; follow
 [getting started](getting-started.md) to select isolated development data.
 
 Local Docker distribution uses `scripts/local.mjs`, preserving paths with spaces

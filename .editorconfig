@@ -17,3 +17,10 @@ trim_trailing_whitespace = false
 
 [Dockerfile]
 indent_size = 4
+
+[*.swift]
+indent_size = 4
+
+# Windows batch files run only with CRLF line endings (.gitattributes checks them out that way).
+[*.{bat,cmd}]
+end_of_line = crlf

@@ -84,6 +84,10 @@ test('repository ignores generated files, local state and signing credentials', 
     'certificate.p12',
     'AuthKey.p8',
     'private.pem',
+    'src/app.js.orig',
+    'src/app.js.rej',
+    'notes.md~',
+    '.notes.md.swo',
   ];
   const ignored = execFileSync('git', ['check-ignore', '--no-index', '--stdin'], {
     input: `${paths.join('\n')}\n`,
@@ -160,7 +164,14 @@ test('Git treats media as binary and preserves source metadata as reviewable tex
 });
 
 test('installer packages, fonts and certificates are binary, batch files keep CRLF, and generated metadata is marked', () => {
-  const binary = ['release/x/PlayPets.msix', 'assets/fonts/Display.ttf', 'assets/art/source.psd', 'packaging/test.cer'];
+  const binary = [
+    'release/x/PlayPets.msix',
+    'assets/fonts/Display.ttf',
+    'assets/art/source.psd',
+    'assets/pets/mochi/sheet.aseprite',
+    'packaging/test.cer',
+    'packaging/libmsix.dylib',
+  ];
   const generated = ['src/art/ambient/birds.png.json', 'assets/creator-kit/aria/kit.json'];
   const paths = [...binary, ...generated, 'scripts/run.bat', 'assets/creator-kit/README.md'];
   const values = execFileSync('git', ['check-attr', '-z', '--stdin', 'binary', 'eol', 'linguist-generated'], {
@@ -277,4 +288,27 @@ test('checkouts drop the job token, and the job holding signing secrets restores
   const build = release.slice(release.indexOf('\n  build:'), release.indexOf('\n  publish:'));
   assert.match(build, /TAURI_SIGNING_PRIVATE_KEY/);
   assert.doesNotMatch(build, /cache: npm|rust-cache/);
+});
+
+// Tauri skips a target the platform cannot build, so one list gives each platform what CI builds;
+// with only "app", `npm run build` on Windows or Linux made no package at all.
+test("npm run build makes each platform's packages, as CI does", () => {
+  const targets = JSON.parse(read('src-tauri/tauri.conf.json')).bundle.targets;
+  const ci = [...read('.github/workflows/build.yml').matchAll(/bundles: "?([\w,]+)"?\}/g)].flatMap(m =>
+    m[1].split(','),
+  );
+  for (const bundle of ci.filter(b => b !== 'dmg')) assert.ok(targets.includes(bundle), bundle);
+  // A disk image is styled through Finder, which asks for permission on a developer's Mac.
+  assert.ok(!targets.includes('dmg'));
+});
+
+test('Node has one major version: .node-version, package.json engines and the Docker images', () => {
+  const major = read('.node-version').trim();
+  assert.equal(JSON.parse(read('package.json')).engines.node, `>=${major}`);
+  for (const platform of ['linux', 'windows'])
+    assert.match(
+      read(`packaging/${platform}/Dockerfile`),
+      new RegExp(`^FROM node:${major}-\\S+ AS node$`, 'm'),
+      platform,
+    );
 });
