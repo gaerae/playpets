@@ -52,12 +52,22 @@ reviews:
         command, asset source or locale needs its consumer and verification path updated together.
         Do not request broad reorganization without a concrete failure. For a new environment
         variable, distinguish public build options from secrets and document the default.
-    - path: "{package.json,.gitignore,.gitattributes,AGENTS.md,.coderabbit.yaml}"
+    - path: "{package.json,.gitignore,.gitattributes,.dockerignore,.editorconfig,.npmrc,.node-version,biome.jsonc,AGENTS.md,.coderabbit.yaml}"
       instructions: >-
         Check repository-wide effects: command changes match CI and scripts/README.md, ignores
         cover local output without hiding source or fixtures, and text normalization never affects
-        binary media. Git ignore rules cannot remove an already tracked secret. Agent rules link
-        current standards instead of copying them; CLAUDE.md remains a pointer to AGENTS.md.
+        binary media. Git ignore rules cannot remove an already tracked secret. A new .gitignore
+        entry also goes into .dockerignore, in a pattern rsync reads the same way (/name or
+        **/name, no "!"). The Node major in .node-version, package.json engines and the Docker
+        images move together. Agent rules link current standards instead of copying them;
+        CLAUDE.md remains a pointer to AGENTS.md.
+    - path: "packaging/**"
+      instructions: >-
+        Local distribution recipes. An image's build context is only what its Dockerfile copies
+        (packaging/<platform>/.dockerignore); the container copies the mounted checkout through the
+        root .dockerignore and installs npm dependencies with --ignore-scripts. A private key is
+        never written to the output folder that is handed off (release/<platform>/); only public
+        certificates go there. Files named in src-tauri/tauri.conf.json keep their paths.
     - path: "scripts/**"
       instructions: >-
         Maintainer tooling can mutate releases, credentials or generated files. Check the documented
@@ -144,6 +154,8 @@ reviews:
         Every action is pinned to a full commit SHA with its version as a comment. Permissions are
         the least the job needs, secrets appear only in the job that uses them, and nothing runs on
         pull_request_target. Values from the event go through env, never straight into a script.
+        Checkouts do not keep the job token (persist-credentials: false), and a job that holds
+        signing secrets restores no cache.
     - path: "CHANGELOG.md"
       instructions: >-
         One line per change people can see, in English, under the right heading of

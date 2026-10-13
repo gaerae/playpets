@@ -23,7 +23,7 @@ Use [repository ownership](docs/repository-layout.md) to choose a home for new f
 - **A command or build input:** its npm entry, script README, CI invocation and relevant workflow path filters. Keep private settings out of public build variables.
 - **A locale or public page:** string placeholders, site routes/navigation, captures, metadata and release/creator links. Generated developer pages remain in English.
 - **Artwork or a scene:** source/provenance, its content references and exports. Check app and mini sizes, relevant seasons/times, dark mode and reduced motion; an asset inventory alone does not prove visual quality.
-- **Local output or credentials:** a narrow ignore rule and a source/fixture counterexample in `tests/repository-config.test.mjs`. Keep secrets outside the checkout; an ignore rule cannot protect files already tracked.
+- **Local output or credentials:** a narrow ignore rule, the same entry in `.dockerignore`, and a source/fixture counterexample in `tests/repository-config.test.mjs`. Keep secrets outside the checkout; an ignore rule cannot protect files already tracked.
 
 Keep `CLAUDE.md` as the pointer to this file. Put detailed procedures in their owning guide instead of duplicating them here.
 

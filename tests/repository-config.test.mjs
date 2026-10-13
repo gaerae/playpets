@@ -117,6 +117,7 @@ test('ignore rules retain examples, fixtures, artwork sources and shared configu
     'src/art/weather/README.md',
     'website/public/video.json',
     'signing.key.pub',
+    'docs/release/notes.md',
   ];
   const result = spawnSync('git', ['check-ignore', '--no-index', '--stdin'], {
     input: `${paths.join('\n')}\n`,
@@ -175,29 +176,43 @@ test('installer packages, fonts and certificates are binary, batch files keep CR
   assert.notEqual(attributes.get('assets/creator-kit/README.md:linguist-generated'), 'true');
 });
 
-// The Docker builds copy the checkout into the container; local data and keys stay on the host.
-test('container builds leave local data, keys and build output out of the copy', () => {
+// The Docker builds copy the mounted checkout with rsync, excluding what the root .dockerignore lists.
+const dockerignore = () =>
+  read('.dockerignore')
+    .split('\n')
+    .filter(line => line && !line.startsWith('#'));
+
+test('container builds copy the checkout through the root .dockerignore', () => {
   for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh']) {
-    // The rsync command and its continuation lines (each ending in a backslash).
-    const lines = read(script).split('\n');
-    const start = lines.findIndex(line => line.startsWith('rsync '));
-    const end = lines.findIndex((line, i) => i >= start && !line.endsWith('\\'));
-    const copy = lines.slice(start, end + 1).join('\n');
-    for (const pattern of [
-      '/.dev-data*',
-      '/.credentials',
-      '*.key',
-      '*.pfx',
-      'target',
-      '/release',
-      '/scratch',
-      'node_modules',
-    ])
-      assert.ok(copy.includes(pattern), `${script} copies ${pattern}`);
-    assert.doesNotMatch(
-      copy,
-      /--filter=':- \.gitignore'/,
-      `${script}: rsync reads '!' in .gitignore as clearing its rules`,
+    const copies = read(script)
+      .split('\n')
+      .filter(line => line.startsWith('rsync '));
+    assert.equal(copies.length, 1, script);
+    assert.match(copies[0], / --exclude-from=\/src\/\.dockerignore \/src\/ \/work\/$/, script);
+  }
+});
+
+// rsync reads a lone '!' as clearing the list, and a bare name as matching at any depth, which Docker
+// does not; '/name' and '**/name' mean the same to both.
+test('.dockerignore patterns mean the same to Docker and to rsync', () => {
+  for (const line of dockerignore()) {
+    assert.match(line, /^(\/|\*\*\/)/, line);
+    assert.doesNotMatch(line, /!/, line);
+  }
+});
+
+test('.dockerignore keeps out of containers everything Git ignores', () => {
+  const docker = dockerignore();
+  // Sanitized parser fixtures (tests/fixtures/**/*.log) are source a build may read.
+  const readable = new Set(['*.log']);
+  for (const raw of read('.gitignore').split('\n')) {
+    const line = raw.trim();
+    if (!line || line.startsWith('#') || line.startsWith('!') || readable.has(line)) continue;
+    const name = line.replace(/\/\*?$/, '');
+    const pattern = name.startsWith('/') ? name : name.includes('/') ? `/${name}` : `**/${name}`;
+    assert.ok(
+      docker.some(entry => entry === pattern || pattern.startsWith(`${entry}/`)),
+      `.dockerignore lacks ${pattern} (.gitignore: ${line})`,
     );
   }
 });
@@ -220,18 +235,6 @@ test('each Docker build context passes only the files its Dockerfile copies', ()
         `${platform}: ${entry} is let through but never copied`,
       );
   }
-  const root = read('.dockerignore');
-  for (const pattern of [
-    '.git',
-    '.credentials',
-    '.dev-data*',
-    'scratch',
-    'release',
-    '**/node_modules',
-    '**/*.key',
-    '**/*.pfx',
-  ])
-    assert.ok(root.split('\n').includes(pattern), `.dockerignore: ${pattern}`);
 });
 
 test('container builds do not run dependency install scripts while the checkout is mounted', () => {
@@ -240,4 +243,38 @@ test('container builds do not run dependency install scripts while the checkout 
       .split('\n')
       .filter(line => /^\s*npm ci\b/.test(line)))
       assert.match(line, /--ignore-scripts/, script);
+});
+
+// tauri-build watches src-tauri/capabilities, and Cargo counts a watched path that does not exist as
+// changed: without the folder every cargo build compiled the app again.
+test('the capabilities folder Tauri watches is kept in the repository', () => {
+  const files = readdirSync('src-tauri/capabilities');
+  assert.ok(files.length > 0, 'Git keeps a folder only while it holds a file');
+  const ignored = spawnSync(
+    'git',
+    ['check-ignore', '--no-index', ...files.map(f => `src-tauri/capabilities/${f}`)],
+    git,
+  );
+  assert.equal(ignored.status, 1, String(ignored.stdout));
+});
+
+// Without a GPU, WebKitGTK's DMA-BUF renderer ends the page's web process partway through the e2e.
+test('e2e runs under Xvfb use the shared-memory renderer', () => {
+  for (const file of ['.github/workflows/build.yml', 'packaging/linux/build.sh']) {
+    const text = read(file);
+    assert.match(text, /xvfb-run/, file);
+    assert.match(text, /WEBKIT_DISABLE_DMABUF_RENDERER(=|: )1/, file);
+  }
+});
+
+test('checkouts drop the job token, and the job holding signing secrets restores no cache', () => {
+  for (const file of readdirSync('.github/workflows')) {
+    const steps = read(`.github/workflows/${file}`).split(/\n(?=\s*- )/);
+    for (const step of steps.filter(step => /uses: actions\/checkout@/.test(step)))
+      assert.match(step, /persist-credentials: false/, file);
+  }
+  const release = read('.github/workflows/release.yml');
+  const build = release.slice(release.indexOf('\n  build:'), release.indexOf('\n  publish:'));
+  assert.match(build, /TAURI_SIGNING_PRIVATE_KEY/);
+  assert.doesNotMatch(build, /cache: npm|rust-cache/);
 });

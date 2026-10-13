@@ -20,6 +20,7 @@ Does not apply to: feature requests and design discussion (these come in through
 **A local build or test fails**
 - First, separate the cases: does it fail even before your change? Check out main and run the same command.
 - If it fails even before your change, it is an environment problem. Compare the prerequisites (Rust, Node, OS packages) against [Getting started](getting-started.md).
+- On Linux, an e2e that stops partway, with no `FATAL` line and every later check failing, usually means WebKitGTK ended the page's web process. Its DMA-BUF renderer does this without a GPU (under Xvfb, in Docker or in a VM); `WEBKIT_DISABLE_DMABUF_RENDERER=1` switches it to the shared-memory renderer, which the Xvfb runs in `build.yml` and `packaging/linux/build.sh` use. A Linux user whose window stays blank or stops responding can start the app with the same variable.
 - If it fails only after your change, open the standard the failing test name points to. `i18n` tests map to the [Multilingual strings standard](standards/i18n.md), and `modules` tests to the [Page code structure standard](standards/page-modules.md).
 
 **CI fails on only one environment**

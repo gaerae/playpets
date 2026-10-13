@@ -35,6 +35,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version-file: .node-version
@@ -73,6 +75,10 @@ jobs:
       - name: E2E (Linux, Xvfb)
         if: runner.os == 'Linux'
         run: dbus-run-session -- xvfb-run -a -s "-screen 0 1920x1080x24" npm run test:e2e
+        env:
+          # Under Xvfb's software GL, WebKitGTK's DMA-BUF renderer ends the page's web process partway
+          # through the run; the shared-memory renderer does not (docs/troubleshooting.md).
+          WEBKIT_DISABLE_DMABUF_RENDERER: 1
       - name: E2E
         if: runner.os != 'Linux'
         run: npm run test:e2e
@@ -91,6 +97,8 @@ jobs:
     name: site
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version-file: .node-version

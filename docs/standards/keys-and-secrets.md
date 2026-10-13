@@ -17,7 +17,7 @@ Where each key is stored and where it is used.
 | `WINGET_TOKEN` | Submits PRs to winget-pkgs | GitHub token (scope: public_repo, on the account that has the winget-pkgs fork) | Not used | `WINGET_TOKEN` | Token expiry date |
 | `HOMEBREW_TAP_TOKEN` | Pushes to `<account>/homebrew-tap` | GitHub token (contents write on that one repository) | Not used | `HOMEBREW_TAP_TOKEN` | Token expiry date |
 | `GITHUB_TOKEN` | Release drafts, uploading files | Issued by GitHub for each run | Not used | Automatic | For the run |
-| MSIX test certificate | Signs the test MSIX | `release/windows/msix-test/PlayPets-test.pfx` (the build creates it if missing, excluded from git) | Used by `npm run dist:windows` | None | Disposable. If deleted, the next build creates a new one |
+| MSIX test certificate | Signs the test MSIX | The private key in the `playpets-msix-key` Docker volume (the build creates it if missing); only the public `PlayPets-test.cer` goes to `release/windows/msix-test/`. A key an older build left there moves into the volume | Used by `npm run dist:windows` | None | Disposable. After `docker volume rm playpets-msix-key` the next build makes a new one, and testers trust the new certificate again |
 | Agent bridge token | Authenticates requests the agent CLI sends to the running app | `bridge.json` in the user data folder | The app creates a new one at each launch | None | While the app runs |
 | The user's AI API key | AI connection | OS secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service) | Handled by the app | None | Until the user deletes it |
 

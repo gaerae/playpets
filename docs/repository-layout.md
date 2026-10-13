@@ -39,8 +39,11 @@ A package passes through three places, and only the first is in Git:
 `release/` holds only what is handed off (the platform folders and `store/`);
 local audits, review captures and backups go in `scratch/` (`asset-audit/`,
 `asset-size/`, `legacy-pets/`, art review folders). The Docker builds copy the checkout without
-local data, keys or build output (`packaging/*/build.sh`), and install npm
-dependencies without running their install scripts, as the release workflow does.
+local data, keys or build output (the root `.dockerignore`, which `packaging/*/build.sh`
+hands to rsync), and install npm dependencies without running their install scripts,
+as the release workflow does. The Windows build keeps its MSIX test signing key in the
+`playpets-msix-key` volume, so `release/windows/msix-test/` holds only the package,
+the public certificate and the install notes.
 
 ## Root configuration map
 
@@ -54,7 +57,7 @@ dependencies without running their install scripts, as the release workflow does
 | `.editorconfig` | Editor-independent indentation, encoding and line endings |
 | `.gitattributes` | Git line endings, binary handling and generated-file review metadata |
 | `.gitignore` | Local state, credentials and reproducible build output excluded from commits |
-| `.dockerignore`, `packaging/*/.dockerignore` | What reaches Docker: each image's context is only what its Dockerfile copies; the root file keeps keys and local data out of any build that uses the whole checkout |
+| `.dockerignore`, `packaging/*/.dockerignore` | What reaches Docker: each image's context is only what its Dockerfile copies; the root file lists what never enters a container (everything `.gitignore` lists), and the container builds copy the checkout through it |
 | `.coderabbit.yaml` | Optional CodeRabbit review behavior and area rules |
 | `AGENTS.md` / `CLAUDE.md` | One agent rule source and Claude's pointer to it |
 | `.github/` | Workflows, dependency update policy and contribution templates |
@@ -114,7 +117,10 @@ and [asset directory](../assets/README.md) for more detailed maps.
 
 ## Keep repository policies useful
 
-`.gitignore` controls untracked local files. Root-scoped caches and test reports
+`.gitignore` controls untracked local files. `.dockerignore` repeats every entry
+for the container builds, in patterns Docker and rsync read alike (`/name` at the
+top, `**/name` anywhere, no `!`); `tests/repository-config.test.mjs` fails when an
+entry is missing there. Root-scoped caches and test reports
 (`.npm/`, `.cache/`, `coverage/`, `.nyc_output/`, `test-results/` and
 `playwright-report/`) stay local. Use `.dev-data/` or `.dev-data-<scenario>/` for
 isolated app data, and `scratch/` for temporary artwork and audit output. These

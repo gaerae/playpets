@@ -43,6 +43,8 @@ export function commandPlan(mode, { root = repository, platform = process.platfo
           `${windows ? 'playpets-target-win' : 'playpets-target'}:/work/src-tauri/target`,
           '-v',
           `${output}:/out`,
+          // The MSIX test signing key lives in a volume, out of the release folder (packaging/windows/build.sh).
+          ...(windows ? ['-v', 'playpets-msix-key:/keys'] : []),
           image,
         ],
       },

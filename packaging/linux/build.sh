@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 # Runs inside packaging/linux/Dockerfile: copy the read-only source, build deb + AppImage, run the e2e under Xvfb.
 set -euo pipefail
-# Build output, local app data, keys and generated site files stay on the host (see .gitignore).
-rsync -a --delete --exclude .git --exclude node_modules --exclude target --exclude /release --exclude /scratch \
-  --exclude '/.dev-data*' --exclude /.credentials --exclude /.claude --exclude '.env*' \
-  --exclude '*.pem' --exclude '*.p12' --exclude '*.p8' --exclude '*.pfx' --exclude '*.key' \
-  --exclude /website/dev --exclude /website/.vitepress/dist --exclude /website/.vitepress/cache \
-  /src/ /work/
+# Build output, local app data, keys and generated site files stay on the host: the root .dockerignore
+# lists them, in patterns rsync reads the same way Docker does.
+rsync -a --delete --exclude-from=/src/.dockerignore /src/ /work/
 cd /work
 # Dependency install scripts never run while the whole checkout is mounted (as in release.yml).
 npm ci --ignore-scripts --no-audit --no-fund
@@ -15,8 +12,12 @@ export APPIMAGE_EXTRACT_AND_RUN=1
 npx tauri build --bundles "${BUNDLES:-deb,appimage}"
 arch=$(uname -m)
 mkdir -p /out
+# Only this build's packages stay, so a deb-only build does not sit beside an older AppImage.
+rm -f /out/PlayPets_*.deb /out/PlayPets_*.AppImage
 cp src-tauri/target/release/bundle/deb/*.deb /out/
 cp src-tauri/target/release/bundle/appimage/*.AppImage /out/ 2>/dev/null || true
 echo "== e2e ($arch, Xvfb)"
-dbus-run-session -- xvfb-run -a -s "-screen 0 1920x1080x24" npm run test:e2e | tee /out/e2e.log
+# Under Xvfb's software GL, WebKitGTK's DMA-BUF renderer ends the page's web process partway through
+# the run; the shared-memory renderer does not.
+WEBKIT_DISABLE_DMABUF_RENDERER=1 dbus-run-session -- xvfb-run -a -s "-screen 0 1920x1080x24" npm run test:e2e | tee /out/e2e.log
 grep -q "^PASS: tauri e2e" /out/e2e.log

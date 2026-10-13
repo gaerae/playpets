@@ -1,18 +1,28 @@
-# No build uses the repository as its context today: each image is built from packaging/<platform>/
-# and the source is mounted when the container runs. If one ever does, keys, local data and build
-# output stay out of it.
-.git
+# What never goes into a container build. The Docker builds read this list twice: each image is built
+# from packaging/<platform>/ (whose own .dockerignore passes only what its Dockerfile copies), and
+# packaging/*/build.sh copies the mounted checkout with `rsync --exclude-from` this file. So every
+# pattern means the same to Docker and to rsync: `/name` for the top of the checkout, `**/name` for
+# anywhere, and no `!` lines (rsync reads a lone `!` as clearing the list).
+# It covers everything .gitignore covers, except what a build may read (tests/repository-config.test.mjs).
+/.git
 **/node_modules
-src-tauri/target
-src-tauri/gen
-release
-scratch
-.dev-data*
-.credentials
-.claude
-.npm
-.cache
+/src-tauri/target
+/src-tauri/gen/schemas
+/release
+/scratch
+/.dev-data
+/.dev-data-*
+/.npm
+/.cache
+/coverage
+/.nyc_output
+/test-results
+/playwright-report
+/.claude
+**/.idea
+**/.vscode
 **/.env*
+/.credentials
 **/*.pem
 **/*.p12
 **/*.p8
@@ -22,12 +32,22 @@ scratch
 **/*.keystore
 **/*.mobileprovision
 **/*.provisionprofile
-website/dev
-website/.vitepress/cache
-website/.vitepress/dist
-website/.vitepress/.temp
-website/.vitepress/generated.json
-website/public/pets
-website/public/creator-kit
-website/public/yard
+/website/dev
+/website/public/icon.svg
+/website/public/favicon.png
+/website/public/favicon.ico
+/website/public/pets
+/website/public/creator-kit
+/website/public/yard
+/website/.vitepress/cache
+/website/.vitepress/.temp
+/website/.vitepress/dist
+/website/.vitepress/generated.json
 **/.DS_Store
+**/Thumbs.db
+**/desktop.ini
+**/*.swp
+**/*.swo
+**/*~
+**/*.orig
+**/*.rej

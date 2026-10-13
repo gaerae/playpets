@@ -18,9 +18,12 @@ test('Docker receives whole paths and forwards supported packaging options', () 
   assert.ok(win.steps[1].args.includes('C:\\Work files\\PlayPets:/src:ro'));
   assert.ok(win.steps[1].args.includes('C:\\Work files\\PlayPets\\release\\windows:/out'));
   assert.ok(win.steps[1].args.includes('MSIX_PUBLISHER'));
+  // The test signing key gets its own volume, never a folder under release/.
+  assert.ok(win.steps[1].args.includes('playpets-msix-key:/keys'));
   const linux = commandPlan('linux', { root: '/work/a $name (copy)', platform: 'darwin' });
   assert.ok(linux.steps[1].args.includes('/work/a $name (copy):/src:ro'));
   assert.ok(linux.steps[1].args.includes('BUNDLES'));
+  assert.ok(!linux.steps[1].args.includes('playpets-msix-key:/keys'));
   assert.throws(() => commandPlan('unknown', { root: '/work/pets' }), /Unknown command/);
 });
 
