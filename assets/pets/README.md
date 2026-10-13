@@ -6,9 +6,9 @@ Aria (a fictional adult woman, 25) and Noah (a fictional adult man, 26) extend t
 
 The five illustrated companions use their layered baseline in spring and autumn and separate generated `seasonal/summer.png` and `seasonal/winter.png` sheets. Every variant keeps all 88 canonical cells, full body visibility and an idle-anchored apparent height. `seasonalSpritesheets` lists the optional local files in each manifest. Runtime validation, lazy selection and safe fallback are described in `docs/design/2026-10-11-companions.md`.
 
-Exact adult generation prompts are recorded in [ART-PROMPTS.md](ART-PROMPTS.md). Source rows and large/mini playback proofs are retained locally under ignored `release/adult-companions/` and `release/seasonal-companions/`. Do not overwrite accepted originals with weaker generation candidates. Some short walks retain a shuffle-like stride; do not describe them as complete hand-authored locomotion cycles.
+Exact adult generation prompts are recorded in [ART-PROMPTS.md](ART-PROMPTS.md). Source rows and large/mini playback proofs are retained locally under ignored `scratch/adult-companions/` and `scratch/seasonal-companions/`. Do not overwrite accepted originals with weaker generation candidates. Some short walks retain a shuffle-like stride; do not describe them as complete hand-authored locomotion cycles.
 
-`npm run mascot-pet` draws the historical flat cats into `release/legacy-pets/`.
+`npm run mascot-pet` draws the historical flat cats into `scratch/legacy-pets/`.
 It does not overwrite the accepted production artwork in `assets/pets/`.
 
 The built-in image generation tool created `daisy`, `clover` and `pip` on
@@ -55,7 +55,7 @@ at 176-pixel normal size and 110/75-pixel mini sizes on DPR 1 and 2.
 
 The accepted replacement keeps the 1536×2288 sheet and 192×208 cells; animation
 timings, renderer code and decoded sprite memory stay unchanged. Comparison
-artifacts and preserved original sheets are local under `release/sprite-clarity/`.
+artifacts and preserved original sheets are local under `scratch/sprite-clarity/`.
 Compare the meaning of every action as well as its sharpness: waiting keeps its
 chin-paw gesture, working keeps the laptop, and jumping and celebration remain
 visibly different from idle. Inspect the frames the animation actually consumes,
@@ -65,4 +65,4 @@ including the first five jump poses.
 
 The first adult concept was subsequently accepted as a second style direction at the user's request. `../concepts/adult-realistic-companions.png` preserves that reference. Aria and Noah can retain the illustrated appearance or use semi-realistic full-body animations in the yard, mini mode and desktop overlay, with generated face portraits in conversations. They remain fictional adults. Appearance is saved separately for each friend and does not alter their relationship or personality.
 
-The optional `realisticSpritesheets` map contains `default`, `summer` and `winter`; `realisticPortraitPath` identifies the separate face image. Exact character-specific prompts and rejected-candidate notes are in each adult's `REALISTIC-PROMPTS.md`. Realistic production sources and playback proofs are retained under ignored `release/realistic-companions/`.
+The optional `realisticSpritesheets` map contains `default`, `summer` and `winter`; `realisticPortraitPath` identifies the separate face image. Exact character-specific prompts and rejected-candidate notes are in each adult's `REALISTIC-PROMPTS.md`. Realistic production sources and playback proofs are retained under ignored `scratch/realistic-companions/`.

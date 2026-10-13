@@ -7,6 +7,46 @@ import { LANGUAGES } from '../src/core/strings.js';
 
 const repo = 'https://github.com/gaerae/playpets/blob/main';
 
+test('draft release pages never offer unpublished installers or a missing release tag', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { parse, compileScript } = await import('@vue/compiler-sfc');
+  const { transform } = await import('esbuild');
+  const vue = await import('vue');
+  const { renderToString } = await import('vue/server-renderer');
+  const words = {
+    downloadFor: os => `Download for ${os}`,
+    files: { 'macos-universal.dmg': 'macOS' },
+    releases: 'Releases',
+    preparing: 'Preparing',
+    unreleased: 'Not released yet',
+  };
+  const modules = {};
+  for (const name of ['Downloads', 'ReleaseLinks']) {
+    const source = await readFile(`website/.vitepress/theme/${name}.vue`, 'utf8');
+    const script = compileScript(parse(source).descriptor, { id: name, inlineTemplate: true });
+    modules[name] = (await transform(script.content, { loader: 'ts', format: 'cjs' })).code;
+  }
+  const render = async (name, frontmatter) => {
+    const dependencies = {
+      vue,
+      vitepress: { useData: () => ({ frontmatter: vue.ref(frontmatter) }) },
+      '../generated.json': { slug: 'gaerae/playpets' },
+      './site-runtime.mjs': {},
+      './words': { useWords: () => ({ words: vue.ref(words) }), FILES: ['macos-universal.dmg'] },
+    };
+    const module = { exports: {} };
+    new Function('require', 'module', 'exports', modules[name])(id => dependencies[id], module, module.exports);
+    return renderToString(vue.createSSRApp(module.exports.default, { version: '0.1.0' }));
+  };
+  for (const name of Object.keys(modules)) {
+    const draft = await render(name, { version: '0.1.0' });
+    assert.doesNotMatch(draft, /\/releases\/(?:download|tag)\//, `${name}: draft links`);
+    assert.match(draft, /href="https:\/\/github.com\/gaerae\/playpets\/releases"/);
+    const published = await render(name, { version: '0.1.0', date: '2026-10-13' });
+    assert.match(published, /\/releases\/(?:download|tag)\/v0\.1\.0/);
+  }
+});
+
 test('companion choices remain exposed to assistive technology', async () => {
   const { readFile } = await import('node:fs/promises');
   const source = await readFile('website/.vitepress/theme/PetGallery.vue', 'utf8');

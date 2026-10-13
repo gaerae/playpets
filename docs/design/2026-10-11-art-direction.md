@@ -97,7 +97,7 @@ never draws replacement bodies.
 
 `scripts/visual-audit.mjs` renders the review fixtures ([Visual
 review](../how-to/visual-review.md)). `npm run assets:audit` checks image dimensions and
-raster references into ignored `release/asset-audit/`; it does not judge visual quality.
+raster references into ignored `scratch/asset-audit/`; it does not judge visual quality.
 
 ## Brand
 
@@ -127,7 +127,7 @@ The tray icon stays coloured; there is no monochrome macOS template icon.
 | `packaging/`, `website/public/` | Exports for installers, captures and share cards, made by the scripts above |
 
 Accepted generated originals and their exact prompts stay in source control because they
-cannot be rebuilt; discarded candidates and review captures go under ignored `release/`.
+cannot be rebuilt; discarded candidates and review captures go under ignored `scratch/`.
 PNG exports are optimized losslessly with `npm run assets:optimize`; see [the art
 storage decision](../decisions/2026-10-12-art-storage.md) and
 [assets/README.md](../../assets/README.md).

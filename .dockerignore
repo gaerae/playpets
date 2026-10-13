@@ -1,0 +1,33 @@
+# No build uses the repository as its context today: each image is built from packaging/<platform>/
+# and the source is mounted when the container runs. If one ever does, keys, local data and build
+# output stay out of it.
+.git
+**/node_modules
+src-tauri/target
+src-tauri/gen
+release
+scratch
+.dev-data*
+.credentials
+.claude
+.npm
+.cache
+**/.env*
+**/*.pem
+**/*.p12
+**/*.p8
+**/*.pfx
+**/*.key
+**/*.jks
+**/*.keystore
+**/*.mobileprovision
+**/*.provisionprofile
+website/dev
+website/.vitepress/cache
+website/.vitepress/dist
+website/.vitepress/.temp
+website/.vitepress/generated.json
+website/public/pets
+website/public/creator-kit
+website/public/yard
+**/.DS_Store

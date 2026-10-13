@@ -18,7 +18,7 @@ if (process.platform === 'win32') {
   process.exit(2);
 }
 const here = path.dirname(fileURLToPath(import.meta.url));
-const binary = process.env.PLAYPETS_BINARY || path.join(here, '../src-tauri/target/release/playpets');
+const binary = process.env.PLAYPETS_BINARY || path.join(here, '../src-tauri/target/e2e/playpets');
 const data = await mkdtemp(path.join(os.tmpdir(), 'playpets-measure-'));
 const codexHome = path.join(data, 'codex');
 await writeFixturePet(codexHome);

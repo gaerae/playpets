@@ -128,7 +128,9 @@ reviews:
       instructions: >-
         Developer docs in English, plain verbs, no RFC words like MUST or SHOULD. Records in
         docs/decisions and docs/design are dated and not rewritten; a later change adds a
-        follow-up note. Check that paths, commands and names in the text match the code.
+        follow-up note. docs/design holds lasting designs and decisions only: ask for a review,
+        audit or verification report to go in the pull request or commit body instead. Check
+        that paths, commands and names in the text match the code.
     - path: "website/**"
       instructions: >-
         The site in English, Korean, Japanese and Simplified Chinese. A change to a page in one

@@ -16,7 +16,8 @@ directory. Keep these boundaries when adding a feature.
 | `packaging/` | Platform-specific installer resources and local distribution recipes | App behavior and release credentials |
 | `scripts/` | Maintainer commands and pure helpers used by them | Runtime imports from the app |
 | `tests/` | Node test entries, isolated native E2E, helpers and shared fixtures | Private user data and captured build output |
-| `release/` | Ignored local builds, audits, experiments and visual proof | Source that CI needs to reproduce a result |
+| `release/` | Ignored local packages from `npm run dist:*` and the store pictures from `npm run shots` | Audits, experiments, keys, or source that CI needs |
+| `scratch/` | Ignored local audits, review captures, optimization backups and experiments | Packages, keys, or source that CI needs |
 
 The runtime module split already follows ownership boundaries. The flat script
 and test entry points retain stable imports and documented commands; their
@@ -24,6 +25,22 @@ directory READMEs group them by purpose. New shared test helpers belong in
 `tests/support/`, and reusable data in `tests/fixtures/`. Split a feature into a
 subdirectory when it needs its own helper modules, rather than moving files only
 to shorten a listing. Update imports, command paths and test discovery together.
+
+## Where builds go
+
+A package passes through three places, and only the first is in Git:
+
+| Stage | Place | Who writes it |
+| --- | --- | --- |
+| Recipe | `packaging/<platform>/` (Dockerfiles, build scripts, MSIX templates, installer art) and `src-tauri/tauri.conf.json` | People, and `npm run art` for the installer pictures |
+| Build | `src-tauri/target/release/` (the app `npm start` runs, and `bundle/` with the Tauri installers); `src-tauri/target/e2e/` for the e2e, capture and measurement builds | Cargo and the Tauri bundler; the Docker builds keep theirs in named volumes |
+| Hand-off | `release/<platform>/` (`macos/`, `windows/` with `msix-test/` or `msix-store/`, `linux/`) | `npm run dist:*`; CI stages its files in the runner's `out/` and uploads them to a draft release instead |
+
+`release/` holds only what is handed off (the platform folders and `store/`);
+local audits, review captures and backups go in `scratch/` (`asset-audit/`,
+`asset-size/`, `legacy-pets/`, art review folders). The Docker builds copy the checkout without
+local data, keys or build output (`packaging/*/build.sh`), and install npm
+dependencies without running their install scripts, as the release workflow does.
 
 ## Root configuration map
 
@@ -37,6 +54,7 @@ to shorten a listing. Update imports, command paths and test discovery together.
 | `.editorconfig` | Editor-independent indentation, encoding and line endings |
 | `.gitattributes` | Git line endings, binary handling and generated-file review metadata |
 | `.gitignore` | Local state, credentials and reproducible build output excluded from commits |
+| `.dockerignore`, `packaging/*/.dockerignore` | What reaches Docker: each image's context is only what its Dockerfile copies; the root file keeps keys and local data out of any build that uses the whole checkout |
 | `.coderabbit.yaml` | Optional CodeRabbit review behavior and area rules |
 | `AGENTS.md` / `CLAUDE.md` | One agent rule source and Claude's pointer to it |
 | `.github/` | Workflows, dependency update policy and contribution templates |
@@ -88,7 +106,7 @@ and share cards, are intentionally tracked for builds and review.
 
 Accepted generated artwork is source material when a build cannot reproduce it
 without the original image-generation result. Keep its provenance. A disposable
-experiment or an audit screenshot belongs under ignored `release/` instead.
+experiment or an audit screenshot belongs under ignored `scratch/` instead.
 Never move a referenced asset there to reduce repository size.
 
 See the [script directory](../scripts/README.md), [test directory](../tests/README.md)
@@ -99,7 +117,7 @@ and [asset directory](../assets/README.md) for more detailed maps.
 `.gitignore` controls untracked local files. Root-scoped caches and test reports
 (`.npm/`, `.cache/`, `coverage/`, `.nyc_output/`, `test-results/` and
 `playwright-report/`) stay local. Use `.dev-data/` or `.dev-data-<scenario>/` for
-isolated app data, and `release/` for temporary artwork and audit output. These
+isolated app data, and `scratch/` for temporary artwork and audit output. These
 paths are conventions for optional tools, not dependencies the app requires.
 
 Keep signing material outside the checkout. `.credentials/` is also ignored as a

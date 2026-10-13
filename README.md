@@ -69,7 +69,7 @@ playpets pets
 playpets run -- <command>
 ```
 
-Integrations stay on this computer (127.0.0.1, with token authentication). Your prompts and code are never sent to your pets.
+The integration bridge stays on this computer (127.0.0.1, with token authentication). Hooks omit user prompts and tool inputs, but short completion and notification reports can contain work details, including code in an agent’s answer. Those reports can enter a friend’s conversation with your chosen AI provider. Review terminal and MCP messages before sending them; use a local model when those details need to stay on this computer.
 
 ## Data
 

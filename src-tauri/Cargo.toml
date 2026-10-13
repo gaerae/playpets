@@ -52,3 +52,8 @@ windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Securit
 [profile.release]
 strip = true
 lto = true
+
+# The e2e, capture and measurement builds (the e2e feature) go to target/e2e, so they never replace
+# the app that `npm start` runs from target/release.
+[profile.e2e]
+inherits = "release"

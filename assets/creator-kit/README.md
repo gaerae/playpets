@@ -1,6 +1,6 @@
 # Character design and pet kits
 
-Five independent style kits cover Aria and Noah in illustrated and realistic appearances, plus Clover. Aria is a fictional adult woman, 25; Noah is a fictional adult man, 26. The realistic importable package is a standalone catalog copy using realistic art as its baseline, not a patch to the built-in friend's appearance selector.
+Ten kits cover every companion: Aria and Noah each in illustrated and realistic appearances, plus Clover, Daisy, Pip, Tabby, Smoky and Mochi. Aria, Noah and Clover have newly generated turnaround and face-detail sheets; for the others `kit.json` says `"detail": "not-created"` and the collages of shipped cells are the reference. Aria is a fictional adult woman, 25; Noah is a fictional adult man, 26. The realistic importable package is a standalone catalog copy using realistic art as its baseline, not a patch to the built-in friend's appearance selector.
 
 ## Source files and ownership
 

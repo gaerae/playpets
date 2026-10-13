@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { inventoryAssets } from './asset-audit-lib.mjs';
 
-const out = path.resolve(process.argv[2] || 'release/asset-audit');
+const out = path.resolve(process.argv[2] || 'scratch/asset-audit');
 const records = await inventoryAssets();
 const invalid = records.filter(r => !(r.width > 0 && r.height > 0) || r.missingReferences.length);
 await mkdir(out, { recursive: true });

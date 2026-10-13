@@ -143,7 +143,7 @@ gh secret set WINGET_TOKEN --repo gaerae/playpets
 14. Microsoft Store (the Store signs the MSIX, so Store installs have no SmartScreen warning).
     - Register as an individual developer at https://partner.microsoft.com/dashboard/registration (free; an ID scan and a selfie).
     - Reserve the name "PlayPets", and copy the publisher ID (`CN=…`) from the product identity page.
-    - Build the package with it (`MSIX_PUBLISHER="CN=…" npm run dist:windows`) and submit `release/windows/msix-test/PlayPets_<version>_x64.msix` in Partner Center. Store submissions are by hand; the `distribute` workflow does not do them.
+    - Build the package with it (`MSIX_PUBLISHER="CN=…" npm run dist:windows`) and submit the unsigned `release/windows/msix-store/PlayPets_<version>_x64.msix` in Partner Center. The Store signs it. Without `MSIX_PUBLISHER`, the command makes a test-signed package in `release/windows/msix-test/`; Store builds leave those test certificates alone. Store submissions are by hand; the `distribute` workflow does not do them.
 
 ## Verification
 - The Actions tab shows `build` and `pages` green, and https://gaerae.github.io/playpets/ opens on an `https://` address.

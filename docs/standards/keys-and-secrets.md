@@ -21,7 +21,7 @@ Where each key is stored and where it is used.
 | Agent bridge token | Authenticates requests the agent CLI sends to the running app | `bridge.json` in the user data folder | The app creates a new one at each launch | None | While the app runs |
 | The user's AI API key | AI connection | OS secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service) | Handled by the app | None | Until the user deletes it |
 
-- Do not commit private keys, certificates, or tokens to the repository. Keep them only outside the repository (`~/.tauri/`) or in a folder git ignores (`release/`). Git also ignores `.env*` files.
+- Do not commit private keys, certificates, or tokens to the repository. Keep them only outside the repository (`~/.tauri/`) or in the ignored `.credentials/` folder, never in `release/` (packages are handed off from there) or `scratch/`. Git also ignores `.env*` files and key and certificate files (`*.key`, `*.pem`, `*.p12`, `*.p8`, `*.pfx`).
 - Back up the updater signing private key in at least two places (the maintainer machine and one offline store, for example a password manager). If it is lost, updates can never again be sent to apps already installed.
 - The updater signing key has a password. Store the password next to the key in the password manager, and give it to CI as the `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` secret.
 - Workflows pass a secret as an environment variable only when the secret exists. Passing an empty value makes tools fail trying to read an empty certificate (the Build step in `release.yml` follows this pattern).
@@ -57,7 +57,7 @@ The updater signing key is the only proof every installed app trusts. If it is l
 Based on: decision “[GitHub releases are the source, auto-update, winget and a Homebrew tap point at those files, and code signing turns on with secrets](../decisions/2026-10-01-distribution-channels-and-signing.md)”
 
 ## Automated checks
-- `.gitignore` excludes `release/` and `.env*`.
+- `.gitignore` excludes `.credentials/`, key and certificate files, `release/`, `scratch/` and `.env*`; `tests/repository-config.test.mjs` checks it.
 - For the update settings, `tests/distribute.test.mjs` checks that the public key exists and that the update address matches the repository in `package.json`.
 - Secret scanning and push protection are not checked by the repository's own tests. The maintainer turns them on in the repository settings (Settings → Advanced Security).
 

@@ -35,7 +35,7 @@ test('installer scenery and sharing artwork use the detailed app environment ins
 
 test('the legacy sample generator cannot overwrite the accepted production cats', async () => {
   const source = await readFile('scripts/make-mascot-pet.mjs', 'utf8');
-  assert.match(source, /release\/legacy-pets\//);
+  assert.match(source, /scratch\/legacy-pets\//);
   // No path it writes to starts in the shipped pets folder, whatever the variable is called.
   assert.doesNotMatch(source, /['"`]assets\/pets\/|join\(\s*['"]assets['"],\s*['"]pets['"]/);
 });

@@ -13,16 +13,16 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 
 | Area | Commands and sources | Outputs |
 | --- | --- | --- |
-| Local execution and Docker builds | `local.mjs` via `npm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/` |
+| Local execution and Docker builds | `local.mjs` via `npm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with `MSIX_PUBLISHER` |
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs` | Version changes, a commit and a tag; see the release procedure before running |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
 | Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` needs macOS (`iconutil` makes the `.icns`) |
 | Native captures | `shots.mjs`, `shots-lib.mjs`, `shot-windows.swift` via `shots` | Localized captures and listing media; macOS capture host required |
-| Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `release/asset-audit/` |
+| Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
 | Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets, metadata and downloadable bundles |
 | Atlas preparation | `pack-*.mjs`, `normalize-cat-row.mjs`, atlas/art/normalization helpers | Explicit destination files from approved image sources |
-| Historical sample generator | `make-mascot-pet.mjs` via `mascot-pet` | `release/legacy-pets/`; does not replace accepted companions |
+| Historical sample generator | `make-mascot-pet.mjs` via `mascot-pet` | `scratch/legacy-pets/`; does not replace accepted companions |
 
 Website preparation packages existing references; it does not invent missing
 character views. Art tools can overwrite their documented outputs, so compare
@@ -45,9 +45,9 @@ SHOT_SCENE=seasons SHOT_LANGS=en,ko,ja,zh-hans npm run shots
 Install `oxipng` separately (`brew install oxipng` on macOS), then run:
 
 ```bash
-node scripts/optimize-png.mjs --report-dir release/asset-size/review-1
+node scripts/optimize-png.mjs --report-dir scratch/asset-size/review-1
 # Narrow a run to selected runtime artwork:
-node scripts/optimize-png.mjs --report-dir release/asset-size/review-2 assets/pets/clover
+node scripts/optimize-png.mjs --report-dir scratch/asset-size/review-2 assets/pets/clover
 ```
 
 The default scope is PNG artwork in `src/art/`, `assets/pets/`, and

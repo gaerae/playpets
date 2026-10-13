@@ -24,7 +24,7 @@ Not covered: the release steps themselves ([Release a new version](../how-to/rel
 **What never goes into a commit**
 - Secrets of any kind: the updater's secret key (kept in `~/.tauri/`), certificates and their passwords, API keys and tokens, `.env` files. `.gitignore` refuses the usual key and certificate files (`*.key`, `*.pem`, `*.p12`, `*.p8`, `*.pfx`), and [Managing signing keys and secrets](keys-and-secrets.md) says where each one lives.
 - Personal data: real email addresses, local paths with a user name, someone's chat history or `state.json`.
-- What the tools make: `node_modules/`, `src-tauri/target/`, `release/`, the site's build and generated files (listed in `.gitignore`).
+- What the tools make: `node_modules/`, `src-tauri/target/`, `release/`, `scratch/`, the site's build and generated files (listed in `.gitignore`).
 - Notes that are not for the public repository (plans for marketing or launch, private research). They live outside the repository.
 
 **History**

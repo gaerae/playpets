@@ -10,7 +10,7 @@ Anyone who has cloned the repository and run `npm ci`. Only taking new screen ca
 | What you need | Check |
 |---|---|
 | Node.js 26 and `npm ci` | `node --version` |
-| Screen captures only: macOS, Google Chrome, a Rust toolchain and Xcode Command Line Tools (`npm run shots` builds the app itself with `--features e2e`; its window-list helper uses Swift) | `cargo --version` and `swiftc --version` |
+| Screen captures only: macOS, Google Chrome, a Rust toolchain and Xcode Command Line Tools (`npm run shots` builds the app itself with `--profile e2e --features e2e` into `src-tauri/target/e2e/`; its window-list helper uses Swift) | `cargo --version` and `swiftc --version` |
 
 `package.json` holds two `overrides` for the site's tools: `vite` at 6 (the pinned VitePress 1.6.4 still asks for vite 5, whose dev server has known advisories) and `katex` at 0.19 (pulled in by mermaid). Remove them once a stable VitePress asks for a fixed vite and mermaid for a fixed katex, and check that `npm audit` stays clean and the site builds.
 

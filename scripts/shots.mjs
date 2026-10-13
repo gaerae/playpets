@@ -37,7 +37,7 @@ const languages = (process.env.SHOT_LANGS || Object.keys(LANGUAGES).join(',')).s
 // The languages the website has (website/.vitepress/config.mts locales): the others are captured
 // for the store pictures only.
 const SITE_LANGS = new Set(siteLanguages);
-const binary = process.env.PLAYPETS_BINARY || path.join(root, 'src-tauri/target/release/playpets');
+const binary = process.env.PLAYPETS_BINARY || path.join(root, 'src-tauri/target/e2e/playpets');
 // The window sits below the backdrop window's own title bar, which Chrome keeps at the top.
 const WINDOW = { x: 80, y: 170, width: 1180, height: 780 };
 // Room around the window in every picture: the backdrop shows through with the window's shadow.

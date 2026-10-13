@@ -64,6 +64,7 @@ test('repository ignores generated files, local state and signing credentials', 
     '.claude/settings.local.json',
     '.vscode/settings.json',
     'release/output.zip',
+    'scratch/asset-audit/index.html',
     'src-tauri/target/release/playpets',
     'src-tauri/gen/schemas/desktop-schema.json',
     'website/dev/README.md',
@@ -75,6 +76,10 @@ test('repository ignores generated files, local state and signing credentials', 
     'website/public/favicon.ico',
     'website/.vitepress/generated.json',
     'website/.vitepress/dist/index.html',
+    'website/.vitepress/.temp/app.js',
+    '.claude/worktrees/review/package.json',
+    'android/release.keystore',
+    'signing/PlayPets.mobileprovision',
     'signing.key',
     'certificate.p12',
     'AuthKey.p8',
@@ -151,4 +156,88 @@ test('Git treats media as binary and preserves source metadata as reviewable tex
     assert.notEqual(attributes.get(`${path}:linguist-generated`), 'true', path);
   }
   assert.equal(attributes.get(`${paths[8]}:linguist-generated`), 'true');
+});
+
+test('installer packages, fonts and certificates are binary, batch files keep CRLF, and generated metadata is marked', () => {
+  const binary = ['release/x/PlayPets.msix', 'assets/fonts/Display.ttf', 'assets/art/source.psd', 'packaging/test.cer'];
+  const generated = ['src/art/ambient/birds.png.json', 'assets/creator-kit/aria/kit.json'];
+  const paths = [...binary, ...generated, 'scripts/run.bat', 'assets/creator-kit/README.md'];
+  const values = execFileSync('git', ['check-attr', '-z', '--stdin', 'binary', 'eol', 'linguist-generated'], {
+    input: `${paths.join('\0')}\0`,
+    encoding: 'utf8',
+    ...git,
+  }).split('\0');
+  const attributes = new Map();
+  for (let i = 0; i < values.length - 1; i += 3) attributes.set(`${values[i]}:${values[i + 1]}`, values[i + 2]);
+  for (const path of binary) assert.equal(attributes.get(`${path}:binary`), 'set', path);
+  for (const path of generated) assert.equal(attributes.get(`${path}:linguist-generated`), 'true', path);
+  assert.equal(attributes.get('scripts/run.bat:eol'), 'crlf');
+  assert.notEqual(attributes.get('assets/creator-kit/README.md:linguist-generated'), 'true');
+});
+
+// The Docker builds copy the checkout into the container; local data and keys stay on the host.
+test('container builds leave local data, keys and build output out of the copy', () => {
+  for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh']) {
+    // The rsync command and its continuation lines (each ending in a backslash).
+    const lines = read(script).split('\n');
+    const start = lines.findIndex(line => line.startsWith('rsync '));
+    const end = lines.findIndex((line, i) => i >= start && !line.endsWith('\\'));
+    const copy = lines.slice(start, end + 1).join('\n');
+    for (const pattern of [
+      '/.dev-data*',
+      '/.credentials',
+      '*.key',
+      '*.pfx',
+      'target',
+      '/release',
+      '/scratch',
+      'node_modules',
+    ])
+      assert.ok(copy.includes(pattern), `${script} copies ${pattern}`);
+    assert.doesNotMatch(
+      copy,
+      /--filter=':- \.gitignore'/,
+      `${script}: rsync reads '!' in .gitignore as clearing its rules`,
+    );
+  }
+});
+
+// An image is built from packaging/<platform>/; its .dockerignore lets through only what the Dockerfile
+// copies, so a certificate left in that folder never reaches Docker.
+test('each Docker build context passes only the files its Dockerfile copies', () => {
+  for (const platform of ['linux', 'windows']) {
+    const dockerfile = read(`packaging/${platform}/Dockerfile`);
+    const ignore = read(`packaging/${platform}/.dockerignore`)
+      .split('\n')
+      .filter(line => line && !line.startsWith('#'));
+    assert.equal(ignore[0], '*', `${platform}: excludes everything first`);
+    const allowed = ignore.slice(1).map(line => line.replace(/^!/, '').replace(/\/\*\*$/, ''));
+    const copied = [...dockerfile.matchAll(/^COPY (?!--from)(\S+)/gm)].map(match => match[1]);
+    for (const source of copied) assert.ok(allowed.includes(source), `${platform}: ${source} is copied but ignored`);
+    for (const entry of allowed)
+      assert.ok(
+        entry === 'Dockerfile' || copied.includes(entry),
+        `${platform}: ${entry} is let through but never copied`,
+      );
+  }
+  const root = read('.dockerignore');
+  for (const pattern of [
+    '.git',
+    '.credentials',
+    '.dev-data*',
+    'scratch',
+    'release',
+    '**/node_modules',
+    '**/*.key',
+    '**/*.pfx',
+  ])
+    assert.ok(root.split('\n').includes(pattern), `.dockerignore: ${pattern}`);
+});
+
+test('container builds do not run dependency install scripts while the checkout is mounted', () => {
+  for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh'])
+    for (const line of read(script)
+      .split('\n')
+      .filter(line => /^\s*npm ci\b/.test(line)))
+      assert.match(line, /--ignore-scripts/, script);
 });

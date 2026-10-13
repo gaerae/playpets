@@ -15,7 +15,7 @@ import { writeFixturePet } from './support/fixture-pet.mjs';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const binary =
   process.env.PLAYPETS_BINARY ||
-  path.join(here, '../src-tauri/target/release', process.platform === 'win32' ? 'playpets.exe' : 'playpets');
+  path.join(here, '../src-tauri/target/e2e', process.platform === 'win32' ? 'playpets.exe' : 'playpets');
 const dataDir = await mkdtemp(path.join(os.tmpdir(), 'playpets-tauri-e2e-'));
 // A self-contained Codex pet so the run never depends on the machine's ~/.codex/pets.
 const codexHome = path.join(dataDir, 'codex');

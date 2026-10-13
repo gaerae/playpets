@@ -3,12 +3,15 @@
      read from the GitHub API in the browser. When that fails the button leads to the releases page:
      a 404 means nothing is released yet; anything else (a rate limit, no network) only says where the files are. -->
 <script setup lang="ts">
+import { useData } from 'vitepress';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import generated from '../generated.json';
 import { forgetRelease, latestRelease, watchRelease } from './site-runtime.mjs';
 import { FILES, useWords } from './words';
 
 const props = defineProps<{ version?: string; compact?: boolean }>();
+const { frontmatter } = useData();
+const draft = computed(() => props.version === String(frontmatter.value.version ?? '') && !frontmatter.value.date);
 const { words } = useWords();
 const version = ref(props.version ?? '');
 const available = ref<string[] | null>(null);
@@ -76,7 +79,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="downloads" :class="{ compact }" :aria-busy="lookup === 'pending' && !version">
-    <template v-if="version">
+    <template v-if="version && !draft">
       <div class="dl-row">
         <a class="dl-primary" :href="hasPrimary ? url(primaryFile) : releaseUrl">
           <span>{{ hasPrimary ? words.downloadFor(os) : words.releases }}</span>
@@ -96,11 +99,11 @@ onBeforeUnmount(() => {
       <div class="dl-row">
         <a class="dl-primary" :href="releases">
           <span>{{ words.releases }}</span>
-          <small>{{ lookup === 'missing' ? words.preparing : 'GitHub' }}</small>
+          <small>{{ draft || lookup === 'missing' ? words.preparing : 'GitHub' }}</small>
         </a>
         <slot />
       </div>
-      <p v-if="lookup === 'missing'" class="dl-note" role="status">{{ words.unreleased }}</p>
+      <p v-if="draft || lookup === 'missing'" class="dl-note" role="status">{{ words.unreleased }}</p>
       <p v-else-if="lookup === 'error'" class="dl-note" role="status">
         {{ words.lookupFailed }}<a :href="releases">{{ words.releases }}</a>{{ words.lookupFailedEnd }}
         <button type="button" class="dl-retry" @click="retry">{{ words.retry }}</button>

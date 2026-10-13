@@ -76,3 +76,8 @@ Rust tests passed (119, with one live test ignored), Node tests passed (376),
 linters passed, and the asset audit found no invalid dimensions or unresolved
 raster references among 419 image files. All 79 replacements were compared
 again with their backups; all 25 skipped originals retained their exact bytes.
+
+## Follow-up (2026-10-13)
+
+Local backups and reports moved from `release/asset-size/` to `scratch/asset-size/`, so
+`release/` holds only packages to hand off ([repository layout](../repository-layout.md)).

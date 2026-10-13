@@ -7,9 +7,6 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
-### Changed
-- Compress accepted PNG exports without changing pixels, transparency or embedded metadata; keep generation sources intact and provide a verified optimization command.
-
 ### Added
 - The yard: invite friends from Codex pet files, pet them, put down a treat, and watch them stroll through scenery whose time of day, weather and season change: the sun and moon cross the sky by the clock and the moon shows its phase, cherry blossoms in spring give way to deep green, autumn leaves and muted winter green, petals and leaves drift down, birds pass now and then, and a rainbow follows the rain. Auto weather follows the season (snow only in winter). Games are hide and seek (find the friend whose name is called), a parade and tag. A friend's name tag opens the conversation (it shows a speech mark under the pointer). Petting scatters hearts, treats and an agent's finished work scatter sparkles, a pressed friend squashes and bounces back, speech bubbles pop in, and stars twinkle at night. All of it stops when the system asks for reduced motion.
 - A painted yard: the hills, trees, clouds and sky are painted after the backgrounds of hand-painted animated films and the trees of Animal Crossing (flat masses of leaves in deep shade, shade and warm light, heaped clouds white on top and blue below, groves on the far hill, mountains in haze, a small lake in the valley mirroring the sky, a big tree framing the edge), and painted again only when the time of day, the weather or the season changes, so it costs nothing while it stands still.
@@ -48,6 +45,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The website in English, Korean, Japanese and Simplified Chinese, with a creator kit for each companion: character, wardrobe, expression and motion references, the prompts used, and pet files ready to import.
 
 ### Security
+- Coding-agent hooks never send your prompts or tool inputs, but the short completion and notification reports they carry can contain work details, and those reports can reach the AI provider of the friend that hears them.
 - Pet import downloads files only from the site of the pasted address (its subdomains and the hosts of registered communities), and does not follow a page that points anywhere else. Private addresses are blocked when the name is resolved.
 - A pet file's description reaches the AI labeled as a description, not an instruction, and a personality saved during a chat keeps that label.
 - Claude Code and Codex run in a folder of the app's own that no one else can write to, and get the friend's instructions from a file there or from standard input rather than the command line, where other programs could read them (unless that folder cannot be made).

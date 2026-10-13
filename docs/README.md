@@ -114,16 +114,16 @@ Records are dated and not rewritten; when two disagree, the later one holds. The
 | `npm run check` | Lint, unit tests and site build; run E2E separately |
 | `npm run test:js` / `test:rust` | Focused Node / Rust tests |
 | `npm run build:app` / `start` | Build the normal native executable / run that existing build |
-| `npm run assets:audit` | Check image dimensions and references; save an inventory under ignored `release/asset-audit/` |
+| `npm run assets:audit` | Check image dimensions and references; save an inventory under ignored `scratch/asset-audit/` |
 | `npm run lint` / `npm run format` | Check / tidy code layout (rustfmt, clippy, Biome) |
 | `npm run test:e2e` | Real-app E2E |
 | `npm run measure` | CPU measurement in five states (macOS, Linux) |
 | `npm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |
 | `npm run shots -- x.y.z` | Real-app screenshots in every app language (macOS) |
-| `npm run mascot-pet` | Draw historical flat sample sheets into `release/legacy-pets/`, without overwriting current companions |
+| `npm run mascot-pet` | Draw historical flat sample sheets into `scratch/legacy-pets/`, without overwriting current companions |
 | `npm run og` | Redraw the four share cards (`website/public/og.png` in English, `og-ko.png`, `og-ja.png`, `og-zh-hans.png`) and the README banner |
 | `npm run art` | Redraw the installer art: the macOS disk image background (`packaging/macos/dmg-background.png`), the Windows installer's sidebar and header (`packaging/windows/nsis-*.bmp`), and the English screenshots Linux software centers show (`website/public/listing/en/`, from the current captures). Where each is used is set in `src-tauri/tauri.conf.json` (`bundle.macOS.dmg`, `bundle.windows.nsis`, `bundle.linux`) and `packaging/linux/app.playpets.metainfo.xml` |
-| `npm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/`) |
+| `npm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/<platform>/`) |
 | `npm run release -- x.y.z` | Release commit and tag |
 | `npm run icons` | Every icon from `assets/icon.svg` |
 

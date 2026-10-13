@@ -1,7 +1,10 @@
 node_modules/
 src-tauri/target/
 src-tauri/gen/schemas/
+# Packages handed off by npm run dist:* and the store pictures (docs/repository-layout.md).
 release/
+# Local audits, review captures, backups and experiments; never a source or a package.
+/scratch/
 *.log
 # Sanitized parser fixtures are source, not local process logs.
 !tests/fixtures/**/*.log
@@ -24,8 +27,9 @@ release/
 .vscode/*
 !.vscode/extensions.json
 *.swp
-# local assistant settings
+# local assistant settings and the worktrees agent sessions make inside the checkout
 .claude/settings.local.json
+.claude/worktrees/
 # website: generated from docs/ and assets/ by scripts/site-prepare.mjs, built by vitepress
 website/dev/
 website/public/icon.svg
@@ -35,6 +39,7 @@ website/public/pets/
 website/public/creator-kit/
 website/public/yard/
 website/.vitepress/cache/
+website/.vitepress/.temp/
 website/.vitepress/dist/
 website/.vitepress/generated.json
 # keys and certificates never belong here (an Apple App Store Connect API key is a .p8)
@@ -44,6 +49,11 @@ website/.vitepress/generated.json
 *.p8
 *.pfx
 *.key
+# mobile signing stores and Apple provisioning profiles
+*.jks
+*.keystore
+*.mobileprovision
+*.provisionprofile
 # Windows folder files
 Thumbs.db
 desktop.ini

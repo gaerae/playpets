@@ -32,7 +32,7 @@ kinds under People and `animal` under Animals; any other kind stays available un
 Other (`src/panel/invite.js`). The cats kept their ids and saved identities when their
 flat sheets were replaced; their sources are in `assets/pets/<cat>/`, and
 `npm run mascot-pet` draws the historical flat sheets only into ignored
-`release/legacy-pets/`.
+`scratch/legacy-pets/`.
 
 ## Ordinary, independent entries
 

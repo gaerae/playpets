@@ -18,7 +18,8 @@ copies that are edited independently.
 Keep accepted generated source images and their provenance: they are not
 reproducible build output. Everything under `src/` ships inside the app, so a source image
 or a retired variant that the app does not draw goes in `sources/`, not beside its export. Place discarded variants, local review captures and
-temporary processing results under ignored `release/`. Use `npm run assets:audit`
+temporary processing results under ignored `scratch/`. Provenance written before
+2026-10-13 names local references under `release/`; those files now live under `scratch/`. Use `npm run assets:audit`
 to check dimensions and raster references; visual quality still needs a screen
 review. See [companion artwork](pets/README.md) and
 [repository ownership](../docs/repository-layout.md).

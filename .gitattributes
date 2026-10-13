@@ -1,6 +1,9 @@
 # Text is stored with LF everywhere, so Windows checkouts build and test the same files.
 * text=auto eol=lf
 *.sh text eol=lf
+# Windows batch files run only with CRLF line endings.
+*.bat text eol=crlf
+*.cmd text eol=crlf
 
 # Binary assets are never diffed or converted.
 *.png binary
@@ -23,6 +26,34 @@
 *.zip binary
 *.gz binary
 *.pdf binary
+*.tif binary
+*.tiff binary
+*.heic binary
+*.psd binary
+*.kra binary
+*.mov binary
+*.m4a binary
+*.flac binary
+*.aac binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.7z binary
+*.tar binary
+*.tgz binary
+*.xz binary
+*.wasm binary
+# Packages, executables and certificates: ignored where they are built, binary if one is ever added.
+*.exe binary
+*.dll binary
+*.msix binary
+*.appx binary
+*.deb binary
+*.rpm binary
+*.AppImage binary
+*.pkg binary
+*.der binary
+*.cer binary
 
 # Generated files stay out of code review and language statistics.
 package-lock.json linguist-generated=true -diff
@@ -38,3 +69,8 @@ packaging/macos/dmg-background.png linguist-generated=true
 packaging/windows/nsis-*.bmp linguist-generated=true
 assets/banner.png linguist-generated=true
 assets/demo.gif linguist-generated=true
+# Written by the packers and the creator kit builder (scripts/README.md); provenance stays diffable.
+*.png.json linguist-generated=true
+assets/creator-kit/*/kit.json linguist-generated=true
+assets/creator-kit/*/identity.json linguist-generated=true
+assets/creator-kit/*/prompts/** linguist-generated=true

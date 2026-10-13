@@ -117,10 +117,10 @@ The folder holds `state.json` (friends, settings, AI connections, the garden and
 | `PLAYPETS_DATA` | Changes the data folder (E2E, measurement) |
 | `CODEX_HOME` | Changes the Codex pet folder (`<value>/pets`) |
 | `PLAYPETS_LANG` | Pins the language to one of `ko`, `en`, `ja`, `zh-hans` |
-| `PLAYPETS_E2E_EVAL` | The E2E scenario script. Honored only by an executable built with the `e2e` feature (`cargo build --features e2e`): it turns off single-instance, deep-link registration and the start-at-login plugin (the switch only pretends), turns on the `test_only` rows of `COMMANDS` (`e2eLog`, `e2eWindow`, `e2eTray`, `e2eFreshGifts`), and skips the update check. It runs 3 seconds after the page loads |
+| `PLAYPETS_E2E_EVAL` | The E2E scenario script. Honored only by an executable built with the `e2e` feature (`cargo build --profile e2e --features e2e`, which writes `src-tauri/target/e2e/` so it never replaces the app in `target/release/`): it turns off single-instance, deep-link registration and the start-at-login plugin (the switch only pretends), turns on the `test_only` rows of `COMMANDS` (`e2eLog`, `e2eWindow`, `e2eTray`, `e2eFreshGifts`), and skips the update check. It runs 3 seconds after the page loads |
 | `PLAYPETS_BRIDGE`, `PLAYPETS_PET` | The `bridge.json` path and default friend for CLI mode |
 | `PLAYPETS_DEBUG` | Makes `playpets hook …` print to standard error why it could not reach the app. Without it, a hook stays silent |
-| `PLAYPETS_BINARY` | The executable E2E and measurement launch |
+| `PLAYPETS_BINARY` | The executable E2E, captures and measurement launch (default `src-tauri/target/e2e/playpets`) |
 
 The system starts the app at login with `--autostart` (`tauri-plugin-autostart`: a LaunchAgent on macOS, the Run key on Windows, an autostart entry on Linux). Started that way with desktop mode on, the yard window stays hidden.
 

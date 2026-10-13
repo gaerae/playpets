@@ -1,0 +1,5 @@
+# The build context is only what the Dockerfile copies. The source is mounted read-only when the
+# container runs (scripts/local.mjs), so nothing else here, such as a certificate, reaches Docker.
+*
+!Dockerfile
+!build.sh

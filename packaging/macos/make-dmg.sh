@@ -7,8 +7,10 @@
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 version="$(node -p "require('$root/package.json').version")"
-dmg="$(ls "$root"/src-tauri/target/release/bundle/dmg/*.dmg 2>/dev/null | head -1 || true)"
-[ -n "$dmg" ] || { echo "No disk image found. Run 'npx tauri build --bundles app,dmg' first." >&2; exit 1; }
+shopt -s nullglob
+images=("$root"/src-tauri/target/release/bundle/dmg/PlayPets_"$version"_*.dmg)
+[ "${#images[@]}" -eq 1 ] || { echo "Expected one disk image for $version. Remove conflicting bundles and run 'npx tauri build --bundles app,dmg'." >&2; exit 1; }
+dmg="${images[0]}"
 out="$root/release/macos/PlayPets_${version}_$(uname -m | sed 's/arm64/aarch64/').dmg"
 mkdir -p "$(dirname "$out")"
 cp "$dmg" "$out"

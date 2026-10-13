@@ -59,7 +59,7 @@ export function commitReplacement(
 
 export function optimize(args = process.argv.slice(2), root = process.cwd()) {
   const paths = [];
-  let reportDir = `release/asset-size/${new Date().toISOString().replaceAll(':', '-')}`;
+  let reportDir = `scratch/asset-size/${new Date().toISOString().replaceAll(':', '-')}`;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--report-dir') {
       if (!args[i + 1]) throw new Error('--report-dir needs a path');
@@ -68,8 +68,8 @@ export function optimize(args = process.argv.slice(2), root = process.cwd()) {
     else paths.push(relative(root, resolve(root, args[i])).split(sep).join('/'));
   }
   const reportRoot = resolve(root, reportDir);
-  if (!reportRoot.startsWith(`${resolve(root, 'release/asset-size')}${sep}`))
-    throw new Error('Report directory must be below release/asset-size/');
+  if (!reportRoot.startsWith(`${resolve(root, 'scratch/asset-size')}${sep}`))
+    throw new Error('Report directory must be below scratch/asset-size/');
   if (existsSync(reportRoot)) throw new Error('Report directory already exists; choose a new run directory');
   const tool = execFileSync('oxipng', ['--version'], { encoding: 'utf8' }).trim();
   const candidates = [
