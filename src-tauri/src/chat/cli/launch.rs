@@ -135,12 +135,14 @@ pub(super) fn private_dir() -> Option<PathBuf> {
         return dir.clone();
     }
     let fresh = std::env::temp_dir().join(format!("playpets-cli-{}", uuid::Uuid::new_v4()));
-    let mut builder = std::fs::DirBuilder::new();
+    let builder = std::fs::DirBuilder::new();
     #[cfg(unix)]
-    {
+    let builder = {
         use std::os::unix::fs::DirBuilderExt;
+        let mut builder = builder;
         builder.mode(0o700);
-    }
+        builder
+    };
     *dir = builder.create(&fresh).ok().map(|()| fresh);
     dir.clone()
 }
