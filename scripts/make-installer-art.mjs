@@ -1,15 +1,9 @@
-// Paints the installer art from the sample pets' real sprite sheets: the background of the macOS
-// disk image window (packaging/macos/dmg-background.png) and the Windows installer's pictures
-// (packaging/windows/nsis-sidebar.bmp on the welcome and finish pages, nsis-header.bmp at the top
-// of the other pages). All are set in src-tauri/tauri.conf.json. It also turns the English captures
-// of the current version into JPEGs at 1× under website/public/listing/en/, the pictures Linux
-// software centers show from packaging/linux/app.playpets.metainfo.xml (run npm run shots first). The window is 660×420 points with the
-// app at (165, 215) and the Applications folder at (495, 215), as src-tauri/tauri.conf.json says.
-// Finder writes the icon labels in dark text in light mode and white text in dark mode, so the
-// ground under the labels is a green that keeps about 4.5:1 contrast with both. The title bar and
-// Finder's path bar (if the person shows it) cover about 60 points at the bottom, so nothing that
-// matters sits below y = 350.
-// Run: npm run art   (needs Google Chrome or Playwright's Chromium; browser-lib.mjs drives it headless).
+// Exports installer artwork from the approved environment and three starter sprites.
+// Finder draws its own app/folder icons and labels over the macOS image. Keep their entire
+// area free of scenery; its sage surface supports both black and white native labels.
+// Windows owns the translated instructions: its raster artwork carries only the brand.
+// Linux software-center screenshots are exported from the current English app captures.
+// Run npm run art, then rebuild the platform packages to include the exports.
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import {
@@ -26,7 +20,13 @@ import { launchBrowser } from './browser-lib.mjs';
 
 const sheets = await loadSheets();
 const environment = await loadEnvironment();
-const DMG = { width: 660, height: 420, app: [165, 215], folder: [495, 215] };
+const { bundle } = JSON.parse(await readFile('src-tauri/tauri.conf.json', 'utf8'));
+const { windowSize, appPosition, applicationFolderPosition } = bundle.macOS.dmg;
+const DMG = {
+  ...windowSize,
+  app: [appPosition.x, appPosition.y],
+  folder: [applicationFolderPosition.x, applicationFolderPosition.y],
+};
 
 // The arrow from the app to the Applications folder: one gentle arc centred between the two icons
 // at their middle height, dotted up to a solid head. The head points along the arc's last stretch,
@@ -57,7 +57,7 @@ function arrow() {
   const gap = length / Math.round(length / 13);
   const f = n => n.toFixed(1);
   const line = points.map(([x, y], i) => `${i ? 'L' : 'M'} ${f(x)} ${f(y)}`).join(' ');
-  const ink = 'stroke="#fff6e0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+  const ink = 'stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
   return `<svg width="${DMG.width}" height="${DMG.height}" viewBox="0 0 ${DMG.width} ${DMG.height}" aria-hidden="true">
     <path d="${line}" ${ink} stroke-dasharray="0 ${f(gap)}"/>
     <path d="M ${f(a[0])} ${f(a[1])} L ${f(tip[0])} ${f(tip[1])} L ${f(b[0])} ${f(b[1])}" ${ink}/>
@@ -67,48 +67,48 @@ function arrow() {
 
 const dmg = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${DMG.width}px;height:${DMG.height}px;overflow:hidden;font-family:-apple-system,system-ui,sans-serif}
-  .bg{position:relative;width:100%;height:100%;background:#d9eaf3}
-  .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 45%}
-  .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(#fbfcf5eb 0%,#fbfcf566 26%,transparent 44%);pointer-events:none}
-  .label-field{position:absolute;left:85px;top:268px;width:160px;height:48px;border-radius:14px;background:#637a70}.label-field.second{left:415px}
-  h1{position:absolute;left:0;right:0;top:38px;margin:0;text-align:center;font-size:18px;font-weight:700;letter-spacing:-.01em;color:#244d43;z-index:1}
-  h1 small{display:block;margin-top:6px;font-size:12.5px;font-weight:500;color:#42675b}
-  svg{position:absolute;left:0;top:0;z-index:1}
-  .cast{position:absolute;left:50%;top:250px;transform:translateX(-50%);display:flex;gap:2px;z-index:1}
+  .bg{position:relative;width:100%;height:100%;background:#f7f9f5;color:#244d43}
+  .vignette{position:absolute;right:0;top:0;width:286px;height:118px;overflow:hidden}
+  .environment{width:100%;height:100%;object-fit:cover;object-position:center 42%;opacity:.5}
+  .vignette::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#f7f9f5,transparent 45%),linear-gradient(0deg,#f7f9f5,transparent 70%)}
+  h1{position:absolute;left:34px;top:25px;margin:0;font-size:30px;line-height:1.2;font-weight:750;letter-spacing:-.035em}
+  .intro{position:absolute;left:35px;top:68px;margin:0;font-size:14px;line-height:1.4;color:#426052}
+  .action-field{position:absolute;left:0;right:0;top:118px;height:212px;background:#70786f}
+  .instruction{position:absolute;left:0;right:0;top:128px;margin:0;text-align:center;font-size:17px;line-height:24px;font-weight:600;color:#fff}
+  .after{position:absolute;left:0;right:0;top:338px;margin:0;text-align:center;font-size:14px;line-height:20px;color:#426052}
+  svg{position:absolute;left:0;top:0}
+  .cast{position:absolute;right:26px;top:32px;display:flex;gap:2px}
 </style><div class="bg">
-  <img class="environment" src="${environment}" alt=""><div class="label-field"></div><div class="label-field second"></div>
-  <h1>Drag PlayPets to Applications<small>Then open it from Launchpad or the Applications folder.</small></h1>
+  <div class="vignette"><img class="environment" src="${environment}" alt=""></div>
+  <h1>PlayPets</h1><p class="intro">A little company for your day.</p>
+  <div class="cast">${castMarkup(sheets, 68)}</div>
+  <div class="action-field"></div>
+  <p class="instruction">Drag PlayPets into Applications</p>
   ${arrow()}
-  <div class="cast">${castMarkup(sheets, 58)}</div>
+  <p class="after">Then open PlayPets from Applications.</p>
 </div>`;
 
-// The Windows installer draws its pictures at their pixel size beside white page text: a tall
-// sidebar with the yard and all three friends, and a small header that sits on the white strip.
-// Tauri's installer puts the header picture at the left end of the strip, so the hill runs off
-// the left edge and comes down before the page title on the right.
+// Keep these at NSIS's native dimensions. Copy and controls remain native and translated.
 const SIDEBAR = { width: 164, height: 314 };
-// The captures software centers show, in the order of the metainfo file.
 const LISTING = ['yard-talk', 'friend-chat', 'desktop', 'settings-agents'];
 const sidebar = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${SIDEBAR.width}px;height:${SIDEBAR.height}px;overflow:hidden;font-family:'Segoe UI',-apple-system,system-ui,sans-serif}
-  .bg{position:relative;width:100%;height:100%;background:#d9eaf3}
-  .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:47% bottom}
-  .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(#fbfcf5f5 0%,#fbfcf5ed 45%,#fbfcf500 70%)}
-  h1{position:absolute;left:18px;top:62px;margin:0;font-size:24px;font-weight:750;letter-spacing:-.02em;color:#244d43;z-index:1}
-  p{position:absolute;left:18px;right:16px;top:96px;margin:0;font-size:12px;line-height:1.5;color:#42675b;text-wrap:balance;z-index:1}
-  .cast{position:absolute;left:50%;bottom:38px;transform:translateX(-50%);display:flex;gap:1px;z-index:1}
-</style><div class="bg"><img class="environment" src="${environment}" alt="">
-  <h1>PlayPets</h1><p>A yard where your pets talk to each other.</p>
-  <div class="cast">${castMarkup(sheets, 45)}</div></div>`;
+  .bg{position:relative;width:100%;height:100%;background:#f7f9f5}
+  .environment{position:absolute;left:0;bottom:0;width:100%;height:178px;object-fit:cover;object-position:48% bottom}
+  .wash{position:absolute;inset:110px 0 0;background:linear-gradient(#f7f9f5 6%,#f7f9f5d9 35%,#f7f9f500 80%)}
+  h1{position:absolute;left:0;right:0;top:30px;margin:0;text-align:center;font-size:25px;line-height:32px;font-weight:750;letter-spacing:-.03em;color:#244d43}
+  .cast{position:absolute;left:50%;top:190px;transform:translateX(-50%);display:flex;gap:1px}
+</style><div class="bg"><img class="environment" src="${environment}" alt=""><div class="wash"></div>
+  <h1>PlayPets</h1><div class="cast">${castMarkup(sheets, 44)}</div></div>`;
 const HEADER = { width: 150, height: 57 };
 const header = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${HEADER.width}px;height:${HEADER.height}px;overflow:hidden;background:#fff}
-  .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;opacity:.35}
-  .pets{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;align-items:flex-end;gap:1px}
-</style><img class="environment" src="${environment}" alt=""><div class="pets">${castMarkup(sheets, 40)}</div>`;
+  .pets{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:flex;align-items:flex-end;gap:1px}
+</style><div class="pets">${castMarkup(sheets, 40)}</div>`;
 
 async function readyArt(page) {
   await page.evaluate(async sources => {
+    await document.fonts.ready;
     await Promise.all(
       sources.map(src => {
         const image = new Image();

@@ -138,3 +138,16 @@ Brand groups use Daisy on the left, Clover in the middle and Pip on the right.
 `art-lib.mjs` normalizes their approved idle silhouettes to the same visible
 height for installer and sharing art; `shots-lib.mjs` applies the same rule to
 native captures. Recheck silhouette measurements when replacing starter art.
+
+Installer artwork is regenerated with `npm run art`. The macOS renderer reads the
+window and icon positions from `src-tauri/tauri.conf.json`; keep the entire native
+icon and label area on its solid sage surface. That surface gives black and white
+Finder labels at least 4.5:1 contrast. Scenery and the three friends belong in the
+header, away from the drag path. Inspect a mounted DMG in light and dark appearance
+after changing it; the PNG alone cannot confirm Finder label placement.
+
+Windows sidebar and header exports stay at NSIS's native sizes (164 × 314 and
+150 × 57). Only the brand is baked into the image; the installer supplies translated
+instructions and buttons. Linux uses the system's package installer rather than a
+custom wizard. Review its AppStream description and the four software-center
+captures under `website/public/listing/en/` after changing installation artwork.

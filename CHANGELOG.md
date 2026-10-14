@@ -9,6 +9,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Separate macOS installation instructions and native file labels from decorative scenery, simplify Windows installer artwork, and clarify the Linux software-center description.
 - Retire the historical flat pet generator and unused window/menu styles; align installation guides with the current update controls.
 
 - Keep the new-version button before the place selector in the yard, and briefly confirm the installed version after restart.
