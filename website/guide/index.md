@@ -11,9 +11,9 @@ The yard follows the time of day, weather and seasons. Friends stroll, eat treat
 | Operating system | macOS, Windows, Linux |
 | AI | Optional. Inviting, playing and desktop mode all work without one |
 | Coding agent | Optional. Works with Claude Code, Codex CLI, Gemini CLI, Cursor and tools that use MCP |
-| Internet | Only to download the installer and to check for updates. Chatting through Ollama or a subscription CLI follows that tool's own rules |
+| Internet | Needed for downloads, community imports, updates and remote AI. Yard activities and a local Ollama model already downloaded to your computer can work offline |
 
-The app is built with Tauri and uses the operating system's built-in webview, so the installer stays small and memory use stays low.
+The app is built with Tauri and uses the operating system's webview rather than bundling a full browser.
 
 ## Two words
 

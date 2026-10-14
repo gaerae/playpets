@@ -46,20 +46,13 @@ The value that identifies a pet is made from its folder path (the first 24 chara
 ## Identity and optional artwork
 
 A drawing style is not a pet type. An ordinary baseline sheet may be pixel art,
-paper, plush, sculpted or realistic. Aria, Aria Mini, Noah and Noah Mini are
-separate starter entries with separate baseline files. Each invitation creates
-an independent friend, including another invitation of the same pet. Names,
-relationships, personality and closeness belong to that friend. Conversations
-belong to the current app session and are not written to saved state. Restarting
-or migrating saved assets does not restore chat logs.
-The bundled adult entry manifests are `assets/pets/{aria,noah}/builtin-mini.json`
-and `builtin-full.json`; `pets/builtin.rs` embeds each as the runtime folder’s
-`pet.json` and reuses the accepted source sheets. The original
-`assets/pets/{aria,noah}/pet.json` files remain source/provenance manifests and
-do not define the four built-in shelf entries directly.
-
-The named Mini entries do not restrict window modes: every pet supports the yard,
-mini window and desktop.
+paper, plush, sculpted or realistic. The three bundled pets are Daisy, Clover and
+Pip, defined by `assets/pets/{daisy,clover,pip}/pet.json` and embedded by
+`src-tauri/src/pets/builtin.rs`. Each invitation creates an independent friend,
+including another invitation of the same pet. Names, relationships, personality
+and closeness belong to that friend. Conversations belong to the current app
+session and are not written to saved state. Restarting or migrating saved assets
+does not restore chat logs. Every pet supports the yard, mini window and desktop.
 
 The reader accepts these optional PlayPets fields without requiring them for an
 ordinary import:

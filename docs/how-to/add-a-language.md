@@ -1,6 +1,6 @@
 # Add a language
 
-The app speaks Korean (`ko`), English (`en`), Japanese (`ja`) and Simplified Chinese (`zh-hans`). Codes are lowercase BCP 47; a language with two writing systems uses the full code, like `zh-hans` (when the system says only `zh-CN`, the region tells which writing system it is). Adding a language takes two strings files and one registration line in each of two places. The Korean file is the reference: copy its key order and placeholders (`{name}`) as they are, and the tests tell you what is missing. The language list has two sources: `MODULES` in `src/core/strings.js` on the page side and `ALL` in `src-tauri/src/i18n/mod.rs` on the backend side. The list in the Settings tab, the capture script and the site tests read from those.
+The app speaks Korean (`ko`), English (`en`), Japanese (`ja`) and Simplified Chinese (`zh-hans`). Codes are lowercase BCP 47; a language with two writing systems uses the full code, like `zh-hans` (when the system says only `zh-CN`, the region tells which writing system it is). Start with two strings files and their registrations, then update the site and installer language lists below. The Korean file is the reference: copy its key order and placeholders (`{name}`) as they are, and the tests tell you what is missing. The language list has two sources: `MODULES` in `src/core/strings.js` on the page side and `ALL` in `src-tauri/src/i18n/mod.rs` on the backend side. The list in the Settings tab, the capture script and the site tests read from those.
 
 ## 1. Page strings
 
@@ -25,6 +25,8 @@ The app speaks Korean (`ko`), English (`en`), Japanese (`ja`) and Simplified Chi
 - The supported-languages line in the doc `docs/standards/i18n.md`.
 - OG images: `scripts/make-og.mjs` makes one image per language the site has. Add the language once the site has it.
 - The language line in `README.md` and the first line of this doc.
+
+- Windows installer: add the NSIS language name to `bundle.windows.nsis.languages` in `src-tauri/tauri.conf.json` and the locale to `packaging/windows/msix/AppxManifest.xml`. Keep the language selector enabled. NSIS uses names such as `English`, `Korean`, `Japanese` and `SimpChinese`, while MSIX uses locale tags. Update the expected mappings in `tests/repository-config.test.mjs` and inspect the installer and uninstaller on Windows.
 
 ## 4. Check
 

@@ -44,7 +44,7 @@ For a faster screenshot-only pass, skip recording and encoding the GIF. This pre
 SKIP_GIF=1 npm run shots -- 0.2.0
 ```
 
-To refresh only the two adult appearance pictures in all four site languages, use the abbreviated scene. It shows Aria and Noah alone and leaves the GIF unchanged:
+To refresh only the three-companion picture in all four site languages, use the abbreviated scene. It shows Daisy, Clover and Pip and leaves the GIF unchanged. The capture option retains its historical name, `adults`:
 
 ```bash
 SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans npm run shots -- 0.2.0

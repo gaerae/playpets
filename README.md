@@ -14,12 +14,12 @@ Build a small community on your desktop, with a voice and a place for every frie
 
 | In PlayPets | Your choices |
 |---|---|
-| Companions | Ten starters or compatible community pet files |
-| Appearance | Separate Aria, Aria Mini, Noah and Noah Mini pets; seasonal clothes for seven entries |
+| Companions | Daisy, Clover and Pip, or compatible community pet files |
+| Appearance | Three illustrated starters with summer and winter outfits |
 | Relationships | Friend, Partner, Dependable mentor or Playful younger sibling |
 | Conversations | Chat with a friend, bring friends in, or let them talk together |
 | AI connections | Signed-in Claude Code or Codex CLI, local Ollama, or an OpenAI-compatible server |
-| Places to play | A yard with time and weather, a small always-on-top window, or the desktop |
+| Places to play | Four places and imported backgrounds, with season, time and weather controls; mini and desktop modes |
 | Coding company | Optional hooks and MCP for several coding agents |
 
 ![Three friends saying hi and going for a walk in the yard](assets/demo.gif)
@@ -30,10 +30,10 @@ Build a small community on your desktop, with a voice and a place for every frie
 - **A living yard.** Morning, day, evening and night follow the clock, and the weather (clear, rain, snow) changes on its own. You can also pick them yourself. Put down a treat and friends walk over to eat it. Leave them alone and they wander and talk to themselves.
 - **Desktop mode.** Pets stroll around the desktop (on macOS, even over other apps in full screen).
 - **Play together.** Hide and seek (find the friend whose name is called), parade, and tag.
-- **Ten starter companions.** Daisy the explorer, Clover the kitten gardener and Pip the puppy courier join separate fictional adult pets Aria, Aria Mini, Noah and Noah Mini and the original mascot cats Tabby, Smoky and Mochi. Clover is the main mascot; seven entries have seasonal wardrobes. They use the Codex pet format and are MIT licensed.
+- **Three starter companions.** Daisy, Clover and Pip come with the app. Clover is the main mascot; all three have summer and winter outfits. They use the Codex pet format and are MIT licensed. Make your own with the [character studio](https://gaerae.github.io/playpets/guide/creator-kit), or create an importable place with the [background studio](https://gaerae.github.io/playpets/guide/background-kit).
 - **Import community pets.** Paste the address of a pet page from OpenPets Registry (openpets.sh), Petdex, Codex PokéPets, Awesome Codex Pet (codexpet.top) or codex-pets.net, and the pet comes straight in. GitHub pet folder addresses and other sites built with codex-pet-share work too. Codex pets in `~/.codex/pets` load on their own. When a gallery adds a `playpets://import?url=<pet page>` link, one click brings the pet in.
 - **Mini mode.** Keep a small window with just the yard, always on top.
-- **Light.** Built with Tauri (Rust and the system webview), so the installer is small. The app redraws often only while something moves.
+- **Built with Tauri.** Uses Rust and the system webview. The yard redraws while something moves and rests when it is still.
 
 ## Install
 
@@ -42,7 +42,7 @@ Build a small community on your desktop, with a voice and a place for every frie
 
 ## Getting started
 
-1. In the **Invite** tab, invite a starter companion into the yard. Daisy, Clover and Pip lead the shelf; the original three cats are also available.
+1. In the **Invite** tab, invite a starter companion into the yard. Choose Daisy, Clover or Pip.
 2. In the **Friend** tab, connect an AI. Installed Claude Code and Codex are found automatically. Ollama and OpenAI-compatible servers just need an address.
 3. In **Friend settings**, choose a personality, relationship and what the friend calls you. For company while coding, add your tool's hooks from the **Settings** tab.
 
@@ -74,7 +74,7 @@ The integration bridge stays on this computer (127.0.0.1, with token authenticat
 ## Data
 
 - Data folder: macOS `~/Library/Application Support/app.playpets/`, Windows `%APPDATA%\app.playpets\`, Linux `~/.local/share/app.playpets/`. It holds `state.json` (pets and settings), `bridge.json` (integration port and token), `pets/` (imported pets) and `builtin/` (starter pets). Change it with `PLAYPETS_DATA`.
-- Updates: a newer version shows as a button in the top bar and a dot on the Settings tab, and opens an update window ("What's new", "Later", "Install and restart" with progress). Check by hand under About PlayPets in the Settings tab, with "Check for updates…" in the tray, or from the macOS menu bar. The app also checks once, quietly, 20 seconds after it starts. It finds new versions through `latest.json` on GitHub releases and verifies them with the updater signing key before installing (from the first public release).
+- Updates: a newer version shows as the leftmost button in the yard controls, before the place selector, and opens an update window ("What's new", "Later", "Install and restart" with progress). Check by hand under About PlayPets in the Settings tab, with "Check for updates…" in the tray, or from the macOS menu bar. The app also checks once, quietly, 20 seconds after it starts. It finds new versions through `latest.json` on GitHub releases and verifies them with the updater signing key before installing (from the first public release). After a successful update and restart, a brief notification confirms the installed version.
 - Languages: Korean, English, Japanese and Simplified Chinese. The app follows the system language at first, and you can change it in the Settings tab (`language` in `state.json`). Force a language with `PLAYPETS_LANG=ko|en|ja|zh-hans` (for testing). Strings live per language in `src/core/strings/<language>.js` for the page and `src-tauri/src/i18n/<language>.rs` for the backend (how to add one: `docs/how-to/add-a-language.md`). Tests catch any Korean left inside a module. The app speaks English to coding agents and the terminal.
 - API keys are stored only in the OS secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service).
 - Conversations stay in memory only and are gone when the app quits.

@@ -9,6 +9,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Align the README and four-language guide with the three starter companions, current update controls and offline requirements; correct pet and installer documentation.
+
 - Offer English, Korean, Japanese and Simplified Chinese in the Windows installer and uninstaller.
 - Use a continuous sage background for readable macOS installation instructions and file labels, soften Windows installer artwork, and clarify the Linux software-center description.
 - Retire the historical flat pet generator and unused window/menu styles; align installation guides with the current update controls.
