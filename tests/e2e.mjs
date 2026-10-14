@@ -352,7 +352,8 @@ const scenario = `(async()=>{
     const bite=await until(()=>document.querySelector('.bobber.bite'),12000);
     if(bite)bite.click();
     const fishSaved=await until(async()=>(await countFish())===fishBefore+1);
-    await L('fishingFlow='+(early&&bite&&fishSaved&&!document.querySelector('.bobber')&&!document.querySelector('.fishing-line')&&!$('catch-card').hidden?'cast-bite-reward-clean':'err'));
+    const fishingResult={cast:!!cast,early:!!early,bite:!!bite,saved:!!fishSaved,floatGone:!document.querySelector('.bobber'),lineGone:!document.querySelector('.fishing-line'),card:!$('catch-card').hidden};
+    await L('fishingFlow='+(Object.values(fishingResult).every(Boolean)?'cast-bite-reward-clean':'err:'+JSON.stringify(fishingResult)));
     catchModule.endFishing();
     // Switching rooms cancels an outdoor trip and leaves no invisible fishing target indoors.
     await until(()=>[...st.views.values()].every(v=>!v.away),8000);
