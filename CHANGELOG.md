@@ -7,6 +7,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Security
+
+- Update rustls to 0.23.46 to address RUSTSEC-2026-0346, RUSTSEC-2026-0347, RUSTSEC-2026-0348 and RUSTSEC-2026-0349.
+
 ### Changed
 
 - Refresh the unpublished 0.1.0 notes in all four languages to describe the current companions, places, controls and update flow.

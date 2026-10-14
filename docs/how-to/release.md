@@ -21,6 +21,18 @@ published update can be downloaded and installed.
 
 - Integrate reviewed local branches into `main`, then run `npm run check` and
   `npm run test:e2e` on the resulting commit.
+- Scan the reachable history before its first push with `gitleaks git --redact --log-opts=main`.
+  Check tracked files as well as ignore rules; private data and build output do not belong in Git.
+- Run `npm audit`, `cargo audit --file src-tauri/Cargo.lock` and `actionlint` with
+  current advisory data. Review informational warnings too. Record unresolved
+  advisories, affected platforms and any reachability assessment in the release
+  review; a passing unit test does not establish that a dependency is safe.
+- Review third-party license notices for the dependencies actually bundled in
+  each platform package and the built website. Include the required license and
+  copyright texts with those distributions; the repository MIT license does not
+  replace dependency notices.
+- Rebuild distribution files after dependency changes. Older files under ignored
+  `release/` are not evidence for the current commit and are not publication inputs.
 - Connect the GitHub remote and push `main`; enable Pages from GitHub Actions and
   configure updater signing as described in [repository setup](set-up-the-repository.md).
 - Check the platform CI results, four-language site routes, release links and
