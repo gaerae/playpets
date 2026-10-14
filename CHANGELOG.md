@@ -9,6 +9,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Keep the new-version button before the place selector in the yard, and briefly confirm the installed version after restart.
 - Show an in-app update dialog before installation, report download, signature verification and installation separately, and keep a retry path after failure.
 - Group Settings and album tabs into matching compact selectors, and draw the fishing line and float ahead of the rod and casting friend.
 - Match the four landing page descriptions to the current friends and places, and give the Japanese home page a complete browser title.

@@ -38,9 +38,10 @@ export function renderDesktopSwitches() {
   $('autostart').checked = !!data.autostart;
 }
 // App updates. A newer version ({version, notes}) found by a check (the quiet one after start, the
-// Settings row, the tray or the menu bar) shows in three places: a button in the top bar that opens
-// the update dialog, a dot on the Settings tab, and the row in About. "Later" puts the top-bar button
+// Settings row, the tray or the menu bar) shows in three places: a button before the place selector
+// that opens the update dialog, a dot on the Settings tab, and the row in About. "Later" puts the button
 // away until the next start; the row and the dot stay.
+const RESTART_KEY = 'update-restart';
 let found = null;
 let installing = false;
 let later = false;
@@ -68,8 +69,8 @@ export function renderUpdate() {
     );
   $('update-pill').hidden = !found || later;
   if (found) {
-    $('update-pill-label').textContent = `v${found.version}`;
-    // In a narrow window only the icon shows, so the version is in the tooltip and the label too.
+    $('update-pill-label').textContent = `${t('update.pill_label')} v${found.version}`;
+    // In a narrow window only the icon shows, so the version remains in the tooltip and accessible label.
     const label = `${t('update.pill_title')} (v${found.version})`;
     $('update-pill').title = label;
     $('update-pill').setAttribute('aria-label', label);
@@ -85,6 +86,18 @@ export function updateFound(update) {
   found = update;
   renderUpdate();
   toast(t('toast.update_available', { version: `v${update.version}` }));
+}
+// A platform installer may end this process itself, so remember the target before handing it off.
+// The new page confirms its own version after boot and clears the marker even if it is still old.
+export function announceInstalledUpdate() {
+  const pending = recall(RESTART_KEY);
+  if (!pending) return;
+  remember(RESTART_KEY, '');
+  try {
+    const { version, from } = JSON.parse(pending);
+    if (version && from !== version && data.version === version)
+      toast(t('toast.update_installed', { version: `v${version}` }));
+  } catch {}
 }
 function openUpdateDialog() {
   if (!found) return;
@@ -115,9 +128,11 @@ async function install() {
   updateError = '';
   renderUpdate();
   openUpdateDialog();
+  remember(RESTART_KEY, JSON.stringify({ version: found.version, from: data.version }));
   try {
     await call('installUpdate');
   } catch (error) {
+    remember(RESTART_KEY, '');
     installing = false;
     updateError = error.message;
     renderUpdate();

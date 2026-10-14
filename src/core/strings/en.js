@@ -545,6 +545,7 @@ export const strings = {
   'settings.season_winter': 'Winter',
   'settings.yard': 'The yard',
   'update.pill_title': 'A new version is available',
+  'update.pill_label': 'Update',
   'update.title': 'PlayPets {version} is available',
   'update.body':
     'Installing downloads it, checks its signature and restarts PlayPets. Your friends and settings stay as they are. (You have {current}.)',
@@ -590,7 +591,8 @@ export const strings = {
   'toast.sent_away': '{name} has left the yard. You can invite them again from the Invite tab.',
   'toast.persona_saved': 'Saved {name}’s personality. You can see it in Friend settings.',
   'toast.connection_saved': 'Saved the AI connection.',
-  'toast.update_available': 'Version {version} is out. You can install it from the Settings tab.',
+  'toast.update_available': 'Version {version} is out. Use the button beside the place selector to install it.',
+  'toast.update_installed': 'PlayPets is now version {version}.',
   'toast.connection_deleted': 'Deleted the connection and its saved key.',
   'toast.copied': 'Copied the {tool} settings. Paste them into {file}.',
   'toast.copied_codex': 'Copied the Codex settings. Paste them at the top of {file}.',

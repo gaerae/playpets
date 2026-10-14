@@ -219,16 +219,6 @@ html:not(.mac) body {
 }
 /* Settings is not an everyday place: an icon at the end of the tabs, its name in the tooltip and
    for screen readers. */
-/* A newer version, in the top bar until it is installed or put off: the accent colour and the
-   version, nothing else, so it fits beside the other controls at the narrowest window. */
-.topbar .update-pill {
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
-  font-variant-numeric: tabular-nums;
-}
-.topbar .update-pill:hover {
-  background: color-mix(in srgb, var(--accent) 8%, var(--white));
-}
 /* The Settings tab carries a dot while an update waits there. */
 .panel-tab.has-update {
   position: relative;
@@ -243,11 +233,9 @@ html:not(.mac) body {
   border-radius: 50%;
   background: var(--accent);
 }
-/* As the window narrows the top bar gives up words, never controls: the buttons keep their icons
-   and their words stay in the tooltip. First the tagline and the shortest labels, then the rest. */
+/* The top bar gives up its tagline before its controls at narrow widths. */
 @media (max-width: 1100px) {
-  .brand-sub,
-  #update-pill-label {
+  .brand-sub {
     display: none;
   }
 }
@@ -340,6 +328,29 @@ body.mini .stage:has(.catch-card:not([hidden])) .toast {
   backdrop-filter: var(--glass-blur);
   box-shadow: 0 3px 14px var(--ink-12);
 }
+.yard-dock > .update-pill {
+  flex: none;
+  min-height: 40px;
+  padding: 0 11px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 9px 0 0 9px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--dock-surface));
+  color: var(--accent);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.yard-dock > .update-pill:hover {
+  background: color-mix(in srgb, var(--accent) 21%, var(--dock-surface));
+}
+@media (max-width: 520px) {
+  .yard-dock > .update-pill {
+    padding: 0 12px;
+  }
+  #update-pill-label {
+    display: none;
+  }
+}
 .yard-dock > .caption-main {
   min-width: 0;
   max-width: 228px;
@@ -400,9 +411,6 @@ body.mini .stage:has(.catch-card:not([hidden])) .toast {
 }
 .yard-controls-panel > * {
   flex-shrink: 0;
-}
-.yard-controls-panel .update-pill {
-  align-self: stretch;
 }
 
 .layout.settings-open .yard-dock,

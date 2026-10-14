@@ -18,7 +18,14 @@ import { setupConnection } from './panel/connection.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
 import { drawPreviews, invite, setupInvite } from './panel/invite.js';
-import { checkForUpdates, setupSettings, showSection, updateFound, updateStatus } from './panel/settings.js';
+import {
+  announceInstalledUpdate,
+  checkForUpdates,
+  setupSettings,
+  showSection,
+  updateFound,
+  updateStatus,
+} from './panel/settings.js';
 import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { render } from './render.js';
 import { isMini, setMini, setupWindow } from './window.js';
@@ -284,6 +291,7 @@ try {
   setupBond();
   if (recall('mini') && data.pets.length) await setMini(true);
   refreshChat();
+  announceInstalledUpdate();
   last = performance.now();
   every(BUSY_MS, animate);
 } catch (e) {

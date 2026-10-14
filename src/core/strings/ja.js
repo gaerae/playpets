@@ -537,6 +537,7 @@ export const strings = {
   'settings.season_winter': '冬',
   'settings.yard': '庭',
   'update.pill_title': '新しいバージョンがあります',
+  'update.pill_label': '新バージョン',
   'update.title': 'PlayPets {version} が出ました',
   'update.body':
     'インストールすると、新しいバージョンをダウンロードして署名を確かめ、PlayPets を再起動します。友だちと設定はそのままです。(今のバージョン {current})',
@@ -582,7 +583,8 @@ export const strings = {
   'toast.sent_away': '{name}とお別れしました。「招待」タブからまた招待できます。',
   'toast.persona_saved': '{name}の性格を保存しました。「友だち設定」で確認できます。',
   'toast.connection_saved': 'AI接続を保存しました。',
-  'toast.update_available': '新しいバージョン {version} が出ました。「設定」タブからインストールできます。',
+  'toast.update_available': '新しいバージョン {version} が出ました。場所選択の横にあるボタンからインストールできます。',
+  'toast.update_installed': 'PlayPetsをバージョン {version} にアップデートしました。',
   'toast.connection_deleted': '接続と保存されたキーを削除しました。',
   'toast.copied': '{tool}の設定をコピーしました。{file}に貼り付けてください。',
   'toast.copied_codex': 'Codexの設定をコピーしました。{file}の先頭に貼り付けてください。',

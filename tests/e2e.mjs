@@ -225,13 +225,14 @@ const scenario = `(async()=>{
     // About: the app's own pages, from the addresses the backend reports; "What's new" waits for an update.
     const project=(await playPets.bootstrap()).data.project||{};
     await L('about='+document.querySelectorAll('#panel-settings button[data-link]').length+'/'+(String(project.site).startsWith('https://')&&String(project.repository).startsWith('https://github.com/')?'addresses':'none')+'/'+($('update-notes').hidden?'notes-hidden':'notes-shown'));
-    // An update found in the background: the top-bar button and the Settings dot show it, the button
-    // opens the dialog, and Later puts the button away while the dot stays. Nothing is installed.
+    // A new version stays in the yard dock before Place, with the Settings dot as a secondary cue.
+    // The button opens the dialog, and Later puts it away while the dot stays. Nothing is installed.
     const sections=[...document.querySelectorAll('#panel-settings .settings-section h3')].map(h=>h.id).join(',');
     const inAbout=!!document.querySelector('.settings-section.about #update-button');
+    $('close-panel').click();
     window.__pp('event',{type:'update',update:{version:'9.9.9',notes:''}});await until(()=>!$('update-pill').hidden);
     const tabDot=document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
-    const pillShown=!$('update-pill').hidden&&$('update-pill-label').textContent==='v9.9.9';
+    const pillShown=!$('update-pill').hidden&&$('update-pill-label').textContent.includes('v9.9.9')&&$('update-pill').parentElement.classList.contains('yard-dock')&&$('update-pill').parentElement.firstElementChild===$('update-pill')&&getComputedStyle($('update-pill')).display!=='none';
     $('update-pill').click();await until(()=>$('update-dialog').open);
     const updateDialogOpen=$('update-dialog').open&&$('update-title').textContent.includes('v9.9.9');
     $('update-later').click();await until(()=>!$('update-dialog').open);
@@ -660,7 +661,7 @@ const expect = [
   [/^about=6\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
   [
     /^updateUi=general-title,yard-settings-title,agent-link-title,about-title\/ok$/,
-    'an update shows in the top bar and on the Settings tab, opens its dialog, and Later puts it away',
+    'an update stays at the left of the yard dock before Place, opens its dialog, and Later puts it away',
   ],
   [/^stage=yard-first$/, 'the yard leads the window (60% of the height or more)'],
   [/^weather=snow-canvas$/, 'weather canvas (snow)'],

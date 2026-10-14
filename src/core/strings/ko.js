@@ -520,6 +520,7 @@ export const strings = {
   'settings.season_winter': '겨울',
   'settings.yard': '놀이터',
   'update.pill_title': '새 버전이 있어요',
+  'update.pill_label': '새 버전',
   'update.title': 'PlayPets {version:이/가} 나왔어요',
   'update.body':
     '설치하면 새 버전을 받아 서명을 확인하고 PlayPets를 다시 시작해요. 친구들과 설정은 그대로예요. (지금 버전 {current})',
@@ -565,7 +566,8 @@ export const strings = {
   'toast.sent_away': '{name:을/를} 내보냈어요. 초대 탭에서 다시 초대할 수 있어요.',
   'toast.persona_saved': '{name}의 성격을 저장했어요. 친구 설정에서 볼 수 있어요.',
   'toast.connection_saved': 'AI 연결을 저장했어요.',
-  'toast.update_available': '새 버전 {version:이/가} 나왔어요. 설정 탭에서 설치할 수 있어요.',
+  'toast.update_available': '새 버전 {version:이/가} 나왔어요. 장소 선택 옆 버튼에서 설치할 수 있어요.',
+  'toast.update_installed': 'PlayPets가 {version} 버전으로 업데이트됐어요.',
   'toast.connection_deleted': '연결과 저장된 키를 삭제했어요.',
   'toast.copied': '{tool} 설정을 복사했어요. {file}에 붙여 넣어 주세요.',
   'toast.copied_codex': 'Codex 설정을 복사했어요. {file} 맨 위에 붙여 넣어 주세요.',

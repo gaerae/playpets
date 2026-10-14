@@ -11,6 +11,15 @@ test('yard controls start closed and the brand lives in About', async () => {
   assert.ok(html.indexOf('class="brand"') > html.indexOf('id="settings-about"'));
 });
 
+test('a new version stays visible before the place selector while the menu is closed', async () => {
+  const html = await readFile('src/index.html', 'utf8');
+  const dock = html.slice(html.indexOf('<div class="yard-dock">'), html.indexOf('<div id="scene-menu"'));
+  assert.ok(dock.indexOf('id="update-pill"') > 0, 'the update button belongs to the dock');
+  assert.ok(dock.indexOf('id="update-pill"') < dock.indexOf('id="scene-button"'));
+  assert.ok(dock.indexOf('id="scene-button"') < dock.indexOf('id="yard-controls-toggle"'));
+  assert.equal(html.match(/id="update-pill"/g)?.length, 1);
+});
+
 test('controls open by click, dismiss by Escape, and return keyboard focus', async t => {
   const toggle = element('button', { id: 'yard-controls-toggle' });
   const panel = element('div', { id: 'yard-controls-panel', hidden: true });

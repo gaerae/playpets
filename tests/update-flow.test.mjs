@@ -13,7 +13,7 @@ globalThis.playPets = {
     });
   },
 };
-const { setupSettings, updateFound, updateStatus } = await import('../src/panel/settings.js');
+const { announceInstalledUpdate, setupSettings, updateFound, updateStatus } = await import('../src/panel/settings.js');
 const { setData } = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
 
@@ -34,6 +34,7 @@ test('an available update opens a guided download, shows each stage, and can ret
 
   const installing = nodes.get('update-install').onclick();
   assert.equal(installs, 1);
+  assert.equal(JSON.parse(localStorage.getItem('update-restart')).version, '0.2.0');
   assert.equal(nodes.get('update-later').disabled, true);
   assert.equal(nodes.get('update-progress-label').textContent, t('update.downloading'));
   assert.equal(nodes.get('update-progress').getAttribute('value'), null, 'unknown size keeps an indeterminate bar');
@@ -48,6 +49,7 @@ test('an available update opens a guided download, shows each stage, and can ret
 
   finishInstall({ ok: false, error: 'The update could not be installed.' });
   await installing;
+  assert.equal(localStorage.getItem('update-restart'), '', 'a failed installation leaves no success notice');
   assert.equal(nodes.get('update-dialog').open, true, 'a failed install keeps the dialog available');
   assert.equal(nodes.get('update-install').disabled, false, 'the person can retry');
   assert.equal(nodes.get('update-later').disabled, false);
@@ -60,4 +62,37 @@ test('an available update opens a guided download, shows each stage, and can ret
   assert.equal(nodes.get('update-error').hidden, true, 'retry clears the old error');
   finishInstall({ ok: false, error: 'The update could not be installed.' });
   await retry;
+});
+
+test('restart shows the completed update once at the usual notice position', context => {
+  const storage = installStorage(context);
+  keepGlobals(context, 'setTimeout');
+  let expire;
+  globalThis.setTimeout = callback => {
+    expire = callback;
+    return 1;
+  };
+  installDom(context, { anyId: true });
+  storage.setItem('update-restart', JSON.stringify({ version: '0.2.0', from: '0.1.0' }));
+  setData({ pets: [], version: '0.2.0' });
+  announceInstalledUpdate();
+  assert.equal(document.getElementById('toast').hidden, false);
+  assert.equal(document.getElementById('toast').textContent, t('toast.update_installed', { version: 'v0.2.0' }));
+  assert.equal(storage.getItem('update-restart'), '');
+  document.getElementById('toast').textContent = 'already shown';
+  announceInstalledUpdate();
+  assert.equal(document.getElementById('toast').textContent, 'already shown');
+  expire();
+  assert.equal(document.getElementById('toast').hidden, true, 'the confirmation leaves on the normal toast timer');
+});
+
+test('restart on the old version does not claim that installation succeeded', context => {
+  const storage = installStorage(context);
+  installDom(context, { anyId: true });
+  storage.setItem('update-restart', JSON.stringify({ version: '0.2.0', from: '0.1.0' }));
+  setData({ pets: [], version: '0.1.0' });
+  document.getElementById('toast').hidden = true;
+  announceInstalledUpdate();
+  assert.equal(document.getElementById('toast').hidden, true);
+  assert.equal(storage.getItem('update-restart'), '');
 });
