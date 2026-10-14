@@ -110,7 +110,7 @@ test('precipitation builds its materials once, then draws cached near flakes and
   const drop = { x: 30, y: 40, depth: 0.95, size: 4, phase: 1, vx: -0.18, vy: 1 };
   for (let i = 0; i < 100; i++) {
     assert.equal(art.snow(ctx, drop, 0.5), true);
-    assert.equal(art.rain(ctx, drop, 0.5, true, false), true);
+    assert.equal(art.rain(ctx, drop, 0.5, false), true);
   }
   assert.deepEqual([allocations, gradients], built, 'painting creates no canvas, image or gradient');
   assert.equal(ctx.calls.length, 200);
@@ -197,4 +197,16 @@ test('seasonal art starts lazily when motion is enabled and the next falling spe
   scene.frame(24002, 1);
   scene.frame(69003, 1);
   assert.equal(loads, 1, 'a newly enabled seasonal spell fetches its texture without a resize');
+});
+
+test('rain uses one daylight material regardless of the scene', () => {
+  let allocations = 0;
+  const art = factory(() => {}, {
+    makeCanvas: () => {
+      allocations++;
+      return { getContext: () => context() };
+    },
+  });
+  art.use('summer', 'rain', false);
+  assert.equal(allocations, 4, 'two rain and two ripple materials, no dark glass variant');
 });

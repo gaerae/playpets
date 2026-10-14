@@ -1,3 +1,4 @@
+import { setupInteractions } from '../core/interactions.js';
 // The desktop overlay page, one per monitor: it draws the friends the backend places on this
 // monitor and reports presses and drags. Positions, drags and strolls are worked out in overlay.rs.
 
@@ -13,6 +14,7 @@ import { stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
 
+setupInteractions();
 document.documentElement.lang = language();
 const api = window.playPets,
   displayId = window.__DISPLAY,

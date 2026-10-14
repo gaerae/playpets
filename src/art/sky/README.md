@@ -9,3 +9,6 @@ shade and warm highlights match the woodland environment. No UI, text or charact
 The app paints cloud layers only when the scene or viewport changes. CSS moves the cached
 cloud canvases; the sun and moon retain clock positioning and the moon retains its phase mask.
 The original procedural cloud painter remains a fallback while images load or fail.
+
+The sun now uses a soft CSS light disc, avoiding crater-like detail at small sizes.
+`sun.png` remains the reproducible atlas export for source comparison; it is not loaded by the yard.

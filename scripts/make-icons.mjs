@@ -1,9 +1,9 @@
-// Renders assets/icon.svg into every app icon:
+// Renders the accepted illustrated face in assets/icon.png into every app icon:
 //   src-tauri/icons/icon.icns   macOS (Apple icon grid: a rounded plate of 824/1024 with Clover on it;
 //                               macOS 26 puts free-form icons on a grey plate of its own otherwise)
 //   src-tauri/icons/icon.ico    Windows (full-bleed, PNG-embedded)
 //   src-tauri/icons/icon.png    Linux (512px)
-//   src-tauri/icons/tray.png    menu bar / tray (colored, 32px)
+//   src-tauri/icons/tray.png    all-platform tray and website favicon (colored, 32px)
 //   src-tauri/icons/msix/*.png  Windows package (MSIX) tiles
 //   src/logo.svg                in-app brand mark
 // Run from the repo root: npm run icons   (uses the system Chrome, or Playwright's Chromium)
@@ -16,17 +16,20 @@ import { launchBrowser } from './browser-lib.mjs';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const icons = path.join(root, 'src-tauri', 'icons');
-const svg = await readFile(path.join(root, 'assets', 'icon.svg'), 'utf8');
+const source = await readFile(path.join(root, 'assets', 'icon.png'));
+const wrapped = bytes =>
+  `<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><image width="1024" height="1024" href="data:image/png;base64,${bytes.toString('base64')}"/></svg>\n`;
+const svg = wrapped(source);
 const work = await mkdtemp(path.join(os.tmpdir(), 'playpets-icons-'));
 
 // One page renders every variant: artwork centered at inner×inner on a
 // transparent canvas×canvas viewport, so small sizes stay crisp and a margin is just inner<canvas.
 const browser = await launchBrowser();
 const page = await browser.newPage({ viewport: { width: 1024, height: 1024 }, deviceScaleFactor: 1 });
-async function render(canvas, inner, name, plate = false) {
+async function render(canvas, inner, name, plate = false, artwork = svg) {
   await page.setViewportSize({ width: canvas, height: canvas });
   await page.setContent(
-    `<style>*{margin:0}html,body{background:transparent;overflow:hidden}body{width:${canvas}px;height:${canvas}px;display:grid;place-items:center}svg{width:${inner}px;height:${inner}px;display:block}</style>${plate ? `<div class="plate">${svg}</div>` : svg}`.replace(
+    `<style>*{margin:0}html,body{background:transparent;overflow:hidden}body{width:${canvas}px;height:${canvas}px;display:grid;place-items:center}svg{width:${inner}px;height:${inner}px;display:block}</style>${plate ? `<div class="plate">${artwork}</div>` : artwork}`.replace(
       '</style>',
       plate
         ? `.plate{width:${inner}px;height:${inner}px;border-radius:${inner * 0.225}px;background:linear-gradient(#fffaf1,#edf2e4);display:grid;place-items:center;overflow:hidden}.plate svg{width:${inner * 0.8}px;height:${inner * 0.8}px;margin-top:${inner * 0.04}px}</style>`
@@ -34,6 +37,15 @@ async function render(canvas, inner, name, plate = false) {
     ),
     { waitUntil: 'networkidle' },
   );
+  await page.evaluate(async () => {
+    await Promise.all(
+      [...document.querySelectorAll('image')].map(async element => {
+        const image = new Image();
+        image.src = element.getAttribute('href');
+        await image.decode();
+      }),
+    );
+  });
   await page.waitForTimeout(120);
   const file = path.join(work, name);
   await page.screenshot({ path: file, omitBackground: true });
@@ -97,7 +109,9 @@ for (let i = 0; i < icoSizes.length; i++) {
 await writeFile(path.join(icons, 'icon.ico'), Buffer.concat([header, ...entries, ...pngs]));
 await writeFile(path.join(icons, 'icon.png'), await readFile(full[512]));
 await writeFile(path.join(icons, 'tray.png'), await readFile(full[32]));
-await writeFile(path.join(root, 'src', 'logo.svg'), svg);
+const portable = wrapped(await readFile(full[256]));
+await writeFile(path.join(root, 'assets', 'icon.svg'), portable);
+await writeFile(path.join(root, 'src', 'logo.svg'), portable);
 await mkdir(path.join(icons, 'msix'), { recursive: true });
 for (const [name, file] of Object.entries(tiles))
   await writeFile(path.join(icons, 'msix', `${name}.png`), await readFile(file));

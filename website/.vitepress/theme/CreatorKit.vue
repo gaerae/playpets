@@ -202,7 +202,7 @@ const words = {
 };
 const t = computed(() => words[props.lang] || words.en);
 const promptIndex = ref(0);
-const id = ref('aria'),
+const id = ref(kitEntries[0].id),
   notice = ref('');
 watch(id, () => {
   notice.value = '';
@@ -286,7 +286,7 @@ async function copy(text) {
 .creator-kit { --kit-button-bg: #315d4b; --kit-button-hover: #284d3f; --kit-button-text: #fff; min-width: 0; margin: 32px 0 48px; }
 :global(.dark .creator-kit) { --kit-button-bg: #b8d2a5; --kit-button-hover: #cde4be; --kit-button-text: #25352f; }
 .creator-kit :deep(.sprite i) { animation: none; }
-.kit-entries { border: 0; padding: 0; margin: 0 0 28px; min-width: 0; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 8px; }
+.kit-entries { border: 0; padding: 0; margin: 0 0 28px; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .kit-entries legend { margin-bottom: 16px; font-size: 17px; font-weight: 650; }
 .kit-entries label { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px 10px; border: 1px solid transparent; border-radius: 18px; cursor: pointer; font-size: 12px; line-height: 1.4; text-align: center; }
 .kit-entries label.selected { background: var(--vp-c-brand-soft); border-color: var(--vp-c-brand-1); }
@@ -323,6 +323,5 @@ figcaption { margin-top: 8px; color: var(--vp-c-text-2); font-size: 13px; }
 .kit-package-actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
 .kit-package-actions p { margin: 0; }
 :focus-visible { outline: 3px solid var(--vp-c-brand-1); outline-offset: 3px; }
-@media (max-width: 960px) { .kit-entries { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .kit-workbench, .kit-takeaway { grid-template-columns: minmax(0, 1fr); } .kit-prompt { padding: 22px 18px; } .kit-character { padding: 16px 18px; display: grid; grid-template-columns: 88px minmax(0, 1fr); column-gap: 12px; text-align: left; } .kit-eyebrow { grid-column: 2; grid-row: 1; align-self: end; } .kit-portrait { grid-column: 1; grid-row: 1 / 3; width: 88px; height: 96px; } .kit-portrait :deep(.sprite) { --display-scale: .44; } .kit-character h3 { grid-column: 2; grid-row: 2; margin: 0; align-self: start; font-size: 26px; } .kit-character > .kit-primary, .kit-contents { grid-column: 1 / -1; } .kit-entries { gap: 2px; } .kit-entries :deep(.sprite) { --display-scale: .28; } .kit-entries label { font-size: 11px; } .kit-copy-row { align-items: flex-start; flex-direction: column; gap: 6px; } }
 </style>

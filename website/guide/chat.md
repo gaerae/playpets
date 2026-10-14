@@ -64,7 +64,7 @@ When two or more friends have an AI connected, **Bring friends in** appears at t
 
 1. Click it and click the friends you want to chat with. You can pick up to 3.
 2. Send a message and the current friend answers first, then the friends you picked answer one after another. Each speaks with their own AI and personality.
-3. To let the friends carry on without a new message, press **Let them chat** in the yard toolbar. The friends with an AI talk for a round about the time and the weather, and it shows as speech bubbles in the yard.
+3. To let the friends carry on without a new message, press **Let them chat** in **Menu**. The friends with an AI talk for a round about the time and the weather, and it shows as speech bubbles in the yard.
 
 The small chip under the friend's name shows which coding agents report to this friend (Reports from · Claude Code).
 

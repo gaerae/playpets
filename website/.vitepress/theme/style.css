@@ -85,8 +85,8 @@ h3,
 /* ---- the sprite (Sprite.vue): one cell of the sheet, stepping through a row ---- */
 .sprite {
   display: inline-block;
-  width: calc(192px * var(--display-scale, var(--scale)));
-  height: calc(208px * var(--display-scale, var(--scale)));
+  width: calc(192px * var(--display-scale, var(--scale)) * var(--height-factor, 1));
+  height: calc(208px * var(--display-scale, var(--scale)) * var(--height-factor, 1));
   position: relative;
   overflow: hidden;
   vertical-align: bottom;
@@ -94,12 +94,12 @@ h3,
 .sprite i {
   position: absolute;
   inset: 0;
-  transform: scale(var(--display-scale, var(--scale)));
+  transform: scale(calc(var(--display-scale, var(--scale)) * var(--height-factor, 1)));
   transform-origin: 0 0;
   width: 192px;
   height: 208px;
   background: var(--sheet) no-repeat;
-  background-size: 1536px 2288px;
+  background-size: var(--sheet-size, 1536px 2288px);
   background-position-y: calc(var(--row) * -208px);
   animation: sprite-row var(--loop) steps(var(--frames)) infinite;
 }

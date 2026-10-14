@@ -14,6 +14,9 @@ const TABLE: &[(&str, &str)] = &[
     ("pets.parked", "펫 파일을 찾지 못했거나 놀이터가 가득 차서 친구 {count}명이 이번에는 나오지 못했어요. 지운 것은 아니라서 파일이 돌아오거나 자리가 나면 다시 나와요."),
 
     ("tray.open", "놀이터 열기"),
+    ("tray.friends", "친구"),
+    ("tray.invite", "친구 초대…"),
+    ("tray.sound", "놀이터 소리"),
     ("tray.desktop", "바탕화면에 보이기"),
     ("tray.wander", "바탕화면에서 돌아다니기"),
     ("tray.update", "업데이트 확인…"),

@@ -83,14 +83,13 @@ body {
   height: 100%;
 }
 .app-shell {
-  max-width: 1540px;
-  margin: auto;
+  position: relative;
   /* 100% of the body, not 100vh: outside macOS the body draws the window's 1px border, and a
      100vh shell overflowed it by 2px, which showed a scrollbar on Windows. */
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 0 24px;
+  padding: 0;
 }
 .topbar-end {
   display: flex;
@@ -102,25 +101,14 @@ body {
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
-  padding: 16px 0 20px;
-}
-@media (max-width: 760px) {
-  .app-shell {
-    height: auto;
-    min-height: 100%;
-    padding: 0 16px;
-  }
-  /* Settings, a sheet with its own scroller, keeps the shell one window tall (settings.css). */
-  .app-shell:has(.layout.settings-open) {
-    height: 100%;
-    min-height: 0;
-  }
+  gap: 0;
+  padding: 0;
 }
 .win-controls {
   display: flex;
   align-self: stretch;
-  margin: -1px -24px -1px 4px;
+  margin: -8px -12px -8px 4px;
+  background: var(--floating);
 }
 .mac .win-controls {
   display: none;
@@ -150,26 +138,32 @@ body {
 html:not(.mac) body {
   border: 1px solid var(--line);
 }
-/* ---- title bar: one quiet row, sized to sit beside the window buttons ---- */
+/* Floating navigation keeps the landscape visible up to the window edges. */
 .topbar {
+  position: absolute;
+  inset: 0 0 auto;
   height: 52px;
+  padding: 8px 12px;
+  z-index: 21;
   flex: none;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 14px;
-  border-bottom: 1px solid var(--line);
   user-select: none;
   -webkit-user-select: none;
   cursor: default;
 }
 .mac .topbar {
-  padding-left: 70px;
+  padding-left: 88px;
 }
 .brand {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  margin-bottom: 16px;
 }
 .brand-mark {
   width: 24px;
@@ -208,7 +202,9 @@ html:not(.mac) body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 34px;
+  min-height: 42px;
+  justify-content: center;
+  flex: 1;
   padding: 0 11px;
   border-radius: 0;
   font-size: 12px;
@@ -223,17 +219,6 @@ html:not(.mac) body {
 }
 /* Settings is not an everyday place: an icon at the end of the tabs, its name in the tooltip and
    for screen readers. */
-.panel-tab.icon-tab {
-  padding: 0 10px;
-}
-.panel-tab.icon-tab > span:not([data-icon]) {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
 /* A newer version, in the top bar until it is installed or put off: the accent colour and the
    version, nothing else, so it fits beside the other controls at the narrowest window. */
 .topbar .update-pill {
@@ -277,9 +262,10 @@ html:not(.mac) body {
 }
 @media (max-width: 760px) {
   .topbar {
-    height: auto;
-    padding-block: 8px;
-    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .win-controls button {
+    width: 34px;
   }
 }
 /* ---- notices appear over the yard, at its foot, clear of the game banner at its head ---- */
@@ -334,4 +320,128 @@ body.mini .stage:has(.catch-card:not([hidden])) .toast {
     border-color: var(--green-line);
     color: var(--ink);
   }
+}
+
+/* One quiet, shared surface for scenery and navigation in the expanded yard. */
+.yard-dock {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 31;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 2px;
+  max-width: calc(100% - 24px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--dock-surface);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: 0 3px 14px var(--ink-12);
+}
+.yard-dock > .caption-main {
+  min-width: 0;
+  max-width: 228px;
+}
+.yard-dock .scene-button {
+  min-height: 40px;
+  border-radius: 9px;
+  padding: 0 10px;
+}
+.yard-dock .scene-copy {
+  min-width: 0;
+}
+.yard-controls-toggle {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-left: 1px solid var(--line);
+  border-radius: 0 9px 9px 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+.yard-controls-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+.yard-controls-toggle[aria-expanded="true"],
+.yard-controls-toggle:hover {
+  background: var(--control-hover);
+  color: var(--ink);
+}
+.yard-controls-panel {
+  position: absolute;
+  right: 12px;
+  bottom: 64px;
+  z-index: 30;
+  width: min(304px, calc(100% - 24px));
+  max-height: calc(100% - 116px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--menu-surface);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: 0 8px 24px var(--ink-12);
+}
+.yard-controls-panel[hidden] {
+  display: none;
+}
+.yard-controls-panel > * {
+  flex-shrink: 0;
+}
+.yard-controls-panel .update-pill {
+  align-self: stretch;
+}
+
+.layout.settings-open .yard-dock,
+body.mini .layout.mini-chat-open .yard-dock {
+  display: none;
+}
+
+/* Compact destinations, activity rows and a separate display footer share one spacing rhythm. */
+.yard-controls-panel .panel-tabs {
+  display: flex;
+  gap: 6px;
+  background: transparent;
+}
+.yard-controls-panel .panel-tab {
+  flex-direction: row;
+  gap: 6px;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+}
+.yard-controls-panel .panel-tab svg {
+  width: 16px;
+  height: 16px;
+}
+.menu-section-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.yard-controls-panel .yard-caption {
+  display: block;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.yard-controls-panel .panel-tab:hover {
+  background: var(--control-hover);
 }

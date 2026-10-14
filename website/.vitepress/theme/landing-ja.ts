@@ -32,43 +32,16 @@ export const copy = {
   releaseLink: (v: string) => `${v}`,
 };
 export const worldCopy = {
+  places: ['丘の庭', '石造りの中庭', '湖畔の家', 'くつろぎのリビング'],
+  seasons: ['春', '夏', '秋', '冬'],
+  seasonLabel: '季節を選ぶ',
+  previewNote: 'アプリの背景と仲間を使ったプレビューです。友だちを押すと手を振ります。遊びや天気はアプリで楽しめます。',
+  greet: '挨拶する',
   title: ['帰ってきたくなる、', '小さな世界。'],
   lead: '散歩したり、花を育てたり、少しおしゃべりしたり。忙しい一日の片隅に、友だちの居場所を。',
   worldsTitle: '今日は、どこでひと休み？',
-  worldsLead: '好きな季節を選んで。街の灯りを眺める部屋もあります。',
+  worldsLead: '好きな居場所を見つけて、季節を変えたり、友だちに挨拶したり。',
   sceneLabel: '場所と季節を選ぶ',
-  scenes: [
-    {
-      shot: 'yard-spring',
-      label: '春',
-      caption: '日差しと花びらの間で、急がない時間を。',
-    },
-    {
-      shot: 'yard-summer',
-      label: '夏',
-      caption: '緑の芝生で過ごす、のんびりした午後。',
-    },
-    {
-      shot: 'yard-talk',
-      label: '秋',
-      caption: '暖かな紅葉と、いつもの仲間。',
-    },
-    {
-      shot: 'yard-winter',
-      label: '冬',
-      caption: '一緒に、雪が降るのを眺めよう。',
-    },
-    {
-      shot: 'studio-day',
-      label: '街の昼',
-      caption: 'にぎやかな街の上に、静かな居場所。',
-    },
-    {
-      shot: 'studio-night',
-      label: '街の夜',
-      caption: '窓の外に灯りがともったら、もう少し一緒に。',
-    },
-  ],
   pause: '動きを止める',
   resume: '動きを再生する',
   creatorTitle: '想像した友だちも、一緒に。',
@@ -81,7 +54,7 @@ export const worldCopy = {
 export const sections = {
   galleryCreate: 'この友だちで作る',
   galleryTitle: 'つい目が合う、友だち。',
-  galleryLead: '10種類の仲間が待っています。気になる友だちを選んで、動きを見てみましょう。',
+  galleryLead: 'デイジー、クローバー、ピップ。個性の違う3人が暮らす、小さな世界。',
   galleryLabel: '友だちを選ぶ',
   posesLabel: '動きを試す',
   poses: ['休憩', '手を振る', '跳ぶ'],
@@ -90,14 +63,7 @@ export const sections = {
   petNotes: {
     daisy: '小さな発見が得意な、好奇心いっぱいの探検家です。',
     clover: '庭づくりと小さな発見を分け合う、やさしい子猫です。',
-    pip: 'みんなへの挨拶が大好きな、子犬の配達係です。',
-    'aria-full': '音楽と静かな夜を楽しむ、大人のパフォーマーです。',
-    'aria-mini': '音楽が好きな、Ariaとは別の小さな仲間です。',
-    'noah-full': '会話と街の散歩を楽しむ、大人のパフォーマーです。',
-    'noah-mini': '街の散歩が好きな、Noahとは別の小さな仲間です。',
-    tabby: '冒険好きな歩き方の、元気な茶トラの子猫です。',
-    smoky: '話す前によく考える、穏やかな灰色の猫です。',
-    mochi: 'いつでも遊びたい、ふわふわのクリーム色の猫です。',
+    pip: '青い花のワッペンのジャケットを着た、挨拶が大好きな元気な子犬です。',
   },
   connectionsTitle: '一緒に遊んで、ときどきお話。',
   connectionsLead: '遊びや庭づくりはAIアカウントなしで楽しめます。会話には、接続したAIの利用枠や料金が適用されます。',
@@ -110,8 +76,9 @@ export const sections = {
     ],
   ],
   miniTitle: '一日の片隅に、小さな友だち。',
-  miniBody: '作業する窓のそばに小さな庭を置いたり、友だちをデスクトップで散歩させたりできます。',
-  miniLink: 'デスクトップの友だちを試す',
+  miniBody:
+    'ミニモードはメニューを表示せず、作業のそばに庭を置ける小さな窓です。背景を変えたり遊びの道具を使ったりするときは拡大します。',
+  miniLink: 'ミニモードを見る',
   agentGuide: 'コーディングエージェントをつなぐ',
   connectionDetails: '会話の設定と料金について',
   connectionSetup:

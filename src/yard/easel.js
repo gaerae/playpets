@@ -7,9 +7,9 @@
 import { paintLand } from './backdrop.js';
 import { seeded } from './brush.js';
 import { paintCloud, paintSky } from './clouds.js';
-import { environmentLook, paintEnvironment } from './environment.js';
+import { environmentLook, environmentWindowLook, paintEnvironment } from './environment.js';
 import { lightFor, readPalette } from './palette.js';
-import { worldAllows } from './worlds.js';
+import { worldAllows, worldFor } from './worlds.js';
 
 // Canvas pixels per yard pixel: sharp on a dense screen, but never more than this many in all,
 // so a large window does not hold a huge picture. The sky is soft and needs fewer.
@@ -49,7 +49,7 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
     scene = null,
     timer = null,
     paintedWorld = null;
-  // Only the picture on the wall is kept decoded (about 6 MB each); another is loaded when shown.
+  // Keep only the current base and optional window view decoded (about 6 MB each).
   const images = new Map();
   const loading = new Set(),
     failed = new Set();
@@ -80,14 +80,17 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
       loading.delete(name);
       if (ok) images.set(name, image);
       else failed.add(name);
-      if (scene && environmentLook(scene).art === name) {
+      if (scene && [environmentLook(scene).art, environmentWindowLook(scene)?.art].includes(name)) {
         last = '';
         paint();
       }
     };
     image.onload = settle(true);
     image.onerror = settle(false);
-    image.src = new URL(`../art/environments/${name}.png`, import.meta.url).href;
+    const sources = worldFor(scene.world).imageSources;
+    image.src = sources
+      ? sources[name.slice(name.lastIndexOf(':') + 1)]
+      : new URL(`../art/environments/${name}.png`, import.meta.url).href;
   }
   function paint() {
     const w = yard.clientWidth,
@@ -97,10 +100,11 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
       pal = readPalette(name => style.getPropertyValue(`--${name}`).trim()),
       key = JSON.stringify([w, h, scene, pal]);
     if (key === last) return;
-    const art = environmentLook(scene).art;
+    const art = environmentLook(scene).art,
+      windowArt = environmentWindowLook(scene)?.art;
     // The picture on the wall stays until the next has decoded: no flash of the painted
     // fallback, and fishing is not ended by a switch there and back.
-    if (loading.has(art)) return;
+    if (loading.has(art) || (windowArt && loading.has(windowArt))) return;
     const fade = !!last && paintedWorld === scene.world && !reduced.matches && last.startsWith(`[${w},${h},`);
     paintedWorld = scene.world;
     last = key;
@@ -113,12 +117,12 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
     const landContext = sized(landCanvas, w, h, density),
       image = images.get(art);
     const illustrated = !!image;
-    for (const name of images.keys()) if (name !== art) images.delete(name);
+    for (const name of images.keys()) if (name !== art && name !== windowArt) images.delete(name);
     const mode = illustrated ? 'illustrated' : 'painted',
       previousMode = yard.dataset.environment;
     yard.dataset.environment = mode;
     if (previousMode && previousMode !== mode) geometryChanged();
-    if (illustrated) paintEnvironment(landContext, image, w, h, scene);
+    if (illustrated) paintEnvironment(landContext, image, w, h, scene, images.get(windowArt));
     else if (worldAllows(scene.world, 'sky')) paintLand(landContext, w, h, pal, scene);
     else {
       landContext.fillStyle = '#9a7754';
@@ -162,6 +166,8 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
       );
       if (worldAllows(scene.world, 'sky')) loadSky();
       loadEnvironment(environmentLook(scene).art);
+      const windowArt = environmentWindowLook(scene)?.art;
+      if (windowArt) loadEnvironment(windowArt);
       paint();
     },
   };

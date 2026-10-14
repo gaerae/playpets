@@ -128,35 +128,33 @@ identities.pip = {
   age: null,
   kind: 'animal',
   identity: {
-    description: 'Fictional cheerful caramel floppy-eared puppy courier; animal companion, not a human.',
+    description:
+      'Fictional cheerful caramel floppy-eared puppy who loves greeting friends; animal companion, not a human.',
     face: {
       eyes: 'warm dark eyes with the accepted spacing and gentle expression',
       nose: 'small dark canine nose; preserve accepted shape',
       mouth: 'soft pale canine muzzle and friendly mouth; no human lips',
     },
     hair: 'caramel puppy fur, floppy ears and pale muzzle; preserve accepted markings and tail',
-    accessories: ['tan courier mailbag and shoulder strap; retain the exact anatomical side of the approved reference'],
+    accessories: [
+      'small blue five-petal flower with a cream center on the anatomical LEFT chest; keep the same placement in every season; no bag, scarf, hat or overalls',
+    ],
     wardrobe: {
-      baseline: 'blue jacket, red scarf, tan courier mailbag and exposed furry paws',
+      baseline:
+        'butter-yellow varsity jacket with ivory sleeves, blue five-petal flower with a cream center, navy shorts and exposed furry paws',
       summer:
-        'light blue short-sleeve cotton shirt, thin red neckerchief, original tan courier mailbag and exposed furry paws',
-      winter: 'padded navy winter coat, red wool scarf, original tan courier mailbag and exposed furry paws; no hat',
+        'short-sleeve yellow and ivory round-neck T-shirt with the same blue five-petal flower with a cream center, navy shorts and exposed furry paws',
+      winter:
+        'padded quilted yellow and ivory jacket with the same blue five-petal flower with a cream center, navy trousers and exposed furry paws; no scarf or hat',
     },
   },
 };
 
 // Existing IDs are stable download aliases, while pet IDs match ordinary app entries.
 export const kitEntries = [
-  ['aria-realistic', 'Aria', 'aria-full', true, true],
-  ['aria', 'Aria Mini', 'aria-mini', true, true],
-  ['noah-realistic', 'Noah', 'noah-full', true, true],
-  ['noah', 'Noah Mini', 'noah-mini', true, true],
+  ['daisy', 'Daisy', 'daisy', true, true],
   ['clover', 'Clover', 'clover', true, true],
-  ['daisy', 'Daisy', 'daisy', false, true],
-  ['pip', 'Pip', 'pip', false, true],
-  ['tabby', 'Tabby', 'tabby', false, false],
-  ['smoky', 'Smoky', 'smoky', false, false],
-  ['mochi', 'Mochi', 'mochi', false, false],
+  ['pip', 'Pip', 'pip', true, true],
 ].map(([id, name, pet, hasDetailSheets, seasonal]) => ({
   id,
   name,
@@ -205,14 +203,22 @@ export function kitSpec(id) {
             character === 'aria' ? 'flower pin' : 'hairline',
           ],
         }
-      : {
-          top: [
-            'front',
-            `profile facing viewer ${character === 'clover' ? 'right' : 'left'}`,
-            `three-quarter facing viewer ${character === 'clover' ? 'right' : 'left'}`,
-          ],
-          bottom: ['eyes', 'nose', 'mouth', 'ear', character === 'clover' ? 'fur' : 'hair', 'signature accessory'],
-        },
+      : character === 'clover'
+        ? {
+            top: ['front', 'profile facing viewer left', 'three-quarter facing viewer right'],
+            bottom: ['open eye', 'closed eye', 'nose', 'neutral mouth', 'smiling mouth', 'ear/fur edge', 'hat ribbon'],
+          }
+        : {
+            top: ['front', 'profile facing viewer left', 'three-quarter facing viewer left'],
+            bottom: [
+              'eyes',
+              'nose',
+              'mouth',
+              'ear',
+              character === 'pip' ? 'fur' : 'hair',
+              character === 'pip' ? 'signature flower patch' : 'signature daisy beret',
+            ],
+          },
     referencePolicy:
       'New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.',
     canonical: {
@@ -257,7 +263,9 @@ export function kitPrompts(spec) {
   const wardrobe = spec.references.seasons.length
     ? `Use [SEASON: summer or winter]. Summer: ${spec.identity.wardrobe.summer}. Winter: ${spec.identity.wardrobe.winter}.`
     : 'Use [REQUESTED CLOTHING]. No approved seasonal wardrobe is supplied; first approve a clothing reference while preserving the baseline identity.';
-  const lock = `IDENTITY LOCK: ${spec.name}. ${spec.identity.description} Style: ${spec.style}. ${spec.anatomy} Eyes: ${spec.identity.face.eyes}. Nose: ${spec.identity.face.nose}. Mouth: ${spec.identity.face.mouth}. Hair/fur: ${spec.identity.hair}. Accessories: ${spec.identity.accessories.join('; ')}. Baseline clothing: ${spec.identity.wardrobe.baseline}. Existing work action: ${spec.workingAction}. ${references}; preserve all recognizable features, anatomy and handed details. No real-person likeness. `;
+  const rendering =
+    'ART DIRECTION: fine warm-brown outlines, matte painted color planes, restrained soft shading and simplified fur and fabric texture. Keep clear expressive eyes without glassy doll highlights, plastic gloss, airbrushed skin or individually rendered fur strands. Preserve the accepted silhouette, outfit, palette, markings and frame-by-frame gestures; do not redesign the character or flatten its body volume. Match the attached accepted illustration, including its line weight at small display sizes.';
+  const lock = `IDENTITY LOCK: ${spec.name}. ${spec.identity.description} Style: ${spec.style}. ${rendering} ${spec.anatomy} Eyes: ${spec.identity.face.eyes}. Nose: ${spec.identity.face.nose}. Mouth: ${spec.identity.face.mouth}. Hair/fur: ${spec.identity.hair}. Accessories: ${spec.identity.accessories.join('; ')}. Baseline clothing: ${spec.identity.wardrobe.baseline}. Existing work action: ${spec.workingAction}. ${references}; preserve all recognizable features, anatomy and handed details. No real-person likeness. `;
   return {
     '01-identity-lock':
       lock +
@@ -282,7 +290,7 @@ export function kitPrompts(spec) {
 
 export function kitFromQuery(search) {
   const id = new URLSearchParams(search).get('kit');
-  return kitEntries.some(entry => entry.id === id) ? id : 'aria';
+  return kitEntries.some(entry => entry.id === id) ? id : 'daisy';
 }
 
 export function baselineManifest(spec) {

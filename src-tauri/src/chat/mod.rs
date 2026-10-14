@@ -61,6 +61,12 @@ impl Talks {
     fn wait(&mut self, id: &str, cancel: &Arc<AtomicBool>) {
         self.waiting.insert(id.into(), cancel.clone());
     }
+    /// Stop replies composed in the previous language without removing conversation history.
+    pub fn cancel_pending(&self) {
+        for flag in self.waiting.values() {
+            flag.store(true, Ordering::SeqCst);
+        }
+    }
     fn done(&mut self, id: &str) {
         self.waiting.remove(id);
     }
@@ -82,6 +88,7 @@ struct Speaker {
     /// The provider whose API key the keychain holds; read by `unlock`, never under the lock.
     key_id: Option<String>,
     identity: String,
+    language: i18n::Lang,
     notes: String,
 }
 
@@ -126,7 +133,7 @@ fn speaker(d: &AppData, id: &str, in_group: bool) -> Result<Speaker, String> {
         prompt::Provenance::of(&pet.persona_from, &pet.persona, intro),
         &prompt::bond(&pet.relation, &pet.call_me),
         &friends,
-        i18n::current().english_name(),
+        d.prefs.language.english_name(),
     );
     Ok(Speaker {
         id: id.into(),
@@ -135,6 +142,7 @@ fn speaker(d: &AppData, id: &str, in_group: bool) -> Result<Speaker, String> {
         provider: provider.clone(),
         key_id,
         identity,
+        language: d.prefs.language,
         notes: prompt::activity_notes(activity, crate::app::now_ms()),
     })
 }
@@ -160,6 +168,9 @@ fn unlock(speakers: &mut [Speaker]) -> Result<(), String> {
 /// already answering, and its AI connection was neither changed nor is being saved meanwhile.
 fn still_ready(d: &AppData, s: &Speaker) -> Result<(), String> {
     require_pet(d, &s.id)?;
+    if d.prefs.language != s.language {
+        return Err(i18n::t("chat.cancelled"));
+    }
     if d.talks.busy(&s.id) {
         return Err(i18n::t("chat.still_answering"));
     }
@@ -517,6 +528,12 @@ fn one_turn(
     // their own, can change who a friend is.
     let (answer, _) = prompt::take_persona(&answer?);
     let mut d = lock(state);
+    // A language change can occur after the provider returns but before this lock.
+    if cancel.load(Ordering::SeqCst) {
+        drop(d);
+        cli.reset(&speaker.id);
+        return Ok(None);
+    }
     for s in speakers {
         let entry = if s.id == speaker.id {
             json!({"role": "assistant", "content": answer})
@@ -552,6 +569,30 @@ fn agent_busy(status: Option<&Value>) -> bool {
 mod tests {
     use super::{agent_busy, chatty, opener};
     use serde_json::json;
+
+    #[test]
+    fn language_change_cancels_pending_replies_without_rewriting_history() {
+        let mut talks = super::Talks::default();
+        let single = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let group = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let prior = json!({"role": "assistant", "content": "An earlier reply"});
+        talks.remember("one", prior.clone());
+        talks.wait("one", &single);
+        talks.wait("two", &group);
+        talks.wait("three", &group);
+        talks.cancel_pending();
+        assert!(single.load(std::sync::atomic::Ordering::SeqCst));
+        assert!(group.load(std::sync::atomic::Ordering::SeqCst));
+        assert_eq!(talks.history("one"), vec![prior]);
+        assert_eq!(talks.total("one"), 1);
+        assert!(talks.busy("one"));
+        // The cancelled request keeps its slot until its normal completion path runs.
+        for id in ["one", "two", "three"] {
+            talks.done(id);
+            assert!(!talks.busy(id));
+        }
+        assert_eq!(talks.history("one").len(), 1);
+    }
 
     #[test]
     fn a_chat_answer_does_not_overwrite_an_agent_at_work() {

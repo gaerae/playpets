@@ -63,7 +63,7 @@ export default defineConfig({
       label: 'English',
       lang: 'en-US',
       description:
-        'A yard where your pets talk to each other. An open-source desktop pet that brings the ten thousand Codex pets as they are, gives each friend its own AI, lets friends talk among themselves, and keeps any coding agent company.',
+        'Meet Daisy, Clover and Pip in a calming desktop yard. Explore four places, play without an account, bring Codex pets and connect your AI when you want to chat.',
       themeConfig: {
         nav: [
           { text: 'Creator studio', link: '/guide/creator-kit', activeMatch: '^/guide/creator-kit' },
@@ -85,6 +85,7 @@ export default defineConfig({
                 { text: 'The yard and games', link: '/guide/play' },
                 { text: 'Importing pets', link: '/guide/import' },
                 { text: 'Creator kit', link: '/guide/creator-kit' },
+                { text: 'Background studio', link: '/guide/background-kit' },
                 { text: 'Settings', link: '/guide/settings' },
                 { text: 'FAQ', link: '/guide/faq' },
               ],
@@ -106,7 +107,7 @@ export default defineConfig({
       lang: 'ko-KR',
       link: '/ko/',
       description:
-        '서로 이야기하는 펫들의 놀이터. Codex 펫 1만 마리를 그대로 데려와 친구마다 다른 AI로 말하고, 친구들끼리 이어서 이야기하고, 어느 코딩 에이전트든 곁에서 함께 일하는 오픈소스 데스크톱 펫이에요.',
+        '데이지, 클로버, 핍과 함께하는 작은 데스크톱 놀이터예요. 네 장소에서 놀고 꽃을 키워요. Codex 펫을 데려오고, 대화하고 싶을 때 내 AI를 연결할 수 있어요.',
       themeConfig: {
         nav: [
           { text: '캐릭터 제작실', link: '/ko/guide/creator-kit', activeMatch: '^/ko/guide/creator-kit' },
@@ -128,6 +129,7 @@ export default defineConfig({
                 { text: '놀이터와 놀이', link: '/ko/guide/play' },
                 { text: '펫 가져오기', link: '/ko/guide/import' },
                 { text: '제작 키트', link: '/ko/guide/creator-kit' },
+                { text: '배경 제작실', link: '/ko/guide/background-kit' },
                 { text: '설정', link: '/ko/guide/settings' },
                 { text: '자주 묻는 질문', link: '/ko/guide/faq' },
               ],
@@ -159,7 +161,7 @@ export default defineConfig({
       lang: 'ja-JP',
       link: '/ja/',
       description:
-        '森の庭や街を望む部屋で、ペットたちと暮らすオープンソースのデスクトップアプリです。友だちごとの性格と関係、会話、遊び、ガーデニング、コーディングのお供に。',
+        'デイジー、クローバー、ピップと過ごす小さなデスクトップの庭。四つの場所で遊び、花を育て、Codexのペットも迎えられます。話したいときは自分のAIをつなげます。',
       themeConfig: {
         nav: [
           { text: '制作室', link: '/ja/guide/creator-kit', activeMatch: '^/ja/guide/creator-kit' },
@@ -181,6 +183,7 @@ export default defineConfig({
                 { text: '庭と遊び', link: '/ja/guide/play' },
                 { text: 'ペットを取り込む', link: '/ja/guide/import' },
                 { text: '制作キット', link: '/ja/guide/creator-kit' },
+                { text: '背景制作室', link: '/ja/guide/background-kit' },
                 { text: '設定', link: '/ja/guide/settings' },
                 { text: 'よくある質問', link: '/ja/guide/faq' },
               ],
@@ -214,7 +217,7 @@ export default defineConfig({
       lang: 'zh-Hans',
       link: '/zh-hans/',
       description:
-        '宠物们互相聊天的乐园。把一万只 Codex 宠物原样带来，每位伙伴用不同的 AI 说话，伙伴之间接着聊，任何编码代理工作时都有它们陪着。开源桌面宠物应用。',
+        '和 Daisy、Clover、Pip 一起待在桌面上的小世界。探索四个场景、玩耍和种花，也可以带来 Codex 宠物；想聊天时，再连接自己的 AI。',
       themeConfig: {
         nav: [
           { text: '角色制作室', link: '/zh-hans/guide/creator-kit', activeMatch: '^/zh-hans/guide/creator-kit' },
@@ -236,6 +239,7 @@ export default defineConfig({
                 { text: '乐园和游戏', link: '/zh-hans/guide/play' },
                 { text: '导入宠物', link: '/zh-hans/guide/import' },
                 { text: '创作套件', link: '/zh-hans/guide/creator-kit' },
+                { text: '背景制作室', link: '/zh-hans/guide/background-kit' },
                 { text: '设置', link: '/zh-hans/guide/settings' },
                 { text: '常见问题', link: '/zh-hans/guide/faq' },
               ],

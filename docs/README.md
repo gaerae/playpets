@@ -125,7 +125,7 @@ Records are dated and not rewritten; when two disagree, the later one holds. The
 | `npm run art` | Redraw the installer art: the macOS disk image background (`packaging/macos/dmg-background.png`), the Windows installer's sidebar and header (`packaging/windows/nsis-*.bmp`), and the English screenshots Linux software centers show (`website/public/listing/en/`, from the current captures). Where each is used is set in `src-tauri/tauri.conf.json` (`bundle.macOS.dmg`, `bundle.windows.nsis`, `bundle.linux`) and `packaging/linux/app.playpets.metainfo.xml` |
 | `npm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/<platform>/`) |
 | `npm run release -- x.y.z` | Release commit and tag |
-| `npm run icons` | Every icon from `assets/icon.svg` |
+| `npm run icons` | Every icon from `assets/icon.png` |
 
 ## Frequently asked questions
 **Can I change Windows code without checking it on Windows?**

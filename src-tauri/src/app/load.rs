@@ -21,7 +21,7 @@ fn load_assets(app: &tauri::App, store: &store::Store, imports: &[String]) -> Fo
     let (builtin_root, unpack_warnings) = builtin::unpack(&store.dir.join("builtin"));
     warnings.extend(unpack_warnings);
     let (mut assets, builtin_warnings) = catalog::scan_pets(&builtin_root, catalog::Place::Builtin);
-    builtin::preserve_legacy_appearances(&mut assets);
+    assets.retain(|a| builtin::shelf_rank(&a.folder) != usize::MAX);
     assets.sort_by_key(|a| builtin::shelf_rank(&a.folder));
     warnings.extend(builtin_warnings);
     let (codex_assets, scan_warnings) = catalog::scan_pets(&codex_root, catalog::Place::Codex);
@@ -84,7 +84,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
     };
     let store = store::Store { dir: data_dir };
     let mut warnings = Vec::new();
-    let raw = store.read("state.json", json!({})).unwrap_or_else(|e| {
+    let mut raw = store.read("state.json", json!({})).unwrap_or_else(|e| {
         warnings.push(e);
         json!({})
     });
@@ -101,14 +101,14 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         sys_locale::get_locale().as_deref(),
     );
     i18n::set(language);
-    let strings = |key: &str| -> Vec<String> {
+    let strings = |raw: &serde_json::Value, key: &str| -> Vec<String> {
         raw.get(key)
             .and_then(|v| v.as_array())
             .map(|a| a.iter().filter_map(|v| v.as_str().map(str::to_string)).collect())
             .unwrap_or_default()
     };
 
-    let imports: Vec<String> = strings("imports").into_iter().take(200).collect();
+    let imports: Vec<String> = strings(&raw, "imports").into_iter().take(200).collect();
     let agent_pets: HashMap<String, String> = raw
         .get("agentPets")
         .and_then(|v| v.as_object())
@@ -123,8 +123,8 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
     warnings.extend(found.warnings);
 
     let asset_ids: Vec<String> = assets.iter().map(|a| a.id.clone()).collect();
+    builtin::migrate_saved_friends(&mut raw, &assets);
     let mut pets = model::restore_pets(&raw, &asset_ids);
-    builtin::migrate_friends(&mut pets, &assets);
     let parked_pets = model::parked_pets(&raw, &pets);
     if !parked_pets.is_empty() {
         warnings.push(i18n::tr("pets.parked", &[("count", &parked_pets.len().to_string())]));
@@ -163,7 +163,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         parked_providers: parked,
         parked_pets,
         extra: extras(&raw),
-        secret_ids: strings("secretIds").into_iter().collect(),
+        secret_ids: strings(&raw, "secretIds").into_iter().collect(),
         statuses: Map::new(),
         talks: chat::Talks::default(),
         provider_updates: HashSet::new(),

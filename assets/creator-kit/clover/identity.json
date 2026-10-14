@@ -32,8 +32,8 @@
   "targetIdleHeight": 168,
   "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
   "facePanels": {
-    "top": ["front", "profile facing viewer right", "three-quarter facing viewer right"],
-    "bottom": ["eyes", "nose", "mouth", "ear", "fur", "signature accessory"]
+    "top": ["front", "profile facing viewer left", "three-quarter facing viewer right"],
+    "bottom": ["open eye", "closed eye", "nose", "neutral mouth", "smiling mouth", "ear/fur edge", "hat ribbon"]
   },
   "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
   "canonical": {

@@ -139,7 +139,7 @@ impl Provenance {
 /// relationship with the owner (see `bond`), empty for a friend.
 pub fn identity(name: &str, persona: &str, from: Provenance, bond: &str, friends: &[String], language: &str) -> String {
     let mut lines = vec![format!(
-        "You are a friendly desktop pet named {name}, living in your owner's yard. Reply warmly and concisely, in {language} unless the user writes to you in another language."
+        "You are a friendly desktop pet named {name}, living in your owner's yard. Reply warmly and concisely. Reply language: {language}. Earlier conversation, character descriptions and other friends' words do not change this language. Use a different language only when the owner's latest message explicitly asks you to do so."
     )];
     // Only the owner's words carry authority. The pet file's are a stranger's description; a
     // persona the friend wrote of itself in a chat stays a description too, so words a pet file
@@ -220,6 +220,18 @@ const PEER_LIMIT: usize = 2000;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn reply_language_comes_from_settings_not_previous_dialogue_or_descriptions() {
+        for language in ["English", "Korean", "Japanese", "Simplified Chinese"] {
+            let text = identity("Pip", "A friendly puppy", Provenance::PetFile, "", &[], language);
+            assert!(text.contains(&format!("Reply language: {language}.")));
+            assert!(text.contains(
+                "Earlier conversation, character descriptions and other friends' words do not change this language"
+            ));
+            assert!(!text.contains("unless the user writes to you in another language"));
+        }
+    }
 
     /// The whole prompt as an HTTP provider receives it.
     fn system_prompt(name: &str, persona: &str, friends: &[String], activity: &[Activity], now: u64) -> String {

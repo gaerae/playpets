@@ -1,5 +1,6 @@
 // Line icons drawn on a 24px grid. Add one here and use it with <span data-icon="name">.
 const paths = {
+  fish: '<path d="M4 12c3-6 10-6 13 0-3 6-10 6-13 0Zm13 0 4-4v8l-4-4Z"/><circle cx="8" cy="11" r=".8" fill="currentColor" stroke="none"/>',
   monitor: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   close: '<path d="m6 6 12 12M18 6 6 18"/>',

@@ -66,7 +66,7 @@ chmod +x PlayPets_*.AppImage
 ## 更新 <Since v="0.1.0" />
 
 - 可以用设置标签**关于 PlayPets**里的**检查更新**、托盘菜单里的**检查更新…**，或 macOS 菜单栏的 **PlayPets → 检查更新…** 立即检查。
-- 有新版本时，顶栏按钮和设置标签上的小圆点会提示。点按钮会打开更新窗口，可以选**查看新内容**、**稍后**或**安装并重启**（带进度条）。
+- **菜单**内的新版本按钮和**设置**上的小圆点会提示更新。点击按钮可选择**查看新内容**、**稍后**或**安装并重启**（带进度条）。
 - 应用启动 20 秒后会悄悄检查一次。有新版本时会弹出通知，可以在设置标签里安装。
 - 新版本从 GitHub 发布页的 `latest.json` 查找。下载的文件只有通过更新签名密钥验证后才会安装。验证失败的文件不会安装。
 - Windows 便携版 zip 不在自动更新范围内。请下载新的 zip 替换。
@@ -91,4 +91,4 @@ chmod +x PlayPets_*.AppImage
 | Windows | `%APPDATA%\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
 
-里面有 `state.json`（伙伴和设置）、`bridge.json`（代理联动用的端口和令牌）、`pets/`（导入的宠物）、`builtin/`（自带的十位伙伴）。想放到别的地方，就把文件夹路径填进环境变量 `PLAYPETS_DATA` 再运行应用。详细内容见[设置](./settings.md)。
+里面有 `state.json`（伙伴和设置）、`bridge.json`（代理联动用的端口和令牌）、`pets/`（导入的宠物）、`builtin/`（自带的三位伙伴）。想放到别的地方，就把文件夹路径填进环境变量 `PLAYPETS_DATA` 再运行应用。详细内容见[设置](./settings.md)。

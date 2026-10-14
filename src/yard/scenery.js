@@ -258,15 +258,15 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
       ctx.clip();
     }
     if (weather === 'rain') {
-      // Bright city glass needs darker drops; outdoors keeps its softer sky rain.
-      const ink = panes && period !== 'night' ? '70,97,123' : INK.rain[period === 'night' ? 'night' : 'day'];
+      // The window clips the same rain used outdoors.
+      const ink = INK.rain[period === 'night' ? 'night' : 'day'];
       ctx.lineCap = 'round';
       ctx.strokeStyle = `rgb(${ink})`;
       for (const d of drops) {
         if (!seen(d)) continue;
-        ctx.globalAlpha = panes ? 0.55 + d.depth * 0.35 : 0.22 + d.depth * 0.4;
-        ctx.lineWidth = ((panes ? 0.9 : 0.6) + d.depth * 0.9) * scale;
-        if (art.rain(ctx, d, scale, !!panes, period === 'night')) continue;
+        ctx.globalAlpha = 0.22 + d.depth * 0.4;
+        ctx.lineWidth = (0.6 + d.depth * 0.9) * scale;
+        if (art.rain(ctx, d, scale, period === 'night')) continue;
         ctx.beginPath();
         ctx.moveTo(d.x, d.y);
         ctx.lineTo(d.x - (d.vx / d.vy) * d.size * scale, d.y - d.size * scale);

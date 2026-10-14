@@ -6,13 +6,32 @@ export const name = 'English';
 // An English sentence ends like one.
 export const sentence = /[.!?]$/;
 export const strings = {
+  'controls.activities': 'Together',
+  'controls.display': 'Display & sound',
+  'controls.menu': 'Menu',
+  'controls.scene': 'Place & atmosphere',
+  'world.courtyard': 'Stone courtyard',
+  'world.lakeside': 'Lakeside cottage',
+  'background.create': 'Background studio',
+  'background.custom': 'My background',
+  'background.import': 'Import background',
+  'background.remove': 'Remove background',
+  'background.remove_confirm': 'Remove this background from this device? Your friends and collection stay.',
+  'background.imported': 'Background added.',
+  'background.invalid': 'Choose a valid PlayPets background package (1536 × 1024 PNG images, up to 32 MB).',
+  'background.storage_error':
+    'Could not read or save the background. Check the image files and available local storage.',
+  'background.seasonal': 'This background includes seasonal artwork. Lighting and weather follow your choices.',
+  'background.static':
+    'This background keeps its base artwork when a seasonal image is missing. Lighting and supported weather still change.',
+
   'world.label': 'Place',
   'world.title': 'Choose a place for your friends',
-  'world.woodland': 'Woodland',
+  'world.woodland': 'Hill garden',
   'world.woodland.about': 'Fish by the pond, catch bugs and grow flowers with your friends.',
-  'world.studio': 'Window studio',
+  'world.studio': 'Cozy living room',
   'world.studio.about':
-    'Chat, play and plant indoors, with city rain or snow outside the windows. Visit Woodland for fishing and bugs.',
+    'Chat, play and plant indoors while rain or snow passes outside. Visit the gardens for fishing and bugs.',
   'world.studio.lines': [
     'This little room feels so cozy.',
     'Let’s sit by the window for a while.',
@@ -23,8 +42,9 @@ export const strings = {
   'app.home': 'PlayPets home',
   'app.tagline': 'Friends who talk to each other',
   'desktop.wander_title': 'Friends slowly stroll around the desktop',
-  'desktop.wander': 'Stroll',
+  'desktop.wander': 'Stroll on desktop',
   'desktop.show': 'Show on desktop',
+  'mini.label': 'Mini mode',
   'mini.enter': 'Mini mode (just the yard)',
   'mini.exit': 'Full size',
   'tabs.aria': 'Open a panel',
@@ -103,7 +123,7 @@ export const strings = {
   'chatter.evening': ['The sky’s all orange', 'I’m hungry', 'Today was fun'],
   'chatter.night': ['So many stars', 'Sleepy…', 'Bright moon'],
   'care.treat': 'Give a treat',
-  'care.treat_title': 'Put down a treat and friends come to eat it',
+  'care.treat_title': 'Set out a picnic blanket with snacks for everyone',
   'care.chatter': 'Let them chat',
   'care.chatter_need_two': 'Give two or more friends an AI and they will chat among themselves',
   'care.chatter_title': 'Friends with an AI have a short chat about the time and the weather',
@@ -217,6 +237,8 @@ export const strings = {
   ],
   'bond.solo_catch': '{name} caught a fish on its own: {fish}',
   'bond.hearts': 'Closeness: {level}',
+  'catch.action': 'Fish',
+  'catch.action_title': 'Send a friend to fish at the water',
   'catch.album': 'Album',
   'catch.reel': 'Reel in the fish',
   'catch.album_title': 'Flowers, gifts, fish and bugs',
@@ -529,6 +551,8 @@ export const strings = {
   'update.later': 'Later',
   'update.progress': 'Downloading… {percent}%',
   'settings.agents': 'Coding agent hooks',
+  'settings.agents_tab': 'Agents',
+  'settings.about_tab': 'About',
   'settings.agents_lead':
     'Your friend reacts while the agent works, and tells you about recent work when you ask “what were you doing?”. Copy the settings for your tool and paste them in. Pick a friend for each tool and that friend reacts.',
   'settings.recommended': 'Recommended',

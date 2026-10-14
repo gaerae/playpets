@@ -1,1 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 75"><svg width="100" height="75" viewBox="512 560 512 440" overflow="hidden"><image href="art/decor/props.png" width="1536" height="1024"/></svg></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 75"><svg width="100" height="75" viewBox="490 560 535 440" overflow="hidden"><defs><clipPath id="picnic-cell"><rect x="490" y="560" width="535" height="440"/></clipPath></defs><image href="art/decor/props.png" width="1536" height="1024" clip-path="url(#picnic-cell)"/></svg></svg>

@@ -63,4 +63,10 @@ test('setupSky hands world and season changes to the entry point, around its own
   nodes.get('season').onchange();
   assert.deepEqual(log, ['picked', 'season:winter']);
   assert.equal(storage.getItem('season'), 'winter');
+  assert.equal(nodes.get('scene-season').value, 'winter');
+  nodes.get('scene-season').value = 'spring';
+  nodes.get('scene-season').onchange();
+  assert.equal(nodes.get('season').value, 'spring');
+  assert.equal(storage.getItem('season'), 'spring');
+  assert.equal(scene.season, 'spring');
 });

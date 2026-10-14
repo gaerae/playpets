@@ -39,7 +39,7 @@ test('fishing targets stay inside the generated pond at wide and narrow sizes', 
     assert.ok(!pond.onWater(w * 0.54, h * 0.54), 'grass above the pond is not water');
     assert.ok(!pond.onWater(w * 0.54, h * 0.7), 'grass below the pond is not water');
     assert.ok(!pond.onWater(w * 0.2, h * 0.62));
-    for (const fraction of [0.4, 0.5, 0.6]) {
+    for (const fraction of [0.5, 0.55, 0.6]) {
       const x = w * fraction;
       assert.ok(pond.onWater(x, (pond.shoreAt(x) + pond.ridgeAt(x)) / 2));
     }
@@ -149,4 +149,43 @@ test('a place with its own pictures is lit by the time of day unless its lightin
     assert.deepEqual(look('lamplit', period), { art: look('gallery', period).art, filter: 'none', tint: null });
   }
   assert.notEqual(look('gallery', 'night').filter, look('gallery', 'morning').filter);
+});
+
+test('festival lights follow each tree through wide and mini crops and never light indoor rooms', async () => {
+  const { environmentFrame, environmentLightStrands, paintEnvironment } = await import('../src/yard/environment.js');
+  const { worldFor } = await import('../src/yard/worlds.js');
+  for (const world of ['woodland', 'courtyard', 'lakeside']) {
+    for (const [w, h] of [
+      [1536, 1024],
+      [500, 350],
+      [320, 500],
+    ]) {
+      const scene = { world, season: 'winter', weather: 'clear', period: 'night', event: 'lights' };
+      const frame = environmentFrame(w, h, scene);
+      const strands = environmentLightStrands(w, h, scene);
+      assert.equal(strands.length, 3);
+      const anchor = worldFor(world).lightAnchors[0];
+      assert.equal(strands[0][0].x, frame.x + frame.width * anchor.from);
+      assert.equal(strands[0][0].y, frame.y + frame.height * anchor.y);
+      let bulbs = 0;
+      const ctx = {
+        save() {},
+        restore() {},
+        drawImage() {},
+        fillRect() {},
+        beginPath() {},
+        moveTo() {},
+        lineTo() {},
+        stroke() {},
+        fill() {},
+        arc(x, y) {
+          assert.ok(x >= 0 && x <= w && y >= 0 && y <= h);
+          bulbs++;
+        },
+      };
+      paintEnvironment(ctx, { width: 1536, height: 1024 }, w, h, scene);
+      assert.equal(bulbs, strands.flat().filter(p => p.x >= 0 && p.x <= w && p.y >= 0 && p.y <= h).length);
+    }
+  }
+  assert.deepEqual(environmentLightStrands(500, 350, { world: 'studio' }), []);
 });

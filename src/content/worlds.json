@@ -4,7 +4,19 @@
     "label": "world.woodland",
     "about": "world.woodland.about",
     "fit": "cover-floor",
-    "geometry": { "fieldTop": 0.66, "lake": { "from": 0.34, "to": 0.79, "center": 0.595, "radius": 0.03 } },
+    "geometry": {
+      "fieldTop": 0.66,
+      "lake": {
+        "from": 0.48,
+        "to": 0.7,
+        "center": 0.595,
+        "radius": 0.018
+      },
+      "fishingSpot": {
+        "x": 0.48,
+        "y": 0.68
+      }
+    },
     "capabilities": {
       "sky": true,
       "weather": true,
@@ -12,7 +24,27 @@
       "fishing": true,
       "seasonalEffects": true,
       "ambient": true
-    }
+    },
+    "lightAnchors": [
+      {
+        "from": 0.835,
+        "to": 0.99,
+        "y": 0.235,
+        "sag": 0.038
+      },
+      {
+        "from": 0.835,
+        "to": 0.99,
+        "y": 0.32499999999999996,
+        "sag": 0.038
+      },
+      {
+        "from": 0.835,
+        "to": 0.99,
+        "y": 0.415,
+        "sag": 0.038
+      }
+    ]
   },
   {
     "id": "studio",
@@ -20,19 +52,79 @@
     "about": "world.studio.about",
     "chatter": "world.studio.lines",
     "art": {
-      "morning": "studio-modern-city-morning",
-      "day": "studio-modern-city-day",
-      "evening": "studio-modern-city-evening",
-      "night": "studio-modern-city-night"
+      "morning": "studio-cozy-morning",
+      "day": "studio-cozy-day",
+      "evening": "studio-cozy-evening",
+      "night": "studio-cozy-night"
     },
     "authoredLighting": true,
     "windowPanes": [
-      { "x": 0.244, "y": 0.043, "width": 0.115, "height": 0.366 },
-      { "x": 0.389, "y": 0.043, "width": 0.248, "height": 0.366 },
-      { "x": 0.664, "y": 0.043, "width": 0.118, "height": 0.366 }
+      {
+        "x": 0.297,
+        "y": 0.102,
+        "width": 0.466,
+        "height": 0.352
+      },
+      {
+        "x": 0.006,
+        "y": 0.116,
+        "width": 0.02,
+        "height": 0.07
+      },
+      {
+        "x": 0.007,
+        "y": 0.211,
+        "width": 0.018,
+        "height": 0.076
+      },
+      {
+        "x": 0.008,
+        "y": 0.307,
+        "width": 0.017,
+        "height": 0.055
+      },
+      {
+        "x": 0.039,
+        "y": 0.119,
+        "width": 0.01,
+        "height": 0.074
+      },
+      {
+        "x": 0.038,
+        "y": 0.213,
+        "width": 0.011,
+        "height": 0.077
+      },
+      {
+        "x": 0.038,
+        "y": 0.307,
+        "width": 0.01,
+        "height": 0.061
+      },
+      {
+        "x": 0.968,
+        "y": 0.125,
+        "width": 0.014,
+        "height": 0.077
+      },
+      {
+        "x": 0.968,
+        "y": 0.23,
+        "width": 0.014,
+        "height": 0.05
+      },
+      {
+        "x": 0.968,
+        "y": 0.307,
+        "width": 0.014,
+        "height": 0.053
+      }
     ],
     "fit": "cover-floor",
-    "geometry": { "fieldTop": 0.55, "lake": null },
+    "geometry": {
+      "fieldTop": 0.76,
+      "lake": null
+    },
     "capabilities": {
       "sky": false,
       "weather": true,
@@ -40,6 +132,117 @@
       "fishing": false,
       "seasonalEffects": false,
       "ambient": false
+    },
+    "windowArt": {
+      "spring": "studio-view-spring",
+      "autumn": "studio-view-autumn",
+      "winter": "studio-view-winter"
     }
+  },
+  {
+    "id": "courtyard",
+    "label": "world.courtyard",
+    "about": "world.woodland.about",
+    "fit": "cover-floor",
+    "geometry": {
+      "fieldTop": 0.74,
+      "lake": {
+        "from": 0.65,
+        "to": 0.79,
+        "center": 0.639,
+        "radius": 0.018
+      },
+      "fishingSpot": {
+        "x": 0.61,
+        "y": 0.75
+      }
+    },
+    "seasonArt": {
+      "green": "courtyard-green",
+      "spring": "courtyard-spring",
+      "autumn": "courtyard-autumn",
+      "winter": "courtyard-winter"
+    },
+    "capabilities": {
+      "sky": true,
+      "weather": true,
+      "wildlife": true,
+      "fishing": true,
+      "seasonalEffects": true,
+      "ambient": true
+    },
+    "lightAnchors": [
+      {
+        "from": 0.795,
+        "to": 0.98,
+        "y": 0.23,
+        "sag": 0.038
+      },
+      {
+        "from": 0.795,
+        "to": 0.98,
+        "y": 0.32,
+        "sag": 0.038
+      },
+      {
+        "from": 0.795,
+        "to": 0.98,
+        "y": 0.41000000000000003,
+        "sag": 0.038
+      }
+    ]
+  },
+  {
+    "id": "lakeside",
+    "label": "world.lakeside",
+    "about": "world.woodland.about",
+    "fit": "cover-floor",
+    "geometry": {
+      "fieldTop": 0.7,
+      "lake": {
+        "from": 0.48,
+        "to": 0.79,
+        "center": 0.563,
+        "radius": 0.045
+      },
+      "fishingSpot": {
+        "x": 0.5,
+        "y": 0.71
+      }
+    },
+    "seasonArt": {
+      "green": "lakeside-green",
+      "spring": "lakeside-spring",
+      "autumn": "lakeside-autumn",
+      "winter": "lakeside-winter"
+    },
+    "capabilities": {
+      "sky": true,
+      "weather": true,
+      "wildlife": true,
+      "fishing": true,
+      "seasonalEffects": true,
+      "ambient": true
+    },
+    "lightAnchors": [
+      {
+        "from": 0.82,
+        "to": 0.99,
+        "y": 0.25,
+        "sag": 0.038
+      },
+      {
+        "from": 0.82,
+        "to": 0.99,
+        "y": 0.33999999999999997,
+        "sag": 0.038
+      },
+      {
+        "from": 0.82,
+        "to": 0.99,
+        "y": 0.43,
+        "sag": 0.038
+      }
+    ]
   }
 ]

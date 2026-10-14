@@ -1,0 +1,5 @@
+{
+  "prompt": "BACKGROUND REMOVAL ONLY. Extract the exact eight puppy figures and their small waving motion lines from this sprite row onto TRUE TRANSPARENT ALPHA background. Remove every brown/gray background pixel and all background gradients, not replace them with another solid color. Preserve original illustration pixels, poses, blue flower chest patches, yellow/ivory quilted jackets, navy long trousers, faces and layout as closely as possible. Maintain 1536x1024, four columns two rows, no cropping. PNG RGBA with fully transparent gutters all around figures. Do not redraw or redesign characters.",
+  "generatedFile": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-61211d84-d713-41d4-9195-12fbbd61a234.png",
+  "target": "winter/03-wave.png"
+}

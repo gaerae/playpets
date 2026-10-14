@@ -4,7 +4,7 @@
 .game-banner {
   position: absolute;
   left: 50%;
-  top: 56px;
+  top: 112px;
   transform: translateX(-50%);
   z-index: 4;
   display: flex;
@@ -62,6 +62,7 @@
 .yard.can-catch:not(.aiming, .playing) {
   cursor: pointer;
 }
+.fishing-rod,
 .fishing-line {
   position: absolute;
   inset: 0;
@@ -189,7 +190,7 @@
 .catch-card {
   position: absolute;
   left: 50%;
-  top: 60px;
+  top: 112px;
   z-index: 7;
   display: flex;
   align-items: center;

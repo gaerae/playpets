@@ -11,7 +11,7 @@ Not covered: test code in `tests/` and development tools in `scripts/`. Both are
 - Modules do not import each other in a cycle. When a lower layer (a drawing module such as `yard/views.js`) needs behavior from a higher layer (play, opening a panel), it does not import it; it receives the function as a `setup` argument.
 - The `import` paths and names in a new module match the actual file's `export`.
 - Sentences shown on the page are not written in code; use keys from the strings table. Follow the [i18n standard](i18n.md).
-- Style files are loaded in the order `base.css` → `shell.css` → `scenery.css` → the yard's files → the panel's files → `dialog.css`, and new rules go in the file for their area. `scenery.css` is what stands behind the friends (the sky's and land's colours, which the painter in `src/yard/easel.js` reads, the sun and moon, clouds, weather). The yard's files, in their order: `yard.css` (the frame and the field), `friends.css` (bodies, tags, bubbles, agent dots), `garden.css` (plants, gifts and their effects, found seeds), `caption.css` (the scene's name, clock, view controls, hint), `tools.css` (the toolbar and the games' menu), `welcome.css` (an empty yard's card), `play.css` (games and fishing) and `mini.css` last (the mini window's changes to all of them). The panel's files: `panel.css` (the tabs, the panel and what every tab uses), `invite.css`, `friend.css` (the Friend tab's head and menu), `chat.css` (the conversation and the message box) and `settings.css` (the Settings sheet and the AI connection dialog's choices). The mini window's changes to the panel (its brief conversation) go at the end of the panel file that owns the element, after that file's own rules, not in `mini.css`. The order in which media queries apply, and which of two equally specific rules wins, depends on this order.
+- Style files are loaded in the order `base.css` → `shell.css` → `scenery.css` → the yard's files → the panel's files → `dialog.css`, and new rules go in the file for their area. `scenery.css` is what stands behind the friends (the sky's and land's colours, which the painter in `src/yard/easel.js` reads, the sun and moon, clouds, weather). The yard's files, in their order: `yard.css` (the frame and the field), `friends.css` (bodies, tags, bubbles, agent dots), `garden.css` (plants, gifts and their effects, found seeds), `caption.css` (the scene picker, view controls and hint), `tools.css` (the toolbar and the games' menu), `welcome.css` (an empty yard's card), `play.css` (games and fishing) and `mini.css` last (the mini window's changes to all of them). The panel's files: `panel.css` (the panel and what every tab uses), `invite.css`, `friend.css` (the Friend tab's head and menu), `chat.css` (the conversation and the message box) and `settings.css` (the Settings sheet and the AI connection dialog's choices). The mini window's changes to the panel (its brief conversation) go at the end of the panel file that owns the element, after that file's own rules, not in `mini.css`. The order in which media queries apply, and which of two equally specific rules wins, depends on this order.
 - Select boxes do not rely on the engine's default look; specify their whole appearance. The same stylesheet has to look the same in WebKit on macOS and Linux and in WebView2 on Windows.
 - Loops and animations that redraw the page follow the [performance standard](performance.md).
 - A keyboard shortcut is a row in `SHORTCUTS` (`src/core/keys.js`) and the module that owns the action registers it with `onShortcut`; the macOS menu bar (`src-tauri/src/menu.rs`) shows the same key.
@@ -39,8 +39,19 @@ In `app.js`, add `setupExample({ refresh });` next to the other `setup` calls.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
-- Controls on the same line as an input field are 9px rounded rectangles; only floating controls (send, resize, close) are round.
+- The yard menu and task panels use `--panel-surface` and `--radius-panel`. Buttons, fields, close and overflow actions use `--radius-control`; filter chips alone use `--radius-pill`. Keep a panel as one surface and separate settings rows with rules instead of nested cards.
+- Settings and album tabs are related view choices: group them on `--segment-track`, show one `--segment-active` choice and keep a visible keyboard focus ring. Use short nouns in Settings tabs while their section headings keep the full names. Menu destinations are actions, not persistent tabs; leave them clear at rest.
 - A colour that several rules use for the same thing is a token in `base.css`, with its light value in `:root` and its dark value in the dark `:root`, so a rule that uses it needs no dark override. A token that only dark rules need (each light rule has a colour of its own) has only a dark value, and only dark rules read it.
+
+| Role | Use | Shape and state |
+|---|---|---|
+| Task panel | Friend, Invite, Settings | One `--panel-surface` with `--radius-panel`; divide content with spacing and rules |
+| Action | Save, import, menu tools | `--radius-control`; fill only a primary or selected action, hover with `--control-hover` |
+| Icon action | Close, overflow, back | The same `--radius-control` and a 44px target; leave its resting surface clear |
+| Navigation | Menu destinations | Text at rest with a subtle hover surface |
+| View tabs | Settings groups, album books | One compact track, equal active shape, horizontal scrolling when labels need room |
+| Filter | Pet kind and similar multi-choice filters | `--radius-pill`, selected with `--control-selected` and a visible border |
+| Field | Search, selects, text entry | `--field-surface`, `--radius-control`, a visible label and keyboard focus |
 
 ## Exceptions
 | When | How |
@@ -66,3 +77,8 @@ All of these run with `npm test` and `npm run lint`, and CI runs the same comman
 - 2026-10-01 First version — moved from "Where code lives" in CONTRIBUTING and organized as rules
 - 2026-10-10 Every module but the entry points imports without a page; menus from `core/menu.js`; one owner per class on the yard; menus built from tables; corrected what `ui-style.test.mjs` checks; shortcuts from `core/keys.js`; the yard's and the panel's styles split by area
 - 2026-10-12 The mini window's changes to the panel go at the end of the panel's files; shared colours as tokens in `base.css` (a recommendation); `ui-style.test.mjs` checks custom properties
+- 2026-10-15 Menu and task-panel components share surface, shape and state roles; close actions no longer have a separate circular style
+
+## Quiet yard controls
+
+The landscape fills the window in both normal and mini mode. Place & atmosphere and Menu sit together at the bottom right. Scene choices open directly; Friend, Invite, Settings, display and sound switches, and play tools belong to Menu. Scene choices, Menu and task panels open one at a time. In mini mode the dock and its menus stay hidden for pointer, keyboard and touch. Only the expand control remains; scene changes, settings and play tools use the expanded yard or tray. Pet interaction and compact chat remain available. Selecting an action closes it. The mini window keeps its expand control; games and the album use the normal window. Keep the controls reachable by keyboard, and restore focus when closing a panel. The logo belongs in About, and automatic environmental time does not need a visible clock.

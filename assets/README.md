@@ -2,7 +2,8 @@
 
 | Location | Role |
 | --- | --- |
-| `icon.svg` | Brand source for native icons and website favicon exports |
+| `icon.png`, `icon-provenance.json` | Accepted illustrated Clover face and its generation record |
+| `icon.svg` | Portable embedded-raster export made by `npm run icons`; do not edit by hand |
 | `pets/` | Accepted pet manifests, canonical and seasonal sheets, identity references and generation provenance |
 | `concepts/` | Approved visual direction and identity source images |
 | `sources/` | Generated originals and retired variants of the runtime art in `src/art/`, kept as provenance; the app does not ship them |

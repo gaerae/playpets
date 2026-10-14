@@ -22,7 +22,7 @@ export function mixFor({ period, weather, season, world }) {
     // Gusts through leaves, where there are leaves to move.
     leaves: bare ? 0 : rain ? 0.25 : night ? 0.3 : 0.6,
     // The lake laps at its shore.
-    water: snow ? 0.25 : 0.45,
+    water: worldAllows(world, 'fishing') ? (snow ? 0.25 : 0.45) : 0,
     rain: rain ? 1 : 0,
     birds: rain || snow ? 0 : song * (winter ? 0.3 : 1),
     // Crickets on summer and autumn nights, a few already at dusk.

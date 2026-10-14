@@ -104,7 +104,7 @@ test('studio rain and snow are clipped to the transformed window panes in every 
     }
 });
 
-test('window rain contrasts with bright city glass at full and mini sizes without changing outdoor ink', t => {
+test('window rain shares outdoor colors and opacity at full and mini sizes', t => {
   for (const [width, height] of [
     [1180, 780],
     [500, 350],
@@ -113,11 +113,13 @@ test('window rain contrasts with bright city glass at full and mini sizes withou
     scenery.set('day', 'rain', 'winter', null, 'studio');
     assert.ok(log.strokes.length);
     assert.ok(
-      log.strokes.every(stroke => stroke.ink === 'rgb(70,97,123)' && stroke.alpha >= 0.4 && stroke.width >= 0.45),
+      log.strokes.every(stroke => stroke.ink === 'rgb(168,192,214)' && stroke.alpha >= 0.22 && stroke.alpha <= 0.62),
     );
     log.strokes.length = 0;
     scenery.set('night', 'rain', 'winter', null, 'studio');
-    assert.ok(log.strokes.every(stroke => stroke.ink === 'rgb(190,208,230)' && stroke.alpha >= 0.4));
+    assert.ok(
+      log.strokes.every(stroke => stroke.ink === 'rgb(190,208,230)' && stroke.alpha >= 0.22 && stroke.alpha <= 0.62),
+    );
     log.strokes.length = 0;
     scenery.set('day', 'rain', 'winter', null, 'woodland');
     assert.ok(log.strokes.every(stroke => stroke.ink === 'rgb(168,192,214)'));

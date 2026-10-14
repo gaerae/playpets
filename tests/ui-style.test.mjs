@@ -27,11 +27,12 @@ test('a mini catch card and a toast occupy separate notice lanes without interce
   assert.match(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /pointer-events:none/);
 });
 
-test('in-row icon buttons share the rect-input shape language (circles stay for floating controls)', async () => {
+test('icon actions share the control shape and a comfortable target', async () => {
   const css = await styles();
   const rule = css.match(/\.menu-anchor>\.icon-button[^{]*\{([^}]*)\}/);
   assert.ok(rule, "the friend panel's menu button has its own rule");
-  assert.match(rule[1], /border-radius:\s*9px/, 'the icon button in the panel header matches the 9px input radius');
+  assert.match(rule[1], /border-radius:var\(--radius-control\)/);
+  assert.match(rule[1], /width:44px;height:44px/);
 });
 
 test('select boxes are fully custom-styled so every engine renders them identically', async () => {
@@ -83,12 +84,13 @@ test('the logo is drawn and text uses the system font, so no system lacks the br
   assert.doesNotMatch(css, /Avenir/, 'no typeface that only one system ships');
 });
 
-test('the mini yard always fills its window, whatever the narrow-window layout says', async () => {
+test('full and mini yards fill their windows without a fixed narrow-window height', async () => {
   const css = await styles();
-  const narrow = css.match(/@media\(max-width:760px\)\{[^@]*?\.yard\{[^}]*height:340px/);
-  assert.ok(narrow, 'narrow windows give the yard a fixed height');
+  assert.doesNotMatch(css, /height:340px/, 'narrow windows retain the full scene');
+  assert.match(css, /\.topbar\{[^}]*position:absolute/, 'navigation floats above the scene');
+  assert.match(css, /\.app-shell\{[^}]*padding:0;/, 'the scene reaches the window edges');
   const mini = css.match(/body\.mini \.yard\{([^}]*)\}/g).join('');
-  assert.match(mini, /height:auto/, 'mini undoes the fixed height, or a small window shows only sky');
+  assert.match(mini, /height:auto/, 'mini keeps the same flexible scene');
   assert.match(mini, /flex:1/);
   assert.match(css, /body\.mini \.app-shell\{[^}]*height:100%/, 'the mini shell is exactly one window tall');
 });
@@ -140,15 +142,16 @@ test('an agent friend picker shrinks within its row beside the localized label',
   );
 });
 
-test('opening the scene chooser starts keyboard focus at its first field', async () => {
-  const [html, sky] = await Promise.all([readFile('src/index.html', 'utf8'), readFile('src/yard/sky.js', 'utf8')]);
-  const menu = html.slice(html.indexOf('id="scene-menu"'), html.indexOf('id="world-note"'));
-  const first = menu.match(/<select id="([^"]+)"/)?.[1];
-  const focus = sky.match(
-    /dropdown\(\$\('scene-button'\), \$\('scene-menu'\), \(\) => \$\('([^']+)'\)\.focus\(\)\)/,
-  )?.[1];
-  assert.ok(first);
-  assert.equal(focus, first, 'the place field comes before time and weather in the keyboard order');
+test('the scene gallery keeps its selected background and climate controls reachable', async () => {
+  const [html, sky, backgrounds] = await Promise.all(
+    ['src/index.html', 'src/yard/sky.js', 'src/yard/background-ui.js'].map(path => readFile(path, 'utf8')),
+  );
+  assert.match(html, /id="background-gallery"/);
+  assert.match(html, /id="scene-season"/);
+  assert.match(sky, /scene-season/);
+  assert.match(sky, /background-gallery.*aria-pressed/);
+  assert.match(backgrounds, /aria-pressed/);
+  assert.match(backgrounds, /dispatchEvent\(new Event\('change'\)\)/);
 });
 
 test('Settings owns a body scroller while its header and navigation stay outside it', async () => {
@@ -157,8 +160,18 @@ test('Settings owns a body scroller while its header and navigation stay outside
   assert.ok(start > html.indexOf('class="settings-index"'));
   assert.ok(start < html.indexOf('id="settings-general"'));
   assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*overflow:hidden/);
+  assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*bottom:auto;/);
+  assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*max-height:calc\(100% - 72px\);/);
   assert.match(css, /\.settings-content\{[^}]*overflow-y:auto/);
   assert.doesNotMatch(css, /\.layout.settings-open \.settings-index\{[^}]*display:none/);
+});
+
+test('Menu hover and selected settings states remain distinct', async () => {
+  const css = await styles();
+  assert.match(css, /\.yard-controls-panel \.panel-tab:hover\{[^}]*var\(--control-hover\)/);
+  assert.match(css, /\.settings-index button:hover:not\(\[aria-selected="true"\]\)\{[^}]*var\(--control-hover\)/);
+  assert.match(css, /\.settings-index button\[aria-selected="true"\]\{[^}]*var\(--segment-active\)/);
+  assert.match(css, /\.album-tabs button\[aria-selected="true"\]\{[^}]*var\(--segment-active\)/);
 });
 
 // Every declaration can apply: none is always replaced by a later rule for the same selector across
@@ -430,4 +443,49 @@ test('a token defined only for dark mode is read only by dark rules', async () =
           .map(([prop]) => `${r.file} ${r.sel} { ${prop} }`),
   );
   assert.deepEqual(misread, []);
+});
+
+test('indoor flowers use a planter without blocking their controls', async () => {
+  const css = await styles();
+  const rule = css.match(/\.yard\[data-sky="false"\] \.plant::after\{([^}]*)\}/)?.[1] || '';
+  assert.match(rule, /indoor-planter\.png/);
+  assert.match(rule, /pointer-events:none/);
+  await readFile('src/art/decor/indoor-planter.png');
+});
+
+test('indoor planters follow evening and night flower lighting', async () => {
+  const css = await readFile('src/styles/garden.css', 'utf8');
+  for (const [period, brightness] of [
+    ['evening', '0.88'],
+    ['night', '0.62'],
+  ]) {
+    const selector = `.yard[data-sky="false"].period-${period} .plant::after`;
+    const start = css.indexOf(selector);
+    assert.ok(start >= 0, `${period} planter light`);
+    const rule = css.slice(start, css.indexOf('}', start));
+    assert.ok(rule.includes(`brightness(${brightness})`), period);
+  }
+});
+
+test('indoor growth stages enter the planter mouth without moving mature stems', async () => {
+  const css = await styles();
+  assert.match(css, /\.yard\[data-sky="false"\] \.plant:not\(\[data-stage="bloom"\]\)svg\{position:relative;top:-12%;/);
+});
+
+test('floating scene menus and mini chats escape the full panel placement', async () => {
+  const css = await styles();
+  assert.match(css, /\.layout.panel-open \.side-panel\{[^}]*bottom:64px;/, 'the open panel clears the menu entry');
+  assert.match(css, /\.yard-controls-panel\{[^}]*z-index:30;/);
+  assert.match(css, /body\.mini \.layout.mini-chat-open \.side-panel\{[^}]*top:auto;/);
+});
+
+test('game and onboarding notices clear the floating scene controls', async () => {
+  const css = await styles();
+  for (const selector of ['.game-banner', '.catch-card', '.empty-yard.aside']) {
+    const rules = css.split('}').filter(rule => rule.endsWith(';') && rule.includes(`${selector}{`));
+    assert.ok(
+      rules.some(rule => /top:112px/.test(rule)),
+      `${selector} clears navigation`,
+    );
+  }
 });

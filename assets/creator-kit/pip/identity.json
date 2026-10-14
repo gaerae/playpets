@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "references": {
-    "detail": "not-created",
+    "detail": "available",
     "seasons": ["summer", "winter"]
   },
   "id": "pip",
@@ -10,7 +10,7 @@
   "age": null,
   "kind": "animal",
   "identity": {
-    "description": "Fictional cheerful caramel floppy-eared puppy courier; animal companion, not a human.",
+    "description": "Fictional cheerful caramel floppy-eared puppy who loves greeting friends; animal companion, not a human.",
     "face": {
       "eyes": "warm dark eyes with the accepted spacing and gentle expression",
       "nose": "small dark canine nose; preserve accepted shape",
@@ -18,12 +18,12 @@
     },
     "hair": "caramel puppy fur, floppy ears and pale muzzle; preserve accepted markings and tail",
     "accessories": [
-      "tan courier mailbag and shoulder strap; retain the exact anatomical side of the approved reference"
+      "small blue five-petal flower with a cream center on the anatomical LEFT chest; keep the same placement in every season; no bag, scarf, hat or overalls"
     ],
     "wardrobe": {
-      "baseline": "blue jacket, red scarf, tan courier mailbag and exposed furry paws",
-      "summer": "light blue short-sleeve cotton shirt, thin red neckerchief, original tan courier mailbag and exposed furry paws",
-      "winter": "padded navy winter coat, red wool scarf, original tan courier mailbag and exposed furry paws; no hat"
+      "baseline": "butter-yellow varsity jacket with ivory sleeves, blue five-petal flower with a cream center, navy shorts and exposed furry paws",
+      "summer": "short-sleeve yellow and ivory round-neck T-shirt with the same blue five-petal flower with a cream center, navy shorts and exposed furry paws",
+      "winter": "padded quilted yellow and ivory jacket with the same blue five-petal flower with a cream center, navy trousers and exposed furry paws; no scarf or hat"
     }
   },
   "style": "illustrated",
@@ -33,7 +33,7 @@
   "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
   "facePanels": {
     "top": ["front", "profile facing viewer left", "three-quarter facing viewer left"],
-    "bottom": ["eyes", "nose", "mouth", "ear", "hair", "signature accessory"]
+    "bottom": ["eyes", "nose", "mouth", "ear", "fur", "signature flower patch"]
   },
   "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
   "canonical": {

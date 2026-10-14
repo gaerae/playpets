@@ -13,15 +13,15 @@ test('unknown and removed saved worlds fall back to woodland', () => {
 
 test('studio disables outdoor effects and pond geometry in every light and weather', () => {
   const room = worldFor('studio');
-  assert.equal(room.geometry.fieldTop, 0.55);
+  assert.equal(room.geometry.fieldTop, 0.76);
   assert.equal(room.capabilities.weather, true);
-  assert.equal(room.windowPanes.length, 3);
+  assert.equal(room.windowPanes.length, 10);
   for (const capability of ['sky', 'wildlife', 'fishing', 'seasonalEffects', 'ambient'])
     assert.equal(room.capabilities[capability], false, capability);
   for (const period of ['morning', 'day', 'evening', 'night'])
     for (const weather of ['clear', 'rain', 'snow']) {
       const scene = { world: 'studio', period, weather, season: 'winter' };
-      assert.equal(environmentLook(scene).art, `studio-modern-city-${period}`);
+      assert.equal(environmentLook(scene).art, `studio-cozy-${period}`);
       assert.equal(environmentLake(1000, 700, scene), null);
       assert.deepEqual(mixFor(scene), { breeze: 0, leaves: 0, water: 0, rain: 0, birds: 0, crickets: 0 });
     }
@@ -103,7 +103,11 @@ test('each world label is translated and every raster variant exists', async () 
         assert.ok(Array.isArray(table[world.chatter]) && table[world.chatter].length > 0, world.chatter);
       }
     }
-    for (const art of Object.values(world.art || {})) {
+    for (const art of [
+      ...Object.values(world.art || {}),
+      ...Object.values(world.windowArt || {}),
+      ...Object.values(world.seasonArt || {}),
+    ]) {
       const png = readFileSync(new URL(`../src/art/environments/${art}.png`, import.meta.url));
       assert.equal(png.readUInt32BE(16), 1536);
       assert.equal(png.readUInt32BE(20), 1024);

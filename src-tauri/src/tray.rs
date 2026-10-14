@@ -17,7 +17,7 @@ pub struct Snapshot {
     friends: bool,
     desktop: bool,
     wander: bool,
-    /// The yard's sounds are on (the macOS View menu shows it).
+    /// The yard's sounds are on (shared by the tray and macOS View menu).
     sound: bool,
     /// A friend whose coding agent needs the person: its state ("waiting" or "error") and name.
     attention: Option<(String, String)>,
@@ -100,18 +100,23 @@ enum Line {
     Separator,
 }
 
-/// The menu: the yard, then the switches for how friends are shown (only those that apply),
+/// Direct access to the yard and its panels, then the applicable display switches and sound,
 /// then settings, updates and about, then quitting.
 fn lines(snap: &Snapshot, mini: bool) -> Vec<Line> {
     use Line::{Item, Separator};
     let mut lines = vec![Item("open", None)];
     if snap.friends {
-        lines.extend([Separator, Item("mini", Some(mini)), Item("desktop", Some(snap.desktop))]);
+        lines.push(Item("friends", None));
+    }
+    lines.extend([Item("invite", None), Separator]);
+    if snap.friends {
+        lines.extend([Item("mini", Some(mini)), Item("desktop", Some(snap.desktop))]);
         if snap.desktop {
             lines.push(Item("wander", Some(snap.wander)));
         }
     }
     lines.extend([
+        Item("sound", Some(snap.sound)),
         Separator,
         Item("settings", None),
         Item("update", None),
@@ -169,17 +174,19 @@ fn tooltip(snap: &Snapshot) -> String {
     }
 }
 
-/// The colored app-icon cat (as on the Dock and taskbar), with a small mark at the bottom right
-/// in the yard's colours for the agent's state: blue while it waits, red after trouble.
+/// Clover uses the same illustrated face as the app icon on every platform.
+/// A separated corner mark keeps agent attention visible at menu-bar size.
 fn icon(state: Option<&str>) -> Image<'static> {
-    let base = Image::from_bytes(include_bytes!("../icons/tray.png")).expect("the tray icon is a PNG");
+    let bytes = include_bytes!("../icons/tray.png").as_slice();
+    let base = Image::from_bytes(bytes).expect("the tray icon is a PNG");
     let color = match state {
         Some("waiting") => [0x4a, 0x9b, 0xd6],
         Some("error") => [0xd9, 0x53, 0x4f],
         _ => return base.to_owned(),
     };
     let (w, h) = (base.width(), base.height());
-    Image::new_owned(with_mark(base.rgba(), w, h, color), w, h)
+    let pixels = with_mark(base.rgba(), w, h, color);
+    Image::new_owned(pixels, w, h)
 }
 
 /// The icon's pixels with a dot (and a white ring around it) in the bottom-right corner.
@@ -273,8 +280,19 @@ mod tests {
         let none = Snapshot::default();
         assert_eq!(
             ids(&none, false),
-            ["open", "-", "settings", "update", "about", "-", "quit"],
-            "no friend: nothing to show"
+            [
+                "open",
+                "invite",
+                "-",
+                "sound:false",
+                "-",
+                "settings",
+                "update",
+                "about",
+                "-",
+                "quit"
+            ],
+            "inviting and sound remain available without a friend"
         );
         let friends = Snapshot {
             friends: true,
@@ -284,9 +302,12 @@ mod tests {
             ids(&friends, true),
             [
                 "open",
+                "friends",
+                "invite",
                 "-",
                 "mini:true",
                 "desktop:false",
+                "sound:false",
                 "-",
                 "settings",
                 "update",
@@ -303,6 +324,12 @@ mod tests {
             ..Default::default()
         };
         assert!(ids(&desk, false).contains(&"wander:true".to_string()));
+        let audible = Snapshot {
+            sound: true,
+            ..Default::default()
+        };
+        assert!(ids(&audible, false).contains(&"sound:true".to_string()));
+        assert!(!ids(&audible, false).contains(&"friends".to_string()));
         // Every item's words come from tray.{id} (built at run time, so the key test cannot see them).
         for line in lines(&desk, false).iter().chain(&lines(&none, true)) {
             if let Line::Item(id, _) = line {

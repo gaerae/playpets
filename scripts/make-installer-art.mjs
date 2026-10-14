@@ -12,7 +12,16 @@
 // Run: npm run art   (needs Google Chrome or Playwright's Chromium; browser-lib.mjs drives it headless).
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { bmp, cell, dataUrl, dataUrlBytes, loadEnvironment, loadSheets, readDataUrl, withDpi } from './art-lib.mjs';
+import {
+  bmp,
+  castMarkup,
+  dataUrl,
+  dataUrlBytes,
+  loadEnvironment,
+  loadSheets,
+  readDataUrl,
+  withDpi,
+} from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 
 const sheets = await loadSheets();
@@ -65,17 +74,16 @@ const dmg = `<!doctype html><meta charset="utf-8"><style>
   h1{position:absolute;left:0;right:0;top:38px;margin:0;text-align:center;font-size:18px;font-weight:700;letter-spacing:-.01em;color:#244d43;z-index:1}
   h1 small{display:block;margin-top:6px;font-size:12.5px;font-weight:500;color:#42675b}
   svg{position:absolute;left:0;top:0;z-index:1}
-  .pet{position:absolute;z-index:1}
+  .cast{position:absolute;left:50%;top:250px;transform:translateX(-50%);display:flex;gap:2px;z-index:1}
 </style><div class="bg">
   <img class="environment" src="${environment}" alt=""><div class="label-field"></div><div class="label-field second"></div>
   <h1>Drag PlayPets to Applications<small>Then open it from Launchpad or the Applications folder.</small></h1>
   ${arrow()}
-  <div class="pet" style="left:30px;top:262px">${cell(sheets, 'pip', 4, 2, 0.36)}</div>
-  <div class="pet" style="right:28px;top:256px">${cell(sheets, 'daisy', 0, 0, 0.4)}</div>
+  <div class="cast">${castMarkup(sheets, 58)}</div>
 </div>`;
 
 // The Windows installer draws its pictures at their pixel size beside white page text: a tall
-// sidebar with the yard and Clover saying hello, and a small header that sits on the white strip.
+// sidebar with the yard and all three friends, and a small header that sits on the white strip.
 // Tauri's installer puts the header picture at the left end of the strip, so the hill runs off
 // the left edge and comes down before the page title on the right.
 const SIDEBAR = { width: 164, height: 314 };
@@ -88,16 +96,16 @@ const sidebar = `<!doctype html><meta charset="utf-8"><style>
   .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(#fbfcf5f5 0%,#fbfcf5ed 45%,#fbfcf500 70%)}
   h1{position:absolute;left:18px;top:62px;margin:0;font-size:24px;font-weight:750;letter-spacing:-.02em;color:#244d43;z-index:1}
   p{position:absolute;left:18px;right:16px;top:96px;margin:0;font-size:12px;line-height:1.5;color:#42675b;text-wrap:balance;z-index:1}
-  .pet{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:1}
+  .cast{position:absolute;left:50%;bottom:38px;transform:translateX(-50%);display:flex;gap:1px;z-index:1}
 </style><div class="bg"><img class="environment" src="${environment}" alt="">
   <h1>PlayPets</h1><p>A yard where your pets talk to each other.</p>
-  <div class="pet">${cell(sheets, 'clover', 3, 0, 0.5)}</div></div>`;
+  <div class="cast">${castMarkup(sheets, 45)}</div></div>`;
 const HEADER = { width: 150, height: 57 };
 const header = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${HEADER.width}px;height:${HEADER.height}px;overflow:hidden;background:#fff}
   .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;opacity:.35}
-  .pets{position:absolute;left:12px;bottom:1px;display:flex;align-items:flex-end;gap:4px}
-</style><img class="environment" src="${environment}" alt=""><div class="pets">${cell(sheets, 'clover', 3, 0, 0.28)}${cell(sheets, 'daisy', 0, 0, 0.26)}</div>`;
+  .pets{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;align-items:flex-end;gap:1px}
+</style><img class="environment" src="${environment}" alt=""><div class="pets">${castMarkup(sheets, 40)}</div>`;
 
 async function readyArt(page) {
   await page.evaluate(async sources => {

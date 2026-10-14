@@ -2,14 +2,14 @@
    AI and companions. */
 #provider-select {
   margin-top: 6px;
-  font-size: 11px;
+  font-size: 12px;
   padding: 8px 26px 8px 8px;
   background-position: right 8px center;
 }
 .chat-placeholder {
   margin: auto;
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.7;
   color: var(--muted);
   padding: 10px;
@@ -19,7 +19,7 @@
   padding: 9px 11px;
   border-radius: 12px;
   max-width: 95%;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.65;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -82,7 +82,7 @@
 }
 .message code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
+  font-size: 12px;
   background: #213e4312;
   border-radius: 4px;
   padding: 1px 4px;
@@ -123,7 +123,7 @@
 /* The conversation fills what is left and gathers at the bottom, next to the composer. */
 .chat-log {
   flex: 1;
-  min-height: 160px;
+  min-height: 0;
   margin-top: 12px;
   border-top: 1px solid var(--line);
   overflow-y: auto;
@@ -131,7 +131,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 14px 2px;
+  padding: 10px 2px;
 }
 .chat-log > .message:first-child {
   margin-top: auto;
@@ -147,7 +147,7 @@
   margin: 6px 12px auto;
 }
 .chat-starters .button.chip {
-  font-size: 11.5px;
+  font-size: 12px;
   min-height: 32px;
 }
 /* The composer: the message, then a bar with the AI the friend talks with, who joins in, and send. */
@@ -207,7 +207,7 @@
   border-radius: 8px;
   background-color: transparent;
   background-position: right 6px center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
   color: var(--muted);
   text-overflow: ellipsis;
@@ -232,7 +232,7 @@
   list-style: none;
   padding: 4px 8px;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
   color: var(--muted);
   cursor: pointer;
@@ -302,14 +302,9 @@
   margin-top: 6px;
 }
 .chat-note {
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--muted);
-}
-@media (max-width: 760px) {
-  .chat-log {
-    min-height: 220px;
-  }
 }
 @media (prefers-color-scheme: dark) {
   .message.user {

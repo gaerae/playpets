@@ -1,0 +1,57 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+test('the illustrated rod connects its actual grip and terminal guide to the fishing geometry', async () => {
+  const { rodPlacement, ROD } = await import('../src/yard/fishing-rod.js');
+  for (const [grip, tip] of [
+    [
+      { x: 100, y: 200 },
+      { x: 180, y: 130 },
+    ],
+    [
+      { x: 30, y: 80 },
+      { x: 60, y: 50 },
+    ],
+  ]) {
+    const m = rodPlacement(grip, tip);
+    for (const [source, target] of [
+      [ROD.grip, grip],
+      [ROD.tip, tip],
+    ]) {
+      assert.ok(Math.abs(m.a * source.x + m.c * source.y + m.e - target.x) < 1e-8);
+      assert.ok(Math.abs(m.b * source.x + m.d * source.y + m.f - target.y) < 1e-8);
+    }
+    assert.equal(m.a, m.d);
+    assert.equal(m.b, -m.c);
+  }
+});
+
+test('the cast tip stays between the hand and the float on either side', async () => {
+  const { castGeometry } = await import('../src/yard/fishing-rod.js');
+  for (const float of [
+    { x: 180, y: 140 },
+    { x: 20, y: 140 },
+  ]) {
+    const grip = { x: 100, y: 180 };
+    const cast = castGeometry(grip, float, 80, 100);
+    assert.ok(cast.tip.y < grip.y, 'the rod lifts above the hand');
+    assert.ok(
+      Math.min(grip.x, float.x) < cast.tip.x && cast.tip.x < Math.max(grip.x, float.x),
+      'the line continues outward from the rod instead of returning behind it',
+    );
+    assert.equal(cast.float, float);
+  }
+});
+
+test('the fishing line begins at the rod tip and ends just above the float', async () => {
+  const { linePath } = await import('../src/yard/fishing-rod.js');
+  for (const [tip, float, bend] of [
+    [{ x: 70, y: 90 }, { x: 170, y: 180 }, 3],
+    [{ x: 170, y: 90 }, { x: 70, y: 180 }, -3],
+  ]) {
+    assert.equal(
+      linePath(tip, float),
+      `M${tip.x} ${tip.y}Q${(tip.x + float.x) / 2 + bend} ${(tip.y + float.y) / 2 + 5} ${float.x} ${float.y - 6}`,
+    );
+  }
+});

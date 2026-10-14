@@ -6,12 +6,11 @@ test('creator kits use production sheets with stable downloadable files and vali
   const { creatorKits, referenceSheets } = await import('../scripts/creator-kit.mjs');
   assert.deepEqual(
     creatorKits.map(k => k.id),
-    ['aria-realistic', 'aria', 'noah-realistic', 'noah', 'clover', 'daisy', 'pip', 'tabby', 'smoky', 'mochi'],
+    ['daisy', 'clover', 'pip'],
   );
   for (const kit of creatorKits) {
-    assert.equal(kit.sheets.length, ['tabby', 'smoky', 'mochi'].includes(kit.id) ? 1 : 3);
-    for (const file of kit.sheets)
-      assert.match(file, /^assets\/pets\/(aria|noah|clover|daisy|pip|tabby|smoky|mochi)\//);
+    assert.equal(kit.sheets.length, 3);
+    for (const file of kit.sheets) assert.match(file, /^assets\/pets\/(clover|daisy|pip)\//);
   }
   assert.deepEqual(Object.keys(referenceSheets), ['identity-reference', 'expression-reference', 'motion-reference']);
   for (const cells of Object.values(referenceSheets))
@@ -60,4 +59,9 @@ test('creator studio chooses ordinary entries by preview and offers arbitrary re
     assert.match(guide, /<ExtensionPrompts/);
     assert.match(guide, /pet.json/);
   }
+});
+
+test('creator studio starts on a registered kit during server rendering', async () => {
+  const source = await readFile('website/.vitepress/theme/CreatorKit.vue', 'utf8');
+  assert.match(source, /const id = ref\(kitEntries\[0\]\.id\)/);
 });

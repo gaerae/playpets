@@ -8,17 +8,16 @@ When you first open the app, the empty yard asks **Who would you like to play wi
 
 ## Bundled companions <Since v="0.1.0" />
 
-On first start the Invite tab has **PlayPets starter pets**: Daisy the explorer, Clover the kitten gardener and Pip the puppy courier, followed by Aria, Aria Mini, Noah, Noah Mini and the original cats Tabby, Smoky and Mochi. Clover is the app's main mascot. Their cards show these names in every language. They use the Codex pet format, so you invite them, send them to the desktop and give them an AI exactly like any other pet. Their files sit under `builtin/` in the data folder.
+On first start the Invite tab has **PlayPets starter pets**: Daisy the explorer, Clover the kitten gardener and Pip the cheerful puppy in a blue-flower jacket. Clover is the app's main mascot. Their cards show these names in every language. They use the Codex pet format, so you invite them, send them to the desktop and give them an AI exactly like any other pet. Their files sit under `builtin/` in the data folder.
 
-Aria is a fictional adult woman, age 25; Noah is a fictional adult man, age 26. These music-loving companions provide adult examples for **Partner** mode. Everyone starts as a friend: choose a relationship in Friend settings. Daisy keeps her younger explorer character.
 
-Aria, Aria Mini, Noah and Noah Mini are independent entries with their own default artwork. Invite each by its preview. Existing friends keep their saved names, settings and closeness; these names do not require a style switch. Chat remains session-only and is not restored after restarting. A creator-provided alternate appearance, when available in **Edit → Appearance**, changes only that friend’s artwork. Every pet works in the mini window and desktop mode.
+The official cast is Daisy, Clover and Pip. Earlier built-in friends keep their saved IDs, names, settings and closeness, with their appearance mapped to this cast: Aria to Daisy, Noah to Pip, and the original cats to Clover. Imported pets are unchanged. Chat is session-only and is not restored after restarting.
 
-Daisy, Clover, Pip, Aria, Aria Mini, Noah and Noah Mini change into light summer clothes and warm winter clothes automatically, following the selected season (Auto uses the local calendar) in both the yard and desktop mode. Spring and autumn share their layered everyday outfits. Their faces, accessories and actions stay recognizable. The original three cats keep their existing sheets.
+Daisy, Clover, and Pip change into light summer clothes and warm winter clothes automatically, following the selected season (Auto uses the local calendar) in both the yard and desktop mode. Spring and autumn share their layered everyday outfits. Their faces, accessories and actions stay recognizable.
 
 ## Next up <Since v="0.1.0" />
 
-Once your first friend is in, a small **Next up** card in the corner shows what is left: connect an AI to a friend (**Connect**) and pick a friend to bring news from your coding agent (**Choose**). With Claude Code or Codex CLI on this computer, the first button is **Connect now** and attaches it to every friend with no key (see [Chat with a friend](./chat.md#making-a-connection)). Each step is ticked when done; the card disappears when all are done, or earlier with **Hide this**. With no friend in the yard, the toolbar is hidden: there is no one to give a treat to yet.
+Once your first friend is in, a small **Next up** card in the corner shows what is left: connect an AI to a friend (**Connect**) and pick a friend to bring news from your coding agent (**Choose**). With Claude Code or Codex CLI on this computer, the first button is **Connect now** and attaches it to every friend with no key (see [Chat with a friend](./chat.md#making-a-connection)). Each step is ticked when done; the card disappears when all are done, or earlier with **Hide this**. With no friend in the yard, play tools are hidden. **Menu → Invite** remains available.
 
 ## The Invite tab <Since v="0.1.0" />
 
@@ -28,7 +27,7 @@ The Invite tab splits the cards into four groups, depending on where the pet fil
 
 | Group | Where the pets come from |
 |---|---|
-| PlayPets starter pets | Ten pets bundled with the app, unpacked in `builtin/` in the data folder |
+| PlayPets starter pets | Three pets bundled with the app, unpacked in `builtin/` in the data folder |
 | Codex pet folder | Codex pets in `~/.codex/pets`. They show up automatically |
 | Pets imported from an address | Community pets you got with **Import a pet**. Saved in `pets/` in the data folder |
 | Pets picked from this computer | Pets in a folder you picked yourself. Not copied; the app reads that folder as it is |
@@ -63,14 +62,14 @@ To send a friend away from the yard, choose **Send away** from the **⋯** menu,
 
 ## Things to do in the yard <Since v="0.1.0" />
 
-Until you first pat a friend, the line above the yard says "Click a friend to pat it, drag to move it", and the first friend you invite tells you how to chat. Here is what you can do with a friend.
+Click a friend to pat it, or drag it to move it. The first friend you invite explains how to chat. Here is what you can do with a friend.
 
 | Action | How |
 |---|---|
 | Pat | Click a friend once. They jump and show a heart |
 | Move | Drag a friend and drop them. Their place in the yard is remembered |
 | Chat | Click the friend's name tag: under the pointer it shows a speech mark. The Friend tab opens on that friend. In mini mode, the conversation stays in the small window. A double-click or right-click on the friend does the same |
-| Put down a treat | Click **Give a treat** in the toolbar, then click where in the yard to put it. All the friends walk over, eat it and say "Yum, thank you!". The treat disappears after 15 seconds |
+| Put down a treat | Click **Give a treat** in **Menu**, then choose a spot in the yard. A picnic blanket with sandwiches, fruit and snacks appears, and friends gather around it. It clears after 15 seconds if not everyone arrives, or six seconds after the last friend eats |
 
 A **name tag** sits under each friend. When you select a friend, the name tag changes to its selected look, and while a coding agent is working, the status is shown next to the name tag.
 
@@ -80,5 +79,3 @@ Left alone, friends slowly wander around the yard and talk to themselves. When i
 
 - To talk with your friend, go to [Chat with a friend](./chat.md).
 - To put your friend out on the desktop, see [Desktop mode](./desktop.md).
-
-<Shot name="friend-appearance" caption="Alternate artwork, when supplied by a creator, belongs to the selected friend." />

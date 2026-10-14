@@ -631,9 +631,12 @@ fn set_autostart(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Val
 /// The language the person chose; the page reloads itself in it, the tray and title follow here.
 fn set_language(app: &AppHandle, state: &State<Shared>, code: &str) -> Result<Value, String> {
     let lang = i18n::Lang::parse(code).ok_or_else(|| i18n::t("error.language"))?;
-    i18n::set(lang);
     // The language stands even when it could not be saved (commit), so the pages follow it either way.
     let saved = commit(app, state, |d| {
+        if d.prefs.language != lang {
+            d.talks.cancel_pending();
+        }
+        i18n::set(lang);
         d.prefs.language = lang;
         Ok(Value::Null)
     });

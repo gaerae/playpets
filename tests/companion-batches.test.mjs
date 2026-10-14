@@ -45,3 +45,40 @@ test('curated frame map refuses invalid rows, columns and source indices', async
     assert.throws(() => frameOrder(mapping), /frame map/i);
   }
 });
+
+test('documented row scale corrections apply uniformly and default to one', async () => {
+  const { rowScales } = await import('../scripts/companion-batches-lib.mjs');
+  assert.deepEqual(rowScales(), Array(11).fill(1));
+  assert.deepEqual(rowScales({ rowScales: { 7: 0.9 } }), [1, 1, 1, 1, 1, 1, 1, 0.9, 1, 1, 1]);
+  for (const config of [
+    null,
+    [],
+    { other: 1 },
+    { rowScales: [] },
+    { rowScales: { 11: 1 } },
+    { rowScales: { '07': 1 } },
+    { rowScales: { 7: 0 } },
+    { rowScales: { 7: -1 } },
+    { rowScales: { 7: Infinity } },
+    { rowScales: { 7: '0.9' } },
+  ])
+    assert.throws(() => rowScales(config), /row scale/i);
+});
+
+test('jump lift corrections use canonical pixels and reject invalid configuration', async () => {
+  const { jumpLifts, rowScales } = await import('../scripts/companion-batches-lib.mjs');
+  assert.equal(jumpLifts(), null);
+  const lifts = [0, 8, 24, 8, 0, 0, 16, 0];
+  assert.deepEqual(jumpLifts({ jumpLifts: lifts }), lifts);
+  assert.deepEqual(rowScales({ jumpLifts: lifts }), Array(11).fill(1));
+  for (const value of [
+    null,
+    {},
+    [],
+    [0],
+    [0, 1, 2, 3, 4, 5, 6, -1],
+    [0, 1, 2, 3, 4, 5, 6, Infinity],
+    [0, 1, 2, 3, 4, 5, 6, '2'],
+  ])
+    assert.throws(() => jumpLifts({ jumpLifts: value }), /jump lift/i);
+});

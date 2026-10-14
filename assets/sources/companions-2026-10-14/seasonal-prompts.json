@@ -1,0 +1,534 @@
+{
+  "tool": "OpenAI built-in image generation",
+  "date": "2026-10-14",
+  "note": "Exact seasonal edit prompts. Later repair records supersede affected source rows.",
+  "records": [
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 0,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-a0e2dc49-5cd2-4cd0-9d76-4a733431a667.png",
+      "reference": "daisy/00-idle.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 1,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-7a2f8313-ca6b-443a-b0c4-751e73cebe2b.png",
+      "reference": "daisy/01-right.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 2,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-417bae38-2646-43b3-a38b-69b28f432404.png",
+      "reference": "daisy/02-left.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 3,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-147ad328-020c-4049-81a1-3f1763486a58.png",
+      "reference": "daisy/03-wave.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 4,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-b861fc7a-49ac-4088-8a5d-6afc47c88e25.png",
+      "reference": "daisy/04-jump.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 5,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-399a938f-d7ee-4907-abd1-59e90b8a1f6a.png",
+      "reference": "daisy/05-error.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 6,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-6c08ac97-4fd4-4681-96c7-34ad62ff0543.png",
+      "reference": "daisy/06-waiting.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 7,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-7837407b-955b-42ef-98b5-a2bcc7ac640b.png",
+      "reference": "daisy/07-working.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 8,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-5235fb3a-9c34-44d9-baef-0aad69e7706a.png",
+      "reference": "daisy/08-done.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 9,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-f7678e18-0be6-4b6d-a781-1f9d38fe312f.png",
+      "reference": "daisy/09-look.png"
+    },
+    {
+      "character": "daisy",
+      "season": "summer",
+      "row": 10,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: ivory SHORT sleeves with apricot dungaree skirt; same sage daisy beret, brown ankle boots, olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-66abd663-c1e7-4e49-b125-5771cfabd20d.png",
+      "reference": "daisy/10-look.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 0,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-814bddf9-f38b-4f3d-840f-6f74412cf915.png",
+      "reference": "daisy/00-idle.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 1,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-a03906fe-03b7-481f-aac6-a8592f8944d4.png",
+      "reference": "daisy/01-right.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 2,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-222c15b1-7e5d-4253-a58a-c61de952f002.png",
+      "reference": "daisy/02-left.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 3,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-6919a329-854b-4584-aff0-e0d46c077413.png",
+      "reference": "daisy/03-wave.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 4,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-209a9e92-0749-41ca-a361-b147f277f4f7.png",
+      "reference": "daisy/04-jump.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 5,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-2ab45d8a-48b8-40b2-b0ef-b806ffd341e2.png",
+      "reference": "daisy/05-error.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 6,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-c4310b76-194d-431e-be61-6130ee2f2412.png",
+      "reference": "daisy/06-waiting.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 7,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-22ec2dcc-1e5e-43f8-9da8-ba64863165d0.png",
+      "reference": "daisy/07-working.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 8,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-a42ea6db-6395-4fa5-a7e6-51345d5bf6bb.png",
+      "reference": "daisy/08-done.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 9,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-9cda1434-c5fd-4e30-890d-a08d50516853.png",
+      "reference": "daisy/09-look.png"
+    },
+    {
+      "character": "daisy",
+      "season": "winter",
+      "row": 10,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: rust-orange warm coat with visible skirt hem, opaque brown leggings, sage scarf; same daisy beret, brown boots and olive satchel. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-1930babc-955f-4686-8867-eb322709f645.png",
+      "reference": "daisy/10-look.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 0,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-5895b65c-35fd-4708-a9fa-91899683d059.png",
+      "reference": "clover/00-idle.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 1,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-8856a3c9-b8fc-4f4e-989d-c1b6a83143c8.png",
+      "reference": "clover/01-right.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 2,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-656aa7e1-14f6-4715-9646-36bff74892da.png",
+      "reference": "clover/02-left.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 3,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-ce3613ba-3792-4112-8f9c-4e5a6880e097.png",
+      "reference": "clover/03-wave.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 4,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-334d3440-1beb-4c30-92d5-7356f49d7386.png",
+      "reference": "clover/04-jump.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 5,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-fc8d06aa-2d11-420a-bc10-550812976d22.png",
+      "reference": "clover/05-error.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 6,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-e1b1dc72-0e78-4c85-a0f4-bb4f1f5bc2fd.png",
+      "reference": "clover/06-waiting.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 7,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-66314e27-ab63-4b14-a01f-628512283020.png",
+      "reference": "clover/07-working.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 8,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-977e1559-e3f3-4199-a1b4-dbdd89c0164b.png",
+      "reference": "clover/08-done.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 9,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-60c0812b-6b6d-42ac-95d2-3a7903abbc1a.png",
+      "reference": "clover/09-look.png"
+    },
+    {
+      "character": "clover",
+      "season": "summer",
+      "row": 10,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: mint-teal short overalls with daisy pocket; same straw hat teal ribbon. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-84995222-7793-4222-92a3-9a890207f8ca.png",
+      "reference": "clover/10-look.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 0,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-f34596d7-f25f-4ab3-8de2-5208f4be6e90.png",
+      "reference": "clover/00-idle.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 1,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-3aed578d-159e-40a3-8bcf-70845c2c88d3.png",
+      "reference": "clover/01-right.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 2,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-454d63bd-6db0-453a-9638-f9b170b85353.png",
+      "reference": "clover/02-left.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 3,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-cc17ff77-9e49-42b0-8421-6f75b54b72c1.png",
+      "reference": "clover/03-wave.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 4,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-8954a2d6-3668-4bec-8e3a-c3fc84fafced.png",
+      "reference": "clover/04-jump.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 5,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-ef1227b7-a5ba-4452-8425-8131f328e20b.png",
+      "reference": "clover/05-error.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 6,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-0ba4a7a1-008f-4024-87fa-ccc7bbba30d0.png",
+      "reference": "clover/06-waiting.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 7,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-c1435f25-b88b-4151-a778-3e26277821ef.png",
+      "reference": "clover/07-working.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 8,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-661cbbbc-10f7-47c9-8e14-0aec147534f1.png",
+      "reference": "clover/08-done.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 9,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-e11fb390-abc2-4e15-9a31-34076f907070.png",
+      "reference": "clover/09-look.png"
+    },
+    {
+      "character": "clover",
+      "season": "winter",
+      "row": 10,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: deep teal wool coat, dark teal trousers, cream knitted scarf; sage knitted cap with small daisy in place of straw hat. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-9218c18f-e31d-442c-bf90-2819128f68df.png",
+      "reference": "clover/10-look.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 0,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-2a2daafc-4427-4795-9757-b8d8f3105c56.png",
+      "reference": "pip/00-idle.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 1,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-d7375813-6222-47f4-bca7-28d525ae5c90.png",
+      "reference": "pip/01-right.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 2,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-dc078af8-b3df-4ff3-bf56-f9eed6e993a9.png",
+      "reference": "pip/02-left.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 3,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-550e7263-8033-4c2d-8f1b-9900e72fcb65.png",
+      "reference": "pip/03-wave.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 4,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-34bbda29-115e-4ef8-8b65-a5ca69fe911a.png",
+      "reference": "pip/04-jump.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 5,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-1a185ed9-bb00-4705-a5a0-6e49de124f52.png",
+      "reference": "pip/05-error.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 6,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-d7491eed-9470-4b6c-8130-6698806c5d11.png",
+      "reference": "pip/06-waiting.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 7,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-90d8f0ae-0755-41ec-bc1c-81caccfe1bbd.png",
+      "reference": "pip/07-working.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 8,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-4c75106b-f7e8-45a0-b827-b691404143c6.png",
+      "reference": "pip/08-done.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 9,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-f8317579-9353-4a0b-98ff-ca5bb94bdaca.png",
+      "reference": "pip/09-look.png"
+    },
+    {
+      "character": "pip",
+      "season": "summer",
+      "row": 10,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to summer: short-sleeve BLUE shirt, red scarf, dark teal KNEE-LENGTH SHORTS on both legs, same olive mailbag. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-7820d612-105e-44c2-9196-cdd76ee7fb7b.png",
+      "reference": "pip/10-look.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 1,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-5310a3b0-30cf-4701-860d-b314d1dfe0d9.png",
+      "reference": "pip/01-right.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 2,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-cf1934f3-a9b6-45fa-8f81-5a78d465fc4f.png",
+      "reference": "pip/02-left.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 3,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-40425d49-71cb-4ff9-a44f-78872bb1e674.png",
+      "reference": "pip/03-wave.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 4,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-a52301de-942a-4ec0-85e3-e998f4500bef.png",
+      "reference": "pip/04-jump.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 5,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-2dbf3669-21e4-4494-97cf-b10434424be5.png",
+      "reference": "pip/05-error.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 6,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-c948b45a-4790-4f16-8bb4-34046a0c6a32.png",
+      "reference": "pip/06-waiting.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 7,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-8d34e48f-edc8-4e2e-b6b2-aec2489d0e06.png",
+      "reference": "pip/07-working.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 8,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-fdd86feb-34f1-404d-8ff6-85fc7ae280bb.png",
+      "reference": "pip/08-done.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 9,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-04edba92-55a6-45c1-941e-0fe59c135430.png",
+      "reference": "pip/09-look.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 10,
+      "prompt": "Use case: identity-preserve. Edit this EXACT 4-column by2-row sprite sheet, CLOTHING ONLY to winter: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS down to ankles on BOTH legs, same olive mailbag; NO hat or shoes. Preserve all8 poses EXACTLY, head/eye directions, expressions, face/head/limb proportions, same spacing and body size, same warm-brown precise ink outlines, vivid matte painted color planes and fine drawing. No softened3D/plush rendering. Preserve jump positions if jumping and laptop if present. Do not change hairstyle/fur/face. Every full body fits completely inside same cell; true transparent background/gutters, no ground shadows/text/labels. Clothing stays consistent across all8 poses. Keep source resolution1536x1024 and sharpness.",
+      "sourceImage": "exec-94a1c583-e73c-4ebc-8469-020893f350ad.png",
+      "reference": "pip/10-look.png"
+    },
+    {
+      "character": "pip",
+      "season": "winter",
+      "row": 0,
+      "prompt": "Edit this 4x2 sheet of eight full-body puppy poses, clothing only. Winter wardrobe: blue wool jacket with cream cuffs, same red scarf, dark teal LONG TROUSERS covering both legs down to ankles, olive mailbag same placement. Preserve EXACT crisp warm ink outlines, painted color planes, puppy face/head/fur/proportions, all eight facial expressions and body poses, same framing and character size. Do not add hat, mittens, shoes or new props. Transparent gutters/background. No shadows, no text. Maintain original artwork resolution and sharp drawn style. Do not smooth or turn into 3D.",
+      "reference": "pip/00-idle.png"
+    }
+  ]
+}

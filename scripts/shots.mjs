@@ -21,7 +21,15 @@ import { dataUrl, dataUrlBytes } from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 import { encodeGif } from './gif-lib.mjs';
 import { pngSize } from './png-lossless-lib.mjs';
-import { captureWindow, clearCaptureFocus, composeWindow, mainDisplay, seasonalScenes } from './shots-lib.mjs';
+import {
+  captureReply,
+  captureWindow,
+  clearCaptureFocus,
+  companionCast,
+  composeWindow,
+  mainDisplay,
+  seasonalScenes,
+} from './shots-lib.mjs';
 import { SITE_LANGS as siteLanguages } from './site-content.mjs';
 
 if (process.platform !== 'darwin') {
@@ -45,7 +53,8 @@ const MARGIN = 28;
 // The README's demo animation, filmed in the README's language.
 const GIF = { lang: 'en', frames: 50, everyMs: 250, width: 720 };
 const adultsOnly = process.env.SHOT_SCENE === 'adults';
-const seasonsOnly = process.env.SHOT_SCENE === 'seasons';
+const placesOnly = process.env.SHOT_SCENE === 'places';
+const seasonsOnly = process.env.SHOT_SCENE === 'seasons' || placesOnly;
 const skipGif = adultsOnly || seasonsOnly || process.env.SKIP_GIF === '1';
 // Store listings (Microsoft Store, Product Hunt, GitHub's social card) want 16:9 pictures of at
 // least 1366×768: these scenes are also set on a 1920×1080 backdrop, centred with a shadow, as
@@ -83,8 +92,8 @@ const script = {
     names: ['Daisy', 'Clover', 'Pip'],
     persona: 'A curious, warm explorer. Keeps answers short.',
     chat: [
-      ['やあ！さっき何してたの？', 'テストが走るのを見てたよ。全部通ったから、ぼくもうれしい！'],
-      ['ありがとう。次はどうする？', 'ちょっと休んでからコミットしよう。ぼくが見ててあげる。'],
+      ['やあ！さっき何してたの？', 'テストが走るのを見てたよ。全部通ったから、わたしもうれしい！'],
+      ['ありがとう。次はどうする？', 'ちょっと休んでからコミットしよう。わたしが見てるね。'],
     ],
     talk: { Daisy: '今日はテスト全部通ったよ！', Clover: 'レビューはぼくがしたよ。', Pip: 'じゃあおやつはいつ？' },
     talkTo: '今日はどうだった？',
@@ -101,6 +110,7 @@ const script = {
   },
 };
 
+let captureLanguage = languages[0];
 const provider = http.createServer(async (req, res) => {
   if (req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -109,16 +119,7 @@ const provider = http.createServer(async (req, res) => {
   let body = '';
   for await (const c of req) body += c;
   const messages = JSON.parse(body).messages;
-  const asked = messages.at(-1).content;
-  const system = messages.find(m => m.role === 'system')?.content || '';
-  // A line for the friend speaking, when the yard talk asks several friends in turn.
-  const talk = Object.values(script)
-    .flatMap(s => Object.entries(s.talk))
-    .find(([name]) => system.includes(`named ${name}`))?.[1];
-  const answer =
-    Object.values(script)
-      .flatMap(s => s.chat)
-      .find(([q]) => asked.includes(q))?.[1] || talk;
+  const answer = captureReply(script[captureLanguage], messages);
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ message: { content: answer || '...' } }));
 });
@@ -147,47 +148,66 @@ function scenario(lang) {
     $('period').value='day';$('period').dispatchEvent(new Event('change'));
     $('season').value='autumn';$('season').dispatchEvent(new Event('change'));
     const boot=await playPets.bootstrap();
+    const cast=${JSON.stringify(companionCast())};
     const coat=n=>{const found=boot.data.assets.find(a=>a.displayName===n);if(!found)throw new Error('Missing capture companion: '+n);return found;};
     const full=id=>{const found=boot.data.assets.find(a=>a.sourceId===id);if(!found)throw new Error('Missing capture companion: '+id);return found;};
     for(const p of boot.data.pets)await playPets.removePet(p.id);
     const adultScene=async()=>{
       const current=(await playPets.bootstrap()).data;
       for(const p of current.pets)await must('removeCast',playPets.removePet(p.id));
-      const aria=(await must('addAria',playPets.addPet(full('playpets-aria-full').id))).data;
-      const noah=(await must('addNoah',playPets.addPet(full('playpets-noah-full').id))).data;
-      await must('placeAria',playPets.updatePet(aria.id,{size:176,x:.35,y:.55}));
-      await must('placeNoah',playPets.updatePet(noah.id,{size:176,x:.68,y:.55}));
+      const aria=(await must('addAria',playPets.addPet(full('playpets-daisy').id))).data;
+      const noah=(await must('addNoah',playPets.addPet(full('playpets-clover').id))).data;
+      const pip=(await must('addPip',playPets.addPet(full('playpets-pip').id))).data;
+      await must('placeAria',playPets.updatePet(aria.id,cast[0]));
+      await must('placeNoah',playPets.updatePet(noah.id,cast[1]));
+      await must('placePip',playPets.updatePet(pip.id,cast[2]));
+      const {views}=await import('./core/state.js');
+      for(const view of views.values())view.nextWander=Infinity;
       $('world').value='studio';$('world').dispatchEvent(new Event('change'));
       $('period').value='day';$('period').dispatchEvent(new Event('change'));
       $('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
       await settledScene();await playPets.openChat(aria.id);await wait(1200);
-      await shot('realistic-companions');
-      $('edit-pet').click();await wait(800);await shot('friend-appearance');$('cancel-pet-dialog').click();
+      await shot('companions');
     };
     if(${adultsOnly}){await adultScene();await L('DONE');return;}
     if(!${seasonsOnly}){await tab('invite');await wait(800);await shot('invite');}
     const p1=(await must('addPet',playPets.addPet(coat('Daisy').id))).data,p2=(await must('addPet2',playPets.addPet(coat('Clover').id))).data,p3=(await must('addPet3',playPets.addPet(coat('Pip').id))).data;
-    if(${seasonsOnly}){
+    {
       const previousSeason=$('season').value;
       // Hold the composition while keeping the app's real idle animations and seasonal effects.
       const {views}=await import('./core/state.js');
       for(const view of views.values())view.nextWander=Infinity;
       $('close-panel').click();
-      await must('placeDaisy',playPets.updatePet(p1.id,{size:176,x:.30,y:.58}));
-      await must('placeClover',playPets.updatePet(p2.id,{size:150,x:.53,y:.65}));
-      await must('placePip',playPets.updatePet(p3.id,{size:128,x:.74,y:.58}));
+      await must('placeDaisy',playPets.updatePet(p1.id,cast[0]));
+      await must('placeClover',playPets.updatePet(p2.id,cast[1]));
+      await must('placePip',playPets.updatePet(p3.id,cast[2]));
       for(const scene of ${JSON.stringify(seasonalScenes())}){
         $('season').value=scene.season;$('season').dispatchEvent(new Event('change'));
         $('weather').value=scene.weather;$('weather').dispatchEvent(new Event('change'));
         await settledScene();await wait(1800);await shot(scene.name);
       }
+      if(${placesOnly || !seasonsOnly}) {
+        for(const item of [
+          ['woodland','summer','day','yard-talk'], ['woodland','autumn','evening','yard-evening'],
+          ['courtyard','spring','day','courtyard'], ['lakeside','summer','day','lakeside'],
+          ['studio','summer','day','studio-day'], ['studio','winter','night','studio-night']
+        ]) {
+          for(const [id,value] of [['world',item[0]],['season',item[1]],['period',item[2]],['weather','clear']]) {
+            $(id).value=value;$(id).dispatchEvent(new Event('change'));
+          }
+          await settledScene();await wait(1800);await shot(item[3]);
+        }
+        $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
+        $('period').value='day';$('period').dispatchEvent(new Event('change'));
+        $('mini').click();await wait(1500);await shot('mini');$('unmini').click();await wait(1000);
+      }
       $('season').value=previousSeason;$('season').dispatchEvent(new Event('change'));
-      await L('DONE');return;
+      if(${seasonsOnly}){await L('DONE');return;}
     }
     const save=(await must('saveProvider',playPets.saveProvider({type:'ollama',model:'tabby',endpoint:'${endpoint}'}))).data;
-    await must('rename1',playPets.updatePet(p1.id,{name:${JSON.stringify(s.names[0])},size:176,persona:${JSON.stringify(s.persona)},relation:'partner'}));
-    await must('rename2',playPets.updatePet(p2.id,{name:${JSON.stringify(s.names[1])},size:150}));
-    await must('rename3',playPets.updatePet(p3.id,{name:${JSON.stringify(s.names[2])},size:128}));
+    await must('rename1',playPets.updatePet(p1.id,{name:${JSON.stringify(s.names[0])},size:cast[0].size,persona:${JSON.stringify(s.persona)},relation:'partner'}));
+    await must('rename2',playPets.updatePet(p2.id,{name:${JSON.stringify(s.names[1])},size:cast[1].size}));
+    await must('rename3',playPets.updatePet(p3.id,{name:${JSON.stringify(s.names[2])},size:cast[2].size}));
     await must('attach1',playPets.updatePet(p1.id,{providerId:save.id}));
     await must('attach2',playPets.updatePet(p2.id,{providerId:save.id}));
     await must('attach3',playPets.updatePet(p3.id,{providerId:save.id}));
@@ -212,7 +232,7 @@ function scenario(lang) {
     $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
     $('period').value='day';$('period').dispatchEvent(new Event('change'));
     await tab('settings');document.querySelector('.settings-index [data-section=agent-link-title]').click();await wait(600);await shot('settings-agents');
-    $('close-panel').click();await wait(300);$('mini').click();await wait(1500);await shot('mini');
+    $('close-panel').click();await wait(300);$('mini').click();await wait(1500);
     await playPets.openChat(p1.id);await wait(900);await shot('mini-chat');
     $('close-panel').click();$('unmini').click();await wait(1200);
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
@@ -270,7 +290,7 @@ async function backdrop(rect, { terminal = true } = {}) {
   await writeFile(
     file,
     `<!doctype html><meta charset="utf-8"><title>backdrop</title><style>
-    html,body{margin:0;height:100%;background:linear-gradient(135deg,#1d2b3a 0%,#2c4a63 55%,#3f6e86 100%);font-family:ui-monospace,Menlo,monospace;overflow:hidden}
+    html,body{margin:0;height:100%;background:linear-gradient(135deg,#eaf3ef 0%,#e5edf0 55%,#f4efe4 100%);font-family:ui-monospace,Menlo,monospace;overflow:hidden}
     .term{position:absolute;left:36px;top:30px;width:380px;background:#0f141a;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.45);color:#cfd8dc;font-size:12px;line-height:1.7;padding:14px 16px 16px}
     .dots{display:flex;gap:6px;margin-bottom:10px}.dots i{width:10px;height:10px;border-radius:50%;background:#ff5f57}.dots i+i{background:#febc2e}.dots i+i+i{background:#28c840}
     .g{color:#8fd694}.d{color:#8aa0b0}</style>
@@ -455,6 +475,8 @@ async function captureAll(lang) {
   const onSite = SITE_LANGS.has(lang);
   const outDir = onSite ? path.join(root, 'website/public/shots', version, lang) : path.join(dataDir, 'shots');
   await mkdir(outDir, { recursive: true });
+  for (const retired of ['realistic-companions.webp', 'friend-appearance.webp'])
+    await rm(path.join(outDir, retired), { force: true });
   // An empty Codex pet folder: the shelf shows only the pets that ship with the app.
   const codexHome = path.join(dataDir, 'codex');
   await mkdir(path.join(codexHome, 'pets'), { recursive: true });
@@ -499,9 +521,9 @@ async function toStoreSize(dir) {
         c.height = height;
         const ctx = c.getContext('2d');
         const g = ctx.createLinearGradient(0, 0, width, height);
-        g.addColorStop(0, '#1d2b3a');
-        g.addColorStop(0.55, '#2c4a63');
-        g.addColorStop(1, '#3f6e86');
+        g.addColorStop(0, '#eaf3ef');
+        g.addColorStop(0.55, '#e5edf0');
+        g.addColorStop(1, '#f4efe4');
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, width, height);
         // The site captures keep a margin of backdrop around the window; here the window alone is
@@ -548,7 +570,8 @@ async function run(lang, dataDir, codexHome, outDir) {
     });
     let outcome = 'TIMEOUT';
     const finish = () => child.kill();
-    const timer = setTimeout(finish, 120000);
+    // A full language pass includes seasonal places as well as the app panels.
+    const timer = setTimeout(finish, 240000);
     child.stderr.on('data', d => console.log('  [stderr]', d.toString().trim().slice(0, 200)));
     child.stdout.on('data', async d => {
       try {
@@ -627,6 +650,7 @@ async function run(lang, dataDir, codexHome, outDir) {
 await prepareCapture();
 try {
   for (const lang of languages) {
+    captureLanguage = lang;
     console.log(`== ${lang}`);
     await captureAll(lang);
   }

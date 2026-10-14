@@ -14,6 +14,9 @@ const TABLE: &[(&str, &str)] = &[
     ("pets.parked", "Some friends ({count}) couldn't join the yard: their pet file is missing or the yard is full. Nothing was deleted, and they come back when the file returns or there's room."),
 
     ("tray.open", "Open the yard"),
+    ("tray.friends", "Friends"),
+    ("tray.invite", "Invite a Friend…"),
+    ("tray.sound", "Yard Sounds"),
     ("tray.desktop", "Show on the desktop"),
     ("tray.wander", "Stroll around the desktop"),
     ("tray.update", "Check for updates…"),

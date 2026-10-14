@@ -14,6 +14,9 @@ const TABLE: &[(&str, &str)] = &[
     ("pets.parked", "ペットファイルが見つからないか庭がいっぱいのため、友だち{count}人が今回は出てこられませんでした。消してはいないので、ファイルが戻るか空きができればまた出てきます。"),
 
     ("tray.open", "庭を開く"),
+    ("tray.friends", "友だち"),
+    ("tray.invite", "友だちを招待…"),
+    ("tray.sound", "庭の音"),
     ("tray.desktop", "デスクトップに表示"),
     ("tray.wander", "デスクトップを歩き回る"),
     ("tray.update", "アップデートを確認…"),

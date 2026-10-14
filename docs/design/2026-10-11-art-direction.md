@@ -131,3 +131,19 @@ cannot be rebuilt; discarded candidates and review captures go under ignored `sc
 PNG exports are optimized losslessly with `npm run assets:optimize`; see [the art
 storage decision](../decisions/2026-10-12-art-storage.md) and
 [assets/README.md](../../assets/README.md).
+
+
+## Follow-up — 2026-10-14: use Clover's illustrated face
+
+The app mark now uses the approved character's illustrated face rather than a
+vector reinterpretation. `assets/icon.png` and `assets/icon-provenance.json` hold
+the accepted source and prompt. `npm run icons` generates the native formats and
+self-contained SVG wrappers used by the app and website. The macOS menu bar
+retains a small monochrome silhouette from `assets/tray.svg`.
+
+
+## Follow-up — 2026-10-14: one face in the tray and app
+
+Every platform now shows the same illustrated Clover face in the tray. The
+separate macOS silhouette is retired; the existing blue waiting and red error
+badges remain on the colored face.

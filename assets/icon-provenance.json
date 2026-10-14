@@ -1,0 +1,9 @@
+{
+  "character": "clover",
+  "tool": "Built-in image_gen",
+  "created": "2026-10-14",
+  "reference": "assets/creator-kit/clover/face-detail.png",
+  "prompt": "Use case: identity-preserve. Create ONE production app icon portrait of the EXACT Clover kitten from the attached approved face model sheet. Preserve the orange ginger fur, white-cream blaze and fluffy cheeks, large olive-green eyes, small pink nose and gentle closed smiling mouth; keep the same straw gardener hat with teal band and teal leaf bow at viewer-left. Preserve the hand-painted animation illustration quality and delicate warm-brown outline. Closeup HEAD ONLY, no shoulders/body, almost frontal with a very slight natural tilt as the reference front view. Full ears, entire hat and fluffy chin inside the square with 5% transparent breathing room. Centered recognizable face occupying 90% of square. Genuine transparent background. No colored plate, no circle, no shadow outside silhouette, no text, no reference-sheet panels. This is the actual character's illustrated face, not a simplified vector reinterpretation, not 3D/plastic. Render high-resolution clean detailed edges, all approved identity details faithfully matching the reference.",
+  "exports": "npm run icons; native icons render from icon.png; icon.svg and src/logo.svg embed the 256px raster export",
+  "generation": "01a13a29-b9e1-7a41-8258-df599005f0e8/exec-f5bb193e-8164-4155-9117-79b49f4b87b7"
+}

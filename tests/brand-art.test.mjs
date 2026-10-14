@@ -2,25 +2,36 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-test('the brand mark has Clover’s sage hat and cream face without a raster dependency', async () => {
-  const svg = await readFile('assets/icon.svg', 'utf8');
-  assert.match(svg, /id="clover-hat"/);
-  assert.match(svg, /id="clover-leaf-bow"/);
-  assert.match(svg, /id="clover-face"/);
-  assert.doesNotMatch(svg, /<image|<filter|<text/);
+test('the brand mark uses the approved illustrated Clover face with a portable embedded export', async () => {
+  const [svg, provenance, source] = await Promise.all([
+    readFile('assets/icon.svg', 'utf8'),
+    readFile('assets/icon-provenance.json', 'utf8'),
+    readFile('assets/icon.png'),
+  ]);
+  assert.match(svg, /<image[^>]+href="data:image\/png;base64,/);
+  assert.doesNotMatch(svg, /<filter|<text|href="https?:/);
   assert.match(svg, /viewBox="0 0 1024 1024"/);
+  assert.equal(source.readUInt32BE(0), 0x89504e47);
+  assert.equal(JSON.parse(provenance).character, 'clover');
+  assert.match(JSON.parse(provenance).reference, /clover\/face-detail\.png$/);
 });
 
-test('installer portraits use the current starters and sharing gives Clover the main position', async () => {
+test('installers and sharing keep the three friends together in the same order and visible size', async () => {
+  const { brandCast } = await import('../scripts/art-lib.mjs');
+  const cast = brandCast(80);
+  assert.deepEqual(
+    cast.map(pet => pet.id),
+    ['daisy', 'clover', 'pip'],
+  );
+  for (const pet of cast) {
+    assert.equal(pet.height * pet.scale, 80);
+    assert.equal(pet.bottom + 10 * pet.scale, 0);
+  }
   const installer = await readFile('scripts/make-installer-art.mjs', 'utf8');
   assert.doesNotMatch(installer, /cell\(sheets, '(tabby|smoky|mochi)'/);
-  for (const id of ['clover', 'daisy', 'pip']) assert.match(installer, new RegExp(`cell\\(sheets, '${id}'`));
+  assert.equal([...installer.matchAll(/castMarkup\(sheets,/g)].length, 3);
   const og = await readFile('scripts/make-og.mjs', 'utf8');
-  // Clover is drawn the largest of the three.
-  const scales = Object.fromEntries(
-    [...og.matchAll(/cell\('(\w+)', \d+, \d+, ([\d.]+)/g)].map(m => [m[1], Number(m[2])]),
-  );
-  assert.equal(Object.entries(scales).sort((a, b) => b[1] - a[1])[0][0], 'clover', JSON.stringify(scales));
+  assert.match(og, /castMarkup\(sheets,/);
   assert.match(og, /Promise\.all.*document\.images/);
 });
 

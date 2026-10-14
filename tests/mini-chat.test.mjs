@@ -170,3 +170,17 @@ test('leaving mini closes its quick conversation, so the next stay starts with t
   await setMini(false);
   assert.equal(nodes.get('layout').classList.contains('mini-chat-open'), false);
 });
+
+test('Escape also dismisses full Friend and Invite panels', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { nodes, listeners } = page();
+  document.body.classList.toggle('mini', false);
+  setupTabs();
+  for (const kind of ['pet', 'invite']) {
+    openPanel(kind);
+    listeners.get('keydown')({ key: 'Escape', defaultPrevented: true, preventDefault() {} });
+    assert.equal(nodes.get('side-panel').hidden, false);
+    listeners.get('keydown')({ key: 'Escape', preventDefault() {} });
+    assert.equal(nodes.get('side-panel').hidden, true, kind);
+  }
+});

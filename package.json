@@ -34,6 +34,7 @@
     "build:app": "cargo build --release --manifest-path src-tauri/Cargo.toml",
     "build": "tauri build",
     "tauri": "tauri",
+    "preview:pack": "node scripts/pack-site-preview.mjs",
     "site:prepare": "node scripts/site-prepare.mjs",
     "site:dev": "npm run site:prepare && vitepress dev website",
     "site:build": "npm run site:prepare && vitepress build website",

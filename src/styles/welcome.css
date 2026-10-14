@@ -19,6 +19,9 @@
   width: max-content;
   max-width: calc(100% - 32px);
 }
+.layout:is(.panel-open, .settings-open) .empty-yard {
+  display: none;
+}
 .empty-yard p {
   font-size: 15px;
   font-weight: 700;
@@ -92,7 +95,7 @@
 /* The next steps sit under the scene label's chip, clear of it. */
 .empty-yard.aside {
   left: 12px;
-  top: 50px;
+  top: 112px;
   transform: none;
   padding: 12px 14px;
   gap: 6px;

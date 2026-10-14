@@ -1,0 +1,44 @@
+{
+  "records": [
+    {
+      "file": "clover/winter/00-idle.png",
+      "prompt": "Precise object edit: REMOVE THE CREAM WHITE FLUFFY POMPOM from the top/back of the green knitted hat in ALL EIGHT poses. Leave a simple sage green folded knitted cap, with no pompom or ball at all. KEEP the small white daisy flower on the hat brim. Change nothing else: preserve EXACT faces, pupils and head directions, clothes, gestures, feet, tails, 4x2 layout, colors and crisp outlines. Transparent background and same resolution. The only change is deletion of the large cream fluffy ball on each hat; fill its attachment with the green knit hat or transparency as appropriate.",
+      "tool": "OpenAI built-in image generation"
+    },
+    {
+      "file": "clover/winter/03-wave.png",
+      "prompt": "Precise object edit: REMOVE THE CREAM WHITE FLUFFY POMPOM from the top/back of the green knitted hat in ALL EIGHT poses. Leave a simple sage green folded knitted cap, with no pompom or ball at all. KEEP the small white daisy flower on the hat brim. Change nothing else: preserve EXACT faces, pupils and head directions, clothes, gestures, feet, tails, 4x2 layout, colors and crisp outlines. Transparent background and same resolution. The only change is deletion of the large cream fluffy ball on each hat; fill its attachment with the green knit hat or transparency as appropriate.",
+      "tool": "OpenAI built-in image generation"
+    },
+    {
+      "file": "clover/winter/08-done.png",
+      "prompt": "Precise object edit: REMOVE THE CREAM WHITE FLUFFY POMPOM from the top/back of the green knitted hat in ALL EIGHT poses. Leave a simple sage green folded knitted cap, with no pompom or ball at all. KEEP the small white daisy flower on the hat brim. Change nothing else: preserve EXACT faces, pupils and head directions, clothes, gestures, feet, tails, 4x2 layout, colors and crisp outlines. Transparent background and same resolution. The only change is deletion of the large cream fluffy ball on each hat; fill its attachment with the green knit hat or transparency as appropriate.",
+      "tool": "OpenAI built-in image generation"
+    },
+    {
+      "file": "clover/winter/10-look.png",
+      "prompt": "Precise object edit: REMOVE THE CREAM WHITE FLUFFY POMPOM from the top/back of the green knitted hat in ALL EIGHT poses. Leave a simple sage green folded knitted cap, with no pompom or ball at all. KEEP the small white daisy flower on the hat brim. Change nothing else: preserve EXACT faces, pupils and head directions, clothes, gestures, feet, tails, 4x2 layout, colors and crisp outlines. Transparent background and same resolution. The only change is deletion of the large cream fluffy ball on each hat; fill its attachment with the green knit hat or transparency as appropriate.",
+      "tool": "OpenAI built-in image generation"
+    },
+    {
+      "file": "pip/summer/01-right.png",
+      "prompt": "BACKGROUND EXTRACTION ONLY. Remove ALL brown/gray gradient background behind and between all eight puppy sprites. Output genuine RGBA transparent background (alpha zero) everywhere outside the eight character silhouettes, including gaps between arms, legs, tail and bag. No checkerboard or colored matte painted into image. Preserve EVERY character pixel/pose/outfit, crisp brown outlines, 4x2layout and fullsize; do not redraw or change design. Eight isolated transparent cutouts, no ground shadow.",
+      "tool": "OpenAI built-in image generation"
+    },
+    {
+      "file": "pip/winter/01-right.png",
+      "prompt": "BACKGROUND EXTRACTION ONLY. Remove ALL brown/gray gradient background behind and between all eight puppy sprites. Output genuine RGBA transparent background (alpha zero) everywhere outside the eight character silhouettes, including gaps between arms, legs, tail and bag. No checkerboard or colored matte painted into image. Preserve EVERY character pixel/pose/outfit, crisp brown outlines, 4x2layout and fullsize; do not redraw or change design. Eight isolated transparent cutouts, no ground shadow.",
+      "tool": "OpenAI built-in image generation"
+    },
+    {
+      "file": "clover/turnaround.png",
+      "prompt": "Create a professional character model turnaround sheet for this exact illustrated orange kitten CLOVER, not a sprite sheet. Four large evenly spaced FULL BODY views in a single row: front, profile facing viewer LEFT, BACK, profile facing viewer RIGHT. Same strawhat teal ribbon, same orange/cream fur, green eyes, dark teal short overalls with WHITE DAISY pocket; tail exits at back seam. Consistent model height and anatomy. Crisp warm-brown ink outlines and saturated painted cel-color shapes matching reference EXACTLY, not 3D/plush. Warm ivory background, small unobtrusive English labels FRONT / LEFT / BACK / RIGHT below views. No extra images. Back design is a coherent inferred extension: crossed overall straps and tail opening.",
+      "tool": "OpenAI built-in image generation"
+    },
+    {
+      "file": "clover/face-detail.png",
+      "prompt": "Create a professional face detail model sheet for this exact illustrated orange kitten CLOVER. Top row three large head portraits: FRONT, LEFT PROFILE (nose left), THREE QUARTER. Bottom row precise small studies of open green eye, closed eye, pink nose, neutral mouth, smiling mouth, ear/fur edge and strawhat teal ribbon. Labels in small plain English only. Preserve green iris, orange/cream facial markings, large expressive drawn eyes and angular fur clumps. Exact crisp warm brown ink and vivid painted cel colors of reference, no 3D/plush finish. Ivory background, elegant spaced production design reference, not a poster.",
+      "tool": "OpenAI built-in image generation"
+    }
+  ]
+}

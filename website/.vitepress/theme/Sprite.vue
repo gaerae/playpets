@@ -3,7 +3,9 @@
 <script setup lang="ts">
 import { withBase } from 'vitepress';
 import { computed } from 'vue';
+import { previewSource } from '../../../scripts/site-preview-lib.mjs';
 import { animationSpec } from '../../../src/core/animation.js';
+import generated from '../generated.json';
 
 const props = withDefaults(defineProps<{ state?: string; scale?: number; pet?: string }>(), {
   state: 'idle',
@@ -11,9 +13,13 @@ const props = withDefaults(defineProps<{ state?: string; scale?: number; pet?: s
   pet: 'tabby',
 });
 const row = computed(() => animationSpec(props.state));
+const preview = computed(() =>
+  previewSource(props.pet, props.state, (generated as { petPreviews?: Record<string, string[]> }).petPreviews),
+);
 const style = computed(() => ({
-  '--sheet': `url(${withBase(`/pets/${props.pet}.png`)})`,
-  '--row': String(row.value.row),
+  '--sheet': `url(${withBase(preview.value || `/pets/${props.pet}.png`)})`,
+  '--row': preview.value ? '0' : String(row.value.row),
+  '--sheet-size': preview.value ? '1536px 208px' : '1536px 2288px',
   '--frames': String(row.value.frames),
   '--loop': `${row.value.seconds}s`,
   '--scale': String(props.scale),

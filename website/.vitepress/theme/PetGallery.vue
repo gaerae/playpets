@@ -48,14 +48,13 @@ const select = (id: string) => {
       <h2>{{ words.galleryTitle }}</h2>
       <p class="section-lead">{{ words.galleryLead }}</p>
     </header>
-    <div class="pet-shelf" role="group" :aria-label="words.galleryLabel">
-      <button v-for="pet in LANDING_PETS" :key="pet.id" class="pet-choice" type="button" :aria-pressed="selected.id === pet.id" @click="select(pet.id)">
-        <VisibleSprite :pet="pet.id" state="idle" :scale="0.5" />
-        <span>{{ pet.displayName }}</span>
-      </button>
-    </div>
     <div class="pet-detail">
-      <div ref="portrait" class="pet-portrait" :class="{ 'preview-paused': !portraitVisible }"><VisibleSprite :pet="selected.id" :state="pose" :scale="0.85" /></div>
+      <div ref="portrait" class="pet-portrait pet-shelf" :class="{ 'preview-paused': !portraitVisible }" role="group" :aria-label="words.galleryLabel">
+        <button v-for="pet in LANDING_PETS" :key="pet.id" class="pet-choice" type="button" :aria-pressed="selected.id === pet.id" @click="select(pet.id)">
+          <VisibleSprite equal-height :pet="pet.id" :state="selected.id === pet.id ? pose : 'idle'" :scale="0.65" />
+          <span>{{ pet.displayName }}</span>
+        </button>
+      </div>
       <div class="pet-description">
         <h3>{{ selected.displayName }}</h3>
         <p>{{ words.petNotes[selected.id] }}</p>

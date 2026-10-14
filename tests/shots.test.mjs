@@ -9,6 +9,29 @@ import { mainDisplay } from '../scripts/shots-lib.mjs';
 
 const report = screens => JSON.stringify({ SPDisplaysDataType: [{ spdisplays_ndrvs: screens }] });
 
+test('capture conversations use the active language even when every locale shares the same pet names', () => {
+  for (const [lang, answer] of Object.entries({
+    ko: 'KO reply',
+    en: 'EN reply',
+    ja: 'JA reply',
+    'zh-hans': 'ZH reply',
+  })) {
+    const localized = { chat: [['question', `${lang} direct`]], talk: { Daisy: answer } };
+    assert.equal(
+      shots.captureReply(localized, [
+        { role: 'system', content: 'You are named Daisy' },
+        { role: 'user', content: 'group talk' },
+      ]),
+      answer,
+    );
+    assert.equal(shots.captureReply(localized, [{ role: 'user', content: 'question' }]), `${lang} direct`);
+  }
+  assert.equal(shots.captureReply({ chat: [], talk: {} }, []), '...');
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  assert.match(source, /captureReply\(script\[captureLanguage\], messages\)/);
+  assert.doesNotMatch(source, /Object\.values\(script\)/);
+});
+
 test('the main display is read in points, whichever display is listed first', () => {
   const laptop = { _spdisplays_resolution: '1728 x 1117 @ 120.00Hz', _spdisplays_pixels: '3456 x 2234' };
   const external = { _spdisplays_resolution: '2560 x 1440 @ 60.00Hz' };
@@ -67,6 +90,10 @@ test('clean composition scales its controlled margin to native pixels and fills 
   shots.composeWindow(canvas, image, 1180, 28);
   assert.deepEqual([canvas.width, canvas.height], [2472, 1672]);
   assert.deepEqual(
+    calls.filter(c => c[0] === 'color').map(c => c[2]),
+    ['#eaf3ef', '#e5edf0', '#f4efe4'],
+  );
+  assert.deepEqual(
     calls.find(c => c[0] === 'fill'),
     ['fill', 0, 0, 2472, 1672],
   );
@@ -108,4 +135,29 @@ test('refreshing captures keeps the accepted WebP until its replacement is encod
   // No accepted capture is deleted ahead of time; the new one is renamed over it once encoded.
   assert.doesNotMatch(source, /\b(?:rm|unlink)\([^)]*\.webp/);
   assert.match(source, /await rename\(pending, target\)/);
+});
+
+test('brand captures give the three companions equal visible height and one ground line', () => {
+  const cast = shots.companionCast();
+  assert.deepEqual(
+    cast.map(p => p.name),
+    ['Daisy', 'Clover', 'Pip'],
+  );
+  assert.deepEqual(
+    cast.map(p => p.x),
+    [0.28, 0.5, 0.72],
+  );
+  assert.deepEqual(
+    cast.map(p => p.y),
+    [0.58, 0.58, 0.58],
+  );
+  const heights = [163, 168, 164];
+  cast.forEach((pet, i) => {
+    assert.ok(Math.abs((pet.size * heights[i]) / 192 - 150) < 0.01);
+  });
+  const margins = cast.map(p => (9 * p.size) / 192);
+  assert.ok(Math.max(...margins) - Math.min(...margins) < 1);
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  assert.doesNotMatch(source, /size:(?:128|150|176)[,}]/);
+  assert.match(source, /full\('playpets-pip'\)/);
 });

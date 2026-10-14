@@ -14,6 +14,9 @@ const TABLE: &[(&str, &str)] = &[
     ("pets.parked", "有 {count} 位伙伴这次没能来到乐园：没找到它们的宠物文件，或者乐园已满。它们没有被删除，文件回来或有空位时就会再出现。"),
 
     ("tray.open", "打开乐园"),
+    ("tray.friends", "伙伴"),
+    ("tray.invite", "邀请伙伴…"),
+    ("tray.sound", "乐园声音"),
     ("tray.desktop", "在桌面上显示"),
     ("tray.wander", "在桌面上散步"),
     ("tray.update", "检查更新…"),

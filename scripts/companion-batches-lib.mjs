@@ -39,3 +39,41 @@ export function frameOrder(mapping = {}) {
   }
   return order;
 }
+
+// Whole-row corrections recover a consistent model size when a generated batch drifted.
+export function rowScales(config = {}) {
+  const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+  if (!object(config) || Object.keys(config).some(key => key !== 'rowScales' && key !== 'jumpLifts'))
+    throw new Error('Invalid row scale configuration');
+  const corrections = config.rowScales ?? {};
+  if (!object(corrections)) throw new Error('Invalid row scale map');
+  const scales = Array(11).fill(1);
+  for (const [key, factor] of Object.entries(corrections)) {
+    const row = Number(key);
+    if (
+      !Number.isInteger(row) ||
+      row < 0 ||
+      row > 10 ||
+      String(row) !== key ||
+      typeof factor !== 'number' ||
+      !Number.isFinite(factor) ||
+      factor <= 0
+    )
+      throw new Error(`Invalid row scale: ${key}`);
+    scales[row] = factor;
+  }
+  return scales;
+}
+
+// Generated rows have independent gutters; explicit lifts preserve authored jump phases.
+export function jumpLifts(config = {}) {
+  if (!Object.hasOwn(config, 'jumpLifts')) return null;
+  const lifts = config.jumpLifts;
+  if (
+    !Array.isArray(lifts) ||
+    lifts.length !== 8 ||
+    lifts.some(value => typeof value !== 'number' || !Number.isFinite(value) || value < 0)
+  )
+    throw new Error('Invalid jump lift configuration');
+  return [...lifts];
+}

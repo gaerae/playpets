@@ -66,7 +66,7 @@ chmod +x PlayPets_*.AppImage
 ## Updates <Since v="0.1.0" />
 
 - Check now with **Check for updates** under **About PlayPets** in the Settings tab, **Check for updates…** in the tray menu, or **PlayPets → Check for Updates…** in the macOS menu bar.
-- A new version shows as a button in the top bar and a dot on the Settings tab. The button opens the update window: **What's new**, **Later** or **Install and restart** (with a progress bar).
+- Open **Menu** to find the new-version button and the dot on **Settings**. The button opens the update window: **What’s new**, **Later** or **Install and restart** (with a progress bar).
 - 20 seconds after the app starts, it checks once quietly. If there is a new version, a notice appears and you can install it from the Settings tab.
 - New versions are found through `latest.json` in GitHub releases. A downloaded file is installed only after it is verified with the update signing key. A file that fails verification is not installed.
 - The Windows portable zip is not covered by automatic updates. Download the new zip and replace it.
@@ -91,4 +91,4 @@ The data folder below stays after you remove the app. To remove the settings and
 | Windows | `%APPDATA%\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
 
-Inside are `state.json` (friends and settings), `bridge.json` (the port and token for agent hooks), `pets/` (imported pets) and `builtin/` (the ten starter pets). To keep it somewhere else, put a folder path in the `PLAYPETS_DATA` environment variable and start the app. See [Settings](./settings.md) for details.
+Inside are `state.json` (friends and settings), `bridge.json` (the port and token for agent hooks), `pets/` (imported pets) and `builtin/` (the three starter pets). To keep it somewhere else, put a folder path in the `PLAYPETS_DATA` environment variable and start the app. See [Settings](./settings.md) for details.

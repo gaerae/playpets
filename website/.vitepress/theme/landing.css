@@ -1,8 +1,8 @@
 /* A quiet game invitation: scenery first, companions next, setup on request. */
 .landing {
   --world-ink: #28443d;
-  --world-paper: #f4f7f6;
-  --world-lilac: #e9e3f0;
+  --world-paper: #f6f8f3;
+  --world-lilac: #e7eddf;
   color: var(--world-ink);
   background: var(--world-paper);
   overflow: clip;
@@ -57,30 +57,34 @@ html[lang^="ja"] .landing {
   margin: 0 0 24px;
 }
 .hero {
-  padding: 48px 32px 0;
-  text-align: center;
+  padding: 32px max(24px, calc((100vw - 1440px) / 2)) 0;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 36px;
+  text-align: left;
   background:
-    radial-gradient(ellipse at 12% 15%, #e7e9fa80, transparent 55%),
-    radial-gradient(ellipse at 90% 45%, #ddebe680, transparent 55%);
+    radial-gradient(ellipse at 12% 15%, #dceef480, transparent 55%),
+    radial-gradient(ellipse at 90% 45%, #e6efd480, transparent 55%);
 }
 .hero h1 {
-  font-size: clamp(50px, 5.5vw, 74px);
+  font-size: clamp(38px, 3.5vw, 56px);
   max-width: 1000px;
-  margin: 0 auto 28px;
+  margin: 0 0 22px;
 }
 .hero h1 span {
   display: block;
 }
 .hero .lead {
   max-width: 620px;
-  margin: 0 auto;
-  font-size: 17px;
+  margin: 0;
+  font-size: 16px;
 }
 .hero-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  gap: 30px;
+  gap: 18px;
   flex-wrap: wrap;
   margin: 30px 0 10px;
   font-size: 14px;
@@ -100,26 +104,10 @@ html[lang^="ja"] .landing {
   letter-spacing: 0.08em;
 }
 .world-preview {
-  max-width: 1100px;
-  margin: 52px auto 0;
-}
-.world-frame {
-  border-radius: 24px;
-  overflow: hidden;
-  background: var(--world-lilac);
-  box-shadow: 0 24px 65px #17382b18;
-  border: 7px solid #ffffff80;
-}
-.world-frame img {
-  display: block;
   width: 100%;
-  height: auto;
-}
-.world-frame figcaption {
-  padding: 8px 16px;
-  font-size: 11px;
-  background: var(--world-paper);
-  opacity: 0.8;
+  min-width: 0;
+  max-width: 1100px;
+  margin: 0;
 }
 .world-picker {
   display: flex;
@@ -127,7 +115,7 @@ html[lang^="ja"] .landing {
   justify-content: space-between;
   gap: 24px;
   text-align: left;
-  padding: 28px 4px 0;
+  padding: 0 4px;
 }
 .world-picker h2 {
   font-size: 24px;
@@ -167,7 +155,7 @@ html[lang^="ja"] .landing {
 }
 .pet-gallery {
   max-width: 1100px;
-  margin: 120px auto 0;
+  margin: 84px auto 0;
   padding: 0 32px;
 }
 .pet-gallery header {
@@ -184,8 +172,9 @@ html[lang^="ja"] .landing {
 }
 .pet-shelf {
   display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 8px;
 }
 .pet-choice {
   display: flex;
@@ -197,19 +186,18 @@ html[lang^="ja"] .landing {
   min-width: 0;
 }
 .pet-choice span:last-child {
-  font-size: 11px;
+  font-size: 14px;
   white-space: normal;
 }
-.pet-shelf .sprite i,
 .preview-paused .sprite i {
   animation: none;
 }
 .pet-choice[aria-pressed="true"] {
-  background: var(--world-lilac);
-  border-color: #9680aa70;
+  background: #ffffff70;
+  border-color: #7b978b80;
 }
 .pet-choice:hover {
-  background: var(--world-lilac);
+  background: #ffffff40;
 }
 .pet-detail {
   margin-top: 28px;
@@ -218,14 +206,14 @@ html[lang^="ja"] .landing {
   min-height: 360px;
   align-items: center;
   background: var(--world-lilac);
-  border-radius: 150px 24px 24px 24px;
-  padding: 32px 60px 32px 32px;
+  border-radius: 28px;
+  padding: 32px;
   gap: 30px;
 }
 .pet-portrait {
   display: grid;
-  place-items: center;
-  min-height: 300px;
+  align-items: center;
+  min-height: 260px;
   background: radial-gradient(ellipse at center, #ffffff70, transparent 65%);
 }
 .pet-description h3 {
@@ -340,8 +328,9 @@ html[lang^="ja"] .landing {
   border-bottom: 1px solid #80999040;
 }
 .creator-friend {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 270px;
 }
 .creator-story h2 {
@@ -400,6 +389,20 @@ html[lang^="ja"] .landing {
   margin-top: 35px;
 }
 @media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-top: 28px;
+  }
+  .hero-intro {
+    max-width: 640px;
+  }
+  .hero h1 span {
+    display: inline;
+  }
+  .hero h1 span + span::before {
+    content: " ";
+  }
   .world-picker {
     flex-direction: column;
     align-items: flex-start;
@@ -408,9 +411,10 @@ html[lang^="ja"] .landing {
     justify-content: flex-start;
   }
   .pet-shelf {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .pet-detail {
+    grid-template-columns: 1fr;
     padding: 24px;
     gap: 16px;
   }
@@ -421,26 +425,39 @@ html[lang^="ja"] .landing {
 }
 @media (max-width: 600px) {
   .hero {
-    padding: 48px 18px 0;
+    padding: 24px 18px 0;
+    gap: 22px;
   }
   .hero h1 {
-    font-size: 48px;
+    font-size: 36px;
   }
   .hero .lead {
     font-size: 15px;
   }
   .hero-actions {
-    gap: 20px;
+    gap: 16px;
+    margin-top: 18px;
+  }
+  .hero .eyebrow {
+    margin-bottom: 12px;
+  }
+  .hero .lead {
+    line-height: 1.6;
+  }
+  .hero h1 {
+    margin-bottom: 14px;
+  }
+  .world-picker p {
+    display: none;
+  }
+  .world-picker h2 {
+    font-size: 20px;
   }
   .world-preview {
-    margin-top: 36px;
-  }
-  .world-frame {
-    border-radius: 14px;
-    border-width: 3px;
+    margin-top: 0;
   }
   .world-picker {
-    padding-top: 20px;
+    padding-top: 0;
     gap: 18px;
   }
   .scene-choices button {
@@ -459,7 +476,7 @@ html[lang^="ja"] .landing {
     margin-bottom: 24px;
   }
   .pet-choice > .sprite {
-    --display-scale: 0.28;
+    --display-scale: 0.44;
   }
   .pet-choice span:last-child {
     font-size: 10px;
@@ -472,16 +489,19 @@ html[lang^="ja"] .landing {
     grid-template-columns: 1fr;
   }
   .pet-detail {
-    border-radius: 100px 20px 20px 20px;
+    border-radius: 24px;
   }
   .pet-portrait {
-    min-height: 240px;
+    min-height: 150px;
   }
   .pet-description {
     padding: 0 4px 10px;
   }
   .feature {
     gap: 25px;
+  }
+  .creator-friend .sprite {
+    --display-scale: 0.45;
   }
   .creator-story {
     gap: 20px;
@@ -508,4 +528,97 @@ html[lang^="ja"] .landing {
   background: #284d46;
   color: #fff;
   font-size: 13px;
+}
+
+/* The page opens onto a playable postcard using the app's own artwork. */
+.living-world {
+  position: relative;
+  aspect-ratio: 1.65;
+  margin-top: 16px;
+  border-radius: 32px 32px 8px 8px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #dfece7;
+}
+.living-scenery {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.living-friend {
+  position: absolute;
+  bottom: 8%;
+  padding: 0;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 5px 3px #33493025);
+}
+.living-friend:hover {
+  transform: translateX(-50%) translateY(-3px);
+}
+.friend-0 {
+  left: 33%;
+  bottom: 12%;
+}
+.friend-1 {
+  left: 52%;
+}
+.friend-2 {
+  left: 70%;
+  bottom: 14%;
+}
+.world-motion {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 8px 12px;
+  border-radius: 100px;
+  color: #28443d;
+  background: #ffffffeb;
+  font-size: 12px;
+  min-height: 36px;
+}
+.world-console {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 4px 4px;
+  flex-wrap: wrap;
+}
+.season-choices {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.season-choices button {
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+.season-choices button[aria-pressed="true"] {
+  background: var(--world-lilac);
+  font-weight: 700;
+}
+@media (max-width: 600px) {
+  .living-world {
+    border-radius: 20px 20px 8px 8px;
+    aspect-ratio: 1.3;
+  }
+  .living-friend .sprite {
+    --display-scale: 0.4;
+  }
+  .world-motion {
+    top: 10px;
+    right: 10px;
+    font-size: 11px;
+  }
+  .world-console {
+    gap: 8px;
+  }
+  .pet-shelf {
+    gap: 6px;
+  }
 }

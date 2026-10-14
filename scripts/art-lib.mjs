@@ -16,10 +16,7 @@ export const dataUrlBytes = url => Buffer.from(url.slice(url.indexOf(',') + 1), 
 export async function loadSheets() {
   return Object.fromEntries(
     await Promise.all(
-      ['daisy', 'clover', 'pip', 'aria', 'noah', 'tabby', 'smoky', 'mochi'].map(async id => [
-        id,
-        await readDataUrl(`assets/pets/${id}/spritesheet.png`),
-      ]),
+      ['daisy', 'clover', 'pip'].map(async id => [id, await readDataUrl(`assets/pets/${id}/spritesheet.png`)]),
     ),
   );
 }
@@ -30,6 +27,28 @@ export const loadEnvironment = () => readDataUrl('src/art/environments/green.png
 /** One cell of a sheet as an element with the sheet as background. row/col follow src/core/animation.js. */
 export const cell = (sheets, id, row, col, scale) =>
   `<i style="display:block;width:${192 * scale}px;height:${208 * scale}px;background:url(${sheets[id]}) ${-col * 192 * scale}px ${-row * 208 * scale}px / ${1536 * scale}px ${2288 * scale}px no-repeat"></i>`;
+
+// Approved idle silhouettes have different transparent headroom. Scale the visible figures,
+// then remove their ten-pixel bottom gutter so every friend stands on the same ground line.
+export const brandCast = targetHeight =>
+  [
+    ['daisy', 163],
+    ['clover', 168],
+    ['pip', 164],
+  ].map(([id, height]) => ({
+    id,
+    height,
+    scale: targetHeight / height,
+    bottom: (-10 * targetHeight) / height,
+  }));
+
+export const castMarkup = (sheets, height) =>
+  brandCast(height)
+    .map(
+      pet =>
+        `<span data-companion="${pet.id}" style="position:relative;display:block;width:${192 * pet.scale}px;height:${height}px"><span style="position:absolute;left:0;bottom:${pet.bottom}px">${cell(sheets, pet.id, 0, 0, pet.scale)}</span></span>`,
+    )
+    .join('');
 
 /**
  * The same PNG marked with a resolution (a pHYs chunk right after the header), so macOS shows a

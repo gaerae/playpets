@@ -112,7 +112,7 @@ pub fn image_size(data: &[u8]) -> Result<(u32, u32), String> {
     Err(i18n::t("pet.sprite_format"))
 }
 
-fn sha256_hex_short(input: &[u8]) -> String {
+pub(crate) fn sha256_hex_short(input: &[u8]) -> String {
     // Minimal SHA-256 (FIPS 180-4): asset ids are the first 24 hex chars of the folder path hash,
     // and saved state refers to pets by that id, so the scheme must not change.
     const K: [u32; 64] = [
@@ -398,7 +398,9 @@ pub fn scan_pets(root: &Path, place: Place) -> (Vec<Asset>, Vec<String>) {
         return (assets, warnings);
     };
     for entry in dir.flatten().take(200) {
-        if !entry.path().is_dir() {
+        if !entry.path().is_dir()
+            || (place == Place::Builtin && super::builtin::shelf_rank(&entry.path()) == usize::MAX)
+        {
             continue;
         }
         match read_pet(&entry.path()) {

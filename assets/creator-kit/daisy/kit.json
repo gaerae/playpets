@@ -3,75 +3,85 @@
   "id": "daisy",
   "identity": "identity.json",
   "references": [
+    "turnaround.png",
+    "face-detail.png",
     "identity-reference.png",
     "expression-reference.png",
     "motion-reference.png",
     "wardrobe-reference.png"
   ],
   "availability": {
-    "detail": "not-created",
+    "detail": "available",
     "seasons": ["summer", "winter"]
   },
   "files": {
+    "turnaround.png": {
+      "bytes": 1834826,
+      "sha256": "6a0b19a5fcd391ef8ea8a0bc1880cddbbc681836bc331e2d89f25030c549d335"
+    },
+    "face-detail.png": {
+      "bytes": 2044920,
+      "sha256": "58d236bf8ab6660ba4bcbbde5c1f7b3bf0249e3c0c479da9b9a09472cfd3b480"
+    },
     "identity-reference.png": {
-      "bytes": 188406,
-      "sha256": "e4bf10c29f352f8852a61fa5a3d5b882105e9d60731449c9272de936b61587aa"
+      "bytes": 211194,
+      "sha256": "e07839e4cf159947ef2b1b35527d8b0dfeb02793ec99f5c97e5dfaf4b129459c"
     },
     "expression-reference.png": {
-      "bytes": 196225,
-      "sha256": "6232bbdb49e5197990052f9623e8beb57da6918334ad8d80a37d4414cab76184"
+      "bytes": 212010,
+      "sha256": "712206a911341d11b045946c0cff9aaab0c268f5a857436862604b87a043ce22"
     },
     "motion-reference.png": {
-      "bytes": 2651101,
-      "sha256": "ef8225dda8bccff33545834c8cc26c595829db7080fb5515ff1613ece000387d"
+      "bytes": 2921482,
+      "sha256": "167efbab4a122127639f23b3222607053fefa312dcd1286cd0d0160e7300d54a"
     },
     "wardrobe-reference.png": {
-      "bytes": 99410,
-      "sha256": "6b14372ce307b49f89a5063ec8d9c79c8bc3f4222d691bd8b78560d7ab3c00a3"
+      "bytes": 110273,
+      "sha256": "70e55923ca8da9de20d7d37306e3842b3ae1b6b63b6b722d50840dd34743e9e7"
     },
     "spritesheet.png": {
-      "bytes": 2793940,
-      "sha256": "113f6433f784699aed32d3c3ea9642c9fee4f9c2c44d73a4c7a684a8e5cdedd2"
+      "bytes": 2619646,
+      "sha256": "24edc4edf3ef84a0d1d28b35bafeaed1cedb2011d7d9b5ef66a399d390a98c71"
     },
     "summer.png": {
-      "bytes": 2815185,
-      "sha256": "02e2e4c3062ff635a9af5ef6ae4c59d1d6a27a374fe3eff39d64eb5084128a87"
+      "bytes": 2573847,
+      "sha256": "1d02ac40e39534dae020e56707f440d7663105a14bacb4da54fb4b3d932f6ed7"
     },
     "winter.png": {
-      "bytes": 2805429,
-      "sha256": "fe9f0d1780d467e74810bc12764b4431f557e37e5e3d804c2be8e637b6741131"
+      "bytes": 2632908,
+      "sha256": "dd2d07918d5e16950fa4ffadab8ee2d7ffc4124aa7241ad024af2c990ea1dcee"
     },
     "identity.json": {
       "bytes": 2704,
-      "sha256": "6a12a9f2e2191595d5a350e76ed53b41627a3a964d9f4c56ac53861dceeb9a98"
+      "sha256": "ec0adca9ac37020db5e2ed46257b487c30a2fe34ded2a16ae53760e1d5bb7fb5"
     },
     "prompts/01-identity-lock.txt": {
-      "bytes": 1708,
-      "sha256": "817f2be80b3f8c284c993fa84cde524d3b4aa31a6a4faa0975d01db3491dcc9a"
+      "bytes": 2049,
+      "sha256": "cbec7e8357b3aeba54a265e4a6129d161b79ec651b07b3c0cc97d28e56dc2ac5"
     },
     "prompts/02-face-detail.txt": {
-      "bytes": 1693,
-      "sha256": "4d974f565d9fb4d1dcca60ebbd19dce13a94a1126d6d2b5e40b4ad8ac04fad87"
+      "bytes": 1991,
+      "sha256": "640b65787e951e46701dad6b3c4ab816f939ae29846ab5d09a05f5de31dd399e"
     },
     "prompts/03-wardrobe.txt": {
-      "bytes": 2176,
-      "sha256": "fae1e2b2231258100748e62a53a6d8c9a73f34a1fc8ca74134c1c01864b7d90f"
+      "bytes": 2517,
+      "sha256": "4a7513826fc0c47a9b77191a658eb115e44beb06d462efcfc3cabf5369419377"
     },
     "prompts/04-state-row.txt": {
-      "bytes": 2013,
-      "sha256": "2a918ee758cbb64d4262b50df819543aec1751dc3abd39e7c076ac6617a38563"
+      "bytes": 2354,
+      "sha256": "1cc692dba11b343f0e33b44d6fb479f8db525b472dc5e37cf28b0bba7cf83a12"
     },
     "prompts/05-canonical-export.txt": {
-      "bytes": 1863,
-      "sha256": "618dbfd28bc0875e145b755bd078763128a4da5f544e174939bc2b175e79b875"
+      "bytes": 2204,
+      "sha256": "1c1eec370eee7cecbc611e0a4f0b2269a04916fb4d8c710915cf49e1f605ed2e"
     },
     "pet.json": {
       "bytes": 575,
       "sha256": "faaaa9ab7c4a77bbefbbe1f5419422bc52b1f996ddf0058dbc24044a594e1aea"
     },
     "README.txt": {
-      "bytes": 1326,
-      "sha256": "d0500001d38508e1cf19fa6786ca4dc7a7073873db18e87bdefcfa900d4a7f1b"
+      "bytes": 1233,
+      "sha256": "52dcbe05a3f83122c43f39694ccdbb737af1df532a8a67c5be1e426f96ccaa88"
     }
   }
 }

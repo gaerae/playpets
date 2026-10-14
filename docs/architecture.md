@@ -73,10 +73,12 @@ and an approximate hemisphere inferred from the system time zone, or the
 person's override. The yard and overlay share that choice through local storage.
 Festivals retain their calendar dates even when the visible season is overridden.
 
-Pet identities use ordinary baseline assets for every drawing style. Aria and
-Aria Mini, and Noah and Noah Mini, are independent catalog entries. A migration
-maps older built-in asset/style pairs without changing friend IDs, settings or
-closeness; existing independently invited friends stay independent. Optional
+The three bundled identities are Daisy, Clover and Pip. Retired app-owned
+Aria appearances map to Daisy, Noah appearances to Pip, and the original cats
+to Clover before restoration. Friend IDs, names, settings and closeness remain
+unchanged. Imported pets are not matched by this path-based migration. Old
+unpacked directories stay on disk but are excluded from the built-in catalog.
+Optional
 baseline `portraitPath`, seasonal sheets and the legacy alternate-appearance fields are checked by the
 catalog and served through the same sprite protocol. A selected appearance
 changes drawing material rather than relationship or AI connection. The full
@@ -110,7 +112,7 @@ The app data folder is named after the app identifier `app.playpets`. The identi
 | Windows | `%APPDATA%\app.playpets\` (the package virtualization path when installed through MSIX) |
 | Linux | `$XDG_DATA_HOME` or `~/.local/share/app.playpets/` |
 
-The folder holds `state.json` (friends, settings, AI connections, the garden and its gifts, the album, closeness, friends and connections parked from an earlier start, the yard sounds' setting, where the mini window was left), `bridge.json` (the agent bridge's port and token, which change on every launch), `pets/` (pets imported from an address) and `builtin/` (the ten starter entries bundled in the executable, unpacked at launch). API keys are not in this folder but in the OS secure storage.
+The folder holds `state.json` (friends, settings, AI connections, the garden and its gifts, the album, closeness, friends and connections parked from an earlier start, the yard sounds' setting, where the mini window was left), `bridge.json` (the agent bridge's port and token, which change on every launch), `pets/` (pets imported from an address) and `builtin/` (the three illustrated starter entries bundled in the executable, unpacked at launch). API keys are not in this folder but in the OS secure storage.
 
 | Environment variable | Use |
 |---|---|

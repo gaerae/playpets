@@ -101,7 +101,7 @@ You need Rust (stable, 1.98 or later), Node.js 26, and the [Tauri prerequisites]
 | Real runners for every OS | `.github/workflows/build.yml` (builds and E2E on macOS, Windows x64/arm64 and Linux x64/arm64 for every push to main and every PR; artifacts are in the run) |
 | Release | `npm run release -- x.y.z`, then `git push origin HEAD vx.y.z`. `.github/workflows/release.yml` builds every environment and creates a GitHub release draft with the changelog section as notes (details in [Release a new version](docs/how-to/release.md)) |
 | Distribution channels | When a release is published, `.github/workflows/distribute.yml` makes the winget manifest and the Homebrew cask, and with tokens also opens the winget PR and updates the tap ([Signing keys and secrets](docs/standards/keys-and-secrets.md)) |
-| Redraw icons | `npm run icons` (`assets/icon.svg` → every icon) |
+| Redraw icons | `npm run icons` (`assets/icon.png` → every icon) |
 
 ```
 src/              Page (HTML, CSS, JS, used as is with no build tool)

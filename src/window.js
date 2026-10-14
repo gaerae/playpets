@@ -1,3 +1,4 @@
+import { closeControls, closeScene } from './core/controls.js';
 // The window itself: the title bar is part of the page, and "mini" leaves only the yard.
 import { $, aiming, api, call, game, guard, remember } from './core/state.js';
 import { setAimingMode } from './yard/care.js';
@@ -13,6 +14,11 @@ export async function setMini(on) {
   await call('windowMini', on);
   mini = on;
   document.body.classList.toggle('mini', on);
+  if (on) {
+    closeControls(false);
+    closeScene();
+    $('unmini')?.focus();
+  }
   // A quick conversation belongs to that stay in mini; the next one starts with the yard alone.
   if (!on) $('layout')?.classList.toggle('mini-chat-open', false);
   remember('mini', on ? '1' : '');

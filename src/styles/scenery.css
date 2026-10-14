@@ -220,10 +220,10 @@
   height: min(9%, 64px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background:
-    url("../art/sky/sun.png") center / cover,
-    var(--orb);
-  box-shadow: 0 0 5vh 1.5vh var(--orb-glow);
+  background: radial-gradient(circle at 42% 38%, #fffbe6 0 36%, #fff0bf 64%, var(--orb) 100%);
+  box-shadow:
+    0 0 12px 3px color-mix(in srgb, var(--orb) 48%, transparent),
+    0 0 5vh 1.5vh var(--orb-glow);
   z-index: -2;
   left: var(--orb-x, 68%);
   top: var(--orb-y, 14%);
@@ -299,20 +299,29 @@
   transition: opacity 6s;
   background: radial-gradient(
     circle at 50% 100%,
-    transparent 0 60%,
-    #ff7a7a 60% 62.5%,
-    #ffb866 62.5% 65%,
-    #ffe36e 65% 67.5%,
-    #86d48f 67.5% 70%,
-    #74b9ff 70% 72.5%,
-    #a291ff 72.5% 75%,
-    transparent 75%
+    transparent 0 62%,
+    #ac9cd700 62%,
+    #ac9cd7 63%,
+    #91aedb 64.5%,
+    #acd3bc 66%,
+    #f2dfa3 67.5%,
+    #eebca0 69%,
+    #dfa3a300 71%,
+    transparent 71%
   );
-  mask-image: linear-gradient(to top, transparent, #000 35%);
+  mask-image: linear-gradient(to top, transparent, #000 45%);
 }
 .yard.after-rain .rainbow {
-  opacity: 0.5;
+  opacity: 0.36;
 }
+/* An old rainbow never fades through the moon or a fresh shower. */
+.yard.period-night .rainbow,
+.yard.weather-rain .rainbow,
+.yard.weather-snow .rainbow {
+  opacity: 0;
+  transition: none;
+}
+
 .sky-glow {
   position: absolute;
   inset: 0;

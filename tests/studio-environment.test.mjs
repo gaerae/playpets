@@ -10,7 +10,7 @@ test('all four authored studio lights retain their artwork without a full-room f
   for (const period of ['morning', 'day', 'evening', 'night'])
     for (const weather of ['clear', 'rain', 'snow']) {
       const look = environmentLook({ world: 'studio', period, weather });
-      assert.equal(look.art, `studio-modern-city-${period}`);
+      assert.equal(look.art, `studio-cozy-${period}`);
       assert.equal(look.filter, 'none');
       assert.equal(look.tint, null);
     }
@@ -81,4 +81,56 @@ test('a room without weather names only the place and the time of day', context 
     assert.ok(!caption.includes(t('weather.rain')) && !caption.includes('{'), caption);
   }
   setLanguageForTests('en');
+});
+
+test('studio seasons change only the window view and snow overrides summer', async () => {
+  const { environmentWindowLook } = await import('../src/yard/environment.js');
+  for (const period of ['morning', 'day', 'evening', 'night']) {
+    for (const season of ['spring', 'autumn', 'winter']) {
+      const scene = { world: 'studio', period, season, weather: 'clear' };
+      const look = environmentWindowLook(scene);
+      assert.equal(look.art, `studio-view-${season}`);
+      assert.equal(environmentLook(scene).filter, 'none');
+      assert.equal(look.filter === 'none', period === 'day');
+    }
+    assert.equal(environmentWindowLook({ world: 'studio', period, season: 'summer', weather: 'clear' }), null);
+    assert.equal(
+      environmentWindowLook({ world: 'studio', period, season: 'summer', weather: 'snow' }).art,
+      'studio-view-winter',
+    );
+  }
+});
+
+test('seasonal view and its night tint cannot paint the room outside glass', () => {
+  let clipped = false;
+  const base = { width: 1536, height: 1024 },
+    overlay = { width: 1536, height: 1024 };
+  const draws = [];
+  const ctx = {
+    save() {},
+    restore() {
+      clipped = false;
+    },
+    beginPath() {},
+    rect() {},
+    clip() {
+      clipped = true;
+    },
+    drawImage(image) {
+      draws.push(image);
+      assert.equal(clipped, image === overlay);
+    },
+    fillRect() {
+      assert.equal(clipped, true);
+    },
+  };
+  paintEnvironment(
+    ctx,
+    base,
+    500,
+    350,
+    { world: 'studio', season: 'winter', period: 'night', weather: 'clear' },
+    overlay,
+  );
+  assert.deepEqual(draws, [base, overlay]);
 });

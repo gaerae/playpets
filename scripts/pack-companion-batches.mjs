@@ -4,7 +4,7 @@ import path from 'node:path';
 import { dataUrlBytes, readDataUrl } from './art-lib.mjs';
 import { atlasPoses, isolatePose } from './atlas-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
-import { batchFrame, frameOrder } from './companion-batches-lib.mjs';
+import { batchFrame, frameOrder, jumpLifts, rowScales } from './companion-batches-lib.mjs';
 
 const [directory, destination, target = '163'] = process.argv.slice(2);
 if (!directory || !destination || !(Number(target) > 0))
@@ -16,6 +16,14 @@ try {
   if (error.code !== 'ENOENT') throw error;
 }
 const order = frameOrder(mapping);
+let settings = {};
+try {
+  settings = JSON.parse(await readFile(path.join(directory, 'pack-settings.json'), 'utf8'));
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
+}
+const scales = rowScales(settings);
+const lifts = jumpLifts(settings);
 const names = ['idle', 'right', 'left', 'wave', 'jump', 'error', 'waiting', 'working', 'done', 'look', 'look'];
 const sources = await Promise.all(
   names.map((name, row) => readDataUrl(path.join(directory, `${String(row).padStart(2, '0')}-${name}.png`))),
@@ -27,7 +35,7 @@ try {
     content: `window.atlasPoses = ${atlasPoses.toString()}; window.batchFrame = ${batchFrame.toString()}; window.isolatePose = ${isolatePose.toString()};`,
   });
   const result = await page.evaluate(
-    async ({ sources, target, order }) => {
+    async ({ sources, target, order, scales, lifts }) => {
       const canvas = document.createElement('canvas');
       canvas.width = 1536;
       canvas.height = 2288;
@@ -55,8 +63,13 @@ try {
         const frames = [];
         for (const [column, sourceColumn] of order[row].entries()) {
           const pose = poses[sourceColumn];
-          const lift = row === 4 ? bottom - (pose.bottom - (sourceColumn >= 4 ? raw.height / 2 : 0)) : 0;
-          const frame = window.batchFrame(pose, row, column, scale, lift);
+          const lift =
+            row === 4
+              ? lifts
+                ? lifts[column] / (scale * scales[row])
+                : bottom - (pose.bottom - (sourceColumn >= 4 ? raw.height / 2 : 0))
+              : 0;
+          const frame = window.batchFrame(pose, row, column, scale * scales[row], lift);
           const { sx, sy, sw, sh, dx, dy, dw, dh } = frame;
           const isolated = document.createElement('canvas');
           isolated.width = sw;
@@ -69,10 +82,12 @@ try {
               0,
             );
           ctx.drawImage(isolated, dx, dy, dw, dh);
-          frames.push({ sourceColumn, width: dw, height: dh, lift: lift * scale });
+          frames.push({ sourceColumn, width: dw, height: dh, lift: lift * scale * scales[row] });
         }
         stats.push({
           row,
+          rowScale: scales[row],
+          effectiveScale: scale * scales[row],
           source: [image.width, image.height],
           transparentFraction: transparent / (raw.width * raw.height),
           frames,
@@ -80,11 +95,14 @@ try {
       }
       return { png: canvas.toDataURL('image/png'), scale, stats };
     },
-    { sources, target: Number(target), order },
+    { sources, target: Number(target), order, scales, lifts },
   );
   await mkdir(path.dirname(destination), { recursive: true });
   await writeFile(destination, dataUrlBytes(result.png));
-  await writeFile(`${destination}.json`, `${JSON.stringify({ scale: result.scale, rows: result.stats }, null, 2)}\n`);
+  await writeFile(
+    `${destination}.json`,
+    `${JSON.stringify({ scale: result.scale, rowScales: scales, jumpLifts: lifts, rows: result.stats }, null, 2)}\n`,
+  );
   console.log(`${destination}: 88 poses, shared scale ${result.scale.toFixed(4)}, idle silhouette ${target}px`);
 } finally {
   await browser.close();

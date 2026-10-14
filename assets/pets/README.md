@@ -1,15 +1,41 @@
 # Companion artwork
 
-## Adult companions and seasonal wardrobes
+## Official cast and archived artwork
 
-Aria (a fictional adult woman, 25) and Noah (a fictional adult man, 26) extend the illustrated cast. Their character appearance uses `../concepts/adult-idol-companions.png`; the selectable semi-realistic appearance uses `../concepts/adult-realistic-companions.png`. Both start as friends and support the existing relationship settings. Clover is the brand mascot; Daisy and Pip keep their original character roles.
+Daisy, Clover and Pip are the only bundled and publicly exported starter pets.
+Other character directories are archival source artwork; they are not embedded
+in the executable or offered in the creator studio. Clover is the brand mascot.
+Retired built-in friends retain their saved identity and relationships through
+an appearance migration; imported copies remain unchanged.
 
-The five illustrated companions use their layered baseline in spring and autumn and separate generated `seasonal/summer.png` and `seasonal/winter.png` sheets. Every variant keeps all 88 canonical cells, full body visibility and an idle-anchored apparent height. `seasonalSpritesheets` lists the optional local files in each manifest. Runtime validation, lazy selection and safe fallback are described in `docs/design/2026-10-11-companions.md`.
+The three companions use their layered baseline in spring and autumn and
+`seasonal/summer.png` and `seasonal/winter.png` in the other seasons. Each sheet
+retains all 88 canonical cells. `seasonalSpritesheets` lists these optional files.
 
-Exact adult generation prompts are recorded in [ART-PROMPTS.md](ART-PROMPTS.md). Source rows and large/mini playback proofs are retained locally under ignored `scratch/adult-companions/` and `scratch/seasonal-companions/`. Do not overwrite accepted originals with weaker generation candidates. Some short walks retain a shuffle-like stride; do not describe them as complete hand-authored locomotion cycles.
+Archived adult generation prompts are recorded in [ART-PROMPTS.md](ART-PROMPTS.md). Source rows and large/mini playback proofs are retained locally under ignored `scratch/adult-companions/` and `scratch/seasonal-companions/`. Do not overwrite accepted originals with weaker generation candidates. Some short walks retain a shuffle-like stride; do not describe them as complete hand-authored locomotion cycles.
 
 `npm run mascot-pet` draws the historical flat cats into `scratch/legacy-pets/`.
 It does not overwrite the accepted production artwork in `assets/pets/`.
+
+## Current illustration direction
+
+The three companions retain their recognizable identities, markings and actions.
+Pip wears a butter-yellow varsity jacket with ivory sleeves, a small blue
+five-petal flower with a cream center on the anatomical left chest, and navy
+shorts. Summer uses a yellow and ivory round-neck short-sleeve T-shirt; winter
+uses a padded quilted jacket and navy trousers. All three
+companions keep their upright, anthropomorphic proportions. New accepted sheets use fine warm-brown outlines, matte painted
+color planes, restrained shading and simplified fur and fabric texture. They
+keep body volume and clear expressions at app and mini sizes, without plastic
+gloss or individually rendered fur strands. The reusable prompts in
+`scripts/creator-specs.mjs` carry the same direction into identity, expression,
+wardrobe and motion sheets. A prompt alone does not establish acceptance:
+compare every state and season against the approved reference before export.
+
+The generation and clarity notes below describe earlier production stages;
+[the accepted source record](../sources/companions-2026-10-14/README.md) identifies the replacement files and packing adjustments.
+
+## Original generation and packing
 
 The built-in image generation tool created `daisy`, `clover` and `pip` on
 2026-10-11, using `../concepts/forest-companions.png` as their identity reference.
@@ -39,7 +65,7 @@ PNG and a destination path. The format has sixteen directional gaze cells and
 left/right walking cycles. Inspect the small sprites in motion as well as the
 large concept image before accepting future revisions.
 
-## Clarity revision
+## Earlier clarity revision
 
 The clarity pass generates each animation row separately as a transparent
 four-column, two-row image. Eight larger source poses recover facial, clothing
@@ -61,8 +87,8 @@ chin-paw gesture, working keeps the laptop, and jumping and celebration remain
 visibly different from idle. Inspect the frames the animation actually consumes,
 including the first five jump poses.
 
-## Realistic appearance follow-up
+## Archived realistic appearance exploration
 
-The first adult concept was subsequently accepted as a second style direction at the user's request. `../concepts/adult-realistic-companions.png` preserves that reference. Aria and Noah can retain the illustrated appearance or use semi-realistic full-body animations in the yard, mini mode and desktop overlay, with generated face portraits in conversations. They remain fictional adults. Appearance is saved separately for each friend and does not alter their relationship or personality.
+The first adult concept was subsequently accepted as a second style direction at the user's request. `../concepts/adult-realistic-companions.png` preserves that reference. This exploration supplied illustrated and semi-realistic adult variants with separate portraits. These characters are no longer part of the bundled cast or public creator kits. Their source directories remain as an archive; imported compatible artwork may still use the optional appearance fields.
 
 The optional `realisticSpritesheets` map contains `default`, `summer` and `winter`; `realisticPortraitPath` identifies the separate face image. Exact character-specific prompts and rejected-candidate notes are in each adult's `REALISTIC-PROMPTS.md`. Realistic production sources and playback proofs are retained under ignored `scratch/realistic-companions/`.

@@ -15,19 +15,16 @@ test('website publishing and releases use the same four locale paths', () => {
   assert.throws(() => localePath('unknown', '/guide/'));
 });
 
-test('all ten ordinary built-in pets have distinct landing sources with valid v2 dimensions', async () => {
-  assert.equal(LANDING_PETS.length, 10);
-  assert.equal(new Set(LANDING_PETS.map(p => p.id)).size, 10);
+test('all three illustrated built-in pets have distinct landing sources with valid v2 dimensions', async () => {
+  assert.equal(LANDING_PETS.length, 3);
+  assert.equal(new Set(LANDING_PETS.map(p => p.id)).size, 3);
   assert.deepEqual(
     LANDING_PETS.map(p => p.displayName),
-    ['Daisy', 'Clover', 'Pip', 'Aria', 'Aria Mini', 'Noah', 'Noah Mini', 'Tabby', 'Smoky', 'Mochi'],
+    ['Daisy', 'Clover', 'Pip'],
   );
   for (const pet of LANDING_PETS) {
     await access(pet.source);
     assert.deepEqual(pngSize(await readFile(pet.source)), { width: 1536, height: 2288 }, pet.id);
   }
-  assert.notEqual(
-    LANDING_PETS.find(p => p.id === 'aria-full').source,
-    LANDING_PETS.find(p => p.id === 'aria-mini').source,
-  );
+  assert.ok(LANDING_PETS.every(pet => !pet.source.includes('/realistic/')));
 });

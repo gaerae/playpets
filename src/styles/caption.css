@@ -1,47 +1,23 @@
 /* What floats at the head of the yard: the scene's name and its menu, the clock, how the yard is
    shown (the view controls) and the hint under them. */
 .yard-caption {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  z-index: 5;
+  position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
   color: var(--ink);
-  font-size: 11.5px;
-  pointer-events: none;
+  font-size: 12px;
 }
-.yard-caption > * {
-  pointer-events: auto;
-}
-/* chips over the scene: nearly opaque (no backdrop blur, which would recomposite every frame the
-   clouds drift) */
-.caption-main,
-.yard-hint:not(:empty) {
-  background: var(--floating);
-  border-radius: 999px;
-  box-shadow: 0 2px 10px var(--ink-12);
-}
-/* The caption stays on one line. In a tight yard the hint gives way first, then the scene words
-   trail off; the friend count and the two pickers always show whole. */
 .caption-main {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 3px 12px 3px 3px;
-  white-space: nowrap;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 #scene-caption {
-  white-space: nowrap;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .sun-dot {
   flex: none;
@@ -94,10 +70,12 @@
   font-weight: 650;
   cursor: pointer;
   min-width: 0;
+  min-height: 40px;
+  width: 100%;
 }
 .scene-button:hover,
 .scene-button[aria-expanded="true"] {
-  background: var(--soft);
+  background: var(--control-hover);
 }
 .scene-chevron {
   display: inline-flex;
@@ -113,16 +91,24 @@
 }
 .scene-menu {
   position: absolute;
-  top: 40px;
-  left: 0;
+  z-index: 30;
+  right: 12px;
+  bottom: 64px;
+  width: min(400px, calc(100% - 24px));
+  max-height: calc(100% - 116px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 8px 12px;
   padding: 12px 14px;
-  border-radius: 14px;
-  background: var(--floating);
-  box-shadow: 0 10px 28px var(--ink-20);
+  border-radius: var(--radius-panel);
+  background: var(--menu-surface);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 32px var(--ink-20);
   font-weight: 650;
 }
 .scene-menu[hidden] {
@@ -130,28 +116,13 @@
 }
 .weather-select {
   width: auto;
-  font-size: 11px;
+  font-size: 12px;
   padding: 4px 24px 4px 8px;
   background-position: right 7px center;
   background-size: 9px 7px;
   border-radius: 8px;
-  min-height: 0;
+  min-height: 36px;
 }
-/* the time and the date, as the yard's clock has them */
-.yard-clock {
-  flex: none;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: var(--floating);
-  box-shadow: 0 2px 10px var(--ink-12);
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-}
-.yard-clock:empty {
-  display: none;
-}
-/* How the yard is shown, beside the clock, as a video player keeps its controls: on the desktop
-   (a switch, pressed while on, with strolling beside it), the mini window, and the yard's sounds. */
 .caption-end {
   flex: none;
   display: flex;
@@ -159,37 +130,40 @@
   gap: 6px;
 }
 .view-controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
-  gap: 2px;
-  padding: 3px;
-  border-radius: 999px;
-  background: var(--floating);
-  box-shadow: 0 2px 10px var(--ink-12);
+  gap: 4px;
+  width: 100%;
+}
+.view-controls > #desktop,
+.view-controls > .view-wander {
+  grid-column: 1 / -1;
 }
 .view-button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 27px;
-  min-width: 27px;
+  height: 40px;
+  min-width: 40px;
   padding: 0 7px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--ink);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 650;
   cursor: pointer;
   justify-content: center;
 }
-.view-button svg {
+.view-button svg,
+.view-wander svg {
   width: 15px;
   height: 15px;
   flex: none;
 }
 .view-button:hover:not(:disabled) {
-  background: var(--soft);
+  background: var(--control-hover);
 }
 .view-button:disabled {
   opacity: 0.4;
@@ -199,118 +173,184 @@
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
-/* A switch that is on, as the tray's check mark says. */
-#desktop[aria-pressed="true"] {
-  background: var(--pressed);
-  color: #24503a;
-}
-#sound-button[aria-pressed="false"] {
-  color: #8a9a9c;
+/* Stable labels and right-aligned switches make desktop modes easy to scan. */
+.view-toggle,
+.view-wander {
+  min-height: 44px;
+  border-radius: 9px;
+  padding: 0 10px;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
 }
 .view-wander {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 8px 0 4px;
-  font-size: 11px;
-  font-weight: 650;
   color: var(--ink);
   cursor: pointer;
-  user-select: none;
 }
-.view-wander[hidden] {
-  display: none;
+.view-wander:not(:has(input:disabled)):hover {
+  background: var(--control-hover);
+}
+.view-wander:has(input:disabled) {
+  opacity: 0.5;
+  cursor: default;
 }
 .view-wander input {
   position: absolute;
   opacity: 0;
-  pointer-events: none;
   width: 1px;
   height: 1px;
-  padding: 0;
-  border: 0;
 }
-.view-wander .wander-switch {
-  width: 26px;
-  height: 15px;
+.view-controls .wander-switch {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 30px;
+  height: 18px;
 }
-.view-wander .wander-switch::after {
-  top: 2px;
-  left: 2px;
-  width: 11px;
-  height: 11px;
+.view-controls .wander-switch::after {
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
 }
+#desktop[aria-pressed="true"] .wander-switch,
 .view-wander input:checked ~ .wander-switch {
-  background: var(--accent);
+  background: var(--green-ink);
 }
+#desktop[aria-pressed="true"] .wander-switch::after,
 .view-wander input:checked ~ .wander-switch::after {
-  transform: translateX(11px);
+  background: var(--white);
+  transform: translateX(12px);
 }
 .view-wander input:focus-visible ~ .wander-switch {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+#sound-button[aria-pressed="false"] {
+  color: var(--muted);
 }
 /* The hint, while there is something to learn, under the view controls at the top right. */
-.yard-hint {
-  position: absolute;
-  top: 52px;
-  right: 12px;
-  z-index: 5;
-  max-width: calc(100% - 340px);
-  font-size: 11.5px;
-  color: var(--ink);
-  pointer-events: none;
-  white-space: nowrap;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+
 @media (prefers-color-scheme: dark) {
   .caption-count {
     color: #c8ddbb;
   }
-  #desktop[aria-pressed="true"] {
-    color: var(--green-ink);
-  }
-  #sound-button[aria-pressed="false"] {
-    color: var(--muted);
-  }
 }
-.yard-hint:not(:empty) {
-  padding: 6px 12px;
-}
-@media (max-width: 1000px) {
-  .layout.panel-open .yard-hint {
-    display: none;
-  }
-}
+
 /* In a narrower yard the desktop switch keeps its icon and its words go to the tooltip. */
-@container (max-width: 760px) {
-  .view-label,
-  .view-wander > span:last-child {
-    display: none;
-  }
-}
-/* In a narrower yard the scene's name stays whole: the event goes first (the yard with the panel
-   open beside it has no room for it in every language), then the friend count. */
-@container (max-width: 800px) {
-  .caption-event {
-    display: none;
-  }
-}
-@container (max-width: 560px) {
-  .caption-count,
-  .clock-date {
-    display: none;
-  }
-}
 
 .scene-world-note {
   grid-column: 1 / -1;
-  max-width: 250px;
+  max-width: 100%;
   margin: 2px 0 0;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
   font-weight: 450;
-  color: var(--muted);
+  color: var(--ink);
+}
+
+.background-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.caption-count,
+.caption-agents,
+.caption-event,
+.yard-hint {
+  display: none;
+}
+
+.scene-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  min-width: 0;
+}
+.scene-copy strong {
+  font-size: 12px;
+}
+.scene-copy #scene-caption {
+  font-size: 12px;
+  color: var(--ink);
+}
+.yard-frame > .yard-hint {
+  position: absolute;
+  bottom: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: calc(100% - 32px);
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--floating);
+  color: var(--ink);
+  font-size: 12px;
+  text-align: center;
+  pointer-events: none;
+}
+.yard-frame:has(.yard.aiming) > .yard-hint {
+  display: block;
+}
+
+.scene-gallery-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+.background-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 3px;
+}
+.background-card {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--soft);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.background-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  background: #c9e0df;
+}
+.background-card span {
+  display: block;
+  padding: 7px 9px;
+  font-size: 12px;
+}
+.background-card:hover {
+  border-color: var(--muted);
+}
+.background-card[aria-pressed="true"] {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+.scene-climate {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto auto;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 5px 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
 }

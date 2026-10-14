@@ -44,13 +44,13 @@ export function composeWindow(canvas, image, logicalWidth, margin = 0) {
   canvas.height = image.naturalHeight + pad * 2;
   const ctx = canvas.getContext('2d');
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#1d2b3a');
-  gradient.addColorStop(0.55, '#2c4a63');
-  gradient.addColorStop(1, '#3f6e86');
+  gradient.addColorStop(0, '#eaf3ef');
+  gradient.addColorStop(0.55, '#e5edf0');
+  gradient.addColorStop(1, '#f4efe4');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (margin) {
-    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowColor = 'rgba(41,65,58,0.18)';
     ctx.shadowBlur = 18 * ratio;
     ctx.shadowOffsetY = 6 * ratio;
   }
@@ -69,4 +69,25 @@ export function seasonalScenes() {
 // Keep actual selected tabs, games and options; only a resting cursor and focus are absent.
 export function clearCaptureFocus(doc) {
   doc.activeElement?.blur?.();
+}
+
+// Canonical cells include different headroom; equal canvas widths do not give equal silhouettes.
+export function companionCast() {
+  return ['Daisy', 'Clover', 'Pip'].map((name, i) => ({
+    name,
+    size: (150 * 192) / [163, 168, 164][i],
+    x: [0.28, 0.5, 0.72][i],
+    y: 0.58,
+  }));
+}
+
+// Names are shared across locales, so the caller selects one locale before matching a speaker.
+export function captureReply(localized, messages) {
+  const asked = messages.at(-1)?.content || '';
+  const system = messages.find(message => message.role === 'system')?.content || '';
+  return (
+    localized.chat.find(([question]) => asked.includes(question))?.[1] ||
+    Object.entries(localized.talk).find(([name]) => system.includes(`named ${name}`))?.[1] ||
+    '...'
+  );
 }

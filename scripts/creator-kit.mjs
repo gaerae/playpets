@@ -1,7 +1,7 @@
 // Reference collages copy production cells; they never invent a new view or alter source artwork.
 
 import { execFileSync } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { dataUrl, dataUrlBytes } from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
@@ -210,6 +210,8 @@ export async function copyCreatorKit(destination = 'website/public/creator-kit',
     ]);
     prepared.push({ kit, files, design: zipStore(entries), pet: zipStore(petEntries), baseline });
   }
+  for (const retired of ['aria-realistic', 'noah-realistic', 'aria', 'noah', 'tabby', 'smoky', 'mochi'])
+    await rm(`${destination}/${retired}`, { recursive: true, force: true });
   for (const { kit, files, design, pet, baseline } of prepared) {
     const target = `${destination}/${kit.id}`,
       source = `assets/creator-kit/${kit.id}`;

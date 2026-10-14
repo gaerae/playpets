@@ -1,6 +1,7 @@
 ---
 layout: page
-description: 森の庭や街を望む部屋で、ペットたちと暮らすオープンソースのデスクトップアプリです。会話、遊び、ガーデニング、コーディングのお供に。
+title: PlayPets
+titleTemplate: 帰ってきたくなる、小さな世界
 ---
 
 <Landing />

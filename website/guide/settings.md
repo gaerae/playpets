@@ -4,7 +4,7 @@ description: General settings, About and app updates, menus and shortcuts, quitt
 
 # Settings
 
-The **Settings** tab (the gear at the end of the tabs) opens as a wide sheet over the yard, with an index of its four groups on the left; a click beside it or <kbd>Esc</kbd> closes it. The groups: **General** (Language, **Start PlayPets when you log in**), **The yard** (the auto chatter switch, **Let them chat now and then**, and **Yard sounds** with its volume), **Coding agent hooks**, and **About PlayPets** (the version, App updates and the project's pages). Coding agent hooks are [explained separately](./agents.md). Open it from the tab, with <kbd>⌘</kbd> <kbd>,</kbd> or <kbd>Ctrl</kbd> <kbd>,</kbd>, or with **Settings…** in the tray menu.
+Open **Menu → Settings**, use <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>,</kbd>, or choose **Settings…** in the tray. Settings opens over the yard; click outside it or press <kbd>Esc</kbd> to close it. Its four groups are **General** (language and launch at login), **The yard** (season, automatic chatter and sound), **Coding agent hooks**, and **About PlayPets** (the logo, version, updates and project links). [Coding agent hooks](./agents.md) have their own guide.
 
 The title and section menu stay visible while only the selected section scrolls. Select another group to change its contents; the app remembers the last group while you reopen Settings. Quit is in **About PlayPets**.
 
@@ -16,7 +16,7 @@ Open **Settings → Yard → Season** to choose Auto, Spring, Summer, Autumn or 
 
 Choose from 한국어, English, 日本語 and 简体中文. At first it follows the system language; changing it reloads the yard and the desktop windows in the new language. The tray menu and the window title change too. The chosen language is saved as `language` in `state.json`.
 
-Your friends' chatter and greetings use the chosen language as well. Conversations with an AI, though, follow the personality and what you say, and the app speaks English to coding agents and the terminal.
+Your friends’ greetings and idle chatter use the selected language. AI replies use it by default; you can explicitly ask for another language in your latest message. Changing language cancels replies still being generated, but does not translate earlier messages. The app speaks English to coding agents and the terminal.
 
 Start the app with the environment variable `PLAYPETS_LANG=ko|en|ja|zh-hans` and it takes priority over the saved language. This is for testing.
 
@@ -34,7 +34,7 @@ The yard has its own sounds: a breeze, small waves on the lake, gusts through th
 
 - They are on by default, at a low volume, and start after your first click in the window.
 - They play only while the yard can be seen. When the window is hidden or minimized, or only the desktop friends are out, the yard is silent. Mini mode keeps them.
-- To turn them off or on, use the speaker by the clock at the top right of the yard, this switch, **View** → **Yard Sounds** in the macOS menu bar, or <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>S</kbd>. The **Volume** slider under the switch sets how loud they are.
+- To turn them off or on, use the speaker in **Menu**, the tray’s **Yard Sounds** switch, this switch, **View** → **Yard Sounds** in the macOS menu bar, or <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>S</kbd>. The **Volume** slider under the switch sets how loud they are.
 
 ## About PlayPets <Since v="0.1.0" />
 
@@ -46,8 +46,8 @@ The row shows the current version. Click **Check for updates** and the app reads
 
 When there is a new version, whether this check, the quiet one 20 seconds after the app starts, or one from the menus found it:
 
-- A button with the new version appears in the top bar (only its icon in a narrow window), and the **Settings** tab gets a dot.
-- The button opens the update window: **What's new** opens that version's page on this site, **Later** puts the top-bar button away until the next start (the row and the dot stay), and **Install and restart** downloads it with a progress bar, verifies its signature and restarts on the new version. Your friends and settings stay.
+- Open **Menu** to see the new-version button and the dot on **Settings**.
+- The button opens the update window: **What's new** opens that version's page on this site, **Later** puts the update button away until the next start (the row and the dot stay), and **Install and restart** downloads it with a progress bar, verifies its signature and restarts on the new version. Your friends and settings stay.
 - The row in About offers **What's new** and **Install and restart** too.
 
 If it could not check, look at your network, and keep in mind that the Windows portable zip is not covered by automatic updates. See [Install](./install.md#updates) for details.
@@ -56,11 +56,11 @@ If it could not check, look at your network, and keep in mind that the Windows p
 
 The yard window's close button only hides the window; the app stays in the tray. Friends on the desktop and the agent hooks keep running.
 
-To really quit, click **Quit the app** at the bottom of the Settings tab. A "Quit PlayPets?" confirmation appears. Conversations are not saved, and friends on the desktop go too. **Quit** in the tray menu does the same.
+To really quit, click **Quit the app** in **Menu → Settings → About PlayPets**. A "Quit PlayPets?" confirmation appears. Conversations are not saved, and friends on the desktop go too. **Quit** in the tray menu does the same.
 
 ## Menus and shortcuts <Since v="0.1.0" />
 
-- **Tray menu** (the cat in the menu bar or the taskbar): **Open the yard**; then switches with a check mark for **Mini mode**, **Show on the desktop** and, while that is on, **Stroll around the desktop** (with no friend yet, these are left out); then **Settings…**, **Check for updates…** (it reads **Update to v…** once a new version is known) and **About PlayPets**, then **Quit**. On Windows a left click on the icon opens the yard and the menu is on the right button. When a coding agent is waiting for you or ran into trouble, the icon gets a small blue or red mark, and its tooltip names the friend.
+- **Tray menu** (the cat in the menu bar or taskbar): **Open the yard**, **Friends** (when friends are present) and **Invite a Friend…**; display switches for **Mini mode**, **Show on the desktop** and, while desktop mode is on, **Stroll around the desktop**; then **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets** and **Quit**. The display switches are omitted when there are no friends; Invite and Sound remain available. Sound shows a check mark when on. An available update changes the update label to **Update to v…**. On Windows, left-click opens the yard and right-click opens the menu. A small blue or red mark signals an agent waiting for you or reporting trouble; the tooltip names its friend.
 - **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **View** → **Friends**, **Invite a Friend…**, and **Mini mode** and **Show on the desktop** with a check mark (greyed until a friend is in), and **Yard Sounds** with a check mark; **Window**.
 - **Shortcuts** (<kbd>⌘</kbd> on macOS, <kbd>Ctrl</kbd> on Windows and Linux):
 
@@ -87,7 +87,7 @@ To really quit, click **Quit the app** at the bottom of the Settings tab. A "Qui
 | `state.json` | Friends (name, personality and where it came from, relationship, what it calls you, size, position, chosen AI connection), the list of AI connections (without keys), language, desktop mode and roaming, each agent's friend, auto chatter, yard sounds and their volume, the mini window's place and size (`miniRect`), the garden and decorations (`garden`), the album (`album`), closeness (`bonds`), hand-picked pet folders, the file's format number (`schema`). A file written by a newer version is copied aside and read for the parts this version knows |
 | `bridge.json` | The port and token for agent hooks. Rewritten every time the app starts |
 | `pets/` | Pet folders imported from an address |
-| `builtin/` | Ten bundled starter entries, unpacked and checked at each start. Aria and Aria Mini, and Noah and Noah Mini, have independent baseline assets |
+| `builtin/` | Three bundled starter entries, unpacked and checked at each start. Each has its own baseline artwork |
 
 ## Environment variables
 

@@ -14,18 +14,28 @@
   --danger: #a3422c;
   --white: #fff;
   --shell: #f7f9f8;
+  --panel-surface: #f7f8f3;
+  --field-surface: #fffefa;
   --floating: #fffffff0;
+  --dock-surface: var(--panel-surface);
+  --menu-surface: var(--panel-surface);
+  --glass-blur: none;
   --soft: #eef3eb;
   /* the keyboard focus ring */
-  --focus: #367b90;
+  --focus: #756451;
   /* the sheet a friend's things are on: the Friend and Invite tabs, the dialogs about a friend */
-  --sheet: #fffdf7;
+  --sheet: var(--panel-surface);
   /* an ink-filled button under the pointer */
   --ink-hover: #31575e;
   /* what a friend's picture stands on, in the panel's head and on the invite shelf */
   --portrait: #edf2e7;
   /* a switch that is on, as the tray's check mark says */
   --pressed: #e3efe6;
+  --control-hover: #e1ece4;
+  --control-selected: #cfe5d4;
+  --segment-track: #e8eee7;
+  --segment-active: #fffefa;
+  --settings-scrim: #1d2f2a2e;
   /* a small green mark that something is there: the seeds on a tool, an AI found on this computer */
   --green-soft: #e3f2ea;
   --green-ink: #2c6e57;
@@ -34,6 +44,9 @@
   --pink-ink: #a8425b;
   color-scheme: light;
   --radius: 22px;
+  --radius-panel: 18px;
+  --radius-control: 9px;
+  --radius-pill: 999px;
   font-family:
     system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR",
     sans-serif;
@@ -51,13 +64,20 @@
     --danger: #f2a68d;
     --white: #202c27;
     --shell: #1b2520;
+    --panel-surface: #202c27;
+    --field-surface: #293a31;
     --floating: #202c27f0;
     --soft: #384937;
-    --focus: #81bdc6;
-    --sheet: #202c27;
+    --focus: #d6c7af;
+    --sheet: var(--panel-surface);
     --ink-hover: #cadcc1;
     --portrait: #384937;
     --pressed: #384937;
+    --control-hover: #35453a;
+    --control-selected: #465d49;
+    --segment-track: #17231d;
+    --segment-active: #465d49;
+    --settings-scrim: #07140e8c;
     --green-soft: #384937;
     --green-ink: #d1e8c2;
     --pink-soft: #49323c;
@@ -159,7 +179,7 @@ button:active:not(:disabled) {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 11px;
+  border-radius: var(--radius-control);
   font-weight: 650;
   min-height: 42px;
   padding: 10px 15px;
@@ -196,16 +216,16 @@ button:active:not(:disabled) {
   font-size: 11px;
 }
 .icon-button {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--white);
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
 }
 .icon-button:hover {
-  background: var(--soft);
+  background: var(--control-hover);
 }
 .eyebrow {
   font-size: 10px;
@@ -223,11 +243,11 @@ input,
 select,
 textarea {
   border: 1px solid var(--line);
-  background: #fbfcfb;
-  border-radius: 9px;
+  background: var(--field-surface);
+  border-radius: var(--radius-control);
   width: 100%;
   padding: 10px 12px;
-  font-size: 12px;
+  font-size: 13px;
 }
 input:focus,
 textarea:focus,
@@ -336,7 +356,7 @@ select {
 }
 .button.chip {
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   padding: 4px 12px;
   min-height: 28px;
   font-size: 11px;
@@ -349,11 +369,6 @@ select {
   height: 13px;
 }
 @media (prefers-color-scheme: dark) {
-  input,
-  select,
-  textarea {
-    background-color: var(--paper);
-  }
   input::placeholder,
   textarea::placeholder,
   .eyebrow {
@@ -366,5 +381,26 @@ select {
   .button.remove:hover {
     background: var(--danger-soft);
     color: var(--danger);
+  }
+}
+
+/* Pointer activation needs no keyboard ring; Tab restores the normal focus treatment. */
+html.pointer-input :is(button, a, input, textarea, select, summary):focus {
+  outline: none;
+}
+
+/* Frosting is limited to scenery controls; long-form panels remain solid. */
+@supports (backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px)) {
+  :root {
+    --dock-surface: color-mix(in srgb, var(--panel-surface) 76%, transparent);
+    --menu-surface: color-mix(in srgb, var(--panel-surface) 90%, transparent);
+    --glass-blur: blur(16px) saturate(110%);
+  }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  :root {
+    --dock-surface: var(--panel-surface);
+    --menu-surface: var(--panel-surface);
+    --glass-blur: none;
   }
 }

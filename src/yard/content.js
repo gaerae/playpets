@@ -5,6 +5,7 @@
 // at start, before anything is drawn. To change what is in the yard, change those files.
 // How: docs/how-to/add-to-the-yard.md.
 import { loadArt } from './art.js';
+import { restoreBackgrounds } from './background-store.js';
 import { artOf, useCatalog } from './catalog.js';
 import { useEvents } from './events.js';
 import { useScenery } from './layout.js';
@@ -21,5 +22,10 @@ export async function loadContent() {
   useScenery(yard);
   useEvents(events);
   useWorlds(worlds);
+  try {
+    await restoreBackgrounds();
+  } catch {
+    /* Built-in places remain available when local storage cannot open. */
+  }
   await loadArt(artOf(catalog, events));
 }

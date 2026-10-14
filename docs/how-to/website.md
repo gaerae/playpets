@@ -32,7 +32,7 @@ Anyone who has cloned the repository and run `npm ci`. Only taking new screen ca
 npm run site:dev
 ```
 
-3. To add a screen, use `<Shot name="name" caption="One sentence" />`. The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `studio-day`, `studio-night`, `mini-chat`, `realistic-companions`, `friend-appearance`. Without a version, it shows the capture for the current `package.json` version. To add a new state, put it in the scenario in `scripts/shots.mjs` and capture again. Normal captures and GIF frames target only the isolated app process's window, matched by its PID and outer bounds. A canvas adds the controlled backdrop behind transparent corners and the screenshot margin, so unrelated desktop windows cannot enter those pictures. If the matching window is missing or ambiguous, capture stops. Desktop-overlay pictures bring the prepared backdrop to the foreground before capturing the friends above it. On the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README).
+3. To add a screen, use `<Shot name="name" caption="One sentence" />`. The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `studio-day`, `studio-night`, `mini-chat`, `companions`. Without a version, it shows the capture for the current `package.json` version. To add a new state, put it in the scenario in `scripts/shots.mjs` and capture again. Normal captures and GIF frames target only the isolated app process's window, matched by its PID and outer bounds. A canvas adds the controlled backdrop behind transparent corners and the screenshot margin, so unrelated desktop windows cannot enter those pictures. If the matching window is missing or ambiguous, capture stops. Desktop-overlay pictures bring the prepared backdrop to the foreground before capturing the friends above it. On the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README).
 
 ```bash
 npm run shots -- 0.2.0
@@ -66,8 +66,10 @@ npm run site:build && node --test tests/website.test.mjs
 
 ## Derived art and creator packages
 
-`assets/icon.svg` is the accepted Clover source. `npm run icons` exports the
-app, tray and installer icon formats. Site preparation copies that source SVG
+`assets/icon.png` is the accepted illustrated Clover face, with its prompt in
+`assets/icon-provenance.json`. `npm run icons` exports the app and installer icon
+formats, the matching colored tray face, and a self-contained `assets/icon.svg`
+wrapper for browsers. Site preparation copies that exported SVG
 and the generated PNG/ICO fallbacks; the site config uses content-revisioned
 favicon addresses so unchanged paths do not keep an older icon in browser tabs.
 Regenerate these outputs through the scripts and inspect the actual served tab

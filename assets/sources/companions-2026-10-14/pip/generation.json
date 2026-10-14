@@ -1,0 +1,259 @@
+{
+  "tool": "image_gen",
+  "date": "2026-10-14",
+  "direction": "User selected A wardrobe, then requested a shared floral motif. Final Pip has small blue five-petal flower with cream center on anatomical left chest. Summer short sleeves and winter quilted jacket are visibly distinct.",
+  "originalDirection": "User selected A: anthropomorphic Pip with butter-yellow varsity jacket, ivory sleeves, navy shorts and blue cloud on anatomical left chest.",
+  "idle": [
+    {
+      "season": "baseline",
+      "prompt": "Precise minimal edit to this exact transparent 8-pose Pip puppy sheet. Replace EACH blue CLOUD chest patch with a small clearly identifiable BLUE FIVE-PETAL FLOWER with a round CREAM CENTER, same position on anatomical LEFT chest (viewer RIGHT front). Exactly five round separate petals around the visible cream center: reads as a flower, not a cloud. Change ONLY this embroidered emblem, keep every outfit, face, fur, expression, limb, pose, proportions, exact layout and colors unchanged. Preserve transparent background, 1536x1024 size, 4columns 2rows. No bag/scarf/new accessories. Do not add flowers anywhere else.",
+      "generatedFile": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-122298ae-d4e5-41e7-94d2-0230bb784072.png"
+    },
+    {
+      "season": "summer",
+      "prompt": "Precise minimal edit to this exact transparent 8-pose Pip puppy sheet. Replace EACH blue CLOUD chest patch with a small clearly identifiable BLUE FIVE-PETAL FLOWER with a round CREAM CENTER, same position on anatomical LEFT chest (viewer RIGHT front). Exactly five round separate petals around the visible cream center: reads as a flower, not a cloud. Change ONLY this embroidered emblem, keep every outfit, face, fur, expression, limb, pose, proportions, exact layout and colors unchanged. Preserve transparent background, 1536x1024 size, 4columns 2rows. No bag/scarf/new accessories. Do not add flowers anywhere else.",
+      "generatedFile": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-95d896a4-6239-4c4a-a8f5-762901f6f03b.png"
+    },
+    {
+      "season": "winter",
+      "prompt": "Precise minimal edit to this exact transparent 8-pose Pip puppy sheet. Replace EACH blue CLOUD chest patch with a small clearly identifiable BLUE FIVE-PETAL FLOWER with a round CREAM CENTER, same position on anatomical LEFT chest (viewer RIGHT front). Exactly five round separate petals around the visible cream center: reads as a flower, not a cloud. Change ONLY this embroidered emblem, keep every outfit, face, fur, expression, limb, pose, proportions, exact layout and colors unchanged. Preserve transparent background, 1536x1024 size, 4columns 2rows. No bag/scarf/new accessories. Do not add flowers anywhere else.",
+      "generatedFile": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-5f6840d4-dabd-44e7-88a0-ee00e7e8ac28.png"
+    }
+  ],
+  "rows": [
+    {
+      "season": "baseline",
+      "row": 1,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-cca871c3-daa7-4e1c-8d14-9719f404627f.png",
+      "file": "scratch/pip-flower/baseline/01-right.png"
+    },
+    {
+      "season": "baseline",
+      "row": 2,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-5afdc63e-78f5-4e1a-93e0-6ff00dee5705.png",
+      "file": "scratch/pip-flower/baseline/02-left.png"
+    },
+    {
+      "season": "baseline",
+      "row": 3,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-b27f8d92-87e3-4397-b46c-ed9d16a90142.png",
+      "file": "scratch/pip-flower/baseline/03-wave.png"
+    },
+    {
+      "season": "baseline",
+      "row": 4,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-811615a8-7370-4db7-ae8b-62d553165b42.png",
+      "file": "scratch/pip-flower/baseline/04-jump.png"
+    },
+    {
+      "season": "baseline",
+      "row": 5,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-efcbd334-c3f3-4231-96f1-30a0d9ff270f.png",
+      "file": "scratch/pip-flower/baseline/05-error.png"
+    },
+    {
+      "season": "baseline",
+      "row": 6,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-f88f6728-ab00-4f43-b40e-81210186d842.png",
+      "file": "scratch/pip-flower/baseline/06-waiting.png"
+    },
+    {
+      "season": "baseline",
+      "row": 7,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-2d22633f-f938-4368-bbde-289c7172f806.png",
+      "file": "scratch/pip-flower/baseline/07-working.png"
+    },
+    {
+      "season": "baseline",
+      "row": 8,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-39ae186e-36d0-4034-882c-adc1846aa3c5.png",
+      "file": "scratch/pip-flower/baseline/08-done.png"
+    },
+    {
+      "season": "baseline",
+      "row": 9,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text. These eight directional gaze poses must have OPEN EYES and look sequentially up, up-right shallow, up-right diagonal, right-up shallow, right, right-down shallow, down-right diagonal, down-right steep. Lastframe eyesopen. Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-e920b19b-3d2f-47b7-bf0f-0dcb8b6c7082.png",
+      "file": "scratch/pip-flower/baseline/09-look.png"
+    },
+    {
+      "season": "baseline",
+      "row": 10,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Keep the exact current varsity jacket, ivory sleeves and navy rolled shorts. Replace only blue CLOUD with BLUE FIVE-PETAL FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-f98e7d3c-72bc-4841-bf3f-32e2d826aa09.png",
+      "file": "scratch/pip-flower/baseline/10-look.png"
+    },
+    {
+      "season": "summer",
+      "row": 1,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-0418e9ac-c71f-464a-9737-a808698c05ff.png",
+      "file": "scratch/pip-flower/summer/01-right.png"
+    },
+    {
+      "season": "summer",
+      "row": 2,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-35991613-417a-4598-88ae-7bcaf6f441e7.png",
+      "file": "scratch/pip-flower/summer/02-left.png"
+    },
+    {
+      "season": "summer",
+      "row": 3,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-be796f2d-37e8-40c8-b94b-9b765371f054.png",
+      "file": "scratch/pip-flower/summer/03-wave.png"
+    },
+    {
+      "season": "summer",
+      "row": 4,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-e0481d26-8187-45dd-a772-01d395b0bfad.png",
+      "file": "scratch/pip-flower/summer/04-jump.png"
+    },
+    {
+      "season": "summer",
+      "row": 5,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-ed225ff4-29bd-4c6d-b5fb-626be8cacc65.png",
+      "file": "scratch/pip-flower/summer/05-error.png"
+    },
+    {
+      "season": "summer",
+      "row": 6,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-acc3f508-c070-482b-9ca6-79c3fd7035d6.png",
+      "file": "scratch/pip-flower/summer/06-waiting.png"
+    },
+    {
+      "season": "summer",
+      "row": 7,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-a56b247c-ff93-4a87-99d3-8d6662c374d2.png",
+      "file": "scratch/pip-flower/summer/07-working.png"
+    },
+    {
+      "season": "summer",
+      "row": 8,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-fbad884b-9734-4196-8ee0-837e1cf89c4f.png",
+      "file": "scratch/pip-flower/summer/08-done.png"
+    },
+    {
+      "season": "summer",
+      "row": 9,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text. These eight directional gaze poses must have OPEN EYES and look sequentially up, up-right shallow, up-right diagonal, right-up shallow, right, right-down shallow, down-right diagonal, down-right steep. Lastframe eyesopen. Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-e29f8492-cf87-4177-94fd-63f06e8d8fe7.png",
+      "file": "scratch/pip-flower/summer/09-look.png"
+    },
+    {
+      "season": "summer",
+      "row": 10,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current jacket with the SECOND reference's summer outfit: thin round-neck YELLOW T-SHIRT, IVORY SHORT SLEEVES ending above elbows, EXPOSED FURRY FOREARMS. No long sleeves or striped cuffs, no jacket collar/waistband/buttons. Keep navy rolled shorts. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-5b1fecac-8063-4519-a175-f1b876ea79fa.png",
+      "file": "scratch/pip-flower/summer/10-look.png"
+    },
+    {
+      "season": "winter",
+      "row": 1,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-edd4bd6b-f9d2-456a-801e-c936aa46d5b1.png",
+      "file": "scratch/pip-flower/winter/01-right.png"
+    },
+    {
+      "season": "winter",
+      "row": 2,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-3f5e1f97-1774-44b8-a36f-d83660f2df27.png",
+      "file": "scratch/pip-flower/winter/02-left.png"
+    },
+    {
+      "season": "winter",
+      "row": 3,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-2e0b2d65-8696-4cf0-b9bc-a177f198b94e.png",
+      "file": "scratch/pip-flower/winter/03-wave.png"
+    },
+    {
+      "season": "winter",
+      "row": 4,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-516c9c0d-af2f-4cdb-955e-9cff5dc6be62.png",
+      "file": "scratch/pip-flower/winter/04-jump.png"
+    },
+    {
+      "season": "winter",
+      "row": 5,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-b722ca0e-6d01-4bc9-a129-0f1803df4784.png",
+      "file": "scratch/pip-flower/winter/05-error.png"
+    },
+    {
+      "season": "winter",
+      "row": 6,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-fef60c44-d5fe-433d-bc86-628fc60dcd66.png",
+      "file": "scratch/pip-flower/winter/06-waiting.png"
+    },
+    {
+      "season": "winter",
+      "row": 7,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-2eeb9ee7-f6df-440b-8bb8-b28bf8a1e465.png",
+      "file": "scratch/pip-flower/winter/07-working.png"
+    },
+    {
+      "season": "winter",
+      "row": 8,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-7c526c12-466a-4682-994b-d42f5ea81909.png",
+      "file": "scratch/pip-flower/winter/08-done.png"
+    },
+    {
+      "season": "winter",
+      "row": 9,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text. These eight directional gaze poses must have OPEN EYES and look sequentially up, up-right shallow, up-right diagonal, right-up shallow, right, right-down shallow, down-right diagonal, down-right steep. Lastframe eyesopen. Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-cd13f42f-5e24-426f-aae2-80162400ac66.png",
+      "file": "scratch/pip-flower/winter/09-look.png"
+    },
+    {
+      "season": "winter",
+      "row": 10,
+      "prompt": "Costume-only edit of FIRST image eight-pose transparent animation row. SECOND image is the APPROVED exact outfit and flower reference only; do not copy its idle poses. Replace current thin jacket with SECOND reference's WINTER outfit: zipped PUFFY QUILTED butter-yellow jacket with ivory padded sleeves, broad visible horizontal quilting. NAVY FULL-LENGTH TROUSERS touch tops of feet, no exposed shins. Blue five-petal FLOWER with cream center. Flower stays anatomicalLEFT chest (viewerRIGHT frontal), never mirrored or duplicated. Preserve FIRST image's exact eight different poses, expressions, head directions, body/fur/face/proportions, all limb positions, laptop if present, fourcolumns x tworows layout and 1536x1024 size. No scarves/bags/hats. Preserve transparent alpha gutters, no shadows or text.  Use clean painted outline illustration matching reference.",
+      "source": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-eedd8b34-9f00-47f9-86b7-5cf7f3770bc9.png",
+      "file": "scratch/pip-flower/winter/10-look.png"
+    }
+  ],
+  "details": [
+    {
+      "kind": "turnaround",
+      "prompt": "Minimal precise edit to the attached Pip character reference sheet. Replace every BLUE CLOUD emblem with a small BLUE FIVE-PETAL FLOWER with round CREAM CENTER, clearly five separated round petals. Same anatomical LEFT chest location only. On FRONT and LEFT PROFILE replace cloud. BACK and RIGHT PROFILE remain blank with NO flower, as existing cloud placement. Preserve all other pixels as closely as possible: character proportions, face, fur, yellow varsity jacket, ivory sleeves, navy shorts, poses, panel layout, existing labels and warm ivory background. No added accessories.",
+      "generatedFile": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-957a05f0-8ace-4751-817f-45dbd997a734.png"
+    },
+    {
+      "kind": "face-detail",
+      "prompt": "Minimal precise edit to the attached Pip character reference sheet. Replace every BLUE CLOUD emblem with a small BLUE FIVE-PETAL FLOWER with round CREAM CENTER, clearly five separated round petals. Same anatomical LEFT chest location only. Replace clouds on the three face portraits and bottom-right accessory closeup. Change bottom-right label CLOUD PATCH to FLOWER PATCH. Preserve all other pixels as closely as possible: character proportions, face, fur, yellow varsity jacket, ivory sleeves, navy shorts, poses, panel layout, existing labels and warm ivory background. No added accessories.",
+      "generatedFile": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-af181b13-feef-4737-8dbe-66814cff5af5.png"
+    }
+  ],
+  "daisyDetails": [
+    {
+      "kind": "turnaround",
+      "prompt": "Create a reusable GAME CHARACTER TURNAROUND MODEL SHEET of EXACT Daisy, chestnut bob, sage beret with daisy, ivory blouse, apricot dungaree skirt, brownboots, oliveleafsatchel in attachedreference. Four fullbody views in one row: FRONT, LEFT PROFILE nosefacingviewerLEFT, BACK, RIGHT PROFILE. ALL standingUPRIGHTON TWO FEET with arms as hands, same height/model scale and exact head/body proportions. Preserve face/hair/ears/colors/outfit and attachment anatomicalside in everyview. Back is coherent inferredextension of sameclothes; no new props. Pip has no bag/scarf/hat. Sharp warm brown ink and vivid matte painted cel-color style EXACTreference, no3D/plush. Warm ivorybackground, four small Englishlabels below, lots of margin,1536x1024. No textotherthan viewlabels.",
+      "generatedFile": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-f8ee0978-f72f-457c-b287-74a6d7de87f4.png"
+    },
+    {
+      "kind": "face-detail",
+      "prompt": "Create reusable GAME CHARACTER FACE DETAIL SHEET of EXACT Daisy, chestnut bob, sage beret with daisy, ivory blouse, apricot dungaree skirt, brownboots, oliveleafsatchel fromattachedreference. Top row three large head portraits: FRONT, LEFT PROFILE (noseleft), THREE QUARTER LEFT. Bottom row six precise detail panels with small Englishlabels: EYES, NOSE, MOUTH, EAR, HAIR, DAISY BERET. Show own recognizable brown eyes, eyelids, nose/mouth shape and exact markings/hair. Identityand crisp warm brown ink/colorplanes MUST matchreference exactly. Do not turninto3D,photoreal or genericdoll. Ivorybackground, clearly spacedprofessional productionreference, legibleEnglishlabels only,1536x1024. Outfit staysapproved; PipNO scarf/bag.",
+      "generatedFile": "local-generated-images/01a10a2d-9e81-7302-b6eb-c507cd05cd15/exec-e134f097-99e6-4734-88e8-4cb2d03886f1.png"
+    }
+  ]
+}

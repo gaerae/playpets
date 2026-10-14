@@ -5,7 +5,7 @@ import { between, clamp } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, guard, selected, setAiming, toast, views } from '../core/state.js';
 import { befriend } from './bond.js';
-import { fieldTop, footTarget, petHeight, sizeOf } from './field.js';
+import { fieldTop, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { hint } from './hint.js';
 import { greetingFor } from './scene.js';
 import { cue } from './sound.js';
@@ -26,7 +26,7 @@ function ate(v, now) {
   v.nextWander = now + between(Math.random, SCATTER_DELAY);
   if (++treatEaters >= views.size) {
     clearTimeout(treatTimer);
-    treatTimer = setTimeout(() => ($('treat').hidden = true), 900);
+    treatTimer = setTimeout(() => ($('treat').hidden = true), 6000);
   }
 }
 // A pat, a wave or a jump asked for by the person or by a coding agent.
@@ -107,20 +107,47 @@ function dropNearby() {
   if (v) dropTreat(v.px + sizeOf(v.pet) + 30, v.py + petHeight(v.pet));
   else dropTreat(r.width / 2, r.height * 0.78);
 }
+/** Keep a shared meal on the ground, with friends behind or beside it rather than over its food. */
+export function picnicLayout({ x, y, width, height, top, zoom, count }) {
+  const w = Math.min(180 * zoom, width - 24);
+  const h = Math.min(120 * zoom, Math.max(24, height - top - 24));
+  const side = Math.min(width / 2, w * 0.75 + 60 * zoom);
+  const cx = clamp(x, side, width - side);
+  const cy = clamp(y, top + h / 2, height - 24 - h / 2);
+  return {
+    x: cx,
+    y: cy,
+    width: w,
+    height: h,
+    seats: Array.from({ length: count }, (_, i) => {
+      const angle = count === 1 ? Math.PI : Math.PI + (i / (count - 1)) * Math.PI;
+      return { x: cx + Math.cos(angle) * w * 0.75, y: cy + Math.sin(angle) * h * 0.45 };
+    }),
+  };
+}
 function dropTreat(x, y) {
-  const r = $('yard').getBoundingClientRect(),
-    bx = clamp(x, 25, r.width - 25),
-    by = clamp(y, r.height * fieldTop(), r.height - 28);
+  const r = $('yard').getBoundingClientRect();
+  const picnic = picnicLayout({
+    x,
+    y,
+    width: r.width,
+    height: r.height,
+    top: r.height * fieldTop(),
+    zoom: yardZoom(),
+    count: views.size,
+  });
   $('treat').hidden = false;
-  $('treat').style.left = `${bx - 11}px`;
-  $('treat').style.top = `${by - 11}px`;
+  $('treat').style.left = `${picnic.x - picnic.width / 2}px`;
+  $('treat').style.top = `${picnic.y - picnic.height / 2}px`;
+  $('treat').style.width = `${picnic.width}px`;
+  $('treat').style.height = `${picnic.height}px`;
   clearTimeout(treatTimer);
   treatTimer = setTimeout(() => ($('treat').hidden = true), 15000);
   treatEaters = 0;
   let i = 0;
   for (const v of views.values()) {
-    const angle = (i++ / views.size) * Math.PI * 2;
-    sendTo(v, footTarget(v, bx + Math.cos(angle) * 34, by + Math.sin(angle) * 20, 0), { arrive: ate });
+    const seat = picnic.seats[i++];
+    sendTo(v, footTarget(v, seat.x, seat.y, 0), { arrive: ate });
   }
   setAimingMode(false);
 }

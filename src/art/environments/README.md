@@ -71,3 +71,21 @@ city lights; deep navy night with illuminated buildings, river and bridge, plus
 soft warm lamps indoors. Day remains bright with a pale blue sky. No generated
 paint was drawn or repaired with scripts. The renderer continues to clip weather
 and overcast shading to the registered glass panes instead of tinting the room.
+
+
+## Four-place follow-up (2026-10-13)
+
+The current built-ins use the hillside garden (`spring`, `green`, `autumn`,
+`winter`), stone courtyard (`courtyard-*`), lakeside (`lakeside-*`) and village
+study (`studio-cozy-*`). The earlier sections record previous accepted directions,
+not the current runtime selection. The three outdoor places each have four
+seasonal images; the study has four time-of-day images and seasonal window
+views. Their geometry now lives per place in `src/content/worlds.json`, including a
+separate fishing stance where water is present.
+
+See [Four-place provenance](FOUR-PLACES-PROVENANCE.md) for generation briefs,
+accepted filenames and SHA-256 hashes. Portable background files are described in
+[Add a place](../../../docs/how-to/add-a-world.md#portable-backgrounds).
+
+The retired `studio-modern-city-*` images are retained in
+`assets/sources/environments/` and are no longer bundled as runtime art.

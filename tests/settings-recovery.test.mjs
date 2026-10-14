@@ -22,6 +22,7 @@ function page(t) {
     agentPets: { codex: 'first' },
     autoChatter: false,
     desktopWander: false,
+    desktop: true,
   });
   setupSettings();
   return { get: id => document.getElementById(id), agent };

@@ -10,7 +10,7 @@ You can send your friends out of the yard window to live on the desktop. They st
 
 ## Turning it on and off <Since v="0.1.0" />
 
-Click **Show on desktop** among the view controls at the top right of the yard, next to the clock. The button is disabled when you have no friends. It is a switch: while it is on the button stays pressed (as the tray's check mark shows), and a **Stroll** switch appears next to it. Click it again to bring your friends back.
+Open **Menu → Show on desktop** and turn on the switch. **Stroll on desktop** stays directly below it and becomes available when desktop mode is on. Both switches show their current state, and the menu stays open while you adjust them. Turn off **Show on desktop** to bring your friends back. With no friends, desktop mode is unavailable.
 
 The tray icon's menu has the same items, so you can turn it on and off without opening the yard window.
 
@@ -53,4 +53,4 @@ The yard window's close button does not quit the app; it only hides the window. 
 
 ## Quitting for good
 
-To really quit the app, choose **Quit** in the tray menu or click **Quit the app** at the bottom of the Settings tab. Conversations are not saved, and friends on the desktop go too. Each friend's name, personality and size, and whether desktop mode was on, are remembered, so everything is as you left it the next time you open the app.
+To really quit the app, choose **Quit** in the tray menu or click **Quit the app** in **Menu → Settings → About PlayPets**. Conversations are not saved, and friends on the desktop go too. Each friend's name, personality and size, and whether desktop mode was on, are remembered, so everything is as you left it the next time you open the app.

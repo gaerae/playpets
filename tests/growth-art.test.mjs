@@ -9,7 +9,7 @@ test('growth stages share one detailed atlas and keep ordered, clipped viewports
   for (const [column, name] of ['seed', 'sprout', 'leaves', 'bud'].entries()) {
     const svg = await readFile(`src/art/plants/${name}.svg`, 'utf8');
     assert.match(svg, /href="art\/plants\/growth.png"/);
-    assert.ok(svg.includes(`viewBox="${column * 384} 0 384 1024"`), name);
+    assert.ok(svg.includes(`viewBox="${column * 384} -176 384 1024"`), name);
     assert.match(svg, /clip-path="url\(#growth-/);
     assert.match(svg, /viewBox="0 0 40 60"/);
   }

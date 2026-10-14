@@ -1,15 +1,46 @@
 import { worldAllows, worldFor } from './worlds.js';
 
+const DAYLIGHT = { filter: 'none', tint: null };
+const AUTHORED_LIGHT = {
+  morning: { filter: 'brightness(0.98)', tint: '#ffe3b811' },
+  day: DAYLIGHT,
+  evening: { filter: 'brightness(0.9) saturate(0.95)', tint: '#eeb47222' },
+  night: { filter: 'brightness(0.82) saturate(0.9)', tint: '#eeb47222' },
+};
+const OUTDOOR_LIGHT = {
+  morning: { filter: 'brightness(0.95) saturate(0.9)', tint: '#ffd6a52b' },
+  day: DAYLIGHT,
+  evening: { filter: 'brightness(0.78) saturate(0.85)', tint: '#eaa27845' },
+  night: { filter: 'saturate(0.65)', tint: '#132c58b8' },
+};
+const WINDOW_LIGHT = {
+  morning: OUTDOOR_LIGHT.morning,
+  day: DAYLIGHT,
+  evening: { filter: 'brightness(0.7) saturate(0.85)', tint: '#eaa27845' },
+  night: { filter: 'brightness(0.45) saturate(0.65)', tint: '#132c5888' },
+};
+
 // Raster land shares the live sky's time and weather. Loading stays inside easel setup.
 export function environmentLook({ season, weather, period, world }) {
   const place = worldFor(world);
+  if (place.imageSources) {
+    const chosenSeason = weather === 'snow' ? 'winter' : season;
+    const key = place.imageSources[chosenSeason] ? chosenSeason : 'base';
+    return {
+      art: `${place.id}:${key}`,
+      filter: weather === 'rain' ? 'brightness(0.82) saturate(0.8)' : 'none',
+      tint:
+        period === 'night'
+          ? '#132c58b8'
+          : period === 'evening'
+            ? '#eaa27845'
+            : period === 'morning'
+              ? '#ffd6a52b'
+              : null,
+    };
+  }
   if (place.art) {
-    const light = {
-      morning: { filter: 'brightness(0.98)', tint: '#ffe3b811' },
-      day: { filter: 'none', tint: null },
-      evening: { filter: 'brightness(0.9) saturate(0.95)', tint: '#eeb47222' },
-      night: { filter: 'brightness(0.82) saturate(0.9)', tint: '#eeb47222' },
-    }[period] || { filter: 'none', tint: null };
+    const light = AUTHORED_LIGHT[period] || DAYLIGHT;
     return {
       art: place.art[period] || place.art[period === 'night' ? 'night' : 'day'],
       ...(place.authoredLighting ? { filter: 'none', tint: null } : light),
@@ -23,20 +54,25 @@ export function environmentLook({ season, weather, period, world }) {
         : season === 'spring'
           ? 'spring'
           : 'green';
-  const light = {
-    morning: { filter: 'brightness(0.95) saturate(0.9)', tint: '#ffd6a52b' },
-    day: { filter: 'none', tint: null },
-    evening: { filter: 'brightness(0.78) saturate(0.85)', tint: '#eaa27845' },
-    night: { filter: 'saturate(0.65)', tint: '#132c58b8' },
-  }[period] || { filter: 'none', tint: null };
+  const light = OUTDOOR_LIGHT[period] || DAYLIGHT;
   return {
-    art,
+    art: place.seasonArt?.[art] || art,
     filter:
       weather === 'rain'
         ? `${light.filter === 'none' ? '' : `${light.filter} `}saturate(0.7) brightness(0.82)`
         : light.filter,
     tint: light.tint || (weather === 'rain' ? '#526d8555' : null),
   };
+}
+
+/** Seasonal outdoor views are independently lit and clipped to a room's glass. */
+export function environmentWindowLook(scene) {
+  const place = worldFor(scene.world);
+  const season = scene.weather === 'snow' ? 'winter' : scene.season;
+  const art = place.windowArt?.[season];
+  if (!art) return null;
+  const light = WINDOW_LIGHT[scene.period] || DAYLIGHT;
+  return { art, ...light };
 }
 
 /** Keeps the source's proportions while aligning its walkable floor with the yard's. */
@@ -64,7 +100,7 @@ export function weatherPanes(w, h, frame, panes) {
 }
 
 /** Paints a loaded transparent land layer without touching the sky behind it. */
-export function paintEnvironment(ctx, image, w, h, scene) {
+export function paintEnvironment(ctx, image, w, h, scene, windowImage = null) {
   const { filter, tint } = environmentLook(scene);
   ctx.save();
   ctx.filter = filter;
@@ -78,6 +114,21 @@ export function paintEnvironment(ctx, image, w, h, scene) {
   }
   ctx.restore();
   const panes = weatherPanes(w, h, frame, worldFor(scene.world).windowPanes);
+  const windowLook = environmentWindowLook(scene);
+  if (windowImage && windowLook && panes?.length) {
+    ctx.save();
+    ctx.beginPath();
+    for (const pane of panes) ctx.rect(pane.x, pane.y, pane.width, pane.height);
+    ctx.clip();
+    ctx.filter = windowLook.filter;
+    ctx.drawImage(windowImage, frame.x, frame.y, frame.width, frame.height);
+    ctx.filter = 'none';
+    if (windowLook.tint) {
+      ctx.fillStyle = windowLook.tint;
+      ctx.fillRect(0, 0, w, h);
+    }
+    ctx.restore();
+  }
   if (panes?.length && worldAllows(scene.world, 'weather') && ['rain', 'snow'].includes(scene.weather)) {
     ctx.save();
     ctx.beginPath();
@@ -97,19 +148,17 @@ export function paintEnvironment(ctx, image, w, h, scene) {
   if (worldAllows(scene.world, 'seasonalEffects') && scene.event === 'lights') {
     ctx.save();
     const colors = ['#ffe9a8', '#ff9a85', '#a6e3a8', '#a8d8ff'];
-    for (let row = 0; row < 3; row++) {
+    for (const [row, strand] of environmentLightStrands(w, h, scene).entries()) {
       ctx.beginPath();
-      for (let i = 0; i <= 12; i++) {
-        const x = frame.x + frame.width * (0.79 + i * 0.018),
-          y = frame.y + frame.height * (0.08 + row * 0.09 + Math.sin((i / 12) * Math.PI) * 0.045);
-        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-      }
+      strand.forEach(({ x, y }, i) => {
+        if (i) ctx.lineTo(x, y);
+        else ctx.moveTo(x, y);
+      });
       ctx.strokeStyle = '#364d4266';
       ctx.lineWidth = 1;
       ctx.stroke();
-      for (let i = 0; i <= 12; i++) {
-        const x = frame.x + frame.width * (0.79 + i * 0.018),
-          y = frame.y + frame.height * (0.08 + row * 0.09 + Math.sin((i / 12) * Math.PI) * 0.045);
+      for (const [i, { x, y }] of strand.entries()) {
+        if (x < 0 || x > w || y < 0 || y > h) continue;
         ctx.fillStyle = colors[(row + i) % colors.length];
         ctx.shadowColor = ctx.fillStyle;
         ctx.shadowBlur = scene.period === 'night' || scene.period === 'evening' ? 9 : 0;
@@ -143,4 +192,28 @@ export function environmentLake(w, h, scene = {}) {
     ridgeAt,
     onWater: (x, y) => x >= 0 && x <= w && y >= 0 && y <= h && x > x0 && x < x1 && y > shoreAt(x) && y < ridgeAt(x),
   };
+}
+
+/** Optional authored fishing stance, transformed with the image; cropped stances use the visible shore. */
+export function environmentFishingSpot(w, h, scene) {
+  const point = worldFor(scene.world).geometry?.fishingSpot;
+  if (!point || !worldAllows(scene.world, 'fishing')) return null;
+  const frame = environmentFrame(w, h, scene);
+  const x = frame.x + point.x * frame.width,
+    y = frame.y + point.y * frame.height;
+  return x >= 0 && x <= w && y >= 0 && y <= h ? { x, y } : null;
+}
+
+/** Strands stay attached to their authored tree branches when the scene is cropped. */
+export function environmentLightStrands(w, h, scene) {
+  const frame = environmentFrame(w, h, scene);
+  return (worldFor(scene.world).lightAnchors || []).map(anchor =>
+    Array.from({ length: 13 }, (_, i) => {
+      const fraction = i / 12;
+      return {
+        x: frame.x + frame.width * (anchor.from + (anchor.to - anchor.from) * fraction),
+        y: frame.y + frame.height * (anchor.y + Math.sin(fraction * Math.PI) * anchor.sag),
+      };
+    }),
+  );
 }

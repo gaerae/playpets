@@ -73,7 +73,7 @@ $env:PLAYPETS_DATA = "$PWD\.dev-data"
 npm run start
 ```
 
-7. Pick a pet in the Invite tab. The ten starter entries are always there, and pets in `~/.codex/pets` and community pets pasted in through "Import a pet" show on the shelf too.
+7. Pick a pet in the Invite tab. The three illustrated starter entries are always there, and pets in `~/.codex/pets` and community pets pasted in through "Import a pet" show on the shelf too.
 
 8. After changing page code, build again and start the app. Page files go into the executable at build time, so you need a build to see your change.
 

@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-14",
+  "tool": "OpenAI built-in image generation",
+  "project": "PlayPets",
+  "status": "Accepted illustrated source batches with corrected gaze order",
+  "reference": "assets/concepts/forest-companions.png",
+  "directionReference": "assets/sources/companions-2026-10-14/concept.png",
+  "characters": ["Daisy", "Clover", "Pip"],
+  "sourceLayout": {
+    "width": 1536,
+    "height": 1024,
+    "columns": 4,
+    "rows": 2,
+    "poses": 8,
+    "background": "transparent"
+  },
+  "promptRecord": "Reconstructed intent below; not an exact transcript of every generation or repair call. Exact prompts belong to the generating session.",
+  "reconstructedIntent": "Use the attached illustrated character concept and approved idle reference. Preserve the face, hairstyle/fur shapes, outfit, accessories and attachment sides. Create eight distinct full-body poses for the named state, four columns by two rows, with consistent model scale and transparent gutters. Use clear variable contours, painted flat color regions and restrained cel shadows; no soft plush 3D finish. Daisy wears an apricot dress and sage daisy beret; Clover wears teal gardener overalls and straw hat; Pip wears a blue courier jacket, red scarf and dark teal knee-length shorts. Keep laptop work seated and keep all feet, hands, hats and bags inside cells. Look rows follow runtime clockwise direction order, upper/right half then lower/left half.",
+  "packing": "Single high-quality downsample from extracted source silhouettes. Shared idle-derived scale with documented whole-row scale corrections; no repainting or sharpening. See per-character pack-settings.json."
+}

@@ -31,7 +31,8 @@ export function renderDesktopSwitches() {
   $('desktop').title = desktopLabel;
   $('desktop').setAttribute('aria-label', desktopLabel);
   $('desktop').setAttribute('aria-pressed', String(!!data.desktop));
-  $('wander-wrap').hidden = !data.desktop;
+  $('wander-wrap').hidden = false;
+  $('desktop-wander').disabled = !data.desktop;
   $('desktop-wander').checked = !!data.desktopWander;
   $('auto-chatter').checked = !!data.autoChatter;
   $('autostart').checked = !!data.autostart;

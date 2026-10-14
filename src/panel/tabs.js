@@ -1,5 +1,6 @@
-// One panel, three tabs. Closed, the yard has the whole window. Friend and Invite open beside the
-// yard (a friend is talked to where it can be seen); Settings, which needs no view of the yard,
+import { closeControls, closeScene } from '../core/controls.js';
+// One panel, three tabs. Friend and Invite float over the yard without moving the friends.
+// Settings, which needs no view of the yard,
 // opens as a wide sheet over it, with an index of its sections.
 import { t } from '../core/i18n.js';
 import { release } from '../core/sprites.js';
@@ -38,9 +39,13 @@ function closePanel() {
     const opener = miniOpener?.isConnected && miniOpener.getClientRects().length ? miniOpener : null;
     (opener || views.get(selected)?.button || $('unmini')).focus();
     miniOpener = null;
-  } else tab?.focus();
+  } else ($('yard-controls-toggle') || tab)?.focus();
 }
 export function openPanel(kind, section) {
+  if (kind) {
+    closeControls(false);
+    closeScene();
+  }
   if (!$('panel-invite').hidden && kind !== 'invite') {
     clearTimeout(releaseTimer);
     releaseTimer = setTimeout(() => {
@@ -99,7 +104,7 @@ export function setupTabs() {
     if (
       e.key === 'Escape' &&
       !e.defaultPrevented &&
-      $('layout').classList.contains('settings-open') &&
+      ($('layout').classList.contains('settings-open') || $('layout').classList.contains('panel-open')) &&
       !document.querySelector('dialog[open]')
     ) {
       e.preventDefault();

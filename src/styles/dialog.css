@@ -3,10 +3,10 @@ dialog {
   width: 440px;
   max-width: calc(100vw - 32px);
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: var(--radius-panel);
   padding: 28px;
   color: var(--ink);
-  background: var(--white);
+  background: var(--panel-surface);
   box-shadow: 0 24px 100px #152e432b;
 }
 dialog::backdrop {
@@ -185,7 +185,7 @@ dialog .relation-card {
   padding: 10px 12px;
   min-height: 64px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--white);
   cursor: pointer;
   transition:
@@ -214,9 +214,9 @@ dialog .relation-card small {
   border-color: #c9d3cf;
 }
 .relation-card:has(input:checked) {
-  border-color: var(--ink);
-  background: var(--paper);
-  box-shadow: inset 0 0 0 1px var(--ink);
+  border-color: var(--green-ink);
+  background: var(--control-selected);
+  box-shadow: inset 0 0 0 1px var(--green-ink);
 }
 .relation-card:has(input:focus-visible) {
   outline: 2px solid var(--accent);
@@ -310,20 +310,24 @@ dialog .relation-card small {
   filter: brightness(0) invert(0.4);
 }
 .album-tabs {
-  display: inline-flex;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
   padding: 4px;
   margin: 4px 0 12px;
-  border-radius: 12px;
-  background: #eef3ee;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--segment-track);
 }
 .album-tabs button {
   display: inline-flex;
   align-items: baseline;
+  justify-content: center;
   gap: 6px;
-  padding: 6px 14px;
+  min-height: 44px;
+  padding: 9px 8px;
   border: 0;
-  border-radius: 9px;
+  border-radius: var(--radius-control);
   background: transparent;
   font: inherit;
   font-weight: 650;
@@ -331,13 +335,29 @@ dialog .relation-card small {
   cursor: pointer;
 }
 .album-tabs button[aria-selected="true"] {
-  background: var(--white);
   color: var(--ink);
+  background: var(--segment-active);
   box-shadow: 0 1px 4px var(--ink-12);
+}
+.album-tabs button:hover:not([aria-selected="true"]) {
+  background: var(--control-hover);
+  color: var(--ink);
 }
 .album-tabs small {
   font-weight: 600;
   color: var(--muted);
+}
+@media (max-width: 480px) {
+  .album-tabs button {
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 6px 2px;
+    line-height: 1.2;
+  }
+  .album-tabs small {
+    margin-top: 0;
+  }
 }
 .album-grid {
   display: grid;
@@ -484,9 +504,6 @@ dialog .relation-card small {
   }
   .relation-card:hover {
     border-color: var(--green-line);
-  }
-  .album-tabs {
-    background: var(--paper);
   }
   .album-card {
     border-color: var(--line);

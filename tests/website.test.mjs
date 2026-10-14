@@ -82,7 +82,7 @@ test('web links and anchors are left alone', () => {
 
 test('each sample pet is a valid v2 sheet with its pet.json', async () => {
   const { readFile: read } = await import('node:fs/promises');
-  for (const id of ['daisy', 'clover', 'pip', 'aria', 'noah', 'tabby', 'smoky', 'mochi']) {
+  for (const id of ['daisy', 'clover', 'pip']) {
     const png = await read(`assets/pets/${id}/spritesheet.png`);
     assert.equal(png.readUInt32BE(16), 1536, id);
     assert.equal(png.readUInt32BE(20), 2288, id);

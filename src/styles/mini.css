@@ -1,10 +1,7 @@
-/* The mini window: the yard alone, the tools in a small bar that rises while the pointer is over
-   it, and smaller tags and cards. Last of the yard's files, as it changes what they set. */
+/* The mini window: the yard alone, an expansion button, and smaller tags and cards. Last of the yard's files, as it changes what they set. */
 /* What the yard window has besides the yard goes, and so do the parts a small yard has no room for. */
 body.mini .topbar,
 body.mini .empty-yard,
-body.mini .yard-caption,
-body.mini .yard-hint,
 body.mini .side-panel,
 body.mini #warnings,
 body.mini .game-banner,
@@ -57,55 +54,23 @@ body.mini .pet-label.focused .pet-tag,
 body.mini .pet-tag:hover {
   visibility: visible;
 }
-/* The mini view keeps the care tools: a small bar that rises over the yard while the pointer is
-   on it, icons only (their words stay in the tooltip and for screen readers). */
-body.mini .play-toolbar {
-  position: absolute;
-  left: 50%;
-  bottom: 10px;
-  z-index: 6;
-  padding: 4px;
-  border: 0;
-  border-radius: 14px;
-  background: var(--floating);
-  box-shadow: 0 4px 14px var(--ink-15);
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, 6px);
-  transition:
-    opacity 0.18s,
-    transform 0.18s;
-}
-body.mini .yard-frame:hover .play-toolbar,
-body.mini .play-toolbar:focus-within {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, 0);
-}
-body.mini .tool-divider,
-body.mini .games {
+body.mini .games,
+body.mini #mini {
   display: none;
 }
-body.mini .button.tool {
-  padding: 7px;
-  min-height: 32px;
-  min-width: 32px;
-  justify-content: center;
+body.mini .yard-controls-panel {
+  max-height: calc(100% - 72px);
+  gap: 4px;
+  padding: 8px;
 }
-body.mini .button.tool > span:not([data-icon]) {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+body.mini .view-controls > #desktop {
+  grid-column: auto;
 }
-@media (hover: none) {
-  body.mini .play-toolbar {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, 0);
-  }
+body.mini .yard-caption {
+  gap: 4px;
+}
+body.mini .play-toolbar {
+  padding-top: 6px;
 }
 /* the way back to the full window, only in the mini one */
 .unmini {
@@ -168,4 +133,11 @@ body.mini .catch-card small:not(.catch-new) {
    load after this file, so none of their later rules can quietly undo the change. */
 body.mini .layout {
   position: relative;
+}
+
+/* Mini is a companion window; controls belong to the expanded yard, including on touch. */
+body.mini .yard-dock,
+body.mini .yard-controls-panel,
+body.mini .scene-menu {
+  display: none;
 }

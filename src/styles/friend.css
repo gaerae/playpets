@@ -12,6 +12,7 @@
 .relation-chip {
   flex: none;
   padding: 3px 9px;
+  min-height: 28px;
   border: 1px solid #f1cfe0;
   border-radius: 99px;
   background: #fdf0f6;
@@ -267,15 +268,12 @@
   background: #ec7d96;
   transition: width 0.6s;
 }
-/* The next step has its own quiet card, so it can wrap without crowding the friend's name. */
+/* Progress stays a quiet wrapping line below the identity, leaving room for conversation. */
 .bond-next {
   flex: none;
-  margin: 12px 0 0;
-  padding: 9px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--paper);
-  font-size: 11.5px;
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 12px;
   line-height: 1.6;
   color: var(--muted);
 }
@@ -286,7 +284,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   flex: none;
 }
 .friend-chips:empty {
@@ -301,16 +299,16 @@
 }
 .menu-anchor > .icon-button,
 .side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head .icon-button {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-control);
 }
 .menu-anchor > .icon-button svg {
   width: 16px;
   height: 16px;
 }
 .menu-anchor > .icon-button[aria-expanded="true"] {
-  background: var(--paper);
+  background: var(--control-selected);
 }
 .pop-menu {
   position: absolute;

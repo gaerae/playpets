@@ -17,23 +17,28 @@ test('landing introduces every built-in companion before optional AI and coding'
   assert.match(gallery, /idle.*wave.*jump/s);
   assert.match(gallery, /observer\?\.disconnect/);
   assert.match(gallery, /preview-paused.*portraitVisible/);
-  assert.match(read('website/.vitepress/theme/landing.css'), /\.pet-shelf \.sprite i,[\s\S]*animation: none/);
+  assert.match(gallery, /:state="selected.id === pet.id \? pose : 'idle'"/);
+  assert.match(gallery, /class="pet-portrait pet-shelf"/);
+  assert.doesNotMatch(gallery, /:pet="selected.id"/);
+  assert.match(read('website/.vitepress/theme/landing.css'), /\.preview-paused \.sprite i[\s\S]*animation: none/);
 });
 
-test('the landing offers four seasons and city day/night without an automatic carousel', async () => {
+test('the landing offers four places, outdoor seasons and an explicitly labelled interactive sample', async () => {
   const locales = await Promise.all(
     ['en', 'ko', 'ja', 'zh-hans'].map(lang => import(`../website/.vitepress/theme/landing-${lang}.ts`)),
   );
   for (const { worldCopy } of locales) {
-    assert.deepEqual(
-      worldCopy.scenes.map(scene => scene.shot),
-      ['yard-spring', 'yard-summer', 'yard-talk', 'yard-winter', 'studio-day', 'studio-night'],
-    );
-    assert.ok(worldCopy.scenes.every(scene => scene.label && scene.caption));
+    assert.equal(worldCopy.places.length, 4);
+    assert.equal(worldCopy.seasons.length, 4);
+    assert.ok(worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel);
   }
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /:aria-pressed=/);
-  assert.doesNotMatch(preview, /setInterval|setTimeout/);
+  assert.match(preview, /v-if="place !== 3"/);
+  assert.match(preview, /IntersectionObserver/);
+  assert.match(preview, /observer\?\.disconnect/);
+  assert.match(preview, /clearTimeout\(greetingTimer\)/);
+  assert.doesNotMatch(preview, /setInterval/);
 });
 test('sprite previews preserve their space and load only when visible', () => {
   const preview = read('website/.vitepress/theme/VisibleSprite.vue');
@@ -49,10 +54,10 @@ test('landing connection and gallery copy has the same contract in every languag
       SITE_LANGS.map(async lang => [lang, (await import(`../website/.vitepress/theme/landing-${lang}.ts`)).sections]),
     ),
   );
-  assert.equal(LANDING_PETS.length, 10);
+  assert.equal(LANDING_PETS.length, 3);
   assert.deepEqual(
     LANDING_PETS.map(pet => pet.displayName),
-    ['Daisy', 'Clover', 'Pip', 'Aria', 'Aria Mini', 'Noah', 'Noah Mini', 'Tabby', 'Smoky', 'Mochi'],
+    ['Daisy', 'Clover', 'Pip'],
   );
   for (const lang of SITE_LANGS) {
     assert.deepEqual(Object.keys(sections[lang]).sort(), Object.keys(sections.en).sort(), lang);
@@ -98,4 +103,16 @@ test('every landing companion leads to its own creator kit', async () => {
   const gallery = read('website/.vitepress/theme/PetGallery.vue');
   assert.match(gallery, /selected\.kit/);
   assert.match(gallery, /words\.galleryCreate/);
+});
+
+test('landing groups preserve Daisy Clover Pip order and normalize the approved idle silhouettes', async () => {
+  const { castHeightFactor } = await import('../website/.vitepress/theme/site-runtime.mjs');
+  for (const [pet, height] of [
+    ['daisy', 326],
+    ['clover', 337],
+    ['pip', 329],
+  ])
+    assert.ok(Math.abs(height * castHeightFactor(pet) - 326) < 0.001);
+  for (const file of ['Landing.vue', 'PetGallery.vue', 'WorldPreview.vue'])
+    assert.match(read(`website/.vitepress/theme/${file}`), /equal-height/);
 });

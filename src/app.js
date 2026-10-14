@@ -1,3 +1,6 @@
+import { setupControls } from './core/controls.js';
+import { setupInteractions } from './core/interactions.js';
+import { setupBackgrounds } from './yard/background-ui.js';
 // Entry point: sets every part of the page up in order, listens to the backend, and runs the frame loop.
 // No other module does anything when it is imported; each has a setup function, called here.
 
@@ -84,8 +87,10 @@ await loadContent();
 apply();
 icons();
 setupConfirm();
+setupInteractions();
 setupWindow();
 setupTabs();
+setupControls();
 // Keyboard: the panels and the two views, with the keys the macOS menu bar shows (core/keys.js).
 onShortcut('friends', () => openPanel('pet'));
 onShortcut('invite', () => openPanel('invite'));
@@ -121,6 +126,7 @@ setupSky({
     renderDecor();
   },
 });
+setupBackgrounds();
 setupViews({
   gameTap,
   patted: id => {

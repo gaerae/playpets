@@ -13,15 +13,14 @@ import CreatorKit from "../.vitepress/theme/CreatorKit.vue";
 
 # Creator studio
 
-Choose from ten friends. Keep their character, try a new outfit or motion, and take the prompt straight to your image tool.
+Choose from three friends. Keep their character, try a new outfit or motion, and take the prompt straight to your image tool.
 
 <CreatorKit lang="en" />
 
-Aria and Noah are fictional adults, ages 25 and 26. Each entry is a separate pet. Mini in a name describes the character; every pet works in the mini window.
 
 <ExtensionPrompts lang="en" />
 
-Each design kit includes the original artwork, character specification, five prompts and animation references. Detailed turnaround and face sheets are available for Aria, Aria Mini, Noah, Noah Mini and Clover; the other five start from original animation references. Check the selected kit before downloading. Seasonal sheets are included only where available. Importing a pet creates a separate friend and preserves existing history.
+Each design kit includes original artwork, a character specification, five prompts, animation references, a full-body turnaround and a face-detail sheet. Daisy, Clover and Pip each include summer and winter sheets. Importing a pet creates a separate friend without changing existing friends or their records.
 
 The baseline ZIP contains only `pet.json` and `spritesheet.png`.
 
@@ -62,10 +61,10 @@ Clone the repository, install its dependencies with `npm ci`, and have Google Ch
 ```
 
 ```sh
-node scripts/pack-companion-batches.mjs my-character-rows my-character/spritesheet.png 176
+node scripts/pack-companion-batches.mjs my-character-rows my-character/spritesheet.png 163
 ```
 
-The last argument is the first idle silhouette height in the final cell: use `176` for these realistic adult examples, or `163` as the illustrated starting target. Preserve an established character’s measured scale (Clover uses 168); these are art targets, not new format dimensions. The packer shares one scale, preserves jump lift, and rejects clipping instead of shrinking individual rows.
+The last argument is the first idle silhouette height in the final cell. Use `163` as an illustrated starting target, then preserve the established character’s measured scale (Clover uses 168). These are art targets, not new format dimensions. The packer shares one scale, preserves jump lift, and rejects clipping instead of shrinking individual rows.
 
 Put the resulting PNG and this manifest in one folder, then use [Import from a folder](./import.md). Change the identity and description to match your own fictional character. Optional wardrobe/style fields are PlayPets extensions; other pet applications may ignore them.
 
@@ -103,3 +102,5 @@ A richer PlayPets package may also set `portraitPath` to a provided PNG for the 
   }
 }
 ```
+
+[Background studio](./background-kit)

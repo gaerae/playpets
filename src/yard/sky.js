@@ -1,7 +1,7 @@
 // Scenery: time of day and weather each follow the clock and the sky unless the person picks one.
 // A change of weather is remarked on by a friend or two (remarks.js).
 
-import { language, t } from '../core/i18n.js';
+import { t } from '../core/i18n.js';
 import { dropdown } from '../core/menu.js';
 import { isSeason, selectedSeason, southern } from '../core/season.js';
 import { reduced } from '../core/sprites.js';
@@ -47,7 +47,7 @@ let seasonChanged = () => {};
  * language orders the place, the time of day and the weather in its own caption.indoor* line. */
 export function worldCaption(world, period, weather) {
   if (worldAllows(world, 'sky')) return sceneCaption(period, weather);
-  const parts = { place: t(worldFor(world).label), period: t(`period.${period}`) };
+  const parts = { place: worldFor(world).name || t(worldFor(world).label), period: t(`period.${period}`) };
   return worldAllows(world, 'weather')
     ? t('caption.indoor_weather', { ...parts, weather: t(`weather.${weather}`) })
     : t('caption.indoor', parts);
@@ -128,14 +128,6 @@ function showRainbow(yard) {
   clearTimeout(rainbowTimer);
   rainbowTimer = setTimeout(() => $('yard').classList.remove('after-rain'), RAINBOW_MS);
 }
-// The clock at the top right: the time and the date in the app's language, changed on the minute
-// (a narrow yard shows the time alone, caption.css).
-const clockTime = new Intl.DateTimeFormat(language(), { hour: 'numeric', minute: '2-digit' }),
-  clockDate = new Intl.DateTimeFormat(language(), { month: 'short', day: 'numeric', weekday: 'short' });
-function showTime(now) {
-  $('clock-time').textContent = clockTime.format(now);
-  $('clock-date').textContent = ` · ${clockDate.format(now)}`;
-}
 // Starts the sky: the chosen or automatic time and weather, and the minute-by-minute check. Called once, by app.js.
 // `options`, each optional:
 // - seasonChanged(season): after every repaint, with the season shown;
@@ -160,20 +152,26 @@ export function setupSky(options = {}) {
   };
   seasonChoice = isSeason(saved.season) ? saved.season : 'auto';
   $('season').value = seasonChoice;
+  $('scene-season').value = seasonChoice;
   $('season').onchange = () => {
     const choice = $('season').value;
     seasonChoice = isSeason(choice) ? choice : 'auto';
     remember('season', seasonChoice);
+    $('scene-season').value = seasonChoice;
     cancelRemarks();
     seasonPicked();
     paintScene();
+  };
+  $('scene-season').onchange = () => {
+    $('season').value = $('scene-season').value;
+    $('season').onchange();
   };
   scene.world = worldFor(saved.world).id;
   $('world').replaceChildren(
     ...worlds.map(world => {
       const option = document.createElement('option');
       option.value = world.id;
-      option.textContent = t(world.label);
+      option.textContent = world.name || t(world.label);
       return option;
     }),
   );
@@ -191,7 +189,13 @@ export function setupSky(options = {}) {
   $('weather').value = weatherChoice;
   $('period').value = periodChoice;
   // The caption is the button for the time of day and the weather: a small panel under it.
-  dropdown($('scene-button'), $('scene-menu'), () => $('world').focus());
+  const chooser = dropdown($('scene-button'), $('scene-menu'), () => {
+    $('background-gallery').querySelector('[aria-pressed="true"]')?.focus();
+  });
+  $('scene-close').addEventListener('click', () => {
+    chooser.close();
+    $('scene-button').focus();
+  });
   $('period').onchange = () => {
     periodChoice = $('period').value;
     remember('period', periodChoice);
@@ -203,9 +207,7 @@ export function setupSky(options = {}) {
     if (paintScene()) remark();
   };
   paintScene();
-  showTime(new Date());
-  everyMinute(now => {
-    showTime(now);
+  everyMinute(() => {
     if (paintScene()) remark();
   });
 }

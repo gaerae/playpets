@@ -77,3 +77,9 @@ export function whenVisible(target, load, Observer = globalThis.IntersectionObse
     observer.disconnect();
   };
 }
+
+// Approved 2× idle silhouette heights, measured at alpha > 64; keep pose motion intact.
+export function castHeightFactor(pet) {
+  const heights = { daisy: 326, clover: 337, pip: 329 };
+  return heights[pet] ? 326 / heights[pet] : 1;
+}

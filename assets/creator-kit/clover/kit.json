@@ -16,64 +16,64 @@
   },
   "files": {
     "turnaround.png": {
-      "bytes": 1938095,
-      "sha256": "3361c0bb2942a70dca8f575a80c70e8dc3d0b0785dc6c9deb8c64bb84011742e"
+      "bytes": 1807971,
+      "sha256": "10a813c9a6046a5ff09652a459a91fafd41f57bf72d7d48035fce2200e03b6b1"
     },
     "face-detail.png": {
-      "bytes": 2309593,
-      "sha256": "38e4904dc8e87d87a3562600f842b501a5a5bbb6b23a2683651a1e3f9d49b5e5"
+      "bytes": 2103932,
+      "sha256": "bd82bc60226c44cff3d36efcc6b58ea6d2ce2d21c636a68db0cfc29a4635156b"
     },
     "identity-reference.png": {
-      "bytes": 231780,
-      "sha256": "32ba07487b15e3f2276c1c4ef2a9add6e520ce6ec29f8152a6466d7ab43ad25f"
+      "bytes": 296927,
+      "sha256": "f602d87f2b8ac7ce0fcaf5ae6fd225e5a59e8886c869fe8351dcdf7d9e143d78"
     },
     "expression-reference.png": {
-      "bytes": 251657,
-      "sha256": "44b64d9aaa70d6914b8f5b33790a32faa2c7b417566d56e5c478a04f857e3b7c"
+      "bytes": 290989,
+      "sha256": "b25e224f110b45b337502e9569a9bae39fae3317f5c810f3a5e6fb2bb0532a07"
     },
     "motion-reference.png": {
-      "bytes": 3359939,
-      "sha256": "f64ff3c754505f16bdf9126c522e634393522aaaa4e78cdd2a6d4f699ef93ebe"
+      "bytes": 4071334,
+      "sha256": "8aef9ec7fdecdb733466c30d03cd9b405f585718e4fdc5a283606e695d4bd5b5"
     },
     "wardrobe-reference.png": {
-      "bytes": 119502,
-      "sha256": "96b1f0f355e57d0130a5dfe31c3720890a12d5352cff3d84edc01bd6134445f9"
+      "bytes": 144592,
+      "sha256": "f242d7c58b949e00553a17e30be82d68e0160ee3302f9bc6c4c60905cc4cbe9f"
     },
     "spritesheet.png": {
-      "bytes": 3625182,
-      "sha256": "bd733acedd978ad3639c1ae6f69b2907ddebdbb2706f3b3e53f74d2dd4324cf7"
+      "bytes": 4174353,
+      "sha256": "89395750d2f79f8925a2d1b6448a1215a4a537b1307531b567ad14d819feae2a"
     },
     "summer.png": {
-      "bytes": 3655867,
-      "sha256": "fd3be4a9c920cb6d770570a999d6490df2ffee88b0f85ef8f8df117169497c9f"
+      "bytes": 4163858,
+      "sha256": "5358f7f7a9efd77c5e48b925f1179f06bf4d95241cf359e1ab2356a165b0f37c"
     },
     "winter.png": {
-      "bytes": 3470859,
-      "sha256": "258e9c9d79d44bf2928b4feacc6fe439f2e52d6430a8906b6073f1fd174879a3"
+      "bytes": 3966543,
+      "sha256": "b132ee2035937c07abc6ea4533fc4f02d763b5cb00626611d64f6421c84eae2b"
     },
     "identity.json": {
-      "bytes": 2775,
-      "sha256": "a1355b473187a812d09c8d6519f30bf96dd4d8807b16560b6847d804a5056a8d"
+      "bytes": 2816,
+      "sha256": "ea22e6a612938c1ec17010fb55080a2a40d114cecfe665384f04771e55870f06"
     },
     "prompts/01-identity-lock.txt": {
-      "bytes": 1724,
-      "sha256": "6de99c70644f58572f66b59fd68aa64c4931e4bf8b8db46b77da5f264241afb7"
+      "bytes": 2223,
+      "sha256": "56da53ff1bbfef1800f55c0a88232ed78437c4a378b388f89530fd7a145869ba"
     },
     "prompts/02-face-detail.txt": {
-      "bytes": 1666,
-      "sha256": "c2093b998d04011329950740cfb4400877f528824bcd9b91ca7514e190a73d59"
+      "bytes": 2165,
+      "sha256": "d727eb54e9577a7452a9210c17bb2f53a1eb82688d55e7c3088760d63da34631"
     },
     "prompts/03-wardrobe.txt": {
-      "bytes": 2088,
-      "sha256": "232353c78421d85ca8f15c75728eecf8dd893dc9029ec509d9f8172383e74e8d"
+      "bytes": 2587,
+      "sha256": "db763eef92f75c3946c38256a7605d443a90ddc3ac810e0d703d1547b8461c4f"
     },
     "prompts/04-state-row.txt": {
-      "bytes": 2029,
-      "sha256": "48b5b65ccbf4fe0c7f46d27986016264397cae7eea2d2c6ba9f601d6a57a287b"
+      "bytes": 2528,
+      "sha256": "24a5b5a9888a518d16cb2b22832b38e84610237e4ddcf8929dbb64b1a4b7638b"
     },
     "prompts/05-canonical-export.txt": {
-      "bytes": 1879,
-      "sha256": "fc4ab4f374fe13ef48639b5edb40bc7b004ecdcff1d222d8ee58230a7de005da"
+      "bytes": 2378,
+      "sha256": "6eb77d978eeee907032e0807abe6de90b5ab80d9881359285451dfbf07d87994"
     },
     "pet.json": {
       "bytes": 519,

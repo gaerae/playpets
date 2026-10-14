@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "references": {
-    "detail": "not-created",
+    "detail": "available",
     "seasons": ["summer", "winter"]
   },
   "id": "daisy",
@@ -33,7 +33,7 @@
   "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
   "facePanels": {
     "top": ["front", "profile facing viewer left", "three-quarter facing viewer left"],
-    "bottom": ["eyes", "nose", "mouth", "ear", "hair", "signature accessory"]
+    "bottom": ["eyes", "nose", "mouth", "ear", "hair", "signature daisy beret"]
   },
   "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
   "canonical": {

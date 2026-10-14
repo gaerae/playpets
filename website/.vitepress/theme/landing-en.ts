@@ -32,43 +32,17 @@ export const copy = {
   releaseLink: (v: string) => `${v}`,
 };
 export const worldCopy = {
+  places: ['Hill garden', 'Stone courtyard', 'Lakeside cottage', 'Cozy living room'],
+  seasons: ['Spring', 'Summer', 'Autumn', 'Winter'],
+  seasonLabel: 'Choose a season',
+  previewNote:
+    'An interactive scene sample with the app’s artwork. Select a friend to wave; games and weather live in the app.',
+  greet: 'Say hello',
   title: ['A little world', 'to come home to.'],
   lead: 'A walk, a game, a quiet moment together. Make room for a few little friends in your day.',
   worldsTitle: 'What does a good day look like?',
-  worldsLead: 'Choose a season. Or settle in above the city lights.',
+  worldsLead: 'Find a favourite corner. Change the season and say hello.',
   sceneLabel: 'Choose a place and season',
-  scenes: [
-    {
-      shot: 'yard-spring',
-      label: 'Spring',
-      caption: 'A little sunshine, a few petals, and nowhere to rush.',
-    },
-    {
-      shot: 'yard-summer',
-      label: 'Summer',
-      caption: 'Green grass and a whole afternoon to play.',
-    },
-    {
-      shot: 'yard-talk',
-      label: 'Autumn',
-      caption: 'Warm leaves and familiar company.',
-    },
-    {
-      shot: 'yard-winter',
-      label: 'Winter',
-      caption: 'Watch the snow fall together.',
-    },
-    {
-      shot: 'studio-day',
-      label: 'City day',
-      caption: 'A quiet corner above the busy city.',
-    },
-    {
-      shot: 'studio-night',
-      label: 'City night',
-      caption: 'The lights come on. Stay a little longer.',
-    },
-  ],
   pause: 'Pause animations',
   resume: 'Play animations',
   creatorTitle: 'There’s room for your imagination.',
@@ -83,17 +57,10 @@ export const sections = {
   petNotes: {
     daisy: 'A curious explorer who notices little things.',
     clover: 'A gentle kitten gardener who shares small discoveries.',
-    pip: 'A puppy courier who loves greeting every friend.',
-    'aria-full': 'An adult performer who enjoys music and quiet evenings.',
-    'aria-mini': 'Aria’s separate, small companion, with a love of music.',
-    'noah-full': 'An adult performer who enjoys conversation and city walks.',
-    'noah-mini': 'Noah’s separate, small companion, with a love of city walks.',
-    tabby: 'A cheerful ginger kitten with an adventurous stride.',
-    smoky: 'A calm grey cat who thinks before speaking.',
-    mochi: 'A soft cream cat who is always up for a game.',
+    pip: 'A cheerful puppy in a blue-flower jacket, always ready to say hello.',
   },
   galleryTitle: 'Someone you’ll be glad to see.',
-  galleryLead: 'Ten friends are ready to meet you. Choose one to see them move.',
+  galleryLead: 'Daisy, Clover and Pip. Three different personalities, one little world.',
   galleryLabel: 'Choose a companion',
   posesLabel: 'Preview a pose',
   poses: ['Rest', 'Wave', 'Jump'],
@@ -111,8 +78,9 @@ export const sections = {
     ],
   ],
   miniTitle: 'A small corner of your day.',
-  miniBody: 'Keep a little window beside your work, or let your friends wander across your desktop.',
-  miniLink: 'Try desktop companions',
+  miniBody:
+    'Mini mode keeps the yard beside your work, without menus. Expand it when you want to change the scene or use play tools.',
+  miniLink: 'Meet mini mode',
   agentGuide: 'Connect a coding agent',
   connectionDetails: 'Conversation setup and costs',
   connectionSetup:

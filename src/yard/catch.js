@@ -13,8 +13,9 @@ import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
-import { environmentLake } from './environment.js';
+import { environmentFishingSpot, environmentLake } from './environment.js';
 import { field, footTarget, petHeight, sizeOf } from './field.js';
+import { castGeometry, linePath, ROD, rodPlacement, rodUrl } from './fishing-rod.js';
 import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
 import { cue } from './sound.js';
@@ -56,11 +57,12 @@ let fishing = null;
 const atLake = { end: () => stopFishing() };
 function stopFishing() {
   if (!fishing) return;
-  const { v, timer, float, line } = fishing;
+  const { v, timer, float, line, rod } = fishing;
   fishing = null;
   clearTimeout(timer);
   float?.remove();
   line?.remove();
+  rod?.remove();
   if (v.trip?.arrive === fishArrived) release(v);
   if (v.doing === atLake) {
     v.doing = null;
@@ -78,8 +80,14 @@ function startFishing(x, friend) {
     remember('fished', '1');
     hint();
   }
-  // The friend stands on the near shore just left of where the float goes.
-  sendTo(v, footTarget(v, x - sizeOf(v.pet) * 0.55, shore + 6), { arrive: fishArrived, cancel: stopFishing });
+  const area = field();
+  const stance =
+    $('yard').dataset.environment === 'illustrated' ? environmentFishingSpot(area.width, area.height, scene) : null;
+  // Authored stances keep pets on a dock or bank; otherwise stand beside the visible shore.
+  sendTo(v, footTarget(v, stance?.x ?? x - sizeOf(v.pet) * 0.55, stance?.y ?? shore + 6), {
+    arrive: fishArrived,
+    cancel: stopFishing,
+  });
   fishing = { v, x, y: l.shoreAt(x) + (shore - l.shoreAt(x)) * 0.45, solo: !!friend };
 }
 // The friend reached the shore it was sent to.
@@ -89,11 +97,11 @@ function fishArrived(v) {
   bubble(v, pick(list('catch.casting')), 2600);
   const layer = $('garden-layer'),
     float = document.createElement('button'),
+    rod = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
     line = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
     rodX = v.px + sizeOf(v.pet) * 0.6,
-    rodY = v.py + petHeight(v.pet) * 0.74,
-    tipX = rodX + sizeOf(v.pet) * 0.68,
-    tipY = rodY - petHeight(v.pet) * 0.52;
+    rodY = v.py + petHeight(v.pet) * 0.74;
+  const cast = castGeometry({ x: rodX, y: rodY }, { x: fishing.x, y: fishing.y }, sizeOf(v.pet), petHeight(v.pet));
   float.type = 'button';
   float.className = 'bobber';
   float.setAttribute('aria-label', t('catch.too_soon'));
@@ -103,15 +111,19 @@ function fishArrived(v) {
     e.stopPropagation();
     reel();
   });
+  rod.setAttribute('class', 'fishing-rod');
+  rod.setAttribute('aria-hidden', 'true');
+  rod.style.zIndex = String(Math.max(0, (v.z || 0) - 1));
+  const matrix = rodPlacement(cast.grip, cast.tip);
+  rod.innerHTML = `<image href="${rodUrl}" width="${ROD.width}" height="${ROD.height}" transform="matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})"/>`;
   line.setAttribute('class', 'fishing-line');
   line.setAttribute('aria-hidden', 'true');
   line.setAttribute('fill', 'none');
-  line.style.zIndex = String(Math.max(0, (v.z || 0) - 1));
-  const shaft = `M${rodX} ${rodY}Q${rodX + sizeOf(v.pet) * 0.28} ${rodY - petHeight(v.pet) * 0.3} ${tipX} ${tipY}`,
-    cord = `M${tipX} ${tipY}Q${(tipX + fishing.x) / 2 + 3} ${(tipY + fishing.y) / 2 + 5} ${fishing.x} ${fishing.y - 6}`;
-  line.innerHTML = `<path d="${shaft}" stroke="#473b2c" stroke-width="3.8" stroke-linecap="round"/><path d="${shaft}" stroke="#c9a36c" stroke-width="2.2" stroke-linecap="round"/><path d="M${rodX} ${rodY}l${sizeOf(v.pet) * 0.055} ${-petHeight(v.pet) * 0.09}" stroke="#695240" stroke-width="4.2" stroke-linecap="round"/><path d="${cord}" stroke="#243c42" stroke-width="2.5" opacity=".55"/><path d="${cord}" stroke="#f4efe0" stroke-width="1.1" opacity=".95"/>`;
-  layer.append(line, float);
-  Object.assign(fishing, { float, line });
+  line.style.zIndex = String((v.z || 0) + 1);
+  const cord = linePath(cast.tip, cast.float);
+  line.innerHTML = `<path d="${cord}" stroke="#243c42" stroke-width="2.5" opacity=".55"/><path d="${cord}" stroke="#f4efe0" stroke-width="1.1" opacity=".95"/>`;
+  layer.append(rod, line, float);
+  Object.assign(fishing, { float, line, rod });
   fishing.timer = setTimeout(nibble, between(Math.random, BITE_AFTER));
 }
 function nibble() {
@@ -232,6 +244,25 @@ function at(e) {
 /** Wires catching to the yard's clicks and its pointer. Called once, by app.js. */
 export function setupCatch() {
   const yard = $('yard');
+  const tool = $('fish-tool');
+  if (tool) {
+    const update = () => {
+      tool.hidden = !worldAllows(scene.world, 'fishing');
+    };
+    update();
+    $('world')?.addEventListener('change', update);
+    tool.addEventListener('click', () => {
+      if (aiming || game || !worldAllows(scene.world, 'fishing')) return;
+      if (fishing) {
+        fishing.float?.focus();
+        return;
+      }
+      const water = lake();
+      const x = (water.ends[0] + water.ends[1]) / 2;
+      const y = (water.shoreAt(x) + water.ridgeAt(x)) / 2;
+      if (water.onWater(x, y)) startFishing(x);
+    });
+  }
   yard.addEventListener('click', e => {
     if (!free(e)) return;
     const [x, y] = at(e),
