@@ -141,7 +141,8 @@ native captures. Recheck silhouette measurements when replacing starter art.
 
 Installer artwork is regenerated with `npm run art`. The macOS renderer reads the
 window and icon positions from `src-tauri/tauri.conf.json`; keep the entire native
-icon and label area on its solid sage surface. That surface gives black and white
+icon and label area on its solid sage surface. Continue that color through the
+header and footer instead of splitting the window into bands. It gives black and white
 Finder labels at least 4.5:1 contrast. Scenery and the three friends belong in the
 header, away from the drag path. Inspect a mounted DMG in light and dark appearance
 after changing it; the PNG alone cannot confirm Finder label placement.

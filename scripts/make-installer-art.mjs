@@ -67,22 +67,20 @@ function arrow() {
 
 const dmg = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${DMG.width}px;height:${DMG.height}px;overflow:hidden;font-family:-apple-system,system-ui,sans-serif}
-  .bg{position:relative;width:100%;height:100%;background:#f7f9f5;color:#244d43}
+  .bg{position:relative;width:100%;height:100%;background:#70786f;color:#fff}
   .vignette{position:absolute;right:0;top:0;width:286px;height:118px;overflow:hidden}
-  .environment{width:100%;height:100%;object-fit:cover;object-position:center 42%;opacity:.5}
-  .vignette::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#f7f9f5,transparent 45%),linear-gradient(0deg,#f7f9f5,transparent 70%)}
+  .environment{width:100%;height:100%;object-fit:cover;object-position:center 42%;opacity:.28}
+  .vignette::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#70786f,transparent 45%),linear-gradient(0deg,#70786f,transparent 70%)}
   h1{position:absolute;left:34px;top:25px;margin:0;font-size:30px;line-height:1.2;font-weight:750;letter-spacing:-.035em}
-  .intro{position:absolute;left:35px;top:68px;margin:0;font-size:14px;line-height:1.4;color:#426052}
-  .action-field{position:absolute;left:0;right:0;top:118px;height:212px;background:#70786f}
+  .intro{position:absolute;left:35px;top:68px;margin:0;font-size:14px;line-height:1.4}
   .instruction{position:absolute;left:0;right:0;top:128px;margin:0;text-align:center;font-size:17px;line-height:24px;font-weight:600;color:#fff}
-  .after{position:absolute;left:0;right:0;top:338px;margin:0;text-align:center;font-size:14px;line-height:20px;color:#426052}
+  .after{position:absolute;left:0;right:0;top:338px;margin:0;text-align:center;font-size:14px;line-height:20px}
   svg{position:absolute;left:0;top:0}
   .cast{position:absolute;right:26px;top:32px;display:flex;gap:2px}
 </style><div class="bg">
   <div class="vignette"><img class="environment" src="${environment}" alt=""></div>
   <h1>PlayPets</h1><p class="intro">A little company for your day.</p>
   <div class="cast">${castMarkup(sheets, 68)}</div>
-  <div class="action-field"></div>
   <p class="instruction">Drag PlayPets into Applications</p>
   ${arrow()}
   <p class="after">Then open PlayPets from Applications.</p>
@@ -94,8 +92,8 @@ const LISTING = ['yard-talk', 'friend-chat', 'desktop', 'settings-agents'];
 const sidebar = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${SIDEBAR.width}px;height:${SIDEBAR.height}px;overflow:hidden;font-family:'Segoe UI',-apple-system,system-ui,sans-serif}
   .bg{position:relative;width:100%;height:100%;background:#f7f9f5}
-  .environment{position:absolute;left:0;bottom:0;width:100%;height:178px;object-fit:cover;object-position:48% bottom}
-  .wash{position:absolute;inset:110px 0 0;background:linear-gradient(#f7f9f5 6%,#f7f9f5d9 35%,#f7f9f500 80%)}
+  .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:48% bottom;opacity:.32}
+  .wash{position:absolute;inset:0;background:linear-gradient(#f7f9f5 0%,#f7f9f5d9 30%,#f7f9f580 65%,#f7f9f500 100%)}
   h1{position:absolute;left:0;right:0;top:30px;margin:0;text-align:center;font-size:25px;line-height:32px;font-weight:750;letter-spacing:-.03em;color:#244d43}
   .cast{position:absolute;left:50%;top:190px;transform:translateX(-50%);display:flex;gap:1px}
 </style><div class="bg"><img class="environment" src="${environment}" alt=""><div class="wash"></div>
