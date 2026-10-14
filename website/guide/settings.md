@@ -47,8 +47,8 @@ The row shows the current version. Click **Check for updates** and the app reads
 When there is a new version, whether this check, the quiet one 20 seconds after the app starts, or one from the menus found it:
 
 - Open **Menu** to see the new-version button and the dot on **Settings**.
-- The button opens the update window: **What's new** opens that version's page on this site, **Later** puts the update button away until the next start (the row and the dot stay), and **Install and restart** downloads it with a progress bar, verifies its signature and restarts on the new version. Your friends and settings stay.
-- The row in About offers **What's new** and **Install and restart** too.
+- The button opens the update window: **What's new** opens that version's page on this site, and **Later** puts the update button away until the next start (the row and the dot stay). **Install and restart** shows download progress, then the signature check and installation before the app restarts. If the download size is unavailable, the bar moves without a percentage. A failure stays in the window so you can retry. Your friends and settings stay.
+- The row in About offers **What's new** and opens the same update window before installation.
 
 If it could not check, look at your network, and keep in mind that the Windows portable zip is not covered by automatic updates. See [Install](./install.md#updates) for details.
 

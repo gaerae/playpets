@@ -9,6 +9,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Show an in-app update dialog before installation, report download, signature verification and installation separately, and keep a retry path after failure.
 - Group Settings and album tabs into matching compact selectors, and draw the fishing line and float ahead of the rod and casting friend.
 - Match the four landing page descriptions to the current friends and places, and give the Japanese home page a complete browser title.
 - Give the yard menu, Friend, Invite and Settings one quieter surface language: text-led navigation, unboxed settings rows, shared corner sizes and matching close and overflow buttons.

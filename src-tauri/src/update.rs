@@ -41,27 +41,40 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
     let update = crate::app::hold(&app.state::<Found>().0)
         .take()
         .ok_or_else(|| i18n::t("update.none"))?;
-    // The page shows how much has come down, a step at a time rather than for every chunk.
+    push_event(app, &json!({"type": "update-status", "phase": "downloading"}));
+    // The page shows meaningful steps rather than repainting for every network chunk.
     let (mut received, mut shown) = (0u64, 0u64);
     let progress = |chunk: usize, total: Option<u64>| {
         received += chunk as u64;
         if let Some(total) = total.filter(|t| *t > 0) {
-            let percent = (received * 100 / total).min(100);
+            let percent = (received.saturating_mul(100) / total).min(100);
             if percent >= shown + 5 || percent == 100 {
                 shown = percent;
-                push_event(app, &json!({"type": "update-progress", "percent": percent}));
+                push_event(
+                    app,
+                    &json!({"type": "update-status", "phase": "downloading", "percent": percent}),
+                );
             }
         }
     };
-    // Taken while it installs (a second press finds nothing to start); a failed download or
-    // signature check puts it back, so the person can try again.
-    if tauri::async_runtime::block_on(update.download_and_install(progress, || {})).is_err() {
+    // `download` checks the signature before returning. Its finish callback fires before that check.
+    let bytes = tauri::async_runtime::block_on(update.download(progress, || {
+        push_event(app, &json!({"type": "update-status", "phase": "verifying"}));
+    }));
+    let result = bytes.and_then(|bytes| {
+        push_event(app, &json!({"type": "update-status", "phase": "installing"}));
+        // On Windows the installer can exit this process, so save before handing control to it.
+        crate::app::flush(app);
+        update.install(bytes)
+    });
+    // Taken while it installs (a second press finds nothing to start); a failed download,
+    // signature check or installation puts it back, so the person can try again.
+    if result.is_err() {
         *crate::app::hold(&app.state::<Found>().0) = Some(update);
         // The tray names the update again (it may have been rebuilt while this one was taken).
         crate::tray::rebuild(app);
         return Err(i18n::t("update.install_failed"));
     }
-    crate::app::flush(app);
     app.restart();
 }
 

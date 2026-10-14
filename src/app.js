@@ -18,7 +18,7 @@ import { setupConnection } from './panel/connection.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
 import { drawPreviews, invite, setupInvite } from './panel/invite.js';
-import { checkForUpdates, setupSettings, showSection, updateFound, updateProgress } from './panel/settings.js';
+import { checkForUpdates, setupSettings, showSection, updateFound, updateStatus } from './panel/settings.js';
 import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { render } from './render.js';
 import { isMini, setMini, setupWindow } from './window.js';
@@ -202,7 +202,7 @@ function speak(event) {
 const ON_EVENT = {
   update: e => updateFound(e.update),
   'check-update': () => guard(checkForUpdates)(),
-  'update-progress': e => updateProgress(e.percent),
+  'update-status': updateStatus,
   'open-panel': e => showSection(e.panel, e.section),
   // The tray's "Mini view": the page goes in or out of it, as its own button does.
   mini: e => (e.on ? data.pets.length : isMini()) && guard(() => setMini(e.on))(),

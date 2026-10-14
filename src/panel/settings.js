@@ -44,15 +44,23 @@ export function renderDesktopSwitches() {
 let found = null;
 let installing = false;
 let later = false;
+let updateStage = { phase: 'downloading' };
+let updateError = '';
+function stageLabel() {
+  if (updateStage.phase === 'verifying') return t('update.verifying');
+  if (updateStage.phase === 'installing') return t('update.installing');
+  if (Number.isFinite(updateStage.percent)) return t('update.progress', { percent: updateStage.percent });
+  return t('update.downloading');
+}
 function showUpdate(note, button) {
   $('update-note').textContent = note;
   $('update-button').textContent = button;
   $('update-notes').hidden = !found;
 }
 export function renderUpdate() {
-  if (installing) showUpdate(t('settings.update_installing'), t('settings.update_install'));
+  if (installing) showUpdate(stageLabel(), t('settings.update_view'));
   else if (found)
-    showUpdate(t('settings.update_available', { version: `v${found.version}` }), t('settings.update_install'));
+    showUpdate(t('settings.update_available', { version: `v${found.version}` }), t('settings.update_view'));
   else
     showUpdate(
       t('settings.update_current', { version: data.version ? `v${data.version}` : '' }),
@@ -70,6 +78,10 @@ export function renderUpdate() {
 }
 // The backend found a newer version on its own.
 export function updateFound(update) {
+  if (found?.version !== update.version) {
+    later = false;
+    updateError = '';
+  }
   found = update;
   renderUpdate();
   toast(t('toast.update_available', { version: `v${update.version}` }));
@@ -79,28 +91,37 @@ function openUpdateDialog() {
   $('update-title').textContent = t('update.title', { version: `v${found.version}` });
   $('update-body').textContent = t('update.body', { current: `v${data.version}` });
   $('update-progress-wrap').hidden = !installing;
+  $('update-progress').hidden = installing && updateStage.phase !== 'downloading';
+  if (installing && Number.isFinite(updateStage.percent)) $('update-progress').value = updateStage.percent;
+  else $('update-progress').removeAttribute('value');
+  $('update-progress-label').textContent = installing ? stageLabel() : '';
+  $('update-error').hidden = !updateError;
+  $('update-error').textContent = updateError;
   $('update-install').disabled = installing;
   $('update-later').disabled = installing;
   if (!$('update-dialog').open) $('update-dialog').showModal();
 }
 // Downloading shows in the dialog and in the row; when it is done the app starts again as the new version.
-export function updateProgress(percent) {
+export function updateStatus(status) {
   if (!installing) return;
-  $('update-progress').value = percent;
-  const label = t('update.progress', { percent });
-  $('update-progress-label').textContent = label;
-  $('update-note').textContent = label;
-}
-async function install() {
-  installing = true;
+  updateStage = status;
   renderUpdate();
   if ($('update-dialog').open) openUpdateDialog();
+}
+async function install() {
+  if (installing || !found) return;
+  installing = true;
+  updateStage = { phase: 'downloading' };
+  updateError = '';
+  renderUpdate();
+  openUpdateDialog();
   try {
     await call('installUpdate');
   } catch (error) {
     installing = false;
+    updateError = error.message;
     renderUpdate();
-    if ($('update-dialog').open) openUpdateDialog();
+    openUpdateDialog();
     throw error;
   }
 }
@@ -136,8 +157,8 @@ async function updateButton() {
   const button = $('update-button');
   button.disabled = true;
   try {
-    if (found) await install();
-    else await check();
+    if (!found) await check();
+    if (found) openUpdateDialog();
   } catch (error) {
     renderUpdate();
     throw error;

@@ -379,7 +379,8 @@
       <h2 id="update-title"></h2>
       <p id="update-body" class="dialog-description"></p>
       <button type="button" id="update-dialog-notes" class="button text notes-link" data-i18n="settings.update_notes"></button>
-      <div id="update-progress-wrap" class="update-progress" hidden><progress id="update-progress" max="100" value="0"></progress><small id="update-progress-label"></small></div>
+      <div id="update-progress-wrap" class="update-progress" role="status" aria-live="polite" hidden><progress id="update-progress" max="100"></progress><small id="update-progress-label"></small></div>
+      <p id="update-error" class="form-error" role="alert" hidden></p>
       <div class="dialog-actions">
         <button type="button" id="update-later" class="button text" data-i18n="update.later"></button><button type="button" id="update-install" class="button primary" data-i18n="settings.update_install"></button>
       </div>

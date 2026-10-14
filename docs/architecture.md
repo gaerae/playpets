@@ -53,7 +53,7 @@ flowchart LR
 | Strings | `src-tauri/src/i18n/<language>.rs`, `src/core/strings/<language>.js` | Per-language sentence tables. Registered in `i18n/mod.rs` and `core/strings.js` |
 | Import links | `src-tauri/src/links.rs` | Takes `playpets://import?url=…`, imports the pet through the same path as a pasted address, and opens the Invite tab |
 | Saved files | `src-tauri/src/store.rs` | Reads and writes the JSON files in the data folder atomically. A file that cannot be parsed is kept as a timestamped copy beside it (`state.json.corrupt-…`) so nothing is lost |
-| Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, renames the tray's update item once a version is found, reports download progress (`update-progress`), verifies the signature, then installs and restarts |
+| Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, renames the tray's update item once a version is found, reports download, signature-check and install stages (`update-status`), then restarts |
 
 ## Places, artwork and friend identity
 
@@ -99,7 +99,7 @@ What each arrow in the diagram actually carries, path by path.
 | Touchpoint | Source | Summary |
 |---|---|---|
 | Page → backend commands | The `COMMANDS` table in `src-tauri/src/commands.rs` (each row: the name, which windows may ask, what it does; the bridge, the access check and the dispatch come from it) | Friends (addPet, updatePet, removePet, play), pet files (importUrl, importFolder, openFolder), AI and chat (saveProvider, chat, chatWith), yard chatter (chatter, setAutoChatter), yard sounds (setSound), the garden and its gifts (findSeed, plant, pullPlant, receiveGift, moveDecor, putAway), the album (catch, bloomed), closeness (befriend), copying agent settings and choosing which friend an agent reports to (copyConnection, assignAgent), desktop and windows, language, update, quit. The overlay gets only bootstrap, play, openChat, dragStart, dragStop |
-| Backend → page | `app::changed`, `app::push_event` | `change` (full state), `event` (status, say, play, chat-message, select, window, update, update-progress, check-update, open-panel, mini, persona-saved, history-reset, import-request, pet-moved) |
+| Backend → page | `app::changed`, `app::push_event` | `change` (full state), `event` (status, say, play, chat-message, select, window, update, update-status, check-update, open-panel, mini, persona-saved, history-reset, import-request, pet-moved) |
 | Sprites | `app::sprite_response` | The `pet-asset` custom protocol |
 | Coding agents | [Architecture: coding agent integration](agent-integration.md) | CLI commands, hooks, MCP, HTTP bridge |
 
