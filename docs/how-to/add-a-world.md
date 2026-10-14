@@ -47,7 +47,7 @@ artwork. The studio retains `studio`, using its authored time-of-day variants.
 
 The built-in courtyard, hillside garden and lakeside each have four seasonal
 images. The renderer adds time-of-day lighting, dynamic sky and weather. Snow
-selects winter artwork even when another season is selected. The village study
+selects winter artwork even when another season is selected. The cozy living room (`studio`)
 has four authored time-of-day images. Its `windowArt` adds spring, autumn and
 winter scenery inside the window masks; summer keeps the authored room view.
 These seasonal views receive time-of-day lighting before window weather is drawn.

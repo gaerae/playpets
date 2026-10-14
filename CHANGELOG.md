@@ -9,6 +9,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Refresh the unpublished 0.1.0 notes in all four languages to describe the current companions, places, controls and update flow.
+
 - Align the README and four-language guide with the three starter companions, current update controls and offline requirements; correct pet and installer documentation.
 
 - Offer English, Korean, Japanese and Simplified Chinese in the Windows installer and uninstaller.
