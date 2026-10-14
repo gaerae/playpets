@@ -14,6 +14,26 @@ A maintainer does this. You need write access to the repository and a clean loca
 - The release pages for this version are written in all four site languages: `website/releases/<version>.md` (English), `website/ko/releases/<version>.md`, `website/ja/releases/<version>.md` and `website/zh-hans/releases/<version>.md`. Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
 - The one-time repository setup is done ([Set up the repository, keys and store accounts](set-up-the-repository.md)): Pages from GitHub Actions, private vulnerability reporting, the updater signing secrets, and for the stores the Homebrew tap and the winget-pkgs fork.
 
+## First public release hand-off
+
+Complete these in order; a successful local build does not establish that a
+published update can be downloaded and installed.
+
+- Integrate reviewed local branches into `main`, then run `npm run check` and
+  `npm run test:e2e` on the resulting commit.
+- Connect the GitHub remote and push `main`; enable Pages from GitHub Actions and
+  configure updater signing as described in [repository setup](set-up-the-repository.md).
+- Check the platform CI results, four-language site routes, release links and
+  installation instructions before publishing the release draft.
+- Refresh public captures when a visible change affects them. The full yard,
+  mini view, places, Friend, Invite and Settings should match the shipped app.
+- Test a signed upgrade from an older installed build to a newer published build
+  on each supported installer format. Check download progress, a failed attempt
+  and retry, restart, the one-time version notice, and preserved friends/settings.
+  A mocked updater event proves UI behavior, not the installer hand-off.
+- Treat Homebrew, winget and optional platform signing as separate distribution
+  steps; record which channels are actually available in the release notes.
+
 ## Steps
 1. Pull the latest main.
 
@@ -65,7 +85,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 
 ## Verification
 - The release page has the files from step 6, and the notes match the `## [0.2.0]` section of `CHANGELOG.md`.
-- In an app with the previous version installed, pressing "Check for updates" in the Settings tab shows "Version v0.2.0 is available" (when the updater signing secrets exist).
+- In an app with the previous version installed, an automatic or manual check shows the new version before the place selector. Complete installation and restart, confirm the running version and brief completion notice, then restart again to check that the notice does not repeat (when the updater signing secrets exist).
 - The winget PR passes its checks, or `brew upgrade --cask playpets` on a computer with the tap gets the new version.
 - With signing secrets, `latest.json` lists every platform the release has, including `linux-x86_64-deb` and `linux-aarch64-deb` entries for deb installs; if those are missing, deb users do not get updates in the app.
 

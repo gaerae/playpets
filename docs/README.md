@@ -78,13 +78,15 @@ If you are new, read in this order.
 - "[Pet pictures in chat (images that fit the moment) are on hold](decisions/2026-10-05-pet-pictures-on-hold.md)"
 - "[Lead with "a yard where your pets talk to each other", and treat Codex pet compatibility and hook reactions as the price of entry](decisions/2026-10-05-positioning-talking-friends.md)"
 
+For the remaining publication steps, use the [first public release hand-off](how-to/release.md#first-public-release-hand-off). Local checks and signed upgrade testing are separate gates.
+
 **Design records and research**
 
 Records are dated and not rewritten; when two disagree, the later one holds. The five records of 2026-10-11 and 2026-10-12 consolidate that period's design work ([decision](decisions/2026-10-13-design-records.md)).
 
 - [The website](design/2026-10-12-website.md) (2026-10-12): four languages and their parity, the world-first landing, the companion gallery, the creator studio, release pages and captures.
 - [Places: Woodland and Window studio](design/2026-10-11-places.md) (2026-10-11): the place registry, capabilities, floor geometry and fit, authored lighting, weather behind window panes and switching places.
-- [Companions and pet identity](design/2026-10-11-companions.md) (2026-10-11): the ten companions, ordinary independent entries, seasonal wardrobes, realistic sheets and portraits, the compatibility migration, adult partner companions and the creator contract.
+- [Companions and pet identity](design/2026-10-11-companions.md) (2026-10-11): the historical companion catalog and compatibility contract. The current three-pet cast and accepted artwork are described in [Companion artwork](../assets/pets/README.md).
 - [Art direction and the art pipeline](design/2026-10-11-art-direction.md) (2026-10-11): the sculpted cozy-game look, depth cues, raster layers and the procedural fallback, specimen art, accepting new art, the brand and where sources live.
 - [Product direction](design/2026-10-11-product-direction.md) (2026-10-11): companions who talk to you and each other, claims kept precise, interface commitments and the bar for the first release.
 - [Stronger agent integration · community import · personality and activity memory](design/2026-09-29-agent-link-import-persona.md): the design as of 2026-09-29. Some file paths have changed since.
@@ -120,7 +122,6 @@ Records are dated and not rewritten; when two disagree, the later one holds. The
 | `npm run measure` | CPU measurement in five states (macOS, Linux) |
 | `npm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |
 | `npm run shots -- x.y.z` | Real-app screenshots in every app language (macOS) |
-| `npm run mascot-pet` | Draw historical flat sample sheets into `scratch/legacy-pets/`, without overwriting current companions |
 | `npm run og` | Redraw the four share cards (`website/public/og.png` in English, `og-ko.png`, `og-ja.png`, `og-zh-hans.png`) and the README banner |
 | `npm run art` | Redraw the installer art: the macOS disk image background (`packaging/macos/dmg-background.png`), the Windows installer's sidebar and header (`packaging/windows/nsis-*.bmp`), and the English screenshots Linux software centers show (`website/public/listing/en/`, from the current captures). Where each is used is set in `src-tauri/tauri.conf.json` (`bundle.macOS.dmg`, `bundle.windows.nsis`, `bundle.linux`) and `packaging/linux/app.playpets.metainfo.xml` |
 | `npm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/<platform>/`) |

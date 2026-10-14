@@ -14,8 +14,8 @@ retains all 88 canonical cells. `seasonalSpritesheets` lists these optional file
 
 Archived adult generation prompts are recorded in [ART-PROMPTS.md](ART-PROMPTS.md). Source rows and large/mini playback proofs are retained locally under ignored `scratch/adult-companions/` and `scratch/seasonal-companions/`. Do not overwrite accepted originals with weaker generation candidates. Some short walks retain a shuffle-like stride; do not describe them as complete hand-authored locomotion cycles.
 
-`npm run mascot-pet` draws the historical flat cats into `scratch/legacy-pets/`.
-It does not overwrite the accepted production artwork in `assets/pets/`.
+The historical flat sample generator has been retired. The accepted sheets and
+source records below remain the inputs to the current artwork tools.
 
 ## Current illustration direction
 

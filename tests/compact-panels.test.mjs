@@ -41,8 +41,3 @@ test('Invite scrolls its list without losing the panel close button', async () =
   assert.match(await rule('panel', '#panel-invite'), /overflow-y: auto;/);
   assert.match(await rule('panel', '.layout.panel-open .side-panel'), /overflow: hidden;/);
 });
-
-test('mini view shares one row for desktop and sound to keep care tools in sight', async () => {
-  assert.match(await rule('mini', 'body.mini .view-controls > #desktop'), /grid-column: auto;/);
-  assert.match(await rule('mini', 'body.mini .yard-controls-panel'), /gap: 4px;/);
-});

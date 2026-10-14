@@ -44,13 +44,6 @@ test('installer scenery and sharing artwork use the detailed app environment ins
   assert.match(og, /loadEnvironment/);
 });
 
-test('the legacy sample generator cannot overwrite the accepted production cats', async () => {
-  const source = await readFile('scripts/make-mascot-pet.mjs', 'utf8');
-  assert.match(source, /scratch\/legacy-pets\//);
-  // No path it writes to starts in the shipped pets folder, whatever the variable is called.
-  assert.doesNotMatch(source, /['"`]assets\/pets\/|join\(\s*['"]assets['"],\s*['"]pets['"]/);
-});
-
 test('drawing tools start Chrome, fall back to Playwright’s Chromium and name both when neither starts', async () => {
   const { launchBrowser } = await import('../scripts/browser-lib.mjs');
   const calls = [];

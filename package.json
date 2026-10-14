@@ -45,7 +45,6 @@
     "art": "node scripts/make-installer-art.mjs",
     "og": "node scripts/make-og.mjs",
     "shots": "cargo build --profile e2e --features e2e --manifest-path src-tauri/Cargo.toml && node scripts/shots.mjs",
-    "mascot-pet": "node scripts/make-mascot-pet.mjs",
     "measure": "cargo build --profile e2e --features e2e --manifest-path src-tauri/Cargo.toml && node scripts/measure.mjs",
     "dist:mac": "tauri build --bundles app,dmg && bash packaging/macos/make-dmg.sh",
     "dist:windows": "node scripts/local.mjs windows",

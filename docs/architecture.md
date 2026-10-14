@@ -55,16 +55,25 @@ flowchart LR
 | Saved files | `src-tauri/src/store.rs` | Reads and writes the JSON files in the data folder atomically. A file that cannot be parsed is kept as a timestamped copy beside it (`state.json.corrupt-…`) so nothing is lost |
 | Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, renames the tray's update item once a version is found, reports download, signature-check and install stages (`update-status`), then restarts |
 
+The main page keeps an available update before the place selector in the yard dock.
+Installation is started from its dialog. Before handing control to the platform
+installer, the page records the source and target version in local storage
+(`update-restart`). After bootstrap, it consumes that record and shows one timed
+notice only when the running version matches the target. A failed installation
+clears the record; an ordinary restart never claims an update succeeded.
+
 ## Places, artwork and friend identity
 
-`src/content/worlds.json` selects Woodland or Window studio and describes each
-place's activity capabilities, floor and pond geometry, lighting images and
-window panes. `yard/environment.js` paints the accepted raster backdrop;
-`easel.js` retains the procedural loading/error fallback. `weatherPanes` there
-clips studio rain, snow and overcast shading to the authored windows. Woodland
-supports fishing and bugs; studio keeps the same friends, garden, gifts and
-games without those outdoor activities. Changing places ends active trips and
-games rather than transferring their old geometry.
+`src/content/worlds.json` defines four built-in places: Hill garden (`woodland`),
+Stone courtyard (`courtyard`), Lakeside cottage (`lakeside`) and Cozy living room
+(`studio`). Each describes its activity capabilities, floor and pond geometry,
+lighting images and window panes. `yard/environment.js` paints the accepted raster
+backdrop; `easel.js` retains the procedural loading/error fallback. `weatherPanes`
+clips indoor rain, snow and overcast shading to the authored windows. Outdoor
+places support fishing and bugs; the living room keeps friends, garden, gifts
+and games without those outdoor activities. Changing places ends active trips
+and games rather than transferring their old geometry. Imported background
+packages use the same capability and geometry contract.
 
 `yard/scene.js` follows the local clock for time of day. Automatic weather is a
 simulated choice per 20-minute block, with snow only in winter; it does not fetch

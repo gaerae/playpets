@@ -8,7 +8,7 @@ body.mini .game-banner,
 body.mini #album-button {
   display: none;
 }
-/* mini is narrower than the narrow-window breakpoint, so it undoes that layout: the yard is the window */
+/* The small window gives all available space to the yard. */
 body.mini .app-shell {
   padding: 0;
   height: 100%;
@@ -53,24 +53,6 @@ body.mini .pet-label.pointing .pet-tag,
 body.mini .pet-label.focused .pet-tag,
 body.mini .pet-tag:hover {
   visibility: visible;
-}
-body.mini .games,
-body.mini #mini {
-  display: none;
-}
-body.mini .yard-controls-panel {
-  max-height: calc(100% - 72px);
-  gap: 4px;
-  padding: 8px;
-}
-body.mini .view-controls > #desktop {
-  grid-column: auto;
-}
-body.mini .yard-caption {
-  gap: 4px;
-}
-body.mini .play-toolbar {
-  padding-top: 6px;
 }
 /* the way back to the full window, only in the mini one */
 .unmini {

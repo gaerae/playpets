@@ -9,6 +9,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Retire the historical flat pet generator and unused window/menu styles; align installation guides with the current update controls.
+
 - Keep the new-version button before the place selector in the yard, and briefly confirm the installed version after restart.
 - Show an in-app update dialog before installation, report download, signature verification and installation separately, and keep a retry path after failure.
 - Group Settings and album tabs into matching compact selectors, and draw the fishing line and float ahead of the rod and casting friend.

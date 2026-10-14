@@ -144,3 +144,9 @@ migration and manifest validation. `tests/invite.test.mjs`,
 `tests/seasonal-sprites.test.mjs`, `tests/season-choice.test.mjs`,
 `tests/overlay-season.test.mjs`, `tests/chat-appearance.test.mjs` and
 `tests/legacy-cat-art.test.mjs` cover the page side.
+
+## Follow-up: retired generator (2026-10-15)
+
+The historical flat sample generator and its `mascot-pet` command were removed.
+Accepted pet artwork, creator references and saved-friend compatibility remain;
+they are still used by imports, provenance checks and existing local data.

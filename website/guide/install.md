@@ -66,7 +66,7 @@ chmod +x PlayPets_*.AppImage
 ## Updates <Since v="0.1.0" />
 
 - Check now with **Check for updates** under **About PlayPets** in the Settings tab, **Check for updates…** in the tray menu, or **PlayPets → Check for Updates…** in the macOS menu bar.
-- Open **Menu** to find the new-version button and the dot on **Settings**. The button opens the update window: **What’s new**, **Later** or **Install and restart**. Download progress, signature verification and installation appear in that window; a failed attempt can be retried there.
+- The new-version button appears at the far left of the yard controls, before the place selector. A dot also appears on **Settings** inside **Menu**. The button opens the update window: **What’s new**, **Later** or **Install and restart**. Download progress, signature verification and installation appear in that window; a failed attempt can be retried there. After a successful restart, a brief notice confirms the installed version.
 - 20 seconds after the app starts, it checks once quietly. If there is a new version, a notice appears and you can install it from the Settings tab.
 - New versions are found through `latest.json` in GitHub releases. A downloaded file is installed only after it is verified with the update signing key. A file that fails verification is not installed.
 - The Windows portable zip is not covered by automatic updates. Download the new zip and replace it.

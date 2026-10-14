@@ -91,11 +91,6 @@ body {
   flex-direction: column;
   padding: 0;
 }
-.topbar-end {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 .layout {
   flex: 1;
   min-height: 0;
@@ -138,7 +133,7 @@ body {
 html:not(.mac) body {
   border: 1px solid var(--line);
 }
-/* Floating navigation keeps the landscape visible up to the window edges. */
+/* Window controls float over the landscape; navigation lives in the yard dock. */
 .topbar {
   position: absolute;
   inset: 0 0 auto;
@@ -185,15 +180,6 @@ html:not(.mac) body {
   color: var(--muted);
   margin-left: 8px;
 }
-.topbar .button {
-  min-height: 34px;
-  font-size: 12px;
-  font-weight: 650;
-  border-radius: 9px;
-  padding: 6px 12px;
-  gap: 7px;
-}
-.topbar .button svg,
 .panel-tab svg {
   width: 15px;
   height: 15px;
@@ -211,14 +197,6 @@ html:not(.mac) body {
   font-weight: 650;
   color: var(--muted);
 }
-/* A switch in the top bar (desktop mode): pressed while it is on, as the tray's check mark says. */
-.topbar .button.toggle[aria-pressed="true"] {
-  background: var(--pressed);
-  border-color: #9cc2a8;
-  color: #24503a;
-}
-/* Settings is not an everyday place: an icon at the end of the tabs, its name in the tooltip and
-   for screen readers. */
 /* The Settings tab carries a dot while an update waits there. */
 .panel-tab.has-update {
   position: relative;
@@ -233,19 +211,10 @@ html:not(.mac) body {
   border-radius: 50%;
   background: var(--accent);
 }
-/* The top bar gives up its tagline before its controls at narrow widths. */
+/* Keep the About wordmark compact on narrower windows. */
 @media (max-width: 1100px) {
   .brand-sub {
     display: none;
-  }
-}
-@media (max-width: 980px) {
-  /* Tighter gaps keep the bar on one line with desktop mode's switch and an update shown (840px). */
-  .topbar-end {
-    gap: 6px;
-  }
-  .topbar .button {
-    padding: 6px 9px;
   }
 }
 @media (max-width: 760px) {
@@ -303,10 +272,6 @@ body.mini .stage:has(.catch-card:not([hidden])) .toast {
   }
   .wander-toggle input:checked ~ .wander-switch::after {
     background: var(--white);
-  }
-  .topbar .button.toggle[aria-pressed="true"] {
-    border-color: var(--green-line);
-    color: var(--ink);
   }
 }
 

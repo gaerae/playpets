@@ -22,7 +22,6 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 | Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
 | Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets, metadata and downloadable bundles |
 | Atlas preparation | `pack-*.mjs`, `normalize-cat-row.mjs`, atlas/art/normalization helpers | Explicit destination files from approved image sources |
-| Historical sample generator | `make-mascot-pet.mjs` via `mascot-pet` | `scratch/legacy-pets/`; does not replace accepted companions |
 
 Website preparation packages existing references; it does not invent missing
 character views. Art tools can overwrite their documented outputs, so compare

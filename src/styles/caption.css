@@ -1,5 +1,4 @@
-/* What floats at the head of the yard: the scene's name and its menu, the clock, how the yard is
-   shown (the view controls) and the hint under them. */
+/* Place and atmosphere in the yard dock, plus display controls inside Menu. */
 .yard-caption {
   position: relative;
   display: flex;
