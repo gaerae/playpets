@@ -148,6 +148,8 @@ after changing it; the PNG alone cannot confirm Finder label placement.
 
 Windows sidebar and header exports stay at NSIS's native sizes (164 × 314 and
 150 × 57). Only the brand is baked into the image; the installer supplies translated
-instructions and buttons. Linux uses the system's package installer rather than a
-custom wizard. Review its AppStream description and the four software-center
+instructions and buttons. NSIS offers English, Korean, Japanese and Simplified
+Chinese through its language selector, configured in `bundle.windows.nsis`.
+Linux uses the system's package installer rather than a custom wizard. Review its
+AppStream description and the four software-center
 captures under `website/public/listing/en/` after changing installation artwork.

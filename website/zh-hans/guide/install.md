@@ -34,6 +34,7 @@ description: 按操作系统选择安装文件、第一次运行时的警告、�
 1. 运行安装文件。如果 SmartScreen 针对无法识别的应用显示「Windows 已保护你的电脑」，请确认文件来自官方发布页。
 2. 如果你信任下载的文件，点击**更多信息**查看可用选项。
 3. 如果有**仍要运行**按钮，点击后继续安装。如果没有，设备安全设置或组织策略可能不允许继续。
+4. 在语言选择窗口中选择简体中文、英语、韩语或日语，再按提示完成安装。
 
 便携版 zip 解压到想要的文件夹，运行 `playpets.exe` 即可。可能出现同样的无法识别应用警告。SmartScreen 检查文件和发布者的信誉，因此新版本也可能再次显示警告。详见 [Microsoft 的 SmartScreen 信誉说明](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)。请保持安全防护开启；恶意软件警告与无法识别应用警告是不同情况。
 

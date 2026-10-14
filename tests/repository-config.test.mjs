@@ -5,6 +5,12 @@ import { tmpdir } from 'node:os';
 import { join, matchesGlob } from 'node:path';
 import test from 'node:test';
 
+test('the Windows installer offers every app language without relying on English artwork', () => {
+  const config = JSON.parse(readFileSync('src-tauri/tauri.conf.json', 'utf8'));
+  assert.deepEqual(config.bundle.windows.nsis.languages, ['English', 'Korean', 'Japanese', 'SimpChinese']);
+  assert.equal(config.bundle.windows.nsis.displayLanguageSelector, true);
+});
+
 const read = file => readFileSync(file, 'utf8');
 // Git reads the rules of this repository only, not a contributor's global ignores or attributes.
 const configDir = mkdtempSync(join(tmpdir(), 'playpets-git-'));

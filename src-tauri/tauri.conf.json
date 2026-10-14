@@ -26,6 +26,8 @@
     "category": "Entertainment",
     "windows": {
       "nsis": {
+        "languages": ["English", "Korean", "Japanese", "SimpChinese"],
+        "displayLanguageSelector": true,
         "sidebarImage": "../packaging/windows/nsis-sidebar.bmp",
         "headerImage": "../packaging/windows/nsis-header.bmp",
         "installerIcon": "icons/icon.ico"

@@ -34,6 +34,7 @@ These steps follow [Apple's guide to safely opening apps](https://support.apple.
 1. Run the installer. If SmartScreen shows "Windows protected your PC" for an unrecognized app, check that the file came from the official release page.
 2. If you trust the download, select **More info** to see the available options.
 3. If **Run anyway** is available, select it to continue with the installer. If it is unavailable, your device's security settings or organization policy may prevent continuation.
+4. Choose English, Korean, Japanese or Simplified Chinese in the language dialog, then follow the installation steps.
 
 For the portable zip, unzip it into any folder and run `playpets.exe`. The same unrecognized-app warning may appear. SmartScreen evaluates file and publisher reputation, so a new version can warn again. See [Microsoft's explanation of SmartScreen reputation](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation). Keep the protections enabled; a malware warning is a different case from an unrecognized-app warning.
 
