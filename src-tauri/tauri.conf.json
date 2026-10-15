@@ -41,7 +41,10 @@
         "files": { "/usr/share/metainfo/app.playpets.metainfo.xml": "../packaging/linux/app.playpets.metainfo.xml" }
       },
       "appimage": {
-        "files": { "/usr/share/metainfo/app.playpets.metainfo.xml": "../packaging/linux/app.playpets.metainfo.xml" }
+        "files": {
+          "/usr/share/metainfo/app.playpets.metainfo.xml": "../packaging/linux/app.playpets.metainfo.xml",
+          "/usr/share/common-licenses": "/usr/share/common-licenses"
+        }
       }
     },
     "macOS": {

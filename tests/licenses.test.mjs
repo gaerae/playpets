@@ -101,3 +101,13 @@ test('website notice asset covers lazy chunks and excludes unbundled packages', 
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('AppImage carries the distro license texts referenced by copied library copyrights', () => {
+  const { bundle } = JSON.parse(readFileSync('src-tauri/tauri.conf.json', 'utf8'));
+  assert.equal(bundle.linux.appimage.files['/usr/share/common-licenses'], '/usr/share/common-licenses');
+  // Host distro paths belong only to AppImage packaging, never shared resources or other targets.
+  assert.ok(!JSON.stringify(bundle.resources).includes('/usr/share/common-licenses'));
+  assert.ok(!JSON.stringify(bundle.linux.deb).includes('/usr/share/common-licenses'));
+  assert.ok(!JSON.stringify(bundle.windows).includes('/usr/share/common-licenses'));
+  assert.ok(!JSON.stringify(bundle.macOS).includes('/usr/share/common-licenses'));
+});
