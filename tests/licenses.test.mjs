@@ -77,6 +77,7 @@ test('installers and portable packages carry the native license notices', () => 
   assert.match(build, /prepare-appimage-licenses\.mjs/);
   assert.match(release, /prepare-appimage-licenses\.mjs --appimage/);
   assert.match(build, /prepare-appimage-licenses\.mjs --appimage/);
+  assert.match(build, /- name: Build\n\s+shell: bash\n/);
   assert.match(release, /SYSTEM-SOURCE-PACKAGES\.txt/);
   assert.match(release, /package-smoke\.mjs macos/);
   assert.match(release, /package-smoke\.mjs windows/);

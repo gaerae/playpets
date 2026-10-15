@@ -70,6 +70,7 @@ jobs:
             src-tauri/target/release/playpets \
             src-tauri/target/appimage-license-docs
       - name: Build
+        shell: bash
         run: |
           npx tauri build --bundles ${{ matrix.bundles }}
           if [ "$RUNNER_OS" = "Linux" ]; then
