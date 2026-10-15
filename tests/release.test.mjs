@@ -87,9 +87,9 @@ test('every place that states the version states the same one, and the changelog
   assert.equal(lockVersion(await readFile('src-tauri/Cargo.lock', 'utf8')), pkg.version);
   const changelog = await readFile('CHANGELOG.md', 'utf8');
   assert.match(changelog, /^## \[Unreleased\]$/m);
-  // Every line of a release sits under a heading, so its notes read as Added, Fixed and so on.
+  // Tagging empties Unreleased; the current version then owns the release notes.
   const unreleased = changelog.split(/^## \[Unreleased\]\n/m)[1].split(/^## /m)[0];
-  assert.match(unreleased.trim(), /^### /);
+  assert.match(unreleased.trim() || notesFor(changelog, pkg.version), /^### /);
 });
 
 // The workflows call scripts and npm commands by name; a rename on one side must not leave the
