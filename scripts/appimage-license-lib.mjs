@@ -47,7 +47,8 @@ function bundledCopyright(root, packageName) {
 }
 
 export function appImageCopyrightPackages(lddOutput, ownersForBasename) {
-  const packages = new Set(['dconf-gsettings-backend']);
+  // linuxdeploy adds these runtime-loaded integrations outside the executable's ldd graph.
+  const packages = new Set(['dconf-gsettings-backend', 'libayatana-appindicator3-1']);
   for (const line of lddOutput.split('\n')) {
     if (/=>\s+not found\s*$/.test(line)) throw new Error(`Loaded library was not found: ${line.trim()}`);
     const match = line.match(/(?:=>\s+)?(\/\S+)\s+\(/);

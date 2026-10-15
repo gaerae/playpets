@@ -153,18 +153,16 @@ test('AppImage license verification rejects a bundled dconf plugin without its c
 
 test('AppImage license preparation follows the executable libraries and the loaded settings plugin', () => {
   const ldd = `
-    libayatana-appindicator3.so.1 => /lib/aarch64-linux-gnu/libayatana-appindicator3.so.1 (0x1)
     libbz2.so.1.0 => /lib/aarch64-linux-gnu/libbz2.so.1.0 (0x2)
     /lib/ld-linux-aarch64.so.1 (0x3)
   `;
   const owners = new Map([
-    ['libayatana-appindicator3.so.1', ['libayatana-appindicator3-1:arm64']],
     ['libbz2.so.1.0', ['libbz2-1.0:arm64']],
     ['ld-linux-aarch64.so.1', ['libc6:arm64']],
   ]);
   assert.deepEqual(
     appImageCopyrightPackages(ldd, basename => owners.get(basename) ?? []),
-    ['dconf-gsettings-backend', 'libayatana-appindicator3-1:arm64', 'libbz2-1.0:arm64', 'libc6:arm64'],
+    ['dconf-gsettings-backend', 'libayatana-appindicator3-1', 'libbz2-1.0:arm64', 'libc6:arm64'],
   );
   assert.throws(() => appImageCopyrightPackages(ldd, () => []), /no installed package owner/i);
   assert.throws(() => appImageCopyrightPackages('libmissing.so => not found', () => []), /not found/i);

@@ -36,9 +36,9 @@ published update can be downloaded and installed.
   review the final image and their source/relinking obligations before publication.
 - Confirm both Linux `SYSTEM-SOURCE-PACKAGES.txt` assets are present. Release CI
   collects distribution copyright files from the built executable's native
-  library graph, extracts each finished AppImage, compares every copied library
-  with those files, and records the exact Ubuntu binary and source package
-  versions used to build it.
+  library graph and its runtime-loaded desktop integrations, extracts each
+  finished AppImage, compares every copied library with those files, and records
+  the exact Ubuntu binary and source package versions used to build it.
 - Rebuild distribution files after dependency changes. Older files under ignored
   `release/` are not evidence for the current commit and are not publication inputs.
 - Connect the GitHub remote and push `main`; enable Pages from GitHub Actions and

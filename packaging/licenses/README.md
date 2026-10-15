@@ -47,7 +47,8 @@ directory into the same location in the image, so Debian copyright references
 to full license texts remain readable. Before packaging,
 `scripts/prepare-appimage-licenses.mjs` follows the built executable's loaded
 library graph, adds the distribution copyright file for every owner package and
-includes the dconf settings plugin. `scripts/appimage-license.mjs` extracts the
+includes the runtime-loaded dconf and AppIndicator integrations.
+`scripts/appimage-license.mjs` extracts the
 finished image, compares every copied library with those files, and writes the
 exact Ubuntu binary and source package versions to the
 `SYSTEM-SOURCE-PACKAGES.txt` release asset beside each AppImage. These Linux-only
