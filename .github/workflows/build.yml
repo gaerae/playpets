@@ -60,6 +60,15 @@ jobs:
         run: npm run lint
       - name: Unit tests
         run: npm test
+      # Tauri copies this generated tree into AppImages. Build the exact executable first so the
+      # collector follows its linked distro libraries rather than maintaining a second package list.
+      - name: Collect AppImage system licenses
+        if: runner.os == 'Linux'
+        run: |
+          cargo build --release --manifest-path src-tauri/Cargo.toml
+          node scripts/prepare-appimage-licenses.mjs \
+            src-tauri/target/release/playpets \
+            src-tauri/target/appimage-license-docs
       - name: Build
         run: npx tauri build --bundles ${{ matrix.bundles }}
         env:
