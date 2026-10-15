@@ -132,6 +132,13 @@ jobs:
             export APPLE_TEAM_ID="$APPLE_TEAM_ID_SECRET"
           fi
           npx tauri build "${args[@]}"
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            bundle="src-tauri/target/${{ matrix.target }}/release/bundle"
+            node scripts/prepare-appimage-licenses.mjs --appimage \
+              "$(ls "$bundle"/appimage/*.AppImage)" \
+              src-tauri/target/appimage-license-docs
+            npx tauri build "${args[@]}"
+          fi
       # Ad hoc or Developer ID, the app's signature has to seal its resources, or a download opens as "damaged".
       - name: macOS signature
         if: runner.os == 'macOS'

@@ -81,6 +81,16 @@ export function systemLibraryPackages(root, ownersForBasename) {
   return [...packages].sort();
 }
 
+export function bundledLibraryPackages(root, ownersForBasename) {
+  const packages = new Set();
+  for (const basename of libraryBasenames(path.join(root, 'usr/lib'))) {
+    const owners = ownersForBasename(basename);
+    if (!owners.length) throw new Error(`Bundled library ${basename} has no installed package owner.`);
+    for (const owner of owners) packages.add(owner);
+  }
+  return [...packages].sort();
+}
+
 export function appImageSystemPackages(rows) {
   const packages = rows
     .filter(Boolean)

@@ -6,6 +6,7 @@ import test from 'node:test';
 import {
   appImageCopyrightPackages,
   appImageSystemPackages,
+  bundledLibraryPackages,
   systemLibraryPackages,
   verifyAppImageTree,
 } from '../scripts/appimage-license-lib.mjs';
@@ -74,6 +75,8 @@ test('installers and portable packages carry the native license notices', () => 
   assert.match(release, /appimage-license\.mjs/);
   assert.match(release, /prepare-appimage-licenses\.mjs/);
   assert.match(build, /prepare-appimage-licenses\.mjs/);
+  assert.match(release, /prepare-appimage-licenses\.mjs --appimage/);
+  assert.match(build, /prepare-appimage-licenses\.mjs --appimage/);
   assert.match(release, /SYSTEM-SOURCE-PACKAGES\.txt/);
   assert.match(release, /package-smoke\.mjs macos/);
   assert.match(release, /package-smoke\.mjs windows/);
@@ -198,6 +201,10 @@ test('AppImage source inventory follows bundled libraries instead of notice dire
       ['libgtk-3.so.0', ['libgtk-3-0:amd64']],
       ['libdconfsettings.so', ['dconf-gsettings-backend:amd64']],
     ]);
+    assert.deepEqual(
+      bundledLibraryPackages(root, basename => owners.get(basename) ?? []),
+      ['dconf-gsettings-backend:amd64', 'libgtk-3-0:amd64'],
+    );
     assert.deepEqual(
       systemLibraryPackages(root, basename => owners.get(basename) ?? []),
       ['dconf-gsettings-backend:amd64', 'libgtk-3-0:amd64'],
