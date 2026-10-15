@@ -9,7 +9,7 @@ const { words } = useWords();
 
 <template>
   <p class="release-meta">
-    <time v-if="frontmatter.date" :datetime="frontmatter.date">{{ words.released }} {{ frontmatter.date }}</time>
+    <time v-if="frontmatter.date && !frontmatter.draft" :datetime="frontmatter.date">{{ words.released }} {{ frontmatter.date }}</time>
     <span v-else class="since">{{ words.preparing }}</span>
     <span v-if="frontmatter.headline" class="release-headline">{{ frontmatter.headline }}</span>
   </p>

@@ -7,7 +7,7 @@ test('browser icons have portable fallbacks and a revision matching the current 
   const { default: config } = await import('../website/.vitepress/config.mts');
   const source = await readFile('assets/icon.svg');
   const revision = createHash('sha256').update(source).digest('hex').slice(0, 12);
-  const links = config.head.filter(([tag, attributes]) => tag === 'link' && /icon$/.test(attributes.rel));
+  const links = config.head.filter(([tag, attributes]) => tag === 'link' && attributes.rel.endsWith('icon'));
   assert.deepEqual(
     links.map(([, attributes]) => attributes.type).sort(),
     ['image/png', 'image/svg+xml', 'image/x-icon'].sort(),

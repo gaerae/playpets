@@ -12,6 +12,7 @@ export APPIMAGE_EXTRACT_AND_RUN=1
 npx tauri build --bundles "${BUNDLES:-deb,appimage}"
 arch=$(uname -m)
 mkdir -p /out
+cp packaging/licenses/THIRD-PARTY-NOTICES.txt /out/
 # Only this build's packages stay, so a deb-only build does not sit beside an older AppImage.
 rm -f /out/PlayPets_*.deb /out/PlayPets_*.AppImage
 cp src-tauri/target/release/bundle/deb/*.deb /out/

@@ -53,6 +53,7 @@ the public certificate and the install notes.
 | `package-lock.json` | Exact npm dependency graph; update with npm and install with `npm ci` |
 | `.node-version` | Node major used locally and by Actions |
 | `.npmrc` | Reject unsupported engines before dependency installation |
+| `.oxlintrc.json` | JavaScript, TypeScript and Vue script correctness rules and generated-output exclusions |
 | `biome.jsonc` | JavaScript, TypeScript, CSS and JSON formatting and static checks |
 | `.editorconfig` | Editor-independent indentation, encoding and line endings |
 | `.gitattributes` | Git line endings, binary handling and generated-file review metadata |

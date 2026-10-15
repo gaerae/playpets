@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'vitepress';
+import { websiteNotices } from '../../scripts/licenses-lib.mjs';
 import { alternateLinks } from './locale-head.mjs';
 import { devSidebar } from './sidebar-dev.mts';
 
@@ -27,6 +28,7 @@ const editLink = (text: string) => ({
 
 export default defineConfig({
   title: 'PlayPets',
+  vite: { plugins: [websiteNotices()] },
   base,
   cleanUrls: true,
   lastUpdated: false,
@@ -98,7 +100,7 @@ export default defineConfig({
         footer: {
           message:
             'Free and open source under the MIT license. Not affiliated with OpenAI; Codex is a trademark of OpenAI.',
-          copyright: '© 2026 gaerae',
+          copyright: `© 2026 gaerae · <a href="${base}THIRD-PARTY-NOTICES.txt">Third-party notices</a>`,
         },
       },
     },
@@ -146,7 +148,7 @@ export default defineConfig({
         editLink: editLink('이 페이지 고치기'),
         footer: {
           message: 'MIT 라이선스로 공개된 오픈소스예요. OpenAI와 관계가 없고, Codex는 OpenAI의 상표예요.',
-          copyright: '© 2026 gaerae',
+          copyright: `© 2026 gaerae · <a href="${base}THIRD-PARTY-NOTICES.txt">타사 라이선스</a>`,
         },
         notFound: {
           title: '이런 페이지는 없어요',
@@ -202,7 +204,7 @@ export default defineConfig({
         editLink: editLink('このページを編集'),
         footer: {
           message: 'MITライセンスの無料オープンソースです。OpenAIとは関係がありません。CodexはOpenAIの商標です。',
-          copyright: '© 2026 gaerae',
+          copyright: `© 2026 gaerae · <a href="${base}THIRD-PARTY-NOTICES.txt">第三者ライセンス</a>`,
         },
         notFound: {
           title: 'ページが見つかりません',
@@ -256,7 +258,7 @@ export default defineConfig({
         editLink: editLink('修改这一页'),
         footer: {
           message: '以 MIT 许可证开源。与 OpenAI 无关，Codex 是 OpenAI 的商标。',
-          copyright: '© 2026 gaerae',
+          copyright: `© 2026 gaerae · <a href="${base}THIRD-PARTY-NOTICES.txt">第三方许可</a>`,
         },
         notFound: {
           title: '没有这一页',

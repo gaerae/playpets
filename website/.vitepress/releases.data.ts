@@ -27,7 +27,7 @@ export default createContentLoader('**/releases/*.md', {
         url: p.url,
         lang: p.url.match(/^\/(ko|ja|zh-hans)\//)?.[1] ?? 'en',
         version: String(p.frontmatter.version),
-        date: String(p.frontmatter.date ?? ''),
+        date: p.frontmatter.draft === true ? '' : String(p.frontmatter.date ?? ''),
         headline: String(p.frontmatter.headline ?? ''),
       }))
       .sort((a, b) => newer(a.version, b.version)),

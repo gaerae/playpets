@@ -1,0 +1,58 @@
+{
+  "@docsearch/css@3.8.2": [
+    {
+      "file": "docsearch-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/algolia/docsearch/a425f6f4e5714e9454ea172dc5ada5e4a0da27af/LICENSE",
+      "sha256": "1e605499213e06118cc81abc00b32bbb33ead185d9b0e190f2662588e8806f02"
+    }
+  ],
+  "@docsearch/js@3.8.2": [
+    {
+      "file": "docsearch-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/algolia/docsearch/a425f6f4e5714e9454ea172dc5ada5e4a0da27af/LICENSE",
+      "sha256": "1e605499213e06118cc81abc00b32bbb33ead185d9b0e190f2662588e8806f02"
+    }
+  ],
+  "@docsearch/react@3.8.2": [
+    {
+      "file": "docsearch-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/algolia/docsearch/a425f6f4e5714e9454ea172dc5ada5e4a0da27af/LICENSE",
+      "sha256": "1e605499213e06118cc81abc00b32bbb33ead185d9b0e190f2662588e8806f02"
+    }
+  ],
+  "@algolia/autocomplete-core@1.17.7": [
+    {
+      "file": "autocomplete-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/algolia/autocomplete/8467b7a316ac6030f3e5cce6bdfdaf3068818d73/LICENSE",
+      "sha256": "1e605499213e06118cc81abc00b32bbb33ead185d9b0e190f2662588e8806f02"
+    }
+  ],
+  "@algolia/autocomplete-plugin-algolia-insights@1.17.7": [
+    {
+      "file": "autocomplete-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/algolia/autocomplete/8467b7a316ac6030f3e5cce6bdfdaf3068818d73/LICENSE",
+      "sha256": "1e605499213e06118cc81abc00b32bbb33ead185d9b0e190f2662588e8806f02"
+    }
+  ],
+  "@algolia/autocomplete-preset-algolia@1.17.7": [
+    {
+      "file": "autocomplete-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/algolia/autocomplete/8467b7a316ac6030f3e5cce6bdfdaf3068818d73/LICENSE",
+      "sha256": "1e605499213e06118cc81abc00b32bbb33ead185d9b0e190f2662588e8806f02"
+    }
+  ],
+  "@algolia/autocomplete-shared@1.17.7": [
+    {
+      "file": "autocomplete-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/algolia/autocomplete/8467b7a316ac6030f3e5cce6bdfdaf3068818d73/LICENSE",
+      "sha256": "1e605499213e06118cc81abc00b32bbb33ead185d9b0e190f2662588e8806f02"
+    }
+  ],
+  "vitepress@1.6.4": [
+    {
+      "file": "inter-OFL.txt",
+      "source": "https://raw.githubusercontent.com/rsms/inter/2ce9119398be143fa289c3e180824db1b7ed803e/LICENSE.txt",
+      "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"
+    }
+  ]
+}

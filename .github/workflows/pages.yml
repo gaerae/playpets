@@ -5,7 +5,7 @@ name: pages
 on:
   push:
     branches: [main]
-    paths: [website/**, docs/**, assets/**, src/art/**, src/core/animation.js, src/core/season.js, src/yard/background-pack.js, src-tauri/icons/**, CHANGELOG.md, scripts/**, .node-version, .npmrc, package.json, package-lock.json, .github/workflows/pages.yml]
+    paths: [packaging/licenses/**, website/**, docs/**, assets/**, src/art/**, src/core/animation.js, src/core/season.js, src/yard/background-pack.js, src-tauri/icons/**, CHANGELOG.md, scripts/**, .node-version, .npmrc, package.json, package-lock.json, .github/workflows/pages.yml]
   workflow_dispatch:
 
 permissions:

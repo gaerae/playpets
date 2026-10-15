@@ -137,6 +137,7 @@ jobs:
           version="$VERSION"
           bundle="src-tauri/target/${{ matrix.target }}/release/bundle"
           mkdir -p out
+          cp packaging/licenses/THIRD-PARTY-NOTICES.txt "out/PlayPets_${version}_${{ matrix.name }}-THIRD-PARTY-NOTICES.txt"
           # Each file keeps its updater signature (.sig) beside it under the same new name, when
           # updater files were built.
           put() { cp "$1" "out/$2"; if [ -f "$1.sig" ]; then cp "$1.sig" "out/$2.sig"; fi; }
@@ -144,8 +145,8 @@ jobs:
             macos-*)   cp "$bundle"/dmg/*.dmg "out/PlayPets_${version}_macos-universal.dmg"
                        if [ -f "$bundle/macos/PlayPets.app.tar.gz" ]; then put "$bundle/macos/PlayPets.app.tar.gz" "PlayPets_${version}_macos-universal.app.tar.gz"; fi ;;
             windows-*) put "$(ls "$bundle"/nsis/*.exe)" "PlayPets_${version}_${{ matrix.name }}-setup.exe"
-                       # MSVC links WebView2Loader in, so the portable build is the exe alone.
-                       pwsh -NoProfile -Command "Compress-Archive -Path 'src-tauri/target/${{ matrix.target }}/release/playpets.exe' -DestinationPath 'out/PlayPets_${version}_${{ matrix.name }}-portable.zip'" ;;
+                       # MSVC links WebView2Loader in; license notices travel beside the portable exe.
+                       pwsh -NoProfile -Command "Compress-Archive -Path 'src-tauri/target/${{ matrix.target }}/release/playpets.exe','packaging/licenses/THIRD-PARTY-NOTICES.txt' -DestinationPath 'out/PlayPets_${version}_${{ matrix.name }}-portable.zip'" ;;
             linux-*)   put "$(ls "$bundle"/deb/*.deb)" "PlayPets_${version}_${{ matrix.name }}.deb"
                        put "$(ls "$bundle"/appimage/*.AppImage)" "PlayPets_${version}_${{ matrix.name }}.AppImage" ;;
           esac

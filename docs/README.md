@@ -64,6 +64,7 @@ If you are new, read in this order.
 
 ## Deep dives and reference
 **Decision records**: why the structure is the way it is. The standards point to them as their basis.
+- [Track the Linux GTK advisories without hiding them](decisions/2026-10-15-linux-gtk-advisories.md)
 - [Keep source art and optimize accepted exports](decisions/2026-10-12-art-storage.md)
 - [Consolidate the October design reports into topic records before the first publication](decisions/2026-10-13-design-records.md)
 - "[Real-app E2E runs a scenario script inside the app](decisions/2026-09-29-e2e-inside-the-real-app.md)"
@@ -117,7 +118,7 @@ Records are dated and not rewritten; when two disagree, the later one holds. The
 | `npm run test:js` / `test:rust` | Focused Node / Rust tests |
 | `npm run build:app` / `start` | Build the normal native executable / run that existing build |
 | `npm run assets:audit` | Check image dimensions and references; save an inventory under ignored `scratch/asset-audit/` |
-| `npm run lint` / `npm run format` | Check / tidy code layout (rustfmt, clippy, Biome) |
+| `npm run lint` / `npm run format` | Check / tidy code layout (rustfmt, clippy, Oxlint, Biome) |
 | `npm run test:e2e` | Real-app E2E |
 | `npm run measure` | CPU measurement in five states (macOS, Linux) |
 | `npm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |

@@ -21,7 +21,7 @@ test('draft release pages never offer unpublished installers or a missing releas
     unreleased: 'Not released yet',
   };
   const modules = {};
-  for (const name of ['Downloads', 'ReleaseLinks']) {
+  for (const name of ['Downloads', 'ReleaseLinks', 'ReleaseMeta']) {
     const source = await readFile(`website/.vitepress/theme/${name}.vue`, 'utf8');
     const script = compileScript(parse(source).descriptor, { id: name, inlineTemplate: true });
     modules[name] = (await transform(script.content, { loader: 'ts', format: 'cjs' })).code;
@@ -38,13 +38,18 @@ test('draft release pages never offer unpublished installers or a missing releas
     new Function('require', 'module', 'exports', modules[name])(id => dependencies[id], module, module.exports);
     return renderToString(vue.createSSRApp(module.exports.default, { version: '0.1.0' }));
   };
-  for (const name of Object.keys(modules)) {
+  for (const name of ['Downloads', 'ReleaseLinks']) {
     const draft = await render(name, { version: '0.1.0' });
     assert.doesNotMatch(draft, /\/releases\/(?:download|tag)\//, `${name}: draft links`);
     assert.match(draft, /href="https:\/\/github.com\/gaerae\/playpets\/releases"/);
+    const datedDraft = await render(name, { version: '0.1.0', date: '2026-10-13', draft: true });
+    assert.doesNotMatch(datedDraft, /\/releases\/(?:download|tag)\//, `${name}: dated draft links`);
     const published = await render(name, { version: '0.1.0', date: '2026-10-13' });
     assert.match(published, /\/releases\/(?:download|tag)\/v0\.1\.0/);
   }
+  const datedMeta = await render('ReleaseMeta', { version: '0.1.0', date: '2026-10-13', draft: true });
+  assert.doesNotMatch(datedMeta, /<time/);
+  assert.match(datedMeta, /Preparing/);
 });
 
 test('companion choices remain exposed to assistive technology', async () => {

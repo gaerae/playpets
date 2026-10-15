@@ -52,7 +52,7 @@ reviews:
         command, asset source or locale needs its consumer and verification path updated together.
         Do not request broad reorganization without a concrete failure. For a new environment
         variable, distinguish public build options from secrets and document the default.
-    - path: "{package.json,.gitignore,.gitattributes,.dockerignore,.editorconfig,.npmrc,.node-version,biome.jsonc,AGENTS.md,.coderabbit.yaml}"
+    - path: "{package.json,.gitignore,.gitattributes,.dockerignore,.editorconfig,.npmrc,.node-version,biome.jsonc,.oxlintrc.json,AGENTS.md,.coderabbit.yaml}"
       instructions: >-
         Check repository-wide effects: command changes match CI and scripts/README.md, ignores
         cover local output without hiding source or fixtures, and text normalization never affects

@@ -3,7 +3,7 @@
 ## Applies to
 All page code under `src/`. This covers the yard window (`index.html`, `app.js`, `core/`, `yard/`, `panel/`, `styles/`) and the desktop overlay window (`overlay.html`, `overlay/`).
 
-Not covered: test code in `tests/` and development tools in `scripts/`. Both are scripts that run in Node, so page initialization order does not matter to them. Biome's code style rules still apply to the whole repository.
+Not covered: test code in `tests/` and development tools in `scripts/`. Both are scripts that run in Node, so page initialization order does not matter to them. Oxlint correctness checks and Biome's code style rules still apply to the whole repository.
 
 ## Rules
 - A module does not touch the page when it is imported. Button wiring, timers, and creating canvases and observers go inside `setup…()` functions, and only the entry points (`src/app.js`, `src/overlay/overlay.js`) call those functions. Computing pure values at module level (such as a list built from strings) is fine.
@@ -69,7 +69,9 @@ Based on: decision “[Page modules run nothing on import and do not import each
 - `tests/modules.test.mjs` — catches import cycles, code that runs on import in modules other than entry points, a module other than an entry point that cannot be imported without a page, mismatched import paths and names, and a stylesheet the page names that does not exist.
 - `tests/ui-style.test.mjs` — catches select box appearance, button shape rules, the panel tabs as siblings, and other cross-engine rules (no sideways overscroll, the system font, the mini yard filling its window), that no declaration is always replaced by a later rule for the same selector (such as a media rule said before the base rule it means to change), that every custom property a stylesheet reads is defined in one or set from code, and that a token with only a dark value is read only by dark rules. It does not check whether two different selectors fight over one element in a new order; review that when moving rules between files.
 - `tests/i18n.test.mjs` — catches Korean left in page code and markup, and keys missing from the table.
-- Biome in `npm run lint` — import sorting and code style.
+- Oxlint in `npm run lint:oxlint` — correctness checks for JavaScript, TypeScript and Vue script blocks, with warnings failing the command. `.oxlintrc.json` excludes generated copies and local output. Vue template correctness remains a website build and review concern. Conditional expressions whose branches both call functions are allowed for the existing canvas drawing code. Keep intentional snapshots of live DOM collections when fixing spread warnings.
+- Biome in `npm run lint:js` — formatting, import sorting and its existing static checks. Oxlint runs first; neither tool replaces the repository-specific tests.
+- `tests/lint-config.test.mjs` — broken page, tooling, test and Vue script fixtures fail Oxlint while generated outputs are skipped.
 
 All of these run with `npm test` and `npm run lint`, and CI runs the same commands.
 

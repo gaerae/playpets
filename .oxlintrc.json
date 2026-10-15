@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "unicorn", "oxc", "vue"],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": [
+    "node_modules/**",
+    "scratch/**",
+    "release/**",
+    "src-tauri/target/**",
+    "src-tauri/gen/**",
+    "website/dev/**",
+    "website/public/pets/**",
+    "website/public/creator-kit/**",
+    "website/public/yard/**",
+    "website/.vitepress/generated.json",
+    "website/.vitepress/cache/**",
+    "website/.vitepress/.temp/**",
+    "website/.vitepress/dist/**"
+  ],
+  "rules": {
+    "eslint/no-unused-expressions": [
+      "error",
+      {
+        "allowTernary": true
+      }
+    ]
+  }
+}

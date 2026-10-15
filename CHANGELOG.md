@@ -13,6 +13,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Add Oxlint correctness checks alongside Biome formatting and retain explicit draft status on version pages until the release is public.
+
 - Refresh the unpublished 0.1.0 notes in all four languages to describe the current companions, places, controls and update flow.
 
 - Align the README and four-language guide with the three starter companions, current update controls and offline requirements; correct pet and installer documentation.
@@ -30,6 +32,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
+- Include third-party copyright and license notices with native packages and the website.
 - Replace the single-cookie treat with a shared picnic spread, space friends around the food, clarify the desktop strolling switch and expand game choices across the menu width.
 - Give scenery controls a subtle frosted surface with solid accessibility fallbacks, and keep matching desktop and strolling switches together while the menu stays open.
 - Replace the fishing rod with painted cork, reel and guide details while keeping each place's fishing positions.

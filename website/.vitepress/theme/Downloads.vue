@@ -11,7 +11,11 @@ import { FILES, useWords } from './words';
 
 const props = defineProps<{ version?: string; compact?: boolean }>();
 const { frontmatter } = useData();
-const draft = computed(() => props.version === String(frontmatter.value.version ?? '') && !frontmatter.value.date);
+const draft = computed(
+  () =>
+    props.version === String(frontmatter.value.version ?? '') &&
+    (frontmatter.value.draft === true || !frontmatter.value.date),
+);
 const { words } = useWords();
 const version = ref(props.version ?? '');
 const available = ref<string[] | null>(null);

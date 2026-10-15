@@ -16,3 +16,10 @@ Include steps to reproduce, the scope of impact, and a suggested fix if you can.
 - **Automatic updates** install only files verified with the dedicated updater signing key.
 
 The detailed architecture is in the [developer docs](https://gaerae.github.io/playpets/dev/).
+
+## Dependency advisories
+
+The Linux GTK dependency family retains two tracked upstream advisories. See the
+[GTK dependency decision](docs/decisions/2026-10-15-linux-gtk-advisories.md) for
+affected versions, limitations and the release review policy. These advisories
+remain visible in Cargo audit; they are not treated as resolved.

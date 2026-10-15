@@ -23,7 +23,10 @@ test('source normalization recenters complete cross-cell figures without resampl
     assert.equal(pose.dy, 0);
     for (const at of pose.pixels) {
       const next = at + pose.dx;
-      assert.deepEqual([...result.rgba.slice(next * 4, next * 4 + 4)], [...original.slice(at * 4, at * 4 + 4)]);
+      assert.deepEqual(
+        Array.from(result.rgba.slice(next * 4, next * 4 + 4)),
+        Array.from(original.slice(at * 4, at * 4 + 4)),
+      );
     }
   }
   assert.equal(result.poses[0].dx, -4);
@@ -47,6 +50,6 @@ test('normalization retains the two-pixel antialiasing fringe and ignores discon
   const first = result.poses[0];
   assert.ok(first.pixels.includes(2 * 40 + 6));
   const dest = (2 * 40 + 6 + first.dx) * 4;
-  assert.deepEqual([...result.rgba.slice(dest, dest + 4)], [14, 31, 52, 12]);
+  assert.deepEqual(Array.from(result.rgba.slice(dest, dest + 4)), [14, 31, 52, 12]);
   assert.equal(result.rgba[(19 * 40 + 39) * 4 + 3], 0);
 });

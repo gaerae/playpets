@@ -14,6 +14,7 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 | Area | Commands and sources | Outputs |
 | --- | --- | --- |
 | Local execution and Docker builds | `local.mjs` via `npm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with `MSIX_PUBLISHER` |
+| Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check` | Native dependency notice and fingerprint under `packaging/licenses/`; checked before a Tauri build |
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs` | Version changes, a commit and a tag; see the release procedure before running |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
@@ -27,6 +28,10 @@ Website preparation packages existing references; it does not invent missing
 character views. Art tools can overwrite their documented outputs, so compare
 results with the accepted files before keeping a change. Exact character prompts
 and sources are in `assets/pets/` and `src/art/`.
+
+Install the pinned native notice generator with `cargo install cargo-about --version 0.9.2 --locked --features cli`, then run `npm run licenses:generate` after dependency changes. `npm run licenses:check` verifies the tracked native report fingerprint before a Tauri build. The website build emits a license asset for the dependencies in its actual bundle.
+
+`npm run lint:js` runs Oxlint correctness checks, then Biome formatting, import sorting and static checks. Use `npm run lint:oxlint` for correctness checks alone and `npm run format:js` to format source. Do not apply spread fixes blindly to live DOM collections; removing a snapshot can skip nodes or attributes during mutation.
 
 Tool checks belong in `tests/*.test.mjs`. Export pure transformations where useful;
 keep process execution behind the command entry point. See

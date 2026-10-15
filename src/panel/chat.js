@@ -59,7 +59,7 @@ const waitingSince = new Map();
 let waitingTimer = null;
 let hasHistory = false;
 function syncWaiting() {
-  for (const id of [...waitingSince.keys()]) if (!data.busy.includes(id)) waitingSince.delete(id);
+  for (const id of waitingSince.keys()) if (!data.busy.includes(id)) waitingSince.delete(id);
   for (const id of data.busy) if (!waitingSince.has(id)) waitingSince.set(id, performance.now());
   const log = $('chat-log'),
     since = waitingSince.get(selected);

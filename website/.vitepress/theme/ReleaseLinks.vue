@@ -12,7 +12,7 @@ const repo = `https://github.com/${generated.slug}`;
 
 <template>
   <p class="release-links">
-    <a :href="frontmatter.date ? `${repo}/releases/tag/v${version}` : `${repo}/releases`">{{ words.github }}</a>
+    <a :href="frontmatter.date && !frontmatter.draft ? `${repo}/releases/tag/v${version}` : `${repo}/releases`">{{ words.github }}</a>
     <a :href="`${repo}/blob/main/CHANGELOG.md`">{{ words.changelog }}</a>
   </p>
 </template>

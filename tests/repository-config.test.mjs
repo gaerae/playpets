@@ -43,6 +43,7 @@ test('Pages redeploys when shared application artwork or publishing inputs chang
     '.node-version',
     '.npmrc',
     'package-lock.json',
+    'packaging/licenses/website-supplements.json',
   ])
     assert.ok(
       paths.some(pattern => matchesGlob(source, pattern)),

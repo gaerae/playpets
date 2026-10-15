@@ -14,7 +14,7 @@ where source, generated content and local output belong.
 1. Read the standards for the area you are changing ([list of standards](docs/README.md#area-map)). For the page, [page code structure](docs/standards/page-modules.md) and [multilingual strings](docs/standards/i18n.md) almost always apply; for the backend, [backend locks and threads](docs/standards/backend-locks.md) does.
 2. When a rule changes, change the test first, watch it fail, then change the code ([testing standard](docs/standards/testing.md)).
 3. `npm test` — Rust unit tests and page-side tests
-   `npm run lint` — code format (rustfmt, Biome) and static checks (clippy, Biome). Warnings count as failures too (same as CI)
+   `npm run lint` — code format (rustfmt, Biome) and static checks (clippy, Oxlint, Biome). Warnings count as failures too (same as CI)
 4. `npm run test:e2e` — runs the real app with isolated data and checks it end to end
 5. If the screen changed, build it yourself and look (steps 6 and 8 of the getting-started doc).
 6. If you changed the drawing loop or animations, run `npm run measure` before and after the change and attach the results to the PR ([performance standard](docs/standards/performance.md)).

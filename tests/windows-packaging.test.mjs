@@ -17,6 +17,7 @@ function fixture(t, { oldKey = false, oldCert = true, key = true, strayCert = fa
   for (const name of ['playpets.exe', 'WebView2Loader.dll', 'bundle/nsis/setup.exe'])
     put(`${release}/${name}`, 'binary');
   put('work/src-tauri/icons/msix/icon.png', 'icon');
+  put('work/packaging/licenses/THIRD-PARTY-NOTICES.txt', 'Third-party license fixture');
   put('work/package.json', JSON.stringify({ version: '0.2.0' }));
   // Builds before the key volume kept the key beside the package; newer ones keep it in /keys.
   if (oldKey) {

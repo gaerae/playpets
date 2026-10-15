@@ -30,7 +30,10 @@ published update can be downloaded and installed.
 - Review third-party license notices for the dependencies actually bundled in
   each platform package and the built website. Include the required license and
   copyright texts with those distributions; the repository MIT license does not
-  replace dependency notices.
+  replace dependency notices. Run `npm run licenses:check`; regeneration and
+  distribution scope are documented in [third-party notices](../../packaging/licenses/README.md).
+  The Rust inventory does not cover system libraries copied into an AppImage;
+  review the final image and their source/relinking obligations before publication.
 - Rebuild distribution files after dependency changes. Older files under ignored
   `release/` are not evidence for the current commit and are not publication inputs.
 - Connect the GitHub remote and push `main`; enable Pages from GitHub Actions and
@@ -84,7 +87,7 @@ git push origin HEAD v0.2.0
 | `SHA256SUMS.txt` | Always |
 | `latest.json`, `PlayPets_0.2.0_macos-universal.app.tar.gz` | The updater signing secrets exist |
 
-7. Press "Publish release" on the draft. Publishing starts the `distribute` workflow.
+7. After the checks pass, press "Publish release" on the draft. Publishing starts the `distribute` workflow. Then remove `draft: true` from all four version pages, replace their preparation notices with the publication summary, and push that documentation commit to `main`. Keep the flag while a GitHub release is still a draft: a release commit has a date, but its downloads are not public yet.
 
 8. When the `distribute` run finishes, check the results. Channels without a token are left as the `store-manifests` artifact.
    - winget: if `WINGET_TOKEN` exists, `wingetcreate` opens the PR on winget-pkgs, the first version too (winget's moderators review a new package by hand; later versions are merged by their bots once checks pass). Without the token, submit the artifact's `winget/manifests/…` folder yourself:

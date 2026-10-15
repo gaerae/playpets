@@ -12,8 +12,10 @@ const idOf = path => `art-${path.replace(/\.svg$/, '').replace(/[^a-z0-9]+/gi, '
 // A drawing is data: nothing in it runs.
 function inert(node) {
   for (const el of node.querySelectorAll('script, foreignObject')) el.remove();
-  for (const el of [node, ...node.querySelectorAll('*')])
-    for (const attr of [...el.attributes]) if (/^on/i.test(attr.name)) el.removeAttribute(attr.name);
+  for (const el of [node, ...node.querySelectorAll('*')]) {
+    // Snapshot the live attributes: removing one otherwise skips the next handler.
+    for (const attr of Array.from(el.attributes)) if (/^on/i.test(attr.name)) el.removeAttribute(attr.name);
+  }
   return node;
 }
 

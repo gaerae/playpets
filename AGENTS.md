@@ -32,7 +32,7 @@ Keep `CLAUDE.md` as the pointer to this file. Put detailed procedures in their o
 |---|---|
 | `npm test` | Rust unit tests, then the page's Node tests |
 | `npm run check` | Lint, unit tests and the website build; E2E remains a separate desktop check |
-| `npm run lint` | rustfmt, clippy with warnings as errors, Biome |
+| `npm run lint` | rustfmt, clippy with warnings as errors, Oxlint correctness checks, Biome |
 | `npm run format` | Formats Rust and JS/CSS/JSON (HTML and SVG are kept by hand) |
 | `npm run test:e2e` | The real app with isolated data (needs a desktop session; CI runs it on every platform) |
 | `npm run site:build` | The website and developer docs; a dead link fails it |
