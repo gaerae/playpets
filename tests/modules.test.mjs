@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 async function scripts(dir = 'src') {
   const found = [];
@@ -96,9 +97,9 @@ test('only the entry scripts do anything when imported; every other module only 
 // Importing a module runs nothing that needs a page (no window, document or matchMedia at the top
 // level), so every module but the two entry points loads here and its logic can be tested.
 test('every module but the entry points imports without a page', async () => {
-  const entries = new Set(['src/app.js', 'src/overlay/overlay.js']);
+  const entries = new Set(['src/app.js', 'src/overlay/overlay.js'].map(file => path.resolve(file)));
   for (const file of await scripts()) {
-    if (entries.has(file) || file.startsWith('src/core/strings/')) continue;
-    await assert.doesNotReject(import(path.resolve(file)), `${file} needs a page to import`);
+    if (entries.has(path.resolve(file)) || file.startsWith(`src${path.sep}core${path.sep}strings${path.sep}`)) continue;
+    await assert.doesNotReject(import(pathToFileURL(path.resolve(file)).href), `${file} needs a page to import`);
   }
 });
