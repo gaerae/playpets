@@ -160,11 +160,12 @@ test('AppImage license preparation follows the executable libraries and the load
   `;
   const owners = new Map([
     ['libbz2.so.1.0', ['libbz2-1.0:arm64']],
+    ['libbz2.so', ['libbz2-dev:arm64']],
     ['ld-linux-aarch64.so.1', ['libc6:arm64']],
   ]);
   assert.deepEqual(
     appImageCopyrightPackages(ldd, basename => owners.get(basename) ?? []),
-    ['dconf-gsettings-backend', 'libayatana-appindicator3-1', 'libbz2-1.0:arm64', 'libc6:arm64'],
+    ['dconf-gsettings-backend', 'libayatana-appindicator3-1', 'libbz2-1.0:arm64', 'libbz2-dev:arm64', 'libc6:arm64'],
   );
   assert.throws(() => appImageCopyrightPackages(ldd, () => []), /no installed package owner/i);
   assert.throws(() => appImageCopyrightPackages('libmissing.so => not found', () => []), /not found/i);

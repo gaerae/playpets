@@ -57,6 +57,12 @@ export function appImageCopyrightPackages(lddOutput, ownersForBasename) {
     const owners = ownersForBasename(basename);
     if (!owners.length) throw new Error(`Loaded library ${basename} has no installed package owner.`);
     for (const owner of owners) packages.add(owner);
+    // linuxdeploy may preserve the unversioned development symlink beside a loaded SONAME.
+    // Its Debian owner can differ from the versioned runtime library's owner.
+    const unversioned = basename.replace(/\.so(?:\..+)?$/, '.so');
+    if (unversioned !== basename) {
+      for (const owner of ownersForBasename(unversioned)) packages.add(owner);
+    }
   }
   return [...packages].sort();
 }
