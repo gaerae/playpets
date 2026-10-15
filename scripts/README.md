@@ -14,9 +14,9 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 | Area | Commands and sources | Outputs |
 | --- | --- | --- |
 | Local execution and Docker builds | `local.mjs` via `npm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with `MSIX_PUBLISHER` |
-| Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check` | Native dependency notice and fingerprint under `packaging/licenses/`; checked before a Tauri build |
+| Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check`; `appimage-license.mjs` on a finished Linux image | Native dependency notice and fingerprint under `packaging/licenses/`; checked before a Tauri build; exact AppImage system-source manifest during a release build |
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
-| Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs` | Version changes, a commit and a tag; see the release procedure before running |
+| Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; native package install-and-launch verification runs in release CI |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
 | Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` includes the illustrated Clover face for the app and every platform’s tray; it needs macOS (`iconutil` makes the `.icns`) |
 | Native captures | `shots.mjs`, `shots-lib.mjs`, `shot-windows.swift` via `shots` | Localized captures and listing media; macOS capture host required |

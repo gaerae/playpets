@@ -12,6 +12,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Security
 
 - Update rustls to 0.23.46 to address RUSTSEC-2026-0346, RUSTSEC-2026-0347, RUSTSEC-2026-0348 and RUSTSEC-2026-0349.
+- Verify installed release packages by launching them on their native CI runners, include the missing dconf notice in AppImages, and publish an exact Ubuntu source-package manifest beside each AppImage.
+
+### Known limitations
+
+- Linux remains on Tauri's stable GTK 3 dependency family. GLib RUSTSEC-2024-0429 and the build-time proc-macro-error RUSTSEC-2024-0370 remain upstream-blocked; Linux publication needs an explicit review until stable Tauri moves to a fixed family.
 
 ### Changed
 

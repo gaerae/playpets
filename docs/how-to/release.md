@@ -34,12 +34,20 @@ published update can be downloaded and installed.
   distribution scope are documented in [third-party notices](../../packaging/licenses/README.md).
   The Rust inventory does not cover system libraries copied into an AppImage;
   review the final image and their source/relinking obligations before publication.
+- Confirm both Linux `SYSTEM-SOURCE-PACKAGES.txt` assets are present. Release CI
+  extracts each finished AppImage, requires the dconf and common-license texts,
+  and records the exact Ubuntu binary and source package versions used to build it.
 - Rebuild distribution files after dependency changes. Older files under ignored
   `release/` are not evidence for the current commit and are not publication inputs.
 - Connect the GitHub remote and push `main`; enable Pages from GitHub Actions and
   configure updater signing as described in [repository setup](set-up-the-repository.md).
 - Check the platform CI results, four-language site routes, release links and
   installation instructions before publishing the release draft.
+- Read the native package smoke-test result for every release job. It copies the
+  app from the dmg, silently installs and uninstalls the NSIS package, and installs
+  the deb; it launches those packages and the AppImage for eight seconds with
+  isolated app data. This catches package hand-off failures but does not replace
+  the interactive installer and Gatekeeper/SmartScreen review on real user machines.
 - Refresh public captures when a visible change affects them. The full yard,
   mini view, places, Friend, Invite and Settings should match the shipped app.
 - Test a signed upgrade from an older installed build to a newer published build
@@ -84,6 +92,7 @@ git push origin HEAD v0.2.0
 | `PlayPets_0.2.0_macos-universal.dmg` | Always |
 | `PlayPets_0.2.0_windows-x64-setup.exe`, `…-arm64-setup.exe`, `…-portable.zip` | Always |
 | `PlayPets_0.2.0_linux-x64.deb`, `….AppImage`, two arm64 files | Always |
+| Two Linux `…-SYSTEM-SOURCE-PACKAGES.txt` files | Always |
 | `SHA256SUMS.txt` | Always |
 | `latest.json`, `PlayPets_0.2.0_macos-universal.app.tar.gz` | The updater signing secrets exist |
 

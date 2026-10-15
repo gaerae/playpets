@@ -44,9 +44,14 @@ OpenSSL and other system libraries: retain the distribution's copyright/license
 files and satisfy any source/relinking obligations before publishing it.
 AppImage packaging copies the Linux build host’s `/usr/share/common-licenses`
 directory into the same location in the image, so Debian copyright references
-to full license texts remain readable. This Linux-only packaging input is not
-a shared Tauri resource and is not read by macOS or Windows builds. It does
-not provide corresponding library sources or establish relinking compliance. A deb
+to full license texts remain readable. It also carries the dconf copyright file
+for the settings plugin copied by linuxdeploy. `scripts/appimage-license.mjs`
+extracts the finished image, checks these files, and writes the exact Ubuntu
+binary and source package versions to the `SYSTEM-SOURCE-PACKAGES.txt` release
+asset beside each AppImage. This Linux-only packaging input is not a shared
+Tauri resource and is not read by macOS or Windows builds. The source manifest
+is retrieval information, not a substitute for reviewing the licenses and
+relinking terms. A deb
 normally references system dependencies rather than copying them. Check the
 actual artifact instead of assuming both formats contain the same files.
 The WebView2Loader files match Microsoft.Web.WebView2 1.0.3800.47; its NuGet

@@ -65,6 +65,7 @@ If you are new, read in this order.
 ## Deep dives and reference
 **Decision records**: why the structure is the way it is. The standards point to them as their basis.
 - [Track the Linux GTK advisories without hiding them](decisions/2026-10-15-linux-gtk-advisories.md)
+- [Keep Linux publication gated on the stable Tauri GTK migration](decisions/2026-10-16-linux-release-readiness.md)
 - [Keep source art and optimize accepted exports](decisions/2026-10-12-art-storage.md)
 - [Consolidate the October design reports into topic records before the first publication](decisions/2026-10-13-design-records.md)
 - "[Real-app E2E runs a scenario script inside the app](decisions/2026-09-29-e2e-inside-the-real-app.md)"
