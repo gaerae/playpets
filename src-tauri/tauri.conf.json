@@ -44,8 +44,7 @@
         "files": {
           "/usr/share/metainfo/app.playpets.metainfo.xml": "../packaging/linux/app.playpets.metainfo.xml",
           "/usr/share/common-licenses": "/usr/share/common-licenses",
-          "/usr/share/doc/dconf-gsettings-backend/copyright": "/usr/share/doc/dconf-gsettings-backend/copyright",
-          "/usr/share/doc/libayatana-appindicator3-1/copyright": "/usr/share/doc/libayatana-appindicator3-1/copyright"
+          "/usr/share/doc/playpets-bundled-libraries": "target/appimage-license-docs"
         }
       }
     },

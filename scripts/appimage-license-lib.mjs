@@ -15,11 +15,9 @@ function requireText(root, relative, label = relative) {
 export function verifyAppImageTree(root) {
   requireText(root, 'usr/lib/PlayPets/THIRD-PARTY-NOTICES.txt', 'PlayPets third-party notices');
   requireText(root, 'usr/share/common-licenses/LGPL-2.1', 'the LGPL-2.1 full text');
-  requireText(
-    root,
-    'usr/share/doc/dconf-gsettings-backend/copyright',
-    'dconf-gsettings-backend copyright and license text',
-  );
+  if (!bundledCopyright(root, 'dconf-gsettings-backend')) {
+    throw new Error('AppImage is missing dconf-gsettings-backend copyright and license text.');
+  }
   return { checkedPlugins: ['dconf-gsettings-backend'] };
 }
 
@@ -40,14 +38,34 @@ function packageWithoutArchitecture(packageName) {
   return packageName.replace(/:[^:]+$/, '');
 }
 
+function bundledCopyright(root, packageName) {
+  const name = packageWithoutArchitecture(packageName);
+  return [
+    path.join(root, 'usr/share/doc/playpets-bundled-libraries', name, 'copyright'),
+    path.join(root, 'usr/share/doc', name, 'copyright'),
+  ].find(hasText);
+}
+
+export function appImageCopyrightPackages(lddOutput, ownersForBasename) {
+  const packages = new Set(['dconf-gsettings-backend']);
+  for (const line of lddOutput.split('\n')) {
+    if (/=>\s+not found\s*$/.test(line)) throw new Error(`Loaded library was not found: ${line.trim()}`);
+    const match = line.match(/(?:=>\s+)?(\/\S+)\s+\(/);
+    if (!match) continue;
+    const basename = path.basename(match[1]);
+    const owners = ownersForBasename(basename);
+    if (!owners.length) throw new Error(`Loaded library ${basename} has no installed package owner.`);
+    for (const owner of owners) packages.add(owner);
+  }
+  return [...packages].sort();
+}
+
 export function systemLibraryPackages(root, ownersForBasename) {
   const packages = new Set();
   for (const basename of libraryBasenames(path.join(root, 'usr/lib'))) {
     const owners = ownersForBasename(basename);
     if (!owners.length) throw new Error(`Bundled library ${basename} has no installed package owner.`);
-    const documented = owners.filter(owner =>
-      hasText(path.join(root, 'usr/share/doc', packageWithoutArchitecture(owner), 'copyright')),
-    );
+    const documented = owners.filter(owner => bundledCopyright(root, owner));
     if (!documented.length) {
       throw new Error(`Bundled library ${basename} is missing copyright text for ${owners.join(', ')}.`);
     }

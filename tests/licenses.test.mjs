@@ -3,7 +3,12 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { appImageSystemPackages, systemLibraryPackages, verifyAppImageTree } from '../scripts/appimage-license-lib.mjs';
+import {
+  appImageCopyrightPackages,
+  appImageSystemPackages,
+  systemLibraryPackages,
+  verifyAppImageTree,
+} from '../scripts/appimage-license-lib.mjs';
 import { noticeInputs, packageNotice, verifyNativeNotices, websiteNotices } from '../scripts/licenses-lib.mjs';
 
 test('bundled package notices retain exact license and additional notice text', () => {
@@ -66,6 +71,7 @@ test('installers and portable packages carry the native license notices', () => 
   }
   const release = readFileSync('.github/workflows/release.yml', 'utf8');
   assert.match(release, /appimage-license\.mjs/);
+  assert.match(release, /prepare-appimage-licenses\.mjs/);
   assert.match(release, /SYSTEM-SOURCE-PACKAGES\.txt/);
   assert.match(release, /package-smoke\.mjs macos/);
   assert.match(release, /package-smoke\.mjs windows/);
@@ -113,12 +119,8 @@ test('AppImage carries the distro license texts referenced by copied library cop
   const { bundle } = JSON.parse(readFileSync('src-tauri/tauri.conf.json', 'utf8'));
   assert.equal(bundle.linux.appimage.files['/usr/share/common-licenses'], '/usr/share/common-licenses');
   assert.equal(
-    bundle.linux.appimage.files['/usr/share/doc/dconf-gsettings-backend/copyright'],
-    '/usr/share/doc/dconf-gsettings-backend/copyright',
-  );
-  assert.equal(
-    bundle.linux.appimage.files['/usr/share/doc/libayatana-appindicator3-1/copyright'],
-    '/usr/share/doc/libayatana-appindicator3-1/copyright',
+    bundle.linux.appimage.files['/usr/share/doc/playpets-bundled-libraries'],
+    'target/appimage-license-docs',
   );
   // Host distro paths belong only to AppImage packaging, never shared resources or other targets.
   assert.ok(!JSON.stringify(bundle.resources).includes('/usr/share/common-licenses'));
@@ -140,13 +142,32 @@ test('AppImage license verification rejects a bundled dconf plugin without its c
       writeFileSync(target, 'complete text');
     }
     assert.throws(() => verifyAppImageTree(root), /dconf-gsettings-backend/);
-    const copyright = path.join(root, 'usr/share/doc/dconf-gsettings-backend/copyright');
+    const copyright = path.join(root, 'usr/share/doc/playpets-bundled-libraries/dconf-gsettings-backend/copyright');
     mkdirSync(path.dirname(copyright), { recursive: true });
     writeFileSync(copyright, 'Copyright and license text');
     assert.deepEqual(verifyAppImageTree(root), { checkedPlugins: ['dconf-gsettings-backend'] });
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('AppImage license preparation follows the executable libraries and the loaded settings plugin', () => {
+  const ldd = `
+    libayatana-appindicator3.so.1 => /lib/aarch64-linux-gnu/libayatana-appindicator3.so.1 (0x1)
+    libbz2.so.1.0 => /lib/aarch64-linux-gnu/libbz2.so.1.0 (0x2)
+    /lib/ld-linux-aarch64.so.1 (0x3)
+  `;
+  const owners = new Map([
+    ['libayatana-appindicator3.so.1', ['libayatana-appindicator3-1:arm64']],
+    ['libbz2.so.1.0', ['libbz2-1.0:arm64']],
+    ['ld-linux-aarch64.so.1', ['libc6:arm64']],
+  ]);
+  assert.deepEqual(
+    appImageCopyrightPackages(ldd, basename => owners.get(basename) ?? []),
+    ['dconf-gsettings-backend', 'libayatana-appindicator3-1:arm64', 'libbz2-1.0:arm64', 'libc6:arm64'],
+  );
+  assert.throws(() => appImageCopyrightPackages(ldd, () => []), /no installed package owner/i);
+  assert.throws(() => appImageCopyrightPackages('libmissing.so => not found', () => []), /not found/i);
 });
 
 test('AppImage source manifest identifies every bundled system package', () => {
@@ -165,8 +186,8 @@ test('AppImage source inventory follows bundled libraries instead of notice dire
     for (const file of [
       'usr/lib/libgtk-3.so.0',
       'usr/lib/gio/modules/libdconfsettings.so',
-      'usr/share/doc/libgtk-3-0/copyright',
-      'usr/share/doc/dconf-gsettings-backend/copyright',
+      'usr/share/doc/playpets-bundled-libraries/libgtk-3-0/copyright',
+      'usr/share/doc/playpets-bundled-libraries/dconf-gsettings-backend/copyright',
     ]) {
       const target = path.join(root, file);
       mkdirSync(path.dirname(target), { recursive: true });
@@ -181,7 +202,7 @@ test('AppImage source inventory follows bundled libraries instead of notice dire
       ['dconf-gsettings-backend:amd64', 'libgtk-3-0:amd64'],
     );
     assert.throws(() => systemLibraryPackages(root, () => []), /no installed package owner/i);
-    writeFileSync(path.join(root, 'usr/share/doc/libgtk-3-0/copyright'), '');
+    writeFileSync(path.join(root, 'usr/share/doc/playpets-bundled-libraries/libgtk-3-0/copyright'), '');
     assert.throws(() => systemLibraryPackages(root, basename => owners.get(basename) ?? []), /libgtk-3-0/);
   } finally {
     rmSync(root, { recursive: true, force: true });

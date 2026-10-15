@@ -12,7 +12,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Security
 
 - Update rustls to 0.23.46 to address RUSTSEC-2026-0346, RUSTSEC-2026-0347, RUSTSEC-2026-0348 and RUSTSEC-2026-0349.
-- Verify installed release packages by launching them on their native CI runners, include the missing dconf notice in AppImages, and publish an exact Ubuntu source-package manifest beside each AppImage.
+- Verify installed release packages by launching them on their native CI runners, collect and verify the distribution copyright files for every system library copied into an AppImage, and publish an exact Ubuntu source-package manifest beside each image.
 
 ### Known limitations
 

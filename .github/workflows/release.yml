@@ -90,6 +90,16 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Unit tests
         run: npm test
+      # linuxdeploy follows the executable's native library graph. Collect the matching distro
+      # copyright files before AppImage assembly, then audit the finished image below.
+      - name: Collect AppImage system licenses
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          cargo build --release --target ${{ matrix.target }} --manifest-path src-tauri/Cargo.toml
+          node scripts/prepare-appimage-licenses.mjs \
+            "src-tauri/target/${{ matrix.target }}/release/playpets" \
+            src-tauri/target/appimage-license-docs
       # Signing secrets are passed on only when they exist: an empty APPLE_CERTIFICATE would make
       # the bundler try to import an empty certificate.
       - name: Build
