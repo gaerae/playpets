@@ -116,6 +116,10 @@ test('AppImage carries the distro license texts referenced by copied library cop
     bundle.linux.appimage.files['/usr/share/doc/dconf-gsettings-backend/copyright'],
     '/usr/share/doc/dconf-gsettings-backend/copyright',
   );
+  assert.equal(
+    bundle.linux.appimage.files['/usr/share/doc/libayatana-appindicator3-1/copyright'],
+    '/usr/share/doc/libayatana-appindicator3-1/copyright',
+  );
   // Host distro paths belong only to AppImage packaging, never shared resources or other targets.
   assert.ok(!JSON.stringify(bundle.resources).includes('/usr/share/common-licenses'));
   assert.ok(!JSON.stringify(bundle.linux.deb).includes('/usr/share/common-licenses'));
