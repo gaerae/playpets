@@ -50,6 +50,8 @@ fn size((width, height): (f64, f64)) -> LogicalSize<f64> {
 pub fn build_main(app: &tauri::App, bridge_js: &str) -> tauri::Result<WebviewWindow> {
     let builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
         .title(crate::i18n::t("app.title"))
+        // Backend isolation alone does not isolate WebView localStorage or IndexedDB.
+        .incognito(crate::commands::e2e_mode())
         .inner_size(FULL_SIZE_DEFAULT.0, FULL_SIZE_DEFAULT.1)
         .min_inner_size(FULL_MIN.0, FULL_MIN.1)
         // The page's own background (--paper), so nothing flashes white before it loads.

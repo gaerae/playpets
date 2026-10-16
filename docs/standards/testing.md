@@ -25,7 +25,7 @@ What goes where.
 | The real app end to end | `tests/e2e.mjs`, test pet in `tests/support/fixture-pet.mjs` | `npm run test:e2e` |
 | Real responses from community sites | Rust `live_import` (skipped by default) | `npm run test:live-import` |
 
-E2E launches the release executable with an isolated data folder and runs the scenario script inside the app. Results come out as `[e2e] name=value` lines, and the harness compares them with the expected list and prints `✓`/`✖`.
+E2E launches the executable built with the `e2e` feature and an isolated data folder, then runs the scenario script inside the app. Its windows use an ephemeral WebView profile so localStorage and IndexedDB cannot change the normal app profile. This profile lasts for one process; check persistence across restarts separately with a disposable normal profile. Results come out as `[e2e] name=value` lines, and the harness compares them with the expected list and prints `✓`/`✖`.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.

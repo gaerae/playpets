@@ -75,8 +75,8 @@ const scenario = `(async()=>{
     const adults=boot.data.assets.filter(x=>['playpets-daisy','playpets-clover','playpets-pip'].includes(x.sourceId));
     await L('defaultCompanions='+adults.length+'/'+(adults.every(x=>x.place==='builtin')?'official-cast':'err'));
     await L('place='+fx.place+'/'+(boot.data.petFolders.codex.endsWith('pets')?'folder-known':'err'));
-    // An empty yard asks who to play with: the starter pets, moving, with no toolbar. (Whether the
-    // panel is open depends on the last run: the webview keeps its storage.)
+    // An empty yard asks who to play with: the starter pets, moving, with no toolbar.
+    // The ephemeral test webview starts with its panel closed.
     await until(()=>document.querySelectorAll('#starter-picks .starter').length===3);
     const $$=id=>document.getElementById(id),painted=c=>{const d=c.getContext('2d').getImageData(0,0,192,208).data;for(let i=3;i<d.length;i+=40)if(d[i])return true;return false;};
     await until(()=>[...document.querySelectorAll('#starter-picks canvas')].every(painted));
@@ -374,6 +374,17 @@ const scenario = `(async()=>{
     $('period').value='day';$('period').dispatchEvent(new Event('change'));
     await until(()=>$('yard').classList.contains('world-woodland'));
     await L('worldSwitch='+(roomClean&&indoorGame&&!st.game&&!$('weather').disabled&&onLake(lx,ly)?'indoor-clean-and-games-outdoor-restored':'err'));
+    // The exported format enters through the same file input as a downloaded studio package.
+    const png=await fetch('./art/environments/green.png').then(r=>r.blob());
+    const pngUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(png);});
+    const portable={format:'playpets-background',version:1,name:'Native studio fixture',images:{base:pngUrl,spring:pngUrl,summer:pngUrl,autumn:pngUrl,winter:pngUrl},floor:0.66,water:{from:0.48,to:0.7,center:0.595,radius:0.018},fishingSpot:{x:0.48,y:0.68},sky:true,weather:true,ambient:false,windows:[]};
+    const transfer=new DataTransfer();transfer.items.add(new File([JSON.stringify(portable)],'studio.json',{type:'application/json'}));
+    $('background-file').files=transfer.files;$('background-file').dispatchEvent(new Event('change',{bubbles:true}));
+    const imported=await until(()=>worldSelect.value.startsWith('custom-')&&worldSelect.value,10000);
+    const portableWorld=worldFor(imported);
+    const stored=await new Promise((resolve,reject)=>{const request=indexedDB.open('playpets-backgrounds',1);request.onerror=reject;request.onsuccess=()=>{const db=request.result,tx=db.transaction('packs'),row=tx.objectStore('packs').get(imported);row.onsuccess=()=>resolve(row.result?.pack?.name);tx.oncomplete=()=>db.close();};});
+    await until(()=>$('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1);
+    await L('backgroundImport='+(imported&&stored===portable.name&&portableWorld.capabilities.fishing&&portableWorld.capabilities.seasonalEffects&&onLake(lx,ly)&&document.querySelector('[data-world="'+imported+'"][aria-pressed="true"]')?'file-gallery-storage-and-fishing':'err'));
     // The page fits its window exactly: no scrollbar, full size or mini.
     const fits=()=>document.body.scrollHeight<=document.body.clientHeight&&document.body.scrollWidth<=document.body.clientWidth;
     const fitsFull=fits();
@@ -390,6 +401,8 @@ const scenario = `(async()=>{
     await L('miniPlace='+(corner?'corner':'err:'+right+','+bottom)+'/'+(backAt===fullAt?'back':'err:'+backAt+' was '+fullAt));
     await L('pageFits='+fitsFull+'/'+fitsMini);
     await L('mini='+(small&&!document.body.classList.contains('mini')&&innerWidth===wide?'shrinks-and-restores':'err:'+small+'/'+innerWidth+'/'+wide));
+    worldSelect.value='woodland';worldSelect.dispatchEvent(new Event('change'));
+    await (await import('./yard/background-store.js')).removeBackground(imported);
     // A quick chat stays inside mini; a friend nearer the bottom is drawn over one higher up.
     $('mini').click();await until(()=>document.body.classList.contains('mini'));await wait(300);
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
@@ -697,6 +710,10 @@ const expect = [
     'room switching clears fishing and games, disables indoor outdoor activities and restores the woodland',
   ],
   [/^studioLight=four-city-views$/, 'the city studio uses distinct authored art for all four times of day'],
+  [
+    /^backgroundImport=file-gallery-storage-and-fishing$/,
+    'a studio JSON enters the real file input, persists in IndexedDB and supports the mini yard and fishing',
+  ],
   [/^talkTag=opens-chat$/, "a click on a friend's name tag opens the conversation"],
   [/^season=set$/, 'the season and the clock paint the yard'],
   [/^garden=found-planted$/, 'a found seed is planted on the field with the tool and kept'],
