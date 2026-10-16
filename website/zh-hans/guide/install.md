@@ -29,14 +29,13 @@ description: 按操作系统选择安装文件、第一次运行时的警告、�
 |---|---|
 | `PlayPets_版本_windows-x64-setup.exe` | 一般 PC（x64）的安装文件 |
 | `PlayPets_版本_windows-arm64-setup.exe` | ARM PC 的安装文件 |
-| `PlayPets_版本_windows-x64-portable.zip`、`…_windows-arm64-portable.zip` | 无需安装，解压即可运行 |
 
 1. 运行安装文件。如果 SmartScreen 针对无法识别的应用显示「Windows 已保护你的电脑」，请确认文件来自官方发布页。
 2. 如果你信任下载的文件，点击**更多信息**查看可用选项。
 3. 如果有**仍要运行**按钮，点击后继续安装。如果没有，设备安全设置或组织策略可能不允许继续。
 4. 在语言选择窗口中选择简体中文、英语、韩语或日语，再按提示完成安装。
 
-便携版 zip 解压到想要的文件夹，运行 `playpets.exe` 即可。可能出现同样的无法识别应用警告。SmartScreen 检查文件和发布者的信誉，因此新版本也可能再次显示警告。详见 [Microsoft 的 SmartScreen 信誉说明](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)。请保持安全防护开启；恶意软件警告与无法识别应用警告是不同情况。
+SmartScreen 检查文件和发布者的信誉，因此新版本也可能再次显示警告。详见 [Microsoft 的 SmartScreen 信誉说明](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)。请保持安全防护开启；恶意软件警告与无法识别应用警告是不同情况。
 
 在 ARM PC（骁龙等）上请使用 arm64 文件。x64 文件也能通过模拟运行，但它的安装和卸载程序无法替你关闭正在运行的 PlayPets，请先从托盘退出。
 
@@ -70,7 +69,6 @@ chmod +x PlayPets_*.AppImage
 - 新版本按钮会显示在乐园底部操作栏的最左边、地点选择之前。**菜单**里的**设置**也会出现小圆点。点击按钮可选择**查看新内容**、**稍后**或**安装并重启**。同一窗口会显示下载进度、签名验证和安装状态；失败后也可在这里重试。重启成功后，会短暂显示已安装版本的通知。
 - 应用启动 20 秒后会悄悄检查一次。有新版本时会弹出通知，可以在设置标签里安装。
 - 新版本从 GitHub 发布页的 `latest.json` 查找。下载的文件只有通过更新签名密钥验证后才会安装。验证失败的文件不会安装。
-- Windows 便携版 zip 不在自动更新范围内。请下载新的 zip 替换。
 
 ## 卸载
 
@@ -78,7 +76,6 @@ chmod +x PlayPets_*.AppImage
 |---|---|
 | macOS | 把「应用程序」文件夹里的 PlayPets 移到废纸篓 |
 | Windows 安装版 | 在「设置 > 应用」里卸载 PlayPets |
-| Windows 便携版 | 删除解压出来的文件夹 |
 | Linux deb | 用安装时的包管理器卸载 |
 | Linux AppImage | 删除文件 |
 

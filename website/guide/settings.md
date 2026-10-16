@@ -50,7 +50,7 @@ When there is a new version, whether this check, the quiet one 20 seconds after 
 - The button opens the update window: **What's new** opens that version's page on this site, and **Later** puts the update button away until the next start (the row and the dot stay). **Install and restart** shows download progress, then the signature check and installation before the app restarts. If the download size is unavailable, the bar moves without a percentage. A failure stays in the window so you can retry. Your friends and settings stay. After a successful restart, a brief notice confirms the installed version.
 - The row in About offers **What's new** and opens the same update window before installation.
 
-If it could not check, look at your network, and keep in mind that the Windows portable zip is not covered by automatic updates. See [Install](./install.md#updates) for details.
+If it could not check, look at your network. See [Install](./install.md#updates) for details.
 
 ## Quit the app <Since v="0.1.0" />
 

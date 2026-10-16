@@ -9,6 +9,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Keep one installer per Windows architecture, embed third-party notices in native packages instead of duplicating them beside every release file, and let version pages activate from GitHub's public tag without a follow-up site deployment.
 - Make download a primary landing-page destination in every language, select the first visit from the browser language, and remember a language chosen from the site menu.
 - Move the website, user guide, release notes and developer docs to `https://playpets.gaerae.com/`.
 

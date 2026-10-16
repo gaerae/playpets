@@ -7,6 +7,7 @@ import {
   localeFromTranslationLink,
   localeRedirect,
   setupSiteLocale,
+  taggedRelease,
   watchReducedMotion,
   watchRelease,
   whenVisible,
@@ -173,6 +174,56 @@ test('missing and offline releases retain distinct fallback states and retry can
     ).version,
     '1.0.0-rc.1',
   );
+});
+
+test('a version page activates only the matching public tag and shares its lookup', async () => {
+  let calls = 0;
+  const fetcher = async url => {
+    calls++;
+    assert.equal(url, 'https://api.github.com/repos/test/tagged/releases/tags/v0.1.0');
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({
+        tag_name: 'v0.1.0',
+        published_at: '2026-10-15T12:34:56Z',
+        assets: [{ name: 'PlayPets_0.1.0_macos-universal.dmg' }],
+      }),
+    };
+  };
+  const [first, second] = await Promise.all([
+    taggedRelease('test/tagged', '0.1.0', fetcher),
+    taggedRelease('test/tagged', '0.1.0', fetcher),
+  ]);
+  assert.equal(calls, 1);
+  assert.deepEqual(first, second);
+  assert.equal(first.version, '0.1.0');
+  assert.equal(first.publishedAt, '2026-10-15T12:34:56Z');
+
+  let fetched = false;
+  const invalid = await taggedRelease('test/tagged', '../latest', async () => {
+    fetched = true;
+  });
+  assert.equal(invalid.status, 'error');
+  assert.equal(fetched, false);
+});
+
+test('tag lookups keep separate cache and listener state from the latest release', async () => {
+  const states = [];
+  const stop = watchRelease('test/scoped', result => states.push(result.version), '0.1.0');
+  await taggedRelease('test/scoped', '0.1.0', async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ tag_name: 'v0.1.0', assets: [] }),
+  }));
+  await latestRelease('test/scoped', async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ tag_name: 'v0.2.0', assets: [] }),
+  }));
+  assert.deepEqual(states, ['0.1.0']);
+  forgetRelease('test/scoped', '0.1.0');
+  stop();
 });
 
 test('reduced motion updates immediately, follows preference changes and detaches on teardown', () => {

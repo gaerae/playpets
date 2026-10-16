@@ -25,7 +25,7 @@ body:
     id: install
     attributes:
       label: How it was installed
-      options: [macOS dmg, Windows installer, Windows portable zip, Linux deb, Linux AppImage, Built from source]
+      options: [macOS dmg, Windows installer, Linux deb, Linux AppImage, Built from source]
   - type: input
     id: ai
     attributes:

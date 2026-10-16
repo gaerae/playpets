@@ -45,7 +45,7 @@ test('latest.json lists each signed file under the installer kind that updates f
       'PlayPets_0.2.0_windows-x64-setup.exe': 'SIG-WIN',
       'PlayPets_0.2.0_linux-x64.AppImage': 'SIG-LINUX',
       'PlayPets_0.2.0_linux-x64.deb': 'SIG-DEB',
-      'PlayPets_0.2.0_windows-x64-portable.zip': 'ignored: not an updater artifact',
+      'PlayPets_0.2.0_windows-x64-debug.txt': 'ignored: not an updater artifact',
     },
   });
   const url = file => `https://github.com/${SLUG}/releases/download/v0.2.0/${file}`;
@@ -59,7 +59,7 @@ test('latest.json lists each signed file under the installer kind that updates f
   assert.equal(m.platforms['windows-x86_64-nsis'].signature, 'SIG-WIN');
   assert.equal(m.platforms['linux-x86_64-appimage'].url, url('PlayPets_0.2.0_linux-x64.AppImage'));
   assert.equal(m.platforms['linux-x86_64-deb'].signature, 'SIG-DEB');
-  assert.equal(Object.keys(m.platforms).length, 5, 'the portable zip updates nothing');
+  assert.equal(Object.keys(m.platforms).length, 5, 'unrecognized release files update nothing');
 });
 
 test('winget gets the three manifests of a version, with both installers', () => {

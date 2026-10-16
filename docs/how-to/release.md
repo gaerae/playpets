@@ -93,13 +93,13 @@ git push origin HEAD v0.2.0
 | File | Present when |
 |---|---|
 | `PlayPets_0.2.0_macos-universal.dmg` | Always |
-| `PlayPets_0.2.0_windows-x64-setup.exe`, `…-arm64-setup.exe`, `…-portable.zip` | Always |
+| `PlayPets_0.2.0_windows-x64-setup.exe`, `…-arm64-setup.exe` | Always |
 | `PlayPets_0.2.0_linux-x64.deb`, `….AppImage`, two arm64 files | Always |
 | Two Linux `…-SYSTEM-SOURCE-PACKAGES.txt` files | Always |
 | `SHA256SUMS.txt` | Always |
 | `latest.json`, `PlayPets_0.2.0_macos-universal.app.tar.gz` | The updater signing secrets exist |
 
-7. After the checks pass, press "Publish release" on the draft. Publishing starts the `distribute` workflow. Then remove `draft: true` from all four version pages, replace their preparation notices with the publication summary, and push that documentation commit to `main`. Keep the flag while a GitHub release is still a draft: a release commit has a date, but its downloads are not public yet.
+7. After the checks pass, press "Publish release" on the draft. Publishing starts the `distribute` workflow. The four version pages ask GitHub for that exact public tag in the visitor's browser; they expose the tag and installer links only after GitHub returns it. Publication therefore needs no follow-up documentation commit or Pages deployment. If GitHub cannot be reached, the page keeps a safe link to the release list.
 
 8. When the `distribute` run finishes, check the results. Channels without a token are left as the `store-manifests` artifact.
    - winget: if `WINGET_TOKEN` exists, `wingetcreate` opens the PR on winget-pkgs, the first version too (winget's moderators review a new package by hand; later versions are merged by their bots once checks pass). Without the token, submit the artifact's `winget/manifests/…` folder yourself:

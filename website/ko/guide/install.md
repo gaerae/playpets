@@ -29,14 +29,13 @@ description: 운영체제별 설치 파일 고르기, 처음 실행할 때 뜨�
 |---|---|
 | `PlayPets_버전_windows-x64-setup.exe` | 일반 PC(x64) 설치 파일 |
 | `PlayPets_버전_windows-arm64-setup.exe` | ARM PC 설치 파일 |
-| `PlayPets_버전_windows-x64-portable.zip`, `…_windows-arm64-portable.zip` | 설치 없이 풀어서 실행 |
 
 1. 설치 파일을 실행해요. 알 수 없는 앱에 대해 SmartScreen이 "Windows의 PC 보호" 창을 띄우면 공식 릴리스 페이지에서 받은 파일인지 확인해요.
 2. 받은 파일을 신뢰한다면 **추가 정보**를 눌러 쓸 수 있는 선택지를 봐요.
 3. **실행** 버튼이 있다면 눌러 설치를 이어 가요. 버튼이 없으면 기기의 보안 설정이나 조직 정책으로 실행이 제한된 것일 수 있어요.
 4. 언어 선택 창에서 한국어·영어·일본어·중국어 간체 중 하나를 고르고 설치를 진행해요.
 
-포터블 zip은 원하는 폴더에 풀고 `playpets.exe`를 실행하면 돼요. 같은 알 수 없는 앱 경고가 뜰 수 있어요. SmartScreen은 파일과 게시자의 평판을 확인하므로 새 버전에서 다시 경고할 수 있어요. 자세한 내용은 [Microsoft의 SmartScreen 평판 안내](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)에 있어요. 보안 기능은 켜 두세요. 악성 프로그램 경고는 알 수 없는 앱 경고와 다른 경우예요.
+SmartScreen은 파일과 게시자의 평판을 확인하므로 새 버전에서 다시 경고할 수 있어요. 자세한 내용은 [Microsoft의 SmartScreen 평판 안내](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)에 있어요. 보안 기능은 켜 두세요. 악성 프로그램 경고는 알 수 없는 앱 경고와 다른 경우예요.
 
 ARM PC(스냅드래곤 등)에서는 arm64 파일을 쓰세요. x64 파일도 에뮬레이션으로 돌아가지만, 그 설치·제거 프로그램은 실행 중인 PlayPets를 대신 닫지 못해요. 먼저 트레이에서 종료해 주세요.
 
@@ -70,7 +69,6 @@ chmod +x PlayPets_*.AppImage
 - 놀이터 하단 바의 맨 왼쪽, 장소 선택 앞에 새 버전 버튼이 나타나요. **메뉴** 안의 **설정**에도 점이 보여요. 버튼을 누르면 업데이트 창에서 **새로운 점 보기**, **나중에**, **설치하고 다시 시작** 중에 골라요. 같은 창에서 다운로드 진행률, 서명 확인, 설치 단계를 볼 수 있고 실패하면 다시 시도할 수 있어요. 업데이트 후 다시 시작하면 설치된 버전을 알림으로 잠깐 보여 줘요.
 - 앱이 시작한 뒤 20초가 지나면 한 번 조용히 확인해요. 새 버전이 있으면 알림이 뜨고, 설정 탭에서 설치할 수 있어요.
 - 새 버전은 GitHub 릴리스의 `latest.json`에서 찾아요. 받은 파일은 업데이트 서명 키로 검증한 뒤에만 설치해요. 검증에 실패한 파일은 설치하지 않아요.
-- Windows 포터블 zip은 자동 업데이트 대상이 아니에요. 새 zip을 받아 바꿔 주세요.
 
 ## 제거
 
@@ -78,7 +76,6 @@ chmod +x PlayPets_*.AppImage
 |---|---|
 | macOS | 응용 프로그램 폴더의 PlayPets를 휴지통으로 옮겨요 |
 | Windows 설치 파일 | 설정 > 앱에서 PlayPets를 제거해요 |
-| Windows 포터블 | 풀어 둔 폴더를 지워요 |
 | Linux deb | 설치할 때 쓴 패키지 관리자로 제거해요 |
 | Linux AppImage | 파일을 지워요 |
 

@@ -63,14 +63,14 @@ test('native notices fail closed when the lock or generated notice has changed',
   verifyNativeNotices(process.cwd());
 });
 
-test('installers and portable packages carry the native license notices', () => {
+test('native installers carry license notices without duplicating them as release assets', () => {
   const config = JSON.parse(readFileSync('src-tauri/tauri.conf.json', 'utf8'));
   assert.equal(config.bundle.resources['../packaging/licenses/THIRD-PARTY-NOTICES.txt'], 'THIRD-PARTY-NOTICES.txt');
   assert.match(config.build.beforeBuildCommand, /licenses:check/);
-  for (const file of ['packaging/windows/build.sh', '.github/workflows/release.yml']) {
-    assert.match(readFileSync(file, 'utf8'), /THIRD-PARTY-NOTICES\.txt/);
-  }
+  assert.match(readFileSync('packaging/windows/build.sh', 'utf8'), /THIRD-PARTY-NOTICES\.txt/);
   const release = readFileSync('.github/workflows/release.yml', 'utf8');
+  assert.doesNotMatch(release, /portable\.zip/);
+  assert.doesNotMatch(release, /out\/PlayPets_\$\{version\}_.+THIRD-PARTY-NOTICES/);
   const build = readFileSync('.github/workflows/build.yml', 'utf8');
   assert.match(release, /appimage-license\.mjs/);
   assert.match(release, /prepare-appimage-licenses\.mjs/);

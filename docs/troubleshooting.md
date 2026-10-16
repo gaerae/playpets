@@ -29,7 +29,7 @@ Does not apply to: feature requests and design discussion (these come in through
 - If a runner image change (tool versions) is the cause, fix it with a PR that pins the version in the workflow.
 
 **A Windows user reports a problem**
-- First ask for the version and the install method (installer, portable zip, MSIX). The cause differs by method.
+- First ask for the version and the install method (GitHub installer or MSIX). The cause differs by method.
 - Console window: child processes start without a window, so a console window that appears is a bug; ask what they were doing.
 - SmartScreen warning: this is because there is no signature. It is a limit of the decision "[GitHub releases are the source, auto-update, winget and a Homebrew tap point at those files, and code signing turns on with secrets](decisions/2026-10-01-distribution-channels-and-signing.md)", not a code problem.
 - Opening folders: with an MSIX install, data is in the package virtualization path, so Explorer may not see it (a known limit). Otherwise, take it as a bug.
@@ -43,7 +43,7 @@ Does not apply to: feature requests and design discussion (these come in through
 
 **The installed app cannot find updates**
 - First check whether that release has `latest.json`. If not, the updater signing secret was missing; add the secret and build again.
-- If it does, check the user's install method. The portable zip is not updatable. Linux deb and AppImage each need a file in their own format in `latest.json`.
+- If it does, check the user's install method. Linux deb and AppImage each need a file in their own format in `latest.json`.
 - If the Settings tab shows "Couldn't check for updates", check the network and that the latest GitHub release is not a draft (drafts and pre-releases are not "latest").
 
 **A signing key is lost or leaked**

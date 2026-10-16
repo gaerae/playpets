@@ -29,14 +29,13 @@ These steps follow [Apple's guide to safely opening apps](https://support.apple.
 |---|---|
 | `PlayPets_version_windows-x64-setup.exe` | Installer for regular PCs (x64) |
 | `PlayPets_version_windows-arm64-setup.exe` | Installer for ARM PCs |
-| `PlayPets_version_windows-x64-portable.zip`, `…_windows-arm64-portable.zip` | Unzip and run, no installation |
 
 1. Run the installer. If SmartScreen shows "Windows protected your PC" for an unrecognized app, check that the file came from the official release page.
 2. If you trust the download, select **More info** to see the available options.
 3. If **Run anyway** is available, select it to continue with the installer. If it is unavailable, your device's security settings or organization policy may prevent continuation.
 4. Choose English, Korean, Japanese or Simplified Chinese in the language dialog, then follow the installation steps.
 
-For the portable zip, unzip it into any folder and run `playpets.exe`. The same unrecognized-app warning may appear. SmartScreen evaluates file and publisher reputation, so a new version can warn again. See [Microsoft's explanation of SmartScreen reputation](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation). Keep the protections enabled; a malware warning is a different case from an unrecognized-app warning.
+SmartScreen evaluates file and publisher reputation, so a new version can warn again. See [Microsoft's explanation of SmartScreen reputation](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation). Keep the protections enabled; a malware warning is a different case from an unrecognized-app warning.
 
 On an ARM PC (Snapdragon and the like), use the arm64 file. The x64 one runs there too, through emulation, but its installer and uninstaller cannot close a running PlayPets for you: quit it from the tray first.
 
@@ -70,7 +69,6 @@ chmod +x PlayPets_*.AppImage
 - The new-version button appears at the far left of the yard controls, before the place selector. A dot also appears on **Settings** inside **Menu**. The button opens the update window: **What’s new**, **Later** or **Install and restart**. Download progress, signature verification and installation appear in that window; a failed attempt can be retried there. After a successful restart, a brief notice confirms the installed version.
 - 20 seconds after the app starts, it checks once quietly. If there is a new version, a notice appears and you can install it from the Settings tab.
 - New versions are found through `latest.json` in GitHub releases. A downloaded file is installed only after it is verified with the update signing key. A file that fails verification is not installed.
-- The Windows portable zip is not covered by automatic updates. Download the new zip and replace it.
 
 ## Uninstall
 
@@ -78,7 +76,6 @@ chmod +x PlayPets_*.AppImage
 |---|---|
 | macOS | Move PlayPets from the Applications folder to the Trash |
 | Windows installer | Remove PlayPets in Settings > Apps |
-| Windows portable | Delete the folder you unzipped |
 | Linux deb | Remove it with the package manager you installed it with |
 | Linux AppImage | Delete the file |
 

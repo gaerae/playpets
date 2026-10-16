@@ -71,50 +71,70 @@ export function setupSiteLocale({
   return () => document.removeEventListener('click', remember, true);
 }
 
-export function forgetRelease(slug) {
-  releases.delete(slug);
-  settled.delete(slug);
+const releaseKey = (slug, version) => (version ? `${slug}@${version}` : slug);
+
+export function forgetRelease(slug, version) {
+  const key = releaseKey(slug, version);
+  releases.delete(key);
+  settled.delete(key);
 }
-export function watchRelease(slug, update) {
-  if (!listeners.has(slug)) listeners.set(slug, new Set());
-  listeners.get(slug).add(update);
-  if (settled.has(slug)) update(settled.get(slug));
+export function watchRelease(slug, update, version) {
+  const key = releaseKey(slug, version);
+  if (!listeners.has(key)) listeners.set(key, new Set());
+  listeners.get(key).add(update);
+  if (settled.has(key)) update(settled.get(key));
   return () => {
-    listeners.get(slug)?.delete(update);
-    if (!listeners.get(slug)?.size) listeners.delete(slug);
+    listeners.get(key)?.delete(update);
+    if (!listeners.get(key)?.size) listeners.delete(key);
   };
 }
-export function latestRelease(slug, fetcher = globalThis.fetch) {
-  if (!releases.has(slug))
+
+const validVersion = version => /^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(version);
+
+function fetchRelease(slug, version, fetcher) {
+  const key = releaseKey(slug, version);
+  if (!releases.has(key))
     releases.set(
-      slug,
+      key,
       (async () => {
         try {
-          const response = await fetcher(`https://api.github.com/repos/${slug}/releases/latest`, {
+          if (version && !validVersion(version)) throw new Error('Invalid release version');
+          const endpoint = version ? `releases/tags/v${version}` : 'releases/latest';
+          const response = await fetcher(`https://api.github.com/repos/${slug}/${endpoint}`, {
             headers: { Accept: 'application/vnd.github+json' },
           });
-          if (response.status === 404) return { status: 'missing', version: '', files: [] };
+          if (response.status === 404) return { status: 'missing', version: '', files: [], publishedAt: '' };
           if (!response.ok) throw new Error('Release lookup failed');
           const payload = await response.json(),
-            version = String(payload.tag_name || '').replace(/^v/, '');
-          if (!/^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(version)) throw new Error('Invalid release tag');
+            foundVersion = String(payload.tag_name || '').replace(/^v/, '');
+          if (!validVersion(foundVersion) || (version && foundVersion !== version))
+            throw new Error('Invalid release tag');
           return {
             status: 'ready',
-            version,
+            version: foundVersion,
+            publishedAt: typeof payload.published_at === 'string' ? payload.published_at : '',
             files: Array.isArray(payload.assets)
               ? payload.assets.map(a => a.name).filter(name => typeof name === 'string')
               : [],
           };
         } catch {
-          return { status: 'error', version: '', files: [] };
+          return { status: 'error', version: '', files: [], publishedAt: '' };
         }
       })().then(result => {
-        settled.set(slug, result);
-        for (const update of listeners.get(slug) || []) update(result);
+        settled.set(key, result);
+        for (const update of listeners.get(key) || []) update(result);
         return result;
       }),
     );
-  return releases.get(slug);
+  return releases.get(key);
+}
+
+export function latestRelease(slug, fetcher = globalThis.fetch) {
+  return fetchRelease(slug, undefined, fetcher);
+}
+
+export function taggedRelease(slug, version, fetcher = globalThis.fetch) {
+  return fetchRelease(slug, version, fetcher);
 }
 
 export function watchReducedMotion(media, update) {

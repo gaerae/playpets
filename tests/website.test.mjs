@@ -7,7 +7,7 @@ import { LANGUAGES } from '../src/core/strings.js';
 
 const repo = 'https://github.com/gaerae/playpets/blob/main';
 
-test('draft release pages never offer unpublished installers or a missing release tag', async () => {
+test('release pages never render installer or tag links before GitHub confirms publication', async () => {
   const { readFile } = await import('node:fs/promises');
   const { parse, compileScript } = await import('@vue/compiler-sfc');
   const { transform } = await import('esbuild');
@@ -32,7 +32,12 @@ test('draft release pages never offer unpublished installers or a missing releas
       vue,
       vitepress: { useData: () => ({ frontmatter: vue.ref(frontmatter) }) },
       '../generated.json': { slug: 'gaerae/playpets' },
-      './site-runtime.mjs': {},
+      './site-runtime.mjs': {
+        forgetRelease: () => {},
+        latestRelease: async () => ({ status: 'missing', version: '', files: [] }),
+        taggedRelease: async () => ({ status: 'missing', version: '', files: [] }),
+        watchRelease: () => () => {},
+      },
       './words': { useWords: () => ({ words: vue.ref(words) }), FILES: ['macos-universal.dmg'] },
     };
     const module = { exports: {} };
@@ -40,17 +45,33 @@ test('draft release pages never offer unpublished installers or a missing releas
     return renderToString(vue.createSSRApp(module.exports.default, { version: '0.1.0' }));
   };
   for (const name of ['Downloads', 'ReleaseLinks']) {
-    const draft = await render(name, { version: '0.1.0' });
-    assert.doesNotMatch(draft, /\/releases\/(?:download|tag)\//, `${name}: draft links`);
-    assert.match(draft, /href="https:\/\/github.com\/gaerae\/playpets\/releases"/);
-    const datedDraft = await render(name, { version: '0.1.0', date: '2026-10-13', draft: true });
-    assert.doesNotMatch(datedDraft, /\/releases\/(?:download|tag)\//, `${name}: dated draft links`);
-    const published = await render(name, { version: '0.1.0', date: '2026-10-13' });
-    assert.match(published, /\/releases\/(?:download|tag)\/v0\.1\.0/);
+    for (const frontmatter of [
+      { version: '0.1.0' },
+      { version: '0.1.0', date: '2026-10-13', draft: true },
+      { version: '0.1.0', date: '2026-10-13' },
+    ]) {
+      const html = await render(name, frontmatter);
+      assert.doesNotMatch(html, /\/releases\/(?:download|tag)\//, `${name}: unverified links`);
+      assert.match(html, /href="https:\/\/github.com\/gaerae\/playpets\/releases"/);
+    }
   }
-  const datedMeta = await render('ReleaseMeta', { version: '0.1.0', date: '2026-10-13', draft: true });
+  const datedMeta = await render('ReleaseMeta', { version: '0.1.0', date: '2026-10-13' });
   assert.doesNotMatch(datedMeta, /<time/);
   assert.match(datedMeta, /Preparing/);
+});
+
+test('version pages rely on GitHub publication state instead of a hand-maintained draft flag', async () => {
+  const { readFile: read } = await import('node:fs/promises');
+  for (const file of [
+    'website/releases/0.1.0.md',
+    'website/ko/releases/0.1.0.md',
+    'website/ja/releases/0.1.0.md',
+    'website/zh-hans/releases/0.1.0.md',
+  ]) {
+    const page = await read(file, 'utf8');
+    assert.doesNotMatch(page, /^draft:/m, file);
+    assert.doesNotMatch(page, /Release draft|공개 준비 중|公開準備中|尚未发布/, file);
+  }
 });
 
 test('companion choices remain exposed to assistive technology', async () => {
