@@ -145,3 +145,13 @@ input and successful operations use an announced status. Check both studios on
 direct entry, at phone widths, in dark mode and with reduced motion. The PNG and
 cell checks cannot judge anatomy, identity consistency, animation meaning,
 obstacles or visual quality; the guides keep those manual review steps explicit.
+
+## Studio interface
+
+The top menu calls both creation tools Studio. Keep the character and background routes separate so shared links still resolve; use a specific document title for each route. `StudioNav.vue` connects them in every language.
+
+Use Reka UI's Tabs and Collapsible primitives for the workbench navigation and optional controls, with the shared visual vocabulary in `studio.css`. The library handles keyboard navigation and disclosure state; the PNG validators and portable file formats remain shared with the app. Website license notices include packages actually bundled into the client.
+
+`StudioWorkspace.vue` keeps character task panels mounted so changing tabs retains the selected files and entered details. Hidden pet previews stop playback. `studio-flow.mjs` resolves the existing guide anchors and creates portable IDs from a name without replacing an ID the person edited. Background phases keep one preview visible beside the active controls. Put numeric placement details behind the disclosure instead of showing every coordinate at first.
+
+A tab change keeps the draft in memory, not on a server. A reload or route change still discards unsaved files. Keep that limitation visible and offer a file download before the person leaves. Check actual exports, keyboard tabs, direct links, narrow screens and dark mode when changing these components.

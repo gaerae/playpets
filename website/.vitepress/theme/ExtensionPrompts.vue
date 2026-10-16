@@ -88,11 +88,11 @@ async function copyPrompt(text) {
 <style scoped>
 .extension-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 label { display: flex; flex-direction: column; gap: 8px; }
-textarea, select, button { font: inherit; color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); border: 1px solid var(--vp-c-divider); border-radius: 8px; padding: 10px; }
+textarea, select, button { font: inherit; color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); border: 1px solid var(--vp-c-divider); border-radius: var(--studio-radius, 10px); padding: 10px; }
 select { min-height: 44px; }
 textarea { width: 100%; resize: vertical; min-height: 64px; }
 button { cursor: pointer; min-height: 44px; margin-top: 12px; }
-details { border: 1px solid var(--vp-c-divider); border-radius: 10px; padding: 14px; margin: 14px 0; }
+details { border: 1px solid var(--vp-c-divider); border-radius: var(--studio-radius, 10px); padding: 14px; margin: 14px 0; }
 summary { cursor: pointer; font-weight: 600; }
 pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 420px; overflow: auto; font-size: 13px; line-height: 1.65; }
 :focus-visible { outline: 3px solid var(--vp-c-brand-1); outline-offset: 3px; }

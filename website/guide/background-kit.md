@@ -1,4 +1,5 @@
 ---
+title: "Background studio"
 sidebar: false
 outline: false
 aside: false
@@ -10,13 +11,17 @@ import StudioNav from "../.vitepress/theme/StudioNav.vue";
 import BackgroundKit from "../.vitepress/theme/BackgroundKit.vue";
 </script>
 
-# Background studio
+# Studio
 
 Create a place, download its layout and prompts, then import it into PlayPets.
 
 <StudioNav lang="en" current="background" />
 
 <BackgroundKit lang="en" />
+
+<details class="studio-reference">
+<summary>Format & advanced instructions</summary>
+
 
 
 ## What the app adds
@@ -41,3 +46,5 @@ Check the result in both the full window and mini mode. Make sure friends stay
 clear of furniture, their fishing line reaches the visible water, and weather
 stays within the glass. The layout marks a clear floor; it does not detect
 obstacles in a generated picture.
+
+</details>

@@ -1,4 +1,5 @@
 ---
+title: "背景制作室"
 sidebar: false
 outline: false
 aside: false
@@ -10,13 +11,17 @@ import StudioNav from "../../.vitepress/theme/StudioNav.vue";
 import BackgroundKit from "../../.vitepress/theme/BackgroundKit.vue";
 </script>
 
-# 背景制作室
+# 制作室
 
 配置シートとプロンプトで空間を作り、PlayPetsに背景パッケージを読み込みます。
 
 <StudioNav lang="ja" current="background" />
 
 <BackgroundKit lang="ja" />
+
+<details class="studio-reference">
+<summary>ファイル仕様と詳しい制作手順</summary>
+
 
 
 ## アプリが加えるもの
@@ -41,3 +46,5 @@ JSONパッケージをダウンロードし、アプリの**場所と雰囲気**
 通常のウィンドウとミニモードの両方で、フレンドが家具に重ならないか、
 釣り糸が見えている水面に届くか、雨や雪が窓枠からはみ出さないかを確認してください。
 配置シートは空けておく床を指定します。画像内の障害物を自動検出するものではありません。
+
+</details>
