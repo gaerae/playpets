@@ -31,7 +31,7 @@ const paused = ref(false);
       <p class="eyebrow">{{ t.eyebrow }}</p>
       <h1><span>{{ t.title[0] }}</span><span>{{ t.title[1] }}</span></h1>
       <p class="lead">{{ t.lead }}</p>
-      <div class="hero-actions"><a class="world-button" href="#download">{{ t.start }} <span aria-hidden="true">↗</span></a><a href="#companions">{{ t.meet }} <span aria-hidden="true">↓</span></a></div>
+      <div class="hero-actions"><a class="world-button" href="#download">{{ t.download }} <span aria-hidden="true">↓</span></a><a href="#companions">{{ t.meet }} <span aria-hidden="true">↓</span></a></div>
       <p class="platform-note">macOS · Windows · Linux</p>
       </div>
       <WorldPreview :words="t" :paused="paused" @pause="paused = !paused" />

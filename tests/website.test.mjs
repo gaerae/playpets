@@ -14,6 +14,7 @@ test('draft release pages never offer unpublished installers or a missing releas
   const vue = await import('vue');
   const { renderToString } = await import('vue/server-renderer');
   const words = {
+    download: 'Download PlayPets',
     downloadFor: os => `Download for ${os}`,
     files: { 'macos-universal.dmg': 'macOS' },
     releases: 'Releases',

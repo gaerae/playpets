@@ -1,12 +1,85 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  chooseSiteLocale,
   forgetRelease,
   latestRelease,
+  localeFromTranslationLink,
+  localeRedirect,
+  setupSiteLocale,
   watchReducedMotion,
   watchRelease,
   whenVisible,
 } from '../website/.vitepress/theme/site-runtime.mjs';
+
+test('the first root visit follows the first supported browser language', () => {
+  assert.equal(chooseSiteLocale(['fr-FR', 'ko-KR']), 'ko');
+  assert.equal(chooseSiteLocale(['ja-JP']), 'ja');
+  assert.equal(chooseSiteLocale(['zh-TW']), 'zh-hans');
+  assert.equal(chooseSiteLocale(['de-DE']), 'en');
+  assert.equal(
+    localeRedirect({ base: '/', pathname: '/', languages: ['ko-KR'], search: '?from=readme', hash: '#download' }),
+    '/ko/?from=readme#download',
+  );
+  assert.equal(localeRedirect({ base: '/', pathname: '/guide/', languages: ['ko-KR'] }), null);
+  assert.equal(localeRedirect({ base: '/', pathname: '/', languages: ['en-US'] }), null);
+});
+
+test('a saved language outranks browser languages and translation links record only supported site homes', () => {
+  assert.equal(localeRedirect({ base: '/', pathname: '/', languages: ['ko-KR'], saved: 'ja' }), '/ja/');
+  assert.equal(localeRedirect({ base: '/', pathname: '/', languages: ['ko-KR'], saved: 'en' }), null);
+  assert.equal(
+    localeRedirect({ base: '/playpets/', pathname: '/playpets/', languages: ['zh-CN'] }),
+    '/playpets/zh-hans/',
+  );
+  assert.equal(localeFromTranslationLink('/ko/', '/', 'https://playpets.gaerae.com'), 'ko');
+  assert.equal(localeFromTranslationLink('/', '/', 'https://playpets.gaerae.com'), 'en');
+  assert.equal(localeFromTranslationLink('/ko/guide/', '/', 'https://playpets.gaerae.com'), null);
+  assert.equal(localeFromTranslationLink('https://example.com/ko/', '/', 'https://playpets.gaerae.com'), null);
+});
+
+test('site locale setup redirects the root and remembers an explicit language-menu choice', () => {
+  let replaced = '';
+  const stopAfterRedirect = setupSiteLocale({
+    base: '/',
+    location: {
+      pathname: '/',
+      search: '',
+      hash: '',
+      origin: 'https://playpets.gaerae.com',
+      replace: to => (replaced = to),
+    },
+    navigator: { languages: ['ko-KR'] },
+    storage: { getItem: () => null, setItem: () => assert.fail('an automatic choice is not saved') },
+    document: { addEventListener: () => assert.fail('a redirect does not need a click listener') },
+  });
+  assert.equal(replaced, '/ko/');
+  stopAfterRedirect();
+
+  let listener, removed, saved;
+  const document = {
+    addEventListener: (name, fn, capture) => {
+      assert.deepEqual([name, capture], ['click', true]);
+      listener = fn;
+    },
+    removeEventListener: (name, fn, capture) => (removed = [name, fn, capture]),
+  };
+  const stop = setupSiteLocale({
+    base: '/',
+    location: { pathname: '/', search: '', hash: '', origin: 'https://playpets.gaerae.com', replace: () => {} },
+    navigator: { languages: ['en-US'] },
+    storage: { getItem: () => null, setItem: (key, value) => (saved = [key, value]) },
+    document,
+  });
+  const anchor = {
+    href: 'https://playpets.gaerae.com/ja/',
+    closest: selector => (selector === '.translations' ? {} : null),
+  };
+  listener({ target: { closest: selector => (selector === 'a[href]' ? anchor : null) } });
+  assert.deepEqual(saved, ['playpets-locale', 'ja']);
+  stop();
+  assert.deepEqual(removed, ['click', listener, true]);
+});
 
 test('offscreen sprites retain placeholders until visible and observers detach on teardown', () => {
   let entered,

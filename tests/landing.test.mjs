@@ -23,6 +23,28 @@ test('landing introduces every built-in companion before optional AI and coding'
   assert.match(read('website/.vitepress/theme/landing.css'), /\.preview-paused \.sprite i[\s\S]*animation: none/);
 });
 
+test('every landing makes download a primary destination in the nav and hero', async () => {
+  const config = read('website/.vitepress/config.mts');
+  for (const [label, link] of [
+    ['Download', '/#download'],
+    ['다운로드', '/ko/#download'],
+    ['ダウンロード', '/ja/#download'],
+    ['下载', '/zh-hans/#download'],
+  ])
+    assert.ok(config.includes(`{ text: '${label}', link: '${link}'`), `${label}: ${link}`);
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /href="#download">\{\{ t\.download \}\}/);
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { copy } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    assert.equal(typeof copy.download, 'string', lang);
+    assert.ok(copy.download.length > 2, lang);
+  }
+  const words = read('website/.vitepress/theme/words.ts');
+  assert.match(words, /download: 'Download PlayPets'/);
+  assert.match(read('website/.vitepress/theme/Downloads.vue'), /\{\{ words\.download \}\}/);
+  assert.match(read('website/.vitepress/theme/index.ts'), /setupSiteLocale\(\{ base \}\)/);
+});
+
 test('the landing offers four places, outdoor seasons and an explicitly labelled interactive sample', async () => {
   const locales = await Promise.all(
     ['en', 'ko', 'ja', 'zh-hans'].map(lang => import(`../website/.vitepress/theme/landing-${lang}.ts`)),

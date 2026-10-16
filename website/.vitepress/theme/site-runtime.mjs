@@ -2,6 +2,75 @@
 const releases = new Map();
 const settled = new Map();
 const listeners = new Map();
+const localeKey = 'playpets-locale';
+const supportedLocales = new Set(['en', 'ko', 'ja', 'zh-hans']);
+
+export function chooseSiteLocale(languages = []) {
+  for (const language of languages) {
+    const code = String(language).toLowerCase();
+    if (code.startsWith('ko')) return 'ko';
+    if (code.startsWith('ja')) return 'ja';
+    if (code.startsWith('zh')) return 'zh-hans';
+  }
+  return 'en';
+}
+
+const siteRoot = base => (base.endsWith('/') ? base : `${base}/`);
+
+export function localeRedirect({ base, pathname, languages = [], saved, search = '', hash = '' }) {
+  const root = siteRoot(base);
+  if (pathname !== root && pathname !== `${root}index.html`) return null;
+  const locale = supportedLocales.has(saved) ? saved : chooseSiteLocale(languages);
+  return locale === 'en' ? null : `${root}${locale}/${search}${hash}`;
+}
+
+export function localeFromTranslationLink(href, base, origin) {
+  const url = new URL(href, origin);
+  if (url.origin !== origin) return null;
+  const root = siteRoot(base);
+  if (!url.pathname.startsWith(root)) return null;
+  const relative = url.pathname.slice(root.length).replace(/\/$/, '');
+  if (!relative) return 'en';
+  return supportedLocales.has(relative) ? relative : null;
+}
+
+export function setupSiteLocale({
+  base,
+  location = globalThis.location,
+  navigator = globalThis.navigator,
+  storage = globalThis.localStorage,
+  document = globalThis.document,
+}) {
+  let saved;
+  try {
+    saved = storage.getItem(localeKey);
+  } catch {}
+  const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+  const redirect = localeRedirect({
+    base,
+    pathname: location.pathname,
+    languages,
+    saved,
+    search: location.search,
+    hash: location.hash,
+  });
+  if (redirect) {
+    location.replace(redirect);
+    return () => {};
+  }
+  const remember = event => {
+    const anchor = event.target?.closest?.('a[href]');
+    if (!anchor?.closest?.('.translations')) return;
+    const locale = localeFromTranslationLink(anchor.href, base, location.origin);
+    if (!locale) return;
+    try {
+      storage.setItem(localeKey, locale);
+    } catch {}
+  };
+  document.addEventListener('click', remember, true);
+  return () => document.removeEventListener('click', remember, true);
+}
+
 export function forgetRelease(slug) {
   releases.delete(slug);
   settled.delete(slug);

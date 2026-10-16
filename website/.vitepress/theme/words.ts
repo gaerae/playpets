@@ -4,6 +4,7 @@ import { computed } from 'vue';
 
 const table = {
   ko: {
+    download: 'PlayPets 다운로드',
     since: v => `${v}부터`,
     downloadFor: os => `${os}용 다운로드`,
     otherPlatforms: '다른 환경',
@@ -32,6 +33,7 @@ const table = {
     },
   },
   ja: {
+    download: 'PlayPetsをダウンロード',
     since: v => `${v}から`,
     downloadFor: os => `${os}版をダウンロード`,
     otherPlatforms: 'ほかのOS',
@@ -60,6 +62,7 @@ const table = {
     },
   },
   en: {
+    download: 'Download PlayPets',
     since: v => `since ${v}`,
     downloadFor: os => `Download for ${os}`,
     otherPlatforms: 'Other platforms',
@@ -88,6 +91,7 @@ const table = {
     },
   },
   'zh-hans': {
+    download: '下载 PlayPets',
     since: v => `${v} 起`,
     downloadFor: os => `下载 ${os} 版`,
     otherPlatforms: '其他平台',

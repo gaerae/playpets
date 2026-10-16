@@ -9,6 +9,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Make download a primary landing-page destination in every language, select the first visit from the browser language, and remember a language chosen from the site menu.
 - Move the website, user guide, release notes and developer docs to `https://playpets.gaerae.com/`.
 
 ## [0.1.0] - 2026-10-15

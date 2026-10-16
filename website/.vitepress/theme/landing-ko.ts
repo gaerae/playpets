@@ -17,7 +17,7 @@ export const copy = {
   guide: '사용 안내 읽기',
   more: '자세히',
   eyebrow: '내 책상 위의 작은 친구들',
-  start: '내 컴퓨터에서 만나기',
+  download: 'PlayPets 다운로드',
   meet: '친구 먼저 만나기',
   finalTitle: '내일도, 여기서 만나요.',
   developerTitle: '직접 만들어 보고 싶다면',

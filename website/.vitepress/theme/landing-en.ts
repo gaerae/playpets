@@ -17,7 +17,7 @@ export const copy = {
   guide: 'Read the guide',
   more: 'How it works',
   eyebrow: 'Little companions for your desktop',
-  start: 'Find your little world',
+  download: 'Download PlayPets',
   meet: 'Meet the friends',
   finalTitle: 'A little company for your everyday.',
   developerTitle: 'For people who make things',

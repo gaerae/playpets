@@ -102,7 +102,7 @@ onBeforeUnmount(() => {
     <template v-else>
       <div class="dl-row">
         <a class="dl-primary" :href="releases">
-          <span>{{ words.releases }}</span>
+          <span>{{ words.download }}</span>
           <small>{{ draft || lookup === 'missing' ? words.preparing : 'GitHub' }}</small>
         </a>
         <slot />

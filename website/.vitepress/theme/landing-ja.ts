@@ -17,7 +17,7 @@ export const copy = {
   guide: '使い方を読む',
   more: '詳しく見る',
   eyebrow: 'デスクトップで暮らす、小さな友だち',
-  start: 'パソコンで会ってみる',
+  download: 'PlayPetsをダウンロード',
   meet: '友だちを見てみる',
   finalTitle: '明日も、ここで会いましょう。',
   developerTitle: '作ってみたい人へ',

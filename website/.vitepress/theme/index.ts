@@ -9,6 +9,7 @@ import ReleaseMeta from './ReleaseMeta.vue';
 import Shot from './Shot.vue';
 import Since from './Since.vue';
 import Sprite from './Sprite.vue';
+import { setupSiteLocale } from './site-runtime.mjs';
 import './style.css';
 
 export default {
@@ -21,6 +22,7 @@ export default {
     const moved = (to: string) =>
       to.startsWith(base) ? base + to.slice(base.length).replace(/^(?:ko|ja|zh-hans)\/dev(\/|$)/, 'dev$1') : to;
     if (typeof window !== 'undefined') {
+      setupSiteLocale({ base });
       const now = moved(location.pathname);
       if (now !== location.pathname) location.replace(now + location.search + location.hash);
       router.onBeforeRouteChange = to => {

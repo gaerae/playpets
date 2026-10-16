@@ -68,9 +68,9 @@ export default defineConfig({
         'Meet Daisy, Clover and Pip in a calming desktop yard. Explore four places, play without an account, bring Codex pets and connect your AI when you want to chat.',
       themeConfig: {
         nav: [
+          { text: 'Download', link: '/#download', activeMatch: '^/#download' },
           { text: 'Creator studio', link: '/guide/creator-kit', activeMatch: '^/guide/creator-kit' },
           { text: 'Guide', link: '/guide/', activeMatch: '^/guide/(?!creator-kit)' },
-          { text: 'Releases', link: '/releases/', activeMatch: '^/releases/' },
           { text: 'Developers', link: '/dev/', activeMatch: '^/dev/' },
         ],
         sidebar: {
@@ -112,9 +112,9 @@ export default defineConfig({
         '데이지, 클로버, 핍과 함께하는 작은 데스크톱 놀이터예요. 네 장소에서 놀고 꽃을 키워요. Codex 펫을 데려오고, 대화하고 싶을 때 내 AI를 연결할 수 있어요.',
       themeConfig: {
         nav: [
+          { text: '다운로드', link: '/ko/#download', activeMatch: '^/ko/#download' },
           { text: '캐릭터 제작실', link: '/ko/guide/creator-kit', activeMatch: '^/ko/guide/creator-kit' },
           { text: '사용 안내', link: '/ko/guide/', activeMatch: '^/ko/guide/(?!creator-kit)' },
-          { text: '버전', link: '/ko/releases/', activeMatch: '^/ko/releases/' },
           { text: '개발(영어)', link: '/dev/' },
         ],
         sidebar: {
@@ -166,9 +166,9 @@ export default defineConfig({
         'デイジー、クローバー、ピップと過ごす小さなデスクトップの庭。四つの場所で遊び、花を育て、Codexのペットも迎えられます。話したいときは自分のAIをつなげます。',
       themeConfig: {
         nav: [
+          { text: 'ダウンロード', link: '/ja/#download', activeMatch: '^/ja/#download' },
           { text: '制作室', link: '/ja/guide/creator-kit', activeMatch: '^/ja/guide/creator-kit' },
           { text: '使い方', link: '/ja/guide/', activeMatch: '^/ja/guide/(?!creator-kit)' },
-          { text: 'リリース', link: '/ja/releases/', activeMatch: '^/ja/releases/' },
           { text: '開発者向け（英語）', link: '/dev/' },
         ],
         sidebar: {
@@ -222,9 +222,9 @@ export default defineConfig({
         '和 Daisy、Clover、Pip 一起待在桌面上的小世界。探索四个场景、玩耍和种花，也可以带来 Codex 宠物；想聊天时，再连接自己的 AI。',
       themeConfig: {
         nav: [
+          { text: '下载', link: '/zh-hans/#download', activeMatch: '^/zh-hans/#download' },
           { text: '角色制作室', link: '/zh-hans/guide/creator-kit', activeMatch: '^/zh-hans/guide/creator-kit' },
           { text: '使用指南', link: '/zh-hans/guide/', activeMatch: '^/zh-hans/guide/(?!creator-kit)' },
-          { text: '版本', link: '/zh-hans/releases/', activeMatch: '^/zh-hans/releases/' },
           { text: '开发者（英文）', link: '/dev/' },
         ],
         sidebar: {
