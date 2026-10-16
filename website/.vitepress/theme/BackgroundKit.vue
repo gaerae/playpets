@@ -350,7 +350,7 @@ function downloadPrompt() {
 .background-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 28px; }
 .background-form { display: grid; gap: 15px; align-content: start; }
 .background-kit label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
-.background-kit .background-check { display: flex; align-items: center; gap: 10px; }
+.background-kit .background-check { min-height: 44px; display: flex; align-items: center; gap: 10px; }
 .background-kit input:not([type=checkbox]):not([type=range]), .background-kit select, .background-kit textarea { width: 100%; min-height: 44px; padding: 10px; border: 1px solid var(--vp-c-divider); border-radius: var(--studio-radius, 10px); background: var(--vp-c-bg); color: var(--vp-c-text-1); font: inherit; }
 .background-kit input[type=file] { font-size: 14px; }
 .background-kit input[type=checkbox], .background-kit input[type=range] { accent-color: var(--vp-c-brand-1); }

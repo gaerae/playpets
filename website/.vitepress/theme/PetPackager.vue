@@ -222,7 +222,7 @@ textarea { resize: vertical; }
 .pet-preview-stage.mini canvas { width: 96px; }
 .pet-preview-stage p { position: absolute; padding: 20px; text-align: center; color: var(--vp-c-text-2); }
 .pet-playback { display: flex; gap: 20px; align-items: center; }
-.pet-playback label { display: flex; align-items: center; gap: 8px; }
+.pet-playback label { min-height: 44px; display: flex; align-items: center; gap: 8px; }
 button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--vp-c-divider); border-radius: var(--studio-radius, 10px); background: var(--vp-c-bg-soft); color: var(--vp-c-text-1); font: inherit; cursor: pointer; }
 button:disabled { opacity: .5; cursor: default; }
 .pet-export { background: var(--vp-c-brand-1); color: var(--vp-c-bg); font-weight: 600; }
