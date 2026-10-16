@@ -1,14 +1,20 @@
 ---
+sidebar: false
 outline: false
+aside: false
+pageClass: creator-studio-page
 ---
 
 <script setup>
+import StudioNav from "../.vitepress/theme/StudioNav.vue";
 import BackgroundKit from "../.vitepress/theme/BackgroundKit.vue";
 </script>
 
 # Background studio
 
 Create a place, download its layout and prompts, then import it into PlayPets.
+
+<StudioNav lang="en" current="background" />
 
 <BackgroundKit lang="en" />
 

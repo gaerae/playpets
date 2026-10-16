@@ -1,14 +1,20 @@
 ---
+sidebar: false
 outline: false
+aside: false
+pageClass: creator-studio-page
 ---
 
 <script setup>
+import StudioNav from "../../.vitepress/theme/StudioNav.vue";
 import BackgroundKit from "../../.vitepress/theme/BackgroundKit.vue";
 </script>
 
 # 背景制作室
 
 配置シートとプロンプトで空間を作り、PlayPetsに背景パッケージを読み込みます。
+
+<StudioNav lang="ja" current="background" />
 
 <BackgroundKit lang="ja" />
 

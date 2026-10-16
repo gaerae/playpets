@@ -77,7 +77,7 @@ icon after changing the source.
 
 `CreatorKit.vue` uses specifications from `scripts/creator-specs.mjs`; site
 preparation runs `scripts/creator-kit.mjs` to copy accepted references and build
-standalone import packages for all ten built-in companions. The studio is also
+standalone import packages for Daisy, Clover and Pip. The studio is also
 a main navigation destination in every site language. Preserve existing kit IDs and bookmarked query links
 when changing presentation. The minimal portable package has one canonical
 `pet.json` and baseline sheet. Optional PlayPets-specific materials do not imply
@@ -89,8 +89,8 @@ packing and validation before its result is a playable pet.
 
 ## Landing scenes and motion
 
-The landing uses actual app captures. `WorldPreview.vue` offers four seasons and
-city day/night; visitors choose a scene rather than waiting for a carousel.
+The landing uses actual app captures. `WorldPreview.vue` offers the four built-in places and
+four outdoor seasons; visitors choose a scene rather than waiting for a carousel.
 Refresh the spring, summer and winter captures in all four languages with:
 
 ```bash
@@ -103,8 +103,8 @@ Captures use isolated data and do not change the user's friends. The capture
 script clears transient focus and parks the pointer outside the app before each
 image; meaningful selected tabs and settings remain visible.
 
-Companion previews load when visible. The shelf stays still; the selected
-portrait offers three motions and stops off screen. The page pause button and
+Companion previews load when visible. The creator shelf and portrait stay still;
+landing companion previews offer three motions and stop off screen. The page pause button and
 the system's reduced-motion preference stop animation. Intro video metadata is
 still available to tools, but the landing does not autoplay a video.
 
@@ -112,3 +112,36 @@ Keep the landing copy in all four language modules. Lead with what a person can
 do, keep AI costs and privacy visible, and put coding integration details in the
 expandable developer note. Check narrow screens, scene selection, keyboard
 focus and reduced motion after changing the layout.
+
+
+## Browser creation workbenches
+
+`CreatorKit.vue` offers the approved source kits. `creator-task.mjs` fills the
+chosen motion sequence or seasonal prompt without changing the runtime atlas
+contract. `ExtensionPrompts.vue` uses the same supported state choices for a
+creator's own permitted reference. `PetPackager.vue` accepts finished v2 atlases,
+not the eleven 4 × 2 source batches; the source-batch packer remains a maintainer
+tool.
+
+`studio-files.mjs` checks PNG signatures, chunk boundaries, CRCs, exact dimensions
+and the pet's 8-bit RGBA format. The browser then decodes pixels and checks the 73
+consumed animation and gaze cells. Near-edge artwork is a review warning, not an
+automatic rejection. The ZIP contains the original accepted image bytes and a
+manifest with only supplied seasonal files. Browser ZIP bytes are tested against
+the existing deterministic kit ZIP writer. Input PNGs are limited to 16 MiB each
+for pets and 6 MiB each for backgrounds. Files are processed locally and are not
+retained after reloading or navigating away.
+
+`BackgroundKit.vue` uses the app's package and geometry validators. Reopening a
+v1 JSON checks and decodes every image before replacing the current workbench,
+and preserves all supported window masks. The exported guide and prompt include
+every enabled pane. Source, full-yard, mini and narrow previews use the same
+floor-anchored image transform as the runtime; a regression test compares their
+coordinates. These are composition previews, not a substitute for checking live
+lighting, weather, fishing and movement inside the app.
+
+Maintain `studio-copy.js` in all four site languages. File errors stay beside the
+input and successful operations use an announced status. Check both studios on
+direct entry, at phone widths, in dark mode and with reduced motion. The PNG and
+cell checks cannot judge anatomy, identity consistency, animation meaning,
+obstacles or visual quality; the guides keep those manual review steps explicit.

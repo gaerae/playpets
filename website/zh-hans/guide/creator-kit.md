@@ -7,7 +7,9 @@ description: "角色创作室：详细参考与即用宠物"
 ---
 
 <script setup>
+import StudioNav from "../../.vitepress/theme/StudioNav.vue";
 import ExtensionPrompts from "../../.vitepress/theme/ExtensionPrompts.vue";
+import PetPackager from "../../.vitepress/theme/PetPackager.vue";
 import CreatorKit from "../../.vitepress/theme/CreatorKit.vue";
 </script>
 
@@ -15,10 +17,18 @@ import CreatorKit from "../../.vitepress/theme/CreatorKit.vue";
 
 从三位伙伴中选择，保留角色特点，尝试新的服装和动作。这里准备了可直接用于图像工具的提示词。
 
+<StudioNav lang="zh-hans" current="pet" />
+
 <CreatorKit lang="zh-hans" />
 
 
 <ExtensionPrompts lang="zh-hans" />
+
+## 在浏览器中检查并导出
+
+在下方工具中添加**已完成的 v2 图集**。工具检查 PNG 文件、解码图片、检查实际使用的 73 个动作与视线单元，并按照应用的帧间隔预览。可以添加季节图集，下载仅包含已提供文件的 ZIP。解压后在 PlayPets 中导入文件夹。此工具不组装 11 张源图，源图请使用下方打包工具。
+
+<PetPackager lang="zh-hans" />
 
 三位伙伴的设计套件都包含原始图片、角色规格、五份提示词、动作参考、全身转面图和面部细节图。Daisy、Clover和Pip各有夏季与冬季图集。导入会添加新伙伴，不会修改现有伙伴或记录。
 

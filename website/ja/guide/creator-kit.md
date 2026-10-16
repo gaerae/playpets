@@ -7,7 +7,9 @@ description: キャラクターの参考画像、プロンプト、すぐ取り�
 ---
 
 <script setup>
+import StudioNav from "../../.vitepress/theme/StudioNav.vue";
 import ExtensionPrompts from "../../.vitepress/theme/ExtensionPrompts.vue";
+import PetPackager from "../../.vitepress/theme/PetPackager.vue";
 import CreatorKit from "../../.vitepress/theme/CreatorKit.vue";
 </script>
 
@@ -15,10 +17,18 @@ import CreatorKit from "../../.vitepress/theme/CreatorKit.vue";
 
 3人の友だちから選び、特徴を保ちながら服や動きを変えてみましょう。画像ツールですぐ使えるプロンプトを用意しました。
 
+<StudioNav lang="ja" current="pet" />
+
 <CreatorKit lang="ja" />
 
 
 <ExtensionPrompts lang="ja" />
+
+## ブラウザーで確認して書き出す
+
+下のツールには**完成したv2アトラス**を追加します。PNGファイルを検査・デコードし、使用する動作と視線の73セル、実行時と同じフレーム間隔を確認できます。季節シートを追加し、実際に選んだファイルだけを含むZIPを保存できます。解凍してPlayPetsにフォルダーを取り込んでください。11枚の元画像の組み立てには、下のパッキングツールを使います。
+
+<PetPackager lang="ja" />
 
 3人のデザインキットには元の画像、キャラクター仕様、5つのプロンプト、動作資料、全身各方向図、顔の詳細図が含まれます。Daisy、Clover、Pipそれぞれに夏と冬の画像もあります。取り込みは既存の友だちや記録を変えず、新しい友だちを追加します。
 

@@ -348,3 +348,15 @@ h3,
     transition: none;
   }
 }
+
+/* Both workbenches share the wider documentation layout on direct entry. */
+.Layout.creator-studio-page .VPDoc:not(.has-sidebar) > .container {
+  max-width: 1120px;
+}
+.Layout.creator-studio-page .VPDoc:not(.has-sidebar) > .container > .content {
+  max-width: 100%;
+  width: 100%;
+}
+.creator-studio-page .VPDoc .content-container {
+  max-width: 100%;
+}

@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { extensionPrompts } from '../../../scripts/creator-specs.mjs';
+import { creatorStates, creatorTaskPrompt } from './creator-task.mjs';
+import { studioCopy } from './studio-copy.js';
 
 const props = defineProps({ lang: { type: String, default: 'en' } });
 const copy = {
@@ -58,12 +60,13 @@ const copy = {
   },
 };
 const t = computed(() => copy[props.lang] || copy.en);
-const inputs = ref({ name: '', reference: '', locks: '', wardrobe: '', action: '' });
+const inputs = ref({ name: '', reference: '', locks: '', wardrobe: '', action: 'idle' });
+const extra = computed(() => studioCopy[props.lang] || studioCopy.en);
 const notice = ref('');
 const prompts = computed(() =>
   Object.entries(
     extensionPrompts(Object.fromEntries(Object.entries(inputs.value).filter(([, value]) => value.trim()))),
-  ),
+  ).map(([key, value]) => [key, creatorTaskPrompt(value, { state: inputs.value.action })]),
 );
 async function copyPrompt(text) {
   try {
@@ -75,9 +78,9 @@ async function copyPrompt(text) {
 }
 </script>
 <template>
-  <section class="extension-prompts">
+  <section id="custom-prompts" class="extension-prompts">
     <h2>{{ t.title }}</h2><p>{{ t.help }}</p>
-    <div class="extension-fields"><label v-for="field in Object.keys(inputs)" :key="field">{{ t[field] }}<textarea v-model="inputs[field]" rows="2" /></label></div>
+    <div class="extension-fields"><label v-for="field in Object.keys(inputs)" :key="field">{{ t[field] }}<select v-if="field === 'action'" v-model="inputs.action"><option v-for="(state,i) in creatorStates" :key="state" :value="state">{{ i < 9 ? extra.actions[i] : `${extra.actions[9]} ${i === 9 ? 'N → SSE' : 'S → NNW'}` }}</option></select><textarea v-else v-model="inputs[field]" maxlength="1000" rows="2" /></label></div>
     <p role="status">{{ notice }}</p>
     <details v-for="([key, prompt], index) in prompts" :key="key"><summary>{{ t.titles[index] }}</summary><button type="button" @click="copyPrompt(prompt)">{{ t.button }}</button><pre><code>{{ prompt }}</code></pre></details>
   </section>
@@ -85,7 +88,8 @@ async function copyPrompt(text) {
 <style scoped>
 .extension-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 label { display: flex; flex-direction: column; gap: 8px; }
-textarea, button { font: inherit; color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); border: 1px solid var(--vp-c-divider); border-radius: 8px; padding: 10px; }
+textarea, select, button { font: inherit; color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); border: 1px solid var(--vp-c-divider); border-radius: 8px; padding: 10px; }
+select { min-height: 44px; }
 textarea { width: 100%; resize: vertical; min-height: 64px; }
 button { cursor: pointer; min-height: 44px; margin-top: 12px; }
 details { border: 1px solid var(--vp-c-divider); border-radius: 10px; padding: 14px; margin: 14px 0; }

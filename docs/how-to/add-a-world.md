@@ -26,7 +26,11 @@ stance and window rectangles. Positions are not fixed across backgrounds. The st
 lets a creator click the picture to place water or the fishing stance and edit the
 numbers; its PNG guide and prompt reflect those values. The stance is on the walkable
 floor. Water is entirely above that floor. Window masks are optional for indoor weather.
-Coordinates and the image share `environmentFrame`, including narrow-window cropping.
+Saved packages can be reopened in the browser studio without rebuilding them from scratch.
+The studio retains up to twelve window rectangles, and the guide and prompt list every
+enabled pane. Its composition previews show source, full, mini and narrow crops.
+Coordinates and the image share the floor-anchored transform checked against
+`environmentFrame`, including narrow-window cropping.
 A cropped-out stance falls back to the visible shore.
 
 Images are embedded PNG data URLs, each 1536 × 1024, up to 6 MB, within a 32 MB JSON

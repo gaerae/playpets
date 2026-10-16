@@ -7,7 +7,9 @@ description: "캐릭터 제작실: 상세 시트와 바로 쓰는 펫"
 ---
 
 <script setup>
+import StudioNav from "../../.vitepress/theme/StudioNav.vue";
 import ExtensionPrompts from "../../.vitepress/theme/ExtensionPrompts.vue";
+import PetPackager from "../../.vitepress/theme/PetPackager.vue";
 import CreatorKit from "../../.vitepress/theme/CreatorKit.vue";
 </script>
 
@@ -15,10 +17,18 @@ import CreatorKit from "../../.vitepress/theme/CreatorKit.vue";
 
 세 친구 중에서 골라요. 친구의 특징은 지키면서 옷과 동작을 바꿔 보세요. 이미지 도구에서 바로 쓸 프롬프트를 준비했어요.
 
+<StudioNav lang="ko" current="pet" />
+
 <CreatorKit lang="ko" />
 
 
 <ExtensionPrompts lang="ko" />
+
+## 브라우저에서 검사하고 내보내요
+
+아래 도구에는 **완성된 v2 시트**를 넣어요. PNG 파일을 검사하고 이미지를 읽은 뒤, 실제 사용하는 동작·시선 셀 73개와 동작 재생을 확인해요. 계절별 시트를 더하고 실제 넣은 파일만 담은 ZIP으로 받을 수 있어요. 압축을 푼 폴더를 PlayPets에서 가져와 주세요. 원본 배치 11개를 조립하는 도구는 아니므로 원본 배치는 아래 패킹 도구를 사용해요.
+
+<PetPackager lang="ko" />
 
 세 친구의 디자인 키트에는 원본 그림, 캐릭터 명세, 프롬프트 5개, 동작 참고 자료, 전신 턴어라운드와 얼굴 상세도가 들어 있어요. Daisy, Clover, Pip 모두 여름·겨울 시트도 제공해요. 가져오기는 기존 친구나 기록을 바꾸지 않고 새 친구를 추가해요.
 

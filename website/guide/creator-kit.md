@@ -7,7 +7,9 @@ description: "Creator studio: character sheets and ready-to-use pets"
 ---
 
 <script setup>
+import StudioNav from "../.vitepress/theme/StudioNav.vue";
 import ExtensionPrompts from "../.vitepress/theme/ExtensionPrompts.vue";
+import PetPackager from "../.vitepress/theme/PetPackager.vue";
 import CreatorKit from "../.vitepress/theme/CreatorKit.vue";
 </script>
 
@@ -15,10 +17,18 @@ import CreatorKit from "../.vitepress/theme/CreatorKit.vue";
 
 Choose from three friends. Keep their character, try a new outfit or motion, and take the prompt straight to your image tool.
 
+<StudioNav lang="en" current="pet" />
+
 <CreatorKit lang="en" />
 
 
 <ExtensionPrompts lang="en" />
+
+## Check and export in the browser
+
+Use the workbench below for a **finished v2 atlas**. It checks the PNG bytes, decodes the image, checks all 73 consumed animation and gaze cells, and previews the runtime frame timing. You can add optional seasonal sheets and download a ZIP with only the files you supplied. Unzip it before importing the folder into PlayPets. It does not assemble the eleven source batches; use the packer below for those.
+
+<PetPackager lang="en" />
 
 Each design kit includes original artwork, a character specification, five prompts, animation references, a full-body turnaround and a face-detail sheet. Daisy, Clover and Pip each include summer and winter sheets. Importing a pet creates a separate friend without changing existing friends or their records.
 

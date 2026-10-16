@@ -7,6 +7,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Add local browser checks, animation preview and ZIP export for finished pet sheets; reopen background packages with preserved window geometry, inspect full/mini crops, and fill motion prompts from supported actions in all four site languages.
+
 ### Changed
 
 - Keep one installer per Windows architecture, embed third-party notices in native packages instead of duplicating them beside every release file, and let version pages activate from GitHub's public tag without a follow-up site deployment.

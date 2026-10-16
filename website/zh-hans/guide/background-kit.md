@@ -1,14 +1,20 @@
 ---
+sidebar: false
 outline: false
+aside: false
+pageClass: creator-studio-page
 ---
 
 <script setup>
+import StudioNav from "../../.vitepress/theme/StudioNav.vue";
 import BackgroundKit from "../../.vitepress/theme/BackgroundKit.vue";
 </script>
 
 # 背景制作室
 
 使用布局参考图和提示词制作空间，再将背景包导入PlayPets。
+
+<StudioNav lang="zh-hans" current="background" />
 
 <BackgroundKit lang="zh-hans" />
 

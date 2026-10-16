@@ -2,6 +2,8 @@
 import { withBase } from 'vitepress';
 import { computed, onMounted, ref, watch } from 'vue';
 import { kitEntries, kitFromQuery, kitPrompts, kitSpec } from '../../../scripts/creator-specs.mjs';
+import { creatorStates, creatorTaskPrompt } from './creator-task.mjs';
+import { studioCopy } from './studio-copy.js';
 import VisibleSprite from './VisibleSprite.vue';
 
 const props = defineProps({ lang: { type: String, default: 'en' } });
@@ -11,7 +13,7 @@ const words = {
       'デザインキットをダウンロードし、identity-reference.pngと用意された各方向図を画像ツールに添付してから貼り付けます。新たに推定された背面などの特徴を確認してください。',
       'キットのidentity-reference.pngとexpression-reference.pngを添付します。face-detail.pngがあれば追加し、生成後に元の顔と比較してください。',
       'まず「動きや視線の1行」で8ポーズの元画像を作成して確認します。承認した元画像とキャラクター参考画像を添付して服を変更します。この元画像はZIPに含まれません。',
-      '[STATE]と[EIGHT POSES]を記入してから貼り付けます。キットのキャラクター・動作資料と、用意された顔の詳細図・各方向図を添付し、画像ツールで元画像を作成して確認します。',
+      '下で動きを選ぶと[STATE]と[EIGHT POSES]を自動で埋めます。キットのキャラクター・動作資料と、用意された顔の詳細図・各方向図を添付し、画像ツールで元画像を作成して確認します。',
       '承認した11行の元画像をすべて準備し、下のパッキング手順を使います。画像生成ではなく組み立てと検証の工程です。この11行の元画像はZIPに含まれません。',
     ],
     task: '作りたいものを選ぶ',
@@ -28,10 +30,6 @@ const words = {
     promptText: 'プロンプト本文',
 
     character: '1. ペットを選ぶ',
-    style: '2. 見た目を選ぶ',
-    illustrated: 'Mini',
-    animalStyle: 'キャラクター',
-    realistic: 'リアル',
     design: '完全なデザインキットをダウンロード',
     pet: '取り込み用ペットをダウンロード',
     designHelp:
@@ -59,7 +57,7 @@ const words = {
       'Download the design kit. Attach its identity-reference.png and any existing turnaround to your image tool, then paste this prompt. Check newly inferred hidden details before accepting them.',
       'Attach the kit’s identity-reference.png and expression-reference.png, plus face-detail.png when available. Compare the face with the original after generation.',
       'First use “One motion or gaze row” to create and approve an eight-pose source image. Attach that image and your approved character references before changing clothing. This source image is not included in the ZIP.',
-      'Fill in [STATE] and [EIGHT POSES] before pasting. Attach the kit’s identity and motion references, plus approved face or turnaround images if available. Generate and review the source image in your image tool.',
+      'Choose the motion below; [STATE] and [EIGHT POSES] are filled in for you. Attach the kit’s identity and motion references, plus approved face or turnaround images if available. Generate and review the source image in your image tool.',
       'Prepare all eleven approved source rows, then use the packing instructions below. This is an assembly and validation step, not an image-generation prompt; the ZIP does not include those eleven source rows.',
     ],
     task: 'Choose what to make',
@@ -76,10 +74,6 @@ const words = {
     promptText: 'Prompt text',
 
     character: '1. Choose a pet',
-    style: '2. Choose an appearance',
-    illustrated: 'Mini',
-    animalStyle: 'Character',
-    realistic: 'Realistic',
     design: 'Download complete design kit',
     pet: 'Download importable pet',
     designHelp:
@@ -113,7 +107,7 @@ const words = {
       '디자인 키트를 받고 identity-reference.png와 준비된 턴어라운드를 이미지 도구에 첨부한 뒤 프롬프트를 붙여 넣으세요. 새로 추정한 뒷모습 등의 특징은 직접 확인해요.',
       '키트의 identity-reference.png와 expression-reference.png를 첨부해요. face-detail.png가 있으면 함께 넣고, 생성 후 원본 얼굴과 비교해요.',
       '먼저 “동작 또는 시선 한 행”으로 여덟 포즈 원본을 만들고 확인해요. 승인한 원본과 캐릭터 참고 이미지를 첨부한 뒤 옷을 바꿔요. 이 여덟 포즈 원본은 ZIP에 들어 있지 않아요.',
-      '[STATE]와 [EIGHT POSES]를 채운 뒤 붙여 넣으세요. 키트의 캐릭터·동작 참고 자료와 준비된 얼굴 상세도·턴어라운드를 첨부해요. 이미지 도구에서 원본을 만들고 직접 확인해요.',
+      '아래에서 동작을 고르면 [STATE]와 [EIGHT POSES]를 자동으로 채워요. 키트의 캐릭터·동작 참고 자료와 준비된 얼굴 상세도·턴어라운드를 첨부해요. 이미지 도구에서 원본을 만들고 직접 확인해요.',
       '승인한 원본 행 11개를 모두 준비한 뒤 아래 패킹 안내를 따라요. 이미지 생성이 아니라 조립·검증 단계예요. ZIP에는 이 원본 행 11개가 들어 있지 않아요.',
     ],
     task: '만들고 싶은 것을 골라요',
@@ -129,10 +123,6 @@ const words = {
     promptText: '프롬프트 내용',
 
     character: '1. 펫을 골라요',
-    style: '2. 모습을 골라요',
-    illustrated: '미니',
-    animalStyle: '캐릭터형',
-    realistic: '실사형',
     design: '전체 디자인 키트 받기',
     pet: '가져오기용 펫 받기',
     designHelp:
@@ -160,7 +150,7 @@ const words = {
       '下载设计套件，把identity-reference.png和已有的转面图附加到图像工具，再粘贴提示词。请检查新推测的背面等细节。',
       '附加套件中的identity-reference.png和expression-reference.png。如有face-detail.png，也一并附加。生成后请与原始面部对比。',
       '先用“一行动作或视线”生成并确认八姿势源图，再附加这张源图和已认可的角色参考图来修改服装。ZIP不包含这张八姿势源图。',
-      '填写[STATE]和[EIGHT POSES]后再粘贴。附加套件的角色与动作参考，以及已有的面部细节图和转面图，在图像工具中生成并检查源图。',
+      '在下方选择动作后，自动填写[STATE]与[EIGHT POSES]。附加套件的角色与动作参考，以及已有的面部细节图和转面图，在图像工具中生成并检查源图。',
       '准备好已认可的全部11行源图，再按照下方打包说明操作。这是组装和验证步骤，不是图像生成提示词。ZIP不包含这11行源图。',
     ],
     task: '选择想制作的内容',
@@ -174,10 +164,6 @@ const words = {
     promptText: '提示词正文',
 
     character: '1. 选择宠物',
-    style: '2. 选择外观',
-    illustrated: '迷你',
-    animalStyle: '角色风格',
-    realistic: '写实风格',
     design: '下载完整设计套件',
     pet: '下载可导入宠物',
     designHelp: '设计 ZIP 包含全身转面图、面部细节、角色规格、五份角色专用提示词、参考拼图与标准图集。',
@@ -202,6 +188,9 @@ const words = {
 };
 const t = computed(() => words[props.lang] || words.en);
 const promptIndex = ref(0);
+const state = ref('idle'),
+  wardrobeSeason = ref('summer');
+const extra = computed(() => studioCopy[props.lang] || studioCopy.en);
 const id = ref(kitEntries[0].id),
   notice = ref('');
 watch(id, () => {
@@ -221,7 +210,9 @@ const prompts = computed(() => Object.entries(kitPrompts(spec.value)));
 watch(promptIndex, () => {
   notice.value = '';
 });
-const selectedPrompt = computed(() => prompts.value[promptIndex.value]?.[1] || '');
+const selectedPrompt = computed(() =>
+  creatorTaskPrompt(prompts.value[promptIndex.value]?.[1] || '', { state: state.value, season: wardrobeSeason.value }),
+);
 const file = name => withBase(`/creator-kit/${id.value}/${name}`);
 async function copy(text) {
   try {
@@ -234,7 +225,7 @@ async function copy(text) {
 </script>
 
 <template>
-  <section class="creator-kit" :aria-label="t.character">
+  <section id="official-kit" class="creator-kit" :aria-label="t.character">
     <fieldset class="kit-entries"><legend>{{ t.character }}</legend>
       <label v-for="entry in kitEntries" :key="entry.id" :class="{ selected: id === entry.id }">
         <input v-model="id" type="radio" name="creator-entry" :value="entry.id">
@@ -254,6 +245,8 @@ async function copy(text) {
         <h3>{{ t.prompts }}</h3>
         <label class="kit-task" for="creator-task">{{ t.task }}</label>
         <select id="creator-task" v-model="promptIndex"><option v-for="(title, index) in t.titles" :key="index" :value="index">{{ title }}</option></select>
+        <label v-if="promptIndex === 3" class="kit-motion-task">{{ extra.action }}<select v-model="state"><option v-for="(choice,i) in creatorStates" :key="choice" :value="choice">{{ i < 9 ? extra.actions[i] : `${extra.actions[9]} ${i === 9 ? 'N → SSE' : 'S → NNW'}` }}</option></select></label>
+        <label v-if="promptIndex === 2" class="kit-motion-task">{{ t.titles[2] }}<select v-model="wardrobeSeason"><option value="summer">{{ extra.seasons[1] }}</option><option value="winter">{{ extra.seasons[3] }}</option></select></label>
         <div class="kit-copy-row"><button type="button" @click="copy(selectedPrompt)">{{ t.copy }} <span aria-hidden="true">↗</span></button><span class="kit-notice" role="status" aria-live="polite">{{ notice }}</span></div>
         <p class="kit-attach">{{ t.taskHints[promptIndex] }}</p>
         <pre tabindex="0" :aria-label="t.promptText"><code>{{ selectedPrompt }}</code></pre>
@@ -280,9 +273,6 @@ async function copy(text) {
 </template>
 
 <style scoped>
-:global(.Layout.creator-studio-page .VPDoc:not(.has-sidebar) > .container) { max-width: 1120px; }
-:global(.Layout.creator-studio-page .VPDoc:not(.has-sidebar) > .container > .content) { max-width: 100%; width: 100%; }
-:global(.creator-studio-page .VPDoc .content-container) { max-width: 100%; }
 .creator-kit { --kit-button-bg: #315d4b; --kit-button-hover: #284d3f; --kit-button-text: #fff; min-width: 0; margin: 32px 0 48px; }
 :global(.dark .creator-kit) { --kit-button-bg: #b8d2a5; --kit-button-hover: #cde4be; --kit-button-text: #25352f; }
 .creator-kit :deep(.sprite i) { animation: none; }
@@ -305,6 +295,7 @@ async function copy(text) {
 .kit-task { display: block; font-size: 13px; margin-bottom: 8px; color: var(--vp-c-text-2); }
 select { width: 100%; min-height: 46px; border: 1px solid var(--vp-c-divider); border-radius: 10px; padding: 10px 14px; color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); font: inherit; }
 .kit-attach { font-size: 14px; line-height: 1.7; }
+.kit-motion-task { display: grid; gap: 8px; margin-top: 12px; font-size: 13px; }
 .kit-copy-row { display: flex; align-items: center; gap: 16px; margin: 16px 0 12px; }
 button { flex-shrink: 0; min-height: 44px; border-radius: 10px; padding: 10px 16px; background: var(--kit-button-bg); color: var(--kit-button-text); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
 .kit-notice { color: var(--vp-c-text-2); font-size: 12px; line-height: 1.5; }
