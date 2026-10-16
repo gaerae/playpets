@@ -1,5 +1,14 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import {
+  CollapsibleContent,
+  CollapsibleRoot,
+  CollapsibleTrigger,
+  TabsContent,
+  TabsList,
+  TabsRoot,
+  TabsTrigger,
+} from 'reka-ui';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { backgroundPrompt, backgroundSheet } from '../../../scripts/background-specs.mjs';
 import {
   MAX_BACKGROUND_BYTES,
@@ -7,6 +16,7 @@ import {
   validateBackgroundPack,
 } from '../../../src/yard/background-pack.js';
 import { backgroundCopy } from './background-copy.js';
+import StudioFile from './StudioFile.vue';
 import { studioCopy } from './studio-copy.js';
 import {
   backgroundPackageSize,
@@ -15,6 +25,7 @@ import {
   readStudioImage,
   studioSeasons,
 } from './studio-files.mjs';
+import { replaceStudioHash, studioPanelForHash } from './studio-flow.mjs';
 
 const props = defineProps({ lang: { type: String, default: 'en' } });
 const c = computed(() => backgroundCopy[props.lang] || backgroundCopy.en);
@@ -32,6 +43,9 @@ const name = ref(''),
   errors = ref({}),
   status = ref(''),
   busy = ref(false);
+const phase = ref('layout');
+const advanced = ref(false);
+const phases = ['layout', 'images', 'export'];
 const seasons = studioSeasons;
 const waterShape = reactive({ from: 0.4, to: 0.68, center: 0.6, radius: 0.025 });
 const fishingSpot = reactive({ x: 0.43, y: 0.74 });
@@ -41,12 +55,25 @@ const placement = ref('water'),
   crop = ref(0);
 const aspects = [1.5, 1.6, 4 / 3, 3 / 4];
 const ready = ref(false);
+const restorePhase = () => {
+  phase.value = studioPanelForHash(location.hash, 'background');
+};
+function goPhase(value) {
+  phase.value = value;
+  nextTick(() => document.querySelector('.background-kit .studio-tab[data-state="active"]')?.focus());
+}
+watch(phase, value => {
+  if (typeof window !== 'undefined') replaceStudioHash(`#studio-${value}`);
+});
 onMounted(() => {
   ready.value = true;
+  restorePhase();
+  window.addEventListener('hashchange', restorePhase);
 });
 let active = true;
 onBeforeUnmount(() => {
   active = false;
+  window.removeEventListener('hashchange', restorePhase);
 });
 const geometry = computed(() => ({
   floor: floor.value,
@@ -98,7 +125,7 @@ watch(floor, value => {
   fishingSpot.y = Math.max(value, fishingSpot.y);
 });
 function place(event) {
-  if (crop.value !== 0 || !water.value || indoor.value || geometryError.value) return;
+  if (!advanced.value || crop.value !== 0 || !water.value || indoor.value || geometryError.value) return;
   const rect = event.currentTarget.getBoundingClientRect();
   const x = Math.max(0.02, Math.min(0.98, (event.clientX - rect.left) / rect.width)),
     y = (event.clientY - rect.top) / rect.height;
@@ -166,6 +193,7 @@ async function reopen(event) {
     filenames.value = Object.fromEntries(Object.keys(pack.images).map(key => [key, `${key}.png`]));
     errors.value = {};
     setting.value = '';
+    phase.value = 'images';
     status.value = t.value.bgOpened;
   } catch {
     if (active) status.value = t.value.bgError;
@@ -220,14 +248,15 @@ function downloadPrompt() {
 </script>
 
 <template>
-<section class="background-kit" :aria-label="c.title">
-  <h2>{{ c.title }}</h2><p>{{ c.lead }}</p>
+<section class="background-kit studio-workspace" :aria-label="c.title">
   <p class="background-note">{{ t.local }}</p>
-  <label class="background-reopen">{{ t.bgOpen }}<input type="file" accept="application/json,.json" :disabled="!ready || busy" @change="reopen"></label>
-  <h3>{{ t.bgSteps[0] }}</h3>
-  <div class="background-grid">
-    <div class="background-form">
-      <label>{{ c.name }}<input v-model="name" maxlength="60" :aria-describedby="!name.trim() ? 'background-name-help' : undefined"></label>
+  <StudioFile id="background-reopen" class="background-reopen" :label="t.bgOpen" :lang="lang" accept="application/json,.json" :disabled="!ready || busy" @change="reopen" />
+  <TabsRoot v-model="phase">
+    <TabsList class="studio-tabs" :aria-label="c.title"><TabsTrigger v-for="(item,i) in phases" :key="item" :value="item" class="studio-tab"><strong>{{ t.bgPhases[i] }}</strong><span>{{ t.bgPhaseHints[i] }}</span></TabsTrigger></TabsList>
+    <div class="background-grid">
+      <div class="background-editor">
+        <TabsContent value="layout" force-mount :hidden="phase !== 'layout'" class="studio-tab-panel">
+          <div class="background-form">      <label>{{ c.name }}<input v-model="name" maxlength="60" :aria-describedby="!name.trim() ? 'background-name-help' : undefined"></label>
       <p v-if="!name.trim()" id="background-name-help" class="background-note">{{ t.bgName }}</p>
       <label>{{ c.setting }}<textarea v-model="setting" maxlength="300" rows="2" /></label>
       <label class="background-check"><input v-model="indoor" type="checkbox">{{ c.indoor }}</label>
@@ -238,9 +267,40 @@ function downloadPrompt() {
       <label>{{ c.seasonPrompt }}<select v-model="season"><option v-for="(s,i) in seasons" :key="s" :value="s">{{ c.labels[i] }}</option></select></label>
       <div class="background-buttons"><button type="button" :disabled="!ready || !!geometryError" @click="sheet">{{ c.sheet }}</button></div>
       <p class="background-note">{{ t.bgNoUpload }}</p>
+</div>
+            <h3>{{ c.prompt }}</h3><textarea :value="geometryError ? '' : prompt" readonly rows="7" :aria-label="c.prompt" />
+  <div class="background-buttons"><button type="button" :disabled="!ready || !!geometryError" @click="copy">{{ c.copy }}</button><button type="button" :disabled="!ready || !!geometryError" @click="downloadPrompt">{{ t.bgPromptDownload }}</button></div>
+
+          <button type="button" class="studio-primary" @click="goPhase('images')">{{ t.nextImages }} <span aria-hidden="true">→</span></button>
+        </TabsContent>
+        <TabsContent value="images" force-mount :hidden="phase !== 'images'" class="studio-tab-panel" id="studio-images">
+            <p id="background-format" class="background-note">{{ t.bgFormat }}</p>
+  <div class="background-files" :aria-busy="busy">
+    <div v-for="(key,i) in ['base', ...seasons]" :key="key" class="background-file">
+      <StudioFile :id="`background-file-${key}`" :label="key === 'base' ? c.base : c.labels[i-1]" :lang="lang" accept="image/png,.png" :disabled="!ready || busy" :invalid="!!errors[key]" :describedby="errors[key] ? `background-error-${key}` : 'background-format'" @change="upload($event,key)" />
+      <div v-if="images[key]" class="background-file-result"><span>{{ filenames[key] }}</span><button type="button" :disabled="!ready || busy" @click="remove(key)">{{ t.remove }}</button></div>
+      <p v-if="errors[key]" :id="`background-error-${key}`" role="alert" class="background-error">{{ errors[key] }}</p>
     </div>
-    <div class="background-preview-panel">
-      <div class="background-preview-controls">
+  </div>
+  <p v-if="busy" role="status">{{ t.checking }}</p>
+
+          <button type="button" class="studio-primary" @click="goPhase('export')">{{ t.nextExport }} <span aria-hidden="true">→</span></button>
+        </TabsContent>
+        <TabsContent value="export" force-mount :hidden="phase !== 'export'" class="studio-tab-panel" id="studio-export">
+            <p class="background-note">{{ t.bgReview }}</p>
+  <p class="background-note">{{ t.bgBudget }} · {{ (packageBytes / 1024 / 1024).toFixed(1) }} / 32 MiB</p>
+  <p v-if="packageBytes > MAX_BACKGROUND_BYTES" class="background-error" role="alert">{{ t.bgBudgetError }}</p>
+  <p v-if="!images.base" class="background-note">{{ t.bgMissing }}</p>
+  <p v-if="!name.trim()" class="background-note">{{ t.bgName }}</p>
+  <div class="background-buttons"><button type="button" :disabled="!images.base || !name.trim() || busy || !!geometryError || packageBytes > MAX_BACKGROUND_BYTES" @click="save">{{ c.save }}</button></div>
+  <p class="background-note">{{ c.ready }}</p>
+  <p class="background-note">{{ c.limits }}</p>
+
+          <button type="button" @click="goPhase('layout')">{{ t.backLayout }}</button>
+        </TabsContent>
+      </div>
+      <aside class="background-preview-panel">
+              <div class="background-preview-controls">
         <label>{{ t.bgCrop }}<select v-model="crop" :aria-label="t.bgCrop"><option v-for="(label,i) in t.bgCrops" :key="label" :value="i">{{ label }}</option></select></label>
         <label class="background-check"><input v-model="guides" type="checkbox">{{ t.bgGuide }}</label>
       </div>
@@ -256,9 +316,13 @@ function downloadPrompt() {
         </div>
         <p v-if="!images.base">{{ c.empty }}</p>
       </div>
+        <CollapsibleRoot v-model:open="advanced" class="studio-advanced">
+          <CollapsibleTrigger class="studio-disclosure">{{ t.advanced }} <span aria-hidden="true">{{ advanced ? '−' : '+' }}</span></CollapsibleTrigger>
+          <CollapsibleContent>
       <p class="background-note">{{ t.bgCropHelp }}</p>
       <p v-if="images.base && !images[season]" class="background-note">{{ t.bgFallback }}</p>
       <p class="background-note">{{ c.panes }}</p>
+
       <div v-if="water && !indoor" class="geometry-editor">
         <label>{{ c.placement }}<select v-model="placement"><option value="water">{{ c.waterPosition }}</option><option value="stand">{{ c.stand }}</option></select></label>
         <label v-for="(key,i) in ['from','to','center','radius']" :key="key">{{ c.waterFields[i] }}<input v-model.number="waterShape[key]" type="number" min="0" max="1" step=".005"></label>
@@ -271,45 +335,29 @@ function downloadPrompt() {
         </fieldset>
         <button type="button" :disabled="windows.length >= 12 || busy" @click="windows.push({x: .26,y: .12,width: .2,height: .3})">{{ t.bgAddWindow }}</button>
       </div>
-      <p v-if="geometryError" role="alert" class="background-error">{{ geometryError }}</p>
+</CollapsibleContent>
+        </CollapsibleRoot>
+        <p v-if="geometryError" role="alert" class="background-error">{{ geometryError }}</p>
+      </aside>
     </div>
-  </div>
-  <h3>{{ c.prompt }}</h3><textarea :value="geometryError ? '' : prompt" readonly rows="7" :aria-label="c.prompt" />
-  <div class="background-buttons"><button type="button" :disabled="!ready || !!geometryError" @click="copy">{{ c.copy }}</button><button type="button" :disabled="!ready || !!geometryError" @click="downloadPrompt">{{ t.bgPromptDownload }}</button></div>
-  <h3>{{ t.bgSteps[1] }}</h3>
-  <p id="background-format" class="background-note">{{ t.bgFormat }}</p>
-  <div class="background-files" :aria-busy="busy">
-    <div v-for="(key,i) in ['base', ...seasons]" :key="key" class="background-file">
-      <label :for="`background-file-${key}`">{{ key === 'base' ? c.base : c.labels[i-1] }}</label>
-      <input :id="`background-file-${key}`" type="file" accept="image/png,.png" :disabled="!ready || busy" :aria-invalid="!!errors[key]" :aria-describedby="errors[key] ? `background-error-${key}` : 'background-format'" @change="upload($event,key)">
-      <div v-if="images[key]" class="background-file-result"><span>{{ filenames[key] }}</span><button type="button" :disabled="!ready || busy" @click="remove(key)">{{ t.remove }}</button></div>
-      <p v-if="errors[key]" :id="`background-error-${key}`" role="alert" class="background-error">{{ errors[key] }}</p>
-    </div>
-  </div>
-  <p v-if="busy" role="status">{{ t.checking }}</p>
-  <h3>{{ t.bgSteps[2] }}</h3>
-  <p class="background-note">{{ t.bgReview }}</p>
-  <p class="background-note">{{ t.bgBudget }} · {{ (packageBytes / 1024 / 1024).toFixed(1) }} / 32 MiB</p>
-  <p v-if="packageBytes > MAX_BACKGROUND_BYTES" class="background-error" role="alert">{{ t.bgBudgetError }}</p>
-  <p v-if="!images.base" class="background-note">{{ t.bgMissing }}</p>
-  <div class="background-buttons"><button type="button" :disabled="!images.base || !name.trim() || busy || !!geometryError || packageBytes > MAX_BACKGROUND_BYTES" @click="save">{{ c.save }}</button></div>
-  <p class="background-note">{{ c.ready }}</p>
-  <p class="background-note">{{ c.limits }}</p>
+  </TabsRoot>
   <p role="status" aria-live="polite">{{ status }}</p>
 </section>
 </template>
+
 <style scoped>
 .background-kit { margin: 32px 0; min-width: 0; }
 .background-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 28px; }
 .background-form { display: grid; gap: 15px; align-content: start; }
 .background-kit label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
 .background-kit .background-check { display: flex; align-items: center; gap: 10px; }
-.background-kit input:not([type=checkbox]):not([type=range]), .background-kit select, .background-kit textarea { width: 100%; min-height: 44px; padding: 10px; border: 1px solid var(--vp-c-divider); border-radius: 10px; background: var(--vp-c-bg); color: var(--vp-c-text-1); font: inherit; }
-.background-kit input[type=file] { font-size: 12px !important; }
+.background-kit input:not([type=checkbox]):not([type=range]), .background-kit select, .background-kit textarea { width: 100%; min-height: 44px; padding: 10px; border: 1px solid var(--vp-c-divider); border-radius: var(--studio-radius, 10px); background: var(--vp-c-bg); color: var(--vp-c-text-1); font: inherit; }
+.background-kit input[type=file] { font-size: 14px; }
 .background-kit input[type=checkbox], .background-kit input[type=range] { accent-color: var(--vp-c-brand-1); }
 .background-kit input[type=range] { min-height: 32px; width: 100%; }
 .background-kit textarea { font-size: 13px; line-height: 1.7; resize: vertical; margin-bottom: 12px; }
-.background-preview-panel { min-width: 0; }
+.background-preview-panel { min-width: 0; align-self: start; position: sticky; top: 88px; }
+.background-editor { min-width: 0; }
 .background-preview-controls { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
 .background-preview { position: relative; border: 1px solid var(--vp-c-divider); border-radius: 14px; overflow: hidden; background: #d5e7eb; }
 .background-art { position: absolute; }
@@ -317,18 +365,18 @@ function downloadPrompt() {
 .background-preview > p { position: relative; padding: 20px; color: #244049; font-size: 14px; }
 .background-note { font-size: 13px; line-height: 1.7; color: var(--vp-c-text-2); margin: 8px 0 14px; }
 .background-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-.background-kit button { min-height: 44px; border: 1px solid var(--vp-c-divider); border-radius: 10px; padding: 10px 16px; background: var(--vp-c-bg-soft); color: var(--vp-c-text-1); font-size: 14px; font-weight: 600; cursor: pointer; }
+.background-kit :where(button:not(.studio-tab)) { min-height: 44px; border: 1px solid var(--vp-c-divider); border-radius: var(--studio-radius, 10px); padding: 10px 16px; background: var(--vp-c-bg-soft); color: var(--vp-c-text-1); font-size: 14px; font-weight: 600; cursor: pointer; }
 .background-kit button:disabled { opacity: .45; cursor: default; }
 .background-kit :focus-visible { outline: 3px solid var(--vp-c-brand-1); outline-offset: 3px; }
 .geometry-editor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin: 18px 0; padding: 0; border: 0; min-width: 0; }
 .geometry-editor legend { margin-bottom: 10px; font-weight: 600; }
 .geometry-editor label { font-size: 12px; }
-.background-files { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.background-files { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .background-file { min-width: 0; padding: 16px; background: var(--vp-c-bg-soft); border-radius: 12px; }
 .background-file label { margin-bottom: 8px; }
 .background-file-result { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; overflow-wrap: anywhere; }
 .background-file-result button { padding: 6px 10px; }
 .background-error { color: var(--vp-c-danger-1); font-size: 13px; }
 .background-reopen { max-width: 480px; margin: 24px 0; }
-@media (max-width: 700px) { .background-grid, .background-files { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 700px) { .background-preview-panel { position: static; grid-row: 1; } .background-editor { grid-row: 2; } .background-grid, .background-files { grid-template-columns: minmax(0, 1fr); } }
 </style>

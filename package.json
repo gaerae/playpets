@@ -60,6 +60,7 @@
     "mermaid": "^12.1.0",
     "oxlint": "1.88.0",
     "playwright-core": "^1.64.0",
+    "reka-ui": "2.11.0",
     "vitepress": "^1.6.4"
   },
   "license": "MIT",

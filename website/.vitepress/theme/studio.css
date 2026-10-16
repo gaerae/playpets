@@ -1,0 +1,114 @@
+.studio-workspace {
+  --studio-radius: 10px;
+  --studio-gap: 20px;
+  margin: 24px 0 36px;
+}
+.studio-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--vp-c-divider);
+  margin: 0 0 28px;
+}
+.studio-tab {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding: 14px 16px;
+  color: var(--vp-c-text-2);
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+}
+.studio-tab strong {
+  display: block;
+  font-size: 15px;
+  color: inherit;
+}
+.studio-tab span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.studio-tab[data-state="active"] {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+  border-radius: 8px 8px 0 0;
+}
+.studio-tab:hover {
+  color: var(--vp-c-text-1);
+}
+.studio-tab:focus-visible {
+  outline: 3px solid var(--vp-c-brand-1);
+  outline-offset: -3px;
+}
+.studio-tab-panel[hidden] {
+  display: none;
+}
+.studio-tab-panel:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 6px;
+}
+.studio-tab-panel > section {
+  margin-top: 0;
+}
+.studio-tab-panel h2:first-child {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+.studio-reference {
+  border-top: 1px solid var(--vp-c-divider);
+  margin-top: 48px;
+  padding-top: 20px;
+}
+.studio-reference > summary {
+  cursor: pointer;
+  padding: 12px 0;
+  font-weight: 600;
+  color: var(--vp-c-text-2);
+}
+.studio-tabs + .studio-tab-panel {
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .studio-tab {
+    padding: 12px 9px;
+  }
+  .studio-tab strong {
+    font-size: 13px;
+  }
+  .studio-tab span {
+    display: none;
+  }
+}
+
+.studio-workspace button.studio-primary {
+  background: var(--vp-c-brand-1);
+  color: var(--vp-c-bg);
+  margin-top: 20px;
+}
+.studio-advanced {
+  border-top: 1px solid var(--vp-c-divider);
+  margin-top: 20px;
+  padding-top: 12px;
+}
+.studio-disclosure {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+}
+.studio-workspace .pet-packager {
+  margin-bottom: 0;
+}
+.studio-workspace .pet-package-preview {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+}
+@media (max-width: 640px) {
+  .studio-workspace .pet-package-preview {
+    position: static;
+  }
+}

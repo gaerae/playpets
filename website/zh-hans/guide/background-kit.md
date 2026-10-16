@@ -1,4 +1,5 @@
 ---
+title: "背景制作室"
 sidebar: false
 outline: false
 aside: false
@@ -10,13 +11,17 @@ import StudioNav from "../../.vitepress/theme/StudioNav.vue";
 import BackgroundKit from "../../.vitepress/theme/BackgroundKit.vue";
 </script>
 
-# 背景制作室
+# 制作室
 
 使用布局参考图和提示词制作空间，再将背景包导入PlayPets。
 
 <StudioNav lang="zh-hans" current="background" />
 
 <BackgroundKit lang="zh-hans" />
+
+<details class="studio-reference">
+<summary>文件规格与详细制作说明</summary>
+
 
 
 ## 应用会添加什么
@@ -37,3 +42,5 @@ import BackgroundKit from "../../.vitepress/theme/BackgroundKit.vue";
 
 请在完整窗口和迷你模式下分别检查：伙伴是否与家具重叠，钓线是否落在可见水域中，
 雨雪是否超出窗框。布局参考图用于指定需要留空的地面，不会自动识别图片中的障碍物。
+
+</details>

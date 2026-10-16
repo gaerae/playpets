@@ -1,4 +1,5 @@
 ---
+title: "배경 제작실"
 sidebar: false
 outline: false
 aside: false
@@ -10,13 +11,17 @@ import StudioNav from "../../.vitepress/theme/StudioNav.vue";
 import BackgroundKit from "../../.vitepress/theme/BackgroundKit.vue";
 </script>
 
-# 배경 제작실
+# 제작실
 
 배치 시트와 프롬프트로 공간을 만들고, PlayPets에 배경 패키지를 가져와요.
 
 <StudioNav lang="ko" current="background" />
 
 <BackgroundKit lang="ko" />
+
+<details class="studio-reference">
+<summary>파일 규격과 고급 제작 안내</summary>
+
 
 
 ## 앱이 더해 주는 요소
@@ -40,3 +45,5 @@ JSON 패키지를 내려받은 뒤 앱의 **배경과 분위기**에서 **배경
 전체 창과 미니 모드에서 모두 확인해 주세요. 친구가 가구와 겹치지 않는지,
 낚싯줄이 보이는 물에 닿는지, 날씨가 창틀 밖으로 새어 나오지 않는지 살펴봐요.
 배치 시트는 비워 둘 바닥을 지정해 주며, 생성된 그림 속 장애물을 자동으로 인식하지는 않아요.
+
+</details>

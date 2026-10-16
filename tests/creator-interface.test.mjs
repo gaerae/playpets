@@ -14,14 +14,23 @@ test('creator workbench keeps prompts next to the selected pet and gates detaile
   assert.match(source, /aria-live="polite"/);
 });
 
-test('creator studio is a primary destination in every locale', async () => {
+test('both studios share the primary destination without selecting the guide menu', async () => {
   const config = await readFile('website/.vitepress/config.mts', 'utf8');
+  const { studioCopy } = await import('../website/.vitepress/theme/studio-copy.js');
+  const entries = [...config.matchAll(/text:\s*'([^']+)',\s*link:\s*'([^']+)',\s*activeMatch:\s*'([^']+)'/g)];
   for (const prefix of ['', 'ko/', 'ja/', 'zh-hans/']) {
-    assert.ok(config.includes(`activeMatch: '^/${prefix}guide/creator-kit'`));
-    const guide = await readFile(`website/${prefix}guide/creator-kit.md`, 'utf8');
-    assert.match(guide, /sidebar: false/);
-    assert.match(guide, /outline: false/);
-    assert.match(guide, /aside: false/);
+    const studio = entries.find(row => row[2] === `/${prefix}guide/creator-kit`);
+    const guideMenu = entries.find(row => row[2] === `/${prefix}guide/`);
+    assert.equal(studio[1], studioCopy[prefix.slice(0, -1) || 'en'].studioTitle);
+    for (const tool of ['creator-kit', 'background-kit']) {
+      assert.ok(new RegExp(studio[3]).test(`/${prefix}guide/${tool}`));
+      assert.ok(!new RegExp(guideMenu[3]).test(`/${prefix}guide/${tool}`));
+      const guide = await readFile(`website/${prefix}guide/${tool}.md`, 'utf8');
+      assert.match(guide, /sidebar: false/);
+      assert.match(guide, /outline: false/);
+      assert.match(guide, /aside: false/);
+    }
+    assert.ok(!new RegExp(studio[3]).test(`/${prefix}guide/import`));
   }
 });
 

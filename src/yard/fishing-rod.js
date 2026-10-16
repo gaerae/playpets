@@ -7,6 +7,16 @@ export const ROD = Object.freeze({
 });
 export const rodUrl = new URL('../art/props/fishing-rod.png', import.meta.url).href;
 
+/** A near-bank click still casts into open water, away from the friend's face. */
+export function castLandingX(gripX, requestedX, petWidth, ends) {
+  const left = ends[0] + 8,
+    right = ends[1] - 8;
+  if (left >= right || Math.abs(requestedX - gripX) >= petWidth * 0.36) return requestedX;
+  const direction = Math.abs(right - gripX) >= Math.abs(left - gripX) ? 1 : -1;
+  const target = Math.max(left, Math.min(right, gripX + direction * petWidth * 0.7));
+  return Math.abs(target - gripX) > Math.abs(requestedX - gripX) ? target : requestedX;
+}
+
 /** Aim the terminal guide toward the water so the line carries on past the rod. */
 export function castGeometry(grip, float, petWidth, petHeight) {
   const delta = float.x - grip.x;

@@ -1,6 +1,8 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger } from 'reka-ui';
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { animationSpec, frameAt } from '../../../src/core/animation.js';
+import StudioFile from './StudioFile.vue';
 import { studioCopy } from './studio-copy.js';
 import {
   downloadStudioFile,
@@ -10,6 +12,7 @@ import {
   studioSeasons,
   studioZip,
 } from './studio-files.mjs';
+import { petIdFromName } from './studio-flow.mjs';
 
 const props = defineProps({ lang: { type: String, default: 'en' } });
 const t = computed(() => studioCopy[props.lang] || studioCopy.en);
@@ -19,6 +22,17 @@ const sheets = ref({}),
   busy = ref(false),
   notice = ref('');
 const ready = ref(false);
+const identityOpen = ref(false);
+let generatedId = '',
+  idSuffix = '';
+watch(
+  () => meta.value.name,
+  name => {
+    if (!idSuffix || meta.value.id !== generatedId) return;
+    generatedId = name.trim() ? petIdFromName(name, idSuffix) : '';
+    meta.value.id = generatedId;
+  },
+);
 const showSeasons = ref(false);
 const selected = ref('base'),
   action = ref('idle'),
@@ -26,6 +40,11 @@ const selected = ref('base'),
   playing = ref(false),
   mini = ref(false),
   canvas = ref(null);
+const studioPanel = inject('studioPanel', null);
+if (studioPanel)
+  watch(studioPanel, value => {
+    if (value !== 'package') stop();
+  });
 const current = computed(() => sheets.value[selected.value]);
 const states = [...petStates, 'gaze'];
 const frames = computed(() => (action.value === 'gaze' ? 16 : animationSpec(action.value).frames));
@@ -114,6 +133,7 @@ function save() {
   }
 }
 onMounted(() => {
+  idSuffix = crypto.randomUUID().slice(0, 8);
   ready.value = true;
   media = matchMedia('(prefers-reduced-motion: reduce)');
   motion();
@@ -144,16 +164,19 @@ onBeforeUnmount(() => {
     <div class="pet-package-grid">
       <div class="pet-package-fields">
         <label>{{ t.name }}<input v-model="meta.name" maxlength="60" autocomplete="off"></label>
-        <label>{{ t.id }}<input v-model="meta.id" maxlength="64" pattern="[a-z0-9][a-z0-9_-]{0,63}" autocomplete="off" aria-describedby="pet-id-help"></label>
-        <p id="pet-id-help" class="studio-help">{{ t.idHelp }}</p>
         <label>{{ t.kind }}<select v-model="meta.kind"><option v-for="(kind,i) in ['person','animal','other']" :key="kind" :value="kind">{{ t.kinds[i] }}</option></select></label>
+        <CollapsibleRoot v-model:open="identityOpen" class="studio-advanced">
+          <CollapsibleTrigger class="studio-disclosure">{{ t.identityOptions }} <span aria-hidden="true">{{ identityOpen ? '−' : '+' }}</span></CollapsibleTrigger>
+          <CollapsibleContent>        <label>{{ t.id }}<input v-model="meta.id" maxlength="64" pattern="[a-z0-9][a-z0-9_-]{0,63}" autocomplete="off" aria-describedby="pet-id-help"></label>
+        <p id="pet-id-help" class="studio-help">{{ t.idHelp }}</p>
         <label>{{ t.description }}<textarea v-model="meta.description" maxlength="300" rows="2" aria-describedby="pet-description-help" /></label>
         <p id="pet-description-help" class="studio-help">{{ t.descriptionHelp }} · {{ meta.description.length }} / 300</p>
+</CollapsibleContent>
+        </CollapsibleRoot>
         <p id="pet-file-format" class="studio-help">{{ t.format }}</p>
         <button type="button" :aria-expanded="showSeasons" @click="showSeasons = !showSeasons">{{ t.seasonFiles }}</button>
         <div v-for="key in ['base', ...(showSeasons ? studioSeasons : [])]" :key="key" class="pet-file">
-          <label :for="`pet-file-${key}`">{{ key === 'base' ? t.base : t.seasons[studioSeasons.indexOf(key)] }}</label>
-          <input :id="`pet-file-${key}`" type="file" accept="image/png,.png" :disabled="!ready || busy" :aria-invalid="!!errors[key]" :aria-describedby="errors[key] ? `pet-error-${key}` : 'pet-file-format'" @change="upload($event,key)">
+          <StudioFile :id="`pet-file-${key}`" :label="key === 'base' ? t.base : t.seasons[studioSeasons.indexOf(key)]" :lang="lang" accept="image/png,.png" :disabled="!ready || busy" :invalid="!!errors[key]" :describedby="errors[key] ? `pet-error-${key}` : 'pet-file-format'" @change="upload($event,key)" />
           <div v-if="sheets[key]" class="pet-file-result"><span>{{ sheets[key].filename }}</span><button type="button" :disabled="!ready || busy" @click="remove(key)">{{ t.remove }}</button></div>
           <p v-if="errors[key]" :id="`pet-error-${key}`" role="alert" class="studio-error">{{ errors[key] }}</p>
         </div>
@@ -184,8 +207,8 @@ onBeforeUnmount(() => {
 .pet-package-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; margin-top: 24px; }
 .pet-package-fields, .pet-package-preview { display: grid; align-content: start; gap: 14px; min-width: 0; }
 label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
-input:not([type=checkbox]):not([type=range]), select, textarea { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--vp-c-divider); border-radius: 10px; background: var(--vp-c-bg); color: var(--vp-c-text-1); font: inherit; }
-input[type=file] { font-size: 12px !important; }
+input:not([type=checkbox]):not([type=range]), select, textarea { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--vp-c-divider); border-radius: var(--studio-radius, 10px); background: var(--vp-c-bg); color: var(--vp-c-text-1); font: inherit; }
+input[type=file] { font-size: 14px; }
 input[type=checkbox], input[type=range] { accent-color: var(--vp-c-brand-1); }
 input[type=range] { width: 100%; min-height: 32px; }
 textarea { resize: vertical; }
@@ -194,13 +217,13 @@ textarea { resize: vertical; }
 .pet-file > label { margin-bottom: 8px; }
 .pet-file-result { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; overflow-wrap: anywhere; }
 .pet-file-result button { padding: 6px 10px; }
-.pet-preview-stage { position: relative; min-height: 280px; display: grid; place-items: center; padding: 24px; border: 1px solid var(--vp-c-divider); border-radius: 20px; background: repeating-conic-gradient(var(--vp-c-bg-soft) 0% 25%, var(--vp-c-bg) 0% 50%) 0 0 / 24px 24px; }
+.pet-preview-stage { position: relative; min-height: 280px; display: grid; place-items: center; padding: 24px; border: 1px solid var(--vp-c-divider); border-radius: 16px; background: repeating-conic-gradient(var(--vp-c-bg-soft) 0% 25%, var(--vp-c-bg) 0% 50%) 0 0 / 24px 24px; }
 .pet-preview-stage canvas { width: 176px; height: auto; max-width: 100%; }
 .pet-preview-stage.mini canvas { width: 96px; }
 .pet-preview-stage p { position: absolute; padding: 20px; text-align: center; color: var(--vp-c-text-2); }
 .pet-playback { display: flex; gap: 20px; align-items: center; }
 .pet-playback label { display: flex; align-items: center; gap: 8px; }
-button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--vp-c-divider); border-radius: 10px; background: var(--vp-c-bg-soft); color: var(--vp-c-text-1); font: inherit; cursor: pointer; }
+button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--vp-c-divider); border-radius: var(--studio-radius, 10px); background: var(--vp-c-bg-soft); color: var(--vp-c-text-1); font: inherit; cursor: pointer; }
 button:disabled { opacity: .5; cursor: default; }
 .pet-export { background: var(--vp-c-brand-1); color: var(--vp-c-bg); font-weight: 600; }
 .studio-error { color: var(--vp-c-danger-1); font-size: 13px; }

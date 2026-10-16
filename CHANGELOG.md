@@ -13,9 +13,15 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Unify the web tools under Studio, separate starting paths and background phases with accessible component-library controls, retain drafts across tabs, and generate portable pet IDs from names.
+
 - Keep one installer per Windows architecture, embed third-party notices in native packages instead of duplicating them beside every release file, and let version pages activate from GitHub's public tag without a follow-up site deployment.
 - Make download a primary landing-page destination in every language, select the first visit from the browser language, and remember a language chosen from the site menu.
 - Move the website, user guide, release notes and developer docs to `https://playpets.gaerae.com/`.
+
+### Fixed
+
+- Keep close fishing casts farther from the friend while retaining the background's water bounds, so the line does not pass across the face in mini mode.
 
 ## [0.1.0] - 2026-10-15
 
