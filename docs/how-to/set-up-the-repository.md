@@ -68,7 +68,7 @@ pbcopy < /dev/null
 
 6. Settings before the first push:
    - Settings → Pages → Build and deployment → Source: **GitHub Actions**. If the page only lets you choose after a push, re-run the `pages` workflow from the Actions tab afterwards.
-   - While the account's own site (`gaerae/gaerae.github.io`) has the custom domain `gaerae.com`, GitHub serves this site at `gaerae.com/playpets/` and sends `gaerae.github.io/playpets/` there. The redirect GitHub sends is to plain `http://` unless HTTPS is enforced (the in-app links and the download buttons go through it). If the domain's DNS points straight at GitHub, turn on **Enforce HTTPS** in that repository's Settings → Pages. If it goes through Cloudflare's proxy (orange cloud), GitHub cannot issue its certificate and the box stays greyed out; enforce HTTPS at Cloudflare instead: SSL/TLS → Edge Certificates → **Always Use HTTPS** on, and the SSL mode **Full** (Full (strict) needs a certificate GitHub cannot issue behind the proxy; Flexible would carry the Cloudflare-to-GitHub leg over plain HTTP and loop if GitHub ever enforces HTTPS itself). `curl -sI http://<domain>/playpets/` then answers 301 to the `https://` address. [Move the site to its own domain](site-address.md) is the way out of sharing that domain.
+   - Settings → Pages → Custom domain: `playpets.gaerae.com`. Its CNAME points to `gaerae.github.io`; after the DNS check and certificate finish, turn on **Enforce HTTPS**. The complete setup and migration checks are in [Change the site address](site-address.md).
    - Settings → Actions → General → Workflow permissions: **Read repository contents and packages permissions**; leave "Allow GitHub Actions to create and approve pull requests" off. Optional: "Require actions to be pinned to a full-length commit SHA" (every action here is pinned).
    - Settings → Advanced Security: **Private vulnerability reporting: Enable** (`SECURITY.md`, the Code of Conduct and the issue form send reports there); Dependabot alerts and security updates: Enable; make sure secret scanning and push protection are on.
    - Settings → General → Features: Issues on; Wiki, Discussions and Projects off. Social preview: upload `website/public/og.png`.
@@ -85,7 +85,7 @@ git remote add origin https://github.com/gaerae/playpets.git
 git push -u origin main
 ```
 
-8. Watch the Actions tab: `build` (five platforms and `site`) and `pages` run, and `pages` publishes https://gaerae.github.io/playpets/ (served under `gaerae.com` while the account site has that domain).
+8. Watch the Actions tab: `build` (five platforms and `site`) and `pages` run, and `pages` publishes https://playpets.gaerae.com/.
 
 Optional, once the code is pushed: automatic reviews from CodeRabbit (free for public repositories). Sign in at https://app.coderabbit.ai with GitHub, install its app with **Only select repositories** → `gaerae/playpets`, and it reviews every pull request from then on. It reads `.coderabbit.yaml` (what to review and how) and, as its guidelines, `AGENTS.md` and `docs/standards/`. Ask it things in a pull request comment with `@coderabbitai`.
 
@@ -146,7 +146,7 @@ gh secret set WINGET_TOKEN --repo gaerae/playpets
     - Build the package with it (`MSIX_PUBLISHER="CN=…" npm run dist:windows`) and submit the unsigned `release/windows/msix-store/PlayPets_<version>_x64.msix` in Partner Center. The Store signs it. Without `MSIX_PUBLISHER`, the command makes a test-signed package in `release/windows/msix-test/`; Store builds leave those test certificates alone. Store submissions are by hand; the `distribute` workflow does not do them.
 
 ## Verification
-- The Actions tab shows `build` and `pages` green, and https://gaerae.github.io/playpets/ opens on an `https://` address.
+- The Actions tab shows `build` and `pages` green, and https://playpets.gaerae.com/ opens on an `https://` address.
 - The repository page shows the description, the website and the topics, and Settings → Rules lists the ruleset for `main`.
 - The Security tab shows "Report a vulnerability".
 - Settings → Secrets and variables → Actions lists `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`, `HOMEBREW_TAP_TOKEN` and `WINGET_TOKEN`.

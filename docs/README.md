@@ -3,7 +3,7 @@
 ## Overview and audience
 PlayPets is a pet app whose pets play on the desktop and in the yard window. You connect an AI to a friend to chat with it, and friends react while a coding agent works. It is a Tauri v2 app: the page is web code with no build tool (`src/`), and the backend is Rust (`src-tauri/`). It runs on macOS, Windows and Linux.
 
-This guide is the entry point for people who change the code, build integrations, or handle releases. How to use the app is in the [user guide on the site](https://gaerae.github.io/playpets/guide/) and in the repository [README](../README.md). These documents also appear as is under the site's "Developers" tab. The contribution process (PRs, check order) is in [CONTRIBUTING](../CONTRIBUTING.md). AI agents and review bots working in the repository read [AGENTS.md](../AGENTS.md), a short version of these rules.
+This guide is the entry point for people who change the code, build integrations, or handle releases. How to use the app is in the [user guide on the site](https://playpets.gaerae.com/guide/) and in the repository [README](../README.md). These documents also appear as is under the site's "Developers" tab. The contribution process (PRs, check order) is in [CONTRIBUTING](../CONTRIBUTING.md). AI agents and review bots working in the repository read [AGENTS.md](../AGENTS.md), a short version of these rules.
 
 ## Key concepts
 - **One app, two windows:** There is the yard window (the main window) and a transparent desktop window, one per monitor. Both windows only draw the state the backend holds.
@@ -31,7 +31,7 @@ Go to a document based on what you want to know.
 | Setting up once: the updater key, the GitHub repository, secrets, the Homebrew tap, winget, signing accounts | [Set up the repository, keys and store accounts](how-to/set-up-the-repository.md) |
 | Releasing a new version and distribution channels | [Release a new version](how-to/release.md) |
 | Changing the site (intro, user guide, version pages) | [Edit and check the website](how-to/website.md) |
-| Moving the site to its own domain (playpets.app) | [Move the site to its own domain](how-to/site-address.md) |
+| Changing the site address | [Change the site address](how-to/site-address.md) |
 | Adding a language the app speaks | [Add a language](how-to/add-a-language.md) |
 | Where to look first when stuck | [Troubleshooting guide](troubleshooting.md) |
 

@@ -2,7 +2,7 @@
   "generator": "cargo-about 0.9.2",
   "inputs": {
     "src-tauri/Cargo.lock": "d8554606e9a527bf08e2dfb2817579002722b82fe7e30e0efe413217d633812c",
-    "src-tauri/Cargo.toml": "01d6e40fbbed4e9ad056fa80d0723b52e1884b564575243a51e8a646cd41721a",
+    "src-tauri/Cargo.toml": "c044431ed6f65fc2159d35a37cba3c03b36268dff615a138deeed4a8d849feaf",
     "packaging/licenses/about.toml": "419e132450dc0eeeec53dbf9e8f7ecd674c170b248cd316f619037eba1d37dc8",
     "packaging/licenses/rust-supplements.json": "72cb668d4ec1fcc2652645fad388450b26beee970beb936082b5fb5a512504d8",
     "scripts/licenses.mjs": "d7dd8778046c8d4f24c437ce30dfc38104eb0dbeec4b63b6c2dec54b7b0078e2",

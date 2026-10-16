@@ -1,7 +1,7 @@
 # Edit and check the website
 
 ## Purpose
-Edit the landing page, the user guide, the release pages, or the developer docs published on the site, and check them locally before they go out. When `main` is pushed, `pages.yml` builds the site and publishes it to GitHub Pages automatically. The landing page, user guide and release pages are in English (the site root), Korean (`/ko/`), Japanese (`/ja/`) and Simplified Chinese (`/zh-hans/`); the developer docs are in English only and are served at https://gaerae.github.io/playpets/dev/.
+Edit the landing page, the user guide, the release pages, or the developer docs published on the site, and check them locally before they go out. When `main` is pushed, `pages.yml` builds the site and publishes it to GitHub Pages automatically. The landing page, user guide and release pages are in English (the site root), Korean (`/ko/`), Japanese (`/ja/`) and Simplified Chinese (`/zh-hans/`); the developer docs are in English only and are served at https://playpets.gaerae.com/dev/.
 
 ## Audience and assumptions
 Anyone who has cloned the repository and run `npm ci`. Only taking new screen captures needs macOS; everything else works on any OS. The layout and the reasons for it are in the decision "[Publish the introduction, user guide, per-version pages and developer docs as one VitePress site on GitHub Pages](../decisions/2026-10-03-website-on-github-pages.md)".

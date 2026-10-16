@@ -654,8 +654,8 @@ mod tests {
     #[test]
     fn the_apps_own_pages_open_and_nothing_next_to_them() {
         for ok in [
-            "https://gaerae.github.io/playpets/",
-            "https://gaerae.github.io/playpets/ko/releases/0.2.0",
+            "https://playpets.gaerae.com/",
+            "https://playpets.gaerae.com/ko/releases/0.2.0",
             "https://github.com/gaerae/playpets",
             "https://github.com/gaerae/playpets/issues/new/choose",
         ] {

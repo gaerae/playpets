@@ -1,12 +1,12 @@
 # PlayPets
 
-[![Banner: a yard where your pets talk to each other](assets/banner.png)](https://gaerae.github.io/playpets/)
+[![Banner: a yard where your pets talk to each other](assets/banner.png)](https://playpets.gaerae.com/)
 
 **A little yard for companions who talk to you—and each other.** Invite community pets, give each a personality, and choose a relationship: friend, partner, mentor or younger sibling. They wander, play and chat together while you work or unwind. Connect a local Ollama model, a signed-in Claude Code or Codex CLI, or an OpenAI-compatible server. PlayPets is a separate open-source app that reads compatible Codex pet files. You don't need Codex.
 
-[Website](https://gaerae.github.io/playpets/) · [User guide](https://gaerae.github.io/playpets/guide/) · [Releases](https://gaerae.github.io/playpets/releases/) · [Developer docs](https://gaerae.github.io/playpets/dev/)
+[Website](https://playpets.gaerae.com/) · [User guide](https://playpets.gaerae.com/guide/) · [Releases](https://playpets.gaerae.com/releases/) · [Developer docs](https://playpets.gaerae.com/dev/)
 
-Korean: [Website](https://gaerae.github.io/playpets/ko/) · [User guide](https://gaerae.github.io/playpets/ko/guide/) · Japanese: [Website](https://gaerae.github.io/playpets/ja/) · [User guide](https://gaerae.github.io/playpets/ja/guide/) · Simplified Chinese: [Website](https://gaerae.github.io/playpets/zh-hans/) · [User guide](https://gaerae.github.io/playpets/zh-hans/guide/)
+Korean: [Website](https://playpets.gaerae.com/ko/) · [User guide](https://playpets.gaerae.com/ko/guide/) · Japanese: [Website](https://playpets.gaerae.com/ja/) · [User guide](https://playpets.gaerae.com/ja/guide/) · Simplified Chinese: [Website](https://playpets.gaerae.com/zh-hans/) · [User guide](https://playpets.gaerae.com/zh-hans/guide/)
 
 [![build](https://github.com/gaerae/playpets/actions/workflows/build.yml/badge.svg)](https://github.com/gaerae/playpets/actions/workflows/build.yml) ![macOS · Windows · Linux](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-Tauri%202-f9ae55) ![MIT](https://img.shields.io/badge/license-MIT-3a2a1e) ![Compatible with the Codex pet format](https://img.shields.io/badge/pets-Codex%20pet%20format%20compatible-4a9bd6)
 
@@ -30,14 +30,14 @@ Build a small community on your desktop, with a voice and a place for every frie
 - **A living yard.** Morning, day, evening and night follow the clock, and the weather (clear, rain, snow) changes on its own. You can also pick them yourself. Put down a treat and friends walk over to eat it. Leave them alone and they wander and talk to themselves.
 - **Desktop mode.** Pets stroll around the desktop (on macOS, even over other apps in full screen).
 - **Play together.** Hide and seek (find the friend whose name is called), parade, and tag.
-- **Three starter companions.** Daisy, Clover and Pip come with the app. Clover is the main mascot; all three have summer and winter outfits. They use the Codex pet format and are MIT licensed. Make your own with the [character studio](https://gaerae.github.io/playpets/guide/creator-kit), or create an importable place with the [background studio](https://gaerae.github.io/playpets/guide/background-kit).
+- **Three starter companions.** Daisy, Clover and Pip come with the app. Clover is the main mascot; all three have summer and winter outfits. They use the Codex pet format and are MIT licensed. Make your own with the [character studio](https://playpets.gaerae.com/guide/creator-kit), or create an importable place with the [background studio](https://playpets.gaerae.com/guide/background-kit).
 - **Import community pets.** Paste the address of a pet page from OpenPets Registry (openpets.sh), Petdex, Codex PokéPets, Awesome Codex Pet (codexpet.top) or codex-pets.net, and the pet comes straight in. GitHub pet folder addresses and other sites built with codex-pet-share work too. Codex pets in `~/.codex/pets` load on their own. When a gallery adds a `playpets://import?url=<pet page>` link, one click brings the pet in.
 - **Mini mode.** Keep a small window with just the yard, always on top.
 - **Built with Tauri.** Uses Rust and the system webview. The yard redraws while something moves and rests when it is still.
 
 ## Install
 
-- Download the macOS dmg, the Windows installer or portable zip, or the Linux deb or AppImage from [GitHub releases](https://github.com/gaerae/playpets/releases). The builds are not code-signed yet, so macOS or Windows may show a security warning. Read the [install guide](https://gaerae.github.io/playpets/guide/install) for the checks and options available on your system.
+- Download the macOS dmg, the Windows installer or portable zip, or the Linux deb or AppImage from [GitHub releases](https://github.com/gaerae/playpets/releases). The builds are not code-signed yet, so macOS or Windows may show a security warning. Read the [install guide](https://playpets.gaerae.com/guide/install) for the checks and options available on your system.
 - To build it yourself, see [Development](#development) below.
 
 ## Getting started

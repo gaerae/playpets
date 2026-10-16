@@ -20,7 +20,7 @@ test('every About button sends its localized project destination through the gua
   globalThis.Option = class {};
   const { document } = installDom(t, { anyId: true });
   document.querySelectorAll = selector => (selector === 'button[data-link]' ? buttons : []);
-  const project = { site: 'https://gaerae.github.io/playpets/', repository: 'https://github.com/gaerae/playpets' };
+  const project = { site: 'https://playpets.gaerae.com/', repository: 'https://github.com/gaerae/playpets' };
   setData({ project });
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
     setLanguageForTests(lang);

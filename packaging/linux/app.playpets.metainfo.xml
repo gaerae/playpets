@@ -34,26 +34,26 @@
     <p>PlayPets is not affiliated with OpenAI. Codex is a trademark of OpenAI.</p>
   </description>
   <launchable type="desktop-id">PlayPets.desktop</launchable>
-  <url type="homepage">https://gaerae.github.io/playpets/</url>
-  <url type="help">https://gaerae.github.io/playpets/guide/</url>
+  <url type="homepage">https://playpets.gaerae.com/</url>
+  <url type="help">https://playpets.gaerae.com/guide/</url>
   <url type="bugtracker">https://github.com/gaerae/playpets/issues</url>
   <url type="vcs-browser">https://github.com/gaerae/playpets</url>
   <screenshots>
     <screenshot type="default">
       <caption>Friends talking to each other in the yard</caption>
-      <image>https://gaerae.github.io/playpets/listing/en/yard-talk.jpg</image>
+      <image>https://playpets.gaerae.com/listing/en/yard-talk.jpg</image>
     </screenshot>
     <screenshot>
       <caption>Chatting with a friend that answers through its own AI</caption>
-      <image>https://gaerae.github.io/playpets/listing/en/friend-chat.jpg</image>
+      <image>https://playpets.gaerae.com/listing/en/friend-chat.jpg</image>
     </screenshot>
     <screenshot>
       <caption>Friends roaming the desktop over other windows</caption>
-      <image>https://gaerae.github.io/playpets/listing/en/desktop.jpg</image>
+      <image>https://playpets.gaerae.com/listing/en/desktop.jpg</image>
     </screenshot>
     <screenshot>
       <caption>Connecting coding agents in Settings</caption>
-      <image>https://gaerae.github.io/playpets/listing/en/settings-agents.jpg</image>
+      <image>https://playpets.gaerae.com/listing/en/settings-agents.jpg</image>
     </screenshot>
   </screenshots>
   <keywords>

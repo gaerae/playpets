@@ -7,6 +7,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+
+- Move the website, user guide, release notes and developer docs to `https://playpets.gaerae.com/`.
+
 ## [0.1.0] - 2026-10-15
 
 ### Security
