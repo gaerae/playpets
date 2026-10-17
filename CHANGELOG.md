@@ -35,7 +35,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Distinguish download lookup from an unpublished version on the website, and keep release-page guidance accurate after the first release in all four languages.
 
-- Collect and verify bundled system-library notices in local Linux AppImages, and keep deb-only builds from exporting cached AppImages or stale source manifests.
+- Collect and verify bundled system-library notices in local Linux AppImages, and keep older cached packages and source manifests out of local Linux exports.
 
 - Keep startup notices in a collapsible, dismissible card above the yard. Distinguish missing pet files from the 12-friend limit without deleting saved friends.
 - Show the selected Always on top state, retain settings and conversations when resizing, and keep friend actions and scene controls reachable in short windows.

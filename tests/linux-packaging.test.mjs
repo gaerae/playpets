@@ -16,6 +16,8 @@ function fixture(t, { bundles = '', rejects = false } = {}) {
   put('work/packaging/licenses/THIRD-PARTY-NOTICES.txt', 'license fixture');
   put('work/src-tauri/target/release/playpets', 'executable fixture');
   put('out/PlayPets_old.AppImage', 'older image');
+  put('work/src-tauri/target/release/bundle/deb/PlayPets_old.deb', 'cached older deb');
+  put('work/src-tauri/target/release/bundle/appimage/PlayPets_old-SYSTEM-SOURCE-PACKAGES.txt', 'cached older manifest');
   put('out/PlayPets_old-SYSTEM-SOURCE-PACKAGES.txt', 'older manifest');
   put('work/src-tauri/target/release/bundle/appimage/PlayPets_old.AppImage', 'cached older image');
   put(
@@ -76,6 +78,8 @@ test('local Linux AppImages collect the final library notices before exporting p
   assert.match(steps[3], /prepare-appimage-licenses\.mjs --appimage/);
   assert.match(steps[5], /appimage-license\.mjs/);
   assert.equal(existsSync(path.join(f.root, 'out/PlayPets_0.2.0_aarch64.AppImage')), true);
+  assert.equal(existsSync(path.join(f.root, 'out/PlayPets_old.deb')), false);
+  assert.equal(existsSync(path.join(f.root, 'out/PlayPets_old-SYSTEM-SOURCE-PACKAGES.txt')), false);
   assert.equal(existsSync(path.join(f.root, 'out/PlayPets_0.2.0_aarch64-SYSTEM-SOURCE-PACKAGES.txt')), true);
 });
 
@@ -88,6 +92,7 @@ test('a local deb-only build exports no stale AppImage or source manifest', {
   assert.equal(existsSync(path.join(f.root, 'out/PlayPets_old.AppImage')), false);
   assert.equal(existsSync(path.join(f.root, 'out/PlayPets_old-SYSTEM-SOURCE-PACKAGES.txt')), false);
   assert.equal(existsSync(path.join(f.root, 'out/PlayPets_0.2.0_arm64.deb')), true);
+  assert.equal(existsSync(path.join(f.root, 'out/PlayPets_old.deb')), false);
 });
 
 test('an AppImage whose bundled library notices fail verification is not exported', {
