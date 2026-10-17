@@ -257,3 +257,15 @@ test('discovery starts collapsed and reflects current registry order and removal
   assert.equal(get('community-discovery').hidden, true);
   assert.equal(get('community-links').children.length, 0);
 });
+
+test('a folded search still says that the visible shelf is filtered', t => {
+  const nodes = page(t);
+  setData({ assets: [{ id: 'cat', place: 'builtin', displayName: 'Clover' }], pets: [] });
+  nodes.get('invite-search').value = 'Clover';
+  invite.renderShelf();
+  const label = document.getElementById('invite-filter-label');
+  assert.equal(label.getAttribute('data-i18n'), 'invite.filter_active');
+  nodes.get('invite-search').value = '';
+  invite.renderShelf();
+  assert.equal(label.getAttribute('data-i18n'), 'invite.filter');
+});

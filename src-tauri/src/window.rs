@@ -1,5 +1,5 @@
 // The main window: how it is built, and the commands the page uses to move, size and hide it.
-use crate::app::{Shared, lock};
+use crate::app::{Shared, hold, lock};
 use crate::commands::{arg, text};
 use crate::i18n;
 use serde_json::{Value, json};
@@ -7,10 +7,8 @@ use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{AppHandle, LogicalPosition, LogicalSize, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 
-const FULL_SIZE_DEFAULT: (f64, f64) = (1180.0, 850.0);
-const FULL_MIN: (f64, f64) = (840.0, 660.0);
-const MINI_SIZE: (f64, f64) = (460.0, 320.0);
-const MINI_MIN: (f64, f64) = (300.0, 210.0);
+const SIZE_DEFAULT: (f64, f64) = (1180.0, 850.0);
+const SIZE_MIN: (f64, f64) = (300.0, 210.0);
 
 /// WebKitGTK's DMA-BUF renderer ends the page's web process where it finds no usable GPU (a VM,
 /// a remote desktop, some drivers, Xvfb), leaving a blank or frozen window. The shared-memory
@@ -48,26 +46,31 @@ fn size((width, height): (f64, f64)) -> LogicalSize<f64> {
 }
 
 pub fn build_main(app: &tauri::App, bridge_js: &str) -> tauri::Result<WebviewWindow> {
+    let (saved, always_on_top) = {
+        let state = app.state::<Shared>();
+        let d = lock(&state);
+        (d.prefs.window_rect, d.prefs.always_on_top)
+    };
     let builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
         .title(crate::i18n::t("app.title"))
         // Backend isolation alone does not isolate WebView localStorage or IndexedDB.
         .incognito(crate::commands::e2e_mode())
-        .inner_size(FULL_SIZE_DEFAULT.0, FULL_SIZE_DEFAULT.1)
-        .min_inner_size(FULL_MIN.0, FULL_MIN.1)
+        .inner_size(SIZE_DEFAULT.0, SIZE_DEFAULT.1)
+        .min_inner_size(SIZE_MIN.0, SIZE_MIN.1)
         // The page's own background (--paper), so nothing flashes white before it loads.
         .background_color(tauri::window::Color(0xf7, 0xf9, 0xf8, 0xff))
         .on_navigation(own_page)
-        .initialization_script(bridge_js);
-    // macOS: the page runs under the title bar, so the bar takes the page's own colour.
-    #[cfg(target_os = "macos")]
-    let builder = builder
-        .title_bar_style(tauri::TitleBarStyle::Overlay)
-        .hidden_title(true)
-        .traffic_light_position(tauri::LogicalPosition::new(18.0, 26.0));
-    // Elsewhere the system title bar is dropped and the page draws one in the same colours.
-    #[cfg(not(target_os = "macos"))]
-    let builder = builder.decorations(false);
-    builder.build()
+        .initialization_script(bridge_js)
+        .decorations(false)
+        .resizable(true)
+        .always_on_top(always_on_top);
+    let w = builder.build()?;
+    watch_fullscreen(&w);
+    let default = rect_now(&w).unwrap_or((0.0, 0.0, SIZE_DEFAULT.0, SIZE_DEFAULT.1));
+    let (x, y, width, height) = restored_rect(saved, &work_areas(&w), default);
+    w.set_size(size((width, height)))?;
+    w.set_position(LogicalPosition::new(x, y))?;
+    Ok(w)
 }
 
 /// Only the app's own pages load in its windows (tauri://localhost, or http://tauri.localhost
@@ -121,7 +124,6 @@ pub fn command(app: &AppHandle, name: &str, args: &[Value]) -> Result<Value, Str
         "windowDrag" => {
             let _ = w.start_dragging();
         }
-        // Windows and Linux draw their own title bar in the page, so its buttons come through here.
         "windowMinimize" => {
             let _ = w.minimize();
             shown(app, false);
@@ -134,12 +136,15 @@ pub fn command(app: &AppHandle, name: &str, args: &[Value]) -> Result<Value, Str
             };
         }
         "windowHide" => hide(app),
-        "windowMini" => {
-            let on = arg(args, 0).as_bool().unwrap_or(false);
-            let saved = app.try_state::<Shared>().and_then(|s| lock(&s).prefs.mini_rect);
-            set_mini(&w, on, saved);
-            crate::tray::retitle(app);
-            return Ok(Value::Bool(on));
+        "windowFullscreen" => return set_fullscreen(app, arg(args, 0).as_bool().unwrap_or(false)),
+        "windowIsFullscreen" => return fullscreen_now(app),
+        "windowAlwaysOnTop" => return set_always_on_top(app, arg(args, 0).as_bool().unwrap_or(false)),
+        "windowResize" => {
+            let direction = resize_direction(text(args, 0)).ok_or_else(|| i18n::t("error.not_allowed"))?;
+            let view: &tauri::Webview = w.as_ref();
+            view.window()
+                .start_resize_dragging(direction)
+                .map_err(|_| i18n::t("error.not_allowed"))?;
         }
         _ => return Err(i18n::t("error.not_allowed")),
     }
@@ -165,7 +170,9 @@ pub fn e2e_window(app: &AppHandle, args: &[Value]) -> Result<Value, String> {
     let scale = w.scale_factor().map_err(|e| e.to_string())?;
     let pos = w.outer_position().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
     let size = w.outer_size().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
-    Ok(json!({"x": pos.x, "y": pos.y, "width": size.width, "height": size.height, "scale": scale}))
+    Ok(
+        json!({"x": pos.x, "y": pos.y, "width": size.width, "height": size.height, "scale": scale, "fullscreen": w.is_fullscreen().map_err(|e| e.to_string())?, "alwaysOnTop": w.is_always_on_top().map_err(|e| e.to_string())?, "resizable": w.is_resizable().map_err(|e| e.to_string())?, "minimum": {"width": SIZE_MIN.0, "height": SIZE_MIN.1}}),
+    )
 }
 
 /// `{x, y, width, height}` with every field a number, else nothing.
@@ -177,29 +184,322 @@ pub fn rect_of(v: &Value) -> Option<Rect> {
 /// A window's place and size in logical points: x, y, width, height.
 pub type Rect = (f64, f64, f64, f64);
 
-/// Where the mini window goes: where the person last left it (`saved`, kept in the app's data)
-/// while that still lies on a monitor, else the bottom-right corner of the monitor the full
-/// window is on, the usual place for a small window that stays on top.
-fn mini_rect(saved: Option<Rect>, areas: &[Rect], full: Rect) -> Rect {
-    let on = |a: &Rect, x: f64, y: f64| x >= a.0 && x <= a.0 + a.2 && y >= a.1 && y <= a.1 + a.3;
-    if let Some((x, y, w, h)) = saved {
-        let fits = w >= MINI_MIN.0 && h >= MINI_MIN.1;
-        if let Some(a) = areas.iter().find(|a| fits && on(a, x + w / 2.0, y + h / 2.0)) {
-            let (w, h) = (w.min(a.2), h.min(a.3));
-            // Not f64::clamp: a window as big as the area can round its upper bound below the lower.
-            let fit = |v: f64, lo: f64, hi: f64| v.min(hi).max(lo);
-            return (fit(x, a.0, a.0 + a.2 - w), fit(y, a.1, a.1 + a.3 - h), w, h);
-        }
-    }
-    let (cx, cy) = (full.0 + full.2 / 2.0, full.1 + full.3 / 2.0);
-    let (w, h) = MINI_SIZE;
-    match areas.iter().find(|a| on(a, cx, cy)).or(areas.first()) {
-        Some(a) => (a.0 + a.2 - w - MINI_MARGIN, a.1 + a.3 - h - MINI_MARGIN, w, h),
-        None => (full.0, full.1, w, h),
+/// Restore normal bounds on a surviving monitor, pulling offscreen edges back into its work area.
+fn restored_rect(saved: Option<Rect>, areas: &[Rect], default: Rect) -> Rect {
+    let valid = |r: Rect| [r.0, r.1, r.2, r.3].into_iter().all(f64::is_finite) && r.2 > 0.0 && r.3 > 0.0;
+    let (x, y, width, height) = saved.filter(|r| valid(*r)).unwrap_or(default);
+    let on = |a: &&Rect| {
+        x + width / 2.0 >= a.0
+            && x + width / 2.0 <= a.0 + a.2
+            && y + height / 2.0 >= a.1
+            && y + height / 2.0 <= a.1 + a.3
+    };
+    let Some(area) = areas.iter().find(on).or(areas.first()) else {
+        return (x, y, width.max(SIZE_MIN.0), height.max(SIZE_MIN.1));
+    };
+    let width = width.max(SIZE_MIN.0).min(area.2);
+    let height = height.max(SIZE_MIN.1).min(area.3);
+    (
+        x.min(area.0 + area.2 - width).max(area.0),
+        y.min(area.1 + area.3 - height).max(area.1),
+        width,
+        height,
+    )
+}
+
+fn resize_direction(direction: &str) -> Option<tauri_runtime::ResizeDirection> {
+    use tauri_runtime::ResizeDirection::*;
+    Some(match direction {
+        "North" => North,
+        "NorthEast" => NorthEast,
+        "East" => East,
+        "SouthEast" => SouthEast,
+        "South" => South,
+        "SouthWest" => SouthWest,
+        "West" => West,
+        "NorthWest" => NorthWest,
+        _ => return None,
+    })
+}
+
+// A native fullscreen animation changes bounds before the runtime reports its final state.
+static WINDOW_CHANGING: AtomicBool = AtomicBool::new(false);
+static NATIVE_FULLSCREEN_CHANGING: AtomicBool = AtomicBool::new(false);
+static NORMAL_RECT: Mutex<Option<Rect>> = Mutex::new(None);
+
+struct WindowChange;
+impl WindowChange {
+    fn begin() -> Result<Self, String> {
+        WINDOW_CHANGING
+            .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+            .map(|_| Self)
+            .map_err(|_| i18n::t("error.request_failed"))
     }
 }
-/// Room between the mini window and the screen's edges.
-const MINI_MARGIN: f64 = 24.0;
+impl Drop for WindowChange {
+    fn drop(&mut self) {
+        WINDOW_CHANGING.store(false, Ordering::SeqCst);
+    }
+}
+
+// Tao queues Cocoa frame and style changes on GCD after its runtime command returns.
+#[cfg(target_os = "macos")]
+mod native_queue {
+    use std::ffi::c_void;
+    unsafe extern "C" {
+        static _dispatch_main_q: c_void;
+        fn dispatch_async_f(queue: *const c_void, context: *mut c_void, work: extern "C" fn(*mut c_void));
+        fn dispatch_sync_f(queue: *const c_void, context: *mut c_void, work: extern "C" fn(*mut c_void));
+    }
+    extern "C" fn finished(_: *mut c_void) {
+        super::NATIVE_FULLSCREEN_CHANGING.store(false, super::Ordering::SeqCst);
+    }
+    extern "C" fn after_delegate(_: *mut c_void) {
+        // Notification observers can precede Tao's delegate. A second hop follows any style
+        // restoration that delegate enqueues later in the same notification delivery.
+        unsafe { dispatch_async_f(&raw const _dispatch_main_q, std::ptr::null_mut(), finished) };
+    }
+    pub(super) fn finish_transition() {
+        unsafe { dispatch_async_f(&raw const _dispatch_main_q, std::ptr::null_mut(), after_delegate) };
+    }
+    pub(super) fn flush() {
+        extern "C" fn barrier(_: *mut c_void) {}
+        // Only called by command workers, never from the main thread or under a mutex.
+        unsafe { dispatch_sync_f(&raw const _dispatch_main_q, std::ptr::null_mut(), barrier) };
+    }
+}
+
+fn flush_native_window(w: &WebviewWindow) -> Result<(), String> {
+    // This runtime getter follows the setters, ensuring Tao has queued their native work.
+    w.inner_size().map_err(|_| i18n::t("error.request_failed"))?;
+    #[cfg(target_os = "macos")]
+    native_queue::flush();
+    Ok(())
+}
+
+fn same_rect(a: Rect, b: Rect) -> bool {
+    [a.0 - b.0, a.1 - b.1, a.2 - b.2, a.3 - b.3]
+        .into_iter()
+        .all(|difference| difference.abs() < 0.5)
+}
+
+#[cfg(target_os = "macos")]
+fn watch_fullscreen(w: &WebviewWindow) {
+    use objc2::runtime::{AnyClass, AnyObject, ClassBuilder, Sel};
+    use objc2::{msg_send, sel};
+    use std::sync::OnceLock;
+    extern "C" fn starting(_: &AnyObject, _: Sel, _: *mut AnyObject) {
+        NATIVE_FULLSCREEN_CHANGING.store(true, Ordering::SeqCst);
+    }
+    extern "C" fn finished(_: &AnyObject, _: Sel, _: *mut AnyObject) {
+        native_queue::finish_transition();
+    }
+    static OBSERVER: OnceLock<&'static AnyClass> = OnceLock::new();
+    let class = OBSERVER.get_or_init(|| {
+        let mut class = ClassBuilder::new(c"PlayPetsFullscreenObserver", AnyClass::get(c"NSObject").unwrap()).unwrap();
+        unsafe {
+            class.add_method(sel!(starting:), starting as extern "C" fn(_, _, _));
+            class.add_method(sel!(finished:), finished as extern "C" fn(_, _, _));
+        }
+        class.register()
+    });
+    let Ok(ptr) = w.ns_window() else { return };
+    // The observer lives for the app's lifetime, just like its single main window.
+    unsafe {
+        let observer: *mut AnyObject = msg_send![*class, new];
+        let center: *mut AnyObject = msg_send![AnyClass::get(c"NSNotificationCenter").unwrap(), defaultCenter];
+        for (name, selector) in [
+            (c"NSWindowWillEnterFullScreenNotification", sel!(starting:)),
+            (c"NSWindowWillExitFullScreenNotification", sel!(starting:)),
+            (c"NSWindowDidEnterFullScreenNotification", sel!(finished:)),
+            (c"NSWindowDidExitFullScreenNotification", sel!(finished:)),
+        ] {
+            let name: *mut AnyObject =
+                msg_send![AnyClass::get(c"NSString").unwrap(), stringWithUTF8String: name.as_ptr()];
+            let _: () =
+                msg_send![center, addObserver: observer, selector: selector, name: name, object: ptr as *mut AnyObject];
+        }
+    }
+}
+#[cfg(not(target_os = "macos"))]
+fn watch_fullscreen(_: &WebviewWindow) {}
+
+fn confirm_fullscreen(
+    wanted: bool,
+    mut get: impl FnMut() -> Result<(bool, bool), String>,
+    mut retry: impl FnMut() -> bool,
+) -> Result<bool, String> {
+    loop {
+        let (actual, changing) = get()?;
+        if actual == wanted && !changing {
+            return Ok(actual);
+        }
+        if !retry() {
+            return Err(i18n::t("error.request_failed"));
+        }
+    }
+}
+
+fn wait_fullscreen(w: &WebviewWindow, wanted: bool) -> Result<bool, String> {
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(8);
+    confirm_fullscreen(
+        wanted,
+        || {
+            let actual = w.is_fullscreen().map_err(|_| i18n::t("error.request_failed"))?;
+            Ok((actual, NATIVE_FULLSCREEN_CHANGING.load(Ordering::SeqCst)))
+        },
+        || {
+            if std::time::Instant::now() >= deadline {
+                return false;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            true
+        },
+    )
+}
+
+fn restore_normal(app: &AppHandle, w: &WebviewWindow) -> Result<(), String> {
+    let rect = *hold(&NORMAL_RECT);
+    if let Some((x, y, width, height)) = rect {
+        w.set_size(size((width, height)))
+            .map_err(|_| i18n::t("error.request_failed"))?;
+        w.set_position(LogicalPosition::new(x, y))
+            .map_err(|_| i18n::t("error.request_failed"))?;
+        flush_native_window(w)?;
+        let actual = rect_now(w).ok_or_else(|| i18n::t("error.request_failed"))?;
+        if !same_rect(actual, (x, y, width, height)) {
+            return Err(i18n::t("error.request_failed"));
+        }
+        let pin = lock(&app.state::<Shared>()).prefs.always_on_top;
+        apply_always_on_top(w, pin)?;
+        *hold(&NORMAL_RECT) = None;
+    }
+    Ok(())
+}
+
+fn set_fullscreen(app: &AppHandle, on: bool) -> Result<Value, String> {
+    let _change = WindowChange::begin()?;
+    let w = app
+        .get_webview_window("main")
+        .ok_or_else(|| i18n::t("error.not_allowed"))?;
+    let actual = w.is_fullscreen().map_err(|_| i18n::t("error.request_failed"))?;
+    if on && !actual {
+        // Read the actual frame, including any move that has not reached the event handler yet.
+        let rect = rect_now(&w).ok_or_else(|| i18n::t("error.request_failed"))?;
+        *hold(&NORMAL_RECT) = Some(rect);
+        {
+            let state = app.state::<Shared>();
+            let mut d = lock(&state);
+            d.prefs.window_rect = Some(rect);
+        }
+        crate::app::persist_soon(app);
+        apply_always_on_top(&w, false)?;
+    }
+    if actual != on {
+        #[cfg(target_os = "macos")]
+        NATIVE_FULLSCREEN_CHANGING.store(true, Ordering::SeqCst);
+        if w.set_fullscreen(on).is_err() {
+            NATIVE_FULLSCREEN_CHANGING.store(false, Ordering::SeqCst);
+            if !actual {
+                restore_normal(app, &w)?;
+            }
+            return Err(i18n::t("error.request_failed"));
+        }
+    }
+    let actual = match wait_fullscreen(&w, on) {
+        Ok(actual) => actual,
+        Err(error) => {
+            // A refused entry has no normal window event to repair its temporary level.
+            if !NATIVE_FULLSCREEN_CHANGING.load(Ordering::SeqCst) && !w.is_fullscreen().unwrap_or(true) {
+                restore_normal(app, &w)?;
+            }
+            return Err(error);
+        }
+    };
+    if !actual {
+        restore_normal(app, &w)?;
+    }
+    Ok(json!(actual))
+}
+
+fn fullscreen_now(app: &AppHandle) -> Result<Value, String> {
+    let w = app
+        .get_webview_window("main")
+        .ok_or_else(|| i18n::t("error.not_allowed"))?;
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(8);
+    // A resize can arrive halfway through native Escape or the page's own command. Wait off
+    // the main thread so the returned state also includes normal-frame and pin restoration.
+    let _change = loop {
+        if !NATIVE_FULLSCREEN_CHANGING.load(Ordering::SeqCst)
+            && let Ok(change) = WindowChange::begin()
+        {
+            break change;
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err(i18n::t("error.request_failed"));
+        }
+        std::thread::sleep(std::time::Duration::from_millis(10));
+    };
+    let actual = w.is_fullscreen().map_err(|_| i18n::t("error.request_failed"))?;
+    if !actual {
+        restore_normal(app, &w)?;
+    }
+    Ok(json!(actual))
+}
+
+/// macOS queues the level change after its setter returns. The caller waits off the main
+/// thread, before taking the state lock, so neither the old level nor an unconfirmed one is saved.
+fn confirm_always_on_top(
+    on: bool,
+    set: impl FnOnce(bool) -> Result<(), String>,
+    mut get: impl FnMut() -> Result<bool, String>,
+    mut retry: impl FnMut() -> bool,
+) -> Result<bool, String> {
+    set(on)?;
+    loop {
+        let actual = get()?;
+        if actual == on {
+            return Ok(actual);
+        }
+        if !retry() {
+            return Err(i18n::t("error.request_failed"));
+        }
+    }
+}
+
+/// Native success is recorded and published so the page, tray and menu agree.
+pub fn set_always_on_top(app: &AppHandle, on: bool) -> Result<Value, String> {
+    let w = app
+        .get_webview_window("main")
+        .ok_or_else(|| i18n::t("error.not_allowed"))?;
+    let _change = WindowChange::begin()?;
+    // Fullscreen uses the normal native level; the preference still records the desired level.
+    let actual = if w.is_fullscreen().map_err(|_| i18n::t("error.request_failed"))? {
+        on
+    } else {
+        apply_always_on_top(&w, on)?
+    };
+    crate::app::commit(app, &app.state::<Shared>(), |d| {
+        d.prefs.always_on_top = actual;
+        Ok(json!(actual))
+    })
+}
+
+fn apply_always_on_top(w: &WebviewWindow, on: bool) -> Result<bool, String> {
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    confirm_always_on_top(
+        on,
+        |on| w.set_always_on_top(on).map_err(|_| i18n::t("error.request_failed")),
+        || w.is_always_on_top().map_err(|_| i18n::t("error.request_failed")),
+        || {
+            if std::time::Instant::now() >= deadline {
+                return false;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            true
+        },
+    )
+}
 
 /// The work area of every monitor, in logical points.
 fn work_areas(w: &WebviewWindow) -> Vec<Rect> {
@@ -225,120 +525,153 @@ fn rect_now(w: &WebviewWindow) -> Option<Rect> {
     Some((p.x, p.y, s.width, s.height))
 }
 
-/// Whether the window is the mini one now: its moves and sizes are then kept (`moved`).
-static MINI: AtomicBool = AtomicBool::new(false);
-
-/// Whether the yard is in its mini window (the tray shows it with a check mark).
-pub fn is_mini() -> bool {
-    MINI.load(Ordering::SeqCst)
-}
-
-/// The main window moved or changed size: the mini window's place is kept, saved with the
-/// app's state (so it opens there again after a restart too).
+/// Keep only normal bounds; maximizing, minimizing or fullscreen never replace them.
 pub fn moved(app: &AppHandle) {
-    if !MINI.load(Ordering::SeqCst) {
-        return;
-    }
     let (Some(w), Some(state)) = (app.get_webview_window("main"), app.try_state::<Shared>()) else {
         return;
     };
+    if WINDOW_CHANGING.load(Ordering::SeqCst)
+        || NATIVE_FULLSCREEN_CHANGING.load(Ordering::SeqCst)
+        || hold(&NORMAL_RECT).is_some()
+        || w.is_maximized().unwrap_or(false)
+        || w.is_minimized().unwrap_or(false)
+        || w.is_fullscreen().unwrap_or(false)
+    {
+        return;
+    }
     let Some(rect) = rect_now(&w) else { return };
     let mut d = lock(&state);
-    if d.prefs.mini_rect != Some(rect) {
-        d.prefs.mini_rect = Some(rect);
+    if d.prefs.window_rect != Some(rect) {
+        d.prefs.window_rect = Some(rect);
         crate::app::persist_soon(app);
-    }
-}
-
-/// Mini: a small always-on-top window showing only the yard, where it was last left (see
-/// mini_rect). Leaving it puts the window back where it was, at the size it had.
-fn set_mini(w: &WebviewWindow, on: bool, saved: Option<Rect>) {
-    static FULL: Mutex<Option<Rect>> = Mutex::new(None);
-    let mut full = crate::app::hold(&FULL);
-    // Moves made from here on are the mini window's own only once it stands in its place.
-    MINI.store(false, Ordering::SeqCst);
-    if on {
-        if full.is_none() {
-            *full = rect_now(w);
-        }
-        let before = full.unwrap_or((0.0, 0.0, FULL_SIZE_DEFAULT.0, FULL_SIZE_DEFAULT.1));
-        let (x, y, width, height) = mini_rect(saved, &work_areas(w), before);
-        // The smaller minimum first, or the window refuses to shrink below the full one.
-        let _ = w.set_min_size(Some(size(MINI_MIN)));
-        let _ = w.set_size(size((width, height)));
-        let _ = w.set_position(LogicalPosition::new(x, y));
-        MINI.store(true, Ordering::SeqCst);
-    } else {
-        match full.take() {
-            Some((x, y, width, height)) => {
-                let _ = w.set_size(size((width, height)));
-                let _ = w.set_position(LogicalPosition::new(x, y));
-            }
-            None => {
-                let _ = w.set_size(size(FULL_SIZE_DEFAULT));
-            }
-        }
-        let _ = w.set_min_size(Some(size(FULL_MIN)));
-    }
-    let _ = w.set_always_on_top(on);
-    // macOS: the mini yard is all picture, so the window buttons step aside too.
-    #[cfg(target_os = "macos")]
-    {
-        let target = w.clone();
-        let _ = w.run_on_main_thread(move || {
-            use objc2::msg_send;
-            use objc2::runtime::AnyObject;
-            let Ok(ptr) = target.ns_window() else { return };
-            let window = ptr as *mut AnyObject;
-            // NSWindowButton 0, 1, 2: close, miniaturize, zoom.
-            for kind in 0..3usize {
-                unsafe {
-                    let button: *mut AnyObject = msg_send![window, standardWindowButton: kind];
-                    if !button.is_null() {
-                        let _: () = msg_send![button, setHidden: on];
-                    }
-                }
-            }
-        });
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{MINI_MARGIN, MINI_SIZE, mini_rect, own_page, rect_of};
+    use super::{confirm_always_on_top, own_page, rect_of, resize_direction, restored_rect};
     use serde_json::json;
 
     #[test]
-    fn the_mini_window_returns_where_it_was_left_or_takes_the_corner() {
+    fn saved_bounds_fit_available_monitors_and_keep_the_minimum() {
         let areas = [(0.0, 25.0, 1440.0, 875.0), (1440.0, 0.0, 1920.0, 1080.0)];
-        let full = (100.0, 100.0, 1180.0, 780.0);
-        // Never moved: the bottom-right corner of the monitor the full window is on.
-        let (w, h) = MINI_SIZE;
+        let default = (100.0, 50.0, 1180.0, 850.0);
+        assert_eq!(restored_rect(None, &areas, default), default);
         assert_eq!(
-            mini_rect(None, &areas, full),
-            (1440.0 - w - MINI_MARGIN, 900.0 - h - MINI_MARGIN, w, h)
+            restored_rect(Some((2000.0, 300.0, 520.0, 360.0)), &areas, default),
+            (2000.0, 300.0, 520.0, 360.0)
         );
-        // Left on the second monitor at a size of its own: back there.
-        let left = (2000.0, 300.0, 520.0, 360.0);
-        assert_eq!(mini_rect(Some(left), &areas, full), left);
-        // Half off the edge: pulled back in.
         assert_eq!(
-            mini_rect(Some((1200.0, 650.0, 400.0, 300.0)), &areas, full),
+            restored_rect(Some((1200.0, 650.0, 400.0, 300.0)), &areas, default),
             (1040.0, 600.0, 400.0, 300.0)
         );
-        // On a monitor that is gone, or too small to use: the corner again.
         assert_eq!(
-            mini_rect(Some((5000.0, 300.0, 460.0, 320.0)), &areas, full).0,
-            1440.0 - w - MINI_MARGIN
+            restored_rect(Some((5000.0, 300.0, 460.0, 320.0)), &areas, default),
+            (980.0, 300.0, 460.0, 320.0)
         );
         assert_eq!(
-            mini_rect(Some((300.0, 300.0, 40.0, 30.0)), &areas, full).0,
-            1440.0 - w - MINI_MARGIN
+            restored_rect(Some((10.0, 30.0, 40.0, 30.0)), &areas, default),
+            (10.0, 30.0, 300.0, 210.0)
         );
-        // As big as an area whose edges do not add up exactly (a scaled monitor): no panic, inside it.
         let odd = [(-3194.4, 0.0, 1092.8, 840.0)];
-        let (x, _, w, _) = mini_rect(Some((-3194.4, 10.0, 1092.8, 500.0)), &odd, full);
+        let (x, _, w, _) = restored_rect(Some((-3194.4, 10.0, 1092.8, 500.0)), &odd, default);
         assert!(x >= odd[0].0 - 0.001 && w <= odd[0].2);
+        assert_eq!(
+            restored_rect(Some((f64::NAN, 0.0, 500.0, 400.0)), &areas, default),
+            default
+        );
+    }
+
+    #[test]
+    fn pin_confirmation_waits_for_the_native_setter_and_never_publishes_the_old_value() {
+        use std::cell::RefCell;
+        let steps = RefCell::new(Vec::new());
+        let mut reads = [false, false, true].into_iter();
+        let actual = confirm_always_on_top(
+            true,
+            |on| {
+                assert!(on);
+                steps.borrow_mut().push("set");
+                Ok(())
+            },
+            || {
+                steps.borrow_mut().push("get");
+                Ok(reads.next().unwrap())
+            },
+            || {
+                steps.borrow_mut().push("wait");
+                true
+            },
+        )
+        .unwrap();
+        assert!(actual);
+        assert_eq!(*steps.borrow(), ["set", "get", "wait", "get", "wait", "get"]);
+        assert!(confirm_always_on_top(false, |_| Ok(()), || Ok(true), || false).is_err());
+        assert_eq!(
+            confirm_always_on_top(true, |_| Err("setter".into()), || panic!("setter failed"), || false),
+            Err("setter".into())
+        );
+        assert_eq!(
+            confirm_always_on_top(true, |_| Ok(()), || Err("getter".into()), || false),
+            Err("getter".into())
+        );
+    }
+
+    #[test]
+    fn overlapping_window_changes_are_rejected_and_released_on_error() {
+        let change = super::WindowChange::begin().unwrap();
+        assert!(super::WindowChange::begin().is_err());
+        drop(change);
+        assert!(super::WindowChange::begin().is_ok());
+    }
+
+    #[test]
+    fn fullscreen_restore_checks_position_and_size_after_native_chrome_changes() {
+        let wanted = (230.0, 160.0, 720.0, 510.0);
+        assert!(super::same_rect(wanted, wanted));
+        assert!(!super::same_rect(wanted, (230.0, 192.0, 720.0, 510.0)));
+        assert!(!super::same_rect(wanted, (230.0, 160.0, 720.0, 542.0)));
+    }
+
+    #[test]
+    fn fullscreen_confirmation_waits_until_the_native_transition_finishes() {
+        let mut states = [(true, true), (true, true), (true, false)].into_iter();
+        let mut waits = 0;
+        assert_eq!(
+            super::confirm_fullscreen(
+                true,
+                || Ok(states.next().unwrap()),
+                || {
+                    waits += 1;
+                    true
+                }
+            ),
+            Ok(true)
+        );
+        assert_eq!(waits, 2);
+        assert!(super::confirm_fullscreen(false, || Ok((false, true)), || false).is_err());
+        assert!(super::confirm_fullscreen(true, || Ok((false, false)), || false).is_err());
+        assert_eq!(
+            super::confirm_fullscreen(true, || Err("native".into()), || false),
+            Err("native".into())
+        );
+    }
+
+    #[test]
+    fn resize_directions_accept_only_the_eight_native_edges() {
+        for direction in [
+            "North",
+            "NorthEast",
+            "East",
+            "SouthEast",
+            "South",
+            "SouthWest",
+            "West",
+            "NorthWest",
+        ] {
+            assert!(resize_direction(direction).is_some());
+        }
+        assert!(resize_direction("sideways").is_none());
     }
 
     #[test]

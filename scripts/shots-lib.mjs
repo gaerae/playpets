@@ -1,3 +1,5 @@
+import { brandCast } from './art-lib.mjs';
+
 // What the screenshot script (shots.mjs) reads from the system, as plain functions it can be tested by.
 
 /** The main display's size in points from `system_profiler SPDisplaysDataType -json` output
@@ -73,10 +75,11 @@ export function clearCaptureFocus(doc) {
 
 // Canonical cells include different headroom; equal canvas widths do not give equal silhouettes.
 export function companionCast() {
-  return ['Daisy', 'Clover', 'Pip'].map((name, i) => ({
-    name,
-    size: (150 * 192) / [163, 168, 164][i],
-    x: [0.28, 0.5, 0.72][i],
+  const cast = brandCast(150);
+  return cast.map((pet, i) => ({
+    name: pet.id[0].toUpperCase() + pet.id.slice(1),
+    size: 192 * pet.scale,
+    x: (i + 1) / (cast.length + 1),
     y: 0.58,
   }));
 }
@@ -90,4 +93,24 @@ export function captureReply(localized, messages) {
     Object.entries(localized.talk).find(([name]) => system.includes(`named ${name}`))?.[1] ||
     '...'
   );
+}
+
+// Stop rather than publishing a composition with a friend hidden beneath the real chat panel.
+export function assertChatCast(bodies, panel, yard) {
+  if (bodies.length !== 4 || new Set(bodies.map(body => body.id)).size !== 4)
+    throw new Error('Chat capture needs four distinct friends');
+  const keys = ['left', 'top', 'right', 'bottom'];
+  if (![panel, yard, ...bodies].every(rect => keys.every(key => Number.isFinite(rect?.[key]))))
+    throw new Error('Chat capture has invalid bounds');
+  for (const body of bodies)
+    if (
+      body.right <= body.left ||
+      body.bottom <= body.top ||
+      body.left < yard.left ||
+      body.top < yard.top ||
+      body.right > Math.min(yard.right, panel.left) - 8 ||
+      body.bottom > yard.bottom
+    )
+      throw new Error(`Chat friend ${body.id} is clipped or covered by the panel`);
+  return true;
 }

@@ -1,4 +1,4 @@
-/* The window: title bar, overall layout, toast. */
+/* The window: frameless layout, drag target and notices. */
 body {
   margin: 0;
   background: var(--shell);
@@ -99,59 +99,79 @@ body {
   gap: 0;
   padding: 0;
 }
-.win-controls {
-  display: flex;
-  align-self: stretch;
-  margin: -8px -12px -8px 4px;
-  background: var(--floating);
-}
-.mac .win-controls {
-  display: none;
-}
-.win-controls button {
-  width: 46px;
-  display: grid;
-  place-items: center;
-  color: var(--muted);
-  border-radius: 0;
-}
-.win-controls button svg {
-  width: 15px;
-  height: 15px;
-}
-.win-controls button:hover {
-  background: var(--soft);
-  color: var(--ink);
-}
-.win-controls button.close:hover {
-  background: #d8452f;
-  color: #fff;
-}
-.win-controls button:active:not(:disabled) {
-  transform: none;
-}
-html:not(.mac) body {
-  border: 1px solid var(--line);
-}
-/* Window controls float over the landscape; navigation lives in the yard dock. */
-.topbar {
+/* A transparent hit target moves the window without reserving title-bar space. */
+.window-drag {
   position: absolute;
-  inset: 0 0 auto;
-  height: 52px;
-  padding: 8px 12px;
+  inset: 6px 12px auto;
+  height: 14px;
   z-index: 21;
-  flex: none;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 14px;
   user-select: none;
   -webkit-user-select: none;
-  cursor: default;
+  cursor: grab;
 }
-.mac .topbar {
-  padding-left: 88px;
+
+/* Native resize gestures own only the outer boundary, leaving the landscape unobstructed. */
+.window-resize {
+  position: fixed;
+  z-index: 1000;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
+.window-resize[data-resize="North"],
+.window-resize[data-resize="South"] {
+  left: 10px;
+  right: 10px;
+  height: 6px;
+  cursor: ns-resize;
+}
+.window-resize[data-resize="East"],
+.window-resize[data-resize="West"] {
+  top: 10px;
+  bottom: 10px;
+  width: 6px;
+  cursor: ew-resize;
+}
+.window-resize[data-resize="North"] {
+  top: 0;
+}
+.window-resize[data-resize="South"] {
+  bottom: 0;
+}
+.window-resize[data-resize="East"] {
+  right: 0;
+}
+.window-resize[data-resize="West"] {
+  left: 0;
+}
+.window-resize[data-resize="NorthEast"],
+.window-resize[data-resize="NorthWest"],
+.window-resize[data-resize="SouthEast"],
+.window-resize[data-resize="SouthWest"] {
+  width: 10px;
+  height: 10px;
+}
+.window-resize[data-resize="NorthEast"] {
+  top: 0;
+  right: 0;
+  cursor: nesw-resize;
+}
+.window-resize[data-resize="NorthWest"] {
+  top: 0;
+  left: 0;
+  cursor: nwse-resize;
+}
+.window-resize[data-resize="SouthEast"] {
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+}
+.window-resize[data-resize="SouthWest"] {
+  bottom: 0;
+  left: 0;
+  cursor: nesw-resize;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -217,15 +237,69 @@ html:not(.mac) body {
     display: none;
   }
 }
-@media (max-width: 760px) {
-  .topbar {
-    gap: 8px;
-  }
-  .win-controls button {
-    width: 34px;
-  }
+/* Startup details stay attached to the scenery and never resize it. */
+.startup-notice {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 30;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  width: max-content;
+  max-width: min(420px, calc(100% - 24px));
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--floating);
+  color: var(--ink);
+  box-shadow: 0 6px 20px var(--ink-12);
 }
-/* ---- notices appear over the yard, at its foot, clear of the game banner at its head ---- */
+.startup-notice details {
+  flex: 1;
+  min-width: 0;
+}
+.startup-notice summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+.startup-notice summary::-webkit-details-marker {
+  display: none;
+}
+.startup-notice summary svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.startup-notice summary > span:last-child {
+  margin-left: auto;
+}
+.startup-notice details[open] summary > span:last-child {
+  transform: rotate(180deg);
+}
+.startup-notice > .icon-button {
+  width: 44px;
+  height: 44px;
+  flex: none;
+}
+#warning-messages {
+  padding: 8px;
+  max-height: min(220px, 35vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.6;
+}
+/* Transient notices sit above the dock, away from persistent startup details. */
 .stage {
   display: flex;
   flex-direction: column;
@@ -252,16 +326,17 @@ html:not(.mac) body {
   max-width: min(520px, calc(100% - 32px));
   box-shadow: 0 8px 25px var(--ink-20);
 }
-/* In the mini view the toast is small and at the top, clear of the care tools at the bottom. */
-body.mini .toast {
+/* In a compact window the toast is small and at the top, clear of the care tools at the bottom. */
+body.compact .toast {
   top: 10px;
   bottom: auto;
   padding: 6px 12px;
-  font-size: 11.5px;
-  max-width: calc(100% - 64px);
+  font-size: 12px;
+  max-width: calc(100% - 32px);
 }
-/* A catch already uses the mini top strip; its companion notice sits above the care tools. */
-body.mini .stage:has(.catch-card:not([hidden])) .toast {
+/* A catch already uses the compact top strip; its companion notice sits above the care tools. */
+body.compact .stage:has(.catch-card:not([hidden])) .toast,
+body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   top: auto;
   bottom: 64px;
 }
@@ -275,7 +350,7 @@ body.mini .stage:has(.catch-card:not([hidden])) .toast {
   }
 }
 
-/* One quiet, shared surface for scenery and navigation in the expanded yard. */
+/* One quiet, shared surface for scenery and navigation in the yard. */
 .yard-dock {
   position: absolute;
   right: 12px;
@@ -357,12 +432,12 @@ body.mini .stage:has(.catch-card:not([hidden])) .toast {
   bottom: 64px;
   z-index: 30;
   width: min(304px, calc(100% - 24px));
-  max-height: calc(100% - 116px);
+  max-height: calc(100% - 76px);
   overflow-y: auto;
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
@@ -371,6 +446,14 @@ body.mini .stage:has(.catch-card:not([hidden])) .toast {
   backdrop-filter: var(--glass-blur);
   box-shadow: 0 8px 24px var(--ink-12);
 }
+.yard-controls-panel.context-open {
+  position: fixed;
+  z-index: 32;
+  right: auto;
+  bottom: auto;
+  width: min(304px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
+}
 .yard-controls-panel[hidden] {
   display: none;
 }
@@ -378,15 +461,26 @@ body.mini .stage:has(.catch-card:not([hidden])) .toast {
   flex-shrink: 0;
 }
 
-.layout.settings-open .yard-dock,
-body.mini .layout.mini-chat-open .yard-dock {
+.yard-controls-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-height: 0;
+}
+
+.layout.settings-open .yard-dock {
   display: none;
 }
 
 /* Compact destinations, activity rows and a separate display footer share one spacing rhythm. */
 .yard-controls-panel .panel-tabs {
-  display: flex;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
   background: transparent;
 }
 .yard-controls-panel .panel-tab {
@@ -417,4 +511,45 @@ body.mini .layout.mini-chat-open .yard-dock {
 
 .yard-controls-panel .panel-tab:hover {
   background: var(--control-hover);
+}
+
+/* Native fullscreen owns the frame until it returns to the saved window bounds. */
+.fullscreen .window-drag,
+.fullscreen .window-resize {
+  display: none;
+}
+
+.controls-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.controls-header strong {
+  flex: 1;
+  padding-left: 8px;
+  font-size: 14px;
+}
+#close-controls {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+}
+
+.controls-more {
+  border-top: 1px solid var(--line);
+  padding-top: 4px;
+}
+.controls-more > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 10px 8px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--muted);
+}
+.controls-more[open] > summary {
+  color: var(--ink);
+}
+.fullscreen [data-expand-window] {
+  display: none;
 }

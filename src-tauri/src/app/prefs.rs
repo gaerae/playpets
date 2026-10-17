@@ -36,18 +36,21 @@ pub struct Prefs {
     pub auto_chatter: bool,
     /// The yard's sounds (the page plays them; src/yard/sound.js).
     pub sound: Sound,
-    /// Where the mini window was last left (window.rs), so it opens there again.
-    pub mini_rect: Option<window::Rect>,
+    /// The normal window bounds, restored across launches.
+    pub window_rect: Option<window::Rect>,
+    pub always_on_top: bool,
 }
 
 impl Prefs {
     /// The keys of state.json these are saved under.
-    pub const KEYS: [&str; 6] = [
+    pub const KEYS: [&str; 8] = [
         "desktop",
         "desktopWander",
         "language",
         "autoChatter",
         "sound",
+        "windowRect",
+        "alwaysOnTop",
         "miniRect",
     ];
 
@@ -61,11 +64,15 @@ impl Prefs {
             language,
             auto_chatter: flag("autoChatter"),
             sound: Sound::restore(raw.get("sound")),
-            mini_rect: raw.get("miniRect").and_then(window::rect_of),
+            window_rect: raw
+                .get("windowRect")
+                .or_else(|| raw.get("miniRect"))
+                .and_then(window::rect_of),
+            always_on_top: flag("alwaysOnTop"),
         }
     }
 
-    /// As saved (no `miniRect` until the mini window has been moved); the pages get the rest.
+    /// As saved; the pages get the switches without the window bounds.
     pub fn json(&self) -> Map<String, Value> {
         let mut m = Map::new();
         m.insert("desktop".into(), json!(self.desktop));
@@ -73,12 +80,13 @@ impl Prefs {
         m.insert("language".into(), json!(self.language.code()));
         m.insert("autoChatter".into(), json!(self.auto_chatter));
         m.insert("sound".into(), json!(self.sound));
-        if let Some((x, y, width, height)) = self.mini_rect {
+        if let Some((x, y, width, height)) = self.window_rect {
             m.insert(
-                "miniRect".into(),
+                "windowRect".into(),
                 json!({"x": x, "y": y, "width": width, "height": height}),
             );
         }
+        m.insert("alwaysOnTop".into(), json!(self.always_on_top));
         m
     }
 }
@@ -98,6 +106,24 @@ mod tests {
     }
 
     #[test]
+    fn window_preferences_migrate_old_bounds_and_save_the_single_window() {
+        let lang = i18n::Lang::parse("en").unwrap();
+        let old = json!({"miniRect": {"x": 12, "y": 24, "width": 460, "height": 320}});
+        let prefs = Prefs::restore(&old, lang);
+        let saved = prefs.json();
+        assert_eq!(window::rect_of(&saved["windowRect"]), window::rect_of(&old["miniRect"]));
+        assert_eq!(saved.get("alwaysOnTop"), Some(&json!(false)));
+        assert!(!saved.contains_key("miniRect"));
+        let both = json!({"windowRect": {"x": 50, "y": 60, "width": 800, "height": 600}, "miniRect": old["miniRect"], "alwaysOnTop": true});
+        let saved = Prefs::restore(&both, lang).json();
+        assert_eq!(
+            window::rect_of(&saved["windowRect"]),
+            window::rect_of(&both["windowRect"])
+        );
+        assert_eq!(saved.get("alwaysOnTop"), Some(&json!(true)));
+    }
+
+    #[test]
     fn switches_come_back_as_they_were_saved_and_bad_ones_take_their_default() {
         let lang = i18n::Lang::parse("en").unwrap();
         let prefs = Prefs {
@@ -106,19 +132,24 @@ mod tests {
             language: lang,
             auto_chatter: true,
             sound: Sound { on: false, volume: 7 },
-            mini_rect: Some((1.0, 2.0, 300.0, 200.0)),
+            window_rect: Some((1.0, 2.0, 300.0, 210.0)),
+            always_on_top: true,
         };
         let saved = Value::Object(prefs.json());
         assert_eq!(Prefs::restore(&saved, lang), prefs);
         let mut keys: Vec<_> = prefs.json().keys().cloned().collect();
         keys.sort();
-        let mut expected = Prefs::KEYS.map(String::from).to_vec();
+        let mut expected = Prefs::KEYS
+            .into_iter()
+            .filter(|key| *key != "miniRect")
+            .map(String::from)
+            .collect::<Vec<_>>();
         expected.sort();
         assert_eq!(keys, expected, "every switch is saved under a key listed in KEYS");
 
         let odd = json!({"desktop": "yes", "autoChatter": 1, "miniRect": {"x": 1}});
         let back = Prefs::restore(&odd, lang);
-        assert!(!back.desktop && !back.auto_chatter && back.mini_rect.is_none());
+        assert!(!back.desktop && !back.auto_chatter && back.window_rect.is_none());
         assert!(!Prefs::restore(&odd, lang).json().contains_key("miniRect"));
     }
 }

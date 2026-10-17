@@ -1,6 +1,7 @@
-// Scenery: time of day and weather each follow the clock and the sky unless the person picks one.
+// Start with a sunny spring day; Auto follows the clock and the sky when selected.
 // A change of weather is remarked on by a friend or two (remarks.js).
 
+import { openControls } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { dropdown } from '../core/menu.js';
 import { isSeason, selectedSeason, southern } from '../core/season.js';
@@ -13,15 +14,14 @@ import { eventChanged } from './festival.js';
 import { cancelRemarks, remark } from './remarks.js';
 import {
   autoWeather,
+  initialSceneChoices,
   moonPhase,
   moonShade,
   PERIOD_MINUTES,
-  PERIODS,
   periodFor,
   sceneCaption,
   seasonVars,
   sunAt,
-  WEATHERS,
 } from './scene.js';
 import { createScenery } from './scenery.js';
 import { soundScene } from './sound.js';
@@ -150,7 +150,10 @@ export function setupSky(options = {}) {
     period: recall('period'),
     season: recall('season'),
   };
-  seasonChoice = isSeason(saved.season) ? saved.season : 'auto';
+  const initial = initialSceneChoices(saved);
+  seasonChoice = initial.season;
+  weatherChoice = initial.weather;
+  periodChoice = initial.period;
   $('season').value = seasonChoice;
   $('scene-season').value = seasonChoice;
   $('season').onchange = () => {
@@ -184,17 +187,49 @@ export function setupSky(options = {}) {
       paintScene();
     });
   };
-  if (saved.weather === 'auto' || WEATHERS[saved.weather]) weatherChoice = saved.weather;
-  if (PERIODS[saved.period]) periodChoice = saved.period;
   $('weather').value = weatherChoice;
   $('period').value = periodChoice;
   // The caption is the button for the time of day and the weather: a small panel under it.
-  const chooser = dropdown($('scene-button'), $('scene-menu'), () => {
-    $('background-gallery').querySelector('[aria-pressed="true"]')?.focus();
+  const sceneFocus = () => (document.body.classList.contains('compact') ? $('yard') : $('scene-button'));
+  const chooser = dropdown(
+    $('scene-button'),
+    $('scene-menu'),
+    () => {
+      const page = $('scene-menu').querySelector('.scene-page:not([hidden])');
+      (
+        page?.querySelector('[aria-pressed="true"]') ||
+        page?.querySelector('button:not([hidden]):not(:disabled), select:not([hidden]):not(:disabled)')
+      )?.focus();
+    },
+    sceneFocus,
+  );
+  const sceneTabs = [...document.querySelectorAll('[data-scene-page]')];
+  const selectScenePage = page => {
+    for (const tab of sceneTabs) {
+      const active = tab.dataset.scenePage === page;
+      tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
+      $(`scene-${tab.dataset.scenePage}`).hidden = !active;
+    }
+  };
+  for (const [index, tab] of sceneTabs.entries()) {
+    tab.onclick = () => selectScenePage(tab.dataset.scenePage);
+    tab.onkeydown = event => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const next =
+        event.key === 'Home' ? 0 : event.key === 'End' ? sceneTabs.length - 1 : (index + 1) % sceneTabs.length;
+      selectScenePage(sceneTabs[next].dataset.scenePage);
+      sceneTabs[next].focus();
+    };
+  }
+  $('scene-back')?.addEventListener('click', () => {
+    chooser.close();
+    openControls();
   });
   $('scene-close').addEventListener('click', () => {
     chooser.close();
-    $('scene-button').focus();
+    sceneFocus().focus();
   });
   $('period').onchange = () => {
     periodChoice = $('period').value;

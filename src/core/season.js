@@ -3,6 +3,8 @@
 
 /** The four seasons, in the order of the year north of the equator. */
 export const SEASONS = Object.freeze(['spring', 'summer', 'autumn', 'winter']);
+/** A new yard and desktop wardrobe share spring until a different season or Auto is chosen. */
+export const DEFAULT_SEASON = 'spring';
 /** Whether a value is one of the four seasons (an 'auto' or unknown choice is not). */
 export const isSeason = value => SEASONS.includes(value);
 // The season by the month: March to May is spring north of the equator, autumn south of it.
@@ -33,7 +35,7 @@ export const southern = zone => SOUTH.test(zone || '');
 
 // Other windows receive storage changes; the minute tick also covers a missed notification.
 export function setupSeason({ read, apply, minute, events = window, now = () => new Date(), south = false }) {
-  const refresh = date => apply(selectedSeason(date, south, read()));
+  const refresh = date => apply(selectedSeason(date, south, read() ?? DEFAULT_SEASON));
   refresh(now());
   minute(refresh);
   events.addEventListener('storage', event => {

@@ -37,14 +37,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
   flex: none;
 }
 .layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
   width: min(540px, calc(100% - 24px));
 }
 .panel-head h2 {
-  font-size: 17px;
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
 }
 .panel-head .icon-button {
   width: 44px;
@@ -144,25 +149,7 @@
     color: #f5c3a9;
   }
 }
-/* ---- the mini window's brief conversation: the panel floats over the yard (mini.css). Last in
-   the file, so no later panel rule quietly undoes it. ---- */
-body.mini .layout.mini-chat-open .side-panel {
-  display: flex;
-  position: absolute;
-  top: auto;
-  right: 8px;
-  bottom: 8px;
-  width: min(340px, calc(100% - 16px));
-  height: min(330px, calc(100% - 16px));
-  max-height: none;
-  padding: 10px;
-  border-radius: 16px;
-  background: var(--floating);
-  box-shadow: 0 8px 28px var(--ink-20);
-  overflow: hidden;
-  z-index: 20;
-}
-body.mini .layout.mini-chat-open .panel-head {
-  top: 10px;
-  right: 10px;
+
+#panel-expand {
+  display: none;
 }

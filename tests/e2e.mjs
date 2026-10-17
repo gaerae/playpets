@@ -72,12 +72,12 @@ const scenario = `(async()=>{
     // The shelf says where each pet file lives: the fixture sits in Codex's pet folder.
     const fx=boot.data.assets.find(x=>x.displayName==='Fixture');
     await L('builtin='+boot.data.assets.filter(x=>x.place==='builtin').length);
-    const adults=boot.data.assets.filter(x=>['playpets-daisy','playpets-clover','playpets-pip'].includes(x.sourceId));
+    const adults=boot.data.assets.filter(x=>['playpets-daisy','playpets-clover','playpets-pip','playpets-miso'].includes(x.sourceId));
     await L('defaultCompanions='+adults.length+'/'+(adults.every(x=>x.place==='builtin')?'official-cast':'err'));
     await L('place='+fx.place+'/'+(boot.data.petFolders.codex.endsWith('pets')?'folder-known':'err'));
     // An empty yard asks who to play with: the starter pets, moving, with no toolbar.
     // The ephemeral test webview starts with its panel closed.
-    await until(()=>document.querySelectorAll('#starter-picks .starter').length===3);
+    await until(()=>document.querySelectorAll('#starter-picks .starter').length===4);
     const $$=id=>document.getElementById(id),painted=c=>{const d=c.getContext('2d').getImageData(0,0,192,208).data;for(let i=3;i<d.length;i+=40)if(d[i])return true;return false;};
     await until(()=>[...document.querySelectorAll('#starter-picks canvas')].every(painted));
     const wardrobes=boot.data.assets.filter(x=>Object.keys(x.seasonalSpriteUrls||{}).length===2);
@@ -101,8 +101,11 @@ const scenario = `(async()=>{
 
     const trayAt=async()=>(await window.__TAURI__.core.invoke('call',{name:'e2eTray',args:[]})).data||{items:[],tooltip:''};
     const tray0=await until(async()=>(await trayAt()).items.length&&await trayAt());
-    await L('trayEmpty='+(!tray0.items.some(i=>/^(mini|desktop|wander)/.test(i))&&tray0.items.includes('invite')&&tray0.items.some(i=>i.startsWith('sound:'))&&!tray0.items.includes('friends')&&tray0.items[0]==='open'&&tray0.items.at(-1)==='quit'?'no-switches':'err:'+tray0.items.join(',')));
-    await L('welcome='+(!$$('empty-yard').hidden&&!$$('welcome').hidden&&$$('next-steps').hidden&&[...document.querySelectorAll('#starter-picks canvas')].every(painted)?'starters':'err')+'/'+(getComputedStyle(document.querySelector('.play-toolbar')).display==='none'?'no-toolbar':'toolbar'));
+    await L('trayEmpty='+(!tray0.items.some(i=>/^(mini|desktop|wander)/.test(i))&&tray0.items.includes('alwaysOnTop:off')&&tray0.items.includes('invite')&&tray0.items.some(i=>i.startsWith('sound:'))&&!tray0.items.includes('friends')&&tray0.items[0]==='open'&&tray0.items.at(-1)==='quit'?'no-switches':'err:'+tray0.items.join(',')));
+    const starterButtons=[...document.querySelectorAll('#starter-picks .starter')];
+    const starterBounds=starterButtons.map(button=>button.getBoundingClientRect());
+    const visibleStarters=starterButtons.length===adults.length&&starterBounds.every(rect=>rect.left>=0&&rect.top>=0&&rect.right<=innerWidth&&rect.bottom<=innerHeight);
+    await L('welcome='+(!$$('empty-yard').hidden&&!$$('welcome').hidden&&$$('next-steps').hidden&&visibleStarters&&[...document.querySelectorAll('#starter-picks canvas')].every(painted)?'starters':'err')+'/'+(getComputedStyle(document.querySelector('.play-toolbar')).display==='none'?'no-toolbar':'toolbar'));
     // Pets are drawn from the app's own sprite address, which the page's CSP must let in on every system.
     const img=new Image();img.src=fx.spriteUrl;
     await L('spriteLoads='+await img.decode().then(()=>img.naturalWidth,e=>'err:'+e.message));
@@ -148,10 +151,25 @@ const scenario = `(async()=>{
     const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||${say('game.label')};
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
     // Every tab must actually show its own content, and only its own.
-    // macOS keeps its own window buttons over the page; elsewhere the page draws them and the system bar is gone.
-    const drawn=getComputedStyle(document.querySelector('.win-controls')).display!=='none';
-    await L('chrome='+(document.documentElement.classList.contains('mac')?(drawn?'err':'mac-native'):(drawn?'custom:'+(outerHeight-innerHeight):'err')));
+    // Every platform uses a frameless yard; a narrow transparent target still moves the full window.
+    const noChrome=!document.querySelector('.win-controls,.topbar')&&!!$('window-drag')&&!!$('hide-window');
+    await L('chrome='+(noChrome?'frameless':'err'));
+    const selectable=el=>{const css=getComputedStyle(el);return css.userSelect||css.webkitUserSelect;};
+    const message=shownLog.querySelector('.message');
+    await L('selection='+(selectable($('yard'))==='none'&&message&&selectable(message)!=='none'?'scenery-only':'err'));
     if(!$('side-panel').hidden)$('close-panel').click();
+    // Startup explanations float above the scene and stay dismissed across ordinary renders.
+    const startupNotices=await import('./core/notices.js');
+    const startupMessages=(await playPets.bootstrap()).data.warnings||[];
+    const startupFrame=document.querySelector('.yard-frame'),startupHeight=startupFrame.getBoundingClientRect().height;
+    startupNotices.renderNotices([${say('notices.label')}]);
+    const startupCollapsed=!$('warnings').hidden&&!$('warning-details').open;
+    document.querySelector('#warning-details summary').click();
+    const startupExpanded=$('warning-details').open&&startupFrame.getBoundingClientRect().height===startupHeight;
+    $('dismiss-warnings').click();startupNotices.renderNotices([${say('notices.label')}]);
+    const startupDismissed=$('warnings').hidden;
+    startupNotices.renderNotices(startupMessages);
+    await L('startupNotices='+(startupCollapsed&&startupExpanded&&startupDismissed?'floating-details-and-dismissal':'err'));
     const quietStart=$('yard-controls-panel').hidden&&!document.querySelector('#clock-time');
     $('yard-controls-toggle').click();
     const controlsOpen=!$('yard-controls-panel').hidden&&$('yard-controls-toggle').getAttribute('aria-expanded')==='true';
@@ -159,6 +177,20 @@ const scenario = `(async()=>{
     const controlsClosed=$('yard-controls-panel').hidden&&!$('panel-settings').hidden;
     $('close-panel').click();
     await L('quietControls='+(quietStart&&controlsOpen&&controlsClosed&&document.activeElement===$('yard-controls-toggle')?'disclosed-and-restored':'err'));
+    // Blank-yard context controls reuse the normal menu, fit the viewport and reset their anchor.
+    const contextAt=()=>{$('yard').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:innerWidth-2,clientY:innerHeight-2}));};
+    const contextFits=()=>{const r=$('yard-controls-panel').getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1;};
+    contextAt();await wait(30);
+    const menuRect=$('yard-controls-panel').getBoundingClientRect(),dockRect=document.querySelector('.yard-dock').getBoundingClientRect();
+    const overlapX=(Math.max(menuRect.left,dockRect.left)+Math.min(menuRect.right,dockRect.right))/2,overlapY=(Math.max(menuRect.top,dockRect.top)+Math.min(menuRect.bottom,dockRect.bottom))/2;
+    const contextOnTop=menuRect.right<=dockRect.left||menuRect.bottom<=dockRect.top||$('yard-controls-panel').contains(document.elementFromPoint(overlapX,overlapY));
+    const fullContext=!$('yard-controls-panel').hidden&&$('yard-controls-panel').classList.contains('context-open')&&contextFits()&&contextOnTop;
+    $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    const contextEsc=$('yard-controls-panel').hidden&&document.activeElement===$('yard-controls-toggle');
+    $('yard-controls-toggle').click();
+    const normalAnchor=!$('yard-controls-panel').classList.contains('context-open')&&!$('yard-controls-panel').style.left;
+    document.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));
+    await L('contextFull='+(fullContext&&contextEsc&&normalAnchor&&$('yard-controls-panel').hidden?'clamped-escaped-and-reset':'err'));
     document.querySelector('.panel-tab[data-panel=invite]').click();
     const welcomeCovered=getComputedStyle($('empty-yard')).display==='none';
     $('yard-controls-toggle').click();
@@ -385,39 +417,112 @@ const scenario = `(async()=>{
     const stored=await new Promise((resolve,reject)=>{const request=indexedDB.open('playpets-backgrounds',1);request.onerror=reject;request.onsuccess=()=>{const db=request.result,tx=db.transaction('packs'),row=tx.objectStore('packs').get(imported);row.onsuccess=()=>resolve(row.result?.pack?.name);tx.oncomplete=()=>db.close();};});
     await until(()=>$('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1);
     await L('backgroundImport='+(imported&&stored===portable.name&&portableWorld.capabilities.fishing&&portableWorld.capabilities.seasonalEffects&&onLake(lx,ly)&&document.querySelector('[data-world="'+imported+'"][aria-pressed="true"]')?'file-gallery-storage-and-fishing':'err'));
-    // The page fits its window exactly: no scrollbar, full size or mini.
+    // Resizing changes layout, never the pin or the active activity.
+    const nativeWindow=async rect=>(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:rect?['main',rect]:['main']})).data;
     const fits=()=>document.body.scrollHeight<=document.body.clientHeight&&document.body.scrollWidth<=document.body.clientWidth;
-    const fitsFull=fits();
-    // The mini window first opens in the bottom-right corner of the screen and, left, puts the
-    // window back where it was (each run starts with a new data folder, so no place is kept yet).
-    const fullAt=JSON.stringify(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']}));
-    const wide=innerWidth;$('mini').click();await until(()=>document.body.classList.contains('mini')&&innerWidth<wide);await wait(300);
-    const miniAt=(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']})).data,right=screen.availLeft+screen.availWidth-(miniAt.x+miniAt.width),bottom=screen.availTop+screen.availHeight-(miniAt.y+miniAt.height);
-    const corner=right>=0&&right<=40&&bottom>=0&&bottom<=40;
-    const small=document.body.classList.contains('mini')&&innerWidth<wide&&innerWidth<=520&&getComputedStyle(document.querySelector('.topbar')).display==='none'&&Math.abs($('yard').getBoundingClientRect().height-innerHeight)<=2&&[...document.querySelectorAll('.yard-pet')].every(b=>b.getBoundingClientRect().bottom<=innerHeight+1);
-    await L('miniNavigation='+(['.yard-dock','.yard-controls-panel','.scene-menu'].every(selector=>getComputedStyle(document.querySelector(selector)).display==='none')&&getComputedStyle($('unmini')).display!=='none'?'expand-only':'err'));
-    const fitsMini=fits();$('unmini').click();await until(()=>!document.body.classList.contains('mini')&&innerWidth===wide);await wait(300);
-    const backAt=JSON.stringify(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']}));
-    await L('miniPlace='+(corner?'corner':'err:'+right+','+bottom)+'/'+(backAt===fullAt?'back':'err:'+backAt+' was '+fullAt));
-    await L('pageFits='+fitsFull+'/'+fitsMini);
-    await L('mini='+(small&&!document.body.classList.contains('mini')&&innerWidth===wide?'shrinks-and-restores':'err:'+small+'/'+innerWidth+'/'+wide));
+    const fitsFull=fits(),fullAt=await nativeWindow(),wide=innerWidth;
+    await nativeWindow({...fullAt,width:460,height:320});
+    await until(()=>document.body.classList.contains('compact')&&innerWidth===460);await wait(200);
+    const compactAt=await nativeWindow(),fitsSmall=fits();
+    const sameBounds=(a,b)=>['x','y','width','height'].every(k=>Math.abs(a[k]-b[k])<=1);
+    contextAt();await wait(30);
+    const smallContext=!$('yard-controls-panel').hidden&&contextFits()&&['menu-scene','always-on-top'].every(id=>{const r=$(id).getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.right<=innerWidth;});
+    const pinTrack=$('always-on-top').querySelector('.wander-switch');
+    const pinOffVisual=getComputedStyle(pinTrack,'::after').transform;
+    await $('always-on-top').onclick();
+    const pinOnVisual=getComputedStyle(pinTrack,'::after').transform;
+    const pinOn=await until(async()=>{const w=await nativeWindow();return w.alwaysOnTop&&$('always-on-top').getAttribute('aria-pressed')==='true'&&w;});
+    const trayPin=(await trayAt()).items.includes('alwaysOnTop:on');
+    await $('always-on-top').onclick();
+    const pinOff=await until(async()=>{const w=await nativeWindow();return !w.alwaysOnTop&&$('always-on-top').getAttribute('aria-pressed')==='false'&&w;});
+    $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    const smallContextEsc=$('yard-controls-panel').hidden&&document.activeElement===$('yard');
+    await L('contextSmall='+(smallContext&&smallContextEsc?'clamped-and-escaped':'err'));
+    await L('windowPin='+(pinOn&&pinOff&&trayPin&&pinOnVisual!==pinOffVisual&&sameBounds(compactAt,pinOn)&&sameBounds(compactAt,pinOff)?'independent-and-synced':'err:'+JSON.stringify({compactAt,pinOn,pinOff,trayPin,ui:$('always-on-top').getAttribute('aria-pressed')})));
+    const small=document.body.classList.contains('compact')&&compactAt.resizable&&getComputedStyle($('window-drag')).display!=='none'&&document.querySelectorAll('[data-resize]').length===8&&!document.querySelector('#mini,#unmini');
+    document.querySelector('.panel-tab[data-panel=settings]').click();await wait(100);
+    const settingsSmall=$('settings-content').getBoundingClientRect().height>30&&$('settings-section').getBoundingClientRect().height>0&&$('side-panel').getBoundingClientRect().bottom<=innerHeight;
+    $('close-panel').click();await L('settingsSmall='+(settingsSmall?'body-and-navigation':'err'));
+    await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact')&&innerWidth===wide);
+    await L('pageFits='+fitsFull+'/'+fitsSmall);
+    // Every destination remains navigable at the minimum size and retains its state when widened.
+    const visibleNode=node=>{const r=node.getBoundingClientRect();return r.width>0&&r.height>0&&r.left>=0&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<=innerHeight+1;};
+    let panelFlow=true;
+    await nativeWindow({...fullAt,width:300,height:210});await wait(200);
+    $('yard-controls-toggle').click();$('menu-scene').click();await wait(100);
+    panelFlow&&=!$('scene-menu').hidden&&!$('scene-places').hidden&&$('scene-atmosphere').hidden&&visibleNode($('scene-back'))&&document.activeElement===$('background-gallery').querySelector('[aria-pressed="true"]');
+    $('scene-atmosphere-tab').click();
+    panelFlow&&=$('scene-places').hidden&&!$('scene-atmosphere').hidden;
+    $('weather').scrollIntoView({block:'end'});await wait(80);
+    panelFlow&&=visibleNode($('weather'));
+    await nativeWindow(fullAt);await wait(100);
+    panelFlow&&=!$('scene-atmosphere').hidden&&visibleNode($('weather'));
+    $('scene-back').click();await wait(40);
+    panelFlow&&=$('scene-menu').hidden&&!$('yard-controls-panel').hidden;
+    await nativeWindow({...fullAt,width:300,height:210});await wait(100);
+    document.querySelector('.panel-tab[data-panel=invite]').click();await wait(100);
+    $('invite-filters').open=false;$('panel-invite').scrollTop=0;
+    const firstInvite=$('shelf').querySelector('.asset-card');
+    if(firstInvite){firstInvite.scrollIntoView({block:'nearest'});await wait(40);panelFlow&&=visibleNode(firstInvite);}
+    $('panel-menu').click();await wait(40);
+    panelFlow&&=$('side-panel').hidden&&!$('yard-controls-panel').hidden;
+    document.querySelector('.panel-tab[data-panel=settings]').click();await wait(60);
+    $('settings-section').value='about-title';$('settings-section').dispatchEvent(new Event('change'));await wait(60);
+    panelFlow&&=!$('settings-about').hidden&&visibleNode($('settings-section'))&&$('settings-content').clientHeight>=40;
+    await nativeWindow(fullAt);await wait(100);
+    panelFlow&&=!$('settings-about').hidden&&getComputedStyle(document.querySelector('.settings-index')).display!=='none'&&getComputedStyle($('settings-section')).display==='none';
+    $('close-panel').click();await playPets.openChat(p1.data.id);
+    await nativeWindow({...fullAt,width:300,height:210});await wait(100);
+    $('friend-menu-button').scrollIntoView({block:'nearest'});$('friend-menu-button').click();await wait(80);const compactFriendMenu=$('friend-menu').getBoundingClientRect();panelFlow&&=compactFriendMenu.height>=140&&visibleNode($('friend-menu'));$('remove-friend').scrollIntoView({block:'nearest'});await wait(40);panelFlow&&=visibleNode($('remove-friend'));$('friend-menu').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    $('send').scrollIntoView({block:'end'});await wait(80);panelFlow&&=visibleNode($('send'))&&visibleNode($('close-panel'));
+    await nativeWindow(fullAt);await wait(100);panelFlow&&=visibleNode($('send'))&&!$('panel-pet').hidden;
+    $('close-panel').click();await L('smallPanelFlow='+(panelFlow?'reachable-and-restored':'err'));
+
+    await L('windowResize='+(small?'one-responsive-window':'err'));
+    contextAt();await wait(30);$('menu-quit').click();
+    const quitAsked=await until(()=>$('confirm-dialog').open&&document.activeElement===$('confirm-cancel'));
+    $('confirm-cancel').click();await until(()=>!$('confirm-dialog').open);
+    await L('windowQuit='+(quitAsked&&(await nativeWindow()).resizable?'confirmed-and-cancellable':'err'));
+    $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    // Fullscreen returns to the same frame and pin; Escape dismisses the current surface first.
+    let fullscreenRestored=true;
+    for(const pinned of [false,true]){
+      if((await nativeWindow()).alwaysOnTop!==pinned)await $('always-on-top').onclick();
+      const normal=await nativeWindow();
+      await $('fullscreen').onclick();
+      const expanded=await nativeWindow();
+      fullscreenRestored&&=expanded.fullscreen&&document.body.classList.contains('fullscreen')&&$('fullscreen').getAttribute('aria-pressed')==='true'&&getComputedStyle(document.querySelector('[data-resize]')).display==='none';
+      contextAt();await wait(30);
+      $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+      fullscreenRestored&&=$('yard-controls-panel').hidden&&(await nativeWindow()).fullscreen;
+      document.querySelector('.panel-tab[data-panel=settings]').click();await wait(100);
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+      fullscreenRestored&&=$('side-panel').hidden&&(await nativeWindow()).fullscreen;
+      window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',cancelable:true}));
+      await until(async()=>!$('fullscreen').disabled&&!(await nativeWindow()).fullscreen,15000);
+      const returned=await nativeWindow();
+      fullscreenRestored&&=sameBounds(normal,returned)&&returned.alwaysOnTop===pinned&&!document.body.classList.contains('fullscreen');
+    }
+    if((await nativeWindow()).alwaysOnTop)await $('always-on-top').onclick();
+    await L('windowFullscreen='+(fullscreenRestored?'bounds-pin-and-escape-restored':'err'));
     worldSelect.value='woodland';worldSelect.dispatchEvent(new Event('change'));
     await (await import('./yard/background-store.js')).removeBackground(imported);
-    // A quick chat stays inside mini; a friend nearer the bottom is drawn over one higher up.
-    $('mini').click();await until(()=>document.body.classList.contains('mini'));await wait(300);
+    // A conversation stays inside the current window; a friend nearer the bottom is drawn over one higher up.
+    await nativeWindow({...fullAt,width:460,height:320});await until(()=>document.body.classList.contains('compact'));await wait(300);
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
     await until(()=>!$('panel-pet').hidden&&getComputedStyle($('side-panel')).display!=='none');await wait(300);
+    $('panel-pet').scrollTop=0;
     const composer=$('message').getBoundingClientRect(),sendBox=$('send').getBoundingClientRect();
-    const chatFromMini=document.body.classList.contains('mini')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth;
+    const chatFromSmall=document.body.classList.contains('compact')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth&&sendBox.bottom<=innerHeight;
     // By where the feet are (the bottom), since friends of different sizes have their tops elsewhere.
     const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().bottom,z:Number(b.style.zIndex)%200}));
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true));
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
-    await L('reach='+(chatFromMini?'compact-chat':'err-mini')+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
+    await L('reach='+(chatFromSmall?'compact-chat':'err-small')+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
     // A friend's name tag is the way to talk: a click on it (not a drag) opens the conversation.
     $('close-panel').click();await until(()=>$('side-panel').hidden);
-    $('unmini').click();await until(()=>!document.body.classList.contains('mini')&&innerWidth===wide);await wait(200);
+    await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact')&&innerWidth===wide);await wait(200);
     const tag=document.querySelector('.pet-label .pet-tag');
     tag.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));tag.dispatchEvent(new PointerEvent('pointerup',{button:0,bubbles:true}));
     await until(()=>!$('side-panel').hidden&&!$('panel-pet').hidden);
@@ -489,7 +594,7 @@ const scenario = `(async()=>{
     await must('unassignAgent',playPets.assignAgent('claude',''));
     // Hidden to the tray, the page is told so and rests (WebView2 may not say it through
     // document.hidden); shown again, it moves again.
-    await playPets.windowHide();const unseen=!!await until(()=>document.documentElement.hasAttribute('data-unseen'));
+    await $('hide-window').onclick();const unseen=!!await until(()=>document.documentElement.hasAttribute('data-unseen'));
     await playPets.openChat(p1.data.id);await until(()=>!document.documentElement.hasAttribute('data-unseen'));
     await L('unseen='+unseen+'/'+document.documentElement.hasAttribute('data-unseen'));
     await must('desktopOn',playPets.toggleDesktop());
@@ -498,7 +603,7 @@ const scenario = `(async()=>{
     await L('overlayLayout='+b2.data.desktopLayout.length);
     await must('wanderOn',playPets.toggleDesktopWander());
     const trayDesk=await until(async()=>{const t=await trayAt();return t.items.includes('wander:on')&&t;},5000);
-    await L('traySwitches='+(trayDesk&&trayDesk.items.includes('friends')&&trayDesk.items.some(i=>i.startsWith('sound:'))&&trayDesk.items.includes('desktop:on')&&trayDesk.items.includes('mini:off')?'checked':'err:'+JSON.stringify(await trayAt())));
+    await L('traySwitches='+(trayDesk&&trayDesk.items.includes('friends')&&trayDesk.items.some(i=>i.startsWith('sound:'))&&trayDesk.items.includes('desktop:on')&&trayDesk.items.includes('alwaysOnTop:off')?'checked':'err:'+JSON.stringify(await trayAt())));
     await must('removeProvider',playPets.removeProvider(save.data.id));
     const b3=await playPets.bootstrap();
     await L('detached='+(b3.data.pets[0].providerId===''&&b3.data.providers.length===0));
@@ -627,11 +732,11 @@ provider.close();
 const expect = [
   [/^assets=[1-9]/, 'catalog scan'],
   [
-    /^wardrobes=3\/6\/decoded-and-change$/,
-    'all three seasonal wardrobes load and repaint with distinct artwork under native security policy',
+    /^wardrobes=4\/8\/decoded-and-change$/,
+    'all four seasonal wardrobes load and repaint with distinct artwork under native security policy',
   ],
-  [/^defaultCompanions=3\/official-cast$/, 'the three official companions are available'],
-  [/^illustratedAssets=9\/decoded$/, 'illustrated companion wardrobes decode through the native protocol'],
+  [/^defaultCompanions=4\/official-cast$/, 'the four official companions are available'],
+  [/^illustratedAssets=12\/decoded$/, 'illustrated companion wardrobes decode through the native protocol'],
   [/^illustratedChoice=ordinary-independent$/, 'the friend editor preserves its independent baseline identity'],
   [/^addPet=ok/, 'add a pet'],
   [/^intro=A test kitten\. \(animal\)$/, 'a new friend starts with the pet file description as its personality'],
@@ -665,7 +770,16 @@ const expect = [
   [/^pageErrors=none$/, 'no page errors (frame loops included)'],
   [/^markdown=styled$/, 'markdown emphasis in replies is styled'],
   [/^waiting=shown-then-gone$/, 'waiting indicator while a reply is on its way'],
-  [/^chrome=(mac-native|custom:0)$/, 'title bar blends with the page (per OS)'],
+  [/^chrome=frameless$/, 'the yard has no title-bar controls on any OS'],
+  [/^selection=scenery-only$/, 'scenery cannot select text while conversation messages remain selectable'],
+  [/^contextFull=clamped-escaped-and-reset$/, 'blank-yard context menu fits, closes and restores the normal anchor'],
+  [/^contextSmall=clamped-and-escaped$/, 'small-window context menu fits and restores visible focus'],
+  [
+    /^windowFullscreen=bounds-pin-and-escape-restored$/,
+    'fullscreen restores bounds and pin after Escape dismisses menus and panels',
+  ],
+  [/^startupNotices=floating-details-and-dismissal$/, 'startup notices retain the yard size and respect dismissal'],
+  [/^windowPin=independent-and-synced$/, 'native pin, page and tray agree without changing bounds'],
   [
     /^panel=toggles\/general-title$/,
     'panel tabs open and close, and the Settings index marks the first group when it opens',
@@ -693,9 +807,13 @@ const expect = [
     new RegExp(`^games=1/${literal(stopGame('game.parade'))}/${literal(KO['game.label'])}$`),
     'tag and parade start and stop',
   ],
-  [/^miniNavigation=expand-only$/, 'mini hides all scenery and menu controls while keeping expansion available'],
-  [/^mini=shrinks-and-restores$/, 'mini view (yard only, back to full size)'],
-  [/^miniPlace=corner\/back$/, 'the mini window opens in the screen corner and leaving it puts the window back'],
+  [/^windowResize=one-responsive-window$/, 'one resizable window keeps its controls and native drag boundaries'],
+  [
+    /^smallPanelFlow=reachable-and-restored$/,
+    'minimum-size destinations scroll without overlap and retain state when widened',
+  ],
+  [/^settingsSmall=body-and-navigation$/, 'small settings retain a usable body and navigation'],
+  [/^windowQuit=confirmed-and-cancellable$/, 'the shared quit action confirms and Cancel keeps the app alive'],
   [/^lakeAgain=1\/0\/1$/, 'a walk to the lake ends when a game takes the friend, and the lake can be fished again'],
   [
     /^gameCompletion=tag-transfer-and-both-end$/,
@@ -712,7 +830,7 @@ const expect = [
   [/^studioLight=four-city-views$/, 'the city studio uses distinct authored art for all four times of day'],
   [
     /^backgroundImport=file-gallery-storage-and-fishing$/,
-    'a studio JSON enters the real file input, persists in IndexedDB and supports the mini yard and fishing',
+    'a studio JSON enters the real file input, persists in IndexedDB and supports a small yard and fishing',
   ],
   [/^talkTag=opens-chat$/, "a click on a friend's name tag opens the conversation"],
   [/^season=set$/, 'the season and the clock paint the yard'],
@@ -737,7 +855,7 @@ const expect = [
   ],
   [/^controlsOverlap=exclusive$/, 'menu and task panel never overlap; onboarding steps aside'],
   [/^quietControls=disclosed-and-restored$/, 'quiet controls open explicitly and return focus after a panel closes'],
-  [/^pageFits=true\/true$/, 'the page fits the window (no scroll bars, full and mini)'],
+  [/^pageFits=true\/true$/, 'the page fits the window (no scroll bars, large and small)'],
   [/^spriteLoads=1536$/, 'pet sprites load under the page security policy'],
   [/^gamesKeepHome=true$/, 'positions during games are not saved'],
   [/^pageButtons=invite-and-connect$/, 'invite and open the AI connection dialog with page buttons'],

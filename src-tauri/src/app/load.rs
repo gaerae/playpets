@@ -75,6 +75,18 @@ fn load_providers(raw: &Value) -> (Vec<Value>, Vec<Value>) {
     (providers, parked)
 }
 
+fn parked_pet_counts(parked: &[Value], asset_ids: &[String]) -> (usize, usize) {
+    let missing = parked
+        .iter()
+        .filter(|pet| {
+            !asset_ids
+                .iter()
+                .any(|id| pet.get("assetId").and_then(Value::as_str) == Some(id.as_str()))
+        })
+        .count();
+    (missing, parked.len() - missing)
+}
+
 /// Reads the saved state and the pets on this computer. Whatever cannot be used (a pet whose
 /// file is gone, a connection that no longer validates) is left out rather than failing the start.
 pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
@@ -126,8 +138,15 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
     builtin::migrate_saved_friends(&mut raw, &assets);
     let mut pets = model::restore_pets(&raw, &asset_ids);
     let parked_pets = model::parked_pets(&raw, &pets);
-    if !parked_pets.is_empty() {
-        warnings.push(i18n::tr("pets.parked", &[("count", &parked_pets.len().to_string())]));
+    let (missing, full) = parked_pet_counts(&parked_pets, &asset_ids);
+    if missing > 0 {
+        warnings.push(i18n::tr("pets.parked_missing", &[("count", &missing.to_string())]));
+    }
+    if full > 0 {
+        warnings.push(i18n::tr(
+            "pets.parked_full",
+            &[("count", &full.to_string()), ("limit", &model::LIMIT.to_string())],
+        ));
     }
     let (providers, parked) = load_providers(&raw);
     for p in pets.iter_mut() {
@@ -170,4 +189,27 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         detected: json!({"claude": false, "codex": false, "ollama": []}),
         activity: HashMap::new(),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parked_friends_with_missing_assets_are_not_counted_as_yard_overflow() {
+        let parked = vec![
+            json!({"id": "lost-one", "assetId": "missing-one"}),
+            json!({"id": "waiting", "assetId": "available"}),
+            json!({"id": "lost-two", "assetId": "missing-two"}),
+        ];
+        assert_eq!(parked_pet_counts(&parked, &["available".into()]), (2, 1));
+    }
+
+    #[test]
+    fn parked_friend_counts_allow_each_reason_to_be_absent() {
+        let parked = vec![json!({"id": "friend", "assetId": "available"})];
+        assert_eq!(parked_pet_counts(&[], &[]), (0, 0));
+        assert_eq!(parked_pet_counts(&parked, &[]), (1, 0));
+        assert_eq!(parked_pet_counts(&parked, &["available".into()]), (0, 1));
+    }
 }

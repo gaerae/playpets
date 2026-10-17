@@ -11,7 +11,8 @@ pub(super) static SPEC: super::Spec = super::Spec {
 const TABLE: &[(&str, &str)] = &[
     ("app.title", "PlayPets · ペットの庭"),
 
-    ("pets.parked", "ペットファイルが見つからないか庭がいっぱいのため、友だち{count}人が今回は出てこられませんでした。消してはいないので、ファイルが戻るか空きができればまた出てきます。"),
+    ("pets.parked_missing", "友だち{count}人のペットファイルが見つからず、庭に呼べませんでした。保存された情報は残っています。元のペットフォルダとファイルがあるか確認してから、PlayPetsを再起動してください。"),
+    ("pets.parked_full", "庭の定員{limit}人に達したため、あと{count}人の友だちを呼べませんでした。保存された情報は残っています。庭に空きを作ってから、PlayPetsを再起動してください。"),
 
     ("tray.open", "庭を開く"),
     ("tray.friends", "友だち"),
@@ -20,7 +21,7 @@ const TABLE: &[(&str, &str)] = &[
     ("tray.desktop", "デスクトップに表示"),
     ("tray.wander", "デスクトップを歩き回る"),
     ("tray.update", "アップデートを確認…"),
-    ("tray.mini", "小さく表示"),
+    ("tray.alwaysOnTop", "常に手前に表示"),
     ("menu.sound", "庭の音"),
     ("tray.state_waiting", "待っています"),
     ("tray.state_error", "問題が起きました"),
@@ -43,6 +44,7 @@ const TABLE: &[(&str, &str)] = &[
     ("menu.paste", "ペースト"),
     ("menu.select_all", "すべてを選択"),
     ("menu.view", "表示"),
+    ("menu.controls", "メニューを開く"),
     ("menu.friends", "友だち"),
     ("menu.invite", "友だちを招待…"),
     ("menu.window", "ウインドウ"),
