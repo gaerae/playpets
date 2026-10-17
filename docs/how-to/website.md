@@ -62,6 +62,8 @@ npm run og
 npm run site:build && node --test tests/website.test.mjs
 ```
 
+For a production preview, start `npm run site:preview` after the build. Stop and restart a running preview after each rebuild so renamed JavaScript chunks are served. Check an interactive control as well as the page text: static HTML can load while a stale preview returns missing script files. Use `npm run site:dev` for ongoing edits.
+
 6. Commit. Git ignores what `scripts/site-prepare.mjs` generates (`website/dev/`, the icon and pet sheets it copies into `website/public/`, and `website/.vitepress/generated.json`), so they are not included. Captures and intro videos under `website/public/` are committed.
 
 ## Derived art and creator packages

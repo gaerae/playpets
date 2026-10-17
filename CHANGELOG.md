@@ -7,6 +7,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Security
+
+- Disable unused legacy ZIP updater compatibility, removing the vulnerable ZIP extraction dependency reported as RUSTSEC-2026-0367, RUSTSEC-2026-0368 and RUSTSEC-2026-0369. Native installer updates and macOS tar updates remain supported.
+
 ### Added
 
 - Add fullscreen with restoration of the previous window size, position and Always on top setting; Esc closes an open menu or dialog before leaving fullscreen.
@@ -28,6 +32,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Move the website and documentation to `https://playpets.gaerae.com/`.
 
 ### Fixed
+
+- Distinguish download lookup from an unpublished version on the website, and keep release-page guidance accurate after the first release in all four languages.
+
+- Collect and verify bundled system-library notices in local Linux AppImages, and keep deb-only builds from exporting cached AppImages or stale source manifests.
 
 - Keep startup notices in a collapsible, dismissible card above the yard. Distinguish missing pet files from the 12-friend limit without deleting saved friends.
 - Show the selected Always on top state, retain settings and conversations when resizing, and keep friend actions and scene controls reachable in short windows.

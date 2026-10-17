@@ -35,7 +35,7 @@ url = "2.5"
 # Canonical paths without the `\\?\` prefix on Windows, which Explorer and agent configs cannot use.
 dunce = "1"
 sys-locale = "0.3.2"
-tauri-plugin-updater = "2"
+tauri-plugin-updater = { version = "2", default-features = false, features = ["rustls-tls", "system-proxy"] }
 tauri-plugin-deep-link = "2"
 tauri-plugin-autostart = "2"
 tauri-runtime = "2.12"

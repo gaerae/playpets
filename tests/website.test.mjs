@@ -19,6 +19,7 @@ test('release pages never render installer or tag links before GitHub confirms p
     files: { 'macos-universal.dmg': 'macOS' },
     releases: 'Releases',
     preparing: 'Preparing',
+    checkingRelease: 'Checking release',
     unreleased: 'Not released yet',
   };
   const modules = {};
@@ -55,6 +56,10 @@ test('release pages never render installer or tag links before GitHub confirms p
       assert.match(html, /href="https:\/\/github.com\/gaerae\/playpets\/releases"/);
     }
   }
+  const pendingDownload = await render('Downloads', {});
+  assert.match(pendingDownload, /Checking release/);
+  assert.doesNotMatch(pendingDownload, /Preparing|Not released yet/);
+  assert.match(pendingDownload, /aria-busy="true"/);
   const datedMeta = await render('ReleaseMeta', { version: '0.1.0', date: '2026-10-13' });
   assert.doesNotMatch(datedMeta, /<time/);
   assert.match(datedMeta, /Preparing/);
