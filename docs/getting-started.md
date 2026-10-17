@@ -73,7 +73,7 @@ $env:PLAYPETS_DATA = "$PWD\.dev-data"
 npm run start
 ```
 
-7. Pick a pet in the Invite tab. The three illustrated starter entries are always there, and pets in `~/.codex/pets` and community pets pasted in through "Import a pet" show on the shelf too.
+7. Pick a pet in the Invite tab. The four illustrated starter entries are always there, and pets in `~/.codex/pets` and community pets pasted in through "Import a pet" show on the shelf too.
 
 8. After changing page code, build again and start the app. Page files go into the executable at build time, so you need a build to see your change.
 
@@ -84,7 +84,7 @@ npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
 ## Verification
 - At the end of `npm test`, Rust prints `test result: ok` and Node prints `fail 0`.
 - At the end of `npm run test:e2e`, `PASS: tauri e2e` is printed.
-- The app opens, and with no pets the yard asks "Who would you like to play with?" over the first three starter pets.
+- The app opens, and with no pets the yard asks "Who would you like to play with?" over all four starter pets.
 - `.dev-data/state.json` is created, and the friend you invited is in it.
 
 ## Troubleshooting

@@ -34,6 +34,12 @@ export const copy = {
 export const worldCopy = {
   places: ['언덕 정원', '돌집 안뜰', '호숫가 집', '포근한 거실'],
   seasons: ['봄', '여름', '가을', '겨울'],
+  greetings: {
+    daisy: '저 모퉁이를 돌면 예쁜 게 있을 것 같아.',
+    clover: '오늘은 무엇이 자랐는지 같이 볼래?',
+    pip: '왔구나! 잠깐 같이 놀자.',
+    miso: '여기서 잠깐 쉬어 가도 좋아.',
+  },
   seasonLabel: '계절 고르기',
   previewNote: '앱의 배경과 캐릭터로 만든 미리보기예요. 친구를 누르면 인사해요. 놀이와 날씨는 앱에서 즐겨 주세요.',
   greet: '인사하기',
@@ -52,19 +58,21 @@ export const worldCopy = {
   sceneCaption: (v: string) => `실제 앱 화면 · PlayPets ${v}`,
 };
 export const sections = {
+  discoveryGuide: '도감에서 만날 것들',
   galleryCreate: '이 친구로 만들기',
   petNotes: {
     daisy: '작은 것들을 눈여겨보는 호기심 많은 탐험가예요.',
     clover: '작은 발견을 나누는 다정한 고양이 정원사예요.',
-    pip: '파란 꽃무늬 재킷을 입고 친구들에게 인사하는 밝은 강아지예요.',
+    pip: '흰 꽃을 단 진청 데님 재킷과 아이보리 반바지 차림으로 먼저 인사하는 강아지예요.',
+    miso: '연보라 니트 조끼를 입고 연못가에서 책을 읽는 다정한 수달이에요.',
   },
   galleryTitle: '자꾸 눈길이 가는 친구들.',
-  galleryLead: '작은 발견을 좋아하는 데이지, 정원사 클로버, 인사를 좋아하는 핍. 서로 다른 세 친구를 만나 보세요.',
+  galleryLead: '호기심 많은 데이지, 정원사 클로버, 활발한 핍, 조용한 수달 미소. 서로 다른 네 친구가 기다려요.',
   galleryLabel: '친구 고르기',
   posesLabel: '자세 미리보기',
   poses: ['쉬기', '인사하기', '뛰기'],
   selectedLead: '초대 탭에서 이 친구를 초대해요. 이름과 성격, 나와의 관계를 직접 정할 수 있어요.',
-  galleryGuide: '첫 친구 만나기',
+  galleryGuide: '친구들의 이야기',
   connectionsTitle: '같이 놀고, 가끔 이야기해요.',
   connectionsLead: '놀이와 정원 가꾸기는 AI 계정 없이 즐겨요. 대화할 때 연결한 AI의 사용 한도와 요금이 적용돼요.',
   connections: [
@@ -81,8 +89,8 @@ export const sections = {
   ],
   miniTitle: '하루 한쪽에, 작은 친구.',
   miniBody:
-    '미니 모드는 메뉴 없이 작업 옆에 놀이터를 두는 작은 창이에요. 배경을 바꾸거나 놀이 도구를 사용하려면 확대해 주세요.',
-  miniLink: '미니 모드 알아보기',
+    '놀이터 창의 크기를 조절해 작업 옆에 두세요. 작은 창에서도 같은 메뉴로 배경을 바꾸고 놀이 도구를 사용할 수 있어요. 항상 위에 표시를 따로 켜면 다른 앱 위에 떠 있어요.',
+  miniLink: '놀이터 창 크기 조절하기',
   agentGuide: '코딩 에이전트 연결하기',
   connectionDetails: '대화 연결과 비용 알아보기',
   connectionSetup:

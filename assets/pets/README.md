@@ -2,13 +2,13 @@
 
 ## Official cast and archived artwork
 
-Daisy, Clover and Pip are the only bundled and publicly exported starter pets.
+Daisy, Clover, Pip and Miso are the bundled and publicly exported starter pets.
 Other character directories are archival source artwork; they are not embedded
 in the executable or offered in the creator studio. Clover is the brand mascot.
 Retired built-in friends retain their saved identity and relationships through
 an appearance migration; imported copies remain unchanged.
 
-The three companions use their layered baseline in spring and autumn and
+The four companions use their layered baseline in spring and autumn and
 `seasonal/summer.png` and `seasonal/winter.png` in the other seasons. Each sheet
 retains all 88 canonical cells. `seasonalSpritesheets` lists these optional files.
 
@@ -19,11 +19,11 @@ source records below remain the inputs to the current artwork tools.
 
 ## Current illustration direction
 
-The three companions retain their recognizable identities, markings and actions.
-Pip wears a butter-yellow varsity jacket with ivory sleeves, a small blue
-five-petal flower with a cream center on the anatomical left chest, and navy
-shorts. Summer uses a yellow and ivory round-neck short-sleeve T-shirt; winter
-uses a padded quilted jacket and navy trousers. All three
+The four companions retain their recognizable identities, markings and actions.
+Pip wears a washed-indigo denim jacket over an ivory T-shirt and warm-ivory
+shorts, with a small white five-petal flower and golden-yellow center on the
+anatomical left chest. Summer uses a light short-sleeve denim shirt; winter
+uses a lined denim jacket and ivory trousers. All four
 companions keep their upright, anthropomorphic proportions. New accepted sheets use fine warm-brown outlines, matte painted
 color planes, restrained shading and simplified fur and fabric texture. They
 keep body volume and clear expressions at app and mini sizes, without plastic
@@ -33,7 +33,10 @@ wardrobe and motion sheets. A prompt alone does not establish acceptance:
 compare every state and season against the approved reference before export.
 
 The generation and clarity notes below describe earlier production stages;
-[the accepted source record](../sources/companions-2026-10-14/README.md) identifies the replacement files and packing adjustments.
+[the earlier source record](../sources/companions-2026-10-14/README.md) identifies that revision.
+The current Miso and denim Pip sources live under `../sources/companions-2026-10-17/`.
+
+Miso wears a lavender cable-knit vest over an ivory collared shirt and warm-grey pleated shorts. Summer lightens the knit and linen; winter uses a fitted lavender wool cardigan and full-length warm-grey trousers. A white-petal, golden-centred daisy links the four official companions. The accepted Miso source rows and generation record live in `../sources/companions-2026-10-17/miso/`; these replace no existing starter character.
 
 ## Original generation and packing
 
@@ -86,6 +89,15 @@ Compare the meaning of every action as well as its sharpness: waiting keeps its
 chin-paw gesture, working keeps the laptop, and jumping and celebration remain
 visibly different from idle. Inspect the frames the animation actually consumes,
 including the first five jump poses.
+
+The website also has genuine double-resolution idle, wave and jump strips for
+summer and winter at `preview/<season>/<state>.png` in all four official pet
+directories. They are assembled from accepted seasonal source rows with the
+same idle scale, row corrections and jump choreography as the app. Spring and
+autumn reuse the base strips. The source paths, settings and export hashes are
+recorded in `../sources/companions-2026-10-17/seasonal-previews.json`; the packing
+procedure is in the maintainer scripts guide. These exports do not replace or
+resize the runtime atlases.
 
 ## Archived realistic appearance exploration
 

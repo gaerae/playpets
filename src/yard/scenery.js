@@ -7,7 +7,7 @@
 // rests until the next spell.
 import { between } from '../core/math.js';
 import { createAmbientArt } from './ambient-art.js';
-import { flyingBug } from './catalog.js';
+import { flyingBug, wildlifeGroup } from './catalog.js';
 import { environmentFrame, weatherPanes } from './environment.js';
 import { boostOf } from './events.js';
 import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
@@ -74,8 +74,9 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
   function lifeCount() {
     if (!worldAllows(world, 'wildlife')) return { glow: false, count: 0 };
     const warm = season === 'spring' || season === 'summer',
-      glow = warm && clear() && (period === 'night' || period === 'evening'),
-      flutter = season !== 'winter' && clear() && (period === 'day' || period === 'morning');
+      group = wildlifeGroup(season, period, weather),
+      glow = group === 'firefly',
+      flutter = group === 'day';
     const count = glow ? (period === 'night' ? 9 : 4) : flutter ? (warm ? 3 : 1) : 0;
     return { glow, count: Math.round(count * boostOf(event, glow ? 'fireflies' : 'butterflies')) };
   }

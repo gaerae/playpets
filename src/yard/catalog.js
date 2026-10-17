@@ -56,13 +56,30 @@ export function weighted(list, weight, rng) {
 
 // A kind marked with an event (catalog.json "event", events.js) comes only while it is on.
 const now = (kind, event) => !kind.event || kind.event === event;
-/** The fish that bite in this season and time of day (and event); rain brings up the ones of the deep. */
+/** Species eligible for the selected season, time and event. */
+export function eligibleKinds(kinds, season, period, event = null) {
+  return kinds.filter(kind => now(kind, event) && kind.seasons.includes(season) && kind.periods.includes(period));
+}
+export const fishWeight = (fish, weather) => fish.weight * (weather === 'rain' ? fish.rain || 1 : 1);
+/** Conditional odds within one eligible pool, not the chance of encountering a creature per hour. */
+export function relativeChances(pool, weight) {
+  const total = pool.reduce((sum, kind) => sum + weight(kind), 0);
+  return total ? pool.map(kind => ({ ...kind, chance: weight(kind) / total })) : [];
+}
+/** The scenery's current population; day populations mix butterflies and dragonflies. */
+export function wildlifeGroup(season, period, weather) {
+  if (weather !== 'clear' || season === 'winter') return null;
+  if (period === 'day' || period === 'morning') return 'day';
+  if (season === 'spring' || season === 'summer') return 'firefly';
+  return null;
+}
+/** The fish that bite in this season and time of day (and event). */
 export function fishHere(season, period, event = null) {
-  return FISH.filter(f => now(f, event) && f.seasons.includes(season) && f.periods.includes(period));
+  return eligibleKinds(FISH, season, period, event);
 }
 /** A bite: which fish, and how long it is (cm, to a millimetre; big ones are rarer). */
 export function bite(season, period, weather, rng, event = null) {
-  const fish = weighted(fishHere(season, period, event), f => f.weight * (weather === 'rain' ? f.rain || 1 : 1), rng),
+  const fish = weighted(fishHere(season, period, event), f => fishWeight(f, weather), rng),
     [low, high] = fish.size,
     size = Math.round((low + (high - low) * rng() ** 1.6) * 10) / 10;
   return { fish, size };
@@ -70,7 +87,7 @@ export function bite(season, period, weather, rng, event = null) {
 
 /** The bugs of a kind that fly in this season and time of day. */
 function bugsHere(kind, season, period, event = null) {
-  return BUGS.filter(b => b.kind === kind && now(b, event) && b.seasons.includes(season) && b.periods.includes(period));
+  return eligibleKinds(BUGS, season, period, event).filter(b => b.kind === kind);
 }
 /** Which of a kind flies by now, or null when none does. */
 export function flyingBug(kind, season, period, rng, event = null) {

@@ -58,7 +58,16 @@ jobs:
       # console), so each is checked.
       - name: Lint
         run: npm run lint
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: assets/creator-skill/playpets-creator/requirements.txt
+      - name: Creator skill image dependency
+        run: python -m pip install -r assets/creator-skill/playpets-creator/requirements.txt
       - name: Unit tests
+        env:
+          PLAYPETS_PYTHON: python
         run: npm test
       # Tauri copies this generated tree into AppImages. Build the exact executable first so the
       # collector follows its linked distro libraries rather than maintaining a second package list.

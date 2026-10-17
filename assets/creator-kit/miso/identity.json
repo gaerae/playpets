@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "references": {
+    "detail": "available",
+    "seasons": ["summer", "winter"]
+  },
+  "id": "miso",
+  "character": "miso",
+  "name": "Miso",
+  "age": null,
+  "kind": "animal",
+  "identity": {
+    "description": "Fictional gentle chestnut river otter who listens to the pond and notices small changes; animal companion, not a human.",
+    "face": {
+      "eyes": "large warm brown eyes, rounded cream eyebrow markings and an attentive gentle gaze",
+      "nose": "small rounded brown otter nose",
+      "mouth": "small curved smile on a broad cream otter muzzle, delicate whiskers; no human lips"
+    },
+    "hair": "chestnut otter fur, small rounded ears, cream muzzle and eyebrow markings, short thick tapered tail; preserve the accepted face and markings",
+    "accessories": [
+      "small white-petal daisy with a golden-yellow center on the anatomical LEFT chest; preserve its placement in every season"
+    ],
+    "wardrobe": {
+      "baseline": "lavender cable-knit sleeveless vest over an ivory short-sleeve collared shirt, warm grey pleated shorts and exposed furry paws",
+      "summer": "airy light-lavender knit vest over an ivory short-sleeve collared cotton shirt, warm grey linen shorts and exposed furry paws",
+      "winter": "fitted lavender wool button cardigan over an ivory collared shirt, warm grey tailored trousers and exposed furry paws; no scarf or hat"
+    }
+  },
+  "style": "illustrated",
+  "anatomy": "Large round head and short soft body; retain the approved animal anatomy, paws, ears and tail.",
+  "workingAction": "focused laptop work with visible typing gestures, preserving the accepted seated or standing pose",
+  "targetIdleHeight": 163,
+  "turnaroundOrder": ["front", "profile facing viewer left", "back", "profile facing viewer right"],
+  "facePanels": {
+    "top": ["front", "profile facing viewer left", "three-quarter facing viewer right"],
+    "bottom": ["eyes", "nose", "mouth", "ear", "fur", "signature flower patch"]
+  },
+  "referencePolicy": "New turnaround and face details are extension references. The back view is newly inferred design, not a view recovered from runtime sprites. They do not increase runtime resolution or add animation states. Compare identity manually before using generated variants.",
+  "canonical": {
+    "width": 1536,
+    "height": 2288,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "columns": 8,
+    "rows": 11,
+    "usedFrames": [6, 8, 8, 4, 5, 8, 6, 6, 6],
+    "gaze": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+  }
+}

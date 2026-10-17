@@ -7,47 +7,26 @@ pageClass: creator-studio-page
 prev: false
 next: false
 editLink: false
+description: "Describe your scene and download one creation KIT with its SKILL. Give the whole KIT to a file-capable AI agent, create and review the artwork there, and receive a background JSON ready to import into PlayPets."
 ---
 
 <script setup>
-import StudioNav from "../.vitepress/theme/StudioNav.vue";
-import BackgroundKit from "../.vitepress/theme/BackgroundKit.vue";
+import CreationStudio from "../.vitepress/theme/CreationStudio.vue";
 </script>
 
-# Studio
+# Background studio
 
-Create a place, download its layout and prompts, then import it into PlayPets.
+<CreationStudio lang="en" kind="background" />
 
-<StudioNav lang="en" current="background" />
+<details>
+<summary>Environment and file requirements</summary>
 
-<BackgroundKit lang="en" />
+This free website prepares the KIT locally in your browser. It does not generate images or upload your files. Image generation and file execution depend on the AI tool you choose. An image-only tool cannot run the supplied validation and packaging scripts; use an AI agent that can work with files.
 
-<details class="studio-reference">
-<summary>Format & advanced instructions</summary>
+The SKILL needs Python 3, Pillow and an image generation tool available in your chosen AI environment. Check those capabilities and any provider charges before starting. Dependencies are not installed automatically, and a ChatGPT subscription does not automatically provide image API access.
 
+The SKILL prepares 1536 × 1024 artwork and the supported layout and atmosphere settings: walking area, water, fishing stance, window regions and optional seasonal images. Review the scene at full and small window sizes, then import the final JSON under Place & atmosphere.
 
-
-## What the app adds
-
-The app places your friends and controls over the picture. Give them a clear
-walking area and set water and a fishing stance separately for each background.
-Rain and snow stay outside or inside the window regions you mark. A transparent
-sky lets the app show its own sun, clouds and changing light.
-
-Add four seasonal images if you want the scenery to change throughout the year.
-A missing season uses the base image. Snow uses the winter image when available.
-This package format uses the app's time-of-day tint; it does not accept separate
-morning or night images. Flowers, fish, insects and other play items come from
-PlayPets, not from the imported picture.
-
-## Keep a copy and try it at two sizes
-
-Download the JSON package, then choose **Import background** under **Place & atmosphere**. The package stays in this app profile on your device; keep the downloaded
-file as your backup. Nothing is uploaded by this page.
-
-Check the result in both the full window and mini mode. Make sure friends stay
-clear of furniture, their fishing line reaches the visible water, and weather
-stays within the glass. The layout marks a clear floor; it does not detect
-obstacles in a generated picture.
+[Background package reference](/dev/how-to/add-a-world#portable-backgrounds)
 
 </details>

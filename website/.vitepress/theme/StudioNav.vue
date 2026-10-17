@@ -1,10 +1,10 @@
 <script setup>
 import { withBase } from 'vitepress';
 import { computed } from 'vue';
-import { studioCopy } from './studio-copy.js';
+import { creationCopy } from './creation-copy.js';
 
 const props = defineProps({ lang: { type: String, default: 'en' }, current: { type: String, required: true } });
-const t = computed(() => studioCopy[props.lang] || studioCopy.en);
+const t = computed(() => creationCopy[props.lang] || creationCopy.en);
 const prefix = computed(() => (props.lang === 'en' ? '' : `${props.lang}/`));
 </script>
 <template>
@@ -23,5 +23,5 @@ const prefix = computed(() => (props.lang === 'en' ? '' : `${props.lang}/`));
 .studio-nav small { display: block; font-size: 12px; color: var(--vp-c-text-2); line-height: 1.5; margin-top: 2px; }
 .studio-nav-arrow { margin-left: auto; }
 :focus-visible { outline: 3px solid var(--vp-c-brand-1); outline-offset: 3px; }
-@media (max-width: 640px) { .studio-nav { gap: 8px; } .studio-nav a { padding: 12px; gap: 8px; min-height: 64px; } .studio-nav strong { font-size: 13px; } .studio-nav svg { width: 24px; height: 24px; } .studio-nav small, .studio-nav-arrow { display: none; } }
+@media (max-width: 640px) { .studio-nav { gap: 8px; } .studio-nav a { padding: 12px; gap: 8px; min-height: 64px; } .studio-nav strong { font-size: 13px; } .studio-nav svg { display: none; } .studio-nav small, .studio-nav-arrow { display: none; } }
 </style>

@@ -29,3 +29,17 @@ For smaller accepted PNG exports, install oxipng and run `npm run assets:optimiz
 The command preserves exact pixels and metadata, excludes generation originals,
 and saves local backups and a report. See the [storage decision](../docs/decisions/2026-10-12-art-storage.md)
 for scope, kit refresh instructions and why source art stays in regular Git.
+
+`creator-skill/playpets-creator/` owns the portable creation skill, its format
+reference, MIT license, pinned Python image dependency and executable helper in
+its own `scripts/` directory. The repository's `scripts/creator-workflow.py` is a
+thin launcher for that canonical helper. `npm run creator:skill` creates portable
+skill and plugin ZIPs in the ignored public creator-kit tree. User-created art and drafts do not
+belong in this source directory.
+
+The creator skill stays in `creator-skill/playpets-creator/` so app formats and
+validation can evolve together. This complete folder is the source for portable
+skill downloads, host plugin exports and `npx skills` installation. Host manifests
+are generated wrappers, not duplicate skill instructions. See the
+[website guide](../docs/how-to/website.md#install-with-the-skills-cli) for local
+installation checks and publication boundaries.

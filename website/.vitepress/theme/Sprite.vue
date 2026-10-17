@@ -7,19 +7,27 @@ import { previewSource } from '../../../scripts/site-preview-lib.mjs';
 import { animationSpec } from '../../../src/core/animation.js';
 import generated from '../generated.json';
 
-const props = withDefaults(defineProps<{ state?: string; scale?: number; pet?: string }>(), {
+const props = withDefaults(defineProps<{ state?: string; season?: string; scale?: number; pet?: string }>(), {
   state: 'idle',
+  season: 'base',
   scale: 0.6,
   pet: 'tabby',
 });
 const row = computed(() => animationSpec(props.state));
 const preview = computed(() =>
-  previewSource(props.pet, props.state, (generated as { petPreviews?: Record<string, string[]> }).petPreviews),
+  previewSource(
+    props.pet,
+    props.state,
+    (generated as { petPreviews?: Record<string, string[]> }).petPreviews,
+    props.season,
+    (generated as { petSeasonalPreviews?: Record<string, Record<string, string[]>> }).petSeasonalPreviews,
+  ),
 );
+const strip = computed(() => preview.value?.startsWith('/pets/previews/'));
 const style = computed(() => ({
   '--sheet': `url(${withBase(preview.value || `/pets/${props.pet}.png`)})`,
-  '--row': preview.value ? '0' : String(row.value.row),
-  '--sheet-size': preview.value ? '1536px 208px' : '1536px 2288px',
+  '--row': strip.value ? '0' : String(row.value.row),
+  '--sheet-size': strip.value ? '1536px 208px' : '1536px 2288px',
   '--frames': String(row.value.frames),
   '--loop': `${row.value.seconds}s`,
   '--scale': String(props.scale),

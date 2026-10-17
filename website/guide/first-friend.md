@@ -4,16 +4,37 @@ description: How to pick a pet in the Invite tab and make it a friend, then pat 
 
 # Invite your first friend
 
-When you first open the app, the empty yard asks **Who would you like to play with?** and shows three moving companion choices. Click one and it comes into the yard and waves. **See other pets** opens the **Invite** tab with every pet on this computer.
+When you first open the app, the empty yard asks **Who would you like to play with?** and shows four moving companion choices. Click one and it comes into the yard and waves. **See other pets** opens the **Invite** tab with every pet on this computer.
 
 ## Bundled companions <Since v="0.1.0" />
 
-On first start the Invite tab has **PlayPets starter pets**: Daisy the explorer, Clover the kitten gardener and Pip the cheerful puppy in a blue-flower jacket. Clover is the app's main mascot. Their cards show these names in every language. They use the Codex pet format, so you invite them, send them to the desktop and give them an AI exactly like any other pet. Their files sit under `builtin/` in the data folder.
+On first start the Invite tab has **PlayPets starter pets**: Daisy the explorer, Clover the kitten gardener, Pip the cheerful puppy and Miso the gentle otter. Clover is the app's main mascot. Their cards show these names in every language. They use the Codex pet format, so you invite them, send them to the desktop and give them an AI exactly like any other pet. Their files sit under `builtin/` in the data folder.
 
 
-The official cast is Daisy, Clover and Pip. Earlier built-in friends keep their saved IDs, names, settings and closeness, with their appearance mapped to this cast: Aria to Daisy, Noah to Pip, and the original cats to Clover. Imported pets are unchanged. Chat is session-only and is not restored after restarting.
+The official cast is Daisy, Clover, Pip and Miso. Earlier built-in friends keep their saved IDs, names, settings and closeness, with their appearance mapped to this cast: Aria to Daisy, Noah to Pip, and the original cats to Clover. Imported pets are unchanged. Chat is session-only and is not restored after restarting.
 
-Daisy, Clover, and Pip change into light summer clothes and warm winter clothes automatically, following the selected season (Auto uses the local calendar) in both the yard and desktop mode. Spring and autumn share their layered everyday outfits. Their faces, accessories and actions stay recognizable.
+Daisy, Clover, Pip and Miso change into light summer clothes and warm winter clothes automatically, following the selected season (Auto uses the local calendar) in both the yard and desktop mode. Spring and autumn share their layered everyday outfits. Their faces, accessories and actions stay recognizable.
+
+## Companion stories <span id="companion-stories"></span>
+
+These short stories introduce the cast. You can change each friend’s personality in Friend settings; conversations use that setting only when an AI is connected. The shared white flower with a golden centre is their little sign of belonging.
+
+### Daisy · A little further down the path
+
+Daisy follows the paths that other people hurry past. A new flower or a cloud shaped like a whale is enough to make a day worth remembering. She likes sharing discoveries, without turning every outing into a race.
+
+### Clover · Something grew today
+
+Clover is the garden’s quiet caretaker and PlayPets’ main mascot. He notices a new leaf before anyone else and saves a sunny patch for a friend. His favourite kind of progress is something small, given time to grow.
+
+### Pip · There is room for one more
+
+Pip is usually the first to wave at someone new. In indigo denim and ivory shorts, he brings energy to a walk or a game, then makes sure nobody is left behind. To Pip, a good afternoon is one everyone can join.
+
+### Miso · A page beside the pond
+
+Miso keeps a book nearby and leaves plenty of room for pauses. In a lavender knit vest, this gentle otter likes watching ripples while a thought settles. Company does not always need a conversation; sometimes sitting together is enough.
+
 
 ## Next up <Since v="0.1.0" />
 
@@ -27,7 +48,7 @@ The Invite tab splits the cards into four groups, depending on where the pet fil
 
 | Group | Where the pets come from |
 |---|---|
-| PlayPets starter pets | Three pets bundled with the app, unpacked in `builtin/` in the data folder |
+| PlayPets starter pets | Four pets bundled with the app, unpacked in `builtin/` in the data folder |
 | Codex pet folder | Codex pets in `~/.codex/pets`. They show up automatically |
 | Pets imported from an address | Community pets you got with **Import a pet**. Saved in `pets/` in the data folder |
 | Pets picked from this computer | Pets in a folder you picked yourself. Not copied; the app reads that folder as it is |
@@ -68,7 +89,7 @@ Click a friend to pat it, or drag it to move it. The first friend you invite exp
 |---|---|
 | Pat | Click a friend once. They jump and show a heart |
 | Move | Drag a friend and drop them. Their place in the yard is remembered |
-| Chat | Click the friend's name tag: under the pointer it shows a speech mark. The Friend tab opens on that friend. In mini mode, the conversation stays in the small window. A double-click or right-click on the friend does the same |
+| Chat | Click the friend's name tag: under the pointer it shows a speech mark. The Friend tab opens on that friend. The conversation fits inside the window at every size. A double-click or right-click on the friend does the same |
 | Put down a treat | Click **Give a treat** in **Menu**, then choose a spot in the yard. A picnic blanket with sandwiches, fruit and snacks appears, and friends gather around it. It clears after 15 seconds if not everyone arrives, or six seconds after the last friend eats |
 
 A **name tag** sits under each friend. When you select a friend, the name tag changes to its selected look, and while a coding agent is working, the status is shown next to the name tag.

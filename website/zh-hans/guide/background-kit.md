@@ -7,43 +7,26 @@ pageClass: creator-studio-page
 prev: false
 next: false
 editLink: false
+description: "描述想要的场景，下载一个包含SKILL的制作KIT。将整个KIT交给能处理文件的AI智能体，在该环境中创作并检查图片，最后获得可直接导入PlayPets的背景JSON。"
 ---
 
 <script setup>
-import StudioNav from "../../.vitepress/theme/StudioNav.vue";
-import BackgroundKit from "../../.vitepress/theme/BackgroundKit.vue";
+import CreationStudio from "../../.vitepress/theme/CreationStudio.vue";
 </script>
 
-# 制作室
+# 背景制作室
 
-使用布局参考图和提示词制作空间，再将背景包导入PlayPets。
+<CreationStudio lang="zh-hans" kind="background" />
 
-<StudioNav lang="zh-hans" current="background" />
+<details>
+<summary>运行环境与文件格式</summary>
 
-<BackgroundKit lang="zh-hans" />
+这个免费网站在浏览器本地准备KIT，不生成图片，也不上传文件。图片生成和文件执行能力取决于所选AI工具。只能生成图片的工具无法运行附带的验证和打包脚本，请使用支持文件操作的AI智能体。
 
-<details class="studio-reference">
-<summary>文件规格与详细制作说明</summary>
+SKILL需要Python 3、Pillow，以及所选AI环境中可用的图片生成工具。开始前请确认工具能力及提供商的费用。依赖不会自动安装，订阅ChatGPT也不代表自动获得图片API访问权限。
 
+SKILL准备1536 × 1024背景图片及支持的布局和氛围设置，包括行走区域、水域、钓鱼站位、窗户区域和可选季节图片。检查完整窗口和小窗口尺寸的效果后，在地点与氛围中导入完成的JSON。
 
-
-## 应用会添加什么
-
-应用会在图片上显示伙伴和操作界面。请留出清晰的行走区域，并为每个背景
-分别指定水域和钓鱼时的站立位置。雨雪会显示在室外，或你指定的窗户区域内。
-透明的天空区域可以显示应用中的太阳、云朵和随时间变化的天空颜色。
-
-想让景色随季节变化，请添加四季图片。未提供的季节会使用基础图片；
-下雪时，如有冬季图片，则会使用冬季图片。此背景包格式由应用添加时段色调，
-不支持单独的早晨或夜晚图片。花、鱼、昆虫及游玩道具使用PlayPets的共用素材，
-不由导入的图片提供。
-
-## 保存文件，并检查两种尺寸
-
-下载JSON背景包后，在应用的**场景与氛围**中导入背景。背景保存在本设备的应用配置中，
-请同时保留下载的文件作为备份。本页面不会上传图片。
-
-请在完整窗口和迷你模式下分别检查：伙伴是否与家具重叠，钓线是否落在可见水域中，
-雨雪是否超出窗框。布局参考图用于指定需要留空的地面，不会自动识别图片中的障碍物。
+[背景资源包规范·英文](/dev/how-to/add-a-world#portable-backgrounds)
 
 </details>

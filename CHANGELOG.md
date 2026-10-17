@@ -9,21 +9,22 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- Add local browser checks, animation preview and ZIP export for finished pet sheets; reopen background packages with preserved window geometry, inspect full/mini crops, and fill motion prompts from supported actions in all four site languages.
+- Welcome Miso as a fourth starter companion, with baseline, summer and winter outfits, character stories and a condition-aware collection guide.
+- Provide complete character and background creation kits with reference sheets, a personalized request and a portable skill that assembles, validates and packages files for direct app import.
+- Offer project-scoped skill installation for Codex and Claude Code, compatible plugin archives and explicit frame selection for spacious animation source sheets.
 
 ### Changed
 
-- Make the web Studio easier to start with garden, lakeside and interior layouts, actionable export checks, and compact optional controls in all four languages.
-
-- Unify the web tools under Studio, separate starting paths and background phases with accessible component-library controls and larger touch targets, retain drafts across tabs, and generate portable pet IDs from names.
-
-- Keep one installer per Windows architecture, embed third-party notices in native packages instead of duplicating them beside every release file, and let version pages activate from GitHub's public tag without a follow-up site deployment.
-- Make download a primary landing-page destination in every language, select the first visit from the browser language, and remember a language chosen from the site menu.
-- Move the website, user guide, release notes and developer docs to `https://playpets.gaerae.com/`.
+- Replace web inspection and conversion forms with reusable creation kits; completed work goes directly from the chosen image tool to the app.
+- Dress Pip in coordinated denim outfits, share the white-and-gold flower motif and show four companions in landing interactions, installer art and share images.
+- Keep one installer per Windows architecture, embed third-party notices in native packages instead of duplicating them beside every release file, and activate version-page downloads from GitHub publication without a follow-up site deployment.
+- Make download a primary landing destination, select the first visit from the browser language and remember a language chosen from the site menu.
+- Move the website and documentation to `https://playpets.gaerae.com/`.
 
 ### Fixed
 
-- Keep close fishing casts farther from the friend while retaining the background's water bounds, so the line does not pass across the face in mini mode.
+- Offer all four companions on the first-run welcome screen, with a two-column choice in narrow windows.
+- Match the three supplied wardrobes and flower-placement prompts to the accepted artwork, and use seasonal high-resolution motion previews for all four companions.
 
 ## [0.1.0] - 2026-10-15
 

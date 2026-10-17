@@ -15,13 +15,11 @@ export const dataUrlBytes = url => Buffer.from(url.slice(url.indexOf(',') + 1), 
 /** The bundled sheets as data URLs, keyed by pet id. */
 export async function loadSheets() {
   return Object.fromEntries(
-    await Promise.all(
-      ['daisy', 'clover', 'pip'].map(async id => [id, await readDataUrl(`assets/pets/${id}/spritesheet.png`)]),
-    ),
+    await Promise.all(brandCast(1).map(async ({ id }) => [id, await readDataUrl(`assets/pets/${id}/spritesheet.png`)])),
   );
 }
 
-/** The same detailed forest used by the app, shared by installation and link artwork. */
+/** Sunny summer scenery shared by installation and link artwork. */
 export const loadEnvironment = () => readDataUrl('src/art/environments/green.png');
 
 /** One cell of a sheet as an element with the sheet as background. row/col follow src/core/animation.js. */
@@ -35,12 +33,23 @@ export const brandCast = targetHeight =>
     ['daisy', 163],
     ['clover', 168],
     ['pip', 164],
+    ['miso', 163],
   ].map(([id, height]) => ({
     id,
     height,
     scale: targetHeight / height,
     bottom: (-10 * targetHeight) / height,
   }));
+
+// Fit the full cast into small native installer slots without clipping a fourth friend.
+export function fittedCastHeight(width, desiredHeight, gap = 0) {
+  if (!(width > 0) || !(desiredHeight > 0) || !Number.isFinite(width + desiredHeight + gap) || gap < 0)
+    throw new Error('Invalid cast area');
+  const cast = brandCast(1);
+  const available = width - gap * (cast.length - 1);
+  if (available <= 0) throw new Error('Invalid cast area');
+  return Math.min(desiredHeight, available / cast.reduce((sum, pet) => sum + 192 * pet.scale, 0));
+}
 
 export const castMarkup = (sheets, height) =>
   brandCast(height)

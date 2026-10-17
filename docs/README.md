@@ -87,8 +87,9 @@ For the remaining publication steps, use the [first public release hand-off](how
 Records are dated and not rewritten; when two disagree, the later one holds. The five records of 2026-10-11 and 2026-10-12 consolidate that period's design work ([decision](decisions/2026-10-13-design-records.md)).
 
 - [The website](design/2026-10-12-website.md) (2026-10-12): four languages and their parity, the world-first landing, the companion gallery, the creator studio, release pages and captures.
+- [In-app creation studio proposal](design/2026-10-17-in-app-studio.md) (2026-10-17): an unimplemented proposal with a follow-up on the current web KIT and SKILL handoff. The maintained workflow is in [Edit and check the website](how-to/website.md#creation-kit-and-skill).
 - [Places: Woodland and Window studio](design/2026-10-11-places.md) (2026-10-11): the place registry, capabilities, floor geometry and fit, authored lighting, weather behind window panes and switching places.
-- [Companions and pet identity](design/2026-10-11-companions.md) (2026-10-11): the historical companion catalog and compatibility contract. The current three-pet cast and accepted artwork are described in [Companion artwork](../assets/pets/README.md).
+- [Companions and pet identity](design/2026-10-11-companions.md) (2026-10-11): the historical companion catalog and compatibility contract. The current four-pet cast and accepted artwork are described in [Companion artwork](../assets/pets/README.md).
 - [Art direction and the art pipeline](design/2026-10-11-art-direction.md) (2026-10-11): the sculpted cozy-game look, depth cues, raster layers and the procedural fallback, specimen art, accepting new art, the brand and where sources live.
 - [Product direction](design/2026-10-11-product-direction.md) (2026-10-11): companions who talk to you and each other, claims kept precise, interface commitments and the bar for the first release.
 - [Stronger agent integration · community import · personality and activity memory](design/2026-09-29-agent-link-import-persona.md): the design as of 2026-09-29. Some file paths have changed since.
