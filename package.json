@@ -52,7 +52,8 @@
     "dist:linux": "node scripts/local.mjs linux",
     "release": "node scripts/release.mjs",
     "licenses:generate": "node scripts/licenses.mjs",
-    "licenses:check": "node scripts/licenses.mjs --check"
+    "licenses:check": "node scripts/licenses.mjs --check",
+    "creator:skill": "node scripts/creator-skill.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
@@ -60,7 +61,6 @@
     "mermaid": "^12.1.0",
     "oxlint": "1.88.0",
     "playwright-core": "^1.64.0",
-    "reka-ui": "2.11.0",
     "vitepress": "^1.6.4"
   },
   "license": "MIT",

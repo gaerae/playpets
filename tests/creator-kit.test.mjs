@@ -6,11 +6,11 @@ test('creator kits use production sheets with stable downloadable files and vali
   const { creatorKits, referenceSheets } = await import('../scripts/creator-kit.mjs');
   assert.deepEqual(
     creatorKits.map(k => k.id),
-    ['daisy', 'clover', 'pip'],
+    ['daisy', 'clover', 'pip', 'miso'],
   );
   for (const kit of creatorKits) {
     assert.equal(kit.sheets.length, 3);
-    for (const file of kit.sheets) assert.match(file, /^assets\/pets\/(clover|daisy|pip)\//);
+    for (const file of kit.sheets) assert.match(file, /^assets\/pets\/(clover|daisy|pip|miso)\//);
   }
   assert.deepEqual(Object.keys(referenceSheets), ['identity-reference', 'expression-reference', 'motion-reference']);
   for (const cells of Object.values(referenceSheets))
@@ -21,47 +21,18 @@ test('creator kits use production sheets with stable downloadable files and vali
     }
 });
 
-test('each creator guide exposes the same character-specific studio and supported export contract', async () => {
-  const config = await readFile('website/.vitepress/config.mts', 'utf8');
-  const studio = await readFile('website/.vitepress/theme/CreatorKit.vue', 'utf8');
-  for (const file of ['design-kit.zip', 'importable-pet.zip', 'turnaround.png', 'face-detail.png', 'baseline-pet.zip'])
+test('creation kits keep approved reference files and ready pet downloads in the shared studio', async () => {
+  const studio = await readFile('website/.vitepress/theme/CreationStudio.vue', 'utf8');
+  for (const file of [
+    'identity-reference.png',
+    'turnaround.png',
+    'face-detail.png',
+    'identity.json',
+    'spritesheet.png',
+    'importable-pet.zip',
+  ])
     assert.ok(studio.includes(file));
-  assert.match(studio, /kitPrompts\(spec.value\)/);
-  assert.match(studio, /:download="`\$\{id\}-design-kit\.zip`"/);
-  assert.match(studio, /:download="`\$\{id\}-importable-pet\.zip`"/);
-  for (const [prefix, lang] of [
-    ['', 'en'],
-    ['ko/', 'ko'],
-    ['zh-hans/', 'zh-hans'],
-  ]) {
-    const text = await readFile(`website/${prefix}guide/creator-kit.md`, 'utf8');
-    assert.ok(text.includes(`<CreatorKit lang="${lang}" />`));
-    assert.match(text, /1536.?2288/);
-    assert.match(text, /192.?208/);
-    assert.match(text, /pack-companion-batches\.mjs/);
-    assert.ok(config.includes(`/${prefix}guide/creator-kit`));
-    assert.match(text, /seasonalSpritesheets/);
-    assert.match(text, /realisticSpritesheets/);
-    for (const file of ['00-idle.png', '07-working.png', '10-look.png']) assert.ok(text.includes(file));
-  }
-});
-
-test('creator studio chooses ordinary entries by preview and offers arbitrary reference extensions', async () => {
-  const studio = await readFile('website/.vitepress/theme/CreatorKit.vue', 'utf8');
   assert.match(studio, /v-for="entry in kitEntries"/);
-  assert.match(studio, /v-model="id" type="radio"/);
-  assert.doesNotMatch(studio, /v-model="style"/);
-  const extension = await readFile('website/.vitepress/theme/ExtensionPrompts.vue', 'utf8');
-  assert.match(extension, /extensionPrompts/);
-  assert.match(extension, /role="status"/);
-  for (const prefix of ['', 'ko/', 'zh-hans/']) {
-    const guide = await readFile(`website/${prefix}guide/creator-kit.md`, 'utf8');
-    assert.match(guide, /<ExtensionPrompts/);
-    assert.match(guide, /pet.json/);
-  }
-});
-
-test('creator studio starts on a registered kit during server rendering', async () => {
-  const source = await readFile('website/.vitepress/theme/CreatorKit.vue', 'utf8');
-  assert.match(source, /const id = ref\(kitEntries\[0\]\.id\)/);
+  assert.match(studio, /starter==='custom'/);
+  assert.doesNotMatch(studio, /type="file"|readStudioImage|inspectPng/);
 });

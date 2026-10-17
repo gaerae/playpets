@@ -1,0 +1,160 @@
+{
+  "date": "2026-10-18",
+  "tool": "OpenAI built-in image generation",
+  "character": "Miso",
+  "status": "Official illustrated fourth companion, lavender B wardrobe",
+  "directionReferences": [
+    "assets/sources/companions-2026-10-17/four-friends-concept.png",
+    "assets/sources/companions-2026-10-17/miso-outfits-concept.png",
+    "assets/sources/companions-2026-10-14/concept.png"
+  ],
+  "style": "Warm fine brown outlines, matte painted 2D storybook illustration. No realistic or plush 3D source was reused.",
+  "wardrobes": {
+    "base": "Lavender cable-knit vest, ivory collared short-sleeve shirt, warm grey pleated shorts",
+    "summer": "Airy light-lavender vest, ivory short-sleeve shirt, warm grey linen shorts",
+    "winter": "Lavender buttoned wool cardigan, ivory collar, warm grey full-length trousers"
+  },
+  "signature": "Small white petals and golden-yellow centre daisy on anatomical left chest",
+  "sourceLayout": {
+    "width": 1536,
+    "height": 1024,
+    "columns": 4,
+    "rows": 2
+  },
+  "assembly": "Existing atlasPoses connected-component extraction over the complete image preserves off-centre full silhouettes. Isolate each approved silhouette with its anti-alias fringe, centre it into a canonical 384x512 tile after the same uniform 0.8 source downsample for every row and season. Preserve source jump displacement. Downloaded creator workflow packs these rows with one idle-derived scale per season to 163px idle. No recolouring or replacement drawing.",
+  "verification": "All three 1536x2288 runtime atlases passed the standalone creator workflow alpha, 73 used cells and margin validation. Browser/native visual checks are recorded outside this source record.",
+  "sources": [
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/00-idle.png",
+      "sha256": "984d1b202e00867141df127e501704309ee98f93c2f5f2b7be83bb036e97dfdd"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/01-right.png",
+      "sha256": "d36e613bf14dea8b6ef2251ada24b2c6bc67ada588d6c5f5458ebf4f8ec56696"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/02-left.png",
+      "sha256": "e46ae2129979d6b2f4a64d3d9272075da6faa16d7f17bfdef38f4da2ecf38fa7"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/03-wave.png",
+      "sha256": "b33d1827a2c71db036d8297b45f9b84375dbc1e2236339d6c4e0876b96e25846"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/04-jump.png",
+      "sha256": "8f15e0574bb9fff727fe2cd6f5760ee25c073bbae49dc5c5d8618e28b8fddc4b"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/05-error.png",
+      "sha256": "fc044b0a07ced5a684f9e21debd025f120cf5048c3aba9b209a9961426265d5b"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/06-waiting.png",
+      "sha256": "6b0d649f0c2ff4fdd1aebed7f80225dd96d6df636a008b038d331bf3acc4a3cc"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/07-working.png",
+      "sha256": "dae45770ebfbcb957424ecd369eee498cb9f36e678f0b1496e1f5e1497c2b4ce"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/08-done.png",
+      "sha256": "06c12ee1fc514505011e1eed862e35b1f2adbfd1b24f91bb34aa4b8c73dc076e"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/09-look.png",
+      "sha256": "cfd0cada6e918589ca7ba6e079148935926a58918ed0fe3a64ef9bceea08c450"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/base/10-look.png",
+      "sha256": "770d5941219f6428f3ce594163e8aab403dab643191cf38819c0247e5be4ce6b"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/00-idle.png",
+      "sha256": "7738be15db732f4c0c5770bd44fa14f82eaf744b127ce539d51c380976890a16"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/01-right.png",
+      "sha256": "b1e25e77194c813d757d15a7c25f50ed7bad2ba91ab73344619d796448ba9b8b"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/02-left.png",
+      "sha256": "491ba3cc0e6b0431d23994ac78de5134c13b2c433b5e2b89ea7f1583de7bc276"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/03-wave.png",
+      "sha256": "4293014bc835ee6b96b4347cd895d56b3e3e7b34b2ba0652dde3867c2d207905"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/04-jump.png",
+      "sha256": "19c309637572a4bf3ccadb7bd4ee33bb5e4d460dd2a00c7d6f3f8fbc0c138771"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/05-error.png",
+      "sha256": "da5827b6afc7895f2689b4e6220b532795ee09509b1b205b1b87bc28f568df1f"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/06-waiting.png",
+      "sha256": "e1616cf664585b4f0a01c8af7be40a0370f606ddcc6d087ed560d48a576f7517"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/07-working.png",
+      "sha256": "4120a3e3aae7a8ceb682babaa0eb08156edefc9309ccaa2a412d499ab64a35f1"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/08-done.png",
+      "sha256": "a54b5121dd626435bdcb65b89bc619527a6846e010f03b92e20a1f82d6e4db61"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/09-look.png",
+      "sha256": "0147eb7246500c97cc125d24aa02950e47c7fded99abdbd1945e86edf717274c"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/summer/10-look.png",
+      "sha256": "245800e0c754cd8593627da356a79adb6910f48a5780ed3882113bcfaf8b4442"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/00-idle.png",
+      "sha256": "298b2a17d6ca632edc192ac985390149b37f7c42dfa1380d69b6e78c9ca95eeb"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/01-right.png",
+      "sha256": "ca5d40f4e3de1321cf4a7d42546daa271d6c0d018bea7f1b3bf2e065fdd6e4eb"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/02-left.png",
+      "sha256": "94872c2393061fd2ccf231225dd4b019da73306d18cca12ec7653eb2e0c1d414"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/03-wave.png",
+      "sha256": "b795c8eb4f6577b94fc37c15158016261811fcf9758d32d22442be215efb1803"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/04-jump.png",
+      "sha256": "cd713d10e128b6e154c81ed51ff86c2c9c651def192c08f8dcfaa00f0ccea8b9"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/05-error.png",
+      "sha256": "389d69e7577ed26f3ea8de30f2f56fa342f9c0b75856bdce2c7f6cdb051f999c"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/06-waiting.png",
+      "sha256": "4dba5520af6a89237bc2ba64cb297d62f4814893e7e3ef8bfdd2380f986c2775"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/07-working.png",
+      "sha256": "0e337da9064611945edf2ab793f4f234c4beb096eda7354e5bc28d124f554895"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/08-done.png",
+      "sha256": "b505ae1e98a0d89bcec575e60c7a254cd51936885667b507cb56cc714d9bb6c7"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/09-look.png",
+      "sha256": "0ec6edd827037adac3567d207522e52badbcfa14e5535f31f49dca9453a2b0a9"
+    },
+    {
+      "path": "assets/sources/companions-2026-10-17/miso/winter/10-look.png",
+      "sha256": "08bd24eb2dfa9d51904329dbd256affe6e3a29ad0e6f3f7898c4fa72f5483694"
+    }
+  ]
+}

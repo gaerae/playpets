@@ -53,6 +53,7 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
     assert.equal(worldCopy.places.length, 4);
     assert.equal(worldCopy.seasons.length, 4);
     assert.ok(worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel);
+    assert.deepEqual(Object.keys(worldCopy.greetings).sort(), ['clover', 'daisy', 'miso', 'pip']);
   }
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /:aria-pressed=/);
@@ -76,10 +77,10 @@ test('landing connection and gallery copy has the same contract in every languag
       SITE_LANGS.map(async lang => [lang, (await import(`../website/.vitepress/theme/landing-${lang}.ts`)).sections]),
     ),
   );
-  assert.equal(LANDING_PETS.length, 3);
+  assert.equal(LANDING_PETS.length, 4);
   assert.deepEqual(
     LANDING_PETS.map(pet => pet.displayName),
-    ['Daisy', 'Clover', 'Pip'],
+    ['Daisy', 'Clover', 'Pip', 'Miso'],
   );
   for (const lang of SITE_LANGS) {
     assert.deepEqual(Object.keys(sections[lang]).sort(), Object.keys(sections.en).sort(), lang);
@@ -127,14 +128,35 @@ test('every landing companion leads to its own creator kit', async () => {
   assert.match(gallery, /words\.galleryCreate/);
 });
 
-test('landing groups preserve Daisy Clover Pip order and normalize the approved idle silhouettes', async () => {
+test('landing groups preserve the four-friend order and normalize the approved idle silhouettes', async () => {
   const { castHeightFactor } = await import('../website/.vitepress/theme/site-runtime.mjs');
   for (const [pet, height] of [
     ['daisy', 326],
     ['clover', 337],
     ['pip', 329],
+    ['miso', 325],
   ])
     assert.ok(Math.abs(height * castHeightFactor(pet) - 326) < 0.001);
   for (const file of ['Landing.vue', 'PetGallery.vue', 'WorldPreview.vue'])
     assert.match(read(`website/.vitepress/theme/${file}`), /equal-height/);
+});
+
+test('the sunny landing uses the shared four-friend cast and direct motion controls', () => {
+  const preview = read('website/.vitepress/theme/WorldPreview.vue');
+  assert.match(preview, /LANDING_PETS/);
+  assert.match(preview, /const season = ref\(0\)/);
+  assert.match(preview, /words\.poses/);
+  assert.match(preview, /aria-live="polite"/);
+  assert.match(preview, /document\.hidden/);
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /LANDING_PETS/);
+  assert.doesNotMatch(landing, /\['daisy', 'clover', 'pip'\]/);
+});
+
+test('every first-friend guide introduces all four characters without promising fixed AI behavior', () => {
+  for (const lang of ['', '/ko', '/ja', '/zh-hans']) {
+    const guide = read(`website${lang}/guide/first-friend.md`);
+    assert.match(guide, /id="companion-stories"/);
+    for (const pet of ['Daisy', 'Clover', 'Pip', 'Miso']) assert.match(guide, new RegExp(`### ${pet}`));
+  }
 });

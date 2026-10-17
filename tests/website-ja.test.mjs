@@ -21,7 +21,7 @@ test('Japanese guides cover every English guide with localized prose and compone
 test('Japanese site includes release history and every shared interactive copy table', () => {
   for (const page of ['index.md', 'releases/index.md', 'releases/0.1.0.md'])
     assert.match(read(`website/ja/${page}`), /[ぁ-んァ-ヶ]/u);
-  for (const component of ['words.ts', 'CreatorKit.vue', 'ExtensionPrompts.vue'])
+  for (const component of ['words.ts', 'creation-copy.js'])
     assert.match(read(`website/.vitepress/theme/${component}`), /\bja: \{/);
   assert.match(read('website/.vitepress/config.mts'), /lang: 'ja-JP'/);
   assert.match(read('website/.vitepress/theme/index.ts'), /ko\|ja\|zh-hans/);

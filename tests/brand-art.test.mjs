@@ -16,12 +16,12 @@ test('the brand mark uses the approved illustrated Clover face with a portable e
   assert.match(JSON.parse(provenance).reference, /clover\/face-detail\.png$/);
 });
 
-test('installers and sharing keep the three friends together in the same order and visible size', async () => {
+test('installers and sharing keep the four friends together in the same order and visible size', async () => {
   const { brandCast } = await import('../scripts/art-lib.mjs');
   const cast = brandCast(80);
   assert.deepEqual(
     cast.map(pet => pet.id),
-    ['daisy', 'clover', 'pip'],
+    ['daisy', 'clover', 'pip', 'miso'],
   );
   for (const pet of cast) {
     assert.equal(pet.height * pet.scale, 80);
@@ -78,4 +78,26 @@ test('pictures cross into a drawing page and back as data URLs without changing 
   assert.equal(dataUrl(bytes), 'data:image/png;base64,AAEC+v8=');
   assert.equal(dataUrl(bytes, 'image/webp').slice(0, 16), 'data:image/webp;');
   assert.deepEqual(dataUrlBytes(dataUrl(bytes)), bytes);
+});
+
+test('installer casts fit their fixed native artwork areas', async () => {
+  const { brandCast, fittedCastHeight } = await import('../scripts/art-lib.mjs');
+  for (const [width, desired, gap] of [
+    [324, 68, 2],
+    [146, 44, 1],
+    [142, 40, 1],
+    [560, 156, 6],
+  ]) {
+    const height = fittedCastHeight(width, desired, gap);
+    const cast = brandCast(height);
+    const used = cast.reduce((sum, pet) => sum + 192 * pet.scale, 0) + gap * (cast.length - 1);
+    assert.ok(used <= width + 0.01, `${width}: ${used}`);
+    assert.ok(height <= desired && height > 0);
+  }
+  const sidebar = brandCast(54);
+  for (let i = 0; i < sidebar.length; i += 2)
+    assert.ok(sidebar.slice(i, i + 2).reduce((sum, pet) => sum + 192 * pet.scale, 4) <= 146);
+  assert.throws(() => fittedCastHeight(0, 40), /cast/);
+  const og = await readFile('scripts/make-og.mjs', 'utf8');
+  for (const name of ['Miso', '미소', 'ミソ', '米索']) assert.ok(og.includes(name), name);
 });

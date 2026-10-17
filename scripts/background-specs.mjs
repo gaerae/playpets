@@ -38,3 +38,13 @@ export function backgroundSheet({
       : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024"><rect width="1536" height="1024" fill="#edf2f2"/><path d="M0 256H1536M384 0V1024M768 0V1024M1152 0V1024" stroke="#bacbcc" stroke-dasharray="10 10"/><rect y="${y}" width="1536" height="${1024 - y}" fill="#cce6d0"/><path d="M0 ${y}H1536" stroke="#2b7751" stroke-width="4"/>${region}${stand}<g font-family="sans-serif" fill="#233e40"><text x="40" y="60" font-size="30">PlayPets · ${indoor ? 'Indoor' : 'Outdoor'} layout · 1536 × 1024</text><text x="40" y="110" font-size="22">Guide only — remove guide markings from the finished artwork</text><text x="40" y="${y + 55}" font-size="25">Clear walking floor · y=${floor}</text><text x="40" y="975" font-size="20">Blue: water or glass · Orange: fishing stance · Green: walkable floor</text></g></svg>`;
 }
+
+export function backgroundLayout(id) {
+  const g = { floor: 0.67, water: null, fishingSpot: null, windows: [], sky: true, weather: true, ambient: true };
+  if (id === 'garden') return g;
+  if (id === 'lakeside')
+    return { ...g, water: { from: 0.4, to: 0.68, center: 0.6, radius: 0.025 }, fishingSpot: { x: 0.43, y: 0.74 } };
+  if (id === 'interior')
+    return { ...g, sky: false, ambient: false, windows: [{ x: 0.26, y: 0.12, width: 0.52, height: 0.36 }] };
+  throw Error('layout');
+}

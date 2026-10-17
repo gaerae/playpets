@@ -55,11 +55,13 @@ const identities = {
       },
       hair: 'soft cream fur, ginger ear and forehead patches, visible triangular ears, soft ginger-and-cream tail matching the accepted markings',
       accessories: [
-        'baseline straw gardener hat with sage ribbon and leaf/bow decoration; summer/winter add the approved white daisy. Baseline leaf/bow sits on the character’s anatomical RIGHT; preserve the exact attachment side shown in each season reference, never mirror it',
+        'baseline and summer straw gardener hat with sage ribbon and leaf/bow decoration on the character’s anatomical RIGHT; no flower on the straw hat. A small white daisy with a golden center sits on the front overalls pocket. Winter moves the white-and-gold daisy to the sage knit beanie; preserve the exact attachment side shown in each season reference, never mirror it',
       ],
       wardrobe: {
-        baseline: 'teal bib overalls with a small gold motif, straw hat with sage ribbon and leaf/bow decoration',
-        summer: 'light mint linen shorts-overalls and sage/straw daisy hat',
+        baseline:
+          'teal bib overalls with a small white daisy and golden center on the front bib pocket, straw hat with sage ribbon and leaf/bow decoration',
+        summer:
+          'light mint linen shorts-overalls with a small white daisy and golden center on the front bib pocket, straw hat with sage ribbon and leaf/bow decoration',
         winter:
           'fitted teal quilted coat, ivory knitted scarf and sage knit beanie with white daisy; ears remain visible',
       },
@@ -137,15 +139,42 @@ identities.pip = {
     },
     hair: 'caramel puppy fur, floppy ears and pale muzzle; preserve accepted markings and tail',
     accessories: [
-      'small blue five-petal flower with a cream center on the anatomical LEFT chest; keep the same placement in every season; no bag, scarf, hat or overalls',
+      'small white five-petal flower with a golden-yellow center on the anatomical LEFT chest; keep the same placement in every season; no bag, scarf, hat or overalls',
     ],
     wardrobe: {
       baseline:
-        'butter-yellow varsity jacket with ivory sleeves, blue five-petal flower with a cream center, navy shorts and exposed furry paws',
+        'washed medium-indigo denim chore jacket with a small rounded collar, ivory topstitching and cream buttons over an ivory T-shirt, white five-petal flower with a golden-yellow center, warm ivory cuffed shorts and exposed furry paws',
       summer:
-        'short-sleeve yellow and ivory round-neck T-shirt with the same blue five-petal flower with a cream center, navy shorts and exposed furry paws',
+        'short-sleeve lightweight indigo denim camp-collar shirt over an ivory T-shirt with the same white five-petal flower with a golden-yellow center, warm ivory cuffed shorts and exposed furry paws',
       winter:
-        'padded quilted yellow and ivory jacket with the same blue five-petal flower with a cream center, navy trousers and exposed furry paws; no scarf or hat',
+        'lined indigo denim jacket with an ivory shearling collar and cuffs with the same white five-petal flower with a golden-yellow center, warm ivory long trousers and exposed furry paws; no scarf or hat',
+    },
+  },
+};
+
+identities.miso = {
+  name: 'Miso',
+  age: null,
+  kind: 'animal',
+  identity: {
+    description:
+      'Fictional gentle chestnut river otter who listens to the pond and notices small changes; animal companion, not a human.',
+    face: {
+      eyes: 'large warm brown eyes, rounded cream eyebrow markings and an attentive gentle gaze',
+      nose: 'small rounded brown otter nose',
+      mouth: 'small curved smile on a broad cream otter muzzle, delicate whiskers; no human lips',
+    },
+    hair: 'chestnut otter fur, small rounded ears, cream muzzle and eyebrow markings, short thick tapered tail; preserve the accepted face and markings',
+    accessories: [
+      'small white-petal daisy with a golden-yellow center on the anatomical LEFT chest; preserve its placement in every season',
+    ],
+    wardrobe: {
+      baseline:
+        'lavender cable-knit sleeveless vest over an ivory short-sleeve collared shirt, warm grey pleated shorts and exposed furry paws',
+      summer:
+        'airy light-lavender knit vest over an ivory short-sleeve collared cotton shirt, warm grey linen shorts and exposed furry paws',
+      winter:
+        'fitted lavender wool button cardigan over an ivory collared shirt, warm grey tailored trousers and exposed furry paws; no scarf or hat',
     },
   },
 };
@@ -155,6 +184,7 @@ export const kitEntries = [
   ['daisy', 'Daisy', 'daisy', true, true],
   ['clover', 'Clover', 'clover', true, true],
   ['pip', 'Pip', 'pip', true, true],
+  ['miso', 'Miso', 'miso', true, true],
 ].map(([id, name, pet, hasDetailSheets, seasonal]) => ({
   id,
   name,
@@ -209,14 +239,18 @@ export function kitSpec(id) {
             bottom: ['open eye', 'closed eye', 'nose', 'neutral mouth', 'smiling mouth', 'ear/fur edge', 'hat ribbon'],
           }
         : {
-            top: ['front', 'profile facing viewer left', 'three-quarter facing viewer left'],
+            top: [
+              'front',
+              'profile facing viewer left',
+              character === 'miso' ? 'three-quarter facing viewer right' : 'three-quarter facing viewer left',
+            ],
             bottom: [
               'eyes',
               'nose',
               'mouth',
               'ear',
-              character === 'pip' ? 'fur' : 'hair',
-              character === 'pip' ? 'signature flower patch' : 'signature daisy beret',
+              ['pip', 'miso'].includes(character) ? 'fur' : 'hair',
+              ['pip', 'miso'].includes(character) ? 'signature flower patch' : 'signature daisy beret',
             ],
           },
     referencePolicy:
@@ -284,7 +318,7 @@ export function kitPrompts(spec) {
       `Create ONE animation row [STATE] as eight sequential full-body poses, FOUR columns TWO rows on1536x1024 transparent RGBA. Preserve camera, physical scale and wardrobe. Insert the exact sequence here: [EIGHT POSES]. Consumed leading frames: idle6, right8, left8, wave4, jump5, error8, waiting6, working6, done6. Jump0/1 crouch and anticipation,2/3 clearly airborne,4 landing,5-7 recovery. Error conveys sustained concern; waiting has the established thinking gesture; working preserves ${spec.workingAction}; done raises both hands/paws joyfully. Gaze row09 is N,NNE,NE,ENE,E,ESE,SE,SSE; row10 S,SSW,SW,WSW,W,WNW,NW,NNW. Gaze eyes open, body orientation stable. No substituted idle poses, unintended props, background, shadows or alpha bridges.`,
     '05-canonical-export':
       lock +
-      `ASSEMBLY TASK, not a new drawing: pack eleven approved source rows00-idle through10-look into1536x2288 RGBA,8columns11rows,192x208cell,88cells. Order idle,right,left,wave,jump,error,waiting,working,done,look09,look10; active counts[6,8,8,4,5,8,6,6,6] plus16clockwise gaze from north. Use node scripts/pack-companion-batches.mjs my-character-rows my-character/spritesheet.png ${spec.targetIdleHeight}. Preserve shared scale and jump lift, minimum3px transparent cell margins, no clipping/ghosts. Review all88cells and actual176px/mini playback atDPR1/2. Extra design references are not supported extra atlas rows. Write pet.json with spriteVersionNumber2 and spritesheetPath spritesheet.png.`,
+      `ASSEMBLY TASK, not a new drawing: pack eleven approved source rows00-idle through10-look into1536x2288 RGBA,8columns11rows,192x208cell,88cells. Order idle,right,left,wave,jump,error,waiting,working,done,look09,look10; active counts[6,8,8,4,5,8,6,6,6] plus16clockwise gaze from north. Use node scripts/pack-companion-batches.mjs my-character-rows my-character/spritesheet.png ${spec.targetIdleHeight}. Preserve shared scale and jump lift, minimum3px transparent cell margins, no clipping/ghosts. Review all88cells and actual176px/small-window playback atDPR1/2. Extra design references are not supported extra atlas rows. Write pet.json with spriteVersionNumber2 and spritesheetPath spritesheet.png.`,
   };
 }
 

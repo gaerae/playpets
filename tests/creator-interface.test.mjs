@@ -2,26 +2,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-test('creator workbench keeps prompts next to the selected pet and gates detailed references', async () => {
-  const source = await readFile('website/.vitepress/theme/CreatorKit.vue', 'utf8');
-  assert.match(source, /class="kit-workbench"/);
-  assert.match(source, /v-model="promptIndex"/);
-  assert.match(source, /entry\.hasDetailSheets/);
-  assert.match(source, /VisibleSprite/);
-  assert.doesNotMatch(source, /state="still"/);
-  assert.match(source, /:deep\(\.sprite i\) \{ animation: none; \}/);
-  assert.match(source, /--display-scale:\s*[\d.]+/);
-  assert.match(source, /aria-live="polite"/);
-});
-
 test('both studios share the primary destination without selecting the guide menu', async () => {
   const config = await readFile('website/.vitepress/config.mts', 'utf8');
-  const { studioCopy } = await import('../website/.vitepress/theme/studio-copy.js');
+  const { creationCopy } = await import('../website/.vitepress/theme/creation-copy.js');
   const entries = [...config.matchAll(/text:\s*'([^']+)',\s*link:\s*'([^']+)',\s*activeMatch:\s*'([^']+)'/g)];
   for (const prefix of ['', 'ko/', 'ja/', 'zh-hans/']) {
     const studio = entries.find(row => row[2] === `/${prefix}guide/creator-kit`);
     const guideMenu = entries.find(row => row[2] === `/${prefix}guide/`);
-    assert.equal(studio[1], studioCopy[prefix.slice(0, -1) || 'en'].studioTitle);
+    assert.equal(studio[1], creationCopy[prefix.slice(0, -1) || 'en'].studioTitle);
     for (const tool of ['creator-kit', 'background-kit']) {
       assert.ok(new RegExp(studio[3]).test(`/${prefix}guide/${tool}`));
       assert.ok(!new RegExp(guideMenu[3]).test(`/${prefix}guide/${tool}`));
@@ -32,28 +20,4 @@ test('both studios share the primary destination without selecting the guide men
     }
     assert.ok(!new RegExp(studio[3]).test(`/${prefix}guide/import`));
   }
-});
-
-test('compiled studio dark colors target the workbench rather than the document root', async () => {
-  const { parse, compileStyle } = await import('@vue/compiler-sfc');
-  const source = await readFile('website/.vitepress/theme/CreatorKit.vue', 'utf8');
-  const { descriptor } = parse(source);
-  const css = compileStyle({ source: descriptor.styles[0].content, id: 'studio-test', scoped: true }).code;
-  assert.match(css, /\.dark \.creator-kit\s*\{\s*--kit-button-bg:/);
-  assert.doesNotMatch(css, /\.dark\s*\{\s*--kit-button-bg:/);
-});
-
-test('every studio task explains its own required source images in every locale', async () => {
-  const { runInNewContext } = await import('node:vm');
-  const source = await readFile('website/.vitepress/theme/CreatorKit.vue', 'utf8');
-  const words = runInNewContext(`(${source.match(/const words = ([\s\S]+?);\nconst t =/)[1]})`);
-  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
-    assert.equal(words[lang].taskHints.length, words[lang].titles.length);
-    assert.equal(new Set(words[lang].taskHints).size, 5);
-    assert.match(words[lang].taskHints[3], /\[STATE\]/);
-    assert.match(words[lang].taskHints[3], /\[EIGHT POSES\]/);
-  }
-  assert.match(words.en.taskHints[2], /not included in the ZIP/);
-  assert.match(words.en.taskHints[4], /source rows/);
-  assert.match(source, /t.taskHints\[promptIndex\]/);
 });

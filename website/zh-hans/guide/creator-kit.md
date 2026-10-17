@@ -7,127 +7,28 @@ pageClass: creator-studio-page
 prev: false
 next: false
 editLink: false
-description: "角色创作室：详细参考与即用宠物"
+description: "描述想要的角色，下载一个包含SKILL的制作KIT。将整个KIT交给能处理文件的AI智能体，在该环境中创作并检查图片，最后获得可直接导入PlayPets的宠物ZIP。"
 ---
 
 <script setup>
-import StudioWorkspace from "../../.vitepress/theme/StudioWorkspace.vue";
-import StudioNav from "../../.vitepress/theme/StudioNav.vue";
-import ExtensionPrompts from "../../.vitepress/theme/ExtensionPrompts.vue";
-import PetPackager from "../../.vitepress/theme/PetPackager.vue";
-import CreatorKit from "../../.vitepress/theme/CreatorKit.vue";
+import CreationStudio from "../../.vitepress/theme/CreationStudio.vue";
 </script>
 
-# 制作室
+# 角色制作室
 
-从三位伙伴中选择，保留角色特点，尝试新的服装和动作。这里准备了可直接用于图像工具的提示词。
+<CreationStudio lang="zh-hans" kind="pet" />
 
-<StudioNav lang="zh-hans" current="pet" />
+<details>
+<summary>运行环境与文件格式</summary>
 
-<StudioWorkspace lang="zh-hans">
-  <template #sample><CreatorKit lang="zh-hans" /></template>
-  <template #custom><ExtensionPrompts lang="zh-hans" /></template>
-  <template #package><PetPackager lang="zh-hans" /></template>
-</StudioWorkspace>
+这个免费网站在浏览器本地准备KIT，不生成图片，也不上传文件。图片生成和文件执行能力取决于所选AI工具。只能生成图片的工具无法运行附带的验证和打包脚本，请使用支持文件操作的AI智能体。
 
-<details class="studio-reference">
-<summary>文件规格与详细制作说明</summary>
+SKILL需要Python 3、Pillow，以及所选AI环境中可用的图片生成工具。开始前请确认工具能力及提供商的费用。依赖不会自动安装，订阅ChatGPT也不代表自动获得图片API访问权限。
 
+按照SKILL检查并确认11张4 × 2原始批次图，再用附带的Python脚本组装为1536 × 2288 RGBA透明v2图集。在AI环境中检查9种动画状态和16个视线方向，再导入完成的ZIP。
 
+季节服装默认制作三套：春秋共用的基础服装、夏装、冬装。每套都包含9种动画状态和16个视线方向。改善官方伙伴时也使用同一个SKILL，保留其身份特征和已确认的动作。仅在明确要求时添加春季或秋季专属服装；背景仍按四季制作。
 
-
-
-
-
-## 在浏览器中检查并导出
-
-在下方工具中添加**已完成的 v2 图集**。工具检查 PNG 文件、解码图片、检查实际使用的 73 个动作与视线单元，并按照应用的帧间隔预览。可以添加季节图集，下载仅包含已提供文件的 ZIP。解压后在 PlayPets 中导入文件夹。此工具不组装 11 张源图，源图请使用下方打包工具。
-
-
-
-三位伙伴的设计套件都包含原始图片、角色规格、五份提示词、动作参考、全身转面图和面部细节图。Daisy、Clover和Pip各有夏季与冬季图集。导入会添加新伙伴，不会修改现有伙伴或记录。
-
-基础ZIP只包含`pet.json`和`spritesheet.png`。
-
-## 支持的运行格式
-
-**v2: 1536×2288 · 8×11 · 192×208 · 88 cells · RGBA / alpha 0.**
-
-| Row | Source filename | Used frames / directions |
-|---|---|---|
-| 0 | `00-idle.png` | 6 |
-| 1 | `01-right.png` | 8 |
-| 2 | `02-left.png` | 8 |
-| 3 | `03-wave.png` | 4 |
-| 4 | `04-jump.png` | 5 |
-| 5 | `05-error.png` | 8 |
-| 6 | `06-waiting.png` | 6 |
-| 7 | `07-working.png` | 6 |
-| 8 | `08-done.png` | 6 |
-| 9 | `09-look.png` | N, NNE, NE, ENE, E, ESE, SE, SSE |
-| 10 | `10-look.png` | S, SSW, SW, WSW, W, WNW, NW, NNW |
-
-## 打包与导入
-
-克隆仓库后运行 `npm ci` 安装依赖，并准备 Google Chrome，供现有浏览器打包工具使用。将十一张已审核的 1536×1024 源批次保存到 `my-character-rows/`，使用以下准确文件名：
-
-```plaintext
-00-idle.png
-01-right.png
-02-left.png
-03-wave.png
-04-jump.png
-05-error.png
-06-waiting.png
-07-working.png
-08-done.png
-09-look.png
-10-look.png
-```
-
-```sh
-node scripts/pack-companion-batches.mjs my-character-rows my-character/spritesheet.png 163
-```
-
-最后一个参数是最终单元中首个待机姿势的剪影高度。插画可从 `163` 开始，已有角色应保持测量出的尺寸（Clover 为 168）。这些是绘制参考，不是新的文件规格。打包器使用统一比例、保留跳跃高度，并对裁切报错，不会单独缩小某一行。
-
-把输出 PNG 与下列 manifest 放进同一个文件夹，再使用[从本机文件夹导入](./import.md)。请修改身份和描述，使其符合自己的虚构角色。可选季节服装与风格字段属于 PlayPets 扩展，其他宠物应用可能忽略这些字段。
-
-```json
-{
-  "id": "my-fictional-adult",
-  "displayName": "My character",
-  "kind": "person",
-  "description": "A fictional adult companion, age 26.",
-  "spriteVersionNumber": 2,
-  "spritesheetPath": "spritesheet.png"
-}
-```
-
-## 质量检查
-
-检查全部 88 个单元，再以普通和迷你尺寸、DPR1/2 播放实际使用的帧。检查透明度、手脚与配饰是否完整、头部大小、左右细节、视线顺序、动作含义及循环衔接。不合格时重新生成对应源行。额外表情和转面图保留为独立参考；当前验证不支持额外行列或任意单元尺寸。
-
-## 可选 PlayPets 季节服装
-
-季节图集是 PlayPets 可选扩展，其他应用可能忽略。另保留仅有基础图集的导出。宠物无需备用外观，写实画风也可作为普通宠物的基础图集。旧 `realisticSpritesheets` 字段是兼容扩展，并非强制两种画风。仅列出实际提供的文件；缺少季节图集时使用基础图集。
-
-PlayPets 扩展包还可用 `portraitPath` 指定提供的聊天头像 PNG。可选头像不会改变动画图集。基础 ZIP 不含头像和服装扩展。
-
-```json
-{
-  "id": "my-pet",
-  "displayName": "My pet",
-  "description": "An independently designed companion.",
-  "spriteVersionNumber": 2,
-  "spritesheetPath": "spritesheet.png",
-  "seasonalSpritesheets": {
-    "summer": "summer.png",
-    "winter": "winter.png"
-  }
-}
-```
-
-[背景制作室](./background-kit)
+[导入宠物](./import.md) · [宠物格式规范·英文](/dev/standards/pet-files)
 
 </details>

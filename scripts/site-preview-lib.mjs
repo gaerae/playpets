@@ -1,4 +1,5 @@
 import { jumpLifts, rowScales } from './companion-batches-lib.mjs';
+import { LANDING_PETS } from './site-content.mjs';
 
 export const PREVIEW_STATES = Object.freeze(['idle', 'wave', 'jump']);
 
@@ -13,7 +14,11 @@ export function validatePreview(bytes) {
 }
 
 // Optional high-resolution artwork never changes the app's canonical sprite contract.
-export function previewSource(pet, state, available) {
+export function previewSource(pet, state, available, season = 'base', seasonalAvailable) {
+  if (LANDING_PETS.some(entry => entry.id === pet) && ['summer', 'winter'].includes(season))
+    return seasonalAvailable?.[pet]?.[season]?.includes(state)
+      ? `/pets/previews/${pet}/${season}/${state}.png`
+      : `/creator-kit/${pet}/${season}.png`;
   return available?.[pet]?.includes(state) ? `/pets/previews/${pet}/${state}.png` : null;
 }
 

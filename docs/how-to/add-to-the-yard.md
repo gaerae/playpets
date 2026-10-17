@@ -114,3 +114,10 @@ npm run test:e2e
 ## Related
 - Design: [A yard that grows with you](../design/2026-10-09-a-yard-that-grows.md), [A painted yard](../design/2026-10-09-a-painted-yard.md), [Yard content as data](../design/2026-10-10-yard-content-as-data.md)
 - [Add a language](add-a-language.md), for the string tables
+
+
+## Keep discovery information accurate
+
+The website's discovery guide reads the same catalogue and locale strings as the app. `eligibleKinds`, `fishWeight`, `relativeChances` and `wildlifeGroup` in `src/yard/catalog.js` keep its condition filters and the runtime aligned. A fish percentage is conditional on a successful landing; a bug percentage is conditional on its group appearing. It is not a per-hour spawn probability. Changing season, time, event or rain changes the eligible pool and its normalized weights. Rain changes fish weights, while bugs require clear weather. The gift sequence is deterministic and the guide never presents it as a loot probability.
+
+The guide calls weights of at least 20% “often”, 5% to below 20% “sometimes”, and below 5% “rarely” within the current pool. These labels describe relative selection, not waiting times. Event dates and hemisphere behavior remain in the seasonal-events section. Do not change gameplay weights merely to make every collection finish in one sitting. When adding an appearance rule, update the shared predicate and its tests before changing the guide.

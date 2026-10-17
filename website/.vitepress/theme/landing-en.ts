@@ -34,6 +34,12 @@ export const copy = {
 export const worldCopy = {
   places: ['Hill garden', 'Stone courtyard', 'Lakeside cottage', 'Cozy living room'],
   seasons: ['Spring', 'Summer', 'Autumn', 'Winter'],
+  greetings: {
+    daisy: 'There might be something lovely just around the corner.',
+    clover: 'Let’s see what has grown today.',
+    pip: 'You’re here! Shall we play for a little while?',
+    miso: 'There’s room here for a quiet moment together.',
+  },
   seasonLabel: 'Choose a season',
   previewNote:
     'An interactive scene sample with the app’s artwork. Select a friend to wave; games and weather live in the app.',
@@ -53,19 +59,21 @@ export const worldCopy = {
   sceneCaption: (v: string) => `Actual app captures · PlayPets ${v}`,
 };
 export const sections = {
+  discoveryGuide: 'See what you can discover',
   galleryCreate: 'Create with this friend',
   petNotes: {
     daisy: 'A curious explorer who notices little things.',
     clover: 'A gentle kitten gardener who shares small discoveries.',
-    pip: 'A cheerful puppy in a blue-flower jacket, always ready to say hello.',
+    pip: 'A cheerful puppy in indigo denim and ivory shorts, with the friends’ white-and-gold flower.',
+    miso: 'A gentle otter who reads by the pond in a lavender knit vest.',
   },
   galleryTitle: 'Someone you’ll be glad to see.',
-  galleryLead: 'Daisy, Clover and Pip. Three different personalities, one little world.',
+  galleryLead: 'Daisy, Clover, Pip and Miso. Four little personalities, with a place beside you.',
   galleryLabel: 'Choose a companion',
   posesLabel: 'Preview a pose',
   poses: ['Rest', 'Wave', 'Jump'],
   selectedLead: 'Invite this companion from the Invite tab. Make their name, personality and relationship your own.',
-  galleryGuide: 'Meet your first friend',
+  galleryGuide: 'Read their stories',
   connectionsTitle: 'Play a little. Talk a little.',
   connectionsLead:
     'Games and gardening work without an AI account. Connect an AI for conversations; its limits and charges apply.',
@@ -79,8 +87,8 @@ export const sections = {
   ],
   miniTitle: 'A small corner of your day.',
   miniBody:
-    'Mini mode keeps the yard beside your work, without menus. Expand it when you want to change the scene or use play tools.',
-  miniLink: 'Meet mini mode',
+    'Resize the yard to fit beside your work. The same menu, scene controls and play tools stay available in a small window. Toggle Always on top separately to keep it above other apps.',
+  miniLink: 'Make room for your yard',
   agentGuide: 'Connect a coding agent',
   connectionDetails: 'Conversation setup and costs',
   connectionSetup:

@@ -44,7 +44,7 @@ For a faster screenshot-only pass, skip recording and encoding the GIF. This pre
 SKIP_GIF=1 npm run shots -- 0.2.0
 ```
 
-To refresh only the three-companion picture in all four site languages, use the abbreviated scene. It shows Daisy, Clover and Pip and leaves the GIF unchanged. The capture option retains its historical name, `adults`:
+To refresh only the four-companion picture in all four site languages, use the abbreviated scene. It shows Daisy, Clover, Pip and Miso and leaves the GIF unchanged. The capture option retains its historical name, `adults`:
 
 ```bash
 SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans npm run shots -- 0.2.0
@@ -75,17 +75,14 @@ favicon addresses so unchanged paths do not keep an older icon in browser tabs.
 Regenerate these outputs through the scripts and inspect the actual served tab
 icon after changing the source.
 
-`CreatorKit.vue` uses specifications from `scripts/creator-specs.mjs`; site
-preparation runs `scripts/creator-kit.mjs` to copy accepted references and build
-standalone import packages for Daisy, Clover and Pip. The studio is also
-a main navigation destination in every site language. Preserve existing kit IDs and bookmarked query links
-when changing presentation. The minimal portable package has one canonical
-`pet.json` and baseline sheet. Optional PlayPets-specific materials do not imply
-compatibility with other hosts. Source provenance, identity locks and references
-travel with reusable creator prompts. `kitEntries` records each pet’s available
-detailed references and seasonal sheets; the UI and bundles use that inventory.
-A runtime collage is not a detailed turnaround. A copied prompt still needs image review,
-packing and validation before its result is a playable pet.
+`scripts/creator-specs.mjs` describes the approved Daisy, Clover, Pip and Miso sources.
+Site preparation runs `scripts/creator-kit.mjs` to copy accepted references and
+build each friend's baseline ZIP and design ZIP. Preserve existing kit IDs and
+bookmarked query links. The baseline ZIP contains `pet.json` and
+`spritesheet.png`; optional PlayPets materials do not imply support in other
+hosts. `kitEntries` records available detailed references and seasonal sheets.
+Source provenance, identity locks and detailed references travel with design
+kits. A runtime collage is not a detailed turnaround.
 
 ## Landing scenes and motion
 
@@ -114,49 +111,132 @@ expandable developer note. Check narrow screens, scene selection, keyboard
 focus and reduced motion after changing the layout.
 
 
-## Browser creation workbenches
+## Creation KIT and SKILL
 
-`CreatorKit.vue` offers the approved source kits. `creator-task.mjs` fills the
-chosen motion sequence or seasonal prompt without changing the runtime atlas
-contract. `ExtensionPrompts.vue` uses the same supported state choices for a
-creator's own permitted reference. `PetPackager.vue` accepts finished v2 atlases,
-not the eleven 4 × 2 source batches; the source-batch packer remains a maintainer
-tool.
+The character and background routes remain separate in all four site languages.
+Each page embeds `CreationStudio.vue` with its `lang` and either `kind="pet"` or
+`kind="background"`. This shared component collects the creation request and
+prepares one downloadable KIT containing the request, references and the
+`playpets-creator` SKILL. `creation-copy.js` owns its four-language interface copy;
+`creation-kit.mjs` owns shared request construction and ZIP generation. Keep
+request previews and downloaded request text consistent.
 
-`studio-files.mjs` checks PNG signatures, chunk boundaries, CRCs, exact dimensions
-and the pet's 8-bit RGBA format. The browser then decodes pixels and checks the 73
-consumed animation and gaze cells. Near-edge artwork is a review warning, not an
-automatic rejection. The ZIP contains the original accepted image bytes and a
-manifest with only supplied seasonal files. Browser ZIP bytes are tested against
-the existing deterministic kit ZIP writer. Input PNGs are limited to 16 MiB each
-for pets and 6 MiB each for backgrounds. Files are processed locally and are not
-retained after reloading or navigating away.
+The website is free and prepares files locally in the browser. It does not
+generate artwork, connect image services, upload user files or accept finished
+artwork for inspection, conversion or packaging. Generation, review, assembly,
+validation and final packaging happen in the person's chosen AI environment.
+The final handoff is a pet ZIP or background JSON imported directly into PlayPets.
+A local pet folder is registered by path rather than copied into app storage;
+hand-off instructions explain that the ZIP is extracted into a permanent location
+and that the selected folder remains there while the pet is used.
+An image-only service cannot run the supplied scripts: the workflow needs an AI
+agent that can read and write files and execute Python, plus an image generation
+tool supported by that environment. Do not imply that a ChatGPT subscription
+automatically grants image API access, or assume tools and inference are free.
 
-`BackgroundKit.vue` uses the app's package and geometry validators. Reopening a
-v1 JSON checks and decodes every image before replacing the current workbench,
-and preserves all supported window masks. The exported guide and prompt include
-every enabled pane. Source, full-yard, mini and narrow previews use the same
-floor-anchored image transform as the runtime; a regression test compares their
-coordinates. These are composition previews, not a substitute for checking live
-lighting, weather, fishing and movement inside the app.
+`assets/creator-skill/playpets-creator/SKILL.md` is the source instruction file.
+The maintained `assets/creator-skill/playpets-creator/scripts/creator-workflow.py`
+is included at `scripts/creator-workflow.py` inside each downloaded skill and
+needs Python 3 and Pillow; it does not install
+dependencies automatically. `scripts/creator-skill.mjs` copies the maintained
+skill and its references into `website/public/creator-kit/skill/` during site
+preparation. Never edit those generated public copies by hand. The downloadable
+KIT includes the skill files so the AI agent can finish without returning to the
+website.
 
-Maintain `studio-copy.js` in all four site languages. File errors stay beside the
-input and successful operations use an announced status. Check both studios on
-direct entry, at phone widths, in dark mode and with reduced motion. The PNG and
-cell checks cannot judge anatomy, identity consistency, animation meaning,
-obstacles or visual quality; the guides keep those manual review steps explicit.
+The maintained skill folder is independently installable and includes its MIT
+license. Keep it in this repository so the app formats and validator change
+together. `npm run creator:skill` also emits `playpets-creator-plugin.zip`, with a
+root `plugin.json`, a Claude Code `.claude-plugin/plugin.json` compatibility manifest,
+and `skills/playpets-creator/`, using the application version. Both manifests refer
+to the same skill files; no second skill source is maintained.
+The portable skill ZIP remains available for agents that use the
+[Agent Skills format](https://agentskills.io/specification). The plugin follows
+the [portable plugin package](https://developers.openai.com/plugins/build/plugins)
+layout and declares local execution because its helper runs Python.
 
-## Studio interface
+For local Codex use, copy the reviewed skill folder into `.agents/skills/` in a
+project or `~/.agents/skills/` for personal discovery, then invoke
+`$playpets-creator`. The built-in `$skill-installer` can also install this folder
+from `https://github.com/gaerae/playpets/tree/<published-ref>/assets/creator-skill/playpets-creator`;
+replace the placeholder with a published tag or commit that includes the helper.
+Some installed versions use `$CODEX_HOME/skills` instead; let the installed
+installer choose its supported destination. See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
+Claude Code uses `.claude/skills/` or `~/.claude/skills/`, invoked as
+`/playpets-creator`; see [Claude Code skills](https://code.claude.com/docs/en/skills).
+Copy the entire folder, including the helper and references.
 
-The top menu calls both creation tools Studio. Keep the character and background routes separate so shared links still resolve; use a specific document title for each route. `StudioNav.vue` connects them in every language.
+An installable package is separate from a published directory listing. Test a
+plugin through a local marketplace and fresh conversation before requesting
+public distribution. OpenAI's [submission process](https://developers.openai.com/plugins/deploy/submission)
+requires access, identity verification, scans and review before publication.
+Do not describe an unsubmitted package as approved or listed. No installation,
+account change or publication occurs when the website builds these archives.
 
-Use Reka UI's Tabs and Collapsible primitives for the workbench navigation and optional controls, with the shared visual vocabulary in `studio.css`. The library handles keyboard navigation and disclosure state; the PNG validators and portable file formats remain shared with the app. Website license notices include packages actually bundled into the client.
+For pets, the skill guides eleven approved 1536 × 1024 source batches, each a
+4 × 2 grid. The supplied Python script assembles the 1536 × 2288 RGBA v2 atlas:
+nine animation states and sixteen gaze directions. Keep the format aligned with
+[Pet file format](../standards/pet-files.md). Automated checks cannot judge anatomy,
+character identity, action meaning or smooth animation; the skill includes image
+review before final packaging. Daisy, Clover, Pip and Miso remain downloadable as
+ready-to-import files through the shared component; the complete creation kit includes the detailed reference pictures.
 
-`StudioWorkspace.vue` keeps character task panels mounted so changing tabs retains the selected files and entered details. Hidden pet previews stop playback. `studio-flow.mjs` resolves the existing guide anchors and creates portable IDs from a name without replacing an ID the person edited. Background phases keep one preview visible beside the active controls. Put numeric placement details behind the disclosure instead of showing every coordinate at first.
+For backgrounds, the skill prepares 1536 × 1024 artwork and the supported layout
+and atmosphere settings, including floor, water, fishing stance, window masks and
+optional seasonal images. Its final JSON follows
+[Portable backgrounds](add-a-world.md#portable-backgrounds). Geometry validation
+does not detect furniture or other obstacles painted on the floor. Review both
+large and small window crops, then check movement, weather and fishing in the app.
 
-A tab change keeps the draft in memory, not on a server. A reload or route change still discards unsaved files. Keep that limitation visible and offer a file download before the person leaves. Check actual exports, keyboard tabs, direct links, narrow screens and dark mode when changing these components.
+Check both routes on direct entry, at phone widths, with keyboard navigation,
+in dark mode and with reduced motion. Inspect the downloaded KIT contents and
+run the skill's Python checks against fixtures. Preserve reference provenance
+and keep every request field and instruction consistent across the four site
+languages. Test the production build in a freshly loaded preview after rebuilding;
+an existing tab may retain an older component or stylesheet.
+
+The [in-app studio proposal](../design/2026-10-17-in-app-studio.md) records an
+unimplemented direction; its follow-up explains the current KIT and SKILL handoff.
 
 
-Background starters in `studio-flow.mjs` configure layout and supported effects only; they do not supply artwork or overwrite names and image files. Keep their geometry valid against the app validator. Export readiness links back to the phase with the missing input; it checks name, base image, geometry and byte budget, not aesthetic quality. Seasonal inputs and the full prompt are optional disclosures. Reopening a saved package keeps all its seasonal images even while the seasonal inputs are collapsed.
+### Install with the skills CLI
 
-Test the production build through a fresh preview after rebuilding; a tab left open across builds may contain an old hydrated component or stylesheet. Inspect actual computed layout and a freshly loaded page rather than relying on a retained tab alone.
+Use the [Vercel skills CLI](https://github.com/vercel-labs/skills) instead of
+publishing another npm installer. Its version is pinned in the site's copyable
+commands. Node.js/npm are needed only for installation; image generation and
+Python/Pillow remain separate requirements. Run this from the destination project:
+
+```bash
+npx --yes skills@1.7.2 add "/absolute/path/to/playpets/assets/creator-skill/playpets-creator" --skill playpets-creator --agent codex claude-code --copy
+```
+
+This copies the whole skill into the project discovery directories used by Codex
+and Claude Code. It does not change personal skill directories. Remove one agent
+from the command when installing for only that tool. To install without a checkout
+after the source has been published, replace the local path with
+`gaerae/playpets`. The pinned CLI discovers the named skill from the repository
+root; the isolated installation test exercises that complete-root discovery.
+Quote a local folder path, especially when it contains spaces.
+For reproducible public installs, use the full GitHub source URL with a reviewed
+published tag or commit. Do not present a local-only source as already downloadable from GitHub.
+
+Exercise the actual pinned CLI without writing to personal configuration:
+
+```bash
+PLAYPETS_TEST_SKILLS_INSTALL=1 node --test tests/creator-distribution.test.mjs
+```
+
+The opt-in test uses an isolated temporary project, HOME and npm cache, disables
+CLI telemetry, compares installed files in both host directories, and executes
+the installed helper. It requires network access to npm and a Python environment
+with Pillow; set `PLAYPETS_PYTHON` if it is not the default Python. Normal unit tests
+do not download or install the CLI. Host discovery in a new Codex or Claude Code
+conversation and official directory approval remain separate checks.
+
+For [local Claude Code plugin testing](https://code.claude.com/docs/en/plugins),
+unzip `playpets-creator-plugin.zip` into a reviewed folder and run
+`claude --plugin-dir /absolute/path/to/unzipped-plugin`. Its skill is namespaced
+as `/playpets-creator:playpets-creator`. This is a local plugin command, not a
+claim that the package is listed in Anthropic's official marketplace. The portable
+manifest follows the current OpenAI package format; test its local marketplace
+installation in a fresh supported host before submitting it for directory review.

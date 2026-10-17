@@ -1,4 +1,4 @@
-// Exports installer artwork from the approved environment and three starter sprites.
+// Exports installer artwork from the approved environment and four starter sprites.
 // Finder draws its own app/folder icons and labels over the macOS image. Keep their entire
 // area free of scenery; its sage surface supports both black and white native labels.
 // Windows owns the translated instructions: its raster artwork carries only the brand.
@@ -11,6 +11,7 @@ import {
   castMarkup,
   dataUrl,
   dataUrlBytes,
+  fittedCastHeight,
   loadEnvironment,
   loadSheets,
   readDataUrl,
@@ -80,7 +81,7 @@ const dmg = `<!doctype html><meta charset="utf-8"><style>
 </style><div class="bg">
   <div class="vignette"><img class="environment" src="${environment}" alt=""></div>
   <h1>PlayPets</h1><p class="intro">A little company for your day.</p>
-  <div class="cast">${castMarkup(sheets, 68)}</div>
+  <div class="cast">${castMarkup(sheets, fittedCastHeight(324, 68, 2))}</div>
   <p class="instruction">Drag PlayPets into Applications</p>
   ${arrow()}
   <p class="after">Then open PlayPets from Applications.</p>
@@ -95,14 +96,14 @@ const sidebar = `<!doctype html><meta charset="utf-8"><style>
   .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:48% bottom;opacity:.32}
   .wash{position:absolute;inset:0;background:linear-gradient(#f7f9f5 0%,#f7f9f5d9 30%,#f7f9f580 65%,#f7f9f500 100%)}
   h1{position:absolute;left:0;right:0;top:30px;margin:0;text-align:center;font-size:25px;line-height:32px;font-weight:750;letter-spacing:-.03em;color:#244d43}
-  .cast{position:absolute;left:50%;top:190px;transform:translateX(-50%);display:flex;gap:1px}
+  .cast{position:absolute;left:50%;top:148px;transform:translateX(-50%);display:grid;grid-template-columns:repeat(2,max-content);gap:12px 4px}
 </style><div class="bg"><img class="environment" src="${environment}" alt=""><div class="wash"></div>
-  <h1>PlayPets</h1><div class="cast">${castMarkup(sheets, 44)}</div></div>`;
+  <h1>PlayPets</h1><div class="cast">${castMarkup(sheets, 54)}</div></div>`;
 const HEADER = { width: 150, height: 57 };
 const header = `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${HEADER.width}px;height:${HEADER.height}px;overflow:hidden;background:#fff}
   .pets{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:flex;align-items:flex-end;gap:1px}
-</style><div class="pets">${castMarkup(sheets, 40)}</div>`;
+</style><div class="pets">${castMarkup(sheets, fittedCastHeight(142, 40, 1))}</div>`;
 
 async function readyArt(page) {
   await page.evaluate(async sources => {
