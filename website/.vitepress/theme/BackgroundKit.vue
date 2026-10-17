@@ -25,7 +25,7 @@ import {
   readStudioImage,
   studioSeasons,
 } from './studio-files.mjs';
-import { replaceStudioHash, studioPanelForHash } from './studio-flow.mjs';
+import { backgroundReadiness, backgroundStarter, replaceStudioHash, studioPanelForHash } from './studio-flow.mjs';
 
 const props = defineProps({ lang: { type: String, default: 'en' } });
 const c = computed(() => backgroundCopy[props.lang] || backgroundCopy.en);
@@ -45,6 +45,22 @@ const name = ref(''),
   busy = ref(false);
 const phase = ref('layout');
 const advanced = ref(false);
+const starter = ref('');
+const showSeasons = ref(false);
+const starterIds = ['garden', 'lakeside', 'interior'];
+function applyStarter(id) {
+  const layout = backgroundStarter(id);
+  starter.value = id;
+  indoor.value = !layout.sky;
+  weather.value = layout.weather;
+  ambient.value = layout.ambient;
+  water.value = !!layout.water;
+  floor.value = layout.floor;
+  if (layout.water) Object.assign(waterShape, layout.water);
+  if (layout.fishingSpot) Object.assign(fishingSpot, layout.fishingSpot);
+  windows.value = layout.windows;
+  status.value = t.value.starterApplied;
+}
 const phases = ['layout', 'images', 'export'];
 const seasons = studioSeasons;
 const waterShape = reactive({ from: 0.4, to: 0.68, center: 0.6, radius: 0.025 });
@@ -92,6 +108,15 @@ const packageInput = computed(() => ({
   ambient: ambient.value && !indoor.value,
 }));
 const packageBytes = computed(() => backgroundPackageSize(packageInput.value));
+const checks = computed(() =>
+  backgroundReadiness({
+    name: name.value,
+    base: images.value.base,
+    geometryError: geometryError.value,
+    bytes: packageBytes.value,
+    maxBytes: MAX_BACKGROUND_BYTES,
+  }),
+);
 const geometryError = computed(() => {
   if (indoor.value && weather.value && !windows.value.length) return t.value.bgNoWindows;
   try {
@@ -249,13 +274,20 @@ function downloadPrompt() {
 
 <template>
 <section class="background-kit studio-workspace" :aria-label="c.title">
-  <p class="background-note">{{ t.local }}</p>
-  <StudioFile id="background-reopen" class="background-reopen" :label="t.bgOpen" :lang="lang" accept="application/json,.json" :disabled="!ready || busy" @change="reopen" />
+  <div class="background-toolbar"><p class="background-note">{{ t.local }}</p>
+  <details class="background-resume"><summary>{{ t.openSaved }} <span aria-hidden="true">↗</span></summary><StudioFile id="background-reopen" :label="t.bgOpen" :lang="lang" accept="application/json,.json" :disabled="!ready || busy" @change="reopen" /></details></div>
   <TabsRoot v-model="phase">
-    <TabsList class="studio-tabs" :aria-label="c.title"><TabsTrigger v-for="(item,i) in phases" :key="item" :value="item" class="studio-tab"><strong>{{ t.bgPhases[i] }}</strong><span>{{ t.bgPhaseHints[i] }}</span></TabsTrigger></TabsList>
-    <div class="background-grid">
+    <TabsList class="studio-tabs" :aria-label="c.title"><TabsTrigger v-for="(item,i) in phases" :key="item" :value="item" class="studio-tab"><strong><span class="studio-step" aria-hidden="true">{{ i + 1 }}</span>{{ t.bgPhases[i] }}</strong><span>{{ t.bgPhaseHints[i] }}</span></TabsTrigger></TabsList>
+    <div class="background-grid" :class="{ 'background-has-art': !!images.base, 'background-exporting': phase === 'export' }">
       <div class="background-editor">
         <TabsContent value="layout" force-mount :hidden="phase !== 'layout'" class="studio-tab-panel">
+          <fieldset class="background-starters"><legend>{{ t.starterTitle }}</legend>
+            <button v-for="(id,i) in starterIds" :key="id" type="button" :aria-pressed="starter === id" @click="applyStarter(id)">
+              <svg viewBox="0 0 120 64" aria-hidden="true"><path d="M8 46h104M8 52h104"/><template v-if="id === 'interior'"><rect x="28" y="8" width="64" height="30" rx="2"/><path d="M60 8v30M28 23h64"/></template><template v-else><path d="M8 36 30 19 52 36 78 14 112 36"/><circle cx="24" cy="10" r="5"/><ellipse v-if="id === 'lakeside'" cx="70" cy="39" rx="20" ry="4"/></template></svg>
+              <strong>{{ t.starterNames[i] }}</strong><span>{{ t.starterHints[i] }}</span>
+            </button>
+          </fieldset>
+          <p class="background-note">{{ t.starterHelp }}</p>
           <div class="background-form">      <label>{{ c.name }}<input v-model="name" maxlength="60" :aria-describedby="!name.trim() ? 'background-name-help' : undefined"></label>
       <p v-if="!name.trim()" id="background-name-help" class="background-note">{{ t.bgName }}</p>
       <label>{{ c.setting }}<textarea v-model="setting" maxlength="300" rows="2" /></label>
@@ -268,7 +300,7 @@ function downloadPrompt() {
       <div class="background-buttons"><button type="button" :disabled="!ready || !!geometryError" @click="sheet">{{ c.sheet }}</button></div>
       <p class="background-note">{{ t.bgNoUpload }}</p>
 </div>
-            <h3>{{ c.prompt }}</h3><textarea :value="geometryError ? '' : prompt" readonly rows="7" :aria-label="c.prompt" />
+            <details class="background-prompt"><summary>{{ t.promptDetails }}</summary><textarea :value="geometryError ? '' : prompt" readonly rows="8" :aria-label="c.prompt" /></details>
   <div class="background-buttons"><button type="button" :disabled="!ready || !!geometryError" @click="copy">{{ c.copy }}</button><button type="button" :disabled="!ready || !!geometryError" @click="downloadPrompt">{{ t.bgPromptDownload }}</button></div>
 
           <button type="button" class="studio-primary" @click="goPhase('images')">{{ t.nextImages }} <span aria-hidden="true">→</span></button>
@@ -276,23 +308,26 @@ function downloadPrompt() {
         <TabsContent value="images" force-mount :hidden="phase !== 'images'" class="studio-tab-panel" id="studio-images">
             <p id="background-format" class="background-note">{{ t.bgFormat }}</p>
   <div class="background-files" :aria-busy="busy">
-    <div v-for="(key,i) in ['base', ...seasons]" :key="key" class="background-file">
-      <StudioFile :id="`background-file-${key}`" :label="key === 'base' ? c.base : c.labels[i-1]" :lang="lang" accept="image/png,.png" :disabled="!ready || busy" :invalid="!!errors[key]" :describedby="errors[key] ? `background-error-${key}` : 'background-format'" @change="upload($event,key)" />
+    <div v-for="key in ['base', ...(showSeasons ? seasons : [])]" :key="key" class="background-file">
+      <StudioFile :id="`background-file-${key}`" :label="key === 'base' ? c.base : c.labels[seasons.indexOf(key)]" :lang="lang" accept="image/png,.png" :disabled="!ready || busy" :invalid="!!errors[key]" :describedby="errors[key] ? `background-error-${key}` : 'background-format'" @change="upload($event,key)" />
       <div v-if="images[key]" class="background-file-result"><span>{{ filenames[key] }}</span><button type="button" :disabled="!ready || busy" @click="remove(key)">{{ t.remove }}</button></div>
       <p v-if="errors[key]" :id="`background-error-${key}`" role="alert" class="background-error">{{ errors[key] }}</p>
     </div>
   </div>
+  <button type="button" class="background-season-toggle" :aria-expanded="showSeasons" @click="showSeasons = !showSeasons">{{ t.seasonExtras }} <span v-if="seasons.some(key => images[key])">· {{ seasons.filter(key => images[key]).length }} / 4</span><span aria-hidden="true">{{ showSeasons ? '−' : '+' }}</span></button>
   <p v-if="busy" role="status">{{ t.checking }}</p>
 
           <button type="button" class="studio-primary" @click="goPhase('export')">{{ t.nextExport }} <span aria-hidden="true">→</span></button>
         </TabsContent>
         <TabsContent value="export" force-mount :hidden="phase !== 'export'" class="studio-tab-panel" id="studio-export">
+            <h3 class="background-check-title">{{ t.exportChecks }}</h3>
+            <ul class="background-readiness"><li v-for="(check,i) in checks" :key="check.key" :data-ready="check.ok"><span role="img" :aria-label="check.ok ? t.checkPassed : t.checkNeeded">{{ check.ok ? '✓' : '○' }}</span><span>{{ t.checkLabels[i] }}</span><button v-if="!check.ok" type="button" @click="goPhase(check.phase)">{{ t.bgPhases[phases.indexOf(check.phase)] }} <span aria-hidden="true">→</span></button></li></ul>
             <p class="background-note">{{ t.bgReview }}</p>
   <p class="background-note">{{ t.bgBudget }} · {{ (packageBytes / 1024 / 1024).toFixed(1) }} / 32 MiB</p>
   <p v-if="packageBytes > MAX_BACKGROUND_BYTES" class="background-error" role="alert">{{ t.bgBudgetError }}</p>
   <p v-if="!images.base" class="background-note">{{ t.bgMissing }}</p>
   <p v-if="!name.trim()" class="background-note">{{ t.bgName }}</p>
-  <div class="background-buttons"><button type="button" :disabled="!images.base || !name.trim() || busy || !!geometryError || packageBytes > MAX_BACKGROUND_BYTES" @click="save">{{ c.save }}</button></div>
+  <div class="background-buttons"><button type="button" class="studio-primary" :disabled="busy || !checks.every(check => check.ok)" @click="save">{{ c.save }}</button></div>
   <p class="background-note">{{ c.ready }}</p>
   <p class="background-note">{{ c.limits }}</p>
 
@@ -300,6 +335,7 @@ function downloadPrompt() {
         </TabsContent>
       </div>
       <aside class="background-preview-panel">
+        <h3 class="background-preview-title">{{ t.previewTitle }}</h3>
               <div class="background-preview-controls">
         <label>{{ t.bgCrop }}<select v-model="crop" :aria-label="t.bgCrop"><option v-for="(label,i) in t.bgCrops" :key="label" :value="i">{{ label }}</option></select></label>
         <label class="background-check"><input v-model="guides" type="checkbox">{{ t.bgGuide }}</label>
@@ -347,8 +383,8 @@ function downloadPrompt() {
 
 <style scoped>
 .background-kit { margin: 32px 0; min-width: 0; }
-.background-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 28px; }
-.background-form { display: grid; gap: 15px; align-content: start; }
+.background-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 32px; }
+.background-form { display: grid; gap: 14px; align-content: start; padding-top: 16px; border-top: 1px solid var(--vp-c-divider); }
 .background-kit label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
 .background-kit .background-check { min-height: 44px; display: flex; align-items: center; gap: 10px; }
 .background-kit input:not([type=checkbox]):not([type=range]), .background-kit select, .background-kit textarea { width: 100%; min-height: 44px; padding: 10px; border: 1px solid var(--vp-c-divider); border-radius: var(--studio-radius, 10px); background: var(--vp-c-bg); color: var(--vp-c-text-1); font: inherit; }
@@ -377,6 +413,32 @@ function downloadPrompt() {
 .background-file-result { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; overflow-wrap: anywhere; }
 .background-file-result button { padding: 6px 10px; }
 .background-error { color: var(--vp-c-danger-1); font-size: 13px; }
-.background-reopen { max-width: 480px; margin: 24px 0; }
-@media (max-width: 700px) { .background-preview-panel { position: static; grid-row: 1; } .background-editor { grid-row: 2; } .background-grid, .background-files { grid-template-columns: minmax(0, 1fr); } }
+
+.background-toolbar { display: flex; align-items: start; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+.background-toolbar > p { max-width: 54ch; margin: 0; }
+.background-resume { flex: 0 0 auto; max-width: 45%; }
+.background-resume summary, .background-prompt summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 8px; color: var(--vp-c-brand-1); font-weight: 600; font-size: 13px; margin: 0; }
+.background-resume[open] { max-width: 340px; }
+.background-resume :deep(.studio-file-control) { margin-top: 12px; }
+.background-starters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; border: 0; margin: 0; padding: 0; min-width: 0; }
+.background-starters legend { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+.background-kit .background-starters button { padding: 10px 8px; text-align: left; min-width: 0; background: var(--vp-c-bg); }
+.background-kit .background-starters button[aria-pressed=true] { border-color: var(--vp-c-brand-1); background: var(--vp-c-brand-soft); box-shadow: inset 0 0 0 1px var(--vp-c-brand-1); }
+.background-starters svg { display: block; width: 100%; height: 52px; fill: none; stroke: var(--vp-c-brand-1); stroke-width: 1.8; }
+.background-starters strong { display: block; font-size: 14px; }
+.background-starters span { display: block; font-size: 11px; line-height: 1.5; font-weight: 400; color: var(--vp-c-text-2); margin-top: 4px; word-break: keep-all; overflow-wrap: anywhere; }
+.background-kit .background-preview-title { font-size: 15px; margin: 0 0 16px; border: 0; }
+.background-preview-controls label { font-size: 12px; }
+.background-kit .background-check-title { margin-top: 0; }
+.background-readiness { list-style: none; padding: 0; margin: 16px 0 24px; }
+.background-readiness li { display: flex; align-items: center; gap: 10px; min-height: 52px; border-bottom: 1px solid var(--vp-c-divider); font-size: 14px; }
+.background-readiness li > span:first-child { color: var(--vp-c-text-2); }
+.background-readiness li[data-ready=true] > span:first-child { color: var(--vp-c-brand-1); }
+.background-kit .background-readiness button { margin-left: auto; padding: 8px; font-size: 12px; background: none; border: 0; }
+.background-prompt { margin: 20px 0 12px; border-top: 1px solid var(--vp-c-divider); }
+.background-prompt textarea { margin-top: 12px; }
+.background-kit .background-season-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 16px; background: none; }
+@media (max-width: 700px) { .background-toolbar { flex-direction: column; gap: 4px; } .background-resume { max-width: 100%; } .background-preview-panel { padding-bottom: 20px; border-bottom: 1px solid var(--vp-c-divider); } }
+
+@media (max-width: 700px) { .background-preview-panel { position: static; grid-row: 2; } .background-editor { grid-row: 1; } .background-has-art:not(.background-exporting) .background-preview-panel { grid-row: 1; } .background-has-art:not(.background-exporting) .background-editor { grid-row: 2; } .background-grid, .background-files { grid-template-columns: minmax(0, 1fr); } }
 </style>

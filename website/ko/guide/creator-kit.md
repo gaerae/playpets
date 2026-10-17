@@ -4,6 +4,9 @@ sidebar: false
 outline: false
 aside: false
 pageClass: creator-studio-page
+prev: false
+next: false
+editLink: false
 description: "캐릭터 제작실: 상세 시트와 바로 쓰는 펫"
 ---
 

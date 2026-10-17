@@ -4,6 +4,9 @@ sidebar: false
 outline: false
 aside: false
 pageClass: creator-studio-page
+prev: false
+next: false
+editLink: false
 description: キャラクターの参考画像、プロンプト、すぐ取り込めるペットの制作キット
 ---
 
