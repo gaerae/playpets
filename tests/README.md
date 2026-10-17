@@ -4,6 +4,12 @@
 `npm run test:rust` runs Rust unit tests, and `npm test` runs both. New Node test
 entry points use the same suffix and stay discoverable by that command.
 
+Creator helper tests need Python with the Pillow version pinned in
+`assets/creator-skill/playpets-creator/requirements.txt`. Activate that environment
+or set `PLAYPETS_PYTHON` to its executable before running the suite. CI installs
+the same dependency. See [development setup](../docs/getting-started.md) for the
+isolated installation steps.
+
 | Area | Examples |
 | --- | --- |
 | Page rules and shared state | `modules`, `animation`, `i18n`, `keys`, `ui-style` |
