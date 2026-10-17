@@ -23,6 +23,7 @@
     "test:js": "node --test tests/*.test.mjs",
     "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
     "test:e2e": "cargo build --profile e2e --features e2e --manifest-path src-tauri/Cargo.toml && node tests/e2e.mjs",
+    "test:e2e:linux": "bash scripts/linux-e2e.sh npm run test:e2e",
     "test:live-import": "cargo test --manifest-path src-tauri/Cargo.toml live_import -- --ignored --nocapture",
     "lint": "npm run lint:rust && npm run lint:js",
     "lint:js": "npm run lint:oxlint && biome ci",

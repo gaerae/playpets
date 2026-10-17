@@ -171,7 +171,7 @@ pub fn e2e_window(app: &AppHandle, args: &[Value]) -> Result<Value, String> {
     let pos = w.outer_position().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
     let size = w.outer_size().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
     Ok(
-        json!({"x": pos.x, "y": pos.y, "width": size.width, "height": size.height, "scale": scale, "fullscreen": w.is_fullscreen().map_err(|e| e.to_string())?, "alwaysOnTop": w.is_always_on_top().map_err(|e| e.to_string())?, "resizable": w.is_resizable().map_err(|e| e.to_string())?, "minimum": {"width": SIZE_MIN.0, "height": SIZE_MIN.1}}),
+        json!({"x": pos.x, "y": pos.y, "width": size.width, "height": size.height, "scale": scale, "fullscreen": w.is_fullscreen().map_err(|e| e.to_string())?, "alwaysOnTop": always_on_top_now(&w)?, "resizable": w.is_resizable().map_err(|e| e.to_string())?, "minimum": {"width": SIZE_MIN.0, "height": SIZE_MIN.1}}),
     )
 }
 
@@ -358,6 +358,21 @@ fn wait_fullscreen(w: &WebviewWindow, wanted: bool) -> Result<bool, String> {
     )
 }
 
+fn confirm_normal_rect(
+    wanted: Rect,
+    mut get: impl FnMut() -> Option<Rect>,
+    mut retry: impl FnMut() -> bool,
+) -> Result<(), String> {
+    loop {
+        if get().is_some_and(|actual| same_rect(actual, wanted)) {
+            return Ok(());
+        }
+        if !retry() {
+            return Err(i18n::t("error.request_failed"));
+        }
+    }
+}
+
 fn restore_normal(app: &AppHandle, w: &WebviewWindow) -> Result<(), String> {
     let rect = *hold(&NORMAL_RECT);
     if let Some((x, y, width, height)) = rect {
@@ -366,10 +381,19 @@ fn restore_normal(app: &AppHandle, w: &WebviewWindow) -> Result<(), String> {
         w.set_position(LogicalPosition::new(x, y))
             .map_err(|_| i18n::t("error.request_failed"))?;
         flush_native_window(w)?;
-        let actual = rect_now(w).ok_or_else(|| i18n::t("error.request_failed"))?;
-        if !same_rect(actual, (x, y, width, height)) {
-            return Err(i18n::t("error.request_failed"));
-        }
+        // GTK applies frame changes on later configure events, after the setter returns.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        confirm_normal_rect(
+            (x, y, width, height),
+            || rect_now(w),
+            || {
+                if std::time::Instant::now() >= deadline {
+                    return false;
+                }
+                std::thread::sleep(std::time::Duration::from_millis(10));
+                true
+            },
+        )?;
         let pin = lock(&app.state::<Shared>()).prefs.always_on_top;
         apply_always_on_top(w, pin)?;
         *hold(&NORMAL_RECT) = None;
@@ -485,12 +509,49 @@ pub fn set_always_on_top(app: &AppHandle, on: bool) -> Result<Value, String> {
     })
 }
 
+// GTK/Tao can retain the old ABOVE state after X11 has accepted the change.
+// Read the window manager's property directly; never save the requested value as confirmation.
+#[cfg(target_os = "linux")]
+fn always_on_top_now(w: &WebviewWindow) -> Result<bool, String> {
+    use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+    use x11rb::protocol::xproto::{AtomEnum, ConnectionExt};
+    let error = || i18n::t("error.request_failed");
+    let handle = w.window_handle().map_err(|_| error())?;
+    let id = match handle.as_raw() {
+        RawWindowHandle::Xlib(handle) => u32::try_from(handle.window).map_err(|_| error())?,
+        RawWindowHandle::Xcb(handle) => handle.window.get(),
+        _ => return w.is_always_on_top().map_err(|_| error()),
+    };
+    let (connection, _) = x11rb::connect(None).map_err(|_| error())?;
+    let atom = |name: &[u8]| -> Result<u32, String> {
+        Ok(connection
+            .intern_atom(false, name)
+            .map_err(|_| error())?
+            .reply()
+            .map_err(|_| error())?
+            .atom)
+    };
+    let state = atom(b"_NET_WM_STATE")?;
+    let above = atom(b"_NET_WM_STATE_ABOVE")?;
+    let reply = connection
+        .get_property(false, id, state, AtomEnum::ATOM, 0, 64)
+        .map_err(|_| error())?
+        .reply()
+        .map_err(|_| error())?;
+    Ok(reply.value32().is_some_and(|mut atoms| atoms.any(|atom| atom == above)))
+}
+
+#[cfg(not(target_os = "linux"))]
+fn always_on_top_now(w: &WebviewWindow) -> Result<bool, String> {
+    w.is_always_on_top().map_err(|_| i18n::t("error.request_failed"))
+}
+
 fn apply_always_on_top(w: &WebviewWindow, on: bool) -> Result<bool, String> {
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
     confirm_always_on_top(
         on,
         |on| w.set_always_on_top(on).map_err(|_| i18n::t("error.request_failed")),
-        || w.is_always_on_top().map_err(|_| i18n::t("error.request_failed")),
+        || always_on_top_now(w),
         || {
             if std::time::Instant::now() >= deadline {
                 return false;
@@ -623,6 +684,15 @@ mod tests {
         assert!(super::WindowChange::begin().is_err());
         drop(change);
         assert!(super::WindowChange::begin().is_ok());
+    }
+
+    #[test]
+    fn normal_frame_confirmation_waits_for_linux_configure_events() {
+        let wanted = (100.0, 80.0, 460.0, 320.0);
+        let mut frames = [(0.0, 0.0, 1920.0, 1080.0), wanted].into_iter();
+        assert!(super::confirm_normal_rect(wanted, || frames.next(), || true).is_ok());
+        assert!(super::confirm_normal_rect(wanted, || Some((0.0, 0.0, 460.0, 320.0)), || false).is_err());
+        assert!(super::confirm_normal_rect(wanted, || None, || false).is_err());
     }
 
     #[test]

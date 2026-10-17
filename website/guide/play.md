@@ -153,6 +153,8 @@ Choose **Menu → Enter fullscreen** to fill the screen with the yard. The same 
 
 Choose **Menu → Always on top** to keep the yard above other windows. This switch works independently of the window size, also appears in the tray and macOS View menus, and is remembered. **Cmd/Ctrl + Shift + M** toggles it without resizing the yard.
 
+On Linux, pinning depends on the desktop and window manager. Some Wayland desktops refuse the request; check your desktop’s window rules if the setting cannot be applied.
+
 <Shot name="mini-chat" caption="A conversation stays inside the small yard window, beside your work." />
 
 Choose **Menu → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** in the same menu asks for confirmation and closes PlayPets; conversations are not saved. Both actions are also in the empty-scenery right-click menu.

@@ -52,7 +52,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev libdbus-1-dev patchelf xvfb dbus-x11
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev libdbus-1-dev patchelf xvfb dbus-x11 openbox x11-utils
       - run: npm ci
       # Layout and lint rules. Each platform has code of its own (macOS panels, the Windows
       # console), so each is checked.
@@ -106,7 +106,7 @@ jobs:
         run: cargo build --release --features e2e --manifest-path src-tauri/Cargo.toml
       - name: E2E (Linux, Xvfb)
         if: runner.os == 'Linux'
-        run: dbus-run-session -- xvfb-run -a -s "-screen 0 1920x1080x24" node tests/e2e.mjs
+        run: bash scripts/linux-e2e.sh node tests/e2e.mjs
         env:
           PLAYPETS_BINARY: ${{ github.workspace }}/src-tauri/target/release/playpets
       - name: E2E

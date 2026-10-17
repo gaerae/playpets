@@ -14,6 +14,7 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 | Area | Commands and sources | Outputs |
 | --- | --- | --- |
 | Local execution and Docker builds | `local.mjs` via `npm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with `MSIX_PUBLISHER` |
+| Linux desktop checks | `linux-e2e.sh` via `test:e2e:linux` (build and run) or with `node tests/e2e.mjs` (CI prebuilt binary) | Isolated D-Bus/Xvfb/Openbox session; waits for a window manager before testing native pin and fullscreen |
 | Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check`; `prepare-appimage-licenses.mjs` before Linux packaging; `appimage-license.mjs` on the finished image | Native dependency notice and fingerprint under `packaging/licenses/`; collected distro copyright files and an exact AppImage system-source manifest during a release build |
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; native package install-and-launch verification runs in release CI |
