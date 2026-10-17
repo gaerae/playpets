@@ -4,6 +4,9 @@ sidebar: false
 outline: false
 aside: false
 pageClass: creator-studio-page
+prev: false
+next: false
+editLink: false
 ---
 
 <script setup>

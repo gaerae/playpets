@@ -13,6 +13,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Make the web Studio easier to start with garden, lakeside and interior layouts, actionable export checks, and compact optional controls in all four languages.
+
 - Unify the web tools under Studio, separate starting paths and background phases with accessible component-library controls and larger touch targets, retain drafts across tabs, and generate portable pet IDs from names.
 
 - Keep one installer per Windows architecture, embed third-party notices in native packages instead of duplicating them beside every release file, and let version pages activate from GitHub's public tag without a follow-up site deployment.

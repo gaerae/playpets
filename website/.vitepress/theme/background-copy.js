@@ -23,7 +23,7 @@ export const backgroundCopy = {
     copied: 'Copied',
     sheet: 'Download layout sheet (PNG)',
     save: 'Download background package',
-    ready: 'Import the downloaded JSON in the app: scene menu → Import background.',
+    ready: 'Import the downloaded JSON in the app: Place & atmosphere → Import background.',
     invalid: 'Check the name, 1536 × 1024 PNG images and file sizes (6 MB per image, 32 MB package).',
     limits:
       'The first format uses a continuous floor and an oval fishing area. Free-form obstacles are not supported. Transparent sky is required for outdoor sky effects. Missing seasons keep the base image. Indoor weather uses the highlighted window; otherwise turn weather off.',
@@ -63,7 +63,7 @@ export const backgroundCopy = {
     copied: '복사했어요',
     sheet: '배치 시트 내려받기 (PNG)',
     save: '배경 패키지 내려받기',
-    ready: '받은 JSON 파일을 앱의 장면 메뉴 → 배경 가져오기에서 선택해 주세요.',
+    ready: '받은 JSON 파일을 앱의 배경과 분위기 → 배경 가져오기에서 선택해 주세요.',
     invalid: '이름과 1536 × 1024 PNG 이미지를 확인해 주세요. 이미지당 6 MB, 패키지 전체 32 MB까지 가능해요.',
     limits:
       '첫 형식은 막힘없는 바닥과 타원형 낚시 영역을 지원해요. 자유로운 장애물 배치는 아직 지원하지 않아요. 실외 하늘 효과를 쓰려면 하늘이 투명해야 해요. 계절 이미지가 없으면 기본 그림을 유지해요. 실내 날씨는 표시된 창문에만 적용되며, 맞는 창문이 없으면 날씨를 꺼 주세요.',
@@ -103,7 +103,7 @@ export const backgroundCopy = {
     copied: 'コピーしました',
     sheet: '配置シートを保存（PNG）',
     save: '背景パッケージを保存',
-    ready: 'アプリの場面メニュー → 背景を読み込む、でJSONを選んでください。',
+    ready: 'アプリの場所と雰囲気 → 背景を読み込む、でJSONを選んでください。',
     invalid: '名前と1536 × 1024のPNGを確認してください。画像は6 MB、全体は32 MBまでです。',
     limits:
       '連続した床と楕円形の釣りエリアに対応します。自由な障害物には未対応です。屋外の空の効果には透明な空が必要です。季節画像がなければ基本画像を使います。室内の天気は表示された窓のみです。合う窓がなければ天気をオフにしてください。',
@@ -143,7 +143,7 @@ export const backgroundCopy = {
     copied: '已复制',
     sheet: '下载布局参考图（PNG）',
     save: '下载背景包',
-    ready: '在应用场景菜单 → 导入背景中选择下载的JSON文件。',
+    ready: '在应用场景与氛围 → 导入背景中选择下载的JSON文件。',
     invalid: '请检查名称和1536 × 1024 PNG。每张图片最多6 MB，背景包最多32 MB。',
     limits:
       '首版支持连续地面和椭圆钓鱼区域，不支持自由障碍物。室外天空效果需要透明天空。缺少季节图片时保留基础图片。室内天气仅显示在标记的窗户内；没有匹配窗户时请关闭天气。',

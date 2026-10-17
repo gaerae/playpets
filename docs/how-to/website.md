@@ -155,3 +155,8 @@ Use Reka UI's Tabs and Collapsible primitives for the workbench navigation and o
 `StudioWorkspace.vue` keeps character task panels mounted so changing tabs retains the selected files and entered details. Hidden pet previews stop playback. `studio-flow.mjs` resolves the existing guide anchors and creates portable IDs from a name without replacing an ID the person edited. Background phases keep one preview visible beside the active controls. Put numeric placement details behind the disclosure instead of showing every coordinate at first.
 
 A tab change keeps the draft in memory, not on a server. A reload or route change still discards unsaved files. Keep that limitation visible and offer a file download before the person leaves. Check actual exports, keyboard tabs, direct links, narrow screens and dark mode when changing these components.
+
+
+Background starters in `studio-flow.mjs` configure layout and supported effects only; they do not supply artwork or overwrite names and image files. Keep their geometry valid against the app validator. Export readiness links back to the phase with the missing input; it checks name, base image, geometry and byte budget, not aesthetic quality. Seasonal inputs and the full prompt are optional disclosures. Reopening a saved package keeps all its seasonal images even while the seasonal inputs are collapsed.
+
+Test the production build through a fresh preview after rebuilding; a tab left open across builds may contain an old hydrated component or stylesheet. Inspect actual computed layout and a freshly loaded page rather than relying on a retained tab alone.

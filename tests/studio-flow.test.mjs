@@ -37,3 +37,50 @@ test('studio tabs retain the router entry state and existing query when changing
   assert.equal(entry[0], state);
   assert.equal(entry[2], '/ko/guide/creator-kit?kit=clover#pet-package-title');
 });
+
+test('background starters provide valid independent layouts without pretending to provide artwork', async () => {
+  const { backgroundStarter } = await import('../website/.vitepress/theme/studio-flow.mjs');
+  const { validateBackgroundGeometry } = await import('../src/yard/background-pack.js');
+  for (const id of ['garden', 'lakeside', 'interior']) {
+    const layout = backgroundStarter(id);
+    validateBackgroundGeometry(layout);
+    assert.ok(!('images' in layout));
+    assert.ok(!('name' in layout));
+  }
+  assert.equal(backgroundStarter('garden').water, null);
+  assert.ok(backgroundStarter('lakeside').fishingSpot);
+  assert.equal(backgroundStarter('interior').sky, false);
+  assert.ok(backgroundStarter('interior').windows.length);
+  const original = backgroundStarter('interior');
+  original.windows[0].x = 0;
+  assert.notEqual(backgroundStarter('interior').windows[0].x, 0);
+  assert.throws(() => backgroundStarter('unknown'));
+});
+
+test('background export readiness points to the field that needs attention', async () => {
+  const { backgroundReadiness } = await import('../website/.vitepress/theme/studio-flow.mjs');
+  const result = backgroundReadiness({ name: ' ', base: null, geometryError: 'invalid', bytes: 33, maxBytes: 32 });
+  assert.deepEqual(
+    result.map(row => [row.key, row.phase, row.ok]),
+    [
+      ['name', 'layout', false],
+      ['image', 'images', false],
+      ['geometry', 'layout', false],
+      ['budget', 'images', false],
+    ],
+  );
+  assert.ok(
+    backgroundReadiness({ name: 'Garden', base: 'png', geometryError: '', bytes: 32, maxBytes: 32 }).every(
+      row => row.ok,
+    ),
+  );
+});
+
+test('background import instructions use the same menu names as the app', async () => {
+  const { backgroundCopy } = await import('../website/.vitepress/theme/background-copy.js');
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { strings } = await import(`../src/core/strings/${lang}.js`);
+    assert.ok(backgroundCopy[lang].ready.includes(strings['controls.scene']), lang);
+    assert.ok(backgroundCopy[lang].ready.includes(strings['background.import']), lang);
+  }
+});
