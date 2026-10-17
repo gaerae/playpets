@@ -3167,6 +3167,7 @@ dependencies = [
  "keyring",
  "libc",
  "objc2",
+ "raw-window-handle",
  "serde",
  "serde_json",
  "sys-locale",
@@ -3184,6 +3185,7 @@ dependencies = [
  "url",
  "uuid",
  "windows-sys 0.61.2",
+ "x11rb",
 ]
 
 [[package]]

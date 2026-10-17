@@ -37,5 +37,5 @@ if [[ ",$bundles," == *,appimage,* ]]; then
   cp "$bundle"/appimage/*.AppImage "$bundle"/appimage/*-SYSTEM-SOURCE-PACKAGES.txt /out/
 fi
 echo "== e2e ($arch, Xvfb)"
-dbus-run-session -- xvfb-run -a -s "-screen 0 1920x1080x24" npm run test:e2e | tee /out/e2e.log
+npm run test:e2e:linux | tee /out/e2e.log
 grep -q "^PASS: tauri e2e" /out/e2e.log

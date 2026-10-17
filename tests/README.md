@@ -32,3 +32,7 @@ during development but does not replace the combined checks before a PR.
 the test-feature app and runs its scenario with isolated data. Do not run it as a
 unit test or against the installed app's personal data. See the
 [testing standard](../docs/standards/testing.md).
+
+On a headless Linux host, `npm run test:e2e:linux` starts an isolated D-Bus,
+Xvfb and Openbox session. It needs `xvfb`, `xauth`, `dbus-x11`, `openbox` and
+`x11-utils`; Xvfb alone cannot confirm native pinning or fullscreen restoration.

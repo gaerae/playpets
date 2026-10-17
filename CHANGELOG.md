@@ -32,6 +32,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Move the website and documentation to `https://playpets.gaerae.com/`.
 
 ### Fixed
+- Confirm Linux pin state from the native window and wait for frame restoration before reporting fullscreen completion. Headless desktop checks now include a window manager.
 
 - Distinguish download lookup from an unpublished version on the website, and keep release-page guidance accurate after the first release in all four languages.
 

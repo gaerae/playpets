@@ -30,7 +30,7 @@ function fixture(t, { bundles = '', rejects = false } = {}) {
     'harness.sh',
     `
 rsync() { :; }
-npm() { :; }
+npm() { if [[ "$*" == "run test:e2e:linux" ]]; then echo 'PASS: tauri e2e'; fi; }
 cargo() { echo "cargo $*" >> "$TEST_ROOT/calls"; }
 uname() { echo aarch64; }
 npx() {
@@ -51,7 +51,6 @@ node() {
     echo manifest > "$3"
   fi
 }
-dbus-run-session() { echo 'PASS: tauri e2e'; }
 source "$TEST_ROOT/build.sh"
 `,
   );
