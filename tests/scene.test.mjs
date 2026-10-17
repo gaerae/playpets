@@ -13,6 +13,7 @@ import {
   GREETINGS,
   greetingFor,
   groundFor,
+  initialSceneChoices,
   moonPhase,
   moonShade,
   PERIODS,
@@ -217,4 +218,23 @@ test('petals in spring and leaves in autumn drift down a few at a time, only in 
   const y = high.y;
   stepFallers([high], 100, 800, 400, Math.random);
   assert.ok(high.y > y, 'it falls');
+});
+
+test('fresh yards start sunny in spring while explicit and automatic saved choices survive', () => {
+  assert.deepEqual(initialSceneChoices({}), { season: 'spring', period: 'day', weather: 'clear' });
+  assert.deepEqual(initialSceneChoices({ season: 'winter', period: 'night', weather: 'snow' }), {
+    season: 'winter',
+    period: 'night',
+    weather: 'snow',
+  });
+  assert.deepEqual(initialSceneChoices({ season: 'auto', period: 'auto', weather: 'auto' }), {
+    season: 'auto',
+    period: 'auto',
+    weather: 'auto',
+  });
+  assert.deepEqual(initialSceneChoices({ season: 'invalid', period: 'constructor', weather: 'toString' }), {
+    season: 'auto',
+    period: 'auto',
+    weather: 'auto',
+  });
 });

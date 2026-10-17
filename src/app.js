@@ -1,4 +1,4 @@
-import { setupControls } from './core/controls.js';
+import { openControls, setupControls } from './core/controls.js';
 import { setupInteractions } from './core/interactions.js';
 import { setupBackgrounds } from './yard/background-ui.js';
 // Entry point: sets every part of the page up in order, listens to the backend, and runs the frame loop.
@@ -8,6 +8,7 @@ import { confirmAction, setupConfirm } from './core/confirm.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
 import { onShortcut } from './core/keys.js';
+import { setupNotices } from './core/notices.js';
 import { setSpriteSeason } from './core/sprites.js';
 import { $, aiming, api, call, data, game, guard, recall, selected, setData, toast, views } from './core/state.js';
 import { plain, spoken } from './core/text.js';
@@ -28,7 +29,7 @@ import {
 } from './panel/settings.js';
 import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { render } from './render.js';
-import { isMini, setMini, setupWindow } from './window.js';
+import { setupWindow } from './window.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
 import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
@@ -94,14 +95,16 @@ await loadContent();
 apply();
 icons();
 setupConfirm();
+setupNotices();
 setupInteractions();
 setupWindow();
 setupTabs();
 setupControls();
 // Keyboard: the panels and the two views, with the keys the macOS menu bar shows (core/keys.js).
+onShortcut('controls', openControls);
 onShortcut('friends', () => openPanel('pet'));
 onShortcut('invite', () => openPanel('invite'));
-onShortcut('mini', () => data.pets.length && guard(() => setMini(!isMini()))());
+onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
 setupSky({
   seasonChanged: season => {
@@ -207,12 +210,11 @@ function speak(event) {
 }
 // What each event from the backend does on this page; the chat panel hears every one first.
 const ON_EVENT = {
+  'open-controls': openControls,
   update: e => updateFound(e.update),
   'check-update': () => guard(checkForUpdates)(),
   'update-status': updateStatus,
   'open-panel': e => showSection(e.panel, e.section),
-  // The tray's "Mini view": the page goes in or out of it, as its own button does.
-  mini: e => (e.on ? data.pets.length : isMini()) && guard(() => setMini(e.on))(),
   select: e => openChat(e.petId),
   'import-request': e => importRequested(e.url),
   // A friend's saved place changed; the view already stands there, the record follows.
@@ -273,9 +275,9 @@ function animate(now) {
   if (game) playGame(now, dt);
   else for (const tick of YARD_LIFE) tick(now);
   scenery.frame(now, dt);
-  // The panel's own pictures move only while they can be seen (the mini view hides the panel).
-  if (!isMini() && !$('empty-yard').hidden && !$('welcome').hidden) drawWelcome(now);
-  if (!isMini() && !$('side-panel').hidden) {
+  // Panel pictures move only while their panel is visible.
+  if (!$('empty-yard').hidden && !$('welcome').hidden) drawWelcome(now);
+  if (!$('side-panel').hidden) {
     if (!$('panel-pet').hidden) drawPortrait(now);
     if (!$('panel-invite').hidden) drawPreviews(now);
   }
@@ -289,7 +291,6 @@ try {
   openPanel(PANELS.includes(saved) ? saved : null);
   render();
   setupBond();
-  if (recall('mini') && data.pets.length) await setMini(true);
   refreshChat();
   announceInstalledUpdate();
   last = performance.now();

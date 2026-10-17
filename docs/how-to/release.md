@@ -52,7 +52,7 @@ published update can be downloaded and installed.
   isolated app data. This catches package hand-off failures but does not replace
   the interactive installer and Gatekeeper/SmartScreen review on real user machines.
 - Refresh public captures when a visible change affects them. The full yard,
-  mini view, places, Friend, Invite and Settings should match the shipped app.
+  small window, places, Friend, Invite and Settings should match the shipped app.
 - Test a signed upgrade from an older installed build to a newer published build
   on each supported installer format. Check download progress, a failed attempt
   and retry, restart, the one-time version notice, and preserved friends/settings.

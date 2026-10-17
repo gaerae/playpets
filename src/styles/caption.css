@@ -94,12 +94,15 @@
   right: 12px;
   bottom: 64px;
   width: min(400px, calc(100% - 24px));
-  max-height: calc(100% - 116px);
-  overflow-y: auto;
+  max-height: calc(100% - 76px);
+  height: min(480px, calc(100% - 76px));
+  min-height: 0;
+  overflow: hidden;
   overscroll-behavior: contain;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  align-items: center;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  align-items: stretch;
   gap: 8px 12px;
   padding: 12px 14px;
   border-radius: var(--radius-panel);
@@ -135,7 +138,9 @@
   gap: 4px;
   width: 100%;
 }
+.view-controls > #fullscreen,
 .view-controls > #desktop,
+.view-controls > #always-on-top,
 .view-controls > .view-wander {
   grid-column: 1 / -1;
 }
@@ -214,11 +219,11 @@
   width: 12px;
   height: 12px;
 }
-#desktop[aria-pressed="true"] .wander-switch,
+.view-toggle[aria-pressed="true"] .wander-switch,
 .view-wander input:checked ~ .wander-switch {
   background: var(--green-ink);
 }
-#desktop[aria-pressed="true"] .wander-switch::after,
+.view-toggle[aria-pressed="true"] .wander-switch::after,
 .view-wander input:checked ~ .wander-switch::after {
   background: var(--white);
   transform: translateX(12px);
@@ -307,8 +312,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
-  max-height: 280px;
-  overflow-y: auto;
+  overflow: visible;
   padding: 3px;
 }
 .background-card {
@@ -344,12 +348,59 @@
 }
 .scene-climate {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: auto auto;
-  grid-auto-flow: column;
+  grid-template-columns: minmax(0, 1fr) minmax(110px, 1fr);
   align-items: center;
   gap: 5px 8px;
-  padding-top: 8px;
+  padding: 4px 2px;
+  font-size: 13px;
+}
+
+/* Closing the window and ending the app are distinct actions, kept together at the end. */
+.window-actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
   border-top: 1px solid var(--line);
-  font-size: 12px;
+  padding-top: 8px;
+}
+
+.scene-gallery-head {
+  gap: 4px;
+}
+.scene-gallery-head strong {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+.scene-tabs {
+  display: flex;
+  gap: 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.scene-tabs button {
+  flex: 1;
+  min-height: 40px;
+  border-radius: var(--radius-control);
+  font-size: 13px;
+  color: var(--muted);
+}
+.scene-tabs button[aria-selected="true"] {
+  background: var(--control-selected);
+  color: var(--ink);
+}
+.scene-page {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 3px;
+}
+.scene-page .weather-select {
+  width: 100%;
+  min-height: 44px;
+}
+.scene-page .background-actions {
+  margin-top: 10px;
 }

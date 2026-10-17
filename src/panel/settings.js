@@ -2,12 +2,12 @@
 // app updates, the app's own pages, quitting.
 import { agentFile } from '../core/agent-files.js';
 import { agentLabel, agentOf } from '../core/agents.js';
-import { confirmAction } from '../core/confirm.js';
 import { language, t } from '../core/i18n.js';
 import { onShortcut } from '../core/keys.js';
 import { projectLinks } from '../core/project.js';
 import { $, call, data, guard, name, recall, remember, toast } from '../core/state.js';
 import { LANGUAGES } from '../core/strings.js';
+import { quitApp } from '../window.js';
 import { openPanel } from './tabs.js';
 
 const windows = () => /Windows/.test(navigator.userAgent);
@@ -21,9 +21,8 @@ function copied(kind) {
   return t('toast.copied_mcp');
 }
 export function renderDesktopSwitches() {
-  // Both views show friends: with none yet, there is nothing for them to show.
+  // Desktop friends need someone in the yard; window pinning works independently.
   $('desktop').disabled = !data.pets.length;
-  $('mini').disabled = !data.pets.length;
   // A switch, as in the tray and the menu bar: the same words, and pressed while it is on. A narrow
   // window shows only the icon, so the words are the tooltip and the label too.
   const desktopLabel = t('desktop.show');
@@ -238,16 +237,7 @@ export function setupSettings() {
       await call('copyConnection', kind);
       toast(copied(kind));
     });
-  $('quit-app').onclick = guard(async () => {
-    const sure = await confirmAction({
-      title: t('quit.title'),
-      body: t('quit.body'),
-      action: t('quit.action'),
-      danger: false,
-    });
-    if (!sure) return;
-    await call('quitApp');
-  });
+  $('quit-app').onclick = guard(quitApp);
   $('update-button').onclick = guard(updateButton);
   const notes = guard(() => call('openExternal', links().notes(found.version)));
   $('update-notes').onclick = notes;

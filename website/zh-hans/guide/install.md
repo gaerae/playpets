@@ -89,4 +89,4 @@ chmod +x PlayPets_*.AppImage
 | Windows | `%APPDATA%\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
 
-里面有 `state.json`（伙伴和设置）、`bridge.json`（代理联动用的端口和令牌）、`pets/`（导入的宠物）、`builtin/`（自带的三位伙伴）。想放到别的地方，就把文件夹路径填进环境变量 `PLAYPETS_DATA` 再运行应用。详细内容见[设置](./settings.md)。
+里面有 `state.json`（伙伴和设置）、`bridge.json`（代理联动用的端口和令牌）、`pets/`（导入的宠物）、`builtin/`（自带的四位伙伴）。想放到别的地方，就把文件夹路径填进环境变量 `PLAYPETS_DATA` 再运行应用。详细内容见[设置](./settings.md)。

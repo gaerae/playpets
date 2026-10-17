@@ -19,6 +19,7 @@ pub struct Snapshot {
     wander: bool,
     /// The yard's sounds are on (shared by the tray and macOS View menu).
     sound: bool,
+    always_on_top: bool,
     /// A friend whose coding agent needs the person: its state ("waiting" or "error") and name.
     attention: Option<(String, String)>,
 }
@@ -49,6 +50,7 @@ pub fn snapshot(d: &AppData) -> Snapshot {
         desktop: d.prefs.desktop,
         wander: d.prefs.wander,
         sound: d.prefs.sound.on,
+        always_on_top: d.prefs.always_on_top,
         attention,
     }
 }
@@ -60,18 +62,13 @@ pub fn refresh(app: &AppHandle, snap: Snapshot) {
     let _ = app.run_on_main_thread(move || apply(&handle, snap));
 }
 
-/// The menu as last built: the state, whether the window was mini, the update found, the language.
-type Shown = (Snapshot, bool, Option<String>, &'static str);
+/// The menu as last built: the state, the update found, the language.
+type Shown = (Snapshot, Option<String>, &'static str);
 static SHOWN: Mutex<Option<Shown>> = Mutex::new(None);
 
 fn apply(app: &AppHandle, snap: Snapshot) {
     let Some(tray) = app.tray_by_id("tray") else { return };
-    let key = (
-        snap.clone(),
-        crate::window::is_mini(),
-        crate::update::found_version(app),
-        i18n::current().code(),
-    );
+    let key = (snap.clone(), crate::update::found_version(app), i18n::current().code());
     let mut shown = crate::app::hold(&SHOWN);
     if shown.as_ref() == Some(&key) {
         return;
@@ -87,7 +84,7 @@ fn apply(app: &AppHandle, snap: Snapshot) {
     }
     // The macOS menu bar's View menu has the same switches, so it follows the same state.
     #[cfg(target_os = "macos")]
-    if let Ok(bar) = crate::menu::app_menu(app, snap.friends, snap.desktop, key.1, snap.sound) {
+    if let Ok(bar) = crate::menu::app_menu(app, snap.friends, snap.desktop, snap.always_on_top, snap.sound) {
         let _ = app.set_menu(bar);
     }
     *shown = Some(key);
@@ -102,15 +99,16 @@ enum Line {
 
 /// Direct access to the yard and its panels, then the applicable display switches and sound,
 /// then settings, updates and about, then quitting.
-fn lines(snap: &Snapshot, mini: bool) -> Vec<Line> {
+fn lines(snap: &Snapshot) -> Vec<Line> {
     use Line::{Item, Separator};
     let mut lines = vec![Item("open", None)];
     if snap.friends {
         lines.push(Item("friends", None));
     }
     lines.extend([Item("invite", None), Separator]);
+    lines.push(Item("alwaysOnTop", Some(snap.always_on_top)));
     if snap.friends {
-        lines.extend([Item("mini", Some(mini)), Item("desktop", Some(snap.desktop))]);
+        lines.push(Item("desktop", Some(snap.desktop)));
         if snap.desktop {
             lines.push(Item("wander", Some(snap.wander)));
         }
@@ -127,9 +125,9 @@ fn lines(snap: &Snapshot, mini: bool) -> Vec<Line> {
     lines
 }
 
-fn menu(app: &AppHandle, (snap, mini, found, _): &Shown) -> tauri::Result<Menu<tauri::Wry>> {
+fn menu(app: &AppHandle, (snap, found, _): &Shown) -> tauri::Result<Menu<tauri::Wry>> {
     let menu = Menu::new(app)?;
-    for line in lines(snap, *mini) {
+    for line in lines(snap) {
         let Line::Item(id, check) = line else {
             menu.append(&PredefinedMenuItem::separator(app)?)?;
             continue;
@@ -151,10 +149,10 @@ fn menu(app: &AppHandle, (snap, mini, found, _): &Shown) -> tauri::Result<Menu<t
 /// and the tooltip.
 pub fn e2e_state() -> serde_json::Value {
     let shown = crate::app::hold(&SHOWN);
-    let Some((snap, mini, _, _)) = shown.as_ref() else {
+    let Some((snap, _, _)) = shown.as_ref() else {
         return serde_json::Value::Null;
     };
-    let items: Vec<String> = lines(snap, *mini)
+    let items: Vec<String> = lines(snap)
         .into_iter()
         .map(|line| match line {
             Line::Item(id, None) => id.to_string(),
@@ -264,8 +262,8 @@ pub fn build(app: &tauri::App) -> tauri::Result<()> {
 mod tests {
     use super::{Line, Snapshot, i18n, lines, with_mark};
 
-    fn ids(snap: &Snapshot, mini: bool) -> Vec<String> {
-        lines(snap, mini)
+    fn ids(snap: &Snapshot) -> Vec<String> {
+        lines(snap)
             .into_iter()
             .map(|l| match l {
                 Line::Item(id, None) => id.into(),
@@ -279,11 +277,12 @@ mod tests {
     fn switches_show_their_state_and_only_when_they_apply() {
         let none = Snapshot::default();
         assert_eq!(
-            ids(&none, false),
+            ids(&none),
             [
                 "open",
                 "invite",
                 "-",
+                "alwaysOnTop:false",
                 "sound:false",
                 "-",
                 "settings",
@@ -296,16 +295,17 @@ mod tests {
         );
         let friends = Snapshot {
             friends: true,
+            always_on_top: true,
             ..Default::default()
         };
         assert_eq!(
-            ids(&friends, true),
+            ids(&friends),
             [
                 "open",
                 "friends",
                 "invite",
                 "-",
-                "mini:true",
+                "alwaysOnTop:true",
                 "desktop:false",
                 "sound:false",
                 "-",
@@ -323,15 +323,15 @@ mod tests {
             wander: true,
             ..Default::default()
         };
-        assert!(ids(&desk, false).contains(&"wander:true".to_string()));
+        assert!(ids(&desk).contains(&"wander:true".to_string()));
         let audible = Snapshot {
             sound: true,
             ..Default::default()
         };
-        assert!(ids(&audible, false).contains(&"sound:true".to_string()));
-        assert!(!ids(&audible, false).contains(&"friends".to_string()));
+        assert!(ids(&audible).contains(&"sound:true".to_string()));
+        assert!(!ids(&audible).contains(&"friends".to_string()));
         // Every item's words come from tray.{id} (built at run time, so the key test cannot see them).
-        for line in lines(&desk, false).iter().chain(&lines(&none, true)) {
+        for line in lines(&desk).iter().chain(&lines(&none)) {
             if let Line::Item(id, _) = line {
                 assert_ne!(i18n::t(&format!("tray.{id}")), format!("tray.{id}"), "tray.{id}");
             }

@@ -1,11 +1,10 @@
-import { closeControls, closeScene } from '../core/controls.js';
+import { closeControls, closeScene, openControls } from '../core/controls.js';
 // One panel, three tabs. Friend and Invite float over the yard without moving the friends.
 // Settings, which needs no view of the yard,
 // opens as a wide sheet over it, with an index of its sections.
 import { t } from '../core/i18n.js';
 import { release } from '../core/sprites.js';
 import { $, data, guard, remember, selected, views } from '../core/state.js';
-import { setMini } from '../window.js';
 import { quickConnect } from './connection.js';
 export const PANELS = ['pet', 'invite', 'settings'];
 // Sheets shown only on the Invite tab are let go a minute after it closes, not at once, so
@@ -21,6 +20,7 @@ function selectSettingsSection(section, focus = false) {
   const next = active.dataset.section;
   if (next !== settingsSection && $('settings-content')) $('settings-content').scrollTop = 0;
   settingsSection = next;
+  if ($('settings-section')) $('settings-section').value = next;
   for (const body of document.querySelectorAll('.settings-section[data-settings-section]'))
     body.hidden = body.dataset.settingsSection !== next;
   for (const link of links) {
@@ -30,16 +30,14 @@ function selectSettingsSection(section, focus = false) {
   }
   if (focus) $(next)?.focus?.({ preventScroll: true });
 }
-let miniOpener = null;
+let panelOpener = null;
 function closePanel() {
-  const compact = document.body.classList.contains('mini');
+  const compact = document.body.classList.contains('compact');
   const tab = document.querySelector('.panel-tab[aria-expanded="true"]');
+  const opener = panelOpener?.isConnected && panelOpener.getClientRects().length ? panelOpener : null;
   openPanel(null);
-  if (compact) {
-    const opener = miniOpener?.isConnected && miniOpener.getClientRects().length ? miniOpener : null;
-    (opener || views.get(selected)?.button || $('unmini')).focus();
-    miniOpener = null;
-  } else ($('yard-controls-toggle') || tab)?.focus();
+  (opener || (compact && (views.get(selected)?.button || $('yard'))) || $('yard-controls-toggle') || tab)?.focus();
+  panelOpener = null;
 }
 export function openPanel(kind, section) {
   if (kind) {
@@ -52,22 +50,23 @@ export function openPanel(kind, section) {
       if ($('panel-invite').hidden) release(new Set(data.pets.map(p => p.assetId)));
     }, RELEASE_AFTER);
   }
-  const compact = document.body.classList.contains('mini') && kind === 'pet';
-  if (compact && !$('layout').classList.contains('mini-chat-open'))
-    miniOpener = document.activeElement?.matches('button, a, input, select, textarea') ? document.activeElement : null;
-  $('layout').classList.toggle('mini-chat-open', compact);
+  if (kind && $('side-panel').hidden)
+    panelOpener = document.activeElement?.matches('button, a, input, select, textarea') ? document.activeElement : null;
   $('side-panel').hidden = !kind;
   $('layout').classList.toggle('panel-open', !!kind && kind !== 'settings');
   $('layout').classList.toggle('settings-open', kind === 'settings');
   for (const id of PANELS) $(`panel-${id}`).hidden = id !== kind;
-  // A quick conversation stays beside the yard; browsing and settings need the full window.
-  if (kind && !compact && document.body.classList.contains('mini')) guard(() => setMini(false))();
   // Each panel body names its title by key, so the head reads it in the current language.
-  if (kind) $('panel-title').textContent = t($(`panel-${kind}`).dataset.title);
+  if (kind)
+    $('panel-title').textContent =
+      kind === 'pet' && !$('pet-panel')?.hidden && $('selected-name')?.textContent
+        ? $('selected-name').textContent
+        : t($(`panel-${kind}`).dataset.title);
   for (const tab of document.querySelectorAll('.panel-tab'))
     tab.setAttribute('aria-expanded', String(tab.dataset.panel === kind));
   remember('panel', kind || 'closed');
   if (kind === 'settings') selectSettingsSection(section || settingsSection, !!section);
+  if (kind && !(kind === 'settings' && section)) $('panel-title').focus({ preventScroll: true });
 }
 // The Invite tab, with the first pet card ready for the keyboard.
 export function openInvite() {
@@ -76,7 +75,9 @@ export function openInvite() {
 }
 // Wires the tabs and the buttons that open a panel. Called once, by app.js.
 export function setupTabs() {
-  for (const tab of document.querySelectorAll('.panel-tab'))
+  $('panel-menu')?.addEventListener('click', openControls);
+  if ($('settings-section')) $('settings-section').onchange = () => selectSettingsSection($('settings-section').value);
+  for (const tab of document.querySelectorAll('.panel-tab[data-panel]'))
     tab.onclick = () => openPanel(tab.getAttribute('aria-expanded') === 'true' ? null : tab.dataset.panel);
   // Closing with the panel's own button leaves the focus on the tab it belonged to, not lost on the page.
   $('close-panel').onclick = closePanel;
@@ -90,17 +91,6 @@ export function setupTabs() {
     if (e.target === $('layout') && $('layout').classList.contains('settings-open')) openPanel(null);
   });
   document.addEventListener('keydown', e => {
-    if (
-      e.key === 'Escape' &&
-      !e.defaultPrevented &&
-      document.body.classList.contains('mini') &&
-      $('layout').classList.contains('mini-chat-open') &&
-      !document.querySelector('dialog[open]')
-    ) {
-      e.preventDefault();
-      closePanel();
-      return;
-    }
     if (
       e.key === 'Escape' &&
       !e.defaultPrevented &&

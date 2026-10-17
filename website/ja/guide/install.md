@@ -89,4 +89,4 @@ chmod +x PlayPets_*.AppImage
 | Windows | `%APPDATA%\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
 
-中には`state.json`（友だちと設定）、`bridge.json`（エージェント連携のポートとトークン）、`pets/`（取り込んだペット）、`builtin/`（付属の3種類の仲間）があります。別の場所に置くには、環境変数`PLAYPETS_DATA`にフォルダーのパスを入れてアプリを起動します。詳しくは[設定](./settings.md)を参照してください。
+中には`state.json`（友だちと設定）、`bridge.json`（エージェント連携のポートとトークン）、`pets/`（取り込んだペット）、`builtin/`（付属の4種類の仲間）があります。別の場所に置くには、環境変数`PLAYPETS_DATA`にフォルダーのパスを入れてアプリを起動します。詳しくは[設定](./settings.md)を参照してください。

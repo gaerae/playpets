@@ -41,7 +41,7 @@ On macOS, friends float on top even when another app is in full screen. The desk
 
 ## Still there after you close the window <Since v="0.1.0" />
 
-The yard window's close button does not quit the app; it only hides the window. Hover over the close button and it says "Close (reopen from the tray)". The friends on the desktop stay, and the agent hooks keep running.
+The yard has no title bar or window buttons on any OS. Drag the narrow transparent area along its top edge to move the window, and drag an edge or corner to resize it down to 300 × 210. Choose **Menu → Close window**, or use the system close shortcut, to hide it: desktop friends and agent hooks keep running.
 
 - On macOS, closing the window also removes the Dock icon, so that no icon that does not respond to clicks is left in the Dock. Open the yard again and the Dock icon comes back.
 - On Windows and Linux, it disappears from the taskbar and stays only in the tray.
@@ -53,4 +53,4 @@ The yard window's close button does not quit the app; it only hides the window. 
 
 ## Quitting for good
 
-To really quit the app, choose **Quit** in the tray menu or click **Quit the app** in **Menu → Settings → About PlayPets**. Conversations are not saved, and friends on the desktop go too. Each friend's name, personality and size, and whether desktop mode was on, are remembered, so everything is as you left it the next time you open the app.
+To really quit the app, choose **Menu → Quit the app**, **Quit** in the tray menu, or **Quit the app** in **Menu → Settings → About PlayPets**. The yard menu and the menu opened by right-clicking empty scenery both offer **Close window** and **Quit the app**; quitting asks for confirmation. Conversations are not saved, and friends on the desktop go too. Each friend's name, personality and size, and whether desktop mode was on, are remembered, so everything is as you left it the next time you open the app.

@@ -226,7 +226,10 @@ static COMMANDS: &[Command] = &[
         Ok(Value::Null)
     }),
     main("windowDrag", |c| window::command(c.app, c.name, c.args)),
-    main("windowMini", |c| window::command(c.app, c.name, c.args)),
+    main("windowAlwaysOnTop", |c| window::command(c.app, c.name, c.args)),
+    main("windowFullscreen", |c| window::command(c.app, c.name, c.args)),
+    main("windowIsFullscreen", |c| window::command(c.app, c.name, c.args)),
+    main("windowResize", |c| window::command(c.app, c.name, c.args)),
     main("windowMinimize", |c| window::command(c.app, c.name, c.args)),
     main("windowMaximize", |c| window::command(c.app, c.name, c.args)),
     main("windowHide", |c| window::command(c.app, c.name, c.args)),
@@ -723,7 +726,10 @@ mod tests {
         let window_rs = include_str!("window.rs");
         for name in [
             "windowDrag",
-            "windowMini",
+            "windowAlwaysOnTop",
+            "windowFullscreen",
+            "windowIsFullscreen",
+            "windowResize",
             "windowMinimize",
             "windowMaximize",
             "windowHide",

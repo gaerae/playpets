@@ -14,12 +14,12 @@ Build a small community on your desktop, with a voice and a place for every frie
 
 | In PlayPets | Your choices |
 |---|---|
-| Companions | Daisy, Clover and Pip, or compatible community pet files |
-| Appearance | Three illustrated starters with summer and winter outfits |
+| Companions | Daisy, Clover, Pip and Miso, or compatible community pet files |
+| Appearance | Four illustrated starters with summer and winter outfits |
 | Relationships | Friend, Partner, Dependable mentor or Playful younger sibling |
 | Conversations | Chat with a friend, bring friends in, or let them talk together |
 | AI connections | Signed-in Claude Code or Codex CLI, local Ollama, or an OpenAI-compatible server |
-| Places to play | Four places and imported backgrounds, with season, time and weather controls; mini and desktop modes |
+| Places to play | Four places and imported backgrounds, with season, time and weather controls; a resizable window and desktop mode |
 | Coding company | Optional hooks and MCP for several coding agents |
 
 ![Three friends saying hi and going for a walk in the yard](assets/demo.gif)
@@ -30,9 +30,9 @@ Build a small community on your desktop, with a voice and a place for every frie
 - **A living yard.** Morning, day, evening and night follow the clock, and the weather (clear, rain, snow) changes on its own. You can also pick them yourself. Put down a treat and friends walk over to eat it. Leave them alone and they wander and talk to themselves.
 - **Desktop mode.** Pets stroll around the desktop (on macOS, even over other apps in full screen).
 - **Play together.** Hide and seek (find the friend whose name is called), parade, and tag.
-- **Three starter companions.** Daisy, Clover and Pip come with the app. Clover is the main mascot; all three have summer and winter outfits. They use the Codex pet format and are MIT licensed. Make your own with the [character studio](https://playpets.gaerae.com/guide/creator-kit), or create an importable place with the [background studio](https://playpets.gaerae.com/guide/background-kit).
+- **Four starter companions.** Daisy, Clover, Pip and Miso come with the app. Clover is the main mascot; all four have summer and winter outfits. They use the Codex pet format and are MIT licensed. Make your own with the [character studio](https://playpets.gaerae.com/guide/creator-kit), or create an importable place with the [background studio](https://playpets.gaerae.com/guide/background-kit).
 - **Import community pets.** Paste the address of a pet page from OpenPets Registry (openpets.sh), Petdex, Codex PokéPets, Awesome Codex Pet (codexpet.top) or codex-pets.net, and the pet comes straight in. GitHub pet folder addresses and other sites built with codex-pet-share work too. Codex pets in `~/.codex/pets` load on their own. When a gallery adds a `playpets://import?url=<pet page>` link, one click brings the pet in.
-- **Mini mode.** Keep a small window with just the yard, always on top.
+- **A window beside your work.** Resize the yard down to 300 × 210 while keeping its controls, chat and games available. Toggle Always on top independently; the app remembers the window position, size and pin setting.
 - **Built with Tauri.** Uses Rust and the system webview. The yard redraws while something moves and rests when it is still.
 
 ## Install
@@ -42,7 +42,7 @@ Build a small community on your desktop, with a voice and a place for every frie
 
 ## Getting started
 
-1. In the **Invite** tab, invite a starter companion into the yard. Choose Daisy, Clover or Pip.
+1. In the **Invite** tab, invite a starter companion into the yard. Choose Daisy, Clover, Pip or Miso.
 2. In the **Friend** tab, connect an AI. Installed Claude Code and Codex are found automatically. Ollama and OpenAI-compatible servers just need an address.
 3. In **Friend settings**, choose a personality, relationship and what the friend calls you. For company while coding, add your tool's hooks from the **Settings** tab.
 
@@ -105,7 +105,7 @@ You need Rust (stable, 1.98 or later), Node.js 26, and the [Tauri prerequisites]
 
 ```
 src/              Page (HTML, CSS, JS, used as is with no build tool)
-  index.html      Yard window · app.js entry point, render.js draws state, window.js window buttons and mini mode
+  index.html      Yard window · app.js entry point, render.js draws state, window.js window dragging, resizing and Always on top
   overlay.html    Desktop pet window · overlay/ its scripts and styles
   core/           Shared by both windows: state, sprites and animation, strings (i18n, strings), icons
   yard/           The yard: the painted scenery, friends, games, treats, the garden and its gifts,

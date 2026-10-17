@@ -11,7 +11,8 @@ pub(super) static SPEC: super::Spec = super::Spec {
 const TABLE: &[(&str, &str)] = &[
     ("app.title", "PlayPets · Pet Yard"),
 
-    ("pets.parked", "Some friends ({count}) couldn't join the yard: their pet file is missing or the yard is full. Nothing was deleted, and they come back when the file returns or there's room."),
+    ("pets.parked_missing", "Friends with missing pet files: {count}. Their saved data is still kept. Check that their original pet folders and files are still available, then restart PlayPets."),
+    ("pets.parked_full", "The yard has reached its limit of {limit} friends, so {count} more could not join. Their saved data is still kept. Free a yard slot, then restart PlayPets."),
 
     ("tray.open", "Open the yard"),
     ("tray.friends", "Friends"),
@@ -20,7 +21,7 @@ const TABLE: &[(&str, &str)] = &[
     ("tray.desktop", "Show on the desktop"),
     ("tray.wander", "Stroll around the desktop"),
     ("tray.update", "Check for updates…"),
-    ("tray.mini", "Mini mode"),
+    ("tray.alwaysOnTop", "Always on top"),
     ("menu.sound", "Yard Sounds"),
     ("tray.state_waiting", "waiting for you"),
     ("tray.state_error", "ran into trouble"),
@@ -43,6 +44,7 @@ const TABLE: &[(&str, &str)] = &[
     ("menu.paste", "Paste"),
     ("menu.select_all", "Select All"),
     ("menu.view", "View"),
+    ("menu.controls", "Open menu"),
     ("menu.friends", "Friends"),
     ("menu.invite", "Invite a Friend…"),
     ("menu.window", "Window"),

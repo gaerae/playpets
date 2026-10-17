@@ -1,7 +1,7 @@
 # Standard: Backend locks and threads
 
 ## Applies to
-All Rust code in `src-tauri/src` that takes the app state lock (`app::Shared`, that is `Mutex<AppData>`) or any other mutex: the overlay's internal lock, the CLI sessions, each Claude Code session's stderr tail and the chat CLIs' private folder (`chat/cli/`), the tray's last-built menu (`SHOWN` in `tray.rs`), the full-size window frame (`FULL` in `window.rs`) and the update found (`update::Found`). This covers the commands the page calls (`commands.rs`), chat (`chat/`), the agent bridge (`agent/`), the overlay thread (`desktop/overlay.rs`), the tray and windows (`tray.rs`, `window.rs`), and auto-update (`update.rs`).
+All Rust code in `src-tauri/src` that takes the app state lock (`app::Shared`, that is `Mutex<AppData>`) or any other mutex: the overlay's internal lock, the CLI sessions, each Claude Code session's stderr tail and the chat CLIs' private folder (`chat/cli/`), the tray's last-built menu (`SHOWN` in `tray.rs`) and the update found (`update::Found`). This covers the commands the page calls (`commands.rs`), chat (`chat/`), the agent bridge (`agent/`), the overlay thread (`desktop/overlay.rs`), the tray and windows (`tray.rs`, `window.rs`), and auto-update (`update.rs`).
 
 Not covered: the app's CLI mode (`run` in `agent/cli.rs`) is a separate process that runs without app state, so it does not apply. Test code does not apply either.
 
@@ -16,7 +16,6 @@ Not covered: the app's CLI mode (`run` in `agent/cli.rs`) is a separate process 
   - A Claude Code session's stderr tail (`StderrTail` in `chat/cli/claude.rs`): taken alone, by its reader thread for each piece it reads and by a turn reading why the CLI quit, which waits on it (at most a second) with no other lock held.
   - The chat CLIs' private folder (`DIR` in `private_dir`, `chat/cli/launch.rs`): taken alone and briefly, to return the folder or make it again if it went.
   - The tray's `SHOWN`: taken on the main thread while the menu is built from a snapshot (`tray::apply`, queued with `run_on_main_thread`), and briefly by `rebuild` and the e2e check. The snapshot is read from `Shared` before, never under it.
-  - The window's `FULL`: taken by `set_mini` (the `windowMini` command, on a worker thread) after the state's `prefs.mini_rect` was read and its guard dropped. It is held across the window calls that resize the window; nothing on the main thread takes it.
   - The update's `Found`: taken only to store, read or take the update. The download and install run after the guard is dropped, and a failed install puts the update back.
 - When the overlay needs monitors, it uses the cache (`current_monitors`, refreshed outside the lock every 2 seconds). Functions that can be called inside the lock, such as `layout()`, do not call the runtime.
 - `commands::call` runs the commands the page calls on a worker thread (`spawn_blocking`). Do not add a wait inside a command that blocks the main thread.

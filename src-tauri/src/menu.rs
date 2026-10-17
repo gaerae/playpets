@@ -23,6 +23,7 @@ pub fn act(app: &AppHandle, id: &str) {
     };
     match id {
         "open" => window::show(app),
+        "controls" => open(json!({"type": "open-controls"})),
         "settings" => open(json!({"type": "open-panel", "panel": "settings"})),
         "friends" => open(json!({"type": "open-panel", "panel": "pet"})),
         "invite" => open(json!({"type": "open-panel", "panel": "invite"})),
@@ -51,10 +52,17 @@ pub fn act(app: &AppHandle, id: &str) {
             }
             crate::tray::rebuild(app);
         }
-        // The page leaves or enters the mini window (it ends a game first, and keeps its place).
-        "mini" => {
-            open(json!({"type": "mini", "on": !crate::window::is_mini()}));
-            crate::tray::rebuild(app);
+        "alwaysOnTop" => {
+            // Native confirmation needs the main loop to run; menu callbacks run on that loop.
+            let app = app.clone();
+            tauri::async_runtime::spawn_blocking(move || {
+                let state = app.state::<Shared>();
+                let on = !lock(&state).prefs.always_on_top;
+                if let Err(e) = window::set_always_on_top(&app, on) {
+                    warn(&app, &mut lock(&state), e);
+                }
+                crate::tray::rebuild(&app);
+            });
         }
         "quit" => quit(app),
         _ => {}
@@ -68,7 +76,7 @@ pub fn app_menu(
     app: &AppHandle,
     friends: bool,
     desktop: bool,
-    mini: bool,
+    always_on_top: bool,
     sound: bool,
 ) -> tauri::Result<tauri::menu::Menu<tauri::Wry>> {
     use crate::i18n::t;
@@ -117,10 +125,19 @@ pub fn app_menu(
         t("menu.view"),
         true,
         &[
+            &item("controls", "menu.controls", Some("CmdOrCtrl+Shift+P"))?,
+            &line()?,
             &item("friends", "menu.friends", Some("CmdOrCtrl+1"))?,
             &item("invite", "menu.invite", Some("CmdOrCtrl+2"))?,
             &line()?,
-            &switch("mini", "tray.mini", "CmdOrCtrl+Shift+M", mini)?,
+            &CheckMenuItem::with_id(
+                app,
+                "alwaysOnTop",
+                t("tray.alwaysOnTop"),
+                true,
+                always_on_top,
+                Some("CmdOrCtrl+Shift+M"),
+            )?,
             &switch("desktop", "tray.desktop", "CmdOrCtrl+Shift+D", desktop)?,
             &line()?,
             // The yard's sounds play with or without friends, so this one is never greyed.

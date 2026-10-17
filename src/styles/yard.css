@@ -1,6 +1,6 @@
 /* The yard's frame and the field: the scene fills the frame, and the parts float over it. The
    scenery is scenery.css; friends, the garden, the caption, the tools, the first-run card, games
-   and fishing each have their own file, and the mini window's changes come last (mini.css). */
+   and fishing each have their own file. Compact window adjustments live in compact.css. */
 /* The scene fills the frame; the caption and the tools float over it (as in games kept open all
    day), so the painting has the whole frame. The frame is a container: what floats over the scene
    gives way in a narrow yard (caption.css, tools.css). */
@@ -21,6 +21,8 @@
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
   flex: 1;
   height: auto;
   min-height: 0;
