@@ -169,6 +169,6 @@ export function whenVisible(target, load, Observer = globalThis.IntersectionObse
 
 // Approved 2× idle silhouette heights, measured at alpha > 64; keep pose motion intact.
 export function castHeightFactor(pet) {
-  const heights = { daisy: 326, clover: 337, pip: 329 };
+  const heights = { daisy: 326, clover: 337, pip: 329, miso: 325 };
   return heights[pet] ? 326 / heights[pet] : 1;
 }

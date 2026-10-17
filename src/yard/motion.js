@@ -42,7 +42,7 @@ export function moveFriends(now, dt) {
         place(v);
       }
     } else if (!v.drag && !v.doing && !aiming && !game && !v.away && !reduced.matches && now >= v.nextWander) {
-      const quiet = document.body.classList.contains('mini');
+      const quiet = document.body.classList.contains('compact');
       const action = idleAction(Math.random, quiet);
       if (action.type === 'pose') pose(v, action.pose, 1200);
       else if (!visitTarget(v) && !decorTarget(v))

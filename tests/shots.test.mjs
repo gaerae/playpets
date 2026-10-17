@@ -104,7 +104,7 @@ test('clean composition scales its controlled margin to native pixels and fills 
   assert.ok(calls.findIndex(c => c[0] === 'fill') < calls.findIndex(c => c[0] === 'draw'));
 });
 
-test('seasonal captures select explicit seasons without replacing the original autumn scene', () => {
+test('seasonal captures select explicit seasons with a bright ordinary scene', () => {
   assert.deepEqual(shots.seasonalScenes(), [
     { name: 'yard-spring', season: 'spring', weather: 'clear' },
     { name: 'yard-summer', season: 'summer', weather: 'clear' },
@@ -137,21 +137,21 @@ test('refreshing captures keeps the accepted WebP until its replacement is encod
   assert.match(source, /await rename\(pending, target\)/);
 });
 
-test('brand captures give the three companions equal visible height and one ground line', () => {
+test('brand captures give the four companions equal visible height and one ground line', () => {
   const cast = shots.companionCast();
   assert.deepEqual(
     cast.map(p => p.name),
-    ['Daisy', 'Clover', 'Pip'],
+    ['Daisy', 'Clover', 'Pip', 'Miso'],
   );
   assert.deepEqual(
     cast.map(p => p.x),
-    [0.28, 0.5, 0.72],
+    [0.2, 0.4, 0.6, 0.8],
   );
   assert.deepEqual(
     cast.map(p => p.y),
-    [0.58, 0.58, 0.58],
+    [0.58, 0.58, 0.58, 0.58],
   );
-  const heights = [163, 168, 164];
+  const heights = [163, 168, 164, 163];
   cast.forEach((pet, i) => {
     assert.ok(Math.abs((pet.size * heights[i]) / 192 - 150) < 0.01);
   });
@@ -160,4 +160,46 @@ test('brand captures give the three companions equal visible height and one grou
   const source = readFileSync('scripts/shots.mjs', 'utf8');
   assert.doesNotMatch(source, /size:(?:128|150|176)[,}]/);
   assert.match(source, /full\('playpets-pip'\)/);
+});
+
+test('ordinary captures start in sunny spring and include the fourth friend', () => {
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  assert.match(source, /\$\('season'\)\.value='spring'/);
+  assert.doesNotMatch(source, /\$\('season'\)\.value='autumn'/);
+  assert.match(source, /coat\('Miso'\)/);
+  assert.match(source, /full\('playpets-miso'\)/);
+  assert.match(source, /\[p1.id,p2.id,p3.id,p4.id\]/);
+  assert.doesNotMatch(source, /\['studio','winter','night'/);
+});
+
+test('chat captures reject a missing or panel-covered fourth friend', () => {
+  const yard = { left: 0, top: 0, right: 1180, bottom: 780 };
+  const panel = { left: 796, top: 0, right: 1180, bottom: 780 };
+  const bodies = Array.from({ length: 4 }, (_, i) => ({
+    id: String(i),
+    left: 20 + i * 180,
+    top: 460,
+    right: 170 + i * 180,
+    bottom: 650,
+  }));
+  assert.equal(shots.assertChatCast(bodies, panel, yard), true);
+  assert.throws(() => shots.assertChatCast(bodies.slice(0, 3), panel, yard), /four/i);
+  assert.throws(
+    () => shots.assertChatCast([...bodies.slice(0, 3), { ...bodies[3], right: 850 }], panel, yard),
+    /covered/i,
+  );
+  assert.throws(
+    () => shots.assertChatCast([...bodies.slice(0, 3), { ...bodies[3], top: NaN }], panel, yard),
+    /bounds/i,
+  );
+});
+
+test('chat refresh fixes actual views and skips unrelated capture scenes and GIFs', () => {
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  assert.match(source, /const chatOnly = process.env.SHOT_SCENE === 'chat'/);
+  assert.match(source, /skipGif = chatOnly \|\|/);
+  assert.match(source, /release\(view\)/);
+  assert.match(source, /view\.x=at\.x;view\.y=at\.y;place\(view\)/);
+  assert.match(source, /assertChatCast\.toString\(\)/);
+  assert.match(source, /if\(\$\{chatOnly\}\)\{await companionScene\(\);await L\('DONE'\);return;\}/);
 });

@@ -17,8 +17,8 @@ test('a runtime atlas cannot be accidentally published as a high-resolution stri
   assert.throws(() => validatePreview(atlas), /384/);
 });
 
-test('all three official companions provide high-resolution idle, wave and jump strips', async () => {
-  for (const pet of ['daisy', 'clover', 'pip']) {
+test('all four official companions provide high-resolution idle, wave and jump strips', async () => {
+  for (const pet of ['daisy', 'clover', 'pip', 'miso']) {
     for (const state of PREVIEW_STATES) {
       const bytes = await readFile(`assets/pets/${pet}/preview/${state}.png`);
       assert.doesNotThrow(() => validatePreview(bytes), `${pet}:${state}`);
@@ -35,4 +35,92 @@ test('preview packing shares canonical row corrections and authored jump heights
   assert.throws(() => previewPacking('wave', { rowScales: { 3: 0 } }), /row scale/);
   assert.throws(() => previewPacking('jump', { jumpLifts: [0, 1] }), /jump lift/);
   assert.throws(() => previewPacking('unknown'), /preview state/);
+});
+
+test('every official companion provides genuine seasonal website strips', async () => {
+  for (const pet of ['daisy', 'clover', 'pip', 'miso']) {
+    for (const season of ['summer', 'winter']) {
+      for (const state of PREVIEW_STATES) {
+        const bytes = await readFile(`assets/pets/${pet}/preview/${season}/${state}.png`);
+        assert.doesNotThrow(() => validatePreview(bytes), `${pet}:${season}:${state}`);
+        assert.notDeepEqual(bytes, await readFile(`assets/pets/${pet}/preview/${state}.png`));
+      }
+    }
+  }
+});
+
+test('preview export keeps seasonal paths separate and missing artwork out of metadata', async () => {
+  const { collectPreviewExports } = await import('../scripts/site-preview-export.mjs');
+  const png = await readFile('assets/pets/pip/preview/winter/idle.png');
+  const available = new Set(['assets/pets/pip/preview/idle.png', 'assets/pets/pip/preview/winter/idle.png']);
+  const read = async source => {
+    if (available.has(source)) return png;
+    throw Object.assign(new Error('missing fixture'), { code: 'ENOENT' });
+  };
+  const result = await collectPreviewExports([{ id: 'pip' }], read);
+  assert.deepEqual(result.petPreviews, { pip: ['idle'] });
+  assert.deepEqual(result.petSeasonalPreviews, { pip: { winter: ['idle'] } });
+  assert.deepEqual(
+    result.copies.map(copy => copy.destination),
+    ['website/public/pets/previews/pip/idle.png', 'website/public/pets/previews/pip/winter/idle.png'],
+  );
+  const atlas = await readFile('assets/pets/pip/seasonal/winter.png');
+  await assert.rejects(
+    collectPreviewExports([{ id: 'pip' }], async () => atlas),
+    /384/,
+  );
+  await assert.rejects(
+    collectPreviewExports([{ id: 'pip' }], async () => {
+      throw new Error('unreadable');
+    }),
+    /unreadable/,
+  );
+});
+
+test('season previews preserve clothes when a high-resolution pose is unavailable', () => {
+  const base = { miso: ['idle', 'wave', 'jump'], visitor: ['idle'] };
+  const seasonal = { miso: { summer: ['idle'], winter: ['idle', 'wave', 'jump'] } };
+  for (const state of PREVIEW_STATES)
+    assert.equal(previewSource('miso', state, base, 'winter', seasonal), `/pets/previews/miso/winter/${state}.png`);
+  assert.equal(previewSource('miso', 'wave', base, 'summer', seasonal), '/creator-kit/miso/summer.png');
+  assert.equal(previewSource('pip', 'jump', base, 'winter', seasonal), '/creator-kit/pip/winter.png');
+  for (const season of ['base', 'spring', 'autumn'])
+    assert.equal(previewSource('miso', 'idle', base, season, seasonal), '/pets/previews/miso/idle.png');
+  assert.equal(previewSource('visitor', 'idle', base, 'winter', seasonal), '/pets/previews/visitor/idle.png');
+  assert.equal(previewSource('unknown', 'idle', base, 'winter', seasonal), null);
+});
+
+test('the world forwards its season through visibility loading and keeps canonical seasonal row geometry', async () => {
+  const world = await readFile('website/.vitepress/theme/WorldPreview.vue', 'utf8');
+  const visible = await readFile('website/.vitepress/theme/VisibleSprite.vue', 'utf8');
+  const sprite = await readFile('website/.vitepress/theme/Sprite.vue', 'utf8');
+  assert.match(world, /:season="\['spring', 'summer', 'autumn', 'winter'\]\[season\]"/);
+  assert.match(visible, /:season="season"/);
+  assert.match(sprite, /petSeasonalPreviews/);
+  assert.match(sprite, /strip\.value \? '0' : String\(row\.value\.row\)/);
+});
+
+test('all four friends resolve all preview poses in each approved seasonal outfit', () => {
+  for (const pet of ['daisy', 'clover', 'pip', 'miso']) {
+    const available = { [pet]: PREVIEW_STATES };
+    const seasonal = { [pet]: { summer: PREVIEW_STATES, winter: PREVIEW_STATES } };
+    for (const season of ['summer', 'winter'])
+      for (const state of PREVIEW_STATES)
+        assert.equal(
+          previewSource(pet, state, available, season, seasonal),
+          `/pets/previews/${pet}/${season}/${state}.png`,
+        );
+  }
+});
+
+test('landing season fallback uses only the small cast inventory and matches shipped wardrobes', async () => {
+  const { LANDING_PETS } = await import('../scripts/site-content.mjs');
+  const source = await readFile('scripts/site-preview-lib.mjs', 'utf8');
+  assert.doesNotMatch(source, /creator-specs/);
+  for (const { id } of LANDING_PETS) {
+    const pet = JSON.parse(await readFile(`assets/pets/${id}/pet.json`, 'utf8'));
+    assert.deepEqual(Object.keys(pet.seasonalSpritesheets).sort(), ['summer', 'winter']);
+    for (const season of Object.keys(pet.seasonalSpritesheets))
+      assert.equal(previewSource(id, 'idle', {}, season, {}), `/creator-kit/${id}/${season}.png`);
+  }
 });

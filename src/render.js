@@ -1,12 +1,13 @@
 // Brings every part of the page in line with the latest state from the backend.
 import { t } from './core/i18n.js';
+import { renderNotices } from './core/notices.js';
 import { $, data, recall, selected, setSelected } from './core/state.js';
 import { renderAlbum } from './panel/album.js';
 import { detectedLabel } from './panel/connection.js';
 import { renderPanel } from './panel/friend.js';
 import { renderShelf } from './panel/invite.js';
 import { renderAgentPets, renderDesktopSwitches, renderUpdate } from './panel/settings.js';
-import { isMini, setMini } from './window.js';
+import { renderWindow } from './window.js';
 import { renderBonds } from './yard/bond.js';
 import { syncChatter } from './yard/care.js';
 import { renderDecor } from './yard/decor.js';
@@ -26,8 +27,7 @@ export function render() {
       : t('yard.count', { count: data.pets.length });
   hint();
   $('layout').classList.toggle('no-friends', !data.pets.length);
-  // The last friend gone, the small window has nothing to show: the yard comes back to full size.
-  if (!data.pets.length && isMini()) setMini(false).catch(() => {});
+  renderWindow();
   renderSteps();
   syncChatter();
   renderDesktopSwitches();
@@ -42,8 +42,7 @@ export function render() {
   renderBonds();
   renderSound();
   renderShelf();
-  $('warnings').hidden = !data.warnings?.length;
-  $('warnings').textContent = (data.warnings || []).join('\n');
+  renderNotices(data.warnings);
   renderPanel();
 }
 // The first-run card. An empty yard asks who to play with and shows the starter pets; once a friend

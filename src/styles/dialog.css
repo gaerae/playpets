@@ -2,6 +2,8 @@
 dialog {
   width: 440px;
   max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
   padding: 28px;

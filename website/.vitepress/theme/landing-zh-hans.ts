@@ -32,6 +32,12 @@ export const copy = {
 export const worldCopy = {
   places: ['山丘花园', '石屋庭院', '湖畔小屋', '温馨客厅'],
   seasons: ['春天', '夏天', '秋天', '冬天'],
+  greetings: {
+    daisy: '转过那个角落，说不定有美好的小发现。',
+    clover: '一起看看今天长出了什么吧。',
+    pip: '你来啦！一起玩一会儿吧。',
+    miso: '在这里安静地歇一会儿也很好。',
+  },
   seasonLabel: '选择季节',
   previewNote: '使用应用背景和角色制作的互动预览。点击伙伴，它会挥手。游戏与天气请在应用中体验。',
   greet: '打招呼',
@@ -49,19 +55,21 @@ export const worldCopy = {
   sceneCaption: (v: string) => `实际应用画面 · PlayPets ${v}`,
 };
 export const sections = {
+  discoveryGuide: '看看能发现什么',
   galleryCreate: '用这位伙伴开始创作',
   petNotes: {
     daisy: '留意小事的好奇探险家。',
     clover: '温柔的小猫园丁，喜欢分享小小的发现。',
-    pip: '穿着蓝色花朵徽章夹克、喜欢和伙伴打招呼的开朗小狗。',
+    pip: '穿着靛蓝牛仔夹克与象牙色短裤、戴着白花瓣金黄花芯徽章的开朗小狗。',
+    miso: '穿着淡紫色针织背心、喜欢在池畔读书的温柔水獭。',
   },
   galleryTitle: '总会多看一眼的伙伴。',
-  galleryLead: '黛西、三叶草和皮普。三位性格不同的伙伴，住在同一个小世界。',
+  galleryLead: '黛西、三叶草、皮普和米索。四位性格不同的伙伴，在你身边留一处小天地。',
   galleryLabel: '选择伙伴',
   posesLabel: '预览姿势',
   poses: ['休息', '挥手', '跳跃'],
   selectedLead: '在邀请标签页邀请这位伙伴。为它设置名字、性格，以及与你的关系。',
-  galleryGuide: '认识第一位伙伴',
+  galleryGuide: '读读伙伴的故事',
   connectionsTitle: '一起玩，偶尔聊聊天。',
   connectionsLead: '游戏和种花无需 AI 账号。聊天时适用所连接 AI 的额度与收费。',
   connections: [
@@ -73,8 +81,9 @@ export const sections = {
     ],
   ],
   miniTitle: '一天的一角，有小小的陪伴。',
-  miniBody: '迷你模式让小乐园陪在工作旁边，不显示菜单。想更换背景或使用游戏工具时，放大窗口即可。',
-  miniLink: '了解迷你模式',
+  miniBody:
+    '调整乐园窗口的大小，让它陪在工作旁边。小窗口中也能从同一个菜单更换背景、使用游戏工具。单独开启始终置顶，就能让它保持在其他应用上方。',
+  miniLink: '调整乐园窗口',
   agentGuide: '连接编码代理',
   connectionDetails: '了解聊天设置与费用',
   connectionSetup:

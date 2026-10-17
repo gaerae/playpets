@@ -9,8 +9,8 @@ const dimensions = async path => {
   return [png.readUInt32BE(16), png.readUInt32BE(20)];
 };
 
-test('five companions expose complete summer and winter animation sheets', async () => {
-  for (const id of ['daisy', 'clover', 'pip', 'aria', 'noah']) {
+test('official and archived companions expose complete summer and winter animation sheets', async () => {
+  for (const id of ['daisy', 'clover', 'pip', 'miso', 'aria', 'noah']) {
     const pet = await manifest(id);
     assert.deepEqual(Object.keys(pet.seasonalSpritesheets).sort(), ['summer', 'winter'], id);
     for (const file of Object.values(pet.seasonalSpritesheets))

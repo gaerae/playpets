@@ -46,13 +46,13 @@ The value that identifies a pet is made from its folder path (the first 24 chara
 ## Identity and optional artwork
 
 A drawing style is not a pet type. An ordinary baseline sheet may be pixel art,
-paper, plush, sculpted or realistic. The three bundled pets are Daisy, Clover and
-Pip, defined by `assets/pets/{daisy,clover,pip}/pet.json` and embedded by
+paper, plush, sculpted or realistic. The four bundled pets are Daisy, Clover, Pip and
+Miso, defined by `assets/pets/{daisy,clover,pip,miso}/pet.json` and embedded by
 `src-tauri/src/pets/builtin.rs`. Each invitation creates an independent friend,
 including another invitation of the same pet. Names, relationships, personality
 and closeness belong to that friend. Conversations belong to the current app
 session and are not written to saved state. Restarting or migrating saved assets
-does not restore chat logs. Every pet supports the yard, mini window and desktop.
+does not restore chat logs. Every pet supports the yard at every size and the desktop.
 
 The reader accepts these optional PlayPets fields without requiring them for an
 ordinary import:
@@ -73,7 +73,7 @@ ordinary import:
 }
 ```
 
-- `seasonalSpritesheets` recognizes `spring`, `summer`, `autumn` and `winter`.
+- `seasonalSpritesheets` recognizes `spring`, `summer`, `autumn` and `winter`. The official creator workflow defaults to three complete outfits: a base shared by spring and autumn, plus summer and winter atlases. Each contains all nine animation states and sixteen gaze directions. Separate spring or autumn outfits remain optional extensions; this does not reduce the background format’s four-season support.
   Each sheet has the baseline's version and dimensions. Missing or invalid
   entries use the baseline, without making the pet unavailable.
 - `realisticSpritesheets` is a legacy compatibility field, not a general

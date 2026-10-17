@@ -1,7 +1,7 @@
-// Yard scenery: the time of day comes from the clock, and the weather changes on its own unless the person picks one.
+// Yard scenery: sunny first visits and optional clock-driven time and weather.
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
-import { seasonFor } from '../core/season.js';
+import { DEFAULT_SEASON, isSeason, seasonFor } from '../core/season.js';
 
 export const PERIODS = {
   morning: t('period.morning'),
@@ -10,6 +10,19 @@ export const PERIODS = {
   night: t('period.night'),
 };
 export const WEATHERS = { clear: t('weather.clear'), rain: t('weather.rain'), snow: t('weather.snow') };
+
+/** A first visit opens in daylight; saved choices, including automatic skies, remain in control. */
+export function initialSceneChoices(saved = {}) {
+  const season = saved.season ?? DEFAULT_SEASON,
+    period = saved.period ?? 'day',
+    weather = saved.weather ?? 'clear';
+  return {
+    season: isSeason(season) ? season : 'auto',
+    period: Object.hasOwn(PERIODS, period) ? period : 'auto',
+    weather: Object.hasOwn(WEATHERS, weather) ? weather : 'auto',
+  };
+}
+
 export function periodFor(hour) {
   if (hour >= 5 && hour < 10) return 'morning';
   if (hour >= 10 && hour < 17) return 'day';

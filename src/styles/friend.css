@@ -57,29 +57,13 @@
   flex: 1;
   min-height: 0;
 }
-/* With a friend open, its name is the panel's heading: the panel title stays for screen readers and
-   the close button sits in the corner beside the friend's menu. */
-.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  margin: 0;
-  z-index: 2;
-}
-.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head h2 {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
 .friend-head {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
   flex: none;
-  padding: 0 72px 0 0;
+  padding: 0 44px 0 0;
 }
 .avatar {
   width: 54px;
@@ -293,8 +277,8 @@
 /* The friend's menu, and the close button beside it, in the panel's corner. */
 .menu-anchor {
   position: absolute;
-  top: 14px;
-  right: 50px;
+  top: 0;
+  right: 0;
   z-index: 3;
 }
 .menu-anchor > .icon-button,
@@ -391,27 +375,4 @@
   .pop-menu [role="menuitem"].danger svg {
     color: var(--danger);
   }
-}
-/* ---- the mini window's brief conversation (mini.css): a smaller head, only the friend's name ---- */
-body.mini .side-panel .friend-head {
-  gap: 8px;
-  padding-right: 64px;
-}
-body.mini .side-panel .avatar {
-  width: 32px;
-  height: 32px;
-}
-body.mini .side-panel .avatar canvas {
-  width: 38px;
-  height: 41px;
-  margin-top: 1px;
-}
-body.mini .side-panel .friend-select,
-body.mini .side-panel .friend-id h3 {
-  font-size: 13px;
-}
-body.mini .side-panel .friend-sub,
-body.mini .side-panel .bond-next,
-body.mini .side-panel .friend-chips {
-  display: none;
 }

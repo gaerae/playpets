@@ -418,6 +418,7 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
                     }
                     if let Ok(win) = WebviewWindowBuilder::new(&app2, &label, WebviewUrl::App("overlay.html".into()))
                         .title("PlayPets overlay")
+                        .incognito(crate::commands::e2e_mode())
                         .on_navigation(crate::window::own_page)
                         .transparent(true)
                         .decorations(false)

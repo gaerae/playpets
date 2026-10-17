@@ -14,6 +14,16 @@ A maintainer does this. You need write access to the repository and a clean loca
 - The release pages for this version are written in all four site languages: `website/releases/<version>.md` (English), `website/ko/releases/<version>.md`, `website/ja/releases/<version>.md` and `website/zh-hans/releases/<version>.md`. Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
 - The one-time repository setup is done ([Set up the repository, keys and store accounts](set-up-the-repository.md)): Pages from GitHub Actions, private vulnerability reporting, the updater signing secrets, and for the stores the Homebrew tap and the winget-pkgs fork.
 
+## Development versions and publication
+
+Versions change for a release, not automatically for each commit. `package.json` is the source of truth; the npm lockfile and Rust package version match it. New features advance the minor version; fixes advance the patch version. Pet and background format versions are separate compatibility contracts and do not advance with the app version.
+
+A development branch may prepare the next version before tagging it. Keep its notes under `Unreleased`, leave its four release pages undated and keep the last published Linux metainfo entry until the release command dates the new entry. Preserve the published version's captures and put current captures under the next version's directory. A prepared version is not a public release: the site's default download still resolves the latest published GitHub release.
+
+After review and integration into main, `npm run release -- x.y.z` finalizes the notes and dates, commits and creates the local tag. It does not push. Only push the tag when cross-platform checks and publication are authorized.
+
+The updater deliberately disables legacy ZIP compatibility. The release feed points to native Windows EXE, Linux deb and AppImage files; macOS tar support is independent of that feature. Keep this setting when updating the plugin. A new archive format needs a dependency security review and installation checks before it is added.
+
 ## First public release hand-off
 
 Complete these in order; a successful local build does not establish that a
@@ -52,7 +62,7 @@ published update can be downloaded and installed.
   isolated app data. This catches package hand-off failures but does not replace
   the interactive installer and Gatekeeper/SmartScreen review on real user machines.
 - Refresh public captures when a visible change affects them. The full yard,
-  mini view, places, Friend, Invite and Settings should match the shipped app.
+  small window, places, Friend, Invite and Settings should match the shipped app.
 - Test a signed upgrade from an older installed build to a newer published build
   on each supported installer format. Check download progress, a failed attempt
   and retry, restart, the one-time version notice, and preserved friends/settings.

@@ -11,7 +11,8 @@ pub(super) static SPEC: super::Spec = super::Spec {
 const TABLE: &[(&str, &str)] = &[
     ("app.title", "PlayPets · 펫 놀이터"),
 
-    ("pets.parked", "펫 파일을 찾지 못했거나 놀이터가 가득 차서 친구 {count}명이 이번에는 나오지 못했어요. 지운 것은 아니라서 파일이 돌아오거나 자리가 나면 다시 나와요."),
+    ("pets.parked_missing", "친구 {count}명의 펫 파일을 찾지 못해 놀이터에 불러오지 못했어요. 저장된 친구 정보는 그대로 있어요. 원래 펫 폴더와 파일이 있는지 확인한 뒤 PlayPets를 다시 시작해 주세요."),
+    ("pets.parked_full", "놀이터 정원 {limit}명이 가득 차서 친구 {count}명을 더 불러오지 못했어요. 저장된 친구 정보는 그대로 있어요. 놀이터에 빈자리를 만든 뒤 PlayPets를 다시 시작해 주세요."),
 
     ("tray.open", "놀이터 열기"),
     ("tray.friends", "친구"),
@@ -20,7 +21,7 @@ const TABLE: &[(&str, &str)] = &[
     ("tray.desktop", "바탕화면에 보이기"),
     ("tray.wander", "바탕화면에서 돌아다니기"),
     ("tray.update", "업데이트 확인…"),
-    ("tray.mini", "작게 보기"),
+    ("tray.alwaysOnTop", "항상 위에 표시"),
     ("menu.sound", "놀이터 소리"),
     ("tray.state_waiting", "기다리는 중"),
     ("tray.state_error", "문제가 생겼어요"),
@@ -43,6 +44,7 @@ const TABLE: &[(&str, &str)] = &[
     ("menu.paste", "붙여넣기"),
     ("menu.select_all", "모두 선택"),
     ("menu.view", "보기"),
+    ("menu.controls", "메뉴 열기"),
     ("menu.friends", "친구"),
     ("menu.invite", "친구 초대…"),
     ("menu.window", "윈도우"),

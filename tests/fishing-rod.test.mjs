@@ -55,3 +55,12 @@ test('the fishing line begins at the rod tip and ends just above the float', asy
     );
   }
 });
+
+test('a nearby cast moves outward within the water instead of crossing the pet face', async () => {
+  const { castLandingX } = await import('../src/yard/fishing-rod.js');
+  assert.equal(castLandingX(100, 110, 100, [80, 240]), 170);
+  assert.equal(castLandingX(200, 190, 100, [80, 240]), 130);
+  assert.equal(castLandingX(100, 200, 100, [80, 240]), 200, 'a distant chosen target stays put');
+  assert.equal(castLandingX(100, 105, 100, [90, 130]), 122, 'a small pond keeps the float in the water');
+  assert.equal(castLandingX(100, 100, 100, [95, 105]), 100, 'a pond without safe interior is unchanged');
+});

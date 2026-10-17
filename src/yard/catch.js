@@ -15,7 +15,7 @@ import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
 import { environmentFishingSpot, environmentLake } from './environment.js';
 import { field, footTarget, petHeight, sizeOf } from './field.js';
-import { castGeometry, linePath, ROD, rodPlacement, rodUrl } from './fishing-rod.js';
+import { castGeometry, castLandingX, linePath, ROD, rodPlacement, rodUrl } from './fishing-rod.js';
 import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
 import { cue } from './sound.js';
@@ -101,6 +101,9 @@ function fishArrived(v) {
     line = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
     rodX = v.px + sizeOf(v.pet) * 0.6,
     rodY = v.py + petHeight(v.pet) * 0.74;
+  const water = lake();
+  fishing.x = castLandingX(rodX, fishing.x, sizeOf(v.pet), water.ends);
+  fishing.y = water.shoreAt(fishing.x) + (water.ridgeAt(fishing.x) - water.shoreAt(fishing.x)) * 0.45;
   const cast = castGeometry({ x: rodX, y: rodY }, { x: fishing.x, y: fishing.y }, sizeOf(v.pet), petHeight(v.pet));
   float.type = 'button';
   float.className = 'bobber';

@@ -1,4 +1,4 @@
-//! The three named companions (assets/pets),
+//! The four named companions (assets/pets),
 //! carried inside the binary and unpacked into the data folder, so the shelf is never empty on
 //! first start and a friend can be invited before any pet is imported.
 use std::fs;
@@ -35,6 +35,7 @@ const PETS: &[Builtin] = &[
         "seasonal/winter.png"
     ),
     pet!("pip", "spritesheet.png", "seasonal/summer.png", "seasonal/winter.png"),
+    pet!("miso", "spritesheet.png", "seasonal/summer.png", "seasonal/winter.png"),
 ];
 
 /// Where a bundled pet's folder sorts on the shelf; anything else comes after them.
@@ -170,8 +171,8 @@ mod tests {
         for file in ["pet.json", "spritesheet.png"] {
             std::fs::copy(root.join("daisy").join(file), root.join("aria").join(file)).unwrap();
         }
-        assert_eq!(scan_pets(&root, Place::Builtin).0.len(), 3);
-        assert_eq!(scan_pets(&root, Place::Codex).0.len(), 4);
+        assert_eq!(scan_pets(&root, Place::Builtin).0.len(), super::PETS.len());
+        assert_eq!(scan_pets(&root, Place::Codex).0.len(), super::PETS.len() + 1);
         std::fs::remove_dir_all(root).unwrap();
     }
 
@@ -202,7 +203,7 @@ mod tests {
     }
 
     #[test]
-    fn the_three_companions_unpack_once_as_valid_sheets() {
+    fn the_four_companions_unpack_once_as_valid_sheets() {
         // unpacked() checks that nothing failed to write.
         let root = unpacked("builtin");
         let dir = root.as_path();
@@ -210,10 +211,10 @@ mod tests {
         assert!(scan_warnings.is_empty(), "{scan_warnings:?}");
         let mut names: Vec<_> = assets.iter().map(|a| a.display_name.as_str()).collect();
         names.sort();
-        assert_eq!(names, ["Clover", "Daisy", "Pip"]);
+        assert_eq!(names, ["Clover", "Daisy", "Miso", "Pip"]);
         assert!(assets.iter().all(|a| a.version == 2 && a.place == Place::Builtin));
         let wardrobes: Vec<_> = assets.iter().filter(|a| !a.seasonal_sprite_paths.is_empty()).collect();
-        assert_eq!(wardrobes.len(), 3);
+        assert_eq!(wardrobes.len(), 4);
         assert!(
             wardrobes.iter().all(
                 |a| a.seasonal_sprite_paths.keys().map(String::as_str).collect::<Vec<_>>() == ["summer", "winter"]
@@ -223,7 +224,7 @@ mod tests {
         shelf.sort_by_key(|a| super::shelf_rank(&a.folder));
         assert_eq!(
             shelf.iter().map(|a| a.display_name.as_str()).collect::<Vec<_>>(),
-            ["Daisy", "Clover", "Pip"]
+            ["Daisy", "Clover", "Pip", "Miso"]
         );
         let realistic: Vec<_> = assets.iter().filter(|a| !a.realistic_sprite_paths.is_empty()).collect();
         assert_eq!(realistic.len(), 0);

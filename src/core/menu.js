@@ -3,11 +3,12 @@
 // keys move between them and choosing one closes it; the items keep their own handlers.
 
 /** Wires `button` to open and close `panel`; `opened` runs each time it opens (to move the focus). */
-export function dropdown(button, panel, opened = () => {}) {
+export function dropdown(button, panel, opened = () => {}, closed = () => {}) {
   const show = open => {
     panel.hidden = !open;
     button.setAttribute('aria-expanded', String(open));
     if (open) opened();
+    else return closed();
   };
   button.addEventListener('click', e => {
     e.stopPropagation();
@@ -19,13 +20,14 @@ export function dropdown(button, panel, opened = () => {}) {
   // Esc closes it from inside, or from the button that opened it (focus can stay there).
   const onEscape = e => {
     if (e.key !== 'Escape' || panel.hidden) return;
+    e.preventDefault();
     e.stopPropagation();
-    show(false);
-    button.focus();
+    const focus = show(false);
+    (focus || button).focus();
   };
   panel.addEventListener('keydown', onEscape);
   button.addEventListener('keydown', onEscape);
-  return { close: () => show(false) };
+  return { open: () => show(true), close: () => show(false) };
 }
 
 /** Wires `button` to open and close `menu` (role="menu" with role="menuitem" items). */

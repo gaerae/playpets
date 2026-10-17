@@ -7,15 +7,43 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Security
+
+- Disable unused legacy ZIP updater compatibility, removing the vulnerable ZIP extraction dependency reported as RUSTSEC-2026-0367, RUSTSEC-2026-0368 and RUSTSEC-2026-0369. Native installer updates and macOS tar updates remain supported.
+
 ### Added
 
-- Add local browser checks, animation preview and ZIP export for finished pet sheets; reopen background packages with preserved window geometry, inspect full/mini crops, and fill motion prompts from supported actions in all four site languages.
+- Add fullscreen with restoration of the previous window size, position and Always on top setting; Esc closes an open menu or dialog before leaving fullscreen.
+- Add distinct Close window and Quit actions: closing leaves the app in the tray, while quitting asks for confirmation.
+- Welcome Miso as a fourth starter companion, with baseline, summer and winter outfits, character stories and a condition-aware collection guide.
+- Provide complete character and background creation kits with reference sheets, a personalized request and a portable skill that assembles, validates and packages files for direct app import.
+- Offer project-scoped skill installation for Codex and Claude Code, compatible plugin archives and explicit frame selection for spacious animation source sheets.
 
 ### Changed
 
-- Keep one installer per Windows architecture, embed third-party notices in native packages instead of duplicating them beside every release file, and let version pages activate from GitHub's public tag without a follow-up site deployment.
-- Make download a primary landing-page destination in every language, select the first visit from the browser language, and remember a language chosen from the site menu.
-- Move the website, user guide, release notes and developer docs to `https://playpets.gaerae.com/`.
+- Replace Mini mode with one frameless, freely resizable yard down to 300 × 210. Save its bounds and independent Always on top setting, and keep the same activities available at every size.
+- Separate scene Places and Atmosphere, provide explicit Back to menu and Close actions, and reveal invite filters and secondary play/display tools on demand.
+- Hide the bottom dock in small windows; open the shared menu by right-click or Cmd/Ctrl+Shift+P, and toggle Always on top with Cmd/Ctrl+Shift+M.
+- Start new yards in sunny spring daylight while preserving saved scene choices, and refresh localized captures and guides.
+- Replace web inspection and conversion forms with reusable creation kits; completed work goes directly from the chosen image tool to the app.
+- Dress Pip in coordinated denim outfits, share the white-and-gold flower motif and show four companions in landing interactions, installer art and share images.
+- Keep one installer per Windows architecture, embed third-party notices in native packages instead of duplicating them beside every release file, and activate version-page downloads from GitHub publication without a follow-up site deployment.
+- Make download a primary landing destination, select the first visit from the browser language and remember a language chosen from the site menu.
+- Move the website and documentation to `https://playpets.gaerae.com/`.
+
+### Fixed
+- Confirm Linux pin state from the native window and wait for frame restoration before reporting fullscreen completion. Headless desktop checks now include a window manager.
+
+- Distinguish download lookup from an unpublished version on the website, and keep release-page guidance accurate after the first release in all four languages.
+
+- Collect and verify bundled system-library notices in local Linux AppImages, and keep older cached packages and source manifests out of local Linux exports.
+
+- Keep startup notices in a collapsible, dismissible card above the yard. Distinguish missing pet files from the 12-friend limit without deleting saved friends.
+- Show the selected Always on top state, retain settings and conversations when resizing, and keep friend actions and scene controls reachable in short windows.
+- Prevent scenery text selection, overlapping panels and lost keyboard focus when opening or dismissing controls.
+- Offer all four companions on the first-run welcome screen, with a two-column choice in narrow windows.
+- Match the three supplied wardrobes and flower-placement prompts to the accepted artwork, and use seasonal high-resolution motion previews for all four companions.
+- Keep close fishing casts ahead of the friend without leaving the background's water bounds.
 
 ## [0.1.0] - 2026-10-15
 

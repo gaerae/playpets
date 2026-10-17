@@ -36,6 +36,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  max-width: 100%;
 }
 .welcome[hidden],
 .next-steps[hidden] {
@@ -45,16 +46,18 @@
   font-size: 17px;
 }
 .starter-picks {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 112px));
   gap: 10px;
   margin: 10px 0 2px;
+  max-width: 100%;
 }
 .starter {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  width: 112px;
+  width: 100%;
   padding: 8px 6px 10px;
   border: 1.5px solid transparent;
   border-radius: 16px;
@@ -84,6 +87,11 @@
 .starter:disabled {
   opacity: 0.6;
   cursor: progress;
+}
+@media (min-width: 620px) {
+  .starter-picks {
+    grid-template-columns: repeat(4, minmax(0, 112px));
+  }
 }
 .welcome .button.text {
   font-size: 12px;

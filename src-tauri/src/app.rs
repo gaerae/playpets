@@ -57,7 +57,7 @@ pub struct AppData {
     /// Saved friends whose pet file was not found at this start (model::parked_pets): not shown,
     /// written back as they were, with their bonds, so they come back once the file does.
     pub parked_pets: Vec<Value>,
-    /// The person's switches (desktop, roaming, language, chatter, sound, the mini window's place).
+    /// The person's switches (desktop, roaming, language, chatter, sound, the window's place).
     pub prefs: Prefs,
     /// Folders of pets brought in by hand, read again at every start.
     pub imports: Vec<String>,
@@ -211,9 +211,9 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "communities": importer::communities_json(),
         "petFolders": {"builtin": d.builtin_pets, "codex": d.codex_pets, "downloaded": d.store.dir.join("pets")},
     });
-    // The mini window's place is the backend's alone (window.rs); the pages have no use for it.
+    // The window's place is the backend's alone (window.rs); the pages have no use for it.
     let mut prefs = d.prefs.json();
-    prefs.remove("miniRect");
+    prefs.remove("windowRect");
     carry(&mut state, &prefs);
     state
 }
@@ -265,7 +265,7 @@ impl SaveLater {
 static SAVE_LATER: SaveLater = SaveLater(AtomicBool::new(false));
 
 /// For changes that come often and matter little until the app quits (where a friend stopped
-/// walking, where the mini window was left): written within 2 s, together, and at exit. Everything else saves at once.
+/// walking, where the window was left): written within 2 s, together, and at exit. Everything else saves at once.
 pub fn persist_soon(app: &AppHandle) {
     if !SAVE_LATER.ask() {
         return;

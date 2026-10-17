@@ -89,4 +89,4 @@ The data folder below stays after you remove the app. To remove the settings and
 | Windows | `%APPDATA%\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
 
-Inside are `state.json` (friends and settings), `bridge.json` (the port and token for agent hooks), `pets/` (imported pets) and `builtin/` (the three starter pets). To keep it somewhere else, put a folder path in the `PLAYPETS_DATA` environment variable and start the app. See [Settings](./settings.md) for details.
+Inside are `state.json` (friends and settings), `bridge.json` (the port and token for agent hooks), `pets/` (imported pets) and `builtin/` (the four starter pets). To keep it somewhere else, put a folder path in the `PLAYPETS_DATA` environment variable and start the app. See [Settings](./settings.md) for details.

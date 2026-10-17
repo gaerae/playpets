@@ -15,12 +15,12 @@ test('website publishing and releases use the same four locale paths', () => {
   assert.throws(() => localePath('unknown', '/guide/'));
 });
 
-test('all three illustrated built-in pets have distinct landing sources with valid v2 dimensions', async () => {
-  assert.equal(LANDING_PETS.length, 3);
-  assert.equal(new Set(LANDING_PETS.map(p => p.id)).size, 3);
+test('all four illustrated built-in pets have distinct landing sources with valid v2 dimensions', async () => {
+  assert.equal(LANDING_PETS.length, 4);
+  assert.equal(new Set(LANDING_PETS.map(p => p.id)).size, 4);
   assert.deepEqual(
     LANDING_PETS.map(p => p.displayName),
-    ['Daisy', 'Clover', 'Pip'],
+    ['Daisy', 'Clover', 'Pip', 'Miso'],
   );
   for (const pet of LANDING_PETS) {
     await access(pet.source);

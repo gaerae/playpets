@@ -1,0 +1,159 @@
+{
+  "tool": "image_gen",
+  "date": "2026-10-18",
+  "direction": "User selected wardrobe C: refined indigo denim with warm ivory bottoms. Preserve the accepted Pip identity and animation choreography; use the shared small white five-petal flower with a golden-yellow center. No hat, scarf or bag.",
+  "identitySources": ["assets/sources/companions-2026-10-14/pip/", "wardrobe-concepts.png"],
+  "intermediate": "The yellow-clothing white-flower batches were local intermediate references, not dependencies of this accepted source set. Earlier original identity artwork is preserved.",
+  "prompt": "Clothing-only edit of each original eight-pose animation batch. The corresponding seasonal idle is the immutable new outfit reference. Preserve exact original head/eye directions, expressions, fluffy caramel-and-cream fur, floppy ears, tail, paws, anatomy, silhouette proportions and all eight poses. Keep1536x1024 4columns2rows with genuine transparent alpha0 gutters. No redrawing through scripts, no additional props or labels.",
+  "outfits": {
+    "base": "washed medium-indigo denim chore jacket, small rounded collar, ivory topstitching, cream buttons, ivory T-shirt and warm ivory cuffed shorts",
+    "summer": "lightweight short-sleeve indigo denim camp-collar shirt over ivory T-shirt and warm ivory cuffed shorts",
+    "winter": "lined indigo denim jacket with ivory shearling collar/cuffs over ivory T-shirt and warm ivory long trousers"
+  },
+  "rows": [
+    {
+      "raw": "base/00-idle.png",
+      "aligned": "base/canonical/00-idle.png"
+    },
+    {
+      "raw": "base/01-right.png",
+      "aligned": "base/canonical/01-right.png"
+    },
+    {
+      "raw": "base/02-left.png",
+      "aligned": "base/canonical/02-left.png"
+    },
+    {
+      "raw": "base/03-wave.png",
+      "aligned": "base/canonical/03-wave.png"
+    },
+    {
+      "raw": "base/04-jump.png",
+      "aligned": "base/canonical/04-jump.png"
+    },
+    {
+      "raw": "base/05-error.png",
+      "aligned": "base/canonical/05-error.png"
+    },
+    {
+      "raw": "base/06-waiting.png",
+      "aligned": "base/canonical/06-waiting.png"
+    },
+    {
+      "raw": "base/07-working.png",
+      "aligned": "base/canonical/07-working.png"
+    },
+    {
+      "raw": "base/08-done.png",
+      "aligned": "base/canonical/08-done.png"
+    },
+    {
+      "raw": "base/09-look.png",
+      "aligned": "base/canonical/09-look.png"
+    },
+    {
+      "raw": "base/10-look.png",
+      "aligned": "base/canonical/10-look.png"
+    },
+    {
+      "raw": "summer/00-idle.png",
+      "aligned": "summer/canonical/00-idle.png"
+    },
+    {
+      "raw": "summer/01-right.png",
+      "aligned": "summer/canonical/01-right.png"
+    },
+    {
+      "raw": "summer/02-left.png",
+      "aligned": "summer/canonical/02-left.png"
+    },
+    {
+      "raw": "summer/03-wave.png",
+      "aligned": "summer/canonical/03-wave.png"
+    },
+    {
+      "raw": "summer/04-jump.png",
+      "aligned": "summer/canonical/04-jump.png"
+    },
+    {
+      "raw": "summer/05-error.png",
+      "aligned": "summer/canonical/05-error.png"
+    },
+    {
+      "raw": "summer/06-waiting.png",
+      "aligned": "summer/canonical/06-waiting.png"
+    },
+    {
+      "raw": "summer/07-working.png",
+      "aligned": "summer/canonical/07-working.png"
+    },
+    {
+      "raw": "summer/08-done.png",
+      "aligned": "summer/canonical/08-done.png"
+    },
+    {
+      "raw": "summer/09-look.png",
+      "aligned": "summer/canonical/09-look.png"
+    },
+    {
+      "raw": "summer/10-look.png",
+      "aligned": "summer/canonical/10-look.png"
+    },
+    {
+      "raw": "winter/00-idle.png",
+      "aligned": "winter/canonical/00-idle.png"
+    },
+    {
+      "raw": "winter/01-right.png",
+      "aligned": "winter/canonical/01-right.png"
+    },
+    {
+      "raw": "winter/02-left.png",
+      "aligned": "winter/canonical/02-left.png"
+    },
+    {
+      "raw": "winter/03-wave.png",
+      "aligned": "winter/canonical/03-wave.png"
+    },
+    {
+      "raw": "winter/04-jump.png",
+      "aligned": "winter/canonical/04-jump.png"
+    },
+    {
+      "raw": "winter/05-error.png",
+      "aligned": "winter/canonical/05-error.png"
+    },
+    {
+      "raw": "winter/06-waiting.png",
+      "aligned": "winter/canonical/06-waiting.png"
+    },
+    {
+      "raw": "winter/07-working.png",
+      "aligned": "winter/canonical/07-working.png"
+    },
+    {
+      "raw": "winter/08-done.png",
+      "aligned": "winter/canonical/08-done.png"
+    },
+    {
+      "raw": "winter/09-look.png",
+      "aligned": "winter/canonical/09-look.png"
+    },
+    {
+      "raw": "winter/10-look.png",
+      "aligned": "winter/canonical/10-look.png"
+    }
+  ],
+  "references": ["turnaround.png", "face-detail.png"],
+  "normalization": {
+    "method": "Whole connected silhouette extraction with scripts/atlas-lib.mjs atlasPoses/isolatePose, row-major spatial order, one shared0.8 scale and tile centering. Canonical output preserves complete source figures and their alpha fringe. No recoloring, replacement faces or independently scaled poses.",
+    "canvas": [1536, 1024],
+    "layout": [4, 2]
+  },
+  "packing": {
+    "script": "scripts/pack-companion-batches.mjs",
+    "targetIdleHeight": 164,
+    "settings": "Canonical directories retain the corresponding accepted pack-settings.json for unchanged walk/wave/working corrections and jump lift choreography."
+  },
+  "repair": "Winter jump originally had touching neighboring heads. image_gen separated complete figures without changing model size; all eight full silhouettes were verified before technical alignment. No validation threshold was lowered."
+}

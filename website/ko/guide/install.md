@@ -89,4 +89,4 @@ chmod +x PlayPets_*.AppImage
 | Windows | `%APPDATA%\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
 
-안에는 `state.json`(친구와 설정), `bridge.json`(에이전트 연동용 포트와 토큰), `pets/`(가져온 펫), `builtin/`(기본 펫 세 개)가 있어요. 다른 곳에 두고 싶으면 환경 변수 `PLAYPETS_DATA`에 폴더 경로를 넣고 앱을 실행하면 돼요. 자세한 내용은 [설정](./settings.md)에 있어요.
+안에는 `state.json`(친구와 설정), `bridge.json`(에이전트 연동용 포트와 토큰), `pets/`(가져온 펫), `builtin/`(기본 펫 네 개)가 있어요. 다른 곳에 두고 싶으면 환경 변수 `PLAYPETS_DATA`에 폴더 경로를 넣고 앱을 실행하면 돼요. 자세한 내용은 [설정](./settings.md)에 있어요.

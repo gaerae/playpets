@@ -8,7 +8,7 @@ Start with [the places design](../design/2026-10-11-places.md), which describes 
 4. Put generated or illustrated images in `src/art/environments/` and name them in `art.morning`, `art.day`, `art.evening` and `art.night` when they have authored lighting, and set `"authoredLighting": true` so `environmentLook` does not tint the painted light again; without it, `environmentLook` lights each time of day with its own gentle filter and tint for places with pictures. Preserve prior source assets. Use `fit: "cover-floor"` (or `"cover-bottom"`, which aligns the image's bottom edge instead of its floor line) to keep the image's proportions and anchor its floor to `geometry.fieldTop` as the window changes shape. `environmentFrame` shares this transform with pond geometry, window weather and seasonal lights. Review visible water and automatic fishing endpoints after cropping before enabling fishing.
 5. Add lighting to `environmentLook` when the new material or lamp light needs it. Review the actual image in every time of day: a warm night room needs readable walls and floor, with a genuinely nighttime view through its window.
 6. Give the new place's atmosphere its own `chatter` string-table key containing casual idle lines in all four languages. Indoor places need their own lines so friends do not talk about outdoor stars or studio lamps in another room. A café or city sound palette needs a distinct implementation and tests; enabling `ambient` currently selects the woodland mix.
-7. Add capability, geometry, asset and translation checks to `tests/worlds.test.mjs`, changing tests before changing their rules. Add real visual fixtures through `scripts/visual-audit.mjs`, including day, night, full size, 500×350, 320×240 and a wide mini strip. Verify that changing worlds ends fishing and games and retains friends and collections.
+7. Add capability, geometry, asset and translation checks to `tests/worlds.test.mjs`, changing tests before changing their rules. Add real visual fixtures through `scripts/visual-audit.mjs`, including day, night, full size, 500×350, 320×240 and a wide short window. Verify that changing worlds ends fishing and games and retains friends and collections.
 
 The existing modules consume registry data without extra entry-point wiring. `loadContent()` loads the registry; `setupSky()` builds the Place select from its entries, saves the chosen id and applies the new scene. Unknown saved ids return to the hillside garden.
 
@@ -16,22 +16,21 @@ Run the repository's normal checks before integrating a place: Node and Rust tes
 
 ## Portable backgrounds
 
-The [background studio](../../website/guide/background-kit.md) creates a local JSON
-package (`format: "playpets-background"`, `version: 1`). The app imports it from the
-scene menu, stores it in this webview profile's IndexedDB and restores it at startup.
-Keep the downloaded package as a backup; it is not part of the native pet data file.
+Get a creation kit from [the background studio](../../website/guide/background-kit.md).
+It includes an initial layout, a guide, a complete request and a portable skill.
+Generation, composition review and final packaging happen in the selected AI
+workspace, not in a browser image editor. Its `render-layout` helper creates a PNG
+guide; `pack-background` checks the final images and config and writes v1 JSON.
+The app imports it from the scene menu and stores it in this profile's IndexedDB.
+Keep the JSON as a backup; it is not part of the native pet data file.
 
-Each package declares its own normalized floor, water ellipse, optional fishing
-stance and window rectangles. Positions are not fixed across backgrounds. The studio
-lets a creator click the picture to place water or the fishing stance and edit the
-numbers; its PNG guide and prompt reflect those values. The stance is on the walkable
-floor. Water is entirely above that floor. Window masks are optional for indoor weather.
-Saved packages can be reopened in the browser studio without rebuilding them from scratch.
-The studio retains up to twelve window rectangles, and the guide and prompt list every
-enabled pane. Its composition previews show source, full, mini and narrow crops.
-Coordinates and the image share the floor-anchored transform checked against
-`environmentFrame`, including narrow-window cropping.
-A cropped-out stance falls back to the visible shore.
+Each package declares a normalized floor, optional water ellipse, fishing stance
+and up to twelve window rectangles. Adjust the kit's layout JSON to match the
+actual artwork; positions are not fixed across backgrounds. The stance stays on
+the walkable floor and water stays above it. Optional window masks bound indoor
+weather. Review large and small window crops using the app's floor-anchored transform
+(`environmentFrame`), including narrow windows. A cropped-out stance falls back
+to the visible shore. The website does not reopen, inspect or convert packages.
 
 Images are embedded PNG data URLs, each 1536 × 1024, up to 6 MB, within a 32 MB JSON
 package. The validator rejects external addresses, unsupported versions and invalid
@@ -67,7 +66,7 @@ flower, fish, insect, sound or prop assets: these remain shared app content.
 The art and the configured floor have different jobs. The visible floor can
 include furniture behind its walkable boundary, but every point below the
 boundary must be safe for a friend to stand. Check tall sprites and accessories,
-not only the feet. Mini mode crops more of the room and the lake; review the
+not only the feet. A small window crops more of the room and the lake; review the
 transformed water and standing position rather than assuming they remain visible.
 
 

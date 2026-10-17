@@ -145,6 +145,12 @@ export function renderShelf() {
         a.credit,
       ]),
     ]);
+  const filterLabel = $('invite-filter-label');
+  if (filterLabel) {
+    const labelKey = query.trim() || kind ? 'invite.filter_active' : 'invite.filter';
+    filterLabel.setAttribute('data-i18n', labelKey);
+    filterLabel.textContent = t(labelKey);
+  }
   if (key !== shelfKey) {
     shelfKey = key;
     previews.clear();

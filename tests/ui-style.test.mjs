@@ -18,10 +18,12 @@ const styles = async () =>
     (await Promise.all((await readdir('src/styles')).sort().map(f => readFile(`src/styles/${f}`, 'utf8')))).join('\n'),
   );
 
-test('a mini catch card and a toast occupy separate notice lanes without intercepting fishing', async () => {
+test('a compact catch card and a toast occupy separate notice lanes without intercepting fishing', async () => {
   const css = await styles();
-  const notice = css.match(/body\.mini \.stage:has\(\.catch-card:not\(\[hidden\]\)\)\s*\.toast\{([^}]*)\}/);
-  assert.ok(notice, 'a visible catch card moves the mini notice away from its top strip');
+  const notice = css.match(
+    /body\.compact \.stage:has\(\.catch-card:not\(\[hidden\]\)\)\s*\.toast(?:,[^{]+)?\{([^}]*)\}/,
+  );
+  assert.ok(notice, 'a visible catch card moves the compact notice away from its top strip');
   assert.match(notice[1], /top:auto/);
   assert.match(notice[1], /bottom:64px/, 'the notice stays above the care toolbar');
   assert.match(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /pointer-events:none/);
@@ -84,15 +86,61 @@ test('the logo is drawn and text uses the system font, so no system lacks the br
   assert.doesNotMatch(css, /Avenir/, 'no typeface that only one system ships');
 });
 
-test('full and mini yards fill their windows without a fixed narrow-window height', async () => {
+test('one yard fills the freely resized window without mode-specific scene rules', async () => {
   const css = await styles();
-  assert.doesNotMatch(css, /height:340px/, 'narrow windows retain the full scene');
-  assert.match(css, /\.topbar\{[^}]*position:absolute/, 'navigation floats above the scene');
-  assert.match(css, /\.app-shell\{[^}]*padding:0;/, 'the scene reaches the window edges');
-  const mini = css.match(/body\.mini \.yard\{([^}]*)\}/g).join('');
-  assert.match(mini, /height:auto/, 'mini keeps the same flexible scene');
-  assert.match(mini, /flex:1/);
-  assert.match(css, /body\.mini \.app-shell\{[^}]*height:100%/, 'the mini shell is exactly one window tall');
+  assert.doesNotMatch(css, /height:340px/);
+  assert.doesNotMatch(css, /body\.mini|mini-chat-open|\.unmini/);
+  assert.match(css, /\.window-drag\{[^}]*position:absolute/);
+  assert.match(css, /\.app-shell\{[^}]*padding:0;/);
+  assert.match(css, /\.yard\{[^}]*flex:1;[^}]*height:auto;[^}]*min-height:0/);
+});
+
+test('compact windows keep every panel and shared menu within the viewport', async () => {
+  const css = await styles();
+  assert.match(css, /body\.compact \.layout.panel-open \.side-panel\{[^}]*inset:8px;[^}]*overflow:hidden/);
+  assert.match(css, /body\.compact \.panel-body\{[^}]*overflow-y:auto/);
+  assert.match(
+    css,
+    /body\.compact \.layout.settings-open #panel-settings\{[^}]*grid-template-rows:auto minmax\(0,1fr\)/,
+  );
+  assert.match(css, /body\.compact \.yard-dock\{[^}]*display:none/);
+  for (const selector of ['.yard-controls-panel', '.scene-menu']) {
+    const rules = css.split('}').filter(part => part.includes(`${selector}{`));
+    assert.ok(
+      rules.some(rule => rule.includes('max-height:calc(100% - 76px)')),
+      `${selector} in a large window`,
+    );
+    assert.ok(
+      rules.some(rule => rule.includes('max-height:calc(100% - 16px)')),
+      `${selector} in a compact window`,
+    );
+  }
+  assert.doesNotMatch(css, /body\.compact[^{}]*(?:#provider-select|\.companions)[^{}]*\{[^}]*display:none/);
+});
+
+test('compact settings reserve height for their scroller and panels clear the dock', async () => {
+  const css = await styles();
+  const sheet = css.match(/body\.compact \.layout.settings-open \.side-panel\{([^}]*)\}/)?.[1] || '';
+  assert.match(sheet, /height:calc\(100% - 16px\)/, 'an absolute sheet has a definite height for its flex body');
+  assert.match(sheet, /align-self:stretch/);
+  assert.match(css, /body\.compact \.yard-dock\{[^}]*display:none/);
+});
+
+test('compact chat keeps its composer visible while the log owns scrolling', async () => {
+  const css = await styles();
+  assert.match(css, /body\.compact #panel-pet\{[^}]*overflow:hidden/);
+  assert.match(css, /body\.compact #pet-panel\{[^}]*flex:1;[^}]*min-height:0/);
+  assert.match(css, /body\.compact \.chat-log\{[^}]*flex:1;[^}]*min-height:0;[^}]*max-height:none/);
+  assert.match(css, /body\.compact \.composer\{[^}]*flex:none/);
+  assert.match(css, /@media\(max-height:300px\)\{body\.compact #panel-pet\{[^}]*overflow-y:auto/);
+  assert.doesNotMatch(css, /body\.compact[^{}]*\.relation-chip[^{}]*\{[^}]*display:none/);
+});
+
+test('all eight resize boundaries are invisible and stay above the window surfaces', async () => {
+  const css = await styles();
+  assert.match(css, /\.window-resize\{[^}]*position:fixed;[^}]*z-index:1000;[^}]*touch-action:none/);
+  for (const direction of ['North', 'South', 'East', 'West', 'NorthEast', 'NorthWest', 'SouthEast', 'SouthWest'])
+    assert.ok(css.includes(`.window-resize[data-resize="${direction}"]{`), direction);
 });
 
 // Windows serves custom protocols as http://<scheme>.localhost, macOS and Linux as <scheme>://.
@@ -149,7 +197,9 @@ test('the scene gallery keeps its selected background and climate controls reach
   assert.match(html, /id="background-gallery"/);
   assert.match(html, /id="scene-season"/);
   assert.match(sky, /scene-season/);
-  assert.match(sky, /background-gallery.*aria-pressed/);
+  assert.match(sky, /scene-page:not\(\[hidden\]\)/);
+  assert.match(sky, /page\?\.querySelector\('\[aria-pressed="true"\]'\)/);
+  assert.match(sky, /select:not\(\[hidden\]\):not\(:disabled\)/);
   assert.match(backgrounds, /aria-pressed/);
   assert.match(backgrounds, /dispatchEvent\(new Event\('change'\)\)/);
 });
@@ -163,7 +213,7 @@ test('Settings owns a body scroller while its header and navigation stay outside
   assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*bottom:auto;/);
   assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*max-height:calc\(100% - 72px\);/);
   assert.match(css, /\.settings-content\{[^}]*overflow-y:auto/);
-  assert.doesNotMatch(css, /\.layout.settings-open \.settings-index\{[^}]*display:none/);
+  assert.match(css, /body\.compact #settings-section\{[^}]*display:block/);
 });
 
 test('Menu hover and selected settings states remain distinct', async () => {
@@ -472,11 +522,10 @@ test('indoor growth stages enter the planter mouth without moving mature stems',
   assert.match(css, /\.yard\[data-sky="false"\] \.plant:not\(\[data-stage="bloom"\]\)svg\{position:relative;top:-12%;/);
 });
 
-test('floating scene menus and mini chats escape the full panel placement', async () => {
+test('floating scene menus stay above the full panel placement', async () => {
   const css = await styles();
-  assert.match(css, /\.layout.panel-open \.side-panel\{[^}]*bottom:64px;/, 'the open panel clears the menu entry');
+  assert.match(css, /\.layout.panel-open \.side-panel\{[^}]*bottom:64px;/);
   assert.match(css, /\.yard-controls-panel\{[^}]*z-index:30;/);
-  assert.match(css, /body\.mini \.layout.mini-chat-open \.side-panel\{[^}]*top:auto;/);
 });
 
 test('game and onboarding notices clear the floating scene controls', async () => {
@@ -488,4 +537,36 @@ test('game and onboarding notices clear the floating scene controls', async () =
       `${selector} clears navigation`,
     );
   }
+});
+
+test('startup notices float above the yard instead of shrinking it into a disconnected panel', async () => {
+  const css = await styles();
+  const rule = css.match(/(?:^|})\.startup-notice\{([^}]*)\}/)?.[1] || '';
+  assert.match(rule, /position:absolute/);
+  assert.match(rule, /top:12px/);
+  assert.match(rule, /max-width:/);
+  assert.match(css, /#warning-messages\{[^}]*overflow-y:auto/);
+  const html = await readFile('src/index.html', 'utf8');
+  assert.match(html, /<details id="warning-details">/);
+  assert.match(html, /id="dismiss-warnings"/);
+});
+
+test('pin switches show their selected state for every window size', async () => {
+  const css = await styles();
+  assert.match(css, /\.view-toggle\[aria-pressed="true"\] \.wander-switch[^{]*\{[^}]*background:var\(--green-ink\)/);
+  assert.match(
+    css,
+    /\.view-toggle\[aria-pressed="true"\] \.wander-switch::after[^{]*\{[^}]*transform:translateX\(12px\)/,
+  );
+});
+
+test('compact controls hide the dock and give the shared menu one full-height scroller', async () => {
+  const css = await styles();
+  const dock = css.match(/body\.compact \.yard-dock\{([^}]*)\}/)?.[1] || '';
+  assert.match(dock, /display:none/);
+  assert.doesNotMatch(css, /body\.compact:hover \.yard-dock|body\.compact:focus-within \.yard-dock/);
+  assert.match(css, /body\.compact \.yard-controls-panel\{[^}]*inset:8px;[^}]*overflow-y:auto/);
+  assert.match(css, /body\.compact \.yard-controls-scroll\{[^}]*display:contents/);
+  const html = await readFile('src/index.html', 'utf8');
+  assert.match(html, /id="close-controls"/);
 });

@@ -50,7 +50,7 @@ try {
     for (const id of ['welcome', 'empty-yard', 'next-steps']) document.getElementById(id).hidden = true;
     const { loadContent } = await import('./yard/content.js');
     await loadContent();
-    const names = ['daisy', 'clover', 'pip'];
+    const names = ['daisy', 'clover', 'pip', 'miso'];
     const assets = await Promise.all(
       names.map(async id => {
         const pet = await fetch(`/assets/pets/${id}/pet.json`).then(r => r.json());
@@ -77,7 +77,7 @@ try {
         assetId: id,
         name: id[0].toUpperCase() + id.slice(1),
         size: 150,
-        x: 0.25 + i * 0.23,
+        x: (i + 1) / (names.length + 1),
         y: 0.42,
       })),
       assets,

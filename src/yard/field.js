@@ -41,8 +41,8 @@ export function measureYard() {
 // Room kept at each side of the yard, so a friend at the edge is still whole.
 export const EDGE = 14;
 // Room kept at the foot of the yard for a friend's name tag, and for the tools floating over the
-// scene (in the mini view they only rise under the pointer, so the tag's room is enough).
-const footRoom = () => (document.body.classList.contains('mini') ? 42 : 76);
+// scene (in a small window they only rise under the pointer, so the tag's room is enough).
+const footRoom = () => (document.body.classList.contains('compact') ? 42 : 76);
 /** The field friends and plants stand on, in yard pixels: its width, the ridge (top) and the
  * front edge (bottom) a foot can reach. */
 export function field() {

@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-18",
+  "tool": "OpenAI built-in image generation",
+  "purpose": "Keep the official flower visible consistently in the reusable left profile references, matching the accepted front and runtime left-facing poses.",
+  "runtimeChanged": false,
+  "files": [
+    {
+      "source": "assets/sources/companions-2026-10-17/miso/references/turnaround.png",
+      "export": "assets/creator-kit/miso/turnaround.png",
+      "beforeSha256": "7260e7a6026373be0a3d74c5bbe5052c7e663aab6ed07658c12b3fd9751635b9",
+      "sha256": "e291878a4d9fd5ad9f17164cd3eecbbc4a499be9e9c5153144d1684b51595e19",
+      "toolOutput": "exec-193e8154-43d9-4251-95e3-4b52f323e260.png",
+      "change": "Add the missing white-petal golden-centred daisy on the visible anatomical left upper chest in the left-facing profile only.",
+      "review": "Panel positions, face proportions, gaze, clothing and runtime identity were preserved. Outside the edit there is minor generator texture/resampling variation, not pixel-identical output; no structural deformation was observed."
+    },
+    {
+      "source": "assets/sources/companions-2026-10-17/miso/references/face-detail.png",
+      "export": "assets/creator-kit/miso/face-detail.png",
+      "beforeSha256": "7002c34546ac587bcecacc6e718ccf9ba4b3686299b9a93006030da641bc8c27",
+      "sha256": "476c59ab3fdde1332b1f43d9fd5e804a8493a688a7842fe36531ee807dce539b",
+      "toolOutput": "exec-0f82c991-da73-40b9-921f-af0040d13aba.png",
+      "change": "Add the missing white-petal golden-centred daisy on the visible anatomical left upper chest in the left-facing profile only.",
+      "review": "Panel positions, face proportions, gaze, clothing and runtime identity were preserved. Outside the edit there is minor generator texture/resampling variation, not pixel-identical output; no structural deformation was observed."
+    }
+  ]
+}
