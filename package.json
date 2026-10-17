@@ -1,7 +1,7 @@
 {
   "name": "playpets",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A yard where your pets talk to each other",
   "homepage": "https://playpets.gaerae.com/",
   "repository": "github:gaerae/playpets",
