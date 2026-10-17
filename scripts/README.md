@@ -27,6 +27,7 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 
 The local Linux Docker build follows the same two-pass AppImage notice collection
 as CI, then verifies the finished image and exports its system-source manifest.
+Old package and manifest outputs are cleared before bundling.
 `BUNDLES=deb npm run dist:linux` skips AppImage collection and never exports an
 older image or manifest from the build cache. Local Debian builds are development
 checks; CI uses Ubuntu for the published packages.

@@ -11,11 +11,11 @@ export APPIMAGE_EXTRACT_AND_RUN=1
 # BUNDLES=deb skips AppImage (linuxdeploy does not run under x86_64 emulation on Apple Silicon).
 bundles="${BUNDLES:-deb,appimage}"
 bundle=src-tauri/target/release/bundle
+rm -f "$bundle"/deb/*.deb "$bundle"/appimage/*.AppImage "$bundle"/appimage/*-SYSTEM-SOURCE-PACKAGES.txt
 if [[ ",$bundles," == *,appimage,* ]]; then
   cargo build --release --manifest-path src-tauri/Cargo.toml
   node scripts/prepare-appimage-licenses.mjs \
     src-tauri/target/release/playpets src-tauri/target/appimage-license-docs
-  rm -f "$bundle"/appimage/*.AppImage
 fi
 npx tauri build --bundles "$bundles"
 if [[ ",$bundles," == *,appimage,* ]]; then
