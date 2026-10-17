@@ -22,6 +22,8 @@ A development branch may prepare the next version before tagging it. Keep its no
 
 After review and integration into main, `npm run release -- x.y.z` finalizes the notes and dates, commits and creates the local tag. It does not push. Only push the tag when cross-platform checks and publication are authorized.
 
+The updater deliberately disables legacy ZIP compatibility. The release feed points to native Windows EXE, Linux deb and AppImage files; macOS tar support is independent of that feature. Keep this setting when updating the plugin. A new archive format needs a dependency security review and installation checks before it is added.
+
 ## First public release hand-off
 
 Complete these in order; a successful local build does not establish that a

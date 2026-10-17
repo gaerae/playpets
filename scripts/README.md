@@ -25,6 +25,12 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 | Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets, metadata and downloadable bundles |
 | Atlas preparation | `pack-*.mjs`, `normalize-cat-row.mjs`, atlas/art/normalization helpers | Explicit destination files from approved image sources |
 
+The local Linux Docker build follows the same two-pass AppImage notice collection
+as CI, then verifies the finished image and exports its system-source manifest.
+`BUNDLES=deb npm run dist:linux` skips AppImage collection and never exports an
+older image or manifest from the build cache. Local Debian builds are development
+checks; CI uses Ubuntu for the published packages.
+
 Website preparation packages existing references; it does not invent missing
 character views. Art tools can overwrite their documented outputs, so compare
 results with the accepted files before keeping a change. Exact character prompts
