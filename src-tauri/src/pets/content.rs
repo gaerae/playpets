@@ -48,12 +48,27 @@ struct Garden {
 }
 
 #[derive(Deserialize)]
+struct Treasure {
+    id: String,
+    rarity: String,
+    #[serde(default = "one")]
+    weight: u32,
+}
+fn one() -> u32 {
+    1
+}
+
+#[derive(Deserialize)]
 pub struct Catalog {
     garden: Garden,
     flowers: Vec<Kind>,
     gifts: Vec<Kind>,
     fish: Vec<Fish>,
     bugs: Vec<Kind>,
+    #[serde(default)]
+    trees: Vec<Kind>,
+    #[serde(default)]
+    treasures: Vec<Treasure>,
 }
 
 fn events() -> &'static Events {
@@ -109,6 +124,29 @@ pub fn catalog() -> &'static Catalog {
 }
 
 impl Catalog {
+    pub fn is_tree(&self, id: &str) -> bool {
+        self.trees.iter().any(|kind| kind.id == id)
+    }
+    pub fn treasure(&self, rarity: &str, roll: u64) -> Option<&str> {
+        let weight: u64 = self
+            .treasures
+            .iter()
+            .filter(|kind| kind.rarity == rarity)
+            .map(|kind| u64::from(kind.weight))
+            .sum();
+        if weight == 0 {
+            return None;
+        }
+        let mut choice = roll % weight;
+        for kind in self.treasures.iter().filter(|kind| kind.rarity == rarity) {
+            if choice < u64::from(kind.weight) {
+                return Some(&kind.id);
+            }
+            choice -= u64::from(kind.weight);
+        }
+        None
+    }
+
     /// Whether a seed can grow into this flower.
     pub fn is_flower(&self, id: &str) -> bool {
         self.flowers.iter().any(|k| k.id == id)

@@ -36,3 +36,20 @@ unit test or against the installed app's personal data. See the
 On a headless Linux host, `npm run test:e2e:linux` starts an isolated D-Bus,
 Xvfb and Openbox session. It needs `xvfb`, `xauth`, `dbus-x11`, `openbox` and
 `x11-utils`; Xvfb alone cannot confirm native pinning or fullscreen restoration.
+
+Windows CI also runs `npm run test:msix:ci` after the native E2E on x64 and ARM64.
+`packaging/windows/msix/ci.ps1` refuses to run outside a GitHub Windows runner:
+it creates a temporary signing certificate, installs a separate `PlayPets.CI`
+package, launches the production binary through its AUMID, and tests update
+ownership and preference retention with an E2E-feature package upgrade.
+`msix-scenario.mjs` shares its assertions with `msix-ci.test.mjs`; the Node tests
+never install packages or change certificate stores. Reports and logs are the
+`msix-verification-windows-*` CI artifacts. See the
+[Store guide](../docs/how-to/store-and-apple-signing.md) for the boundary between
+sideloaded package upgrades and actual Store delivery.
+
+`store-api.test.mjs` exercises the credential and HTTP boundary without real
+keys, including product identity, redirect refusal and secret-safe errors.
+`store-submit.test.mjs` covers first-registration and pending-draft refusal,
+manual publication hold, Pricing V2 omission and upload destination validation.
+These tests do not request certification or establish that Store delivery works.

@@ -142,12 +142,13 @@ gh secret set WINGET_TOKEN --repo gaerae/playpets
     - Enroll at https://developer.apple.com/programs/enroll/ as an individual with your Apple Account (two-factor authentication on, legal name, $99 a year).
     - In Certificates, Identifiers & Profiles, create a **Developer ID Application** certificate, install it in the keychain, and export it as a `.p12` with a password.
     - At https://account.apple.com create an app-specific password for notarization, and note the Team ID from the membership page.
-    - Add the six secrets (`APPLE_CERTIFICATE` is the `.p12` in base64: `base64 -i cert.p12 | pbcopy`): `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY` (the certificate's name, "Developer ID Application: … (TEAMID)"), `APPLE_ID`, `APPLE_PASSWORD` (the app-specific password), `APPLE_TEAM_ID`. The next release is signed and notarized; nothing in the code changes.
+    - Add the six secrets (`APPLE_CERTIFICATE` is the `.p12` in base64: `base64 -i cert.p12 | pbcopy`): `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY` (the certificate's name, "Developer ID Application: … (TEAMID)"), `APPLE_ID`, `APPLE_PASSWORD` (the app-specific password), `APPLE_TEAM_ID`. The release workflow requires all six values together and verifies Developer ID trust and notarization. See the [Store and Apple signing guide](store-and-apple-signing.md) before building.
 
 14. Microsoft Store (the Store signs the MSIX, so Store installs have no SmartScreen warning).
     - Register as an individual developer at https://partner.microsoft.com/dashboard/registration (free; an ID scan and a selfie).
-    - Reserve the name "PlayPets", and copy the publisher ID (`CN=…`) from the product identity page.
-    - Build the package with it (`MSIX_PUBLISHER="CN=…" npm run dist:windows`) and submit the unsigned `release/windows/msix-store/PlayPets_<version>_x64.msix` in Partner Center. The Store signs it. Without `MSIX_PUBLISHER`, the command makes a test-signed package in `release/windows/msix-test/`; Store builds leave those test certificates alone. Store submissions are by hand; the `distribute` workflow does not do them.
+    - Reserve the name "PlayPets", and copy all three identity fields (`Name`, `Publisher`, `PublisherDisplayName`) from the product identity page.
+    - Follow [Prepare Microsoft Store and Apple signing](store-and-apple-signing.md) to set `MSIX_IDENTITY_NAME`, `MSIX_PUBLISHER` and `MSIX_PUBLISHER_DISPLAY_NAME`, build the unsigned Store MSIX, test a separate test-signed package, and prepare the listing and privacy policy. Store updates are separate from GitHub updates. The first registration is manual. Later certification workflows need the protected `microsoft-store` environment and a separately enabled repository switch; publication remains manual. The read-only API check does not submit anything.
+
 
 ## Verification
 - The Actions tab shows `build`, `security`, `codeql` and `pages` green, and https://playpets.gaerae.com/ opens on an `https://` address.

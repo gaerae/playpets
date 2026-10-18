@@ -7,6 +7,37 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-19
+
+### Added
+
+- Ask a friend to dig at a chosen spot, record eight keepsakes, and plant scene-owned cherry, maple and pine trees with saved growth.
+- Preserve optional soil capabilities through background creation kits and app import.
+- Add an approval-gated Store API credential check and separate Store package and certification workflows, disabled during initial registration and held for manual publication.
+- Check Windows x64/ARM64 MSIX installation, production activation, package upgrades, retained settings and Store updater guards in CI.
+- Provide privacy information in all four website languages and link it from About.
+
+### Changed
+
+- Keep small windows quiet at rest, with brief friend-led play actions instead of a full activity panel.
+- Separate Place, Play and Menu, group window controls, and add a short keyboard-accessible yard context menu.
+- Tighten control-surface spacing and separate headings and functional groups with consistent boundaries.
+- Keep update downloads over the yard with collapsible details and a progress entry in small windows.
+- Enlarge the bench, swing, tent, picnic blanket and stump to fit friends across window sizes and display densities.
+- Align the app and MSIX version series at 1.0.0 and 1.0.0.0, without a major-version offset.
+
+### Fixed
+
+- Keep small-window collection content visible in WebKit, preserve the yard after a tree-growth save error, and leave delayed update-check results quiet after Settings closes.
+- Keep MSIX installations on package-managed updates instead of downloading GitHub EXE installers, validate Store identity fields together and scope test-package removal to its test publisher.
+- Reject partially configured Apple signing builds and verify Developer ID trust and notarization when signing is enabled.
+
+### Known limitations
+
+- macOS packages are signed ad hoc until Developer ID signing and notarization are configured; Windows installers are not Authenticode-signed. The updater signature is separate from operating-system trust.
+- Linux retains the documented upstream GTK/GLib advisory exceptions; review SECURITY.md before deployment.
+- Microsoft Store certification and publication are separate from this GitHub release. Store drafts and installed end-user update paths need their own verification.
+
 ## [0.2.0] - 2026-10-18
 
 ### Security

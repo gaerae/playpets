@@ -214,3 +214,125 @@
 .yard.period-evening .plant[data-stage="bloom"]:focus-visible svg {
   filter: brightness(0.88) saturate(0.85) drop-shadow(0 0 2px var(--focus));
 }
+/* Ground targeting is temporary and leaves the friends visible below it. */
+.discovery-target {
+  position: absolute;
+  z-index: 40;
+  inset: 8px 8px auto;
+  max-width: 420px;
+  margin-inline: auto;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--menu-surface);
+  color: var(--ink);
+}
+.discovery-target[hidden],
+.discovery-marker[hidden] {
+  display: none;
+}
+.discovery-target-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-left: 6px;
+  font-size: 12px;
+}
+.discovery-target-heading .icon-button {
+  width: 32px;
+  height: 32px;
+}
+.discovery-target [aria-pressed="true"] {
+  background: var(--control-selected);
+}
+.discovery-marker {
+  position: absolute;
+  z-index: 4;
+  width: 26px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--green-ink);
+  border-radius: 50%;
+  background: var(--green-soft);
+  pointer-events: none;
+}
+.discovery-marker.invalid {
+  border-color: var(--danger);
+  background: var(--soft);
+}
+.discovery-marker.invalid::after {
+  content: "×";
+  position: absolute;
+  inset: -5px 0 0;
+  text-align: center;
+  color: var(--danger);
+}
+.dig-effect {
+  position: absolute;
+  z-index: 150;
+  width: 24px;
+  height: 72px;
+  pointer-events: none;
+  transform: translate(-50%, -100%) scale(var(--dig-scale, 1));
+  transform-origin: bottom center;
+}
+.dig-effect svg {
+  width: 100%;
+  height: 100%;
+  animation: digging 0.65s ease-in-out 3;
+  transform-origin: 50% 95%;
+}
+@keyframes digging {
+  50% {
+    transform: rotate(-18deg) translateY(5px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dig-effect svg {
+    animation: none;
+  }
+}
+.planted-tree {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+}
+.planted-tree svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.planted-tree.dragging {
+  cursor: grabbing;
+}
+.planted-tree.invalid svg {
+  opacity: 0.5;
+}
+.planted-tree:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.period-evening .planted-tree svg {
+  filter: brightness(0.88) saturate(0.85);
+}
+.period-night .planted-tree svg {
+  filter: brightness(0.62) saturate(0.75);
+}
+.dig-effect::after {
+  content: "";
+  position: absolute;
+  width: 30px;
+  height: 9px;
+  left: -3px;
+  bottom: -3px;
+  border-radius: 50%;
+  background: var(--wood-lo, #8a5a38);
+  opacity: 0.55;
+}

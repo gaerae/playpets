@@ -16,9 +16,11 @@ A maintainer does this. You need repository administrator access for the generat
 
 ## Development versions and publication
 
+Starting with `1.0.0`, the app and Store share the same three version components; MSIX adds a final `.0` (for example `1.0.0.0`). Package preparation does not submit or publish a Store release. See [Store setup and submission prerequisites](store-and-apple-signing.md).
+
 Versions change for a release, not automatically for each commit. `package.json` is the source of truth; the npm lockfile and Rust package version match it. New features advance the minor version; fixes advance the patch version. Pet and background format versions are separate compatibility contracts and do not advance with the app version.
 
-A development branch may prepare the next version before tagging it. Keep its notes under `Unreleased`, leave its four release pages undated and keep the last published Linux metainfo entry until the release command dates the new entry. Preserve the published version's captures and put current captures under the next version's directory. A prepared version is not a public release: the site's default download still resolves the latest published GitHub release.
+A development branch may prepare the next version before tagging it. Keep its notes under `Unreleased`, leave its four release pages undated and preserve the published Linux metainfo entries. A prepared entry uses `type="development"` until the release command dates and promotes it. Preserve the published version's captures and put current captures under the next version's directory. A prepared version is not a public release: the site's default download still resolves the latest published GitHub release.
 
 After review and integration into main, `npm run release -- x.y.z` finalizes the notes and dates, commits and creates the local tag. It does not push. Only push the tag when cross-platform checks and publication are authorized.
 

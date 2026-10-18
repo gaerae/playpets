@@ -177,18 +177,18 @@ const scenario = `(async()=>{
     const controlsClosed=$('yard-controls-panel').hidden&&!$('panel-settings').hidden;
     $('close-panel').click();
     await L('quietControls='+(quietStart&&controlsOpen&&controlsClosed&&document.activeElement===$('yard-controls-toggle')?'disclosed-and-restored':'err'));
-    // Blank-yard context controls reuse the normal menu, fit the viewport and reset their anchor.
+    // Blank-yard context controls offer short actions, fit the viewport and leave the full menu untouched.
     const contextAt=()=>{$('yard').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:innerWidth-2,clientY:innerHeight-2}));};
-    const contextFits=()=>{const r=$('yard-controls-panel').getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1;};
+    const contextFits=()=>{const r=$('yard-context-menu').getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1;};
     contextAt();await wait(30);
-    const menuRect=$('yard-controls-panel').getBoundingClientRect(),dockRect=document.querySelector('.yard-dock').getBoundingClientRect();
+    const menuRect=$('yard-context-menu').getBoundingClientRect(),dockRect=document.querySelector('.yard-dock').getBoundingClientRect();
     const overlapX=(Math.max(menuRect.left,dockRect.left)+Math.min(menuRect.right,dockRect.right))/2,overlapY=(Math.max(menuRect.top,dockRect.top)+Math.min(menuRect.bottom,dockRect.bottom))/2;
-    const contextOnTop=menuRect.right<=dockRect.left||menuRect.bottom<=dockRect.top||$('yard-controls-panel').contains(document.elementFromPoint(overlapX,overlapY));
-    const fullContext=!$('yard-controls-panel').hidden&&$('yard-controls-panel').classList.contains('context-open')&&contextFits()&&contextOnTop;
-    $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
-    const contextEsc=$('yard-controls-panel').hidden&&document.activeElement===$('yard-controls-toggle');
+    const contextOnTop=menuRect.right<=dockRect.left||menuRect.bottom<=dockRect.top||$('yard-context-menu').contains(document.elementFromPoint(overlapX,overlapY));
+    const fullContext=!$('yard-context-menu').hidden&&$('yard-controls-panel').hidden&&contextFits()&&contextOnTop;
+    $('yard-context-menu').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    const contextEsc=$('yard-context-menu').hidden&&document.activeElement===$('yard-controls-toggle');
     $('yard-controls-toggle').click();
-    const normalAnchor=!$('yard-controls-panel').classList.contains('context-open')&&!$('yard-controls-panel').style.left;
+    const normalAnchor=!$('yard-controls-panel').style.left&&$('yard-context-menu').hidden;
     document.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));
     await L('contextFull='+(fullContext&&contextEsc&&normalAnchor&&$('yard-controls-panel').hidden?'clamped-escaped-and-reset':'err'));
     document.querySelector('.panel-tab[data-panel=invite]').click();
@@ -265,10 +265,10 @@ const scenario = `(async()=>{
     window.__pp('event',{type:'update',update:{version:'9.9.9',notes:''}});await until(()=>!$('update-pill').hidden);
     const tabDot=document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
     const pillShown=!$('update-pill').hidden&&$('update-pill-label').textContent.includes('v9.9.9')&&$('update-pill').parentElement.classList.contains('yard-dock')&&$('update-pill').parentElement.firstElementChild===$('update-pill')&&getComputedStyle($('update-pill')).display!=='none';
-    $('update-pill').click();await until(()=>$('update-dialog').open);
-    const updateDialogOpen=$('update-dialog').open&&$('update-title').textContent.includes('v9.9.9');
-    $('update-later').click();await until(()=>!$('update-dialog').open);
-    const putAway=!$('update-dialog').open&&$('update-pill').hidden&&document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
+    $('update-pill').click();await until(()=>!$('update-dialog').hidden);
+    const updateDialogOpen=!$('update-dialog').hidden&&$('update-title').textContent.includes('v9.9.9');
+    $('update-later').click();await until(()=>$('update-dialog').hidden);
+    const putAway=$('update-dialog').hidden&&$('update-pill').hidden&&document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
     await L('updateUi='+sections+'/'+(inAbout&&tabDot&&pillShown&&updateDialogOpen&&putAway?'ok':'err:'+[inAbout,tabDot,pillShown,updateDialogOpen,putAway].join(',')));
     await L('stage='+($('yard').getBoundingClientRect().height/innerHeight>.6?'yard-first':'small:'+$('yard').getBoundingClientRect().height));
     // The webview retains its last place across isolated backend runs; outdoor checks choose it explicitly.
@@ -332,6 +332,31 @@ const scenario = `(async()=>{
     $('sound-button').click();const soundOff=await until(async()=>(await playPets.bootstrap()).data.sound.on===false&&$('sound-button').getAttribute('aria-pressed')==='false');
     await L('sound='+(soundDefault.on&&soundDefault.volume===40&&held===100&&soundOn&&soundOff?'off-on-held':'err:'+JSON.stringify([soundDefault,held,soundOn,soundOff])));
     await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-shade')!==''?'set':'err:'+$('yard').className));
+    // Discovery commits after arrival, repeated ground is replay-safe, and a planted tree renders from saved state.
+    const discoveryFlow=await import('./yard/discovery.js'), discoveryGround=await import('./yard/ground.js'), discoveryRules=await import('./yard/discovery-rules.js'), discoveryState=await import('./core/state.js');
+    const discoveryFriend=discoveryState.views.values().next().value;
+    const discoveryPoints=Array.from({length:49},(_,i)=>({x:(i%7+1)/8,y:(Math.floor(i/7)+1)/8})).filter(p=>discoveryRules.groundAllows(p,discoveryGround.groundProfile()));
+    if(!discoveryPoints.length)throw Error('No open discovery ground');
+    const discoveryPoint=discoveryPoints[0], discoveryWorld=(await import('./yard/world.js')).scene.world;
+    const discoveryBefore=(await playPets.bootstrap()).data.garden.digs.length;
+    discoveryFlow.sendDiscovery(discoveryFriend,discoveryPoint,'dig');
+    const discoveryNoEarly=(await playPets.bootstrap()).data.garden.digs.length===discoveryBefore;
+    if(document.visibilityState==='hidden'){const trip=discoveryFriend.trip;discoveryFriend.trip=null;discoveryFriend.target=null;await trip.arrive();}
+    await until(async()=>(await playPets.bootstrap()).data.garden.digs.length===discoveryBefore+1,20000);
+    await wait(1700);
+    const discoveryReplay=await must('discoveryReplay',playPets.dig(discoveryFriend.pet.id,discoveryWorld,discoveryPoint.x,discoveryPoint.y,discoveryGround.groundProfile()));
+    const discoveryOnce=(await playPets.bootstrap()).data.garden.digs.length===discoveryBefore+1&&discoveryReplay.data?.repeated===true;
+    const discoveryTreeBefore=(await playPets.bootstrap()).data.garden.trees.length;
+    discoveryFlow.sendDiscovery(discoveryFriend,discoveryPoint,'tree','maple');
+    if(document.visibilityState==='hidden'){const trip=discoveryFriend.trip;discoveryFriend.trip=null;discoveryFriend.target=null;await trip.arrive();}
+    await until(async()=>(await playPets.bootstrap()).data.garden.trees.length===discoveryTreeBefore+1,20000);
+    await until(()=>!!document.querySelector('.planted-tree'));
+    const discoveryTree=(await playPets.bootstrap()).data.garden.trees.at(-1),discoveryTreeBox=document.querySelector('.planted-tree').getBoundingClientRect();
+    const discoverySaved=discoveryTree.world===discoveryWorld&&discoveryTree.stage===0&&discoveryTreeBox.width>0&&discoveryTreeBox.height>0;
+    discoveryFlow.cancelDiscoveryWork();
+    await must('removeDiscoveryTree',playPets.removeTree(discoveryTree.id));
+    await until(()=>!document.querySelector('.planted-tree'));
+    await L('discovery='+(discoveryNoEarly&&discoveryOnce&&discoverySaved?'arrival-replay-and-tree':'err'));
     const homeBefore=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
     document.querySelector('[data-game=hide]').click();
     // Friends only walk while the window is drawn. Behind other windows (or with the screen off)
@@ -428,17 +453,17 @@ const scenario = `(async()=>{
     const compactAt=await nativeWindow(),fitsSmall=fits();
     const sameBounds=(a,b)=>['x','y','width','height'].every(k=>Math.abs(a[k]-b[k])<=1);
     contextAt();await wait(30);
-    const smallContext=!$('yard-controls-panel').hidden&&contextFits()&&['menu-scene','always-on-top'].every(id=>{const r=$(id).getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.right<=innerWidth;});
-    const pinTrack=$('always-on-top').querySelector('.wander-switch');
-    const pinOffVisual=getComputedStyle(pinTrack,'::after').transform;
+    const smallContext=!$('yard-context-menu').hidden&&contextFits()&&['scene','pin'].every(action=>{const r=document.querySelector('[data-context-action="'+action+'"]').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.right<=innerWidth;});
+    const pinTrack=document.querySelector('[data-context-action=pin]');
+    const pinOffVisual=pinTrack.getAttribute('aria-checked');
     await $('always-on-top').onclick();
-    const pinOnVisual=getComputedStyle(pinTrack,'::after').transform;
+    const pinOnVisual=pinTrack.getAttribute('aria-checked');
     const pinOn=await until(async()=>{const w=await nativeWindow();return w.alwaysOnTop&&$('always-on-top').getAttribute('aria-pressed')==='true'&&w;});
     const trayPin=(await trayAt()).items.includes('alwaysOnTop:on');
     await $('always-on-top').onclick();
     const pinOff=await until(async()=>{const w=await nativeWindow();return !w.alwaysOnTop&&$('always-on-top').getAttribute('aria-pressed')==='false'&&w;});
-    $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
-    const smallContextEsc=$('yard-controls-panel').hidden&&document.activeElement===$('yard');
+    $('yard-context-menu').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    const smallContextEsc=$('yard-context-menu').hidden&&document.activeElement===$('yard');
     await L('contextSmall='+(smallContext&&smallContextEsc?'clamped-and-escaped':'err'));
     await L('windowPin='+(pinOn&&pinOff&&trayPin&&pinOnVisual!==pinOffVisual&&sameBounds(compactAt,pinOn)&&sameBounds(compactAt,pinOff)?'independent-and-synced':'err:'+JSON.stringify({compactAt,pinOn,pinOff,trayPin,ui:$('always-on-top').getAttribute('aria-pressed')})));
     const small=document.body.classList.contains('compact')&&compactAt.resizable&&getComputedStyle($('window-drag')).display!=='none'&&document.querySelectorAll('[data-resize]').length===8&&!document.querySelector('#mini,#unmini');
@@ -480,6 +505,18 @@ const scenario = `(async()=>{
     await nativeWindow(fullAt);await wait(100);panelFlow&&=visibleNode($('send'))&&!$('panel-pet').hidden;
     $('close-panel').click();await L('smallPanelFlow='+(panelFlow?'reachable-and-restored':'err'));
 
+    await nativeWindow({...fullAt,width:300,height:210});await wait(120);
+    document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
+    $('quick-play-explore-button').click();
+    document.querySelector('#quick-play-explore [data-quick-tool="album-button"]').click();
+    await until(()=>$('album-dialog').open);
+    $('album-select').value='treasure';$('album-select').dispatchEvent(new Event('change'));
+    await wait(80);
+    const albumCompact=visibleNode($('album-select'))&&getComputedStyle($('album-tabs')).display==='none'&&$('album-grid').getBoundingClientRect().height>=40&&document.querySelectorAll('.album-card').length===8;
+    const albumMetrics={select:$('album-select').getBoundingClientRect().toJSON(),tabs:getComputedStyle($('album-tabs')).display,grid:$('album-grid').getBoundingClientRect().toJSON(),cards:document.querySelectorAll('.album-card').length,dialog:$('album-dialog').getBoundingClientRect().toJSON(),viewport:[innerWidth,innerHeight]};
+    $('close-album').click();
+    await nativeWindow(fullAt);await wait(100);
+    await L('albumSmall='+(albumCompact?'chooser-and-scroll':'err:'+JSON.stringify(albumMetrics)));
     await L('windowResize='+(small?'one-responsive-window':'err'));
     contextAt();await wait(30);$('menu-quit').click();
     const quitAsked=await until(()=>$('confirm-dialog').open&&document.activeElement===$('confirm-cancel'));
@@ -512,23 +549,28 @@ const scenario = `(async()=>{
     // A conversation stays inside the current window; a friend nearer the bottom is drawn over one higher up.
     await nativeWindow({...fullAt,width:460,height:320});await until(()=>document.body.classList.contains('compact'));await wait(300);
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
+    await until(()=>!$('quick-play').hidden);
+    const quickRect=$('quick-play').getBoundingClientRect();
+    const quickPlayFits=$('play-panel').hidden&&quickRect.top>=0&&quickRect.right<=innerWidth&&quickRect.height<innerHeight/2;
+    $('close-quick-play').click();$('menu-friends').click();
     await until(()=>!$('panel-pet').hidden&&getComputedStyle($('side-panel')).display!=='none');await wait(300);
     $('panel-pet').scrollTop=0;
     const composer=$('message').getBoundingClientRect(),sendBox=$('send').getBoundingClientRect();
-    const chatFromSmall=document.body.classList.contains('compact')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth&&sendBox.bottom<=innerHeight;
+    const chatFromSmall=quickPlayFits&&document.body.classList.contains('compact')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth&&sendBox.bottom<=innerHeight;
     // By where the feet are (the bottom), since friends of different sizes have their tops elsewhere.
     const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().bottom,z:Number(b.style.zIndex)%200}));
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true));
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
     await L('reach='+(chatFromSmall?'compact-chat':'err-small')+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
-    // A friend's name tag is the way to talk: a click on it (not a drag) opens the conversation.
+    // A deliberate name click offers play; conversation stays in its explicit destination.
     $('close-panel').click();await until(()=>$('side-panel').hidden);
     await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact')&&innerWidth===wide);await wait(200);
     const tag=document.querySelector('.pet-label .pet-tag');
     tag.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));tag.dispatchEvent(new PointerEvent('pointerup',{button:0,bubbles:true}));
-    await until(()=>!$('side-panel').hidden&&!$('panel-pet').hidden);
-    await L('talkTag='+(!$('side-panel').hidden&&!$('panel-pet').hidden?'opens-chat':'err'));
+    await until(()=>!$('play-panel').hidden);
+    await L('playTag='+($('side-panel').hidden&&!$('play-panel').hidden?'opens-play':'err'));
+    $('close-play').click();
     // Inviting from the shelf and opening the AI dialog go through the page's own buttons.
     const before=(await playPets.bootstrap()).data.pets.length;
     document.querySelector('.panel-tab[data-panel=invite]').click();await until(()=>!$('panel-invite').hidden);
@@ -788,7 +830,7 @@ const expect = [
   ],
   [/^settingsScroll=fixed-navigation-single-body$/, 'Settings scrolls one body while its menu and title stay fixed'],
   [/^relation=chip-opens-cards$/, 'the relationship shows in the Friend tab and its chip opens the relationship cards'],
-  [/^about=6\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
+  [/^about=7\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
   [
     /^updateUi=general-title,yard-settings-title,agent-link-title,about-title\/ok$/,
     'an update stays at the left of the yard dock before Place, opens its dialog, and Later puts it away',
@@ -808,6 +850,14 @@ const expect = [
   [
     new RegExp(`^games=1/${literal(stopGame('game.parade'))}/${literal(KO['game.label'])}$`),
     'tag and parade start and stop',
+  ],
+  [
+    /^discovery=arrival-replay-and-tree$/,
+    'friend-led digging commits at arrival, replays safely and saves a visible scene-owned tree',
+  ],
+  [
+    /^albumSmall=chooser-and-scroll$/,
+    'small-window collection remains reachable with a single category chooser and visible content scroller',
   ],
   [/^windowResize=one-responsive-window$/, 'one resizable window keeps its controls and native drag boundaries'],
   [
@@ -834,7 +884,7 @@ const expect = [
     /^backgroundImport=file-gallery-storage-and-fishing$/,
     'a studio JSON enters the real file input, persists in IndexedDB and supports a small yard and fishing',
   ],
-  [/^talkTag=opens-chat$/, "a click on a friend's name tag opens the conversation"],
+  [/^playTag=opens-play$/, "a click on a friend's name tag opens the conversation"],
   [/^season=set$/, 'the season and the clock paint the yard'],
   [/^garden=found-planted$/, 'a found seed is planted on the field with the tool and kept'],
   [

@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "generated": "2026-10-19",
+  "tool": "Built-in image_gen imagegen",
+  "references": [
+    {
+      "path": "src/art/decor/collection.png",
+      "role": "Style reference"
+    },
+    {
+      "path": "src/art/decor/props.png",
+      "role": "Style reference"
+    }
+  ],
+  "sources": [
+    {
+      "id": "growth",
+      "file": "trees-growth-source.png",
+      "atlas": "trees/growth.png",
+      "size": [1261, 1247],
+      "sha256": "5b01351d9ae5f1d84ff5710b65363b1d4de49a02e23d22625e9b8e000f9a9f7a",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game tree sprite atlas.\nReference image 1 and 2: style references only, warm tactile miniature sculpted illustration with deliberate crisp silhouettes and soft hand-painted material detail. Create NEW trees, not props or characters.\nA genuine transparent RGBA 3 by 3 atlas, exactly nine separate freestanding trees, each entirely within its own equal cell with a wide clear gutter. Orthographic front view, slightly visible top surfaces as in refs. No cast background, no floor, no pot, no text, no grid, no checkerboard ink.\nRow 1: cherry seedling, cherry young sapling, cherry mature tree in full soft pink spring blossom. Row 2: maple seedling, maple young sapling, maple mature tree with green palmate maple leaves. Row 3: pine seedling, pine young tree, pine mature evergreen tree with a graceful tiered silhouette.\nEach tree centered in its cell, roots/base at same cell baseline. Mature trees fill 85% height, young trees 60%, seedlings 30%; do not enlarge seedlings to equal mature size. Elegant rounded organic canopies and believable wood branching, pine visibly differs from broadleaf. Warm restrained colors, readable at 40–160 CSS pixels, carefully composed botanical shapes. Preserve alpha, no large dirt mound or floating debris. High-quality finished game assets cohesive with references."
+    },
+    {
+      "id": "finds",
+      "file": "finds-source.png",
+      "atlas": "discovery/finds.png",
+      "size": [1263, 1245],
+      "sha256": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game found-object and digging-tool atlas. Reference image 1 is style reference only: warm sculpted illustrated materials, soft hand-painted detail and crisp edges, polished but natural.\nCreate genuine transparent RGBA 3 by 3 sprite atlas, exactly nine isolated objects, no background or drawn checkerboard, no shadows outside objects, no text or labels. Entire objects fit inside their own equal cell with generous transparent gutters. Orthographic slightly top-front view, readable miniature artifacts with pleasing deliberate asymmetry, warm neutral light from top-left.\nReading order: row 1 left smooth gray pebble with exactly a few ivory mineral stripes, middle rounded frosted aqua sea-glass fragment, right small tan stone with an imprinted fern leaf fossil (no spiral fossil symbol). Row 2 left curved terracotta pottery shard with faint worn cream glaze along one edge, middle old honey-brown wooden four-hole button, right small ivory/pale peach ridged seashell. Row 3 left little irregular clear pale rose-white quartz crystal cluster, middle translucent golden amber pebble with natural tiny internal flecks, right one upright garden shovel with top D handle, long warm wooden shaft and worn blue-gray steel pointed spade blade at the BOTTOM.\nObjects should be distinct handmade material studies, no facial features, no magical sparkles, no pedestals, no gem-game outlines. Keepsakes fill 65% cell width, shovel fills 90% cell height and is narrow. Preserve authentic transparent alpha. Finished game artwork, tasteful tactile details visible at 40 pixel keepsake size and 72 pixel shovel height."
+    },
+    {
+      "id": "seasons",
+      "file": "trees-seasons-source.png",
+      "atlas": "trees/seasons.png",
+      "size": [1254, 1254],
+      "sha256": "b553c5caca07c86ff1ead83eb8cb6bab10c2d4d295bb92a3cf1298664083fa7e",
+      "prompt": "Use case: stylized-concept. Asset type: cozy illustrated game tree sprite atlas.\nA SQUARE genuine transparent RGBA 3 by 3 atlas, exactly nine separate freestanding trees, each entirely within its own equal cell with a wide clear gutter. Orthographic front view, slightly visible top surfaces. No cast background, no floor, no pot, no text, no grid, no checkerboard ink.\nRow 1: mature cherry tree with oval green summer leaves; same cherry with gold orange oval autumn leaves; same cherry entirely bare winter branches.\nRow 2: mature maple tree with spring green palmate leaves; same maple with orange-red autumn palmate leaves; same maple entirely bare winter branches.\nRow 3: mature evergreen pine; mature evergreen pine; mature evergreen pine.\nAll trees large and mature, centered, root foot at same cell baseline, filling 85% of cell height with clear transparent gutters and absolutely NO background. Elegant rounded organic canopies and believable wood branching, pine visibly differs from broadleaf. Warm tactile miniature sculpted illustration with deliberate crisp silhouettes, soft hand-painted material detail, restrained colors, readable at160pixels. Keep same short stout mature trunks as reference, tastefully simplified shapes. Preserve alpha, no large dirt mound, no grass, no floating debris. High-quality finished game assets. SQUARE composition equal width and height.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Identity and style reference"
+      },
+      "notes": "Only five accepted broadleaf season cells are consumed. Requested summer cherry instead repeated blossoms, so that cell and the repeated pine cells are unused."
+    },
+    {
+      "id": "cherry-summer",
+      "file": "cherry-summer-source.png",
+      "atlas": "trees/cherry-summer.png",
+      "size": [1254, 1254],
+      "sha256": "4f132916aa6c848a7d2528054463707566cae4187dd134ac092916dfead36168",
+      "prompt": "Use case: lighting-weather. Asset type: a SINGLE transparent square game sprite of the exact same mature cherry tree in SUMMER.\nInput image 1 is the identity/edit target: keep the same short sturdy curved branching brown trunk, roots, small root leaves, rounded canopy silhouette, front view, sculpted hand-painted illustration, warm light, and visible scale.\nChange only the canopy season: replace EVERY pink blossom, flower, bud, petal, and pale pink/white area with clusters of natural GREEN OVAL cherry leaves. All canopy foliage is green, olive and fresh yellow-green. ZERO flowers. ZERO pink, zero red, no fruit, no cherries, no maple leaves. The canopy is exclusively slightly pointed oval green cherry leaves with subtle veins.\nONE whole tree only, fully visible in a SQUARE canvas, generous clean transparent border. Root foot centered at bottom. Genuine transparent RGBA alpha around the tree and through branch gaps; no background, no gradient, no brown glow, no floor, no shadow beneath the tree, no text, no checkerboard. Preserve recognizable original trunk identity and canopy proportions. Finished cohesive cozy PlayPets game sprite.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Mature cherry identity/edit target, isolated without changing pixels",
+        "crop": [814, 17, 430, 397],
+        "referenceCanvas": [430, 430],
+        "referenceOffset": [0, 16]
+      }
+    }
+  ],
+  "assets": [
+    {
+      "id": "cherry-seedling",
+      "source": "growth",
+      "art": "trees/cherry-seedling.svg",
+      "size": [35, 40],
+      "crop": [125, 246, 149, 166],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "cherry-young",
+      "source": "growth",
+      "art": "trees/cherry-young.svg",
+      "size": [70, 95],
+      "crop": [476, 125, 258, 289],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "cherry-mature",
+      "source": "growth",
+      "art": "trees/cherry-mature.svg",
+      "size": [160, 170],
+      "crop": [814, 17, 430, 397],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "maple-seedling",
+      "source": "growth",
+      "art": "trees/maple-seedling.svg",
+      "size": [35, 40],
+      "crop": [125, 633, 161, 184],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "maple-young",
+      "source": "growth",
+      "art": "trees/maple-young.svg",
+      "size": [70, 95],
+      "crop": [462, 491, 295, 325],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "maple-mature",
+      "source": "growth",
+      "art": "trees/maple-mature.svg",
+      "size": [160, 170],
+      "crop": [810, 424, 439, 391],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "pine-seedling",
+      "source": "growth",
+      "art": "trees/pine-seedling.svg",
+      "size": [35, 40],
+      "crop": [119, 1031, 158, 183],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "pine-young",
+      "source": "growth",
+      "art": "trees/pine-young.svg",
+      "size": [70, 95],
+      "crop": [497, 913, 237, 299],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "pine-mature",
+      "source": "growth",
+      "art": "trees/pine-mature.svg",
+      "size": [160, 170],
+      "crop": [841, 817, 384, 401],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "striped_pebble",
+      "source": "finds",
+      "art": "discovery/striped_pebble.svg",
+      "size": [40, 40],
+      "crop": [62, 79, 334, 272],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "sea_glass",
+      "source": "finds",
+      "art": "discovery/sea_glass.svg",
+      "size": [40, 40],
+      "crop": [490, 67, 306, 305],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "leaf_fossil",
+      "source": "finds",
+      "art": "discovery/leaf_fossil.svg",
+      "size": [40, 40],
+      "crop": [877, 54, 325, 320],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "clay_shard",
+      "source": "finds",
+      "art": "discovery/clay_shard.svg",
+      "size": [40, 40],
+      "crop": [78, 435, 319, 327],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "old_button",
+      "source": "finds",
+      "art": "discovery/old_button.svg",
+      "size": [40, 40],
+      "crop": [482, 448, 297, 300],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "tiny_shell",
+      "source": "finds",
+      "art": "discovery/tiny_shell.svg",
+      "size": [40, 40],
+      "crop": [897, 440, 302, 299],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "quartz",
+      "source": "finds",
+      "art": "discovery/quartz.svg",
+      "size": [40, 40],
+      "crop": [76, 841, 333, 334],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "amber",
+      "source": "finds",
+      "art": "discovery/amber.svg",
+      "size": [40, 40],
+      "crop": [486, 856, 341, 292],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "shovel",
+      "source": "finds",
+      "art": "discovery/shovel.svg",
+      "size": [24, 72],
+      "crop": [980, 764, 138, 436],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "cherry-mature-autumn",
+      "source": "seasons",
+      "art": "trees/cherry-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [442, 9, 373, 401],
+      "frame": [413.5, 0, 430, 410],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "cherry-mature-winter",
+      "source": "seasons",
+      "art": "trees/cherry-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [861, 23, 373, 387],
+      "frame": [832.5, 0, 430, 410],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "maple-mature-spring",
+      "source": "seasons",
+      "art": "trees/maple-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [8, 421, 411, 395],
+      "frame": [-6, 406, 439, 410],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "maple-mature-autumn",
+      "source": "seasons",
+      "art": "trees/maple-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [434, 420, 396, 396],
+      "frame": [412.5, 406, 439, 410],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "maple-mature-winter",
+      "source": "seasons",
+      "art": "trees/maple-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [857, 432, 379, 384],
+      "frame": [827, 406, 439, 410],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "cherry-mature-summer",
+      "source": "cherry-summer",
+      "art": "trees/cherry-mature-summer.svg",
+      "size": [160, 170],
+      "crop": [15, 46, 1232, 1161],
+      "anchor": [0.5, 1]
+    }
+  ]
+}

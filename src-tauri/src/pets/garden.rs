@@ -6,6 +6,7 @@
 //! what friends bring are the catalogue's (content.rs).
 //! Design: docs/design/2026-10-09-a-yard-that-grows.md.
 use super::content::catalog;
+use super::discovery::{DigAttempt, Tree};
 use crate::i18n;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -22,6 +23,10 @@ pub const DECOR_MAX: usize = 12;
 #[serde(rename_all = "camelCase")]
 pub struct Garden {
     pub seeds: u32,
+    #[serde(default)]
+    pub trees: Vec<Tree>,
+    #[serde(default)]
+    pub digs: Vec<DigAttempt>,
     pub plants: Vec<Plant>,
     pub decor: Vec<Decor>,
     /// Every kind of decoration ever given, in the order it came.
@@ -130,6 +135,8 @@ impl Garden {
             .unwrap_or_default()
             .to_string();
         Garden {
+            trees: super::discovery::restore_trees(raw.get("trees")),
+            digs: super::discovery::restore_digs(raw.get("digs")),
             seeds,
             plants,
             decor,
@@ -279,6 +286,17 @@ impl Garden {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn discovery_state_defaults_and_future_kinds_survive_restore() {
+        let old = serde_json::to_value(Garden::restore(None)).unwrap();
+        assert_eq!(old["trees"], json!([]));
+        assert_eq!(old["digs"], json!([]));
+        let g = Garden::restore(Some(
+            &json!({"trees":[{"id":"future", "world":"removed-scene", "kind":"future_tree", "x":0.5,"y":0.5,"planted":1,"stage":2,"matured":true}]}),
+        ));
+        assert_eq!(serde_json::to_value(g).unwrap()["trees"][0]["kind"], "future_tree");
+    }
 
     #[test]
     fn seeds_are_found_up_to_a_full_pocket_and_planting_spends_one() {

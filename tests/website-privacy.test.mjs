@@ -16,3 +16,17 @@ test('every FAQ distinguishes app-local chat storage from the connected provider
     assert.match(faq, provider, dir);
   }
 });
+
+test('every site language has a privacy policy linked in its footer', async () => {
+  const config = await readFile('website/.vitepress/config.mts', 'utf8');
+  for (const folder of ['', 'ko/', 'ja/', 'zh-hans/']) {
+    const policy = await readFile(`website/${folder}privacy.md`, 'utf8');
+    assert.match(policy, /gaerae/);
+    assert.match(policy, /2026/);
+    assert.match(policy, /Microsoft Store/);
+    assert.match(policy, /Google Fonts/);
+    assert.match(policy, /jsDelivr/);
+    assert.match(policy, /issues\/new\/choose/);
+    assert.ok(config.includes(`\${base}${folder}privacy`), folder);
+  }
+});

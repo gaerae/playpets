@@ -38,7 +38,7 @@ Use `--source-json references/source.json` to retain source attribution in the m
 
 Input artwork is exactly 1536×1024 PNG, JPEG or static WebP, at most6 MiB per input. The helper decodes the image and exports an embedded PNG; encoded PNG data also stays below the app's image limit. The final UTF-8 JSON stays under32 MiB, including all supplied seasons. Multiple highly detailed seasonal images may require PNG optimization or fewer variants; do not silently omit a requested season.
 
-The layout is an object with `name`, `floor`, optional `water`, `fishingSpot`, `windows`, and boolean `sky`, `weather`, `ambient`. The background name is nonempty single-line text with at most60 UTF-16 code units, matching app import; a character outside the Basic Multilingual Plane, such as an emoji, uses two units. Unknown fields and string-valued booleans are rejected. Example:
+The layout is an object with `name`, `floor`, optional `water`, `fishingSpot`, `windows`, and boolean `sky`, `weather`, `ambient`. Optional `capabilities` is an object with a boolean `soil` field. The background name is nonempty single-line text with at most60 UTF-16 code units, matching app import; a character outside the Basic Multilingual Plane, such as an emoji, uses two units. Unknown fields and string-valued booleans are rejected. Example:
 
 ```json
 {
@@ -49,11 +49,14 @@ The layout is an object with `name`, `floor`, optional `water`, `fishingSpot`, `
   "windows": [],
   "sky": true,
   "weather": true,
-  "ambient": true
+  "ambient": true,
+  "capabilities": {"soil": true}
 }
 ```
 
 Coordinates are normalized fractions of the image. `floor` is between0.5 and0.8. Water has `0 ≤ from < to ≤ 1`, a positive radius, `center-radius ≥ 0` and `center+radius ≤ floor`. The fishing spot requires water, x between0.02 and0.98, and y between the floor and0.94. Windows is an array of at most12 rectangles with positive width/height, nonnegative x/y, `x+width ≤ 1` and `y+height ≤ floor`. Weather requires sky or at least one window; ambient requires sky. With `sky: true`, every base and seasonal picture needs truly transparent alpha-0 pixels covering at least1% of the area above the floor so the app can draw its live sky behind the scene. Opaque PNG/JPEG or transparency only below the floor is rejected. Repair the sky region in transparent PNG/WebP artwork, or explicitly choose `sky: false` and keep weather/ambient capabilities consistent. Opaque JPEG remains supported for painted-sky or indoor scenes with `sky: false`. Visually inspect those coordinates: valid geometry can still describe the wrong part of a drawing.
+
+`capabilities.soil` allows digging and tree planting on the walking field. Set it to `false` for indoor floors and outdoor paving. When omitted in older layouts or packages, it defaults to `sky !== false` after sky normalization: live-sky outdoor scenes allow soil actions, and scenes without live sky do not. An explicit `true` overrides `sky: false` for an outdoor scene with a painted opaque sky. The sky flag describes transparency, not whether a place is indoors; keep `soil: false` for every indoor floor. Soil declarations do not infer terrain from image pixels. They do not change ordinary friend movement. Keep this capability inside `capabilities`; no top-level `soil` field is defined.
 
 Propose a water ellipse, floor line and dry fishing stance from the requested composition, then inspect the actual generated scene and adjust its layout JSON. The ellipse's horizontal extent is `from/to`; its vertical extent is `center ± radius`. Check every bound above before packing. Use `render-layout --config output/layout.json --image output/scene.png --output output/layout-review.png` to draw technical outlines on a separate copy of the real image; the input bytes are preserved and cannot be overwritten. Inspect the shoreline at the app's floor crop and confirm that the fishing stance rests on visible dry ground with water within reach. If the shoreline is cropped away or the art cannot fit valid geometry, repair the composition. The helper validates declared geometry and renders guides; it does not segment water or discover coordinates automatically. Keep guides out of the production artwork.
 

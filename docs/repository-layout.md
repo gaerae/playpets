@@ -96,7 +96,7 @@ E2E still needs a desktop session. Its test-feature build goes to
 
 Local Docker distribution uses `scripts/local.mjs`, preserving paths with spaces
 without shell interpolation. The host needs Docker with Linux containers.
-`dist:windows` passes `MSIX_PUBLISHER` through; `dist:linux` passes `BUNDLES`
+`dist:windows` passes `MSIX_IDENTITY_NAME`, `MSIX_PUBLISHER` and `MSIX_PUBLISHER_DISPLAY_NAME` through; `dist:linux` passes `BUNDLES`
 through. These are local packaging options, not the hosted release matrix.
 
 ## Generated files and accepted assets

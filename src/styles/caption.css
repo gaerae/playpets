@@ -103,8 +103,8 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto minmax(0, 1fr);
   align-items: stretch;
-  gap: 8px 12px;
-  padding: 12px 14px;
+  gap: 8px;
+  padding: 8px;
   border-radius: var(--radius-panel);
   background: var(--menu-surface);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -403,4 +403,8 @@
 }
 .scene-page .background-actions {
   margin-top: 10px;
+}
+/* Empty instructions do not leave a floating capsule over a friend. */
+#yard-hint[hidden] {
+  display: none;
 }

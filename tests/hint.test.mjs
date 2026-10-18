@@ -49,3 +49,22 @@ test('one busy friend is named with its state; none says nothing', () => {
     'several are counted',
   );
 });
+
+test('discovery placement owns one instruction surface instead of duplicating the yard hint', () => {
+  for (const aiming of ['dig', 'tree']) assert.equal(hintKey({ aiming, friends: 1, patted: true, fished: true }), null);
+});
+
+test('an empty hint removes its whole visual capsule and returns when there is an instruction', async context => {
+  const { installDom } = await import('./support/dom.mjs');
+  const state = await import('../src/core/state.js');
+  const { hint } = await import('../src/yard/hint.js');
+  const before = state.data;
+  context.after(() => state.setData(before));
+  installDom(context, { anyId: true });
+  state.setData({ ...before, pets: [], statuses: {} });
+  hint();
+  assert.equal(document.getElementById('yard-hint').hidden, true);
+  state.setData({ ...before, pets: [{ id: 'friend', name: 'Clover' }], statuses: {} });
+  hint();
+  assert.equal(document.getElementById('yard-hint').hidden, false);
+});

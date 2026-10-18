@@ -31,6 +31,7 @@ function selectSettingsSection(section, focus = false) {
   if (focus) $(next)?.focus?.({ preventScroll: true });
 }
 let panelOpener = null;
+let beforePanelOpen = () => {};
 function closePanel() {
   const compact = document.body.classList.contains('compact');
   const tab = document.querySelector('.panel-tab[aria-expanded="true"]');
@@ -41,6 +42,7 @@ function closePanel() {
 }
 export function openPanel(kind, section) {
   if (kind) {
+    beforePanelOpen(kind);
     closeControls(false);
     closeScene();
   }
@@ -74,7 +76,8 @@ export function openInvite() {
   $('shelf').querySelector('.asset-card')?.focus();
 }
 // Wires the tabs and the buttons that open a panel. Called once, by app.js.
-export function setupTabs() {
+export function setupTabs({ beforeOpen = () => {} } = {}) {
+  beforePanelOpen = beforeOpen;
   $('panel-menu')?.addEventListener('click', openControls);
   if ($('settings-section')) $('settings-section').onchange = () => selectSettingsSection($('settings-section').value);
   for (const tab of document.querySelectorAll('.panel-tab[data-panel]'))
@@ -95,7 +98,8 @@ export function setupTabs() {
       e.key === 'Escape' &&
       !e.defaultPrevented &&
       ($('layout').classList.contains('settings-open') || $('layout').classList.contains('panel-open')) &&
-      !document.querySelector('dialog[open]')
+      !document.querySelector('dialog[open]') &&
+      $('update-dialog')?.hidden !== false
     ) {
       e.preventDefault();
       closePanel();

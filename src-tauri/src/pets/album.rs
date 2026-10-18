@@ -23,6 +23,10 @@ pub struct Album {
     pub bugs: BTreeMap<String, Entry>,
     #[serde(default)]
     pub flowers: BTreeMap<String, Entry>,
+    #[serde(default)]
+    pub treasures: BTreeMap<String, Entry>,
+    #[serde(default)]
+    pub trees: BTreeMap<String, Entry>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -67,6 +71,8 @@ impl Album {
             fish: read(raw.and_then(|r| r.get("fish"))),
             bugs: read(raw.and_then(|r| r.get("bugs"))),
             flowers: read(raw.and_then(|r| r.get("flowers"))),
+            treasures: read(raw.and_then(|r| r.get("treasures"))),
+            trees: read(raw.and_then(|r| r.get("trees"))),
         }
     }
 
@@ -114,6 +120,20 @@ impl Album {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn discovery_album_defaults_and_future_kinds_survive_restore() {
+        let old = serde_json::to_value(Album::restore(None)).unwrap();
+        assert_eq!(old["treasures"], json!({}));
+        assert_eq!(old["trees"], json!({}));
+        let a = Album::restore(Some(
+            &json!({"treasures":{"future_stone":{"count":2,"best":0.0,"first":7}}}),
+        ));
+        assert_eq!(
+            serde_json::to_value(a).unwrap()["treasures"]["future_stone"]["count"],
+            2
+        );
+    }
 
     #[test]
     fn a_catch_is_counted_the_biggest_fish_kept_and_the_first_of_a_kind_said() {

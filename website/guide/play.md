@@ -10,9 +10,9 @@ import DiscoveryGuide from '../.vitepress/theme/DiscoveryGuide.vue';
 
 The yard changes with the time of day, the weather and the season, and it grows over the days. Friends find seeds for the garden and bring gifts, you fish and catch bugs for the album, friends grow closer to you, seasonal events come and go, the yard has its own sounds, and you can play three games with your friends.
 
-The scenery fills the window. In larger windows, **Place & atmosphere** stays beside **Menu** at the bottom right. Choose the scene directly, or open Menu for Friend, Invite, Settings, display and sound switches, and play tools. Choosing an action closes the controls. Task panels and the menu take turns rather than overlap. Automatic time still follows your computer without a visible clock.
+The scenery fills the window. Larger windows have three entrances at the bottom right: **Place & atmosphere**, **Play** and **Menu**. Change the scene directly, open Play for activities, and use Menu for friends, invitations and app settings. Only one yard panel opens at a time. Automatic time follows your computer’s clock without displaying a clock on the scenery.
 
-Expand **Play & display options** in Menu when needed. Destinations and window actions stay separate from those tools.
+**Play** brings together picnics, group conversation, planting, fishing, the collection and games. Group conversation needs two friends connected to AI; the other activities do not. **Menu → Window & desktop** contains window pinning, fullscreen and desktop friends. Sound is in **Place & atmosphere → Atmosphere**.
 
 A new yard starts on a clear spring day. Choose **Auto** for season, time or weather when you want them to change on their own; saved choices stay as you left them.
 
@@ -76,11 +76,11 @@ Once a day a friend brings a gift for the yard, after the yard has been open for
 
 ## Fishing and bugs <Since v="0.1.0" />
 
-- **Fishing**: click visible water or choose **Fish** in **Menu**. The nearest free friend walks to that background's fishing stance and casts. If a friend covers the water in a small window, use the menu to start fishing. Wait for the float to dip under (a **!** appears), then click it. Too early and nothing bites; too late and the fish gets away.
+- **Fishing**: click visible water or choose **Fish** in **Play**. Clicking water sends the nearest free friend; the Play action sends the selected friend. They walk to that background’s fishing stance and cast. If a friend covers the water in a small window, use Play to start fishing. Wait for the float to dip under (a **!** appears), then click it. Too early and nothing bites; too late and the fish gets away.
 - **Bugs**: click a butterfly or a dragonfly by day, or a firefly on a spring or summer night, and the nearest friend leaps and catches it.
 - What bites and what flies depends on the season, the time of day and the weather: catfish and eels come out after dark (and more in the rain), pond smelt only in winter, and a golden carp is very rare. Each fish is a different size every time.
 - A card shows what was caught, and says so when it is new.
-- **Album** in **Menu** has four books, Flowers, Fish, Bugs and Gifts, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
+- **Album** in **Play** has six books, Flowers, Fish, Bugs, Gifts, Trees and Keepsakes, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
 
 ## Seasonal events <Since v="0.1.0" />
 
@@ -111,6 +111,14 @@ Each friend grows closer to you through time in the yard and what you do togethe
 
 - Time together counts every ten minutes the yard is seen. Patting, treats, chatting, watering, catching and gifts count too, up to a day's worth, so a few minutes of clicking cannot rush it: closeness comes over days.
 - Nothing is ever lost by being away. Closeness is saved as `bonds` in `state.json`.
+
+## A little digging and tree planting
+
+Click a friend's name or right-click the friend, then choose **Explore** in a small window. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
+
+A finished dig has a 40% chance of finding nothing, 25% of finding a seed, 30% of a common keepsake and 5% of an uncommon keepsake. There are eight keepsakes. They are recorded in **Album → Keepsakes**. Repeating the same patch within 24 hours gives no further reward; each friend waits eight seconds between digs. A full seed pocket gives no extra seed. There is no daily collection task or guarantee of completing the album in a particular number of tries.
+
+Choose **Plant a tree**, pick cherry, maple or pine, and choose clear ground. Saplings become young trees after two hours and mature after twelve, including time with the app closed. A mature tree is recorded in **Album → Trees** once. Each place holds three trees, up to twelve overall. Trees stay in the place where they were planted. Drag to move one, or right-click to remove it after confirmation; its album entry stays. Indoor places do not offer digging or tree planting. Imported backgrounds can explicitly allow or disable soil.
 
 ## Games <Since v="0.1.0" />
 
@@ -143,21 +151,23 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 
 Resize the yard by dragging any edge or corner, down to 300 × 210. The same window keeps friends, chat, Invite, Settings, scene controls and games available at every size. Drag the narrow transparent area along the top edge to move it. Its position and size are remembered.
 
-When the window is 640 pixels wide or less, or 480 pixels tall or less, the bottom controls are hidden. Right-click empty scenery or press **Cmd/Ctrl + Shift + P** to open the menu. It fills the small window with a little space around the edges, starts with Friends, Invite, Place & atmosphere and Settings, followed by **Always on top** and fullscreen, and scrolls as one list. Expand **Play & display options** for games, desktop friends and sound. The **←** button in each destination returns to the menu; **×** returns to the yard. The fullscreen icon offers more working space. Small Settings uses one section chooser, and Invite keeps **Search & import** folded until needed. Choose **Menu → Place & atmosphere** to open the scene chooser. Close the menu with **×** or **Esc**.
+At 640 pixels wide or less, or 480 pixels tall or less, the bottom dock is hidden. Right-click empty scenery for quick actions, or press **Cmd/Ctrl + Shift + P** for Menu. The short right-click menu offers Place & atmosphere, Play, Friends, Always on top and Menu. Longer panels scroll inside the small window. **←** returns to Menu, and **×** returns to the yard. Settings keeps its section chooser, and Invite folds Search & import until needed.
 
-Right-click empty scenery to open the same **Menu** beside the pointer. It stays inside the window and scrolls when needed; **Esc** or a click outside closes it. Right-clicking a friend still opens its chat, and plants and decorations keep their own actions.
+Small windows stay focused on the scenery and friends. Click a friend’s name or right-click them to open a short play strip. Choose an action and the strip closes immediately; game choices replace the same row and have a Back button. Reopen it to stop the current game. Escape or clicking outside dismisses it. Chat, invitations and Settings remain explicit destinations in Menu.
 
-Choose **Menu → Enter fullscreen** to fill the screen with the yard. The same option is available when you right-click empty scenery. While fullscreen, choose **Return to previous size** in that menu, or press **Esc**. Esc first closes an open menu, Settings or a dialog; press it again once those are closed to leave fullscreen. Returning restores the previous window size, position and Always on top setting.
+Right-click empty scenery for the short action menu beside the pointer. It stays inside the window and scrolls when necessary. **Esc** or a click outside closes it. Friends, plants and decorations retain their own right-click actions.
+
+Choose **Menu → Window & desktop → Enter fullscreen** to fill the screen. While fullscreen, the same action becomes **Return to previous size**; **Esc** also returns. Esc closes an open panel or menu first. Returning restores the previous window size, position and Always on top setting.
 
 <Shot name="mini" caption="A small yard window beside your work." />
 
-Choose **Menu → Always on top** to keep the yard above other windows. This switch works independently of the window size, also appears in the tray and macOS View menus, and is remembered. **Cmd/Ctrl + Shift + M** toggles it without resizing the yard.
+Choose **Menu → Window & desktop → Always on top**, or use the checked action in the short right-click menu. The setting works independently of window size and is remembered. The tray and macOS View menu also offer it; **Cmd/Ctrl + Shift + M** toggles it without resizing.
 
 On Linux, pinning depends on the desktop and window manager. Some Wayland desktops refuse the request; check your desktop’s window rules if the setting cannot be applied.
 
 <Shot name="mini-chat" caption="A conversation stays inside the small yard window, beside your work." />
 
-Choose **Menu → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** in the same menu asks for confirmation and closes PlayPets; conversations are not saved. Both actions are also in the empty-scenery right-click menu.
+Choose **Menu → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** in the same footer asks for confirmation and closes PlayPets; conversations are not saved. From the short right-click menu, choose Menu to reach these actions.
 
 ## Want to see more of your friends?
 

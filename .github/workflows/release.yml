@@ -130,6 +130,17 @@ jobs:
             export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$TAURI_SIGNING_PRIVATE_KEY_PASSWORD_SECRET"
             args+=(--config '{"bundle":{"createUpdaterArtifacts":true}}')
           fi
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            apple_fields=(APPLE_CERTIFICATE_SECRET APPLE_CERTIFICATE_PASSWORD_SECRET APPLE_SIGNING_IDENTITY_SECRET APPLE_ID_SECRET APPLE_PASSWORD_SECRET APPLE_TEAM_ID_SECRET)
+            apple_present=0
+            for field in "${apple_fields[@]}"; do
+              if [ -n "${!field}" ]; then apple_present=$((apple_present + 1)); fi
+            done
+            if [ "$apple_present" -gt 0 ] && [ "$apple_present" -lt "${#apple_fields[@]}" ]; then
+              echo "Apple signing needs all six APPLE_* secrets. See docs/how-to/store-and-apple-signing.md." >&2
+              exit 1
+            fi
+          fi
           if [ "$RUNNER_OS" = "macOS" ] && [ -n "$APPLE_CERTIFICATE_SECRET" ]; then
             export APPLE_CERTIFICATE="$APPLE_CERTIFICATE_SECRET"
             export APPLE_CERTIFICATE_PASSWORD="$APPLE_CERTIFICATE_PASSWORD_SECRET"
@@ -149,7 +160,16 @@ jobs:
       # Ad hoc or Developer ID, the app's signature has to seal its resources, or a download opens as "damaged".
       - name: macOS signature
         if: runner.os == 'macOS'
-        run: codesign --verify --strict --deep "src-tauri/target/${{ matrix.target }}/release/bundle/macos/PlayPets.app"
+        env:
+          APPLE_SIGNING_ENABLED: ${{ secrets.APPLE_CERTIFICATE != '' }}
+        run: |
+          app="src-tauri/target/${{ matrix.target }}/release/bundle/macos/PlayPets.app"
+          codesign --verify --strict --deep "$app"
+          if [ "$APPLE_SIGNING_ENABLED" = true ]; then
+            codesign --display --verbose=2 "$app" 2>&1 | grep -q 'Authority=Developer ID Application:'
+            spctl --assess --type execute --verbose=2 "$app"
+            xcrun stapler validate "$app"
+          fi
       - name: Install and launch the package
         shell: bash
         run: |

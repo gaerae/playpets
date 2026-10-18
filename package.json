@@ -1,7 +1,7 @@
 {
   "name": "playpets",
   "private": true,
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "A yard where your pets talk to each other",
   "homepage": "https://playpets.gaerae.com/",
   "repository": "github:gaerae/playpets",
@@ -23,6 +23,7 @@
     "test:js": "node --test tests/*.test.mjs",
     "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
     "test:e2e": "cargo build --profile e2e --features e2e --manifest-path src-tauri/Cargo.toml && node tests/e2e.mjs",
+    "test:msix:ci": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File packaging/windows/msix/ci.ps1",
     "test:e2e:linux": "bash scripts/linux-e2e.sh npm run test:e2e",
     "test:live-import": "cargo test --manifest-path src-tauri/Cargo.toml live_import -- --ignored --nocapture",
     "lint": "npm run lint:rust && npm run lint:js",
@@ -55,7 +56,9 @@
     "licenses:generate": "node scripts/licenses.mjs",
     "licenses:check": "node scripts/licenses.mjs --check",
     "creator:skill": "node scripts/creator-skill.mjs",
-    "security:check": "gitleaks git --redact --no-banner --log-opts=--all && npm audit --audit-level=high && cargo audit --file src-tauri/Cargo.lock"
+    "security:check": "gitleaks git --redact --no-banner --log-opts=--all && npm audit --audit-level=high && cargo audit --file src-tauri/Cargo.lock",
+    "store:verify": "node scripts/store-api.mjs",
+    "store:submit": "node scripts/store-submit.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

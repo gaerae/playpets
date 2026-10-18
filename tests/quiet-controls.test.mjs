@@ -186,27 +186,26 @@ test('blank-yard context controls clamp inside a small window and restore a visi
   const { document, nodes } = installDom(t);
   document.body.classList.add('compact');
   const toggle = element('button', { id: 'yard-controls-toggle' });
-  const panel = element('div', { id: 'yard-controls-panel', hidden: true, rect: { width: 284, height: 194 } });
+  const panel = element('div', { id: 'yard-controls-panel', hidden: true });
+  const context = element('div', { id: 'yard-context-menu', hidden: true, rect: { width: 284, height: 194 } });
   const yard = element('div', { id: 'yard' });
   const first = element('button');
-  panel.querySelector = () => first;
-  for (const node of [toggle, panel, yard]) nodes.set(node.id, node);
+  context.querySelectorAll = () => [first];
+  for (const node of [toggle, panel, context, yard]) nodes.set(node.id, node);
   const { setupControls } = await import('../src/core/controls.js');
   setupControls();
   await yard.dispatch('contextmenu', { clientX: 298, clientY: 208 });
-  assert.equal(panel.hidden, false);
-  assert.equal(panel.classList.contains('context-open'), false);
-  assert.equal(panel.style.left, undefined);
-  assert.equal(panel.style.top, undefined);
+  assert.equal(context.hidden, false);
+  assert.equal(panel.hidden, true, 'the full menu stays closed');
+  assert.equal(context.style.left, '8px');
+  assert.equal(context.style.top, '8px');
   assert.equal(document.activeElement, first);
-  await panel.dispatch('keydown', { key: 'Escape' });
-  assert.equal(panel.hidden, true);
-  assert.equal(panel.classList.contains('context-open'), false);
+  await context.dispatch('keydown', { key: 'Escape' });
+  assert.equal(context.hidden, true);
   assert.equal(document.activeElement, yard);
   document.body.classList.remove('compact');
   await toggle.dispatch('click');
   assert.equal(panel.style.left, undefined);
-  assert.equal(panel.classList.contains('context-open'), false);
 });
 
 test('yard context controls leave handled pet, plant and editing gestures alone', async t => {

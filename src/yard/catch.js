@@ -7,7 +7,7 @@
 
 import { list, t } from '../core/i18n.js';
 import { between, pick } from '../core/math.js';
-import { $, aiming, call, data, game, guard, name, remember, toast, views } from '../core/state.js';
+import { $, aiming, call, data, game, guard, name, remember, selected, toast, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
@@ -263,7 +263,11 @@ export function setupCatch() {
       const water = lake();
       const x = (water.ends[0] + water.ends[1]) / 2;
       const y = (water.shoreAt(x) + water.ridgeAt(x)) / 2;
-      if (water.onWater(x, y)) startFishing(x);
+      if (water.onWater(x, y)) {
+        remember('fished', '1');
+        hint();
+        startFishing(x, views.get(selected));
+      }
     });
   }
   yard.addEventListener('click', e => {

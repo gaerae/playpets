@@ -16,7 +16,9 @@ const { setData } = await import('../src/core/state.js');
 const { setLanguageForTests } = await import('../src/core/i18n.js');
 
 test('every About button sends its localized project destination through the guarded opener', async t => {
-  const buttons = ['site', 'guide', 'releases', 'github', 'report', 'license'].map(link => ({ dataset: { link } }));
+  const buttons = ['site', 'guide', 'releases', 'github', 'report', 'license', 'privacy'].map(link => ({
+    dataset: { link },
+  }));
   globalThis.Option = class {};
   const { document } = installDom(t, { anyId: true });
   document.querySelectorAll = selector => (selector === 'button[data-link]' ? buttons : []);

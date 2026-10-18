@@ -123,6 +123,7 @@
     {
       "id": "bench",
       "art": "decor/bench.svg",
+      "size": [144, 115.2],
       "stand": "on"
     },
     {
@@ -146,6 +147,7 @@
     {
       "id": "picnic",
       "art": "decor/picnic.svg",
+      "size": [140, 105],
       "flat": true,
       "stand": "on"
     },
@@ -161,6 +163,7 @@
     {
       "id": "swing",
       "art": "decor/sculpted/swing.svg",
+      "size": [144, 126],
       "stand": "on"
     },
     {
@@ -170,11 +173,13 @@
     {
       "id": "stump",
       "art": "decor/sculpted/stump.svg",
+      "size": [61.6, 44.8],
       "stand": "on"
     },
     {
       "id": "tent",
-      "art": "decor/tent.svg"
+      "art": "decor/tent.svg",
+      "size": [140, 140]
     },
     {
       "id": "signpost",
@@ -701,6 +706,137 @@
         "glow": "#ffd84a"
       },
       "art": "bugs/golden_firefly.svg"
+    }
+  ],
+  "trees": [
+    {
+      "id": "cherry",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/cherry-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/cherry-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/cherry-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "autumn": "trees/cherry-mature-autumn.svg",
+        "winter": "trees/cherry-mature-winter.svg",
+        "summer": "trees/cherry-mature-summer.svg"
+      }
+    },
+    {
+      "id": "maple",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/maple-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/maple-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/maple-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/maple-mature-spring.svg",
+        "autumn": "trees/maple-mature-autumn.svg",
+        "winter": "trees/maple-mature-winter.svg"
+      }
+    },
+    {
+      "id": "pine",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/pine-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/pine-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/pine-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {}
+    }
+  ],
+  "treasures": [
+    {
+      "id": "striped_pebble",
+      "art": "discovery/striped_pebble.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"]
+    },
+    {
+      "id": "sea_glass",
+      "art": "discovery/sea_glass.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"]
+    },
+    {
+      "id": "leaf_fossil",
+      "art": "discovery/leaf_fossil.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"]
+    },
+    {
+      "id": "clay_shard",
+      "art": "discovery/clay_shard.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"]
+    },
+    {
+      "id": "old_button",
+      "art": "discovery/old_button.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"]
+    },
+    {
+      "id": "tiny_shell",
+      "art": "discovery/tiny_shell.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"]
+    },
+    {
+      "id": "quartz",
+      "art": "discovery/quartz.svg",
+      "rarity": "uncommon",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"]
+    },
+    {
+      "id": "amber",
+      "art": "discovery/amber.svg",
+      "rarity": "uncommon",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"]
+    }
+  ],
+  "discoveryTools": [
+    {
+      "id": "shovel",
+      "art": "discovery/shovel.svg"
     }
   ]
 }

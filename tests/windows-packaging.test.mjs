@@ -18,7 +18,8 @@ function fixture(t, { oldKey = false, oldCert = true, key = true, strayCert = fa
     put(`${release}/${name}`, 'binary');
   put('work/src-tauri/icons/msix/icon.png', 'icon');
   put('work/packaging/licenses/THIRD-PARTY-NOTICES.txt', 'Third-party license fixture');
-  put('work/package.json', JSON.stringify({ version: '0.2.0' }));
+  put('work/scripts/msix-manifest.mjs', readFileSync('scripts/msix-manifest.mjs', 'utf8'));
+  put('work/package.json', JSON.stringify({ version: '1.0.0' }));
   // Builds before the key volume kept the key beside the package; newer ones keep it in /keys.
   if (oldKey) {
     put('out/msix-test/PlayPets-test.pfx', 'existing private certificate');
@@ -84,6 +85,8 @@ source "$TEST_ROOT/build.sh"
           TEST_ROOT: root,
           TMPDIR: root,
           MSIX_PUBLISHER: publisher,
+          MSIX_IDENTITY_NAME: publisher ? '12345.Owner.PlayPets' : '',
+          MSIX_PUBLISHER_DISPLAY_NAME: publisher ? 'Owner & Friends' : '',
           VERIFY_RESULT: verifies ? 'Succeeded' : 'Failed',
         },
       }),
@@ -97,13 +100,17 @@ test('a Store publisher produces an unsigned MSIX without touching cached test c
   const f = fixture(t);
   const result = f.run('CN=Store-Publisher');
   assert.equal(result.status, 0, result.stderr);
-  const file = path.join(f.root, 'out/msix-store/PlayPets_0.2.0_x64.msix');
+  const file = path.join(f.root, 'out/msix-store/PlayPets_1.0.0_x64.msix');
   assert.ok(existsSync(file), 'the Store package has a distinct output folder');
   assert.match(readFileSync(file, 'utf8'), /Publisher="CN=Store-Publisher"/);
+  assert.match(readFileSync(file, 'utf8'), /Name="12345.Owner.PlayPets"/);
+  assert.match(readFileSync(file, 'utf8'), /Owner &amp; Friends/);
   assert.doesNotMatch(readFileSync(file, 'utf8'), /SIGNED/);
   assert.equal(existsSync(path.join(f.root, 'calls')), false, 'no certificate or signing commands run');
   assert.equal(f.read('keys/PlayPets-test.pfx'), 'existing private certificate');
   assert.equal(existsSync(path.join(f.root, 'out/msix-store/PlayPets-test.cer')), false);
+  assert.match(f.read('out/msix-store/README.txt'), /MSIX package version: 1\.0\.0\.0/);
+  assert.match(f.read('out/msix-store/README.txt'), /not submit or publish/);
 });
 
 test('the default MSIX build signs with its kept key and hands out only the public certificate', {
@@ -112,7 +119,7 @@ test('the default MSIX build signs with its kept key and hands out only the publ
   const f = fixture(t);
   const result = f.run('');
   assert.equal(result.status, 0, result.stderr);
-  const output = f.read('out/msix-test/PlayPets_0.2.0_x64.msix');
+  const output = f.read('out/msix-test/PlayPets_1.0.0_x64.msix');
   assert.match(output, /Publisher="CN=PlayPets Test"/);
   assert.match(output, /SIGNED/);
   assert.match(f.read('calls'), /osslsigncode sign -pkcs12 \S+\/keys\/PlayPets-test\.pfx/);
@@ -121,6 +128,8 @@ test('the default MSIX build signs with its kept key and hands out only the publ
   assert.equal(f.read('out/msix-test/PlayPets-test.cer'), 'existing public certificate');
   assert.equal(existsSync(path.join(f.root, 'out/msix-test/PlayPets-test.pfx')), false);
   assert.equal(existsSync(path.join(f.root, 'out/msix-test/README.txt')), true);
+  assert.match(f.read('out/msix-test/README.txt'), /Where-Object Publisher -eq 'CN=PlayPets Test'/);
+  assert.match(f.read('out/msix-test/README.txt'), /package-managed updates/);
 });
 
 test('a key an older build left beside the package moves out of the release folder', {
@@ -165,4 +174,11 @@ test('a test MSIX whose signature does not verify stops the build', {
   const result = f.run('');
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /does not verify against PlayPets-test\.cer/);
+});
+
+test('MSIX test hand-off describes aligned versions and the pre-1.0 downgrade boundary', () => {
+  const text = readFileSync('packaging/windows/msix/README-test.txt', 'utf8');
+  assert.match(text, /1\.0\.0\.0/);
+  assert.match(text, /1\.2\.0\.0/);
+  assert.doesNotMatch(text, /differs from the app version/);
 });

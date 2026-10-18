@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The Windows package (MSIX). @VERSION@ and @PUBLISHER@ are filled in by packaging/windows/build.sh.
-     Publisher must equal the subject of the certificate the package is signed with: the test
-     certificate for trying the package out, the Partner Center publisher id for the Store. -->
+<!-- The Windows package identity and version are filled by scripts/msix-manifest.mjs.
+     The Store publisher is copied exactly from Partner Center; local tests use a separate identity. -->
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
@@ -9,10 +8,10 @@
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap uap3 desktop rescap">
-  <Identity Name="gaerae.PlayPets" Publisher="@PUBLISHER@" Version="@VERSION@" ProcessorArchitecture="x64" />
+  <Identity Name="@IDENTITY_NAME@" Publisher="@PUBLISHER@" Version="@VERSION@" ProcessorArchitecture="@ARCHITECTURE@" />
   <Properties>
     <DisplayName>PlayPets</DisplayName>
-    <PublisherDisplayName>gaerae</PublisherDisplayName>
+    <PublisherDisplayName>@PUBLISHER_DISPLAY_NAME@</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Resources>

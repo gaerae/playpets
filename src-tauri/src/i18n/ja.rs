@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("update.check_failed", "アップデートを確認できませんでした。インターネット接続を確認してください。"),
 
     ("update.no_release", "アップデート情報はまだ公開されていません。あとでもう一度確認してください。"),
+    ("update.store_managed", "このインストールの更新はMicrosoft Storeが管理します。"),
     ("update.none", "インストールするアップデートがありません。先にアップデートを確認してください。"),
     ("update.install_failed", "アップデートをインストールできませんでした。少し待ってからもう一度お試しください。"),
     ("error.language", "その言語には対応していません。"),
@@ -74,6 +75,10 @@ const TABLE: &[(&str, &str)] = &[
     ("error.seeds_full", "ポケットが種でいっぱいです。先にいくつか植えてください。"),
     ("error.no_seeds", "植える種がありません。散歩中の友だちがときどき種を見つけてきます。"),
     ("error.garden_full", "花壇には{limit}本まで植えられます。1本抜くとまた植えられます。"),
+    ("error.discovery_ground", "障害物のない屋外の土を選んでください。"),
+    ("error.discovery_cooldown", "友だちは穴掘りを少し休んでいます。"),
+    ("error.tree_full", "ここにはこれ以上木を植えられません。"),
+    ("error.tree_missing", "その木が見つかりません。"),
     ("error.plant_missing", "その植物が見つかりません。"),
     ("error.gift_today", "今日のプレゼントはもう届きました。また明日届きます。"),
     ("error.decor_full", "庭に置ける飾りは{limit}個までです。ひとつ片付けると置けます。"),

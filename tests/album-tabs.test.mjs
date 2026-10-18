@@ -18,7 +18,7 @@ test('album tabs have one tab stop and arrow keys select and label the collectio
   const tabs = nodes.get('album-tabs').children;
   assert.deepEqual(
     tabs.map(tab => tab.tabIndex),
-    [0, -1, -1, -1],
+    tabs.map((_, index) => (index === 0 ? 0 : -1)),
   );
   let prevented = false;
   tabs[0].onkeydown({
@@ -28,11 +28,12 @@ test('album tabs have one tab stop and arrow keys select and label the collectio
     },
   });
   assert.equal(prevented, true);
-  assert.equal(document.activeElement, tabs[3]);
-  assert.equal(tabs[3].getAttribute('aria-selected'), 'true');
-  assert.equal(nodes.get('album-grid').getAttribute('aria-labelledby'), tabs[3].id);
-  tabs[3].onkeydown({ key: 'Home', preventDefault() {} });
+  const last = tabs.at(-1);
+  assert.equal(document.activeElement, last);
+  assert.equal(last.getAttribute('aria-selected'), 'true');
+  assert.equal(nodes.get('album-grid').getAttribute('aria-labelledby'), last.id);
+  last.onkeydown({ key: 'Home', preventDefault() {} });
   assert.equal(document.activeElement, tabs[0]);
   tabs[0].onkeydown({ key: 'End', preventDefault() {} });
-  assert.equal(document.activeElement, tabs[3]);
+  assert.equal(document.activeElement, last);
 });

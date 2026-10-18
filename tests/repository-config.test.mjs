@@ -65,6 +65,7 @@ test('repository ignores generated files, local state and signing credentials', 
   const paths = [
     '.env',
     '.env.production',
+    '.env.store',
     '.dev-data/state.json',
     '.dev-data-ja/state.json',
     '.npm/_cacache/index',

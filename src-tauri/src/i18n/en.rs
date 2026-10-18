@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("update.check_failed", "Couldn't check for updates. Check your internet connection."),
 
     ("update.no_release", "No update information has been published yet. Try again later."),
+    ("update.store_managed", "Microsoft Store manages updates for this installation."),
     ("update.none", "There's no update to install. Check for updates first."),
     ("update.install_failed", "Couldn't install the update. Please try again in a moment."),
     ("error.language", "That language is not available."),
@@ -74,6 +75,10 @@ const TABLE: &[(&str, &str)] = &[
     ("error.seeds_full", "Your pocket is full of seeds. Plant some first."),
     ("error.no_seeds", "No seeds to plant. Friends out for a stroll find one now and then."),
     ("error.garden_full", "The garden holds {limit} plants. Pull one to plant another."),
+    ("error.discovery_ground", "Choose clear outdoor soil for that."),
+    ("error.discovery_cooldown", "Your friend is taking a short break from digging."),
+    ("error.tree_full", "There is no room for another tree here."),
+    ("error.tree_missing", "Couldn't find that tree."),
     ("error.plant_missing", "Couldn't find that plant."),
     ("error.gift_today", "You've had today's gift. Another comes tomorrow."),
     ("error.decor_full", "The yard holds {limit} decorations. Put one away to make room."),

@@ -135,6 +135,10 @@ export function element(tag = 'div', { rect, ...props } = {}) {
       for (let at = this; at; at = at.parentNode) if (at.matches?.(selector)) return at;
       return null;
     },
+    contains(node) {
+      for (let at = node; at; at = at.parentNode) if (at === this) return true;
+      return false;
+    },
     querySelector(selector) {
       return this.querySelectorAll(selector)[0] ?? null;
     },

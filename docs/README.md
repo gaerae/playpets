@@ -29,6 +29,7 @@ Go to a document based on what you want to know.
 | Adding a fish, a bug, a flower or a gift, a drawing or an effect, or changing the scenery | [Add to the yard](how-to/add-to-the-yard.md) |
 | Reproducing seasonal, game, collection and audio review fixtures | [Visual review](how-to/visual-review.md) |
 | Setting up once: the updater key, the GitHub repository, secrets, the Homebrew tap, winget, signing accounts | [Set up the repository, keys and store accounts](how-to/set-up-the-repository.md) |
+| Store identity, MSIX submission preparation, Apple certificates and notarization | [Prepare Microsoft Store and Apple signing](how-to/store-and-apple-signing.md) |
 | Releasing a new version and distribution channels | [Release a new version](how-to/release.md) |
 | Changing the site (intro, user guide, version pages) | [Edit and check the website](how-to/website.md) |
 | Changing the site address | [Change the site address](how-to/site-address.md) |

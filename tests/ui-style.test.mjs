@@ -443,6 +443,7 @@ test('no custom property is defined from itself', async () => {
 
 // A custom property the page sets from code rather than in a stylesheet, and the file that sets it.
 const SET_FROM_CODE = {
+  '--dig-scale': 'src/yard/discovery.js',
   '--head': 'src/core/sprites.js',
   '--orb-x': 'src/yard/sky.js',
   '--orb-y': 'src/yard/sky.js',
@@ -569,4 +570,10 @@ test('compact controls hide the dock and give the shared menu one full-height sc
   assert.match(css, /body\.compact \.yard-controls-scroll\{[^}]*display:contents/);
   const html = await readFile('src/index.html', 'utf8');
   assert.match(html, /id="close-controls"/);
+});
+
+// WebKit otherwise resolves the flexible scroller to zero inside an auto-height dialog.
+test('the collection reserves a viewport-bounded height before laying out its scroller', async () => {
+  const css = await styles();
+  assert.match(css, /\.album-dialog\{[^}]*height:min\(660px,calc\(100dvh - 16px\)\)/);
 });

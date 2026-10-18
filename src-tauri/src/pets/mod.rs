@@ -7,6 +7,7 @@ pub mod bond;
 pub mod builtin;
 pub mod catalog;
 pub mod content;
+pub mod discovery;
 pub mod garden;
 pub mod importer;
 pub mod model;
@@ -52,6 +53,14 @@ pub fn limits() -> serde_json::Value {
         "persona": model::PERSONA_MAX,
         "seeds": garden::SEED_MAX,
         "decor": garden::DECOR_MAX,
+        "trees": discovery::TREE_MAX,
+        "treesPerWorld": discovery::TREE_WORLD_MAX,
+        "treeYoungMs": discovery::TREE_YOUNG_MS,
+        "treeMatureMs": discovery::TREE_MATURE_MS,
+        "digCooldownMs": discovery::DIG_COOLDOWN_MS,
+        "digTtlMs": discovery::DIG_TTL_MS,
+        "digHistory": discovery::DIG_HISTORY,
+        "digOdds": {"empty": discovery::DIG_ODDS[0], "seed": discovery::DIG_ODDS[1], "common": discovery::DIG_ODDS[2], "uncommon": discovery::DIG_ODDS[3]},
         "bondLevels": bond::LEVELS,
     })
 }
