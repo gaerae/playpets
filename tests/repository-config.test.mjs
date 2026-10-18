@@ -295,6 +295,20 @@ test('checkouts drop the job token, and the job holding signing secrets restores
   assert.doesNotMatch(build, /cache: npm|rust-cache/);
 });
 
+test('native CI installs the creator image dependency before running the shared unit suite', () => {
+  for (const file of ['build.yml', 'release.yml']) {
+    const workflow = read(`.github/workflows/${file}`);
+    const unit = workflow.indexOf('- name: Unit tests');
+    assert.ok(unit > 0, file);
+    const setup = workflow.slice(0, unit);
+    assert.match(setup, /uses: actions\/setup-python@/, file);
+    assert.match(setup, /python -m pip install -r assets\/creator-skill\/playpets-creator\/requirements\.txt/, file);
+    const step = workflow.slice(unit).split(/\n {6}- /)[0];
+    assert.match(step, /PLAYPETS_PYTHON: python/, file);
+    assert.match(step, /run: npm test/, file);
+  }
+});
+
 // Tauri skips a target the platform cannot build, so one list gives each platform what CI builds;
 // with only "app", `npm run build` on Windows or Linux made no package at all.
 test("npm run build makes each platform's packages, as CI does", () => {

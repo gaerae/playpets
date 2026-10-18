@@ -35,6 +35,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Move the website and documentation to `https://playpets.gaerae.com/`.
 
 ### Fixed
+- Install the creator image-validation dependency in native release CI, and keep the four-language version-page introduction accurate after publication.
 - Confirm Linux pin state from the native window and wait for frame restoration before reporting fullscreen completion. Headless desktop checks now include a window manager.
 
 - Distinguish download lookup from an unpublished version on the website, and keep release-page guidance accurate after the first release in all four languages.
@@ -47,6 +48,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Offer all four companions on the first-run welcome screen, with a two-column choice in narrow windows.
 - Match the three supplied wardrobes and flower-placement prompts to the accepted artwork, and use seasonal high-resolution motion previews for all four companions.
 - Keep close fishing casts ahead of the friend without leaving the background's water bounds.
+
+### Known limitations
+
+- Linux packages retain the documented GLib RUSTSEC-2024-0429 and proc-macro-error RUSTSEC-2024-0370 advisories in Tauri's compatible GTK dependency family. See the [security policy](https://github.com/gaerae/playpets/blob/main/SECURITY.md#dependency-advisories) for upstream references and the release review boundary; these advisories have not been fixed or suppressed.
+- macOS notarization and Windows publisher signing are not configured. Operating-system trust prompts can still appear; updater signatures use a separate key.
+- Release CI installs and launches the native packages. Interactive installer review and the complete signed upgrade from 0.1.0 on every supported desktop remain unverified.
 
 ## [0.1.0] - 2026-10-15
 

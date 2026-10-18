@@ -88,7 +88,14 @@ jobs:
       # No package's install script runs in the job that holds the signing secrets (the only ones
       # in the tree are esbuild's, for the site, and fsevents').
       - run: npm ci --ignore-scripts
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Creator skill image dependency
+        run: python -m pip install -r assets/creator-skill/playpets-creator/requirements.txt
       - name: Unit tests
+        env:
+          PLAYPETS_PYTHON: python
         run: npm test
       # linuxdeploy follows the executable's native library graph. Collect the matching distro
       # copyright files before AppImage assembly, then audit the finished image below.
