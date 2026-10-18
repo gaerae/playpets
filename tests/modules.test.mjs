@@ -25,6 +25,18 @@ test('every script parses', async () => {
   }
 });
 
+const exportsName = (source, name) =>
+  new RegExp(`export\\s+(?:async\\s+)?(?:function|const|let)\\s+${RegExp.escape(name)}\\s*[=(;]`).test(source);
+
+test('export lookup treats names as literal text, including regex syntax', () => {
+  const source = 'export const count = 1;\nexport function count$() {}';
+  assert.ok(exportsName(source, 'count'));
+  assert.ok(exportsName(source, 'count$'));
+  for (const name of [String.raw`count\b`, 'count.*', 'count|missing', '[']) {
+    assert.equal(exportsName(source, name), false, `${name} is not a literal exported name`);
+  }
+});
+
 test('every import names a file that exists and something it exports', async () => {
   const sources = new Map();
   for (const file of await scripts()) sources.set(path.resolve(file), await readFile(file, 'utf8'));
@@ -39,9 +51,7 @@ test('every import names a file that exists and something it exports', async () 
         .map(n => n.trim().split(/\s+as\s+/)[0])
         .filter(Boolean)) {
         // Every export declares one name (`export const a = …;`, never `export const a = …, b = …;`).
-        const exported = new RegExp(
-          `export\\s+(?:async\\s+)?(?:function|const|let)\\s+${name.replace(/\$/g, '\\$')}\\s*[=(;]`,
-        ).test(other);
+        const exported = exportsName(other, name);
         assert.ok(exported, `${path.relative('.', file)} imports {${name}} from ${target}, which does not export it`);
       }
     }
