@@ -67,6 +67,7 @@ pbcopy < /dev/null
 5. Create the repository: github.com/new, owner `gaerae`, name `playpets`, **Public**, and add nothing (no README, license or .gitignore: the repository already has them). The name matters: the updater address, the site and the install links all use `gaerae/playpets`.
 
 6. Settings before the first push:
+   - Settings → General → Pull Requests: turn on **Allow squash merging** and turn off **Allow merge commits** and **Allow rebase merging**. Set the default squash commit title to **Pull request title**. Review the commit body and retain co-author trailers before merging ([commit standard](../standards/commits-and-branches.md)).
    - Settings → Pages → Build and deployment → Source: **GitHub Actions**. If the page only lets you choose after a push, re-run the `pages` workflow from the Actions tab afterwards.
    - Settings → Pages → Custom domain: `playpets.gaerae.com`. Its CNAME points to `gaerae.github.io`; after the DNS check and certificate finish, turn on **Enforce HTTPS**. The complete setup and migration checks are in [Change the site address](site-address.md).
    - Settings → Actions → General → Workflow permissions: **Read repository contents and packages permissions**; leave "Allow GitHub Actions to create and approve pull requests" off. Optional: "Require actions to be pinned to a full-length commit SHA" (every action here is pinned).

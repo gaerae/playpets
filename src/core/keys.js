@@ -8,10 +8,11 @@ const onMac = /Mac/.test(globalThis.navigator?.platform || '');
 
 /** `mod` is Cmd on a Mac and Ctrl elsewhere (either is taken, as the menu bar's CmdOrCtrl). */
 export const SHORTCUTS = {
+  controls: { keys: 'mod+shift+p', menu: true },
   friends: { keys: 'mod+1' },
   invite: { keys: 'mod+2' },
   settings: { keys: 'mod+,' },
-  mini: { keys: 'mod+shift+m', menu: true },
+  alwaysOnTop: { keys: 'mod+shift+m', menu: true },
   desktop: { keys: 'mod+shift+d', menu: true },
   sound: { keys: 'mod+shift+s', menu: true },
 };

@@ -11,7 +11,7 @@ export function zipStore(entries) {
   let offset = 0;
   for (const { name, bytes } of [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
     if (
-      !/^[a-zA-Z0-9][a-zA-Z0-9._/-]*$/.test(name) ||
+      (!/^[a-zA-Z0-9][a-zA-Z0-9._/-]*$/.test(name) && name !== '.claude-plugin/plugin.json') ||
       name.split('/').some(part => !part || part === '.' || part === '..') ||
       names.has(name)
     )

@@ -1,5 +1,5 @@
 // Takes the website's screenshots from the real app: npm run shots -- 0.2.0   (macOS only)
-// For each language the release binary starts with an isolated data folder, the three sample pets and a
+// For each language the release binary starts with an isolated data folder, the four starter pets and a
 // fake AI server, then a scenario (PLAYPETS_E2E_EVAL, as in tests/e2e.mjs) walks it through the
 // states below and reports each one with the window's frame; this script captures that frame with
 // `screencapture`. The site's languages land in website/public/shots/<version>/<lang>/<name>.webp (2x on
@@ -7,7 +7,7 @@
 // Normal shots isolate the app window and compose a controlled backdrop behind its alpha corners.
 // Desktop friends use a prepared foreground Chrome backdrop beneath their overlay windows.
 // The English run also films the yard for a few seconds and writes assets/demo.gif.
-// SHOT_SCENE=seasons captures only spring, summer and winter, preserving every other picture.
+// SHOT_SCENE=seasons captures only spring, summer and winter; chat refreshes only the two chat pictures.
 
 import { spawn, spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
@@ -22,6 +22,7 @@ import { launchBrowser } from './browser-lib.mjs';
 import { encodeGif } from './gif-lib.mjs';
 import { pngSize } from './png-lossless-lib.mjs';
 import {
+  assertChatCast,
   captureReply,
   captureWindow,
   clearCaptureFocus,
@@ -52,10 +53,12 @@ const WINDOW = { x: 80, y: 170, width: 1180, height: 780 };
 const MARGIN = 28;
 // The README's demo animation, filmed in the README's language.
 const GIF = { lang: 'en', frames: 50, everyMs: 250, width: 720 };
+const chatOnly = process.env.SHOT_SCENE === 'chat';
+const smallOnly = process.env.SHOT_SCENE === 'small';
 const adultsOnly = process.env.SHOT_SCENE === 'adults';
 const placesOnly = process.env.SHOT_SCENE === 'places';
 const seasonsOnly = process.env.SHOT_SCENE === 'seasons' || placesOnly;
-const skipGif = adultsOnly || seasonsOnly || process.env.SKIP_GIF === '1';
+const skipGif = chatOnly || smallOnly || adultsOnly || seasonsOnly || process.env.SKIP_GIF === '1';
 // Store listings (Microsoft Store, Product Hunt, GitHub's social card) want 16:9 pictures of at
 // least 1366×768: these scenes are also set on a 1920×1080 backdrop, centred with a shadow, as
 // PNGs under release/store/<lang>/ (not part of the site).
@@ -69,43 +72,63 @@ const STORE = {
 // What the friends are called and say, per language. The answers come from the fake server.
 const script = {
   ko: {
-    names: ['Daisy', 'Clover', 'Pip'],
+    names: ['Daisy', 'Clover', 'Pip', 'Miso'],
     persona: 'A curious, warm explorer. Keeps answers short.',
     chat: [
-      ['안녕! 아까 뭐 하고 있었어?', '테스트 돌리는 거 옆에서 봤어. 다 통과해서 나도 기분 좋아!'],
-      ['고마워. 이제 뭐 할까?', '잠깐 쉬었다가 커밋하자. 내가 지켜볼게.'],
+      ['안녕! 아까 뭐 하고 있었어?', '길가에 작은 꽃이 피었더라. 다음 산책에는 같이 보자.'],
+      ['좋아. 오늘은 조금 지쳤어.', '그럼 여기서 잠깐 쉬자. 서두르지 않아도 괜찮아.'],
     ],
-    talk: { Daisy: '오늘 테스트 다 통과했어!', Clover: '리뷰는 내가 봤지.', Pip: '그럼 간식은 언제 먹어?' },
+    talk: {
+      Daisy: '산책길에 새 꽃이 피었어!',
+      Clover: '아침에 물도 주고 왔어.',
+      Pip: '그럼 같이 피크닉 갈까?',
+      Miso: '연못가에서 잠깐 쉬어 갈래?',
+    },
     talkTo: '오늘 어땠어?',
   },
   en: {
-    names: ['Daisy', 'Clover', 'Pip'],
+    names: ['Daisy', 'Clover', 'Pip', 'Miso'],
     persona: 'A curious, warm explorer. Keeps answers short.',
     chat: [
-      ['Hey! What were you up to?', 'I watched the tests run. All green, so I am happy too!'],
-      ['Thanks. What now?', 'Take a short break, then commit. I will keep an eye on things.'],
+      ['Hey! What were you up to?', 'I found a little flower by the path. Let’s go see it together next time.'],
+      ['That sounds nice. I feel a little tired today.', 'Then let’s rest here for a while. There’s no need to hurry.'],
     ],
-    talk: { Daisy: 'All tests passed today!', Clover: 'I did the review.', Pip: 'So when is treat time?' },
+    talk: {
+      Daisy: 'A new flower opened by the path!',
+      Clover: 'I gave the garden some water this morning.',
+      Pip: 'Shall we have a picnic together?',
+      Miso: 'Shall we take a quiet break by the pond?',
+    },
     talkTo: 'How was today?',
   },
   ja: {
-    names: ['Daisy', 'Clover', 'Pip'],
+    names: ['Daisy', 'Clover', 'Pip', 'Miso'],
     persona: 'A curious, warm explorer. Keeps answers short.',
     chat: [
-      ['やあ！さっき何してたの？', 'テストが走るのを見てたよ。全部通ったから、わたしもうれしい！'],
-      ['ありがとう。次はどうする？', 'ちょっと休んでからコミットしよう。わたしが見てるね。'],
+      ['やあ！さっき何してたの？', '道のそばに小さな花が咲いてたよ。今度は一緒に見に行こう。'],
+      ['いいね。今日はちょっと疲れたんだ。', 'じゃあ、ここで少し休もう。急がなくても大丈夫だよ。'],
     ],
-    talk: { Daisy: '今日はテスト全部通ったよ！', Clover: 'レビューはぼくがしたよ。', Pip: 'じゃあおやつはいつ？' },
+    talk: {
+      Daisy: '散歩道に新しい花が咲いたよ！',
+      Clover: '朝、庭に水をあげてきたよ。',
+      Pip: 'みんなでピクニックに行かない？',
+      Miso: '池のそばで少し休もうか。',
+    },
     talkTo: '今日はどうだった？',
   },
   'zh-hans': {
-    names: ['Daisy', 'Clover', 'Pip'],
+    names: ['Daisy', 'Clover', 'Pip', 'Miso'],
     persona: 'A curious, warm explorer. Keeps answers short.',
     chat: [
-      ['嗨！刚才在做什么？', '我在旁边看测试跑完了。全都通过，我也很开心！'],
-      ['谢谢。接下来做什么？', '先休息一下，再提交。我帮你盯着。'],
+      ['嗨！刚才在做什么？', '我在小路旁发现一朵小花。下次一起去看看吧。'],
+      ['好呀。不过今天有点累。', '那就在这里歇一会儿吧。不着急，慢慢来。'],
     ],
-    talk: { Daisy: '今天的测试全部通过了！', Clover: '代码审查是我看的。', Pip: '那零食什么时候吃？' },
+    talk: {
+      Daisy: '散步的小路旁开了一朵新花！',
+      Clover: '早上我给花园浇过水了。',
+      Pip: '要不要一起去野餐？',
+      Miso: '要不要在池边安静地歇一会儿？',
+    },
     talkTo: '今天过得怎么样？',
   },
 };
@@ -137,50 +160,58 @@ function scenario(lang) {
   const must=async(label,p)=>{const r=await p;if(!r||r.ok===false)await L(label+'=err:'+(r&&r.error));return r;};
   const settledScene=async()=>{await wait(300);for(let i=0;i<50;i++){if($('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1)return;await wait(100);}throw new Error('Background did not finish loading and fading');};
   const clearFocus=${clearCaptureFocus.toString()};
-  const shot=async(name,rect)=>{clearFocus(document);await wait(350);const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
+  const checkChat=${assertChatCast.toString()};
+  const shot=async(name,rect)=>{if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
   try{
     if(document.documentElement.lang!=='${lang}'){localStorage.setItem('lang','${lang}');await L('RELANG');await playPets.quitApp();return;}
-    if(document.body.classList.contains('mini'))$('unmini').click();
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
     // Native webview choices survive an isolated backend; each capture starts in its intended place.
     $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
     $('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
     $('period').value='day';$('period').dispatchEvent(new Event('change'));
-    $('season').value='autumn';$('season').dispatchEvent(new Event('change'));
+    $('season').value='spring';$('season').dispatchEvent(new Event('change'));
     const boot=await playPets.bootstrap();
     const cast=${JSON.stringify(companionCast())};
+    const positionCast=async(pets,factor=1)=>{
+      const {views}=await import('./core/state.js');
+      const {release}=await import('./yard/trips.js');
+      const {place}=await import('./yard/views.js');
+      for(const [i,p] of pets.entries()){
+        const view=views.get(p.id);if(!view)throw new Error('Missing capture view '+p.id);
+        release(view);view.nextWander=Infinity;
+        const at={...cast[i],x:cast[i].x*factor};
+        await must('positionCast',playPets.updatePet(p.id,at));
+        view.x=at.x;view.y=at.y;place(view);
+      }
+    };
     const coat=n=>{const found=boot.data.assets.find(a=>a.displayName===n);if(!found)throw new Error('Missing capture companion: '+n);return found;};
     const full=id=>{const found=boot.data.assets.find(a=>a.sourceId===id);if(!found)throw new Error('Missing capture companion: '+id);return found;};
     for(const p of boot.data.pets)await playPets.removePet(p.id);
-    const adultScene=async()=>{
+    const companionScene=async()=>{
       const current=(await playPets.bootstrap()).data;
       for(const p of current.pets)await must('removeCast',playPets.removePet(p.id));
-      const aria=(await must('addAria',playPets.addPet(full('playpets-daisy').id))).data;
-      const noah=(await must('addNoah',playPets.addPet(full('playpets-clover').id))).data;
+      const daisy=(await must('addDaisy',playPets.addPet(full('playpets-daisy').id))).data;
+      const clover=(await must('addClover',playPets.addPet(full('playpets-clover').id))).data;
       const pip=(await must('addPip',playPets.addPet(full('playpets-pip').id))).data;
-      await must('placeAria',playPets.updatePet(aria.id,cast[0]));
-      await must('placeNoah',playPets.updatePet(noah.id,cast[1]));
-      await must('placePip',playPets.updatePet(pip.id,cast[2]));
-      const {views}=await import('./core/state.js');
-      for(const view of views.values())view.nextWander=Infinity;
+      const miso=(await must('addMiso',playPets.addPet(full('playpets-miso').id))).data;
+      await positionCast([daisy,clover,pip,miso]);
       $('world').value='studio';$('world').dispatchEvent(new Event('change'));
       $('period').value='day';$('period').dispatchEvent(new Event('change'));
       $('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
-      await settledScene();await playPets.openChat(aria.id);await wait(1200);
+      await positionCast([daisy,clover,pip,miso],.68);
+      await settledScene();await playPets.openChat(daisy.id);await wait(1200);
       await shot('companions');
     };
-    if(${adultsOnly}){await adultScene();await L('DONE');return;}
-    if(!${seasonsOnly}){await tab('invite');await wait(800);await shot('invite');}
-    const p1=(await must('addPet',playPets.addPet(coat('Daisy').id))).data,p2=(await must('addPet2',playPets.addPet(coat('Clover').id))).data,p3=(await must('addPet3',playPets.addPet(coat('Pip').id))).data;
-    {
+    if(${adultsOnly}){await companionScene();await L('DONE');return;}
+    if(!${seasonsOnly || chatOnly || smallOnly}){await tab('invite');await wait(800);await shot('invite');}
+    const p1=(await must('addPet',playPets.addPet(coat('Daisy').id))).data,p2=(await must('addPet2',playPets.addPet(coat('Clover').id))).data,p3=(await must('addPet3',playPets.addPet(coat('Pip').id))).data,p4=(await must('addPet4',playPets.addPet(coat('Miso').id))).data;
+    if(!${chatOnly || smallOnly}){
       const previousSeason=$('season').value;
       // Hold the composition while keeping the app's real idle animations and seasonal effects.
       const {views}=await import('./core/state.js');
       for(const view of views.values())view.nextWander=Infinity;
       $('close-panel').click();
-      await must('placeDaisy',playPets.updatePet(p1.id,cast[0]));
-      await must('placeClover',playPets.updatePet(p2.id,cast[1]));
-      await must('placePip',playPets.updatePet(p3.id,cast[2]));
+      await positionCast([p1,p2,p3,p4]);
       for(const scene of ${JSON.stringify(seasonalScenes())}){
         $('season').value=scene.season;$('season').dispatchEvent(new Event('change'));
         $('weather').value=scene.weather;$('weather').dispatchEvent(new Event('change'));
@@ -188,9 +219,9 @@ function scenario(lang) {
       }
       if(${placesOnly || !seasonsOnly}) {
         for(const item of [
-          ['woodland','summer','day','yard-talk'], ['woodland','autumn','evening','yard-evening'],
+          ['woodland','summer','day','yard-talk'], ['woodland','summer','evening','yard-evening'],
           ['courtyard','spring','day','courtyard'], ['lakeside','summer','day','lakeside'],
-          ['studio','summer','day','studio-day'], ['studio','winter','night','studio-night']
+          ['studio','summer','day','studio-day'], ['studio','summer','night','studio-night']
         ]) {
           for(const [id,value] of [['world',item[0]],['season',item[1]],['period',item[2]],['weather','clear']]) {
             $(id).value=value;$(id).dispatchEvent(new Event('change'));
@@ -198,8 +229,10 @@ function scenario(lang) {
           await settledScene();await wait(1800);await shot(item[3]);
         }
         $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
+        $('season').value='spring';$('season').dispatchEvent(new Event('change'));
+        $('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
         $('period').value='day';$('period').dispatchEvent(new Event('change'));
-        $('mini').click();await wait(1500);await shot('mini');$('unmini').click();await wait(1000);
+        await inv('e2eWindow',['main',{x:80,y:170,width:460,height:320}]);await wait(1500);await shot('mini');await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);await wait(1000);
       }
       $('season').value=previousSeason;$('season').dispatchEvent(new Event('change'));
       if(${seasonsOnly}){await L('DONE');return;}
@@ -208,9 +241,11 @@ function scenario(lang) {
     await must('rename1',playPets.updatePet(p1.id,{name:${JSON.stringify(s.names[0])},size:cast[0].size,persona:${JSON.stringify(s.persona)},relation:'partner'}));
     await must('rename2',playPets.updatePet(p2.id,{name:${JSON.stringify(s.names[1])},size:cast[1].size}));
     await must('rename3',playPets.updatePet(p3.id,{name:${JSON.stringify(s.names[2])},size:cast[2].size}));
+    await must('rename4',playPets.updatePet(p4.id,{name:${JSON.stringify(s.names[3])},size:cast[3].size}));
     await must('attach1',playPets.updatePet(p1.id,{providerId:save.id}));
     await must('attach2',playPets.updatePet(p2.id,{providerId:save.id}));
     await must('attach3',playPets.updatePet(p3.id,{providerId:save.id}));
+    await must('attach4',playPets.updatePet(p4.id,{providerId:save.id}));
     await must('assign1',playPets.assignAgent('claude',p1.id));
     await must('assign2',playPets.assignAgent('codex',p2.id));
     // Claude Code reports in through the binary's own hook mode: the first friend is at work.
@@ -218,30 +253,42 @@ function scenario(lang) {
     await tab('pet');await wait(400);
     const ask=async q=>{$('message').value=q;$('message').dispatchEvent(new Event('input'));$('chat-form').requestSubmit();for(let i=0;i<40&&!$('chat-log').textContent.includes(q);i++)await wait(100);for(let i=0;i<60&&document.querySelector('.waiting');i++)await wait(100);};
     ${s.chat.map(([q]) => `await ask(${JSON.stringify(q)});`).join('\n    ')}
+    // Keep all four friends beside the actual chat sheet, at their normal visible size.
+    await positionCast([p1,p2,p3,p4],.68);
     await wait(600);await shot('friend-chat');
+    if(${smallOnly}){
+      await inv('e2eWindow',['main',{x:80,y:170,width:460,height:320}]);await wait(800);await shot('mini-chat');
+      $('close-panel').click();await positionCast([p1,p2,p3,p4]);await wait(600);await shot('mini');
+      await L('DONE');return;
+    }
+    if(${chatOnly}){await companionScene();await L('DONE');return;}
     // Friends talking to each other: the group chat shows as speech bubbles in the yard.
     $('close-panel').click();await wait(300);
-    playPets.chatWith([p1.id,p2.id,p3.id],${JSON.stringify(s.talkTo)});
+    await positionCast([p1,p2,p3,p4]);
+    playPets.chatWith([p1.id,p2.id,p3.id,p4.id],${JSON.stringify(s.talkTo)});
     await wait(2600);await shot('yard-talk');await wait(2500);
-    $('close-panel').click();$('period').value='evening';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('yard-evening');
+    $('close-panel').click();$('season').value='summer';$('season').dispatchEvent(new Event('change'));$('period').value='evening';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('yard-evening');
+    $('season').value='spring';$('season').dispatchEvent(new Event('change'));$('period').value='day';$('period').dispatchEvent(new Event('change'));await settledScene();
     document.querySelector('[data-game=hide]').click();await wait(2600);await shot('play-hide-and-seek');
     const playing=document.querySelector('[data-game].playing');if(playing)playing.click();await wait(400);
     $('world').value='studio';$('world').dispatchEvent(new Event('change'));
+    $('season').value='summer';$('season').dispatchEvent(new Event('change'));
     $('period').value='day';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('studio-day');
     $('period').value='night';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('studio-night');
     $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
+    $('season').value='spring';$('season').dispatchEvent(new Event('change'));
     $('period').value='day';$('period').dispatchEvent(new Event('change'));
     await tab('settings');document.querySelector('.settings-index [data-section=agent-link-title]').click();await wait(600);await shot('settings-agents');
-    $('close-panel').click();await wait(300);$('mini').click();await wait(1500);
+    $('close-panel').click();await inv('e2eWindow',['main',{x:80,y:170,width:460,height:320}]);await wait(1500);
     await playPets.openChat(p1.id);await wait(900);await shot('mini-chat');
-    $('close-panel').click();$('unmini').click();await wait(1200);
+    $('close-panel').click();await wait(300);
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
     // A few seconds of the yard for the demo animation: a wave together, then a parade.
     if(!${skipGif}&&'${lang}'===${JSON.stringify(GIF.lang)}){
       const r=(await inv('e2eWindow',['main'])).data;
       await L('gif-start '+JSON.stringify(r));
       const {react}=await import('./yard/care.js');react({action:'wave'});await wait(1500);
-      playPets.chatWith([p1.id,p2.id,p3.id],${JSON.stringify(s.talkTo)});await wait(3600);
+      playPets.chatWith([p1.id,p2.id,p3.id,p4.id],${JSON.stringify(s.talkTo)});await wait(3600);
       document.querySelector('[data-game=parade]').click();await wait(5200);
       const on=document.querySelector('[data-game].playing');if(on)on.click();
       await L('gif-end');await wait(600);
@@ -251,7 +298,7 @@ function scenario(lang) {
     if(state.wander)await playPets.toggleDesktopWander();
     if(!state.desktop)await playPets.toggleDesktop();
     await wait(2500);
-    const lay=(await playPets.bootstrap()).data.desktopLayout.filter(l=>[p1.id,p2.id,p3.id].includes(l.id));
+    const lay=(await playPets.bootstrap()).data.desktopLayout.filter(l=>[p1.id,p2.id,p3.id,p4.id].includes(l.id));
     if(lay.length){
       const mon=lay[0].origin;
       const cx=lay.reduce((a,l)=>a+l.x+l.width/2,0)/lay.length,cy=lay.reduce((a,l)=>a+l.y+l.height,0)/lay.length;
@@ -265,7 +312,7 @@ function scenario(lang) {
     await playPets.toggleDesktop();
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
     // Named adult baselines and their ordinary friend settings use the real moving scene.
-    await adultScene();
+    await companionScene();
     await L('DONE');
   }catch(e){await L('FATAL:'+String(e).slice(0,200));}
 })();`;

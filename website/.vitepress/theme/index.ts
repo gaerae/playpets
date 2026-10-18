@@ -11,6 +11,7 @@ import Since from './Since.vue';
 import Sprite from './Sprite.vue';
 import { setupSiteLocale } from './site-runtime.mjs';
 import './style.css';
+import './studio.css';
 
 export default {
   extends: DefaultTheme,

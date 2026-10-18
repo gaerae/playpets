@@ -34,6 +34,12 @@ export const copy = {
 export const worldCopy = {
   places: ['丘の庭', '石造りの中庭', '湖畔の家', 'くつろぎのリビング'],
   seasons: ['春', '夏', '秋', '冬'],
+  greetings: {
+    daisy: 'あの角を曲がったら、すてきなものがあるかも。',
+    clover: '今日は何が育ったか、一緒に見てみよう。',
+    pip: '来たんだね！ちょっと遊ぼうよ。',
+    miso: 'ここで少し、ひと休みしていってね。',
+  },
   seasonLabel: '季節を選ぶ',
   previewNote: 'アプリの背景と仲間を使ったプレビューです。友だちを押すと手を振ります。遊びや天気はアプリで楽しめます。',
   greet: '挨拶する',
@@ -52,18 +58,20 @@ export const worldCopy = {
   sceneCaption: (v: string) => `実際のアプリ画面 · PlayPets ${v}`,
 };
 export const sections = {
+  discoveryGuide: '出会えるものを見る',
   galleryCreate: 'この友だちで作る',
   galleryTitle: 'つい目が合う、友だち。',
-  galleryLead: 'デイジー、クローバー、ピップ。個性の違う3人が暮らす、小さな世界。',
+  galleryLead: 'デイジー、クローバー、ピップ、ミソ。個性の違う4人に、あなたのそばの居場所を。',
   galleryLabel: '友だちを選ぶ',
   posesLabel: '動きを試す',
   poses: ['休憩', '手を振る', '跳ぶ'],
   selectedLead: '招待タブから迎えて、名前、性格、あなたとの関係を選べます。',
-  galleryGuide: '最初の友だちに会う',
+  galleryGuide: '友だちの物語を読む',
   petNotes: {
     daisy: '小さな発見が得意な、好奇心いっぱいの探検家です。',
     clover: '庭づくりと小さな発見を分け合う、やさしい子猫です。',
-    pip: '青い花のワッペンのジャケットを着た、挨拶が大好きな元気な子犬です。',
+    pip: '白い花を飾ったインディゴのデニムジャケットとアイボリーのショートパンツを着た、元気な子犬です。',
+    miso: '薄紫のニットベストを着て、池のほとりで本を読む穏やかなカワウソです。',
   },
   connectionsTitle: '一緒に遊んで、ときどきお話。',
   connectionsLead: '遊びや庭づくりはAIアカウントなしで楽しめます。会話には、接続したAIの利用枠や料金が適用されます。',
@@ -77,8 +85,8 @@ export const sections = {
   ],
   miniTitle: '一日の片隅に、小さな友だち。',
   miniBody:
-    'ミニモードはメニューを表示せず、作業のそばに庭を置ける小さな窓です。背景を変えたり遊びの道具を使ったりするときは拡大します。',
-  miniLink: 'ミニモードを見る',
+    '庭のウィンドウを作業のそばに収まる大きさに変えられます。小さな窓でも同じメニューから背景や遊びの道具を使えます。常に手前に表示は、サイズとは別に切り替えられます。',
+  miniLink: '庭のウィンドウを調整する',
   agentGuide: 'コーディングエージェントをつなぐ',
   connectionDetails: '会話の設定と料金について',
   connectionSetup:

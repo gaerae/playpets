@@ -1,43 +1,207 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-const rule = async (file, selector) => {
-  const css = await readFile(`src/styles/${file}.css`, 'utf8');
-  const start = css.indexOf(`${selector} {`);
-  assert.ok(start >= 0, selector);
-  return css.slice(start, css.indexOf('}', start));
+// The tabs use DOM visibility and focus; the native bridge is absent in Node.
+const calls = [];
+Object.defineProperty(globalThis, 'localStorage', { value: { setItem() {} }, configurable: true });
+globalThis.requestAnimationFrame = () => {};
+globalThis.playPets = {
+  windowAlwaysOnTop: async on => {
+    calls.push(on);
+    return { ok: true };
+  },
 };
-test('conversation can shrink inside a short panel while keeping readable messages', async () => {
-  assert.match(await rule('chat', '.chat-log'), /min-height: 0;/);
-  assert.match(await rule('chat', '.message'), /font-size: 14px;/);
-  const css = await readFile('src/styles/chat.css', 'utf8');
-  assert.doesNotMatch(css, /min-height: 220px/);
-});
-test('invite rows reduce surplus space without shrinking names or touch targets', async () => {
-  assert.match(await rule('invite', '.asset-card'), /min-height: 68px;/);
-  assert.match(await rule('invite', '.asset-info strong'), /font-size: 13px;/);
-  assert.match(await rule('invite', '.asset-card canvas'), /width: 46px;/);
-});
-test('friend progress remains a readable line instead of another framed card', async () => {
-  assert.match(await rule('friend', '.bond-next'), /padding: 0;/);
-  assert.match(await rule('friend', '.bond-next'), /font-size: 12px;/);
-  assert.match(await rule('friend', '.relation-chip'), /min-height: 28px;/);
+const { openPanel, setupTabs } = await import('../src/panel/tabs.js');
+const { setSelected, views } = await import('../src/core/state.js');
+
+function page() {
+  const nodes = new Map(),
+    listeners = new Map();
+  const element = id => {
+    const classes = new Set();
+    const node = {
+      hidden: true,
+      dataset: { title: id },
+      isConnected: true,
+      classList: {
+        contains: name => classes.has(name),
+        toggle(name, on) {
+          if (on) classes.add(name);
+          else classes.delete(name);
+        },
+      },
+      setAttribute() {},
+      getAttribute() {
+        return 'false';
+      },
+      addEventListener() {},
+      querySelector() {
+        return null;
+      },
+      focus() {
+        document.activeElement = node;
+      },
+      getClientRects() {
+        return node.hidden ? [] : [{}];
+      },
+      matches() {
+        return id !== 'body';
+      },
+    };
+    nodes.set(id, node);
+    return node;
+  };
+  for (const id of [
+    'layout',
+    'side-panel',
+    'panel-pet',
+    'panel-invite',
+    'panel-settings',
+    'panel-title',
+    'close-panel',
+    'go-invite',
+    'step-ai',
+    'step-agent',
+    'steps-dismiss',
+    'yard-controls-toggle',
+    'brand',
+    'pet',
+  ])
+    element(id);
+  const body = element('body');
+  body.hidden = false;
+  body.classList.toggle('compact', true);
+  nodes.get('panel-invite').hidden = true;
+  nodes.get('pet').hidden = false;
+  nodes.get('yard-controls-toggle').hidden = false;
+  globalThis.document = {
+    body,
+    activeElement: nodes.get('pet'),
+    getElementById: id => nodes.get(id),
+    querySelector: selector => (selector === '.brand' ? nodes.get('brand') : null),
+    querySelectorAll: () => [],
+    addEventListener: (type, fn) => listeners.set(type, fn),
+  };
+  setSelected('pet');
+  views.set('pet', { button: nodes.get('pet') });
+  calls.length = 0;
+  return { nodes, listeners };
+}
+
+test('opening a conversation keeps the small window and closing returns focus to its friend', () => {
+  const { nodes } = page();
+  setupTabs();
+  openPanel('pet');
+  assert.equal(calls.length, 0, 'conversation does not expand the native window');
+  assert.ok(document.body.classList.contains('compact'));
+  assert.equal(nodes.get('side-panel').hidden, false);
+  nodes.get('close-panel').focus();
+  nodes.get('close-panel').onclick();
+  assert.equal(nodes.get('side-panel').hidden, true);
+  assert.equal(document.activeElement, nodes.get('pet'));
 });
 
-test('invite uses two columns when its browsing panel has enough room', async () => {
-  const css = await readFile('src/styles/invite.css', 'utf8');
-  assert.match(css, /@container panel \(min-width: 460px\)/);
-  assert.match(css, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(css, /\.shelf-group-head\s*\{\s*grid-column: 1 \/ -1;/);
+test('Escape dismisses a small panel without dismissing a dialog over it', () => {
+  const { nodes, listeners } = page();
+  setupTabs();
+  openPanel('pet');
+  const key = { key: 'Escape', preventDefault() {} };
+  document.querySelector = selector => (selector === 'dialog[open]' ? {} : null);
+  listeners.get('keydown')(key);
+  assert.equal(nodes.get('side-panel').hidden, false);
+  document.querySelector = () => null;
+  nodes.get('close-panel').focus();
+  listeners.get('keydown')(key);
+  assert.equal(nodes.get('side-panel').hidden, true);
+  assert.equal(document.activeElement, nodes.get('pet'));
 });
 
-test('onboarding steps do not compete with an open task panel', async () => {
-  const css = await readFile('src/styles/welcome.css', 'utf8');
-  assert.match(css, /\.layout:is\(\.panel-open, \.settings-open\) \.empty-yard\s*\{\s*display: none;/);
+test('closing a small panel from a shortcut restores focus when its opener is unavailable', () => {
+  const { nodes } = page();
+  setupTabs();
+  document.activeElement = document.body;
+  openPanel('pet');
+  nodes.get('close-panel').focus();
+  nodes.get('close-panel').onclick();
+  assert.equal(document.activeElement, nodes.get('pet'));
 });
 
-test('Invite scrolls its list without losing the panel close button', async () => {
-  assert.match(await rule('panel', '#panel-invite'), /overflow-y: auto;/);
-  assert.match(await rule('panel', '.layout.panel-open .side-panel'), /overflow: hidden;/);
+test('Invite and Settings keep the same native window', async () => {
+  page();
+  openPanel('invite');
+  await Promise.resolve();
+  assert.deepEqual(calls, []);
+  page();
+  openPanel('settings');
+  await Promise.resolve();
+  assert.deepEqual(calls, []);
+});
+
+test('Escape from Settings restores its opener focus and respects a handled Escape', () => {
+  const { nodes, listeners } = page();
+  document.body.classList.toggle('compact', false);
+  setupTabs();
+  const tab = {
+    isConnected: true,
+    matches: () => true,
+    getClientRects: () => [{}],
+    focus() {
+      document.activeElement = this;
+    },
+  };
+  document.querySelector = selector => (selector === '.panel-tab[aria-expanded="true"]' ? tab : null);
+  document.activeElement = tab;
+  openPanel('settings');
+  nodes.get('close-panel').focus();
+  listeners.get('keydown')({ key: 'Escape', defaultPrevented: true, preventDefault() {} });
+  assert.equal(nodes.get('side-panel').hidden, false, 'a menu may consume Escape before the sheet');
+  let prevented = false;
+  listeners.get('keydown')({
+    key: 'Escape',
+    preventDefault() {
+      prevented = true;
+    },
+  });
+  assert.equal(nodes.get('side-panel').hidden, true);
+  assert.equal(document.activeElement, tab, 'focus returns to the visible Settings tab');
+  assert.equal(prevented, true);
+});
+
+test('Escape also dismisses full Friend and Invite panels', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { nodes, listeners } = page();
+  document.body.classList.toggle('compact', false);
+  setupTabs();
+  for (const kind of ['pet', 'invite']) {
+    openPanel(kind);
+    listeners.get('keydown')({ key: 'Escape', defaultPrevented: true, preventDefault() {} });
+    assert.equal(nodes.get('side-panel').hidden, false);
+    listeners.get('keydown')({ key: 'Escape', preventDefault() {} });
+    assert.equal(nodes.get('side-panel').hidden, true, kind);
+  }
+});
+
+test('an empty compact yard regains focus after Settings closes', () => {
+  const { nodes } = page();
+  const yard = {
+    focus: () => {
+      document.activeElement = yard;
+    },
+  };
+  const get = document.getElementById;
+  document.getElementById = id => (id === 'yard' ? yard : get(id));
+  views.clear();
+  setSelected(null);
+  document.activeElement = document.body;
+  setupTabs();
+  openPanel('settings');
+  nodes.get('close-panel').onclick();
+  assert.equal(document.activeElement, yard);
+});
+
+test('opening a destination moves focus out of its now-hidden menu', () => {
+  const { nodes } = page();
+  setupTabs();
+  openPanel('settings');
+  assert.equal(document.activeElement, nodes.get('panel-title'));
 });

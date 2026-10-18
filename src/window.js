@@ -1,48 +1,116 @@
-import { closeControls, closeScene } from './core/controls.js';
-// The window itself: the title bar is part of the page, and "mini" leaves only the yard.
-import { $, aiming, api, call, game, guard, remember } from './core/state.js';
-import { setAimingMode } from './yard/care.js';
-import { endGame } from './yard/play.js';
+// One frameless window: its size and its always-on-top switch are independent.
+import { confirmAction } from './core/confirm.js';
+import { closeControls } from './core/controls.js';
+import { t } from './core/i18n.js';
+import { $, call, data, guard } from './core/state.js';
 
-// Mini: only the yard, in a small window that stays on top, where it was last left (the backend
-// keeps the place).
-let mini = false;
-export const isMini = () => mini;
-export async function setMini(on) {
-  if (on && game) endGame();
-  if (on && aiming) setAimingMode(false);
-  await call('windowMini', on);
-  mini = on;
-  document.body.classList.toggle('mini', on);
-  if (on) {
-    closeControls(false);
-    closeScene();
-    $('unmini')?.focus();
+let fullscreen = false;
+let changingFullscreen = false;
+
+function renderFullscreen(on) {
+  fullscreen = !!on;
+  document.body.classList.toggle('fullscreen', fullscreen);
+  $('fullscreen')?.setAttribute('aria-pressed', String(fullscreen));
+  const label = $('fullscreen-label');
+  if (label) {
+    const key = fullscreen ? 'win.restore_size' : 'win.fullscreen';
+    label.setAttribute('data-i18n', key);
+    label.textContent = t(key);
   }
-  // A quick conversation belongs to that stay in mini; the next one starts with the yard alone.
-  if (!on) $('layout')?.classList.toggle('mini-chat-open', false);
-  remember('mini', on ? '1' : '');
 }
-// Empty parts of the title bar (and of the mini yard) move the window.
-const controls = 'button,select,input,textarea,a,label';
-const grab = e => {
-  if (e.button === 0 && !e.target.closest(`${controls},.yard-pet,.pet-tag`)) api.windowDrag();
-};
-// Wires the title bar, the window buttons and mini mode to the page. Called once, by app.js.
+
+export async function setFullscreen(on) {
+  if (changingFullscreen) return;
+  changingFullscreen = true;
+  $('fullscreen').disabled = true;
+  try {
+    renderFullscreen(await call('windowFullscreen', on));
+    closeControls();
+  } finally {
+    changingFullscreen = false;
+    $('fullscreen').disabled = false;
+  }
+}
+
+export function renderWindow(on = !!data.alwaysOnTop) {
+  $('always-on-top')?.setAttribute('aria-pressed', String(on));
+}
+
+export async function setAlwaysOnTop(on) {
+  renderWindow(await call('windowAlwaysOnTop', on));
+}
+
+// Quitting ends desktop friends too; closing the window only sends it to the tray.
+export async function quitApp() {
+  const sure = await confirmAction({
+    title: t('quit.title'),
+    body: t('quit.body'),
+    action: t('quit.action'),
+    danger: false,
+  });
+  if (sure) await call('quitApp');
+}
+
+function fitWindow() {
+  const compact = innerWidth <= 640 || innerHeight <= 480;
+  document.body.classList.toggle('compact', compact);
+}
+
+// Window movement and resizing use native gestures, so every platform keeps its own edge behavior.
 export function setupWindow() {
   if (/Mac/.test(navigator.userAgent)) document.documentElement.classList.add('mac');
-  $('mini').onclick = guard(() => setMini(true));
-  $('unmini').onclick = guard(() => setMini(false));
-  document.querySelector('.topbar').addEventListener('pointerdown', grab);
-  document.querySelector('.topbar').addEventListener('dblclick', e => {
-    if (!e.target.closest(controls)) api.windowMaximize();
+  renderFullscreen(false);
+  $('fullscreen').onclick = guard(() => setFullscreen(!fullscreen));
+  $('always-on-top').onclick = guard(() => setAlwaysOnTop($('always-on-top').getAttribute('aria-pressed') !== 'true'));
+  $('window-drag').addEventListener('pointerdown', event => {
+    if (event.button === 0) guard(() => call('windowDrag'))();
   });
-  // In the mini yard an empty spot moves the window, unless a treat is being placed there.
-  $('yard').addEventListener('pointerdown', e => {
-    if (mini && !aiming) grab(e);
+  for (const grip of document.querySelectorAll('[data-resize]'))
+    grip.addEventListener('pointerdown', event => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      return guard(() => call('windowResize', grip.dataset.resize))();
+    });
+  $('menu-quit').onclick = guard(quitApp);
+  $('hide-window').onclick = guard(async () => {
+    closeControls(false);
+    await call('windowHide');
   });
-  // Windows and Linux: the page draws the window buttons.
-  $('win-min').onclick = () => api.windowMinimize();
-  $('win-max').onclick = () => api.windowMaximize();
-  $('win-close').onclick = () => api.windowHide();
+  window.addEventListener(
+    'resize',
+    guard(async () => {
+      fitWindow();
+      if (fullscreen && !changingFullscreen) renderFullscreen(await call('windowIsFullscreen'));
+    }),
+  );
+  // Window bubbling runs after panel and dropdown handlers have consumed Escape.
+  window.addEventListener(
+    'keydown',
+    guard(async event => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      const dialog = document.querySelector('dialog[open]');
+      if (dialog) {
+        if (fullscreen) {
+          // Consume the native fullscreen shortcut while retaining the dialog's cancel guards.
+          event.preventDefault();
+          if (dialog.dispatchEvent(new Event('cancel', { cancelable: true }))) dialog.close();
+        }
+        return;
+      }
+      if (!$('yard-controls-panel').hidden) {
+        event.preventDefault();
+        closeControls();
+        return;
+      }
+      if (fullscreen) {
+        event.preventDefault();
+        await setFullscreen(false);
+      }
+    }),
+  );
+  fitWindow();
+  renderWindow();
+  for (const button of document.querySelectorAll('[data-expand-window]'))
+    button.onclick = guard(() => setFullscreen(true));
 }

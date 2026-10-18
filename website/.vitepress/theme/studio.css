@@ -1,0 +1,9 @@
+.creator-studio-page .vp-doc > div > h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -0.035em;
+}
+.creator-studio-page .vp-doc > div > h1 + p {
+  max-width: 65ch;
+  color: var(--vp-c-text-2);
+  font-size: 16px;
+}

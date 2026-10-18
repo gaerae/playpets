@@ -36,3 +36,22 @@ test('overlay wardrobe follows saved season changes and minute fallback without 
   storage(null);
   assert.equal(applied.at(-1), 'summer');
 });
+
+test('a fresh desktop wardrobe matches the sunny yard while saved Auto follows the calendar', async () => {
+  const { setupSeason } = await import('../src/core/season.js');
+  const { initialSceneChoices } = await import('../src/yard/scene.js');
+  for (const [choice, expected] of [
+    [null, initialSceneChoices().season],
+    ['auto', 'winter'],
+  ]) {
+    const applied = [];
+    setupSeason({
+      read: () => choice,
+      apply: season => applied.push(season),
+      minute: () => {},
+      events: new EventTarget(),
+      now: () => new Date(2026, 0, 15, 12),
+    });
+    assert.deepEqual(applied, [expected]);
+  }
+});

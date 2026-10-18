@@ -16,68 +16,84 @@
   },
   "files": {
     "turnaround.png": {
-      "bytes": 1745391,
-      "sha256": "71b9bf172dbb559d22b5614a3008250e88d9ad665885ad10b6762ddb71d538a3"
+      "bytes": 1851081,
+      "sha256": "5d134e5d92f4b77d48409f97152b4b6c172e8a0ae895260b0e153eef697003ca"
     },
     "face-detail.png": {
-      "bytes": 1876662,
-      "sha256": "e514451882e0301d80d87e4d86cf5d61c6552aab05819dcf3c9fa6726ff6d075"
+      "bytes": 1974154,
+      "sha256": "5501777b58e4dab6b7b0e07abd6b70cfd4555c63182fae0cd15b8690b9c573b4"
     },
     "identity-reference.png": {
-      "bytes": 237489,
-      "sha256": "11bd0f213b88949a84e099aa38659721f65eacb8a9bf565ba101cb6278f0592c"
+      "bytes": 245949,
+      "sha256": "12897b3f749e0042a8fc743781aa37d2c7012d03e3ff7dab27901239bb528a69"
     },
     "expression-reference.png": {
-      "bytes": 240306,
-      "sha256": "0f4bc19d7489c037617c7d328cdc0b6ffb5fe22a3745a0988acc96c3fabf298c"
+      "bytes": 249033,
+      "sha256": "fc4b12e91835318021fae0c53c348b016dc5438b4faff5dad18717dcbe332fa0"
     },
     "motion-reference.png": {
-      "bytes": 3314761,
-      "sha256": "02ae8d018a88da77f90933dbda6a36dcc7a1f3c2fbd4111fc8da0c41ec6c9613"
+      "bytes": 3444620,
+      "sha256": "af0a4b3645a4bc0ebbfe6a7eaf1ff295dfe92efd48c82934984a5ecc13ee456e"
     },
     "wardrobe-reference.png": {
-      "bytes": 123583,
-      "sha256": "5d011863810c3960678738fbad9826d1158a1d35c1b1f2b7318bcd5d344474ca"
+      "bytes": 127724,
+      "sha256": "df2d68964f85f99558906235165fc18ca7471d6af91511592d13e123f217f431"
     },
     "spritesheet.png": {
-      "bytes": 3381787,
-      "sha256": "259cda73ce6b73cb4412c4d6c3ec27c53138a966930c1b871af29e1d37345641"
+      "bytes": 3026099,
+      "sha256": "4af3be1be7d76f78f521c724bc7c93c092c3fb1b8843327c723315db406c31b1"
     },
     "summer.png": {
-      "bytes": 3285284,
-      "sha256": "8fe167a8dc058121d01fe97caeee81604b82184c03a26d6e2ca78df329597e7f"
+      "bytes": 2953922,
+      "sha256": "6fca5746dca6615bd8d2d481608f4efeba1032951b6067bf3b4f7d03be6b80df"
     },
     "winter.png": {
-      "bytes": 3465532,
-      "sha256": "4cf78491a246c10242a2203198c6f971a8305617d165743951c4ada2b89f0d83"
+      "bytes": 3091450,
+      "sha256": "e90272d0c21dc0060fb91606508df53470504d20d6aa9bcfeae8e78d7bcdd1e6"
     },
     "identity.json": {
-      "bytes": 2809,
-      "sha256": "ad560957f990ec5c3353c1acced0310b84cfc36f7115c66b2bdb8c51980d2a34"
+      "bytes": 3019,
+      "sha256": "171a8790076f97b29dfc4757cc2bf258c6a415a3eca13410f09ce07028a230fd"
     },
     "prompts/01-identity-lock.txt": {
-      "bytes": 2132,
-      "sha256": "412481f5d1f7b4916843a23c1ae66c5c2f7633c9c550c50756322ceb4fcfebeb"
+      "bytes": 2243,
+      "sha256": "d847c678de0fd7e07169c5eeb03a6b91d86f25eedd0a1f97665ba29822d25e2a"
     },
     "prompts/02-face-detail.txt": {
-      "bytes": 2074,
-      "sha256": "b017069a86a5758356e3b23bc5745e3c1b953599a63cc0a090908b61bbc10132"
+      "bytes": 2185,
+      "sha256": "d6ecb8c2a9eeead70a6a34ac0a8c0cacdd24a8a719e83dfc930499fc8d3323ae"
     },
     "prompts/03-wardrobe.txt": {
-      "bytes": 2626,
-      "sha256": "4a9520261258dc6ee33dbc95a76d0e6578b57112795f0a12a70ec73b05bb4e02"
+      "bytes": 2836,
+      "sha256": "0e2b36978441604151f3f4a205d18b7a4c2f9b07e4108208539159a85bac55e2"
     },
     "prompts/04-state-row.txt": {
-      "bytes": 2437,
-      "sha256": "37f8595ed6b910cb3a8e8d44be052ba9a943c8e46a84dc53bbd934528680c57a"
+      "bytes": 2548,
+      "sha256": "fdb22bf4002fffcc06c93baf0e42077af730aec473844f3672ebc447892121f3"
     },
     "prompts/05-canonical-export.txt": {
-      "bytes": 2287,
-      "sha256": "8381d54bcf7fb436e4e046ed2bd63ea61d6d2deb69e9f7b8e107c67c31ba3acd"
+      "bytes": 2406,
+      "sha256": "350dbc48f045e56868419185a1a881527cd34a38f2ffcf773d9db2373f3a9e52"
     },
     "pet.json": {
       "bytes": 543,
       "sha256": "53b27e719ecb69f505fe65f3f4cd8d0c942bc7dc358acbaec89349d35f74fb90"
+    },
+    "provenance/turnaround.prompt.txt": {
+      "bytes": 488,
+      "sha256": "78d9cbd7be6e43bba4cadb6ac8982ac453d8b866c1351ed8c1c1251f3aa60f4b"
+    },
+    "provenance/turnaround.generation.txt": {
+      "bytes": 318,
+      "sha256": "ff6254920cfca946fc9c3da57c711fe2a5732c5fe92640512148fd3e037ee203"
+    },
+    "provenance/face-detail.prompt.txt": {
+      "bytes": 488,
+      "sha256": "78d9cbd7be6e43bba4cadb6ac8982ac453d8b866c1351ed8c1c1251f3aa60f4b"
+    },
+    "provenance/face-detail.generation.txt": {
+      "bytes": 319,
+      "sha256": "8500f375b545d5b282438e066ffba45786e8ed19fb01f90cc86a2a5905d10063"
     },
     "README.txt": {
       "bytes": 1231,

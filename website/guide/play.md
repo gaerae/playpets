@@ -1,18 +1,26 @@
 ---
-description: Time of day, weather and seasons, the garden and gifts, fishing and bugs, the album, closeness, seasonal events, yard sounds, three games, and mini mode that leaves only the yard
+description: Time of day, weather and seasons, the garden and gifts, fishing and bugs, the album, closeness, seasonal events, yard sounds, three games, and a freely resizable yard window
 ---
+
+<script setup>
+import DiscoveryGuide from '../.vitepress/theme/DiscoveryGuide.vue';
+</script>
 
 # The yard and games
 
 The yard changes with the time of day, the weather and the season, and it grows over the days. Friends find seeds for the garden and bring gifts, you fish and catch bugs for the album, friends grow closer to you, seasonal events come and go, the yard has its own sounds, and you can play three games with your friends.
 
-The scenery fills the window. **Place & atmosphere** stays beside **Menu** at the bottom right. Choose the scene directly, or open Menu for Friend, Invite, Settings, display and sound switches, and play tools. Choosing an action closes the controls. Task panels and the menu take turns rather than overlap. Automatic time still follows your computer without a visible clock.
+The scenery fills the window. In larger windows, **Place & atmosphere** stays beside **Menu** at the bottom right. Choose the scene directly, or open Menu for Friend, Invite, Settings, display and sound switches, and play tools. Choosing an action closes the controls. Task panels and the menu take turns rather than overlap. Automatic time still follows your computer without a visible clock.
+
+Expand **Play & display options** in Menu when needed. Destinations and window actions stay separate from those tools.
+
+A new yard starts on a clear spring day. Choose **Auto** for season, time or weather when you want them to change on their own; saved choices stay as you left them.
 
 ## Time of day and weather <Since v="0.1.0" />
 
-<Shot name="yard-evening" caption="The yard on a golden evening. The time of day follows the clock automatically." />
+<Shot name="yard-spring" caption="A clear spring day in the yard. Auto time follows your clock when selected." />
 
-Open **Place & atmosphere** at the bottom right to choose a background by its thumbnail. Built-in and imported backgrounds share one gallery. Choose **season, time and weather** below the cards; changes apply immediately. Season is also available in **Menu → Settings → The yard**. Import a background or open the Background Studio below the controls. Remove appears only when an imported background is selected.
+Open **Place & atmosphere** at the bottom right to choose a background by its thumbnail. Built-in and imported backgrounds share one gallery. Use **Places** to choose a background and **Atmosphere** to choose season, time and weather; changes apply immediately. Season is also available in **Menu → Settings → The yard**. Import a background or open the Background Studio below the controls. Remove appears only when an imported background is selected.
 
 | Choice | Options |
 |---|---|
@@ -27,7 +35,7 @@ The three outdoor places have distinct houses, four seasonal landscapes and thei
 - **Auto time** follows your computer's clock. The colours of the sky and ground change through morning, midday, evening and night, the sun crosses the sky from left to right, and at night the moon shows tonight's phase.
 - **Auto weather** picks new weather once every 20 minutes. It is mostly clear, with rain now and then; snow comes only in winter. It does not fetch the real weather from the internet.
 - The illustrated outdoor places have different compositions, from a sheltered courtyard to an open hillside and lake. Their colours change with the light; the background is repainted only when the scene or window size changes.
-- The outdoor places follow the **season** by the date: blossoms and falling petals in spring, deep green in summer, red and gold leaves in autumn, and snowy ground in winter. You can also choose a season in **Menu → Settings → The yard**. South of the equator (by your computer's time zone) automatic seasons are reversed.
+- With season set to **Auto**, the outdoor places follow the date: blossoms and falling petals in spring, deep green in summer, red and gold leaves in autumn, and snowy ground in winter. You can also choose a season in **Menu → Settings → The yard**. South of the equator (by your computer's time zone) automatic seasons are reversed.
 - When rain clears up in daylight, a rainbow stands over the hills for a few minutes. On clear days a flock of birds crosses the sky now and then, butterflies flutter until autumn, and fireflies glow on spring and summer nights.
 - Pick a value yourself and that time of day and weather are fixed. Your choice is remembered, so it is the same the next time you open the app.
 
@@ -68,7 +76,7 @@ Once a day a friend brings a gift for the yard, after the yard has been open for
 
 ## Fishing and bugs <Since v="0.1.0" />
 
-- **Fishing**: click visible water or choose **Fish** in **Menu**. The nearest free friend walks to that background's fishing stance and casts. If a friend covers the water in mini mode, expand the yard to use the menu. Wait for the float to dip under (a **!** appears), then click it. Too early and nothing bites; too late and the fish gets away.
+- **Fishing**: click visible water or choose **Fish** in **Menu**. The nearest free friend walks to that background's fishing stance and casts. If a friend covers the water in a small window, use the menu to start fishing. Wait for the float to dip under (a **!** appears), then click it. Too early and nothing bites; too late and the fish gets away.
 - **Bugs**: click a butterfly or a dragonfly by day, or a firefly on a spring or summer night, and the nearest friend leaps and catches it.
 - What bites and what flies depends on the season, the time of day and the weather: catfish and eels come out after dark (and more in the rain), pond smelt only in winter, and a golden carp is very rare. Each fish is a different size every time.
 - A card shows what was caught, and says so when it is new.
@@ -131,26 +139,31 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 3. When the friend who is it overlaps another friend on screen, that friend is caught. The caught friend becomes it, and the one who caught them is safe for a moment.
 4. After a set time, the game ends with "Tag is over. Good running, everyone!".
 
-## Mini mode <Since v="0.1.0" />
+## A window beside your work
 
-Use the full yard to play, browse friends and manage settings. Mini mode is a small, always-on-top companion beside another app; it remembers its size and position.
+Resize the yard by dragging any edge or corner, down to 300 × 210. The same window keeps friends, chat, Invite, Settings, scene controls and games available at every size. Drag the narrow transparent area along the top edge to move it. Its position and size are remembered.
 
-<Shot name="mini" caption="Mini mode. A small window with only the yard floats on top of other windows." />
+When the window is 640 pixels wide or less, or 480 pixels tall or less, the bottom controls are hidden. Right-click empty scenery or press **Cmd/Ctrl + Shift + P** to open the menu. It fills the small window with a little space around the edges, starts with Friends, Invite, Place & atmosphere and Settings, followed by **Always on top** and fullscreen, and scrolls as one list. Expand **Play & display options** for games, desktop friends and sound. The **←** button in each destination returns to the menu; **×** returns to the yard. The fullscreen icon offers more working space. Small Settings uses one section chooser, and Invite keeps **Search & import** folded until needed. Choose **Menu → Place & atmosphere** to open the scene chooser. Close the menu with **×** or **Esc**.
 
-Open **Menu → Mini mode** to keep a small yard beside your work.
+Right-click empty scenery to open the same **Menu** beside the pointer. It stays inside the window and scrolls when needed; **Esc** or a click outside closes it. Right-clicking a friend still opens its chat, and plants and decorations keep their own actions.
 
-- The small window always floats on top of other windows. The first time, it opens in the bottom-right corner of the screen; after that it opens where you last left it, at the size you gave it.
-- Mini mode keeps **Place & atmosphere** and **Menu** hidden, even when the pointer is over the window. The corner expand button opens the full yard for scene changes, settings and play tools. The tray menu also provides settings and display controls. You can still interact with friends and chat in the small window.
-- Name tags are hidden; hover over a friend and theirs shows for a moment.
-- Drag an empty spot with no friend and the window moves. Drag a friend and the friend moves.
-- Patting works as before. Clicking a friend's name tag opens a compact conversation inside the small window. Close it with its close button or Escape to return to the yard. Invite and Settings still open the full window.
-- Friends rest longer between strolls and greet quietly instead of jumping on their own.
-- Entering mini mode during a game ends the game.
+Choose **Menu → Enter fullscreen** to fill the screen with the yard. The same option is available when you right-click empty scenery. While fullscreen, choose **Return to previous size** in that menu, or press **Esc**. Esc first closes an open menu, Settings or a dialog; press it again once those are closed to leave fullscreen. Returning restores the previous window size, position and Always on top setting.
 
-To go back, click the **Full size** button in the corner of the small window; the window returns to where it was. Mini mode is remembered, so if you quit while it is small, it opens small the next time too.
+<Shot name="mini" caption="A small yard window beside your work." />
 
-<Shot name="mini-chat" caption="A quick conversation stays inside the mini yard, beside your work." />
+Choose **Menu → Always on top** to keep the yard above other windows. This switch works independently of the window size, also appears in the tray and macOS View menus, and is remembered. **Cmd/Ctrl + Shift + M** toggles it without resizing the yard.
+
+On Linux, pinning depends on the desktop and window manager. Some Wayland desktops refuse the request; check your desktop’s window rules if the setting cannot be applied.
+
+<Shot name="mini-chat" caption="A conversation stays inside the small yard window, beside your work." />
+
+Choose **Menu → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** in the same menu asks for confirmation and closes PlayPets; conversations are not saved. Both actions are also in the empty-scenery right-click menu.
 
 ## Want to see more of your friends?
 
-To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). You can use it together with mini mode.
+To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). You can use it together with any yard window size.
+
+
+## Discovery guide {#discovery-guide}
+
+<DiscoveryGuide lang="en" />

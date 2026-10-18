@@ -45,6 +45,9 @@ test('setupSky hands world and season changes to the entry point, around its own
     },
   });
   assert.equal(scene.world, 'woodland');
+  assert.equal(scene.season, 'spring');
+  assert.equal(scene.period, 'day');
+  assert.equal(scene.weather, 'clear');
   log.length = 0;
 
   nodes.get('world').value = 'studio';

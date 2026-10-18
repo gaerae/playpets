@@ -1,5 +1,8 @@
 // Line icons drawn on a 24px grid. Add one here and use it with <span data-icon="name">.
 const paths = {
+  back: '<path d="m10 5-7 7 7 7M3 12h18"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor" stroke="none"/>',
   fish: '<path d="M4 12c3-6 10-6 13 0-3 6-10 6-13 0Zm13 0 4-4v8l-4-4Z"/><circle cx="8" cy="11" r=".8" fill="currentColor" stroke="none"/>',
   monitor: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -7,8 +10,8 @@ const paths = {
   treat:
     '<path d="M12 3a9 9 0 1 0 9 9 4 4 0 0 1-4-4 4 4 0 0 1-5-5Z"/><path d="M8.5 9.5h.01M8 14.5h.01M12.5 12.5h.01M15 16.5h.01" stroke-width="2.2"/>',
   square: '<rect x="6" y="6" width="12" height="12" rx="1.5"/>',
-  // A small window over a big one: the mini view, which stays on top.
-  pip: '<rect x="3" y="4" width="18" height="15" rx="2"/><rect x="11.5" y="11" width="7" height="5.5" rx="1" fill="currentColor" stroke="none"/>',
+  // Pinning the window keeps it above other apps.
+  pin: '<path d="m16 3 5 5-4 1-3 5 1 3-2 2-8-8 2-2 3 1 5-3 1-4Z"/><path d="m8 16-5 5"/>',
   expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
   // A seedling: the garden's tool.
   sprout:

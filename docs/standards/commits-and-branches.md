@@ -10,7 +10,8 @@ Not covered: the release steps themselves ([Release a new version](../how-to/rel
 - `main` is the only long-lived branch. It always passes CI (`build.yml`) and can be released at any commit. The repository ruleset blocks deleting it and force-pushing to it ([set up the repository](../how-to/set-up-the-repository.md), step on rulesets).
 - Work happens on a short-lived branch made from the latest `main`, named `<area>/<topic>` in lowercase with hyphens. The area is the part of the app or the kind of work, for example `yard/lake-shape`, `chat/avatars`, `backend/command-table`, `fix/gift-day`, `docs/commit-standard`, `ci/pin-actions`. A branch carries one change and goes away once it is merged.
 - A branch reaches `main` through a pull request that a maintainer reviews and merges. Before merging, the branch is brought up to date with `main` by rebasing it, so `main` stays a straight line with no merge commits.
-- A pull request with one change is squash-merged, and its title becomes the commit title, so the PR title follows the commit title rule below. A pull request whose commits each stand on their own (each passes the checks) is rebase-merged, keeping them.
+- Every pull request is squash-merged into one commit on `main`. Its title becomes the commit title, so the PR title follows the commit title rule below. The maintainer reviews the squash commit body for what changed, why and how it was checked, retaining co-author trailers. Branch commits remain useful for review; they do not become separate commits on `main`.
+- Repository settings allow squash merging only; merge commits and rebase merging are disabled. Rebasing a feature branch onto the latest `main` before its final CI run is separate from the pull request's merge method.
 - Versions are tags (`vX.Y.Z`) on `main`, made by `npm run release -- x.y.z` and pushed by a maintainer. There are no release branches: a fix for a released version goes to `main` and out in the next patch version.
 
 **Commits**
@@ -51,4 +52,5 @@ A straight `main` where every commit passes the checks keeps `git bisect` and `g
 There are no automated checks for commit titles, bodies or branch names beyond the pull request template's checklist (`.github/pull_request_template.md`). A maintainer reviews them before merging. What does run: CI (`build.yml`) runs the tests and lint on every pull request, the repository ruleset refuses deleting `main` and force-pushing to it, and `.gitignore` refuses the usual key and certificate files.
 
 ## Change history
+- 2026-10-18 Use squash merging for every pull request and document the repository setting
 - 2026-10-10 First version

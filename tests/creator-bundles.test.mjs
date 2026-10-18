@@ -34,7 +34,7 @@ test('publication validates real PNG data, required alpha, and canonical dimensi
 
 test('each style kit has its own locked identity, executable prompts and valid standalone manifest', async () => {
   const { kitSpec, kitPrompts, petManifest } = await import('../scripts/creator-specs.mjs');
-  for (const id of ['daisy', 'clover', 'pip']) {
+  for (const id of ['daisy', 'clover', 'pip', 'miso']) {
     const spec = kitSpec(id),
       prompts = kitPrompts(spec),
       manifest = petManifest(spec);
@@ -64,7 +64,10 @@ test('identity prompts preserve current clothes, decorations and style-specific 
   });
   assert.match(kitSpec('daisy').facePanels.top[1], /viewer left/);
   assert.match(kitSpec('pip').facePanels.top[2], /viewer left/);
-  assert.doesNotMatch(kitSpec('clover').identity.wardrobe.baseline, /daisy/);
+  const clover = kitSpec('clover').identity;
+  for (const season of ['baseline', 'summer']) assert.match(clover.wardrobe[season], /white.*golden.*front.*pocket/);
+  assert.match(clover.accessories[0], /no flower on the straw hat/);
+  assert.match(clover.wardrobe.winter, /beanie with white daisy/);
   assert.throws(() => kitSpec('aria-realistic'));
   assert.throws(() => kitSpec('noah-realistic'));
 });
@@ -79,9 +82,9 @@ test('downloaded provenance retains workspace references without publishing mach
   );
 });
 
-test('shared creator-kit selection accepts all three registered pet IDs', async () => {
+test('shared creator-kit selection accepts all four registered pet IDs', async () => {
   const { kitFromQuery } = await import('../scripts/creator-specs.mjs');
-  for (const id of ['daisy', 'clover', 'pip']) assert.equal(kitFromQuery(`?kit=${id}&other=1`), id);
+  for (const id of ['daisy', 'clover', 'pip', 'miso']) assert.equal(kitFromQuery(`?kit=${id}&other=1`), id);
   for (const query of ['', '?kit=clover-realistic', '?kit=../../escape', '?kit=noah-extra'])
     assert.equal(kitFromQuery(query), 'daisy');
 });
@@ -101,7 +104,7 @@ test('generic extension prompts accept any permitted pet reference and preserve 
   const { extensionPrompts, baselineManifest, kitEntries } = await import('../scripts/creator-specs.mjs');
   assert.deepEqual(
     kitEntries.map(entry => entry.name),
-    ['Daisy', 'Clover', 'Pip'],
+    ['Daisy', 'Clover', 'Pip', 'Miso'],
   );
   const prompts = extensionPrompts({
     name: 'Paper fox',
@@ -143,9 +146,9 @@ test('extension metadata is quoted data and cannot escape into generation instru
   }
 });
 
-test('all three kits expose only real detail and seasonal references', async () => {
+test('all four kits expose only real detail and seasonal references', async () => {
   const { kitEntries, kitSpec, kitPrompts, petManifest, kitFromQuery } = await import('../scripts/creator-specs.mjs');
-  assert.equal(kitEntries.length, 3);
+  assert.equal(kitEntries.length, 4);
   for (const entry of kitEntries) {
     assert.equal(kitFromQuery(`?kit=${entry.id}`), entry.id);
     assert.ok(entry.pet);
@@ -189,22 +192,22 @@ test('official cast prompts preserve the painted illustration direction in every
   }
 });
 
-test('Pip varsity outfit and flower motif stay consistent across creator prompts', async () => {
+test('Pip denim outfit and flower motif stay consistent across creator prompts', async () => {
   const { kitSpec, kitPrompts } = await import('../scripts/creator-specs.mjs');
   const spec = kitSpec('pip');
-  assert.match(spec.identity.wardrobe.baseline, /butter-yellow varsity jacket with ivory sleeves/);
-  assert.match(spec.identity.wardrobe.baseline, /navy shorts/);
-  assert.match(spec.identity.wardrobe.summer, /short-sleeve yellow and ivory round-neck T-shirt/);
-  assert.match(spec.identity.wardrobe.summer, /navy shorts/);
-  assert.match(spec.identity.wardrobe.winter, /padded quilted yellow and ivory jacket/);
-  assert.match(spec.identity.wardrobe.winter, /navy trousers/);
+  assert.match(spec.identity.wardrobe.baseline, /washed medium-indigo denim chore jacket/);
+  assert.match(spec.identity.wardrobe.baseline, /warm ivory cuffed shorts/);
+  assert.match(spec.identity.wardrobe.summer, /short-sleeve lightweight indigo denim camp-collar shirt/);
+  assert.match(spec.identity.wardrobe.summer, /warm ivory cuffed shorts/);
+  assert.match(spec.identity.wardrobe.winter, /lined indigo denim jacket with an ivory shearling collar/);
+  assert.match(spec.identity.wardrobe.winter, /warm ivory long trousers/);
   assert.match(spec.identity.accessories[0], /anatomical LEFT chest/);
   for (const outfit of Object.values(spec.identity.wardrobe))
-    assert.match(outfit, /blue five-petal flower with a cream center/);
+    assert.match(outfit, /white five-petal flower with a golden-yellow center/);
   assert.match(spec.identity.accessories[0], /no bag, scarf, hat or overalls/);
   assert.doesNotMatch(spec.identity.description, /courier/);
   for (const prompt of Object.values(kitPrompts(spec))) {
-    assert.match(prompt, /butter-yellow varsity jacket/);
+    assert.match(prompt, /washed medium-indigo denim chore jacket/);
     assert.match(prompt, /no bag, scarf, hat or overalls/);
   }
 });

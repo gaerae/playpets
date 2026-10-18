@@ -69,8 +69,8 @@ export default defineConfig({
       themeConfig: {
         nav: [
           { text: 'Download', link: '/#download', activeMatch: '^/#download' },
-          { text: 'Creator studio', link: '/guide/creator-kit', activeMatch: '^/guide/creator-kit' },
-          { text: 'Guide', link: '/guide/', activeMatch: '^/guide/(?!creator-kit)' },
+          { text: 'Studio', link: '/guide/creator-kit', activeMatch: '^/guide/(creator-kit|background-kit)' },
+          { text: 'Guide', link: '/guide/', activeMatch: '^/guide/(?!creator-kit|background-kit)' },
           { text: 'Developers', link: '/dev/', activeMatch: '^/dev/' },
         ],
         sidebar: {
@@ -113,8 +113,8 @@ export default defineConfig({
       themeConfig: {
         nav: [
           { text: '다운로드', link: '/ko/#download', activeMatch: '^/ko/#download' },
-          { text: '캐릭터 제작실', link: '/ko/guide/creator-kit', activeMatch: '^/ko/guide/creator-kit' },
-          { text: '사용 안내', link: '/ko/guide/', activeMatch: '^/ko/guide/(?!creator-kit)' },
+          { text: '제작실', link: '/ko/guide/creator-kit', activeMatch: '^/ko/guide/(creator-kit|background-kit)' },
+          { text: '사용 안내', link: '/ko/guide/', activeMatch: '^/ko/guide/(?!creator-kit|background-kit)' },
           { text: '개발(영어)', link: '/dev/' },
         ],
         sidebar: {
@@ -167,8 +167,8 @@ export default defineConfig({
       themeConfig: {
         nav: [
           { text: 'ダウンロード', link: '/ja/#download', activeMatch: '^/ja/#download' },
-          { text: '制作室', link: '/ja/guide/creator-kit', activeMatch: '^/ja/guide/creator-kit' },
-          { text: '使い方', link: '/ja/guide/', activeMatch: '^/ja/guide/(?!creator-kit)' },
+          { text: '制作室', link: '/ja/guide/creator-kit', activeMatch: '^/ja/guide/(creator-kit|background-kit)' },
+          { text: '使い方', link: '/ja/guide/', activeMatch: '^/ja/guide/(?!creator-kit|background-kit)' },
           { text: '開発者向け（英語）', link: '/dev/' },
         ],
         sidebar: {
@@ -223,8 +223,12 @@ export default defineConfig({
       themeConfig: {
         nav: [
           { text: '下载', link: '/zh-hans/#download', activeMatch: '^/zh-hans/#download' },
-          { text: '角色制作室', link: '/zh-hans/guide/creator-kit', activeMatch: '^/zh-hans/guide/creator-kit' },
-          { text: '使用指南', link: '/zh-hans/guide/', activeMatch: '^/zh-hans/guide/(?!creator-kit)' },
+          {
+            text: '制作室',
+            link: '/zh-hans/guide/creator-kit',
+            activeMatch: '^/zh-hans/guide/(creator-kit|background-kit)',
+          },
+          { text: '使用指南', link: '/zh-hans/guide/', activeMatch: '^/zh-hans/guide/(?!creator-kit|background-kit)' },
           { text: '开发者（英文）', link: '/dev/' },
         ],
         sidebar: {

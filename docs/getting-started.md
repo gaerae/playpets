@@ -12,6 +12,7 @@ The same commands run on macOS, Linux and Windows. Command examples use a macOS 
 | Rust | stable, 1.98 or later | `rustc --version` |
 | Node.js | 26 (`.node-version`) | `node --version` |
 | npm | 11 or later, included with Node.js 26 | `npm --version` |
+| Python | 3.13 (as in CI), with the pinned Pillow dependency | `python3 --version` (`py --version` on Windows) |
 | git | any version | `git --version` |
 | Tauri prerequisites | per OS | below |
 
@@ -39,6 +40,24 @@ cd playpets
 npm ci
 rustup component add rustfmt clippy
 ```
+
+The creator helper tests also need Python and Pillow. Use a virtual environment outside the checkout; activate it again in each new shell before running tests.
+
+```bash
+python3 -m venv "$HOME/.virtualenvs/playpets"
+. "$HOME/.virtualenvs/playpets/bin/activate"
+python -m pip install -r assets/creator-skill/playpets-creator/requirements.txt
+```
+
+In Windows PowerShell:
+
+```powershell
+py -3 -m venv "$env:LOCALAPPDATA\PlayPetsDev"
+& "$env:LOCALAPPDATA\PlayPetsDev\Scripts\Activate.ps1"
+python -m pip install -r assets/creator-skill/playpets-creator/requirements.txt
+```
+
+If an existing environment already has Pillow, set `PLAYPETS_PYTHON` to its Python executable instead. This selects the interpreter for the creator tests; it does not install anything.
 
 3. Run the unit tests and lint.
 
@@ -73,7 +92,7 @@ $env:PLAYPETS_DATA = "$PWD\.dev-data"
 npm run start
 ```
 
-7. Pick a pet in the Invite tab. The three illustrated starter entries are always there, and pets in `~/.codex/pets` and community pets pasted in through "Import a pet" show on the shelf too.
+7. Pick a pet in the Invite tab. The four illustrated starter entries are always there, and pets in `~/.codex/pets` and community pets pasted in through "Import a pet" show on the shelf too.
 
 8. After changing page code, build again and start the app. Page files go into the executable at build time, so you need a build to see your change.
 
@@ -84,7 +103,7 @@ npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
 ## Verification
 - At the end of `npm test`, Rust prints `test result: ok` and Node prints `fail 0`.
 - At the end of `npm run test:e2e`, `PASS: tauri e2e` is printed.
-- The app opens, and with no pets the yard asks "Who would you like to play with?" over the first three starter pets.
+- The app opens, and with no pets the yard asks "Who would you like to play with?" over all four starter pets.
 - `.dev-data/state.json` is created, and the friend you invited is in it.
 
 ## Troubleshooting

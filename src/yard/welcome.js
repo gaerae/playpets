@@ -16,10 +16,10 @@ export function onboardingSteps(pets, agents, dismissed) {
   };
   return { done, hidden: done.invite && (done.ai || dismissed) };
 }
-// The starter pets that come with the app, or else the first pet files found; three at most.
+// Keep the whole official cast in the first choice; imported files fill in only without built-ins.
 function starters() {
   const builtin = data.assets.filter(a => a.place === 'builtin');
-  return (builtin.length ? builtin : data.assets).slice(0, 3);
+  return builtin.length ? builtin : data.assets.slice(0, 4);
 }
 function pick(asset) {
   const button = document.createElement('button');

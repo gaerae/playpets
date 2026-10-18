@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="styles/tools.css">
     <link rel="stylesheet" href="styles/welcome.css">
     <link rel="stylesheet" href="styles/play.css">
-    <link rel="stylesheet" href="styles/mini.css">
+    <link rel="stylesheet" href="styles/compact.css">
     <link rel="stylesheet" href="styles/panel.css">
     <link rel="stylesheet" href="styles/invite.css">
     <link rel="stylesheet" href="styles/friend.css">
@@ -25,32 +25,40 @@
   </head>
   <body>
     <div class="app-shell">
-      <header class="topbar"><div class="win-controls" role="group" data-i18n-aria-label="win.group">
-            <button id="win-min" data-i18n-aria-label="win.min" data-i18n-title="win.min"><span data-icon="minus"></span></button><button id="win-max" data-i18n-aria-label="win.max" data-i18n-title="win.max"><span data-icon="square"></span></button><button id="win-close" class="close" data-i18n-aria-label="common.close" data-i18n-title="win.close_title"><span data-icon="close"></span></button>
-          </div></header>
+      <div id="window-drag" class="window-drag" aria-hidden="true" data-i18n-title="win.drag"></div>
+      <div class="window-resize" data-resize="North" aria-hidden="true"></div>
+      <div class="window-resize" data-resize="NorthEast" aria-hidden="true"></div>
+      <div class="window-resize" data-resize="East" aria-hidden="true"></div>
+      <div class="window-resize" data-resize="SouthEast" aria-hidden="true"></div>
+      <div class="window-resize" data-resize="South" aria-hidden="true"></div>
+      <div class="window-resize" data-resize="SouthWest" aria-hidden="true"></div>
+      <div class="window-resize" data-resize="West" aria-hidden="true"></div>
+      <div class="window-resize" data-resize="NorthWest" aria-hidden="true"></div>
       <main id="layout" class="layout">
         <section class="stage">
           <div class="yard-frame">
 <div class="yard-dock"><button id="update-pill" class="button secondary update-pill" hidden><span data-icon="download"></span><span id="update-pill-label"></span></button><span class="caption-main"><button id="scene-button" type="button" class="scene-button" aria-expanded="false" aria-controls="scene-menu" data-i18n-title="scene.title"><i id="sky-dot" class="sun-dot"></i><span class="scene-copy"><strong class="sr-only" data-i18n="controls.scene"></strong><span id="scene-caption" data-i18n="caption.clear.day"></span></span><span class="scene-chevron" data-icon="chevron"></span></button><span id="pet-count" class="caption-count"></span><span id="agent-summary" class="caption-agents" aria-live="polite"></span><span id="event-chip" class="caption-event" hidden></span></span><button id="yard-controls-toggle" class="yard-controls-toggle" type="button" aria-controls="yard-controls-panel" aria-expanded="false"><span data-icon="more"></span><span data-i18n="controls.menu"></span></button></div>
               <div id="scene-menu" class="scene-menu" role="group" data-i18n-aria-label="scene.title" hidden>
-                <div class="scene-gallery-head"><strong data-i18n="controls.scene"></strong><button id="scene-close" type="button" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
-                <select id="world" hidden aria-hidden="true" tabindex="-1"></select>
+                <div class="scene-gallery-head"><button id="scene-back" type="button" class="icon-button" data-i18n-aria-label="controls.back" data-i18n-title="controls.back"><span data-icon="back"></span></button><strong data-i18n="controls.scene"></strong><button type="button" class="icon-button" data-expand-window data-i18n-title="win.fullscreen" data-i18n-aria-label="win.fullscreen"><span data-icon="expand"></span></button><button id="scene-close" type="button" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
+                <nav class="scene-tabs" role="tablist" data-i18n-aria-label="controls.scene"><button id="scene-places-tab" type="button" role="tab" aria-selected="true" aria-controls="scene-places" data-scene-page="places" data-i18n="scene.places"></button><button id="scene-atmosphere-tab" type="button" role="tab" aria-selected="false" aria-controls="scene-atmosphere" tabindex="-1" data-scene-page="atmosphere" data-i18n="scene.atmosphere"></button></nav><div id="scene-places" class="scene-page" role="tabpanel" aria-labelledby="scene-places-tab"><select id="world" hidden aria-hidden="true" tabindex="-1"></select>
                 <div id="background-gallery" class="background-gallery" role="group" data-i18n-aria-label="world.label"></div>
-                <div class="scene-climate">
+                <div class="background-actions"><button id="background-import" type="button" class="button chip" data-i18n="background.import"></button><button id="background-remove" type="button" class="button text" data-i18n="background.remove" hidden></button><button id="background-create" type="button" class="button text" data-i18n="background.create"></button><input id="background-file" type="file" accept=".json,application/json" hidden></div>
+
+                <p id="world-note" class="scene-world-note" hidden></p></div><div id="scene-atmosphere" class="scene-page" role="tabpanel" aria-labelledby="scene-atmosphere-tab" hidden>                <div class="scene-climate">
                 <label for="scene-season" data-i18n="settings.season"></label><select id="scene-season" class="weather-select" ><option value="auto" data-i18n="settings.season_auto"></option><option value="spring" data-i18n="settings.season_spring"></option><option value="summer" data-i18n="settings.season_summer"></option><option value="autumn" data-i18n="settings.season_autumn"></option><option value="winter" data-i18n="settings.season_winter"></option></select>
                 <label for="period" data-i18n="period.label"></label>
                 <select id="period" class="weather-select" data-i18n-title="period.title"><option value="auto" data-i18n="period.auto"></option><option value="morning" data-i18n="period.morning"></option><option value="day" data-i18n="period.day"></option><option value="evening" data-i18n="period.evening"></option><option value="night" data-i18n="period.night"></option></select>
                 <label for="weather" data-i18n="weather.label"></label>
                 <select id="weather" class="weather-select" data-i18n-title="weather.title"><option value="auto" data-i18n="weather.auto"></option><option value="clear" data-i18n="weather.clear"></option><option value="rain" data-i18n="weather.rain"></option><option value="snow" data-i18n="weather.snow"></option></select>
                 </div>
-                <div class="background-actions"><button id="background-import" type="button" class="button chip" data-i18n="background.import"></button><button id="background-remove" type="button" class="button text" data-i18n="background.remove" hidden></button><button id="background-create" type="button" class="button text" data-i18n="background.create"></button><input id="background-file" type="file" accept=".json,application/json" hidden></div>
-
-                <p id="world-note" class="scene-world-note" hidden></p>
+</div>
               </div>
 <div id="yard-controls-panel" class="yard-controls-panel" role="group" data-i18n-aria-label="controls.menu" hidden>
-<nav class="panel-tabs" data-i18n-aria-label="tabs.aria">
-            <button class="panel-tab" data-panel="pet" aria-controls="side-panel" aria-expanded="false"><span data-icon="chat"></span><span data-i18n="tabs.friend"></span></button><button class="panel-tab" data-panel="invite" aria-controls="side-panel" aria-expanded="false"><span data-icon="plus"></span><span data-i18n="tabs.invite"></span></button><button class="panel-tab" data-panel="settings" aria-controls="side-panel" aria-expanded="false" data-i18n-title="tabs.settings"><span data-icon="gear"></span><span data-i18n="tabs.settings"></span></button>
-          </nav>
+<div class="controls-header"><strong data-i18n="controls.menu"></strong>
+<button id="close-controls" type="button" class="icon-button" data-i18n-aria-label="panel.close" data-i18n-title="panel.close"><span data-icon="close"></span></button></div><nav class="panel-tabs" data-i18n-aria-label="tabs.aria">            <button class="panel-tab" data-panel="pet" aria-controls="side-panel" aria-expanded="false"><span data-icon="chat"></span><span data-i18n="tabs.friend"></span></button><button class="panel-tab" data-panel="invite" aria-controls="side-panel" aria-expanded="false"><span data-icon="plus"></span><span data-i18n="tabs.invite"></span></button><button id="menu-scene" type="button" class="panel-tab" data-i18n-title="controls.scene"><span data-icon="sun"></span><span data-i18n="controls.scene"></span></button><button class="panel-tab" data-panel="settings" aria-controls="side-panel" aria-expanded="false" data-i18n-title="tabs.settings"><span data-icon="gear"></span><span data-i18n="tabs.settings"></span></button>
+</nav>
+<div id="window-quick-actions" class="window-quick-actions view-controls" role="group" data-i18n-aria-label="view.group"><button id="always-on-top" type="button" class="view-button view-toggle" aria-pressed="false" data-i18n-title="win.always_on_top"><span data-icon="pin"></span><span data-i18n="win.always_on_top"></span><span class="wander-switch" aria-hidden="true"></span></button><button id="fullscreen" type="button" class="view-button" aria-pressed="false"><span data-icon="expand"></span><span id="fullscreen-label" data-i18n="win.fullscreen"></span></button></div>
+            <details id="controls-more" class="controls-more"><summary data-i18n="controls.more"></summary><div class="yard-controls-scroll">
             <div class="play-toolbar"><p class="menu-section-label" data-i18n="controls.activities"></p>
               <div class="tools">
                 <button id="feed" class="button tool" aria-pressed="false" data-i18n-title="care.treat_title"><span data-icon="treat"></span><span data-i18n="care.treat"></span></button><button id="chatter" class="button tool" data-i18n-title="care.chatter_title"><span data-icon="chat"></span><span data-i18n="care.chatter"></span></button><span class="tool-divider" aria-hidden="true"></span><button id="plant-tool" class="button tool" aria-pressed="false" data-i18n-title="garden.plant_title"><span data-icon="sprout"></span><span data-i18n="garden.plant"></span><span id="seed-count" class="tool-count"></span></button><button id="fish-tool" type="button" class="button tool" data-i18n-title="catch.action_title" hidden><span data-icon="fish"></span><span data-i18n="catch.action"></span></button><button id="album-button" class="button tool" data-i18n-title="catch.album_title"><span data-icon="book"></span><span data-i18n="catch.album"></span></button><span class="tool-divider" aria-hidden="true"></span><span class="games"><button id="games-button" class="button tool" aria-haspopup="menu" aria-expanded="false" aria-controls="games-menu"><span data-icon="spark"></span><span id="games-label" data-i18n="game.label"></span><span class="scene-chevron" data-icon="chevron"></span></button><span id="games-menu" class="games-menu" role="menu" hidden></span></span>
@@ -58,15 +66,17 @@
             </div>
 
             <div class="yard-caption"><p class="menu-section-label" data-i18n="controls.display"></p>
-              <span class="caption-end"><span class="view-controls" role="group" data-i18n-aria-label="view.group"><button id="desktop" type="button" class="view-button view-toggle" aria-pressed="false"><span data-icon="monitor"></span><span id="desktop-label" class="view-label" data-i18n="desktop.show"></span><span class="wander-switch" aria-hidden="true"></span></button><label id="wander-wrap" class="view-wander" data-i18n-title="desktop.wander_title"><span data-icon="paw"></span><span data-i18n="desktop.wander"></span><input type="checkbox" id="desktop-wander" disabled><span class="wander-switch" aria-hidden="true"></span></label><button id="mini" type="button" class="view-button" data-i18n-title="mini.enter" data-i18n-aria-label="mini.enter"><span data-icon="pip"></span><span data-i18n="mini.label"></span></button><button id="sound-button" type="button" class="view-button" aria-pressed="true" data-i18n-aria-label="sound.label"><span data-icon="sound"></span><span data-i18n="sound.label"></span></button></span></span>
+              <span class="caption-end"><span class="view-controls" role="group" data-i18n-aria-label="view.group"><button id="desktop" type="button" class="view-button view-toggle" aria-pressed="false"><span data-icon="monitor"></span><span id="desktop-label" class="view-label" data-i18n="desktop.show"></span><span class="wander-switch" aria-hidden="true"></span></button><label id="wander-wrap" class="view-wander" data-i18n-title="desktop.wander_title"><span data-icon="paw"></span><span data-i18n="desktop.wander"></span><input type="checkbox" id="desktop-wander" disabled><span class="wander-switch" aria-hidden="true"></span></label><button id="sound-button" type="button" class="view-button" aria-pressed="true" data-i18n-aria-label="sound.label"><span data-icon="sound"></span><span data-i18n="sound.label"></span></button></span></span>
 
 
             </div>
 
 
+</div></details>
+<span id="window-actions" class="window-actions"><button id="hide-window" type="button" class="view-button" data-i18n-title="win.close_hint"><span data-icon="close"></span><span data-i18n="win.close"></span></button><button id="menu-quit" type="button" class="view-button"><span data-icon="power"></span><span data-i18n="settings.quit"></span></button></span>
 </div>
 <span id="yard-hint" class="yard-hint" aria-live="polite" data-i18n="hint.pat"></span>
-            <div id="yard" class="yard" data-i18n-aria-label="yard.aria">
+            <div id="yard" class="yard" tabindex="-1" data-i18n-aria-label="yard.aria">
               <!-- the yard's drawings (src/art/), loaded as symbols at start by src/yard/art.js -->
               <svg id="art" class="scene-defs" width="0" height="0" aria-hidden="true"><defs></defs></svg>
               <div class="paint-sky" aria-hidden="true"></div>
@@ -105,17 +115,22 @@
                 <div id="garden-layer" class="garden-layer"></div>
               </div>
               <div id="label-layer" class="label-layer"></div>
-              <canvas id="weather-layer" class="weather-layer" aria-hidden="true"></canvas><button id="unmini" class="unmini" data-i18n-title="mini.exit" data-i18n-aria-label="mini.exit"><span data-icon="expand"></span></button>
+              <canvas id="weather-layer" class="weather-layer" aria-hidden="true"></canvas>
             </div>
           </div>
           <div id="toast" class="toast" role="status" hidden></div>
-          <div id="warnings" class="notice warning" hidden>
-          </div>
+          <section id="warnings" class="startup-notice" data-i18n-aria-label="notices.label" hidden>
+            <details id="warning-details">
+              <summary id="warning-toggle"><span data-icon="info"></span><span id="warning-summary" role="status" tabindex="-1"></span><span data-icon="chevron"></span></summary>
+              <div id="warning-messages" tabindex="0"></div>
+            </details>
+            <button id="dismiss-warnings" type="button" class="icon-button" data-i18n-aria-label="notices.dismiss" data-i18n-title="notices.dismiss"><span data-icon="close"></span></button>
+          </section>
         </section>
         <aside id="side-panel" class="side-panel" aria-labelledby="panel-title" hidden>
-          <div class="panel-head">
+          <div class="panel-head"><button id="panel-menu" type="button" class="icon-button" data-i18n-aria-label="controls.back" data-i18n-title="controls.back"><span data-icon="back"></span></button>
             <h2 id="panel-title" data-i18n="tabs.friend" tabindex="-1"></h2>
-            <button id="close-panel" class="icon-button" data-i18n-aria-label="panel.close" data-i18n-title="panel.close"><span data-icon="close"></span></button>
+            <button id="panel-expand" type="button" class="icon-button" data-expand-window data-i18n-title="win.fullscreen" data-i18n-aria-label="win.fullscreen"><span data-icon="expand"></span></button><button id="close-panel" class="icon-button" data-i18n-aria-label="panel.close" data-i18n-title="panel.close"><span data-icon="close"></span></button>
           </div>
           <div id="panel-pet" class="panel-body" data-title="tabs.friend">
             <div id="empty-panel" class="empty-panel">
@@ -172,14 +187,14 @@
           </div>
           <div id="panel-invite" class="panel-body" data-title="invite.title" hidden>
             <section class="shelf-section">
-              <div class="section-heading">
+              <details id="invite-filters" class="invite-filters"><summary><span id="invite-filter-label" data-i18n="invite.filter"></span></summary><div class="section-heading">
                 <p class="tiny" data-i18n="invite.lead"></p>
                 <button id="import" class="button text"><span data-icon="download"></span><span data-i18n="invite.import"></span></button>
               </div>
               <div id="kind-filter" class="kind-filter" role="group" data-i18n-aria-label="invite.kind_label"><button type="button" class="button chip" data-kind="" aria-pressed="true" data-i18n="invite.kind_all"></button><button type="button" class="button chip" data-kind="person" aria-pressed="false" data-i18n="invite.kind_person"></button><button type="button" class="button chip" data-kind="animal" aria-pressed="false" data-i18n="invite.kind_animal"></button><button type="button" class="button chip" data-kind="other" aria-pressed="false" data-i18n="invite.kind_other"></button></div>
               <label class="invite-search-label" for="invite-search" data-i18n="invite.search"></label>
               <input id="invite-search" class="invite-search" type="search" autocomplete="off" data-i18n-placeholder="invite.search_placeholder">
-              <div id="shelf" class="shelf">
+              </details><div id="shelf" class="shelf">
               </div>
               <p id="yard-full" class="notice" role="status" hidden></p>
               <p id="no-kind" class="notice" role="status" hidden><span data-i18n="invite.no_matches"></span> <button type="button" id="show-all-kinds" class="button text" data-i18n="invite.show_all"></button></p>
@@ -187,7 +202,7 @@
             </section>
           </div>
           <div id="panel-settings" class="panel-body" data-title="tabs.settings" hidden>
-            <nav class="settings-index" role="tablist" data-i18n-aria-label="tabs.settings">
+            <select id="settings-section" data-i18n-aria-label="tabs.settings"><option value="general-title" data-i18n="settings.general"></option><option value="yard-settings-title" data-i18n="settings.yard"></option><option value="agent-link-title" data-i18n="settings.agents_tab"></option><option value="about-title" data-i18n="settings.about_tab"></option></select><nav class="settings-index" role="tablist" data-i18n-aria-label="tabs.settings">
               <button id="settings-general-tab" type="button" role="tab" aria-controls="settings-general" aria-selected="true" data-section="general-title" data-i18n="settings.general"></button><button id="settings-yard-tab" type="button" role="tab" aria-controls="settings-yard" aria-selected="false" tabindex="-1" data-section="yard-settings-title" data-i18n="settings.yard"></button><button id="settings-agents-tab" type="button" role="tab" aria-controls="settings-agents" aria-selected="false" tabindex="-1" data-section="agent-link-title" data-i18n="settings.agents_tab"></button><button id="settings-about-tab" type="button" role="tab" aria-controls="settings-about" aria-selected="false" tabindex="-1" data-section="about-title" data-i18n="settings.about_tab"></button>
             </nav>
             <div id="settings-content" class="settings-content">

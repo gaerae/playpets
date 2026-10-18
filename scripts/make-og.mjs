@@ -4,7 +4,7 @@
 // Needs Google Chrome or Playwright's Chromium (browser-lib.mjs drives it headless).
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { castMarkup, loadEnvironment, loadSheets } from './art-lib.mjs';
+import { castMarkup, fittedCastHeight, loadEnvironment, loadSheets } from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 
 const sheets = await loadSheets();
@@ -29,7 +29,7 @@ const page = ({ width, height, title, sub, url, scale }) => `<!doctype html><met
   <img class="environment" src="${environment}" alt="">
   <div class="text"><p class="eyebrow">OPEN SOURCE · macOS · WINDOWS · LINUX</p><h1>${title}</h1><p>${sub}</p></div>
   <div class="pets">
-    ${castMarkup(sheets, 156 * scale)}
+    ${castMarkup(sheets, fittedCastHeight(560 * scale, 156 * scale, 6 * scale))}
   </div>
   <div class="url"><i></i>${url}</div>
 </div>`;
@@ -55,7 +55,7 @@ try {
   };
   const english = {
     title: 'A little world<b>beside your work</b>',
-    sub: 'Meet Daisy, Clover and Pip. Find your favorite place, enjoy the seasons, and bring your own pets. Connect an AI when you want to talk.',
+    sub: 'Meet Daisy, Clover, Pip and Miso. Find your favorite place, enjoy the seasons, and bring your own pets. Connect an AI when you want to talk.',
     url: address(''),
   };
   await render('website/public/og.png', { width: 1200, height: 630, ...english, scale: 1 });
@@ -63,7 +63,7 @@ try {
     width: 1200,
     height: 630,
     title: '책상 위에 펼쳐지는<b>친구들의 작은 세계</b>',
-    sub: '데이지, 클로버, 핍과 좋아하는 풍경에서 계절을 즐겨요. 내 펫도 데려오고, 이야기하고 싶을 때 AI를 연결해요.',
+    sub: '데이지, 클로버, 핍, 미소와 좋아하는 풍경에서 계절을 즐겨요. 내 펫도 데려오고, 이야기하고 싶을 때 AI를 연결해요.',
     url: address('ko/'),
     scale: 1,
   });
@@ -71,7 +71,7 @@ try {
     width: 1200,
     height: 630,
     title: 'デスクトップに広がる<b>友だちの小さな世界</b>',
-    sub: 'デイジー、クローバー、ピップと好きな場所で季節を楽しみましょう。自分のペットも招待でき、話したいときはAIをつなげます。',
+    sub: 'デイジー、クローバー、ピップ、ミソと好きな場所で季節を楽しみましょう。自分のペットも招待でき、話したいときはAIをつなげます。',
     url: address('ja/'),
     scale: 1,
   });
@@ -79,7 +79,7 @@ try {
     width: 1200,
     height: 630,
     title: '桌面上的<b>伙伴小世界</b>',
-    sub: '和黛西、三叶草、皮普在喜欢的风景里享受四季。也能带来自己的宠物，想聊天时再连接 AI。',
+    sub: '和黛西、三叶草、皮普、米索在喜欢的风景里享受四季。也能带来自己的宠物，想聊天时再连接 AI。',
     url: address('zh-hans/'),
     scale: 1,
   });

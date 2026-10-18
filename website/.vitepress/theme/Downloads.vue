@@ -97,7 +97,7 @@ onBeforeUnmount(() => {
       <div class="dl-row">
         <a class="dl-primary" :href="releases">
           <span>{{ words.download }}</span>
-          <small>{{ lookup === 'pending' || lookup === 'missing' ? words.preparing : 'GitHub' }}</small>
+          <small>{{ lookup === 'pending' ? words.checkingRelease : lookup === 'missing' ? words.preparing : 'GitHub' }}</small>
         </a>
         <slot />
       </div>

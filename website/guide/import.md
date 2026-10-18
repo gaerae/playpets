@@ -45,6 +45,8 @@ If the address is wrong or the site does not respond, the reason is shown in the
 
 A folder picked with **Import from a folder on this computer** is not copied; the app reads it where it is. That is why it shows in the Invite tab under **Pets picked from this computer**, along with the folder name.
 
+For a ZIP received from the creator kit, extract it into a permanent location before choosing the folder. Keep that folder at the same path; do not move or delete it while using the pet. The selected folder is not copied into app storage.
+
 ::: warning Move the folder and the friend waits
 A friend recognises its pet by the pet folder's path. If you move or delete the folder you picked (or unplug the drive it is on), that pet's friend cannot come into the yard the next time you open the app. It is not removed: it waits, with its closeness kept, and a notice says how many friends are waiting. Put the folder back in the same place and the friend comes back.
 :::

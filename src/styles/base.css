@@ -337,11 +337,6 @@ select:focus {
     /* biome-ignore-end lint/complexity/noImportantStyles: reduced motion overrides every animation. */
   }
 }
-@media (max-width: 760px) {
-  #warnings {
-    order: 5;
-  }
-}
 .button.chip:hover {
   background: var(--soft);
 }

@@ -2,7 +2,7 @@
 
 PlayPets is a shared yard for companions who talk to you and each other. Invite a starter or import a compatible community pet file, then choose a name, personality and relationship. Codex itself is not required.
 
-The yard follows the time of day, weather and seasons. Friends stroll, eat treats, play three games, find seeds and bring gifts. Grow flowers, fish and catch bugs for the album, and grow closer over time. Mini mode keeps the yard beside your work; desktop mode lets friends roam over other windows. Conversation needs a local model, a signed-in CLI or another AI connection. Coding-agent hooks are optional.
+Your first yard opens on a sunny spring day. Choose a season, time and weather, or switch them to Auto. Friends stroll, eat treats, play three games, find seeds and bring gifts. Grow flowers, fish and catch bugs for the album, and grow closer over time. Resize the window to keep the yard beside your work; desktop mode lets friends roam over other windows. Conversation needs a local model, a signed-in CLI or another AI connection. Coding-agent hooks are optional.
 
 ## What you need
 
@@ -27,7 +27,7 @@ The app is built with Tauri and uses the operating system's webview rather than 
 3. [Talking with friends](./chat.md) — kinds of AI connections, setting a personality, chatting with several friends at once
 4. [Coding agents](./agents.md) — letting your friend see what the agent is doing
 5. [Desktop mode](./desktop.md) — sending friends out onto the desktop
-6. [The yard and games](./play.md) — time of day, weather and seasons, the garden and gifts, fishing and bugs, the album, closeness, events, sounds, three games, mini mode
+6. [The yard and games](./play.md) — time of day, weather and seasons, the garden and gifts, fishing and bugs, the album, closeness, events, sounds, three games, resizing the window
 7. [Importing pets](./import.md) — community pets and pet folders on your computer
 8. [Settings](./settings.md) — language, updates, quitting, what is saved and what is not
 9. [FAQ](./faq.md)

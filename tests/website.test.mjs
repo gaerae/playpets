@@ -19,6 +19,7 @@ test('release pages never render installer or tag links before GitHub confirms p
     files: { 'macos-universal.dmg': 'macOS' },
     releases: 'Releases',
     preparing: 'Preparing',
+    checkingRelease: 'Checking release',
     unreleased: 'Not released yet',
   };
   const modules = {};
@@ -55,6 +56,10 @@ test('release pages never render installer or tag links before GitHub confirms p
       assert.match(html, /href="https:\/\/github.com\/gaerae\/playpets\/releases"/);
     }
   }
+  const pendingDownload = await render('Downloads', {});
+  assert.match(pendingDownload, /Checking release/);
+  assert.doesNotMatch(pendingDownload, /Preparing|Not released yet/);
+  assert.match(pendingDownload, /aria-busy="true"/);
   const datedMeta = await render('ReleaseMeta', { version: '0.1.0', date: '2026-10-13' });
   assert.doesNotMatch(datedMeta, /<time/);
   assert.match(datedMeta, /Preparing/);
@@ -109,7 +114,7 @@ test('web links and anchors are left alone', () => {
 
 test('each sample pet is a valid v2 sheet with its pet.json', async () => {
   const { readFile: read } = await import('node:fs/promises');
-  for (const id of ['daisy', 'clover', 'pip']) {
+  for (const id of ['daisy', 'clover', 'pip', 'miso']) {
     const png = await read(`assets/pets/${id}/spritesheet.png`);
     assert.equal(png.readUInt32BE(16), 1536, id);
     assert.equal(png.readUInt32BE(20), 2288, id);

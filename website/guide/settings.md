@@ -6,11 +6,11 @@ description: General settings, About and app updates, menus and shortcuts, quitt
 
 Open **Menu → Settings**, use <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>,</kbd>, or choose **Settings…** in the tray. Settings opens over the yard; click outside it or press <kbd>Esc</kbd> to close it. Its four groups are **General** (language and launch at login), **The yard** (season, automatic chatter and sound), **Coding agent hooks**, and **About PlayPets** (the logo, version, updates and project links). [Coding agent hooks](./agents.md) have their own guide.
 
-The title and section menu stay visible while only the selected section scrolls. Select another group to change its contents; the app remembers the last group while you reopen Settings. Quit is in **About PlayPets**.
+The title and section menu stay visible while only the selected section scrolls. Select another group to change its contents; the app remembers the last group while you reopen Settings. You can quit from **Menu → Quit the app** or from **About PlayPets**.
 
 ## Season
 
-Open **Settings → Yard → Season** to choose Auto, Spring, Summer, Autumn or Winter. Auto follows the local calendar. Your choice is saved and changes the scenery and seasonal companion outfits in normal and mini mode. Desktop companions also follow it; synchronization can take up to a minute. Spring and autumn use the layered everyday outfits. Festivals still follow their real dates.
+Open **Settings → Yard → Season** to choose Auto, Spring, Summer, Autumn or Winter. Auto follows the local calendar. Your choice is saved and changes the scenery and seasonal companion outfits in the yard at every size. Desktop companions also follow it; synchronization can take up to a minute. Spring and autumn use the layered everyday outfits. Festivals still follow their real dates.
 
 ## Language <Since v="0.1.0" />
 
@@ -33,7 +33,7 @@ With this switch, in The yard, turned on, the friends with an AI have a short ch
 The yard has its own sounds: a breeze, small waves on the lake, gusts through the leaves, birds by day (most in the morning), crickets on summer and autumn nights, and rain when it rains. Friends make small sounds too: a soft note when you pat one, a drop when a fish bites, a splash when it is landed, a little tune for a gift or a new closeness level. They change with the time of day, the weather and the season.
 
 - They are on by default, at a low volume, and start after your first click in the window.
-- They play only while the yard can be seen. When the window is hidden or minimized, or only the desktop friends are out, the yard is silent. Mini mode keeps them.
+- They play only while the yard can be seen. When the window is hidden or minimized, or only the desktop friends are out, the yard is silent. They also play in a small visible window.
 - To turn them off or on, use the speaker in **Menu**, the tray’s **Yard Sounds** switch, this switch, **View** → **Yard Sounds** in the macOS menu bar, or <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>S</kbd>. The **Volume** slider under the switch sets how loud they are.
 
 ## About PlayPets <Since v="0.1.0" />
@@ -54,14 +54,14 @@ If it could not check, look at your network. See [Install](./install.md#updates)
 
 ## Quit the app <Since v="0.1.0" />
 
-The yard window's close button only hides the window; the app stays in the tray. Friends on the desktop and the agent hooks keep running.
+Choose **Menu → Close window** to hide the window while keeping the app in the tray. Desktop friends and agent hooks keep running. **Close window** and **Quit the app** are also at the bottom of the menu opened by right-clicking empty scenery.
 
-To really quit, click **Quit the app** in **Menu → Settings → About PlayPets**. A "Quit PlayPets?" confirmation appears. Conversations are not saved, and friends on the desktop go too. **Quit** in the tray menu does the same.
+To really quit, choose **Menu → Quit the app**, or click **Quit the app** in **Menu → Settings → About PlayPets**. A "Quit PlayPets?" confirmation appears. Conversations are not saved, and friends on the desktop go too. **Quit** in the tray menu does the same.
 
 ## Menus and shortcuts <Since v="0.1.0" />
 
-- **Tray menu** (the cat in the menu bar or taskbar): **Open the yard**, **Friends** (when friends are present) and **Invite a Friend…**; display switches for **Mini mode**, **Show on the desktop** and, while desktop mode is on, **Stroll around the desktop**; then **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets** and **Quit**. The display switches are omitted when there are no friends; Invite and Sound remain available. Sound shows a check mark when on. An available update changes the update label to **Update to v…**. On Windows, left-click opens the yard and right-click opens the menu. A small blue or red mark signals an agent waiting for you or reporting trouble; the tooltip names its friend.
-- **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **View** → **Friends**, **Invite a Friend…**, and **Mini mode** and **Show on the desktop** with a check mark (greyed until a friend is in), and **Yard Sounds** with a check mark; **Window**.
+- **Tray menu** (the cat in the menu bar or taskbar): **Open the yard**, **Friends** (when friends are present) and **Invite a Friend…**; display switches for **Always on top**, **Show on the desktop** and, while desktop mode is on, **Stroll around the desktop**; then **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets** and **Quit**. Always on top remains available without friends; desktop switches appear once a friend is present. Sound shows a check mark when on. An available update changes the update label to **Update to v…**. On Windows, left-click opens the yard and right-click opens the menu. A small blue or red mark signals an agent waiting for you or reporting trouble; the tooltip names its friend.
+- **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **View** → **Open menu**, **Friends**, **Invite a Friend…**, and **Always on top** and **Show on the desktop** with a check mark (the desktop switch is greyed until a friend is in), and **Yard Sounds** with a check mark; **Window**.
 - **Shortcuts** (<kbd>⌘</kbd> on macOS, <kbd>Ctrl</kbd> on Windows and Linux):
 
 | Keys | Does |
@@ -69,7 +69,8 @@ To really quit, click **Quit the app** in **Menu → Settings → About PlayPets
 | <kbd>⌘</kbd> <kbd>1</kbd> | Open the Friend tab |
 | <kbd>⌘</kbd> <kbd>2</kbd> | Open the Invite tab |
 | <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings |
-| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Mini mode on or off |
+| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | Open menu |
+| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Always on top on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>D</kbd> | Show on the desktop, on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>S</kbd> | Yard sounds on or off |
 | <kbd>⌘</kbd> <kbd>Q</kbd> | Quit (macOS) |
@@ -84,10 +85,12 @@ To really quit, click **Quit the app** in **Menu → Settings → About PlayPets
 
 | File | Contents |
 |---|---|
-| `state.json` | Friends (name, personality and where it came from, relationship, what it calls you, size, position, chosen AI connection), the list of AI connections (without keys), language, desktop mode and roaming, each agent's friend, auto chatter, yard sounds and their volume, the mini window's place and size (`miniRect`), the garden and decorations (`garden`), the album (`album`), closeness (`bonds`), hand-picked pet folders, the file's format number (`schema`). A file written by a newer version is copied aside and read for the parts this version knows |
+| `state.json` | Friends (name, personality and where it came from, relationship, what it calls you, size, position, chosen AI connection), the list of AI connections (without keys), language, desktop mode and roaming, each agent's friend, auto chatter, yard sounds and their volume, the window's position and size and Always on top setting, the garden and decorations (`garden`), the album (`album`), closeness (`bonds`), hand-picked pet folders, the file's format number (`schema`). A file written by a newer version is copied aside and read for the parts this version knows |
 | `bridge.json` | The port and token for agent hooks. Rewritten every time the app starts |
 | `pets/` | Pet folders imported from an address |
-| `builtin/` | Three bundled starter entries, unpacked and checked at each start. Each has its own baseline artwork |
+| `builtin/` | Four bundled starter entries, unpacked and checked at each start. Each has its own baseline artwork |
+
+If a friend cannot load when the app opens, a collapsed **Startup notices** card floats at the top of the yard without reducing its space. Open it to read the details. For missing pet files, check the original pet folder and its files, restore them if needed, then quit and open PlayPets again. If the yard has reached its 12-friend limit, free a slot before opening the app again. These notices do not delete the saved friend records. Dismissing the card hides it for this session; new notices make it appear again.
 
 ## Environment variables
 
@@ -109,7 +112,7 @@ The variables must be set in the environment the app runs in. Start the app from
 - Each friend's closeness
 - The garden, the decorations in the yard and the album
 - The kind, server address and model name of each AI connection
-- Language, desktop mode and strolling, mini mode and the mini window's place and size, the chosen time of day, weather and season
+- Language, desktop mode and strolling, the window position, size and Always on top setting, the chosen time of day, weather and season
 - Imported pet files and where they came from
 
 **Saved differently**

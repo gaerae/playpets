@@ -2,37 +2,16 @@
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { copyCreatorKit } from './creator-kit.mjs';
+import { copyCreatorSkill } from './creator-skill.mjs';
 import { LANDING_PETS } from './site-content.mjs';
 import { destinationFor, rewriteDocLinks } from './site-lib.mjs';
-import { PREVIEW_STATES, validatePreview } from './site-preview-lib.mjs';
+import { collectPreviewExports } from './site-preview-export.mjs';
 
 const pkg = JSON.parse(await readFile('package.json', 'utf8'));
 const slug = pkg.repository.replace(/^github:/, '');
 const repo = `https://github.com/${slug}/blob/main`;
 // What the site's components need to know about this checkout: the version and the repository.
-const petPreviews = {};
-const previewCopies = [];
-for (const pet of LANDING_PETS) {
-  for (const state of PREVIEW_STATES) {
-    const source = `assets/pets/${pet.id}/preview/${state}.png`;
-    let bytes;
-    try {
-      bytes = await readFile(source);
-    } catch (error) {
-      if (error.code === 'ENOENT') continue;
-      throw error;
-    }
-    validatePreview(bytes);
-    petPreviews[pet.id] ??= [];
-    petPreviews[pet.id].push(state);
-    previewCopies.push({ source, id: pet.id, state });
-  }
-}
-await writeFile(
-  'website/.vitepress/generated.json',
-  `${JSON.stringify({ version: pkg.version, slug, petPreviews }, null, 2)}\n`,
-);
-
+const { petPreviews, petSeasonalPreviews, copies: previewCopies } = await collectPreviewExports(LANDING_PETS);
 await rm('website/dev', { recursive: true, force: true });
 for (const entry of await readdir('docs', { recursive: true, withFileTypes: true })) {
   if (!entry.isFile()) continue;
@@ -59,9 +38,15 @@ await rm('website/public/pets', { recursive: true, force: true });
 await mkdir('website/public/pets', { recursive: true });
 for (const pet of LANDING_PETS) await cp(pet.source, `website/public/pets/${pet.id}.png`);
 
-for (const { source, id, state } of previewCopies) {
-  await mkdir(`website/public/pets/previews/${id}`, { recursive: true });
-  await cp(source, `website/public/pets/previews/${id}/${state}.png`);
+for (const { source, destination } of previewCopies) {
+  await mkdir(path.dirname(destination), { recursive: true });
+  await cp(source, destination);
 }
 
 await copyCreatorKit();
+
+const creatorSkillRevision = await copyCreatorSkill();
+await writeFile(
+  'website/.vitepress/generated.json',
+  `${JSON.stringify({ version: pkg.version, slug, petPreviews, petSeasonalPreviews, creatorSkillRevision }, null, 2)}\n`,
+);

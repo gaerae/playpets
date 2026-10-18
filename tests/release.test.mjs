@@ -113,3 +113,16 @@ test('a release page written ahead of time gets the release date, once', async (
   assert.equal(dated, '---\nversion: 0.2.0\ndate: 2026-11-01\nheadline: "Hi"\n---\n\n# 0.2.0\n');
   assert.equal(setPageDate(dated, '2026-11-02'), dated.replace('2026-11-01', '2026-11-02'));
 });
+
+// Published updates use native EXE, deb and AppImage files; macOS tar support is unconditional.
+// Legacy ZIP extraction is unnecessary and pulls in vulnerable archive handling on Windows.
+test('updates keep TLS and system proxies without legacy ZIP extraction', async () => {
+  const manifest = await readFile('src-tauri/Cargo.toml', 'utf8');
+  const updater = manifest.match(/^tauri-plugin-updater\s*=\s*(.+)$/m)?.[1] ?? '';
+  assert.match(updater, /default-features\s*=\s*false/);
+  const features = JSON.parse(updater.match(/features\s*=\s*(\[[^\]]*\])/)?.[1] ?? '[]');
+  assert.ok(features.includes('rustls-tls'));
+  assert.ok(features.includes('system-proxy'));
+  assert.ok(!features.includes('zip'));
+  assert.doesNotMatch(await readFile('src-tauri/Cargo.lock', 'utf8'), /name = "zip"\nversion = "[0-8]\./);
+});

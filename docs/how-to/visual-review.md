@@ -13,8 +13,8 @@ The gallery covers these fixture groups; its generated index reports the exact c
 - 48 season, time and weather combinations;
 - five seasonal events;
 - four collection books with discovered specimens in both system appearances;
-- 24 studio combinations (four times of day, three weathers, light and dark appearance), plus two studio mini sizes, a wide strip and a portrait window;
-- four window sizes, including the narrow mini window and a wide strip;
+- 24 studio combinations (four times of day, three weathers, light and dark appearance), plus two studio small window sizes, a wide strip and a portrait window;
+- four window sizes, including the narrow window and a wide strip;
 - game instructions, wrong guesses, discovery, tag transfer, formation, active laps and completion;
 - reduced-motion game states, a pet reaction and evening rain.
 
