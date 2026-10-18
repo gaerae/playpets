@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { probeMsix } from './msix-scenario.mjs';
@@ -91,4 +92,45 @@ test('MSIX probe rejects an unpackaged updater response and an unrelated install
   f.api.checkUpdate = async () => ({ ok: true, data: { channel: 'store' } });
   f.api.installUpdate = async () => ({ ok: false, error: 'Network unavailable' });
   await assert.rejects(probeMsix(f), /installer/);
+});
+
+test('the packaged probe reads logs while the child still owns its writer', () => {
+  const script = readFileSync('packaging/windows/msix/ci.ps1', 'utf8');
+  assert.match(script, /function Read-SharedLog/);
+  assert.match(script, /\[IO\.FileShare\]::ReadWrite/);
+  assert.doesNotMatch(script, /ReadAllText\(STDOUT\)/);
+});
+
+test('the shared log reader works with a live Windows writer', { skip: process.platform !== 'win32' }, () => {
+  const script = readFileSync('packaging/windows/msix/ci.ps1', 'utf8');
+  const helper = script.match(/^function Read-SharedLog[\s\S]*?^}/m)?.[0];
+  assert.ok(helper);
+  const result = spawnSync(
+    'powershell.exe',
+    [
+      '-NoProfile',
+      '-Command',
+      `
+$ErrorActionPreference = 'Stop'
+${helper}
+$file = Join-Path ([IO.Path]::GetTempPath()) ('playpets-shared-' + [guid]::NewGuid())
+$writer = $null
+try {
+    if ((Read-SharedLog $file) -ne '') { throw 'A missing log must be empty' }
+    $writer = [IO.File]::Open($file, [IO.FileMode]::Create, [IO.FileAccess]::Write, [IO.FileShare]::Read)
+    $bytes = [Text.Encoding]::UTF8.GetBytes('probe output')
+    $writer.Write($bytes, 0, $bytes.Length)
+    $writer.Flush()
+    if ((Read-SharedLog $file) -ne 'probe output') { throw 'The live log was not read' }
+    Write-Output 'SHARED_LOG_VERIFIED'
+} finally {
+    if ($writer) { $writer.Dispose() }
+    Remove-Item -LiteralPath $file -ErrorAction SilentlyContinue
+}
+`,
+    ],
+    { encoding: 'utf8', timeout: 20000 },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /SHARED_LOG_VERIFIED/);
 });

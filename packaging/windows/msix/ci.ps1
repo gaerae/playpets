@@ -71,6 +71,14 @@ function Probe([string]$Phase) {
     # Use the installed app's normal data path so package upgrades exercise its real storage.
     $q = { param($value) "'" + $value.Replace("'", "''") + "'" }
     $body = @'
+function Read-SharedLog([string]$Path) {
+    if (!(Test-Path -LiteralPath $Path)) { return '' }
+    # Redirected output stays open for writing until the probe exits.
+    $stream = [IO.File]::Open($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite)
+    $reader = [IO.StreamReader]::new($stream)
+    try { return $reader.ReadToEnd() }
+    finally { $reader.Dispose() }
+}
 $ErrorActionPreference = 'Stop'
 Remove-Item Env:PLAYPETS_DATA -ErrorAction SilentlyContinue
 $env:CODEX_HOME = CODEX
@@ -83,7 +91,7 @@ try {
     $end = (Get-Date).AddSeconds(90)
     do {
         Start-Sleep -Milliseconds 250
-        $text = if (Test-Path STDOUT) { [IO.File]::ReadAllText(STDOUT) } else { '' }
+        $text = Read-SharedLog STDOUT
         if ($text -match '\[e2e\] MSIX_RESULT (\{[^\r\n]+\})') {
             $resultText = $Matches[1]; break
         }
