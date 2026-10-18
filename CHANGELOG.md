@@ -7,6 +7,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-18
+
 ### Security
 
 - Add independent source, secret and dependency security checks, require reviewed CI before normal merges, and protect published release files and version tags.
