@@ -118,7 +118,7 @@ test('workflow actions stay pinned and do not run untrusted pull requests with p
     const workflow = read(`.github/workflows/${file}`);
     assert.doesNotMatch(workflow, /^\s*pull_request_target:/m, file);
     for (const match of workflow.matchAll(/^\s*- (?:id:.*\n\s+)?uses: (.+)$/gm))
-      assert.match(match[1], /^[\w-]+\/[\w-]+@[a-f0-9]{40} # /, file);
+      assert.match(match[1], /^[\w-]+\/[\w-]+(?:\/[\w-]+)*@[a-f0-9]{40} # /, file);
     assert.match(workflow, /permissions:\n {2}contents: read/, file);
   }
 });
@@ -349,4 +349,28 @@ test('the CI e2e builds and runs what npm run test:e2e does', () => {
   ];
   assert.equal(binaries.length, 2);
   assert.doesNotMatch(workflow, /npm run test:e2e/);
+});
+
+test('security CI checks the full redacted history and shares the local dependency command', () => {
+  const workflow = read('.github/workflows/security.yml');
+  const scripts = JSON.parse(read('package.json')).scripts;
+  assert.match(workflow, /fetch-depth: 0/);
+  assert.match(workflow, /GITLEAKS_VERSION: 8\.30\.1/);
+  assert.match(workflow, /GITLEAKS_SHA256: [a-f0-9]{64}/);
+  assert.match(workflow, /sha256sum -c -/);
+  assert.match(workflow, /cargo-audit@0\.22\.2/);
+  assert.match(workflow, /npm run security:check/);
+  assert.match(scripts['security:check'], /gitleaks git --redact/);
+  assert.match(scripts['security:check'], /npm audit --audit-level=high/);
+  assert.match(scripts['security:check'], /cargo audit --file src-tauri\/Cargo\.lock/);
+  assert.doesNotMatch(workflow, /secrets\.|security-events: write|contents: write|continue-on-error/);
+});
+
+test('CodeQL covers app, workflow and creator sources without exposing signing secrets', () => {
+  const workflow = read('.github/workflows/codeql.yml');
+  assert.match(workflow, /language: \[actions, javascript-typescript, python, rust\]/);
+  assert.match(workflow, /build-mode: none/);
+  assert.match(workflow, /security-events: write/);
+  assert.match(workflow, /category: \/language:\$\{\{ matrix.language \}\}/);
+  assert.doesNotMatch(workflow, /secrets\.|contents: write|pull_request_target/);
 });

@@ -77,3 +77,19 @@ Before publishing Linux packages, follow the
 The maintainer reviews and explicitly accepts the remaining risk or leaves Linux
 packages out of the release. Building packages, merging a PR and deploying the
 website are separate from that publication decision.
+
+## Automated security checks
+
+The `security` workflow runs `npm run security:check` on pull requests, main and
+weekly: Gitleaks scans the complete checked-out history with redacted findings,
+npm audits all locked dependencies (including website tooling) and cargo-audit
+checks the Rust lockfile against current RustSec data. Local maintainers can run
+the same command with Gitleaks 8.30.1 and cargo-audit 0.22.2 installed. CI verifies
+the Gitleaks archive checksum and pins the audit tool version. No source paths or
+known advisories are broadly excluded to make the checks pass.
+
+The separate `codeql` workflow analyzes Actions, JavaScript, Python creator tools
+and Rust sources. It does not build signed packages or receive signing secrets.
+Only its analysis job can upload security events. These checks complement the
+native installation, updater and dependency reviews; they do not establish that
+all dependency paths or desktop behaviors are safe.
