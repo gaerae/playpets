@@ -58,3 +58,32 @@ test('fishing action works in mini without a water click, guards tasks and follo
     views.clear();
   }
 });
+
+test('the fishing tool sends the chosen friend rather than a nearer unselected friend', async context => {
+  context.mock.timers.enable({ apis: ['setTimeout'] });
+  const { setSelected } = await import('../src/core/state.js');
+  context.after(() => {
+    endFishing();
+    views.clear();
+    setSelected(null);
+  });
+  installStorage(context);
+  const { nodes } = installDom(context, {
+    ids: ['yard', 'fish-tool', 'world', 'yard-hint', 'agent-summary', 'toast'],
+    props: { rect: { width: 480, height: 320 } },
+  });
+  nodes.get('yard').dataset.environment = 'illustrated';
+  measureYard();
+  const chosen = { pet: { id: 'chosen', size: 112 }, px: 0, py: 0, bubble: element(), button: element() };
+  const nearer = { pet: { id: 'nearer', size: 112 }, px: 340, py: 180, bubble: element(), button: element() };
+  views.clear();
+  views.set('chosen', chosen);
+  views.set('nearer', nearer);
+  setData({ pets: [chosen.pet, nearer.pet], assets: [], statuses: {} });
+  setSelected('chosen');
+  scene.world = 'woodland';
+  setupCatch();
+  await nodes.get('fish-tool').dispatch('click');
+  assert.equal(typeof chosen.trip?.arrive, 'function');
+  assert.equal(nearer.trip, undefined);
+});

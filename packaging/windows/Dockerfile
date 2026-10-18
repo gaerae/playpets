@@ -3,7 +3,7 @@
 # trixie: NSIS 3.10 ships Win\RestartManager.nsh, which the Tauri installer template needs.
 # (appindicator is only there because the Tauri CLI probes the host for it even for Windows targets.)
 # From the repo root: npm run dist:windows. scripts/local.mjs mounts sources read-only,
-# preserves the build cache and forwards MSIX_PUBLISHER when set on the host.
+# preserves the build cache and forwards all three MSIX identity fields when set on the host.
 # Node.js comes from the official image, so the build uses the same Node major as .node-version. A
 # stage of its own, so Dependabot sees the tag (it reads FROM lines).
 FROM node:26-trixie-slim AS node

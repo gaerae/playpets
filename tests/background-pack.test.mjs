@@ -146,3 +146,33 @@ test('layout validation works before artwork exists and identifies the invalid r
   );
   assert.equal(validateBackgroundGeometry({ floor: 0.7 }).floor, 0.7);
 });
+
+test('soil capability survives package validation, import conversion and ground snapshots', async () => {
+  const { buildGroundProfile } = await import('../src/yard/ground.js');
+  for (const [change, expected] of [
+    [{}, true],
+    [{ sky: false }, false],
+    [{ capabilities: { soil: false } }, false],
+    [{ sky: false, capabilities: { soil: true } }, true],
+  ]) {
+    const saved = JSON.parse(JSON.stringify(validateBackgroundPack({ ...pack(), ...change })));
+    assert.equal(saved.capabilities.soil, expected);
+    const imported = backgroundWorld(validateBackgroundPack(saved), 'custom-soil');
+    assert.equal(imported.capabilities.soil, expected);
+    const ground = buildGroundProfile({ world: imported, bounds: { width: 1000, height: 700, top: 450, bottom: 624 } });
+    assert.equal(ground.soil, expected);
+  }
+  for (const capabilities of [null, [], true, { soil: 'false' }, { soil: 0 }, { soil: null }]) {
+    assert.throws(() => validateBackgroundPack({ ...pack(), capabilities }));
+  }
+});
+
+test('background starter layouts declare soil separately from sky rendering', async () => {
+  const { backgroundLayout, backgroundPrompt } = await import('../scripts/background-specs.mjs');
+  for (const id of ['garden', 'lakeside']) assert.equal(backgroundLayout(id).capabilities.soil, true);
+  assert.equal(backgroundLayout('interior').capabilities.soil, false);
+  assert.match(backgroundPrompt({ capabilities: { soil: false } }), /paved|digging|soil/i);
+  const paintedOutdoor = backgroundPrompt({ indoor: true, sky: false, capabilities: { soil: true } });
+  assert.doesNotMatch(paintedOutdoor, /Indoor scene/);
+  assert.match(paintedOutdoor, /painted sky/);
+});

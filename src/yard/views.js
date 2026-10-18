@@ -32,7 +32,7 @@ const agentState = p => agentStateOf(data, p.id);
 
 // What a press on a friend means is decided above the yard (by a game, or the panel);
 // setupViews hands it in, so the yard needs nothing from those modules.
-let on = { gameTap() {}, select() {}, openChat() {}, patted() {}, resized() {} };
+let on = { gameTap() {}, select() {}, openChat() {}, openActions: null, patted() {}, resized() {} };
 // A little burst above the friend: hearts for a pat, sparkles for a treat, one mark for a game.
 // Each piece drifts its own way (--dx, --rot) and starts a beat after the last.
 const BURST = { '♥': 3, '✦': 3 };
@@ -146,7 +146,7 @@ function createView(p) {
     tagBond = document.createElement('span'),
     agents = document.createElement('small');
   talkMark.className = 'tag-talk';
-  talkMark.innerHTML = '<span data-icon="chat"></span>';
+  talkMark.innerHTML = '<span data-icon="spark"></span>';
   icons(talkMark);
   tagName.className = 'tag-name';
   // Hearts for how close this friend is (yard/bond.js fills them in; the Friend panel says it in words).
@@ -280,7 +280,7 @@ function createView(p) {
     if (moved) {
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {
-      on.openChat(p.id);
+      (on.openActions || on.openChat)(p.id);
     } else await pat();
   });
   both('pointerup', end);
@@ -288,10 +288,11 @@ function createView(p) {
   both('dblclick', () => {
     if (!game) on.openChat(p.id);
   });
-  // Right-click chats too, as on the desktop, so one gesture works in both places.
+  // Play stays beside the friend; conversation remains an explicit destination.
   both('contextmenu', e => {
     e.preventDefault();
-    if (!game) on.openChat(p.id);
+    on.select(p.id);
+    (on.openActions || on.openChat)(p.id);
   });
   button.addEventListener(
     'keydown',

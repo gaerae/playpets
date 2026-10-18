@@ -1,4 +1,4 @@
-import { openControls, setupControls } from './core/controls.js';
+import { openControls, openPlay, setupControls } from './core/controls.js';
 import { setupInteractions } from './core/interactions.js';
 import { setupBackgrounds } from './yard/background-ui.js';
 // Entry point: sets every part of the page up in order, listens to the backend, and runs the frame loop.
@@ -36,9 +36,11 @@ import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
 import { giftTick, renderDecor } from './yard/decor.js';
+import { cancelDiscovery, cancelDiscoveryWork, setupDiscovery, syncDiscovery } from './yard/discovery.js';
 import { gardenTick, renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { moveFriends } from './yard/motion.js';
+import { renderTrees, setupTrees } from './yard/planted-trees.js';
 import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
 import { setupSky } from './yard/sky.js';
@@ -98,8 +100,13 @@ setupConfirm();
 setupNotices();
 setupInteractions();
 setupWindow();
-setupTabs();
-setupControls();
+setupTabs({ beforeOpen: cancelDiscovery });
+setupControls({
+  beforeOpen: () => {
+    cancelDiscovery();
+    syncDiscovery();
+  },
+});
 // Keyboard: the panels and the two views, with the keys the macOS menu bar shows (core/keys.js).
 onShortcut('controls', openControls);
 onShortcut('friends', () => openPanel('pet'));
@@ -114,6 +121,7 @@ setupSky({
   // Another place: the game, the fishing and every trip end in the old one, then the friends, the
   // garden, the gifts and the hint are laid out in the new one.
   worldChanged: enter => {
+    cancelDiscovery();
     endGame();
     endFishing();
     for (const v of views.values()) {
@@ -124,16 +132,20 @@ setupSky({
     syncViews();
     renderGarden();
     renderDecor();
+    renderTrees();
+    syncDiscovery();
     hint();
   },
   // The land was drawn the other way (its picture, or the painted land when the picture could not
   // be loaded): the field may begin at another height (field.js fieldTop), so the fishing ends and
   // the friends, the garden and the gifts stand again on the land that shows.
   landChanged: () => {
+    cancelDiscoveryWork();
     endFishing();
     for (const v of views.values()) place(v);
     renderGarden();
     renderDecor();
+    renderTrees();
   },
 });
 setupBackgrounds();
@@ -145,16 +157,21 @@ setupViews({
   },
   select,
   openChat,
+  openActions: openPlay,
   resized: () => {
+    cancelDiscoveryWork();
     endFishing();
     scenery.resize();
     renderGarden();
     renderDecor();
+    renderTrees();
   },
 });
 setupPlay();
 setupCare();
 setupGarden();
+setupDiscovery();
+setupTrees();
 setupCatch();
 setupAlbum();
 setupCard();
@@ -199,6 +216,10 @@ setInterval(() => {
 }, AUTO_CHATTER_MS);
 // A finished agent's state fades after a while (core/status.js): the page looks again each minute.
 everyMinute(() => {
+  if (data.garden?.trees?.length) {
+    call('growTrees').catch(console.error);
+    renderTrees();
+  }
   if (Object.values(data.statuses).some(s => s.at)) render();
 });
 // Speech bubbles from one conversation are spaced out by this much.
@@ -284,6 +305,8 @@ function animate(now) {
   return interval(now);
 }
 try {
+  // Record growth during closed time before the first tree and album are drawn.
+  await call('growTrees').catch(error => toast(spoken(error, t('error.start'))));
   setData(await call('bootstrap'));
   follow(data.language);
   const saved = recall('panel');

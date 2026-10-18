@@ -11,6 +11,8 @@ export const FISH = [];
 export const BUGS = [];
 export const FLOWERS = [];
 export const GIFTS = [];
+export const TREES = [];
+export const TREASURES = [];
 /** A plant's stages and when each begins, in ms from planting; `art` draws it (bloom: the flower's). */
 export const STAGES = [];
 
@@ -21,6 +23,8 @@ export function useCatalog(catalog) {
   fill(BUGS, catalog.bugs);
   fill(FLOWERS, catalog.flowers);
   fill(GIFTS, catalog.gifts);
+  fill(TREES, catalog.trees);
+  fill(TREASURES, catalog.treasures);
   fill(
     STAGES,
     catalog.garden.stages.map(s => ({ ...s, at: s.minutes * 60 * 1000 })),
@@ -33,6 +37,12 @@ export function artOf(catalog, events = { events: [] }) {
     ...catalog.garden.stages,
     ...catalog.flowers,
     ...catalog.gifts,
+    ...(catalog.treasures || []),
+    ...(catalog.discoveryTools || []),
+    ...(catalog.trees || []).flatMap(tree => [
+      ...tree.stages,
+      ...Object.values(tree.seasonArt || {}).map(art => ({ art })),
+    ]),
     ...catalog.fish,
     ...catalog.bugs,
   ]
@@ -42,6 +52,8 @@ export function artOf(catalog, events = { events: [] }) {
 /** A flower or a gift by its id. */
 export const flowerKind = id => FLOWERS.find(f => f.id === id) || null;
 export const giftKind = id => GIFTS.find(g => g.id === id) || null;
+export const treeKind = id => TREES.find(tree => tree.id === id) || null;
+export const treasureKind = id => TREASURES.find(item => item.id === id) || null;
 
 /** One of the list, each as likely as its weight (`rng` gives numbers in [0, 1)). */
 export function weighted(list, weight, rng) {

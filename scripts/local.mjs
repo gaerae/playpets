@@ -19,7 +19,8 @@ export function commandPlan(mode, { root = repository, platform = process.platfo
       ],
     };
   if (!['linux', 'windows'].includes(mode)) throw new Error(`Unknown command: ${mode}`);
-  if (args.length) throw new Error('Set BUNDLES or MSIX_PUBLISHER in the environment instead of passing Docker flags.');
+  if (args.length)
+    throw new Error('Set BUNDLES or the MSIX identity variables in the environment instead of passing Docker flags.');
   const windows = mode === 'windows';
   const image = `playpets-${mode}`;
   const output = paths.join(root, 'release', mode);
@@ -33,8 +34,9 @@ export function commandPlan(mode, { root = repository, platform = process.platfo
         args: [
           'run',
           '--rm',
-          '--env',
-          windows ? 'MSIX_PUBLISHER' : 'BUNDLES',
+          ...(windows ? ['MSIX_PUBLISHER', 'MSIX_IDENTITY_NAME', 'MSIX_PUBLISHER_DISPLAY_NAME'] : ['BUNDLES']).flatMap(
+            name => ['--env', name],
+          ),
           '-v',
           `${root}:/src:ro`,
           '-v',

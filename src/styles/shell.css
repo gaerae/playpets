@@ -437,22 +437,14 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px;
+  gap: 6px;
+  padding: 8px;
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
   background: var(--menu-surface);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
   box-shadow: 0 8px 24px var(--ink-12);
-}
-.yard-controls-panel.context-open {
-  position: fixed;
-  z-index: 32;
-  right: auto;
-  bottom: auto;
-  width: min(304px, calc(100vw - 16px));
-  max-height: calc(100dvh - 16px);
 }
 .yard-controls-panel[hidden] {
   display: none;
@@ -464,7 +456,7 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
 .yard-controls-scroll {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   flex-grow: 1;
   flex-shrink: 1;
   min-height: 0;
@@ -479,8 +471,7 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--line);
+  padding-bottom: 0;
   background: transparent;
 }
 .yard-controls-panel .panel-tab {
@@ -498,7 +489,7 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   height: 16px;
 }
 .menu-section-label {
-  margin: 0 0 6px;
+  margin: 0 0 2px;
   font-size: 12px;
   font-weight: 600;
   color: var(--ink);
@@ -523,6 +514,8 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   display: flex;
   align-items: center;
   gap: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
 }
 .controls-header strong {
   flex: 1;
@@ -552,4 +545,88 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
 }
 .fullscreen [data-expand-window] {
   display: none;
+}
+
+/* Play stays beside the place selector, without mixing window preferences into activities. */
+.yard-play-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-height: 40px;
+  padding: 0 12px;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.yard-play-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+.yard-play-toggle:hover,
+.yard-play-toggle[aria-expanded="true"] {
+  background: var(--control-hover);
+}
+.menu-group + .menu-group {
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+}
+.yard-controls-panel .panel-tab > span {
+  min-width: 0;
+  line-height: 1.35;
+}
+.yard-context-menu {
+  position: fixed;
+  z-index: 40;
+  width: min(224px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--menu-surface);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: 0 8px 24px var(--ink-12);
+}
+.yard-context-menu[hidden] {
+  display: none;
+}
+.yard-context-menu > button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px;
+  text-align: left;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+}
+.yard-context-menu > button:hover,
+.yard-context-menu > button:focus-visible {
+  background: var(--control-hover);
+}
+.yard-context-menu > [data-context-action="friends"] {
+  border-top: 1px solid var(--line);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.yard-context-menu svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--muted);
+}
+.context-check {
+  margin-left: auto;
+  visibility: hidden;
+}
+[role="menuitemcheckbox"][aria-checked="true"] > .context-check {
+  visibility: visible;
 }

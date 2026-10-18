@@ -205,3 +205,27 @@ test('opening a destination moves focus out of its now-hidden menu', () => {
   openPanel('settings');
   assert.equal(document.activeElement, nodes.get('panel-title'));
 });
+
+test('all panel entry routes run the same pending-yard-action cleanup', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  page();
+  const opened = [];
+  setupTabs({ beforeOpen: kind => opened.push(kind) });
+  openPanel('pet');
+  openPanel('invite');
+  openPanel('settings');
+  openPanel(null);
+  assert.deepEqual(opened, ['pet', 'invite', 'settings']);
+});
+
+test('Escape leaves the task panel in place while update details own the foreground', () => {
+  const { nodes, listeners } = page();
+  const update = { hidden: true };
+  const lookup = document.getElementById;
+  document.getElementById = id => (id === 'update-dialog' ? update : lookup(id));
+  setupTabs();
+  openPanel('pet');
+  update.hidden = false;
+  listeners.get('keydown')({ key: 'Escape', preventDefault() {} });
+  assert.equal(nodes.get('side-panel').hidden, false);
+});

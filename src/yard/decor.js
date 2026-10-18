@@ -9,7 +9,7 @@ import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { clamp, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, name, views } from '../core/state.js';
-import { artSize, artSvg } from './art.js';
+import { artSvg } from './art.js';
 import { befriend } from './bond.js';
 import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
@@ -17,16 +17,12 @@ import { giftSvg } from './creatures.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { giftWait, localDay } from './growth.js';
-import { askToRemove, propButton, propScale, reconcile, setDown } from './props.js';
+import { askToRemove, propButton, reconcile, setDown, giftSize as size } from './props.js';
 import { cue } from './sound.js';
 import { isFree, nearestFree, rest, sendTo } from './trips.js';
 import { bubble, cheer, effect } from './views.js';
 import { scene } from './world.js';
 
-// How many yard pixels a unit of a decoration's drawing takes at full size (its view box is its
-// size); it shrinks with the yard as friends do. Whether it lies flat on the ground, under the
-// plants ("flat"), and whether friends stand on it or beside it ("stand": "on") is the catalogue's.
-const UNIT = 1.05;
 const flat = kind => !!giftKind(kind)?.flat;
 const standOn = kind => giftKind(kind)?.stand === 'on';
 const shown = new Map();
@@ -34,14 +30,16 @@ const shown = new Map();
 const fresh = new Set();
 const kindName = kind => t(`decor.kind_${kind}`);
 
-function size(kind) {
-  const [w, h] = artSize(giftKind(kind)?.art);
-  return { w: w * UNIT * propScale(), h: h * UNIT * propScale() };
+function placement(kind, point) {
+  const at = fieldToYard(point),
+    { w, h } = size(kind);
+  // Saved coordinates locate the foot; wide furniture still needs room at either edge.
+  at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
+  return { ...at, w, h };
 }
 function position(v, x, y) {
-  const at = fieldToYard({ x, y }),
-    { w, h } = size(v.kind);
-  setDown(v.button, at.x, at.y, w, h, flat(v.kind) ? 0 : 1 + Math.round(y * 100));
+  const at = placement(v.kind, { x, y });
+  setDown(v.button, at.x, at.y, at.w, at.h, flat(v.kind) ? 0 : 1 + Math.round(y * 100));
 }
 
 function create(d) {
@@ -124,8 +122,8 @@ export function renderDecor() {
 
 // Sends a friend to a decoration: onto the bench or the blanket, beside the others.
 function walkTo(v, d) {
-  const at = fieldToYard(d),
-    { w: dw } = size(d.kind),
+  const at = placement(d.kind, d),
+    dw = at.w,
     width = sizeOf(v.pet),
     side = v.px + width / 2 < at.x ? -1 : 1,
     on = standOn(d.kind),

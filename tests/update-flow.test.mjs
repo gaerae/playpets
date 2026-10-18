@@ -30,18 +30,23 @@ test('an available update opens a guided download, shows each stage, and can ret
 
   await nodes.get('update-button').onclick();
   assert.equal(installs, 0, 'the settings row lets a person read the update before installing');
-  assert.equal(nodes.get('update-dialog').open, true);
+  assert.equal(nodes.get('update-dialog').hidden, false);
+  assert.notEqual(nodes.get('update-dialog').open, true, 'update details do not create a modal window');
 
   const installing = nodes.get('update-install').onclick();
   assert.equal(installs, 1);
   assert.equal(JSON.parse(localStorage.getItem('update-restart')).version, '0.2.0');
-  assert.equal(nodes.get('update-later').disabled, true);
+  assert.equal(nodes.get('update-later').disabled, false, 'download can be collapsed');
   assert.equal(nodes.get('update-progress-label').textContent, t('update.downloading'));
   assert.equal(nodes.get('update-progress').getAttribute('value'), null, 'unknown size keeps an indeterminate bar');
   updateStatus({ phase: 'downloading', received: 5, total: 20, percent: 25 });
   assert.equal(nodes.get('update-progress').value, 25);
   assert.match(nodes.get('update-progress-label').textContent, /25/);
+  nodes.get('update-later').onclick();
+  assert.equal(nodes.get('update-dialog').hidden, true);
+  assert.equal(nodes.get('update-compact').hidden, false, 'small windows retain a progress entry point');
   updateStatus({ phase: 'verifying' });
+  assert.equal(nodes.get('update-dialog').hidden, true, 'progress never reopens collapsed details');
   assert.equal(nodes.get('update-progress').hidden, true);
   assert.equal(nodes.get('update-progress-label').textContent, t('update.verifying'));
   updateStatus({ phase: 'installing' });
@@ -50,7 +55,9 @@ test('an available update opens a guided download, shows each stage, and can ret
   finishInstall({ ok: false, error: 'The update could not be installed.' });
   await installing;
   assert.equal(localStorage.getItem('update-restart'), '', 'a failed installation leaves no success notice');
-  assert.equal(nodes.get('update-dialog').open, true, 'a failed install keeps the dialog available');
+  assert.equal(nodes.get('update-dialog').hidden, true, 'failure does not reopen collapsed details');
+  nodes.get('update-pill').onclick();
+  assert.equal(nodes.get('update-dialog').hidden, false, 'the error remains available from the yard');
   assert.equal(nodes.get('update-install').disabled, false, 'the person can retry');
   assert.equal(nodes.get('update-later').disabled, false);
   assert.equal(nodes.get('update-error').hidden, false);

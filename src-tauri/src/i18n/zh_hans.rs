@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("update.check_failed", "无法检查更新。请检查网络连接。"),
 
     ("update.no_release", "还没有发布更新信息。请稍后再检查。"),
+    ("update.store_managed", "此安装版本由 Microsoft Store 管理更新。"),
     ("update.none", "没有可安装的更新。请先检查更新。"),
     ("update.install_failed", "无法安装更新。请稍后再试。"),
     ("error.language", "不支持这种语言。"),
@@ -74,6 +75,10 @@ const TABLE: &[(&str, &str)] = &[
     ("error.seeds_full", "口袋里装满了种子，先种下几颗吧。"),
     ("error.no_seeds", "没有可以种的种子。散步的伙伴偶尔会找到种子。"),
     ("error.garden_full", "花园里最多能种 {limit} 株，拔掉一株就能再种。"),
+    ("error.discovery_ground", "请选择没有障碍物的户外泥地。"),
+    ("error.discovery_cooldown", "朋友正在稍微休息，稍后再挖吧。"),
+    ("error.tree_full", "这里没有种更多树的空间了。"),
+    ("error.tree_missing", "找不到那棵树。"),
     ("error.plant_missing", "找不到那株植物。"),
     ("error.gift_today", "今天的礼物已经收到了，明天还会有。"),
     ("error.decor_full", "乐园最多放 {limit} 件摆设。收起一件就有地方了。"),

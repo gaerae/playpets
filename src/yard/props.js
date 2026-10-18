@@ -3,6 +3,8 @@
 // friends are, set down by their foot, and taken away only once the person says so.
 import { confirmAction } from '../core/confirm.js';
 import { $ } from '../core/state.js';
+import { artSize } from './art.js';
+import { giftKind } from './catalog.js';
 import { yardZoom } from './field.js';
 
 /** Brings `shown` (id → view) in line with `items`: views of items that went are removed, new ones
@@ -42,3 +44,10 @@ export function propButton(className, kind) {
 }
 /** Asks before taking a prop away; true once the person agrees. */
 export const askToRemove = (title, body, action) => confirmAction({ title, body, action });
+
+/** Full rendered gift dimensions, shared by drawing, visiting and ground placement. */
+export function giftSize(kind) {
+  const gift = giftKind(kind),
+    [w, h] = gift?.size || artSize(gift?.art);
+  return { w: w * 1.05 * propScale(), h: h * 1.05 * propScale() };
+}

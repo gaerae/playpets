@@ -1,6 +1,6 @@
 // One frameless window: its size and its always-on-top switch are independent.
 import { confirmAction } from './core/confirm.js';
-import { closeControls } from './core/controls.js';
+import { closeControls, closeUpdateDetails } from './core/controls.js';
 import { t } from './core/i18n.js';
 import { $, call, data, guard } from './core/state.js';
 
@@ -34,6 +34,7 @@ export async function setFullscreen(on) {
 
 export function renderWindow(on = !!data.alwaysOnTop) {
   $('always-on-top')?.setAttribute('aria-pressed', String(on));
+  document.querySelector('[data-context-action="pin"]')?.setAttribute('aria-checked', String(on));
 }
 
 export async function setAlwaysOnTop(on) {
@@ -53,7 +54,14 @@ export async function quitApp() {
 
 function fitWindow() {
   const compact = innerWidth <= 640 || innerHeight <= 480;
+  const changed = document.body.classList.contains('compact') !== compact;
+  const focused =
+    changed &&
+    ['yard-controls-panel', 'play-panel', 'quick-play', 'yard-context-menu'].some(id =>
+      $(id)?.contains(document.activeElement),
+    );
   document.body.classList.toggle('compact', compact);
+  if (changed) closeControls(focused);
 }
 
 // Window movement and resizing use native gestures, so every platform keeps its own edge behavior.
@@ -98,7 +106,12 @@ export function setupWindow() {
         }
         return;
       }
-      if (!$('yard-controls-panel').hidden) {
+      if ($('update-dialog') && !$('update-dialog').hidden) {
+        event.preventDefault();
+        closeUpdateDetails(true);
+        return;
+      }
+      if (['yard-controls-panel', 'play-panel', 'quick-play', 'yard-context-menu'].some(id => $(id) && !$(id).hidden)) {
         event.preventDefault();
         closeControls();
         return;

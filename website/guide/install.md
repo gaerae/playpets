@@ -65,8 +65,10 @@ chmod +x PlayPets_*.AppImage
 
 ## Updates <Since v="0.1.0" />
 
+For a Microsoft Store installation, updates are managed by Store. Open **Microsoft Store → Library** to check. The GitHub installer update flow below applies to installations outside MSIX. Test MSIX packages also use package-managed updates. See the [privacy policy](../privacy.md) for storage and network details.
+
 - Check now with **Check for updates** under **About PlayPets** in the Settings tab, **Check for updates…** in the tray menu, or **PlayPets → Check for Updates…** in the macOS menu bar.
-- The new-version button appears at the far left of the yard controls, before the place selector. A dot also appears on **Settings** inside **Menu**. The button opens the update window: **What’s new**, **Later** or **Install and restart**. Download progress, signature verification and installation appear in that window; a failed attempt can be retried there. After a successful restart, a brief notice confirms the installed version.
+- The new-version button appears before the place selector. It opens details over the same yard, with release notes and **Install and restart**. After you choose installation, the app downloads, verifies its signature, installs and restarts. You can collapse the details and keep playing during download; progress stays reachable, including in small windows. Reopening does not start another download. Errors remain available for Retry. After restart, a brief notice confirms the installed version.
 - 20 seconds after the app starts, it checks once quietly. If there is a new version, a notice appears and you can install it from the Settings tab.
 - New versions are found through `latest.json` in GitHub releases. A downloaded file is installed only after it is verified with the update signing key. A file that fails verification is not installed.
 

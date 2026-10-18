@@ -78,7 +78,11 @@ export const sections = {
   connectionsLead:
     'Games and gardening work without an AI account. Connect an AI for conversations; its limits and charges apply.',
   connections: [
-    ['Play offline', 'Share treats, catch bugs, fish and see what grows in your garden.', '/guide/play'],
+    [
+      'Play offline',
+      'Share a picnic, dig for little finds, plant trees, catch bugs and fish. No AI account is needed.',
+      '/guide/play',
+    ],
     [
       'Talk your way',
       'Give each friend a name and a personality. Connect an AI when you want to talk, or let your friends chat together.',
@@ -87,7 +91,7 @@ export const sections = {
   ],
   miniTitle: 'A small corner of your day.',
   miniBody:
-    'Resize the yard to fit beside your work. The same menu, scene controls and play tools stay available in a small window. Toggle Always on top separately to keep it above other apps.',
+    'Keep the yard small beside your work, with only scenery and friends at rest. Open brief play actions from a friend when you feel like it. Always on top is a separate switch.',
   miniLink: 'Make room for your yard',
   agentGuide: 'Connect a coding agent',
   connectionDetails: 'Conversation setup and costs',

@@ -102,6 +102,10 @@ jobs:
       # The bundles are made, so the e2e build may take target/release here and reuse the release
       # build's compiled dependencies; a separate profile (test:e2e's target/e2e, which keeps a
       # developer's app in place) would compile and cache all of them a second time.
+      - name: Preserve production binary for MSIX activation
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: Copy-Item src-tauri/target/release/playpets.exe "$env:RUNNER_TEMP/playpets-msix-production.exe"
       - name: E2E build
         run: cargo build --release --features e2e --manifest-path src-tauri/Cargo.toml
       - name: E2E (Linux, Xvfb)
@@ -114,6 +118,19 @@ jobs:
         run: node tests/e2e.mjs
         env:
           PLAYPETS_BINARY: ${{ github.workspace }}/src-tauri/target/release/playpets${{ runner.os == 'Windows' && '.exe' || '' }}
+      - name: MSIX install, activation and Store updater gate
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: npm run test:msix:ci -- -ProductionBinary "$env:RUNNER_TEMP/playpets-msix-production.exe" -ProbeBinary "$env:GITHUB_WORKSPACE/src-tauri/target/release/playpets.exe" -Architecture "${{ matrix.name == 'windows-arm64' && 'arm64' || 'x64' }}"
+      - name: MSIX verification reports
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: msix-verification-${{ matrix.name }}
+          path: |
+            release/windows/msix-ci/*.json
+            release/windows/msix-ci/*.log
+          if-no-files-found: warn
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: playpets-${{ matrix.name }}

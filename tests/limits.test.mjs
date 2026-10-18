@@ -36,3 +36,22 @@ test('time together is offered more often than the backend counts it, so no tick
     backend = constant(read('src-tauri/src/pets/bond.rs'), 'TIME_EVERY_MS').match(/^(\d+) \* 60 \* 1000$/)[1];
   assert.ok(Number(page) > Number(backend), 'the backend counts one per page tick, with room for timers that run late');
 });
+
+test('discovery limits and the public probability guide use the same backend rules', () => {
+  const source = read('src-tauri/src/pets/discovery.rs');
+  for (const [key, name] of Object.entries({
+    trees: 'TREE_MAX',
+    treesPerWorld: 'TREE_WORLD_MAX',
+    digCooldownMs: 'DIG_COOLDOWN_MS',
+    digHistory: 'DIG_HISTORY',
+  }))
+    assert.equal(String(LIMITS[key]), constant(source, name), key);
+  const hours = name => Number(constant(source, name).split('*')[0].trim()) * 3600000;
+  assert.equal(LIMITS.treeYoungMs, hours('TREE_YOUNG_MS'));
+  assert.equal(LIMITS.treeMatureMs, hours('TREE_MATURE_MS'));
+  assert.equal(LIMITS.digTtlMs, hours('DIG_TTL_MS'));
+  assert.deepEqual(Object.values(LIMITS.digOdds), JSON.parse(constant(source, 'DIG_ODDS')));
+  const guide = read('website/.vitepress/theme/DiscoveryGuide.vue');
+  assert.match(guide, /LIMITS\.digOdds/);
+  assert.match(guide, /LIMITS\.treeMatureMs/);
+});

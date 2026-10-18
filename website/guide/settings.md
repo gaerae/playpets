@@ -42,6 +42,8 @@ The last section of the Settings tab shows the version and holds **App updates**
 
 ### App updates <Since v="0.1.0" />
 
+For a Microsoft Store installation, updates are managed by Store. Open **Microsoft Store → Library** to check. The GitHub installer update flow below applies to installations outside MSIX. Test MSIX packages also use package-managed updates. See the [privacy policy](../privacy.md) for storage and network details.
+
 The row shows the current version. Click **Check for updates** and the app reads `latest.json` from GitHub releases; if you are current, it says "You're up to date".
 
 When there is a new version, whether this check, the quiet one 20 seconds after the app starts, or one from the menus found it:

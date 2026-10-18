@@ -262,11 +262,20 @@ test('offline background output passes the app validator and rejects invalid geo
     const args = ['pack-background', '--image', path.join(dir, 'scene.jpg'), '--config', config, '--output', out];
     await writeFile(
       config,
-      JSON.stringify({ name: 'Painted meadow', floor: 0.7, sky: false, weather: false, ambient: false, windows: [] }),
+      JSON.stringify({
+        name: 'Painted meadow',
+        floor: 0.7,
+        sky: false,
+        weather: false,
+        ambient: false,
+        windows: [],
+        capabilities: { soil: true },
+      }),
     );
     const result = run(...args);
     assert.equal(result.status, 0, result.stderr);
     const pack = validateBackgroundPack(JSON.parse(await readFile(out, 'utf8')));
+    assert.equal(pack.capabilities.soil, true);
     assert.doesNotMatch(result.stdout, /true sky alpha/);
     validatePng(Buffer.from(pack.images.base.split(',')[1], 'base64'));
     await writeFile(
@@ -280,10 +289,14 @@ test('offline background output passes the app validator and rejects invalid geo
       }),
     );
     assert.equal(run(...args, '--overwrite').status, 0);
+    assert.equal(validateBackgroundPack(JSON.parse(await readFile(out, 'utf8'))).capabilities.soil, false);
     for (const change of [
       { floor: 0.4 },
       { water: { from: 0.5, to: 0.2, center: 0.3, radius: 0.1 } },
       { sky: 'true' },
+      { capabilities: { soil: 'true' } },
+      { capabilities: { soil: null } },
+      { capabilities: [] },
       { sky: false, ambient: true },
       { windows: [{ x: 0.9, y: 0.1, width: 0.2, height: 0.2 }] },
     ]) {

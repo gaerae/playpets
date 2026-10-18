@@ -8,13 +8,18 @@ rsync -a --delete --exclude-from=/src/.dockerignore /src/ /work/
 cd /work
 # Dependency install scripts never run while the whole checkout is mounted (as in release.yml).
 npm ci --ignore-scripts --no-audit --no-fund
+# Validate Store identity before compiling or writing any hand-off package.
+version="$(node -p "require('./package.json').version")"
+stage="$(mktemp -d)"
+trap 'rm -rf "$stage"' EXIT
+mkdir -p "$stage/Assets"
+node scripts/msix-manifest.mjs /usr/local/share/playpets-msix/AppxManifest.xml "$stage/AppxManifest.xml" "$version"
 npx tauri build --target x86_64-pc-windows-gnu --bundles nsis
 mkdir -p /out
 cp src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/*.exe /out/
 cp packaging/licenses/THIRD-PARTY-NOTICES.txt /out/
 # The MinGW build loads WebView2Loader.dll at runtime, so the portable build ships it alongside.
 rm -f /out/PlayPets_*_x64-portable.zip
-version="$(node -p "require('./package.json').version")"
 zip -j "/out/PlayPets_${version}_x64-portable.zip" src-tauri/target/x86_64-pc-windows-gnu/release/playpets.exe src-tauri/target/x86_64-pc-windows-gnu/release/WebView2Loader.dll packaging/licenses/THIRD-PARTY-NOTICES.txt
 
 # The MSIX package, for trying the app out as a package. Signed with a self-signed test certificate
@@ -25,12 +30,13 @@ release=src-tauri/target/x86_64-pc-windows-gnu/release
 publisher="${MSIX_PUBLISHER:-CN=PlayPets Test}"
 msix=/out/msix-test
 if [ -n "${MSIX_PUBLISHER:-}" ]; then msix=/out/msix-store; fi
-stage="$(mktemp -d)"
-mkdir -p "$msix" "$stage/Assets"
+mkdir -p "$msix"
+if [ -n "${MSIX_PUBLISHER:-}" ]; then
+  node scripts/msix-manifest.mjs /usr/local/share/playpets-msix/AppxManifest.xml "$stage/AppxManifest.xml" "$version" "$msix/README.txt"
+fi
 cp "$release/playpets.exe" "$release/WebView2Loader.dll" "$stage/"
 cp packaging/licenses/THIRD-PARTY-NOTICES.txt "$stage/"
 cp src-tauri/icons/msix/*.png "$stage/Assets/"
-sed -e "s/@VERSION@/${version}.0/" -e "s/@PUBLISHER@/${publisher}/" /usr/local/share/playpets-msix/AppxManifest.xml > "$stage/AppxManifest.xml"
 rm -f "$msix"/PlayPets_*_x64.msix
 package="$msix/PlayPets_${version}_x64.msix"
 makemsix pack -d "$stage" -p "$package"

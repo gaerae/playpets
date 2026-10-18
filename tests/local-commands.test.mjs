@@ -17,7 +17,8 @@ test('Docker receives whole paths and forwards supported packaging options', () 
   assert.equal(win.output, 'C:\\Work files\\PlayPets\\release\\windows');
   assert.ok(win.steps[1].args.includes('C:\\Work files\\PlayPets:/src:ro'));
   assert.ok(win.steps[1].args.includes('C:\\Work files\\PlayPets\\release\\windows:/out'));
-  assert.ok(win.steps[1].args.includes('MSIX_PUBLISHER'));
+  for (const name of ['MSIX_PUBLISHER', 'MSIX_IDENTITY_NAME', 'MSIX_PUBLISHER_DISPLAY_NAME'])
+    assert.ok(win.steps[1].args.includes(name), name);
   // The test signing key gets its own volume, never a folder under release/.
   assert.ok(win.steps[1].args.includes('playpets-msix-key:/keys'));
   const linux = commandPlan('linux', { root: '/work/a $name (copy)', platform: 'darwin' });

@@ -37,7 +37,7 @@
       <main id="layout" class="layout">
         <section class="stage">
           <div class="yard-frame">
-<div class="yard-dock"><button id="update-pill" class="button secondary update-pill" hidden><span data-icon="download"></span><span id="update-pill-label"></span></button><span class="caption-main"><button id="scene-button" type="button" class="scene-button" aria-expanded="false" aria-controls="scene-menu" data-i18n-title="scene.title"><i id="sky-dot" class="sun-dot"></i><span class="scene-copy"><strong class="sr-only" data-i18n="controls.scene"></strong><span id="scene-caption" data-i18n="caption.clear.day"></span></span><span class="scene-chevron" data-icon="chevron"></span></button><span id="pet-count" class="caption-count"></span><span id="agent-summary" class="caption-agents" aria-live="polite"></span><span id="event-chip" class="caption-event" hidden></span></span><button id="yard-controls-toggle" class="yard-controls-toggle" type="button" aria-controls="yard-controls-panel" aria-expanded="false"><span data-icon="more"></span><span data-i18n="controls.menu"></span></button></div>
+<div class="yard-dock"><button id="update-pill" type="button" aria-controls="update-dialog" aria-expanded="false" class="button secondary update-pill" hidden><span data-icon="download"></span><span id="update-pill-label"></span></button><span class="caption-main"><button id="scene-button" type="button" class="scene-button" aria-expanded="false" aria-controls="scene-menu" data-i18n-title="scene.title"><i id="sky-dot" class="sun-dot"></i><span class="scene-copy"><strong class="sr-only" data-i18n="controls.scene"></strong><span id="scene-caption" data-i18n="caption.clear.day"></span></span><span class="scene-chevron" data-icon="chevron"></span></button><span id="pet-count" class="caption-count"></span><span id="agent-summary" class="caption-agents" aria-live="polite"></span><span id="event-chip" class="caption-event" hidden></span></span><button id="play-button" type="button" class="yard-play-toggle" aria-expanded="false" aria-controls="play-panel"><span data-icon="spark"></span><span data-i18n="controls.play"></span></button><button id="yard-controls-toggle" class="yard-controls-toggle" type="button" aria-controls="yard-controls-panel" aria-expanded="false"><span data-icon="more"></span><span data-i18n="controls.menu"></span></button></div>
               <div id="scene-menu" class="scene-menu" role="group" data-i18n-aria-label="scene.title" hidden>
                 <div class="scene-gallery-head"><button id="scene-back" type="button" class="icon-button" data-i18n-aria-label="controls.back" data-i18n-title="controls.back"><span data-icon="back"></span></button><strong data-i18n="controls.scene"></strong><button type="button" class="icon-button" data-expand-window data-i18n-title="win.fullscreen" data-i18n-aria-label="win.fullscreen"><span data-icon="expand"></span></button><button id="scene-close" type="button" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
                 <nav class="scene-tabs" role="tablist" data-i18n-aria-label="controls.scene"><button id="scene-places-tab" type="button" role="tab" aria-selected="true" aria-controls="scene-places" data-scene-page="places" data-i18n="scene.places"></button><button id="scene-atmosphere-tab" type="button" role="tab" aria-selected="false" aria-controls="scene-atmosphere" tabindex="-1" data-scene-page="atmosphere" data-i18n="scene.atmosphere"></button></nav><div id="scene-places" class="scene-page" role="tabpanel" aria-labelledby="scene-places-tab"><select id="world" hidden aria-hidden="true" tabindex="-1"></select>
@@ -51,31 +51,68 @@
                 <label for="weather" data-i18n="weather.label"></label>
                 <select id="weather" class="weather-select" data-i18n-title="weather.title"><option value="auto" data-i18n="weather.auto"></option><option value="clear" data-i18n="weather.clear"></option><option value="rain" data-i18n="weather.rain"></option><option value="snow" data-i18n="weather.snow"></option></select>
                 </div>
+<div class="scene-sound"><button id="sound-button" type="button" class="view-button" aria-pressed="true" data-i18n-aria-label="sound.label"><span data-icon="sound"></span><span data-i18n="sound.label"></span></button></div>
 </div>
               </div>
 <div id="yard-controls-panel" class="yard-controls-panel" role="group" data-i18n-aria-label="controls.menu" hidden>
-<div class="controls-header"><strong data-i18n="controls.menu"></strong>
-<button id="close-controls" type="button" class="icon-button" data-i18n-aria-label="panel.close" data-i18n-title="panel.close"><span data-icon="close"></span></button></div><nav class="panel-tabs" data-i18n-aria-label="tabs.aria">            <button class="panel-tab" data-panel="pet" aria-controls="side-panel" aria-expanded="false"><span data-icon="chat"></span><span data-i18n="tabs.friend"></span></button><button class="panel-tab" data-panel="invite" aria-controls="side-panel" aria-expanded="false"><span data-icon="plus"></span><span data-i18n="tabs.invite"></span></button><button id="menu-scene" type="button" class="panel-tab" data-i18n-title="controls.scene"><span data-icon="sun"></span><span data-i18n="controls.scene"></span></button><button class="panel-tab" data-panel="settings" aria-controls="side-panel" aria-expanded="false" data-i18n-title="tabs.settings"><span data-icon="gear"></span><span data-i18n="tabs.settings"></span></button>
-</nav>
-<div id="window-quick-actions" class="window-quick-actions view-controls" role="group" data-i18n-aria-label="view.group"><button id="always-on-top" type="button" class="view-button view-toggle" aria-pressed="false" data-i18n-title="win.always_on_top"><span data-icon="pin"></span><span data-i18n="win.always_on_top"></span><span class="wander-switch" aria-hidden="true"></span></button><button id="fullscreen" type="button" class="view-button" aria-pressed="false"><span data-icon="expand"></span><span id="fullscreen-label" data-i18n="win.fullscreen"></span></button></div>
-            <details id="controls-more" class="controls-more"><summary data-i18n="controls.more"></summary><div class="yard-controls-scroll">
-            <div class="play-toolbar"><p class="menu-section-label" data-i18n="controls.activities"></p>
+  <div class="controls-header"><strong data-i18n="controls.menu"></strong><button id="close-controls" type="button" class="icon-button" data-i18n-aria-label="panel.close"><span data-icon="close"></span></button></div>
+  <div class="yard-controls-scroll">
+    <section class="menu-group"><p class="menu-section-label" data-i18n="controls.yard"></p><nav class="panel-tabs" data-i18n-aria-label="controls.yard"><button id="menu-scene" type="button" class="panel-tab"><span data-icon="sun"></span><span data-i18n="controls.scene"></span></button><button id="menu-play" type="button" class="panel-tab"><span data-icon="spark"></span><span data-i18n="controls.play"></span></button></nav></section>
+    <section class="menu-group"><p class="menu-section-label" data-i18n="controls.friends"></p><nav class="panel-tabs" data-i18n-aria-label="controls.friends"><button id="menu-friends" class="panel-tab" data-panel="pet" aria-controls="side-panel" aria-expanded="false"><span data-icon="chat"></span><span data-i18n="controls.friends"></span></button><button class="panel-tab" data-panel="invite" aria-controls="side-panel" aria-expanded="false"><span data-icon="plus"></span><span data-i18n="tabs.invite"></span></button></nav></section>
+    <section class="menu-group"><p class="menu-section-label" data-i18n="controls.app"></p><nav class="panel-tabs" data-i18n-aria-label="controls.app"><button class="panel-tab" data-panel="settings" aria-controls="side-panel" aria-expanded="false"><span data-icon="gear"></span><span data-i18n="tabs.settings"></span></button></nav></section>
+    <details id="controls-more" class="controls-more"><summary data-i18n="controls.window"></summary><div id="window-quick-actions" class="window-quick-actions view-controls" role="group" data-i18n-aria-label="view.group"><button id="always-on-top" type="button" class="view-button view-toggle" aria-pressed="false" data-i18n-title="win.always_on_top"><span data-icon="pin"></span><span data-i18n="win.always_on_top"></span><span class="wander-switch" aria-hidden="true"></span></button><button id="fullscreen" type="button" class="view-button" aria-pressed="false"><span data-icon="expand"></span><span id="fullscreen-label" data-i18n="win.fullscreen"></span></button></div>
+            <div class="yard-caption"><p class="menu-section-label" data-i18n="controls.display"></p>
+              <span class="caption-end"><span class="view-controls" role="group" data-i18n-aria-label="view.group"><button id="desktop" type="button" class="view-button view-toggle" aria-pressed="false"><span data-icon="monitor"></span><span id="desktop-label" class="view-label" data-i18n="desktop.show"></span><span class="wander-switch" aria-hidden="true"></span></button><label id="wander-wrap" class="view-wander" data-i18n-title="desktop.wander_title"><span data-icon="paw"></span><span data-i18n="desktop.wander"></span><input type="checkbox" id="desktop-wander" disabled><span class="wander-switch" aria-hidden="true"></span></label></span></span>
+
+
+            </div>
+
+
+</details>
+  </div>
+  <span id="window-actions" class="window-actions"><button id="hide-window" type="button" class="view-button" data-i18n-title="win.close_hint"><span data-icon="close"></span><span data-i18n="win.close"></span></button><button id="menu-quit" type="button" class="view-button"><span data-icon="power"></span><span data-i18n="settings.quit"></span></button></span>
+</div>
+<div id="quick-play" class="quick-play" role="group" data-i18n-aria-label="controls.play" hidden>
+  <div class="quick-play-heading"><strong id="quick-play-title" data-i18n="controls.play"></strong><button id="close-quick-play" type="button" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
+  <div id="quick-play-empty" class="quick-play-empty" hidden><span data-i18n="controls.play_empty"></span><button type="button" class="button secondary" data-panel="invite" aria-controls="side-panel" aria-expanded="false" data-i18n="tabs.invite"></button></div>
+  <div id="quick-play-actions" class="quick-play-actions">
+    <button type="button" class="quick-play-action" data-quick-tool="feed"><span data-icon="treat"></span><span data-i18n="controls.picnic"></span></button>
+    <button id="quick-play-explore-button" type="button" class="quick-play-action"><span data-icon="sprout"></span><span data-i18n="discovery.explore"></span></button>
+    <button type="button" class="quick-play-action" data-quick-tool="fish-tool"><span data-icon="fish"></span><span data-i18n="catch.action"></span></button>
+    <button id="quick-play-games-button" type="button" class="quick-play-action"><span data-icon="spark"></span><span id="quick-play-games-label" data-i18n="game.label"></span></button>
+  </div>
+  <div id="quick-play-explore" class="quick-play-actions" hidden>
+    <button type="button" class="icon-button" data-quick-back data-i18n-aria-label="controls.play_back"><span data-icon="back"></span></button>
+    <button type="button" class="quick-play-action" data-quick-tool="dig-tool" data-i18n="discovery.dig"></button>
+    <button type="button" class="quick-play-action" data-quick-tool="plant-tool" data-i18n="controls.seed"></button>
+    <button type="button" class="quick-play-action" data-quick-tool="tree-tool" data-i18n="discovery.tree"></button>
+    <button type="button" class="quick-play-action" data-quick-tool="album-button" data-i18n="catch.album"></button>
+  </div>
+  <div id="quick-play-games" class="quick-play-actions" hidden></div>
+</div>
+<div id="discovery-target" class="discovery-target" role="group" data-i18n-aria-label="discovery.explore" hidden>
+  <div class="discovery-target-heading"><strong id="discovery-target-label"></strong><button id="discovery-cancel" type="button" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
+  <div id="discovery-tree-choices" class="quick-play-actions" hidden><button type="button" class="quick-play-action" data-tree-kind="cherry" aria-pressed="true" data-i18n="tree.cherry"></button><button type="button" class="quick-play-action" data-tree-kind="maple" aria-pressed="false" data-i18n="tree.maple"></button><button type="button" class="quick-play-action" data-tree-kind="pine" aria-pressed="false" data-i18n="tree.pine"></button></div>
+</div>
+<div id="play-panel" class="yard-controls-panel play-panel" role="group" data-i18n-aria-label="controls.play" hidden>
+  <div class="controls-header"><button id="play-back" type="button" class="icon-button" data-i18n-aria-label="controls.back"><span data-icon="back"></span></button><strong data-i18n="controls.play"></strong><button id="close-play" type="button" class="icon-button" data-i18n-aria-label="panel.close"><span data-icon="close"></span></button></div>
+  <div class="play-empty"><p data-i18n="controls.play_empty"></p><button class="panel-tab" data-panel="invite" aria-controls="side-panel" aria-expanded="false"><span data-icon="plus"></span><span data-i18n="tabs.invite"></span></button></div>
+  <div class="yard-controls-scroll">            <div class="play-toolbar"><p class="menu-section-label" data-i18n="controls.activities"></p>
               <div class="tools">
-                <button id="feed" class="button tool" aria-pressed="false" data-i18n-title="care.treat_title"><span data-icon="treat"></span><span data-i18n="care.treat"></span></button><button id="chatter" class="button tool" data-i18n-title="care.chatter_title"><span data-icon="chat"></span><span data-i18n="care.chatter"></span></button><span class="tool-divider" aria-hidden="true"></span><button id="plant-tool" class="button tool" aria-pressed="false" data-i18n-title="garden.plant_title"><span data-icon="sprout"></span><span data-i18n="garden.plant"></span><span id="seed-count" class="tool-count"></span></button><button id="fish-tool" type="button" class="button tool" data-i18n-title="catch.action_title" hidden><span data-icon="fish"></span><span data-i18n="catch.action"></span></button><button id="album-button" class="button tool" data-i18n-title="catch.album_title"><span data-icon="book"></span><span data-i18n="catch.album"></span></button><span class="tool-divider" aria-hidden="true"></span><span class="games"><button id="games-button" class="button tool" aria-haspopup="menu" aria-expanded="false" aria-controls="games-menu"><span data-icon="spark"></span><span id="games-label" data-i18n="game.label"></span><span class="scene-chevron" data-icon="chevron"></span></button><span id="games-menu" class="games-menu" role="menu" hidden></span></span>
+                <button id="feed" class="button tool" aria-pressed="false" data-i18n-title="care.treat_title"><span data-icon="treat"></span><span data-i18n="care.treat"></span></button><button id="chatter" class="button tool" data-i18n-title="care.chatter_title"><span data-icon="chat"></span><span data-i18n="care.chatter"></span></button><span class="tool-divider" aria-hidden="true"></span><button id="dig-tool" type="button" class="button tool" data-i18n="discovery.dig"></button><button id="tree-tool" type="button" class="button tool" data-i18n="discovery.tree"></button><button id="plant-tool" class="button tool" aria-pressed="false" data-i18n-title="garden.plant_title"><span data-icon="sprout"></span><span data-i18n="garden.plant"></span><span id="seed-count" class="tool-count"></span></button><button id="fish-tool" type="button" class="button tool" data-i18n-title="catch.action_title" hidden><span data-icon="fish"></span><span data-i18n="catch.action"></span></button><button id="album-button" class="button tool" data-i18n-title="catch.album_title"><span data-icon="book"></span><span data-i18n="catch.album"></span></button><span class="tool-divider" aria-hidden="true"></span><span class="games"><button id="games-button" class="button tool" aria-haspopup="menu" aria-expanded="false" aria-controls="games-menu"><span data-icon="spark"></span><span id="games-label" data-i18n="game.label"></span><span class="scene-chevron" data-icon="chevron"></span></button><span id="games-menu" class="games-menu" role="menu" hidden></span></span>
               </div>
             </div>
 
-            <div class="yard-caption"><p class="menu-section-label" data-i18n="controls.display"></p>
-              <span class="caption-end"><span class="view-controls" role="group" data-i18n-aria-label="view.group"><button id="desktop" type="button" class="view-button view-toggle" aria-pressed="false"><span data-icon="monitor"></span><span id="desktop-label" class="view-label" data-i18n="desktop.show"></span><span class="wander-switch" aria-hidden="true"></span></button><label id="wander-wrap" class="view-wander" data-i18n-title="desktop.wander_title"><span data-icon="paw"></span><span data-i18n="desktop.wander"></span><input type="checkbox" id="desktop-wander" disabled><span class="wander-switch" aria-hidden="true"></span></label><button id="sound-button" type="button" class="view-button" aria-pressed="true" data-i18n-aria-label="sound.label"><span data-icon="sound"></span><span data-i18n="sound.label"></span></button></span></span>
-
-
-            </div>
-
-
-</div></details>
-<span id="window-actions" class="window-actions"><button id="hide-window" type="button" class="view-button" data-i18n-title="win.close_hint"><span data-icon="close"></span><span data-i18n="win.close"></span></button><button id="menu-quit" type="button" class="view-button"><span data-icon="power"></span><span data-i18n="settings.quit"></span></button></span>
 </div>
-<span id="yard-hint" class="yard-hint" aria-live="polite" data-i18n="hint.pat"></span>
+</div>
+<div id="yard-context-menu" class="yard-context-menu" role="menu" data-i18n-aria-label="controls.menu" hidden>
+  <button type="button" role="menuitem" data-context-action="scene"><span data-icon="sun"></span><span data-i18n="controls.scene"></span></button>
+  <button type="button" role="menuitem" data-context-action="play"><span data-icon="spark"></span><span data-i18n="controls.play"></span></button>
+  <button type="button" role="menuitem" data-context-action="friends"><span data-icon="chat"></span><span data-i18n="controls.friends"></span></button>
+  <button type="button" role="menuitemcheckbox" aria-checked="false" data-context-action="pin"><span data-icon="pin"></span><span data-i18n="win.always_on_top"></span><span class="context-check" aria-hidden="true">✓</span></button>
+  <button type="button" role="menuitem" data-context-action="menu"><span data-icon="more"></span><span data-i18n="controls.menu"></span></button>
+</div>
+<span id="yard-hint" hidden class="yard-hint" aria-live="polite" data-i18n="hint.pat"></span>
             <div id="yard" class="yard" tabindex="-1" data-i18n-aria-label="yard.aria">
               <!-- the yard's drawings (src/art/), loaded as symbols at start by src/yard/art.js -->
               <svg id="art" class="scene-defs" width="0" height="0" aria-hidden="true"><defs></defs></svg>
@@ -111,7 +148,7 @@
               <div id="treat" class="treat" hidden>
               </div>
               <div id="catch-card" class="catch-card" role="status" aria-live="polite" hidden></div>
-              <div id="pet-layer">
+              <span id="discovery-marker" class="discovery-marker" aria-hidden="true" hidden></span><div id="pet-layer">
                 <div id="garden-layer" class="garden-layer"></div>
               </div>
               <div id="label-layer" class="label-layer"></div>
@@ -280,7 +317,7 @@
               </ul>
               <p class="settings-lead" data-i18n="about.publication_note"></p>
               <div class="about-links">
-                <button class="button secondary small" data-link="site" data-i18n="about.site"></button><button class="button secondary small" data-link="guide" data-i18n="about.guide"></button><button class="button secondary small" data-link="releases" data-i18n="about.releases"></button><button class="button secondary small" data-link="github" data-i18n="about.github"></button><button class="button secondary small" data-link="report" data-i18n="about.report"></button><button class="button secondary small" data-link="license" data-i18n="about.license"></button>
+                <button class="button secondary small" data-link="site" data-i18n="about.site"></button><button class="button secondary small" data-link="guide" data-i18n="about.guide"></button><button class="button secondary small" data-link="releases" data-i18n="about.releases"></button><button class="button secondary small" data-link="github" data-i18n="about.github"></button><button class="button secondary small" data-link="report" data-i18n="about.report"></button><button class="button secondary small" data-link="privacy" data-i18n="about.privacy"></button><button class="button secondary small" data-link="license" data-i18n="about.license"></button>
               </div>
             <div class="app-row">
               <button id="quit-app" class="button secondary quit"><span data-icon="power"></span><span data-i18n="settings.quit"></span></button>
@@ -389,8 +426,9 @@
         </div>
       </form>
     </dialog>
-    <dialog id="update-dialog" class="confirm-dialog update-dialog" aria-labelledby="update-title" aria-describedby="update-body">
-      <h2 id="update-title"></h2>
+    <button id="update-compact" type="button" class="update-compact" aria-controls="update-dialog" aria-expanded="false" hidden><span data-icon="download"></span><span id="update-compact-label"></span></button>
+    <section id="update-dialog" class="update-dialog" role="region" aria-labelledby="update-title" aria-describedby="update-body" hidden>
+      <div class="controls-header"><h2 id="update-title" tabindex="-1"></h2><button id="update-close" type="button" class="icon-button" data-i18n-aria-label="panel.close"><span data-icon="close"></span></button></div>
       <p id="update-body" class="dialog-description"></p>
       <button type="button" id="update-dialog-notes" class="button text notes-link" data-i18n="settings.update_notes"></button>
       <div id="update-progress-wrap" class="update-progress" role="status" aria-live="polite" hidden><progress id="update-progress" max="100"></progress><small id="update-progress-label"></small></div>
@@ -398,7 +436,7 @@
       <div class="dialog-actions">
         <button type="button" id="update-later" class="button text" data-i18n="update.later"></button><button type="button" id="update-install" class="button primary" data-i18n="settings.update_install"></button>
       </div>
-    </dialog>
+    </section>
     <dialog id="album-dialog" class="album-dialog" aria-labelledby="album-title">
       <div class="dialog-heading">
         <div>
@@ -408,6 +446,7 @@
         <button type="button" id="close-album" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button>
       </div>
       <p class="dialog-description" data-i18n="catch.album_lead"></p>
+      <label class="album-picker"><span data-i18n="album.category"></span><select id="album-select"></select></label>
       <div id="album-tabs" class="album-tabs" role="tablist"></div>
       <div id="album-grid" class="album-grid" role="tabpanel" tabindex="0"></div>
     </dialog>

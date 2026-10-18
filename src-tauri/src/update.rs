@@ -15,6 +15,9 @@ pub struct Found(Mutex<Option<Update>>);
 
 /// Asks for the latest release. Returns {version, notes} when it is newer than this app, or null.
 pub fn check(app: &AppHandle) -> Result<Value, String> {
+    if store_managed() {
+        return Ok(json!({"channel": "store"}));
+    }
     let updater = app.updater().map_err(|_| i18n::t("update.check_failed"))?;
     // No network says so; a reachable address without update information (no release yet, or one
     // published without the signing secrets) is told apart, so nobody checks a working connection.
@@ -38,6 +41,9 @@ pub fn found_version(app: &AppHandle) -> Option<String> {
 
 /// Downloads and installs the update found by `check`, then starts the new version.
 pub fn install(app: &AppHandle) -> Result<Value, String> {
+    if store_managed() {
+        return Err(i18n::t("update.store_managed"));
+    }
     let update = crate::app::hold(&app.state::<Found>().0)
         .take()
         .ok_or_else(|| i18n::t("update.none"))?;
@@ -81,7 +87,7 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
 /// A quiet look for a newer version a while after start; the page is told only when there is one.
 /// Not in development builds or e2e runs, which have nothing to update to.
 pub fn check_later(app: &AppHandle) {
-    if cfg!(debug_assertions) || crate::commands::e2e_mode() {
+    if store_managed() || cfg!(debug_assertions) || crate::commands::e2e_mode() {
         return;
     }
     let app = app.clone();
@@ -93,4 +99,19 @@ pub fn check_later(app: &AppHandle) {
             push_event(&app, &json!({"type": "update", "update": found}));
         }
     });
+}
+
+/// MSIX updates belong to the package manager, even when installed for local testing.
+/// An unexpected identity API error also keeps an EXE installer out of a packaged app.
+pub fn store_managed() -> bool {
+    #[cfg(windows)]
+    {
+        use windows_sys::Win32::Storage::Packaging::Appx::GetCurrentPackageFullName;
+        let mut length = 0;
+        // A null buffer asks only for identity size; it does not touch package state.
+        let result = unsafe { GetCurrentPackageFullName(&mut length, std::ptr::null_mut()) };
+        result != windows_sys::Win32::Foundation::APPMODEL_ERROR_NO_PACKAGE
+    }
+    #[cfg(not(windows))]
+    false
 }

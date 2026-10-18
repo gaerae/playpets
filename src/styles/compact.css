@@ -268,3 +268,10 @@ body.compact .scene-menu {
     display: none;
   }
 }
+/* Five desktop pointer actions fit the minimum height without a hidden last row. */
+body.compact .yard-context-menu > button {
+  min-height: 36px;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.25;
+}

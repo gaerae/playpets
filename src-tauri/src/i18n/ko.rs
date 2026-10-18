@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("update.check_failed", "업데이트를 확인하지 못했어요. 인터넷 연결을 확인해 주세요."),
 
     ("update.no_release", "아직 올라온 업데이트 정보가 없어요. 나중에 다시 확인해 주세요."),
+    ("update.store_managed", "이 설치본의 업데이트는 Microsoft Store에서 관리해요."),
     ("update.none", "설치할 업데이트가 없어요. 먼저 업데이트를 확인해 주세요."),
     ("update.install_failed", "업데이트를 설치하지 못했어요. 잠시 후 다시 시도해 주세요."),
     ("error.language", "지원하지 않는 언어예요."),
@@ -74,6 +75,10 @@ const TABLE: &[(&str, &str)] = &[
     ("error.seeds_full", "주머니에 씨앗이 가득해요. 먼저 몇 개 심어 주세요."),
     ("error.no_seeds", "심을 씨앗이 없어요. 산책하던 친구가 가끔 씨앗을 찾아와요."),
     ("error.garden_full", "들판에는 {limit}포기까지 심을 수 있어요. 하나를 뽑으면 다시 심을 수 있어요."),
+    ("error.discovery_ground", "장애물이 없는 야외 흙바닥을 골라 주세요."),
+    ("error.discovery_cooldown", "친구가 땅파기를 잠시 쉬고 있어요."),
+    ("error.tree_full", "여기에 나무를 더 심을 자리가 없어요."),
+    ("error.tree_missing", "그 나무를 찾을 수 없어요."),
     ("error.plant_missing", "그 식물을 찾을 수 없어요."),
     ("error.gift_today", "오늘 선물은 이미 받았어요. 내일 또 와요."),
     ("error.decor_full", "놀이터에는 소품을 {limit}개까지 둘 수 있어요. 하나를 치우면 자리가 생겨요."),

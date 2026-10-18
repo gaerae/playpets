@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import catalog from '../../../src/content/catalog.json';
 import events from '../../../src/content/events.json';
+import { LIMITS } from '../../../src/core/limits.js';
 import { strings as en } from '../../../src/core/strings/en.js';
 import { strings as ja } from '../../../src/core/strings/ja.js';
 import { strings as ko } from '../../../src/core/strings/ko.js';
@@ -11,6 +12,8 @@ import { eligibleKinds, fishWeight, relativeChances, wildlifeGroup } from '../..
 const props = defineProps({ lang: { type: String, default: 'en' } });
 const copy = {
   en: {
+    digNote:
+      'Per completed dig. Repeating the same patch within 24 hours never grants another reward. A full seed pocket gives no seed. These are chances, not a collection schedule.',
     title: 'What could you discover?',
     books: ['Fish', 'Bugs', 'Flowers', 'Gifts'],
     season: ['Spring', 'Summer', 'Autumn', 'Winter'],
@@ -40,6 +43,8 @@ const copy = {
       'Finds depend on season and time. Try another season or come back for a different light; there is no completion deadline.',
   },
   ko: {
+    digNote:
+      '땅파기 한 번을 마쳤을 때의 확률이에요. 24시간 안에 같은 땅을 다시 파도 보상을 더 받지는 않아요. 씨앗 주머니가 가득 차면 씨앗을 더 받지 못해요. 정해진 횟수 안에 모인다는 뜻은 아니에요.',
     title: '어떤 발견을 할 수 있을까요?',
     books: ['물고기', '곤충', '꽃', '선물'],
     season: ['봄', '여름', '가을', '겨울'],
@@ -69,6 +74,8 @@ const copy = {
       '계절과 시간에 따라 새로운 발견이 기다려요. 계절을 바꿔 보거나 다른 빛이 드는 시간에 찾아오세요. 모두 모아야 하는 기한은 없어요.',
   },
   ja: {
+    digNote:
+      '穴掘りを1回終えたときの確率です。24時間以内に同じ場所を掘っても追加の報酬はありません。種の袋がいっぱいなら種は増えません。一定の回数で集まる保証ではありません。',
     title: 'どんな出会いがある？',
     books: ['魚', '虫', '花', '贈り物'],
     season: ['春', '夏', '秋', '冬'],
@@ -98,6 +105,8 @@ const copy = {
       '季節や時間で出会いが変わります。季節を変えたり、違う光の時間に訪れたりしてみましょう。集め終える期限はありません。',
   },
   'zh-hans': {
+    digNote:
+      '每完成一次挖土的概率。24小时内重复挖同一块地不会再获得奖励。种子袋满时不会增加种子。概率不代表固定次数就能集齐。',
     title: '会有什么新发现？',
     books: ['鱼', '昆虫', '花', '礼物'],
     season: ['春', '夏', '秋', '冬'],
@@ -198,6 +207,13 @@ const percent = chance =>
 <template>
   <section class="discovery-guide" :aria-label="text.title">
     <p>{{ text.timing }}</p>
+    <details class="discovery-dig">
+      <summary>{{ tr('discovery.dig') }} · {{ text.details }}</summary>
+      <p>{{ text.digNote }}</p>
+      <ul><li v-for="(chance, outcome) in LIMITS.digOdds" :key="outcome">{{ tr(`discovery.odds_${outcome}`) }}: {{ percent(chance / 100) }}</li></ul>
+      <ul><li v-for="item in catalog.treasures" :key="item.id">{{ tr(`treasure.${item.id}`) }}: {{ percent(LIMITS.digOdds[item.rarity] / catalog.treasures.filter(k => k.rarity === item.rarity).length / 100) }}</li></ul>
+      <p>{{ tr('tree.young') }}: {{ LIMITS.treeYoungMs / 3600000 }} h · {{ tr('tree.mature') }}: {{ LIMITS.treeMatureMs / 3600000 }} h</p>
+    </details>
     <div class="discovery-books" :aria-label="text.title">
       <button v-for="(id, index) in books" :key="id" type="button" :aria-pressed="book === id" @click="book = id">{{ text.books[index] }}</button>
     </div>

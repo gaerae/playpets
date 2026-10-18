@@ -13,19 +13,21 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 
 | Area | Commands and sources | Outputs |
 | --- | --- | --- |
-| Local execution and Docker builds | `local.mjs` via `npm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with `MSIX_PUBLISHER` |
+| Local execution and Docker builds | `local.mjs` via `npm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with all three Store identity variables (see [Store setup](../docs/how-to/store-and-apple-signing.md)) |
 | Linux desktop checks | `linux-e2e.sh` via `test:e2e:linux` (build and run) or with `node tests/e2e.mjs` (CI prebuilt binary) | Isolated D-Bus/Xvfb/Openbox session; waits for a window manager before testing native pin and fullscreen |
 | Security review | `npm run security:check` with Gitleaks 8.30.1 and cargo-audit 0.22.2 installed | Redacted full-history secret scan, npm high-severity dependency check and RustSec review; advisory warnings stay visible |
 | Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check`; `prepare-appimage-licenses.mjs` before Linux packaging; `appimage-license.mjs` on the finished image | Native dependency notice and fingerprint under `packaging/licenses/`; collected distro copyright files and an exact AppImage system-source manifest during a release build |
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; native package install-and-launch verification runs in release CI |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
+| Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit` | Redacted read-only credential check; separately gated certification request with manual publication hold (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
 | Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` includes the illustrated Clover face for the app and every platform’s tray; it needs macOS (`iconutil` makes the `.icns`) |
 | Native captures | `shots.mjs`, `shots-lib.mjs`, `shot-windows.swift` via `shots` | Localized captures and listing media; macOS capture host required |
 | Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
 | Portable creation skill | `creator-skill.mjs` via `creator:skill`, source `assets/creator-skill/playpets-creator/`, `creator-workflow.py` launcher | Generated skill and plugin ZIPs and per-layout references under `website/public/creator-kit/skill/`; offline pet ZIP and background JSON from the supplied helper |
 | Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets, metadata and downloadable bundles |
 | Atlas preparation | `pack-*.mjs`, `normalize-cat-row.mjs`, atlas/art/normalization helpers | Explicit destination files from approved image sources |
+| Discovery artwork | `node scripts/pack-discovery.mjs`, source records in `assets/discovery/` | Tracked tree, keepsake and shovel PNG atlases and clipped SVG viewports in `src/art/trees/` and `src/art/discovery/` |
 
 The local Linux Docker build follows the same two-pass AppImage notice collection
 as CI, then verifies the finished image and exports its system-source manifest.
@@ -227,3 +229,28 @@ It preserves pixels, common character scale and vertical offsets; it neither dra
 nor resizes art. All source gutters and target widths are checked. This suits a
 five-frame jump, not an eight-frame walk needing eight distinct generated poses.
 See the skill's format reference before using it on accepted art.
+
+## MSIX identity
+
+`scripts/msix-manifest.mjs` validates and XML-escapes the Store identity before the Windows Docker build compiles the app. It is called by `packaging/windows/build.sh` through `npm run dist:windows`; `tests/msix-manifest.test.mjs` covers identity validation and `tests/windows-packaging.test.mjs` exercises the package hand-off. `MSIX_IDENTITY_NAME`, `MSIX_PUBLISHER` and `MSIX_PUBLISHER_DISPLAY_NAME` are public metadata, not secrets. Supply all three for Store packaging, or none for local test packaging. The normal build CI already runs these tests; release files and Store submissions remain separate.
+
+`npm run test:msix:ci` calls `packaging/windows/msix/ci.ps1` only on ephemeral
+GitHub Windows runners. The build workflow preserves the production executable
+before rebuilding with the E2E feature, then packages both for native x64/ARM64
+installation and updater checks. `tests/msix-scenario.mjs` supplies the browser
+probe. `release/windows/msix-ci/` holds JSON reports and logs; CI uploads those
+files even on failure, never signing keys or test packages. This gate uses its
+own test identity and no Store credentials. `MSIX_ARCHITECTURE` selects `x64` or
+`arm64` for manifest generation; the Docker distribution remains x64.
+
+From app version `1.0.0`, MSIX uses the same three components with a final `.0`; it does not add one to the app major version. The generator rejects pre-1.0 and prerelease inputs for this Store version series.
+
+The Store Docker build regenerates `msix-store/README.txt` from the same validated version and identity as the manifest, so a previous hand-off cannot leave stale version instructions.
+
+`packaging/windows/msix/store.ps1` assembles the native Windows binaries in the
+manual `Store packages` workflow. It uses the same manifest generator and Store
+identity as the Docker hand-off. Its unsigned packages are for Partner Center,
+not direct local installation. `Store certification submission` verifies the
+successful package run and package contents before approval, refuses the first
+portal draft and any unrelated pending draft, and never publishes. Leave the
+repository switch `STORE_SUBMISSION_ENABLED=false` until separately authorized.

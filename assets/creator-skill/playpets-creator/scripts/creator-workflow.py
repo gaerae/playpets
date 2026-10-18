@@ -229,7 +229,7 @@ def fraction(value, lower=0, upper=1):
 
 
 def layout(config):
-    check(not set(config) - {'name', 'floor', 'water', 'fishingSpot', 'windows', 'sky', 'weather', 'ambient'}, 'Unknown layout field')
+    check(not set(config) - {'name', 'floor', 'water', 'fishingSpot', 'windows', 'sky', 'weather', 'ambient', 'capabilities'}, 'Unknown layout field')
     result = {'format': 'playpets-background', 'version': 1, 'name': text(config.get('name'), 'name', 60)}
     # The page importer measures JavaScript strings in UTF-16 code units.
     check(len(config['name'].encode('utf-16-le')) <= 120, 'Background name must be at most 60 UTF-16 code units')
@@ -257,6 +257,10 @@ def layout(config):
     for key in ('sky', 'weather', 'ambient'):
         check(type(config.get(key, False)) is bool, f'{key} must be a boolean')
         result[key] = config.get(key, False)
+    capabilities = config.get('capabilities', {})
+    check(isinstance(capabilities, dict) and not set(capabilities) - {'soil'}, 'Invalid capability fields')
+    check(type(capabilities.get('soil', result['sky'])) is bool, 'capabilities.soil must be a boolean')
+    result['capabilities'] = {'soil': capabilities.get('soil', result['sky'])}
     check(not result['weather'] or result['sky'] or windows, 'Weather needs sky or windows')
     check(not result['ambient'] or result['sky'], 'Ambient needs sky')
     return result
@@ -331,7 +335,7 @@ def main():
     row.add_argument('--frames', required=True, help='Exactly eight row-major source indices separated by commas; repetition allowed only for reviewed holds')
     bg = commands.add_parser('pack-background', help='Create importable v1 background JSON from1536x1024 artwork and layout JSON')
     bg.add_argument('--image', required=True, help='1536x1024 PNG/JPEG/static WebP')
-    bg.add_argument('--config', required=True, help='JSON with name, floor, optional water/fishingSpot/windows and boolean sky/weather/ambient')
+    bg.add_argument('--config', required=True, help='JSON with name, floor, optional water/fishingSpot/windows and boolean sky/weather/ambient, optional capabilities.soil')
     guide = commands.add_parser('render-layout', help='Render layout JSON to a technical PNG guide for image-tool references (not finished art)')
     guide.add_argument('--config', required=True, help='Background layout JSON')
     guide.add_argument('--image', help='Optional 1536x1024 scene to inspect beneath technical guides; never modified')

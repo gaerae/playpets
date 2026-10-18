@@ -7,6 +7,7 @@
 | `pets/` | Accepted pet manifests, canonical and seasonal sheets, identity references and generation provenance |
 | `concepts/` | Approved visual direction and identity source images |
 | `sources/` | Generated originals and retired variants of the runtime art in `src/art/`, kept as provenance; the app does not ship them |
+| `discovery/` | Accepted tree stages, seasonal variants, keepsakes, shovel and generation provenance; repacked by `scripts/pack-discovery.mjs` |
 | `creator-kit/` | Reusable reference sheets and metadata used to build public creator downloads |
 | `banner.png`, `demo.gif` | Repository-facing product media |
 

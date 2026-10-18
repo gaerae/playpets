@@ -1,11 +1,12 @@
-// The album: everything that grows, comes and is caught in the yard, in four books. Flowers grown
+// The album: everything that grows, comes and is caught in the yard. Flowers grown
 // from seeds (counted by the backend when they bloom), fish and bugs caught, gifts friends brought.
 // The ones found show how many (and the biggest fish); the others are silhouettes with when and
 // where to look, so there is always a next one. What there is to find is the catalogue's.
 import { closeOnBackdrop } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
 import { $, data } from '../core/state.js';
-import { BUGS, FISH, FLOWERS, GIFTS } from '../yard/catalog.js';
+import { artSvg } from '../yard/art.js';
+import { BUGS, FISH, FLOWERS, GIFTS, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
 
 // When and where a fish or a bug is found: "Summer · Evening·Night · at the lake".
@@ -66,6 +67,26 @@ const BOOKS = {
     hint: k => (k.event ? eventHint(k) : t('catch.gift_hint')),
     record: () => t('catch.received'),
   },
+  tree: {
+    tab: 'album.trees',
+    kinds: TREES,
+    found: () => data.album?.trees || {},
+    draw: (k, unknown) =>
+      artSvg(k.stages.find(stage => stage.name === 'mature').art, unknown ? 'class="unknown-art"' : ''),
+    name: k => t(`tree.${k.id}`),
+    hint: () => t('album.tree_hint'),
+    record: entry => t('catch.grown', { count: entry.count }),
+  },
+  treasure: {
+    tab: 'album.treasures',
+    kinds: TREASURES,
+    found: () => data.album?.treasures || {},
+    draw: (k, unknown) => artSvg(k.art, unknown ? 'class="unknown-art"' : ''),
+    name: k => t(`treasure.${k.id}`),
+    hint: () => t('album.treasure_hint'),
+    record: entry => caughtLine(entry, false),
+    rare: k => k.rarity === 'uncommon',
+  },
 };
 let book = 'flower';
 // A kind this seldom (its weight among those that come at the same time, catalog.json) is rare.
@@ -84,7 +105,7 @@ function card(b, kind, entry) {
   hint.textContent = b.hint(kind);
   el.append(name, hint);
   // A fish or a bug that comes seldom says so, found or not, so it is worth waiting for.
-  if (kind.weight <= RARE) {
+  if (b.rare ? b.rare(kind) : kind.weight <= RARE) {
     const rare = document.createElement('span');
     rare.className = 'album-rare';
     rare.textContent = t('catch.rare');
@@ -109,6 +130,7 @@ export function renderAlbum() {
     total += b.kinds.length;
     document.querySelector(`[data-count="${id}"]`).textContent = `${count}/${b.kinds.length}`;
   }
+  if ($('album-select')) $('album-select').value = book;
   $('album-total').textContent = t('catch.total', { caught: found, total });
   for (const tab of document.querySelectorAll('.album-tabs [data-book]')) {
     const active = tab.dataset.book === book;
@@ -127,6 +149,23 @@ function openAlbum() {
 }
 /** Wires the album's button, tabs and dialog. Called once, by app.js. */
 export function setupAlbum() {
+  const picker = $('album-select');
+  if (picker) {
+    picker.replaceChildren(
+      ...Object.entries(BOOKS).map(([id, b]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = t(b.tab);
+        return option;
+      }),
+    );
+    picker.onchange = () => {
+      if (!BOOKS[picker.value]) return;
+      book = picker.value;
+      renderAlbum();
+      $('album-grid').scrollTop = 0;
+    };
+  }
   $('album-tabs').replaceChildren(
     ...Object.entries(BOOKS).map(([id, b]) => {
       const tab = document.createElement('button'),

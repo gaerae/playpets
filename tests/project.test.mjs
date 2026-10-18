@@ -8,6 +8,7 @@ const project = { site: 'https://playpets.gaerae.com/', repository: 'https://git
 
 test('the about links point at the site in the app language and at the repository', () => {
   const ko = projectLinks(project, 'ko');
+  assert.equal(ko.privacy, 'https://playpets.gaerae.com/ko/privacy');
   assert.equal(ko.site, 'https://playpets.gaerae.com/ko/');
   assert.equal(ko.guide, 'https://playpets.gaerae.com/ko/guide/');
   assert.equal(ko.releases, 'https://playpets.gaerae.com/ko/releases/');

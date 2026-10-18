@@ -200,6 +200,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "defaults": {"ollamaEndpoint": http::OLLAMA_DEFAULT},
         "agents": agent::kinds::agents_json(),
         "version": app.package_info().version.to_string(),
+        "updateChannel": if crate::update::store_managed() { "store" } else { "github" },
         "project": {"site": env!("CARGO_PKG_HOMEPAGE"), "repository": env!("CARGO_PKG_REPOSITORY")},
         "assets": d.assets.iter().map(sprite::asset_json).collect::<Vec<_>>(),
         "providers": d.providers.iter().map(|p| { let mut p = p.clone(); p["hasKey"] = json!(d.secret_ids.contains(providers::id_of(&p))); p }).collect::<Vec<_>>(),

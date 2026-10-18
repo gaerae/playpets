@@ -5,7 +5,7 @@ Change or add what is in the yard without touching the code that runs it. The ya
 
 | What | Where | Read by |
 |---|---|---|
-| The catalogue: fish, bugs, flowers, gifts, the garden's stages | `src/content/catalog.json` | the page (`src/yard/catalog.js`) and the backend (`src-tauri/src/pets/content.rs`, built in) |
+| The catalogue: fish, bugs, flowers, gifts, trees, keepsakes and the garden's stages | `src/content/catalog.json` | the page (`src/yard/catalog.js`) and the backend (`src-tauri/src/pets/content.rs`, built in) |
 | The scenery's composition: curves, the lake, the field, the layers painted from back to front | `src/content/yard.json` | the page (`src/yard/layout.js`, `src/yard/backdrop.js`) |
 | Seasonal events: when, their gift, what they add to the scenery and how they look | `src/content/events.json` | the page (`src/yard/events.js`, `src/yard/festival.js`) and the backend (its gift's dates, `content.rs`) |
 | Drawings: plant stages, flowers, gifts (and any fish or bug that has its own) | `src/art/<folder>/<id>.svg` | the page (`src/yard/art.js`), as symbols |
@@ -36,7 +36,7 @@ Seeds planted in a season grow one of that season's flowers, picked at random (`
 
 ### Add a gift
 1. Add an entry to `gifts`. The order is the order the first gifts come in. Fields: `art` (`decor/<id>.svg`), `flat` (true if it lies on the ground under plants and friends, like the pond), `stand` (`"on"` if friends stand on it, like the bench; left out, they stand beside it) and `effects` (see below).
-2. Draw it in `src/art/decor/<id>.svg`.
+2. Draw it in `src/art/decor/<id>.svg`. Set optional `size: [width, height]` in catalogue units when furniture needs a different footprint from its SVG view box. Preserve the drawing's aspect ratio. Furniture and friends share the same yard zoom, independent of display density; do not multiply layout sizes by `devicePixelRatio`.
 3. Add `decor.kind_<id>` (its name) and `decor.visit_<id>` (a list of things friends say when they visit it) to every string table.
 
 ### Drawings
@@ -121,3 +121,11 @@ npm run test:e2e
 The website's discovery guide reads the same catalogue and locale strings as the app. `eligibleKinds`, `fishWeight`, `relativeChances` and `wildlifeGroup` in `src/yard/catalog.js` keep its condition filters and the runtime aligned. A fish percentage is conditional on a successful landing; a bug percentage is conditional on its group appearing. It is not a per-hour spawn probability. Changing season, time, event or rain changes the eligible pool and its normalized weights. Rain changes fish weights, while bugs require clear weather. The gift sequence is deterministic and the guide never presents it as a loot probability.
 
 The guide calls weights of at least 20% “often”, 5% to below 20% “sometimes”, and below 5% “rarely” within the current pool. These labels describe relative selection, not waiting times. Event dates and hemisphere behavior remain in the seasonal-events section. Do not change gameplay weights merely to make every collection finish in one sitting. When adding an appearance rule, update the shared predicate and its tests before changing the guide.
+
+## Planted trees and discoveries
+
+Trees in `catalog.json` have an ID, three `stages` (seedling, young, mature), an optional `seasonArt` map for mature art, and a `footprint` root ellipse in authored pixels. New species need a `tree.<id>` string in every language. Drawings use a bottom-centre anchor and share yard zoom; the field coordinate stays fixed through growth and season changes. `planted-trees.js` owns these saved trees; `trees.js` remains the procedural scenery painter.
+
+Keepsakes use the `treasures` list, an art path and `rarity` (`common` or `uncommon`), plus `treasure.<id>` in every language. Each tier is selected uniformly; tier odds and timing limits are in `pets/discovery.rs` and exposed by the backend. The page fallback and website guide share `core/limits.js`; its test compares them with Rust.
+
+A tree belongs to its `world` ID; existing flowers and decorations remain shared. The ground profile is a local geometry snapshot of the current floor, projected water and placed roots/props, not image inference. Optional imported-background `capabilities.soil` controls digging and tree planting independently of sky transparency. The creator skill and import validator preserve it.

@@ -85,6 +85,14 @@ export function validateBackgroundPack(input) {
   )
     return fail();
   if (JSON.stringify(input).length > MAX_BACKGROUND_BYTES) return fail();
+  if (
+    input.capabilities !== undefined &&
+    (!input.capabilities ||
+      typeof input.capabilities !== 'object' ||
+      Array.isArray(input.capabilities) ||
+      (input.capabilities.soil !== undefined && typeof input.capabilities.soil !== 'boolean'))
+  )
+    return fail();
   const name = [...input.name]
     .map(c => (c.charCodeAt(0) < 32 || c.charCodeAt(0) === 127 ? ' ' : c))
     .join('')
@@ -104,6 +112,7 @@ export function validateBackgroundPack(input) {
     name,
     images,
     ...geometry,
+    capabilities: { soil: input.capabilities?.soil ?? input.sky === true },
     sky: input.sky === true,
     weather: input.weather === true,
     ambient: input.ambient === true,
@@ -124,6 +133,7 @@ export function backgroundWorld(pack, id) {
     windowPanes: pack.sky ? undefined : pack.windows,
     capabilities: {
       sky: pack.sky,
+      soil: pack.capabilities?.soil ?? pack.sky !== false,
       weather: pack.weather && (pack.sky || pack.windows.length > 0),
       wildlife: pack.sky,
       fishing: !!pack.water,

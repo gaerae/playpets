@@ -6,7 +6,7 @@ use crate::app::{
 };
 use crate::chat::{self, providers};
 use crate::desktop::overlay;
-use crate::pets::{catalog, importer, model};
+use crate::pets::{catalog, discovery, importer, model};
 use crate::{agent, i18n, system, tray, window};
 use serde_json::{Value, json};
 use tauri::{AppHandle, Manager, State};
@@ -154,6 +154,73 @@ static COMMANDS: &[Command] = &[
     }),
     main("setLanguage", |c| set_language(c.app, &c.state, c.text(0))),
     // The garden, gifts, the album and closeness.
+    main("dig", |c| {
+        let ground: discovery::GroundProfile =
+            serde_json::from_value(c.arg(4).clone()).map_err(|_| i18n::t("error.bad_request"))?;
+        let entropy = uuid::Uuid::new_v4();
+        let bytes = entropy.as_bytes();
+        // The first four UUID bytes contain no fixed version or variant bits.
+        let roll = (u32::from_le_bytes(bytes[..4].try_into().unwrap()) % 100) as u8;
+        let choice = u32::from_le_bytes(bytes[12..].try_into().unwrap()) as u64;
+        let now = now_ms();
+        commit(c.app, &c.state, |d| {
+            require_pet(d, c.text(0))?;
+            let result = discovery::dig(
+                &mut d.garden,
+                &mut d.album,
+                c.text(0),
+                c.text(1),
+                c.float(2),
+                c.float(3),
+                &ground,
+                now,
+                roll,
+                choice,
+            )?;
+            Ok(json!(result))
+        })
+    }),
+    main("plantTree", |c| {
+        let ground: discovery::GroundProfile =
+            serde_json::from_value(c.arg(5).clone()).map_err(|_| i18n::t("error.bad_request"))?;
+        let now = now_ms();
+        commit(c.app, &c.state, |d| {
+            require_pet(d, c.text(0))?;
+            let tree = discovery::plant_tree(
+                &mut d.garden,
+                c.text(1),
+                c.text(2),
+                c.float(3),
+                c.float(4),
+                &ground,
+                now,
+            )?;
+            Ok(json!(tree))
+        })
+    }),
+    main("moveTree", |c| {
+        let ground: discovery::GroundProfile =
+            serde_json::from_value(c.arg(3).clone()).map_err(|_| i18n::t("error.bad_request"))?;
+        commit(c.app, &c.state, |d| {
+            discovery::move_tree(&mut d.garden, c.text(0), c.float(1), c.float(2), &ground)?;
+            Ok(Value::Null)
+        })
+    }),
+    main("removeTree", |c| {
+        commit(c.app, &c.state, |d| {
+            discovery::remove_tree(&mut d.garden, c.text(0))?;
+            Ok(Value::Null)
+        })
+    }),
+    main("growTrees", |c| {
+        let now = now_ms();
+        let mut d = lock(&c.state);
+        let AppData { garden, album, .. } = &mut *d;
+        if discovery::grow_trees(garden, album, now) {
+            crate::app::save_and_show(c.app, &d)?;
+        }
+        Ok(Value::Null)
+    }),
     main("findSeed", |c| {
         commit(c.app, &c.state, |d| d.garden.find().map(Value::from))
     }),
@@ -716,6 +783,10 @@ mod tests {
         assert_eq!(overlay, ["bootstrap", "play", "openChat", "dragStart", "dragStop"]);
         for name in &overlay {
             assert!(may_call("overlay0", name) && may_call("main", name));
+        }
+        for name in ["dig", "plantTree", "moveTree", "removeTree", "growTrees"] {
+            assert!(may_call("main", name));
+            assert!(!may_call("overlay0", name));
         }
         assert!(may_call("main", "quitApp"));
         assert!(!may_call("overlay1", "quitApp"));

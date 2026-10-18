@@ -8,6 +8,7 @@ export function projectLinks({ site, repository }, lang) {
   const repo = repository.replace(/\/$/, '');
   return {
     site: root,
+    privacy: `${root}privacy`,
     guide: `${root}guide/`,
     releases: `${root}releases/`,
     notes: version => `${root}releases/${version}`,
