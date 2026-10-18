@@ -41,7 +41,7 @@ npm ci
 rustup show active-toolchain
 ```
 
-The root `rust-toolchain.toml` requests stable Rust with clippy and rustfmt for commands run here or in `src-tauri/`. It follows stable updates rather than pinning a compiler release; `src-tauri/Cargo.toml` records the minimum supported Rust version. npm records exact versions for new direct dependencies, while `npm ci` installs the existing lockfile.
+The root `rust-toolchain.toml` requests stable Rust with clippy and rustfmt for commands run here or in `src-tauri/`. It follows stable updates rather than pinning a compiler release; `src-tauri/Cargo.toml` records the minimum supported Rust version. Container builds retain the compiler and cross targets installed in their Rust base image. npm records exact versions for new direct dependencies, while `npm ci` installs the existing lockfile.
 
 The creator helper tests also need Python and Pillow. Use a virtual environment outside the checkout; activate it again in each new shell before running tests.
 

@@ -423,3 +423,9 @@ test('release tag protection permits creation but forbids later movement or dele
   assert.deepEqual(policy.bypass_actors, []);
   assert.deepEqual(policy.rules.map(rule => rule.type).sort(), ['deletion', 'non_fast_forward', 'update']);
 });
+
+test('container builds keep the image compiler and its installed cross targets', () => {
+  for (const platform of ['linux', 'windows']) {
+    assert.match(read(`packaging/${platform}/Dockerfile`), /^ENV RUSTUP_TOOLCHAIN=\$\{RUST_VERSION\}$/m);
+  }
+});
