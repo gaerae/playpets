@@ -20,6 +20,7 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; native package install-and-launch verification runs in release CI |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
+| Store authentication | `store-api.mjs` via `store:verify` | Redacted authentication, product-identity and publication-hold report; no submission or publication |
 | Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` includes the illustrated Clover face for the app and every platform’s tray; it needs macOS (`iconutil` makes the `.icns`) |
 | Native captures | `shots.mjs`, `shots-lib.mjs`, `shot-windows.swift` via `shots` | Localized captures and listing media; macOS capture host required |
 | Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
