@@ -104,3 +104,11 @@ test('Store submission requires both architectures and release notes before chan
     assert.equal(client.calls.length, 0);
   }
 });
+
+test('Store packaging executes only the current trusted workflow commit', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const workflow = await readFile('.github/workflows/store-package.yml', 'utf8');
+  assert.match(workflow, /test "\$sha" = "\$GITHUB_SHA"/);
+  assert.doesNotMatch(workflow, /ref: \$\{\{ needs\.source\.outputs\.sha \}\}/);
+  assert.match(workflow, /ref: \$\{\{ github\.sha \}\}/);
+});

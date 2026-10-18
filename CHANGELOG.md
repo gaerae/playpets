@@ -30,6 +30,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Keep small-window collection content visible in WebKit, preserve the yard after a tree-growth save error, and leave delayed update-check results quiet after Settings closes.
 - Keep MSIX installations on package-managed updates instead of downloading GitHub EXE installers, validate Store identity fields together and scope test-package removal to its test publisher.
+- Restrict Store package execution to the current trusted main workflow commit and its matching version tag.
 - Reject partially configured Apple signing builds and verify Developer ID trust and notarization when signing is enabled.
 
 ### Known limitations

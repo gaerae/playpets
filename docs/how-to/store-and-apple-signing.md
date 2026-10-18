@@ -167,8 +167,9 @@ approve their own manually started run, so `Prevent self-review` stays off.
 The Store workflows are separate from tag-triggered GitHub releases:
 
 1. On `main`, run `Store packages` (`store-package.yml`) with an existing stable
-   `v1.0.0` or later tag that includes the Store tooling. It verifies the tag is
-   an ancestor of `main`, builds/tests Windows x64 and ARM64 without Store
+   `v1.0.0` or later tag at the current `main` HEAD that includes the Store tooling.
+   It requires the tag, workflow commit and current `main` source to match,
+   builds/tests Windows x64 and ARM64 without Store
    credentials, and creates unsigned Store MSIX files. Its `store-bundle`
    artifact records the source commit, version and SHA-256 values. It does not
    install the unsigned packages or replace the Windows installation/WACK check.
