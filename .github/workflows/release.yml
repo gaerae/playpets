@@ -1,6 +1,6 @@
 # Builds every platform for a version tag and puts the files on a draft GitHub release, with the
 # changelog's section for that version as its notes. Start it with `npm run release -- x.y.z`
-# followed by `git push origin HEAD vx.y.z` (see docs/how-to/release.md). A person reads the draft and
+# followed by `git push --atomic origin HEAD vx.y.z` (see docs/how-to/release.md). A person reads the draft and
 # publishes it.
 #
 # Signing is off until its secrets exist; nothing else changes when they are added.

@@ -2,7 +2,10 @@
 // section per release, and the release script moves "Unreleased" into a new one.
 
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 import {
   cargoVersion,
@@ -142,4 +145,56 @@ test('updates keep TLS and system proxies without legacy ZIP extraction', async 
   assert.ok(features.includes('system-proxy'));
   assert.ok(!features.includes('zip'));
   assert.doesNotMatch(await readFile('src-tauri/Cargo.lock', 'utf8'), /name = "zip"\nversion = "[0-8]\./);
+});
+
+test('the release push never publishes its tag when the main update is rejected', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'playpets-release-push-'));
+  const remote = join(root, 'remote.git');
+  const client = join(root, 'client');
+  const config = join(root, 'config');
+  await writeFile(config, '');
+  const env = { ...process.env, GIT_CONFIG_GLOBAL: config, GIT_CONFIG_NOSYSTEM: '1' };
+  const git = (args, cwd = client) => spawnSync('git', args, { cwd, env, encoding: 'utf8' });
+  const ok = (args, cwd) => {
+    const result = git(args, cwd);
+    assert.equal(result.status, 0, result.stderr);
+    return result.stdout.trim();
+  };
+  try {
+    ok(['init', '--bare', remote], root);
+    ok(['init', '--initial-branch=main', client], root);
+    ok(['config', 'user.name', 'Release fixture']);
+    ok(['config', 'user.email', 'fixture@example.invalid']);
+    ok(['commit', '--allow-empty', '-m', 'Initial fixture']);
+    ok(['remote', 'add', 'origin', remote]);
+    ok(['push', 'origin', 'HEAD']);
+    const before = ok(['rev-parse', 'HEAD']);
+    ok(['commit', '--allow-empty', '-m', 'Release fixture']);
+    ok(['tag', '-a', 'v0.2.0', '-m', 'Release fixture']);
+    const hook = join(remote, 'hooks', 'update');
+    await writeFile(hook, '#!/bin/sh\ntest "$1" != refs/heads/main\n', { mode: 0o755 });
+    const script = await readFile('scripts/release.mjs', 'utf8');
+    const hint = script.match(/git push ([^`\\\n]+)/)[1];
+    const args = [
+      'push',
+      ...hint
+        .trim()
+        .split(/\s+/)
+        .map(arg => arg.replace(/v\$\{version\}/, 'v0.2.0')),
+    ];
+    assert.notEqual(git(args).status, 0, 'the main protection rejects this push');
+    assert.equal(ok(['--git-dir', remote, 'rev-parse', 'refs/heads/main']), before);
+    assert.notEqual(
+      git(['--git-dir', remote, 'rev-parse', '--verify', 'refs/tags/v0.2.0']).status,
+      0,
+      'a rejected main update must leave the tag unpublished',
+    );
+    await rm(hook);
+    ok(args);
+    const after = ok(['rev-parse', 'HEAD']);
+    assert.equal(ok(['--git-dir', remote, 'rev-parse', 'refs/heads/main']), after);
+    assert.equal(ok(['--git-dir', remote, 'rev-parse', 'refs/tags/v0.2.0^{commit}']), after);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });

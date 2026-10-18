@@ -9,6 +9,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Security
 
+- Add independent source, secret and dependency security checks, require reviewed CI before normal merges, and protect published release files and version tags.
+
 - Document the Linux GLib advisory, official upstream fixes and migration work, and the separate risk review required before publishing Linux packages. The dependency remains affected; this documentation does not resolve the advisory.
 - Disable unused legacy ZIP updater compatibility, removing the vulnerable ZIP extraction dependency reported as RUSTSEC-2026-0367, RUSTSEC-2026-0368 and RUSTSEC-2026-0369. Native installer updates and macOS tar updates remain supported.
 
@@ -35,6 +37,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Move the website and documentation to `https://playpets.gaerae.com/`.
 
 ### Fixed
+- Push the release commit and tag atomically so a rejected main update cannot publish an orphaned version tag.
 - Install the creator image-validation dependency in native release CI, and keep the four-language version-page introduction accurate after publication.
 - Confirm Linux pin state from the native window and wait for frame restoration before reporting fullscreen completion. Headless desktop checks now include a window manager.
 

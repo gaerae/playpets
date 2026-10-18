@@ -54,7 +54,8 @@
     "release": "node scripts/release.mjs",
     "licenses:generate": "node scripts/licenses.mjs",
     "licenses:check": "node scripts/licenses.mjs --check",
-    "creator:skill": "node scripts/creator-skill.mjs"
+    "creator:skill": "node scripts/creator-skill.mjs",
+    "security:check": "gitleaks git --redact --no-banner --log-opts=--all && npm audit --audit-level=high && cargo audit --file src-tauri/Cargo.lock"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

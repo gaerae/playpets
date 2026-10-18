@@ -26,4 +26,6 @@ COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 COPY build.sh /usr/local/bin/windows-build.sh
 COPY msix /usr/local/share/playpets-msix
+# Keep the image compiler and installed targets when a checkout declares its own toolchain.
+ENV RUSTUP_TOOLCHAIN=${RUST_VERSION}
 CMD ["bash", "/usr/local/bin/windows-build.sh"]

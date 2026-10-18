@@ -1,4 +1,5 @@
-## What changed
+## What changed and why
+<!-- State the problem and resulting behavior in one or two sentences. -->
 
 ## Related issue
 <!-- #number, if any -->
@@ -8,6 +9,7 @@
 - [ ] For changes people can see, noted under `[Unreleased]` in `CHANGELOG.md`
 - [ ] `npm run lint`
 - [ ] `npm test`
+- [ ] Security and CodeQL checks passed in CI (`npm run security:check` runs the secret/dependency checks locally)
 - [ ] `npm run test:e2e`
 - [ ] If the site (`website/`) or `docs/` changed, `npm run site:build`
 - [ ] If the screen changed, captures attached

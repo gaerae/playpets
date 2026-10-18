@@ -15,6 +15,7 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 | --- | --- | --- |
 | Local execution and Docker builds | `local.mjs` via `npm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with `MSIX_PUBLISHER` |
 | Linux desktop checks | `linux-e2e.sh` via `test:e2e:linux` (build and run) or with `node tests/e2e.mjs` (CI prebuilt binary) | Isolated D-Bus/Xvfb/Openbox session; waits for a window manager before testing native pin and fullscreen |
+| Security review | `npm run security:check` with Gitleaks 8.30.1 and cargo-audit 0.22.2 installed | Redacted full-history secret scan, npm high-severity dependency check and RustSec review; advisory warnings stay visible |
 | Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check`; `prepare-appimage-licenses.mjs` before Linux packaging; `appimage-license.mjs` on the finished image | Native dependency notice and fingerprint under `packaging/licenses/`; collected distro copyright files and an exact AppImage system-source manifest during a release build |
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; native package install-and-launch verification runs in release CI |
@@ -28,7 +29,7 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 
 The local Linux Docker build follows the same two-pass AppImage notice collection
 as CI, then verifies the finished image and exports its system-source manifest.
-Old package and manifest outputs are cleared before bundling.
+Old package and manifest outputs are cleared before bundling. Container builds use the compiler already installed in their Rust image, including the Windows cross target, rather than downloading another toolchain because of the checkout's root configuration.
 `BUNDLES=deb npm run dist:linux` skips AppImage collection and never exports an
 older image or manifest from the build cache. Local Debian builds are development
 checks; CI uses Ubuntu for the published packages.

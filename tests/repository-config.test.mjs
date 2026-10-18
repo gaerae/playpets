@@ -118,7 +118,7 @@ test('workflow actions stay pinned and do not run untrusted pull requests with p
     const workflow = read(`.github/workflows/${file}`);
     assert.doesNotMatch(workflow, /^\s*pull_request_target:/m, file);
     for (const match of workflow.matchAll(/^\s*- (?:id:.*\n\s+)?uses: (.+)$/gm))
-      assert.match(match[1], /^[\w-]+\/[\w-]+@[a-f0-9]{40} # /, file);
+      assert.match(match[1], /^[\w-]+\/[\w-]+(?:\/[\w-]+)*@[a-f0-9]{40} # /, file);
     assert.match(workflow, /permissions:\n {2}contents: read/, file);
   }
 });
@@ -349,4 +349,83 @@ test('the CI e2e builds and runs what npm run test:e2e does', () => {
   ];
   assert.equal(binaries.length, 2);
   assert.doesNotMatch(workflow, /npm run test:e2e/);
+});
+
+test('security CI checks the full redacted history and shares the local dependency command', () => {
+  const workflow = read('.github/workflows/security.yml');
+  const scripts = JSON.parse(read('package.json')).scripts;
+  assert.match(workflow, /fetch-depth: 0/);
+  assert.match(workflow, /GITLEAKS_VERSION: 8\.30\.1/);
+  assert.match(workflow, /GITLEAKS_SHA256: [a-f0-9]{64}/);
+  assert.match(workflow, /sha256sum -c -/);
+  assert.match(workflow, /cargo-audit@0\.22\.2/);
+  assert.match(workflow, /npm run security:check/);
+  assert.match(scripts['security:check'], /gitleaks git --redact/);
+  assert.match(scripts['security:check'], /npm audit --audit-level=high/);
+  assert.match(scripts['security:check'], /cargo audit --file src-tauri\/Cargo\.lock/);
+  assert.doesNotMatch(workflow, /secrets\.|security-events: write|contents: write|continue-on-error/);
+});
+
+test('CodeQL covers app, workflow and creator sources without exposing signing secrets', () => {
+  const workflow = read('.github/workflows/codeql.yml');
+  assert.match(workflow, /language: \[actions, javascript-typescript, python, rust\]/);
+  assert.match(workflow, /build-mode: none/);
+  assert.match(workflow, /security-events: write/);
+  assert.match(workflow, /category: \/language:\$\{\{ matrix.language \}\}/);
+  assert.doesNotMatch(workflow, /secrets\.|contents: write|pull_request_target/);
+});
+
+test('root Rust tooling and future npm additions keep contributor setup explicit', () => {
+  const toolchain = read('rust-toolchain.toml');
+  assert.match(toolchain, /channel = "stable"/);
+  assert.match(toolchain, /components = \["clippy", "rustfmt"\]/);
+  assert.match(toolchain, /profile = "minimal"/);
+  assert.match(read('.npmrc'), /^save-exact=true$/m);
+  assert.match(read('.github/pull_request_template.md'), /What changed and why/);
+});
+
+test('review gates cover actual CI names without bypassing main history protection', () => {
+  const history = JSON.parse(read('.github/rulesets/main-history.json'));
+  const review = JSON.parse(read('.github/rulesets/main-review.json'));
+  assert.deepEqual(history.bypass_actors, []);
+  assert.deepEqual(history.rules.map(rule => rule.type).sort(), ['deletion', 'non_fast_forward']);
+  for (const policy of [history, review]) {
+    assert.equal(policy.target, 'branch');
+    assert.equal(policy.enforcement, 'active');
+    assert.deepEqual(policy.conditions.ref_name, { include: ['~DEFAULT_BRANCH'], exclude: [] });
+  }
+  assert.deepEqual(review.bypass_actors, [{ actor_type: 'RepositoryRole', actor_id: 5, bypass_mode: 'always' }]);
+  assert.doesNotMatch(JSON.stringify(review.rules), /deletion|non_fast_forward/);
+  const pr = review.rules.find(rule => rule.type === 'pull_request').parameters;
+  assert.deepEqual(pr.allowed_merge_methods, ['squash']);
+  assert.equal(pr.required_approving_review_count, 0);
+  assert.equal(pr.required_review_thread_resolution, true);
+  const checks = review.rules.find(rule => rule.type === 'required_status_checks').parameters;
+  const native = [...read('.github/workflows/build.yml').matchAll(/name: ([\w-]+), bundles:/g)].map(match => match[1]);
+  const security = read('.github/workflows/security.yml').match(/^ {4}name: (.+)$/m)[1];
+  assert.equal(native.length, 5);
+  assert.deepEqual(
+    checks.required_status_checks.map(check => check.context).sort(),
+    [...native, 'site', security].sort(),
+  );
+  assert.equal(checks.strict_required_status_checks_policy, true);
+  const scanning = review.rules.find(rule => rule.type === 'code_scanning').parameters;
+  assert.deepEqual(scanning.code_scanning_tools, [
+    { tool: 'CodeQL', security_alerts_threshold: 'high_or_higher', alerts_threshold: 'errors' },
+  ]);
+});
+
+test('release tag protection permits creation but forbids later movement or deletion', () => {
+  const policy = JSON.parse(read('.github/rulesets/release-tags.json'));
+  assert.equal(policy.target, 'tag');
+  assert.equal(policy.enforcement, 'active');
+  assert.deepEqual(policy.conditions.ref_name, { include: ['refs/tags/v*.*.*'], exclude: [] });
+  assert.deepEqual(policy.bypass_actors, []);
+  assert.deepEqual(policy.rules.map(rule => rule.type).sort(), ['deletion', 'non_fast_forward', 'update']);
+});
+
+test('container builds keep the image compiler and its installed cross targets', () => {
+  for (const platform of ['linux', 'windows']) {
+    assert.match(read(`packaging/${platform}/Dockerfile`), /^ENV RUSTUP_TOOLCHAIN=\$\{RUST_VERSION\}$/m);
+  }
 });

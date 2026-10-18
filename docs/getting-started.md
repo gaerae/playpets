@@ -20,7 +20,7 @@ The same commands run on macOS, Linux and Windows. Command examples use a macOS 
 - Linux (Debian, Ubuntu): install the same packages as CI.
 
 ```bash
-sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev libdbus-1-dev patchelf xvfb dbus-x11
+sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev libdbus-1-dev patchelf xvfb dbus-x11 openbox x11-utils
 ```
 
 - Windows: "Desktop development with C++" from Visual Studio Build Tools, and the WebView2 runtime (included in Windows 11).
@@ -34,12 +34,14 @@ git clone https://github.com/gaerae/playpets.git
 cd playpets
 ```
 
-2. Install the dependencies and add the Rust check tools.
+2. Install the dependencies and confirm the Rust toolchain.
 
 ```bash
 npm ci
-rustup component add rustfmt clippy
+rustup show active-toolchain
 ```
+
+The root `rust-toolchain.toml` requests stable Rust with clippy and rustfmt for commands run here or in `src-tauri/`. It follows stable updates rather than pinning a compiler release; `src-tauri/Cargo.toml` records the minimum supported Rust version. Container builds retain the compiler and cross targets installed in their Rust base image. npm records exact versions for new direct dependencies, while `npm ci` installs the existing lockfile.
 
 The creator helper tests also need Python and Pillow. Use a virtual environment outside the checkout; activate it again in each new shell before running tests.
 
@@ -99,6 +101,35 @@ npm run start
 ```bash
 npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
 ```
+
+## Optional editor setup
+
+The repository recommends Biome, rust-analyzer and EditorConfig extensions.
+Keep personal editor settings in the ignored `.vscode/settings.json`. For
+format-on-save and Rust checks, a starting point is:
+
+```json
+{
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true
+  },
+  "rust-analyzer.linkedProjects": ["src-tauri/Cargo.toml"],
+  "rust-analyzer.check.command": "clippy",
+  "files.watcherExclude": {
+    "**/src-tauri/target/**": true,
+    "**/website/.vitepress/**": true
+  }
+}
+```
+
+Security checks run separately in CI. Maintainers can also install Gitleaks
+8.30.1 and cargo-audit 0.22.2 (`cargo install cargo-audit --version 0.22.2 --locked`)
+and run `npm run security:check`; see the [security policy](https://github.com/gaerae/playpets/blob/main/SECURITY.md#automated-security-checks).
 
 ## Verification
 - At the end of `npm test`, Rust prints `test result: ok` and Node prints `fail 0`.
