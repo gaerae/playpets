@@ -46,7 +46,7 @@ test('the release notes are the section of that version, without its heading', (
   assert.throws(() => notesFor(CHANGELOG, '9.9.9'), /no section/i);
 });
 
-test('the Linux metainfo gets the release first, replacing a development entry of the same version', async () => {
+test('the Linux metainfo gets the release first, replacing a development entry of the same version', () => {
   const xml =
     '<component>\n  <releases>\n    <release version="0.2.0" date="2026-11-01" type="development"/>\n    <release version="0.1.0" date="2026-10-06"/>\n  </releases>\n</component>\n';
   const out = setMetainfoRelease(xml, '0.2.0', '2026-11-02');
@@ -55,11 +55,28 @@ test('the Linux metainfo gets the release first, replacing a development entry o
     '<component>\n  <releases>\n    <release version="0.2.0" date="2026-11-02"/>\n    <release version="0.1.0" date="2026-10-06"/>\n  </releases>\n</component>\n',
   );
   assert.throws(() => setMetainfoRelease(xml, 'v2', '2026-11-02'));
-  const real = await readFile('packaging/linux/app.playpets.metainfo.xml', 'utf8');
-  assert.match(
-    setMetainfoRelease(real, '0.1.0', '2026-10-07'),
-    /<releases>\n {4}<release version="0\.1\.0" date="2026-10-07"\/>\n {2}<\/releases>/,
-  );
+});
+
+test('updating an older metainfo release preserves the other published versions', () => {
+  const xml = `<component>
+  <releases>
+    <release version="0.3.0" date="2026-12-02"/>
+    <release version="0.2.0" date="2026-11-02"/>
+    <release version="0.1.0" date="2026-10-06"/>
+  </releases>
+</component>
+`;
+  const expected = `<component>
+  <releases>
+    <release version="0.1.0" date="2026-10-07"/>
+    <release version="0.3.0" date="2026-12-02"/>
+    <release version="0.2.0" date="2026-11-02"/>
+  </releases>
+</component>
+`;
+  const out = setMetainfoRelease(xml, '0.1.0', '2026-10-07');
+  assert.equal(out, expected);
+  assert.equal(setMetainfoRelease(out, '0.1.0', '2026-10-07'), expected);
 });
 
 test('Cargo.toml and Cargo.lock are bumped for the app only', () => {
