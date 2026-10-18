@@ -33,7 +33,8 @@ key and password are correct; a signed release build and update test confirm tha
 
 The local repository includes `.gitignore`, `.gitattributes`, `.editorconfig`,
 `.node-version`, Biome and editor recommendations, issue and pull-request templates,
-Dependabot, review guidance and four Actions workflows. `npm test` checks ignored
+Dependabot, review guidance and native build, Pages, release, distribution,
+dependency submission and security workflows. `npm test` checks ignored
 generated/secret paths, pinned actions and the Pages input paths. Run `actionlint`
 too when it is available. `CODEOWNERS` and funding metadata are optional; add them
 when there are review owners or a real funding destination to name.
@@ -67,14 +68,16 @@ pbcopy < /dev/null
 5. Create the repository: github.com/new, owner `gaerae`, name `playpets`, **Public**, and add nothing (no README, license or .gitignore: the repository already has them). The name matters: the updater address, the site and the install links all use `gaerae/playpets`.
 
 6. Settings before the first push:
-   - Settings → General → Pull Requests: turn on **Allow squash merging** and turn off **Allow merge commits** and **Allow rebase merging**. Set the default squash commit title to **Pull request title**. Review the commit body and retain co-author trailers before merging ([commit standard](../standards/commits-and-branches.md)).
+   - Settings → General → Pull Requests: turn on **Allow squash merging** and turn off **Allow merge commits** and **Allow rebase merging**. Set the default squash commit title to **Pull request title** and enable **Automatically delete head branches**. Review the commit body and retain co-author trailers before merging ([commit standard](../standards/commits-and-branches.md)).
    - Settings → Pages → Build and deployment → Source: **GitHub Actions**. If the page only lets you choose after a push, re-run the `pages` workflow from the Actions tab afterwards.
    - Settings → Pages → Custom domain: `playpets.gaerae.com`. Its CNAME points to `gaerae.github.io`; after the DNS check and certificate finish, turn on **Enforce HTTPS**. The complete setup and migration checks are in [Change the site address](site-address.md).
-   - Settings → Actions → General → Workflow permissions: **Read repository contents and packages permissions**; leave "Allow GitHub Actions to create and approve pull requests" off. Optional: "Require actions to be pinned to a full-length commit SHA" (every action here is pinned).
+   - Settings → Actions → General → Workflow permissions: **Read repository contents and packages permissions**; leave "Allow GitHub Actions to create and approve pull requests" off. Enable "Require actions to be pinned to a full-length commit SHA" (every action here is pinned).
    - Settings → Advanced Security: **Private vulnerability reporting: Enable** (`SECURITY.md`, the Code of Conduct and the issue form send reports there); Dependabot alerts and security updates: Enable; make sure secret scanning and push protection are on.
    - Settings → General → Features: Issues on; Wiki, Discussions and Projects off. Social preview: upload `website/public/og.png`.
    - The gear next to About on the repository page: description `A little yard for companions who talk to you and each other. Optional AI connections and coding-agent reactions.`, website "Use your GitHub Pages website", topics `desktop-pet`, `tauri`, `codex-pet`, `claude-code`, `coding-agent`, `ollama`, `rust`.
-   - Settings → Rules → Rulesets → New branch ruleset for the default branch: "Restrict deletions" and "Block force pushes". The release command pushes its commit straight to `main`, so add "Require a pull request" or "Require status checks" only with Repository admin on the bypass list.
+   - Settings → General → Releases: enable **Release immutability**. It applies to future releases: finish uploading and checking draft assets before publishing. After publication, preserve their files and tags and ship corrections in the next patch version.
+   - Settings → Rules → Rulesets: import the three definitions in [`.github/rulesets/`](https://github.com/gaerae/playpets/tree/main/.github/rulesets). `main-history.json` blocks default-branch deletion and force pushes without a bypass. `main-review.json` requires squash PRs, resolved review threads, the six native/site checks, `Security checks` and CodeQL with no new high-severity security findings or analysis errors. Its Repository admin exception allows only the documented operational use: pushing the generated release commit directly to main. The separate history rule still blocks deletion and force pushes for admins.
+   - `release-tags.json` permits new `v*.*.*` tags but blocks later updates and deletions, with no bypass. Validate a tag locally before pushing; a mistaken pushed tag stays in history and a correction uses a new version. Enable required-check and CodeQL rules only after those checks have run successfully; their exact names and the GitHub Actions application ID are recorded in the definitions.
 
 7. Push. Do not push with `--all` or `--tags`.
 
@@ -86,7 +89,7 @@ git remote add origin https://github.com/gaerae/playpets.git
 git push -u origin main
 ```
 
-8. Watch the Actions tab: `build` (five platforms and `site`) and `pages` run, and `pages` publishes https://playpets.gaerae.com/.
+8. Watch the Actions tab: `build` (five platforms and `site`), `security`, `codeql` and `pages` run, and `pages` publishes https://playpets.gaerae.com/.
 
 Optional, once the code is pushed: automatic reviews from CodeRabbit (free for public repositories). Sign in at https://app.coderabbit.ai with GitHub, install its app with **Only select repositories** → `gaerae/playpets`, and it reviews every pull request from then on. It reads `.coderabbit.yaml` (what to review and how) and, as its guidelines, `AGENTS.md` and `docs/standards/`. Ask it things in a pull request comment with `@coderabbitai`.
 
@@ -147,7 +150,7 @@ gh secret set WINGET_TOKEN --repo gaerae/playpets
     - Build the package with it (`MSIX_PUBLISHER="CN=…" npm run dist:windows`) and submit the unsigned `release/windows/msix-store/PlayPets_<version>_x64.msix` in Partner Center. The Store signs it. Without `MSIX_PUBLISHER`, the command makes a test-signed package in `release/windows/msix-test/`; Store builds leave those test certificates alone. Store submissions are by hand; the `distribute` workflow does not do them.
 
 ## Verification
-- The Actions tab shows `build` and `pages` green, and https://playpets.gaerae.com/ opens on an `https://` address.
+- The Actions tab shows `build`, `security`, `codeql` and `pages` green, and https://playpets.gaerae.com/ opens on an `https://` address.
 - The repository page shows the description, the website and the topics, and Settings → Rules lists the ruleset for `main`.
 - The Security tab shows "Report a vulnerability".
 - Settings → Secrets and variables → Actions lists `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`, `HOMEBREW_TAP_TOKEN` and `WINGET_TOKEN`.

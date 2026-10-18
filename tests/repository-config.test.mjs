@@ -374,3 +374,52 @@ test('CodeQL covers app, workflow and creator sources without exposing signing s
   assert.match(workflow, /category: \/language:\$\{\{ matrix.language \}\}/);
   assert.doesNotMatch(workflow, /secrets\.|contents: write|pull_request_target/);
 });
+
+test('root Rust tooling and future npm additions keep contributor setup explicit', () => {
+  const toolchain = read('rust-toolchain.toml');
+  assert.match(toolchain, /channel = "stable"/);
+  assert.match(toolchain, /components = \["clippy", "rustfmt"\]/);
+  assert.match(toolchain, /profile = "minimal"/);
+  assert.match(read('.npmrc'), /^save-exact=true$/m);
+  assert.match(read('.github/pull_request_template.md'), /What changed and why/);
+});
+
+test('review gates cover actual CI names without bypassing main history protection', () => {
+  const history = JSON.parse(read('.github/rulesets/main-history.json'));
+  const review = JSON.parse(read('.github/rulesets/main-review.json'));
+  assert.deepEqual(history.bypass_actors, []);
+  assert.deepEqual(history.rules.map(rule => rule.type).sort(), ['deletion', 'non_fast_forward']);
+  for (const policy of [history, review]) {
+    assert.equal(policy.target, 'branch');
+    assert.equal(policy.enforcement, 'active');
+    assert.deepEqual(policy.conditions.ref_name, { include: ['~DEFAULT_BRANCH'], exclude: [] });
+  }
+  assert.deepEqual(review.bypass_actors, [{ actor_type: 'RepositoryRole', actor_id: 5, bypass_mode: 'always' }]);
+  assert.doesNotMatch(JSON.stringify(review.rules), /deletion|non_fast_forward/);
+  const pr = review.rules.find(rule => rule.type === 'pull_request').parameters;
+  assert.deepEqual(pr.allowed_merge_methods, ['squash']);
+  assert.equal(pr.required_approving_review_count, 0);
+  assert.equal(pr.required_review_thread_resolution, true);
+  const checks = review.rules.find(rule => rule.type === 'required_status_checks').parameters;
+  const native = [...read('.github/workflows/build.yml').matchAll(/name: ([\w-]+), bundles:/g)].map(match => match[1]);
+  const security = read('.github/workflows/security.yml').match(/^ {4}name: (.+)$/m)[1];
+  assert.equal(native.length, 5);
+  assert.deepEqual(
+    checks.required_status_checks.map(check => check.context).sort(),
+    [...native, 'site', security].sort(),
+  );
+  assert.equal(checks.strict_required_status_checks_policy, true);
+  const scanning = review.rules.find(rule => rule.type === 'code_scanning').parameters;
+  assert.deepEqual(scanning.code_scanning_tools, [
+    { tool: 'CodeQL', security_alerts_threshold: 'high_or_higher', alerts_threshold: 'errors' },
+  ]);
+});
+
+test('release tag protection permits creation but forbids later movement or deletion', () => {
+  const policy = JSON.parse(read('.github/rulesets/release-tags.json'));
+  assert.equal(policy.target, 'tag');
+  assert.equal(policy.enforcement, 'active');
+  assert.deepEqual(policy.conditions.ref_name, { include: ['refs/tags/v*.*.*'], exclude: [] });
+  assert.deepEqual(policy.bypass_actors, []);
+  assert.deepEqual(policy.rules.map(rule => rule.type).sort(), ['deletion', 'non_fast_forward', 'update']);
+});

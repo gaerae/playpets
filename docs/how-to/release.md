@@ -7,7 +7,7 @@ Tag a new version `x.y.z`, then review and publish the GitHub release draft that
 A maintainer does this. You need write access to the repository and a clean local working tree on main. Signing and the distribution channels turn on only when the repository secrets exist; the release still works without them. The list of secrets is in the [signing keys and secrets standard](../standards/keys-and-secrets.md).
 
 ## Prerequisites
-- CI (the `build` workflow) passed on every platform for the latest commit on main.
+- CI (`build`, `security` and `codeql`) passed for the latest commit on main, including every desktop platform.
 - `CHANGELOG.md` lists this version's changes under `## [Unreleased]`. If it is empty, the release command stops.
 - You chose the version number. Bump the second number when people get new features, and the third when there are only fixes.
 - `git status` is empty locally.
@@ -74,6 +74,15 @@ published update can be downloaded and installed.
 - Treat Homebrew, winget and optional platform signing as separate distribution
   steps; record which channels are actually available in the release notes.
 
+## Published releases stay fixed
+
+Complete and verify every asset while the release is a draft. Release immutability
+protects future published assets and their associated tags. The repository's tag
+rules also block moving or deleting pushed `v*.*.*` tags. Before a push, a mistaken
+local tag can be deleted and regenerated; after a push, preserve it and use a new
+version. A published installer fix ships as a patch release, never a replaced
+file at an existing download address. Release notes can clarify known limits.
+
 ## Steps
 1. Pull the latest main.
 
@@ -133,8 +142,8 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 ## Troubleshooting
 | Symptom | Fix |
 |---|---|
-| `check` fails with "package.json is not x.y.z" | The tag and the version differ. Delete the tag (`git push --delete origin vx.y.z`, `git tag -d vx.y.z`) and start again from step 2 |
-| `check` fails with "no section for x.y.z" | The changelog has no such section. The tag was made without the release command |
+| `check` fails with "package.json is not x.y.z" | The tag and the version differ. If the tag is only local, delete it with `git tag -d vx.y.z` and regenerate it. Preserve an already pushed tag and prepare a corrected new version |
+| `check` fails with "no section for x.y.z" | The tag was made without finalized notes. Preserve a pushed tag and finalize the next version through the release command |
 | Only one platform's `build` fails | Read that runner's log and fix it, then run `release` by hand from Actions with the same tag (workflow_dispatch, tag input) |
 | The draft has no `latest.json` | The updater signing secrets are missing. Installed apps cannot find this release. Add the secrets, delete the draft, and run `release` by hand with the same tag |
 | `gh release create` fails with "already exists" | A draft for the same tag already exists. Delete that draft and run it by hand |
