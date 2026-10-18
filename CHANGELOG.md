@@ -37,6 +37,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Move the website and documentation to `https://playpets.gaerae.com/`.
 
 ### Fixed
+- Push the release commit and tag atomically so a rejected main update cannot publish an orphaned version tag.
 - Install the creator image-validation dependency in native release CI, and keep the four-language version-page introduction accurate after publication.
 - Confirm Linux pin state from the native window and wait for frame restoration before reporting fullscreen completion. Headless desktop checks now include a window manager.
 

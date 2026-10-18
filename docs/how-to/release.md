@@ -4,7 +4,7 @@
 Tag a new version `x.y.z`, then review and publish the GitHub release draft that CI fills with the files it builds for every platform. Once it is published, installed apps can find the update when updater signing is configured, and the winget and Homebrew tap files are generated. Why the flow works this way is in the decision "[The version lives only in package.json, and a version tag creates a draft release](../decisions/2026-09-30-releases-from-version-tags.md)".
 
 ## Audience and assumptions
-A maintainer does this. You need write access to the repository and a clean local working tree on main. Signing and the distribution channels turn on only when the repository secrets exist; the release still works without them. The list of secrets is in the [signing keys and secrets standard](../standards/keys-and-secrets.md).
+A maintainer does this. You need repository administrator access for the generated release commit and a clean local working tree on main. Ordinary code changes still use reviewed squash pull requests. Signing and the distribution channels turn on only when the repository secrets exist; the release still works without them. The list of secrets is in the [signing keys and secrets standard](../standards/keys-and-secrets.md).
 
 ## Prerequisites
 - CI (`build`, `security` and `codeql`) passed for the latest commit on main, including every desktop platform.
@@ -106,8 +106,10 @@ npm run release -- 0.2.0
 4. Push the commit and the tag. The tag starts the `release` workflow.
 
 ```bash
-git push origin HEAD v0.2.0
+git push --atomic origin HEAD v0.2.0
 ```
+
+The atomic push either updates both main and the version tag or updates neither. Do not push the tag separately after a rejected main update: that could start a release from a commit absent from main.
 
 5. Open the `release` run in the repository's Actions tab. Watch `check` (tag, version and changelog agree), `build` on five platforms, and `publish` finish in order.
 

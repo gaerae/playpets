@@ -77,5 +77,5 @@ git(
 git('commit', '-m', `Release ${version}`);
 git('tag', '-a', `v${version}`, '-m', `PlayPets ${version}`);
 console.log(
-  `Committed and tagged v${version}. To build and publish a draft release:\n  git push origin HEAD v${version}`,
+  `Committed and tagged v${version}. To build and publish a draft release:\n  git push --atomic origin HEAD v${version}`,
 );
