@@ -21,6 +21,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Update Tauri CLI to 2.12.2, Tauri to 2.12.3, tauri-build to 2.7.3 and serde_json to 1.0.154, with regenerated native license notices.
+
 - Replace Mini mode with one frameless, freely resizable yard down to 300 × 210. Save its bounds and independent Always on top setting, and keep the same activities available at every size.
 - Separate scene Places and Atmosphere, provide explicit Back to menu and Close actions, and reveal invite filters and secondary play/display tools on demand.
 - Hide the bottom dock in small windows; open the shared menu by right-click or Cmd/Ctrl+Shift+P, and toggle Always on top with Cmd/Ctrl+Shift+M.
