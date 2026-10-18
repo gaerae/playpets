@@ -37,6 +37,10 @@ published update can be downloaded and installed.
   current advisory data. Review informational warnings too. Record unresolved
   advisories, affected platforms and any reachability assessment in the release
   review; a passing unit test does not establish that a dependency is safe.
+  For the Linux GLib warning, use the upstream references and handling policy in
+  [Dependency advisories](https://github.com/gaerae/playpets/blob/main/SECURITY.md#dependency-advisories).
+  Check the active dependency graph even when an upstream project has added an
+  audit exception or started a newer GTK development branch.
 - Review third-party license notices for the dependencies actually bundled in
   each platform package and the built website. Include the required license and
   copyright texts with those distributions; the repository MIT license does not
