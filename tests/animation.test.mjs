@@ -56,3 +56,15 @@ test('a walk keeps stepping: renewing the same pose does not restart its frames'
   assert.equal(renewsClock('right', 'right', 1000, 1200), true, 'a pose that ran out starts over');
   assert.notDeepEqual(frameAt('right', 0), frameAt('right', 400), 'the walk row has more than one cell to show');
 });
+
+test('a brief reaction finishes once instead of restarting a partial second gesture', async () => {
+  const { poseClock } = await import('../src/core/animation.js');
+  for (const state of ['jump', 'wave', 'done']) {
+    const end = Math.round(animationSpec(state).seconds * 1000) - 1;
+    assert.equal(poseClock(state, 1200), Math.min(1200, end));
+    assert.equal(poseClock(state, 0), 0);
+    assert.deepEqual(frameAt(state, poseClock(state, 5000)), frameAt(state, end));
+  }
+  for (const state of ['idle', 'right', 'left', 'working', 'waiting', 'error'])
+    assert.equal(poseClock(state, 5000), 5000, 'continuous poses retain their normal loop');
+});

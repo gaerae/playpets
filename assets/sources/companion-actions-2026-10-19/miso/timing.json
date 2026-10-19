@@ -1,0 +1,65 @@
+{
+  "base": {
+    "dig": {
+      "durations": [280, 280, 300, 400, 360, 380],
+      "ground": [145, 199],
+      "contactAt": 560,
+      "tossAt": 1280
+    },
+    "plant": {
+      "durations": [260, 260, 400, 440, 300, 340],
+      "ground": [145, 199],
+      "contactAt": 520,
+      "tossAt": 1360,
+      "commitAt": 1360
+    },
+    "fish": {
+      "durations": [300, 400, 3200, 200, 320, 420]
+    },
+    "discover": {
+      "durations": [200, 220, 260, 360, 300, 260]
+    }
+  },
+  "summer": {
+    "dig": {
+      "durations": [280, 280, 300, 400, 360, 380],
+      "ground": [143, 199],
+      "contactAt": 560,
+      "tossAt": 1280
+    },
+    "plant": {
+      "durations": [260, 260, 400, 440, 300, 340],
+      "ground": [123, 199],
+      "contactAt": 520,
+      "tossAt": 1360,
+      "commitAt": 1360
+    },
+    "fish": {
+      "durations": [300, 400, 3200, 200, 320, 420]
+    },
+    "discover": {
+      "durations": [200, 220, 260, 360, 300, 260]
+    }
+  },
+  "winter": {
+    "dig": {
+      "durations": [280, 280, 300, 400, 360, 380],
+      "ground": [152, 199],
+      "contactAt": 560,
+      "tossAt": 1280
+    },
+    "plant": {
+      "durations": [260, 260, 400, 440, 300, 340],
+      "ground": [140, 199],
+      "contactAt": 520,
+      "tossAt": 1360,
+      "commitAt": 1360
+    },
+    "fish": {
+      "durations": [300, 400, 3200, 200, 320, 420]
+    },
+    "discover": {
+      "durations": [200, 220, 260, 360, 300, 260]
+    }
+  }
+}

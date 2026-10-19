@@ -1,0 +1,37 @@
+{
+  "source": "winter-plant-canonical.png",
+  "scale": 0.74,
+  "anchor": [96, 199],
+  "frames": [
+    {
+      "rect": [0, 0, 384, 320],
+      "foot": [105, 234],
+      "duration": 260
+    },
+    {
+      "rect": [384, 0, 384, 320],
+      "foot": [106, 187],
+      "duration": 260
+    },
+    {
+      "rect": [768, 0, 384, 320],
+      "foot": [91, 183],
+      "duration": 400
+    },
+    {
+      "rect": [1152, 0, 384, 320],
+      "foot": [87, 185],
+      "duration": 440
+    },
+    {
+      "rect": [1536, 0, 384, 320],
+      "foot": [96, 234],
+      "duration": 300
+    },
+    {
+      "rect": [1920, 0, 384, 320],
+      "foot": [96, 235],
+      "duration": 340
+    }
+  ]
+}

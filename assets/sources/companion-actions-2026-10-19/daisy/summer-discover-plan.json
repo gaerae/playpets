@@ -1,0 +1,37 @@
+{
+  "source": "summer-discover-canonical.png",
+  "scale": 0.7,
+  "anchor": [96, 199],
+  "frames": [
+    {
+      "rect": [0, 0, 384, 320],
+      "foot": [97, 244],
+      "duration": 200
+    },
+    {
+      "rect": [384, 0, 384, 320],
+      "foot": [74, 220],
+      "duration": 220
+    },
+    {
+      "rect": [768, 0, 384, 320],
+      "foot": [91, 241],
+      "duration": 260
+    },
+    {
+      "rect": [1152, 0, 384, 320],
+      "foot": [95, 243],
+      "duration": 360
+    },
+    {
+      "rect": [1536, 0, 384, 320],
+      "foot": [94, 244],
+      "duration": 300
+    },
+    {
+      "rect": [1920, 0, 384, 320],
+      "foot": [96, 243],
+      "duration": 260
+    }
+  ]
+}

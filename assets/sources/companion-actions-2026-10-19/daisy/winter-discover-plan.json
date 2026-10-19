@@ -1,0 +1,37 @@
+{
+  "source": "winter-discover-canonical.png",
+  "scale": 0.69,
+  "anchor": [96, 199],
+  "frames": [
+    {
+      "rect": [0, 0, 384, 320],
+      "foot": [88, 249],
+      "duration": 200
+    },
+    {
+      "rect": [384, 0, 384, 320],
+      "foot": [83, 231],
+      "duration": 220
+    },
+    {
+      "rect": [768, 0, 384, 320],
+      "foot": [99, 240],
+      "duration": 260
+    },
+    {
+      "rect": [1152, 0, 384, 320],
+      "foot": [119, 246],
+      "duration": 360
+    },
+    {
+      "rect": [1536, 0, 384, 320],
+      "foot": [98, 249],
+      "duration": 300
+    },
+    {
+      "rect": [1920, 0, 384, 320],
+      "foot": [110, 244],
+      "duration": 260
+    }
+  ]
+}

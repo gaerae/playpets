@@ -1,5 +1,6 @@
 // Draws one 192×208 cell of a pet's sprite sheet onto a canvas. Shared by the yard and the desktop overlay.
 import { frameAt, headroom, lookFrame } from './animation.js';
+import { companionImage, sameCompanionAppearance, setCompanionSeason } from './companion-actions.js';
 import { isSeason } from './season.js';
 
 const cache = new Map();
@@ -12,6 +13,7 @@ export function setSpriteSeason(value) {
   const next = isSeason(value) ? value : '';
   if (next === season) return false;
   season = next;
+  setCompanionSeason(next);
   return true;
 }
 // Each visible appearance keeps only its selected season in decoded-image memory.
@@ -95,8 +97,48 @@ function headroomOf(asset) {
   heads.set(key, { image, value });
   return value;
 }
-export function drawSprite(canvas, asset, state = 'idle', elapsed = 0, look = null) {
+function actionSurface(canvas, clip) {
+  const [width, height] = clip?.canvas ?? [192, 208];
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+    canvas._pk = '';
+  }
+  if (canvas.style) {
+    const offset = clip?.offset ?? [0, 0];
+    const extended = width !== 192 || height !== 208 || offset.some(Boolean);
+    const values = {
+      scale: extended ? `${width / 192} ${height / 208}` : '',
+      translate: extended ? `${(offset[0] / 192) * 100}% ${(offset[1] / 208) * 100}%` : '',
+      transformOrigin: extended ? '0 0' : '',
+    };
+    for (const [key, value] of Object.entries(values)) if (canvas.style[key] !== value) canvas.style[key] = value;
+  }
+}
+export function drawSprite(canvas, asset, state = 'idle', elapsed = 0, look = null, action = null) {
   if (!asset) return;
+  const authored = action && sameCompanionAppearance(action.asset, asset) ? companionImage(action) : null;
+  actionSurface(canvas, authored ? action.clip : null);
+  if (authored) {
+    const frame = reduced.matches ? action.clip.frames[0] : action.frame;
+    const key = `${asset.id}:action:${action.clip.url}:${frame.rect.join(',')}`;
+    if (canvas._pk === key && canvas._sheet === authored) return;
+    const ctx = canvas.getContext('2d');
+    const scale = action.clip.scale ?? 1;
+    const anchor = action.clip.anchor ?? [96, 200];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(
+      authored,
+      ...frame.rect,
+      anchor[0] - frame.foot[0] * scale,
+      anchor[1] - frame.foot[1] * scale,
+      frame.rect[2] * scale,
+      frame.rect[3] * scale,
+    );
+    canvas._pk = key;
+    canvas._sheet = authored;
+    return;
+  }
   const image = drawable(asset);
   if (!ready(image)) {
     if (canvas._pk) {

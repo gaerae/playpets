@@ -1,0 +1,50 @@
+{
+  "generator": "OpenAI built-in image generation",
+  "created": "2026-10-19",
+  "character": "playpets-clover",
+  "variant": "winter",
+  "original": "actions-source.png",
+  "originalSha256": "da34f1c3f9940e3076322ca48f4142e851b7c139e2f395fe10c9d6dc24580368",
+  "normalization": "normalization.json",
+  "actions": [
+    {
+      "action": "dig",
+      "plan": "dig-plan.json",
+      "output": "../../../../../src/art/companions/clover/winter/dig.png",
+      "sourceSha256": "ea32a18bad3c4682248bd98bdbda8a9557a8a3a3260c6242411ab39051886dad",
+      "outputSha256": "5fe62617e4b1d61b270df28f2f27e407e95d7a832e089c0c62a5401e9ab990e9",
+      "sourceScale": 0.69,
+      "frames": 6
+    },
+    {
+      "action": "plant",
+      "plan": "plant-plan.json",
+      "output": "../../../../../src/art/companions/clover/winter/plant.png",
+      "sourceSha256": "ea32a18bad3c4682248bd98bdbda8a9557a8a3a3260c6242411ab39051886dad",
+      "outputSha256": "3eff41467940005352460b662c99084ba8a911cf04be842378848bb83d92caab",
+      "sourceScale": 0.7,
+      "frames": 6
+    },
+    {
+      "action": "discover",
+      "plan": "discover-plan.json",
+      "output": "../../../../../src/art/companions/clover/winter/discover.png",
+      "sourceSha256": "ea32a18bad3c4682248bd98bdbda8a9557a8a3a3260c6242411ab39051886dad",
+      "outputSha256": "e56c2f5aec7b6cfa993dc896e768c641862edcdbedd22e266dc91fb922027c1e",
+      "sourceScale": 0.7,
+      "frames": 6
+    },
+    {
+      "action": "fish",
+      "plan": "fish-plan.json",
+      "output": "../../../../../src/art/companions/clover/winter/fish.png",
+      "source": "fish-source.png",
+      "originalSha256": "fe5dd28f5cc7ecdd7582977c4afac2d2e165be1509211e96aa9939371247c733",
+      "normalization": "fish-normalization.json",
+      "sourceSha256": "fe721af4622eaa03a84d17a8e9508019f1fd74183144a5c54432b386f26bd410",
+      "outputSha256": "30ff40e42cdb7e14f6fc26c0d1d1d9969f5583c5d9eecce25d0fe545fabe78a5",
+      "sourceScale": 0.46,
+      "frames": 6
+    }
+  ]
+}

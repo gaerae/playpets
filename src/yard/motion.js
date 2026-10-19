@@ -1,6 +1,8 @@
 // One frame of yard life: friends walk to where they are headed, idle ones entertain themselves.
 // What happens when a friend arrives belongs to whoever sent it (views.js sendTo).
 
+import { poseClock } from '../core/animation.js';
+import { clearCompanionAction, companionAction } from '../core/companion-actions.js';
 import { t } from '../core/i18n.js';
 import { between } from '../core/math.js';
 import { crown, drawSprite, reduced } from '../core/sprites.js';
@@ -18,6 +20,7 @@ const STROLL = 0.00022,
   WALK = 0.0005;
 export function moveFriends(now, dt) {
   for (const [id, v] of views) {
+    if (game) clearCompanionAction(v);
     if (v.target && !v.drag && !v.frozen) {
       const dx = v.target.x - v.x,
         dy = v.target.y - v.y;
@@ -53,8 +56,9 @@ export function moveFriends(now, dt) {
     const state = now < v.until ? v.pose : status;
     // A pose runs from when it began; standing animations share one clock, so friends that only
     // stand change cells together and the yard is redrawn less often.
-    const clock = now < v.until ? now - v.since : now;
-    drawSprite(v.canvas, v.asset, state, clock, state === 'idle' ? v.look : null);
+    const elapsed = now - v.since;
+    const clock = now < v.until ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
+    drawSprite(v.canvas, v.asset, state, clock, state === 'idle' ? v.look : null, companionAction(v, now));
     crown(v.label, v.asset, petHeight(v.pet));
   }
 }

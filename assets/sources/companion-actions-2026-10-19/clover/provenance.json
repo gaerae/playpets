@@ -1,0 +1,49 @@
+{
+  "generator": "OpenAI built-in image generation",
+  "created": "2026-10-19",
+  "character": "playpets-clover",
+  "reference": "../../../creator-kit/clover/identity-reference.png",
+  "actions": [
+    {
+      "action": "dig",
+      "source": "dig-source.png",
+      "plan": "dig-plan.json",
+      "output": "../../../../src/art/companions/clover/dig.png",
+      "sourceSha256": "b4f4be46498a3f398a5793dce3516275404b9267c55c5f2dd8dfe6be400976cf",
+      "outputSha256": "a9b6990ee67964911bd8bb1d87a0b2be3cba490e848addb67fbf351b85cfc5bf",
+      "sourceScale": 0.56,
+      "frames": 12
+    },
+    {
+      "action": "plant",
+      "source": "plant-source.png",
+      "plan": "plant-plan.json",
+      "output": "../../../../src/art/companions/clover/plant.png",
+      "sourceSha256": "a393c5bba53bd16168f2b723b622d92f6d9ba9dce97bbda8f2825682dae44ef4",
+      "outputSha256": "ae277eab4a61946de06a9495b0646975e4da36dbd2edf681dc891ac753431209",
+      "sourceScale": 0.52,
+      "frames": 12
+    },
+    {
+      "action": "fish",
+      "source": "fish-source.png",
+      "plan": "fish-plan.json",
+      "output": "../../../../src/art/companions/clover/fish.png",
+      "sourceSha256": "262e8b620721ad51b82ffc4713e26814a932b03075428d9aa461d6257d779cab",
+      "outputSha256": "26548bcb563f440b140b304be3fe6e4d6db75a5a3c62c97ef6c0e248a1591a76",
+      "sourceScale": 0.56,
+      "frames": 12
+    },
+    {
+      "action": "discover",
+      "source": "discover-source.png",
+      "plan": "discover-plan.json",
+      "output": "../../../../src/art/companions/clover/discover.png",
+      "sourceSha256": "7ffb787dbc4326b46cf55da842e79d01e437fbdbbb08eff22a20b14d857e5773",
+      "outputSha256": "be21c30af27885f9ef60a91a132c34ed9ef1eab67af6d8623bf8842dcd7d156c",
+      "sourceScale": 0.54,
+      "frames": 12
+    }
+  ],
+  "review": "Accepted base outfit action source; winter keeps its canonical outfit and fallback actions."
+}

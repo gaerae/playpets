@@ -1,0 +1,50 @@
+{
+  "generator": "OpenAI built-in image generation",
+  "created": "2026-10-19",
+  "character": "playpets-pip",
+  "variant": "base",
+  "original": "actions-source.png",
+  "originalSha256": "9fccb0e8abbad91ca92847b889202f8cc8474617ab3dec228681b146c7a998ea",
+  "normalization": "normalization.json",
+  "actions": [
+    {
+      "action": "dig",
+      "plan": "dig-plan.json",
+      "output": "../../../../../src/art/companions/pip/base/dig.png",
+      "sourceSha256": "5473f69d3b094268430a2fe54679c888889e68e943c05bc6f10abc533e52d935",
+      "outputSha256": "df79a0fbf13aceac730e3105808c192732108a68e439cb95ec624b8f43158e2a",
+      "sourceScale": 0.69,
+      "frames": 6
+    },
+    {
+      "action": "plant",
+      "plan": "plant-plan.json",
+      "output": "../../../../../src/art/companions/pip/base/plant.png",
+      "sourceSha256": "5473f69d3b094268430a2fe54679c888889e68e943c05bc6f10abc533e52d935",
+      "outputSha256": "63a07d39d2e09bdb4fec47e2d760a3a12d26f65eba1afe7442400d45b17121de",
+      "sourceScale": 0.69,
+      "frames": 6
+    },
+    {
+      "action": "discover",
+      "plan": "discover-plan.json",
+      "output": "../../../../../src/art/companions/pip/base/discover.png",
+      "sourceSha256": "5473f69d3b094268430a2fe54679c888889e68e943c05bc6f10abc533e52d935",
+      "outputSha256": "9e6a59d9c29e048a5d9e91745318e9c147f55a209dd48f9786f431fe39f03b12",
+      "sourceScale": 0.66,
+      "frames": 6
+    },
+    {
+      "action": "fish",
+      "plan": "fish-plan.json",
+      "output": "../../../../../src/art/companions/pip/base/fish.png",
+      "source": "fish-source.png",
+      "originalSha256": "b3b46933c62fecaa29d5ad6223a16953e06149df51e725936825393a15c171d3",
+      "normalization": "fish-normalization.json",
+      "sourceSha256": "dde7c3155546180af6456c8a8b6b0c6116b634dcad956b2d3c7c0fbd51d56010",
+      "outputSha256": "ed8297485aff1575e41fcec650406c77ef699cf07c35ca06ce36ec3b4ca41503",
+      "sourceScale": 0.5,
+      "frames": 6
+    }
+  ]
+}

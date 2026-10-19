@@ -16,6 +16,11 @@ export function animationSpec(state) {
   const [row, durations] = rows[state] || rows.idle;
   return { row, frames: durations.length, seconds: durations.reduce((a, b) => a + b, 0) / 1000 };
 }
+// Brief gestures finish once; replaying their first frames cuts a second jump or wave short.
+export function poseClock(state, elapsed) {
+  if (!['jump', 'wave', 'done'].includes(state)) return elapsed;
+  return Math.min(Math.max(0, elapsed), Math.round(animationSpec(state).seconds * 1000) - 1);
+}
 export function frameAt(state, elapsed) {
   const [row, durations] = rows[state] || rows.idle;
   let tick = Math.max(0, elapsed) % durations.reduce((a, b) => a + b, 0);

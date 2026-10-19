@@ -1,0 +1,122 @@
+{
+  "source": "winter-source.png",
+  "assembly": "atlasPoses columns=1 rows=24, group by vertical centre then left, isolatePose two-pixel alpha fringe, no resizing",
+  "rows": [
+    {
+      "action": "dig",
+      "frames": [
+        {
+          "sourceRect": [66, 13, 160, 255],
+          "rect": [0, 0, 384, 320]
+        },
+        {
+          "sourceRect": [318, 13, 183, 254],
+          "rect": [384, 0, 384, 320]
+        },
+        {
+          "sourceRect": [575, 40, 171, 229],
+          "rect": [768, 0, 384, 320]
+        },
+        {
+          "sourceRect": [813, 60, 180, 209],
+          "rect": [1152, 0, 384, 320]
+        },
+        {
+          "sourceRect": [1050, 13, 219, 255],
+          "rect": [1536, 0, 384, 320]
+        },
+        {
+          "sourceRect": [1309, 13, 163, 256],
+          "rect": [1920, 0, 384, 320]
+        }
+      ]
+    },
+    {
+      "action": "plant",
+      "frames": [
+        {
+          "sourceRect": [64, 266, 163, 253],
+          "rect": [0, 0, 384, 320]
+        },
+        {
+          "sourceRect": [323, 297, 178, 221],
+          "rect": [384, 0, 384, 320]
+        },
+        {
+          "sourceRect": [579, 322, 179, 196],
+          "rect": [768, 0, 384, 320]
+        },
+        {
+          "sourceRect": [828, 328, 171, 190],
+          "rect": [1152, 0, 384, 320]
+        },
+        {
+          "sourceRect": [1059, 271, 168, 248],
+          "rect": [1536, 0, 384, 320]
+        },
+        {
+          "sourceRect": [1320, 267, 162, 252],
+          "rect": [1920, 0, 384, 320]
+        }
+      ]
+    },
+    {
+      "action": "fish",
+      "frames": [
+        {
+          "sourceRect": [33, 513, 176, 257],
+          "rect": [0, 0, 384, 320]
+        },
+        {
+          "sourceRect": [275, 522, 308, 247],
+          "rect": [384, 0, 384, 320]
+        },
+        {
+          "sourceRect": [566, 529, 246, 243],
+          "rect": [768, 0, 384, 320]
+        },
+        {
+          "sourceRect": [808, 532, 231, 240],
+          "rect": [1152, 0, 384, 320]
+        },
+        {
+          "sourceRect": [1053, 542, 251, 228],
+          "rect": [1536, 0, 384, 320]
+        },
+        {
+          "sourceRect": [1303, 525, 219, 246],
+          "rect": [1920, 0, 384, 320]
+        }
+      ]
+    },
+    {
+      "action": "discover",
+      "frames": [
+        {
+          "sourceRect": [55, 766, 169, 253],
+          "rect": [0, 0, 384, 320]
+        },
+        {
+          "sourceRect": [312, 784, 179, 236],
+          "rect": [384, 0, 384, 320]
+        },
+        {
+          "sourceRect": [554, 775, 169, 244],
+          "rect": [768, 0, 384, 320]
+        },
+        {
+          "sourceRect": [804, 769, 164, 250],
+          "rect": [1152, 0, 384, 320]
+        },
+        {
+          "sourceRect": [1055, 766, 171, 253],
+          "rect": [1536, 0, 384, 320]
+        },
+        {
+          "sourceRect": [1306, 771, 166, 248],
+          "rect": [1920, 0, 384, 320]
+        }
+      ]
+    }
+  ]
+}
