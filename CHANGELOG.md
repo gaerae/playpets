@@ -43,6 +43,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Fixed
 
+- Keep onboarding tasks out of localized website captures by completing the controlled AI connection before photographing the yard.
 - Preserve gift waiting progress across short sessions and full yards instead of restarting the delay after every launch.
 - Refresh open collection odds when the weather changes and recheck planting ground at contact so newly occupied targets do not spend a sapling.
 - Keep the selected seasonal landscape when choosing snow, including imported backgrounds and indoor window views.
