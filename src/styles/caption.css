@@ -443,7 +443,7 @@ body.compact .scene-climate {
 body.compact .atmosphere-choice {
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
-  padding: 0 8px;
+  padding: 0 4px;
 }
 body.compact .atmosphere-choice summary {
   min-height: 30px;
