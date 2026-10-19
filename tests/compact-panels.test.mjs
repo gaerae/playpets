@@ -218,7 +218,7 @@ test('all panel entry routes run the same pending-yard-action cleanup', t => {
   assert.deepEqual(opened, ['pet', 'invite', 'settings']);
 });
 
-test('Escape leaves the task panel in place while update details own the foreground', () => {
+test('Escape closes a task and its inline update details together', () => {
   const { nodes, listeners } = page();
   const update = { hidden: true };
   const lookup = document.getElementById;
@@ -227,5 +227,17 @@ test('Escape leaves the task panel in place while update details own the foregro
   openPanel('pet');
   update.hidden = false;
   listeners.get('keydown')({ key: 'Escape', preventDefault() {} });
-  assert.equal(nodes.get('side-panel').hidden, false);
+  assert.equal(nodes.get('side-panel').hidden, true);
+  assert.equal(update.hidden, true);
+});
+
+test('the friend sheet names its destination instead of repeating the identity selector', () => {
+  const { nodes } = page();
+  nodes.get('panel-pet').dataset.title = 'tabs.friend';
+  const get = document.getElementById;
+  document.getElementById = id =>
+    id === 'selected-name' ? { textContent: 'Clover' } : id === 'pet-panel' ? { hidden: false } : get(id);
+  setupTabs();
+  openPanel('pet');
+  assert.notEqual(nodes.get('panel-title').textContent, 'Clover');
 });

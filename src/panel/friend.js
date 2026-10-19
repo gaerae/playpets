@@ -25,7 +25,6 @@ export function renderPanel() {
   $('pet-panel').hidden = !p;
   if (!p) return;
   $('selected-name').textContent = name(p);
-  if ($('panel-title') && !$('panel-pet')?.hidden) $('panel-title').textContent = name(p);
   // The pill is about the coding agent; a chat answer shows in the log, not here.
   const agentState = agentStateOf(data, p.id);
   $('status').textContent = labels[agentState];

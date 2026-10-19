@@ -13,7 +13,8 @@
   position: relative;
   max-height: none;
   min-height: 0;
-  padding: 12px;
+  padding: 8px;
+  font-size: 13px;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -22,7 +23,7 @@
   top: 52px;
   right: 12px;
   bottom: 64px;
-  width: min(384px, calc(100% - 24px));
+  width: min(352px, calc(100% - 24px));
   z-index: 20;
   overflow: hidden;
   align-self: stretch;
@@ -37,23 +38,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
   gap: 4px;
   border-bottom: 1px solid var(--line);
   flex: none;
 }
 .layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
-  width: min(540px, calc(100% - 24px));
+  width: min(480px, calc(100% - 24px));
 }
 .panel-head h2 {
   flex: 1;
   min-width: 0;
-  font-size: 15px;
+  font-size: 14px;
 }
 .panel-head .icon-button {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
 }
 .panel-head .icon-button svg {
   width: 16px;
@@ -69,16 +70,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  margin: 0 0 10px;
+  gap: 8px;
+  margin: 0 0 8px;
 }
 .section-heading p {
-  margin-top: 5px;
-  font-size: 12px;
+  margin-top: 3px;
+  font-size: 13px;
   color: var(--muted);
 }
 .section-heading .button {
-  font-size: 12px;
+  font-size: 13px;
 }
 /* A tab with nothing to show yet says so in the middle. */
 .empty-panel {
@@ -87,41 +88,41 @@
   justify-content: center;
   flex-direction: column;
   text-align: center;
-  gap: 16px;
+  gap: 10px;
   color: var(--muted);
   height: auto;
-  min-height: 260px;
+  min-height: 180px;
   flex: 1;
 }
 .empty-panel > span {
-  padding: 18px;
+  padding: 12px;
   background: #f2f5ee;
   border-radius: 50%;
   color: #95a88d;
 }
 .empty-panel svg {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
 }
 .empty-panel h2 {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--ink);
 }
 .empty-panel p {
-  font-size: 12px;
-  line-height: 1.8;
+  font-size: 13px;
+  line-height: 1.5;
 }
 .notice {
-  padding: 14px;
-  border-radius: 12px;
+  padding: 10px;
+  border-radius: var(--radius-control);
   background: var(--soft);
-  font-size: 12px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.5;
 }
 .notice.warning {
   background: #fff1e6;
   color: #8c502c;
-  margin-top: 14px;
+  margin-top: 10px;
   white-space: pre-line;
 }
 .version {
@@ -152,4 +153,28 @@
 
 #panel-expand {
   display: none;
+}
+
+@media (pointer: coarse) {
+  .panel-head .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Invite exposes importing beside its title, independently of the optional search filters. */
+.panel-head > #import {
+  display: none;
+}
+.side-panel:has(#panel-invite:not([hidden])) .panel-head > #import {
+  display: inline-flex;
+  flex: none;
+  min-height: 32px;
+  padding: 4px 6px;
+  gap: 4px;
+  font-size: 12px;
+}
+.panel-head > #import svg {
+  width: 15px;
+  height: 15px;
 }

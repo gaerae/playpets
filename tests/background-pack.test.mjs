@@ -77,6 +77,10 @@ test('custom seasonal selection and lighting use only validated package sources'
   );
   assert.equal(
     environmentLook({ world: 'custom-test', season: 'summer', weather: 'snow', period: 'night' }).art,
+    'custom-test:base',
+  );
+  assert.equal(
+    environmentLook({ world: 'custom-test', season: 'winter', weather: 'clear', period: 'day' }).art,
     'custom-test:winter',
   );
   assert.notEqual(

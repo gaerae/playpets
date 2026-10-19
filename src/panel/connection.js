@@ -1,5 +1,5 @@
 // Connecting an AI: one dialog for every kind of provider.
-import { confirmAction, keepEdits } from '../core/confirm.js';
+import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
 import { $, call, data, guard, providerLabel, selected, toast } from '../core/state.js';
 
@@ -90,6 +90,7 @@ export async function quickConnect() {
   connected(first, able);
 }
 export function openConnectionDialog(current, onChange = () => {}) {
+  if (dialogSaving) return;
   editProvider = current?.id || null;
   afterChange = onChange;
   $('connection-form').reset();
@@ -108,12 +109,18 @@ export function openConnectionDialog(current, onChange = () => {}) {
   $('dialog-title').textContent = current ? t('connection.title_edit') : t('connection.title_new');
   $('save-provider').textContent = current ? t('connection.save_edit') : t('connection.save_new');
   updateProviderForm();
-  connectionOpened();
+  rememberConnectionForm();
   $('connection-dialog').showModal();
 }
 // What the dialog holds, to tell whether anything was typed since it opened.
-const connectionForm = () => [aiType(), ...['ai-model', 'ai-endpoint', 'ai-key'].map(id => $(id).value)].join('\n');
+const connectionForm = () =>
+  [aiType(), ...['ai-model', 'ai-endpoint', 'ai-key'].map(id => $(id).value), $('ai-share-all').checked].join('\n');
 let connectionOpened = () => {};
+let connectionStart = '';
+function rememberConnectionForm() {
+  connectionStart = connectionForm();
+  connectionOpened();
+}
 function updateProviderForm() {
   const d = data.detected || {},
     type = aiType();
@@ -175,7 +182,12 @@ async function loadModels() {
       option.value = name;
       $('model-list').append(option);
     }
-    if (type === 'ollama' && !$('ai-model').value && list.length) $('ai-model').value = list[0];
+    if (type === 'ollama' && !$('ai-model').value && list.length) {
+      const untouched = connectionForm() === connectionStart;
+      $('ai-model').value = list[0];
+      // Provider discovery fills a default, but cannot make other edits part of the baseline.
+      if (untouched) rememberConnectionForm();
+    }
     // A CLI takes short aliases too, so the line says so there.
     const found = form.cli ? 'connection.models_found_cli' : 'connection.models_found';
     $('model-status').classList.remove('error');
@@ -183,7 +195,7 @@ async function loadModels() {
   } catch (e) {
     if (epoch === modelEpoch) {
       $('model-status').classList.add('error');
-      $('model-status').textContent = e.message;
+      showFormError('model-status', e.message);
     }
   }
 }
@@ -202,16 +214,15 @@ export function setupConnection({ first = () => {} } = {}) {
     $('connection-error').textContent = '';
     updateProviderForm();
   };
-  $('close-dialog').onclick = () => $('connection-dialog').close();
-  $('cancel-dialog').onclick = () => $('connection-dialog').close();
+  $('close-dialog').onclick = $('cancel-dialog').onclick = () => {
+    if (!dialogSaving) $('connection-dialog').close();
+  };
   // A click beside the dialog or Esc does not throw away an address or a key being typed: only
   // Cancel does, and the dialog says so.
   connectionOpened = keepEdits(
     $('connection-dialog'),
     connectionForm,
-    () => {
-      $('connection-error').textContent = t('dialog.unsaved');
-    },
+    () => showFormError('connection-error', t('dialog.unsaved')),
     () => dialogSaving,
   );
   $('connection-form').onsubmit = async e => {
@@ -243,7 +254,7 @@ export function setupConnection({ first = () => {} } = {}) {
       toast(t('toast.connection_saved'));
       connected(first, able);
     } catch (error) {
-      $('connection-error').textContent = error.message;
+      showFormError('connection-error', error.message);
     } finally {
       dialogSaving = false;
       button.disabled = false;

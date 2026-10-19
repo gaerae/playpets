@@ -35,13 +35,20 @@ export function element(tag = 'div', { rect, ...props } = {}) {
   const classes = new Set(),
     attributes = new Map(),
     box = { ...ZERO_BOX, ...rect };
+  let ownText = '';
   if (rect && !('right' in rect)) box.right = box.left + box.width;
   if (rect && !('bottom' in rect)) box.bottom = box.top + box.height;
   const node = {
     localName: tag.toLowerCase(),
     id: '',
     hidden: false,
-    textContent: '',
+    get textContent() {
+      return ownText + this.children.map(child => (typeof child === 'object' ? child.textContent : child)).join('');
+    },
+    set textContent(value) {
+      if (this.children) this.replaceChildren();
+      ownText = String(value);
+    },
     dataset: {},
     style: {
       setProperty(name, value) {
@@ -121,6 +128,7 @@ export function element(tag = 'div', { rect, ...props } = {}) {
       return item;
     },
     replaceChildren(...items) {
+      ownText = '';
       for (const child of this.children.splice(0)) if (typeof child === 'object') child.parentNode = null;
       this.append(...items);
     },

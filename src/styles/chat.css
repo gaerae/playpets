@@ -1,26 +1,20 @@
 /* The conversation in the Friend tab: messages, first lines to pick, and the message box with its
    AI and companions. */
-#provider-select {
-  margin-top: 6px;
-  font-size: 12px;
-  padding: 8px 26px 8px 8px;
-  background-position: right 8px center;
-}
 .chat-placeholder {
-  margin: auto;
+  margin: 0;
   text-align: center;
-  font-size: 12px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--muted);
-  padding: 10px;
+  padding: 6px;
   white-space: pre-line;
 }
 .message {
-  padding: 9px 11px;
+  padding: 7px 9px;
   border-radius: 12px;
   max-width: 95%;
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: 13px;
+  line-height: 1.55;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -74,7 +68,7 @@
 }
 /* a new turn leaves a little more room above it than the next message of the same turn */
 .message.turn:not(:first-child) {
-  margin-top: 6px;
+  margin-top: 4px;
 }
 .message.error {
   background: #fff1ec;
@@ -110,8 +104,8 @@
   align-self: center;
   font-size: 12px;
   min-height: 36px;
-  padding: 8px 16px;
-  margin: 10px auto auto;
+  padding: 6px 12px;
+  margin: 4px 0 0;
 }
 .message.peer b {
   display: block;
@@ -124,27 +118,24 @@
 .chat-log {
   flex: 1;
   min-height: 0;
-  margin-top: 12px;
+  margin-top: 8px;
   border-top: 1px solid var(--line);
   overflow-y: auto;
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 2px;
+  gap: 6px;
+  padding: 8px 2px;
 }
 .chat-log > .message:first-child {
   margin-top: auto;
-}
-.chat-log:has(.connect-cta, .chat-starters) .chat-placeholder {
-  margin: auto auto 0;
 }
 .chat-starters {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 6px;
-  margin: 6px 12px auto;
+  margin: 4px 0 0;
 }
 .chat-starters .button.chip {
   font-size: 12px;
@@ -154,7 +145,7 @@
 .composer {
   flex: none;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-panel);
   background: var(--white);
   transition:
     border-color 0.15s,
@@ -170,12 +161,12 @@
   resize: none;
   min-height: 38px;
   max-height: 140px;
-  padding: 10px 12px 2px;
+  padding: 8px 10px 2px;
   border: 0;
-  border-radius: 14px 14px 0 0;
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   background: transparent;
-  font-size: 12.5px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.55;
   overflow-y: auto;
   box-shadow: none;
 }
@@ -191,7 +182,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 6px 6px;
+  padding: 2px 6px 4px;
   min-width: 0;
 }
 .composer-gap {
@@ -204,7 +195,7 @@
   margin: 0;
   padding: 4px 22px 4px 8px;
   border-color: transparent;
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   background-color: transparent;
   background-position: right 6px center;
   font-size: 12px;
@@ -231,7 +222,7 @@
   gap: 4px;
   list-style: none;
   padding: 4px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   font-size: 12px;
   font-weight: 650;
   color: var(--muted);
@@ -265,7 +256,7 @@
   gap: 6px;
   padding: 10px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   background: var(--white);
   box-shadow: 0 12px 32px var(--ink-15);
   z-index: 3;
@@ -276,7 +267,7 @@
   width: 30px;
   height: 30px;
   padding: 0;
-  border-radius: 9px;
+  border-radius: var(--radius-control);
   display: grid;
   place-items: center;
 }

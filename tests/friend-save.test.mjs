@@ -63,6 +63,15 @@ test('friend settings keep one pending save open and return editable after failu
     'built-in compatibility recovery never advertises a different named companion as a look',
   );
   const dialog = nodes.get('pet-dialog');
+  let revealed = 0;
+  nodes.get('pet-error').scrollIntoView = options => {
+    assert.equal(options.block, 'nearest');
+    revealed++;
+  };
+  nodes.get('pet-name').value = 'A changed name';
+  await dialog.dispatch('cancel');
+  assert.equal(revealed, 1, 'unsaved edits reveal the message even below the scrolled form');
+
   const submit = () => nodes.get('pet-form').onsubmit({ preventDefault() {} });
   const pending = submit();
   try {
@@ -88,6 +97,7 @@ test('friend settings keep one pending save open and return editable after failu
   }
   assert.equal(dialog.open, true);
   assert.equal(nodes.get('pet-error').textContent, 'Your friend could not be saved.');
+  assert.equal(revealed, 2, 'save failures reveal their inline message too');
   assert.equal(
     controls.some(control => control.disabled),
     false,

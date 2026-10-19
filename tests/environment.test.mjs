@@ -12,12 +12,20 @@ test('every seasonal layer ships at matching dimensions with real alpha', async 
   }
 });
 
-test('environment art follows the season and snow covers even an out-of-season yard', () => {
+test('environment art follows the selected season independently of precipitation', () => {
   assert.equal(environmentLook({ season: 'spring', weather: 'clear', period: 'day' }).art, 'spring');
   assert.equal(environmentLook({ season: 'summer', weather: 'rain', period: 'day' }).art, 'green');
   assert.equal(environmentLook({ season: 'autumn', weather: 'clear', period: 'day' }).art, 'autumn');
   assert.equal(environmentLook({ season: 'winter', weather: 'clear', period: 'day' }).art, 'winter');
-  assert.equal(environmentLook({ season: 'spring', weather: 'snow', period: 'day' }).art, 'winter');
+  for (const [season, art] of Object.entries({
+    spring: 'spring',
+    summer: 'green',
+    autumn: 'autumn',
+    winter: 'winter',
+  })) {
+    for (const weather of ['clear', 'rain', 'snow'])
+      assert.equal(environmentLook({ season, weather, period: 'day' }).art, art);
+  }
 });
 
 test('the image has distinct readable lighting for night and overcast weather', () => {
@@ -188,4 +196,31 @@ test('festival lights follow each tree through wide and mini crops and never lig
     }
   }
   assert.deepEqual(environmentLightStrands(500, 350, { world: 'studio' }), []);
+});
+
+test('snow preserves imported and indoor seasonal imagery', async () => {
+  const { worlds } = await import('../src/yard/worlds.js');
+  const { environmentWindowLook } = await import('../src/yard/environment.js');
+  const place = {
+    id: 'weather-season-fixture',
+    imageSources: { base: 'base', spring: 'spring', winter: 'winter' },
+    windowArt: { spring: 'spring-window', winter: 'winter-window' },
+  };
+  worlds.push(place);
+  try {
+    assert.equal(
+      environmentLook({ world: place.id, season: 'spring', weather: 'snow', period: 'day' }).art,
+      `${place.id}:spring`,
+    );
+    assert.equal(
+      environmentWindowLook({ world: place.id, season: 'spring', weather: 'snow', period: 'day' }).art,
+      'spring-window',
+    );
+    assert.equal(
+      environmentLook({ world: place.id, season: 'winter', weather: 'clear', period: 'day' }).art,
+      `${place.id}:winter`,
+    );
+  } finally {
+    worlds.splice(worlds.indexOf(place), 1);
+  }
 });

@@ -177,7 +177,7 @@ body {
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   margin-bottom: 16px;
 }
 .brand-mark {
@@ -239,10 +239,6 @@ body {
 }
 /* Startup details stay attached to the scenery and never resize it. */
 .startup-notice {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 30;
   display: flex;
   align-items: flex-start;
   gap: 4px;
@@ -250,7 +246,7 @@ body {
   max-width: min(420px, calc(100% - 24px));
   padding: 6px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-panel);
   background: var(--floating);
   color: var(--ink);
   box-shadow: 0 6px 20px var(--ink-12);
@@ -263,7 +259,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 36px;
   padding: 0 8px;
   cursor: pointer;
   list-style: none;
@@ -317,7 +313,7 @@ body {
   z-index: 30;
   background: var(--ink);
   color: var(--white);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   padding: 10px 16px;
   font-size: 12.5px;
   line-height: 1.5;
@@ -326,19 +322,29 @@ body {
   max-width: min(520px, calc(100% - 32px));
   box-shadow: 0 8px 25px var(--ink-20);
 }
-/* In a compact window the toast is small and at the top, clear of the care tools at the bottom. */
-body.compact .toast {
-  top: 10px;
+.toast > span {
+  pointer-events: auto;
+}
+.toast[data-in-dialog],
+body.compact .toast[data-in-dialog] {
+  position: static;
+  top: auto;
   bottom: auto;
+  transform: none;
+  flex: none;
+  width: auto;
+  max-width: none;
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  text-align: left;
+}
+/* General messages use the lower edge while discoveries and game instructions share the top. */
+body.compact .toast {
+  top: auto;
+  bottom: 12px;
   padding: 6px 12px;
   font-size: 12px;
   max-width: calc(100% - 32px);
-}
-/* A catch already uses the compact top strip; its companion notice sits above the care tools. */
-body.compact .stage:has(.catch-card:not([hidden])) .toast,
-body.compact .stage:has(.startup-notice:not([hidden])) .toast {
-  top: auto;
-  bottom: 64px;
 }
 @media (prefers-color-scheme: dark) {
   /* Every switch the same way: a light knob on the dark track, a dark one on the lit accent. */
@@ -362,7 +368,7 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   padding: 2px;
   max-width: calc(100% - 24px);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--dock-surface);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
@@ -370,11 +376,11 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
 }
 .yard-dock > .update-pill {
   flex: none;
-  min-height: 40px;
+  min-height: 36px;
   padding: 0 11px;
   border: 0;
   border-right: 1px solid var(--line);
-  border-radius: 9px 0 0 9px;
+  border-radius: 5px 0 0 5px;
   background: color-mix(in srgb, var(--accent) 12%, var(--dock-surface));
   color: var(--accent);
   font-size: 12px;
@@ -396,22 +402,19 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   max-width: 228px;
 }
 .yard-dock .scene-button {
-  min-height: 40px;
-  border-radius: 9px;
+  min-height: 36px;
+  border-radius: 5px;
   padding: 0 10px;
-}
-.yard-dock .scene-copy {
-  min-width: 0;
 }
 .yard-controls-toggle {
   flex: none;
   display: flex;
   align-items: center;
   gap: 6px;
-  min-height: 40px;
+  min-height: 36px;
   padding: 0 12px;
   border-left: 1px solid var(--line);
-  border-radius: 0 9px 9px 0;
+  border-radius: 0 5px 5px 0;
   background: transparent;
   color: var(--ink);
   font-size: 12px;
@@ -431,10 +434,9 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   right: 12px;
   bottom: 64px;
   z-index: 30;
-  width: min(304px, calc(100% - 24px));
+  width: min(280px, calc(100% - 24px));
   max-height: calc(100% - 76px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -453,31 +455,69 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   flex-shrink: 0;
 }
 
-.yard-controls-scroll {
+.management-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+.management-tabs {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.management-tabs button {
+  flex: 1;
+  min-width: 0;
+  min-height: 32px;
+  padding: 6px 4px;
+  white-space: nowrap;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.management-tabs button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+  font-weight: 650;
+}
+.management-tabs button:hover {
+  background: var(--control-hover);
+}
+.management-page {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  flex-grow: 1;
-  flex-shrink: 1;
+  gap: 4px;
+  flex: 1 1 auto;
   min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.management-page[hidden] {
+  display: none;
+}
+#management-window .view-button,
+#management-window .view-wander {
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .layout.settings-open .yard-dock {
   display: none;
 }
 
-/* Compact destinations, activity rows and a separate display footer share one spacing rhythm. */
-.yard-controls-panel .panel-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px;
-  padding-bottom: 0;
-  background: transparent;
-}
+/* Each destination has one home; management contains no scenery or play actions. */
 .yard-controls-panel .panel-tab {
   flex-direction: row;
   gap: 6px;
-  min-height: 44px;
+  min-height: 36px;
   border: 0;
   border-radius: var(--radius-control);
   background: transparent;
@@ -528,21 +568,6 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   height: 36px;
 }
 
-.controls-more {
-  border-top: 1px solid var(--line);
-  padding-top: 4px;
-}
-.controls-more > summary {
-  cursor: pointer;
-  min-height: 44px;
-  padding: 10px 8px;
-  font-size: 12px;
-  font-weight: 650;
-  color: var(--muted);
-}
-.controls-more[open] > summary {
-  color: var(--ink);
-}
 .fullscreen [data-expand-window] {
   display: none;
 }
@@ -553,7 +578,7 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   align-items: center;
   gap: 6px;
   flex: none;
-  min-height: 40px;
+  min-height: 36px;
   padding: 0 12px;
   border-left: 1px solid var(--line);
   background: transparent;
@@ -568,10 +593,6 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
 .yard-play-toggle:hover,
 .yard-play-toggle[aria-expanded="true"] {
   background: var(--control-hover);
-}
-.menu-group + .menu-group {
-  border-top: 1px solid var(--line);
-  padding-top: 6px;
 }
 .yard-controls-panel .panel-tab > span {
   min-width: 0;
@@ -600,7 +621,7 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
   align-items: center;
   gap: 8px;
   width: 100%;
-  min-height: 40px;
+  min-height: 36px;
   padding: 8px;
   text-align: left;
   border-radius: var(--radius-control);
@@ -612,7 +633,7 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
 .yard-context-menu > button:focus-visible {
   background: var(--control-hover);
 }
-.yard-context-menu > [data-context-action="friends"] {
+.yard-context-menu > [data-context-action="pin"] {
   border-top: 1px solid var(--line);
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -629,4 +650,38 @@ body.compact .stage:has(.startup-notice:not([hidden])) .toast {
 }
 [role="menuitemcheckbox"][aria-checked="true"] > .context-check {
   visibility: visible;
+}
+
+/* A single flow lane prevents simultaneous events from claiming the same coordinates. */
+.yard-feedback {
+  position: absolute;
+  inset: 12px 12px auto;
+  z-index: 10;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+.yard-feedback > :is(.startup-notice, .game-banner, .catch-card) {
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.menu-destination {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 8px;
+  text-align: left;
+}
+.menu-destination-copy {
+  display: grid;
+  gap: 2px;
+}
+.menu-destination-copy strong {
+  font-size: 13px;
+  font-weight: 600;
 }

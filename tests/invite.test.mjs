@@ -25,6 +25,7 @@ const { t } = await import('../src/core/i18n.js');
 
 function page(context) {
   const { nodes } = installDom(context, {
+    anyId: true,
     ids: [
       'show-all-kinds',
       'import',
@@ -39,6 +40,9 @@ function page(context) {
     ],
     props: { disabled: false, value: 'https://example.com/pet', open: true },
   });
+  nodes.get('import-form').reset = () => {
+    nodes.get('import-url').value = '';
+  };
   calls.length = 0;
   setupInvite({ refresh: async () => {} });
   return nodes;
@@ -98,4 +102,44 @@ test('an imported pet that cannot join the yard leaves its error visible', async
     assert.equal(nodes.get('import-dialog').open, true, `${source} leaves the error dialog visible`);
     assert.equal(nodes.get('import-error').textContent, 'Your yard is full.');
   }
+});
+
+test('idle import closes on the backdrop but protects a typed URL and reveals its message', async context => {
+  const nodes = page(context);
+  nodes.get('import').onclick();
+  const dialog = nodes.get('import-dialog');
+  await dialog.dispatch('click', { clientX: -1, clientY: -1 });
+  assert.equal(dialog.open, false, 'an unchanged import closes on its backdrop');
+  nodes.get('import').onclick();
+  let revealed = 0;
+  nodes.get('import-error').scrollIntoView = () => {
+    revealed++;
+  };
+  nodes.get('import-url').value = 'https://example.com/new-pet';
+  let prevented = false;
+  await dialog.dispatch('cancel', {
+    preventDefault() {
+      prevented = true;
+    },
+  });
+  assert.equal(prevented, true);
+  assert.equal(nodes.get('import-error').textContent, t('dialog.unsaved'));
+  assert.equal(revealed, 1);
+  await dialog.dispatch('click', { clientX: -1, clientY: -1 });
+  assert.equal(dialog.open, true);
+  nodes.get('cancel-import').onclick();
+  assert.equal(dialog.open, false, 'explicit Cancel discards the typed URL');
+});
+
+test('an import failure reveals its message after scrolling the form', async context => {
+  const nodes = page(context);
+  let revealed = 0;
+  nodes.get('import-error').scrollIntoView = options => {
+    assert.equal(options.block, 'nearest');
+    revealed++;
+  };
+  const pending = nodes.get('import-form').onsubmit({ preventDefault() {} });
+  finish({ ok: false, error: 'Import failed.' });
+  await pending;
+  assert.equal(revealed, 1);
 });

@@ -18,15 +18,15 @@ test('imported background thumbnails use their validated embedded image', () => 
   assert.equal(backgroundPreview({ id: 'custom-example', imageSources: { base: source } }), source);
 });
 
-test('season selectors have matching choices and distinct labels', async () => {
+test('atmosphere offers all seasons in one labeled selector', async () => {
   const html = await readFile('src/index.html', 'utf8');
   const choices = id =>
     [...html.match(new RegExp(`<select id="${id}"[^>]*>(.*?)</select>`))[1].matchAll(/value="([^"]+)"/g)].map(
       match => match[1],
     );
-  assert.deepEqual(choices('scene-season'), choices('season'));
+  assert.deepEqual(choices('scene-season'), ['auto', 'spring', 'summer', 'autumn', 'winter']);
   assert.match(html, /label for="scene-season"/);
-  assert.match(html, /label for="season"/);
+  assert.doesNotMatch(html, /id="season"/);
 });
 
 test('canceling background removal returns to the gallery and its remove button', async t => {

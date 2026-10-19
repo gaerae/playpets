@@ -3,7 +3,7 @@
 
 import { agentFile } from '../core/agent-files.js';
 import { agentLabel, agentOf } from '../core/agents.js';
-import { closeControls, closeScene, closeUpdateDetails } from '../core/controls.js';
+import { closeUpdateDetails } from '../core/controls.js';
 import { language, t } from '../core/i18n.js';
 import { onShortcut } from '../core/keys.js';
 import { projectLinks } from '../core/project.js';
@@ -38,16 +38,15 @@ export function renderDesktopSwitches() {
   $('auto-chatter').checked = !!data.autoChatter;
   $('autostart').checked = !!data.autostart;
 }
-// App updates. A newer version ({version, notes}) found by a check (the quiet one after start, the
-// Settings row, the tray or the menu bar) shows in three places: a button before the place selector
-// that opens update details, a dot on the Settings tab, and the row in About. "Later" puts the button
-// away until the next start; the row and the dot stay.
+// Update actions live in Settings; the yard entries only navigate there. Background discoveries
+// and progress never open a panel or move focus.
 const RESTART_KEY = 'update-restart';
 let found = null;
 let installing = false;
 let later = false;
 let updateStage = { phase: 'downloading' };
 let updateError = '';
+let checking = false;
 function stageLabel() {
   if (updateStage.phase === 'verifying') return t('update.verifying');
   if (updateStage.phase === 'installing') return t('update.installing');
@@ -68,7 +67,7 @@ export function renderUpdate() {
     $('update-pill').hidden = true;
     $('update-compact').hidden = true;
     closeUpdateDetails();
-    document.querySelector('.panel-tab[data-panel=settings]')?.classList.remove('has-update');
+    $('menu-settings-updates')?.classList.remove('has-update');
     return;
   }
   if (installing) showUpdate(stageLabel(), t('settings.update_view'));
@@ -82,7 +81,7 @@ export function renderUpdate() {
   const visible = !!found && (!later || installing || !!updateError);
   for (const id of ['update-pill', 'update-compact']) $(id).hidden = !visible;
   if (found) {
-    const progress = Number.isFinite(updateStage.percent) ? ` · ${updateStage.percent}%` : '…';
+    const progress = Number.isFinite(updateStage.percent) ? ` (${updateStage.percent}%)` : '…';
     const label = updateError
       ? t('update.retry')
       : `${t('update.pill_label')}${installing ? progress : ` v${found.version}`}`;
@@ -93,19 +92,19 @@ export function renderUpdate() {
     }
     $('update-pill-label').textContent = label;
     $('update-compact-label').textContent = label;
-    paintUpdateDetails();
   }
-  document.querySelector('.panel-tab[data-panel=settings]')?.classList.toggle('has-update', !!found);
+  paintUpdateDetails();
+  $('menu-settings-updates')?.classList.toggle('has-update', !!found);
 }
 // The backend found a newer version on its own.
 export function updateFound(update) {
+  if (!update?.version || installing) return;
   if (found?.version !== update.version) {
     later = false;
     updateError = '';
   }
   found = update;
   renderUpdate();
-  toast(t('toast.update_available', { version: `v${update.version}` }));
 }
 // A platform installer may end this process itself, so remember the target before handing it off.
 // The new page confirms its own version after boot and clears the marker even if it is still old.
@@ -120,7 +119,15 @@ export function announceInstalledUpdate() {
   } catch {}
 }
 function paintUpdateDetails() {
-  if (!found) return;
+  $('update-install').hidden = !found;
+  if (!found) {
+    $('update-title').textContent = t('settings.update');
+    $('update-body').textContent = '';
+    $('update-progress-wrap').hidden = true;
+    $('update-error').hidden = !updateError;
+    $('update-error').textContent = updateError;
+    return;
+  }
   $('update-title').textContent = t('update.title', { version: `v${found.version}` });
   $('update-body').textContent = t('update.body', { current: `v${data.version}` });
   $('update-progress-wrap').hidden = !installing;
@@ -135,14 +142,17 @@ function paintUpdateDetails() {
   $('update-later').disabled = false;
   $('update-later').textContent = installing ? t('update.collapse') : t('update.later');
 }
-function openUpdatePanel() {
+function revealUpdateDetails() {
   if (!found || data.updateChannel === 'store') return;
-  closeControls(false);
-  closeScene();
   paintUpdateDetails();
   $('update-dialog').hidden = false;
   for (const id of ['update-pill', 'update-compact']) $(id).setAttribute('aria-expanded', 'true');
   $('update-title').focus();
+}
+function openUpdatePanel() {
+  if (!found || data.updateChannel === 'store') return;
+  showSection('settings', 'updates');
+  revealUpdateDetails();
 }
 // Progress updates the existing surface without interrupting play or reopening collapsed details.
 export function updateStatus(status) {
@@ -166,7 +176,6 @@ async function install() {
     updateError = error.message;
     renderUpdate();
     paintUpdateDetails();
-    throw error;
   }
 }
 async function check() {
@@ -186,42 +195,39 @@ function updateCheckVisible() {
   return (
     !$('side-panel').hidden &&
     !$('panel-settings').hidden &&
-    !$('about-title')?.closest('[data-settings-section]')?.hidden
+    !$('settings-updates').hidden &&
+    !$('settings-content').hidden
   );
 }
-// From the tray or menu bar: a known update opens details; otherwise the Settings tab checks,
-// so the answer has a place to show, and a newer version found there opens details too.
+// Explicit navigation opens Updates once, before any network wait. A slow reply stays there even
+// when the person has returned to the yard.
 export async function checkForUpdates() {
-  if (data.updateChannel === 'store') {
-    showSection('settings', 'about');
-    renderUpdate();
-    return;
-  }
+  showSection('settings', 'updates');
+  if (data.updateChannel === 'store') return renderUpdate();
   if (found) return openUpdatePanel();
-  showSection('settings', 'about');
+  return updateButton();
+}
+async function updateButton() {
+  if (found) return openUpdatePanel();
+  if (checking || installing) return;
+  checking = true;
+  updateError = '';
+  paintUpdateDetails();
   const button = $('update-button');
-  if (button.disabled) return;
   button.disabled = true;
   try {
     await check();
-    if (found && updateCheckVisible()) openUpdatePanel();
+    if (found && updateCheckVisible()) {
+      paintUpdateDetails();
+      $('update-dialog').hidden = false;
+    }
   } catch (error) {
     renderUpdate();
-    throw error;
+    updateError = error.message;
+    paintUpdateDetails();
+    $('update-dialog').hidden = !updateCheckVisible();
   } finally {
-    button.disabled = false;
-  }
-}
-async function updateButton() {
-  const button = $('update-button');
-  button.disabled = true;
-  try {
-    if (!found) await check();
-    if (found && updateCheckVisible()) openUpdatePanel();
-  } catch (error) {
-    renderUpdate();
-    throw error;
-  } finally {
+    checking = false;
     button.disabled = false;
   }
 }
@@ -286,22 +292,19 @@ export function setupSettings() {
   $('update-button').onclick = guard(updateButton);
   const notes = guard(() => call('openExternal', links().notes(found.version)));
   $('update-notes').onclick = notes;
-  $('update-dialog-notes').onclick = notes;
   $('update-pill').onclick = openUpdatePanel;
   $('update-compact').onclick = openUpdatePanel;
+  $('menu-settings-updates')?.addEventListener('click', revealUpdateDetails);
+  $('settings-updates-task')?.addEventListener('click', () => {
+    if (found && data.updateChannel !== 'store') openUpdatePanel();
+  });
   $('update-install').onclick = guard(install);
-  $('update-close').onclick = () => closeUpdateDetails(true);
   $('update-later').onclick = () => {
     if (!installing && !updateError) later = true;
     renderUpdate();
-    closeUpdateDetails(true);
+    closeUpdateDetails();
+    openPanel(null);
   };
-  $('update-dialog').addEventListener('keydown', event => {
-    if (event.key !== 'Escape') return;
-    event.preventDefault();
-    event.stopPropagation();
-    closeUpdateDetails(true);
-  });
   // Cmd+, (macOS, where the menu bar also has it) or Ctrl+, opens Settings, as in most desktop apps.
   onShortcut('settings', () => openPanel('settings'));
   for (const button of document.querySelectorAll('button[data-link]'))

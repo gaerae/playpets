@@ -83,7 +83,7 @@ test('a room without weather names only the place and the time of day', context 
   setLanguageForTests('en');
 });
 
-test('studio seasons change only the window view and snow overrides summer', async () => {
+test('studio seasons change only the window view independently of snow', async () => {
   const { environmentWindowLook } = await import('../src/yard/environment.js');
   for (const period of ['morning', 'day', 'evening', 'night']) {
     for (const season of ['spring', 'autumn', 'winter']) {
@@ -94,10 +94,7 @@ test('studio seasons change only the window view and snow overrides summer', asy
       assert.equal(look.filter === 'none', period === 'day');
     }
     assert.equal(environmentWindowLook({ world: 'studio', period, season: 'summer', weather: 'clear' }), null);
-    assert.equal(
-      environmentWindowLook({ world: 'studio', period, season: 'summer', weather: 'snow' }).art,
-      'studio-view-winter',
-    );
+    assert.equal(environmentWindowLook({ world: 'studio', period, season: 'summer', weather: 'snow' }), null);
   }
 });
 

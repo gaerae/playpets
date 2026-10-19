@@ -171,10 +171,11 @@ test('desktop strolling is centered and its label names the desktop in every lan
   }
 });
 
-test('game choices expand across the toolbar with comfortable full-width targets', async () => {
+test('game choices stay inline in the shared Play board with comfortable targets', async () => {
   const css = await readFile('src/styles/tools.css', 'utf8');
-  assert.match(css, /\.games\s*\{[^}]*grid-column: 1 \/ -1;/);
-  assert.match(css, /\.games-menu \.button\.tool\s*\{[^}]*min-height: 44px;/);
+  const html = await readFile('src/index.html', 'utf8');
+  assert.match(html, /id="play-games"[\s\S]*?id="games-menu"/);
+  assert.match(css, /\.games-menu \.button\.tool\s*\{[^}]*min-height: 36px;/);
   assert.match(css, /\.games-menu\s*\{[^}]*position: relative;/);
 });
 
@@ -238,4 +239,12 @@ test('the menu shortcut opens controls without relying on the hidden compact doc
   await nodes.get('close-controls').dispatch('click');
   assert.equal(nodes.get('yard-controls-panel').hidden, true);
   assert.equal(document.activeElement, nodes.get('yard'));
+});
+
+test('the scene dock uses one state label instead of a repeated category heading', async () => {
+  const html = await readFile('src/index.html', 'utf8');
+  const scene = html.slice(html.indexOf('<button id="scene-button"'), html.indexOf('<span id="pet-count"'));
+  assert.match(scene, /id="scene-caption"/);
+  assert.match(scene, /data-i18n-title="scene.title"/);
+  assert.doesNotMatch(scene, /<strong|class="scene-copy"/);
 });

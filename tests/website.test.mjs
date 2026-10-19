@@ -152,7 +152,7 @@ test('every released version in the changelog has a page in each site language, 
       await access(`${dir}/releases/${version}.md`).catch(() =>
         assert.fail(`${dir}/releases/${version}.md is missing`),
       );
-  const current = JSON.parse(await read('package.json', 'utf8')).version;
+  const { CAPTURE_VERSION } = await import('../scripts/site-content.mjs');
   const pages = (await readdir('website', { recursive: true })).filter(
     f => f.endsWith('.md') && !f.startsWith('dev/') && !f.includes('node_modules'),
   );
@@ -161,9 +161,49 @@ test('every released version in the changelog has a page in each site language, 
     for (const [, name, , version] of text.matchAll(/<Shot name="([\w-]+)"(.*?version="([\d.]+)")?/g)) {
       const first = file.split('/')[0];
       const lang = first in LANGUAGES ? first : 'en';
-      const shot = `website/public/shots/${version || current}/${lang}/${name}.webp`;
+      const shot = `website/public/shots/${version || CAPTURE_VERSION}/${lang}/${name}.webp`;
       await access(shot).catch(() => assert.fail(`${file} shows ${shot}, which does not exist`));
     }
+  }
+});
+
+test('default captures have their own real version and every landing capture exists', async () => {
+  const { readFile, access } = await import('node:fs/promises');
+  const { CAPTURE_VERSION, SITE_LANGS } = await import('../scripts/site-content.mjs');
+  assert.match(CAPTURE_VERSION, /^\d+\.\d+\.\d+$/);
+  const landing = await readFile('website/.vitepress/theme/Landing.vue', 'utf8');
+  assert.match(landing, /\/shots\/\$\{generated\.captureVersion\}/);
+  for (const [, name] of landing.matchAll(/shotUrl\('([\w-]+)'\)/g))
+    for (const lang of SITE_LANGS) await access(`website/public/shots/${CAPTURE_VERSION}/${lang}/${name}.webp`);
+  const prepare = await readFile('scripts/site-prepare.mjs', 'utf8');
+  assert.match(prepare, /captureVersion: CAPTURE_VERSION/);
+});
+
+test('a screenshot renders its actual capture version independently of the app version', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { parse, compileScript } = await import('@vue/compiler-sfc');
+  const { transform } = await import('esbuild');
+  const vue = await import('vue');
+  const { renderToString } = await import('vue/server-renderer');
+  const source = await readFile('website/.vitepress/theme/Shot.vue', 'utf8');
+  const script = compileScript(parse(source).descriptor, { id: 'capture-version', inlineTemplate: true });
+  const compiled = (await transform(script.content, { loader: 'ts', format: 'cjs' })).code;
+  const dependencies = {
+    vue,
+    vitepress: { withBase: value => value },
+    '../generated.json': { version: '1.1.0', captureVersion: '1.0.0' },
+    './words': { useWords: () => ({ lang: vue.ref('en'), words: vue.ref({ missingShot: 'Missing capture' }) }) },
+  };
+  const module = { exports: {} };
+  new Function('require', 'module', 'exports', compiled)(id => dependencies[id], module, module.exports);
+  for (const [props, version] of [
+    [{ name: 'mini', caption: 'Small yard' }, '1.0.0'],
+    [{ name: 'mini', version: '0.2.0' }, '0.2.0'],
+  ]) {
+    const html = await renderToString(vue.createSSRApp(module.exports.default, props));
+    assert.ok(html.includes(`/shots/${version}/en/mini.webp`));
+    assert.match(html, new RegExp(`<figcaption[^>]*>[\\s\\S]*${version.replaceAll('.', '\\.')}[\\s\\S]*</figcaption>`));
+    assert.doesNotMatch(html, /1\.1\.0/);
   }
 });
 

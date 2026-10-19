@@ -1,6 +1,7 @@
 // The invite tab: pets on the shelf, and bringing new ones in from a page or a folder.
 
-import { language, t } from '../core/i18n.js';
+import { keepEdits, showFormError } from '../core/confirm.js';
+import { joinList, language, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
 import { canvas, drawSprite } from '../core/sprites.js';
@@ -39,8 +40,8 @@ const PLACES = [
   { place: 'downloaded', title: 'invite.place_downloaded', folder: 'downloaded' },
   { place: 'folder', title: 'invite.place_folder', folder: null },
 ];
-// Who made a downloaded pet, as the page it came from said: "Petdex · hongtao · CC BY-NC 4.0".
-const creditLine = credit => [credit.site, credit.creator, credit.license].filter(Boolean).join(' · ');
+// Who made a downloaded pet, as the page it came from said: "Petdex, hongtao, CC BY-NC 4.0".
+const creditLine = credit => joinList([credit.site, credit.creator, credit.license].filter(Boolean));
 function card(a) {
   const card = document.createElement('button');
   card.className = 'asset-card';
@@ -180,6 +181,7 @@ export function drawPreviews(now) {
   for (const { canvas, asset } of previews.values()) drawSprite(canvas, asset, 'idle', now);
 }
 function openImportDialog() {
+  if (importing) return;
   $('import-form').reset();
   $('import-error').textContent = '';
   $('community-links').replaceChildren();
@@ -207,10 +209,12 @@ function openImportDialog() {
     row.append(link, hint);
     $('community-links').append(row);
   }
+  importOpened();
   $('import-dialog').showModal();
   $('import-url').focus();
 }
 let importing = false;
+let importOpened = () => {};
 // Both import paths share the dialog: another action must not replace a request still running.
 function setImporting(busy) {
   importing = busy;
@@ -249,14 +253,17 @@ export function setupInvite(hooks) {
       $('import-dialog').close();
       toast(t('toast.pet_added'));
     } catch (error) {
-      $('import-error').textContent = spoken(error, t('error.generic'));
+      showFormError('import-error', spoken(error, t('error.generic')));
     } finally {
       setImporting(false);
     }
   };
-  $('import-dialog').addEventListener('cancel', e => {
-    if (importing) e.preventDefault();
-  });
+  importOpened = keepEdits(
+    $('import-dialog'),
+    () => $('import-url').value,
+    () => showFormError('import-error', t('dialog.unsaved')),
+    () => importing,
+  );
   $('import-form').onsubmit = async e => {
     e.preventDefault();
     if (importing) return;
@@ -268,7 +275,7 @@ export function setupInvite(hooks) {
       $('import-dialog').close();
       toast(t('toast.pet_added'));
     } catch (error) {
-      $('import-error').textContent = spoken(error, t('error.generic'));
+      showFormError('import-error', spoken(error, t('error.generic')));
     } finally {
       setImporting(false);
     }

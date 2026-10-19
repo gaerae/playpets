@@ -1,6 +1,6 @@
 // One frameless window: its size and its always-on-top switch are independent.
 import { confirmAction } from './core/confirm.js';
-import { closeControls, closeUpdateDetails } from './core/controls.js';
+import { closeControls } from './core/controls.js';
 import { t } from './core/i18n.js';
 import { $, call, data, guard } from './core/state.js';
 
@@ -57,11 +57,9 @@ function fitWindow() {
   const changed = document.body.classList.contains('compact') !== compact;
   const focused =
     changed &&
-    ['yard-controls-panel', 'play-panel', 'quick-play', 'yard-context-menu'].some(id =>
-      $(id)?.contains(document.activeElement),
-    );
+    ['yard-controls-panel', 'play-panel', 'yard-context-menu'].some(id => $(id)?.contains(document.activeElement));
   document.body.classList.toggle('compact', compact);
-  if (changed) closeControls(focused);
+  if (changed && $('play-panel')?.hidden !== false) closeControls(focused);
 }
 
 // Window movement and resizing use native gestures, so every platform keeps its own edge behavior.
@@ -106,12 +104,8 @@ export function setupWindow() {
         }
         return;
       }
-      if ($('update-dialog') && !$('update-dialog').hidden) {
-        event.preventDefault();
-        closeUpdateDetails(true);
-        return;
-      }
-      if (['yard-controls-panel', 'play-panel', 'quick-play', 'yard-context-menu'].some(id => $(id) && !$(id).hidden)) {
+      if ($('side-panel')?.hidden === false) return;
+      if (['yard-controls-panel', 'play-panel', 'yard-context-menu'].some(id => $(id) && !$(id).hidden)) {
         event.preventDefault();
         closeControls();
         return;

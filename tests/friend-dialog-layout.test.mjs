@@ -6,11 +6,11 @@ test('appearance choices scroll with the fields while friend dialog navigation a
   const html = await readFile('src/index.html', 'utf8');
   assert.match(
     html,
-    /class="friend-dialog-body"[\s\S]*id="pet-appearance"[\s\S]*id="pet-error"[\s\S]*<\/div>\s*<div class="dialog-actions">/,
+    /class="dialog-body friend-dialog-body"[\s\S]*id="pet-appearance"[\s\S]*id="pet-error"[\s\S]*<\/div>\s*<div class="dialog-actions">/,
   );
   const css = await readFile('src/styles/dialog.css', 'utf8');
-  assert.match(css, /#pet-form\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;/);
-  assert.match(css, /\.friend-dialog-body\s*\{[^}]*min-height:\s*0;[^}]*overflow-y:\s*auto;/);
+  assert.match(css, /\.dialog-form\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;/);
+  assert.match(css, /\.dialog-body\s*\{[^}]*min-height:\s*0;[^}]*overflow-y:\s*auto;/);
 });
 
 test('friend dialog footer wraps actions instead of pushing removal outside narrow windows', async () => {

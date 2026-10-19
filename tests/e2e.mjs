@@ -4,7 +4,7 @@
 // Run: npm run test:e2e   (repo root)
 
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
@@ -20,6 +20,30 @@ const dataDir = await mkdtemp(path.join(os.tmpdir(), 'playpets-tauri-e2e-'));
 // A self-contained Codex pet so the run never depends on the machine's ~/.codex/pets.
 const codexHome = path.join(dataDir, 'codex');
 await writeFixturePet(codexHome);
+// Saved pockets and an uncommon find survive an upgrade without depending on a lucky random draw.
+const rareLedgerAt = Date.now() - 60_000;
+await writeFile(
+  path.join(dataDir, 'state.json'),
+  JSON.stringify({
+    garden: {
+      seeds: 1,
+      saplings: { maple: 1 },
+      digs: [
+        {
+          attemptId: 'saved-rare-fixture',
+          outcome: 'keepsake',
+          kind: 'quartz',
+          petId: 'previous-friend',
+          world: 'courtyard',
+          tileX: 0,
+          tileY: 0,
+          at: rareLedgerAt,
+        },
+      ],
+    },
+    album: { treasures: { quartz: { count: 1, best: 0, first: rareLedgerAt } } },
+  }),
+);
 
 const chatRequests = [];
 const provider = http.createServer(async (req, res) => {
@@ -105,7 +129,7 @@ const scenario = `(async()=>{
     const starterButtons=[...document.querySelectorAll('#starter-picks .starter')];
     const starterBounds=starterButtons.map(button=>button.getBoundingClientRect());
     const visibleStarters=starterButtons.length===adults.length&&starterBounds.every(rect=>rect.left>=0&&rect.top>=0&&rect.right<=innerWidth&&rect.bottom<=innerHeight);
-    await L('welcome='+(!$$('empty-yard').hidden&&!$$('welcome').hidden&&$$('next-steps').hidden&&visibleStarters&&[...document.querySelectorAll('#starter-picks canvas')].every(painted)?'starters':'err')+'/'+(getComputedStyle(document.querySelector('.play-toolbar')).display==='none'?'no-toolbar':'toolbar'));
+    await L('welcome='+(!$$('empty-yard').hidden&&!$$('welcome').hidden&&$$('next-steps').hidden&&visibleStarters&&[...document.querySelectorAll('#starter-picks canvas')].every(painted)?'starters':'err')+'/'+(!document.querySelector('.play-toolbar')&&$$('play-panel').hidden?'no-toolbar':'toolbar'));
     // Pets are drawn from the app's own sprite address, which the page's CSP must let in on every system.
     const img=new Image();img.src=fx.spriteUrl;
     await L('spriteLoads='+await img.decode().then(()=>img.naturalWidth,e=>'err:'+e.message));
@@ -150,6 +174,8 @@ const scenario = `(async()=>{
     // The yard itself: scenery-first layout, games.
     const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||${say('game.label')};
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
+    const panelTasks=await import('./panel/tabs.js');
+    const manage=tab=>{if($('yard-controls-panel').hidden)$('yard-controls-toggle').click();$('management-tab-'+tab).click();};
     // Every tab must actually show its own content, and only its own.
     // Every platform uses a frameless yard; a narrow transparent target still moves the full window.
     const noChrome=!document.querySelector('.win-controls,.topbar')&&!!$('window-drag')&&!!$('hide-window');
@@ -173,7 +199,7 @@ const scenario = `(async()=>{
     const quietStart=$('yard-controls-panel').hidden&&!document.querySelector('#clock-time');
     $('yard-controls-toggle').click();
     const controlsOpen=!$('yard-controls-panel').hidden&&$('yard-controls-toggle').getAttribute('aria-expanded')==='true';
-    $('scene-button').click();document.querySelector('.panel-tab[data-panel=settings]').click();
+    $('scene-button').click();manage('settings');$('menu-settings-general').click();
     const controlsClosed=$('yard-controls-panel').hidden&&!$('panel-settings').hidden;
     $('close-panel').click();
     await L('quietControls='+(quietStart&&controlsOpen&&controlsClosed&&document.activeElement===$('yard-controls-toggle')?'disclosed-and-restored':'err'));
@@ -191,14 +217,14 @@ const scenario = `(async()=>{
     const normalAnchor=!$('yard-controls-panel').style.left&&$('yard-context-menu').hidden;
     document.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));
     await L('contextFull='+(fullContext&&contextEsc&&normalAnchor&&$('yard-controls-panel').hidden?'clamped-escaped-and-reset':'err'));
-    document.querySelector('.panel-tab[data-panel=invite]').click();
+    manage('friends');$('menu-invite').click();
     const welcomeCovered=getComputedStyle($('empty-yard')).display==='none';
     $('yard-controls-toggle').click();
     await L('controlsOverlap='+($('side-panel').hidden&&!$('yard-controls-panel').hidden&&welcomeCovered?'exclusive':'err'));
     $('yard-controls-toggle').click();
     const shown=[];for(const k of ['pet','invite','settings']){document.querySelector('.panel-tab[data-panel='+k+']').click();await until(()=>!$('panel-'+k).hidden);shown.push(['pet','invite','settings'].filter(o=>$('panel-'+o).getBoundingClientRect().height>40).join(','));}
     // Settings wiring runs after Invite; its copy buttons must not replace Invite filters.
-    document.querySelector('.panel-tab[data-panel=invite]').click();await until(()=>!$('panel-invite').hidden);
+    manage('friends');$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
     const allChip=document.querySelector('#kind-filter [data-kind=""]'),peopleChip=document.querySelector('#kind-filter [data-kind=person]');
     allChip.click();await until(()=>allChip.getAttribute('aria-pressed')==='true');const allCount=document.querySelectorAll('#shelf .asset-card').length;
     peopleChip.click();await until(()=>peopleChip.getAttribute('aria-pressed')==='true');const peopleIds=[...document.querySelectorAll('#shelf .asset-card')].map(el=>el.dataset.assetId);
@@ -229,27 +255,27 @@ const scenario = `(async()=>{
     await L('inviteLegacy='+(legacyInvite.ok&&legacyInvite.data.visualStyle==='illustrated'?'default-illustrated':'err'));
     for(const added of [invitedReal,invitedTwin,invitedMini,legacyInvite.data])if(added?.id)await playPets.removePet(added.id);
     await until(async()=>(await playPets.bootstrap()).data.pets.length===inviteBefore.length&&document.querySelectorAll('.yard-pet').length===inviteBefore.length);
-    await playPets.openChat(p1.data.id);document.querySelector('.panel-tab[data-panel=invite]').click();await until(()=>!$('panel-invite').hidden);
+    await playPets.openChat(p1.data.id);manage('friends');$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
     $('import').click();await until(()=>$('import-dialog').open);const discovery=$('community-discovery'),discoveryClosed=!discovery.open;
     discovery.querySelector('summary').click();await until(()=>discovery.open);
     await L('inviteDiscovery='+(discoveryClosed&&discovery.open&&document.querySelectorAll('#community-links [data-community-id]').length===boot.data.communities.length?'collapsed-expandable':'err'));
-    $('cancel-import').click();document.querySelector('.panel-tab[data-panel=settings]').click();await until(()=>!$('panel-settings').hidden);
-    const opened=!$('side-panel').hidden,indexed=document.querySelector('.settings-index [aria-selected=true]')?.dataset.section;
+    $('cancel-import').click();panelTasks.openPanel('settings');await until(()=>!$('panel-settings').hidden);
+    const opened=!$('side-panel').hidden,indexed=!$('settings-home').hidden?'tasks':'err';
     const settingsWindow=(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']})).data;
-    await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',{...settingsWindow,width:840,height:660}]});await until(()=>Math.abs(innerWidth-840)<2);await wait(100);
+    await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',{...settingsWindow,width:840,height:420}]});await until(()=>Math.abs(innerWidth-840)<2);await wait(100);
     const settingsNav=document.querySelector('.settings-index'),settingsHead=$('panel-title'),settingsBody=$('settings-content');
     document.querySelector('.settings-index [data-section=agent-link-title]').click();await wait(150);
     const navTop=settingsNav.getBoundingClientRect().top,headTop=settingsHead.getBoundingClientRect().top;
     settingsBody.scrollTop=settingsBody.scrollHeight;await wait(150);
     const settingsMetrics={scrollTop:settingsBody.scrollTop,scrollHeight:settingsBody.scrollHeight,clientHeight:settingsBody.clientHeight,visible:[...document.querySelectorAll('.settings-section[data-settings-section]')].filter(el=>!el.hidden).length,navShift:settingsNav.getBoundingClientRect().top-navTop,headShift:settingsHead.getBoundingClientRect().top-headTop,outerScroll:$('side-panel').scrollTop};
-    const bodyOnly=settingsBody.scrollTop>0&&[...document.querySelectorAll('.settings-section[data-settings-section]')].filter(el=>!el.hidden).length===1&&Math.abs(settingsNav.getBoundingClientRect().top-navTop)<1&&Math.abs(settingsHead.getBoundingClientRect().top-headTop)<1&&$('side-panel').scrollTop===0;
-    document.querySelector('.settings-index [data-section=general-title]').click();await wait(150);
+    const bodyOnly=$('settings-home').hidden&&settingsBody.scrollTop>0&&[...document.querySelectorAll('.settings-section[data-settings-section]')].filter(el=>!el.hidden).length===1&&Math.abs(settingsNav.getBoundingClientRect().top-navTop)<1&&Math.abs(settingsHead.getBoundingClientRect().top-headTop)<1&&$('side-panel').scrollTop===0;
+    $('panel-menu').click();document.querySelector('.settings-index [data-section=general-title]').click();await wait(150);
     await L('settingsScroll='+(bodyOnly&&settingsBody.scrollTop===0&&!$('settings-general').hidden?'fixed-navigation-single-body':'err:'+JSON.stringify({...settingsMetrics,resetTop:settingsBody.scrollTop,generalHidden:$('settings-general').hidden})));
     $('close-panel').click();
     await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',settingsWindow]});await until(()=>Math.abs(innerWidth-settingsWindow.width)<2);await wait(100);
     await L('panel='+(opened&&$('side-panel').hidden&&shown.join('|')==='pet|invite|settings'?'toggles':'err:'+shown.join('|'))+'/'+indexed);
     // The relationship shows beside the friend's closeness, and a click on it opens the settings at the relationship cards.
-    document.querySelector('.panel-tab[data-panel=pet]').click();await until(()=>!$('panel-pet').hidden);
+    manage('friends');$('menu-friends').click();await until(()=>!$('panel-pet').hidden);
     const relChip=$('relation-chip').textContent;$('relation-chip').click();await until(()=>$('pet-dialog').open);
     const relFocus=$('pet-dialog').open&&document.activeElement?.name==='relation'&&document.activeElement.value==='partner'&&$('pet-call-me').placeholder===${say('pet.call_me_partner')};
     $('cancel-pet-dialog').click();$('close-panel').click();await until(()=>!$('pet-dialog').open&&$('side-panel').hidden);
@@ -259,16 +285,16 @@ const scenario = `(async()=>{
     await L('about='+document.querySelectorAll('#panel-settings button[data-link]').length+'/'+(String(project.site).startsWith('https://')&&String(project.repository).startsWith('https://github.com/')?'addresses':'none')+'/'+($('update-notes').hidden?'notes-hidden':'notes-shown'));
     // A new version stays in the yard dock before Place, with the Settings dot as a secondary cue.
     // The button opens the dialog, and Later puts it away while the dot stays. Nothing is installed.
-    const sections=[...document.querySelectorAll('#panel-settings .settings-section h3')].map(h=>h.id).join(',');
-    const inAbout=!!document.querySelector('.settings-section.about #update-button');
+    const sections=[...document.querySelectorAll('#panel-settings .settings-section > h3')].map(h=>h.id).join(',');
+    const inAbout=!!document.querySelector('#settings-updates #update-button');
     $('close-panel').click();
     window.__pp('event',{type:'update',update:{version:'9.9.9',notes:''}});await until(()=>!$('update-pill').hidden);
-    const tabDot=document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
+    const tabDot=$('menu-settings-updates').classList.contains('has-update');
     const pillShown=!$('update-pill').hidden&&$('update-pill-label').textContent.includes('v9.9.9')&&$('update-pill').parentElement.classList.contains('yard-dock')&&$('update-pill').parentElement.firstElementChild===$('update-pill')&&getComputedStyle($('update-pill')).display!=='none';
     $('update-pill').click();await until(()=>!$('update-dialog').hidden);
-    const updateDialogOpen=!$('update-dialog').hidden&&$('update-title').textContent.includes('v9.9.9');
+    const updateDialogOpen=!$('update-dialog').hidden&&$('update-title').textContent.includes('v9.9.9')&&!!$('update-dialog').closest('#panel-settings');
     $('update-later').click();await until(()=>$('update-dialog').hidden);
-    const putAway=$('update-dialog').hidden&&$('update-pill').hidden&&document.querySelector('.panel-tab[data-panel=settings]').classList.contains('has-update');
+    const putAway=$('update-dialog').hidden&&$('update-pill').hidden&&$('menu-settings-updates').classList.contains('has-update');
     await L('updateUi='+sections+'/'+(inAbout&&tabDot&&pillShown&&updateDialogOpen&&putAway?'ok':'err:'+[inAbout,tabDot,pillShown,updateDialogOpen,putAway].join(',')));
     await L('stage='+($('yard').getBoundingClientRect().height/innerHeight>.6?'yard-first':'small:'+$('yard').getBoundingClientRect().height));
     // The webview retains its last place across isolated backend runs; outdoor checks choose it explicitly.
@@ -279,7 +305,7 @@ const scenario = `(async()=>{
     // A saved season changes the actual yard and wardrobe; Auto returns to the real local calendar.
     const priorSeason=localStorage.getItem('season'),seasonRules=await import('./core/season.js'),seasonSprites=await import('./core/sprites.js');
     const seasonalAsset=(await import('./core/state.js')).data.assets.find(a=>a.seasonalSpriteUrls?.summer&&a.seasonalSpriteUrls?.winter);
-    const chooseSeason=value=>{$('season').value=value;$('season').dispatchEvent(new Event('change'));};
+    const chooseSeason=value=>{$('scene-season').value=value;$('scene-season').dispatchEvent(new Event('change'));};
     chooseSeason('winter');
     const chosenWinter=$('yard').classList.contains('season-winter')&&localStorage.getItem('season')==='winter'&&seasonalAsset&&seasonSprites.spriteSource(seasonalAsset)===seasonalAsset.seasonalSpriteUrls.winter;
     chooseSeason('summer');
@@ -291,10 +317,25 @@ const scenario = `(async()=>{
     if(priorSeason===null)localStorage.removeItem('season');
     await until(()=>$('yard').dataset.environment==='illustrated');
     await L('seasonChoice='+(chosenWinter&&chosenSummer&&chosenAuto?'saved-yard-wardrobe-auto':'err'));
+    const pickClimate=(id,value)=>document.querySelector('input[name="'+id+'-choice"][value="'+value+'"]').click();
+    const sceneNow=(await import('./yard/world.js')).scene,environmentUi=await import('./yard/environment.js');
+    const currentLand=()=>document.querySelector('.paint-land canvas:last-child');
+    const landPixels=()=>{const canvas=currentLand();return canvas?.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data.reduce((sum,value,i)=>(sum+value*((i%29)+1))%2147483647,0);};
+    pickClimate('scene-season','spring');pickClimate('weather','clear');
+    await until(()=>$('yard').dataset.environment==='illustrated'&&landPixels()>0);await wait(80);
+    const clearLand=landPixels(),beforeSnow=currentLand();pickClimate('weather','snow');
+    await until(()=>currentLand()!==beforeSnow&&$('yard').classList.contains('weather-snow'));
+    const springSnow=sceneNow.season==='spring'&&environmentUi.environmentLook(sceneNow).art==='spring'&&localStorage.getItem('season')==='spring'&&$('scene-season').value==='spring'&&landPixels()===clearLand;
+    pickClimate('scene-season','winter');pickClimate('weather','clear');
+    const winterClear=sceneNow.season==='winter'&&sceneNow.weather==='clear'&&environmentUi.environmentLook(sceneNow).art==='winter';
+    await L('weatherSeason='+(springSnow&&winterClear?'independent-radio-and-render':'err:'+JSON.stringify({springSnow,winterClear})));
+    chooseSeason(['spring','summer','autumn','winter'].includes(priorSeason)?priorSeason:'auto');
+    if(priorSeason===null)localStorage.removeItem('season');
+
     // The season colours the yard and the sun or moon stands where the clock puts it.
     const yardStyle=$('yard').style;
     // The garden: a friend's find goes in the pocket, the tool plants it on the field, the backend keeps it.
-    await playPets.findSeed();await until(()=>$('seed-count').textContent==='1');
+    await until(()=>$('seed-count').textContent==='1');
     $('plant-tool').click();const yr=$('yard').getBoundingClientRect();
     $('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:yr.left+yr.width*0.5,clientY:yr.top+yr.height*0.85}));
     await until(()=>document.querySelectorAll('.plant').length===1);
@@ -312,6 +353,25 @@ const scenario = `(async()=>{
     const snow=(await playPets.receiveGift(0.6,0.3,'2025-12-20','lights')).data;await until(()=>document.querySelectorAll('.decor').length===1);await playPets.putAway(snow.id);
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
     await L('event='+(snow.kind==='snowman'&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
+    // Real saved gifts fill the yard; putting one away retains its album record and frees the capacity.
+    const capacityGifts=[];
+    for(let day=1;day<=12;day++){
+      const result=await playPets.receiveGift(0.12+(day%4)*0.2,0.5+Math.floor((day-1)/4)*0.1,'2026-01-'+String(day).padStart(2,'0'));
+      if(!result.ok)throw Error('Gift capacity fixture failed: '+result.error);
+      capacityGifts.push(result.data);
+    }
+    await until(()=>document.querySelectorAll('.decor').length===12);
+    $('album-button').click();$('album-select').value='gift';$('album-select').dispatchEvent(new Event('change'));
+    const fullGiftState=(await playPets.bootstrap()).data.garden,capacityDenied=await playPets.receiveGift(0.5,0.5,'2026-01-13');
+    const capacityExplained=$('album-dig-status').textContent===${say('album.gift_full')}&&!$('album-dig-status').hidden&&!$('album-odds-button')&&capacityDenied.ok===false;
+    await playPets.putAway(capacityGifts[0].id);
+    const capacityFreed=await until(()=>$('album-dig-status').textContent===${say('album.gift_rule')});
+    const afterGiftAway=(await playPets.bootstrap()).data.garden;
+    const giftRecordKept=afterGiftAway.received.length===fullGiftState.received.length&&afterGiftAway.received.includes(capacityGifts[0].kind)&&afterGiftAway.decor.length===11;
+    $('close-album').click();for(const item of capacityGifts.slice(1))await playPets.putAway(item.id);
+    await until(()=>!document.querySelector('.decor'));
+    await L('giftCapacity='+(capacityExplained&&capacityFreed&&giftRecordKept?'full-explained-free-space-record-kept':'err:'+JSON.stringify({capacityExplained,capacityFreed:!!capacityFreed,giftRecordKept})));
+
     // The album: a catch is kept (the biggest fish, a count), nonsense is refused, and the album shows it.
     await playPets.catch('fish','carp',41.5);await playPets.catch('fish','carp',33);const tooBig=await playPets.catch('fish','carp',999);
     await until(async()=>(await playPets.bootstrap()).data.album?.fish?.carp?.count===2);
@@ -320,6 +380,20 @@ const scenario = `(async()=>{
     const albumOk=document.querySelectorAll('.album-card').length===fishKinds&&document.querySelector('[data-count=fish]').textContent.endsWith('/'+fishKinds)&&document.querySelectorAll('.album-card:not(.unknown)').length===1&&(await playPets.bootstrap()).data.album.fish.carp.best===41.5&&tooBig.ok===false;
     $('album-dialog').close();
     await L('album='+(albumOk?'kept-and-shown':'err:'+JSON.stringify((await playPets.bootstrap()).data.album)));
+    // New catalogue IDs pass the native save boundary and use decoded local atlases.
+    const extensionFish=['stickleback','freshwater_prawn','crayfish','pond_snail'],extensionBugs=['ladybug','field_cricket'];
+    let extensionAccepted=true;
+    for(const id of extensionFish)extensionAccepted&&=(await playPets.catch('fish',id,3)).ok;
+    for(const id of extensionBugs)extensionAccepted&&=(await playPets.catch('bug',id,0)).ok;
+    for(let day=13;day<=18;day++){
+      const result=await playPets.receiveGift(0.4,0.3,'2026-01-'+day);
+      if(result.ok)await playPets.putAway(result.data.id);else extensionAccepted=false;
+    }
+    const extensionState=(await playPets.bootstrap()).data;
+    extensionAccepted&&=extensionFish.every(id=>extensionState.album.fish[id]?.count===1)&&extensionBugs.every(id=>extensionState.album.bugs[id]?.count===1)&&['bunny_watering_can','hedgehog_planter'].every(id=>extensionState.garden.received.includes(id));
+    const extensionRecords=await fetch('art/collection.json').then(r=>r.json()),extensionAtlases=[...new Set(extensionRecords.filter(r=>r.atlas.startsWith('collection-extension/')).map(r=>r.atlas))];
+    const extensionDecoded=await Promise.all(extensionAtlases.map(atlas=>new Promise(resolve=>{const image=new Image();image.onload=()=>resolve(image.naturalWidth>0);image.onerror=()=>resolve(false);image.src='art/'+atlas;})));
+    await L('collectionExtension='+(extensionAccepted&&extensionDecoded.every(Boolean)?'aquatic-ground-bugs-gifts-saved-atlases-decoded':'err'));
     // Friendship: the backend decides what a thing is worth and caps a day; hearts show on the name tag.
     const fid=(await playPets.bootstrap()).data.pets[0].id,p0=(await playPets.bootstrap()).data.bonds?.[fid]?.points||0,bribe=await playPets.befriend(fid,'bribe','2026-01-02');
     let rose=0;for(const day of ['2026-01-02','2026-01-03'])for(let k=0;k<12;k++)rose+=(await playPets.befriend(fid,'gift',day)).data.up?1:0;
@@ -328,7 +402,7 @@ const scenario = `(async()=>{
     // Yard sounds: on by default; the chip turns them off and on, the volume is kept and held to 0–100.
     // The settings change while the yard stays quiet: the volume goes to 0 before the chip turns it on.
     await playPets.setSound(null,300);const held=(await playPets.bootstrap()).data.sound.volume;await playPets.setSound(null,0);
-    $('sound-button').click();const soundOn=await until(async()=>(await playPets.bootstrap()).data.sound.on===true&&$('sound-button').getAttribute('aria-pressed')==='true'&&$('sound-on').checked);
+    $('sound-button').click();const soundOn=await until(async()=>(await playPets.bootstrap()).data.sound.on===true&&$('sound-button').getAttribute('aria-pressed')==='true');
     $('sound-button').click();const soundOff=await until(async()=>(await playPets.bootstrap()).data.sound.on===false&&$('sound-button').getAttribute('aria-pressed')==='false');
     await L('sound='+(soundDefault.on&&soundDefault.volume===40&&held===100&&soundOn&&soundOff?'off-on-held':'err:'+JSON.stringify([soundDefault,held,soundOn,soundOff])));
     await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-shade')!==''?'set':'err:'+$('yard').className));
@@ -339,20 +413,41 @@ const scenario = `(async()=>{
     if(!discoveryPoints.length)throw Error('No open discovery ground');
     const discoveryPoint=discoveryPoints[0], discoveryWorld=(await import('./yard/world.js')).scene.world;
     const discoveryBefore=(await playPets.bootstrap()).data.garden.digs.length;
+    const discoveryChoice={season:$('scene-season').value,weather:$('weather').value},digInvocations=[],nativeFetch=window.fetch;
+    let changedAfterIssue=false,actionAtIssue=false;
+    // Observe native command payloads without changing the backend result or random draw.
+    window.fetch=function(input,options){
+      if(String(input).includes('/call')&&typeof options?.body==='string'){
+        let payload;try{payload=JSON.parse(options.body);}catch{}
+        if(payload?.name==='dig'){
+          digInvocations.push(payload.args);
+          if(!changedAfterIssue){actionAtIssue=!!document.querySelector('.dig-effect');changedAfterIssue=true;$('weather').value='clear';$('weather').dispatchEvent(new Event('change'));}
+        }
+      }
+      return nativeFetch.call(this,input,options);
+    };
+    chooseSeason('winter');$('weather').value='rain';$('weather').dispatchEvent(new Event('change'));
+    await until(()=>$('yard').dataset.environment==='illustrated');
     discoveryFlow.sendDiscovery(discoveryFriend,discoveryPoint,'dig');
+    $('weather').value='snow';$('weather').dispatchEvent(new Event('change'));
     const discoveryNoEarly=(await playPets.bootstrap()).data.garden.digs.length===discoveryBefore;
     if(document.visibilityState==='hidden'){const trip=discoveryFriend.trip;discoveryFriend.trip=null;discoveryFriend.target=null;await trip.arrive();}
     await until(async()=>(await playPets.bootstrap()).data.garden.digs.length===discoveryBefore+1,20000);
     await wait(1700);
+    window.fetch=nativeFetch;
+    const capturedDig=digInvocations.find(args=>args[0]===discoveryFriend.pet.id&&args[1]===discoveryWorld&&args[2]===discoveryPoint.x&&args[3]===discoveryPoint.y);
+    const snapshotContext=capturedDig?.[5]?.season==='winter'&&capturedDig?.[5]?.weather==='snow'&&actionAtIssue&&changedAfterIssue&&(await import('./yard/world.js')).scene.season==='winter'&&(await import('./yard/world.js')).scene.weather==='clear';
+    await L('digContext='+(snapshotContext?'arrival-snapshot-native-bridge':'err:'+JSON.stringify({captured:capturedDig?.[5],calls:digInvocations.length,actionAtIssue,changedAfterIssue})));
+    chooseSeason(discoveryChoice.season);$('weather').value=discoveryChoice.weather;$('weather').dispatchEvent(new Event('change'));
     const discoveryReplay=await must('discoveryReplay',playPets.dig(discoveryFriend.pet.id,discoveryWorld,discoveryPoint.x,discoveryPoint.y,discoveryGround.groundProfile()));
     const discoveryOnce=(await playPets.bootstrap()).data.garden.digs.length===discoveryBefore+1&&discoveryReplay.data?.repeated===true;
-    const discoveryTreeBefore=(await playPets.bootstrap()).data.garden.trees.length;
+    const discoveryTreeBefore=(await playPets.bootstrap()).data.garden.trees.length, saplingsBefore=(await playPets.bootstrap()).data.garden.saplings.maple;
     discoveryFlow.sendDiscovery(discoveryFriend,discoveryPoint,'tree','maple');
     if(document.visibilityState==='hidden'){const trip=discoveryFriend.trip;discoveryFriend.trip=null;discoveryFriend.target=null;await trip.arrive();}
     await until(async()=>(await playPets.bootstrap()).data.garden.trees.length===discoveryTreeBefore+1,20000);
     await until(()=>!!document.querySelector('.planted-tree'));
     const discoveryTree=(await playPets.bootstrap()).data.garden.trees.at(-1),discoveryTreeBox=document.querySelector('.planted-tree').getBoundingClientRect();
-    const discoverySaved=discoveryTree.world===discoveryWorld&&discoveryTree.stage===0&&discoveryTreeBox.width>0&&discoveryTreeBox.height>0;
+    const discoverySaved=discoveryTree.world===discoveryWorld&&discoveryTree.stage===0&&discoveryTreeBox.width>0&&discoveryTreeBox.height>0&&(await playPets.bootstrap()).data.garden.saplings.maple===saplingsBefore-1;
     discoveryFlow.cancelDiscoveryWork();
     await must('removeDiscoveryTree',playPets.removeTree(discoveryTree.id));
     await until(()=>!document.querySelector('.planted-tree'));
@@ -467,58 +562,231 @@ const scenario = `(async()=>{
     await L('contextSmall='+(smallContext&&smallContextEsc?'clamped-and-escaped':'err'));
     await L('windowPin='+(pinOn&&pinOff&&trayPin&&pinOnVisual!==pinOffVisual&&sameBounds(compactAt,pinOn)&&sameBounds(compactAt,pinOff)?'independent-and-synced':'err:'+JSON.stringify({compactAt,pinOn,pinOff,trayPin,ui:$('always-on-top').getAttribute('aria-pressed')})));
     const small=document.body.classList.contains('compact')&&compactAt.resizable&&getComputedStyle($('window-drag')).display!=='none'&&document.querySelectorAll('[data-resize]').length===8&&!document.querySelector('#mini,#unmini');
-    document.querySelector('.panel-tab[data-panel=settings]').click();await wait(100);
-    const settingsSmall=$('settings-content').getBoundingClientRect().height>30&&$('settings-section').getBoundingClientRect().height>0&&$('side-panel').getBoundingClientRect().bottom<=innerHeight;
+    panelTasks.openPanel('settings');await wait(100);
+    const settingsSmall=!$('settings-home').hidden&&$('settings-content').hidden&&$('settings-home').getBoundingClientRect().height>40&&$('side-panel').getBoundingClientRect().bottom<=innerHeight;
     $('close-panel').click();await L('settingsSmall='+(settingsSmall?'body-and-navigation':'err'));
     await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact')&&innerWidth===wide);
     await L('pageFits='+fitsFull+'/'+fitsSmall);
     // Every destination remains navigable at the minimum size and retains its state when widened.
     const visibleNode=node=>{const r=node.getBoundingClientRect();return r.width>0&&r.height>0&&r.left>=0&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<=innerHeight+1;};
-    let panelFlow=true;
+    // Translate the real controls in place; production language changes reload the window.
+    const localeUi=await import('./core/i18n.js');
+    const noWrap=node=>{
+      const range=document.createRange();range.selectNodeContents(node);
+      const lines=[...range.getClientRects()].filter(rect=>rect.width>0&&rect.height>0);
+      const box=node.getBoundingClientRect(),style=getComputedStyle(node);
+      return lines.length===1&&lines[0].height<=(parseFloat(style.lineHeight)||parseFloat(style.fontSize)*1.5)+1&&node.scrollWidth<=Math.max(node.clientWidth,box.width)+1&&parseFloat(style.fontSize)>=12;
+    };
+    const rewardCatalog=await import('./yard/catalog.js'),rewardState=(await playPets.bootstrap()).data;
+    const rareSeed=rewardState.garden.digs.find(dig=>dig.attemptId==='saved-rare-fixture');
+    const rewardOdds=rewardState.limits.digOdds,rewardTrace=[];
+    let customRewardProof=null;
+    const blockedLedger=rareSeed?.kind==='quartz'&&rareSeed.petId==='previous-friend'&&rareSeed.world==='courtyard'&&Date.now()<rareSeed.at+86400000;
+    const actualOdds=rewardOdds.common===22&&rewardOdds.uncommon===3&&rewardOdds.sapling===20;
+    const inspectRewardAlbum=(book,checkLayout=false,selectBook=true)=>{
+      if(selectBook){$('album-select').value=book;$('album-select').dispatchEvent(new Event('change'));}
+      const context={season:rewardScene.season,weather:rewardScene.weather,place:rewardScene.world};
+      const kinds=book==='tree'?rewardCatalog.TREES:rewardCatalog.TREASURES,cards=[...$('album-grid').querySelectorAll('.album-card')];
+      let correct=cards.length===kinds.length;
+      for(const [i,kind] of kinds.entries()){
+        const hint=localeUi.t('album.favored',{conditions:localeUi.joinList([...(kind.affinity?.seasons||[]).map(value=>localeUi.t('catch.season_'+value)),...(kind.affinity?.weather||[]).map(value=>localeUi.t('weather.'+value)),...(kind.affinity?.places||[]).map(value=>localeUi.t('world.'+value))])});
+        correct&&=!cards[i]?.querySelector('.album-chance')&&cards[i]?.textContent.includes(hint);
+      }
+      const status=$('album-dig-status'),expiry=new Date((rareSeed?.at??0)+86400000).toLocaleString(localeUi.language(),{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      const rawPlace=localeUi.t('world.'+context.place),customPlace=rawPlace==='world.'+context.place,placeName=customPlace?localeUi.t('album.custom_place'):rawPlace;
+      const contextText=localeUi.t('album.dig_context',{conditions:localeUi.joinList([localeUi.t('catch.season_'+context.season),localeUi.t('weather.'+context.weather),placeName])});
+      const oldContextText=localeUi.t('album.dig_context',{conditions:localeUi.joinList([localeUi.t('catch.season_'+context.season),localeUi.t('weather.'+context.weather),rawPlace])});
+      correct&&=!status.hidden&&status.textContent.includes(contextText)&&status.textContent.includes(localeUi.t('album.rare_wait',{time:expiry}));
+      if(checkLayout){
+        const grid=$('album-grid').getBoundingClientRect();
+        const layout={statusVisible:visibleNode(status),closeVisible:visibleNode($('close-album')),gridHeight:grid.height,gridBottom:grid.bottom,viewport:innerHeight,statusFits:status.scrollWidth<=status.clientWidth+1,cardsFit:cards.every(card=>card.scrollWidth<=card.clientWidth+1)};
+        if(!correct)rewardTrace.push(['copy-diagnostic',localeUi.language(),innerWidth,book,{context,actualStatus:status.textContent,expectedContext:contextText,expectedWait:localeUi.t('album.rare_wait',{time:expiry}),layout}]);
+        if(customPlace&&(!customRewardProof||localeUi.language()==='en'))customRewardProof={actualStatus:status.textContent,oldExpected:oldContextText,correctExpected:contextText,layout,correct:status.textContent.includes(contextText)&&!status.textContent.includes(oldContextText)};
+        correct&&=layout.statusVisible&&layout.closeVisible&&grid.height>=40&&grid.bottom<=innerHeight+1&&layout.statusFits&&layout.cardsFit;
+      }
+      return correct;
+    };
+    const inspectConditionsOnly=book=>{
+      $('album-select').value=book;$('album-select').dispatchEvent(new Event('change'));
+      return !$('album-odds-button')&&!document.querySelector('.album-chance')&&visibleNode($('album-total'))&&noWrap($('album-total'));
+    };
+    const inspectIndoorRewards=book=>{
+      $('album-select').value=book;$('album-select').dispatchEvent(new Event('change'));
+      return !document.querySelector('.album-chance')&&$('album-grid').children.length===(book==='tree'?rewardCatalog.TREES:rewardCatalog.TREASURES).length&&$('album-dig-status').textContent===localeUi.t('discovery.indoors')&&!$('album-dig-status').hidden;
+    };
+    const rewardScene=(await import('./yard/world.js')).scene,rewardChoices={world:$('world').value,season:$('scene-season').value,weather:$('weather').value};
+    $('world').value='woodland';$('world').dispatchEvent(new Event('change'));chooseSeason('spring');$('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
+    $('album-button').click();const rewardLiveBefore=inspectRewardAlbum('treasure'),rewardStatusBefore=$('album-dig-status').textContent;
+    $('weather').value='rain';$('weather').dispatchEvent(new Event('change'));
+    const rewardLiveUpdated=await until(()=>inspectRewardAlbum('treasure',false,false)&&$('album-dig-status').textContent!==rewardStatusBefore);
+    $('close-album').click();
+    await L('digRewardLive='+(rewardLiveBefore&&rewardLiveUpdated?'weather-updates-open-album':'err'));
+    let rewardContexts=blockedLedger&&actualOdds;
+    for(const place of ['woodland','courtyard','lakeside']){
+      $('world').value=place;$('world').dispatchEvent(new Event('change'));
+      for(const season of ['spring','summer','autumn','winter']){
+        chooseSeason(season);
+        for(const weather of ['clear','rain','snow']){
+          $('weather').value=weather;$('weather').dispatchEvent(new Event('change'));
+          $('album-button').click();
+          for(const book of ['tree','treasure']){const correct=inspectRewardAlbum(book);rewardContexts&&=correct;rewardTrace.push([place,season,weather,book,correct]);}
+          $('close-album').click();
+        }
+      }
+    }
+    $('world').value=rewardChoices.world;$('world').dispatchEvent(new Event('change'));chooseSeason(rewardChoices.season);$('weather').value=rewardChoices.weather;$('weather').dispatchEvent(new Event('change'));
+    await L('digRewardContexts='+(rewardContexts&&rewardTrace.length===72?'all-places-seasons-weather-ledger-blocked':'err:'+JSON.stringify({blockedLedger,actualOdds,rewardTrace})));
+    const menuCopyTrace=[];let menuCopyFits=true,rewardLocaleFits=true,indoorRewardFits=true,conditionsOnlyFits=true,giftRuleFits=true;
+
+    for(const shape of [{...fullAt,width:300,height:210},fullAt]){
+      await nativeWindow(shape);await until(()=>Math.abs(innerWidth-shape.width)<=1);await wait(80);
+      for(const lang of ['ko','en','ja','zh-hans']){
+        localeUi.setLanguageForTests(lang);localeUi.apply();
+        (await import('./core/controls.js')).openPlay();await wait(40);
+        const labels=[...$('play-actions').querySelectorAll('.play-action > span[data-i18n]')];
+        const playOk=labels.length===4&&labels.every(noWrap)&&[...$('play-actions').querySelectorAll('.play-action')].every(visibleNode)&&visibleNode($('play-panel'));
+        $('close-play').click();manage('friends');await wait(40);
+        const tabs=[...document.querySelectorAll('[data-management-tab]')];
+        const tabsOk=tabs.length===3&&tabs.every(tab=>noWrap(tab)&&visibleNode(tab));
+        for(const group of ['friends','settings']){
+          $('management-tab-'+group).click();await wait(20);
+          const actions=[...$('management-'+group).querySelectorAll('.menu-destination')];
+          menuCopyFits&&=actions.every(button=>{
+            const label=button.querySelector('.menu-destination-copy strong')||button.querySelector('[data-i18n]');
+            return noWrap(label)&&button.scrollWidth<=button.clientWidth+1&&visibleNode(button);
+          });
+        }
+        menuCopyFits&&=playOk&&tabsOk;
+        menuCopyTrace.push([lang,innerWidth,playOk,tabsOk,menuCopyFits]);
+        $('close-controls').click();
+        $('scene-button').click();$('scene-atmosphere-tab').click();await wait(30);
+        const atmosphere=$('scene-atmosphere'),details=[...atmosphere.querySelectorAll('.atmosphere-choice')],summaries=details.map(group=>group.querySelector('summary'));
+        atmosphere.scrollTop=0;
+        const compactClimate=document.body.classList.contains('compact');
+        let climateFits=details.length===3&&(!compactClimate||summaries.every(visibleNode));
+        const climateTrace=[['initial',climateFits,summaries.map(node=>({text:node.textContent,box:node.getBoundingClientRect().toJSON()}))]];
+        for(const group of details){
+          const summary=group.querySelector('summary');
+          if(compactClimate&&!group.open)summary.click();await wait(20);
+          const segments=group.querySelector('.atmosphere-segments');
+          climateFits&&=segments.scrollWidth<=segments.clientWidth+1&&(!compactClimate||details.filter(item=>item.open).length===1);
+          const pageBox=atmosphere.getBoundingClientRect();
+          climateTrace.push(['opened',summary.textContent,group.open,details.filter(item=>item.open).length,segments.scrollWidth,segments.clientWidth,pageBox.toJSON(),atmosphere.scrollTop]);
+          for(const label of segments.querySelectorAll('span')){
+            const box=label.getBoundingClientRect();
+            const optionFits=noWrap(label)&&visibleNode(label)&&box.top>=pageBox.top-1&&box.bottom<=pageBox.bottom+1;
+            climateFits&&=optionFits;if(!optionFits)climateTrace.push(['option',label.textContent,noWrap(label),visibleNode(label),box.toJSON()]);
+          }
+          if(compactClimate){
+            const radios=[...group.querySelectorAll('input')],selectedRadio=radios.find(radio=>radio.checked),select=$(selectedRadio.name.replace('-choice','')),original=select.value;
+            radios.find(radio=>!radio.checked).click();await wait(20);
+            // WebKit can scroll one pixel when it restores focus to the last summary.
+            const closedFits=!group.open&&summaries.every(visibleNode)&&Math.abs(atmosphere.scrollTop)<=1;
+            climateFits&&=closedFits;if(!closedFits)climateTrace.push(['closed',summary.textContent,group.open,atmosphere.scrollTop,summaries.map(node=>({text:node.textContent,box:node.getBoundingClientRect().toJSON()}))]);
+            select.value=original;select.dispatchEvent(new Event('change'));
+          }
+          await wait(20);
+        }
+        menuCopyFits&&=climateFits;menuCopyTrace.push([lang,innerWidth,'atmosphere',climateFits,...(!climateFits?[climateTrace]:[])]);
+        $('scene-places-tab').click();
+        $('scene-close').click();
+        $('album-button').click();
+        for(const book of ['tree','treasure']){const correct=inspectRewardAlbum(book,true);rewardLocaleFits&&=correct;if(!correct)rewardTrace.push([lang,innerWidth,book,'layout-or-copy-failed']);const toggled=inspectConditionsOnly(book);conditionsOnlyFits&&=toggled;}
+        $('album-select').value='gift';$('album-select').dispatchEvent(new Event('change'));
+        const giftStatus=$('album-dig-status'),giftRule=giftStatus.textContent===localeUi.t('album.gift_rule')&&!giftStatus.hidden&&visibleNode(giftStatus)&&!$('album-odds-button')&&!document.querySelector('.album-chance');
+        giftRuleFits&&=giftRule;if(!giftRule)rewardTrace.push(['gift-rule',lang,innerWidth,giftStatus.textContent]);
+        $('close-album').click();
+        const outsideWorld=$('world').value;$('world').value='studio';$('world').dispatchEvent(new Event('change'));
+        $('album-button').click();
+        for(const book of ['tree','treasure']){const correct=inspectIndoorRewards(book);indoorRewardFits&&=correct;if(!correct)rewardTrace.push([lang,innerWidth,book,'indoor-odds-or-status-failed']);}
+        $('close-album').click();$('world').value=outsideWorld;$('world').dispatchEvent(new Event('change'));
+
+
+      }
+    }
+    localeUi.setLanguageForTests('ko');localeUi.apply();
+    await L('menuCopy='+(menuCopyFits?'four-locales-no-wrap-small-and-wide':'err:'+JSON.stringify(menuCopyTrace)));
+    await L('digRewardLocales='+(rewardLocaleFits?'four-locales-small-wide-hints-status':'err:'+JSON.stringify(rewardTrace)));
+    await L('albumConditionsOnly='+(conditionsOnlyFits?'no-numbers-or-toggle-four-locales-small-wide':'err:'+JSON.stringify(rewardTrace)));
+    await L('giftAlbumRule='+(giftRuleFits?'whole-yard-daily-four-locales-small-wide':'err:'+JSON.stringify(rewardTrace)));
+    await L('digRewardCustom='+(customRewardProof?.correct?'localized-fallback-without-untranslated-key':'err'));
+    await L('digRewardCustomDetail='+JSON.stringify(customRewardProof));
+    await L('digRewardIndoors='+(indoorRewardFits?'four-locales-small-wide-no-soil-explained':'err:'+JSON.stringify(rewardTrace)));
+    let panelFlow=true;const flowTrace=[];const markFlow=step=>flowTrace.push([step,panelFlow]);
     await nativeWindow({...fullAt,width:300,height:210});await wait(200);
-    $('yard-controls-toggle').click();$('menu-scene').click();await wait(100);
-    panelFlow&&=!$('scene-menu').hidden&&!$('scene-places').hidden&&$('scene-atmosphere').hidden&&visibleNode($('scene-back'))&&document.activeElement===$('background-gallery').querySelector('[aria-pressed="true"]');
+    manage('friends');await wait(40);
+    const managementTabs=[...document.querySelectorAll('[data-management-tab]')];
+    const friendRows=[...$('management-friends').querySelectorAll('.panel-tab')];
+    let primaryFirstView=managementTabs.length===3&&managementTabs.every(visibleNode)&&friendRows.length===2&&friendRows.every(visibleNode)&&!$('controls-more');
+    for(const tab of managementTabs){
+      tab.click();await wait(40);
+      const selected=tab.dataset.managementTab;
+      primaryFirstView&&=tab.getAttribute('aria-selected')==='true'&&tab.tabIndex===0&&managementTabs.every(other=>$('management-'+other.dataset.managementTab).hidden===(other!==tab))&&[...document.querySelectorAll('.management-page')].filter(page=>!page.hidden).length===1;
+      primaryFirstView&&=visibleNode($('management-'+selected))&&managementTabs.every(visibleNode);
+    }
+    $('management-tab-friends').click();
+    await L('menuSmall='+(primaryFirstView?'three-tabs-single-task-pane':'err'));
+    $('close-controls').click();$('scene-button').click();await wait(100);
+    panelFlow&&=!$('scene-menu').hidden&&!$('scene-places').hidden&&$('scene-atmosphere').hidden&&visibleNode($('scene-close'))&&document.activeElement===$('background-gallery').querySelector('[aria-pressed="true"]');
     $('scene-atmosphere-tab').click();
     panelFlow&&=$('scene-places').hidden&&!$('scene-atmosphere').hidden;
-    $('weather').scrollIntoView({block:'end'});await wait(80);
-    panelFlow&&=visibleNode($('weather'));
+    const weatherDisclosure=document.querySelector('input[name="weather-choice"]').closest('details'),weatherSummary=weatherDisclosure.querySelector('summary');
+    $('scene-atmosphere').scrollTop=0;
+    panelFlow&&=[...$('scene-atmosphere').querySelectorAll('summary')].every(visibleNode);
+    weatherSummary.click();await wait(80);
+    weatherSummary.scrollIntoView({block:'nearest'});
+    panelFlow&&=weatherDisclosure.open&&visibleNode(weatherSummary);
     await nativeWindow(fullAt);await wait(100);
-    panelFlow&&=!$('scene-atmosphere').hidden&&visibleNode($('weather'));
-    $('scene-back').click();await wait(40);
-    panelFlow&&=$('scene-menu').hidden&&!$('yard-controls-panel').hidden;
+    panelFlow&&=!$('scene-atmosphere').hidden&&weatherDisclosure.open&&[...weatherDisclosure.querySelectorAll('.atmosphere-segments span')].every(visibleNode);
+    $('scene-close').click();await wait(40);
+    panelFlow&&=$('scene-menu').hidden&&$('yard-controls-panel').hidden;
+    markFlow('scene');
+    $('yard-controls-toggle').click();
     await nativeWindow({...fullAt,width:300,height:210});await wait(100);
-    document.querySelector('.panel-tab[data-panel=invite]').click();await wait(100);
+    manage('friends');$('menu-invite').click();await wait(100);
     $('invite-filters').open=false;$('panel-invite').scrollTop=0;
     const firstInvite=$('shelf').querySelector('.asset-card');
     if(firstInvite){firstInvite.scrollIntoView({block:'nearest'});await wait(40);panelFlow&&=visibleNode(firstInvite);}
     $('panel-menu').click();await wait(40);
     panelFlow&&=$('side-panel').hidden&&!$('yard-controls-panel').hidden;
-    document.querySelector('.panel-tab[data-panel=settings]').click();await wait(60);
-    $('settings-section').value='about-title';$('settings-section').dispatchEvent(new Event('change'));await wait(60);
-    panelFlow&&=!$('settings-about').hidden&&visibleNode($('settings-section'))&&$('settings-content').clientHeight>=40;
+    markFlow('invite');
+    $('management-tab-settings').click();$('menu-settings-updates').click();await wait(60);
+    panelFlow&&=!$('update-dialog').hidden&&!$('settings-updates').hidden&&$('settings-home').hidden;
+    markFlow('direct-update');
+    if(!panelFlow) flowTrace.push(['direct-update-state',{detailsHidden:$('update-dialog').hidden,sectionHidden:$('settings-updates').hidden,homeHidden:$('settings-home').hidden,title:$('panel-title').textContent,note:$('update-note').textContent,pillHidden:$('update-pill').hidden,back:$('panel-menu').getAttribute('aria-label')}]);
+    $('panel-menu').click();await wait(40);
+    panelFlow&&=$('side-panel').hidden&&!$('management-settings').hidden&&$('management-tab-settings').getAttribute('aria-selected')==='true';
+    $('menu-settings-about').click();await wait(60);
+    panelFlow&&=!$('settings-about').hidden&&$('settings-home').hidden&&visibleNode($('panel-menu'))&&$('settings-content').clientHeight>=40;
+    $('panel-menu').click();await wait(40);
+    panelFlow&&=$('side-panel').hidden&&!$('yard-controls-panel').hidden&&!$('management-settings').hidden&&$('management-tab-settings').getAttribute('aria-selected')==='true';
+    markFlow('about-back');
+    $('menu-settings-about').click();await wait(60);
     await nativeWindow(fullAt);await wait(100);
-    panelFlow&&=!$('settings-about').hidden&&getComputedStyle(document.querySelector('.settings-index')).display!=='none'&&getComputedStyle($('settings-section')).display==='none';
+    panelFlow&&=!$('settings-about').hidden&&$('settings-home').hidden&&!$('settings-content').hidden;
+    markFlow('settings-widened');
     $('close-panel').click();await playPets.openChat(p1.data.id);
     await nativeWindow({...fullAt,width:300,height:210});await wait(100);
     $('friend-menu-button').scrollIntoView({block:'nearest'});$('friend-menu-button').click();await wait(80);const compactFriendMenu=$('friend-menu').getBoundingClientRect();panelFlow&&=compactFriendMenu.height>=140&&visibleNode($('friend-menu'));$('remove-friend').scrollIntoView({block:'nearest'});await wait(40);panelFlow&&=visibleNode($('remove-friend'));$('friend-menu').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    markFlow('friend-menu');
     $('send').scrollIntoView({block:'end'});await wait(80);panelFlow&&=visibleNode($('send'))&&visibleNode($('close-panel'));
     await nativeWindow(fullAt);await wait(100);panelFlow&&=visibleNode($('send'))&&!$('panel-pet').hidden;
-    $('close-panel').click();await L('smallPanelFlow='+(panelFlow?'reachable-and-restored':'err'));
+    $('close-panel').click();await L('smallPanelFlow='+(panelFlow?'reachable-and-restored':'err:'+JSON.stringify(flowTrace)));
 
     await nativeWindow({...fullAt,width:300,height:210});await wait(120);
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
-    $('quick-play-explore-button').click();
-    document.querySelector('#quick-play-explore [data-quick-tool="album-button"]').click();
+    $('play-garden-button').click();
+    $('album-button').click();
     await until(()=>$('album-dialog').open);
     $('album-select').value='treasure';$('album-select').dispatchEvent(new Event('change'));
     await wait(80);
-    const albumCompact=visibleNode($('album-select'))&&getComputedStyle($('album-tabs')).display==='none'&&$('album-grid').getBoundingClientRect().height>=40&&document.querySelectorAll('.album-card').length===8;
+    const albumCompact=visibleNode($('album-select'))&&getComputedStyle($('album-tabs')).display==='none'&&$('album-grid').getBoundingClientRect().height>=40&&document.querySelectorAll('.album-card').length===rewardCatalog.TREASURES.length;
     const albumMetrics={select:$('album-select').getBoundingClientRect().toJSON(),tabs:getComputedStyle($('album-tabs')).display,grid:$('album-grid').getBoundingClientRect().toJSON(),cards:document.querySelectorAll('.album-card').length,dialog:$('album-dialog').getBoundingClientRect().toJSON(),viewport:[innerWidth,innerHeight]};
     $('close-album').click();
     await nativeWindow(fullAt);await wait(100);
     await L('albumSmall='+(albumCompact?'chooser-and-scroll':'err:'+JSON.stringify(albumMetrics)));
     await L('windowResize='+(small?'one-responsive-window':'err'));
-    contextAt();await wait(30);$('menu-quit').click();
+    manage('window');await wait(30);$('menu-quit').click();
     const quitAsked=await until(()=>$('confirm-dialog').open&&document.activeElement===$('confirm-cancel'));
     $('confirm-cancel').click();await until(()=>!$('confirm-dialog').open);
     await L('windowQuit='+(quitAsked&&(await nativeWindow()).resizable?'confirmed-and-cancellable':'err'));
@@ -534,7 +802,7 @@ const scenario = `(async()=>{
       contextAt();await wait(30);
       $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
       fullscreenRestored&&=$('yard-controls-panel').hidden&&(await nativeWindow()).fullscreen;
-      document.querySelector('.panel-tab[data-panel=settings]').click();await wait(100);
+      manage('settings');$('menu-settings-general').click();await wait(100);
       document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
       fullscreenRestored&&=$('side-panel').hidden&&(await nativeWindow()).fullscreen;
       window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',cancelable:true}));
@@ -549,10 +817,14 @@ const scenario = `(async()=>{
     // A conversation stays inside the current window; a friend nearer the bottom is drawn over one higher up.
     await nativeWindow({...fullAt,width:460,height:320});await until(()=>document.body.classList.contains('compact'));await wait(300);
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
-    await until(()=>!$('quick-play').hidden);
-    const quickRect=$('quick-play').getBoundingClientRect();
-    const quickPlayFits=$('play-panel').hidden&&quickRect.top>=0&&quickRect.right<=innerWidth&&quickRect.height<innerHeight/2;
-    $('close-quick-play').click();$('menu-friends').click();
+    await until(()=>!$('play-panel').hidden);
+    const quickRect=$('play-panel').getBoundingClientRect();
+    let quickPlayFits=!$('play-panel').hidden&&quickRect.top>=0&&quickRect.right<=innerWidth&&quickRect.height<innerHeight/2;
+    await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact'));await wait(80);
+    quickPlayFits&&=!$('play-panel').hidden&&visibleNode($('play-panel'));
+    await nativeWindow({...fullAt,width:460,height:320});await until(()=>document.body.classList.contains('compact'));await wait(80);
+    quickPlayFits&&=!$('play-panel').hidden;
+    $('close-play').click();manage('friends');$('menu-friends').click();
     await until(()=>!$('panel-pet').hidden&&getComputedStyle($('side-panel')).display!=='none');await wait(300);
     $('panel-pet').scrollTop=0;
     const composer=$('message').getBoundingClientRect(),sendBox=$('send').getBoundingClientRect();
@@ -573,7 +845,7 @@ const scenario = `(async()=>{
     $('close-play').click();
     // Inviting from the shelf and opening the AI dialog go through the page's own buttons.
     const before=(await playPets.bootstrap()).data.pets.length;
-    document.querySelector('.panel-tab[data-panel=invite]').click();await until(()=>!$('panel-invite').hidden);
+    manage('friends');$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
     // A loaded machine (a build running beside the test) can take longer than the usual five seconds here.
     document.querySelector('#shelf .asset-card').click();await until(async()=>{
       const pets=(await playPets.bootstrap()).data.pets;
@@ -581,7 +853,7 @@ const scenario = `(async()=>{
     },15000);
     const after=(await playPets.bootstrap()).data.pets;
     const invited=after.length===before+1&&document.querySelectorAll('.yard-pet').length===after.length&&$('friend-select').value===after.at(-1).id;
-    document.querySelector('.panel-tab[data-panel=pet]').click();await until(()=>!$('panel-pet').hidden);
+    manage('friends');$('menu-friends').click();await until(()=>!$('panel-pet').hidden);
     const sharingGuest=await must('sharingGuest',playPets.addPet(a));
     await until(()=>document.querySelectorAll('.yard-pet').length===after.length+1);
     $('friend-select').value=after.at(-1).id;$('friend-select').dispatchEvent(new Event('change'));await wait(150);
@@ -671,7 +943,154 @@ const scenario = `(async()=>{
     const appearanceCanvas=sprites.canvas();
     await until(()=>{sprites.drawSprite(appearanceCanvas,aria);return painted(appearanceCanvas);});
     await L('illustratedChoice='+(independent&&ordinarySettings&&fullPortrait&&miniPortraitAbsent&&painted(appearanceCanvas)?'ordinary-independent':'err'));
-    await playPets.removePet(adultA.id);await playPets.removePet(adultB.id);await playPets.openChat(p1.data.id);
+    // Every bundled wardrobe renders authored actions through the real yard canvas.
+    $('close-panel').click();
+    const companionUi=await import('./core/companion-actions.js'),companionTrips=await import('./yard/trips.js'),companionViews=await import('./yard/views.js');
+    await until(()=>st.views.has(adultB.id));
+    const cloverView=st.views.get(adultB.id),companionSeason=$('scene-season').value;
+    $('scene-season').value='spring';$('scene-season').dispatchEvent(new Event('change'));
+    await until(()=>world.scene.season==='spring');
+    companionTrips.release(cloverView);companionViews.pose(cloverView,'idle',Infinity);cloverView.nextWander=Infinity;
+    const extraCompanions=[];
+    for(const id of ['playpets-pip','playpets-miso']){
+      const asset=boot.data.assets.find(a=>a.sourceId===id&&a.place==='builtin');
+      const pet=(await playPets.addPet(asset.id)).data;extraCompanions.push(pet);
+      await until(()=>st.views.has(pet.id));
+    }
+    const authoredViews=[adultA,adultB,...extraCompanions].map(p=>st.views.get(p.id));
+    const sourceIdentities=new Map(authoredViews.map(v=>[v.pet.id,JSON.stringify(v.asset)]));
+    const authoredClips=['dig','plant','cast','wait','reel','discover'],authoredTrace=[];
+    let authoredOk=true,cancellationOk=true;
+    const pixelHash=canvas=>canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data.reduce((sum,value,i)=>(sum+value*((i%29)+1))%2147483647,0);
+    for(const shape of [{...fullAt,width:300,height:210},fullAt]){
+      await nativeWindow(shape);await until(()=>Math.abs(innerWidth-shape.width)<=1);await wait(80);
+      for(const season of ['spring','summer','autumn','winter']){
+        $('scene-season').value=season;$('scene-season').dispatchEvent(new Event('change'));
+        await until(()=>world.scene.season===season);
+        for(const v of authoredViews){
+          companionTrips.release(v);companionViews.pose(v,'idle',Infinity);v.nextWander=Infinity;
+          const canonicalBox=v.button.getBoundingClientRect(),canonicalHeight=v.canvas.style.height;
+          for(const clipName of authoredClips){
+            const clip=companionUi.prepareCompanionAction(v.asset,clipName);
+            let clipOk=!!clip&&clip.frames.length>=2;
+            if(clip){
+              const decoded=await until(()=>companionUi.companionImage({clip}),10000);
+              const action=companionUi.beginCompanionAction(v,clipName),hashes=[];
+              let elapsed=0;
+              for(const frame of clip.frames){
+                const sampled=companionUi.companionAction(v,action.since+elapsed+frame.duration/2);
+                sprites.drawSprite(v.canvas,v.asset,'idle',0,null,sampled);
+                hashes.push(pixelHash(v.canvas));elapsed+=frame.duration;
+              }
+              const after=v.button.getBoundingClientRect(),offset=clip.offset||[0,0];
+              const cell=clip.canvas||[192,208],motionFrames=sprites.reduced.matches?1:Math.min(3,clip.frames.length);
+              const overscanOk=cell[0]>=192&&cell[0]<=384&&cell[1]>=208&&cell[1]<=416&&clip.frames.every(frame=>frame.rect[2]===cell[0]&&frame.rect[3]===cell[1])&&(!offset.some(Boolean)||(clip.anchor[0]+offset[0]===96&&clip.anchor[1]+offset[1]===199));
+              clipOk&&=!!decoded&&new Set(hashes).size>=motionFrames&&v.canvas.width===cell[0]&&v.canvas.height===cell[1]&&v.canvas.style.height===canonicalHeight&&Math.abs(after.width-canonicalBox.width)<1&&Math.abs(after.height-canonicalBox.height)<1&&overscanOk&&v.canvas._pk.includes(':action:');
+              const motionDescriptor=Object.getOwnPropertyDescriptor(sprites.reduced,'matches');
+              try{
+                Object.defineProperty(sprites.reduced,'matches',{configurable:true,value:true});
+                sprites.drawSprite(v.canvas,v.asset,'idle',0,null,companionUi.companionAction(v,action.since));
+                const stillHash=pixelHash(v.canvas);
+                sprites.drawSprite(v.canvas,v.asset,'idle',0,null,companionUi.companionAction(v,action.since+elapsed-1));
+                clipOk&&=pixelHash(v.canvas)===stillHash;
+              }finally{
+                if(motionDescriptor)Object.defineProperty(sprites.reduced,'matches',motionDescriptor);
+                else delete sprites.reduced.matches;
+              }
+              companionUi.clearCompanionAction(v);
+              cancellationOk&&=companionUi.companionAction(v,performance.now())===null;
+            }
+            authoredOk&&=clipOk;authoredTrace.push([innerWidth,season,v.asset.sourceId,clipName,clipOk]);
+          }
+          const identity=JSON.stringify(v.asset)===sourceIdentities.get(v.pet.id);
+          authoredOk&&=identity;
+          for(const clipName of authoredClips){
+            const importedView={asset:{...fx,displayName:v.asset.displayName,sourceId:v.asset.sourceId},pose:'idle',since:0};
+            authoredOk&&=companionUi.beginCompanionAction(importedView,clipName)===null;
+          }
+        }
+      }
+    }
+    sprites.setSpriteSeason('spring');
+    const cancellation=companionUi.beginCompanionAction(cloverView,'wait');
+    sprites.setSpriteSeason('winter');
+    cancellationOk&&=!!cancellation&&companionUi.companionAction(cloverView,performance.now())===null;
+    await until(()=>{sprites.drawSprite(cloverView.canvas,cloverView.asset);return cloverView.canvas.width===192&&cloverView.canvas.height===208&&!cloverView.canvas._pk.includes(':action:')&&pixelHash(cloverView.canvas)>0;});
+    const ordinaryBounds=cloverView.canvas.style.scale===''&&cloverView.canvas.style.translate==='';
+    $('scene-season').value='spring';$('scene-season').dispatchEvent(new Event('change'));
+    await until(()=>world.scene.season==='spring');sprites.setSpriteSeason('spring');
+    await L('authoredClips='+(authoredOk&&authoredTrace.length===192&&cancellationOk&&ordinaryBounds?'four-friends-four-seasons-six-clips-small-wide-compatible':'err:'+JSON.stringify({authoredTrace,cancellationOk,ordinaryBounds})));
+    // Digging walks to real clear ground, then holds the tool throughout the saved discovery action.
+    const digHistory=(await playPets.bootstrap()).data.garden.digs;
+    const cloverGround=discoveryPoints.find(point=>digHistory.every(previous=>previous.world!==discoveryWorld||previous.tileX!==Math.floor(point.x*8)||previous.tileY!==Math.floor(point.y*8)));
+    if(!cloverGround)throw Error('No fresh Clover discovery ground');
+    companionUi.prepareCompanionAction(cloverView.asset,'dig');
+    const digAtlas=companionUi.prepareCompanionAction(cloverView.asset,'dig');
+    await until(()=>companionUi.companionImage({clip:digAtlas}),10000);
+    discoveryFlow.sendDiscovery(cloverView,cloverGround,'dig');
+    const walkFirst=!!cloverView.target&&companionUi.companionAction(cloverView,performance.now())===null;
+    let cloverArrival=null;
+    if(document.visibilityState==='hidden'){const trip=cloverView.trip;cloverView.trip=null;cloverView.target=null;cloverArrival=trip.arrive();}
+    const digTrace=[],digTraceAt=performance.now();let lastDigTrace='';
+    const authoredStarted=await until(()=>{
+      const action=companionUi.companionAction(cloverView,performance.now());
+      const effect=document.querySelector('.dig-effect');
+      const sample={action:action?.clip.url||null,expected:digAtlas?.url,same:action?.clip===digAtlas,effect:effect?.className||null,target:!!cloverView.target,trip:!!cloverView.trip,doing:!!cloverView.doing,pose:cloverView.pose,away:cloverView.away,asset:cloverView.asset.id,place:cloverView.asset.place,season:world.scene.season};
+      const signature=JSON.stringify(sample);if(signature!==lastDigTrace){digTrace.push([Math.round(performance.now()-digTraceAt),sample]);lastDigTrace=signature;}
+      return action?.clip===digAtlas&&action;
+    },20000);
+    const effect=document.querySelector('.dig-effect.authored');
+    const toolAttached=!!effect&&!effect.querySelector('svg')&&authoredStarted?.clip.heldTool===true;
+    const soilNode=effect?.querySelector('.dig-soil'),soilBackground=soilNode&&getComputedStyle(soilNode).backgroundImage,soilAtlas=new Image();
+    if(soilBackground?.startsWith('url('))soilAtlas.src=soilBackground.slice(4,-1).replaceAll('"','');
+    const soilDecoded=await until(()=>soilAtlas.complete&&soilAtlas.naturalWidth>0,10000);
+    const soilLayer=!!soilNode&&effect.dataset.soil==='base'&&soilBackground.includes('dug-soil.png')&&Number(effect.style.zIndex)<Number(cloverView.button.style.zIndex);
+    let soilContact=false;
+
+    const bodyFrames=new Set(),startAt=authoredStarted?.since||performance.now();
+    while(companionUi.companionAction(cloverView,performance.now())?.clip===digAtlas&&performance.now()-startAt<digAtlas.frames.reduce((sum,frame)=>sum+frame.duration,0)){
+      const sample=companionUi.companionAction(cloverView,performance.now());
+      if(sample){sprites.drawSprite(cloverView.canvas,cloverView.asset,'idle',0,null,sample);bodyFrames.add(cloverView.canvas._pk);}
+      soilContact||=!!soilNode&&effect.classList.contains('contact')&&Number(getComputedStyle(soilNode).opacity)>0;
+      await wait(70);
+    }
+    const cloverSaved=await until(async()=>(await playPets.bootstrap()).data.garden.digs.length===digHistory.length+1,10000);
+    if(cloverArrival)await cloverArrival;
+    const cloverClean=await until(()=>!document.querySelector('.dig-effect'));
+    await L('authoredDig='+(walkFirst&&authoredStarted&&toolAttached&&bodyFrames.size>=(sprites.reduced.matches?1:4)&&cloverSaved&&cloverClean?'walk-body-tool-save-clean':'err:'+JSON.stringify({walkFirst,started:!!authoredStarted,toolAttached,frames:bodyFrames.size,cloverSaved,cloverClean,digTrace})));
+    await L('authoredSoil='+(soilDecoded&&soilLayer&&soilContact&&cloverClean?'decoded-contact-depth-clean':'err:'+JSON.stringify({soilDecoded:!!soilDecoded,soilLayer,soilContact,cloverClean,soilBackground})));
+    discoveryFlow.cancelDiscoveryWork();companionTrips.release(cloverView);companionUi.clearCompanionAction(cloverView);
+    // A real fishing trip uses the held rod through cast, wait and reel, then saves and clears it.
+    await playPets.openChat(adultB.id);await until(()=>st.selected===adultB.id);$('close-panel').click();
+    for(const clipName of ['cast','wait','reel','discover']){
+      const clip=companionUi.prepareCompanionAction(cloverView.asset,clipName);
+      await until(()=>companionUi.companionImage({clip}),10000);
+    }
+    const authoredFishBefore=await countFish();$('fish-tool').click();
+    const fishingWalk=!!cloverView.target&&companionUi.companionAction(cloverView,performance.now())===null;
+    if(document.visibilityState==='hidden'&&cloverView.trip){const trip=cloverView.trip;cloverView.trip=null;cloverView.target=null;trip.arrive(cloverView);}
+    const authoredField=await import('./yard/field.js'),authoredRod=await import('./yard/fishing-rod.js');
+    const heldPhase=async name=>until(()=>{
+      const now=performance.now();catchModule.syncFishingArtwork(now);
+      const action=companionUi.companionAction(cloverView,now),rod=document.querySelector('.fishing-rod'),line=document.querySelector('.fishing-line path');
+      const decoded=companionUi.companionImage(action);
+      if(action?.clip!==companionUi.prepareCompanionAction(cloverView.asset,name)||!decoded)return false;
+      sprites.drawSprite(cloverView.canvas,cloverView.asset,'idle',0,null,action);
+      const tip=authoredRod.authoredRodTip(action,{x:cloverView.px,y:cloverView.py,width:authoredField.sizeOf(cloverView.pet),height:authoredField.petHeight(cloverView.pet)},sprites.reduced.matches);
+      return rod?.hasAttribute('hidden')&&getComputedStyle(rod).display==='none'&&tip&&line?.getAttribute('d').startsWith('M'+tip.x+' '+tip.y+'Q')&&cloverView.canvas._sheet===decoded&&cloverView.canvas._pk.includes(':action:');
+    },10000);
+    const heldCast=await heldPhase('cast'),heldWait=await heldPhase('wait');
+    const authoredBite=await until(()=>document.querySelector('.bobber.bite'),12000);
+    if(authoredBite)authoredBite.click();
+    const heldReel=await heldPhase('reel');
+    const authoredFishSaved=await until(async()=>(await countFish())===authoredFishBefore+1,10000);
+    const authoredFishClean=await until(()=>!document.querySelector('.bobber')&&!document.querySelector('.fishing-line')&&!document.querySelector('.fishing-rod'),10000);
+    await L('authoredFishing='+(fishingWalk&&heldCast&&heldWait&&heldReel&&authoredFishSaved&&authoredFishClean?'walk-held-cast-wait-reel-save-clean':'err:'+JSON.stringify({fishingWalk,heldCast:!!heldCast,heldWait:!!heldWait,heldReel:!!heldReel,authoredFishSaved,authoredFishClean})));
+    catchModule.endFishing();companionTrips.release(cloverView);companionUi.clearCompanionAction(cloverView);
+
+    $('scene-season').value=companionSeason;$('scene-season').dispatchEvent(new Event('change'));
+    await nativeWindow(fullAt);
+    for(const pet of [adultA,adultB,...extraCompanions])await playPets.removePet(pet.id);await playPets.openChat(p1.data.id);
 
     await L('pageErrors='+(pageError||'none'));
     await L('DONE');
@@ -767,20 +1186,80 @@ function agentReports() {
     replies[0]?.result?.serverInfo?.name === 'playpets' &&
     JSON.parse(replies[1]?.result?.content?.[0]?.text || '[]')[0]?.name === '타우리';
 }
-const deadline = Date.now() + 90000;
+const deadline = Date.now() + 240000;
 while (!done && Date.now() < deadline) await new Promise(r => setTimeout(r, 200));
 child.kill();
 provider.closeAllConnections?.();
 provider.close();
 
 const expect = [
+  [
+    /^collectionExtension=aquatic-ground-bugs-gifts-saved-atlases-decoded$/,
+    'new aquatic creatures, ground bugs and cute gifts pass native persistence and all extension atlases decode',
+  ],
   [/^assets=[1-9]/, 'catalog scan'],
+  [
+    /^giftCapacity=full-explained-free-space-record-kept$/,
+    'a full12gift yard explains capacity, rejects another gift and frees space without losing its album record',
+  ],
+  [
+    /^albumConditionsOnly=no-numbers-or-toggle-four-locales-small-wide$/,
+    'discovery books show conditions without exact percentages or their control in all locales and sizes',
+  ],
+  [
+    /^giftAlbumRule=whole-yard-daily-four-locales-small-wide$/,
+    'the gift album explains its shared daily rule without a discovery-odds control in every locale and size',
+  ],
+  [
+    /^digRewardCustom=localized-fallback-without-untranslated-key$/,
+    'imported scenes show the localized custom-place label rather than an untranslated world key',
+  ],
+  [
+    /^digRewardIndoors=four-locales-small-wide-no-soil-explained$/,
+    'indoor tree and treasure albums explain missing soil without misleading zero percentages in every locale and size',
+  ],
+  [
+    /^digRewardLive=weather-updates-open-album$/,
+    'changing weather refreshes open album context without switching tabs',
+  ],
+  [
+    /^digRewardContexts=all-places-seasons-weather-ledger-blocked$/,
+    'all36 live place, season and weather combinations show habitat conditions and persisted rare waiting status',
+  ],
+  [
+    /^digRewardLocales=four-locales-small-wide-hints-status$/,
+    'tree and treasure habitat conditions and rolling rare status fit both sizes in every language',
+  ],
+  [
+    /^digContext=arrival-snapshot-native-bridge$/,
+    'a real dig uses arrival conditions and keeps its issued native payload unchanged when weather changes during the action',
+  ],
   [
     /^wardrobes=4\/8\/decoded-and-change$/,
     'all four seasonal wardrobes load and repaint with distinct artwork under native security policy',
   ],
   [/^defaultCompanions=4\/official-cast$/, 'the four official companions are available'],
   [/^illustratedAssets=12\/decoded$/, 'illustrated companion wardrobes decode through the native protocol'],
+  [
+    /^authoredClips=four-friends-four-seasons-six-clips-small-wide-compatible$/,
+    'all 192 companion action cases decode and change frames at two native sizes while preserving identity, click bounds and imported fallback',
+  ],
+  [
+    /^authoredDig=walk-body-tool-save-clean$/,
+    'Clover walks, animates its body with one held tool and completes a persisted discovery without leftover effects',
+  ],
+  [
+    /^authoredFishing=walk-held-cast-wait-reel-save-clean$/,
+    'authored fishing walks, uses one held rod across cast, wait and reel, persists its reward and clears all tackle',
+  ],
+  [
+    /^authoredSoil=decoded-contact-depth-clean$/,
+    'the real transparent soil PNG appears on contact behind the paws and clears after the saved discovery',
+  ],
+  [
+    /^weatherSeason=independent-radio-and-render$/,
+    'snow preserves the selected spring background and clear weather preserves winter through native radios',
+  ],
   [/^illustratedChoice=ordinary-independent$/, 'the friend editor preserves its independent baseline identity'],
   [/^addPet=ok/, 'add a pet'],
   [/^intro=A test kitten\. \(animal\)$/, 'a new friend starts with the pet file description as its personality'],
@@ -824,16 +1303,13 @@ const expect = [
   ],
   [/^startupNotices=floating-details-and-dismissal$/, 'startup notices retain the yard size and respect dismissal'],
   [/^windowPin=independent-and-synced$/, 'native pin, page and tray agree without changing bounds'],
-  [
-    /^panel=toggles\/general-title$/,
-    'panel tabs open and close, and the Settings index marks the first group when it opens',
-  ],
+  [/^panel=toggles\/tasks$/, 'panel tabs open and close, and the Settings index marks the first group when it opens'],
   [/^settingsScroll=fixed-navigation-single-body$/, 'Settings scrolls one body while its menu and title stay fixed'],
   [/^relation=chip-opens-cards$/, 'the relationship shows in the Friend tab and its chip opens the relationship cards'],
   [/^about=7\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
   [
-    /^updateUi=general-title,yard-settings-title,agent-link-title,about-title\/ok$/,
-    'an update stays at the left of the yard dock before Place, opens its dialog, and Later puts it away',
+    /^updateUi=general-title,agent-link-title,updates-title,about-title\/ok$/,
+    'an update stays at the left of the yard dock before Place, opens Settings update details, and Later puts it away',
   ],
   [/^stage=yard-first$/, 'the yard leads the window (60% of the height or more)'],
   [/^weather=snow-canvas$/, 'weather canvas (snow)'],
@@ -861,8 +1337,16 @@ const expect = [
   ],
   [/^windowResize=one-responsive-window$/, 'one resizable window keeps its controls and native drag boundaries'],
   [
+    /^menuCopy=four-locales-no-wrap-small-and-wide$/,
+    'four locales keep Play and management labels readable on one line in small and wide windows',
+  ],
+  [
     /^smallPanelFlow=reachable-and-restored$/,
     'minimum-size destinations scroll without overlap and retain state when widened',
+  ],
+  [
+    /^menuSmall=three-tabs-single-task-pane$/,
+    'compact management tabs stay visible and show only their selected task pane',
   ],
   [/^settingsSmall=body-and-navigation$/, 'small settings retain a usable body and navigation'],
   [/^windowQuit=confirmed-and-cancellable$/, 'the shared quit action confirms and Cancel keeps the app alive'],
@@ -886,7 +1370,7 @@ const expect = [
   ],
   [/^playTag=opens-play$/, "a click on a friend's name tag opens the conversation"],
   [/^season=set$/, 'the season and the clock paint the yard'],
-  [/^garden=found-planted$/, 'a found seed is planted on the field with the tool and kept'],
+  [/^garden=found-planted$/, 'an available seed is planted on the field with the tool and kept'],
   [
     /^album=kept-and-shown$/,
     'a catch is kept in the album (count, biggest fish), nonsense is refused, and the album shows it',

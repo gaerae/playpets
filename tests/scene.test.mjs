@@ -151,7 +151,7 @@ test('the season follows the month, the other way round south of the equator', (
   assert.ok(!southern('Asia/Seoul') && !southern('Europe/Berlin') && !southern('America/New_York') && !southern(''));
 });
 
-test('each season colours the trees and fields, and snow covers them all alike', () => {
+test('each season keeps its tree and field colors under every precipitation', () => {
   for (const season of Object.keys(SEASON_COLORS)) {
     for (const period of Object.keys(PERIODS)) {
       const vars = seasonVars(season, period, 'clear');
@@ -159,7 +159,7 @@ test('each season colours the trees and fields, and snow covers them all alike',
         assert.match(name, /^--[a-z-]+$/, `${season}/${period}: ${name} is a custom property`);
         assert.match(value, /^#[0-9a-f]{6}([0-9a-f]{2})?$/, `${season}/${period}: ${name} is a colour`);
       }
-      assert.deepEqual(seasonVars(season, period, 'snow'), {}, `${season}/${period}: snow keeps its own colours`);
+      assert.deepEqual(seasonVars(season, period, 'snow'), vars, `${season}/${period}: snow preserves seasonal colors`);
     }
   }
   assert.ok(seasonVars('autumn', 'day', 'clear')['--crown'], 'autumn turns the round trees');

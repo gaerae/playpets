@@ -5,7 +5,7 @@ import { installDom } from './support/dom.mjs';
 
 test('album tabs have one tab stop and arrow keys select and label the collection', t => {
   const { document, nodes } = installDom(t, {
-    ids: ['album-tabs', 'album-grid', 'album-button', 'close-album', 'album-dialog', 'album-total'],
+    ids: ['album-tabs', 'album-grid', 'album-button', 'close-album', 'album-dialog', 'album-total', 'album-dig-status'],
     props: { open: true },
   });
   document.querySelectorAll = () => nodes.get('album-tabs').children;

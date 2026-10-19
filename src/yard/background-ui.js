@@ -48,7 +48,101 @@ function renderGallery() {
     }),
   );
 }
+/** Compact disclosures keep all climate settings reachable; native radios own their choices. */
+export function setupAtmosphereChoices() {
+  const disclosures = [];
+  let compact = document.body.classList.contains('compact');
+  for (const [id, title] of [
+    ['scene-season', 'settings.season'],
+    ['period', 'period.label'],
+    ['weather', 'weather.label'],
+  ]) {
+    const select = $(id);
+    if (!select?.parentNode || !select.options?.length || select.dataset.atmosphereReady) continue;
+    select.dataset.atmosphereReady = 'true';
+    const disclosure = document.createElement('details');
+    disclosure.className = 'atmosphere-choice';
+    disclosure.open = !compact;
+    const summary = document.createElement('summary');
+    summary.tabIndex = compact ? 0 : -1;
+    summary.addEventListener('click', event => {
+      if (!compact) event.preventDefault();
+    });
+    const heading = document.createElement('span');
+    heading.dataset.i18n = title;
+    heading.textContent = t(title);
+    const current = document.createElement('span');
+    current.className = 'atmosphere-current';
+    summary.append(heading, current);
+    const group = document.createElement('fieldset');
+    group.className = 'atmosphere-segments';
+    group.dataset.i18nAriaLabel = title;
+    group.setAttribute('aria-label', t(title));
+    const radios = [];
+    for (const option of select.options) {
+      const label = document.createElement('label');
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = `${id}-choice`;
+      radio.value = option.value;
+      const text = document.createElement('span');
+      text.dataset.i18n = option.dataset.i18n;
+      text.textContent = t(option.dataset.i18n);
+      radio.addEventListener('change', () => {
+        if (!radio.checked) return;
+        select.value = radio.value;
+        select.dispatchEvent(new Event('change'));
+        if (compact) {
+          disclosure.open = false;
+          summary.focus();
+          const page = disclosure.closest('.scene-page');
+          if (page) page.scrollTop = 0;
+        }
+      });
+      label.append(radio, text);
+      if (option.value === 'auto') label.className = 'atmosphere-auto';
+      group.append(label);
+      radios.push(radio);
+    }
+    group.style.setProperty('--climate-options', String(radios.length - 1));
+    const refresh = () => {
+      group.disabled = !!select.disabled;
+      summary.setAttribute('aria-disabled', String(!!select.disabled));
+      for (const radio of radios) radio.checked = radio.value === select.value;
+      const option = [...select.options].find(option => option.value === select.value);
+      current.dataset.i18n = option?.dataset.i18n || '';
+      current.textContent = option ? t(option.dataset.i18n) : '';
+    };
+    select.addEventListener('change', refresh);
+    $('world').addEventListener('change', refresh);
+    refresh();
+    select.hidden = true;
+    select.tabIndex = -1;
+    select.setAttribute('aria-hidden', 'true');
+    disclosure.append(summary, group);
+    disclosure.addEventListener('toggle', () => {
+      if (!compact || !disclosure.open) return;
+      for (const other of disclosures) if (other !== disclosure) other.open = false;
+      const page = disclosure.closest('.scene-page');
+      if (page)
+        page.scrollTop += Math.max(0, disclosure.getBoundingClientRect().bottom - page.getBoundingClientRect().bottom);
+    });
+    disclosures.push(disclosure);
+    select.parentNode.insertBefore(disclosure, select);
+  }
+  if (disclosures.length)
+    globalThis.window?.addEventListener('resize', () => {
+      const next = document.body.classList.contains('compact');
+      if (next === compact) return;
+      compact = next;
+      for (const disclosure of disclosures) {
+        disclosure.open = !compact;
+        disclosure.querySelector('summary').tabIndex = compact ? 0 : -1;
+      }
+    });
+}
 export function setupBackgrounds() {
+  setupAtmosphereChoices();
   const input = $('background-file'),
     button = $('background-import'),
     remove = $('background-remove');

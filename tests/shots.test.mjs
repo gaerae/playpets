@@ -164,8 +164,8 @@ test('brand captures give the four companions equal visible height and one groun
 
 test('ordinary captures start in sunny spring and include the fourth friend', () => {
   const source = readFileSync('scripts/shots.mjs', 'utf8');
-  assert.match(source, /\$\('season'\)\.value='spring'/);
-  assert.doesNotMatch(source, /\$\('season'\)\.value='autumn'/);
+  assert.match(source, /\$\('scene-season'\)\.value='spring'/);
+  assert.doesNotMatch(source, /\$\('scene-season'\)\.value='autumn'/);
   assert.match(source, /coat\('Miso'\)/);
   assert.match(source, /full\('playpets-miso'\)/);
   assert.match(source, /\[p1.id,p2.id,p3.id,p4.id\]/);

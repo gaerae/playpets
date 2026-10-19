@@ -19,6 +19,8 @@ const anything = () => new Proxy(() => anything(), { get: (_, key) => (key === '
 test('setupSky hands world and season changes to the entry point, around its own work', async t => {
   t.mock.timers.enable({ apis: ['setTimeout', 'setInterval'] });
   const { nodes } = installDom(t, { anyId: true, props: { getContext: () => anything() } });
+  const lookup = document.getElementById;
+  document.getElementById = id => (id === 'season' ? null : lookup(id));
   const storage = installStorage(t);
   keepGlobals(t, 'ResizeObserver', 'Image', 'window');
   globalThis.ResizeObserver = class {
@@ -62,14 +64,26 @@ test('setupSky hands world and season changes to the entry point, around its own
   assert.ok(nodes.get('yard').classList.contains('world-studio'));
 
   log.length = 0;
-  nodes.get('season').value = 'winter';
-  nodes.get('season').onchange();
+  nodes.get('scene-season').value = 'winter';
+  nodes.get('scene-season').onchange();
   assert.deepEqual(log, ['picked', 'season:winter']);
   assert.equal(storage.getItem('season'), 'winter');
   assert.equal(nodes.get('scene-season').value, 'winter');
   nodes.get('scene-season').value = 'spring';
   nodes.get('scene-season').onchange();
-  assert.equal(nodes.get('season').value, 'spring');
+  assert.equal(document.getElementById('season'), null, 'the Settings duplicate is absent');
   assert.equal(storage.getItem('season'), 'spring');
   assert.equal(scene.season, 'spring');
+  nodes.get('weather').value = 'snow';
+  nodes.get('weather').onchange();
+  assert.equal(scene.weather, 'snow');
+  assert.equal(scene.season, 'spring');
+  assert.equal(storage.getItem('season'), 'spring');
+  assert.equal(nodes.get('scene-season').value, 'spring');
+  nodes.get('scene-season').value = 'winter';
+  nodes.get('scene-season').onchange();
+  nodes.get('weather').value = 'clear';
+  nodes.get('weather').onchange();
+  assert.equal(scene.season, 'winter');
+  assert.equal(scene.weather, 'clear');
 });

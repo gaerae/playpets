@@ -1,19 +1,35 @@
 import { openControls, openPlay, setupControls } from './core/controls.js';
 import { setupInteractions } from './core/interactions.js';
 import { setupBackgrounds } from './yard/background-ui.js';
+
 // Entry point: sets every part of the page up in order, listens to the backend, and runs the frame loop.
 // No other module does anything when it is imported; each has a setup function, called here.
 
+import { setupCompanionActions } from './core/companion-actions.js';
 import { confirmAction, setupConfirm } from './core/confirm.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
 import { onShortcut } from './core/keys.js';
 import { setupNotices } from './core/notices.js';
 import { setSpriteSeason } from './core/sprites.js';
-import { $, aiming, api, call, data, game, guard, recall, selected, setData, toast, views } from './core/state.js';
+import {
+  $,
+  aiming,
+  api,
+  call,
+  data,
+  game,
+  guard,
+  recall,
+  selected,
+  setData,
+  setupToast,
+  toast,
+  views,
+} from './core/state.js';
 import { plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
-import { setupAlbum } from './panel/album.js';
+import { renderAlbum, setupAlbum } from './panel/album.js';
 import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
@@ -35,9 +51,9 @@ import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
-import { giftTick, renderDecor } from './yard/decor.js';
+import { giftTick, renderDecor, setupDecor } from './yard/decor.js';
 import { cancelDiscovery, cancelDiscoveryWork, setupDiscovery, syncDiscovery } from './yard/discovery.js';
-import { gardenTick, renderGarden, setupGarden } from './yard/garden.js';
+import { renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { moveFriends } from './yard/motion.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
@@ -93,15 +109,18 @@ function openChat(id) {
 
 // What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
 await loadContent();
+await setupCompanionActions();
 // Words first: everything below builds its labels from them.
 apply();
 icons();
 setupConfirm();
 setupNotices();
+setupToast();
 setupInteractions();
 setupWindow();
 setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
+  stopGame: endGame,
   beforeOpen: () => {
     cancelDiscovery();
     syncDiscovery();
@@ -116,6 +135,7 @@ onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'
 setupSky({
   seasonChanged: season => {
     if (setSpriteSeason(season) && data.assets.length) render();
+    else renderAlbum();
   },
   seasonPicked: endFishing,
   // Another place: the game, the fishing and every trip end in the old one, then the friends, the
@@ -170,6 +190,7 @@ setupViews({
 setupPlay();
 setupCare();
 setupGarden();
+setupDecor();
 setupDiscovery();
 setupTrees();
 setupCatch();
@@ -276,7 +297,7 @@ const BUSY_MS = 50,
   SNOW_MS = 80,
   CALM_MS = 100;
 // What goes on in the yard between games, looked at every frame: each knows when it is due.
-const YARD_LIFE = [idleChatter, gardenTick, giftTick, soloFishing];
+const YARD_LIFE = [idleChatter, giftTick, soloFishing];
 let last = 0;
 function interval(now) {
   if (game || aiming) return BUSY_MS;

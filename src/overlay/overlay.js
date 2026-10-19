@@ -1,3 +1,4 @@
+import { poseClock } from '../core/animation.js';
 import { setupInteractions } from '../core/interactions.js';
 // The desktop overlay page, one per monitor: it draws the friends the backend places on this
 // monitor and reports presses and drags. Positions, drags and strolls are worked out in overlay.rs.
@@ -244,7 +245,9 @@ function animate(now) {
     const look = state === 'idle' && v.look && now - v.lookedAt < LOOK_MS && !v.drag ? v.look : null;
     // Standing animations share one clock, so still friends change cells together (fewer
     // redraws of the see-through window); a pose runs from when it began.
-    drawSprite(v.sprite, v.asset, state, now < v.until ? now - v.since : now, look);
+    const elapsed = now - v.since;
+    const clock = now < v.until ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
+    drawSprite(v.sprite, v.asset, state, clock, look);
     crown(v.button, v.asset, (v.pet.size * 208) / 192); // the cell is 192×208
   }
 }

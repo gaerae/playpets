@@ -17,13 +17,32 @@ body.compact .yard-controls-panel {
   inset: 8px;
   width: auto;
   max-height: calc(100% - 16px);
-  overflow-y: auto;
-  gap: 8px;
+  overflow: hidden;
+  gap: 6px;
   padding: 8px;
 }
-body.compact .yard-controls-scroll {
-  display: contents;
+body.compact #yard-controls-panel {
+  left: auto;
+  bottom: auto;
+  width: min(320px, calc(100% - 16px));
 }
+body.compact #management-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+}
+body.compact #management-settings[hidden] {
+  display: none;
+}
+body.compact .menu-destination {
+  min-width: 0;
+  padding: 6px;
+}
+body.compact .menu-destination > [data-i18n],
+body.compact .menu-destination-copy strong {
+  white-space: nowrap;
+}
+
 body.compact .controls-header {
   position: sticky;
   top: -8px;
@@ -52,7 +71,6 @@ body.compact .window-actions {
   border-top: 0;
 }
 body.compact .catch-card {
-  top: 24px;
   gap: 8px;
   padding: 6px 12px 6px 8px;
   max-width: calc(100% - 16px);
@@ -94,7 +112,7 @@ body.compact .layout.panel-open .side-panel {
   inset: 8px;
   width: auto;
   max-height: none;
-  padding: 10px;
+  padding: 8px;
   overflow: hidden;
 }
 body.compact .panel-body {
@@ -114,7 +132,7 @@ body.compact #pet-panel {
 body.compact .friend-head {
   min-height: 44px;
   gap: 8px;
-  padding-right: 44px;
+  padding-right: 36px;
 }
 body.compact .avatar {
   width: 40px;
@@ -171,25 +189,22 @@ body.compact .layout.settings-open .side-panel {
   inset: 8px;
   width: auto;
   height: calc(100% - 16px);
-  padding: 10px;
+  padding: 8px;
   align-self: stretch;
   max-height: none;
   transform: none;
 }
-body.compact .layout.settings-open #panel-settings {
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 8px;
-  overflow: hidden;
+body.compact .layout.settings-open .side-panel:has(#settings-home:not([hidden])) {
+  bottom: auto;
+  height: auto;
+  max-height: calc(100% - 16px);
 }
-body.compact .layout.settings-open .settings-index {
-  display: none;
-}
-body.compact #settings-section {
-  display: block;
-  width: 100%;
+body.compact .settings-index button {
   min-height: 40px;
-  font-size: 13px;
+  padding: 6px;
+}
+body.compact .settings-task-copy small {
+  display: none;
 }
 body.compact #panel-expand {
   display: inline-flex;
@@ -214,12 +229,6 @@ body.compact .scene-menu {
 }
 
 @media (max-height: 300px) {
-  body.compact #panel-pet {
-    overflow-y: auto;
-  }
-  body.compact #pet-panel {
-    min-height: 260px;
-  }
   body.compact .friend-sub {
     display: none;
   }
@@ -274,4 +283,60 @@ body.compact .yard-context-menu > button {
   padding: 6px 8px;
   font-size: 12px;
   line-height: 1.25;
+}
+
+/* A rare conversation in a tiny yard keeps the next action visible, without introductory copy. */
+@media (max-height: 300px) {
+  body.compact .chat-placeholder {
+    display: none;
+  }
+  body.compact .chat-log:has(.connect-cta) {
+    padding: 2px;
+    align-items: center;
+  }
+  body.compact .connect-cta {
+    flex: none;
+    margin: 0;
+    min-height: 32px;
+    padding-block: 4px;
+  }
+}
+/* A destination already owns the header; the quiet update chip returns with the scenery. */
+body.compact:has(
+  :is(
+      #side-panel,
+      #yard-controls-panel,
+      #scene-menu,
+      #play-panel,
+      #discovery-target,
+      #catch-card,
+      #yard-context-menu
+    ):not([hidden])
+) .update-compact {
+  display: none;
+}
+
+/* A short window may still be wide: utility sheets need not span the entire scenery. */
+@media (min-width: 480px) {
+  body.compact .scene-menu {
+    left: auto;
+    width: min(360px, calc(100% - 16px));
+    height: min(400px, calc(100% - 16px));
+  }
+  body.compact .layout.panel-open .side-panel {
+    left: auto;
+    width: min(352px, calc(100% - 16px));
+  }
+  body.compact .layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
+    width: min(480px, calc(100% - 16px));
+  }
+  body.compact .layout.settings-open .side-panel {
+    left: auto;
+    bottom: auto;
+    width: min(600px, calc(100% - 16px));
+    height: auto;
+  }
+  body.compact .settings-content {
+    max-height: calc(100dvh - 128px);
+  }
 }

@@ -34,6 +34,8 @@ function yard(t) {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   let now = 0;
   t.mock.method(performance, 'now', () => now);
+  const wallStart = new Date(2026, 0, 5, 12).getTime();
+  t.mock.method(Date, 'now', () => wallStart + now);
   const { nodes } = installDom(t, { anyId: true, props: pointer });
   globalThis.MutationObserver = class {
     observe() {}

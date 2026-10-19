@@ -64,3 +64,37 @@ test('a nearby cast moves outward within the water instead of crossing the pet f
   assert.equal(castLandingX(100, 105, 100, [90, 130]), 122, 'a small pond keeps the float in the water');
   assert.equal(castLandingX(100, 100, 100, [95, 105]), 100, 'a pond without safe interior is unchanged');
 });
+
+test('an authored rod tip follows the cropped frame anchor and displayed pet scale', async () => {
+  const rod = await import('../src/yard/fishing-rod.js');
+  const action = {
+    clip: { heldTool: true, anchor: [96, 199], scale: 1, frames: [{ foot: [96, 199], tip: [150, 40] }] },
+    frame: { foot: [96, 199], tip: [170, 60] },
+  };
+  assert.deepEqual(rod.authoredRodTip(action, { x: 10, y: 20, width: 96, height: 104 }), { x: 95, y: 50 });
+  assert.deepEqual(rod.authoredRodTip(action, { x: 10, y: 20, width: 96, height: 104 }, true), { x: 85, y: 40 });
+  assert.equal(
+    rod.authoredRodTip(
+      { ...action, clip: { ...action.clip, heldTool: false } },
+      { x: 0, y: 0, width: 96, height: 104 },
+    ),
+    null,
+  );
+  assert.equal(
+    rod.authoredRodTip(
+      { ...action, frame: { foot: [96, 199], tip: [NaN, 40] } },
+      { x: 0, y: 0, width: 96, height: 104 },
+    ),
+    null,
+  );
+});
+
+test('overscan artwork offsets keep the held rod aligned without shrinking the pet', async () => {
+  const { authoredRodTip } = await import('../src/yard/fishing-rod.js');
+  const action = {
+    clip: { heldTool: true, canvas: [224, 216], offset: [0, -8], anchor: [96, 207], scale: 1 },
+    frame: { foot: [96, 207], tip: [214, 24] },
+  };
+  assert.deepEqual(authoredRodTip(action, { x: 100, y: 200, width: 192, height: 208 }), { x: 314, y: 216 });
+  assert.deepEqual(authoredRodTip(action, { x: 100, y: 200, width: 96, height: 104 }), { x: 207, y: 208 });
+});
