@@ -71,3 +71,19 @@ test('discovery sounds belong only to the current visible card', async t => {
     assert.ok(voices > before);
   });
 });
+
+test('a discovery waits while it is being read and offers a named keyboard close action', async t => {
+  const { card } = setup(t);
+  const close = element('button');
+  card.querySelector = selector => (selector === '.catch-dismiss' ? close : element());
+  let reading = true;
+  card.matches = () => reading;
+  showCard('', 'Fish', 'A discovery', false);
+  assert.ok(close.getAttribute('aria-label'));
+  assert.equal(typeof close.onclick, 'function');
+  t.mock.timers.tick(6000);
+  assert.equal(card.hidden, false, 'hover or keyboard focus keeps the card readable');
+  reading = false;
+  close.onclick();
+  assert.equal(card.hidden, true);
+});

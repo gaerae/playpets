@@ -1,0 +1,79 @@
+{
+  "generated": "2026-10-19",
+  "tool": "Built-in image_gen imagegen",
+  "sources": [
+    {
+      "name": "flowers",
+      "prompt": "Use case: stylized-concept. Production transparent game sprite atlas, exactly 8 botanical flower specimens, strict FOUR columns by TWO rows, equal cells. Style matches reference solely for soft sculpted painted miniature detail and rich restrained colors. New flowers only. Row1: purple crocus with orange stamens and narrow green leaves; blue grape hyacinth with clustered small grape shaped bells and narrow basal leaves; lavender with purple flower spikes and silvery narrow foliage; violet bellflower with open five-pointed bell blossoms and green stems. Row2: coral dahlia layered rounded petals; lilac aster with thin petals and golden center; pale sage ivory hellebore with five rounded petals and hanging head; raspberry cyclamen with swept-back petals and heart leaves. Entire plant including all stem bases/leaf tips in central80% of cell. Similar overall height in each cell, upright specimens, bottom baseline aligned. Deliberate clean silhouettes readable at50px, subtle material shading, softly dimensional with beautiful distinctive petals. ACTUAL fully transparent RGBA background, no painted haze, no floor, no pot, no text, labels or gridlines. No national/political symbols.",
+      "references": ["src/art/flowers/specimens.png"],
+      "file": "flowers.png",
+      "sha256": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/flowers.png",
+      "acceptedIds": ["crocus", "grape_hyacinth", "lavender", "bellflower", "dahlia", "aster", "hellebore", "cyclamen"]
+    },
+    {
+      "name": "wildlife",
+      "prompt": "Use case: stylized-concept. Production transparent game collectible specimen atlas, exactly8 subjects in FOUR columns by TWO rows equal cells. Softly sculpted painted miniature material, cozy polished illustration with crisp recognizable silhouette, warm natural lighting, readable80px. Row1 four freshwater fish all side profile facingRIGHT with full tails: rudd silver bronze deep body bright red fins; tench olive bronze thick rounded body tiny barbels rounded dark fins; European perch golden olive deep body dark vertical bars spiny dorsal and orange pelvic fins; three-spined stickleback small silver blue streamlined fish three distinct dorsal spines red lower throat. Row2 insects topview headsUP full anatomy: painted lady butterfly orange salmon wings black forewing tips with white spots and mottled hindwings; marbled white butterfly cream wings with bold intricate charcoal checker pattern; male banded demoiselle slender metallic teal damselfly with FOUR narrow wings each bearing dark navy central band; emerald dragonfly metallic emerald stocky thorax long dark green abdomen FOUR wide clear veined wings. Insects6legs antennae appropriate. Central80% of each cell, generous transparent gutters, no overlap or clipping. Reference only style/material. ACTUAL transparent alpha, NO background or floor, no text labels grid or shadows outside subjects. Not scientific plates but species recognizable.",
+      "references": ["src/art/fish/specimens.png"],
+      "file": "wildlife.png",
+      "sha256": "7303eec4e412ed475ef0b5d636c79483c2e4d93d7b2ad58ef0821451bca812c6",
+      "size": [1774, 887],
+      "runtimeAtlas": "collection-extension/wildlife.png",
+      "acceptedIds": ["stickleback"]
+    },
+    {
+      "name": "finds",
+      "prompt": "Use case: stylized-concept. Production transparent game found-object atlas, EXACTLY FIVE objects in a THREE columns by TWO rows grid, lastcell empty. Same tactile softly sculpted miniature painted style as reference, high quality warm materials, clean edges readable40px. Row1: one round clear glass marble with curved teal and ivory ribbon inside, restrained shine; small carved natural wooden whale toy with rounded smiling snout little flippers and tail; small ceramic leaf pendant sage green glaze with engraved delicate veins and tiny hanging hole. Row2: tiny antique brass bell with rounded dome and visible clapper, no religious markings; miniature spool wound with plum colored sewing thread, warm wood ends, loose short thread; EMPTY fully transparent cell. Each single complete object central75% of its cell, near equal visual footprint, threequarterview. No text, national/political/religious symbols, no pedestal or floor or other objects. ACTUAL transparent RGBA background with fully clear gutters, no painted haze no gridline or checkerboard ink, no exterior shadows.",
+      "references": ["src/art/discovery/finds.png"],
+      "file": "finds.png",
+      "sha256": "02fe56390476c82539337f8e784d54d19bb23efc3519541530a3a38c055e5cf8",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/finds.png",
+      "acceptedIds": ["glass_marble", "wooden_whale"]
+    },
+    {
+      "name": "ground-bugs",
+      "prompt": "Use case: stylized-concept. New PlayPets production transparent sprite atlas, exactly TWO insects arranged side by side in equal cells, ample clear margins all around. Top-down view headsUP. First a lovable small scarlet seven-spotted LADYBUG, domed oval closed wingcases with distinct black spots, tiny black head two short antennae and SIX anatomically correct small legs. Second a FIELD CRICKET, chocolate-brown jointed body, SIX legs including distinctly folded angular large rear jumping legs, long slender antennae, folded wingcovers, no glow. Subjects occupy central75% of respective equal cells, entire limbs antennae fit, nevercrossmidline. Style warm softly sculpted tactile painted miniature, premium cozygame, readable32px, restrained glossy ladybug contrasted with matte cricket. Entire silhouettes recognizably VERY different from butterflies/dragonflies. ACTUAL transparent alpha background, no haze nofloor noexterior shadows, notext noextraobjects. Reference is materialonly.",
+      "references": ["src/art/bugs/specimens.png"],
+      "file": "ground-bugs.png",
+      "sha256": "480774c6b4ac79c37a955ae8208d2afae6c57f62b50709b41ad7799e237d5e9f",
+      "size": [1774, 887],
+      "runtimeAtlas": "collection-extension/ground-bugs.png",
+      "acceptedIds": ["ladybug"],
+      "retiredIds": ["field_cricket"]
+    },
+    {
+      "name": "aquatic",
+      "prompt": "Use case: stylized-concept. Production transparent game specimen atlas exactly THREE different small freshwater creatures in THREE equal cells in ONE row. 1: freshwater PRAWN in side profile facingRIGHT, translucent sage ivory segmented curved shell, fine long antennae, small legs and subtle peach tailfan, whole body and antennae contained. 2: freshwater CRAYFISH threequarter lateral view facingRIGHT, reddish rusty chitin body, TWO large claws in front, segmented curltail and small walkinglegs, clear silhouette. 3: living POND SNAIL with rounded brown olive spiral shell and pale beige softbody foot extended toRIGHT, exactly two short tentacles eyes atophead, shellneverempty. All central75% of cell, ample transparent gutters, isolated with no clipping. Same warm softly sculpted painted miniature as reference. Recognizable anatomies, subtle materialshading, clean silhouettes readable64px. Actual transparent RGBA background, NO water, floor, haze, labels or text, no contactshadowsoutsideobjects, noadditionalfish. Nofoodplating. Reference only material/colorstyle.",
+      "references": ["src/art/fish/specimens.png"],
+      "file": "aquatic.png",
+      "sha256": "0742fb0721a97cad17e66a3833c26e2a2a7780bcb5788f0f280b0b2eb142f884",
+      "size": [2172, 724],
+      "runtimeAtlas": "collection-extension/aquatic.png",
+      "acceptedIds": ["freshwater_prawn", "crayfish", "pond_snail"]
+    },
+    {
+      "name": "cute-props",
+      "prompt": "Use case: stylized-concept. PlayPets PREMIUM COZY GAME prop atlas, exactly FIVE different complete cute objects, strict THREE columns by TWO rows, final cell empty. Each entirely central75% of equal cell with clear wide gutters. Matching reference style: softly sculpted painterly miniature, rich gentle colors, natural material texture, intentional believable craft detail, attractive at40\u201390pixels, NOT flat icons. Threequarterview consistent lighting upperleft. Row1: ONE little felt mushroom toy, dusty rose fabric cap with three ivory stitched spots and soft cream stem, no face; ONE tiny teacup carved from an acorn, warm brown fluted acorncup with curved twig handle, sage inner glaze, no saucer, NO liveplant; ONE miniature sleeping curled fox wooden figurine, terracotta painted wood with ivorytailtip and closed peacefully smiling eyes, carvedtoy NOT living pet. Row2: bunny-shaped cream ceramic WATERING CAN, long two rabbit ears forming handle silhouette, little round bunny face subtly engraved, functional short sage pouring spout in front with rose brass sprinklerhead, four tiny round feet; hedgehog-shaped small terracotta PLANTER, rounded hedgehogbody with restrained little face and short nose, the top has sage succulent rosette like spines, planter NOT liveanimal; EMPTY. Cohesive whimsical artisan belongings found by tiny friends, beautiful cute restrained NOT glitter/clutter. Five silhouettes must be verydistinct; no scarfbag noflags noletters nosymbols. ACTUAL transparent RGBA background with entirely clear gutters, no floor or scenery, no colored haze, no painted checkerboard, no gridline text or exterior shadows. Reference images are MATERIALONLY, do not copy their subjects.",
+      "references": ["src/art/discovery/finds.png", "src/art/decor/collection.png"],
+      "file": "cute-props.png",
+      "sha256": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/cute-props.png",
+      "acceptedIds": ["felt_mushroom", "acorn_teacup", "sleeping_fox", "bunny_watering_can", "hedgehog_planter"]
+    },
+    {
+      "name": "green-cricket",
+      "file": "green-cricket.png",
+      "prompt": "Use case: precise-object-edit. Asset type: PlayPets production transparent game insect sprite. Use the RIGHT cricket in reference image as the ONLY identity and silhouette reference. Extract/recreate ONLY that ONE cricket (not the ladybug), top-down headUP, same long delicate antennae, six articulated legs with distinctive folded larger rear jumping legs, slim folded wing covers. Change brown body palette to beautiful muted LEAF GREEN and SAGE GREEN: sage thorax, slightly darker olive wingcovers with delicate veins, pale pistachio underside/leg joints, tiny warm amber eyes and natural warm brown tips at feet. Cozy sculpted painted miniature matching original, friendly clean form not insect-photography creepy, lightly tactile surfaces with restrained highlights, appealing and distinct from the red ladybug. Entire single cricket including ALL antennae/leg tips within central80% squarecanvas, generous fully transparent margins on all sides. Readable 17px yard and70px album. No enlarged antler mandibles, no beetle, no ladybug, no extra animals or props. Actual transparent RGBA background, no ground/haze/grid/checkerboard/no text/no exterior shadows. Keep original cricket morphology, only palette refinement and isolate into its own sprite.",
+      "references": ["src/art/collection-extension/ground-bugs.png"],
+      "runtimeAtlas": "collection-extension/green-cricket.png",
+      "generated": "2026-10-20",
+      "acceptedIds": ["field_cricket"],
+      "sha256": "543653dc7e2a7c93d241a8854c0868e4e8a0a9063b47b1dad795c9e26590336b",
+      "size": [1254, 1254]
+    }
+  ],
+  "review": "Runtime SVG wrappers crop only the accepted IDs. Other generated subjects are rejected variations, not catalogue entries. All accepted art has actual alpha. Existing IDs and images remain unchanged. On 2026-10-20 the field cricket keeps its identity and short hops but uses a separate leaf-green sprite. The earlier brown cricket viewport is retired; the ladybug still uses the original sheet."
+}

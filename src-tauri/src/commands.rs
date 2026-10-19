@@ -157,6 +157,11 @@ static COMMANDS: &[Command] = &[
     main("dig", |c| {
         let ground: discovery::GroundProfile =
             serde_json::from_value(c.arg(4).clone()).map_err(|_| i18n::t("error.bad_request"))?;
+        let context: Option<crate::pets::content::DiscoveryContext> =
+            serde_json::from_value(c.arg(5).clone()).map_err(|_| i18n::t("error.bad_request"))?;
+        if context.as_ref().is_some_and(|context| !context.valid()) {
+            return Err(i18n::t("error.bad_request"));
+        }
         let entropy = uuid::Uuid::new_v4();
         let bytes = entropy.as_bytes();
         // The first four UUID bytes contain no fixed version or variant bits.
@@ -176,6 +181,7 @@ static COMMANDS: &[Command] = &[
                 now,
                 roll,
                 choice,
+                context.as_ref(),
             )?;
             Ok(json!(result))
         })
@@ -220,9 +226,6 @@ static COMMANDS: &[Command] = &[
             crate::app::save_and_show(c.app, &d)?;
         }
         Ok(Value::Null)
-    }),
-    main("findSeed", |c| {
-        commit(c.app, &c.state, |d| d.garden.find().map(Value::from))
     }),
     main("plant", |c| {
         let (Some(x), Some(y)) = (c.arg(1).as_f64(), c.arg(2).as_f64()) else {
@@ -792,6 +795,7 @@ mod tests {
         assert!(!may_call("overlay1", "quitApp"));
         assert!(!may_call("other", "bootstrap"));
         assert!(!may_call("main", "nonsense"));
+        assert!(command("findSeed").is_none(), "flowers only come from digging");
         assert!(!may_call("main", "e2eLog"), "not outside an e2e run");
         // Every window command the table sends to window.rs is one window.rs handles.
         let window_rs = include_str!("window.rs");

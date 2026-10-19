@@ -52,6 +52,7 @@ pub fn limits() -> serde_json::Value {
         "pets": model::LIMIT,
         "persona": model::PERSONA_MAX,
         "seeds": garden::SEED_MAX,
+        "saplings": garden::SAPLING_MAX,
         "decor": garden::DECOR_MAX,
         "trees": discovery::TREE_MAX,
         "treesPerWorld": discovery::TREE_WORLD_MAX,
@@ -60,7 +61,7 @@ pub fn limits() -> serde_json::Value {
         "digCooldownMs": discovery::DIG_COOLDOWN_MS,
         "digTtlMs": discovery::DIG_TTL_MS,
         "digHistory": discovery::DIG_HISTORY,
-        "digOdds": {"empty": discovery::DIG_ODDS[0], "seed": discovery::DIG_ODDS[1], "common": discovery::DIG_ODDS[2], "uncommon": discovery::DIG_ODDS[3]},
+        "digOdds": {"empty": discovery::DIG_ODDS[0], "seed": discovery::DIG_ODDS[1], "sapling": discovery::DIG_ODDS[2], "common": discovery::DIG_ODDS[3], "uncommon": discovery::DIG_ODDS[4]},
         "bondLevels": bond::LEVELS,
     })
 }
@@ -88,7 +89,7 @@ mod tests {
             ),
             &["a".into(), "b".into(), "c".into()],
         );
-        let mut garden = garden::Garden::restore(Some(&serde_json::json!({"giftDay": "2027-01-01"})));
+        let mut garden = garden::Garden::restore(Some(&serde_json::json!({"giftDay": "2027-01-01"})), 0);
         forget_days_after(&mut bonds, &mut garden, "2026-10-10");
         assert_eq!((bonds.0["a"].day.as_str(), bonds.0["a"].today), ("", 0));
         assert_eq!((bonds.0["b"].day.as_str(), bonds.0["b"].today), ("", 0));

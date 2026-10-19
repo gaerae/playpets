@@ -1,5 +1,5 @@
 // The garden's rules, apart from the page so they can be checked on their own: how a plant grows
-// with time, what flowers in which season, how often a friend finds a seed, and when a gift comes.
+// with time, what flowers in which season, and when a gift comes.
 // Design: docs/design/2026-10-09-a-yard-that-grows.md.
 
 import { between } from '../core/math.js';
@@ -25,20 +25,13 @@ export function flowerFor(season, rng = Math.random) {
   const here = FLOWERS.filter(f => f.season === season);
   return here.length ? weighted(here, f => f.weight ?? 1, rng).id : FLOWERS[0].id;
 }
-// A friend finds a seed this long after the last find (ms of the app running). The very first one
-// comes soon, so a new yard shows the garden early.
-export const FIND_GAP = [8 * MIN, 20 * MIN];
-export const FIRST_FIND = [60 * 1000, 120 * 1000];
-export function nextFind(rng, first = false) {
-  return between(rng, first ? FIRST_FIND : FIND_GAP);
-}
 /** A duration said briefly: "1 h 20 min" style parts, for a plant's tooltip. */
 export function hoursMinutes(ms) {
   const minutes = Math.ceil(ms / MIN);
   return { hours: Math.floor(minutes / 60), minutes: minutes % 60 };
 }
-// A friend brings a gift once a day, after the yard has been seen a while that day: the very
-// first one soon, so a new yard shows what gifts are, later ones after 20 to 40 minutes.
+// The yard receives one gift per local day. The first wait is short; later waits take
+// 20 to 40 minutes. decor.js preserves the deadline even while the app is closed.
 export const FIRST_GIFT = 5 * MIN;
 export const GIFT_WAIT = [20 * MIN, 40 * MIN];
 export function giftWait(rng, first = false) {

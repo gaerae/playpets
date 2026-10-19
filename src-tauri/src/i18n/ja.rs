@@ -1,4 +1,4 @@
-//! Japanese: every sentence the backend shows a person, as (key, sentence). です・ます体.
+//! Japanese: every sentence the backend shows a person, as (key, sentence). です、ます体.
 //! Same keys and `{name}` holes as ko.rs (tested).
 
 pub(super) static SPEC: super::Spec = super::Spec {
@@ -9,7 +9,7 @@ pub(super) static SPEC: super::Spec = super::Spec {
 
 #[rustfmt::skip]
 const TABLE: &[(&str, &str)] = &[
-    ("app.title", "PlayPets · ペットの庭"),
+    ("app.title", "PlayPets: ペットの庭"),
 
     ("pets.parked_missing", "友だち{count}人のペットファイルが見つからず、庭に呼べませんでした。保存された情報は残っています。元のペットフォルダとファイルがあるか確認してから、PlayPetsを再起動してください。"),
     ("pets.parked_full", "庭の定員{limit}人に達したため、あと{count}人の友だちを呼べませんでした。保存された情報は残っています。庭に空きを作ってから、PlayPetsを再起動してください。"),
@@ -73,10 +73,12 @@ const TABLE: &[(&str, &str)] = &[
     ("error.friend_missing", "その友だちが見つかりません。"),
     ("error.autostart", "ログイン時に起動する設定を変更できませんでした。システム設定のログイン項目を確認してください。"),
     ("error.seeds_full", "ポケットが種でいっぱいです。先にいくつか植えてください。"),
-    ("error.no_seeds", "植える種がありません。散歩中の友だちがときどき種を見つけてきます。"),
+    ("error.no_seeds", "植える種がありません。友だちに穴を掘ってもらいましょう。"),
+    ("error.no_saplings", "この木の苗木がありません。友だちに穴を掘ってもらいましょう。"),
     ("error.garden_full", "花壇には{limit}本まで植えられます。1本抜くとまた植えられます。"),
     ("error.discovery_ground", "障害物のない屋外の土を選んでください。"),
     ("error.discovery_cooldown", "友だちは穴掘りを少し休んでいます。"),
+    ("error.discovery_daily_limit", "最近の探索記録がいっぱいです。先に掘った場所で24時間が経つと、新しい場所を掘れます。"),
     ("error.tree_full", "ここにはこれ以上木を植えられません。"),
     ("error.tree_missing", "その木が見つかりません。"),
     ("error.plant_missing", "その植物が見つかりません。"),
@@ -129,14 +131,14 @@ const TABLE: &[(&str, &str)] = &[
     ("ai.kind_missing", "AI の種類を選んでください。"),
     ("ai.model_missing", "モデル名を入力してください。"),
     ("ai.endpoint_invalid", "正しいサーバーアドレスを入力してください。"),
-    ("ai.endpoint_extras", "サーバーアドレスにユーザー名・パスワードや ? 以降の部分は含められません。"),
+    ("ai.endpoint_extras", "サーバーアドレスにユーザー名、パスワードや ? 以降の部分は含められません。"),
     ("ai.https_required", "外部の AI サーバーのアドレスは https で始まる必要があります。"),
     ("ai.unreachable", "AI サーバーに接続できません。アドレスと、起動しているかを確認してください。"),
     ("ai.answer_too_long", "AI の返事が長すぎて読めません。"),
     ("ai.answer_unreadable", "AI の返事を読み取れませんでした。サーバーとモデルを確認してください。"),
     ("ai.answer_empty", "AI の返事が空でした。モデルを確認してください。"),
     ("ai.key_missing", "先に AI 接続で API キーを保存してください。"),
-    ("ai.server_error", "AI サーバーがエラーを返しました（{code}）。キー・モデル・利用上限を確認してください。"),
+    ("ai.server_error", "AI サーバーがエラーを返しました（{code}）。キー、モデル、利用上限を確認してください。"),
     ("ai.models_need_key", "モデル一覧を見るには、先に API キーを入力してください。"),
     ("ai.models_failed", "モデル一覧を読み込めませんでした（{code}）。"),
     ("ai.models_unreachable", "モデル一覧を読み込めませんでした。サーバーのアドレスと、起動しているかを確認してください。"),
@@ -165,11 +167,11 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.manifest_fields", "pet.json には id と displayName が必要です。"),
     ("pet.version", "対応していないペットファイルのバージョンです。開けるのは v1 と v2 だけです。"),
 
-    ("import.hint_openpets", "最大のコレクション · いろいろなギャラリーのペットをひとつに"),
-    ("import.hint_petdex", "数千のペット · プレビューとコレクション"),
-    ("import.hint_pokepets", "ポケモンのファンメイドペット · GitHub のペットフォルダーのアドレスを貼り付けます"),
-    ("import.hint_awesome", "厳選されたゲーム・アニメキャラのペット"),
-    ("import.hint_codexpets", "共有サイト · 最新の投稿"),
+    ("import.hint_openpets", "最大のコレクション: いろいろなギャラリーのペットをひとつに"),
+    ("import.hint_petdex", "数千のペット: プレビューとコレクション"),
+    ("import.hint_pokepets", "ポケモンのファンメイドペット: GitHub のペットフォルダーのアドレスを貼り付けます"),
+    ("import.hint_awesome", "厳選されたゲーム、アニメキャラのペット"),
+    ("import.hint_codexpets", "共有サイト: 最新の投稿"),
     ("import.private_address", "内部ネットワークのアドレスからは取り込めません。"),
     ("import.page_offline", "ペットのページを読み込めませんでした。インターネット接続を確認してください。"),
     ("import.page_failed", "ペットのページを読み込めませんでした。"),

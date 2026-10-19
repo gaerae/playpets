@@ -47,14 +47,17 @@ test('the garden grows in stages that each have a drawing, and flowers in its la
   for (const f of catalog.flowers) assert.ok(f.art && f.colors?.petal, `${f.id}: a drawing and its colours`);
 });
 
-test('flower raster specimens resolve locally and share an eight-cell transparent atlas', () => {
+test('flower raster specimens resolve locally with transparent isolated atlas crops', () => {
   const sheet = readFileSync(new URL('../src/art/flowers/specimens.png', import.meta.url));
   assert.equal(sheet.readUInt32BE(16), 1536);
   assert.equal(sheet.readUInt32BE(20), 1024);
   assert.equal(sheet[25], 6, 'RGBA preserves transparent specimen edges');
   for (const flower of catalog.flowers) {
     const svg = readFileSync(new URL(`../src/art/${flower.art}`, import.meta.url), 'utf8');
-    assert.match(svg, /<image[^>]+href="art\/flowers\/specimens.png"/);
+    assert.match(
+      svg,
+      /<image[^>]+href="art\/(?:flowers\/(?:specimens|seasonal-extension)|collection-extension\/flowers).png"/,
+    );
     assert.match(svg, /overflow="hidden"/, 'a specimen cannot show its neighboring cell');
   }
 });

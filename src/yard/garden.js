@@ -1,32 +1,38 @@
-// The garden: plants where they were put, at the stage the clock says, and the seeds friends find
-// on their strolls. The rules (stages, flowers, how often) are in growth.js; the backend keeps the
+// The garden: plants where they were put, at the stage the clock says, and seeds found by digging.
+// The rules for stages and seasonal flowers are in growth.js; the backend keeps the
 // garden and its limits (src-tauri/src/pets/garden.rs). Plants are drawn once and looked at again
 // once a minute; nothing here moves on its own.
 
-import { list, t } from '../core/i18n.js';
-import { limit } from '../core/limits.js';
+import {
+  actionGroundOffset,
+  beginCompanionAction,
+  clearCompanionAction,
+  companionImage,
+  prepareCompanionAction,
+} from '../core/companion-actions.js';
+import { joinList, list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
-import { $, aiming, call, data, game, guard, toast, views } from '../core/state.js';
+import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
-import { cadence, everyMinute } from '../core/ticker.js';
+import { everyMinute } from '../core/ticker.js';
 import { artHref, artSize, colorStyle } from './art.js';
-import { befriend, levelOf } from './bond.js';
+import { befriend } from './bond.js';
 import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
 import { flowerKind, STAGES } from './catalog.js';
 import { flowerSvg } from './creatures.js';
 import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
-import { flowerFor, hoursMinutes, nextFind, stageOf, untilBloom } from './growth.js';
+import { flowerFor, hoursMinutes, stageOf, untilBloom } from './growth.js';
 import { askToRemove, propButton, propScale, reconcile, setDown } from './props.js';
 import { cue } from './sound.js';
-import { isFree, nearestFree, release, rest, sendTo } from './trips.js';
-import { bubble, cheer, effect } from './views.js';
+import { isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
+import { bubble, cheer, pose } from './views.js';
 import { scene } from './world.js';
 
 // Yard pixels per unit of a plant's drawing at full size; it shrinks with the yard as friends do.
 const UNIT = 1.25;
 const shown = new Map();
-const seedsFull = () => (data.garden?.seeds ?? 0) >= limit(data, 'seeds');
+const RETRY_MS = 15 * 1000;
 
 // What a plant is drawn with at a stage: the stage's drawing, or in bloom its flower's.
 function artAt(plant, stage) {
@@ -39,8 +45,8 @@ function wait(ms) {
 function label(plant, now) {
   const stage = stageOf(plant.planted, now).name,
     left = untilBloom(plant.planted, now);
-  const what = `${t(`garden.kind_${plant.kind}`)} · ${t(`garden.stage_${stage}`)}`;
-  return left ? `${what} · ${t('garden.until', { time: wait(left) })}` : what;
+  const what = joinList([t(`garden.kind_${plant.kind}`), t(`garden.stage_${stage}`)]);
+  return left ? joinList([what, t('garden.until', { time: wait(left) })]) : what;
 }
 function create(plant) {
   const button = propButton('plant', plant.kind);
@@ -157,82 +163,71 @@ const pull = guard(async id => {
     await call('pullPlant', id);
 });
 
-// Finding seeds: an idle friend, now and then, leaves one at its feet. A click picks it up; left
-// alone, the friend pockets it after a while, so nothing is missed by not watching.
-const POCKET_AFTER = 90 * 1000;
-const RETRY_MS = 15 * 1000;
-let lying = null;
-// The first find of a new yard comes soon (growth.js); the rest at the usual gaps.
-let looked = false;
-const finds = cadence(() => {
-  const first = !looked && !(data.garden?.seeds || data.garden?.plants?.length);
-  looked = true;
-  return nextFind(Math.random, first);
-});
-// A pickup by hand always says when it fails; the friend's own retries say so only the first time.
-async function collect(byHand = false) {
-  if (!lying || lying.pending) return false;
-  const seed = lying;
-  const { node, timer } = seed;
-  seed.pending = true;
-  node.disabled = true;
-  clearTimeout(timer);
-  try {
-    await call('findSeed');
-    lying = null;
-    node.remove();
-    return true;
-  } catch (error) {
-    if (byHand || !seed.failed) toast(spoken(error, t('error.generic')));
-    seed.failed = true;
-    // The seed stays where it was found; clicks can retry, and pocketing gets a slower retry too.
-    seed.timer = setTimeout(collect, RETRY_MS);
-    return false;
-  } finally {
-    seed.pending = false;
-    node.disabled = false;
-  }
+const planting = new Map();
+function cancelPlanting() {
+  for (const v of planting.keys()) release(v);
 }
-/** Called by the frame loop while the yard is seen and no game is on. */
-export function gardenTick(now) {
-  if (lying || !finds.due(now)) return;
-  // Anyone strolling about can find one; with nobody free right now, look again shortly.
-  const free = [...views.values()].filter(v => isFree(v) || v.trip?.slow);
-  if (seedsFull() || !free.length) return finds.after(now, RETRY_MS);
-  // A best friend (level 4) finds seeds more often, and is the one who finds them when it can.
-  const keen = free.filter(f => levelOf(f.pet.id) >= 4);
-  if (keen.length) finds.after(now, nextFind(Math.random) * 0.6);
-  const v = pick(keen.length ? keen : free);
-  // It stops where it found it, so the seed lies at its feet.
-  release(v);
-  rest(v);
-  cue('find');
-  cheer(v, 'garden.found', { mark: '', say: 3500 });
-  const node = document.createElement('button');
-  node.type = 'button';
-  node.className = 'found-seed';
-  node.setAttribute('aria-label', t('garden.pick_up'));
-  node.title = t('garden.pick_up');
-  // Placed by left and top: its glow uses transform.
-  node.style.left = `${v.px + sizeOf(v.pet) * 0.75}px`;
-  node.style.top = `${v.py + petHeight(v.pet) - 18}px`;
-  node.addEventListener('click', async e => {
-    e.stopPropagation();
-    if (await collect(true)) effect(v, '✦');
+function sendPlanting(v, point, kind, clip) {
+  const world = scene.world;
+  const season = scene.season;
+  let cancelled = false;
+  let timer;
+  const cleanup = () => {
+    cancelled = true;
+    clearTimeout(timer);
+    clearCompanionAction(v);
+    if (v.pose === 'idle' && v.until === Infinity) v.until = 0;
+    if (planting.get(v) === cleanup) planting.delete(v);
+  };
+  const valid = () =>
+    !cancelled && scene.world === world && scene.season === season && views.get(v.pet.id) === v && !game && !v.drag;
+  const pixel = fieldToYard(point);
+  const offset = actionGroundOffset(clip, sizeOf(v.pet), petHeight(v.pet));
+  sendTo(v, footTarget(v, pixel.x - offset.x, pixel.y - offset.y), {
+    cancel: cleanup,
+    arrive: guard(() => {
+      if (!valid()) return cleanup();
+      setDoing(v, { end: cleanup });
+      pose(v, 'idle', Infinity);
+      const action = beginCompanionAction(v, 'plant');
+      if (!action || action.clip !== clip || !companionImage(action)) return release(v);
+      timer = setTimeout(
+        guard(async () => {
+          if (!valid()) return release(v);
+          try {
+            // The existing atomic command spends the seed only after the placement completes.
+            await call('plant', kind, point.x, point.y);
+          } finally {
+            if (planting.get(v) === cleanup) {
+              release(v);
+              rest(v);
+            }
+          }
+        }),
+        action.duration,
+      );
+    }),
   });
-  $('garden-layer').append(node);
-  lying = { node, timer: setTimeout(collect, POCKET_AFTER) };
+  planting.set(v, cleanup);
 }
 
 // Planting: the tool, then a click on the field. It stays on while there are seeds; Esc or the
 // tool again puts it away.
 function plantAt(cx, cy) {
   if (cy < field().top - 10) return toast(t('garden.on_field'));
-  const { x, y } = yardToField(cx, cy);
-  return call('plant', flowerFor(scene.season), x, y);
+  const point = yardToField(cx, cy);
+  const kind = flowerFor(scene.season);
+  const v = views.get(selected) || nearestFree(cx, cy);
+  const clip = v && isFree(v) ? prepareCompanionAction(v.asset, 'plant') : null;
+  if (clip && companionImage({ clip })) return sendPlanting(v, point, kind, clip);
+  return call('plant', kind, point.x, point.y);
 }
 /** Wires the planting tool and the field's click. Called once, by app.js. */
 export function setupGarden() {
+  $('world')?.addEventListener('change', cancelPlanting);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') cancelPlanting();
+  });
   $('plant-tool').onclick = () => {
     if (!data.garden?.seeds) return toast(t('garden.no_seeds'));
     setAimingMode(aiming === 'seed' ? false : 'seed');

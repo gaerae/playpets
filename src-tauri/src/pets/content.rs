@@ -13,6 +13,10 @@ struct Kind {
     /// The seasonal event it comes only during (events.json), if any.
     #[serde(default)]
     event: Option<String>,
+    #[serde(default = "one")]
+    weight: u32,
+    #[serde(default)]
+    affinity: Affinity,
 }
 #[derive(Deserialize)]
 struct Event {
@@ -53,9 +57,60 @@ struct Treasure {
     rarity: String,
     #[serde(default = "one")]
     weight: u32,
+    #[serde(default)]
+    affinity: Affinity,
 }
 fn one() -> u32 {
     1
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct DiscoveryContext {
+    pub season: String,
+    pub weather: String,
+}
+impl DiscoveryContext {
+    pub fn valid(&self) -> bool {
+        matches!(self.season.as_str(), "spring" | "summer" | "autumn" | "winter")
+            && matches!(self.weather.as_str(), "clear" | "rain" | "snow")
+    }
+}
+
+#[derive(Deserialize, Default)]
+struct Affinity {
+    #[serde(default)]
+    seasons: Vec<String>,
+    #[serde(default)]
+    weather: Vec<String>,
+    #[serde(default)]
+    places: Vec<String>,
+}
+impl Affinity {
+    fn multiplier(&self, context: Option<&DiscoveryContext>, world: &str) -> u64 {
+        let Some(context) = context else { return 1 };
+        let season = self.seasons.iter().any(|season| season == &context.season);
+        let weather = self.weather.iter().any(|weather| weather == &context.weather);
+        let place =
+            matches!(world, "woodland" | "courtyard" | "lakeside") && self.places.iter().any(|place| place == world);
+        (if season { 2 } else { 1 }) * (if weather { 2 } else { 1 }) * (if place { 2 } else { 1 })
+    }
+}
+
+fn weighted_id<'a>(pool: impl Iterator<Item = (&'a str, u64)>, roll: u64) -> Option<&'a str> {
+    let pool: Vec<_> = pool.collect();
+    let total: u64 = pool.iter().map(|(_, weight)| *weight).sum();
+    if total == 0 {
+        return None;
+    }
+    let mut choice = roll % total;
+    for (id, weight) in pool {
+        if choice < weight {
+            return Some(id);
+        }
+        choice -= weight;
+    }
+    None
 }
 
 #[derive(Deserialize)]
@@ -124,27 +179,35 @@ pub fn catalog() -> &'static Catalog {
 }
 
 impl Catalog {
+    pub fn tree(&self, choice: u64, context: Option<&DiscoveryContext>, world: &str) -> Option<&str> {
+        weighted_id(
+            self.trees.iter().map(|kind| {
+                (
+                    kind.id.as_str(),
+                    u64::from(kind.weight) * kind.affinity.multiplier(context, world),
+                )
+            }),
+            choice,
+        )
+    }
     pub fn is_tree(&self, id: &str) -> bool {
         self.trees.iter().any(|kind| kind.id == id)
     }
-    pub fn treasure(&self, rarity: &str, roll: u64) -> Option<&str> {
-        let weight: u64 = self
-            .treasures
+    pub fn is_uncommon_treasure(&self, id: &str) -> bool {
+        self.treasures
             .iter()
-            .filter(|kind| kind.rarity == rarity)
-            .map(|kind| u64::from(kind.weight))
-            .sum();
-        if weight == 0 {
-            return None;
-        }
-        let mut choice = roll % weight;
-        for kind in self.treasures.iter().filter(|kind| kind.rarity == rarity) {
-            if choice < u64::from(kind.weight) {
-                return Some(&kind.id);
-            }
-            choice -= u64::from(kind.weight);
-        }
-        None
+            .any(|kind| kind.id == id && kind.rarity == "uncommon")
+    }
+    pub fn treasure(&self, rarity: &str, roll: u64, context: Option<&DiscoveryContext>, world: &str) -> Option<&str> {
+        weighted_id(
+            self.treasures.iter().filter(|kind| kind.rarity == rarity).map(|kind| {
+                (
+                    kind.id.as_str(),
+                    u64::from(kind.weight) * kind.affinity.multiplier(context, world),
+                )
+            }),
+            roll,
+        )
     }
 
     /// Whether a seed can grow into this flower.
@@ -180,6 +243,51 @@ impl Catalog {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn environmental_weights_cover_each_season_weather_and_place_without_mixing_rarities() {
+        let affinity = serde_json::json!({"seasons":["spring"],"weather":["rain"],"places":["woodland","custom"]});
+        let c: Catalog = serde_json::from_value(serde_json::json!({
+            "garden":{"stages":[]},"flowers":[],"gifts":[],"fish":[],"bugs":[],
+            "trees":[{"id":"favoured","affinity":affinity},{"id":"neutral"}],
+            "treasures":[{"id":"favoured","rarity":"common","weight":1,"affinity":affinity},{"id":"neutral","rarity":"common","weight":1},
+                         {"id":"favoured","rarity":"uncommon","weight":1,"affinity":affinity},{"id":"neutral","rarity":"uncommon","weight":1}]
+        })).unwrap();
+        for season in ["spring", "summer", "autumn", "winter"] {
+            for weather in ["clear", "rain", "snow"] {
+                for world in ["woodland", "courtyard", "lakeside", "custom"] {
+                    let context = DiscoveryContext {
+                        season: season.into(),
+                        weather: weather.into(),
+                    };
+                    let expected = (if season == "spring" { 2 } else { 1 })
+                        * (if weather == "rain" { 2 } else { 1 })
+                        * (if world == "woodland" { 2 } else { 1 });
+                    let total = expected + 1;
+                    assert_eq!(
+                        (0..total)
+                            .filter(|roll| c.tree(*roll, Some(&context), world) == Some("favoured"))
+                            .count() as u64,
+                        expected
+                    );
+                    for rarity in ["common", "uncommon"] {
+                        assert_eq!(
+                            (0..total)
+                                .filter(|roll| c.treasure(rarity, *roll, Some(&context), world) == Some("favoured"))
+                                .count() as u64,
+                            expected
+                        );
+                    }
+                }
+            }
+        }
+        assert_eq!(c.tree(0, None, "woodland"), Some("favoured"));
+        assert_eq!(c.tree(1, None, "woodland"), Some("neutral"));
+        assert_eq!(c.treasure("common", 1, None, "woodland"), Some("neutral"));
+        assert_eq!(c.treasure("uncommon", 1, None, "woodland"), Some("neutral"));
+        assert!(c.is_uncommon_treasure("favoured"));
+        assert!(!c.is_uncommon_treasure("absent"));
+    }
 
     #[test]
     fn the_catalogue_the_page_reads_is_built_in() {

@@ -9,7 +9,7 @@ pub(super) static SPEC: super::Spec = super::Spec {
 
 #[rustfmt::skip]
 const TABLE: &[(&str, &str)] = &[
-    ("app.title", "PlayPets · 宠物乐园"),
+    ("app.title", "PlayPets：宠物乐园"),
 
     ("pets.parked_missing", "找不到 {count} 位伙伴的宠物文件，因此未能将它们带入乐园。已保存的伙伴资料仍然保留。请检查原来的宠物文件夹和文件是否仍在，然后重启 PlayPets。"),
     ("pets.parked_full", "乐园已达到 {limit} 位伙伴的上限，因此还有 {count} 位伙伴未能加入。已保存的伙伴资料仍然保留。请先为乐园腾出空位，然后重启 PlayPets。"),
@@ -73,10 +73,12 @@ const TABLE: &[(&str, &str)] = &[
     ("error.friend_missing", "找不到这位伙伴。"),
     ("error.autostart", "无法更改登录时启动的设置。请检查系统设置中的登录项。"),
     ("error.seeds_full", "口袋里装满了种子，先种下几颗吧。"),
-    ("error.no_seeds", "没有可以种的种子。散步的伙伴偶尔会找到种子。"),
+    ("error.no_seeds", "没有可以种的种子。让伙伴挖挖土找一找吧。"),
+    ("error.no_saplings", "没有这种树的树苗。让伙伴挖挖土找一找吧。"),
     ("error.garden_full", "花园里最多能种 {limit} 株，拔掉一株就能再种。"),
     ("error.discovery_ground", "请选择没有障碍物的户外泥地。"),
     ("error.discovery_cooldown", "朋友正在稍微休息，稍后再挖吧。"),
+    ("error.discovery_daily_limit", "近期探索记录已满。较早挖过的地点满24小时后，就可以挖新的地点。"),
     ("error.tree_full", "这里没有种更多树的空间了。"),
     ("error.tree_missing", "找不到那棵树。"),
     ("error.plant_missing", "找不到那株植物。"),
@@ -165,11 +167,11 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.manifest_fields", "pet.json 必须包含 id 和 displayName。"),
     ("pet.version", "不支持的宠物文件版本。只能打开 v1 和 v2。"),
 
-    ("import.hint_openpets", "最大的宠物合集 · 汇集多个画廊的宠物"),
-    ("import.hint_petdex", "数千只宠物 · 预览与合集"),
-    ("import.hint_pokepets", "宝可梦粉丝宠物 · 粘贴 GitHub 上的宠物文件夹地址"),
+    ("import.hint_openpets", "最大的宠物合集：汇集多个画廊的宠物"),
+    ("import.hint_petdex", "数千只宠物：预览与合集"),
+    ("import.hint_pokepets", "宝可梦粉丝宠物：粘贴 GitHub 上的宠物文件夹地址"),
     ("import.hint_awesome", "精选的游戏、动画角色宠物"),
-    ("import.hint_codexpets", "分享站点 · 最新上传"),
+    ("import.hint_codexpets", "分享站点：最新上传"),
     ("import.private_address", "无法导入内部网络地址。"),
     ("import.page_offline", "无法加载宠物页面。请检查网络连接。"),
     ("import.page_failed", "无法加载宠物页面。"),

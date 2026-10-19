@@ -8,15 +8,15 @@
 import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { clamp, pick } from '../core/math.js';
-import { $, aiming, call, data, game, guard, name, views } from '../core/state.js';
+import { aiming, call, data, game, guard, name, recall, remember, views } from '../core/state.js';
 import { artSvg } from './art.js';
 import { befriend } from './bond.js';
 import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { effectLayers, effectsVisited } from './effects.js';
-import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
-import { giftWait, localDay } from './growth.js';
+import { EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
+import { FIRST_GIFT, GIFT_WAIT, giftWait, localDay } from './growth.js';
 import { askToRemove, propButton, reconcile, setDown, giftSize as size } from './props.js';
 import { cue } from './sound.js';
 import { isFree, nearestFree, rest, sendTo } from './trips.js';
@@ -48,13 +48,25 @@ function create(d) {
     effects = gift?.effects || [];
   if (effects.length) button.dataset.effects = effects.join(' ');
   button.innerHTML = `${effectLayers(effects)}${gift ? artSvg(gift.art) : ''}`;
-  const v = { id: d.id, kind: d.kind, button, drag: null };
+  const v = { id: d.id, kind: d.kind, button, drag: null, busy: false };
   // Dragging moves it; a press that does not move sends the nearest friend over to it.
   button.addEventListener('pointerdown', e => {
     // Placing a seed or a treat, the press goes through to the field.
-    if (e.button !== 0 || aiming) return;
-    const r = $('yard').getBoundingClientRect();
-    v.drag = { startX: e.clientX, startY: e.clientY, moved: false, rect: r };
+    if (e.button !== 0 || aiming || game || v.busy) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const current = data.garden?.decor.find(item => item.id === v.id),
+      f = field();
+    if (!current) return;
+    v.drag = {
+      startX: e.clientX,
+      startY: e.clientY,
+      x: current.x,
+      y: current.y,
+      width: Math.max(1, f.width - EDGE * 2),
+      height: Math.max(1, f.bottom - f.top),
+      moved: false,
+    };
     try {
       button.setPointerCapture(e.pointerId);
     } catch {}
@@ -65,16 +77,22 @@ function create(d) {
     if (!drag.moved && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) < 5) return;
     drag.moved = true;
     button.classList.add('dragging');
-    drag.at = yardToField(e.clientX - drag.rect.left, e.clientY - drag.rect.top);
+    drag.at = {
+      x: clamp(drag.x + (e.clientX - drag.startX) / drag.width),
+      y: clamp(drag.y + (e.clientY - drag.startY) / drag.height),
+    };
     position(v, drag.at.x, drag.at.y);
   });
-  const drop = () => {
+  const drop = event => {
     const drag = v.drag;
     v.drag = null;
     button.classList.remove('dragging');
+    try {
+      if (button.hasPointerCapture(event.pointerId)) button.releasePointerCapture(event.pointerId);
+    } catch {}
     if (!drag) return;
     if (!drag.moved) return visit(v.id);
-    if (drag.at) save(v.id, drag.at);
+    if (drag.at) return save(v.id, drag.at);
   };
   button.addEventListener('pointerup', drop);
   button.addEventListener('pointercancel', () => {
@@ -82,6 +100,7 @@ function create(d) {
     button.classList.remove('dragging');
     renderDecor();
   });
+  button.addEventListener('dragstart', event => event.preventDefault());
   button.addEventListener('contextmenu', e => {
     e.preventDefault();
     putAway(v.id);
@@ -100,10 +119,32 @@ function create(d) {
 // Kept here at once so it does not jump back while the backend saves it.
 const save = guard(async (id, at) => {
   const d = data.garden?.decor.find(x => x.id === id);
-  if (d) Object.assign(d, at);
+  const view = shown.get(id);
+  if (!d || !view || view.busy) return;
+  const previous = { x: d.x, y: d.y };
+  view.busy = true;
+  Object.assign(d, at);
   renderDecor();
-  await call('moveDecor', id, at.x, at.y);
+  try {
+    await call('moveDecor', id, at.x, at.y);
+  } catch (error) {
+    if (data.garden?.decor.find(item => item.id === id) === d) Object.assign(d, previous);
+    throw error;
+  } finally {
+    view.busy = false;
+    renderDecor();
+  }
 });
+
+export function setupDecor() {
+  globalThis.window?.addEventListener('resize', () => {
+    for (const view of shown.values()) {
+      view.drag = null;
+      view.button.classList.remove('dragging');
+    }
+    renderDecor();
+  });
+}
 
 /** Brings the yard's decorations in line with the backend's garden. */
 export function renderDecor() {
@@ -159,22 +200,53 @@ const putAway = guard(async id => {
     await call('putAway', id);
 });
 
-// Today's gift: once the yard has been seen a while today, a friend that is free brings it.
-let day = '',
-  dueAt = 0,
+// The deadline follows this profile's last gift, so closing the app keeps its progress.
+let progressKey = '',
+  progress = null,
   bringing = false;
 const GIFT_RETRY_MS = 60 * 1000;
-/** Called by the frame loop while the yard is seen and no game is on. */
-export function giftTick(now) {
+function keepGiftProgress(key, value) {
+  remember(key, JSON.stringify(value));
+  if (key === progressKey) progress = value;
+}
+function giftDeadline(garden, now) {
+  const folder = data.petFolders?.downloaded,
+    key = `gift-progress:${typeof folder === 'string' && folder ? folder : 'default'}`,
+    after = garden.giftDay || '';
+  if (progressKey !== key || progress?.after !== after) {
+    progressKey = key;
+    progress = null;
+    try {
+      const saved = JSON.parse(recall(key));
+      if (
+        saved?.after === after &&
+        Number.isSafeInteger(saved.dueAt) &&
+        saved.dueAt >= 0 &&
+        (saved.retry === undefined || typeof saved.retry === 'boolean')
+      )
+        progress = saved;
+    } catch {
+      // A malformed browser record cannot prevent a gift from being scheduled.
+    }
+  }
+  const first = !garden.received?.length,
+    maxWait = progress?.retry ? GIFT_RETRY_MS : first ? FIRST_GIFT : GIFT_WAIT[1];
+  // A clock correction keeps the wait bounded instead of retaining a far-future deadline.
+  if (!progress || progress.dueAt > now + maxWait) {
+    const wait = progress?.retry ? GIFT_RETRY_MS : giftWait(Math.random, first);
+    keepGiftProgress(key, { after, dueAt: Math.ceil(now + wait), retry: progress?.retry === true });
+  }
+  return progress;
+}
+/** Called by the frame loop while the yard is seen and no game is on; deadlines use wall time. */
+export function giftTick() {
   const g = data.garden;
   if (!g || bringing) return;
-  const today = localDay(new Date());
-  if (g.giftDay >= today || (g.decor?.length ?? 0) >= limit(data, 'decor')) return;
-  if (day !== today) {
-    day = today;
-    dueAt = now + giftWait(Math.random, !g.received?.length);
-  }
-  if (now < dueAt) return;
+  const now = Date.now(),
+    today = localDay(new Date(now));
+  if (g.giftDay >= today) return;
+  const pending = giftDeadline(g, now);
+  if ((g.decor?.length ?? 0) >= limit(data, 'decor') || now < pending.dueAt) return;
   const free = [...views.values()].filter(isFree);
   if (!free.length) return;
   const v = pick(free);
@@ -184,7 +256,8 @@ export function giftTick(now) {
     right = v.px + width / 2 < field().width / 2,
     at = yardToField(v.px + width / 2 + (right ? 1 : -1) * width * 0.9, v.py + petHeight(v.pet));
   bringing = true;
-  const seen = new Set(g.received || []);
+  const key = progressKey,
+    seen = new Set(g.received || []);
   // During a seasonal event, today's gift is its own the first time (the backend checks the dates).
   call('receiveGift', at.x, at.y, today, scene.event)
     .then(d => {
@@ -205,7 +278,7 @@ export function giftTick(now) {
     })
     .catch(() => {
       // A failed save must not replay the gift and its request on every frame.
-      dueAt = performance.now() + GIFT_RETRY_MS;
+      keepGiftProgress(key, { after: pending.after, dueAt: Date.now() + GIFT_RETRY_MS, retry: true });
     })
     .finally(() => {
       bringing = false;

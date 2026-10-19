@@ -1,15 +1,19 @@
-// Species keep their collection identity while flying; decoding starts only in a living yard.
+// Species keep their collection identity while roaming; decoding starts only in a living yard.
 import { canvasFor, decodeImage, materialCache } from './raster.js';
 
 const WINGBEAT = [0, 1, 2, 1];
 let bugsReady;
 function loadBugs() {
   if (typeof Image === 'undefined') return Promise.resolve(null);
-  bugsReady ??= Promise.all([
-    decodeImage('../art/bugs/specimens.png'),
-    fetch(new URL('../art/collection.json', import.meta.url)).then(r => (r.ok ? r.json() : [])),
-  ])
-    .then(([image, entries]) => (image ? { image, entries } : null))
+  bugsReady ??= fetch(new URL('../art/collection.json', import.meta.url))
+    .then(r => (r.ok ? r.json() : []))
+    .then(async entries => {
+      const atlases = [...new Set(entries.filter(entry => entry.kind === 'bugs').map(entry => entry.atlas))];
+      const images = new Map(
+        await Promise.all(atlases.map(async atlas => [atlas, await decodeImage(`../art/${atlas}`)])),
+      );
+      return { images, entries };
+    })
     .catch(() => null);
   return bugsReady;
 }
@@ -18,8 +22,7 @@ export function createAmbientArt(
   changed,
   { loadBugs: bugs = loadBugs, loadBirds: birds = loadBirds, makeCanvas = canvasFor } = {},
 ) {
-  let bugImage,
-    birdImage,
+  let birdImage,
     bugPending,
     birdPending,
     wildlife = false,
@@ -45,10 +48,12 @@ export function createAmbientArt(
     if (wildlife && !bugPending)
       bugPending = Promise.resolve(bugs())
         .then(result => {
-          if (!result?.image || !Array.isArray(result.entries)) return;
-          bugImage = result.image;
+          if (!Array.isArray(result?.entries)) return;
           for (const entry of result.entries)
-            if (entry.kind === 'bugs' && entry.crop?.length === 4) crops.set(entry.id, entry.crop);
+            if (entry.kind === 'bugs' && entry.crop?.length === 4) {
+              const image = result.images?.get(entry.atlas) || result.image;
+              if (image) crops.set(entry.id, { image, crop: entry.crop });
+            }
           if (wildlife) changed();
         })
         .catch(() => {});
@@ -84,16 +89,17 @@ export function createAmbientArt(
     }
   }
   function bug(ctx, creature, scale) {
-    const crop = crops.get(creature.species);
-    if (!bugImage || !crop) return false;
-    const size = (creature.kind === 'firefly' ? 12 : creature.kind === 'dragonfly' ? 23 : 21) * scale;
+    const specimen = crops.get(creature.species);
+    if (!specimen) return false;
+    const { image, crop } = specimen;
+    const size = ({ firefly: 12, dragonfly: 23, beetle: 13, cricket: 17 }[creature.kind] || 21) * scale;
     ctx.save();
     ctx.translate(creature.x, creature.y);
-    if (creature.kind === 'dragonfly') ctx.rotate(creature.heading + Math.PI / 2);
+    if (['dragonfly', 'beetle', 'cricket'].includes(creature.kind)) ctx.rotate(creature.heading + Math.PI / 2);
     // The butterfly's wings fold; its center remains at the catch target.
     if (creature.kind === 'butterfly') ctx.scale(0.4 + 0.6 * Math.abs(Math.sin(creature.phase)), 1);
     const aspect = crop[3] / crop[2];
-    ctx.drawImage(bugImage, ...crop, -size / 2, (-size * aspect) / 2, size, size * aspect);
+    ctx.drawImage(image, ...crop, -size / 2, (-size * aspect) / 2, size, size * aspect);
     ctx.restore();
     return true;
   }

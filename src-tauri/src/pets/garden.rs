@@ -1,7 +1,7 @@
 //! The garden friends and the person grow together: seeds a friend found, the plants grown from
-//! them, and the decorations friends bring as gifts, one a day. The page decides when a friend
-//! finds a seed or brings a gift (it knows who is idle, whether the yard is seen and what day it
-//! is where the person lives); every limit, and which gift comes next, is kept here. Growth is not
+//! them, and the decorations friends bring as gifts, one a day. Digging awards seeds and saplings.
+//! The page decides when a friend brings a gift (it knows who is idle, whether the yard is seen
+//! and the local day); every limit, and which gift comes next, is kept here. Growth is not
 //! stored: a plant's stage follows from when it was planted (src/yard/garden.js). What can grow and
 //! what friends bring are the catalogue's (content.rs).
 //! Design: docs/design/2026-10-09-a-yard-that-grows.md.
@@ -10,10 +10,13 @@ use super::discovery::{DigAttempt, Tree};
 use crate::i18n;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::collections::BTreeMap;
 use uuid::Uuid;
 
 /// Seeds a pocket holds; a full pocket asks for some planting before more are found.
 pub const SEED_MAX: u32 = 20;
+/// Saplings kept for each species, independently of flower seeds.
+pub const SAPLING_MAX: u32 = 20;
 /// Plants the field holds, so it stays a field.
 pub const PLANT_MAX: usize = 24;
 /// Decorations the yard holds, so friends still have room to play.
@@ -23,6 +26,8 @@ pub const DECOR_MAX: usize = 12;
 #[serde(rename_all = "camelCase")]
 pub struct Garden {
     pub seeds: u32,
+    #[serde(default)]
+    pub saplings: BTreeMap<String, u32>,
     #[serde(default)]
     pub trees: Vec<Tree>,
     #[serde(default)]
@@ -100,7 +105,7 @@ fn place(v: f64) -> Option<f64> {
 
 impl Garden {
     /// The garden as state.json has it, keeping only what makes sense (a hand-edited or older file).
-    pub fn restore(raw: Option<&Value>) -> Garden {
+    pub fn restore(raw: Option<&Value>, now: u64) -> Garden {
         let Some(raw) = raw else { return Garden::default() };
         let seeds = raw
             .get("seeds")
@@ -136,22 +141,26 @@ impl Garden {
             .to_string();
         Garden {
             trees: super::discovery::restore_trees(raw.get("trees")),
-            digs: super::discovery::restore_digs(raw.get("digs")),
+            digs: super::discovery::restore_digs(raw.get("digs"), now),
             seeds,
+            saplings: raw
+                .get("saplings")
+                .and_then(Value::as_object)
+                .into_iter()
+                .flatten()
+                .filter(|(kind, _)| super::discovery::kind_id(kind))
+                .filter_map(|(kind, count)| {
+                    count
+                        .as_u64()
+                        .map(|count| (kind.clone(), count.min(u64::from(SAPLING_MAX)) as u32))
+                })
+                .take(super::album::KINDS_MAX)
+                .collect(),
             plants,
             decor,
             received,
             gift_day,
         }
-    }
-
-    /// A friend found a seed. Returns the seeds now in the pocket.
-    pub fn find(&mut self) -> Result<u32, String> {
-        if self.seeds >= SEED_MAX {
-            return Err(i18n::t("error.seeds_full"));
-        }
-        self.seeds += 1;
-        Ok(self.seeds)
     }
 
     /// Puts a seed in the ground at (x, y). `now` is ms since 1970.
@@ -289,23 +298,37 @@ mod tests {
 
     #[test]
     fn discovery_state_defaults_and_future_kinds_survive_restore() {
-        let old = serde_json::to_value(Garden::restore(None)).unwrap();
+        let old = serde_json::to_value(Garden::restore(None, 0)).unwrap();
         assert_eq!(old["trees"], json!([]));
         assert_eq!(old["digs"], json!([]));
-        let g = Garden::restore(Some(
-            &json!({"trees":[{"id":"future", "world":"removed-scene", "kind":"future_tree", "x":0.5,"y":0.5,"planted":1,"stage":2,"matured":true}]}),
-        ));
+        let g = Garden::restore(
+            Some(
+                &json!({"trees":[{"id":"future", "world":"removed-scene", "kind":"future_tree", "x":0.5,"y":0.5,"planted":1,"stage":2,"matured":true}]}),
+            ),
+            0,
+        );
         assert_eq!(serde_json::to_value(g).unwrap()["trees"][0]["kind"], "future_tree");
     }
 
     #[test]
-    fn seeds_are_found_up_to_a_full_pocket_and_planting_spends_one() {
+    fn sapling_restore_caps_counts_and_preserves_safe_future_species() {
+        let g = Garden::restore(
+            Some(&json!({"seeds": 8, "saplings": {
+                "cherry": 100, "future_tree": 4, "pine": -1, "maple": "2", "bad key": 2
+            }})),
+            0,
+        );
+        let saved = serde_json::to_value(g).unwrap();
+        assert_eq!(saved["seeds"], 8);
+        assert_eq!(saved["saplings"], json!({"cherry":20,"future_tree":4}));
+        assert_eq!(serde_json::to_value(Garden::default()).unwrap()["saplings"], json!({}));
+    }
+
+    #[test]
+    fn planting_spends_one_existing_seed() {
         let mut g = Garden::default();
         assert!(g.plant("tulip", 0.5, 0.5, 1).is_err(), "no seed, nothing to plant");
-        for n in 1..=SEED_MAX {
-            assert_eq!(g.find(), Ok(n));
-        }
-        assert!(g.find().is_err(), "a full pocket finds no more");
+        g.seeds = SEED_MAX;
         let p = g.plant("cosmos", 1.4, -0.2, 7).unwrap();
         assert_eq!(
             (p.x, p.y, p.planted, g.seeds),
@@ -416,21 +439,24 @@ mod tests {
                 {"id": "d", "kind": "cosmos"}
             ]
         });
-        let g = Garden::restore(Some(&raw));
+        let g = Garden::restore(Some(&raw), 0);
         assert_eq!(g.seeds, SEED_MAX);
         assert_eq!(g.plants.iter().map(|p| p.id.as_str()).collect::<Vec<_>>(), ["a", "c"]);
         assert_eq!(g.plants[1].x, 1.0);
-        assert_eq!(Garden::restore(None), Garden::default());
-        let with_decor = Garden::restore(Some(&json!({
-            "decor": [{"id": "a", "kind": "bench", "x": 0.5, "y": 2.0}, {"id": "b", "kind": "castle", "x": 0.5, "y": 0.5}],
-            "received": ["bench", "bench", "castle", "lantern"],
-            "giftDay": "2026-10-09"
-        })));
+        assert_eq!(Garden::restore(None, 0), Garden::default());
+        let with_decor = Garden::restore(
+            Some(&json!({
+                "decor": [{"id": "a", "kind": "bench", "x": 0.5, "y": 2.0}, {"id": "b", "kind": "castle", "x": 0.5, "y": 0.5}],
+                "received": ["bench", "bench", "castle", "lantern"],
+                "giftDay": "2026-10-09"
+            })),
+            0,
+        );
         assert_eq!(with_decor.decor.len(), 1);
         assert_eq!(with_decor.decor[0].y, 1.0);
         assert_eq!(with_decor.received, ["bench", "lantern"]);
         assert_eq!(with_decor.gift_day, "2026-10-09");
-        assert_eq!(Garden::restore(Some(&json!({"giftDay": "soon"}))).gift_day, "");
-        assert_eq!(Garden::restore(Some(&json!("nonsense"))), Garden::default());
+        assert_eq!(Garden::restore(Some(&json!({"giftDay": "soon"})), 0).gift_day, "");
+        assert_eq!(Garden::restore(Some(&json!("nonsense")), 0), Garden::default());
     }
 }

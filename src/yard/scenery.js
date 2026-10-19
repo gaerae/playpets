@@ -7,7 +7,7 @@
 // rests until the next spell.
 import { between } from '../core/math.js';
 import { createAmbientArt } from './ambient-art.js';
-import { flyingBug, wildlifeGroup } from './catalog.js';
+import { bugChances, weighted, wildlifeGroup } from './catalog.js';
 import { environmentFrame, weatherPanes } from './environment.js';
 import { boostOf } from './events.js';
 import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
@@ -30,6 +30,26 @@ const SPELL = 24000,
   REST = [30000, 60000];
 // Fireflies fade in and out over this long.
 const FADE_MS = 1500;
+const grounded = kind => kind === 'beetle' || kind === 'cricket';
+/** Crawling and short hops stay on the walkable field, below the painted water. */
+export function stepGroundBug(c, dt, bounds, leaving = false, rng = Math.random) {
+  c.phase += dt * 0.006;
+  c.heading += (rng() - 0.5) * dt * 0.001;
+  if (leaving) c.heading += Math.sin((c.x < bounds.width / 2 ? Math.PI : 0) - c.heading) * dt * 0.003;
+  const hop = c.kind === 'cricket' ? Math.max(0, Math.sin(c.phase)) ** 8 : 0;
+  const speed = c.kind === 'cricket' ? hop * 0.055 : 0.009;
+  c.x += Math.cos(c.heading) * speed * dt;
+  c.groundY = Math.max(
+    bounds.top + 3 * bounds.scale,
+    Math.min(bounds.bottom, c.groundY + Math.sin(c.heading) * speed * dt * 0.4),
+  );
+  c.y = c.groundY - hop * 3 * bounds.scale;
+  if (c.x < -20 || c.x > bounds.width + 20) {
+    if (leaving) return false;
+    c.x = c.x < -20 ? bounds.width + 20 : -20;
+  }
+  return true;
+}
 export function createScenery(canvas, reduced, artOptions, ambientOptions) {
   const ctx = canvas.getContext('2d');
   // In a small yard everything drawn shrinks with it.
@@ -82,24 +102,30 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
   }
   // The small life of a spell. Arriving, butterflies come in from the sides, fireflies fade in and
   // petals or leaves start above the yard; at the start they are already about.
+  const groundBounds = () => ({
+    width: w,
+    top: h * Math.min(0.9, (worldFor(world).geometry?.fieldTop ?? 0.66) + 0.035),
+    bottom: h * 0.94,
+    scale,
+  });
   function spawnLife(arriving) {
     refillAt = 0;
     arriving = arriving && !reduced.matches;
     const { glow, count } = lifeCount();
+    const population = bugChances(season, period, weather, event);
     critters = Array.from({ length: count }, () => {
       const side = Math.random() < 0.5,
-        kind = glow
-          ? 'firefly'
-          : Math.random() < 0.35 && flyingBug('dragonfly', season, period, Math.random, event)
-            ? 'dragonfly'
-            : 'butterfly',
-        bug = flyingBug(kind, season, period, Math.random, event);
+        bug = weighted(population, candidate => candidate.chance, Math.random),
+        kind = bug?.kind || (glow ? 'firefly' : 'butterfly'),
+        ground = grounded(kind) ? groundBounds() : null,
+        y = ground ? ground.top + (ground.bottom - ground.top) * Math.random() : h * (0.5 + Math.random() * 0.4);
       return {
         kind,
         species: bug?.id || null,
         look: bug?.look || { wing: '#f6f4ea', edge: '#4a4a44' },
         x: arriving && !glow ? (side ? -15 : w + 15) : Math.random() * w,
-        y: h * (0.5 + Math.random() * 0.4),
+        y,
+        ...(ground ? { groundY: y } : {}),
         heading: arriving && !glow ? (side ? 0 : Math.PI) + (Math.random() - 0.5) : Math.random() * TAU,
         phase: Math.random() * TAU,
         light: arriving && glow ? 0 : 1,
@@ -190,6 +216,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
   }
   // Moves a creature; returns false once it has left (a butterfly off the side, a firefly faded).
   function roam(c, dt) {
+    if (grounded(c.kind)) return stepGroundBug(c, dt, groundBounds(), !spell);
     c.phase += dt * (c.kind === 'firefly' ? 0.003 : c.kind === 'dragonfly' ? 0.05 : 0.02);
     c.heading += (Math.random() - 0.5) * dt * 0.004;
     if (c.kind === 'firefly') {
@@ -358,6 +385,26 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
         ctx.beginPath();
         ctx.arc(c.x, c.y, 1.7 * scale, 0, TAU);
         ctx.fill();
+      } else if (grounded(c.kind)) {
+        ctx.globalAlpha = 0.95;
+        if (ambient.bug(ctx, c, scale)) continue;
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.heading + Math.PI / 2);
+        ctx.fillStyle = c.look.body || c.look.wing || '#4a3829';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, (c.kind === 'beetle' ? 4 : 2) * scale, 5 * scale, 0, 0, TAU);
+        ctx.fill();
+        ctx.strokeStyle = c.look.edge || '#342a22';
+        ctx.lineWidth = scale;
+        for (const side of [-1, 1])
+          for (const y of [-2, 1, 3]) {
+            ctx.beginPath();
+            ctx.moveTo(side * 2 * scale, y * scale);
+            ctx.lineTo(side * (c.kind === 'cricket' && y === 3 ? 7 : 5) * scale, (y + 2) * scale);
+            ctx.stroke();
+          }
+        ctx.restore();
       } else if (c.kind === 'dragonfly') {
         ctx.globalAlpha = 0.95;
         if (ambient.bug(ctx, c, scale)) continue;

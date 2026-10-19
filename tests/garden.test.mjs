@@ -1,20 +1,16 @@
-// The garden grows by the clock, flowers by the season it was planted in, and friends find seeds
-// now and then (src/yard/growth.js).
+// The garden grows by the clock and flowers by the season it was planted in.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 import { FLOWERS } from '../src/yard/catalog.js';
 import {
-  FIND_GAP,
-  FIRST_FIND,
   FIRST_GIFT,
   flowerFor,
   GIFT_WAIT,
   giftWait,
   hoursMinutes,
   localDay,
-  nextFind,
   STAGES,
   stageOf,
   untilBloom,
@@ -41,7 +37,8 @@ test('a plant goes from seed to flower with time, and says how long until the ne
 test("a seed grows into one of its season's flowers, and every flower can grow", () => {
   const grown = new Set();
   for (const season of ['spring', 'summer', 'autumn', 'winter'])
-    for (const r of [0, 0.3, 0.6, 0.99]) {
+    for (const [index] of FLOWERS.filter(f => f.season === season).entries()) {
+      const r = (index + 0.5) / FLOWERS.filter(f => f.season === season).length;
       const id = flowerFor(season, () => r);
       assert.equal(FLOWERS.find(f => f.id === id).season, season);
       grown.add(id);
@@ -50,17 +47,9 @@ test("a seed grows into one of its season's flowers, and every flower can grow",
   assert.equal(flowerFor('bogus'), FLOWERS[0].id);
 });
 
-test('seeds are found now and then, the first one soon', () => {
-  assert.equal(
-    nextFind(() => 0),
-    FIND_GAP[0],
-  );
-  assert.equal(
-    nextFind(() => 1),
-    FIND_GAP[1],
-  );
-  assert.ok(nextFind(() => 1, true) <= FIRST_FIND[1]);
-  assert.ok(FIRST_FIND[1] < FIND_GAP[0]);
+test('growth has no autonomous seed award schedule', async () => {
+  const growth = await import('../src/yard/growth.js');
+  for (const name of ['nextFind', 'FIND_GAP', 'FIRST_FIND']) assert.equal(name in growth, false);
 });
 
 test('a wait is said in hours and minutes, rounded up', () => {

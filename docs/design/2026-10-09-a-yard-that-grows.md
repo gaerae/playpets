@@ -98,3 +98,12 @@ Some values above have changed since this record was written; the code and the c
 - The yard holds 12 decorations, not 8 (`DECOR_MAX` in `src-tauri/src/pets/garden.rs`, `decor` in `src/core/limits.js`).
 - Friendship is called closeness in the app (Closeness; levels Just met, At ease, Warm, Very close, Dearest, at the same points). What a friend says at a level and when it welcomes the person back follows its relationship to the person (friend, partner, mentor, younger sibling).
 - There are more kinds than the counts above: more fish, bugs, flowers and gifts, some only during an event. The lists are in `src/content/catalog.json`, and the gifts' order and limits in `src-tauri/src/pets/garden.rs`.
+
+## Follow-up: digging replaces seed pickups (2026-10-19)
+
+The spontaneous seed-finding and pickup proposal above is historical. Flower
+seeds and tree saplings now come only from digging. Existing seed pockets and
+planted gardens remain intact; pickup-only controls, visuals and sounds are
+removed. See [environmental discovery](2026-10-19-environmental-discovery.md)
+and [calm collection information](2026-10-19-calm-collection-information.md)
+for the current acquisition, growth and gift timing contracts.

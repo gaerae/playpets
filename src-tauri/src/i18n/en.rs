@@ -9,7 +9,7 @@ pub(super) static SPEC: super::Spec = super::Spec {
 
 #[rustfmt::skip]
 const TABLE: &[(&str, &str)] = &[
-    ("app.title", "PlayPets · Pet Yard"),
+    ("app.title", "PlayPets: Pet Yard"),
 
     ("pets.parked_missing", "Friends with missing pet files: {count}. Their saved data is still kept. Check that their original pet folders and files are still available, then restart PlayPets."),
     ("pets.parked_full", "The yard has reached its limit of {limit} friends, so {count} more could not join. Their saved data is still kept. Free a yard slot, then restart PlayPets."),
@@ -73,10 +73,12 @@ const TABLE: &[(&str, &str)] = &[
     ("error.friend_missing", "Couldn't find that friend."),
     ("error.autostart", "Could not change whether PlayPets starts at login. Check the login items in your system settings."),
     ("error.seeds_full", "Your pocket is full of seeds. Plant some first."),
-    ("error.no_seeds", "No seeds to plant. Friends out for a stroll find one now and then."),
+    ("error.no_seeds", "No seeds to plant. Send a friend digging to find some."),
+    ("error.no_saplings", "No saplings of this species. Send a friend digging to find some."),
     ("error.garden_full", "The garden holds {limit} plants. Pull one to plant another."),
     ("error.discovery_ground", "Choose clear outdoor soil for that."),
     ("error.discovery_cooldown", "Your friend is taking a short break from digging."),
+    ("error.discovery_daily_limit", "The recent exploration record is full. Please try a new patch later, once earlier digs are 24 hours old."),
     ("error.tree_full", "There is no room for another tree here."),
     ("error.tree_missing", "Couldn't find that tree."),
     ("error.plant_missing", "Couldn't find that plant."),
@@ -165,11 +167,11 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.manifest_fields", "pet.json needs an id and a displayName."),
     ("pet.version", "This pet file version isn't supported. Only v1 and v2 can be opened."),
 
-    ("import.hint_openpets", "The largest collection · pets from many galleries in one place"),
-    ("import.hint_petdex", "Thousands of pets · previews and collections"),
-    ("import.hint_pokepets", "Pokémon fan pets · paste a pet folder address from GitHub"),
+    ("import.hint_openpets", "The largest collection: pets from many galleries in one place"),
+    ("import.hint_petdex", "Thousands of pets: previews and collections"),
+    ("import.hint_pokepets", "Pokémon fan pets: paste a pet folder address from GitHub"),
     ("import.hint_awesome", "Hand-picked game and anime character pets"),
-    ("import.hint_codexpets", "A sharing site · the latest uploads"),
+    ("import.hint_codexpets", "A sharing site: the latest uploads"),
     ("import.private_address", "Addresses on a private network can't be imported."),
     ("import.page_offline", "Couldn't load the pet page. Check your internet connection."),
     ("import.page_failed", "Couldn't load the pet page."),

@@ -3,7 +3,7 @@ import test from 'node:test';
 import './support/content.mjs';
 import { eventChanged } from '../src/yard/festival.js';
 import { scene } from '../src/yard/world.js';
-import { installStorage, keepGlobals } from './support/dom.mjs';
+import { element, installStorage, keepGlobals } from './support/dom.mjs';
 
 function page(t) {
   t.mock.timers.enable({ apis: ['setTimeout'] });
@@ -14,7 +14,7 @@ function page(t) {
   });
   keepGlobals(t, 'document');
   const chip = {},
-    card = { hidden: true, querySelector: () => ({}) },
+    card = element('div', { hidden: true, querySelector: () => element() }),
     stored = new Map(),
     listeners = [];
   installStorage(t, { getItem: key => stored.get(key) ?? null, setItem: (key, value) => stored.set(key, value) });

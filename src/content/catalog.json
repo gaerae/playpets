@@ -117,6 +117,94 @@
         "petal-lo": "#e3ebe6",
         "heart": "#7cc47f"
       }
+    },
+    {
+      "id": "crocus",
+      "season": "spring",
+      "art": "flowers/crocus.svg",
+      "colors": {
+        "petal": "#a680cf",
+        "petal-hi": "#d5b7ee",
+        "petal-lo": "#7655a6",
+        "heart": "#edb94e"
+      }
+    },
+    {
+      "id": "grape_hyacinth",
+      "season": "spring",
+      "art": "flowers/grape_hyacinth.svg",
+      "colors": {
+        "petal": "#6c8bc6",
+        "petal-hi": "#b3c4ec",
+        "petal-lo": "#4d63a1",
+        "heart": "#f0e6c8"
+      }
+    },
+    {
+      "id": "lavender",
+      "season": "summer",
+      "art": "flowers/lavender.svg",
+      "colors": {
+        "petal": "#9c83bd",
+        "petal-hi": "#cbb6df",
+        "petal-lo": "#755b99",
+        "heart": "#d5bf7c"
+      }
+    },
+    {
+      "id": "bellflower",
+      "season": "summer",
+      "art": "flowers/bellflower.svg",
+      "colors": {
+        "petal": "#838ecb",
+        "petal-hi": "#bcc8ed",
+        "petal-lo": "#5c66a3",
+        "heart": "#eee9ce"
+      }
+    },
+    {
+      "id": "dahlia",
+      "season": "autumn",
+      "art": "flowers/dahlia.svg",
+      "colors": {
+        "petal": "#e79786",
+        "petal-hi": "#f6c3b2",
+        "petal-lo": "#be7062",
+        "heart": "#e6ad51"
+      }
+    },
+    {
+      "id": "aster",
+      "season": "autumn",
+      "art": "flowers/aster.svg",
+      "colors": {
+        "petal": "#b395ce",
+        "petal-hi": "#dbc4ed",
+        "petal-lo": "#8a6baa",
+        "heart": "#efc76d"
+      }
+    },
+    {
+      "id": "hellebore",
+      "season": "winter",
+      "art": "flowers/hellebore.svg",
+      "colors": {
+        "petal": "#dce5c8",
+        "petal-hi": "#f0f3e6",
+        "petal-lo": "#a4b995",
+        "heart": "#e4c776"
+      }
+    },
+    {
+      "id": "cyclamen",
+      "season": "winter",
+      "art": "flowers/cyclamen.svg",
+      "colors": {
+        "petal": "#ce6b94",
+        "petal-hi": "#e9a6c0",
+        "petal-lo": "#a14d74",
+        "heart": "#eee1c1"
+      }
     }
   ],
   "gifts": [
@@ -210,6 +298,16 @@
       "id": "snowman",
       "art": "decor/sculpted/snowman.svg",
       "event": "lights"
+    },
+    {
+      "id": "bunny_watering_can",
+      "art": "decor/bunny_watering_can.svg",
+      "size": [70, 70]
+    },
+    {
+      "id": "hedgehog_planter",
+      "art": "decor/hedgehog_planter.svg",
+      "size": [70, 70]
     }
   ],
   "fish": [
@@ -501,6 +599,65 @@
         "whiskers": true
       },
       "art": "fish/moon_carp.svg"
+    },
+    {
+      "id": "stickleback",
+      "size": [3, 8],
+      "seasons": ["spring", "winter"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 8,
+      "look": {
+        "body": "#94b3bd",
+        "belly": "#e8dbcc",
+        "fin": "#b57a70",
+        "shape": "slender"
+      },
+      "art": "fish/stickleback.svg"
+    },
+    {
+      "id": "freshwater_prawn",
+      "size": [2, 8],
+      "seasons": ["spring", "summer"],
+      "periods": ["evening", "night"],
+      "weight": 8,
+      "rain": 2,
+      "look": {
+        "body": "#b4bfa1",
+        "belly": "#e8d8bd",
+        "fin": "#b4bfa1",
+        "shape": "normal"
+      },
+      "art": "fish/freshwater_prawn.svg"
+    },
+    {
+      "id": "crayfish",
+      "size": [5, 15],
+      "seasons": ["summer", "autumn"],
+      "periods": ["morning", "evening", "night"],
+      "weight": 8,
+      "rain": 2,
+      "look": {
+        "body": "#a9654d",
+        "belly": "#e8d8bd",
+        "fin": "#a9654d",
+        "shape": "normal"
+      },
+      "art": "fish/crayfish.svg"
+    },
+    {
+      "id": "pond_snail",
+      "size": [2, 6],
+      "seasons": ["spring", "summer", "autumn"],
+      "periods": ["morning", "day"],
+      "weight": 8,
+      "rain": 2,
+      "look": {
+        "body": "#8b8155",
+        "belly": "#e8d8bd",
+        "fin": "#8b8155",
+        "shape": "normal"
+      },
+      "art": "fish/pond_snail.svg"
     }
   ],
   "bugs": [
@@ -508,7 +665,7 @@
       "id": "cabbage_white",
       "kind": "butterfly",
       "seasons": ["spring", "summer", "autumn"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 30,
       "look": {
         "wing": "#f6f4ea",
@@ -521,7 +678,7 @@
       "id": "yellow_butterfly",
       "kind": "butterfly",
       "seasons": ["spring", "summer", "autumn"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 24,
       "look": {
         "wing": "#f4d35e",
@@ -533,7 +690,7 @@
       "id": "blue_butterfly",
       "kind": "butterfly",
       "seasons": ["spring", "summer"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 16,
       "look": {
         "wing": "#8fb4e8",
@@ -546,7 +703,7 @@
       "id": "swallowtail",
       "kind": "butterfly",
       "seasons": ["summer"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 10,
       "look": {
         "wing": "#f2d36b",
@@ -560,7 +717,7 @@
       "id": "black_swallowtail",
       "kind": "butterfly",
       "seasons": ["summer"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 4,
       "look": {
         "wing": "#2f3a48",
@@ -568,26 +725,28 @@
         "sheen": "#4f97a6",
         "tails": true
       },
-      "art": "bugs/black_swallowtail.svg"
+      "art": "bugs/black_swallowtail.svg",
+      "rarity": "rare"
     },
     {
       "id": "peacock",
       "kind": "butterfly",
       "seasons": ["autumn"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 6,
       "look": {
         "wing": "#c8553d",
         "edge": "#4a2a22",
         "eyes": "#3f6fb5"
       },
-      "art": "bugs/peacock.svg"
+      "art": "bugs/peacock.svg",
+      "rarity": "rare"
     },
     {
       "id": "dragonfly",
       "kind": "dragonfly",
       "seasons": ["summer"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 20,
       "look": {
         "body": "#6f8fb5",
@@ -599,7 +758,7 @@
       "id": "red_dragonfly",
       "kind": "dragonfly",
       "seasons": ["summer", "autumn"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 24,
       "look": {
         "body": "#d9442e",
@@ -612,7 +771,7 @@
       "kind": "firefly",
       "seasons": ["spring", "summer"],
       "periods": ["evening", "night"],
-      "weight": 1,
+      "weight": 70,
       "look": {
         "body": "#3a3a32",
         "glow": "#ecf096"
@@ -623,7 +782,7 @@
       "id": "orange_tip",
       "kind": "butterfly",
       "seasons": ["spring"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 14,
       "look": {
         "wing": "#f8f4e6",
@@ -636,20 +795,21 @@
       "id": "purple_emperor",
       "kind": "butterfly",
       "seasons": ["summer"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 4,
       "look": {
         "wing": "#5b4b8a",
         "edge": "#2e2648",
         "sheen": "#9a7fe0"
       },
-      "art": "bugs/purple_emperor.svg"
+      "art": "bugs/purple_emperor.svg",
+      "rarity": "rare"
     },
     {
       "id": "brimstone",
       "kind": "butterfly",
       "seasons": ["spring", "autumn"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 12,
       "look": {
         "wing": "#f2e27a",
@@ -662,7 +822,7 @@
       "id": "damselfly",
       "kind": "dragonfly",
       "seasons": ["spring", "summer"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 18,
       "look": {
         "body": "#4fa6c4",
@@ -674,20 +834,21 @@
       "id": "emperor_dragonfly",
       "kind": "dragonfly",
       "seasons": ["summer"],
-      "periods": ["morning", "day", "evening"],
+      "periods": ["morning", "day"],
       "weight": 8,
       "look": {
         "body": "#5f9e4a",
         "wing": "#eef2e6"
       },
-      "art": "bugs/emperor_dragonfly.svg"
+      "art": "bugs/emperor_dragonfly.svg",
+      "rarity": "rare"
     },
     {
       "id": "heike_firefly",
       "kind": "firefly",
       "seasons": ["summer"],
       "periods": ["evening", "night"],
-      "weight": 1,
+      "weight": 25,
       "look": {
         "body": "#33302a",
         "glow": "#d9f08a"
@@ -705,7 +866,36 @@
         "body": "#3a3326",
         "glow": "#ffd84a"
       },
-      "art": "bugs/golden_firefly.svg"
+      "art": "bugs/golden_firefly.svg",
+      "rarity": "rare"
+    },
+    {
+      "id": "ladybug",
+      "kind": "beetle",
+      "seasons": ["spring", "summer", "autumn"],
+      "periods": ["morning", "day"],
+      "weight": 10,
+      "rarity": "common",
+      "look": {
+        "body": "#d45645",
+        "wing": "#d45645",
+        "edge": "#333a31"
+      },
+      "art": "bugs/ladybug.svg"
+    },
+    {
+      "id": "field_cricket",
+      "kind": "cricket",
+      "seasons": ["summer", "autumn"],
+      "periods": ["morning", "day"],
+      "weight": 10,
+      "rarity": "common",
+      "look": {
+        "body": "#7b9e57",
+        "wing": "#6d8b4d",
+        "edge": "#3f5732"
+      },
+      "art": "bugs/field_cricket.svg"
     }
   ],
   "trees": [
@@ -730,6 +920,11 @@
         "autumn": "trees/cherry-mature-autumn.svg",
         "winter": "trees/cherry-mature-winter.svg",
         "summer": "trees/cherry-mature-summer.svg"
+      },
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["clear"],
+        "places": ["courtyard"]
       }
     },
     {
@@ -753,6 +948,11 @@
         "spring": "trees/maple-mature-spring.svg",
         "autumn": "trees/maple-mature-autumn.svg",
         "winter": "trees/maple-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["autumn"],
+        "weather": ["clear"],
+        "places": ["woodland"]
       }
     },
     {
@@ -772,7 +972,96 @@
         }
       ],
       "footprint": [22, 9],
-      "seasonArt": {}
+      "seasonArt": {},
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["snow"],
+        "places": ["woodland"]
+      }
+    },
+    {
+      "id": "oak",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/oak-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/oak-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/oak-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/oak-mature-spring.svg",
+        "autumn": "trees/oak-mature-autumn.svg",
+        "winter": "trees/oak-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["autumn"],
+        "weather": ["rain"],
+        "places": ["woodland"]
+      }
+    },
+    {
+      "id": "birch",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/birch-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/birch-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/birch-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/birch-mature-spring.svg",
+        "autumn": "trees/birch-mature-autumn.svg",
+        "winter": "trees/birch-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["snow"],
+        "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "willow",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/willow-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/willow-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/willow-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/willow-mature-spring.svg",
+        "autumn": "trees/willow-mature-autumn.svg",
+        "winter": "trees/willow-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["summer"],
+        "weather": ["rain"],
+        "places": ["lakeside"]
+      }
     }
   ],
   "treasures": [
@@ -781,56 +1070,204 @@
       "art": "discovery/striped_pebble.svg",
       "rarity": "common",
       "weight": 1,
-      "seasons": ["spring", "summer", "autumn", "winter"]
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["clear"],
+        "places": ["woodland"]
+      }
     },
     {
       "id": "sea_glass",
       "art": "discovery/sea_glass.svg",
       "rarity": "common",
       "weight": 1,
-      "seasons": ["spring", "summer", "autumn", "winter"]
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["summer"],
+        "weather": ["rain"],
+        "places": ["lakeside"]
+      }
     },
     {
       "id": "leaf_fossil",
       "art": "discovery/leaf_fossil.svg",
       "rarity": "common",
       "weight": 1,
-      "seasons": ["spring", "summer", "autumn", "winter"]
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["autumn"],
+        "weather": ["rain"],
+        "places": ["woodland"]
+      }
     },
     {
       "id": "clay_shard",
       "art": "discovery/clay_shard.svg",
       "rarity": "common",
       "weight": 1,
-      "seasons": ["spring", "summer", "autumn", "winter"]
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["rain"],
+        "places": ["courtyard"]
+      }
     },
     {
       "id": "old_button",
       "art": "discovery/old_button.svg",
       "rarity": "common",
       "weight": 1,
-      "seasons": ["spring", "summer", "autumn", "winter"]
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["clear"],
+        "places": ["courtyard"]
+      }
     },
     {
       "id": "tiny_shell",
       "art": "discovery/tiny_shell.svg",
       "rarity": "common",
       "weight": 1,
-      "seasons": ["spring", "summer", "autumn", "winter"]
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["summer"],
+        "weather": ["clear"],
+        "places": ["lakeside"]
+      }
     },
     {
       "id": "quartz",
       "art": "discovery/quartz.svg",
       "rarity": "uncommon",
       "weight": 1,
-      "seasons": ["spring", "summer", "autumn", "winter"]
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["snow"],
+        "places": ["woodland"]
+      }
     },
     {
       "id": "amber",
       "art": "discovery/amber.svg",
       "rarity": "uncommon",
       "weight": 1,
-      "seasons": ["spring", "summer", "autumn", "winter"]
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["autumn"],
+        "weather": ["rain"],
+        "places": ["woodland"]
+      }
+    },
+    {
+      "id": "bottle_cap",
+      "art": "discovery/bottle_cap.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["summer"],
+        "weather": ["clear"],
+        "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "toy_robot",
+      "art": "discovery/toy_robot.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["clear"],
+        "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "tiny_crown",
+      "art": "discovery/tiny_crown.svg",
+      "rarity": "uncommon",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["clear"],
+        "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "star_fragment",
+      "art": "discovery/star_fragment.svg",
+      "rarity": "uncommon",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["summer"],
+        "weather": ["clear"],
+        "places": ["lakeside"]
+      }
+    },
+    {
+      "id": "glass_marble",
+      "art": "discovery/glass_marble.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["clear"],
+        "places": ["lakeside"]
+      }
+    },
+    {
+      "id": "wooden_whale",
+      "art": "discovery/wooden_whale.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["rain"],
+        "places": ["lakeside"]
+      }
+    },
+    {
+      "id": "felt_mushroom",
+      "art": "discovery/felt_mushroom.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["autumn"],
+        "weather": ["clear"],
+        "places": ["woodland"]
+      }
+    },
+    {
+      "id": "acorn_teacup",
+      "art": "discovery/acorn_teacup.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["snow"],
+        "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "sleeping_fox",
+      "art": "discovery/sleeping_fox.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["autumn"],
+        "weather": ["snow"],
+        "places": ["courtyard"]
+      }
     }
   ],
   "discoveryTools": [

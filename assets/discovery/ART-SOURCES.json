@@ -56,6 +56,58 @@
         "referenceCanvas": [430, 430],
         "referenceOffset": [0, 16]
       }
+    },
+    {
+      "id": "oak",
+      "file": "oak-source.png",
+      "atlas": "trees/oak.png",
+      "size": [1536, 1024],
+      "sha256": "644c6a15b82b247be8f623f2952c375cd84157f40e11857447a7636a47dec9a0",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. Reference image is STYLE ONLY: match its warm tactile miniature sculpted illustration, detailed natural hand-painted wood/leaves, crisp botanical silhouette, soft top-left light. Create NEW tree species, not cherries/maples/pines. Genuine transparent RGBA, no floor, cast shadow, background, checkerboard ink, labels, text, grid or pot. Six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside cells with transparent gutters. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered. Row1: small seedling (30% cell height), young sapling (60%), mature SUMMER tree (85%). Row2: same mature tree SPRING, AUTUMN, WINTER (all85%, same trunk branching/root identity and proportions). Little root rosette as reference, no large dirt mound. Designed to look polished at 35/70/160 CSS pixels.\nOak: a broad rounded crown on a sturdy branching brown trunk; distinctive small rounded-lobed oak leaves, natural acorns on mature summer/autumn only. Summer rich olive green; spring pale fresh green; autumn copper russet and golden brown; winter bare branching canopy with no leaves.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "birch",
+      "file": "birch-source.png",
+      "atlas": "trees/birch.png",
+      "size": [1536, 1024],
+      "sha256": "4a0dba6dc7593af06164921d0ea5e1dd4237307075c146c83948fa88790442fc",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. Reference image is STYLE ONLY: match its warm tactile miniature sculpted illustration, detailed natural hand-painted wood/leaves, crisp botanical silhouette, soft top-left light. Create NEW tree species, not cherries/maples/pines. Genuine transparent RGBA, no floor, cast shadow, background, checkerboard ink, labels, text, grid or pot. Six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside cells with transparent gutters. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered. Row1: small seedling (30% cell height), young sapling (60%), mature SUMMER tree (85%). Row2: same mature tree SPRING, AUTUMN, WINTER (all85%, same trunk branching/root identity and proportions). Little root rosette as reference, no large dirt mound. Designed to look polished at 35/70/160 CSS pixels.\nBirch: elegant upright slender white papery bark trunk with subtle dark gray marks and delicate branching; a soft airy rounded crown of small triangular pointed leaves. Summer leafy green; spring fresh light green; autumn golden yellow; winter bare delicate branches and white trunk.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "willow",
+      "file": "willow-source.png",
+      "atlas": "trees/willow.png",
+      "size": [1536, 1024],
+      "sha256": "0da261196f35dd1d68e88749e608c9f46c86f3ed9ea693dae0c9546aefd73924",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. Reference image is STYLE ONLY: match its warm tactile miniature sculpted illustration, detailed natural hand-painted wood/leaves, crisp botanical silhouette, soft top-left light. Create NEW tree species, not cherries/maples/pines. Genuine transparent RGBA, no floor, cast shadow, background, checkerboard ink, labels, text, grid or pot. Six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside cells with transparent gutters. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered. Row1: small seedling (30% cell height), young sapling (60%), mature SUMMER tree (85%). Row2: same mature tree SPRING, AUTUMN, WINTER (all85%, same trunk branching/root identity and proportions). Little root rosette as reference, no large dirt mound. Designed to look polished at 35/70/160 CSS pixels.\nWillow: graceful wide umbrella canopy, slender curving ochre brown trunk and long pendulous strands of narrow lance-shaped leaves. Summer rich sage green; spring pale fresh green; autumn muted golden ochre trailing leaves; winter bare hanging twig branches, no leaves. Keep hanging canopy above ground, trunk legible.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "whimsical-finds",
+      "file": "whimsical-finds-source.png",
+      "atlas": "discovery/whimsical-finds.png",
+      "size": [1254, 1254],
+      "sha256": "dfe7469fd947a890adcd637fcaf56b6dd75d9e719e5d2f18814e21f8e879af81",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game keepsake sprites. Input image is STYLE REFERENCE ONLY. Match its warm sculpted illustrated materials, soft hand-painted detail, crisp edges, natural tactile finish and soft top-left lighting. Create a genuine transparent RGBA 2 by 2 sprite sheet with exactly four isolated whole objects in equal cells, generous clear gutters, no background, no checkerboard ink, no ground shadow, no text/labels/brands or extra objects. Each fills about70%cell width, orthographic slightly top-front view; all readable at40 CSS pixels. Top left: a worn teal-blue metal bottle cap with crimped rim, muted cream center and no printing. Top right: a tiny friendly vintage wind-up toy robot with rounded cream and faded dusty blue metal body, simple dot eyes and little antenna, warm brass wind-up key, no brand or existing character. Bottom left: a tiny handmade golden crown with three rounded points, worn soft brass highlights, no jewels. Bottom right: an irregular five-point pale honey-gold star fragment, softly translucent with natural crystalline facets, small chipped corner, no cartoon outline or scattered magical sparkles. Tasteful whimsical found treasures, distinctive silhouettes, preserve genuine alpha.",
+      "input": {
+        "path": "assets/discovery/finds-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
     }
   ],
   "assets": [
@@ -255,6 +307,194 @@
       "size": [160, 170],
       "crop": [15, 46, 1232, 1161],
       "anchor": [0.5, 1]
+    },
+    {
+      "id": "oak-seedling",
+      "source": "oak",
+      "art": "trees/oak-seedling.svg",
+      "size": [35, 40],
+      "crop": [172, 291, 184, 182],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "oak-young",
+      "source": "oak",
+      "art": "trees/oak-young.svg",
+      "size": [70, 95],
+      "crop": [556, 140, 344, 334],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "oak-mature",
+      "source": "oak",
+      "art": "trees/oak-mature.svg",
+      "size": [160, 170],
+      "crop": [964, 11, 560, 473],
+      "anchor": [0.5, 1],
+      "frame": [964, 11, 560, 473]
+    },
+    {
+      "id": "oak-mature-spring",
+      "source": "oak",
+      "art": "trees/oak-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [11, 499, 496, 473],
+      "anchor": [0.5, 1],
+      "frame": [-21, 499, 560, 473]
+    },
+    {
+      "id": "oak-mature-autumn",
+      "source": "oak",
+      "art": "trees/oak-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [512, 503, 497, 468],
+      "anchor": [0.5, 1],
+      "frame": [480.5, 498, 560, 473]
+    },
+    {
+      "id": "oak-mature-winter",
+      "source": "oak",
+      "art": "trees/oak-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1019, 513, 503, 459],
+      "anchor": [0.5, 1],
+      "frame": [990.5, 499, 560, 473]
+    },
+    {
+      "id": "birch-seedling",
+      "source": "birch",
+      "art": "trees/birch-seedling.svg",
+      "size": [35, 40],
+      "crop": [220, 273, 144, 213],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "birch-young",
+      "source": "birch",
+      "art": "trees/birch-young.svg",
+      "size": [70, 95],
+      "crop": [639, 132, 250, 356],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "birch-mature",
+      "source": "birch",
+      "art": "trees/birch-mature.svg",
+      "size": [160, 170],
+      "crop": [1021, 5, 459, 487],
+      "anchor": [0.5, 1],
+      "frame": [1019.5, 3, 462, 489]
+    },
+    {
+      "id": "birch-mature-spring",
+      "source": "birch",
+      "art": "trees/birch-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [49, 505, 458, 487],
+      "anchor": [0.5, 1],
+      "frame": [47, 503, 462, 489]
+    },
+    {
+      "id": "birch-mature-autumn",
+      "source": "birch",
+      "art": "trees/birch-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [543, 504, 462, 489],
+      "anchor": [0.5, 1],
+      "frame": [543, 504, 462, 489]
+    },
+    {
+      "id": "birch-mature-winter",
+      "source": "birch",
+      "art": "trees/birch-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1054, 514, 441, 479],
+      "anchor": [0.5, 1],
+      "frame": [1043.5, 504, 462, 489]
+    },
+    {
+      "id": "willow-seedling",
+      "source": "willow",
+      "art": "trees/willow-seedling.svg",
+      "size": [35, 40],
+      "crop": [179, 300, 159, 188],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "willow-young",
+      "source": "willow",
+      "art": "trees/willow-young.svg",
+      "size": [70, 95],
+      "crop": [588, 128, 333, 362],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "willow-mature",
+      "source": "willow",
+      "art": "trees/willow-mature.svg",
+      "size": [160, 170],
+      "crop": [1004, 12, 507, 483],
+      "anchor": [0.5, 1],
+      "frame": [1004, 12, 507, 483]
+    },
+    {
+      "id": "willow-mature-spring",
+      "source": "willow",
+      "art": "trees/willow-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [19, 517, 499, 480],
+      "anchor": [0.5, 1],
+      "frame": [15, 514, 507, 483]
+    },
+    {
+      "id": "willow-mature-autumn",
+      "source": "willow",
+      "art": "trees/willow-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [527, 517, 493, 480],
+      "anchor": [0.5, 1],
+      "frame": [520, 514, 507, 483]
+    },
+    {
+      "id": "willow-mature-winter",
+      "source": "willow",
+      "art": "trees/willow-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1027, 518, 494, 483],
+      "anchor": [0.5, 1],
+      "frame": [1020.5, 518, 507, 483]
+    },
+    {
+      "id": "bottle_cap",
+      "source": "whimsical-finds",
+      "art": "discovery/bottle_cap.svg",
+      "size": [40, 40],
+      "crop": [95, 157, 521, 445],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "toy_robot",
+      "source": "whimsical-finds",
+      "art": "discovery/toy_robot.svg",
+      "size": [40, 40],
+      "crop": [687, 63, 504, 573],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "tiny_crown",
+      "source": "whimsical-finds",
+      "art": "discovery/tiny_crown.svg",
+      "size": [40, 40],
+      "crop": [118, 733, 497, 389],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "star_fragment",
+      "source": "whimsical-finds",
+      "art": "discovery/star_fragment.svg",
+      "size": [40, 40],
+      "crop": [687, 683, 476, 481],
+      "anchor": [0.5, 0.5]
     }
   ]
 }
