@@ -158,3 +158,11 @@ test('pet seasonal kits default to three complete wardrobes without restricting 
   for (const source of [skill, format]) assert.match(source, /base.*spring and autumn.*summer.*winter/i);
   assert.match(format, /spring.*autumn.*optional extensions/i);
 });
+
+test('the portable skill uses frontmatter accepted by current Codex skill validation', async () => {
+  const source = await readFile('assets/creator-skill/playpets-creator/SKILL.md', 'utf8');
+  const frontmatter = source.match(/^---\n([\s\S]*?)\n---/);
+  assert.ok(frontmatter, 'SKILL.md has YAML frontmatter');
+  const topLevelKeys = [...frontmatter[1].matchAll(/^([a-z][a-z-]*):/gm)].map(match => match[1]);
+  assert.deepEqual(topLevelKeys, ['name', 'license', 'metadata', 'description']);
+});
