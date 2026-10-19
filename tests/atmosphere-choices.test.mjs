@@ -28,8 +28,8 @@ test('atmosphere radios preserve scene changes and programmatic selection', asyn
   assert.equal(groups.length, 3);
   assert.deepEqual(
     groups.map(group => group.style['--climate-columns']),
-    ['6', '6', '5'],
-    'the longer automatic choice receives two equal grid columns',
+    ['5', '5', '4'],
+    'every short choice receives one equal grid column',
   );
   assert.equal(climate.querySelector('summary').children[0].dataset.i18n, 'settings.season');
   const inputs = groups[0].querySelectorAll('input');

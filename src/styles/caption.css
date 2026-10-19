@@ -366,7 +366,7 @@
   display: none;
 }
 .atmosphere-segments {
-  --climate-columns: 6;
+  --climate-columns: 5;
   --climate-manual-options: 4;
   display: grid;
   grid-template-columns: repeat(var(--climate-columns), minmax(0, 1fr));
@@ -387,9 +387,6 @@
 }
 .atmosphere-segments:disabled label {
   cursor: default;
-}
-.atmosphere-auto {
-  grid-column: span 2;
 }
 .atmosphere-segments input {
   position: absolute;

@@ -18,3 +18,15 @@ test('Play labels keep their intrinsic width and wrap whole actions rather than 
   assert.match(css, /\.play-actions,\s*\.discovery-tree-choices\s*\{[^}]*flex-wrap:\s*wrap/s);
   assert.match(css, /\.play-action\s*\{[^}]*flex:\s*1 0 max-content;[^}]*white-space:\s*nowrap/s);
 });
+
+test('atmosphere auto choices rely on their group headings instead of repeating long qualifiers', () => {
+  for (const [lang, strings, auto] of [
+    ['en', en, 'Auto'],
+    ['ko', ko, '자동'],
+    ['ja', ja, '自動'],
+    ['zh', zh, '自动'],
+  ]) {
+    for (const key of ['settings.season_auto', 'period.auto', 'weather.auto'])
+      assert.equal(strings[key], auto, `${lang}.${key}`);
+  }
+});

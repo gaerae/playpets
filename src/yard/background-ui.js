@@ -104,7 +104,7 @@ export function setupAtmosphereChoices() {
       group.append(label);
       radios.push(radio);
     }
-    group.style.setProperty('--climate-columns', String(radios.length + 1));
+    group.style.setProperty('--climate-columns', String(radios.length));
     group.style.setProperty('--climate-manual-options', String(radios.length - 1));
     const refresh = () => {
       group.disabled = !!select.disabled;
