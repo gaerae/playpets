@@ -27,6 +27,7 @@ Go to a document based on what you want to know.
 | Adding, hiding or reordering community discovery links | [Add or change a discovery site](how-to/add-discovery-site.md) |
 | Adding a selectable indoor or outdoor place | [Add a place for friends](how-to/add-a-world.md) |
 | Adding a fish, a bug, a flower or a gift, a drawing or an effect, or changing the scenery | [Add to the yard](how-to/add-to-the-yard.md) |
+| Planning richer bundled-companion actions while preserving imported pet sheets | [Companion action design](design/2026-10-19-companion-animation.md) |
 | Reproducing seasonal, game, collection and audio review fixtures | [Visual review](how-to/visual-review.md) |
 | Setting up once: the updater key, the GitHub repository, secrets, the Homebrew tap, winget, signing accounts | [Set up the repository, keys and store accounts](how-to/set-up-the-repository.md) |
 | Store identity, MSIX submission preparation, Apple certificates and notarization | [Prepare Microsoft Store and Apple signing](how-to/store-and-apple-signing.md) |
@@ -93,7 +94,7 @@ Records are dated and not rewritten; when two disagree, the later one holds. The
 - [Companions and pet identity](design/2026-10-11-companions.md) (2026-10-11): the historical companion catalog and compatibility contract. The current four-pet cast and accepted artwork are described in [Companion artwork](../assets/pets/README.md).
 - [Art direction and the art pipeline](design/2026-10-11-art-direction.md) (2026-10-11): the sculpted cozy-game look, depth cues, raster layers and the procedural fallback, specimen art, accepting new art, the brand and where sources live.
 - [Product direction](design/2026-10-11-product-direction.md) (2026-10-11): companions who talk to you and each other, claims kept precise, interface commitments and the bar for the first release.
-- [Stronger agent integration · community import · personality and activity memory](design/2026-09-29-agent-link-import-persona.md): the design as of 2026-09-29. Some file paths have changed since.
+- [Stronger agent integration, community import, personality and activity memory](design/2026-09-29-agent-link-import-persona.md): the design as of 2026-09-29. Some file paths have changed since.
 - [A yard that grows with you](design/2026-10-09-a-yard-that-grows.md): the garden, gifts, fishing and bugs, the album and closeness, with their rules.
 - [A painted yard](design/2026-10-09-a-painted-yard.md): how the backdrop is painted after hand-painted animation backgrounds.
 - [Where things live in the window](design/2026-10-09-window-layout.md): one place for each kind of thing, and one name per switch.

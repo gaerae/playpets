@@ -1,7 +1,7 @@
 {
   "name": "playpets",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A yard where your pets talk to each other",
   "homepage": "https://playpets.gaerae.com/",
   "repository": "github:gaerae/playpets",
@@ -58,7 +58,8 @@
     "creator:skill": "node scripts/creator-skill.mjs",
     "security:check": "gitleaks git --redact --no-banner --log-opts=--all && npm audit --audit-level=high && cargo audit --file src-tauri/Cargo.lock",
     "store:verify": "node scripts/store-api.mjs",
-    "store:submit": "node scripts/store-submit.mjs"
+    "store:submit": "node scripts/store-submit.mjs",
+    "companions:pack": "node scripts/pack-companion-actions.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

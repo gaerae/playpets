@@ -12,7 +12,8 @@ const missing = ref(false);
 // before the picture arrives and nothing jumps.
 const RATIO: Record<string, string> = { mini: '516 / 376', 'mini-chat': '516 / 376', desktop: '820 / 480' };
 const ratio = computed(() => RATIO[props.name] ?? '1236 / 836');
-const src = computed(() => withBase(`/shots/${props.version ?? generated.version}/${lang.value}/${props.name}.webp`));
+const captureVersion = computed(() => props.version ?? generated.captureVersion);
+const src = computed(() => withBase(`/shots/${captureVersion.value}/${lang.value}/${props.name}.webp`));
 </script>
 
 <template>
@@ -27,6 +28,6 @@ const src = computed(() => withBase(`/shots/${props.version ?? generated.version
       @error="missing = true"
     />
     <div v-else class="shot-placeholder">{{ words.missingShot }}</div>
-    <figcaption v-if="caption">{{ caption }}</figcaption>
+    <figcaption>{{ caption }}<span v-if="caption">, </span>v{{ captureVersion }}</figcaption>
   </figure>
 </template>

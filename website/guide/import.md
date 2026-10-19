@@ -55,7 +55,7 @@ A friend recognises its pet by the pet folder's path. If you move or delete the 
 
 A pet imported from an address is saved as one folder in `pets/` in the [data folder](./install.md#data-folder). The **Pets imported from an address** group in the Invite tab has an **Open folder** button that opens that folder right away. The **PlayPets starter pets** and **Codex pet folder** groups have the same button. The **Pets picked from this computer** group has no button; each card shows its folder name instead.
 
-The `pet.json` of an imported pet records where it came from. The card in the Invite tab shows the site, creator and license on one line, like "Petdex · creator · CC BY-NC 4.0". Community pets are the work of their creators, so check the license before you use them.
+The `pet.json` of an imported pet records where it came from. The card in the Invite tab shows the site, creator and license on one line, like "Petdex, creator, CC BY-NC 4.0". Community pets are the work of their creators, so check the license before you use them.
 
 To get rid of a pet you no longer use, delete its folder inside `pets/`. Friends made from that pet wait outside the yard from the next start, as above; send them away first if you want them gone too.
 

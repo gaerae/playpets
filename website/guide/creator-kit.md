@@ -29,6 +29,6 @@ The SKILL guides eleven approved 4 × 2 image batches, then uses the supplied Py
 
 Seasonal pet clothing uses three complete sets by default: base for both spring and autumn, summer, and winter. Each set includes all nine animation states and sixteen gaze directions. Use the same SKILL to improve an official friend while preserving its identity and approved movements. Separate spring or autumn outfits are optional when explicitly requested; backgrounds keep their four-season workflow.
 
-[Import a pet](./import.md) · [Pet format reference](/dev/standards/pet-files)
+[Import a pet](./import.md), [Pet format reference](/dev/standards/pet-files)
 
 </details>

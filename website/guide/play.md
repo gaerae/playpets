@@ -8,19 +8,23 @@ import DiscoveryGuide from '../.vitepress/theme/DiscoveryGuide.vue';
 
 # The yard and games
 
-The yard changes with the time of day, the weather and the season, and it grows over the days. Friends find seeds for the garden and bring gifts, you fish and catch bugs for the album, friends grow closer to you, seasonal events come and go, the yard has its own sounds, and you can play three games with your friends.
+The yard changes with the time of day, the weather and the season, and it grows over the days. Friends dig up flower seeds and saplings and bring gifts, you fish and catch bugs for the album, friends grow closer to you, seasonal events come and go, the yard has its own sounds, and you can play three games with your friends.
 
-The scenery fills the window. Larger windows have three entrances at the bottom right: **Place & atmosphere**, **Play** and **Menu**. Change the scene directly, open Play for activities, and use Menu for friends, invitations and app settings. Only one yard panel opens at a time. Automatic time follows your computer’s clock without displaying a clock on the scenery.
+The scenery fills the window. The dock has **Place & atmosphere**, **Play** and **Friends & settings**. The last opens three tabs: **Friends** for chat and invitations, **Settings** for app preferences, and **Window** for window and desktop controls. Only one yard panel opens at a time. Automatic time follows your computer’s clock without displaying a clock.
 
-**Play** brings together picnics, group conversation, planting, fishing, the collection and games. Group conversation needs two friends connected to AI; the other activities do not. **Menu → Window & desktop** contains window pinning, fullscreen and desktop friends. Sound is in **Place & atmosphere → Atmosphere**.
+**Play** uses the same board at every window size. Its four actions are **Dig**, **Plant & collect**, **Fish**, and **Group games**. Plant & collect opens seeds, trees and the album. Group games opens picnics, games and group conversation. Group conversation requires two friends connected to AI; the other activities do not.
 
 A new yard starts on a clear spring day. Choose **Auto** for season, time or weather when you want them to change on their own; saved choices stay as you left them.
 
+**Place & atmosphere → Atmosphere** also holds the sound switch and volume. Sounds begin after your first interaction and play only while the yard is visible. Rain, birds, water and other ambient sounds follow the place, weather, season and time. This control is separate from automatic conversation in **Friends & settings → Settings → General**.
+
 ## Time of day and weather <Since v="0.1.0" />
+
+Season and weather are independent: summer with Snow keeps the summer landscape and outfits while snow falls; winter with Clear keeps the winter landscape. The indoor window and imported backgrounds follow the same rule. Auto weather still limits naturally selected snow to winter.
 
 <Shot name="yard-spring" caption="A clear spring day in the yard. Auto time follows your clock when selected." />
 
-Open **Place & atmosphere** at the bottom right to choose a background by its thumbnail. Built-in and imported backgrounds share one gallery. Use **Places** to choose a background and **Atmosphere** to choose season, time and weather; changes apply immediately. Season is also available in **Menu → Settings → The yard**. Import a background or open the Background Studio below the controls. Remove appears only when an imported background is selected.
+Open **Place & atmosphere** at the bottom right to choose a background by its thumbnail. Built-in and imported backgrounds share one gallery. Use **Places** to choose a background and **Atmosphere** to choose season, time and weather; changes apply immediately. Import a background or open the Background Studio below the controls. Remove appears only when an imported background is selected.
 
 | Choice | Options |
 |---|---|
@@ -35,7 +39,7 @@ The three outdoor places have distinct houses, four seasonal landscapes and thei
 - **Auto time** follows your computer's clock. The colours of the sky and ground change through morning, midday, evening and night, the sun crosses the sky from left to right, and at night the moon shows tonight's phase.
 - **Auto weather** picks new weather once every 20 minutes. It is mostly clear, with rain now and then; snow comes only in winter. It does not fetch the real weather from the internet.
 - The illustrated outdoor places have different compositions, from a sheltered courtyard to an open hillside and lake. Their colours change with the light; the background is repainted only when the scene or window size changes.
-- With season set to **Auto**, the outdoor places follow the date: blossoms and falling petals in spring, deep green in summer, red and gold leaves in autumn, and snowy ground in winter. You can also choose a season in **Menu → Settings → The yard**. South of the equator (by your computer's time zone) automatic seasons are reversed.
+- With season set to **Auto**, the outdoor places follow the date: blossoms and falling petals in spring, deep green in summer, red and gold leaves in autumn, and snowy ground in winter. You can also choose a season in **Place & atmosphere → Atmosphere**. South of the equator (by your computer's time zone) automatic seasons are reversed.
 - When rain clears up in daylight, a rainbow stands over the hills for a few minutes. On clear days a flock of birds crosses the sky now and then, butterflies flutter until autumn, and fireflies glow on spring and summer nights.
 - Pick a value yourself and that time of day and weather are fixed. Your choice is remembered, so it is the same the next time you open the app.
 
@@ -43,20 +47,20 @@ When the weather changes, one or two friends say a word about it, like "Rain!" o
 
 ## Let them chat <Since v="0.1.0" />
 
-Press **Let them chat** in **Menu** and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button looks off, and pressing or hovering it says why. To join in yourself, use [the Friend tab's group chat](./chat.md).
+Press **Let them chat** in **Play → Group games** and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button looks off, and pressing or hovering it says why. To join in yourself, use [the Friend tab's group chat](./chat.md).
 
-To let them talk on their own now and then, turn on **Let them chat now and then** in the Settings tab. They chat once every 20 minutes, and rest while the window is hidden or someone is answering.
+To let them talk on their own now and then, turn on **Let them chat now and then** in **Friends & settings → Settings → General**. They chat once every 20 minutes, and rest while the window is hidden or someone is answering.
 
 ## The garden <Since v="0.1.0" />
 
-Friends out for a stroll find a seed now and then (every 8 to 20 minutes while the yard is open; the first one comes within a couple of minutes). The friend jumps, says so, and leaves a glowing seed at its feet: click it to pick it up. Left alone, the friend pockets it after a minute and a half, so nothing is missed by not watching.
+Flower seeds and saplings both come from digging. Choose **Dig**, send a friend to open ground, and plant what they find. Neither appears just because friends are strolling.
 
-1. Click **Plant a seed** in **Menu** (the number beside it is how many seeds you have).
+1. Click **Plant a seed** in **Play → Plant & collect** (the number beside it is how many seeds you have).
 2. Click a spot on the field. You can plant several in a row; **Esc** or the tool again stops.
 
 In Cozy living room, flowers sit in small planters instead of patches of bare soil. Their growth and your collection remain shared when you change places.
 
-A seed grows by the clock, also while the app is closed: a sprout after 10 minutes, leaves after 40, a bud after 2 hours, a flower after 4. What flowers depends on the season it was planted in, and each season has two: tulips or daffodils in spring, sunflowers or hydrangeas in summer, cosmos or chrysanthemums in autumn, camellias or snowdrops in winter. Hover over a plant to see what it is and how long until it flowers.
+A seed grows by the clock, also while the app is closed: a sprout after 10 minutes, leaves after 40, a bud after 2 hours, a flower after 4. What flowers depends on the season it was planted in, with four kinds per season: tulips, daffodils, crocuses and grape hyacinths in spring; sunflowers, hydrangeas, lavender and bellflowers in summer; cosmos, chrysanthemums, dahlias and asters in autumn; camellias, snowdrops, hellebores and cyclamen in winter. Hover over a plant to see what it is and how long until it flowers.
 
 - Click a plant and the nearest friend walks over to water it.
 - Friends also go and look at the flowers on their own.
@@ -66,21 +70,27 @@ A seed grows by the clock, also while the app is closed: a sprout after 10 minut
 
 ### Gifts
 
-Once a day a friend brings a gift for the yard, after the yard has been open for a while that day (20 to 40 minutes; the very first gift comes after 5). It jumps, says so, and sets it down beside it. The first gifts come in this order: a bench, a lantern, a birdhouse, a little pond, a mailbox, a picnic blanket, a pinwheel, a campfire, a swing, a flowerpot, a stump stool, a tent, a signpost and a wind chime; after that a friend brings one that is not in the yard. The campfire glows from evening on like the lantern, friends sit on the swing and the stump, and the wind chime rings when a friend visits it.
+The whole yard receives at most one gift per local calendar day, shared by all friends, not one gift per friend. The waiting time is 20 to 40 minutes, or five minutes for the first gift. Once scheduled, the delivery time is saved and time with the app closed counts too. You do not need an uninterrupted session; if the gift is due while the app is closed, a friend can deliver it after you return. It jumps, says so, and sets it down beside it. The first gifts come in this order: a bench, a lantern, a birdhouse, a little pond, a mailbox, a picnic blanket, a pinwheel, a campfire, a swing, a flowerpot, a stump stool, a tent, a signpost and a wind chime; after that a friend brings one that is not in the yard. The campfire glows from evening on like the lantern, friends sit on the swing and the stump, and the wind chime rings when a friend visits it.
 
 - Drag a decoration to move it anywhere on the field (or select it and use the arrow keys).
 - Click it and the nearest friend walks over. Friends also visit decorations on their own: they sit on the bench, gather on the blanket and look into the pond.
 - The lantern is lit from evening on, the pond mirrors the sky, and a bird sits on the birdhouse by day.
 - Right-click a decoration (or press **Delete** on it) to put it away. A friend may bring it again another day.
-- The yard holds 12 decorations; while it is full, no gift comes. Put one away to make room for the rest.
+- The yard holds 12 decorations; a full yard pauses deliveries. Putting one away keeps its album entry and makes room for the remaining gifts. The album has 18 gifts, including four delivered only during their calendar events.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
-- **Fishing**: click visible water or choose **Fish** in **Play**. Clicking water sends the nearest free friend; the Play action sends the selected friend. They walk to that background’s fishing stance and cast. If a friend covers the water in a small window, use Play to start fishing. Wait for the float to dip under (a **!** appears), then click it. Too early and nothing bites; too late and the fish gets away.
-- **Bugs**: click a butterfly or a dragonfly by day, or a firefly on a spring or summer night, and the nearest friend leaps and catches it.
+- **Fishing**: click visible water for manual fishing with the nearest free friend. When the float dips and **!** appears, click it; too early or too late loses the catch. **Play → Fish** asks the selected friend to finish the trip independently. Both use that background’s fishing spot.
+
+Your rod can also bring up freshwater prawns, crayfish and pond snails. The album records them together with fish under **Aquatic life**.
+
+- **Bugs**: in clear outdoor weather, click butterflies or dragonflies in the morning and midday, or fireflies on spring and summer evenings and nights. Rain and snow stop appearances. The nearest friend catches the bug.
+- From bond level 3, an idle friend may fish independently every 12–25 minutes while the yard is visible. Games, another fishing trip or an active placement tool pause this opportunity; a catch is not guaranteed.
 - What bites and what flies depends on the season, the time of day and the weather: catfish and eels come out after dark (and more in the rain), pond smelt only in winter, and a golden carp is very rare. Each fish is a different size every time.
 - A card shows what was caught, and says so when it is new.
-- **Album** in **Play** has six books, Flowers, Fish, Bugs, Gifts, Trees and Keepsakes, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
+- **Album** in **Play → Plant & collect** has six books, Flowers, Aquatic life, Bugs, Gifts, Trees and Keepsakes, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
+
+The album shows when and where to look, along with rare-find waiting times. It does not display exact percentages.
 
 ## Seasonal events <Since v="0.1.0" />
 
@@ -106,7 +116,7 @@ Each friend grows closer to you through time in the yard and what you do togethe
 | Just met | |
 | At ease | It welcomes you when the app opens and when you come back after a while |
 | Warm | It goes fishing on its own now and then |
-| Very close | It finds seeds more often |
+| Very close | |
 | Dearest | A flower on its name tag, and now and then it says something just for you |
 
 - Time together counts every ten minutes the yard is seen. Patting, treats, chatting, watering, catching and gifts count too, up to a day's worth, so a few minutes of clicking cannot rush it: closeness comes over days.
@@ -114,15 +124,17 @@ Each friend grows closer to you through time in the yard and what you do togethe
 
 ## A little digging and tree planting
 
-Click a friend's name or right-click the friend, then choose **Explore** in a small window. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
+Open **Play** from the dock or a friend's name or right-click action. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
 
-A finished dig has a 40% chance of finding nothing, 25% of finding a seed, 30% of a common keepsake and 5% of an uncommon keepsake. There are eight keepsakes. They are recorded in **Album → Keepsakes**. Repeating the same patch within 24 hours gives no further reward; each friend waits eight seconds between digs. A full seed pocket gives no extra seed. There is no daily collection task or guarantee of completing the album in a particular number of tries.
+Daisy, Clover, Pip and Miso have dedicated motions for digging, planting, casting, waiting for a bite, reeling in and reacting to a find in every season. Daisy, Pip and Miso share their everyday outfits in spring and autumn and change into summer and winter outfits. Clover keeps the teal overalls and straw hat through autumn, then changes into a coat, scarf and knitted beanie for winter. Imported pets join the same activities with their original animations.
 
-Choose **Plant a tree**, pick cherry, maple or pine, and choose clear ground. Saplings become young trees after two hours and mature after twelve, including time with the app closed. A mature tree is recorded in **Album → Trees** once. Each place holds three trees, up to twelve overall. Trees stay in the place where they were planted. Drag to move one, or right-click to remove it after confirmation; its album entry stays. Indoor places do not offer digging or tree planting. Imported backgrounds can explicitly allow or disable soil.
+A completed dig can uncover a flower seed, a sapling or one of seventeen keepsakes, or nothing. Keepsakes appear in **Album → Keepsakes**. After an uncommon find, all friends and places wait 24 hours for another uncommon find. Repeats mean completion can take longer. The same patch gives no further reward for 24 hours; each friend waits eight seconds between digs. Seeds are capped at 20 and saplings at 20 per species. Full storage does not convert a reward.
+
+Find a sapling by digging first. Choose **Plant a tree** to see the stock for cherry, maple, pine, oak, birch and willow; pick a species you have and choose clear ground. Planting uses one matching sapling. Trees become young after two hours and mature after twelve, including time with the app closed. A mature tree is recorded in **Album → Trees** once. Each place holds six trees, up to twenty-four overall. Trees stay in the place where they were planted. Drag to move one, or right-click to remove it after confirmation. Removal keeps its album entry but returns no sapling. Indoor places do not offer digging or tree planting. Imported backgrounds can explicitly allow or disable soil.
 
 ## Games <Since v="0.1.0" />
 
-Open **Menu → Games** for the three games. You can play only one game at a time. While a game is on, the same button reads **Stop** and the game's name (such as **Stop Hide and seek**); click it and the game ends right away. **Give a treat** stays off for the whole game. When a game ends, the friends walk back to where they were.
+Open **Play → Group games** for the three games. You can play only one game at a time. While a game is on, the same button reads **Stop** and the game's name (such as **Stop Hide and seek**); click it and the game ends right away. **Give a treat** stays off for the whole game. When a game ends, the friends walk back to where they were.
 
 ### Hide and seek
 
@@ -151,23 +163,27 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 
 Resize the yard by dragging any edge or corner, down to 300 × 210. The same window keeps friends, chat, Invite, Settings, scene controls and games available at every size. Drag the narrow transparent area along the top edge to move it. Its position and size are remembered.
 
-At 640 pixels wide or less, or 480 pixels tall or less, the bottom dock is hidden. Right-click empty scenery for quick actions, or press **Cmd/Ctrl + Shift + P** for Menu. The short right-click menu offers Place & atmosphere, Play, Friends, Always on top and Menu. Longer panels scroll inside the small window. **←** returns to Menu, and **×** returns to the yard. Settings keeps its section chooser, and Invite folds Search & import until needed.
+At 640 pixels wide or less, or 480 pixels tall or less, the dock hides. Right-click empty scenery for four actions: **Place & atmosphere**, **Play**, **Friends & settings**, and **Always on top**. **Cmd/Ctrl + Shift + P** opens Friends & settings. Longer panels scroll inside the window. Closing Place & atmosphere or Play returns directly to the scenery. Friends and Invite have a Back action to Friends & settings; **×** returns to the yard. Settings tasks opened from the menu return to the Settings tab with Back. Invite keeps Import visible in its header.
 
-Small windows stay focused on the scenery and friends. Click a friend’s name or right-click them to open a short play strip. Choose an action and the strip closes immediately; game choices replace the same row and have a Back button. Reopen it to stop the current game. Escape or clicking outside dismisses it. Chat, invitations and Settings remain explicit destinations in Menu.
+Click a friend’s name or right-click them to open this same Play board for that friend. Subviews contain the working actions and return to the four-action list with Back. Close, Escape or clicking outside returns to the scenery. There is no separate small-window play strip.
 
 Right-click empty scenery for the short action menu beside the pointer. It stays inside the window and scrolls when necessary. **Esc** or a click outside closes it. Friends, plants and decorations retain their own right-click actions.
 
-Choose **Menu → Window & desktop → Enter fullscreen** to fill the screen. While fullscreen, the same action becomes **Return to previous size**; **Esc** also returns. Esc closes an open panel or menu first. Returning restores the previous window size, position and Always on top setting.
+Choose **Friends & settings → Window → Enter fullscreen** to fill the screen. While fullscreen, the same action becomes **Return to previous size**; **Esc** also returns. Esc closes an open panel or menu first. Returning restores the previous window size, position and Always on top setting.
 
 <Shot name="mini" caption="A small yard window beside your work." />
 
-Choose **Menu → Window & desktop → Always on top**, or use the checked action in the short right-click menu. The setting works independently of window size and is remembered. The tray and macOS View menu also offer it; **Cmd/Ctrl + Shift + M** toggles it without resizing.
+Choose **Friends & settings → Window → Always on top**, or use the checked action in the short right-click menu. The setting works independently of window size and is remembered. The tray and macOS View menu also offer it; **Cmd/Ctrl + Shift + M** toggles it without resizing.
 
 On Linux, pinning depends on the desktop and window manager. Some Wayland desktops refuse the request; check your desktop’s window rules if the setting cannot be applied.
 
 <Shot name="mini-chat" caption="A conversation stays inside the small yard window, beside your work." />
 
-Choose **Menu → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** in the same footer asks for confirmation and closes PlayPets; conversations are not saved. From the short right-click menu, choose Menu to reach these actions.
+Choose **Friends & settings → Window → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** on that same tab asks for confirmation and closes PlayPets; conversations are not saved. From the short right-click menu, choose Friends & settings to reach these actions.
+
+In small windows, an available update appears as a 32-pixel download icon with a dot. Its accessible label identifies the version, and activating it opens App updates directly. Larger windows retain the version pill.
+
+Friend settings, Import and AI connection dialogs keep their headings and actions in place while the form body scrolls. The collection and confirmation dialogs retain their own content scrolling.
 
 ## Want to see more of your friends?
 
@@ -177,3 +193,16 @@ To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). You ca
 ## Discovery guide {#discovery-guide}
 
 <DiscoveryGuide lang="en" />
+
+## Collecting at your own pace
+
+The album has 100 entries across aquatic life, bugs, flowers, gifts, trees and little finds. Look for pond creatures, ladybugs and field crickets. Dig up a glass marble, wooden whale, felt mushroom, acorn teacup or sleeping fox figurine, and make room for a bunny watering can or hedgehog planter from a friend.
+
+The full 100-item album is not a one-day or one-week goal. The 16 ordinary gifts arrive on different local dates, while the four event gifts need festivals spread across the calendar. Depending on when you start, collecting all event gifts can take months. Changing the season does not start a festival. Flowers bloom four hours after planting and trees mature after twelve hours, including time with the app closed. There is no guaranteed completion date.
+
+- **Fish:** rain makes catfish and eels easier to find. Choose a season and time when they appear, and use the guide to explore what you might catch.
+- **Bugs:** look in clear outdoor weather. Butterflies and dragonflies appear in the morning and daytime; spring and summer evenings and nights bring fireflies. Festivals follow the calendar, so changing the season alone does not start one.
+- **Digging:** season, weather and outdoor place change which sapling or keepsake is more likely. Matching conditions favor some finds, while others remain reachable. Choose season and weather independently in Atmosphere, including unusual combinations. Custom outdoor places still reflect season and weather. The same patch keeps its result for 24 hours, and an unlucky streak does not make the next find more likely.
+- **Space:** clearing a received gift keeps its album record and makes room for later gifts. A full seed or sapling pocket does not reroll the chosen reward.
+
+The guide shows what you might discover under the chosen conditions. Water and obstacles leave fewer usable digging patches than the background's full grid.

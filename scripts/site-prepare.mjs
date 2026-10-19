@@ -3,14 +3,14 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { copyCreatorKit } from './creator-kit.mjs';
 import { copyCreatorSkill } from './creator-skill.mjs';
-import { LANDING_PETS } from './site-content.mjs';
-import { destinationFor, rewriteDocLinks } from './site-lib.mjs';
+import { CAPTURE_VERSION, LANDING_PETS } from './site-content.mjs';
+import { destinationFor, docDisplayProse, rewriteDocLinks } from './site-lib.mjs';
 import { collectPreviewExports } from './site-preview-export.mjs';
 
 const pkg = JSON.parse(await readFile('package.json', 'utf8'));
 const slug = pkg.repository.replace(/^github:/, '');
 const repo = `https://github.com/${slug}/blob/main`;
-// What the site's components need to know about this checkout: the version and the repository.
+// Package and capture versions stay separate so preparing a release never relabels older media.
 const { petPreviews, petSeasonalPreviews, copies: previewCopies } = await collectPreviewExports(LANDING_PETS);
 await rm('website/dev', { recursive: true, force: true });
 for (const entry of await readdir('docs', { recursive: true, withFileTypes: true })) {
@@ -22,7 +22,7 @@ for (const entry of await readdir('docs', { recursive: true, withFileTypes: true
     await cp(source, target);
     continue;
   }
-  await writeFile(target, rewriteDocLinks(await readFile(source, 'utf8'), { file: source, repo }));
+  await writeFile(target, docDisplayProse(rewriteDocLinks(await readFile(source, 'utf8'), { file: source, repo })));
 }
 await mkdir('website/public', { recursive: true });
 await cp('assets/icon.svg', 'website/public/icon.svg');
@@ -48,5 +48,5 @@ await copyCreatorKit();
 const creatorSkillRevision = await copyCreatorSkill();
 await writeFile(
   'website/.vitepress/generated.json',
-  `${JSON.stringify({ version: pkg.version, slug, petPreviews, petSeasonalPreviews, creatorSkillRevision }, null, 2)}\n`,
+  `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, creatorSkillRevision }, null, 2)}\n`,
 );

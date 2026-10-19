@@ -82,7 +82,7 @@ onBeforeUnmount(() => {
     <div ref="stage" class="living-world" :class="{ 'preview-paused': paused || !visible || !tabVisible, indoors: place === 3 }">
       <img class="living-scenery" :src="image" :alt="words.places[place]" width="1536" height="1024" fetchpriority="high" draggable="false" />
       <div class="living-friends">
-        <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :aria-label="`${pet.displayName} · ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="greeted === pet.id ? pose : 'idle'" :scale="0.65" /><span class="living-name">{{ pet.displayName }}</span></button>
+        <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :aria-label="`${pet.displayName}, ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="greeted === pet.id ? pose : 'idle'" :scale="0.65" /><span class="living-name">{{ pet.displayName }}</span></button>
       </div>
       <button class="world-motion" type="button" :aria-pressed="paused" @click="emit('pause')">{{ paused ? words.resume : words.pause }}</button>
     </div>

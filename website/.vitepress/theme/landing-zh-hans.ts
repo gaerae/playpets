@@ -52,7 +52,7 @@ export const worldCopy = {
   creatorBody: '带来喜欢的宠物，或创造新的伙伴。参考图与可直接使用的提示词，帮助你保持角色的样貌。',
   creatorLink: '创造自己的伙伴',
   discovery: '已经有 Codex 宠物？',
-  sceneCaption: (v: string) => `实际应用画面 · PlayPets ${v}`,
+  sceneCaption: (v: string) => `实际应用画面, PlayPets ${v}`,
 };
 export const sections = {
   discoveryGuide: '看看能发现什么',

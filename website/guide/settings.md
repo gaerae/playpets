@@ -4,13 +4,9 @@ description: General settings, About and app updates, menus and shortcuts, quitt
 
 # Settings
 
-Open **Menu → Settings**, use <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>,</kbd>, or choose **Settings…** in the tray. Settings opens over the yard; click outside it or press <kbd>Esc</kbd> to close it. Its four groups are **General** (language and launch at login), **The yard** (season, automatic chatter and sound), **Coding agent hooks**, and **About PlayPets** (the logo, version, updates and project links). [Coding agent hooks](./agents.md) have their own guide.
+Open **Friends & settings → Settings** and choose **General**, **Coding tools**, **Updates**, or **About the app**. General opens Language & startup, including automatic chatter. [Coding tools](./agents.md) have their own guide.
 
-The title and section menu stay visible while only the selected section scrolls. Select another group to change its contents; the app remembers the last group while you reopen Settings. You can quit from **Menu → Quit the app** or from **About PlayPets**.
-
-## Season
-
-Open **Settings → Yard → Season** to choose Auto, Spring, Summer, Autumn or Winter. Auto follows the local calendar. Your choice is saved and changes the scenery and seasonal companion outfits in the yard at every size. Desktop companions also follow it; synchronization can take up to a minute. Spring and autumn use the layered everyday outfits. Festivals still follow their real dates.
+Back from a menu task returns to the Settings tab. The settings shortcut and tray Settings open a task list instead; Back returns to that list. Close returns to the scenery. Season, sound and volume are in **Place & atmosphere → Atmosphere**.
 
 ## Language <Since v="0.1.0" />
 
@@ -26,39 +22,25 @@ Turn this on and PlayPets starts whenever you log in to your computer. It is off
 
 ## Let them chat now and then <Since v="0.1.0" />
 
-With this switch, in The yard, turned on, the friends with an AI have a short chat every 20 minutes. It is off by default. These calls use your subscription allowance or your provider's billing; local Ollama models have no hosted inference fee. Turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
+With this switch in Language & startup turned on, the friends with an AI have a short chat every 20 minutes. It is off by default. These calls use your subscription allowance or your provider's billing; local Ollama models have no hosted inference fee. Turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
 
-## Yard sounds <Since v="0.1.0" />
+## About the app <Since v="0.1.0" />
 
-The yard has its own sounds: a breeze, small waves on the lake, gusts through the leaves, birds by day (most in the morning), crickets on summer and autumn nights, and rain when it rains. Friends make small sounds too: a soft note when you pat one, a drop when a fish bites, a splash when it is landed, a little tune for a gift or a new closeness level. They change with the time of day, the weather and the season.
+**About the app** shows the version and links to the website, user guide, release notes, GitHub, issue reporting and license. Links open in your browser. Updates have their own task.
 
-- They are on by default, at a low volume, and start after your first click in the window.
-- They play only while the yard can be seen. When the window is hidden or minimized, or only the desktop friends are out, the yard is silent. They also play in a small visible window.
-- To turn them off or on, use the speaker in **Menu**, the tray’s **Yard Sounds** switch, this switch, **View** → **Yard Sounds** in the macOS menu bar, or <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>S</kbd>. The **Volume** slider under the switch sets how loud they are.
-
-## About PlayPets <Since v="0.1.0" />
-
-The last section of the Settings tab shows the version and holds **App updates**, then opens this site's pages and the project on GitHub: **Website**, **User guide**, **Release notes**, **GitHub**, **Report a problem** (a new issue) and **License** (MIT). They open in your browser.
-
-### App updates <Since v="0.1.0" />
+## App updates <Since v="0.1.0" />
 
 For a Microsoft Store installation, updates are managed by Store. Open **Microsoft Store → Library** to check. The GitHub installer update flow below applies to installations outside MSIX. Test MSIX packages also use package-managed updates. See the [privacy policy](../privacy.md) for storage and network details.
 
 The row shows the current version. Click **Check for updates** and the app reads `latest.json` from GitHub releases; if you are current, it says "You're up to date".
 
-When there is a new version, whether this check, the quiet one 20 seconds after the app starts, or one from the menus found it:
+The app quietly checks 20 seconds after startup and retries every six hours. You can also check manually. When an update is available, its entry opens **Friends & settings → Settings → Updates**.
 
-- The new-version button stays visible at the far left of the yard's bottom controls, before the place selector; a dot also appears on **Settings** inside **Menu**.
-- The button opens the update window: **What's new** opens that version's page on this site, and **Later** puts the update button away until the next start (the row and the dot stay). **Install and restart** shows download progress, then the signature check and installation before the app restarts. If the download size is unavailable, the bar moves without a percentage. A failure stays in the window so you can retry. Your friends and settings stay. After a successful restart, a brief notice confirms the installed version.
-- The row in About offers **What's new** and opens the same update window before installation.
-
-If it could not check, look at your network. See [Install](./install.md#updates) for details.
+**What's new** opens the release page in your browser. **Install and restart**, download progress, verification, installation and retry after a failure all stay in App updates; no separate update window opens. If the download size is unavailable, progress has no percentage. Friends and settings stay after the restart. A brief notice confirms the installed version.
 
 ## Quit the app <Since v="0.1.0" />
 
-Choose **Menu → Close window** to hide the window while keeping the app in the tray. Desktop friends and agent hooks keep running. **Close window** and **Quit the app** are also at the bottom of the menu opened by right-clicking empty scenery.
-
-To really quit, choose **Menu → Quit the app**, or click **Quit the app** in **Menu → Settings → About PlayPets**. A "Quit PlayPets?" confirmation appears. Conversations are not saved, and friends on the desktop go too. **Quit** in the tray menu does the same.
+Open **Friends & settings → Window → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** on the same tab asks for confirmation and exits; conversations are not saved. These actions are not direct items in the scenery right-click menu: choose Friends & settings first. The tray Quit action also exits.
 
 ## Menus and shortcuts <Since v="0.1.0" />
 
@@ -71,7 +53,7 @@ To really quit, choose **Menu → Quit the app**, or click **Quit the app** in *
 | <kbd>⌘</kbd> <kbd>1</kbd> | Open the Friend tab |
 | <kbd>⌘</kbd> <kbd>2</kbd> | Open the Invite tab |
 | <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings |
-| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | Open menu |
+| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | Open Friends & settings |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Always on top on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>D</kbd> | Show on the desktop, on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>S</kbd> | Yard sounds on or off |

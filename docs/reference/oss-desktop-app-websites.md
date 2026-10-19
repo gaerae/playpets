@@ -21,7 +21,7 @@ Could not read: the hoppscotch.io landing page (JavaScript only, so there is no 
 |---|---|---|
 | Zed | 4-word headline, buttons "Download now" and "Clone source" | No OS detection, "Available for macOS, Linux, and Windows" |
 | Obsidian | 3-word headline | **"Get Obsidian for Windows" + a "More platforms" link** |
-| Bruno | One "Download" button and "Explore docs" | One line under the button: "Free and open source · macOS, Windows & Linux · No account needed" |
+| Bruno | One "Download" button and "Explore docs" | One line under the button describes free and open-source availability, macOS, Windows and Linux support, and no account requirement |
 | Cap | "Record. Edit. Share." | "Download free for macOS" + an "Also available on" row of icons |
 | Maccy, Rectangle | Product name as the headline, one sentence | Direct file link, minimum macOS version shown |
 | AltTab | Two sentences | "Download Free for Mac", a block of numbers (downloads, stars) |

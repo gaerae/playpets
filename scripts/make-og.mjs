@@ -27,7 +27,7 @@ const page = ({ width, height, title, sub, url, scale }) => `<!doctype html><met
   .pets{position:absolute;right:${56 * scale}px;bottom:${54 * scale}px;display:flex;align-items:flex-end;gap:${6 * scale}px}
 </style><div class="card">
   <img class="environment" src="${environment}" alt="">
-  <div class="text"><p class="eyebrow">OPEN SOURCE · macOS · WINDOWS · LINUX</p><h1>${title}</h1><p>${sub}</p></div>
+  <div class="text"><p class="eyebrow">OPEN SOURCE / macOS / WINDOWS / LINUX</p><h1>${title}</h1><p>${sub}</p></div>
   <div class="pets">
     ${castMarkup(sheets, fittedCastHeight(560 * scale, 156 * scale, 6 * scale))}
   </div>

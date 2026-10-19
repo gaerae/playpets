@@ -81,7 +81,7 @@ onBeforeUnmount(() => {
       <div class="dl-row">
         <a class="dl-primary" :href="hasPrimary ? url(primaryFile) : releaseUrl">
           <span>{{ hasPrimary ? words.downloadFor(os) : words.releases }}</span>
-          <small>{{ hasPrimary ? words.files[primaryFile] : 'GitHub' }} · {{ resolvedVersion }}</small>
+          <small>{{ hasPrimary ? words.files[primaryFile] : 'GitHub' }}, {{ resolvedVersion }}</small>
         </a>
         <slot />
       </div>

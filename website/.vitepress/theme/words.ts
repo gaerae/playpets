@@ -20,7 +20,7 @@ const table = {
     preparing: '준비 중',
     checkingRelease: '다운로드 확인 중',
     retry: '다시 불러오기',
-    free: '무료 앱 · MIT 라이선스 · PlayPets 가입 없이',
+    free: '무료 앱, MIT 라이선스, PlayPets 가입 없이',
     files: {
       'macos-universal.dmg': 'macOS (Apple Silicon, Intel)',
       'windows-x64-setup.exe': 'Windows x64 설치 파일',
@@ -48,7 +48,7 @@ const table = {
     preparing: '準備中',
     checkingRelease: 'ダウンロードを確認中',
     retry: 'もう一度試す',
-    free: '無料アプリ · MITライセンス · PlayPetsへの登録不要',
+    free: '無料アプリ、MITライセンス、PlayPetsへの登録不要',
     files: {
       'macos-universal.dmg': 'macOS（Apple Silicon、Intel）',
       'windows-x64-setup.exe': 'Windows x64 インストーラー',
@@ -76,7 +76,7 @@ const table = {
     preparing: 'In preparation',
     checkingRelease: 'Checking downloads',
     retry: 'Try again',
-    free: 'Free app · MIT license · No PlayPets account',
+    free: 'Free app, MIT license, No PlayPets account',
     files: {
       'macos-universal.dmg': 'macOS (Apple Silicon, Intel)',
       'windows-x64-setup.exe': 'Windows x64 installer',
@@ -104,7 +104,7 @@ const table = {
     preparing: '准备中',
     checkingRelease: '正在检查下载',
     retry: '重试',
-    free: '免费应用 · MIT 许可 · 无需 PlayPets 账号',
+    free: '免费应用，MIT 许可，无需 PlayPets 账号',
     files: {
       'macos-universal.dmg': 'macOS（Apple Silicon、Intel）',
       'windows-x64-setup.exe': 'Windows x64 安装程序',

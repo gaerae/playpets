@@ -114,7 +114,7 @@ Follow these when you can. When you cannot, say why in the PR.
 
 ## Rationale
 Using the same format as Codex pets means existing community pets work as they are. The app rejects paths that point outside the folder and large files because it opens files other people made.
-Based on: design record “[Stronger agent integration · community import · personality and activity memory](../design/2026-09-29-agent-link-import-persona.md)”
+Based on: design record “[Stronger agent integration, community import, personality and activity memory](../design/2026-09-29-agent-link-import-persona.md)”
 
 ## Automated checks
 - Rust `pets::catalog::tests` — size per version, rejecting paths outside the folder, required fields, reading the size from the file header alone, and source information.

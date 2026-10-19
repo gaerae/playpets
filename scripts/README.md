@@ -27,7 +27,29 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 | Portable creation skill | `creator-skill.mjs` via `creator:skill`, source `assets/creator-skill/playpets-creator/`, `creator-workflow.py` launcher | Generated skill and plugin ZIPs and per-layout references under `website/public/creator-kit/skill/`; offline pet ZIP and background JSON from the supplied helper |
 | Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets, metadata and downloadable bundles |
 | Atlas preparation | `pack-*.mjs`, `normalize-cat-row.mjs`, atlas/art/normalization helpers | Explicit destination files from approved image sources |
+| Companion action packing | `companions:pack -- plan.json output.png`, source `pack-companion-actions.py` | Bounded action atlases from approved RGBA art, with 192 × 208 cells by default; requires Pillow, honors `PLAYPETS_PYTHON`, rejects clipped frames and preserves shared scale and foot anchors |
 | Discovery artwork | `node scripts/pack-discovery.mjs`, source records in `assets/discovery/` | Tracked tree, keepsake and shovel PNG atlases and clipped SVG viewports in `src/art/trees/` and `src/art/discovery/` |
+
+### Companion action plans
+
+Run `npm run companions:pack -- plan.json output.png` with Python and Pillow
+available. The plan names an RGBA source, one shared `scale`, and explicit
+frame rectangles, foot anchors and durations. Optional frame `tip` coordinates
+keep a fishing line attached to the painted rod. The PNG output is written
+atomically, and the printed JSON includes packed frame rectangles, canvas
+settings, durations and source and output SHA-256 hashes.
+
+Cells default to 192 × 208. A plan may choose a bounded `canvas` up to
+384 × 416 to retain a long tool without shrinking the character. Its `anchor`
+and `offset` together keep the canonical ground point at `[96, 199]`. Canvas
+geometry belongs to each accepted outfit and action. For example, Pip's baseline
+fishing atlas uses 320 × 256 cells, anchor `[128, 239]` and offset `[-32, -40]`
+to preserve its full backward cast and body size.
+The packer refuses visible artwork outside a cell instead of silently clipping
+it or scaling individual poses differently. Keep accepted source PNGs, plans
+and provenance together under `assets/sources/companion-actions-2026-10-19/`;
+the runtime atlases belong in `src/art/companions/`. A successful pack verifies
+geometry, not the visual quality of motion.
 
 The local Linux Docker build follows the same two-pass AppImage notice collection
 as CI, then verifies the finished image and exports its system-source manifest.
@@ -49,6 +71,13 @@ Tool checks belong in `tests/*.test.mjs`. Export pure transformations where usef
 keep process execution behind the command entry point. See
 [repository tooling](../docs/repository-layout.md) and
 [release instructions](../docs/how-to/release.md).
+
+Public captures have a version independent of the app package. `CAPTURE_VERSION` in
+`site-content.mjs` selects the default capture directory for the site; captions show that
+actual version. Update it only after real native captures for the new version exist in
+every site language and have been visually checked. Never copy an earlier version's
+images into a newer version's directory. Release pages can name an explicit capture
+version when they need a historical image.
 
 The default `npm run shots` capture includes seasonal scenes, all four places, small windows
 and the app panels in every language. Ordinary captures start in clear spring daylight;
