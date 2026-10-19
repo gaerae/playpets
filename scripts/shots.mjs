@@ -205,6 +205,15 @@ function scenario(lang) {
     if(${adultsOnly}){await companionScene();await L('DONE');return;}
     if(!${seasonsOnly || chatOnly || smallOnly}){await tab('invite');await wait(800);await shot('invite');}
     const p1=(await must('addPet',playPets.addPet(coat('Daisy').id))).data,p2=(await must('addPet2',playPets.addPet(coat('Clover').id))).data,p3=(await must('addPet3',playPets.addPet(coat('Pip').id))).data,p4=(await must('addPet4',playPets.addPet(coat('Miso').id))).data;
+    // Complete the first connection before any yard-only capture. Otherwise the onboarding task
+    // card sits over a small window even though the later chat captures already use this provider.
+    const save=(await must('saveProvider',playPets.saveProvider({type:'ollama',model:'tabby',endpoint:'${endpoint}'}))).data;
+    await must('attach1',playPets.updatePet(p1.id,{providerId:save.id}));
+    await must('attach2',playPets.updatePet(p2.id,{providerId:save.id}));
+    await must('attach3',playPets.updatePet(p3.id,{providerId:save.id}));
+    await must('attach4',playPets.updatePet(p4.id,{providerId:save.id}));
+    for(let i=0;i<20&&!$('empty-yard').hidden;i++)await wait(50);
+    if(!$('empty-yard').hidden)throw new Error('Onboarding tasks remained visible after the capture connection');
     if(!${chatOnly || smallOnly}){
       const previousSeason=$('scene-season').value;
       // Hold the composition while keeping the app's real idle animations and seasonal effects.
@@ -237,15 +246,10 @@ function scenario(lang) {
       $('scene-season').value=previousSeason;$('scene-season').dispatchEvent(new Event('change'));
       if(${seasonsOnly}){await L('DONE');return;}
     }
-    const save=(await must('saveProvider',playPets.saveProvider({type:'ollama',model:'tabby',endpoint:'${endpoint}'}))).data;
     await must('rename1',playPets.updatePet(p1.id,{name:${JSON.stringify(s.names[0])},size:cast[0].size,persona:${JSON.stringify(s.persona)},relation:'partner'}));
     await must('rename2',playPets.updatePet(p2.id,{name:${JSON.stringify(s.names[1])},size:cast[1].size}));
     await must('rename3',playPets.updatePet(p3.id,{name:${JSON.stringify(s.names[2])},size:cast[2].size}));
     await must('rename4',playPets.updatePet(p4.id,{name:${JSON.stringify(s.names[3])},size:cast[3].size}));
-    await must('attach1',playPets.updatePet(p1.id,{providerId:save.id}));
-    await must('attach2',playPets.updatePet(p2.id,{providerId:save.id}));
-    await must('attach3',playPets.updatePet(p3.id,{providerId:save.id}));
-    await must('attach4',playPets.updatePet(p4.id,{providerId:save.id}));
     await must('assign1',playPets.assignAgent('claude',p1.id));
     await must('assign2',playPets.assignAgent('codex',p2.id));
     // Claude Code reports in through the binary's own hook mode: the first friend is at work.

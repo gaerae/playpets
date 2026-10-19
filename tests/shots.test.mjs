@@ -172,6 +172,15 @@ test('ordinary captures start in sunny spring and include the fourth friend', ()
   assert.doesNotMatch(source, /\['studio','winter','night'/);
 });
 
+test('yard captures finish the first AI connection before photographing the mini window', () => {
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  const connected = source.indexOf("must('attach4'");
+  const mini = source.indexOf("shot('mini')");
+  assert.ok(connected >= 0, 'the controlled capture provider reaches every companion');
+  assert.ok(mini >= 0, 'the mini capture exists');
+  assert.ok(connected < mini, 'the onboarding card is complete before the mini capture');
+});
+
 test('chat captures reject a missing or panel-covered fourth friend', () => {
   const yard = { left: 0, top: 0, right: 1180, bottom: 780 };
   const panel = { left: 796, top: 0, right: 1180, bottom: 780 };
