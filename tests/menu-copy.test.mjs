@@ -19,6 +19,12 @@ test('Play labels keep their intrinsic width and wrap whole actions rather than 
   assert.match(css, /\.play-action\s*\{[^}]*flex:\s*1 0 max-content;[^}]*white-space:\s*nowrap/s);
 });
 
+test('compact management destinations reserve width for every localized label', async () => {
+  const css = await readFile('src/styles/compact.css', 'utf8');
+  assert.match(css, /body\.compact \.menu-destination\s*\{[^}]*padding:\s*4px;[^}]*font-size:\s*12px/s);
+  assert.match(css, /body\.compact \.menu-destination-copy strong\s*\{[^}]*font-size:\s*12px;[^}]*font-weight:\s*500/s);
+});
+
 test('atmosphere auto choices rely on their group headings instead of repeating long qualifiers', () => {
   for (const [lang, strings, auto] of [
     ['en', en, 'Auto'],

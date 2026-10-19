@@ -36,11 +36,17 @@ body.compact #management-settings[hidden] {
 }
 body.compact .menu-destination {
   min-width: 0;
-  padding: 6px;
+  padding: 4px;
+  font-size: 12px;
+  font-weight: 500;
 }
 body.compact .menu-destination > [data-i18n],
 body.compact .menu-destination-copy strong {
   white-space: nowrap;
+}
+body.compact .menu-destination-copy strong {
+  font-size: 12px;
+  font-weight: 500;
 }
 
 body.compact .controls-header {

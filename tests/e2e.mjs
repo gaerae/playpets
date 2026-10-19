@@ -651,10 +651,13 @@ const scenario = `(async()=>{
         for(const group of ['friends','settings']){
           $('management-tab-'+group).click();await wait(20);
           const actions=[...$('management-'+group).querySelectorAll('.menu-destination')];
-          menuCopyFits&&=actions.every(button=>{
+          const actionChecks=actions.map(button=>{
             const label=button.querySelector('.menu-destination-copy strong')||button.querySelector('[data-i18n]');
-            return noWrap(label)&&button.scrollWidth<=button.clientWidth+1&&visibleNode(button);
+            return {id:button.id,text:label.textContent,label:noWrap(label),button:button.scrollWidth<=button.clientWidth+1,visible:visibleNode(button),width:[button.scrollWidth,button.clientWidth]};
           });
+          const actionsOk=actionChecks.every(check=>check.label&&check.button&&check.visible);
+          if(!actionsOk)menuCopyTrace.push([lang,innerWidth,group,actionChecks]);
+          menuCopyFits&&=actionsOk;
         }
         menuCopyFits&&=playOk&&tabsOk;
         menuCopyTrace.push([lang,innerWidth,playOk,tabsOk,menuCopyFits]);
