@@ -366,9 +366,10 @@
   display: none;
 }
 .atmosphere-segments {
-  --climate-options: 4;
+  --climate-columns: 6;
+  --climate-manual-options: 4;
   display: grid;
-  grid-template-columns: max-content repeat(var(--climate-options), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--climate-columns), minmax(0, 1fr));
   gap: 4px;
   min-width: 0;
   margin: 0;
@@ -388,7 +389,7 @@
   cursor: default;
 }
 .atmosphere-auto {
-  grid-column: auto;
+  grid-column: span 2;
 }
 .atmosphere-segments input {
   position: absolute;
@@ -401,7 +402,7 @@
   place-items: center;
   width: 100%;
   min-height: 30px;
-  padding: 4px;
+  padding: 4px 2px;
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
   white-space: nowrap;
@@ -433,7 +434,7 @@ body.compact .scene-tabs button {
   min-height: 28px;
 }
 body.compact .atmosphere-segments {
-  grid-template-columns: repeat(var(--climate-options), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--climate-manual-options), minmax(0, 1fr));
 }
 body.compact .atmosphere-auto {
   grid-column: 1 / -1;

@@ -33,6 +33,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Synchronize digging effects and wait for both the complete action and its saved result before revealing a discovery.
 - Finish brief jump, wave and celebration gestures once instead of cutting them during a second loop.
 - Give scenery, play and friends/settings separate homes; remove repeated menu destinations and keep season and sound together in atmosphere controls.
+- Keep atmosphere choices on one line with the native fonts used by macOS, Windows and Linux.
 - Separate Friends, Settings and Window into short tabs, with direct settings tasks and a fixed tab row above the scrolling content.
 - Use compact desktop controls, smaller panels and clearer primary navigation, with importing beside the Invite title.
 - Stack yard events in one feedback lane and keep brief messages clear of panels and actions.

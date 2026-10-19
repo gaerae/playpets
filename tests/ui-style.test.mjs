@@ -53,6 +53,17 @@ test('select boxes are fully custom-styled so every engine renders them identica
   assert.match(body, /padding-right:/, 'select reserves space for the custom arrow');
 });
 
+test('atmosphere choices keep equal one-line columns across platform fonts', async () => {
+  const css = await styles();
+  assert.match(
+    css,
+    /\.atmosphere-segments\{[^}]*grid-template-columns:repeat\(var\(--climate-columns\),minmax\(0,1fr\)\)/,
+  );
+  assert.match(css, /\.atmosphere-auto\{[^}]*grid-column:span 2/);
+  assert.match(css, /\.atmosphere-segments span\{[^}]*padding:4px 2px/);
+  assert.match(css, /body\.compact \.atmosphere-auto\{[^}]*grid-column:1 \/ -1/);
+});
+
 test('the window never rubber-bands sideways (macOS trackpad overscroll)', async () => {
   const css = await styles();
   assert.match(css, /html,body\{[^}]*overscroll-behavior-x:\s*none/, 'horizontal overscroll is disabled on the page');
