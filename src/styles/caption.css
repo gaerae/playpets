@@ -404,6 +404,7 @@
   border-radius: var(--radius-control);
   white-space: nowrap;
   font-size: 12px;
+  font-weight: 500;
 }
 .atmosphere-segments input:checked + span {
   background: var(--control-selected);

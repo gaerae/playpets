@@ -59,7 +59,7 @@ test('atmosphere choices keep equal one-line columns across platform fonts', asy
     css,
     /\.atmosphere-segments\{[^}]*grid-template-columns:repeat\(var\(--climate-columns\),minmax\(0,1fr\)\)/,
   );
-  assert.match(css, /\.atmosphere-segments span\{[^}]*padding:4px 2px/);
+  assert.match(css, /\.atmosphere-segments span\{[^}]*padding:4px 2px;[^}]*font-weight:500/);
   assert.match(css, /body\.compact \.atmosphere-auto\{[^}]*grid-column:1 \/ -1/);
 });
 
