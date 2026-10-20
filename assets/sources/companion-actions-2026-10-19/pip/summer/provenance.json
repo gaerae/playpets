@@ -1,0 +1,47 @@
+{
+  "generator": "OpenAI built-in image generation",
+  "created": "2026-10-19",
+  "character": "playpets-pip",
+  "variant": "summer",
+  "original": "actions-source.png",
+  "originalSha256": "af43964436dd7cc2c8628672cfed68bd0da39b22b469c28397bbc6b414539961",
+  "normalization": "normalization.json",
+  "actions": [
+    {
+      "action": "dig",
+      "plan": "dig-plan.json",
+      "output": "../../../../../src/art/companions/pip/summer/dig.png",
+      "sourceSha256": "c1c773bc3f8d3be616ad55c9095142e1054a460cd65efa1e8a5cab8b3cb28c83",
+      "outputSha256": "e532341386b6b0e9df12a29d01c4121e5fd66eb23a866fcb2250aa3f2878301f",
+      "sourceScale": 0.72,
+      "frames": 6
+    },
+    {
+      "action": "plant",
+      "plan": "plant-plan.json",
+      "output": "../../../../../src/art/companions/pip/summer/plant.png",
+      "sourceSha256": "c1c773bc3f8d3be616ad55c9095142e1054a460cd65efa1e8a5cab8b3cb28c83",
+      "outputSha256": "2cfbac3fd3467a443c0ed9a6e1d3650c12f8f19650525106ca0bfd9a394b8886",
+      "sourceScale": 0.71,
+      "frames": 6
+    },
+    {
+      "action": "discover",
+      "plan": "discover-plan.json",
+      "output": "../../../../../src/art/companions/pip/summer/discover.png",
+      "sourceSha256": "c1c773bc3f8d3be616ad55c9095142e1054a460cd65efa1e8a5cab8b3cb28c83",
+      "outputSha256": "ba91973e82997d95a05ac91b8c4817467362b3b8bee6da3a24850f3bbc4c8e54",
+      "sourceScale": 0.71,
+      "frames": 6
+    },
+    {
+      "action": "fish",
+      "plan": "fish-plan.json",
+      "output": "../../../../../src/art/companions/pip/summer/fish.png",
+      "sourceSha256": "c1c773bc3f8d3be616ad55c9095142e1054a460cd65efa1e8a5cab8b3cb28c83",
+      "outputSha256": "ab6b534c81d38da4368eab36e19b95984ddcbb12e4a4a3203faa68ee295da394",
+      "sourceScale": 0.73,
+      "frames": 6
+    }
+  ]
+}

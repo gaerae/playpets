@@ -28,7 +28,7 @@ test('one busy friend is named with its state; none says nothing', () => {
       p => p.n,
       s => s.toUpperCase(),
     ),
-    'Mochi · WORKING',
+    'Mochi, WORKING',
   );
   assert.equal(
     busyLine(

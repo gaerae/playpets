@@ -36,7 +36,6 @@ export const CUES = {
   treat: [0, 2],
   water: [4, 3],
   catch: [3, 5],
-  find: [4, 5, 7],
   gift: [0, 2, 3, 4],
   level: [0, 2, 3, 5, 7],
   first: [5, 7, 9],

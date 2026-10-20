@@ -24,7 +24,7 @@ const WINDOW_LIGHT = {
 export function environmentLook({ season, weather, period, world }) {
   const place = worldFor(world);
   if (place.imageSources) {
-    const chosenSeason = weather === 'snow' ? 'winter' : season;
+    const chosenSeason = season;
     const key = place.imageSources[chosenSeason] ? chosenSeason : 'base';
     return {
       art: `${place.id}:${key}`,
@@ -47,13 +47,7 @@ export function environmentLook({ season, weather, period, world }) {
     };
   }
   const art =
-    weather === 'snow' || season === 'winter'
-      ? 'winter'
-      : season === 'autumn'
-        ? 'autumn'
-        : season === 'spring'
-          ? 'spring'
-          : 'green';
+    season === 'winter' ? 'winter' : season === 'autumn' ? 'autumn' : season === 'spring' ? 'spring' : 'green';
   const light = OUTDOOR_LIGHT[period] || DAYLIGHT;
   return {
     art: place.seasonArt?.[art] || art,
@@ -68,7 +62,7 @@ export function environmentLook({ season, weather, period, world }) {
 /** Seasonal outdoor views are independently lit and clipped to a room's glass. */
 export function environmentWindowLook(scene) {
   const place = worldFor(scene.world);
-  const season = scene.weather === 'snow' ? 'winter' : scene.season;
+  const season = scene.season;
   const art = place.windowArt?.[season];
   if (!art) return null;
   const light = WINDOW_LIGHT[scene.period] || DAYLIGHT;

@@ -151,6 +151,18 @@ function dragonfly(look, unknown) {
   }`;
 }
 
+function beetle(look, unknown) {
+  const body = unknown ? SHADOW : hex(look.body || look.wing),
+    edge = unknown ? SHADOW : hex(look.edge || '#342a22');
+  return `<path d="M19 21L11 17M18 28L8 29M20 35L12 41M41 21L49 17M42 28L52 29M40 35L48 41" fill="none" stroke="${edge}" stroke-width="2" stroke-linecap="round"/><ellipse cx="30" cy="28" rx="13" ry="15" fill="${body}" stroke="${edge}" stroke-width="1.5"/><path d="M30 15V42" stroke="${edge}" stroke-width="1.5"/><circle cx="30" cy="12" r="6" fill="${edge}"/>${unknown ? '' : '<g fill="#342a22"><circle cx="24" cy="23" r="2.5"/><circle cx="37" cy="24" r="2.5"/><circle cx="23" cy="33" r="2.5"/><circle cx="36" cy="35" r="2.5"/></g>'}`;
+}
+
+function cricket(look, unknown) {
+  const body = unknown ? SHADOW : hex(look.body || '#7b9e57'),
+    edge = unknown ? SHADOW : hex(look.edge || '#3f5732');
+  return `<path d="M24 29L12 18L8 41M36 29L48 18L52 41M26 20L17 14M34 20L43 14M27 12L18 3M33 12L42 3" fill="none" stroke="${edge}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="30" cy="29" rx="6" ry="14" fill="${body}" stroke="${edge}" stroke-width="1.5"/><circle cx="30" cy="13" r="6" fill="${body}"/><path d="M30 21V40" stroke="${edge}" stroke-width="1"/>`;
+}
+
 function firefly(look, unknown) {
   const body = unknown ? SHADOW : hex(look.body);
   return `${
@@ -178,7 +190,7 @@ export function giftSvg(gift, unknown = false) {
 }
 
 // How each kind of bug is drawn; a bug of a kind not here is drawn as a butterfly.
-const BUG_DRAWERS = { butterfly, dragonfly, firefly };
+const BUG_DRAWERS = { butterfly, dragonfly, firefly, beetle, cricket };
 /** A bug, seen from above. */
 export function bugSvg(bug, unknown = false) {
   if (bug.art) return artSvg(bug.art, unknown ? 'class="unknown-art"' : '');

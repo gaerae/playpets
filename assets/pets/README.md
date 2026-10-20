@@ -17,6 +17,29 @@ Archived adult generation prompts are recorded in [ART-PROMPTS.md](ART-PROMPTS.m
 The historical flat sample generator has been retired. The accepted sheets and
 source records below remain the inputs to the current artwork tools.
 
+## Optional game actions
+
+The portable baseline sheets remain complete for every starter pet. Extra game
+actions are app-owned artwork, selected separately in
+`src/content/companion-actions.json`; they do not add requirements to imported
+pet files or replace the baseline sheets.
+
+Daisy, Clover, Pip and Miso have dedicated digging, planting, casting, waiting,
+reeling and find-reaction clips in all four seasons. Daisy, Pip and Miso use
+three matching outfit sets: the baseline in spring and autumn, a lighter summer
+outfit and a winter outfit. Clover shares the approved teal short overalls and
+straw hat in spring, summer and autumn, then uses a dark teal coat, ivory scarf
+and knitted beanie in winter. Imported pets keep their original canonical
+sheets, format and activity fallback.
+
+Accepted action sources, normalization maps, packing plans and provenance are
+in `../sources/companion-actions-2026-10-19/`, grouped by character and outfit.
+Runtime atlases are under `src/art/companions/` at the repository root. A single
+fishing atlas supplies separate cast, wait and reel clips. Keep the character's
+body scale, foot contact, complete held tools and outfit consistent across each
+clip. Bounded paint canvases can extend beyond the logical body while preserving
+the canonical ground point; they do not change the portable pet format.
+
 ## Current illustration direction
 
 The four companions retain their recognizable identities, markings and actions.

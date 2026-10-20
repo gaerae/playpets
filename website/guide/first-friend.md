@@ -19,19 +19,19 @@ Daisy, Clover, Pip and Miso change into light summer clothes and warm winter clo
 
 These short stories introduce the cast. You can change each friend’s personality in Friend settings; conversations use that setting only when an AI is connected. The shared white flower with a golden centre is their little sign of belonging.
 
-### Daisy · A little further down the path
+### Daisy, A little further down the path
 
 Daisy follows the paths that other people hurry past. A new flower or a cloud shaped like a whale is enough to make a day worth remembering. She likes sharing discoveries, without turning every outing into a race.
 
-### Clover · Something grew today
+### Clover, Something grew today
 
 Clover is the garden’s quiet caretaker and PlayPets’ main mascot. He notices a new leaf before anyone else and saves a sunny patch for a friend. His favourite kind of progress is something small, given time to grow.
 
-### Pip · There is room for one more
+### Pip, There is room for one more
 
 Pip is usually the first to wave at someone new. In indigo denim and ivory shorts, he brings energy to a walk or a game, then makes sure nobody is left behind. To Pip, a good afternoon is one everyone can join.
 
-### Miso · A page beside the pond
+### Miso, A page beside the pond
 
 Miso keeps a book nearby and leaves plenty of room for pauses. In a lavender knit vest, this gentle otter likes watching ripples while a thought settles. Company does not always need a conversation; sometimes sitting together is enough.
 
@@ -55,7 +55,7 @@ The Invite tab splits the cards into four groups, depending on where the pet fil
 
 The first three groups have an **Open folder** button that opens the folder in Explorer or Finder. Pets picked from this computer show their folder name on each card. If there are no cards at all, start with [Import a pet](./import.md).
 
-The **Type** chips above the shelf (All · People · Animals · Other) narrow it to human-shaped pets, handy when picking a partner or a mentor. They follow the pet file's `kind`.
+The **Type** chips above the shelf (All, People, Animals, Other) narrow it to human-shaped pets, handy when picking a partner or a mentor. They follow the pet file's `kind`.
 
 The type filters work together with **Search pets**: enter a name or creator to narrow the same shelf. **Show all** clears both the search and the type filter.
 

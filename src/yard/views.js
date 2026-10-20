@@ -2,7 +2,7 @@
 
 import { agentsOf } from '../core/agents.js';
 import { lookAt, renewsClock } from '../core/animation.js';
-import { list, t } from '../core/i18n.js';
+import { joinList, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { clamp, pick } from '../core/math.js';
 import { canvas, reduced } from '../core/sprites.js';
@@ -350,7 +350,7 @@ export function syncViews() {
     labelTag(v);
     v.agents.textContent = agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '';
     v.agents.hidden = !agents.length;
-    v.agents.title = agents.length > 1 ? agents.join(' · ') : '';
+    v.agents.title = agents.length > 1 ? joinList(agents) : '';
     v.tag.title = t('friend.talk', { name: name(p) });
     const state = agentState(p);
     // The dot's colour is said in words too, for anyone who cannot see it.

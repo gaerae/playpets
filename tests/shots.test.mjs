@@ -164,12 +164,21 @@ test('brand captures give the four companions equal visible height and one groun
 
 test('ordinary captures start in sunny spring and include the fourth friend', () => {
   const source = readFileSync('scripts/shots.mjs', 'utf8');
-  assert.match(source, /\$\('season'\)\.value='spring'/);
-  assert.doesNotMatch(source, /\$\('season'\)\.value='autumn'/);
+  assert.match(source, /\$\('scene-season'\)\.value='spring'/);
+  assert.doesNotMatch(source, /\$\('scene-season'\)\.value='autumn'/);
   assert.match(source, /coat\('Miso'\)/);
   assert.match(source, /full\('playpets-miso'\)/);
   assert.match(source, /\[p1.id,p2.id,p3.id,p4.id\]/);
   assert.doesNotMatch(source, /\['studio','winter','night'/);
+});
+
+test('yard captures finish the first AI connection before photographing the mini window', () => {
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  const connected = source.indexOf("must('attach4'");
+  const mini = source.indexOf("shot('mini')");
+  assert.ok(connected >= 0, 'the controlled capture provider reaches every companion');
+  assert.ok(mini >= 0, 'the mini capture exists');
+  assert.ok(connected < mini, 'the onboarding card is complete before the mini capture');
 });
 
 test('chat captures reject a missing or panel-covered fourth friend', () => {

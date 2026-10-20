@@ -1,0 +1,310 @@
+{
+  "date": "2026-10-19",
+  "tool": "OpenAI built-in image generation",
+  "character": "Daisy",
+  "wardrobes": {
+    "base": "Spring and autumn approved outfit",
+    "summer": "Approved summer outfit",
+    "winter": "Approved winter outfit"
+  },
+  "assembly": "Raw generated originals are retained. Canonical rows use existing atlasPoses/isolatePose component extraction with a two-pixel fringe and no scaling. pack-companion-actions.py applies one shared scale to all six frames of each action. No artwork is drawn or recoloured by scripts.",
+  "acceptedActionsByRawSource": {
+    "base-source.png": ["dig", "plant", "fish", "discover"],
+    "summer-source.png": ["plant", "discover"],
+    "winter-source.png": ["dig", "plant", "fish", "discover"],
+    "summer-dig-source.png": ["dig"],
+    "summer-fish-source.png": ["fish"]
+  },
+  "files": [
+    {
+      "path": "base-dig-plan.json",
+      "sha256": "bc9fa68837840fb399a2b0d060ac66c15611474018478d4a7155871e40c9a23b"
+    },
+    {
+      "path": "base-discover-plan.json",
+      "sha256": "7c274c6f847fbdfe1eb3927e21660c9303964d0c263e62ac35c6ab916c68037e"
+    },
+    {
+      "path": "base-fish-plan.json",
+      "sha256": "303a574944a41acb9d5c14fc331d118bcfe62df30f83ebdbb4607683dc322211"
+    },
+    {
+      "path": "base-plant-plan.json",
+      "sha256": "a16deb1827db999632e77c5d792460e9f1f255e0349a73d23d0284123d36881c"
+    },
+    {
+      "path": "base-source.png",
+      "sha256": "e19c8a51fe1f2fa6a0d82e1883fdc65f8652f7a7df1ad6cad565890e3a6f96dd"
+    },
+    {
+      "path": "isolate-source.mjs",
+      "sha256": "0f6b09935d0169682c2e4cad3072de377fc4dfae049686c098e771ba30c454bb"
+    },
+    {
+      "path": "summer-dig-plan.json",
+      "sha256": "f55e132c5b822f0692036327cdc17144d1a529be13a027c99954609e53804e58"
+    },
+    {
+      "path": "summer-dig-source.png",
+      "sha256": "36d0be3fa532e6e1bc79a22fe2eab6d962dff93a1595a671fec275d228473938"
+    },
+    {
+      "path": "summer-discover-canonical.png",
+      "sha256": "5d3bcb056b32d94a641985ba0c3e1a0e8f8f670321f1e20aed9276e9099df315"
+    },
+    {
+      "path": "summer-discover-plan.json",
+      "sha256": "fbfd160d0616fd7f1d7cefb3d73a4b0045576474948f46c0417d1b13b9fcfc16"
+    },
+    {
+      "path": "summer-fish-plan.json",
+      "sha256": "d03d11f8d747466019844ae74812067004a5ce455962965280470dbe0495ef91"
+    },
+    {
+      "path": "summer-fish-source.png",
+      "sha256": "b033933fd97425828220e4a6ecdb6d1b8d287123da9325d6196892f1ece2020e"
+    },
+    {
+      "path": "summer-isolation.json",
+      "sha256": "dcbd47608afec8344a1f1dde5ef5031f17c2a336571a165a65af341db8588c6f"
+    },
+    {
+      "path": "summer-plant-canonical.png",
+      "sha256": "42ce117150729c2c3a446a4af9c8740504b08bd55e209a2677db707092406dca"
+    },
+    {
+      "path": "summer-plant-plan.json",
+      "sha256": "1610718266429c853f3bf9501c6490c5b12cf18b8c0d53acc8c942c3f23002f5"
+    },
+    {
+      "path": "summer-source.png",
+      "sha256": "d95964bd0b4e6088512aa7ec2570f4345552c470bfb5906f29a36dfac1947e07"
+    },
+    {
+      "path": "timing.json",
+      "sha256": "ba031afae4a198f22794d643032f222aed083dcc890ef73b5a7b43f927103b16"
+    },
+    {
+      "path": "winter-dig-canonical.png",
+      "sha256": "241df73aa30a9b082bccb89562cdae7f2dd3501cf336dbb053e25c67322c1410"
+    },
+    {
+      "path": "winter-dig-plan.json",
+      "sha256": "e23b6ea6b3f6a28731e10b64e22cbc13ecce39e22073addf0282bbaf79585c89"
+    },
+    {
+      "path": "winter-discover-canonical.png",
+      "sha256": "757330f12b3ab7244a20cc50a992d9336c24f482a4f3d63b2ff658560c5ca250"
+    },
+    {
+      "path": "winter-discover-plan.json",
+      "sha256": "bf945fbec9f1011aee9d1706a90f3d7ef395333ef0bcc95e85fabfcd17c66bb6"
+    },
+    {
+      "path": "winter-fish-canonical.png",
+      "sha256": "5e5331bfa64862efffa01471cac70f5be81fda84e7167b8979e87f794d2fa27d"
+    },
+    {
+      "path": "winter-fish-plan.json",
+      "sha256": "09f2666d00ade013143f28bf73d78881082a38158217d31d43cb0dea6d88da56"
+    },
+    {
+      "path": "winter-isolation.json",
+      "sha256": "a4c1b3df44a5882897c6a1d01851bd8b8e78d716deaf6973a4da2d599549ad08"
+    },
+    {
+      "path": "winter-plant-canonical.png",
+      "sha256": "e1d18da1111d914fa34f1e0f98fba2be47e06418dee4a922e458efcd7ed9cc63"
+    },
+    {
+      "path": "winter-plant-plan.json",
+      "sha256": "4a29fd03b0e027a37a76c25f8673fcc47a7f27f632fa857637801895c7415aaf"
+    },
+    {
+      "path": "winter-source.png",
+      "sha256": "11eba6b484a1776cda80939fecb0bdd8ec37c1bd4daaf75d2d3494f0d5fee6cd"
+    }
+  ],
+  "exports": [
+    {
+      "outfit": "base",
+      "action": "dig",
+      "plan": "base-dig-plan.json",
+      "source": "base-source.png",
+      "sourceSha256": "e19c8a51fe1f2fa6a0d82e1883fdc65f8652f7a7df1ad6cad565890e3a6f96dd",
+      "path": "src/art/companions/daisy/dig.png",
+      "sha256": "aa74400dcd8b01d63529d885184ffd81940bbefa9c32bf2eb6e0ca72b7ab0e59",
+      "sourceScale": 0.67,
+      "canvas": [192, 208],
+      "anchor": [91, 199],
+      "offset": [0, 0],
+      "frames": 6,
+      "duration": 2000
+    },
+    {
+      "outfit": "base",
+      "action": "plant",
+      "plan": "base-plant-plan.json",
+      "source": "base-source.png",
+      "sourceSha256": "e19c8a51fe1f2fa6a0d82e1883fdc65f8652f7a7df1ad6cad565890e3a6f96dd",
+      "path": "src/art/companions/daisy/plant.png",
+      "sha256": "b138ddfaecdd4f9a2dd8af433fe52db85f6a144cd6e8abd72ce58d59e0ce7139",
+      "sourceScale": 0.67,
+      "canvas": [192, 208],
+      "anchor": [96, 199],
+      "offset": [0, 0],
+      "frames": 6,
+      "duration": 2000
+    },
+    {
+      "outfit": "base",
+      "action": "fish",
+      "plan": "base-fish-plan.json",
+      "source": "base-source.png",
+      "sourceSha256": "e19c8a51fe1f2fa6a0d82e1883fdc65f8652f7a7df1ad6cad565890e3a6f96dd",
+      "path": "src/art/companions/daisy/fish.png",
+      "sha256": "89686824b55f5f223a7feeec79295dcb5f9087241b8f647b3c8da8a42f5b3b16",
+      "sourceScale": 0.72,
+      "canvas": [240, 216],
+      "anchor": [96, 207],
+      "offset": [0, -8],
+      "frames": 6,
+      "duration": 4840
+    },
+    {
+      "outfit": "base",
+      "action": "discover",
+      "plan": "base-discover-plan.json",
+      "source": "base-source.png",
+      "sourceSha256": "e19c8a51fe1f2fa6a0d82e1883fdc65f8652f7a7df1ad6cad565890e3a6f96dd",
+      "path": "src/art/companions/daisy/discover.png",
+      "sha256": "7c4c8107fe90d5bae14b4cf630c24820a1fb69611b5a90a1afddad92bfc7abd3",
+      "sourceScale": 0.67,
+      "canvas": [192, 208],
+      "anchor": [96, 199],
+      "offset": [0, 0],
+      "frames": 6,
+      "duration": 1600
+    },
+    {
+      "outfit": "summer",
+      "action": "dig",
+      "plan": "summer-dig-plan.json",
+      "source": "summer-dig-source.png",
+      "sourceSha256": "36d0be3fa532e6e1bc79a22fe2eab6d962dff93a1595a671fec275d228473938",
+      "path": "src/art/companions/daisy/summer/dig.png",
+      "sha256": "cffec246488697d96046e902e1ef2a7e444975f9464628c9b59b4120caedbd0a",
+      "sourceScale": 0.43,
+      "canvas": [192, 208],
+      "anchor": [96, 199],
+      "offset": [0, 0],
+      "frames": 6,
+      "duration": 2000
+    },
+    {
+      "outfit": "summer",
+      "action": "plant",
+      "plan": "summer-plant-plan.json",
+      "source": "summer-plant-canonical.png",
+      "sourceSha256": "42ce117150729c2c3a446a4af9c8740504b08bd55e209a2677db707092406dca",
+      "path": "src/art/companions/daisy/summer/plant.png",
+      "sha256": "469722a6128667be881f19939f99f460d38e375988d3631563e7cc84bb560c1a",
+      "sourceScale": 0.68,
+      "canvas": [192, 208],
+      "anchor": [96, 199],
+      "offset": [0, 0],
+      "frames": 6,
+      "duration": 2000
+    },
+    {
+      "outfit": "summer",
+      "action": "fish",
+      "plan": "summer-fish-plan.json",
+      "source": "summer-fish-source.png",
+      "sourceSha256": "b033933fd97425828220e4a6ecdb6d1b8d287123da9325d6196892f1ece2020e",
+      "path": "src/art/companions/daisy/summer/fish.png",
+      "sha256": "725a6a32b87a79a4f046da339f614b29edcc513bc8fbcd4e7e79e2af24e6b35c",
+      "sourceScale": 0.44,
+      "canvas": [256, 216],
+      "anchor": [96, 207],
+      "offset": [0, -8],
+      "frames": 6,
+      "duration": 4840
+    },
+    {
+      "outfit": "summer",
+      "action": "discover",
+      "plan": "summer-discover-plan.json",
+      "source": "summer-discover-canonical.png",
+      "sourceSha256": "5d3bcb056b32d94a641985ba0c3e1a0e8f8f670321f1e20aed9276e9099df315",
+      "path": "src/art/companions/daisy/summer/discover.png",
+      "sha256": "867ae8dd7cee2afba88c803885bda64ceb12e9a333af7557d351a3d7ec52b344",
+      "sourceScale": 0.7,
+      "canvas": [192, 208],
+      "anchor": [96, 199],
+      "offset": [0, 0],
+      "frames": 6,
+      "duration": 1600
+    },
+    {
+      "outfit": "winter",
+      "action": "dig",
+      "plan": "winter-dig-plan.json",
+      "source": "winter-dig-canonical.png",
+      "sourceSha256": "241df73aa30a9b082bccb89562cdae7f2dd3501cf336dbb053e25c67322c1410",
+      "path": "src/art/companions/daisy/winter/dig.png",
+      "sha256": "dbac8f76307eedcc814cc34f8067cba83bbd9293ff4ad820a314f8f41065df84",
+      "sourceScale": 0.67,
+      "canvas": [224, 224],
+      "anchor": [96, 199],
+      "offset": [0, 0],
+      "frames": 6,
+      "duration": 2000
+    },
+    {
+      "outfit": "winter",
+      "action": "plant",
+      "plan": "winter-plant-plan.json",
+      "source": "winter-plant-canonical.png",
+      "sourceSha256": "e1d18da1111d914fa34f1e0f98fba2be47e06418dee4a922e458efcd7ed9cc63",
+      "path": "src/art/companions/daisy/winter/plant.png",
+      "sha256": "801ef4366f881ca45928668ef02b313330ec81be43052153d627cee9005ae93f",
+      "sourceScale": 0.69,
+      "canvas": [192, 208],
+      "anchor": [96, 199],
+      "offset": [0, 0],
+      "frames": 6,
+      "duration": 2000
+    },
+    {
+      "outfit": "winter",
+      "action": "fish",
+      "plan": "winter-fish-plan.json",
+      "source": "winter-fish-canonical.png",
+      "sourceSha256": "5e5331bfa64862efffa01471cac70f5be81fda84e7167b8979e87f794d2fa27d",
+      "path": "src/art/companions/daisy/winter/fish.png",
+      "sha256": "8b950a6e3d1e22c5b93aef4f58df998e6a0aee45a02c6180a38603c671874374",
+      "sourceScale": 0.73,
+      "canvas": [272, 216],
+      "anchor": [96, 207],
+      "offset": [0, -8],
+      "frames": 6,
+      "duration": 4840
+    },
+    {
+      "outfit": "winter",
+      "action": "discover",
+      "plan": "winter-discover-plan.json",
+      "source": "winter-discover-canonical.png",
+      "sourceSha256": "757330f12b3ab7244a20cc50a992d9336c24f482a4f3d63b2ff658560c5ca250",
+      "path": "src/art/companions/daisy/winter/discover.png",
+      "sha256": "2e73b98a38431785d7e1e22d271547c59492d32001f2e13271146ce60c3b1a7e",
+      "sourceScale": 0.69,
+      "canvas": [192, 208],
+      "anchor": [96, 199],
+      "offset": [0, 0],
+      "frames": 6,
+      "duration": 1600
+    }
+  ]
+}

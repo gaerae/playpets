@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
-import { createScenery } from '../src/yard/scenery.js';
+import { createScenery, stepGroundBug } from '../src/yard/scenery.js';
 
-function yard(t, reduce = true) {
-  t.mock.method(Math, 'random', () => 0.5);
+function yard(t, reduce = true, random = 0.5) {
+  t.mock.method(Math, 'random', () => random);
   t.mock.method(performance, 'now', () => 0);
   globalThis.window = { devicePixelRatio: 1 };
   const draws = { paints: 0, rotations: 0 };
@@ -110,4 +110,48 @@ test('enabling reduced motion during a natural firefly rest schedules stationary
   assert.equal(scene.near(500, 420), true);
   assert.equal(draws.paints, before + 1);
   assert.equal(scene.catchAt(500, 420)?.kind, 'firefly');
+});
+
+test('ground bugs crawl or briefly hop within the walkable field', () => {
+  const bounds = { width: 1000, top: 450, bottom: 570, scale: 1 };
+  for (const kind of ['beetle', 'cricket']) {
+    const c = { kind, x: 500, y: 500, groundY: 500, heading: 0, phase: 0 };
+    const heights = [];
+    for (let frame = 0; frame < 200; frame++) {
+      assert.equal(
+        stepGroundBug(c, 16, bounds, false, () => 0.5),
+        true,
+      );
+      heights.push(c.groundY - c.y);
+      assert.ok(c.y >= bounds.top && c.y <= bounds.bottom);
+    }
+    assert.ok(c.x > 500 && c.x < 550, 'ground movement is slower than flight');
+    if (kind === 'beetle') assert.ok(heights.every(height => height === 0));
+    else {
+      assert.ok(heights.some(height => height > 0 && height <= 3));
+      assert.ok(
+        heights.some(height => height === 0),
+        'cricket rests between hops',
+      );
+    }
+  }
+});
+
+test('new ground families spawn on land and stay catchable with reduced motion', t => {
+  for (const [random, species, kind] of [
+    [0.85, 'ladybug', 'beetle'],
+    [0.95, 'field_cricket', 'cricket'],
+  ]) {
+    const { scene, draws } = yard(t, true, random);
+    scene.set('day', 'clear', 'summer');
+    const y = 600 * (0.695 + (0.94 - 0.695) * random);
+    const caught = scene.catchAt(1000 * random, y);
+    assert.equal(caught?.species, species);
+    assert.equal(caught?.kind, kind);
+    scene.frame(1, 1);
+    const before = draws.paints;
+    scene.frame(100, 99);
+    assert.equal(draws.paints, before);
+    assert.equal(scene.busy(), false);
+  }
 });

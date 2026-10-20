@@ -421,5 +421,194 @@
     "crop": [1112, 701, 299, 343],
     "size": [40, 60],
     "art": "decor/sculpted/snowman.svg"
+  },
+  {
+    "id": "crocus",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers.png",
+    "atlasSize": [1536, 1024],
+    "crop": [24, 33, 363, 479],
+    "size": [40, 54],
+    "art": "flowers/crocus.svg"
+  },
+  {
+    "id": "grape_hyacinth",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers.png",
+    "atlasSize": [1536, 1024],
+    "crop": [421, 20, 328, 472],
+    "size": [40, 54],
+    "art": "flowers/grape_hyacinth.svg"
+  },
+  {
+    "id": "lavender",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers.png",
+    "atlasSize": [1536, 1024],
+    "crop": [790, 9, 336, 483],
+    "size": [40, 54],
+    "art": "flowers/lavender.svg"
+  },
+  {
+    "id": "bellflower",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers.png",
+    "atlasSize": [1536, 1024],
+    "crop": [1173, 45, 361, 445],
+    "size": [40, 54],
+    "art": "flowers/bellflower.svg"
+  },
+  {
+    "id": "dahlia",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers.png",
+    "atlasSize": [1536, 1024],
+    "crop": [12, 512, 376, 458],
+    "size": [40, 54],
+    "art": "flowers/dahlia.svg"
+  },
+  {
+    "id": "aster",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers.png",
+    "atlasSize": [1536, 1024],
+    "crop": [416, 512, 337, 459],
+    "size": [40, 54],
+    "art": "flowers/aster.svg"
+  },
+  {
+    "id": "hellebore",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers.png",
+    "atlasSize": [1536, 1024],
+    "crop": [787, 514, 376, 454],
+    "size": [40, 54],
+    "art": "flowers/hellebore.svg"
+  },
+  {
+    "id": "cyclamen",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers.png",
+    "atlasSize": [1536, 1024],
+    "crop": [1185, 518, 339, 452],
+    "size": [40, 54],
+    "art": "flowers/cyclamen.svg"
+  },
+  {
+    "id": "stickleback",
+    "kind": "fish",
+    "atlas": "collection-extension/wildlife.png",
+    "atlasSize": [1774, 887],
+    "crop": [1339, 196, 424, 188],
+    "size": [100, 50],
+    "art": "fish/stickleback.svg"
+  },
+  {
+    "id": "glass_marble",
+    "kind": "treasure",
+    "atlas": "collection-extension/finds.png",
+    "atlasSize": [1536, 1024],
+    "crop": [39, 66, 411, 403],
+    "size": [40, 40],
+    "art": "discovery/glass_marble.svg"
+  },
+  {
+    "id": "wooden_whale",
+    "kind": "treasure",
+    "atlas": "collection-extension/finds.png",
+    "atlasSize": [1536, 1024],
+    "crop": [530, 47, 494, 419],
+    "size": [40, 40],
+    "art": "discovery/wooden_whale.svg"
+  },
+  {
+    "id": "ladybug",
+    "kind": "bugs",
+    "atlas": "collection-extension/ground-bugs.png",
+    "atlasSize": [1774, 887],
+    "crop": [176, 193, 578, 587],
+    "size": [60, 60],
+    "art": "bugs/ladybug.svg"
+  },
+  {
+    "id": "field_cricket",
+    "kind": "bugs",
+    "atlas": "collection-extension/green-cricket.png",
+    "atlasSize": [1254, 1254],
+    "crop": [156, 42, 942, 1169],
+    "size": [60, 60],
+    "art": "bugs/field_cricket.svg"
+  },
+  {
+    "id": "freshwater_prawn",
+    "kind": "fish",
+    "atlas": "collection-extension/aquatic.png",
+    "atlasSize": [2172, 724],
+    "crop": [15, 218, 744, 385],
+    "size": [100, 65],
+    "art": "fish/freshwater_prawn.svg"
+  },
+  {
+    "id": "crayfish",
+    "kind": "fish",
+    "atlas": "collection-extension/aquatic.png",
+    "atlasSize": [2172, 724],
+    "crop": [784, 95, 764, 491],
+    "size": [100, 65],
+    "art": "fish/crayfish.svg"
+  },
+  {
+    "id": "pond_snail",
+    "kind": "fish",
+    "atlas": "collection-extension/aquatic.png",
+    "atlasSize": [2172, 724],
+    "crop": [1575, 187, 573, 378],
+    "size": [100, 65],
+    "art": "fish/pond_snail.svg"
+  },
+  {
+    "id": "felt_mushroom",
+    "kind": "treasure",
+    "atlas": "collection-extension/cute-props.png",
+    "atlasSize": [1536, 1024],
+    "crop": [51, 58, 417, 430],
+    "size": [40, 40],
+    "art": "discovery/felt_mushroom.svg"
+  },
+  {
+    "id": "acorn_teacup",
+    "kind": "treasure",
+    "atlas": "collection-extension/cute-props.png",
+    "atlasSize": [1536, 1024],
+    "crop": [534, 125, 474, 338],
+    "size": [40, 40],
+    "art": "discovery/acorn_teacup.svg"
+  },
+  {
+    "id": "sleeping_fox",
+    "kind": "treasure",
+    "atlas": "collection-extension/cute-props.png",
+    "atlasSize": [1536, 1024],
+    "crop": [1018, 72, 476, 420],
+    "size": [40, 40],
+    "art": "discovery/sleeping_fox.svg"
+  },
+  {
+    "id": "bunny_watering_can",
+    "kind": "gifts",
+    "atlas": "collection-extension/cute-props.png",
+    "atlasSize": [1536, 1024],
+    "crop": [18, 512, 486, 468],
+    "size": [70, 70],
+    "art": "decor/bunny_watering_can.svg"
+  },
+  {
+    "id": "hedgehog_planter",
+    "kind": "gifts",
+    "atlas": "collection-extension/cute-props.png",
+    "atlasSize": [1536, 1024],
+    "crop": [527, 535, 480, 433],
+    "size": [70, 70],
+    "art": "decor/hedgehog_planter.svg"
   }
 ]

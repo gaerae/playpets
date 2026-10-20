@@ -78,12 +78,32 @@ export function relativeChances(pool, weight) {
   const total = pool.reduce((sum, kind) => sum + weight(kind), 0);
   return total ? pool.map(kind => ({ ...kind, chance: weight(kind) / total })) : [];
 }
-/** The scenery's current population; day populations mix butterflies and dragonflies. */
+/** The scenery's current population; day populations mix flying and ground bugs. */
 export function wildlifeGroup(season, period, weather) {
   if (weather !== 'clear' || season === 'winter') return null;
   if (period === 'day' || period === 'morning') return 'day';
   if (season === 'spring' || season === 'summer') return 'firefly';
   return null;
+}
+/** Probabilities per spawned individual, including the daytime family split. */
+export function bugChances(season, period, weather, event = null, kinds = BUGS) {
+  const group = wildlifeGroup(season, period, weather);
+  if (!group) return [];
+  const eligible = eligibleKinds(kinds, season, period, event);
+  const chances = kind =>
+    relativeChances(
+      eligible.filter(bug => bug.kind === kind),
+      bug => bug.weight,
+    );
+  if (group === 'firefly') return chances('firefly');
+  const families = [
+    ['butterfly', 0.55],
+    ['dragonfly', 0.25],
+    ['beetle', 0.1],
+    ['cricket', 0.1],
+  ].map(([kind, share]) => ({ pool: chances(kind), share }));
+  const total = families.reduce((sum, family) => sum + (family.pool.length ? family.share : 0), 0);
+  return families.flatMap(({ pool, share }) => pool.map(bug => ({ ...bug, chance: bug.chance * (share / total) })));
 }
 /** The fish that bite in this season and time of day (and event). */
 export function fishHere(season, period, event = null) {

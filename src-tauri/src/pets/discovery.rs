@@ -1,22 +1,22 @@
 //! Ground snapshots, one-time discoveries and scene-owned trees.
 use super::{
     album::{Album, Entry, KINDS_MAX},
-    content::catalog,
-    garden::{Garden, SEED_MAX},
+    content::{DiscoveryContext, catalog},
+    garden::{Garden, SAPLING_MAX, SEED_MAX},
 };
 use crate::i18n;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-pub const TREE_MAX: usize = 12;
-pub const TREE_WORLD_MAX: usize = 3;
+pub const TREE_MAX: usize = 24;
+pub const TREE_WORLD_MAX: usize = 6;
 pub const TREE_YOUNG_MS: u64 = 2 * 60 * 60 * 1000;
 pub const TREE_MATURE_MS: u64 = 12 * 60 * 60 * 1000;
 pub const DIG_COOLDOWN_MS: u64 = 8000;
 pub const DIG_TTL_MS: u64 = 24 * 60 * 60 * 1000;
-pub const DIG_HISTORY: usize = 32;
-pub const DIG_ODDS: [u8; 4] = [40, 25, 30, 5];
+pub const DIG_HISTORY: usize = 4096;
+pub const DIG_ODDS: [u8; 5] = [30, 25, 20, 22, 3];
 
 #[derive(Deserialize, Clone)]
 pub struct GroundProfile {
@@ -45,7 +45,7 @@ fn coordinate(value: f64) -> bool {
 fn identifier(value: &str) -> bool {
     !value.is_empty() && value.len() <= 256 && !value.chars().any(char::is_control)
 }
-fn kind_id(value: &str) -> bool {
+pub(super) fn kind_id(value: &str) -> bool {
     (1..=24).contains(&value.len()) && value.bytes().all(|b| b.is_ascii_lowercase() || b == b'_')
 }
 fn bad_request() -> String {
@@ -134,7 +134,7 @@ pub fn restore_trees(raw: Option<&Value>) -> Vec<Tree> {
         .take(TREE_MAX)
         .collect()
 }
-pub fn restore_digs(raw: Option<&Value>) -> Vec<DigAttempt> {
+pub fn restore_digs(raw: Option<&Value>, now: u64) -> Vec<DigAttempt> {
     raw.and_then(Value::as_array)
         .into_iter()
         .flatten()
@@ -145,8 +145,17 @@ pub fn restore_digs(raw: Option<&Value>) -> Vec<DigAttempt> {
                 && identifier(&d.world)
                 && d.tile_x <= 8
                 && d.tile_y <= 8
-                && matches!(d.result.outcome.as_str(), "empty" | "seed" | "full" | "keepsake")
-                && (d.result.outcome != "keepsake" || d.result.kind.as_deref().is_some_and(kind_id))
+                && now.saturating_sub(d.at) < DIG_TTL_MS
+                && matches!(
+                    d.result.outcome.as_str(),
+                    "empty" | "seed" | "sapling" | "full" | "keepsake"
+                )
+                && (!matches!(d.result.outcome.as_str(), "keepsake" | "sapling")
+                    || d.result.kind.as_deref().is_some_and(kind_id))
+        })
+        .map(|mut d| {
+            d.at = d.at.min(now);
+            d
         })
         .take(DIG_HISTORY)
         .collect()
@@ -165,11 +174,20 @@ pub fn dig(
     now: u64,
     roll: u8,
     choice: u64,
+    context: Option<&DiscoveryContext>,
 ) -> Result<DigResult, String> {
+    if context.is_some_and(|context| !context.valid()) {
+        return Err(bad_request());
+    }
     ground.validate(x, y)?;
     if !identifier(pet_id) || !identifier(world) || roll >= 100 {
         return Err(bad_request());
     }
+    // A corrected clock keeps the patch's reward memory without a future-dated break.
+    for attempt in &mut garden.digs {
+        attempt.at = attempt.at.min(now);
+    }
+    garden.digs.retain(|d| now.saturating_sub(d.at) < DIG_TTL_MS);
     let (tile_x, tile_y) = ((x * 8.0).floor() as u8, (y * 8.0).floor() as u8);
     if let Some(attempt) = garden
         .digs
@@ -188,22 +206,49 @@ pub fn dig(
     {
         return Err(i18n::t("error.discovery_cooldown"));
     }
+    if garden.digs.len() >= DIG_HISTORY {
+        return Err(i18n::t("error.discovery_daily_limit"));
+    }
     let (outcome, kind) = if roll < DIG_ODDS[0] {
         ("empty", None)
     } else if roll < DIG_ODDS[0] + DIG_ODDS[1] {
         (if garden.seeds >= SEED_MAX { "full" } else { "seed" }, None)
+    } else if roll < DIG_ODDS[0] + DIG_ODDS[1] + DIG_ODDS[2] {
+        let kind = catalog()
+            .tree(choice, context, world)
+            .ok_or_else(bad_request)?
+            .to_owned();
+        let full = garden.saplings.get(&kind).copied().unwrap_or(0) >= SAPLING_MAX;
+        if !garden.saplings.contains_key(&kind) && garden.saplings.len() >= KINDS_MAX {
+            return Err(bad_request());
+        }
+        (if full { "full" } else { "sapling" }, Some(kind))
     } else {
-        let rarity = if roll < DIG_ODDS[0] + DIG_ODDS[1] + DIG_ODDS[2] {
+        let uncommon_found = garden.digs.iter().any(|attempt| {
+            attempt.result.outcome == "keepsake"
+                && attempt
+                    .result
+                    .kind
+                    .as_deref()
+                    .is_some_and(|kind| catalog().is_uncommon_treasure(kind))
+        });
+        let rarity = if roll < DIG_ODDS[0] + DIG_ODDS[1] + DIG_ODDS[2] + DIG_ODDS[3] || uncommon_found {
             "common"
         } else {
             "uncommon"
         };
         (
             "keepsake",
-            Some(catalog().treasure(rarity, choice).ok_or_else(bad_request)?.to_owned()),
+            Some(
+                catalog()
+                    .treasure(rarity, choice, context, world)
+                    .ok_or_else(bad_request)?
+                    .to_owned(),
+            ),
         )
     };
-    if let Some(kind) = &kind {
+    if outcome == "keepsake" {
+        let kind = kind.as_ref().ok_or_else(bad_request)?;
         if !album.treasures.contains_key(kind) && album.treasures.len() >= KINDS_MAX {
             return Err(bad_request());
         }
@@ -216,6 +261,11 @@ pub fn dig(
     }
     if outcome == "seed" {
         garden.seeds += 1;
+    } else if outcome == "sapling" {
+        *garden
+            .saplings
+            .entry(kind.clone().ok_or_else(bad_request)?)
+            .or_default() += 1;
     }
     let result = DigResult {
         attempt_id: Uuid::new_v4().to_string(),
@@ -223,7 +273,6 @@ pub fn dig(
         kind,
         repeated: false,
     };
-    garden.digs.retain(|d| now.saturating_sub(d.at) < DIG_TTL_MS);
     garden.digs.push(DigAttempt {
         result: result.clone(),
         pet_id: pet_id.into(),
@@ -232,9 +281,6 @@ pub fn dig(
         tile_y,
         at: now,
     });
-    if garden.digs.len() > DIG_HISTORY {
-        garden.digs.remove(0);
-    }
     Ok(result)
 }
 
@@ -254,6 +300,12 @@ pub fn plant_tree(
     if garden.trees.len() >= TREE_MAX || garden.trees.iter().filter(|t| t.world == world).count() >= TREE_WORLD_MAX {
         return Err(i18n::t("error.tree_full"));
     }
+    let stock = garden
+        .saplings
+        .get_mut(kind)
+        .filter(|count| **count > 0)
+        .ok_or_else(|| i18n::t("error.no_saplings"))?;
+    *stock -= 1;
     let tree = Tree {
         id: Uuid::new_v4().to_string(),
         world: world.into(),
@@ -330,6 +382,190 @@ mod tests {
         .unwrap()
     }
 
+    #[allow(clippy::too_many_arguments)]
+    fn dig(
+        garden: &mut Garden,
+        album: &mut Album,
+        pet_id: &str,
+        world: &str,
+        x: f64,
+        y: f64,
+        ground: &GroundProfile,
+        now: u64,
+        roll: u8,
+        choice: u64,
+    ) -> Result<DigResult, String> {
+        super::dig(garden, album, pet_id, world, x, y, ground, now, roll, choice, None)
+    }
+
+    #[test]
+    fn environmental_context_changes_never_reroll_saved_or_future_repaired_patches() {
+        let first_context = super::super::content::DiscoveryContext {
+            season: "spring".into(),
+            weather: "clear".into(),
+        };
+        let changed_context = super::super::content::DiscoveryContext {
+            season: "winter".into(),
+            weather: "snow".into(),
+        };
+        let mut garden = Garden::default();
+        let mut album = Album::default();
+        let now = 10000;
+        let first = super::dig(
+            &mut garden,
+            &mut album,
+            "friend",
+            "woodland",
+            0.5,
+            0.5,
+            &ground(),
+            now + 14 * DIG_TTL_MS,
+            97,
+            0,
+            Some(&first_context),
+        )
+        .unwrap();
+        let before = album.clone();
+        garden = Garden::restore(Some(&serde_json::to_value(&garden).unwrap()), now);
+        let repeat = super::dig(
+            &mut garden,
+            &mut album,
+            "other",
+            "woodland",
+            0.51,
+            0.51,
+            &ground(),
+            now,
+            75,
+            999,
+            Some(&changed_context),
+        )
+        .unwrap();
+        assert!(repeat.repeated);
+        assert_eq!(repeat.attempt_id, first.attempt_id);
+        assert_eq!(repeat.kind, first.kind);
+        assert_eq!(album, before);
+        let next = super::dig(
+            &mut garden,
+            &mut album,
+            "third",
+            "courtyard",
+            0.5,
+            0.5,
+            &ground(),
+            now + 1,
+            99,
+            0,
+            Some(&changed_context),
+        )
+        .unwrap();
+        assert_eq!(rarity_of(next.kind.as_deref().unwrap()), "common");
+    }
+
+    #[test]
+    fn environmental_invalid_context_leaves_rewards_and_future_history_untouched() {
+        for (season, weather) in [("monsoon", "clear"), ("spring", "storm"), ("", "clear")] {
+            let mut garden = Garden {
+                digs: vec![recorded_patch(0, 99999)],
+                ..Default::default()
+            };
+            let mut album = Album::default();
+            let before = garden.clone();
+            let before_album = album.clone();
+            let context = super::super::content::DiscoveryContext {
+                season: season.into(),
+                weather: weather.into(),
+            };
+            assert!(
+                super::dig(
+                    &mut garden,
+                    &mut album,
+                    "friend",
+                    "woodland",
+                    0.5,
+                    0.5,
+                    &ground(),
+                    10000,
+                    97,
+                    0,
+                    Some(&context)
+                )
+                .is_err()
+            );
+            assert_eq!(garden, before);
+            assert_eq!(album, before_album);
+        }
+    }
+
+    fn rarity_of(kind: &str) -> String {
+        let raw: Value = serde_json::from_str(include_str!("../../../src/content/catalog.json")).unwrap();
+        raw["treasures"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|item| item["id"] == kind)
+            .unwrap()["rarity"]
+            .as_str()
+            .unwrap()
+            .into()
+    }
+
+    #[test]
+    fn environmental_rarity_boundary_begins_at_97() {
+        for (roll, rarity) in [
+            (75, "common"),
+            (94, "common"),
+            (95, "common"),
+            (96, "common"),
+            (97, "uncommon"),
+            (99, "uncommon"),
+        ] {
+            let result = dig(
+                &mut Garden::default(),
+                &mut Album::default(),
+                "friend",
+                "woodland",
+                0.5,
+                0.5,
+                &ground(),
+                10000,
+                roll,
+                0,
+            )
+            .unwrap();
+            assert_eq!(rarity_of(result.kind.as_deref().unwrap()), rarity, "roll {roll}");
+        }
+    }
+
+    #[test]
+    fn environmental_uncommon_window_is_profile_wide_and_expires_at_exact_24_hours() {
+        let mut garden = Garden::default();
+        let mut album = Album::default();
+        let first = dig(
+            &mut garden,
+            &mut album,
+            "first",
+            "woodland",
+            0.5,
+            0.5,
+            &ground(),
+            10000,
+            97,
+            0,
+        )
+        .unwrap();
+        assert_eq!(rarity_of(first.kind.as_deref().unwrap()), "uncommon");
+        garden = Garden::restore(Some(&serde_json::to_value(&garden).unwrap()), 10000);
+        for (pet, world, now, expected) in [
+            ("second", "courtyard", 10001, "common"),
+            ("third", "lakeside", 10000 + DIG_TTL_MS - 1, "common"),
+            ("fourth", "custom", 10000 + DIG_TTL_MS, "uncommon"),
+        ] {
+            let result = dig(&mut garden, &mut album, pet, world, 0.5, 0.5, &ground(), now, 99, 0).unwrap();
+            assert_eq!(rarity_of(result.kind.as_deref().unwrap()), expected);
+        }
+    }
+
     #[test]
     fn exclusions_crossing_the_field_boundary_are_valid_geometry() {
         let mut g = ground();
@@ -382,10 +618,12 @@ mod tests {
     fn dig_roll_boundaries_and_full_pocket_keep_the_chosen_outcome() {
         for (roll, outcome) in [
             (0, "empty"),
-            (39, "empty"),
-            (40, "seed"),
-            (64, "seed"),
-            (65, "keepsake"),
+            (29, "empty"),
+            (30, "seed"),
+            (54, "seed"),
+            (55, "sapling"),
+            (74, "sapling"),
+            (75, "keepsake"),
             (94, "keepsake"),
             (95, "keepsake"),
             (99, "keepsake"),
@@ -394,7 +632,7 @@ mod tests {
             let mut a = Album::default();
             let r = dig(&mut g, &mut a, "friend", "meadow", 0.5, 0.5, &ground(), 10000, roll, 0).unwrap();
             assert_eq!(r.outcome, outcome);
-            if roll >= 65 {
+            if roll >= 75 {
                 assert!(r.kind.is_some());
                 assert_eq!(a.treasures.values().next().unwrap().count, 1);
             }
@@ -414,11 +652,74 @@ mod tests {
     }
 
     #[test]
+    fn sapling_rewards_persist_and_full_stock_keeps_the_species() {
+        let mut g = Garden::default();
+        let mut a = Album::default();
+        let first = dig(&mut g, &mut a, "friend", "meadow", 0.5, 0.5, &ground(), 10000, 55, 0).unwrap();
+        assert_eq!(first.outcome, "sapling");
+        let kind = first.kind.clone().unwrap();
+        assert!(catalog().is_tree(&kind));
+        assert!(a.treasures.is_empty());
+        let saved = serde_json::to_value(&g).unwrap();
+        assert_eq!(saved["saplings"][&kind], 1);
+        g = Garden::restore(Some(&saved), 0);
+        let repeat = dig(&mut g, &mut a, "other", "meadow", 0.5, 0.5, &ground(), 10001, 99, 2).unwrap();
+        assert!(repeat.repeated);
+        assert_eq!(repeat.kind, first.kind);
+        assert_eq!(serde_json::to_value(&g).unwrap()["saplings"][&kind], 1);
+        g = Garden::restore(Some(&json!({"saplings": {kind.clone(): 20}})), 0);
+        let full = dig(&mut g, &mut a, "friend", "meadow", 0.5, 0.5, &ground(), 10000, 55, 0).unwrap();
+        assert_eq!(full.outcome, "full");
+        assert_eq!(full.kind.as_deref(), Some(kind.as_str()));
+        assert!(a.treasures.is_empty());
+        assert_eq!(serde_json::to_value(&g).unwrap()["saplings"][&kind], 20);
+    }
+
+    #[test]
+    fn sapling_choices_cover_the_actual_tree_catalog() {
+        let catalog_data: Value = serde_json::from_str(include_str!("../../../src/content/catalog.json")).unwrap();
+        let kinds = catalog_data["trees"].as_array().unwrap();
+        for (choice, kind) in kinds.iter().enumerate() {
+            let mut g = Garden::default();
+            let result = dig(
+                &mut g,
+                &mut Album::default(),
+                "friend",
+                "meadow",
+                0.5,
+                0.5,
+                &ground(),
+                10000,
+                55,
+                choice as u64,
+            )
+            .unwrap();
+            assert_eq!(result.kind.as_deref(), kind["id"].as_str());
+            assert_eq!(result.outcome, "sapling");
+        }
+    }
+
+    #[test]
+    fn tree_planting_requires_stock_and_failed_requests_spend_nothing() {
+        let mut g = Garden::default();
+        assert!(plant_tree(&mut g, "meadow", "cherry", 0.5, 0.5, &ground(), 1).is_err());
+        g = Garden::restore(Some(&json!({"saplings": {"cherry": 2}})), 0);
+        for (kind, x) in [("missing", 0.5), ("cherry", f64::NAN)] {
+            assert!(plant_tree(&mut g, "meadow", kind, x, 0.5, &ground(), 1).is_err());
+        }
+        assert_eq!(serde_json::to_value(&g).unwrap()["saplings"]["cherry"], 2);
+        let t = plant_tree(&mut g, "meadow", "cherry", 0.5, 0.5, &ground(), 1).unwrap();
+        assert_eq!(serde_json::to_value(&g).unwrap()["saplings"]["cherry"], 1);
+        remove_tree(&mut g, &t.id).unwrap();
+        assert_eq!(serde_json::to_value(&g).unwrap()["saplings"]["cherry"], 1);
+    }
+
+    #[test]
     fn replay_survives_save_while_cooldown_ttl_and_scene_boundaries_hold() {
         let mut g = Garden::default();
         let mut a = Album::default();
         let first = dig(&mut g, &mut a, "friend", "meadow", 0.5, 0.5, &ground(), 10000, 40, 0).unwrap();
-        g = Garden::restore(Some(&serde_json::to_value(g).unwrap()));
+        g = Garden::restore(Some(&serde_json::to_value(g).unwrap()), 10000);
         let repeated = dig(&mut g, &mut a, "other", "meadow", 0.51, 0.51, &ground(), 10001, 99, 0).unwrap();
         assert!(repeated.repeated);
         assert_eq!(first.attempt_id, repeated.attempt_id);
@@ -457,12 +758,265 @@ mod tests {
             )
             .unwrap();
         }
-        assert_eq!(g.digs.len(), DIG_HISTORY);
+        assert_eq!(g.digs.len(), 41);
+    }
+
+    fn recorded_patch(index: usize, at: u64) -> DigAttempt {
+        DigAttempt {
+            result: DigResult {
+                attempt_id: format!("attempt-{index}"),
+                outcome: "empty".into(),
+                kind: None,
+                repeated: false,
+            },
+            pet_id: format!("friend-{index}"),
+            world: format!("world-{index}"),
+            tile_x: 4,
+            tile_y: 4,
+            at,
+        }
+    }
+
+    #[test]
+    fn the_first_patch_still_replays_after_more_than_32_fresh_digs() {
+        let mut garden = Garden::default();
+        let mut album = Album::default();
+        let mut first = None;
+        for i in 0..36 {
+            let result = dig(
+                &mut garden,
+                &mut album,
+                "explorer",
+                "meadow",
+                ((i % 8) as f64 + 0.5) / 8.0,
+                ((i / 8) as f64 + 0.5) / 8.0,
+                &ground(),
+                10000 + i * DIG_COOLDOWN_MS,
+                75,
+                0,
+            )
+            .unwrap();
+            first.get_or_insert(result);
+        }
+        let first = first.unwrap();
+        let before = album.clone();
+        let repeated = dig(
+            &mut garden,
+            &mut album,
+            "other",
+            "meadow",
+            0.0625,
+            0.0625,
+            &ground(),
+            10000 + 36 * DIG_COOLDOWN_MS,
+            75,
+            0,
+        )
+        .unwrap();
+        assert!(repeated.repeated);
+        assert_eq!(repeated.attempt_id, first.attempt_id);
+        assert_eq!(album, before);
+        assert_eq!(garden.digs.len(), 36);
+    }
+
+    #[test]
+    fn restored_history_prunes_expired_entries_before_the_bound() {
+        let now = DIG_TTL_MS + 10000;
+        let mut records: Vec<_> = (0..DIG_HISTORY).map(|i| recorded_patch(i, 1)).collect();
+        records.extend((DIG_HISTORY..DIG_HISTORY + 40).map(|i| recorded_patch(i, now - 1000)));
+        let raw = serde_json::to_value(records).unwrap();
+        let restored = restore_digs(Some(&raw), now);
+        assert_eq!(restored.len(), 40);
+        assert!(restored.iter().all(|attempt| attempt.at == now - 1000));
+    }
+
+    #[test]
+    fn future_history_restores_at_now_without_losing_patch_identity() {
+        let now = DIG_TTL_MS + 10000;
+        let future = recorded_patch(0, now + 14 * DIG_TTL_MS);
+        let recent = recorded_patch(1, now - 1000);
+        let raw = serde_json::to_value([future.clone(), recent.clone(), recorded_patch(2, 1)]).unwrap();
+        let restored = restore_digs(Some(&raw), now);
+        assert_eq!(restored.len(), 2);
+        assert_eq!(restored[0].at, now);
+        assert_eq!(restored[0].result, future.result);
+        assert_eq!(restored[0].pet_id, future.pet_id);
+        assert_eq!(restored[0].world, future.world);
+        assert_eq!((restored[0].tile_x, restored[0].tile_y), (future.tile_x, future.tile_y));
+        assert_eq!(restored[1], recent);
+    }
+
+    #[test]
+    fn rollback_replays_a_future_patch_without_awarding_it_again() {
+        let now = 10000;
+        let mut garden = Garden::default();
+        let mut album = Album::default();
+        let first = dig(
+            &mut garden,
+            &mut album,
+            "friend",
+            "meadow",
+            0.5,
+            0.5,
+            &ground(),
+            now + 14 * DIG_TTL_MS,
+            75,
+            0,
+        )
+        .unwrap();
+        let before = album.clone();
+        let repeated = dig(
+            &mut garden,
+            &mut album,
+            "friend",
+            "meadow",
+            0.51,
+            0.51,
+            &ground(),
+            now,
+            99,
+            1,
+        )
+        .unwrap();
+        assert!(repeated.repeated);
+        assert_eq!(repeated.attempt_id, first.attempt_id);
+        assert_eq!(repeated.kind, first.kind);
+        assert_eq!(album, before);
+        assert_eq!(garden.digs.len(), 1);
+        assert_eq!(garden.digs[0].at, now);
+        let saved = serde_json::to_value(&garden).unwrap();
+        let restored = Garden::restore(Some(&saved), now + DIG_TTL_MS - 1);
+        assert_eq!(restored.digs.len(), 1);
+        assert_eq!(restored.digs[0].result.attempt_id, first.attempt_id);
+    }
+
+    #[test]
+    fn rollback_on_new_ground_waits_only_the_normal_cooldown() {
+        let now = 10000;
+        let mut garden = Garden::default();
+        let mut album = Album::default();
+        dig(
+            &mut garden,
+            &mut album,
+            "friend",
+            "meadow",
+            0.5,
+            0.5,
+            &ground(),
+            now + 14 * DIG_TTL_MS,
+            0,
+            0,
+        )
+        .unwrap();
+        for at in [now, now + DIG_COOLDOWN_MS - 1] {
+            assert!(
+                dig(
+                    &mut garden,
+                    &mut album,
+                    "friend",
+                    "beach",
+                    0.5,
+                    0.5,
+                    &ground(),
+                    at,
+                    40,
+                    0
+                )
+                .is_err()
+            );
+            assert_eq!(garden.digs.len(), 1);
+            assert_eq!(garden.seeds, 0);
+        }
+        let result = dig(
+            &mut garden,
+            &mut album,
+            "friend",
+            "beach",
+            0.5,
+            0.5,
+            &ground(),
+            now + DIG_COOLDOWN_MS,
+            40,
+            0,
+        )
+        .unwrap();
+        assert!(!result.repeated);
+        assert_eq!(result.outcome, "seed");
+        assert_eq!(garden.seeds, 1);
+        assert_eq!(garden.digs.len(), 2);
+    }
+
+    #[test]
+    fn a_full_ledger_rejects_new_ground_without_mutating_rewards_or_history() {
+        let now = 10000;
+        let mut garden = Garden {
+            digs: (0..DIG_HISTORY).map(|i| recorded_patch(i, now)).collect(),
+            ..Default::default()
+        };
+        let mut album = Album::default();
+        let before = garden.clone();
+        assert!(
+            dig(
+                &mut garden,
+                &mut album,
+                "new",
+                "unseen-world",
+                0.5,
+                0.5,
+                &ground(),
+                now + 1,
+                75,
+                0
+            )
+            .is_err()
+        );
+        assert_eq!(garden, before);
+        assert_eq!(album, Album::default());
+        let repeated = dig(
+            &mut garden,
+            &mut album,
+            "new",
+            "world-0",
+            0.5,
+            0.5,
+            &ground(),
+            now + 1,
+            75,
+            0,
+        )
+        .unwrap();
+        assert!(repeated.repeated);
+        assert_eq!(repeated.attempt_id, "attempt-0");
+        assert_eq!(garden, before);
+    }
+
+    #[test]
+    fn expired_history_frees_capacity_before_a_new_reward() {
+        let mut garden = Garden {
+            digs: (0..DIG_HISTORY).map(|i| recorded_patch(i, 1)).collect(),
+            ..Default::default()
+        };
+        let result = dig(
+            &mut garden,
+            &mut Album::default(),
+            "new",
+            "world-0",
+            0.5,
+            0.5,
+            &ground(),
+            DIG_TTL_MS + 1,
+            40,
+            0,
+        )
+        .unwrap();
+        assert!(!result.repeated);
+        assert_eq!(garden.seeds, 1);
+        assert_eq!(garden.digs.len(), 1);
     }
 
     #[test]
     fn trees_are_scene_owned_limited_and_grow_once_without_regression() {
-        let mut g = Garden::default();
+        let mut g = Garden::restore(Some(&json!({"saplings": {"cherry":20,"pine":20,"maple":20}})), 0);
         let mut a = Album::default();
         let tree = plant_tree(&mut g, "meadow", "cherry", 0.5, 0.5, &ground(), 10000).unwrap();
         assert_eq!(tree.stage, 0);
@@ -480,10 +1034,19 @@ mod tests {
         }
         assert!(plant_tree(&mut g, "meadow", "maple", 0.5, 0.5, &ground(), 1).is_err());
         for i in 1..4 {
-            for _ in 0..3 {
+            g = Garden::restore(
+                Some(&{
+                    let mut saved = serde_json::to_value(&g).unwrap();
+                    saved["saplings"]["pine"] = json!(20);
+                    saved
+                }),
+                0,
+            );
+            for _ in 0..TREE_WORLD_MAX {
                 plant_tree(&mut g, &format!("world{i}"), "pine", 0.8, 0.8, &ground(), 1).unwrap();
             }
         }
+        assert_eq!(g.trees.len(), 24);
         assert!(plant_tree(&mut g, "extra", "pine", 0.5, 0.5, &ground(), 1).is_err());
         move_tree(&mut g, &tree.id, 0.2, 0.2, &ground()).unwrap();
         assert_eq!(g.trees[0].x, 0.2);

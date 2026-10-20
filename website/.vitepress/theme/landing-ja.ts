@@ -55,7 +55,7 @@ export const worldCopy = {
     'お気に入りのペットを迎えたり、新しい友だちを作ったり。姿を保つための参考シートと、そのまま使えるプロンプトを用意しました。',
   creatorLink: '自分だけの友だちを作る',
   discovery: 'Codexのペットを持っていますか？',
-  sceneCaption: (v: string) => `実際のアプリ画面 · PlayPets ${v}`,
+  sceneCaption: (v: string) => `実際のアプリ画面, PlayPets ${v}`,
 };
 export const sections = {
   discoveryGuide: '出会えるものを見る',

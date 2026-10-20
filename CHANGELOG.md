@@ -7,6 +7,61 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Expand the album to 100 entries with seasonal flowers, distinct freshwater creatures, crawling and hopping insects, and everyday keepsakes.
+
+- Give Daisy, Clover, Pip and Miso authored digging, planting, casting, waiting, reeling and discovery animations in every seasonal outfit, while imported pets keep their original sheets.
+
+- Find six species of tree saplings by digging, keep them in a saved pocket and spend one when planting.
+- Discover bottle caps, tiny robots, miniature crowns and star fragments alongside eight existing keepsakes.
+- Grow oak, birch and willow trees with seasonal artwork; keep up to six trees per place and 24 in total.
+
+### Changed
+
+- Give the field cricket a leaf-green illustrated sprite and matching fallback colors while keeping its short ground hops.
+
+- Remove exact collection percentages and their display control, clarify habitat clues and the shared yard-wide daily gift allowance, and explain full decoration capacity.
+- Favor tree saplings and keepsakes by season, weather and place, show useful habitat clues in the album and four-language guide without exposing exact odds, and pace uncommon finds with a shared rolling 24-hour interval that redirects their chance into common finds.
+- Show season, time and weather as compact radio segments with visible choices and keyboard navigation.
+- Give digging a painted recessed soil opening with a broken rim, seasonal edge and contact-synchronized reveal.
+- Use actual per-creature bug probabilities in the guide, make the golden firefly rare during its event, and clarify automatic fishing and calendar gifts while keeping every album entry reachable.
+- Keep basic action labels on one line at every window size and replace middle-dot notation with plain words or punctuation.
+- Show one scenery caption in the dock and use restrained, shared corners for panels, controls and cards.
+- Use one Play board at every window size and open Settings tasks directly from management, retaining a task list for tray and shortcut entry.
+- Use a small download icon with an unread dot instead of a version banner in small windows, retaining the accessible label and update controls.
+- Synchronize digging effects and wait for both the complete action and its saved result before revealing a discovery.
+- Finish brief jump, wave and celebration gestures once instead of cutting them during a second loop.
+- Give scenery, play and friends/settings separate homes; remove repeated menu destinations and keep season and sound together in atmosphere controls.
+- Keep atmosphere choices on one line with the native fonts used by macOS, Windows and Linux.
+- Separate Friends, Settings and Window into short tabs, with direct settings tasks and a fixed tab row above the scrolling content.
+- Use compact desktop controls, smaller panels and clearer primary navigation, with importing beside the Invite title.
+- Stack yard events in one feedback lane and keep brief messages clear of panels and actions.
+- Check for updates quietly 20 seconds after launch and every six hours, with delayed retries after network failures.
+- Keep update progress, retry and the explicit install-and-restart action together in Settings → App updates.
+- Obtain new flower seeds only by digging while preserving existing pockets and planted gardens.
+- Offer digging in the shared Play board and show seed and sapling stock before planting.
+
+### Fixed
+
+- Keep onboarding tasks out of localized website captures by completing the controlled AI connection before photographing the yard.
+- Keep the portable creator skill frontmatter compatible with current Codex skill validation.
+- Preserve gift waiting progress across short sessions and full yards instead of restarting the delay after every launch.
+- Refresh open collection odds when the weather changes and recheck planting ground at contact so newly occupied targets do not spend a sapling.
+- Keep the selected seasonal landscape when choosing snow, including imported backgrounds and indoor window views.
+- Preserve ground reward history while recovering normally after the computer clock moves backward.
+- Preserve the 24-hour ground-reward limit beyond 32 distinct digs and discard expired records when loading existing saves without a file migration.
+
+- Keep editing-dialog headings and actions visible in small windows, reveal inline errors and protect unfinished imports.
+- Let automatically discovered Ollama models close normally without marking untouched forms as edited.
+- Keep messages visible over open dialogs and let discovery cards remain while being read, with an explicit close action.
+- Keep dragged furniture anchored to the grab point, follow movement without button transitions and restore failed moves.
+- Use a standing pose with soil and shovel effects when digging instead of the coding animation.
+
+### Removed
+
+- Remove obsolete roaming-seed pickup styles, interaction guards, sound and translated instructions while preserving stored seeds and planted growth stages.
+
 ## [1.0.0] - 2026-10-19
 
 ### Added

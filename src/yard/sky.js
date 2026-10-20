@@ -1,7 +1,6 @@
 // Start with a sunny spring day; Auto follows the clock and the sky when selected.
 // A change of weather is remarked on by a friend or two (remarks.js).
 
-import { openControls } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { dropdown } from '../core/menu.js';
 import { isSeason, selectedSeason, southern } from '../core/season.js';
@@ -154,20 +153,15 @@ export function setupSky(options = {}) {
   seasonChoice = initial.season;
   weatherChoice = initial.weather;
   periodChoice = initial.period;
-  $('season').value = seasonChoice;
   $('scene-season').value = seasonChoice;
-  $('season').onchange = () => {
-    const choice = $('season').value;
+  $('scene-season').onchange = () => {
+    const choice = $('scene-season').value;
     seasonChoice = isSeason(choice) ? choice : 'auto';
     remember('season', seasonChoice);
     $('scene-season').value = seasonChoice;
     cancelRemarks();
     seasonPicked();
     paintScene();
-  };
-  $('scene-season').onchange = () => {
-    $('season').value = $('scene-season').value;
-    $('season').onchange();
   };
   scene.world = worldFor(saved.world).id;
   $('world').replaceChildren(
@@ -223,10 +217,6 @@ export function setupSky(options = {}) {
       sceneTabs[next].focus();
     };
   }
-  $('scene-back')?.addEventListener('click', () => {
-    chooser.close();
-    openControls();
-  });
   $('scene-close').addEventListener('click', () => {
     chooser.close();
     sceneFocus().focus();

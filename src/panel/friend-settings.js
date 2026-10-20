@@ -1,7 +1,7 @@
 // Friend settings: name, personality, relationship, size, and sending the friend away.
 
 import { styledAsset } from '../core/appearance.js';
-import { confirmAction, keepEdits } from '../core/confirm.js';
+import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { drawStill } from '../core/sprites.js';
@@ -27,11 +27,8 @@ let editing = null;
 let saving = false;
 let editEpoch = 0;
 const edited = () => data.pets.find(p => p.id === editing) || null;
-// A failure is said inside the dialog: a toast would sit under it, behind the backdrop.
-const petError = e => {
-  $('pet-error').textContent = spoken(e, t('error.generic'));
-  $('pet-error').scrollIntoView?.({ block: 'nearest' });
-};
+// Keep failures beside the fields that can correct them.
+const petError = e => showFormError('pet-error', spoken(e, t('error.generic')));
 const SIZE_NAMES = [t('size.xs'), t('size.s'), t('size.m'), t('size.l'), t('size.xl')];
 export function showSize(size) {
   $('size-range').value = size;
@@ -112,9 +109,7 @@ export function setupFriendSettings({ refresh }) {
   petOpened = keepEdits(
     $('pet-dialog'),
     petForm,
-    () => {
-      $('pet-error').textContent = t('dialog.unsaved');
-    },
+    () => showFormError('pet-error', t('dialog.unsaved')),
     () => saving,
   );
   $('pet-form').onsubmit = async e => {

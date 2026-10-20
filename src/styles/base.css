@@ -43,9 +43,9 @@
   --pink-soft: #fbe7ef;
   --pink-ink: #a8425b;
   color-scheme: light;
-  --radius: 22px;
-  --radius-panel: 18px;
-  --radius-control: 9px;
+  --radius-panel: 8px;
+  --radius-control: 5px;
+  --radius-card: 6px;
   --radius-pill: 999px;
   font-family:
     system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR",
@@ -181,8 +181,9 @@ button:active:not(:disabled) {
   gap: 8px;
   border-radius: var(--radius-control);
   font-weight: 650;
-  min-height: 42px;
-  padding: 10px 15px;
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 .button.secondary {
@@ -216,8 +217,8 @@ button:active:not(:disabled) {
   font-size: 11px;
 }
 .icon-button {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   border: 1px solid transparent;
@@ -397,5 +398,14 @@ html.pointer-input :is(button, a, input, textarea, select, summary):focus {
     --dock-surface: var(--panel-surface);
     --menu-surface: var(--panel-surface);
     --glass-blur: none;
+  }
+}
+
+/* Mouse controls stay compact; a touch device keeps a larger target. */
+@media (pointer: coarse) {
+  .button,
+  .icon-button {
+    min-height: 44px;
+    min-width: 44px;
   }
 }

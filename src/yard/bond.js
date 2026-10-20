@@ -2,11 +2,11 @@
 // they do together. The backend keeps the points and decides what each thing is worth and how much
 // a day can bring (src-tauri/src/pets/bond.rs); this tells it what happened, shows how close each
 // friend is (hearts on the name tag, a bar in the Friend panel), celebrates a new level, and holds
-// what the levels open: a welcome back (2), fishing alone (3, catch.js), more seeds (4, garden.js),
+// what the levels open: a welcome back (2), fishing alone (3, catch.js), a closer bond (4),
 // a flower on the tag and words of its own (5, remarks.js).
 // Design: docs/design/2026-10-09-a-yard-that-grows.md.
 
-import { list, t } from '../core/i18n.js';
+import { joinList, list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { pick } from '../core/math.js';
 import { call, data, name, views } from '../core/state.js';
@@ -53,7 +53,7 @@ function celebrate(id, level) {
   showCard(
     heartSvg(level),
     t('bond.up_card', { name: name(v.pet) }),
-    `${t(`bond.level_${level}`)} · ${t(`bond.unlock_${level}`)}`,
+    joinList([t(`bond.level_${level}`), t(`bond.unlock_${level}`)]),
     false,
   );
 }

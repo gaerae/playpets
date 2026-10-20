@@ -1,6 +1,6 @@
 // When the yard's sounds play, and the controls for them. The sounds themselves are soundscape.js;
 // what each scene sounds like is soundmix.js. They play while the sound is on (the backend keeps
-// the setting: Settings, the chip by the clock, the View menu) and the yard can be seen. Otherwise
+// the setting: Atmosphere and the View menu) and the yard can be seen. Otherwise
 // the audio rests: its context is suspended and costs nothing. A webview lets audio start only
 // after the person has touched the page, so the first click or key starts it.
 // Design: docs/design/2026-10-10-yard-sounds.md.
@@ -123,7 +123,7 @@ export function cue(name) {
   else scape.cue(name);
 }
 
-/** The chip by the clock and the Settings controls, as the setting is now. */
+/** Atmosphere's sound toggle and volume, as the setting is now. */
 export function renderSound() {
   const button = $('sound-button'),
     playing = on();
@@ -135,7 +135,6 @@ export function renderSound() {
     icon.dataset.icon = name;
     icons(button);
   }
-  $('sound-on').checked = playing;
   if (document.activeElement !== $('sound-volume')) $('sound-volume').value = String(volume());
   $('sound-volume').disabled = !playing;
   update();
@@ -149,10 +148,6 @@ export function setupSound() {
     set(!on(), null);
   };
   $('sound-button').addEventListener('click', toggle);
-  $('sound-on').addEventListener('change', e => {
-    touched = true;
-    set(e.target.checked, null);
-  });
   // The volume follows the slider at once, and is saved when it is let go.
   $('sound-volume').addEventListener('input', e => {
     if (awake) scape.setVolume(Number(e.target.value), ctx.currentTime, 0.08);

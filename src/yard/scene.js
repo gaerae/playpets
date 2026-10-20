@@ -52,7 +52,7 @@ export function autoWeather(ms, season = seasonFor(new Date(ms))) {
 // What each season does to the yard, as colours for the custom properties in scenery.css: the round
 // trees (--crown, and --maple for the one that turns first), the bushes (--leaf) and by day the
 // fields. Morning shares the day's colours; evening and night keep their own light on the fields.
-// Snow has its own colours for everything (scenery.css), so a snowy yard looks the same in any season.
+// Precipitation changes the sky while the selected season keeps its ground and foliage.
 export const SEASON_COLORS = {
   spring: {
     day: {
@@ -177,8 +177,7 @@ export const SEASON_COLORS = {
     },
   },
 };
-export function seasonVars(season, period, weather) {
-  if (weather === 'snow') return {};
+export function seasonVars(season, period) {
   const colors = SEASON_COLORS[season]?.[period === 'morning' ? 'day' : period];
   return colors ? { ...colors } : {};
 }

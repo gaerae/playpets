@@ -1,0 +1,18 @@
+{
+  "source": "soil-source.png",
+  "sourceSize": [1643, 957],
+  "sourceSha256": "71b91d309d3cee5505c8a3c377d3e89d7cfff06d2b40f7ea7bd9adca82466cd8",
+  "outputSize": [256, 147],
+  "exports": [
+    {
+      "id": "base",
+      "rect": [70, 285, 730, 420],
+      "output": "src/art/discovery/dug-soil.png"
+    },
+    {
+      "id": "winter",
+      "rect": [881, 285, 730, 420],
+      "output": "src/art/discovery/dug-soil-winter.png"
+    }
+  ]
+}

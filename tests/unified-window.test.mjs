@@ -189,3 +189,29 @@ test('Escape closes a yard menu first and leaves an open dialog to its own handl
   assert.equal(dialog.open, false);
   assert.equal(document.body.classList.contains('fullscreen'), true);
 });
+
+test('resizing keeps the shared Play board and its current task open', async t => {
+  const { document, nodes } = page(t);
+  windowUi.setupWindow();
+  const board = element('div', { id: 'play-panel', hidden: false });
+  nodes.set('play-panel', board);
+  document.activeElement = board;
+  globalThis.innerWidth = 300;
+  globalThis.innerHeight = 210;
+  await window.dispatch('resize');
+  assert.equal(board.hidden, false, 'one responsive board does not need to be replaced at a size breakpoint');
+  globalThis.innerWidth = 1280;
+  globalThis.innerHeight = 720;
+  await window.dispatch('resize');
+  assert.equal(board.hidden, false);
+});
+
+test('Escape leaves an open management task to its own handler before fullscreen', async t => {
+  const { nodes } = page(t);
+  windowUi.setupWindow();
+  await windowUi.setFullscreen(true);
+  calls.length = 0;
+  nodes.set('side-panel', element('aside', { id: 'side-panel', hidden: false }));
+  await window.dispatch('keydown', { key: 'Escape' });
+  assert.deepEqual(calls, [], 'closing management must not also leave fullscreen');
+});

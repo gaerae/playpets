@@ -1,0 +1,43 @@
+{
+  "method": "Complete connected silhouettes at alpha >24, preserving a two-pixel original alpha fringe; no repainting or per-pose resizing.",
+  "source": "fish-source.png",
+  "normalized": "fish-normalized.png",
+  "frames": [
+    {
+      "i": 0,
+      "sourceRect": [41, 47, 344, 443],
+      "rect": [0, 0, 344, 443],
+      "area": 53820
+    },
+    {
+      "i": 1,
+      "sourceRect": [522, 109, 466, 382],
+      "rect": [700, 0, 466, 382],
+      "area": 55846
+    },
+    {
+      "i": 2,
+      "sourceRect": [137, 582, 387, 363],
+      "rect": [0, 600, 387, 363],
+      "area": 57238
+    },
+    {
+      "i": 3,
+      "sourceRect": [555, 588, 390, 357],
+      "rect": [700, 600, 390, 357],
+      "area": 57497
+    },
+    {
+      "i": 4,
+      "sourceRect": [46, 1005, 485, 448],
+      "rect": [0, 1200, 485, 448],
+      "area": 67592
+    },
+    {
+      "i": 5,
+      "sourceRect": [536, 1031, 448, 418],
+      "rect": [700, 1200, 448, 418],
+      "area": 63341
+    }
+  ]
+}

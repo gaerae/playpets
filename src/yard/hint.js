@@ -1,6 +1,6 @@
 // The line above the yard that says what is going on or what a press will do, and the agents' work
 // beside the friend count. Which line is a pure choice (hintKey, busyLine), so it can be tested.
-import { t } from '../core/i18n.js';
+import { joinList, t } from '../core/i18n.js';
 import { $, aiming, data, game, labels, name, recall } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { scene } from './world.js';
@@ -23,7 +23,7 @@ export function busyLine(friends, stateOf, nameOf, label) {
     waiting = states.filter(s => s === 'waiting').length,
     busy = friends.find(p => ['working', 'waiting'].includes(stateOf(p)));
   if (working + waiting > 1) return t('yard.busy_summary', { working, waiting });
-  return busy ? `${nameOf(busy)} · ${label(stateOf(busy))}` : '';
+  return busy ? joinList([nameOf(busy), label(stateOf(busy))]) : '';
 }
 /** Brings the hint and the agents' summary in line with the yard now. */
 export function hint() {
@@ -33,7 +33,7 @@ export function hint() {
     name,
     state => labels[state],
   );
-  $('agent-summary').textContent = busy ? ` · ${busy}` : '';
+  $('agent-summary').textContent = busy ? ` (${busy})` : '';
   const line = hintKey({
     game,
     aiming,

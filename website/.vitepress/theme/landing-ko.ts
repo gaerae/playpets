@@ -55,7 +55,7 @@ export const worldCopy = {
     '좋아하는 펫을 데려오거나 새로운 친구를 만들어요. 모습이 달라지지 않도록 참고 시트와 바로 쓸 수 있는 프롬프트를 준비했어요.',
   creatorLink: '나만의 친구 만들기',
   discovery: '이미 Codex 펫이 있나요?',
-  sceneCaption: (v: string) => `실제 앱 화면 · PlayPets ${v}`,
+  sceneCaption: (v: string) => `실제 앱 화면, PlayPets ${v}`,
 };
 export const sections = {
   discoveryGuide: '도감에서 만날 것들',
@@ -94,5 +94,5 @@ export const sections = {
   agentGuide: '코딩 에이전트 연결하기',
   connectionDetails: '대화 연결과 비용 알아보기',
   connectionSetup:
-    '로컬 Ollama, 로그인한 Claude Code·Codex CLI, OpenAI 호환 서버를 골라요. CLI는 구독의 사용 한도 안에서 쓰고, API 서버는 별도 비용이 들 수 있어요.',
+    '로컬 Ollama, 로그인한 Claude Code, Codex CLI, OpenAI 호환 서버를 골라요. CLI는 구독의 사용 한도 안에서 쓰고, API 서버는 별도 비용이 들 수 있어요.',
 };

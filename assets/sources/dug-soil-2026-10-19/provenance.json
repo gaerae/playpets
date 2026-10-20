@@ -1,0 +1,20 @@
+{
+  "generator": "OpenAI built-in image generation",
+  "created": "2026-10-19",
+  "source": "soil-source.png",
+  "sourceSha256": "71b91d309d3cee5505c8a3c377d3e89d7cfff06d2b40f7ea7bd9adca82466cd8",
+  "packing": "plan.json",
+  "method": "Reviewed equal-sized source crops and uniform Lanczos resampling; no painting, recoloring or alpha replacement.",
+  "exports": [
+    {
+      "variant": "base",
+      "path": "src/art/discovery/dug-soil.png",
+      "sha256": "f3860159202a8efc44a064389fdf9c64a1f01c7c9334390a414ccf618836ed48"
+    },
+    {
+      "variant": "winter",
+      "path": "src/art/discovery/dug-soil-winter.png",
+      "sha256": "9a93ea9f2ec9a7b7fa26c30fd5346beceff20ef0ff04dd08f32d98cf9c014ca5"
+    }
+  ]
+}

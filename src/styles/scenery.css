@@ -162,55 +162,20 @@
   --sky-a: #b4c6d8;
   --sky-m: #d6e1ea;
   --sky-b: #f2f5f7;
-  --mount-a: #dfe7ee;
-  --mount-b: #eaf0f4;
-  --far: #e3ebf0;
-  --far-hi: #f4f8fa;
-  --back: #edf2f5;
-  --back-hi: #ffffff;
-  --front: #f6f9fa;
-  --front-hi: #ffffff;
   --cloud: #f6f9fb;
   --cloud-shade: #d5dfe8;
-  --leaf: #a9c4b1;
-  --leaf-hi: #cfe0d4;
-  --leaf-lo: #86a894;
-  --pine: #5f927a;
-  --pine-lo: #4a7a66;
-  --rock: #aab3bb;
-  --rock-hi: #ccd4da;
-  --cap: #ffffff;
 }
 .yard.weather-snow.period-evening {
   --sky-a: #8f92b8;
   --sky-m: #e3b3a6;
   --sky-b: #f5e3d6;
-  --far: #eadfe0;
-  --back: #f3eae8;
-  --front: #faf4f1;
 }
 .yard.weather-snow.period-night {
   --sky-a: #121e3c;
   --sky-m: #2c4570;
   --sky-b: #5a7797;
-  --mount-a: #5f7a9c;
-  --mount-b: #6c88a8;
-  --far: #7f97b3;
-  --far-hi: #93a9c2;
-  --back: #93a8c0;
-  --back-hi: #a9bbcf;
-  --front: #a7b8cc;
-  --front-hi: #bccadb;
   --cloud: #7d93b3;
   --cloud-shade: #64799a;
-  --leaf: #5f7f86;
-  --leaf-hi: #86a0a8;
-  --leaf-lo: #486870;
-  --pine: #3d6164;
-  --pine-lo: #2f4f54;
-  --rock: #6f8196;
-  --rock-hi: #8a9bb0;
-  --cap: #d9e4f0;
 }
 /* The sun by day and the moon by night stand where the clock puts them (sky.js sets --orb-x and
    --orb-y once a minute, the centre of the disc). */

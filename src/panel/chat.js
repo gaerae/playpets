@@ -103,7 +103,7 @@ export function renderChat(p) {
     for (const c of data.providers) $('provider-select').append(new Option(providerLabel(c), c.id));
     $('provider-select').append(new Option(t('chat.new_ai'), '__new'));
   }
-  $('provider-select').value = p.providerId;
+  $('provider-select').value = p.providerId || '';
   $('provider-select').disabled = data.busy.includes(p.id);
   const busy = data.busy.includes(p.id);
   $('send').hidden = busy;

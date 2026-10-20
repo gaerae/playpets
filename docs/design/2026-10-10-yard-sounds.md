@@ -42,3 +42,10 @@ While the sound rests (off, or the yard unseen), the audio context is suspended 
 - `tests/soundmix.test.mjs`: which layers play in which scene, and the cue scale.
 - e2e: the yard sounds start on at 40, the chip turns them off and on, and the backend holds the volume to 0–100. The run turns sound off first, so it stays quiet.
 - Offline renders (an `OfflineAudioContext` in a headless browser) were used to set the layer levels: birds stand out from the beds, rain is not a hiss, nothing clips.
+
+## Follow-up: seed pickup cue retired (2026-10-19)
+
+The seed-finding cue in the original proposal is historical. Spontaneous seed
+pickups and their unused cue are removed; digging is the source of flower seeds
+and saplings. Planted growth artwork and the other yard sounds remain. See
+[calm collection information](2026-10-19-calm-collection-information.md).

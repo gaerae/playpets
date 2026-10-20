@@ -5,8 +5,16 @@
 // caught goes in the album (the backend keeps it: src-tauri/src/pets/album.rs) and is shown on a
 // small card. Which fish bite and which bugs fly is the catalogue's (catalog.js).
 
+import {
+  beginCompanionAction,
+  clearCompanionAction,
+  companionAction,
+  companionImage,
+  prepareCompanionAction,
+} from '../core/companion-actions.js';
 import { list, t } from '../core/i18n.js';
 import { between, pick } from '../core/math.js';
+import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, game, guard, name, remember, selected, toast, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { befriend, levelOf } from './bond.js';
@@ -15,7 +23,7 @@ import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
 import { environmentFishingSpot, environmentLake } from './environment.js';
 import { field, footTarget, petHeight, sizeOf } from './field.js';
-import { castGeometry, castLandingX, linePath, ROD, rodPlacement, rodUrl } from './fishing-rod.js';
+import { authoredRodTip, castGeometry, castLandingX, linePath, ROD, rodPlacement, rodUrl } from './fishing-rod.js';
 import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
 import { cue } from './sound.js';
@@ -55,19 +63,26 @@ export function onLake(x, y) {
 // friend's trip and the fishing its task (views.js), so whatever takes the friend ends the fishing.
 let fishing = null;
 const atLake = { end: () => stopFishing() };
-function stopFishing() {
+function removeTackle(tackle) {
+  tackle?.float?.remove();
+  tackle?.line?.remove();
+  tackle?.rod?.remove();
+}
+function stopFishing(retainArtwork = false) {
   if (!fishing) return;
-  const { v, timer, float, line, rod } = fishing;
+  const tackle = fishing;
+  const { v, timer, poseTimer } = tackle;
   fishing = null;
   clearTimeout(timer);
-  float?.remove();
-  line?.remove();
-  rod?.remove();
+  clearTimeout(poseTimer);
+  clearCompanionAction(v);
+  if (!retainArtwork) removeTackle(tackle);
   if (v.trip?.arrive === fishArrived) release(v);
   if (v.doing === atLake) {
     v.doing = null;
     rest(v);
   }
+  return tackle;
 }
 function startFishing(x, friend) {
   if (!worldAllows(scene.world, 'fishing')) return;
@@ -80,6 +95,7 @@ function startFishing(x, friend) {
     remember('fished', '1');
     hint();
   }
+  for (const name of ['cast', 'wait', 'reel', 'discover']) prepareCompanionAction(v.asset, name);
   const area = field();
   const stance =
     $('yard').dataset.environment === 'illustrated' ? environmentFishingSpot(area.width, area.height, scene) : null;
@@ -88,23 +104,39 @@ function startFishing(x, friend) {
     arrive: fishArrived,
     cancel: stopFishing,
   });
-  fishing = { v, x, y: l.shoreAt(x) + (shore - l.shoreAt(x)) * 0.45, solo: !!friend };
+  fishing = { v, x, y: l.shoreAt(x) + (shore - l.shoreAt(x)) * 0.45, solo: !!friend, world: scene.world };
 }
 // The friend reached the shore it was sent to.
+function fishingAction(v, name) {
+  const action = beginCompanionAction(v, name);
+  const missingTip =
+    action?.clip.heldTool &&
+    action.clip.frames.some(frame => !authoredRodTip({ ...action, frame }, { x: 0, y: 0, width: 192, height: 208 }));
+  if (action && (!companionImage(action) || missingTip)) {
+    clearCompanionAction(v);
+    return null;
+  }
+  return action;
+}
 function fishArrived(v) {
   if (fishing?.v !== v || game) return stopFishing();
   setDoing(v, atLake);
+  const castAction = fishingAction(v, 'cast');
+  if (castAction) {
+    const current = fishing;
+    fishing.poseTimer = setTimeout(() => {
+      if (fishing === current) fishingAction(v, 'wait');
+    }, castAction.duration);
+  } else fishingAction(v, 'wait');
   bubble(v, pick(list('catch.casting')), 2600);
   const layer = $('garden-layer'),
     float = document.createElement('button'),
     rod = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
     line = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-    rodX = v.px + sizeOf(v.pet) * 0.6,
-    rodY = v.py + petHeight(v.pet) * 0.74;
+    rodX = v.px + sizeOf(v.pet) * 0.6;
   const water = lake();
   fishing.x = castLandingX(rodX, fishing.x, sizeOf(v.pet), water.ends);
   fishing.y = water.shoreAt(fishing.x) + (water.ridgeAt(fishing.x) - water.shoreAt(fishing.x)) * 0.45;
-  const cast = castGeometry({ x: rodX, y: rodY }, { x: fishing.x, y: fishing.y }, sizeOf(v.pet), petHeight(v.pet));
   float.type = 'button';
   float.className = 'bobber';
   float.setAttribute('aria-label', t('catch.too_soon'));
@@ -117,17 +149,14 @@ function fishArrived(v) {
   rod.setAttribute('class', 'fishing-rod');
   rod.setAttribute('aria-hidden', 'true');
   rod.style.zIndex = String(Math.max(0, (v.z || 0) - 1));
-  const matrix = rodPlacement(cast.grip, cast.tip);
-  rod.innerHTML = `<image href="${rodUrl}" width="${ROD.width}" height="${ROD.height}" transform="matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})"/>`;
   line.setAttribute('class', 'fishing-line');
   line.setAttribute('aria-hidden', 'true');
   line.setAttribute('fill', 'none');
   line.style.zIndex = String((v.z || 0) + 1);
-  const cord = linePath(cast.tip, cast.float);
-  line.innerHTML = `<path d="${cord}" stroke="#243c42" stroke-width="2.5" opacity=".55"/><path d="${cord}" stroke="#f4efe0" stroke-width="1.1" opacity=".95"/>`;
   layer.append(rod, line, float);
   Object.assign(fishing, { float, line, rod });
-  fishing.timer = setTimeout(nibble, between(Math.random, BITE_AFTER));
+  syncFishingArtwork(performance.now());
+  fishing.timer = setTimeout(nibble, (castAction?.duration ?? 0) + between(Math.random, BITE_AFTER));
 }
 function nibble() {
   if (!fishing || fishing.v.drag || game) return stopFishing();
@@ -146,18 +175,55 @@ function nibble() {
     stopFishing();
   }, BITE_WINDOW);
 }
+const reelingFriends = new Set();
+const reelingArtwork = new Map();
 const land = guard(async () => {
   if (!fishing?.biting) return;
   const world = scene.world,
     { v, solo } = fishing,
     { fish, size } = bite(scene.season, scene.period, scene.weather, Math.random, scene.event);
-  stopFishing();
-  const { first } = await call('catch', 'fish', fish.id, size);
+  const tackle = stopFishing(true);
+  let reelTimer;
+  let finishReel = () => {};
+  const reeling = {
+    end: () => {
+      clearCompanionAction(v);
+      clearTimeout(reelTimer);
+      finishReel();
+      reelingFriends.delete(v);
+      reelingArtwork.delete(v);
+      removeTackle(tackle);
+    },
+  };
+  reelingFriends.add(v);
+  setDoing(v, reeling);
+  const reelAction = fishingAction(v, 'reel');
+  if (reelAction) {
+    reelingArtwork.set(v, tackle);
+  } else removeTackle(tackle);
+  let first;
+  try {
+    [{ first }] = await Promise.all([
+      call('catch', 'fish', fish.id, size),
+      reelAction
+        ? new Promise(resolve => {
+            finishReel = resolve;
+            reelTimer = setTimeout(resolve, reelAction.duration);
+          })
+        : Promise.resolve(),
+    ]);
+  } catch (error) {
+    if (v.doing === reeling) release(v);
+    throw error;
+  }
+  const active = v.doing === reeling;
+  if (active) release(v);
   if (views.get(v.pet.id) === v) {
     befriend(v.pet.id, 'catch');
-    if (scene.world === world && !game) {
+    if (active && scene.world === world && !game) {
       cue('splash');
       cheer(v, 'catch.caught', { ms: 1200 });
+      fishingAction(v, 'discover');
     }
   }
   const title = solo
@@ -171,6 +237,50 @@ function reel() {
   land();
 }
 
+function paintFishingArtwork(tackle, now) {
+  if (!tackle.line || !tackle.rod) return;
+  const v = tackle.v;
+  const width = sizeOf(v.pet);
+  const height = petHeight(v.pet);
+  const cast = castGeometry(
+    { x: v.px + width * 0.6, y: v.py + height * 0.74 },
+    { x: tackle.x, y: tackle.y },
+    width,
+    height,
+  );
+  const action = companionAction(v, now);
+  const paintedTip =
+    companionImage(action) && authoredRodTip(action, { x: v.px, y: v.py, width, height }, reduced.matches);
+  if (paintedTip) {
+    if (!tackle.rod.hasAttribute('hidden')) tackle.rod.setAttribute('hidden', '');
+  } else {
+    if (tackle.rod.hasAttribute('hidden')) tackle.rod.removeAttribute('hidden');
+    const key = `${cast.grip.x}:${cast.grip.y}:${cast.tip.x}:${cast.tip.y}`;
+    if (tackle.rodKey !== key) {
+      const matrix = rodPlacement(cast.grip, cast.tip);
+      tackle.rod.innerHTML = `<image href="${rodUrl}" width="${ROD.width}" height="${ROD.height}" transform="matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})"/>`;
+      tackle.rodKey = key;
+    }
+  }
+  const cord = linePath(paintedTip || cast.tip, cast.float);
+  if (tackle.cord !== cord) {
+    tackle.line.innerHTML = `<path d="${cord}" stroke="#243c42" stroke-width="2.5" opacity=".55"/><path d="${cord}" stroke="#f4efe0" stroke-width="1.1" opacity=".95"/>`;
+    tackle.cord = cord;
+  }
+}
+/** Reuses the yard tick: stationary frames keep both SVG paths and the decoded atlas untouched. */
+export function syncFishingArtwork(now) {
+  if (fishing) {
+    const v = fishing.v;
+    if (v.drag || game || views.get(v.pet.id) !== v || fishing.world !== scene.world) stopFishing();
+    else paintFishingArtwork(fishing, now);
+  }
+  for (const [v, tackle] of reelingArtwork) {
+    if (v.drag || game || views.get(v.pet.id) !== v || tackle.world !== scene.world) release(v);
+    else paintFishingArtwork(tackle, now);
+  }
+}
+
 // A close friend fishes on its own now and then, while the yard is quiet: no game, no trip already
 // at the lake, and the friend idle.
 const SOLO_EVERY = [12 * 60 * 1000, 25 * 60 * 1000];
@@ -178,6 +288,7 @@ const SOLO_LANDS = 0.75;
 const solo = cadence(() => between(Math.random, SOLO_EVERY));
 /** Called by the frame loop while the yard is seen. */
 export function soloFishing(now) {
+  syncFishingArtwork(now);
   if (!worldAllows(scene.world, 'fishing') || !solo.due(now) || fishing || game || aiming) return;
   const keen = [...views.values()].filter(v => isFree(v) && levelOf(v.pet.id) >= 3);
   if (!keen.length) return;
@@ -234,26 +345,26 @@ const catchBug = guard(async caught => {
 // What a point in the yard can be caught at: a creature in the air, or the lake.
 function free(e) {
   return (
-    !aiming &&
-    !game &&
-    data.pets.length &&
-    !e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .found-seed, .bobber, button')
+    !aiming && !game && data.pets.length && !e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button')
   );
 }
 function at(e) {
   const r = $('yard').getBoundingClientRect();
   return [e.clientX - r.left, e.clientY - r.top];
 }
+export function syncFishingAction() {
+  const tool = $('fish-tool');
+  if (!tool) return;
+  tool.hidden = false;
+  tool.disabled = !data.pets.length || !!game || !worldAllows(scene.world, 'fishing');
+}
 /** Wires catching to the yard's clicks and its pointer. Called once, by app.js. */
 export function setupCatch() {
   const yard = $('yard');
   const tool = $('fish-tool');
   if (tool) {
-    const update = () => {
-      tool.hidden = !worldAllows(scene.world, 'fishing');
-    };
-    update();
-    $('world')?.addEventListener('change', update);
+    syncFishingAction();
+    $('world')?.addEventListener('change', syncFishingAction);
     tool.addEventListener('click', () => {
       if (aiming || game || !worldAllows(scene.world, 'fishing')) return;
       if (fishing) {
@@ -287,6 +398,7 @@ export function setupCatch() {
 /** The yard's size changing ends a fishing trip (the float would be left where the lake was). */
 export function endFishing() {
   stopFishing();
+  for (const v of reelingFriends) release(v);
   for (const net of nets) net.remove();
   $('yard').classList.remove('can-catch');
 }

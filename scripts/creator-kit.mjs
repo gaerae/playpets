@@ -115,7 +115,7 @@ export async function createCreatorKit(destination = 'assets/creator-kit', kits 
               ctx.fillRect(0, 0, canvas.width, canvas.height);
               ctx.fillStyle = '#253d35';
               ctx.font = 'bold 17px sans-serif';
-              ctx.fillText(`${kit.id} · ${name} · reference only`, 16, 29);
+              ctx.fillText(`${kit.id} / ${name} / reference only`, 16, 29);
               for (const [index, cell] of cells.entries()) {
                 const x = (index % columns) * 208,
                   y = 48 + Math.floor(index / columns) * 240;

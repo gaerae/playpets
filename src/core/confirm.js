@@ -34,6 +34,13 @@ export function setupConfirm() {
   closeOnBackdrop(dialog);
 }
 
+// Keep inline feedback visible when a form has its own scrolling body.
+export function showFormError(id, message) {
+  const field = $(id);
+  field.textContent = message;
+  field.scrollIntoView?.({ block: 'nearest' });
+}
+
 // A click on the backdrop (outside the dialog's own box) closes the dialog, unless `canClose`
 // says not now.
 export function closeOnBackdrop(dialog, canClose = () => true) {

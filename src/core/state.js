@@ -48,12 +48,42 @@ export const asset = p =>
   );
 export const name = p => displayName(p, asset(p), t('friend.default'));
 /** An AI connection as the lists show it: the name, and the model when it has one. */
-export const providerLabel = c => (c?.model ? `${c.name} · ${c.model}` : c?.name || '');
+export const providerLabel = c => (c?.model ? `${c.name} (${c.model})` : c?.name || '');
 let toastTimer;
+const noticeHomes = new WeakMap();
+function placeNotice() {
+  const notice = $('toast');
+  if (!noticeHomes.has(notice)) noticeHomes.set(notice, notice.parentNode);
+  // A z-index cannot put a yard notice above a modal's top layer.
+  const dialog = [...document.querySelectorAll('dialog[open]')].at(-1);
+  const actions = dialog?.querySelector('.dialog-actions');
+  const host = actions?.parentNode || dialog || noticeHomes.get(notice);
+  if (host && notice.parentNode !== host) {
+    if (actions) host.insertBefore(notice, actions);
+    else host.append(notice);
+  }
+  if (dialog) notice.dataset.inDialog = 'true';
+  else delete notice.dataset.inDialog;
+}
+export function setupToast() {
+  const followDialog = () => {
+    if (!$('toast').hidden) placeNotice();
+  };
+  document.addEventListener('close', followDialog, true);
+  // A notice that was already visible also follows a newly opened modal.
+  if (globalThis.MutationObserver) {
+    const observer = new MutationObserver(followDialog);
+    for (const dialog of document.querySelectorAll('dialog'))
+      observer.observe(dialog, { attributes: true, attributeFilter: ['open'] });
+  }
+}
 // A notice stays as long as it takes to read (longer for more words, 3 to 8 seconds), and while the
 // pointer rests on it.
 export function toast(message) {
-  $('toast').textContent = message;
+  const text = document.createElement('span');
+  text.textContent = message;
+  $('toast').replaceChildren(text);
+  placeNotice();
   $('toast').hidden = false;
   toastFor(Math.min(8000, 2500 + String(message).length * 50));
 }

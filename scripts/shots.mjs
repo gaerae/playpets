@@ -169,7 +169,7 @@ function scenario(lang) {
     $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
     $('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
     $('period').value='day';$('period').dispatchEvent(new Event('change'));
-    $('season').value='spring';$('season').dispatchEvent(new Event('change'));
+    $('scene-season').value='spring';$('scene-season').dispatchEvent(new Event('change'));
     const boot=await playPets.bootstrap();
     const cast=${JSON.stringify(companionCast())};
     const positionCast=async(pets,factor=1)=>{
@@ -205,15 +205,24 @@ function scenario(lang) {
     if(${adultsOnly}){await companionScene();await L('DONE');return;}
     if(!${seasonsOnly || chatOnly || smallOnly}){await tab('invite');await wait(800);await shot('invite');}
     const p1=(await must('addPet',playPets.addPet(coat('Daisy').id))).data,p2=(await must('addPet2',playPets.addPet(coat('Clover').id))).data,p3=(await must('addPet3',playPets.addPet(coat('Pip').id))).data,p4=(await must('addPet4',playPets.addPet(coat('Miso').id))).data;
+    // Complete the first connection before any yard-only capture. Otherwise the onboarding task
+    // card sits over a small window even though the later chat captures already use this provider.
+    const save=(await must('saveProvider',playPets.saveProvider({type:'ollama',model:'tabby',endpoint:'${endpoint}'}))).data;
+    await must('attach1',playPets.updatePet(p1.id,{providerId:save.id}));
+    await must('attach2',playPets.updatePet(p2.id,{providerId:save.id}));
+    await must('attach3',playPets.updatePet(p3.id,{providerId:save.id}));
+    await must('attach4',playPets.updatePet(p4.id,{providerId:save.id}));
+    for(let i=0;i<20&&!$('empty-yard').hidden;i++)await wait(50);
+    if(!$('empty-yard').hidden)throw new Error('Onboarding tasks remained visible after the capture connection');
     if(!${chatOnly || smallOnly}){
-      const previousSeason=$('season').value;
+      const previousSeason=$('scene-season').value;
       // Hold the composition while keeping the app's real idle animations and seasonal effects.
       const {views}=await import('./core/state.js');
       for(const view of views.values())view.nextWander=Infinity;
       $('close-panel').click();
       await positionCast([p1,p2,p3,p4]);
       for(const scene of ${JSON.stringify(seasonalScenes())}){
-        $('season').value=scene.season;$('season').dispatchEvent(new Event('change'));
+        $('scene-season').value=scene.season;$('scene-season').dispatchEvent(new Event('change'));
         $('weather').value=scene.weather;$('weather').dispatchEvent(new Event('change'));
         await settledScene();await wait(1800);await shot(scene.name);
       }
@@ -223,29 +232,24 @@ function scenario(lang) {
           ['courtyard','spring','day','courtyard'], ['lakeside','summer','day','lakeside'],
           ['studio','summer','day','studio-day'], ['studio','summer','night','studio-night']
         ]) {
-          for(const [id,value] of [['world',item[0]],['season',item[1]],['period',item[2]],['weather','clear']]) {
+          for(const [id,value] of [['world',item[0]],['scene-season',item[1]],['period',item[2]],['weather','clear']]) {
             $(id).value=value;$(id).dispatchEvent(new Event('change'));
           }
           await settledScene();await wait(1800);await shot(item[3]);
         }
         $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
-        $('season').value='spring';$('season').dispatchEvent(new Event('change'));
+        $('scene-season').value='spring';$('scene-season').dispatchEvent(new Event('change'));
         $('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
         $('period').value='day';$('period').dispatchEvent(new Event('change'));
         await inv('e2eWindow',['main',{x:80,y:170,width:460,height:320}]);await wait(1500);await shot('mini');await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);await wait(1000);
       }
-      $('season').value=previousSeason;$('season').dispatchEvent(new Event('change'));
+      $('scene-season').value=previousSeason;$('scene-season').dispatchEvent(new Event('change'));
       if(${seasonsOnly}){await L('DONE');return;}
     }
-    const save=(await must('saveProvider',playPets.saveProvider({type:'ollama',model:'tabby',endpoint:'${endpoint}'}))).data;
     await must('rename1',playPets.updatePet(p1.id,{name:${JSON.stringify(s.names[0])},size:cast[0].size,persona:${JSON.stringify(s.persona)},relation:'partner'}));
     await must('rename2',playPets.updatePet(p2.id,{name:${JSON.stringify(s.names[1])},size:cast[1].size}));
     await must('rename3',playPets.updatePet(p3.id,{name:${JSON.stringify(s.names[2])},size:cast[2].size}));
     await must('rename4',playPets.updatePet(p4.id,{name:${JSON.stringify(s.names[3])},size:cast[3].size}));
-    await must('attach1',playPets.updatePet(p1.id,{providerId:save.id}));
-    await must('attach2',playPets.updatePet(p2.id,{providerId:save.id}));
-    await must('attach3',playPets.updatePet(p3.id,{providerId:save.id}));
-    await must('attach4',playPets.updatePet(p4.id,{providerId:save.id}));
     await must('assign1',playPets.assignAgent('claude',p1.id));
     await must('assign2',playPets.assignAgent('codex',p2.id));
     // Claude Code reports in through the binary's own hook mode: the first friend is at work.
@@ -267,16 +271,16 @@ function scenario(lang) {
     await positionCast([p1,p2,p3,p4]);
     playPets.chatWith([p1.id,p2.id,p3.id,p4.id],${JSON.stringify(s.talkTo)});
     await wait(2600);await shot('yard-talk');await wait(2500);
-    $('close-panel').click();$('season').value='summer';$('season').dispatchEvent(new Event('change'));$('period').value='evening';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('yard-evening');
-    $('season').value='spring';$('season').dispatchEvent(new Event('change'));$('period').value='day';$('period').dispatchEvent(new Event('change'));await settledScene();
+    $('close-panel').click();$('scene-season').value='summer';$('scene-season').dispatchEvent(new Event('change'));$('period').value='evening';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('yard-evening');
+    $('scene-season').value='spring';$('scene-season').dispatchEvent(new Event('change'));$('period').value='day';$('period').dispatchEvent(new Event('change'));await settledScene();
     document.querySelector('[data-game=hide]').click();await wait(2600);await shot('play-hide-and-seek');
     const playing=document.querySelector('[data-game].playing');if(playing)playing.click();await wait(400);
     $('world').value='studio';$('world').dispatchEvent(new Event('change'));
-    $('season').value='summer';$('season').dispatchEvent(new Event('change'));
+    $('scene-season').value='summer';$('scene-season').dispatchEvent(new Event('change'));
     $('period').value='day';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('studio-day');
     $('period').value='night';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('studio-night');
     $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
-    $('season').value='spring';$('season').dispatchEvent(new Event('change'));
+    $('scene-season').value='spring';$('scene-season').dispatchEvent(new Event('change'));
     $('period').value='day';$('period').dispatchEvent(new Event('change'));
     await tab('settings');document.querySelector('.settings-index [data-section=agent-link-title]').click();await wait(600);await shot('settings-agents');
     $('close-panel').click();await inv('e2eWindow',['main',{x:80,y:170,width:460,height:320}]);await wait(1500);

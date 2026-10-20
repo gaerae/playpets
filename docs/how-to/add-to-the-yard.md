@@ -21,7 +21,7 @@ The code holds what things do: the painters (`backdrop.js`, `trees.js`, `lake.js
 ## Steps
 
 ### Add a fish or a bug
-1. Add an entry to `fish` or `bugs` in `src/content/catalog.json`. Copy one that is close and change it: `id` (lowercase and `_`), `seasons`, `periods`, `weight` (how often, among those that can bite or fly then), for a fish `size` ([shortest, longest] in cm; the backend refuses a longer catch) and `rain` (more likely in rain), for a bug `kind` (`butterfly`, `dragonfly` or `firefly`), and `look` (the colours the drawer paints it with; the fields each drawer reads are in `creatures.js`).
+1. Add an entry to `fish` or `bugs` in `src/content/catalog.json`. Copy one that is close and change it: `id` (lowercase and `_`), `seasons`, `periods`, `weight` (how often, among those that can bite or fly then), for a fish `size` ([shortest, longest] in cm; the backend refuses a longer catch) and `rain` (more likely in rain), for a bug `kind` (`butterfly`, `dragonfly`, `firefly`, `beetle` or `cricket`), and `look` (the colours the drawer paints it with; the fields each drawer reads are in `creatures.js`).
 2. To draw it yourself instead, add `"art": "fish/<id>.svg"` and put the drawing there (see "Drawings" below).
 3. Add its name to every string table: `catch.fish_<id>` or `catch.bug_<id>`.
 
@@ -118,14 +118,33 @@ npm run test:e2e
 
 ## Keep discovery information accurate
 
-The website's discovery guide reads the same catalogue and locale strings as the app. `eligibleKinds`, `fishWeight`, `relativeChances` and `wildlifeGroup` in `src/yard/catalog.js` keep its condition filters and the runtime aligned. A fish percentage is conditional on a successful landing; a bug percentage is conditional on its group appearing. It is not a per-hour spawn probability. Changing season, time, event or rain changes the eligible pool and its normalized weights. Rain changes fish weights, while bugs require clear weather. The gift sequence is deterministic and the guide never presents it as a loot probability.
+The website's discovery guide reads the app's catalogue and locale strings. `eligibleKinds`, `fishWeight`, `relativeChances` and `bugChances` in `src/yard/catalog.js` define the shared pools. `bugChances(season, period, weather, event, kinds)` accepts a supplied catalogue for the guide and defaults to the loaded app catalogue at runtime. Its percentages describe one spawned individual: daylight mixes butterflies at 55%, dragonflies at 25%, beetles at 10% and crickets at 10%, renormalizing when a family is unavailable, then applies species weights within each family. Do not normalize both families to 100% independently. Rain, snow and unavailable seasons return an empty bug pool.
 
-The guide calls weights of at least 20% “often”, 5% to below 20% “sometimes”, and below 5% “rarely” within the current pool. These labels describe relative selection, not waiting times. Event dates and hemisphere behavior remain in the seasonal-events section. Do not change gameplay weights merely to make every collection finish in one sitting. When adding an appearance rule, update the shared predicate and its tests before changing the guide.
+Fish percentages describe species conditional on a landed fish, separately from landing success. Clicking water starts manual fishing; Play's Fish action uses a 75% automatic landing chance. An idle friend at bond level 3 may start independently every 12–25 minutes while the visible yard is free of competing activities. Species odds do not promise a waiting time. Explicit bug `rarity` metadata controls rare badges; probability labels in the guide describe only the selected context.
+
+Guide labels use at least 20% for “often”, 5% to below 20% for “sometimes”, and below 5% for “rarely”. Event selection assumes an active event and shows conditional species odds, not the chance of a festival occurring. Event dates and hemisphere rules are in `events.json`; event gifts remain calendar-bound. Gifts follow a deterministic sequence, not a loot probability. The 12-decoration placement cap pauses deliveries, but removing a decoration retains its album entry and allows all 20 gifts to be collected over time.
+
+Keep every album entry reachable across valid contexts. `tests/discovery-guide.test.mjs` enumerates fish and bug pools across seasons, times and events, checks positive flower/tree/keepsake chances, and verifies each event gift's calendar mapping. When adding an appearance rule, update the shared helper and tests before the guide. Do not retune gameplay merely to finish every collection in one sitting.
 
 ## Planted trees and discoveries
 
 Trees in `catalog.json` have an ID, three `stages` (seedling, young, mature), an optional `seasonArt` map for mature art, and a `footprint` root ellipse in authored pixels. New species need a `tree.<id>` string in every language. Drawings use a bottom-centre anchor and share yard zoom; the field coordinate stays fixed through growth and season changes. `planted-trees.js` owns these saved trees; `trees.js` remains the procedural scenery painter.
 
-Keepsakes use the `treasures` list, an art path and `rarity` (`common` or `uncommon`), plus `treasure.<id>` in every language. Each tier is selected uniformly; tier odds and timing limits are in `pets/discovery.rs` and exposed by the backend. The page fallback and website guide share `core/limits.js`; its test compares them with Rust.
+Keepsakes use the `treasures` list, an art path and `rarity` (`common` or `uncommon`), plus `treasure.<id>` in every language. Each tier uses the item weights within that tier; tier odds and timing limits are in `pets/discovery.rs` and exposed by the backend. The page fallback and website guide share `core/limits.js`; its test compares them with Rust.
+
+Trees and keepsakes may include `affinity: { seasons: ["spring"], weather: ["rain"], places: ["woodland"] }`.
+Each matching axis doubles the base weight within its own reward category; unmatched items remain available.
+Built-in place preferences use `woodland`, `courtyard` or `lakeside`. Imported outdoor scenes keep neutral place
+weights and still use season and weather preferences. Add readable habitat clues through the existing four-language
+strings rather than duplicating species-specific prose. The page and site share `src/yard/discovery-rewards.js`.
+The backend keeps one uncommon reward per rolling 24 hours across all friends and places, using saved dig history;
+during that interval its 3% becomes common keepsakes. See the [environmental discovery contract](../design/2026-10-19-environmental-discovery.md).
 
 A tree belongs to its `world` ID; existing flowers and decorations remain shared. The ground profile is a local geometry snapshot of the current floor, projected water and placed roots/props, not image inference. Optional imported-background `capabilities.soil` controls digging and tree planting independently of sky transparency. The creator skill and import validator preserve it.
+
+Beetles crawl and crickets hop near the floor; keep their specimen heads pointing
+up in the atlas so heading rotation remains correct. They share clear daytime
+appearance rules without becoming airborne. The native album shows ground habitat
+clues. `ambient-art.js` loads each referenced bug atlas once and invalidates its
+canvas when decoding finishes. Exact probabilities stay internal; the player-facing
+album and guide show conditions, qualitative frequency and waiting status.

@@ -23,3 +23,30 @@ export function rewriteDocLinks(text, { file, repo }) {
     return `](${path.relative(from, destinationFor(resolved))}${hash})`;
   });
 }
+
+/** Historical source stays intact; displayed prose follows the site's current punctuation. */
+export function docDisplayProse(text) {
+  let fence = null;
+  return text
+    .split('\n')
+    .map(line => {
+      const marker = line.match(/^ {0,3}(`{3,}|~{3,})/);
+      if (marker) {
+        if (!fence) fence = marker[1];
+        else if (marker[1][0] === fence[0] && marker[1].length >= fence.length) fence = null;
+        return line;
+      }
+      if (fence) return line;
+      // Inline code and link destinations remain exact, including technical punctuation.
+      const protectedParts = /(`+)[^\n]*?\1|\]\([^\n)]*\)/g;
+      let end = 0;
+      let output = '';
+      const prose = value => value.replace(/\s*[\u00b7\u30fb\u2027\u2219]\s*/g, ', ');
+      for (const match of line.matchAll(protectedParts)) {
+        output += prose(line.slice(end, match.index)) + match[0];
+        end = match.index + match[0].length;
+      }
+      return output + prose(line.slice(end));
+    })
+    .join('\n');
+}

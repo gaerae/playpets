@@ -1,0 +1,39 @@
+{
+  "source": "actions-normalized.png",
+  "scale": 0.69,
+  "canvas": [224, 224],
+  "anchor": [96, 199],
+  "offset": [0, 0],
+  "frames": [
+    {
+      "rect": [0, 0, 215, 254],
+      "foot": [107, 244],
+      "duration": 260
+    },
+    {
+      "rect": [400, 0, 217, 242],
+      "foot": [78, 236],
+      "duration": 280
+    },
+    {
+      "rect": [800, 0, 216, 220],
+      "foot": [97, 207],
+      "duration": 360
+    },
+    {
+      "rect": [1200, 0, 212, 202],
+      "foot": [89, 188],
+      "duration": 400
+    },
+    {
+      "rect": [1600, 0, 246, 251],
+      "foot": [100, 245],
+      "duration": 380
+    },
+    {
+      "rect": [2000, 0, 200, 249],
+      "foot": [97, 238],
+      "duration": 320
+    }
+  ]
+}

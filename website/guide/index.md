@@ -2,7 +2,7 @@
 
 PlayPets is a shared yard for companions who talk to you and each other. Invite a starter or import a compatible community pet file, then choose a name, personality and relationship. Codex itself is not required.
 
-Your first yard opens on a sunny spring day. Choose a season, time and weather, or switch them to Auto. Friends stroll, eat treats, play three games, find seeds and bring gifts. Grow flowers, fish and catch bugs for the album, and grow closer over time. Resize the window to keep the yard beside your work; desktop mode lets friends roam over other windows. Conversation needs a local model, a signed-in CLI or another AI connection. Coding-agent hooks are optional.
+Your first yard opens on a sunny spring day. Choose a season, time and weather, or switch them to Auto. Friends stroll, eat treats and play three games. Dig to find flower seeds and saplings. All friends share a yard-wide limit of one gift per local calendar day. Grow flowers, fish and catch bugs for the album, and grow closer over time. Resize the window to keep the yard beside your work; desktop mode lets friends roam over other windows. Conversation needs a local model, a signed-in CLI or another AI connection. Coding-agent hooks are optional.
 
 ## What you need
 

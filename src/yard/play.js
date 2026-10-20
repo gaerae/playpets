@@ -7,10 +7,10 @@
 import { joinList, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { shuffle } from '../core/math.js';
-import { popup } from '../core/menu.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, data, game, name, selected, setGame, toast, views } from '../core/state.js';
 import { setAimingMode } from './care.js';
+import { syncFishingAction } from './catch.js';
 import { petHeight, sizeOf } from './field.js';
 import {
   chaseTarget,
@@ -44,6 +44,7 @@ function after(ms, fn) {
   round.timers.add(timer);
 }
 export function syncGameUi() {
+  syncFishingAction();
   for (const b of gameButtons) {
     const mine = game?.kind === b.dataset.game;
     b.querySelector('.game-name').textContent = mine
@@ -54,11 +55,8 @@ export function syncGameUi() {
   }
   $('feed').disabled = !data.pets.length || !!game;
   // The games share one button on the tools: it opens their menu, and while one is on it ends it.
-  $('games-label').textContent = game ? t('game.stop', { name: GAMES[game.kind] }) : t('game.label');
+  $('games-label').textContent = game ? t('game.stop', { name: GAMES[game.kind] }) : t('controls.group_games');
   $('games-button').classList.toggle('playing', !!game);
-  // While a game is on the button ends it: it is not a menu then.
-  if (game) $('games-button').removeAttribute('aria-haspopup');
-  else $('games-button').setAttribute('aria-haspopup', 'menu');
   $('games-button').disabled = !data.pets.length;
   hint();
 }
@@ -87,7 +85,7 @@ function ask(note = '') {
 function tell(note = '') {
   const others = [...game.hidden].filter(id => id !== game.target).map(called),
     where = others.length ? t('hide.still_hidden', { names: joinList(others) }) : t('hide.last');
-  banner(t('hide.find_label'), called(game.target), [note, where].filter(Boolean).join(' · '));
+  banner(t('hide.find_label'), called(game.target), joinList([note, where].filter(Boolean)));
 }
 // A wrong guess only says so; the friend stays hidden and the same name is still asked for.
 function miss() {
@@ -333,7 +331,6 @@ export function setupPlay() {
         mark = document.createElement('span'),
         label = document.createElement('span');
       row.className = 'button tool game';
-      row.setAttribute('role', 'menuitem');
       row.dataset.game = kind;
       row.title = t(`game.${kind}_title`);
       mark.dataset.icon = rules.icon;
@@ -350,11 +347,4 @@ export function setupPlay() {
       if (game?.kind === b.dataset.game) endGame();
       else startGame(b.dataset.game);
     };
-  // While a game is on, the button ends it rather than opening the menu (heard before the menu's own).
-  $('games-button').addEventListener('click', e => {
-    if (!game) return;
-    e.stopImmediatePropagation();
-    endGame();
-  });
-  popup($('games-button'), $('games-menu'));
 }

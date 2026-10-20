@@ -1,0 +1,37 @@
+{
+  "source": "summer-plant-canonical.png",
+  "scale": 0.68,
+  "anchor": [96, 199],
+  "frames": [
+    {
+      "rect": [0, 0, 384, 320],
+      "foot": [84, 250],
+      "duration": 260
+    },
+    {
+      "rect": [384, 0, 384, 320],
+      "foot": [80, 223],
+      "duration": 260
+    },
+    {
+      "rect": [768, 0, 384, 320],
+      "foot": [69, 193],
+      "duration": 400
+    },
+    {
+      "rect": [1152, 0, 384, 320],
+      "foot": [83, 188],
+      "duration": 440
+    },
+    {
+      "rect": [1536, 0, 384, 320],
+      "foot": [86, 245],
+      "duration": 300
+    },
+    {
+      "rect": [1920, 0, 384, 320],
+      "foot": [102, 255],
+      "duration": 340
+    }
+  ]
+}

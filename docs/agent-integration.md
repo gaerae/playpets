@@ -109,7 +109,7 @@ The Settings tab's "Copy settings" tells you which file to paste into.
 When installed through MSIX on Windows, the executable lives under WindowsApps and cannot be run by path from outside. In that case the settings snippet points at the execution alias (`%LOCALAPPDATA%\Microsoft\WindowsApps\playpets.exe`).
 
 ## Related decisions
-- Design record "[Stronger agent integration · community import · personality and activity memory](design/2026-09-29-agent-link-import-persona.md)": hook-first integration, CLI mode without Node, activity memory
+- Design record "[Stronger agent integration, community import, personality and activity memory](design/2026-09-29-agent-link-import-persona.md)": hook-first integration, CLI mode without Node, activity memory
 - "[Strings live in two per-language tables, one for the page and one for the backend, and agent status is sent as codes](decisions/2026-09-30-strings-in-two-tables.md)": why hooks send codes
 
 ## Change history

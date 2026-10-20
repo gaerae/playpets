@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import './support/content.mjs';
 import { element, installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
 const commands = [];
@@ -69,6 +70,8 @@ test('walking or cancelling before arrival never rolls or awards a discovery', a
 
 test('arrival commits once and cancellation during the backend wait removes presentation only', async t => {
   const { v } = fixture(t);
+  scene.season = 'summer';
+  scene.weather = 'snow';
   sendDiscovery(v, { x: 0.5, y: 0.5 }, 'dig');
   const arrive = v.trip.arrive;
   v.trip = null;
@@ -77,7 +80,10 @@ test('arrival commits once and cancellation during the backend wait removes pres
   assert.equal(commands.length, 1);
   assert.deepEqual(commands[0].slice(0, 4), ['friend', 'woodland', 0.5, 0.5]);
   assert.equal(commands[0][4].soil, true);
-  const effect = document.getElementById('yard').children.at(-1);
+  assert.deepEqual(commands[0][5], { season: 'summer', weather: 'snow' });
+  assert.equal(v.pose, 'idle', 'digging never selects a coding sprite with a laptop');
+  const effect = document.getElementById('garden-layer').children.at(-1);
+  assert.match(effect.innerHTML, /dig-soil/);
   release(v);
   resolveDig({ ok: true, data: { outcome: 'empty', attemptId: 'once' } });
   await pending;
@@ -109,4 +115,304 @@ test('a layout change cancels a discovery trip before stale geometry can award i
   await arrive();
   assert.equal(v.target, null);
   assert.equal(commands.length, 0);
+});
+
+test('tree choices show owned saplings and never default to an unavailable species', t => {
+  fixture(t);
+  state.data.garden.saplings = { maple: 2 };
+  beginDiscovery('tree');
+  const choices = document.getElementById('discovery-tree-choices').children;
+  const maple = choices.find(button => button.dataset.treeKind === 'maple');
+  assert.ok(maple);
+  assert.equal(maple.disabled, false);
+  assert.equal(maple.getAttribute('aria-pressed'), 'true');
+  assert.ok(choices.filter(button => button.dataset.treeKind !== 'maple').every(button => button.disabled));
+  assert.match(maple.textContent, /2/);
+});
+
+test('an empty sapling pocket offers digging instead of allowing free planting', async t => {
+  const { v } = fixture(t);
+  setupDiscovery();
+  beginDiscovery('tree');
+  assert.equal(document.getElementById('discovery-find-saplings').hidden, false);
+  await document.getElementById('yard').dispatch('click', { clientX: 500, clientY: 620 });
+  assert.equal(v.trip, undefined);
+  document.getElementById('discovery-find-saplings').onclick();
+  assert.equal(state.aiming, 'dig');
+});
+
+test('a fast discovery result waits for the complete tool action before its reveal', async t => {
+  const { v, timers } = fixture(t);
+  sendDiscovery(v, { x: 0.5, y: 0.5 }, 'dig');
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  const pending = arrive();
+  const effect = document.getElementById('garden-layer').children.at(-1);
+  assert.equal(timers.length, 2, 'contact and action clocks start at arrival, before the backend responds');
+  resolveDig({ ok: true, data: { outcome: 'empty', attemptId: 'once' } });
+  await pending;
+  assert.notEqual(effect.removed, true, 'an early result cannot cut a shovel stroke short');
+  timers.at(-1)();
+  assert.equal(effect.removed, true);
+});
+
+test('a slow discovery result reveals immediately after the result, without another action delay', async t => {
+  const { v, timers } = fixture(t);
+  sendDiscovery(v, { x: 0.5, y: 0.5 }, 'dig');
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  const pending = arrive();
+  const effect = document.getElementById('garden-layer').children.at(-1);
+  assert.equal(timers.length, 2);
+  timers.at(-1)();
+  assert.notEqual(effect.removed, true, 'an unfinished request cannot reveal a fabricated result');
+  resolveDig({ ok: true, data: { outcome: 'empty', attemptId: 'once' } });
+  await pending;
+  assert.equal(effect.removed, true);
+});
+
+test('bundled digging uses its authored tool and waits for its actual action duration', async t => {
+  const { useCompanionActions, setCompanionSeason, companionAction } = await import('../src/core/companion-actions.js');
+  const { v } = fixture(t);
+  keepGlobals(t, 'Image');
+  globalThis.Image = class {
+    complete = true;
+    naturalWidth = 1024;
+  };
+  v.asset = { place: 'builtin', sourceId: 'playpets-clover' };
+  useCompanionActions({
+    version: 1,
+    characters: {
+      'playpets-clover': {
+        variants: {
+          spring: {
+            dig: {
+              url: 'art/companions/clover/dig.png',
+              heldTool: true,
+              anchor: [96, 199],
+              ground: [168, 199],
+              contactAt: 500,
+              tossAt: 1500,
+              frames: [{ rect: [0, 0, 192, 208], foot: [96, 200], duration: 2400 }],
+            },
+          },
+        },
+      },
+    },
+  });
+  setCompanionSeason('spring');
+  const waits = [];
+  globalThis.setTimeout = (_fn, ms) => {
+    waits.push(ms);
+    return waits.length;
+  };
+  sendDiscovery(v, { x: 0.5, y: 0.5 }, 'dig');
+  const { fieldToYard, footTarget } = await import('../src/yard/field.js');
+  const destination = fieldToYard({ x: 0.5, y: 0.5 });
+  assert.ok(v.target.x < footTarget(v, destination.x, destination.y).x, 'stand beside the tool contact');
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  const pending = arrive();
+  const effect = document.getElementById('garden-layer').children.at(-1);
+  assert.doesNotMatch(effect.innerHTML, /<svg/);
+  assert.match(effect.className, /authored/);
+  assert.equal(effect.style['--dig-contact'], '500ms');
+  assert.ok(companionAction(v, performance.now()));
+  assert.ok(waits.includes(2400));
+  release(v);
+  assert.equal(companionAction(v, performance.now()), null);
+  resolveDig({ ok: true, data: { outcome: 'empty' } });
+  await pending;
+  useCompanionActions({ version: 1, characters: {} });
+});
+
+test('cancelling authored tree placement before contact does not spend a sapling', async t => {
+  const { useCompanionActions, setCompanionSeason } = await import('../src/core/companion-actions.js');
+  const { v, timers } = fixture(t);
+  keepGlobals(t, 'Image');
+  let planted = 0;
+  const previousPlant = state.api.plantTree;
+  state.api.plantTree = async () => {
+    planted++;
+    return { ok: true, data: {} };
+  };
+  t.after(() => {
+    if (previousPlant) state.api.plantTree = previousPlant;
+    else delete state.api.plantTree;
+  });
+  globalThis.Image = class {
+    complete = true;
+    naturalWidth = 192;
+  };
+  v.asset = { place: 'builtin', sourceId: 'playpets-clover' };
+  useCompanionActions({
+    version: 1,
+    characters: {
+      'playpets-clover': {
+        variants: {
+          spring: {
+            plant: {
+              url: 'art/companions/clover/plant.png',
+              anchor: [96, 199],
+              ground: [149, 199],
+              commitAt: 600,
+              frames: [{ rect: [0, 0, 192, 208], foot: [96, 199], duration: 1200 }],
+            },
+          },
+        },
+      },
+    },
+  });
+  setCompanionSeason('spring');
+  sendDiscovery(v, { x: 0.5, y: 0.5 }, 'tree', 'oak');
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  const pending = arrive();
+  assert.equal(planted, 0);
+  release(v);
+  for (const timer of timers) timer();
+  await pending;
+  assert.equal(planted, 0);
+  useCompanionActions({ version: 1, characters: {} });
+});
+
+test('dug soil opens at ground contact behind the friend and uses the selected season', async t => {
+  const { v } = fixture(t);
+  const previousSeason = scene.season;
+  const previousWeather = scene.weather;
+  t.after(() => {
+    scene.season = previousSeason;
+    scene.weather = previousWeather;
+  });
+  scene.season = 'summer';
+  scene.weather = 'snow';
+  const scheduled = [];
+  globalThis.setTimeout = (fn, ms) => {
+    scheduled.push({ fn, ms });
+    return scheduled.length;
+  };
+  sendDiscovery(v, { x: 0.5, y: 0.5 }, 'dig');
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  const pending = arrive();
+  const effect = document.getElementById('garden-layer').children.at(-1);
+  assert.ok(effect, 'soil shares the garden depth layer');
+  assert.equal(effect.dataset.soil, 'base', 'snow weather does not select a winter outfit or turf rim');
+  assert.ok(Number(effect.style.zIndex) < 1 + Math.round(v.y * 100), 'soil stays behind paws');
+  assert.equal(effect.classList.contains('contact'), false);
+  const contact = scheduled.find(timer => timer.ms === 300);
+  assert.ok(contact, 'the fallback shovel has an explicit ground contact');
+  contact.fn();
+  assert.equal(effect.classList.contains('contact'), true);
+  release(v);
+  assert.equal(effect.removed, true);
+  resolveDig({ ok: true, data: { outcome: 'empty' } });
+  await pending;
+});
+
+test('winter soil opens without motion and cancelled contact cannot reopen it', async t => {
+  const { reduced } = await import('../src/core/sprites.js');
+  const { v } = fixture(t);
+  const previousSeason = scene.season;
+  const previousReduced = reduced.matches;
+  t.after(() => {
+    scene.season = previousSeason;
+    reduced.matches = previousReduced;
+  });
+  scene.season = 'winter';
+  reduced.matches = true;
+  const scheduled = [];
+  globalThis.setTimeout = (fn, ms) => {
+    scheduled.push({ fn, ms });
+    return scheduled.length;
+  };
+  const cleared = [];
+  globalThis.clearTimeout = id => cleared.push(id);
+  sendDiscovery(v, { x: 0.5, y: 0.5 }, 'dig');
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  const pending = arrive();
+  const effect = document.getElementById('garden-layer').children.at(-1);
+  assert.ok(effect);
+  assert.equal(effect.dataset.soil, 'winter');
+  const contact = scheduled.find(timer => timer.ms === 300);
+  assert.ok(contact);
+  contact.fn();
+  assert.equal(effect.classList.contains('contact'), true, 'contact remains visible with motion disabled');
+  release(v);
+  assert.ok(cleared.includes(scheduled.indexOf(contact) + 1), 'cleanup clears the soil contact');
+  effect.classList.remove('contact');
+  contact.fn();
+  assert.equal(effect.classList.contains('contact'), false, 'a stale callback cannot reopen a cancelled effect');
+  resolveDig({ ok: true, data: { outcome: 'empty' } });
+  await pending;
+});
+
+test('authored planting rechecks current ground and ownership at contact before spending', async t => {
+  const { useCompanionActions, setCompanionSeason } = await import('../src/core/companion-actions.js');
+  for (const invalidation of ['overlap', 'world', 'friend']) {
+    await t.test(invalidation, async t => {
+      const { v, timers } = fixture(t);
+      keepGlobals(t, 'Image');
+      globalThis.Image = class {
+        complete = true;
+        naturalWidth = 192;
+      };
+      let planted = 0;
+      const previous = state.api.plantTree;
+      state.data.garden.saplings = { oak: 1 };
+      state.api.plantTree = async () => {
+        planted++;
+        state.data.garden.saplings.oak--;
+        return { ok: true, data: {} };
+      };
+      t.after(() => {
+        if (previous) state.api.plantTree = previous;
+        else delete state.api.plantTree;
+        useCompanionActions({ version: 1, characters: {} });
+      });
+      v.asset = { place: 'builtin', sourceId: 'playpets-clover' };
+      useCompanionActions({
+        version: 1,
+        characters: {
+          'playpets-clover': {
+            variants: {
+              spring: {
+                plant: {
+                  url: 'art/companions/clover/plant.png',
+                  anchor: [96, 199],
+                  ground: [149, 199],
+                  commitAt: 600,
+                  frames: [{ rect: [0, 0, 192, 208], foot: [96, 199], duration: 1200 }],
+                },
+              },
+            },
+          },
+        },
+      });
+      setCompanionSeason('spring');
+      sendDiscovery(v, { x: 0.5, y: 0.5 }, 'tree', 'oak');
+      const arrive = v.trip.arrive;
+      v.trip = null;
+      v.target = null;
+      const pending = arrive();
+      const effect = document.getElementById('garden-layer').children.at(-1);
+      assert.equal(planted, 0);
+      if (invalidation === 'overlap') state.data.garden.plants.push({ x: 0.5, y: 0.5 });
+      else if (invalidation === 'world') scene.world = 'courtyard';
+      else views.delete(v.pet.id);
+      timers.at(-1)();
+      await pending;
+      assert.equal(planted, 0, 'invalidated contact never calls the backend');
+      assert.equal(state.data.garden.saplings.oak, 1);
+      assert.equal(effect.removed, true);
+      assert.equal(v.doing, null);
+    });
+  }
 });

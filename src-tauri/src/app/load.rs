@@ -162,8 +162,9 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         .chain(parked_pets.iter().filter_map(|p| p["id"].as_str().map(str::to_string)))
         .collect();
     let mut bonds = bond::Bonds::restore(raw.get("bonds"), &ids);
-    let mut garden = garden::Garden::restore(raw.get("garden"));
-    crate::pets::forget_days_after(&mut bonds, &mut garden, &crate::pets::latest_day(now_ms()));
+    let now = now_ms();
+    let mut garden = garden::Garden::restore(raw.get("garden"), now);
+    crate::pets::forget_days_after(&mut bonds, &mut garden, &crate::pets::latest_day(now));
     Ok(AppData {
         store,
         codex_pets: root,

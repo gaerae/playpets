@@ -1,6 +1,6 @@
 // Planted trees belong to their saved world. Their roots stay at the saved field coordinate;
 // growing or resizing changes only the drawing above that foot.
-import { t } from '../core/i18n.js';
+import { joinList, t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
 import { aiming, call, data, game, guard } from '../core/state.js';
 import { artSvg } from './art.js';
@@ -35,7 +35,7 @@ function position(view, tree, point = tree) {
     zoom = yardZoom();
   setDown(view.button, foot.x, foot.y, width * zoom, height * zoom, 1 + Math.round(point.y * 100));
   view.button.title = t('tree.drag', { kind: t(`tree.${tree.kind}`) });
-  view.button.setAttribute('aria-label', `${view.button.title} · ${t(stageKeys[stage])}`);
+  view.button.setAttribute('aria-label', joinList([view.button.title, t(stageKeys[stage])]));
 }
 
 const save = guard(async (view, point) => {

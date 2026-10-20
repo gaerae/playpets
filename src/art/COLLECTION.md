@@ -52,3 +52,22 @@ Row3 col2: striped round green watermelon with ONE red cut triangular wedge besi
 Row3 col3: full ripe orange pumpkin with dimensional ribs, short curled woody stem, one green leaf.
 Row3 col4: friendly two-snowball snowman, black top hat, red knitted scarf, carrot nose, dark pebble eyes and buttons, twig arms, complete rounded snow base.
 Distinct12 objects only. No neighboring items overlap. All silhouettes clean and unclipped. Cohesive materials with the supplied props reference, but do not copy any subjects from it.
+
+## Hundred-entry extension (2026-10-19)
+
+The 21 new specimens add eight seasonal flowers, four aquatic creatures, two
+ground insects, five common keepsakes and two ordinary gifts. Accepted sources,
+prompts, hashes and per-atlas IDs are in
+`assets/sources/collection-extension-2026-10-19/accepted-art.json`; SVG viewports
+remain in `collection.json` and are reproduced with `node scripts/pack-collection.mjs`.
+
+The original proposed carp-like fish, extra dragonflies and extra butterflies
+were rejected for visual overlap. Only accepted IDs are referenced by content.
+Crops follow measured silhouettes rather than assumed equal grid cells, preserving
+antennae, claws and watering-can handles. Ground bugs read their own atlas at
+runtime; they do not inherit the original butterfly atlas.
+
+The 2026-10-20 revision keeps the cricket and replaces its brown viewport with
+`collection-extension/green-cricket.png`. The earlier ground-bugs atlas remains
+active for the ladybug only. The separate green sprite preserves complete
+antennae and jumping legs. The proposed stag beetle is not runtime content.

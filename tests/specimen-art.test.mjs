@@ -7,7 +7,8 @@ const art = path => new URL(`../src/art/${path}`, import.meta.url);
 
 test('specimen viewports isolate a valid part of a local RGBA atlas', () => {
   const records = JSON.parse(readFileSync(art('collection.json'), 'utf8'));
-  assert.equal(records.length, 47);
+  const indexed = new Set(records.map(record => record.art));
+  for (const kind of [...catalog.fish, ...catalog.bugs]) assert.ok(indexed.has(kind.art), kind.id);
   for (const record of records) {
     const png = readFileSync(art(record.atlas));
     const width = png.readUInt32BE(16),

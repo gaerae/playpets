@@ -1,7 +1,6 @@
 ---
 name: playpets-creator
 license: MIT
-compatibility: Requires local Python 3 with Pillow and an available image generation tool for new artwork.
 metadata:
   version: "1"
 description: Generate or edit PlayPets pet artwork or yard backgrounds from approved references, then assemble and validate importable pet ZIP or background JSON files with the included offline helper.

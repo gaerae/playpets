@@ -34,9 +34,9 @@ test('every About button sends its localized project destination through the gua
   }
 });
 
-test('Settings explains external publication and labels the persisted season control', async () => {
+test('Settings explains external publication and atmosphere labels the persisted season control', async () => {
   const html = await readFile('src/index.html', 'utf8');
   assert.match(html, /data-i18n="about.publication_note"/);
-  assert.match(html, /label for="season"/);
-  assert.match(html, /id="season"[^>]*aria-describedby="season-note"/);
+  assert.match(html, /label for="scene-season"/);
+  assert.match(html, /id="scene-season"/);
 });

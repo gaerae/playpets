@@ -17,6 +17,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 12px;
+  color: var(--ink);
 }
 .sun-dot {
   flex: none;
@@ -62,14 +64,14 @@
   gap: 7px;
   padding: 4px 8px 4px 9px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   background: transparent;
   color: inherit;
   font: inherit;
   font-weight: 650;
   cursor: pointer;
   min-width: 0;
-  min-height: 40px;
+  min-height: 36px;
   width: 100%;
 }
 .scene-button:hover,
@@ -93,9 +95,9 @@
   z-index: 30;
   right: 12px;
   bottom: 64px;
-  width: min(400px, calc(100% - 24px));
+  width: min(380px, calc(100% - 24px));
   max-height: calc(100% - 76px);
-  height: min(480px, calc(100% - 76px));
+  height: min(400px, calc(100% - 76px));
   min-height: 0;
   overflow: hidden;
   overscroll-behavior: contain;
@@ -148,11 +150,11 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 40px;
+  height: 36px;
   min-width: 40px;
   padding: 0 7px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--ink);
   font-size: 12px;
@@ -180,8 +182,8 @@
 /* Stable labels and right-aligned switches make desktop modes easy to scan. */
 .view-toggle,
 .view-wander {
-  min-height: 44px;
-  border-radius: 9px;
+  min-height: 36px;
+  border-radius: var(--radius-control);
   padding: 0 10px;
   justify-content: flex-start;
   gap: 8px;
@@ -269,20 +271,6 @@
   display: none;
 }
 
-.scene-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: left;
-  min-width: 0;
-}
-.scene-copy strong {
-  font-size: 12px;
-}
-.scene-copy #scene-caption {
-  font-size: 12px;
-  color: var(--ink);
-}
 .yard-frame > .yard-hint {
   position: absolute;
   bottom: 68px;
@@ -291,7 +279,7 @@
   z-index: 10;
   max-width: calc(100% - 32px);
   padding: 8px 14px;
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   background: var(--floating);
   color: var(--ink);
   font-size: 12px;
@@ -320,7 +308,7 @@
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-panel);
   background: var(--soft);
   color: var(--ink);
   font: inherit;
@@ -348,11 +336,145 @@
 }
 .scene-climate {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(110px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 5px 8px;
   padding: 4px 2px;
   font-size: 13px;
+}
+
+.scene-climate > label {
+  display: none;
+}
+.atmosphere-choice {
+  min-width: 0;
+}
+.atmosphere-choice summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 24px;
+  color: var(--muted);
+  font-size: 12px;
+  list-style: none;
+}
+.atmosphere-choice summary::-webkit-details-marker {
+  display: none;
+}
+.atmosphere-current {
+  display: none;
+}
+.atmosphere-segments {
+  --climate-columns: 5;
+  --climate-manual-options: 4;
+  display: grid;
+  grid-template-columns: repeat(var(--climate-columns), minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 6px;
+  border: 0;
+}
+.atmosphere-segments:disabled {
+  opacity: 0.5;
+}
+.atmosphere-segments label {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  cursor: pointer;
+}
+.atmosphere-segments:disabled label {
+  cursor: default;
+}
+.atmosphere-segments input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.atmosphere-segments span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 30px;
+  padding: 4px 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+}
+.atmosphere-segments input:checked + span {
+  background: var(--control-selected);
+  border-color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--muted);
+  color: var(--ink);
+}
+.atmosphere-segments input:focus-visible + span {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+body.compact .scene-menu {
+  gap: 4px;
+}
+body.compact .scene-gallery-head .icon-button {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+}
+body.compact .scene-tabs {
+  padding-bottom: 2px;
+}
+body.compact .scene-tabs button {
+  min-height: 28px;
+}
+body.compact .atmosphere-segments {
+  grid-template-columns: repeat(var(--climate-manual-options), minmax(0, 1fr));
+}
+body.compact .atmosphere-auto {
+  grid-column: 1 / -1;
+}
+body.compact .scene-climate {
+  gap: 4px;
+}
+body.compact .atmosphere-choice {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: 0 4px;
+}
+body.compact .atmosphere-choice summary {
+  min-height: 30px;
+  cursor: pointer;
+  color: var(--ink);
+}
+body.compact .atmosphere-choice summary:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+body.compact .atmosphere-current {
+  display: block;
+  margin-left: auto;
+  white-space: nowrap;
+  color: var(--muted);
+}
+body.compact .atmosphere-choice summary::after {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+body.compact .atmosphere-choice[open] summary::after {
+  transform: rotate(225deg);
+}
+body:not(.compact) .atmosphere-choice summary {
+  pointer-events: none;
 }
 
 /* Closing the window and ending the app are distinct actions, kept together at the end. */
@@ -381,7 +503,7 @@
 }
 .scene-tabs button {
   flex: 1;
-  min-height: 40px;
+  min-height: 36px;
   border-radius: var(--radius-control);
   font-size: 13px;
   color: var(--muted);
@@ -399,7 +521,7 @@
 }
 .scene-page .weather-select {
   width: 100%;
-  min-height: 44px;
+  min-height: 36px;
 }
 .scene-page .background-actions {
   margin-top: 10px;
@@ -407,4 +529,26 @@
 /* Empty instructions do not leave a floating capsule over a friend. */
 #yard-hint[hidden] {
   display: none;
+}
+
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 0;
+  border: 0;
+
+  background: transparent;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.volume-row input {
+  flex: 1;
+  accent-color: var(--accent);
+  background: transparent;
+}
+.volume-row input:disabled {
+  opacity: 0.45;
 }

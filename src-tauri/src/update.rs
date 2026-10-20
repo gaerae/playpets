@@ -5,38 +5,89 @@
 use crate::app::push_event;
 use crate::i18n;
 use serde_json::{Value, json};
-use std::sync::Mutex;
+use std::sync::{Condvar, Mutex};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_updater::{Update, UpdaterExt};
 
 /// The update found by the last check, kept until it is installed.
 #[derive(Default)]
-pub struct Found(Mutex<Option<Update>>);
+pub struct Found {
+    state: Mutex<UpdateState>,
+    checked: Condvar,
+}
+
+#[derive(Default)]
+struct UpdateState {
+    update: Option<Update>,
+    checking: bool,
+    installing: bool,
+    result: Option<Result<Value, String>>,
+}
+
+impl UpdateState {
+    fn available(&self) -> Value {
+        self.update
+            .as_ref()
+            .map(|u| json!({"version": u.version, "notes": u.body}))
+            .unwrap_or(Value::Null)
+    }
+}
 
 /// Asks for the latest release. Returns {version, notes} when it is newer than this app, or null.
 pub fn check(app: &AppHandle) -> Result<Value, String> {
     if store_managed() {
         return Ok(json!({"channel": "store"}));
     }
-    let updater = app.updater().map_err(|_| i18n::t("update.check_failed"))?;
-    // No network says so; a reachable address without update information (no release yet, or one
-    // published without the signing secrets) is told apart, so nobody checks a working connection.
-    let update = tauri::async_runtime::block_on(updater.check()).map_err(|e| match e {
-        tauri_plugin_updater::Error::ReleaseNotFound => i18n::t("update.no_release"),
-        _ => i18n::t("update.check_failed"),
-    })?;
-    let found = update.as_ref().map(|u| json!({"version": u.version, "notes": u.body}));
-    *crate::app::hold(&app.state::<Found>().0) = update;
-    // The tray's update item names the version once there is one.
+    let found = app.state::<Found>();
+    {
+        let mut state = crate::app::hold(&found.state);
+        if state.installing {
+            return Ok(state.available());
+        }
+        if state.checking {
+            while state.checking {
+                state = found.checked.wait(state).unwrap_or_else(|error| error.into_inner());
+            }
+            return state.result.clone().unwrap_or_else(|| Ok(state.available()));
+        }
+        state.checking = true;
+    }
+    // Concurrent manual and scheduled checks share one response. No state lock crosses network IO.
+    // Bound a stalled feed request so waiting actions recover and the scheduler can retry.
+    let result = (|| {
+        let updater = app
+            .updater_builder()
+            .timeout(std::time::Duration::from_secs(30))
+            .build()
+            .map_err(|_| i18n::t("update.check_failed"))?;
+        tauri::async_runtime::block_on(updater.check()).map_err(|error| match error {
+            tauri_plugin_updater::Error::ReleaseNotFound => i18n::t("update.no_release"),
+            _ => i18n::t("update.check_failed"),
+        })
+    })();
+    let response;
+    {
+        let mut state = crate::app::hold(&found.state);
+        response = match result {
+            Ok(update) => {
+                state.update = update;
+                Ok(state.available())
+            }
+            Err(error) => Err(error),
+        };
+        state.result = Some(response.clone());
+        state.checking = false;
+        found.checked.notify_all();
+    }
     crate::tray::retitle(app);
-    Ok(found.unwrap_or(Value::Null))
+    response
 }
 
 /// The version the last check found, while it waits to be installed.
 pub fn found_version(app: &AppHandle) -> Option<String> {
     let found = app.try_state::<Found>()?;
-    let update = crate::app::hold(&found.0);
-    update.as_ref().map(|u| u.version.clone())
+    let state = crate::app::hold(&found.state);
+    state.update.as_ref().map(|u| u.version.clone())
 }
 
 /// Downloads and installs the update found by `check`, then starts the new version.
@@ -44,9 +95,19 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
     if store_managed() {
         return Err(i18n::t("update.store_managed"));
     }
-    let update = crate::app::hold(&app.state::<Found>().0)
-        .take()
-        .ok_or_else(|| i18n::t("update.none"))?;
+    let found = app.state::<Found>();
+    let update = {
+        let mut state = crate::app::hold(&found.state);
+        while state.checking {
+            state = found.checked.wait(state).unwrap_or_else(|error| error.into_inner());
+        }
+        if state.installing {
+            return Err(i18n::t("update.none"));
+        }
+        let update = state.update.clone().ok_or_else(|| i18n::t("update.none"))?;
+        state.installing = true;
+        update
+    };
     push_event(app, &json!({"type": "update-status", "phase": "downloading"}));
     // The page shows meaningful steps rather than repainting for every network chunk.
     let (mut received, mut shown) = (0u64, 0u64);
@@ -73,15 +134,23 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
         crate::app::flush(app);
         update.install(bytes)
     });
-    // Taken while it installs (a second press finds nothing to start); a failed download,
-    // signature check or installation puts it back, so the person can try again.
+    // Keep the selected release stable while downloading, so periodic checks cannot replace it.
     if result.is_err() {
-        *crate::app::hold(&app.state::<Found>().0) = Some(update);
+        crate::app::hold(&found.state).installing = false;
         // The tray names the update again (it may have been rebuilt while this one was taken).
         crate::tray::rebuild(app);
         return Err(i18n::t("update.install_failed"));
     }
     app.restart();
+}
+
+fn next_check_delay(failures: u32) -> std::time::Duration {
+    std::time::Duration::from_secs(match failures {
+        1 => 5 * 60,
+        2 => 15 * 60,
+        3 => 60 * 60,
+        _ => 6 * 60 * 60,
+    })
 }
 
 /// A quiet look for a newer version a while after start; the page is told only when there is one.
@@ -93,10 +162,21 @@ pub fn check_later(app: &AppHandle) {
     let app = app.clone();
     std::thread::spawn(move || {
         std::thread::sleep(std::time::Duration::from_secs(20));
-        if let Ok(found) = check(&app)
-            && !found.is_null()
-        {
-            push_event(&app, &json!({"type": "update", "update": found}));
+        let mut failures = 0u32;
+        let mut announced = None;
+        loop {
+            match check(&app) {
+                Ok(found) => {
+                    failures = 0;
+                    let version = found.get("version").and_then(Value::as_str);
+                    if version.is_some() && version != announced.as_deref() {
+                        announced = version.map(str::to_owned);
+                        push_event(&app, &json!({"type": "update", "update": found}));
+                    }
+                }
+                Err(_) => failures = failures.saturating_add(1),
+            }
+            std::thread::sleep(next_check_delay(failures));
         }
     });
 }
@@ -114,4 +194,19 @@ pub fn store_managed() -> bool {
     }
     #[cfg(not(windows))]
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn checks_repeat_with_bounded_failure_backoff() {
+        assert_eq!(next_check_delay(0).as_secs(), 6 * 60 * 60);
+        assert_eq!(next_check_delay(1).as_secs(), 5 * 60);
+        assert_eq!(next_check_delay(2).as_secs(), 15 * 60);
+        assert_eq!(next_check_delay(3).as_secs(), 60 * 60);
+        assert_eq!(next_check_delay(4).as_secs(), 6 * 60 * 60);
+        assert_eq!(next_check_delay(u32::MAX).as_secs(), 6 * 60 * 60);
+    }
 }

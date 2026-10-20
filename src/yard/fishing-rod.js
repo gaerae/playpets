@@ -52,3 +52,18 @@ export function rodPlacement(grip, tip) {
     f: grip.y - b * ROD.grip.x - a * ROD.grip.y,
   };
 }
+
+/** The line follows the painted guide on a held rod, including a reduced-motion resting frame. */
+export function authoredRodTip(action, bounds, still = false) {
+  const clip = action?.clip;
+  const frame = still ? clip?.frames?.[0] : action?.frame;
+  if (!clip?.heldTool || frame?.tip?.length !== 2 || !frame.tip.every(Number.isFinite)) return null;
+  if (frame.foot?.length !== 2 || !frame.foot.every(Number.isFinite)) return null;
+  const anchor = clip.anchor ?? [96, 199];
+  const scale = clip.scale ?? 1;
+  const offset = clip.offset ?? [0, 0];
+  return {
+    x: bounds.x + ((offset[0] + anchor[0] + (frame.tip[0] - frame.foot[0]) * scale) * bounds.width) / 192,
+    y: bounds.y + ((offset[1] + anchor[1] + (frame.tip[1] - frame.foot[1]) * scale) * bounds.height) / 208,
+  };
+}

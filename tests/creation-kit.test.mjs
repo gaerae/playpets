@@ -125,8 +125,8 @@ test('ready-made friend guidance matches the seasonal pet generation default', a
   const { creationCopy } = await import('../website/.vitepress/theme/creation-copy.js');
   const seasons = {
     en: /spring and autumn.*summer.*winter/i,
-    ko: /봄·가을.*여름.*겨울/,
-    ja: /春・秋.*夏.*冬/,
+    ko: /봄과 가을.*여름.*겨울/,
+    ja: /春と秋.*夏.*冬/,
     'zh-hans': /春秋.*夏.*冬/,
   };
   for (const [lang, pattern] of Object.entries(seasons)) assert.match(creationCopy[lang].readyHint, pattern);
@@ -157,4 +157,12 @@ test('pet seasonal kits default to three complete wardrobes without restricting 
   const format = await readFile('assets/creator-skill/playpets-creator/references/formats.md', 'utf8');
   for (const source of [skill, format]) assert.match(source, /base.*spring and autumn.*summer.*winter/i);
   assert.match(format, /spring.*autumn.*optional extensions/i);
+});
+
+test('the portable skill uses frontmatter accepted by current Codex skill validation', async () => {
+  const source = await readFile('assets/creator-skill/playpets-creator/SKILL.md', 'utf8');
+  const frontmatter = source.match(/^---\n([\s\S]*?)\n---/);
+  assert.ok(frontmatter, 'SKILL.md has YAML frontmatter');
+  const topLevelKeys = [...frontmatter[1].matchAll(/^([a-z][a-z-]*):/gm)].map(match => match[1]);
+  assert.deepEqual(topLevelKeys, ['name', 'license', 'metadata', 'description']);
 });

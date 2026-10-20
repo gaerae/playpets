@@ -1,0 +1,3555 @@
+{
+  "version": 1,
+  "characters": {
+    "playpets-clover": {
+      "variants": {
+        "spring": {
+          "dig": {
+            "anchor": [91, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 180
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 160
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 200
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1152, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1344, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [1536, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 180
+              },
+              {
+                "rect": [1728, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1920, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [2112, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 200
+              }
+            ],
+            "url": "art/companions/clover/dig.png",
+            "heldTool": true,
+            "ground": [174, 199],
+            "contactAt": 460,
+            "tossAt": 1320
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 170
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 170
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1152, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1344, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1536, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1728, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1920, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [2112, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 100
+              }
+            ],
+            "url": "art/companions/clover/plant.png",
+            "heldTool": true,
+            "ground": [149, 199],
+            "contactAt": 660,
+            "tossAt": 1460,
+            "commitAt": 1460
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 140
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [1152, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [1344, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1536, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 140
+              },
+              {
+                "rect": [1728, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [1920, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 100
+              },
+              {
+                "rect": [2112, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 100
+              }
+            ],
+            "url": "art/companions/clover/discover.png",
+            "heldTool": false,
+            "canvas": [192, 208],
+            "offset": [0, 0]
+          },
+          "cast": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [190.48000000000002, 50.56]
+              },
+              {
+                "rect": [224, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 140,
+                "tip": [189.84000000000003, 54.36000000000001]
+              },
+              {
+                "rect": [448, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [156.8, 10.240000000000002]
+              },
+              {
+                "rect": [672, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [219.20000000000002, 50.44]
+              },
+              {
+                "rect": [896, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 160,
+                "tip": [199.20000000000002, 52.800000000000004]
+              },
+              {
+                "rect": [1120, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [186.76000000000002, 53.36]
+              }
+            ],
+            "url": "art/companions/clover/fish.png",
+            "heldTool": true,
+            "canvas": [224, 216],
+            "offset": [0, -8],
+            "loop": false
+          },
+          "wait": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1344, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [189.96, 51.56]
+              },
+              {
+                "rect": [1568, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [192.52, 54.36]
+              }
+            ],
+            "url": "art/companions/clover/fish.png",
+            "heldTool": true,
+            "canvas": [224, 216],
+            "offset": [0, -8],
+            "loop": true
+          },
+          "reel": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1792, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [175.8, 44.28]
+              },
+              {
+                "rect": [2016, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [202.16000000000003, 52.44]
+              },
+              {
+                "rect": [2240, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [190.44000000000003, 47.52]
+              },
+              {
+                "rect": [2464, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 220,
+                "tip": [188.8, 48.88]
+              }
+            ],
+            "url": "art/companions/clover/fish.png",
+            "heldTool": true,
+            "canvas": [224, 216],
+            "offset": [0, -8],
+            "loop": false
+          }
+        },
+        "summer": {
+          "dig": {
+            "anchor": [91, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 180
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 160
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 200
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1152, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1344, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [1536, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 180
+              },
+              {
+                "rect": [1728, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1920, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [2112, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 200
+              }
+            ],
+            "url": "art/companions/clover/dig.png",
+            "heldTool": true,
+            "ground": [174, 199],
+            "contactAt": 460,
+            "tossAt": 1320
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 170
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 170
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1152, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1344, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1536, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1728, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1920, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [2112, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 100
+              }
+            ],
+            "url": "art/companions/clover/plant.png",
+            "heldTool": true,
+            "ground": [149, 199],
+            "contactAt": 660,
+            "tossAt": 1460,
+            "commitAt": 1460
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 140
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [1152, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [1344, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1536, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 140
+              },
+              {
+                "rect": [1728, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [1920, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 100
+              },
+              {
+                "rect": [2112, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 100
+              }
+            ],
+            "url": "art/companions/clover/discover.png",
+            "heldTool": false,
+            "canvas": [192, 208],
+            "offset": [0, 0]
+          },
+          "cast": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [190.48000000000002, 50.56]
+              },
+              {
+                "rect": [224, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 140,
+                "tip": [189.84000000000003, 54.36000000000001]
+              },
+              {
+                "rect": [448, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [156.8, 10.240000000000002]
+              },
+              {
+                "rect": [672, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [219.20000000000002, 50.44]
+              },
+              {
+                "rect": [896, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 160,
+                "tip": [199.20000000000002, 52.800000000000004]
+              },
+              {
+                "rect": [1120, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [186.76000000000002, 53.36]
+              }
+            ],
+            "url": "art/companions/clover/fish.png",
+            "heldTool": true,
+            "canvas": [224, 216],
+            "offset": [0, -8],
+            "loop": false
+          },
+          "wait": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1344, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [189.96, 51.56]
+              },
+              {
+                "rect": [1568, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [192.52, 54.36]
+              }
+            ],
+            "url": "art/companions/clover/fish.png",
+            "heldTool": true,
+            "canvas": [224, 216],
+            "offset": [0, -8],
+            "loop": true
+          },
+          "reel": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1792, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [175.8, 44.28]
+              },
+              {
+                "rect": [2016, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [202.16000000000003, 52.44]
+              },
+              {
+                "rect": [2240, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [190.44000000000003, 47.52]
+              },
+              {
+                "rect": [2464, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 220,
+                "tip": [188.8, 48.88]
+              }
+            ],
+            "url": "art/companions/clover/fish.png",
+            "heldTool": true,
+            "canvas": [224, 216],
+            "offset": [0, -8],
+            "loop": false
+          }
+        },
+        "autumn": {
+          "dig": {
+            "anchor": [91, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 180
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 160
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 200
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1152, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1344, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [1536, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 180
+              },
+              {
+                "rect": [1728, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1920, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 140
+              },
+              {
+                "rect": [2112, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 200
+              }
+            ],
+            "url": "art/companions/clover/dig.png",
+            "heldTool": true,
+            "ground": [174, 199],
+            "contactAt": 460,
+            "tossAt": 1320
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 170
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 170
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1152, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1344, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [1536, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1728, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1920, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [2112, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 100
+              }
+            ],
+            "url": "art/companions/clover/plant.png",
+            "heldTool": true,
+            "ground": [149, 199],
+            "contactAt": 660,
+            "tossAt": 1460,
+            "commitAt": 1460
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 140
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [1152, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [1344, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 160
+              },
+              {
+                "rect": [1536, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 140
+              },
+              {
+                "rect": [1728, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 120
+              },
+              {
+                "rect": [1920, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 100
+              },
+              {
+                "rect": [2112, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 100
+              }
+            ],
+            "url": "art/companions/clover/discover.png",
+            "heldTool": false,
+            "canvas": [192, 208],
+            "offset": [0, 0]
+          },
+          "cast": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [190.48000000000002, 50.56]
+              },
+              {
+                "rect": [224, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 140,
+                "tip": [189.84000000000003, 54.36000000000001]
+              },
+              {
+                "rect": [448, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [156.8, 10.240000000000002]
+              },
+              {
+                "rect": [672, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [219.20000000000002, 50.44]
+              },
+              {
+                "rect": [896, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 160,
+                "tip": [199.20000000000002, 52.800000000000004]
+              },
+              {
+                "rect": [1120, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [186.76000000000002, 53.36]
+              }
+            ],
+            "url": "art/companions/clover/fish.png",
+            "heldTool": true,
+            "canvas": [224, 216],
+            "offset": [0, -8],
+            "loop": false
+          },
+          "wait": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1344, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [189.96, 51.56]
+              },
+              {
+                "rect": [1568, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [192.52, 54.36]
+              }
+            ],
+            "url": "art/companions/clover/fish.png",
+            "heldTool": true,
+            "canvas": [224, 216],
+            "offset": [0, -8],
+            "loop": true
+          },
+          "reel": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1792, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [175.8, 44.28]
+              },
+              {
+                "rect": [2016, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [202.16000000000003, 52.44]
+              },
+              {
+                "rect": [2240, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 180,
+                "tip": [190.44000000000003, 47.52]
+              },
+              {
+                "rect": [2464, 0, 224, 216],
+                "foot": [96, 207],
+                "duration": 220,
+                "tip": [188.8, 48.88]
+              }
+            ],
+            "url": "art/companions/clover/fish.png",
+            "heldTool": true,
+            "canvas": [224, 216],
+            "offset": [0, -8],
+            "loop": false
+          }
+        },
+        "winter": {
+          "dig": {
+            "canvas": [224, 224],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [224, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [672, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [1120, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/clover/winter/dig.png",
+            "heldTool": true,
+            "ground": [164, 199],
+            "contactAt": 540,
+            "tossAt": 1300
+          },
+          "plant": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/clover/winter/plant.png",
+            "heldTool": true,
+            "ground": [125, 199],
+            "contactAt": 900,
+            "tossAt": 1680,
+            "commitAt": 1680
+          },
+          "discover": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 240
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "url": "art/companions/clover/winter/discover.png",
+            "heldTool": false
+          },
+          "cast": {
+            "canvas": [320, 256],
+            "offset": [-16, -40],
+            "anchor": [112, 239],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 320, 256],
+                "foot": [112, 239],
+                "duration": 350,
+                "tip": [215.8, 18.22]
+              },
+              {
+                "rect": [320, 0, 320, 256],
+                "foot": [112, 239],
+                "duration": 450,
+                "tip": [309.28000000000003, 90.42]
+              }
+            ],
+            "url": "art/companions/clover/winter/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "canvas": [320, 256],
+            "offset": [-16, -40],
+            "anchor": [112, 239],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [640, 0, 320, 256],
+                "foot": [112, 239],
+                "duration": 3200,
+                "tip": [243.08, 72.28]
+              },
+              {
+                "rect": [960, 0, 320, 256],
+                "foot": [112, 239],
+                "duration": 200,
+                "tip": [242, 72.2]
+              }
+            ],
+            "url": "art/companions/clover/winter/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "canvas": [320, 256],
+            "offset": [-16, -40],
+            "anchor": [112, 239],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1280, 0, 320, 256],
+                "foot": [112, 239],
+                "duration": 350,
+                "tip": [244.44, 12.22]
+              },
+              {
+                "rect": [1600, 0, 320, 256],
+                "foot": [112, 239],
+                "duration": 450,
+                "tip": [245.06, 17.68]
+              }
+            ],
+            "url": "art/companions/clover/winter/fish.png",
+            "heldTool": true,
+            "loop": false
+          }
+        }
+      }
+    },
+    "playpets-daisy": {
+      "variants": {
+        "spring": {
+          "dig": {
+            "anchor": [91, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 280
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 280
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 300
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 400
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 360
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 380
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/dig.png",
+            "heldTool": true,
+            "ground": [145, 199],
+            "contactAt": 560,
+            "tossAt": 1280
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 440
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/plant.png",
+            "heldTool": true,
+            "ground": [123, 199],
+            "contactAt": 520,
+            "tossAt": 1360,
+            "commitAt": 1360
+          },
+          "cast": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 300,
+                "tip": [176.16, 44.64]
+              },
+              {
+                "rect": [240, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 400,
+                "tip": [226.16, 56.879999999999995]
+              }
+            ],
+            "canvas": [240, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [480, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [190.96, 52.56]
+              },
+              {
+                "rect": [720, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [186.96, 53.28]
+              }
+            ],
+            "canvas": [240, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [960, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 320,
+                "tip": [188.51999999999998, 73.44]
+              },
+              {
+                "rect": [1200, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 420,
+                "tip": [172.44, 51.84]
+              }
+            ],
+            "canvas": [240, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 220
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/discover.png",
+            "heldTool": false
+          }
+        },
+        "autumn": {
+          "dig": {
+            "anchor": [91, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 280
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 280
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 300
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 400
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 360
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [91, 199],
+                "duration": 380
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/dig.png",
+            "heldTool": true,
+            "ground": [145, 199],
+            "contactAt": 560,
+            "tossAt": 1280
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 440
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/plant.png",
+            "heldTool": true,
+            "ground": [123, 199],
+            "contactAt": 520,
+            "tossAt": 1360,
+            "commitAt": 1360
+          },
+          "cast": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 300,
+                "tip": [176.16, 44.64]
+              },
+              {
+                "rect": [240, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 400,
+                "tip": [226.16, 56.879999999999995]
+              }
+            ],
+            "canvas": [240, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [480, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [190.96, 52.56]
+              },
+              {
+                "rect": [720, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [186.96, 53.28]
+              }
+            ],
+            "canvas": [240, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [960, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 320,
+                "tip": [188.51999999999998, 73.44]
+              },
+              {
+                "rect": [1200, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 420,
+                "tip": [172.44, 51.84]
+              }
+            ],
+            "canvas": [240, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 220
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/discover.png",
+            "heldTool": false
+          }
+        },
+        "summer": {
+          "dig": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 380
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/summer/dig.png",
+            "heldTool": true,
+            "ground": [157, 199],
+            "contactAt": 560,
+            "tossAt": 1280
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 440
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/summer/plant.png",
+            "heldTool": true,
+            "ground": [121, 199],
+            "contactAt": 520,
+            "tossAt": 1360,
+            "commitAt": 1360
+          },
+          "cast": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 256, 216],
+                "foot": [96, 207],
+                "duration": 300,
+                "tip": [181, 10.04]
+              },
+              {
+                "rect": [256, 0, 256, 216],
+                "foot": [96, 207],
+                "duration": 400,
+                "tip": [245.12, 48.64]
+              }
+            ],
+            "canvas": [256, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/summer/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [512, 0, 256, 216],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [213.84, 39.8]
+              },
+              {
+                "rect": [768, 0, 256, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [215.76, 39.8]
+              }
+            ],
+            "canvas": [256, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/summer/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1024, 0, 256, 216],
+                "foot": [96, 207],
+                "duration": 320,
+                "tip": [186.08, 6]
+              },
+              {
+                "rect": [1280, 0, 256, 216],
+                "foot": [96, 207],
+                "duration": 420,
+                "tip": [213.88, 17]
+              }
+            ],
+            "canvas": [256, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/summer/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 220
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/summer/discover.png",
+            "heldTool": false
+          }
+        },
+        "winter": {
+          "dig": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [224, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [672, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [1120, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 380
+              }
+            ],
+            "canvas": [224, 224],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/winter/dig.png",
+            "heldTool": true,
+            "ground": [145, 199],
+            "contactAt": 560,
+            "tossAt": 1280
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 440
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/winter/plant.png",
+            "heldTool": true,
+            "ground": [119, 199],
+            "contactAt": 520,
+            "tossAt": 1360,
+            "commitAt": 1360
+          },
+          "cast": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 300,
+                "tip": [21.65, 26.65]
+              },
+              {
+                "rect": [272, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 400,
+                "tip": [256.19, 33.65]
+              }
+            ],
+            "canvas": [272, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/winter/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [544, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [210.93, 46.41]
+              },
+              {
+                "rect": [816, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [193.25, 46.22]
+              }
+            ],
+            "canvas": [272, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/winter/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1088, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 320,
+                "tip": [202.85, 47.38]
+              },
+              {
+                "rect": [1360, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 420,
+                "tip": [177.14, 39.76]
+              }
+            ],
+            "canvas": [272, 216],
+            "offset": [0, -8],
+            "url": "art/companions/daisy/winter/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 220
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/daisy/winter/discover.png",
+            "heldTool": false
+          }
+        }
+      }
+    },
+    "playpets-miso": {
+      "variants": {
+        "spring": {
+          "dig": {
+            "anchor": [91, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 280
+              },
+              {
+                "rect": [224, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 300
+              },
+              {
+                "rect": [672, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 360
+              },
+              {
+                "rect": [1120, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 380
+              }
+            ],
+            "canvas": [224, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/dig.png",
+            "heldTool": true,
+            "ground": [145, 199],
+            "contactAt": 560,
+            "tossAt": 1280
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 440
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/plant.png",
+            "heldTool": true,
+            "ground": [145, 199],
+            "contactAt": 520,
+            "tossAt": 1360,
+            "commitAt": 1360
+          },
+          "cast": {
+            "anchor": [104, 223],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 300,
+                "tip": [18.86, 14.26]
+              },
+              {
+                "rect": [264, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 400,
+                "tip": [253.56, 51.980000000000004]
+              }
+            ],
+            "canvas": [264, 240],
+            "offset": [-8, -24],
+            "url": "art/companions/miso/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "anchor": [104, 223],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [528, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 3200,
+                "tip": [220.02, 50.540000000000006]
+              },
+              {
+                "rect": [792, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 200,
+                "tip": [230.08, 53.3]
+              }
+            ],
+            "canvas": [264, 240],
+            "offset": [-8, -24],
+            "url": "art/companions/miso/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "anchor": [104, 223],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1056, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 320,
+                "tip": [214.36, 9.98]
+              },
+              {
+                "rect": [1320, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 420,
+                "tip": [222.16, 29.76]
+              }
+            ],
+            "canvas": [264, 240],
+            "offset": [-8, -24],
+            "url": "art/companions/miso/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 220
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/discover.png",
+            "heldTool": false
+          }
+        },
+        "autumn": {
+          "dig": {
+            "anchor": [91, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 280
+              },
+              {
+                "rect": [224, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 300
+              },
+              {
+                "rect": [672, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 360
+              },
+              {
+                "rect": [1120, 0, 224, 208],
+                "foot": [91, 199],
+                "duration": 380
+              }
+            ],
+            "canvas": [224, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/dig.png",
+            "heldTool": true,
+            "ground": [145, 199],
+            "contactAt": 560,
+            "tossAt": 1280
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 440
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/plant.png",
+            "heldTool": true,
+            "ground": [145, 199],
+            "contactAt": 520,
+            "tossAt": 1360,
+            "commitAt": 1360
+          },
+          "cast": {
+            "anchor": [104, 223],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 300,
+                "tip": [18.86, 14.26]
+              },
+              {
+                "rect": [264, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 400,
+                "tip": [253.56, 51.980000000000004]
+              }
+            ],
+            "canvas": [264, 240],
+            "offset": [-8, -24],
+            "url": "art/companions/miso/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "anchor": [104, 223],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [528, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 3200,
+                "tip": [220.02, 50.540000000000006]
+              },
+              {
+                "rect": [792, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 200,
+                "tip": [230.08, 53.3]
+              }
+            ],
+            "canvas": [264, 240],
+            "offset": [-8, -24],
+            "url": "art/companions/miso/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "anchor": [104, 223],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1056, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 320,
+                "tip": [214.36, 9.98]
+              },
+              {
+                "rect": [1320, 0, 264, 240],
+                "foot": [104, 223],
+                "duration": 420,
+                "tip": [222.16, 29.76]
+              }
+            ],
+            "canvas": [264, 240],
+            "offset": [-8, -24],
+            "url": "art/companions/miso/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 220
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/discover.png",
+            "heldTool": false
+          }
+        },
+        "summer": {
+          "dig": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [224, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [672, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [1120, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 380
+              }
+            ],
+            "canvas": [224, 224],
+            "offset": [0, 0],
+            "url": "art/companions/miso/summer/dig.png",
+            "heldTool": true,
+            "ground": [143, 199],
+            "contactAt": 560,
+            "tossAt": 1280
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 440
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/summer/plant.png",
+            "heldTool": true,
+            "ground": [123, 199],
+            "contactAt": 520,
+            "tossAt": 1360,
+            "commitAt": 1360
+          },
+          "cast": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 300,
+                "tip": [173.31, 23.39]
+              },
+              {
+                "rect": [240, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 400,
+                "tip": [228.92000000000002, 55.01]
+              }
+            ],
+            "canvas": [240, 216],
+            "offset": [0, -8],
+            "url": "art/companions/miso/summer/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [480, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [178.32, 23.39]
+              },
+              {
+                "rect": [720, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [192.11, 23.39]
+              }
+            ],
+            "canvas": [240, 216],
+            "offset": [0, -8],
+            "url": "art/companions/miso/summer/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [960, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 320,
+                "tip": [209.34, 43.39]
+              },
+              {
+                "rect": [1200, 0, 240, 216],
+                "foot": [96, 207],
+                "duration": 420,
+                "tip": [184.47, 28.39]
+              }
+            ],
+            "canvas": [240, 216],
+            "offset": [0, -8],
+            "url": "art/companions/miso/summer/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 220
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/summer/discover.png",
+            "heldTool": false
+          }
+        },
+        "winter": {
+          "dig": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [224, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [672, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [1120, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 380
+              }
+            ],
+            "canvas": [224, 224],
+            "offset": [0, 0],
+            "url": "art/companions/miso/winter/dig.png",
+            "heldTool": true,
+            "ground": [152, 199],
+            "contactAt": 560,
+            "tossAt": 1280
+          },
+          "plant": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 440
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/winter/plant.png",
+            "heldTool": true,
+            "ground": [140, 199],
+            "contactAt": 520,
+            "tossAt": 1360,
+            "commitAt": 1360
+          },
+          "cast": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 300,
+                "tip": [182.72, 28.32]
+              },
+              {
+                "rect": [272, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 400,
+                "tip": [249.44, 26.32]
+              }
+            ],
+            "canvas": [272, 216],
+            "offset": [0, -8],
+            "url": "art/companions/miso/winter/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [544, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [218.24, 31.8]
+              },
+              {
+                "rect": [816, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [196.04, 33.56]
+              }
+            ],
+            "canvas": [272, 216],
+            "offset": [0, -8],
+            "url": "art/companions/miso/winter/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1088, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 320,
+                "tip": [202.88, 49.28]
+              },
+              {
+                "rect": [1360, 0, 272, 216],
+                "foot": [96, 207],
+                "duration": 420,
+                "tip": [180.12, 28.560000000000002]
+              }
+            ],
+            "canvas": [272, 216],
+            "offset": [0, -8],
+            "url": "art/companions/miso/winter/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "discover": {
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 200
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 220
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "url": "art/companions/miso/winter/discover.png",
+            "heldTool": false
+          }
+        }
+      }
+    },
+    "playpets-pip": {
+      "variants": {
+        "spring": {
+          "dig": {
+            "canvas": [224, 224],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [224, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [672, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [1120, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/pip/base/dig.png",
+            "heldTool": true,
+            "ground": [164, 199],
+            "contactAt": 540,
+            "tossAt": 1300
+          },
+          "plant": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/pip/base/plant.png",
+            "heldTool": true,
+            "ground": [125, 199],
+            "contactAt": 900,
+            "tossAt": 1680,
+            "commitAt": 1680
+          },
+          "discover": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 240
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "url": "art/companions/pip/base/discover.png",
+            "heldTool": false
+          },
+          "cast": {
+            "canvas": [320, 256],
+            "offset": [-32, -40],
+            "anchor": [128, 239],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 350,
+                "tip": [6, 23.5]
+              },
+              {
+                "rect": [320, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 450,
+                "tip": [301, 55]
+              }
+            ],
+            "url": "art/companions/pip/base/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "canvas": [320, 256],
+            "offset": [-32, -40],
+            "anchor": [128, 239],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [640, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 3200,
+                "tip": [247, 64]
+              },
+              {
+                "rect": [960, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 200,
+                "tip": [247.5, 70]
+              }
+            ],
+            "url": "art/companions/pip/base/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "canvas": [320, 256],
+            "offset": [-32, -40],
+            "anchor": [128, 239],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1280, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 350,
+                "tip": [245, 22]
+              },
+              {
+                "rect": [1600, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 450,
+                "tip": [266, 36]
+              }
+            ],
+            "url": "art/companions/pip/base/fish.png",
+            "heldTool": true,
+            "loop": false
+          }
+        },
+        "summer": {
+          "dig": {
+            "canvas": [224, 224],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [224, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [672, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [1120, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/pip/summer/dig.png",
+            "heldTool": true,
+            "ground": [164, 199],
+            "contactAt": 540,
+            "tossAt": 1300
+          },
+          "plant": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/pip/summer/plant.png",
+            "heldTool": true,
+            "ground": [125, 199],
+            "contactAt": 900,
+            "tossAt": 1680,
+            "commitAt": 1680
+          },
+          "discover": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 240
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "url": "art/companions/pip/summer/discover.png",
+            "heldTool": false
+          },
+          "cast": {
+            "canvas": [232, 224],
+            "offset": [0, -8],
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 232, 224],
+                "foot": [96, 207],
+                "duration": 350,
+                "tip": [167.19, 31.38]
+              },
+              {
+                "rect": [232, 0, 232, 224],
+                "foot": [96, 207],
+                "duration": 450,
+                "tip": [227.51, 51.22]
+              }
+            ],
+            "url": "art/companions/pip/summer/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "canvas": [232, 224],
+            "offset": [0, -8],
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [464, 0, 232, 224],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [195.54999999999998, 41.65]
+              },
+              {
+                "rect": [696, 0, 232, 224],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [186.44, 42.38]
+              }
+            ],
+            "url": "art/companions/pip/summer/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "canvas": [232, 224],
+            "offset": [0, -8],
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [928, 0, 232, 224],
+                "foot": [96, 207],
+                "duration": 350,
+                "tip": [193.01, 47.38]
+              },
+              {
+                "rect": [1160, 0, 232, 224],
+                "foot": [96, 207],
+                "duration": 450,
+                "tip": [186.09, 48.03]
+              }
+            ],
+            "url": "art/companions/pip/summer/fish.png",
+            "heldTool": true,
+            "loop": false
+          }
+        },
+        "autumn": {
+          "dig": {
+            "canvas": [224, 224],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [224, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [672, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [1120, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/pip/base/dig.png",
+            "heldTool": true,
+            "ground": [164, 199],
+            "contactAt": 540,
+            "tossAt": 1300
+          },
+          "plant": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/pip/base/plant.png",
+            "heldTool": true,
+            "ground": [125, 199],
+            "contactAt": 900,
+            "tossAt": 1680,
+            "commitAt": 1680
+          },
+          "discover": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 240
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "url": "art/companions/pip/base/discover.png",
+            "heldTool": false
+          },
+          "cast": {
+            "canvas": [320, 256],
+            "offset": [-32, -40],
+            "anchor": [128, 239],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 350,
+                "tip": [6, 23.5]
+              },
+              {
+                "rect": [320, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 450,
+                "tip": [301, 55]
+              }
+            ],
+            "url": "art/companions/pip/base/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "canvas": [320, 256],
+            "offset": [-32, -40],
+            "anchor": [128, 239],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [640, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 3200,
+                "tip": [247, 64]
+              },
+              {
+                "rect": [960, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 200,
+                "tip": [247.5, 70]
+              }
+            ],
+            "url": "art/companions/pip/base/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "canvas": [320, 256],
+            "offset": [-32, -40],
+            "anchor": [128, 239],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1280, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 350,
+                "tip": [245, 22]
+              },
+              {
+                "rect": [1600, 0, 320, 256],
+                "foot": [128, 239],
+                "duration": 450,
+                "tip": [266, 36]
+              }
+            ],
+            "url": "art/companions/pip/base/fish.png",
+            "heldTool": true,
+            "loop": false
+          }
+        },
+        "winter": {
+          "dig": {
+            "canvas": [224, 224],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [224, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [448, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [672, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [896, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [1120, 0, 224, 224],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/pip/winter/dig.png",
+            "heldTool": true,
+            "ground": [164, 199],
+            "contactAt": 540,
+            "tossAt": 1300
+          },
+          "plant": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 360
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 400
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 380
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 320
+              }
+            ],
+            "url": "art/companions/pip/winter/plant.png",
+            "heldTool": true,
+            "ground": [125, 199],
+            "contactAt": 900,
+            "tossAt": 1680,
+            "commitAt": 1680
+          },
+          "discover": {
+            "canvas": [192, 208],
+            "offset": [0, 0],
+            "anchor": [96, 199],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 180
+              },
+              {
+                "rect": [192, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 240
+              },
+              {
+                "rect": [384, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 280
+              },
+              {
+                "rect": [576, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 340
+              },
+              {
+                "rect": [768, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 300
+              },
+              {
+                "rect": [960, 0, 192, 208],
+                "foot": [96, 199],
+                "duration": 260
+              }
+            ],
+            "url": "art/companions/pip/winter/discover.png",
+            "heldTool": false
+          },
+          "cast": {
+            "canvas": [272, 224],
+            "offset": [0, -8],
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [0, 0, 272, 224],
+                "foot": [96, 207],
+                "duration": 350,
+                "tip": [171.32, 41.04]
+              },
+              {
+                "rect": [272, 0, 272, 224],
+                "foot": [96, 207],
+                "duration": 450,
+                "tip": [265.6, 42.32]
+              }
+            ],
+            "url": "art/companions/pip/winter/fish.png",
+            "heldTool": true,
+            "loop": false
+          },
+          "wait": {
+            "canvas": [272, 224],
+            "offset": [0, -8],
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [544, 0, 272, 224],
+                "foot": [96, 207],
+                "duration": 3200,
+                "tip": [206.44, 55.4]
+              },
+              {
+                "rect": [816, 0, 272, 224],
+                "foot": [96, 207],
+                "duration": 200,
+                "tip": [209.76, 48.2]
+              }
+            ],
+            "url": "art/companions/pip/winter/fish.png",
+            "heldTool": true,
+            "loop": true
+          },
+          "reel": {
+            "canvas": [272, 224],
+            "offset": [0, -8],
+            "anchor": [96, 207],
+            "scale": 1,
+            "frames": [
+              {
+                "rect": [1088, 0, 272, 224],
+                "foot": [96, 207],
+                "duration": 350,
+                "tip": [183.84, 78.2]
+              },
+              {
+                "rect": [1360, 0, 272, 224],
+                "foot": [96, 207],
+                "duration": 450,
+                "tip": [178.56, 41.2]
+              }
+            ],
+            "url": "art/companions/pip/winter/fish.png",
+            "heldTool": true,
+            "loop": false
+          }
+        }
+      }
+    }
+  }
+}

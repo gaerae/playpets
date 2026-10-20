@@ -6,7 +6,7 @@ dialog {
   overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
-  padding: 28px;
+  padding: 20px;
   color: var(--ink);
   background: var(--panel-surface);
   box-shadow: 0 24px 100px #152e432b;
@@ -20,8 +20,12 @@ dialog::backdrop {
   align-items: center;
   justify-content: space-between;
 }
+.dialog-heading > div {
+  min-width: 0;
+}
 .dialog-heading h2 {
-  font-size: 24px;
+  overflow-wrap: anywhere;
+  font-size: 18px;
 }
 .dialog-heading .eyebrow {
   font-size: 10.5px;
@@ -30,18 +34,19 @@ dialog::backdrop {
 .dialog-description {
   font-size: 12px;
   color: var(--muted);
-  margin: 14px 0 20px;
+  margin: 10px 0 12px;
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 dialog label {
   display: block;
   font-size: 12px;
-  margin: 16px 0 7px;
+  margin: 12px 0 5px;
 }
 dialog input,
 dialog select {
   font-size: 13px;
-  min-height: 42px;
+  min-height: 36px;
 }
 dialog small {
   display: block;
@@ -53,16 +58,17 @@ dialog .tiny {
   margin-top: 16px;
 }
 .dialog-actions {
-  margin-top: 20px;
+  margin-top: 12px;
   display: flex;
   justify-content: flex-end;
-  gap: 20px;
+  gap: 8px;
 }
 .form-error {
   font-size: 12px;
   line-height: 1.6;
   color: var(--danger);
-  margin-top: 12px;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
 }
 /* Destructive text buttons stay red, hovered or not (they are also .button.text). */
 .button.danger,
@@ -124,10 +130,10 @@ input[type="range"] {
 /* Friend settings hold the most fields of any dialog: a little less room between them, so the
    buttons fit in a window of the usual height without scrolling. */
 #pet-dialog {
-  padding: 20px 28px;
+  padding: 16px 20px;
   width: 480px;
 }
-#pet-form {
+.dialog-form {
   display: flex;
   flex-direction: column;
   max-height: min(720px, calc(100dvh - 76px));
@@ -136,20 +142,15 @@ input[type="range"] {
   flex-wrap: wrap;
   gap: 10px;
 }
-@media (max-width: 400px) {
-  #pet-form > .dialog-actions > #remove {
-    flex-basis: 100%;
-  }
-}
-.friend-dialog-body {
+.dialog-body {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0 3px 3px;
   margin: 0 -3px;
 }
-#pet-form > .dialog-heading,
-#pet-form > .dialog-actions {
+.dialog-form > .dialog-heading,
+.dialog-form > .dialog-actions {
   flex: none;
 }
 #pet-dialog label:not(.relation-card, .appearance-card) {
@@ -184,8 +185,8 @@ dialog .relation-card {
   display: grid;
   gap: 5px;
   margin: 0;
-  padding: 10px 12px;
-  min-height: 64px;
+  padding: 8px 10px;
+  min-height: 56px;
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
   background: var(--white);
@@ -233,17 +234,26 @@ dialog .relation-card small {
 /* Asking before an action that cannot be taken back: a question, what follows, and two answers. */
 .confirm-dialog {
   width: 400px;
-  padding: 24px;
+  padding: 20px;
+}
+.confirm-dialog[open] {
+  display: flex;
+  flex-direction: column;
 }
 .confirm-dialog h2 {
+  flex: none;
+  overflow-wrap: anywhere;
   font-size: 17px;
   line-height: 1.45;
 }
 .confirm-dialog .dialog-description {
+  min-height: 0;
+  overflow-y: auto;
   margin: 10px 0 0;
 }
 /* Cancel gets focus first, so it needs room for its focus ring. */
 .confirm-dialog .dialog-actions {
+  flex: none;
   gap: 8px;
 }
 .confirm-dialog .button.text {
@@ -253,72 +263,42 @@ dialog .relation-card small {
 .button.primary.danger-fill:hover {
   background: var(--danger);
 }
-/* Update details remain over the yard and can be collapsed during a download. */
-.update-dialog {
-  position: fixed;
-  z-index: 45;
-  right: 12px;
-  bottom: 64px;
-  width: min(380px, calc(100vw - 24px));
-  max-height: calc(100dvh - 80px);
-  overflow-y: auto;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--menu-surface);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  box-shadow: 0 8px 24px var(--ink-12);
-}
-.update-dialog[hidden] {
-  display: none;
-}
-.update-dialog .controls-header {
-  position: sticky;
-  top: -16px;
-  background: var(--menu-surface);
-  padding: 4px 0;
-}
-.update-dialog h2 {
-  flex: 1;
-  margin: 0;
-  font-size: 16px;
-  line-height: 1.4;
-}
-.update-dialog .controls-header button {
-  flex: none;
-  width: 36px;
-  height: 36px;
-}
-.update-dialog .dialog-description {
-  font-size: 13px;
-  line-height: 1.5;
-}
 .update-compact {
   display: none;
 }
-body.compact .update-dialog {
-  bottom: 8px;
-  right: 8px;
-  width: calc(100vw - 16px);
-  max-height: calc(100dvh - 16px);
-}
 body.compact .update-compact {
   position: fixed;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   z-index: 32;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 36px;
-  max-width: calc(100vw - 20px);
-  padding: 8px 10px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 6px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-control);
+  border-radius: 50%;
   background: var(--menu-surface);
   color: var(--ink);
-  font-size: 12px;
+}
+.update-compact::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--menu-surface);
+  border-radius: 50%;
+  background: var(--accent);
+}
+@media (pointer: coarse) {
+  body.compact .update-compact {
+    width: 44px;
+    height: 44px;
+  }
 }
 .update-compact[hidden] {
   display: none;
@@ -327,12 +307,6 @@ body.compact .update-compact {
   width: 16px;
   height: 16px;
   flex: none;
-}
-.update-dialog .notes-link {
-  margin-top: 2px;
-  color: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 .update-progress {
   display: flex;
@@ -353,8 +327,8 @@ body.compact .update-compact {
 }
 /* ---- the album: fish and bugs caught, the ones not yet found as silhouettes with a hint ---- */
 .album-dialog {
-  height: min(660px, calc(100dvh - 16px));
-  width: min(720px, 94vw);
+  height: min(560px, calc(100dvh - 16px));
+  width: min(640px, 94vw);
   padding: 12px;
 }
 .album-dialog[open] {
@@ -371,6 +345,18 @@ body.compact .update-compact {
 .album-total {
   margin: 2px 0 0;
   font-size: 12px;
+  color: var(--muted);
+}
+.album-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.album-dig-status {
+  margin: 0 0 6px;
+  font-size: 11px;
+  line-height: 1.4;
   color: var(--muted);
 }
 /* the album draws flowers and gifts from the yard's own symbols, in daylight colours */
@@ -404,9 +390,9 @@ body.compact .update-compact {
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 3px;
   padding: 4px;
-  margin: 4px 0 12px;
+  margin: 4px 0 8px;
   border: 1px solid var(--line);
-  border-radius: 13px;
+  border-radius: var(--radius-control);
   background: var(--segment-track);
 }
 .album-tabs button {
@@ -414,8 +400,8 @@ body.compact .update-compact {
   align-items: baseline;
   justify-content: center;
   gap: 6px;
-  min-height: 44px;
-  padding: 9px 8px;
+  min-height: 36px;
+  padding: 6px 8px;
   border: 0;
   border-radius: var(--radius-control);
   background: transparent;
@@ -454,8 +440,8 @@ body.compact .update-compact {
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
-  max-height: min(56vh, 460px);
+  gap: 8px;
+  align-content: start;
   overflow-y: auto;
 }
 .album-card {
@@ -464,9 +450,9 @@ body.compact .update-compact {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 12px 8px 14px;
+  padding: 8px;
   border: 1px solid var(--ink-12);
-  border-radius: 18px;
+  border-radius: var(--radius-card);
   background: linear-gradient(160deg, var(--white), #eaf1e4);
   box-shadow: 0 3px 0 var(--ink-12);
   text-align: center;
@@ -475,9 +461,9 @@ body.compact .update-compact {
   display: grid;
   place-items: center;
   width: 100%;
-  height: 88px;
+  height: 68px;
   margin-bottom: 4px;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   background:
     radial-gradient(ellipse at 50% 66%, #b5c6a53d 0 24%, transparent 25%),
     radial-gradient(ellipse at 50% 50%, #ffffffb3, #d6e3cc66 70%, transparent 71%);
@@ -516,7 +502,7 @@ body.compact .update-compact {
 }
 .connection-help {
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-card);
   background: var(--paper);
   color: var(--ink);
   line-height: 1.6;
@@ -544,7 +530,7 @@ body.compact .update-compact {
   margin-top: 12px;
   padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   background: var(--paper);
 }
 .community-discovery summary {
@@ -674,5 +660,41 @@ body.compact .update-compact {
   .album-dialog .dialog-heading .icon-button {
     width: 36px;
     height: 36px;
+  }
+}
+
+/* Small editing sheets keep the exit and primary action in view while fields scroll. */
+@media (max-width: 640px), (max-height: 480px) {
+  :is(#pet-dialog, #import-dialog, #connection-dialog) {
+    padding: 14px;
+    max-width: calc(100vw - 24px);
+    overflow: hidden;
+  }
+  .dialog-form {
+    max-height: calc(100dvh - 46px);
+  }
+  .dialog-form > .dialog-heading h2 {
+    font-size: 17px;
+  }
+  .dialog-form > .dialog-heading .eyebrow {
+    margin-bottom: 3px;
+    font-size: 9px;
+  }
+  .dialog-form > .dialog-heading .icon-button {
+    width: 36px;
+    height: 36px;
+    flex: none;
+  }
+  .dialog-form > .dialog-actions {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .dialog-form > .dialog-actions .button {
+    min-height: 34px;
+    padding: 6px 10px;
+    font-size: 12px;
   }
 }

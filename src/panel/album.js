@@ -3,24 +3,36 @@
 // The ones found show how many (and the biggest fish); the others are silhouettes with when and
 // where to look, so there is always a next one. What there is to find is the catalogue's.
 import { closeOnBackdrop } from '../core/confirm.js';
-import { t } from '../core/i18n.js';
+import { joinList, language, t } from '../core/i18n.js';
+import { limit } from '../core/limits.js';
 import { $, data } from '../core/state.js';
 import { artSvg } from '../yard/art.js';
 import { BUGS, FISH, FLOWERS, GIFTS, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
+import { rareReadyAt } from '../yard/discovery-rewards.js';
+import { scene } from '../yard/world.js';
+import { worldFor } from '../yard/worlds.js';
 
-// When and where a fish or a bug is found: "Summer · Evening·Night · at the lake".
+// When and where a fish or a bug is found: "Summer, Evening, Night, at the lake".
 function when(kind, where) {
   const seasons =
-      kind.seasons.length === 4 ? t('catch.all_year') : kind.seasons.map(s => t(`catch.season_${s}`)).join('·'),
-    periods = kind.periods.length === 4 ? t('catch.any_time') : kind.periods.map(p => t(`period.${p}`)).join('·');
-  return `${seasons} · ${periods} · ${t(where)}`;
+      kind.seasons.length === 4 ? t('catch.all_year') : joinList(kind.seasons.map(s => t(`catch.season_${s}`))),
+    periods = kind.periods.length === 4 ? t('catch.any_time') : joinList(kind.periods.map(p => t(`period.${p}`)));
+  return joinList([seasons, periods, t(where)]);
 }
 // A kind that comes only during a seasonal event says when.
 const eventHint = k => t('catch.event_hint', { event: t(`event.${k.event}.name`) });
+const favored = kind =>
+  t('album.favored', {
+    conditions: joinList([
+      ...(kind.affinity?.seasons || []).map(value => t(`catch.season_${value}`)),
+      ...(kind.affinity?.weather || []).map(value => t(`weather.${value}`)),
+      ...(kind.affinity?.places || []).map(value => t(`world.${value}`)),
+    ]),
+  });
 const caughtLine = (entry, size) =>
   size && entry.best
-    ? `${t('catch.count', { count: entry.count })} · ${t('catch.best', { size: entry.best.toFixed(1) })}`
+    ? joinList([t('catch.count', { count: entry.count }), t('catch.best', { size: entry.best.toFixed(1) })])
     : t('catch.count', { count: entry.count });
 
 // Each book: its tab's name, its kinds (the catalogue's), what has been found, and how a card draws
@@ -44,7 +56,12 @@ const BOOKS = {
     found: () => data.album?.fish || {},
     draw: (k, unknown) => fishSvg(k, unknown),
     name: k => t(`catch.fish_${k.id}`),
-    hint: k => (k.event ? `${eventHint(k)} · ${when(k, 'catch.where_lake')}` : when(k, 'catch.where_lake')),
+    hint: k =>
+      joinList([
+        ...(k.event ? [eventHint(k)] : []),
+        when(k, 'catch.where_lake'),
+        ...(k.rain > 1 ? [t('catch.rain_hint')] : []),
+      ]),
     record: entry => caughtLine(entry, true),
   },
   bug: {
@@ -53,8 +70,14 @@ const BOOKS = {
     found: () => data.album?.bugs || {},
     draw: (k, unknown) => bugSvg(k, unknown),
     name: k => t(`catch.bug_${k.id}`),
-    hint: k => (k.event ? `${eventHint(k)} · ${when(k, 'catch.where_air')}` : when(k, 'catch.where_air')),
+    hint: k =>
+      joinList([
+        ...(k.event ? [eventHint(k)] : []),
+        when(k, ['beetle', 'cricket'].includes(k.kind) ? 'catch.where_ground' : 'catch.where_air'),
+        t('catch.bug_clear'),
+      ]),
     record: entry => caughtLine(entry, false),
+    rare: k => k.rarity === 'rare',
   },
   gift: {
     tab: 'catch.tab_gifts',
@@ -74,7 +97,7 @@ const BOOKS = {
     draw: (k, unknown) =>
       artSvg(k.stages.find(stage => stage.name === 'mature').art, unknown ? 'class="unknown-art"' : ''),
     name: k => t(`tree.${k.id}`),
-    hint: () => t('album.tree_hint'),
+    hint: favored,
     record: entry => t('catch.grown', { count: entry.count }),
   },
   treasure: {
@@ -83,12 +106,13 @@ const BOOKS = {
     found: () => data.album?.treasures || {},
     draw: (k, unknown) => artSvg(k.art, unknown ? 'class="unknown-art"' : ''),
     name: k => t(`treasure.${k.id}`),
-    hint: () => t('album.treasure_hint'),
+    hint: favored,
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
   },
 };
 let book = 'flower';
+let rareTimer;
 // A kind this seldom (its weight among those that come at the same time, catalog.json) is rare.
 const RARE = 4;
 
@@ -120,7 +144,35 @@ function card(b, kind, entry) {
 }
 /** Brings the album in line with what has been found (only while it is open). */
 export function renderAlbum() {
+  clearTimeout(rareTimer);
   if (!$('album-dialog').open) return;
+  const now = Date.now(),
+    readyAt = rareReadyAt(data.garden?.digs, TREASURES, now),
+    capabilities = worldFor(scene.world).capabilities,
+    soil = capabilities?.soil ?? capabilities?.sky !== false,
+    digging = book === 'tree' || book === 'treasure';
+  const status = $('album-dig-status');
+  const giftBook = book === 'gift';
+  status.hidden = !digging && !giftBook;
+  status.title = '';
+  if (digging) {
+    const conditions = joinList([
+      t(`catch.season_${scene.season}`),
+      t(`weather.${scene.weather}`),
+      t(`world.${scene.world}`) === `world.${scene.world}` ? t('album.custom_place') : t(`world.${scene.world}`),
+    ]);
+    status.textContent = t('album.dig_context', { conditions });
+    if (readyAt)
+      status.textContent += ` ${t('album.rare_wait', { time: new Date(readyAt).toLocaleString(language(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) })}`;
+    else status.textContent += ` ${t('album.rare_rule')}`;
+    if (!soil) status.textContent = t('discovery.indoors');
+    if (soil && readyAt) rareTimer = setTimeout(renderAlbum, readyAt - now + 1);
+  }
+  if (giftBook) {
+    status.title = '';
+    status.textContent =
+      (data.garden?.decor?.length ?? 0) >= limit(data, 'decor') ? t('album.gift_full') : t('album.gift_rule');
+  }
   let found = 0,
     total = 0;
   for (const [id, b] of Object.entries(BOOKS)) {
@@ -149,6 +201,7 @@ function openAlbum() {
 }
 /** Wires the album's button, tabs and dialog. Called once, by app.js. */
 export function setupAlbum() {
+  $('album-dialog').addEventListener('close', () => clearTimeout(rareTimer));
   const picker = $('album-select');
   if (picker) {
     picker.replaceChildren(

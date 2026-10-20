@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+const { bugSvg } = await import('../src/yard/creatures.js');
 const module = await import('../src/yard/ambient-art.js').catch(() => null);
 const factory = (...args) => {
   assert.equal(typeof module?.createAmbientArt, 'function');
@@ -122,4 +123,89 @@ test('failed artwork is a quiet fallback and never interrupts the living scene',
   await Promise.resolve();
   assert.equal(art.bug(context(), { species: 'swallowtail' }, 1), false);
   assert.equal(art.bird(context(), 1, 1, 0, 1, 1, 0), false);
+});
+
+test('each species selects its own atlas and ground bugs retain their shape', async () => {
+  const original = { width: 1254 },
+    extension = { width: 1024 },
+    ground = { width: 1024 };
+  const entries = [
+    { id: 'swallowtail', kind: 'bugs', atlas: 'bugs/specimens.png', crop: [1, 2, 30, 40] },
+    { id: 'painted_lady', kind: 'bugs', atlas: 'collection-extension/wildlife.png', crop: [5, 6, 40, 30] },
+    { id: 'ladybug', kind: 'bugs', atlas: 'collection-extension/ground-bugs.png', crop: [9, 10, 20, 30] },
+    { id: 'field_cricket', kind: 'bugs', atlas: 'collection-extension/green-cricket.png', crop: [40, 10, 25, 30] },
+  ];
+  const art = factory(() => {}, {
+    loadBugs: async () => ({
+      entries,
+      images: new Map([
+        ['bugs/specimens.png', original],
+        ['collection-extension/wildlife.png', extension],
+        ['collection-extension/ground-bugs.png', ground],
+        ['collection-extension/green-cricket.png', extension],
+      ]),
+    }),
+    loadBirds: async () => null,
+    makeCanvas: () => null,
+  });
+  art.use(true, false);
+  await Promise.resolve();
+  await Promise.resolve();
+  const ctx = context();
+  for (const [species, kind] of [
+    ['swallowtail', 'butterfly'],
+    ['painted_lady', 'butterfly'],
+    ['ladybug', 'beetle'],
+    ['field_cricket', 'cricket'],
+  ])
+    assert.equal(art.bug(ctx, { species, kind, x: 0, y: 0, phase: 0, heading: 0 }, 1), true);
+  assert.deepEqual(
+    ctx.calls.map(call => call[0]),
+    [original, extension, ground, extension],
+  );
+  assert.ok(ctx.calls[2][7] < ctx.calls[0][7], 'ladybug remains smaller than a butterfly');
+});
+
+test('green cricket fallback preserves its jumping legs and leaf-green body', () => {
+  const ladybug = bugSvg({ kind: 'beetle', look: { body: '#da493d', edge: '#342a22' } });
+  const cricket = bugSvg({ kind: 'cricket', look: { body: '#7b9e57', edge: '#3f5732' } });
+  assert.match(cricket, /M24 29L12 18L8 41/);
+  assert.notEqual(ladybug, cricket);
+});
+
+test('living-yard preparation decodes each distinct bug atlas once across scenes', async t => {
+  const entries = [
+    { id: 'loader_beetle', kind: 'bugs', atlas: 'test/beetles.png', crop: [0, 0, 20, 20] },
+    { id: 'loader_cricket', kind: 'bugs', atlas: 'test/beetles.png', crop: [20, 0, 20, 20] },
+    { id: 'loader_butterfly', kind: 'bugs', atlas: 'test/wings.png', crop: [0, 0, 20, 20] },
+    { id: 'loader_fish', kind: 'fish', atlas: 'test/fish.png', crop: [0, 0, 20, 20] },
+  ];
+  const decoded = [];
+  const previous = globalThis.Image;
+  globalThis.Image = class {
+    decode() {
+      decoded.push(this.src);
+      return Promise.resolve();
+    }
+  };
+  t.after(() => {
+    if (previous === undefined) delete globalThis.Image;
+    else globalThis.Image = previous;
+  });
+  let requests = 0;
+  t.mock.method(globalThis, 'fetch', async () => {
+    requests++;
+    return { ok: true, json: async () => entries };
+  });
+  const first = factory(() => {}, { loadBirds: async () => null, makeCanvas: () => null });
+  const second = factory(() => {}, { loadBirds: async () => null, makeCanvas: () => null });
+  first.use(false, false);
+  assert.equal(requests, 0);
+  first.use(true, false);
+  second.use(true, false);
+  await new Promise(setImmediate);
+  assert.equal(requests, 1);
+  assert.deepEqual(decoded.map(path => new URL(path).pathname.split('/').at(-1)).sort(), ['beetles.png', 'wings.png']);
+  for (const art of [first, second])
+    assert.equal(art.bug(context(), { species: 'loader_cricket', kind: 'cricket', x: 0, y: 0, heading: 0 }, 1), true);
 });

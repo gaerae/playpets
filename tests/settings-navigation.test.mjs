@@ -7,7 +7,7 @@ globalThis.requestAnimationFrame = () => {};
 const { openPanel, setupTabs } = await import('../src/panel/tabs.js');
 
 function page(t) {
-  const sections = ['general-title', 'yard-settings-title', 'agent-link-title', 'about-title'];
+  const sections = ['general-title', 'agent-link-title', 'updates-title', 'about-title'];
   const { document, nodes } = installDom(t, {
     ids: [
       'brand',
@@ -23,6 +23,12 @@ function page(t) {
       'step-agent',
       'steps-dismiss',
       'settings-content',
+      'settings-home',
+      'panel-menu',
+      'update-dialog',
+      'update-pill',
+      'update-compact',
+      'yard',
       ...sections,
       ...sections.map((_, i) => `settings-tab-${i}`),
       ...sections.map(id => `${id}-body`),
@@ -48,62 +54,62 @@ function page(t) {
   return { nodes, links, bodies };
 }
 
-test('Settings selects one section and routes agent/update entry points to their contents', t => {
+test('Settings starts at a task list and returns there before leaving management', t => {
   const { nodes, links, bodies } = page(t);
-  openPanel('settings', 'general-title');
-  assert.deepEqual(
-    bodies.map(body => body.hidden),
-    [false, true, true, true],
-  );
-  nodes.get('settings-content').scrollTop = 200;
-  links[1].onclick();
-  assert.deepEqual(
-    bodies.map(body => body.hidden),
-    [true, false, true, true],
-  );
-  assert.equal(nodes.get('settings-content').scrollTop, 0);
-  nodes.get('step-agent').onclick();
+  openPanel('settings');
+  assert.equal(nodes.get('settings-home').hidden, false);
+  assert.equal(nodes.get('settings-content').hidden, true);
+  links[2].onclick();
+  assert.equal(nodes.get('settings-home').hidden, true);
+  assert.equal(nodes.get('settings-content').hidden, false);
   assert.deepEqual(
     bodies.map(body => body.hidden),
     [true, true, false, true],
   );
-  openPanel('settings', 'about-title');
-  assert.deepEqual(
-    bodies.map(body => body.hidden),
-    [true, true, true, false],
-  );
-  assert.equal(document.activeElement, nodes.get('about-title'));
-  assert.deepEqual(
-    links.map(link => link.getAttribute('aria-selected')),
-    ['false', 'false', 'false', 'true'],
-  );
-  openPanel(null);
-  openPanel('settings');
-  assert.equal(bodies[3].hidden, false, 'reopening Settings keeps its selected section');
-  openPanel('settings', 'about');
-  assert.equal(document.activeElement, nodes.get('about-title'), 'the native About route selects the same section');
+  nodes.get('update-dialog').hidden = false;
+  nodes.get('panel-menu').dispatch('click');
+  assert.equal(nodes.get('update-dialog').hidden, true, 'a hidden update region must not trap Escape on the task list');
+  assert.equal(nodes.get('settings-home').hidden, false);
+  assert.equal(nodes.get('settings-content').hidden, true);
 });
 
-test('Settings section tabs support arrows and Home/End with one keyboard stop', t => {
-  const { links, bodies } = page(t);
-  openPanel('settings', 'general-title');
-  let prevented = false;
-  links[0].onkeydown({
-    key: 'End',
-    preventDefault() {
-      prevented = true;
-    },
-  });
-  assert.equal(prevented, true);
-  assert.equal(document.activeElement, links[3]);
+test('direct agent, update and About routes bypass the task list', t => {
+  const { nodes, bodies } = page(t);
+  nodes.get('step-agent').onclick();
+  assert.deepEqual(
+    bodies.map(body => body.hidden),
+    [true, false, true, true],
+  );
+  openPanel('settings', 'updates');
+  assert.deepEqual(
+    bodies.map(body => body.hidden),
+    [true, true, false, true],
+  );
+  assert.equal(document.activeElement, nodes.get('panel-title'));
+  openPanel('settings', 'about');
   assert.deepEqual(
     bodies.map(body => body.hidden),
     [true, true, true, false],
   );
-  links[3].onkeydown({ key: 'ArrowRight', preventDefault() {} });
-  assert.equal(document.activeElement, links[0]);
-  assert.deepEqual(
-    links.map(link => link.tabIndex),
-    [0, -1, -1, -1],
-  );
+  assert.equal(document.activeElement, nodes.get('panel-title'));
+  openPanel(null);
+  openPanel('settings');
+  assert.equal(nodes.get('settings-home').hidden, false, 'reopening starts from explicit tasks');
+});
+
+test('Escape closes the Updates task in one step and clears its inline details', async t => {
+  const { nodes } = page(t);
+  openPanel('settings', 'updates');
+  nodes.get('update-dialog').hidden = false;
+  await document.dispatch('keydown', { key: 'Escape' });
+  assert.equal(nodes.get('side-panel').hidden, true);
+  assert.equal(nodes.get('update-dialog').hidden, true);
+});
+
+test('a task entered from management returns to its tab without an extra Settings home', async t => {
+  const { nodes } = page(t);
+  openPanel('settings', 'general-title', true);
+  await nodes.get('panel-menu').dispatch('click');
+  assert.equal(nodes.get('settings-home').hidden, true, 'management owns the task list for this route');
+  assert.equal(nodes.get('panel-menu').getAttribute('aria-label'), 'Back to friends & settings');
 });

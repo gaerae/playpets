@@ -56,7 +56,7 @@ export const worldCopy = {
     'Bring a pet you love, or make a new one. Reference sheets and ready-to-use prompts help keep their look consistent.',
   creatorLink: 'Make your own companion',
   discovery: 'Already have a Codex pet?',
-  sceneCaption: (v: string) => `Actual app captures · PlayPets ${v}`,
+  sceneCaption: (v: string) => `Actual app captures, PlayPets ${v}`,
 };
 export const sections = {
   discoveryGuide: 'See what you can discover',
