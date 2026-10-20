@@ -13,7 +13,9 @@ globalThis.playPets = {
     });
   },
 };
-const { sendDiscovery, setupDiscovery, beginDiscovery, cancelDiscovery } = await import('../src/yard/discovery.js');
+const { sendDiscovery, setupDiscovery, beginDiscovery, cancelDiscovery, syncDiscovery } = await import(
+  '../src/yard/discovery.js'
+);
 const state = await import('../src/core/state.js');
 const { setData, setSelected, views } = state;
 const { measureYard } = await import('../src/yard/field.js');
@@ -128,6 +130,20 @@ test('tree choices show owned saplings and never default to an unavailable speci
   assert.equal(maple.getAttribute('aria-pressed'), 'true');
   assert.ok(choices.filter(button => button.dataset.treeKind !== 'maple').every(button => button.disabled));
   assert.match(maple.textContent, /2/);
+});
+
+test('a state change keeps keyboard focus on the chosen tree choice', t => {
+  fixture(t);
+  state.data.garden.saplings = { maple: 2, oak: 1 };
+  beginDiscovery('tree');
+  const choices = document.getElementById('discovery-tree-choices');
+  const maple = choices.children.find(button => button.dataset.treeKind === 'maple');
+  maple.focus();
+  state.data.garden.saplings = { maple: 1, oak: 1 };
+  syncDiscovery();
+  assert.equal(document.activeElement, maple);
+  assert.equal(maple.parentNode, choices);
+  assert.match(maple.textContent, /1/);
 });
 
 test('an empty sapling pocket offers digging instead of allowing free planting', async t => {

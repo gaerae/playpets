@@ -10,9 +10,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Added
 
 - Expand the album to 100 entries with seasonal flowers, distinct freshwater creatures, crawling and hopping insects, and everyday keepsakes.
-
 - Give Daisy, Clover, Pip and Miso authored digging, planting, casting, waiting, reeling and discovery animations in every seasonal outfit, while imported pets keep their original sheets.
-
 - Find six species of tree saplings by digging, keep them in a saved pocket and spend one when planting.
 - Discover bottle caps, tiny robots, miniature crowns and star fragments alongside eight existing keepsakes.
 - Grow oak, birch and willow trees with seasonal artwork; keep up to six trees per place and 24 in total.
@@ -20,7 +18,6 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Give the field cricket a leaf-green illustrated sprite and matching fallback colors while keeping its short ground hops.
-
 - Remove exact collection percentages and their display control, clarify habitat clues and the shared yard-wide daily gift allowance, and explain full decoration capacity.
 - Favor tree saplings and keepsakes by season, weather and place, show useful habitat clues in the album and four-language guide without exposing exact odds, and pace uncommon finds with a shared rolling 24-hour interval that redirects their chance into common finds.
 - Show season, time and weather as compact radio segments with visible choices and keyboard navigation.
@@ -51,12 +48,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Keep the selected seasonal landscape when choosing snow, including imported backgrounds and indoor window views.
 - Preserve ground reward history while recovering normally after the computer clock moves backward.
 - Preserve the 24-hour ground-reward limit beyond 32 distinct digs and discard expired records when loading existing saves without a file migration.
-
 - Keep editing-dialog headings and actions visible in small windows, reveal inline errors and protect unfinished imports.
 - Let automatically discovered Ollama models close normally without marking untouched forms as edited.
 - Keep messages visible over open dialogs and let discovery cards remain while being read, with an explicit close action.
 - Keep dragged furniture anchored to the grab point, follow movement without button transitions and restore failed moves.
 - Use a standing pose with soil and shovel effects when digging instead of the coding animation.
+- Count seeds promised to a friend on the way to plant, so a quick second click no longer plants an extra flower or ends in a missing-seed error.
+- Keep keyboard focus on a tree choice when the yard updates while choosing a sapling.
 
 ### Removed
 
