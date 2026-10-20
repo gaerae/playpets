@@ -7,6 +7,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-20
+
 ### Added
 
 - Expand the album to 100 entries with seasonal flowers, distinct freshwater creatures, crawling and hopping insects, and everyday keepsakes.
