@@ -122,7 +122,7 @@ function syncTool() {
   const seeds = data.garden?.seeds ?? 0;
   $('seed-count').textContent = seeds ? String(seeds) : '';
   $('plant-tool').setAttribute('aria-disabled', String(!seeds));
-  if (!seeds && aiming === 'seed') setAimingMode(false);
+  if (!spareSeeds() && aiming === 'seed') setAimingMode(false);
 }
 
 // Sends a friend to stand just beside a plant (left or right of it, whichever is nearer).
@@ -164,6 +164,8 @@ const pull = guard(async id => {
 });
 
 const planting = new Map();
+// A friend on the way to plant spends its seed only on arrival, so that seed is already promised.
+const spareSeeds = () => Math.max(0, (data.garden?.seeds ?? 0) - planting.size);
 function cancelPlanting() {
   for (const v of planting.keys()) release(v);
 }
@@ -209,15 +211,18 @@ function sendPlanting(v, point, kind, clip) {
     }),
   });
   planting.set(v, cleanup);
+  if (!spareSeeds() && aiming === 'seed') setAimingMode(false);
 }
 
 // Planting: the tool, then a click on the field. It stays on while there are seeds; Esc or the
 // tool again puts it away.
 function plantAt(cx, cy) {
   if (cy < field().top - 10) return toast(t('garden.on_field'));
+  if (!spareSeeds()) return;
   const point = yardToField(cx, cy);
   const kind = flowerFor(scene.season);
-  const v = views.get(selected) || nearestFree(cx, cy);
+  const chosen = views.get(selected);
+  const v = chosen && isFree(chosen) ? chosen : nearestFree(cx, cy);
   const clip = v && isFree(v) ? prepareCompanionAction(v.asset, 'plant') : null;
   if (clip && companionImage({ clip })) return sendPlanting(v, point, kind, clip);
   return call('plant', kind, point.x, point.y);
@@ -229,7 +234,7 @@ export function setupGarden() {
     if (event.key === 'Escape') cancelPlanting();
   });
   $('plant-tool').onclick = () => {
-    if (!data.garden?.seeds) return toast(t('garden.no_seeds'));
+    if (!spareSeeds()) return toast(t('garden.no_seeds'));
     setAimingMode(aiming === 'seed' ? false : 'seed');
   };
   $('yard').addEventListener(

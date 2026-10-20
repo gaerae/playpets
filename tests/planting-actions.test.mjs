@@ -11,7 +11,8 @@ globalThis.playPets = {
   },
 };
 const { setupGarden } = await import('../src/yard/garden.js');
-const { setAiming, setData, setSelected, views } = await import('../src/core/state.js');
+const state = await import('../src/core/state.js');
+const { setAiming, setData, setSelected, views } = state;
 const { useCompanionActions, setCompanionSeason, companionAction } = await import('../src/core/companion-actions.js');
 const { EDGE, geometry, measureYard, sizeOf } = await import('../src/yard/field.js');
 const { release } = await import('../src/yard/trips.js');
@@ -92,6 +93,29 @@ test('authored planting walks and completes its action before the existing seed 
   await settled();
   assert.equal(planted.length, 1);
   assert.equal(v.doing, null);
+});
+test('a seed promised to a walking friend cannot be planted again by a second click', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { v, click } = page(t);
+  await click();
+  assert.equal(state.aiming, false);
+  setAiming('seed');
+  await click();
+  assert.equal(planted.length, 0);
+  const trip = v.trip;
+  v.trip = null;
+  v.target = null;
+  trip.arrive(v);
+  t.mock.timers.tick(1800);
+  await settled();
+  assert.equal(planted.length, 1);
+});
+test('aiming stays on while seeds remain beyond the ones already promised', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { click } = page(t);
+  setData({ ...state.data, garden: { seeds: 2, plants: [] } });
+  await click();
+  assert.equal(state.aiming, 'seed');
 });
 for (const phase of ['walking', 'planting'])
   test(`cancelling while ${phase} never spends a seed`, async t => {

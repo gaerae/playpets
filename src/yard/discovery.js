@@ -30,19 +30,25 @@ function treeChoices() {
   const choices = $('discovery-tree-choices');
   if (intent?.action !== 'tree' || !choices) return;
   if (!stock(intent.kind)) intent.kind = TREES.find(tree => stock(tree.id))?.id || null;
-  choices.replaceChildren(
-    ...TREES.map(tree => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'discovery-tree-choice';
-      button.dataset.treeKind = tree.id;
-      button.disabled = !stock(tree.id);
-      button.textContent = t('discovery.pocket', { kind: t(`tree.${tree.id}`), count: stock(tree.id) });
-      button.title = t('discovery.sapling_source');
-      button.setAttribute('aria-pressed', String(tree.id === intent.kind));
-      return button;
-    }),
-  );
+  // Every state change comes here; the buttons are made once and updated in place, so a keyboard
+  // user keeps focus on a choice.
+  if (choices.children.length !== TREES.length)
+    choices.replaceChildren(
+      ...TREES.map(tree => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'discovery-tree-choice';
+        button.dataset.treeKind = tree.id;
+        return button;
+      }),
+    );
+  for (const button of choices.children) {
+    const kind = button.dataset.treeKind;
+    button.disabled = !stock(kind);
+    button.textContent = t('discovery.pocket', { kind: t(`tree.${kind}`), count: stock(kind) });
+    button.title = t('discovery.sapling_source');
+    button.setAttribute('aria-pressed', String(kind === intent.kind));
+  }
   $('discovery-target-label').textContent = t(intent.kind ? 'discovery.choose_tree' : 'discovery.no_saplings');
   $('discovery-find-saplings').hidden = !!intent.kind;
 }

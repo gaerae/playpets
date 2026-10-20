@@ -53,6 +53,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Keep messages visible over open dialogs and let discovery cards remain while being read, with an explicit close action.
 - Keep dragged furniture anchored to the grab point, follow movement without button transitions and restore failed moves.
 - Use a standing pose with soil and shovel effects when digging instead of the coding animation.
+- Count seeds promised to a friend on the way to plant, so a quick second click no longer plants an extra flower or ends in a missing-seed error.
+- Keep keyboard focus on a tree choice when the yard updates while choosing a sapling.
 
 ### Removed
 
