@@ -195,8 +195,8 @@
   transform: translate(-50%, -50%);
   transition: opacity 1.5s;
 }
-/* a few stars at night, twinkling in two groups; behind the moon and the hills */
-.yard.period-night::after {
+/* a few stars on a clear night, twinkling in two groups; behind the moon and the hills */
+.yard.period-night.weather-clear::after {
   content: "";
   position: absolute;
   inset: 0 0 42% 0;
@@ -223,7 +223,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .yard.period-night::after {
+  .yard.period-night.weather-clear::after {
     animation: none;
   }
 }
@@ -375,6 +375,16 @@
     transform: translateX(100%);
   }
 }
+/* The drawn stars and shooting stars (scenery.js), in the sky between the painting's sky and its
+   land, so a hill or a tree hides them. */
+.star-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -3;
+  pointer-events: none;
+}
 .weather-layer {
   position: absolute;
   inset: 0;
@@ -397,6 +407,7 @@
 .yard[data-sky="false"] .rainbow,
 .yard[data-sky="false"] .cloud-lane,
 .yard[data-sky="false"]::after,
+.yard[data-sky="false"] .star-layer,
 .yard[data-scenery="false"] .weather-layer {
   display: none;
 }

@@ -141,7 +141,7 @@ export function setupSky(options = {}) {
   const seasonPicked = options.seasonPicked || none,
     worldChanged = options.worldChanged || (enter => enter()),
     landChanged = options.landChanged || none;
-  setScenery(createScenery($('weather-layer'), reduced));
+  setScenery(createScenery($('weather-layer'), reduced, undefined, undefined, $('star-layer')));
   easel = createEasel($('yard'), reduced, landChanged);
   const saved = {
     world: recall('world'),

@@ -1,7 +1,8 @@
-// Draws the living part of the yard on one canvas: rain, snow, petals and leaves, stars and small
-// creatures, now and then a flock of birds. The rules (where drops spawn, how they fall) live in
-// scene.js; this file only paints.
-// Every repaint of the canvas costs a screen update, so it is repainted only when something on it
+// Draws the living part of the yard on one canvas: rain, snow, petals and leaves, small creatures,
+// now and then a flock of birds. Stars and shooting stars go on a second canvas behind the land
+// (.star-layer), so they show only where the painted sky does. The rules (where drops spawn, how
+// they fall) live in scene.js; this file only paints.
+// Every repaint of a canvas costs a screen update, so each is repainted only when something on it
 // moved. Stars are drawn once (their twinkle is the CSS layer's, scenery.css). Butterflies, fireflies
 // and falling petals or leaves come in spells: they are about for a while, leave, and the canvas
 // rests until the next spell.
@@ -50,8 +51,9 @@ export function stepGroundBug(c, dt, bounds, leaving = false, rng = Math.random)
   }
   return true;
 }
-export function createScenery(canvas, reduced, artOptions, ambientOptions) {
-  const ctx = canvas.getContext('2d');
+export function createScenery(canvas, reduced, artOptions, ambientOptions, starCanvas = null) {
+  const ctx = canvas.getContext('2d'),
+    starCtx = starCanvas?.getContext('2d');
   // In a small yard everything drawn shrinks with it.
   let scale = 1,
     still = reduced.matches;
@@ -177,8 +179,14 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
     canvas.width = Math.round(w * ratio);
     canvas.height = Math.round(h * ratio);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    if (starCanvas) {
+      starCanvas.width = canvas.width;
+      starCanvas.height = canvas.height;
+      starCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    }
     populate();
     paint(performance.now());
+    paintStars(performance.now());
   }
   function set(nextPeriod, nextWeather, nextSeason = season, nextEvent = event, nextWorld = 'woodland') {
     if (
@@ -196,6 +204,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
     event = nextEvent;
     populate();
     paint(performance.now());
+    paintStars(performance.now());
   }
   // A small V of three to five birds, from one side to the other, high in the sky.
   function launchFlock(now) {
@@ -244,37 +253,43 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
     }
     return true;
   }
-  function paint(now) {
-    dirty = false;
-    ctx.clearRect(0, 0, w, h);
-    if (!enabled()) return;
+  // The sky layer: the stars, and a shooting star while one crosses.
+  function paintStars(now) {
+    if (!starCtx) return;
+    starCtx.clearRect(0, 0, w, h);
     for (const s of stars) {
-      ctx.globalAlpha = s.alpha;
-      if (ambient.star(ctx, s)) continue;
-      ctx.fillStyle = `rgb(${INK.star})`;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, TAU);
-      ctx.fill();
+      starCtx.globalAlpha = s.alpha;
+      if (ambient.star(starCtx, s)) continue;
+      starCtx.fillStyle = `rgb(${INK.star})`;
+      starCtx.beginPath();
+      starCtx.arc(s.x, s.y, s.r, 0, TAU);
+      starCtx.fill();
     }
     if (streak) {
       const t = (now - streak.since) / streak.life,
         x = streak.x + streak.dx * t,
         y = streak.y + streak.dy * t;
-      ctx.globalAlpha = 0.9 * (1 - t);
-      if (!ambient.streak(ctx, x, y, streak.dx, streak.dy)) {
-        const tail = ctx.createLinearGradient(x, y, x - streak.dx * 0.22, y - streak.dy * 0.22);
+      starCtx.globalAlpha = 0.9 * (1 - t);
+      if (!ambient.streak(starCtx, x, y, streak.dx, streak.dy)) {
+        const tail = starCtx.createLinearGradient(x, y, x - streak.dx * 0.22, y - streak.dy * 0.22);
         tail.addColorStop(0, `rgba(${INK.star},${0.9 * (1 - t)})`);
         tail.addColorStop(1, `rgba(${INK.star},0)`);
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = tail;
-        ctx.lineWidth = 1.6;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x - streak.dx * 0.22, y - streak.dy * 0.22);
-        ctx.stroke();
+        starCtx.globalAlpha = 1;
+        starCtx.strokeStyle = tail;
+        starCtx.lineWidth = 1.6;
+        starCtx.lineCap = 'round';
+        starCtx.beginPath();
+        starCtx.moveTo(x, y);
+        starCtx.lineTo(x - streak.dx * 0.22, y - streak.dy * 0.22);
+        starCtx.stroke();
       }
     }
+    starCtx.globalAlpha = 1;
+  }
+  function paint(now) {
+    dirty = false;
+    ctx.clearRect(0, 0, w, h);
+    if (!enabled()) return;
     // Indoors only the glass shows the weather: drops elsewhere are stepped but not drawn.
     const seen = panes
       ? d => panes.some(p => d.x > p.x - 24 && d.x < p.x + p.width + 24 && d.y > p.y - 32 && d.y < p.y + p.height + 32)
@@ -514,10 +529,8 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
       nextFlock = now + between(Math.random, FLOCK_GAP);
     }
     if (stars.length) {
-      if (streak && now - streak.since >= streak.life) {
-        streak = null;
-        moved = true;
-      }
+      const crossing = !!streak;
+      if (streak && now - streak.since >= streak.life) streak = null;
       if (!streak && now >= nextStreak) {
         if (nextStreak)
           streak = {
@@ -530,7 +543,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions) {
           };
         nextStreak = now + 18000 + Math.random() * 30000;
       }
-      if (streak) moved = true;
+      if (crossing || streak) paintStars(now);
     }
     if (moved) paint(now);
   }
