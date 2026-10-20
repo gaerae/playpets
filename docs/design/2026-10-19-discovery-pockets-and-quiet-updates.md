@@ -34,3 +34,7 @@ Ordinary mouse controls use a 36-pixel height and readable 13-pixel labels. Sett
 The main menu keeps Place and atmosphere, Play, Friends, Invite and Settings immediately available. Window and desktop actions, including closing and quitting, share one disclosure. Import stays beside the Invite title rather than inside its optional search filters. Compact overlays temporarily replace the quiet update chip, restoring it when the scenery is visible again.
 
 Editing dialogs keep headings and actions available while their bodies scroll. Inline failures and unsaved-change explanations reveal themselves without stealing focus. General messages join an open modal before its action row rather than covering the buttons or falling behind the backdrop. Startup warnings, game instructions and discoveries share one bounded flow outside the interactive yard; transient messages use the lower edge. The feedback lane prevents simultaneous events from claiming the same coordinates.
+
+## Follow-up (2026-10-20)
+
+The update controls shipped in their own Settings section, **App updates**, beside About rather than inside it. The quiet update entry, the tray and the macOS menu open that section.

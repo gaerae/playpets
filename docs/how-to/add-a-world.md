@@ -54,7 +54,7 @@ selects winter artwork even when another season is selected. The cozy living roo
 has four authored time-of-day images. Its `windowArt` adds spring, autumn and
 winter scenery inside the window masks; summer keeps the authored room view.
 These seasonal views receive time-of-day lighting before window weather is drawn.
-Snow selects the winter window view regardless of the selected season. Indoor places suppress outdoor
+Snow and winter are independent: snow keeps the selected season's window view. Indoor places suppress outdoor
 creatures, fishing and seasonal particles, while keeping friends and collections.
 
 A version 1 imported package accepts seasonal images, but not separate morning,
