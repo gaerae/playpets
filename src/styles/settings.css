@@ -255,6 +255,10 @@
   color: var(--muted);
   font-weight: 400;
 }
+/* On the chosen card's tint the muted line falls under 4.5:1; it takes the ink. */
+.ai-type.on small {
+  color: var(--ink);
+}
 .ai-found {
   justify-self: start;
   font-size: 10px;

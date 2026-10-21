@@ -39,6 +39,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Keep Settings open after choosing Later in App updates, and dim the whole window behind Settings.
 - Keep a friend's name readable when a coding agent's name shares its tag.
 - Stop editing a connection from Settings from moving the selected friend to it.
+- In dark mode, keep a friend's speech bubbles and name tags in one light look that belongs to the painted yard, deepen dialog shadows and the dimmed backdrop, and make faint captions on selected cards readable.
+- Keep a small dialog's actions on one row so its fields stay in view, with the destructive action down to its icon, and stop Korean, Japanese and Chinese text from breaking mid-word or leaving one character alone on a line.
 - Let a card that arrives while another is on show wait its turn instead of replacing it, so a closeness card no longer wipes the catch that earned it.
 - Keep notices in small windows clear of the corner button, skip a notice that repeats an error already shown in the open form, end a cut speech bubble with an ellipsis, and stop a first keepsake's card from saying it was kept twice.
 - Plant a seed from the keyboard with a second press of the seed tool, as with the picnic treat.

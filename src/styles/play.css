@@ -342,6 +342,8 @@
 }
 .play-actions,
 .discovery-tree-choices {
+  /* room for a tile's focus ring at the panel's edge */
+  padding: 2px;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;

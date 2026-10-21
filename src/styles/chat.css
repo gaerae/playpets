@@ -152,8 +152,8 @@
     box-shadow 0.15s;
 }
 .composer:focus-within {
-  border-color: #9fbcb5;
-  box-shadow: 0 0 0 3px #367b901a;
+  border-color: var(--field-focus);
+  box-shadow: 0 0 0 3px var(--ink-8);
 }
 .composer textarea {
   display: block;

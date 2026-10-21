@@ -118,6 +118,10 @@ body.compact .window-actions {
   padding-top: 0;
   border-top: 0;
 }
+/* The card's words keep a reading width instead of folding a word per line. */
+body.compact .catch-copy {
+  min-width: 7.5em;
+}
 body.compact .catch-card {
   gap: 8px;
   padding: 6px 12px 6px 8px;

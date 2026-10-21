@@ -124,9 +124,9 @@
 }
 .pet-tag {
   font-size: 11px;
-  color: #35504c;
+  color: var(--scene-ink);
   font-weight: 650;
-  background: #ffffffa6;
+  background: var(--scene-label-soft);
   border-radius: 12px;
   padding: 3px 8px;
   max-width: 150px;
@@ -204,7 +204,7 @@
   pointer-events: none;
 }
 .period-night .pet-tag {
-  background: #ffffffd9;
+  background: var(--scene-label);
 }
 .pet-label.selected .pet-tag {
   background: var(--accent);
@@ -256,12 +256,12 @@
   max-width: 190px;
   padding: 6px 10px;
   border-radius: 12px;
-  background: var(--white);
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 12px var(--ink-8);
+  background: var(--scene-label);
+  border: 1px solid var(--scene-line);
+  box-shadow: 0 4px 12px #213e4314;
   font-size: 11px;
   line-height: 1.45;
-  color: var(--ink);
+  color: var(--scene-ink);
   text-align: center;
   white-space: normal;
   overflow-wrap: anywhere;
@@ -276,10 +276,10 @@
   transform: translateX(-50%);
   padding: 7px 10px;
   border-radius: 12px;
-  background: var(--white);
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 12px var(--ink-8);
-  color: var(--muted);
+  background: var(--scene-label);
+  border: 1px solid var(--scene-line);
+  box-shadow: 0 4px 12px #213e4314;
+  color: var(--scene-ink);
   pointer-events: none;
   z-index: 3;
 }

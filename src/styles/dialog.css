@@ -9,10 +9,10 @@ dialog {
   padding: 20px;
   color: var(--ink);
   background: var(--panel-surface);
-  box-shadow: 0 24px 100px #152e432b;
+  box-shadow: 0 24px 100px var(--dialog-shadow);
 }
 dialog::backdrop {
-  background: #20394055;
+  background: var(--dialog-backdrop);
   backdrop-filter: blur(3px);
 }
 .dialog-heading {
@@ -139,7 +139,6 @@ input[type="range"] {
   max-height: min(720px, calc(100dvh - 76px));
 }
 #pet-form > .dialog-actions {
-  flex-wrap: wrap;
   gap: 10px;
 }
 .dialog-body {
@@ -428,6 +427,10 @@ body.compact .update-compact {
   font-weight: 600;
   color: var(--muted);
 }
+/* On the selected tab's tint the muted count is too faint (3.8:1 in dark); it takes the ink. */
+.album-tabs button[aria-selected="true"] small {
+  color: var(--ink);
+}
 @media (max-width: 480px) {
   .album-tabs button {
     flex-direction: column;
@@ -695,11 +698,17 @@ body.compact .update-compact {
     padding-top: 8px;
     border-top: 1px solid var(--line);
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
   .dialog-form > .dialog-actions .button {
     min-height: 34px;
     padding: 6px 10px;
     font-size: 12px;
+    white-space: nowrap;
+  }
+  /* One row of actions so the fields keep the room: the destructive one keeps only its icon (its
+     name stays in the title and for screen readers). */
+  .dialog-form > .dialog-actions .push-left > span:not([data-icon]) {
+    display: none;
   }
 }

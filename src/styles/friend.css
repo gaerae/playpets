@@ -30,7 +30,7 @@
   border-color: #e3a9c3;
 }
 .relation-chip[data-relation="friend"]:hover {
-  border-color: #c9d3cf;
+  border-color: var(--line);
   color: var(--ink);
 }
 .fact-chip.agent {

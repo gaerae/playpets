@@ -13,7 +13,15 @@ test('appearance choices scroll with the fields while friend dialog navigation a
   assert.match(css, /\.dialog-body\s*\{[^}]*min-height:\s*0;[^}]*overflow-y:\s*auto;/);
 });
 
-test('friend dialog footer wraps actions instead of pushing removal outside narrow windows', async () => {
+test('small editing sheets keep one row of actions, the destructive one down to its icon', async () => {
   const css = await readFile('src/styles/dialog.css', 'utf8');
-  assert.match(css, /#pet-form\s*>\s*\.dialog-actions\s*\{[^}]*flex-wrap:\s*wrap;/);
+  const small = css.slice(css.indexOf('@media (max-width: 640px), (max-height: 480px)'));
+  assert.match(small, /\.dialog-form > \.dialog-actions\s*\{[^}]*flex-wrap:\s*nowrap;/);
+  assert.match(
+    small,
+    /\.dialog-form > \.dialog-actions \.push-left > span:not\(\[data-icon\]\)\s*\{[^}]*display:\s*none;/,
+  );
+  const html = await readFile('src/index.html', 'utf8');
+  for (const id of ['remove', 'delete-provider'])
+    assert.match(html, new RegExp(`id="${id}"[^>]*push-left[^>]*>.*?<span data-icon=`), `${id} has an icon to keep`);
 });
