@@ -32,7 +32,7 @@ const agentState = p => agentStateOf(data, p.id);
 
 // What a press on a friend means is decided above the yard (by a game, or the panel);
 // setupViews hands it in, so the yard needs nothing from those modules.
-let on = { gameTap() {}, select() {}, openChat() {}, openActions: null, patted() {}, resized() {} };
+let on = { gameTap() {}, select() {}, openChat() {}, friendMenu: null, patted() {}, resized() {} };
 // A little burst above the friend: hearts for a pat, sparkles for a treat, one mark for a game.
 // Each piece drifts its own way (--dx, --rot) and starts a beat after the last.
 const BURST = { '♥': 3, '✦': 3 };
@@ -289,11 +289,11 @@ function createView(p) {
   both('dblclick', () => {
     if (!game) on.openChat(p.id);
   });
-  // Play stays beside the friend; conversation remains an explicit destination.
+  // A friend's right-click offers what can be done with it: talk, or play.
   both('contextmenu', e => {
     e.preventDefault();
     on.select(p.id);
-    (on.openActions || on.openChat)(p.id);
+    (on.friendMenu || ((id, _point) => on.openChat(id)))(p.id, { x: e.clientX, y: e.clientY });
   });
   button.addEventListener(
     'keydown',

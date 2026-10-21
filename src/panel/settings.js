@@ -1,5 +1,5 @@
-// The settings tab and the desktop switches: linking coding agents, showing friends on the desktop,
-// app updates, the app's own pages, quitting.
+// The settings tab and the desktop switches: the AI connections friends talk through, linking
+// coding agents, showing friends on the desktop, app updates and the app's own pages.
 
 import { agentFile } from '../core/agent-files.js';
 import { agentLabel, agentOf } from '../core/agents.js';
@@ -7,9 +7,9 @@ import { closeUpdateDetails } from '../core/controls.js';
 import { language, t } from '../core/i18n.js';
 import { onShortcut } from '../core/keys.js';
 import { projectLinks } from '../core/project.js';
-import { $, call, data, guard, name, recall, remember, toast } from '../core/state.js';
+import { $, call, data, guard, name, providerLabel, recall, remember, toast } from '../core/state.js';
 import { LANGUAGES } from '../core/strings.js';
-import { quitApp } from '../window.js';
+import { openConnectionDialog } from './connection.js';
 import { openPanel } from './tabs.js';
 
 const windows = () => /Windows/.test(navigator.userAgent);
@@ -67,7 +67,7 @@ export function renderUpdate() {
     $('update-pill').hidden = true;
     $('update-compact').hidden = true;
     closeUpdateDetails();
-    $('menu-settings-updates')?.classList.remove('has-update');
+    $('menu-settings')?.classList.remove('has-update');
     return;
   }
   if (installing) showUpdate(stageLabel(), t('settings.update_view'));
@@ -94,7 +94,7 @@ export function renderUpdate() {
     $('update-compact-label').textContent = label;
   }
   paintUpdateDetails();
-  $('menu-settings-updates')?.classList.toggle('has-update', !!found);
+  $('menu-settings')?.classList.toggle('has-update', !!found);
 }
 // The backend found a newer version on its own.
 export function updateFound(update) {
@@ -247,6 +247,41 @@ export function renderAgentPets() {
     select.disabled = data.pets.length === 0;
   }
 }
+// Every AI connection in one list, each with the friends using it and a way to edit or remove it
+// (the connection dialog). Rebuilt only when a connection or who uses it changes.
+let connectionsKey = '';
+export function renderConnections() {
+  const list = $('ai-connections');
+  if (!list) return;
+  const uses = id => data.pets.filter(p => p.providerId === id).length;
+  const key = JSON.stringify([language(), data.providers.map(c => [c.id, providerLabel(c), uses(c.id)])]);
+  if (key === connectionsKey) return;
+  connectionsKey = key;
+  $('ai-none').hidden = data.providers.length > 0;
+  list.replaceChildren(
+    ...data.providers.map(c => {
+      const row = document.createElement('li'),
+        copy = document.createElement('div'),
+        title = document.createElement('strong'),
+        note = document.createElement('small'),
+        edit = document.createElement('button');
+      row.className = 'link-row';
+      title.id = `ai-name-${c.id}`;
+      title.textContent = providerLabel(c);
+      const count = uses(c.id);
+      note.textContent = count ? t('settings.ai_used_by', { count }) : t('settings.ai_unused');
+      copy.append(title, note);
+      edit.type = 'button';
+      edit.id = `ai-edit-${c.id}`;
+      edit.className = 'button secondary small';
+      edit.textContent = t('settings.ai_edit');
+      edit.setAttribute('aria-labelledby', `${edit.id} ${title.id}`);
+      edit.onclick = () => openConnectionDialog(c);
+      row.append(copy, edit);
+      return row;
+    }),
+  );
+}
 // Wires the settings tab and the desktop switches. Called once, by app.js.
 export function setupSettings() {
   // The language: the backend remembers it, the page keeps a copy and starts over in it.
@@ -288,13 +323,12 @@ export function setupSettings() {
       await call('copyConnection', kind);
       toast(copied(kind));
     });
-  $('quit-app').onclick = guard(quitApp);
+  $('ai-add').onclick = () => openConnectionDialog(null);
   $('update-button').onclick = guard(updateButton);
   const notes = guard(() => call('openExternal', links().notes(found.version)));
   $('update-notes').onclick = notes;
   $('update-pill').onclick = openUpdatePanel;
   $('update-compact').onclick = openUpdatePanel;
-  $('menu-settings-updates')?.addEventListener('click', revealUpdateDetails);
   $('settings-updates-task')?.addEventListener('click', () => {
     if (found && data.updateChannel !== 'store') openUpdatePanel();
   });

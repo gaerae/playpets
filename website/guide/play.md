@@ -10,13 +10,13 @@ import DiscoveryGuide from '../.vitepress/theme/DiscoveryGuide.vue';
 
 The yard changes with the time of day, the weather and the season, and it grows over the days. Friends dig up flower seeds and saplings and bring gifts, you fish and catch bugs for the album, friends grow closer to you, seasonal events come and go, the yard has its own sounds, and you can play three games with your friends.
 
-The scenery fills the window. The dock has **Place & atmosphere**, **Play** and **Friends & settings**. The last opens three tabs: **Friends** for chat and invitations, **Settings** for app preferences, and **Window** for window and desktop controls. Only one yard panel opens at a time. Automatic time follows your computer’s clock without displaying a clock.
+The scenery fills the window. The dock has **Place & atmosphere**, **Play** and **Friends & settings**. Each opens one page with its sections, with no tabs or Back buttons inside. Only one yard panel opens at a time. Automatic time follows your computer’s clock without displaying a clock.
 
-**Play** uses the same board at every window size. Its four actions are **Dig**, **Plant & collect**, **Fish**, and **Group games**. Plant & collect opens seeds, trees and the album. Group games opens picnics, games and group conversation. Group conversation requires two friends connected to AI; the other activities do not.
+**Play** is titled for the selected friend, such as **Play with Clover**, and has three sections. **Find** holds **Dig**, **Fish** and **Album**. **Garden** holds **Plant a seed** (with how many seeds you have), **Plant a tree** and **Picnic**. **Group games** holds the three games and **Let them chat**. Let them chat needs two friends connected to an AI; the other activities do not.
 
 A new yard starts on a clear spring day. Choose **Auto** for season, time or weather when you want them to change on their own; saved choices stay as you left them.
 
-**Place & atmosphere → Atmosphere** also holds the sound switch and volume. Sounds begin after your first interaction and play only while the yard is visible. Rain, birds, water and other ambient sounds follow the place, weather, season and time. This control is separate from automatic conversation in **Friends & settings → Settings → General**.
+**Place & atmosphere → Atmosphere** also holds the **Yard sounds** switch and **Volume**. Sounds begin after your first interaction and play only while the yard is visible. Rain, birds, water and other ambient sounds follow the place, weather, season and time. This control is separate from automatic conversation in **Friends & settings → Settings → Friends & AI**.
 
 ## Time of day and weather <Since v="0.1.0" />
 
@@ -24,7 +24,7 @@ Season and weather are independent: summer with Snow keeps the summer landscape 
 
 <Shot name="yard-spring" caption="A clear spring day in the yard. Auto time follows your clock when selected." />
 
-Open **Place & atmosphere** at the bottom right to choose a background by its thumbnail. Built-in and imported backgrounds share one gallery. Use **Places** to choose a background and **Atmosphere** to choose season, time and weather; changes apply immediately. Import a background or open the Background Studio below the controls. Remove appears only when an imported background is selected.
+Open **Place & atmosphere** at the bottom right to choose a background by its thumbnail. Built-in and imported backgrounds share one gallery. The panel is one page: choose a background under **Places** and season, time and weather under **Atmosphere**; changes apply immediately. **Import background** and **Background studio** sit beside the Places heading. Remove appears there only when an imported background is selected.
 
 | Choice | Options |
 |---|---|
@@ -49,14 +49,16 @@ When the weather changes, one or two friends say a word about it, like "Rain!" o
 
 Press **Let them chat** in **Play → Group games** and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button looks off, and pressing or hovering it says why. To join in yourself, use [the Friend tab's group chat](./chat.md).
 
-To let them talk on their own now and then, turn on **Let them chat now and then** in **Friends & settings → Settings → General**. They chat once every 20 minutes, and rest while the window is hidden or someone is answering.
+To let them talk on their own now and then, turn on **Let them chat now and then** in **Friends & settings → Settings → Friends & AI**. They chat once every 20 minutes, and rest while the window is hidden or someone is answering.
 
 ## The garden <Since v="0.1.0" />
 
 Flower seeds and saplings both come from digging. Choose **Dig**, send a friend to open ground, and plant what they find. Neither appears just because friends are strolling.
 
-1. Click **Plant a seed** in **Play → Plant & collect** (the number beside it is how many seeds you have).
+1. Click **Plant a seed** in **Play → Garden** (the number beside it is how many seeds you have).
 2. Click a spot on the field. You can plant several in a row; **Esc** or the tool again stops.
+
+From the keyboard, press **Plant a seed** (Enter or Space) and press it again to plant beside the selected friend, as with the picnic.
 
 In Cozy living room, flowers sit in small planters instead of patches of bare soil. Their growth and your collection remain shared when you change places.
 
@@ -88,7 +90,7 @@ Your rod can also bring up freshwater prawns, crayfish and pond snails. The albu
 - From bond level 3, an idle friend may fish independently every 12–25 minutes while the yard is visible. Games, another fishing trip or an active placement tool pause this opportunity; a catch is not guaranteed.
 - What bites and what flies depends on the season, the time of day and the weather: catfish and eels come out after dark (and more in the rain), pond smelt only in winter, and a golden carp is very rare. Each fish is a different size every time.
 - A card shows what was caught, and says so when it is new.
-- **Album** in **Play → Plant & collect** has six books, Flowers, Aquatic life, Bugs, Gifts, Trees and Keepsakes, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
+- **Album** in **Play → Find** has six books, Flowers, Aquatic life, Bugs, Gifts, Trees and Keepsakes, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
 
 The album shows when and where to look, along with rare-find waiting times. It does not display exact percentages.
 
@@ -124,7 +126,7 @@ Each friend grows closer to you through time in the yard and what you do togethe
 
 ## A little digging and tree planting
 
-Open **Play** from the dock or a friend's name or right-click action. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
+Open **Play** from the dock, or right-click a friend and choose **Play with** and its name. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
 
 Daisy, Clover, Pip and Miso have dedicated motions for digging, planting, casting, waiting for a bite, reeling in and reacting to a find in every season. Daisy, Pip and Miso share their everyday outfits in spring and autumn and change into summer and winter outfits. Clover keeps the teal overalls and straw hat through autumn, then changes into a coat, scarf and knitted beanie for winter. Imported pets join the same activities with their original animations.
 
@@ -134,7 +136,7 @@ Find a sapling by digging first. Choose **Plant a tree** to see the stock for ch
 
 ## Games <Since v="0.1.0" />
 
-Open **Play → Group games** for the three games. You can play only one game at a time. While a game is on, the same button reads **Stop** and the game's name (such as **Stop Hide and seek**); click it and the game ends right away. **Give a treat** stays off for the whole game. When a game ends, the friends walk back to where they were.
+The three games are in **Play → Group games**. You can play only one game at a time. While a game is on, that game's own tile reads **Stop** and the game's name (such as **Stop Hide and seek**); click it and the game ends right away. The other games, **Picnic**, **Plant a seed** and **Plant a tree** stay off for the whole game. When a game ends, the friends walk back to where they were.
 
 ### Hide and seek
 
@@ -163,23 +165,23 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 
 Resize the yard by dragging any edge or corner, down to 300 × 210. The same window keeps friends, chat, Invite, Settings, scene controls and games available at every size. Drag the narrow transparent area along the top edge to move it. Its position and size are remembered.
 
-At 640 pixels wide or less, or 480 pixels tall or less, the dock hides. Right-click empty scenery for four actions: **Place & atmosphere**, **Play**, **Friends & settings**, and **Always on top**. **Cmd/Ctrl + Shift + P** opens Friends & settings. Longer panels scroll inside the window. Closing Place & atmosphere or Play returns directly to the scenery. Friends and Invite have a Back action to Friends & settings; **×** returns to the yard. Settings tasks opened from the menu return to the Settings tab with Back. Invite keeps Import visible in its header.
+At 640 pixels wide or less, or 480 pixels tall or less, the dock hides. A round button in the bottom-right corner opens the same short menu as a right-click on empty scenery: **Place & atmosphere**, **Play**, **Friends & settings** and **Always on top**. **Cmd/Ctrl + Shift + P** opens Friends & settings. In small windows each panel shows its actions as tiles whose names may take two lines, and the section names are hidden. Longer panels scroll inside the window. Closing Place & atmosphere or Play returns directly to the scenery. The Friend and Invite tabs have a Back action to Friends & settings; **×** returns to the yard. In Settings, Back goes from a section to the list of sections, then to Friends & settings. Invite keeps Import visible in its header.
 
-Click a friend’s name or right-click them to open this same Play board for that friend. Subviews contain the working actions and return to the four-action list with Back. Close, Escape or clicking outside returns to the scenery. There is no separate small-window play strip.
+Click a friend’s name tag to talk to it; its tooltip says **Talk to** and the friend’s name. Right-click a friend for a short menu with **Talk to** and **Play with** that friend; Play opens the same Play panel for it. Close, Escape or clicking outside returns to the scenery. There is no separate small-window play strip.
 
-Right-click empty scenery for the short action menu beside the pointer. It stays inside the window and scrolls when necessary. **Esc** or a click outside closes it. Friends, plants and decorations retain their own right-click actions.
+Right-click empty scenery for the short action menu beside the pointer (in small windows, the corner button opens it too). It stays inside the window and scrolls when necessary. **Esc** or a click outside closes it. Friends, plants and decorations retain their own right-click actions.
 
-Choose **Friends & settings → Window → Enter fullscreen** to fill the screen. While fullscreen, the same action becomes **Return to previous size**; **Esc** also returns. Esc closes an open panel or menu first. Returning restores the previous window size, position and Always on top setting.
+Choose **Friends & settings → Window & desktop → Enter fullscreen** to fill the screen. While fullscreen, the same action becomes **Return to previous size**; **Esc** also returns. Esc closes an open panel or menu first. Returning restores the previous window size, position and Always on top setting.
 
 <Shot name="mini" caption="A small yard window beside your work." />
 
-Choose **Friends & settings → Window → Always on top**, or use the checked action in the short right-click menu. The setting works independently of window size and is remembered. The tray and macOS View menu also offer it; **Cmd/Ctrl + Shift + M** toggles it without resizing.
+Choose **Friends & settings → Window & desktop → Always on top**, or use the checked action in the short right-click menu. The setting works independently of window size and is remembered. The tray and macOS View menu also offer it; **Cmd/Ctrl + Shift + M** toggles it without resizing.
 
 On Linux, pinning depends on the desktop and window manager. Some Wayland desktops refuse the request; check your desktop’s window rules if the setting cannot be applied.
 
 <Shot name="mini-chat" caption="A conversation stays inside the small yard window, beside your work." />
 
-Choose **Friends & settings → Window → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** on that same tab asks for confirmation and closes PlayPets; conversations are not saved. From the short right-click menu, choose Friends & settings to reach these actions.
+Choose **Friends & settings → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit PlayPets** beside it closes PlayPets at once, the same as Quit in the tray and <kbd>⌘</kbd> <kbd>Q</kbd> on macOS; conversations are not saved. From the short right-click menu or the corner button, choose Friends & settings to reach these actions.
 
 In small windows, an available update appears as a 32-pixel download icon with a dot. Its accessible label identifies the version, and activating it opens App updates directly. Larger windows retain the version pill.
 

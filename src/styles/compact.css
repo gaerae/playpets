@@ -12,7 +12,22 @@ body.compact .pet-tag:hover {
 body.compact .yard-dock {
   display: none;
 }
-/* Destinations lead the menu; secondary tools open only when needed. */
+/* The dock is hidden here, so one corner button opens the scenery's menu. */
+.compact-launcher {
+  display: none;
+}
+body.compact .compact-launcher {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 25;
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  background: var(--menu-surface);
+}
+/* Each dock panel keeps its one page; small windows fold it into tiles. */
 body.compact .yard-controls-panel {
   inset: 8px;
   width: auto;
@@ -26,13 +41,49 @@ body.compact #yard-controls-panel {
   bottom: auto;
   width: min(320px, calc(100% - 16px));
 }
-body.compact #management-settings {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-content: start;
+/* Section names stay for screen readers; spacing and the dividers show the groups. */
+body.compact .dock-section-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-body.compact #management-settings[hidden] {
-  display: none;
+body.compact .dock-panel-body {
+  gap: 6px;
+}
+body.compact .dock-section + .dock-section,
+body.compact .dock-panel-body > .window-actions {
+  padding-top: 6px;
+}
+body.compact .management-destinations {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+body.compact .management-destinations .menu-destination {
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+/* A tile's name may take two lines instead of a shortened word in each language. */
+body.compact .play-action {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 4px 2px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+body.compact .background-gallery {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(96px, 31%);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 body.compact .menu-destination {
   min-width: 0;
@@ -40,27 +91,11 @@ body.compact .menu-destination {
   font-size: 12px;
   font-weight: 500;
 }
-body.compact .menu-destination > [data-i18n],
-body.compact .menu-destination-copy strong {
-  white-space: nowrap;
-}
 body.compact .menu-destination-copy strong {
   font-size: 12px;
   font-weight: 500;
 }
 
-body.compact .controls-header {
-  position: sticky;
-  top: -8px;
-  z-index: 1;
-  background: var(--menu-surface);
-}
-body.compact #close-controls {
-  display: inline-flex;
-  width: 36px;
-  height: 36px;
-  flex: none;
-}
 body.compact .window-quick-actions > #always-on-top,
 body.compact .window-quick-actions > #fullscreen {
   grid-column: auto;
@@ -241,24 +276,8 @@ body.compact .scene-menu {
 }
 
 @media (max-width: 400px), (max-height: 280px) {
-  body.compact .background-gallery {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  body.compact .background-card {
-    display: flex;
-    align-items: center;
-    min-height: 48px;
-  }
-  body.compact .background-card img {
-    width: 64px;
-    height: 46px;
-    aspect-ratio: auto;
-    flex: none;
-  }
   body.compact .background-card span {
-    flex: 1;
-    min-width: 0;
-    padding: 6px 8px;
+    padding: 4px 6px;
   }
   body.compact .settings-content .link-row:has(#language) small {
     display: none;
@@ -319,6 +338,12 @@ body.compact:has(
       #yard-context-menu
     ):not([hidden])
 ) .update-compact {
+  display: none;
+}
+/* The corner button stays only with the scenery and its own menu; an open panel has its Close. */
+body.compact:has(
+  :is(#side-panel, #yard-controls-panel, #scene-menu, #play-panel, #discovery-target, #catch-card):not([hidden])
+) .compact-launcher {
   display: none;
 }
 

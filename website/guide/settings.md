@@ -1,12 +1,12 @@
 ---
-description: General settings, About and app updates, menus and shortcuts, quitting, the data folder and environment variables, what is saved and what is not
+description: Language and startup, friends and AI, About and app updates, menus and shortcuts, quitting, the data folder and environment variables, what is saved and what is not
 ---
 
 # Settings
 
-Open **Friends & settings → Settings** and choose **General**, **Coding tools**, **Updates**, or **About the app**. General opens Language & startup, including automatic chatter. [Coding tools](./agents.md) have their own guide.
+Open **Friends & settings → Settings**. Settings always opens on its list of sections: **Language & startup**, **Friends & AI**, **Coding tools**, **App updates** and **About PlayPets**. [Coding tools](./agents.md) have their own guide. When an update is available, a dot shows on Settings in the menu.
 
-Back from a menu task returns to the Settings tab. The settings shortcut and tray Settings open a task list instead; Back returns to that list. Close returns to the scenery. Season, sound and volume are in **Place & atmosphere → Atmosphere**.
+Back from a section returns to the list, and Back from the list returns to Friends & settings. **About PlayPets** and **Check for updates…** in the tray and the macOS menu bar, and an update notice, open their section directly; Back still returns to the list. Close returns to the scenery. Season, sound and volume are in **Place & atmosphere → Atmosphere**.
 
 ## Language <Since v="0.1.0" />
 
@@ -20,13 +20,17 @@ Start the app with the environment variable `PLAYPETS_LANG=ko|en|ja|zh-hans` and
 
 Turn this on and PlayPets starts whenever you log in to your computer. It is off by default. With desktop mode on, the yard window does not open at login: your friends come out on the desktop, and the window waits in the tray. The system keeps this choice (Login Items on macOS, the Run list on Windows, an autostart entry on Linux), so turning it off in either place turns it off.
 
+## Friends & AI <Since v="1.2.0" />
+
+**Friends & AI** lists every AI connection, with how many friends use it and an **Edit** button that opens its connection window. **Connect an AI** adds a new one. With no connection yet, friends still play and react. How to make a connection is in [Chat with a friend](./chat.md#making-a-connection).
+
 ## Let them chat now and then <Since v="0.1.0" />
 
-With this switch in Language & startup turned on, the friends with an AI have a short chat every 20 minutes. It is off by default. These calls use your subscription allowance or your provider's billing; local Ollama models have no hosted inference fee. Turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
+With this switch in Friends & AI turned on, the friends with an AI have a short chat every 20 minutes. It is off by default. These calls use your subscription allowance or your provider's billing; local Ollama models have no hosted inference fee. Turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
 
-## About the app <Since v="0.1.0" />
+## About PlayPets <Since v="0.1.0" />
 
-**About the app** shows the version and links to the website, user guide, release notes, GitHub, issue reporting and license. Links open in your browser. Updates have their own task.
+**About PlayPets** shows the version and links to the website, user guide, release notes, GitHub, issue reporting and license. Links open in your browser. App updates have their own section.
 
 ## App updates <Since v="0.1.0" />
 
@@ -34,30 +38,30 @@ For a Microsoft Store installation, updates are managed by Store. Open **Microso
 
 The row shows the current version. Click **Check for updates** and the app reads `latest.json` from GitHub releases; if you are current, it says "You're up to date".
 
-The app quietly checks 20 seconds after startup and retries every six hours. You can also check manually. When an update is available, its entry opens **Friends & settings → Settings → Updates**.
+The app quietly checks 20 seconds after startup and retries every six hours. You can also check manually. When an update is available, its entry opens **Friends & settings → Settings → App updates**.
 
 **What's new** opens the release page in your browser. **Install and restart**, download progress, verification, installation and retry after a failure all stay in App updates; no separate update window opens. If the download size is unavailable, progress has no percentage. Friends and settings stay after the restart. A brief notice confirms the installed version.
 
-## Quit the app <Since v="0.1.0" />
+## Quit PlayPets <Since v="0.1.0" />
 
-Open **Friends & settings → Window → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** on the same tab asks for confirmation and exits; conversations are not saved. These actions are not direct items in the scenery right-click menu: choose Friends & settings first. The tray Quit action also exits.
+Open **Friends & settings** and choose **Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit PlayPets** beside it exits at once, the same as **Quit PlayPets** in the tray and <kbd>⌘</kbd> <kbd>Q</kbd> on macOS; conversations are not saved. These actions are not direct items in the scenery right-click menu: choose Friends & settings first.
 
 ## Menus and shortcuts <Since v="0.1.0" />
 
-- **Tray menu** (the cat in the menu bar or taskbar): **Open the yard**, **Friends** (when friends are present) and **Invite a Friend…**; display switches for **Always on top**, **Show on the desktop** and, while desktop mode is on, **Stroll around the desktop**; then **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets** and **Quit**. Always on top remains available without friends; desktop switches appear once a friend is present. Sound shows a check mark when on. An available update changes the update label to **Update to v…**. On Windows, left-click opens the yard and right-click opens the menu. A small blue or red mark signals an agent waiting for you or reporting trouble; the tooltip names its friend.
-- **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **View** → **Open menu**, **Friends**, **Invite a Friend…**, and **Always on top** and **Show on the desktop** with a check mark (the desktop switch is greyed until a friend is in), and **Yard Sounds** with a check mark; **Window**.
+- **Tray menu** (the cat in the menu bar or taskbar): **Open the yard**, **Friends** (when friends are present) and **Invite a Friend…**; display switches for **Always on top**, **Show on desktop** and, while desktop mode is on, **Stroll on desktop**; then **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets** and **Quit PlayPets**. Always on top remains available without friends; desktop switches appear once a friend is present. Sound shows a check mark when on. An available update changes the update label to **Update to v…**. On Windows, left-click opens the yard and right-click opens the menu. A small blue or red mark signals an agent waiting for you or reporting trouble; the tooltip names its friend.
+- **macOS menu bar**: **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding and **Quit PlayPets**; **Edit** for cut, copy and paste in text fields; **View** → **Friends & Settings**, **Friends**, **Invite a Friend…**, and **Always on top** and **Show on desktop** with a check mark (the desktop switch is greyed until a friend is in), and **Yard Sounds** with a check mark; **Window**.
 - **Shortcuts** (<kbd>⌘</kbd> on macOS, <kbd>Ctrl</kbd> on Windows and Linux):
 
 | Keys | Does |
 |---|---|
-| <kbd>⌘</kbd> <kbd>1</kbd> | Open the Friend tab |
-| <kbd>⌘</kbd> <kbd>2</kbd> | Open the Invite tab |
-| <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings |
+| <kbd>⌘</kbd> <kbd>1</kbd> | Open Friends & chat |
+| <kbd>⌘</kbd> <kbd>2</kbd> | Open Invite a friend |
+| <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings (the list of sections) |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | Open Friends & settings |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Always on top on or off |
-| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>D</kbd> | Show on the desktop, on or off |
+| <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>D</kbd> | Show on desktop, on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>S</kbd> | Yard sounds on or off |
-| <kbd>⌘</kbd> <kbd>Q</kbd> | Quit (macOS) |
+| <kbd>⌘</kbd> <kbd>Q</kbd> | Quit PlayPets (macOS) |
 
 ## Data folder <Since v="0.1.0" />
 

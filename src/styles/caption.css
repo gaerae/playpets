@@ -97,13 +97,13 @@
   bottom: 64px;
   width: min(380px, calc(100% - 24px));
   max-height: calc(100% - 76px);
-  height: min(400px, calc(100% - 76px));
+  height: min(520px, calc(100% - 76px));
   min-height: 0;
   overflow: hidden;
   overscroll-behavior: contain;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   align-items: stretch;
   gap: 8px;
   padding: 8px;
@@ -290,12 +290,6 @@
   display: block;
 }
 
-.scene-gallery-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-}
 .background-gallery {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -419,18 +413,6 @@
 body.compact .scene-menu {
   gap: 4px;
 }
-body.compact .scene-gallery-head .icon-button {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  min-height: 28px;
-}
-body.compact .scene-tabs {
-  padding-bottom: 2px;
-}
-body.compact .scene-tabs button {
-  min-height: 28px;
-}
 body.compact .atmosphere-segments {
   grid-template-columns: repeat(var(--climate-manual-options), minmax(0, 1fr));
 }
@@ -487,31 +469,6 @@ body:not(.compact) .atmosphere-choice summary {
   padding-top: 8px;
 }
 
-.scene-gallery-head {
-  gap: 4px;
-}
-.scene-gallery-head strong {
-  flex: 1;
-  min-width: 0;
-  font-size: 13px;
-}
-.scene-tabs {
-  display: flex;
-  gap: 4px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--line);
-}
-.scene-tabs button {
-  flex: 1;
-  min-height: 36px;
-  border-radius: var(--radius-control);
-  font-size: 13px;
-  color: var(--muted);
-}
-.scene-tabs button[aria-selected="true"] {
-  background: var(--control-selected);
-  color: var(--ink);
-}
 .scene-page {
   min-height: 0;
   overflow-y: auto;
@@ -523,8 +480,16 @@ body:not(.compact) .atmosphere-choice summary {
   width: 100%;
   min-height: 36px;
 }
-.scene-page .background-actions {
-  margin-top: 10px;
+/* Importing and the creation room sit beside the Places label, so the gallery starts at once. */
+.dock-section-head .background-actions {
+  flex: none;
+  flex-wrap: nowrap;
+  gap: 2px;
+}
+.dock-section-head .background-actions .button {
+  min-height: 28px;
+  padding: 0 8px;
+  font-size: 12px;
 }
 /* Empty instructions do not leave a floating capsule over a friend. */
 #yard-hint[hidden] {

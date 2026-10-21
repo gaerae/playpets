@@ -175,7 +175,9 @@ const scenario = `(async()=>{
     const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||${say('game.label')};
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
     const panelTasks=await import('./panel/tabs.js');
-    const manage=tab=>{if($('yard-controls-panel').hidden)$('yard-controls-toggle').click();$('management-tab-'+tab).click();};
+    // The menu is one page; Settings opens on its list of sections, and a section is one more click.
+    const openMenu=()=>{if($('yard-controls-panel').hidden)$('yard-controls-toggle').click();};
+    const openSettings=section=>{openMenu();$('menu-settings').click();if(section)document.querySelector('.settings-index [data-section="'+section+'-title"]').click();};
     // Every tab must actually show its own content, and only its own.
     // Every platform uses a frameless yard; a narrow transparent target still moves the full window.
     const noChrome=!document.querySelector('.win-controls,.topbar')&&!!$('window-drag')&&!!$('hide-window');
@@ -199,7 +201,7 @@ const scenario = `(async()=>{
     const quietStart=$('yard-controls-panel').hidden&&!document.querySelector('#clock-time');
     $('yard-controls-toggle').click();
     const controlsOpen=!$('yard-controls-panel').hidden&&$('yard-controls-toggle').getAttribute('aria-expanded')==='true';
-    $('scene-button').click();manage('settings');$('menu-settings-general').click();
+    $('scene-button').click();openSettings('general');
     const controlsClosed=$('yard-controls-panel').hidden&&!$('panel-settings').hidden;
     $('close-panel').click();
     await L('quietControls='+(quietStart&&controlsOpen&&controlsClosed&&document.activeElement===$('yard-controls-toggle')?'disclosed-and-restored':'err'));
@@ -217,14 +219,14 @@ const scenario = `(async()=>{
     const normalAnchor=!$('yard-controls-panel').style.left&&$('yard-context-menu').hidden;
     document.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));
     await L('contextFull='+(fullContext&&contextEsc&&normalAnchor&&$('yard-controls-panel').hidden?'clamped-escaped-and-reset':'err'));
-    manage('friends');$('menu-invite').click();
+    openMenu();$('menu-invite').click();
     const welcomeCovered=getComputedStyle($('empty-yard')).display==='none';
     $('yard-controls-toggle').click();
     await L('controlsOverlap='+($('side-panel').hidden&&!$('yard-controls-panel').hidden&&welcomeCovered?'exclusive':'err'));
     $('yard-controls-toggle').click();
     const shown=[];for(const k of ['pet','invite','settings']){document.querySelector('.panel-tab[data-panel='+k+']').click();await until(()=>!$('panel-'+k).hidden);shown.push(['pet','invite','settings'].filter(o=>$('panel-'+o).getBoundingClientRect().height>40).join(','));}
     // Settings wiring runs after Invite; its copy buttons must not replace Invite filters.
-    manage('friends');$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
+    openMenu();$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
     const allChip=document.querySelector('#kind-filter [data-kind=""]'),peopleChip=document.querySelector('#kind-filter [data-kind=person]');
     allChip.click();await until(()=>allChip.getAttribute('aria-pressed')==='true');const allCount=document.querySelectorAll('#shelf .asset-card').length;
     peopleChip.click();await until(()=>peopleChip.getAttribute('aria-pressed')==='true');const peopleIds=[...document.querySelectorAll('#shelf .asset-card')].map(el=>el.dataset.assetId);
@@ -255,7 +257,7 @@ const scenario = `(async()=>{
     await L('inviteLegacy='+(legacyInvite.ok&&legacyInvite.data.visualStyle==='illustrated'?'default-illustrated':'err'));
     for(const added of [invitedReal,invitedTwin,invitedMini,legacyInvite.data])if(added?.id)await playPets.removePet(added.id);
     await until(async()=>(await playPets.bootstrap()).data.pets.length===inviteBefore.length&&document.querySelectorAll('.yard-pet').length===inviteBefore.length);
-    await playPets.openChat(p1.data.id);manage('friends');$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
+    await playPets.openChat(p1.data.id);openMenu();$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
     $('import').click();await until(()=>$('import-dialog').open);const discovery=$('community-discovery'),discoveryClosed=!discovery.open;
     discovery.querySelector('summary').click();await until(()=>discovery.open);
     await L('inviteDiscovery='+(discoveryClosed&&discovery.open&&document.querySelectorAll('#community-links [data-community-id]').length===boot.data.communities.length?'collapsed-expandable':'err'));
@@ -275,7 +277,7 @@ const scenario = `(async()=>{
     await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',settingsWindow]});await until(()=>Math.abs(innerWidth-settingsWindow.width)<2);await wait(100);
     await L('panel='+(opened&&$('side-panel').hidden&&shown.join('|')==='pet|invite|settings'?'toggles':'err:'+shown.join('|'))+'/'+indexed);
     // The relationship shows beside the friend's closeness, and a click on it opens the settings at the relationship cards.
-    manage('friends');$('menu-friends').click();await until(()=>!$('panel-pet').hidden);
+    openMenu();$('menu-friends').click();await until(()=>!$('panel-pet').hidden);
     const relChip=$('relation-chip').textContent;$('relation-chip').click();await until(()=>$('pet-dialog').open);
     const relFocus=$('pet-dialog').open&&document.activeElement?.name==='relation'&&document.activeElement.value==='partner'&&$('pet-call-me').placeholder===${say('pet.call_me_partner')};
     $('cancel-pet-dialog').click();$('close-panel').click();await until(()=>!$('pet-dialog').open&&$('side-panel').hidden);
@@ -289,12 +291,12 @@ const scenario = `(async()=>{
     const inAbout=!!document.querySelector('#settings-updates #update-button');
     $('close-panel').click();
     window.__pp('event',{type:'update',update:{version:'9.9.9',notes:''}});await until(()=>!$('update-pill').hidden);
-    const tabDot=$('menu-settings-updates').classList.contains('has-update');
+    const tabDot=$('menu-settings').classList.contains('has-update');
     const pillShown=!$('update-pill').hidden&&$('update-pill-label').textContent.includes('v9.9.9')&&$('update-pill').parentElement.classList.contains('yard-dock')&&$('update-pill').parentElement.firstElementChild===$('update-pill')&&getComputedStyle($('update-pill')).display!=='none';
     $('update-pill').click();await until(()=>!$('update-dialog').hidden);
     const updateDialogOpen=!$('update-dialog').hidden&&$('update-title').textContent.includes('v9.9.9')&&!!$('update-dialog').closest('#panel-settings');
     $('update-later').click();await until(()=>$('update-dialog').hidden);
-    const putAway=$('update-dialog').hidden&&$('update-pill').hidden&&$('menu-settings-updates').classList.contains('has-update');
+    const putAway=$('update-dialog').hidden&&$('update-pill').hidden&&$('menu-settings').classList.contains('has-update');
     await L('updateUi='+sections+'/'+(inAbout&&tabDot&&pillShown&&updateDialogOpen&&putAway?'ok':'err:'+[inAbout,tabDot,pillShown,updateDialogOpen,putAway].join(',')));
     await L('stage='+($('yard').getBoundingClientRect().height/innerHeight>.6?'yard-first':'small:'+$('yard').getBoundingClientRect().height));
     // The webview retains its last place across isolated backend runs; outdoor checks choose it explicitly.
@@ -643,28 +645,25 @@ const scenario = `(async()=>{
       for(const lang of ['ko','en','ja','zh-hans']){
         localeUi.setLanguageForTests(lang);localeUi.apply();
         (await import('./core/controls.js')).openPlay();await wait(40);
-        const labels=[...$('play-actions').querySelectorAll('.play-action > span[data-i18n]')];
-        const playOk=labels.length===4&&labels.every(noWrap)&&[...$('play-actions').querySelectorAll('.play-action')].every(visibleNode)&&visibleNode($('play-panel'));
-        $('close-play').click();manage('friends');await wait(40);
-        const tabs=[...document.querySelectorAll('[data-management-tab]')];
-        const tabsOk=tabs.length===3&&tabs.every(tab=>noWrap(tab)&&visibleNode(tab));
-        for(const group of ['friends','settings']){
-          $('management-tab-'+group).click();await wait(20);
-          const actions=[...$('management-'+group).querySelectorAll('.menu-destination')];
-          const actionChecks=actions.map(button=>{
-            const label=button.querySelector('.menu-destination-copy strong')||button.querySelector('[data-i18n]');
-            return {id:button.id,text:label.textContent,label:noWrap(label),button:button.scrollWidth<=button.clientWidth+1,visible:visibleNode(button),width:[button.scrollWidth,button.clientWidth]};
-          });
-          const actionsOk=actionChecks.every(check=>check.label&&check.button&&check.visible);
-          if(!actionsOk)menuCopyTrace.push([lang,innerWidth,group,actionChecks]);
-          menuCopyFits&&=actionsOk;
-        }
-        menuCopyFits&&=playOk&&tabsOk;
-        menuCopyTrace.push([lang,innerWidth,playOk,tabsOk,menuCopyFits]);
+        // Wide windows keep every name on one line; small windows fold tiles and allow two lines, but nothing spills.
+        const folded=document.body.classList.contains('compact');
+        const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded||labels.every(noWrap));};
+        const tiles=[...$('play-sections').querySelectorAll('.play-action')];
+        const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')])}));
+        const playOk=tiles.length===10&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
+        if(!playOk)menuCopyTrace.push([lang,innerWidth,'play',playChecks]);
+        $('close-play').click();openMenu();await wait(40);
+        const actions=[...$('yard-controls-panel').querySelectorAll('.menu-destination')];
+        const actionChecks=actions.map(button=>({id:button.id,fits:fits(button,[button.querySelector('.menu-destination-copy strong')])}));
+        const actionsOk=actions.length===3&&actionChecks.every(check=>check.fits)&&!document.querySelector('[data-management-tab]');
+        if(!actionsOk)menuCopyTrace.push([lang,innerWidth,'menu',actionChecks]);
+        menuCopyFits&&=playOk&&actionsOk;
+        menuCopyTrace.push([lang,innerWidth,playOk,actionsOk,menuCopyFits]);
         $('close-controls').click();
-        $('scene-button').click();$('scene-atmosphere-tab').click();await wait(30);
-        const atmosphere=$('scene-atmosphere'),details=[...atmosphere.querySelectorAll('.atmosphere-choice')],summaries=details.map(group=>group.querySelector('summary'));
-        atmosphere.scrollTop=0;
+        $('scene-button').click();await wait(30);
+        const atmosphere=$('scene-body'),details=[...atmosphere.querySelectorAll('.atmosphere-choice')],summaries=details.map(group=>group.querySelector('summary'));
+        // Atmosphere sits below Places on the same page: bring it into view first, as a person scrolls.
+        summaries.at(-1).scrollIntoView({block:'nearest'});await wait(20);
         const compactClimate=document.body.classList.contains('compact');
         let climateFits=details.length===3&&(!compactClimate||summaries.every(visibleNode));
         const climateTrace=[['initial',climateFits,summaries.map(node=>({text:node.textContent,box:node.getBoundingClientRect().toJSON()}))]];
@@ -672,6 +671,7 @@ const scenario = `(async()=>{
           const summary=group.querySelector('summary');
           if(compactClimate&&!group.open)summary.click();await wait(20);
           const segments=group.querySelector('.atmosphere-segments');
+          segments.scrollIntoView({block:'nearest'});await wait(20);
           climateFits&&=segments.scrollWidth<=segments.clientWidth+1&&(!compactClimate||details.filter(item=>item.open).length===1);
           const pageBox=atmosphere.getBoundingClientRect();
           climateTrace.push(['opened',summary.textContent,group.open,details.filter(item=>item.open).length,segments.scrollWidth,segments.clientWidth,pageBox.toJSON(),atmosphere.scrollTop]);
@@ -684,14 +684,13 @@ const scenario = `(async()=>{
             const radios=[...group.querySelectorAll('input')],selectedRadio=radios.find(radio=>radio.checked),select=$(selectedRadio.name.replace('-choice','')),original=select.value;
             radios.find(radio=>!radio.checked).click();await wait(20);
             // WebKit can scroll one pixel when it restores focus to the last summary.
-            const closedFits=!group.open&&summaries.every(visibleNode)&&Math.abs(atmosphere.scrollTop)<=1;
+            const closedFits=!group.open&&visibleNode(summary)&&document.activeElement===summary;
             climateFits&&=closedFits;if(!closedFits)climateTrace.push(['closed',summary.textContent,group.open,atmosphere.scrollTop,summaries.map(node=>({text:node.textContent,box:node.getBoundingClientRect().toJSON()}))]);
             select.value=original;select.dispatchEvent(new Event('change'));
           }
           await wait(20);
         }
         menuCopyFits&&=climateFits;menuCopyTrace.push([lang,innerWidth,'atmosphere',climateFits,...(!climateFits?[climateTrace]:[])]);
-        $('scene-places-tab').click();
         $('scene-close').click();
         $('album-button').click();
         for(const book of ['tree','treasure']){const correct=inspectRewardAlbum(book,true);rewardLocaleFits&&=correct;if(!correct)rewardTrace.push([lang,innerWidth,book,'layout-or-copy-failed']);const toggled=inspectConditionsOnly(book);conditionsOnlyFits&&=toggled;}
@@ -708,7 +707,7 @@ const scenario = `(async()=>{
       }
     }
     localeUi.setLanguageForTests('ko');localeUi.apply();
-    await L('menuCopy='+(menuCopyFits?'four-locales-no-wrap-small-and-wide':'err:'+JSON.stringify(menuCopyTrace)));
+    await L('menuCopy='+(menuCopyFits?'four-locales-fit-small-and-wide':'err:'+JSON.stringify(menuCopyTrace)));
     await L('digRewardLocales='+(rewardLocaleFits?'four-locales-small-wide-hints-status':'err:'+JSON.stringify(rewardTrace)));
     await L('albumConditionsOnly='+(conditionsOnlyFits?'no-numbers-or-toggle-four-locales-small-wide':'err:'+JSON.stringify(rewardTrace)));
     await L('giftAlbumRule='+(giftRuleFits?'whole-yard-daily-four-locales-small-wide':'err:'+JSON.stringify(rewardTrace)));
@@ -717,54 +716,52 @@ const scenario = `(async()=>{
     await L('digRewardIndoors='+(indoorRewardFits?'four-locales-small-wide-no-soil-explained':'err:'+JSON.stringify(rewardTrace)));
     let panelFlow=true;const flowTrace=[];const markFlow=step=>flowTrace.push([step,panelFlow]);
     await nativeWindow({...fullAt,width:300,height:210});await wait(200);
-    manage('friends');await wait(40);
-    const managementTabs=[...document.querySelectorAll('[data-management-tab]')];
-    const friendRows=[...$('management-friends').querySelectorAll('.panel-tab')];
-    let primaryFirstView=managementTabs.length===3&&managementTabs.every(visibleNode)&&friendRows.length===2&&friendRows.every(visibleNode)&&!$('controls-more');
-    for(const tab of managementTabs){
-      tab.click();await wait(40);
-      const selected=tab.dataset.managementTab;
-      primaryFirstView&&=tab.getAttribute('aria-selected')==='true'&&tab.tabIndex===0&&managementTabs.every(other=>$('management-'+other.dataset.managementTab).hidden===(other!==tab))&&[...document.querySelectorAll('.management-page')].filter(page=>!page.hidden).length===1;
-      primaryFirstView&&=visibleNode($('management-'+selected))&&managementTabs.every(visibleNode);
-    }
-    $('management-tab-friends').click();
-    await L('menuSmall='+(primaryFirstView?'three-tabs-single-task-pane':'err'));
+    openMenu();await wait(40);
+    const destinations=[...document.querySelectorAll('#yard-controls-panel .menu-destination')];
+    let primaryFirstView=!document.querySelector('[data-management-tab]')&&destinations.length===3&&destinations.every(visibleNode)&&!$('controls-more');
+    for(const id of ['always-on-top','desktop','hide-window','menu-quit']){$(id).scrollIntoView({block:'nearest'});await wait(20);primaryFirstView&&=visibleNode($(id));}
+    await L('menuSmall='+(primaryFirstView?'one-page-destinations-and-window':'err'));
     $('close-controls').click();$('scene-button').click();await wait(100);
-    panelFlow&&=!$('scene-menu').hidden&&!$('scene-places').hidden&&$('scene-atmosphere').hidden&&visibleNode($('scene-close'))&&document.activeElement===$('background-gallery').querySelector('[aria-pressed="true"]');
-    $('scene-atmosphere-tab').click();
-    panelFlow&&=$('scene-places').hidden&&!$('scene-atmosphere').hidden;
+    panelFlow&&=!$('scene-menu').hidden&&visibleNode($('scene-close'))&&document.activeElement===$('background-gallery').querySelector('[aria-pressed="true"]');
     const weatherDisclosure=document.querySelector('input[name="weather-choice"]').closest('details'),weatherSummary=weatherDisclosure.querySelector('summary');
-    $('scene-atmosphere').scrollTop=0;
-    panelFlow&&=[...$('scene-atmosphere').querySelectorAll('summary')].every(visibleNode);
+    const climateSummaries=[...$('scene-body').querySelectorAll('summary')];
+    climateSummaries.at(-1).scrollIntoView({block:'nearest'});await wait(40);
+    panelFlow&&=climateSummaries.every(visibleNode);
     weatherSummary.click();await wait(80);
     weatherSummary.scrollIntoView({block:'nearest'});
     panelFlow&&=weatherDisclosure.open&&visibleNode(weatherSummary);
     await nativeWindow(fullAt);await wait(100);
-    panelFlow&&=!$('scene-atmosphere').hidden&&weatherDisclosure.open&&[...weatherDisclosure.querySelectorAll('.atmosphere-segments span')].every(visibleNode);
+    weatherDisclosure.scrollIntoView({block:'nearest'});await wait(40);
+    panelFlow&&=weatherDisclosure.open&&[...weatherDisclosure.querySelectorAll('.atmosphere-segments span')].every(visibleNode);
     $('scene-close').click();await wait(40);
     panelFlow&&=$('scene-menu').hidden&&$('yard-controls-panel').hidden;
     markFlow('scene');
     $('yard-controls-toggle').click();
     await nativeWindow({...fullAt,width:300,height:210});await wait(100);
-    manage('friends');$('menu-invite').click();await wait(100);
+    openMenu();$('menu-invite').click();await wait(100);
     $('invite-filters').open=false;$('panel-invite').scrollTop=0;
     const firstInvite=$('shelf').querySelector('.asset-card');
     if(firstInvite){firstInvite.scrollIntoView({block:'nearest'});await wait(40);panelFlow&&=visibleNode(firstInvite);}
     $('panel-menu').click();await wait(40);
     panelFlow&&=$('side-panel').hidden&&!$('yard-controls-panel').hidden;
     markFlow('invite');
-    $('management-tab-settings').click();$('menu-settings-updates').click();await wait(60);
+    $('menu-settings').click();await wait(60);
+    panelFlow&&=!$('settings-home').hidden;
+    document.querySelector('.settings-index [data-section="updates-title"]').click();await wait(60);
     panelFlow&&=!$('update-dialog').hidden&&!$('settings-updates').hidden&&$('settings-home').hidden;
     markFlow('direct-update');
     if(!panelFlow) flowTrace.push(['direct-update-state',{detailsHidden:$('update-dialog').hidden,sectionHidden:$('settings-updates').hidden,homeHidden:$('settings-home').hidden,title:$('panel-title').textContent,note:$('update-note').textContent,pillHidden:$('update-pill').hidden,back:$('panel-menu').getAttribute('aria-label')}]);
+    // Back goes one step up: a section to the list, the list to the menu.
     $('panel-menu').click();await wait(40);
-    panelFlow&&=$('side-panel').hidden&&!$('management-settings').hidden&&$('management-tab-settings').getAttribute('aria-selected')==='true';
-    $('menu-settings-about').click();await wait(60);
+    panelFlow&&=!$('side-panel').hidden&&!$('settings-home').hidden;
+    document.querySelector('.settings-index [data-section="about-title"]').click();await wait(60);
     panelFlow&&=!$('settings-about').hidden&&$('settings-home').hidden&&visibleNode($('panel-menu'))&&$('settings-content').clientHeight>=40;
     $('panel-menu').click();await wait(40);
-    panelFlow&&=$('side-panel').hidden&&!$('yard-controls-panel').hidden&&!$('management-settings').hidden&&$('management-tab-settings').getAttribute('aria-selected')==='true';
+    panelFlow&&=!$('settings-home').hidden;
+    $('panel-menu').click();await wait(40);
+    panelFlow&&=$('side-panel').hidden&&!$('yard-controls-panel').hidden;
     markFlow('about-back');
-    $('menu-settings-about').click();await wait(60);
+    $('menu-settings').click();document.querySelector('.settings-index [data-section="about-title"]').click();await wait(60);
     await nativeWindow(fullAt);await wait(100);
     panelFlow&&=!$('settings-about').hidden&&$('settings-home').hidden&&!$('settings-content').hidden;
     markFlow('settings-widened');
@@ -778,7 +775,7 @@ const scenario = `(async()=>{
 
     await nativeWindow({...fullAt,width:300,height:210});await wait(120);
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
-    $('play-garden-button').click();
+    document.querySelector('[data-context-action="play-friend"]').click();await until(()=>!$('play-panel').hidden);
     $('album-button').click();
     await until(()=>$('album-dialog').open);
     $('album-select').value='treasure';$('album-select').dispatchEvent(new Event('change'));
@@ -789,10 +786,10 @@ const scenario = `(async()=>{
     await nativeWindow(fullAt);await wait(100);
     await L('albumSmall='+(albumCompact?'chooser-and-scroll':'err:'+JSON.stringify(albumMetrics)));
     await L('windowResize='+(small?'one-responsive-window':'err'));
-    manage('window');await wait(30);$('menu-quit').click();
-    const quitAsked=await until(()=>$('confirm-dialog').open&&document.activeElement===$('confirm-cancel'));
-    $('confirm-cancel').click();await until(()=>!$('confirm-dialog').open);
-    await L('windowQuit='+(quitAsked&&(await nativeWindow()).resizable?'confirmed-and-cancellable':'err'));
+    // Quitting acts at once (as from the tray and the menu bar), so it is checked by place and name, not pressed.
+    openMenu();await wait(30);$('menu-quit').scrollIntoView({block:'nearest'});await wait(20);
+    const quitBeside=visibleNode($('menu-quit'))&&$('menu-quit').parentElement===$('hide-window').parentElement&&!$('quit-app');
+    await L('windowQuit='+(quitBeside&&(await nativeWindow()).resizable?'beside-close-window':'err'));
     $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
     // Fullscreen returns to the same frame and pin; Escape dismisses the current surface first.
     let fullscreenRestored=true;
@@ -805,7 +802,7 @@ const scenario = `(async()=>{
       contextAt();await wait(30);
       $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
       fullscreenRestored&&=$('yard-controls-panel').hidden&&(await nativeWindow()).fullscreen;
-      manage('settings');$('menu-settings-general').click();await wait(100);
+      openSettings('general');await wait(100);
       document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
       fullscreenRestored&&=$('side-panel').hidden&&(await nativeWindow()).fullscreen;
       window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',cancelable:true}));
@@ -820,14 +817,16 @@ const scenario = `(async()=>{
     // A conversation stays inside the current window; a friend nearer the bottom is drawn over one higher up.
     await nativeWindow({...fullAt,width:460,height:320});await until(()=>document.body.classList.contains('compact'));await wait(300);
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));
+    document.querySelector('[data-context-action="play-friend"]').click();
     await until(()=>!$('play-panel').hidden);
+    // Play is one page now (Find, Garden, Together), so it may take up to two thirds of a short window.
     const quickRect=$('play-panel').getBoundingClientRect();
-    let quickPlayFits=!$('play-panel').hidden&&quickRect.top>=0&&quickRect.right<=innerWidth&&quickRect.height<innerHeight/2;
+    let quickPlayFits=!$('play-panel').hidden&&quickRect.top>=0&&quickRect.right<=innerWidth&&quickRect.height<=innerHeight*0.65;
     await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact'));await wait(80);
     quickPlayFits&&=!$('play-panel').hidden&&visibleNode($('play-panel'));
     await nativeWindow({...fullAt,width:460,height:320});await until(()=>document.body.classList.contains('compact'));await wait(80);
     quickPlayFits&&=!$('play-panel').hidden;
-    $('close-play').click();manage('friends');$('menu-friends').click();
+    $('close-play').click();openMenu();$('menu-friends').click();
     await until(()=>!$('panel-pet').hidden&&getComputedStyle($('side-panel')).display!=='none');await wait(300);
     $('panel-pet').scrollTop=0;
     const composer=$('message').getBoundingClientRect(),sendBox=$('send').getBoundingClientRect();
@@ -838,17 +837,21 @@ const scenario = `(async()=>{
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
     await L('reach='+(chatFromSmall?'compact-chat':'err-small')+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
-    // A deliberate name click offers play; conversation stays in its explicit destination.
+    // The name tag says "Talk to …" and opens the conversation; play is on the friend's right-click.
     $('close-panel').click();await until(()=>$('side-panel').hidden);
     await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact')&&innerWidth===wide);await wait(200);
     const tag=document.querySelector('.pet-label .pet-tag');
     tag.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));tag.dispatchEvent(new PointerEvent('pointerup',{button:0,bubbles:true}));
-    await until(()=>!$('play-panel').hidden);
-    await L('playTag='+($('side-panel').hidden&&!$('play-panel').hidden?'opens-play':'err'));
-    $('close-play').click();
+    await until(()=>!$('panel-pet').hidden);
+    const tagChat=!$('panel-pet').hidden&&$('play-panel').hidden;
+    $('close-panel').click();await until(()=>$('side-panel').hidden);
+    document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:200,clientY:200}));await wait(40);
+    const friendItems=[...$('yard-context-menu').querySelectorAll('[data-context-action]')].filter(item=>!item.hidden).map(item=>item.dataset.contextAction).join(',');
+    $('yard-context-menu').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    await L('playTag='+(tagChat&&friendItems==='talk,play-friend'?'tag-talks-right-click-offers-play':'err:'+friendItems));
     // Inviting from the shelf and opening the AI dialog go through the page's own buttons.
     const before=(await playPets.bootstrap()).data.pets.length;
-    manage('friends');$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
+    openMenu();$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
     // A loaded machine (a build running beside the test) can take longer than the usual five seconds here.
     document.querySelector('#shelf .asset-card').click();await until(async()=>{
       const pets=(await playPets.bootstrap()).data.pets;
@@ -856,7 +859,7 @@ const scenario = `(async()=>{
     },15000);
     const after=(await playPets.bootstrap()).data.pets;
     const invited=after.length===before+1&&document.querySelectorAll('.yard-pet').length===after.length&&$('friend-select').value===after.at(-1).id;
-    manage('friends');$('menu-friends').click();await until(()=>!$('panel-pet').hidden);
+    openMenu();$('menu-friends').click();await until(()=>!$('panel-pet').hidden);
     const sharingGuest=await must('sharingGuest',playPets.addPet(a));
     await until(()=>document.querySelectorAll('.yard-pet').length===after.length+1);
     $('friend-select').value=after.at(-1).id;$('friend-select').dispatchEvent(new Event('change'));await wait(150);
@@ -1311,7 +1314,7 @@ const expect = [
   [/^relation=chip-opens-cards$/, 'the relationship shows in the Friend tab and its chip opens the relationship cards'],
   [/^about=7\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
   [
-    /^updateUi=general-title,agent-link-title,updates-title,about-title\/ok$/,
+    /^updateUi=general-title,ai-title,agent-link-title,updates-title,about-title\/ok$/,
     'an update stays at the left of the yard dock before Place, opens Settings update details, and Later puts it away',
   ],
   [/^stage=yard-first$/, 'the yard leads the window (60% of the height or more)'],
@@ -1340,19 +1343,22 @@ const expect = [
   ],
   [/^windowResize=one-responsive-window$/, 'one resizable window keeps its controls and native drag boundaries'],
   [
-    /^menuCopy=four-locales-no-wrap-small-and-wide$/,
-    'four locales keep Play and management labels readable on one line in small and wide windows',
+    /^menuCopy=four-locales-fit-small-and-wide$/,
+    'four locales keep Play and menu names on one line in wide windows and inside their tiles in small ones',
   ],
   [
     /^smallPanelFlow=reachable-and-restored$/,
     'minimum-size destinations scroll without overlap and retain state when widened',
   ],
   [
-    /^menuSmall=three-tabs-single-task-pane$/,
-    'compact management tabs stay visible and show only their selected task pane',
+    /^menuSmall=one-page-destinations-and-window$/,
+    'the small menu is one page: the three destinations show at once and the window actions scroll into view',
   ],
   [/^settingsSmall=body-and-navigation$/, 'small settings retain a usable body and navigation'],
-  [/^windowQuit=confirmed-and-cancellable$/, 'the shared quit action confirms and Cancel keeps the app alive'],
+  [
+    /^windowQuit=beside-close-window$/,
+    'Quit PlayPets sits beside Close window and acts at once, as in the tray and menu bar',
+  ],
   [/^lakeAgain=1\/0\/1$/, 'a walk to the lake ends when a game takes the friend, and the lake can be fished again'],
   [
     /^gameCompletion=tag-transfer-and-both-end$/,
@@ -1371,7 +1377,10 @@ const expect = [
     /^backgroundImport=file-gallery-storage-and-fishing$/,
     'a studio JSON enters the real file input, persists in IndexedDB and supports a small yard and fishing',
   ],
-  [/^playTag=opens-play$/, "a click on a friend's name tag opens the conversation"],
+  [
+    /^playTag=tag-talks-right-click-offers-play$/,
+    "a click on a friend's name tag opens the conversation and its right-click offers talking or play",
+  ],
   [/^season=set$/, 'the season and the clock paint the yard'],
   [/^garden=found-planted$/, 'an available seed is planted on the field with the tool and kept'],
   [

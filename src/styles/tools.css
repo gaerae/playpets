@@ -31,47 +31,12 @@
 .tool-count:empty {
   display: none;
 }
-#games-button.playing {
-  background: var(--control-selected);
-  box-shadow: inset 0 0 0 1.5px var(--muted);
-}
+/* The games join the other Together tiles; the one on is the tile that ends it. */
 .games-menu {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  padding: 6px 0 0;
-  border-top: 1px solid var(--line);
-  margin-top: 6px;
+  display: contents;
 }
-.games-menu[hidden] {
-  display: none;
-}
-/* Rows like every other menu (the friend's menu, the scene menu), not a stack of buttons. */
-.games-menu .button.tool {
-  justify-content: flex-start;
-  gap: 9px;
-  min-height: 36px;
-  padding: 6px 10px;
-  border: 0;
-  border-radius: var(--radius-control);
-  background: none;
-  box-shadow: none;
-  font-size: 13px;
-}
-.games-menu .button.tool:hover:not(:disabled),
-.games-menu .button.tool:focus-visible {
-  background: var(--control-hover);
-}
-.games-menu .button.tool svg {
-  width: 15px;
-  height: 15px;
-  color: var(--muted);
-}
-/* the game on, whose row ends it */
-.games-menu .button.tool.playing,
-.games-menu .button.tool.playing:hover:not(:disabled) {
+.play-action.game.playing,
+.play-action.game.playing:hover:not(:disabled) {
   background: var(--pink-soft);
   color: var(--pink-ink);
 }
@@ -86,5 +51,5 @@
 }
 
 .scene-sound {
-  padding-top: 12px;
+  padding-top: 4px;
 }

@@ -147,16 +147,14 @@ test('the tray update action goes directly to Updates rather than app informatio
   assert.equal(nodes.get('settings-home').hidden, true);
 });
 
-test('new-version cues mark the Updates destination instead of General settings', async context => {
+test('a new version marks the single Settings entry in the menu', async context => {
   installDom(context, { anyId: true });
-  const updates = document.getElementById('menu-settings-updates');
-  const general = document.getElementById('menu-settings-general');
+  const settings = document.getElementById('menu-settings');
   const { updateFound, renderUpdate } = await import('../src/panel/settings.js');
   setData({ pets: [], version: '1.0.0', updateChannel: 'github' });
   updateFound({ version: '1.1.0', notes: '' });
-  assert.equal(updates.classList.contains('has-update'), true);
-  assert.equal(general.classList.contains('has-update'), false);
+  assert.equal(settings.classList.contains('has-update'), true);
   setData({ pets: [], version: '1.0.0', updateChannel: 'store' });
   renderUpdate();
-  assert.equal(updates.classList.contains('has-update'), false);
+  assert.equal(settings.classList.contains('has-update'), false);
 });

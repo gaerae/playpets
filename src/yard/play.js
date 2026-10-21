@@ -54,10 +54,6 @@ export function syncGameUi() {
     b.disabled = !data.pets.length || (!!game && !mine);
   }
   $('feed').disabled = !data.pets.length || !!game;
-  // The games share one button on the tools: it opens their menu, and while one is on it ends it.
-  $('games-label').textContent = game ? t('game.stop', { name: GAMES[game.kind] }) : t('controls.group_games');
-  $('games-button').classList.toggle('playing', !!game);
-  $('games-button').disabled = !data.pets.length;
   hint();
 }
 function say(text) {
@@ -330,7 +326,8 @@ export function setupPlay() {
       const row = document.createElement('button'),
         mark = document.createElement('span'),
         label = document.createElement('span');
-      row.className = 'button tool game';
+      row.type = 'button';
+      row.className = 'play-action game';
       row.dataset.game = kind;
       row.title = t(`game.${kind}_title`);
       mark.dataset.icon = rules.icon;

@@ -4,15 +4,43 @@ import test from 'node:test';
 
 const read = path => readFile(path, 'utf8');
 
-test('scene destinations have separate tab panels and only their bodies scroll', async () => {
+const panelBlock = (html, id) => {
+  const start = html.indexOf(`<div id="${id}"`);
+  const next = [
+    '<div id="scene-menu"',
+    '<div id="yard-controls-panel"',
+    '<div id="discovery-target"',
+    '<div id="play-panel"',
+    '<div id="yard-context-menu"',
+  ]
+    .map(marker => html.indexOf(marker, start + 1))
+    .filter(at => at > start);
+  return html.slice(start, Math.min(...next));
+};
+
+test('the three dock panels share one shape: a head, then sections on one page, with no tabs or sub-views', async () => {
   const html = await read('src/index.html');
-  for (const id of ['scene-places-tab', 'scene-atmosphere-tab', 'scene-places', 'scene-atmosphere', 'scene-close'])
-    assert.match(html, new RegExp(`id="${id}"`));
-  assert.match(html, /id="scene-atmosphere"[^>]*hidden/);
+  for (const id of ['scene-menu', 'yard-controls-panel', 'play-panel']) {
+    const panel = panelBlock(html, id);
+    assert.match(panel, /class="dock-panel-head"/, `${id} has the shared head`);
+    assert.match(panel, /class="[^"]*dock-panel-body/, `${id} scrolls one body`);
+    assert.match(panel, /<section class="dock-section/, `${id} groups its contents in sections`);
+    assert.doesNotMatch(
+      panel,
+      /role="tab(?:list|panel)?"|data-play-back|data-scene-page|data-management-tab/,
+      `${id} has no tabs or sub-views`,
+    );
+  }
+  assert.doesNotMatch(
+    panelBlock(html, 'scene-menu'),
+    /data-expand-window/,
+    'full screen has one home, in the window section',
+  );
   const css = await read('src/styles/caption.css');
-  assert.match(css, /\.scene-menu\s*\{[^}]*grid-template-rows:\s*auto auto minmax\(0,\s*1fr\)/s);
+  assert.match(css, /\.scene-menu\s*\{[^}]*grid-template-rows:\s*auto minmax\(0,\s*1fr\)/s);
   assert.match(css, /\.scene-page\s*\{[^}]*overflow-y:\s*auto/s);
-  assert.match(css, /\.background-gallery\s*\{[^}]*overflow:\s*visible/s);
+  const shell = await read('src/styles/shell.css');
+  assert.match(shell, /\.dock-panel-body\s*\{[^}]*overflow-y:\s*auto/s);
 });
 
 test('panel navigation has an explicit return to the menu and optional larger view', async () => {
@@ -31,37 +59,47 @@ test('small settings show explicit tasks rather than a hidden section chooser', 
   const home = html.slice(html.indexOf('id="settings-home"'), html.indexOf('id="settings-content"'));
   assert.deepEqual(
     [...home.matchAll(/data-section="([^"]+)"/g)].map(match => match[1]),
-    ['general-title', 'agent-link-title', 'updates-title', 'about-title'],
+    ['general-title', 'ai-title', 'agent-link-title', 'updates-title', 'about-title'],
   );
 });
 
-test('management separates friends, settings tasks and window actions into peer tabs', async () => {
+test('the menu has one Settings entry, and right-click offers the same places as the dock', async () => {
   const html = await read('src/index.html');
-  const menu = html.slice(html.indexOf('<div id="yard-controls-panel"'), html.indexOf('<div id="play-panel"'));
+  const menu = panelBlock(html, 'yard-controls-panel');
   assert.deepEqual(
     [...menu.matchAll(/data-panel="([^"]+)"/g)].map(match => match[1]),
-    ['pet', 'invite', 'settings', 'settings', 'settings', 'settings'],
+    ['pet', 'invite', 'settings'],
+    'the settings list lives in Settings only, not repeated in the menu',
   );
+  assert.doesNotMatch(menu, /data-settings-section/);
   assert.doesNotMatch(menu, /id="menu-(scene|play)"/);
   assert.doesNotMatch(menu, /controls-more|<details/);
-  for (const name of ['friends', 'settings', 'window']) {
-    assert.match(menu, new RegExp(`id="management-tab-${name}"[^>]*role="tab"`));
-    assert.match(menu, new RegExp(`id="management-${name}"[^>]*role="tabpanel"`));
-  }
   const context = html.slice(html.indexOf('<div id="yard-context-menu"'), html.indexOf('<span id="yard-hint"'));
   assert.deepEqual(
-    [...context.matchAll(/data-context-action="([^"]+)"/g)].map(match => match[1]),
+    [...context.matchAll(/data-context-for="yard" data-context-action="([^"]+)"/g)].map(match => match[1]),
     ['scene', 'play', 'menu', 'pin'],
   );
+  assert.deepEqual(
+    [...context.matchAll(/data-context-for="friend" data-context-action="([^"]+)"/g)].map(match => match[1]),
+    ['talk', 'play-friend'],
+  );
+  assert.match(html, /id="compact-launcher"[^>]*aria-controls="yard-context-menu"/);
 });
 
-test('atmosphere owns season and sound; settings do not duplicate those controls', async () => {
+test('atmosphere owns season and sound; Friends & AI owns automatic chat', async () => {
   const html = await read('src/index.html');
-  const atmosphere = html.slice(html.indexOf('id="scene-atmosphere"'), html.indexOf('id="yard-controls-panel"'));
+  const atmosphere = html.slice(
+    html.indexOf('aria-labelledby="scene-atmosphere-label"'),
+    html.indexOf('id="yard-controls-panel"'),
+  );
   for (const id of ['scene-season', 'sound-button', 'sound-volume']) assert.ok(atmosphere.includes(`id="${id}"`));
   assert.doesNotMatch(html, /id="(?:season|sound-on|settings-yard|scene-back|play-back)"/);
-  const general = html.slice(html.indexOf('id="settings-general"'), html.indexOf('id="settings-agents"'));
-  assert.match(general, /id="auto-chatter"/);
+  const ai = html.slice(html.indexOf('id="settings-ai"'), html.indexOf('id="settings-agents"'));
+  for (const id of ['ai-connections', 'ai-add', 'auto-chatter']) assert.ok(ai.includes(`id="${id}"`));
+  const general = html.slice(html.indexOf('id="settings-general"'), html.indexOf('id="settings-ai"'));
+  assert.doesNotMatch(general, /id="auto-chatter"/);
+  const about = html.slice(html.indexOf('id="settings-about"'), html.indexOf('</aside>'));
+  assert.doesNotMatch(about, /id="quit-app"/, 'quitting lives with Close window, not in About');
 });
 
 test('friend actions use the sheet bounds rather than the short identity row', async () => {
@@ -69,14 +107,12 @@ test('friend actions use the sheet bounds rather than the short identity row', a
   assert.match(css, /body\.compact \.friend-head:has\(\.pop-menu:not\(\[hidden\]\)\)[^{]*\{[^}]*position:\s*static/s);
 });
 
-test('window actions live in their own bounded panel, not a disclosure', async () => {
+test('window actions live in the window section of the menu, not a disclosure', async () => {
   const html = await read('src/index.html');
   const windowPage = html.slice(html.indexOf('id="management-window"'), html.indexOf('<div id="discovery-target"'));
   for (const id of ['always-on-top', 'fullscreen', 'desktop', 'desktop-wander', 'hide-window', 'menu-quit'])
     assert.ok(windowPage.includes(`id="${id}"`));
-  const css = await read('src/styles/shell.css');
-  assert.match(css, /\.management-page\s*\{[^}]*overflow-y:\s*auto/s);
-  assert.match(css, /\.management-tabs button\s*\{[^}]*white-space:\s*nowrap/s);
+  assert.doesNotMatch(windowPage, /<details/);
 });
 
 test('importing a pet stays a visible Invite action rather than a hidden search filter', async () => {

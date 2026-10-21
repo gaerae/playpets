@@ -6,7 +6,7 @@ import { renderAlbum } from './panel/album.js';
 import { detectedLabel } from './panel/connection.js';
 import { renderPanel } from './panel/friend.js';
 import { renderShelf } from './panel/invite.js';
-import { renderAgentPets, renderDesktopSwitches, renderUpdate } from './panel/settings.js';
+import { renderAgentPets, renderConnections, renderDesktopSwitches, renderUpdate } from './panel/settings.js';
 import { renderWindow } from './window.js';
 import { renderBonds } from './yard/bond.js';
 import { syncChatter } from './yard/care.js';
@@ -35,6 +35,7 @@ export function render() {
   renderDesktopSwitches();
   renderUpdate();
   renderAgentPets();
+  renderConnections();
   endGameIfSomeoneLeft();
   syncGameUi();
   syncViews();

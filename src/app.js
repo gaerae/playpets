@@ -1,4 +1,4 @@
-import { openControls, openPlay, setupControls } from './core/controls.js';
+import { openControls, openFriendMenu, setupControls } from './core/controls.js';
 import { setupInteractions } from './core/interactions.js';
 import { setupBackgrounds } from './yard/background-ui.js';
 
@@ -120,7 +120,7 @@ setupInteractions();
 setupWindow();
 setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
-  stopGame: endGame,
+  openChat,
   beforeOpen: () => {
     cancelDiscovery();
     syncDiscovery();
@@ -177,7 +177,7 @@ setupViews({
   },
   select,
   openChat,
-  openActions: openPlay,
+  friendMenu: openFriendMenu,
   resized: () => {
     cancelDiscoveryWork();
     endFishing();

@@ -171,12 +171,13 @@ test('desktop strolling is centered and its label names the desktop in every lan
   }
 });
 
-test('game choices stay inline in the shared Play board with comfortable targets', async () => {
+test('game choices are tiles beside chatting in the Together section of Play', async () => {
   const css = await readFile('src/styles/tools.css', 'utf8');
   const html = await readFile('src/index.html', 'utf8');
   assert.match(html, /id="play-games"[\s\S]*?id="games-menu"/);
-  assert.match(css, /\.games-menu \.button\.tool\s*\{[^}]*min-height: 36px;/);
-  assert.match(css, /\.games-menu\s*\{[^}]*position: relative;/);
+  assert.match(css, /\.games-menu\s*\{[^}]*display: contents;/);
+  const play = await readFile('src/styles/play.css', 'utf8');
+  assert.match(play, /\.play-action,\s*\.discovery-tree-choice\s*\{[^}]*min-height: 40px;/);
 });
 
 test('blank-yard context controls clamp inside a small window and restore a visible focus target', async t => {
@@ -190,7 +191,7 @@ test('blank-yard context controls clamp inside a small window and restore a visi
   const panel = element('div', { id: 'yard-controls-panel', hidden: true });
   const context = element('div', { id: 'yard-context-menu', hidden: true, rect: { width: 284, height: 194 } });
   const yard = element('div', { id: 'yard' });
-  const first = element('button');
+  const first = element('button', { dataset: { contextFor: 'yard' } });
   context.querySelectorAll = () => [first];
   for (const node of [toggle, panel, context, yard]) nodes.set(node.id, node);
   const { setupControls } = await import('../src/core/controls.js');

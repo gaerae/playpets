@@ -197,26 +197,6 @@ export function setupSky(options = {}) {
     },
     sceneFocus,
   );
-  const sceneTabs = [...document.querySelectorAll('[data-scene-page]')];
-  const selectScenePage = page => {
-    for (const tab of sceneTabs) {
-      const active = tab.dataset.scenePage === page;
-      tab.setAttribute('aria-selected', String(active));
-      tab.tabIndex = active ? 0 : -1;
-      $(`scene-${tab.dataset.scenePage}`).hidden = !active;
-    }
-  };
-  for (const [index, tab] of sceneTabs.entries()) {
-    tab.onclick = () => selectScenePage(tab.dataset.scenePage);
-    tab.onkeydown = event => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      event.preventDefault();
-      const next =
-        event.key === 'Home' ? 0 : event.key === 'End' ? sceneTabs.length - 1 : (index + 1) % sceneTabs.length;
-      selectScenePage(sceneTabs[next].dataset.scenePage);
-      sceneTabs[next].focus();
-    };
-  }
   $('scene-close').addEventListener('click', () => {
     chooser.close();
     sceneFocus().focus();

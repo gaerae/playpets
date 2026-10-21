@@ -93,10 +93,10 @@ export function setupAtmosphereChoices() {
         select.value = radio.value;
         select.dispatchEvent(new Event('change'));
         if (compact) {
+          // The choice folds back and its summary stays in view; the places above it are not jumped to.
           disclosure.open = false;
-          summary.focus();
-          const page = disclosure.closest('.scene-page');
-          if (page) page.scrollTop = 0;
+          summary.focus({ preventScroll: true });
+          summary.scrollIntoView?.({ block: 'nearest' });
         }
       });
       label.append(radio, text);

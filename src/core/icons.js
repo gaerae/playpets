@@ -13,6 +13,10 @@ const paths = {
   // Pinning the window keeps it above other apps.
   pin: '<path d="m16 3 5 5-4 1-3 5 1 3-2 2-8-8 2-2 3 1 5-3 1-4Z"/><path d="m8 16-5 5"/>',
   expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  // Digging: a spade with its blade in the ground.
+  shovel: '<path d="m14 4 6 6"/><path d="m17 7-6.5 6.5"/><path d="M10.5 13.5 8 11l-4.5 4.5L5 20l4.5 1.5L14 17Z"/>',
+  // A tree to plant from a sapling.
+  tree: '<path d="M12 21v-5"/><path d="M12 3 6.5 10H9l-4 6h14l-4-6h2.5Z"/>',
   // A seedling: the garden's tool.
   sprout:
     '<path d="M12 21v-8"/><path d="M12 13C12 8.5 9 6 4 6c0 4.5 3 7 8 7Z"/><path d="M12 15c0-3.5 2.5-6 7-6 0 4-2.5 6-7 6Z"/>',

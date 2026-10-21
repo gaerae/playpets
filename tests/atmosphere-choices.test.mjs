@@ -83,10 +83,12 @@ test('compact atmosphere keeps three summaries visible and opens only one option
   assert.equal(page.scrollTop, 70, 'opening reveals its choices inside the scene scroller');
   assert.equal(details[0].open, false);
   const radio = details[1].querySelectorAll('input')[1];
+  let revealed = 0;
+  details[1].querySelector('summary').scrollIntoView = () => revealed++;
   radio.checked = true;
   await radio.dispatch('change');
   assert.equal(details[1].open, false);
-  assert.equal(page.scrollTop, 0, 'a choice restores the three-row overview');
+  assert.equal(revealed, 1, 'a choice keeps its folded row in view instead of jumping to the places above');
   assert.equal(document.activeElement, details[1].querySelector('summary'));
   assert.equal(details[1].querySelector('summary').children[1].dataset.i18n, 'choice.first');
   assert.equal(nodes.get('period').value, 'first');

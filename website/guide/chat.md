@@ -34,7 +34,7 @@ With subscription sign-in, CLI chat has no separate API bill, but it consumes th
 
 You can also write to a friend before it has an AI: sending opens the connection window, and once it is connected the message goes. On a first start with Claude Code or Codex CLI on this computer, the yard's starting card names it and **Connect now** attaches it to every friend in one step, with no key. With two or more friends, they start talking among themselves right after.
 
-Once you have made a connection, other friends can use it too. Pick a different connection from each friend's AI list and each friend chats with a different AI. To edit or delete a connection, choose **AI connection settings** from the **⋯** menu by the friend's name. Deleting a connection deletes its saved key too, and friends who were chatting through it play without an AI.
+Once you have made a connection, other friends can use it too. Pick a different connection from each friend's AI list and each friend chats with a different AI. To edit or delete a connection, choose **AI connection settings** from the **⋯** menu by the friend's name, or press **Edit** beside it in **Friends & settings → Settings → Friends & AI**, which lists every connection and has **Connect an AI** for a new one. Deleting a connection deletes its saved key too, and friends who were chatting through it play without an AI.
 
 ## Chatting <Since v="0.1.0" />
 
@@ -64,7 +64,7 @@ When two or more friends have an AI connected, **Bring friends in** appears at t
 
 1. Click it and click the friends you want to chat with. You can pick up to 3.
 2. Send a message and the current friend answers first, then the friends you picked answer one after another. Each speaks with their own AI and personality.
-3. To let the friends carry on without a new message, press **Let them chat** in **Menu**. The friends with an AI talk for a round about the time and the weather, and it shows as speech bubbles in the yard.
+3. To let the friends carry on without a new message, press **Let them chat** in **Play → Group games**. The friends with an AI talk for a round about the time and the weather, and it shows as speech bubbles in the yard.
 
 The small chip under the friend's name shows which coding agents report to this friend (Reports from, Claude Code).
 

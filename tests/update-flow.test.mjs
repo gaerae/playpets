@@ -38,19 +38,7 @@ test('an available update opens Settings for a guided download, shows each stage
       : selector.includes('data-settings-section')
         ? [updatesBody]
         : [];
-  openPanel('settings', 'updates-title', true);
-  const managementBack = nodes.get('panel-menu').getAttribute('aria-label');
-  await document.getElementById('menu-settings-updates').dispatch('click');
-  assert.equal(
-    nodes.get('update-dialog').hidden,
-    false,
-    'the direct management Updates row exposes the existing inline details',
-  );
-  assert.equal(
-    nodes.get('panel-menu').getAttribute('aria-label'),
-    managementBack,
-    'opening details keeps the management return route',
-  );
+  openPanel('settings', 'updates-title');
   nodes.get('update-dialog').hidden = true;
 
   await nodes.get('settings-updates-task').dispatch('click');

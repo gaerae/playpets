@@ -106,10 +106,10 @@ test('Escape closes the Updates task in one step and clears its inline details',
   assert.equal(nodes.get('update-dialog').hidden, true);
 });
 
-test('a task entered from management returns to its tab without an extra Settings home', async t => {
+test('Back from a section always returns to the list of sections, however it was opened', async t => {
   const { nodes } = page(t);
-  openPanel('settings', 'general-title', true);
+  openPanel('settings', 'general-title');
+  assert.equal(nodes.get('panel-menu').getAttribute('aria-label'), 'Back to settings');
   await nodes.get('panel-menu').dispatch('click');
-  assert.equal(nodes.get('settings-home').hidden, true, 'management owns the task list for this route');
-  assert.equal(nodes.get('panel-menu').getAttribute('aria-label'), 'Back to friends & settings');
+  assert.equal(nodes.get('settings-home').hidden, false, 'the list of sections, one step up');
 });

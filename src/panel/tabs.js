@@ -10,7 +10,6 @@ export const PANELS = ['pet', 'invite', 'settings'];
 let releaseTimer = 0;
 const RELEASE_AFTER = 60_000;
 let settingsSection = 'general-title';
-let settingsFromManagement = false;
 function selectSettingsSection(section, focus = false) {
   const links = [...document.querySelectorAll('.settings-index [data-section]')];
   const requested = section && !section.endsWith('-title') ? `${section}-title` : section;
@@ -25,9 +24,9 @@ function selectSettingsSection(section, focus = false) {
   const heading = $(next);
   const titleKey = active.querySelector('[data-i18n]')?.dataset.i18n || heading?.dataset.i18n;
   $('panel-title').textContent = t(titleKey || 'tabs.settings');
-  const back = settingsFromManagement ? 'controls.back' : 'settings.all';
-  $('panel-menu')?.setAttribute('aria-label', t(back));
-  $('panel-menu')?.setAttribute('title', t(back));
+  // Back from a section always goes to the list of sections, however the section was opened.
+  $('panel-menu')?.setAttribute('aria-label', t('settings.all'));
+  $('panel-menu')?.setAttribute('title', t('settings.all'));
   for (const body of document.querySelectorAll('.settings-section[data-settings-section]'))
     body.hidden = body.dataset.settingsSection !== next;
   if (focus) $('panel-title').focus({ preventScroll: true });
@@ -50,7 +49,7 @@ function closePanel() {
   (opener || (compact && (views.get(selected)?.button || $('yard'))) || $('yard-controls-toggle') || tab)?.focus();
   panelOpener = null;
 }
-export function openPanel(kind, section, fromManagement = false) {
+export function openPanel(kind, section) {
   if (!kind) closeUpdateDetails();
   if (kind) {
     beforePanelOpen(kind);
@@ -75,7 +74,6 @@ export function openPanel(kind, section, fromManagement = false) {
     tab.setAttribute('aria-expanded', String(tab.dataset.panel === kind));
   remember('panel', kind || 'closed');
   if (kind === 'settings') {
-    settingsFromManagement = fromManagement;
     if (section) selectSettingsSection(section, true);
     else showSettingsHome();
   } else {
@@ -93,18 +91,14 @@ export function openInvite() {
 export function setupTabs({ beforeOpen = () => {} } = {}) {
   beforePanelOpen = beforeOpen;
   $('panel-menu')?.addEventListener('click', () => {
-    if (!$('panel-settings').hidden && $('settings-home')?.hidden && !settingsFromManagement) {
+    if (!$('panel-settings').hidden && $('settings-home')?.hidden) {
       showSettingsHome();
       $('panel-title').focus();
     } else openControls();
   });
   for (const tab of document.querySelectorAll('.panel-tab[data-panel]'))
     tab.onclick = () =>
-      openPanel(
-        tab.getAttribute('aria-expanded') === 'true' ? null : tab.dataset.panel,
-        tab.dataset.settingsSection,
-        !!tab.dataset.settingsSection,
-      );
+      openPanel(tab.getAttribute('aria-expanded') === 'true' ? null : tab.dataset.panel, tab.dataset.settingsSection);
   // Closing with the panel's own button leaves the focus on the tab it belonged to, not lost on the page.
   $('close-panel').onclick = closePanel;
   // The brand goes "home": the yard alone, the panel closed.
