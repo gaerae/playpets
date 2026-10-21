@@ -16,6 +16,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Open the album at the right book from a find's card, and see a dot on Album and Play while something new waits there.
 - Let idle friends dig on their own now and then with a new switch in Settings → Friends & AI.
 - Switch between Dig, Plant a tree and Plant a seed with 1, 2 and 3 while a tool is in hand.
+- Edit and add AI connections in place in Settings → Friends & AI, without a second window over Settings.
 
 ### Changed
 
@@ -26,6 +27,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Fish or catch a creature with one press even while a play tool is in hand; the press puts the tool away first.
 - Show the tool strip where the dock was, right where Play was opened and just above the ground, and show a find's card above the friend who found it.
 - Give every message on the yard one look and one reading time: notices stack two lines along the bottom (one in small windows) with failures in dark ink, cards wait while a panel covers the yard, overlapping speech bubbles rise clear of each other, and a friend's words are read aloud to screen readers.
+- Pull up flowers and trees and put gifts away at once, with a few seconds to undo it in the notice below, instead of a red confirmation each time.
+- Keep confirmations calm unless something that cannot come back is lost (a saved key, a friend's closeness, a background), give every dialog a Close button and its destructive action at the far left, and say what stays before what goes when a friend is sent away.
 - Fold the dock's panels into tiles in small windows, keeping a chosen atmosphere row in view, and move Quit PlayPets out of About to sit beside Close window.
 - Open the conversation from a friend's name tag, as its tooltip says; play stays on the friend's right-click.
 - Quit at once from the page, as from the tray and the macOS menu bar, now that Close window and Quit PlayPets sit side by side.
@@ -35,6 +38,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Keep Settings open after choosing Later in App updates, and dim the whole window behind Settings.
 - Keep a friend's name readable when a coding agent's name shares its tag.
+- Stop editing a connection from Settings from moving the selected friend to it.
 - Let a card that arrives while another is on show wait its turn instead of replacing it, so a closeness card no longer wipes the catch that earned it.
 - Keep notices in small windows clear of the corner button, skip a notice that repeats an error already shown in the open form, end a cut speech bubble with an ellipsis, and stop a first keepsake's card from saying it was kept twice.
 - Plant a seed from the keyboard with a second press of the seed tool, as with the picnic treat.

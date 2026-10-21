@@ -45,6 +45,28 @@ const providerForms = {
 let editProvider = null;
 // What to do once a connection was saved or deleted; whoever opened the dialog says.
 let afterChange = () => {};
+// The friend a new or edited connection goes to: the selected one when opened from a friend, none
+// when opened from Settings → Friends & AI, where a connection is edited for whoever uses it.
+let dialogFriend = null;
+// Opened from Settings → Friends & AI, the form unfolds in place there (no window over the sheet);
+// opened from a friend, it is the connection dialog.
+let inlineHost = null;
+function formHome() {
+  const form = $('connection-form'),
+    dialog = $('connection-dialog');
+  if (form.parentNode !== dialog) dialog.append(form);
+}
+/** Folds an in-place editor away (or closes the dialog), putting the form back in its dialog. */
+export function closeConnectionEditor() {
+  if (!inlineHost) {
+    if ($('connection-dialog')?.open) $('connection-dialog').close();
+    return;
+  }
+  inlineHost.hidden = true;
+  for (const id of ['ai-connections', 'ai-add']) if ($(id)) $(id).hidden = false;
+  inlineHost = null;
+  formHome();
+}
 // What to do once the very first friend can talk; app.js says (a chat between friends, or the chat box).
 let onFirstConnection = () => {};
 // What this computer has, as a kind to start from; nothing found leaves the choice to the person.
@@ -89,13 +111,15 @@ export async function quickConnect() {
   toast(t('toast.connection_saved'));
   connected(first, able);
 }
-export function openConnectionDialog(current, onChange = () => {}) {
+export function openConnectionDialog(current, onChange = () => {}, { forFriend = selected, inline = null } = {}) {
   if (dialogSaving) return;
+  if (inlineHost && inlineHost !== inline) closeConnectionEditor();
   editProvider = current?.id || null;
   afterChange = onChange;
+  dialogFriend = forFriend;
   $('connection-form').reset();
   // A new connection can go to every friend still without one, not only the selected friend.
-  const others = unconnected(selected).length;
+  const others = unconnected(forFriend).length;
   $('share-all-field').hidden = !!current || !others;
   $('ai-share-all').checked = !current && others > 0;
   $('ai-share-all-label').textContent = t('connection.share_all', { count: others });
@@ -110,6 +134,15 @@ export function openConnectionDialog(current, onChange = () => {}) {
   $('save-provider').textContent = current ? t('connection.save_edit') : t('connection.save_new');
   updateProviderForm();
   rememberConnectionForm();
+  if (inline) {
+    inlineHost = inline;
+    inline.append($('connection-form'));
+    inline.hidden = false;
+    for (const id of ['ai-connections', 'ai-add']) if ($(id)) $(id).hidden = true;
+    $('ai-model').focus?.();
+    return;
+  }
+  formHome();
   $('connection-dialog').showModal();
 }
 // What the dialog holds, to tell whether anything was typed since it opened.
@@ -215,8 +248,17 @@ export function setupConnection({ first = () => {} } = {}) {
     updateProviderForm();
   };
   $('close-dialog').onclick = $('cancel-dialog').onclick = () => {
-    if (!dialogSaving) $('connection-dialog').close();
+    if (!dialogSaving) closeConnectionEditor();
   };
+  // In place, Esc folds the editor (or, with unsaved typing, says so) before it would close Settings.
+  $('connection-form').addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !inlineHost) return;
+    event.preventDefault();
+    event.stopPropagation?.();
+    if (dialogSaving) return;
+    if (connectionForm() === connectionStart) closeConnectionEditor();
+    else showFormError('connection-error', t('dialog.unsaved'));
+  });
   // A click beside the dialog or Esc does not throw away an address or a key being typed: only
   // Cancel does, and the dialog says so.
   connectionOpened = keepEdits(
@@ -230,7 +272,7 @@ export function setupConnection({ first = () => {} } = {}) {
     if (dialogSaving) return;
     const button = $('save-provider'),
       label = button.textContent,
-      id = selected;
+      id = dialogFriend;
     dialogSaving = true;
     button.disabled = true;
     button.textContent = t('connection.saving');
@@ -244,12 +286,12 @@ export function setupConnection({ first = () => {} } = {}) {
         endpoint: $('ai-endpoint').value,
         apiKey: $('ai-key').value,
       });
-      await call('updatePet', id, { providerId: config.id });
-      let able = data.pets.filter(p => p.providerId && p.id !== id).length + 1;
+      if (id) await call('updatePet', id, { providerId: config.id });
+      let able = data.pets.filter(p => p.providerId && p.id !== id).length + (id ? 1 : 0);
       if (!$('share-all-field').hidden && $('ai-share-all').checked)
         able += await attachAll(unconnected(id), config.id);
       $('ai-key').value = '';
-      $('connection-dialog').close();
+      closeConnectionEditor();
       afterChange();
       toast(t('toast.connection_saved'));
       connected(first, able);
@@ -272,10 +314,11 @@ export function setupConnection({ first = () => {} } = {}) {
         .filter(Boolean)
         .join(' '),
       action: t('connection.delete'),
+      danger: true,
     });
     if (!sure) return;
     await call('removeProvider', editProvider);
-    $('connection-dialog').close();
+    closeConnectionEditor();
     afterChange();
     toast(t('toast.connection_deleted'));
   });

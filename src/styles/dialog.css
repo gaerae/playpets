@@ -240,8 +240,13 @@ dialog .relation-card small {
   display: flex;
   flex-direction: column;
 }
-.confirm-dialog h2 {
+.confirm-dialog .dialog-heading {
   flex: none;
+  gap: 8px;
+}
+.confirm-dialog h2 {
+  flex: 1;
+  min-width: 0;
   overflow-wrap: anywhere;
   font-size: 17px;
   line-height: 1.45;

@@ -90,31 +90,48 @@ function keepLine(line, ms) {
     line,
     setTimeout(() => {
       if (line.matches?.(':hover')) return keepLine(line, 1500);
-      const notice = $('toast');
-      notice.replaceChildren(...[...notice.children].filter(other => other !== line));
-      if (!notice.children.length) notice.hidden = true;
+      dropLine(line);
     }, ms),
   );
 }
-/** Says something short along the bottom of the yard; `error` marks a failure apart from news. */
-export function toast(message, { error = false } = {}) {
+function dropLine(line) {
+  clearTimeout(lineTimers.get(line));
+  const notice = $('toast');
+  notice.replaceChildren(...[...notice.children].filter(other => other !== line));
+  if (!notice.children.length) notice.hidden = true;
+}
+/** Says something short along the bottom of the yard; `error` marks a failure apart from news, and
+ * `action` ({ label, run }) adds one button, such as Undo, for `ms` (or the reading time). */
+export function toast(message, { error = false, action = null, ms = 0 } = {}) {
   const words = String(message);
   // A form that already says it beside its field does not need it said twice over its buttons.
   const dialog = [...document.querySelectorAll('dialog[open]')].at(-1);
   if (dialog && [...dialog.querySelectorAll('.form-error')].some(e => !e.hidden && e.textContent === words)) return;
   const notice = $('toast');
-  let line = [...notice.children].find(other => other.textContent === words);
+  let line = [...notice.children].find(other => (other.dataset.words ?? other.textContent) === words);
   if (!line) {
     line = document.createElement('span');
+    line.dataset.words = words;
     line.textContent = words;
     notice.append(line);
+  }
+  if (action) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'toast-action';
+    button.textContent = action.label;
+    button.onclick = () => {
+      dropLine(line);
+      return action.run();
+    };
+    line.append(button);
   }
   line.classList.toggle('error', error);
   const lines = [...notice.children];
   if (lines.length > noticeLines()) notice.replaceChildren(...lines.slice(-noticeLines()));
   placeNotice();
   notice.hidden = false;
-  keepLine(line, readingTime(words));
+  keepLine(line, Math.max(ms, readingTime(words)));
 }
 export async function call(method, ...args) {
   const result = await api[method](...args);

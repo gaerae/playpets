@@ -23,7 +23,7 @@ import { flowerKind, STAGES } from './catalog.js';
 import { flowerSvg } from './creatures.js';
 import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { flowerFor, hoursMinutes, stageOf, untilBloom } from './growth.js';
-import { askToRemove, propButton, propScale, reconcile, setDown } from './props.js';
+import { propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { cue } from './sound.js';
 import { isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
 import { bubble, cheer, pose } from './views.js';
@@ -162,13 +162,13 @@ export function visitTarget(v) {
   walkTo(v, pick(blooms), { arrive: visited, slow: true });
   return v.target;
 }
-const pull = guard(async id => {
-  const plant = data.garden?.plants.find(p => p.id === id);
-  if (!plant) return;
-  const kind = t(`garden.kind_${plant.kind}`);
-  if (await askToRemove(t('garden.pull_confirm', { kind }), t('garden.pull_body'), t('garden.pull')))
-    await call('pullPlant', id);
-});
+// Pulled up at once with a moment to undo it (props.js); the backend removes it only after that.
+function pull(id) {
+  const plant = data.garden?.plants.find(p => p.id === id),
+    view = shown.get(id);
+  if (!plant || !view) return;
+  removeWithUndo(id, view, t('garden.pulled', { kind: t(`garden.kind_${plant.kind}`) }), () => call('pullPlant', id));
+}
 
 const planting = new Map();
 // A friend on the way to plant spends its seed only on arrival, so that seed is already promised.

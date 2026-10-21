@@ -131,3 +131,20 @@ test('one reading time for notices, cards and bubbles: 2.5 s and 50 ms a charact
   assert.equal(readingTime('x'.repeat(40)), 4500);
   assert.equal(readingTime('x'.repeat(400)), 8000);
 });
+
+test('a notice can carry one action, such as Undo, that runs once and closes the line', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { document, nodes } = installDom(t, { ids: ['toast'] });
+  document.querySelectorAll = () => [];
+  const notice = nodes.get('toast');
+  notice.hidden = true;
+  let undone = 0;
+  toast('Daisy pulled up', { action: { label: 'Undo', run: () => undone++ }, ms: 6000 });
+  const line = notice.children[0];
+  const button = line.children.find(child => child.localName === 'button');
+  assert.equal(button.textContent, 'Undo');
+  await button.onclick();
+  assert.equal(undone, 1);
+  assert.equal(notice.children.length, 0, 'the line goes once its action is taken');
+  assert.equal(notice.hidden, true);
+});

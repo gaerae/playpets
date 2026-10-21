@@ -3,7 +3,7 @@ import { closeControls, closeScene, closeUpdateDetails, openControls } from '../
 import { t } from '../core/i18n.js';
 import { release } from '../core/sprites.js';
 import { $, data, guard, remember, selected, views } from '../core/state.js';
-import { quickConnect } from './connection.js';
+import { closeConnectionEditor, quickConnect } from './connection.js';
 export const PANELS = ['pet', 'invite', 'settings'];
 // Sheets shown only on the Invite tab are let go a minute after it closes, not at once, so
 // flipping between tabs does not reload and re-decode every sheet.
@@ -51,6 +51,8 @@ function closePanel() {
 }
 export function openPanel(kind, section) {
   if (!kind) closeUpdateDetails();
+  // Leaving Settings folds an AI connection being edited there; its form goes back to its dialog.
+  if (kind !== 'settings' && $('panel-settings') && !$('panel-settings').hidden) closeConnectionEditor();
   if (kind) {
     beforePanelOpen(kind);
     closeControls(false);

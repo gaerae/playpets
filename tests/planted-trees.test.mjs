@@ -18,7 +18,6 @@ const state = await import('../src/core/state.js');
 const { setData } = state;
 const { renderTrees, setupTrees } = await import('../src/yard/planted-trees.js');
 const { fieldToYard, measureYard, yardZoom } = await import('../src/yard/field.js');
-const { setupConfirm } = await import('../src/core/confirm.js');
 const { scene } = await import('../src/yard/world.js');
 const { treeKind } = await import('../src/yard/catalog.js');
 
@@ -105,23 +104,24 @@ test('drag cancellation and invalid ground never save, while keyboard moves use 
   assert.equal(requests.length, 1, 'stale scene buttons cannot move another world tree');
 });
 
-test('removal requires confirmation and a stale world cannot remove the tree', async t => {
+test('pulling a tree up asks nothing, offers Undo, and removes it only when Undo is not taken', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
   const { button } = fixture(t);
-  setupConfirm();
-  const pending = button.dispatch('keydown', { key: 'Delete' });
-  document.getElementById('confirm-cancel').onclick();
-  await document.getElementById('confirm-dialog').dispatch('close');
-  await pending;
+  document.querySelectorAll = () => [];
+  await button.dispatch('keydown', { key: 'Delete' });
+  assert.equal(button.hidden, true, 'it leaves the field at once');
   assert.equal(requests.length, 0);
-  const stale = button.dispatch('keydown', { key: 'Delete' });
-  scene.world = 'room';
-  document.getElementById('confirm-ok').onclick();
-  await stale;
+  const undo = document
+    .getElementById('toast')
+    .children.at(-1)
+    .children.find(child => child.localName === 'button');
+  await undo.onclick();
+  assert.equal(button.hidden, false, 'Undo puts it back');
+  t.mock.timers.tick(7000);
   assert.equal(requests.length, 0);
-  scene.world = 'woodland';
-  const accepted = button.dispatch('keydown', { key: 'Delete' });
-  document.getElementById('confirm-ok').onclick();
-  await accepted;
+  await button.dispatch('keydown', { key: 'Delete' });
+  t.mock.timers.tick(6000);
+  await Promise.resolve();
   assert.equal(requests[0].method, 'removeTree');
   assert.deepEqual(requests[0].args, ['tree-test']);
 });

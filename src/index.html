@@ -261,6 +261,7 @@
               <h3 id="ai-title" class="sr-only" tabindex="-1" data-i18n="settings.friends_ai"></h3>
               <p class="settings-lead" data-i18n="connection.lead"></p>
               <ul id="ai-connections" class="link-list"></ul>
+              <div id="ai-editor" class="ai-editor" hidden></div>
               <p id="ai-none" class="settings-lead" data-i18n="settings.ai_none" hidden></p>
               <div class="app-row"><button id="ai-add" type="button" class="button secondary small"><span data-icon="plus"></span><span data-i18n="connection.title_new"></span></button></div>
               <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-chatter"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_chatter"></span><small data-i18n="settings.auto_chatter_note"></small></span></label>
@@ -441,7 +442,7 @@
         <p id="connection-error" class="form-error" role="alert"></p>
         </div>
         <div class="dialog-actions">
-          <button type="button" id="delete-provider" class="button text danger" data-i18n="connection.delete" hidden></button><button type="button" id="cancel-dialog" class="button text" data-i18n="confirm.cancel"></button><button type="submit" id="save-provider" class="button primary" data-i18n="connection.save_new"></button>
+          <button type="button" id="delete-provider" class="button text danger push-left" data-i18n="connection.delete" hidden></button><button type="button" id="cancel-dialog" class="button text" data-i18n="confirm.cancel"></button><button type="submit" id="save-provider" class="button primary" data-i18n="connection.save_new"></button>
         </div>
       </form>
     </dialog>
@@ -463,7 +464,7 @@
       <div id="album-grid" class="album-grid" role="tabpanel" tabindex="0"></div>
     </dialog>
     <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-body">
-      <h2 id="confirm-title"></h2>
+      <div class="dialog-heading"><h2 id="confirm-title"></h2><button type="button" id="confirm-close" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
       <p id="confirm-body" class="dialog-description"></p>
       <div class="dialog-actions">
         <button type="button" id="confirm-cancel" class="button text" data-i18n="confirm.cancel"></button><button type="button" id="confirm-ok" class="button primary"></button>

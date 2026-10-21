@@ -388,3 +388,19 @@
   margin-top: 6px;
   font-size: 12px;
 }
+
+/* An AI connection edited in place (connection.js): the dialog's form as a card in Friends & AI,
+   with no second window over the sheet. */
+.ai-editor {
+  margin: 8px 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--field-surface);
+}
+.ai-editor[hidden] {
+  display: none;
+}
+.ai-editor .dialog-form {
+  max-height: none;
+}

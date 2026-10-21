@@ -277,7 +277,7 @@ export function renderConnections() {
       edit.className = 'button secondary small';
       edit.textContent = t('settings.ai_edit');
       edit.setAttribute('aria-labelledby', `${edit.id} ${title.id}`);
-      edit.onclick = () => openConnectionDialog(c);
+      edit.onclick = () => openConnectionDialog(c, () => {}, { forFriend: null, inline: $('ai-editor') });
       row.append(copy, edit);
       return row;
     }),
@@ -324,7 +324,7 @@ export function setupSettings() {
       await call('copyConnection', kind);
       toast(copied(kind));
     });
-  $('ai-add').onclick = () => openConnectionDialog(null);
+  $('ai-add').onclick = () => openConnectionDialog(null, () => {}, { forFriend: null, inline: $('ai-editor') });
   $('update-button').onclick = guard(updateButton);
   const notes = guard(() => call('openExternal', links().notes(found.version)));
   $('update-notes').onclick = notes;
