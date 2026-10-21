@@ -22,7 +22,7 @@ Turn this on and PlayPets starts whenever you log in to your computer. It is off
 
 ## Friends & AI <Since v="1.2.0" />
 
-**Friends & AI** lists every AI connection, with how many friends use it and an **Edit** button that opens its connection window. **Connect an AI** adds a new one. With no connection yet, friends still play and react. How to make a connection is in [Chat with a friend](./chat.md#making-a-connection).
+**Friends & AI** lists every AI connection, with how many friends use it and an **Edit** button. **Edit** and **Connect an AI** (for a new one) open the connection form in place inside this section, with no window over Settings. **Esc** folds the form; if you have typed something, it says "You have changes here. Save them, or press Cancel to discard them." instead. Editing a connection here moves no friend to it. With no connection yet, friends still play and react. How to make a connection is in [Chat with a friend](./chat.md#making-a-connection).
 
 ## Let them chat now and then <Since v="0.1.0" />
 

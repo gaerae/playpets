@@ -66,7 +66,7 @@ A seed grows by the clock, also while the app is closed: a sprout after 10 minut
 
 - Click a plant and the nearest friend walks over to water it.
 - Friends also go and look at the flowers on their own.
-- Right-click a plant (or press **Delete** on it) to pull it up. The seed does not come back.
+- Right-click a plant (or press **Delete** or **Backspace** on it) to pull it up at once, without a question. The notice at the bottom shows **Undo** for about six seconds; Undo puts the plant back. Only then is it gone for good, and if the app closes first, the plant stays. The seed does not come back.
 - You can keep 20 seeds and 24 plants. The garden is saved as `garden` in `state.json`.
 - The first time a kind of flower blooms it goes in the **Album** (Flowers), and every gift that comes is in it too (Gifts).
 
@@ -77,7 +77,7 @@ The whole yard receives at most one gift per local calendar day, shared by all f
 - Drag a decoration to move it anywhere on the field (or select it and use the arrow keys).
 - Click it and the nearest friend walks over. Friends also visit decorations on their own: they sit on the bench, gather on the blanket and look into the pond.
 - The lantern is lit from evening on, the pond mirrors the sky, and a bird sits on the birdhouse by day.
-- Right-click a decoration (or press **Delete** on it) to put it away. A friend may bring it again another day.
+- Right-click a decoration (or press **Delete** or **Backspace** on it) to put it away at once. **Undo** in the notice brings it back for about six seconds; if the app closes first, it stays. A friend may bring it again another day.
 - The yard holds 12 decorations; a full yard pauses deliveries. Putting one away keeps its album entry and makes room for the remaining gifts. The album has 18 gifts, including four delivered only during their calendar events.
 
 ## Fishing and bugs <Since v="0.1.0" />
@@ -134,7 +134,7 @@ Daisy, Clover, Pip and Miso have dedicated motions for digging, planting, castin
 
 A completed dig can uncover a flower seed, a sapling or one of seventeen keepsakes, or nothing. Keepsakes appear in **Album → Keepsakes**. After an uncommon find, all friends and places wait 24 hours for another uncommon find. Repeats mean completion can take longer. The same patch gives no further reward for 24 hours; each friend waits eight seconds between digs. Seeds are capped at 20 and saplings at 20 per species. Full storage does not convert a reward.
 
-Find a sapling by digging first. Choose **Plant a tree** to see the stock for cherry, maple, pine, oak, birch and willow; pick a species you have and choose clear ground. Planting uses one matching sapling. Trees become young after two hours and mature after twelve, including time with the app closed. A mature tree is recorded in **Album → Trees** once. Each place holds six trees, up to twenty-four overall. Trees stay in the place where they were planted. Drag to move one, or right-click to remove it after confirmation. Removal keeps its album entry but returns no sapling. Indoor places do not offer digging or tree planting. Imported backgrounds can explicitly allow or disable soil.
+Find a sapling by digging first. Choose **Plant a tree** to see the stock for cherry, maple, pine, oak, birch and willow; pick a species you have and choose clear ground. Planting uses one matching sapling. Trees become young after two hours and mature after twelve, including time with the app closed. A mature tree is recorded in **Album → Trees** once. Each place holds six trees, up to twenty-four overall. Trees stay in the place where they were planted. Drag to move one, or right-click it (or press **Delete** on it) to remove it at once; as with flowers, **Undo** in the notice brings it back for about six seconds. Removal keeps its album entry but returns no sapling. Indoor places do not offer digging or tree planting. Imported backgrounds can explicitly allow or disable soil.
 
 ## Games <Since v="0.1.0" />
 
@@ -187,7 +187,7 @@ Choose **Friends & settings → Close window** to hide the yard in the tray whil
 
 In small windows, an available update appears as a 32-pixel download icon with a dot. Its accessible label identifies the version, and activating it opens App updates directly. Larger windows retain the version pill.
 
-Friend settings, Import and AI connection dialogs keep their headings and actions in place while the form body scrolls. The collection and confirmation dialogs retain their own content scrolling.
+Friend settings, Import and AI connection dialogs keep their headings and actions in place while the form body scrolls. The collection and confirmation dialogs retain their own content scrolling. A confirmation asks calmly, with **Cancel**, unless something that cannot come back would be lost: deleting an AI connection, sending a friend away or deleting a background. Those ask in red, and the other button reads **Keep it**. Every confirmation also has a **Close** button. Flowers, trees and gifts are not asked about; they offer **Undo** instead.
 
 ## Want to see more of your friends?
 

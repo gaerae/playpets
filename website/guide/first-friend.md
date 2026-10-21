@@ -79,7 +79,7 @@ In the Friend tab, open the **⋯** menu by the friend's name and choose **Edit*
 
 The friend ID is shown at the bottom of the window. You use it to point at a specific friend in [Coding agent hooks](./agents.md).
 
-To send a friend away from the yard, choose **Send away** from the **⋯** menu, or click **Send away from the yard** in Friend settings. Your conversation with them is deleted too, but the pet stays in the Invite tab, so you can invite them again any time.
+To send a friend away from the yard, choose **Send away** from the **⋯** menu, or click **Send away from the yard** in Friend settings. A red confirmation asks first. The pet stays in the Invite tab, so you can invite them again any time; your conversation and the closeness you built are cleared.
 
 ## Things to do in the yard <Since v="0.1.0" />
 
