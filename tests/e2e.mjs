@@ -836,7 +836,7 @@ const scenario = `(async()=>{
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true));
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
-    await L('reach='+(chatFromSmall?'compact-chat':'err-small')+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
+    await L('reach='+(chatFromSmall?'compact-chat':'err-small:'+JSON.stringify({quickPlayFits,quick:quickRect.toJSON(),viewport:[innerWidth,innerHeight],compact:document.body.classList.contains('compact'),pet:!$('panel-pet').hidden,composer:composer.toJSON(),send:sendBox.toJSON()}))+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
     // The name tag says "Talk to …" and opens the conversation; play is on the friend's right-click.
     $('close-panel').click();await until(()=>$('side-panel').hidden);
     await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact')&&innerWidth===wide);await wait(200);
@@ -848,7 +848,7 @@ const scenario = `(async()=>{
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:200,clientY:200}));await wait(40);
     const friendItems=[...$('yard-context-menu').querySelectorAll('[data-context-action]')].filter(item=>!item.hidden).map(item=>item.dataset.contextAction).join(',');
     $('yard-context-menu').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
-    await L('playTag='+(tagChat&&friendItems==='talk,play-friend'?'tag-talks-right-click-offers-play':'err:'+friendItems));
+    await L('playTag='+(tagChat&&friendItems==='talk,play-friend,dig-friend'?'tag-talks-right-click-offers-play':'err:'+friendItems));
     // Inviting from the shelf and opening the AI dialog go through the page's own buttons.
     const before=(await playPets.bootstrap()).data.pets.length;
     openMenu();$('menu-invite').click();await until(()=>!$('panel-invite').hidden);

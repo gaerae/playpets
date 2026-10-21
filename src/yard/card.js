@@ -35,25 +35,32 @@ const BUBBLE_ROOM = 44;
  * book it is kept in (none for news such as an event starting), and the friend or thing that found
  * it, which the card stands above (news with no finder keeps to the lane at the top). */
 export function showCard(svg, name, detail, first, book = null, finder = null) {
-  if (!$('catch-card').hidden || covered()) {
+  if (!$('catch-card').hidden) {
     waiting.push([svg, name, detail, first, book, finder]);
     if (waiting.length > WAITING_MAX) waiting.shift();
-    if (covered()) holdWhileCovered();
     return;
   }
   present(svg, name, detail, first, book, finder);
 }
-// A panel or a sheet open over the yard would hide a card, so cards wait until it closes, looking
-// again each second.
-const covered = () =>
-  !!document.querySelector?.(
-    '#side-panel:not([hidden]), #scene-menu:not([hidden]), #play-panel:not([hidden]), #yard-controls-panel:not([hidden])',
-  );
+// A card that would land under an open panel or sheet waits for it to close (looking again each
+// second); one beside a panel, in the yard still in view, shows at once.
+const PANELS = ['side-panel', 'scene-menu', 'play-panel', 'yard-controls-panel'];
+function covered(card) {
+  const at = card.getBoundingClientRect?.();
+  if (!at?.width) return false;
+  return PANELS.some(id => {
+    const panel = $(id);
+    if (!panel || panel.hidden) return false;
+    const over = panel.getBoundingClientRect?.();
+    return (
+      !!over?.width && over.left < at.right && over.right > at.left && over.top < at.bottom && over.bottom > at.top
+    );
+  });
+}
 let holdTimer = 0;
 function holdWhileCovered() {
   clearTimeout(holdTimer);
   holdTimer = setTimeout(() => {
-    if (covered()) return holdWhileCovered();
     if (!$('catch-card').hidden) return;
     const next = waiting.shift();
     if (next) present(...next);
@@ -108,6 +115,12 @@ function present(svg, name, detail, first, book, finder) {
   }
   card.hidden = false;
   place(card, finder);
+  if (covered(card)) {
+    clearTimeout(soundTimer);
+    card.hidden = true;
+    waiting.unshift([svg, name, detail, first, book, finder]);
+    return holdWhileCovered();
+  }
   // The shared reading time for its words, and a little longer for something new.
   timer = setTimeout(expire, readingTime(`${name} ${detail}`) + (first ? 1500 : 0));
 }

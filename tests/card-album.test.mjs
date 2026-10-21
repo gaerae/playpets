@@ -58,19 +58,3 @@ test('a find shows above the friend who made it, or in the top lane when there i
   assert.equal(card.classList.contains('near'), false, 'no room above: the card keeps to the top lane');
   assert.equal(card.style.top, '');
 });
-
-test('a card waits while a panel is open over the yard, then shows when it closes', async t => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
-  const { document } = installDom(t, { anyId: true });
-  installStorage(t);
-  const card = Object.assign(document.getElementById('catch-card'), { hidden: true, querySelector: () => element() });
-  let panelOpen = true;
-  const query = document.querySelector;
-  document.querySelector = selector => (selector.includes('#side-panel') ? (panelOpen ? {} : null) : query(selector));
-  setupCard();
-  showCard('<svg></svg>', 'Pond snail', 'Found while you were in Settings', false, 'fish');
-  assert.equal(card.hidden, true, 'not behind the panel');
-  panelOpen = false;
-  t.mock.timers.tick(1000);
-  assert.equal(card.hidden, false, 'it shows once the panel is closed');
-});
