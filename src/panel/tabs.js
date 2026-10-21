@@ -10,6 +10,9 @@ export const PANELS = ['pet', 'invite', 'settings'];
 let releaseTimer = 0;
 const RELEASE_AFTER = 60_000;
 let settingsSection = 'general-title';
+// A wide window lists the sections beside the open one, as System Settings does on macOS; a small
+// one opens them one at a time, with Back to the list. The sections and their order are the same.
+const sideBySide = () => !document.body.classList.contains('compact');
 function selectSettingsSection(section, focus = false) {
   const links = [...document.querySelectorAll('.settings-index [data-section]')];
   const requested = section && !section.endsWith('-title') ? `${section}-title` : section;
@@ -19,20 +22,26 @@ function selectSettingsSection(section, focus = false) {
   if ($('settings-content') && (next !== settingsSection || !$('settings-home')?.hidden))
     $('settings-content').scrollTop = 0;
   settingsSection = next;
-  if ($('settings-home')) $('settings-home').hidden = true;
+  if ($('settings-home')) $('settings-home').hidden = !sideBySide();
   if ($('settings-content')) $('settings-content').hidden = false;
+  for (const link of links)
+    if (link === active) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
   const heading = $(next);
   const titleKey = active.querySelector('[data-i18n]')?.dataset.i18n || heading?.dataset.i18n;
   $('panel-title').textContent = t(titleKey || 'tabs.settings');
-  // Back from a section always goes to the list of sections, however the section was opened.
-  $('panel-menu')?.setAttribute('aria-label', t('settings.all'));
-  $('panel-menu')?.setAttribute('title', t('settings.all'));
+  // Back from a section always goes to the list of sections, however the section was opened; with
+  // the list in view it goes where Back goes from any other panel.
+  const back = t(sideBySide() ? 'controls.back' : 'settings.all');
+  $('panel-menu')?.setAttribute('aria-label', back);
+  $('panel-menu')?.setAttribute('title', back);
   for (const body of document.querySelectorAll('.settings-section[data-settings-section]'))
     body.hidden = body.dataset.settingsSection !== next;
   if (focus) $('panel-title').focus({ preventScroll: true });
 }
 function showSettingsHome() {
   closeUpdateDetails();
+  if (sideBySide()) return selectSettingsSection(settingsSection);
   if ($('settings-home')) $('settings-home').hidden = false;
   if ($('settings-content')) $('settings-content').hidden = true;
   $('panel-title').textContent = t('tabs.settings');
@@ -123,8 +132,16 @@ export function setupTabs({ beforeOpen = () => {} } = {}) {
       closePanel();
     }
   });
+  // Beside the list, the focus stays on it to move on to the next section, as in a sidebar.
   for (const link of document.querySelectorAll('.settings-index [data-section]'))
-    link.onclick = () => selectSettingsSection(link.dataset.section, true);
+    link.onclick = () => selectSettingsSection(link.dataset.section, !sideBySide());
+  // window.js listens first and has already marked the page compact or not.
+  globalThis.window?.addEventListener('resize', () => {
+    const settings = $('panel-settings');
+    // A small window showing the list stays on it; otherwise the open section is kept.
+    if (settings && !settings.hidden && (sideBySide() || !$('settings-content')?.hidden))
+      selectSettingsSection(settingsSection);
+  });
   $('go-invite').onclick = openInvite;
   // The steps left once a friend is in lead to where they are done.
   // With a CLI on this computer this connects every friend in one go; otherwise it opens the dialog.

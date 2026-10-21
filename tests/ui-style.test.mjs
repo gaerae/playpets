@@ -468,7 +468,7 @@ const SET_FROM_CODE = {
   '--head': 'src/core/sprites.js',
   '--orb-x': 'src/yard/sky.js',
   '--orb-y': 'src/yard/sky.js',
-  '--moon-shade': 'src/yard/sky.js',
+  '--moon-lit': 'src/yard/sky.js',
   '--bubble-lift': 'src/yard/views.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
@@ -587,6 +587,12 @@ test('compact controls hide the dock, offer a corner button and scroll only the 
   assert.match(css, /body\.compact \.yard-controls-panel\{[^}]*inset:8px;[^}]*overflow:hidden/);
   assert.match(css, /\.dock-panel-body\{[^}]*overflow-y:auto/);
   assert.match(css, /body\.compact \.compact-launcher\{[^}]*display:inline-flex/);
+  // A small window left on the desktop shows only the yard; the corner buttons (the menu and an
+  // update) come with the pointer, the keyboard or their open panel, and a screen without hover keeps them.
+  assert.match(
+    css,
+    /@media\(hover:hover\)\{body\.compact:not\(:hover\):is\(\.compact-launcher,\.update-compact\):not\(:focus-visible,\[aria-expanded="true"\]\)\{opacity:0/,
+  );
   const html = await readFile('src/index.html', 'utf8');
   assert.match(html, /id="close-controls"/);
 });

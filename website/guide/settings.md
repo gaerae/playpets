@@ -4,9 +4,9 @@ description: Language and startup, friends and AI, About and app updates, menus 
 
 # Settings
 
-Open **Friends & settings → Settings**. Settings always opens on its list of sections: **Language & startup**, **Friends & AI**, **Coding tools**, **App updates** and **About PlayPets**. [Coding tools](./agents.md) have their own guide. When an update is available, a dot shows on Settings in the menu.
+Open **Friends & settings → Settings**. Its sections are **Language & startup**, **Friends & AI**, **Coding tools**, **App updates** and **About PlayPets**. In a large window the list stays on the left and the chosen section opens beside it, as in System Settings; Settings opens again on the section you last had open. In a small window Settings opens on the list and shows one section at a time. [Coding tools](./agents.md) have their own guide. When an update is available, a dot shows on Settings in the menu.
 
-Back from a section returns to the list, and Back from the list returns to Friends & settings. **About PlayPets** and **Check for updates…** in the tray and the macOS menu bar, and an update notice, open their section directly; Back still returns to the list. Close returns to the scenery. Season, sound and volume are in **Place & atmosphere → Atmosphere**.
+In a large window Back returns to Friends & settings. In a small window Back from a section returns to the list, and Back from the list returns to Friends & settings. **About PlayPets** and **Check for updates…** in the tray and the macOS menu bar, and an update notice, open their section directly; in a small window Back still returns to the list. Close returns to the scenery. Season, sound and volume are in **Place & atmosphere → Atmosphere**.
 
 ## Language <Since v="0.1.0" />
 
@@ -60,7 +60,7 @@ Open **Friends & settings** and choose **Close window** to hide the yard in the 
 |---|---|
 | <kbd>⌘</kbd> <kbd>1</kbd> | Open Friends & chat |
 | <kbd>⌘</kbd> <kbd>2</kbd> | Open Invite a friend |
-| <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings (the list of sections) |
+| <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | Open Friends & settings |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Always on top on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>D</kbd> | Show on desktop, on or off |

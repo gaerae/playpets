@@ -471,7 +471,8 @@ body:not(.compact) .atmosphere-choice summary {
   width: 100%;
   min-height: 36px;
 }
-/* Importing and the creation room sit beside the Places label, so the gallery starts at once. */
+/* Importing and the creation room sit beside the Places label, so the gallery starts at once. Both
+   are plain actions with an icon, so the pair never reads as tabs with one chosen. */
 .dock-section-head .background-actions {
   flex: none;
   flex-wrap: nowrap;
@@ -480,7 +481,12 @@ body:not(.compact) .atmosphere-choice summary {
 .dock-section-head .background-actions .button {
   min-height: 28px;
   padding: 0 8px;
+  gap: 4px;
   font-size: 12px;
+}
+.dock-section-head .background-actions .button svg {
+  width: 14px;
+  height: 14px;
 }
 /* Empty instructions do not leave a floating capsule over a friend. */
 #yard-hint[hidden] {

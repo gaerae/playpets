@@ -14,8 +14,9 @@ import {
   greetingFor,
   groundFor,
   initialSceneChoices,
+  moonLit,
+  moonMask,
   moonPhase,
-  moonShade,
   PERIODS,
   periodFor,
   SEASON_COLORS,
@@ -191,10 +192,37 @@ test('the moon shows its phase: dark when new, whole when full, lit on the right
   assert.ok(moonPhase(knownNew) < 0.01 || moonPhase(knownNew) > 0.99);
   assert.ok(Math.abs(moonPhase(knownNew + month / 2) - 0.5) < 0.01);
   assert.ok(Math.abs(moonPhase(knownNew + 10 * month + month / 4) - 0.25) < 0.01);
-  assert.equal(moonShade(0), 0, 'new moon: the shade covers it');
-  assert.equal(Math.abs(moonShade(0.5)), 100, 'full moon: the shade is off to one side');
-  assert.ok(moonShade(0.25) < 0, 'waxing: the shade slides off to the left');
-  assert.ok(moonShade(0.75) > 0, 'waning: the shade comes in from the right');
+  const close = (a, b) => Math.abs(a - b) < 1e-9;
+  assert.ok(close(moonLit(0).edge, 1), 'new moon: the terminator lies on the bright limb, nothing is lit');
+  assert.ok(close(moonLit(0.25).edge, 0), 'first quarter: half lit, the terminator straight down the middle');
+  assert.ok(close(moonLit(0.5).edge, -1), 'full moon: the terminator reaches the far limb');
+  assert.equal(moonLit(0.1).lit, 'right', 'waxing, the right side is lit north of the equator');
+  assert.equal(moonLit(0.9).lit, 'left', 'waning, the left side');
+  assert.equal(moonLit(0.1, true).lit, 'left', 'south of the equator it is mirrored');
+  assert.ok(moonLit(0.1).edge > 0 && moonLit(0.4).edge < 0, 'a crescent before the quarter, gibbous after');
+  assert.ok(close(moonLit(0.1).edge, moonLit(0.9).edge), 'waning retraces waxing');
+});
+
+test('the lit part is drawn as a limb and an elliptical terminator, never a second disc', () => {
+  const arcs = svg => [...svg.matchAll(/A([\d.]+) 50 0 0 ([01]) 50 (0|100)/g)].map(m => [Number(m[1]), m[2], m[3]]);
+  // Waxing crescent: the limb runs down the right side, the terminator comes back up through it.
+  assert.deepEqual(arcs(moonMask({ lit: 'right', edge: 0.6 })), [
+    [50, '1', '100'],
+    [30, '0', '0'],
+  ]);
+  // Waxing gibbous: the terminator bows out through the dark left side instead.
+  assert.deepEqual(arcs(moonMask({ lit: 'right', edge: -0.6 })), [
+    [50, '1', '100'],
+    [30, '1', '0'],
+  ]);
+  // Waning crescent: everything mirrored.
+  assert.deepEqual(arcs(moonMask({ lit: 'left', edge: 0.6 })), [
+    [50, '0', '100'],
+    [30, '1', '0'],
+  ]);
+  assert.match(moonMask({ lit: 'right', edge: -1 }), /^<svg [^>]*viewBox="0 0 100 100"/);
+  // A quarter moon's terminator is all but straight; a zero-width arc would lose its soft edge.
+  assert.match(moonMask({ lit: 'right', edge: 0 }), /A1 50 /);
 });
 
 test('petals in spring and leaves in autumn drift down a few at a time, only in clear daylight', () => {

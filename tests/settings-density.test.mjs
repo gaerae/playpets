@@ -10,12 +10,29 @@ const readCss = async name =>
 
 test('Settings stays a compact desktop sheet with readable rows and its existing body scroller', async () => {
   const css = await readCss('settings');
-  assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*width:min\(520px,calc\(100% - 24px\)\)/);
+  // One size from section to section, wide enough for the list beside the open section.
+  assert.match(
+    css,
+    /\.layout.settings-open \.side-panel\{[^}]*width:min\(720px,calc\(100% - 24px\)\);[^}]*height:min\(520px,calc\(100% - 72px\)\)/,
+  );
   assert.match(css, /\.layout.settings-open #panel-settings\{[^}]*display:flex/);
   assert.match(css, /\.link-row\{[^}]*padding:8px/);
   assert.match(css, /\.settings-lead\{[^}]*font-size:13px/);
   assert.match(css, /\.settings-content\{[^}]*min-height:0;[^}]*overflow-y:auto/);
   assert.match(css, /\.settings-index\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
+
+test('a wide window lays the list of sections beside the open one, the open one marked', async () => {
+  const css = await readCss('settings');
+  assert.match(
+    css,
+    /body:not\(\.compact\)\.layout\.settings-open #panel-settings\{[^}]*display:grid;[^}]*grid-template-columns:200px minmax\(0,1fr\)/,
+  );
+  assert.match(css, /body:not\(\.compact\)\.settings-index\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
+  assert.match(
+    css,
+    /body:not\(\.compact\)\.settings-index button\[aria-current="page"\]\{[^}]*background:var\(--control-selected\)/,
+  );
 });
 
 test('panel and Settings actions use compact mouse targets and larger touch targets', async () => {

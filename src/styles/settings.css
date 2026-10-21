@@ -292,7 +292,8 @@
   bottom: auto;
   left: 50%;
   z-index: 20;
-  width: min(520px, calc(100% - 24px));
+  width: min(720px, calc(100% - 24px));
+  height: min(520px, calc(100% - 72px));
   max-height: calc(100% - 72px);
   align-self: start;
   transform: translateX(-50%);
@@ -322,6 +323,36 @@
 }
 .settings-content > .settings-section {
   margin-bottom: 0;
+}
+/* A wide window: the list of sections as a sidebar beside the open one (tabs.js), as System
+   Settings has it. A small window keeps the list as its first page (compact.css). */
+body:not(.compact) .layout.settings-open #panel-settings {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 12px;
+}
+body:not(.compact) #settings-home {
+  min-height: 0;
+  padding-right: 10px;
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+body:not(.compact) .settings-index {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+body:not(.compact) .settings-index button {
+  min-height: 36px;
+  padding: 6px 8px;
+  border-bottom: 0;
+  border-radius: var(--radius-control);
+}
+body:not(.compact) .settings-index button[aria-current="page"] {
+  background: var(--control-selected);
+}
+body:not(.compact) .settings-task-copy small {
+  display: none;
 }
 .settings-index {
   display: grid;

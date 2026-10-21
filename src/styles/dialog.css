@@ -286,6 +286,7 @@ body.compact .update-compact {
   border-radius: 50%;
   background: var(--menu-surface);
   color: var(--ink);
+  transition: opacity 0.2s;
 }
 .update-compact::after {
   content: "";

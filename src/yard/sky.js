@@ -14,8 +14,9 @@ import { cancelRemarks, remark } from './remarks.js';
 import {
   autoWeather,
   initialSceneChoices,
+  moonLit,
+  moonMask,
   moonPhase,
-  moonShade,
   PERIOD_MINUTES,
   periodFor,
   sceneCaption,
@@ -33,6 +34,8 @@ let easel = null;
 const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
 // The season's colours last set on the yard, to be taken off again when they change.
 let painted = {};
+// The moon's mask last set, so it is set again only when the phase has moved on.
+let moonMaskShown = '';
 // A rainbow follows rain that clears up in daylight, for a few minutes.
 const RAINBOW_MS = 4 * 60 * 1000;
 let rainbowTimer = null;
@@ -119,8 +122,12 @@ function paintSky(yard, now) {
   yard.style.setProperty('--orb-x', `${x.toFixed(1)}%`);
   yard.style.setProperty('--orb-y', `${y.toFixed(1)}%`);
   // The harvest moon is full whatever the calendar says (an event's "fullmoon" look).
-  const full = yard.classList.contains('look-fullmoon');
-  yard.style.setProperty('--moon-shade', String(full ? 100 : moonShade(moonPhase(now.getTime()), south)));
+  const full = yard.classList.contains('look-fullmoon'),
+    lit = full ? { lit: 'right', edge: -1 } : moonLit(moonPhase(now.getTime()), south),
+    mask = `url("data:image/svg+xml,${encodeURIComponent(moonMask(lit))}")`;
+  // The mask changes a little each hour; set again only then, so the moon is not redrawn every minute.
+  if (mask !== moonMaskShown) yard.style.setProperty('--moon-lit', mask);
+  moonMaskShown = mask;
 }
 function showRainbow(yard) {
   yard.classList.add('after-rain');

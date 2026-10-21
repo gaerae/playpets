@@ -201,11 +201,23 @@ const NEW_MOON = Date.UTC(2000, 0, 6, 18, 14),
 export function moonPhase(ms) {
   return ((((ms - NEW_MOON) / LUNAR_MONTH) % 1) + 1) % 1;
 }
-// Where the moon's shade sits, in percent of the moon's width: 0 covers it (new moon), ±100 is off
-// to one side (full). Waxing, the lit side is on the right, as seen north of the equator.
-export function moonShade(phase, south = false) {
-  const shade = phase < 0.5 ? -(phase / 0.5) * 100 : ((1 - phase) / 0.5) * 100;
-  return Math.round(south ? -shade : shade) || 0;
+// Which side of the moon is lit and where its terminator crosses the middle, as a share of the
+// radius: 1 on the bright limb (new moon), 0 straight down the centre (a quarter), -1 on the far
+// limb (full). Waxing, the right side is lit as seen north of the equator.
+export function moonLit(phase, south = false) {
+  const waxing = phase < 0.5;
+  return { lit: waxing !== south ? 'right' : 'left', edge: Math.cos(2 * Math.PI * phase) };
+}
+// The lit part as a soft-edged SVG mask in a 100-unit box: half the disc's rim on the lit side,
+// and the terminator, half an ellipse, back through the lit side for a crescent or bowing out
+// through the dark side once the moon is gibbous.
+export function moonMask({ lit, edge }) {
+  const right = lit === 'right',
+    // never quite zero: a flat arc becomes a line some engines will not blur
+    rx = Math.max(1, Math.round(Math.abs(edge) * 5000) / 100),
+    throughRight = edge > 0 ? right : !right;
+  const d = `M50 0A50 50 0 0 ${right ? 1 : 0} 50 100A${rx} 50 0 0 ${throughRight ? 0 : 1} 50 0Z`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><filter id="soft" filterUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><feGaussianBlur stdDeviation="2.4"/></filter><path d="${d}" filter="url(#soft)"/></svg>`;
 }
 export const GREETINGS = {
   morning: list('greet.morning'),

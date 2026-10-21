@@ -26,6 +26,15 @@ body.compact .compact-launcher {
   height: 36px;
   border: 1px solid var(--line);
   background: var(--menu-surface);
+  transition: opacity 0.2s;
+}
+/* A small window kept on the desktop shows only the yard: the corner buttons (this one, and an
+   update's in the other corner) come with the pointer, the keyboard or their open panel; a
+   right-click opens the same menu, and Settings shows the update too. A screen with no hover keeps them. */
+@media (hover: hover) {
+  body.compact:not(:hover) :is(.compact-launcher, .update-compact):not(:focus-visible, [aria-expanded="true"]) {
+    opacity: 0;
+  }
 }
 /* The strip spans the bottom edge, where the corner button was. */
 body.compact .discovery-target {

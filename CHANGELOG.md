@@ -10,7 +10,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Added
 
 - Manage every AI connection in one place, in Settings → Friends & AI, with automatic chat beside them.
-- Open the scenery's menu from a corner button in small windows, where the dock is hidden.
+- Open the scenery's menu from a corner button in small windows, where the dock is hidden; the button, like the update button in the other corner, shows only while the pointer is over the window or it has the keyboard focus, so a small window kept on the desktop shows just the yard.
 - Dig at a right-clicked spot of bare ground with Dig here, without opening Play.
 - Ask a friend to dig from its right-click menu.
 - Open the album at the right book from a find's card, and see a dot on Album and Play while something new waits there.
@@ -21,7 +21,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Show Place & atmosphere, Play and Friends & settings each as one page of sections, without tabs, sub-views or Back buttons: Play groups Find, Garden and Group games, and a running game ends from its own tile.
-- Keep one Settings entry in Friends & settings; Settings always opens on its list of sections, and Back returns one step at a time.
+- Keep one Settings entry in Friends & settings. In a large window Settings keeps its list of sections on the left beside the open section and reopens where it was left; a small window opens on the list, one section at a time, and Back returns one step at a time.
 - Offer Talk and Play in a friend's right-click menu, matching the name tag and the dock.
 - Keep the dig and tree tools in hand after each spot, sending the next free friend each time, and switch between digging, trees and seeds from the strip at the top until Esc or Close puts the tool away.
 - Fish or catch a creature with one press even while a play tool is in hand; the press puts the tool away first.
@@ -33,6 +33,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Open the conversation from a friend's name tag, as its tooltip says; play stays on the friend's right-click.
 - Quit at once from the page, as from the tray and the macOS menu bar, now that Close window and Quit PlayPets sit side by side.
 - Use one name for each action across the page, the tray and the macOS menu bar.
+- Show Import background and Background studio beside Places as two plain actions with icons, so the pair no longer looks like tabs with one chosen.
 
 ### Fixed
 
@@ -46,6 +47,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Plant a seed from the keyboard with a second press of the seed tool, as with the picnic treat.
 - Give each coding tool's controls in Settings a distinct name for screen readers, and remove a stale note about unpublished pages from About.
 - Keep night stars and shooting stars in the sky behind hills and trees, and hide the twinkling stars on rainy or snowy nights.
+- Draw the moon's phase as it looks, a tapering crescent or a bulging gibbous moon with a soft edge and its dark side faintly visible, instead of a disc of night sky sliding over it.
 
 ## [1.1.0] - 2026-10-20
 

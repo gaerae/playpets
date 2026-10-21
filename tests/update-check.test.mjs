@@ -140,6 +140,8 @@ test('the tray update action goes directly to Updates rather than app informatio
       : selector.includes('data-settings-section')
         ? [updates, about]
         : [];
+  // A small window, where Settings shows one section at a time without its list.
+  document.body.classList.add('compact');
   setData({ pets: [], version: '1.1.0', updateChannel: 'store' });
   await checkForUpdates();
   assert.equal(updates.hidden, false);

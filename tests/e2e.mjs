@@ -297,6 +297,8 @@ const scenario = `(async()=>{
     const updateDialogOpen=!$('update-dialog').hidden&&$('update-title').textContent.includes('v9.9.9')&&!!$('update-dialog').closest('#panel-settings');
     $('update-later').click();await until(()=>$('update-dialog').hidden);
     const putAway=$('update-dialog').hidden&&$('update-pill').hidden&&$('menu-settings').classList.contains('has-update');
+    // Later keeps Settings open; close it before playing, as a card waits while a sheet covers it.
+    $('close-panel').click();
     await L('updateUi='+sections+'/'+(inAbout&&tabDot&&pillShown&&updateDialogOpen&&putAway?'ok':'err:'+[inAbout,tabDot,pillShown,updateDialogOpen,putAway].join(',')));
     await L('stage='+($('yard').getBoundingClientRect().height/innerHeight>.6?'yard-first':'small:'+$('yard').getBoundingClientRect().height));
     // The webview retains its last place across isolated backend runs; outdoor checks choose it explicitly.
@@ -407,7 +409,7 @@ const scenario = `(async()=>{
     $('sound-button').click();const soundOn=await until(async()=>(await playPets.bootstrap()).data.sound.on===true&&$('sound-button').getAttribute('aria-pressed')==='true');
     $('sound-button').click();const soundOff=await until(async()=>(await playPets.bootstrap()).data.sound.on===false&&$('sound-button').getAttribute('aria-pressed')==='false');
     await L('sound='+(soundDefault.on&&soundDefault.volume===40&&held===100&&soundOn&&soundOff?'off-on-held':'err:'+JSON.stringify([soundDefault,held,soundOn,soundOff])));
-    await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-shade')!==''?'set':'err:'+$('yard').className));
+    await L('season='+(/ season-(spring|summer|autumn|winter)/.test($('yard').className)&&/%$/.test(yardStyle.getPropertyValue('--orb-x'))&&yardStyle.getPropertyValue('--moon-lit').includes('svg')?'set':'err:'+$('yard').className));
     // Discovery commits after arrival, repeated ground is replay-safe, and a planted tree renders from saved state.
     const discoveryFlow=await import('./yard/discovery.js'), discoveryGround=await import('./yard/ground.js'), discoveryRules=await import('./yard/discovery-rules.js'), discoveryState=await import('./core/state.js');
     const discoveryFriend=discoveryState.views.values().next().value;
@@ -763,7 +765,8 @@ const scenario = `(async()=>{
     markFlow('about-back');
     $('menu-settings').click();document.querySelector('.settings-index [data-section="about-title"]').click();await wait(60);
     await nativeWindow(fullAt);await wait(100);
-    panelFlow&&=!$('settings-about').hidden&&$('settings-home').hidden&&!$('settings-content').hidden;
+    // Widened, the list of sections joins the open section beside it.
+    panelFlow&&=!$('settings-about').hidden&&!$('settings-home').hidden&&!$('settings-content').hidden&&document.querySelector('.settings-index [aria-current="page"]')?.dataset.section==='about-title';
     markFlow('settings-widened');
     $('close-panel').click();await playPets.openChat(p1.data.id);
     await nativeWindow({...fullAt,width:300,height:210});await wait(100);
