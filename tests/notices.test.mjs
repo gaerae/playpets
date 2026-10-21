@@ -83,3 +83,21 @@ test('yard warnings, game instructions and discoveries share a non-overlapping l
   const end = html.indexOf('id="toast"', stack);
   for (const id of ['warnings', 'game-banner', 'catch-card']) assert.ok(html.indexOf(`id="${id}"`, stack) < end, id);
 });
+
+test('an error already shown inline in the open dialog is not repeated as a notice', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { document, nodes } = installDom(t, { ids: ['toast'] });
+  const dialog = element('dialog'),
+    inline = element('p', { className: 'form-error' });
+  dialog.open = true;
+  inline.textContent = 'That address did not answer.';
+  dialog.append(inline);
+  dialog.querySelectorAll = selector => (selector === '.form-error' ? [inline] : []);
+  document.querySelectorAll = () => [dialog];
+  const notice = nodes.get('toast');
+  notice.hidden = true;
+  toast('That address did not answer.');
+  assert.equal(notice.hidden, true, 'the form already says it, beside the field');
+  toast('Saved.');
+  assert.equal(notice.hidden, false, 'other news still shows');
+});

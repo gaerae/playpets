@@ -8,7 +8,7 @@ test('a find in the album offers one press to its book and marks Play until the 
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { nodes } = installDom(t, { anyId: true });
   installStorage(t);
-  document.getElementById('catch-card').querySelector = () => element();
+  Object.assign(document.getElementById('catch-card'), { hidden: true, querySelector: () => element() });
   const opened = [];
   setupCard({ openAlbum: book => opened.push(book) });
   showCard('<svg></svg>', 'Pond snail', 'A new one', true, 'fish');

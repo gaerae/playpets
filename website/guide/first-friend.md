@@ -89,7 +89,7 @@ Click a friend to pat it, or drag it to move it. The first friend you invite exp
 |---|---|
 | Pat | Click a friend once. They jump and show a heart |
 | Move | Drag a friend and drop them. Their place in the yard is remembered |
-| Chat | Click the friend's name tag: under the pointer it shows a speech mark, and its tooltip says **Talk to** and the friend's name. The Friend tab opens on that friend. The conversation fits inside the window at every size. A double-click on the friend does the same, and a right-click opens a short menu with **Talk to** and **Play with** that friend |
+| Chat | Click the friend's name tag: under the pointer it shows a speech mark, and its tooltip says **Talk to** and the friend's name. The Friend tab opens on that friend. The conversation fits inside the window at every size. A double-click on the friend does the same, and a right-click opens a short menu with **Talk to**, **Play with** and **Ask … to dig** for that friend |
 | Put down a treat | Click **Picnic** in **Play → Garden**, then choose a spot in the yard (from the keyboard, press it again to set it beside the selected friend). A picnic blanket with sandwiches, fruit and snacks appears, and friends gather around it. It clears after 15 seconds if not everyone arrives, or six seconds after the last friend eats |
 
 A **name tag** sits under each friend. When you select a friend, the name tag changes to its selected look, and while a coding agent is working, the status is shown next to the name tag.

@@ -28,6 +28,10 @@ Turn this on and PlayPets starts whenever you log in to your computer. It is off
 
 With this switch in Friends & AI turned on, the friends with an AI have a short chat every 20 minutes. It is off by default. These calls use your subscription allowance or your provider's billing; local Ollama models have no hosted inference fee. Turn it on when you want it. A round is skipped while the window is hidden or someone is answering.
 
+## Let them dig on their own now and then <Since v="1.2.0" />
+
+With this switch in Friends & AI turned on, an idle friend digs a spot of its own every few minutes while the yard is shown. It is off by default and needs no AI connection. No friend digs on its own during a game or while you hold a tool, nor in places without soil such as Cozy living room. What it finds is kept as with any other dig.
+
 ## About PlayPets <Since v="0.1.0" />
 
 **About PlayPets** shows the version and links to the website, user guide, release notes, GitHub, issue reporting and license. Links open in your browser. App updates have their own section.
@@ -73,7 +77,7 @@ Open **Friends & settings** and choose **Close window** to hide the yard in the 
 
 | File | Contents |
 |---|---|
-| `state.json` | Friends (name, personality and where it came from, relationship, what it calls you, size, position, chosen AI connection), the list of AI connections (without keys), language, desktop mode and roaming, each agent's friend, auto chatter, yard sounds and their volume, the window's position and size and Always on top setting, the garden and decorations (`garden`), the album (`album`), closeness (`bonds`), hand-picked pet folders, the file's format number (`schema`). A file written by a newer version is copied aside and read for the parts this version knows |
+| `state.json` | Friends (name, personality and where it came from, relationship, what it calls you, size, position, chosen AI connection), the list of AI connections (without keys), language, desktop mode and roaming, each agent's friend, auto chatter, auto digging, yard sounds and their volume, the window's position and size and Always on top setting, the garden and decorations (`garden`), the album (`album`), closeness (`bonds`), hand-picked pet folders, the file's format number (`schema`). A file written by a newer version is copied aside and read for the parts this version knows |
 | `bridge.json` | The port and token for agent hooks. Rewritten every time the app starts |
 | `pets/` | Pet folders imported from an address |
 | `builtin/` | Four bundled starter entries, unpacked and checked at each start. Each has its own baseline artwork |

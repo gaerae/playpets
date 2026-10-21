@@ -57,12 +57,22 @@ test('discovery sounds belong only to the current visible card', async t => {
     assert.equal(card.hidden, true);
     assert.equal(voices, before, 'a dismissed card should not play its delayed sound');
   });
-  await t.test('replacement cancels the old sound', () => {
+  await t.test('a second card waits its turn instead of wiping the first', () => {
     const before = voices;
     showCard('', 'Fish', 'New fish', true);
-    showCard('', 'Flower', 'Already collected', false);
+    showCard('', 'Closer', 'A new level', true);
     t.mock.timers.tick(500);
-    assert.equal(voices, before, 'the old discovery cue should not play over the replacement');
+    const cue = voices - before;
+    assert.ok(cue > 0, 'the card on show plays its cue');
+    t.mock.timers.tick(500);
+    assert.equal(voices - before, cue, 'the waiting card stays quiet');
+    assert.equal(card.hidden, false);
+    dismiss();
+    assert.equal(card.hidden, false, 'the waiting card follows at once');
+    t.mock.timers.tick(500);
+    assert.equal(voices - before, cue * 2, 'and plays its own cue when it is shown');
+    dismiss();
+    assert.equal(card.hidden, true);
   });
   await t.test('the current discovery still plays', () => {
     const before = voices;

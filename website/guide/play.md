@@ -58,7 +58,7 @@ Flower seeds and saplings both come from digging. Choose **Dig**, send a friend 
 1. Click **Plant a seed** in **Play → Garden** (the number beside it is how many seeds you have).
 2. Click a spot on the field. You can plant several in a row; **Esc** or the tool again stops.
 
-From the keyboard, press **Plant a seed** (Enter or Space) and press it again to plant beside the selected friend, as with the picnic.
+From the keyboard, press **Plant a seed** (Enter or Space) and press it again to plant beside the selected friend, as with the picnic. While a tool is in hand, the keys 1, 2 and 3 switch to **Dig**, **Plant a tree** and **Plant a seed**; they do nothing while you type in a field.
 
 In Cozy living room, flowers sit in small planters instead of patches of bare soil. Their growth and your collection remain shared when you change places.
 
@@ -89,7 +89,7 @@ Your rod can also bring up freshwater prawns, crayfish and pond snails. The albu
 - **Bugs**: in clear outdoor weather, click butterflies or dragonflies in the morning and midday, or fireflies on spring and summer evenings and nights. Rain and snow stop appearances. The nearest friend catches the bug.
 - From bond level 3, an idle friend may fish independently every 12–25 minutes while the yard is visible. Games, another fishing trip or an active placement tool pause this opportunity; a catch is not guaranteed.
 - What bites and what flies depends on the season, the time of day and the weather: catfish and eels come out after dark (and more in the rain), pond smelt only in winter, and a golden carp is very rare. Each fish is a different size every time.
-- A card shows what was caught, and says so when it is new.
+- A card shows what was caught, and says so when it is new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift or a keepsake) has **See in album**, which opens the album at that book. When something new arrives, **Album** in **Play → Find** and **Play** in the dock carry a small dot until you open the album.
 - **Album** in **Play → Find** has six books, Flowers, Aquatic life, Bugs, Gifts, Trees and Keepsakes, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
 
 The album shows when and where to look, along with rare-find waiting times. It does not display exact percentages.
@@ -126,9 +126,9 @@ Each friend grows closer to you through time in the yard and what you do togethe
 
 ## A little digging and tree planting
 
-Open **Play** from the dock, or right-click a friend and choose **Play with** and its name. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
+Open **Play** from the dock, or right-click a friend and choose **Play with** and its name. **Ask Clover to dig** in the same menu (with that friend’s name) picks up the dig tool, and that friend goes first. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
 
-The dig tool stays in hand until you put it away: each spot you choose sends the next free friend, and a friend that has just dug rests a moment while another goes. The strip at the top switches to **Plant a tree** or **Plant a seed** in one press; its close button or **Esc** puts the tool away. Right-click bare ground and choose **Dig here** to dig that spot without opening **Play**.
+The dig tool stays in hand until you put it away: each spot you choose sends the next free friend, and a friend that has just dug rests a moment while another goes. The strip at the top switches to **Plant a tree** or **Plant a seed** in one press; its close button or **Esc** puts the tool away. A tool in hand never hides the lake or the creatures: press the water or a flying or crawling creature and the tool is put away as that same press fishes or catches. Right-click bare ground and choose **Dig here** to dig that spot without opening **Play**.
 
 Daisy, Clover, Pip and Miso have dedicated motions for digging, planting, casting, waiting for a bite, reeling in and reacting to a find in every season. Daisy, Pip and Miso share their everyday outfits in spring and autumn and change into summer and winter outfits. Clover keeps the teal overalls and straw hat through autumn, then changes into a coat, scarf and knitted beanie for winter. Imported pets join the same activities with their original animations.
 
@@ -169,7 +169,7 @@ Resize the yard by dragging any edge or corner, down to 300 × 210. The same win
 
 At 640 pixels wide or less, or 480 pixels tall or less, the dock hides. A round button in the bottom-right corner opens the same short menu as a right-click on empty scenery: **Place & atmosphere**, **Play**, **Friends & settings** and **Always on top**. **Cmd/Ctrl + Shift + P** opens Friends & settings. In small windows each panel shows its actions as tiles whose names may take two lines, and the section names are hidden. Longer panels scroll inside the window. Closing Place & atmosphere or Play returns directly to the scenery. The Friend and Invite tabs have a Back action to Friends & settings; **×** returns to the yard. In Settings, Back goes from a section to the list of sections, then to Friends & settings. Invite keeps Import visible in its header.
 
-Click a friend’s name tag to talk to it; its tooltip says **Talk to** and the friend’s name. Right-click a friend for a short menu with **Talk to** and **Play with** that friend; Play opens the same Play panel for it. Close, Escape or clicking outside returns to the scenery. There is no separate small-window play strip.
+Click a friend’s name tag to talk to it; its tooltip says **Talk to** and the friend’s name. Right-click a friend for a short menu with **Talk to**, **Play with** and **Ask … to dig** for that friend (such as **Ask Clover to dig**). Play opens the same Play panel for it; Ask to dig picks up the dig tool with that friend going first. Close, Escape or clicking outside returns to the scenery. There is no separate small-window play strip.
 
 Right-click empty scenery for the short action menu beside the pointer (in small windows, the corner button opens it too). It stays inside the window and scrolls when necessary. **Esc** or a click outside closes it. Friends, plants and decorations retain their own right-click actions.
 

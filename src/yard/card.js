@@ -18,15 +18,30 @@ export function albumSeen() {
   remember('album-new', '');
   syncNew();
 }
+// Cards that arrive while one is on show wait their turn (a level-up right after the catch that
+// earned it), at most a few, the oldest giving way.
+const waiting = [];
+const WAITING_MAX = 3;
 function dismiss() {
   clearTimeout(timer);
   clearTimeout(soundTimer);
   $('catch-card').hidden = true;
+  const next = waiting.shift();
+  if (next) present(...next);
 }
 /** Shows the card: a drawing (SVG markup), a name, a detail line, whether it is a first, and the
  * album book it is kept in (none for news such as an event starting). */
 export function showCard(svg, name, detail, first, book = null) {
-  dismiss();
+  if (!$('catch-card').hidden) {
+    waiting.push([svg, name, detail, first, book]);
+    if (waiting.length > WAITING_MAX) waiting.shift();
+    return;
+  }
+  present(svg, name, detail, first, book);
+}
+function present(svg, name, detail, first, book) {
+  clearTimeout(timer);
+  clearTimeout(soundTimer);
   const card = $('catch-card');
   card.innerHTML = `<div class="catch-specimen">${svg}</div><div class="catch-copy"><strong></strong><small></small>${first ? '<small class="catch-new"></small>' : ''}</div><button class="icon-button catch-dismiss" type="button"><span data-icon="close"></span></button>`;
   const close = card.querySelector('.catch-dismiss');

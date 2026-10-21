@@ -125,3 +125,12 @@ test('importing a pet stays a visible Invite action rather than a hidden search 
   const heading = html.slice(html.indexOf('<div class="panel-head">'), html.indexOf('<div id="panel-pet"'));
   assert.match(heading, /id="import"/);
 });
+
+test('the tool strip leads the top message lane, so cards stack below it instead of under it', async () => {
+  const html = await read('src/index.html');
+  const lane = html.slice(html.indexOf('<div class="yard-feedback">'), html.indexOf('id="catch-card"'));
+  assert.ok(lane.includes('id="discovery-target"'), 'the strip is in the lane');
+  assert.ok(lane.indexOf('id="discovery-target"') < lane.indexOf('id="game-banner"'), 'and comes first');
+  const css = await read('src/styles/shell.css');
+  assert.match(css, /\.yard-feedback > :is\([^)]*\.discovery-target[^)]*\)/);
+});

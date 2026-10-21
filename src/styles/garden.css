@@ -188,13 +188,12 @@
 .yard.period-evening .plant[data-stage="bloom"]:focus-visible svg {
   filter: brightness(0.88) saturate(0.85) drop-shadow(0 0 2px var(--focus));
 }
-/* Ground targeting is temporary and leaves the friends visible below it. */
+/* Ground targeting is temporary and leaves the friends visible below it. It leads the top message
+   lane (shell.css .yard-feedback), so a find's card stacks below the strip instead of under it. */
 .discovery-target {
-  position: absolute;
-  z-index: 40;
-  inset: 8px 8px auto;
-  max-width: 420px;
-  margin-inline: auto;
+  position: relative;
+  width: min(420px, 100%);
+  box-sizing: border-box;
   padding: 6px;
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);

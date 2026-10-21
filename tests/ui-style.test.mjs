@@ -18,10 +18,10 @@ const styles = async () =>
     (await Promise.all((await readdir('src/styles')).sort().map(f => readFile(`src/styles/${f}`, 'utf8')))).join('\n'),
   );
 
-test('discoveries share the top lane while compact messages stay at the lower edge', async () => {
+test('discoveries share the top lane while compact messages sit low, clear of the corner button', async () => {
   const css = await styles();
   assert.match(css, /\.yard-feedback\{[^}]*display:flex;[^}]*flex-direction:column;[^}]*gap:6px/);
-  assert.match(css, /body\.compact \.toast\{[^}]*top:auto;[^}]*bottom:12px/);
+  assert.match(css, /body\.compact \.toast\{[^}]*top:auto;[^}]*bottom:52px/);
   assert.match(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /pointer-events:none/);
 });
 

@@ -80,6 +80,10 @@ export function setupToast() {
 // A notice stays as long as it takes to read (longer for more words, 3 to 8 seconds), and while the
 // pointer rests on it.
 export function toast(message) {
+  // A form that already says it beside its field does not need it said twice over its buttons.
+  const dialog = [...document.querySelectorAll('dialog[open]')].at(-1);
+  if (dialog && [...dialog.querySelectorAll('.form-error')].some(e => !e.hidden && e.textContent === String(message)))
+    return;
   const text = document.createElement('span');
   text.textContent = message;
   $('toast').replaceChildren(text);

@@ -27,7 +27,7 @@ import {
   toast,
   views,
 } from './core/state.js';
-import { plain, spoken } from './core/text.js';
+import { clip, plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
 import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
 import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
@@ -292,7 +292,7 @@ const ON_EVENT = {
     // Answers that arrive together are shown one after another, so a group chat reads as one.
     const wait = Math.max(0, lastBubbleAt + BUBBLE_GAP - Date.now());
     lastBubbleAt = Date.now() + wait;
-    if (v) setTimeout(() => bubble(v, plain(e.message).slice(0, 80)), wait);
+    if (v) setTimeout(() => bubble(v, clip(plain(e.message), 80)), wait);
   },
   play: react,
   window: e => {

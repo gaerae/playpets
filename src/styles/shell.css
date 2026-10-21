@@ -341,7 +341,8 @@ body.compact .toast[data-in-dialog] {
 /* General messages use the lower edge while discoveries and game instructions share the top. */
 body.compact .toast {
   top: auto;
-  bottom: 12px;
+  /* Above the corner button, which stays reachable while a notice shows. */
+  bottom: 52px;
   padding: 6px 12px;
   font-size: 12px;
   max-width: calc(100% - 32px);
@@ -646,7 +647,7 @@ body.compact .toast {
   gap: 6px;
   pointer-events: none;
 }
-.yard-feedback > :is(.startup-notice, .game-banner, .catch-card) {
+.yard-feedback > :is(.discovery-target, .startup-notice, .game-banner, .catch-card) {
   flex-shrink: 0;
   pointer-events: auto;
 }

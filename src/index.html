@@ -71,12 +71,6 @@
   <span id="window-actions" class="window-actions"><button id="hide-window" type="button" class="view-button" data-i18n-title="win.close_hint"><span data-icon="close"></span><span data-i18n="win.close"></span></button><button id="menu-quit" type="button" class="view-button"><span data-icon="power"></span><span data-i18n="settings.quit"></span></button></span>
   </div>
 </div>
-<div id="discovery-target" class="discovery-target" role="group" data-i18n-aria-label="discovery.explore" hidden>
-  <div class="discovery-target-heading"><strong id="discovery-target-label"></strong><button id="discovery-cancel" type="button" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
-  <div id="discovery-tools" class="discovery-tools" role="group" data-i18n-aria-label="play.tools"></div>
-  <div id="discovery-tree-choices" class="discovery-tree-choices" hidden></div>
-  <button id="discovery-find-saplings" type="button" class="button secondary" data-i18n="discovery.dig" hidden></button>
-</div>
 <div id="play-panel" class="play-board dock-panel" role="group" aria-labelledby="play-title" hidden>
   <div class="dock-panel-head"><strong id="play-title" data-i18n="controls.play"></strong><button id="close-play" type="button" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
   <div id="play-empty" class="play-empty" hidden><p data-i18n="controls.play_empty"></p><button type="button" class="panel-tab button secondary" data-panel="invite" aria-controls="side-panel" aria-expanded="false" data-i18n="tabs.invite"></button></div>
@@ -153,6 +147,12 @@
               <canvas id="weather-layer" class="weather-layer" aria-hidden="true"></canvas>
             </div>
             <div class="yard-feedback">
+              <div id="discovery-target" class="discovery-target" role="group" data-i18n-aria-label="discovery.explore" hidden>
+                <div class="discovery-target-heading"><strong id="discovery-target-label"></strong><button id="discovery-cancel" type="button" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
+                <div id="discovery-tools" class="discovery-tools" role="group" data-i18n-aria-label="play.tools"></div>
+                <div id="discovery-tree-choices" class="discovery-tree-choices" hidden></div>
+                <button id="discovery-find-saplings" type="button" class="button secondary" data-i18n="discovery.dig" hidden></button>
+              </div>
           <section id="warnings" class="startup-notice" data-i18n-aria-label="notices.label" hidden>
             <details id="warning-details">
               <summary id="warning-toggle"><span data-icon="info"></span><span id="warning-summary" role="status" tabindex="-1"></span><span data-icon="chevron"></span></summary>

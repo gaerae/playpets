@@ -221,7 +221,8 @@ export function sendDiscovery(v, point, action, kind) {
             showCard(
               artSvg(found.art),
               t(`treasure.${found.id}`),
-              t('discovery.kept'),
+              // A first find says "new in the album" on its own line; saying "kept" too repeats it.
+              before.has(found.id) ? t('discovery.kept') : '',
               !before.has(found.id),
               'treasure',
             );

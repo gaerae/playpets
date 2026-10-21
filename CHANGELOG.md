@@ -33,6 +33,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Keep Settings open after choosing Later in App updates, and dim the whole window behind Settings.
 - Keep a friend's name readable when a coding agent's name shares its tag.
+- Keep the tool strip and a find's card in one lane at the top, so a card shows below the strip instead of under it.
+- Let a card that arrives while another is on show wait its turn instead of replacing it, so a closeness card no longer wipes the catch that earned it.
+- Keep notices in small windows clear of the corner button, skip a notice that repeats an error already shown in the open form, end a cut speech bubble with an ellipsis, and stop a first keepsake's card from saying it was kept twice.
 - Plant a seed from the keyboard with a second press of the seed tool, as with the picnic treat.
 - Give each coding tool's controls in Settings a distinct name for screen readers, and remove a stale note about unpublished pages from About.
 - Keep night stars and shooting stars in the sky behind hills and trees, and hide the twinkling stars on rainy or snowy nights.
