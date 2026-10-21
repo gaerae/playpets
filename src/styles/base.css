@@ -116,6 +116,8 @@
    kana off the start of a line. */
 :root:lang(ko) {
   word-break: keep-all;
+  /* …unless a word alone is wider than its box, which may then break rather than spill out. */
+  overflow-wrap: anywhere;
 }
 :root:is(:lang(ja), :lang(zh-hans)) {
   line-break: strict;

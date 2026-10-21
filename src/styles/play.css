@@ -343,7 +343,7 @@
 .play-actions,
 .discovery-tree-choices {
   /* room for a tile's focus ring at the panel's edge */
-  padding: 2px;
+  padding-inline: 2px;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -373,10 +373,17 @@
   overflow-wrap: anywhere;
 }
 .play-action {
+  position: relative;
   flex: 1 0 max-content;
   min-width: max-content;
   white-space: nowrap;
   overflow-wrap: normal;
+}
+/* The seed count sits beside the tile's icon, so having seeds never makes the Garden row taller. */
+.play-action > .tool-count {
+  position: absolute;
+  top: 3px;
+  left: calc(50% + 10px);
 }
 .play-action:hover,
 .discovery-tree-choice:hover {

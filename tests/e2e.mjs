@@ -741,7 +741,7 @@ const scenario = `(async()=>{
     openMenu();$('menu-invite').click();await wait(100);
     $('invite-filters').open=false;$('panel-invite').scrollTop=0;
     const firstInvite=$('shelf').querySelector('.asset-card');
-    if(firstInvite){firstInvite.scrollIntoView({block:'nearest'});await wait(40);panelFlow&&=visibleNode(firstInvite);}
+    if(firstInvite){firstInvite.scrollIntoView({block:'nearest'});await wait(40);panelFlow&&=visibleNode(firstInvite);if(!visibleNode(firstInvite))flowTrace.push(['invite-card',firstInvite.getBoundingClientRect().toJSON(),[innerWidth,innerHeight]]);}
     $('panel-menu').click();await wait(40);
     panelFlow&&=$('side-panel').hidden&&!$('yard-controls-panel').hidden;
     markFlow('invite');
