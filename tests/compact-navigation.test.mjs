@@ -9,7 +9,6 @@ const panelBlock = (html, id) => {
   const next = [
     '<div id="scene-menu"',
     '<div id="yard-controls-panel"',
-    '<div id="discovery-target"',
     '<div id="play-panel"',
     '<div id="yard-context-menu"',
   ]
@@ -109,7 +108,7 @@ test('friend actions use the sheet bounds rather than the short identity row', a
 
 test('window actions live in the window section of the menu, not a disclosure', async () => {
   const html = await read('src/index.html');
-  const windowPage = html.slice(html.indexOf('id="management-window"'), html.indexOf('<div id="discovery-target"'));
+  const windowPage = html.slice(html.indexOf('id="management-window"'), html.indexOf('<div id="play-panel"'));
   for (const id of ['always-on-top', 'fullscreen', 'desktop', 'desktop-wander', 'hide-window', 'menu-quit'])
     assert.ok(windowPage.includes(`id="${id}"`));
   assert.doesNotMatch(windowPage, /<details/);
@@ -126,11 +125,13 @@ test('importing a pet stays a visible Invite action rather than a hidden search 
   assert.match(heading, /id="import"/);
 });
 
-test('the tool strip leads the top message lane, so cards stack below it instead of under it', async () => {
+test('the tool strip takes the place of the dock, where Play was opened and just above the ground', async () => {
   const html = await read('src/index.html');
   const lane = html.slice(html.indexOf('<div class="yard-feedback">'), html.indexOf('id="catch-card"'));
-  assert.ok(lane.includes('id="discovery-target"'), 'the strip is in the lane');
-  assert.ok(lane.indexOf('id="discovery-target"') < lane.indexOf('id="game-banner"'), 'and comes first');
-  const css = await read('src/styles/shell.css');
-  assert.match(css, /\.yard-feedback > :is\([^)]*\.discovery-target[^)]*\)/);
+  assert.ok(!lane.includes('id="discovery-target"'), 'the strip is not in the top lane');
+  assert.ok(html.indexOf('id="discovery-target"') < html.indexOf('id="scene-menu"'), 'it sits with the dock');
+  const shell = await read('src/styles/shell.css');
+  assert.match(shell, /\.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\) \.yard-dock\s*\{[^}]*display:\s*none/s);
+  const garden = await read('src/styles/garden.css');
+  assert.match(garden, /\.discovery-target\s*\{[^}]*position:\s*absolute;[^}]*right:\s*12px;[^}]*bottom:\s*12px/s);
 });

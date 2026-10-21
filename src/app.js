@@ -348,7 +348,7 @@ function animate(now) {
 }
 try {
   // Record growth during closed time before the first tree and album are drawn.
-  await call('growTrees').catch(error => toast(spoken(error, t('error.start'))));
+  await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
   setData(await call('bootstrap'));
   follow(data.language);
   const saved = recall('panel');
@@ -361,5 +361,5 @@ try {
   last = performance.now();
   every(BUSY_MS, animate);
 } catch (e) {
-  toast(spoken(e, t('error.start')));
+  toast(spoken(e, t('error.start')), { error: true });
 }

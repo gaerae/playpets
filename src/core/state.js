@@ -43,13 +43,12 @@ export const labels = {
 export const pet = () => data.pets.find(p => p.id === selected);
 export const asset = p =>
   styledAsset(
-    data.assets.find(a => a.id === p?.assetId),
+    data.assets?.find(a => a.id === p?.assetId),
     p?.visualStyle,
   );
 export const name = p => displayName(p, asset(p), t('friend.default'));
 /** An AI connection as the lists show it: the name, and the model when it has one. */
 export const providerLabel = c => (c?.model ? `${c.name} (${c.model})` : c?.name || '');
-let toastTimer;
 const noticeHomes = new WeakMap();
 function placeNotice() {
   const notice = $('toast');
@@ -77,26 +76,45 @@ export function setupToast() {
       observer.observe(dialog, { attributes: true, attributeFilter: ['open'] });
   }
 }
-// A notice stays as long as it takes to read (longer for more words, 3 to 8 seconds), and while the
-// pointer rests on it.
-export function toast(message) {
+/** How long a message stays to be read: 2.5 s and 50 ms a character, between 3 and 8 seconds. The
+ * notices below, the cards above a friend and the friends' bubbles all keep to it. */
+export const readingTime = text => Math.max(3000, Math.min(8000, 2500 + [...String(text)].length * 50));
+// Notices stack at most two lines along the bottom (one in a small window, where two would cover
+// the friends); a line already there is refreshed, not repeated, and the oldest gives way. Each
+// stays its reading time, and longer while the pointer rests on it.
+const noticeLines = () => (document.body?.classList.contains('compact') ? 1 : 2);
+const lineTimers = new WeakMap();
+function keepLine(line, ms) {
+  clearTimeout(lineTimers.get(line));
+  lineTimers.set(
+    line,
+    setTimeout(() => {
+      if (line.matches?.(':hover')) return keepLine(line, 1500);
+      const notice = $('toast');
+      notice.replaceChildren(...[...notice.children].filter(other => other !== line));
+      if (!notice.children.length) notice.hidden = true;
+    }, ms),
+  );
+}
+/** Says something short along the bottom of the yard; `error` marks a failure apart from news. */
+export function toast(message, { error = false } = {}) {
+  const words = String(message);
   // A form that already says it beside its field does not need it said twice over its buttons.
   const dialog = [...document.querySelectorAll('dialog[open]')].at(-1);
-  if (dialog && [...dialog.querySelectorAll('.form-error')].some(e => !e.hidden && e.textContent === String(message)))
-    return;
-  const text = document.createElement('span');
-  text.textContent = message;
-  $('toast').replaceChildren(text);
+  if (dialog && [...dialog.querySelectorAll('.form-error')].some(e => !e.hidden && e.textContent === words)) return;
+  const notice = $('toast');
+  let line = [...notice.children].find(other => other.textContent === words);
+  if (!line) {
+    line = document.createElement('span');
+    line.textContent = words;
+    notice.append(line);
+  }
+  line.classList.toggle('error', error);
+  const lines = [...notice.children];
+  if (lines.length > noticeLines()) notice.replaceChildren(...lines.slice(-noticeLines()));
   placeNotice();
-  $('toast').hidden = false;
-  toastFor(Math.min(8000, 2500 + String(message).length * 50));
-}
-function toastFor(ms) {
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    if ($('toast').matches(':hover')) return toastFor(1500);
-    $('toast').hidden = true;
-  }, ms);
+  notice.hidden = false;
+  keepLine(line, readingTime(words));
 }
 export async function call(method, ...args) {
   const result = await api[method](...args);
@@ -114,7 +132,7 @@ export const guard =
     try {
       await fn(...args);
     } catch (e) {
-      toast(spoken(e, t('error.generic')));
+      toast(spoken(e, t('error.generic')), { error: true });
     }
   };
 export const remember = (key, value) => {

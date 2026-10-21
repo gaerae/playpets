@@ -283,7 +283,7 @@ export async function refreshChat() {
     syncWaiting();
     if (!grows || atBottom) log.scrollTop = log.scrollHeight;
   } catch (e) {
-    toast(spoken(e, t('error.history')));
+    toast(spoken(e, t('error.history')), { error: true });
   }
 }
 // What the backend tells the chat about.

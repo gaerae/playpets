@@ -3,7 +3,7 @@
 // new in the album; one kept in the album offers its book, and a new one marks Album and Play.
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
-import { $, recall, remember } from '../core/state.js';
+import { $, readingTime, recall, remember } from '../core/state.js';
 import { cue } from './sound.js';
 
 let timer, soundTimer;
@@ -29,17 +29,52 @@ function dismiss() {
   const next = waiting.shift();
   if (next) present(...next);
 }
-/** Shows the card: a drawing (SVG markup), a name, a detail line, whether it is a first, and the
- * album book it is kept in (none for news such as an event starting). */
-export function showCard(svg, name, detail, first, book = null) {
-  if (!$('catch-card').hidden) {
-    waiting.push([svg, name, detail, first, book]);
+// Room kept above a friend for its own speech bubble ("I caught one!") when a card stands over it.
+const BUBBLE_ROOM = 44;
+/** Shows the card: a drawing (SVG markup), a name, a detail line, whether it is a first, the album
+ * book it is kept in (none for news such as an event starting), and the friend or thing that found
+ * it, which the card stands above (news with no finder keeps to the lane at the top). */
+export function showCard(svg, name, detail, first, book = null, finder = null) {
+  if (!$('catch-card').hidden || covered()) {
+    waiting.push([svg, name, detail, first, book, finder]);
     if (waiting.length > WAITING_MAX) waiting.shift();
+    if (covered()) holdWhileCovered();
     return;
   }
-  present(svg, name, detail, first, book);
+  present(svg, name, detail, first, book, finder);
 }
-function present(svg, name, detail, first, book) {
+// A panel or a sheet open over the yard would hide a card, so cards wait until it closes, looking
+// again each second.
+const covered = () =>
+  !!document.querySelector?.(
+    '#side-panel:not([hidden]), #scene-menu:not([hidden]), #play-panel:not([hidden]), #yard-controls-panel:not([hidden])',
+  );
+let holdTimer = 0;
+function holdWhileCovered() {
+  clearTimeout(holdTimer);
+  holdTimer = setTimeout(() => {
+    if (covered()) return holdWhileCovered();
+    if (!$('catch-card').hidden) return;
+    const next = waiting.shift();
+    if (next) present(...next);
+  }, 1000);
+}
+// Above the finder, centred on it and kept inside the window; without room above, the top lane.
+function place(card, finder) {
+  card.classList.remove('near');
+  card.style.left = '';
+  card.style.top = '';
+  if (!finder?.isConnected) return;
+  const at = finder.getBoundingClientRect(),
+    size = card.getBoundingClientRect(),
+    top = at.top - size.height - BUBBLE_ROOM;
+  if (top < 8) return;
+  const left = Math.max(8, Math.min(at.left + at.width / 2 - size.width / 2, innerWidth - size.width - 8));
+  card.classList.add('near');
+  card.style.left = `${Math.round(left)}px`;
+  card.style.top = `${Math.round(top)}px`;
+}
+function present(svg, name, detail, first, book, finder) {
   clearTimeout(timer);
   clearTimeout(soundTimer);
   const card = $('catch-card');
@@ -72,7 +107,9 @@ function present(svg, name, detail, first, book) {
     card.insertBefore(link, close);
   }
   card.hidden = false;
-  timer = setTimeout(expire, first ? 6000 : 4500);
+  place(card, finder);
+  // The shared reading time for its words, and a little longer for something new.
+  timer = setTimeout(expire, readingTime(`${name} ${detail}`) + (first ? 1500 : 0));
 }
 function expire() {
   if ($('catch-card').matches(':hover, :focus-within')) timer = setTimeout(expire, 1500);

@@ -245,8 +245,9 @@
 }
 .yard-bubble {
   position: absolute;
-  /* just above the head: --head is the cell's empty top, measured per pet (core/sprites.js crown) */
-  bottom: calc(100% + 2px - var(--head, 8px));
+  /* just above the head: --head is the cell's empty top, measured per pet (core/sprites.js crown);
+     --bubble-lift raises it clear of a neighbour's bubble (views.js) */
+  bottom: calc(100% + 2px - var(--head, 8px) + var(--bubble-lift, 0px));
   left: 50%;
   transform: translateX(-50%);
   transform-origin: 50% 100%;

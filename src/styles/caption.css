@@ -265,29 +265,19 @@
 }
 
 .caption-count,
-.caption-agents,
-.caption-event,
-.yard-hint {
+.caption-event {
   display: none;
 }
-
-.yard-frame > .yard-hint {
+/* What to try next and what the agents are doing are read aloud as they change, not drawn: the
+   tool strip and the friends' dots already show them. */
+.caption-agents,
+.yard-hint {
   position: absolute;
-  bottom: 68px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  max-width: calc(100% - 32px);
-  padding: 8px 14px;
-  border-radius: var(--radius-panel);
-  background: var(--floating);
-  color: var(--ink);
-  font-size: 12px;
-  text-align: center;
-  pointer-events: none;
-}
-.yard-frame:has(.yard.aiming) > .yard-hint {
-  display: block;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .background-gallery {

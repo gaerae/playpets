@@ -33,7 +33,7 @@ export function moveFriends(now, dt) {
         v.trip = null;
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
         if (trip?.save !== false)
-          call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic'))));
+          call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic')), { error: true }));
         // Arrivals such as fishing anchor their drawings to the friend's pixel position.
         place(v);
         trip?.arrive?.(v, now);

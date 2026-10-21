@@ -18,10 +18,10 @@ const styles = async () =>
     (await Promise.all((await readdir('src/styles')).sort().map(f => readFile(`src/styles/${f}`, 'utf8')))).join('\n'),
   );
 
-test('discoveries share the top lane while compact messages sit low, clear of the corner button', async () => {
+test('news shares the top lane while compact notices keep to the bottom edge beside the corner button', async () => {
   const css = await styles();
   assert.match(css, /\.yard-feedback\{[^}]*display:flex;[^}]*flex-direction:column;[^}]*gap:6px/);
-  assert.match(css, /body\.compact \.toast\{[^}]*top:auto;[^}]*bottom:52px/);
+  assert.match(css, /body\.compact \.toast\{[^}]*top:auto;[^}]*bottom:8px;[^}]*right:52px/);
   assert.match(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /pointer-events:none/);
 });
 
@@ -469,6 +469,7 @@ const SET_FROM_CODE = {
   '--orb-x': 'src/yard/sky.js',
   '--orb-y': 'src/yard/sky.js',
   '--moon-shade': 'src/yard/sky.js',
+  '--bubble-lift': 'src/yard/views.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.

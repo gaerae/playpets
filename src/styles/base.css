@@ -17,6 +17,11 @@
   --panel-surface: #f7f8f3;
   --field-surface: #fffefa;
   --floating: #fffffff0;
+  /* Every message on the yard (a notice, a card, a banner, the startup notes, the tool strip) has
+     one surface: the floating fill, a hairline and one soft shadow (shell.css, play.css, garden.css). */
+  --message-surface: var(--floating);
+  --message-line: var(--line);
+  --message-shadow: 0 6px 20px var(--ink-12);
   --dock-surface: var(--panel-surface);
   --menu-surface: var(--panel-surface);
   --glass-blur: none;

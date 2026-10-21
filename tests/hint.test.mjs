@@ -7,9 +7,8 @@ import { busyLine, hintKey } from '../src/yard/hint.js';
 test('a game speaks first, then the tool in hand, then what there is still to learn', () => {
   const base = { game: null, aiming: false, friends: 2, patted: false, fished: false };
   assert.deepEqual(hintKey({ ...base, game: { hint: 'Find Mochi' }, aiming: 'seed' }), { text: 'Find Mochi' });
-  for (const tool of ['seed', 'dig', 'tree'])
+  for (const tool of ['seed', 'dig', 'tree', 'treat'])
     assert.equal(hintKey({ ...base, aiming: tool }), null, `the ${tool} strip says what to do, not the line below`);
-  assert.deepEqual(hintKey({ ...base, aiming: 'treat' }), { key: 'hint.treat' });
   assert.deepEqual(hintKey(base), { key: 'hint.pat' });
   assert.deepEqual(hintKey({ ...base, patted: true }), { key: 'hint.fish' });
   assert.equal(hintKey({ ...base, patted: true, fished: true }), null, 'nothing left to learn');

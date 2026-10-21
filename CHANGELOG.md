@@ -24,6 +24,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Offer Talk and Play in a friend's right-click menu, matching the name tag and the dock.
 - Keep the dig and tree tools in hand after each spot, sending the next free friend each time, and switch between digging, trees and seeds from the strip at the top until Esc or Close puts the tool away.
 - Fish or catch a creature with one press even while a play tool is in hand; the press puts the tool away first.
+- Show the tool strip where the dock was, right where Play was opened and just above the ground, and show a find's card above the friend who found it.
+- Give every message on the yard one look and one reading time: notices stack two lines along the bottom (one in small windows) with failures in dark ink, cards wait while a panel covers the yard, overlapping speech bubbles rise clear of each other, and a friend's words are read aloud to screen readers.
 - Fold the dock's panels into tiles in small windows, keeping a chosen atmosphere row in view, and move Quit PlayPets out of About to sit beside Close window.
 - Open the conversation from a friend's name tag, as its tooltip says; play stays on the friend's right-click.
 - Quit at once from the page, as from the tray and the macOS menu bar, now that Close window and Quit PlayPets sit side by side.
@@ -33,7 +35,6 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Keep Settings open after choosing Later in App updates, and dim the whole window behind Settings.
 - Keep a friend's name readable when a coding agent's name shares its tag.
-- Keep the tool strip and a find's card in one lane at the top, so a card shows below the strip instead of under it.
 - Let a card that arrives while another is on show wait its turn instead of replacing it, so a closeness card no longer wipes the catch that earned it.
 - Keep notices in small windows clear of the corner button, skip a notice that repeats an error already shown in the open form, end a cut speech bubble with an ellipsis, and stop a first keepsake's card from saying it was kept twice.
 - Plant a seed from the keyboard with a second press of the seed tool, as with the picnic treat.

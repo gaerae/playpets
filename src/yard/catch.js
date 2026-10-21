@@ -230,7 +230,7 @@ const land = guard(async () => {
   const title = solo
     ? t('bond.solo_catch', { name: name(v.pet), fish: t(`catch.fish_${fish.id}`) })
     : t(`catch.fish_${fish.id}`);
-  showCard(fishSvg(fish), title, t('catch.size', { size: size.toFixed(1) }), first, 'fish');
+  showCard(fishSvg(fish), title, t('catch.size', { size: size.toFixed(1) }), first, 'fish', v.button);
 });
 function reel() {
   if (!fishing) return;
@@ -340,7 +340,7 @@ const catchBug = guard(async caught => {
       cheer(v, 'catch.bug_caught', { say: 2600 });
     }
   }
-  showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first, 'bug');
+  showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first, 'bug', v?.button);
 });
 
 // What a point in the yard can be caught at: a creature in the air, or the lake.

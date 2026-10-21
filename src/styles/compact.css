@@ -27,6 +27,13 @@ body.compact .compact-launcher {
   border: 1px solid var(--line);
   background: var(--menu-surface);
 }
+/* The strip spans the bottom edge, where the corner button was. */
+body.compact .discovery-target {
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  width: auto;
+}
 /* Each dock panel keeps its one page; small windows fold it into tiles. */
 body.compact .yard-controls-panel {
   inset: 8px;

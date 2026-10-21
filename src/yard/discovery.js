@@ -225,6 +225,7 @@ export function sendDiscovery(v, point, action, kind) {
               before.has(found.id) ? t('discovery.kept') : '',
               !before.has(found.id),
               'treasure',
+              v.button,
             );
         } else if (result.outcome === 'sapling') {
           bubble(v, t('discovery.sapling', { kind: t(`tree.${result.kind}`) }), 3000);
@@ -346,8 +347,8 @@ function syncTools(kind = aiming) {
   for (const button of strip.children) button.setAttribute('aria-pressed', String(button.dataset.tool === kind));
   const count = strip.querySelector('.tool-count');
   if (count) count.textContent = data.garden?.seeds ? String(data.garden.seeds) : '';
-  if (kind === 'seed') {
-    $('discovery-target-label').textContent = t('hint.plant');
+  if (kind === 'seed' || kind === 'treat') {
+    $('discovery-target-label').textContent = t(kind === 'seed' ? 'hint.plant' : 'hint.treat');
     $('discovery-tree-choices').hidden = true;
     $('discovery-find-saplings').hidden = true;
     $('discovery-target').hidden = false;
@@ -370,7 +371,7 @@ export function setupDiscovery() {
   $('dig-tool').onclick = () => beginDiscovery('dig');
   $('tree-tool').onclick = () => beginDiscovery('tree');
   $('discovery-cancel').onclick = () => {
-    if (aiming === 'seed') setAimingMode(false);
+    if (aiming === 'seed' || aiming === 'treat') setAimingMode(false);
     cancelDiscovery();
   };
   $('discovery-tools')?.replaceChildren(

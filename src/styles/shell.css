@@ -245,11 +245,11 @@ body {
   width: max-content;
   max-width: min(420px, calc(100% - 24px));
   padding: 6px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--message-line);
   border-radius: var(--radius-panel);
-  background: var(--floating);
+  background: var(--message-surface);
   color: var(--ink);
-  box-shadow: 0 6px 20px var(--ink-12);
+  box-shadow: var(--message-shadow);
 }
 .startup-notice details {
   flex: 1;
@@ -311,19 +311,33 @@ body {
   bottom: 78px;
   transform: translateX(-50%);
   z-index: 30;
-  background: var(--ink);
-  color: var(--white);
-  border-radius: var(--radius-panel);
-  padding: 10px 16px;
-  font-size: 12.5px;
-  line-height: 1.5;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   width: max-content;
   max-width: min(520px, calc(100% - 32px));
-  box-shadow: 0 8px 25px var(--ink-20);
 }
+.toast[hidden] {
+  display: none;
+}
+/* Each line is a message on the shared surface; a failure stands apart in the dark ink. */
 .toast > span {
   pointer-events: auto;
+  padding: 8px 14px;
+  border: 1px solid var(--message-line);
+  border-radius: var(--radius-panel);
+  background: var(--message-surface);
+  color: var(--ink);
+  box-shadow: var(--message-shadow);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+.toast > span.error {
+  border-color: transparent;
+  background: var(--ink);
+  color: var(--white);
 }
 .toast[data-in-dialog],
 body.compact .toast[data-in-dialog] {
@@ -335,17 +349,25 @@ body.compact .toast[data-in-dialog] {
   width: auto;
   max-width: none;
   margin: 8px 0 0;
-  padding: 8px 10px;
+  align-items: stretch;
+}
+.toast[data-in-dialog] > span {
   text-align: left;
 }
 /* General messages use the lower edge while discoveries and game instructions share the top. */
 body.compact .toast {
+  /* Along the bottom edge, below the friends and left of the corner button, which stays reachable. */
   top: auto;
-  /* Above the corner button, which stays reachable while a notice shows. */
-  bottom: 52px;
+  bottom: 8px;
+  left: 8px;
+  right: 52px;
+  transform: none;
+  width: auto;
+  align-items: stretch;
+  max-width: none;
+}
+body.compact .toast > span {
   padding: 6px 12px;
-  font-size: 12px;
-  max-width: calc(100% - 32px);
 }
 @media (prefers-color-scheme: dark) {
   /* Every switch the same way: a light knob on the dark track, a dark one on the lit accent. */
@@ -519,6 +541,11 @@ body.compact .toast {
   justify-content: flex-start;
 }
 
+/* A tool in hand takes the dock's place (garden.css .discovery-target): where Play was opened, just
+   above the ground the person is choosing. Close or Esc brings the dock back. */
+.yard-frame:has(#discovery-target:not([hidden])) .yard-dock {
+  display: none;
+}
 .layout.settings-open .yard-dock {
   display: none;
 }
@@ -647,7 +674,7 @@ body.compact .toast {
   gap: 6px;
   pointer-events: none;
 }
-.yard-feedback > :is(.discovery-target, .startup-notice, .game-banner, .catch-card) {
+.yard-feedback > :is(.startup-notice, .game-banner, .catch-card) {
   flex-shrink: 0;
   pointer-events: auto;
 }

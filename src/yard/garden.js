@@ -107,12 +107,19 @@ function bloomed(plant, now) {
       asked.add(plant.id);
       bloomRetry.delete(plant.id);
       if (r?.entry?.count === 1)
-        showCard(flowerSvg(plant.kind), t(`garden.kind_${plant.kind}`), t('catch.bloomed'), true, 'flower');
+        showCard(
+          flowerSvg(plant.kind),
+          t(`garden.kind_${plant.kind}`),
+          t('catch.bloomed'),
+          true,
+          'flower',
+          shown.get(plant.id)?.button,
+        );
     })
     .catch(error => {
       // Retried quietly after the first message, so a backend that keeps refusing does not
       // repeat it every few seconds.
-      if (!bloomFailed.has(plant.id)) toast(spoken(error, t('error.generic')));
+      if (!bloomFailed.has(plant.id)) toast(spoken(error, t('error.generic')), { error: true });
       bloomFailed.add(plant.id);
       bloomRetry.set(plant.id, Date.now() + RETRY_MS);
     });

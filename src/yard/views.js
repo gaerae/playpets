@@ -16,6 +16,7 @@ import {
   guard,
   labels,
   name,
+  readingTime,
   recall,
   remember,
   selected,
@@ -64,12 +65,42 @@ export function pose(view, state, duration = 1200) {
   view.until = now + duration;
 }
 // Bubbles show plain words: an answer's Markdown marks are taken out.
-export function bubble(v, message, duration = 6000) {
+// Space kept between two bubbles when one rises above the other.
+const BUBBLE_GAP = 4;
+// A bubble that would cover a friend's bubble already showing rises just above it (--bubble-lift,
+// friends.css), so two friends talking at once both stay readable.
+function clearOthers(v) {
+  if (!v.bubble.getBoundingClientRect) return;
+  const mine = v.bubble.getBoundingClientRect();
+  let lift = 0;
+  for (const other of views.values()) {
+    if (other === v || other.bubble?.hidden !== false || !other.bubble.getBoundingClientRect) continue;
+    const theirs = other.bubble.getBoundingClientRect();
+    if (theirs.right <= mine.left || theirs.left >= mine.right) continue;
+    if (mine.bottom - lift <= theirs.top || mine.top - lift >= theirs.bottom) continue;
+    lift = mine.bottom - theirs.top + BUBBLE_GAP;
+  }
+  if (lift) v.bubble.style?.setProperty('--bubble-lift', `${Math.round(lift)}px`);
+}
+/** A friend says something above its head for its reading time (or `duration`, if longer); the
+ * line is also read aloud, with the friend's name, from one quiet region. */
+export function bubble(v, message, duration = 0) {
   if (!message) return;
-  v.bubble.textContent = plain(message);
+  const words = plain(message);
+  v.bubble.textContent = words;
   v.bubble.hidden = false;
+  v.bubble.style?.removeProperty('--bubble-lift');
+  clearOthers(v);
+  const said = globalThis.document && $('friend-speech');
+  if (said && v.pet) said.textContent = `${name(v.pet)}: ${words}`;
   clearTimeout(v.bubbleTimer);
-  v.bubbleTimer = setTimeout(() => (v.bubble.hidden = true), duration);
+  v.bubbleTimer = setTimeout(
+    () => {
+      v.bubble.hidden = true;
+      v.bubble.style?.removeProperty('--bubble-lift');
+    },
+    Math.max(duration, readingTime(words)),
+  );
 }
 /** A friend's reaction to something it did: a pose, a mark above it (✦, ♥ or none) and one of the
  * lines under `lines` in the string tables. */
