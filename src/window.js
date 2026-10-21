@@ -1,5 +1,4 @@
 // One frameless window: its size and its always-on-top switch are independent.
-import { confirmAction } from './core/confirm.js';
 import { closeControls } from './core/controls.js';
 import { t } from './core/i18n.js';
 import { $, call, data, guard } from './core/state.js';
@@ -41,15 +40,10 @@ export async function setAlwaysOnTop(on) {
   renderWindow(await call('windowAlwaysOnTop', on));
 }
 
-// Quitting ends desktop friends too; closing the window only sends it to the tray.
+// Quitting ends desktop friends too, while closing the window only sends it to the tray. The two
+// buttons say so side by side, so quitting acts at once, as it does from the tray and the menu bar.
 export async function quitApp() {
-  const sure = await confirmAction({
-    title: t('quit.title'),
-    body: t('quit.body'),
-    action: t('quit.action'),
-    danger: false,
-  });
-  if (sure) await call('quitApp');
+  await call('quitApp');
 }
 
 function fitWindow() {

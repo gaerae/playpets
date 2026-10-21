@@ -143,6 +143,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* The friend's name keeps its room; an agent's name beside it gives way first. */
+.pet-tag:has(small:not([hidden])) .tag-name {
+  flex: none;
+  max-width: 96px;
+}
 .tag-talk {
   display: none;
   margin-left: -2px;
@@ -177,6 +182,9 @@
 }
 /* the agents that report to this friend, small after the name */
 .pet-tag small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 10px;
   font-weight: 600;
   color: #2f6a92;

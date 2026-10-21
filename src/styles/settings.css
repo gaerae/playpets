@@ -277,7 +277,7 @@
 .layout.settings-open::after {
   content: "";
   position: absolute;
-  inset: 52px 0 0;
+  inset: 0;
   z-index: 19;
   border-radius: 0;
   background: var(--settings-scrim);

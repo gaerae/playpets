@@ -302,8 +302,8 @@ export function setupSettings() {
   $('update-later').onclick = () => {
     if (!installing && !updateError) later = true;
     renderUpdate();
+    // Later folds the details; Settings stays open where the person was.
     closeUpdateDetails();
-    openPanel(null);
   };
   // Cmd+, (macOS, where the menu bar also has it) or Ctrl+, opens Settings, as in most desktop apps.
   onShortcut('settings', () => openPanel('settings'));

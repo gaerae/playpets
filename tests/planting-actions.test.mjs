@@ -117,6 +117,12 @@ test('aiming stays on while seeds remain beyond the ones already promised', asyn
   await click();
   assert.equal(state.aiming, 'seed');
 });
+test('a second keyboard press of the seed tool plants beside the selected friend', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { nodes } = page(t, { builtin: false });
+  await nodes.get('plant-tool').onclick({ detail: 0 });
+  assert.equal(planted.length, 1, 'no pointer is needed to choose the spot');
+});
 for (const phase of ['walking', 'planting'])
   test(`cancelling while ${phase} never spends a seed`, async t => {
     t.mock.timers.enable({ apis: ['setTimeout'] });

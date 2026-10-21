@@ -79,6 +79,7 @@ test('an available update opens Settings for a guided download, shows each stage
   assert.match(nodes.get('update-progress-label').textContent, /25/);
   nodes.get('update-later').onclick();
   assert.equal(nodes.get('update-dialog').hidden, true);
+  assert.equal(nodes.get('panel-settings').hidden, false, 'Later folds the details and keeps Settings open');
   assert.equal(nodes.get('update-compact').hidden, false, 'small windows retain a progress entry point');
   updateStatus({ phase: 'verifying' });
   assert.equal(nodes.get('update-dialog').hidden, true, 'progress never reopens collapsed details');

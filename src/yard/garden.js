@@ -227,16 +227,25 @@ function plantAt(cx, cy) {
   if (clip && companionImage({ clip })) return sendPlanting(v, point, kind, clip);
   return call('plant', kind, point.x, point.y);
 }
+function plantNearby() {
+  const r = $('yard').getBoundingClientRect(),
+    v = views.get(selected);
+  if (v) return plantAt(v.px + sizeOf(v.pet) + 30, v.py + petHeight(v.pet));
+  return plantAt(r.width / 2, (field().top + r.height) / 2);
+}
 /** Wires the planting tool and the field's click. Called once, by app.js. */
 export function setupGarden() {
   $('world')?.addEventListener('change', cancelPlanting);
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') cancelPlanting();
   });
-  $('plant-tool').onclick = () => {
+  // With the mouse the next click in the yard chooses the spot; from the keyboard a second press
+  // plants beside the selected friend (or mid-field), as the picnic treat does.
+  $('plant-tool').onclick = guard(async e => {
     if (!spareSeeds()) return toast(t('garden.no_seeds'));
+    if (aiming === 'seed' && e?.detail === 0) return plantNearby();
     setAimingMode(aiming === 'seed' ? false : 'seed');
-  };
+  });
   $('yard').addEventListener(
     'click',
     guard(async e => {

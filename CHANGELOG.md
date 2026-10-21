@@ -7,8 +7,18 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+
+- Open the conversation from a friend's name tag, as its tooltip says; play stays on the friend's right-click.
+- Quit at once from the page, as from the tray and the macOS menu bar, now that Close window and Quit PlayPets sit side by side.
+- Use one name for each action across the page, the tray and the macOS menu bar.
+
 ### Fixed
 
+- Keep Settings open after choosing Later in App updates, and dim the whole window behind Settings.
+- Keep a friend's name readable when a coding agent's name shares its tag.
+- Plant a seed from the keyboard with a second press of the seed tool, as with the picnic treat.
+- Give each coding tool's controls in Settings a distinct name for screen readers, and remove a stale note about unpublished pages from About.
 - Keep night stars and shooting stars in the sky behind hills and trees, and hide the twinkling stars on rainy or snowy nights.
 
 ## [1.1.0] - 2026-10-20

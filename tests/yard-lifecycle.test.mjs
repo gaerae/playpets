@@ -96,6 +96,24 @@ test('a failed daily gift waits before retrying instead of celebrating every fra
   assert.deepEqual(calls, ['gift', 'gift']);
 });
 
+test('a click on the name tag opens the conversation its tooltip promises', async t => {
+  const { pet } = yard(t);
+  const opened = [];
+  setupViews({
+    select() {},
+    patted() {},
+    openChat: id => opened.push(['chat', id]),
+    openActions: id => opened.push(['play', id]),
+  });
+  syncViews();
+  const v = views.get(pet.id);
+  const tag = { closest: selector => (selector === '.pet-tag' ? tag : null) };
+  await v.button.fire('pointerdown', { target: tag });
+  await v.button.fire('pointerup', { target: tag });
+  assert.deepEqual(opened, [['chat', pet.id]]);
+  assert.deepEqual(calls, [], 'talking is not a pat');
+});
+
 for (const moved of [false, true])
   test(`cancelling a ${moved ? 'drag' : 'press'} neither pats nor saves the friend`, async t => {
     const { pet } = yard(t);

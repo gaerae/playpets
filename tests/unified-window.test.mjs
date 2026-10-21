@@ -22,7 +22,6 @@ globalThis.playPets = Object.fromEntries(
 );
 const windowUi = await import('../src/window.js');
 const { setData } = await import('../src/core/state.js');
-const { setupConfirm } = await import('../src/core/confirm.js');
 
 function page(t) {
   keepGlobals(t, 'window', 'innerWidth', 'innerHeight');
@@ -65,22 +64,13 @@ test('pinning works without friends and never resizes or changes the current lay
   assert.equal(nodes.get('always-on-top').getAttribute('aria-pressed'), 'false');
 });
 
-test('closing only hides the window while quitting uses the shared confirmation', async t => {
+test('closing only hides the window and quitting acts at once, like the tray and the menu bar', async t => {
   const { nodes } = page(t);
   windowUi.setupWindow();
   await nodes.get('hide-window').onclick();
   assert.deepEqual(calls, [['windowHide']]);
   calls.length = 0;
-  setupConfirm();
-  const cancelled = nodes.get('menu-quit').onclick();
-  assert.equal(nodes.get('confirm-dialog').open, true);
-  nodes.get('confirm-cancel').onclick();
-  await nodes.get('confirm-dialog').dispatch('close');
-  await cancelled;
-  assert.deepEqual(calls, []);
-  const quitting = nodes.get('menu-quit').onclick();
-  nodes.get('confirm-ok').onclick();
-  await quitting;
+  await nodes.get('menu-quit').onclick();
   assert.deepEqual(calls, [['quitApp']]);
 });
 

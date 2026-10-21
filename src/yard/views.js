@@ -280,7 +280,8 @@ function createView(p) {
     if (moved) {
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {
-      (on.openActions || on.openChat)(p.id);
+      // The tag says "Talk to …", so it opens the conversation; play is the friend's right-click.
+      on.openChat(p.id);
     } else await pat();
   });
   both('pointerup', end);
