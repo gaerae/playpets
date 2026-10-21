@@ -62,6 +62,7 @@ export function setupControls({
   openChat = () => {},
   canDigAt = () => false,
   digAt = () => {},
+  digWith = () => {},
 } = {}) {
   surfaces = [];
   const closeOthers = except => {
@@ -138,6 +139,8 @@ export function setupControls({
           'controls.play_with',
           { name: name(pet) },
         );
+        const dig = context.querySelector('[data-context-action="dig-friend"] .context-label');
+        if (dig) dig.textContent = t('discovery.dig_with', { name: name(pet) });
       }
     };
     const place = () => {
@@ -219,6 +222,7 @@ export function setupControls({
       else if (action === 'dig-here') digAt(point.x, point.y);
       else if (action === 'talk') openChat(friend);
       else if (action === 'play-friend') openPlay();
+      else if (action === 'dig-friend') digWith(friend);
     });
     globalThis.window?.addEventListener('resize', place);
   }

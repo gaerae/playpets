@@ -36,6 +36,7 @@ export function renderDesktopSwitches() {
   $('desktop-wander').disabled = !data.desktop;
   $('desktop-wander').checked = !!data.desktopWander;
   $('auto-chatter').checked = !!data.autoChatter;
+  $('auto-play').checked = !!data.autoPlay;
   $('autostart').checked = !!data.autostart;
 }
 // Update actions live in Settings; the yard entries only navigate there. Background discoveries
@@ -355,12 +356,13 @@ export function setupSettings() {
   for (const [id, method, key] of [
     ['desktop-wander', 'toggleDesktopWander', 'desktopWander'],
     ['auto-chatter', 'setAutoChatter', 'autoChatter'],
+    ['auto-play', 'setAutoPlay', 'autoPlay'],
   ]) {
     const input = $(id);
     input.onchange = guard(async () => {
       input.disabled = true;
       try {
-        await call(method, ...(id === 'auto-chatter' ? [input.checked] : []));
+        await call(method, ...(id === 'desktop-wander' ? [] : [input.checked]));
       } catch (error) {
         input.checked = !!data[key];
         throw error;

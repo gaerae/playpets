@@ -81,7 +81,7 @@ test('the menu has one Settings entry, and right-click offers the same places as
   );
   assert.deepEqual(
     [...context.matchAll(/data-context-for="friend" data-context-action="([^"]+)"/g)].map(match => match[1]),
-    ['talk', 'play-friend'],
+    ['talk', 'play-friend', 'dig-friend'],
   );
   assert.match(html, /id="compact-launcher"[^>]*aria-controls="yard-context-menu"/);
 });

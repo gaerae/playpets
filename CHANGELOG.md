@@ -12,6 +12,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Manage every AI connection in one place, in Settings → Friends & AI, with automatic chat beside them.
 - Open the scenery's menu from a corner button in small windows, where the dock is hidden.
 - Dig at a right-clicked spot of bare ground with Dig here, without opening Play.
+- Ask a friend to dig from its right-click menu.
+- Open the album at the right book from a find's card, and see a dot on Album and Play while something new waits there.
+- Let idle friends dig on their own now and then with a new switch in Settings → Friends & AI.
+- Switch between Dig, Plant a tree and Plant a seed with 1, 2 and 3 while a tool is in hand.
 
 ### Changed
 
@@ -19,6 +23,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Keep one Settings entry in Friends & settings; Settings always opens on its list of sections, and Back returns one step at a time.
 - Offer Talk and Play in a friend's right-click menu, matching the name tag and the dock.
 - Keep the dig and tree tools in hand after each spot, sending the next free friend each time, and switch between digging, trees and seeds from the strip at the top until Esc or Close puts the tool away.
+- Fish or catch a creature with one press even while a play tool is in hand; the press puts the tool away first.
 - Fold the dock's panels into tiles in small windows, keeping a chosen atmosphere row in view, and move Quit PlayPets out of About to sit beside Close window.
 - Open the conversation from a friend's name tag, as its tooltip says; play stays on the friend's right-click.
 - Quit at once from the page, as from the tray and the macOS menu bar, now that Close window and Quit PlayPets sit side by side.

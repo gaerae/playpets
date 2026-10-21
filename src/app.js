@@ -29,7 +29,7 @@ import {
 } from './core/state.js';
 import { plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
-import { renderAlbum, setupAlbum } from './panel/album.js';
+import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
 import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
@@ -53,6 +53,8 @@ import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
 import { giftTick, renderDecor, setupDecor } from './yard/decor.js';
 import {
+  autoDig,
+  beginDiscovery,
   cancelDiscovery,
   cancelDiscoveryWork,
   canDigAt,
@@ -130,6 +132,10 @@ setupControls({
   openChat,
   canDigAt,
   digAt,
+  digWith: id => {
+    select(id);
+    beginDiscovery('dig');
+  },
   beforeOpen: () => {
     cancelDiscovery();
     syncDiscovery();
@@ -204,7 +210,7 @@ setupDiscovery();
 setupTrees();
 setupCatch();
 setupAlbum();
-setupCard();
+setupCard({ openAlbum });
 setupSound();
 setupFriend();
 setupChat();
@@ -244,6 +250,12 @@ setInterval(() => {
   // A round that could not start (someone left, an AI went away) is not worth a toast.
   startChatter().catch(() => {});
 }, AUTO_CHATTER_MS);
+// With Let them dig on, an idle friend digs a spot of its own every few minutes while the yard is
+// shown; a game or a tool in the person's hand comes first (yard/discovery.js autoDig).
+const AUTO_PLAY_MS = 4 * 60 * 1000;
+setInterval(() => {
+  if (data.autoPlay && shown) autoDig();
+}, AUTO_PLAY_MS);
 // A finished agent's state fades after a while (core/status.js): the page looks again each minute.
 everyMinute(() => {
   if (data.garden?.trees?.length) {

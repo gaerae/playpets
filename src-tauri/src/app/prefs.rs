@@ -34,6 +34,8 @@ pub struct Prefs {
     pub language: i18n::Lang,
     /// The friends talk among themselves every so often (the page keeps the timer).
     pub auto_chatter: bool,
+    /// Idle friends now and then dig on their own (the page keeps the timer).
+    pub auto_play: bool,
     /// The yard's sounds (the page plays them; src/yard/sound.js).
     pub sound: Sound,
     /// The normal window bounds, restored across launches.
@@ -43,11 +45,12 @@ pub struct Prefs {
 
 impl Prefs {
     /// The keys of state.json these are saved under.
-    pub const KEYS: [&str; 8] = [
+    pub const KEYS: [&str; 9] = [
         "desktop",
         "desktopWander",
         "language",
         "autoChatter",
+        "autoPlay",
         "sound",
         "windowRect",
         "alwaysOnTop",
@@ -63,6 +66,7 @@ impl Prefs {
             wander: flag("desktopWander"),
             language,
             auto_chatter: flag("autoChatter"),
+            auto_play: flag("autoPlay"),
             sound: Sound::restore(raw.get("sound")),
             window_rect: raw
                 .get("windowRect")
@@ -79,6 +83,7 @@ impl Prefs {
         m.insert("desktopWander".into(), json!(self.wander));
         m.insert("language".into(), json!(self.language.code()));
         m.insert("autoChatter".into(), json!(self.auto_chatter));
+        m.insert("autoPlay".into(), json!(self.auto_play));
         m.insert("sound".into(), json!(self.sound));
         if let Some((x, y, width, height)) = self.window_rect {
             m.insert(
@@ -131,6 +136,7 @@ mod tests {
             wander: true,
             language: lang,
             auto_chatter: true,
+            auto_play: true,
             sound: Sound { on: false, volume: 7 },
             window_rect: Some((1.0, 2.0, 300.0, 210.0)),
             always_on_top: true,
@@ -147,9 +153,9 @@ mod tests {
         expected.sort();
         assert_eq!(keys, expected, "every switch is saved under a key listed in KEYS");
 
-        let odd = json!({"desktop": "yes", "autoChatter": 1, "miniRect": {"x": 1}});
+        let odd = json!({"desktop": "yes", "autoChatter": 1, "autoPlay": "on", "miniRect": {"x": 1}});
         let back = Prefs::restore(&odd, lang);
-        assert!(!back.desktop && !back.auto_chatter && back.window_rect.is_none());
+        assert!(!back.desktop && !back.auto_chatter && !back.auto_play && back.window_rect.is_none());
         assert!(!Prefs::restore(&odd, lang).json().contains_key("miniRect"));
     }
 }

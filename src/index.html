@@ -108,6 +108,7 @@
   <button type="button" role="menuitemcheckbox" aria-checked="false" data-context-for="yard" data-context-action="pin"><span data-icon="pin"></span><span data-i18n="win.always_on_top"></span><span class="context-check" aria-hidden="true">✓</span></button>
   <button type="button" role="menuitem" data-context-for="friend" data-context-action="talk" hidden><span data-icon="chat"></span><span class="context-label"></span></button>
   <button type="button" role="menuitem" data-context-for="friend" data-context-action="play-friend" hidden><span data-icon="spark"></span><span class="context-label"></span></button>
+  <button type="button" role="menuitem" data-context-for="friend" data-context-action="dig-friend" hidden><span data-icon="shovel"></span><span class="context-label"></span></button>
 </div>
 <button id="compact-launcher" type="button" class="compact-launcher icon-button" aria-haspopup="menu" aria-controls="yard-context-menu" aria-expanded="false" data-i18n-aria-label="controls.launcher" data-i18n-title="controls.launcher"><span data-icon="more"></span></button>
 <span id="yard-hint" hidden class="yard-hint" aria-live="polite" data-i18n="hint.pat"></span>
@@ -262,6 +263,7 @@
               <p id="ai-none" class="settings-lead" data-i18n="settings.ai_none" hidden></p>
               <div class="app-row"><button id="ai-add" type="button" class="button secondary small"><span data-icon="plus"></span><span data-i18n="connection.title_new"></span></button></div>
               <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-chatter"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_chatter"></span><small data-i18n="settings.auto_chatter_note"></small></span></label>
+              <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-play"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_play"></span><small data-i18n="settings.auto_play_note"></small></span></label>
             </section>
             <section id="settings-agents" class="settings-section" data-settings-section="agent-link-title" role="region" aria-labelledby="agent-link-title" hidden>
               <h3 id="agent-link-title" class="sr-only" tabindex="-1" data-i18n="settings.agents_tab"></h3>

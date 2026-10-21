@@ -204,6 +204,39 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+/* A find kept in the album leads to its book in one press. */
+.catch-album {
+  flex: none;
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--soft);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.catch-album:hover {
+  background: var(--control-hover);
+}
+/* Album, and Play in the dock, carry a dot while something new waits in the album. */
+#album-button.has-new,
+.yard-play-toggle.has-new {
+  position: relative;
+}
+#album-button.has-new::after,
+.yard-play-toggle.has-new::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
 .catch-dismiss {
   flex: 0 0 32px;
   width: 32px;

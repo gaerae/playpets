@@ -50,3 +50,30 @@ test('a saved bug catch has a decorative net that expires or clears on a scene t
     views.clear();
   }
 });
+
+test('a tool in hand never hides a creature: pressing it puts the tool away and catches', async context => {
+  const { nodes, element } = installDom(context, {
+    ids: ['yard', 'catch-card', 'toast', 'yard-hint', 'agent-summary', 'feed', 'plant-tool'],
+    props: { rect: { width: 800, height: 560 } },
+  });
+  nodes.get('catch-card').querySelector = () => element();
+  const pet = { id: 'friend', size: 112 },
+    view = { pet, px: 100, py: 200, z: 40, pose: 'idle', bubble: element(), button: element() };
+  views.set(pet.id, view);
+  setData({ pets: [pet], assets: [], statuses: {} });
+  setScenery({ catchAt: () => ({ species: catalog.bugs[0].id, x: 100, y: 200 }), near: () => true });
+  const { setAiming } = await import('../src/core/state.js');
+  setAiming('dig');
+  setupCatch();
+  const before = catches.length;
+  try {
+    nodes.get('yard').dispatch('click', { clientX: 100, clientY: 200 });
+    const state = await import('../src/core/state.js');
+    assert.equal(state.aiming, false, 'the dig tool is put away');
+    assert.equal(catches.length, before + 1, 'and the creature is caught in the same press');
+  } finally {
+    setAiming(false);
+    endFishing();
+    views.clear();
+  }
+});

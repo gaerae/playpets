@@ -129,6 +129,7 @@ test('desktop and strolling share visible switches and retain an unavailable str
     'wander-wrap',
     'desktop-wander',
     'auto-chatter',
+    'auto-play',
     'autostart',
   ])
     nodes.set(id, element('input', { id }));

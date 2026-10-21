@@ -217,7 +217,14 @@ export function sendDiscovery(v, point, action, kind) {
         if (result.repeated) return bubble(v, t('discovery.repeated'), 2600);
         if (result.outcome === 'keepsake') {
           const found = treasureKind(result.kind);
-          if (found) showCard(artSvg(found.art), t(`treasure.${found.id}`), t('discovery.kept'), !before.has(found.id));
+          if (found)
+            showCard(
+              artSvg(found.art),
+              t(`treasure.${found.id}`),
+              t('discovery.kept'),
+              !before.has(found.id),
+              'treasure',
+            );
         } else if (result.outcome === 'sapling') {
           bubble(v, t('discovery.sapling', { kind: t(`tree.${result.kind}`) }), 3000);
         } else if (result.outcome === 'full' && result.kind) {
@@ -266,13 +273,14 @@ export function sendDiscovery(v, point, action, kind) {
   });
 }
 
+// A friend that has dug within the backend's cooldown sits out the next spot.
+const rested = v => {
+  const pause = limit(data, 'digCooldownMs');
+  return performance.now() - (lastDig.get(v.pet.id) ?? -pause) >= pause;
+};
 // The friend for the next spot: the selected one when it is free and rested, else the nearest such friend.
 function actorFor(point) {
-  const rest = limit(data, 'digCooldownMs');
-  const ready = v =>
-    isFree(v) &&
-    !tasks.has(v) &&
-    (intent.action !== 'dig' || performance.now() - (lastDig.get(v.pet.id) ?? -rest) >= rest);
+  const ready = v => isFree(v) && !tasks.has(v) && (intent.action !== 'dig' || rested(v));
   const first = views.get(selected) || views.get(intent.petId);
   if (first && ready(first)) return first;
   const spot = fieldToYard(point);
@@ -296,6 +304,22 @@ function order(point, v = actorFor(point)) {
   }
   if (action === 'dig') lastDig.set(v.pet.id, performance.now());
   sendDiscovery(v, point, action, kind);
+}
+/** With Let them dig on (Settings → Friends & AI): an idle friend digs a spot of its own choosing.
+ * Never during a game or while the person holds a tool; returns whether a friend set off. */
+export function autoDig(rng = Math.random) {
+  if (game || aiming || intent || !groundProfile().soil) return false;
+  const idle = [...views.values()].filter(v => isFree(v) && !tasks.has(v) && rested(v));
+  if (!idle.length) return false;
+  const v = idle[Math.floor(rng() * idle.length)];
+  for (let tries = 0; tries < 12; tries++) {
+    const point = { x: 0.1 + rng() * 0.8, y: 0.15 + rng() * 0.75 };
+    if (!groundAllows(point, groundProfile())) continue;
+    lastDig.set(v.pet.id, performance.now());
+    sendDiscovery(v, point, 'dig');
+    return true;
+  }
+  return false;
 }
 /** Whether a right-click at this point of the window lands on ground a friend could dig. */
 export function canDigAt(clientX, clientY) {
@@ -326,7 +350,12 @@ function syncTools(kind = aiming) {
     $('discovery-tree-choices').hidden = true;
     $('discovery-find-saplings').hidden = true;
     $('discovery-target').hidden = false;
-  } else if (!kind && !intent) $('discovery-target').hidden = true;
+  } else if (!kind && intent) {
+    // Put away from elsewhere (a press on the lake or a creature): the dig or tree choice ends too.
+    intent = null;
+    $('discovery-target').hidden = true;
+    if ($('discovery-marker')) $('discovery-marker').hidden = true;
+  } else if (!kind) $('discovery-target').hidden = true;
 }
 function useTool(tool) {
   if (tool === 'seed') {
@@ -351,6 +380,7 @@ export function setupDiscovery() {
       button.type = 'button';
       button.className = 'discovery-tool';
       button.dataset.tool = tool;
+      button.setAttribute('aria-keyshortcuts', String(TOOLS.findIndex(([name]) => name === tool) + 1));
       mark.dataset.icon = icon;
       label.textContent = t(key);
       button.append(mark, label);
@@ -365,6 +395,15 @@ export function setupDiscovery() {
   );
   if ($('discovery-tools')) icons($('discovery-tools'));
   onAimingChange(syncTools);
+  // Only while a tool is in hand (not the menu bar's shortcuts): 1, 2 and 3 pick a tool from the strip.
+  document.addEventListener('keydown', event => {
+    if (!TOOLS.some(([tool]) => tool === aiming) || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.target?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+    const tool = TOOLS[Number(event.key) - 1]?.[0];
+    if (!tool || tool === aiming) return;
+    event.preventDefault?.();
+    useTool(tool);
+  });
   $('discovery-find-saplings').onclick = () => beginDiscovery('dig');
   $('discovery-tree-choices').addEventListener('click', event => {
     const button = event.target.closest('[data-tree-kind]');

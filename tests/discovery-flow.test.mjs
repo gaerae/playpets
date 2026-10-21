@@ -489,3 +489,53 @@ test('digging at a right-clicked spot needs no trip through Play', async t => {
   assert.ok(v.trip);
   assert.equal(state.aiming, 'dig', 'the dig tool stays ready for the next spot');
 });
+
+test('with a tool in hand, 1, 2 and 3 switch tools unless a person is typing', async t => {
+  fixture(t);
+  state.data.garden.saplings = { maple: 1 };
+  setupDiscovery();
+  beginDiscovery('dig');
+  await document.dispatch('keydown', { key: '2', target: document.body });
+  assert.equal(state.aiming, 'tree');
+  const field = document.createElement('input');
+  await document.dispatch('keydown', { key: '1', target: field });
+  assert.equal(state.aiming, 'tree', 'typing a digit in a field changes nothing');
+  await document.dispatch('keydown', { key: '1', target: document.body });
+  assert.equal(state.aiming, 'dig');
+  const strip = document.getElementById('discovery-tools').children;
+  assert.deepEqual(
+    strip.map(button => button.getAttribute('aria-keyshortcuts')),
+    ['1', '2', '3'],
+  );
+});
+
+test('with Let them dig on, an idle friend digs a spot of its own, never during a game or a tool in hand', async t => {
+  const { v } = fixture(t);
+  t.mock.method(performance, 'now', () => 3e9);
+  const { autoDig } = await import('../src/yard/discovery.js');
+  const { setGame } = state;
+  setGame({ kind: 'tag' });
+  assert.equal(
+    autoDig(() => 0.5),
+    false,
+    'a game is not interrupted',
+  );
+  setGame(null);
+  state.setAiming('tree');
+  assert.equal(
+    autoDig(() => 0.5),
+    false,
+    'a tool in the person’s hand comes first',
+  );
+  state.setAiming(false);
+  assert.equal(
+    autoDig(() => 0.5),
+    true,
+  );
+  assert.ok(v.trip, 'the idle friend walks to its spot');
+  assert.equal(
+    autoDig(() => 0.5),
+    false,
+    'a friend already digging is left alone',
+  );
+});

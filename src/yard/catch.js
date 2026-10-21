@@ -19,6 +19,7 @@ import { $, aiming, call, data, game, guard, name, remember, selected, toast, vi
 import { cadence } from '../core/ticker.js';
 import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
+import { setAimingMode } from './care.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
 import { environmentFishingSpot, environmentLake } from './environment.js';
@@ -229,7 +230,7 @@ const land = guard(async () => {
   const title = solo
     ? t('bond.solo_catch', { name: name(v.pet), fish: t(`catch.fish_${fish.id}`) })
     : t(`catch.fish_${fish.id}`);
-  showCard(fishSvg(fish), title, t('catch.size', { size: size.toFixed(1) }), first);
+  showCard(fishSvg(fish), title, t('catch.size', { size: size.toFixed(1) }), first, 'fish');
 });
 function reel() {
   if (!fishing) return;
@@ -339,7 +340,7 @@ const catchBug = guard(async caught => {
       cheer(v, 'catch.bug_caught', { say: 2600 });
     }
   }
-  showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first);
+  showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first, 'bug');
 });
 
 // What a point in the yard can be caught at: a creature in the air, or the lake.
@@ -347,6 +348,15 @@ function free(e) {
   return (
     !aiming && !game && data.pets.length && !e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button')
   );
+}
+// The play tools that stay in hand (digging, a tree, a seed). Pressing the lake or a creature with one
+// still fishes or catches: the press puts the tool away first, so nothing in the yard is hidden by it.
+const TOOLS = ['dig', 'tree', 'seed'];
+function toolGivesWay(e) {
+  if (!TOOLS.includes(aiming) || game || e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button'))
+    return false;
+  const [x, y] = at(e);
+  return !!scenery.near(x, y) || onLake(x, y);
 }
 function at(e) {
   const r = $('yard').getBoundingClientRect();
@@ -381,6 +391,14 @@ export function setupCatch() {
       }
     });
   }
+  // Before the tools' own clicks (capture), so the dig or seed handlers never see this press.
+  yard.addEventListener(
+    'click',
+    e => {
+      if (toolGivesWay(e)) setAimingMode(false);
+    },
+    { capture: true },
+  );
   yard.addEventListener('click', e => {
     if (!free(e)) return;
     const [x, y] = at(e),
@@ -391,7 +409,7 @@ export function setupCatch() {
   // Something to catch under the pointer shows as a hand.
   yard.addEventListener('pointermove', e => {
     const [x, y] = at(e),
-      can = free(e) && (scenery.near(x, y) || onLake(x, y));
+      can = (free(e) || toolGivesWay(e)) && (scenery.near(x, y) || onLake(x, y));
     yard.classList.toggle('can-catch', !!can);
   });
 }

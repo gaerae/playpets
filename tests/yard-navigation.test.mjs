@@ -176,11 +176,12 @@ test('the right-click on a friend offers talking or playing with that friend', a
   const { node, first, pin } = fixture(t);
   const talk = element('button', { dataset: { contextAction: 'talk', contextFor: 'friend' } });
   const play = element('button', { dataset: { contextAction: 'play-friend', contextFor: 'friend' } });
-  for (const item of [talk, play]) {
+  const dig = element('button', { dataset: { contextAction: 'dig-friend', contextFor: 'friend' } });
+  for (const item of [talk, play, dig]) {
     item.setAttribute('role', 'menuitem');
     item.append(element('span', { className: 'context-label' }));
   }
-  const all = [first, pin, talk, play];
+  const all = [first, pin, talk, play, dig];
   node('yard-context-menu').querySelectorAll = () => all;
   node('yard-context-menu').querySelector = selector =>
     all.find(item => selector.includes(`"${item.dataset.contextAction}"`))?.children[0] || null;
@@ -191,11 +192,17 @@ test('the right-click on a friend offers talking or playing with that friend', a
   assert.equal(node('yard-context-menu').hidden, false);
   assert.deepEqual(
     all.filter(item => !item.hidden).map(item => item.dataset.contextAction),
-    ['talk', 'play-friend'],
+    ['talk', 'play-friend', 'dig-friend'],
   );
   assert.match(talk.children[0].textContent, /Daisy/);
+  assert.match(dig.children[0].textContent, /Daisy/);
   await node('yard-context-menu').dispatch('click', { target: talk });
   assert.deepEqual(chats, ['friend']);
+  const digs = [];
+  setupControls({ digWith: id => digs.push(id) });
+  openFriendMenu('friend', { x: 40, y: 40 });
+  await node('yard-context-menu').dispatch('click', { target: dig });
+  assert.deepEqual(digs, ['friend'], 'asking a friend to dig picks up the tool for that friend');
   await node('yard').dispatch('contextmenu', { clientX: 20, clientY: 20 });
   assert.deepEqual(
     all.filter(item => !item.hidden).map(item => item.dataset.contextAction),
@@ -242,7 +249,7 @@ test('a right-click on bare ground offers digging there, and the scenery elsewhe
   node('yard-context-menu').querySelectorAll = () => all;
   node('yard-context-menu').querySelector = selector => (selector.includes('dig-here') ? dig : null);
   const dug = [];
-  setupControls({ canDigAt: (x, y) => y > 100, digAt: (x, y) => dug.push([x, y]) });
+  setupControls({ canDigAt: (_x, y) => y > 100, digAt: (x, y) => dug.push([x, y]) });
   await node('yard').dispatch('contextmenu', { clientX: 40, clientY: 50 });
   assert.equal(dig.hidden, true, 'the sky has nothing to dig');
   await document.dispatch('pointerdown', { target: node('yard') });
