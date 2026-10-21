@@ -233,3 +233,21 @@ test('management click bubbling preserves the task details opened by its destina
   assert.equal(node('update-dialog').hidden, false);
   assert.equal(node('side-panel').hidden, false);
 });
+
+test('a right-click on bare ground offers digging there, and the scenery elsewhere does not', async t => {
+  const { node, first, pin } = fixture(t);
+  const dig = element('button', { dataset: { contextAction: 'dig-here', contextFor: 'yard' } });
+  dig.setAttribute('role', 'menuitem');
+  const all = [dig, first, pin];
+  node('yard-context-menu').querySelectorAll = () => all;
+  node('yard-context-menu').querySelector = selector => (selector.includes('dig-here') ? dig : null);
+  const dug = [];
+  setupControls({ canDigAt: (x, y) => y > 100, digAt: (x, y) => dug.push([x, y]) });
+  await node('yard').dispatch('contextmenu', { clientX: 40, clientY: 50 });
+  assert.equal(dig.hidden, true, 'the sky has nothing to dig');
+  await document.dispatch('pointerdown', { target: node('yard') });
+  await node('yard').dispatch('contextmenu', { clientX: 40, clientY: 150 });
+  assert.equal(dig.hidden, false);
+  await node('yard-context-menu').dispatch('click', { target: dig });
+  assert.deepEqual(dug, [[40, 150]]);
+});

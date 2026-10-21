@@ -57,7 +57,12 @@ export function closeScene() {
   $('scene-button').setAttribute('aria-expanded', 'false');
 }
 
-export function setupControls({ beforeOpen = () => {}, openChat = () => {} } = {}) {
+export function setupControls({
+  beforeOpen = () => {},
+  openChat = () => {},
+  canDigAt = () => false,
+  digAt = () => {},
+} = {}) {
   surfaces = [];
   const closeOthers = except => {
     beforeOpen();
@@ -118,6 +123,8 @@ export function setupControls({ beforeOpen = () => {}, openChat = () => {} } = {
     let point = { x: 8, y: 8 },
       friend = null;
     const items = menuNavigation(context);
+    const digHere = () =>
+      [...context.querySelectorAll('[data-context-action]')].find(item => item.dataset.contextAction === 'dig-here');
     const show = (forWhat, id = null) => {
       friend = id;
       for (const item of context.querySelectorAll('[data-context-for]'))
@@ -170,6 +177,9 @@ export function setupControls({ beforeOpen = () => {}, openChat = () => {} } = {
       event.preventDefault();
       point = { x: event.clientX, y: event.clientY };
       show('yard');
+      // Bare ground offers digging right there, without a trip through Play.
+      const dig = digHere();
+      if (dig) dig.hidden = !canDigAt(point.x, point.y);
       box.open();
     });
     // Small windows hide the dock; one corner button opens the same menu the scenery's right-click does.
@@ -188,6 +198,8 @@ export function setupControls({ beforeOpen = () => {}, openChat = () => {} } = {
       const r = launcher.getBoundingClientRect();
       point = { x: r.right, y: r.top - 8 };
       show('yard');
+      const dig = digHere();
+      if (dig) dig.hidden = true;
       box.open();
       launcher.setAttribute('aria-expanded', 'true');
     });
@@ -204,6 +216,7 @@ export function setupControls({ beforeOpen = () => {}, openChat = () => {} } = {
       else if (action === 'play') openPlay();
       else if (action === 'pin') $('always-on-top').click();
       else if (action === 'menu') openControls();
+      else if (action === 'dig-here') digAt(point.x, point.y);
       else if (action === 'talk') openChat(friend);
       else if (action === 'play-friend') openPlay();
     });

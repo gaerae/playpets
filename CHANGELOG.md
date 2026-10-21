@@ -11,12 +11,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Manage every AI connection in one place, in Settings → Friends & AI, with automatic chat beside them.
 - Open the scenery's menu from a corner button in small windows, where the dock is hidden.
+- Dig at a right-clicked spot of bare ground with Dig here, without opening Play.
 
 ### Changed
 
 - Show Place & atmosphere, Play and Friends & settings each as one page of sections, without tabs, sub-views or Back buttons: Play groups Find, Garden and Group games, and a running game ends from its own tile.
 - Keep one Settings entry in Friends & settings; Settings always opens on its list of sections, and Back returns one step at a time.
 - Offer Talk and Play in a friend's right-click menu, matching the name tag and the dock.
+- Keep the dig and tree tools in hand after each spot, sending the next free friend each time, and switch between digging, trees and seeds from the strip at the top until Esc or Close puts the tool away.
 - Fold the dock's panels into tiles in small windows, keeping a chosen atmosphere row in view, and move Quit PlayPets out of About to sit beside Close window.
 - Open the conversation from a friend's name tag, as its tooltip says; play stays on the friend's right-click.
 - Quit at once from the page, as from the tray and the macOS menu bar, now that Close window and Quit PlayPets sit side by side.

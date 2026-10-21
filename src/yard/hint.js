@@ -10,8 +10,9 @@ import { worldAllows } from './worlds.js';
  * still to learn (a pat, until the first; then the lake, until it has been fished; catch.js). */
 export function hintKey({ game, aiming, friends, patted, fished }) {
   if (game) return { text: game.hint };
-  if (aiming === 'dig' || aiming === 'tree') return null;
-  if (aiming) return { key: aiming === 'seed' ? 'hint.plant' : 'hint.treat' };
+  // The tools' own strip says what to do with them; only the treat keeps the line below.
+  if (['dig', 'tree', 'seed'].includes(aiming)) return null;
+  if (aiming) return { key: 'hint.treat' };
   if (!friends) return null;
   if (!patted) return { key: 'hint.pat' };
   return fished ? null : { key: 'hint.fish' };

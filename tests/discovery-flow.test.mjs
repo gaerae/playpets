@@ -432,3 +432,60 @@ test('authored planting rechecks current ground and ownership at contact before 
     });
   }
 });
+
+test('the dig tool stays in hand: each spot sends the next free friend until Escape', async t => {
+  const { v } = fixture(t);
+  t.mock.method(performance, 'now', () => 1e9);
+  const other = {
+    pet: { id: 'second', size: 112, name: 'Pip' },
+    px: 600,
+    py: 400,
+    x: 0.6,
+    y: 0.5,
+    pose: 'idle',
+    bubble: element('span'),
+  };
+  views.set(other.pet.id, other);
+  state.data.pets.push(other.pet);
+  t.after(() => release(other));
+  setupDiscovery();
+  beginDiscovery('dig');
+  await document.getElementById('yard').dispatch('click', { clientX: 500, clientY: 620 });
+  assert.ok(v.trip, 'the selected friend goes first');
+  assert.equal(state.aiming, 'dig', 'the tool stays in hand after the first spot');
+  await document.getElementById('yard').dispatch('click', { clientX: 540, clientY: 620 });
+  assert.ok(other.trip, 'the next spot goes to the friend who is free');
+  await document.getElementById('yard').dispatch('click', { clientX: 520, clientY: 620 });
+  assert.equal(document.getElementById('toast').textContent, 'Every friend is busy right now');
+  await document.dispatch('keydown', { key: 'Escape' });
+  assert.equal(state.aiming, false);
+});
+
+test('the tool strip switches between digging, trees and seeds without reopening Play', async t => {
+  fixture(t);
+  state.data.garden.saplings = { maple: 1 };
+  state.data.garden.seeds = 2;
+  setupDiscovery();
+  beginDiscovery('dig');
+  const tool = name => document.getElementById('discovery-tools').children.find(b => b.dataset.tool === name);
+  assert.equal(tool('dig').getAttribute('aria-pressed'), 'true');
+  tool('tree').onclick();
+  assert.equal(state.aiming, 'tree');
+  assert.equal(document.getElementById('discovery-target').hidden, false);
+  assert.equal(tool('tree').getAttribute('aria-pressed'), 'true');
+  document.getElementById('discovery-cancel').onclick();
+  assert.equal(state.aiming, false);
+  assert.equal(document.getElementById('discovery-target').hidden, true);
+});
+
+test('digging at a right-clicked spot needs no trip through Play', async t => {
+  const { v } = fixture(t);
+  t.mock.method(performance, 'now', () => 2e9);
+  setupDiscovery();
+  const { canDigAt, digAt } = await import('../src/yard/discovery.js');
+  assert.equal(canDigAt(500, 20), false, 'the sky is not ground');
+  assert.equal(canDigAt(500, 620), true);
+  digAt(500, 620);
+  assert.ok(v.trip);
+  assert.equal(state.aiming, 'dig', 'the dig tool stays ready for the next spot');
+});

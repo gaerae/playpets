@@ -52,7 +52,14 @@ import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
 import { giftTick, renderDecor, setupDecor } from './yard/decor.js';
-import { cancelDiscovery, cancelDiscoveryWork, setupDiscovery, syncDiscovery } from './yard/discovery.js';
+import {
+  cancelDiscovery,
+  cancelDiscoveryWork,
+  canDigAt,
+  digAt,
+  setupDiscovery,
+  syncDiscovery,
+} from './yard/discovery.js';
 import { renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { moveFriends } from './yard/motion.js';
@@ -121,6 +128,8 @@ setupWindow();
 setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
   openChat,
+  canDigAt,
+  digAt,
   beforeOpen: () => {
     cancelDiscovery();
     syncDiscovery();

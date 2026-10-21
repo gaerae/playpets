@@ -128,6 +128,8 @@ Each friend grows closer to you through time in the yard and what you do togethe
 
 Open **Play** from the dock, or right-click a friend and choose **Play with** and its name. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
 
+The dig tool stays in hand until you put it away: each spot you choose sends the next free friend, and a friend that has just dug rests a moment while another goes. The strip at the top switches to **Plant a tree** or **Plant a seed** in one press; its close button or **Esc** puts the tool away. Right-click bare ground and choose **Dig here** to dig that spot without opening **Play**.
+
 Daisy, Clover, Pip and Miso have dedicated motions for digging, planting, casting, waiting for a bite, reeling in and reacting to a find in every season. Daisy, Pip and Miso share their everyday outfits in spring and autumn and change into summer and winter outfits. Clover keeps the teal overalls and straw hat through autumn, then changes into a coat, scarf and knitted beanie for winter. Imported pets join the same activities with their original animations.
 
 A completed dig can uncover a flower seed, a sapling or one of seventeen keepsakes, or nothing. Keepsakes appear in **Album → Keepsakes**. After an uncommon find, all friends and places wait 24 hours for another uncommon find. Repeats mean completion can take longer. The same patch gives no further reward for 24 hours; each friend waits eight seconds between digs. Seeds are capped at 20 and saplings at 20 per species. Full storage does not convert a reward.
