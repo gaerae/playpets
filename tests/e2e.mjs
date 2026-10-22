@@ -657,9 +657,12 @@ const scenario = `(async()=>{
         // Wide windows keep every name on one line; small windows fold tiles and allow two lines, but nothing spills.
         const folded=document.body.classList.contains('compact');
         const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded||labels.every(noWrap));};
+        // With seeds or without, the same: a two-digit count is the widest the seed tile shows.
+        const seedsBefore=$('seed-count').textContent;$('seed-count').textContent='12';
         const tiles=[...$('play-sections').querySelectorAll('.play-action')];
         const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')])}));
         const playOk=tiles.length===10&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
+        $('seed-count').textContent=seedsBefore;
         if(!playOk)menuCopyTrace.push([lang,innerWidth,'play',playChecks]);
         $('close-play').click();openMenu();await wait(40);
         const actions=[...$('yard-controls-panel').querySelectorAll('.menu-destination')];
