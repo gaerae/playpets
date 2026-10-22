@@ -7,6 +7,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-22
+
 ### Added
 
 - Manage every AI connection in one place, in Settings → Friends & AI, with automatic chat beside them; Edit and Connect an AI open the form right there, without a second window over Settings.
@@ -38,7 +40,6 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Fixed
 
-- Point the install guide and the 1.1.0 release pages to Settings → App updates, where the update controls are.
 - Keep Settings open after choosing Later in App updates, and dim the whole window behind Settings.
 - Keep a friend's name readable when a coding agent's name shares its tag.
 - Stop editing a connection from Settings from moving the selected friend to it.
@@ -55,6 +56,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Security
 
 - Update rustls-webpki to 0.103.16 and the bundled web PKI roots to 1.0.10, so certificate checks no longer trust the distrusted emSign intermediates (RUSTSEC-2026-0381, RUSTSEC-2026-0382, RUSTSEC-2026-0383).
+
+### Known limitations
+
+- The moon's phase and the harvest moon follow the average lunar month, so on some nights they can be up to about a day off the real sky.
 
 ## [1.1.0] - 2026-10-20
 
