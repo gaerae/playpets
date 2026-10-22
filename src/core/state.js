@@ -134,9 +134,15 @@ export function toast(message, { error = false, action = null, ms = 0 } = {}) {
     line.append(button);
   }
   line.classList.toggle('error', error);
-  // Plain lines take turns in the room there is; a line with an action stays until it is done.
-  const plain = [...notice.children].filter(other => !other.querySelector?.('.toast-action')),
-    gone = new Set(plain.slice(0, Math.max(0, plain.length - noticeLines())));
+  // Plain lines take turns in the room there is; a line with an action stays until it is done, at
+  // most two of them (an older Undo gives way; its removal still happens on time).
+  const lines = [...notice.children],
+    acting = lines.filter(other => other.querySelector?.('.toast-action')),
+    plain = lines.filter(other => !acting.includes(other)),
+    gone = new Set([
+      ...plain.slice(0, Math.max(0, plain.length - noticeLines())),
+      ...acting.slice(0, Math.max(0, acting.length - 2)),
+    ]);
   if (gone.size) notice.replaceChildren(...[...notice.children].filter(other => !gone.has(other)));
   placeNotice();
   notice.hidden = false;

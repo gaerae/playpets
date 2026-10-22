@@ -27,7 +27,7 @@ function dismiss() {
   clearTimeout(soundTimer);
   $('catch-card').hidden = true;
   const next = waiting.shift();
-  if (next) present(...next);
+  if (next) present(next);
 }
 // Room kept above a friend for its own speech bubble ("I caught one!") when a card stands over it.
 const BUBBLE_ROOM = 44;
@@ -35,12 +35,25 @@ const BUBBLE_ROOM = 44;
  * book it is kept in (none for news such as an event starting), and the friend or thing that found
  * it, which the card stands above (news with no finder keeps to the lane at the top). */
 export function showCard(svg, name, detail, first, book = null, finder = null) {
-  if (!$('catch-card').hidden || holding) {
-    waiting.push([svg, name, detail, first, book, finder]);
-    if (waiting.length > WAITING_MAX) waiting.shift();
-    return;
+  const next = [svg, name, detail, first, book, finder];
+  if (!$('catch-card').hidden) return wait(next);
+  // A card held under a panel lets a newer one show if that one is in view, and goes next after it.
+  if (held) {
+    const card = $('catch-card');
+    draw(next);
+    if (!landsCovered(card, finder)) {
+      waiting.unshift(held);
+      held = null;
+      clearTimeout(holdTimer);
+      return reveal(next);
+    }
+    return wait(next);
   }
-  present(svg, name, detail, first, book, finder);
+  present(next);
+}
+function wait(next) {
+  waiting.push(next);
+  if (waiting.length > WAITING_MAX) waiting.shift();
 }
 // A card that would land under an open panel or sheet waits for it to close (looking again each
 // second); one beside a panel, in the yard still in view, shows at once.
@@ -57,23 +70,16 @@ function covered(card) {
     );
   });
 }
-let holdTimer = 0,
-  holding = false;
-// Looks each second whether the panels have closed, without drawing the card again meanwhile; new
-// cards queue behind the one held.
-function holdWhileCovered() {
-  holding = true;
-  clearTimeout(holdTimer);
-  const check = () => {
-    if (PANELS.some(id => $(id) && !$(id).hidden)) {
-      holdTimer = setTimeout(check, 1000);
-      return;
-    }
-    holding = false;
-    const next = waiting.shift();
-    if (next) present(...next);
-  };
-  holdTimer = setTimeout(check, 1000);
+// The card held under a panel (its words, as given to showCard); it looks again each second,
+// as the panel may close or the friend walk out from under it.
+let held = null,
+  holdTimer = 0;
+function landsCovered(card, finder) {
+  card.hidden = false;
+  place(card, finder);
+  if (!covered(card)) return false;
+  card.hidden = true;
+  return true;
 }
 // Above the finder, centred on it and kept inside the window; without room above, the top lane.
 function place(card, finder) {
@@ -90,9 +96,12 @@ function place(card, finder) {
   card.style.left = `${Math.round(left)}px`;
   card.style.top = `${Math.round(top)}px`;
 }
-function present(svg, name, detail, first, book, finder) {
-  clearTimeout(timer);
-  clearTimeout(soundTimer);
+// The card's words and buttons, drawn again only when it is another card.
+let drawn = null;
+function draw(args) {
+  if (drawn === args) return;
+  drawn = args;
+  const [svg, name, detail, first, book] = args;
   const card = $('catch-card');
   card.innerHTML = `<div class="catch-specimen">${svg}</div><div class="catch-copy"><strong></strong><small></small>${first ? '<small class="catch-new"></small>' : ''}</div><button class="icon-button catch-dismiss" type="button"><span data-icon="close"></span></button>`;
   const close = card.querySelector('.catch-dismiss');
@@ -103,7 +112,6 @@ function present(svg, name, detail, first, book, finder) {
   card.querySelector('small').textContent = detail;
   if (first) {
     card.querySelector('.catch-new').textContent = t('catch.new');
-    soundTimer = setTimeout(() => cue('first'), 450);
     if (book) {
       remember('album-new', '1');
       syncNew();
@@ -122,17 +130,23 @@ function present(svg, name, detail, first, book, finder) {
     // Before Close, so the card reads: what it is, where it is kept, then Close.
     card.insertBefore(link, close);
   }
-  card.hidden = false;
-  place(card, finder);
-  if (covered(card)) {
-    clearTimeout(soundTimer);
-    card.hidden = true;
-    waiting.unshift([svg, name, detail, first, book, finder]);
-    // The held card goes first; past the limit the oldest of the others gives way.
-    if (waiting.length > WAITING_MAX) waiting.splice(1, 1);
-    return holdWhileCovered();
+}
+function present(args) {
+  clearTimeout(timer);
+  clearTimeout(soundTimer);
+  clearTimeout(holdTimer);
+  draw(args);
+  if (landsCovered($('catch-card'), args[5])) {
+    held = args;
+    holdTimer = setTimeout(() => present(args), 1000);
+    return;
   }
-  // The shared reading time for its words, and a little longer for something new.
+  held = null;
+  reveal(args);
+}
+// On show: a sound for something new, and the shared reading time for its words, a little longer then.
+function reveal([, name, detail, first]) {
+  if (first) soundTimer = setTimeout(() => cue('first'), 450);
   timer = setTimeout(expire, readingTime(`${name} ${detail}`) + (first ? 1500 : 0));
 }
 function expire() {

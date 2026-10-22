@@ -68,3 +68,21 @@ test('in a small window a later notice does not push out a pending Undo', async 
     'plain notices take turns in the one line beside it',
   );
 });
+
+test('at most two Undo lines stay; an older one gives way but its removal still happens', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { document, nodes } = installDom(t, { ids: ['toast'] });
+  document.querySelectorAll = () => [];
+  const notice = nodes.get('toast');
+  notice.hidden = true;
+  let commits = 0;
+  for (const id of ['a', 'b', 'c'])
+    removeWithUndo(id, { button: element('button') }, `Pulled ${id}`, async () => commits++);
+  assert.deepEqual(
+    notice.children.map(line => line.dataset.words),
+    ['Pulled b', 'Pulled c'],
+  );
+  t.mock.timers.tick(6000);
+  await Promise.resolve();
+  assert.equal(commits, 3);
+});

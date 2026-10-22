@@ -25,7 +25,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Keep the dig and tree tools in hand after each spot, sending the next free friend each time, and switch between digging, trees and seeds from the strip at the bottom until Esc or Close puts the tool away.
 - Fish or catch a creature with one press even while a play tool is in hand; the press puts the tool away first.
 - Show the tool strip where the dock was, right where Play was opened and just above the ground, and show a find's card above the friend who found it.
-- Give every message on the yard one look and one reading time: notices stack two lines along the bottom (one in small windows) with failures in dark ink, cards wait while a panel covers the yard, overlapping speech bubbles rise clear of each other, and a friend's words are read aloud to screen readers.
+- Give every message on the yard one look and one reading time: notices stack two lines along the bottom (one in small windows, beside a pending Undo) with failures in dark ink, cards wait while a panel covers the yard, overlapping speech bubbles rise clear of each other, and a friend's words are read aloud to screen readers.
 - Pull up flowers and trees and put gifts away at once, with a few seconds to undo it in the notice below, instead of a red confirmation each time.
 - Keep confirmations calm unless something that cannot come back is lost (a saved key, a friend's closeness, a background, a conversation), give every dialog a Close button and its destructive action at the far left, and say what stays before what goes when a friend is sent away.
 - Fold the dock's panels into tiles in small windows, keeping a chosen atmosphere row in view.
