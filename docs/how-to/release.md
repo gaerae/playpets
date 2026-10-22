@@ -94,7 +94,7 @@ file at an existing download address. Release notes can clarify known limits.
 git switch main && git pull
 ```
 
-2. Capture the screens for the site (macOS). The first time, macOS asks for screen recording permission; allow it. The results land in `website/public/shots/0.2.0/` in every app language. Then redraw the installer art, which also turns the English captures into the screenshots Linux software centers show, and commit both.
+2. Capture the screens for the site (macOS). The first time, macOS asks for screen recording permission; allow it. The results land in `website/public/shots/0.2.0/` in every app language. Once you have looked them over, set `CAPTURE_VERSION` in `scripts/site-content.mjs` to the new version, so the site and the installer art use them. Then redraw the installer art, which also turns those English captures into the screenshots Linux software centers show, and commit all of it.
 
 ```bash
 npm run shots -- 0.2.0
