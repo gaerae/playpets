@@ -133,7 +133,7 @@
   --flower-b: #aab6c8;
   --flower-c: #b8a86a;
   --orb: #f4efd8;
-  --orb-glow: #f4efd83d;
+  --orb-glow: #f4efd870;
 }
 .yard.weather-rain {
   --sky-a: #7f93a6;
@@ -227,33 +227,24 @@
     animation: none;
   }
 }
-/* The moon in tonight's phase. Its dark side stays faintly there, as earthshine shows it, and the
-   lit part is the same moon through a soft mask (--moon-lit, from sky.js): the rim on one side and
-   the terminator's half ellipse, so a crescent tapers and a gibbous moon bulges as they do. The same
-   mask keeps a trace of the dark side, as earthshine shows it. Behind it a night disc that fades out
-   at its edge hides the stars, with no rim of its own; the glow is the lit part blurred, outside
-   the disc only (--moon-glow), so no bright ring hugs the dark side. */
+/* The moon in tonight's phase, drawn through one mask twice its size (--moon-lit, from sky.js): the
+   lit part, the rim on one side and the terminator's half ellipse, so a crescent tapers and a
+   gibbous moon bulges as they do; a trace of the dark side, as earthshine shows it; and under them
+   the lit part blurred wide, which lets the glow colour through around the lit side only. Behind it
+   a night disc that fades out at its edge hides the stars, with no rim of its own. */
 .period-night .sky-body {
   height: min(8%, 56px);
   background: radial-gradient(closest-side, color-mix(in srgb, var(--sky-a) 85%, transparent) 80%, transparent);
   box-shadow: none;
 }
-.period-night .sky-body::before {
+.period-night .sky-body::after {
   content: "";
   position: absolute;
   inset: -50%;
   pointer-events: none;
-  background: var(--orb-glow);
-  mask: var(--moon-glow) center / 100% 100% no-repeat;
-}
-.period-night .sky-body::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
   background:
-    url("../art/sky/moon.png") center / cover,
-    var(--orb);
+    url("../art/sky/moon.png") center / 50% 50% no-repeat,
+    linear-gradient(var(--orb-glow) 0 0);
   mask: var(--moon-lit) center / 100% 100% no-repeat;
 }
 .weather-rain .sky-body,
@@ -412,9 +403,9 @@
 }
 .look-fullmoon.moon-full.period-night .sky-body::after {
   background:
-    linear-gradient(#f5c86a38 0 0),
-    url("../art/sky/moon.png") center / cover,
-    var(--orb);
+    radial-gradient(closest-side, #f5c86a38 99%, transparent) center / 50% 50% no-repeat,
+    url("../art/sky/moon.png") center / 50% 50% no-repeat,
+    linear-gradient(var(--orb-glow) 0 0);
 }
 
 /* An interior is a complete room painting; outdoor overlays never cross its window glass. */

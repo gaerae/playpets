@@ -469,7 +469,6 @@ const SET_FROM_CODE = {
   '--orb-x': 'src/yard/sky.js',
   '--orb-y': 'src/yard/sky.js',
   '--moon-lit': 'src/yard/sky.js',
-  '--moon-glow': 'src/yard/sky.js',
   '--bubble-lift': 'src/yard/views.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no

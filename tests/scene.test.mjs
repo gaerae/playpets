@@ -15,7 +15,6 @@ import {
   groundFor,
   harvestMoon,
   initialSceneChoices,
-  moonGlow,
   moonLit,
   moonMask,
   moonPhase,
@@ -228,7 +227,12 @@ test('the harvest moon is the first full moon on or after the event starts, one 
 });
 
 test('the lit part is drawn as a limb and an elliptical terminator, never a second disc', () => {
-  const arcs = svg => [...svg.matchAll(/A([\d.]+) 50 0 0 ([01]) 50 (0|100)/g)].map(m => [Number(m[1]), m[2], m[3]]);
+  const arcs = svg =>
+    [...svg.match(/<path d="([^"]+)"\/><\/g><\/svg>/)[1].matchAll(/A([\d.]+) 50 0 0 ([01]) 50 (0|100)/g)].map(m => [
+      Number(m[1]),
+      m[2],
+      m[3],
+    ]);
   // Waxing crescent: the limb runs down the right side, the terminator comes back up through it.
   assert.deepEqual(arcs(moonMask({ lit: 'right', edge: 0.6 })), [
     [50, '1', '100'],
@@ -244,7 +248,8 @@ test('the lit part is drawn as a limb and an elliptical terminator, never a seco
     [50, '0', '100'],
     [30, '1', '0'],
   ]);
-  assert.match(moonMask({ lit: 'right', edge: -1 }), /^<svg [^>]*viewBox="0 0 100 100"/);
+  // Twice the moon, centred on it, so the glow has room around the disc.
+  assert.match(moonMask({ lit: 'right', edge: -1 }), /^<svg [^>]*viewBox="-50 -50 200 200"/);
   // The dark side keeps a trace of the moon, as earthshine shows it, gone before the painted moon's
   // bright rim so the dark side has no outline.
   const shine = moonMask({ lit: 'right', edge: 0.6 });
@@ -254,13 +259,20 @@ test('the lit part is drawn as a limb and an elliptical terminator, never a seco
   assert.match(moonMask({ lit: 'right', edge: 0 }), /A1 50 /);
 });
 
-test('the glow comes from the lit part only and stops at the rim, so the dark limb has no bright ring', () => {
-  const lit = { lit: 'right', edge: -0.6 },
-    glow = moonGlow(lit),
-    path = moonMask(lit).match(/ d="([^"]+)"/)[1];
-  assert.match(glow, /viewBox="-50 -50 200 200"/, 'twice the moon, centred on it');
-  assert.ok(glow.includes(`d="${path}"`), 'the same lit shape, blurred');
-  assert.match(glow, /<circle cx="50" cy="50" r="50" fill="#000"\/>/, 'the disc itself is cut out');
+test('the glow comes from the lit part only, in the same mask, so the dark limb has no bright ring', () => {
+  const mask = moonMask({ lit: 'right', edge: -0.6 }),
+    paths = [...mask.matchAll(/<path d="(M50[^"]+)"( filter="url\(#glow\)")?/g)];
+  assert.equal(paths.length, 2);
+  assert.equal(paths[0][1], paths[1][1], 'the lit shape, once blurred wide for the glow and once for the moon');
+  assert.ok(paths[0][2], 'the glow comes first, under the moon');
+  // The glow stays outside the disc, so it neither lights the dark side nor smudges the terminator.
+  assert.match(
+    mask,
+    /<clipPath id="out"><path clip-rule="evenodd" d="M-50 -50H150V150H-50ZM50 0A50 50 0 1 0 50 100A50 50 0 1 0 50 0Z"\/><\/clipPath>/,
+  );
+  assert.match(mask, /<g clip-path="url\(#out\)"><path d="[^"]+" filter="url\(#glow\)"\/><\/g>/);
+  // WebKit draws an SVG holding a <mask> element as no mask at all: a square of glow.
+  assert.doesNotMatch(mask, /<mask/);
 });
 
 test('petals in spring and leaves in autumn drift down a few at a time, only in clear daylight', () => {
