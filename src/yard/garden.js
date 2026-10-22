@@ -102,14 +102,7 @@ function bloomed(plant, now) {
       asked.add(plant.id);
       bloomRetry.delete(plant.id);
       if (r?.entry?.count === 1)
-        showCard(
-          flowerSvg(plant.kind),
-          t(`garden.kind_${plant.kind}`),
-          t('catch.bloomed'),
-          true,
-          'flower',
-          shown.get(plant.id)?.button,
-        );
+        showCard(flowerSvg(plant.kind), t(`garden.kind_${plant.kind}`), t('catch.bloomed'), true, 'flower');
     })
     .catch(error => {
       // Retried quietly after the first message, so a backend that keeps refusing does not

@@ -128,7 +128,7 @@ test('importing a pet stays a visible Invite action rather than a hidden search 
 test('the tool strip takes the place of the dock, where Play was opened and just above the ground', async () => {
   const html = await read('src/index.html');
   const lane = html.slice(html.indexOf('<div class="yard-feedback">'), html.indexOf('id="catch-card"'));
-  assert.ok(!lane.includes('id="discovery-target"'), 'the strip is not in the top lane');
+  assert.ok(!lane.includes('id="discovery-target"'), 'the strip is not in the lane of messages');
   assert.ok(html.indexOf('id="discovery-target"') < html.indexOf('id="scene-menu"'), 'it sits with the dock');
   const shell = await read('src/styles/shell.css');
   assert.match(shell, /\.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\) \.yard-dock\s*\{[^}]*display:\s*none/s);

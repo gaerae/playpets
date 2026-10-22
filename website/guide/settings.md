@@ -82,7 +82,7 @@ Open **Friends & settings** and choose **Close window** to hide the yard in the 
 | `pets/` | Pet folders imported from an address |
 | `builtin/` | Four bundled starter entries, unpacked and checked at each start. Each has its own baseline artwork |
 
-If a friend cannot load when the app opens, a collapsed **Startup notices** card floats at the top of the yard without reducing its space. Open it to read the details. For missing pet files, check the original pet folder and its files, restore them if needed, then quit and open PlayPets again. If the yard has reached its 12-friend limit, free a slot before opening the app again. These notices do not delete the saved friend records. Dismissing the card hides it for this session; new notices make it appear again.
+If a friend cannot load when the app opens, a collapsed **Startup notices** card floats just above the dock without reducing the yard's space. Open it to read the details. For missing pet files, check the original pet folder and its files, restore them if needed, then quit and open PlayPets again. If the yard has reached its 12-friend limit, free a slot before opening the app again. These notices do not delete the saved friend records. Dismissing the card hides it for this session; new notices make it appear again.
 
 ## Environment variables
 

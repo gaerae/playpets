@@ -1,4 +1,4 @@
-// The card that shows something new for a few seconds at the head of the yard: a fish or a bug
+// The card that shows something new for a few seconds in the lane above the dock: a fish or a bug
 // caught, a flower in bloom, a gift that came. Each says what it is, a detail, and whether it is
 // new in the album; one kept in the album offers its book, and a new one marks Album and Play.
 import { t } from '../core/i18n.js';
@@ -29,19 +29,17 @@ function dismiss() {
   const next = waiting.shift();
   if (next) present(next);
 }
-// Room kept above a friend for its own speech bubble ("I caught one!") when a card stands over it.
-const BUBBLE_ROOM = 44;
-/** Shows the card: a drawing (SVG markup), a name, a detail line, whether it is a first, the album
- * book it is kept in (none for news such as an event starting), and the friend or thing that found
- * it, which the card stands above (news with no finder keeps to the lane at the top). */
-export function showCard(svg, name, detail, first, book = null, finder = null) {
-  const next = [svg, name, detail, first, book, finder];
+/** Shows the card in the yard's one lane of messages, above the dock: a drawing (SVG markup), a name,
+ * a detail line, whether it is a first, and the album book it is kept in (none for news such as an
+ * event starting). Who found it says so in its own bubble. */
+export function showCard(svg, name, detail, first, book = null) {
+  const next = [svg, name, detail, first, book];
   if (!$('catch-card').hidden) return wait(next);
   // A card held under a panel lets a newer one show if that one is in view, and goes next after it.
   if (held) {
     const card = $('catch-card');
     draw(next);
-    if (!landsCovered(card, finder)) {
+    if (!landsCovered(card)) {
       waiting.unshift(held);
       held = null;
       clearTimeout(holdTimer);
@@ -74,27 +72,11 @@ function covered(card) {
 // as the panel may close or the friend walk out from under it.
 let held = null,
   holdTimer = 0;
-function landsCovered(card, finder) {
+function landsCovered(card) {
   card.hidden = false;
-  place(card, finder);
   if (!covered(card)) return false;
   card.hidden = true;
   return true;
-}
-// Above the finder, centred on it and kept inside the window; without room above, the top lane.
-function place(card, finder) {
-  card.classList.remove('near');
-  card.style.left = '';
-  card.style.top = '';
-  if (!finder?.isConnected) return;
-  const at = finder.getBoundingClientRect(),
-    size = card.getBoundingClientRect(),
-    top = at.top - size.height - BUBBLE_ROOM;
-  if (top < 8) return;
-  const left = Math.max(8, Math.min(at.left + at.width / 2 - size.width / 2, innerWidth - size.width - 8));
-  card.classList.add('near');
-  card.style.left = `${Math.round(left)}px`;
-  card.style.top = `${Math.round(top)}px`;
 }
 // The card's words and buttons, drawn again only when it is another card.
 let drawn = null;
@@ -136,7 +118,7 @@ function present(args) {
   clearTimeout(soundTimer);
   clearTimeout(holdTimer);
   draw(args);
-  if (landsCovered($('catch-card'), args[5])) {
+  if (landsCovered($('catch-card'))) {
     held = args;
     holdTimer = setTimeout(() => present(args), 1000);
     return;

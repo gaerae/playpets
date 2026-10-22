@@ -18,11 +18,20 @@ const styles = async () =>
     (await Promise.all((await readdir('src/styles')).sort().map(f => readFile(`src/styles/${f}`, 'utf8')))).join('\n'),
   );
 
-test('news shares the top lane while compact notices keep to the bottom edge beside the corner button', async () => {
+test('everything the yard says shares one lane just above the dock, clear of the strip and the corner button', async () => {
   const css = await styles();
-  assert.match(css, /\.yard-feedback\{[^}]*display:flex;[^}]*flex-direction:column;[^}]*gap:6px/);
-  assert.match(css, /body\.compact \.toast\{[^}]*top:auto;[^}]*bottom:8px;[^}]*right:52px/);
+  assert.match(
+    css,
+    /\.yard-feedback\{[^}]*inset:auto 12px 64px;[^}]*display:flex;[^}]*flex-direction:column;[^}]*gap:6px/,
+  );
+  // At the bottom by a spacer, so a lane taller than the window can still scroll to its top.
+  assert.match(css, /\.yard-feedback::before\{content:"";flex:1 0 0;\}/);
+  assert.doesNotMatch(css.match(/\.yard-feedback\{([^}]*)\}/)?.[1] || '', /justify-content:flex-end/);
+  assert.match(css, /\.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\)\.yard-feedback\{bottom:106px;/);
+  assert.match(css, /body\.compact \.yard-feedback\{inset:auto 52px 8px 8px;/);
   assert.match(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /pointer-events:none/);
+  assert.doesNotMatch(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /position:absolute/);
+  assert.doesNotMatch(css, /\.catch-card\.near/, 'a card no longer stands apart above its finder');
 });
 
 test('panels, controls and cards share restrained corner tokens while switches stay round', async () => {
@@ -553,7 +562,7 @@ test('floating scene menus stay above the full panel placement', async () => {
 
 test('game notices and discoveries share a bounded flow outside the field', async () => {
   const css = await styles();
-  assert.match(css, /\.yard-feedback\{[^}]*position:absolute;[^}]*inset:12px 12px auto;[^}]*overflow-y:auto/);
+  assert.match(css, /\.yard-feedback\{[^}]*position:absolute;[^}]*inset:auto 12px 64px;[^}]*overflow-y:auto/);
   for (const selector of ['.game-banner', '.catch-card']) {
     const rule = css.match(new RegExp(`(?:^|})\\${selector}\\{([^}]*)\\}`))?.[1] || '';
     assert.doesNotMatch(rule, /position:absolute|top:112px/);

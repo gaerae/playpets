@@ -72,7 +72,7 @@ test('a message already visible follows a newly opened modal', t => {
   assert.equal(nodes.get('toast').parentNode, dialog);
 });
 
-test('yard warnings, game instructions and discoveries share a non-overlapping lane outside the play field', async () => {
+test('warnings, game instructions, discoveries and notices share one lane, in that order, outside the field', async () => {
   const { readFile } = await import('node:fs/promises');
   const html = await readFile('src/index.html', 'utf8');
   const stack = html.indexOf('class="yard-feedback"');
@@ -80,8 +80,13 @@ test('yard warnings, game instructions and discoveries share a non-overlapping l
     stack > html.indexOf('id="weather-layer"'),
     'feedback follows the field instead of participating in game clicks',
   );
-  const end = html.indexOf('id="toast"', stack);
-  for (const id of ['warnings', 'game-banner', 'catch-card']) assert.ok(html.indexOf(`id="${id}"`, stack) < end, id);
+  const order = ['warnings', 'game-banner', 'catch-card', 'toast'].map(id => html.indexOf(`id="${id}"`, stack));
+  assert.ok(order.every(at => at > stack));
+  assert.deepEqual(
+    [...order].sort((a, b) => a - b),
+    order,
+    'the newest kind of message nearest the ground',
+  );
 });
 
 test('an error already shown inline in the open dialog is not repeated as a notice', async t => {

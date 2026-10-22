@@ -142,10 +142,10 @@ The three games are in **Play → Group games**. You can play only one game at a
 
 ### Hide and seek
 
-<Shot name="play-hide-and-seek" caption="Hide and seek. The banner at the top names the friend to find." />
+<Shot name="play-hide-and-seek" caption="Hide and seek. The line above the dock names the friend to find." />
 
 1. Click **Hide and seek** and the friends scatter to their hiding places. A friend who does not reach a spot within 15 seconds hides where they are.
-2. The banner at the top of the yard says **Click to find** and the name of the friend to find. Below it are the names of the other friends who are still hiding.
+2. The line just above the dock says **Click to find** and the name of the friend to find, then the names of the other friends who are still hiding. Everything the yard tells you, from a game, a find or a notice, appears in that same place.
 3. Find the friend whose name is called and click them. If you are right, they jump out saying "You found me!" and the banner moves on to the next friend.
 4. Click a different friend and you only get an "Oops, that's not them" notice, and that friend keeps hiding. The name to find does not change.
 5. Once you have found everyone, the game ends with "Everyone found!".

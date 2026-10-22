@@ -275,7 +275,6 @@ export function giftTick() {
           t('decor.brought', { name: name(v.pet), kind: kindName(d.kind) }),
           !seen.has(d.kind),
           'gift',
-          v.button,
         );
     })
     .catch(() => {

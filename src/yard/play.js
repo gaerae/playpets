@@ -60,7 +60,7 @@ function say(text) {
   game.hint = text;
   hint();
 }
-// The banner at the head of the yard says what a game is asking for; without a title it goes away.
+// The game's line in the lane above the dock says what a game is asking for; without a title it goes away.
 let missTimer;
 function banner(label, title, sub = '') {
   clearTimeout(missTimer);

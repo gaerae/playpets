@@ -305,12 +305,7 @@ body {
   position: relative;
 }
 .toast {
-  position: absolute;
   pointer-events: none;
-  left: 50%;
-  bottom: 78px;
-  transform: translateX(-50%);
-  z-index: 30;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -369,14 +364,8 @@ body.compact .toast[data-in-dialog] {
 .toast[data-in-dialog] > span {
   text-align: left;
 }
-/* General messages use the lower edge while discoveries and game instructions share the top. */
+/* In a small window each line spans the lane, which keeps left of the corner button. */
 body.compact .toast {
-  /* Along the bottom edge, below the friends and left of the corner button, which stays reachable. */
-  top: auto;
-  bottom: 8px;
-  left: 8px;
-  right: 52px;
-  transform: none;
   width: auto;
   align-items: stretch;
   max-width: none;
@@ -675,12 +664,15 @@ body.compact .toast > span {
   visibility: visible;
 }
 
-/* A single flow lane prevents simultaneous events from claiming the same coordinates. */
+/* Everything the yard says to the person (a warning, what a game asks, a find, a notice) shares one
+   lane just above the dock, where play starts and the eyes already are, newest nearest the ground.
+   It rises above the tool strip while a tool is in hand (the strip is at most 98px from the bottom in
+   every language); the friends' own words stay over their heads. */
 .yard-feedback {
   position: absolute;
-  inset: 12px 12px auto;
-  z-index: 10;
-  max-height: calc(100% - 24px);
+  inset: auto 12px 64px;
+  z-index: 25;
+  max-height: calc(100% - 76px);
   overflow-y: auto;
   overscroll-behavior: contain;
   display: flex;
@@ -688,6 +680,23 @@ body.compact .toast > span {
   align-items: center;
   gap: 6px;
   pointer-events: none;
+}
+/* Settled at the bottom by a spacer that grows above the messages, not by justify-content, so a
+   lane taller than the window still scrolls back to its top. */
+.yard-feedback::before {
+  content: "";
+  flex: 1 0 0;
+}
+.yard-frame:has(#discovery-target:not([hidden])) .yard-feedback {
+  bottom: 106px;
+}
+body.compact .yard-feedback {
+  inset: auto 52px 8px 8px;
+  max-height: calc(100% - 16px);
+}
+body.compact .yard-frame:has(#discovery-target:not([hidden])) .yard-feedback {
+  right: 8px;
+  bottom: 100px;
 }
 .yard-feedback > :is(.startup-notice, .game-banner, .catch-card) {
   flex-shrink: 0;

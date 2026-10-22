@@ -138,7 +138,16 @@ body.compact .catch-copy {
 body.compact .catch-card {
   gap: 8px;
   padding: 6px 12px 6px 8px;
-  max-width: calc(100% - 16px);
+  max-width: 100%;
+}
+/* The narrowest windows keep the words and the album's button; the picture gives way. */
+@media (max-width: 400px) {
+  body.compact .catch-specimen {
+    display: none;
+  }
+  body.compact .catch-copy {
+    min-width: 0;
+  }
 }
 body.compact .catch-card svg {
   width: 40px;
@@ -178,21 +187,12 @@ body.compact .yard-context-menu > button {
 
 /* A destination already owns the header; the quiet update chip returns with the scenery. */
 body.compact:has(
-  :is(
-      #side-panel,
-      #yard-controls-panel,
-      #scene-menu,
-      #play-panel,
-      #discovery-target,
-      #catch-card,
-      #yard-context-menu
-    ):not([hidden])
+  :is(#side-panel, #yard-controls-panel, #scene-menu, #play-panel, #discovery-target, #yard-context-menu):not([hidden])
 ) .update-compact {
   display: none;
 }
 /* The corner button stays only with the scenery and its own menu; an open panel has its Close. */
-body.compact:has(
-  :is(#side-panel, #yard-controls-panel, #scene-menu, #play-panel, #discovery-target, #catch-card):not([hidden])
-) .compact-launcher {
+body.compact:has(:is(#side-panel, #yard-controls-panel, #scene-menu, #play-panel, #discovery-target):not([hidden]))
+.compact-launcher {
   display: none;
 }

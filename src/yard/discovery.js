@@ -211,7 +211,6 @@ export function sendDiscovery(v, point, action, kind) {
               before.has(found.id) ? t('discovery.kept') : '',
               !before.has(found.id),
               'treasure',
-              v.button,
             );
         } else if (result.outcome === 'sapling') {
           bubble(v, t('discovery.sapling', { kind: t(`tree.${result.kind}`) }), 3000);

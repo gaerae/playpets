@@ -77,7 +77,7 @@ export function setupToast() {
   }
 }
 /** How long a message stays to be read: 2.5 s and 50 ms a character, between 3 and 8 seconds. The
- * notices below, the cards above a friend and the friends' bubbles all keep to it. */
+ * notices and cards in the lane above the dock and the friends' bubbles all keep to it. */
 export const readingTime = text => Math.max(3000, Math.min(8000, 2500 + [...String(text)].length * 50));
 // Notices stack at most two lines along the bottom (one in a small window, where two would cover
 // the friends); a line already there is refreshed, not repeated, and the oldest gives way. Each
