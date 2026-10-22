@@ -47,7 +47,7 @@ When the weather changes, one or two friends say a word about it, like "Rain!" o
 
 ## Let them chat <Since v="0.1.0" />
 
-Press **Let them chat** in **Play → Group games** and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button looks off, and pressing or hovering it says why. To join in yourself, use [the Friend tab's group chat](./chat.md).
+Press **Let them chat** in **Play → Group games** and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button looks off, and pressing or hovering it says why. To join in yourself, use [group chat in the Friend panel](./chat.md).
 
 To let them talk on their own now and then, turn on **Let them chat now and then** in **Friends & settings → Settings → Friends & AI**. They chat once every 20 minutes, and rest while the window is hidden or someone is answering.
 
@@ -111,7 +111,7 @@ A few times a year the yard changes for a while. The event's name shows beside t
 
 ## Closeness <Since v="0.1.0" />
 
-Each friend grows closer to you through time in the yard and what you do together. Hearts on its name tag show how close it is, and the Friend tab shows its level, how far it is to the next and what the next one brings. The levels say how close you are, not what you are to each other, so they read the same for a partner or a sibling as for a friend (that is the [relationship](./chat.md#setting-a-relationship)).
+Each friend grows closer to you through time in the yard and what you do together. Hearts on its name tag show how close it is, and the Friend panel shows its level, how far it is to the next and what the next one brings. The levels say how close you are, not what you are to each other, so they read the same for a partner or a sibling as for a friend (that is the [relationship](./chat.md#setting-a-relationship)).
 
 | Level | What it brings |
 |---|---|
@@ -167,7 +167,7 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 
 Resize the yard by dragging any edge or corner, down to 300 × 210. The same window keeps friends, chat, Invite, Settings, scene controls and games available at every size. Drag the narrow transparent area along the top edge to move it. Its position and size are remembered.
 
-At 640 pixels wide or less, or 480 pixels tall or less, the dock hides. A round button in the bottom-right corner, shown while the pointer is over the window (or when you reach it with Tab), opens the same short menu as a right-click on empty scenery: **Place & atmosphere**, **Play**, **Friends & settings** and **Always on top**. **Cmd/Ctrl + Shift + P** opens Friends & settings. In small windows each panel shows its actions as tiles whose names may take two lines, and the section names are hidden. Longer panels scroll inside the window. Closing Place & atmosphere or Play returns directly to the scenery. The Friend and Invite tabs have a Back action to Friends & settings; **×** returns to the yard. In Settings, Back goes from a section to the list of sections, then to Friends & settings. Invite keeps Import visible in its header.
+At 640 pixels wide or less, or 480 pixels tall or less, the dock hides. A round button in the bottom-right corner, shown while the pointer is over the window (or when you reach it with Tab), opens the same short menu as a right-click on empty scenery: **Place & atmosphere**, **Play**, **Friends & settings** and **Always on top**. **Cmd/Ctrl + Shift + P** opens Friends & settings. In small windows each panel shows its actions as tiles whose names may take two lines, and the section names are hidden. Longer panels scroll inside the window. Closing Place & atmosphere or Play returns directly to the scenery. The Friend panel and Invite a friend have a Back action to Friends & settings; **×** returns to the yard. In Settings, Back goes from a section to the list of sections, then to Friends & settings. Invite a friend keeps Import visible in its header.
 
 Click a friend’s name tag to talk to it; its tooltip says **Talk to** and the friend’s name. Right-click a friend for a short menu with **Talk to**, **Play with** and **Ask … to dig** for that friend (such as **Ask Clover to dig**). Play opens the same Play panel for it; Ask to dig picks up the dig tool with that friend going first. Close, Escape or clicking outside returns to the scenery. There is no separate small-window play strip.
 

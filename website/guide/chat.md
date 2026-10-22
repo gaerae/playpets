@@ -6,7 +6,7 @@ description: Kinds of AI connections and how to make one, setting a personality,
 
 To chat with a friend, you need to connect one AI. Inviting and playing work without one; the chat then says "Ready to play! Connect an AI whenever you want to chat." with a **Connect an AI** button.
 
-<Shot name="friend-chat" caption="Chat in the Friend tab. The AI and the friends who join in are at the bottom of the message box." />
+<Shot name="friend-chat" caption="Chat with a friend (click its name tag). The AI and the friends who join in are at the bottom of the message box." />
 
 ## Kinds of AI connections <Since v="0.1.0" />
 
@@ -26,7 +26,7 @@ With subscription sign-in, CLI chat has no separate API bill, but it consumes th
 
 ## Making a connection <Since v="0.1.0" />
 
-1. Open the **Friend** tab and pick the friend to chat with. If you have several friends, the name turns into a list.
+1. Open the **Friend** panel (**Friends & settings → Friends & chat**) and pick the friend to chat with. If you have several friends, the name turns into a list.
 2. Click the **Connect an AI** button in the chat, or choose **＋ Connect a new AI…** from the AI list at the bottom left of the message box.
 3. Pick a card under **Kind of AI** and, depending on the kind, enter the server address or API key.
 4. Pick or type the **Model name**. Click the field and the list of models that AI offers appears (for a kind that needs a key or an address, once you have entered it). For Claude Code and Codex CLI, leave it empty to use the default model; a short name like `sonnet` always gets the latest version. Ollama and API connections need a model name.
@@ -56,7 +56,7 @@ The personality is the tone and attitude your friend answers with. There are two
 
 ## Setting a relationship <Since v="0.1.0" />
 
-**Relationship** in Friend settings says what this friend is to you. It is a row of relationship cards, Friend (the default), Partner, Dependable mentor and Playful younger sibling, each saying the voice it brings. The relationship chip beside the friend's name in the Friend tab opens these cards, so you can change it in one click. It shapes how the friend talks to you, what it calls you and how it asks about your day, and friends chatting together know each other's relationship. A partner, a mentor and a younger sibling speak in voices of their own even without an AI: when they welcome you back, grow closer or say what you mean to them. Write "honey" or your name under **What it calls you** and it will (the example in the box follows the relationship). Many Codex pets are human-shaped, which suits a partner or a mentor well. What is said within the relationship follows the policy of the AI you connected, not the app.
+**Relationship** in Friend settings says what this friend is to you. It is a row of relationship cards, Friend (the default), Partner, Dependable mentor and Playful younger sibling, each saying the voice it brings. The relationship chip beside the friend's name in the Friend panel opens these cards, so you can change it in one click. It shapes how the friend talks to you, what it calls you and how it asks about your day, and friends chatting together know each other's relationship. A partner, a mentor and a younger sibling speak in voices of their own even without an AI: when they welcome you back, grow closer or say what you mean to them. Write "honey" or your name under **What it calls you** and it will (the example in the box follows the relationship). Many Codex pets are human-shaped, which suits a partner or a mentor well. What is said within the relationship follows the policy of the AI you connected, not the app.
 
 ## Chatting together <Since v="0.1.0" />
 

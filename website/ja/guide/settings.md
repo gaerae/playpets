@@ -89,7 +89,7 @@ Microsoft Store版の更新はStoreが管理します。**Microsoft Store → �
 | 変数 | 内容 |
 |---|---|
 | `PLAYPETS_DATA` | データフォルダーを別の場所へ移します。端末コマンド（`playpets say`など）も同じ値を読みます |
-| `CODEX_HOME` | Codexのホームフォルダー。招待タブのCodexペットフォルダーが`$CODEX_HOME/pets`になります |
+| `CODEX_HOME` | Codexのホームフォルダー。「友だちを招待」のCodexペットフォルダーが`$CODEX_HOME/pets`になります |
 | `PLAYPETS_LANG` | 言語を固定します（`ko`、`en`、`ja`、`zh-hans`） |
 | `PLAYPETS_PET` | 端末コマンドの既定の友だち。`--pet`オプションと同じです |
 | `PLAYPETS_BRIDGE` | 端末コマンドが読む`bridge.json`のパス。`--bridge`オプションと同じです |

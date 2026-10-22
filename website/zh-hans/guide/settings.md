@@ -89,7 +89,7 @@ Microsoft Store 安装版由 Store 管理更新。请打开 **Microsoft Store �
 | 变量 | 作用 |
 |---|---|
 | `PLAYPETS_DATA` | 把数据文件夹换到别的位置。终端命令（`playpets say` 等）也读同一个值 |
-| `CODEX_HOME` | Codex 的主文件夹。邀请标签里的 Codex 宠物文件夹会变成 `$CODEX_HOME/pets` |
+| `CODEX_HOME` | Codex 的主文件夹。邀请伙伴里的 Codex 宠物文件夹会变成 `$CODEX_HOME/pets` |
 | `PLAYPETS_LANG` | 强制指定语言（`ko`、`en`、`ja`、`zh-hans`） |
 | `PLAYPETS_PET` | 终端命令的默认伙伴。和 `--pet` 选项相同 |
 | `PLAYPETS_BRIDGE` | 终端命令要读取的 `bridge.json` 路径。和 `--bridge` 选项相同 |

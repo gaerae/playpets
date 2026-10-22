@@ -68,7 +68,7 @@ export const sections = {
   galleryLabel: '选择伙伴',
   posesLabel: '预览姿势',
   poses: ['休息', '挥手', '跳跃'],
-  selectedLead: '在邀请标签页邀请这位伙伴。为它设置名字、性格，以及与你的关系。',
+  selectedLead: '在伙伴与设置的“邀请伙伴”中邀请这位伙伴。为它设置名字、性格，以及与你的关系。',
   galleryGuide: '读读伙伴的故事',
   connectionsTitle: '一起玩，偶尔聊聊天。',
   connectionsLead: '游戏和种花无需 AI 账号。聊天时适用所连接 AI 的额度与收费。',

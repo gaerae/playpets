@@ -89,7 +89,7 @@ Microsoft Store 설치본은 Store에서 업데이트해요. **Microsoft Store �
 | 변수 | 하는 일 |
 |---|---|
 | `PLAYPETS_DATA` | 데이터 폴더를 다른 곳으로 바꿔요. 터미널 명령(`playpets say` 등)도 같은 값을 봐요 |
-| `CODEX_HOME` | Codex의 홈 폴더예요. 초대 탭의 Codex 펫 폴더가 `$CODEX_HOME/pets`로 바뀌어요 |
+| `CODEX_HOME` | Codex의 홈 폴더예요. 친구 초대의 Codex 펫 폴더가 `$CODEX_HOME/pets`로 바뀌어요 |
 | `PLAYPETS_LANG` | 언어를 강제해요(`ko`, `en`, `ja`, `zh-hans`) |
 | `PLAYPETS_PET` | 터미널 명령의 기본 친구. `--pet` 옵션과 같아요 |
 | `PLAYPETS_BRIDGE` | 터미널 명령이 읽을 `bridge.json`의 경로. `--bridge` 옵션과 같아요 |

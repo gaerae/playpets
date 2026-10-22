@@ -89,7 +89,7 @@ If a friend cannot load when the app opens, a collapsed **Startup notices** card
 | Variable | What it does |
 |---|---|
 | `PLAYPETS_DATA` | Moves the data folder somewhere else. Terminal commands (`playpets say` and so on) read the same value |
-| `CODEX_HOME` | Codex's home folder. The Codex pet folder in the Invite tab becomes `$CODEX_HOME/pets` |
+| `CODEX_HOME` | Codex's home folder. The Codex pet folder in Invite a friend becomes `$CODEX_HOME/pets` |
 | `PLAYPETS_LANG` | Forces the language (`ko`, `en`, `ja`, `zh-hans`) |
 | `PLAYPETS_PET` | The default friend for terminal commands. Same as the `--pet` option |
 | `PLAYPETS_BRIDGE` | The path to the `bridge.json` that terminal commands read. Same as the `--bridge` option |
