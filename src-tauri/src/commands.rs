@@ -603,6 +603,8 @@ fn open_folder(state: &State<Shared>, which: &str) -> Result<Value, String> {
             "builtin" => d.builtin_pets.clone(),
             "codex" => d.codex_pets.clone(),
             "downloaded" => d.store.dir.join("pets"),
+            // the app's own data: friends, settings and the backups beside them (About)
+            "data" => d.store.dir.clone(),
             id => d
                 .assets
                 .iter()

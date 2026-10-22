@@ -34,7 +34,7 @@ With this switch in Friends & AI turned on, an idle friend digs a spot of its ow
 
 ## About PlayPets <Since v="0.1.0" />
 
-**About PlayPets** shows the version and links to the website, user guide, release notes, GitHub, issue reporting and license. Links open in your browser. App updates have their own section.
+**About PlayPets** shows the version, then three groups: **Help** (the user guide, reporting a problem, and **Open the data folder**, where friends, settings and backups are kept; see [Data folder](#data-folder)), **Project** (the website, release notes, GitHub) and **Privacy and license**. Links open in your browser. App updates have their own section.
 
 ## App updates <Since v="0.1.0" />
 
@@ -42,7 +42,7 @@ For a Microsoft Store installation, updates are managed by Store. Open **Microso
 
 The row shows the current version. Click **Check for updates** and the app reads `latest.json` from GitHub releases; if you are current, it says "You're up to date".
 
-The app quietly checks 20 seconds after startup and retries every six hours. You can also check manually. When an update is available, its entry opens **Friends & settings → Settings → App updates**.
+The app quietly checks 20 seconds after startup and retries every six hours, and installs only when you choose; the section says so under the row. You can also check manually. **What changed in this version** opens the release page of the version you are using. When an update is available, its entry opens **Friends & settings → Settings → App updates**.
 
 **What's new** opens the release page in your browser. **Install and restart**, download progress, verification, installation and retry after a failure all stay in App updates; no separate update window opens. If the download size is unavailable, progress has no percentage. Friends and settings stay after the restart. A brief notice confirms the installed version.
 

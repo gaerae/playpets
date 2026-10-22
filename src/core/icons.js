@@ -25,6 +25,7 @@ const paths = {
   dash: '<path d="M3 8h9M5 12h11M3 16h7"/><circle cx="18.5" cy="12" r="2.5"/>',
   spark: '<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/>',
   download: '<path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/>',
+  external: '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
   folder:
     '<path d="M3 8V5a1 1 0 0 1 1-1h5l2 3h9a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8Z"/><path d="M3 10h18"/>',
   chat: '<path d="M21 11a8 8 0 0 1-8 8H7l-4 3V11a9 9 0 0 1 18 0Z"/><path d="M8 11h8"/>',

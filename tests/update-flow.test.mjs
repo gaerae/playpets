@@ -155,6 +155,6 @@ test('a failed check without a release keeps its check action visible beside the
   const css = await readFile('src/styles/settings.css', 'utf8');
   assert.match(
     css,
-    /#settings-updates:has\(#update-dialog:not\(\[hidden\]\) #update-install:not\(\[hidden\]\)\) \.update-summary/,
+    /#settings-updates:has\(#update-dialog:not\(\[hidden\]\) #update-install:not\(\[hidden\]\)\) :is\(\.update-summary, \.update-auto\)/,
   );
 });

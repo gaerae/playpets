@@ -137,25 +137,56 @@
 .settings-update-details .dialog-actions {
   flex-wrap: wrap;
 }
-/* About: the version, one line on the license, and the app's own pages as small buttons that wrap.
-   A rule sets it apart from the agent list above it. */
+/* About: the name and version, then the app's own pages in groups of rows, the license note last. */
 .settings-section.about {
   margin-top: 0;
 }
 .about-name {
+  margin: 2px 0 10px;
   font-weight: 700;
   color: var(--ink);
 }
-.about-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
+.settings-group {
+  margin: 10px 0 4px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--muted);
 }
-.about-links .button.small {
-  min-height: 36px;
-  padding: 0 10px;
+/* A row that opens something (a page in the browser, a folder): its name, and what it opens at the end. */
+.link-button {
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
   font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.link-button:hover {
+  background: var(--control-hover);
+}
+.link-button small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.link-button > [data-icon] svg {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+.update-auto {
+  margin: 0 8px 8px;
 }
 /* The language picker sits in a row like the agents: a compact select, not a full-width field. */
 /* A row with a friend to pick wraps: text and button first, the pick on its own line below. */
@@ -403,19 +434,14 @@ body:not(.compact) .settings-index button[aria-current="page"] {
 @media (pointer: coarse) {
   .settings-index button,
   .link-row .button.small,
-  .about-links .button.small,
   .link-row .language-select,
   .button.quit {
     min-height: 44px;
   }
 }
 
-#settings-updates:has(#update-dialog:not([hidden]) #update-install:not([hidden])) .update-summary {
+#settings-updates:has(#update-dialog:not([hidden]) #update-install:not([hidden])) :is(.update-summary, .update-auto) {
   display: none;
-}
-.update-notes-link {
-  margin-top: 6px;
-  font-size: 12px;
 }
 
 /* An AI connection edited in place (connection.js): the dialog's form as a card in Friends & AI,

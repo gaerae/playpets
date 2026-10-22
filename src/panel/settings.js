@@ -62,6 +62,8 @@ function showUpdate(note, button) {
 export function renderUpdate() {
   const store = data.updateChannel === 'store';
   $('update-button').hidden = store;
+  // The Store keeps its own schedule; the note on quiet checks is about this app's own.
+  $('update-auto').hidden = store;
   if (store) {
     found = null;
     showUpdate(t('settings.update_store'), '');
@@ -328,6 +330,9 @@ export function setupSettings() {
   $('update-button').onclick = guard(updateButton);
   const notes = guard(() => call('openExternal', links().notes(found.version)));
   $('update-notes').onclick = notes;
+  $('update-this-version').onclick = guard(() => call('openExternal', links().notes(data.version)));
+  // Where friends, settings and backups are kept, for a report or a copy by hand.
+  $('open-data').onclick = guard(() => call('openFolder', 'data'));
   $('update-pill').onclick = openUpdatePanel;
   $('update-compact').onclick = openUpdatePanel;
   $('settings-updates-task')?.addEventListener('click', () => {

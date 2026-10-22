@@ -16,6 +16,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Open the album at the right book from a find's card, and see a dot on Album and Play while something new waits there.
 - Let idle friends dig on their own now and then with a new switch in Settings → Friends & AI.
 - Switch between Dig, Plant a tree and Plant a seed with 1, 2 and 3 while a tool is in hand.
+- Open the data folder from About PlayPets, which now groups its pages into Help, Project, and Privacy and license, and open the notes of the version in use from App updates, which says that updates are checked quietly and installed only when you choose.
 
 ### Changed
 
