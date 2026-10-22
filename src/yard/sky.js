@@ -8,14 +8,16 @@ import { reduced } from '../core/sprites.js';
 import { $, recall, remember } from '../core/state.js';
 import { everyMinute } from '../core/ticker.js';
 import { createEasel } from './easel.js';
-import { sceneEvent } from './events.js';
+import { eventStart, sceneEvent } from './events.js';
 import { eventChanged } from './festival.js';
 import { cancelRemarks, remark } from './remarks.js';
 import {
   autoWeather,
+  harvestMoon,
   initialSceneChoices,
+  moonLit,
+  moonMask,
   moonPhase,
-  moonShade,
   PERIOD_MINUTES,
   periodFor,
   sceneCaption,
@@ -33,6 +35,8 @@ let easel = null;
 const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
 // The season's colours last set on the yard, to be taken off again when they change.
 let painted = {};
+// The moon's mask last set, so it is set again only when the phase has moved on.
+let moonMaskShown = '';
 // A rainbow follows rain that clears up in daylight, for a few minutes.
 const RAINBOW_MS = 4 * 60 * 1000;
 let rainbowTimer = null;
@@ -75,6 +79,10 @@ export function paintScene() {
     `weather-${scene.weather}`,
     `season-${scene.season}`,
     ...(event ? [`event-${event.id}`, ...(event.looks || []).map(look => `look-${look}`)] : []),
+    // the event's own full moon and the nights either side, for the harvest moon's look
+    ...(event?.looks?.length && harvestMoon(now.getTime(), eventStart(event, now, south).getTime())
+      ? ['moon-full']
+      : []),
   ]);
   paintSeason(yard);
   paintSky(yard, now);
@@ -118,9 +126,12 @@ function paintSky(yard, now) {
   const { x, y } = sunAt(minutes);
   yard.style.setProperty('--orb-x', `${x.toFixed(1)}%`);
   yard.style.setProperty('--orb-y', `${y.toFixed(1)}%`);
-  // The harvest moon is full whatever the calendar says (an event's "fullmoon" look).
-  const full = yard.classList.contains('look-fullmoon');
-  yard.style.setProperty('--moon-shade', String(full ? 100 : moonShade(moonPhase(now.getTime()), south)));
+  // Tonight's real phase, the harvest moon too: its look shows only around the full moon (scenery.css).
+  const lit = moonLit(moonPhase(now.getTime()), south),
+    mask = `url("data:image/svg+xml,${encodeURIComponent(moonMask(lit))}")`;
+  // The mask changes a few times a day; set again only then, so the moon is not redrawn every minute.
+  if (mask !== moonMaskShown) yard.style.setProperty('--moon-lit', mask);
+  moonMaskShown = mask;
 }
 function showRainbow(yard) {
   yard.classList.add('after-rain');
@@ -141,7 +152,7 @@ export function setupSky(options = {}) {
   const seasonPicked = options.seasonPicked || none,
     worldChanged = options.worldChanged || (enter => enter()),
     landChanged = options.landChanged || none;
-  setScenery(createScenery($('weather-layer'), reduced));
+  setScenery(createScenery($('weather-layer'), reduced, undefined, undefined, $('star-layer')));
   easel = createEasel($('yard'), reduced, landChanged);
   const saved = {
     world: recall('world'),
@@ -197,26 +208,6 @@ export function setupSky(options = {}) {
     },
     sceneFocus,
   );
-  const sceneTabs = [...document.querySelectorAll('[data-scene-page]')];
-  const selectScenePage = page => {
-    for (const tab of sceneTabs) {
-      const active = tab.dataset.scenePage === page;
-      tab.setAttribute('aria-selected', String(active));
-      tab.tabIndex = active ? 0 : -1;
-      $(`scene-${tab.dataset.scenePage}`).hidden = !active;
-    }
-  };
-  for (const [index, tab] of sceneTabs.entries()) {
-    tab.onclick = () => selectScenePage(tab.dataset.scenePage);
-    tab.onkeydown = event => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      event.preventDefault();
-      const next =
-        event.key === 'Home' ? 0 : event.key === 'End' ? sceneTabs.length - 1 : (index + 1) % sceneTabs.length;
-      selectScenePage(sceneTabs[next].dataset.scenePage);
-      sceneTabs[next].focus();
-    };
-  }
   $('scene-close').addEventListener('click', () => {
     chooser.close();
     sceneFocus().focus();

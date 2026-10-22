@@ -137,25 +137,56 @@
 .settings-update-details .dialog-actions {
   flex-wrap: wrap;
 }
-/* About: the version, one line on the license, and the app's own pages as small buttons that wrap.
-   A rule sets it apart from the agent list above it. */
+/* About: the name and version, then the app's own pages in groups of rows, the license note last. */
 .settings-section.about {
   margin-top: 0;
 }
 .about-name {
+  margin: 2px 0 10px;
   font-weight: 700;
   color: var(--ink);
 }
-.about-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
+.settings-group {
+  margin: 10px 0 4px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--muted);
 }
-.about-links .button.small {
-  min-height: 36px;
-  padding: 0 10px;
+/* A row that opens something (a page in the browser, a folder): its name, and what it opens at the end. */
+.link-button {
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
   font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.link-button:hover {
+  background: var(--control-hover);
+}
+.link-button small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.link-button > [data-icon] svg {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+.update-auto {
+  margin: 0 8px 8px;
 }
 /* The language picker sits in a row like the agents: a compact select, not a full-width field. */
 /* A row with a friend to pick wraps: text and button first, the pick on its own line below. */
@@ -255,6 +286,10 @@
   color: var(--muted);
   font-weight: 400;
 }
+/* On the chosen card's tint the muted line falls under 4.5:1; it takes the ink. */
+.ai-type.on small {
+  color: var(--ink);
+}
 .ai-found {
   justify-self: start;
   font-size: 10px;
@@ -277,21 +312,23 @@
 .layout.settings-open::after {
   content: "";
   position: absolute;
-  inset: 52px 0 0;
+  inset: 0;
   z-index: 19;
   border-radius: 0;
   background: var(--settings-scrim);
 }
 .layout.settings-open .side-panel {
   position: absolute;
-  top: 60px;
+  /* centred, and tall in proportion to the window up to about System Settings' size */
+  top: 50%;
   bottom: auto;
   left: 50%;
   z-index: 20;
-  width: min(520px, calc(100% - 24px));
-  max-height: calc(100% - 72px);
+  width: min(760px, calc(100% - 48px));
+  height: min(640px, calc(100% - 96px));
+  max-height: calc(100% - 96px);
   align-self: start;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   box-shadow: 0 18px 48px #1d2f2a40;
   background: var(--panel-surface);
   overflow: hidden;
@@ -318,6 +355,33 @@
 }
 .settings-content > .settings-section {
   margin-bottom: 0;
+}
+/* A wide window: the list of sections as a sidebar beside the open one (tabs.js), as System
+   Settings has it. A small window keeps the list as its first page (the end of this file). */
+body:not(.compact) .layout.settings-open #panel-settings {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 12px;
+}
+body:not(.compact) #settings-home {
+  min-height: 0;
+  padding-right: 10px;
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+body:not(.compact) .settings-index {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+body:not(.compact) .settings-index button {
+  min-height: 36px;
+  padding: 6px 8px;
+  border-bottom: 0;
+  border-radius: var(--radius-control);
+}
+body:not(.compact) .settings-index button[aria-current="page"] {
+  background: var(--control-selected);
 }
 .settings-index {
   display: grid;
@@ -357,10 +421,6 @@
   font-size: 13px;
   font-weight: 600;
 }
-.settings-task-copy small {
-  font-size: 12px;
-  color: var(--muted);
-}
 @media (prefers-color-scheme: dark) {
   #panel-settings .button.secondary:hover {
     background: var(--soft);
@@ -374,17 +434,68 @@
 @media (pointer: coarse) {
   .settings-index button,
   .link-row .button.small,
-  .about-links .button.small,
   .link-row .language-select,
   .button.quit {
     min-height: 44px;
   }
 }
 
-#settings-updates:has(#update-dialog:not([hidden]) #update-install:not([hidden])) .update-summary {
+#settings-updates:has(#update-dialog:not([hidden]) #update-install:not([hidden])) :is(.update-summary, .update-auto) {
   display: none;
 }
-.update-notes-link {
-  margin-top: 6px;
-  font-size: 12px;
+
+/* An AI connection edited in place (connection.js): the dialog's form as a card in Friends & AI,
+   with no second window over the sheet. */
+.ai-editor {
+  margin: 8px 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--field-surface);
+}
+.ai-editor[hidden] {
+  display: none;
+}
+.ai-editor .dialog-form {
+  max-height: none;
+}
+
+/* Small windows (body.compact, window.js): Settings fills the window, one section at a time. */
+body.compact .layout.settings-open .side-panel {
+  inset: 8px;
+  width: auto;
+  height: calc(100% - 16px);
+  padding: 8px;
+  align-self: stretch;
+  max-height: none;
+  transform: none;
+}
+body.compact .layout.settings-open .side-panel:has(#settings-home:not([hidden])) {
+  bottom: auto;
+  height: auto;
+  max-height: calc(100% - 16px);
+}
+body.compact .settings-index button {
+  min-height: 40px;
+  padding: 6px;
+}
+body.compact .settings-content .settings-section > h3 {
+  display: none;
+}
+@media (max-width: 400px), (max-height: 280px) {
+  body.compact .settings-content .link-row:has(#language) small {
+    display: none;
+  }
+}
+/* A short window may still be wide: the Settings sheet need not span the scenery. */
+@media (min-width: 480px) {
+  body.compact .layout.settings-open .side-panel {
+    left: auto;
+    bottom: auto;
+    width: min(600px, calc(100% - 16px));
+    height: auto;
+  }
+  body.compact .settings-content {
+    max-height: calc(100dvh - 128px);
+  }
 }

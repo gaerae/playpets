@@ -7,60 +7,90 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Manage every AI connection in one place, in Settings → Friends & AI, with automatic chat beside them; Edit and Connect an AI open the form right there, without a second window over Settings.
+- Open the short right-click menu (Place & atmosphere, Play, Friends & settings, Always on top) from a corner button in small windows, where the dock is hidden; the button, like the update button in the other corner, shows only while the pointer is over the window or it has the keyboard focus, so a small window kept on the desktop shows just the yard.
+- Dig at a right-clicked spot of bare ground with Dig here, without opening Play.
+- Ask a friend to dig from its right-click menu.
+- Open the album at the right book from a find's card, and see a dot on Album and Play while something new waits there.
+- Let idle friends dig on their own now and then with a new switch in Settings → Friends & AI.
+- Switch between Dig, Plant a tree and Plant a seed with 1, 2 and 3 while a tool is in hand.
+- Open the data folder from About PlayPets, which now groups its pages into Help, Project, and Privacy and license, and open the notes of the version in use from App updates, which says that updates are checked quietly and installed only when you choose.
+
+### Changed
+
+- Show Place & atmosphere, Play and Friends & settings each as one page of sections, without tabs, sub-views or Back buttons: Play groups Find, Garden and Group games, and a running game ends from its own tile.
+- Keep one Settings entry in Friends & settings. In a large window Settings is a centred sheet sized to the window (up to 760 × 640) that keeps its list of sections on the left beside the open section and reopens where it was left; a small window opens on the list, one section at a time, and Back returns one step at a time.
+- Offer Talk and Play in a friend's right-click menu, matching the name tag and the dock.
+- Keep the dig and tree tools in hand after each spot, sending the next free friend each time, and switch between digging, trees and seeds from the strip at the bottom until Esc or Close puts the tool away.
+- Fish or catch a creature with one press even while a play tool is in hand; the press puts the tool away first.
+- Show the tool strip where the dock was, right where Play was opened and just above the ground.
+- Put everything the yard tells you (a startup warning, what a game asks, a find's card, a notice) in one lane just above the dock, where play starts, instead of the top of the yard, above the finder and the bottom; the game's line is one row, and the lane rises above the tool strip while a tool is in hand.
+- Give every message on the yard one look and one reading time: notices stack two lines along the bottom (one in small windows, beside a pending Undo) with failures in dark ink, cards wait while a panel covers the yard, overlapping speech bubbles rise clear of each other, and a friend's words are read aloud to screen readers.
+- Pull up flowers and trees and put gifts away at once, with a few seconds to undo it in the notice below, instead of a red confirmation each time.
+- Keep confirmations calm unless something that cannot come back is lost (a saved key, a friend's closeness, a background, a conversation), give every dialog a Close button and its destructive action at the far left, and say what stays before what goes when a friend is sent away.
+- Fold the dock's panels into tiles in small windows, keeping a chosen atmosphere row in view.
+- Open the conversation from a friend's name tag, as its tooltip says; play stays on the friend's right-click.
+- Move Quit PlayPets out of About to sit beside Close window, and quit at once from the page, as from the tray and the macOS menu bar.
+- Use one name for each action across the page, the tray and the macOS menu bar.
+- Show Import background and Background studio beside Places as two plain actions with icons, so the pair no longer looks like tabs with one chosen.
+
+### Fixed
+
+- Point the install guide and the 1.1.0 release pages to Settings → App updates, where the update controls are.
+- Keep Settings open after choosing Later in App updates, and dim the whole window behind Settings.
+- Keep a friend's name readable when a coding agent's name shares its tag.
+- Stop editing a connection from Settings from moving the selected friend to it.
+- In dark mode, keep a friend's speech bubbles and name tags in one light look that belongs to the painted yard, deepen dialog shadows and the dimmed backdrop, and make faint captions on selected cards readable.
+- Keep a small dialog's actions on one row so its fields stay in view, with the destructive action down to its icon, and stop Korean, Japanese and Chinese text from breaking mid-word or leaving one character alone on a line.
+- Let a card that arrives while another is on show wait its turn instead of replacing it, so a closeness card no longer wipes the catch that earned it.
+- Keep notices in small windows clear of the corner button, skip a notice that repeats an error already shown in the open form, end a cut speech bubble with an ellipsis, and stop a first keepsake's card from saying it was kept twice.
+- Plant a seed from the keyboard with a second press of the seed tool, as with the picnic treat.
+- Give each coding tool's controls in Settings a distinct name for screen readers, and remove a stale note about unpublished pages from About.
+- Keep night stars and shooting stars in the sky behind hills and trees, and hide the twinkling stars on rainy or snowy nights.
+- Draw the moon's phase as it looks, a tapering crescent or a bulging gibbous moon with a soft edge and its dark side faintly visible, instead of a disc of night sky sliding over it, and let it glow only from its lit part, with no bright ring around the dark side.
+- Raise the harvest moon big and golden only on the nights around the event's first real full moon, two days either side, as at Chuseok and the Mid-Autumn Festival, instead of a full moon every night of the event; the other nights keep the real phase. The harvest event now starts on September 8 (March 8 south of the equator), so that full moon falls inside it every year.
+
+### Security
+
+- Update rustls-webpki to 0.103.16 and the bundled web PKI roots to 1.0.10, so certificate checks no longer trust the distrusted emSign intermediates (RUSTSEC-2026-0381, RUSTSEC-2026-0382, RUSTSEC-2026-0383).
+
 ## [1.1.0] - 2026-10-20
 
 ### Added
 
-- Expand the album to 100 entries with seasonal flowers, distinct freshwater creatures, crawling and hopping insects, and everyday keepsakes.
-- Give Daisy, Clover, Pip and Miso authored digging, planting, casting, waiting, reeling and discovery animations in every seasonal outfit, while imported pets keep their original sheets.
-- Find six species of tree saplings by digging, keep them in a saved pocket and spend one when planting.
-- Discover bottle caps, tiny robots, miniature crowns and star fragments alongside eight existing keepsakes.
-- Grow oak, birch and willow trees with seasonal artwork; keep up to six trees per place and 24 in total.
+- Expand the album from 72 to 100 entries: 16 flowers, 23 aquatic creatures, 18 bugs, 20 gifts, 6 trees and 17 keepsakes. New arrivals include the stickleback, freshwater prawn, crayfish, pond snail, ladybug and field cricket.
+- Give Daisy, Clover, Pip and Miso their own digging, planting, fishing and discovery animations in every season. Imported pets and the other bundled pets keep their original animation sheets.
+- Find tree saplings by digging, keep them in a saved pocket and spend one when planting. Oak, birch and willow, each with seasonal artwork, join cherry, maple and pine, and the yard now holds up to six trees per place and 24 in total (up from three and 12).
+- Discover nine new keepsakes, including bottle caps, toy robots, tiny crowns and star fragments.
 
 ### Changed
 
-- Give the field cricket a leaf-green illustrated sprite and matching fallback colors while keeping its short ground hops.
-- Remove exact collection percentages and their display control, clarify habitat clues and the shared yard-wide daily gift allowance, and explain full decoration capacity.
-- Favor tree saplings and keepsakes by season, weather and place, show useful habitat clues in the album and four-language guide without exposing exact odds, and pace uncommon finds with a shared rolling 24-hour interval that redirects their chance into common finds.
-- Show season, time and weather as compact radio segments with visible choices and keyboard navigation.
-- Give digging a painted recessed soil opening with a broken rim, seasonal edge and contact-synchronized reveal.
-- Use actual per-creature bug probabilities in the guide, make the golden firefly rare during its event, and clarify automatic fishing and calendar gifts while keeping every album entry reachable.
-- Keep basic action labels on one line at every window size and replace middle-dot notation with plain words or punctuation.
-- Show one scenery caption in the dock and use restrained, shared corners for panels, controls and cards.
-- Use one Play board at every window size and open Settings tasks directly from management, retaining a task list for tray and shortcut entry.
-- Use a small download icon with an unread dot instead of a version banner in small windows, retaining the accessible label and update controls.
-- Synchronize digging effects and wait for both the complete action and its saved result before revealing a discovery.
-- Finish brief jump, wave and celebration gestures once instead of cutting them during a second loop.
-- Give scenery, play and friends/settings separate homes; remove repeated menu destinations and keep season and sound together in atmosphere controls.
-- Keep atmosphere choices on one line with the native fonts used by macOS, Windows and Linux.
-- Separate Friends, Settings and Window into short tabs, with direct settings tasks and a fixed tab row above the scrolling content.
-- Use compact desktop controls, smaller panels and clearer primary navigation, with importing beside the Invite title.
-- Stack yard events in one feedback lane and keep brief messages clear of panels and actions.
-- Check for updates quietly 20 seconds after launch and every six hours, with delayed retries after network failures.
-- Keep update progress, retry and the explicit install-and-restart action together in Settings → App updates.
-- Obtain new flower seeds only by digging while preserving existing pockets and planted gardens.
-- Offer digging in the shared Play board and show seed and sapling stock before planting.
+- Get new flower seeds only by digging; friends no longer drop seeds to pick up while they stroll. Seeds you already have and planted gardens are kept.
+- Saplings and keepsakes are more likely in the season, weather and place that suit them, and uncommon keepsakes are paced over a 24-hour window shared by all friends and places. The album names the conditions that favor each find, and the guide uses these clues instead of exact percentages.
+- Digging now opens a painted hole in the soil with dirt and shovel effects, and the find appears once the action and its save have both finished.
+- Snow no longer turns the yard into winter: the selected season's landscape stays, including imported backgrounds and indoor window views.
+- Use one Play board at every window size, short Friends, Settings and Window tabs in the menu, and put sound and volume beside season, time and weather in the atmosphere controls. The duplicate yard settings are gone.
+- Use compact desktop controls and smaller panels, and show yard events in one feedback lane.
+- After the first check 20 seconds after launch, keep checking for updates every six hours and retry after network failures. Download progress, retry and the install-and-restart action are together in Settings → App updates, and small windows show a download icon instead of a text banner. Microsoft Store packages keep their own updates.
+- Finish brief jump, wave and celebration gestures once instead of cutting them off.
 
 ### Fixed
 
-- Keep onboarding tasks out of localized website captures by completing the controlled AI connection before photographing the yard.
-- Keep the portable creator skill frontmatter compatible with current Codex skill validation.
-- Preserve gift waiting progress across short sessions and full yards instead of restarting the delay after every launch.
-- Refresh open collection odds when the weather changes and recheck planting ground at contact so newly occupied targets do not spend a sapling.
-- Keep the selected seasonal landscape when choosing snow, including imported backgrounds and indoor window views.
-- Preserve ground reward history while recovering normally after the computer clock moves backward.
-- Preserve the 24-hour ground-reward limit beyond 32 distinct digs and discard expired records when loading existing saves without a file migration.
-- Keep editing-dialog headings and actions visible in small windows, reveal inline errors and protect unfinished imports.
-- Let automatically discovered Ollama models close normally without marking untouched forms as edited.
-- Keep messages visible over open dialogs and let discovery cards remain while being read, with an explicit close action.
-- Keep dragged furniture anchored to the grab point, follow movement without button transitions and restore failed moves.
-- Use a standing pose with soil and shovel effects when digging instead of the coding animation.
-- Count seeds promised to a friend on the way to plant, so a quick second click no longer plants an extra flower or ends in a missing-seed error.
-- Keep keyboard focus on a tree choice when the yard updates while choosing a sapling.
+- Keep gift waiting progress across launches and while the yard is full, instead of restarting the wait every time the app opens.
+- Remember every patch dug in the last 24 hours instead of only the latest 32, and let friends dig again right away after the computer clock moves backward.
+- Keep dialog headings and buttons visible in small windows, scroll errors into view, and keep a typed import address when Esc or a click outside would close the dialog.
+- Let the AI connection dialog close normally after it fills in a discovered Ollama model, instead of treating the untouched form as edited.
+- Show messages above open dialogs, and keep discovery cards open while you read them, with a close button.
+- Keep dragged furniture under the point where you grabbed it, and put it back if the move cannot be saved.
+- Keep the downloadable creator skill compatible with current Codex skill validation.
 
-### Removed
+### Known limitations
 
-- Remove obsolete roaming-seed pickup styles, interaction guards, sound and translated instructions while preserving stored seeds and planted growth stages.
+- macOS packages are signed ad hoc until Developer ID signing and notarization are configured, and Windows installers are not Authenticode-signed. The updater signature is separate from operating-system trust.
+- Linux builds still include two known upstream advisories in the GTK/GLib Rust bindings (RUSTSEC-2024-0429, RUSTSEC-2024-0370); see SECURITY.md before deploying.
+- Microsoft Store certification and publication are separate from this GitHub release; no Store package was built for 1.1.0.
 
 ## [1.0.0] - 2026-10-19
 

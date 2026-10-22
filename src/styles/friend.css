@@ -30,7 +30,7 @@
   border-color: #e3a9c3;
 }
 .relation-chip[data-relation="friend"]:hover {
-  border-color: #c9d3cf;
+  border-color: var(--line);
   color: var(--ink);
 }
 .fact-chip.agent {
@@ -374,5 +374,59 @@
   .pop-menu [role="menuitem"].danger,
   .pop-menu [role="menuitem"].danger svg {
     color: var(--danger);
+  }
+}
+
+/* Small windows (body.compact, window.js): the friend's head and its extras fold away. */
+body.compact #panel-pet {
+  overflow: hidden;
+}
+body.compact #pet-panel {
+  flex: 1;
+  min-height: 0;
+}
+body.compact .friend-head {
+  min-height: 44px;
+  gap: 8px;
+  padding-right: 36px;
+}
+body.compact .avatar {
+  width: 40px;
+  height: 40px;
+}
+body.compact .avatar canvas {
+  width: 40px;
+  height: 43px;
+}
+body.compact .friend-select,
+body.compact .friend-id h3 {
+  font-size: 14px;
+}
+body.compact .friend-select {
+  min-height: 24px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+body.compact .friend-sub {
+  margin-top: 0;
+}
+body.compact .friend-sub .status-pill,
+body.compact .bond-row,
+body.compact .bond-next,
+body.compact .friend-chips,
+body.compact .chat-foot {
+  display: none;
+}
+body.compact .side-panel .menu-anchor {
+  top: 0;
+  right: 0;
+}
+body.compact .empty-panel {
+  min-height: 0;
+  gap: 10px;
+}
+@media (max-height: 300px) {
+  body.compact .friend-sub {
+    display: none;
   }
 }

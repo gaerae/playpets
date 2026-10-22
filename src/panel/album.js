@@ -7,6 +7,7 @@ import { joinList, language, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { $, data } from '../core/state.js';
 import { artSvg } from '../yard/art.js';
+import { albumSeen } from '../yard/card.js';
 import { BUGS, FISH, FLOWERS, GIFTS, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
@@ -194,10 +195,15 @@ export function renderAlbum() {
     have = b.found();
   $('album-grid').replaceChildren(...b.kinds.map(k => card(b, k, have[k.id])));
 }
-/** Opens the album (the tools' button). */
-function openAlbum() {
+/** Opens the album (the tools' button), at a given book when a card asks for it. */
+export function openAlbum(open = null) {
+  if (open && BOOKS[open]) {
+    book = open;
+    if ($('album-select')) $('album-select').value = open;
+  }
   $('album-dialog').showModal();
   renderAlbum();
+  albumSeen();
 }
 /** Wires the album's button, tabs and dialog. Called once, by app.js. */
 export function setupAlbum() {
@@ -235,7 +241,7 @@ export function setupAlbum() {
       return tab;
     }),
   );
-  $('album-button').onclick = openAlbum;
+  $('album-button').onclick = () => openAlbum();
   $('close-album').onclick = () => $('album-dialog').close();
   closeOnBackdrop($('album-dialog'));
   const tabs = [...document.querySelectorAll('.album-tabs [data-book]')];

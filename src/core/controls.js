@@ -8,6 +8,7 @@ import { $, aiming, data, game, name, selected, views } from './state.js';
 let surfaces = [];
 let showControls = null;
 let showPlay = null;
+let showFriendMenu = null;
 const yardFocus = button => (document.body.classList.contains('compact') ? $('yard') : button);
 
 export function openControls() {
@@ -15,6 +16,10 @@ export function openControls() {
 }
 export function openPlay() {
   showPlay?.();
+}
+/** A friend's own right-click menu at a point in the window: talk, or play with it. */
+export function openFriendMenu(id, point) {
+  showFriendMenu?.(id, point);
 }
 export function closeUpdateDetails(focus = false) {
   const panel = $('update-dialog');
@@ -52,7 +57,13 @@ export function closeScene() {
   $('scene-button').setAttribute('aria-expanded', 'false');
 }
 
-export function setupControls({ beforeOpen = () => {}, stopGame = () => {} } = {}) {
+export function setupControls({
+  beforeOpen = () => {},
+  openChat = () => {},
+  canDigAt = () => false,
+  digAt = () => {},
+  digWith = () => {},
+} = {}) {
   surfaces = [];
   const closeOthers = except => {
     beforeOpen();
@@ -72,20 +83,14 @@ export function setupControls({ beforeOpen = () => {}, stopGame = () => {} } = {
       () => {
         closeOthers(panel);
         panel.scrollTop = 0;
-        for (const body of panel.querySelectorAll('.management-page')) body.scrollTop = 0;
+        for (const body of panel.querySelectorAll('.dock-panel-body')) body.scrollTop = 0;
         if (panelId === 'play-panel') renderPlay();
 
-        const visible = [...panel.querySelectorAll('button')].find(
+        // The first action in the page, not the head's Close.
+        const visible = [...(panel.querySelector('.dock-panel-body') || panel).querySelectorAll('button')].find(
           action => !action.disabled && !action.hidden && action.getClientRects?.().length,
         );
-        const activeTab =
-          panelId === 'yard-controls-panel' ? panel.querySelector('[role="tab"][aria-selected="true"]') : null;
-        (
-          activeTab ||
-          visible ||
-          panel.querySelector('.panel-tab') ||
-          panel.querySelector('button:not(:disabled)')
-        )?.focus();
+        (visible || panel.querySelector('.panel-tab') || panel.querySelector('button:not(:disabled)'))?.focus();
       },
       () => yardFocus(button),
       { toggleOnClick, dismissOnTrigger: buttonId === 'yard' },
@@ -93,60 +98,17 @@ export function setupControls({ beforeOpen = () => {}, stopGame = () => {} } = {
     surfaces.push({ panel, box });
     return box;
   };
-  const management = [...document.querySelectorAll('[data-management-tab]')];
-  const selectManagement = (name, focus = false) => {
-    for (const tab of management) {
-      const active = tab.dataset.managementTab === name;
-      tab.setAttribute('aria-selected', String(active));
-      tab.tabIndex = active ? 0 : -1;
-      const page = $(`management-${tab.dataset.managementTab}`);
-      page.hidden = !active;
-      if (active) {
-        page.scrollTop = 0;
-        if (focus) tab.focus();
-      }
-    }
-  };
-  for (const tab of management) {
-    tab.addEventListener('click', () => selectManagement(tab.dataset.managementTab));
-    tab.addEventListener('keydown', event => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      event.preventDefault();
-      const at = management.indexOf(tab);
-      const next =
-        event.key === 'Home'
-          ? 0
-          : event.key === 'End'
-            ? management.length - 1
-            : (at + (event.key === 'ArrowRight' ? 1 : -1) + management.length) % management.length;
-      selectManagement(management[next].dataset.managementTab, true);
-    });
-  }
   const menu = wire('yard-controls-toggle', 'yard-controls-panel');
   const play = wire('play-button', 'play-panel', false);
-  const showPlayView = (view, focus = true) => {
-    for (const [id, value] of [
-      ['play-actions', 'main'],
-      ['play-garden', 'garden'],
-      ['play-games', 'games'],
-    ])
-      $(id).hidden = value !== view || !data.pets.length;
-    $('play-garden-button').setAttribute('aria-expanded', String(view === 'garden'));
-    $('games-button').setAttribute('aria-expanded', String(view === 'games'));
-    if (focus)
-      $(view === 'main' ? 'play-actions' : `play-${view}`)
-        .querySelector('button')
-        ?.focus();
-  };
   const renderPlay = () => {
     const pet = data.pets.find(p => p.id === selected) || data.pets[0];
     const asset = pet && views.get(pet.id)?.asset;
     for (const action of ['dig', 'plant', 'cast', 'wait', 'reel', 'discover']) prepareCompanionAction(asset, action);
     $('play-title').textContent = pet ? t('controls.play_with', { name: name(pet) }) : t('controls.play');
     $('play-empty').hidden = !!pet;
-    $('play-garden-button').disabled = !pet || !!game;
-    $('games-label').textContent = game ? t('game.stop', { name: t(`game.${game.kind}`) }) : t('controls.group_games');
-    showPlayView('main', false);
+    $('play-sections').hidden = !pet;
+    // Dig and Plant a tree also need soil; syncDiscovery (discovery.js) keeps those.
+    for (const id of ['plant-tool', 'feed']) $(id).disabled = !pet || !!game;
   };
   showControls = () => menu?.open();
   showPlay = () => play?.open();
@@ -154,24 +116,34 @@ export function setupControls({ beforeOpen = () => {}, stopGame = () => {} } = {
     if (!$('play-panel').hidden) closeControls();
     else openPlay();
   });
-  $('play-panel')?.addEventListener('click', event => {
-    const button = event.target.closest('button');
-    if (!button || button.disabled) return;
-    if (button.id === 'play-garden-button') showPlayView('garden');
-    else if (button.id === 'games-button') {
-      if (game) {
-        closeControls();
-        stopGame();
-      } else showPlayView('games');
-    } else if (button.hasAttribute('data-play-back')) showPlayView('main');
-  });
   $('close-controls')?.addEventListener('click', () => closeControls());
   $('close-play')?.addEventListener('click', () => closeControls());
   const context = $('yard-context-menu'),
     yard = $('yard');
   if (context && yard) {
-    let point = { x: 8, y: 8 };
+    // One menu, two sets of items: the scenery's (where to go) and a friend's (what to do with it).
+    let point = { x: 8, y: 8 },
+      friend = null;
     const items = menuNavigation(context);
+    const digHere = () =>
+      [...context.querySelectorAll('[data-context-action]')].find(item => item.dataset.contextAction === 'dig-here');
+    const show = (forWhat, id = null) => {
+      friend = id;
+      for (const item of context.querySelectorAll('[data-context-for]'))
+        item.hidden = item.dataset.contextFor !== forWhat;
+      const pet = id && data.pets.find(p => p.id === id);
+      if (pet) {
+        context.querySelector('[data-context-action="talk"] .context-label').textContent = t('friend.talk', {
+          name: name(pet),
+        });
+        context.querySelector('[data-context-action="play-friend"] .context-label').textContent = t(
+          'controls.play_with',
+          { name: name(pet) },
+        );
+        const dig = context.querySelector('[data-context-action="dig-friend"] .context-label');
+        if (dig) dig.textContent = t('discovery.dig_with', { name: name(pet) });
+      }
+    };
     const place = () => {
       if (context.hidden) return;
       const { width, height } = context.getBoundingClientRect();
@@ -191,7 +163,10 @@ export function setupControls({ beforeOpen = () => {}, stopGame = () => {} } = {
         place();
         items()[0]?.focus();
       },
-      () => yardFocus($('yard-controls-toggle')),
+      () => {
+        $('compact-launcher')?.setAttribute('aria-expanded', 'false');
+        return yardFocus($('yard-controls-toggle'));
+      },
       { toggleOnClick: false },
     );
     surfaces.push({ panel: context, box });
@@ -205,8 +180,38 @@ export function setupControls({ beforeOpen = () => {}, stopGame = () => {} } = {
         return;
       event.preventDefault();
       point = { x: event.clientX, y: event.clientY };
+      show('yard');
+      // Bare ground offers digging right there, without a trip through Play.
+      const dig = digHere();
+      if (dig) dig.hidden = !canDigAt(point.x, point.y);
       box.open();
     });
+    // Small windows hide the dock; one corner button opens the same menu the scenery's right-click does.
+    const launcher = $('compact-launcher');
+    // A press outside the menu closes it before the click arrives, so the press remembers it was open.
+    let wasOpen = false;
+    launcher?.addEventListener('pointerdown', () => {
+      wasOpen = !context.hidden;
+    });
+    launcher?.addEventListener('click', () => {
+      if (wasOpen || !context.hidden) {
+        wasOpen = false;
+        if (!context.hidden) closeControls();
+        return;
+      }
+      const r = launcher.getBoundingClientRect();
+      point = { x: r.right, y: r.top - 8 };
+      show('yard');
+      const dig = digHere();
+      if (dig) dig.hidden = true;
+      box.open();
+      launcher.setAttribute('aria-expanded', 'true');
+    });
+    showFriendMenu = (id, at) => {
+      point = at;
+      show('friend', id);
+      box.open();
+    };
     context.addEventListener('click', event => {
       const action = event.target.closest('[data-context-action]')?.dataset.contextAction;
       if (!action) return;
@@ -215,6 +220,10 @@ export function setupControls({ beforeOpen = () => {}, stopGame = () => {} } = {
       else if (action === 'play') openPlay();
       else if (action === 'pin') $('always-on-top').click();
       else if (action === 'menu') openControls();
+      else if (action === 'dig-here') digAt(point.x, point.y);
+      else if (action === 'talk') openChat(friend);
+      else if (action === 'play-friend') openPlay();
+      else if (action === 'dig-friend') digWith(friend);
     });
     globalThis.window?.addEventListener('resize', place);
   }

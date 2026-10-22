@@ -13,6 +13,10 @@ const paths = {
   // Pinning the window keeps it above other apps.
   pin: '<path d="m16 3 5 5-4 1-3 5 1 3-2 2-8-8 2-2 3 1 5-3 1-4Z"/><path d="m8 16-5 5"/>',
   expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  // Digging: a spade with its blade in the ground.
+  shovel: '<path d="m14 4 6 6"/><path d="m17 7-6.5 6.5"/><path d="M10.5 13.5 8 11l-4.5 4.5L5 20l4.5 1.5L14 17Z"/>',
+  // A tree to plant from a sapling.
+  tree: '<path d="M12 21v-5"/><path d="M12 3 6.5 10H9l-4 6h14l-4-6h2.5Z"/>',
   // A seedling: the garden's tool.
   sprout:
     '<path d="M12 21v-8"/><path d="M12 13C12 8.5 9 6 4 6c0 4.5 3 7 8 7Z"/><path d="M12 15c0-3.5 2.5-6 7-6 0 4-2.5 6-7 6Z"/>',
@@ -21,6 +25,7 @@ const paths = {
   dash: '<path d="M3 8h9M5 12h11M3 16h7"/><circle cx="18.5" cy="12" r="2.5"/>',
   spark: '<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/>',
   download: '<path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/>',
+  external: '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
   folder:
     '<path d="M3 8V5a1 1 0 0 1 1-1h5l2 3h9a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8Z"/><path d="M3 10h18"/>',
   chat: '<path d="M21 11a8 8 0 0 1-8 8H7l-4 3V11a9 9 0 0 1 18 0Z"/><path d="M8 11h8"/>',

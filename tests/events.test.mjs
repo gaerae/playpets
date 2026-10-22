@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import './support/content.mjs';
 import { bite, flyingBug } from '../src/yard/catalog.js';
-import { boostOf, eventOn, inEvent } from '../src/yard/events.js';
+import { boostOf, eventOn, eventStart, inEvent } from '../src/yard/events.js';
 
 const on = (iso, south = false) => eventOn(new Date(`${iso}T12:00:00`), south)?.id ?? null;
 
@@ -32,6 +32,19 @@ test('south of the equator the seasons come six months later, the new year does 
   assert.ok(inEvent({ from: '08-31', to: '09-10' }, '2-28', true), 'the first day is not lost');
   assert.ok(!inEvent({ from: '08-31', to: '09-10' }, '2-27', true));
   assert.ok(inEvent({ from: '08-20', to: '08-31' }, '2-29', true), 'a leap day at the end');
+});
+
+test('an event knows the first day of this time round, at midnight, north or south', () => {
+  const day = (iso, south = false) =>
+    eventStart(eventOn(new Date(`${iso}T12:00:00`), south), new Date(`${iso}T12:00:00`), south);
+  assert.equal(day('2026-10-01').getTime(), new Date('2026-09-08T00:00:00').getTime());
+  assert.equal(day('2027-04-05', true).getTime(), new Date('2027-03-08T00:00:00').getTime(), 'six months on');
+  // Dates that cross the end of the year began the year before.
+  const winter = { from: '12-20', to: '01-05' };
+  assert.equal(
+    eventStart(winter, new Date('2027-01-02T12:00:00')).getTime(),
+    new Date('2026-12-20T00:00:00').getTime(),
+  );
 });
 
 test('an event brings more small life and kinds of its own, only while it is on', () => {

@@ -57,6 +57,16 @@ function hideAll() {
   for (const v of views.values()) assert.ok(v.button.classList.contains('hiding'));
 }
 
+test('a game is a tile on Play: pressing it starts the game, pressing it again ends it', t => {
+  const { nodes, start } = yard(t);
+  const tile = nodes.get('games-menu').children.find(row => row.dataset.game === 'tag');
+  assert.equal(tile.className, 'play-action game');
+  start('tag');
+  assert.equal(game?.kind, 'tag');
+  start('tag');
+  assert.equal(game, null, 'the tile of the game on ends it');
+});
+
 test('hide feedback from a cancelled round cannot clear a later discovery', t => {
   const { start, advance } = yard(t);
   start('hide');

@@ -16,6 +16,7 @@ import {
   guard,
   labels,
   name,
+  readingTime,
   recall,
   remember,
   selected,
@@ -32,7 +33,7 @@ const agentState = p => agentStateOf(data, p.id);
 
 // What a press on a friend means is decided above the yard (by a game, or the panel);
 // setupViews hands it in, so the yard needs nothing from those modules.
-let on = { gameTap() {}, select() {}, openChat() {}, openActions: null, patted() {}, resized() {} };
+let on = { gameTap() {}, select() {}, openChat() {}, friendMenu: null, patted() {}, resized() {} };
 // A little burst above the friend: hearts for a pat, sparkles for a treat, one mark for a game.
 // Each piece drifts its own way (--dx, --rot) and starts a beat after the last.
 const BURST = { '♥': 3, '✦': 3 };
@@ -64,12 +65,42 @@ export function pose(view, state, duration = 1200) {
   view.until = now + duration;
 }
 // Bubbles show plain words: an answer's Markdown marks are taken out.
-export function bubble(v, message, duration = 6000) {
+// Space kept between two bubbles when one rises above the other.
+const BUBBLE_GAP = 4;
+// A bubble that would cover a friend's bubble already showing rises just above it (--bubble-lift,
+// friends.css), so two friends talking at once both stay readable.
+function clearOthers(v) {
+  if (!v.bubble.getBoundingClientRect) return;
+  const mine = v.bubble.getBoundingClientRect();
+  let lift = 0;
+  for (const other of views.values()) {
+    if (other === v || other.bubble?.hidden !== false || !other.bubble.getBoundingClientRect) continue;
+    const theirs = other.bubble.getBoundingClientRect();
+    if (theirs.right <= mine.left || theirs.left >= mine.right) continue;
+    if (mine.bottom - lift <= theirs.top || mine.top - lift >= theirs.bottom) continue;
+    lift = mine.bottom - theirs.top + BUBBLE_GAP;
+  }
+  if (lift) v.bubble.style?.setProperty('--bubble-lift', `${Math.round(lift)}px`);
+}
+/** A friend says something above its head for its reading time (or `duration`, if longer); the
+ * line is also read aloud, with the friend's name, from one quiet region. */
+export function bubble(v, message, duration = 0) {
   if (!message) return;
-  v.bubble.textContent = plain(message);
+  const words = plain(message);
+  v.bubble.textContent = words;
   v.bubble.hidden = false;
+  v.bubble.style?.removeProperty('--bubble-lift');
+  clearOthers(v);
+  const said = globalThis.document && $('friend-speech');
+  if (said && v.pet) said.textContent = `${name(v.pet)}: ${words}`;
   clearTimeout(v.bubbleTimer);
-  v.bubbleTimer = setTimeout(() => (v.bubble.hidden = true), duration);
+  v.bubbleTimer = setTimeout(
+    () => {
+      v.bubble.hidden = true;
+      v.bubble.style?.removeProperty('--bubble-lift');
+    },
+    Math.max(duration, readingTime(words)),
+  );
 }
 /** A friend's reaction to something it did: a pose, a mark above it (✦, ♥ or none) and one of the
  * lines under `lines` in the string tables. */
@@ -280,7 +311,8 @@ function createView(p) {
     if (moved) {
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {
-      (on.openActions || on.openChat)(p.id);
+      // The tag says "Talk to …", so it opens the conversation; play is the friend's right-click.
+      on.openChat(p.id);
     } else await pat();
   });
   both('pointerup', end);
@@ -288,11 +320,11 @@ function createView(p) {
   both('dblclick', () => {
     if (!game) on.openChat(p.id);
   });
-  // Play stays beside the friend; conversation remains an explicit destination.
+  // A friend's right-click offers what can be done with it: talk, or play.
   both('contextmenu', e => {
     e.preventDefault();
     on.select(p.id);
-    (on.openActions || on.openChat)(p.id);
+    (on.friendMenu || ((id, _point) => on.openChat(id)))(p.id, { x: e.clientX, y: e.clientY });
   });
   button.addEventListener(
     'keydown',

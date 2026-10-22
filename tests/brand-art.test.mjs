@@ -39,6 +39,8 @@ test('installer scenery and sharing artwork use the detailed app environment ins
   const installer = await readFile('scripts/make-installer-art.mjs', 'utf8');
   assert.match(installer, /loadEnvironment/);
   assert.doesNotMatch(installer, /class="far"|class="ground"|class="hill"/);
+  // Listing pictures follow the captures the site shows, not the package version a release raises later.
+  assert.match(installer, /const version = CAPTURE_VERSION;/);
   const og = await readFile('scripts/make-og.mjs', 'utf8');
   assert.doesNotMatch(og, /<i class="sun"/);
   assert.match(og, /loadEnvironment/);

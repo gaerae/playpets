@@ -13,3 +13,22 @@ test('rainbows stop immediately when night or precipitation begins', async () =>
     assert.match(rule[2], /opacity:\s*0\s*;/);
   }
 });
+
+test('night stars sit behind the land and only show on a clear night', async () => {
+  const css = (await readFile('src/styles/scenery.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const rules = [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)].map(([, selectors, body]) => ({
+    selectors: selectors.trim(),
+    body,
+  }));
+  const zIndex = selector =>
+    Number(
+      rules
+        .findLast(rule => rule.selectors.split(',').some(s => s.trim() === selector) && /z-index/.test(rule.body))
+        ?.body.match(/z-index:\s*(-?\d+)/)[1],
+    );
+  assert.ok(zIndex('.star-layer') > zIndex('.paint-sky'), 'stars are in front of the painted sky');
+  assert.ok(zIndex('.star-layer') < zIndex('.paint-land'), 'stars are behind the land');
+  const field = rules.find(rule => /::after/.test(rule.selectors) && /radial-gradient/.test(rule.body));
+  assert.ok(field, 'the twinkling star field exists');
+  assert.match(field.selectors, /\.weather-clear/, 'the star field waits for a clear night');
+});

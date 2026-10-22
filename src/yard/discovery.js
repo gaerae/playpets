@@ -1,28 +1,30 @@
 // Brief, friend-led tasks: choose ground, walk there, then commit one discovery.
-import {
-  actionGroundOffset,
-  beginCompanionAction,
-  clearCompanionAction,
-  companionImage,
-  prepareCompanionAction,
-} from '../core/companion-actions.js';
+import { beginCompanionAction, playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
 import { closeControls, closeScene } from '../core/controls.js';
 import { t } from '../core/i18n.js';
+import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { artSvg } from './art.js';
 import { showCard } from './card.js';
-import { setAimingMode } from './care.js';
+import { onAimingChange, setAimingMode } from './care.js';
 import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
-import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
+import { field, fieldToYard, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
-import { release, rest, sendTo, setDoing } from './trips.js';
-import { bubble, pose } from './views.js';
+import { isFree, release, rest } from './trips.js';
+import { bubble } from './views.js';
+import { holdAtWork, sendToWork, stopWork } from './work.js';
 import { scene } from './world.js';
 
 let intent = null;
 const tasks = new Map();
+// The tools the strip offers while one is in hand: digging, a tree, a seed (garden.js owns seeds).
+const TOOLS = [
+  ['dig', 'shovel', 'discovery.dig'],
+  ['tree', 'tree', 'discovery.tree'],
+  ['seed', 'sprout', 'garden.plant'],
+];
 const ownAim = () => intent && aiming === intent.action;
 const stock = kind => data.garden?.saplings?.[kind] || 0;
 
@@ -133,6 +135,8 @@ export function sendDiscovery(v, point, action, kind) {
     pixel = fieldToYard(point),
     task = {
       world,
+      action,
+      kind,
       cancelled: false,
       effect: null,
       timer: null,
@@ -147,29 +151,22 @@ export function sendDiscovery(v, point, action, kind) {
     clearTimeout(task.soilTimer);
     task.resumeContact?.();
     task.effect?.remove();
-    clearCompanionAction(v);
-    if (v.pose === 'idle' && v.until === Infinity) v.until = 0;
+    stopWork(v);
     if (tasks.get(v) === task) tasks.delete(v);
   };
   release(v);
   tasks.set(v, task);
   const prepared = prepareCompanionAction(v.asset, action === 'tree' ? 'plant' : 'dig');
   prepareCompanionAction(v.asset, 'discover');
-  const offset = actionGroundOffset(prepared, sizeOf(v.pet), petHeight(v.pet));
-  sendTo(v, footTarget(v, pixel.x - offset.x, pixel.y - offset.y), {
+  sendToWork(v, pixel, prepared, {
     cancel: cleanup,
     arrive: guard(async () => {
       if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
       let ground = groundProfile();
       if (!groundAllows(point, ground)) return cleanup();
       const context = { season: scene.season, weather: scene.weather };
-      setDoing(v, { end: cleanup });
-      pose(v, 'idle', Infinity);
-      let authored = beginCompanionAction(v, action === 'tree' ? 'plant' : 'dig');
-      if (authored && !companionImage(authored)) {
-        clearCompanionAction(v);
-        authored = null;
-      }
+      holdAtWork(v, cleanup);
+      const authored = playCompanionAction(v, action === 'tree' ? 'plant' : 'dig');
       const duration = authored?.duration ?? 1950;
       const effect = document.createElement('span');
       effect.className = `dig-effect${authored ? ' authored' : ''}`;
@@ -206,7 +203,15 @@ export function sendDiscovery(v, point, action, kind) {
         if (result.repeated) return bubble(v, t('discovery.repeated'), 2600);
         if (result.outcome === 'keepsake') {
           const found = treasureKind(result.kind);
-          if (found) showCard(artSvg(found.art), t(`treasure.${found.id}`), t('discovery.kept'), !before.has(found.id));
+          if (found)
+            showCard(
+              artSvg(found.art),
+              t(`treasure.${found.id}`),
+              // A first find says "new in the album" on its own line; saying "kept" too repeats it.
+              before.has(found.id) ? t('discovery.kept') : '',
+              !before.has(found.id),
+              'treasure',
+            );
         } else if (result.outcome === 'sapling') {
           bubble(v, t('discovery.sapling', { kind: t(`tree.${result.kind}`) }), 3000);
         } else if (result.outcome === 'full' && result.kind) {
@@ -255,10 +260,138 @@ export function sendDiscovery(v, point, action, kind) {
   });
 }
 
+// A friend that has dug within the backend's cooldown sits out the next spot, so it goes to another.
+// When it last dug is kept on the friend itself (`v.dugAt`).
+const rested = v => {
+  const pause = limit(data, 'digCooldownMs');
+  return performance.now() - (v.dugAt ?? -pause) >= pause;
+};
+// The friend for the next spot: the selected one when it is free and rested, else the nearest such friend.
+function actorFor(point) {
+  const ready = v => isFree(v) && !tasks.has(v) && (intent.action !== 'dig' || rested(v));
+  const first = views.get(selected) || views.get(intent.petId);
+  if (first && ready(first)) return first;
+  const spot = fieldToYard(point);
+  let best = null,
+    bestD = Infinity;
+  for (const v of views.values()) {
+    if (!ready(v)) continue;
+    const d = Math.hypot(v.px + sizeOf(v.pet) / 2 - spot.x, v.py + petHeight(v.pet) - spot.y);
+    if (d < bestD) [best, bestD] = [v, d];
+  }
+  return best;
+}
+// Sends a friend to the spot and keeps the tool in hand: the next spot sends the next free friend,
+// until Esc, the strip's Close or another tool puts it away.
+function order(point, v = actorFor(point)) {
+  if (!v) return toast(t('catch.busy'));
+  const { action, kind } = intent;
+  if (action === 'tree') {
+    const pending = [...tasks.values()].filter(task => task.action === 'tree' && task.kind === kind).length;
+    if (stock(kind) - pending <= 0) return toast(t('discovery.no_saplings'));
+  }
+  if (action === 'dig') v.dugAt = performance.now();
+  sendDiscovery(v, point, action, kind);
+}
+/** With Let them dig on (Settings → Friends & AI): an idle friend digs a spot of its own choosing.
+ * Never during a game or while the person holds a tool; returns whether a friend set off. */
+export function autoDig(rng = Math.random) {
+  if (game || aiming || intent || !groundProfile().soil) return false;
+  const idle = [...views.values()].filter(v => isFree(v) && !tasks.has(v) && rested(v));
+  if (!idle.length) return false;
+  const v = idle[Math.floor(rng() * idle.length)];
+  for (let tries = 0; tries < 12; tries++) {
+    const point = { x: 0.1 + rng() * 0.8, y: 0.15 + rng() * 0.75 };
+    if (!groundAllows(point, groundProfile())) continue;
+    v.dugAt = performance.now();
+    sendDiscovery(v, point, 'dig');
+    return true;
+  }
+  return false;
+}
+/** Whether a right-click at this point of the window lands on ground a friend could dig. */
+export function canDigAt(clientX, clientY) {
+  if (game || !views.size || !groundProfile().soil) return false;
+  const r = $('yard').getBoundingClientRect(),
+    x = clientX - r.left,
+    y = clientY - r.top,
+    f = field();
+  if (x < 14 || x > f.width - 14 || y < f.top || y > f.bottom) return false;
+  return groundAllows(yardToField(x, y), groundProfile());
+}
+/** Digs at a right-clicked point at once, leaving the dig tool in hand for the next spot. */
+export function digAt(clientX, clientY) {
+  if (!canDigAt(clientX, clientY)) return;
+  if (!ownAim() || intent.action !== 'dig') beginDiscovery('dig');
+  const r = $('yard').getBoundingClientRect();
+  if (intent) order(yardToField(clientX - r.left, clientY - r.top));
+}
+// The strip under the target line: which tool is in hand, and one press to switch or put it away.
+function syncTools(kind = aiming) {
+  const strip = $('discovery-tools');
+  if (!strip) return;
+  for (const button of strip.children) button.setAttribute('aria-pressed', String(button.dataset.tool === kind));
+  const count = strip.querySelector('.tool-count');
+  if (count) count.textContent = data.garden?.seeds ? String(data.garden.seeds) : '';
+  if (kind === 'seed' || kind === 'treat') {
+    $('discovery-target-label').textContent = t(kind === 'seed' ? 'hint.plant' : 'hint.treat');
+    $('discovery-tree-choices').hidden = true;
+    $('discovery-find-saplings').hidden = true;
+    $('discovery-target').hidden = false;
+  } else if (!kind && intent) {
+    // Put away from elsewhere (a press on the lake or a creature): the dig or tree choice ends too.
+    intent = null;
+    $('discovery-target').hidden = true;
+    if ($('discovery-marker')) $('discovery-marker').hidden = true;
+  } else if (!kind) $('discovery-target').hidden = true;
+}
+function useTool(tool) {
+  if (tool === 'seed') {
+    cancelDiscovery();
+    if (aiming !== 'seed') $('plant-tool').click();
+    return;
+  }
+  beginDiscovery(tool);
+}
 export function setupDiscovery() {
   $('dig-tool').onclick = () => beginDiscovery('dig');
   $('tree-tool').onclick = () => beginDiscovery('tree');
-  $('discovery-cancel').onclick = cancelDiscovery;
+  $('discovery-cancel').onclick = () => {
+    if (aiming === 'seed' || aiming === 'treat') setAimingMode(false);
+    cancelDiscovery();
+  };
+  $('discovery-tools')?.replaceChildren(
+    ...TOOLS.map(([tool, icon, key]) => {
+      const button = document.createElement('button'),
+        mark = document.createElement('span'),
+        label = document.createElement('span');
+      button.type = 'button';
+      button.className = 'discovery-tool';
+      button.dataset.tool = tool;
+      button.setAttribute('aria-keyshortcuts', String(TOOLS.findIndex(([name]) => name === tool) + 1));
+      mark.dataset.icon = icon;
+      label.textContent = t(key);
+      button.append(mark, label);
+      if (tool === 'seed') {
+        const count = document.createElement('span');
+        count.className = 'tool-count';
+        button.append(count);
+      }
+      button.onclick = () => useTool(tool);
+      return button;
+    }),
+  );
+  if ($('discovery-tools')) icons($('discovery-tools'));
+  onAimingChange(syncTools);
+  // Only while a tool is in hand (not the menu bar's shortcuts): 1, 2 and 3 pick a tool from the strip.
+  document.addEventListener('keydown', event => {
+    if (!TOOLS.some(([tool]) => tool === aiming) || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.target?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+    const tool = TOOLS[Number(event.key) - 1]?.[0];
+    if (!tool || tool === aiming) return;
+    event.preventDefault?.();
+    useTool(tool);
+  });
   $('discovery-find-saplings').onclick = () => beginDiscovery('dig');
   $('discovery-tree-choices').addEventListener('click', event => {
     const button = event.target.closest('[data-tree-kind]');
@@ -272,24 +405,17 @@ export function setupDiscovery() {
   $('yard').addEventListener('pointerleave', () => ($('discovery-marker').hidden = true));
   $('yard').addEventListener('click', event => {
     if (!ownAim() || event.target.closest('button,a,input,select,textarea')) return;
-    const point = positionAt(event),
-      v = views.get(intent.petId);
-    if (!point || !v) return;
-    const { action, kind } = intent;
-    cancelDiscovery();
-    sendDiscovery(v, point, action, kind);
+    const point = positionAt(event);
+    if (point) order(point);
   });
   $('yard').addEventListener('keydown', event => {
     if (!ownAim() || !['Enter', ' '].includes(event.key)) return;
     event.preventDefault();
     const v = views.get(intent.petId);
     if (!v) return;
-    if (intent.action === 'tree' && !stock(intent.kind)) return toast(t('discovery.no_saplings'));
     const point = yardToField(v.px + sizeOf(v.pet) / 2, v.py + petHeight(v.pet));
     if (!groundAllows(point, groundProfile())) return toast(t('discovery.invalid'));
-    const { action, kind } = intent;
-    cancelDiscovery();
-    sendDiscovery(v, point, action, kind);
+    order(point, actorFor(point));
   });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && intent && !event.defaultPrevented) {

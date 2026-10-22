@@ -8,15 +8,15 @@ While a coding agent such as Claude Code, Codex CLI, Gemini CLI or Cursor works,
 
 ## A friend for each agent <Since v="0.1.0" />
 
-Each agent can report to a friend of your choice. In the Settings tab, pick one under **Reacting friend** on that tool's row, then press **Copy settings** again and paste. The copied settings name the friend (`--pet`), so Claude Code can report to Clover and Codex to Pip. With no choice, the first friend gets it; send the chosen friend away and it goes back to the first friend. Give each friend a different agent and the yard becomes a status board of who is doing what.
+Each agent can report to a friend of your choice. In **Settings → Coding tools**, pick one under **Reacting friend** on that tool's row, then press **Copy settings** again and paste. The copied settings name the friend (`--pet`), so Claude Code can report to Clover and Codex to Pip. With no choice, the first friend gets it; send the chosen friend away and it goes back to the first friend. Give each friend a different agent and the yard becomes a status board of who is doing what.
 
 ## What you see in the yard <Since v="0.1.0" />
 
-A friend with an agent carries its name on the name tag (Clover, Claude Code). The chip under the friend's name in the Friend tab shows the agents, too. The small dot by a friend's head is the agent's state: working pulses orange, waiting is blue, done is green, and trouble is red; hover it for the name. Done and trouble fade after 30 minutes; working and waiting stay until the agent reports again. The pill in the Friend tab is the agent's state too: chat answers show in the log.
+A friend with an agent carries its name on the name tag (Clover, Claude Code). The chip under the friend's name in the Friend panel shows the agents, too. The small dot by a friend's head is the agent's state: working pulses orange, waiting is blue, done is green, and trouble is red; hover it for the name. Done and trouble fade after 30 minutes; working and waiting stay until the agent reports again. The pill in the Friend panel is the agent's state too: chat answers show in the log.
 
 ## What happens <Since v="0.1.0" />
 
-The agent's steps become your friend's status. The status shows next to the name in the Friend tab and on the name tag in the yard, and it also floats as a speech bubble above the friend on the desktop.
+The agent's steps become your friend's status. The status shows next to the name in the Friend panel and on the name tag in the yard, and it also floats as a speech bubble above the friend on the desktop.
 
 | What the agent is doing | Your friend's status |
 |---|---|
@@ -30,9 +30,9 @@ Your friend remembers up to 8 recent activities. Ask "what were you doing?" in t
 
 ## Copy and paste the settings <Since v="0.1.0" />
 
-<Shot name="settings-agents" caption="Coding agent hooks in the Settings tab. Each tool has a Copy settings button." />
+<Shot name="settings-agents" caption="Coding agent hooks in Settings → Coding tools. Each tool has a Copy settings button." />
 
-1. Go to **Coding agent hooks** in the **Settings** tab.
+1. Open **Friends & settings → Settings → Coding tools**.
 2. Click **Copy settings** next to the tool you use. A notice tells you which file to paste it into.
 3. Open that file, paste, and save. Restart the agent and it connects right away.
 

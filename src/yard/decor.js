@@ -17,7 +17,7 @@ import { giftSvg } from './creatures.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { FIRST_GIFT, GIFT_WAIT, giftWait, localDay } from './growth.js';
-import { askToRemove, propButton, reconcile, setDown, giftSize as size } from './props.js';
+import { propButton, reconcile, removeWithUndo, setDown, giftSize as size } from './props.js';
 import { cue } from './sound.js';
 import { isFree, nearestFree, rest, sendTo } from './trips.js';
 import { bubble, cheer, effect } from './views.js';
@@ -192,13 +192,13 @@ function visited(v, kind) {
   if (kind && Math.random() < 0.6) bubble(v, pick(list(`decor.visit_${kind}`)), 3000);
 }
 
-const putAway = guard(async id => {
-  const d = data.garden?.decor.find(x => x.id === id);
-  if (!d) return;
-  const kind = kindName(d.kind);
-  if (await askToRemove(t('decor.put_away_confirm', { kind }), t('decor.put_away_body'), t('decor.put_away')))
-    await call('putAway', id);
-});
+// Put away at once with a moment to undo it (props.js); a friend may bring it again another day.
+function putAway(id) {
+  const d = data.garden?.decor.find(x => x.id === id),
+    view = shown.get(id);
+  if (!d || !view) return;
+  removeWithUndo(id, view, t('decor.put_away_done', { kind: kindName(d.kind) }), () => call('putAway', id));
+}
 
 // The deadline follows this profile's last gift, so closing the app keeps its progress.
 let progressKey = '',
@@ -274,6 +274,7 @@ export function giftTick() {
           kindName(d.kind),
           t('decor.brought', { name: name(v.pet), kind: kindName(d.kind) }),
           !seen.has(d.kind),
+          'gift',
         );
     })
     .catch(() => {

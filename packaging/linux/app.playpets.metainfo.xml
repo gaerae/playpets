@@ -20,7 +20,7 @@
   </developer>
   <description>
     <p>
-      PlayPets is an open-source desktop pet app with three starter friends and four places to
+      PlayPets is an open-source desktop pet app with four starter friends and four places to
       spend time together. Import compatible Codex pet files or create a background of your own.
       Time, weather and seasons bring the yard to life.
     </p>
@@ -29,6 +29,7 @@
       <li>Friends answer in turn in one conversation and keep chatting among themselves.</li>
       <li>Coding agents (Claude Code, Codex, Gemini CLI, Cursor and MCP tools) show their work as a friend's poses.</li>
       <li>Play hide and seek, a parade or tag, or send friends out to roam the desktop.</li>
+      <li>Dig for finds, grow flowers and trees, and fish and catch bugs for the album, with no AI needed.</li>
       <li>Friends and settings are saved on your computer. AI conversations go to the provider you connect.</li>
     </ul>
     <p>PlayPets is not affiliated with OpenAI. Codex is a trademark of OpenAI.</p>

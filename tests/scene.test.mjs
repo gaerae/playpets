@@ -13,9 +13,12 @@ import {
   GREETINGS,
   greetingFor,
   groundFor,
+  harvestMoon,
   initialSceneChoices,
+  moonLit,
+  moonMask,
   moonPhase,
-  moonShade,
+  nearFullMoon,
   PERIODS,
   periodFor,
   SEASON_COLORS,
@@ -191,10 +194,85 @@ test('the moon shows its phase: dark when new, whole when full, lit on the right
   assert.ok(moonPhase(knownNew) < 0.01 || moonPhase(knownNew) > 0.99);
   assert.ok(Math.abs(moonPhase(knownNew + month / 2) - 0.5) < 0.01);
   assert.ok(Math.abs(moonPhase(knownNew + 10 * month + month / 4) - 0.25) < 0.01);
-  assert.equal(moonShade(0), 0, 'new moon: the shade covers it');
-  assert.equal(Math.abs(moonShade(0.5)), 100, 'full moon: the shade is off to one side');
-  assert.ok(moonShade(0.25) < 0, 'waxing: the shade slides off to the left');
-  assert.ok(moonShade(0.75) > 0, 'waning: the shade comes in from the right');
+  const close = (a, b) => Math.abs(a - b) < 1e-9;
+  assert.ok(close(moonLit(0).edge, 1), 'new moon: the terminator lies on the bright limb, nothing is lit');
+  assert.ok(close(moonLit(0.25).edge, 0), 'first quarter: half lit, the terminator straight down the middle');
+  assert.ok(close(moonLit(0.5).edge, -1), 'full moon: the terminator reaches the far limb');
+  assert.equal(moonLit(0.1).lit, 'right', 'waxing, the right side is lit north of the equator');
+  assert.equal(moonLit(0.9).lit, 'left', 'waning, the left side');
+  assert.equal(moonLit(0.1, true).lit, 'left', 'south of the equator it is mirrored');
+  assert.ok(moonLit(0.1).edge > 0 && moonLit(0.4).edge < 0, 'a crescent before the quarter, gibbous after');
+  assert.ok(close(moonLit(0.1).edge, moonLit(0.9).edge), 'waning retraces waxing');
+});
+
+test('the harvest moon shows only on the nights around the real full moon', () => {
+  const day = 1 / 29.530588853;
+  assert.ok(nearFullMoon(0.5), 'the full moon itself');
+  assert.ok(nearFullMoon(0.5 - 2 * day) && nearFullMoon(0.5 + 2 * day), 'two days either side');
+  assert.ok(!nearFullMoon(0.5 - 3 * day) && !nearFullMoon(0.5 + 3 * day), 'not three days off');
+  assert.ok(!nearFullMoon(0.25) && !nearFullMoon(0), 'never a quarter or new moon');
+});
+
+test('the harvest moon is the first full moon on or after the event starts, one a year', () => {
+  const night = iso => new Date(`${iso}T22:00:00`).getTime(),
+    start = year => new Date(`${year}-09-08T00:00:00`).getTime();
+  assert.ok(harvestMoon(night('2026-09-26'), start(2026)), 'Chuseok 2026');
+  assert.ok(harvestMoon(night('2027-09-15'), start(2027)), 'Chuseok 2027');
+  assert.ok(!harvestMoon(night('2027-10-14'), start(2027)), 'the next full moon of the same event is a plain one');
+  assert.ok(
+    harvestMoon(night('2029-09-22'), start(2029)),
+    'an early one, inside since the event starts on September 8',
+  );
+  assert.ok(!harvestMoon(night('2026-10-05'), start(2026)), 'not between full moons');
+});
+
+test('the lit part is drawn as a limb and an elliptical terminator, never a second disc', () => {
+  const arcs = svg =>
+    [...svg.match(/<path d="([^"]+)"\/><\/g><\/svg>/)[1].matchAll(/A([\d.]+) 50 0 0 ([01]) 50 (0|100)/g)].map(m => [
+      Number(m[1]),
+      m[2],
+      m[3],
+    ]);
+  // Waxing crescent: the limb runs down the right side, the terminator comes back up through it.
+  assert.deepEqual(arcs(moonMask({ lit: 'right', edge: 0.6 })), [
+    [50, '1', '100'],
+    [30, '0', '0'],
+  ]);
+  // Waxing gibbous: the terminator bows out through the dark left side instead.
+  assert.deepEqual(arcs(moonMask({ lit: 'right', edge: -0.6 })), [
+    [50, '1', '100'],
+    [30, '1', '0'],
+  ]);
+  // Waning crescent: everything mirrored.
+  assert.deepEqual(arcs(moonMask({ lit: 'left', edge: 0.6 })), [
+    [50, '0', '100'],
+    [30, '1', '0'],
+  ]);
+  // Twice the moon, centred on it, so the glow has room around the disc.
+  assert.match(moonMask({ lit: 'right', edge: -1 }), /^<svg [^>]*viewBox="-50 -50 200 200"/);
+  // The dark side keeps a trace of the moon, as earthshine shows it, gone before the painted moon's
+  // bright rim so the dark side has no outline.
+  const shine = moonMask({ lit: 'right', edge: 0.6 });
+  assert.match(shine, /<circle cx="50" cy="50" r="50" fill="url\(#shine\)"\/><path /);
+  assert.match(shine, /<stop offset="0\.8" stop-opacity="0\.08"\/><stop offset="0\.92" stop-opacity="0"\/>/);
+  // A quarter moon's terminator is all but straight; a zero-width arc would lose its soft edge.
+  assert.match(moonMask({ lit: 'right', edge: 0 }), /A1 50 /);
+});
+
+test('the glow comes from the lit part only, in the same mask, so the dark limb has no bright ring', () => {
+  const mask = moonMask({ lit: 'right', edge: -0.6 }),
+    paths = [...mask.matchAll(/<path d="(M50[^"]+)"( filter="url\(#glow\)")?/g)];
+  assert.equal(paths.length, 2);
+  assert.equal(paths[0][1], paths[1][1], 'the lit shape, once blurred wide for the glow and once for the moon');
+  assert.ok(paths[0][2], 'the glow comes first, under the moon');
+  // The glow stays outside the disc, so it neither lights the dark side nor smudges the terminator.
+  assert.match(
+    mask,
+    /<clipPath id="out"><path clip-rule="evenodd" d="M-50 -50H150V150H-50ZM50 0A50 50 0 1 0 50 100A50 50 0 1 0 50 0Z"\/><\/clipPath>/,
+  );
+  assert.match(mask, /<g clip-path="url\(#out\)"><path d="[^"]+" filter="url\(#glow\)"\/><\/g>/);
+  // WebKit draws an SVG holding a <mask> element as no mask at all: a square of glow.
+  assert.doesNotMatch(mask, /<mask/);
 });
 
 test('petals in spring and leaves in autumn drift down a few at a time, only in clear daylight', () => {

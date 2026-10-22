@@ -57,12 +57,22 @@ test('discovery sounds belong only to the current visible card', async t => {
     assert.equal(card.hidden, true);
     assert.equal(voices, before, 'a dismissed card should not play its delayed sound');
   });
-  await t.test('replacement cancels the old sound', () => {
+  await t.test('a second card waits its turn instead of wiping the first', () => {
     const before = voices;
     showCard('', 'Fish', 'New fish', true);
-    showCard('', 'Flower', 'Already collected', false);
+    showCard('', 'Closer', 'A new level', true);
     t.mock.timers.tick(500);
-    assert.equal(voices, before, 'the old discovery cue should not play over the replacement');
+    const cue = voices - before;
+    assert.ok(cue > 0, 'the card on show plays its cue');
+    t.mock.timers.tick(500);
+    assert.equal(voices - before, cue, 'the waiting card stays quiet');
+    assert.equal(card.hidden, false);
+    dismiss();
+    assert.equal(card.hidden, false, 'the waiting card follows at once');
+    t.mock.timers.tick(500);
+    assert.equal(voices - before, cue * 2, 'and plays its own cue when it is shown');
+    dismiss();
+    assert.equal(card.hidden, true);
   });
   await t.test('the current discovery still plays', () => {
     const before = voices;
@@ -80,10 +90,11 @@ test('a discovery waits while it is being read and offers a named keyboard close
   card.matches = () => reading;
   showCard('', 'Fish', 'A discovery', false);
   assert.ok(close.getAttribute('aria-label'));
-  assert.equal(typeof close.onclick, 'function');
+  // Close has no handler of its own: its click (or Enter) reaches the card's, so one press closes one card.
+  assert.equal(close.onclick ?? null, null);
   t.mock.timers.tick(6000);
   assert.equal(card.hidden, false, 'hover or keyboard focus keeps the card readable');
   reading = false;
-  close.onclick();
+  await card.dispatch('click', { target: close });
   assert.equal(card.hidden, true);
 });

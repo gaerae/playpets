@@ -1,14 +1,14 @@
 ---
-description: How to pick a pet in the Invite tab and make it a friend, then pat it and give it treats in the yard
+description: How to pick a pet in Invite a friend and make it your friend, then pat it and give it treats in the yard
 ---
 
 # Invite your first friend
 
-When you first open the app, the empty yard asks **Who would you like to play with?** and shows four moving companion choices. Click one and it comes into the yard and waves. **See other pets** opens the **Invite** tab with every pet on this computer.
+When you first open the app, the empty yard asks **Who would you like to play with?** and shows four moving companion choices. Click one and it comes into the yard and waves. **See other pets** opens **Invite a friend** with every pet on this computer.
 
 ## Bundled companions <Since v="0.1.0" />
 
-On first start the Invite tab has **PlayPets starter pets**: Daisy the explorer, Clover the kitten gardener, Pip the cheerful puppy and Miso the gentle otter. Clover is the app's main mascot. Their cards show these names in every language. They use the Codex pet format, so you invite them, send them to the desktop and give them an AI exactly like any other pet. Their files sit under `builtin/` in the data folder.
+On first start, Invite a friend shows **PlayPets starter pets**: Daisy the explorer, Clover the kitten gardener, Pip the cheerful puppy and Miso the gentle otter. Clover is the app's main mascot. Their cards show these names in every language. They use the Codex pet format, so you invite them, send them to the desktop and give them an AI exactly like any other pet. Their files sit under `builtin/` in the data folder.
 
 
 The official cast is Daisy, Clover, Pip and Miso. Earlier built-in friends keep their saved IDs, names, settings and closeness, with their appearance mapped to this cast: Aria to Daisy, Noah to Pip, and the original cats to Clover. Imported pets are unchanged. Chat is session-only and is not restored after restarting.
@@ -38,13 +38,13 @@ Miso keeps a book nearby and leaves plenty of room for pauses. In a lavender kni
 
 ## Next up <Since v="0.1.0" />
 
-Once your first friend is in, a small **Next up** card in the corner shows what is left: connect an AI to a friend (**Connect**) and pick a friend to bring news from your coding agent (**Choose**). With Claude Code or Codex CLI on this computer, the first button is **Connect now** and attaches it to every friend with no key (see [Chat with a friend](./chat.md#making-a-connection)). Each step is ticked when done; the card disappears when all are done, or earlier with **Hide this**. With no friend in the yard, play tools are hidden. **Menu → Invite** remains available.
+Once your first friend is in, a small **Next up** card in the corner shows what is left: connect an AI to a friend (**Connect**) and pick a friend to bring news from your coding agent (**Choose**). With Claude Code or Codex CLI on this computer, the first button is **Connect now** and attaches it to every friend with no key (see [Chat with a friend](./chat.md#making-a-connection)). Each step is ticked when done; the card disappears when all are done, or earlier with **Hide this**. With no friend in the yard, play tools are hidden. **Friends & settings → Invite a friend** remains available.
 
-## The Invite tab <Since v="0.1.0" />
+## Invite a friend <Since v="0.1.0" />
 
-<Shot name="invite" caption="The Invite tab groups cards by where the pets are." />
+<Shot name="invite" caption="Invite a friend groups cards by where the pets are." />
 
-The Invite tab splits the cards into four groups, depending on where the pet file lives. A group with no pets is not shown.
+Invite a friend splits the cards into four groups, depending on where the pet file lives. A group with no pets is not shown.
 
 | Group | Where the pets come from |
 |---|---|
@@ -62,14 +62,14 @@ The type filters work together with **Search pets**: enter a name or creator to 
 ## Inviting a friend <Since v="0.1.0" />
 
 1. Click a card (the `+` on its right). A card for a friend already in the yard says "Invite one more".
-2. The friend appears in the yard and waves. The panel switches to the Friend tab.
+2. The friend appears in the yard and waves. The Friend panel opens on that friend.
 3. Click the same pet again and it becomes "Invite one more". From the second friend on, a number is added after the name so you can tell them apart.
 
 The yard holds up to 12 friends.
 
 ## Friend settings <Since v="0.1.0" />
 
-In the Friend tab, open the **⋯** menu by the friend's name and choose **Edit** (the pencil) to change the name, personality, relationship, what it calls you, and size. The relationship chip beside the name opens it too.
+In the Friend panel, open the **⋯** menu by the friend's name and choose **Edit** (the pencil) to change the name, personality, relationship, what it calls you, and size. The relationship chip beside the name opens it too.
 
 - **Name**: shown on the name tag in the yard and in the chat. Up to 24 characters.
 - **Personality**: your friend answers in this personality when you chat. At first the pet file's introduction is used as the personality; edit it or add to it and save to change that. Click **Add the pet file's introduction** to bring the original introduction back. Up to 400 characters. If no AI is connected, the personality is not used yet.
@@ -79,7 +79,7 @@ In the Friend tab, open the **⋯** menu by the friend's name and choose **Edit*
 
 The friend ID is shown at the bottom of the window. You use it to point at a specific friend in [Coding agent hooks](./agents.md).
 
-To send a friend away from the yard, choose **Send away** from the **⋯** menu, or click **Send away from the yard** in Friend settings. Your conversation with them is deleted too, but the pet stays in the Invite tab, so you can invite them again any time.
+To send a friend away from the yard, choose **Send away** from the **⋯** menu, or click **Send away** in Friend settings. A red confirmation asks first. The pet stays in Invite a friend, so you can invite them again any time; your conversation and the closeness you built are cleared.
 
 ## Things to do in the yard <Since v="0.1.0" />
 
@@ -89,8 +89,8 @@ Click a friend to pat it, or drag it to move it. The first friend you invite exp
 |---|---|
 | Pat | Click a friend once. They jump and show a heart |
 | Move | Drag a friend and drop them. Their place in the yard is remembered |
-| Chat | Click the friend's name tag: under the pointer it shows a speech mark. The Friend tab opens on that friend. The conversation fits inside the window at every size. A double-click or right-click on the friend does the same |
-| Put down a treat | Click **Give a treat** in **Menu**, then choose a spot in the yard. A picnic blanket with sandwiches, fruit and snacks appears, and friends gather around it. It clears after 15 seconds if not everyone arrives, or six seconds after the last friend eats |
+| Chat | Click the friend's name tag: under the pointer it shows a speech mark, and its tooltip says **Talk to** and the friend's name. The Friend panel opens on that friend. The conversation fits inside the window at every size. A double-click on the friend does the same, and a right-click opens a short menu with **Talk to**, **Play with** and **Ask … to dig** for that friend |
+| Put down a treat | Click **Picnic** in **Play → Garden**, then choose a spot in the yard (from the keyboard, press it again to set it beside the selected friend). A picnic blanket with sandwiches, fruit and snacks appears, and friends gather around it. It clears after 15 seconds if not everyone arrives, or six seconds after the last friend eats |
 
 A **name tag** sits under each friend. When you select a friend, the name tag changes to its selected look, and while a coding agent is working, the status is shown next to the name tag.
 

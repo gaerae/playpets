@@ -10,13 +10,13 @@ import DiscoveryGuide from '../.vitepress/theme/DiscoveryGuide.vue';
 
 The yard changes with the time of day, the weather and the season, and it grows over the days. Friends dig up flower seeds and saplings and bring gifts, you fish and catch bugs for the album, friends grow closer to you, seasonal events come and go, the yard has its own sounds, and you can play three games with your friends.
 
-The scenery fills the window. The dock has **Place & atmosphere**, **Play** and **Friends & settings**. The last opens three tabs: **Friends** for chat and invitations, **Settings** for app preferences, and **Window** for window and desktop controls. Only one yard panel opens at a time. Automatic time follows your computer’s clock without displaying a clock.
+The scenery fills the window. The dock has **Place & atmosphere**, **Play** and **Friends & settings**. Each opens one page with its sections, with no tabs or Back buttons inside. Only one yard panel opens at a time. Automatic time follows your computer’s clock without displaying a clock.
 
-**Play** uses the same board at every window size. Its four actions are **Dig**, **Plant & collect**, **Fish**, and **Group games**. Plant & collect opens seeds, trees and the album. Group games opens picnics, games and group conversation. Group conversation requires two friends connected to AI; the other activities do not.
+**Play** is titled for the selected friend, such as **Play with Clover**, and has three sections. **Find** holds **Dig**, **Fish** and **Album**. **Garden** holds **Plant a seed** (with how many seeds you have), **Plant a tree** and **Picnic**. **Group games** holds the three games and **Let them chat**. Let them chat needs two friends connected to an AI; the other activities do not.
 
 A new yard starts on a clear spring day. Choose **Auto** for season, time or weather when you want them to change on their own; saved choices stay as you left them.
 
-**Place & atmosphere → Atmosphere** also holds the sound switch and volume. Sounds begin after your first interaction and play only while the yard is visible. Rain, birds, water and other ambient sounds follow the place, weather, season and time. This control is separate from automatic conversation in **Friends & settings → Settings → General**.
+**Place & atmosphere → Atmosphere** also holds the **Yard sounds** switch and **Volume**. Sounds begin after your first interaction and play only while the yard is visible. Rain, birds, water and other ambient sounds follow the place, weather, season and time. This control is separate from automatic conversation in **Friends & settings → Settings → Friends & AI**.
 
 ## Time of day and weather <Since v="0.1.0" />
 
@@ -24,7 +24,7 @@ Season and weather are independent: summer with Snow keeps the summer landscape 
 
 <Shot name="yard-spring" caption="A clear spring day in the yard. Auto time follows your clock when selected." />
 
-Open **Place & atmosphere** at the bottom right to choose a background by its thumbnail. Built-in and imported backgrounds share one gallery. Use **Places** to choose a background and **Atmosphere** to choose season, time and weather; changes apply immediately. Import a background or open the Background Studio below the controls. Remove appears only when an imported background is selected.
+Open **Place & atmosphere** at the bottom right to choose a background by its thumbnail. Built-in and imported backgrounds share one gallery. The panel is one page: choose a background under **Places** and season, time and weather under **Atmosphere**; changes apply immediately. **Import background** and **Background studio** sit beside the Places heading. Remove appears there only when an imported background is selected.
 
 | Choice | Options |
 |---|---|
@@ -47,16 +47,18 @@ When the weather changes, one or two friends say a word about it, like "Rain!" o
 
 ## Let them chat <Since v="0.1.0" />
 
-Press **Let them chat** in **Play → Group games** and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button looks off, and pressing or hovering it says why. To join in yourself, use [the Friend tab's group chat](./chat.md).
+Press **Let them chat** in **Play → Group games** and the friends with an AI (up to three) have a short talk among themselves about the time of day and the weather. The lines show up one after another as speech bubbles in the yard. With fewer than two friends with an AI the button looks off, and pressing or hovering it says why. To join in yourself, use [group chat in the Friend panel](./chat.md).
 
-To let them talk on their own now and then, turn on **Let them chat now and then** in **Friends & settings → Settings → General**. They chat once every 20 minutes, and rest while the window is hidden or someone is answering.
+To let them talk on their own now and then, turn on **Let them chat now and then** in **Friends & settings → Settings → Friends & AI**. They chat once every 20 minutes, and rest while the window is hidden or someone is answering.
 
 ## The garden <Since v="0.1.0" />
 
 Flower seeds and saplings both come from digging. Choose **Dig**, send a friend to open ground, and plant what they find. Neither appears just because friends are strolling.
 
-1. Click **Plant a seed** in **Play → Plant & collect** (the number beside it is how many seeds you have).
+1. Click **Plant a seed** in **Play → Garden** (the number beside it is how many seeds you have).
 2. Click a spot on the field. You can plant several in a row; **Esc** or the tool again stops.
+
+From the keyboard, press **Plant a seed** (Enter or Space) and press it again to plant beside the selected friend, as with the picnic. While a tool is in hand, the keys 1, 2 and 3 switch to **Dig**, **Plant a tree** and **Plant a seed**; they do nothing while you type in a field.
 
 In Cozy living room, flowers sit in small planters instead of patches of bare soil. Their growth and your collection remain shared when you change places.
 
@@ -64,7 +66,7 @@ A seed grows by the clock, also while the app is closed: a sprout after 10 minut
 
 - Click a plant and the nearest friend walks over to water it.
 - Friends also go and look at the flowers on their own.
-- Right-click a plant (or press **Delete** on it) to pull it up. The seed does not come back.
+- Right-click a plant (or press **Delete** or **Backspace** on it) to pull it up at once, without a question. The notice at the bottom shows **Undo** for about six seconds; Undo puts the plant back. Only then is it gone for good, and if the app closes first, the plant stays. The seed does not come back.
 - You can keep 20 seeds and 24 plants. The garden is saved as `garden` in `state.json`.
 - The first time a kind of flower blooms it goes in the **Album** (Flowers), and every gift that comes is in it too (Gifts).
 
@@ -75,7 +77,7 @@ The whole yard receives at most one gift per local calendar day, shared by all f
 - Drag a decoration to move it anywhere on the field (or select it and use the arrow keys).
 - Click it and the nearest friend walks over. Friends also visit decorations on their own: they sit on the bench, gather on the blanket and look into the pond.
 - The lantern is lit from evening on, the pond mirrors the sky, and a bird sits on the birdhouse by day.
-- Right-click a decoration (or press **Delete** on it) to put it away. A friend may bring it again another day.
+- Right-click a decoration (or press **Delete** or **Backspace** on it) to put it away at once. **Undo** in the notice brings it back for about six seconds; if the app closes first, it stays. A friend may bring it again another day.
 - The yard holds 12 decorations; a full yard pauses deliveries. Putting one away keeps its album entry and makes room for the remaining gifts. The album has 18 gifts, including four delivered only during their calendar events.
 
 ## Fishing and bugs <Since v="0.1.0" />
@@ -87,8 +89,8 @@ Your rod can also bring up freshwater prawns, crayfish and pond snails. The albu
 - **Bugs**: in clear outdoor weather, click butterflies or dragonflies in the morning and midday, or fireflies on spring and summer evenings and nights. Rain and snow stop appearances. The nearest friend catches the bug.
 - From bond level 3, an idle friend may fish independently every 12–25 minutes while the yard is visible. Games, another fishing trip or an active placement tool pause this opportunity; a catch is not guaranteed.
 - What bites and what flies depends on the season, the time of day and the weather: catfish and eels come out after dark (and more in the rain), pond smelt only in winter, and a golden carp is very rare. Each fish is a different size every time.
-- A card shows what was caught, and says so when it is new.
-- **Album** in **Play → Plant & collect** has six books, Flowers, Aquatic life, Bugs, Gifts, Trees and Keepsakes, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
+- A card shows what was caught, and says so when it is new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift or a keepsake) has **See in album**, which opens the album at that book. When something new arrives, **Album** in **Play → Find** and **Play** in the dock carry a small dot until you open the album.
+- **Album** in **Play → Find** has six books, Flowers, Aquatic life, Bugs, Gifts, Trees and Keepsakes, and shows every kind: the ones caught with how many and the biggest fish, the others as silhouettes with when and where to look. It is saved as `album` in `state.json`.
 
 The album shows when and where to look, along with rare-find waiting times. It does not display exact percentages.
 
@@ -100,7 +102,7 @@ A few times a year the yard changes for a while. The event's name shows beside t
 |---|---|---|
 | Cherry blossom festival | April 1 to 20 | Petals drift everywhere and more butterflies come out; a friend brings a cherry sapling |
 | Firefly nights | July 20 to August 20 | Many more fireflies at night, and a golden one to catch; a friend brings a watermelon |
-| Harvest moon | September 25 to October 15 | A big full moon every night, and the moonlight carp in the lake at night; a friend brings a pumpkin |
+| Harvest moon | September 8 to October 15 | On the nights around the event's first full moon (two days either side), as at Chuseok and the Mid-Autumn Festival, the moon rises big and golden; the other nights it keeps its phase. The moonlight carp comes to the lake at night; a friend brings a pumpkin |
 | Winter lights | December 10 to 31 | Little lights along the trees, glowing from evening on; a friend brings a snowman |
 | New Year | January 1 to 7 | Friends greet the new year |
 
@@ -109,7 +111,7 @@ A few times a year the yard changes for a while. The event's name shows beside t
 
 ## Closeness <Since v="0.1.0" />
 
-Each friend grows closer to you through time in the yard and what you do together. Hearts on its name tag show how close it is, and the Friend tab shows its level, how far it is to the next and what the next one brings. The levels say how close you are, not what you are to each other, so they read the same for a partner or a sibling as for a friend (that is the [relationship](./chat.md#setting-a-relationship)).
+Each friend grows closer to you through time in the yard and what you do together. Hearts on its name tag show how close it is, and the Friend panel shows its level, how far it is to the next and what the next one brings. The levels say how close you are, not what you are to each other, so they read the same for a partner or a sibling as for a friend (that is the [relationship](./chat.md#setting-a-relationship)).
 
 | Level | What it brings |
 |---|---|
@@ -124,24 +126,26 @@ Each friend grows closer to you through time in the yard and what you do togethe
 
 ## A little digging and tree planting
 
-Open **Play** from the dock or a friend's name or right-click action. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
+Open **Play** from the dock, or right-click a friend and choose **Play with** and its name. **Ask Clover to dig** in the same menu (with that friend’s name) picks up the dig tool, and that friend goes first. **Dig** asks you to choose an open patch of ground. The friend walks there and digs; no AI connection is needed. Water, furniture and roots are not valid digging spots. **Esc** cancels the choice. Taking the friend away before arrival gives no discovery.
+
+The dig tool stays in hand until you put it away: each spot you choose sends the next free friend, and a friend that has just dug rests a moment while another goes. The strip that takes the dock's place at the bottom switches to **Plant a tree** or **Plant a seed** in one press; its close button or **Esc** puts the tool away. A tool in hand never hides the lake or the creatures: press the water or a flying or crawling creature and the tool is put away as that same press fishes or catches. Right-click bare ground and choose **Dig here** to dig that spot without opening **Play**.
 
 Daisy, Clover, Pip and Miso have dedicated motions for digging, planting, casting, waiting for a bite, reeling in and reacting to a find in every season. Daisy, Pip and Miso share their everyday outfits in spring and autumn and change into summer and winter outfits. Clover keeps the teal overalls and straw hat through autumn, then changes into a coat, scarf and knitted beanie for winter. Imported pets join the same activities with their original animations.
 
 A completed dig can uncover a flower seed, a sapling or one of seventeen keepsakes, or nothing. Keepsakes appear in **Album → Keepsakes**. After an uncommon find, all friends and places wait 24 hours for another uncommon find. Repeats mean completion can take longer. The same patch gives no further reward for 24 hours; each friend waits eight seconds between digs. Seeds are capped at 20 and saplings at 20 per species. Full storage does not convert a reward.
 
-Find a sapling by digging first. Choose **Plant a tree** to see the stock for cherry, maple, pine, oak, birch and willow; pick a species you have and choose clear ground. Planting uses one matching sapling. Trees become young after two hours and mature after twelve, including time with the app closed. A mature tree is recorded in **Album → Trees** once. Each place holds six trees, up to twenty-four overall. Trees stay in the place where they were planted. Drag to move one, or right-click to remove it after confirmation. Removal keeps its album entry but returns no sapling. Indoor places do not offer digging or tree planting. Imported backgrounds can explicitly allow or disable soil.
+Find a sapling by digging first. Choose **Plant a tree** to see the stock for cherry, maple, pine, oak, birch and willow; pick a species you have and choose clear ground. Planting uses one matching sapling. Trees become young after two hours and mature after twelve, including time with the app closed. A mature tree is recorded in **Album → Trees** once. Each place holds six trees, up to twenty-four overall. Trees stay in the place where they were planted. Drag to move one, or right-click it (or press **Delete** on it) to remove it at once; as with flowers, **Undo** in the notice brings it back for about six seconds. Removal keeps its album entry but returns no sapling. Indoor places do not offer digging or tree planting. Imported backgrounds can explicitly allow or disable soil.
 
 ## Games <Since v="0.1.0" />
 
-Open **Play → Group games** for the three games. You can play only one game at a time. While a game is on, the same button reads **Stop** and the game's name (such as **Stop Hide and seek**); click it and the game ends right away. **Give a treat** stays off for the whole game. When a game ends, the friends walk back to where they were.
+The three games are in **Play → Group games**. You can play only one game at a time. While a game is on, that game's own tile reads **Stop** and the game's name (such as **Stop Hide and seek**); click it and the game ends right away. The other games, **Picnic**, **Plant a seed** and **Plant a tree** stay off for the whole game. When a game ends, the friends walk back to where they were.
 
 ### Hide and seek
 
-<Shot name="play-hide-and-seek" caption="Hide and seek. The banner at the top names the friend to find." />
+<Shot name="play-hide-and-seek" caption="Hide and seek. The line above the dock names the friend to find." />
 
 1. Click **Hide and seek** and the friends scatter to their hiding places. A friend who does not reach a spot within 15 seconds hides where they are.
-2. The banner at the top of the yard says **Click to find** and the name of the friend to find. Below it are the names of the other friends who are still hiding.
+2. The line just above the dock says **Click to find** and the name of the friend to find, then the names of the other friends who are still hiding. Everything the yard tells you, from a game, a find or a notice, appears in that same place.
 3. Find the friend whose name is called and click them. If you are right, they jump out saying "You found me!" and the banner moves on to the next friend.
 4. Click a different friend and you only get an "Oops, that's not them" notice, and that friend keeps hiding. The name to find does not change.
 5. Once you have found everyone, the game ends with "Everyone found!".
@@ -163,27 +167,27 @@ Click **Parade** and the selected friend goes to the front, with the others lini
 
 Resize the yard by dragging any edge or corner, down to 300 × 210. The same window keeps friends, chat, Invite, Settings, scene controls and games available at every size. Drag the narrow transparent area along the top edge to move it. Its position and size are remembered.
 
-At 640 pixels wide or less, or 480 pixels tall or less, the dock hides. Right-click empty scenery for four actions: **Place & atmosphere**, **Play**, **Friends & settings**, and **Always on top**. **Cmd/Ctrl + Shift + P** opens Friends & settings. Longer panels scroll inside the window. Closing Place & atmosphere or Play returns directly to the scenery. Friends and Invite have a Back action to Friends & settings; **×** returns to the yard. Settings tasks opened from the menu return to the Settings tab with Back. Invite keeps Import visible in its header.
+At 640 pixels wide or less, or 480 pixels tall or less, the dock hides. A round button in the bottom-right corner, shown while the pointer is over the window (or when you reach it with Tab), opens the same short menu as a right-click on empty scenery: **Place & atmosphere**, **Play**, **Friends & settings** and **Always on top**. **Cmd/Ctrl + Shift + P** opens Friends & settings. In small windows each panel shows its actions as tiles whose names may take two lines, and the section names are hidden. Longer panels scroll inside the window. Closing Place & atmosphere or Play returns directly to the scenery. The Friend panel and Invite a friend have a Back action to Friends & settings; **×** returns to the yard. In Settings, Back goes from a section to the list of sections, then to Friends & settings. Invite a friend keeps Import visible in its header.
 
-Click a friend’s name or right-click them to open this same Play board for that friend. Subviews contain the working actions and return to the four-action list with Back. Close, Escape or clicking outside returns to the scenery. There is no separate small-window play strip.
+Click a friend’s name tag to talk to it; its tooltip says **Talk to** and the friend’s name. Right-click a friend for a short menu with **Talk to**, **Play with** and **Ask … to dig** for that friend (such as **Ask Clover to dig**). Play opens the same Play panel for it; Ask to dig picks up the dig tool with that friend going first. Close, Escape or clicking outside returns to the scenery. There is no separate small-window play strip.
 
-Right-click empty scenery for the short action menu beside the pointer. It stays inside the window and scrolls when necessary. **Esc** or a click outside closes it. Friends, plants and decorations retain their own right-click actions.
+Right-click empty scenery for the short action menu beside the pointer (in small windows, the corner button opens it too). It stays inside the window and scrolls when necessary. **Esc** or a click outside closes it. Friends, plants and decorations retain their own right-click actions.
 
-Choose **Friends & settings → Window → Enter fullscreen** to fill the screen. While fullscreen, the same action becomes **Return to previous size**; **Esc** also returns. Esc closes an open panel or menu first. Returning restores the previous window size, position and Always on top setting.
+Choose **Friends & settings → Window & desktop → Enter fullscreen** to fill the screen. While fullscreen, the same action becomes **Return to previous size**; **Esc** also returns. Esc closes an open panel or menu first. Returning restores the previous window size, position and Always on top setting.
 
 <Shot name="mini" caption="A small yard window beside your work." />
 
-Choose **Friends & settings → Window → Always on top**, or use the checked action in the short right-click menu. The setting works independently of window size and is remembered. The tray and macOS View menu also offer it; **Cmd/Ctrl + Shift + M** toggles it without resizing.
+Choose **Friends & settings → Window & desktop → Always on top**, or use the checked action in the short right-click menu. The setting works independently of window size and is remembered. The tray and macOS View menu also offer it; **Cmd/Ctrl + Shift + M** toggles it without resizing.
 
 On Linux, pinning depends on the desktop and window manager. Some Wayland desktops refuse the request; check your desktop’s window rules if the setting cannot be applied.
 
 <Shot name="mini-chat" caption="A conversation stays inside the small yard window, beside your work." />
 
-Choose **Friends & settings → Window → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit the app** on that same tab asks for confirmation and closes PlayPets; conversations are not saved. From the short right-click menu, choose Friends & settings to reach these actions.
+Choose **Friends & settings → Close window** to hide the yard in the tray while desktop friends and agent hooks keep running. **Quit PlayPets** beside it closes PlayPets at once, the same as Quit in the tray and <kbd>⌘</kbd> <kbd>Q</kbd> on macOS; conversations are not saved. From the short right-click menu or the corner button, choose Friends & settings to reach these actions.
 
 In small windows, an available update appears as a 32-pixel download icon with a dot. Its accessible label identifies the version, and activating it opens App updates directly. Larger windows retain the version pill.
 
-Friend settings, Import and AI connection dialogs keep their headings and actions in place while the form body scrolls. The collection and confirmation dialogs retain their own content scrolling.
+Friend settings, Import and AI connection dialogs keep their headings and actions in place while the form body scrolls. The collection and confirmation dialogs retain their own content scrolling. A confirmation asks calmly, with **Cancel**, unless something that cannot come back would be lost: deleting an AI connection, sending a friend away or deleting a background. Those ask in red, and the other button reads **Keep it**. Every confirmation also has a **Close** button. Flowers, trees and gifts are not asked about; they offer **Undo** instead.
 
 ## Want to see more of your friends?
 

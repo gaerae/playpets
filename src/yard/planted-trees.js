@@ -8,7 +8,7 @@ import { treeKind } from './catalog.js';
 import { groundAllows, treeStage } from './discovery-rules.js';
 import { EDGE, field, fieldToYard, measureYard, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
-import { askToRemove, propButton, reconcile, setDown } from './props.js';
+import { propButton, reconcile, removeWithUndo, setDown } from './props.js';
 import { scene } from './world.js';
 
 const shown = new Map();
@@ -60,28 +60,20 @@ const save = guard(async (view, point) => {
   }
 });
 
-const remove = guard(async view => {
+// Pulled up at once with a moment to undo it (props.js); the backend removes it only after that.
+const remove = view => {
   const tree = current(view.id);
   if (!tree || view.busy) return;
-  const world = scene.world;
-  if (
-    !(await askToRemove(
-      t('tree.remove', { kind: t(`tree.${tree.kind}`) }),
-      t('tree.remove_body'),
-      t('tree.remove_action'),
-    ))
-  )
-    return;
-  if (scene.world !== world || !current(view.id) || view.busy) return;
-  view.busy = true;
-  view.button.disabled = true;
-  try {
-    await call('removeTree', tree.id);
-  } finally {
-    view.busy = false;
-    view.button.disabled = false;
-  }
-});
+  removeWithUndo(view.id, view, t('garden.pulled', { kind: t(`tree.${tree.kind}`) }), async () => {
+    if (!current(view.id)) return;
+    view.busy = true;
+    try {
+      await call('removeTree', tree.id);
+    } finally {
+      view.busy = false;
+    }
+  });
+};
 
 function create(tree) {
   const button = propButton('planted-tree', tree.kind),

@@ -84,7 +84,7 @@
     {
       "day": "2026-09-24",
       "south": false,
-      "event": null
+      "event": "harvest"
     },
     {
       "day": "2026-09-24",
@@ -320,6 +320,46 @@
       "day": "2026-06-15",
       "south": true,
       "event": "lights"
+    },
+    {
+      "day": "2026-09-07",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-09-07",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-09-08",
+      "south": false,
+      "event": "harvest"
+    },
+    {
+      "day": "2026-09-08",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2027-03-07",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2027-03-07",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2027-03-08",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2027-03-08",
+      "south": true,
+      "event": "harvest"
     }
   ]
 }

@@ -283,7 +283,7 @@ export async function refreshChat() {
     syncWaiting();
     if (!grows || atBottom) log.scrollTop = log.scrollHeight;
   } catch (e) {
-    toast(spoken(e, t('error.history')));
+    toast(spoken(e, t('error.history')), { error: true });
   }
 }
 // What the backend tells the chat about.
@@ -391,6 +391,7 @@ export function setupChat() {
       title: t('chat.clear_confirm', { name: name(p) }),
       body: t('chat.clear_body'),
       action: t('chat.clear'),
+      danger: true,
     });
     if (!sure) return;
     await call('clearChat', p.id);

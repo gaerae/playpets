@@ -26,7 +26,7 @@ If you installed Claude Code or Codex CLI with npm, they must be in `%APPDATA%\n
 
 ## The pet is slow or uses battery.
 
-Friends are drawn often only while they are moving, and rarely when they are still. Close the yard window to hide it and the yard is not drawn at all. If it still uses a lot, try fewer friends or turn off **Stroll around the desktop** in desktop mode. Telling us which state it happens in (yard only, desktop only, or both) helps us fix it.
+Friends are drawn often only while they are moving, and rarely when they are still. Close the yard window to hide it and the yard is not drawn at all. If it still uses a lot, try fewer friends or turn off **Stroll on desktop** in desktop mode. Telling us which state it happens in (yard only, desktop only, or both) helps us fix it.
 
 ## Can I make my own pet?
 

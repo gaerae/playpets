@@ -77,6 +77,16 @@ export const plain = text =>
 // What a failure says on screen. The backend already speaks in full sentences; anything else
 // (a script error, an engine message) is wrapped in one, with the original kept for a report.
 // Each language file says how a sentence in it is recognised (strings/<lang>.js `sentence`).
+/** At most `max` characters, ending in an ellipsis when cut, so a short bubble never ends mid-word silently. */
+export function clip(text, max) {
+  const chars = [...String(text)];
+  return chars.length <= max
+    ? String(text)
+    : `${chars
+        .slice(0, max - 1)
+        .join('')
+        .trimEnd()}…`;
+}
 export function spoken(error, fallback) {
   const raw = (typeof error === 'string' ? error : error?.message || '').trim();
   if (raw && (error?.spoken || SENTENCES[language()].test(raw))) return raw;

@@ -151,6 +151,7 @@ export function setupFriendSettings({ refresh }) {
       title: t('friend.send_away_confirm', { name: name(p) }),
       body: t('friend.send_away_body'),
       action: t('friend.send_away'),
+      danger: true,
     });
     if (!sure || !data.pets.some(q => q.id === p.id)) return;
     $('pet-dialog').close();

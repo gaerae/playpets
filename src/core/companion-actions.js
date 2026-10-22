@@ -67,6 +67,13 @@ export function beginCompanionAction(view, name, now = performance.now()) {
   actions.set(view, action);
   return action;
 }
+/** Starts an action only once its atlas has decoded, so the ordinary sheet never blinks out. */
+export function playCompanionAction(view, name, now) {
+  const action = beginCompanionAction(view, name, now);
+  if (action && companionImage(action)) return action;
+  clearCompanionAction(view);
+  return null;
+}
 export function prepareCompanionAction(asset, name) {
   const clip = clipFor(asset, name);
   if (clip && typeof Image !== 'undefined') companionImage({ clip });

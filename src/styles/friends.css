@@ -124,9 +124,9 @@
 }
 .pet-tag {
   font-size: 11px;
-  color: #35504c;
+  color: var(--scene-ink);
   font-weight: 650;
-  background: #ffffffa6;
+  background: var(--scene-label-soft);
   border-radius: 12px;
   padding: 3px 8px;
   max-width: 150px;
@@ -142,6 +142,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* The friend's name keeps its room; an agent's name beside it gives way first. */
+.pet-tag:has(small:not([hidden])) .tag-name {
+  flex: none;
+  max-width: 96px;
 }
 .tag-talk {
   display: none;
@@ -177,6 +182,9 @@
 }
 /* the agents that report to this friend, small after the name */
 .pet-tag small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 10px;
   font-weight: 600;
   color: #2f6a92;
@@ -196,7 +204,7 @@
   pointer-events: none;
 }
 .period-night .pet-tag {
-  background: #ffffffd9;
+  background: var(--scene-label);
 }
 .pet-label.selected .pet-tag {
   background: var(--accent);
@@ -237,8 +245,9 @@
 }
 .yard-bubble {
   position: absolute;
-  /* just above the head: --head is the cell's empty top, measured per pet (core/sprites.js crown) */
-  bottom: calc(100% + 2px - var(--head, 8px));
+  /* just above the head: --head is the cell's empty top, measured per pet (core/sprites.js crown);
+     --bubble-lift raises it clear of a neighbour's bubble (views.js) */
+  bottom: calc(100% + 2px - var(--head, 8px) + var(--bubble-lift, 0px));
   left: 50%;
   transform: translateX(-50%);
   transform-origin: 50% 100%;
@@ -247,12 +256,12 @@
   max-width: 190px;
   padding: 6px 10px;
   border-radius: 12px;
-  background: var(--white);
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 12px var(--ink-8);
+  background: var(--scene-label);
+  border: 1px solid var(--scene-line);
+  box-shadow: 0 4px 12px #213e4314;
   font-size: 11px;
   line-height: 1.45;
-  color: var(--ink);
+  color: var(--scene-ink);
   text-align: center;
   white-space: normal;
   overflow-wrap: anywhere;
@@ -267,10 +276,10 @@
   transform: translateX(-50%);
   padding: 7px 10px;
   border-radius: 12px;
-  background: var(--white);
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 12px var(--ink-8);
-  color: var(--muted);
+  background: var(--scene-label);
+  border: 1px solid var(--scene-line);
+  box-shadow: 0 4px 12px #213e4314;
+  color: var(--scene-ink);
   pointer-events: none;
   z-index: 3;
 }

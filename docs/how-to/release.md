@@ -24,7 +24,7 @@ A development branch may prepare the next version before tagging it. Keep its no
 
 After review and integration into main, `npm run release -- x.y.z` finalizes the notes and dates, commits and creates the local tag. It does not push. Only push the tag when cross-platform checks and publication are authorized.
 
-For unpackaged installations, the app checks silently 20 seconds after startup and then every 6 hours. Failed checks retry silently after 5 minutes, 15 minutes, 1 hour, then every 6 hours; success resets the schedule. Store-managed packages use their package manager instead. Background checks expose a quiet version entry without opening Settings or starting an installation. Settings → About owns the result, release notes, download progress, errors and Retry. Only **Install and restart** starts the signed download and installation. Closing Settings leaves that operation running, and reopening it does not start a second download.
+For unpackaged installations, the app checks silently 20 seconds after startup and then every 6 hours. Failed checks retry silently after 5 minutes, 15 minutes, 1 hour, then every 6 hours; success resets the schedule. Store-managed packages use their package manager instead. Background checks expose a quiet version entry without opening Settings or starting an installation. Settings → App updates owns the result, release notes, download progress, errors and Retry. Only **Install and restart** starts the signed download and installation. Closing Settings leaves that operation running, and reopening it does not start a second download.
 
 The updater deliberately disables legacy ZIP compatibility. The release feed points to native Windows EXE, Linux deb and AppImage files; macOS tar support is independent of that feature. Keep this setting when updating the plugin. A new archive format needs a dependency security review and installation checks before it is added.
 
@@ -94,7 +94,7 @@ file at an existing download address. Release notes can clarify known limits.
 git switch main && git pull
 ```
 
-2. Capture the screens for the site (macOS). The first time, macOS asks for screen recording permission; allow it. The results land in `website/public/shots/0.2.0/` in every app language. Then redraw the installer art, which also turns the English captures into the screenshots Linux software centers show, and commit both.
+2. Capture the screens for the site (macOS). The first time, macOS asks for screen recording permission; allow it. The results land in `website/public/shots/0.2.0/` in every app language. Once you have looked them over, set `CAPTURE_VERSION` in `scripts/site-content.mjs` to the new version, so the site and the installer art use them. Then redraw the installer art, which also turns those English captures into the screenshots Linux software centers show, and commit all of it.
 
 ```bash
 npm run shots -- 0.2.0
@@ -141,7 +141,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 
 ## Verification
 - The release page has the files from step 6, and the notes match the `## [0.2.0]` section of `CHANGELOG.md`.
-- In an app with the previous version installed, confirm that an automatic check exposes a quiet version entry without opening Settings or starting installation. A manual check opens Settings → About; verify its result, release notes, progress, errors and Retry in that section. Close Settings during download and reopen it without starting a second download. Complete installation and restart, confirm the running version and brief completion notice, then restart again to check that the notice does not repeat (when the updater signing secrets exist).
+- In an app with the previous version installed, confirm that an automatic check exposes a quiet version entry without opening Settings or starting installation. A manual check opens Settings → App updates; verify its result, release notes, progress, errors and Retry in that section. Close Settings during download and reopen it without starting a second download. Complete installation and restart, confirm the running version and brief completion notice, then restart again to check that the notice does not repeat (when the updater signing secrets exist).
 - The winget PR passes its checks, or `brew upgrade --cask playpets` on a computer with the tap gets the new version.
 - With signing secrets, `latest.json` lists every platform the release has, including `linux-x86_64-deb` and `linux-aarch64-deb` entries for deb installs; if those are missing, deb users do not get updates in the app.
 

@@ -65,7 +65,7 @@ export const sections = {
   galleryLabel: '友だちを選ぶ',
   posesLabel: '動きを試す',
   poses: ['休憩', '手を振る', '跳ぶ'],
-  selectedLead: '招待タブから迎えて、名前、性格、あなたとの関係を選べます。',
+  selectedLead: '友だちと設定の「友だちを招待」から迎えて、名前、性格、あなたとの関係を選べます。',
   galleryGuide: '友だちの物語を読む',
   petNotes: {
     daisy: '小さな発見が得意な、好奇心いっぱいの探検家です。',

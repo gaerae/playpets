@@ -46,6 +46,45 @@ test('reduced motion keeps butterflies and fireflies catchable without animating
   assert.equal(scene.catchAt(500, 420)?.kind, 'firefly');
 });
 
+test('night stars and shooting stars are drawn behind the land, not over it', t => {
+  t.mock.method(Math, 'random', () => 0.5);
+  t.mock.method(performance, 'now', () => 0);
+  globalThis.window = { devicePixelRatio: 1 };
+  const counting = () => {
+    const calls = { arcs: 0, strokes: 0, clears: 0 };
+    const ctx = new Proxy(
+      {
+        arc() {
+          calls.arcs++;
+        },
+        stroke() {
+          calls.strokes++;
+        },
+        clearRect() {
+          calls.clears++;
+        },
+        createLinearGradient: () => ({ addColorStop() {} }),
+      },
+      { get: (object, key) => object[key] ?? (() => {}) },
+    );
+    return { calls, canvas: { getContext: () => ctx, getBoundingClientRect: () => ({ width: 1000, height: 600 }) } };
+  };
+  const weather = counting(),
+    sky = counting();
+  const scene = createScenery(weather.canvas, { matches: false }, undefined, undefined, sky.canvas);
+  scene.resize();
+  scene.set('night', 'clear', 'winter');
+  assert.ok(sky.calls.arcs > 0, 'stars are on the sky layer');
+  assert.equal(weather.calls.arcs, 0, 'no star is painted over the hills and trees');
+  // The first streak is only scheduled; the next one crosses the sky layer.
+  scene.frame(1, 1);
+  scene.frame(60000, 1);
+  assert.ok(sky.calls.strokes > 0, 'a shooting star crosses the sky layer');
+  const clears = sky.calls.clears;
+  scene.set('night', 'rain', 'winter');
+  assert.ok(sky.calls.clears > clears, 'rain clears the stars away');
+});
+
 test('catching an existing bug after enabling reduced motion repaints it away once', t => {
   const { scene, reduced, draws } = yard(t, false);
   reduced.matches = true;

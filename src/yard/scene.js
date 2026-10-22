@@ -201,11 +201,47 @@ const NEW_MOON = Date.UTC(2000, 0, 6, 18, 14),
 export function moonPhase(ms) {
   return ((((ms - NEW_MOON) / LUNAR_MONTH) % 1) + 1) % 1;
 }
-// Where the moon's shade sits, in percent of the moon's width: 0 covers it (new moon), ±100 is off
-// to one side (full). Waxing, the lit side is on the right, as seen north of the equator.
-export function moonShade(phase, south = false) {
-  const shade = phase < 0.5 ? -(phase / 0.5) * 100 : ((1 - phase) / 0.5) * 100;
-  return Math.round(south ? -shade : shade) || 0;
+// The nights around the full moon, two days either side.
+const FULL_MOON_DAYS = 2;
+export function nearFullMoon(phase) {
+  return Math.abs(phase - 0.5) * (LUNAR_MONTH / 86400000) <= FULL_MOON_DAYS + 1e-9;
+}
+// The harvest moon: the first full moon on or after its event starts (`startMs`), and the nights
+// either side. The event is longer than a month, so this keeps it to one a year, as Chuseok and the
+// Mid-Autumn Festival have it.
+export function harvestMoon(ms, startMs) {
+  const phase = moonPhase(ms);
+  if (!nearFullMoon(phase)) return false;
+  const fullAt = ms - (phase - 0.5) * LUNAR_MONTH;
+  return fullAt >= startMs && fullAt < startMs + LUNAR_MONTH;
+}
+// Which side of the moon is lit and where its terminator crosses the middle, as a share of the
+// radius: 1 on the bright limb (new moon), 0 straight down the centre (a quarter), -1 on the far
+// limb (full). Waxing, the right side is lit as seen north of the equator.
+export function moonLit(phase, south = false) {
+  const waxing = phase < 0.5;
+  return { lit: waxing !== south ? 'right' : 'left', edge: Math.cos(2 * Math.PI * phase) };
+}
+// The lit part as a path in a 100-unit box: half the disc's rim on the lit side, and the
+// terminator, half an ellipse, back through the lit side for a crescent or bowing out through the
+// dark side once the moon is gibbous.
+function litPath({ lit, edge }) {
+  const right = lit === 'right',
+    // never quite zero: a flat arc becomes a line some engines will not blur
+    // whole units: the shape changes a few times a day, not every couple of minutes
+    rx = Math.max(1, Math.round(Math.abs(edge) * 50)),
+    throughRight = edge > 0 ? right : !right;
+  return `M50 0A50 50 0 0 ${right ? 1 : 0} 50 100A${rx} 50 0 0 ${throughRight ? 0 : 1} 50 0Z`;
+}
+const SVG = 'xmlns="http://www.w3.org/2000/svg"';
+/** The moon as a mask twice its size, centred on it: the lit part with a soft terminator, a trace
+ * of the dark side (earthshine) that fades out before the painted moon's bright rim, and under them
+ * the lit part blurred wide for its glow, clipped to outside the disc, so the glow never rings the
+ * dark side or smudges the terminator. No <mask> element, which WebKit would not draw as a mask. */
+export function moonMask(lit) {
+  const d = litPath(lit),
+    region = 'filterUnits="userSpaceOnUse" x="-50" y="-50" width="200" height="200"';
+  return `<svg ${SVG} viewBox="-50 -50 200 200"><radialGradient id="shine"><stop offset="0.8" stop-opacity="0.08"/><stop offset="0.92" stop-opacity="0"/></radialGradient><filter id="glow" ${region}><feGaussianBlur stdDeviation="14"/></filter><filter id="soft" ${region}><feGaussianBlur stdDeviation="2.4"/></filter><clipPath id="out"><path clip-rule="evenodd" d="M-50 -50H150V150H-50ZM50 0A50 50 0 1 0 50 100A50 50 0 1 0 50 0Z"/></clipPath><g clip-path="url(#out)"><path d="${d}" filter="url(#glow)"/></g><g filter="url(#soft)"><circle cx="50" cy="50" r="50" fill="url(#shine)"/><path d="${d}"/></g></svg>`;
 }
 export const GREETINGS = {
   morning: list('greet.morning'),

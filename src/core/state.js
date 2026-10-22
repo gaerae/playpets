@@ -43,13 +43,12 @@ export const labels = {
 export const pet = () => data.pets.find(p => p.id === selected);
 export const asset = p =>
   styledAsset(
-    data.assets.find(a => a.id === p?.assetId),
+    data.assets?.find(a => a.id === p?.assetId),
     p?.visualStyle,
   );
 export const name = p => displayName(p, asset(p), t('friend.default'));
 /** An AI connection as the lists show it: the name, and the model when it has one. */
 export const providerLabel = c => (c?.model ? `${c.name} (${c.model})` : c?.name || '');
-let toastTimer;
 const noticeHomes = new WeakMap();
 function placeNotice() {
   const notice = $('toast');
@@ -77,22 +76,78 @@ export function setupToast() {
       observer.observe(dialog, { attributes: true, attributeFilter: ['open'] });
   }
 }
-// A notice stays as long as it takes to read (longer for more words, 3 to 8 seconds), and while the
-// pointer rests on it.
-export function toast(message) {
-  const text = document.createElement('span');
-  text.textContent = message;
-  $('toast').replaceChildren(text);
-  placeNotice();
-  $('toast').hidden = false;
-  toastFor(Math.min(8000, 2500 + String(message).length * 50));
+/** How long a message stays to be read: 2.5 s and 50 ms a character, between 3 and 8 seconds. The
+ * notices and cards in the lane above the dock and the friends' bubbles all keep to it. */
+export const readingTime = text => Math.max(3000, Math.min(8000, 2500 + [...String(text)].length * 50));
+// Notices stack at most two lines along the bottom (one in a small window, where two would cover
+// the friends); a line already there is refreshed, not repeated, and the oldest gives way. Each
+// stays its reading time, and longer while the pointer rests on it.
+const noticeLines = () => (document.body?.classList.contains('compact') ? 1 : 2);
+const lineTimers = new WeakMap();
+function keepLine(line, ms) {
+  clearTimeout(lineTimers.get(line));
+  lineTimers.set(
+    line,
+    setTimeout(() => {
+      if (line.matches?.(':hover')) return keepLine(line, 1500);
+      dropLine(line);
+    }, ms),
+  );
 }
-function toastFor(ms) {
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    if ($('toast').matches(':hover')) return toastFor(1500);
-    $('toast').hidden = true;
-  }, ms);
+/** Takes one notice line away now (a pending Undo once its removal is saved). */
+export function dropLine(line) {
+  clearTimeout(lineTimers.get(line));
+  const notice = $('toast');
+  notice.replaceChildren(...[...notice.children].filter(other => other !== line));
+  if (!notice.children.length) notice.hidden = true;
+}
+/** Says something short along the bottom of the yard; `error` marks a failure apart from news, and
+ * `action` ({ label, run }) adds one button, such as Undo, for `ms` (or the reading time). Returns
+ * the line, which a line with an action keeps for itself. */
+export function toast(message, { error = false, action = null, ms = 0 } = {}) {
+  const words = String(message);
+  // A form that already says it beside its field does not need it said twice over its buttons.
+  const dialog = [...document.querySelectorAll('dialog[open]')].at(-1);
+  if (dialog && [...dialog.querySelectorAll('.form-error')].some(e => !e.hidden && e.textContent === words)) return;
+  const notice = $('toast');
+  // The same words say it once, unless the line carries an action: each Undo belongs to one thing.
+  let line = action
+    ? null
+    : [...notice.children].find(
+        other => !other.querySelector?.('.toast-action') && (other.dataset.words ?? other.textContent) === words,
+      );
+  if (!line) {
+    line = document.createElement('span');
+    line.dataset.words = words;
+    line.textContent = words;
+    notice.append(line);
+  }
+  if (action) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'toast-action';
+    button.textContent = action.label;
+    button.onclick = () => {
+      dropLine(line);
+      return action.run();
+    };
+    line.append(button);
+  }
+  line.classList.toggle('error', error);
+  // Plain lines take turns in the room there is; a line with an action stays until it is done, at
+  // most two of them (an older Undo gives way; its removal still happens on time).
+  const lines = [...notice.children],
+    acting = lines.filter(other => other.querySelector?.('.toast-action')),
+    plain = lines.filter(other => !acting.includes(other)),
+    gone = new Set([
+      ...plain.slice(0, Math.max(0, plain.length - noticeLines())),
+      ...acting.slice(0, Math.max(0, acting.length - 2)),
+    ]);
+  if (gone.size) notice.replaceChildren(...[...notice.children].filter(other => !gone.has(other)));
+  placeNotice();
+  notice.hidden = false;
+  keepLine(line, Math.max(ms, readingTime(words)));
+  return line;
 }
 export async function call(method, ...args) {
   const result = await api[method](...args);
@@ -110,7 +165,7 @@ export const guard =
     try {
       await fn(...args);
     } catch (e) {
-      toast(spoken(e, t('error.generic')));
+      toast(spoken(e, t('error.generic')), { error: true });
     }
   };
 export const remember = (key, value) => {

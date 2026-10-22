@@ -3,13 +3,7 @@
 // garden and its limits (src-tauri/src/pets/garden.rs). Plants are drawn once and looked at again
 // once a minute; nothing here moves on its own.
 
-import {
-  actionGroundOffset,
-  beginCompanionAction,
-  clearCompanionAction,
-  companionImage,
-  prepareCompanionAction,
-} from '../core/companion-actions.js';
+import { companionImage, playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
@@ -23,10 +17,11 @@ import { flowerKind, STAGES } from './catalog.js';
 import { flowerSvg } from './creatures.js';
 import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { flowerFor, hoursMinutes, stageOf, untilBloom } from './growth.js';
-import { askToRemove, propButton, propScale, reconcile, setDown } from './props.js';
+import { propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { cue } from './sound.js';
-import { isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
-import { bubble, cheer, pose } from './views.js';
+import { isFree, nearestFree, release, rest, sendTo } from './trips.js';
+import { bubble, cheer } from './views.js';
+import { holdAtWork, sendToWork, stopWork } from './work.js';
 import { scene } from './world.js';
 
 // Yard pixels per unit of a plant's drawing at full size; it shrinks with the yard as friends do.
@@ -107,12 +102,12 @@ function bloomed(plant, now) {
       asked.add(plant.id);
       bloomRetry.delete(plant.id);
       if (r?.entry?.count === 1)
-        showCard(flowerSvg(plant.kind), t(`garden.kind_${plant.kind}`), t('catch.bloomed'), true);
+        showCard(flowerSvg(plant.kind), t(`garden.kind_${plant.kind}`), t('catch.bloomed'), true, 'flower');
     })
     .catch(error => {
       // Retried quietly after the first message, so a backend that keeps refusing does not
       // repeat it every few seconds.
-      if (!bloomFailed.has(plant.id)) toast(spoken(error, t('error.generic')));
+      if (!bloomFailed.has(plant.id)) toast(spoken(error, t('error.generic')), { error: true });
       bloomFailed.add(plant.id);
       bloomRetry.set(plant.id, Date.now() + RETRY_MS);
     });
@@ -155,13 +150,13 @@ export function visitTarget(v) {
   walkTo(v, pick(blooms), { arrive: visited, slow: true });
   return v.target;
 }
-const pull = guard(async id => {
-  const plant = data.garden?.plants.find(p => p.id === id);
-  if (!plant) return;
-  const kind = t(`garden.kind_${plant.kind}`);
-  if (await askToRemove(t('garden.pull_confirm', { kind }), t('garden.pull_body'), t('garden.pull')))
-    await call('pullPlant', id);
-});
+// Pulled up at once with a moment to undo it (props.js); the backend removes it only after that.
+function pull(id) {
+  const plant = data.garden?.plants.find(p => p.id === id),
+    view = shown.get(id);
+  if (!plant || !view) return;
+  removeWithUndo(id, view, t('garden.pulled', { kind: t(`garden.kind_${plant.kind}`) }), () => call('pullPlant', id));
+}
 
 const planting = new Map();
 // A friend on the way to plant spends its seed only on arrival, so that seed is already promised.
@@ -177,22 +172,18 @@ function sendPlanting(v, point, kind, clip) {
   const cleanup = () => {
     cancelled = true;
     clearTimeout(timer);
-    clearCompanionAction(v);
-    if (v.pose === 'idle' && v.until === Infinity) v.until = 0;
+    stopWork(v);
     if (planting.get(v) === cleanup) planting.delete(v);
   };
   const valid = () =>
     !cancelled && scene.world === world && scene.season === season && views.get(v.pet.id) === v && !game && !v.drag;
-  const pixel = fieldToYard(point);
-  const offset = actionGroundOffset(clip, sizeOf(v.pet), petHeight(v.pet));
-  sendTo(v, footTarget(v, pixel.x - offset.x, pixel.y - offset.y), {
+  sendToWork(v, fieldToYard(point), clip, {
     cancel: cleanup,
     arrive: guard(() => {
       if (!valid()) return cleanup();
-      setDoing(v, { end: cleanup });
-      pose(v, 'idle', Infinity);
-      const action = beginCompanionAction(v, 'plant');
-      if (!action || action.clip !== clip || !companionImage(action)) return release(v);
+      holdAtWork(v, cleanup);
+      const action = playCompanionAction(v, 'plant');
+      if (action?.clip !== clip) return release(v);
       timer = setTimeout(
         guard(async () => {
           if (!valid()) return release(v);
@@ -227,16 +218,25 @@ function plantAt(cx, cy) {
   if (clip && companionImage({ clip })) return sendPlanting(v, point, kind, clip);
   return call('plant', kind, point.x, point.y);
 }
+function plantNearby() {
+  const r = $('yard').getBoundingClientRect(),
+    v = views.get(selected);
+  if (v) return plantAt(v.px + sizeOf(v.pet) + 30, v.py + petHeight(v.pet));
+  return plantAt(r.width / 2, (field().top + r.height) / 2);
+}
 /** Wires the planting tool and the field's click. Called once, by app.js. */
 export function setupGarden() {
   $('world')?.addEventListener('change', cancelPlanting);
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') cancelPlanting();
   });
-  $('plant-tool').onclick = () => {
+  // With the mouse the next click in the yard chooses the spot; from the keyboard a second press
+  // plants beside the selected friend (or mid-field), as the picnic treat does.
+  $('plant-tool').onclick = guard(async e => {
     if (!spareSeeds()) return toast(t('garden.no_seeds'));
+    if (aiming === 'seed' && e?.detail === 0) return plantNearby();
     setAimingMode(aiming === 'seed' ? false : 'seed');
-  };
+  });
   $('yard').addEventListener(
     'click',
     guard(async e => {

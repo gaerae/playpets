@@ -1,12 +1,4 @@
-/* Place and atmosphere in the yard dock, plus display controls inside Menu. */
-.yard-caption {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: var(--ink);
-  font-size: 12px;
-}
+/* Place and atmosphere in the yard dock and its panel, and the window controls in Friends & settings. */
 .caption-main {
   display: flex;
   align-items: center;
@@ -97,13 +89,13 @@
   bottom: 64px;
   width: min(380px, calc(100% - 24px));
   max-height: calc(100% - 76px);
-  height: min(400px, calc(100% - 76px));
+  height: min(520px, calc(100% - 76px));
   min-height: 0;
   overflow: hidden;
   overscroll-behavior: contain;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   align-items: stretch;
   gap: 8px;
   padding: 8px;
@@ -126,12 +118,6 @@
   background-size: 9px 7px;
   border-radius: 8px;
   min-height: 36px;
-}
-.caption-end {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 .view-controls {
   display: grid;
@@ -265,37 +251,21 @@
 }
 
 .caption-count,
-.caption-agents,
-.caption-event,
-.yard-hint {
+.caption-event {
   display: none;
 }
-
-.yard-frame > .yard-hint {
+/* What to try next and what the agents are doing are read aloud as they change, not drawn: the
+   tool strip and the friends' dots already show them. */
+.caption-agents,
+.yard-hint {
   position: absolute;
-  bottom: 68px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  max-width: calc(100% - 32px);
-  padding: 8px 14px;
-  border-radius: var(--radius-panel);
-  background: var(--floating);
-  color: var(--ink);
-  font-size: 12px;
-  text-align: center;
-  pointer-events: none;
-}
-.yard-frame:has(.yard.aiming) > .yard-hint {
-  display: block;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.scene-gallery-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-}
 .background-gallery {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -417,19 +387,21 @@
   outline-offset: 2px;
 }
 body.compact .scene-menu {
+  inset: 8px;
+  width: auto;
+  max-height: calc(100% - 16px);
+  height: calc(100% - 16px);
+  padding: 8px;
+  z-index: 32;
   gap: 4px;
 }
-body.compact .scene-gallery-head .icon-button {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  min-height: 28px;
-}
-body.compact .scene-tabs {
-  padding-bottom: 2px;
-}
-body.compact .scene-tabs button {
-  min-height: 28px;
+/* A short window may still be wide: the panel need not span the entire scenery. */
+@media (min-width: 480px) {
+  body.compact .scene-menu {
+    left: auto;
+    width: min(360px, calc(100% - 16px));
+    height: min(400px, calc(100% - 16px));
+  }
 }
 body.compact .atmosphere-segments {
   grid-template-columns: repeat(var(--climate-manual-options), minmax(0, 1fr));
@@ -482,36 +454,12 @@ body:not(.compact) .atmosphere-choice summary {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  white-space: nowrap;
   gap: 4px;
   border-top: 1px solid var(--line);
   padding-top: 8px;
 }
 
-.scene-gallery-head {
-  gap: 4px;
-}
-.scene-gallery-head strong {
-  flex: 1;
-  min-width: 0;
-  font-size: 13px;
-}
-.scene-tabs {
-  display: flex;
-  gap: 4px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--line);
-}
-.scene-tabs button {
-  flex: 1;
-  min-height: 36px;
-  border-radius: var(--radius-control);
-  font-size: 13px;
-  color: var(--muted);
-}
-.scene-tabs button[aria-selected="true"] {
-  background: var(--control-selected);
-  color: var(--ink);
-}
 .scene-page {
   min-height: 0;
   overflow-y: auto;
@@ -523,10 +471,24 @@ body:not(.compact) .atmosphere-choice summary {
   width: 100%;
   min-height: 36px;
 }
-.scene-page .background-actions {
-  margin-top: 10px;
+/* Importing and the creation room sit beside the Places label, so the gallery starts at once. Both
+   are plain actions with an icon, so the pair never reads as tabs with one chosen. */
+.dock-section-head .background-actions {
+  flex: none;
+  flex-wrap: nowrap;
+  gap: 2px;
 }
-/* Empty instructions do not leave a floating capsule over a friend. */
+.dock-section-head .background-actions .button {
+  min-height: 28px;
+  padding: 0 8px;
+  gap: 4px;
+  font-size: 12px;
+}
+.dock-section-head .background-actions .button svg {
+  width: 14px;
+  height: 14px;
+}
+/* With nothing to say, the hint is not read out either. */
 #yard-hint[hidden] {
   display: none;
 }

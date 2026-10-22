@@ -17,6 +17,22 @@
   --panel-surface: #f7f8f3;
   --field-surface: #fffefa;
   --floating: #fffffff0;
+  /* Every message on the yard (a notice, a card, a banner, the startup notes, the tool strip) has
+     one surface: the floating fill, a hairline and one soft shadow (shell.css, play.css, garden.css). */
+  --message-surface: var(--floating);
+  --message-line: var(--line);
+  --message-shadow: 0 6px 20px var(--ink-12);
+  /* A dialog's shadow and the dim behind it; dark mode deepens both so they still read. */
+  --dialog-shadow: #152e432b;
+  --dialog-backdrop: #20394055;
+  /* The yard's own labels (a friend's bubble and name tag) belong to the painted scene, which stays a
+     daylight painting in dark mode, so they keep one light look in both schemes (friends.css). */
+  --scene-label: #fffffff2;
+  --scene-label-soft: #ffffffb8;
+  --scene-ink: #2c4440;
+  --scene-line: #213e4326;
+  /* The edge of a focused field. */
+  --field-focus: #88a392;
   --dock-surface: var(--panel-surface);
   --menu-surface: var(--panel-surface);
   --glass-blur: none;
@@ -90,8 +106,21 @@
     --ink-12: #00000033;
     --ink-15: #00000040;
     --ink-20: #00000052;
+    --dialog-shadow: #00000080;
+    --dialog-backdrop: #050c0999;
+    --field-focus: #91b08b;
     color-scheme: dark;
   }
+}
+/* Korean keeps words whole across lines; Japanese and Chinese keep their closing marks and small
+   kana off the start of a line. */
+:root:lang(ko) {
+  word-break: keep-all;
+  /* …unless a word alone is wider than its box, which may then break rather than spill out. */
+  overflow-wrap: anywhere;
+}
+:root:is(:lang(ja), :lang(zh-hans)) {
+  line-break: strict;
 }
 /* Han characters are drawn in the shapes of the language on screen: a Korean font first would
    give Japanese text Korean glyph shapes. `lang` on <html> is set by core/i18n.js. */
@@ -232,8 +261,16 @@ button:active:not(:disabled) {
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 1.65px;
-  color: #5a7878;
+  color: var(--muted);
   margin-bottom: 12px;
+}
+/* Spacing letters apart reads as a label in Latin script but breaks Korean, Japanese and Chinese words. */
+:root:is(:lang(ko), :lang(ja), :lang(zh-hans)) .eyebrow {
+  letter-spacing: 0;
+}
+/* A heading focused by the page (so a screen reader starts there) is not a control to show a ring on. */
+:is(h2, h3)[tabindex="-1"]:focus {
+  outline: none;
 }
 h2 {
   font-size: 17px;
@@ -253,7 +290,7 @@ textarea {
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: #88a392;
+  border-color: var(--field-focus);
 }
 .button.remove {
   margin-top: 16px;

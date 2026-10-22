@@ -67,6 +67,11 @@ export const startChatter = () => call('chatter', scene.period, scene.weather);
 
 // Placing something: the next click in the yard puts down a treat ('treat') or a seed ('seed'),
 // false puts the choice away. Games and the small window turn it off.
+// Whoever shows the tool in hand (the discovery strip, set up by setupDiscovery) hears every change.
+const aimingWatchers = [];
+export function onAimingChange(fn) {
+  aimingWatchers.push(fn);
+}
 export function setAimingMode(kind) {
   setAiming(kind || false);
   for (const [id, what] of [
@@ -78,6 +83,7 @@ export function setAimingMode(kind) {
   }
   $('yard').classList.toggle('aiming', !!kind);
   hint();
+  for (const fn of aimingWatchers) fn(kind || false);
 }
 // Wires the treat and chatter buttons, and the yard's click for placing a treat. Called once, by app.js.
 export function setupCare() {

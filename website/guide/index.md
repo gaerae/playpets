@@ -23,7 +23,7 @@ The app is built with Tauri and uses the operating system's webview rather than 
 ## Read in this order
 
 1. [Install](./install.md) — picking a file, getting past the warning on first launch, updates and the data folder
-2. [Your first friend](./first-friend.md) — making a friend in the Invite tab and patting them in the yard
+2. [Your first friend](./first-friend.md) — making a friend with Invite a friend and patting them in the yard
 3. [Talking with friends](./chat.md) — kinds of AI connections, setting a personality, chatting with several friends at once
 4. [Coding agents](./agents.md) — letting your friend see what the agent is doing
 5. [Desktop mode](./desktop.md) — sending friends out onto the desktop

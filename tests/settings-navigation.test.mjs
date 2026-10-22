@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { installDom, installStorage } from './support/dom.mjs';
+import { element, installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
 installStorage();
 globalThis.requestAnimationFrame = () => {};
 const { openPanel, setupTabs } = await import('../src/panel/tabs.js');
 
-function page(t) {
+// A small window opens one section at a time (compact); a wide one shows the list beside it.
+function page(t, { wide = false } = {}) {
   const sections = ['general-title', 'agent-link-title', 'updates-title', 'about-title'];
   const { document, nodes } = installDom(t, {
     ids: [
@@ -46,6 +47,9 @@ function page(t) {
     body.dataset.settingsSection = id;
     return body;
   });
+  if (!wide) document.body.classList.add('compact');
+  keepGlobals(t, 'window');
+  globalThis.window = element('window');
   document.activeElement = nodes.get('brand');
   document.querySelector = selector => (selector === '.brand' ? nodes.get('brand') : null);
   document.querySelectorAll = selector =>
@@ -54,7 +58,7 @@ function page(t) {
   return { nodes, links, bodies };
 }
 
-test('Settings starts at a task list and returns there before leaving management', t => {
+test('in a small window Settings starts at a task list and returns there before leaving management', t => {
   const { nodes, links, bodies } = page(t);
   openPanel('settings');
   assert.equal(nodes.get('settings-home').hidden, false);
@@ -106,10 +110,53 @@ test('Escape closes the Updates task in one step and clears its inline details',
   assert.equal(nodes.get('update-dialog').hidden, true);
 });
 
-test('a task entered from management returns to its tab without an extra Settings home', async t => {
+test('Back from a section always returns to the list of sections, however it was opened', async t => {
   const { nodes } = page(t);
-  openPanel('settings', 'general-title', true);
+  openPanel('settings', 'general-title');
+  assert.equal(nodes.get('panel-menu').getAttribute('aria-label'), 'Back to settings');
   await nodes.get('panel-menu').dispatch('click');
-  assert.equal(nodes.get('settings-home').hidden, true, 'management owns the task list for this route');
-  assert.equal(nodes.get('panel-menu').getAttribute('aria-label'), 'Back to friends & settings');
+  assert.equal(nodes.get('settings-home').hidden, false, 'the list of sections, one step up');
+});
+
+test('a wide window shows the list of sections beside the open one, as System Settings does', async t => {
+  const { nodes, links, bodies } = page(t, { wide: true });
+  openPanel('settings');
+  assert.equal(nodes.get('settings-home').hidden, false, 'the list stays');
+  assert.equal(nodes.get('settings-content').hidden, false, 'with the first section open beside it');
+  assert.deepEqual(
+    bodies.map(body => body.hidden),
+    [false, true, true, true],
+  );
+  assert.equal(links[0].getAttribute('aria-current'), 'page');
+  document.activeElement = links[2];
+  links[2].onclick();
+  assert.equal(nodes.get('settings-home').hidden, false);
+  assert.deepEqual(
+    bodies.map(body => body.hidden),
+    [true, true, false, true],
+  );
+  assert.equal(links[2].getAttribute('aria-current'), 'page');
+  assert.equal(links[0].getAttribute('aria-current'), null);
+  assert.equal(document.activeElement, links[2], 'choosing from the list leaves the focus on it');
+  assert.equal(
+    nodes.get('panel-menu').getAttribute('aria-label'),
+    'Back to friends & settings',
+    'beside the list, Back leaves Settings',
+  );
+  openPanel(null);
+  openPanel('settings');
+  assert.equal(links[2].getAttribute('aria-current'), 'page', 'it opens again where it was left');
+});
+
+test('Settings follows the window between the two layouts without losing its section', async t => {
+  const { nodes, links } = page(t);
+  openPanel('settings', 'updates');
+  document.body.classList.remove('compact');
+  await window.dispatch('resize');
+  assert.equal(nodes.get('settings-home').hidden, false, 'widened: the list joins the open section');
+  assert.equal(links[2].getAttribute('aria-current'), 'page');
+  document.body.classList.add('compact');
+  await window.dispatch('resize');
+  assert.equal(nodes.get('settings-home').hidden, true, 'narrowed: the open section alone');
+  assert.equal(nodes.get('updates-title-body').hidden, false);
 });

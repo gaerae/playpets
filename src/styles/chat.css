@@ -152,8 +152,8 @@
     box-shadow 0.15s;
 }
 .composer:focus-within {
-  border-color: #9fbcb5;
-  box-shadow: 0 0 0 3px #367b901a;
+  border-color: var(--field-focus);
+  box-shadow: 0 0 0 3px var(--ink-8);
 }
 .composer textarea {
   display: block;
@@ -328,5 +328,36 @@
   }
   .send-button:hover:not(:disabled) {
     color: #203425;
+  }
+}
+
+/* Small windows (body.compact, window.js): the conversation takes the room that is left. */
+body.compact .chat-log {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  margin-top: 6px;
+  padding: 6px 2px;
+}
+body.compact .composer {
+  flex: none;
+}
+body.compact .composer textarea {
+  max-height: 54px;
+}
+/* A rare conversation in a tiny yard keeps the next action visible, without introductory copy. */
+@media (max-height: 300px) {
+  body.compact .chat-placeholder {
+    display: none;
+  }
+  body.compact .chat-log:has(.connect-cta) {
+    padding: 2px;
+    align-items: center;
+  }
+  body.compact .connect-cta {
+    flex: none;
+    margin: 0;
+    min-height: 32px;
+    padding-block: 4px;
   }
 }

@@ -18,6 +18,7 @@ import {
   withDpi,
 } from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
+import { CAPTURE_VERSION } from './site-content.mjs';
 
 const sheets = await loadSheets();
 const environment = await loadEnvironment();
@@ -148,7 +149,9 @@ try {
   const file = 'packaging/macos/dmg-background.png';
   await writeFile(file, withDpi(await page.screenshot({ type: 'png' }), 144));
   console.log(`Wrote ${file} (${DMG.width * 2}×${DMG.height * 2} at 144 dpi)`);
-  const { version } = JSON.parse(await readFile('package.json', 'utf8'));
+  // The listing pictures come from the captures the site shows, which are taken before the release
+  // command raises the package version.
+  const version = CAPTURE_VERSION;
   await mkdir('website/public/listing/en', { recursive: true });
   const encoder = await browser.newPage();
   for (const name of LISTING) {

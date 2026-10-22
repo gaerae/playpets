@@ -140,6 +140,9 @@ static COMMANDS: &[Command] = &[
     main("setAutoChatter", |c| {
         set_auto_chatter(c.app, &c.state, c.arg(0).as_bool().unwrap_or(false))
     }),
+    main("setAutoPlay", |c| {
+        set_auto_play(c.app, &c.state, c.arg(0).as_bool().unwrap_or(false))
+    }),
     // (on, volume): either may be null to keep it as it is.
     main("setSound", |c| {
         commit(c.app, &c.state, |d| {
@@ -600,6 +603,8 @@ fn open_folder(state: &State<Shared>, which: &str) -> Result<Value, String> {
             "builtin" => d.builtin_pets.clone(),
             "codex" => d.codex_pets.clone(),
             "downloaded" => d.store.dir.join("pets"),
+            // the app's own data: friends, settings and the backups beside them (About)
+            "data" => d.store.dir.clone(),
             id => d
                 .assets
                 .iter()
@@ -680,6 +685,14 @@ fn assign_agent(app: &AppHandle, state: &State<Shared>, kind: &str, pet: &str) -
 fn set_auto_chatter(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
     commit(app, state, |d| {
         d.prefs.auto_chatter = on;
+        Ok(Value::Bool(on))
+    })
+}
+
+/// Whether idle friends now and then dig on their own without being asked.
+fn set_auto_play(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
+    commit(app, state, |d| {
+        d.prefs.auto_play = on;
         Ok(Value::Bool(on))
     })
 }

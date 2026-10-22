@@ -71,7 +71,7 @@ export const sections = {
   galleryLabel: '친구 고르기',
   posesLabel: '자세 미리보기',
   poses: ['쉬기', '인사하기', '뛰기'],
-  selectedLead: '초대 탭에서 이 친구를 초대해요. 이름과 성격, 나와의 관계를 직접 정할 수 있어요.',
+  selectedLead: '친구와 설정의 친구 초대에서 이 친구를 초대해요. 이름과 성격, 나와의 관계를 직접 정할 수 있어요.',
   galleryGuide: '친구들의 이야기',
   connectionsTitle: '같이 놀고, 가끔 이야기해요.',
   connectionsLead: '놀이와 정원 가꾸기는 AI 계정 없이 즐겨요. 대화할 때 연결한 AI의 사용 한도와 요금이 적용돼요.',

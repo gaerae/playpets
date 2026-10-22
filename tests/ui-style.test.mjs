@@ -18,11 +18,20 @@ const styles = async () =>
     (await Promise.all((await readdir('src/styles')).sort().map(f => readFile(`src/styles/${f}`, 'utf8')))).join('\n'),
   );
 
-test('discoveries share the top lane while compact messages stay at the lower edge', async () => {
+test('everything the yard says shares one lane just above the dock, clear of the strip and the corner button', async () => {
   const css = await styles();
-  assert.match(css, /\.yard-feedback\{[^}]*display:flex;[^}]*flex-direction:column;[^}]*gap:6px/);
-  assert.match(css, /body\.compact \.toast\{[^}]*top:auto;[^}]*bottom:12px/);
+  assert.match(
+    css,
+    /\.yard-feedback\{[^}]*inset:auto 12px 64px;[^}]*display:flex;[^}]*flex-direction:column;[^}]*gap:6px/,
+  );
+  // At the bottom by a spacer, so a lane taller than the window can still scroll to its top.
+  assert.match(css, /\.yard-feedback::before\{content:"";flex:1 0 0;\}/);
+  assert.doesNotMatch(css.match(/\.yard-feedback\{([^}]*)\}/)?.[1] || '', /justify-content:flex-end/);
+  assert.match(css, /\.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\)\.yard-feedback\{bottom:106px;/);
+  assert.match(css, /body\.compact \.yard-feedback\{inset:auto 52px 8px 8px;/);
   assert.match(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /pointer-events:none/);
+  assert.doesNotMatch(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /position:absolute/);
+  assert.doesNotMatch(css, /\.catch-card\.near/, 'a card no longer stands apart above its finder');
 });
 
 test('panels, controls and cards share restrained corner tokens while switches stay round', async () => {
@@ -229,7 +238,7 @@ test('Settings owns a body scroller while its header and navigation stay outside
   assert.ok(start < html.indexOf('id="settings-general"'));
   assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*overflow:hidden/);
   assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*bottom:auto;/);
-  assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*max-height:calc\(100% - 72px\);/);
+  assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*max-height:calc\(100% - 96px\);/);
   assert.match(css, /\.settings-content\{[^}]*overflow-y:auto/);
   assert.doesNotMatch(html, /id="settings-section"/);
   assert.match(html, /id="settings-home"/);
@@ -468,7 +477,8 @@ const SET_FROM_CODE = {
   '--head': 'src/core/sprites.js',
   '--orb-x': 'src/yard/sky.js',
   '--orb-y': 'src/yard/sky.js',
-  '--moon-shade': 'src/yard/sky.js',
+  '--moon-lit': 'src/yard/sky.js',
+  '--bubble-lift': 'src/yard/views.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.
@@ -552,7 +562,7 @@ test('floating scene menus stay above the full panel placement', async () => {
 
 test('game notices and discoveries share a bounded flow outside the field', async () => {
   const css = await styles();
-  assert.match(css, /\.yard-feedback\{[^}]*position:absolute;[^}]*inset:12px 12px auto;[^}]*overflow-y:auto/);
+  assert.match(css, /\.yard-feedback\{[^}]*position:absolute;[^}]*inset:auto 12px 64px;[^}]*overflow-y:auto/);
   for (const selector of ['.game-banner', '.catch-card']) {
     const rule = css.match(new RegExp(`(?:^|})\\${selector}\\{([^}]*)\\}`))?.[1] || '';
     assert.doesNotMatch(rule, /position:absolute|top:112px/);
@@ -578,13 +588,20 @@ test('pin switches show their selected state for every window size', async () =>
   );
 });
 
-test('compact controls hide the dock and scroll only the active management page', async () => {
+test('compact controls hide the dock, offer a corner button and scroll only the panel body', async () => {
   const css = await styles();
   const dock = css.match(/body\.compact \.yard-dock\{([^}]*)\}/)?.[1] || '';
   assert.match(dock, /display:none/);
   assert.doesNotMatch(css, /body\.compact:hover \.yard-dock|body\.compact:focus-within \.yard-dock/);
   assert.match(css, /body\.compact \.yard-controls-panel\{[^}]*inset:8px;[^}]*overflow:hidden/);
-  assert.match(css, /\.management-page\{[^}]*overflow-y:auto/);
+  assert.match(css, /\.dock-panel-body\{[^}]*overflow-y:auto/);
+  assert.match(css, /body\.compact \.compact-launcher\{[^}]*display:inline-flex/);
+  // A small window left on the desktop shows only the yard; the corner buttons (the menu and an
+  // update) come with the pointer, the keyboard or their open panel, and a screen without hover keeps them.
+  assert.match(
+    css,
+    /@media\(hover:hover\)\{body\.compact:not\(:hover\):is\(\.compact-launcher,\.update-compact\):not\(:focus-visible,\[aria-expanded="true"\]\)\{opacity:0/,
+  );
   const html = await readFile('src/index.html', 'utf8');
   assert.match(html, /id="close-controls"/);
 });

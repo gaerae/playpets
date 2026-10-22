@@ -107,3 +107,12 @@ planted gardens remain intact; pickup-only controls, visuals and sounds are
 removed. See [environmental discovery](2026-10-19-environmental-discovery.md)
 and [calm collection information](2026-10-19-calm-collection-information.md)
 for the current acquisition, growth and gift timing contracts.
+
+## Follow-up: the harvest moon follows the real moon (2026-10-22)
+
+The harvest event now runs from September 8 to October 15 (March 8 to April 15
+south of the equator), so the full moon of Chuseok and the Mid-Autumn Festival,
+which falls between September 8 and October 8, is inside it every year. The
+moon keeps its real phase through the event; it rises big and golden only on
+the nights within two days of the event's first full moon (`harvestMoon` in
+`src/yard/scene.js`), one harvest moon a year.

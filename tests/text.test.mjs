@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { setLanguageForTests } from '../src/core/i18n.js';
 import { STRINGS } from '../src/core/strings.js';
-import { blocks, inline, plain, spoken, waitingLine } from '../src/core/text.js';
+import { blocks, clip, inline, plain, spoken, waitingLine } from '../src/core/text.js';
 
 test('an error reaches the person in plain words; a raw engine message is kept, but behind them', () => {
   const fallback = STRINGS.en['error.history'];
@@ -99,4 +99,12 @@ test('the waiting line changes as the wait grows, and only a few times', () => {
   assert.equal(lines.size, 3);
   assert.notEqual(waitingLine(0), waitingLine(10));
   assert.equal(waitingLine(40), STRINGS.en['wait.long']);
+});
+
+test('a line cut for a speech bubble says so with an ellipsis, and a short one is left whole', () => {
+  assert.equal(clip('Hello there', 80), 'Hello there');
+  const long = 'a'.repeat(100);
+  assert.equal([...clip(long, 80)].length, 80);
+  assert.ok(clip(long, 80).endsWith('…'));
+  assert.equal(clip('하늘이 정말 맑아요 오늘은 산책하기 좋은 날이에요', 10), '하늘이 정말 맑아…');
 });

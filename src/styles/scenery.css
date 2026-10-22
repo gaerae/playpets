@@ -132,8 +132,7 @@
   --flower-a: #8d7fa8;
   --flower-b: #aab6c8;
   --flower-c: #b8a86a;
-  --orb: #f4efd8;
-  --orb-glow: #f4efd83d;
+  --orb-glow: #f4efd870;
 }
 .yard.weather-rain {
   --sky-a: #7f93a6;
@@ -195,8 +194,8 @@
   transform: translate(-50%, -50%);
   transition: opacity 1.5s;
 }
-/* a few stars at night, twinkling in two groups; behind the moon and the hills */
-.yard.period-night::after {
+/* a few stars on a clear night, twinkling in two groups; behind the moon and the hills */
+.yard.period-night.weather-clear::after {
   content: "";
   position: absolute;
   inset: 0 0 42% 0;
@@ -223,28 +222,29 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .yard.period-night::after {
+  .yard.period-night.weather-clear::after {
     animation: none;
   }
 }
-/* The moon in tonight's phase: a disc of night sky slides across it (--moon-shade, in percent of
-   its width, from sky.js). */
+/* The moon in tonight's phase, drawn through one mask twice its size (--moon-lit, from sky.js): the
+   lit part, the rim on one side and the terminator's half ellipse, so a crescent tapers and a
+   gibbous moon bulges as they do; a trace of the dark side, as earthshine shows it; and under them
+   the lit part blurred wide, which lets the glow colour through around the lit side only. Behind it
+   a night disc that fades out at its edge hides the stars, with no rim of its own. */
 .period-night .sky-body {
   height: min(8%, 56px);
-  overflow: hidden;
-  background:
-    url("../art/sky/moon.png") center / cover,
-    var(--orb);
-  box-shadow: 0 0 6vh 1.5vh var(--orb-glow);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--sky-a) 85%, transparent) 80%, transparent);
+  box-shadow: none;
 }
 .period-night .sky-body::after {
   content: "";
   position: absolute;
-  inset: -1px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--sky-a) 55%, var(--sky-m));
-  opacity: 0.94;
-  transform: translateX(calc(var(--moon-shade, 100) * 1%));
+  inset: -50%;
+  pointer-events: none;
+  background:
+    url("../art/sky/moon.png") center / 50% 50% no-repeat,
+    linear-gradient(var(--orb-glow) 0 0);
+  mask: var(--moon-lit) center / 100% 100% no-repeat;
 }
 .weather-rain .sky-body,
 .weather-snow .sky-body {
@@ -375,6 +375,16 @@
     transform: translateX(100%);
   }
 }
+/* The drawn stars and shooting stars (scenery.js), in the sky between the painting's sky and its
+   land, so a hill or a tree hides them. */
+.star-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -3;
+  pointer-events: none;
+}
 .weather-layer {
   position: absolute;
   inset: 0;
@@ -383,11 +393,17 @@
   z-index: 2;
   pointer-events: none;
 }
-/* Seasonal events' looks (events.json "looks"): the harvest moon rises big, full and golden. */
-.look-fullmoon.period-night .sky-body {
+/* Seasonal events' looks (events.json "looks"): the harvest moon rises big and golden on the nights
+   around the event's first real full moon (moon-full, from sky.js); otherwise the moon keeps its phase. */
+.look-fullmoon.moon-full.period-night .sky-body {
   height: min(11%, 80px);
-  --orb: #fbe6a6;
-  box-shadow: 0 0 9vh 3vh #f6dd9a55;
+  --orb-glow: #f6dd9a77;
+}
+.look-fullmoon.moon-full.period-night .sky-body::after {
+  background:
+    radial-gradient(closest-side, #f5c86a38 99%, transparent) center / 50% 50% no-repeat,
+    url("../art/sky/moon.png") center / 50% 50% no-repeat,
+    linear-gradient(var(--orb-glow) 0 0);
 }
 
 /* An interior is a complete room painting; outdoor overlays never cross its window glass. */
@@ -397,6 +413,7 @@
 .yard[data-sky="false"] .rainbow,
 .yard[data-sky="false"] .cloud-lane,
 .yard[data-sky="false"]::after,
+.yard[data-sky="false"] .star-layer,
 .yard[data-scenery="false"] .weather-layer {
   display: none;
 }

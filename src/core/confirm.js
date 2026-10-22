@@ -1,16 +1,21 @@
 // Asking before something that cannot be taken back. The question names what it acts on, the
 // button says what will happen, and focus starts on the Cancel button so Enter never does the harm by itself.
+// The action is calm unless `danger` says something that cannot come back is lost (a saved key, a
+// friend's closeness, a background's files, a conversation); what can be undone is not asked at all (yard/props.js).
+import { t } from './i18n.js';
 import { $ } from './state.js';
 
 let answer = null;
 
 // Resolves true only when the action button was pressed; Esc, Cancel and a click outside are false.
-export function confirmAction({ title, body, action, danger = true }) {
+export function confirmAction({ title, body, action, danger = false }) {
   answer?.(false);
   $('confirm-title').textContent = title;
   $('confirm-body').textContent = body;
   $('confirm-ok').textContent = action;
   $('confirm-ok').classList.toggle('danger-fill', danger);
+  // Before losing something for good, the other choice says what it keeps.
+  $('confirm-cancel').textContent = t(danger ? 'confirm.keep' : 'confirm.cancel');
   $('confirm-dialog').showModal();
   $('confirm-cancel').focus();
   return new Promise(resolve => {
@@ -30,6 +35,7 @@ export function setupConfirm() {
     dialog.close();
   };
   $('confirm-cancel').onclick = () => dialog.close();
+  if ($('confirm-close')) $('confirm-close').onclick = () => dialog.close();
   dialog.addEventListener('close', () => settle(false));
   closeOnBackdrop(dialog);
 }

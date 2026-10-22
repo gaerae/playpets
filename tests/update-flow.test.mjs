@@ -38,19 +38,7 @@ test('an available update opens Settings for a guided download, shows each stage
       : selector.includes('data-settings-section')
         ? [updatesBody]
         : [];
-  openPanel('settings', 'updates-title', true);
-  const managementBack = nodes.get('panel-menu').getAttribute('aria-label');
-  await document.getElementById('menu-settings-updates').dispatch('click');
-  assert.equal(
-    nodes.get('update-dialog').hidden,
-    false,
-    'the direct management Updates row exposes the existing inline details',
-  );
-  assert.equal(
-    nodes.get('panel-menu').getAttribute('aria-label'),
-    managementBack,
-    'opening details keeps the management return route',
-  );
+  openPanel('settings', 'updates-title');
   nodes.get('update-dialog').hidden = true;
 
   await nodes.get('settings-updates-task').dispatch('click');
@@ -79,6 +67,7 @@ test('an available update opens Settings for a guided download, shows each stage
   assert.match(nodes.get('update-progress-label').textContent, /25/);
   nodes.get('update-later').onclick();
   assert.equal(nodes.get('update-dialog').hidden, true);
+  assert.equal(nodes.get('panel-settings').hidden, false, 'Later folds the details and keeps Settings open');
   assert.equal(nodes.get('update-compact').hidden, false, 'small windows retain a progress entry point');
   updateStatus({ phase: 'verifying' });
   assert.equal(nodes.get('update-dialog').hidden, true, 'progress never reopens collapsed details');
@@ -166,6 +155,6 @@ test('a failed check without a release keeps its check action visible beside the
   const css = await readFile('src/styles/settings.css', 'utf8');
   assert.match(
     css,
-    /#settings-updates:has\(#update-dialog:not\(\[hidden\]\) #update-install:not\(\[hidden\]\)\) \.update-summary/,
+    /#settings-updates:has\(#update-dialog:not\(\[hidden\]\) #update-install:not\(\[hidden\]\)\) :is\(\.update-summary, \.update-auto\)/,
   );
 });

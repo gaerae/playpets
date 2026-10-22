@@ -72,7 +72,8 @@ export const sections = {
   galleryLabel: 'Choose a companion',
   posesLabel: 'Preview a pose',
   poses: ['Rest', 'Wave', 'Jump'],
-  selectedLead: 'Invite this companion from the Invite tab. Make their name, personality and relationship your own.',
+  selectedLead:
+    'Invite this companion with Invite a friend in Friends & settings. Make their name, personality and relationship your own.',
   galleryGuide: 'Read their stories',
   connectionsTitle: 'Play a little. Talk a little.',
   connectionsLead:

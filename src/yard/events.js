@@ -38,6 +38,16 @@ export function inEvent(event, monthDay, south = false) {
   const md = day(monthDay);
   return from <= to ? md >= from && md <= to : md >= from || md <= to;
 }
+/** Midnight on the first day of the time round of an event that `date` falls in. */
+export function eventStart(event, date, south = false) {
+  let from = day(event.from),
+    to = day(event.to);
+  if (south && !event.fixed) [from, to] = [later(from, false), later(to, true)];
+  const md = (date.getMonth() + 1) * 100 + date.getDate(),
+    // dates that cross the end of the year began the year before
+    year = date.getFullYear() - (from > to && md < from ? 1 : 0);
+  return new Date(year, Math.floor(from / 100) - 1, from % 100);
+}
 /** The event on at this date (the person's own clock), or null. */
 export function eventOn(date, south = false) {
   const md = `${date.getMonth() + 1}-${date.getDate()}`;

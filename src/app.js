@@ -1,4 +1,4 @@
-import { openControls, openPlay, setupControls } from './core/controls.js';
+import { openControls, openFriendMenu, setupControls } from './core/controls.js';
 import { setupInteractions } from './core/interactions.js';
 import { setupBackgrounds } from './yard/background-ui.js';
 
@@ -27,9 +27,9 @@ import {
   toast,
   views,
 } from './core/state.js';
-import { plain, spoken } from './core/text.js';
+import { clip, plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
-import { renderAlbum, setupAlbum } from './panel/album.js';
+import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
 import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
@@ -52,7 +52,16 @@ import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
 import { giftTick, renderDecor, setupDecor } from './yard/decor.js';
-import { cancelDiscovery, cancelDiscoveryWork, setupDiscovery, syncDiscovery } from './yard/discovery.js';
+import {
+  autoDig,
+  beginDiscovery,
+  cancelDiscovery,
+  cancelDiscoveryWork,
+  canDigAt,
+  digAt,
+  setupDiscovery,
+  syncDiscovery,
+} from './yard/discovery.js';
 import { renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { moveFriends } from './yard/motion.js';
@@ -120,7 +129,13 @@ setupInteractions();
 setupWindow();
 setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
-  stopGame: endGame,
+  openChat,
+  canDigAt,
+  digAt,
+  digWith: id => {
+    select(id);
+    beginDiscovery('dig');
+  },
   beforeOpen: () => {
     cancelDiscovery();
     syncDiscovery();
@@ -177,7 +192,7 @@ setupViews({
   },
   select,
   openChat,
-  openActions: openPlay,
+  friendMenu: openFriendMenu,
   resized: () => {
     cancelDiscoveryWork();
     endFishing();
@@ -195,7 +210,7 @@ setupDiscovery();
 setupTrees();
 setupCatch();
 setupAlbum();
-setupCard();
+setupCard({ openAlbum });
 setupSound();
 setupFriend();
 setupChat();
@@ -235,6 +250,12 @@ setInterval(() => {
   // A round that could not start (someone left, an AI went away) is not worth a toast.
   startChatter().catch(() => {});
 }, AUTO_CHATTER_MS);
+// With Let them dig on, an idle friend digs a spot of its own every few minutes while the yard is
+// shown; a game or a tool in the person's hand comes first (yard/discovery.js autoDig).
+const AUTO_PLAY_MS = 4 * 60 * 1000;
+setInterval(() => {
+  if (data.autoPlay && shown) autoDig();
+}, AUTO_PLAY_MS);
 // A finished agent's state fades after a while (core/status.js): the page looks again each minute.
 everyMinute(() => {
   if (data.garden?.trees?.length) {
@@ -271,7 +292,7 @@ const ON_EVENT = {
     // Answers that arrive together are shown one after another, so a group chat reads as one.
     const wait = Math.max(0, lastBubbleAt + BUBBLE_GAP - Date.now());
     lastBubbleAt = Date.now() + wait;
-    if (v) setTimeout(() => bubble(v, plain(e.message).slice(0, 80)), wait);
+    if (v) setTimeout(() => bubble(v, clip(plain(e.message), 80)), wait);
   },
   play: react,
   window: e => {
@@ -327,7 +348,7 @@ function animate(now) {
 }
 try {
   // Record growth during closed time before the first tree and album are drawn.
-  await call('growTrees').catch(error => toast(spoken(error, t('error.start'))));
+  await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
   setData(await call('bootstrap'));
   follow(data.language);
   const saved = recall('panel');
@@ -340,5 +361,5 @@ try {
   last = performance.now();
   every(BUSY_MS, animate);
 } catch (e) {
-  toast(spoken(e, t('error.start')));
+  toast(spoken(e, t('error.start')), { error: true });
 }

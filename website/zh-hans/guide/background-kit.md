@@ -25,7 +25,7 @@ import CreationStudio from "../../.vitepress/theme/CreationStudio.vue";
 
 SKILL需要Python 3、Pillow，以及所选AI环境中可用的图片生成工具。开始前请确认工具能力及提供商的费用。依赖不会自动安装，订阅ChatGPT也不代表自动获得图片API访问权限。
 
-SKILL准备1536 × 1024背景图片及支持的布局和氛围设置，包括行走区域、水域、钓鱼站位、窗户区域和可选季节图片。检查完整窗口和小窗口尺寸的效果后，在地点与氛围中导入完成的JSON。
+SKILL准备1536 × 1024背景图片及支持的布局和氛围设置，包括行走区域、水域、钓鱼站位、窗户区域和可选季节图片。检查完整窗口和小窗口尺寸的效果后，在**场景与氛围**中用**导入背景**导入完成的JSON。
 
 [背景资源包规范、英文](/dev/how-to/add-a-world#portable-backgrounds)
 
