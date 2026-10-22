@@ -16,7 +16,7 @@ Not covered: test code in `tests/` and development tools in `scripts/`. Both are
 - Loops and animations that redraw the page follow the [performance standard](performance.md).
 - A keyboard shortcut is a row in `SHORTCUTS` (`src/core/keys.js`) and the module that owns the action registers it with `onShortcut`; the macOS menu bar (`src-tauri/src/menu.rs`) shows the same key.
 - Things that open from a button use `dropdown` (a panel) or `popup` (a menu, with arrow keys) from `src/core/menu.js`, so every menu opens, closes and moves its focus the same way.
-- Each class on the yard element has one owner. The scene (`yard/sky.js`) sets only its own classes: `period-…`, `weather-…`, `season-…`, `event-…` and `look-…`. Whoever sets `aiming` (`care.js`), `playing` (`play.js`), `can-catch` (`catch.js`) or `after-rain` (the rainbow in `sky.js`) owns that class and takes it off again; no other module adds, removes or spares it.
+- Each class on the yard element has one owner. The scene (`yard/sky.js`) sets only its own classes: `period-…`, `weather-…`, `season-…`, `event-…`, `look-…` and `moon-full`. Whoever sets `aiming` (`care.js`), `playing` (`play.js`), `can-catch` (`catch.js`) or `after-rain` (the rainbow in `sky.js`) owns that class and takes it off again; no other module adds, removes or spares it.
 - A menu whose rows follow something in code is built from a table, not written in the markup. The Games menu is built from the games' rules (`RULES` in `yard/play.js`: icon, name, tooltip), so a new game adds no markup.
 
 This is how a new page feature looks.

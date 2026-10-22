@@ -403,11 +403,18 @@
   z-index: 2;
   pointer-events: none;
 }
-/* Seasonal events' looks (events.json "looks"): the harvest moon rises big, full and golden. */
-.look-fullmoon.period-night .sky-body {
+/* Seasonal events' looks (events.json "looks"): the harvest moon rises big and golden on the nights
+   around the real full moon (moon-full, from sky.js); the rest of the event the moon keeps its phase. */
+.look-fullmoon.moon-full.period-night .sky-body {
   height: min(11%, 80px);
   --orb: #fbe6a6;
   --orb-glow: #f6dd9a77;
+}
+.look-fullmoon.moon-full.period-night .sky-body::after {
+  background:
+    linear-gradient(#f5c86a38 0 0),
+    url("../art/sky/moon.png") center / cover,
+    var(--orb);
 }
 
 /* An interior is a complete room painting; outdoor overlays never cross its window glass. */

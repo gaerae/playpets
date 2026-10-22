@@ -78,7 +78,7 @@ To paint something new, add a painter to `PAINTERS` (or a thing to `THINGS`) and
 1. Add an entry to `src/content/events.json`: `id`, `from` and `to` (month-day, `"04-01"`, as north of the equator; south of it the event comes six months later unless `"fixed": true`, as for the new year), and what it brings:
    - `gift`: the id of a gift that comes only then. Add that gift to `catalog.json` with `"event": "<id>"`; it comes the first time a gift is due during the event, and is not one of the everyday gifts.
    - `boost`: more small life while it is on: `petals`, `butterflies`, `fireflies` (how many times as many).
-   - `looks`: names of looks; each is a class on the yard (`look-<name>`) whose rules go in `src/styles/scenery.css` (the harvest moon's `fullmoon` makes the moon big and full).
+   - `looks`: names of looks; each is a class on the yard (`look-<name>`) whose rules go in `src/styles/scenery.css` (the harvest moon's `fullmoon` makes the moon big and golden on the nights around the real full moon, when `sky.js` also sets `moon-full`).
    - `art`: a drawing for its card, if it has no gift (the new year's sunrise).
 2. A fish or a bug that comes only then: add it to the catalogue with `"event": "<id>"`.
 3. Something painted only then: give a layer in `yard.json` `"when": "<id>"` (the winter lights' `fairyLights`).

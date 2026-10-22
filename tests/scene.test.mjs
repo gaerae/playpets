@@ -18,6 +18,7 @@ import {
   moonLit,
   moonMask,
   moonPhase,
+  nearFullMoon,
   PERIODS,
   periodFor,
   SEASON_COLORS,
@@ -202,6 +203,14 @@ test('the moon shows its phase: dark when new, whole when full, lit on the right
   assert.equal(moonLit(0.1, true).lit, 'left', 'south of the equator it is mirrored');
   assert.ok(moonLit(0.1).edge > 0 && moonLit(0.4).edge < 0, 'a crescent before the quarter, gibbous after');
   assert.ok(close(moonLit(0.1).edge, moonLit(0.9).edge), 'waning retraces waxing');
+});
+
+test('the harvest moon shows only on the nights around the real full moon', () => {
+  const day = 1 / 29.530588853;
+  assert.ok(nearFullMoon(0.5), 'the full moon itself');
+  assert.ok(nearFullMoon(0.5 - 2 * day) && nearFullMoon(0.5 + 2 * day), 'two days either side');
+  assert.ok(!nearFullMoon(0.5 - 3 * day) && !nearFullMoon(0.5 + 3 * day), 'not three days off');
+  assert.ok(!nearFullMoon(0.25) && !nearFullMoon(0), 'never a quarter or new moon');
 });
 
 test('the lit part is drawn as a limb and an elliptical terminator, never a second disc', () => {

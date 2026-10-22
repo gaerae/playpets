@@ -18,6 +18,7 @@ import {
   moonLit,
   moonMask,
   moonPhase,
+  nearFullMoon,
   PERIOD_MINUTES,
   periodFor,
   sceneCaption,
@@ -79,6 +80,8 @@ export function paintScene() {
     `weather-${scene.weather}`,
     `season-${scene.season}`,
     ...(event ? [`event-${event.id}`, ...(event.looks || []).map(look => `look-${look}`)] : []),
+    // the real full moon and the nights either side, for the harvest moon's look
+    ...(nearFullMoon(moonPhase(now.getTime())) ? ['moon-full'] : []),
   ]);
   paintSeason(yard);
   paintSky(yard, now);
@@ -122,9 +125,8 @@ function paintSky(yard, now) {
   const { x, y } = sunAt(minutes);
   yard.style.setProperty('--orb-x', `${x.toFixed(1)}%`);
   yard.style.setProperty('--orb-y', `${y.toFixed(1)}%`);
-  // The harvest moon is full whatever the calendar says (an event's "fullmoon" look).
-  const full = yard.classList.contains('look-fullmoon'),
-    lit = full ? { lit: 'right', edge: -1 } : moonLit(moonPhase(now.getTime()), south),
+  // Tonight's real phase, the harvest moon too: its look shows only around the full moon (scenery.css).
+  const lit = moonLit(moonPhase(now.getTime()), south),
     mask = `url("data:image/svg+xml,${encodeURIComponent(moonMask(lit))}")`;
   // The mask changes a little each hour; set again only then, so the moon is not redrawn every minute.
   if (mask !== moonMaskShown) {

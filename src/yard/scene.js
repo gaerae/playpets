@@ -201,6 +201,11 @@ const NEW_MOON = Date.UTC(2000, 0, 6, 18, 14),
 export function moonPhase(ms) {
   return ((((ms - NEW_MOON) / LUNAR_MONTH) % 1) + 1) % 1;
 }
+// The nights around the full moon, two days either side: when the harvest moon rises big and golden.
+const FULL_MOON_DAYS = 2;
+export function nearFullMoon(phase) {
+  return Math.abs(phase - 0.5) * (LUNAR_MONTH / 86400000) <= FULL_MOON_DAYS + 1e-9;
+}
 // Which side of the moon is lit and where its terminator crosses the middle, as a share of the
 // radius: 1 on the bright limb (new moon), 0 straight down the centre (a quarter), -1 on the far
 // limb (full). Waxing, the right side is lit as seen north of the equator.
