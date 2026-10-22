@@ -8,17 +8,17 @@ import { reduced } from '../core/sprites.js';
 import { $, recall, remember } from '../core/state.js';
 import { everyMinute } from '../core/ticker.js';
 import { createEasel } from './easel.js';
-import { sceneEvent } from './events.js';
+import { eventStart, sceneEvent } from './events.js';
 import { eventChanged } from './festival.js';
 import { cancelRemarks, remark } from './remarks.js';
 import {
   autoWeather,
+  harvestMoon,
   initialSceneChoices,
   moonGlow,
   moonLit,
   moonMask,
   moonPhase,
-  nearFullMoon,
   PERIOD_MINUTES,
   periodFor,
   sceneCaption,
@@ -80,8 +80,10 @@ export function paintScene() {
     `weather-${scene.weather}`,
     `season-${scene.season}`,
     ...(event ? [`event-${event.id}`, ...(event.looks || []).map(look => `look-${look}`)] : []),
-    // the real full moon and the nights either side, for the harvest moon's look
-    ...(nearFullMoon(moonPhase(now.getTime())) ? ['moon-full'] : []),
+    // the event's own full moon and the nights either side, for the harvest moon's look
+    ...(event?.looks?.length && harvestMoon(now.getTime(), eventStart(event, now, south).getTime())
+      ? ['moon-full']
+      : []),
   ]);
   paintSeason(yard);
   paintSky(yard, now);

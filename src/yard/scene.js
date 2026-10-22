@@ -201,10 +201,19 @@ const NEW_MOON = Date.UTC(2000, 0, 6, 18, 14),
 export function moonPhase(ms) {
   return ((((ms - NEW_MOON) / LUNAR_MONTH) % 1) + 1) % 1;
 }
-// The nights around the full moon, two days either side: when the harvest moon rises big and golden.
+// The nights around the full moon, two days either side.
 const FULL_MOON_DAYS = 2;
 export function nearFullMoon(phase) {
   return Math.abs(phase - 0.5) * (LUNAR_MONTH / 86400000) <= FULL_MOON_DAYS + 1e-9;
+}
+// The harvest moon: the first full moon on or after its event starts (`startMs`), and the nights
+// either side. The event is longer than a month, so this keeps it to one a year, as Chuseok and the
+// Mid-Autumn Festival have it.
+export function harvestMoon(ms, startMs) {
+  const phase = moonPhase(ms);
+  if (!nearFullMoon(phase)) return false;
+  const fullAt = ms - (phase - 0.5) * LUNAR_MONTH;
+  return fullAt >= startMs && fullAt < startMs + LUNAR_MONTH;
 }
 // Which side of the moon is lit and where its terminator crosses the middle, as a share of the
 // radius: 1 on the bright limb (new moon), 0 straight down the centre (a quarter), -1 on the far

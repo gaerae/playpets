@@ -102,7 +102,7 @@ A few times a year the yard changes for a while. The event's name shows beside t
 |---|---|---|
 | Cherry blossom festival | April 1 to 20 | Petals drift everywhere and more butterflies come out; a friend brings a cherry sapling |
 | Firefly nights | July 20 to August 20 | Many more fireflies at night, and a golden one to catch; a friend brings a watermelon |
-| Harvest moon | September 25 to October 15 | On the nights around the real full moon (two days either side), the moon rises big and golden; the other nights it keeps its phase. The moonlight carp comes to the lake at night; a friend brings a pumpkin |
+| Harvest moon | September 8 to October 15 | On the nights around the event's first full moon (two days either side), as at Chuseok and the Mid-Autumn Festival, the moon rises big and golden; the other nights it keeps its phase. The moonlight carp comes to the lake at night; a friend brings a pumpkin |
 | Winter lights | December 10 to 31 | Little lights along the trees, glowing from evening on; a friend brings a snowman |
 | New Year | January 1 to 7 | Friends greet the new year |
 

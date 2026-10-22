@@ -13,6 +13,7 @@ import {
   GREETINGS,
   greetingFor,
   groundFor,
+  harvestMoon,
   initialSceneChoices,
   moonGlow,
   moonLit,
@@ -211,6 +212,19 @@ test('the harvest moon shows only on the nights around the real full moon', () =
   assert.ok(nearFullMoon(0.5 - 2 * day) && nearFullMoon(0.5 + 2 * day), 'two days either side');
   assert.ok(!nearFullMoon(0.5 - 3 * day) && !nearFullMoon(0.5 + 3 * day), 'not three days off');
   assert.ok(!nearFullMoon(0.25) && !nearFullMoon(0), 'never a quarter or new moon');
+});
+
+test('the harvest moon is the first full moon on or after the event starts, one a year', () => {
+  const night = iso => new Date(`${iso}T22:00:00`).getTime(),
+    start = year => new Date(`${year}-09-08T00:00:00`).getTime();
+  assert.ok(harvestMoon(night('2026-09-26'), start(2026)), 'Chuseok 2026');
+  assert.ok(harvestMoon(night('2027-09-15'), start(2027)), 'Chuseok 2027');
+  assert.ok(!harvestMoon(night('2027-10-14'), start(2027)), 'the next full moon of the same event is a plain one');
+  assert.ok(
+    harvestMoon(night('2029-09-22'), start(2029)),
+    'an early one, inside since the event starts on September 8',
+  );
+  assert.ok(!harvestMoon(night('2026-10-05'), start(2026)), 'not between full moons');
 });
 
 test('the lit part is drawn as a limb and an elliptical terminator, never a second disc', () => {
