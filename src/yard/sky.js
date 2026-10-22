@@ -14,6 +14,7 @@ import { cancelRemarks, remark } from './remarks.js';
 import {
   autoWeather,
   initialSceneChoices,
+  moonGlow,
   moonLit,
   moonMask,
   moonPhase,
@@ -126,7 +127,10 @@ function paintSky(yard, now) {
     lit = full ? { lit: 'right', edge: -1 } : moonLit(moonPhase(now.getTime()), south),
     mask = `url("data:image/svg+xml,${encodeURIComponent(moonMask(lit))}")`;
   // The mask changes a little each hour; set again only then, so the moon is not redrawn every minute.
-  if (mask !== moonMaskShown) yard.style.setProperty('--moon-lit', mask);
+  if (mask !== moonMaskShown) {
+    yard.style.setProperty('--moon-lit', mask);
+    yard.style.setProperty('--moon-glow', `url("data:image/svg+xml,${encodeURIComponent(moonGlow(lit))}")`);
+  }
   moonMaskShown = mask;
 }
 function showRainbow(yard) {

@@ -21,7 +21,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Show Place & atmosphere, Play and Friends & settings each as one page of sections, without tabs, sub-views or Back buttons: Play groups Find, Garden and Group games, and a running game ends from its own tile.
-- Keep one Settings entry in Friends & settings. In a large window Settings keeps its list of sections on the left beside the open section and reopens where it was left; a small window opens on the list, one section at a time, and Back returns one step at a time.
+- Keep one Settings entry in Friends & settings. In a large window Settings is a centred sheet sized to the window (up to 760 × 640) that keeps its list of sections on the left beside the open section and reopens where it was left; a small window opens on the list, one section at a time, and Back returns one step at a time.
 - Offer Talk and Play in a friend's right-click menu, matching the name tag and the dock.
 - Keep the dig and tree tools in hand after each spot, sending the next free friend each time, and switch between digging, trees and seeds from the strip at the top until Esc or Close puts the tool away.
 - Fish or catch a creature with one press even while a play tool is in hand; the press puts the tool away first.
@@ -47,7 +47,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Plant a seed from the keyboard with a second press of the seed tool, as with the picnic treat.
 - Give each coding tool's controls in Settings a distinct name for screen readers, and remove a stale note about unpublished pages from About.
 - Keep night stars and shooting stars in the sky behind hills and trees, and hide the twinkling stars on rainy or snowy nights.
-- Draw the moon's phase as it looks, a tapering crescent or a bulging gibbous moon with a soft edge and its dark side faintly visible, instead of a disc of night sky sliding over it.
+- Draw the moon's phase as it looks, a tapering crescent or a bulging gibbous moon with a soft edge and its dark side faintly visible, instead of a disc of night sky sliding over it, and let it glow only from its lit part, with no bright ring around the dark side.
 
 ## [1.1.0] - 2026-10-20
 

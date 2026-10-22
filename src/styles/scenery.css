@@ -229,15 +229,22 @@
 }
 /* The moon in tonight's phase. Its dark side stays faintly there, as earthshine shows it, and the
    lit part is the same moon through a soft mask (--moon-lit, from sky.js): the rim on one side and
-   the terminator's half ellipse, so a crescent tapers and a gibbous moon bulges as they do. */
+   the terminator's half ellipse, so a crescent tapers and a gibbous moon bulges as they do. The same
+   mask keeps a trace of the dark side, as earthshine shows it. Behind it a night disc that fades out
+   at its edge hides the stars, with no rim of its own; the glow is the lit part blurred, outside
+   the disc only (--moon-glow), so no bright ring hugs the dark side. */
 .period-night .sky-body {
   height: min(8%, 56px);
-  overflow: hidden;
-  background:
-    linear-gradient(color-mix(in srgb, var(--sky-a) 84%, transparent) 0 0),
-    url("../art/sky/moon.png") center / cover,
-    var(--orb);
-  box-shadow: 0 0 6vh 1.5vh var(--orb-glow);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--sky-a) 85%, transparent) 80%, transparent);
+  box-shadow: none;
+}
+.period-night .sky-body::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  background: var(--orb-glow);
+  mask: var(--moon-glow) center / 100% 100% no-repeat;
 }
 .period-night .sky-body::after {
   content: "";
@@ -400,7 +407,7 @@
 .look-fullmoon.period-night .sky-body {
   height: min(11%, 80px);
   --orb: #fbe6a6;
-  box-shadow: 0 0 9vh 3vh #f6dd9a55;
+  --orb-glow: #f6dd9a77;
 }
 
 /* An interior is a complete room painting; outdoor overlays never cross its window glass. */

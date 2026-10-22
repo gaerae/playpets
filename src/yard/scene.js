@@ -208,16 +208,26 @@ export function moonLit(phase, south = false) {
   const waxing = phase < 0.5;
   return { lit: waxing !== south ? 'right' : 'left', edge: Math.cos(2 * Math.PI * phase) };
 }
-// The lit part as a soft-edged SVG mask in a 100-unit box: half the disc's rim on the lit side,
-// and the terminator, half an ellipse, back through the lit side for a crescent or bowing out
-// through the dark side once the moon is gibbous.
-export function moonMask({ lit, edge }) {
+// The lit part as a path in a 100-unit box: half the disc's rim on the lit side, and the
+// terminator, half an ellipse, back through the lit side for a crescent or bowing out through the
+// dark side once the moon is gibbous.
+function litPath({ lit, edge }) {
   const right = lit === 'right',
     // never quite zero: a flat arc becomes a line some engines will not blur
     rx = Math.max(1, Math.round(Math.abs(edge) * 5000) / 100),
     throughRight = edge > 0 ? right : !right;
-  const d = `M50 0A50 50 0 0 ${right ? 1 : 0} 50 100A${rx} 50 0 0 ${throughRight ? 0 : 1} 50 0Z`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><filter id="soft" filterUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><feGaussianBlur stdDeviation="2.4"/></filter><path d="${d}" filter="url(#soft)"/></svg>`;
+  return `M50 0A50 50 0 0 ${right ? 1 : 0} 50 100A${rx} 50 0 0 ${throughRight ? 0 : 1} 50 0Z`;
+}
+const SVG = 'xmlns="http://www.w3.org/2000/svg"';
+/** The lit part as a soft-edged SVG mask over the moon, with a trace of the dark side (earthshine)
+ * that fades out before the painted moon's bright rim, so the dark side is never outlined. */
+export function moonMask(lit) {
+  return `<svg ${SVG} viewBox="0 0 100 100"><radialGradient id="shine"><stop offset="0.8" stop-opacity="0.08"/><stop offset="0.92" stop-opacity="0"/></radialGradient><filter id="soft" filterUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><feGaussianBlur stdDeviation="2.4"/></filter><g filter="url(#soft)"><circle cx="50" cy="50" r="50" fill="url(#shine)"/><path d="${litPath(lit)}"/></g></svg>`;
+}
+/** The moon's glow as an SVG mask twice its size: the lit part blurred wide, with the disc cut out, so
+ * it shines past the lit rim and never rings the dark one. */
+export function moonGlow(lit) {
+  return `<svg ${SVG} viewBox="-50 -50 200 200"><filter id="glow" filterUnits="userSpaceOnUse" x="-50" y="-50" width="200" height="200"><feGaussianBlur stdDeviation="16"/></filter><mask id="out" maskUnits="userSpaceOnUse" x="-50" y="-50" width="200" height="200"><rect x="-50" y="-50" width="200" height="200" fill="#fff"/><circle cx="50" cy="50" r="50" fill="#000"/></mask><g mask="url(#out)"><path d="${litPath(lit)}" filter="url(#glow)"/></g></svg>`;
 }
 export const GREETINGS = {
   morning: list('greet.morning'),

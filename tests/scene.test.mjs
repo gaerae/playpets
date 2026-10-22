@@ -14,6 +14,7 @@ import {
   greetingFor,
   groundFor,
   initialSceneChoices,
+  moonGlow,
   moonLit,
   moonMask,
   moonPhase,
@@ -221,8 +222,22 @@ test('the lit part is drawn as a limb and an elliptical terminator, never a seco
     [30, '1', '0'],
   ]);
   assert.match(moonMask({ lit: 'right', edge: -1 }), /^<svg [^>]*viewBox="0 0 100 100"/);
+  // The dark side keeps a trace of the moon, as earthshine shows it, gone before the painted moon's
+  // bright rim so the dark side has no outline.
+  const shine = moonMask({ lit: 'right', edge: 0.6 });
+  assert.match(shine, /<circle cx="50" cy="50" r="50" fill="url\(#shine\)"\/><path /);
+  assert.match(shine, /<stop offset="0\.8" stop-opacity="0\.08"\/><stop offset="0\.92" stop-opacity="0"\/>/);
   // A quarter moon's terminator is all but straight; a zero-width arc would lose its soft edge.
   assert.match(moonMask({ lit: 'right', edge: 0 }), /A1 50 /);
+});
+
+test('the glow comes from the lit part only and stops at the rim, so the dark limb has no bright ring', () => {
+  const lit = { lit: 'right', edge: -0.6 },
+    glow = moonGlow(lit),
+    path = moonMask(lit).match(/ d="([^"]+)"/)[1];
+  assert.match(glow, /viewBox="-50 -50 200 200"/, 'twice the moon, centred on it');
+  assert.ok(glow.includes(`d="${path}"`), 'the same lit shape, blurred');
+  assert.match(glow, /<circle cx="50" cy="50" r="50" fill="#000"\/>/, 'the disc itself is cut out');
 });
 
 test('petals in spring and leaves in autumn drift down a few at a time, only in clear daylight', () => {

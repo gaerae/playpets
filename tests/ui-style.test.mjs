@@ -229,7 +229,7 @@ test('Settings owns a body scroller while its header and navigation stay outside
   assert.ok(start < html.indexOf('id="settings-general"'));
   assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*overflow:hidden/);
   assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*bottom:auto;/);
-  assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*max-height:calc\(100% - 72px\);/);
+  assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*max-height:calc\(100% - 96px\);/);
   assert.match(css, /\.settings-content\{[^}]*overflow-y:auto/);
   assert.doesNotMatch(html, /id="settings-section"/);
   assert.match(html, /id="settings-home"/);
@@ -469,6 +469,7 @@ const SET_FROM_CODE = {
   '--orb-x': 'src/yard/sky.js',
   '--orb-y': 'src/yard/sky.js',
   '--moon-lit': 'src/yard/sky.js',
+  '--moon-glow': 'src/yard/sky.js',
   '--bubble-lift': 'src/yard/views.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no

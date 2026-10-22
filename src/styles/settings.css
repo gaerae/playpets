@@ -288,15 +288,16 @@
 }
 .layout.settings-open .side-panel {
   position: absolute;
-  top: 60px;
+  /* centred, and tall in proportion to the window up to about System Settings' size */
+  top: 50%;
   bottom: auto;
   left: 50%;
   z-index: 20;
-  width: min(720px, calc(100% - 24px));
-  height: min(520px, calc(100% - 72px));
-  max-height: calc(100% - 72px);
+  width: min(760px, calc(100% - 48px));
+  height: min(640px, calc(100% - 96px));
+  max-height: calc(100% - 96px);
   align-self: start;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   box-shadow: 0 18px 48px #1d2f2a40;
   background: var(--panel-surface);
   overflow: hidden;

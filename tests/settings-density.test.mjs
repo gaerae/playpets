@@ -10,10 +10,11 @@ const readCss = async name =>
 
 test('Settings stays a compact desktop sheet with readable rows and its existing body scroller', async () => {
   const css = await readCss('settings');
-  // One size from section to section, wide enough for the list beside the open section.
+  // One size from section to section, wide enough for the list beside the open section, tall in
+  // proportion to the window and centred in it.
   assert.match(
     css,
-    /\.layout.settings-open \.side-panel\{[^}]*width:min\(720px,calc\(100% - 24px\)\);[^}]*height:min\(520px,calc\(100% - 72px\)\)/,
+    /\.layout.settings-open \.side-panel\{[^}]*top:50%;[^}]*width:min\(760px,calc\(100% - 48px\)\);[^}]*height:min\(640px,calc\(100% - 96px\)\);[^}]*transform:translate\(-50%,-50%\)/,
   );
   assert.match(css, /\.layout.settings-open #panel-settings\{[^}]*display:flex/);
   assert.match(css, /\.link-row\{[^}]*padding:8px/);
