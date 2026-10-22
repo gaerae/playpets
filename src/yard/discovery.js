@@ -1,11 +1,5 @@
 // Brief, friend-led tasks: choose ground, walk there, then commit one discovery.
-import {
-  actionGroundOffset,
-  beginCompanionAction,
-  clearCompanionAction,
-  companionImage,
-  prepareCompanionAction,
-} from '../core/companion-actions.js';
+import { beginCompanionAction, playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
 import { closeControls, closeScene } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
@@ -16,10 +10,11 @@ import { showCard } from './card.js';
 import { onAimingChange, setAimingMode } from './care.js';
 import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
-import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
+import { field, fieldToYard, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
-import { isFree, release, rest, sendTo, setDoing } from './trips.js';
-import { bubble, pose } from './views.js';
+import { isFree, release, rest } from './trips.js';
+import { bubble } from './views.js';
+import { holdAtWork, sendToWork, stopWork } from './work.js';
 import { scene } from './world.js';
 
 let intent = null;
@@ -158,29 +153,22 @@ export function sendDiscovery(v, point, action, kind) {
     clearTimeout(task.soilTimer);
     task.resumeContact?.();
     task.effect?.remove();
-    clearCompanionAction(v);
-    if (v.pose === 'idle' && v.until === Infinity) v.until = 0;
+    stopWork(v);
     if (tasks.get(v) === task) tasks.delete(v);
   };
   release(v);
   tasks.set(v, task);
   const prepared = prepareCompanionAction(v.asset, action === 'tree' ? 'plant' : 'dig');
   prepareCompanionAction(v.asset, 'discover');
-  const offset = actionGroundOffset(prepared, sizeOf(v.pet), petHeight(v.pet));
-  sendTo(v, footTarget(v, pixel.x - offset.x, pixel.y - offset.y), {
+  sendToWork(v, pixel, prepared, {
     cancel: cleanup,
     arrive: guard(async () => {
       if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
       let ground = groundProfile();
       if (!groundAllows(point, ground)) return cleanup();
       const context = { season: scene.season, weather: scene.weather };
-      setDoing(v, { end: cleanup });
-      pose(v, 'idle', Infinity);
-      let authored = beginCompanionAction(v, action === 'tree' ? 'plant' : 'dig');
-      if (authored && !companionImage(authored)) {
-        clearCompanionAction(v);
-        authored = null;
-      }
+      holdAtWork(v, cleanup);
+      const authored = playCompanionAction(v, action === 'tree' ? 'plant' : 'dig');
       const duration = authored?.duration ?? 1950;
       const effect = document.createElement('span');
       effect.className = `dig-effect${authored ? ' authored' : ''}`;

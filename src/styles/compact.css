@@ -1,4 +1,6 @@
-/* Small windows keep the whole yard and use the same controls and panels. */
+/* Small windows (body.compact, window.js) keep the whole yard and use the same controls and panels.
+   This file holds the yard, the dock and its menus; each side panel keeps its own small-window rules
+   at the end of its file (panel.css, invite.css, friend.css, chat.css, settings.css). */
 body.compact .pet-tag {
   font-size: 12px;
   padding: 2px 6px;
@@ -158,127 +160,6 @@ body.compact .empty-yard {
   overflow-y: auto;
   padding: 12px;
 }
-body.compact .friend-head:has(.pop-menu:not([hidden])),
-body.compact .side-panel .menu-anchor:has(.pop-menu:not([hidden])) {
-  position: static;
-}
-body.compact .side-panel .pop-menu {
-  inset: 8px 8px auto;
-  z-index: 4;
-  max-height: calc(100% - 16px);
-  overflow-y: auto;
-}
-/* Headers stay available while each destination scrolls inside the window. */
-body.compact .layout.panel-open .side-panel {
-  inset: 8px;
-  width: auto;
-  max-height: none;
-  padding: 8px;
-  overflow: hidden;
-}
-body.compact .panel-body {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-body.compact .layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
-  width: auto;
-}
-body.compact #panel-pet {
-  overflow: hidden;
-}
-body.compact #pet-panel {
-  flex: 1;
-  min-height: 0;
-}
-body.compact .friend-head {
-  min-height: 44px;
-  gap: 8px;
-  padding-right: 36px;
-}
-body.compact .avatar {
-  width: 40px;
-  height: 40px;
-}
-body.compact .avatar canvas {
-  width: 40px;
-  height: 43px;
-}
-body.compact .friend-select,
-body.compact .friend-id h3 {
-  font-size: 14px;
-}
-body.compact .friend-select {
-  min-height: 24px;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-body.compact .friend-sub {
-  margin-top: 0;
-}
-body.compact .friend-sub .status-pill,
-body.compact .bond-row,
-body.compact .bond-next,
-body.compact .friend-chips,
-body.compact .chat-foot {
-  display: none;
-}
-body.compact .side-panel .menu-anchor {
-  top: 0;
-  right: 0;
-}
-body.compact .chat-log {
-  flex: 1;
-  min-height: 0;
-  max-height: none;
-  margin-top: 6px;
-  padding: 6px 2px;
-}
-body.compact .composer {
-  flex: none;
-}
-body.compact .composer textarea {
-  max-height: 54px;
-}
-body.compact .empty-panel {
-  min-height: 0;
-  gap: 10px;
-}
-body.compact .layout.settings-open::after {
-  inset: 0;
-}
-body.compact .layout.settings-open .side-panel {
-  inset: 8px;
-  width: auto;
-  height: calc(100% - 16px);
-  padding: 8px;
-  align-self: stretch;
-  max-height: none;
-  transform: none;
-}
-body.compact .layout.settings-open .side-panel:has(#settings-home:not([hidden])) {
-  bottom: auto;
-  height: auto;
-  max-height: calc(100% - 16px);
-}
-body.compact .settings-index button {
-  min-height: 40px;
-  padding: 6px;
-}
-body.compact .settings-task-copy small {
-  display: none;
-}
-body.compact #panel-expand {
-  display: inline-flex;
-}
-body.compact #panel-invite .section-heading p {
-  display: none;
-}
-body.compact #panel-invite .section-heading {
-  margin-bottom: 0;
-}
-body.compact .settings-content .settings-section > h3 {
-  display: none;
-}
 
 body.compact .scene-menu {
   inset: 8px;
@@ -289,37 +170,9 @@ body.compact .scene-menu {
   z-index: 32;
 }
 
-@media (max-height: 300px) {
-  body.compact .friend-sub {
-    display: none;
-  }
-}
-
 @media (max-width: 400px), (max-height: 280px) {
   body.compact .background-card span {
     padding: 4px 6px;
-  }
-  body.compact .settings-content .link-row:has(#language) small {
-    display: none;
-  }
-  body.compact .layout.panel-open .side-panel {
-    padding: 8px;
-  }
-  body.compact .panel-head {
-    padding-bottom: 4px;
-    margin-bottom: 4px;
-  }
-  body.compact .asset-card {
-    min-height: 48px;
-    padding: 4px 6px;
-    gap: 6px;
-  }
-  body.compact .asset-card canvas {
-    width: 32px;
-    height: 35px;
-  }
-  body.compact .asset-info .asset-from {
-    display: none;
   }
 }
 /* Five desktop pointer actions fit the minimum height without a hidden last row. */
@@ -330,22 +183,6 @@ body.compact .yard-context-menu > button {
   line-height: 1.25;
 }
 
-/* A rare conversation in a tiny yard keeps the next action visible, without introductory copy. */
-@media (max-height: 300px) {
-  body.compact .chat-placeholder {
-    display: none;
-  }
-  body.compact .chat-log:has(.connect-cta) {
-    padding: 2px;
-    align-items: center;
-  }
-  body.compact .connect-cta {
-    flex: none;
-    margin: 0;
-    min-height: 32px;
-    padding-block: 4px;
-  }
-}
 /* A destination already owns the header; the quiet update chip returns with the scenery. */
 body.compact:has(
   :is(
@@ -373,21 +210,5 @@ body.compact:has(
     left: auto;
     width: min(360px, calc(100% - 16px));
     height: min(400px, calc(100% - 16px));
-  }
-  body.compact .layout.panel-open .side-panel {
-    left: auto;
-    width: min(352px, calc(100% - 16px));
-  }
-  body.compact .layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
-    width: min(480px, calc(100% - 16px));
-  }
-  body.compact .layout.settings-open .side-panel {
-    left: auto;
-    bottom: auto;
-    width: min(600px, calc(100% - 16px));
-    height: auto;
-  }
-  body.compact .settings-content {
-    max-height: calc(100dvh - 128px);
   }
 }

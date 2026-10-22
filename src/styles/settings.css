@@ -440,3 +440,49 @@ body:not(.compact) .settings-task-copy small {
 .ai-editor .dialog-form {
   max-height: none;
 }
+
+/* Small windows (body.compact, window.js): Settings fills the window, one section at a time. */
+body.compact .layout.settings-open::after {
+  inset: 0;
+}
+body.compact .layout.settings-open .side-panel {
+  inset: 8px;
+  width: auto;
+  height: calc(100% - 16px);
+  padding: 8px;
+  align-self: stretch;
+  max-height: none;
+  transform: none;
+}
+body.compact .layout.settings-open .side-panel:has(#settings-home:not([hidden])) {
+  bottom: auto;
+  height: auto;
+  max-height: calc(100% - 16px);
+}
+body.compact .settings-index button {
+  min-height: 40px;
+  padding: 6px;
+}
+body.compact .settings-task-copy small {
+  display: none;
+}
+body.compact .settings-content .settings-section > h3 {
+  display: none;
+}
+@media (max-width: 400px), (max-height: 280px) {
+  body.compact .settings-content .link-row:has(#language) small {
+    display: none;
+  }
+}
+/* A short window may still be wide: the panel and the Settings sheet need not span the scenery. */
+@media (min-width: 480px) {
+  body.compact .layout.settings-open .side-panel {
+    left: auto;
+    bottom: auto;
+    width: min(600px, calc(100% - 16px));
+    height: auto;
+  }
+  body.compact .settings-content {
+    max-height: calc(100dvh - 128px);
+  }
+}

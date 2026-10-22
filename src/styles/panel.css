@@ -178,3 +178,52 @@
   width: 15px;
   height: 15px;
 }
+
+/* Small windows (body.compact, window.js): the panel fills the window and scrolls inside it. */
+body.compact .friend-head:has(.pop-menu:not([hidden])),
+body.compact .side-panel .menu-anchor:has(.pop-menu:not([hidden])) {
+  position: static;
+}
+body.compact .side-panel .pop-menu {
+  inset: 8px 8px auto;
+  z-index: 4;
+  max-height: calc(100% - 16px);
+  overflow-y: auto;
+}
+/* Headers stay available while each destination scrolls inside the window. */
+body.compact .layout.panel-open .side-panel {
+  inset: 8px;
+  width: auto;
+  max-height: none;
+  padding: 8px;
+  overflow: hidden;
+}
+body.compact .panel-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+body.compact .layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
+  width: auto;
+}
+body.compact #panel-expand {
+  display: inline-flex;
+}
+@media (max-width: 400px), (max-height: 280px) {
+  body.compact .layout.panel-open .side-panel {
+    padding: 8px;
+  }
+  body.compact .panel-head {
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+  }
+}
+/* A short window may still be wide: the panel and the Settings sheet need not span the scenery. */
+@media (min-width: 480px) {
+  body.compact .layout.panel-open .side-panel {
+    left: auto;
+    width: min(352px, calc(100% - 16px));
+  }
+  body.compact .layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
+    width: min(480px, calc(100% - 16px));
+  }
+}

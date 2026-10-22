@@ -6,10 +6,10 @@
 // small card. Which fish bite and which bugs fly is the catalogue's (catalog.js).
 
 import {
-  beginCompanionAction,
   clearCompanionAction,
   companionAction,
   companionImage,
+  playCompanionAction,
   prepareCompanionAction,
 } from '../core/companion-actions.js';
 import { list, t } from '../core/i18n.js';
@@ -109,15 +109,14 @@ function startFishing(x, friend) {
 }
 // The friend reached the shore it was sent to.
 function fishingAction(v, name) {
-  const action = beginCompanionAction(v, name);
+  const action = playCompanionAction(v, name);
+  // A held rod must have a tip in every frame for the line to leave from.
   const missingTip =
     action?.clip.heldTool &&
     action.clip.frames.some(frame => !authoredRodTip({ ...action, frame }, { x: 0, y: 0, width: 192, height: 208 }));
-  if (action && (!companionImage(action) || missingTip)) {
-    clearCompanionAction(v);
-    return null;
-  }
-  return action;
+  if (!missingTip) return action;
+  clearCompanionAction(v);
+  return null;
 }
 function fishArrived(v) {
   if (fishing?.v !== v || game) return stopFishing();

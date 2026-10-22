@@ -3,13 +3,7 @@
 // garden and its limits (src-tauri/src/pets/garden.rs). Plants are drawn once and looked at again
 // once a minute; nothing here moves on its own.
 
-import {
-  actionGroundOffset,
-  beginCompanionAction,
-  clearCompanionAction,
-  companionImage,
-  prepareCompanionAction,
-} from '../core/companion-actions.js';
+import { companionImage, playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
@@ -25,8 +19,9 @@ import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from '
 import { flowerFor, hoursMinutes, stageOf, untilBloom } from './growth.js';
 import { propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { cue } from './sound.js';
-import { isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
-import { bubble, cheer, pose } from './views.js';
+import { isFree, nearestFree, release, rest, sendTo } from './trips.js';
+import { bubble, cheer } from './views.js';
+import { holdAtWork, sendToWork, stopWork } from './work.js';
 import { scene } from './world.js';
 
 // Yard pixels per unit of a plant's drawing at full size; it shrinks with the yard as friends do.
@@ -184,22 +179,18 @@ function sendPlanting(v, point, kind, clip) {
   const cleanup = () => {
     cancelled = true;
     clearTimeout(timer);
-    clearCompanionAction(v);
-    if (v.pose === 'idle' && v.until === Infinity) v.until = 0;
+    stopWork(v);
     if (planting.get(v) === cleanup) planting.delete(v);
   };
   const valid = () =>
     !cancelled && scene.world === world && scene.season === season && views.get(v.pet.id) === v && !game && !v.drag;
-  const pixel = fieldToYard(point);
-  const offset = actionGroundOffset(clip, sizeOf(v.pet), petHeight(v.pet));
-  sendTo(v, footTarget(v, pixel.x - offset.x, pixel.y - offset.y), {
+  sendToWork(v, fieldToYard(point), clip, {
     cancel: cleanup,
     arrive: guard(() => {
       if (!valid()) return cleanup();
-      setDoing(v, { end: cleanup });
-      pose(v, 'idle', Infinity);
-      const action = beginCompanionAction(v, 'plant');
-      if (!action || action.clip !== clip || !companionImage(action)) return release(v);
+      holdAtWork(v, cleanup);
+      const action = playCompanionAction(v, 'plant');
+      if (action?.clip !== clip) return release(v);
       timer = setTimeout(
         guard(async () => {
           if (!valid()) return release(v);

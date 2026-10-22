@@ -161,6 +161,94 @@ pub fn restore_digs(raw: Option<&Value>, now: u64) -> Vec<DigAttempt> {
         .collect()
 }
 
+// A corrected clock keeps the patch's reward memory without a future-dated break; old digs go.
+fn forget_old_digs(garden: &mut Garden, now: u64) {
+    for attempt in &mut garden.digs {
+        attempt.at = attempt.at.min(now);
+    }
+    garden.digs.retain(|d| now.saturating_sub(d.at) < DIG_TTL_MS);
+}
+
+// What a dig turns up for `roll` (0 to 99, in the bands of DIG_ODDS): nothing, a seed, a sapling
+// or a keepsake, "full" when there is no room for a seed or that sapling. An uncommon keepsake
+// comes only while none is among the remembered digs.
+fn roll_outcome(
+    garden: &Garden,
+    roll: u8,
+    choice: u64,
+    context: Option<&DiscoveryContext>,
+    world: &str,
+) -> Result<(&'static str, Option<String>), String> {
+    if roll < DIG_ODDS[0] {
+        return Ok(("empty", None));
+    }
+    if roll < DIG_ODDS[0] + DIG_ODDS[1] {
+        return Ok((if garden.seeds >= SEED_MAX { "full" } else { "seed" }, None));
+    }
+    if roll < DIG_ODDS[0] + DIG_ODDS[1] + DIG_ODDS[2] {
+        let kind = catalog()
+            .tree(choice, context, world)
+            .ok_or_else(bad_request)?
+            .to_owned();
+        let full = garden.saplings.get(&kind).copied().unwrap_or(0) >= SAPLING_MAX;
+        if !garden.saplings.contains_key(&kind) && garden.saplings.len() >= KINDS_MAX {
+            return Err(bad_request());
+        }
+        return Ok((if full { "full" } else { "sapling" }, Some(kind)));
+    }
+    let uncommon_found = garden.digs.iter().any(|attempt| {
+        attempt.result.outcome == "keepsake"
+            && attempt
+                .result
+                .kind
+                .as_deref()
+                .is_some_and(|kind| catalog().is_uncommon_treasure(kind))
+    });
+    let rarity = if roll < DIG_ODDS[0] + DIG_ODDS[1] + DIG_ODDS[2] + DIG_ODDS[3] || uncommon_found {
+        "common"
+    } else {
+        "uncommon"
+    };
+    let kind = catalog()
+        .treasure(rarity, choice, context, world)
+        .ok_or_else(bad_request)?
+        .to_owned();
+    Ok(("keepsake", Some(kind)))
+}
+
+// Puts what was found away: a keepsake in the album, a seed or a sapling in the garden.
+fn keep_reward(
+    garden: &mut Garden,
+    album: &mut Album,
+    outcome: &str,
+    kind: Option<&str>,
+    now: u64,
+) -> Result<(), String> {
+    match outcome {
+        "keepsake" => {
+            let kind = kind.ok_or_else(bad_request)?;
+            if !album.treasures.contains_key(kind) && album.treasures.len() >= KINDS_MAX {
+                return Err(bad_request());
+            }
+            let entry = album.treasures.entry(kind.to_owned()).or_insert(Entry {
+                count: 0,
+                best: 0.0,
+                first: now,
+            });
+            entry.count = entry.count.saturating_add(1);
+        }
+        "seed" => garden.seeds += 1,
+        "sapling" => {
+            *garden
+                .saplings
+                .entry(kind.ok_or_else(bad_request)?.to_owned())
+                .or_default() += 1
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
 /// The caller validates the friend under the same state lock before committing this result.
 #[allow(clippy::too_many_arguments)]
 pub fn dig(
@@ -183,11 +271,7 @@ pub fn dig(
     if !identifier(pet_id) || !identifier(world) || roll >= 100 {
         return Err(bad_request());
     }
-    // A corrected clock keeps the patch's reward memory without a future-dated break.
-    for attempt in &mut garden.digs {
-        attempt.at = attempt.at.min(now);
-    }
-    garden.digs.retain(|d| now.saturating_sub(d.at) < DIG_TTL_MS);
+    forget_old_digs(garden, now);
     let (tile_x, tile_y) = ((x * 8.0).floor() as u8, (y * 8.0).floor() as u8);
     if let Some(attempt) = garden
         .digs
@@ -209,64 +293,8 @@ pub fn dig(
     if garden.digs.len() >= DIG_HISTORY {
         return Err(i18n::t("error.discovery_daily_limit"));
     }
-    let (outcome, kind) = if roll < DIG_ODDS[0] {
-        ("empty", None)
-    } else if roll < DIG_ODDS[0] + DIG_ODDS[1] {
-        (if garden.seeds >= SEED_MAX { "full" } else { "seed" }, None)
-    } else if roll < DIG_ODDS[0] + DIG_ODDS[1] + DIG_ODDS[2] {
-        let kind = catalog()
-            .tree(choice, context, world)
-            .ok_or_else(bad_request)?
-            .to_owned();
-        let full = garden.saplings.get(&kind).copied().unwrap_or(0) >= SAPLING_MAX;
-        if !garden.saplings.contains_key(&kind) && garden.saplings.len() >= KINDS_MAX {
-            return Err(bad_request());
-        }
-        (if full { "full" } else { "sapling" }, Some(kind))
-    } else {
-        let uncommon_found = garden.digs.iter().any(|attempt| {
-            attempt.result.outcome == "keepsake"
-                && attempt
-                    .result
-                    .kind
-                    .as_deref()
-                    .is_some_and(|kind| catalog().is_uncommon_treasure(kind))
-        });
-        let rarity = if roll < DIG_ODDS[0] + DIG_ODDS[1] + DIG_ODDS[2] + DIG_ODDS[3] || uncommon_found {
-            "common"
-        } else {
-            "uncommon"
-        };
-        (
-            "keepsake",
-            Some(
-                catalog()
-                    .treasure(rarity, choice, context, world)
-                    .ok_or_else(bad_request)?
-                    .to_owned(),
-            ),
-        )
-    };
-    if outcome == "keepsake" {
-        let kind = kind.as_ref().ok_or_else(bad_request)?;
-        if !album.treasures.contains_key(kind) && album.treasures.len() >= KINDS_MAX {
-            return Err(bad_request());
-        }
-        let entry = album.treasures.entry(kind.clone()).or_insert(Entry {
-            count: 0,
-            best: 0.0,
-            first: now,
-        });
-        entry.count = entry.count.saturating_add(1);
-    }
-    if outcome == "seed" {
-        garden.seeds += 1;
-    } else if outcome == "sapling" {
-        *garden
-            .saplings
-            .entry(kind.clone().ok_or_else(bad_request)?)
-            .or_default() += 1;
-    }
+    let (outcome, kind) = roll_outcome(garden, roll, choice, context, world)?;
+    keep_reward(garden, album, outcome, kind.as_deref(), now)?;
     let result = DigResult {
         attempt_id: Uuid::new_v4().to_string(),
         outcome: outcome.into(),

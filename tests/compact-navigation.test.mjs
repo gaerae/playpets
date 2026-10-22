@@ -102,7 +102,7 @@ test('atmosphere owns season and sound; Friends & AI owns automatic chat', async
 });
 
 test('friend actions use the sheet bounds rather than the short identity row', async () => {
-  const css = await read('src/styles/compact.css');
+  const css = await read('src/styles/panel.css');
   assert.match(css, /body\.compact \.friend-head:has\(\.pop-menu:not\(\[hidden\]\)\)[^{]*\{[^}]*position:\s*static/s);
 });
 
