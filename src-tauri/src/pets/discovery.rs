@@ -427,6 +427,66 @@ mod tests {
     }
 
     #[test]
+    fn a_full_album_or_sapling_shelf_refuses_a_new_kind_and_keeps_nothing() {
+        let keepsake = DIG_ODDS[0] + DIG_ODDS[1] + DIG_ODDS[2];
+        let mut garden = Garden::default();
+        let mut album = Album::default();
+        for i in 0..KINDS_MAX {
+            album.treasures.insert(
+                format!("old{i}"),
+                Entry {
+                    count: 1,
+                    best: 0.0,
+                    first: 0,
+                },
+            );
+        }
+        let before = album.clone();
+        assert!(
+            dig(
+                &mut garden,
+                &mut album,
+                "friend",
+                "woodland",
+                0.5,
+                0.5,
+                &ground(),
+                10_000,
+                keepsake,
+                0
+            )
+            .is_err()
+        );
+        assert_eq!(album, before);
+        assert!(garden.digs.is_empty());
+
+        let sapling = DIG_ODDS[0] + DIG_ODDS[1];
+        let mut garden = Garden::default();
+        let mut album = Album::default();
+        for i in 0..KINDS_MAX {
+            garden.saplings.insert(format!("old{i}"), 1);
+        }
+        assert!(
+            dig(
+                &mut garden,
+                &mut album,
+                "friend",
+                "woodland",
+                0.5,
+                0.5,
+                &ground(),
+                10_000,
+                sapling,
+                0
+            )
+            .is_err()
+        );
+        assert_eq!(garden.saplings.len(), KINDS_MAX);
+        assert!(garden.digs.is_empty());
+        assert!(album.treasures.is_empty());
+    }
+
+    #[test]
     fn environmental_context_changes_never_reroll_saved_or_future_repaired_patches() {
         let first_context = super::super::content::DiscoveryContext {
             season: "spring".into(),

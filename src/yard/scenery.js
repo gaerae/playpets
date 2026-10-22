@@ -477,7 +477,11 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       if (still) {
         fallers = [];
         flock = null;
-        streak = null;
+        // A shooting star half way across is wiped from the sky layer, not left frozen there.
+        if (streak) {
+          streak = null;
+          paintStars(now);
+        }
         splashes = [];
         // Creatures arriving from outside or fading in remain available to catch.
         for (const c of critters) {

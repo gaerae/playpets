@@ -1,12 +1,4 @@
-/* Place and atmosphere in the yard dock, plus display controls inside Menu. */
-.yard-caption {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: var(--ink);
-  font-size: 12px;
-}
+/* Place and atmosphere in the yard dock and its panel, and the window controls in Friends & settings. */
 .caption-main {
   display: flex;
   align-items: center;
@@ -126,12 +118,6 @@
   background-size: 9px 7px;
   border-radius: 8px;
   min-height: 36px;
-}
-.caption-end {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 .view-controls {
   display: grid;
@@ -401,7 +387,21 @@
   outline-offset: 2px;
 }
 body.compact .scene-menu {
+  inset: 8px;
+  width: auto;
+  max-height: calc(100% - 16px);
+  height: calc(100% - 16px);
+  padding: 8px;
+  z-index: 32;
   gap: 4px;
+}
+/* A short window may still be wide: the panel need not span the entire scenery. */
+@media (min-width: 480px) {
+  body.compact .scene-menu {
+    left: auto;
+    width: min(360px, calc(100% - 16px));
+    height: min(400px, calc(100% - 16px));
+  }
 }
 body.compact .atmosphere-segments {
   grid-template-columns: repeat(var(--climate-manual-options), minmax(0, 1fr));
@@ -488,7 +488,7 @@ body:not(.compact) .atmosphere-choice summary {
   width: 14px;
   height: 14px;
 }
-/* Empty instructions do not leave a floating capsule over a friend. */
+/* With nothing to say, the hint is not read out either. */
 #yard-hint[hidden] {
   display: none;
 }

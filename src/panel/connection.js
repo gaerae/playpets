@@ -62,10 +62,13 @@ export function closeConnectionEditor() {
     if ($('connection-dialog')?.open) $('connection-dialog').close();
     return;
   }
+  // Folding it away from inside leaves the focus on Connect an AI, not on the page.
+  const inside = inlineHost.contains(document.activeElement);
   inlineHost.hidden = true;
   for (const id of ['ai-connections', 'ai-add']) if ($(id)) $(id).hidden = false;
   inlineHost = null;
   formHome();
+  if (inside) $('ai-add')?.focus();
 }
 // What to do once the very first friend can talk; app.js says (a chat between friends, or the chat box).
 let onFirstConnection = () => {};
@@ -139,7 +142,8 @@ export function openConnectionDialog(current, onChange = () => {}, { forFriend =
     inline.append($('connection-form'));
     inline.hidden = false;
     for (const id of ['ai-connections', 'ai-add']) if ($(id)) $(id).hidden = true;
-    $('ai-model').focus?.();
+    // With no kind chosen yet the fields wait; the choice of kind comes first.
+    (aiType() ? $('ai-model') : $('connection-form').querySelector('input[name="ai-type"]'))?.focus?.();
     return;
   }
   formHome();

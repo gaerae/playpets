@@ -9,29 +9,28 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- Manage every AI connection in one place, in Settings → Friends & AI, with automatic chat beside them.
-- Open the scenery's menu from a corner button in small windows, where the dock is hidden; the button, like the update button in the other corner, shows only while the pointer is over the window or it has the keyboard focus, so a small window kept on the desktop shows just the yard.
+- Manage every AI connection in one place, in Settings → Friends & AI, with automatic chat beside them; Edit and Connect an AI open the form right there, without a second window over Settings.
+- Open the short right-click menu (Place & atmosphere, Play, Friends & settings, Always on top) from a corner button in small windows, where the dock is hidden; the button, like the update button in the other corner, shows only while the pointer is over the window or it has the keyboard focus, so a small window kept on the desktop shows just the yard.
 - Dig at a right-clicked spot of bare ground with Dig here, without opening Play.
 - Ask a friend to dig from its right-click menu.
 - Open the album at the right book from a find's card, and see a dot on Album and Play while something new waits there.
 - Let idle friends dig on their own now and then with a new switch in Settings → Friends & AI.
 - Switch between Dig, Plant a tree and Plant a seed with 1, 2 and 3 while a tool is in hand.
-- Edit and add AI connections in place in Settings → Friends & AI, without a second window over Settings.
 
 ### Changed
 
 - Show Place & atmosphere, Play and Friends & settings each as one page of sections, without tabs, sub-views or Back buttons: Play groups Find, Garden and Group games, and a running game ends from its own tile.
 - Keep one Settings entry in Friends & settings. In a large window Settings is a centred sheet sized to the window (up to 760 × 640) that keeps its list of sections on the left beside the open section and reopens where it was left; a small window opens on the list, one section at a time, and Back returns one step at a time.
 - Offer Talk and Play in a friend's right-click menu, matching the name tag and the dock.
-- Keep the dig and tree tools in hand after each spot, sending the next free friend each time, and switch between digging, trees and seeds from the strip at the top until Esc or Close puts the tool away.
+- Keep the dig and tree tools in hand after each spot, sending the next free friend each time, and switch between digging, trees and seeds from the strip at the bottom until Esc or Close puts the tool away.
 - Fish or catch a creature with one press even while a play tool is in hand; the press puts the tool away first.
 - Show the tool strip where the dock was, right where Play was opened and just above the ground, and show a find's card above the friend who found it.
 - Give every message on the yard one look and one reading time: notices stack two lines along the bottom (one in small windows) with failures in dark ink, cards wait while a panel covers the yard, overlapping speech bubbles rise clear of each other, and a friend's words are read aloud to screen readers.
 - Pull up flowers and trees and put gifts away at once, with a few seconds to undo it in the notice below, instead of a red confirmation each time.
-- Keep confirmations calm unless something that cannot come back is lost (a saved key, a friend's closeness, a background), give every dialog a Close button and its destructive action at the far left, and say what stays before what goes when a friend is sent away.
-- Fold the dock's panels into tiles in small windows, keeping a chosen atmosphere row in view, and move Quit PlayPets out of About to sit beside Close window.
+- Keep confirmations calm unless something that cannot come back is lost (a saved key, a friend's closeness, a background, a conversation), give every dialog a Close button and its destructive action at the far left, and say what stays before what goes when a friend is sent away.
+- Fold the dock's panels into tiles in small windows, keeping a chosen atmosphere row in view.
 - Open the conversation from a friend's name tag, as its tooltip says; play stays on the friend's right-click.
-- Quit at once from the page, as from the tray and the macOS menu bar, now that Close window and Quit PlayPets sit side by side.
+- Move Quit PlayPets out of About to sit beside Close window, and quit at once from the page, as from the tray and the macOS menu bar.
 - Use one name for each action across the page, the tray and the macOS menu bar.
 - Show Import background and Background studio beside Places as two plain actions with icons, so the pair no longer looks like tabs with one chosen.
 

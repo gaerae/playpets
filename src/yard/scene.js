@@ -228,7 +228,8 @@ export function moonLit(phase, south = false) {
 function litPath({ lit, edge }) {
   const right = lit === 'right',
     // never quite zero: a flat arc becomes a line some engines will not blur
-    rx = Math.max(1, Math.round(Math.abs(edge) * 5000) / 100),
+    // whole units: the shape changes a few times a day, not every couple of minutes
+    rx = Math.max(1, Math.round(Math.abs(edge) * 50)),
     throughRight = edge > 0 ? right : !right;
   return `M50 0A50 50 0 0 ${right ? 1 : 0} 50 100A${rx} 50 0 0 ${throughRight ? 0 : 1} 50 0Z`;
 }

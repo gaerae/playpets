@@ -15,7 +15,27 @@ test('appearance choices scroll with the fields while friend dialog navigation a
 
 test('small editing sheets keep one row of actions, the destructive one down to its icon', async () => {
   const css = await readFile('src/styles/dialog.css', 'utf8');
-  const small = css.slice(css.indexOf('@media (max-width: 640px), (max-height: 480px)'));
+  // Only the small-window media blocks: the rules must hold there and nowhere else.
+  const query = '@media (max-width: 640px), (max-height: 480px)';
+  let small = '',
+    rest = '',
+    at = 0;
+  for (let from = css.indexOf(query); from >= 0; from = css.indexOf(query, at)) {
+    let depth = 0,
+      end = css.length;
+    for (let i = css.indexOf('{', from); i < css.length; i++) {
+      if (css[i] === '{') depth++;
+      else if (css[i] === '}' && --depth === 0) {
+        end = i + 1;
+        break;
+      }
+    }
+    rest += css.slice(at, from);
+    small += css.slice(from, end);
+    at = end;
+  }
+  rest += css.slice(at);
+  assert.doesNotMatch(rest, /\.dialog-actions\s*\{[^}]*flex-wrap:\s*nowrap;/);
   assert.match(small, /\.dialog-form > \.dialog-actions\s*\{[^}]*flex-wrap:\s*nowrap;/);
   assert.match(
     small,

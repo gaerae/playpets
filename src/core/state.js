@@ -94,21 +94,28 @@ function keepLine(line, ms) {
     }, ms),
   );
 }
-function dropLine(line) {
+/** Takes one notice line away now (a pending Undo once its removal is saved). */
+export function dropLine(line) {
   clearTimeout(lineTimers.get(line));
   const notice = $('toast');
   notice.replaceChildren(...[...notice.children].filter(other => other !== line));
   if (!notice.children.length) notice.hidden = true;
 }
 /** Says something short along the bottom of the yard; `error` marks a failure apart from news, and
- * `action` ({ label, run }) adds one button, such as Undo, for `ms` (or the reading time). */
+ * `action` ({ label, run }) adds one button, such as Undo, for `ms` (or the reading time). Returns
+ * the line, which a line with an action keeps for itself. */
 export function toast(message, { error = false, action = null, ms = 0 } = {}) {
   const words = String(message);
   // A form that already says it beside its field does not need it said twice over its buttons.
   const dialog = [...document.querySelectorAll('dialog[open]')].at(-1);
   if (dialog && [...dialog.querySelectorAll('.form-error')].some(e => !e.hidden && e.textContent === words)) return;
   const notice = $('toast');
-  let line = [...notice.children].find(other => (other.dataset.words ?? other.textContent) === words);
+  // The same words say it once, unless the line carries an action: each Undo belongs to one thing.
+  let line = action
+    ? null
+    : [...notice.children].find(
+        other => !other.querySelector?.('.toast-action') && (other.dataset.words ?? other.textContent) === words,
+      );
   if (!line) {
     line = document.createElement('span');
     line.dataset.words = words;
@@ -127,11 +134,14 @@ export function toast(message, { error = false, action = null, ms = 0 } = {}) {
     line.append(button);
   }
   line.classList.toggle('error', error);
-  const lines = [...notice.children];
-  if (lines.length > noticeLines()) notice.replaceChildren(...lines.slice(-noticeLines()));
+  // Plain lines take turns in the room there is; a line with an action stays until it is done.
+  const plain = [...notice.children].filter(other => !other.querySelector?.('.toast-action')),
+    gone = new Set(plain.slice(0, Math.max(0, plain.length - noticeLines())));
+  if (gone.size) notice.replaceChildren(...[...notice.children].filter(other => !gone.has(other)));
   placeNotice();
   notice.hidden = false;
   keepLine(line, Math.max(ms, readingTime(words)));
+  return line;
 }
 export async function call(method, ...args) {
   const result = await api[method](...args);

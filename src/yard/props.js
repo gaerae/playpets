@@ -2,7 +2,7 @@
 // buttons in the garden layer, kept in line with the backend's list, sized with the yard as the
 // friends are, set down by their foot, and taken away gently, with a moment to undo it.
 import { t } from '../core/i18n.js';
-import { $, toast } from '../core/state.js';
+import { $, dropLine, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
 import { giftKind } from './catalog.js';
@@ -52,8 +52,11 @@ const leaving = new Map();
 export function removeWithUndo(id, view, message, commit) {
   if (leaving.has(id)) return;
   view.button.hidden = true;
+  let line = null;
   const timer = setTimeout(async () => {
     leaving.delete(id);
+    // Saved now: its Undo goes with it, even with the pointer resting on the notice.
+    if (line) dropLine(line);
     try {
       await commit();
     } catch (error) {
@@ -62,7 +65,7 @@ export function removeWithUndo(id, view, message, commit) {
     }
   }, UNDO_MS);
   leaving.set(id, timer);
-  toast(message, {
+  line = toast(message, {
     ms: UNDO_MS,
     action: {
       label: t('common.undo'),

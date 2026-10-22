@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { element, installDom, installStorage } from './support/dom.mjs';
+import { element, installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
 const { albumSeen, setupCard, showCard } = await import('../src/yard/card.js');
 
@@ -38,6 +38,7 @@ test('a find shows above the friend who made it, or in the top lane when there i
     querySelector: () => element(),
     getBoundingClientRect: () => ({ left: 0, top: 0, width: 200, height: 70, right: 200, bottom: 70 }),
   });
+  keepGlobals(t, 'innerWidth', 'innerHeight');
   globalThis.innerWidth = 1180;
   globalThis.innerHeight = 850;
   setupCard();

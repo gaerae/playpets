@@ -141,12 +141,10 @@ test('opening Play skips invitation controls in a collapsed empty-state section'
   assert.equal(document.activeElement, visibleAction);
 });
 
-test('games are tiles on the Play page, and the game on is the tile that ends it', async () => {
+// Pressing the tiles is in game-lifecycle.test.mjs.
+test('games are tiles on the Play page, with no page of their own to go back from', async () => {
   const html = await readFile('src/index.html', 'utf8');
   assert.doesNotMatch(html, /data-play-back/);
-  const play = await readFile('src/yard/play.js', 'utf8');
-  assert.match(play, /row\.className = 'play-action game'/);
-  assert.match(play, /if \(game\?\.kind === b\.dataset\.game\) endGame\(\)/);
 });
 
 test('Play refreshes the real controls before exposing its first view', t => {

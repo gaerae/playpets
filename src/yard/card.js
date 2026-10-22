@@ -35,7 +35,7 @@ const BUBBLE_ROOM = 44;
  * book it is kept in (none for news such as an event starting), and the friend or thing that found
  * it, which the card stands above (news with no finder keeps to the lane at the top). */
 export function showCard(svg, name, detail, first, book = null, finder = null) {
-  if (!$('catch-card').hidden) {
+  if (!$('catch-card').hidden || holding) {
     waiting.push([svg, name, detail, first, book, finder]);
     if (waiting.length > WAITING_MAX) waiting.shift();
     return;
@@ -57,14 +57,23 @@ function covered(card) {
     );
   });
 }
-let holdTimer = 0;
+let holdTimer = 0,
+  holding = false;
+// Looks each second whether the panels have closed, without drawing the card again meanwhile; new
+// cards queue behind the one held.
 function holdWhileCovered() {
+  holding = true;
   clearTimeout(holdTimer);
-  holdTimer = setTimeout(() => {
-    if (!$('catch-card').hidden) return;
+  const check = () => {
+    if (PANELS.some(id => $(id) && !$(id).hidden)) {
+      holdTimer = setTimeout(check, 1000);
+      return;
+    }
+    holding = false;
     const next = waiting.shift();
     if (next) present(...next);
-  }, 1000);
+  };
+  holdTimer = setTimeout(check, 1000);
 }
 // Above the finder, centred on it and kept inside the window; without room above, the top lane.
 function place(card, finder) {
@@ -87,8 +96,8 @@ function present(svg, name, detail, first, book, finder) {
   const card = $('catch-card');
   card.innerHTML = `<div class="catch-specimen">${svg}</div><div class="catch-copy"><strong></strong><small></small>${first ? '<small class="catch-new"></small>' : ''}</div><button class="icon-button catch-dismiss" type="button"><span data-icon="close"></span></button>`;
   const close = card.querySelector('.catch-dismiss');
+  // The card's own click (setupCard) puts it away, Close included.
   close.setAttribute('aria-label', t('common.close'));
-  close.onclick = dismiss;
   icons(card);
   card.querySelector('strong').textContent = name;
   card.querySelector('small').textContent = detail;
@@ -119,6 +128,8 @@ function present(svg, name, detail, first, book, finder) {
     clearTimeout(soundTimer);
     card.hidden = true;
     waiting.unshift([svg, name, detail, first, book, finder]);
+    // The held card goes first; past the limit the oldest of the others gives way.
+    if (waiting.length > WAITING_MAX) waiting.splice(1, 1);
     return holdWhileCovered();
   }
   // The shared reading time for its words, and a little longer for something new.

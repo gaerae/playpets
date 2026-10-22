@@ -129,7 +129,7 @@ function paintSky(yard, now) {
   // Tonight's real phase, the harvest moon too: its look shows only around the full moon (scenery.css).
   const lit = moonLit(moonPhase(now.getTime()), south),
     mask = `url("data:image/svg+xml,${encodeURIComponent(moonMask(lit))}")`;
-  // The mask changes a little each hour; set again only then, so the moon is not redrawn every minute.
+  // The mask changes a few times a day; set again only then, so the moon is not redrawn every minute.
   if (mask !== moonMaskShown) yard.style.setProperty('--moon-lit', mask);
   moonMaskShown = mask;
 }

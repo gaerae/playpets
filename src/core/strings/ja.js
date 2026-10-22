@@ -681,7 +681,7 @@ export const strings = {
   'settings.recommended': 'おすすめ',
   'settings.auto_chatter': 'ときどき友だち同士で話します',
   'settings.auto_chatter_note': 'AIのいる友だちが20分ごとに会話します。非表示や返信中は休みます。',
-  'settings.auto_play': 'ときどき自分で穴を掘って遊ぶ',
+  'settings.auto_play': 'ときどき自分で穴を掘って遊びます',
   'settings.auto_play_note': '庭が表示されている間、手の空いた友だちが数分ごとに1か所掘ります。AI接続は不要です。',
   'settings.volume': '音量',
   'sound.label': '庭の音',

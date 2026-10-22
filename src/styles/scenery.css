@@ -132,7 +132,6 @@
   --flower-a: #8d7fa8;
   --flower-b: #aab6c8;
   --flower-c: #b8a86a;
-  --orb: #f4efd8;
   --orb-glow: #f4efd870;
 }
 .yard.weather-rain {
@@ -398,7 +397,6 @@
    around the event's first real full moon (moon-full, from sky.js); otherwise the moon keeps its phase. */
 .look-fullmoon.moon-full.period-night .sky-body {
   height: min(11%, 80px);
-  --orb: #fbe6a6;
   --orb-glow: #f6dd9a77;
 }
 .look-fullmoon.moon-full.period-night .sky-body::after {

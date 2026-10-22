@@ -23,3 +23,48 @@ test('taking a plant away is gentle: it goes at once, Undo brings it back, and o
   await Promise.resolve();
   assert.equal(commits, 1, 'without Undo it is removed after the notice');
 });
+
+test('Undo is offered exactly until the removal is saved, one line for each thing taken away', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { document, nodes } = installDom(t, { ids: ['toast'] });
+  document.querySelectorAll = () => [];
+  const notice = nodes.get('toast');
+  notice.hidden = true;
+  const tulips = [{ button: element('button') }, { button: element('button') }];
+  let commits = 0;
+  removeWithUndo('tulip-1', tulips[0], 'Tulip pulled up', async () => commits++);
+  removeWithUndo('tulip-2', tulips[1], 'Tulip pulled up', async () => commits++);
+  assert.equal(notice.children.length, 2, 'the same words still get a line, and an Undo, each');
+  const undoSecond = notice.children[1].children.find(child => child.localName === 'button');
+  await undoSecond.onclick();
+  assert.equal(tulips[1].button.hidden, false);
+  assert.equal(tulips[0].button.hidden, true, 'undoing one leaves the other taken away');
+  // The pointer resting on the line does not keep Undo past the save.
+  notice.children[0].matches = selector => selector === ':hover';
+  t.mock.timers.tick(6000);
+  await Promise.resolve();
+  assert.equal(commits, 1);
+  assert.equal(notice.children.length, 0, 'once saved, its Undo is gone');
+});
+
+test('in a small window a later notice does not push out a pending Undo', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { document, nodes } = installDom(t, { ids: ['toast'] });
+  document.querySelectorAll = () => [];
+  document.body.classList.add('compact');
+  const { toast } = await import('../src/core/state.js');
+  const notice = nodes.get('toast');
+  notice.hidden = true;
+  removeWithUndo('rose', { button: element('button') }, 'Rose pulled up', async () => {});
+  toast('Pip went to fish');
+  assert.deepEqual(
+    notice.children.map(line => line.dataset.words),
+    ['Rose pulled up', 'Pip went to fish'],
+  );
+  toast('Daisy is resting');
+  assert.deepEqual(
+    notice.children.map(line => line.dataset.words),
+    ['Rose pulled up', 'Daisy is resting'],
+    'plain notices take turns in the one line beside it',
+  );
+});

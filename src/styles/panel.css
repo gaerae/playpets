@@ -209,15 +209,12 @@ body.compact #panel-expand {
   display: inline-flex;
 }
 @media (max-width: 400px), (max-height: 280px) {
-  body.compact .layout.panel-open .side-panel {
-    padding: 8px;
-  }
   body.compact .panel-head {
     padding-bottom: 4px;
     margin-bottom: 4px;
   }
 }
-/* A short window may still be wide: the panel and the Settings sheet need not span the scenery. */
+/* A short window may still be wide: the panel need not span the scenery. */
 @media (min-width: 480px) {
   body.compact .layout.panel-open .side-panel {
     left: auto;

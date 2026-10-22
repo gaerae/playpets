@@ -19,7 +19,8 @@ function selectSettingsSection(section, focus = false) {
   const active = links.find(link => link.dataset.section === requested) || links[0];
   if (!active) return;
   const next = active.dataset.section;
-  if ($('settings-content') && (next !== settingsSection || !$('settings-home')?.hidden))
+  // A new section starts at its top; so does one opened again from the list in a small window.
+  if ($('settings-content') && (next !== settingsSection || (!sideBySide() && !$('settings-home')?.hidden)))
     $('settings-content').scrollTop = 0;
   settingsSection = next;
   if ($('settings-home')) $('settings-home').hidden = !sideBySide();
@@ -138,9 +139,10 @@ export function setupTabs({ beforeOpen = () => {} } = {}) {
   // window.js listens first and has already marked the page compact or not.
   globalThis.window?.addEventListener('resize', () => {
     const settings = $('panel-settings');
-    // A small window showing the list stays on it; otherwise the open section is kept.
+    // A small window showing the list stays on it; otherwise the open section is kept, and a focus
+    // in the list that folds away moves to the section's title.
     if (settings && !settings.hidden && (sideBySide() || !$('settings-content')?.hidden))
-      selectSettingsSection(settingsSection);
+      selectSettingsSection(settingsSection, !sideBySide() && !!$('settings-home')?.contains(document.activeElement));
   });
   $('go-invite').onclick = openInvite;
   // The steps left once a friend is in lead to where they are done.

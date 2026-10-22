@@ -107,7 +107,8 @@ export function setupControls({
     $('play-title').textContent = pet ? t('controls.play_with', { name: name(pet) }) : t('controls.play');
     $('play-empty').hidden = !!pet;
     $('play-sections').hidden = !pet;
-    for (const id of ['plant-tool', 'tree-tool', 'feed']) $(id).disabled = !pet || !!game;
+    // Dig and Plant a tree also need soil; syncDiscovery (discovery.js) keeps those.
+    for (const id of ['plant-tool', 'feed']) $(id).disabled = !pet || !!game;
   };
   showControls = () => menu?.open();
   showPlay = () => play?.open();

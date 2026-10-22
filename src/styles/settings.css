@@ -326,7 +326,7 @@
   margin-bottom: 0;
 }
 /* A wide window: the list of sections as a sidebar beside the open one (tabs.js), as System
-   Settings has it. A small window keeps the list as its first page (compact.css). */
+   Settings has it. A small window keeps the list as its first page (the end of this file). */
 body:not(.compact) .layout.settings-open #panel-settings {
   flex: 1;
   display: grid;
@@ -351,9 +351,6 @@ body:not(.compact) .settings-index button {
 }
 body:not(.compact) .settings-index button[aria-current="page"] {
   background: var(--control-selected);
-}
-body:not(.compact) .settings-task-copy small {
-  display: none;
 }
 .settings-index {
   display: grid;
@@ -392,10 +389,6 @@ body:not(.compact) .settings-task-copy small {
 .settings-task-copy strong {
   font-size: 13px;
   font-weight: 600;
-}
-.settings-task-copy small {
-  font-size: 12px;
-  color: var(--muted);
 }
 @media (prefers-color-scheme: dark) {
   #panel-settings .button.secondary:hover {
@@ -442,9 +435,6 @@ body:not(.compact) .settings-task-copy small {
 }
 
 /* Small windows (body.compact, window.js): Settings fills the window, one section at a time. */
-body.compact .layout.settings-open::after {
-  inset: 0;
-}
 body.compact .layout.settings-open .side-panel {
   inset: 8px;
   width: auto;
@@ -463,9 +453,6 @@ body.compact .settings-index button {
   min-height: 40px;
   padding: 6px;
 }
-body.compact .settings-task-copy small {
-  display: none;
-}
 body.compact .settings-content .settings-section > h3 {
   display: none;
 }
@@ -474,7 +461,7 @@ body.compact .settings-content .settings-section > h3 {
     display: none;
   }
 }
-/* A short window may still be wide: the panel and the Settings sheet need not span the scenery. */
+/* A short window may still be wide: the Settings sheet need not span the scenery. */
 @media (min-width: 480px) {
   body.compact .layout.settings-open .side-panel {
     left: auto;

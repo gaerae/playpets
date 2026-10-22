@@ -67,7 +67,7 @@ export const startChatter = () => call('chatter', scene.period, scene.weather);
 
 // Placing something: the next click in the yard puts down a treat ('treat') or a seed ('seed'),
 // false puts the choice away. Games and the small window turn it off.
-// Whoever shows the tool in hand (the discovery strip) hears every change, set up once by app.js.
+// Whoever shows the tool in hand (the discovery strip, set up by setupDiscovery) hears every change.
 const aimingWatchers = [];
 export function onAimingChange(fn) {
   aimingWatchers.push(fn);

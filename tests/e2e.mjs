@@ -276,6 +276,13 @@ const scenario = `(async()=>{
     $('close-panel').click();
     await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',settingsWindow]});await until(()=>Math.abs(innerWidth-settingsWindow.width)<2);await wait(100);
     await L('panel='+(opened&&$('side-panel').hidden&&shown.join('|')==='pet|invite|settings'?'toggles':'err:'+shown.join('|'))+'/'+indexed);
+    // Let them dig (Settings → Friends & AI) is kept by the backend and comes back with the state.
+    panelTasks.openPanel('settings','ai-title');await until(()=>!$('settings-ai').hidden);
+    const autoBefore=!!(await playPets.bootstrap()).data.autoPlay;$('auto-play').click();
+    const autoOn=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay!==autoBefore);
+    $('auto-play').click();const autoBack=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay===autoBefore);
+    $('close-panel').click();
+    await L('autoPlay='+(autoOn&&autoBack&&$('auto-play').checked===autoBefore?'saved-both-ways':'err:'+JSON.stringify({autoBefore,autoOn:!!autoOn,autoBack:!!autoBack})));
     // The relationship shows beside the friend's closeness, and a click on it opens the settings at the relationship cards.
     openMenu();$('menu-friends').click();await until(()=>!$('panel-pet').hidden);
     const relChip=$('relation-chip').textContent;$('relation-chip').click();await until(()=>$('pet-dialog').open);
@@ -1313,6 +1320,7 @@ const expect = [
   [/^startupNotices=floating-details-and-dismissal$/, 'startup notices retain the yard size and respect dismissal'],
   [/^windowPin=independent-and-synced$/, 'native pin, page and tray agree without changing bounds'],
   [/^panel=toggles\/tasks$/, 'panel tabs open and close, and the Settings index marks the first group when it opens'],
+  [/^autoPlay=saved-both-ways$/, 'Let them dig is saved and comes back with the state'],
   [/^settingsScroll=fixed-navigation-single-body$/, 'Settings scrolls one body while its menu and title stay fixed'],
   [/^relation=chip-opens-cards$/, 'the relationship shows in the Friend tab and its chip opens the relationship cards'],
   [/^about=7\/addresses\/notes-hidden$/, "the About section links the app's own pages"],

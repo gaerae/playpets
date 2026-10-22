@@ -90,10 +90,11 @@ test('a discovery waits while it is being read and offers a named keyboard close
   card.matches = () => reading;
   showCard('', 'Fish', 'A discovery', false);
   assert.ok(close.getAttribute('aria-label'));
-  assert.equal(typeof close.onclick, 'function');
+  // Close has no handler of its own: its click (or Enter) reaches the card's, so one press closes one card.
+  assert.equal(close.onclick ?? null, null);
   t.mock.timers.tick(6000);
   assert.equal(card.hidden, false, 'hover or keyboard focus keeps the card readable');
   reading = false;
-  close.onclick();
+  await card.dispatch('click', { target: close });
   assert.equal(card.hidden, true);
 });

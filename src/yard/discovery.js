@@ -19,8 +19,6 @@ import { scene } from './world.js';
 
 let intent = null;
 const tasks = new Map();
-// A friend that has just dug rests a moment (the backend's cooldown), so the next spot goes to another.
-const lastDig = new Map();
 // The tools the strip offers while one is in hand: digging, a tree, a seed (garden.js owns seeds).
 const TOOLS = [
   ['dig', 'shovel', 'discovery.dig'],
@@ -263,10 +261,11 @@ export function sendDiscovery(v, point, action, kind) {
   });
 }
 
-// A friend that has dug within the backend's cooldown sits out the next spot.
+// A friend that has dug within the backend's cooldown sits out the next spot, so it goes to another.
+// When it last dug is kept on the friend itself (`v.dugAt`).
 const rested = v => {
   const pause = limit(data, 'digCooldownMs');
-  return performance.now() - (lastDig.get(v.pet.id) ?? -pause) >= pause;
+  return performance.now() - (v.dugAt ?? -pause) >= pause;
 };
 // The friend for the next spot: the selected one when it is free and rested, else the nearest such friend.
 function actorFor(point) {
@@ -292,7 +291,7 @@ function order(point, v = actorFor(point)) {
     const pending = [...tasks.values()].filter(task => task.action === 'tree' && task.kind === kind).length;
     if (stock(kind) - pending <= 0) return toast(t('discovery.no_saplings'));
   }
-  if (action === 'dig') lastDig.set(v.pet.id, performance.now());
+  if (action === 'dig') v.dugAt = performance.now();
   sendDiscovery(v, point, action, kind);
 }
 /** With Let them dig on (Settings → Friends & AI): an idle friend digs a spot of its own choosing.
@@ -305,7 +304,7 @@ export function autoDig(rng = Math.random) {
   for (let tries = 0; tries < 12; tries++) {
     const point = { x: 0.1 + rng() * 0.8, y: 0.15 + rng() * 0.75 };
     if (!groundAllows(point, groundProfile())) continue;
-    lastDig.set(v.pet.id, performance.now());
+    v.dugAt = performance.now();
     sendDiscovery(v, point, 'dig');
     return true;
   }

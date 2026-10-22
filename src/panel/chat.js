@@ -391,6 +391,7 @@ export function setupChat() {
       title: t('chat.clear_confirm', { name: name(p) }),
       body: t('chat.clear_body'),
       action: t('chat.clear'),
+      danger: true,
     });
     if (!sure) return;
     await call('clearChat', p.id);

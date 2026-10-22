@@ -1,6 +1,8 @@
 /* Small windows (body.compact, window.js) keep the whole yard and use the same controls and panels.
-   This file holds the yard, the dock and its menus; each side panel keeps its own small-window rules
-   at the end of its file (panel.css, invite.css, friend.css, chat.css, settings.css). */
+   This file holds the yard's: the dock, its corner buttons, Play and Friends & settings, the cards.
+   Other areas keep their small-window rules in their own file (Place & atmosphere in caption.css,
+   the side panel's in panel.css, invite.css, friend.css, chat.css and settings.css, dialogs in
+   dialog.css). */
 body.compact .pet-tag {
   font-size: 12px;
   padding: 2px 6px;
@@ -14,7 +16,7 @@ body.compact .pet-tag:hover {
 body.compact .yard-dock {
   display: none;
 }
-/* The dock is hidden here, so one corner button opens the scenery's menu. */
+/* The dock is hidden here, so one corner button opens the right-click menu of the yard. */
 .compact-launcher {
   display: none;
 }
@@ -161,15 +163,6 @@ body.compact .empty-yard {
   padding: 12px;
 }
 
-body.compact .scene-menu {
-  inset: 8px;
-  width: auto;
-  max-height: calc(100% - 16px);
-  height: calc(100% - 16px);
-  padding: 8px;
-  z-index: 32;
-}
-
 @media (max-width: 400px), (max-height: 280px) {
   body.compact .background-card span {
     padding: 4px 6px;
@@ -202,13 +195,4 @@ body.compact:has(
   :is(#side-panel, #yard-controls-panel, #scene-menu, #play-panel, #discovery-target, #catch-card):not([hidden])
 ) .compact-launcher {
   display: none;
-}
-
-/* A short window may still be wide: utility sheets need not span the entire scenery. */
-@media (min-width: 480px) {
-  body.compact .scene-menu {
-    left: auto;
-    width: min(360px, calc(100% - 16px));
-    height: min(400px, calc(100% - 16px));
-  }
 }

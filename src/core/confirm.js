@@ -1,7 +1,7 @@
 // Asking before something that cannot be taken back. The question names what it acts on, the
 // button says what will happen, and focus starts on the Cancel button so Enter never does the harm by itself.
 // The action is calm unless `danger` says something that cannot come back is lost (a saved key, a
-// friend's closeness, a background's files); what can be undone is not asked at all (yard/props.js).
+// friend's closeness, a background's files, a conversation); what can be undone is not asked at all (yard/props.js).
 import { t } from './i18n.js';
 import { $ } from './state.js';
 
