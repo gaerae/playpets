@@ -52,6 +52,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Draw the moon's phase as it looks, a tapering crescent or a bulging gibbous moon with a soft edge and its dark side faintly visible, instead of a disc of night sky sliding over it, and let it glow only from its lit part, with no bright ring around the dark side.
 - Raise the harvest moon big and golden only on the nights around the event's first real full moon, two days either side, as at Chuseok and the Mid-Autumn Festival, instead of a full moon every night of the event; the other nights keep the real phase. The harvest event now starts on September 8 (March 8 south of the equator), so that full moon falls inside it every year.
 
+### Security
+
+- Update rustls-webpki to 0.103.16 and the bundled web PKI roots to 1.0.10, so certificate checks no longer trust the distrusted emSign intermediates (RUSTSEC-2026-0381, RUSTSEC-2026-0382, RUSTSEC-2026-0383).
+
 ## [1.1.0] - 2026-10-20
 
 ### Added
