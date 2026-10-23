@@ -7,6 +7,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Fixed
+
+- Keep the seed count inside the Plant a seed tile when the tile is narrow, as in Chinese with ten or more seeds.
+
 ## [1.2.0] - 2026-10-22
 
 ### Added

@@ -279,7 +279,8 @@ const scenario = `(async()=>{
     // Let them dig (Settings → Friends & AI) is kept by the backend and comes back with the state.
     panelTasks.openPanel('settings','ai-title');await until(()=>!$('settings-ai').hidden);
     const autoBefore=!!(await playPets.bootstrap()).data.autoPlay;$('auto-play').click();
-    const autoOn=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay!==autoBefore);
+    // The switch stays disabled until its save returns; a press before then is ignored, as for a person.
+    const autoOn=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay!==autoBefore&&!$('auto-play').disabled);
     $('auto-play').click();const autoBack=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay===autoBefore);
     $('close-panel').click();
     await L('autoPlay='+(autoOn&&autoBack&&$('auto-play').checked===autoBefore?'saved-both-ways':'err:'+JSON.stringify({autoBefore,autoOn:!!autoOn,autoBack:!!autoBack})));
@@ -657,9 +658,12 @@ const scenario = `(async()=>{
         // Wide windows keep every name on one line; small windows fold tiles and allow two lines, but nothing spills.
         const folded=document.body.classList.contains('compact');
         const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded||labels.every(noWrap));};
+        // With seeds or without, the same: a two-digit count is the widest the seed tile shows.
+        const seedsBefore=$('seed-count').textContent;$('seed-count').textContent='12';
         const tiles=[...$('play-sections').querySelectorAll('.play-action')];
         const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')])}));
         const playOk=tiles.length===10&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
+        $('seed-count').textContent=seedsBefore;
         if(!playOk)menuCopyTrace.push([lang,innerWidth,'play',playChecks]);
         $('close-play').click();openMenu();await wait(40);
         const actions=[...$('yard-controls-panel').querySelectorAll('.menu-destination')];

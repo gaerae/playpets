@@ -381,11 +381,12 @@
   white-space: nowrap;
   overflow-wrap: normal;
 }
-/* The seed count sits beside the tile's icon, so having seeds never makes the Garden row taller. */
+/* The seed count sits beside the tile's icon, so having seeds never makes the Garden row taller; it
+   is placed by its right edge, which never passes the tile's, so a narrow tile keeps it inside. */
 .play-action > .tool-count {
   position: absolute;
   top: 3px;
-  left: calc(50% + 10px);
+  right: max(3px, calc(50% - 34px));
 }
 .play-action:hover,
 .discovery-tree-choice:hover {
