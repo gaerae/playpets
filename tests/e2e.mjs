@@ -279,7 +279,8 @@ const scenario = `(async()=>{
     // Let them dig (Settings → Friends & AI) is kept by the backend and comes back with the state.
     panelTasks.openPanel('settings','ai-title');await until(()=>!$('settings-ai').hidden);
     const autoBefore=!!(await playPets.bootstrap()).data.autoPlay;$('auto-play').click();
-    const autoOn=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay!==autoBefore);
+    // The switch stays disabled until its save returns; a press before then is ignored, as for a person.
+    const autoOn=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay!==autoBefore&&!$('auto-play').disabled);
     $('auto-play').click();const autoBack=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay===autoBefore);
     $('close-panel').click();
     await L('autoPlay='+(autoOn&&autoBack&&$('auto-play').checked===autoBefore?'saved-both-ways':'err:'+JSON.stringify({autoBefore,autoOn:!!autoOn,autoBack:!!autoBack})));
