@@ -588,6 +588,14 @@ test('pin switches show their selected state for every window size', async () =>
   );
 });
 
+test('the seed count stays inside its tile however narrow the tile is', async () => {
+  const css = await styles();
+  const rule = css.match(/\.play-action>\.tool-count\{([^}]*)\}/)?.[1] || '';
+  assert.match(rule, /position:absolute/);
+  assert.match(rule, /right:max\(3px,calc\(50% - 34px\)\)/, 'placed by its right edge, which never passes the tile');
+  assert.doesNotMatch(rule, /left:/);
+});
+
 test('compact controls hide the dock, offer a corner button and scroll only the panel body', async () => {
   const css = await styles();
   const dock = css.match(/body\.compact \.yard-dock\{([^}]*)\}/)?.[1] || '';
