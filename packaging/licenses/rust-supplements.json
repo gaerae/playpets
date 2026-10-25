@@ -13,11 +13,11 @@
       "source": "https://raw.githubusercontent.com/madsmtm/objc2/b4167b582b2f75f9a1be75495c41b765344fd03c/LICENSE.md"
     }
   ],
-  "clipboard-win@5.4.1": [
+  "clipboard-win@5.4.3": [
     {
       "file": "upstream/c9bff75738922193.txt",
       "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566",
-      "source": "https://raw.githubusercontent.com/DoumanAsh/clipboard-win/3b27cf2bfd1adcfa6e0264eb51c1025ddaf0f342/LICENSE"
+      "source": "https://raw.githubusercontent.com/DoumanAsh/clipboard-win/ed27008ae5d1f10cfbb266de039f0fb35fd05a56/LICENSE"
     }
   ],
   "defmt-parser@1.0.0": [

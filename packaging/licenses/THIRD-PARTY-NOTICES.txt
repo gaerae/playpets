@@ -1298,7 +1298,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 Boost Software License 1.0
-Used by: clipboard-win@5.4.1
+Used by: clipboard-win@5.4.3
 
 Boost Software License - Version 1.0 - August 17th, 2003
 
@@ -12077,9 +12077,9 @@ DEALINGS IN THE SOFTWARE.
 
 ================================================================================
 
-Used by: clipboard-win@5.4.1
+Used by: clipboard-win@5.4.3
 
-Source: https://raw.githubusercontent.com/DoumanAsh/clipboard-win/3b27cf2bfd1adcfa6e0264eb51c1025ddaf0f342/LICENSE
+Source: https://raw.githubusercontent.com/DoumanAsh/clipboard-win/ed27008ae5d1f10cfbb266de039f0fb35fd05a56/LICENSE
 Boost Software License - Version 1.0 - August 17th, 2003
 
 Permission is hereby granted, free of charge, to any person or organization
