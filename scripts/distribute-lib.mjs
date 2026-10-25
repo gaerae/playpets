@@ -4,7 +4,7 @@
 
 const APP = 'PlayPets';
 const WINGET_ID = 'gaerae.PlayPets';
-const WINGET_SCHEMA = '1.9.0';
+const WINGET_SCHEMA = '1.12.0';
 const IDENTIFIER = 'app.playpets';
 
 // "github:owner/repo" (package.json "repository") → "owner/repo".
@@ -66,7 +66,10 @@ function need(sums, file) {
 // winget's multi-file manifest of a version, as {path in winget-pkgs: contents}.
 export function wingetManifests({ version, date, slug, sums }) {
   const dir = `manifests/${WINGET_ID[0].toLowerCase()}/${WINGET_ID.replace('.', '/')}/${version}`;
-  const head = `PackageIdentifier: ${WINGET_ID}\nPackageVersion: ${version}\n`;
+  // wingetcreate checks that the first line names the schema of the manifest's type.
+  const schema = type =>
+    `# yaml-language-server: $schema=https://aka.ms/winget-manifest.${type}.${WINGET_SCHEMA}.schema.json\n`;
+  const head = type => `${schema(type)}PackageIdentifier: ${WINGET_ID}\nPackageVersion: ${version}\n`;
   const tail = type => `ManifestType: ${type}\nManifestVersion: ${WINGET_SCHEMA}\n`;
   const installer = arch => {
     const file = assetName(version, `windows-${arch}-setup.exe`);
@@ -74,12 +77,12 @@ export function wingetManifests({ version, date, slug, sums }) {
   };
   const home = `https://github.com/${slug}`;
   return {
-    [`${dir}/${WINGET_ID}.yaml`]: `${head}DefaultLocale: en-US\n${tail('version')}`,
+    [`${dir}/${WINGET_ID}.yaml`]: `${head('version')}DefaultLocale: en-US\n${tail('version')}`,
     [`${dir}/${WINGET_ID}.installer.yaml`]:
-      `${head}InstallerType: nullsoft\nScope: user\nUpgradeBehavior: install\nReleaseDate: ${date}\nInstallers:\n` +
+      `${head('installer')}InstallerType: nullsoft\nScope: user\nUpgradeBehavior: install\nReleaseDate: ${date}\nInstallers:\n` +
       `${installer('x64')}${installer('arm64')}${tail('installer')}`,
     [`${dir}/${WINGET_ID}.locale.en-US.yaml`]:
-      `${head}PackageLocale: en-US\nPublisher: ${slug.split('/')[0]}\nPublisherUrl: https://github.com/${slug.split('/')[0]}\n` +
+      `${head('defaultLocale')}PackageLocale: en-US\nPublisher: ${slug.split('/')[0]}\nPublisherUrl: https://github.com/${slug.split('/')[0]}\n` +
       `PackageName: ${APP}\nPackageUrl: ${home}\nLicense: MIT\nLicenseUrl: ${home}/blob/main/LICENSE\n` +
       `ShortDescription: A yard where your pets talk to each other\n` +
       `Tags:\n  - desktop-pet\n  - pet\n  - ai\n  - tauri\nReleaseNotesUrl: ${home}/releases/tag/v${version}\n` +
