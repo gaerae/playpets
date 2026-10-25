@@ -93,4 +93,7 @@ test('the Homebrew cask points at the universal dmg and names what zap removes',
   assert.match(cask, /app "PlayPets\.app"/);
   assert.match(cask, /Application Support\/app\.playpets/);
   assert.match(cask, /auto_updates true/, 'the app updates itself, so brew leaves it be');
+  // Homebrew 7 refuses a minimum macOS release in a cask; macOS-only is all it takes.
+  assert.match(cask, /^  depends_on :macos$/m);
+  assert.doesNotMatch(cask, /depends_on macos:/);
 });

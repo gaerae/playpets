@@ -101,7 +101,7 @@ export function homebrewCask({ version, slug, sums }) {
 
   # The app updates itself (Tauri updater); brew upgrade leaves it to that.
   auto_updates true
-  depends_on macos: ">= :catalina"
+  depends_on :macos
 
   app "${APP}.app"
 
