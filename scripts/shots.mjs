@@ -315,6 +315,9 @@ function scenario(lang) {
       await inv('e2eWindow',['main',{x:far,y:mon.y+mon.height-360,width:460,height:320}]);
       await wait(2500);
       await shot('desktop',{x,y,width:w,height:h});
+      // Capturing the overlay and rendering the backdrop outlast the shot's own pause: hold the
+      // scene until the picture is made, or desktop mode may close the window under the capture.
+      await wait(4000);
     }else await L('desktop=none');
     await playPets.toggleDesktop();
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
