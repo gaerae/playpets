@@ -134,8 +134,14 @@ The atomic push either updates both main and the version tag or updates neither.
    - winget: if `WINGET_TOKEN` exists, `wingetcreate` opens the PR on winget-pkgs, the first version too (winget's moderators review a new package by hand; later versions are merged by their bots once checks pass). Without the token, submit the artifact's `winget/manifests/…` folder yourself:
 
 ```powershell
-wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\gaerae\PlayPets\0.2.0 --token <GitHub token>
+wingetcreate token --store
 ```
+
+```powershell
+wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\gaerae\PlayPets\0.2.0
+```
+
+   `token --store` signs in to GitHub in the browser once and keeps the token in Windows Credential Manager, so it never appears on the command line.
 
    - Homebrew: if `HOMEBREW_TAP_TOKEN` exists, `Casks/playpets.rb` in `<account>/homebrew-tap` changes. If not, copy the artifact's `homebrew/Casks/playpets.rb` into the tap repository and commit it.
 
@@ -153,5 +159,6 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 | Only one platform's `build` fails | Read that runner's log and fix it, then run `release` by hand from Actions with the same tag (workflow_dispatch, tag input) |
 | The draft has no `latest.json` | The updater signing secrets are missing. Installed apps cannot find this release. Add the secrets, delete the draft, and run `release` by hand with the same tag |
 | `gh release create` fails with "already exists" | A draft for the same tag already exists. Delete that draft and run it by hand |
+| `distribute` fails for a published version (a manifest or the cask is refused) | Fix the generator on main, then run `distribute` by hand from main with that tag. The run uses main's generator and the tag's release files |
 
 For wider cases, see the [troubleshooting guide](../troubleshooting.md).

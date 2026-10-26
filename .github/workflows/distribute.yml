@@ -26,9 +26,10 @@ jobs:
     outputs:
       version: ${{ steps.files.outputs.version }}
     steps:
+      # The workflow's own ref: the tag on publish, the chosen branch on a run by hand, so a fixed
+      # generator can redo a published version. The release files come from the tag below.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ inputs.tag || github.event.release.tag_name }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
@@ -41,6 +42,8 @@ jobs:
         run: |
           version="${TAG#v}"
           gh release download "$TAG" --pattern SHA256SUMS.txt
+          RELEASE_DATE="$(gh release view "$TAG" --json publishedAt --jq '.publishedAt[0:10]')"
+          export RELEASE_DATE
           node scripts/distribute.mjs winget "$version" SHA256SUMS.txt store/winget
           node scripts/distribute.mjs cask "$version" SHA256SUMS.txt store/homebrew
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -65,6 +68,8 @@ jobs:
         shell: pwsh
         env:
           VERSION: ${{ needs.manifests.outputs.version }}
+          # wingetcreate reads the token from here; passed as an argument it can end up in its log.
+          WINGET_CREATE_GITHUB_TOKEN: ${{ env.WINGET_TOKEN }}
           # A fixed wingetcreate release, checked against its published SHA-256 before it runs with the token.
           WINGETCREATE_URL: https://github.com/microsoft/winget-create/releases/download/v1.12.13.0/wingetcreate.exe
           WINGETCREATE_SHA256: 24042bd37915805615e6cf969ac57c6439124c3fe85823327f5f3fb24bd9ffea
@@ -72,7 +77,7 @@ jobs:
           Invoke-WebRequest $env:WINGETCREATE_URL -OutFile wingetcreate.exe
           if ((Get-FileHash wingetcreate.exe -Algorithm SHA256).Hash -ne $env:WINGETCREATE_SHA256) { throw 'wingetcreate.exe does not match the expected SHA-256' }
           $manifest = Get-ChildItem -Recurse -Directory store/winget/manifests | Where-Object { $_.Name -eq $env:VERSION } | Select-Object -First 1
-          .\wingetcreate.exe submit $manifest.FullName --token $env:WINGET_TOKEN
+          .\wingetcreate.exe submit $manifest.FullName
       - name: No token
         if: env.WINGET_TOKEN == ''
         run: echo "WINGET_TOKEN is not set; submit store/winget from the store-manifests artifact by hand."

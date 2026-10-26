@@ -78,6 +78,17 @@ test('winget gets the three manifests of a version, with both installers', () =>
   );
   assert.match(installer, /Architecture: arm64/);
   assert.match(files[`${dir}/gaerae.PlayPets.locale.en-US.yaml`], /License: MIT/);
+  // wingetcreate refuses a manifest whose first line does not name its schema.
+  for (const [path, text] of Object.entries(files)) {
+    const type = text.match(/^ManifestType: (\w+)$/m)[1];
+    const version = text.match(/^ManifestVersion: (\S+)$/m)[1];
+    assert.equal(version, '1.12.0', path);
+    assert.equal(
+      text.split('\n')[0],
+      `# yaml-language-server: $schema=https://aka.ms/winget-manifest.${type}.${version}.schema.json`,
+      path,
+    );
+  }
   assert.throws(() => wingetManifests({ version: '0.2.0', date: 'x', slug: SLUG, sums: {} }), /windows-x64-setup/);
 });
 
@@ -93,4 +104,22 @@ test('the Homebrew cask points at the universal dmg and names what zap removes',
   assert.match(cask, /app "PlayPets\.app"/);
   assert.match(cask, /Application Support\/app\.playpets/);
   assert.match(cask, /auto_updates true/, 'the app updates itself, so brew leaves it be');
+  // Homebrew 7 refuses a minimum macOS release in a cask; macOS-only is all it takes.
+  assert.match(cask, /^ {2}depends_on :macos$/m);
+  assert.doesNotMatch(cask, /depends_on macos:/);
+});
+
+test('distribute builds from the workflow ref and keeps the winget token off the command line', async () => {
+  const workflow = await readFile('.github/workflows/distribute.yml', 'utf8');
+  // A run by hand for a published tag uses today's generator; the release files still come from the tag.
+  assert.doesNotMatch(workflow, /ref: \$\{\{ inputs\.tag/);
+  assert.match(workflow, /gh release download "\$TAG"/);
+  // ReleaseDate is the day it was published, even when the run is later.
+  assert.match(
+    workflow,
+    /RELEASE_DATE="\$\(gh release view "\$TAG" --json publishedAt --jq '\.publishedAt\[0:10\]'\)"/,
+  );
+  // wingetcreate reads WINGET_CREATE_GITHUB_TOKEN; --token can end up in its log.
+  assert.doesNotMatch(workflow, /--token/);
+  assert.match(workflow, /WINGET_CREATE_GITHUB_TOKEN: \$\{\{ env\.WINGET_TOKEN \}\}/);
 });

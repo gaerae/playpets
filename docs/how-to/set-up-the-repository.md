@@ -111,6 +111,8 @@ A tap is your own Homebrew repository. Users install with `brew install gaerae/t
 
 10. Create the tap and its token.
     - github.com/new: owner `gaerae`, name **`homebrew-tap`** (Homebrew finds it by this name), Public, **Add a README file** (so it has a `main` branch).
+    - One tap holds every app of the account: a later app adds its own `Casks/<app>.rb` there, with its own token.
+    - Keep the tap checked: a workflow that runs `brew style` and `brew audit --cask --strict --online` on every push, Dependabot for its actions, and a ruleset on `main` that blocks deletion and force pushes. Do not require pull requests there; `distribute` pushes to `main` directly.
     - github.com/settings/personal-access-tokens/new (fine-grained token): name `playpets homebrew-tap`, expiration 1 year, Repository access → Only select repositories → `gaerae/homebrew-tap`, Permissions → Repository permissions → **Contents: Read and write**. Generate, and save the token in the password manager with its expiry date.
     - Add it to the PlayPets repository (paste the token when asked):
 
@@ -124,7 +126,8 @@ gh secret set HOMEBREW_TAP_TOKEN --repo gaerae/playpets
 winget packages are manifests in `microsoft/winget-pkgs`. The `distribute` workflow writes them and, with a token, opens the pull request with `wingetcreate`.
 
 11. Prepare the fork, the token and the license agreement.
-    - Fork https://github.com/microsoft/winget-pkgs to the `gaerae` account (Fork → Create fork). It is large; the fork is only the place pull requests come from.
+    - Fork https://github.com/microsoft/winget-pkgs to the `gaerae` account (Fork → Create fork, default branch only). It is large; the fork is only the place pull requests come from, and every app of the account shares it.
+    - In the fork's Settings, turn off Actions (Actions → General → Disable actions) so the upstream workflows never run there, and turn off Wiki, Issues and Projects.
     - github.com/settings/tokens/new (classic token; a fine-grained token cannot open a pull request on another owner's repository): note `playpets winget`, expiration 1 year, scope **public_repo** only. Save it in the password manager with its expiry date.
     - Add it to the PlayPets repository:
 

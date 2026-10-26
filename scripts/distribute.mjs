@@ -2,7 +2,7 @@
 //   node scripts/distribute.mjs updater <version> <dir>     latest.json from <dir>/*.sig (stdout)
 //   node scripts/distribute.mjs winget <version> <sums> <out>   winget-pkgs manifests under <out>
 //   node scripts/distribute.mjs cask <version> <sums> <out>     <out>/Casks/playpets.rb
-// <sums> is the release's SHA256SUMS.txt.
+// <sums> is the release's SHA256SUMS.txt. RELEASE_DATE (YYYY-MM-DD) dates the winget manifests; today if unset.
 
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -28,7 +28,9 @@ if (what === 'updater') {
 } else if (what === 'winget' || what === 'cask') {
   const sums = parseSums(await readFile(from, 'utf8'));
   if (what === 'winget')
-    for (const [file, text] of Object.entries(wingetManifests({ version, date: today, slug, sums })))
+    for (const [file, text] of Object.entries(
+      wingetManifests({ version, date: process.env.RELEASE_DATE || today, slug, sums }),
+    ))
       await write(path.join(out, file), text);
   else await write(path.join(out, 'Casks/playpets.rb'), homebrewCask({ version, slug, sums }));
 } else {
