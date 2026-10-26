@@ -10,7 +10,8 @@
 #   macOS (Developer ID + notarization): APPLE_CERTIFICATE (base64 .p12), APPLE_CERTIFICATE_PASSWORD,
 #     APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD (app-specific), APPLE_TEAM_ID
 #   Windows: set bundle.windows.signCommand in src-tauri/tauri.conf.json for the certificate or
-#     signing service you choose; the Store takes the MSIX from `npm run dist:windows` instead.
+#     signing service you choose. The Store signs its own MSIX, which store.yml builds and submits
+#     once the release is published.
 name: release
 
 on:

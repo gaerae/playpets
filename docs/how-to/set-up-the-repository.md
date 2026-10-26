@@ -150,7 +150,8 @@ gh secret set WINGET_TOKEN --repo gaerae/playpets
 14. Microsoft Store (the Store signs the MSIX, so Store installs have no SmartScreen warning).
     - Register as an individual developer at https://partner.microsoft.com/dashboard/registration (free; an ID scan and a selfie).
     - Reserve the name "PlayPets", and copy all three identity fields (`Name`, `Publisher`, `PublisherDisplayName`) from the product identity page.
-    - Follow [Prepare Microsoft Store and Apple signing](store-and-apple-signing.md) to set `MSIX_IDENTITY_NAME`, `MSIX_PUBLISHER` and `MSIX_PUBLISHER_DISPLAY_NAME`, build the unsigned Store MSIX, test a separate test-signed package, and prepare the listing and privacy policy. Store updates are separate from GitHub updates. The first registration is manual. Later certification workflows need the protected `microsoft-store` environment and a separately enabled repository switch; publication remains manual. The read-only API check does not submit anything.
+    - Follow [Prepare Microsoft Store and Apple signing](store-and-apple-signing.md) to set `MSIX_IDENTITY_NAME`, `MSIX_PUBLISHER` and `MSIX_PUBLISHER_DISPLAY_NAME`, build the unsigned Store MSIX, test a separate test-signed package, and prepare the listing and privacy policy. Store updates are separate from GitHub updates. The first registration is manual.
+    - To submit each published release automatically, follow [Submit every release automatically](store-and-apple-signing.md#submit-every-release-automatically): an Entra app with the Manager role, the `microsoft-store` environment, and `STORE_SUBMISSION_ENABLED=true`.
 
 
 ## Verification

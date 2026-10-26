@@ -50,6 +50,8 @@ sideloaded package upgrades and actual Store delivery.
 
 `store-api.test.mjs` exercises the credential and HTTP boundary without real
 keys, including product identity, redirect refusal and secret-safe errors.
-`store-submit.test.mjs` covers first-registration and pending-draft refusal,
-manual publication hold, Pricing V2 omission and upload destination validation.
+`store-submit.test.mjs` covers first-registration, pending-draft and same-version
+refusal, the publish mode, kept certification notes, Pricing V2 omission, upload
+destination validation, What's new from the release pages, and the `store.yml`
+job boundaries.
 These tests do not request certification or establish that Store delivery works.

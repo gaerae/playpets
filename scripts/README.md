@@ -20,7 +20,7 @@ PNG header size, row unfiltering and hashing in `png-lossless-lib.mjs`.
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; native package install-and-launch verification runs in release CI |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
-| Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit` | Redacted read-only credential check; separately gated certification request with manual publication hold (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
+| Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit`, `store-notes.mjs` | Redacted read-only credential check; the release's Store submission and its What's new from the website release pages, run by `store.yml` (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
 | Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` includes the illustrated Clover face for the app and every platform’s tray; it needs macOS (`iconutil` makes the `.icns`) |
 | Native captures | `shots.mjs`, `shots-lib.mjs`, `shot-windows.swift` via `shots` | Localized captures and listing media; macOS capture host required |
 | Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
@@ -277,9 +277,10 @@ From app version `1.0.0`, MSIX uses the same three components with a final `.0`;
 The Store Docker build regenerates `msix-store/README.txt` from the same validated version and identity as the manifest, so a previous hand-off cannot leave stale version instructions.
 
 `packaging/windows/msix/store.ps1` assembles the native Windows binaries in the
-manual `Store packages` workflow. It uses the same manifest generator and Store
-identity as the Docker hand-off. Its unsigned packages are for Partner Center,
-not direct local installation. `Store certification submission` verifies the
-successful package run and package contents before approval, refuses the first
-portal draft and any unrelated pending draft, and never publishes. Leave the
-repository switch `STORE_SUBMISSION_ENABLED=false` until separately authorized.
+`store` workflow, which runs when a release is published. It uses the same
+manifest generator and Store identity as the Docker hand-off. Its unsigned
+packages are for Partner Center, not direct local installation. The workflow
+checks package contents before the `microsoft-store` approval, refuses a product
+without a published submission, any pending draft and a version the Store
+already has, and never calls the publish endpoint. It submits only with
+`STORE_SUBMISSION_ENABLED=true`.

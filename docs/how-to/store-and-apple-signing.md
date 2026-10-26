@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Prepare an MSIX submission for Microsoft Store and Developer ID signing for macOS downloads. These are separate channels. Building a package does not submit it, and passing certification does not have to publish it. This guide does not enable automatic Store submission.
+- Prepare the Microsoft Store MSIX and its submission, and Developer ID signing for macOS downloads. These are separate channels.
+- After the one-time setup, each published GitHub release submits itself to the Store ([Submission automation](#submission-automation-and-first-submission-setup)).
+- Passing certification publishes only with `STORE_PUBLISH_MODE=Immediate`.
 
 ## Values the maintainer supplies
 
@@ -28,9 +30,9 @@ MSIX_PUBLISHER_DISPLAY_NAME='Your publisher display name' \
 npm run dist:windows
 ```
 
-For repeated local builds, the maintainer can put the three public values into a local `.env.store` file as `NAME=value` lines and run `node --env-file=.env.store scripts/local.mjs windows`. This explicitly loads the file; `npm run dist:windows` does not load it automatically. `.env.store` is excluded from both Git and the Docker source copy; Node passes the values into the container. GitHub repository Variables are not read by this local path or by a Store CI workflow. Do not put Apple credentials into this file.
+For repeated local builds, the maintainer can put the three public values into a local `.env.store` file as `NAME=value` lines and run `node --env-file=.env.store scripts/local.mjs windows`. This explicitly loads the file; `npm run dist:windows` does not load it automatically. `.env.store` is excluded from both Git and the Docker source copy; Node passes the values into the container. GitHub repository Variables are not read by this local path; the `store` workflow has the same three public values in its own file. Do not put Apple credentials into this file.
 
-The Store hand-off is `release/windows/msix-store/PlayPets_<version>_x64.msix`, without a local test signature. Microsoft signs the package distributed through Store. Do not upload the NSIS EXE, the portable ZIP, a test certificate or a private key in its place. Store signing does not sign the EXE distributed through GitHub. This build path currently produces only x64 MSIX.
+The Store hand-off is `release/windows/msix-store/PlayPets_<version>_x64.msix`, without a local test signature. Microsoft signs the package distributed through Store. Do not upload the NSIS EXE, the portable ZIP, a test certificate or a private key in its place. Store signing does not sign the EXE distributed through GitHub. This local build path produces only x64 MSIX; the `store` workflow builds x64 and ARM64.
 
 For a local install test, unset all three `MSIX_*` variables and run `npm run dist:windows`. Use the package and public certificate under `release/windows/msix-test/` only on a test Windows machine. The private test key stays in Docker's `playpets-msix-key` volume. A test certificate is not a public Windows signing identity. Do not attempt to install the unsigned Store hand-off by trusting a test certificate.
 
@@ -87,7 +89,7 @@ cannot be upgraded in place to lower `1.0.0.0`; remove the test package first,
 backing up any data you want to keep. Do not uninstall a real Store installation
 as a routine update procedure.
 
-Create a submission in Partner Center and complete pricing/markets, properties,
+Create the first submission in Partner Center and complete pricing/markets, properties,
 age ratings, packages, localized listings and submission options. Upload the
 Store MSIX and resolve its validation messages. Keep the submission on manual
 publication hold until release is separately authorized.
@@ -96,115 +98,103 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
 
 ## Submission automation and first-submission setup
 
-Microsoft provides an MSIX submission API. Before creating submissions through
-it, create the app's first submission in Partner Center, including its age-rating
-questionnaire. Product reservation and the three package identity values alone
-do not satisfy this prerequisite. The official requirement says to create a
-first submission; it does not establish that this project has submitted, passed
-certification or published anything.
+- Publishing a GitHub release starts the `store` workflow (`store.yml`). It skips prereleases.
+- It uses Microsoft's MSIX submission API directly (`scripts/store-submit.mjs`), with no third-party code in the job that holds the key.
+  - The `microsoft/store-submission` action is archived and handles MSI/EXE products.
+  - The Store Developer CLI (`msstore`) needs .NET and a setup action in that job, and adds nothing here.
+- Before any API submission, a submission made in Partner Center has to be published. 1.2.0 is that baseline.
+- What each job does:
 
-The API also needs an Entra tenant associated with the Partner Center account,
-an Entra application assigned the Manager role, and its tenant ID, client ID and
-client secret. Confirm that the account supports the association; do not assume
-that buying a developer membership grants API access. Keep the package identity
-and the API application identity separate.
-
-After this one-time setup, the intended flow is:
-
-1. Build and validate the exact version on all supported architectures.
-2. Create an API submission from the approved listing, replace the packages and
-   apply the release notes. Stop if an unrelated pending submission exists.
-3. Set `targetPublishMode` to `Manual`, upload packages and verify that the server
-   retained manual hold before committing the submission for certification.
-4. Poll certification status and preserve submission identifiers and redacted
-   diagnostics. Do not call the publish endpoint; publishing needs a separate
-   maintainer action.
-
-For a future submission workflow, use a protected GitHub environment named
-`microsoft-store`. Supply these values there, after its required-reviewer gate is
-configured:
-
-| Value | Storage | Source |
+| Job | Credentials | What it does |
 |---|---|---|
-| `STORE_APP_ID` | Environment variable | Application ID expected by the MSIX submission API, confirmed from Partner Center/API app data |
-| `STORE_TENANT_ID` | Environment variable | Associated Entra directory |
-| `STORE_CLIENT_ID` | Environment variable | Entra application's application/client ID |
-| `STORE_CLIENT_SECRET` | Environment secret | New client-secret **value**, not its identifier |
+| `source` | None | Checks that the tag is a stable `vx.y.z` on `main` and matches `package.json` and the changelog. Makes `notes.json` from the four website release pages |
+| `package` | None | Builds `playpets.exe` with `npx tauri build --no-bundle` on Windows x64 and ARM64, then `packaging/windows/msix/store.ps1` makes the unsigned MSIX |
+| `bundle` | None | Checks each package's identity, version and architecture, records SHA-256 values in `release.json`, keeps everything as the `store-bundle` artifact |
+| `submit` | `microsoft-store` environment | Runs only with `STORE_SUBMISSION_ENABLED=true`, after the environment's approval |
 
-`STORE_CLIENT_SECRET` receives the **Key value**, not the Client ID or a key's
-identifier. The Client ID belongs in `STORE_CLIENT_ID`. Never put the key in an
-issue, chat message, checked-in file, workflow input or ordinary variable.
-GitHub lists a saved secret's name and timestamp, not its value. Only a token
-request and Store API call can confirm that it is the correct key.
+- `submit` steps, in order:
+  1. Refuses a product other than PlayPets, a product with no published submission, and any pending submission. Nothing changes.
+  2. Refuses a version the Store already has (a rerun). Nothing changes.
+  3. Creates a submission. Microsoft makes it a copy of the published one: listings, screenshots, certification notes (the `runFullTrust` explanation), markets and options stay.
+  4. Replaces both packages, sets each language's "What's new", and sets the publish mode. Pricing is left out of the update.
+  5. Uploads the two MSIX to the API's Azure Blob address only, checks that the publish mode was kept, and commits. Certification starts.
+- It never calls the publish endpoint and never retries.
+- Logs show a small report: no token, key, upload address or provider error body.
 
-The human Microsoft account owns the Store developer account. The associated
-Entra tenant manages identities and application access. The Entra application is
-an automation identity, not another Store product and not an ownership transfer.
-GitHub uses its Client ID and key instead of the human administrator's password.
-Microsoft's API guide requires Manager; the Partner Center UI describes that role
-as account-wide access including user, role and tenant management, excluding tax
-and payout settings. Treat the key as a high-privilege credential.
+### What's new
+- Source: the website release page in each language (`website/releases/x.y.z.md`, `website/ko/…`, `website/ja/…`, `website/zh-hans/…`).
+  - People write them before the release; `npm run release` stops without them.
+  - Nothing is machine-translated.
+- Text: the opening sentence, the bullets under the first `##` section, then the page's address. Links keep their words; bold and code marks go.
+- The Store allows 1500 characters per language. Bullets that do not fit are left out from the end; the address leads to all of them, and the `source` log says how many were left out.
+- Store languages: `en-us`, `ko-kr`, `ja-jp`, `zh-cn`.
+- To check a version before tagging:
+
+```bash
+node scripts/store-notes.mjs 1.3.0
+```
+
+### Publish mode
+- Repository variable `STORE_PUBLISH_MODE`:
+
+| Value | After certification passes |
+|---|---|
+| `Manual` (or unset) | Waits for **Publish now** in Partner Center |
+| `Immediate` | The Store publishes it |
+
+- The workflow reads the variable on each run; the copied submission's own setting does not count.
+
+### Submit every release automatically
+One-time steps. The account holder does them; never paste a key into a chat, issue or file.
+
+1. Link an Entra tenant to Partner Center.
+   - Partner Center → **Settings (gear) → Account settings → Tenants**.
+   - **Associate** an existing Microsoft Entra tenant, or **Create new**.
+2. Add the automation app.
+   - **Account settings → User management → Microsoft Entra applications → Add Microsoft Entra application** (or **Create Microsoft Entra application**).
+   - Give it the **Manager** role. The API requires it; it reaches account-wide settings except tax and payout, so treat the key as a high-privilege credential.
+   - Open the app and choose **Add new key**. Copy the **Key** value now; it is shown once. Note the **Client ID**, **Tenant ID** and the key's expiry date.
+   - A seller ID is not needed: that is for `msstore`.
+3. Set up the GitHub environment.
+   - Repository **Settings → Environments → microsoft-store** (create it if missing).
+   - **Deployment branches and tags → Selected branches and tags**: add the tag rule `v*.*.*`, and keep `main` for `Store API verification`.
+   - **Required reviewers**: keep yourself for a one-click approval per release, or remove it for no approval. Turn on **Prevent administrators from bypassing**; leave **Prevent self-review** off.
+4. Add the values to that environment.
+
+| Name | Kind | Value |
+|---|---|---|
+| `STORE_APP_ID` | Environment variable | `9NSKXQ6R187M` |
+| `STORE_TENANT_ID` | Environment variable | The tenant ID from step 2 |
+| `STORE_CLIENT_ID` | Environment variable | The Client ID from step 2 |
+| `STORE_CLIENT_SECRET` | Environment secret | The Key value from step 2, not the Client ID or the key's identifier |
+
+5. Check the values without submitting: run `Store API verification` from **Actions** on `main` and approve it. The summary shows `authenticated: true` and `productIdentityVerified: true`.
+6. Wait until 1.2.0 is published. A submission still in certification blocks a new one.
+7. Turn it on: repository **Settings → Secrets and variables → Actions → Variables**.
+   - `STORE_SUBMISSION_ENABLED` = `true`.
+   - `STORE_PUBLISH_MODE` = `Immediate` to publish after certification, like 1.2.0. Leave it unset to keep a manual hold.
+8. For the first automated release, open the new submission in Partner Center once certification starts. Check What's new, both packages and the certification notes.
+
+- Missing values:
+  - All four missing: `submit` writes a notice and ends green; upload `store-bundle` by hand.
+  - Some missing: `submit` fails, as the `APPLE_*` secrets do.
+- Before the key expires, add a new key to the same app, replace `STORE_CLIENT_SECRET`, then delete the old key.
 
 ### Check credentials without submitting
+- `Store API verification` (`store-api.yml`) runs its tests without credentials, then waits for the `microsoft-store` environment.
+- Its credentialed step runs `npm run store:verify` with no dependency install.
+- It requests a token, reads the app, checks the package identity and publisher, and reads any pending submission's publish mode.
+- It never creates, uploads, commits or publishes a submission.
+- Logs show a small report, not token responses, provider error bodies, keys or upload addresses.
+- The temporary push trigger on `ci/store-api-verification` is for first setup only; remove it and its environment branch rule afterward.
 
-`Store API verification` (`store-api.yml`) runs tests without credentials, then
-waits for the `microsoft-store` environment's required reviewer. Its credentialed
-step runs `npm run store:verify` without installing dependencies. It requests a
-token, reads the app, checks its package identity and publisher, and reads any
-pending submission's publication mode. It never creates, uploads, commits or
-publishes a submission. Logs contain a small allowlisted report, not token
-responses, provider error bodies, keys or upload URLs.
+### When a run stops
+- A failure after the submission was created leaves a draft in Partner Center. Finish or delete it there before running `store` again.
+- Microsoft warns that mixing Partner Center edits and API changes on one draft can make it uncommittable. Finish such a draft in one place.
+- To run `store` again: **Actions → store → Run workflow → Use workflow from → Tags → vx.y.z**. A run from a branch stops at `source`.
+- Do not use the MSI/EXE submission API for this MSIX product.
 
-For initial setup without changing `main`, the workflow also runs on pushes to
-the exact `ci/store-api-verification` branch. The environment needs that exact
-branch rule temporarily. Remove the branch rule after checking credentials;
-remove the temporary push trigger when integrating the workflow. Preserve the
-required reviewer and the ban on administrator bypass. A sole maintainer can
-approve their own manually started run, so `Prevent self-review` stays off.
-
-### Prepare packages and request certification later
-
-The Store workflows are separate from tag-triggered GitHub releases:
-
-1. On `main`, run `Store packages` (`store-package.yml`) with an existing stable
-   `v1.0.0` or later tag at the current `main` HEAD that includes the Store tooling.
-   It requires the tag, workflow commit and current `main` source to match,
-   builds/tests Windows x64 and ARM64 without Store
-   credentials, and creates unsigned Store MSIX files. Its `store-bundle`
-   artifact records the source commit, version and SHA-256 values. It does not
-   install the unsigned packages or replace the Windows installation/WACK check.
-2. Review that run and its artifacts. Run `Store certification submission`
-   (`store-submit.yml`) on `main` with its run ID, a JSON object containing
-   release notes for `en-us`, `ko-kr`, `ja-jp` and `zh-cn` (at most 1500
-   characters each), and the exact confirmation `SUBMIT_FOR_CERTIFICATION`.
-3. The workflow checks that the artifact came from a successful first-party
-   Store package workflow on `main`. It verifies tag ancestry, file hashes,
-   package CRCs, versions, architectures and Store manifest identities before
-   waiting for the protected environment reviewer.
-4. The repository variable `STORE_SUBMISSION_ENABLED` is a separate switch,
-   defaulting to disabled. Leave it `false` during setup. Only change it to
-   `true` after initial registration, publication and Windows validation are
-   separately authorized and complete. Enabling it does not start a run.
-5. After approval, `store:submit` refuses a product with no published baseline
-   or any existing pending submission. For later releases it creates a new
-   draft, replaces both architecture packages, updates localized release notes,
-   and omits Pricing V2 from the update. It uploads only to the API's HTTPS Azure
-   Blob destination and confirms that the saved mode is `Manual` before
-   requesting certification. It reports the submission ID and leaves progress
-   monitoring and publication to Partner Center.
-
-There is no publish call or automatic retry. If a mutation times out or fails,
-inspect the pending draft before doing anything else; a retry never silently
-deletes a draft. A successful workflow means certification was requested, not
-that certification passed or the product became public. The first portal draft
-is left untouched. Do not use the MSI/EXE submission API for this MSIX product.
-
-If an API creates a submission, continue editing that submission through the API;
-Microsoft warns that mixing Partner Center edits with API changes can leave it
-uncommittable. First-submission listing preparation in the portal is a separate
-step.
-
-References: [MSIX API prerequisites and authentication](https://learn.microsoft.com/en-us/windows/uwp/monetize/create-and-manage-submissions-using-windows-store-services), [submission data and manual publication](https://learn.microsoft.com/en-us/windows/uwp/monetize/manage-app-submissions).
+References: [MSIX API prerequisites and authentication](https://learn.microsoft.com/en-us/windows/uwp/monetize/create-and-manage-submissions-using-windows-store-services), [submission data and publish mode](https://learn.microsoft.com/en-us/windows/uwp/monetize/manage-app-submissions), [Store Developer CLI](https://learn.microsoft.com/en-us/windows/apps/publish/msstore-dev-cli/commands).
 
 Prepare accurate descriptions and screenshots in the four supported languages. Explain AI requirements and provider billing without promising a subscription or free inference that PlayPets does not supply. Do not imply that PlayPets is an OpenAI product.
 
@@ -219,7 +209,7 @@ Use the website privacy page for the listing, once it has actually been deployed
 
 Review the policy against actual enabled connections before submission. The policy identifies the maintainer by the existing public handle and links to public project contact. Before using it for a public submission, confirm the responsible operator identity and provide a private privacy-contact route if public issues are unsuitable. Never ask people to post personal information in an issue. Confirm the effective date when publishing the policy. Describe accesses and transmissions truthfully in the Store privacy questionnaire; optional AI can still transmit personal information.
 
-For a review without immediate publication, set **Submission options → Publishing hold options → Don't publish this submission until I select Publish now**. The default is automatic publication after certification. Save and verify the hold before choosing **Submit to the Store**. A maintainer separately authorizes submission and later publication.
+For a portal submission held after review, set **Submission options → Publishing hold options → Don't publish this submission until I select Publish now**. The default is automatic publication after certification. Save and verify the hold before choosing **Submit to the Store**. API submissions use `STORE_PUBLISH_MODE` instead ([Publish mode](#publish-mode)).
 
 ## Apple membership and certificate
 
