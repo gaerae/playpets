@@ -78,6 +78,34 @@ test('missing, ambiguous or malformed native windows fail closed', () => {
   assert.throws(() => shots.captureWindow([valid], 99, rect), /capture window/i);
 });
 
+test('every capture takes one window, never a screen region the system can draw over', () => {
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  const calls = source.match(/spawnSync\(\s*'screencapture'[^)]*\)/g) || [];
+  assert.ok(calls.length > 0);
+  for (const call of calls) assert.match(call, /'-l'/);
+  assert.doesNotMatch(source, /'-R'|'-D'|'-m'/);
+  assert.match(source, /desktopWindow\(appWindows\(pid\), pid, rect\)/);
+});
+
+test('the desktop picture is the one overlay window of the app that holds the whole rect', () => {
+  const rect = { x: 400, y: 500, width: 820, height: 480 };
+  const overlay = { id: 5, pid: 42, layer: 101, bounds: { x: 0, y: 0, width: 1728, height: 1117 } };
+  const main = { id: 6, pid: 42, layer: 0, bounds: { x: 1248, y: 757, width: 460, height: 320 } };
+  const indicator = { id: 7, pid: 1, layer: 2000, bounds: { x: 1500, y: 1000, width: 228, height: 40 } };
+  assert.equal(shots.desktopWindow([main, indicator, overlay], 42, rect).id, 5);
+  const second = { ...overlay, id: 8, bounds: { x: -1728, y: 0, width: 1728, height: 1117 } };
+  assert.equal(shots.desktopWindow([second, overlay], 42, rect).id, 5);
+  for (const windows of [
+    [main, indicator],
+    [{ ...overlay, pid: 1 }],
+    [{ ...overlay, bounds: { ...overlay.bounds, width: 1000 } }],
+    [overlay, { ...overlay, id: 9 }],
+    [{ ...overlay, layer: -1 }],
+  ])
+    assert.throws(() => shots.desktopWindow(windows, 42, rect), /desktop overlay/i);
+  assert.throws(() => shots.desktopWindow([overlay], 42, { ...rect, width: 0 }), /desktop overlay/i);
+});
+
 test('clean composition scales its controlled margin to native pixels and fills alpha corners', () => {
   const calls = [];
   const ctx = {

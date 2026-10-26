@@ -108,6 +108,15 @@ To refresh only the small-window yard and conversation after a responsive layout
 SHOT_SCENE=small SHOT_LANGS=en,ko,ja,zh-hans npm run shots
 ```
 
+To refresh only `desktop` (and its store picture) in every language:
+
+```bash
+SHOT_SCENE=desktop SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+```
+
+The desktop picture is the app's own overlay window laid on the backdrop page, never a region of
+the screen, so the screen-sharing indicator, notifications and the screen's corners stay out.
+
 Chat captures cancel existing walks and place the actual views beside the real panel.
 A bounds check logs every friend's canvas and stops if any of the four is clipped or covered.
 
