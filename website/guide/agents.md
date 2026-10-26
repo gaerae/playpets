@@ -4,19 +4,41 @@ description: Settings that send a coding agent's work status to your friend, ter
 
 # Coding agent hooks
 
-While a coding agent such as Claude Code, Codex CLI, Gemini CLI or Cursor works, your friend reacts along with it. Copy and paste one piece of settings and you are done. Node.js is not needed.
+- While a coding agent works (Claude Code, Codex CLI, Gemini CLI, Cursor and the like), your friend reacts along with it.
+- Setup: copy and paste one piece of settings.
+- Node.js is not needed.
 
 ## A friend for each agent <Since v="0.1.0" />
 
-Each agent can report to a friend of your choice. In **Settings → Coding tools**, pick one under **Reacting friend** on that tool's row, then press **Copy settings** again and paste. The copied settings name the friend (`--pet`), so Claude Code can report to Clover and Codex to Pip. With no choice, the first friend gets it; send the chosen friend away and it goes back to the first friend. Give each friend a different agent and the yard becomes a status board of who is doing what.
+1. In **Settings → Coding tools**, pick a friend under **Reacting friend** on that tool's row.
+2. Press **Copy settings** again and paste.
+
+- The copied settings name the friend (`--pet`), so Claude Code can report to Clover and Codex to Pip.
+- No choice: the first friend gets it.
+- Send the chosen friend away and it goes back to the first friend.
+- Give each friend a different agent and the yard becomes a status board of who is doing what.
 
 ## What you see in the yard <Since v="0.1.0" />
 
-A friend with an agent carries its name on the name tag (Clover, Claude Code). The chip under the friend's name in the Friend panel shows the agents, too. The small dot by a friend's head is the agent's state: working pulses orange, waiting is blue, done is green, and trouble is red; hover it for the name. Done and trouble fade after 30 minutes; working and waiting stay until the agent reports again. The pill in the Friend panel is the agent's state too: chat answers show in the log.
+- A friend with an agent carries its name on the name tag (Clover, Claude Code).
+- The chip under the friend's name in the Friend panel shows the agents too.
+- The small dot by a friend's head is the agent's state. Hover it for the name.
+
+| Dot | State | How long it stays |
+|---|---|---|
+| Orange, pulsing | Working | Until the agent reports again |
+| Blue | Waiting | Until the agent reports again |
+| Green | Done | Fades after 30 minutes |
+| Red | Trouble | Fades after 30 minutes |
+
+- The pill in the Friend panel is the agent's state too. Chat answers show in the log.
 
 ## What happens <Since v="0.1.0" />
 
-The agent's steps become your friend's status. The status shows next to the name in the Friend panel and on the name tag in the yard, and it also floats as a speech bubble above the friend on the desktop.
+- The agent's steps become your friend's status. It shows:
+  - next to the name in the Friend panel
+  - on the name tag in the yard
+  - as a speech bubble above the friend on the desktop
 
 | What the agent is doing | Your friend's status |
 |---|---|
@@ -26,15 +48,15 @@ The agent's steps become your friend's status. The status shows next to the name
 | Hit an error | Something went wrong |
 | Session ended | Resting |
 
-Your friend remembers up to 8 recent activities. Ask "what were you doing?" in the [chat](./chat.md) and they tell you about them.
+- Your friend remembers up to 8 recent activities. Ask "what were you doing?" in the [chat](./chat.md).
 
 ## Copy and paste the settings <Since v="0.1.0" />
 
 <Shot name="settings-agents" caption="Coding agent hooks in Settings → Coding tools. Each tool has a Copy settings button." />
 
 1. Open **Friends & settings → Settings → Coding tools**.
-2. Click **Copy settings** next to the tool you use. A notice tells you which file to paste it into.
-3. Open that file, paste, and save. Restart the agent and it connects right away.
+2. Click **Copy settings** next to the tool you use. A notice says which file to paste it into.
+3. Open that file, paste and save. Restart the agent; it connects right away.
 
 | Tool | Where to paste | How it works |
 |---|---|---|
@@ -44,13 +66,14 @@ Your friend remembers up to 8 recent activities. Ask "what were you doing?" in t
 | Cursor | `~/.cursor/hooks.json` | Reports edits, commands and completion. Only observe-only hooks are used |
 | Other MCP tools | The tool's MCP settings | The AI sends status and speech bubbles itself with the `set_pet_state`, `say`, `react` and `list_pets` tools |
 
-The copied piece contains the path to the PlayPets executable. The app's executable is the hook command itself, so there is nothing else to install. If you move the app somewhere else, copy and paste the settings again.
-
-If the file already has a `hooks` or `mcpServers` entry, merge the piece into that entry.
+- The copied piece contains the path to the PlayPets executable. The executable is the hook command itself, so there is nothing else to install.
+- Moved the app? Copy and paste the settings again.
+- File already has a `hooks` or `mcpServers` entry? Merge the piece into that entry.
 
 ## From the terminal <Since v="0.1.0" />
 
-You can call the same executable from the terminal to talk to your friend. Below, `playpets` is the app executable (on macOS, `/Applications/PlayPets.app/Contents/MacOS/playpets`).
+- The same executable talks to your friend from the terminal.
+- Below, `playpets` is the app executable. On macOS: `/Applications/PlayPets.app/Contents/MacOS/playpets`.
 
 ```
 playpets hook claude|gemini|cursor   # hook (JSON on stdin, always exits 0; prints {} for Gemini and Cursor)
@@ -63,8 +86,6 @@ playpets pets
 playpets run -- <command>
 ```
 
-Common examples:
-
 | Command | What it does |
 |---|---|
 | `playpets pets` | Lists the friends and their current status |
@@ -73,18 +94,26 @@ Common examples:
 | `playpets react wave` | Reacts once. One of `wave`, `jump`, `pet` |
 | `playpets run -- npm test` | "Working" while the command runs, then "Done" or "Something went wrong" |
 
-Use `--pet name` or `--pet friendID` to point at a specific friend. Without it, the first friend gets it. The friend ID is at the bottom of the Friend settings window.
+- Point at a specific friend with `--pet name` or `--pet friendID`. Without it, the first friend gets it.
+- The friend ID is at the bottom of the Friend settings window.
 
 ## Security <Since v="0.1.0" />
 
-- The hooks stay on this computer. The app opens a random port on `127.0.0.1` and checks a random token on every request. The port and token are in `bridge.json` in the data folder and change every time the app starts.
-- [Coding-agent hooks](./agents.md) omit user prompts and tool inputs. The local bridge uses `127.0.0.1` and token authentication. Short completion or notification reports, including a clipped agent answer, may contain work details and can be included in a friend’s conversation with your chosen AI provider. Review what you send through terminal or MCP messages; use a downloaded local model when those details need to stay on this computer.
-- The hooks never block the agent's work. They finish quietly within 3 seconds, and the agent keeps running even when the app is closed.
-- This is separate from the AI connection used for chatting. Setting up the hooks alone does not let you chat with your friend.
-
-The detailed design is in the developer docs under [Coding agent integration](/dev/agent-integration).
+- The hooks stay on this computer.
+  - The app opens a random port on `127.0.0.1` and checks a random token on every request.
+  - Port and token are in `bridge.json` in the data folder and change every time the app starts.
+- [Coding-agent hooks](./agents.md) omit user prompts and tool inputs.
+  - The local bridge uses `127.0.0.1` and token authentication.
+  - Short completion or notification reports, including a clipped agent answer, may contain work details. They can be included in a friend’s conversation with your chosen AI provider.
+  - Review what you send through terminal or MCP messages.
+  - Use a downloaded local model when those details need to stay on this computer.
+- The hooks never block the agent's work.
+  - They finish quietly within 3 seconds.
+  - The agent keeps running even when the app is closed.
+- This is separate from the AI connection for chatting. Hooks alone do not let you chat with your friend.
+- Detailed design: [Coding agent integration](/dev/agent-integration) in the developer docs.
 
 ## Notes for Windows
 
-- If you installed the trial MSIX package built locally, the executable is under `WindowsApps` and cannot be called by path. In that case the copied settings point to the execution alias `%LOCALAPPDATA%\Microsoft\WindowsApps\playpets.exe`.
-- `claude` and `codex` installed with npm must be in `%APPDATA%\npm` for the app to find them. If you installed them somewhere else, automatic detection may not work.
+- Locally built trial MSIX package: the executable is under `WindowsApps` and cannot be called by path. The copied settings then point to the execution alias `%LOCALAPPDATA%\Microsoft\WindowsApps\playpets.exe`.
+- `claude` and `codex` installed with npm must be in `%APPDATA%\npm` for the app to find them. Installed elsewhere, automatic detection may not work.

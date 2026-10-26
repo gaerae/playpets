@@ -1,8 +1,11 @@
 # Illustrated fishing rod
 
-Generated with the built-in OpenAI image generation tool on 2026-10-14 for PlayPets. `rod.png` is the unmodified transparent 1536 × 1024 source. The runtime copy is `src/art/props/fishing-rod.png`; copy the source directly to regenerate it. No external artwork was supplied.
-
-The measured grip center is (200, 510), and the terminal guide is (1495, 480). `src/yard/fishing-rod.js` maps those anchors to the existing fishing geometry using uniform scale and rotation, retaining the reel proportions and the line attachment. The source has transparent surroundings; the brown checker preview from the generation tool is not part of the image.
+- Generated with the built-in OpenAI image generation tool on 2026-10-14 for PlayPets. No external artwork was supplied.
+- `rod.png` is the unmodified transparent 1536 × 1024 source.
+- The runtime copy is `src/art/props/fishing-rod.png`; copy the source directly to regenerate it.
+- Measured anchors: grip center (200, 510), terminal guide (1495, 480).
+- `src/yard/fishing-rod.js` maps those anchors to the existing fishing geometry with uniform scale and rotation, keeping the reel proportions and the line attachment.
+- The source has transparent surroundings; the brown checker preview from the generation tool is not part of the image.
 
 ## Generation prompt
 

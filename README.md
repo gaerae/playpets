@@ -1,55 +1,123 @@
+<div align="center">
+
+<a href="https://playpets.gaerae.com/"><img src="assets/banner.png" alt="Banner: a yard where your pets talk to each other"></a>
+
 # PlayPets
 
-[![Banner: a yard where your pets talk to each other](assets/banner.png)](https://playpets.gaerae.com/)
+**A little desktop yard where your companions talk to you, and to each other.**
 
-**A little yard for companions who talk to you—and each other.** Invite community pets, give each a personality, and choose a relationship: friend, partner, mentor or younger sibling. They wander, play and chat together while you work or unwind. Connect a local Ollama model, a signed-in Claude Code or Codex CLI, or an OpenAI-compatible server. PlayPets is a separate open-source app that reads compatible Codex pet files. You don't need Codex.
+[![Latest release](https://img.shields.io/github/v/release/gaerae/playpets?style=flat-square&color=f9ae55&label=release)](https://github.com/gaerae/playpets/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/gaerae/playpets/total?style=flat-square&color=4a9bd6)](https://github.com/gaerae/playpets/releases)
+[![Build](https://img.shields.io/github/actions/workflow/status/gaerae/playpets/build.yml?branch=main&style=flat-square&label=build)](https://github.com/gaerae/playpets/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-3a2a1e?style=flat-square)](LICENSE)
+![macOS · Windows · Linux](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-Tauri%202-f9ae55?style=flat-square)
+![Codex pet format compatible](https://img.shields.io/badge/pets-Codex%20pet%20format-4a9bd6?style=flat-square)
 
-[Website](https://playpets.gaerae.com/) · [User guide](https://playpets.gaerae.com/guide/) · [Releases](https://playpets.gaerae.com/releases/) · [Developer docs](https://playpets.gaerae.com/dev/)
+[![Download for macOS](https://img.shields.io/badge/macOS-Download-1f1f1f?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/gaerae/playpets/releases/latest)
+[![Download for Windows](https://img.shields.io/badge/Windows-Download-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/gaerae/playpets/releases/latest)
+[![Download for Linux](https://img.shields.io/badge/Linux-Download-e95420?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/gaerae/playpets/releases/latest)
 
-Korean: [Website](https://playpets.gaerae.com/ko/) · [User guide](https://playpets.gaerae.com/ko/guide/) · Japanese: [Website](https://playpets.gaerae.com/ja/) · [User guide](https://playpets.gaerae.com/ja/guide/) · Simplified Chinese: [Website](https://playpets.gaerae.com/zh-hans/) · [User guide](https://playpets.gaerae.com/zh-hans/guide/)
+**[Website](https://playpets.gaerae.com/)** · **[User guide](https://playpets.gaerae.com/guide/)** · **[Install guide](https://playpets.gaerae.com/guide/install)** · **[Releases](https://playpets.gaerae.com/releases/)** · **[Developer docs](https://playpets.gaerae.com/dev/)**
 
-[![build](https://github.com/gaerae/playpets/actions/workflows/build.yml/badge.svg)](https://github.com/gaerae/playpets/actions/workflows/build.yml) ![macOS · Windows · Linux](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-Tauri%202-f9ae55) ![MIT](https://img.shields.io/badge/license-MIT-3a2a1e) ![Compatible with the Codex pet format](https://img.shields.io/badge/pets-Codex%20pet%20format%20compatible-4a9bd6)
+Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.gaerae.com/ko/) · [Japanese](https://playpets.gaerae.com/ja/) · [Simplified Chinese](https://playpets.gaerae.com/zh-hans/)
 
-Build a small community on your desktop, with a voice and a place for every friend.
+<img src="assets/demo.gif" alt="Three friends saying hi and going for a walk in the yard">
 
-| In PlayPets | Your choices |
+</div>
+
+## Why PlayPets
+- 🐾 Invite community pets, give each a personality and a relationship.
+- 💬 Friends chat with you, and with each other, through the AI you pick.
+- 🧑‍💻 They react while your coding agent works.
+- 🌱 Dig, grow, fish and collect in a yard that follows the clock and the weather.
+- 🔓 Open source (MIT). Reads compatible Codex pet files; Codex is not needed.
+
+## Features
+
+| Area | What you get |
 |---|---|
-| Companions | Daisy, Clover, Pip and Miso, or compatible community pet files |
-| Appearance | Four illustrated starters with summer and winter outfits |
-| Relationships | Friend, Partner, Dependable mentor or Playful younger sibling |
-| Conversations | Chat with a friend, bring friends in, or let them talk together |
-| AI connections | Signed-in Claude Code or Codex CLI, local Ollama, or an OpenAI-compatible server |
-| Places to play | Four places and imported backgrounds, with season, time and weather controls; a resizable window and desktop mode |
-| Coding company | Optional hooks and MCP for several coding agents |
+| Companions | Daisy, Clover (main mascot), Pip and Miso, with summer and winter outfits; or community pet files |
+| Relationships | Friend, Partner, Dependable mentor, Playful younger sibling |
+| Conversations | Chat with one friend, bring others in, or let them talk among themselves |
+| AI connections | Signed-in Claude Code or Codex CLI, local Ollama, or an OpenAI-compatible server; one AI per friend |
+| Places | Four places and imported backgrounds; season, time and weather controls |
+| Play | Hide and seek, parade, tag |
+| Garden and album | Dig for seeds, saplings and keepsakes; plant; fish and catch bugs |
+| Desktop mode | Pets stroll the desktop (on macOS, over full-screen apps too) |
+| Coding company | Hooks and MCP for Claude Code, Codex, Gemini CLI, Cursor and other MCP tools |
+| Languages | English, Korean, Japanese, Simplified Chinese |
 
-![Three friends saying hi and going for a walk in the yard](assets/demo.gif)
+<details>
+<summary>More about each feature</summary>
 
-- **Each friend, its own AI.** Chat through your signed-in Claude Code or Codex CLI subscription, within its usage allowance; paid extra usage can still apply. API-key CLI sign-in uses separate billing. Local Ollama models run on your computer without hosted inference fees; OpenAI and compatible APIs use the provider's billing. Give each friend a different AI and personality, and pick a relationship: Friend, Partner, Dependable mentor or Playful younger sibling.
-- **Friends talk to each other.** When the AI brings another connected friend into the conversation, they answer in turn. Press **Let them chat** under Play → Group games and friends keep talking among themselves. You can also let them chat now and then on their own. In the yard it shows as speech bubbles.
-- **Friends at work.** Claude Code, Gemini CLI and Cursor hooks, Codex notifications and MCP pass thinking, tool use, permission requests and completion on to a friend. Give each agent its own friend. Ask "What were you doing?" and the friend tells you about recent work.
-- **A living yard.** Morning, day, evening and night follow the clock, the weather (clear, rain, snow) changes on its own, and at night the moon shows its real phase. You can also pick them yourself. Put down a treat and friends walk over to eat it. Leave them alone and they wander and talk to themselves.
-- **Desktop mode.** Pets stroll around the desktop (on macOS, even over other apps in full screen).
-- **Play together.** Hide and seek (find the friend whose name is called), parade, and tag.
-- **Dig, grow and collect.** Dig for seeds, saplings and keepsakes, plant flowers and trees, and fish and catch bugs for the album. A tool stays in hand from one spot to the next; right-click bare ground to Dig here, or let idle friends dig on their own.
-- **Four starter companions.** Daisy, Clover, Pip and Miso come with the app. Clover is the main mascot; all four have summer and winter outfits. They use the Codex pet format and are MIT licensed. Make your own with the [character studio](https://playpets.gaerae.com/guide/creator-kit), or create an importable place with the [background studio](https://playpets.gaerae.com/guide/background-kit).
-- **Import community pets.** Paste the address of a pet page from OpenPets Registry (openpets.sh), Petdex, Codex PokéPets, Awesome Codex Pet (codexpet.top) or codex-pets.net, and the pet comes straight in. GitHub pet folder addresses and other sites built with codex-pet-share work too. Codex pets in `~/.codex/pets` load on their own. When a gallery adds a `playpets://import?url=<pet page>` link, one click brings the pet in.
-- **A window beside your work.** Resize the yard down to 300 × 210: the dock folds away, a corner button that appears when you point at the window opens the same menu, and right-clicking a friend offers Talk, Play and Dig. Toggle Always on top independently; the app remembers the window position, size and pin setting.
-- **Built with Tauri.** Uses Rust and the system webview. The yard redraws while something moves and rests when it is still.
+- **AI and billing**
+  - Claude Code or Codex CLI: uses your subscription allowance; paid extra usage can still apply.
+  - API-key CLI sign-in: billed separately.
+  - Ollama: runs on your computer, no hosted inference fees.
+  - OpenAI and compatible APIs: the provider's billing.
+- **Friends talk to each other**
+  - When the AI brings in another connected friend, they answer in turn.
+  - **Let them chat** under **Play → Group games** keeps them talking.
+  - They can also chat now and then on their own; the yard shows speech bubbles.
+- **Friends at work**
+  - Hooks, Codex notifications and MCP pass on thinking, tool use, permission requests and completion.
+  - Give each agent its own friend.
+  - Ask "What were you doing?" for a summary of recent work.
+- **A living yard**
+  - Morning, day, evening and night follow the clock; the weather (clear, rain, snow) changes on its own.
+  - The moon shows its real phase at night. You can set all of these yourself.
+  - Put down a treat and friends walk over to eat it.
+  - Left alone, friends wander, talk to themselves, and may dig.
+- **Garden**
+  - A tool stays in hand from one spot to the next.
+  - Right-click bare ground for **Dig here**.
+- **Make your own**
+  - Pets: the [character studio](https://playpets.gaerae.com/guide/creator-kit).
+  - Places: the [background studio](https://playpets.gaerae.com/guide/background-kit).
+  - Starter pets use the Codex pet format and are MIT licensed.
+- **Import community pets**
+  - Paste a pet page address from OpenPets Registry (openpets.sh), Petdex, Codex PokéPets, Awesome Codex Pet (codexpet.top) or codex-pets.net.
+  - GitHub pet folders and other codex-pet-share sites work too.
+  - Pets in `~/.codex/pets` load on their own.
+  - A gallery link `playpets://import?url=<pet page>` imports in one click.
+- **A window beside your work**
+  - Resizes down to 300 × 210; the dock folds into a corner button that appears on hover.
+  - Right-click a friend for **Talk**, **Play** and **Dig**.
+  - **Always on top** toggles on its own. Position, size and pin are remembered.
+- **Light on resources**
+  - Tauri: Rust and the system webview.
+  - The yard redraws only while something moves.
+
+</details>
 
 ## Install
 
-- Download the macOS dmg, the Windows installer or portable zip, or the Linux deb or AppImage from [GitHub releases](https://github.com/gaerae/playpets/releases). The builds are not code-signed yet, so macOS or Windows may show a security warning. Read the [install guide](https://playpets.gaerae.com/guide/install) for the checks and options available on your system.
-- To build it yourself, see [Development](#development) below.
+| System | Get it |
+|---|---|
+| macOS (Apple Silicon and Intel) | `PlayPets_<version>_macos-universal.dmg` from [releases](https://github.com/gaerae/playpets/releases/latest), or Homebrew (below) |
+| Windows x64 / ARM | `PlayPets_<version>_windows-x64-setup.exe` / `…_windows-arm64-setup.exe` |
+| Linux x64 / arm64 | `.deb` (Debian, Ubuntu) or `.AppImage` (needs FUSE 2) |
+
+```bash
+brew install gaerae/tap/playpets
+```
+
+- Builds are not code-signed yet: macOS or Windows may warn on first launch.
+- The [install guide](https://playpets.gaerae.com/guide/install) covers those warnings and Linux notes.
+- To build from source, see [Development](#development).
 
 ## Getting started
-
-1. Open **Friends & settings → Invite a friend** and invite a starter companion into the yard. Choose Daisy, Clover, Pip or Miso.
-2. Connect an AI in **Settings → Friends & AI**, then click a friend's name tag to chat. Installed Claude Code and Codex are found automatically. Ollama and OpenAI-compatible servers just need an address.
-3. In **Friend settings**, choose a personality, relationship and what the friend calls you. For company while coding, add your tool's hooks from **Settings → Coding tools**.
+1. Open **Friends & settings → Invite a friend** and pick Daisy, Clover, Pip or Miso.
+2. Connect an AI in **Settings → Friends & AI**.
+   - Installed Claude Code and Codex are found automatically.
+   - Ollama and OpenAI-compatible servers need only an address.
+3. Click a friend's name tag to chat.
+4. In **Friend settings**, choose a personality, a relationship and what the friend calls you.
+5. Optional: add your coding tool's hooks from **Settings → Coding tools**.
 
 ## Coding agent integration
-
-In **Settings → Coding tools**, press "Copy settings" and paste. No Node.js needed: the app binary is the integration command.
+- In **Settings → Coding tools**, press **Copy settings** and paste.
+- No Node.js needed: the app binary is the integration command.
 
 | Tool | Where to paste | What it does |
 |---|---|---|
@@ -70,39 +138,69 @@ playpets pets
 playpets run -- <command>
 ```
 
-The integration bridge stays on this computer (127.0.0.1, with token authentication). Hooks omit user prompts and tool inputs, but short completion and notification reports can contain work details, including code in an agent’s answer. Those reports can enter a friend’s conversation with your chosen AI provider. Review terminal and MCP messages before sending them; use a local model when those details need to stay on this computer.
+> [!NOTE]
+> - The bridge stays on this computer: 127.0.0.1, with token authentication.
+> - Hooks leave out your prompts and tool inputs.
+> - Short completion and notification reports can still hold work details, including code in an agent's answer. They can reach your chosen AI provider in a friend's conversation.
+> - Review terminal and MCP messages before sending. Use a local model to keep those details on this computer.
 
-## Data
+## Data and privacy
 
-- Data folder: macOS `~/Library/Application Support/app.playpets/`, Windows `%APPDATA%\app.playpets\`, Linux `~/.local/share/app.playpets/`. **Settings → About PlayPets → Open the data folder** opens it. It holds `state.json` (pets and settings), `bridge.json` (integration port and token), `pets/` (imported pets) and `builtin/` (starter pets). Change it with `PLAYPETS_DATA`.
-- Updates: a newer version shows as the leftmost button in the yard controls, before the place selector (in a small window, a corner button that appears when you point at the window), and opens **Settings → App updates** ("What's new", "Later", "Install and restart" with progress). Check by hand there, with "Check for updates…" in the tray, or from the macOS menu bar; it also opens the notes of the version in use. The app checks quietly 20 seconds after it starts and every 6 hours, and installs only when you choose. It finds new versions through `latest.json` on GitHub releases and verifies them with the updater signing key before installing (from the first public release). After a successful update and restart, a brief notification confirms the installed version.
-- Languages: Korean, English, Japanese and Simplified Chinese. The app follows the system language at first, and you can change it in **Settings → Language & startup** (`language` in `state.json`). Force a language with `PLAYPETS_LANG=ko|en|ja|zh-hans` (for testing). Strings live per language in `src/core/strings/<language>.js` for the page and `src-tauri/src/i18n/<language>.rs` for the backend (how to add one: `docs/how-to/add-a-language.md`). Tests catch any Korean left inside a module. The app speaks English to coding agents and the terminal.
-- API keys are stored only in the OS secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service).
-- Conversations stay in memory only and are gone when the app quits.
+| What | Where |
+|---|---|
+| Data folder | macOS `~/Library/Application Support/app.playpets/` · Windows `%APPDATA%\app.playpets\` · Linux `~/.local/share/app.playpets/` |
+| Open it | **Settings → About PlayPets → Open the data folder** |
+| Contents | `state.json` (pets, settings) · `bridge.json` (integration port, token) · `pets/` (imported) · `builtin/` (starters) |
+| Move it | `PLAYPETS_DATA` |
+| API keys | OS secure storage only: macOS Keychain, Windows Credential Manager, Linux Secret Service |
+| Conversations | Memory only; gone when the app quits |
+
+## Updates
+- A newer version shows as the leftmost yard button, before the place selector.
+  - In a small window: the corner button that appears on hover.
+- It opens **Settings → App updates**: **What's new**, **Later**, **Install and restart** (with progress).
+- Check by hand there, with **Check for updates…** in the tray, or from the macOS menu bar.
+  - The same place opens the notes of the version in use.
+- Automatic check: 20 seconds after start, then every 6 hours. Installs only when you choose.
+- Source: `latest.json` on GitHub releases, verified with the updater signing key before install (from the first public release).
+- After the restart, a short notification confirms the installed version.
+
+## Languages
+- The app follows the system language first; change it in **Settings → Language & startup** (`language` in `state.json`).
+- Force one for testing: `PLAYPETS_LANG=ko|en|ja|zh-hans`.
+- String tables: `src/core/strings/<language>.js` (page), `src-tauri/src/i18n/<language>.rs` (backend).
+  - Add a language: [docs/how-to/add-a-language.md](docs/how-to/add-a-language.md).
+  - Tests catch Korean left inside a module.
+- Coding agents and the terminal get English.
 
 ## Development
-
-Developer docs start at [docs/README.md](docs/README.md) (architecture, standards, procedures, decision records). For a first setup, follow [Set up a development environment and run the app](docs/getting-started.md).
-
-You need Rust (stable, 1.98 or later), Node.js 26, and the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) (webkit2gtk and others on Linux).
+- Start at [docs/README.md](docs/README.md): architecture, standards, how-tos, decision records.
+- First setup: [Set up a development environment and run the app](docs/getting-started.md).
+- Needs: Rust stable 1.98+, Node.js 26, the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) (webkit2gtk and others on Linux).
 
 | Task | Command |
 |---|---|
 | Install dependencies | `npm ci` |
 | Unit tests (Rust and page) | `npm test` |
-| Tidy / check code layout | `npm run format` / `npm run lint` (rustfmt, clippy, Oxlint, Biome) |
-| Real-app E2E | `npm run test:e2e` (isolated data folder, its own test pet, fake AI server) |
+| Format / check | `npm run format` / `npm run lint` (rustfmt, clippy, Oxlint, Biome) |
+| Real-app E2E | `npm run test:e2e` (isolated data folder, own test pet, fake AI server) |
 | Live check against community sites | `npm run test:live-import` |
-| Site dev server / build | `npm run site:dev` / `npm run site:build` (includes dead link check) |
+| Site dev server / build | `npm run site:dev` / `npm run site:build` (fails on a dead link) |
 | Site screenshots (macOS) | `npm run shots -- x.y.z` → `website/public/shots/` |
 | Installer art | `npm run art` (DMG window, Windows installer pictures, Linux store screenshots) |
-| macOS distribution file (dmg) | `npm run dist:mac` → `release/macos/` |
-| Linux distribution and E2E | `npm run dist:linux` (Docker) → `release/linux/` (deb and AppImage, E2E under Xvfb) |
-| Windows x64 distribution | `npm run dist:windows` (Docker) → `release/windows/` (MinGW cross build, NSIS installer, portable zip, and an MSIX signed with a test certificate in `msix-test/`) |
-| Real runners for every OS | `.github/workflows/build.yml` (builds and E2E on macOS, Windows x64/arm64 and Linux x64/arm64 for every push to main and every PR; artifacts are in the run) |
-| Release | `npm run release -- x.y.z`, then `git push origin HEAD vx.y.z`. `.github/workflows/release.yml` builds every environment and creates a GitHub release draft with the changelog section as notes (details in [Release a new version](docs/how-to/release.md)) |
-| Distribution channels | When a release is published, `.github/workflows/distribute.yml` makes the winget manifest and the Homebrew cask, and with tokens also opens the winget PR and updates the tap ([Signing keys and secrets](docs/standards/keys-and-secrets.md)) |
+| macOS dmg | `npm run dist:mac` → `release/macos/` |
+| Linux packages and E2E | `npm run dist:linux` (Docker) → `release/linux/` (deb, AppImage, E2E under Xvfb) |
+| Windows x64 packages | `npm run dist:windows` (Docker) → `release/windows/` (MinGW cross build, NSIS installer, portable zip, MSIX signed with a test certificate in `msix-test/`) |
 | Redraw icons | `npm run icons` (`assets/icon.png` → every icon) |
+
+| Workflow | What it does |
+|---|---|
+| `.github/workflows/build.yml` | Builds and E2E on macOS, Windows x64/arm64, Linux x64/arm64 for every push to `main` and every PR; artifacts in the run |
+| `.github/workflows/release.yml` | After `npm run release -- x.y.z` and `git push origin HEAD vx.y.z`: builds every platform, drafts a GitHub release with the changelog section ([Release a new version](docs/how-to/release.md)) |
+| `.github/workflows/distribute.yml` | On a published release: makes the winget manifest and the Homebrew cask; with tokens, opens the winget PR and updates the tap ([Signing keys and secrets](docs/standards/keys-and-secrets.md)) |
+
+<details>
+<summary>Repository map</summary>
 
 ```
 src/              Page (HTML, CSS, JS, used as is with no build tool)
@@ -130,25 +228,30 @@ docs/             Developer docs (architecture, standards, how-to, decisions, de
 website/          The site (VitePress): landing page, user guide and release pages in English (the root), Korean (ko/), Japanese (ja/) and Simplified Chinese (zh-hans/); developer docs are copied in from docs/ to dev/
 ```
 
+</details>
+
 ### Platform notes
-- The macOS overlay is turned into an NSPanel so it shows even over other apps in full screen (`src-tauri/src/desktop/overlay.rs`).
-- A Windows build made with MinGW needs `WebView2Loader.dll` next to the exe (the installer includes it, and the portable zip ships it). An MSVC build links it statically, so the exe is all you need.
-- Windows mixed DPI: cursor coordinates are converted using the scale of the monitor under the cursor.
-- Windows MSIX: `packaging/windows/msix/AppxManifest.xml` (a full-trust desktop app plus the execution alias `playpets.exe`). When installed as a package, the agent integration settings point at the alias instead of the executable path. For a Store submission, build with your Partner Center publisher ID in `MSIX_PUBLISHER`. How to test-install: `release/windows/msix-test/README.txt`.
-- The app identifier `app.playpets` becomes the data folder name, so it does not change after release.
+- macOS: the overlay becomes an NSPanel so it shows over full-screen apps (`src-tauri/src/desktop/overlay.rs`).
+- Windows, MinGW build: needs `WebView2Loader.dll` next to the exe (the installer and the portable zip include it). An MSVC build links it statically.
+- Windows, mixed DPI: cursor coordinates use the scale of the monitor under the cursor.
+- Windows MSIX: `packaging/windows/msix/AppxManifest.xml`.
+  - A full-trust desktop app plus the execution alias `playpets.exe`.
+  - Installed as a package, agent settings point at the alias, not the exe path.
+  - Store build: set your Partner Center publisher ID in `MSIX_PUBLISHER`.
+  - Test install: `release/windows/msix-test/README.txt`.
+- The app identifier `app.playpets` is the data folder name; it never changes after release.
 
 ## Contributing
-
-[CONTRIBUTING.md](CONTRIBUTING.md) has the check order, [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) has the code of conduct, and [SECURITY.md](SECURITY.md) explains how to report a vulnerability.
-
-## Changelog
-
-[CHANGELOG.md](CHANGELOG.md) lists the changes users can see in each release.
+- [CONTRIBUTING.md](CONTRIBUTING.md): the check order.
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): the code of conduct.
+- [SECURITY.md](SECURITY.md): how to report a vulnerability.
+- [CHANGELOG.md](CHANGELOG.md): what users see change in each release.
 
 ## License
-
-MIT. See [LICENSE](LICENSE). The pet mascot art (`assets/`) is under the same license. Community pets you import belong to their creators, and their source is saved alongside them in `pet.json`.
+- MIT ([LICENSE](LICENSE)), including the pet mascot art in `assets/`.
+- Imported community pets belong to their creators; the source is saved with each in `pet.json`.
 
 ## Trademarks
-
-PlayPets is not affiliated with or endorsed by OpenAI. Codex is a trademark of OpenAI, and Claude, Gemini, Cursor and Ollama are trademarks of their respective companies. This app only reads the Codex pet file format.
+- PlayPets is not affiliated with or endorsed by OpenAI.
+- Codex is a trademark of OpenAI. Claude, Gemini, Cursor and Ollama are trademarks of their companies.
+- PlayPets only reads the Codex pet file format.
