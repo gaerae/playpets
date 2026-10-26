@@ -21,8 +21,7 @@ export const copy = {
   meet: '친구 먼저 만나기',
   finalTitle: '내일도, 여기서 만나요.',
   developerTitle: '직접 만들어 보고 싶다면',
-  developerBody:
-    '소스 코드를 공개하고 있어요. 코딩 도구를 연결하면 작업을 시작하거나, 내 확인이 필요하거나, 끝났을 때 친구가 반응해요.',
+  developerBody: 'PlayPets는 MIT 라이선스 오픈소스예요. 어떻게 만들었는지 읽어 보거나 함께 만들어 주세요.',
   developerLink: '개발 문서 읽기',
   privacyTitle: '내 정보는 어디에 저장되나요?',
   privacyBody:
@@ -44,7 +43,7 @@ export const worldCopy = {
   previewNote: '앱의 배경과 캐릭터로 만든 미리보기예요. 친구를 누르면 인사해요. 놀이와 날씨는 앱에서 즐겨 주세요.',
   greet: '인사하기',
   title: ['돌아오고 싶은', '작은 세계.'],
-  lead: '함께 걷고, 꽃을 키우고, 잠깐 이야기를 나눠요. 바쁜 하루 한쪽에 작은 친구들을 위한 자리를 내어 주세요.',
+  lead: '작은 친구들이 놀이터에서 놀고, 내가 고른 AI로 나와 이야기하고 서로 수다도 떨어요. 일하는 동안에도 곁에 있어요.',
   worldsTitle: '오늘은 어디서 쉴까요?',
   worldsLead: '마음에 드는 장소에서 계절을 바꾸고, 친구에게 인사해 보세요.',
   sceneLabel: '장소와 계절 고르기',
@@ -95,4 +94,18 @@ export const sections = {
   connectionDetails: '대화 연결과 비용 알아보기',
   connectionSetup:
     '로컬 Ollama, 로그인한 Claude Code, Codex CLI, OpenAI 호환 서버를 골라요. CLI는 구독의 사용 한도 안에서 쓰고, API 서버는 별도 비용이 들 수 있어요.',
+  heroFacts: ['무료 오픈소스(MIT)', 'macOS, Windows, Linux', '4개 언어'],
+  miniDesktop: '바탕화면으로 내보내기',
+  togetherTitle: '친구끼리도 이야기해요.',
+  togetherBody:
+    '대화에 다른 친구를 불러오거나, 수다 떨기를 눌러 엿들어 보세요. 내가 할 일을 하는 동안 놀이터에 말풍선이 피어나요.',
+  togetherLink: '함께 대화하는 법',
+  togetherAlt: '놀이터에서 말풍선으로 이야기하는 친구들과, 이름 옆에 표시된 담당 코딩 도구',
+  workTitle: '코딩할 때도 곁에서.',
+  workBody:
+    '코딩 도구가 보내는 소식에 친구가 반응해요. Claude Code와 Gemini CLI는 단계마다, Cursor는 편집과 완료 때, Codex는 한 턴이 끝날 때 알려요. "뭐 하고 있었어?"라고 물으면 최근 작업을 짧게 이야기해 줘요.',
+  workNote:
+    '연결은 이 컴퓨터 안에서만 오가요. 훅은 내가 쓴 프롬프트와 도구 입력을 보내지 않지만, 짧은 상태 알림에 작업 내용이 담길 수 있어요.',
+  workAlt: '에이전트마다 담당 친구를 정하는 코딩 도구 연결 설정',
+  brewLabel: 'macOS에서 Homebrew로',
 };

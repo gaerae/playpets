@@ -23,6 +23,22 @@ test('landing introduces every built-in companion before optional AI and coding'
   assert.match(read('website/.vitepress/theme/landing.css'), /\.preview-paused \.sprite i[\s\S]*animation: none/);
 });
 
+test('the landing shows friends talking together and coding company with real captures', async () => {
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.ok(landing.indexOf('<PetGallery') < landing.indexOf('class="together-story'));
+  assert.ok(landing.indexOf('class="connections"') < landing.indexOf('class="work-story'));
+  assert.match(landing, /shotUrl\('yard-talk'\)/);
+  assert.match(landing, /shotUrl\('settings-agents'\)/);
+  assert.match(landing, /path\('\/guide\/desktop'\)/);
+  assert.match(landing, /brew install gaerae\/tap\/playpets/);
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    assert.equal(sections.heroFacts.length, 3, lang);
+    for (const key of ['togetherTitle', 'togetherBody', 'workTitle', 'workBody', 'workNote', 'brewLabel'])
+      assert.ok(sections[key]?.length, `${lang}: ${key}`);
+  }
+});
+
 test('every landing makes download a primary destination in the nav and hero', async () => {
   const config = read('website/.vitepress/config.mts');
   for (const [label, link] of [

@@ -21,8 +21,7 @@ export const copy = {
   meet: 'Meet the friends',
   finalTitle: 'A little company for your everyday.',
   developerTitle: 'For people who make things',
-  developerBody:
-    'Open source, with optional coding-agent connections. Friends can react when work starts, needs your attention or finishes.',
+  developerBody: 'PlayPets is open source under the MIT license. Read how it is built, or help make it.',
   developerLink: 'Read the developer guide',
   privacyTitle: 'What stays on my computer?',
   privacyBody:
@@ -45,7 +44,7 @@ export const worldCopy = {
     'An interactive scene sample with the app’s artwork. Select a friend to wave; games and weather live in the app.',
   greet: 'Say hello',
   title: ['A little world', 'to come home to.'],
-  lead: 'A walk, a game, a quiet moment together. Make room for a few little friends in your day.',
+  lead: 'Little friends play in their yard, talk with you and with each other through the AI you choose, and keep you company while you work.',
   worldsTitle: 'What does a good day look like?',
   worldsLead: 'Find a favourite corner. Change the season and say hello.',
   sceneLabel: 'Choose a place and season',
@@ -98,4 +97,18 @@ export const sections = {
   connectionDetails: 'Conversation setup and costs',
   connectionSetup:
     'Use local Ollama, your signed-in Claude Code or Codex CLI, or an OpenAI-compatible server. CLI use stays within subscription limits; API servers may charge separately.',
+  heroFacts: ['Free and open source (MIT)', 'macOS, Windows, Linux', 'In 4 languages'],
+  miniDesktop: 'Let them out on the desktop',
+  togetherTitle: 'They talk among themselves, too.',
+  togetherBody:
+    'Bring a friend into your conversation, or press Let them chat and listen in. Speech bubbles fill the yard while you get on with your day.',
+  togetherLink: 'How chatting together works',
+  togetherAlt: 'Friends talking in the yard, with speech bubbles and their coding agents beside their names',
+  workTitle: 'Company while you code.',
+  workBody:
+    'A friend reacts as your coding agent reports in: Claude Code and Gemini CLI at every step, Cursor on edits and completion, Codex when a turn ends. Ask “What were you doing?” for a short recap.',
+  workNote:
+    'The connection stays on this computer. Hooks leave out your prompts and tool inputs; short status reports can still mention your work.',
+  workAlt: 'Coding tools settings, with a friend for each agent',
+  brewLabel: 'macOS with Homebrew',
 };
