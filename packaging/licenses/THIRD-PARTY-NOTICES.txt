@@ -1298,7 +1298,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 Boost Software License 1.0
-Used by: clipboard-win@5.4.1
+Used by: clipboard-win@5.4.3
 
 Boost Software License - Version 1.0 - August 17th, 2003
 
@@ -5103,7 +5103,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 MIT License
-Used by: ctutils@0.4.3
+Used by: ctutils@0.4.5
 
 Copyright (c) 2025-2026 The RustCrypto Project Developers
 
@@ -12077,9 +12077,9 @@ DEALINGS IN THE SOFTWARE.
 
 ================================================================================
 
-Used by: clipboard-win@5.4.1
+Used by: clipboard-win@5.4.3
 
-Source: https://raw.githubusercontent.com/DoumanAsh/clipboard-win/3b27cf2bfd1adcfa6e0264eb51c1025ddaf0f342/LICENSE
+Source: https://raw.githubusercontent.com/DoumanAsh/clipboard-win/ed27008ae5d1f10cfbb266de039f0fb35fd05a56/LICENSE
 Boost Software License - Version 1.0 - August 17th, 2003
 
 Permission is hereby granted, free of charge, to any person or organization
@@ -12107,7 +12107,7 @@ DEALINGS IN THE SOFTWARE.
 
 ================================================================================
 
-Used by: cmov@0.5.4, ctutils@0.4.3, embed_plist@1.2.2, siphasher@1.0.4, ureq-proto@0.6.4, utf8_iter@1.0.4, x11rb-protocol@0.13.2, x11rb-protocol@0.14.0, x11rb@0.13.2, x11rb@0.14.0, zeroize@1.9.1
+Used by: cmov@0.5.4, ctutils@0.4.5, embed_plist@1.2.2, siphasher@1.0.4, ureq-proto@0.6.4, utf8_iter@1.0.4, x11rb-protocol@0.13.2, x11rb-protocol@0.14.0, x11rb@0.13.2, x11rb@0.14.0, zeroize@1.9.1
 
 
                                  Apache License
@@ -14304,7 +14304,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ================================================================================
 
-Used by: ctutils@0.4.3
+Used by: ctutils@0.4.5
 
 Copyright (c) 2025-2026 The RustCrypto Project Developers
 
