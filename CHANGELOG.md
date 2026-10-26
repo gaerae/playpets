@@ -11,6 +11,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Keep the seed count inside the Plant a seed tile when the tile is narrow, as in Chinese with ten or more seeds.
 
+### Security
+
+- Update ctutils to 0.4.5, used by the Linux keyring, so its mask generation and u128 comparisons run in constant time (RUSTSEC-2026-0385).
+
 ## [1.2.0] - 2026-10-22
 
 ### Added
