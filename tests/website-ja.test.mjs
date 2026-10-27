@@ -59,3 +59,54 @@ test('locale SEO lists reciprocal existing pages and leaves developer docs in En
   );
   assert.ok(alternateLinks('ja/index.md', site, () => true).some(([, attrs]) => attrs.href === `${site}ja/`));
 });
+
+test('each landing describes the app to search and answer engines, and only the landing does', async () => {
+  const { appStructuredData } = await import('../website/.vitepress/locale-head.mjs');
+  const site = 'https://example.test/playpets/';
+  for (const [page, lang] of [
+    ['index.md', 'en'],
+    ['ko/index.md', 'ko'],
+    ['ja/index.md', 'ja'],
+    ['zh-hans/index.md', 'zh-Hans'],
+  ]) {
+    const [[tag, attrs, json]] = appStructuredData(page, site, { description: 'About', version: '1.2.0' });
+    assert.equal(tag, 'script');
+    assert.equal(attrs.type, 'application/ld+json');
+    const data = JSON.parse(json);
+    assert.equal(data['@type'], 'SoftwareApplication');
+    assert.equal(data.inLanguage, lang);
+    assert.equal(data.description, 'About');
+    assert.equal(data.softwareVersion, '1.2.0');
+    assert.equal(data.offers.price, '0');
+    assert.match(data.operatingSystem, /macOS.*Windows.*Linux/);
+    assert.ok(data.url.startsWith(site));
+  }
+  for (const page of ['guide/faq.md', 'ko/guide/chat.md', 'dev/index.md'])
+    assert.deepEqual(appStructuredData(page, site, { description: 'x', version: '1' }), []);
+  // A description is not code: a closing script tag in it cannot end the block early.
+  const [[, , json]] = appStructuredData('index.md', site, { description: '</script><b>', version: '1' });
+  assert.doesNotMatch(json, /<\/script/i);
+  assert.equal(JSON.parse(json).description, '</script><b>');
+});
+
+test('crawlers find the sitemap, and answer engines get a short summary of the app', () => {
+  const site = JSON.parse(read('package.json')).homepage;
+  assert.match(read('website/public/robots.txt'), new RegExp(`^Sitemap: ${site}sitemap\\.xml$`, 'm'));
+  const llms = read('website/public/llms.txt');
+  assert.match(llms, /^# PlayPets$/m);
+  for (const fact of ['Codex pet', 'Claude Code', 'Gemini CLI', 'Cursor', 'MIT', 'not affiliated with OpenAI'])
+    assert.ok(llms.includes(fact), fact);
+  for (const page of ['guide/faq', 'guide/import', 'guide/agents']) assert.ok(llms.includes(`${site}${page}`), page);
+});
+
+test('every FAQ opens with what PlayPets is and how it relates to Codex pets', () => {
+  for (const [dir, what, codex] of [
+    ['', 'What is PlayPets?', 'Does it work with Codex pets?'],
+    ['ko/', 'PlayPets는 어떤 앱인가요?', 'Codex 펫도 쓸 수 있나요?'],
+    ['ja/', 'PlayPetsはどんなアプリですか？', 'Codexのペットも使えますか？'],
+    ['zh-hans/', 'PlayPets 是什么？', '能用 Codex 宠物吗？'],
+  ]) {
+    const headings = [...read(`website/${dir}guide/faq.md`).matchAll(/^## (.+)$/gm)].map(([, title]) => title);
+    assert.deepEqual(headings.slice(0, 2), [what, codex], dir || 'en');
+  }
+});

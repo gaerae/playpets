@@ -1,22 +1,10 @@
 export const copy = {
-  sceneNote: 'Bring compatible Codex pet files into your yard. Find community pets at:',
-  communities: [
-    'OpenPets Registry',
-    'Petdex',
-    'Codex PokéPets',
-    'Awesome Codex Pet',
-    'Codex Pets',
-    'a GitHub folder',
-    'a folder on your disk',
-  ],
-  whyThanks: 'Thank you to everyone who drew these pets. PlayPets exists so they can move on more desks.',
-  diffNote:
-    'Codex pets are a feature of OpenAI Codex. PlayPets is a separate open-source app that follows that pet file format, and it works without Codex.',
+  diffNote: 'Codex is a trademark of OpenAI. PlayPets is an independent open-source app that reads the same pet files.',
   chatAlt: 'A conversation with a companion',
   github: 'View on GitHub',
   guide: 'Read the guide',
   more: 'How it works',
-  eyebrow: 'Desktop pets for macOS, Windows and Linux',
+  eyebrow: 'Free desktop pet app for macOS, Windows and Linux',
   download: 'Download PlayPets',
   meet: 'Meet the friends',
   finalTitle: 'Your little company, every day.',
@@ -43,8 +31,8 @@ export const worldCopy = {
   previewNote:
     'An interactive scene sample with the app’s artwork. Select a friend to wave; games and weather live in the app.',
   greet: 'Say hello',
-  title: ['Little friends who live', 'beside your work.'],
-  lead: 'Four of them share a small yard on your desktop. They play on their own, talk with you and with each other through the AI you choose, and cheer you on while your coding agent works.',
+  title: ['Your Codex pets,', 'together in one yard.'],
+  lead: 'Bring in the Codex pets you already have, or the four friends that come with PlayPets. Up to 12 play together, chat through the AI you choose and cheer you on while you code.',
   worldsTitle: 'Try a little of it here.',
   worldsLead: 'Pick a place and a season, then say hello to a friend.',
   sceneLabel: 'Choose a place and season',
@@ -59,6 +47,28 @@ export const worldCopy = {
   sceneCaption: (v: string) => `Actual app captures, PlayPets ${v}`,
 };
 export const sections = {
+  compare: {
+    caption: 'Pet features: what a Codex pet file brings, and what PlayPets adds',
+    head: ['Codex pet', 'With PlayPets'],
+    rows: [
+      ['Pet file', 'pet.json and a sprite sheet', 'The same file, read as it is'],
+      ['Motions', '9 actions, 16 look directions', 'All of them, plus strolls in the yard and on your desktop'],
+      ['Pets at once', 'One at a time', 'Up to 12 together'],
+      ['Conversation', 'Shows task status', 'Talks with you and with other pets through the AI you choose'],
+      [
+        'Coding agents',
+        'Codex, every chat in one pet',
+        'Each agent reports to its own pet: Claude Code, Codex, Gemini CLI, Cursor and MCP tools',
+      ],
+      ['Play', '—', 'Hide and seek, parade and tag in the yard'],
+      ['Outfits', '—', 'Starter pets dress for the season; any pet file can add seasonal sheets'],
+    ],
+    source: 'Codex pet column: OpenAI’s pet guide, October 2026',
+  },
+  codexPlusTitle: ['Keep your pet in ChatGPT,', 'and bring the whole group here.'],
+  codexPlusLead:
+    'The same Codex pet files work in both. In ChatGPT, one pet keeps an eye on Codex. In PlayPets, up to 12 gather, talk to each other and follow Claude Code, Gemini CLI and Cursor too.',
+  codexPlusLink: 'Bring in your Codex pets',
   discoveryGuide: 'See what you can discover',
   galleryCreate: 'Create with this friend',
   petNotes: {
@@ -97,7 +107,7 @@ export const sections = {
   connectionDetails: 'Conversation setup and costs',
   connectionSetup:
     'Use local Ollama, your signed-in Claude Code or Codex CLI, or an OpenAI-compatible server. CLI use stays within subscription limits; API servers may charge separately.',
-  heroFacts: ['Free and open source (MIT)', 'Play without an AI account', 'English, 한국어, 日本語, 简体中文'],
+  heroFacts: ['Free and open source (MIT)', 'Play without Codex or an AI account', 'English, 한국어, 日本語, 简体中文'],
   heroAgents: 'Reacts to',
   miniDesktop: 'Let them out onto your desktop',
   togetherTitle: 'They talk among themselves, too.',

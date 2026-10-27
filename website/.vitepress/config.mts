@@ -2,13 +2,15 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'vitepress';
 import { websiteNotices } from '../../scripts/licenses-lib.mjs';
-import { alternateLinks } from './locale-head.mjs';
+import { alternateLinks, appStructuredData } from './locale-head.mjs';
 import { devSidebar } from './sidebar-dev.mts';
 
 const repo = 'https://github.com/gaerae/playpets';
 // The site's address is package.json "homepage"; the base path follows from it, so moving the site
 // to its own domain is one edit there (docs/how-to/site-address.md).
-const site: string = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).homepage;
+const { homepage: site, version }: { homepage: string; version: string } = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
+);
 const base = new URL(site).pathname;
 // Browsers can retain a tab icon independently of the page's normal image cache.
 const iconRevision = createHash('sha256')
@@ -65,9 +67,10 @@ export default defineConfig({
       label: 'English',
       lang: 'en-US',
       description:
-        'Meet Daisy, Clover and Pip in a calming desktop yard. Explore four places, play without an account, bring Codex pets and connect your AI when you want to chat.',
+        'Free, open-source desktop pet app for your Codex pets: up to 12 at once, chatting with each other and reacting to Claude Code, Codex, Gemini CLI and Cursor.',
       themeConfig: {
         nav: [
+          { text: 'Home', link: '/', activeMatch: '^/$' },
           { text: 'Download', link: '/#download', activeMatch: '^/#download' },
           { text: 'Studio', link: '/guide/creator-kit', activeMatch: '^/guide/(creator-kit|background-kit)' },
           { text: 'Guide', link: '/guide/', activeMatch: '^/guide/(?!creator-kit|background-kit)' },
@@ -110,9 +113,10 @@ export default defineConfig({
       lang: 'ko-KR',
       link: '/ko/',
       description:
-        '데이지, 클로버, 핍과 함께하는 작은 데스크톱 놀이터예요. 네 장소에서 놀고 꽃을 키워요. Codex 펫을 데려오고, 대화하고 싶을 때 내 AI를 연결할 수 있어요.',
+        '내 Codex 펫을 바탕화면 놀이터로 데려오는 무료 데스크톱 펫 앱이에요. 12명까지 함께 놀고, 서로 이야기하고, Claude Code, Codex, Gemini CLI, Cursor에 반응해요.',
       themeConfig: {
         nav: [
+          { text: '홈', link: '/ko/', activeMatch: '^/ko/$' },
           { text: '다운로드', link: '/ko/#download', activeMatch: '^/ko/#download' },
           { text: '제작실', link: '/ko/guide/creator-kit', activeMatch: '^/ko/guide/(creator-kit|background-kit)' },
           { text: '사용 안내', link: '/ko/guide/', activeMatch: '^/ko/guide/(?!creator-kit|background-kit)' },
@@ -164,13 +168,14 @@ export default defineConfig({
       lang: 'ja-JP',
       link: '/ja/',
       description:
-        'デイジー、クローバー、ピップと過ごす小さなデスクトップの庭。四つの場所で遊び、花を育て、Codexのペットも迎えられます。話したいときは自分のAIをつなげます。',
+        '手もとのCodexペットをデスクトップの庭へ迎える無料アプリ。12人まで一緒に遊び、友だち同士で話し、Claude Code、Codex、Gemini CLI、Cursorに反応します。',
       themeConfig: {
         nav: [
+          { text: 'ホーム', link: '/ja/', activeMatch: '^/ja/$' },
           { text: 'ダウンロード', link: '/ja/#download', activeMatch: '^/ja/#download' },
           { text: '制作室', link: '/ja/guide/creator-kit', activeMatch: '^/ja/guide/(creator-kit|background-kit)' },
           { text: '使い方', link: '/ja/guide/', activeMatch: '^/ja/guide/(?!creator-kit|background-kit)' },
-          { text: '開発者向け（英語）', link: '/dev/' },
+          { text: '開発（英語）', link: '/dev/' },
         ],
         sidebar: {
           '/ja/guide/': [
@@ -220,9 +225,10 @@ export default defineConfig({
       lang: 'zh-Hans',
       link: '/zh-hans/',
       description:
-        '和 Daisy、Clover、Pip 一起待在桌面上的小世界。探索四个场景、玩耍和种花，也可以带来 Codex 宠物；想聊天时，再连接自己的 AI。',
+        '把你的 Codex 宠物带到桌面乐园的免费桌宠应用：最多 12 位一起玩、互相聊天，还会对 Claude Code、Codex、Gemini CLI、Cursor 做出反应。',
       themeConfig: {
         nav: [
+          { text: '首页', link: '/zh-hans/', activeMatch: '^/zh-hans/$' },
           { text: '下载', link: '/zh-hans/#download', activeMatch: '^/zh-hans/#download' },
           {
             text: '制作室',
@@ -338,6 +344,7 @@ export default defineConfig({
       ['meta', { property: 'og:locale', content: locale }],
       ['meta', { property: 'og:image', content: image }],
       ['meta', { name: 'twitter:image', content: image }],
+      ...appStructuredData(pageData.relativePath, site, { description, version }),
     ];
   },
   markdown: {

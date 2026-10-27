@@ -1,22 +1,10 @@
 export const copy = {
-  sceneNote: '호환되는 Codex 펫 파일을 가져와요. 커뮤니티 펫을 만날 수 있는 곳:',
-  communities: [
-    'OpenPets Registry',
-    'Petdex',
-    'Codex PokéPets',
-    'Awesome Codex Pet',
-    'Codex Pets',
-    'GitHub 폴더',
-    '내 컴퓨터 폴더',
-  ],
-  whyThanks: '펫을 그린 분들께 고마워요. 이 앱은 그 펫들이 더 많은 책상 위에서 움직이게 하려고 만들었어요.',
-  diffNote:
-    'Codex 펫은 OpenAI Codex의 기능이에요. PlayPets는 그 펫 파일 형식을 따르는 별도의 오픈소스 앱이고, Codex가 없어도 돼요.',
+  diffNote: 'Codex는 OpenAI의 상표예요. PlayPets는 같은 펫 파일을 읽는 독립 오픈소스 앱이에요.',
   chatAlt: '친구와 나눈 대화',
   github: 'GitHub에서 보기',
   guide: '사용 안내 읽기',
   more: '자세히',
-  eyebrow: 'macOS, Windows, Linux용 데스크톱 펫',
+  eyebrow: 'macOS, Windows, Linux용 무료 데스크톱 펫 앱',
   download: 'PlayPets 다운로드',
   meet: '친구 먼저 만나기',
   finalTitle: '내일도 여기서 만나요.',
@@ -42,8 +30,8 @@ export const worldCopy = {
   seasonLabel: '계절 고르기',
   previewNote: '앱의 배경과 캐릭터로 만든 미리보기예요. 친구를 누르면 인사해요. 놀이와 날씨 변화는 앱에서 즐겨 보세요.',
   greet: '인사하기',
-  title: ['일하는 화면 한쪽에', '친구들이 살아요.'],
-  lead: '네 친구가 바탕화면 위 작은 놀이터에서 자기들끼리 놀아요. 내가 고른 AI로 나와 이야기하고 서로 수다도 떨어요. 코딩 에이전트가 일하는 동안에는 곁에서 응원해요.',
+  title: ['내 Codex 펫들이', '한 놀이터에 모여요.'],
+  lead: '갖고 있는 Codex 펫을 그대로 불러오거나 기본 펫 넷을 데려와요. 12명까지 함께 놀며 내가 고른 AI로 수다를 떨고, 코딩하는 동안에는 곁에서 응원해요.',
   worldsTitle: '여기서 한번 놀아 보세요.',
   worldsLead: '장소와 계절을 고르고 친구에게 인사해 보세요.',
   sceneLabel: '장소와 계절 고르기',
@@ -58,6 +46,28 @@ export const worldCopy = {
   sceneCaption: (v: string) => `실제 앱 화면, PlayPets ${v}`,
 };
 export const sections = {
+  compare: {
+    caption: '펫 기능: Codex 펫 파일이 가진 것과 PlayPets가 더하는 것',
+    head: ['Codex 펫', 'PlayPets에서는'],
+    rows: [
+      ['펫 파일', 'pet.json과 스프라이트 시트', '같은 파일을 그대로 읽어요'],
+      ['움직임', '동작 9가지, 시선 16방향', '모두 그대로, 놀이터와 바탕화면 산책까지'],
+      ['함께 있는 펫', '한 번에 하나', '12명까지 함께'],
+      ['대화', '작업 상태 표시', '내가 고른 AI로 나와 이야기하고 펫끼리도 수다를 떨어요'],
+      [
+        '코딩 도구',
+        'Codex, 모든 대화를 펫 하나가',
+        '도구마다 맡은 펫이 따로 알려 줘요: Claude Code, Codex, Gemini CLI, Cursor, MCP 도구',
+      ],
+      ['놀이', '—', '놀이터에서 숨바꼭질, 산책 행렬, 술래잡기'],
+      ['옷', '—', '기본 펫은 계절마다 옷을 갈아입고, 어떤 펫 파일이든 계절 시트를 더할 수 있어요'],
+    ],
+    source: 'Codex 펫 열: OpenAI 펫 안내, 2026년 10월 기준',
+  },
+  codexPlusTitle: ['ChatGPT 펫은 그대로 쓰고,', '친구들은 PlayPets에 더 불러요.'],
+  codexPlusLead:
+    '같은 Codex 펫 파일을 양쪽에서 함께 써요. ChatGPT에서는 펫 하나가 Codex 일을 지켜보고, PlayPets에서는 12명까지 모여 서로 수다를 떨고 Claude Code, Gemini CLI, Cursor에도 반응해요.',
+  codexPlusLink: '내 Codex 펫 데려오기',
   discoveryGuide: '도감에서 만날 것들',
   galleryCreate: '이 친구로 만들기',
   petNotes: {
@@ -96,7 +106,7 @@ export const sections = {
   connectionDetails: '대화 연결과 비용 알아보기',
   connectionSetup:
     '로컬 Ollama, 로그인한 Claude Code, Codex CLI, OpenAI 호환 서버를 골라요. CLI는 구독 사용 한도 안에서 쓰고, API 서버는 별도 비용이 들 수 있어요.',
-  heroFacts: ['무료 오픈소스(MIT)', 'AI 계정 없이도 놀아요', 'English, 한국어, 日本語, 简体中文'],
+  heroFacts: ['무료 오픈소스(MIT)', 'Codex나 AI 계정 없이도 놀아요', 'English, 한국어, 日本語, 简体中文'],
   heroAgents: '함께 일하는 코딩 도구',
   miniDesktop: '바탕화면으로 내보내기',
   togetherTitle: '친구끼리도 이야기해요.',

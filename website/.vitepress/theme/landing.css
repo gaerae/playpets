@@ -283,6 +283,152 @@ html[lang^="ja"] .landing {
 .no-motion .sprite i {
   animation-play-state: paused;
 }
+/* The Codex app beside PlayPets: one panel answering the hero, a real table so every row reads as a
+   pair, the PlayPets column lifted onto paper. One grey pet stands over the Codex column, the cast
+   over ours. */
+.codex-plus {
+  box-sizing: border-box;
+  width: min(1100px, 100% - 48px);
+  margin: 90px auto 0;
+  padding: 44px 48px 36px;
+  border-radius: 28px;
+  background: var(--world-lilac);
+}
+.codex-plus header {
+  max-width: 760px;
+  margin-bottom: 26px;
+}
+.codex-plus h2 {
+  margin: 0 0 14px;
+  font-size: clamp(28px, 3.2vw, 40px);
+}
+.codex-plus h2 span {
+  display: inline-block;
+}
+.codex-plus .section-lead {
+  margin: 0;
+  font-size: 16px;
+}
+.codex-compare {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.codex-compare th,
+.codex-compare td {
+  padding: 13px 18px;
+  text-align: left;
+  vertical-align: top;
+}
+.codex-compare thead th {
+  vertical-align: bottom;
+  font-size: 18px;
+  font-weight: 800;
+  padding-top: 18px;
+}
+.codex-compare tbody th,
+.codex-compare tbody td {
+  border-top: 1px solid #80999040;
+}
+.codex-compare tbody th {
+  width: 22%;
+  font-weight: 650;
+}
+.codex-compare tbody td:not(.ours) {
+  width: 30%;
+  color: var(--vp-c-text-2);
+}
+.codex-compare .ours {
+  background: var(--world-paper);
+}
+.codex-compare thead .ours {
+  border-radius: 18px 18px 0 0;
+}
+.codex-compare tbody tr:last-child .ours {
+  border-radius: 0 0 18px 18px;
+}
+.compare-cast {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+.compare-cast.one {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+.codex-plus .codex-source,
+.codex-plus .codex-note {
+  max-width: 680px;
+  font-size: 13px;
+  margin: 18px 0 0;
+}
+.codex-plus .codex-source a {
+  color: var(--vp-c-text-2);
+}
+.codex-plus .codex-note a {
+  font-weight: 600;
+  color: inherit;
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .codex-plus {
+    width: calc(100% - 24px);
+    margin-top: 70px;
+    padding: 30px 14px 26px;
+    border-radius: 22px;
+  }
+  .codex-plus header {
+    padding: 0 6px;
+  }
+  .codex-compare,
+  .codex-compare thead,
+  .codex-compare tbody {
+    display: block;
+  }
+  /* Each row becomes its label over the two answers side by side. */
+  .codex-compare tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .codex-compare thead td {
+    display: none;
+  }
+  .codex-compare th,
+  .codex-compare td {
+    padding: 10px 12px;
+  }
+  .codex-compare tbody th {
+    grid-column: 1 / -1;
+    width: auto;
+    padding-bottom: 2px;
+    font-size: 13px;
+    background: none;
+  }
+  .codex-compare tbody td {
+    border-top: 0;
+    font-size: 14px;
+  }
+  .codex-compare tbody td:not(.ours) {
+    width: auto;
+  }
+  /* The label sits on its own line, so each answer of ours is its own little card. */
+  .codex-compare tbody td.ours {
+    border-radius: 10px;
+  }
+  .codex-compare thead th {
+    font-size: 16px;
+  }
+  .compare-cast .sprite {
+    --display-scale: 0.19;
+  }
+  .codex-plus .codex-source,
+  .codex-plus .codex-note {
+    padding: 0 6px;
+  }
+}
 .feature,
 .connections,
 .creator-story,

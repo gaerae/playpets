@@ -1,0 +1,23 @@
+# PlayPets
+
+> PlayPets is a free, open-source (MIT) desktop pet app for macOS, Windows and Linux. It reads Codex pet files as they are, lets up to 12 pets share one yard and the desktop, lets them talk with you and with each other through an AI you choose, and has them react while a coding agent works.
+
+- Codex pets: PlayPets reads the same pet files (a `pet.json` and a sprite sheet) with all nine actions and sixteen look directions. Codex is not needed. PlayPets is not affiliated with OpenAI; Codex is a trademark of OpenAI.
+- Many pets at once: up to 12 friends in the yard and on the desktop. The ChatGPT desktop app shows the one pet you pick ([OpenAI's pet guide](https://learn.chatgpt.com/docs/pets), October 2026). Four starter pets (Daisy, Clover, Pip, Miso) also dig, plant, fish and wear seasonal outfits.
+- Coding agents: reacts to Claude Code, Codex, Gemini CLI, Cursor and other MCP tools through local hooks.
+- Chat: a signed-in Claude Code or Codex CLI, local Ollama, or an OpenAI-compatible server. Games and gardening need no AI account.
+- Languages: English, Korean, Japanese, Simplified Chinese.
+
+## Guide
+
+- [Install](https://playpets.gaerae.com/guide/install): Microsoft Store, winget, Homebrew and direct downloads
+- [FAQ](https://playpets.gaerae.com/guide/faq): cost, privacy, Codex pets, troubleshooting
+- [Bring in Codex pets](https://playpets.gaerae.com/guide/import): community sites, GitHub folders and folders on disk
+- [Coding agents](https://playpets.gaerae.com/guide/agents): what each agent reports and how to connect it
+- [Chat](https://playpets.gaerae.com/guide/chat): AI connections and what they cost
+
+## Optional
+
+- [Release notes](https://playpets.gaerae.com/releases/)
+- [Source code](https://github.com/gaerae/playpets)
+- [Developer docs](https://playpets.gaerae.com/dev/)

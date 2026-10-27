@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = file => readFileSync(file, 'utf8');
-test('landing introduces every built-in companion before optional AI and coding', () => {
+test('landing introduces every built-in companion before optional AI setup', () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.ok(landing.indexOf('<PetGallery') < landing.indexOf('class="connections"'));
   assert.ok(landing.indexOf('class="connections"') < landing.indexOf('class="developer-note"'));
@@ -26,7 +26,9 @@ test('landing introduces every built-in companion before optional AI and coding'
 test('the landing lets visitors play a chat and a coding session instead of looking at captures', async () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.ok(landing.indexOf('<PetGallery') < landing.indexOf('class="together-story'));
-  assert.ok(landing.indexOf('class="connections"') < landing.indexOf('class="work-story'));
+  // Coding company is the reason most visitors come, so it follows the hero and what PlayPets adds.
+  assert.ok(landing.indexOf('class="codex-plus"') < landing.indexOf('class="work-story'));
+  assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<PetGallery'));
   assert.ok(landing.indexOf('class="together-story') < landing.indexOf('<ChatDemo'));
   assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<AgentDemo'));
   assert.doesNotMatch(landing, /shotUrl\('(yard-talk|desktop)'\)/);
@@ -53,6 +55,43 @@ test('the first screen names the coding agents and every question on the landing
     const { worldCopy } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
     assert.ok(worldCopy.discoveryLink?.length, lang);
   }
+});
+
+test('the top of the landing compares the Codex app with PlayPets, in every language', async () => {
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.ok(landing.indexOf('</section>') < landing.indexOf('class="codex-plus"'), 'right after the hero');
+  // A real table, so a screen reader and an answer engine read each row as Codex app / PlayPets.
+  assert.match(landing, /<table class="codex-compare">/);
+  assert.match(landing, /<caption class="visually-hidden">\{\{ t\.compare\.caption \}\}/);
+  assert.match(landing, /v-for="\(\[label, codex, ours\]\) in t\.compare\.rows"/);
+  assert.match(landing, /<th scope="row">\{\{ label \}\}/);
+  // The Codex column is dated and sourced, and the difference from OpenAI's feature sits under it.
+  assert.match(landing, /href="https:\/\/learn\.chatgpt\.com\/docs\/pets">\{\{ t\.compare\.source \}\}/);
+  assert.match(landing, /class="codex-note">\{\{ t\.diffNote \}\}/);
+  assert.match(landing, /path\('\/guide\/import'\)">\{\{ t\.codexPlusLink \}\}/);
+  const en = (await import('../website/.vitepress/theme/landing-en.ts')).sections.compare;
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { copy, sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const { compare } = sections;
+    assert.equal(compare.head.length, 2, lang);
+    assert.equal(compare.rows.length, en.rows.length, lang);
+    for (const row of compare.rows) assert.ok(row.length === 3 && row.every(cell => cell.length), lang);
+    assert.match(compare.source, /2026/, lang);
+    assert.match(copy.diffNote, /OpenAI/, lang);
+    assert.equal(sections.codexPlusTitle.length, 2, lang);
+    assert.match(sections.codexPlusTitle[0], /ChatGPT/, lang);
+  }
+});
+
+test('every page leads back to the landing from the nav', () => {
+  const config = read('website/.vitepress/config.mts');
+  for (const [label, link, match] of [
+    ['Home', '/', '^/$'],
+    ['홈', '/ko/', '^/ko/$'],
+    ['ホーム', '/ja/', '^/ja/$'],
+    ['首页', '/zh-hans/', '^/zh-hans/$'],
+  ])
+    assert.ok(config.includes(`{ text: '${label}', link: '${link}', activeMatch: '${match}' }`), label);
 });
 
 test('every landing makes download a primary destination in the nav and hero', async () => {

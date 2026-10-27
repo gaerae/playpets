@@ -21,3 +21,11 @@ Before launch (2026-10-05), we looked at open-source desktop pet apps that react
 | Keep "Codex pets, now outside Codex too" | Many apps could say the same thing. It would put the common ground first instead of what PlayPets adds |
 | Switch to the pixel-office agent dashboard angle | The office group is session-centered and moving toward command features. PlayPets friends are permanent companions and do not send prompts. Borrowing the name would set the wrong expectations |
 | Compete on the number of supported agents | Some apps already support more than 20 agents. A longer list adds little for the person using the app |
+
+## Follow-up (2026-10-28)
+- The first line now leads with Codex pets: "Your Codex pets, together in one yard" on the site, "Your Codex pets, together on your desktop" in the README and page titles.
+- Why: many apps play Codex pets, so the word alone does not set PlayPets apart, but it is what people search for and what answer engines match. Naming the format first and the difference right after reaches Codex pet collectors without hiding what PlayPets adds.
+- The difference is stated as checkable facts: the ChatGPT desktop app shows the one pet you pick ([OpenAI's guide](https://learn.chatgpt.com/docs/pets); a request for several pets, [openai/codex#35577](https://github.com/openai/codex/issues/35577), is open), while PlayPets plays up to 12 that talk to each other and react to several coding agents.
+- PlayPets is shown as company for the ChatGPT app's pet, not a replacement: keep one pet there and bring the whole group, other coding agents included, to PlayPets.
+- "More motions" is said only as what is true: pet files keep Codex's nine actions and sixteen look directions; the four starter pets add digging, planting, fishing and seasonal outfits.
+- Still true: the app, the domain and badges are not named after Codex pets. The landing says once that Codex is OpenAI's trademark and PlayPets is independent; the README keeps its trademark line.
