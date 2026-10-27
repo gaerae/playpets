@@ -66,7 +66,8 @@ flowchart LR
 - Every kind: fish, bugs, flowers, gifts, the garden's stages.
 - The scenery's composition: curves, field, lake, layers.
 - The seasonal events and the drawings.
-- Loaded at start by `src/yard/content.js`. The backend builds the catalogue in (`pets/content.rs`).
+- Loaded at start by `src/yard/content.js`.
+- The backend has the catalogue built in (`pets/content.rs`).
 - [How to add](how-to/add-to-the-yard.md), [design](design/2026-10-10-yard-content-as-data.md).
 
 ### Yard life
@@ -98,7 +99,7 @@ Trips and tasks (`trips.js`):
 - `sendTo`/`release`: a friend's trip.
 - `setDoing`: what it does where it stands.
 - Also `isFree`, `nearestFree`, `rest`.
-- Each belongs to whoever started it, so anything that takes the friend ends them.
+- Each belongs to whoever started it, so anything that takes over the friend ends them.
 
 Work on the ground (`work.js`):
 - Digging and planting send a friend so its held tool meets the spot.
@@ -107,35 +108,36 @@ Work on the ground (`work.js`):
 The frame loop and shared tables:
 - `app.js` runs the frame loop and calls each feature's tick in a fixed order (`YARD_LIFE` between games).
 - `app.js` sends each backend event to its handler from one table (`ON_EVENT`).
-- Keyboard shortcuts are one table in `core/keys.js`, the same keys as the macOS menu bar (`menu.rs`). `keys.test.mjs` keeps them alike.
-- Things that come now and then use `cadence`; things that follow the clock use `everyMinute`. Both are from `core/ticker.js`.
-- The limits the page shows before the backend's state arrives are in `core/limits.js`, the same values as `pets::limits()`.
+- Keyboard shortcuts are one table in `core/keys.js`, the same keys as the macOS menu bar (`menu.rs`).
+- `keys.test.mjs` keeps the two in sync.
+- Occasional work uses `cadence`; work that follows the clock uses `everyMinute`. Both come from `core/ticker.js`.
+- The limits the page shows before the backend's state arrives live in `core/limits.js`, with the same values as `pets::limits()`.
 
 ### App state
 `AppData` holds:
 - friends, the pet list, AI connections
-- the switches in `Prefs`: desktop, roaming, language, chatter, sound, the window bounds and Always on top setting. Each is one field, one line to read it back and one to write it.
-- the conversations and the answers on their way in, in `chat::Talks`
+- the switches in `Prefs`: desktop, roaming, language, chatter, sound, the window bounds and the Always on top setting. Each is one field, with one line to read it back and one to write it.
+- conversations and answers still arriving, in `chat::Talks`
 - status
 - the garden (`pets/garden.rs`), the album (`pets/album.rs`), closeness (`pets/bond.rs`)
 
 Saving and announcing:
 - A command that changes the state goes through `commit`, which saves and announces once.
 - A change made in place uses `save_and_show`.
-- A change that could not be saved still stands and is shown.
+- A change that could not be saved still takes effect and is shown.
 
 Locks:
 - The state is taken with `app::lock`, every other mutex with `app::hold`.
-- Both take a poisoned lock as it is ([backend locks](standards/backend-locks.md)).
+- Both accept a poisoned lock as is ([backend locks](standards/backend-locks.md)).
 
 Parked entries:
 - Saved friends whose pet file was not found at this start are parked (`AppData.parked_pets`).
-  - Not shown; written back as they were, with their closeness.
-  - They come back once the file does.
+  - They are not shown, and are written back as they were, with their closeness.
+  - They return once the file does.
 - Connections this version cannot read are parked the same way (`parked_providers`).
 
 Days:
-- Days the page names are checked against the latest date it is anywhere on Earth (`pets::latest_day`, `has_come`).
+- Days the page sends are checked against the latest date that has begun anywhere on Earth (`pets::latest_day`, `has_come`).
 - A day saved from a clock set ahead is forgotten at start (`forget_days_after`), so it cannot hold back the days after.
 
 Format:
@@ -150,7 +152,7 @@ Format:
   - `launch.rs`: starting a CLI
   - `claude.rs`, `codex.rs`: each CLI
 - A stopped CLI ends with every process it started: a process group on Unix, a job object on Windows.
-- Also HTTP AI and prompts.
+- Also handles HTTP AI and prompts.
 - Everything that differs per AI kind (request and response shape, key rules, default address) is one table in `kind.rs`.
 
 ### Pets
@@ -164,18 +166,19 @@ Format:
 - One frameless, freely resizable yard window, 300 × 210 minimum.
   - Bounds are saved as `windowRect`, pin state as `alwaysOnTop`.
   - Legacy `miniRect` is read only as a migration fallback.
-- The tray menu, built again from the state on every change:
+- The tray menu, rebuilt from the state on every change:
   - check-marked switches that appear only when they apply
   - a mark on the icon when a coding agent waits
-- The macOS menu bar. One handler, `menu::act`, serves both it and the tray.
+- The macOS menu bar. One handler, `menu::act`, serves both the menu bar and the tray.
 - Opens folders and addresses through the OS.
 
 ### Update notice
 - The main page shows an available update before the place selector in the yard dock.
 - Installation starts from its dialog.
 - Before handing control to the platform installer, the page records the source and target version in local storage (`update-restart`).
-- After bootstrap, it consumes that record and shows one timed notice, only when the running version matches the target.
-- A failed installation clears the record. An ordinary restart never claims an update succeeded.
+- After bootstrap, it consumes that record and shows one timed notice, but only if the running version matches the target.
+- A failed installation clears the record.
+- An ordinary restart never claims an update succeeded.
 
 ## Places, artwork and friend identity
 
@@ -189,29 +192,23 @@ Format:
 | Lakeside cottage | `lakeside` |
 | Cozy living room | `studio` |
 
-- Each describes its activity capabilities, floor and pond geometry, lighting
-  images and window panes.
-- `yard/environment.js` paints the accepted raster backdrop. `easel.js` keeps
-  the procedural loading/error fallback.
-- `weatherPanes` clips indoor rain, snow and overcast shading to the authored
-  windows.
-- Outdoor places support fishing and bugs. The living room keeps friends,
-  garden, gifts and games without those outdoor activities.
-- Changing places ends active trips and games rather than transferring their
-  old geometry.
+- Each describes its activity capabilities, floor and pond geometry, lighting images and window panes.
+- `yard/environment.js` paints the accepted raster backdrop. `easel.js` keeps the procedural loading/error fallback.
+- `weatherPanes` clips indoor rain, snow and overcast shading to the authored windows.
+- Outdoor places support fishing and bugs.
+- The living room keeps friends, garden, gifts and games, without those outdoor activities.
+- Changing places ends active trips and games rather than transferring their old geometry.
 - Imported background packages use the same capability and geometry contract.
 
 ### Time, weather and seasons
 - With Auto selected, `yard/scene.js` follows the local clock for time of day.
-- Automatic weather: a simulated choice per 20-minute block, snow only in
-  winter. It does not fetch local forecasts or geolocation.
-- Automatic seasons: the local calendar and an approximate hemisphere inferred
-  from the system time zone, or the person's override.
+- Automatic weather: a simulated choice per 20-minute block, with snow only in winter.
+- It does not fetch local forecasts or geolocation.
+- Automatic seasons: the local calendar and an approximate hemisphere inferred from the system time zone, or the person's override.
 - New yards start in spring daylight with clear weather.
 - Saved choices, including Auto, stay unchanged.
 - The yard and overlay share that choice through local storage.
-- Festivals keep their calendar dates even when the visible season is
-  overridden.
+- Festivals keep their calendar dates even when the visible season is overridden.
 
 ### Friend identity
 - The four bundled identities: Daisy, Clover, Pip and Miso.
@@ -221,30 +218,27 @@ Format:
   - the original cats → Clover, before restoration
 - Friend IDs, names, settings and closeness stay unchanged.
 - Imported pets are not matched by this path-based migration.
-- Old unpacked directories stay on disk but are excluded from the built-in
-  catalog.
-- The catalog checks the optional baseline `portraitPath`, seasonal sheets and
-  the legacy alternate-appearance fields, and serves them through the same
-  sprite protocol.
-- A selected appearance changes drawing material, not the relationship or the
-  AI connection.
+- Old unpacked directories stay on disk but are excluded from the built-in catalog.
+- The catalog checks the optional baseline `portraitPath`, seasonal sheets and the legacy alternate-appearance fields, and serves them through the same sprite protocol.
+- A selected appearance changes drawing material, not the relationship or the AI connection.
 - Full contract: [Pet file format](standards/pet-files.md).
 
 ## Data flow
 What each arrow in the diagram carries, path by path.
 
 1. **Page commands:**
-   - The page calls something like `window.playPets.addPet(id)`. Tauri passes it to `commands::call`.
-   - `call` checks that the calling window may use that command (the overlay may use only five), and handles it on a worker thread.
+   - The page calls something like `window.playPets.addPet(id)`, and Tauri passes it to `commands::call`.
+   - `call` checks that the calling window may use that command (the overlay may use only five), then handles it on a worker thread.
    - The handler changes `AppData` inside the app state lock and saves to `state.json`.
-   - The result is `{ok, data}` or `{ok: false, error}`. The error sentence is already in the current language.
+   - The result is `{ok, data}` or `{ok: false, error}`.
+   - The error sentence is already in the current language.
 2. **State notifications:**
-   - On a state change, `app::changed` builds the full state for the page and puts it into every window as `__pp('change', state)`. The page redraws.
-   - One-off happenings (speech bubbles, reactions, chat arrivals, window hidden, new version) go separately as `__pp('event', …)`.
+   - On a state change, `app::changed` builds the full state for the page and sends it to every window as `__pp('change', state)`. The page redraws.
+   - Things that happen once (speech bubbles, reactions, chat arrivals, window hidden, new version) are sent separately as `__pp('event', …)`.
 3. **Sprites:**
    - The page's image address is `pet-asset://sprite/<pet id>` (on Windows, `http://pet-asset.localhost/sprite/<pet id>`).
    - The backend reads the file on a worker thread and returns it.
-   - The response carries a CORS allow header: the page reads pixels to measure the empty rows at the top of each cell.
+   - The response carries a CORS allow header, because the page reads pixels to measure the empty rows at the top of each cell.
 4. **Agent status:**
    - A coding agent's hook runs `playpets hook claude`: the same executable in CLI mode, with no window.
    - It turns the hook payload into a state and a code (`@tool Bash`).
@@ -260,11 +254,11 @@ What each arrow in the diagram carries, path by path.
    - Answers stay in the in-memory chat history (the latest 24 per friend) and reach the page as a `chat-message` event.
    - Chat history is not saved to a file.
 6. **Desktop:**
-   - The overlay thread reads the cursor every 40ms while moving, 120ms while quiet.
+   - The overlay thread reads the cursor every 40 ms while moving and every 120 ms while quiet.
    - Each read advances strolls and drags by one step.
    - Only the monitor window with the cursor over a friend takes clicks.
-   - When a friend moves, it sends the layout to that monitor's window.
-   - When the cursor comes onto a friend or leaves it, a `hover` event tells the windows which friend shows its name button.
+   - When a friend moves, the thread sends the layout to that monitor's window.
+   - When the cursor enters or leaves a friend, a `hover` event tells the windows which friend shows its name button.
    - A friend belongs to the monitor whose work area holds the centre of its box.
    - Resting positions are batched and saved within 2 seconds.
 7. **Update:**
@@ -332,9 +326,9 @@ The `e2e` build (`cargo build --profile e2e --features e2e`):
 - Skips the update check.
 
 `WEBKIT_DISABLE_DMABUF_RENDERER` on Linux:
-- The app sets it to `1` at start when it is unset. The DMA-BUF renderer leaves a blank window without a usable GPU.
+- The app sets it to `1` at start when it is unset, because the DMA-BUF renderer leaves a blank window without a usable GPU.
 - The browser or file manager the app opens starts without it.
-- A value already set is left as it is and passed on.
+- A value that is already set is kept and passed on.
 
 Start at login:
 - The system starts the app at login with `--autostart` (`tauri-plugin-autostart`): a LaunchAgent on macOS, the Run key on Windows, an autostart entry on Linux.
@@ -342,13 +336,16 @@ Start at login:
 
 The yard window:
 - Frameless on every OS.
-- A narrow transparent target along the top edge moves the window without reserving title-bar space. Edges and corners resize it.
+- A narrow transparent target along the top edge moves the window without reserving title-bar space.
+- Edges and corners resize it.
 - Small sizes use responsive layouts in the same window.
-- Always on top: the shared yard and right-click menu, the tray and the macOS menu bar toggle it, independently of size.
+- Always on top: the shared yard and right-click menu, the tray and the macOS menu bar each toggle it, independent of size.
 - Cmd/Ctrl+Shift+M toggles Always on top without resizing.
-- Fullscreen: the shared menu enters it and returns to the previous size. Esc leaves fullscreen after open menus and dialogs close.
+- Fullscreen: the shared menu enters it and returns to the previous size.
+- Esc leaves fullscreen once open menus and dialogs are closed.
 - Fullscreen preserves the previous window bounds and Always on top setting for restoration.
-- The menu can hide the yard to the tray. Native close requests also hide rather than quit.
+- The menu can hide the yard to the tray.
+- Native close requests also hide the window instead of quitting.
 
 What differs per OS:
 

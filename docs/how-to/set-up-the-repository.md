@@ -1,23 +1,24 @@
 # Set up the repository, keys and store accounts
 
 ## Purpose
-- Everything done once, in order, before PlayPets can be released and updated:
-  - the updater signing key;
-  - the GitHub repository and its settings;
-  - the CI secrets;
-  - the Homebrew tap and the winget submission;
-  - the optional signing accounts.
-- [Release a new version](release.md) assumes it is done.
-- Which secret does what: [Managing signing keys and secrets](../standards/keys-and-secrets.md).
-- Prices and conditions of the signing programs: [code signing and distribution channels](../reference/code-signing-and-distribution.md).
+- The one-time setup, in order, before PlayPets can be released and updated:
+  - the updater signing key
+  - the GitHub repository and its settings
+  - the CI secrets
+  - the Homebrew tap and the winget submission
+  - the optional signing accounts
+- [Release a new version](release.md) assumes this setup is done.
+- [Managing signing keys and secrets](../standards/keys-and-secrets.md) says what each secret does.
+- [Code signing and distribution channels](../reference/code-signing-and-distribution.md) lists the prices and conditions of the signing programs.
 
 ## Audience and assumptions
 - The maintainer, with:
-  - a GitHub account (`gaerae`) that owns the repository;
-  - a password manager (macOS Passwords, 1Password, Bitwarden or similar);
-  - the GitHub CLI logged in (`gh auth status`);
-  - this repository cloned.
-- Menu names are GitHub's as of 2026. On some accounts "Advanced Security" is still labeled "Code security".
+  - a GitHub account (`gaerae`) that owns the repository
+  - a password manager (macOS Passwords, 1Password, Bitwarden or similar)
+  - the GitHub CLI logged in (`gh auth status`)
+  - this repository cloned
+- Menu names are GitHub's as of 2026.
+- On some accounts "Advanced Security" is still labeled "Code security".
 
 | Account or service | Needed for | Cost | Sign-up |
 |---|---|---|---|
@@ -34,35 +35,29 @@
 
 For an existing repository, inspect it before creating keys or accounts again:
 - Locally: `git remote -v` and `git status --short`.
-- In the repository's Settings pages: Pages, the default-branch ruleset, workflow
-  permissions, private vulnerability reporting and secret scanning.
-- A configured but empty repository still needs its first code push before Actions
-  can validate the app and publish the site.
+- In the repository's Settings pages: Pages, the default-branch ruleset, workflow permissions, private vulnerability reporting and secret scanning.
+- A repository that is configured but empty still needs its first code push before Actions can validate the app and publish the site.
 
 The updater key:
-- Do not replace an existing updater key just because the secret values cannot be
-  read back from GitHub.
-- Confirm the saved public key matches `plugins.updater.pubkey` and retain its
-  private-key backup.
-- Secret names alone do not prove that the private key and password are correct;
-  a signed release build and update test confirm that.
+- Do not replace an existing updater key only because GitHub cannot show the secret values again.
+- Confirm that the saved public key matches `plugins.updater.pubkey`.
+- Keep its private-key backup.
+- Secret names alone do not prove that the private key and password are correct.
+- A signed release build and an update test confirm them.
 
 What the local repository already includes:
-- `.gitignore`, `.gitattributes`, `.editorconfig`, `.node-version`, Biome and
-  editor recommendations, issue and pull-request templates, Dependabot and review
-  guidance.
-- Native build, Pages, release, distribution, dependency submission and security
-  workflows.
-- `npm test` checks ignored generated/secret paths, pinned actions and the Pages
-  input paths. Run `actionlint` too when it is available.
-- `CODEOWNERS` and funding metadata are optional. Add them when there are review
-  owners or a real funding destination to name.
+- `.gitignore`, `.gitattributes`, `.editorconfig`, `.node-version`, Biome and editor recommendations, issue and pull-request templates, Dependabot and review guidance.
+- Native build, Pages, release, distribution, dependency submission and security workflows.
+- `npm test` checks the ignored generated and secret paths, the pinned actions and the Pages input paths.
+- Run `actionlint` too when it is available.
+- `CODEOWNERS` and funding metadata are optional.
+- Add them when there are review owners or a real funding destination to name.
 
 ### The updater signing key
 - Installed apps accept an update only if it is signed with this key.
 - Make it once, with a password, and never lose it.
 
-1. Generate a password in the password manager and save it: a new entry such as "PlayPets updater signing key", 20 or more random characters.
+1. In the password manager, generate a password of 20 or more random characters and save it in a new entry, such as "PlayPets updater signing key".
 
 2. Create the key pair. When asked, paste the password twice.
 
@@ -105,12 +100,13 @@ pbcopy < /dev/null
 | Settings → General → Releases | Enable **Release immutability** |
 | Settings → Rules → Rulesets | Import the three definitions in [`.github/rulesets/`](https://github.com/gaerae/playpets/tree/main/.github/rulesets) |
 
-   - Pull requests: review the commit body and retain co-author trailers before merging ([commit standard](../standards/commits-and-branches.md)).
-   - Custom domain: the complete setup and migration checks are in [Change the site address](site-address.md).
+   - Pull requests: review the commit body and keep co-author trailers before merging ([commit standard](../standards/commits-and-branches.md)).
+   - Custom domain: [Change the site address](site-address.md) has the complete setup and migration checks.
    - Private vulnerability reporting: `SECURITY.md`, the Code of Conduct and the issue form send reports there.
    - Release immutability applies to future releases.
      - Finish uploading and checking draft assets before publishing.
-     - After publication, preserve their files and tags and ship corrections in the next patch version.
+     - After publication, keep their files and tags.
+     - Ship corrections in the next patch version.
    - Rulesets:
 
    | Definition | What it does |
@@ -119,9 +115,12 @@ pbcopy < /dev/null
    | `main-review.json` | Requires squash PRs, resolved review threads, the six native/site checks, `Security checks` and CodeQL with no new high-severity security findings or analysis errors |
    | `release-tags.json` | Permits new `v*.*.*` tags but blocks later updates and deletions, with no bypass |
 
-   - `main-review.json`'s Repository admin exception allows only the documented operational use: pushing the generated release commit directly to main. The separate history rule still blocks deletion and force pushes for admins.
-   - Validate a tag locally before pushing. A mistaken pushed tag stays in history, and a correction uses a new version.
-   - Enable required-check and CodeQL rules only after those checks have run successfully. Their exact names and the GitHub Actions application ID are recorded in the definitions.
+   - The Repository admin exception in `main-review.json` allows only one documented use: pushing the generated release commit directly to main.
+   - The separate history rule still blocks deletion and force pushes for admins.
+   - Check a tag locally before pushing it.
+   - A mistaken tag that was pushed stays in history, and a correction uses a new version.
+   - Enable the required-check and CodeQL rules only after those checks have run successfully.
+   - The definitions record the checks' exact names and the GitHub Actions application ID.
 
 7. Push. Do not push with `--all` or `--tags`.
 
@@ -139,7 +138,7 @@ Optional, once the code is pushed: automatic reviews from CodeRabbit (free for p
 1. Sign in at https://app.coderabbit.ai with GitHub.
 2. Install its app with **Only select repositories** → `gaerae/playpets`. It reviews every pull request from then on.
 
-- It reads `.coderabbit.yaml` (what to review and how) and, as its guidelines, `AGENTS.md` and `docs/standards/`.
+- It reads `.coderabbit.yaml` (what to review and how), and uses `AGENTS.md` and `docs/standards/` as its guidelines.
 - Ask it things in a pull request comment with `@coderabbitai`.
 
 ### CI secrets for signed updates
@@ -153,7 +152,7 @@ gh secret set TAURI_SIGNING_PRIVATE_KEY --repo gaerae/playpets < ~/.tauri/plaype
 gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo gaerae/playpets
 ```
 
-   - From now on a release draft carries `latest.json` and the signed update files.
+   - From then on, every release draft includes `latest.json` and the signed update files.
 
 ### Homebrew tap
 - A tap is your own Homebrew repository.
@@ -162,12 +161,13 @@ gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo gaerae/playpets
 
 10. Create the tap and its token.
     1. At github.com/new: owner `gaerae`, name **`homebrew-tap`** (Homebrew finds it by this name), Public, **Add a README file** (so it has a `main` branch).
-       - One tap holds every app of the account: a later app adds its own `Casks/<app>.rb` there, with its own token.
+       - One tap holds every app of the account.
+       - A later app adds its own `Casks/<app>.rb` there, with its own token.
     2. Keep the tap checked:
-       - a workflow that runs `brew style` and `brew audit --cask --strict --online` on every push;
-       - Dependabot for its actions;
-       - a ruleset on `main` that blocks deletion and force pushes.
-       - Do not require pull requests there; `distribute` pushes to `main` directly.
+       - a workflow that runs `brew style` and `brew audit --cask --strict --online` on every push
+       - Dependabot for its actions
+       - a ruleset on `main` that blocks deletion and force pushes
+       - Do not require pull requests there: `distribute` pushes to `main` directly.
     3. Create a fine-grained token at github.com/settings/personal-access-tokens/new:
 
        | Field | Value |
@@ -177,24 +177,28 @@ gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo gaerae/playpets
        | Repository access | Only select repositories → `gaerae/homebrew-tap` |
        | Permissions | Repository permissions → **Contents: Read and write** |
 
-    4. Generate, and save the token in the password manager with its expiry date.
+    4. Generate the token and save it in the password manager with its expiry date.
     5. Add it to the PlayPets repository (paste the token when asked):
 
 ```bash
 gh secret set HOMEBREW_TAP_TOKEN --repo gaerae/playpets
 ```
 
-   - Until the app is signed with a Developer ID, Homebrew keeps the download quarantined, so the first launch asks for permission just as the dmg does.
-   - The official Homebrew cask repository does not take unsigned apps; the own tap is the path until step 13.
+   - Until the app is signed with a Developer ID, Homebrew keeps the download quarantined, so the first launch asks for permission as the dmg does.
+   - The official Homebrew cask repository does not take unsigned apps.
+   - Until step 13, the account's own tap is the only route.
 
 ### winget
 - winget packages are manifests in `microsoft/winget-pkgs`.
-- The `distribute` workflow writes them and, with a token, opens the pull request with `wingetcreate`.
+- The `distribute` workflow writes them.
+- With a token, it also opens the pull request with `wingetcreate`.
 
 11. Prepare the fork, the token and the license agreement.
     1. Fork https://github.com/microsoft/winget-pkgs to the `gaerae` account (Fork → Create fork, default branch only).
-       - It is large. The fork is only the place pull requests come from, and every app of the account shares it.
-    2. In the fork's Settings, turn off Actions (Actions → General → Disable actions) so the upstream workflows never run there, and turn off Wiki, Issues and Projects.
+       - It is large.
+       - The fork only serves as the source of pull requests, and every app of the account shares it.
+    2. In the fork's Settings, turn off Actions (Actions → General → Disable actions) so the upstream workflows never run there.
+       - Turn off Wiki, Issues and Projects too.
     3. Create a classic token at github.com/settings/tokens/new: note `playpets winget`, expiration 1 year, scope **public_repo** only.
        - A fine-grained token cannot open a pull request on another owner's repository.
     4. Save it in the password manager with its expiry date.
@@ -204,14 +208,16 @@ gh secret set HOMEBREW_TAP_TOKEN --repo gaerae/playpets
 gh secret set WINGET_TOKEN --repo gaerae/playpets
 ```
 
-   - On the first pull request (opened by `distribute` after the first release is published), a Microsoft bot asks for the Contributor License Agreement. Agree by commenting `@microsoft-github-policy-service agree` on that pull request.
-   - winget's moderators review a new package by hand (a few days); later versions are merged by their bots once checks pass.
+   - `distribute` opens the first pull request after the first release is published.
+   - On that pull request, a Microsoft bot asks for the Contributor License Agreement. Agree by commenting `@microsoft-github-policy-service agree` on it.
+   - winget's moderators review a new package by hand (a few days).
+   - Their bots merge later versions once checks pass.
    - Users then install with `winget install gaerae.PlayPets`.
 
 ### Reminders
 12. Tokens expire.
-    - Put the two expiry dates (step 10 and 11) in a calendar a week early.
-    - When they come, create a new token the same way and run the same `gh secret set` again.
+    - Add reminders for the two expiry dates (steps 10 and 11) to a calendar, a week early.
+    - When a reminder comes, create a new token the same way and run the same `gh secret set` again.
     - The updater key does not expire, so it only needs its backup.
 
 ### Optional: signing accounts
@@ -231,27 +237,29 @@ gh secret set WINGET_TOKEN --repo gaerae/playpets
        | `APPLE_PASSWORD` | The app-specific password |
        | `APPLE_TEAM_ID` | The Team ID |
 
-       - The release workflow requires all six values together and verifies Developer ID trust and notarization.
+       - The release workflow needs all six values together.
+       - It verifies Developer ID trust and notarization.
     6. See the [Store and Apple signing guide](store-and-apple-signing.md) before building.
 
 14. Microsoft Store: the Store signs the MSIX, so Store installs have no SmartScreen warning.
     1. Register as an individual developer at https://partner.microsoft.com/dashboard/registration (free; an ID scan and a selfie).
     2. Reserve the name "PlayPets", and copy all three identity fields (`Name`, `Publisher`, `PublisherDisplayName`) from the product identity page.
     3. Follow [Prepare Microsoft Store and Apple signing](store-and-apple-signing.md):
-       - set `MSIX_IDENTITY_NAME`, `MSIX_PUBLISHER` and `MSIX_PUBLISHER_DISPLAY_NAME`;
-       - build the unsigned Store MSIX;
-       - test a separate test-signed package;
-       - prepare the listing and privacy policy.
+       - set `MSIX_IDENTITY_NAME`, `MSIX_PUBLISHER` and `MSIX_PUBLISHER_DISPLAY_NAME`
+       - build the unsigned Store MSIX
+       - test a separate test-signed package
+       - prepare the listing and privacy policy
 
     - Store updates are separate from GitHub updates.
     - The first registration is manual.
     - To submit each published release automatically, follow [Submit every release automatically](store-and-apple-signing.md#submit-every-release-automatically): an Entra app with the Manager role, the `microsoft-store` environment, and `STORE_SUBMISSION_ENABLED=true`.
     - The read-only API check does not submit anything.
 
-
 ## Verification
-- The Actions tab shows `build`, `security`, `codeql` and `pages` green, and https://playpets.gaerae.com/ opens on an `https://` address.
-- The repository page shows the description, the website and the topics, and Settings → Rules lists the ruleset for `main`.
+- The Actions tab shows `build`, `security`, `codeql` and `pages` green.
+- https://playpets.gaerae.com/ opens on an `https://` address.
+- The repository page shows the description, the website and the topics.
+- Settings → Rules lists the ruleset for `main`.
 - The Security tab shows "Report a vulnerability".
 - Settings → Secrets and variables → Actions lists `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`, `HOMEBREW_TAP_TOKEN` and `WINGET_TOKEN`.
 - After the first published release: `distribute` is green, `Casks/playpets.rb` is in `gaerae/homebrew-tap`, and a pull request for `gaerae.PlayPets` is open on winget-pkgs.
