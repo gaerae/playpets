@@ -1,14 +1,14 @@
 # Set up a development environment and run the app
 
 ## Purpose
-- Get the repository, make the tests pass, and run an app you built yourself with an isolated data folder, to see page changes with your own eyes.
+- Get the repository, make the tests pass, and run your own build with an isolated data folder so you can see page changes for yourself.
 - A first-time contributor follows this once.
 - How the code is laid out: [PlayPets app architecture](architecture.md).
 
 ## Audience and assumptions
 - The same commands run on macOS, Linux and Windows.
-- Examples use a macOS and Linux shell. Where Windows PowerShell differs, it is noted.
-- No signing keys or secrets are used.
+- Examples use a macOS or Linux shell. Windows PowerShell versions are shown where they differ.
+- You need no signing keys or secrets.
 
 ## Prerequisites
 | What you need | Version | Check command |
@@ -46,12 +46,14 @@ rustup show active-toolchain
 ```
 
 - The root `rust-toolchain.toml` requests stable Rust with clippy and rustfmt, for commands run here or in `src-tauri/`.
-- It follows stable updates rather than pinning a compiler release. `src-tauri/Cargo.toml` records the minimum supported Rust version.
+- It follows stable updates rather than pinning a compiler release.
+- `src-tauri/Cargo.toml` records the minimum supported Rust version.
 - Container builds keep the compiler and cross targets installed in their Rust base image.
-- npm records exact versions for new direct dependencies; `npm ci` installs the existing lockfile.
+- npm records exact versions for new direct dependencies.
+- `npm ci` installs from the existing lockfile.
 - The creator helper tests also need Python and Pillow:
   - Use a virtual environment outside the checkout.
-  - Activate it again in each new shell before running tests.
+  - Activate it in each new shell before you run tests.
 
 ```bash
 python3 -m venv "$HOME/.virtualenvs/playpets"
@@ -86,11 +88,11 @@ npm run test:e2e
 ```
 
 5. Quit any installed PlayPets with "Quit" in the tray menu.
-   - If it is running, the newly started app brings the running one to the front and exits right away.
+   - While it runs, a newly started app brings the running one to the front and exits right away.
 
 6. Build the normal app executable and run it with an isolated data folder.
-   - The E2E build has test-only features and stays in its own folder, so `npm run start` runs only what `npm run build:app` made.
-   - The friends and settings you normally use stay untouched.
+   - The E2E build has test-only features and stays in its own folder, so `npm run start` runs only what `npm run build:app` built.
+   - Your usual friends and settings stay untouched.
 
 ```bash
 npm run build:app
@@ -109,8 +111,8 @@ npm run start
    - The four illustrated starter entries are always there.
    - Pets in `~/.codex/pets` and community pets pasted in through "Import a pet" show on the shelf too.
 
-8. After changing page code, build again and start the app.
-   - Page files go into the executable at build time, so a change needs a build.
+8. After changing page code, rebuild and start the app.
+   - Page files are built into the executable, so every change needs a build.
 
 ```bash
 npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
@@ -150,13 +152,13 @@ npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
 ## Verification
 - At the end of `npm test`, Rust prints `test result: ok` and Node prints `fail 0`.
 - At the end of `npm run test:e2e`, `PASS: tauri e2e` is printed.
-- The app opens. With no pets, the yard asks "Who would you like to play with?" over all four starter pets.
-- `.dev-data/state.json` is created, with the friend you invited in it.
+- The app opens. With no pets invited yet, the yard asks "Who would you like to play with?" over all four starter pets.
+- `.dev-data/state.json` exists and holds the friend you invited.
 
 ## Troubleshooting
 | Symptom | Cause and fix |
 |---|---|
-| `cargo: command not found` | `~/.cargo/bin` is not on PATH. `export PATH="$HOME/.cargo/bin:$PATH"` |
+| `cargo: command not found` | `~/.cargo/bin` is not on `PATH`. Run `export PATH="$HOME/.cargo/bin:$PATH"` |
 | `npm run start` opens nothing | An installed PlayPets is running (step 5). Or there is no release build yet (step 4 or 8) |
 | E2E prints "The app window was covered, so hide and seek only checked start and stop" | Not a failure. WebKit pauses animations in a covered window, so the walking check is skipped |
 | The Linux build cannot find `webkit2gtk` | Install the packages from Prerequisites |
