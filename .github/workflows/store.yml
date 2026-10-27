@@ -1,0 +1,193 @@
+# After a release is published: builds the Microsoft Store MSIX for x64 and ARM64 from its tag and
+# sends both to Partner Center as a new submission, with "What's new" in four languages taken from
+# the website's release pages (scripts/store-notes.mjs). The new submission is a copy of the
+# published one, so the listing, screenshots, certification notes and options stay as they are.
+#   Off until the repository variable STORE_SUBMISSION_ENABLED is true. The MSIX files are then
+#   kept as the "store-bundle" artifact for a submission by hand (docs/how-to/release.md).
+#   The microsoft-store environment holds STORE_APP_ID, STORE_TENANT_ID and STORE_CLIENT_ID
+#   (variables) and STORE_CLIENT_SECRET (secret); with none of them the submission is skipped, with
+#   some of them it fails. STORE_PUBLISH_MODE (repository variable): Manual (default) holds the
+#   certified submission for Publish now in Partner Center, Immediate publishes it when it passes.
+# To run it again, start it by hand from the release's tag (Use workflow from → Tags → vX.Y.Z).
+name: store
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: microsoft-store
+  cancel-in-progress: false
+
+jobs:
+  source:
+    # The Store has no prerelease channel.
+    if: github.event_name == 'workflow_dispatch' || !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.source.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .node-version
+      # Every job builds and runs the workflow's own commit, which is the release tag's.
+      - id: source
+        name: A stable release tag on main, matching the version and changelog
+        run: |
+          [[ "$GITHUB_REF" =~ ^refs/tags/v[1-9][0-9]*\.[0-9]+\.[0-9]+$ ]] || { echo "Run this from a release tag, not $GITHUB_REF"; exit 1; }
+          version="${GITHUB_REF#refs/tags/v}"
+          test "$(git rev-parse "$GITHUB_REF^{commit}")" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+          test "$(node -p "require('./package.json').version")" = "$version"
+          node scripts/release-notes.mjs "$version" > /dev/null
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: What's new in four languages
+        env:
+          VERSION: ${{ steps.source.outputs.version }}
+        run: |
+          mkdir -p release/store
+          node scripts/store-notes.mjs "$VERSION" > release/store/notes.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: store-notes
+          path: release/store/notes.json
+          if-no-files-found: error
+          retention-days: 14
+
+  package:
+    needs: source
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: windows-latest, architecture: x64, target: x86_64-pc-windows-msvc}
+          - {os: windows-11-arm, architecture: arm64, target: aarch64-pc-windows-msvc}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      # No cache: the tag and the locked registries only, as in release.yml.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .node-version
+      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable branch
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+      - run: npm ci --ignore-scripts
+      # release.yml already ran the tests on this commit. The Tauri build (not plain cargo) makes the
+      # same production binary as the installer's.
+      - run: npx tauri build --target ${{ matrix.target }} --no-bundle
+      - name: Assemble unsigned Store package
+        shell: pwsh
+        env:
+          MSIX_IDENTITY_NAME: gaerae.PlayPets
+          MSIX_PUBLISHER: CN=85817E6E-C9F8-44E1-B251-9010546EC6B8
+          MSIX_PUBLISHER_DISPLAY_NAME: gaerae
+        run: ./packaging/windows/msix/store.ps1 -Binary src-tauri/target/${{ matrix.target }}/release/playpets.exe -Architecture ${{ matrix.architecture }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: store-${{ matrix.architecture }}
+          path: release/store/*.msix
+          if-no-files-found: error
+          retention-days: 14
+
+  bundle:
+    needs: [source, package]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          pattern: store-*
+          path: release/store
+          merge-multiple: true
+      - name: Check package identities and notes, record hashes
+        env:
+          VERSION: ${{ needs.source.outputs.version }}
+          SUBMISSION_ENABLED: ${{ vars.STORE_SUBMISSION_ENABLED }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, xml.etree.ElementTree as ET, zipfile
+          root = pathlib.Path('release/store')
+          version = os.environ['VERSION']
+          assert all(int(part) <= 65535 for part in version.split('.'))
+          files = [f'PlayPets_{version}_{arch}.msix' for arch in ('x64', 'arm64')]
+          assert {path.name for path in root.iterdir()} == set(files + ['notes.json'])
+          for name, arch in zip(files, ('x64', 'arm64')):
+              with zipfile.ZipFile(root / name) as package:
+                  assert package.testzip() is None
+                  manifest = ET.fromstring(package.read('AppxManifest.xml'))
+              identity = manifest.find('{http://schemas.microsoft.com/appx/manifest/foundation/windows10}Identity')
+              assert identity.attrib == {'Name': 'gaerae.PlayPets', 'Publisher': 'CN=85817E6E-C9F8-44E1-B251-9010546EC6B8', 'Version': version + '.0', 'ProcessorArchitecture': arch}
+          notes = json.loads((root / 'notes.json').read_text())
+          for locale in ('en-us', 'ko-kr', 'ja-jp', 'zh-cn'):
+              assert isinstance(notes.get(locale), str) and notes[locale].strip() and len(notes[locale]) <= 1500
+          record = {'version': version, 'sourceSha': os.environ['GITHUB_SHA'], 'files': files,
+                    'sha256': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files}}
+          (root / 'release.json').write_text(json.dumps(record, indent=2) + '\n')
+          after = ('Waiting for the microsoft-store submission.' if os.environ['SUBMISSION_ENABLED'] == 'true'
+                   else 'STORE_SUBMISSION_ENABLED is not true: upload these files in Partner Center by hand.')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('## Store packages\n\n```json\n' + json.dumps(record, indent=2) + '\n```\n\n' + after + '\n')
+          PY
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: store-bundle
+          path: release/store/*
+          if-no-files-found: error
+          retention-days: 14
+
+  submit:
+    name: Submit to Microsoft Store
+    needs: bundle
+    if: vars.STORE_SUBMISSION_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: microsoft-store
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .node-version
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: store-bundle
+          path: release/store
+      # No package installation, cache or third-party script runs with Store credentials.
+      - name: New submission with both packages and What's new
+        env:
+          STORE_SUBMISSION_ENABLED: ${{ vars.STORE_SUBMISSION_ENABLED }}
+          STORE_PUBLISH_MODE: ${{ vars.STORE_PUBLISH_MODE }}
+          STORE_APP_ID: ${{ vars.STORE_APP_ID }}
+          STORE_TENANT_ID: ${{ vars.STORE_TENANT_ID }}
+          STORE_CLIENT_ID: ${{ vars.STORE_CLIENT_ID }}
+          STORE_CLIENT_SECRET: ${{ secrets.STORE_CLIENT_SECRET }}
+        run: |
+          fields=(STORE_APP_ID STORE_TENANT_ID STORE_CLIENT_ID STORE_CLIENT_SECRET)
+          present=0
+          for field in "${fields[@]}"; do
+            if [ -n "${!field}" ]; then present=$((present + 1)); fi
+          done
+          if [ "$present" -eq 0 ]; then
+            echo "The microsoft-store environment has no Store values; upload the store-bundle files by hand." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if [ "$present" -lt "${#fields[@]}" ]; then
+            echo "Store submission needs all four values. See docs/how-to/store-and-apple-signing.md." >&2
+            exit 1
+          fi
+          node scripts/store-submit.mjs release/store

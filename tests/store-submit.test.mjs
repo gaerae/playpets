@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
+import { storeNotes, storeNotesFor } from '../scripts/store-notes.mjs';
 import { submitStore } from '../scripts/store-submit.mjs';
 
 const app = {
@@ -9,20 +11,29 @@ const app = {
   lastPublishedApplicationSubmission: { id: '10' },
 };
 const notes = { 'en-us': 'Update', 'ko-kr': 'Update', 'ja-jp': 'Update', 'zh-cn': 'Update' };
-const release = { version: '1.0.0', files: ['PlayPets_1.0.0_x64.msix', 'PlayPets_1.0.0_arm64.msix'], notes };
+const release = {
+  version: '1.3.0',
+  files: ['PlayPets_1.3.0_x64.msix', 'PlayPets_1.3.0_arm64.msix'],
+  notes,
+  publishMode: 'Manual',
+};
+const fullTrust = 'runFullTrust: desktop windows, tray and the coding-tool bridge the person turns on.';
 
-function clientFor(product = app, hold = 'Manual') {
+function clientFor(product = app, hold = 'Manual', storeVersion = '1.2.0.0') {
   const calls = [];
   return {
     calls,
     request: async (method, path, body) => {
       calls.push({ method, path, body });
       if (path === '') return product;
+      if (method === 'GET' && path === '/submissions/10')
+        return { id: '10', applicationPackages: [{ id: 'old', version: storeVersion }] };
       if (method === 'POST' && path === '/submissions')
         return {
           id: '20',
           fileUploadUrl: 'https://example.blob.core.windows.net/package?sig=private',
           pricing: { priceId: 'unknown' },
+          notesForCertification: fullTrust,
           applicationPackages: [{ id: 'old', fileName: 'old.msix', fileStatus: 'Uploaded' }],
           listings: Object.fromEntries(Object.keys(notes).map(key => [key, { baseListing: { releaseNotes: 'old' } }])),
         };
@@ -50,12 +61,30 @@ test('Store submission leaves the initial portal draft and unpublished products 
   }
 });
 
+test('Store submission leaves a version the Store already has untouched', async () => {
+  for (const storeVersion of ['1.3.0.0', '1.10.0.0', '2.0.0.0']) {
+    const client = clientFor(app, 'Manual', storeVersion);
+    await assert.rejects(submitStore(client, release), /already has this version/);
+    assert.deepEqual(
+      client.calls.map(call => call.method),
+      ['GET', 'GET'],
+    );
+  }
+});
+
 test('Store submission keeps manual publication, replaces packages and leaves Pricing V2 out of updates', async () => {
   const client = clientFor();
   const report = await submitStore(client, release);
   const update = client.calls.find(call => call.method === 'PUT').body;
   assert.equal(update.targetPublishMode, 'Manual');
   assert.equal('pricing' in update, false);
+  assert.equal(update.notesForCertification, fullTrust);
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(update.listings).map(([locale, item]) => [locale, item.baseListing.releaseNotes]),
+    ),
+    notes,
+  );
   assert.equal(update.applicationPackages[0].fileStatus, 'PendingDelete');
   assert.deepEqual(
     update.applicationPackages.slice(1),
@@ -68,17 +97,26 @@ test('Store submission keeps manual publication, replaces packages and leaves Pr
   );
   assert.deepEqual(
     client.calls.map(call => call.method),
-    ['GET', 'POST', 'PUT', 'UPLOAD', 'GET', 'POST', 'GET'],
+    ['GET', 'GET', 'POST', 'PUT', 'UPLOAD', 'GET', 'POST', 'GET'],
   );
   assert.equal(client.calls.at(-2).path, '/submissions/20/commit');
   assert.equal(report.submissionId, '20');
   assert.equal(report.publishMode, 'Manual');
+  assert.equal(report.publishesAfterCertification, false);
   assert.doesNotMatch(JSON.stringify(report), /sig=|fileUploadUrl|private/);
 });
 
-test('Store submission does not commit if the server did not retain manual publication', async () => {
+test('Store submission publishes after certification only when asked to', async () => {
   const client = clientFor(app, 'Immediate');
-  await assert.rejects(submitStore(client, release), /Manual publication hold was not retained/);
+  const report = await submitStore(client, { ...release, publishMode: 'Immediate' });
+  assert.equal(client.calls.find(call => call.method === 'PUT').body.targetPublishMode, 'Immediate');
+  assert.equal(report.publishesAfterCertification, true);
+  await assert.rejects(submitStore(clientFor(), { ...release, publishMode: 'SoonAsPossible' }), /publish mode/);
+});
+
+test('Store submission does not commit if the server did not retain the publish mode', async () => {
+  const client = clientFor(app, 'Immediate');
+  await assert.rejects(submitStore(client, release), /Manual publication was not retained/);
   assert.ok(client.calls.every(call => !call.path?.endsWith('/commit')));
 });
 
@@ -105,10 +143,98 @@ test('Store submission requires both architectures and release notes before chan
   }
 });
 
-test('Store packaging executes only the current trusted workflow commit', async () => {
-  const { readFile } = await import('node:fs/promises');
-  const workflow = await readFile('.github/workflows/store-package.yml', 'utf8');
-  assert.match(workflow, /test "\$sha" = "\$GITHUB_SHA"/);
-  assert.doesNotMatch(workflow, /ref: \$\{\{ needs\.source\.outputs\.sha \}\}/);
-  assert.match(workflow, /ref: \$\{\{ github\.sha \}\}/);
+test("What's new comes from the four release pages, as plain text within the Store limit", () => {
+  const page = (intro, items) =>
+    `---\nversion: 1.3.0\n---\n\n# 1.3.0\n\n<ReleaseMeta />\n\n${intro}\n\n<Downloads version="1.3.0" />\n\n## What changed\n\n${items
+      .map(item => `- ${item}`)
+      .join('\n')}\n\nRead [the guide](../guide/play.md).\n`;
+  const { text, left } = storeNotes(
+    page('PlayPets 1.3.0 brings **rain**.', ['Turn on **Rain** in [Settings](../guide/settings.md).', 'Use `Esc`.']),
+    'https://playpets.gaerae.com/releases/1.3.0',
+  );
+  assert.equal(
+    text,
+    'PlayPets 1.3.0 brings rain.\n\n• Turn on Rain in Settings.\n• Use Esc.\n\nhttps://playpets.gaerae.com/releases/1.3.0',
+  );
+  assert.equal(left, 0);
+  const long = storeNotes(
+    page(
+      'Intro.',
+      Array.from({ length: 20 }, () => 'x'.repeat(100)),
+    ),
+    'https://example.test/1',
+  );
+  assert.ok([...long.text].length <= 1500);
+  assert.equal(long.left, 6);
+  assert.match(long.text, /https:\/\/example\.test\/1$/);
+  assert.throws(() => storeNotes(page('Intro.', []), 'https://example.test/1'), /list of changes/);
+
+  const read = file => {
+    assert.match(file, /^website\/((ko|ja|zh-hans)\/)?releases\/1\.3\.0\.md$/);
+    return page(`Intro ${file}.`, ['One change.']);
+  };
+  const { notes: all } = storeNotesFor('1.3.0', read);
+  assert.deepEqual(Object.keys(all), ['en-us', 'ko-kr', 'ja-jp', 'zh-cn']);
+  assert.match(
+    all['ko-kr'],
+    /website\/ko\/releases\/1\.3\.0\.md[\s\S]*https:\/\/playpets\.gaerae\.com\/ko\/releases\/1\.3\.0$/,
+  );
+  assert.match(all['zh-cn'], /\/zh-hans\/releases\/1\.3\.0$/);
+  assert.throws(() => storeNotesFor('1.3.0-beta.1', read), /Not a release version/);
+});
+
+test("every published release page fits the Store as What's new", () => {
+  const versions = readdirSync('website/releases')
+    .map(file => file.replace(/\.md$/, ''))
+    .filter(version => /^[1-9]\d*\.\d+\.\d+$/.test(version));
+  assert.ok(versions.includes('1.2.0'));
+  for (const version of versions)
+    for (const text of Object.values(storeNotesFor(version).notes)) assert.ok(text.length <= 1500, version);
+});
+
+test('a published release builds and submits its own tag, with Store credentials only in the submit job', () => {
+  const workflow = readFileSync('.github/workflows/store.yml', 'utf8');
+  assert.match(workflow, /^on:\n {2}release:\n {4}types: \[published\]\n {2}workflow_dispatch:\n\n/m);
+  assert.match(workflow, /!github\.event\.release\.prerelease/);
+  // The workflow's own commit is the tag's, so no job checks out another ref.
+  assert.match(workflow, /test "\$\(git rev-parse "\$GITHUB_REF\^\{commit\}"\)" = "\$GITHUB_SHA"/);
+  assert.match(workflow, /git merge-base --is-ancestor "\$GITHUB_SHA" origin\/main/);
+  assert.doesNotMatch(workflow, /^\s+ref:/m);
+  assert.match(workflow, /npx tauri build --target \$\{\{ matrix\.target \}\} --no-bundle/);
+  assert.match(workflow, /architecture: x64/);
+  assert.match(workflow, /architecture: arm64/);
+  const jobs = workflow.split(/\n(?= {2}[a-z]+:\n)/);
+  const submit = jobs.find(job => job.startsWith('  submit:'));
+  assert.match(submit, /if: vars\.STORE_SUBMISSION_ENABLED == 'true'/);
+  assert.match(submit, /environment: microsoft-store/);
+  assert.doesNotMatch(submit, /npm (ci|install)|cache:|rust-cache/);
+  for (const job of jobs.filter(job => job !== submit)) assert.doesNotMatch(job, /secrets\.|environment:/);
+  // None of the four values skips the submission; some of them fails it, like the APPLE_* secrets.
+  assert.match(submit, /if \[ "\$present" -eq 0 \]; then[\s\S]*exit 0/);
+  assert.match(submit, /if \[ "\$present" -lt "\$\{#fields\[@\]\}" \]; then[\s\S]*exit 1/);
+});
+
+test('a stopped submission names its own reason and nothing else', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const { mkdtempSync, rmSync, writeFileSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const dir = mkdtempSync(join(tmpdir(), 'playpets-store-'));
+  try {
+    writeFileSync(join(dir, 'release.json'), JSON.stringify({ version: '1.3.0', files: release.files }));
+    let output = '';
+    try {
+      execFileSync(process.execPath, ['scripts/store-submit.mjs', dir], {
+        env: { PATH: process.env.PATH, GITHUB_REF: 'refs/heads/main', STORE_CLIENT_SECRET: 'test-only-client-key' },
+        stdio: 'pipe',
+      });
+    } catch (error) {
+      output = String(error.stderr);
+    }
+    assert.match(output, /^Store submission is disabled or not running for this release tag\n/);
+    assert.match(output, /No automatic retry was performed/);
+    assert.doesNotMatch(output, /test-only-client-key/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
