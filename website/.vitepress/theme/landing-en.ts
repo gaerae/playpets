@@ -1,22 +1,11 @@
 export const copy = {
-  sceneNote: 'Bring compatible Codex pet files into your yard. Find community pets at:',
-  communities: [
-    'OpenPets Registry',
-    'Petdex',
-    'Codex PokéPets',
-    'Awesome Codex Pet',
-    'Codex Pets',
-    'a GitHub folder',
-    'a folder on your disk',
-  ],
-  whyThanks: 'Thank you to everyone who drew these pets. PlayPets exists so they can move on more desks.',
   diffNote:
-    'Codex pets are a feature of OpenAI Codex. PlayPets is a separate open-source app that follows that pet file format, and it works without Codex.',
+    'ChatGPT and Codex are trademarks of OpenAI. PlayPets is an independent open-source app that reads the same pet files.',
   chatAlt: 'A conversation with a companion',
   github: 'View on GitHub',
   guide: 'Read the guide',
   more: 'How it works',
-  eyebrow: 'Desktop pets for macOS, Windows and Linux',
+  eyebrow: 'Free desktop pet app for macOS, Windows and Linux',
   download: 'Download PlayPets',
   meet: 'Meet the friends',
   finalTitle: 'Your little company, every day.',
@@ -27,8 +16,6 @@ export const copy = {
   privacyBody:
     'Friends and settings are saved on your computer. Conversations go to the AI you connect, whose own data policy applies. PlayPets does not save chat history to a file.',
   releaseLabel: 'Version and release notes',
-  releaseTitle: (v: string) => `PlayPets ${v}`,
-  releaseLink: (v: string) => `${v}`,
 };
 export const worldCopy = {
   places: ['Hill garden', 'Stone courtyard', 'Lakeside cottage', 'Cozy living room'],
@@ -43,10 +30,14 @@ export const worldCopy = {
   previewNote:
     'An interactive scene sample with the app’s artwork. Select a friend to wave; games and weather live in the app.',
   greet: 'Say hello',
-  title: ['Little friends who live', 'beside your work.'],
-  lead: 'Four of them share a small yard on your desktop. They play on their own, talk with you and with each other through the AI you choose, and cheer you on while your coding agent works.',
+  title: ['Your Codex pets,', 'together in one yard.'],
+  lead: 'Bring in the Codex pets you already have, or the four friends that come with PlayPets. Up to 12 play together, chat through the AI you choose and cheer you on while you code.',
   worldsTitle: 'Try a little of it here.',
-  worldsLead: 'Pick a place and a season, then say hello to a friend.',
+  worldsLead: 'Open the yard window or let them out onto the desktop, then say hello to a friend.',
+  viewLabel: 'Where your friends are',
+  views: ['Yard window', 'On the desktop'],
+  desktopNote:
+    'On the desktop, friends stay in front of your other windows. Places and seasons are chosen in the yard window.',
   sceneLabel: 'Choose a place and season',
   pause: 'Pause animations',
   resume: 'Play animations',
@@ -56,9 +47,40 @@ export const worldCopy = {
   creatorLink: 'Make your own companion',
   discovery: 'Already have a Codex pet?',
   discoveryLink: 'Bring it into your yard',
-  sceneCaption: (v: string) => `Actual app captures, PlayPets ${v}`,
 };
 export const sections = {
+  compare: {
+    caption: 'Pet features: what a Codex pet does on its own, and what PlayPets adds',
+    head: ['Codex pet', 'With PlayPets'],
+    rows: [
+      ['Pet file', 'A sprite sheet you make with the hatch-pet skill or upload', 'The same pet, read as it is'],
+      [
+        'Motions',
+        'Animates Running, Needs input, Ready and Blocked',
+        'Every action and look direction in the sheet, plus strolls in the yard and on your desktop',
+      ],
+      ['Pets at once', 'One at a time', 'Up to 12 together'],
+      [
+        'Conversation',
+        'Starts a chat from your desktop',
+        'Talks with you and with other pets through the AI you choose',
+      ],
+      [
+        'Coding agents',
+        'Follows your ChatGPT and Codex threads in one pet',
+        'Each agent reports to its own pet: Claude Code, Codex, Gemini CLI, Cursor and MCP tools',
+      ],
+      ['Places', '—', 'Four places or your own backgrounds, with time of day, weather and seasons'],
+      ['Decorations', '—', 'Friends bring gifts like a bench, a swing or a pond, then sit and play by them'],
+      ['Play', '—', 'Hide and seek, parade and tag; dig, plant, fish, catch bugs and fill an album'],
+      ['Outfits', '—', 'Starter pets dress for the season; any pet file can add seasonal sheets'],
+    ],
+    source: 'Codex pet column: OpenAI’s pet guide, October 2026',
+  },
+  codexPlusTitle: ['Keep your pet in ChatGPT,', 'and bring the whole group here.'],
+  codexPlusLead:
+    'A pet made for ChatGPT and Codex works in PlayPets as it is. In the ChatGPT desktop app, one pet follows your threads. In PlayPets, up to 12 gather, talk to each other and follow Claude Code, Gemini CLI and Cursor too.',
+  codexPlusLink: 'Bring in your Codex pets',
   discoveryGuide: 'See what you can discover',
   galleryCreate: 'Create with this friend',
   petNotes: {
@@ -97,7 +119,7 @@ export const sections = {
   connectionDetails: 'Conversation setup and costs',
   connectionSetup:
     'Use local Ollama, your signed-in Claude Code or Codex CLI, or an OpenAI-compatible server. CLI use stays within subscription limits; API servers may charge separately.',
-  heroFacts: ['Free and open source (MIT)', 'Play without an AI account', 'English, 한국어, 日本語, 简体中文'],
+  heroFacts: ['Free and open source (MIT)', 'Play without Codex or an AI account', 'English, 한국어, 日本語, 简体中文'],
   heroAgents: 'Reacts to',
   miniDesktop: 'Let them out onto your desktop',
   togetherTitle: 'They talk among themselves, too.',

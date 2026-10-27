@@ -1,5 +1,18 @@
 # 자주 묻는 질문
 
+## PlayPets는 어떤 앱인가요?
+
+- PlayPets는 내 Codex 펫을 12명까지 함께 놀게 하는 무료 오픈소스 데스크톱 펫 앱이에요. macOS, Windows, Linux에서 써요.
+- 펫들은 한 놀이터에서 지내고, 바탕화면으로 나올 수도 있어요. ChatGPT 데스크톱 앱은 고른 펫 하나만 보여 줘요([OpenAI 안내](https://learn.chatgpt.com/docs/pets), 2026년 10월 기준).
+- 연결한 AI로 나와 이야기하고 친구끼리도 수다를 떨어요. Claude Code, Codex, Gemini CLI, Cursor가 일할 때 반응해요.
+
+## Codex 펫도 쓸 수 있나요?
+
+- 'Codex 펫'은 ChatGPT와 Codex용으로 만든 커스텀 펫을 부르는 이름이에요. OpenAI는 이 기능을 Pets라고 불러요.
+- 네. PlayPets는 Codex 펫 파일을 그대로 읽어요. `pet.json`과 스프라이트 시트가 든 폴더 하나가 펫 하나예요. 모든 동작을 쓰고, 시트에 시선 방향이 있으면 열여섯 방향 시선도 써요.
+- Codex 펫 폴더(`~/.codex/pets`)에 있는 펫은 따로 가져오지 않아도 **친구 초대**에 보여요. 커뮤니티 사이트, GitHub 폴더, 내 컴퓨터 폴더에서 [더 데려올 수 있어요](./import.md).
+- Codex가 없어도 돼요. ChatGPT 데스크톱 앱을 쓴다면 거기 펫도 그대로 두세요. PlayPets는 같은 펫 파일을 읽어요.
+
 ## 돈이 드나요?
 
 - 앱은 무료고, MIT 라이선스의 오픈소스예요.

@@ -1,7 +1,7 @@
 ---
 layout: page
 title: PlayPets
-titleTemplate: A yard where your pets talk to each other
+titleTemplate: Desktop pet app for your Codex pets
 ---
 
 <Landing />

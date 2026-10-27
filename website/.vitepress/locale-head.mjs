@@ -16,3 +16,29 @@ export function alternateLinks(relativePath, site, exists) {
       : []),
   ];
 }
+
+// What a search or answer engine reads about the app, on each language's landing only. "<" is
+// written as \u003c so a description can never close the script tag early.
+export function appStructuredData(relativePath, site, { description, version }) {
+  const lang = relativePath.match(/^(?:(ko|ja|zh-hans)\/)?index\.md$/);
+  if (!lang) return [];
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'PlayPets',
+    applicationCategory: 'DesktopEnhancementApplication',
+    operatingSystem: 'macOS, Windows, Linux',
+    inLanguage: lang[1] === 'zh-hans' ? 'zh-Hans' : (lang[1] ?? 'en'),
+    url: site + (lang[1] ? `${lang[1]}/` : ''),
+    description,
+    softwareVersion: version,
+    license: 'https://opensource.org/licenses/MIT',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    downloadUrl: 'https://github.com/gaerae/playpets/releases/latest',
+    author: { '@type': 'Person', name: 'gaerae', url: 'https://github.com/gaerae' },
+    sameAs: ['https://github.com/gaerae/playpets'],
+    image: `${site}og${lang[1] ? `-${lang[1]}` : ''}.png`,
+  };
+  return [['script', { type: 'application/ld+json' }, JSON.stringify(data).replaceAll('<', '\\u003c')]];
+}

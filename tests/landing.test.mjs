@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = file => readFileSync(file, 'utf8');
-test('landing introduces every built-in companion before optional AI and coding', () => {
+test('landing introduces every built-in companion before optional AI setup', () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.ok(landing.indexOf('<PetGallery') < landing.indexOf('class="connections"'));
   assert.ok(landing.indexOf('class="connections"') < landing.indexOf('class="developer-note"'));
@@ -26,7 +26,9 @@ test('landing introduces every built-in companion before optional AI and coding'
 test('the landing lets visitors play a chat and a coding session instead of looking at captures', async () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.ok(landing.indexOf('<PetGallery') < landing.indexOf('class="together-story'));
-  assert.ok(landing.indexOf('class="connections"') < landing.indexOf('class="work-story'));
+  // Coding company is the reason most visitors come, so it follows the hero and what PlayPets adds.
+  assert.ok(landing.indexOf('class="codex-plus"') < landing.indexOf('class="work-story'));
+  assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<PetGallery'));
   assert.ok(landing.indexOf('class="together-story') < landing.indexOf('<ChatDemo'));
   assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<AgentDemo'));
   assert.doesNotMatch(landing, /shotUrl\('(yard-talk|desktop)'\)/);
@@ -53,6 +55,46 @@ test('the first screen names the coding agents and every question on the landing
     const { worldCopy } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
     assert.ok(worldCopy.discoveryLink?.length, lang);
   }
+});
+
+test("the top of the landing sets a Codex pet's features beside PlayPets', in every language", async () => {
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.ok(landing.indexOf('</section>') < landing.indexOf('class="codex-plus"'), 'right after the hero');
+  // A real table, so a screen reader and an answer engine read each row as Codex pet / PlayPets.
+  // Phones restyle it as a grid, which drops table semantics in Safari, so the roles are explicit.
+  assert.match(landing, /<table class="codex-compare" role="table">/);
+  for (const role of ['rowgroup', 'row', 'columnheader', 'rowheader', 'cell'])
+    assert.match(landing, new RegExp(`role="${role}"`), role);
+  assert.match(landing, /<caption class="visually-hidden">\{\{ t\.compare\.caption \}\}/);
+  assert.match(landing, /v-for="\(\[label, codex, ours\]\) in t\.compare\.rows"/);
+  assert.match(landing, /<th scope="row" role="rowheader">\{\{ label \}\}/);
+  // The Codex column is dated and sourced, and the difference from OpenAI's feature sits under it.
+  assert.match(landing, /href="https:\/\/learn\.chatgpt\.com\/docs\/pets">\{\{ t\.compare\.source \}\}/);
+  assert.match(landing, /class="codex-note">\{\{ t\.diffNote \}\}/);
+  assert.match(landing, /path\('\/guide\/import'\)">\{\{ t\.codexPlusLink \}\}/);
+  const en = (await import('../website/.vitepress/theme/landing-en.ts')).sections.compare;
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { copy, sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const { compare } = sections;
+    assert.equal(compare.head.length, 2, lang);
+    assert.equal(compare.rows.length, en.rows.length, lang);
+    for (const row of compare.rows) assert.ok(row.length === 3 && row.every(cell => cell.length), lang);
+    assert.match(compare.source, /2026/, lang);
+    assert.match(copy.diffNote, /OpenAI/, lang);
+    assert.equal(sections.codexPlusTitle.length, 2, lang);
+    assert.match(sections.codexPlusTitle[0], /ChatGPT/, lang);
+  }
+});
+
+test('every page leads back to the landing from the nav', () => {
+  const config = read('website/.vitepress/config.mts');
+  for (const [label, link, match] of [
+    ['Home', '/', '^/$'],
+    ['홈', '/ko/', '^/ko/$'],
+    ['ホーム', '/ja/', '^/ja/$'],
+    ['首页', '/zh-hans/', '^/zh-hans/$'],
+  ])
+    assert.ok(config.includes(`{ text: '${label}', link: '${link}', activeMatch: '${match}' }`), label);
 });
 
 test('every landing makes download a primary destination in the nav and hero', async () => {
@@ -84,13 +126,19 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
   for (const { worldCopy } of locales) {
     assert.equal(worldCopy.places.length, 4);
     assert.equal(worldCopy.seasons.length, 4);
-    assert.ok(worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel);
+    assert.ok(
+      worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel && worldCopy.viewLabel && worldCopy.desktopNote,
+    );
+    // The scene shows the app's two real forms: the yard in its own window, or friends loose on the desktop.
+    assert.equal(worldCopy.views.length, 2);
     assert.deepEqual(Object.keys(worldCopy.greetings).sort(), ['clover', 'daisy', 'miso', 'pip']);
   }
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /:aria-pressed=/);
   // Indoors has no season, so the season choices stay in place but cannot be pressed.
   assert.match(preview, /:disabled="place === 3"/);
+  // The desktop has neither, so its row says why instead of showing dead chips.
+  assert.match(preview, /v-if="loose" class="dock-row"><p class="dock-note">\{\{ words.desktopNote \}\}/);
   assert.doesNotMatch(preview, /v-if="place !== 3"/);
   assert.match(preview, /IntersectionObserver/);
   assert.match(preview, /observer\?\.disconnect/);
@@ -109,8 +157,18 @@ test('a friend keeps its pose until the next one is decoded, and the scene warms
 test('every choice on the landing uses one control, and the scene keeps its choices in one dock', () => {
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /class="world-dock"/);
-  assert.equal(preview.match(/class="choice-group/g)?.length, 3);
+  assert.equal(preview.match(/class="choice-group/g)?.length, 4);
   assert.ok(preview.indexOf('class="living-world"') < preview.indexOf('class="world-dock"'));
+  // The stage reads as a computer screen: a wallpaper, a menu bar, a work window, and the yard
+  // as an app window on top of them, so visitors see what they would install.
+  for (const part of ['desk-bar', 'desk-work', 'yard-window', 'yard-titlebar'])
+    assert.match(preview, new RegExp(`class="${part}[" ]`), part);
+  assert.match(preview, /class="choice-group view-choices"/);
+  assert.ok(preview.indexOf('class="choice-group view-choices"') < preview.indexOf('class="living-world"'));
+  assert.match(preview, /'view-desktop': loose/);
+  // The page's own controls (the view switch and pause) sit outside the pretend screen.
+  assert.ok(preview.indexOf('class="world-motion"') < preview.indexOf('class="living-world"'));
+  assert.doesNotMatch(preview, /class="desk-bar">[\s\S]*?class="world-motion"[\s\S]*?<\/div>/);
   assert.match(read('website/.vitepress/theme/PetGallery.vue'), /class="choice-group/);
   const css = read('website/.vitepress/theme/landing.css');
   assert.match(css, /\.choice-group button\[aria-pressed="true"\]/);
@@ -167,8 +225,6 @@ test('localized landing data has one active contract without removed feature tab
       assert.equal(key in copy, false, key);
     assert.equal(typeof copy.chatAlt, 'string');
     assert.ok(copy.chatAlt.length);
-    assert.equal(typeof copy.releaseTitle('0.1.0'), 'string');
-    assert.equal(typeof worldCopy.sceneCaption('0.1.0'), 'string');
   }
 });
 

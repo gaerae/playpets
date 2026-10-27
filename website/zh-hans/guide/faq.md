@@ -1,5 +1,18 @@
 # 常见问题
 
+## PlayPets 是什么？
+
+- PlayPets 是一款免费开源的桌宠应用，能让你的 Codex 宠物最多 12 位一起玩，适用于 macOS、Windows、Linux。
+- 伙伴们一起住在小乐园里，也可以跑到桌面上。ChatGPT 桌面应用只显示你选的一只宠物（[OpenAI 指南](https://learn.chatgpt.com/docs/pets)，截至 2026 年 10 月）。
+- 它们会通过你连接的 AI 和你聊天，也会互相聊；Claude Code、Codex、Gemini CLI 或 Cursor 干活时，它们会做出反应。
+
+## 能用 Codex 宠物吗？
+
+- “Codex 宠物”是大家对为 ChatGPT 和 Codex 制作的自定义宠物的叫法，OpenAI 把这个功能叫作 Pets。
+- 能。PlayPets 原样读取 Codex 宠物文件：一个装有 `pet.json` 和精灵图的文件夹就是一只宠物。所有动作都能用；精灵图里有视线方向时，十六个方向也都能用。
+- Codex 宠物文件夹（`~/.codex/pets`）里的宠物会自动出现在**邀请伙伴**里。还可以从社区网站、GitHub 文件夹或电脑上的文件夹[带来更多](./import.md)。
+- 不需要 Codex。如果你在用 ChatGPT 桌面应用，那边的宠物照常用就好；PlayPets 读取的是同样的宠物文件。
+
 ## 要花钱吗？
 
 - 应用免费，是 MIT 许可的开源软件。
