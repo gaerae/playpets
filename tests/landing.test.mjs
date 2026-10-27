@@ -23,12 +23,13 @@ test('landing introduces every built-in companion before optional AI and coding'
   assert.match(read('website/.vitepress/theme/landing.css'), /\.preview-paused \.sprite i[\s\S]*animation: none/);
 });
 
-test('the landing shows friends talking together and coding company with real captures', async () => {
+test('the landing lets visitors play a chat and a coding session instead of looking at captures', async () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.ok(landing.indexOf('<PetGallery') < landing.indexOf('class="together-story'));
   assert.ok(landing.indexOf('class="connections"') < landing.indexOf('class="work-story'));
-  assert.match(landing, /shotUrl\('yard-talk'\)/);
-  assert.match(landing, /shotUrl\('desktop'\)/);
+  assert.ok(landing.indexOf('class="together-story') < landing.indexOf('<ChatDemo'));
+  assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<AgentDemo'));
+  assert.doesNotMatch(landing, /shotUrl\('(yard-talk|desktop)'\)/);
   assert.match(landing, /path\('\/guide\/desktop'\)/);
   assert.match(landing, /brew install gaerae\/tap\/playpets/);
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
@@ -188,4 +189,99 @@ test('every first-friend guide introduces all four characters without promising 
     assert.match(guide, /id="companion-stories"/);
     for (const pet of ['Daisy', 'Clover', 'Pip', 'Miso']) assert.match(guide, new RegExp(`### ${pet}`));
   }
+});
+
+const backendAgentStrings = lang => {
+  const file = read(`src-tauri/src/i18n/${lang.replace('-', '_')}.rs`);
+  return Object.fromEntries([...file.matchAll(/\("agent\.(\w+)", "([^"]*)"\)/g)].map(([, key, text]) => [key, text]));
+};
+
+test('the chat and coding demos say the same things in every language, in the app’s own words', async () => {
+  const { SITE_LANGS, LANDING_PETS } = await import('../scripts/site-content.mjs');
+  const ids = LANDING_PETS.map(pet => pet.id);
+  const en = (await import('../website/.vitepress/theme/landing-en.ts')).sections;
+  for (const lang of SITE_LANGS) {
+    const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    for (const key of [
+      'chatPlay',
+      'chatAgain',
+      'chatNote',
+      'agentLabel',
+      'agentPlay',
+      'agentReplay',
+      'agentAllow',
+      'agentPrompt',
+      'agentReply',
+      'agentNote',
+    ])
+      assert.ok(sections[key]?.length, `${lang}: ${key}`);
+    assert.match(sections.agentAsk, /\{name\}/, lang);
+    // Every language plays the same scenes, with the same friend speaking on each line.
+    assert.equal(sections.chats.length, 3, lang);
+    assert.deepEqual(
+      sections.chats.map(scene => scene.map(([speaker]) => speaker)),
+      en.chats.map(scene => scene.map(([speaker]) => speaker)),
+      lang,
+    );
+    for (const scene of sections.chats) {
+      assert.equal(new Set(scene.map(([speaker]) => speaker)).size, 2, lang);
+      for (const [speaker, line] of scene)
+        assert.ok(ids.includes(speaker) && line.length && line.length < 40, `${lang}: ${line}`);
+    }
+    // A friend's status bubble is exactly what the app shows for that hook event.
+    const app = backendAgentStrings(lang);
+    for (const [key, text] of Object.entries(sections.agentStatus)) assert.equal(text, app[key], `${lang}: ${key}`);
+  }
+});
+
+test('each coding demo replays the events that agent really reports', async () => {
+  const { AGENT_DEMOS } = await import('../website/.vitepress/theme/agent-demo.mjs');
+  const { LANDING_PETS } = await import('../scripts/site-content.mjs');
+  const { sections } = await import('../website/.vitepress/theme/landing-en.ts');
+  const bridge = read('src-tauri/src/agent/bridge.rs');
+  const hooks = read('src-tauri/src/agent/cli.rs');
+  assert.deepEqual(
+    AGENT_DEMOS.map(demo => demo.name),
+    ['Claude Code', 'Codex', 'Gemini CLI', 'Cursor'],
+  );
+  assert.deepEqual(
+    AGENT_DEMOS.map(demo => demo.pet),
+    LANDING_PETS.map(pet => pet.id),
+  );
+  for (const demo of AGENT_DEMOS) {
+    assert.equal(demo.steps[0].kind, 'prompt', demo.id);
+    assert.equal(demo.steps.at(-1).kind, 'reply', demo.id);
+    assert.equal(demo.steps.at(-1).state, 'done', demo.id);
+    for (const step of demo.steps) {
+      if (step.state) assert.match(bridge, new RegExp(`"${step.state}"`), `${demo.id}: ${step.state}`);
+      if (step.say) assert.ok(step.say in sections.agentStatus, `${demo.id}: ${step.say}`);
+      assert.equal(step.say === 'tool', Boolean(step.tool), `${demo.id}: tool name`);
+    }
+  }
+  // Codex only reports at the end of a reply; Cursor never asks through a hook.
+  assert.deepEqual(
+    AGENT_DEMOS[1].steps.filter(step => step.state).map(step => step.state),
+    ['done'],
+  );
+  assert.ok(!AGENT_DEMOS[3].steps.some(step => step.kind === 'ask'));
+  for (const [agent, event] of [
+    ['claude', 'Notification'],
+    ['gemini', 'Notification'],
+  ])
+    assert.match(hooks, new RegExp(`\\("${agent}", "${event}"\\)`));
+});
+
+test('the moving scenes wait until they are seen and stop for paused or reduced motion', () => {
+  for (const file of ['WorldPreview.vue', 'ChatDemo.vue', 'AgentDemo.vue']) {
+    const source = read(`website/.vitepress/theme/${file}`);
+    assert.match(source, /IntersectionObserver/, file);
+    assert.match(source, /observer\?\.disconnect/, file);
+    assert.match(source, /prefers-reduced-motion/, file);
+    assert.match(source, /onBeforeUnmount/, file);
+    assert.doesNotMatch(source, /setInterval/, file);
+  }
+  const preview = read('website/.vitepress/theme/WorldPreview.vue');
+  // Friends look toward the pointer with the app's own gaze rows.
+  assert.match(preview, /lookFrame/);
+  assert.match(preview, /strollTimer/);
 });

@@ -20,7 +20,7 @@
 | Linux desktop checks | `linux-e2e.sh` via `test:e2e:linux` (build and run) or with `node tests/e2e.mjs` (CI prebuilt binary) | Isolated D-Bus/Xvfb/Openbox session; waits for a window manager before testing native pin and fullscreen |
 | Security review | `npm run security:check` with Gitleaks 8.30.1 and cargo-audit 0.22.2 installed | Redacted full-history secret scan, npm high-severity dependency check and RustSec review; advisory warnings stay visible |
 | Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check`; `prepare-appimage-licenses.mjs` before Linux packaging; `appimage-license.mjs` on the finished image | Native dependency notice and fingerprint under `packaging/licenses/`; collected distro copyright files and an exact AppImage system-source manifest during a release build |
-| Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
+| Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs`, `site-motion.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; native package install-and-launch verification runs in release CI |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
 | Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit`, `store-notes.mjs` | Redacted read-only credential check; the release's Store submission and its What's new from the website release pages, run by `store.yml` (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
@@ -264,6 +264,18 @@ Background creation:
   the extra pixels help Retina displays without enlarging the character.
 - The Pages workflow already watches `assets/**` and `scripts/**` and runs this
   validation through `site:build`.
+
+### Motion strips for the landing's moving scenes
+
+- `site:prepare` cuts the walking, coding-agent and gaze rows
+  (`MOTION_ROWS` in `site-preview-lib.mjs`) out of each sample pet's base,
+  summer and winter atlas.
+- Each row becomes one small WebP strip in generated
+  `website/public/pets/motion/<id>/<sheet>/<state>.webp`, so a visitor never
+  downloads a whole atlas for a walk.
+- Availability goes into `petMotions` in `generated.json`.
+- It draws with the headless browser (`browser-lib.mjs`); without one it warns,
+  and the scenes play those rows from the whole atlas instead.
 
 ### Companion batch scale corrections
 

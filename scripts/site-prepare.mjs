@@ -5,6 +5,7 @@ import { copyCreatorKit } from './creator-kit.mjs';
 import { copyCreatorSkill } from './creator-skill.mjs';
 import { CAPTURE_VERSION, LANDING_PETS } from './site-content.mjs';
 import { destinationFor, docDisplayProse, rewriteDocLinks } from './site-lib.mjs';
+import { exportMotionStrips } from './site-motion.mjs';
 import { collectPreviewExports } from './site-preview-export.mjs';
 
 const pkg = JSON.parse(await readFile('package.json', 'utf8'));
@@ -37,6 +38,7 @@ for (const name of ['sun', 'moon', 'small', 'wisps'])
 await rm('website/public/pets', { recursive: true, force: true });
 await mkdir('website/public/pets', { recursive: true });
 for (const pet of LANDING_PETS) await cp(pet.source, `website/public/pets/${pet.id}.png`);
+const petMotions = await exportMotionStrips(LANDING_PETS);
 
 for (const { source, destination } of previewCopies) {
   await mkdir(path.dirname(destination), { recursive: true });
@@ -48,5 +50,5 @@ await copyCreatorKit();
 const creatorSkillRevision = await copyCreatorSkill();
 await writeFile(
   'website/.vitepress/generated.json',
-  `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, creatorSkillRevision }, null, 2)}\n`,
+  `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, petMotions, creatorSkillRevision }, null, 2)}\n`,
 );

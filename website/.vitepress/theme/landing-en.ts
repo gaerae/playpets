@@ -43,8 +43,8 @@ export const worldCopy = {
   previewNote:
     'An interactive scene sample with the app’s artwork. Select a friend to wave; games and weather live in the app.',
   greet: 'Say hello',
-  title: ['A little world', 'to come home to.'],
-  lead: 'Four little friends live in a yard on your desktop. They play on their own, talk with you and with each other through the AI you choose, and cheer you on while your coding agent works.',
+  title: ['Little friends who live', 'beside your work.'],
+  lead: 'Four of them share a small yard on your desktop. They play on their own, talk with you and with each other through the AI you choose, and cheer you on while your coding agent works.',
   worldsTitle: 'Try a little of it here.',
   worldsLead: 'Pick a place and a season, then say hello to a friend.',
   sceneLabel: 'Choose a place and season',
@@ -104,12 +104,49 @@ export const sections = {
   togetherBody:
     'Bring another friend into your chat, or press Let them chat and just listen. Speech bubbles drift across the yard while you get on with your day.',
   togetherLink: 'How chatting together works',
-  togetherAlt: 'Friends talking in the yard, with speech bubbles and their coding agents beside their names',
   workTitle: 'Company while you code.',
   workBody:
     'Your friend notices whenever your coding agent reports in: Claude Code and Gemini CLI at every step, Cursor on edits and when it finishes, Codex at the end of each reply. Ask “What were you doing?” for a quick recap.',
   workNote:
     'The connection stays on this computer. Hooks leave out your prompts and tool inputs; short status reports can still mention your work.',
-  workAlt: 'Friends out on the desktop beside a terminal, one of them working along with the coding agent',
   brewLabel: 'macOS with Homebrew',
+  chatPlay: 'Let them chat',
+  chatAgain: 'Another chat',
+  chatNote: 'Sample lines. In the app, the AI you connect writes what they say.',
+  chats: [
+    [
+      ['daisy', 'Miso, I found a path behind the pond!'],
+      ['miso', 'Again? Last time it was a puddle.'],
+      ['daisy', 'This one has flowers. Probably.'],
+      ['miso', 'Fine. I’ll bring my book.'],
+    ],
+    [
+      ['pip', 'Clover! What are you digging?'],
+      ['clover', 'Shh, the tomatoes are sleeping.'],
+      ['pip', 'Can I nap next to them?'],
+      ['clover', 'Only if you don’t snore.'],
+    ],
+    [
+      ['daisy', 'Look, they’re still typing.'],
+      ['pip', 'Let’s cheer louder!'],
+      ['daisy', 'Shh. They’re almost done.'],
+      ['pip', '(whispering) You can do it!'],
+    ],
+  ],
+  agentLabel: 'Choose a coding agent',
+  agentPlay: 'Play',
+  agentReplay: 'Play again',
+  agentPrompt: 'Fix the failing login test.',
+  agentReply: 'Fixed it. All 12 tests pass.',
+  agentAsk: 'Allow {name}?',
+  agentAllow: 'Allow',
+  agentNote: 'A replay of the events each tool sends. In the app, your friend follows your real session.',
+  agentStatus: {
+    thinking: 'Thinking',
+    tool: 'Using {name}',
+    editing: 'Editing files',
+    command: 'Running a command',
+    confirm: 'Needs your confirmation',
+    done: 'Finished the task',
+  },
 };

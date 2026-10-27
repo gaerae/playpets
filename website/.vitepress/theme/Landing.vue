@@ -2,6 +2,9 @@
 import { withBase } from 'vitepress';
 import { computed, ref } from 'vue';
 import generated from '../generated.json';
+import AgentDemo from './AgentDemo.vue';
+import { AGENT_DEMOS } from './agent-demo.mjs';
+import ChatDemo from './ChatDemo.vue';
 import Downloads from './Downloads.vue';
 import * as en from './landing-en';
 import * as ja from './landing-ja';
@@ -24,7 +27,7 @@ const shotUrl = (name: string) => withBase(`/shots/${generated.captureVersion}/$
 const path = (page: string) => withBase(localePath(lang.value, page));
 const paused = ref(false);
 // Product names, the same in every language; the guide lists what each one reports.
-const AGENT_TOOLS = ['Claude Code', 'Codex', 'Gemini CLI', 'Cursor', 'MCP'];
+const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
 </script>
 <template>
   <main class="landing" :class="{ 'no-motion': paused }">
@@ -35,7 +38,7 @@ const AGENT_TOOLS = ['Claude Code', 'Codex', 'Gemini CLI', 'Cursor', 'MCP'];
       <p class="lead">{{ t.lead }}</p>
       <div class="hero-actions"><a class="world-button" href="#download">{{ t.download }} <span aria-hidden="true">↓</span></a><a href="#companions">{{ t.meet }} <span aria-hidden="true">↓</span></a></div>
       <ul class="hero-facts"><li v-for="fact in t.heroFacts" :key="fact">{{ fact }}</li></ul>
-      <a class="hero-agents" :href="path('/guide/agents')"><span>{{ t.heroAgents }} →</span><b v-for="tool in AGENT_TOOLS.slice(0, 4)" :key="tool">{{ tool }}</b></a>
+      <a class="hero-agents" :href="path('/guide/agents')"><span>{{ t.heroAgents }} →</span><b v-for="tool in AGENT_TOOLS" :key="tool">{{ tool }}</b></a>
       </div>
       <WorldPreview :words="t" :paused="paused" @pause="paused = !paused" />
     </section>
@@ -45,7 +48,7 @@ const AGENT_TOOLS = ['Claude Code', 'Codex', 'Gemini CLI', 'Cursor', 'MCP'];
       <figure class="feature-shot"><img :src="shotUrl('mini')" :alt="t.miniTitle" loading="lazy" decoding="async" width="1032" height="752" /><figcaption>v{{ generated.captureVersion }}</figcaption></figure>
     </section>
     <section class="together-story feature reverse">
-      <figure class="feature-shot"><img :src="shotUrl('yard-talk')" :alt="t.togetherAlt" loading="lazy" decoding="async" width="2472" height="1672" /><figcaption>v{{ generated.captureVersion }}</figcaption></figure>
+      <ChatDemo :words="t" :paused="paused" />
       <div class="feature-text"><h2>{{ t.togetherTitle }}</h2><p>{{ t.togetherBody }}</p><a class="more" :href="path('/guide/chat')">{{ t.togetherLink }} →</a></div>
     </section>
     <section class="connections">
@@ -53,8 +56,8 @@ const AGENT_TOOLS = ['Claude Code', 'Codex', 'Gemini CLI', 'Cursor', 'MCP'];
       <div class="connection-layout"><div class="connection-options"><article v-for="([title, body, link], index) in t.connections" :key="link"><h3>{{ title }}</h3><p>{{ body }}</p><a class="more" :href="path(link)">{{ t.more }} →</a><a v-if="index === 0" class="more discovery-link" :href="path('/guide/play#discovery-guide')">{{ t.discoveryGuide }} →</a></article><details><summary>{{ t.connectionDetails }}</summary><p>{{ t.connectionSetup }}</p></details></div><figure class="chat-shot"><picture><source media="(max-width: 640px)" :srcset="shotUrl('mini-chat')" width="1032" height="752" /><img :src="shotUrl('friend-chat')" :alt="t.chatAlt" loading="lazy" decoding="async" width="2472" height="1672" /></picture><figcaption>v{{ generated.captureVersion }}</figcaption></figure></div>
     </section>
     <section class="work-story feature">
-      <div class="feature-text"><h2>{{ t.workTitle }}</h2><p>{{ t.workBody }}</p><ul class="tool-chips"><li v-for="tool in AGENT_TOOLS" :key="tool">{{ tool }}</li></ul><p class="work-note">{{ t.workNote }}</p><a class="more" :href="path('/guide/agents')">{{ t.agentGuide }} →</a></div>
-      <figure class="feature-shot"><img :src="shotUrl('desktop')" :alt="t.workAlt" loading="lazy" decoding="async" width="1640" height="960" /><figcaption>v{{ generated.captureVersion }}</figcaption></figure>
+      <div class="feature-text"><h2>{{ t.workTitle }}</h2><p>{{ t.workBody }}</p><p class="work-note">{{ t.workNote }}</p><a class="more" :href="path('/guide/agents')">{{ t.agentGuide }} →</a></div>
+      <AgentDemo :words="t" :paused="paused" />
     </section>
     <section class="creator-story"><div class="creator-friend"><VisibleSprite equal-height v-for="pet in LANDING_PETS" :key="pet.id" :pet="pet.id" state="wave" :scale="0.55" /></div><div><h2>{{ t.creatorTitle }}</h2><p>{{ t.creatorBody }}</p><a class="more" :href="path('/guide/creator-kit')">{{ t.creatorLink }} →</a><p class="discovery">{{ t.discovery }} <a :href="path('/guide/import')">{{ t.discoveryLink }} →</a></p></div></section>
     <section class="quiet-details"><div><h3>{{ t.privacyTitle }}</h3><p>{{ t.privacyBody }}</p></div><details class="developer-note"><summary>{{ t.developerTitle }}</summary><p>{{ t.developerBody }}</p><a :href="withBase('/dev/')">{{ t.developerLink }} →</a></details></section>

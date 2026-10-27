@@ -124,3 +124,35 @@ test('landing season fallback uses only the small cast inventory and matches shi
       assert.equal(previewSource(id, 'idle', {}, season, {}), `/creator-kit/${id}/${season}.png`);
   }
 });
+
+test('walking, agent and gaze rows use light motion strips cut from the runtime atlas', async () => {
+  const { MOTION_ROWS } = await import('../scripts/site-preview-lib.mjs');
+  assert.deepEqual(MOTION_ROWS, { right: 1, left: 2, waiting: 6, working: 7, done: 8, 'look-0': 9, 'look-1': 10 });
+  const base = { daisy: ['idle'] };
+  const motion = { daisy: { base: ['right', 'look-1'], winter: ['right'] } };
+  assert.equal(previewSource('daisy', 'right', base, 'base', {}, motion), '/pets/motion/daisy/base/right.webp');
+  assert.equal(previewSource('daisy', 'right', base, 'autumn', {}, motion), '/pets/motion/daisy/base/right.webp');
+  assert.equal(previewSource('daisy', 'right', base, 'winter', {}, motion), '/pets/motion/daisy/winter/right.webp');
+  // A missing strip falls back to the whole atlas, never to another season's clothes.
+  assert.equal(previewSource('daisy', 'look-1', base, 'winter', {}, motion), '/creator-kit/daisy/winter.png');
+  assert.equal(previewSource('daisy', 'left', base, 'base', {}, motion), null);
+  assert.equal(previewSource('daisy', 'idle', base, 'base', {}, motion), '/pets/previews/daisy/idle.png');
+});
+
+test('the motion export plans every official companion, sheet and motion row', async () => {
+  const { MOTION_ROWS } = await import('../scripts/site-preview-lib.mjs');
+  const { motionPlan } = await import('../scripts/site-motion.mjs');
+  const plan = motionPlan([{ id: 'pip', source: 'assets/pets/pip/spritesheet.png' }]);
+  assert.deepEqual(
+    plan.map(sheet => [sheet.sheet, sheet.source]),
+    [
+      ['base', 'assets/pets/pip/spritesheet.png'],
+      ['summer', 'assets/pets/pip/seasonal/summer.png'],
+      ['winter', 'assets/pets/pip/seasonal/winter.png'],
+    ],
+  );
+  for (const sheet of plan) {
+    assert.deepEqual(Object.keys(sheet.rows), Object.keys(MOTION_ROWS));
+    assert.equal(sheet.rows.right, `website/public/pets/motion/pip/${sheet.sheet}/right.webp`);
+  }
+});
