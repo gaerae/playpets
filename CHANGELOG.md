@@ -7,6 +7,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-27
+
 ### Added
 
 - The coding agents guide explains several agents at once, each friend showing only its own agent, and how two sessions of the same agent report to different friends with `PLAYPETS_PET`.
