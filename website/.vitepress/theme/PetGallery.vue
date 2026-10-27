@@ -59,7 +59,7 @@ const select = (id: string) => {
         <h3>{{ selected.displayName }}</h3>
         <p>{{ words.petNotes[selected.id] }}</p>
         <p>{{ words.selectedLead }}</p>
-        <div class="pose-controls" role="group" :aria-label="words.posesLabel">
+        <div class="choice-group pose-controls" role="group" :aria-label="words.posesLabel">
           <button v-for="(state, i) in poses" :key="state" type="button" :aria-pressed="pose === state" @click="pose = state">{{ words.poses[i] }}</button>
         </div>
         <div class="pet-actions"><a class="pet-create" :href="`${props.creator}?kit=${encodeURIComponent(selected.kit)}`">{{ words.galleryCreate }} ↗</a><a class="more" :href="props.guide">{{ words.galleryGuide }} →</a></div>

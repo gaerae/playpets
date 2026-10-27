@@ -97,6 +97,7 @@ export default defineConfig({
           '/dev/': devSidebar(),
         },
         editLink: editLink('Edit this page'),
+        outline: { level: [2, 3] },
         footer: {
           message:
             'Free and open source under the MIT license. Not affiliated with OpenAI; Codex is a trademark of OpenAI.',

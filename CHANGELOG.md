@@ -10,6 +10,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Added
 
 - The coding agents guide explains several agents at once, each friend showing only its own agent, and how two sessions of the same agent report to different friends with `PLAYPETS_PET`.
+- Install from the Microsoft Store, signed by Microsoft, or with `winget install --id 9NSKXQ6R187M --source msstore`. The website's download button offers the Store on Windows and shows the Homebrew or winget command for your system, and the install guide covers every way in four languages.
 - The website's front page moves: friends stroll and look toward the pointer, a button plays a chat between two friends, and a coding session replays beside a friend for Claude Code, Codex, Gemini CLI or Cursor, with an Allow step to press.
 - The website's front page shows friends talking among themselves and keeping you company on the desktop while a coding agent works, with the Homebrew install command.
 - The website's first screen says PlayPets is a desktop pet app and names the coding agents a friend reacts to, and the front page copy is rewritten in all four languages.
@@ -18,9 +19,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - The user guide in English, Korean, Japanese and Simplified Chinese is rewritten with steps, tables and bullets for settings and options, and natural sentences where it explains, with button names matching the app; the privacy policy reads more plainly in all four languages.
+- The website's first screen gathers its place, season and pose choices into one dock under the scene, in the same control as the friend gallery's poses.
 
 ### Fixed
 
+- Friends on the website's front page no longer blink out or flicker when they walk, look around or change season.
 - Keep the seed count inside the Plant a seed tile when the tile is narrow, as in Chinese with ten or more seeds.
 - Retake the desktop-mode screenshot on the website and in the Linux software-center listing without the macOS screen-sharing indicator that sat in its corner.
 - On the website's front page, Japanese no longer breaks words in the middle on a phone, the dark theme keeps the friends' card in the page's green, and the chat picture stays readable on a phone.
@@ -28,6 +31,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Security
 
 - Update ctutils to 0.4.5, used by the Linux keyring, so its mask generation and u128 comparisons run in constant time (RUSTSEC-2026-0385).
+- Update webpki-roots and webpki-root-certs to 1.0.11, so the app's update and AI connections no longer trust the eMudhra roots Mozilla removed (emSign ECC Root CA - G3, emSign Root CA - C1 and emSign ECC Root CA - C3).
+- Update tokio to 1.54.1, clearing its unsoundness advisory (RUSTSEC-2026-0386), along with Tauri 2.12.5 and the other Rust dependencies.
 
 ## [1.2.0] - 2026-10-22
 
