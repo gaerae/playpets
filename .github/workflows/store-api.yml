@@ -1,15 +1,7 @@
-# The temporary branch trigger lets the first credential check run without changing main.
-# Remove it and its environment branch rule after this setup is reviewed.
 name: Store API verification
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ci/store-api-verification]
-    paths:
-      - .github/workflows/store-api.yml
-      - scripts/store-api.mjs
-      - tests/store-api.test.mjs
 
 permissions:
   contents: read

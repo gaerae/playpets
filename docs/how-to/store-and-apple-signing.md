@@ -233,7 +233,7 @@ One-time steps. The account holder does them; never paste a key into a chat, iss
 - It requests a token, reads the app, checks the package identity and publisher, and reads any pending submission's publish mode.
 - It never creates, uploads, commits or publishes a submission.
 - Logs show a small report, not token responses, provider error bodies, keys or upload addresses.
-- The temporary push trigger on `ci/store-api-verification` is for first setup only; remove it and its environment branch rule afterward.
+- It runs only by hand, from **Actions** on `main`.
 
 ### When a run stops
 - A failure after the submission was created leaves a draft in Partner Center. Finish or delete it there before running `store` again.
