@@ -12,6 +12,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The website's front page shows friends talking among themselves and keeping you company while a coding agent works, with the Homebrew install command.
 - Install on macOS with Homebrew: `brew install gaerae/tap/playpets`.
 
+### Changed
+
+- The user guide in English, Korean, Japanese and Simplified Chinese is rewritten as short steps, tables and bullets, with button names matching the app.
+
 ### Fixed
 
 - Keep the seed count inside the Plant a seed tile when the tile is narrow, as in Chinese with ten or more seeds.

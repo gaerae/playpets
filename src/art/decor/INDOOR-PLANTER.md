@@ -1,9 +1,10 @@
 # Indoor planter
 
-Generated with the built-in image tool on 2026-10-13 for PlayPets.
-`indoor-planter.png` is a transparent ceramic pot placed over the lower stem of
-existing garden flowers in indoor scenes. The shared flower and growth artwork
-is preserved. Its pseudo-element does not intercept pointer input.
+- Generated with the built-in image tool on 2026-10-13 for PlayPets.
+- `indoor-planter.png`: a transparent ceramic pot placed over the lower stem of existing
+  garden flowers in indoor scenes.
+- The shared flower and growth artwork is preserved.
+- Its pseudo-element does not intercept pointer input.
 
 Generation prompt:
 
