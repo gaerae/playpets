@@ -123,7 +123,9 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
   for (const { worldCopy } of locales) {
     assert.equal(worldCopy.places.length, 4);
     assert.equal(worldCopy.seasons.length, 4);
-    assert.ok(worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel && worldCopy.viewLabel && worldCopy.desktopNote);
+    assert.ok(
+      worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel && worldCopy.viewLabel && worldCopy.desktopNote,
+    );
     // The scene shows the app's two real forms: the yard in its own window, or friends loose on the desktop.
     assert.equal(worldCopy.views.length, 2);
     assert.deepEqual(Object.keys(worldCopy.greetings).sort(), ['clover', 'daisy', 'miso', 'pip']);

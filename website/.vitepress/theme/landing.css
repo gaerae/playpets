@@ -764,15 +764,13 @@ html[lang^="ja"] .landing {
   background:
     radial-gradient(ellipse 70% 60% at 14% 100%, #b9d7c9, transparent 70%),
     radial-gradient(ellipse 60% 55% at 94% 92%, #f1d8c3, transparent 70%),
-    radial-gradient(ellipse 80% 70% at 70% 0%, #d6e3ef, transparent 70%),
-    #e5ece6;
+    radial-gradient(ellipse 80% 70% at 70% 0%, #d6e3ef, transparent 70%), #e5ece6;
 }
 .dark .living-world {
   background:
     radial-gradient(ellipse 70% 60% at 14% 100%, #2c4a40, transparent 70%),
     radial-gradient(ellipse 60% 55% at 94% 92%, #4a3a35, transparent 70%),
-    radial-gradient(ellipse 80% 70% at 70% 0%, #26364a, transparent 70%),
-    #18221f;
+    radial-gradient(ellipse 80% 70% at 70% 0%, #26364a, transparent 70%), #18221f;
 }
 /* Someone's own work, left open behind the yard: the friends live beside it, not instead of it. */
 .desk-work {

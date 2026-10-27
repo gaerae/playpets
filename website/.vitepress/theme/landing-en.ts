@@ -37,7 +37,8 @@ export const worldCopy = {
   worldsLead: 'Open the yard window or let them out onto the desktop, then say hello to a friend.',
   viewLabel: 'Where your friends are',
   views: ['Yard window', 'On the desktop'],
-  desktopNote: 'On the desktop, friends stay in front of your other windows. Places and seasons are chosen in the yard window.',
+  desktopNote:
+    'On the desktop, friends stay in front of your other windows. Places and seasons are chosen in the yard window.',
   sceneLabel: 'Choose a place and season',
   pause: 'Pause animations',
   resume: 'Play animations',
