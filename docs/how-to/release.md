@@ -1,91 +1,131 @@
 # Release a new version
 
 ## Purpose
-Tag a new version `x.y.z`, then review and publish the GitHub release draft that CI fills with the files it builds for every platform. Once it is published, installed apps can find the update when updater signing is configured, and the winget and Homebrew tap files are generated. Why the flow works this way is in the decision "[The version lives only in package.json, and a version tag creates a draft release](../decisions/2026-09-30-releases-from-version-tags.md)".
+- Tag a new version `x.y.z`, then review and publish the GitHub release draft that CI fills with the files it builds for every platform.
+- Once it is published, installed apps can find the update (when updater signing is configured), and the winget and Homebrew tap files are generated.
+- Why the flow works this way: the decision "[The version lives only in package.json, and a version tag creates a draft release](../decisions/2026-09-30-releases-from-version-tags.md)".
 
 ## Audience and assumptions
-A maintainer does this. You need repository administrator access for the generated release commit and a clean local working tree on main. Ordinary code changes still use reviewed squash pull requests. Signing and the distribution channels turn on only when the repository secrets exist; the release still works without them. The list of secrets is in the [signing keys and secrets standard](../standards/keys-and-secrets.md).
+- A maintainer does this.
+- You need repository administrator access for the generated release commit and a clean local working tree on main.
+- Ordinary code changes still use reviewed squash pull requests.
+- Signing and the distribution channels turn on only when the repository secrets exist; the release still works without them.
+- The list of secrets: the [signing keys and secrets standard](../standards/keys-and-secrets.md).
 
 ## Prerequisites
 - CI (`build`, `security` and `codeql`) passed for the latest commit on main, including every desktop platform.
 - `CHANGELOG.md` lists this version's changes under `## [Unreleased]`. If it is empty, the release command stops.
-- You chose the version number. Bump the second number when people get new features, and the third when there are only fixes.
+- You chose the version number: bump the second number when people get new features, the third when there are only fixes.
 - `git status` is empty locally.
-- The release pages for this version are written in all four site languages: `website/releases/<version>.md` (English), `website/ko/releases/<version>.md`, `website/ja/releases/<version>.md` and `website/zh-hans/releases/<version>.md`. Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
+- The release pages for this version are written in all four site languages:
+  - `website/releases/<version>.md` (English), `website/ko/releases/<version>.md`, `website/ja/releases/<version>.md` and `website/zh-hans/releases/<version>.md`.
+  - Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
 - The one-time repository setup is done ([Set up the repository, keys and store accounts](set-up-the-repository.md)): Pages from GitHub Actions, private vulnerability reporting, the updater signing secrets, and for the stores the Homebrew tap and the winget-pkgs fork.
 
 ## Development versions and publication
 
-Starting with `1.0.0`, the app and Store share the same three version components; MSIX adds a final `.0` (for example `1.0.0.0`). Publishing the GitHub release also starts the `store` workflow, which builds both Store packages and, once it is switched on, submits them to Partner Center (step 9). See [Store setup and submission](store-and-apple-signing.md).
+Versions:
+- Starting with `1.0.0`, the app and Store share the same three version components; MSIX adds a final `.0` (for example `1.0.0.0`).
+- Publishing the GitHub release also starts the `store` workflow. It builds both Store packages and, once it is switched on, submits them to Partner Center (step 9). See [Store setup and submission](store-and-apple-signing.md).
+- Versions change for a release, not automatically for each commit.
+- `package.json` is the source of truth; the npm lockfile and Rust package version match it.
+- New features advance the minor version; fixes advance the patch version.
+- Pet and background format versions are separate compatibility contracts and do not advance with the app version.
 
-Versions change for a release, not automatically for each commit. `package.json` is the source of truth; the npm lockfile and Rust package version match it. New features advance the minor version; fixes advance the patch version. Pet and background format versions are separate compatibility contracts and do not advance with the app version.
+Preparing the next version on a development branch:
+- Keep its notes under `Unreleased`.
+- Leave its four release pages undated.
+- Preserve the published Linux metainfo entries. A prepared entry uses `type="development"` until the release command dates and promotes it.
+- Preserve the published version's captures and put current captures under the next version's directory.
+- A prepared version is not a public release: the site's default download still resolves the latest published GitHub release.
+- After review and integration into main, `npm run release -- x.y.z` finalizes the notes and dates, commits and creates the local tag. It does not push.
+- Only push the tag when cross-platform checks and publication are authorized.
 
-A development branch may prepare the next version before tagging it. Keep its notes under `Unreleased`, leave its four release pages undated and preserve the published Linux metainfo entries. A prepared entry uses `type="development"` until the release command dates and promotes it. Preserve the published version's captures and put current captures under the next version's directory. A prepared version is not a public release: the site's default download still resolves the latest published GitHub release.
+Update checks:
 
-After review and integration into main, `npm run release -- x.y.z` finalizes the notes and dates, commits and creates the local tag. It does not push. Only push the tag when cross-platform checks and publication are authorized.
+| When | What happens |
+|---|---|
+| Unpackaged installations | Silent check 20 seconds after startup, then every 6 hours |
+| A check fails | Silent retry after 5 minutes, 15 minutes, 1 hour, then every 6 hours; success resets the schedule |
+| Store-managed packages | Their package manager updates them instead |
 
-For unpackaged installations, the app checks silently 20 seconds after startup and then every 6 hours. Failed checks retry silently after 5 minutes, 15 minutes, 1 hour, then every 6 hours; success resets the schedule. Store-managed packages use their package manager instead. Background checks expose a quiet version entry without opening Settings or starting an installation. Settings → App updates owns the result, release notes, download progress, errors and Retry. Only **Install and restart** starts the signed download and installation. Closing Settings leaves that operation running, and reopening it does not start a second download.
+- Background checks expose a quiet version entry without opening Settings or starting an installation.
+- **Settings → App updates** owns the result, release notes, download progress, errors and Retry.
+- Only **Install and restart** starts the signed download and installation.
+- Closing Settings leaves that operation running; reopening it does not start a second download.
 
-The updater deliberately disables legacy ZIP compatibility. The release feed points to native Windows EXE, Linux deb and AppImage files; macOS tar support is independent of that feature. Keep this setting when updating the plugin. A new archive format needs a dependency security review and installation checks before it is added.
+Updater archives:
+- The updater deliberately disables legacy ZIP compatibility. Keep this setting when updating the plugin.
+- The release feed points to native Windows EXE, Linux deb and AppImage files; macOS tar support is independent of that feature.
+- A new archive format needs a dependency security review and installation checks before it is added.
 
 ## First public release hand-off
 
-Complete these in order; a successful local build does not establish that a
+Complete these in order. A successful local build does not establish that a
 published update can be downloaded and installed.
 
-- Integrate reviewed local branches into `main`, then run `npm run check` and
-  `npm run test:e2e` on the resulting commit.
-- Scan the reachable history before its first push with `gitleaks git --redact --log-opts=main`.
-  Check tracked files as well as ignore rules; private data and build output do not belong in Git.
-- Run `npm audit`, `cargo audit --file src-tauri/Cargo.lock` and `actionlint` with
-  current advisory data. Review informational warnings too. Record unresolved
-  advisories, affected platforms and any reachability assessment in the release
-  review; a passing unit test does not establish that a dependency is safe.
-  For the Linux GLib warning, use the upstream references and handling policy in
-  [Dependency advisories](https://github.com/gaerae/playpets/blob/main/SECURITY.md#dependency-advisories).
-  Check the active dependency graph even when an upstream project has added an
-  audit exception or started a newer GTK development branch.
-- Review third-party license notices for the dependencies actually bundled in
-  each platform package and the built website. Include the required license and
-  copyright texts with those distributions; the repository MIT license does not
-  replace dependency notices. Run `npm run licenses:check`; regeneration and
-  distribution scope are documented in [third-party notices](../../packaging/licenses/README.md).
-  The Rust inventory does not cover system libraries copied into an AppImage;
-  review the final image and their source/relinking obligations before publication.
-- Confirm both Linux `SYSTEM-SOURCE-PACKAGES.txt` assets are present. Release CI
-  builds an initial image from the executable's native library graph, extracts
-  its actual system libraries, then rebuilds the final image with their
-  distribution copyright files. It compares every copied library with those
-  files and records the exact Ubuntu binary and source package versions used to
-  build it.
-- Rebuild distribution files after dependency changes. Older files under ignored
-  `release/` are not evidence for the current commit and are not publication inputs.
-- Connect the GitHub remote and push `main`; enable Pages from GitHub Actions and
-  configure updater signing as described in [repository setup](set-up-the-repository.md).
-- Check the platform CI results, four-language site routes, release links and
-  installation instructions before publishing the release draft.
-- Read the native package smoke-test result for every release job. It copies the
-  app from the dmg, silently installs and uninstalls the NSIS package, and installs
-  the deb; it launches those packages and the AppImage for eight seconds with
-  isolated app data. This catches package hand-off failures but does not replace
-  the interactive installer and Gatekeeper/SmartScreen review on real user machines.
-- Refresh public captures when a visible change affects them. The full yard,
-  small window, places, Friend, Invite and Settings should match the shipped app.
-- Test a signed upgrade from an older installed build to a newer published build
-  on each supported installer format. Check download progress, a failed attempt
-  and retry, restart, the one-time version notice, and preserved friends/settings.
-  A mocked updater event proves UI behavior, not the installer hand-off.
-- Treat Homebrew, winget and optional platform signing as separate distribution
-  steps; record which channels are actually available in the release notes.
+1. Integrate reviewed local branches into `main`, then run `npm run check` and
+   `npm run test:e2e` on the resulting commit.
+2. Before its first push, scan the reachable history with `gitleaks git --redact --log-opts=main`.
+   - Check tracked files as well as ignore rules; private data and build output do not belong in Git.
+3. Run `npm audit`, `cargo audit --file src-tauri/Cargo.lock` and `actionlint` with
+   current advisory data.
+   - Review informational warnings too.
+   - Record unresolved advisories, affected platforms and any reachability
+     assessment in the release review. A passing unit test does not establish that
+     a dependency is safe.
+   - For the Linux GLib warning, use the upstream references and handling policy in
+     [Dependency advisories](https://github.com/gaerae/playpets/blob/main/SECURITY.md#dependency-advisories).
+   - Check the active dependency graph even when an upstream project has added an
+     audit exception or started a newer GTK development branch.
+4. Review third-party license notices for the dependencies actually bundled in
+   each platform package and the built website.
+   - Include the required license and copyright texts with those distributions; the
+     repository MIT license does not replace dependency notices.
+   - Run `npm run licenses:check`. Regeneration and distribution scope are
+     documented in [third-party notices](../../packaging/licenses/README.md).
+   - The Rust inventory does not cover system libraries copied into an AppImage.
+     Review the final image and their source/relinking obligations before
+     publication.
+5. Confirm both Linux `SYSTEM-SOURCE-PACKAGES.txt` assets are present.
+   - Release CI builds an initial image from the executable's native library graph,
+     extracts its actual system libraries, then rebuilds the final image with their
+     distribution copyright files.
+   - It compares every copied library with those files and records the exact
+     Ubuntu binary and source package versions used to build it.
+6. Rebuild distribution files after dependency changes. Older files under ignored
+   `release/` are not evidence for the current commit and are not publication inputs.
+7. Connect the GitHub remote and push `main`. Enable Pages from GitHub Actions and
+   configure updater signing as described in [repository setup](set-up-the-repository.md).
+8. Before publishing the release draft, check the platform CI results,
+   four-language site routes, release links and installation instructions.
+9. Read the native package smoke-test result for every release job.
+   - It copies the app from the dmg, silently installs and uninstalls the NSIS
+     package, and installs the deb.
+   - It launches those packages and the AppImage for eight seconds with isolated
+     app data.
+   - This catches package hand-off failures but does not replace the interactive
+     installer and Gatekeeper/SmartScreen review on real user machines.
+10. Refresh public captures when a visible change affects them. The full yard,
+    small window, places, Friend, Invite and Settings should match the shipped app.
+11. Test a signed upgrade from an older installed build to a newer published build
+    on each supported installer format.
+    - Check download progress, a failed attempt and retry, restart, the one-time
+      version notice, and preserved friends/settings.
+    - A mocked updater event proves UI behavior, not the installer hand-off.
+12. Treat Homebrew, winget and optional platform signing as separate distribution
+    steps. Record which channels are actually available in the release notes.
 
 ## Published releases stay fixed
 
-Complete and verify every asset while the release is a draft. Release immutability
-protects future published assets and their associated tags. The repository's tag
-rules also block moving or deleting pushed `v*.*.*` tags. Before a push, a mistaken
-local tag can be deleted and regenerated; after a push, preserve it and use a new
-version. A published installer fix ships as a patch release, never a replaced
-file at an existing download address. Release notes can clarify known limits.
+- Complete and verify every asset while the release is a draft.
+- Release immutability protects future published assets and their associated tags.
+- The repository's tag rules also block moving or deleting pushed `v*.*.*` tags.
+- Before a push, a mistaken local tag can be deleted and regenerated. After a push,
+  preserve it and use a new version.
+- A published installer fix ships as a patch release, never a replaced file at an
+  existing download address.
+- Release notes can clarify known limits.
 
 ## Steps
 1. Pull the latest main.
@@ -94,18 +134,34 @@ file at an existing download address. Release notes can clarify known limits.
 git switch main && git pull
 ```
 
-2. Capture the screens for the site (macOS). The first time, macOS asks for screen recording permission; allow it. The results land in `website/public/shots/0.2.0/` in every app language. Once you have looked them over, set `CAPTURE_VERSION` in `scripts/site-content.mjs` to the new version, so the site and the installer art use them. Then redraw the installer art, which also turns those English captures into the screenshots Linux software centers show, and commit all of it.
+2. Capture the screens for the site (macOS), then redraw the installer art.
+   - The first time, macOS asks for screen recording permission; allow it.
+   - The results land in `website/public/shots/0.2.0/` in every app language.
+   - Look them over, then set `CAPTURE_VERSION` in `scripts/site-content.mjs` to the new version, so the site and the installer art use them.
+   - `npm run art` redraws the installer art. It also turns those English captures into the screenshots Linux software centers show.
+   - Commit all of it.
 
 ```bash
 npm run shots -- 0.2.0
 npm run art
 ```
 
-3. Make the release commit and tag. The changelog section moves to a dated section, and the version changes in `package.json`, `package-lock.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`. The version is also added, dated, to the releases in `packaging/linux/app.playpets.metainfo.xml`. The command also dates the website release pages: it sets today's date in `website/releases/0.2.0.md`, `website/ko/releases/0.2.0.md`, `website/ja/releases/0.2.0.md` and `website/zh-hans/releases/0.2.0.md`. If the Korean, Japanese or Chinese page is missing, it stops before changing anything; a missing English page is started from the changelog notes, without highlights, so write all four before you run it. Everything goes into one release commit. Nothing is pushed.
+3. Make the release commit and tag.
 
 ```bash
 npm run release -- 0.2.0
 ```
+
+   | What the command changes | Where |
+   |---|---|
+   | The changelog section moves to a dated section | `CHANGELOG.md` |
+   | The version | `package.json`, `package-lock.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock` |
+   | The version is added, dated, to the releases | `packaging/linux/app.playpets.metainfo.xml` |
+   | Today's date on the website release pages | `website/releases/0.2.0.md`, `website/ko/releases/0.2.0.md`, `website/ja/releases/0.2.0.md` and `website/zh-hans/releases/0.2.0.md` |
+
+   - If the Korean, Japanese or Chinese page is missing, it stops before changing anything.
+   - A missing English page is started from the changelog notes, without highlights. Write all four before you run it.
+   - Everything goes into one release commit. Nothing is pushed.
 
 4. Push the commit and the tag. The tag starts the `release` workflow.
 
@@ -113,7 +169,8 @@ npm run release -- 0.2.0
 git push --atomic origin HEAD v0.2.0
 ```
 
-The atomic push either updates both main and the version tag or updates neither. Do not push the tag separately after a rejected main update: that could start a release from a commit absent from main.
+   - The atomic push either updates both main and the version tag or updates neither.
+   - Do not push the tag separately after a rejected main update: that could start a release from a commit absent from main.
 
 5. Open the `release` run in the repository's Actions tab. Watch `check` (tag, version and changelog agree), `build` on five platforms, and `publish` finish in order.
 
@@ -128,10 +185,19 @@ The atomic push either updates both main and the version tag or updates neither.
 | `SHA256SUMS.txt` | Always |
 | `latest.json`, `PlayPets_0.2.0_macos-universal.app.tar.gz` | The updater signing secrets exist |
 
-7. After the checks pass, press "Publish release" on the draft. Publishing starts the `distribute` and `store` workflows. The four version pages ask GitHub for that exact public tag in the visitor's browser; they expose the tag and installer links only after GitHub returns it. Publication therefore needs no follow-up documentation commit or Pages deployment. If GitHub cannot be reached, the page keeps a safe link to the release list.
+7. After the checks pass, press "Publish release" on the draft. Publishing starts the `distribute` and `store` workflows.
+   - The four version pages ask GitHub for that exact public tag in the visitor's browser. They expose the tag and installer links only after GitHub returns it.
+   - Publication therefore needs no follow-up documentation commit or Pages deployment.
+   - If GitHub cannot be reached, the page keeps a safe link to the release list.
 
 8. When the `distribute` run finishes, check the results. Channels without a token are left as the `store-manifests` artifact.
-   - winget: if `WINGET_TOKEN` exists, `wingetcreate` opens the PR on winget-pkgs, the first version too (winget's moderators review a new package by hand; later versions are merged by their bots once checks pass). Without the token, submit the artifact's `winget/manifests/…` folder yourself:
+
+| Channel | With its token | Without it |
+|---|---|---|
+| winget | If `WINGET_TOKEN` exists, `wingetcreate` opens the PR on winget-pkgs, the first version too. winget's moderators review a new package by hand; later versions are merged by their bots once checks pass | Submit the artifact's `winget/manifests/…` folder yourself (below) |
+| Homebrew | If `HOMEBREW_TAP_TOKEN` exists, `Casks/playpets.rb` in `<account>/homebrew-tap` changes | Copy the artifact's `homebrew/Casks/playpets.rb` into the tap repository and commit it |
+
+   Submitting to winget by hand:
 
 ```powershell
 wingetcreate token --store
@@ -141,9 +207,7 @@ wingetcreate token --store
 wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\gaerae\PlayPets\0.2.0
 ```
 
-   `token --store` signs in to GitHub in the browser once and keeps the token in Windows Credential Manager, so it never appears on the command line.
-
-   - Homebrew: if `HOMEBREW_TAP_TOKEN` exists, `Casks/playpets.rb` in `<account>/homebrew-tap` changes. If not, copy the artifact's `homebrew/Casks/playpets.rb` into the tap repository and commit it.
+   - `token --store` signs in to GitHub in the browser once and keeps the token in Windows Credential Manager, so it never appears on the command line.
 
 9. Check the `store` run (Microsoft Store). It skips prereleases.
    - `source` checks the tag and makes "What's new" from the four website release pages.
@@ -154,10 +218,15 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 
 ## Verification
 - The release page has the files from step 6, and the notes match the `## [0.2.0]` section of `CHANGELOG.md`.
-- In an app with the previous version installed, confirm that an automatic check exposes a quiet version entry without opening Settings or starting installation. A manual check opens Settings → App updates; verify its result, release notes, progress, errors and Retry in that section. Close Settings during download and reopen it without starting a second download. Complete installation and restart, confirm the running version and brief completion notice, then restart again to check that the notice does not repeat (when the updater signing secrets exist).
+- In an app with the previous version installed (when the updater signing secrets exist):
+  1. Confirm that an automatic check exposes a quiet version entry without opening Settings or starting installation.
+  2. Run a manual check: it opens **Settings → App updates**. Verify its result, release notes, progress, errors and Retry in that section.
+  3. Close Settings during download and reopen it, without starting a second download.
+  4. Complete installation and restart. Confirm the running version and brief completion notice.
+  5. Restart again and check that the notice does not repeat.
 - Partner Center shows the new submission with both packages and What's new in four languages; certification starts on its own.
 - The winget PR passes its checks, or `brew upgrade --cask playpets` on a computer with the tap gets the new version.
-- With signing secrets, `latest.json` lists every platform the release has, including `linux-x86_64-deb` and `linux-aarch64-deb` entries for deb installs; if those are missing, deb users do not get updates in the app.
+- With signing secrets, `latest.json` lists every platform the release has, including `linux-x86_64-deb` and `linux-aarch64-deb` entries for deb installs. If those are missing, deb users do not get updates in the app.
 
 ## Troubleshooting
 | Symptom | Fix |

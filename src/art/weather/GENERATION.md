@@ -1,6 +1,7 @@
 # Seasonal particle artwork
 
-Generated on 2026-10-11 with the built-in image_gen tool. No API key, external image service, scripted leaf anatomy or recolouring was used.
+- Generated on 2026-10-11 with the built-in image_gen tool.
+- No API key, external image service, scripted leaf anatomy or recolouring was used.
 
 - Original output: `CODEX_HOME/generated_images/01a128f9-924f-71a1-8607-c78af8edd8ff/exec-72f2c4d3-4f47-4462-b19d-76cc56e626d8.png`
 - Retained original: `assets/sources/weather/seasonal-source.png`, 1536 × 1024, true alpha.
@@ -8,11 +9,31 @@ Generated on 2026-10-11 with the built-in image_gen tool. No API key, external i
 - Upper row: amber maple, russet maple, golden birch.
 - Lower row: pale cherry petal, rose cherry petal, curled ivory-pink cherry petal.
 
-The source was inspected at full size. Its zero-alpha fraction is 0.6646811167399088. Packing uses `atlasPoses(rgba, width, height, 3, 2)` from `scripts/atlas-lib.mjs`: each column's two dominant isolated silhouettes, sorted top to bottom. It copies exact source RGBA inside a two-pixel dilation of each silhouette, crops its bounds with two pixels of padding, uniformly downsamples its longest dimension to 112 pixels, and centers it inside its 128-pixel cell. This removes transparent-background RGB haze and unrelated fragments while preserving the generated material. No new anatomical pixels are painted. `seasonal.png.json` records the source and output bounds and scales of all six cells. The original alpha is retained for future exports.
+- The source was inspected at full size. Its zero-alpha fraction is 0.6646811167399088.
+- Packing uses `atlasPoses(rgba, width, height, 3, 2)` from `scripts/atlas-lib.mjs`: each column's two dominant isolated silhouettes, sorted top to bottom.
+- For each silhouette it:
+  1. copies exact source RGBA inside a two-pixel dilation;
+  2. crops its bounds with two pixels of padding;
+  3. uniformly downsamples its longest dimension to 112 pixels;
+  4. centers it inside its 128-pixel cell.
+- This removes transparent-background RGB haze and unrelated fragments and keeps the generated material.
+- No new anatomical pixels are painted.
+- `seasonal.png.json` records the source and output bounds and scales of all six cells.
+- The original alpha is kept for future exports.
 
-The runtime decoder waits for a complete image, shares one decoded atlas, loads only when motion is enabled in an outdoor spring/autumn scene, and keeps the existing vector fallback if decoding fails. Rain, impact ripples and snow are separate code-native cached materials in `yard/weather-art.js`. Rain uses tapered depth-scaled droplets; snow uses soft distant flurries and six-arm near flakes. Those materials are constructed at scene setup or weather changes, never in the paint loop. Indoor precipitation remains clipped to the room's transformed glass panes; the indoor floor receives no ripple. Reduced motion keeps precipitation static and omits falling leaves/petals.
+- The runtime decoder:
+  - waits for a complete image;
+  - shares one decoded atlas;
+  - loads only when motion is enabled in an outdoor spring/autumn scene;
+  - keeps the existing vector fallback if decoding fails.
+- Rain, impact ripples and snow are separate code-native cached materials in `yard/weather-art.js`.
+- Rain uses tapered depth-scaled droplets; snow uses soft distant flurries and six-arm near flakes.
+- Those materials are built at scene setup or weather changes, never in the paint loop.
+- Indoor precipitation stays clipped to the room's transformed glass panes; the indoor floor gets no ripple.
+- Reduced motion keeps precipitation static and omits falling leaves/petals.
 
-Actual-module browser fixtures checked all four seasons, rain and snow in woodland and studio, day and night, 1180 × 780 and mini 500 × 350, at DPR 1 and 2. These references do not change butterflies, dragonflies, birds, fireflies, stars or shooting-star artwork. Their existing procedural painters remain.
+- Actual-module browser fixtures checked all four seasons, rain and snow in woodland and studio, day and night, 1180 × 780 and mini 500 × 350, at DPR 1 and 2.
+- These references do not change butterflies, dragonflies, birds, fireflies, stars or shooting-star artwork; their existing procedural painters remain.
 
 ## Exact generation prompt
 
