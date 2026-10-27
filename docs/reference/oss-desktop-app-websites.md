@@ -2,8 +2,9 @@
 
 ## Question
 - Before building the PlayPets site (landing page, user guide, release pages, developer docs), we read real pages of well-known open-source desktop apps and desktop pet projects.
-- Looked at: landing page order, download buttons, screenshots, changelog structure, docs layout, multiple languages, trust signals.
-- Research date: 2026-10-03. Every observation comes from reading the pages directly on that day.
+- What we looked at: landing page order, download buttons, screenshots, changelog structure, docs layout, multiple languages, trust signals.
+- Research date: 2026-10-03.
+- Every observation comes from reading the pages directly on that day.
 
 ## Findings
 ### Sites read
@@ -70,7 +71,7 @@ What they share:
 
 ### Trust signals
 - Bruno "Your data never leaves your machine", Beekeeper "By default we don't even know when you install the app", Maccy "Everything is stored on your computer", AltTab "No tracking, no telemetry", Spacedrive "no cloud, no account, no subscription, no telemetry".
-- Star count badges: Cap (22k) and Spacedrive (37k) show them in the menu. When the number is small, just the icon.
+- Star count badges: Cap (22k) and Spacedrive (37k) show them in the menu. Sites with a small count show only the icon.
 - Maccy: a banner warning about fake sites.
 - Stats: "Open source, but not open contribution", stating what to expect from a solo maintainer.
 
@@ -89,8 +90,9 @@ What they share:
 | A changelog with no screenshots and no download links | Visitors cannot see the change or get the version they read about |
 
 ### Limits of this research
-- Read over one day, and sites change. It reflects 2026-10-03.
-- Visitor response (conversion rates and so on) is unknown. Only structure and appearance were looked at.
+- Read over one day, and sites change. The findings reflect 2026-10-03.
+- Visitor response (conversion rates and so on) is unknown.
+- Only structure and appearance were studied.
 - Among pets that react to coding agents, the projects read (Clawd on Desk, CoPet, buddy-desktop, nchiyi/desktop-pet) were documented in their READMEs and had no separate site.
 
 ## Conclusion and recommendations

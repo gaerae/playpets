@@ -36,16 +36,16 @@ chmod 600 ~/.tauri/playpets-updater.key
 
 3. Check that your key pair's public key matches the one in the app config.
    - The public key file and the config value are the same base64 string.
-   - The two lines match: this key pair is the one installed apps trust.
-   - The secret and public key files are generated together, so a pair that sat together in the same folder matches.
+   - If the two lines match, this key pair is the one installed apps trust.
+   - The secret and public key files are generated together, so a pair kept together in one folder matches.
 
 ```bash
 cat ~/.tauri/playpets-updater.key.pub; echo; node -p "require('./src-tauri/tauri.conf.json').plugins.updater.pubkey"
 ```
 
-4. Suspect a leak? Search for a secret key ever committed to the repository.
+4. Suspect a leak? Search the history for any secret key ever committed to the repository.
    - The secret key file is wrapped in base64.
-   - Every secret key starts with the same header: `untrusted comment: rsign encrypted secret key`, in base64.
+   - In base64, every secret key starts with the same header: `untrusted comment: rsign encrypted secret key`.
 
 ```bash
 git log --all -p -S "dW50cnVzdGVkIGNvbW1lbnQ6IHJzaWduIGVuY3J5" | head
@@ -64,9 +64,9 @@ gh release list --repo gaerae/playpets
 gh release delete <unknown tag> --repo gaerae/playpets --cleanup-tag --yes
 ```
 
-3. Delete the repository's CI secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (Remove at the CI secrets address above).
+3. Delete the repository's CI secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (**Remove** on the CI secrets page above).
 
-**Switch to a new key (both when lost and when leaked).**
+**Switch to a new key (whether it was lost or leaked).**
 4. Generate a new key pair. Set a password this time.
 
 ```bash
@@ -89,20 +89,20 @@ gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo gaerae/playpets
 7. Add a notice and release.
    - Under `[Unreleased]` in `CHANGELOG.md`, write "Users of earlier versions have to download this version by hand once to keep getting updates".
    - Release by following [Release a new version](../how-to/release.md).
-   - Why: apps that trust the old key do not accept updates signed with the new key, so users install it by hand once.
+   - Why: apps that trust the old key reject updates signed with the new key, so users install this version by hand once.
 
 8. Put the same notice in the README and the release notes.
    - Users who installed with winget or Homebrew get the new version through the package manager's upgrade.
 
 ## Verification
 - The new release has `latest.json`.
-- In an app with the new version installed, "Check for updates" in the Settings tab finds the next release once you make it.
+- In an app with the new version installed, "Check for updates" in the Settings tab finds the next release once you publish it.
 - The two lines from diagnosis step 3 match.
 - If it was a leak, the GitHub security log shows no new unknown activity.
 
 ## Escalation
 - The maintainer owns this.
-- More than one maintainer: someone with repository admin rights looks at it too.
+- With more than one maintainer, someone else with repository admin rights also reviews it.
 - The GitHub account or repository was compromised:
   - Report it to GitHub Support (https://support.github.com).
   - Create a security advisory from the repository's Security tab to tell users.

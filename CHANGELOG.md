@@ -15,14 +15,18 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The website's front page shows friends talking among themselves and keeping you company on the desktop while a coding agent works, with the Homebrew install command.
 - The website's first screen says PlayPets is a desktop pet app and names the coding agents a friend reacts to, and the front page copy is rewritten in all four languages.
 - Install on macOS with Homebrew: `brew install gaerae/tap/playpets`.
+- The website leads with Codex pets: the first screen says PlayPets plays your Codex pet files, up to 12 together, and a new block lists what it adds. Every page has a Home link, the FAQ opens with what PlayPets is and how it works with Codex pets, and search and answer engines get structured data, `robots.txt` and `llms.txt`.
 
 ### Changed
 
+- The coding-company section on the website's front page moves up, right after what PlayPets adds to Codex pets.
 - The user guide in English, Korean, Japanese and Simplified Chinese is rewritten with steps, tables and bullets for settings and options, and natural sentences where it explains, with button names matching the app; the privacy policy reads more plainly in all four languages.
 - The website's first screen gathers its place, season and pose choices into one dock under the scene, in the same control as the friend gallery's poses.
+- The website's first screen shows a computer screen with a wallpaper, a taskbar and the yard as an app window, and a switch lets the friends out onto the desktop, so it is clear PlayPets is a desktop app.
 
 ### Fixed
 
+- The user guide's "On this page" outline lists headings only; a "since" badge appears only on features added after the first release.
 - Friends on the website's front page no longer blink out or flicker when they walk, look around or change season.
 - Keep the seed count inside the Plant a seed tile when the tile is narrow, as in Chinese with ten or more seeds.
 - Retake the desktop-mode screenshot on the website and in the Linux software-center listing without the macOS screen-sharing indicator that sat in its corner.

@@ -1,7 +1,7 @@
 ---
 layout: page
 title: PlayPets
-titleTemplate: 서로 이야기하는 펫들의 놀이터
+titleTemplate: 내 Codex 펫이 모이는 데스크톱 펫 앱
 ---
 
 <Landing />

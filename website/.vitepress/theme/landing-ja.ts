@@ -1,23 +1,11 @@
 export const copy = {
-  sceneNote: '対応するCodexペットファイルを庭に迎えられます。コミュニティのペットはこちらで探せます：',
-  communities: [
-    'OpenPets Registry',
-    'Petdex',
-    'Codex PokéPets',
-    'Awesome Codex Pet',
-    'Codex Pets',
-    'GitHubのフォルダー',
-    'このコンピューターのフォルダー',
-  ],
-  whyThanks:
-    'ペットを描いてくれたみなさんに、心から感謝します。この子たちがもっとたくさんのデスクで動けるように、PlayPetsは生まれました。',
   diffNote:
-    'CodexのペットはOpenAI Codexの機能です。PlayPetsは同じペットファイル形式を使う別のオープンソースアプリで、Codexがなくても使えます。',
+    'ChatGPTとCodexはOpenAIの商標です。PlayPetsは同じペットファイルを読み込む独立したオープンソースアプリです。',
   chatAlt: '友だちとの会話',
   github: 'GitHubで見る',
   guide: 'ガイドを読む',
   more: '詳しく見る',
-  eyebrow: 'macOS、Windows、Linux対応のデスクトップマスコット',
+  eyebrow: 'macOS、Windows、Linux対応の無料デスクトップマスコット',
   download: 'PlayPetsをダウンロード',
   meet: '友だちに会いに行く',
   finalTitle: 'いつもの毎日に、小さな友だちを。',
@@ -28,8 +16,6 @@ export const copy = {
   privacyBody:
     '友だちと設定はお使いのパソコンに保存されます。会話は接続したAIに送られ、そのサービスのデータポリシーが適用されます。PlayPetsが会話の履歴をファイルに残すことはありません。',
   releaseLabel: 'バージョンとリリースノート',
-  releaseTitle: (v: string) => `PlayPets ${v}`,
-  releaseLink: (v: string) => `${v}`,
 };
 export const worldCopy = {
   places: ['丘の庭', '石造りの中庭', '湖畔の家', 'くつろぎのリビング'],
@@ -44,10 +30,13 @@ export const worldCopy = {
   previewNote:
     'アプリの絵を使った、さわって試せる風景サンプルです。友だちを選ぶと手を振ります。遊びや天気はアプリで楽しめます。',
   greet: 'あいさつする',
-  title: ['作業のそばに、', '小さな友だち。'],
-  lead: 'デスクトップの小さな庭で、4人が気ままに遊んでいます。お好みのAIを通して、あなたとも友だち同士でも話します。コーディングエージェントが働いている間は、そばで応援してくれます。',
+  title: ['Codexのペットたちが、', 'ひとつの庭にそろいます。'],
+  lead: '手もとのCodexペットをそのまま読み込むか、PlayPetsの4人を迎えましょう。12人まで一緒に遊び、選んだAIでおしゃべりして、コーディング中はそばで応援します。',
   worldsTitle: 'まずは、ここでちょっとだけ。',
-  worldsLead: '場所と季節を選んで、友だちにあいさつしてみてください。',
+  worldsLead: '庭のウィンドウを開くか、デスクトップへ出してから、友だちにあいさつしてみてください。',
+  viewLabel: '友だちのいる場所',
+  views: ['庭のウィンドウ', 'デスクトップ'],
+  desktopNote: 'デスクトップでは、友だちがほかのウィンドウの前にいます。場所と季節は庭のウィンドウで選べます。',
   sceneLabel: '場所と季節を選ぶ',
   pause: '動きを止める',
   resume: '動きを再開する',
@@ -57,9 +46,36 @@ export const worldCopy = {
   creatorLink: '自分だけの友だちを作る',
   discovery: 'Codexのペット、もういますか？',
   discoveryLink: '庭に迎えてみる',
-  sceneCaption: (v: string) => `実際のアプリ画面、PlayPets ${v}`,
 };
 export const sections = {
+  compare: {
+    caption: 'ペットの機能：Codexのペットだけでできることと、PlayPetsが加えるもの',
+    head: ['Codexのペット', 'PlayPetsなら'],
+    rows: [
+      ['ペットファイル', 'hatch-petスキルで作るか、アップロードしたスプライトシート', '同じペットをそのまま読み込み'],
+      [
+        '動き',
+        '実行中、入力待ち、完了、ブロック中をアニメーションで表示',
+        'シートにある動きと視線の向きすべて。庭とデスクトップの散歩も',
+      ],
+      ['一度に出るペット', '1人ずつ', '12人まで一緒に'],
+      ['会話', 'デスクトップからチャットを始める', '選んだAIで、あなたともほかのペットとも話す'],
+      [
+        'コーディングツール',
+        'ChatGPTとCodexのスレッドの進み具合を1人で知らせる',
+        'ツールごとに担当のペットが知らせる：Claude Code、Codex、Gemini CLI、Cursor、MCPツール',
+      ],
+      ['場所', '—', '4つの場所か自作の背景。時間、天気、季節が移り変わる'],
+      ['飾り', '—', '友だちがベンチやブランコ、池などを贈ってくれて、そのそばで休んだり遊んだりする'],
+      ['遊び', '—', 'かくれんぼ、おさんぽ行列、おにごっこ。穴掘り、植木、釣り、虫とり、図鑑集め'],
+      ['着替え', '—', 'はじめからいる4人は季節ごとに着替え。どのペットファイルにも季節のシートを追加できる'],
+    ],
+    source: 'Codexのペットの列：OpenAIのペットガイド（2026年10月時点）',
+  },
+  codexPlusTitle: ['ChatGPTのペットはそのままに、', '仲間はPlayPetsで増やそう。'],
+  codexPlusLead:
+    'ChatGPTとCodex向けに作ったペットが、PlayPetsでもそのまま動きます。ChatGPTのデスクトップアプリでは1人がスレッドの進み具合を知らせ、PlayPetsでは12人まで集まって友だち同士で話し、Claude Code、Gemini CLI、Cursorにも反応します。',
+  codexPlusLink: 'Codexのペットを迎える',
   discoveryGuide: 'どんな発見があるか見てみる',
   galleryCreate: 'この子をもとに作る',
   galleryTitle: '会えると、うれしくなる友だち。',
@@ -98,7 +114,7 @@ export const sections = {
   connectionDetails: '会話の設定と料金',
   connectionSetup:
     'ローカルのOllama、ログイン済みのClaude CodeやCodex CLI、OpenAI互換サーバーが使えます。CLIはご契約プランの利用枠内で動き、APIサーバーは別途料金がかかる場合があります。',
-  heroFacts: ['無料のオープンソース（MIT）', 'AIアカウントなしで遊べる', 'English, 한국어, 日本語, 简体中文'],
+  heroFacts: ['無料のオープンソース（MIT）', 'CodexやAIアカウントなしで遊べる', 'English, 한국어, 日本語, 简体中文'],
   heroAgents: 'いっしょに働くコーディングツール',
   miniDesktop: 'デスクトップに出してみる',
   togetherTitle: '友だち同士でも、話がはずみます。',

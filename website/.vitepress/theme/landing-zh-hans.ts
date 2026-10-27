@@ -1,22 +1,10 @@
 export const copy = {
-  sceneNote: '兼容的 Codex 宠物文件可以直接带进乐园。去这些地方找找社区宠物：',
-  communities: [
-    'OpenPets Registry',
-    'Petdex',
-    'Codex PokéPets',
-    'Awesome Codex Pet',
-    'Codex Pets',
-    'GitHub 文件夹',
-    '本地文件夹',
-  ],
-  whyThanks: '谢谢每一位画出这些宠物的人。PlayPets 想让它们在更多人的桌面上动起来。',
-  diffNote:
-    'Codex 宠物是 OpenAI Codex 的功能。PlayPets 是另一款开源应用，沿用了同样的宠物文件格式，不装 Codex 也能用。',
+  diffNote: 'ChatGPT 和 Codex 是 OpenAI 的商标。PlayPets 是一款读取同样宠物文件的独立开源应用。',
   chatAlt: '和伙伴聊天的画面',
   github: '在 GitHub 上查看',
   guide: '查看使用指南',
   more: '了解玩法',
-  eyebrow: 'macOS、Windows、Linux 都能养的桌宠',
+  eyebrow: '适用于 macOS、Windows、Linux 的免费桌宠应用',
   download: '下载 PlayPets',
   meet: '认识一下伙伴们',
   finalTitle: '每一天，都有小伙伴陪着你。',
@@ -27,8 +15,6 @@ export const copy = {
   privacyBody:
     '伙伴和设置都保存在你的电脑上。对话会发给你连接的 AI，适用对方自己的数据政策。PlayPets 不会把聊天记录存成文件。',
   releaseLabel: '版本与更新说明',
-  releaseTitle: (v: string) => `PlayPets ${v}`,
-  releaseLink: (v: string) => `${v}`,
 };
 export const worldCopy = {
   places: ['山丘花园', '石板庭院', '湖畔小屋', '温馨客厅'],
@@ -42,10 +28,13 @@ export const worldCopy = {
   seasonLabel: '选择季节',
   previewNote: '用应用里的画作做的互动小样。点一下伙伴，它会向你挥手；游戏和天气请到应用里体验。',
   greet: '打个招呼',
-  title: ['工作的屏幕一角，', '住着一群小伙伴。'],
-  lead: '四位小伙伴在你桌面上的小乐园里自己玩，会通过你选的 AI 和你聊天，也会互相聊；编码代理忙活的时候，还会在一旁给你打气。',
+  title: ['你的 Codex 宠物，', '齐聚同一个乐园。'],
+  lead: '直接读取你已有的 Codex 宠物，或请来 PlayPets 自带的四位伙伴。最多 12 位一起玩，用你选的 AI 聊天，写代码时在一旁打气。',
   worldsTitle: '先在这里玩一玩。',
-  worldsLead: '选个地点和季节，再跟伙伴打声招呼。',
+  worldsLead: '打开乐园窗口，或把伙伴放到桌面上，再跟它们打声招呼。',
+  viewLabel: '伙伴所在的地方',
+  views: ['乐园窗口', '桌面'],
+  desktopNote: '在桌面上，伙伴们会待在其他窗口前面。地点和季节请在乐园窗口里选。',
   sceneLabel: '选择地点和季节',
   pause: '暂停动画',
   resume: '播放动画',
@@ -54,9 +43,36 @@ export const worldCopy = {
   creatorLink: '做一个自己的伙伴',
   discovery: '已经有 Codex 宠物了？',
   discoveryLink: '把它带进乐园',
-  sceneCaption: (v: string) => `实际应用画面，PlayPets ${v}`,
 };
 export const sections = {
+  compare: {
+    caption: '宠物功能：Codex 宠物本身能做的，以及 PlayPets 增加的',
+    head: ['Codex 宠物', '在 PlayPets 里'],
+    rows: [
+      ['宠物文件', '用 hatch-pet 技能制作或上传的精灵图', '同一只宠物，原样读取'],
+      [
+        '动作',
+        '用动画显示运行中、需要输入、已就绪、受阻等状态',
+        '精灵图里的所有动作和视线方向，还会在乐园和桌面上散步',
+      ],
+      ['同时在场', '一次一只', '最多 12 只一起'],
+      ['聊天', '从桌面开始一段对话', '通过你选的 AI 和你聊，也和其他宠物聊'],
+      [
+        '编码工具',
+        '一只宠物显示 ChatGPT 和 Codex 对话的进度',
+        '每个工具由各自的宠物汇报：Claude Code、Codex、Gemini CLI、Cursor 及 MCP 工具',
+      ],
+      ['场景', '—', '四个场景或你自己做的背景，时间、天气、季节都会变'],
+      ['装饰', '—', '伙伴会送来长椅、秋千、小池塘等礼物，还会在旁边休息、玩耍'],
+      ['游戏', '—', '捉迷藏、散步队列、鬼抓人；挖土、种树、钓鱼、捉虫、收集图鉴'],
+      ['服装', '—', '初始伙伴随季节换装；任何宠物文件都能加上季节精灵图'],
+    ],
+    source: 'Codex 宠物一栏：OpenAI 宠物指南，截至 2026 年 10 月',
+  },
+  codexPlusTitle: ['ChatGPT 里的宠物照常用，', '更多伙伴交给 PlayPets。'],
+  codexPlusLead:
+    '为 ChatGPT 和 Codex 制作的宠物，在 PlayPets 里也能直接用。在 ChatGPT 桌面应用里，一只宠物显示对话进度；在 PlayPets 里，最多 12 位伙伴聚在一起互相聊天，还会响应 Claude Code、Gemini CLI、Cursor。',
+  codexPlusLink: '带来你的 Codex 宠物',
   discoveryGuide: '看看都能发现什么',
   galleryCreate: '用这位伙伴来创作',
   petNotes: {
@@ -86,7 +102,7 @@ export const sections = {
   connectionDetails: '聊天设置与费用',
   connectionSetup:
     '可以用本地的 Ollama、已登录的 Claude Code 或 Codex CLI，也可以用兼容 OpenAI 的服务器。通过 CLI 使用时，用量算在订阅额度内；API 服务器可能另行收费。',
-  heroFacts: ['免费开源（MIT）', '无需 AI 账号也能玩', 'English, 한국어, 日本語, 简体中文'],
+  heroFacts: ['免费开源（MIT）', '无需 Codex 或 AI 账号也能玩', 'English, 한국어, 日本語, 简体中文'],
   heroAgents: '支持联动',
   miniDesktop: '放它们到桌面上走走',
   togetherTitle: '伙伴们也会自己聊天。',
