@@ -176,27 +176,6 @@ html[lang^="ja"] .landing {
   margin: 0;
   font-size: 13px;
 }
-.scene-choices {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  justify-content: flex-end;
-  max-width: 520px;
-}
-.scene-choices button,
-.pose-controls button {
-  padding: 10px 15px;
-  min-height: 44px;
-  border-radius: 100px;
-  border: 1px solid #80999060;
-  font-size: 13px;
-}
-.scene-choices button[aria-pressed="true"],
-.pose-controls button[aria-pressed="true"] {
-  color: white;
-  background: #284d46;
-  border-color: #284d46;
-}
 .scene-caption {
   text-align: left;
   font-size: 12px;
@@ -282,9 +261,6 @@ html[lang^="ja"] .landing {
   font-size: 14px;
 }
 .pose-controls {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
   margin: 22px 0;
 }
 .more {
@@ -357,22 +333,6 @@ html[lang^="ja"] .landing {
 .feature .work-note {
   font-size: 13px;
   opacity: 0.8;
-}
-.brew-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  margin: 26px 0 0;
-}
-.brew-line code {
-  font-size: 13px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: var(--world-paper);
-  user-select: all;
 }
 .connections header {
   margin-bottom: 38px;
@@ -476,8 +436,12 @@ html[lang^="ja"] .landing {
   margin: auto;
   justify-items: center;
 }
-.landing-download .dl-row {
+.landing-download .dl-row,
+.landing-download .dl-command {
   justify-content: center;
+}
+.landing-download .dl-command code {
+  background: var(--world-paper);
 }
 .closing-links {
   display: flex;
@@ -505,9 +469,6 @@ html[lang^="ja"] .landing {
   .world-picker {
     flex-direction: column;
     align-items: flex-start;
-  }
-  .scene-choices {
-    justify-content: flex-start;
   }
   .pet-shelf {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -567,9 +528,6 @@ html[lang^="ja"] .landing {
   .world-picker {
     padding-top: 0;
     gap: 18px;
-  }
-  .scene-choices button {
-    padding: 8px 13px;
   }
   .pet-gallery,
   .feature,
@@ -704,66 +662,82 @@ html[lang^="ja"] .landing {
 .living-friend:is(:hover, :focus-visible) .living-name {
   opacity: 1;
 }
-.world-greeting {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 20px;
-  padding: 18px 4px 0;
-}
-.world-greeting p {
-  margin: 0;
-  font-size: 13px;
-  flex: 1 1 230px;
-}
-.world-greeting strong {
-  display: block;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  margin-bottom: 4px;
-}
-.world-greeting .pose-controls {
-  margin: 0;
-  gap: 4px;
-}
-.world-greeting .pose-controls button {
-  font-size: 12px;
-  padding: 7px 12px;
-}
 .world-motion {
   position: absolute;
   top: 16px;
   right: 16px;
-  padding: 8px 12px;
+  padding: 0 14px;
   border-radius: 100px;
   color: #28443d;
-  background: #ffffffeb;
+  background: #ffffffe6;
   font-size: 12px;
+  font-weight: 600;
   min-height: 36px;
+  box-shadow: 0 1px 2px #28443d1f;
 }
-.world-console {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 18px;
-  padding: 18px 4px 4px;
-  flex-wrap: wrap;
-}
-.season-choices {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-.season-choices button {
-  min-height: 44px;
-  padding: 8px 12px;
-  font-size: 13px;
-  border-radius: 8px;
-}
-.season-choices button[aria-pressed="true"] {
+/* Every choice on the page is the same control: a soft track of equal chips, the chosen one
+   inked. The dock under the scene holds the world's choices on top and the friend's below. */
+.world-dock {
+  margin-top: 6px;
+  border-radius: 8px 8px 24px 24px;
   background: var(--world-lilac);
-  font-weight: 700;
+}
+.dock-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 12px 14px;
+}
+/* The right-hand group keeps to the right edge even when it wraps, so both rows line up. */
+.dock-row > :last-child {
+  margin-left: auto;
+}
+.dock-row + .dock-row {
+  border-top: 1px solid color-mix(in srgb, var(--world-ink) 12%, transparent);
+}
+.dock-friend {
+  flex: 1 1 220px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.dock-friend strong {
+  margin-right: 8px;
+}
+.choice-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 22px;
+  background: var(--world-paper);
+}
+.choice-group button {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 19px;
+  font-size: 13px;
+  color: inherit;
+}
+@media (hover: hover) {
+  .choice-group button:hover:not(:disabled, [aria-pressed="true"]) {
+    background: color-mix(in srgb, var(--world-ink) 8%, transparent);
+  }
+}
+.choice-group button[aria-pressed="true"] {
+  font-weight: 600;
+  color: var(--world-paper);
+  background: var(--world-ink);
+}
+.choice-group button:focus-visible {
+  outline-offset: 2px;
+}
+/* Indoors the seasons rest muted, the last one still marked, so coming back outside is one tap. */
+.choice-group button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 @media (max-width: 600px) {
   .living-world {
@@ -778,8 +752,22 @@ html[lang^="ja"] .landing {
     right: 10px;
     font-size: 11px;
   }
-  .world-console {
-    gap: 8px;
+  .dock-row {
+    padding: 8px 10px;
+  }
+  .choice-group button,
+  .world-motion {
+    min-height: 44px;
+  }
+  .choice-group {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+  .place-choices {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .pet-shelf {
     gap: 6px;

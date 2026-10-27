@@ -35,11 +35,11 @@
 
 ## Windows에서 경고가 떠요.
 
-- SmartScreen은 서명이 없거나 잘 알려지지 않은 다운로드에 경고할 수 있어요.
+- SmartScreen은 아직 코드 서명이 없는 GitHub 설치 파일에 경고할 수 있어요.
 - 먼저 파일을 받은 곳을 확인해 주세요.
 - 일부 시스템에서는 **추가 정보**와 **실행**을 고를 수 있어요. 관리되는 기기에서는 허용되지 않을 수 있어요.
 - 자세한 내용: [설치하기](./install.md#windows)
-- 코드 서명은 계획에 있어요.
+- 경고 없이 설치하려면 [Microsoft Store](./install.md#microsoft-store)나 winget을 쓰세요. 그 패키지는 Microsoft가 서명해요.
 
 ## Windows에서 AI 대화가 안 돼요.
 

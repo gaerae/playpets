@@ -20,6 +20,15 @@ const os = ref<'macOS' | 'Windows' | 'Linux'>('macOS');
 // An ARM PC gets the arm64 file: the x64 one runs there only through emulation.
 const arm = ref(false);
 const releases = `https://github.com/${generated.slug}/releases`;
+// Windows gets the Store first: Microsoft signs that package and the Store keeps it updated, while
+// the GitHub installer is not code-signed yet. winget's msstore source installs the same package.
+const STORE = 'https://apps.microsoft.com/detail/9NSKXQ6R187M';
+const COMMANDS: Partial<Record<'macOS' | 'Windows' | 'Linux', string>> = {
+  macOS: 'brew install gaerae/tap/playpets',
+  Windows: 'winget install --id 9NSKXQ6R187M --source msstore',
+};
+const store = computed(() => !props.version && os.value === 'Windows');
+const command = computed(() => (props.version ? undefined : COMMANDS[os.value]));
 const url = (file: string) =>
   `${releases}/download/v${resolvedVersion.value}/PlayPets_${resolvedVersion.value}_${file}`;
 const primaryFile = computed(() =>
@@ -31,7 +40,9 @@ const primaryFile = computed(() =>
 );
 const hasPrimary = computed(() => available.value === null || available.value.includes(primaryFile.value));
 const others = computed(() =>
-  FILES.filter(f => f !== primaryFile.value && (available.value === null || available.value.includes(f))),
+  FILES.filter(
+    f => (store.value || f !== primaryFile.value) && (available.value === null || available.value.includes(f)),
+  ),
 );
 const releaseUrl = computed(() => (resolvedVersion.value ? `${releases}/tag/v${resolvedVersion.value}` : releases));
 const showRelease = (result: { version: string; files: string[]; status: 'ready' | 'missing' | 'error' }) => {
@@ -79,14 +90,19 @@ onBeforeUnmount(() => {
   <div class="downloads" :class="{ compact }" :aria-busy="lookup === 'pending' && !resolvedVersion">
     <template v-if="resolvedVersion && lookup === 'ready'">
       <div class="dl-row">
-        <a class="dl-primary" :href="hasPrimary ? url(primaryFile) : releaseUrl">
+        <a v-if="store" class="dl-primary" :href="STORE">
+          <span>{{ words.storeFor }}</span>
+          <small>{{ words.storeNote }}</small>
+        </a>
+        <a v-else class="dl-primary" :href="hasPrimary ? url(primaryFile) : releaseUrl">
           <span>{{ hasPrimary ? words.downloadFor(os) : words.releases }}</span>
           <small>{{ hasPrimary ? words.files[primaryFile] : 'GitHub' }}, {{ resolvedVersion }}</small>
         </a>
         <slot />
       </div>
+      <p v-if="command && words.commands" class="dl-command"><span>{{ words.commands[os] }}</span><code><template v-for="(word, index) in command.split(' ')" :key="index">{{ index ? ' ' : '' }}<span class="dl-word">{{ word }}</span></template></code></p>
       <details class="dl-others">
-        <summary>{{ words.otherPlatforms }}</summary>
+        <summary>{{ store ? words.otherDownloads : words.otherPlatforms }}</summary>
         <ul>
           <li v-for="f in others" :key="f"><a :href="url(f)">{{ words.files[f] }}</a></li>
           <li><a :href="`${releases}/tag/v${resolvedVersion}`">{{ words.allFiles }}</a></li>
@@ -95,12 +111,17 @@ onBeforeUnmount(() => {
     </template>
     <template v-else>
       <div class="dl-row">
-        <a class="dl-primary" :href="releases">
+        <a v-if="store" class="dl-primary" :href="STORE">
+          <span>{{ words.storeFor }}</span>
+          <small>{{ words.storeNote }}</small>
+        </a>
+        <a v-else class="dl-primary" :href="releases">
           <span>{{ words.download }}</span>
           <small>{{ lookup === 'pending' ? words.checkingRelease : lookup === 'missing' ? words.preparing : 'GitHub' }}</small>
         </a>
         <slot />
       </div>
+      <p v-if="command && words.commands" class="dl-command"><span>{{ words.commands[os] }}</span><code><template v-for="(word, index) in command.split(' ')" :key="index">{{ index ? ' ' : '' }}<span class="dl-word">{{ word }}</span></template></code></p>
       <p v-if="lookup === 'missing'" class="dl-note" role="status">{{ words.unreleased }}</p>
       <p v-else-if="lookup === 'error'" class="dl-note" role="status">
         {{ words.lookupFailed }}<a :href="releases">{{ words.releases }}</a>{{ words.lookupFailedEnd }}
