@@ -109,6 +109,6 @@ export const sections = {
     'A friend reacts as your coding agent reports in: Claude Code and Gemini CLI at every step, Cursor on edits and completion, Codex when a turn ends. Ask “What were you doing?” for a short recap.',
   workNote:
     'The connection stays on this computer. Hooks leave out your prompts and tool inputs; short status reports can still mention your work.',
-  workAlt: 'Coding tools settings, with a friend for each agent',
+  workAlt: 'Friends out on the desktop beside a terminal, one of them working along with the coding agent',
   brewLabel: 'macOS with Homebrew',
 };

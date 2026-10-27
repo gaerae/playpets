@@ -9,7 +9,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- The website's front page shows friends talking among themselves and keeping you company while a coding agent works, with the Homebrew install command.
+- The website's front page shows friends talking among themselves and keeping you company on the desktop while a coding agent works, with the Homebrew install command.
 - Install on macOS with Homebrew: `brew install gaerae/tap/playpets`.
 
 ### Changed

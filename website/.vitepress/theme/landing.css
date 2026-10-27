@@ -295,6 +295,12 @@ html[lang^="ja"] .landing {
   /* Holds the place in the page's colours until a lazy capture arrives. */
   background: var(--world-lilac);
 }
+.feature-shot figcaption,
+.chat-shot figcaption {
+  padding: 8px 18px;
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+}
 .feature.reverse {
   grid-template-columns: 1.2fr 0.8fr;
 }

@@ -28,7 +28,7 @@ test('the landing shows friends talking together and coding company with real ca
   assert.ok(landing.indexOf('<PetGallery') < landing.indexOf('class="together-story'));
   assert.ok(landing.indexOf('class="connections"') < landing.indexOf('class="work-story'));
   assert.match(landing, /shotUrl\('yard-talk'\)/);
-  assert.match(landing, /shotUrl\('settings-agents'\)/);
+  assert.match(landing, /shotUrl\('desktop'\)/);
   assert.match(landing, /path\('\/guide\/desktop'\)/);
   assert.match(landing, /brew install gaerae\/tap\/playpets/);
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
