@@ -82,10 +82,9 @@ brew install gaerae/tap/playpets
 
 ### dmg from GitHub {#dmg-from-github}
 
-::: warning The macOS app is not code-signed or notarized yet
-- Gatekeeper may warn or block opening it the first time. macOS signing is in preparation.
-- These checks do not establish that the file is safe. Continue only if you trust the download from the official release page.
-- The available controls depend on your operating system and device policy.
+::: tip Signed and notarized from 1.3.0
+- From 1.3.0, the macOS app is signed with Apple's Developer ID and notarized by Apple, so it opens like other apps you download.
+- 1.2.0 and earlier are not signed. Opening one of those may need the steps for older versions below.
 :::
 
 | File | For |
@@ -93,9 +92,13 @@ brew install gaerae/tap/playpets
 | `PlayPets_version_macos-universal.dmg` | Both Apple Silicon and Intel |
 
 1. Open the dmg and drag PlayPets into the Applications folder.
-2. Try opening PlayPets. If macOS reports an unidentified developer or says it cannot verify the app, close the alert.
-3. Go to System Settings > Privacy & Security. Look for the note about PlayPets and **Open Anyway**.
-4. If that option is there and you trust the download: click **Open Anyway**, authenticate if asked, then click **Open** in the next alert. macOS saves an exception for the app.
+2. Open PlayPets. The first time, macOS asks whether to open an app downloaded from the internet. Click **Open**.
+
+For 1.2.0 and earlier, which are not signed:
+
+1. Try opening PlayPets. If macOS reports an unidentified developer or says it cannot verify the app, close the alert.
+2. Go to System Settings > Privacy & Security. Look for the note about PlayPets and **Open Anyway**.
+3. If that option is there and you trust the download from the official release page: click **Open Anyway**, authenticate if asked, then click **Open** in the next alert. macOS saves an exception for the app.
 
 - These steps follow [Apple's guide to safely opening apps](https://support.apple.com/en-us/102445).
 - If macOS says the app will damage your computer, that is not an unidentified-developer warning.

@@ -42,7 +42,8 @@
 
 ## It won't open on macOS.
 
-- The release files are not signed or notarised, so macOS may show a warning.
+- From 1.3.0 the macOS app is signed and notarized. Make sure you have 1.3.0 or later.
+- 1.2.0 and earlier are not signed, so macOS may show a warning.
 - Check that the download came from this project's release page.
 - If your system offers **Open Anyway**, follow the steps in the [install guide](./install.md#macos).
 - Available options depend on the warning and your system's policy.

@@ -19,6 +19,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- The macOS app is signed with Apple's Developer ID and notarized by Apple, so it opens without the Open Anyway steps; the install guide and FAQ say so in four languages.
 - The coding-company section on the website's front page moves up, right after what PlayPets adds to Codex pets.
 - The user guide in English, Korean, Japanese and Simplified Chinese is rewritten with steps, tables and bullets for settings and options, and natural sentences where it explains, with button names matching the app; the privacy policy reads more plainly in all four languages.
 - The website's first screen gathers its place, season and pose choices into one dock under the scene, in the same control as the friend gallery's poses.
