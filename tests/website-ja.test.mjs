@@ -3,10 +3,15 @@ import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-test('Japanese landing uses Japanese fonts and normal CJK line breaking', () => {
+test('Japanese landing uses Japanese fonts and keeps phrases whole when it breaks lines', () => {
   const css = read('website/.vitepress/theme/style.css') + read('website/.vitepress/theme/landing.css');
   assert.match(css, /html\[lang\^="ja"\]\s*\{[^}]*--vp-font-family-base:[^}]*"Hiragino Sans"/s);
+  // Browsers without phrase breaking fall back to normal CJK breaks, never keep-all.
   assert.match(css, /html\[lang\^="ja"\] \.landing\s*\{\s*word-break: normal;/);
+  assert.match(
+    css,
+    /@supports \(word-break: auto-phrase\) \{\s*html\[lang\^="ja"\] \.landing\s*\{\s*word-break: auto-phrase;/,
+  );
 });
 test('Japanese guides cover every English guide with localized prose and components', () => {
   for (const page of readdirSync(new URL('../website/guide/', import.meta.url))) {

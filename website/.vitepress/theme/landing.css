@@ -12,13 +12,20 @@ html[lang^="zh"] .landing,
 html[lang^="ja"] .landing {
   word-break: normal;
 }
+/* Japanese has no spaces, so let the browser keep phrases whole where it can. */
+@supports (word-break: auto-phrase) {
+  html[lang^="ja"] .landing {
+    word-break: auto-phrase;
+  }
+}
 .dark .landing {
   --world-ink: #e2eee7;
   --world-paper: #172522;
-  --world-lilac: #30303e;
+  --world-lilac: #22342f;
 }
 .landing p {
   line-height: 1.85;
+  text-wrap: pretty;
 }
 .landing h1,
 .landing h2,
@@ -102,17 +109,49 @@ html[lang^="ja"] .landing {
 .hero-facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px 18px;
   list-style: none;
-  margin: 22px 0 0;
+  margin: 24px 0 0;
   padding: 0;
 }
 .hero-facts li {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
-  padding: 4px 12px;
-  border: 1px solid #80999055;
-  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+/* Facts, not buttons: a small leaf-green mark instead of a pill outline. */
+.hero-facts li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6f9a5b;
+}
+/* The coding agents a friend reacts to, the app's difference, on the first screen. */
+.hero-agents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 20px;
+  color: inherit;
+  text-decoration: none;
+}
+.hero-agents span {
+  flex-basis: 100%;
+  font-size: 13px;
+  font-weight: 600;
+}
+.hero-agents:hover span {
+  text-decoration: underline;
+}
+.hero-agents b {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 9px;
+  background: var(--world-lilac);
 }
 .world-preview {
   width: 100%;
@@ -129,8 +168,9 @@ html[lang^="ja"] .landing {
   padding: 0 4px;
 }
 .world-picker h2 {
-  font-size: 24px;
-  margin: 0 0 6px;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
 }
 .world-picker p {
   margin: 0;
@@ -207,6 +247,9 @@ html[lang^="ja"] .landing {
   background: #ffffff70;
   border-color: #7b978b80;
 }
+.dark .pet-choice[aria-pressed="true"] {
+  background: #ffffff14;
+}
 .pet-choice:hover {
   background: #ffffff40;
 }
@@ -226,6 +269,9 @@ html[lang^="ja"] .landing {
   align-items: center;
   min-height: 210px;
   background: radial-gradient(ellipse at center, #ffffff70, transparent 65%);
+}
+.dark .pet-portrait {
+  background: radial-gradient(ellipse at center, #ffffff12, transparent 65%);
 }
 .pet-description h3 {
   font-size: 38px;
@@ -405,9 +451,12 @@ html[lang^="ja"] .landing {
   margin: 0 0 20px;
 }
 .creator-story .discovery {
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 20px;
-  opacity: 0.8;
+}
+.creator-story .discovery a {
+  font-weight: 600;
+  color: inherit;
 }
 .quiet-details {
   display: grid;
@@ -772,5 +821,34 @@ html[lang^="ja"] .landing {
   }
   .creator-friend .sprite {
     --display-scale: 0.36;
+  }
+}
+/* The mini captures carry a light desktop margin around the window; in the dark theme
+   that margin glows, so only the window itself is shown. */
+.dark .mini-story .feature-shot img {
+  width: 112.17%;
+  max-width: none;
+  margin: -6.09% 0 -6.09% -6.09%;
+}
+/* The version line sits over the cropped margin, so it brings the page's own colour. */
+.dark .mini-story .feature-shot figcaption {
+  position: relative;
+  background: var(--world-paper);
+}
+@media (max-width: 640px) {
+  .dark .chat-shot img {
+    width: 112.17%;
+    max-width: none;
+    margin: -6.09% 0 -6.09% -6.09%;
+  }
+  .dark .chat-shot figcaption {
+    position: relative;
+    background: var(--world-paper);
+  }
+  /* Speech bubbles stay readable on a phone when the capture is cropped to the friends. */
+  .together-story .feature-shot img {
+    aspect-ratio: 1;
+    object-fit: cover;
+    object-position: 52% 62%;
   }
 }

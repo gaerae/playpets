@@ -10,6 +10,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Added
 
 - The website's front page shows friends talking among themselves and keeping you company on the desktop while a coding agent works, with the Homebrew install command.
+- The website's first screen says PlayPets is a desktop pet app and names the coding agents a friend reacts to, and the front page copy is rewritten in all four languages.
 - Install on macOS with Homebrew: `brew install gaerae/tap/playpets`.
 
 ### Changed
@@ -20,6 +21,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Keep the seed count inside the Plant a seed tile when the tile is narrow, as in Chinese with ten or more seeds.
 - Retake the desktop-mode screenshot on the website and in the Linux software-center listing without the macOS screen-sharing indicator that sat in its corner.
+- On the website's front page, Japanese no longer breaks words in the middle on a phone, the dark theme keeps the friends' card in the page's green, and the chat picture stays readable on a phone.
 
 ### Security
 
