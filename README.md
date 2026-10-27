@@ -30,6 +30,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 - 👥 Up to 12 friends at once, in the yard and out on your desktop. Keep your pet in the ChatGPT app too: both read the same files.
 - 💬 They chat with you, and with each other, through the AI you pick.
 - 🧑‍💻 They react to Claude Code, Codex, Gemini CLI, Cursor and other MCP tools.
+- 🏡 A yard of their own: four places or your own backgrounds, gifts like a swing or a pond, three games, a garden, fishing and an album.
 - 🌱 The four starter pets also dig, plant, fish and change clothes with the seasons.
 - 🔓 Free and open source (MIT) for macOS, Windows and Linux.
 
