@@ -1,14 +1,22 @@
 # Collection specimen artwork
 
-Generated with the built-in imagegen tool on 2026-10-11. The PNG atlases are unchanged tool outputs, with actual alpha; SVG wrappers select reviewed specimen bounds and preserve each existing display size. No script redraws or alters the generated artwork.
+- Generated with the built-in imagegen tool on 2026-10-11.
+- The PNG atlases are unchanged tool outputs, with actual alpha.
+- SVG wrappers select reviewed specimen bounds and keep each existing display size.
+- No script redraws or alters the generated artwork.
 
 - Fish: 19 specimens in a four-column atlas, final slot empty. Source generation: exec-f7ebb832-0567-49f7-acfe-142a0a777802.png.
 - Bugs: 16 specimens in a four-column atlas. Source generation: exec-934c7618-72fc-44d7-8342-e5b9174d0f93.png.
 - Gifts: 12 remaining decorations, complementing the six existing props. Source generation: exec-96ab43e5-df4a-472f-8aa5-d9dbba2a24fa.png.
 
-Style references: `decor/props.png` and `flowers/specimens.png`. Existing procedural fish and bug drawings and their `look` data remain available by removing a specimen's `art` field. The original gift SVGs are unchanged; the catalogue selects new wrappers under `decor/sculpted/`.
+- Style references: `decor/props.png` and `flowers/specimens.png`.
+- Remove a specimen's `art` field to get back the existing procedural fish or bug drawing and its `look` data.
+- The original gift SVGs are unchanged; the catalogue selects new wrappers under `decor/sculpted/`.
 
-Inspection: all 47 subjects were reviewed for identity, complete silhouettes, alpha, and crop isolation against light and dark backgrounds. The atlas spacing varies; wrapper bounds are individually measured instead of assuming exact cells. These are stylized game collectibles, not scientific identification plates. The moon carp and golden firefly are fantasy event collectibles.
+- Inspection: all 47 subjects were reviewed for identity, complete silhouettes, alpha, and crop isolation against light and dark backgrounds.
+- Atlas spacing varies, so wrapper bounds are measured one by one instead of assuming exact cells.
+- These are stylized game collectibles, not scientific identification plates.
+- The moon carp and golden firefly are fantasy event collectibles.
 
 ## Fish prompt
 
@@ -55,19 +63,21 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 
 ## Hundred-entry extension (2026-10-19)
 
-The 21 new specimens add eight seasonal flowers, four aquatic creatures, two
-ground insects, five common keepsakes and two ordinary gifts. Accepted sources,
-prompts, hashes and per-atlas IDs are in
-`assets/sources/collection-extension-2026-10-19/accepted-art.json`; SVG viewports
-remain in `collection.json` and are reproduced with `node scripts/pack-collection.mjs`.
+- 21 new specimens: eight seasonal flowers, four aquatic creatures, two ground insects,
+  five common keepsakes and two ordinary gifts.
+- Accepted sources, prompts, hashes and per-atlas IDs:
+  `assets/sources/collection-extension-2026-10-19/accepted-art.json`.
+- SVG viewports stay in `collection.json`; reproduce them with `node scripts/pack-collection.mjs`.
 
-The original proposed carp-like fish, extra dragonflies and extra butterflies
-were rejected for visual overlap. Only accepted IDs are referenced by content.
-Crops follow measured silhouettes rather than assumed equal grid cells, preserving
-antennae, claws and watering-can handles. Ground bugs read their own atlas at
-runtime; they do not inherit the original butterfly atlas.
+- The originally proposed carp-like fish, extra dragonflies and extra butterflies were
+  rejected for visual overlap.
+- Content references only accepted IDs.
+- Crops follow measured silhouettes, not assumed equal grid cells, which keeps antennae,
+  claws and watering-can handles.
+- Ground bugs read their own atlas at runtime; they do not inherit the original butterfly atlas.
 
-The 2026-10-20 revision keeps the cricket and replaces its brown viewport with
-`collection-extension/green-cricket.png`. The earlier ground-bugs atlas remains
-active for the ladybug only. The separate green sprite preserves complete
-antennae and jumping legs. The proposed stag beetle is not runtime content.
+- The 2026-10-20 revision keeps the cricket and replaces its brown viewport with
+  `collection-extension/green-cricket.png`.
+- The earlier ground-bugs atlas stays active for the ladybug only.
+- The separate green sprite keeps complete antennae and jumping legs.
+- The proposed stag beetle is not runtime content.

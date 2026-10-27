@@ -1,52 +1,78 @@
 # Character design and pet kits
 
-Ten kits cover every companion: Aria and Noah each in illustrated and realistic appearances, plus Clover, Daisy, Pip, Tabby, Smoky and Mochi. Aria, Noah and Clover have newly generated turnaround and face-detail sheets; for the others `kit.json` says `"detail": "not-created"` and the collages of shipped cells are the reference. Aria is a fictional adult woman, 25; Noah is a fictional adult man, 26. The realistic importable package is a standalone catalog copy using realistic art as its baseline, not a patch to the built-in friend's appearance selector.
+- Four kits, one per starter companion: Daisy, Clover, Pip and Miso (`kitEntries` in `scripts/creator-specs.mjs`).
+- Every kit has high-resolution turnaround and face-detail sheets (`"detail": "available"` in `kit.json`) and summer and winter sheets.
+- All four use the illustrated style. Fictional characters only.
+- Retired kit folders stay tracked as history and are not published: `aria`, `aria-realistic`, `noah`, `noah-realistic`, `tabby`, `smoky`, `mochi`.
+  - The site build removes their old public output.
 
 ## Source files and ownership
 
-- `turnaround.png` is newly generated high-resolution front, profile facing viewer left, back and profile facing viewer right reference art.
-- `face-detail.png` is newly generated high-resolution facial reference art. Inspect its eye, nose, mouth, anatomy and material details against the accepted character before creating a variant.
-- `turnaround.generation.txt` and `face-detail.generation.txt` (or legacy `.prompt.txt` sidecars), where present, record the original generation provenance.
-- `identity-reference.png`, `wardrobe-reference.png`, `expression-reference.png` and `motion-reference.png` are supplemental collages copied from accepted production cells. They do not invent views or raise runtime resolution.
-- `identity.json`, `prompts/*.txt` and `kit.json` are generated from `scripts/creator-specs.mjs` and validated source artwork. The structured specification locks identity, anatomy, clothing and accessory handedness. The manifest records file sizes and SHA-256 hashes.
+| File | What it is |
+| --- | --- |
+| `turnaround.png` | High-resolution reference: front, profile facing viewer left, back, profile facing viewer right |
+| `face-detail.png` | High-resolution facial reference. Check eyes, nose, mouth, anatomy and materials against the accepted character before making a variant |
+| `turnaround.generation.txt`, `face-detail.generation.txt` (or legacy `.prompt.txt`) | Original generation provenance, where present (Clover and Pip) |
+| `identity-reference.png`, `wardrobe-reference.png`, `expression-reference.png`, `motion-reference.png` | Supplemental collages copied from accepted production cells. They add no views and no runtime resolution |
+| `identity.json`, `prompts/*.txt`, `kit.json` | Generated from `scripts/creator-specs.mjs` and validated source art. The spec locks identity, anatomy, clothing and accessory side; the manifest records file sizes and SHA-256 hashes |
 
-Design images are references, not importable sprites. The current v2 runtime still uses 1536×2288 RGBA, eight columns and eleven rows of 192×208 cells. Extra views and detailed faces do not add runtime states or facial resolution. Every generated change needs manual identity and motion review.
+- Design images are references, not importable sprites.
+- The runtime is still v2: 1536×2288 RGBA, 8 columns × 11 rows of 192×208 cells.
+- Extra views and detailed faces add no runtime states or facial resolution.
+- Every generated change needs a manual identity and motion review.
 
-## Two downloads per style
+## Downloads per kit
 
-`design-kit.zip` contains high-resolution references, supplemental collages, identity and checksum manifests, five character-specific prompt files, production baseline/summer/winter PNGs, pet.json and usage notes. Original image-generation prompt sidecars are included when supplied. Realistic design kits also include the accepted portrait reference.
+| Download | Contents |
+| --- | --- |
+| `design-kit.zip` | High-resolution references, supplemental collages, identity and checksum manifests, five prompt files, production baseline, summer and winter PNGs, `pet.json` and usage notes; original generation sidecars when present |
+| `importable-pet.zip` | Only `pet.json`, `spritesheet.png`, `summer.png` and `winter.png` |
+| `baseline-pet.zip` | Only `pet.json` and `spritesheet.png` |
 
-`importable-pet.zip` contains only pet.json, spritesheet.png, summer.png and winter.png. Extract it and choose that folder in PlayPets. Direct ZIP import is not required or promised. Its unique `playpets-creator-<kit>` ID avoids claiming to modify an existing built-in asset.
+- To import: extract the ZIP and choose that folder in PlayPets.
+- Direct ZIP import is not required or promised.
+- The ID `playpets-creator-<kit>` keeps the copy separate from the built-in friend of the same name.
 
 ## Rebuild
 
-To regenerate only the supplemental collages from approved production sheets:
+Regenerate only the supplemental collages from approved production sheets:
 
 ```sh
 npm ci
 node scripts/creator-kit.mjs
 ```
 
-That maintenance command requires Google Chrome. It never modifies or generates the high-resolution turnaround and face references.
+- Needs Google Chrome.
+- Never changes or generates the high-resolution turnaround and face references.
 
-After changing the specification or approved source images, refresh tracked metadata with:
+After changing the spec or approved source images, refresh tracked metadata:
 
 ```sh
 node scripts/creator-kit.mjs --metadata
 ```
 
-This Node-only maintenance command formats its generated JSON with the repository’s installed Biome. Regular site builds leave tracked source metadata unchanged.
+- Node only; formats its JSON with the repository's installed Biome.
+- Regular site builds leave tracked metadata unchanged.
 
-To validate and publish all five completed kits, including deterministic uncompressed ZIP files:
+Validate and publish all four kits, with deterministic uncompressed ZIP files:
 
 ```sh
 npm run site:build
 ```
 
-Regular site preparation uses only Node. It validates CRCs and decodes PNG scanlines, checks source dimensions and runtime alpha, and validates every kit before writing public output. ZIP entries use safe paths, sorted names and fixed dates. Generated website/public/creator-kit is ignored by Git. Missing or damaged references fail publication rather than silently producing an incomplete kit.
+- Node only.
+- Checks CRCs, PNG scanlines, source sizes and runtime alpha, and validates every kit before writing anything.
+- ZIP entries use safe paths, sorted names and fixed dates.
+- Output goes to `website/public/creator-kit`, which Git ignores.
+- A missing or damaged reference fails publication instead of shipping an incomplete kit.
 
-The artwork is from the PlayPets repository under its MIT license. Exact production sprite-generation provenance remains in assets/pets/<character>/; the new reference-image provenance stays beside the reference images.
+## Licensing and provenance
+- The artwork is from the PlayPets repository, under its MIT license.
+- Production sprite provenance: `assets/pets/<character>/`.
+- Reference-image provenance: beside the reference images.
 
-- [English guide](../../website/guide/creator-kit.md)
-- [Korean guide](../../website/ko/guide/creator-kit.md)
-- [Simplified Chinese guide](../../website/zh-hans/guide/creator-kit.md)
+## User guides
+- [English](../../website/guide/creator-kit.md)
+- [Korean](../../website/ko/guide/creator-kit.md)
+- [Japanese](../../website/ja/guide/creator-kit.md)
+- [Simplified Chinese](../../website/zh-hans/guide/creator-kit.md)

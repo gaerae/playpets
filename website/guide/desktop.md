@@ -4,46 +4,66 @@ description: How to send friends out onto the desktop and keep them around from 
 
 # Desktop mode
 
-You can send your friends out of the yard window to live on the desktop. They stay visible while you work in other apps.
+- Send your friends out of the yard window to live on the desktop.
+- They stay visible while you work in other apps.
 
 <Shot name="desktop" caption="Desktop mode. A friend lives on top of other windows and shows the coding agent's status in a speech bubble." />
 
 ## Turning it on and off <Since v="0.1.0" />
 
-Open **Friends & settings → Window & desktop** and turn on **Show on desktop**. **Stroll on desktop** comes right after it and becomes available when desktop mode is on. Both switches show their current state, and the menu stays open while you adjust them. Turn off **Show on desktop** to bring your friends back. With no friends, desktop mode is unavailable.
+1. Open **Friends & settings → Window & desktop**.
+2. Turn on **Show on desktop**.
+3. Optional: turn on **Stroll on desktop**, right after it. Available only while desktop mode is on.
 
-The tray icon's menu has the same items, so you can turn it on and off without opening the yard window.
+- Both switches show their current state. The menu stays open while you adjust them.
+- Turn off **Show on desktop** to bring your friends back.
+- With no friends, desktop mode is unavailable.
+- The tray icon's menu has the same items: turn it on and off without opening the yard window.
 
 ## Things to do on the desktop <Since v="0.1.0" />
 
 | Action | How |
 |---|---|
 | Pat | Left-click a friend once |
-| Move | Drag a friend and drop them. You can move them to another monitor too |
-| Chat | Point at a friend and its name shows below it with a speech mark. Click the name and the yard window opens on that friend's chat. A right-click does the same |
-| Eye contact | Move the mouse over a resting friend's face and their eyes follow it. Only v2 pets with 16-direction gaze artwork can do this |
+| Move | Drag a friend and drop them. Another monitor works too |
+| Chat | Point at a friend: its name shows below it with a speech mark. Click the name and the yard window opens on that friend's chat. A right-click does the same |
+| Eye contact | Move the mouse over a resting friend's face; their eyes follow it. Only v2 pets with 16-direction gaze artwork can do this |
 
-A double-click does nothing, so a window does not open by accident while you are moving a friend. The first time desktop mode turns on, a notice says how to chat.
-
-Names stay hidden until you point at a friend, so friends blend in with your desk. The [coding agent](./agents.md)'s status and whatever the friend says float in a speech bubble above their head; a long line ends with "…" after three lines.
+- A double-click does nothing, so no window opens by accident while you move a friend.
+- The first time desktop mode turns on, a notice says how to chat.
+- Names stay hidden until you point at a friend, so friends blend in with your desk.
+- The [coding agent](./agents.md)'s status and what the friend says float in a speech bubble above their head. A long line ends with "…" after three lines.
 
 ## Friends on every monitor <Since v="0.1.0" />
 
-With several monitors, a friend can be on any of them. Drag a friend to another monitor and they stay there. Even when the monitors have different scaling, the mouse position is matched to that monitor's scale.
+- With several monitors, a friend can be on any of them.
+- Drag a friend to another monitor and they stay there.
+- Monitors with different scaling: the mouse position is matched to each monitor's scale.
 
 ## Stroll on desktop <Since v="0.1.0" />
 
-Turn on the **Stroll on desktop** toggle and the friends slowly wander around the desktop. They turn to face the way they walk, and stop to rest now and then. Turn it off and they stay where you left them. They do not wander while you are dragging them.
+- **Stroll on desktop** on: friends slowly wander around the desktop.
+  - They face the way they walk and stop to rest now and then.
+  - They do not wander while you drag them.
+- Off: they stay where you left them.
 
 ## On top of other apps' full screen <Since v="0.1.0" />
 
-On macOS, friends float on top even when another app is in full screen. The desktop window is turned into a special panel so it shows up in full-screen spaces too. On Windows and Linux, they float on top of normal windows. A Wayland session on Linux gives apps no way to stay on top or to know where the mouse is, so there friends can end up behind other windows and do not follow the mouse; an X11 session has it all.
+| System | Friends float on top of |
+|---|---|
+| macOS | Everything, even another app in full screen. The desktop window becomes a special panel that also shows in full-screen spaces |
+| Windows, Linux | Normal windows |
+| Linux, Wayland session | Not guaranteed. Wayland gives apps no way to stay on top or know where the mouse is, so friends can end up behind other windows and do not follow the mouse |
+| Linux, X11 session | Normal windows, with mouse following |
 
 ## Still there after you close the window <Since v="0.1.0" />
 
-The yard has no title bar or window buttons on any OS. Drag the narrow transparent area along its top edge to move the window, and drag an edge or corner to resize it down to 300 × 210. Choose **Friends & settings → Close window**, or use the system close shortcut, to hide it: desktop friends and agent hooks keep running.
+- The yard has no title bar or window buttons on any OS.
+  - Move: drag the narrow transparent area along its top edge.
+  - Resize: drag an edge or corner, down to 300 × 210.
+- Hide it: **Friends & settings → Close window**, or the system close shortcut. Desktop friends and agent hooks keep running.
 
-- On macOS, closing the window also removes the Dock icon, so that no icon that does not respond to clicks is left in the Dock. Open the yard again and the Dock icon comes back.
+- On macOS, closing the window also removes the Dock icon, so no unresponsive icon is left in the Dock. Open the yard again and the Dock icon comes back.
 - On Windows and Linux, it disappears from the taskbar and stays only in the tray.
 
 ## Opening it again
@@ -53,4 +73,10 @@ The yard has no title bar or window buttons on any OS. Drag the narrow transpare
 
 ## Quitting for good
 
-To really quit the app, choose **Friends & settings → Quit PlayPets**, **Quit PlayPets** in the tray menu, or <kbd>⌘</kbd> <kbd>Q</kbd> on macOS. Each quits at once, without asking. In a small window, the corner button and a right-click on empty scenery lead to Friends & settings. Conversations are not saved, and friends on the desktop go too. Each friend's name, personality and size, and whether desktop mode was on, are remembered, so everything is as you left it the next time you open the app.
+- Any of these quits at once, without asking:
+  - **Friends & settings → Quit PlayPets**
+  - **Quit PlayPets** in the tray menu
+  - <kbd>⌘</kbd> <kbd>Q</kbd> on macOS
+- In a small window, the corner button and a right-click on empty scenery lead to Friends & settings.
+- On quit: conversations are not saved, and friends on the desktop go too.
+- Remembered for next time: each friend's name, personality and size, and whether desktop mode was on.

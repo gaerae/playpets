@@ -1,13 +1,15 @@
 # Four-place environment provenance
 
-Accepted on 2026-10-13. The built-in image generation tool generated these PNGs
-for PlayPets. Tiny Glade was the visual direction: calm stylized architectural
-forms, readable materials, softly lit vegetation and restrained detail. No
-artwork from that game is included in these files.
+- Accepted on 2026-10-13.
+- The built-in image generation tool generated these PNGs for PlayPets.
+- Visual direction: Tiny Glade's calm stylized architectural forms, readable materials,
+  softly lit vegetation and restrained detail.
+- No artwork from that game is included in these files.
 
-The descriptions below record the generation brief, not verbatim prompts. The
-accepted PNGs are the source artwork used by the app; there is no editable 3D
-scene or promise of deterministic regeneration. No scripted repainting was used.
+- The descriptions below record the generation brief, not verbatim prompts.
+- The accepted PNGs are the source artwork the app uses.
+- There is no editable 3D scene and no promise of deterministic regeneration.
+- No scripted repainting was used.
 
 ## Composition briefs
 
@@ -23,34 +25,40 @@ scene or promise of deterministic regeneration. No scripted repainting was used.
   framing a village view through glass. Keep the foreground compact and clear;
   preserve the room's layout across all lighting variants.
 
-The accepted summer image of each outdoor place served as the composition
-reference for spring, autumn and winter. The variants change vegetation and
-ground while retaining the camera, house, shore and walking area. Sky uses alpha,
-so the app can supply sun, clouds and time-of-day color. Winter keeps water
-unfrozen where fishing remains available. Live precipitation is not baked in.
-
-The accepted daytime study served as the reference for morning, evening and
-night. The final variants preserve its furniture and floor proportions while
-changing outside light and interior illumination. These images are opaque and
-carry their own lighting. Window masks, walking boundaries and fishing positions
-are maintained in `src/content/worlds.json`; generated images are not treated as
-exact geometric specifications.
+- Outdoor places: the accepted summer image was the composition reference for spring,
+  autumn and winter.
+  - The variants change vegetation and ground; camera, house, shore and walking area stay.
+  - Sky uses alpha, so the app supplies sun, clouds and time-of-day color.
+  - Winter keeps water unfrozen where fishing remains available.
+  - Live precipitation is not baked in.
+- Study: the accepted daytime image was the reference for morning, evening and night.
+  - The final variants keep its furniture and floor proportions and change outside light
+    and interior illumination.
+  - These images are opaque and carry their own lighting.
+- Window masks, walking boundaries and fishing positions live in `src/content/worlds.json`;
+  generated images are not treated as exact geometric specifications.
 
 ## Seasonal study views
 
-The accepted `studio-cozy-day.png` was also the reference for three full-canvas
-seasonal views. Their brief preserved the camera, furniture and window frames
-while changing only the exterior: blossom trees and fresh greens in spring,
-copper and gold foliage in autumn, and snowy hills and roofs with bare trees
-and an unfrozen lake in winter. The renderer uses only the portions within the
-registered glass panes, adds time-of-day lighting there, and keeps the room's
-authored time variant intact. Summer uses that variant's original window view.
+- The accepted `studio-cozy-day.png` was also the reference for three full-canvas seasonal views.
+- Their brief preserved the camera, furniture and window frames and changed only the exterior:
+
+  | Season | Exterior |
+  | --- | --- |
+  | Spring | Blossom trees and fresh greens |
+  | Autumn | Copper and gold foliage |
+  | Winter | Snowy hills and roofs, bare trees, an unfrozen lake |
+
+- The renderer uses only the portions within the registered glass panes and adds
+  time-of-day lighting there.
+- The room's authored time variant stays intact.
+- Summer uses that variant's original window view.
 
 ## Accepted file hashes
 
-SHA-256 values identify the accepted bytes below. A later lossless optimization
-can change file hashes without changing pixels; preserve that operation's report
-and update this table when accepting its exports.
+- SHA-256 values identify the accepted bytes below.
+- A later lossless optimization can change file hashes without changing pixels.
+- When accepting its exports, keep that operation's report and update this table.
 
 | Runtime file | SHA-256 |
 | --- | --- |
