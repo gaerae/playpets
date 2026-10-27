@@ -109,7 +109,6 @@ export const sections = {
     'Your friend notices whenever your coding agent reports in: Claude Code and Gemini CLI at every step, Cursor on edits and when it finishes, Codex at the end of each reply. Ask “What were you doing?” for a quick recap.',
   workNote:
     'The connection stays on this computer. Hooks leave out your prompts and tool inputs; short status reports can still mention your work.',
-  brewLabel: 'macOS with Homebrew',
   chatPlay: 'Let them chat',
   chatAgain: 'Another chat',
   chatNote: 'Sample lines. In the app, the AI you connect writes what they say.',

@@ -29,11 +29,11 @@
 
 ## Windowsで警告が出ます
 
-- 未署名や評判の少ないファイルに、SmartScreenが警告することがあります。
+- まだコード署名されていないGitHubのインストーラーに、SmartScreenが警告することがあります。
 - 出典を先に確認してください。
 - **詳細情報**と**実行**が使える場合があります。管理端末では許可されないことがあります。
 - [説明](./install.md#windows)を確認してください。
-- コード署名は予定しています。
+- 警告なしでインストールするには、[Microsoft Store](./install.md#microsoft-store)かwingetを使ってください。そのパッケージはMicrosoftが署名しています。
 
 ## WindowsでAI会話が動きません
 

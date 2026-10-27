@@ -9,6 +9,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
+- Install from the Microsoft Store, signed by Microsoft, or with `winget install --id 9NSKXQ6R187M --source msstore`. The website's download button offers the Store on Windows and shows the Homebrew or winget command for your system, and the install guide covers every way in four languages.
 - The website's front page moves: friends stroll and look toward the pointer, a button plays a chat between two friends, and a coding session replays beside a friend for Claude Code, Codex, Gemini CLI or Cursor, with an Allow step to press.
 - The website's front page shows friends talking among themselves and keeping you company on the desktop while a coding agent works, with the Homebrew install command.
 - The website's first screen says PlayPets is a desktop pet app and names the coding agents a friend reacts to, and the front page copy is rewritten in all four languages.
