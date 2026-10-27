@@ -37,7 +37,9 @@ Where each key is stored and where it is used.
 - Store identity values (`MSIX_IDENTITY_NAME`, `MSIX_PUBLISHER`, `MSIX_PUBLISHER_DISPLAY_NAME`) are public metadata, supplied together to the local Docker build. They are not signing keys or Store submission API credentials ([Store and Apple signing guide](../how-to/store-and-apple-signing.md)).
 - Store API identifiers (`STORE_APP_ID`, `STORE_TENANT_ID`, `STORE_CLIENT_ID`) are environment variables.
 - The Store key stays in an environment Secret behind required approval.
-- Keep `STORE_SUBMISSION_ENABLED=false` as a repository variable during setup. Changing it does not authorize a certification request or publication.
+- The repository variable `STORE_SUBMISSION_ENABLED=true` turns on the Store submission of each published release.
+- `STORE_PUBLISH_MODE=Immediate` lets certification publish it.
+- Only the `submit` job of `store.yml` receives the key.
 - Apple release signing needs all six `APPLE_*` values together. A partial set fails the macOS release build.
 - Keep the exported Apple certificate password-protected and outside the checkout.
 

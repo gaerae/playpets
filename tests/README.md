@@ -54,7 +54,11 @@
   [Store guide](../docs/how-to/store-and-apple-signing.md).
 - `store-api.test.mjs` exercises the credential and HTTP boundary without real
   keys: product identity, redirect refusal and secret-safe errors.
-- `store-submit.test.mjs` covers first-registration and pending-draft refusal,
-  manual publication hold, Pricing V2 omission and upload destination validation.
+- `store-submit.test.mjs` covers:
+  - first-registration, pending-draft and same-version refusal;
+  - the publish mode and kept certification notes;
+  - Pricing V2 omission and upload destination validation;
+  - What's new from the release pages;
+  - the `store.yml` job boundaries.
 - These tests do not request certification or establish that Store delivery
   works.
