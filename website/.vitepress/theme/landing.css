@@ -268,18 +268,6 @@ html[lang^="ja"] .landing {
   font-size: 14px;
   font-weight: 600;
 }
-.motion-row {
-  max-width: 1040px;
-  margin: 12px auto 0;
-  text-align: right;
-  padding: 0 32px;
-}
-.motion-row button {
-  font-size: 12px;
-  padding: 12px 0;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
 .no-motion .sprite i {
   animation-play-state: paused;
 }
@@ -388,10 +376,17 @@ html[lang^="ja"] .landing {
   .codex-compare tbody {
     display: block;
   }
-  /* Each row becomes its label over the two answers side by side. */
+  /* Each row becomes its label over the two answers side by side; equal columns keep the
+     headings over their answers even when the header's cast is wider than half the row. */
   .codex-compare tr {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .codex-compare thead .ours {
+    background: none;
+  }
+  .compare-cast {
+    flex-wrap: wrap;
   }
   .codex-compare thead td {
     display: none;
@@ -414,8 +409,10 @@ html[lang^="ja"] .landing {
   .codex-compare tbody td:not(.ours) {
     width: auto;
   }
-  /* The label sits on its own line, so each answer of ours is its own little card. */
-  .codex-compare tbody td.ours {
+  /* The label sits on its own line, so each answer of ours is its own little card, the last
+     one included. */
+  .codex-compare tbody td.ours,
+  .codex-compare tbody tr:last-child .ours {
     border-radius: 10px;
   }
   .codex-compare thead th {
@@ -798,7 +795,8 @@ html[lang^="ja"] .landing {
   height: 30%;
   background: #fbfcf9;
 }
-.desk-note p {
+.desk-note p,
+.desk-note i {
   background: #28443d1f;
 }
 .dark .desk-work {
@@ -810,7 +808,8 @@ html[lang^="ja"] .landing {
 .dark .desk-note {
   background: #24322e;
 }
-.dark .desk-note p {
+.dark .desk-note p,
+.dark .desk-note i {
   background: #e2eee71f;
 }
 .desk-work i,
@@ -898,9 +897,6 @@ html[lang^="ja"] .landing {
   transition-property: left;
   transition-timing-function: linear;
 }
-.living-friend .sprite {
-  --display-scale: 0.46;
-}
 .friend-0 {
   bottom: 12%;
 }
@@ -974,6 +970,10 @@ html[lang^="ja"] .landing {
   justify-content: flex-end;
   align-items: center;
   gap: 8px;
+}
+/* On the page's own paper the switch needs the dock's track to read as one control. */
+.world-controls .choice-group {
+  background: var(--world-lilac);
 }
 .world-motion {
   padding: 0 14px;
@@ -1096,10 +1096,6 @@ html[lang^="ja"] .landing {
   .dock-row {
     padding: 8px 10px;
   }
-  .choice-group button,
-  .world-motion {
-    min-height: 44px;
-  }
   .choice-group {
     display: grid;
     grid-auto-flow: column;
@@ -1115,7 +1111,7 @@ html[lang^="ja"] .landing {
   }
 }
 
-/* Tablets get phone-sized targets too, whatever their width. */
+/* Phones and tablets get 44px targets, whatever their width. */
 @media (pointer: coarse) {
   .choice-group button,
   .world-motion {

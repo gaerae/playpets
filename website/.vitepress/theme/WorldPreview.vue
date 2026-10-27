@@ -189,7 +189,7 @@ onBeforeUnmount(() => {
     </div>
     <!-- A computer screen in miniature: the wallpaper, work windows and a taskbar, with the yard as
          an app window on top, or with the friends out on the desktop in front of the windows. -->
-    <div ref="stage" class="living-world" :class="{ 'preview-paused': still, indoors: place === 3, 'view-desktop': loose }" @pointermove="look" @pointerleave="lookAway">
+    <div ref="stage" class="living-world" :class="{ 'preview-paused': still, 'view-desktop': loose }" @pointermove="look" @pointerleave="lookAway">
       <div class="desk-work" aria-hidden="true"><div><i /><i /><i /></div><p v-for="width in [62, 44, 70, 38, 56]" :key="width" :style="{ width: `${width}%` }" /></div>
       <div class="desk-work desk-note" aria-hidden="true"><div><i /><i /><i /></div><p v-for="width in [48, 78, 66, 72, 30]" :key="width" :style="{ width: `${width}%` }" /></div>
       <div class="yard-window">
@@ -197,7 +197,7 @@ onBeforeUnmount(() => {
         <img class="living-scenery" :src="image" :alt="words.places[place]" width="1536" height="1024" fetchpriority="high" draggable="false" />
       </div>
       <div class="living-friends">
-        <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" :ref="element => { friendElements[index] = element as HTMLElement }" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :style="{ left: `${spots[index]}%`, transitionDuration: `${strides[index]}s` }" :aria-label="`${pet.displayName}, ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><span v-if="greeted === pet.id" class="living-bubble" aria-hidden="true">{{ words.greetings[pet.id] }}</span><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="poseOf(pet.id).state" :frame="poseOf(pet.id).frame" :scale="0.65" /><span class="living-name">{{ pet.displayName }}</span></button>
+        <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" :ref="element => { friendElements[index] = element as HTMLElement }" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :style="{ left: `${spots[index]}%`, transitionDuration: `${strides[index]}s` }" :aria-label="`${pet.displayName}, ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><span v-if="greeted === pet.id" class="living-bubble" aria-hidden="true">{{ words.greetings[pet.id] }}</span><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="poseOf(pet.id).state" :frame="poseOf(pet.id).frame" :scale="0.46" /><span class="living-name">{{ pet.displayName }}</span></button>
       </div>
       <div class="desk-bar" aria-hidden="true"><i /><img :src="withBase('/icon.svg')" alt="" width="24" height="24" /><i /><i /></div>
     </div>

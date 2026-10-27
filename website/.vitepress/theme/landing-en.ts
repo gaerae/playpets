@@ -16,8 +16,6 @@ export const copy = {
   privacyBody:
     'Friends and settings are saved on your computer. Conversations go to the AI you connect, whose own data policy applies. PlayPets does not save chat history to a file.',
   releaseLabel: 'Version and release notes',
-  releaseTitle: (v: string) => `PlayPets ${v}`,
-  releaseLink: (v: string) => `${v}`,
 };
 export const worldCopy = {
   places: ['Hill garden', 'Stone courtyard', 'Lakeside cottage', 'Cozy living room'],
@@ -49,7 +47,6 @@ export const worldCopy = {
   creatorLink: 'Make your own companion',
   discovery: 'Already have a Codex pet?',
   discoveryLink: 'Bring it into your yard',
-  sceneCaption: (v: string) => `Actual app captures, PlayPets ${v}`,
 };
 export const sections = {
   compare: {

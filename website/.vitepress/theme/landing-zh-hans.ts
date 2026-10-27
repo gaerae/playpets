@@ -15,8 +15,6 @@ export const copy = {
   privacyBody:
     '伙伴和设置都保存在你的电脑上。对话会发给你连接的 AI，适用对方自己的数据政策。PlayPets 不会把聊天记录存成文件。',
   releaseLabel: '版本与更新说明',
-  releaseTitle: (v: string) => `PlayPets ${v}`,
-  releaseLink: (v: string) => `${v}`,
 };
 export const worldCopy = {
   places: ['山丘花园', '石板庭院', '湖畔小屋', '温馨客厅'],
@@ -45,7 +43,6 @@ export const worldCopy = {
   creatorLink: '做一个自己的伙伴',
   discovery: '已经有 Codex 宠物了？',
   discoveryLink: '把它带进乐园',
-  sceneCaption: (v: string) => `实际应用画面，PlayPets ${v}`,
 };
 export const sections = {
   compare: {

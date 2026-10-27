@@ -44,10 +44,11 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
     </section>
     <section class="codex-plus">
       <header><h2><span>{{ t.codexPlusTitle[0] }}</span> <span>{{ t.codexPlusTitle[1] }}</span></h2><p class="section-lead">{{ t.codexPlusLead }}</p></header>
-      <table class="codex-compare">
+      <!-- Explicit roles keep each row read as a pair after phones restyle the table as a grid. -->
+      <table class="codex-compare" role="table">
         <caption class="visually-hidden">{{ t.compare.caption }}</caption>
-        <thead><tr><td></td><th scope="col"><span class="compare-cast one" aria-hidden="true"><VisibleSprite equal-height pet="daisy" :scale="0.32" /></span>{{ t.compare.head[0] }}</th><th scope="col" class="ours"><span class="compare-cast" aria-hidden="true"><VisibleSprite equal-height v-for="pet in LANDING_PETS" :key="pet.id" :pet="pet.id" state="wave" :scale="0.32" /></span>{{ t.compare.head[1] }}</th></tr></thead>
-        <tbody><tr v-for="([label, codex, ours]) in t.compare.rows" :key="label"><th scope="row">{{ label }}</th><td>{{ codex }}</td><td class="ours">{{ ours }}</td></tr></tbody>
+        <thead role="rowgroup"><tr role="row"><td role="cell"></td><th scope="col" role="columnheader"><span class="compare-cast one" aria-hidden="true"><VisibleSprite equal-height pet="daisy" :scale="0.32" /></span>{{ t.compare.head[0] }}</th><th scope="col" class="ours" role="columnheader"><span class="compare-cast" aria-hidden="true"><VisibleSprite equal-height v-for="pet in LANDING_PETS" :key="pet.id" :pet="pet.id" state="wave" :scale="0.32" /></span>{{ t.compare.head[1] }}</th></tr></thead>
+        <tbody role="rowgroup"><tr role="row" v-for="([label, codex, ours]) in t.compare.rows" :key="label"><th scope="row" role="rowheader">{{ label }}</th><td role="cell">{{ codex }}</td><td class="ours" role="cell">{{ ours }}</td></tr></tbody>
       </table>
       <p class="codex-source"><a href="https://learn.chatgpt.com/docs/pets">{{ t.compare.source }}</a></p>
       <p class="codex-note">{{ t.diffNote }} <a :href="path('/guide/import')">{{ t.codexPlusLink }} →</a></p>
