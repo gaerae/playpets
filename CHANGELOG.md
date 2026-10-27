@@ -21,6 +21,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The coding-company section on the website's front page moves up, right after what PlayPets adds to Codex pets.
 - The user guide in English, Korean, Japanese and Simplified Chinese is rewritten as short steps, tables and bullets, with button names matching the app.
 - The website's first screen gathers its place, season and pose choices into one dock under the scene, in the same control as the friend gallery's poses.
+- The website's first screen shows a computer screen with a wallpaper, a taskbar and the yard as an app window, and a switch lets the friends out onto the desktop, so it is clear PlayPets is a desktop app.
 
 ### Fixed
 

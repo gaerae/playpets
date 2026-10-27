@@ -123,13 +123,17 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
   for (const { worldCopy } of locales) {
     assert.equal(worldCopy.places.length, 4);
     assert.equal(worldCopy.seasons.length, 4);
-    assert.ok(worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel);
+    assert.ok(worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel && worldCopy.viewLabel && worldCopy.desktopNote);
+    // The scene shows the app's two real forms: the yard in its own window, or friends loose on the desktop.
+    assert.equal(worldCopy.views.length, 2);
     assert.deepEqual(Object.keys(worldCopy.greetings).sort(), ['clover', 'daisy', 'miso', 'pip']);
   }
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /:aria-pressed=/);
   // Indoors has no season, so the season choices stay in place but cannot be pressed.
   assert.match(preview, /:disabled="place === 3"/);
+  // The desktop has neither, so its row says why instead of showing dead chips.
+  assert.match(preview, /v-if="loose" class="dock-row"><p class="dock-note">\{\{ words.desktopNote \}\}/);
   assert.doesNotMatch(preview, /v-if="place !== 3"/);
   assert.match(preview, /IntersectionObserver/);
   assert.match(preview, /observer\?\.disconnect/);
@@ -148,8 +152,18 @@ test('a friend keeps its pose until the next one is decoded, and the scene warms
 test('every choice on the landing uses one control, and the scene keeps its choices in one dock', () => {
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /class="world-dock"/);
-  assert.equal(preview.match(/class="choice-group/g)?.length, 3);
+  assert.equal(preview.match(/class="choice-group/g)?.length, 4);
   assert.ok(preview.indexOf('class="living-world"') < preview.indexOf('class="world-dock"'));
+  // The stage reads as a computer screen: a wallpaper, a menu bar, a work window, and the yard
+  // as an app window on top of them, so visitors see what they would install.
+  for (const part of ['desk-bar', 'desk-work', 'yard-window', 'yard-titlebar'])
+    assert.match(preview, new RegExp(`class="${part}[" ]`), part);
+  assert.match(preview, /class="choice-group view-choices"/);
+  assert.ok(preview.indexOf('class="choice-group view-choices"') < preview.indexOf('class="living-world"'));
+  assert.match(preview, /'view-desktop': loose/);
+  // The page's own controls (the view switch and pause) sit outside the pretend screen.
+  assert.ok(preview.indexOf('class="world-motion"') < preview.indexOf('class="living-world"'));
+  assert.doesNotMatch(preview, /class="desk-bar">[\s\S]*?class="world-motion"[\s\S]*?<\/div>/);
   assert.match(read('website/.vitepress/theme/PetGallery.vue'), /class="choice-group/);
   const css = read('website/.vitepress/theme/landing.css');
   assert.match(css, /\.choice-group button\[aria-pressed="true"\]/);
