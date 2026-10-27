@@ -1,5 +1,5 @@
 export const copy = {
-  diffNote: 'Codex는 OpenAI의 상표예요. PlayPets는 같은 펫 파일을 읽는 독립 오픈소스 앱이에요.',
+  diffNote: 'ChatGPT와 Codex는 OpenAI의 상표예요. PlayPets는 같은 펫 파일을 읽는 독립 오픈소스 앱이에요.',
   chatAlt: '친구와 나눈 대화',
   github: 'GitHub에서 보기',
   guide: '사용 안내 읽기',
@@ -50,16 +50,20 @@ export const worldCopy = {
 };
 export const sections = {
   compare: {
-    caption: '펫 기능: Codex 펫 파일이 가진 것과 PlayPets가 더하는 것',
+    caption: '펫 기능: Codex 펫이 스스로 하는 것과 PlayPets가 더하는 것',
     head: ['Codex 펫', 'PlayPets에서는'],
     rows: [
-      ['펫 파일', 'pet.json과 스프라이트 시트', '같은 파일을 그대로 읽어요'],
-      ['움직임', '동작 9가지, 시선 16방향', '모두 그대로, 놀이터와 바탕화면 산책까지'],
+      ['펫 파일', 'hatch-pet 스킬로 만들거나 올린 스프라이트 시트', '같은 펫을 그대로 읽어요'],
+      [
+        '움직임',
+        '진행 중, 입력 필요, 준비됨, 막힘 상태를 움직임으로 보여 줘요',
+        '시트에 있는 동작과 시선 방향 모두, 놀이터와 바탕화면 산책까지',
+      ],
       ['함께 있는 펫', '한 번에 하나', '12명까지 함께'],
-      ['대화', '작업 상태 표시', '내가 고른 AI로 나와 이야기하고 펫끼리도 수다를 떨어요'],
+      ['대화', '바탕화면에서 대화를 시작해요', '내가 고른 AI로 나와 이야기하고 펫끼리도 수다를 떨어요'],
       [
         '코딩 도구',
-        'Codex, 모든 대화를 펫 하나가',
+        'ChatGPT와 Codex 대화의 진행을 펫 하나가 알려 줘요',
         '도구마다 맡은 펫이 따로 알려 줘요: Claude Code, Codex, Gemini CLI, Cursor, MCP 도구',
       ],
       ['장소', '—', '네 곳의 장소나 직접 만든 배경. 시간, 날씨, 계절이 바뀌어요'],
@@ -71,7 +75,7 @@ export const sections = {
   },
   codexPlusTitle: ['ChatGPT 펫은 그대로 쓰고,', '친구들은 PlayPets에 더 불러요.'],
   codexPlusLead:
-    '같은 Codex 펫 파일을 양쪽에서 함께 써요. ChatGPT에서는 펫 하나가 Codex 일을 지켜보고, PlayPets에서는 12명까지 모여 서로 수다를 떨고 Claude Code, Gemini CLI, Cursor에도 반응해요.',
+    'ChatGPT와 Codex용으로 만든 펫을 PlayPets에서 그대로 써요. ChatGPT 데스크톱 앱에서는 펫 하나가 대화 진행을 알려 주고, PlayPets에서는 12명까지 모여 서로 수다를 떨고 Claude Code, Gemini CLI, Cursor에도 반응해요.',
   codexPlusLink: '내 Codex 펫 데려오기',
   discoveryGuide: '도감에서 만날 것들',
   galleryCreate: '이 친구로 만들기',

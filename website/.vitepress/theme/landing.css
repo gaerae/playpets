@@ -283,7 +283,7 @@ html[lang^="ja"] .landing {
 .no-motion .sprite i {
   animation-play-state: paused;
 }
-/* The Codex app beside PlayPets: one panel answering the hero, a real table so every row reads as a
+/* A Codex pet's own features beside PlayPets': one panel answering the hero, a real table so every row reads as a
    pair, the PlayPets column lifted onto paper. One grey pet stands over the Codex column, the cast
    over ours. */
 .codex-plus {

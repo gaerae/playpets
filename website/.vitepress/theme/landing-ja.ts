@@ -1,5 +1,6 @@
 export const copy = {
-  diffNote: 'CodexはOpenAIの商標です。PlayPetsは同じペットファイルを読み込む独立したオープンソースアプリです。',
+  diffNote:
+    'ChatGPTとCodexはOpenAIの商標です。PlayPetsは同じペットファイルを読み込む独立したオープンソースアプリです。',
   chatAlt: '友だちとの会話',
   github: 'GitHubで見る',
   guide: 'ガイドを読む',
@@ -51,16 +52,20 @@ export const worldCopy = {
 };
 export const sections = {
   compare: {
-    caption: 'ペットの機能：Codexペットファイルにあるものと、PlayPetsが加えるもの',
+    caption: 'ペットの機能：Codexのペットだけでできることと、PlayPetsが加えるもの',
     head: ['Codexのペット', 'PlayPetsなら'],
     rows: [
-      ['ペットファイル', 'pet.jsonとスプライトシート', '同じファイルをそのまま読み込み'],
-      ['動き', '9つの動き、16方向の視線', 'すべてそのまま。庭とデスクトップの散歩も'],
+      ['ペットファイル', 'hatch-petスキルで作るか、アップロードしたスプライトシート', '同じペットをそのまま読み込み'],
+      [
+        '動き',
+        '実行中、入力待ち、完了、ブロック中をアニメーションで表示',
+        'シートにある動きと視線の向きすべて。庭とデスクトップの散歩も',
+      ],
       ['一度に出るペット', '1人ずつ', '12人まで一緒に'],
-      ['会話', '作業の状態を表示', '選んだAIで、あなたともほかのペットとも話す'],
+      ['会話', 'デスクトップからチャットを始める', '選んだAIで、あなたともほかのペットとも話す'],
       [
         'コーディングツール',
-        'Codex、すべてのチャットを1人で',
+        'ChatGPTとCodexのスレッドの進み具合を1人で知らせる',
         'ツールごとに担当のペットが知らせる：Claude Code、Codex、Gemini CLI、Cursor、MCPツール',
       ],
       ['場所', '—', '4つの場所か自作の背景。時間、天気、季節が移り変わる'],
@@ -72,7 +77,7 @@ export const sections = {
   },
   codexPlusTitle: ['ChatGPTのペットはそのままに、', '仲間はPlayPetsで増やそう。'],
   codexPlusLead:
-    '同じCodexペットファイルを両方で使えます。ChatGPTでは1人がCodexの作業を見守り、PlayPetsでは12人まで集まって友だち同士で話し、Claude Code、Gemini CLI、Cursorにも反応します。',
+    'ChatGPTとCodex向けに作ったペットが、PlayPetsでもそのまま動きます。ChatGPTのデスクトップアプリでは1人がスレッドの進み具合を知らせ、PlayPetsでは12人まで集まって友だち同士で話し、Claude Code、Gemini CLI、Cursorにも反応します。',
   codexPlusLink: 'Codexのペットを迎える',
   discoveryGuide: 'どんな発見があるか見てみる',
   galleryCreate: 'この子をもとに作る',
