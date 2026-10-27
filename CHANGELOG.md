@@ -26,6 +26,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Security
 
 - Update ctutils to 0.4.5, used by the Linux keyring, so its mask generation and u128 comparisons run in constant time (RUSTSEC-2026-0385).
+- Update webpki-roots and webpki-root-certs to 1.0.11, so the app's update and AI connections no longer trust the eMudhra roots Mozilla removed (emSign ECC Root CA - G3, emSign Root CA - C1 and emSign ECC Root CA - C3).
+- Update tokio to 1.54.1, clearing its unsoundness advisory (RUSTSEC-2026-0386), along with Tauri 2.12.5 and the other Rust dependencies.
 
 ## [1.2.0] - 2026-10-22
 

@@ -324,7 +324,9 @@ test("npm run build makes each platform's packages, as CI does", () => {
 
 test('Node has one major version: .node-version, package.json engines and the Docker images', () => {
   const major = read('.node-version').trim();
-  assert.equal(JSON.parse(read('package.json')).engines.node, `>=${major}`);
+  // engines may also name a patch floor, such as a security release, within that major; CI and the
+  // Docker images follow the major so they pick up later patches by themselves.
+  assert.match(JSON.parse(read('package.json')).engines.node, new RegExp(`^>=${major}(\\.\\d+\\.\\d+)?$`));
   for (const platform of ['linux', 'windows'])
     assert.match(
       read(`packaging/${platform}/Dockerfile`),

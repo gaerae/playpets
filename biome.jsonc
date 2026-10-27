@@ -7,6 +7,10 @@
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
   "javascript": { "formatter": { "quoteStyle": "single", "arrowParentheses": "asNeeded" } },
+  // Markdown and workflow YAML stay as written: docs follow the writing standard's own layout, and
+  // the formatter covers JS, CSS and JSON as before Biome learned these two.
+  "markdown": { "formatter": { "enabled": false } },
+  "yaml": { "formatter": { "enabled": false } },
   // Imports are sorted: no module runs code when imported (tests/modules.test.mjs checks), so their
   // order is style only; start-up order is written out in app.js.
   "assist": { "actions": { "source": { "organizeImports": "on" } } },

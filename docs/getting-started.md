@@ -13,10 +13,10 @@
 ## Prerequisites
 | What you need | Version | Check command |
 |---|---|---|
-| Rust | stable, 1.98 or later | `rustc --version` |
-| Node.js | 26 (`.node-version`) | `node --version` |
+| Rust | stable, 1.99 or later | `rustc --version` |
+| Node.js | 26.12.1 or later (`.node-version`) | `node --version` |
 | npm | 11 or later, included with Node.js 26 | `npm --version` |
-| Python | 3.13 (as in CI), with the pinned Pillow dependency | `python3 --version` (`py --version` on Windows) |
+| Python | 3.15 (as in CI), with the pinned Pillow dependency | `python3 --version` (`py --version` on Windows) |
 | git | any version | `git --version` |
 | Tauri prerequisites | per OS | below |
 
