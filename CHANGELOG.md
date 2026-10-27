@@ -17,9 +17,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - The user guide in English, Korean, Japanese and Simplified Chinese is rewritten as short steps, tables and bullets, with button names matching the app.
+- The website's first screen gathers its place, season and pose choices into one dock under the scene, in the same control as the friend gallery's poses.
 
 ### Fixed
 
+- Friends on the website's front page no longer blink out or flicker when they walk, look around or change season.
 - Keep the seed count inside the Plant a seed tile when the tile is narrow, as in Chinese with ten or more seeds.
 - Retake the desktop-mode screenshot on the website and in the Linux software-center listing without the macOS screen-sharing indicator that sat in its corner.
 - On the website's front page, Japanese no longer breaks words in the middle on a phone, the dark theme keeps the friends' card in the page's green, and the chat picture stays readable on a phone.

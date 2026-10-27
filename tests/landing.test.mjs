@@ -87,12 +87,39 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
   }
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /:aria-pressed=/);
-  assert.match(preview, /v-if="place !== 3"/);
+  // Indoors has no season, so the season choices stay in place but cannot be pressed.
+  assert.match(preview, /:disabled="place === 3"/);
+  assert.doesNotMatch(preview, /v-if="place !== 3"/);
   assert.match(preview, /IntersectionObserver/);
   assert.match(preview, /observer\?\.disconnect/);
   assert.match(preview, /clearTimeout\(greetingTimer\)/);
   assert.doesNotMatch(preview, /setInterval/);
 });
+test('a friend keeps its pose until the next one is decoded, and the scene warms its moving rows', () => {
+  const sprite = read('website/.vitepress/theme/Sprite.vue');
+  assert.match(sprite, /whenDecoded\(/);
+  assert.match(sprite, /:style="shown\.style"/);
+  const preview = read('website/.vitepress/theme/WorldPreview.vue');
+  assert.match(preview, /whenDecoded\(sheetFor\(/);
+  for (const state of ['right', 'left', 'look-0', 'look-1']) assert.match(preview, new RegExp(`'${state}'`));
+});
+
+test('every choice on the landing uses one control, and the scene keeps its choices in one dock', () => {
+  const preview = read('website/.vitepress/theme/WorldPreview.vue');
+  assert.match(preview, /class="world-dock"/);
+  assert.equal(preview.match(/class="choice-group/g)?.length, 3);
+  assert.ok(preview.indexOf('class="living-world"') < preview.indexOf('class="world-dock"'));
+  assert.match(read('website/.vitepress/theme/PetGallery.vue'), /class="choice-group/);
+  const css = read('website/.vitepress/theme/landing.css');
+  assert.match(css, /\.choice-group button\[aria-pressed="true"\]/);
+  for (const old of ['.scene-choices', '.season-choices', '.world-console', '.world-greeting'])
+    assert.ok(!css.includes(old), old);
+  // A chosen pose stays chosen, as in the gallery; only a tap on a friend is a short greeting.
+  assert.match(preview, /:aria-pressed="held === state" @click="hold\(state\)"/);
+  // Phone-sized touch targets for every chip and the pause button.
+  assert.match(css, /\.choice-group button,\s*\.world-motion \{\s*min-height: 44px;/);
+});
+
 test('sprite previews preserve their space and load only when visible', () => {
   const preview = read('website/.vitepress/theme/VisibleSprite.vue');
   assert.match(preview, /whenVisible/);

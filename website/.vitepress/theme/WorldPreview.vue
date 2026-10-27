@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { LANDING_PETS } from '../../../scripts/site-content.mjs';
 import { lookFrame } from '../../../src/core/animation.js';
+import { whenDecoded } from './site-runtime.mjs';
+import { sheetFor } from './sprite-sheet';
 import VisibleSprite from './VisibleSprite.vue';
 
 const props = defineProps<{
@@ -34,7 +36,9 @@ const stage = ref<HTMLElement | null>(null);
 const visible = ref(false);
 const greeted = ref('');
 const selected = ref('clover');
-const pose = ref('idle');
+// The pose chosen in the dock stays on the selected friend until another is chosen, as in the
+// gallery; a tap on a friend is a short wave on top of it.
+const held = ref('idle');
 const tabVisible = ref(true);
 const poses = ['idle', 'wave', 'jump'];
 const selectedFriend = computed(() => LANDING_PETS.find(pet => pet.id === selected.value));
@@ -52,14 +56,16 @@ let strollTimer: ReturnType<typeof setTimeout> | undefined;
 let gazeTimer: ReturnType<typeof setTimeout> | undefined;
 let lookPending = false;
 const arrivals = new Map<string, ReturnType<typeof setTimeout>>();
+const holding = (id: string) => id === selected.value && held.value !== 'idle';
 function poseOf(id: string) {
-  if (greeted.value === id) return { state: pose.value };
+  if (greeted.value === id) return { state: 'wave' };
+  if (holding(id)) return { state: held.value };
   if (walking.value[id]) return { state: walking.value[id] };
   return gazes.value[id] ?? { state: 'idle' };
 }
 function stroll() {
   const resting = LANDING_PETS.map((pet, index) => ({ pet, index })).filter(
-    ({ pet }) => !walking.value[pet.id] && greeted.value !== pet.id,
+    ({ pet }) => !walking.value[pet.id] && greeted.value !== pet.id && !holding(pet.id),
   );
   if (!still.value && !reducedMotion() && resting.length) {
     const { pet, index } = resting[Math.floor(Math.random() * resting.length)];
@@ -107,6 +113,15 @@ function lookAway() {
     gazes.value = {};
   }, 900);
 }
+// Walking and glancing load as soon as the scene is in view, so a friend's first step or turn of
+// the head plays at once instead of waiting for its file.
+const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
+watch([visible, season], () => {
+  if (!visible.value) return;
+  for (const pet of LANDING_PETS)
+    for (const state of ['right', 'left', 'look-0', 'look-1'])
+      whenDecoded(sheetFor(pet.id, state, SEASONS[season.value]).url);
+});
 function tabChanged() {
   tabVisible.value = !document.hidden;
 }
@@ -117,15 +132,19 @@ const image = computed(() => {
   const file = place.value === 3 ? 'studio-cozy-day' : `${['', 'courtyard-', 'lakeside-'][place.value]}${suffix}`;
   return art[`../../../src/art/environments/${file}.png`];
 });
-function greet(id: string, state = 'wave') {
+function greet(id: string) {
+  if (selected.value !== id) held.value = 'idle';
   selected.value = id;
-  pose.value = state;
   greeted.value = id;
   clearTimeout(greetingTimer);
   greetingTimer = setTimeout(() => {
     greeted.value = '';
-    pose.value = 'idle';
   }, 2200);
+}
+function hold(state: string) {
+  greeted.value = '';
+  clearTimeout(greetingTimer);
+  held.value = state;
 }
 onMounted(() => {
   tabChanged();
@@ -160,10 +179,16 @@ onBeforeUnmount(() => {
       </div>
       <button class="world-motion" type="button" :aria-pressed="paused" @click="emit('pause')">{{ paused ? words.resume : words.pause }}</button>
     </div>
-    <div class="world-greeting"><p aria-live="polite"><strong>{{ selectedFriend?.displayName }}</strong><span>{{ words.greetings[selected] }}</span></p><div class="pose-controls" role="group" :aria-label="words.posesLabel"><button v-for="(state, index) in poses" :key="state" type="button" :aria-pressed="pose === state" @click="greet(selected, state)">{{ words.poses[index] }}</button></div></div>
-    <div class="world-console">
-      <div class="scene-choices" role="group" :aria-label="words.sceneLabel"><button v-for="(name, index) in words.places" :key="name" type="button" :aria-pressed="place === index" @click="place = index">{{ name }}</button></div>
-      <div v-if="place !== 3" class="season-choices" role="group" :aria-label="words.seasonLabel"><button v-for="(name, index) in words.seasons" :key="name" type="button" :aria-pressed="season === index" @click="season = index">{{ name }}</button></div>
+    <!-- One dock under the scene: the first row picks the world, the second plays with a friend. -->
+    <div class="world-dock">
+      <div class="dock-row" role="group" :aria-label="words.sceneLabel">
+        <div class="choice-group place-choices"><button v-for="(name, index) in words.places" :key="name" type="button" :aria-pressed="place === index" @click="place = index">{{ name }}</button></div>
+        <div class="choice-group" role="group" :aria-label="words.seasonLabel"><button v-for="(name, index) in words.seasons" :key="name" type="button" :aria-pressed="season === index" :disabled="place === 3" @click="season = index">{{ name }}</button></div>
+      </div>
+      <div class="dock-row">
+        <p class="dock-friend" aria-live="polite"><strong>{{ selectedFriend?.displayName }}</strong><span>{{ words.greetings[selected] }}</span></p>
+        <div class="choice-group" role="group" :aria-label="words.posesLabel"><button v-for="(state, index) in poses" :key="state" type="button" :aria-pressed="held === state" @click="hold(state)">{{ words.poses[index] }}</button></div>
+      </div>
     </div>
     <p class="scene-caption">{{ words.previewNote }}</p>
   </div>
