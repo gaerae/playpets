@@ -236,7 +236,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 |---|---|
 | `check` fails with "package.json is not x.y.z" | The tag and the version differ. If the tag is only local, delete it with `git tag -d vx.y.z` and make it again. Keep a tag that is already pushed, and prepare a corrected new version |
 | `check` fails with "no section for x.y.z" | The tag was made without finalized notes. Keep a pushed tag, and finalize the next version with the release command |
-| Only one platform's `build` fails | Read that runner's log and fix it, then run `release` by hand from Actions with the same tag (workflow_dispatch, tag input) |
+| Only one platform's `build` fails | Read that runner's log and fix it, then run `release` by hand from Actions with the same tag (workflow_dispatch, tag input). It replaces the draft's files; a published release stops it |
 | The draft has no `latest.json` | The updater signing secrets are missing. Installed apps cannot find this release. Add the secrets, delete the draft, and run `release` by hand with the same tag |
 | `gh release create` fails with "already exists" | A draft for the same tag already exists. Delete that draft and run `release` by hand |
 | `store` stops with "already has this version" | The Store has this version or a later one. Nothing changed |
