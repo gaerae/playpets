@@ -53,7 +53,7 @@ const AGENT_TOOLS = ['Claude Code', 'Codex', 'Gemini CLI', 'Cursor', 'MCP'];
     </section>
     <section class="work-story feature">
       <div class="feature-text"><h2>{{ t.workTitle }}</h2><p>{{ t.workBody }}</p><ul class="tool-chips"><li v-for="tool in AGENT_TOOLS" :key="tool">{{ tool }}</li></ul><p class="work-note">{{ t.workNote }}</p><a class="more" :href="path('/guide/agents')">{{ t.agentGuide }} →</a></div>
-      <figure class="feature-shot"><img :src="shotUrl('settings-agents')" :alt="t.workAlt" loading="lazy" decoding="async" width="2472" height="1672" /><figcaption>v{{ generated.captureVersion }}</figcaption></figure>
+      <figure class="feature-shot"><img :src="shotUrl('desktop')" :alt="t.workAlt" loading="lazy" decoding="async" width="1640" height="960" /><figcaption>v{{ generated.captureVersion }}</figcaption></figure>
     </section>
     <section class="creator-story"><div class="creator-friend"><VisibleSprite equal-height v-for="pet in LANDING_PETS" :key="pet.id" :pet="pet.id" state="wave" :scale="0.55" /></div><div><h2>{{ t.creatorTitle }}</h2><p>{{ t.creatorBody }}</p><a class="more" :href="path('/guide/creator-kit')">{{ t.creatorLink }} →</a><p class="discovery">{{ t.discovery }}</p></div></section>
     <section class="quiet-details"><div><h3>{{ t.privacyTitle }}</h3><p>{{ t.privacyBody }}</p></div><details class="developer-note"><summary>{{ t.developerTitle }}</summary><p>{{ t.developerBody }}</p><a :href="withBase('/dev/')">{{ t.developerLink }} →</a></details></section>

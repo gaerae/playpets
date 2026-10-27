@@ -97,6 +97,6 @@ export const sections = {
   workBody:
     '伙伴会对编码工具发来的消息做出反应：Claude Code 和 Gemini CLI 每一步都会告诉它，Cursor 在编辑和完成时，Codex 在每轮结束时。问一句“刚才在做什么？”，它会简单说说最近的工作。',
   workNote: '连接只在这台电脑上进行。钩子不会发送你的提示词和工具输入，但简短的状态通知可能会提到你的工作内容。',
-  workAlt: '为每个代理指定负责伙伴的编码工具设置',
+  workAlt: '终端旁边，伙伴们来到桌面上，其中一位正和编码代理一起工作',
   brewLabel: 'macOS 可用 Homebrew',
 };
