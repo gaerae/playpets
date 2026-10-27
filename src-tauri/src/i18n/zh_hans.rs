@@ -125,6 +125,7 @@ const TABLE: &[(&str, &str)] = &[
     ("provider.busy", "请等回答结束后再更改 AI 连接。"),
     ("provider.limit", "最多可以保存 {limit} 个 AI 连接。"),
     ("provider.openai_key", "请输入 OpenAI API 密钥。"),
+    ("provider.xai_key", "请输入 xAI API 密钥。"),
     ("provider.saving_remove", "正在保存 AI 连接。请等结束后再删除。"),
     ("provider.missing", "找不到 AI 连接。"),
 

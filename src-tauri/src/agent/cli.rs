@@ -1,6 +1,6 @@
 // Command-line mode of the app binary, so coding agents need no Node.js:
 //   playpets pets | status <state> [msg] | say <msg> | react <action> | run -- <cmd...>
-//   playpets hook claude|gemini|cursor   (hook; JSON on stdin)
+//   playpets hook claude|gemini|cursor|grok   (hook; JSON on stdin)
 //   playpets hook codex <json>           (Codex notify; JSON as last argument)
 //   playpets mcp                         (MCP stdio server)
 // Options: --pet <id or name> (default: first pet, or $PLAYPETS_PET), --bridge <bridge.json>
@@ -61,6 +61,9 @@ pub fn hook_event(agent: &str, payload: &Value) -> Option<(String, String)> {
         }
     };
     let event = payload.get("hook_event_name").and_then(|v| v.as_str())?;
+    if agent == "grok" {
+        return grok_event(event, payload);
+    }
     let (state, message) = match (agent, event) {
         ("claude", "UserPromptSubmit") | ("gemini", "BeforeAgent") | ("cursor", "afterAgentThought") => {
             ("working", "@thinking".to_string())
@@ -80,6 +83,45 @@ pub fn hook_event(agent: &str, payload: &Value) -> Option<(String, String)> {
         _ => return None,
     };
     Some((state.into(), message))
+}
+
+/// Grok Build names its events like Claude Code, but a turn can also end failed or cancelled, a
+/// subagent's turn and the session's end each fire their own Stop, and only some notifications
+/// wait on the person. Its non-Claude keys are camelCase (xai-grok-hooks event.rs).
+fn grok_event(event: &str, payload: &Value) -> Option<(String, String)> {
+    let field = |key: &str| payload.get(key).and_then(|v| v.as_str());
+    // A subagent's turn ending is not the session's.
+    let main_session = payload.get("subagentType").is_none();
+    let (state, message) = match event {
+        "UserPromptSubmit" if main_session => ("working", "@thinking".to_string()),
+        "PreToolUse" => {
+            let tool = clip(payload.get("tool_name"), 60);
+            (
+                "working",
+                if tool.is_empty() {
+                    "@tool_any".into()
+                } else {
+                    format!("@tool {tool}")
+                },
+            )
+        }
+        "Notification" if field("notificationType") == Some("permission_prompt") => {
+            let m = clip(payload.get("message"), 160);
+            ("waiting", if m.is_empty() { "@confirm".into() } else { m })
+        }
+        "Stop" if field("reason") == Some("end_turn") => ("done", "@done".into()),
+        "StopFailure" if main_session => ("error", format!("@failed {}", clip(payload.get("error"), 40))),
+        "StopCancelled" | "SessionEnd" if main_session => ("idle", String::new()),
+        _ => return None,
+    };
+    Some((state.into(), message))
+}
+
+/// Grok Build runs Claude Code's and Cursor's hook files too, and gives every hook it runs
+/// `GROK_SESSION_ID`. Its own `hook grok` reports the session, so another agent's hook it
+/// borrowed would show Grok's work on that agent's friend.
+fn borrowed_by_grok(agent: &str, grok_session: bool) -> bool {
+    grok_session && agent != "grok"
 }
 
 /// Where the running app writes bridge.json: $PLAYPETS_BRIDGE, $PLAYPETS_DATA, or Tauri's app data dir.
@@ -247,7 +289,9 @@ fn hook(rest: &[&str], send: Send) -> i32 {
         read_stdin(1024 * 1024, Duration::from_secs(1))
     };
     let payload: Value = serde_json::from_str(&raw).unwrap_or(Value::Null);
-    if let Some((state, message)) = hook_event(agent, &payload)
+    let borrowed = borrowed_by_grok(agent, std::env::var_os("GROK_SESSION_ID").is_some());
+    if !borrowed
+        && let Some((state, message)) = hook_event(agent, &payload)
         && let Err(e) = send(
             "/events",
             json!({"state": state, "message": message}),
@@ -527,6 +571,96 @@ mod tests {
             None,
             "event names are per agent"
         );
+    }
+
+    #[test]
+    fn grok_build_payloads_become_states_and_only_the_main_session_ends_a_turn() {
+        // Grok Build (xai-grok-hooks event.rs) sends Claude's PascalCase `hook_event_name` and
+        // `tool_name`, and keeps its other keys camelCase.
+        let e = |v: Value| hook_event("grok", &v);
+        assert_eq!(
+            e(json!({"hook_event_name": "UserPromptSubmit", "prompt": "secret"})),
+            Some(("working".into(), "@thinking".into()))
+        );
+        assert_eq!(
+            e(
+                json!({"hook_event_name": "PreToolUse", "tool_name": "run_terminal_command", "tool_input": {"command": "rm -rf"}})
+            ),
+            Some(("working".into(), "@tool run_terminal_command".into()))
+        );
+        assert_eq!(
+            e(json!({"hook_event_name": "PreToolUse", "tool_name": "read_file", "subagentType": "explore"})),
+            Some(("working".into(), "@tool read_file".into())),
+            "a subagent's tools are still the agent at work"
+        );
+        assert_eq!(
+            e(
+                json!({"hook_event_name": "Notification", "notificationType": "permission_prompt", "message": "Allow run_terminal_command?"})
+            ),
+            Some(("waiting".into(), "Allow run_terminal_command?".into()))
+        );
+        assert_eq!(
+            e(json!({"hook_event_name": "Notification", "notificationType": "permission_prompt"})),
+            Some(("waiting".into(), "@confirm".into()))
+        );
+        assert_eq!(
+            e(
+                json!({"hook_event_name": "Notification", "notificationType": "idle_prompt", "message": "Waiting for your next prompt"})
+            ),
+            None,
+            "idle after a finished turn is not a question"
+        );
+        assert_eq!(
+            e(json!({"hook_event_name": "Stop", "reason": "end_turn", "lastAssistantMessage": "secret"})),
+            Some(("done".into(), "@done".into()))
+        );
+        assert_eq!(
+            e(json!({"hook_event_name": "Stop", "reason": "session_end"})),
+            None,
+            "the observe-only Stop at session end is not a finished task"
+        );
+        assert_eq!(
+            e(json!({"hook_event_name": "StopFailure", "error": "rate_limit", "errorDetails": "secret"})),
+            Some(("error".into(), "@failed rate_limit".into()))
+        );
+        assert_eq!(
+            e(json!({"hook_event_name": "StopCancelled", "reason": "user_interrupt"})),
+            Some(("idle".into(), String::new()))
+        );
+        assert_eq!(
+            e(json!({"hook_event_name": "SessionEnd", "reason": "exit"})),
+            Some(("idle".into(), String::new()))
+        );
+        for event in ["StopFailure", "StopCancelled", "SessionEnd", "UserPromptSubmit"] {
+            assert_eq!(
+                e(json!({"hook_event_name": event, "error": "unknown", "subagentType": "explore"})),
+                None,
+                "{event} from a subagent leaves the main session's state alone"
+            );
+        }
+        assert_eq!(
+            e(json!({"hook_event_name": "PostToolUse", "tool_name": "read_file"})),
+            None
+        );
+        assert_eq!(e(json!({"hook_event_name": "SessionStart", "source": "startup"})), None);
+        assert_eq!(
+            hook_event(
+                "claude",
+                &json!({"hook_event_name": "StopFailure", "error": "rate_limit"})
+            ),
+            None,
+            "event names are per agent"
+        );
+    }
+
+    #[test]
+    fn hooks_grok_build_borrows_from_other_agents_report_nothing() {
+        // Grok Build also runs the hooks in ~/.claude/settings.json and ~/.cursor/hooks.json; its
+        // own `hook grok` reports the session, so a borrowed one would show it on the wrong friend.
+        assert!(borrowed_by_grok("claude", true));
+        assert!(borrowed_by_grok("cursor", true));
+        assert!(!borrowed_by_grok("grok", true));
+        assert!(!borrowed_by_grok("claude", false));
     }
 
     #[test]

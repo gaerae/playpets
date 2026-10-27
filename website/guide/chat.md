@@ -17,6 +17,7 @@ description: Kinds of AI connections and how to make one, setting a personality,
 | Codex CLI | Uses the Codex CLI signed in on this computer | ChatGPT sign-in uses your plan allowance; API-key sign-in uses API billing |
 | Ollama | Uses a model through Ollama at `http://127.0.0.1:11434` | Local models keep conversations on this computer without hosted inference fees; cloud models use their service's terms |
 | OpenAI API | Connects to OpenAI with an API key | Conversations are sent to OpenAI, and API fees may apply |
+| Grok API | Connects to Grok with an xAI API key | Conversations are sent to xAI, and API fees may apply |
 | OpenAI-compatible server | You enter the server address and API key yourself | Conversations are sent to that server, and fees may apply |
 
 - The connection window shows each kind as a card that says what it needs.

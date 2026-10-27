@@ -1,7 +1,7 @@
 # Architecture: coding agent integration
 
 ## Scope
-- The current structure of the path through which coding agents (Claude Code, Codex, Gemini CLI, Cursor, and tools that use MCP) tell PlayPets friends their status.
+- The current structure of the path through which coding agents (Claude Code, Codex, Gemini CLI, Cursor, Grok Build, and tools that use MCP) tell PlayPets friends their status.
 - For people adding a new integration or building tools on the agent side.
 - The whole app's architecture: [PlayPets app architecture](architecture.md).
 
@@ -88,7 +88,7 @@ flowchart LR
 | `playpets say <message>` | Only a speech bubble, without changing the state |
 | `playpets react <wave\|jump\|pet>` | A one-off reaction |
 | `playpets run -- <command…>` | Status notifications while a command runs |
-| `playpets hook <claude\|gemini\|cursor>` | Handles hook JSON on standard input |
+| `playpets hook <claude\|gemini\|cursor\|grok>` | Handles hook JSON on standard input |
 | `playpets hook codex <json>` | Handles a Codex notification |
 | `playpets mcp` | MCP server (standard input and output) |
 
@@ -98,16 +98,21 @@ flowchart LR
 
 **Hook translation**
 - Events not in the table are not sent.
+- Grok Build:
+  - It sends Claude's `hook_event_name` and `tool_name`; its other keys are camelCase.
+  - Its `UserPromptSubmit`, `StopFailure`, `StopCancelled` and `SessionEnd` from a subagent (`subagentType` set) are not sent.
+  - It also runs the hooks in `~/.claude/settings.json` and `~/.cursor/hooks.json`. A `hook claude` or `hook cursor` it runs (`GROK_SESSION_ID` set) sends nothing, so its work shows only on the Grok Build friend.
 - The app turns codes into the current language.
 
 | Agent event | State | Sentence sent |
 |---|---|---|
-| Claude `UserPromptSubmit`, Gemini `BeforeAgent`, Cursor `afterAgentThought` | working | `@thinking` |
-| Claude `PreToolUse`, Gemini `BeforeTool`, Cursor `postToolUse` | working | `@tool <tool name>`, or `@tool_any` when there is no name |
+| Claude, Grok `UserPromptSubmit`, Gemini `BeforeAgent`, Cursor `afterAgentThought` | working | `@thinking` |
+| Claude, Grok `PreToolUse`, Gemini `BeforeTool`, Cursor `postToolUse` | working | `@tool <tool name>`, or `@tool_any` when there is no name |
 | Cursor `afterFileEdit`, `afterShellExecution`, `subagentStart` | working | `@editing`, `@command`, `@subtask` |
-| Claude, Gemini `Notification` | waiting | The agent's notification sentence, or `@confirm` when there is none |
-| Claude `Stop`, Gemini `AfterAgent`, Cursor `stop` | done | `@done` |
-| Claude, Gemini `SessionEnd`, Cursor `sessionEnd` | idle | None |
+| Claude, Gemini `Notification`; Grok `Notification` of type `permission_prompt` | waiting | The agent's notification sentence, or `@confirm` when there is none |
+| Claude `Stop`, Grok `Stop` with reason `end_turn`, Gemini `AfterAgent`, Cursor `stop` | done | `@done` |
+| Grok `StopFailure` | error | `@failed <error type>`, such as `rate_limit` |
+| Claude, Gemini, Grok `SessionEnd`, Grok `StopCancelled`, Cursor `sessionEnd` | idle | None |
 | Codex `agent-turn-complete` | done | The last answer (120 characters), or `@done` when there is none |
 | `playpets run` start, failure | working, error | `@running <command>`, `@failed <exit code>` |
 
@@ -151,6 +156,7 @@ flowchart LR
 | Codex CLI | Top of `~/.codex/config.toml` | `notify = [executable, "hook", "codex", …]` |
 | Gemini CLI | `~/.gemini/settings.json` | A `hook gemini` command for each event |
 | Cursor | `~/.cursor/hooks.json` | A `hook cursor` command for each event |
+| Grok Build | `~/.grok/hooks/playpets.json`, a new file | A `hook grok` command for each event (timeouts in seconds) |
 | Other MCP tools | Each tool's MCP settings | The `playpets mcp` server |
 
 ### Settings snippets
@@ -171,3 +177,4 @@ MSIX install on Windows:
 - 2026-09-29 Moved hooks, MCP and status commands into the CLI mode of the app executable (no Node needed)
 - 2026-09-30 Hook states are sent as codes so they show in the app's language. CLI and MCP text is fixed to English
 - 2026-09-30 With an MSIX install, the settings snippet points at the execution alias
+- 2026-10-28 Grok Build reports through `hook grok`; hooks it borrows from Claude Code and Cursor send nothing

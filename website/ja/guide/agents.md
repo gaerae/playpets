@@ -4,7 +4,7 @@ description: コーディングエージェントの作業状態を友だちに�
 
 # コーディングエージェント連携
 
-- Claude Code、Codex CLI、Gemini CLI、Cursorなどのコーディングエージェントが作業している間、友だちも一緒に反応します。
+- Claude Code、Codex CLI、Gemini CLI、Cursor、Grok Buildなどのコーディングエージェントが作業している間、友だちも一緒に反応します。
 - 設定をひとつコピーして貼り付ければ完了です。Node.jsは不要です。
 
 ## エージェントごとの友だち <Since v="0.1.0" />
@@ -61,12 +61,14 @@ description: コーディングエージェントの作業状態を友だちに�
 | Codex CLI | `~/.codex/config.toml`の先頭 | タスクが終わったときに報告します |
 | Gemini CLI | `~/.gemini/settings.json` | フックで各段階を報告します |
 | Cursor | `~/.cursor/hooks.json` | 編集、コマンド、完了を報告します。見るだけのフックしか使いません |
+| Grok Build | `~/.grok/hooks/playpets.json`（新しいファイルとして保存） | フックでステップごとに報告します |
 | ほかのMCPツール | そのツールのMCP設定 | AIが`set_pet_state`、`say`、`react`、`list_pets`ツールで状態と吹き出しを直接送ります |
 
 - コピーした設定には、PlayPetsの実行ファイルのパスが入っています。
 - アプリの実行ファイルそのものがフックコマンドなので、ほかにインストールするものはありません。
 - アプリを別の場所へ移したら、設定をもう一度コピーして貼り付けてください。
 - ファイルにすでに`hooks`や`mcpServers`の項目がある場合は、コピーした設定をその項目の中にまとめてください。
+- Grok BuildはClaude CodeとCursorのフックも実行します。それでもGrok Buildの作業はGrok Buildの友だちにだけ表示されます。
 
 ## 端末から <Since v="0.1.0" />
 
@@ -74,7 +76,7 @@ description: コーディングエージェントの作業状態を友だちに�
 - `playpets`はアプリの実行ファイルです（macOSでは`/Applications/PlayPets.app/Contents/MacOS/playpets`）。
 
 ```
-playpets hook claude|gemini|cursor   # フック（標準入力にJSON、終了コードは常に0。GeminiとCursorには{}を出力）
+playpets hook claude|gemini|cursor|grok   # フック（標準入力にJSON、終了コードは常に0。GeminiとCursorには{}を出力）
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # 標準入出力のMCPサーバー
 playpets status <状態> [メッセージ]   [--pet 名前|ID] [--bridge ファイル]

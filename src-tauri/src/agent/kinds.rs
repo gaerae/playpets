@@ -13,7 +13,7 @@ pub struct Agent {
     pub settings_file: &'static [&'static str],
 }
 
-pub const AGENTS: [Agent; 5] = [
+pub const AGENTS: [Agent; 6] = [
     Agent {
         kind: "claude",
         label: "Claude Code",
@@ -37,6 +37,12 @@ pub const AGENTS: [Agent; 5] = [
         label: "Cursor",
         hook: true,
         settings_file: &[".cursor", "hooks.json"],
+    },
+    Agent {
+        kind: "grok",
+        label: "Grok Build",
+        hook: true,
+        settings_file: &[".grok", "hooks", "playpets.json"],
     },
     Agent {
         kind: "mcp",
@@ -80,5 +86,10 @@ mod tests {
         }
         assert!(is_hook_agent("gemini") && !is_hook_agent("mcp") && !is_hook_agent("nope"));
         assert_eq!(agents_json()[0]["file"], json!([".claude", "settings.json"]));
+        // Grok Build reads every *.json in ~/.grok/hooks/, so PlayPets gets a file of its own.
+        assert_eq!(
+            by_kind("grok").map(|a| (a.label, a.hook, a.settings_file)),
+            Some(("Grok Build", true, &[".grok", "hooks", "playpets.json"][..]))
+        );
     }
 }

@@ -125,6 +125,7 @@ const TABLE: &[(&str, &str)] = &[
     ("provider.busy", "답변이 끝난 뒤에 AI 연결을 바꿔 주세요."),
     ("provider.limit", "AI 연결은 {limit}개까지 저장할 수 있어요."),
     ("provider.openai_key", "OpenAI API 키를 입력해 주세요."),
+    ("provider.xai_key", "xAI API 키를 입력해 주세요."),
     ("provider.saving_remove", "AI 연결을 저장하는 중이에요. 끝난 뒤에 삭제해 주세요."),
     ("provider.missing", "AI 연결을 찾을 수 없어요."),
 

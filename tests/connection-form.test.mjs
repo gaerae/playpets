@@ -143,3 +143,23 @@ test('from Settings the connection opens in place, without a second window over 
     'the form goes home for friend edits',
   );
 });
+
+test('every kind of AI the backend knows has a card in the dialog and words in every language', async () => {
+  const { readFileSync } = await import('node:fs');
+  const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
+  const ids = [...read('src-tauri/src/chat/kind.rs').matchAll(/Kind::\w+ => "(\w+)",/g)].map(m => m[1]);
+  assert.ok(ids.includes('xai'), 'xAI is one of them');
+  const html = read('src/index.html');
+  const strings = Object.fromEntries(
+    await Promise.all(
+      ['ko', 'en', 'ja', 'zh-hans'].map(async lang => [lang, (await import(`../src/core/strings/${lang}.js`)).strings]),
+    ),
+  );
+  for (const id of ids) {
+    assert.match(html, new RegExp(`data-type="${id}"><input type="radio" name="ai-type" value="${id}"`), id);
+    for (const [lang, table] of Object.entries(strings)) {
+      assert.ok(table[`connection.about_${id}`], `${lang}: connection.about_${id}`);
+      assert.ok(table[`connection.note_${id}`], `${lang}: connection.note_${id}`);
+    }
+  }
+});

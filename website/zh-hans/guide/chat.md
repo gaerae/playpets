@@ -17,6 +17,7 @@ description: AI 连接的种类和创建步骤、设定性格、几位伙伴一�
 | Codex CLI | 用本机已登录的 Codex CLI | ChatGPT 登录使用套餐额度，API 密钥登录按 API 计费 |
 | Ollama | 通过 `http://127.0.0.1:11434` 的 Ollama 使用模型 | 本地模型的对话留在本机，无托管推理费用；云端模型遵循服务条款 |
 | OpenAI API | 用 API 密钥连接 OpenAI | 对话内容会发送给 OpenAI，可能产生 API 费用 |
+| Grok API | 用 xAI API 密钥连接 Grok | 对话内容会发送给 xAI，可能产生 API 费用 |
 | OpenAI 兼容服务器 | 自己填服务器地址和 API 密钥 | 对话内容会发送到那台服务器，可能产生费用 |
 
 - 连接窗口把每种 AI 显示成卡片，写明需要什么。

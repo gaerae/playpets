@@ -1,5 +1,5 @@
 //! The kinds of AI a friend can be connected to, and what differs between them: two
-//! subscription CLIs spoken to through their binaries, and three HTTP servers with their own
+//! subscription CLIs spoken to through their binaries, and four HTTP servers with their own
 //! request and reply shapes. Adding a kind is a variant here, a form in src/panel/connection.js
 //! and an option in index.html; everything else reads this table.
 use super::http::OLLAMA_DEFAULT;
@@ -11,11 +11,19 @@ pub enum Kind {
     Codex,
     Ollama,
     OpenAi,
+    Xai,
     Compatible,
 }
 
 impl Kind {
-    pub const ALL: [Kind; 5] = [Kind::Claude, Kind::Codex, Kind::Ollama, Kind::OpenAi, Kind::Compatible];
+    pub const ALL: [Kind; 6] = [
+        Kind::Claude,
+        Kind::Codex,
+        Kind::Ollama,
+        Kind::OpenAi,
+        Kind::Xai,
+        Kind::Compatible,
+    ];
 
     /// The id the page and the state file use.
     pub fn parse(id: &str) -> Option<Kind> {
@@ -27,6 +35,7 @@ impl Kind {
             Kind::Codex => "codex",
             Kind::Ollama => "ollama",
             Kind::OpenAi => "openai",
+            Kind::Xai => "xai",
             Kind::Compatible => "compatible",
         }
     }
@@ -38,6 +47,7 @@ impl Kind {
             Kind::Codex => Some("Codex CLI"),
             Kind::Ollama => Some("Ollama"),
             Kind::OpenAi => Some("OpenAI"),
+            Kind::Xai => Some("Grok"),
             Kind::Compatible => None,
         }
     }
@@ -47,12 +57,13 @@ impl Kind {
     }
     /// Refuses to talk without an API key.
     pub fn needs_key(self) -> bool {
-        self == Kind::OpenAi
+        matches!(self, Kind::OpenAi | Kind::Xai)
     }
     /// A server whose address is not the person's to choose.
     pub fn fixed_endpoint(self) -> Option<&'static str> {
         match self {
             Kind::OpenAi => Some("https://api.openai.com/v1"),
+            Kind::Xai => Some("https://api.x.ai/v1"),
             _ => None,
         }
     }
@@ -71,10 +82,11 @@ impl Kind {
             _ => None,
         }
     }
-    /// The chat request for an HTTP kind: its URL and body.
+    /// The chat request for an HTTP kind: its URL and body. xAI answers OpenAI's Responses API
+    /// and calls its chat completions legacy.
     pub fn chat_request(self, endpoint: &str, model: &str, history: Vec<Value>) -> (String, Value) {
         match self {
-            Kind::OpenAi => (
+            Kind::OpenAi | Kind::Xai => (
                 format!("{endpoint}/responses"),
                 json!({"model": model, "input": history, "store": false, "max_output_tokens": 1200}),
             ),
@@ -91,7 +103,7 @@ impl Kind {
     /// The answer's words in a chat reply, or an empty string when the reply has none.
     pub fn answer_text(self, data: &Value) -> String {
         match self {
-            Kind::OpenAi => data
+            Kind::OpenAi | Kind::Xai => data
                 .get("output")
                 .and_then(|o| o.as_array())
                 .map(|arr| {
@@ -140,6 +152,22 @@ mod tests {
             }
         }
         assert_eq!(Kind::parse("gpt"), None);
+        // xAI's own API: a key, its fixed address, and the Responses API it recommends over the
+        // legacy chat completions, in OpenAI's shape and kept off xAI's servers like OpenAI's.
+        assert_eq!(Kind::parse("xai"), Some(Kind::Xai));
+        assert_eq!(Kind::Xai.label(), Some("Grok"));
+        assert!(Kind::Xai.needs_key() && !Kind::Xai.is_cli());
+        assert_eq!(Kind::Xai.fixed_endpoint(), Some("https://api.x.ai/v1"));
+        let (url, body) = Kind::Xai.chat_request("https://api.x.ai/v1", "grok-4", vec![]);
+        assert_eq!(url, "https://api.x.ai/v1/responses");
+        assert_eq!(
+            (body["store"].clone(), body["max_output_tokens"].clone()),
+            (json!(false), json!(1200))
+        );
+        assert_eq!(
+            Kind::Xai.models_request("https://api.x.ai/v1"),
+            ("https://api.x.ai/v1/models".to_string(), "data", "id")
+        );
         assert_eq!(Kind::OpenAi.fixed_endpoint(), Some("https://api.openai.com/v1"));
         assert_eq!(Kind::Ollama.default_endpoint(), Some(OLLAMA_DEFAULT));
         let (url, body) = Kind::Compatible.chat_request("https://x/v1", "m", vec![]);

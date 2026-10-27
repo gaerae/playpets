@@ -29,7 +29,7 @@
 - **AI connection:**
   - Optional for ordinary movement, games, gardening and collecting. It gives a friend AI conversation.
   - Claude Code and Codex use their signed-in CLIs. Subscription allowances and any paid extra usage apply; API-key CLI sign-in can incur separate charges.
-  - Ollama and OpenAI-compatible servers use HTTP.
+  - Ollama, OpenAI, xAI (Grok) and OpenAI-compatible servers use HTTP.
   - Local models need no hosted inference fees. Remote services use their provider's billing.
   - API keys saved by PlayPets live only in the OS secure storage.
 - **Agent integration:**

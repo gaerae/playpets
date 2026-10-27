@@ -9,6 +9,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
+- Grok support: Grok Build reports to its own friend through hooks in `~/.grok/hooks/playpets.json`, without also showing on the Claude Code or Cursor friend, and a friend can talk through Grok with an xAI API key kept in the system keychain.
 - Install from the Microsoft Store, signed by Microsoft, or with `winget install --id 9NSKXQ6R187M --source msstore`. The website's download button offers the Store on Windows and shows the Homebrew or winget command for your system, and the install guide covers every way in four languages.
 - The website's front page moves: friends stroll and look toward the pointer, a button plays a chat between two friends, and a coding session replays beside a friend for Claude Code, Codex, Gemini CLI or Cursor, with an Allow step to press.
 - The website's front page shows friends talking among themselves and keeping you company on the desktop while a coding agent works, with the Homebrew install command.

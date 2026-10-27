@@ -125,6 +125,7 @@ const TABLE: &[(&str, &str)] = &[
     ("provider.busy", "Wait for the answer to finish before changing the AI connection."),
     ("provider.limit", "You can save up to {limit} AI connections."),
     ("provider.openai_key", "Enter your OpenAI API key."),
+    ("provider.xai_key", "Enter your xAI API key."),
     ("provider.saving_remove", "This AI connection is still being saved. Remove it once that's done."),
     ("provider.missing", "Couldn't find that AI connection."),
 

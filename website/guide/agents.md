@@ -4,7 +4,7 @@ description: Settings that send a coding agent's work status to your friend, ter
 
 # Coding agent hooks
 
-- While a coding agent works (Claude Code, Codex CLI, Gemini CLI, Cursor and the like), your friend reacts along with it.
+- While a coding agent works (Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build and the like), your friend reacts along with it.
 - Setup: copy and paste one piece of settings.
 - Node.js is not needed.
 
@@ -64,11 +64,13 @@ description: Settings that send a coding agent's work status to your friend, ter
 | Codex CLI | At the top of `~/.codex/config.toml` | Reports when a task finishes |
 | Gemini CLI | `~/.gemini/settings.json` | Reports every step through hooks |
 | Cursor | `~/.cursor/hooks.json` | Reports edits, commands and completion. Only observe-only hooks are used |
+| Grok Build | `~/.grok/hooks/playpets.json`, saved as a new file | Reports every step through hooks |
 | Other MCP tools | The tool's MCP settings | The AI sends status and speech bubbles itself with the `set_pet_state`, `say`, `react` and `list_pets` tools |
 
 - The copied piece contains the path to the PlayPets executable. The executable is the hook command itself, so there is nothing else to install.
 - Moved the app? Copy and paste the settings again.
 - File already has a `hooks` or `mcpServers` entry? Merge the piece into that entry.
+- Grok Build also runs your Claude Code and Cursor hooks. Its work shows only on the Grok Build friend.
 
 ## From the terminal <Since v="0.1.0" />
 
@@ -76,7 +78,7 @@ description: Settings that send a coding agent's work status to your friend, ter
 - Below, `playpets` is the app executable. On macOS: `/Applications/PlayPets.app/Contents/MacOS/playpets`.
 
 ```
-playpets hook claude|gemini|cursor   # hook (JSON on stdin, always exits 0; prints {} for Gemini and Cursor)
+playpets hook claude|gemini|cursor|grok   # hook (JSON on stdin, always exits 0; prints {} for Gemini and Cursor)
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP server over stdio
 playpets status <state> [message]   [--pet name|ID] [--bridge file]

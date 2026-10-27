@@ -14,6 +14,17 @@ const CURSOR_EVENTS: [&str; 6] = [
     "stop",
     "sessionEnd",
 ];
+// Every event `cli::hook_event` maps for Grok Build; a turn that fails or is cancelled ends
+// without its Stop.
+const GROK_EVENTS: [&str; 7] = [
+    "UserPromptSubmit",
+    "PreToolUse",
+    "Notification",
+    "Stop",
+    "StopFailure",
+    "StopCancelled",
+    "SessionEnd",
+];
 
 /// The app binary itself serves hooks and MCP (agent/cli.rs), so snippets need no Node.js.
 /// With `pet`, the agent reports to that friend instead of the first one.
@@ -55,6 +66,17 @@ pub fn connection_snippet(kind: &str, exe: &str, bridge_file: &str, pet: Option<
                 hooks.insert(event.into(), json!([{"command": command, "timeout": 5}]));
             }
             Ok(pretty(&json!({"version": 1, "hooks": Value::Object(hooks)})))
+        }
+        "grok" => {
+            let command = format!("{} hook grok --bridge {}{target}", quote(exe), quote(bridge_file));
+            let mut hooks = Map::new();
+            for event in GROK_EVENTS {
+                hooks.insert(
+                    event.into(),
+                    json!([{"hooks": [{"type": "command", "command": command, "timeout": 5}]}]),
+                );
+            }
+            Ok(pretty(&json!({"hooks": Value::Object(hooks)})))
         }
         "codex" => {
             let mut parts = vec![
@@ -190,5 +212,43 @@ mod tests {
                 && cursor["hooks"].get("beforeShellExecution").is_none()
         );
         assert!(connection_snippet("nope", exe, bridge, None).is_err());
+    }
+
+    #[test]
+    fn the_grok_build_snippet_is_a_hook_file_of_its_own() {
+        let (exe, bridge) = ("/opt/playpets", "/data/bridge.json");
+        let grok: Value = serde_json::from_str(&connection_snippet("grok", exe, bridge, None).unwrap()).unwrap();
+        let keys: Vec<&String> = grok["hooks"].as_object().unwrap().keys().collect();
+        assert_eq!(
+            keys,
+            [
+                "UserPromptSubmit",
+                "PreToolUse",
+                "Notification",
+                "Stop",
+                "StopFailure",
+                "StopCancelled",
+                "SessionEnd"
+            ]
+        );
+        let handler = &grok["hooks"]["PreToolUse"][0]["hooks"][0];
+        assert_eq!(handler["type"], "command");
+        assert_eq!(handler["timeout"], 5, "Grok Build timeouts are seconds");
+        assert_eq!(
+            handler["command"],
+            r#""/opt/playpets" hook grok --bridge "/data/bridge.json""#
+        );
+        assert!(
+            grok["hooks"]["PreToolUse"][0].get("matcher").is_none(),
+            "no matcher is every tool"
+        );
+        let pinned: Value =
+            serde_json::from_str(&connection_snippet("grok", exe, bridge, Some("pet-1")).unwrap()).unwrap();
+        assert!(
+            pinned["hooks"]["Stop"][0]["hooks"][0]["command"]
+                .as_str()
+                .unwrap()
+                .ends_with(r#"--pet "pet-1""#)
+        );
     }
 }

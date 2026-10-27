@@ -30,3 +30,16 @@ test('agents are named by the backend list and a friend knows who reports to it'
   assert.deepEqual(agentsOf(data, 'p1'), ['Claude Code', 'MCP']);
   assert.deepEqual(agentsOf({}, 'p1'), []);
 });
+
+test('the settings tab has a row for every agent the backend knows', async () => {
+  const { readFileSync } = await import('node:fs');
+  const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
+  const kinds = [...read('src-tauri/src/agent/kinds.rs').matchAll(/kind: "(\w+)"/g)].map(m => m[1]);
+  assert.ok(kinds.includes('grok'), 'Grok Build is one of them');
+  const html = read('src/index.html');
+  for (const kind of kinds) {
+    assert.match(html, new RegExp(`id="agent-name-${kind}"`), kind);
+    assert.match(html, new RegExp(`data-agent="${kind}"`), kind);
+    assert.match(html, new RegExp(`id="agent-copy-${kind}"[^>]*data-kind="${kind}"`), kind);
+  }
+});
