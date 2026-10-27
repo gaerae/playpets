@@ -1,34 +1,52 @@
 ---
-description: 按操作系统选择安装文件、第一次运行时的警告、更新和数据文件夹
+description: 通过 Microsoft Store、winget、Homebrew 或适合你系统的文件安装、第一次运行时的警告、更新和数据文件夹
 ---
 
 # 安装
 
-- 安装文件在 [GitHub 发布页](https://github.com/gaerae/playpets/releases/latest)下载。
-- 文件名形如 `PlayPets_版本_操作系统.扩展名`。
+- 下面的按钮会给出适合你当前系统的安装方式。其他文件都在它下面的列表里。
 
-::: warning macOS 和 Windows 可能在打开前显示警告
-- 目前的发布文件没有代码签名，macOS 应用也未经公证。Gatekeeper 或 SmartScreen 可能显示警告或阻止打开。
-- 这些检查不能证明文件安全。只有信任从官方发布页下载的文件时才继续。
-- 能用哪些操作，取决于操作系统和设备策略。代码签名已在计划中。
-:::
+<Downloads />
 
-## macOS <Since v="0.1.0" />
-
-| 文件 | 适用 |
+| 系统 | 安装方式 |
 |---|---|
-| `PlayPets_版本_macos-universal.dmg` | Apple Silicon 和 Intel 都可以 |
+| Windows | [Microsoft Store](#microsoft-store)（推荐，由 Microsoft 签名）、[winget](#winget)、[GitHub 安装文件](#installer-from-github) |
+| macOS | [Homebrew](#homebrew)、[GitHub dmg](#dmg-from-github) |
+| Linux | [AppImage 或 deb](#linux) |
 
-1. 打开 dmg，把 PlayPets 拖到「应用程序」文件夹。
-2. 尝试打开 PlayPets。如果 macOS 提示无法验证开发者或无法验证应用，关闭提示。
-3. 前往「系统设置 > 隐私与安全性」，找到关于 PlayPets 的说明和**仍要打开**。
-4. 该选项可用、而且你信任下载的文件时，点**仍要打开**，按提示验证身份，再在下一条提示中点**打开**。macOS 会把该应用保存为例外。
+## Windows <Since v="0.1.0" /> {#windows}
 
-- 这些步骤遵循 [Apple 的安全打开应用指南](https://support.apple.com/en-us/102445)。
-- 如果 macOS 提示应用会损坏电脑，不要把它当作无法验证开发者的警告处理。
-- 受管理的设备可能限制打开应用。
+| 方式 | 签名 | 更新 |
+|---|---|---|
+| Microsoft Store（推荐） | 由 Microsoft 签名，没有 SmartScreen 警告 | 商店 |
+| winget | 与商店相同的安装包 | 商店 |
+| GitHub 安装文件 | 暂无，SmartScreen 可能警告 | 应用自己 |
 
-## Windows <Since v="0.1.0" />
+- 请只选一种方式。商店安装包和 GitHub 安装文件是两份各自独立的安装。
+
+### Microsoft Store {#microsoft-store}
+
+1. 打开 [Microsoft Store 里的 PlayPets](https://apps.microsoft.com/detail/9NSKXQ6R187M)，点**获取**。
+2. 从「开始」菜单启动 PlayPets。
+
+- 一般 PC（x64）和 ARM PC 会各自拿到合适的安装包。
+- 更新由商店负责，可在 **Microsoft Store → 库**中查看。
+
+### winget {#winget}
+
+```powershell
+winget install --id 9NSKXQ6R187M --source msstore
+```
+
+- 这是在终端里安装 Microsoft Store 安装包的方式。
+- 第一次使用时，winget 可能会请你同意商店源的条款。
+
+### GitHub 安装文件 {#installer-from-github}
+
+::: warning 这个安装文件暂时没有代码签名
+- SmartScreen 可能显示警告或阻止打开。想不看到警告直接安装，请用 [Microsoft Store](#microsoft-store) 或 [winget](#winget)。
+- 这些检查不能证明文件安全。只有信任从官方发布页下载的文件时才继续。
+:::
 
 | 文件 | 适用 |
 |---|---|
@@ -46,10 +64,43 @@ description: 按操作系统选择安装文件、第一次运行时的警告、�
 - x64 文件也能通过模拟运行，但它的安装和卸载程序无法替你关闭正在运行的 PlayPets，请先从托盘退出。
 
 ::: tip
-Windows 版已在虚拟机中确认过，但还没在真机上充分验证。发现异常请到 [GitHub Issues](https://github.com/gaerae/playpets/issues) 告诉我们。
+- Windows 版已在虚拟机中确认过，但还没在真机上充分验证。
+- 发现异常请到 [GitHub Issues](https://github.com/gaerae/playpets/issues) 告诉我们。
 :::
 
-## Linux <Since v="0.1.0" />
+## macOS <Since v="0.1.0" /> {#macos}
+
+### Homebrew {#homebrew}
+
+```sh
+brew install gaerae/tap/playpets
+```
+
+- Homebrew 安装的也是 GitHub 发布页上的同一个 dmg，所以同样需要下面的首次打开步骤。
+- 更新和 dmg 安装时一样，由应用自己完成。
+
+### GitHub dmg {#dmg-from-github}
+
+::: warning macOS 应用暂时没有代码签名，也未经公证
+- 第一次打开时，Gatekeeper 可能显示警告或阻止打开。macOS 签名正在准备中。
+- 这些检查不能证明文件安全。只有信任从官方发布页下载的文件时才继续。
+- 能用哪些操作，取决于操作系统和设备策略。
+:::
+
+| 文件 | 适用 |
+|---|---|
+| `PlayPets_版本_macos-universal.dmg` | Apple Silicon 和 Intel 都可以 |
+
+1. 打开 dmg，把 PlayPets 拖到「应用程序」文件夹。
+2. 尝试打开 PlayPets。如果 macOS 提示无法验证开发者或无法验证应用，关闭提示。
+3. 前往「系统设置 > 隐私与安全性」，找到关于 PlayPets 的说明和**仍要打开**。
+4. 该选项可用、而且你信任下载的文件时，点**仍要打开**，按提示验证身份，再在下一条提示中点**打开**。macOS 会把该应用保存为例外。
+
+- 这些步骤遵循 [Apple 的安全打开应用指南](https://support.apple.com/en-us/102445)。
+- 如果 macOS 提示应用会损坏电脑，不要把它当作无法验证开发者的警告处理。
+- 受管理的设备可能限制打开应用。
+
+## Linux <Since v="0.1.0" /> {#linux}
 
 | 文件 | 适用 |
 |---|---|
@@ -112,12 +163,14 @@ chmod +x PlayPets_*.AppImage
 
 | 操作系统 | 方法 |
 |---|---|
-| macOS | 把「应用程序」文件夹里的 PlayPets 移到废纸篓 |
+| macOS | 把「应用程序」文件夹里的 PlayPets 移到废纸篓。Homebrew：`brew uninstall playpets` |
+| Windows 商店、winget | 在「设置 > 应用」里卸载 PlayPets，或运行 `winget uninstall --id 9NSKXQ6R187M` |
 | Windows 安装版 | 在「设置 > 应用」里卸载 PlayPets |
 | Linux deb | 用安装时的包管理器卸载 |
 | Linux AppImage | 删除文件 |
 
 - 删除应用后，下面的数据文件夹仍会留下。
+- 商店、winget：卸载应用时，Windows 会一并删除安装包的数据。
 - 想把设置和导入的宠物也删掉，请一并删除数据文件夹。
 
 ## 数据文件夹 <Since v="0.1.0" />
@@ -125,7 +178,7 @@ chmod +x PlayPets_*.AppImage
 | 操作系统 | 位置 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`。商店、winget：在安装包专用的文件夹里 |
 | Linux | `~/.local/share/app.playpets/` |
 
 | 文件 | 内容 |

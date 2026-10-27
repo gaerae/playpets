@@ -2,7 +2,7 @@
 name = "playpets"
 version = "1.2.0"
 edition = "2024"
-rust-version = "1.98"
+rust-version = "1.99"
 license = "MIT"
 description = "A yard where your pets talk to each other"
 repository = "https://github.com/gaerae/playpets"
@@ -17,35 +17,38 @@ publish = false
 e2e = []
 
 [build-dependencies]
-tauri-build = { version = "2.7", features = [] }
+tauri-build = { version = "2.7.4", features = [] }
 
 [dependencies]
-tauri = { version = "2.12", features = ["tray-icon", "macos-private-api", "image-png"] }
-tauri-plugin-dialog = "2.8"
-tauri-plugin-clipboard-manager = "2.4"
+tauri = { version = "2.12.5", features = ["tray-icon", "macos-private-api", "image-png"] }
+tauri-plugin-dialog = "2.8.3"
+tauri-plugin-clipboard-manager = "2.5"
 tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
 serde = { version = "1.0.229", features = ["derive"] }
-serde_json = { version = "1.0.151", features = ["preserve_order"] }
-uuid = { version = "1.26", features = ["v4"] }
-ureq = { version = "3.4", features = ["json"] }
+serde_json = { version = "1.0.154", features = ["preserve_order"] }
+uuid = { version = "1.29", features = ["v4"] }
+ureq = { version = "3.5", features = ["json"] }
 # API keys go to the system keychain: Keychain (macOS), Credential Manager (Windows), Secret Service (Linux).
 keyring = "4.2"
 tiny_http = "0.12"
-url = "2.5"
+url = "2.5.8"
 # Canonical paths without the `\\?\` prefix on Windows, which Explorer and agent configs cannot use.
 dunce = "1"
 sys-locale = "0.3.2"
 tauri-plugin-updater = { version = "2", default-features = false, features = ["rustls-tls", "system-proxy"] }
-tauri-plugin-deep-link = "2"
+# 2.6.2 fills rust-ini 0.21.3's ParseOption with two of its four fields and does not build on Linux
+# (tauri-apps/plugins-workspace#3710, fixed by #3711 but not yet released). Go back to "2" once a
+# newer release passes Lint on linux-x64 and linux-arm64 in CI; a Mac never compiles this code.
+tauri-plugin-deep-link = "=2.6.1"
 tauri-plugin-autostart = "2"
-tauri-runtime = "2.12"
+tauri-runtime = "2.12.2"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 raw-window-handle = "0.6"
 x11rb = "0.14"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-objc2 = "0.6.4"
+objc2 = "0.6.5"
 
 [target.'cfg(unix)'.dependencies]
 # Stopping a chat CLI's whole process group (chat/cli/launch.rs Tree).
