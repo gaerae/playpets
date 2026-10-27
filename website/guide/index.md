@@ -16,7 +16,7 @@ To chat, a friend needs a local model, a signed-in CLI or another AI connection.
 |---|---|
 | Operating system | macOS, Windows, Linux |
 | AI | Optional. Inviting, playing and desktop mode all work without one |
-| Coding agent | Optional. Works with Claude Code, Codex CLI, Gemini CLI, Cursor and tools that use MCP |
+| Coding agent | Optional. Works with Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build and tools that use MCP |
 | Internet | Needed for downloads, community imports, updates and remote AI. Yard activities and a local Ollama model already downloaded to your computer can work offline |
 
 PlayPets is built with Tauri, so it uses your operating system's webview instead of bundling a full browser.

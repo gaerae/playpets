@@ -69,6 +69,9 @@ const TABLE: &[(&str, &str)] = &[
     ("agent.done", "作業が終わりました"),
     ("agent.running", "{name} を実行中"),
     ("agent.failed", "作業がエラーで終わりました（コード {name}）"),
+    ("agent.error", "作業がエラーで終わりました"),
+    ("agent.rate_limit", "利用上限に達して止まりました"),
+    ("agent.sign_in", "もう一度ログインが必要です"),
 
     ("error.friend_missing", "その友だちが見つかりません。"),
     ("error.autostart", "ログイン時に起動する設定を変更できませんでした。システム設定のログイン項目を確認してください。"),
@@ -125,6 +128,7 @@ const TABLE: &[(&str, &str)] = &[
     ("provider.busy", "返事が終わってから AI 接続を変えてください。"),
     ("provider.limit", "AI 接続は {limit} 件まで保存できます。"),
     ("provider.openai_key", "OpenAI の API キーを入力してください。"),
+    ("provider.xai_key", "xAI の API キーを入力してください。"),
     ("provider.saving_remove", "この AI 接続を保存しています。終わってから削除してください。"),
     ("provider.missing", "その AI 接続が見つかりません。"),
 

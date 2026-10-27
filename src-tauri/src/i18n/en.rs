@@ -69,6 +69,9 @@ const TABLE: &[(&str, &str)] = &[
     ("agent.done", "Finished the task"),
     ("agent.running", "Running {name}"),
     ("agent.failed", "The task ended with an error (code {name})"),
+    ("agent.error", "The task ended with an error"),
+    ("agent.rate_limit", "Stopped at a usage limit"),
+    ("agent.sign_in", "Needs you to sign in again"),
 
     ("error.friend_missing", "Couldn't find that friend."),
     ("error.autostart", "Could not change whether PlayPets starts at login. Check the login items in your system settings."),
@@ -125,6 +128,7 @@ const TABLE: &[(&str, &str)] = &[
     ("provider.busy", "Wait for the answer to finish before changing the AI connection."),
     ("provider.limit", "You can save up to {limit} AI connections."),
     ("provider.openai_key", "Enter your OpenAI API key."),
+    ("provider.xai_key", "Enter your xAI API key."),
     ("provider.saving_remove", "This AI connection is still being saved. Remove it once that's done."),
     ("provider.missing", "Couldn't find that AI connection."),
 
