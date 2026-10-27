@@ -17,6 +17,33 @@ The copied settings name that friend (`--pet`), so Claude Code can report to Clo
 
 Give each friend a different agent and the yard becomes a status board of who's doing what.
 
+## Several agents at once
+
+- Each friend shows only its own agent: its own status dot, name tag and desktop speech bubble.
+- Ask a friend "what were you doing?" and it recaps its own agent's recent work, not the others'.
+
+| Agent | Friend | What you see |
+|---|---|---|
+| Claude Code | Clover | Working while it edits files |
+| Codex CLI | Pip | Done when a reply finishes |
+| Gemini CLI | Daisy | Waiting for you at a confirmation |
+| Cursor | Miso | Working while it runs a command |
+
+### Two sessions of the same agent
+
+1. In **Settings → Coding tools**, leave **Reacting friend** empty for that tool, then copy and paste the settings.
+2. Start each session with its own friend:
+
+```bash
+PLAYPETS_PET=Clover claude
+PLAYPETS_PET=Pip claude
+```
+
+- In PowerShell: `$env:PLAYPETS_PET="Clover"; claude`.
+- `PLAYPETS_PET` takes a friend's name or ID, like `--pet`.
+- A friend picked under **Reacting friend** is written into the settings (`--pet`) and wins over `PLAYPETS_PET`.
+- This works for agents you start from a terminal: Claude Code, Codex CLI and Gemini CLI. Cursor runs its hooks from the Cursor app, so it reports to one friend.
+
 ## What you see in the yard <Since v="0.1.0" />
 
 A friend with an agent carries the agent's name on its name tag (Clover, Claude Code), and the chip under its name in the Friend panel shows it too. The small dot by the friend's head is the agent's state. Hover over it to see the name.
