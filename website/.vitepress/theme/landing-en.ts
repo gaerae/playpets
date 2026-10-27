@@ -43,8 +43,8 @@ export const worldCopy = {
   previewNote:
     'An interactive scene sample with the app’s artwork. Select a friend to wave; games and weather live in the app.',
   greet: 'Say hello',
-  title: ['A little world', 'to come home to.'],
-  lead: 'Four little friends live in a yard on your desktop. They play on their own, talk with you and with each other through the AI you choose, and cheer you on while your coding agent works.',
+  title: ['Little friends who live', 'beside your work.'],
+  lead: 'Four of them share a small yard on your desktop. They play on their own, talk with you and with each other through the AI you choose, and cheer you on while your coding agent works.',
   worldsTitle: 'Try a little of it here.',
   worldsLead: 'Pick a place and a season, then say hello to a friend.',
   sceneLabel: 'Choose a place and season',

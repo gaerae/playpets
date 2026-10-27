@@ -1,7 +1,7 @@
 ---
 layout: page
 title: PlayPets
-titleTemplate: 帰ってきたくなる、小さな世界
+titleTemplate: ペットたちがおしゃべりする庭
 ---
 
 <Landing />
