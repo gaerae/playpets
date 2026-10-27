@@ -94,10 +94,11 @@ test('the world forwards its season through visibility loading and keeps canonic
   const world = await readFile('website/.vitepress/theme/WorldPreview.vue', 'utf8');
   const visible = await readFile('website/.vitepress/theme/VisibleSprite.vue', 'utf8');
   const sprite = await readFile('website/.vitepress/theme/Sprite.vue', 'utf8');
+  const sheet = await readFile('website/.vitepress/theme/sprite-sheet.ts', 'utf8');
   assert.match(world, /:season="\['spring', 'summer', 'autumn', 'winter'\]\[season\]"/);
   assert.match(visible, /:season="season"/);
-  assert.match(sprite, /petSeasonalPreviews/);
-  assert.match(sprite, /strip\.value \? '0' : String\(row\.value\.row\)/);
+  assert.match(sheet, /petSeasonalPreviews/);
+  assert.match(sprite, /sheet\.value\.strip \? '0' : String\(row\.value\.row\)/);
 });
 
 test('all four friends resolve all preview poses in each approved seasonal outfit', () => {

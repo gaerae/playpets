@@ -10,6 +10,7 @@ import {
   taggedRelease,
   watchReducedMotion,
   watchRelease,
+  whenDecoded,
   whenVisible,
 } from '../website/.vitepress/theme/site-runtime.mjs';
 
@@ -126,6 +127,28 @@ test('offscreen sprites retain placeholders until visible and observers detach o
   assert.equal(loads, 1);
   whenVisible(target, () => loads++, null)();
   assert.equal(loads, 2, 'older browsers load the original sprite');
+});
+
+test('a sprite sheet is decoded once before a pose shows it, and a failed one still lets the pose change', async () => {
+  const made = [];
+  class Picture {
+    constructor() {
+      made.push(this);
+    }
+    decode() {
+      return this.src.includes('broken') ? Promise.reject(new Error('decode')) : Promise.resolve();
+    }
+  }
+  await whenDecoded('/pets/motion/pip/base/right.webp', Picture);
+  assert.equal(made.length, 1);
+  assert.equal(made[0].src, '/pets/motion/pip/base/right.webp');
+  await whenDecoded('/pets/motion/pip/base/right.webp', Picture);
+  assert.equal(made.length, 1, 'a decoded sheet is not fetched again');
+  await whenDecoded('/pets/motion/pip/base/broken.webp', Picture);
+  await whenDecoded('/pets/motion/pip/base/broken.webp', Picture);
+  assert.equal(made.length, 3, 'a failed sheet is tried again next time');
+  await whenDecoded('/pets/motion/pip/base/left.webp', null);
+  assert.equal(made.length, 3, 'without images (the build) nothing waits');
 });
 
 test('duplicate download components share one lookup and accept only valid release tags', async () => {
