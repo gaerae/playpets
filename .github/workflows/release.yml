@@ -159,17 +159,28 @@ jobs:
             npx tauri build "${args[@]}"
           fi
       # Ad hoc or Developer ID, the app's signature has to seal its resources, or a download opens as "damaged".
+      # Tauri notarizes the app but only signs the disk image, and a downloaded image that is signed
+      # but not notarized is refused when opened, so the image goes to Apple's notary service too.
       - name: macOS signature
         if: runner.os == 'macOS'
         env:
           APPLE_SIGNING_ENABLED: ${{ secrets.APPLE_CERTIFICATE != '' }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          app="src-tauri/target/${{ matrix.target }}/release/bundle/macos/PlayPets.app"
+          bundle="src-tauri/target/${{ matrix.target }}/release/bundle"
+          app="$bundle/macos/PlayPets.app"
           codesign --verify --strict --deep "$app"
           if [ "$APPLE_SIGNING_ENABLED" = true ]; then
             codesign --display --verbose=2 "$app" 2>&1 | grep -q 'Authority=Developer ID Application:'
             spctl --assess --type execute --verbose=2 "$app"
             xcrun stapler validate "$app"
+            dmg="$(ls "$bundle"/dmg/*.dmg)"
+            xcrun notarytool submit "$dmg" --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait --timeout 30m
+            xcrun stapler staple "$dmg"
+            xcrun stapler validate "$dmg"
+            spctl --assess --type open --context context:primary-signature --verbose=2 "$dmg"
           fi
       - name: Install and launch the package
         shell: bash
@@ -254,4 +265,11 @@ jobs:
         run: |
           version="$VERSION"
           node scripts/release-notes.mjs "$version" > notes.md
-          gh release create "v$version" out/* --draft --title "PlayPets $version" --notes-file notes.md --verify-tag
+          # Building a tag again (workflow_dispatch) refreshes its draft; a published release keeps its files.
+          draft="$(gh release view "v$version" --json isDraft --jq .isDraft 2>/dev/null || true)"
+          case "$draft" in
+            true)  gh release upload "v$version" out/* --clobber
+                   gh release edit "v$version" --title "PlayPets $version" --notes-file notes.md ;;
+            false) echo "v$version is already published; build a new version instead." >&2; exit 1 ;;
+            *)     gh release create "v$version" out/* --draft --title "PlayPets $version" --notes-file notes.md --verify-tag ;;
+          esac

@@ -330,9 +330,10 @@ What the release workflow does:
 |---|---|
 | None | It keeps the existing ad-hoc build |
 | A partial set | The macOS build fails instead of silently publishing an unsigned fallback |
-| All six | Tauri receives the explicit identity through `APPLE_SIGNING_IDENTITY` and signs and notarizes the app during bundling |
+| All six | Tauri receives the explicit identity through `APPLE_SIGNING_IDENTITY` and signs and notarizes the app during bundling. The workflow then notarizes and staples the DMG, which Tauri only signs |
 
-- CI then verifies the signature, checks the Developer ID authority, assesses Gatekeeper acceptance and validates the stapled ticket.
+- CI then verifies the signature, checks the Developer ID authority, assesses Gatekeeper acceptance and validates the stapled ticket, for the app and for the DMG.
+- A signed DMG without its own ticket is refused when a downloaded copy is opened, even when the app inside is notarized.
 - A successful ad-hoc `codesign --verify` alone does not prove Apple trust.
 
 Local release test:
@@ -349,7 +350,15 @@ spctl --assess --type execute --verbose=2 /path/to/PlayPets.app
 xcrun stapler validate /path/to/PlayPets.app
 ```
 
-5. Test a browser-downloaded DMG on a clean Mac.
+5. Notarize and staple the DMG, then check it as a download:
+
+```bash
+xcrun notarytool submit /path/to/PlayPets.dmg --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+xcrun stapler staple /path/to/PlayPets.dmg
+spctl --assess --type open --context context:primary-signature --verbose=2 /path/to/PlayPets.dmg
+```
+
+6. Test a browser-downloaded DMG on a clean Mac.
 
 Releases:
 - Do not replace files of an immutable published release.

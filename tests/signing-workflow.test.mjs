@@ -48,3 +48,36 @@ test('every incomplete Apple credential set stops before the native build', {
     assert.notEqual(preflight(values).status, 0, field);
   }
 });
+
+// A signed disk image is assessed on its own when a downloaded copy is opened: one that is not
+// notarized is refused before the notarized app inside is reached.
+const step = name => {
+  const at = workflow.indexOf(`      - name: ${name}\n`);
+  assert.ok(at > 0, name);
+  const next = workflow.indexOf('\n      - ', at + 1);
+  return workflow.slice(at, next < 0 ? undefined : next);
+};
+test('a Developer ID release notarizes and staples the disk image and checks it as a download', () => {
+  const signature = step('macOS signature');
+  const notarize = signature.indexOf('xcrun notarytool submit "$dmg"');
+  const staple = signature.indexOf('xcrun stapler staple "$dmg"');
+  assert.ok(notarize > 0 && staple > notarize);
+  assert.match(signature, /--wait/);
+  assert.match(signature, /xcrun stapler validate "\$dmg"/);
+  assert.match(signature, /spctl --assess --type open --context context:primary-signature --verbose=2 "\$dmg"/);
+  for (const secret of ['APPLE_ID', 'APPLE_PASSWORD', 'APPLE_TEAM_ID']) {
+    assert.match(signature, new RegExp(`${secret}: \\$\\{\\{ secrets\\.${secret} \\}\\}`));
+  }
+  // The package smoke test then mounts the stapled image, not an earlier copy.
+  assert.ok(
+    workflow.indexOf('      - name: macOS signature') <
+      workflow.indexOf('      - name: Install and launch the package'),
+  );
+});
+test('building a tag again replaces the files of its draft and never touches a published release', () => {
+  const draft = step('Draft release');
+  assert.match(draft, /isDraft/);
+  assert.match(draft, /gh release upload "v\$version" out\/\* --clobber/);
+  assert.match(draft, /gh release create "v\$version" out\/\* --draft/);
+  assert.match(draft, /already published/);
+});
