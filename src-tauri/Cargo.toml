@@ -36,7 +36,9 @@ url = "2.5.8"
 dunce = "1"
 sys-locale = "0.3.2"
 tauri-plugin-updater = { version = "2", default-features = false, features = ["rustls-tls", "system-proxy"] }
-# 2.6.2 fills rust-ini 0.21.3's ParseOption with two of its four fields and does not build on Linux.
+# 2.6.2 fills rust-ini 0.21.3's ParseOption with two of its four fields and does not build on Linux
+# (tauri-apps/plugins-workspace#3710, fixed by #3711 but not yet released). Go back to "2" once a
+# newer release passes Lint on linux-x64 and linux-arm64 in CI; a Mac never compiles this code.
 tauri-plugin-deep-link = "=2.6.1"
 tauri-plugin-autostart = "2"
 tauri-runtime = "2.12.2"
