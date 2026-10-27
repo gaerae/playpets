@@ -13,7 +13,8 @@
 - `npm test` (Rust unit tests and the page's Node tests) and `npm run lint` (rustfmt, clippy with warnings as errors, Oxlint, Biome) pass. CI runs the same commands.
 - A changed flow people see (buttons, windows, saving, agent integration): `npm run test:e2e` passes.
 - A new flow: add a check line to the scenario and the expected list in `tests/e2e.mjs`.
-- Pure rules (calculation, conversion, parsing) are split into functions that run without the page or the app, and checked with unit tests (`src/core/`, `src/yard/`, `scripts/*-lib.mjs`, `mod tests` in each Rust module).
+- Pure rules (calculation, conversion, parsing) are split into functions that run without the page or the app.
+- Unit tests check them (`src/core/`, `src/yard/`, `scripts/*-lib.mjs`, `mod tests` in each Rust module).
 - In the yard these include:
   - the lake's shape (`lakeShape`, `tests/lake.test.mjs`)
   - closeness (`bondProgress`, `tests/bond.test.mjs`)
@@ -22,7 +23,8 @@
   - the catalogue (`tests/catalog.test.mjs`)
   - strolling (`tests/wander.test.mjs`)
   - the sound mix (`tests/soundmix.test.mjs`)
-- Rust test-only code goes only inside `mod tests` at the end of the file. Watch tests scan only up to that point.
+- Rust test-only code goes only inside `mod tests` at the end of the file.
+- Guard tests scan a file only up to that point.
 
 What goes where.
 
@@ -40,15 +42,19 @@ What goes where.
 ### How E2E runs
 - E2E launches the executable built with the `e2e` feature and an isolated data folder, then runs the scenario script inside the app.
 - Its windows use an ephemeral WebView profile, so localStorage and IndexedDB cannot change the normal app profile.
-- This profile lasts for one process. Check persistence across restarts separately with a disposable normal profile.
-- Results come out as `[e2e] name=value` lines. The harness compares them with the expected list and prints `✓`/`✖`.
+- This profile lasts for one process.
+- Check persistence across restarts separately, with a disposable normal profile.
+- Results come out as `[e2e] name=value` lines.
+- The harness compares them with the expected list and prints `✓`/`✖`.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
 - Windows-only code (`#[cfg(windows)]`): confirm it compiles with `npm run dist:windows`.
-  - Compiling is not running. If you cannot run the app on Windows yourself, list anything that needs a run check in the PR description.
+  - Compiling does not prove it runs.
+  - If you cannot run the app on Windows yourself, list what still needs a run check in the PR description.
   - On a Mac, you can check the installers in a Windows virtual machine (for example UTM on Apple silicon, with Windows 11 on Arm).
-- Changes that touch Linux (`cfg(unix)`, tray, overlay, file permissions): check with `npm run dist:linux`. It builds in Docker and then runs E2E on Xvfb with Openbox, so you can see Linux runs from a macOS machine.
+- Changes that touch Linux (`cfg(unix)`, tray, overlay, file permissions): check with `npm run dist:linux`.
+  - It builds in Docker and then runs E2E on Xvfb with Openbox, so you can see Linux runs from a macOS machine.
 - Changes that affect performance: attach the measurements from the [performance standard](performance.md).
 
 ## Exceptions
@@ -56,7 +62,7 @@ Follow these when you can. When you cannot, say why in the PR.
 |---|---|
 | A flow that cannot have an E2E check line (OS dialogs, a real AI subscription, another OS) | Write how you checked it by hand and the result in the PR description |
 | E2E while the window is covered and WebKit has paused animations | The harness skips checks that depend on walking and prints that it did. Not a failure |
-| An urgent fix with tests added later | A maintainer approves it, and an issue is left for adding the tests |
+| An urgent fix with tests added later | A maintainer approves it, and an issue tracks adding the tests |
 
 ## Rationale
 - The page has no build step, and the app runs on three operating systems.
