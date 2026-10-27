@@ -15,6 +15,33 @@ Claude Code, Codex CLI, Gemini CLI, Cursor 같은 코딩 에이전트가 일하�
 
 친구마다 다른 에이전트를 맡기면 놀이터가 누가 지금 무슨 일을 하는지 보여 주는 현황판이 돼요.
 
+## 여러 에이전트를 한꺼번에
+
+- 친구마다 자기 에이전트만 보여 줘요. 상태 점, 이름표, 바탕화면 말풍선이 친구마다 따로예요.
+- 친구에게 "뭐 하고 있었어?"라고 물으면 자기 에이전트가 최근에 한 일만 알려 줘요.
+
+| 에이전트 | 친구 | 보이는 것 |
+|---|---|---|
+| Claude Code | Clover | 파일을 고치는 동안 일하는 중 |
+| Codex CLI | Pip | 답이 끝나면 작업 완료 |
+| Gemini CLI | Daisy | 확인을 기다릴 때 답을 기다리는 중 |
+| Cursor | Miso | 명령을 실행하는 동안 일하는 중 |
+
+### 같은 에이전트를 두 세션에서
+
+1. **설정 → 코딩 도구 연결**에서 그 도구의 **담당 친구**를 비워 두고 설정을 복사해 붙여 넣어요.
+2. 세션마다 맡을 친구를 정해 시작해요.
+
+```bash
+PLAYPETS_PET=Clover claude
+PLAYPETS_PET=Pip claude
+```
+
+- PowerShell에서는 `$env:PLAYPETS_PET="Clover"; claude`처럼 써요.
+- `PLAYPETS_PET`에는 `--pet`처럼 친구 이름이나 ID를 넣어요.
+- **담당 친구**를 고르면 설정에 그 친구가 적히고(`--pet`), `PLAYPETS_PET`보다 먼저 쓰여요.
+- 터미널에서 시작하는 Claude Code, Codex CLI, Gemini CLI에서 돼요. Cursor는 Cursor 앱이 훅을 실행하니 친구 하나에게만 알려요.
+
 ## 놀이터에서 보이는 것 <Since v="0.1.0" />
 
 담당 에이전트가 있는 친구는 이름표에 에이전트 이름이 작게 붙어요(Clover, Claude Code). 친구 화면에서는 이름 아래 칩에도 나와요. 친구 머리 옆의 작은 점은 에이전트 상태예요. 마우스를 올리면 이름이 보여요.

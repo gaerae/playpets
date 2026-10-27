@@ -15,6 +15,33 @@ Claude Code、Codex CLI、Gemini CLI、Cursor 这类编码代理干活的时候�
 
 让每位伙伴负责不同的代理，乐园就成了一块状态板，现在谁在做什么一眼就能看到。
 
+## 同时用多个代理
+
+- 每位伙伴只显示自己负责的代理：状态点、名牌和桌面气泡都是各自的。
+- 问伙伴“你刚才在做什么？”，它只讲自己那个代理最近做的事。
+
+| 代理 | 伙伴 | 你会看到 |
+|---|---|---|
+| Claude Code | Clover | 改文件时显示工作中 |
+| Codex CLI | Pip | 一次回复结束后显示任务完成 |
+| Gemini CLI | Daisy | 等待确认时显示等待回答 |
+| Cursor | Miso | 运行命令时显示工作中 |
+
+### 同一个代理开两个会话
+
+1. 在**设置 → 编码工具连接**里，这个工具的**负责的伙伴**留空，然后复制设置并粘贴。
+2. 每个会话启动时指定各自的伙伴：
+
+```bash
+PLAYPETS_PET=Clover claude
+PLAYPETS_PET=Pip claude
+```
+
+- PowerShell 里这样写：`$env:PLAYPETS_PET="Clover"; claude`。
+- `PLAYPETS_PET` 和 `--pet` 一样，填伙伴的名字或 ID。
+- 选了**负责的伙伴**后，设置里会写上这位伙伴（`--pet`），它比 `PLAYPETS_PET` 优先。
+- 从终端启动的 Claude Code、Codex CLI、Gemini CLI 都可以这样用。Cursor 的钩子由 Cursor 应用运行，所以只会通知一位伙伴。
+
 ## 乐园里看得到的东西 <Since v="0.1.0" />
 
 有负责代理的伙伴，名牌上会用小字标出代理的名字（Clover, Claude Code），伙伴面板里名字下方的小标签也会显示。伙伴头上的小圆点表示代理的状态，鼠标悬停就能看到名字。
