@@ -17,6 +17,30 @@ async function request(fetcher, label, url, options) {
   }
 }
 
+// The submission states Microsoft documents; anything else is reported as unknown, not echoed.
+const STATUSES = [
+  'None',
+  'Canceled',
+  'PendingCommit',
+  'CommitStarted',
+  'CommitFailed',
+  'PendingPublication',
+  'Publishing',
+  'Published',
+  'PublishFailed',
+  'PreProcessing',
+  'PreProcessingFailed',
+  'Certification',
+  'CertificationFailed',
+  'Release',
+  'ReleaseFailed',
+];
+// Only the codes, which are plain words: the details beside them are provider text.
+const codes = list =>
+  Array.isArray(list)
+    ? list.map(item => item?.code).filter(code => typeof code === 'string' && /^\w{1,80}$/.test(code))
+    : [];
+
 export async function verifyStore(env, fetcher = fetch) {
   for (const key of ['STORE_APP_ID', 'STORE_TENANT_ID', 'STORE_CLIENT_ID', 'STORE_CLIENT_SECRET']) {
     if (!env[key]?.trim()) throw new Error(`Missing ${key}`);
@@ -63,6 +87,12 @@ export async function verifyStore(env, fetcher = fetch) {
     hasPublishedSubmission: Boolean(app.lastPublishedApplicationSubmission?.id),
     hasPendingSubmission: Boolean(pending),
     pendingPublishMode: submission?.targetPublishMode === 'Manual' ? 'Manual' : submission ? 'not-manual' : 'none',
+    pendingStatus: submission ? (STATUSES.includes(submission.status) ? submission.status : 'unknown') : 'none',
+    pendingErrorCodes: codes(submission?.statusDetails?.errors),
+    pendingWarningCodes: codes(submission?.statusDetails?.warnings),
+    pendingCertificationReports: Array.isArray(submission?.statusDetails?.certificationReports)
+      ? submission.statusDetails.certificationReports.length
+      : 0,
     submissionEnabled: false,
   };
 }
