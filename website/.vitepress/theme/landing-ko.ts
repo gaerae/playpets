@@ -61,7 +61,7 @@ export const sections = {
       [
         '코딩 도구',
         'ChatGPT와 Codex 대화의 진행을 펫 하나가 알려 줘요',
-        '도구마다 맡은 펫이 따로 알려 줘요: Claude Code, Codex, Gemini CLI, Cursor, MCP 도구',
+        '도구마다 맡은 펫이 따로 알려 줘요: Claude Code, Codex, Gemini CLI, Cursor, Grok Build, MCP 도구',
       ],
       ['장소', '—', '네 곳의 장소나 직접 만든 배경. 시간, 날씨, 계절이 바뀌어요'],
       ['장식', '—', '친구들이 벤치, 그네, 연못 같은 선물을 가져오고 그 곁에서 쉬고 놀아요'],
@@ -72,7 +72,7 @@ export const sections = {
   },
   codexPlusTitle: ['ChatGPT 펫은 그대로 쓰고,', '친구들은 PlayPets에 더 불러요.'],
   codexPlusLead:
-    'ChatGPT와 Codex용으로 만든 펫을 PlayPets에서 그대로 써요. ChatGPT 데스크톱 앱에서는 펫 하나가 대화 진행을 알려 주고, PlayPets에서는 12명까지 모여 서로 수다를 떨고 Claude Code, Gemini CLI, Cursor에도 반응해요.',
+    'ChatGPT와 Codex용으로 만든 펫을 PlayPets에서 그대로 써요. ChatGPT 데스크톱 앱에서는 펫 하나가 대화 진행을 알려 주고, PlayPets에서는 12명까지 모여 서로 수다를 떨고 Claude Code, Gemini CLI, Cursor, Grok Build에도 반응해요.',
   codexPlusLink: '내 Codex 펫 데려오기',
   discoveryGuide: '도감에서 만날 것들',
   galleryCreate: '이 친구로 만들기',
@@ -121,7 +121,7 @@ export const sections = {
   togetherLink: '함께 대화하는 법',
   workTitle: '코딩할 때도 곁에서.',
   workBody:
-    '코딩 에이전트가 소식을 보내면 친구가 알아채요. Claude Code와 Gemini CLI는 단계마다, Cursor는 편집할 때와 마칠 때, Codex는 답을 마칠 때마다 알려요. "뭐 하고 있었어?"라고 물으면 방금 한 일을 짧게 들려줘요.',
+    '코딩 에이전트가 소식을 보내면 친구가 알아채요. Claude Code, Gemini CLI, Grok Build는 단계마다, Cursor는 편집할 때와 마칠 때, Codex는 답을 마칠 때마다 알려요. "뭐 하고 있었어?"라고 물으면 방금 한 일을 짧게 들려줘요.',
   workNote:
     '연결은 이 컴퓨터 안에서만 오가요. 훅은 내가 쓴 프롬프트와 도구 입력을 보내지 않아요. 다만 짧은 상태 알림에 작업 내용이 담길 수 있어요.',
   chatPlay: '수다 떨기',

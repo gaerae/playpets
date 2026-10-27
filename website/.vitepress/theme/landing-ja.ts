@@ -63,7 +63,7 @@ export const sections = {
       [
         'コーディングツール',
         'ChatGPTとCodexのスレッドの進み具合を1人で知らせる',
-        'ツールごとに担当のペットが知らせる：Claude Code、Codex、Gemini CLI、Cursor、MCPツール',
+        'ツールごとに担当のペットが知らせる：Claude Code、Codex、Gemini CLI、Cursor、Grok Build、MCPツール',
       ],
       ['場所', '—', '4つの場所か自作の背景。時間、天気、季節が移り変わる'],
       ['飾り', '—', '友だちがベンチやブランコ、池などを贈ってくれて、そのそばで休んだり遊んだりする'],
@@ -74,7 +74,7 @@ export const sections = {
   },
   codexPlusTitle: ['ChatGPTのペットはそのままに、', '仲間はPlayPetsで増やそう。'],
   codexPlusLead:
-    'ChatGPTとCodex向けに作ったペットが、PlayPetsでもそのまま動きます。ChatGPTのデスクトップアプリでは1人がスレッドの進み具合を知らせ、PlayPetsでは12人まで集まって友だち同士で話し、Claude Code、Gemini CLI、Cursorにも反応します。',
+    'ChatGPTとCodex向けに作ったペットが、PlayPetsでもそのまま動きます。ChatGPTのデスクトップアプリでは1人がスレッドの進み具合を知らせ、PlayPetsでは12人まで集まって友だち同士で話し、Claude Code、Gemini CLI、Cursor、Grok Buildにも反応します。',
   codexPlusLink: 'Codexのペットを迎える',
   discoveryGuide: 'どんな発見があるか見てみる',
   galleryCreate: 'この子をもとに作る',
@@ -123,7 +123,7 @@ export const sections = {
   togetherLink: 'みんなで話すしくみ',
   workTitle: 'コーディング中も、そばに。',
   workBody:
-    'コーディングエージェントから知らせが届くたびに、友だちが気づいて反応します。Claude CodeとGemini CLIは各ステップで、Cursorは編集時と完了時に、Codexは返答の終わりごとに知らせます。「何してたの？」と聞けば、作業の様子を手短に話してくれます。',
+    'コーディングエージェントから知らせが届くたびに、友だちが気づいて反応します。Claude Code、Gemini CLI、Grok Buildは各ステップで、Cursorは編集時と完了時に、Codexは返答の終わりごとに知らせます。「何してたの？」と聞けば、作業の様子を手短に話してくれます。',
   workNote:
     '接続はこのコンピューターの中だけで完結します。フックはプロンプトやツールの入力を含めませんが、短い状況報告に作業の内容が出ることはあります。',
   chatPlay: 'おしゃべり',

@@ -104,7 +104,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 brew install gaerae/tap/playpets
 ```
 
-- Builds are not code-signed yet: macOS or Windows may warn on first launch.
+- From 1.3.0 the macOS app is signed and notarized. The Windows installer from GitHub is not code-signed yet, so SmartScreen may warn; the Microsoft Store and winget packages are signed by Microsoft.
 - The [install guide](https://playpets.gaerae.com/guide/install) covers those warnings and Linux notes.
 - To build from source, see [Development](#development).
 
