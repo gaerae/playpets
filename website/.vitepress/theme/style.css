@@ -210,25 +210,33 @@ h3,
   margin: 0;
   max-width: 380px;
 }
-/* The one-line install for the visitor's system, ready to copy. */
+/* The one-line install for the visitor's system, a quiet alternative right under the button.
+   It breaks only at spaces on a narrow screen, and a tap selects the whole command. */
 .dl-command {
   display: flex;
-  max-width: 100%;
   flex-wrap: wrap;
-  gap: 6px 10px;
-  align-items: center;
+  gap: 4px 8px;
+  align-items: baseline;
+  max-width: 100%;
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
+  color: var(--vp-c-text-2);
 }
 .dl-command code {
-  font-size: 13px;
-  padding: 6px 12px;
-  border-radius: 8px;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: var(--vp-c-text-1);
   background: var(--vp-c-bg-soft);
   user-select: all;
-  max-width: 100%;
-  overflow-x: auto;
+}
+/* A command wraps only between its words, never after the hyphen of a flag. */
+.dl-word {
   white-space: nowrap;
+}
+/* Korean keeps whole words in the guides' narrow table cells. */
+html[lang^="ko"] .vp-doc :is(td, th) {
+  word-break: keep-all;
 }
 .dl-retry {
   margin-left: 8px;
@@ -245,7 +253,8 @@ h3,
   margin: 24px 0;
 }
 /* The block keeps its own rhythm instead of the guide's paragraph margins. */
-.vp-doc .downloads > :is(p, details) {
+.vp-doc .downloads > :is(p, details),
+.vp-doc .dl-others summary {
   margin: 0;
 }
 

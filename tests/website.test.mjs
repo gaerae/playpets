@@ -74,7 +74,12 @@ test('the latest download offers the Store and winget on Windows and Homebrew on
   // A release page lists that release's files; the Store and the commands always install the latest.
   assert.match(downloads, /!props\.version && os\.value === 'Windows'/);
   const words = await read('website/.vitepress/theme/words.ts', 'utf8');
-  for (const key of ['storeFor:', 'storeNote:', 'commands:']) assert.equal(words.split(key).length - 1, 4, key);
+  for (const key of ['storeFor:', 'storeNote:', 'commands:', 'otherDownloads:'])
+    assert.equal(words.split(key).length - 1, 4, key);
+  // The command is the alternative to the main button, so it sits right under it.
+  assert.ok(downloads.indexOf('class="dl-command"') < downloads.indexOf('class="dl-others"'));
+  assert.match(downloads, /store \? words\.otherDownloads : words\.otherPlatforms/);
+  assert.match(downloads, /class="dl-word"/);
 });
 
 test('every install guide covers the Store, winget, Homebrew and direct files, with a download for the visitor', async () => {
@@ -87,6 +92,9 @@ test('every install guide covers the Store, winget, Homebrew and direct files, w
     assert.match(guide, /brew install gaerae\/tap\/playpets/, lang);
     assert.match(guide, /SmartScreen/, lang);
     assert.match(guide, /chmod \+x/, lang);
+    // Windows comes first, as the system with the most ways, and each warning sits with the files it is about.
+    assert.ok(guide.indexOf('## Windows') < guide.indexOf('## macOS'), lang);
+    assert.ok(guide.indexOf('::: warning') > guide.indexOf('{#installer-from-github}'), lang);
   }
 });
 

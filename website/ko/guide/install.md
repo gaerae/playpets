@@ -4,49 +4,15 @@ description: Microsoft Store, winget, Homebrew, 운영체제에 맞는 파일로
 
 # 설치하기
 
-- 아래 버튼은 지금 쓰는 운영체제에 맞는 파일을 골라 줘요. 다른 파일은 **다른 환경**에 있어요.
+- 아래 버튼은 지금 쓰는 운영체제에 맞는 설치 방법을 보여 줘요. 다른 파일은 그 아래 목록에 있어요.
 
 <Downloads />
 
-| 운영체제 | 설치 방법 | 코드 서명 |
-|---|---|---|
-| Windows | [Microsoft Store](#microsoft-store)(추천), [winget](#winget), [GitHub 설치 파일](#installer-from-github) | 스토어와 winget: Microsoft 서명. GitHub 설치 파일: 아직 없음 |
-| macOS | [Homebrew](#homebrew), [GitHub dmg](#dmg-from-github) | 아직 없음 |
-| Linux | [AppImage 또는 deb](#linux) | — |
-
-::: warning GitHub 파일에는 아직 코드 서명이 없어요
-- Microsoft Store 패키지는 Microsoft가 서명했고, winget도 같은 패키지를 설치해요.
-- GitHub의 Windows 설치 파일과 macOS dmg에는 아직 코드 서명이 없고, macOS 앱은 공증도 없어요. macOS 서명은 준비 중이에요.
-- Gatekeeper나 SmartScreen이 경고하거나 실행을 막을 수 있어요.
-- 이 검사만으로 파일이 안전하다고 확인되지는 않아요. 공식 릴리스 페이지에서 받은 파일을 신뢰할 때만 계속해 주세요.
-- 쓸 수 있는 버튼은 운영체제와 기기 정책에 따라 달라요.
-:::
-
-## macOS <Since v="0.1.0" /> {#macos}
-
-### Homebrew {#homebrew}
-
-```sh
-brew install gaerae/tap/playpets
-```
-
-- Homebrew도 GitHub 릴리스의 같은 dmg를 설치하므로, 아래의 처음 실행 순서가 똑같이 필요해요.
-- 업데이트는 dmg로 설치했을 때처럼 앱에서 받아요.
-
-### GitHub dmg {#dmg-from-github}
-
-| 파일 | 대상 |
+| 운영체제 | 설치 방법 |
 |---|---|
-| `PlayPets_버전_macos-universal.dmg` | Apple Silicon과 Intel 모두 |
-
-1. dmg를 열고 PlayPets를 응용 프로그램 폴더로 끌어 놓아요.
-2. PlayPets를 열어요. 개발자를 확인할 수 없거나 앱을 검증할 수 없다는 안내가 뜨면 닫아요.
-3. 시스템 설정 > 개인정보 보호 및 보안에서 PlayPets 안내와 **그래도 열기**를 찾아요.
-4. 버튼이 있고 받은 파일을 신뢰하면 **그래도 열기**를 눌러요. 인증을 요청하면 확인하고, 다음 안내에서 **열기**를 눌러요. macOS가 이 앱을 예외로 저장해요.
-
-- 이 순서는 [Apple의 안전하게 앱 열기 안내](https://support.apple.com/en-us/102445)를 따라요.
-- 컴퓨터를 손상시킨다는 경고는 개발자를 확인할 수 없다는 경고와 같은 경우로 다루지 마세요.
-- 관리되는 기기에서는 앱 실행이 제한될 수 있어요.
+| Windows | [Microsoft Store](#microsoft-store)(추천, Microsoft 서명), [winget](#winget), [GitHub 설치 파일](#installer-from-github) |
+| macOS | [Homebrew](#homebrew), [GitHub dmg](#dmg-from-github) |
+| Linux | [AppImage 또는 deb](#linux) |
 
 ## Windows <Since v="0.1.0" /> {#windows}
 
@@ -77,6 +43,11 @@ winget install --id 9NSKXQ6R187M --source msstore
 
 ### GitHub 설치 파일 {#installer-from-github}
 
+::: warning 이 설치 파일에는 아직 코드 서명이 없어요
+- SmartScreen이 경고하거나 실행을 막을 수 있어요. 경고 없이 설치하려면 [Microsoft Store](#microsoft-store)나 [winget](#winget)을 쓰세요.
+- 이 검사만으로 파일이 안전하다고 확인되지는 않아요. 공식 릴리스 페이지에서 받은 파일을 신뢰할 때만 계속해 주세요.
+:::
+
 | 파일 | 대상 |
 |---|---|
 | `PlayPets_버전_windows-x64-setup.exe` | 일반 PC(x64) 설치 파일 |
@@ -96,6 +67,38 @@ winget install --id 9NSKXQ6R187M --source msstore
 - Windows 빌드는 가상 머신에서 확인했고, 실제 기기에서는 아직 충분히 확인하지 않았어요.
 - 이상한 점은 [GitHub 이슈](https://github.com/gaerae/playpets/issues)로 알려 주세요.
 :::
+
+## macOS <Since v="0.1.0" /> {#macos}
+
+### Homebrew {#homebrew}
+
+```sh
+brew install gaerae/tap/playpets
+```
+
+- Homebrew도 GitHub 릴리스의 같은 dmg를 설치하므로, 아래의 처음 실행 순서가 똑같이 필요해요.
+- 업데이트는 dmg로 설치했을 때처럼 앱에서 받아요.
+
+### GitHub dmg {#dmg-from-github}
+
+::: warning macOS 앱에는 아직 코드 서명과 공증이 없어요
+- 처음 열 때 Gatekeeper가 경고하거나 실행을 막을 수 있어요. macOS 서명은 준비 중이에요.
+- 이 검사만으로 파일이 안전하다고 확인되지는 않아요. 공식 릴리스 페이지에서 받은 파일을 신뢰할 때만 계속해 주세요.
+- 쓸 수 있는 버튼은 운영체제와 기기 정책에 따라 달라요.
+:::
+
+| 파일 | 대상 |
+|---|---|
+| `PlayPets_버전_macos-universal.dmg` | Apple Silicon과 Intel 모두 |
+
+1. dmg를 열고 PlayPets를 응용 프로그램 폴더로 끌어 놓아요.
+2. PlayPets를 열어요. 개발자를 확인할 수 없거나 앱을 검증할 수 없다는 안내가 뜨면 닫아요.
+3. 시스템 설정 > 개인정보 보호 및 보안에서 PlayPets 안내와 **그래도 열기**를 찾아요.
+4. 버튼이 있고 받은 파일을 신뢰하면 **그래도 열기**를 눌러요. 인증을 요청하면 확인하고, 다음 안내에서 **열기**를 눌러요. macOS가 이 앱을 예외로 저장해요.
+
+- 이 순서는 [Apple의 안전하게 앱 열기 안내](https://support.apple.com/en-us/102445)를 따라요.
+- 컴퓨터를 손상시킨다는 경고는 개발자를 확인할 수 없다는 경고와 같은 경우로 다루지 마세요.
+- 관리되는 기기에서는 앱 실행이 제한될 수 있어요.
 
 ## Linux <Since v="0.1.0" /> {#linux}
 

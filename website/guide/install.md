@@ -4,49 +4,15 @@ description: Microsoft Store, winget, Homebrew or the file for your system, the 
 
 # Install
 
-- The button below picks the file for the system you are on. Other files are under **Other platforms**.
+- The button below offers the way to install for the system you are on. Every other file is in the list under it.
 
 <Downloads />
 
-| System | Ways to install | Code signing |
-|---|---|---|
-| Windows | [Microsoft Store](#microsoft-store) (recommended), [winget](#winget), [installer from GitHub](#installer-from-github) | Store and winget: signed by Microsoft. GitHub installer: not yet |
-| macOS | [Homebrew](#homebrew), [dmg from GitHub](#dmg-from-github) | Not yet |
-| Linux | [AppImage or deb](#linux) | — |
-
-::: warning The GitHub files are not code-signed yet
-- The Microsoft Store package is signed by Microsoft, and winget installs that same package.
-- The Windows installers and the macOS dmg on GitHub are not code-signed yet, and the macOS app is not notarized. macOS signing is in preparation.
-- Gatekeeper or SmartScreen may warn or block opening them.
-- These checks do not establish that the file is safe. Continue only if you trust the download from the official release page.
-- The available controls depend on your operating system and device policy.
-:::
-
-## macOS <Since v="0.1.0" /> {#macos}
-
-### Homebrew {#homebrew}
-
-```sh
-brew install gaerae/tap/playpets
-```
-
-- Homebrew installs the same dmg from GitHub releases, so the first-launch steps below apply too.
-- Updates come through the app, as with the dmg.
-
-### dmg from GitHub {#dmg-from-github}
-
-| File | For |
+| System | Ways to install |
 |---|---|
-| `PlayPets_version_macos-universal.dmg` | Both Apple Silicon and Intel |
-
-1. Open the dmg and drag PlayPets into the Applications folder.
-2. Try opening PlayPets. If macOS reports an unidentified developer or says it cannot verify the app, close the alert.
-3. Go to System Settings > Privacy & Security. Look for the note about PlayPets and **Open Anyway**.
-4. If that option is there and you trust the download: click **Open Anyway**, authenticate if asked, then click **Open** in the next alert. macOS saves an exception for the app.
-
-- These steps follow [Apple's guide to safely opening apps](https://support.apple.com/en-us/102445).
-- If macOS says the app will damage your computer, that is not an unidentified-developer warning.
-- Managed devices may restrict opening apps.
+| Windows | [Microsoft Store](#microsoft-store) (recommended, signed by Microsoft), [winget](#winget), [installer from GitHub](#installer-from-github) |
+| macOS | [Homebrew](#homebrew), [dmg from GitHub](#dmg-from-github) |
+| Linux | [AppImage or deb](#linux) |
 
 ## Windows <Since v="0.1.0" /> {#windows}
 
@@ -77,6 +43,11 @@ winget install --id 9NSKXQ6R187M --source msstore
 
 ### Installer from GitHub {#installer-from-github}
 
+::: warning This installer is not code-signed yet
+- SmartScreen may warn or block opening it. To install without the warning, use the [Microsoft Store](#microsoft-store) or [winget](#winget).
+- These checks do not establish that the file is safe. Continue only if you trust the download from the official release page.
+:::
+
 | File | For |
 |---|---|
 | `PlayPets_version_windows-x64-setup.exe` | Installer for regular PCs (x64) |
@@ -97,6 +68,38 @@ winget install --id 9NSKXQ6R187M --source msstore
 - The Windows build was checked in a virtual machine, but not tested enough on real machines yet.
 - If something looks wrong, tell us in a [GitHub issue](https://github.com/gaerae/playpets/issues).
 :::
+
+## macOS <Since v="0.1.0" /> {#macos}
+
+### Homebrew {#homebrew}
+
+```sh
+brew install gaerae/tap/playpets
+```
+
+- Homebrew installs the same dmg from GitHub releases, so the first-launch steps below apply too.
+- Updates come through the app, as with the dmg.
+
+### dmg from GitHub {#dmg-from-github}
+
+::: warning The macOS app is not code-signed or notarized yet
+- Gatekeeper may warn or block opening it the first time. macOS signing is in preparation.
+- These checks do not establish that the file is safe. Continue only if you trust the download from the official release page.
+- The available controls depend on your operating system and device policy.
+:::
+
+| File | For |
+|---|---|
+| `PlayPets_version_macos-universal.dmg` | Both Apple Silicon and Intel |
+
+1. Open the dmg and drag PlayPets into the Applications folder.
+2. Try opening PlayPets. If macOS reports an unidentified developer or says it cannot verify the app, close the alert.
+3. Go to System Settings > Privacy & Security. Look for the note about PlayPets and **Open Anyway**.
+4. If that option is there and you trust the download: click **Open Anyway**, authenticate if asked, then click **Open** in the next alert. macOS saves an exception for the app.
+
+- These steps follow [Apple's guide to safely opening apps](https://support.apple.com/en-us/102445).
+- If macOS says the app will damage your computer, that is not an unidentified-developer warning.
+- Managed devices may restrict opening apps.
 
 ## Linux <Since v="0.1.0" /> {#linux}
 
