@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { LANDING_PETS } from '../../../scripts/site-content.mjs';
+import { lookFrame } from '../../../src/core/animation.js';
 import VisibleSprite from './VisibleSprite.vue';
 
 const props = defineProps<{
@@ -37,6 +38,75 @@ const pose = ref('idle');
 const tabVisible = ref(true);
 const poses = ['idle', 'wave', 'jump'];
 const selectedFriend = computed(() => LANDING_PETS.find(pet => pet.id === selected.value));
+// Each friend strolls a little way around its own spot (a share of the scene's width), so the
+// four never bump into each other.
+const HOMES = [20, 41, 62, 82];
+const spots = ref([...HOMES]);
+const strides = ref(HOMES.map(() => 0));
+const walking = ref<Record<string, string>>({});
+const gazes = ref<Record<string, { state: string; frame: number }>>({});
+const friendElements: HTMLElement[] = [];
+const reducedMotion = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+const still = computed(() => props.paused || !visible.value || !tabVisible.value);
+let strollTimer: ReturnType<typeof setTimeout> | undefined;
+let gazeTimer: ReturnType<typeof setTimeout> | undefined;
+let lookPending = false;
+const arrivals = new Map<string, ReturnType<typeof setTimeout>>();
+function poseOf(id: string) {
+  if (greeted.value === id) return { state: pose.value };
+  if (walking.value[id]) return { state: walking.value[id] };
+  return gazes.value[id] ?? { state: 'idle' };
+}
+function stroll() {
+  const resting = LANDING_PETS.map((pet, index) => ({ pet, index })).filter(
+    ({ pet }) => !walking.value[pet.id] && greeted.value !== pet.id,
+  );
+  if (!still.value && !reducedMotion() && resting.length) {
+    const { pet, index } = resting[Math.floor(Math.random() * resting.length)];
+    const target = HOMES[index] + Math.round((Math.random() * 2 - 1) * 8);
+    const distance = Math.abs(target - spots.value[index]);
+    if (distance >= 2) {
+      // About five percent of the scene a second, the pace of a stroll in the yard.
+      strides.value[index] = distance / 5;
+      walking.value = { ...walking.value, [pet.id]: target > spots.value[index] ? 'right' : 'left' };
+      spots.value[index] = target;
+      arrivals.set(
+        pet.id,
+        setTimeout(() => {
+          const { [pet.id]: _, ...rest } = walking.value;
+          walking.value = rest;
+        }, strides.value[index] * 1000),
+      );
+    }
+  }
+  strollTimer = setTimeout(stroll, 2600 + Math.random() * 3400);
+}
+// Friends turn their heads toward the pointer with the app's own gaze rows.
+function look(event: PointerEvent) {
+  clearTimeout(gazeTimer);
+  if (lookPending) return;
+  lookPending = true;
+  requestAnimationFrame(() => {
+    lookPending = false;
+    const next: Record<string, { state: string; frame: number }> = {};
+    LANDING_PETS.forEach((pet, index) => {
+      const box = friendElements[index]?.getBoundingClientRect();
+      if (!box) return;
+      const dx = event.clientX - (box.left + box.width / 2),
+        dy = event.clientY - (box.top + box.height * 0.3);
+      if (Math.abs(dx) < box.width / 2 && Math.abs(dy) < box.height / 2) return;
+      const { row, column } = lookFrame(dx, dy);
+      if (row) next[pet.id] = { state: `look-${row - 9}`, frame: column };
+    });
+    gazes.value = next;
+  });
+}
+function lookAway() {
+  clearTimeout(gazeTimer);
+  gazeTimer = setTimeout(() => {
+    gazes.value = {};
+  }, 900);
+}
 function tabChanged() {
   tabVisible.value = !document.hidden;
 }
@@ -69,20 +139,24 @@ onMounted(() => {
     visible.value = entries.some(entry => entry.isIntersecting);
   });
   observer.observe(stage.value);
+  strollTimer = setTimeout(stroll, 1800);
 });
 onBeforeUnmount(() => {
   observer?.disconnect();
   document.removeEventListener('visibilitychange', tabChanged);
   clearTimeout(greetingTimer);
+  clearTimeout(strollTimer);
+  clearTimeout(gazeTimer);
+  for (const timer of arrivals.values()) clearTimeout(timer);
 });
 </script>
 <template>
   <div class="world-preview">
     <div class="world-picker"><div><h2>{{ words.worldsTitle }}</h2><p>{{ words.worldsLead }}</p></div></div>
-    <div ref="stage" class="living-world" :class="{ 'preview-paused': paused || !visible || !tabVisible, indoors: place === 3 }">
+    <div ref="stage" class="living-world" :class="{ 'preview-paused': still, indoors: place === 3 }" @pointermove="look" @pointerleave="lookAway">
       <img class="living-scenery" :src="image" :alt="words.places[place]" width="1536" height="1024" fetchpriority="high" draggable="false" />
       <div class="living-friends">
-        <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :aria-label="`${pet.displayName}, ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="greeted === pet.id ? pose : 'idle'" :scale="0.65" /><span class="living-name">{{ pet.displayName }}</span></button>
+        <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" :ref="element => { friendElements[index] = element as HTMLElement }" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :style="{ left: `${spots[index]}%`, transitionDuration: `${strides[index]}s` }" :aria-label="`${pet.displayName}, ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><span v-if="greeted === pet.id" class="living-bubble" aria-hidden="true">{{ words.greetings[pet.id] }}</span><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="poseOf(pet.id).state" :frame="poseOf(pet.id).frame" :scale="0.65" /><span class="living-name">{{ pet.displayName }}</span></button>
       </div>
       <button class="world-motion" type="button" :aria-pressed="paused" @click="emit('pause')">{{ paused ? words.resume : words.pause }}</button>
     </div>

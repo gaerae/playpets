@@ -354,20 +354,6 @@ html[lang^="ja"] .landing {
   display: block;
   margin-top: 10px;
 }
-.tool-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  list-style: none;
-  margin: 0 0 20px;
-  padding: 0;
-}
-.tool-chips li {
-  font-size: 13px;
-  padding: 5px 12px;
-  border-radius: 100px;
-  background: var(--world-lilac);
-}
 .feature .work-note {
   font-size: 13px;
   opacity: 0.8;
@@ -688,19 +674,17 @@ html[lang^="ja"] .landing {
 .living-friend:hover {
   transform: translateX(-50%) translateY(-3px);
 }
+.living-friend {
+  transition-property: left;
+  transition-timing-function: linear;
+}
 .friend-0 {
-  left: 20%;
   bottom: 12%;
 }
-.friend-1 {
-  left: 41%;
-}
 .friend-2 {
-  left: 62%;
   bottom: 14%;
 }
 .friend-3 {
-  left: 82%;
   bottom: 10%;
 }
 .living-name {
@@ -845,10 +829,322 @@ html[lang^="ja"] .landing {
     position: relative;
     background: var(--world-paper);
   }
-  /* Speech bubbles stay readable on a phone when the capture is cropped to the friends. */
-  .together-story .feature-shot img {
-    aspect-ratio: 1;
-    object-fit: cover;
-    object-position: 52% 62%;
+}
+
+/* ---- speech bubbles, shared by the first screen and the chat demo ---- */
+.living-bubble,
+.chat-bubble,
+.agent-bubble {
+  width: max-content;
+  border-radius: 16px;
+  background: #fffffff5;
+  color: #28443d;
+  line-height: 1.45;
+  text-align: left;
+  box-shadow: 0 6px 18px #17382b24;
+  animation: bubble-in 0.28s ease-out;
+}
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+.living-bubble {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 220px;
+  padding: 8px 12px;
+  font-size: 13px;
+  white-space: normal;
+}
+.friend-0 .living-bubble {
+  left: 0;
+  transform: none;
+}
+.friend-3 .living-bubble {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+/* ---- the chat demo (ChatDemo.vue) ---- */
+.chat-demo,
+.agent-demo {
+  margin: 0;
+  min-width: 0;
+}
+.chat-stage {
+  position: relative;
+  /* Bubble tails point at their speaker in units of the scene's width. */
+  container-type: inline-size;
+  aspect-ratio: 1.45;
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--world-lilac);
+  box-shadow: 0 18px 50px #17382b14;
+}
+.chat-scenery {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.chat-friend {
+  position: absolute;
+  bottom: 8%;
+  display: grid;
+  justify-items: center;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 5px 3px #33493025);
+}
+.chat-name {
+  margin-top: -6px;
+  padding: 1px 9px;
+  border-radius: 100px;
+  background: #ffffffe0;
+  color: #28443d;
+  font-size: 11px;
+}
+/* Bubbles stack from just above the friends' heads, the newest lowest. */
+.chat-bubbles {
+  position: absolute;
+  inset: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+.chat-bubble {
+  position: relative;
+  max-width: 48%;
+  margin: 0;
+  padding: 9px 13px;
+  font-size: 13px;
+}
+.chat-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: var(--tail-left, auto);
+  right: var(--tail-right, auto);
+  width: 11px;
+  height: 11px;
+  background: inherit;
+  rotate: 45deg;
+}
+.chat-bubble.older {
+  opacity: 0.78;
+}
+.chat-bubble.older::after {
+  display: none;
+}
+.demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 14px 4px 0;
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+}
+.demo-button {
+  min-height: 40px;
+  padding: 9px 18px;
+  border-radius: 100px;
+  background: #284d46;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.demo-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ---- the coding demo (AgentDemo.vue): a friend sitting on a terminal window ---- */
+.agent-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.agent-tabs button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 100px;
+  border: 1px solid #80999060;
+  font-size: 13px;
+}
+.agent-tabs button[aria-pressed="true"] {
+  color: #fff;
+  background: #284d46;
+  border-color: #284d46;
+}
+.agent-desk {
+  position: relative;
+  padding-top: 143px;
+}
+.agent-friend {
+  position: absolute;
+  top: 0;
+  right: 6%;
+  z-index: 1;
+  display: grid;
+  justify-items: end;
+  filter: drop-shadow(0 5px 3px #33493025);
+}
+.agent-bubble {
+  position: relative;
+  /* Tucks into the empty top of the sprite's cell so the words sit just over the head. */
+  margin: 0 0 -14px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.agent-bubble.quiet {
+  visibility: hidden;
+}
+.agent-friend > .sprite {
+  margin-right: 14px;
+}
+.agent-tag {
+  margin-top: -8px;
+  padding: 2px 10px;
+  border-radius: 100px;
+  background: #ffffffeb;
+  color: #28443d;
+  font-size: 11px;
+}
+.agent-window {
+  border-radius: 18px;
+  overflow: hidden;
+  background: #1d2926;
+  color: #d8e6de;
+  box-shadow: 0 18px 50px #17382b24;
+}
+.dark .agent-window {
+  box-shadow: 0 0 0 1px #ffffff14;
+}
+.agent-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #263633;
+  color: #9fb5ab;
+  font-size: 12px;
+}
+.agent-bar i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3e544e;
+}
+.agent-bar span {
+  margin-left: 8px;
+}
+.agent-log {
+  min-height: 236px;
+  padding: 14px 18px 18px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 13px;
+}
+.agent-log > div {
+  line-height: 1.75;
+}
+.agent-prompt {
+  color: #f2d39b;
+}
+.agent-caret {
+  display: inline-block;
+  width: 7px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: #f2d39b;
+  animation: caret-blink 1s steps(1) infinite;
+}
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.agent-ask {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  color: #f2d39b;
+}
+.agent-allow {
+  min-height: 32px;
+  padding: 3px 14px;
+  border-radius: 100px;
+  background: #8fc27a;
+  color: #14231e;
+  font-size: 12px;
+  font-weight: 700;
+  animation: allow-pulse 1.4s ease-in-out infinite;
+}
+@keyframes allow-pulse {
+  50% {
+    box-shadow: 0 0 0 5px #8fc27a40;
+  }
+}
+.agent-allowed {
+  color: #8fc27a;
+}
+.agent-reply {
+  margin-top: 8px;
+  color: #fff;
+  font-family: var(--vp-font-family-base);
+}
+@media (max-width: 640px) {
+  .chat-stage {
+    aspect-ratio: 1.05;
+    border-radius: 20px;
+  }
+  .chat-friend .sprite {
+    --display-scale: 0.4;
+  }
+  .chat-bubbles {
+    bottom: 34%;
+  }
+  .chat-bubble {
+    max-width: 62%;
+    font-size: 12px;
+    padding: 7px 11px;
+  }
+  .living-bubble {
+    max-width: 150px;
+    font-size: 12px;
+  }
+  .agent-log {
+    min-height: 250px;
+    padding: 12px 14px 16px;
+    font-size: 12px;
+  }
+  .agent-friend {
+    right: 3%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .living-friend {
+    transition: none;
+  }
+  .living-bubble,
+  .chat-bubble,
+  .agent-bubble,
+  .agent-caret,
+  .agent-allow {
+    animation: none;
   }
 }

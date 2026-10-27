@@ -103,6 +103,10 @@ h3,
   background-position-y: calc(var(--row) * -208px);
   animation: sprite-row var(--loop) steps(var(--frames)) infinite;
 }
+.sprite-still i {
+  animation: none;
+  background-position-x: calc(var(--frame) * -192px);
+}
 @keyframes sprite-row {
   to {
     background-position-x: calc(var(--frames) * -192px);
