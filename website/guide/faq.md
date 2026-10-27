@@ -8,9 +8,10 @@
 
 ## Does it work with Codex pets?
 
-- Yes. PlayPets reads Codex pet files as they are: a folder with a `pet.json` and a sprite sheet, with all nine actions and sixteen look directions.
+- "Codex pet" is what people call the custom pets made for ChatGPT and Codex. OpenAI calls the feature Pets.
+- Yes. PlayPets reads Codex pet files as they are: a folder with a `pet.json` and a sprite sheet. It plays every action, and the sixteen look directions when the sheet has them.
 - Pets in Codex's pet folder (`~/.codex/pets`) show up on their own. [Bring in more](./import.md) from community sites, a GitHub folder or a folder on your computer.
-- You don't need Codex. If you use the ChatGPT app, keep your pet there too; PlayPets reads the same folder.
+- You don't need Codex. If you use the ChatGPT desktop app, keep your pet there too; PlayPets reads the same pet files.
 
 ## Does it cost anything?
 

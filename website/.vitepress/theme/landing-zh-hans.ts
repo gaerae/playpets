@@ -1,5 +1,5 @@
 export const copy = {
-  diffNote: 'Codex 是 OpenAI 的商标。PlayPets 是一款读取同样宠物文件的独立开源应用。',
+  diffNote: 'ChatGPT 和 Codex 是 OpenAI 的商标。PlayPets 是一款读取同样宠物文件的独立开源应用。',
   chatAlt: '和伙伴聊天的画面',
   github: '在 GitHub 上查看',
   guide: '查看使用指南',
@@ -33,7 +33,10 @@ export const worldCopy = {
   title: ['你的 Codex 宠物，', '齐聚同一个乐园。'],
   lead: '直接读取你已有的 Codex 宠物，或请来 PlayPets 自带的四位伙伴。最多 12 位一起玩，用你选的 AI 聊天，写代码时在一旁打气。',
   worldsTitle: '先在这里玩一玩。',
-  worldsLead: '选个地点和季节，再跟伙伴打声招呼。',
+  worldsLead: '打开乐园窗口，或把伙伴放到桌面上，再跟它们打声招呼。',
+  viewLabel: '伙伴所在的地方',
+  views: ['乐园窗口', '桌面'],
+  desktopNote: '在桌面上，伙伴们会待在其他窗口前面。地点和季节请在乐园窗口里选。',
   sceneLabel: '选择地点和季节',
   pause: '暂停动画',
   resume: '播放动画',
@@ -46,16 +49,20 @@ export const worldCopy = {
 };
 export const sections = {
   compare: {
-    caption: '宠物功能：Codex 宠物文件自带的，以及 PlayPets 增加的',
+    caption: '宠物功能：Codex 宠物本身能做的，以及 PlayPets 增加的',
     head: ['Codex 宠物', '在 PlayPets 里'],
     rows: [
-      ['宠物文件', 'pet.json 和精灵图', '同一个文件，原样读取'],
-      ['动作', '9 种动作，16 个视线方向', '全部保留，还会在乐园和桌面上散步'],
+      ['宠物文件', '用 hatch-pet 技能制作或上传的精灵图', '同一只宠物，原样读取'],
+      [
+        '动作',
+        '用动画显示运行中、需要输入、已就绪、受阻等状态',
+        '精灵图里的所有动作和视线方向，还会在乐园和桌面上散步',
+      ],
       ['同时在场', '一次一只', '最多 12 只一起'],
-      ['聊天', '显示任务状态', '通过你选的 AI 和你聊，也和其他宠物聊'],
+      ['聊天', '从桌面开始一段对话', '通过你选的 AI 和你聊，也和其他宠物聊'],
       [
         '编码工具',
-        'Codex，所有对话由一只宠物显示',
+        '一只宠物显示 ChatGPT 和 Codex 对话的进度',
         '每个工具由各自的宠物汇报：Claude Code、Codex、Gemini CLI、Cursor 及 MCP 工具',
       ],
       ['场景', '—', '四个场景或你自己做的背景，时间、天气、季节都会变'],
@@ -67,7 +74,7 @@ export const sections = {
   },
   codexPlusTitle: ['ChatGPT 里的宠物照常用，', '更多伙伴交给 PlayPets。'],
   codexPlusLead:
-    '同一份 Codex 宠物文件，两边都能用。在 ChatGPT 里，一只宠物陪你看 Codex 干活；在 PlayPets 里，最多 12 位伙伴聚在一起互相聊天，还会响应 Claude Code、Gemini CLI、Cursor。',
+    '为 ChatGPT 和 Codex 制作的宠物，在 PlayPets 里也能直接用。在 ChatGPT 桌面应用里，一只宠物显示对话进度；在 PlayPets 里，最多 12 位伙伴聚在一起互相聊天，还会响应 Claude Code、Gemini CLI、Cursor。',
   codexPlusLink: '带来你的 Codex 宠物',
   discoveryGuide: '看看都能发现什么',
   galleryCreate: '用这位伙伴来创作',

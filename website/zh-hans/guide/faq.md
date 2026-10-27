@@ -8,9 +8,10 @@
 
 ## 能用 Codex 宠物吗？
 
-- 能。PlayPets 原样读取 Codex 宠物文件：一个装有 `pet.json` 和精灵图的文件夹就是一只宠物，九种动作和十六个视线方向都能用。
+- “Codex 宠物”是大家对为 ChatGPT 和 Codex 制作的自定义宠物的叫法，OpenAI 把这个功能叫作 Pets。
+- 能。PlayPets 原样读取 Codex 宠物文件：一个装有 `pet.json` 和精灵图的文件夹就是一只宠物。所有动作都能用；精灵图里有视线方向时，十六个方向也都能用。
 - Codex 宠物文件夹（`~/.codex/pets`）里的宠物会自动出现。还可以从社区网站、GitHub 文件夹或电脑上的文件夹[带来更多](./import.md)。
-- 不需要 Codex。如果你在用 ChatGPT 应用，那边的宠物照常用就好；PlayPets 读取的是同一个文件夹。
+- 不需要 Codex。如果你在用 ChatGPT 桌面应用，那边的宠物照常用就好；PlayPets 读取的是同样的宠物文件。
 
 ## 要花钱吗？
 

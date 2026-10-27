@@ -29,3 +29,10 @@ Before launch (2026-10-05), we looked at open-source desktop pet apps that react
 - PlayPets is shown as company for the ChatGPT app's pet, not a replacement: keep one pet there and bring the whole group, other coding agents included, to PlayPets.
 - "More motions" is said only as what is true: pet files keep Codex's nine actions and sixteen look directions; the four starter pets add digging, planting, fishing and seasonal outfits.
 - Still true: the app, the domain and badges are not named after Codex pets. The landing says once that Codex is OpenAI's trademark and PlayPets is independent; the README keeps its trademark line.
+
+## Follow-up: OpenAI's own names (2026-10-28)
+
+- OpenAI's guide calls the feature Pets and a made one a custom pet; it never says "Codex pet". The site keeps "Codex pet" as the name people search for and says once, in the FAQ, what it means.
+- The Codex column of the features table repeats only what that guide says: a sprite sheet made with the hatch-pet skill or uploaded, the Running, Needs input, Ready and Blocked states, starting a chat, and following ChatGPT and Codex threads.
+- The guide's custom sheet is 1536 × 1872 with no look directions, so the sixteen look directions are claimed only for sheets that have them.
+- ChatGPT is named with Codex wherever the trademark line appears on the site and in the README.

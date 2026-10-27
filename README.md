@@ -26,8 +26,8 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 </div>
 
 ## Why PlayPets
-- 🐾 Reads Codex pet files as they are, with all nine actions and sixteen look directions. Codex is not needed.
-- 👥 Up to 12 friends at once, in the yard and out on your desktop. Keep your pet in the ChatGPT app too: both read the same files.
+- 🐾 Reads Codex pet files (the custom pets made for ChatGPT and Codex) as they are: every action, and the sixteen look directions when the sheet has them. Codex is not needed.
+- 👥 Up to 12 friends at once, in the yard and out on your desktop. Keep your pet in the ChatGPT desktop app too: both read the same pet files.
 - 💬 They chat with you, and with each other, through the AI you pick.
 - 🧑‍💻 They react to Claude Code, Codex, Gemini CLI, Cursor and other MCP tools.
 - 🏡 A yard of their own: four places or your own backgrounds, gifts like a swing or a pond, three games, a garden, fishing and an album.
@@ -255,5 +255,5 @@ website/          The site (VitePress): landing page, user guide and release pag
 
 ## Trademarks
 - PlayPets is not affiliated with or endorsed by OpenAI.
-- Codex is a trademark of OpenAI. Claude, Gemini, Cursor and Ollama are trademarks of their companies.
+- ChatGPT and Codex are trademarks of OpenAI. Claude, Gemini, Cursor and Ollama are trademarks of their companies.
 - PlayPets only reads the Codex pet file format.
