@@ -21,8 +21,7 @@ export const copy = {
   meet: '友だちを見てみる',
   finalTitle: '明日も、ここで会いましょう。',
   developerTitle: '作ってみたい人へ',
-  developerBody:
-    'ソースコードを公開しています。コーディングツールをつなぐと、作業中、確認待ち、完了に友だちが反応します。',
+  developerBody: 'PlayPetsはMITライセンスのオープンソースです。仕組みを読んだり、一緒に作ったりできます。',
   developerLink: '開発ガイドを読む',
   privacyTitle: '私の情報はどこに保存されますか？',
   privacyBody:
@@ -44,7 +43,7 @@ export const worldCopy = {
   previewNote: 'アプリの背景と仲間を使ったプレビューです。友だちを押すと手を振ります。遊びや天気はアプリで楽しめます。',
   greet: '挨拶する',
   title: ['帰ってきたくなる、', '小さな世界。'],
-  lead: '散歩したり、花を育てたり、少しおしゃべりしたり。忙しい一日の片隅に、友だちの居場所を。',
+  lead: '小さな友だちが庭で遊び、選んだAIであなたとも友だち同士でもおしゃべりします。作業中もそばにいます。',
   worldsTitle: '今日は、どこでひと休み？',
   worldsLead: '好きな居場所を見つけて、季節を変えたり、友だちに挨拶したり。',
   sceneLabel: '場所と季節を選ぶ',
@@ -95,4 +94,18 @@ export const sections = {
   connectionDetails: '会話の設定と料金について',
   connectionSetup:
     'ローカルOllama、ログイン済みのClaude CodeやCodex CLI、OpenAI互換サーバーを使えます。CLIはプランの利用枠を使い、APIサーバーには別の料金がかかる場合があります。',
+  heroFacts: ['無料のオープンソース（MIT）', 'macOS、Windows、Linux', '4か国語に対応'],
+  miniDesktop: 'デスクトップに出してみる',
+  togetherTitle: '友だち同士でも話します。',
+  togetherBody:
+    '会話に別の友だちを呼んだり、おしゃべりを押して聞いてみたり。あなたが作業している間、庭に吹き出しが浮かびます。',
+  togetherLink: 'みんなで話す方法',
+  togetherAlt: '庭で吹き出しで話す友だちと、名前の横に出る担当のコーディングツール',
+  workTitle: 'コーディング中も、そばに。',
+  workBody:
+    'コーディングツールからの知らせに友だちが反応します。Claude CodeとGemini CLIは各ステップ、Cursorは編集と完了、Codexはターンの終わりに伝えます。「何してたの？」と聞くと、最近の作業を短く話してくれます。',
+  workNote:
+    '接続はこのコンピューターの中だけで行われます。フックはプロンプトやツールの入力を送りませんが、短い状況報告に作業の内容が含まれることがあります。',
+  workAlt: 'エージェントごとに担当の友だちを決めるコーディングツールの設定',
+  brewLabel: 'macOSならHomebrewで',
 };

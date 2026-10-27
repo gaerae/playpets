@@ -20,7 +20,7 @@ export const copy = {
   meet: '先认识伙伴',
   finalTitle: '明天，也在这里见。',
   developerTitle: '给想动手创造的人',
-  developerBody: '源代码已开放。连接编程工具后，工作开始、等待确认或完成时，伙伴会做出回应。',
+  developerBody: 'PlayPets 以 MIT 许可证开源。可以看看它是怎么做的，也欢迎一起参与。',
   developerLink: '阅读开发文档',
   privacyTitle: '我的信息存在哪里？',
   privacyBody:
@@ -42,7 +42,7 @@ export const worldCopy = {
   previewNote: '使用应用背景和角色制作的互动预览。点击伙伴，它会挥手。游戏与天气请在应用中体验。',
   greet: '打招呼',
   title: ['想回来的地方，', '有小小的伙伴。'],
-  lead: '一起散步、种花，偶尔聊聊天。在忙碌的一天里，为小伙伴留个位置。',
+  lead: '小伙伴们在乐园里玩耍，用你选的 AI 和你聊天，也彼此聊天。你工作时，它们也陪在身边。',
   worldsTitle: '今天，想在哪里歇一会儿？',
   worldsLead: '找个喜欢的角落，换个季节，和伙伴打声招呼。',
   sceneLabel: '选择地点与季节',
@@ -87,4 +87,16 @@ export const sections = {
   connectionDetails: '了解聊天设置与费用',
   connectionSetup:
     '选择本地 Ollama、已登录的 Claude Code 或 Codex CLI，或兼容 OpenAI 的服务器。CLI 使用受订阅额度限制；API 服务器可能另行收费。',
+  heroFacts: ['免费开源（MIT）', 'macOS、Windows、Linux', '支持 4 种语言'],
+  miniDesktop: '让它们到桌面上走走',
+  togetherTitle: '伙伴之间也会聊天。',
+  togetherBody: '把别的伙伴拉进对话，或者点聊聊天，听它们说话。你忙自己的事时，乐园里会冒出一个个对话气泡。',
+  togetherLink: '一起聊天的方法',
+  togetherAlt: '在乐园里用对话气泡聊天的伙伴，名字旁边显示负责的编码工具',
+  workTitle: '写代码时，也有人陪。',
+  workBody:
+    '伙伴会对编码工具发来的消息做出反应：Claude Code 和 Gemini CLI 每一步都会告诉它，Cursor 在编辑和完成时，Codex 在每轮结束时。问一句“刚才在做什么？”，它会简单说说最近的工作。',
+  workNote: '连接只在这台电脑上进行。钩子不会发送你的提示词和工具输入，但简短的状态通知可能会提到你的工作内容。',
+  workAlt: '为每个代理指定负责伙伴的编码工具设置',
+  brewLabel: 'macOS 可用 Homebrew',
 };
