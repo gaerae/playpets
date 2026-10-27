@@ -41,12 +41,12 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 | Companions | Daisy, Clover (main mascot), Pip and Miso, with summer and winter outfits; or community pet files |
 | Relationships | Friend, Partner, Dependable mentor, Playful younger sibling |
 | Conversations | Chat with one friend, bring others in, or let them talk among themselves |
-| AI connections | Signed-in Claude Code or Codex CLI, local Ollama, or an OpenAI-compatible server; one AI per friend |
+| AI connections | Signed-in Claude Code or Codex CLI, local Ollama, an OpenAI or Grok (xAI) API key, or an OpenAI-compatible server; one AI per friend |
 | Places | Four places and imported backgrounds; season, time and weather controls |
 | Play | Hide and seek, parade, tag |
 | Garden and album | Dig for seeds, saplings and keepsakes; plant; fish and catch bugs |
 | Desktop mode | Pets stroll the desktop (on macOS, over full-screen apps too) |
-| Coding company | Hooks and MCP for Claude Code, Codex, Gemini CLI, Cursor and other MCP tools |
+| Coding company | Hooks and MCP for Claude Code, Codex, Gemini CLI, Cursor, Grok Build and other MCP tools |
 | Languages | English, Korean, Japanese, Simplified Chinese |
 
 <details>
@@ -56,7 +56,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
   - Claude Code or Codex CLI: uses your subscription allowance; paid extra usage can still apply.
   - API-key CLI sign-in: billed separately.
   - Ollama: runs on your computer, no hosted inference fees.
-  - OpenAI and compatible APIs: the provider's billing.
+  - OpenAI, xAI (Grok) and compatible APIs: the provider's billing.
 - **Friends talk to each other**
   - When the AI brings in another connected friend, they answer in turn.
   - **Let them chat** under **Play → Group games** keeps them talking.
@@ -127,10 +127,11 @@ brew install gaerae/tap/playpets
 | Codex CLI | `~/.codex/config.toml`, at the top | A note when a turn ends |
 | Gemini CLI | `~/.gemini/settings.json` | Reports every step through hooks |
 | Cursor | `~/.cursor/hooks.json` | Reports edits, commands and completion (observe-only hooks) |
+| Grok Build | `~/.grok/hooks/playpets.json`, a new file | Reports every step through hooks |
 | Other MCP tools | The tool's MCP settings | `set_pet_state`, `say`, `react`, `list_pets` |
 
 ```
-playpets hook claude|gemini|cursor   # hooks (stdin JSON, always exit code 0; prints {} for Gemini and Cursor)
+playpets hook claude|gemini|cursor|grok   # hooks (stdin JSON, always exit code 0; prints {} for Gemini and Cursor)
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP stdio server
 playpets status <state> [message]   [--pet name|ID] [--bridge file]
@@ -255,5 +256,5 @@ website/          The site (VitePress): landing page, user guide and release pag
 
 ## Trademarks
 - PlayPets is not affiliated with or endorsed by OpenAI.
-- ChatGPT and Codex are trademarks of OpenAI. Claude, Gemini, Cursor and Ollama are trademarks of their companies.
+- ChatGPT and Codex are trademarks of OpenAI. Claude, Gemini, Cursor, Grok and Ollama are trademarks of their companies.
 - PlayPets only reads the Codex pet file format.

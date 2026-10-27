@@ -35,6 +35,12 @@ const providerForms = {
     modelRequired: true,
     placeholder: t('connection.model_placeholder'),
   },
+  xai: {
+    endpoint: false,
+    key: true,
+    modelRequired: true,
+    placeholder: t('connection.model_placeholder'),
+  },
   compatible: {
     endpoint: true,
     key: true,

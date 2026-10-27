@@ -4,7 +4,7 @@ description: Let your friend follow a coding agent's work, with the settings to 
 
 # Coding agent hooks
 
-While a coding agent works, your friend reacts along with it. This works with Claude Code, Codex CLI, Gemini CLI, Cursor and similar tools.
+While a coding agent works, your friend reacts along with it. This works with Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build and similar tools.
 
 Setup is one piece of settings you copy and paste. You don't need Node.js.
 
@@ -42,7 +42,7 @@ PLAYPETS_PET=Pip claude
 - In PowerShell: `$env:PLAYPETS_PET="Clover"; claude`.
 - `PLAYPETS_PET` takes a friend's name or ID, like `--pet`.
 - A friend picked under **Reacting friend** is written into the settings (`--pet`) and wins over `PLAYPETS_PET`.
-- This works for agents you start from a terminal: Claude Code, Codex CLI and Gemini CLI. Cursor runs its hooks from the Cursor app, so it reports to one friend.
+- This works for agents you start from a terminal: Claude Code, Codex CLI, Gemini CLI and Grok Build. Cursor runs its hooks from the Cursor app, so it reports to one friend.
 
 ## What you see in the yard <Since v="0.1.0" />
 
@@ -85,18 +85,20 @@ Your friend remembers up to 8 recent activities. Ask "what were you doing?" in t
 | Codex CLI | At the top of `~/.codex/config.toml` | Reports when a task finishes |
 | Gemini CLI | `~/.gemini/settings.json` | Reports every step through hooks |
 | Cursor | `~/.cursor/hooks.json` | Reports edits, commands and completion. Only observe-only hooks are used |
+| Grok Build | `~/.grok/hooks/playpets.json`, saved as a new file | Reports every step through hooks |
 | Other MCP tools | The tool's MCP settings | The AI sends status and speech bubbles itself with the `set_pet_state`, `say`, `react` and `list_pets` tools |
 
 - The copied piece holds the path to the PlayPets executable. That executable is the hook command itself, so there's nothing else to install.
 - Moved the app? Copy and paste the settings again.
 - If the file already has a `hooks` or `mcpServers` entry, merge the piece into that entry.
+- Grok Build also runs your Claude Code and Cursor hooks. Its work shows only on the Grok Build friend.
 
 ## From the terminal <Since v="0.1.0" />
 
 The same executable lets you talk to your friend from the terminal. Below, `playpets` stands for the app executable. On macOS it's `/Applications/PlayPets.app/Contents/MacOS/playpets`.
 
 ```
-playpets hook claude|gemini|cursor   # hook (JSON on stdin, always exits 0; prints {} for Gemini and Cursor)
+playpets hook claude|gemini|cursor|grok   # hook (JSON on stdin, always exits 0; prints {} for Gemini and Cursor)
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP server over stdio
 playpets status <state> [message]   [--pet name|ID] [--bridge file]

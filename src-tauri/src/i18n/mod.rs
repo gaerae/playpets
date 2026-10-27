@@ -256,6 +256,7 @@ mod tests {
         assert_eq!(agent_message_in(lang("en"), "@tool Bash"), "Using Bash");
         assert_eq!(agent_message_in(lang("en"), "@done"), "Finished the task");
         assert_eq!(agent_message_in(lang("ja"), "tests passed"), "tests passed");
+        assert_eq!(agent_message_in(lang("en"), "@rate_limit"), "Stopped at a usage limit");
         assert_eq!(
             agent_message_in(lang("ko"), "@failed 2"),
             "작업이 오류로 끝났어요 (코드 2)"

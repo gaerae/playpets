@@ -4,7 +4,7 @@ description: 코딩 에이전트가 일하는 모습을 친구가 따라 하게 
 
 # 코딩 에이전트 연동
 
-Claude Code, Codex CLI, Gemini CLI, Cursor 같은 코딩 에이전트가 일하면 친구도 옆에서 같이 반응해요. 설정 한 조각을 복사해 붙여 넣으면 끝이고, Node.js는 없어도 돼요.
+Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build 같은 코딩 에이전트가 일하면 친구도 옆에서 같이 반응해요. 설정 한 조각을 복사해 붙여 넣으면 끝이고, Node.js는 없어도 돼요.
 
 ## 친구마다 담당 에이전트 <Since v="0.1.0" />
 
@@ -40,7 +40,7 @@ PLAYPETS_PET=Pip claude
 - PowerShell에서는 `$env:PLAYPETS_PET="Clover"; claude`처럼 써요.
 - `PLAYPETS_PET`에는 `--pet`처럼 친구 이름이나 ID를 넣어요.
 - **담당 친구**를 고르면 설정에 그 친구가 적히고(`--pet`), `PLAYPETS_PET`보다 먼저 쓰여요.
-- 터미널에서 시작하는 Claude Code, Codex CLI, Gemini CLI에서 돼요. Cursor는 Cursor 앱이 훅을 실행하니 친구 하나에게만 알려요.
+- 터미널에서 시작하는 Claude Code, Codex CLI, Gemini CLI, Grok Build에서 돼요. Cursor는 Cursor 앱이 훅을 실행하니 친구 하나에게만 알려요.
 
 ## 놀이터에서 보이는 것 <Since v="0.1.0" />
 
@@ -83,19 +83,21 @@ PLAYPETS_PET=Pip claude
 | Codex CLI | `~/.codex/config.toml` 맨 위 | 작업이 끝날 때 알려 줘요 |
 | Gemini CLI | `~/.gemini/settings.json` | 훅으로 단계마다 알려 줘요 |
 | Cursor | `~/.cursor/hooks.json` | 편집, 명령, 완료를 알려 줘요. 관찰용 훅만 써요 |
+| Grok Build | `~/.grok/hooks/playpets.json`, 새 파일로 저장 | 훅으로 단계마다 알려 줘요 |
 | 그 밖의 MCP 도구 | 도구의 MCP 설정 | AI가 `set_pet_state`, `say`, `react`, `list_pets` 도구로 직접 상태와 말풍선을 보내요 |
 
 - 복사한 조각에는 PlayPets 실행 파일 경로가 들어 있어요.
 - 이 실행 파일이 곧 연동 명령이라 따로 설치할 게 없어요.
 - 앱을 다른 곳으로 옮겼다면 설정을 다시 복사해 붙여 넣어요.
 - 파일에 `hooks`나 `mcpServers` 항목이 이미 있으면 그 항목 안에 조각을 합쳐 넣어요.
+- Grok Build는 Claude Code와 Cursor의 훅도 함께 실행해요. 그래도 Grok Build의 작업은 Grok Build 친구에게만 보여요.
 
 ## 터미널에서 직접 <Since v="0.1.0" />
 
 같은 실행 파일을 터미널에서 불러 친구에게 말을 걸 수도 있어요. 아래 `playpets`는 앱 실행 파일이에요. macOS에서는 `/Applications/PlayPets.app/Contents/MacOS/playpets`예요.
 
 ```
-playpets hook claude|gemini|cursor   # 훅 (stdin JSON, 항상 종료 코드 0; Gemini, Cursor에는 {} 출력)
+playpets hook claude|gemini|cursor|grok   # 훅 (stdin JSON, 항상 종료 코드 0; Gemini, Cursor에는 {} 출력)
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP stdio 서버
 playpets status <상태> [메시지]   [--pet 이름|ID] [--bridge 파일]

@@ -16,7 +16,7 @@ PlayPets는 친구들이 함께 사는 놀이터예요. 친구들은 나와도 �
 |---|---|
 | 운영체제 | macOS, Windows, Linux |
 | AI | 선택이에요. 연결하지 않아도 초대, 놀이, 바탕화면 모드는 모두 돼요 |
-| 코딩 에이전트 | 선택이에요. Claude Code, Codex CLI, Gemini CLI, Cursor, MCP를 쓰는 도구와 이어져요 |
+| 코딩 에이전트 | 선택이에요. Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build, MCP를 쓰는 도구와 이어져요 |
 | 인터넷 | 설치 파일 다운로드, 커뮤니티 펫 가져오기, 업데이트, 원격 AI 대화에 필요해요. 놀이터 활동과 미리 내려받은 로컬 Ollama 모델은 오프라인에서도 돼요 |
 
 Tauri로 만들어서 운영체제에 들어 있는 웹뷰를 써요. 브라우저를 통째로 앱에 넣지 않아요.

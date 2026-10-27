@@ -1,4 +1,4 @@
-// HTTP AI providers (OpenAI, OpenAI-compatible, Ollama): config validation,
+// HTTP AI providers (OpenAI, xAI, OpenAI-compatible, Ollama): config validation,
 // chat, model lists and local Ollama detection. What differs per kind is in kind.rs.
 use super::kind::Kind;
 use crate::i18n;
@@ -284,6 +284,7 @@ mod tests {
             {"type": "message", "content": [{"type": "output_text", "text": "Hi"}, {"type": "output_text", "text": "there"}]}
         ]});
         assert_eq!(parse_answer(Kind::OpenAi, &openai).unwrap(), "Hi\nthere");
+        assert_eq!(parse_answer(Kind::Xai, &openai).unwrap(), "Hi\nthere");
         let ollama = json!({"message": {"role": "assistant", "content": "안녕!"}});
         assert_eq!(parse_answer(Kind::Ollama, &ollama).unwrap(), "안녕!");
         let compatible = json!({"choices": [{"message": {"content": "Hello"}}]});
@@ -326,6 +327,18 @@ mod tests {
             list_models(&json!({"type": "openai", "model": "x"}), "")
                 .unwrap_err()
                 .contains("API key")
+        );
+        assert!(
+            list_models(&json!({"type": "xai"}), "")
+                .unwrap_err()
+                .contains("API key")
+        );
+        let xai =
+            validate_config(&json!({"type": "xai", "endpoint": "https://elsewhere.example/v1", "model": "grok-4"}))
+                .unwrap();
+        assert_eq!(
+            xai.endpoint, "https://api.x.ai/v1",
+            "the address is xAI's, not the page's"
         );
     }
 }

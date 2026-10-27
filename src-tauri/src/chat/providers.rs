@@ -104,7 +104,11 @@ fn store(
         has_key = true;
     }
     if config.kind.needs_key() && !has_key {
-        return Err(i18n::t("provider.openai_key"));
+        return Err(i18n::t(if config.kind == Kind::Xai {
+            "provider.xai_key"
+        } else {
+            "provider.openai_key"
+        }));
     }
     let entry = entry(id, raw, config);
     let mut d = lock(state);

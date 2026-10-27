@@ -4,7 +4,7 @@ description: 让伙伴跟着编码代理的工作状态做出反应：要粘贴�
 
 # 编码代理联动
 
-Claude Code、Codex CLI、Gemini CLI、Cursor 这类编码代理干活的时候，伙伴也会跟着做出反应。只要复制一段设置粘贴进去就好，不需要 Node.js。
+Claude Code、Codex CLI、Gemini CLI、Cursor、Grok Build 这类编码代理干活的时候，伙伴也会跟着做出反应。只要复制一段设置粘贴进去就好，不需要 Node.js。
 
 ## 每位伙伴负责一个代理 <Since v="0.1.0" />
 
@@ -40,7 +40,7 @@ PLAYPETS_PET=Pip claude
 - PowerShell 里这样写：`$env:PLAYPETS_PET="Clover"; claude`。
 - `PLAYPETS_PET` 和 `--pet` 一样，填伙伴的名字或 ID。
 - 选了**负责的伙伴**后，设置里会写上这位伙伴（`--pet`），它比 `PLAYPETS_PET` 优先。
-- 从终端启动的 Claude Code、Codex CLI、Gemini CLI 都可以这样用。Cursor 的钩子由 Cursor 应用运行，所以只会通知一位伙伴。
+- 从终端启动的 Claude Code、Codex CLI、Gemini CLI、Grok Build 都可以这样用。Cursor 的钩子由 Cursor 应用运行，所以只会通知一位伙伴。
 
 ## 乐园里看得到的东西 <Since v="0.1.0" />
 
@@ -83,18 +83,20 @@ PLAYPETS_PET=Pip claude
 | Codex CLI | `~/.codex/config.toml` 的最上面 | 任务结束时通知 |
 | Gemini CLI | `~/.gemini/settings.json` | 通过钩子每一步都通知 |
 | Cursor | `~/.cursor/hooks.json` | 通知编辑、命令和完成。只用观察用的钩子 |
+| Grok Build | `~/.grok/hooks/playpets.json`，另存为新文件 | 通过钩子每一步都会通知 |
 | 其他 MCP 工具 | 工具的 MCP 设置 | AI 用 `set_pet_state`、`say`、`react`、`list_pets` 工具直接发送状态和气泡 |
 
 - 复制的设置里有 PlayPets 可执行文件的路径。这个可执行文件本身就是联动命令，不用另外安装。
 - 如果把应用挪到了别处，请重新复制设置再粘贴一次。
 - 文件里已经有 `hooks` 或 `mcpServers` 项时，把这段设置合并到那一项里。
+- Grok Build 也会运行 Claude Code 和 Cursor 的钩子，但它的工作只显示在 Grok Build 的伙伴身上。
 
 ## 直接在终端里 <Since v="0.1.0" />
 
 同一个可执行文件也可以在终端里调用，用来跟伙伴说话。下面的 `playpets` 指应用的可执行文件，在 macOS 上是 `/Applications/PlayPets.app/Contents/MacOS/playpets`。
 
 ```
-playpets hook claude|gemini|cursor   # 钩子（stdin 传入 JSON，退出码始终为 0；对 Gemini、Cursor 输出 {}）
+playpets hook claude|gemini|cursor|grok   # 钩子（stdin 传入 JSON，退出码始终为 0；对 Gemini、Cursor 输出 {}）
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP stdio 服务器
 playpets status <状态> [消息]   [--pet 名字|ID] [--bridge 文件]

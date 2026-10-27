@@ -19,6 +19,8 @@ const links = () => projectLinks(data.project, language());
 function copied(kind) {
   const file = agentFile(data, kind, windows());
   if (kind === 'codex') return t('toast.copied_codex', { file });
+  // Grok Build reads every file in its hooks folder, so PlayPets gets one of its own.
+  if (kind === 'grok') return t('toast.copied_grok', { file });
   if (file && agentOf(data, kind)) return t('toast.copied', { tool: agentLabel(data, kind), file });
   return t('toast.copied_mcp');
 }
