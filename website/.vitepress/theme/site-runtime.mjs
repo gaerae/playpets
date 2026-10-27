@@ -167,6 +167,23 @@ export function whenVisible(target, load, Observer = globalThis.IntersectionObse
   };
 }
 
+// A pose shows its sheet only once the file is decoded; until then the friend keeps the pose it
+// has, rather than an empty cell while a new strip downloads.
+const decodedSheets = new Set();
+export function whenDecoded(url, Picture = globalThis.Image) {
+  if (!Picture || decodedSheets.has(url)) return Promise.resolve();
+  const picture = new Picture();
+  picture.src = url;
+  return Promise.resolve()
+    .then(() => picture.decode())
+    .then(
+      () => {
+        decodedSheets.add(url);
+      },
+      () => {},
+    );
+}
+
 // Approved 2× idle silhouette heights, measured at alpha > 64; keep pose motion intact.
 export function castHeightFactor(pet) {
   const heights = { daisy: 326, clover: 337, pip: 329, miso: 325 };
