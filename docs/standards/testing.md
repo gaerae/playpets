@@ -1,15 +1,27 @@
 # Standard: Testing
 
 ## Applies to
-Every code change that enters the repository. This covers the backend (Rust), the page (JS, CSS, HTML), scripts, and workflows.
-
-Not covered: changes to docs only (`docs/`, README, CHANGELOG). Tests do check the section format of CHANGELOG, so changing that format is covered.
+- Every code change that enters the repository: the backend (Rust), the page (JS, CSS, HTML), scripts and workflows.
+- Not covered: changes to docs only (`docs/`, README, CHANGELOG).
+  - Tests do check the section format of CHANGELOG, so changing that format is covered.
 
 ## Rules
-- When you change a behavior rule, first change the test that checks the rule, watch the changed test fail, and then change the code.
-- `npm test` (Rust unit tests and the page's Node tests) and `npm run lint` (rustfmt, clippy including warnings, Biome) pass. CI runs the same commands.
-- When you change a flow people see (buttons, windows, saving, agent integration), `npm run test:e2e` passes. When you add a new flow, add a check line to the scenario and the expected list in `tests/e2e.mjs`.
-- Pure rules (calculation, conversion, parsing) are split into functions that run without the page or the app and checked with unit tests (`src/core/`, `src/yard/`, `scripts/*-lib.mjs`, `mod tests` in each Rust module). In the yard these include the lake's shape (`lakeShape`, `tests/lake.test.mjs`), closeness (`bondProgress`, `tests/bond.test.mjs`), the hint line (`hintKey`, `tests/hint.test.mjs`), seasonal events (`tests/events.test.mjs`), the catalogue (`tests/catalog.test.mjs`), strolling (`tests/wander.test.mjs`) and the sound mix (`tests/soundmix.test.mjs`).
+- Changing a behavior rule:
+  1. Change the test that checks the rule.
+  2. Watch the changed test fail.
+  3. Change the code.
+- `npm test` (Rust unit tests and the page's Node tests) and `npm run lint` (rustfmt, clippy with warnings as errors, Oxlint, Biome) pass. CI runs the same commands.
+- A changed flow people see (buttons, windows, saving, agent integration): `npm run test:e2e` passes.
+- A new flow: add a check line to the scenario and the expected list in `tests/e2e.mjs`.
+- Pure rules (calculation, conversion, parsing) are split into functions that run without the page or the app, and checked with unit tests (`src/core/`, `src/yard/`, `scripts/*-lib.mjs`, `mod tests` in each Rust module).
+- In the yard these include:
+  - the lake's shape (`lakeShape`, `tests/lake.test.mjs`)
+  - closeness (`bondProgress`, `tests/bond.test.mjs`)
+  - the hint line (`hintKey`, `tests/hint.test.mjs`)
+  - seasonal events (`tests/events.test.mjs`)
+  - the catalogue (`tests/catalog.test.mjs`)
+  - strolling (`tests/wander.test.mjs`)
+  - the sound mix (`tests/soundmix.test.mjs`)
 - Rust test-only code goes only inside `mod tests` at the end of the file. Watch tests scan only up to that point.
 
 What goes where.
@@ -25,27 +37,40 @@ What goes where.
 | The real app end to end | `tests/e2e.mjs`, test pet in `tests/support/fixture-pet.mjs` | `npm run test:e2e` |
 | Real responses from community sites | Rust `live_import` (skipped by default) | `npm run test:live-import` |
 
-E2E launches the executable built with the `e2e` feature and an isolated data folder, then runs the scenario script inside the app. Its windows use an ephemeral WebView profile so localStorage and IndexedDB cannot change the normal app profile. This profile lasts for one process; check persistence across restarts separately with a disposable normal profile. Results come out as `[e2e] name=value` lines, and the harness compares them with the expected list and prints `✓`/`✖`.
+### How E2E runs
+- E2E launches the executable built with the `e2e` feature and an isolated data folder, then runs the scenario script inside the app.
+- Its windows use an ephemeral WebView profile, so localStorage and IndexedDB cannot change the normal app profile.
+- This profile lasts for one process. Check persistence across restarts separately with a disposable normal profile.
+- Results come out as `[e2e] name=value` lines. The harness compares them with the expected list and prints `✓`/`✖`.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
-- When you change Windows-only code (`#[cfg(windows)]`), confirm it compiles with `npm run dist:windows`. Compiling is not running: if you cannot run the app on Windows yourself, list anything that needs a run check in the PR description. On a Mac, you can check the installers in a Windows virtual machine (for example UTM on Apple silicon, with Windows 11 on Arm).
-- Check changes that touch Linux (`cfg(unix)`, tray, overlay, file permissions) with `npm run dist:linux`. It builds in Docker and then runs E2E on Xvfb with Openbox, so you can see Linux runs from a macOS machine.
-- For changes that affect performance, attach the measurements from the [performance standard](performance.md).
+- Windows-only code (`#[cfg(windows)]`): confirm it compiles with `npm run dist:windows`.
+  - Compiling is not running. If you cannot run the app on Windows yourself, list anything that needs a run check in the PR description.
+  - On a Mac, you can check the installers in a Windows virtual machine (for example UTM on Apple silicon, with Windows 11 on Arm).
+- Changes that touch Linux (`cfg(unix)`, tray, overlay, file permissions): check with `npm run dist:linux`. It builds in Docker and then runs E2E on Xvfb with Openbox, so you can see Linux runs from a macOS machine.
+- Changes that affect performance: attach the measurements from the [performance standard](performance.md).
 
 ## Exceptions
 | When | How |
 |---|---|
 | A flow that cannot have an E2E check line (OS dialogs, a real AI subscription, another OS) | Write how you checked it by hand and the result in the PR description |
-| E2E while the window is covered and WebKit has paused animations | The harness skips checks that depend on walking and prints that it did. This is not a failure |
+| E2E while the window is covered and WebKit has paused animations | The harness skips checks that depend on walking and prints that it did. Not a failure |
 | An urgent fix with tests added later | A maintainer approves it, and an issue is left for adding the tests |
 
 ## Rationale
-The page has no build step, and the app runs on three operating systems. Unit tests check the rules, guard tests check the strings and module structure, and E2E inside the app checks the real windows and backend. macOS has no WebDriver, so E2E runs inside the app.
-Based on: decision “[Real-app E2E runs a scenario script inside the app](../decisions/2026-09-29-e2e-inside-the-real-app.md)”
+- The page has no build step, and the app runs on three operating systems.
+- Unit tests check the rules, guard tests check the strings and module structure, and E2E inside the app checks the real windows and backend.
+- macOS has no WebDriver, so E2E runs inside the app.
+- Based on: decision “[Real-app E2E runs a scenario script inside the app](../decisions/2026-09-29-e2e-inside-the-real-app.md)”
 
 ## Automated checks
-`.github/workflows/build.yml` runs lint, unit tests, build, and E2E on every push to main and every PR, on macOS, Windows x64 and arm64, and Linux x64 and arm64 runners. Linux E2E runs on Xvfb with Openbox; the window manager is needed to verify native pinning and fullscreen restoration. For the site, its `site` job runs `npm run site:build`, which catches dead links, and `tests/website.test.mjs` checks that every version in the changelog has a release page and that the screenshots a page points to exist.
+- `.github/workflows/build.yml` runs lint, unit tests, build and E2E on every push to main and every PR.
+- Runners: macOS, Windows x64 and arm64, Linux x64 and arm64.
+- Linux E2E runs on Xvfb with Openbox; the window manager is needed to verify native pinning and fullscreen restoration.
+- The site:
+  - The `site` job runs `npm run site:build`, which catches dead links.
+  - `tests/website.test.mjs` checks that every version in the changelog has a release page and that the screenshots a page points to exist.
 
 ## Change history
 - 2026-10-01 First version — organized "The order for changing and checking" from CONTRIBUTING into rules

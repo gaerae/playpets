@@ -1,21 +1,52 @@
 # PlayPets developer guide
 
 ## Overview and audience
-PlayPets is a pet app whose pets play on the desktop and in the yard window. You connect an AI to a friend to chat with it, and friends react while a coding agent works. It is a Tauri v2 app: the page is web code with no build tool (`src/`), and the backend is Rust (`src-tauri/`). It runs on macOS, Windows and Linux.
+- PlayPets is a pet app: pets play on the desktop and in the yard window.
+- Connect an AI to a friend to chat with it. Friends react while a coding agent works.
+- Tauri v2 app: the page is web code with no build tool (`src/`), the backend is Rust (`src-tauri/`).
+- Runs on macOS, Windows and Linux.
 
-This guide is the entry point for people who change the code, build integrations, or handle releases. How to use the app is in the [user guide on the site](https://playpets.gaerae.com/guide/) and in the repository [README](../README.md). These documents also appear as is under the site's "Developers" tab. The contribution process (PRs, check order) is in [CONTRIBUTING](../CONTRIBUTING.md). AI agents and review bots working in the repository read [AGENTS.md](../AGENTS.md), a short version of these rules.
+| Reader | Where to read |
+|---|---|
+| People who change the code, build integrations or handle releases | This guide |
+| People who use the app | The [user guide on the site](https://playpets.gaerae.com/guide/) and the repository [README](../README.md) |
+| Contributors (PRs, check order) | [CONTRIBUTING](../CONTRIBUTING.md) |
+| AI agents and review bots | [AGENTS.md](../AGENTS.md), a short version of these rules |
+
+- These documents also appear as is under the site's "Developers" tab.
 
 ## Key concepts
-- **One app, two windows:** There is the yard window (the main window) and a transparent desktop window, one per monitor. Both windows only draw the state the backend holds.
-- **Commands and notifications:** The page calls the backend through a single `window.playPets.<command>()`. When state changes, the backend sends the new state (`change`) to every window, and sends one-off happenings as events (`event`).
-- **Pets and friends:** A pet is a character file (`pet.json` plus a sprite sheet, in the Codex pet format). A friend is a pet invited into the yard. Each friend has a name, a personality, a size and an AI connection.
-- **AI connection:** Optional for ordinary movement, games, gardening and collecting; it gives a friend AI conversation. Claude Code and Codex use their signed-in CLIs; subscription allowances and any paid extra usage apply, and API-key CLI sign-in can incur separate charges. Ollama and OpenAI-compatible servers use HTTP. Local models need no hosted inference fees; remote services use their provider’s billing. API keys saved by PlayPets live only in the OS secure storage.
-- **Agent integration:** Running the app executable as `playpets hook …` or `playpets mcp` runs it in CLI mode with no window, and it sends status to the running app through a local HTTP bridge. Node.js is not needed.
-- **Strings tables:** Sentences shown to people live in two tables, one for the page and one for the backend, in Korean, English, Japanese and Simplified Chinese. Code uses only keys.
-- **Lock rule and page redraws:** The backend never waits on the main thread while holding the state lock. The page redraws often only while something moves. These two rules exist to prevent freezes and battery drain.
+- **One app, two windows:**
+  - The yard window (the main window) and a transparent desktop window, one per monitor.
+  - Both windows only draw the state the backend holds.
+- **Commands and notifications:**
+  - The page calls the backend through a single `window.playPets.<command>()`.
+  - On a state change, the backend sends the new state (`change`) to every window.
+  - One-off happenings go as events (`event`).
+- **Pets and friends:**
+  - A pet is a character file: `pet.json` plus a sprite sheet, in the Codex pet format.
+  - A friend is a pet invited into the yard, with a name, a personality, a size and an AI connection.
+- **AI connection:**
+  - Optional for ordinary movement, games, gardening and collecting. It gives a friend AI conversation.
+  - Claude Code and Codex use their signed-in CLIs. Subscription allowances and any paid extra usage apply; API-key CLI sign-in can incur separate charges.
+  - Ollama and OpenAI-compatible servers use HTTP.
+  - Local models need no hosted inference fees. Remote services use their provider's billing.
+  - API keys saved by PlayPets live only in the OS secure storage.
+- **Agent integration:**
+  - `playpets hook …` or `playpets mcp` runs the app executable in CLI mode, with no window.
+  - CLI mode sends status to the running app through a local HTTP bridge.
+  - Node.js is not needed.
+- **Strings tables:**
+  - Sentences shown to people live in two tables: one for the page, one for the backend.
+  - Languages: Korean, English, Japanese and Simplified Chinese.
+  - Code uses only keys.
+- **Lock rule and page redraws:**
+  - The backend never waits on the main thread while holding the state lock.
+  - The page redraws often only while something moves.
+  - Both rules prevent freezes and battery drain.
 
 ## Area map
-Go to a document based on what you want to know.
+Pick a document by what you want to know.
 
 | What you want to know | Document |
 |---|---|
@@ -37,7 +68,7 @@ Go to a document based on what you want to know.
 | Adding a language the app speaks | [Add a language](how-to/add-a-language.md) |
 | Where to look first when stuck | [Troubleshooting guide](troubleshooting.md) |
 
-These are the standards to follow. Read the one for an area before changing it.
+Standards to follow. Read the one for an area before changing it.
 
 | Area | Standard |
 |---|---|
@@ -49,20 +80,24 @@ These are the standards to follow. Read the one for an area before changing it.
 | Branches, commits, what never goes in, history | [Standard: Commits, branches and history](standards/commits-and-branches.md) |
 | Signing keys, tokens, certificates | [Standard: Managing signing keys and secrets](standards/keys-and-secrets.md) |
 | Pet files | [Standard: Pet file format](standards/pet-files.md) |
+| README, guides and the site's user guide | [Standard: Writing docs](standards/writing.md) |
 
-These are the procedures for outages and incidents.
+Procedures for outages and incidents.
 
 | Situation | Procedure |
 |---|---|
 | Updater signing key lost or leaked | [The updater signing key is lost or leaked](runbooks/updater-key-lost-or-leaked.md) |
 
 ## Getting started
-If you are new, read in this order.
+New here? Read in this order.
 
-1. Follow [Set up a development environment and run the app](getting-started.md) to get the tests passing and start the app.
-2. Read the diagram and data flow in [Architecture: PlayPets app](architecture.md). Find which component the part you want to change belongs to.
-3. Read the standard for the area you are changing (the standards table above). Page changes almost always involve Page code structure and Multilingual strings; backend changes almost always involve Backend locks and threads.
-4. Test in the check order in [CONTRIBUTING](../CONTRIBUTING.md) and open a PR. Add one line to `CHANGELOG.md` for any change users can see.
+1. Get the tests passing and start the app: [Set up a development environment and run the app](getting-started.md).
+2. Read the diagram and data flow in [Architecture: PlayPets app](architecture.md). Find the component the part you want to change belongs to.
+3. Read the standard for the area you change (standards table above).
+   - Page changes almost always involve Page code structure and Multilingual strings.
+   - Backend changes almost always involve Backend locks and threads.
+4. Test in the check order in [CONTRIBUTING](../CONTRIBUTING.md) and open a PR.
+5. Add one line to `CHANGELOG.md` for any change users can see.
 
 ## Deep dives and reference
 **Decision records**: why the structure is the way it is. The standards point to them as their basis.
@@ -82,22 +117,24 @@ If you are new, read in this order.
 - "[Pet pictures in chat (images that fit the moment) are on hold](decisions/2026-10-05-pet-pictures-on-hold.md)"
 - "[Lead with "a yard where your pets talk to each other", and treat Codex pet compatibility and hook reactions as the price of entry](decisions/2026-10-05-positioning-talking-friends.md)"
 
-For the remaining publication steps, use the [first public release hand-off](how-to/release.md#first-public-release-hand-off). Local checks and signed upgrade testing are separate gates.
+**First public release**
+- Remaining publication steps: the [first public release hand-off](how-to/release.md#first-public-release-hand-off).
+- Local checks and signed upgrade testing are separate gates.
 
 **Design records and research**
 
 Records are dated and not rewritten; when two disagree, the later one holds. The five records of 2026-10-11 and 2026-10-12 consolidate that period's design work ([decision](decisions/2026-10-13-design-records.md)).
 
 - [The website](design/2026-10-12-website.md) (2026-10-12): four languages and their parity, the world-first landing, the companion gallery, the creator studio, release pages and captures.
-- [In-app creation studio proposal](design/2026-10-17-in-app-studio.md) (2026-10-17): an unimplemented proposal with a follow-up on the current web KIT and SKILL handoff. The maintained workflow is in [Edit and check the website](how-to/website.md#creation-kit-and-skill).
+- [In-app creation studio proposal](design/2026-10-17-in-app-studio.md) (2026-10-17): unimplemented, with a follow-up on the current web KIT and SKILL handoff. The maintained workflow is in [Edit and check the website](how-to/website.md#creation-kit-and-skill).
 - [Places: Woodland and Window studio](design/2026-10-11-places.md) (2026-10-11): the place registry, capabilities, floor geometry and fit, authored lighting, weather behind window panes and switching places.
-- [Companions and pet identity](design/2026-10-11-companions.md) (2026-10-11): the historical companion catalog and compatibility contract. The current four-pet cast and accepted artwork are described in [Companion artwork](../assets/pets/README.md).
+- [Companions and pet identity](design/2026-10-11-companions.md) (2026-10-11): the historical companion catalog and compatibility contract. The current four-pet cast and accepted artwork: [Companion artwork](../assets/pets/README.md).
 - [Art direction and the art pipeline](design/2026-10-11-art-direction.md) (2026-10-11): the sculpted cozy-game look, depth cues, raster layers and the procedural fallback, specimen art, accepting new art, the brand and where sources live.
 - [Product direction](design/2026-10-11-product-direction.md) (2026-10-11): companions who talk to you and each other, claims kept precise, interface commitments and the bar for the first release.
 - [Stronger agent integration, community import, personality and activity memory](design/2026-09-29-agent-link-import-persona.md): the design as of 2026-09-29. Some file paths have changed since.
 - [A yard that grows with you](design/2026-10-09-a-yard-that-grows.md): the garden, gifts, fishing and bugs, the album and closeness, with their rules.
 - [A painted yard](design/2026-10-09-a-painted-yard.md): how the backdrop is painted after hand-painted animation backgrounds.
-- [Where things live in the window](design/2026-10-09-window-layout.md): one place for each kind of thing, and one name per switch.
+- [Where things live in the window](design/2026-10-09-window-layout.md): one place for each kind of thing, one name per switch.
 - [Yard sounds](design/2026-10-10-yard-sounds.md): the soundscape and its cues, made with Web Audio, and when they play.
 - [Yard content as data](design/2026-10-10-yard-content-as-data.md): the catalogue, the composition, the drawings and the effects, apart from the code that runs them.
 - [What do code signing and distribution channels cost for a desktop app, and in what order does PlayPets take them?](reference/code-signing-and-distribution.md): cost, units, identity checks, distribution channel requirements, and the order PlayPets takes. Kept up to date.
@@ -128,20 +165,34 @@ Records are dated and not rewritten; when two disagree, the later one holds. The
 | `npm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |
 | `npm run shots -- x.y.z` | Real-app screenshots in every app language (macOS) |
 | `npm run og` | Redraw the four share cards (`website/public/og.png` in English, `og-ko.png`, `og-ja.png`, `og-zh-hans.png`) and the README banner |
-| `npm run art` | Redraw the installer art: the macOS disk image background (`packaging/macos/dmg-background.png`), the Windows installer's sidebar and header (`packaging/windows/nsis-*.bmp`), and the English screenshots Linux software centers show (`website/public/listing/en/`, from the current captures). Where each is used is set in `src-tauri/tauri.conf.json` (`bundle.macOS.dmg`, `bundle.windows.nsis`, `bundle.linux`) and `packaging/linux/app.playpets.metainfo.xml` |
+| `npm run art` | Redraw the installer art (list below) |
 | `npm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/<platform>/`) |
 | `npm run release -- x.y.z` | Release commit and tag |
 | `npm run icons` | Every icon from `assets/icon.png` |
 
+What `npm run art` redraws:
+- The macOS disk image background: `packaging/macos/dmg-background.png`.
+- The Windows installer's sidebar and header: `packaging/windows/nsis-*.bmp`.
+- The English screenshots Linux software centers show: `website/public/listing/en/`, from the current captures.
+- Where each is used: `src-tauri/tauri.conf.json` (`bundle.macOS.dmg`, `bundle.windows.nsis`, `bundle.linux`) and `packaging/linux/app.playpets.metainfo.xml`.
+
 ## Frequently asked questions
 **Can I change Windows code without checking it on Windows?**
-You can check that it compiles with `npm run dist:windows` (Docker), and the CI Windows runner runs E2E. For things you only learn by running, like window behavior, say in the PR description that it needs checking.
+- Check that it compiles with `npm run dist:windows` (Docker).
+- The CI Windows runner runs E2E.
+- For things you only learn by running, like window behavior, say in the PR description that it needs checking.
 
 **Why does the page have no bundler?**
-The browser reads the page's ES modules as they are. With no build step, the file you edit is the file that runs, and tests enforce the module rules instead. The full reasoning is in the decision "Page modules run nothing on import…".
+- The browser reads the page's ES modules as they are.
+- With no build step, the file you edit is the file that runs. Tests enforce the module rules instead.
+- Full reasoning: the decision "Page modules run nothing on import…".
 
 **Do I need a signing key to develop?**
-No. Tests, E2E and local distribution builds all run without keys. Keys are used only in CI when a maintainer releases.
+- No. Tests, E2E and local distribution builds all run without keys.
+- Keys are used only in CI when a maintainer releases.
 
 **How do I change a string?**
-For a sentence on the page, edit `src/core/strings/<language>.js`; for a backend sentence, edit `src-tauri/src/i18n/<language>.rs`. Change every language together (the Korean file is the reference). The rules are in the Multilingual strings standard.
+- Page sentence: edit `src/core/strings/<language>.js`.
+- Backend sentence: edit `src-tauri/src/i18n/<language>.rs`.
+- Change every language together. The Korean file is the reference.
+- Rules: the Multilingual strings standard.
