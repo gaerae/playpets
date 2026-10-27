@@ -34,8 +34,21 @@ test('the landing shows friends talking together and coding company with real ca
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
     const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
     assert.equal(sections.heroFacts.length, 3, lang);
-    for (const key of ['togetherTitle', 'togetherBody', 'workTitle', 'workBody', 'workNote', 'brewLabel'])
+    for (const key of ['togetherTitle', 'togetherBody', 'workTitle', 'workBody', 'workNote', 'brewLabel', 'heroAgents'])
       assert.ok(sections[key]?.length, `${lang}: ${key}`);
+  }
+});
+
+test('the first screen names the coding agents and every question on the landing has an answer', async () => {
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /class="hero-agents" :href="path\('\/guide\/agents'\)"/);
+  assert.ok(landing.indexOf('class="hero-agents"') < landing.indexOf('<WorldPreview'));
+  assert.match(landing, /t\.discovery \}\} <a :href="path\('\/guide\/import'\)">\{\{ t\.discoveryLink \}\}/);
+  // A phone gets the small chat window, whose words stay readable at that width.
+  assert.match(landing, /<source media="\(max-width: 640px\)" :srcset="shotUrl\('mini-chat'\)"/);
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { worldCopy } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    assert.ok(worldCopy.discoveryLink?.length, lang);
   }
 });
 
