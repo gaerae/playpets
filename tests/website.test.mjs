@@ -330,3 +330,15 @@ test('every screenshot has the shape its page reserves for it', async () => {
         assert.ok(Math.abs(width / height - want) < 0.01, `${version}/${lang}/${file}: ${width}×${height}`);
       }
 });
+
+test('version badges mark only later features and stay out of the page outline', async () => {
+  const { readFile, readdir } = await import('node:fs/promises');
+  const since = await readFile('website/.vitepress/theme/Since.vue', 'utf8');
+  // VitePress leaves `.ignore-header` out of the outline, so a heading's entry is just its words.
+  assert.match(since, /class="since ignore-header"/);
+  // Everything in the first release has been there all along, so its badge says nothing.
+  const releases = (await readdir('website/releases')).filter(file => /^\d+\.\d+\.\d+\.md$/.test(file));
+  const first = releases.map(file => file.slice(0, -3)).sort((a, b) => a.localeCompare(b, 'en', { numeric: true }))[0];
+  assert.match(since, new RegExp(`FIRST_RELEASE = '${first.replaceAll('.', '\\.')}'`));
+  assert.match(since, /v-if="v !== FIRST_RELEASE"/);
+});

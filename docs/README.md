@@ -3,7 +3,7 @@
 ## Overview and audience
 - PlayPets is a pet app: pets play on the desktop and in the yard window.
 - Connect an AI to a friend to chat with it. Friends react while a coding agent works.
-- Tauri v2 app: the page is web code with no build tool (`src/`), the backend is Rust (`src-tauri/`).
+- A Tauri v2 app: the page is web code with no build tool (`src/`), and the backend is Rust (`src-tauri/`).
 - Runs on macOS, Windows and Linux.
 
 | Reader | Where to read |
@@ -13,37 +13,40 @@
 | Contributors (PRs, check order) | [CONTRIBUTING](../CONTRIBUTING.md) |
 | AI agents and review bots | [AGENTS.md](../AGENTS.md), a short version of these rules |
 
-- These documents also appear as is under the site's "Developers" tab.
+- The site also shows these documents, unchanged, under its "Developers" tab.
 
 ## Key concepts
 - **One app, two windows:**
   - The yard window (the main window) and a transparent desktop window, one per monitor.
-  - Both windows only draw the state the backend holds.
+  - Both windows draw only the state the backend holds.
 - **Commands and notifications:**
   - The page calls the backend through a single `window.playPets.<command>()`.
   - On a state change, the backend sends the new state (`change`) to every window.
-  - One-off happenings go as events (`event`).
+  - Things that happen once are sent as events (`event`).
 - **Pets and friends:**
   - A pet is a character file: `pet.json` plus a sprite sheet, in the Codex pet format.
   - A friend is a pet invited into the yard, with a name, a personality, a size and an AI connection.
 - **AI connection:**
-  - Optional for ordinary movement, games, gardening and collecting. It gives a friend AI conversation.
-  - Claude Code and Codex use their signed-in CLIs. Subscription allowances and any paid extra usage apply; API-key CLI sign-in can incur separate charges.
+  - Not needed for ordinary movement, games, gardening and collecting.
+  - It lets a friend hold an AI conversation.
+  - Claude Code and Codex use their signed-in CLIs.
+  - Those CLIs draw on subscription allowances and any paid extra usage. A CLI signed in with an API key can incur separate charges.
   - Ollama and OpenAI-compatible servers use HTTP.
-  - Local models need no hosted inference fees. Remote services use their provider's billing.
+  - Local models have no hosted inference fees.
+  - Remote services bill through their provider.
   - API keys saved by PlayPets live only in the OS secure storage.
 - **Agent integration:**
   - `playpets hook …` or `playpets mcp` runs the app executable in CLI mode, with no window.
   - CLI mode sends status to the running app through a local HTTP bridge.
   - Node.js is not needed.
 - **Strings tables:**
-  - Sentences shown to people live in two tables: one for the page, one for the backend.
+  - Text people read lives in two tables: one for the page, one for the backend.
   - Languages: Korean, English, Japanese and Simplified Chinese.
   - Code uses only keys.
 - **Lock rule and page redraws:**
   - The backend never waits on the main thread while holding the state lock.
-  - The page redraws often only while something moves.
-  - Both rules prevent freezes and battery drain.
+  - The page redraws frequently only while something moves.
+  - Together they prevent freezes and battery drain.
 
 ## Area map
 Pick a document by what you want to know.
@@ -68,7 +71,7 @@ Pick a document by what you want to know.
 | Adding a language the app speaks | [Add a language](how-to/add-a-language.md) |
 | Where to look first when stuck | [Troubleshooting guide](troubleshooting.md) |
 
-Standards to follow. Read the one for an area before changing it.
+Read the standard for an area before you change it.
 
 | Area | Standard |
 |---|---|
@@ -92,15 +95,15 @@ Procedures for outages and incidents.
 New here? Read in this order.
 
 1. Get the tests passing and start the app: [Set up a development environment and run the app](getting-started.md).
-2. Read the diagram and data flow in [Architecture: PlayPets app](architecture.md). Find the component the part you want to change belongs to.
+2. Read the diagram and data flow in [Architecture: PlayPets app](architecture.md). Find the component that owns the part you want to change.
 3. Read the standard for the area you change (standards table above).
-   - Page changes almost always involve Page code structure and Multilingual strings.
-   - Backend changes almost always involve Backend locks and threads.
-4. Test in the check order in [CONTRIBUTING](../CONTRIBUTING.md) and open a PR.
+   - Page changes almost always touch Page code structure and Multilingual strings.
+   - Backend changes almost always touch Backend locks and threads.
+4. Run the checks in the order [CONTRIBUTING](../CONTRIBUTING.md) gives, then open a PR.
 5. Add one line to `CHANGELOG.md` for any change users can see.
 
 ## Deep dives and reference
-**Decision records**: why the structure is the way it is. The standards point to them as their basis.
+**Decision records**: why the structure is the way it is. The standards cite them as their basis.
 - [Track the Linux GTK advisories without hiding them](decisions/2026-10-15-linux-gtk-advisories.md)
 - [Keep Linux publication gated on the stable Tauri GTK migration](decisions/2026-10-16-linux-release-readiness.md)
 - [Keep source art and optimize accepted exports](decisions/2026-10-12-art-storage.md)
@@ -123,7 +126,7 @@ New here? Read in this order.
 
 **Design records and research**
 
-Records are dated and not rewritten; when two disagree, the later one holds. The five records of 2026-10-11 and 2026-10-12 consolidate that period's design work ([decision](decisions/2026-10-13-design-records.md)).
+Records are dated and never rewritten. When two disagree, the later one holds. The five records of 2026-10-11 and 2026-10-12 consolidate that period's design work ([decision](decisions/2026-10-13-design-records.md)).
 
 - [The website](design/2026-10-12-website.md) (2026-10-12): four languages and their parity, the world-first landing, the companion gallery, the creator studio, release pages and captures.
 - [In-app creation studio proposal](design/2026-10-17-in-app-studio.md) (2026-10-17): unimplemented, with a follow-up on the current web KIT and SKILL handoff. The maintained workflow is in [Edit and check the website](how-to/website.md#creation-kit-and-skill).
@@ -180,11 +183,12 @@ What `npm run art` redraws:
 **Can I change Windows code without checking it on Windows?**
 - Check that it compiles with `npm run dist:windows` (Docker).
 - The CI Windows runner runs E2E.
-- For things you only learn by running, like window behavior, say in the PR description that it needs checking.
+- For behavior you only see at run time, such as how windows act, say in the PR description that it still needs checking.
 
 **Why does the page have no bundler?**
 - The browser reads the page's ES modules as they are.
-- With no build step, the file you edit is the file that runs. Tests enforce the module rules instead.
+- With no build step, the file you edit is the file that runs.
+- Tests enforce the module rules instead.
 - Full reasoning: the decision "Page modules run nothing on import…".
 
 **Do I need a signing key to develop?**
