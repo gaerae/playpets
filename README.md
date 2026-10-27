@@ -4,7 +4,7 @@
 
 # PlayPets
 
-**A little desktop yard where your companions talk to you, and to each other.**
+**Your Codex pets, together on your desktop: up to 12 at once, talking to each other and cheering on your coding agent.**
 
 [![Latest release](https://img.shields.io/github/v/release/gaerae/playpets?style=flat-square&color=f9ae55&label=release)](https://github.com/gaerae/playpets/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/gaerae/playpets/total?style=flat-square&color=4a9bd6)](https://github.com/gaerae/playpets/releases)
@@ -26,11 +26,13 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 </div>
 
 ## Why PlayPets
-- 🐾 Invite community pets, give each a personality and a relationship.
-- 💬 Friends chat with you, and with each other, through the AI you pick.
-- 🧑‍💻 They react while your coding agent works.
-- 🌱 Dig, grow, fish and collect in a yard that follows the clock and the weather.
-- 🔓 Open source (MIT). Reads compatible Codex pet files; Codex is not needed.
+- 🐾 Reads Codex pet files (the custom pets made for ChatGPT and Codex) as they are: every action, and the sixteen look directions when the sheet has them. Codex is not needed.
+- 👥 Up to 12 friends at once, in the yard and out on your desktop. Keep your pet in the ChatGPT desktop app too: both read the same pet files.
+- 💬 They chat with you, and with each other, through the AI you pick.
+- 🧑‍💻 They react to Claude Code, Codex, Gemini CLI, Cursor and other MCP tools.
+- 🏡 A yard of their own: four places or your own backgrounds, gifts like a swing or a pond, three games, a garden, fishing and an album.
+- 🌱 The four starter pets also dig, plant, fish and change clothes with the seasons.
+- 🔓 Free and open source (MIT) for macOS, Windows and Linux.
 
 ## Features
 
@@ -254,5 +256,5 @@ website/          The site (VitePress): landing page, user guide and release pag
 
 ## Trademarks
 - PlayPets is not affiliated with or endorsed by OpenAI.
-- Codex is a trademark of OpenAI. Claude, Gemini, Cursor, Grok and Ollama are trademarks of their companies.
+- ChatGPT and Codex are trademarks of OpenAI. Claude, Gemini, Cursor, Grok and Ollama are trademarks of their companies.
 - PlayPets only reads the Codex pet file format.

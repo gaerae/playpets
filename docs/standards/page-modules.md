@@ -15,18 +15,19 @@
   - Only the entry points (`src/app.js`, `src/overlay/overlay.js`) call those functions.
   - Computing pure values at module level (such as a list built from strings) is fine.
 - Every module but the two entry points imports without a page.
-  - Nothing at its top level reads `window`, `document`, `matchMedia` or the bridge, so Node can import it and its logic can be tested.
-  - Read those inside functions, where they exist.
-- Modules do not import each other in a cycle. When a lower layer (a drawing module such as `yard/views.js`) needs behavior from a higher layer (play, opening a panel), it receives the function as a `setup` argument instead of importing it.
-- The `import` paths and names in a new module match the actual file's `export`.
-- Sentences shown on the page are not written in code; use keys from the strings table. Follow the [i18n standard](i18n.md).
+  - Nothing at its top level reads `window`, `document`, `matchMedia` or the bridge, so Node can import it and test its logic.
+  - Read them inside functions, where they are available.
+- Modules do not import each other in a cycle.
+- When a lower layer (a drawing module such as `yard/views.js`) needs behavior from a higher layer (play, opening a panel), it receives the function as a `setup` argument instead of importing it.
+- The `import` paths and names in a new module match what the imported file actually exports.
+- Do not write sentences shown on the page in code; use keys from the strings table ([i18n standard](i18n.md)).
 - Loops and animations that redraw the page follow the [performance standard](performance.md).
 
 ### Styles
 - Style files load in this order, and new rules go in the file for their area:
   1. `base.css`
   2. `shell.css`
-  3. `scenery.css`: what stands behind the friends (the sky's and land's colours, which the painter in `src/yard/easel.js` reads, the sun and moon, clouds, weather)
+  3. `scenery.css`: what stands behind the friends: the sky's and land's colours (read by the painter in `src/yard/easel.js`), the sun and moon, clouds, weather
   4. The yard's files:
      1. `yard.css`: the frame and the field
      2. `friends.css`: bodies, tags, bubbles, agent dots
@@ -47,7 +48,7 @@
 - `compact.css` holds the small-window variants of the yard, the dock and its menus.
 - Responsive changes to the panel go at the end of the panel file that owns the element, after that file's own rules, not in `compact.css`.
 - This order decides which media rules apply last and which of two equally specific rules wins.
-- Specify the whole appearance of select boxes, not the engine's default look. One stylesheet has to look the same in WebKit (macOS, Linux) and WebView2 (Windows).
+- Style select boxes completely instead of relying on the engine's default look. One stylesheet has to look the same in WebKit (macOS, Linux) and WebView2 (Windows).
 
 ### Shortcuts, menus and classes
 - A keyboard shortcut is a row in `SHORTCUTS` (`src/core/keys.js`).
@@ -56,9 +57,9 @@
 - What opens from a button uses `dropdown` (a panel) or `popup` (a menu, with arrow keys) from `src/core/menu.js`, so every menu opens, closes and moves focus the same way.
 - Each class on the yard element has one owner.
   - The scene (`yard/sky.js`) sets only its own classes: `period-…`, `weather-…`, `season-…`, `event-…`, `look-…` and `moon-full`.
-  - Whoever sets `aiming` (`care.js`), `playing` (`play.js`), `can-catch` (`catch.js`) or `after-rain` (the rainbow in `sky.js`) owns that class and takes it off again.
-  - No other module adds, removes or spares it.
-- A menu whose rows follow something in code is built from a table, not written in the markup.
+  - The module that sets `aiming` (`care.js`), `playing` (`play.js`), `can-catch` (`catch.js`) or `after-rain` (the rainbow in `sky.js`) owns that class and removes it again.
+  - No other module adds or removes it, and the scene's updates leave it in place.
+- A menu whose rows come from something in code is built from a table, not written in the markup.
   - The Games menu is built from the games' rules (`RULES` in `yard/play.js`: icon, name, tooltip), so a new game adds no markup.
 
 ### Example
@@ -93,7 +94,8 @@ Follow these when you can. When you cannot, say why in the PR.
   - Destinations within a tab are actions, clear at rest.
   - Keep tab navigation outside the scrolling body and show only the selected group.
 - Colours:
-  - A colour that several rules use for the same thing is a token in `base.css`: its light value in `:root`, its dark value in the dark `:root`. A rule that uses it needs no dark override.
+  - A colour that several rules use for the same thing is a token in `base.css`: its light value in `:root`, its dark value in the dark `:root`.
+  - A rule that uses such a token needs no dark override.
   - A token that only dark rules need (each light rule has a colour of its own) has only a dark value, and only dark rules read it.
 
 | Role | Use | Shape and state |
@@ -130,18 +132,19 @@ Breaking a rule without recording an exception is a violation, not an exception.
 - `tests/ui-style.test.mjs` catches:
   - select box appearance, button shape rules, the panel tabs as siblings
   - other cross-engine rules: no sideways overscroll, the system font, the yard filling its window at small sizes
-  - a declaration always replaced by a later rule for the same selector (such as a media rule said before the base rule it means to change)
-  - a custom property a stylesheet reads that is not defined in one or set from code
+  - a declaration always replaced by a later rule for the same selector (such as a media rule written before the base rule it is meant to change)
+  - a custom property a stylesheet reads that no stylesheet defines and no code sets
   - a token with only a dark value read by a rule that is not dark
-  - It does not check whether two different selectors fight over one element in a new order; review that when moving rules between files.
+  - It does not check whether two different selectors compete for one element after rules are reordered; review that when you move rules between files.
 - `tests/i18n.test.mjs` catches Korean left in page code and markup, and keys missing from the table.
 - Oxlint in `npm run lint:oxlint`:
   - Correctness checks for JavaScript, TypeScript and Vue script blocks; warnings fail the command.
   - `.oxlintrc.json` excludes generated copies and local output.
-  - Vue template correctness remains a website build and review concern.
+  - The website build and review cover Vue template correctness.
   - Conditional expressions whose branches both call functions are allowed for the existing canvas drawing code.
   - Keep intentional snapshots of live DOM collections when fixing spread warnings.
-- Biome in `npm run lint:js`: formatting, import sorting and its existing static checks. Oxlint runs first; neither tool replaces the repository-specific tests.
+- Biome in `npm run lint:js`: formatting, import sorting and its existing static checks.
+- Oxlint runs first. Neither tool replaces the repository-specific tests.
 - `tests/lint-config.test.mjs`: broken page, tooling, test and Vue script fixtures fail Oxlint, while generated outputs are skipped.
 
 All of these run with `npm test` and `npm run lint`, and CI runs the same commands.
@@ -156,21 +159,24 @@ All of these run with `npm test` and `npm run lint`, and CI runs the same comman
 
 ### Window and dock
 - The landscape fills one freely resizable window, down to 300 × 210.
-- The large-window dock has one current-scenery caption, Play and Friends & settings.
-- Keep the scenery caption to one line. Its accessible name and title still describe the place and atmosphere action.
+- In a large window, the dock holds one caption for the current scenery, Play, and Friends & settings.
+- Keep the scenery caption to one line.
+- Its accessible name and title still describe the Place & atmosphere action.
 - Do not repeat a category heading above the current state.
 
 ### Small windows and the pointer menu
 - At 640 pixels wide or less, or 480 pixels tall or less, hide the dock.
 - Right-click empty scenery for four actions: Place & atmosphere, Play, Friends & settings and Always on top.
 - Cmd/Ctrl+Shift+P opens management.
-- The pointer menu stays inside the window, scrolls when needed and supports arrows, Home, End and checked pinning.
+- The pointer menu stays inside the window and scrolls when needed.
+- It supports the arrow keys, Home, End and checked pinning.
 - Friends and objects keep their own context actions.
 
 ### Groups
 - Show only the group the person requested.
-- Play uses the same four-action board at every size. Planting and group games open their own subviews.
-- Closing or Escape returns to the scenery.
+- Play uses the same four-action board at every size.
+- Planting and group games open their own subviews.
+- Closing a group or pressing Escape returns to the scenery.
 - Friends & settings has three short tabs: Friends, Settings and Window.
   - Keep their tab row fixed and scroll only the selected body.
   - Friends offers chat and invitations.
@@ -179,10 +185,10 @@ All of these run with `npm test` and `npm run lint`, and CI runs the same comman
 - Do not repeat scenery or play actions in management, expose every group at once, or reveal controls on hover.
 
 ### Back, invite and compact panels
-- Back from a menu settings task returns to its Settings tab.
+- Back from a settings task opened from the menu returns to its Settings tab.
 - The settings shortcut and tray open a task list instead, and Back returns there.
-- Invite keeps Import in its header and folds only search filters.
-- Compact task panels offer fullscreen without automatically resizing.
+- Invite keeps Import in its header and folds away only the search filters.
+- Compact task panels offer fullscreen but do not resize the window on their own.
 - Changing window size never changes game rules or ends a game.
 
 ### Always on top and fullscreen
@@ -190,14 +196,16 @@ All of these run with `npm test` and `npm run lint`, and CI runs the same comman
 - Cmd/Ctrl+Shift+M toggles it without resizing.
 - Fullscreen and Return to previous size are in Window.
 - Esc dismisses open surfaces before leaving fullscreen.
-- Returning restores normal bounds and pinning.
-- Transparent top and edge targets move and resize the window.
+- Returning to the previous size restores the normal bounds and pinning.
+- Transparent targets along the top and the edges move and resize the window.
 - In compact layouts, restore focus to a visible opener or the yard.
-- The logo belongs in About; environmental time needs no clock.
+- The logo belongs in About.
+- The scenery shows the time of day, so the yard needs no clock.
 
 ### App updates
 - Update progress, retry and explicit install-and-restart stay in the App updates task.
-- A small window uses a 32px update icon with an unread dot and a version in its accessible name. Coarse pointers keep a 44px hit area.
+- A small window uses a 32px update icon with an unread dot and a version in its accessible name.
+- Coarse pointers keep a 44px hit area.
 - Opening it goes directly to App updates.
 - Progress and errors do not steal focus or reopen the task.
 - Store-managed packages keep their separate update path.

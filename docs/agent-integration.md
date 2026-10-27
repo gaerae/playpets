@@ -1,15 +1,17 @@
 # Architecture: coding agent integration
 
 ## Scope
-- The current structure of the path through which coding agents (Claude Code, Codex, Gemini CLI, Cursor, Grok Build, and tools that use MCP) tell PlayPets friends their status.
+- How coding agents (Claude Code, Codex, Gemini CLI, Cursor, Grok Build, and tools that use MCP) report their status to PlayPets friends, as it works today.
 - For people adding a new integration or building tools on the agent side.
 - The whole app's architecture: [PlayPets app architecture](architecture.md).
 
 What leaves the agent, and where it goes:
 - The bridge stays inside this computer.
-- Hook adapters omit user prompts and tool inputs. They forward short notifications and Codex's last answer.
+- Hook adapters leave out user prompts and tool inputs.
+- They forward short notifications and Codex's last answer.
 - MCP and direct commands can also supply sentences.
-- The app keeps recent reports and includes them as labeled status notes in the connected friend's AI prompt when you chat.
+- The app keeps recent reports.
+- When you chat, it adds them to the connected friend's AI prompt as labeled status notes.
 - That AI may run outside this computer.
 
 ## Diagram
@@ -36,7 +38,7 @@ flowchart LR
 ## Components
 | Component | Location | Responsibility |
 |---|---|---|
-| CLI mode | `src-tauri/src/agent/cli.rs` | Running the app executable with a command argument (`hook`, `mcp`, `status`, `say`, `react`, `pets`, `run`) runs it in this mode with no window. Node.js is not needed |
+| CLI mode | `src-tauri/src/agent/cli.rs` | With a command argument (`hook`, `mcp`, `status`, `say`, `react`, `pets`, `run`), the app executable runs in this mode with no window. Node.js is not needed |
 | Hook translation | `agent::cli::hook_event` | Turns each agent's hook payload into a state and a code. Prompts and tool inputs are not sent |
 | MCP server | `agent::cli::mcp_reply` | An MCP server that takes JSON-RPC one line at a time over standard input and output. Four tools |
 | Bridge | `src-tauri/src/agent/bridge.rs` | The HTTP server inside the app. A random port on `127.0.0.1`, a token check on every request, browser requests refused |
@@ -46,7 +48,7 @@ flowchart LR
 ## Data flow
 1. **When the app launches:**
    - The bridge opens on `127.0.0.1:0`.
-   - The app writes the port it got and a new token (64 random characters) to `bridge.json` in the data folder.
+   - The app writes the assigned port and a new token (64 random characters) to `bridge.json` in the data folder.
    - Both change every time the app restarts.
 2. **Hooks:**
    - At each step the agent runs `playpets hook claude --bridge <bridge.json>` and passes the hook JSON on standard input.
@@ -57,12 +59,12 @@ flowchart LR
    - The agent starts `playpets mcp` as an MCP server and sends `initialize`, `tools/list` and `tools/call`.
    - Tool calls go through the same bridge path.
 4. **Commands:**
-   - A person or script can call it directly: `playpets say "Tests passed"`.
+   - A person or script can run commands directly: `playpets say "Tests passed"`.
    - `playpets run -- npm test` sends `working` while the command runs, then `done` or `error` when it ends.
 5. **Inside the app:**
    - The bridge checks the token and the payload.
-   - It finds the friend: `pet`/`petId` is an id or a name; if absent, the first friend.
-   - A code turns into the current language (`@tool Bash` → "Using Bash") and shows above the friend.
+   - It picks the friend: `pet`/`petId` is an id or a name. Without one, it uses the first friend.
+   - A code becomes a sentence in the current language (`@tool Bash` → "Using Bash") and shows above the friend.
    - It is remembered among that friend's 8 most recent activities.
 
 ## Import links
@@ -121,7 +123,7 @@ flowchart LR
 **HTTP bridge**
 - Every request needs `Authorization: Bearer <token from bridge.json>`.
 - Requests with an `Origin` header (browsers) are refused.
-- The body is JSON of 8KB or less.
+- The body is JSON of 8 KB or less.
 - Sentences are cut at 240 characters.
 
 | Request | Body | Response |
@@ -137,7 +139,7 @@ flowchart LR
 | `401` | Missing or wrong token |
 | `403` | Browser request |
 | `404` | Unknown path or friend |
-| `413` | Over 8KB |
+| `413` | Over 8 KB |
 
 **MCP tools**
 - Protocol version `2024-11-05`.

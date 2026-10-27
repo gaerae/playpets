@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { withBase } from 'vitepress';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { LANDING_PETS } from '../../../scripts/site-content.mjs';
 import { lookFrame } from '../../../src/core/animation.js';
@@ -10,6 +11,9 @@ const props = defineProps<{
   words: {
     worldsTitle: string;
     worldsLead: string;
+    viewLabel: string;
+    views: string[];
+    desktopNote: string;
     sceneLabel: string;
     places: string[];
     seasons: string[];
@@ -31,6 +35,10 @@ const art = import.meta.glob('../../../src/art/environments/*.png', {
   import: 'default',
 }) as Record<string, string>;
 const place = ref(0);
+// The app's two forms: the yard in its own window, or friends loose on the desktop over other
+// windows. The desktop has no place or season of its own.
+const view = ref(0);
+const loose = computed(() => view.value === 1);
 const season = ref(0);
 const stage = ref<HTMLElement | null>(null);
 const visible = ref(false);
@@ -171,17 +179,33 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div class="world-preview">
-    <div class="world-picker"><div><h2>{{ words.worldsTitle }}</h2><p>{{ words.worldsLead }}</p></div></div>
-    <div ref="stage" class="living-world" :class="{ 'preview-paused': still, indoors: place === 3 }" @pointermove="look" @pointerleave="lookAway">
-      <img class="living-scenery" :src="image" :alt="words.places[place]" width="1536" height="1024" fetchpriority="high" draggable="false" />
-      <div class="living-friends">
-        <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" :ref="element => { friendElements[index] = element as HTMLElement }" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :style="{ left: `${spots[index]}%`, transitionDuration: `${strides[index]}s` }" :aria-label="`${pet.displayName}, ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><span v-if="greeted === pet.id" class="living-bubble" aria-hidden="true">{{ words.greetings[pet.id] }}</span><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="poseOf(pet.id).state" :frame="poseOf(pet.id).frame" :scale="0.65" /><span class="living-name">{{ pet.displayName }}</span></button>
+    <div class="world-picker">
+      <div><h2>{{ words.worldsTitle }}</h2><p>{{ words.worldsLead }}</p></div>
+      <!-- The site's own controls stay outside the pretend screen. -->
+      <div class="world-controls">
+        <div class="choice-group view-choices" role="group" :aria-label="words.viewLabel"><button v-for="(name, index) in words.views" :key="name" type="button" :aria-pressed="view === index" @click="view = index">{{ name }}</button></div>
+        <button class="world-motion" type="button" :aria-pressed="paused" @click="emit('pause')">{{ paused ? words.resume : words.pause }}</button>
       </div>
-      <button class="world-motion" type="button" :aria-pressed="paused" @click="emit('pause')">{{ paused ? words.resume : words.pause }}</button>
+    </div>
+    <!-- A computer screen in miniature: the wallpaper, work windows and a taskbar, with the yard as
+         an app window on top, or with the friends out on the desktop in front of the windows. -->
+    <div ref="stage" class="living-world" :class="{ 'preview-paused': still, 'view-desktop': loose }" @pointermove="look" @pointerleave="lookAway">
+      <div class="desk-work" aria-hidden="true"><div><i /><i /><i /></div><p v-for="width in [62, 44, 70, 38, 56]" :key="width" :style="{ width: `${width}%` }" /></div>
+      <div class="desk-work desk-note" aria-hidden="true"><div><i /><i /><i /></div><p v-for="width in [48, 78, 66, 72, 30]" :key="width" :style="{ width: `${width}%` }" /></div>
+      <div class="yard-window">
+        <div class="yard-titlebar" aria-hidden="true"><i /><i /><i /><span>PlayPets</span></div>
+        <img class="living-scenery" :src="image" :alt="words.places[place]" width="1536" height="1024" fetchpriority="high" draggable="false" />
+      </div>
+      <div class="living-friends">
+        <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" :ref="element => { friendElements[index] = element as HTMLElement }" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :style="{ left: `${spots[index]}%`, transitionDuration: `${strides[index]}s` }" :aria-label="`${pet.displayName}, ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><span v-if="greeted === pet.id" class="living-bubble" aria-hidden="true">{{ words.greetings[pet.id] }}</span><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="poseOf(pet.id).state" :frame="poseOf(pet.id).frame" :scale="0.46" /><span class="living-name">{{ pet.displayName }}</span></button>
+      </div>
+      <div class="desk-bar" aria-hidden="true"><i /><img :src="withBase('/icon.svg')" alt="" width="24" height="24" /><i /><i /></div>
     </div>
     <!-- One dock under the scene: the first row picks the world, the second plays with a friend. -->
     <div class="world-dock">
-      <div class="dock-row" role="group" :aria-label="words.sceneLabel">
+      <!-- The desktop has no place or season of its own; the row says so instead of greying out. -->
+      <div v-if="loose" class="dock-row"><p class="dock-note">{{ words.desktopNote }}</p></div>
+      <div v-else class="dock-row" role="group" :aria-label="words.sceneLabel">
         <div class="choice-group place-choices"><button v-for="(name, index) in words.places" :key="name" type="button" :aria-pressed="place === index" @click="place = index">{{ name }}</button></div>
         <div class="choice-group" role="group" :aria-label="words.seasonLabel"><button v-for="(name, index) in words.seasons" :key="name" type="button" :aria-pressed="season === index" :disabled="place === 3" @click="season = index">{{ name }}</button></div>
       </div>

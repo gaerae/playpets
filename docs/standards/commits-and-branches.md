@@ -15,15 +15,15 @@
 - Work happens on a short-lived branch made from the latest `main`.
   - Name: `<area>/<topic>`, lowercase with hyphens.
   - The area is the part of the app or the kind of work: `yard/lake-shape`, `chat/avatars`, `backend/command-table`, `fix/gift-day`, `docs/commit-standard`, `ci/pin-actions`.
-  - A branch carries one change and goes away once it is merged.
+  - A branch carries one change and is deleted once it is merged.
 - A branch reaches `main` through a pull request that a maintainer reviews and merges.
 - Before merging, rebase the branch onto `main`, so `main` stays a straight line with no merge commits.
 - Every pull request is squash-merged into one commit on `main`.
   - The PR title becomes the commit title, so it follows the title rule below.
-  - The maintainer reviews the squash commit body for what changed, why and how it was checked, and keeps co-author trailers.
+  - The maintainer checks that the squash commit body says what changed, why, and how it was checked, and keeps the co-author trailers.
   - Branch commits stay useful for review; they do not become separate commits on `main`.
 - Repository settings allow squash merging only; merge commits and rebase merging are disabled.
-- Rebasing a feature branch onto the latest `main` before its final CI run is separate from the pull request's merge method.
+- Rebasing a feature branch onto the latest `main` before its final CI run is a separate step from the pull request's merge method.
 - Versions are tags (`vX.Y.Z`) on `main`, made by `npm run release -- x.y.z` and pushed by a maintainer.
 - No release branches: a fix for a released version goes to `main` and out in the next patch version.
 
@@ -33,7 +33,8 @@
 - The title:
   - One English sentence that says what is different for the people using or working on the app.
   - No period, no prefix such as `feat:`. Example: "Friends stand behind what is in front of them".
-  - Fits on one line of `git log --oneline` (about 72 characters). A commit that lands several related changes may run longer, as long as the title still names them.
+  - Fits on one line of `git log --oneline` (about 72 characters).
+  - A commit that lands several related changes may have a longer title, as long as it still names them.
 - The body, after a blank line:
   - What changed (grouped by area when there are several), why it was done this way, and how it was checked (tests, e2e, screenshots).
   - Wrapped at about 100 characters.
@@ -47,11 +48,11 @@
   - [Managing signing keys and secrets](keys-and-secrets.md) says where each one lives.
 - Personal data: real email addresses, local paths with a user name, someone's chat history or `state.json`.
 - What the tools make: `node_modules/`, `src-tauri/target/`, `release/`, `scratch/`, the site's build and generated files (listed in `.gitignore`).
-- Notes that are not for the public repository (plans for marketing or launch, private research). They live outside the repository.
+- Notes not meant for the public repository (marketing or launch plans, private research). Keep them outside the repository.
 
 ### History
 - Once pushed, `main` only moves forward: no force-push, no rewritten or dropped commits.
-- A mistake is fixed by a new commit.
+- Fix a mistake with a new commit.
 - A secret that reached a commit is treated as leaked:
   1. Revoke and replace it first ([the updater key runbook](../runbooks/updater-key-lost-or-leaked.md) for that key).
   2. Only then remove it from the files.
@@ -63,7 +64,7 @@ Follow these when you can. When you cannot, say why in the PR.
 - Split a refactor from the behaviour change it makes room for.
 - Name the checks you ran in the PR description with the template's checklist.
 - Attach screenshots when the screen changed.
-- Before pushing, look at `git log --stat origin/main..HEAD` once: it shows a file that should not be there (a capture, a log, a key) before anyone else sees it.
+- Before pushing, run `git log --stat origin/main..HEAD` once. It shows any file that should not be there (a capture, a log, a key) before anyone else sees it.
 
 ## Exceptions
 | When | How |
@@ -79,7 +80,8 @@ Follow these when you can. When you cannot, say why in the PR.
 - The no-reply address and the never-commit list exist because a public history cannot be taken back: anything pushed is copied and indexed before it can be removed.
 
 ## Automated checks
-- No automated checks for commit titles, bodies or branch names beyond the pull request template's checklist (`.github/pull_request_template.md`). A maintainer reviews them before merging.
+- Commit titles, bodies and branch names have no automated check beyond the pull request template's checklist (`.github/pull_request_template.md`).
+- A maintainer reviews them before merging.
 - What does run:
   - CI (`build.yml`) runs the tests and lint on every pull request.
   - The repository ruleset refuses deleting `main` and force-pushing to it.

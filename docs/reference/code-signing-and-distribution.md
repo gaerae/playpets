@@ -22,7 +22,8 @@
 | Own Homebrew tap, winget | Free | Repository, manifest | None | Below |
 
 ### What happens without code signing
-- macOS: Gatekeeper blocks the first launch. From macOS 15 the Control-click workaround is gone; users have to go all the way to "Privacy & Security" in System Settings.
+- macOS: Gatekeeper blocks the first launch.
+  - From macOS 15 the Control-click workaround is gone; users have to open "Privacy & Security" in System Settings.
 - Windows: unsigned downloads can trigger SmartScreen warnings.
   - Signing does not guarantee immediate reputation; even EV certificates no longer grant an instant bypass.
   - See [Microsoft code signing options](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/code-signing-options).
@@ -52,13 +53,15 @@
 | Scoop, Chocolatey, Flathub, AUR | Each has its own manifest | Free | Not researched |
 | Tauri auto-update | Reads `latest.json`, verifies the signature, then installs | Free key pair. Verification cannot be turned off. If the private key is lost, installed apps can never receive another update | [Updater plugin](https://v2.tauri.app/plugin/updater/) checked directly |
 
-- The Tauri updater looks for `<os>-<arch>-<install type>` first (for example `linux-x86_64-deb`) and falls back to `<os>-<arch>`. So deb and AppImage users each get the right file.
+- The Tauri updater looks for `<os>-<arch>-<install type>` first (for example `linux-x86_64-deb`) and falls back to `<os>-<arch>`.
+- That way deb and AppImage users each get the right file.
 - The official docs do not say whether the updater works in an app without OS code signing.
 - Checked locally: signature verification and rejection of tampered files.
-- Actually replacing the installed app will be checked after the first release.
+- Whether an update actually replaces the installed app will be checked after the first release.
 
 ### Limits of this research
-- All prices are the values seen on 2026-10-01. Amounts in Korean won appear only on the enrollment screen.
+- All prices are as seen on 2026-10-01.
+- Amounts in Korean won appear only on the enrollment screen.
 - CA certificate prices and the detailed conditions of Scoop, Chocolatey, Flathub and AUR were not researched.
 - Items marked "search summary" were not checked on the official page.
 
@@ -70,19 +73,20 @@
   - [SignPath Foundation](https://signpath.org/terms) offers reviewed OSS signing.
   - Commercial providers also sell individual certificates.
   - Approval, country eligibility, cloud fees and automation need separate review.
-- PlayPets runs with ad-hoc macOS signing when Apple credentials are absent, and needs the complete six-secret Apple set to enable release signing (decision "[GitHub releases are the source, auto-update, winget and a Homebrew tap point at those files, and code signing turns on with secrets](../decisions/2026-10-01-distribution-channels-and-signing.md)").
+- Without Apple credentials, PlayPets uses ad-hoc macOS signing.
+- Release signing turns on only with the complete set of six Apple secrets (decision "[GitHub releases are the source, auto-update, winget and a Homebrew tap point at those files, and code signing turns on with secrets](../decisions/2026-10-01-distribution-channels-and-signing.md)").
 
 The order:
 
 1. One-time setup: create the GitHub repository, set it up and push, so CI runs for the first time ([Set up the repository, keys and store accounts](../how-to/set-up-the-repository.md)).
 2. Add the update secret key to the repository secrets ([Managing signing keys and secrets](../standards/keys-and-secrets.md)).
 3. Run `npm run release -- 0.1.0`, push the tag, check the draft and publish it ([Release a new version](../how-to/release.md)).
-4. Create the `homebrew-tap` repository and the winget-pkgs fork, and add their tokens; `distribute` then submits each version, the first winget one included (one-time setup).
+4. Create the `homebrew-tap` repository and the winget-pkgs fork, and add their tokens (one-time setup). `distribute` then submits each version, including the first winget one.
 5. After joining the Apple Developer Program, add the `APPLE_*` secrets together, verify code signing and notarization, and consider the official Homebrew cask.
-6. For Windows, start with individual registration in the Microsoft Store (free). Revisit Azure Artifact Signing when we become an organization or the region condition for individuals is lifted.
+6. For Windows, start with free individual registration in the Microsoft Store. Revisit Azure Artifact Signing when we become an organization or the region limit for individuals is lifted.
 
 - Current implementation steps and outstanding maintainer inputs: [Prepare Microsoft Store and Apple signing](../how-to/store-and-apple-signing.md).
-- MSIX installations use package-managed updates; GitHub installations keep the Tauri updater.
+- MSIX installations update through the package manager; GitHub installations keep the Tauri updater.
 - The app's pre-1.0 version is mapped to a nonzero-major MSIX version, without changing the public app version.
 
 ## Change history

@@ -5,7 +5,7 @@
 - Prepare the Microsoft Store MSIX and its submission, and Developer ID signing for macOS downloads.
 - These are separate channels.
 - After the one-time setup, each published GitHub release submits itself to the Store ([Submission automation](#submission-automation-and-first-submission-setup)).
-- Passing certification publishes only with `STORE_PUBLISH_MODE=Immediate`.
+- A submission that passes certification publishes on its own only with `STORE_PUBLISH_MODE=Immediate`.
 
 ## Values the maintainer supplies
 
@@ -25,7 +25,8 @@
 - The MSIX template keeps the app's visible name as PlayPets.
 - `scripts/msix-manifest.mjs` fills and XML-escapes all three identity fields and the four-part package version.
 - Setting any one Store identity field requires all three.
-- No identity is invented on the maintainer's behalf. With all three unset, the build makes a test-signed package instead.
+- The build never invents an identity for the maintainer.
+- With all three unset, the build makes a test-signed package instead.
 
 ## Build and test Windows packages
 
@@ -41,17 +42,21 @@ npm run dist:windows
 
 Repeated local builds:
 - Put the three public values into a local `.env.store` file as `NAME=value` lines and run `node --env-file=.env.store scripts/local.mjs windows`.
-- This explicitly loads the file; `npm run dist:windows` does not load it automatically.
-- `.env.store` is excluded from both Git and the Docker source copy; Node passes the values into the container.
-- GitHub repository Variables are not read by this local path; the `store` workflow has the same three public values in its own file.
+- That command loads the file explicitly.
+- `npm run dist:windows` does not load it.
+- `.env.store` is excluded from Git and from the Docker source copy.
+- Node passes the values into the container.
+- This local path does not read GitHub repository Variables.
+- The `store` workflow has the same three public values in its own file.
 - Do not put Apple credentials into this file.
 
 The Store hand-off:
 - `release/windows/msix-store/PlayPets_<version>_x64.msix`, without a local test signature.
-- Microsoft signs the package distributed through Store.
+- Microsoft signs the package distributed through the Store.
 - Do not upload the NSIS EXE, the portable ZIP, a test certificate or a private key in its place.
 - Store signing does not sign the EXE distributed through GitHub.
-- This local build path produces only x64 MSIX; the `store` workflow builds x64 and ARM64.
+- This local build path makes only the x64 MSIX.
+- The `store` workflow builds x64 and ARM64.
 
 Local install test:
 1. Unset all three `MSIX_*` variables and run `npm run dist:windows`.
@@ -59,67 +64,55 @@ Local install test:
 
 - The private test key stays in Docker's `playpets-msix-key` volume.
 - A test certificate is not a public Windows signing identity.
-- Do not attempt to install the unsigned Store hand-off by trusting a test certificate.
+- Do not try to install the unsigned Store hand-off by trusting a test certificate.
 
 Updates in a package:
-- Windows package identity determines update ownership at runtime using `GetCurrentPackageFullName`, rather than a path substring or an environment variable that users can change.
+- At runtime, the Windows package identity (from `GetCurrentPackageFullName`) decides who owns updates, not a path substring or an environment variable that users can change.
 - MSIX, including test MSIX, never calls the GitHub updater to check, download or install an EXE.
-- Settings explains package-managed updates, and tray/menu update actions lead to that explanation.
+- Settings explains package-managed updates.
+- The tray and menu update actions lead to that explanation.
 - Unpackaged GitHub installations keep the existing signed updater.
-- Runtime detection does not establish that a test MSIX was installed through Store.
+- Runtime detection does not prove that a test MSIX was installed through the Store.
 
 ## What Windows CI verifies
 
-- The x64 and ARM64 build jobs run `npm run test:msix:ci` after the regular native
-  E2E.
-- The gate uses a separate `PlayPets.CI` identity and a short-lived local
-  certificate, without Store credentials or a submission API.
+- The x64 and ARM64 build jobs run `npm run test:msix:ci` after the regular native E2E.
+- The gate uses a separate `PlayPets.CI` identity and a short-lived local certificate, without Store credentials or a submission API.
 
-1. Pack, sign, verify and install the production executable as MSIX. Activate it
-   through `shell:AppsFolder` with its AUMID, require a visible window, and check
-   that it stays alive beyond the scheduled update check.
-2. Install an E2E-feature package with the same test identity. In package context,
-   verify:
-   - the native `GetCurrentPackageFullName` result routes updates to Store;
-   - direct GitHub check/install calls are blocked;
-   - Settings/tray actions show the Store explanation without installer controls.
-3. Save a preference, install a higher package version with the same executable,
-   and confirm it survives. This is a package-only upgrade, not a new app release
-   or a Store download.
-4. Remove the test package and temporary certificates. Upload JSON reports and
-   logs even when the gate fails; never upload the private key or test packages
-   as release assets.
+1. Pack, sign, verify and install the production executable as MSIX.
+   - Activate it through `shell:AppsFolder` with its AUMID, require a visible window, and check that it stays alive past the scheduled update check.
+2. Install an E2E-feature package with the same test identity. In package context, verify that:
+   - the native `GetCurrentPackageFullName` result routes updates to the Store
+   - direct GitHub check and install calls are blocked
+   - Settings and tray actions show the Store explanation without installer controls
+3. Save a preference, install a higher package version with the same executable, and confirm the preference survives.
+   - This is a package-only upgrade, not a new app release or a Store download.
+4. Remove the test package and temporary certificates.
+   - Upload JSON reports and logs even when the gate fails.
+   - Never upload the private key or test packages as release assets.
 
 Limits:
 - The production activation uses the normal installed app entry.
-- The instrumented probe uses `Invoke-CommandInDesktopPackage`, Microsoft's
-  debugging context, with the CI package's normal app data path.
-- It is not identical to Store activation and does not prove Store certification,
-  service delivery or the behavior of every clean Windows machine.
-- The script refuses ordinary local execution, so unit tests cannot alter a
-  maintainer's packages or certificate stores.
+- The instrumented probe uses `Invoke-CommandInDesktopPackage`, Microsoft's debugging context, with the CI package's normal app data path.
+- The probe is not identical to Store activation. It does not prove Store certification, service delivery or the behavior of every clean Windows machine.
+- The script refuses to run as an ordinary local command, so unit tests cannot change a maintainer's packages or certificate stores.
 
-After both architecture jobs pass, the remaining manual checks are:
+After both architecture jobs pass, these checks stay manual:
 
-- On a clean Windows device without development tools, confirm WebView2
-  availability, visual layout, tray/desktop windows, close/exit, always-on-top
-  and optional agent integration.
-  - CI checks package activation and update rules; it cannot judge these
-    interactions visually or cover every device setup.
-- Before submission, run the Windows App Certification Kit (WACK) against the
-  actual Store hand-off. The CI gate is not a certification test.
-- After submission is separately authorized, use a private Store package flight
-  to verify installation and a real Store-delivered update with retained pets
-  and credentials.
-  - A local certificate and `Add-AppxPackage` cannot simulate Store signing,
-    licensing, certification or the delivery service.
+- On a clean Windows device without development tools, confirm WebView2 availability, visual layout, tray and desktop windows, close and exit, always-on-top and optional agent integration.
+  - CI checks package activation and update rules.
+  - It cannot judge these interactions visually or cover every device setup.
+- Before submission, run the Windows App Certification Kit (WACK) against the actual Store hand-off.
+  - The CI gate is not a certification test.
+- Once submission is approved separately, use a private Store package flight to verify installation and a real Store-delivered update that keeps pets and credentials.
+  - A local certificate and `Add-AppxPackage` cannot simulate Store signing, licensing, certification or the delivery service.
 
 ## Prepare the listing and request certification
 
 Versions:
 - The app starts its aligned Store version series at `1.0.0`.
-- The MSIX version appends the reserved fourth component; there is no
-  major-version offset.
+- The MSIX version appends the reserved fourth component.
+- There is no major-version offset.
 
   | App | MSIX |
   |---|---|
@@ -128,28 +121,27 @@ Versions:
   | `1.1.0` | `1.1.0.0` |
 
 - The generator rejects a zero major, prereleases and components above 65535.
-- Previously built local `1.2.0.0` test packages were never Store releases. They
-  cannot be upgraded in place to lower `1.0.0.0`: remove the test package first,
-  backing up any data you want to keep.
-- Do not uninstall a real Store installation as a routine update procedure.
+- Local `1.2.0.0` test packages built earlier were never Store releases.
+- They cannot be upgraded in place to the lower `1.0.0.0`. Back up any data you want to keep, then remove the test package first.
+- Do not uninstall a real Store installation as a routine update step.
 
 The submission:
 1. Create the first submission in Partner Center.
-2. Complete pricing/markets, properties, age ratings, packages, localized listings
-   and submission options.
+2. Complete pricing and markets, properties, age ratings, packages, localized listings and submission options.
 3. Upload the Store MSIX and resolve its validation messages.
-4. Keep the submission on manual publication hold until release is separately
-   authorized.
+4. Keep the submission on a manual publication hold until the release is approved separately.
 
 References: [Store package requirements](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/app-package-requirements), [package-context debugging](https://learn.microsoft.com/en-us/powershell/module/appx/invoke-commandindesktoppackage).
 
 ## Submission automation and first-submission setup
 
-- Publishing a GitHub release starts the `store` workflow (`store.yml`). It skips prereleases.
+- Publishing a GitHub release starts the `store` workflow (`store.yml`).
+- The workflow skips prereleases.
 - It uses Microsoft's MSIX submission API directly (`scripts/store-submit.mjs`), with no third-party code in the job that holds the key.
   - The `microsoft/store-submission` action is archived and handles MSI/EXE products.
   - The Store Developer CLI (`msstore`) needs .NET and a setup action in that job, and adds nothing here.
-- Before any API submission, a submission made in Partner Center has to be published. 1.2.0 is that baseline.
+- Before any API submission, a submission made in Partner Center has to be published.
+- 1.2.0 is that baseline.
 - What each job does:
 
 | Job | Credentials | What it does |
@@ -166,14 +158,18 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
   4. Replaces both packages, sets each language's "What's new", and sets the publish mode. Pricing is left out of the update.
   5. Uploads the two MSIX to the API's Azure Blob address only, checks that the publish mode was kept, and commits. Certification starts.
 - It never calls the publish endpoint and never retries.
-- Logs show a small report: no token, key, upload address or provider error body.
+- Logs show a short report with no token, key, upload address or provider error body.
 
 ### What's new
 - Source: the website release page in each language (`website/releases/x.y.z.md`, `website/ko/…`, `website/ja/…`, `website/zh-hans/…`).
-  - People write them before the release; `npm run release` stops without them.
+  - People write them before the release.
+  - `npm run release` stops without them.
   - Nothing is machine-translated.
-- Text: the opening sentence, the bullets under the first `##` section, then the page's address. Links keep their words; bold and code marks go.
-- The Store allows 1500 characters per language. Bullets that do not fit are left out from the end; the address leads to all of them, and the `source` log says how many were left out.
+- Text: the opening sentence, the bullets under the first `##` section, then the page's address.
+- Links keep their words; bold and code marks are dropped.
+- The Store allows 1500 characters per language.
+- Bullets that do not fit are left out, starting from the end.
+- The address leads to all of them, and the `source` log says how many were left out.
 - Store languages: `en-us`, `ko-kr`, `ja-jp`, `zh-cn`.
 - To check a version before tagging:
 
@@ -189,23 +185,27 @@ node scripts/store-notes.mjs 1.3.0
 | `Manual` (or unset) | Waits for **Publish now** in Partner Center |
 | `Immediate` | The Store publishes it |
 
-- The workflow reads the variable on each run; the copied submission's own setting does not count.
+- The workflow reads the variable on each run.
+- The copied submission's own setting does not count.
 
 ### Submit every release automatically
-One-time steps. The account holder does them; never paste a key into a chat, issue or file.
+The account holder does these one-time steps. Never paste a key into a chat, issue or file.
 
 1. Link an Entra tenant to Partner Center.
    - Partner Center → **Settings (gear) → Account settings → Tenants**.
    - **Associate** an existing Microsoft Entra tenant, or **Create new**.
 2. Add the automation app.
    - **Account settings → User management → Microsoft Entra applications → Add Microsoft Entra application** (or **Create Microsoft Entra application**).
-   - Give it the **Manager** role. The API requires it; it reaches account-wide settings except tax and payout, so treat the key as a high-privilege credential.
-   - Open the app and choose **Add new key**. Copy the **Key** value now; it is shown once. Note the **Client ID**, **Tenant ID** and the key's expiry date.
-   - A seller ID is not needed: that is for `msstore`.
+   - Give it the **Manager** role, which the API requires.
+   - The role reaches account-wide settings except tax and payout, so treat the key as a high-privilege credential.
+   - Open the app and choose **Add new key**. Copy the **Key** value now: it is shown only once.
+   - Note the **Client ID**, the **Tenant ID** and the key's expiry date.
+   - You do not need a seller ID; that is for `msstore`.
 3. Set up the GitHub environment.
    - Repository **Settings → Environments → microsoft-store** (create it if missing).
    - **Deployment branches and tags → Selected branches and tags**: add the tag rule `v*.*.*`, and keep `main` for `Store API verification`.
-   - **Required reviewers**: keep yourself for a one-click approval per release, or remove it for no approval. Turn on **Prevent administrators from bypassing**; leave **Prevent self-review** off.
+   - **Required reviewers**: keep yourself for a one-click approval per release, or remove the rule for no approval.
+   - Turn on **Prevent administrators from bypassing**, and leave **Prevent self-review** off.
 4. Add the values to that environment.
 
 | Name | Kind | Value |
@@ -215,16 +215,20 @@ One-time steps. The account holder does them; never paste a key into a chat, iss
 | `STORE_CLIENT_ID` | Environment variable | The Client ID from step 2 |
 | `STORE_CLIENT_SECRET` | Environment secret | The Key value from step 2, not the Client ID or the key's identifier |
 
-5. Check the values without submitting: run `Store API verification` from **Actions** on `main` and approve it. The summary shows `authenticated: true` and `productIdentityVerified: true`.
-6. Wait until 1.2.0 is published. A submission still in certification blocks a new one.
+5. Check the values without submitting: run `Store API verification` from **Actions** on `main` and approve it.
+   - The summary shows `authenticated: true` and `productIdentityVerified: true`.
+6. Wait until 1.2.0 is published.
+   - A submission still in certification blocks a new one.
 7. Turn it on: repository **Settings → Secrets and variables → Actions → Variables**.
    - `STORE_SUBMISSION_ENABLED` = `true`.
-   - `STORE_PUBLISH_MODE` = `Immediate` to publish after certification, like 1.2.0. Leave it unset to keep a manual hold.
-8. For the first automated release, open the new submission in Partner Center once certification starts. Check What's new, both packages and the certification notes.
+   - `STORE_PUBLISH_MODE` = `Immediate` to publish after certification, like 1.2.0.
+   - Leave `STORE_PUBLISH_MODE` unset to keep a manual hold.
+8. For the first automated release, open the new submission in Partner Center once certification starts.
+   - Check What's new, both packages and the certification notes.
 
 - Missing values:
   - All four missing: `submit` writes a notice and ends green; upload `store-bundle` by hand.
-  - Some missing: `submit` fails, as the `APPLE_*` secrets do.
+  - Some missing: `submit` fails, as with the `APPLE_*` secrets.
 - Before the key expires, add a new key to the same app, replace `STORE_CLIENT_SECRET`, then delete the old key.
 
 ### Check credentials without submitting
@@ -232,13 +236,16 @@ One-time steps. The account holder does them; never paste a key into a chat, iss
 - Its credentialed step runs `npm run store:verify` with no dependency install.
 - It requests a token, reads the app, checks the package identity and publisher, and reads any pending submission's publish mode.
 - It never creates, uploads, commits or publishes a submission.
-- Logs show a small report, not token responses, provider error bodies, keys or upload addresses.
+- Logs show a short report with no token responses, provider error bodies, keys or upload addresses.
 - It runs only by hand, from **Actions** on `main`.
 
 ### When a run stops
-- A failure after the submission was created leaves a draft in Partner Center. Finish or delete it there before running `store` again.
-- Microsoft warns that mixing Partner Center edits and API changes on one draft can make it uncommittable. Finish such a draft in one place.
-- To run `store` again: **Actions → store → Run workflow → Use workflow from → Tags → vx.y.z**. A run from a branch stops at `source`.
+- A failure after the submission was created leaves a draft in Partner Center.
+- Finish or delete that draft there before running `store` again.
+- Microsoft warns that mixing Partner Center edits and API changes on one draft can make it uncommittable.
+- Finish such a draft in one place.
+- To run `store` again: **Actions → store → Run workflow → Use workflow from → Tags → vx.y.z**.
+- A run from a branch stops at `source`.
 - Do not use the MSI/EXE submission API for this MSIX product.
 
 References: [MSIX API prerequisites and authentication](https://learn.microsoft.com/en-us/windows/uwp/monetize/create-and-manage-submissions-using-windows-store-services), [submission data and publish mode](https://learn.microsoft.com/en-us/windows/uwp/monetize/manage-app-submissions), [Store Developer CLI](https://learn.microsoft.com/en-us/windows/apps/publish/msstore-dev-cli/commands).
@@ -249,12 +256,14 @@ Listing:
 - Do not imply that PlayPets is an OpenAI product.
 
 Certification notes:
-- The manifest declares `runFullTrust`. Explain the desktop windows, tray and user-selected local coding-tool integration.
+- The manifest declares `runFullTrust`.
+- Explain the desktop windows, the tray and the local coding-tool integration that people choose.
 - This capability is not a request to run as administrator.
-- Give the reviewer steps for testing the yard without connecting AI, and steps and any safe test access needed to assess AI-specific features.
+- Give the reviewer steps for testing the yard without connecting AI.
+- Give the steps, and any safe test access, needed to assess the AI features.
 - Do not submit personal production credentials.
 
-Use the website privacy page for the listing, once it has actually been deployed:
+Use the website privacy page for the listing once it is deployed:
 
 - English: `https://playpets.gaerae.com/privacy`
 - Korean: `https://playpets.gaerae.com/ko/privacy`
@@ -262,15 +271,18 @@ Use the website privacy page for the listing, once it has actually been deployed
 - Simplified Chinese: `https://playpets.gaerae.com/zh-hans/privacy`
 
 Privacy policy:
-- Review the policy against actual enabled connections before submission.
-- The policy identifies the maintainer by the existing public handle and links to public project contact.
-- Before using it for a public submission, confirm the responsible operator identity and provide a private privacy-contact route if public issues are unsuitable.
+- Before submission, review the policy against the connections that are actually enabled.
+- The policy identifies the maintainer by the existing public handle and links to the public project contact.
+- Before using it for a public submission, confirm who the responsible operator is.
+- If public issues are unsuitable, provide a private privacy-contact route.
 - Never ask people to post personal information in an issue.
 - Confirm the effective date when publishing the policy.
-- Describe accesses and transmissions truthfully in the Store privacy questionnaire; optional AI can still transmit personal information.
+- Describe accesses and transmissions truthfully in the Store privacy questionnaire.
+- Optional AI can still transmit personal information.
 
 A portal submission held after review:
-1. Set **Submission options → Publishing hold options → Don't publish this submission until I select Publish now**. The default is automatic publication after certification.
+1. Set **Submission options → Publishing hold options → Don't publish this submission until I select Publish now**.
+   - The default is automatic publication after certification.
 2. Save and verify the hold.
 3. Choose **Submit to the Store**.
 
@@ -309,13 +321,14 @@ Handling the secrets:
 - Paste it directly into the secret field and clear the clipboard afterward.
 - Base64 is not encryption.
 - Do not paste credentials into a chat, issue or commit.
-- Existing `TAURI_SIGNING_PRIVATE_KEY` secrets remain unchanged; they authenticate updates, not Apple identity.
+- Existing `TAURI_SIGNING_PRIVATE_KEY` secrets stay as they are.
+- They authenticate updates, not the Apple identity.
 
 What the release workflow does:
 
 | Apple secrets | Result |
 |---|---|
-| None | It retains the existing ad-hoc build |
+| None | It keeps the existing ad-hoc build |
 | A partial set | The macOS build fails instead of silently publishing an unsigned fallback |
 | All six | Tauri receives the explicit identity through `APPLE_SIGNING_IDENTITY` and signs and notarizes the app during bundling |
 
@@ -324,7 +337,7 @@ What the release workflow does:
 
 Local release test:
 1. Use the installed keychain identity and the `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD` and `APPLE_TEAM_ID` environment variables.
-   - Enter passwords through a secure prompt rather than writing them in shell history.
+   - Enter passwords through a secure prompt instead of leaving them in shell history.
 2. Run `npm run dist:mac`.
 3. Confirm both Apple Silicon and Intel artifacts when releasing both architectures.
 4. After building, run the following against the actual `.app`:
@@ -339,9 +352,11 @@ xcrun stapler validate /path/to/PlayPets.app
 5. Test a browser-downloaded DMG on a clean Mac.
 
 Releases:
-- Do not replace files of an immutable published release. Make the first formally signed build part of a new release.
+- Do not replace files of an immutable published release.
+- Ship the first formally signed build as part of a new release.
 - Creating a certificate does not require a public app release.
-- The existing tag-triggered workflow still creates a draft; this preparation does not create a tag or publish a release.
+- The existing tag-triggered workflow still creates a draft.
+- This preparation does not create a tag or publish a release.
 
 Mac App Store:
 - It needs a separate assessment: the current app uses macOS private APIs and local coding-tool integration.

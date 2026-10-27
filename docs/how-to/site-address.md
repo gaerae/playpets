@@ -3,7 +3,8 @@
 ## Purpose
 - Move the website to a new domain without leaving the app, documentation, search metadata or share cards on the old address.
 - Current public address: `https://playpets.gaerae.com/`.
-- The address lives in one place: `homepage` in `package.json`. The site's base path, sitemap and share-card addresses follow from it.
+- The address lives in one place: `homepage` in `package.json`.
+- The site's base path, sitemap and share-card addresses follow from it.
 - A repository test lists every other file that still names a different address.
 
 ## Audience and assumptions
@@ -32,13 +33,13 @@ For a subdomain such as `playpets.gaerae.com`:
 npm pkg set homepage=https://example.com/
 ```
 
-2. Let the repository test list every remaining old reference.
+2. Run the repository test to list every remaining old reference.
 
 ```bash
 node --test tests/website.test.mjs
 ```
 
-3. Update the listed current documentation, package metadata and tests until it passes.
+3. Update the current docs, package metadata and tests it lists until it passes.
    - Do not rewrite dated decisions. When one mentions an address that was correct at the time, add a follow-up decision.
 
 4. Redraw the share cards and check the project.
@@ -54,16 +55,16 @@ npm run site:build
 6. Update the custom domain in repository Settings → Pages, wait for its certificate, and enable Enforce HTTPS.
 
 ## Verification
-- The English root and `/ko/`, `/ja/`, `/zh-hans/` and `/dev/` return successfully over HTTPS.
-- HTTP moves to HTTPS.
-- The former address moves to the new canonical address.
+- The English root and `/ko/`, `/ja/`, `/zh-hans/` and `/dev/` load over HTTPS.
+- HTTP redirects to HTTPS.
+- The former address redirects to the new canonical address.
 - Canonical and language-alternate links, `og:url`, `og:image` and `sitemap.xml` use the new address.
 - Styles, scripts, images and internal links load from the new base path.
 
 ## Troubleshooting
 | Symptom | Fix |
 |---|---|
-| Pages says DNS check unsuccessful | Check the DNS value and wait for it to spread. If Cloudflare is in front, use DNS only until GitHub issues the certificate |
+| Pages says DNS check unsuccessful | Check the DNS value and wait for it to propagate. If Cloudflare is in front, use DNS only until GitHub issues the certificate |
 | Enforce HTTPS is unavailable | Wait for GitHub Pages to issue the certificate; this can take up to a day after the DNS check passes |
 | Styles and scripts are missing | The build still used the old base path. Check `homepage`, rebuild and redeploy |
 | Search or social previews show the old address | Rebuild the share cards, deploy again and inspect canonical, Open Graph and sitemap output |
