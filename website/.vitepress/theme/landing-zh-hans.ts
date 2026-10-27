@@ -60,7 +60,7 @@ export const sections = {
       [
         '编码工具',
         '一只宠物显示 ChatGPT 和 Codex 对话的进度',
-        '每个工具由各自的宠物汇报：Claude Code、Codex、Gemini CLI、Cursor 及 MCP 工具',
+        '每个工具由各自的宠物汇报：Claude Code、Codex、Gemini CLI、Cursor、Grok Build 及 MCP 工具',
       ],
       ['场景', '—', '四个场景或你自己做的背景，时间、天气、季节都会变'],
       ['装饰', '—', '伙伴会送来长椅、秋千、小池塘等礼物，还会在旁边休息、玩耍'],
@@ -71,7 +71,7 @@ export const sections = {
   },
   codexPlusTitle: ['ChatGPT 里的宠物照常用，', '更多伙伴交给 PlayPets。'],
   codexPlusLead:
-    '为 ChatGPT 和 Codex 制作的宠物，在 PlayPets 里也能直接用。在 ChatGPT 桌面应用里，一只宠物显示对话进度；在 PlayPets 里，最多 12 位伙伴聚在一起互相聊天，还会响应 Claude Code、Gemini CLI、Cursor。',
+    '为 ChatGPT 和 Codex 制作的宠物，在 PlayPets 里也能直接用。在 ChatGPT 桌面应用里，一只宠物显示对话进度；在 PlayPets 里，最多 12 位伙伴聚在一起互相聊天，还会响应 Claude Code、Gemini CLI、Cursor、Grok Build。',
   codexPlusLink: '带来你的 Codex 宠物',
   discoveryGuide: '看看都能发现什么',
   galleryCreate: '用这位伙伴来创作',
@@ -110,7 +110,7 @@ export const sections = {
   togetherLink: '看看一起聊天怎么玩',
   workTitle: '写代码时，也有人陪。',
   workBody:
-    '编码代理一有动静，伙伴就会知道：Claude Code 和 Gemini CLI 每一步都会通知，Cursor 在编辑和完成时通知，Codex 在每次回复结束时通知。问一句“刚才在做什么？”，它会帮你简单回顾。',
+    '编码代理一有动静，伙伴就会知道：Claude Code、Gemini CLI 和 Grok Build 每一步都会通知，Cursor 在编辑和完成时通知，Codex 在每次回复结束时通知。问一句“刚才在做什么？”，它会帮你简单回顾。',
   workNote: '连接只在这台电脑上进行。钩子不会带上你的提示词和工具输入，但简短的状态通知仍可能提到你的工作内容。',
   chatPlay: '聊聊天',
   chatAgain: '再聊一段',

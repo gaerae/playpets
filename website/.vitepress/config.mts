@@ -67,7 +67,7 @@ export default defineConfig({
       label: 'English',
       lang: 'en-US',
       description:
-        'Free, open-source desktop pet app for your Codex pets: up to 12 at once, chatting with each other and reacting to Claude Code, Codex, Gemini CLI and Cursor.',
+        'Free, open-source desktop pet app for your Codex pets: up to 12 at once, chatting with each other and reacting to Claude Code, Codex, Gemini CLI, Cursor and Grok Build.',
       themeConfig: {
         nav: [
           { text: 'Home', link: '/', activeMatch: '^/$' },
@@ -113,7 +113,7 @@ export default defineConfig({
       lang: 'ko-KR',
       link: '/ko/',
       description:
-        '내 Codex 펫을 바탕화면 놀이터로 데려오는 무료 데스크톱 펫 앱이에요. 12명까지 함께 놀고, 서로 이야기하고, Claude Code, Codex, Gemini CLI, Cursor에 반응해요.',
+        '내 Codex 펫을 바탕화면 놀이터로 데려오는 무료 데스크톱 펫 앱이에요. 12명까지 함께 놀고, 서로 이야기하고, Claude Code, Codex, Gemini CLI, Cursor, Grok Build에 반응해요.',
       themeConfig: {
         nav: [
           { text: '홈', link: '/ko/', activeMatch: '^/ko/$' },
@@ -168,7 +168,7 @@ export default defineConfig({
       lang: 'ja-JP',
       link: '/ja/',
       description:
-        '手もとのCodexペットをデスクトップの庭へ迎える無料アプリ。12人まで一緒に遊び、友だち同士で話し、Claude Code、Codex、Gemini CLI、Cursorに反応します。',
+        '手もとのCodexペットをデスクトップの庭へ迎える無料アプリ。12人まで一緒に遊び、友だち同士で話し、Claude Code、Codex、Gemini CLI、Cursor、Grok Buildに反応します。',
       themeConfig: {
         nav: [
           { text: 'ホーム', link: '/ja/', activeMatch: '^/ja/$' },
@@ -226,7 +226,7 @@ export default defineConfig({
       lang: 'zh-Hans',
       link: '/zh-hans/',
       description:
-        '把你的 Codex 宠物带到桌面乐园的免费桌宠应用：最多 12 位一起玩、互相聊天，还会对 Claude Code、Codex、Gemini CLI、Cursor 做出反应。',
+        '把你的 Codex 宠物带到桌面乐园的免费桌宠应用：最多 12 位一起玩、互相聊天，还会对 Claude Code、Codex、Gemini CLI、Cursor、Grok Build 做出反应。',
       themeConfig: {
         nav: [
           { text: '首页', link: '/zh-hans/', activeMatch: '^/zh-hans/$' },
