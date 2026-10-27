@@ -7,7 +7,7 @@
 
 ## Setup
 - Follow [Set up a development environment and run the app](docs/getting-started.md) once.
-- In short: Node.js 26 (`.node-version`), Rust stable 1.98 or later, the Tauri prerequisites for your OS, then `npm ci` and `rustup component add rustfmt clippy`.
+- In short: Node.js 26.12.1 or later (`.node-version`), Rust stable 1.99 or later, the Tauri prerequisites for your OS, then `npm ci` and `rustup component add rustfmt clippy`.
 
 ## Order of changing and checking
 - `npm run check` runs lint, unit tests and the site build together.

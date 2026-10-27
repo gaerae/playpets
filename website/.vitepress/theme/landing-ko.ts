@@ -108,7 +108,6 @@ export const sections = {
     '코딩 에이전트가 소식을 보내면 친구가 알아채요. Claude Code와 Gemini CLI는 단계마다, Cursor는 편집할 때와 마칠 때, Codex는 답을 마칠 때마다 알려요. "뭐 하고 있었어?"라고 물으면 방금 한 일을 짧게 들려줘요.',
   workNote:
     '연결은 이 컴퓨터 안에서만 오가요. 훅은 내가 쓴 프롬프트와 도구 입력을 보내지 않아요. 다만 짧은 상태 알림에 작업 내용이 담길 수 있어요.',
-  brewLabel: 'macOS에서 Homebrew로',
   chatPlay: '수다 떨기',
   chatAgain: '한 번 더',
   chatNote: '예시 대사예요. 앱에서는 연결한 AI가 친구들의 말을 지어요.',
