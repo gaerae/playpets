@@ -69,6 +69,9 @@ const TABLE: &[(&str, &str)] = &[
     ("agent.done", "任务完成了"),
     ("agent.running", "正在运行 {name}"),
     ("agent.failed", "任务因错误结束（代码 {name}）"),
+    ("agent.error", "任务因错误结束"),
+    ("agent.rate_limit", "达到使用上限，已停下"),
+    ("agent.sign_in", "需要重新登录"),
 
     ("error.friend_missing", "找不到这位伙伴。"),
     ("error.autostart", "无法更改登录时启动的设置。请检查系统设置中的登录项。"),

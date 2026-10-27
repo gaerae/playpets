@@ -101,7 +101,8 @@ flowchart LR
 - Grok Build:
   - It sends Claude's `hook_event_name` and `tool_name`; its other keys are camelCase.
   - Its `UserPromptSubmit`, `StopFailure`, `StopCancelled` and `SessionEnd` from a subagent (`subagentType` set) are not sent.
-  - It also runs the hooks in `~/.claude/settings.json` and `~/.cursor/hooks.json`. A `hook claude` or `hook cursor` it runs (`GROK_SESSION_ID` set) sends nothing, so its work shows only on the Grok Build friend.
+  - It also runs the hooks in `~/.claude/settings.json` and `~/.cursor/hooks.json`. A `hook claude` or `hook cursor` it runs (`GROK_SESSION_ID` set) sends nothing, so its work shows only on the Grok Build friend. Other agents' hooks still report with the variable set.
+  - Some turns end without a Stop (cancel-and-send, rewind, a finished `!` command). `idle_prompt` follows every turn, so `hook grok` reads `GET /pets` first and settles the friend only while it is still working.
 - The app turns codes into the current language.
 
 | Agent event | State | Sentence sent |
@@ -111,7 +112,8 @@ flowchart LR
 | Cursor `afterFileEdit`, `afterShellExecution`, `subagentStart` | working | `@editing`, `@command`, `@subtask` |
 | Claude, Gemini `Notification`; Grok `Notification` of type `permission_prompt` | waiting | The agent's notification sentence, or `@confirm` when there is none |
 | Claude `Stop`, Grok `Stop` with reason `end_turn`, Gemini `AfterAgent`, Cursor `stop` | done | `@done` |
-| Grok `StopFailure` | error | `@failed <error type>`, such as `rate_limit` |
+| Grok `StopFailure` | error | `@rate_limit`, `@sign_in` (`authentication_failed`), or `@error` |
+| Grok `Notification` of type `idle_prompt` | idle, only while the friend is working | None |
 | Claude, Gemini, Grok `SessionEnd`, Grok `StopCancelled`, Cursor `sessionEnd` | idle | None |
 | Codex `agent-turn-complete` | done | The last answer (120 characters), or `@done` when there is none |
 | `playpets run` start, failure | working, error | `@running <command>`, `@failed <exit code>` |

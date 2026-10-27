@@ -69,6 +69,9 @@ const TABLE: &[(&str, &str)] = &[
     ("agent.done", "Finished the task"),
     ("agent.running", "Running {name}"),
     ("agent.failed", "The task ended with an error (code {name})"),
+    ("agent.error", "The task ended with an error"),
+    ("agent.rate_limit", "Stopped at a usage limit"),
+    ("agent.sign_in", "Needs you to sign in again"),
 
     ("error.friend_missing", "Couldn't find that friend."),
     ("error.autostart", "Could not change whether PlayPets starts at login. Check the login items in your system settings."),

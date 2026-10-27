@@ -69,6 +69,9 @@ const TABLE: &[(&str, &str)] = &[
     ("agent.done", "作業が終わりました"),
     ("agent.running", "{name} を実行中"),
     ("agent.failed", "作業がエラーで終わりました（コード {name}）"),
+    ("agent.error", "作業がエラーで終わりました"),
+    ("agent.rate_limit", "利用上限に達して止まりました"),
+    ("agent.sign_in", "もう一度ログインが必要です"),
 
     ("error.friend_missing", "その友だちが見つかりません。"),
     ("error.autostart", "ログイン時に起動する設定を変更できませんでした。システム設定のログイン項目を確認してください。"),
