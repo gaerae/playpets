@@ -18,7 +18,7 @@ export function alternateLinks(relativePath, site, exists) {
 }
 
 // What a search or answer engine reads about the app, on each language's landing only. "<" is
-// written as < so a description can never close the script tag early.
+// written as \u003c so a description can never close the script tag early.
 export function appStructuredData(relativePath, site, { description, version }) {
   const lang = relativePath.match(/^(?:(ko|ja|zh-hans)\/)?index\.md$/);
   if (!lang) return [];

@@ -57,14 +57,17 @@ test('the first screen names the coding agents and every question on the landing
   }
 });
 
-test('the top of the landing compares the Codex app with PlayPets, in every language', async () => {
+test("the top of the landing sets a Codex pet's features beside PlayPets', in every language", async () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.ok(landing.indexOf('</section>') < landing.indexOf('class="codex-plus"'), 'right after the hero');
-  // A real table, so a screen reader and an answer engine read each row as Codex app / PlayPets.
-  assert.match(landing, /<table class="codex-compare">/);
+  // A real table, so a screen reader and an answer engine read each row as Codex pet / PlayPets.
+  // Phones restyle it as a grid, which drops table semantics in Safari, so the roles are explicit.
+  assert.match(landing, /<table class="codex-compare" role="table">/);
+  for (const role of ['rowgroup', 'row', 'columnheader', 'rowheader', 'cell'])
+    assert.match(landing, new RegExp(`role="${role}"`), role);
   assert.match(landing, /<caption class="visually-hidden">\{\{ t\.compare\.caption \}\}/);
   assert.match(landing, /v-for="\(\[label, codex, ours\]\) in t\.compare\.rows"/);
-  assert.match(landing, /<th scope="row">\{\{ label \}\}/);
+  assert.match(landing, /<th scope="row" role="rowheader">\{\{ label \}\}/);
   // The Codex column is dated and sourced, and the difference from OpenAI's feature sits under it.
   assert.match(landing, /href="https:\/\/learn\.chatgpt\.com\/docs\/pets">\{\{ t\.compare\.source \}\}/);
   assert.match(landing, /class="codex-note">\{\{ t\.diffNote \}\}/);
@@ -222,8 +225,6 @@ test('localized landing data has one active contract without removed feature tab
       assert.equal(key in copy, false, key);
     assert.equal(typeof copy.chatAlt, 'string');
     assert.ok(copy.chatAlt.length);
-    assert.equal(typeof copy.releaseTitle('0.1.0'), 'string');
-    assert.equal(typeof worldCopy.sceneCaption('0.1.0'), 'string');
   }
 });
 

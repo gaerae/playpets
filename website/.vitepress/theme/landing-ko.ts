@@ -15,8 +15,6 @@ export const copy = {
   privacyBody:
     '친구와 설정은 내 컴퓨터에 저장돼요. 대화 내용은 내가 연결한 AI로 보내지고, 그 서비스의 데이터 정책이 적용돼요. PlayPets는 대화 기록을 파일로 저장하지 않아요.',
   releaseLabel: '버전과 변경 사항',
-  releaseTitle: (v: string) => `PlayPets ${v}`,
-  releaseLink: (v: string) => `${v}`,
 };
 export const worldCopy = {
   places: ['언덕 정원', '돌집 안뜰', '호숫가 집', '포근한 거실'],
@@ -46,7 +44,6 @@ export const worldCopy = {
   creatorLink: '나만의 친구 만들기',
   discovery: '이미 Codex 펫이 있나요?',
   discoveryLink: '내 놀이터로 데려오기',
-  sceneCaption: (v: string) => `실제 앱 화면, PlayPets ${v}`,
 };
 export const sections = {
   compare: {

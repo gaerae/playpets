@@ -16,8 +16,6 @@ export const copy = {
   privacyBody:
     '友だちと設定はお使いのパソコンに保存されます。会話は接続したAIに送られ、そのサービスのデータポリシーが適用されます。PlayPetsが会話の履歴をファイルに残すことはありません。',
   releaseLabel: 'バージョンとリリースノート',
-  releaseTitle: (v: string) => `PlayPets ${v}`,
-  releaseLink: (v: string) => `${v}`,
 };
 export const worldCopy = {
   places: ['丘の庭', '石造りの中庭', '湖畔の家', 'くつろぎのリビング'],
@@ -48,7 +46,6 @@ export const worldCopy = {
   creatorLink: '自分だけの友だちを作る',
   discovery: 'Codexのペット、もういますか？',
   discoveryLink: '庭に迎えてみる',
-  sceneCaption: (v: string) => `実際のアプリ画面、PlayPets ${v}`,
 };
 export const sections = {
   compare: {
