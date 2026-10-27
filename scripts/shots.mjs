@@ -5,9 +5,10 @@
 // `screencapture`. The site's languages land in website/public/shots/<version>/<lang>/<name>.webp (2x on
 // Retina); every app language also gets the store pictures under release/store/<lang>/.
 // Normal shots isolate the app window and compose a controlled backdrop behind its alpha corners.
-// Desktop friends use a prepared foreground Chrome backdrop beneath their overlay windows.
+// Desktop friends are their own overlay window, set on the same backdrop with a small terminal.
 // The English run also films the yard for a few seconds and writes assets/demo.gif.
-// SHOT_SCENE=seasons captures only spring, summer and winter; chat refreshes only the two chat pictures.
+// SHOT_SCENE=seasons captures only spring, summer and winter; chat refreshes only the two chat pictures;
+// desktop refreshes only the desktop picture.
 
 import { spawn, spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
@@ -28,6 +29,7 @@ import {
   clearCaptureFocus,
   companionCast,
   composeWindow,
+  desktopWindow,
   mainDisplay,
   seasonalScenes,
 } from './shots-lib.mjs';
@@ -57,8 +59,9 @@ const chatOnly = process.env.SHOT_SCENE === 'chat';
 const smallOnly = process.env.SHOT_SCENE === 'small';
 const adultsOnly = process.env.SHOT_SCENE === 'adults';
 const placesOnly = process.env.SHOT_SCENE === 'places';
+const desktopOnly = process.env.SHOT_SCENE === 'desktop';
 const seasonsOnly = process.env.SHOT_SCENE === 'seasons' || placesOnly;
-const skipGif = chatOnly || smallOnly || adultsOnly || seasonsOnly || process.env.SKIP_GIF === '1';
+const skipGif = chatOnly || smallOnly || adultsOnly || seasonsOnly || desktopOnly || process.env.SKIP_GIF === '1';
 // Store listings (Microsoft Store, Product Hunt, GitHub's social card) want 16:9 pictures of at
 // least 1366×768: these scenes are also set on a 1920×1080 backdrop, centred with a shadow, as
 // PNGs under release/store/<lang>/ (not part of the site).
@@ -161,7 +164,7 @@ function scenario(lang) {
   const settledScene=async()=>{await wait(300);for(let i=0;i<50;i++){if($('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1)return;await wait(100);}throw new Error('Background did not finish loading and fading');};
   const clearFocus=${clearCaptureFocus.toString()};
   const checkChat=${assertChatCast.toString()};
-  const shot=async(name,rect)=>{if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
+  const shot=async(name,rect)=>{if(${desktopOnly}&&name!=='desktop')return;if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
   try{
     if(document.documentElement.lang!=='${lang}'){localStorage.setItem('lang','${lang}');await L('RELANG');await playPets.quitApp();return;}
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
@@ -310,8 +313,11 @@ function scenario(lang) {
       const x=Math.max(mon.x,Math.min(mon.x+mon.width-w,cx-w/2)),y=Math.max(mon.y+30,Math.min(mon.y+mon.height-h,cy-h+90));
       const far=cx<mon.x+mon.width/2?mon.x+mon.width-480:mon.x+20;
       await inv('e2eWindow',['main',{x:far,y:mon.y+mon.height-360,width:460,height:320}]);
-      await L('backdrop '+JSON.stringify({x,y,width:w,height:h}));await wait(2500);
+      await wait(2500);
       await shot('desktop',{x,y,width:w,height:h});
+      // Capturing the overlay and rendering the backdrop outlast the shot's own pause: hold the
+      // scene until the picture is made, or desktop mode may close the window under the capture.
+      await wait(4000);
     }else await L('desktop=none');
     await playPets.toggleDesktop();
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
@@ -330,17 +336,9 @@ function screenSize() {
   return mainDisplay(out) || { width: 1728, height: 1117 };
 }
 
-// A quiet window the desktop friends are photographed over: a wallpaper and a small terminal.
-// Chrome's app mode draws no tabs or address bar; the page comes from a file because app mode
-// does not open data: addresses.
-let browser;
-let backdropUrl;
-async function backdrop(rect, { terminal = true } = {}) {
-  const file = path.join(os.tmpdir(), 'playpets-shots-backdrop.html');
-  backdropUrl = `file://${file}`;
-  await writeFile(
-    file,
-    `<!doctype html><meta charset="utf-8"><title>backdrop</title><style>
+// The wallpaper behind every capture; the desktop picture also has a small terminal on it.
+function backdropPage({ terminal = false } = {}) {
+  return `<!doctype html><meta charset="utf-8"><title>backdrop</title><style>
     html,body{margin:0;height:100%;background:linear-gradient(135deg,#eaf3ef 0%,#e5edf0 55%,#f4efe4 100%);font-family:ui-monospace,Menlo,monospace;overflow:hidden}
     .term{position:absolute;left:36px;top:30px;width:380px;background:#0f141a;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.45);color:#cfd8dc;font-size:12px;line-height:1.7;padding:14px 16px 16px}
     .dots{display:flex;gap:6px;margin-bottom:10px}.dots i{width:10px;height:10px;border-radius:50%;background:#ff5f57}.dots i+i{background:#febc2e}.dots i+i+i{background:#28c840}
@@ -349,8 +347,16 @@ async function backdrop(rect, { terminal = true } = {}) {
       terminal
         ? '<div class="term"><div class="dots"><i></i><i></i><i></i></div><div class="d">$ npm test</div><div class="g">✓ unit tests passed</div><div class="d">$ npm run lint</div><div class="g">✓ checks passed</div><div class="d">$ playpets status working</div><div>Companion is working</div></div>'
         : ''
-    }`,
-  );
+    }`;
+}
+
+// A quiet window filling the screen behind the app while it is photographed.
+// Chrome's app mode draws no tabs or address bar; the page comes from a file because app mode
+// does not open data: addresses.
+let browser;
+async function backdrop(rect) {
+  const file = path.join(os.tmpdir(), 'playpets-shots-backdrop.html');
+  await writeFile(file, backdropPage());
   await browser?.close();
   // A fresh profile every time: no sign-in bars or restored tabs can show up in the frame.
   browser = await chromium.launchPersistentContext(await mkdtemp(path.join(os.tmpdir(), 'playpets-shots-chrome-')), {
@@ -395,16 +401,20 @@ function restorePointer(point) {
   if (point) spawnSync(path.join(captureTools, 'windows'), ['--restore-pointer', String(point.x), String(point.y)]);
 }
 
-function nativeWindow(pid, rect) {
+function appWindows(pid) {
   const listed = spawnSync(path.join(captureTools, 'windows'), [String(pid)], { encoding: 'utf8' });
   if (listed.status !== 0) throw new Error(`Cannot read capture window: ${listed.stderr}`);
-  return captureWindow(JSON.parse(listed.stdout), pid, rect);
+  return JSON.parse(listed.stdout);
+}
+
+// Only ever one window's own pixels: nothing the system draws over the screen gets in.
+function screencaptureWindow(window, file) {
+  const captured = spawnSync('screencapture', ['-x', '-o', '-l', String(window.id), file]);
+  if (captured.status !== 0) throw new Error(`Window capture failed: ${captured.stderr}`);
 }
 
 function captureNativeWindow(pid, rect, file) {
-  const window = nativeWindow(pid, rect);
-  const captured = spawnSync('screencapture', ['-x', '-o', '-l', String(window.id), file]);
-  if (captured.status !== 0) throw new Error(`Window capture failed: ${captured.stderr}`);
+  screencaptureWindow(captureWindow(appWindows(pid), pid, rect), file);
 }
 
 async function cleanWindowCapture(pid, rect, file) {
@@ -432,18 +442,34 @@ async function cleanWindowCapture(pid, rect, file) {
   }
 }
 
-async function desktopCapture(rect, file) {
-  const page = browser?.pages().find(page => page.url() === backdropUrl);
-  if (!page) throw new Error('Cannot identify desktop capture backdrop');
-  await page.bringToFront();
+// The overlay window holds the friends on transparent pixels; the part under the picture's rect is
+// laid on the backdrop page at the screen's own scale.
+async function desktopCapture(pid, at, file) {
+  const rect = Object.fromEntries(Object.entries(at).map(([k, v]) => [k, Math.round(v)]));
+  const raw = `${file}.overlay.png`;
   const pointer = parkPointer();
   try {
-    await page.waitForTimeout(350);
-    const region = [rect.x, rect.y, rect.width, rect.height].map(Math.round).join(',');
-    const captured = spawnSync('screencapture', ['-x', '-o', '-R', region, file]);
-    if (captured.status !== 0) throw new Error(`Desktop capture failed: ${captured.stderr}`);
+    await new Promise(resolve => setTimeout(resolve, 350));
+    const overlay = desktopWindow(appWindows(pid), pid, rect);
+    screencaptureWindow(overlay, raw);
+    const png = await readFile(raw);
+    const { x, y, width, height } = overlay.bounds;
+    const page = await captureEncoder.newPage({
+      viewport: { width: rect.width, height: rect.height },
+      deviceScaleFactor: pngSize(png).width / width,
+    });
+    try {
+      await page.setContent(
+        `${backdropPage({ terminal: true })}<img src="${dataUrl(png)}" style="position:absolute;left:${x - rect.x}px;top:${y - rect.y}px;width:${width}px;height:${height}px">`,
+      );
+      await page.evaluate(() => Promise.all(Array.from(document.images, image => image.decode())));
+      await writeFile(file, await page.screenshot({ type: 'png' }));
+    } finally {
+      await page.close();
+    }
   } finally {
     restorePointer(pointer);
+    await rm(raw, { force: true });
   }
 }
 
@@ -607,7 +633,7 @@ async function run(lang, dataDir, codexHome, outDir) {
   const storeDir = path.join(root, 'release/store', lang);
   // The backdrop fills the screen, so every margin and the window's rounded corners show it and
   // nothing else. Chrome wants the real size: a larger request falls back to a default window.
-  await backdrop({ x: 0, y: 0, ...screenSize() }, { terminal: false });
+  await backdrop({ x: 0, y: 0, ...screenSize() });
   return new Promise(resolve => {
     const gif = { timer: undefined, files: [], rect: undefined };
     const child = spawn(binary, [], {
@@ -633,7 +659,7 @@ async function run(lang, dataDir, codexHome, outDir) {
             const [, name, json] = msg.match(/^shot (\S+) (.*)$/);
             const r = JSON.parse(json);
             const file = path.join(outDir, `${name}.png`);
-            if (name === 'desktop') await desktopCapture(r, file);
+            if (name === 'desktop') await desktopCapture(child.pid, r, file);
             else await cleanWindowCapture(child.pid, r, file);
             console.log(`  ${lang}/${name}.png (isolated capture)`);
             if (STORE.names.includes(name)) {
@@ -648,8 +674,6 @@ async function run(lang, dataDir, codexHome, outDir) {
               timeout: 5000,
               env: { ...process.env, PLAYPETS_E2E_EVAL: '' },
             });
-          } else if (msg.startsWith('backdrop ')) {
-            await backdrop(JSON.parse(msg.slice(9)));
           } else if (msg.startsWith('gif-start ')) {
             gif.rect = JSON.parse(msg.slice(10));
             gif.timer = setInterval(() => {

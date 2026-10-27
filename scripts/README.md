@@ -23,7 +23,7 @@
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; native package install-and-launch verification runs in release CI |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
-| Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit` | Redacted read-only credential check; separately gated certification request with manual publication hold (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
+| Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit`, `store-notes.mjs` | Redacted read-only credential check; the release's Store submission and its What's new from the website release pages, run by `store.yml` (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
 | Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` includes the illustrated Clover face for the app and every platform’s tray; it needs macOS (`iconutil` makes the `.icns`) |
 | Native captures | `shots.mjs`, `shots-lib.mjs`, `shot-windows.swift` via `shots` | Localized captures and listing media; macOS capture host required |
 | Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
@@ -141,6 +141,15 @@ To refresh only the small-window yard and conversation after a responsive layout
 ```sh
 SHOT_SCENE=small SHOT_LANGS=en,ko,ja,zh-hans npm run shots
 ```
+
+To refresh only `desktop` (and its store picture) in every language:
+
+```bash
+SHOT_SCENE=desktop SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+```
+
+- The desktop picture is the app's own overlay window laid on the backdrop page, never a region of the screen.
+- The screen-sharing indicator, notifications and the screen's corners stay out.
 
 - Chat captures cancel existing walks and place the actual views beside the real
   panel.
@@ -380,13 +389,13 @@ Retiling a six-pose sheet:
   validated version and identity as the manifest, so a previous hand-off cannot
   leave stale version instructions.
 - `packaging/windows/msix/store.ps1` assembles the native Windows binaries in the
-  manual `Store packages` workflow.
+  `store` workflow, which runs when a release is published.
   - It uses the same manifest generator and Store identity as the Docker
     hand-off.
   - Its unsigned packages are for Partner Center, not direct local installation.
-- `Store certification submission`:
-  - verifies the successful package run and package contents before approval;
-  - refuses the first portal draft and any unrelated pending draft;
-  - never publishes.
-- Leave the repository switch `STORE_SUBMISSION_ENABLED=false` until separately
-  authorized.
+- The `store` workflow:
+  - checks package contents before the `microsoft-store` approval;
+  - refuses a product without a published submission, any pending draft and a
+    version the Store already has;
+  - never calls the publish endpoint;
+  - submits only with `STORE_SUBMISSION_ENABLED=true`.

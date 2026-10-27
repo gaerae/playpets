@@ -26,7 +26,7 @@
 
 Versions:
 - Starting with `1.0.0`, the app and Store share the same three version components; MSIX adds a final `.0` (for example `1.0.0.0`).
-- Package preparation does not submit or publish a Store release. See [Store setup and submission prerequisites](store-and-apple-signing.md).
+- Publishing the GitHub release also starts the `store` workflow. It builds both Store packages and, once it is switched on, submits them to Partner Center (step 9). See [Store setup and submission](store-and-apple-signing.md).
 - Versions change for a release, not automatically for each commit.
 - `package.json` is the source of truth; the npm lockfile and Rust package version match it.
 - New features advance the minor version; fixes advance the patch version.
@@ -185,7 +185,7 @@ git push --atomic origin HEAD v0.2.0
 | `SHA256SUMS.txt` | Always |
 | `latest.json`, `PlayPets_0.2.0_macos-universal.app.tar.gz` | The updater signing secrets exist |
 
-7. After the checks pass, press "Publish release" on the draft. Publishing starts the `distribute` workflow.
+7. After the checks pass, press "Publish release" on the draft. Publishing starts the `distribute` and `store` workflows.
    - The four version pages ask GitHub for that exact public tag in the visitor's browser. They expose the tag and installer links only after GitHub returns it.
    - Publication therefore needs no follow-up documentation commit or Pages deployment.
    - If GitHub cannot be reached, the page keeps a safe link to the release list.
@@ -209,6 +209,13 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 
    - `token --store` signs in to GitHub in the browser once and keeps the token in Windows Credential Manager, so it never appears on the command line.
 
+9. Check the `store` run (Microsoft Store). It skips prereleases.
+   - `source` checks the tag and makes "What's new" from the four website release pages.
+   - `package` builds the x64 and ARM64 MSIX from the tag; `bundle` checks their identity and keeps them as the `store-bundle` artifact.
+   - `submit` runs only when the repository variable `STORE_SUBMISSION_ENABLED` is `true`. It waits for approval of the `microsoft-store` environment, then creates the submission and requests certification.
+   - With `STORE_PUBLISH_MODE=Immediate` the Store publishes once certification passes. Otherwise press **Publish now** in Partner Center after it passes.
+   - Without submission, upload the two `.msix` files from `store-bundle` in Partner Center and paste each language's text from its `notes.json`.
+
 ## Verification
 - The release page has the files from step 6, and the notes match the `## [0.2.0]` section of `CHANGELOG.md`.
 - In an app with the previous version installed (when the updater signing secrets exist):
@@ -217,6 +224,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
   3. Close Settings during download and reopen it, without starting a second download.
   4. Complete installation and restart. Confirm the running version and brief completion notice.
   5. Restart again and check that the notice does not repeat.
+- Partner Center shows the new submission with both packages and What's new in four languages; certification starts on its own.
 - The winget PR passes its checks, or `brew upgrade --cask playpets` on a computer with the tap gets the new version.
 - With signing secrets, `latest.json` lists every platform the release has, including `linux-x86_64-deb` and `linux-aarch64-deb` entries for deb installs. If those are missing, deb users do not get updates in the app.
 
@@ -228,6 +236,9 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 | Only one platform's `build` fails | Read that runner's log and fix it, then run `release` by hand from Actions with the same tag (workflow_dispatch, tag input) |
 | The draft has no `latest.json` | The updater signing secrets are missing. Installed apps cannot find this release. Add the secrets, delete the draft, and run `release` by hand with the same tag |
 | `gh release create` fails with "already exists" | A draft for the same tag already exists. Delete that draft and run it by hand |
+| `store` stops with "already has this version" | The Store has this version or a later one. Nothing changed |
+| `store` stops with "pending submission" | A submission is still in certification or a draft is open in Partner Center. Finish or delete it, then run `store` by hand from the tag (**Use workflow from → Tags → vx.y.z**) |
+| `store` stops after creating a submission | Open the draft in Partner Center, fix it there and submit by hand. Do not run `store` again while that draft exists |
 | `distribute` fails for a published version (a manifest or the cask is refused) | Fix the generator on main, then run `distribute` by hand from main with that tag. The run uses main's generator and the tag's release files |
 
 For wider cases, see the [troubleshooting guide](../troubleshooting.md).

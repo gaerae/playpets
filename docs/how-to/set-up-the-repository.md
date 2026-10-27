@@ -245,7 +245,7 @@ gh secret set WINGET_TOKEN --repo gaerae/playpets
 
     - Store updates are separate from GitHub updates.
     - The first registration is manual.
-    - Later certification workflows need the protected `microsoft-store` environment and a separately enabled repository switch; publication remains manual.
+    - To submit each published release automatically, follow [Submit every release automatically](store-and-apple-signing.md#submit-every-release-automatically): an Entra app with the Manager role, the `microsoft-store` environment, and `STORE_SUBMISSION_ENABLED=true`.
     - The read-only API check does not submit anything.
 
 
