@@ -114,6 +114,10 @@ test('every choice on the landing uses one control, and the scene keeps its choi
   assert.match(css, /\.choice-group button\[aria-pressed="true"\]/);
   for (const old of ['.scene-choices', '.season-choices', '.world-console', '.world-greeting'])
     assert.ok(!css.includes(old), old);
+  // A chosen pose stays chosen, as in the gallery; only a tap on a friend is a short greeting.
+  assert.match(preview, /:aria-pressed="held === state" @click="hold\(state\)"/);
+  // Phone-sized touch targets for every chip and the pause button.
+  assert.match(css, /\.choice-group button,\s*\.world-motion \{\s*min-height: 44px;/);
 });
 
 test('sprite previews preserve their space and load only when visible', () => {

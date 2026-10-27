@@ -702,6 +702,10 @@ html[lang^="ja"] .landing {
   gap: 10px 16px;
   padding: 12px 14px;
 }
+/* The right-hand group keeps to the right edge even when it wraps, so both rows line up. */
+.dock-row > :last-child {
+  margin-left: auto;
+}
 .dock-row + .dock-row {
   border-top: 1px solid color-mix(in srgb, var(--world-ink) 12%, transparent);
 }
@@ -729,16 +733,22 @@ html[lang^="ja"] .landing {
   font-size: 13px;
   color: inherit;
 }
-.choice-group button:hover:not(:disabled, [aria-pressed="true"]) {
-  background: color-mix(in srgb, var(--world-ink) 8%, transparent);
+@media (hover: hover) {
+  .choice-group button:hover:not(:disabled, [aria-pressed="true"]) {
+    background: color-mix(in srgb, var(--world-ink) 8%, transparent);
+  }
 }
 .choice-group button[aria-pressed="true"] {
   font-weight: 600;
   color: var(--world-paper);
   background: var(--world-ink);
 }
+.choice-group button:focus-visible {
+  outline-offset: 2px;
+}
+/* Indoors the seasons rest muted, the last one still marked, so coming back outside is one tap. */
 .choice-group button:disabled {
-  opacity: 0.4;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 @media (max-width: 600px) {
@@ -755,7 +765,11 @@ html[lang^="ja"] .landing {
     font-size: 11px;
   }
   .dock-row {
-    padding: 10px;
+    padding: 8px 10px;
+  }
+  .choice-group button,
+  .world-motion {
+    min-height: 44px;
   }
   .choice-group {
     display: grid;
