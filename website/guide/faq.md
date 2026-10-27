@@ -36,10 +36,10 @@
 
 ## Windows shows a warning.
 
-- SmartScreen may warn about an unsigned or unfamiliar download. Check its source first.
+- SmartScreen may warn about the installer from GitHub, which is not code-signed yet. Check its source first.
 - Some systems offer **More info** and **Run anyway**. Managed devices may prevent this.
 - Details: [install guide](./install.md#windows).
-- Code signing is planned.
+- To install without the warning, use the [Microsoft Store](./install.md#microsoft-store) or winget: Microsoft signs that package.
 
 ## AI chat doesn't work on Windows.
 

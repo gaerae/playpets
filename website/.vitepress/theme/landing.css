@@ -358,22 +358,6 @@ html[lang^="ja"] .landing {
   font-size: 13px;
   opacity: 0.8;
 }
-.brew-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  margin: 26px 0 0;
-}
-.brew-line code {
-  font-size: 13px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: var(--world-paper);
-  user-select: all;
-}
 .connections header {
   margin-bottom: 38px;
 }
@@ -476,8 +460,12 @@ html[lang^="ja"] .landing {
   margin: auto;
   justify-items: center;
 }
-.landing-download .dl-row {
+.landing-download .dl-row,
+.landing-download .dl-command {
   justify-content: center;
+}
+.landing-download .dl-command code {
+  background: var(--world-paper);
 }
 .closing-links {
   display: flex;

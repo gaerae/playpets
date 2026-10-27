@@ -121,6 +121,8 @@ h3,
 /* Downloads stay equally usable in the landing and a guide. */
 .downloads {
   display: grid;
+  /* One column no wider than the block, so a long install command scrolls instead of widening it. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   justify-items: start;
   max-width: 100%;
@@ -208,6 +210,26 @@ h3,
   margin: 0;
   max-width: 380px;
 }
+/* The one-line install for the visitor's system, ready to copy. */
+.dl-command {
+  display: flex;
+  max-width: 100%;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  margin: 0;
+  font-size: 13px;
+}
+.dl-command code {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+  user-select: all;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
 .dl-retry {
   margin-left: 8px;
   min-height: 32px;
@@ -221,6 +243,10 @@ h3,
 }
 .vp-doc .downloads {
   margin: 24px 0;
+}
+/* The block keeps its own rhythm instead of the guide's paragraph margins. */
+.vp-doc .downloads > :is(p, details) {
+  margin: 0;
 }
 
 /* Supporting guides share the world's palette, with restrained reading surfaces. */

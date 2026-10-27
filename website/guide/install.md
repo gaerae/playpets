@@ -1,20 +1,39 @@
 ---
-description: Picking the installer for your operating system, the warning on first launch, updates and the data folder
+description: Microsoft Store, winget, Homebrew or the file for your system, the warning on first launch, updates and the data folder
 ---
 
 # Install
 
-- Get the installer from [GitHub releases](https://github.com/gaerae/playpets/releases/latest).
-- File names look like `PlayPets_version_os.extension`.
+- The button below picks the file for the system you are on. Other files are under **Other platforms**.
 
-::: warning macOS and Windows may warn before opening
-- Release files are not code-signed yet; the macOS app is not notarized. Signing is planned.
-- Gatekeeper or SmartScreen may warn or block opening it.
+<Downloads />
+
+| System | Ways to install | Code signing |
+|---|---|---|
+| Windows | [Microsoft Store](#microsoft-store) (recommended), [winget](#winget), [installer from GitHub](#installer-from-github) | Store and winget: signed by Microsoft. GitHub installer: not yet |
+| macOS | [Homebrew](#homebrew), [dmg from GitHub](#dmg-from-github) | Not yet |
+| Linux | [AppImage or deb](#linux) | — |
+
+::: warning The GitHub files are not code-signed yet
+- The Microsoft Store package is signed by Microsoft, and winget installs that same package.
+- The Windows installers and the macOS dmg on GitHub are not code-signed yet, and the macOS app is not notarized. macOS signing is in preparation.
+- Gatekeeper or SmartScreen may warn or block opening them.
 - These checks do not establish that the file is safe. Continue only if you trust the download from the official release page.
 - The available controls depend on your operating system and device policy.
 :::
 
-## macOS <Since v="0.1.0" />
+## macOS <Since v="0.1.0" /> {#macos}
+
+### Homebrew {#homebrew}
+
+```sh
+brew install gaerae/tap/playpets
+```
+
+- Homebrew installs the same dmg from GitHub releases, so the first-launch steps below apply too.
+- Updates come through the app, as with the dmg.
+
+### dmg from GitHub {#dmg-from-github}
 
 | File | For |
 |---|---|
@@ -29,7 +48,34 @@ description: Picking the installer for your operating system, the warning on fir
 - If macOS says the app will damage your computer, that is not an unidentified-developer warning.
 - Managed devices may restrict opening apps.
 
-## Windows <Since v="0.1.0" />
+## Windows <Since v="0.1.0" /> {#windows}
+
+| Way | Signed | Updates |
+|---|---|---|
+| Microsoft Store (recommended) | Signed by Microsoft, no SmartScreen warning | The Store |
+| winget | The same Store package | The Store |
+| Installer from GitHub | Not yet, SmartScreen may warn | The app itself |
+
+- Pick one way. The Store package and the GitHub installer are two separate installations.
+
+### Microsoft Store {#microsoft-store}
+
+1. Open [PlayPets in Microsoft Store](https://apps.microsoft.com/detail/9NSKXQ6R187M) and select **Get**.
+2. Start PlayPets from the Start menu.
+
+- Regular (x64) and ARM PCs each get their own package.
+- The Store keeps it up to date. Check in **Microsoft Store → Library**.
+
+### winget {#winget}
+
+```powershell
+winget install --id 9NSKXQ6R187M --source msstore
+```
+
+- This installs the Microsoft Store package from a terminal.
+- The first time, winget may ask you to accept the Store source's terms.
+
+### Installer from GitHub {#installer-from-github}
 
 | File | For |
 |---|---|
@@ -52,7 +98,7 @@ description: Picking the installer for your operating system, the warning on fir
 - If something looks wrong, tell us in a [GitHub issue](https://github.com/gaerae/playpets/issues).
 :::
 
-## Linux <Since v="0.1.0" />
+## Linux <Since v="0.1.0" /> {#linux}
 
 | File | For |
 |---|---|
@@ -118,12 +164,14 @@ chmod +x PlayPets_*.AppImage
 
 | Operating system | How |
 |---|---|
-| macOS | Move PlayPets from the Applications folder to the Trash |
+| macOS | Move PlayPets from the Applications folder to the Trash. Homebrew: `brew uninstall playpets` |
+| Windows, Store or winget | Remove PlayPets in Settings > Apps, or `winget uninstall --id 9NSKXQ6R187M` |
 | Windows installer | Remove PlayPets in Settings > Apps |
 | Linux deb | Remove it with the package manager you installed it with |
 | Linux AppImage | Delete the file |
 
 - The data folder below stays after you remove the app.
+- Store or winget: Windows removes the package's data together with the app.
 - To also remove settings and imported pets, delete the data folder too.
 
 ## Data folder <Since v="0.1.0" />
@@ -131,7 +179,7 @@ chmod +x PlayPets_*.AppImage
 | Operating system | Location |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`. Store or winget: inside the package's own folder |
 | Linux | `~/.local/share/app.playpets/` |
 
 | Inside | What it holds |

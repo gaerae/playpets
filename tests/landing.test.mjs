@@ -31,11 +31,13 @@ test('the landing lets visitors play a chat and a coding session instead of look
   assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<AgentDemo'));
   assert.doesNotMatch(landing, /shotUrl\('(yard-talk|desktop)'\)/);
   assert.match(landing, /path\('\/guide\/desktop'\)/);
-  assert.match(landing, /brew install gaerae\/tap\/playpets/);
+  // The install command follows the visitor's system, inside the download block.
+  assert.match(landing, /<Downloads>/);
+  assert.doesNotMatch(landing, /brew-line/);
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
     const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
     assert.equal(sections.heroFacts.length, 3, lang);
-    for (const key of ['togetherTitle', 'togetherBody', 'workTitle', 'workBody', 'workNote', 'brewLabel', 'heroAgents'])
+    for (const key of ['togetherTitle', 'togetherBody', 'workTitle', 'workBody', 'workNote', 'heroAgents'])
       assert.ok(sections[key]?.length, `${lang}: ${key}`);
   }
 });

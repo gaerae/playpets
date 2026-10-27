@@ -31,9 +31,10 @@
 
 ## Windows 上出现警告。
 
-- SmartScreen 可能对未签名或不常见的下载显示警告。先核实文件来源。
+- SmartScreen 可能对暂无代码签名的 GitHub 安装文件显示警告。先核实文件来源。
 - 部分系统提供**更多信息**和**仍要运行**；受管理的设备可能不允许继续。
-- 详见[安装指南](./install.md#windows)。代码签名已在计划中。
+- 详见[安装指南](./install.md#windows)。
+- 想不看到警告直接安装，请用 [Microsoft Store](./install.md#microsoft-store) 或 winget：那个安装包由 Microsoft 签名。
 
 ## Windows 上无法进行 AI 对话。
 
