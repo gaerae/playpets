@@ -178,7 +178,7 @@ playpets run -- <command>
 ## Development
 - Start at [docs/README.md](docs/README.md): architecture, standards, how-tos, decision records.
 - First setup: [Set up a development environment and run the app](docs/getting-started.md).
-- Needs: Rust stable 1.98+, Node.js 26, the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) (webkit2gtk and others on Linux).
+- Needs: Rust stable 1.99+, Node.js 26.12.1+, the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) (webkit2gtk and others on Linux).
 
 | Task | Command |
 |---|---|
