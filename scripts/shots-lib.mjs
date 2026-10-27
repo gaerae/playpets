@@ -38,6 +38,32 @@ export function captureWindow(windows, pid, rect) {
   return matches[0];
 }
 
+// The desktop picture is the app's own overlay window, never a screen region: a region also takes
+// whatever the system draws above it (the screen-sharing indicator, notifications, the screen's
+// rounded corner). The overlay spans its monitor, so it is the one app window holding the rect.
+export function desktopWindow(windows, pid, rect) {
+  const sized = ['width', 'height'].every(k => Number.isFinite(rect?.[k]) && rect[k] > 0);
+  const matches =
+    sized && Number.isFinite(rect.x) && Number.isFinite(rect.y) && Array.isArray(windows)
+      ? windows.filter(
+          w =>
+            Number.isInteger(w.id) &&
+            w.id > 0 &&
+            w.pid === pid &&
+            Number.isInteger(w.layer) &&
+            w.layer >= 0 &&
+            ['x', 'y', 'width', 'height'].every(k => Number.isFinite(w.bounds?.[k])) &&
+            w.bounds.x <= rect.x &&
+            w.bounds.y <= rect.y &&
+            w.bounds.x + w.bounds.width >= rect.x + rect.width &&
+            w.bounds.y + w.bounds.height >= rect.y + rect.height,
+        )
+      : [];
+  if (matches.length !== 1)
+    throw new Error(`Cannot identify desktop overlay for PID ${pid}: ${matches.length} matches`);
+  return matches[0];
+}
+
 // Window alpha reveals only this controlled backdrop, regardless of desktop focus.
 export function composeWindow(canvas, image, logicalWidth, margin = 0) {
   const ratio = image.naturalWidth / logicalWidth;

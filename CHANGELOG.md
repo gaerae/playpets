@@ -18,6 +18,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Fixed
 
 - Keep the seed count inside the Plant a seed tile when the tile is narrow, as in Chinese with ten or more seeds.
+- Retake the desktop-mode screenshot on the website and in the Linux software-center listing without the macOS screen-sharing indicator that sat in its corner.
 
 ### Security
 

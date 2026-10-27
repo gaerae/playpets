@@ -51,7 +51,8 @@ npm run site:dev
    - Normal captures and GIF frames target only the isolated app process's window, matched by its PID and outer bounds.
    - A canvas adds the controlled backdrop behind transparent corners and the screenshot margin, so unrelated desktop windows cannot enter those pictures.
    - If the matching window is missing or ambiguous, capture stops.
-   - Desktop-overlay pictures bring the prepared backdrop to the foreground before capturing the friends above it.
+   - The desktop picture captures only the app's overlay window and lays it on the same backdrop with a small terminal. Nothing the system draws over the screen (the screen-sharing indicator, notifications, the screen's rounded corners) can appear.
+   - `SHOT_SCENE=desktop` refreshes it alone.
    - On the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README).
 
 ```bash
