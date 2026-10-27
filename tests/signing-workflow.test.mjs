@@ -69,7 +69,10 @@ test('a Developer ID release notarizes and staples the disk image and checks it 
     assert.match(signature, new RegExp(`${secret}: \\$\\{\\{ secrets\\.${secret} \\}\\}`));
   }
   // The package smoke test then mounts the stapled image, not an earlier copy.
-  assert.ok(workflow.indexOf('      - name: macOS signature') < workflow.indexOf('      - name: Install and launch the package'));
+  assert.ok(
+    workflow.indexOf('      - name: macOS signature') <
+      workflow.indexOf('      - name: Install and launch the package'),
+  );
 });
 test('building a tag again replaces the files of its draft and never touches a published release', () => {
   const draft = step('Draft release');
