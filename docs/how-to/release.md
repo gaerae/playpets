@@ -240,7 +240,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 | The draft has no `latest.json` | The updater signing secrets are missing. Installed apps cannot find this release. Add the secrets, delete the draft, and run `release` by hand with the same tag |
 | `gh release create` fails with "already exists" | A draft for the same tag already exists. Delete that draft and run `release` by hand |
 | `store` stops with "already has this version" | The Store has this version or a later one. Nothing changed |
-| `store` stops with "pending submission" | A submission is still in certification or a draft is open in Partner Center. Finish or delete it, then run `store` by hand from the tag (**Use workflow from → Tags → vx.y.z**) |
+| `store` stops with "pending submission" | A submission is still in certification or a draft is open in Partner Center. **Store API verification** shows its state and error codes. Finish or delete it, then run `store` by hand from the tag (**Use workflow from → Tags → vx.y.z**) |
 | `store` stops after creating a submission | Open the draft in Partner Center, fix it there and submit by hand. Do not run `store` again while that draft exists |
 | `distribute` fails for a published version (a manifest or the cask is refused) | Fix the generator on main, then run `distribute` by hand from main with that tag. The run uses main's generator and the tag's release files |
 

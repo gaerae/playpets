@@ -25,7 +25,12 @@ test('Store verification uses client credentials and reads only the matching pro
     return Response.json({
       id: '1152921505702162755',
       targetPublishMode: 'Manual',
-      status: 'PendingCommit',
+      status: 'CertificationFailed',
+      statusDetails: {
+        errors: [{ code: 'InvalidParameterValue', details: 'private provider text' }],
+        warnings: [{ code: 'SalesUnsupportedWarning', details: 'private provider text' }],
+        certificationReports: [{ date: '2026-10-27T00:00:00Z', reportUrl: 'private-report-url' }],
+      },
       fileUploadUrl: 'private-upload-url',
     });
   });
@@ -48,7 +53,15 @@ test('Store verification uses client credentials and reads only the matching pro
   assert.equal(report.authenticated, true);
   assert.equal(report.pendingPublishMode, 'Manual');
   assert.equal(report.hasPublishedSubmission, false);
-  assert.doesNotMatch(JSON.stringify(report), /test-access-token|test-only-client-key|private-upload-url/);
+  // What a maintainer needs to clear a hold: where the submission is and Microsoft's codes, not its text.
+  assert.equal(report.pendingStatus, 'CertificationFailed');
+  assert.deepEqual(report.pendingErrorCodes, ['InvalidParameterValue']);
+  assert.deepEqual(report.pendingWarningCodes, ['SalesUnsupportedWarning']);
+  assert.equal(report.pendingCertificationReports, 1);
+  assert.doesNotMatch(
+    JSON.stringify(report),
+    /test-access-token|test-only-client-key|private-upload-url|private-provider-text|private provider text|private-report-url/,
+  );
 });
 
 test('Store verification rejects missing keys before contacting Microsoft', async () => {
@@ -92,4 +105,32 @@ test('Store verification refuses to call an unexpected pending submission addres
     /Invalid pending submission ID/,
   );
   assert.equal(count, 2);
+});
+
+test('Store verification reports only known statuses and plain codes of a pending submission', async () => {
+  let count = 0;
+  const report = await verifyStore(env, async () => {
+    count += 1;
+    if (count === 1) return Response.json({ access_token: 'token' });
+    if (count === 2) return Response.json(app);
+    return Response.json({
+      targetPublishMode: 'Immediate',
+      status: 'Something <b>new</b>',
+      statusDetails: { errors: [{ code: 'Has spaces and <tags>' }, { code: 'PackageValidationFailed' }, {}] },
+    });
+  });
+  assert.equal(report.pendingStatus, 'unknown');
+  assert.deepEqual(report.pendingErrorCodes, ['PackageValidationFailed']);
+  assert.deepEqual(report.pendingWarningCodes, []);
+  assert.equal(report.pendingCertificationReports, 0);
+});
+
+test('Store verification without a pending submission says so', async () => {
+  let count = 0;
+  const report = await verifyStore(env, async () =>
+    Response.json(++count === 1 ? { access_token: 'token' } : { ...app, pendingApplicationSubmission: null }),
+  );
+  assert.equal(report.hasPendingSubmission, false);
+  assert.equal(report.pendingStatus, 'none');
+  assert.deepEqual(report.pendingErrorCodes, []);
 });

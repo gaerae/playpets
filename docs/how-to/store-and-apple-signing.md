@@ -235,6 +235,7 @@ The account holder does these one-time steps. Never paste a key into a chat, iss
 - `Store API verification` (`store-api.yml`) runs its tests without credentials, then waits for the `microsoft-store` environment.
 - Its credentialed step runs `npm run store:verify` with no dependency install.
 - It requests a token, reads the app, checks the package identity and publisher, and reads any pending submission's publish mode.
+- For a pending submission it also shows its state (for example `Certification`, `CertificationFailed`, `PendingCommit`) and Microsoft's error and warning codes, never their text.
 - It never creates, uploads, commits or publishes a submission.
 - Logs show a short report with no token responses, provider error bodies, keys or upload addresses.
 - It runs only by hand, from **Actions** on `main`.
