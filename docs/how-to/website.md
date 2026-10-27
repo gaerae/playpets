@@ -76,7 +76,7 @@ SKIP_GIF=1 npm run shots -- 0.2.0
 SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans npm run shots -- 0.2.0
 ```
 
-4. Mark the version where a feature first arrived with `<Since v="0.2.0" />` at the end of its heading.
+4. Mark the version where a feature first arrived with `<Since v="0.2.0" />` at the end of its heading. A first-release badge (`0.1.0`) shows nothing, and no badge appears in the page outline.
 5. If you changed the headline or the first-screen text, redraw the share card and banner too.
 
 ```bash
