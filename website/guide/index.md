@@ -1,15 +1,14 @@
 # Guide
 
-- PlayPets is a shared yard for companions who talk to you and each other.
-- Invite a starter or import a compatible community pet file, then choose a name, personality and relationship.
-- Codex itself is not required.
-- The first yard opens on a sunny spring day. Choose a season, time and weather, or set them to Auto.
-- Friends stroll, eat treats and play three games.
-- Dig to find flower seeds and saplings.
-- Gifts: one per local calendar day for the whole yard, shared by all friends.
-- Grow flowers, fish and catch bugs for the album; grow closer over time.
-- Resize the window to keep the yard beside your work. Desktop mode lets friends roam over other windows.
-- Conversation needs a local model, a signed-in CLI or another AI connection. Coding-agent hooks are optional.
+PlayPets is a shared yard for companions who talk to you and to each other. Invite a starter or import a compatible community pet file, then give it a name, a personality and a relationship. You don't need Codex itself.
+
+The first yard opens on a sunny spring day. Pick the season, time and weather yourself, or leave them on Auto. Friends stroll, eat treats and play three games, and digging turns up flower seeds and saplings.
+
+The yard gets one gift per local calendar day, shared by all your friends. Grow flowers, fish and catch bugs to fill the album, and you grow closer over time.
+
+Resize the window to keep the yard beside your work, or switch to desktop mode and let friends roam over your other windows.
+
+To chat, a friend needs a local model, a signed-in CLI or another AI connection. Coding-agent hooks are optional.
 
 ## What you need
 
@@ -20,16 +19,13 @@
 | Coding agent | Optional. Works with Claude Code, Codex CLI, Gemini CLI, Cursor and tools that use MCP |
 | Internet | Needed for downloads, community imports, updates and remote AI. Yard activities and a local Ollama model already downloaded to your computer can work offline |
 
-- Built with Tauri: uses the operating system's webview instead of bundling a full browser.
+PlayPets is built with Tauri, so it uses your operating system's webview instead of bundling a full browser.
 
 ## Two words
 
-- **Pet:** a character file. One folder with a `pet.json` and a sprite sheet is one pet.
-  - Pets in Codex's pet folder show up automatically.
-  - You can also import pets from community sites or pick a folder on your computer.
-- **Friend:** a pet you invited into the yard.
-  - Invite the same pet several times to get several friends.
-  - Each has its own name, personality, size and AI.
+A pet is a character file: one folder with a `pet.json` and a sprite sheet is one pet. Pets in Codex's pet folder show up automatically. You can also import pets from community sites or pick a folder on your computer.
+
+A friend is a pet you invited into the yard. Invite the same pet several times and you get several friends, each with its own name, personality, size and AI.
 
 ## Read in this order
 
@@ -43,4 +39,4 @@
 8. [Settings](./settings.md) — language, updates, quitting, what is saved and what is not
 9. [FAQ](./faq.md)
 
-- First time: steps 1 to 3 are enough. Open the rest when you need it.
+If this is your first time, steps 1 to 3 are enough. Open the rest when you need them.

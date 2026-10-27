@@ -16,7 +16,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
-- The user guide in English, Korean, Japanese and Simplified Chinese is rewritten as short steps, tables and bullets, with button names matching the app.
+- The user guide in English, Korean, Japanese and Simplified Chinese is rewritten with steps, tables and bullets for settings and options, and natural sentences where it explains, with button names matching the app; the privacy policy reads more plainly in all four languages.
 
 ### Fixed
 

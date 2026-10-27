@@ -11,8 +11,11 @@
   - Prompt files for artwork. They are input to a tool, not docs.
 
 ## Rules
-- Write short bullets and tables, in every language. No paragraph longer than two lines.
-- One fact per bullet. Start with the answer or the action.
+- Match the form to the content:
+  - Technical content (commands, settings, file paths, options, limits, developer docs): short bullets and tables. One fact per bullet.
+  - Guidance to a person using the app (what a feature is for, what happens when they do something, the friends' stories): short paragraphs of natural sentences. No paragraph longer than three lines.
+- Start with the answer or the action.
+- Write each language as a person who speaks it would. No word-for-word translation of another language's sentences.
 - Cut filler, repetition and hedging. Keep every fact: commands, paths, numbers, limits, warnings and links.
 - Steps a person follows in order are a numbered list. Options and comparisons are a table.
 - Commands and code go in code blocks; file names, keys and values in backticks.
@@ -20,6 +23,7 @@
 - Use plain verbs. No RFC words such as MUST or SHOULD.
 - Keep headings stable. Other pages and the site link to their anchors, and each site language keeps the same headings in the same order.
 - Keep page structure the site needs: front matter, `<Shot>`, `<Since>`, `:::` boxes.
+- No middle dots (·) on the site. Use commas, "and" or a list.
 
 ## Tone by language
 - English: plain, short sentences or fragments.
@@ -34,6 +38,10 @@ Before:
 
 > If you would like to change which AI a friend uses, you can open the settings and then go to the Friends & AI section, where you will find the connection list.
 
-After:
+After, as a setting:
 
 > - Change a friend's AI in **Settings → Friends & AI**.
+
+After, as guidance:
+
+> A friend with no AI still plays in the yard. Give it one in **Settings → Friends & AI** and it starts answering you in its own words.
