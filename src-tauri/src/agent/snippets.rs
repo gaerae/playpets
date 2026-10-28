@@ -3,7 +3,15 @@
 use crate::i18n;
 use serde_json::{Map, Value, json};
 
-const CLAUDE_EVENTS: [&str; 5] = ["UserPromptSubmit", "PreToolUse", "Notification", "Stop", "SessionEnd"];
+// A turn that ends on an API error fires StopFailure instead of Stop.
+const CLAUDE_EVENTS: [&str; 6] = [
+    "UserPromptSubmit",
+    "PreToolUse",
+    "Notification",
+    "Stop",
+    "StopFailure",
+    "SessionEnd",
+];
 const GEMINI_EVENTS: [&str; 5] = ["BeforeAgent", "BeforeTool", "Notification", "AfterAgent", "SessionEnd"];
 // Observational Cursor hooks only: permission hooks block the agent on any output mismatch.
 const CURSOR_EVENTS: [&str; 6] = [
@@ -144,7 +152,14 @@ mod tests {
         let keys: Vec<&String> = claude["hooks"].as_object().unwrap().keys().collect();
         assert_eq!(
             keys,
-            ["UserPromptSubmit", "PreToolUse", "Notification", "Stop", "SessionEnd"]
+            [
+                "UserPromptSubmit",
+                "PreToolUse",
+                "Notification",
+                "Stop",
+                "StopFailure",
+                "SessionEnd"
+            ]
         );
         assert_eq!(claude["hooks"]["PreToolUse"][0]["matcher"], "*");
         assert!(claude["hooks"]["Stop"][0].get("matcher").is_none());

@@ -90,6 +90,7 @@ Your friend remembers up to 8 recent activities. Ask "what were you doing?" in t
 
 - The copied piece holds the path to the PlayPets executable. That executable is the hook command itself, so there's nothing else to install.
 - Moved the app? Copy and paste the settings again.
+- Copied the Claude Code settings before version 1.4.0? Copy and paste them again, so your friend also tells you when a turn stops on an error such as a usage limit.
 - If the file already has a `hooks` or `mcpServers` entry, merge the piece into that entry.
 - Grok Build also runs your Claude Code and Cursor hooks. Its work shows only on the Grok Build friend.
 

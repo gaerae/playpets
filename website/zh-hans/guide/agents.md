@@ -88,6 +88,7 @@ PLAYPETS_PET=Pip claude
 
 - 复制的设置里有 PlayPets 可执行文件的路径。这个可执行文件本身就是联动命令，不用另外安装。
 - 如果把应用挪到了别处，请重新复制设置再粘贴一次。
+- 如果是在 1.4.0 之前的版本复制的 Claude Code 设置，请重新复制再粘贴。这样遇到使用上限之类的错误停下时，伙伴也会告诉你。
 - 文件里已经有 `hooks` 或 `mcpServers` 项时，把这段设置合并到那一项里。
 - Grok Build 也会运行 Claude Code 和 Cursor 的钩子，但它的工作只显示在 Grok Build 的伙伴身上。
 

@@ -89,6 +89,7 @@ PLAYPETS_PET=Pip claude
 - 복사한 조각에는 PlayPets 실행 파일 경로가 들어 있어요.
 - 이 실행 파일이 곧 연동 명령이라 따로 설치할 게 없어요.
 - 앱을 다른 곳으로 옮겼다면 설정을 다시 복사해 붙여 넣어요.
+- 1.4.0보다 앞선 버전에서 Claude Code 설정을 복사했다면 다시 복사해 붙여 넣어요. 그래야 사용 한도 같은 오류로 멈췄을 때도 친구가 알려 줘요.
 - 파일에 `hooks`나 `mcpServers` 항목이 이미 있으면 그 항목 안에 조각을 합쳐 넣어요.
 - Grok Build는 Claude Code와 Cursor의 훅도 함께 실행해요. 그래도 Grok Build의 작업은 Grok Build 친구에게만 보여요.
 

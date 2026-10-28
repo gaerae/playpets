@@ -74,11 +74,16 @@ pub fn hook_event(agent: &str, payload: &Value) -> Option<(String, String)> {
         ("cursor", "afterFileEdit") => ("working", "@editing".into()),
         ("cursor", "afterShellExecution") => ("working", "@command".into()),
         ("cursor", "subagentStart") => ("working", "@subtask".into()),
+        ("claude", "Notification") if !claude_asks(payload) => return None,
         ("claude", "Notification") | ("gemini", "Notification") => {
             let m = clip(payload.get("message"), 160);
             ("waiting", if m.is_empty() { "@confirm".into() } else { m })
         }
         ("claude", "Stop") | ("gemini", "AfterAgent") | ("cursor", "stop") => ("done", "@done".into()),
+        ("claude", "StopFailure") => (
+            "error",
+            failure_message(payload.get("error").and_then(|v| v.as_str())).into(),
+        ),
         ("claude", "SessionEnd") | ("gemini", "SessionEnd") | ("cursor", "sessionEnd") => ("idle", String::new()),
         _ => return None,
     };
@@ -112,19 +117,34 @@ fn grok_event(event: &str, payload: &Value) -> Option<(String, String)> {
         }
         "Stop" if field("reason") == Some("end_turn") => ("done", "@done".into()),
         // The error is a kind (rate_limit, server_error, …), not an exit code like `@failed`'s.
-        "StopFailure" if main_session => (
-            "error",
-            match field("error") {
-                Some("rate_limit") => "@rate_limit",
-                Some("authentication_failed") => "@sign_in",
-                _ => "@error",
-            }
-            .into(),
-        ),
+        "StopFailure" if main_session => ("error", failure_message(field("error")).into()),
         "StopCancelled" | "SessionEnd" if main_session => ("idle", String::new()),
         _ => return None,
     };
     Some((state.into(), message))
+}
+
+/// Whether a Claude Code notification waits on the person. It also says it is idle a minute after
+/// every turn and tells of sign-ins and quotas; one without `notification_type` comes from a version
+/// that only notified to ask.
+fn claude_asks(payload: &Value) -> bool {
+    match payload.get("notification_type").and_then(|v| v.as_str()) {
+        None => true,
+        Some(kind) => matches!(
+            kind,
+            "permission_prompt" | "elicitation_dialog" | "elicitation_url_dialog" | "agent_needs_input"
+        ),
+    }
+}
+
+/// A turn that ended on an API error, by its kind (Claude Code and Grok Build name them alike);
+/// the error's own text never reaches the friend.
+fn failure_message(error: Option<&str>) -> &'static str {
+    match error {
+        Some("rate_limit") => "@rate_limit",
+        Some("authentication_failed" | "oauth_org_not_allowed") => "@sign_in",
+        _ => "@error",
+    }
 }
 
 /// Grok Build runs Claude Code's and Cursor's hook files too, and gives every hook it runs
@@ -135,13 +155,18 @@ fn borrowed_by_grok(agent: &str, grok_session: bool) -> bool {
     grok_session && matches!(agent, "claude" | "cursor")
 }
 
-/// Some Grok turns end with no Stop at all (cancel-and-send, rewind, a finished `!` command);
-/// its guide names `idle_prompt` as the backstop. It also follows every finished turn, so it
-/// only settles a friend still left working and keeps a done one done.
+/// Some turns end with no Stop at all (Claude Code stopped with Esc; Grok's cancel-and-send,
+/// rewind or a finished `!` command); Grok's guide names `idle_prompt` as the backstop. It also
+/// follows every finished turn, so it only settles a friend still left working and keeps a done
+/// one done. Grok keys it camelCase, Claude Code snake_case.
 fn settles_when_working(agent: &str, payload: &Value) -> bool {
-    agent == "grok"
-        && payload.get("hook_event_name").and_then(|v| v.as_str()) == Some("Notification")
-        && payload.get("notificationType").and_then(|v| v.as_str()) == Some("idle_prompt")
+    let key = match agent {
+        "grok" => "notificationType",
+        "claude" => "notification_type",
+        _ => return false,
+    };
+    payload.get("hook_event_name").and_then(|v| v.as_str()) == Some("Notification")
+        && payload.get(key).and_then(|v| v.as_str()) == Some("idle_prompt")
 }
 
 /// Whether the friend a hook reports to (`--pet`, or the first one) is working, by `/pets`.
@@ -529,11 +554,73 @@ mod tests {
                 "claude",
                 json!({"hook_event_name": "Notification", "message": "Claude needs your permission to use Bash"})
             ),
-            Some(("waiting".into(), "Claude needs your permission to use Bash".into()))
+            Some(("waiting".into(), "Claude needs your permission to use Bash".into())),
+            "a Claude Code without notification_type only notified to ask"
         );
+        for asks in [
+            "permission_prompt",
+            "elicitation_dialog",
+            "elicitation_url_dialog",
+            "agent_needs_input",
+        ] {
+            assert_eq!(
+                e(
+                    "claude",
+                    json!({"hook_event_name": "Notification", "notification_type": asks, "message": "Claude needs you"})
+                ),
+                Some(("waiting".into(), "Claude needs you".into())),
+                "{asks}"
+            );
+        }
+        // Claude Code says it is idle a minute after every turn, and tells of sign-ins and quotas;
+        // none of them waits on the person.
+        for tells in [
+            "idle_prompt",
+            "auth_success",
+            "agent_completed",
+            "quota_auto_resume_fired",
+        ] {
+            assert_eq!(
+                e(
+                    "claude",
+                    json!({"hook_event_name": "Notification", "notification_type": tells, "message": "Claude is waiting for your input"})
+                ),
+                None,
+                "{tells}"
+            );
+        }
         assert_eq!(
             e("claude", json!({"hook_event_name": "Stop"})),
             Some(("done".into(), "@done".into()))
+        );
+        assert_eq!(
+            e(
+                "claude",
+                json!({"hook_event_name": "StopFailure", "error": "rate_limit", "error_details": "429", "last_assistant_message": "API Error: Rate limit reached"})
+            ),
+            Some(("error".into(), "@rate_limit".into()))
+        );
+        assert_eq!(
+            e(
+                "claude",
+                json!({"hook_event_name": "StopFailure", "error": "authentication_failed"})
+            ),
+            Some(("error".into(), "@sign_in".into()))
+        );
+        assert_eq!(
+            e(
+                "claude",
+                json!({"hook_event_name": "StopFailure", "error": "oauth_org_not_allowed"})
+            ),
+            Some(("error".into(), "@sign_in".into()))
+        );
+        assert_eq!(
+            e(
+                "claude",
+                json!({"hook_event_name": "StopFailure", "error": "overloaded"})
+            ),
+            Some(("error".into(), "@error".into())),
+            "the error text itself is never shown"
         );
         assert_eq!(
             e("claude", json!({"hook_event_name": "SessionEnd"})),
@@ -701,7 +788,7 @@ mod tests {
         assert_eq!(e(json!({"hook_event_name": "SessionStart", "source": "startup"})), None);
         assert_eq!(
             hook_event(
-                "claude",
+                "gemini",
                 &json!({"hook_event_name": "StopFailure", "error": "rate_limit"})
             ),
             None,
@@ -728,7 +815,21 @@ mod tests {
         // guide names idle_prompt as the backstop, and it also follows every finished turn.
         let idle = json!({"hook_event_name": "Notification", "notificationType": "idle_prompt"});
         assert!(settles_when_working("grok", &idle));
-        assert!(!settles_when_working("claude", &idle), "event names are per agent");
+        assert!(
+            !settles_when_working("claude", &idle),
+            "Claude Code's key is snake_case"
+        );
+        // A Claude Code turn stopped with Esc fires no Stop, so its idle notice settles it too.
+        let claude_idle = json!({"hook_event_name": "Notification", "notification_type": "idle_prompt"});
+        assert!(settles_when_working("claude", &claude_idle));
+        assert!(
+            !settles_when_working("gemini", &claude_idle),
+            "event names are per agent"
+        );
+        assert!(!settles_when_working(
+            "claude",
+            &json!({"hook_event_name": "Notification", "notification_type": "permission_prompt"})
+        ));
         assert!(!settles_when_working(
             "grok",
             &json!({"hook_event_name": "Notification", "notificationType": "permission_prompt"})

@@ -100,6 +100,10 @@ flowchart LR
 
 **Hook translation**
 - Events not in the table are not sent.
+- Claude Code:
+  - Its `Notification` says by `notification_type` what it tells. Only `permission_prompt`, `elicitation_dialog`, `elicitation_url_dialog` and `agent_needs_input` wait on the person; one with no type comes from an older version that only notified to ask.
+  - `idle_prompt` follows every turn about a minute later. A turn stopped with Esc fires no Stop, so `hook claude` settles the friend with it only while the friend is still working, as `hook grok` does.
+  - `StopFailure` replaces `Stop` when a turn ends on an API error. Settings copied before 1.4.0 do not have it.
 - Grok Build:
   - It sends Claude's `hook_event_name` and `tool_name`; its other keys are camelCase.
   - Its `UserPromptSubmit`, `StopFailure`, `StopCancelled` and `SessionEnd` from a subagent (`subagentType` set) are not sent.
@@ -112,10 +116,10 @@ flowchart LR
 | Claude, Grok `UserPromptSubmit`, Gemini `BeforeAgent`, Cursor `afterAgentThought` | working | `@thinking` |
 | Claude, Grok `PreToolUse`, Gemini `BeforeTool`, Cursor `postToolUse` | working | `@tool <tool name>`, or `@tool_any` when there is no name |
 | Cursor `afterFileEdit`, `afterShellExecution`, `subagentStart` | working | `@editing`, `@command`, `@subtask` |
-| Claude, Gemini `Notification`; Grok `Notification` of type `permission_prompt` | waiting | The agent's notification sentence, or `@confirm` when there is none |
+| Claude `Notification` of a type that asks (or no type), Gemini `Notification`, Grok `Notification` of type `permission_prompt` | waiting | The agent's notification sentence, or `@confirm` when there is none |
 | Claude `Stop`, Grok `Stop` with reason `end_turn`, Gemini `AfterAgent`, Cursor `stop` | done | `@done` |
-| Grok `StopFailure` | error | `@rate_limit`, `@sign_in` (`authentication_failed`), or `@error` |
-| Grok `Notification` of type `idle_prompt` | idle, only while the friend is working | None |
+| Claude, Grok `StopFailure` | error | `@rate_limit`, `@sign_in` (`authentication_failed`, `oauth_org_not_allowed`), or `@error` |
+| Claude, Grok `Notification` of type `idle_prompt` | idle, only while the friend is working | None |
 | Claude, Gemini, Grok `SessionEnd`, Grok `StopCancelled`, Cursor `sessionEnd` | idle | None |
 | Codex `agent-turn-complete` | done | The last answer (120 characters), or `@done` when there is none |
 | `playpets run` start, failure | working, error | `@running <command>`, `@failed <exit code>` |
