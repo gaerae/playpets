@@ -27,6 +27,7 @@ import {
   toast,
   views,
 } from './core/state.js';
+import { fadedBetween } from './core/status.js';
 import { clip, plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
 import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
@@ -256,13 +257,17 @@ const AUTO_PLAY_MS = 4 * 60 * 1000;
 setInterval(() => {
   if (data.autoPlay && shown) autoDig();
 }, AUTO_PLAY_MS);
-// A finished agent's state fades after a while (core/status.js): the page looks again each minute.
+// A finished agent's state fades after a while (core/status.js): the page looks each minute, and
+// is drawn again only when one did, so a picker or an open album is not rebuilt under the person.
+let looked = Date.now();
 everyMinute(() => {
   if (data.garden?.trees?.length) {
     call('growTrees').catch(console.error);
     renderTrees();
   }
-  if (Object.values(data.statuses).some(s => s.at)) render();
+  const now = Date.now();
+  if (fadedBetween(data, looked, now)) render();
+  looked = now;
 });
 // Speech bubbles from one conversation are spaced out by this much.
 const BUBBLE_GAP = 1200;

@@ -65,7 +65,8 @@ const remove = view => {
   const tree = current(view.id);
   if (!tree || view.busy) return;
   removeWithUndo(view.id, view, t('garden.pulled', { kind: t(`tree.${tree.kind}`) }), async () => {
-    if (!current(view.id)) return;
+    // Looked up in every place: the person may have moved on before the Undo window ended.
+    if (!data.garden?.trees?.some(item => item.id === tree.id)) return;
     view.busy = true;
     try {
       await call('removeTree', tree.id);

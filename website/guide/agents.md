@@ -131,7 +131,7 @@ playpets run -- <command>
   - Check what you send through terminal or MCP messages.
   - To keep those details on this computer, use a downloaded local model.
 - The hooks never block the agent's work.
-  - They finish quietly within 3 seconds.
+  - They finish quietly within a few seconds.
   - The agent keeps running even when the app is closed.
 - Hooks are separate from the AI connection for chatting. Hooks alone don't let you chat with your friend.
 - Detailed design: [Coding agent integration](/dev/agent-integration) in the developer docs.

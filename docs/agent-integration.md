@@ -54,7 +54,7 @@ flowchart LR
    - At each step the agent runs `playpets hook claude --bridge <bridge.json>` and passes the hook JSON on standard input.
    - Codex passes the notification JSON as the last argument.
    - CLI mode turns it into a state and a code and sends it with `POST /events`.
-   - A hook never blocks the agent's work: it is quiet, finishes within 3 seconds, and exits with code 0 even when it fails.
+   - A hook never blocks the agent's work: it is quiet, gives up on a slow app within a few seconds, and exits with code 0 even when it fails.
 3. **MCP:**
    - The agent starts `playpets mcp` as an MCP server and sends `initialize`, `tools/list` and `tools/call`.
    - Tool calls go through the same bridge path.

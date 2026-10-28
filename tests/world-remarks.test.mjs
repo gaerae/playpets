@@ -60,6 +60,24 @@ test('a new indoor place uses its registered atmosphere instead of studio lines'
   assert.ok(list('chatter.day').includes(textContent), textContent);
 });
 
+test('a friend whose agent finished long ago is quiet again, and chats like one', t => {
+  const before = data;
+  views.clear();
+  const done = { state: 'done', source: 'agent', at: Date.now() - 31 * 60 * 1000 };
+  setData({ ...data, statuses: { finished: done, fresh: { ...done, at: Date.now() } } });
+  const finished = { pet: { id: 'finished' }, bubble: { hidden: true } };
+  const fresh = { pet: { id: 'fresh' }, bubble: { hidden: true } };
+  views.set('finished', finished);
+  views.set('fresh', fresh);
+  t.after(() => {
+    setData(before);
+    views.clear();
+  });
+  idleChatter(5_000_000);
+  assert.ok(finished.bubble.textContent, 'the faded "done" no longer keeps it from talking');
+  assert.ok(!fresh.bubble.textContent, 'a friend that just finished is still showing it');
+});
+
 test('selectable studio weather never produces outdoor rain or snow remarks', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   useWorlds(

@@ -80,17 +80,27 @@ export function syncDiscovery() {
   if (intent?.action === 'tree') treeChoices();
 }
 
+// Trees friends are on their way to plant, not yet saved.
+const planting = () => [...tasks.values()].filter(task => task.action === 'tree' && !task.saved);
+// Why no other tree fits, counting those on their way; nothing when one does.
+function noRoomForTree() {
+  const trees = data.garden?.trees || [],
+    coming = planting(),
+    here =
+      trees.filter(tree => tree.world === scene.world).length +
+      coming.filter(task => task.world === scene.world).length;
+  if (trees.length + coming.length >= limit(data, 'trees'))
+    return t('discovery.tree_total', { limit: limit(data, 'trees') });
+  if (here >= limit(data, 'treesPerWorld')) return t('discovery.tree_full', { limit: limit(data, 'treesPerWorld') });
+  return '';
+}
+
 export function beginDiscovery(action) {
   const v = views.get(selected) || views.values().next().value;
   if (!v || game) return;
   if (!groundProfile().soil) return toast(t('discovery.indoors'));
-  if (action === 'tree' && (data.garden?.trees || []).length >= limit(data, 'trees'))
-    return toast(t('discovery.tree_total', { limit: limit(data, 'trees') }));
-  if (
-    action === 'tree' &&
-    (data.garden?.trees || []).filter(tree => tree.world === scene.world).length >= limit(data, 'treesPerWorld')
-  )
-    return toast(t('discovery.tree_full', { limit: limit(data, 'treesPerWorld') }));
+  const full = action === 'tree' && noRoomForTree();
+  if (full) return toast(full);
   cancelDiscovery();
   closeControls(false);
   closeScene();
@@ -246,10 +256,14 @@ export function sendDiscovery(v, point, action, kind) {
             return;
           }
         }
+        // The backend's cooldown starts with this request, so the friend's rest does too.
+        if (action === 'dig') v.dugAt = performance.now();
         result =
           action === 'dig'
             ? await call('dig', v.pet.id, world, point.x, point.y, ground, context)
             : await call('plantTree', v.pet.id, world, kind, point.x, point.y, ground);
+        // Saved: from here the tree and its sapling are in the state, no longer only on the way.
+        task.saved = true;
       } catch (error) {
         if (v.doing?.end === cleanup) release(v);
         else cleanup();
@@ -261,7 +275,8 @@ export function sendDiscovery(v, point, action, kind) {
 }
 
 // A friend that has dug within the backend's cooldown sits out the next spot, so it goes to another.
-// When it last dug is kept on the friend itself (`v.dugAt`).
+// When it last dug is kept on the friend itself (`v.dugAt`, set as the dig is asked for); one on
+// its way to a spot is busy anyway.
 const rested = v => {
   const pause = limit(data, 'digCooldownMs');
   return performance.now() - (v.dugAt ?? -pause) >= pause;
@@ -287,10 +302,11 @@ function order(point, v = actorFor(point)) {
   if (!v) return toast(t('catch.busy'));
   const { action, kind } = intent;
   if (action === 'tree') {
-    const pending = [...tasks.values()].filter(task => task.action === 'tree' && task.kind === kind).length;
-    if (stock(kind) - pending <= 0) return toast(t('discovery.no_saplings'));
+    const full = noRoomForTree();
+    if (full) return toast(full);
+    if (stock(kind) - planting().filter(task => task.kind === kind).length <= 0)
+      return toast(t('discovery.no_saplings'));
   }
-  if (action === 'dig') v.dugAt = performance.now();
   sendDiscovery(v, point, action, kind);
 }
 /** With Let them dig on (Settings → Friends & AI): an idle friend digs a spot of its own choosing.
@@ -303,7 +319,6 @@ export function autoDig(rng = Math.random) {
   for (let tries = 0; tries < 12; tries++) {
     const point = { x: 0.1 + rng() * 0.8, y: 0.15 + rng() * 0.75 };
     if (!groundAllows(point, groundProfile())) continue;
-    v.dugAt = performance.now();
     sendDiscovery(v, point, 'dig');
     return true;
   }

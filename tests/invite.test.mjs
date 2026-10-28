@@ -20,7 +20,7 @@ globalThis.playPets = {
   },
   addPet: async () => ({ ok: false, error: 'Your yard is full.' }),
 };
-const { setupInvite } = await import('../src/panel/invite.js');
+const { setupInvite, twinName } = await import('../src/panel/invite.js');
 const { t } = await import('../src/core/i18n.js');
 
 function page(context) {
@@ -47,6 +47,13 @@ function page(context) {
   setupInvite({ refresh: async () => {} });
   return nodes;
 }
+
+test('another friend from the same pet file gets the first name not taken', () => {
+  assert.equal(twinName('Daisy', new Set(['Daisy'])), 'Daisy 2');
+  assert.equal(twinName('Daisy', new Set(['Daisy', 'Daisy 3'])), 'Daisy 2', 'the one sent away left its number free');
+  assert.equal(twinName('Daisy', new Set(['Daisy', 'Daisy 2', 'Daisy 3'])), 'Daisy 4');
+  assert.equal(twinName('Daisy', new Set(['Daisy 2'])), 'Daisy');
+});
 
 test('a pending URL import prevents closing or starting a folder import', async context => {
   const nodes = page(context);

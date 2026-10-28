@@ -229,6 +229,16 @@ pub fn retitle(app: &AppHandle) {
     }
 }
 
+/// An agent's error stops counting after `FADE_MS`, and nothing else may redraw the tray by
+/// then: it looks once more when that time has passed.
+pub fn fade_later(app: &AppHandle) {
+    let app = app.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_millis(FADE_MS + 1000));
+        retitle(&app);
+    });
+}
+
 pub fn build(app: &tauri::App) -> tauri::Result<()> {
     let snap = snapshot(&lock(&app.state::<Shared>()));
     let builder = TrayIconBuilder::with_id("tray")

@@ -1,7 +1,7 @@
 // The yard's dot and the friend tab's pill mean agent work; a chat's state only shapes the pose.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { agentStateOf, FADE_MS, stateOf, statusOf } from '../src/core/status.js';
+import { agentStateOf, FADE_MS, fadedBetween, stateOf, statusOf } from '../src/core/status.js';
 
 const at = 1_000_000;
 const data = {
@@ -27,4 +27,11 @@ test('a finished agent fades after a while, a working one does not', () => {
   assert.equal(agentStateOf(data, 'work', at + 10 * FADE_MS), 'working');
   // Without a time (an older build) nothing fades.
   assert.equal(agentStateOf(data, 'old', at + 10 * FADE_MS), 'done');
+});
+
+test('the page is drawn again only in the minute a status fades', () => {
+  assert.equal(fadedBetween(data, at, at + 60_000), false, 'nothing fades a minute in');
+  assert.equal(fadedBetween(data, at + FADE_MS - 30_000, at + FADE_MS + 30_000), true);
+  assert.equal(fadedBetween(data, at + FADE_MS + 30_000, at + FADE_MS + 90_000), false, 'and not every minute after');
+  assert.equal(fadedBetween({}, 0, at), false);
 });

@@ -144,15 +144,21 @@ fn read_bounded(resp: ureq::http::Response<ureq::Body>) -> Result<Value, String>
     serde_json::from_slice(&buf).map_err(|_| i18n::t("ai.answer_unreadable"))
 }
 
+/// What a request carries: the system message the friend is (first, whatever the length), then
+/// the latest 24 of the rest.
+fn sent(messages: &[Value]) -> impl Iterator<Item = &Value> {
+    let system = messages
+        .first()
+        .filter(|m| m.get("role").and_then(|v| v.as_str()) == Some("system"));
+    let rest = &messages[usize::from(system.is_some())..];
+    system.into_iter().chain(&rest[rest.len().saturating_sub(24)..])
+}
+
 pub fn chat(config: &Config, messages: &[Value]) -> Result<String, String> {
     if config.kind.needs_key() && config.api_key.is_empty() {
         return Err(i18n::t("ai.key_missing"));
     }
-    let history: Vec<Value> = messages
-        .iter()
-        .rev()
-        .take(24)
-        .rev()
+    let history: Vec<Value> = sent(messages)
         .map(|m| {
             let role = match m.get("role").and_then(|v| v.as_str()) {
                 Some("assistant") => "assistant",
@@ -274,6 +280,25 @@ pub fn detect_ollama(endpoint: &str) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn a_long_conversation_keeps_who_the_friend_is() {
+        let mut messages = vec![json!({"role": "system", "content": "You are Mochi."})];
+        messages.extend(
+            (1..=25)
+                .map(|n| json!({"role": if n % 2 == 1 { "user" } else { "assistant" }, "content": format!("m{n}")})),
+        );
+        let kept: Vec<&Value> = sent(&messages).collect();
+        assert_eq!(kept.len(), 25);
+        assert_eq!(kept[0]["role"], "system");
+        assert_eq!(kept[1]["content"], "m2");
+        assert_eq!(kept[24]["content"], "m25");
+        let short: Vec<&Value> = sent(&messages[..4]).collect();
+        assert_eq!(short.len(), 4);
+        let no_system: Vec<&Value> = sent(&messages[1..]).collect();
+        assert_eq!((no_system.len(), &no_system[0]["content"]), (24, &json!("m2")));
+    }
+
     use super::*;
     use serde_json::json;
 

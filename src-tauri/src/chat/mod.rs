@@ -219,7 +219,30 @@ fn ask(
     }
     let mut messages = vec![json!({"role": "system", "content": format!("{identity}\n{}", speaker.notes)})];
     messages.extend(turns);
-    http::chat(&speaker.config, &messages)
+    let config = speaker.config.clone();
+    unless_called_off(cancel, move || http::chat(&config, &messages))
+}
+
+/// Runs a request that cannot be interrupted (an HTTP call) on its own thread, and stops waiting
+/// for it as soon as the conversation is called off: ■ ends the wait at once, and the request's
+/// own timeout ends the thread later, its answer dropped.
+fn unless_called_off<T: Send + 'static>(
+    cancel: &AtomicBool,
+    work: impl FnOnce() -> Result<T, String> + Send + 'static,
+) -> Result<T, String> {
+    use std::sync::mpsc::{RecvTimeoutError, channel};
+    let (tx, rx) = channel();
+    std::thread::spawn(move || {
+        let _ = tx.send(work());
+    });
+    loop {
+        match rx.recv_timeout(std::time::Duration::from_millis(100)) {
+            Ok(result) => return result,
+            Err(RecvTimeoutError::Timeout) if !cancel.load(Ordering::SeqCst) => {}
+            Err(RecvTimeoutError::Timeout) => return Err(i18n::t("chat.cancelled")),
+            Err(RecvTimeoutError::Disconnected) => return Err(i18n::t("ai.unreachable")),
+        }
+    }
 }
 
 /// Forgets a friend's conversation, and the CLI session that held it.
@@ -578,6 +601,29 @@ fn agent_busy(status: Option<&Value>) -> bool {
 mod tests {
     use super::{agent_busy, chatty, opener};
     use serde_json::json;
+
+    #[test]
+    fn a_call_off_ends_the_wait_without_waiting_for_the_server() {
+        use std::sync::atomic::{AtomicBool, Ordering};
+        use std::time::{Duration, Instant};
+        let answered = super::unless_called_off(&AtomicBool::new(false), || Ok("hi".to_string()));
+        assert_eq!(answered.unwrap(), "hi");
+        let failed = super::unless_called_off(&AtomicBool::new(false), || Err::<String, _>("down".into()));
+        assert_eq!(failed.unwrap_err(), "down");
+        let cancel = std::sync::Arc::new(AtomicBool::new(false));
+        let flag = cancel.clone();
+        std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(50));
+            flag.store(true, Ordering::SeqCst);
+        });
+        let started = Instant::now();
+        let slow = super::unless_called_off(&cancel, || {
+            std::thread::sleep(Duration::from_secs(5));
+            Ok("too late".to_string())
+        });
+        assert!(slow.is_err());
+        assert!(started.elapsed() < Duration::from_secs(2), "{:?}", started.elapsed());
+    }
 
     #[test]
     fn language_change_cancels_pending_replies_without_rewriting_history() {

@@ -15,12 +15,22 @@ const inviting = new Set();
 let shelfKey = '';
 // Reloads the page's state; handed in by setupInvite.
 let refresh = async () => {};
+/** A name for another friend from the same pet file: its own title while free, else the first
+ * number not taken, so sending one away and inviting again never repeats a name. */
+export function twinName(title, taken) {
+  if (!taken.has(title)) return title;
+  let n = 2;
+  while (taken.has(`${title} ${n}`)) n++;
+  return `${title} ${n}`;
+}
 export async function invite(assetId) {
   const original = data.assets.find(a => a.id === assetId),
     patch = { visualStyle: 'illustrated' },
     twins = data.pets.filter(p => p.assetId === assetId).length,
     title = original?.displayName || t('friend.default');
-  if (twins > 0) patch.name = `${title} ${twins + 1}`;
+  // A friend never renamed goes by its pet file's title.
+  const called = p => p.name || data.assets.find(a => a.id === p.assetId)?.displayName;
+  if (twins > 0) patch.name = twinName(title, new Set(data.pets.map(called)));
   const created = await call('addPet', assetId, patch);
   setSelected(created.id);
   await refresh();

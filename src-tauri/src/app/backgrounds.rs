@@ -67,7 +67,13 @@ pub fn save(dir: &Path, id: &str, pack: &Value) -> Result<(), String> {
         return Err(i18n::t("error.bad_request"));
     }
     let tmp = folder.join(format!(".{id}.tmp"));
-    let written = fs::write(&tmp, &text).and_then(|()| fs::rename(&tmp, &file));
+    let written = fs::File::create(&tmp)
+        .and_then(|mut f| {
+            use std::io::Write;
+            f.write_all(&text)?;
+            f.sync_all()
+        })
+        .and_then(|()| fs::rename(&tmp, &file));
     if written.is_err() {
         let _ = fs::remove_file(&tmp);
     }

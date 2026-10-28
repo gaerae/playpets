@@ -82,7 +82,7 @@ fn store(
     raw: &Value,
     config: &http::Config,
 ) -> Result<Value, String> {
-    let (old, mut has_key) = {
+    let (old, has_key) = {
         let d = lock(state);
         (find(&d, id).cloned(), d.secret_ids.contains(id))
     };
@@ -93,23 +93,28 @@ fn store(
     // A key belongs to the server it was entered for: it never follows the connection to another one.
     let moved = was("endpoint", &config.endpoint) || was("type", config.kind.id());
     let clear_key = raw.get("clearKey").and_then(|v| v.as_bool()).unwrap_or(false);
-    if (moved || clear_key) && has_key {
-        forget_key(id);
-        has_key = false;
-    }
-    if !config.api_key.is_empty() {
-        keyring_entry(id)?
-            .set_password(&config.api_key)
-            .map_err(|_| i18n::t("provider.no_keychain"))?;
-        has_key = true;
-    }
-    if config.kind.needs_key() && !has_key {
+    let typed = !config.api_key.is_empty();
+    let Some(step) = key_step(has_key, moved || clear_key, typed, config.kind.needs_key()) else {
         return Err(i18n::t(if config.kind == Kind::Xai {
             "provider.xai_key"
         } else {
             "provider.openai_key"
         }));
-    }
+    };
+    let has_key = match step {
+        // The new key takes the old one's place, so a keychain that refuses it leaves the old one.
+        KeyStep::Set => {
+            keyring_entry(id)?
+                .set_password(&config.api_key)
+                .map_err(|_| i18n::t("provider.no_keychain"))?;
+            true
+        }
+        KeyStep::Forget => {
+            forget_key(id);
+            false
+        }
+        KeyStep::Keep => has_key,
+    };
     let entry = entry(id, raw, config);
     let mut d = lock(state);
     if has_key {
@@ -134,6 +139,29 @@ fn store(
     }
     crate::app::save_and_show(app, &d)?;
     Ok(entry)
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+enum KeyStep {
+    Set,
+    Forget,
+    Keep,
+}
+
+/// What a save does to the keychain, decided before it is touched: a save that is refused (no key
+/// for a server that needs one) leaves the connection's key as it was. `None` is that refusal.
+fn key_step(had_key: bool, drop_old: bool, typed: bool, needs_key: bool) -> Option<KeyStep> {
+    let keeps = had_key && !drop_old;
+    if needs_key && !typed && !keeps {
+        return None;
+    }
+    Some(if typed {
+        KeyStep::Set
+    } else if had_key && drop_old {
+        KeyStep::Forget
+    } else {
+        KeyStep::Keep
+    })
 }
 
 pub fn remove(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, id: &str) -> Result<Value, String> {
@@ -224,4 +252,24 @@ pub fn detect(app: tauri::AppHandle) {
         d.detected = detected;
         changed(&app, &d);
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_refused_save_never_costs_the_key_a_connection_had() {
+        // Moved to a server that needs a key, with none typed: refused before the old key goes.
+        assert_eq!(key_step(true, true, false, true), None);
+        assert_eq!(key_step(false, false, false, true), None);
+        // Moved to one that needs none: the old key goes with the old server.
+        assert_eq!(key_step(true, true, false, false), Some(KeyStep::Forget));
+        // A key typed replaces the old one in place.
+        assert_eq!(key_step(true, true, true, true), Some(KeyStep::Set));
+        assert_eq!(key_step(false, false, true, true), Some(KeyStep::Set));
+        // Same server, nothing typed: the saved key stays.
+        assert_eq!(key_step(true, false, false, true), Some(KeyStep::Keep));
+        assert_eq!(key_step(false, false, false, false), Some(KeyStep::Keep));
+    }
 }

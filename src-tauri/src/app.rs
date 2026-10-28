@@ -356,6 +356,9 @@ pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, messa
         &json!({"type": "status", "petId": id, "state": state, "message": message, "source": source}),
     );
     changed(app, d);
+    if state == "error" && source != "chat" {
+        crate::tray::fade_later(app);
+    }
 }
 
 /// Puts a pet file on the shelf (once) and remembers its folder for the next start.

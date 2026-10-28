@@ -126,6 +126,22 @@ test('pulling a tree up asks nothing, offers Undo, and removes it only when Undo
   assert.deepEqual(requests[0].args, ['tree-test']);
 });
 
+test('a tree pulled up just before moving to another place is still removed', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { button } = fixture(t);
+  document.querySelectorAll = () => [];
+  await button.dispatch('keydown', { key: 'Delete' });
+  scene.world = 'room';
+  renderTrees();
+  t.mock.timers.tick(6000);
+  await Promise.resolve();
+  assert.deepEqual(
+    requests.map(r => r.method),
+    ['removeTree'],
+    'the Undo window ends in another place, and the tree goes all the same',
+  );
+});
+
 test('accepted pointer moves keep their foot offset and failed saves restore the saved position', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { tree, button } = fixture(t);

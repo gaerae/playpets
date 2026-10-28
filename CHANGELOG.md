@@ -24,6 +24,20 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A Claude Code friend no longer turns to Waiting a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.
 - The chat log keeps up to the last 500 messages with each friend for the session, instead of silently dropping everything before the last 24; a friend still answers with the latest 24 in mind.
 - On Windows, the Microsoft Store version declares `playpets://` links, so a pet gallery's import link opens PlayPets, and lists PlayPets under Settings → Apps → Startup to start at sign-in.
+- A friend on an API connection (OpenAI, Grok, Ollama or a compatible server) keeps who it is in a long conversation: its persona and notes are no longer dropped once the chat passes 24 messages.
+- ■ stops a friend on an API connection at once, instead of after the server answers or times out.
+- Changing an AI connection to another type or server without typing a new key, when the new one needs a key, is refused without deleting the key the connection had.
+- A coding agent reporting for a friend that was sent away now reaches the first friend, as a report with no name does, instead of failing. A `playpets say` message that starts with `@` is shown as written.
+- `state.json` and imported backgrounds are written to disk before they replace the old file, so a power cut while saving cannot leave an empty file.
+- A stalled update download ends with an error after 20 minutes, so Update can be tried again.
+- The tray's red mark for a coding agent's error goes away after 30 minutes, as the yard's dot does.
+- In the yard, a friend whose coding agent finished or failed more than 30 minutes ago stands and chats like the others again, as its dot and the desktop show.
+- A tree pulled up just before moving to another place is removed, instead of coming back.
+- In hide and seek, two quick wrong guesses no longer leave "not them" in place of who is still hiding.
+- A friend sent to dig rests from when it digs, so a second dig shortly after is no longer refused once it has walked over. A dig called off on the way does not count.
+- The tree tool says a place or the yard is full when you click, counting trees friends are on their way to plant, instead of letting a friend walk over to fail.
+- The page is no longer redrawn every minute once anyone has chatted, so a picker or an open album keeps its place and focus.
+- Inviting a pet again uses the first free number, so sending one copy away and inviting again never repeats a name.
 
 ### Website and docs
 
@@ -34,6 +48,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - On the website, a visitor on macOS or Linux who opens the other platforms list finds the Microsoft Store first for Windows, before the GitHub installers.
 - The website's front page shows real pictures of play: a garden decorated with flowers, trees and gifts, tag, digging, fishing and the album. Its comparison with a Codex pet starts with moving: friends stroll the yard and, with Stroll on desktop, your desktop, with a picture of them there.
 - Screenshots and the README animation no longer show a keyboard focus ring around a friend.
+- The coding agents guide says a hook gives up within a few seconds, not three: a hook that waits for the app can take a little longer.
 
 ## [1.3.0] - 2026-10-27
 

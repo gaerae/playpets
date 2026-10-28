@@ -90,6 +90,8 @@ pub fn found_version(app: &AppHandle) -> Option<String> {
     state.update.as_ref().map(|u| u.version.clone())
 }
 
+const DOWNLOAD_LIMIT: std::time::Duration = std::time::Duration::from_secs(20 * 60);
+
 /// Downloads and installs the update found by `check`, then starts the new version.
 pub fn install(app: &AppHandle) -> Result<Value, String> {
     if store_managed() {
@@ -104,8 +106,12 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
         if state.installing {
             return Err(i18n::t("update.none"));
         }
-        let update = state.update.clone().ok_or_else(|| i18n::t("update.none"))?;
+        let mut update = state.update.clone().ok_or_else(|| i18n::t("update.none"))?;
         state.installing = true;
+        // The found update does not carry the check's timeout, and a stalled download would keep
+        // the page on "downloading" with no way to try again. The limit is for the whole download,
+        // so it is long enough for a slow connection.
+        update.timeout = Some(DOWNLOAD_LIMIT);
         update
     };
     push_event(app, &json!({"type": "update-status", "phase": "downloading"}));

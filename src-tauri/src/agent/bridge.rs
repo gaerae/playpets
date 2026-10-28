@@ -34,7 +34,9 @@ fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
 
 /// Instance id first, then case-insensitive name; an empty reference means the first pet. A
 /// friend that is parked (its pet file not found this time, `"parked": true` in the list) is
-/// reported to the first friend until it is back, as the page shows its agent then.
+/// reported to the first friend until it is back, as the page shows its agent then; so is one sent
+/// away, whose id (a UUID, as every friend's is) the copied settings still name. An unknown name
+/// stays unknown, so a typo in a command is told.
 pub fn resolve_pet(pets: &Value, reference: Option<&str>) -> Option<String> {
     let list = pets.as_array()?;
     let parked = |p: &Value| p.get("parked").and_then(Value::as_bool).unwrap_or(false);
@@ -62,6 +64,7 @@ pub fn resolve_pet(pets: &Value, reference: Option<&str>) -> Option<String> {
             })
         })
         .and_then(id_of)
+        .or_else(|| uuid::Uuid::parse_str(key).is_ok().then(first).flatten())
 }
 
 fn clip(s: &str, max: usize) -> String {
@@ -218,6 +221,10 @@ mod tests {
         assert_eq!(resolve_pet(&pets, None).as_deref(), Some("p1"));
         assert_eq!(resolve_pet(&pets, Some("  ")).as_deref(), Some("p1"));
         assert_eq!(resolve_pet(&pets, Some("nobody")), None);
+        // Settings copied for a friend since sent away name its id, which no friend has now.
+        let gone = "0b6f2c1e-8d4a-4f1b-9c3e-2a7d5e6f8a90";
+        assert_eq!(resolve_pet(&pets, Some(gone)).as_deref(), Some("p1"));
+        assert_eq!(resolve_pet(&json!([]), Some(gone)), None);
         assert_eq!(resolve_pet(&json!([]), None), None);
         // A parked friend's events go to the first friend until it is back; it is never the default.
         let with_parked = json!([{"id": "gone", "parked": true}, {"id": "p1", "name": "Mangu"}]);
