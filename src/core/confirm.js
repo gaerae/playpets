@@ -13,7 +13,8 @@ const waiting = [];
 export function confirmAction(question) {
   return new Promise(resolve => {
     const asked = { question, resolve };
-    if ($('confirm-dialog').open) waiting.push(asked);
+    // Until its close event, even a question already answered or cancelled still holds the dialog.
+    if (current) waiting.push(asked);
     else show(asked);
   });
 }
@@ -33,6 +34,8 @@ function show(asked) {
 // Called once, by app.js.
 export function setupConfirm() {
   const dialog = $('confirm-dialog');
+  current = null;
+  waiting.length = 0;
   // A promise keeps its first answer, so the false from the close that follows a yes changes nothing.
   $('confirm-ok').onclick = () => {
     current?.resolve(true);
@@ -41,8 +44,6 @@ export function setupConfirm() {
   $('confirm-cancel').onclick = () => dialog.close();
   if ($('confirm-close')) $('confirm-close').onclick = () => dialog.close();
   dialog.addEventListener('close', () => {
-    // The close event comes a moment after close(); a question shown meanwhile is not its answer.
-    if (dialog.open) return;
     current?.resolve(false);
     current = null;
     if (waiting.length) show(waiting.shift());

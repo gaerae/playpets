@@ -76,7 +76,7 @@ const TABLE: &[(&str, &str)] = &[
 
     ("error.friend_missing", "Couldn't find that friend."),
     ("error.autostart", "Could not change whether PlayPets starts at login. Check the login items in your system settings."),
-    ("error.autostart_in_settings", "PlayPets is turned off at sign-in in Windows. Turn it on in Windows Settings → Apps → Startup."),
+    ("error.autostart_in_settings", "Windows keeps PlayPets from starting at sign-in. Turn it on in Windows Settings → Apps → Startup."),
     ("error.seeds_full", "Your pocket is full of seeds. Plant some first."),
     ("error.no_seeds", "No seeds to plant. Send a friend digging to find some."),
     ("error.no_saplings", "No saplings of this species. Send a friend digging to find some."),

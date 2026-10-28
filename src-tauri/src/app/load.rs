@@ -10,7 +10,7 @@ struct FoundPets {
     builtin_root: PathBuf,
     warnings: Vec<String>,
 }
-fn load_assets(app: &tauri::App, store: &store::Store, imports: &[String]) -> FoundPets {
+fn load_assets(app: &tauri::App, store: &store::Store, imports: &[String], picked: &[String]) -> FoundPets {
     let mut warnings = Vec::new();
     // Codex keeps its pets in ~/.codex/pets; they are offered without being imported.
     let codex_root = std::env::var("CODEX_HOME")
@@ -32,7 +32,7 @@ fn load_assets(app: &tauri::App, store: &store::Store, imports: &[String]) -> Fo
             Ok(a) => {
                 if !assets.iter().any(|x| x.id == a.id) {
                     assets.push(catalog::Asset {
-                        place: catalog::place_of(&store.dir.join("pets"), &a.folder),
+                        place: catalog::place_of(&store.dir.join("pets"), &a.folder, picked),
                         ..a
                     });
                 }
@@ -121,6 +121,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
     };
 
     let imports: Vec<String> = strings(&raw, "imports").into_iter().take(200).collect();
+    let picked: Vec<String> = strings(&raw, "picked").into_iter().take(200).collect();
     let agent_pets: HashMap<String, String> = raw
         .get("agentPets")
         .and_then(|v| v.as_object())
@@ -130,7 +131,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
                 .collect()
         })
         .unwrap_or_default();
-    let found = load_assets(app, &store, &imports);
+    let found = load_assets(app, &store, &imports, &picked);
     let (assets, root, builtin_root) = (found.assets, found.codex_root, found.builtin_root);
     warnings.extend(found.warnings);
 
@@ -174,6 +175,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         pets,
         prefs: Prefs::restore(&raw, language),
         imports,
+        picked,
         agent_pets,
         autostart: false,
         garden,

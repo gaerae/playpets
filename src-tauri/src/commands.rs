@@ -620,7 +620,14 @@ fn import_from_folder(app: &AppHandle, state: &State<Shared>) -> Result<Value, S
         return Ok(Value::Null);
     };
     let asset = catalog::read_pet(&path)?;
-    register_asset(app, &mut lock(state), asset)
+    let mut d = lock(state);
+    // Picked from where imported pets live, it is still the person's own folder.
+    let downloads = d.store.dir.join("pets");
+    let folder = asset.folder.to_string_lossy().into_owned();
+    if catalog::place_of(&downloads, &asset.folder, &[]) == catalog::Place::Downloaded && !d.picked.contains(&folder) {
+        d.picked.push(folder);
+    }
+    register_asset(app, &mut d, asset)
 }
 
 /// A pet ZIP picked on this computer is copied into the data folder's pets, so the ZIP can go.
@@ -670,6 +677,7 @@ fn remove_asset(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Valu
             |id| pets.iter().any(|p| p.asset_id == id),
             id,
         )?;
+        d.picked.retain(|folder| std::path::Path::new(folder) != asset.folder);
         taken = Some((asset, d.store.dir.join("pets")));
         Ok(Value::Null)
     })?;

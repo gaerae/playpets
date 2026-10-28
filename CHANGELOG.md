@@ -17,13 +17,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
-- Imported backgrounds and the place, season, time of day and weather picked for the yard are saved in the data folder (`backgrounds/` and `state.json`), so a copy of the folder keeps them and deleting it removes them. At the first start of 1.4.0 they move over from the app's webview storage, which keeps its copy until the move is saved.
+- Imported backgrounds and the place, season, time of day and weather picked for the yard are saved in the data folder (`backgrounds/` and `state.json`), so a copy of the folder keeps them and deleting it removes them. At the first start of 1.4.0 they move over from the app's webview storage, which keeps its copy until the move is saved. Going back to 1.3.0 afterwards shows the default place and no imported backgrounds; they come back with 1.4.0.
 
 ### Fixed
 
-- A Claude Code friend no longer turns to Waiting a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.
+- A Claude Code friend no longer turns to Waiting for you a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.
 - The chat log keeps up to the last 500 messages with each friend for the session, instead of silently dropping everything before the last 24; a friend still answers with the latest 24 in mind.
-- On Windows, the Microsoft Store version declares `playpets://` links, so a pet gallery's import link opens PlayPets, and lists PlayPets under Settings → Apps → Startup to start at sign-in.
+- On Windows, the Microsoft Store version declares `playpets://` links, so a pet gallery's import link opens PlayPets.
 - A friend on an API connection (OpenAI, Grok, Ollama or a compatible server) keeps who it is in a long conversation: its persona and notes are no longer dropped once the chat passes 24 messages.
 - ■ stops a friend on an API connection at once, instead of after the server answers or times out.
 - Changing an AI connection to another type or server without typing a new key, when the new one needs a key, is refused without deleting the key the connection had.
@@ -38,12 +38,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The tree tool says a place or the yard is full when you click, counting trees friends are on their way to plant, instead of letting a friend walk over to fail.
 - The page is no longer redrawn every minute once anyone has chatted, so a picker or an open album keeps its place and focus.
 - Inviting a pet again uses the first free number, so sending one copy away and inviting again never repeats a name.
-- In the Microsoft Store version, Start PlayPets when you log in now starts it at sign-in, and with desktop mode on the yard window waits in the tray. If PlayPets was turned off in Windows Settings → Apps → Startup, the switch says to turn it on there.
+- In the Microsoft Store version, Start PlayPets when you log in now starts it at sign-in, through Windows Settings → Apps → Startup, and with desktop mode on the yard window waits in the tray. If PlayPets was turned off there, the switch says to turn it on there.
 - Two coding agents reporting for one friend no longer undo each other: one session's Waiting notice leaves another session's Working alone.
-- Stopping a command run with `playpets run` with Ctrl-C leaves its friend idle, instead of Working.
+- A command stopped with Ctrl-C under `playpets run` leaves its friend Resting, instead of Working, and a `kill -INT` sent to `playpets run` alone now reaches the command.
 - On macOS and Linux, a Claude or Codex CLI still answering when PlayPets quits is stopped with it.
 - Removing a pet that a friend waiting to come back still uses names that friend, instead of a general error.
-- With `PLAYPETS_DATA` set to another folder, PlayPets no longer moves the installed app's backgrounds and scene into it.
+- With `PLAYPETS_DATA` set to another folder, PlayPets copies the installed app's backgrounds and scene into it instead of moving them, so the installed app keeps its own.
+- A pet folder you picked by hand from inside the data folder's `pets` only leaves the list when removed; its files are no longer deleted.
+- A pet ZIP brings in only the pet's JSON, pictures and text notes; a script, a web page or a shortcut packed beside them is left out.
 - Fishing with a friend chosen while it is busy takes the nearest free friend, and fishing from the tool counts toward its hint like other play.
 - A question that comes while another is open, such as a pet link arriving, waits for the first to be answered instead of answering it No.
 

@@ -143,26 +143,34 @@ test('a removed background leaves the webview before the data folder, so a stop 
   assert.equal(oldLeft, false);
 });
 
-test("another data folder sharing the webview leaves the installed app's old copies alone", async t => {
+test("another data folder sharing the webview copies the installed app's old copies and leaves them", async t => {
   keepGlobals(t, 'indexedDB');
   freshWorlds(t);
   const old = fakeIndexedDB([{ id: LAKE, pack: pack('Lake') }]);
   globalThis.indexedDB = old;
   const storage = installStorage(t);
   storage.setItem('world', 'courtyard');
+  storage.setItem('season', 'winter');
   setData({ ownsWebviewStorage: false, scene: { world: 'woodland' } });
   t.after(() => setData({ pets: [], assets: [], providers: [], statuses: {}, busy: [] }));
   const { files, scene } = backend({ refuse: key => key === 'weather' });
   await restoreBackgrounds();
   await moveOldScene();
-  assert.equal(files.size, 0);
+  assert.deepEqual([...files.keys()], [LAKE], 'copied into this folder');
   assert.equal(old.store.size, 1, 'still there for the data folder it belongs to');
-  assert.deepEqual(worlds, []);
-  assert.deepEqual(scene, {});
+  assert.deepEqual(
+    worlds.map(w => w.name),
+    ['Lake'],
+  );
+  assert.deepEqual(scene, { season: 'winter' }, 'only what this folder has none of is copied');
   assert.equal(storage.getItem('world'), 'courtyard');
+  assert.equal(storage.getItem('season'), 'winter');
   assert.equal(savedScene().world, 'woodland', "this folder's own choice is the one shown");
   await keepScene('weather', 'rain');
   assert.equal(storage.getItem('weather'), null, 'nor does it leave a choice it could not save there');
+  globalThis.playPets.removeBackground = async () => ({ ok: true, data: null });
+  await removeBackground(LAKE);
+  assert.equal(old.store.size, 1, "removing it here leaves the installed app's copy");
 });
 
 test('with no old storage the backgrounds come from the data folder alone', async t => {

@@ -30,18 +30,19 @@ async function transaction(mode, action) {
     };
   });
 }
-// The webview's old copies; none when that storage is missing or cannot open, or belongs to the
-// installed app's data folder rather than this one (`ownsWebviewStorage`, app/load.rs).
+// The webview's old copies; none when that storage is missing or cannot open.
 async function oldRows() {
-  if (typeof indexedDB === 'undefined' || data.ownsWebviewStorage === false) return [];
+  if (typeof indexedDB === 'undefined') return [];
   try {
     return (await transaction('readonly', store => store.getAll())).filter(row => isCustom(row?.id));
   } catch {
     return [];
   }
 }
+// A data folder other than the system's own shares the webview with the installed app
+// (`ownsWebviewStorage`, app/load.rs): it copies the old rows and leaves them to that app.
 async function forgetOld(id) {
-  if (typeof indexedDB === 'undefined') return;
+  if (typeof indexedDB === 'undefined' || data.ownsWebviewStorage === false) return;
   try {
     await transaction('readwrite', store => store.delete(id));
   } catch {

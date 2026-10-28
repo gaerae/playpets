@@ -142,12 +142,15 @@ function showRainbow(yard) {
 // travel with the data folder. A value in the webview's storage is newer than the app's: a version
 // before 1.4.0 wrote it, or the app could not save it. It wins, moves over and leaves that storage
 // once the app saved it.
-// A data folder other than the system's own shares the webview with the installed app, and
-// leaves that storage to it (`ownsWebviewStorage`, app/load.rs).
+// A data folder other than the system's own shares the webview with the installed app
+// (`ownsWebviewStorage`, app/load.rs): it copies a value it has none of, and leaves that storage
+// as the installed app's.
 const SCENE_KEYS = ['world', 'weather', 'period', 'season'];
 const webview = () => data.ownsWebviewStorage !== false;
 export const savedScene = () =>
-  Object.fromEntries(SCENE_KEYS.map(key => [key, (webview() ? recall(key) : null) ?? data.scene?.[key]]));
+  Object.fromEntries(
+    SCENE_KEYS.map(key => [key, webview() ? (recall(key) ?? data.scene?.[key]) : (data.scene?.[key] ?? recall(key))]),
+  );
 export async function keepScene(key, value) {
   try {
     await call('setScene', key, value);
@@ -158,11 +161,11 @@ export async function keepScene(key, value) {
   }
 }
 export function moveOldScene() {
-  if (!webview()) return Promise.resolve([]);
   return Promise.all(
     SCENE_KEYS.map(key => {
       const old = recall(key);
-      return old === null ? undefined : keepScene(key, old);
+      if (old === null || (!webview() && data.scene?.[key] != null)) return undefined;
+      return keepScene(key, old);
     }),
   );
 }

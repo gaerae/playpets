@@ -35,7 +35,7 @@ description: 语言与启动、伙伴与 AI、关于与应用更新、菜单与�
 
 这个选择由系统记着：macOS 是登录项，Windows 是启动项，Linux 是自动启动项。在哪一边关掉都算关掉。
 
-Microsoft Store 版在 Windows 里关掉 PlayPets 后，无法从应用里重新打开，请到 Windows 的 **设置 → 应用 → 启动** 里打开。
+Microsoft Store 版在 Windows 里关掉 PlayPets 后，无法在应用里重新开启，请到 Windows 的 **设置 → 应用 → 启动** 里开启。
 
 ## 伙伴与 AI <Since v="1.2.0" />
 

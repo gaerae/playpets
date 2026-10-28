@@ -110,8 +110,8 @@ flowchart LR
   - It also runs the hooks in `~/.claude/settings.json` and `~/.cursor/hooks.json`. A `hook claude` or `hook cursor` it runs (`GROK_SESSION_ID` set) sends nothing, so its work shows only on the Grok Build friend. Other agents' hooks still report with the variable set.
   - Some turns end without a Stop (cancel-and-send, rewind, a finished `!` command). `idle_prompt` follows every turn, so `hook grok` reads `GET /pets` first and settles the friend only while it is still working.
 - The app turns codes into the current language.
-- `by` names who reported: `<agent>:<session id>` from a hook, cut at 80 characters, empty from older hooks and other commands.
-  - `/pets` returns the `by` of the friend's last report.
+- `by` names who reported: `<agent>:<session id>` from a hook, or `<agent>` alone when the payload names no session (Codex); cut at 80 characters; empty from older hooks and other commands.
+  - `/pets` returns the `by` of the friend's last report, and `source`: `chat` while the state is a chat answer on its way rather than an agent's turn.
   - An `idle_prompt` settles the friend only when the last report has the same `by`, so one session's notice leaves another session's turn alone.
 
 | Agent event | State | Sentence sent |
@@ -126,7 +126,7 @@ flowchart LR
 | Claude, Gemini, Grok `SessionEnd`, Grok `StopCancelled`, Cursor `sessionEnd` | idle | None |
 | Codex `agent-turn-complete` | done | The last answer (120 characters), or `@done` when there is none |
 | `playpets run` start, failure | working, error | `@running <command>`, `@failed <exit code>` |
-| `playpets run` stopped by Ctrl-C or its terminal | idle | `@stopped` |
+| `playpets run` stopped by Ctrl-C, a TERM or its terminal closing (also a command that exits 130 or 143) | idle | `@stopped` |
 
 **HTTP bridge**
 - Every request needs `Authorization: Bearer <token from bridge.json>`.
@@ -136,7 +136,7 @@ flowchart LR
 
 | Request | Body | Response |
 |---|---|---|
-| `GET /pets` | None | `[{id, name, state, by}]` |
+| `GET /pets` | None | `[{id, name, state, source, by}]`, and `{id, parked: true}` for a friend kept for later |
 | `POST /events` | `{pet or petId, state, message, by?}` | `{ok, petId}` |
 | `POST /say` | `{pet, message}` | `{ok, petId}` |
 | `POST /react` | `{pet, action}` | `{ok, petId}` |

@@ -27,9 +27,12 @@ test("the yard has the app's state before the sky reads the place and weather sa
   const source = await readFile('src/app.js', 'utf8');
   // At the top level, as the module starts; refresh() calls it too, later.
   const loaded = source.search(/^setData\(await call\('bootstrap'\)/m),
+    content = source.search(/^await loadContent\(/m),
     sky = source.search(/^setupSky\(/m);
-  assert.ok(loaded >= 0 && sky >= 0);
+  assert.ok(loaded >= 0 && content >= 0 && sky >= 0);
   assert.ok(loaded < sky, 'setupSky runs before the first bootstrap, so a restart forgets the scene');
+  // The old backgrounds are moved by loadContent, which has to know whose they are.
+  assert.ok(loaded < content, 'loadContent runs before the first bootstrap');
 });
 
 // A canvas context that accepts any drawing call and gives back another such object.

@@ -60,6 +60,17 @@ fn clutter(name: &str) -> bool {
     name.starts_with("__MACOSX/") || name.rsplit('/').next().is_some_and(|f| f == ".DS_Store")
 }
 
+/// What a pet is made of: its JSON, pictures and notes. Unpacked, a file loses the warning the
+/// system shows for a downloaded one, and Open folder shows it, so nothing that runs when opened
+/// (a script, a shortcut, a page) is written.
+fn inert(name: &str) -> bool {
+    let file = name.rsplit('/').next().unwrap_or(name);
+    let Some((_, ext)) = file.rsplit_once('.') else {
+        return true;
+    };
+    ["json", "png", "webp", "gif", "jpg", "jpeg", "txt", "md"].contains(&ext.to_ascii_lowercase().as_str())
+}
+
 /// The files of the archive, by name, folders left out.
 pub fn read_entries(zip: &[u8]) -> Result<Vec<(String, Vec<u8>)>, String> {
     let start = zip.len().saturating_sub(END_SEARCH);
@@ -157,6 +168,7 @@ pub fn read_entries(zip: &[u8]) -> Result<Vec<(String, Vec<u8>)>, String> {
 /// The pet's own files, named from the pet folder: those beside a pet.json at the top, or inside
 /// the one folder the archive holds when that folder has the pet.json.
 pub fn pet_files(entries: Vec<(String, Vec<u8>)>) -> Result<Vec<(String, Vec<u8>)>, String> {
+    let entries = entries.into_iter().filter(|(n, _)| inert(n)).collect::<Vec<_>>();
     if entries.iter().any(|(n, _)| n == "pet.json") {
         return Ok(entries);
     }
@@ -292,10 +304,15 @@ mod tests {
             ("boba/spritesheet.webp", b"RIFF", false),
             ("__MACOSX/boba/._pet.json", b"fork", false),
             ("boba/.DS_Store", b"finder", false),
+            ("boba/LICENSE", b"MIT", false),
+            ("boba/Start here.bat", b"del", false),
+            ("boba/read me.HTML", b"<script>", false),
+            ("boba/pet.lnk", b"L", false),
         ]);
         let files = pet_files(read_entries(&archive).unwrap()).unwrap();
         let names: Vec<&str> = files.iter().map(|(n, _)| n.as_str()).collect();
-        assert_eq!(names, ["pet.json", "spritesheet.webp"]);
+        // A script, a page or a shortcut beside the pet is left out.
+        assert_eq!(names, ["pet.json", "spritesheet.webp", "LICENSE"]);
         let flat = pet_files(read_entries(&zip(&[("pet.json", b"{}", false), ("rows/a.png", b"", false)])).unwrap());
         assert_eq!(flat.unwrap().len(), 2, "a pet.json at the top keeps every path");
         for missing in [

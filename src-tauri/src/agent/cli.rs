@@ -456,6 +456,8 @@ fn ended(status: std::process::ExitStatus) -> (i32, &'static str, String) {
     }
     match code {
         0 => (0, "done", "@done".to_string()),
+        // A command that catches Ctrl-C or a TERM and exits says so with the shell's code for it.
+        130 | 143 if cfg!(unix) => (code, "idle", "@stopped".to_string()),
         _ => (code, "error", format!("@failed {code}")),
     }
 }
@@ -469,9 +471,13 @@ mod interrupt {
         static CHILD: AtomicI32 = AtomicI32::new(0);
         extern "C" fn on_signal(signal: libc::c_int) {
             let child = CHILD.load(Ordering::SeqCst);
-            if signal == libc::SIGTERM && child > 0 {
-                // SAFETY: kill is async-signal-safe.
-                unsafe { libc::kill(child, libc::SIGTERM) };
+            // SAFETY: tcgetpgrp, getpgrp and kill are async-signal-safe.
+            let terminal = [0, 1, 2]
+                .into_iter()
+                .map(|fd| unsafe { libc::tcgetpgrp(fd) })
+                .find(|&g| g >= 0);
+            if child > 0 && forwards(signal, terminal, unsafe { libc::getpgrp() }) {
+                unsafe { libc::kill(child, signal) };
             }
         }
         CHILD.store(child as i32, Ordering::SeqCst);
@@ -485,6 +491,14 @@ mod interrupt {
                 libc::sigaction(signal, &action, std::ptr::null_mut());
             }
         }
+    }
+
+    /// Whether a signal to `playpets run` is passed on to the command. Ctrl-C, Ctrl-\\ and a hang-up
+    /// from the terminal reach its whole foreground group, the command too; any other (a TERM, or a
+    /// harness's `kill -INT` to this process alone) is passed on, or the command would never hear it.
+    #[cfg(unix)]
+    pub(super) fn forwards(signal: libc::c_int, terminal: Option<libc::pid_t>, own: libc::pid_t) -> bool {
+        signal == libc::SIGTERM || terminal != Some(own)
     }
 
     #[cfg(windows)]
@@ -991,6 +1005,24 @@ mod tests {
         assert_eq!(ran("kill -INT $$"), (130, "idle", "@stopped".to_string()));
         assert_eq!(ran("kill -TERM $$"), (143, "idle", "@stopped".to_string()));
         assert_eq!(ran("kill -KILL $$"), (137, "error", "@failed 137".to_string()));
+        assert_eq!(
+            ran("exit 130"),
+            (130, "idle", "@stopped".to_string()),
+            "it caught Ctrl-C and left"
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_signal_sent_to_run_alone_reaches_its_command() {
+        use interrupt::forwards;
+        // Ctrl-C from the terminal run is in front of: the command has it already.
+        assert!(!forwards(libc::SIGINT, Some(42), 42));
+        assert!(!forwards(libc::SIGHUP, Some(42), 42));
+        // A harness with no terminal, or one where run is in the background, sends it to run alone.
+        assert!(forwards(libc::SIGINT, None, 42));
+        assert!(forwards(libc::SIGQUIT, Some(7), 42));
+        assert!(forwards(libc::SIGTERM, Some(42), 42));
     }
 
     #[test]

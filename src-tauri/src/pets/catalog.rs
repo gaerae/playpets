@@ -379,11 +379,12 @@ pub fn intro(kind: &str, description: &str) -> String {
     }
 }
 
-/// Pets brought in by address are saved under the downloads folder (`<data>/pets`); any other folder was picked by hand.
-pub fn place_of(downloads: &Path, folder: &Path) -> Place {
+/// Pets brought in by address or ZIP are saved under the downloads folder (`<data>/pets`); any
+/// other folder, and one there that is in `picked`, was picked by hand.
+pub fn place_of(downloads: &Path, folder: &Path, picked: &[String]) -> Place {
     // Pet folders are canonical, so the downloads folder is compared in the same form.
     let downloads = dunce::canonicalize(downloads).unwrap_or_else(|_| downloads.to_path_buf());
-    if folder.starts_with(&downloads) {
+    if folder.starts_with(&downloads) && !picked.iter().any(|p| Path::new(p) == folder) {
         Place::Downloaded
     } else {
         Place::Folder
@@ -777,13 +778,20 @@ mod tests {
         assert_eq!(read_pet(&pet).unwrap().credit, None, "no site, no credit");
         let downloads = root.join("..").join(root.file_name().unwrap());
         assert_eq!(
-            place_of(&downloads, &read.folder),
+            place_of(&downloads, &read.folder, &[]),
             Place::Downloaded,
             "compared after resolving the path"
         );
         assert_eq!(
-            place_of(&std::env::temp_dir().join("elsewhere"), &read.folder),
+            place_of(&std::env::temp_dir().join("elsewhere"), &read.folder, &[]),
             Place::Folder
+        );
+        // A folder the person made there and picked by hand stays theirs: never deleted with the pet.
+        let picked = [read.folder.to_string_lossy().into_owned()];
+        assert_eq!(place_of(&downloads, &read.folder, &picked), Place::Folder);
+        assert_eq!(
+            deletable(&downloads, place_of(&downloads, &read.folder, &picked), &read.folder),
+            None
         );
         let _ = fs::remove_dir_all(&root);
     }

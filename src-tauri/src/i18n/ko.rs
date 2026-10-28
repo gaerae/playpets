@@ -76,7 +76,7 @@ const TABLE: &[(&str, &str)] = &[
 
     ("error.friend_missing", "친구를 찾을 수 없어요."),
     ("error.autostart", "로그인할 때 시작하도록 바꾸지 못했어요. 시스템 설정의 로그인 항목을 확인해 주세요."),
-    ("error.autostart_in_settings", "Windows에서 PlayPets 시작이 꺼져 있어요. Windows 설정 → 앱 → 시작 프로그램에서 켜 주세요."),
+    ("error.autostart_in_settings", "Windows에서 PlayPets 자동 시작이 꺼져 있어요. Windows 설정 → 앱 → 시작 프로그램에서 켜 주세요."),
     ("error.seeds_full", "주머니에 씨앗이 가득해요. 먼저 몇 개 심어 주세요."),
     ("error.no_seeds", "심을 씨앗이 없어요. 친구에게 땅을 파 달라고 해 보세요."),
     ("error.no_saplings", "이 나무의 묘목이 없어요. 친구에게 땅을 파 달라고 해 보세요."),

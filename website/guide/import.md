@@ -94,6 +94,7 @@ A pet you brought in has a trash button beside its card in Invite a friend.
 - A pet imported from an address or a ZIP: its folder in `pets/` is deleted. To use it again, import it again.
 - A pet picked from this computer: it only leaves the list, and its folder stays where it is.
 - While friends made from the pet are in the yard, it can't be removed. Send them away first.
+- A friend waiting to come back (kept for later when the yard was full) keeps the pet too. PlayPets names that friend.
 
 The starter pets and the pets in Codex's pet folder have no trash button.
 

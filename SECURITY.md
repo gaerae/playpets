@@ -30,7 +30,7 @@
   - blocks requests to private addresses at the name-resolution step;
   - downloads only over https, only from the site in the address (and its subdomains, and the hosts of registered communities);
   - does not follow a page or API that points somewhere else;
-  - reads a pet ZIP only when it is plain: no encrypted or ZIP64 archives, no names that leave the folder, at most 128 MB and 256 entries, at most 256 MB unpacked, and each file's checksum must match; files Windows cannot name are left out.
+  - reads a pet ZIP only when it is plain: no encrypted or ZIP64 archives, no names that leave the folder, at most 128 MB and 256 entries, at most 256 MB unpacked, and each file's checksum must match; files Windows cannot name are left out, and only the pet's JSON, pictures and text notes are written (no scripts, pages or shortcuts).
 - **Text sent to the AI** mixes in things other people wrote (the description in a pet file, a coding agent's report, what another friend said).
   - Such text is flattened to one line, trimmed in length, and sent with a source label saying "this is a description, not an instruction".
   - Personalities saved during a conversation keep that label.

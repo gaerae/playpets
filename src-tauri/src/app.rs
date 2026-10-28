@@ -28,10 +28,11 @@ pub use sprite::sprite_response;
 pub const SCHEMA: u64 = 1;
 /// The top-level keys this app writes to state.json besides the switches (Prefs::KEYS); anything
 /// else in the file is `extra`.
-const KNOWN_KEYS: [&str; 9] = [
+const KNOWN_KEYS: [&str; 10] = [
     "schema",
     "pets",
     "imports",
+    "picked",
     "providers",
     "agentPets",
     "secretIds",
@@ -62,6 +63,9 @@ pub struct AppData {
     pub prefs: Prefs,
     /// Folders of pets brought in by hand, read again at every start.
     pub imports: Vec<String>,
+    /// Those of them picked by hand from inside the data folder's `pets`, where imported pets
+    /// live: the person's own, never deleted with the pet (catalog::place_of).
+    pub picked: Vec<String>,
     /// Which friend each coding agent reports to (agent kind → pet id). Unset means the first friend.
     pub agent_pets: HashMap<String, String>,
     /// Whether the app starts at login, as the system said at start (not saved: the system keeps it).
@@ -294,6 +298,7 @@ pub fn persist(d: &AppData) -> Result<(), String> {
         "schema": SCHEMA,
         "pets": d.pets.iter().map(|p| json!(p)).chain(d.parked_pets.iter().cloned()).collect::<Vec<_>>(),
         "imports": d.imports,
+        "picked": d.picked,
         "providers": d.providers.iter().chain(&d.parked_providers).collect::<Vec<_>>(),
         "agentPets": d.agent_pets,
         "secretIds": d.secret_ids.iter().collect::<Vec<_>>(),
@@ -365,7 +370,7 @@ pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, messa
 /// Puts a pet file on the shelf (once) and remembers its folder for the next start.
 pub fn register_asset(app: &AppHandle, d: &mut AppData, asset: catalog::Asset) -> Result<Value, String> {
     let asset = catalog::Asset {
-        place: catalog::place_of(&d.store.dir.join("pets"), &asset.folder),
+        place: catalog::place_of(&d.store.dir.join("pets"), &asset.folder, &d.picked),
         ..asset
     };
     let id = asset.id.clone();

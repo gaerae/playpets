@@ -45,12 +45,14 @@ fn switch(state: i32) -> Result<bool, &'static str> {
     }
 }
 
-/// What the person hears after asking: the new state, or why asking could not turn it on.
+/// What the person hears after asking: the state they asked for, or why Windows kept another
+/// (turned off in Settings, or held on or off by their organization).
 fn answer(asked: bool, state: i32) -> Result<bool, String> {
     match switch(state) {
-        Ok(on) => Ok(on),
-        Err(key) if asked => Err(i18n::t(key)),
-        Err(_) => Ok(false),
+        Ok(on) if on == asked => Ok(on),
+        Err(_) if !asked => Ok(false),
+        Err(key) => Err(i18n::t(key)),
+        Ok(_) => Err(i18n::t("error.autostart")),
     }
 }
 
@@ -125,6 +127,9 @@ mod tests {
         // Turning it off when Windows already keeps it off is simply off.
         assert_eq!(answer(false, 1), Ok(false));
         assert_eq!(answer(false, 3), Ok(false));
+        // Held on by the organization, or still off after asking: the switch does not just flip back.
+        assert_eq!(answer(false, 4), Err(i18n::t("error.autostart")));
+        assert_eq!(answer(true, 0), Err(i18n::t("error.autostart")));
     }
 
     #[test]

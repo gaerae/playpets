@@ -166,10 +166,18 @@ static GROUPS: Mutex<Vec<i32>> = Mutex::new(Vec::new());
 /// At quit: every CLI the app started and what it started.
 pub(super) fn stop_every_tree() {
     #[cfg(unix)]
-    for group in crate::app::hold(&GROUPS).drain(..) {
+    stop_trees(|_| true);
+}
+
+/// Stops the listed trees `which` picks; a test stops only its own, as others run beside it.
+#[cfg(unix)]
+fn stop_trees(which: impl Fn(i32) -> bool) {
+    let mut groups = crate::app::hold(&GROUPS);
+    for &group in groups.iter().filter(|&&g| which(g)) {
         // SAFETY: a plain signal to a process group a live Tree leads.
         unsafe { libc::kill(-group, libc::SIGKILL) };
     }
+    groups.retain(|&g| !which(g));
 }
 
 impl Tree {
@@ -345,7 +353,7 @@ mod tests {
             .read_line(&mut line)
             .unwrap();
         let grandchild: i32 = line.trim().parse().unwrap();
-        stop_every_tree();
+        stop_trees(|group| group == tree.group);
         let _ = child.wait();
         let gone = (0..60).any(|_| {
             std::thread::sleep(Duration::from_millis(50));

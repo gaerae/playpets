@@ -33,7 +33,10 @@ const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
 const seasonChanged = setupSeason({
   // As the yard reads it (yard/sky.js): a season the app could not save is still in the webview.
-  read: () => (data.ownsWebviewStorage === false ? null : recall('season')) ?? data.scene?.season,
+  read: () =>
+    data.ownsWebviewStorage === false
+      ? (data.scene?.season ?? recall('season'))
+      : (recall('season') ?? data.scene?.season),
   apply: season => {
     if (setSpriteSeason(season)) render();
   },
