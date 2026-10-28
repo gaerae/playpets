@@ -3,18 +3,17 @@
 // (docs/decisions/2026-10-28-release-notes-by-audience.md).
 
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { setMetainfoRelease } from '../scripts/release-lib.mjs';
-import { pageProblems, pagesProblems, RULES_SINCE, userNotes } from '../scripts/release-page.mjs';
+import { HEADINGS, pageProblems, pagesProblems, RULES_SINCE, userNotes } from '../scripts/release-page.mjs';
 import { releasePagesFor, SITE_LANGS } from '../scripts/site-content.mjs';
 
-const page = (intro, changes, also = []) =>
-  `---\nversion: 1.4.0\n---\n\n# 1.4.0\n\n<ReleaseMeta />\n\n${intro}\n\n<Downloads version="1.4.0" />\n\n## What changed\n\n${changes
-    .map(line => `- ${line}`)
-    .join(
-      '\n',
-    )}\n${also.length ? `\n## Also\n\n${also.map(line => `- ${line}`).join('\n')}\n` : ''}\nRead [the guide](../guide/play.md).\n`;
+const page = (intro, changes, also = [], lang = 'en') => {
+  const [what, more] = HEADINGS[lang];
+  const list = lines => lines.map(line => `- ${line}`).join('\n');
+  return `---\nversion: 1.4.0\n---\n\n# 1.4.0\n\n<ReleaseMeta />\n\n${intro}\n\n<Downloads version="1.4.0" />\n\n## ${what}\n\n${list(changes)}\n${also.length ? `\n## ${more}\n\n${list(also)}\n` : ''}\nRead [the guide](../guide/play.md).\n`;
+};
 
 const RAIN = page(
   'Rain reaches the yard.',
@@ -44,19 +43,77 @@ test('a page keeps the rules: an opening sentence, short "What changed" lines, n
   assert.match(problems(page('Rain.', [])), /What changed/);
   assert.match(problems(page('Rain.', ['Copy `~/.grok/hooks/`.'])), /command or path/);
   assert.match(problems(page('Rain.', ['x'.repeat(101)])), /longer than 100/);
-  assert.deepEqual(pageProblems(page('비가 와요.', ['가'.repeat(60)]), 'ko'), []);
-  assert.match(problems(page('비가 와요.', ['가'.repeat(61)]), 'ko'), /longer than 60/);
+  assert.deepEqual(pageProblems(page('비가 와요.', ['가'.repeat(60)], [], 'ko'), 'ko'), []);
+  assert.match(problems(page('비가 와요.', ['가'.repeat(61)], [], 'ko'), 'ko'), /longer than 60/);
   assert.match(problems(page('x'.repeat(201), ['Rain.'])), /opening sentence is longer than 200/);
   assert.match(problems(page('Rain.', ['Faster <Only os="macOS" /> on a Mac.'])), /start of its line/);
+  assert.match(problems(page('Rain.', ['<Only os="macOS" /> <Only os="Linux" /> Faster.'])), /once/);
   // "Also" holds what needs a command or a link: install ways, the guide, security updates.
   assert.deepEqual(pageProblems(page('Rain.', ['Rain falls.'], ['Run `winget install`.']), 'en'), []);
 });
 
+test('a line can be for two systems, and names only known ones', () => {
+  const two = page('Rain.', ['<Only os="macOS, Linux" /> The tray icon is sharper.']);
+  assert.deepEqual(pageProblems(two, 'en'), []);
+  assert.deepEqual(userNotes(two, 'Linux').changes, ['The tray icon is sharper.']);
+  assert.deepEqual(userNotes(two, 'Windows').changes, []);
+  assert.match(pageProblems(two.replace('Linux', 'Amiga'), 'en').join('\n'), /Amiga/);
+  assert.match(pageProblems(two.replace('macOS, Linux', 'macOS, Windows, Linux'), 'en').join('\n'), /every system/);
+});
+
+test("a page keeps each language's two headings, in order, and its front matter", () => {
+  const problems = (text, lang) => pageProblems(text, lang).join('\n');
+  assert.match(problems(page('비가 와요.', ['비가 와요.']), 'ko'), /## 달라진 점/);
+  const swapped = page('Rain.', ['Rain falls.'], ['Security updates.'])
+    .replace('## What changed', '## X')
+    .replace('## Also', '## What changed')
+    .replace('## X', '## Also');
+  assert.match(problems(swapped, 'en'), /## What changed/);
+  assert.match(problems(page('Rain.', ['Rain falls.']).replace(/^---\n[\s\S]*?\n---\n/, ''), 'en'), /front matter/);
+  assert.match(problems(page('Rain.', ['Rain falls.']), 'fr'), /language/);
+});
+
+test('a list line can wrap, and nothing outside the list hides a change', () => {
+  const wrapped = page('Rain.', ['Rain falls\n  on the yard.']);
+  assert.deepEqual(userNotes(wrapped).changes, ['Rain falls on the yard.']);
+  assert.match(
+    pageProblems(page('Rain.', ['x'.repeat(60) + '\n  ' + 'x'.repeat(60)]), 'en').join('\n'),
+    /longer than 100/,
+  );
+  const split = page('Rain.', ['Rain falls.']).replace(
+    '- Rain falls.\n',
+    '- Rain falls.\n\n<Shot name="rain" />\n\n- Snow falls.\n',
+  );
+  assert.match(pageProblems(split, 'en').join('\n'), /Keep the list together/);
+  assert.match(
+    pageProblems(page('Rain.', ['Rain falls.']).replace('- Rain falls.', '* Rain falls.'), 'en').join('\n'),
+    /"- "/,
+  );
+});
+
+test('the opening sentence is the first paragraph of text, not a box, a picture or a tag', () => {
+  const at = text =>
+    page('Rain reaches the yard.', ['Rain falls.']).replace('<ReleaseMeta />', `<ReleaseMeta />\n\n${text}`);
+  for (const text of ['::: tip\nBox text\n:::', '<Shot\n  name="x"\n/>', '![pic](x.png)'])
+    assert.equal(userNotes(at(text)).intro, 'Rain reaches the yard.', text);
+  assert.equal(userNotes(at('').replaceAll('\n', '\r\n')).intro, 'Rain reaches the yard.');
+});
+
 test('the four pages of a version list the same changes for every system', () => {
-  const pages = { en: RAIN, ko: RAIN, ja: RAIN, 'zh-hans': RAIN };
+  const pages = Object.fromEntries(
+    Object.keys(HEADINGS).map(lang => [
+      lang,
+      RAIN.replace('## What changed', `## ${HEADINGS[lang][0]}`).replace('## Also', `## ${HEADINGS[lang][1]}`),
+    ]),
+  );
   assert.deepEqual(pagesProblems(pages), []);
-  const short = page('Rain reaches the yard.', ['Rain falls.'], ['Install with winget.', 'Security updates.']);
-  assert.match(pagesProblems({ ...pages, ja: short }).join('\n'), /ja.*macOS/);
+  const short = pages.ja.replace(/- <Only os="Linux" \/>.*\n/, '');
+  assert.match(pagesProblems({ ...pages, ja: short }).join('\n'), /ja/);
+  // The same number of lines, but the badge on another line: each system would read another change.
+  const moved = pages.ja
+    .replace('- Rain falls on **the yard**.', '- <Only os="macOS" /> Rain falls on **the yard**.')
+    .replace('<Only os="macOS" /> The app', 'The app');
+  assert.match(pagesProblems({ ...pages, ja: moved }).join('\n'), /ja: line 1/);
 });
 
 test('every release page from the rules on keeps them, in every language', () => {
@@ -66,9 +123,13 @@ test('every release page from the rules on keeps them, in every language', () =>
     .filter(version => version.localeCompare(RULES_SINCE, 'en', { numeric: true }) >= 0);
   assert.ok(versions.includes(RULES_SINCE));
   for (const version of versions) {
-    const pages = Object.fromEntries(
-      releasePagesFor(version).map((file, i) => [SITE_LANGS[i], readFileSync(file, 'utf8')]),
+    const files = releasePagesFor(version);
+    assert.deepEqual(
+      files.filter(file => !existsSync(file)),
+      [],
+      `${version} needs a page in every language`,
     );
+    const pages = Object.fromEntries(files.map((file, i) => [SITE_LANGS[i], readFileSync(file, 'utf8')]));
     assert.deepEqual(pagesProblems(pages), [], version);
   }
 });

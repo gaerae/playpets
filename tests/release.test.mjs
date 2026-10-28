@@ -205,3 +205,10 @@ test('the release push never publishes its tag when the main update is rejected'
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('the release command makes every new file before it writes one, so a failure leaves the tree clean', async () => {
+  const script = await readFile('scripts/release.mjs', 'utf8');
+  const writes = [...script.matchAll(/writeFile\(/g)].map(match => match.index);
+  assert.equal(writes.length, 1, 'one place writes the files');
+  assert.ok(writes[0] > script.lastIndexOf('await edit('), 'the files are written after every edit is made');
+});

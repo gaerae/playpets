@@ -45,7 +45,9 @@ if (problems.length) {
 }
 
 const date = new Date().toISOString().slice(0, 10);
-const edit = async (file, change) => writeFile(file, change(await readFile(file, 'utf8')));
+// Every file's new text is made first, so a release that cannot be made leaves the tree as it was.
+const changes = [];
+const edit = async (file, change) => changes.push([file, change(await readFile(file, 'utf8'))]);
 await edit('CHANGELOG.md', text => release(text, version, date));
 await edit('package.json', text => text.replace(/("version": ")[^"]+(")/, `$1${version}$2`));
 await edit('package-lock.json', text => {
@@ -62,6 +64,7 @@ await edit(metainfo, text =>
 );
 // The pages written ahead of time get today's date.
 for (const page of pages) await edit(page, text => setPageDate(text, date));
+for (const [file, text] of changes) await writeFile(file, text);
 
 git(
   'add',

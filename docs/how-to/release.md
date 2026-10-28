@@ -22,7 +22,7 @@
 - `git status` is empty locally.
 - The release pages for this version are written in all four site languages:
   - `website/releases/<version>.md` (English), `website/ko/releases/<version>.md`, `website/ja/releases/<version>.md` and `website/zh-hans/releases/<version>.md`.
-  - Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
+  - Each has the opening sentence and the changes a visitor reads first, written by hand. See [Edit and check the website](website.md).
   - They follow the [release notes rules](../standards/writing.md#release-notes); the command stops on a page that breaks them.
 - The one-time repository setup is done ([Set up the repository, keys and store accounts](set-up-the-repository.md)): Pages from GitHub Actions, private vulnerability reporting, the updater signing secrets, and for the stores the Homebrew tap and the winget-pkgs fork.
 

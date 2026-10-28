@@ -19,10 +19,10 @@
 
 | Text | Reader | Holds |
 |---|---|---|
-| `CHANGELOG.md`, the GitHub release body | People working on PlayPets | Every change; website, README and docs changes under `### Website and docs` |
+| `CHANGELOG.md`, the GitHub release body | People working on PlayPets | Every change people notice; website, user guide and README changes under `### Website and docs` |
 | The release page in four languages | People using the app, on every system | An opening sentence, `## What changed` (what they notice, one short line each), `## Also` (install ways, the guide, security updates) |
 
-- A line for one system starts with `<Only os="macOS" />` (or `Windows`, `Linux`); the site shows a badge in the page's language.
+- A line for some systems starts with `<Only os="macOS" />` (one name or two, such as `os="macOS, Linux"`); the site shows a badge in the page's language.
 - Each channel reads the page for its own system (`scripts/release-page.mjs`):
 
 | Channel | Reads |
@@ -34,11 +34,12 @@
 | winget | A link to the page |
 
 - No channel is the main one. The Store and Linux texts are filters of the same page; macOS has no store, and its users read the page in the app.
+- A release with nothing new for one system gives that system's channels the opening sentence and the address.
 - The writing rules live in the [writing standard](../standards/writing.md#release-notes). From 1.3.0 on, `npm run release` stops on a page that breaks them, and a test checks every page.
 
 ## Consequences
 - Positive: each reader gets what changed for them, and the changelog stays complete.
-- Positive: the four languages list the same changes for each system; the check compares them.
+- Positive: the four languages list the same changes, each line for the same systems; the check compares them.
 - Negative: the writer judges what a person notices; a script cannot tell an app change from an install note.
 - Neutral: the 1.3.0 pages were rewritten to the rules; the 1.3.0 Store submission was already published and keeps its text. Pages before 1.3.0 are unchanged.
 

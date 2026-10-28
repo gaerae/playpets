@@ -31,24 +31,36 @@ Each reader gets the text written for them ([decision](../decisions/2026-10-28-r
 
 | Text | Reader | Holds |
 |---|---|---|
-| `CHANGELOG.md` | People working on PlayPets | Every change; the website, README and docs under `### Website and docs` |
+| `CHANGELOG.md` | People working on PlayPets | Every change people notice; the website, the user guide and the README under `### Website and docs` |
 | Release page, `website/releases/x.y.z.md` in four languages | People using the app, on every system | What they notice, written short |
 
 The release page:
 
-| Part | Rule |
-|---|---|
-| Opening sentence | One or two sentences on the main change for every system. The one place for a little wit, in the yard's own words. Up to 200 characters in English, 100 in Korean, Japanese and Chinese |
-| `## What changed` | One change per line, what the person gets first. No commands or paths: link the guide instead. Up to 100 characters in English, 60 in the others |
-| A line for one system | Starts with `<Only os="macOS" />` (or `Windows`, `Linux`) and does not name the system again |
-| `## Also` | Install ways, the user guide, security updates. Short; one link each |
-| Last paragraph | A link to the guide for what to set up |
+| Part | Rule | Length (English / ko, ja, zh-hans) |
+|---|---|---|
+| `headline:` in the front matter | The main change, a few words. The release lists show it | Short |
+| Opening sentence | One or two sentences on the main change for every system. The one place for a little wit, in the yard's own words | 200 / 100 characters |
+| `## What changed`, the first section | One change per line, what the person gets first. No commands or paths: link the guide instead | 100 / 60 characters a line |
+| A line for some systems | Starts with `<Only os="macOS" />` (or `Windows`, `Linux`, or two names: `os="macOS, Linux"`) and does not name the system again | |
+| `## Also`, the second section | Install ways, the user guide, security updates. Short; one link each | |
+| Last paragraph | A link to the guide for each thing to set up | |
 
-- The four languages list the same changes, in the same order and sections.
-- Security updates are one line. Library names and advisory IDs stay in the changelog.
+- The two sections are `## What changed` and `## Also` in English, in that order. Each language has its own two headings, listed in `HEADINGS` in `scripts/release-page.mjs`; the check names the heading it expects.
+
+From the changelog to the page, at release time:
+
+1. Read the version's `## [Unreleased]` section in `CHANGELOG.md`.
+2. Added, Changed and Fixed: each change a person notices becomes one line of the first section. Leave out what only people working on PlayPets see.
+3. Security: one line in the second section. Library names and advisory IDs stay in the changelog.
+4. Website and docs: a line in the second section only when a person using the app gains from it (a rewritten guide, a new install way).
+5. Known limitations: the guide page that covers them, linked from the last paragraph.
+6. Write the English page, then the other three with the same lines.
+
+- The four languages list the same changes, in the same order, each line for the same systems.
+- A release with nothing new for one system: that system's channels show the opening sentence and the page's address.
 - Each channel reads the page for its system: the Store the Windows lines, Linux software centers the Linux lines, the app's **What's new** the whole page.
 - `npm run release` stops on a page that breaks these rules; `node --test tests/release-notes.test.mjs` checks them before that.
-- To see a channel's text: `node scripts/store-notes.mjs x.y.z` (Store).
+- To check a version's pages and see each system's text: `node scripts/release-page.mjs x.y.z`. The Store's text as it is sent: `node scripts/store-notes.mjs x.y.z`.
 
 Before:
 

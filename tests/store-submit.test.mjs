@@ -173,7 +173,7 @@ test("What's new comes from the four release pages, as plain text within the Sto
   assert.ok([...long.text].length <= 1500);
   assert.equal(long.left, 6);
   assert.match(long.text, /https:\/\/example\.test\/1$/);
-  assert.throws(() => storeNotes(page('Intro.', []), 'https://example.test/1'), /list of changes/);
+  assert.throws(() => storeNotes(page('', ['One change.']), 'https://example.test/1'), /opening sentence/);
 
   const read = file => {
     assert.match(file, /^website\/((ko|ja|zh-hans)\/)?releases\/1\.3\.0\.md$/);
@@ -197,11 +197,11 @@ test("the Store gets the release page's first section for Windows: no Also secti
     'PlayPets 1.4.0 brings rain.\n\n• Rain falls.\n• The Windows tray icon is sharper.\n\nhttps://example.test/1.4.0',
   );
   assert.equal(left, 0);
-  // A page whose every change is for another system has nothing for the Store to say.
-  assert.throws(
-    () => storeNotes(page.replace('- Rain falls.\n', '').replace(/- <Only os="Windows" \/>.*\n/, ''), 'x'),
-    /list of changes/,
-  );
+  // A release with nothing new on Windows still has the opening sentence and the address.
+  assert.deepEqual(storeNotes(page.replace('- Rain falls.\n', '').replace(/- <Only os="Windows" \/>.*\n/, ''), 'x'), {
+    text: 'PlayPets 1.4.0 brings rain.\n\nx',
+    left: 0,
+  });
   assert.throws(() => storeNotes(page.replace('os="Linux"', 'os="Amiga"'), 'x'), /Only os="Amiga"/);
 });
 

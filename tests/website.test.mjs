@@ -323,19 +323,19 @@ test('every screenshot has the shape its page reserves for it', async () => {
 test('a release note line for one system carries a badge the Store reads, in every language', async () => {
   const { readFile, readdir } = await import('node:fs/promises');
   const only = await readFile('website/.vitepress/theme/Only.vue', 'utf8');
-  assert.match(only, /words\.only\(os\)/);
+  assert.match(only, /words\.only\(names\)/);
   const theme = await readFile('website/.vitepress/theme/index.ts', 'utf8');
   assert.match(theme, /app\.component\('Only', Only\)/);
   const words = await readFile('website/.vitepress/theme/words.ts', 'utf8');
-  assert.equal(words.split('only: os =>').length - 1, 4);
+  assert.equal(words.split('only: (names: string[]) =>').length - 1, 4);
   for (const dir of ['website', 'website/ko', 'website/ja', 'website/zh-hans'])
     for (const file of await readdir(`${dir}/releases`)) {
       if (!file.endsWith('.md')) continue;
       const page = await readFile(`${dir}/releases/${file}`, 'utf8');
       for (const [tag] of page.matchAll(/<Only\b[^>]*>/g))
-        assert.match(tag, /^<Only os="(macOS|Windows|Linux)" \/>$/, file);
+        assert.match(tag, /^<Only os="(macOS|Windows|Linux)(, (macOS|Windows|Linux))?" \/>$/, file);
       for (const line of page.split('\n').filter(line => line.includes('<Only')))
-        assert.match(line, /^- <Only os="\w+" \/> \S/, `${dir}/releases/${file}: the badge starts its line`);
+        assert.match(line, /^- <Only os="[^"]+" \/> \S/, `${dir}/releases/${file}: the badge starts its line`);
     }
 });
 

@@ -79,8 +79,8 @@
         <ul>
           <li>A friend reacts while Grok Build thinks, uses a tool, waits for you and finishes.</li>
           <li>Friends can chat through Grok with an xAI API key, kept in your system's secure storage.</li>
-          <li>Grok's work no longer shows up on the Claude Code or Cursor friend.</li>
-          <li>The seed count stays inside the Plant a seed tile when it is narrow.</li>
+          <li>Grok Build also runs Claude Code and Cursor hooks; its work now shows only on its own friend.</li>
+          <li>The seed count stays inside the Plant a seed tile when the tile is narrow.</li>
         </ul>
       </description>
       <url type="details">https://playpets.gaerae.com/releases/1.3.0</url>
