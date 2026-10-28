@@ -23,6 +23,7 @@
 - The release pages for this version are written in all four site languages:
   - `website/releases/<version>.md` (English), `website/ko/releases/<version>.md`, `website/ja/releases/<version>.md` and `website/zh-hans/releases/<version>.md`.
   - Each has the release highlights a visitor reads first, written by hand. See [Edit and check the website](website.md).
+  - They follow the [release notes rules](../standards/writing.md#release-notes); the command stops on a page that breaks them.
 - The one-time repository setup is done ([Set up the repository, keys and store accounts](set-up-the-repository.md)): Pages from GitHub Actions, private vulnerability reporting, the updater signing secrets, and for the stores the Homebrew tap and the winget-pkgs fork.
 
 ## Development versions and publication
@@ -151,11 +152,10 @@ npm run release -- 0.2.0
    |---|---|
    | The changelog section moves to a dated section | `CHANGELOG.md` |
    | The version | `package.json`, `package-lock.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock` |
-   | The version is added, dated, to the releases | `packaging/linux/app.playpets.metainfo.xml` |
+   | The version is added, dated, with the English page's Linux lines | `packaging/linux/app.playpets.metainfo.xml` |
    | Today's date on the website release pages | `website/releases/0.2.0.md`, `website/ko/releases/0.2.0.md`, `website/ja/releases/0.2.0.md` and `website/zh-hans/releases/0.2.0.md` |
 
-   - If the Korean, Japanese or Chinese page is missing, it stops before changing anything.
-   - If the English page is missing, the command starts one from the changelog notes, without highlights. Write all four before you run it.
+   - If a page is missing or breaks a release notes rule, it stops before changing anything and lists what to fix.
    - Everything goes into one release commit.
    - Nothing is pushed.
 

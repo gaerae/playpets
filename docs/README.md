@@ -104,6 +104,7 @@ New here? Read in this order.
 
 ## Deep dives and reference
 **Decision records**: why the structure is the way it is. The standards cite them as their basis.
+- [Write release notes for each reader, with one user page per version for every system](decisions/2026-10-28-release-notes-by-audience.md)
 - [Track the Linux GTK advisories without hiding them](decisions/2026-10-15-linux-gtk-advisories.md)
 - [Keep Linux publication gated on the stable Tauri GTK migration](decisions/2026-10-16-linux-release-readiness.md)
 - [Keep source art and optimize accepted exports](decisions/2026-10-12-art-storage.md)

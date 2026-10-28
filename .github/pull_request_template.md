@@ -6,7 +6,7 @@
 
 ## Checked
 - [ ] Commit titles say what changed ([commits, branches and history](https://github.com/gaerae/playpets/blob/main/docs/standards/commits-and-branches.md)), and no key, token, personal data or generated file is in the diff
-- [ ] For changes people can see, noted under `[Unreleased]` in `CHANGELOG.md`
+- [ ] For changes people can see, noted under `[Unreleased]` in `CHANGELOG.md` (website, README and docs under `### Website and docs`)
 - [ ] `npm run lint`
 - [ ] `npm test`
 - [ ] Security and CodeQL checks passed in CI (`npm run security:check` runs the secret/dependency checks locally)

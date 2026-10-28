@@ -3,9 +3,15 @@
 Changes people can see in PlayPets, release by release. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
 - In the PR that makes a change, add one line under `## [Unreleased]` (Added, Changed, Fixed, Removed, Security, Known limitations).
-- At release time, `npm run release -- x.y.z` moves this section into a dated `## [x.y.z]`, and pushing the tag turns that section into the release notes.
+- Changes to the website, the README and the docs go under `### Website and docs`, apart from changes to the app.
+- This is the full record. The release pages on the website say what changed for people using the app ([release notes by audience](docs/decisions/2026-10-28-release-notes-by-audience.md)).
+- At release time, `npm run release -- x.y.z` moves this section into a dated `## [x.y.z]`, and pushing the tag turns that section into the GitHub release, after a link to the website's release page.
 
 ## [Unreleased]
+
+### Website and docs
+
+- Release pages say what changed in the app in one short line per change, and mark a change for one system with its name; install ways, the user guide and security updates move to a section of their own. The Microsoft Store shows the Windows lines and Linux software centers the Linux lines; winget and the GitHub release link to the page.
 
 ## [1.3.0] - 2026-10-27
 

@@ -78,6 +78,11 @@ test('winget gets the three manifests of a version, with both installers', () =>
   );
   assert.match(installer, /Architecture: arm64/);
   assert.match(files[`${dir}/gaerae.PlayPets.locale.en-US.yaml`], /License: MIT/);
+  // winget shows the notes written for people using the app, not the changelog.
+  assert.match(
+    files[`${dir}/gaerae.PlayPets.locale.en-US.yaml`],
+    /\nReleaseNotesUrl: https:\/\/playpets\.gaerae\.com\/releases\/0\.2\.0\n/,
+  );
   // wingetcreate refuses a manifest whose first line does not name its schema.
   for (const [path, text] of Object.entries(files)) {
     const type = text.match(/^ManifestType: (\w+)$/m)[1];

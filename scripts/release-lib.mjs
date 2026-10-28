@@ -2,6 +2,8 @@
 // "Unreleased" becomes a dated section, a version's notes can be read back out of it, and the
 // Rust manifest and lockfile carry the app's version.
 
+import { releasePageUrl } from './site-content.mjs';
+
 const SEMVER = /^\d+\.\d+\.\d+$/;
 const UNRELEASED = '## [Unreleased]';
 const heading = version => `## [${version}]`;
@@ -53,7 +55,11 @@ export function setLockVersion(lock, version) {
 
 // The Linux metainfo with this version first in <releases>, dated; an entry for the same
 // version (such as the development one written before the release) is replaced.
-export function setMetainfoRelease(xml, version, date) {
+const xmlText = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+
+// A release in the Linux metainfo, newest first; with `notes` ({intro, changes, url}: the English page's
+// Linux lines), software centers show what changed and link to the page.
+export function setMetainfoRelease(xml, version, date, notes) {
   if (!SEMVER.test(version)) throw new Error(`The version must look like x.y.z, not "${version}".`);
   // The element on its own line, not a mention of it in a comment.
   const element = /\n([ \t]*)<releases>\n/;
@@ -64,9 +70,21 @@ export function setMetainfoRelease(xml, version, date) {
     'g',
   );
   const indent = open[1];
-  return xml
-    .replace(same, '')
-    .replace(element, `\n${indent}<releases>\n${indent}  <release version="${version}" date="${date}"/>\n`);
+  const at = `${indent}  `;
+  const entry = notes
+    ? [
+        `${at}<release version="${version}" date="${date}">`,
+        `${at}  <description>`,
+        `${at}    <p>${xmlText(notes.intro)}</p>`,
+        ...(notes.changes.length
+          ? [`${at}    <ul>`, ...notes.changes.map(line => `${at}      <li>${xmlText(line)}</li>`), `${at}    </ul>`]
+          : []),
+        `${at}  </description>`,
+        `${at}  <url type="details">${xmlText(notes.url)}</url>`,
+        `${at}</release>`,
+      ].join('\n')
+    : `${at}<release version="${version}" date="${date}"/>`;
+  return xml.replace(same, '').replace(element, `\n${indent}<releases>\n${entry}\n`);
 }
 
 // A release page written ahead of time gets the release date in its front matter (ReleaseMeta and the
@@ -80,31 +98,8 @@ export function setPageDate(page, date) {
   return `---\n${lines.join('\n')}\n---\n${page.slice(front[0].length)}`;
 }
 
-// The website's English page for a version, started from its changelog notes. The maintainer fills the
-// headline and swaps or adds screenshots; the notes stay as the changelog wrote them.
-export function releasePage(notes, version, date) {
-  return `---
-version: ${version}
-date: ${date}
-headline: ""
----
-
-# ${version}
-
-<ReleaseMeta />
-
-<Downloads version="${version}" />
-
-<Shot name="yard-evening" version="${version}" caption="" />
-
-${notes}
-
-## Screens
-
-<Shot name="friend-chat" version="${version}" caption="" />
-
-<Shot name="desktop" version="${version}" caption="" />
-
-<ReleaseLinks version="${version}" />
-`;
+// The GitHub release body: the full changelog section, for people working on PlayPets, after a
+// link to the release page written for people using it.
+export function releaseBody(changelog, version) {
+  return `What's new for people using PlayPets: ${releasePageUrl(version)}\n\n${notesFor(changelog, version)}`;
 }

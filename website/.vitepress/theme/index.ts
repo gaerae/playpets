@@ -3,6 +3,7 @@ import DefaultTheme from 'vitepress/theme';
 import Downloads from './Downloads.vue';
 import Landing from './Landing.vue';
 import Mermaid from './Mermaid.vue';
+import Only from './Only.vue';
 import ReleaseLinks from './ReleaseLinks.vue';
 import ReleaseList from './ReleaseList.vue';
 import ReleaseMeta from './ReleaseMeta.vue';
@@ -38,6 +39,7 @@ export default {
     app.component('Sprite', Sprite);
     app.component('Landing', Landing);
     app.component('Since', Since);
+    app.component('Only', Only);
     app.component('Downloads', Downloads);
     app.component('ReleaseMeta', ReleaseMeta);
     app.component('ReleaseLinks', ReleaseLinks);

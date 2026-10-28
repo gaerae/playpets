@@ -165,7 +165,8 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
   - People write them before the release.
   - `npm run release` stops without them.
   - Nothing is machine-translated.
-- Text: the opening sentence, the bullets under the first `##` section, then the page's address.
+- Text: the opening sentence, the Windows lines of `What changed`, then the page's address (`scripts/release-page.mjs` reads the page).
+- Lines for macOS or Linux and the `Also` section stay on the page. See the [release notes rules](../standards/writing.md#release-notes).
 - Links keep their words; bold and code marks are dropped.
 - The Store allows 1500 characters per language.
 - Bullets that do not fit are left out, starting from the end.

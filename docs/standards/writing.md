@@ -2,12 +2,13 @@
 
 ## Scope
 - README, CONTRIBUTING, SECURITY and every current guide in `docs/`.
-- The user guide on the site, in all four languages (`website/**/*.md`).
+- The user guide and the release pages on the site, in all four languages (`website/**/*.md`).
+- `CHANGELOG.md` entries under `[Unreleased]`.
 - Folder READMEs that explain tools or assets (`scripts/`, `tests/`, `packaging/`, `assets/`, `src/`).
 - Not covered:
   - Dated records in `docs/decisions` and `docs/design`. They are not rewritten ([decision](../decisions/2026-10-13-design-records.md)).
-  - `CHANGELOG.md` entries already released.
-  - Generated pages (`website/dev/`, `website/releases/`).
+  - `CHANGELOG.md` entries already released, and release pages before 1.3.0.
+  - Generated pages (`website/dev/`).
   - Prompt files for artwork. They are input to a tool, not docs.
 
 ## Rules
@@ -24,6 +25,38 @@
 - Keep headings stable. Other pages and the site link to their anchors, and each site language keeps the same headings in the same order.
 - Keep page structure the site needs: front matter, `<Shot>`, `<Since>`, `:::` boxes.
 - No middle dots (·) on the site. Use commas, "and" or a list.
+
+## Release notes
+Each reader gets the text written for them ([decision](../decisions/2026-10-28-release-notes-by-audience.md)).
+
+| Text | Reader | Holds |
+|---|---|---|
+| `CHANGELOG.md` | People working on PlayPets | Every change; the website, README and docs under `### Website and docs` |
+| Release page, `website/releases/x.y.z.md` in four languages | People using the app, on every system | What they notice, written short |
+
+The release page:
+
+| Part | Rule |
+|---|---|
+| Opening sentence | One or two sentences on the main change for every system. The one place for a little wit, in the yard's own words. Up to 200 characters in English, 100 in Korean, Japanese and Chinese |
+| `## What changed` | One change per line, what the person gets first. No commands or paths: link the guide instead. Up to 100 characters in English, 60 in the others |
+| A line for one system | Starts with `<Only os="macOS" />` (or `Windows`, `Linux`) and does not name the system again |
+| `## Also` | Install ways, the user guide, security updates. Short; one link each |
+| Last paragraph | A link to the guide for what to set up |
+
+- The four languages list the same changes, in the same order and sections.
+- Security updates are one line. Library names and advisory IDs stay in the changelog.
+- Each channel reads the page for its system: the Store the Windows lines, Linux software centers the Linux lines, the app's **What's new** the whole page.
+- `npm run release` stops on a page that breaks these rules; `node --test tests/release-notes.test.mjs` checks them before that.
+- To see a channel's text: `node scripts/store-notes.mjs x.y.z` (Store).
+
+Before:
+
+> - Grok Build joins Claude Code, Codex, Gemini CLI and Cursor. Copy its settings from Settings → Coding tools and save them in `~/.grok/hooks/`; a friend then shows when Grok thinks, uses a tool, waits for you and finishes.
+
+After:
+
+> - A friend reacts while Grok Build thinks, uses a tool, waits for you and finishes.
 
 ## Tone by language
 - English: plain, short sentences or fragments.

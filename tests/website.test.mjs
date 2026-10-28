@@ -158,17 +158,6 @@ test('each sample pet is a valid v2 sheet with its pet.json', async () => {
   }
 });
 
-test('a release page is made from the changelog section: front matter, downloads, the notes', async () => {
-  const { releasePage } = await import('../scripts/release-lib.mjs');
-  const notes = '### Added\n- The yard has weather.\n\n### Fixed\n- The window no longer stretches.';
-  const page = releasePage(notes, '0.2.0', '2026-11-01');
-  assert.match(page, /^---\nversion: 0\.2\.0\ndate: 2026-11-01\nheadline: ""\n---\n/);
-  assert.match(page, /\n# 0\.2\.0\n/);
-  assert.match(page, /<Downloads version="0\.2\.0" \/>/);
-  assert.match(page, /<Shot name="yard-evening" version="0\.2\.0"/);
-  assert.ok(page.includes('### Added\n- The yard has weather.'));
-});
-
 test('the capture scenario only presses controls present in the yard page', async () => {
   const { readFile: read } = await import('node:fs/promises');
   const script = await read('scripts/shots.mjs', 'utf8'),
@@ -329,6 +318,25 @@ test('every screenshot has the shape its page reserves for it', async () => {
         const want = ratios[file.replace('.webp', '')] ?? fallback[0] / fallback[1];
         assert.ok(Math.abs(width / height - want) < 0.01, `${version}/${lang}/${file}: ${width}×${height}`);
       }
+});
+
+test('a release note line for one system carries a badge the Store reads, in every language', async () => {
+  const { readFile, readdir } = await import('node:fs/promises');
+  const only = await readFile('website/.vitepress/theme/Only.vue', 'utf8');
+  assert.match(only, /words\.only\(os\)/);
+  const theme = await readFile('website/.vitepress/theme/index.ts', 'utf8');
+  assert.match(theme, /app\.component\('Only', Only\)/);
+  const words = await readFile('website/.vitepress/theme/words.ts', 'utf8');
+  assert.equal(words.split('only: os =>').length - 1, 4);
+  for (const dir of ['website', 'website/ko', 'website/ja', 'website/zh-hans'])
+    for (const file of await readdir(`${dir}/releases`)) {
+      if (!file.endsWith('.md')) continue;
+      const page = await readFile(`${dir}/releases/${file}`, 'utf8');
+      for (const [tag] of page.matchAll(/<Only\b[^>]*>/g))
+        assert.match(tag, /^<Only os="(macOS|Windows|Linux)" \/>$/, file);
+      for (const line of page.split('\n').filter(line => line.includes('<Only')))
+        assert.match(line, /^- <Only os="\w+" \/> \S/, `${dir}/releases/${file}: the badge starts its line`);
+    }
 });
 
 test('version badges mark only later features and stay out of the page outline', async () => {

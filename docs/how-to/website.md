@@ -77,13 +77,16 @@ SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans npm run shots -- 0.2.0
 ```
 
 4. Mark the version where a feature first arrived with `<Since v="0.2.0" />` at the end of its heading. A first-release badge (`0.1.0`) shows nothing, and no badge appears in the page outline.
-5. If you changed the headline or the first-screen text, redraw the share card and banner too.
+5. On a release page, start a change for one system with `<Only os="macOS" />` (or `Windows`, `Linux`).
+   - The page shows a badge such as "macOS only".
+   - The rest of the page follows the [release notes rules](../standards/writing.md#release-notes).
+6. If you changed the headline or the first-screen text, redraw the share card and banner too.
 
 ```bash
 npm run og
 ```
 
-6. Build and check.
+7. Build and check.
    - A single dead link fails the build and names the file and the link.
    - The test checks that every version in the changelog has a page and that every capture a page points to exists.
 
@@ -97,7 +100,7 @@ npm run site:build && node --test tests/website.test.mjs
    - Static HTML can load while a stale preview returns missing script files.
    - Use `npm run site:dev` for ongoing edits.
 
-7. Commit.
+8. Commit.
    - Git ignores what `scripts/site-prepare.mjs` generates (`website/dev/`, the icon and pet sheets it copies into `website/public/`, and `website/.vitepress/generated.json`), so those files are not committed.
    - Captures and intro videos under `website/public/` are committed.
 

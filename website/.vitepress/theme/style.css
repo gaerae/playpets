@@ -329,6 +329,19 @@ html[lang^="ko"] .vp-doc :is(td, th) {
   font-size: 11px;
   font-weight: 600;
 }
+/* At the start of a release note line, before its words: the version badge's look. */
+.only {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-family: var(--vp-font-family-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
 .vp-doc .release-meta {
   display: flex;
   flex-wrap: wrap;

@@ -6,6 +6,7 @@ const table = {
   ko: {
     download: 'PlayPets 다운로드',
     since: v => `${v}부터`,
+    only: os => `${os}만`,
     downloadFor: os => `${os}용 다운로드`,
     storeFor: 'Microsoft Store에서 받기',
     storeNote: 'Microsoft 서명, 업데이트는 스토어에서',
@@ -38,6 +39,7 @@ const table = {
   ja: {
     download: 'PlayPetsをダウンロード',
     since: v => `${v}から`,
+    only: os => `${os}のみ`,
     downloadFor: os => `${os}版をダウンロード`,
     storeFor: 'Microsoft Storeで入手',
     storeNote: 'Microsoftの署名付き、更新はストアから',
@@ -70,6 +72,7 @@ const table = {
   en: {
     download: 'Download PlayPets',
     since: v => `since ${v}`,
+    only: os => `${os} only`,
     downloadFor: os => `Download for ${os}`,
     storeFor: 'Get it from Microsoft Store',
     storeNote: 'Signed by Microsoft, updated by the Store',
@@ -102,6 +105,7 @@ const table = {
   'zh-hans': {
     download: '下载 PlayPets',
     since: v => `${v} 起`,
+    only: os => `仅 ${os}`,
     downloadFor: os => `下载 ${os} 版`,
     storeFor: '从 Microsoft Store 获取',
     storeNote: '由 Microsoft 签名，通过商店更新',
