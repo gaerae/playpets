@@ -86,7 +86,7 @@
 | Windows | `%APPDATA%\app.playpets\`。商店、winget：在安装包专用的文件夹里 |
 | Linux | `~/.local/share/app.playpets/` |
 
-- `state.json`：伙伴和设置。`pets/`：导入的宠物。`builtin/`：自带宠物。
+- `state.json`：伙伴和设置。`pets/`：导入的宠物。`backgrounds/`：导入的背景。`builtin/`：自带宠物。
 - API 密钥不在这里，而在操作系统的安全存储里。
 - PlayPets 不把对话记录存成文件，只在当前应用会话中保留。
 - 连接服务的对话保存，遵循该服务的政策。

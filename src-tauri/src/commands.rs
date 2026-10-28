@@ -154,6 +154,28 @@ static COMMANDS: &[Command] = &[
             Ok(json!(d.prefs.sound))
         })
     }),
+    // (key, value): the place, season, time of day or weather picked for the yard.
+    main("setScene", |c| {
+        let choice = crate::app::scene_choice(c.text(0), c.text(1)).ok_or_else(|| i18n::t("error.bad_request"))?;
+        commit(c.app, &c.state, |d| {
+            d.prefs.scene.insert(c.text(0).to_string(), choice);
+            Ok(Value::Null)
+        })
+    }),
+    // Imported backgrounds, a file each in the data folder; read and written outside the lock.
+    main("listBackgrounds", |c| {
+        let dir = lock(&c.state).store.dir.clone();
+        Ok(json!(crate::app::backgrounds::list(&dir)))
+    }),
+    // (id, package)
+    main("saveBackground", |c| {
+        let dir = lock(&c.state).store.dir.clone();
+        crate::app::backgrounds::save(&dir, c.text(0), c.arg(1)).map(|()| Value::Null)
+    }),
+    main("removeBackground", |c| {
+        let dir = lock(&c.state).store.dir.clone();
+        crate::app::backgrounds::remove(&dir, c.text(0)).map(|()| Value::Null)
+    }),
     main("setAutostart", |c| {
         set_autostart(c.app, &c.state, c.arg(0).as_bool().unwrap_or(false))
     }),

@@ -329,18 +329,19 @@ const scenario = `(async()=>{
     $('weather').value='snow';$('weather').dispatchEvent(new Event('change'));
     await L('weather='+($('yard').classList.contains('weather-snow')&&$('weather-layer').width>0?'snow-canvas':'err'));
     // A saved season changes the actual yard and wardrobe; Auto returns to the real local calendar.
-    const priorSeason=localStorage.getItem('season'),seasonRules=await import('./core/season.js'),seasonSprites=await import('./core/sprites.js');
+    // The choice is kept in state.json (scene), saved a moment after the change.
+    const appSeason=async()=>(await playPets.bootstrap()).data.scene?.season??null,savedSeason=value=>until(async()=>(await appSeason())===value);
+    const priorSeason=await appSeason(),seasonRules=await import('./core/season.js'),seasonSprites=await import('./core/sprites.js');
     const seasonalAsset=(await import('./core/state.js')).data.assets.find(a=>a.seasonalSpriteUrls?.summer&&a.seasonalSpriteUrls?.winter);
     const chooseSeason=value=>{$('scene-season').value=value;$('scene-season').dispatchEvent(new Event('change'));};
     chooseSeason('winter');
-    const chosenWinter=$('yard').classList.contains('season-winter')&&localStorage.getItem('season')==='winter'&&seasonalAsset&&seasonSprites.spriteSource(seasonalAsset)===seasonalAsset.seasonalSpriteUrls.winter;
+    const chosenWinter=$('yard').classList.contains('season-winter')&&(await savedSeason('winter'))&&seasonalAsset&&seasonSprites.spriteSource(seasonalAsset)===seasonalAsset.seasonalSpriteUrls.winter;
     chooseSeason('summer');
-    const chosenSummer=$('yard').classList.contains('season-summer')&&localStorage.getItem('season')==='summer'&&seasonalAsset&&seasonSprites.spriteSource(seasonalAsset)===seasonalAsset.seasonalSpriteUrls.summer;
+    const chosenSummer=$('yard').classList.contains('season-summer')&&(await savedSeason('summer'))&&seasonalAsset&&seasonSprites.spriteSource(seasonalAsset)===seasonalAsset.seasonalSpriteUrls.summer;
     chooseSeason('auto');
     const calendarSeason=seasonRules.selectedSeason(new Date(),seasonRules.southern(Intl.DateTimeFormat().resolvedOptions().timeZone),'auto');
-    const chosenAuto=$('yard').classList.contains('season-'+calendarSeason)&&localStorage.getItem('season')==='auto';
-    chooseSeason(['spring','summer','autumn','winter'].includes(priorSeason)?priorSeason:'auto');
-    if(priorSeason===null)localStorage.removeItem('season');
+    const chosenAuto=$('yard').classList.contains('season-'+calendarSeason)&&(await savedSeason('auto'));
+    chooseSeason(priorSeason??seasonRules.DEFAULT_SEASON);
     await until(()=>$('yard').dataset.environment==='illustrated');
     await L('seasonChoice='+(chosenWinter&&chosenSummer&&chosenAuto?'saved-yard-wardrobe-auto':'err'));
     const pickClimate=(id,value)=>document.querySelector('input[name="'+id+'-choice"][value="'+value+'"]').click();
@@ -351,12 +352,11 @@ const scenario = `(async()=>{
     await until(()=>$('yard').dataset.environment==='illustrated'&&landPixels()>0);await wait(80);
     const clearLand=landPixels(),beforeSnow=currentLand();pickClimate('weather','snow');
     await until(()=>currentLand()!==beforeSnow&&$('yard').classList.contains('weather-snow'));
-    const springSnow=sceneNow.season==='spring'&&environmentUi.environmentLook(sceneNow).art==='spring'&&localStorage.getItem('season')==='spring'&&$('scene-season').value==='spring'&&landPixels()===clearLand;
+    const springSnow=sceneNow.season==='spring'&&environmentUi.environmentLook(sceneNow).art==='spring'&&(await savedSeason('spring'))&&$('scene-season').value==='spring'&&landPixels()===clearLand;
     pickClimate('scene-season','winter');pickClimate('weather','clear');
     const winterClear=sceneNow.season==='winter'&&sceneNow.weather==='clear'&&environmentUi.environmentLook(sceneNow).art==='winter';
     await L('weatherSeason='+(springSnow&&winterClear?'independent-radio-and-render':'err:'+JSON.stringify({springSnow,winterClear})));
-    chooseSeason(['spring','summer','autumn','winter'].includes(priorSeason)?priorSeason:'auto');
-    if(priorSeason===null)localStorage.removeItem('season');
+    chooseSeason(priorSeason??seasonRules.DEFAULT_SEASON);
 
     // The season colours the yard and the sun or moon stands where the clock puts it.
     const yardStyle=$('yard').style;
@@ -562,7 +562,18 @@ const scenario = `(async()=>{
     $('background-file').files=transfer.files;$('background-file').dispatchEvent(new Event('change',{bubbles:true}));
     const imported=await until(()=>worldSelect.value.startsWith('custom-')&&worldSelect.value,10000);
     const portableWorld=worldFor(imported);
-    const stored=await new Promise((resolve,reject)=>{const request=indexedDB.open('playpets-backgrounds',1);request.onerror=reject;request.onsuccess=()=>{const db=request.result,tx=db.transaction('packs'),row=tx.objectStore('packs').get(imported);row.onsuccess=()=>resolve(row.result?.pack?.name);tx.oncomplete=()=>db.close();};});
+    const stored=(await playPets.listBackgrounds()).data.find(b=>b.id===imported)?.pack?.name;
+    // A background an older version kept in the webview moves into the data folder at the next
+    // start and leaves the webview once it is there; a place picked then is dropped from the webview
+    // when the app already keeps one.
+    const oldId='custom-'+crypto.randomUUID(),backgroundStore=await import('./yard/background-store.js'),{worlds:allWorlds}=await import('./yard/worlds.js'),worldCount=allWorlds.length;
+    await new Promise((resolve,reject)=>{const request=indexedDB.open('playpets-backgrounds',1);request.onupgradeneeded=()=>request.result.createObjectStore('packs',{keyPath:'id'});request.onerror=reject;request.onsuccess=()=>{const db=request.result,tx=db.transaction('packs','readwrite');tx.objectStore('packs').put({id:oldId,pack:{...portable,name:'Before 1.4.0'}});tx.oncomplete=()=>{db.close();resolve();};tx.onerror=reject;};});
+    localStorage.setItem('period','night');
+    await backgroundStore.restoreBackgrounds();await (await import('./yard/sky.js')).moveOldScene();
+    const movedPack=(await playPets.listBackgrounds()).data.find(b=>b.id===oldId)?.pack?.name,leftInWebview=await new Promise(resolve=>{const request=indexedDB.open('playpets-backgrounds',1);request.onsuccess=()=>{const db=request.result,tx=db.transaction('packs'),rows=tx.objectStore('packs').getAll();rows.onsuccess=()=>resolve(rows.result.length);tx.oncomplete=()=>db.close();};});
+    const shownOnce=allWorlds.filter(w=>w.id===oldId).length===1;
+    allWorlds.splice(worldCount);await playPets.removeBackground(oldId);
+    await L('backgroundUpgrade='+(movedPack==='Before 1.4.0'&&leftInWebview===0&&shownOnce&&localStorage.getItem('period')===null&&(await playPets.bootstrap()).data.scene?.period==='day'?'moved-to-data-folder':'err:'+JSON.stringify({movedPack,leftInWebview,shownOnce,period:localStorage.getItem('period')})));
     await until(()=>$('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1);
     await L('backgroundImport='+(imported&&stored===portable.name&&portableWorld.capabilities.fishing&&portableWorld.capabilities.seasonalEffects&&onLake(lx,ly)&&document.querySelector('[data-world="'+imported+'"][aria-pressed="true"]')?'file-gallery-storage-and-fishing':'err'));
     // Resizing changes layout, never the pin or the active activity.
@@ -1310,6 +1321,7 @@ const expect = [
   [/^inviteAtomic=rejected-no-orphans$/, 'invalid or unsupported invitation options add no friend'],
   [/^inviteLegacy=default-illustrated$/, 'legacy invitations keep the illustrated default'],
   [/^inviteDiscovery=collapsed-expandable$/, 'discovery sites start collapsed and can expand'],
+  [/^backgroundUpgrade=moved-to-data-folder$/, "an older version's background moves into the data folder"],
   [/^zipImport=copied-once$/, 'a pet ZIP is copied into the data folder once'],
   [/^zipRemove=guarded-removed$/, 'an imported pet leaves the shelf only when no friend uses it'],
   [/^place=codex\/folder-known$/, 'where a pet lives (Codex pet folder)'],
@@ -1525,7 +1537,11 @@ for (const [ok, label] of [
 try {
   const saved = JSON.parse(await readFile(path.join(dataDir, 'state.json'), 'utf8'));
   const okPersist =
-    saved.pets.length === 1 && saved.pets[0].name === '타우리' && saved.pets[0].persona === '반말로 짧게 대답해요.';
+    saved.pets.length === 1 &&
+    saved.pets[0].name === '타우리' &&
+    saved.pets[0].persona === '반말로 짧게 대답해요.' &&
+    typeof saved.scene?.world === 'string' &&
+    typeof saved.scene?.season === 'string';
   console.log(okPersist ? '  ✓' : '  ✖', 'state persists (state.json)');
   if (!okPersist) failed++;
 } catch {

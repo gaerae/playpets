@@ -5,7 +5,7 @@ import { t } from '../core/i18n.js';
 import { dropdown } from '../core/menu.js';
 import { isSeason, selectedSeason, southern } from '../core/season.js';
 import { reduced } from '../core/sprites.js';
-import { $, recall, remember } from '../core/state.js';
+import { $, call, data, forget, recall, remember } from '../core/state.js';
 import { everyMinute } from '../core/ticker.js';
 import { createEasel } from './easel.js';
 import { eventStart, sceneEvent } from './events.js';
@@ -138,6 +138,29 @@ function showRainbow(yard) {
   clearTimeout(rainbowTimer);
   rainbowTimer = setTimeout(() => $('yard').classList.remove('after-rain'), RAINBOW_MS);
 }
+// The place, season, time of day and weather picked are kept in state.json (`scene`), so they
+// travel with the data folder. Before 1.4.0 the page kept them in the webview's storage: read there
+// when the app has none, each moves over once and leaves that storage after the app saved it.
+const SCENE_KEYS = ['world', 'weather', 'period', 'season'];
+export const savedScene = () => Object.fromEntries(SCENE_KEYS.map(key => [key, data.scene?.[key] ?? recall(key)]));
+export async function keepScene(key, value) {
+  try {
+    await call('setScene', key, value);
+    forget(key);
+  } catch {
+    // Not saved by the app: the webview keeps it, read again at the next start.
+    remember(key, value);
+  }
+}
+export function moveOldScene() {
+  return Promise.all(
+    SCENE_KEYS.map(key => {
+      const old = recall(key);
+      if (old === null) return undefined;
+      return data.scene?.[key] == null ? keepScene(key, old) : forget(key);
+    }),
+  );
+}
 // Starts the sky: the chosen or automatic time and weather, and the minute-by-minute check. Called once, by app.js.
 // `options`, each optional:
 // - seasonChanged(season): after every repaint, with the season shown;
@@ -154,12 +177,8 @@ export function setupSky(options = {}) {
     landChanged = options.landChanged || none;
   setScenery(createScenery($('weather-layer'), reduced, undefined, undefined, $('star-layer')));
   easel = createEasel($('yard'), reduced, landChanged);
-  const saved = {
-    world: recall('world'),
-    weather: recall('weather'),
-    period: recall('period'),
-    season: recall('season'),
-  };
+  const saved = savedScene();
+  moveOldScene();
   const initial = initialSceneChoices(saved);
   seasonChoice = initial.season;
   weatherChoice = initial.weather;
@@ -168,7 +187,7 @@ export function setupSky(options = {}) {
   $('scene-season').onchange = () => {
     const choice = $('scene-season').value;
     seasonChoice = isSeason(choice) ? choice : 'auto';
-    remember('season', seasonChoice);
+    keepScene('season', seasonChoice);
     $('scene-season').value = seasonChoice;
     cancelRemarks();
     seasonPicked();
@@ -188,7 +207,7 @@ export function setupSky(options = {}) {
     cancelRemarks();
     worldChanged(() => {
       scene.world = worldFor($('world').value).id;
-      remember('world', scene.world);
+      keepScene('world', scene.world);
       paintScene();
     });
   };
@@ -214,12 +233,12 @@ export function setupSky(options = {}) {
   });
   $('period').onchange = () => {
     periodChoice = $('period').value;
-    remember('period', periodChoice);
+    keepScene('period', periodChoice);
     paintScene();
   };
   $('weather').onchange = () => {
     weatherChoice = $('weather').value;
-    remember('weather', weatherChoice);
+    keepScene('weather', weatherChoice);
     if (paintScene()) remark();
   };
   paintScene();

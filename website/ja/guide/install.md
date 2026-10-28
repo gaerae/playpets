@@ -197,6 +197,7 @@ chmod +x PlayPets_*.AppImage
 | `state.json` | 友だちと設定 |
 | `bridge.json` | エージェント連携のポートとトークン |
 | `pets/` | 取り込んだペット |
+| `backgrounds/` | 取り込んだ背景 |
 | `builtin/` | 付属の4種類の仲間 |
 
 - 別の場所に置くには、環境変数`PLAYPETS_DATA`にフォルダーのパスを入れてアプリを起動します。

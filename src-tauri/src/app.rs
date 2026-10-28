@@ -15,11 +15,12 @@ use tauri::{AppHandle, Manager};
 
 // Loading the state at start (load.rs), the person's switches (prefs.rs) and serving sprite
 // sheets to the pages (sprite.rs).
+pub mod backgrounds;
 mod load;
 mod prefs;
 mod sprite;
 pub use load::load_state;
-pub use prefs::{Prefs, Sound};
+pub use prefs::{Prefs, Sound, scene_choice};
 pub use sprite::sprite_response;
 
 /// The shape of state.json this app writes. Read from a newer app's file, the known fields are

@@ -31,8 +31,8 @@ let data = { pets: [], assets: [], statuses: {} },
   layout = [];
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
-setupSeason({
-  read: () => recall('season'),
+const seasonChanged = setupSeason({
+  read: () => data.scene?.season ?? recall('season'),
   apply: season => {
     if (setSpriteSeason(season)) render();
   },
@@ -210,6 +210,7 @@ function say(v, message) {
 api.onChange(next => {
   data = next;
   layout = next.desktopLayout;
+  seasonChanged();
   render();
 });
 api.onEvent(event => {
@@ -257,6 +258,7 @@ if (result.ok) {
   // A language chosen in the yard reaches this window too (the page starts over in it).
   follow(data.language);
   layout = data.desktopLayout;
+  seasonChanged();
   render();
   // Standing cells last 110-320 ms, so ten frames a second show every one of them.
   every(100, animate);

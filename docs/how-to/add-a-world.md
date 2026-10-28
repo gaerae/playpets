@@ -50,8 +50,8 @@
 2. Generate the art, review the composition and package it in the selected AI workspace, not in a browser image editor.
    - `render-layout` creates a PNG guide.
    - `pack-background` checks the final images and config and writes v1 JSON.
-3. Import it from the scene menu. The app stores it in this profile's IndexedDB.
-4. Keep the JSON as a backup. It is not part of the native pet data file.
+3. Import it from the scene menu. The app keeps it in the data folder's `backgrounds/`, one file per background (before 1.4.0, in the webview's IndexedDB, from which it moves at the first start of 1.4.0).
+4. Keep the JSON as a backup if you want the exact file you made.
 
 Layout:
 - Each package declares a normalized floor, an optional water ellipse, a fishing stance and up to twelve window rectangles.

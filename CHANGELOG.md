@@ -15,6 +15,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Import a pet from a ZIP file on your computer, such as one from the creator kit or a compressed pet folder. PlayPets copies the pet in, so the ZIP can be moved or deleted afterwards.
 - Remove a pet you imported or picked from the trash button beside its card in Invite a friend. An imported pet's files are deleted; a picked folder only leaves the list. While friends made from the pet are in the yard, PlayPets names them to send away first.
 
+### Changed
+
+- Imported backgrounds and the place, season, time of day and weather picked for the yard are saved in the data folder (`backgrounds/` and `state.json`), so a copy of the folder keeps them and deleting it removes them. At the first start of 1.4.0 they move over from the app's webview storage, which keeps its copy until the move is saved.
+
 ### Fixed
 
 - A Claude Code friend no longer turns to Waiting a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.

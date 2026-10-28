@@ -189,6 +189,7 @@ chmod +x PlayPets_*.AppImage
 | `state.json` | 伙伴和设置 |
 | `bridge.json` | 代理联动用的端口和令牌 |
 | `pets/` | 导入的宠物 |
+| `backgrounds/` | 导入的背景 |
 | `builtin/` | 自带的四位伙伴 |
 
 - 想放到别处：把文件夹路径填进环境变量 `PLAYPETS_DATA`，再运行应用。

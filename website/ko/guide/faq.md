@@ -89,7 +89,7 @@
 | Windows | `%APPDATA%\app.playpets\`. 스토어, winget: 패키지 전용 폴더 안 |
 | Linux | `~/.local/share/app.playpets/` |
 
-- 친구와 설정은 `state.json`, 가져온 펫은 `pets/`, 기본 펫은 `builtin/`에 있어요.
+- 친구와 설정은 `state.json`, 가져온 펫은 `pets/`, 가져온 배경은 `backgrounds/`, 기본 펫은 `builtin/`에 있어요.
 - API 키는 여기 없고 OS의 보안 저장소에 있어요.
 - PlayPets는 대화 기록을 파일에 저장하지 않고, 앱을 켠 동안만 유지해요.
 - 연결한 서비스의 대화 저장은 그 서비스의 정책을 따라요.

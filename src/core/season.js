@@ -33,7 +33,8 @@ const SOUTH =
   /^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham|Fiji|Tongatapu|Apia|Noumea|Efate|Port_Moresby)|^America\/(Argentina|Buenos_Aires|Sao_Paulo|Santiago|Montevideo|Asuncion|La_Paz|Lima|Bahia|Recife|Maceio|Campo_Grande|Cuiaba|Punta_Arenas)|^Africa\/(Johannesburg|Maputo|Harare|Windhoek|Lusaka|Gaborone|Maseru|Mbabane|Blantyre|Lubumbashi)|^Indian\/(Mauritius|Reunion|Antananarivo)|^Atlantic\/Stanley/;
 export const southern = zone => SOUTH.test(zone || '');
 
-// Other windows receive storage changes; the minute tick also covers a missed notification.
+// The choice comes with the app's state, so the window calls the returned function when that
+// changes; storage changes (where a version before 1.4.0 kept it) and the minute tick still count.
 export function setupSeason({ read, apply, minute, events = window, now = () => new Date(), south = false }) {
   const refresh = date => apply(selectedSeason(date, south, read() ?? DEFAULT_SEASON));
   refresh(now());
@@ -41,4 +42,5 @@ export function setupSeason({ read, apply, minute, events = window, now = () => 
   events.addEventListener('storage', event => {
     if (event.key === 'season' || event.key === null) refresh(now());
   });
+  return () => refresh(now());
 }

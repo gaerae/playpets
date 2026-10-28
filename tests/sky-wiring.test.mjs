@@ -7,6 +7,16 @@ import test from 'node:test';
 import './support/content.mjs';
 import { installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
+// The app keeps the choices (setScene, in state.json); this records what it was given.
+const kept = {};
+globalThis.playPets = {
+  setScene: async (key, value) => {
+    kept[key] = value;
+    return { ok: true, data: null };
+  },
+};
+const settled = () => new Promise(resolve => setImmediate(resolve));
+
 test('the scene module does not reach into games, fishing, the garden or the friends', async () => {
   const source = await readFile('src/yard/sky.js', 'utf8');
   for (const module of ['play', 'catch', 'garden', 'decor', 'hint', 'views', 'trips'])
@@ -35,6 +45,7 @@ test('setupSky hands world and season changes to the entry point, around its own
   };
   globalThis.window = { devicePixelRatio: 1 };
   const { setupSky } = await import('../src/yard/sky.js');
+  assert.equal((await import('../src/core/state.js')).api, globalThis.playPets);
   const { scene } = await import('../src/yard/world.js');
   const log = [];
   setupSky({
@@ -60,25 +71,30 @@ test('setupSky hands world and season changes to the entry point, around its own
     log.slice(1, -1).every(entry => entry.startsWith('season:')),
     'the scene repaints between the two halves',
   );
-  assert.equal(storage.getItem('world'), 'studio');
+  await settled();
+  assert.equal(kept.world, 'studio');
+  assert.equal(storage.getItem('world'), null, 'not in the webview');
   assert.ok(nodes.get('yard').classList.contains('world-studio'));
 
   log.length = 0;
   nodes.get('scene-season').value = 'winter';
   nodes.get('scene-season').onchange();
   assert.deepEqual(log, ['picked', 'season:winter']);
-  assert.equal(storage.getItem('season'), 'winter');
+  await settled();
+  assert.equal(kept.season, 'winter');
   assert.equal(nodes.get('scene-season').value, 'winter');
   nodes.get('scene-season').value = 'spring';
   nodes.get('scene-season').onchange();
   assert.equal(document.getElementById('season'), null, 'the Settings duplicate is absent');
-  assert.equal(storage.getItem('season'), 'spring');
+  await settled();
+  assert.equal(kept.season, 'spring');
   assert.equal(scene.season, 'spring');
   nodes.get('weather').value = 'snow';
   nodes.get('weather').onchange();
   assert.equal(scene.weather, 'snow');
   assert.equal(scene.season, 'spring');
-  assert.equal(storage.getItem('season'), 'spring');
+  await settled();
+  assert.equal(kept.season, 'spring');
   assert.equal(nodes.get('scene-season').value, 'spring');
   nodes.get('scene-season').value = 'winter';
   nodes.get('scene-season').onchange();

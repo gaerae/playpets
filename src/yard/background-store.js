@@ -1,5 +1,11 @@
+// Imported backgrounds live in the data folder (the backend's `backgrounds`). Before 1.4.0 the
+// page kept them in the webview's own storage: each moves over once, and leaves that storage only
+// after the data folder holds it. One that could not move is still shown from there.
+import { call } from '../core/state.js';
 import { backgroundWorld, validateBackgroundPack } from './background-pack.js';
 import { worlds } from './worlds.js';
+
+const isCustom = id => typeof id === 'string' && id.startsWith('custom-');
 
 function database() {
   return new Promise((resolve, reject) => {
@@ -24,13 +30,39 @@ async function transaction(mode, action) {
     };
   });
 }
-export async function restoreBackgrounds() {
+// The webview's old copies; none when that storage is missing or cannot open.
+async function oldRows() {
+  if (typeof indexedDB === 'undefined') return [];
+  try {
+    return (await transaction('readonly', store => store.getAll())).filter(row => isCustom(row?.id));
+  } catch {
+    return [];
+  }
+}
+async function forgetOld(id) {
   if (typeof indexedDB === 'undefined') return;
-  const rows = await transaction('readonly', store => store.getAll());
-  for (const row of rows) {
+  try {
+    await transaction('readwrite', store => store.delete(id));
+  } catch {
+    /* Left behind, it is read again at the next start and found already moved. */
+  }
+}
+export async function restoreBackgrounds() {
+  const rows = new Map((await call('listBackgrounds')).map(row => [row.id, row]));
+  for (const row of await oldRows()) {
+    if (!rows.has(row.id)) {
+      rows.set(row.id, row);
+      try {
+        await call('saveBackground', row.id, row.pack);
+      } catch {
+        continue;
+      }
+    }
+    await forgetOld(row.id);
+  }
+  for (const row of rows.values()) {
     try {
-      if (typeof row.id === 'string' && row.id.startsWith('custom-'))
-        worlds.push(backgroundWorld(validateBackgroundPack(row.pack), row.id));
+      if (isCustom(row.id)) worlds.push(backgroundWorld(validateBackgroundPack(row.pack), row.id));
     } catch {
       /* A damaged package does not prevent the built-in yard from opening. */
     }
@@ -50,13 +82,15 @@ export async function saveBackground(input) {
     if (img.naturalWidth !== 1536 || img.naturalHeight !== 1024) throw new Error('background.invalid');
   }
   const id = `custom-${crypto.randomUUID()}`;
-  await transaction('readwrite', store => store.put({ id, pack }));
+  await call('saveBackground', id, pack);
   worlds.push(backgroundWorld(pack, id));
   return id;
 }
 export async function removeBackground(id) {
   if (!worlds.some(world => world.id === id && world.custom)) return;
-  await transaction('readwrite', store => store.delete(id));
+  await call('removeBackground', id);
+  // A copy that never moved would bring it back at the next start.
+  await forgetOld(id);
   const index = worlds.findIndex(world => world.id === id);
   if (index >= 0) worlds.splice(index, 1);
 }

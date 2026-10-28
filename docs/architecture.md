@@ -302,9 +302,10 @@ What each arrow in the diagram carries, path by path.
 
 | In the data folder | Holds |
 |---|---|
-| `state.json` | Friends, settings, AI connections, the garden and its gifts, the album, closeness, friends and connections parked from an earlier start, the yard sounds' setting, the window bounds and Always on top setting |
+| `state.json` | Friends, settings, AI connections, the garden and its gifts, the album, closeness, friends and connections parked from an earlier start, the yard sounds' setting, the window bounds and Always on top setting, the place, season, time of day and weather picked (`scene`) |
 | `bridge.json` | The agent bridge's port and token. Both change on every launch |
-| `pets/` | Pets imported from an address |
+| `pets/` | Pets imported from an address or a ZIP |
+| `backgrounds/` | Imported backgrounds, one JSON file each (`app/backgrounds.rs`); the page checks a package again when it reads it |
 | `builtin/` | The four illustrated starter entries bundled in the executable, unpacked at launch |
 
 - API keys are not in this folder. They are in the OS secure storage.

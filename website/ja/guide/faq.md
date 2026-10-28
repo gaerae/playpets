@@ -85,7 +85,7 @@
 | Windows | `%APPDATA%\app.playpets\`。Store、winget：パッケージ専用のフォルダー内 |
 | Linux | `~/.local/share/app.playpets/` |
 
-- 友だちと設定は`state.json`、取り込んだペットは`pets/`、付属のペットは`builtin/`にあります。
+- 友だちと設定は`state.json`、取り込んだペットは`pets/`、取り込んだ背景は`backgrounds/`、付属のペットは`builtin/`にあります。
 - APIキーはここにはなく、OSの安全な保管場所にあります。
 - PlayPetsは会話履歴をファイルに保存せず、アプリを開いている間だけ保持します。
 - 接続先での保存は、そのサービスの方針に従います。

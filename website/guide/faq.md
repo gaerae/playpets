@@ -89,7 +89,7 @@
 | Windows | `%APPDATA%\app.playpets\`. Store or winget: inside the package's own folder |
 | Linux | `~/.local/share/app.playpets/` |
 
-- `state.json`: friends and settings. `pets/`: imported pets. `builtin/`: the starter pets.
+- `state.json`: friends and settings. `pets/`: imported pets. `backgrounds/`: imported backgrounds. `builtin/`: the starter pets.
 - API keys are not here. They are in the OS's secure storage.
 - PlayPets does not save chat history to files. It lasts only for the current app session.
 - The connected provider may have its own retention policy.

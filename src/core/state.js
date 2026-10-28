@@ -173,6 +173,11 @@ export const remember = (key, value) => {
     localStorage.setItem(key, value);
   } catch {}
 };
+export const forget = key => {
+  try {
+    localStorage.removeItem(key);
+  } catch {}
+};
 export const recall = key => {
   try {
     return localStorage.getItem(key);

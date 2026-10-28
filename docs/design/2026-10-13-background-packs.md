@@ -81,3 +81,9 @@ obstacle-aware physics system.
 Festival light strands are anchored per built-in outdoor place with normalized
 `lightAnchors`, rather than universal tree positions. Portable version 1 packages
 keep festival strands disabled until their format can declare suitable anchors.
+
+## Follow-up: backgrounds move to the data folder (2026-10-29)
+
+- Imported packages are now files in the data folder's `backgrounds/` (one JSON file each, written by `app/backgrounds.rs`), so a copy of the data folder carries them.
+- The place, season, time of day and weather picked move from the webview's storage into `state.json` as `scene`.
+- At the first start of 1.4.0 the page copies what the webview holds, and deletes each old copy only after the backend has written it; one that could not be written is still shown from the webview.

@@ -145,7 +145,8 @@ Neither is a direct item in the scenery's right-click menu. Choose Friends & set
 |---|---|
 | `state.json` | Friends, AI connections, settings and the yard's progress (list below) |
 | `bridge.json` | The port and token for agent hooks. Rewritten every time the app starts |
-| `pets/` | Pet folders imported from an address |
+| `pets/` | Pet folders imported from an address or a ZIP |
+| `backgrounds/` | Imported backgrounds, one file each |
 | `builtin/` | Four bundled starter entries, unpacked and checked at each start. Each has its own baseline artwork |
 
 - `state.json` holds:
@@ -153,6 +154,7 @@ Neither is a direct item in the scenery's right-click menu. Choose Friends & set
   - the list of AI connections (without keys)
   - language, desktop mode and roaming, each agent's friend, auto chatter, auto digging, yard sounds and their volume
   - the window's position and size and Always on top setting
+  - the place, season, time of day and weather picked for the yard (`scene`)
   - the garden and decorations (`garden`), the album (`album`), closeness (`bonds`)
   - hand-picked pet folders
   - the file's format number (`schema`)

@@ -25,6 +25,19 @@ impl Sound {
     }
 }
 
+/// What the person picked for the yard: the place (a built-in id or an imported background's),
+/// the season, the time of day and the weather. The page checks each against what it has.
+const SCENE_KEYS: [&str; 4] = ["world", "season", "period", "weather"];
+
+/// A scene choice as saved, or None for a key or value the page never sends.
+pub fn scene_choice(key: &str, value: &str) -> Option<Value> {
+    let fits = (1..=64).contains(&value.len())
+        && value
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-');
+    (SCENE_KEYS.contains(&key) && fits).then(|| json!(value))
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Prefs {
     /// Friends are out on the desktop, and (`wander`) roam it.
@@ -41,11 +54,13 @@ pub struct Prefs {
     /// The normal window bounds, restored across launches.
     pub window_rect: Option<window::Rect>,
     pub always_on_top: bool,
+    /// The place and the weather picked for the yard (`scene_choice`).
+    pub scene: Map<String, Value>,
 }
 
 impl Prefs {
     /// The keys of state.json these are saved under.
-    pub const KEYS: [&str; 9] = [
+    pub const KEYS: [&str; 10] = [
         "desktop",
         "desktopWander",
         "language",
@@ -55,6 +70,7 @@ impl Prefs {
         "windowRect",
         "alwaysOnTop",
         "miniRect",
+        "scene",
     ];
 
     /// Read back from a saved state; a key missing or of the wrong kind takes its default.
@@ -73,6 +89,16 @@ impl Prefs {
                 .or_else(|| raw.get("miniRect"))
                 .and_then(window::rect_of),
             always_on_top: flag("alwaysOnTop"),
+            scene: raw
+                .get("scene")
+                .and_then(Value::as_object)
+                .map(|saved| {
+                    saved
+                        .iter()
+                        .filter_map(|(key, value)| Some((key.clone(), scene_choice(key, value.as_str()?)?)))
+                        .collect()
+                })
+                .unwrap_or_default(),
         }
     }
 
@@ -92,6 +118,7 @@ impl Prefs {
             );
         }
         m.insert("alwaysOnTop".into(), json!(self.always_on_top));
+        m.insert("scene".into(), Value::Object(self.scene.clone()));
         m
     }
 }
@@ -140,6 +167,10 @@ mod tests {
             sound: Sound { on: false, volume: 7 },
             window_rect: Some((1.0, 2.0, 300.0, 210.0)),
             always_on_top: true,
+            scene: json!({"world": "custom-0b6f2c1e-8d4a-4f1b-9c3e-2a7d5e6f8a90", "season": "winter"})
+                .as_object()
+                .cloned()
+                .unwrap(),
         };
         let saved = Value::Object(prefs.json());
         assert_eq!(Prefs::restore(&saved, lang), prefs);
@@ -157,5 +188,20 @@ mod tests {
         let back = Prefs::restore(&odd, lang);
         assert!(!back.desktop && !back.auto_chatter && !back.auto_play && back.window_rect.is_none());
         assert!(!Prefs::restore(&odd, lang).json().contains_key("miniRect"));
+    }
+
+    #[test]
+    fn the_place_and_weather_picked_come_back_and_odd_ones_are_left_out() {
+        let lang = i18n::Lang::parse("en").unwrap();
+        let raw = json!({"scene": {
+            "world": "woodland", "season": "Winter!", "period": 7, "weather": "snow", "colour": "red"
+        }});
+        let scene = Prefs::restore(&raw, lang).scene;
+        assert_eq!(Value::Object(scene), json!({"world": "woodland", "weather": "snow"}));
+        assert!(Prefs::restore(&json!({"scene": "woodland"}), lang).scene.is_empty());
+        assert_eq!(scene_choice("period", "night"), Some(json!("night")));
+        assert_eq!(scene_choice("colour", "red"), None);
+        assert_eq!(scene_choice("world", &"a".repeat(65)), None);
+        assert_eq!(scene_choice("world", ""), None);
     }
 }

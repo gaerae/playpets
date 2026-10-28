@@ -193,6 +193,7 @@ chmod +x PlayPets_*.AppImage
 | `state.json` | Friends and settings |
 | `bridge.json` | The port and token for agent hooks |
 | `pets/` | Imported pets |
+| `backgrounds/` | Imported backgrounds |
 | `builtin/` | The four starter pets |
 
 - To keep it somewhere else: put a folder path in the `PLAYPETS_DATA` environment variable, then start the app.

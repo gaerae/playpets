@@ -174,7 +174,11 @@ export function element(tag = 'div', { rect, ...props } = {}) {
 /** A localStorage stand-in that keeps strings, and answers null for a key it never got. */
 export function fakeStorage() {
   const items = new Map();
-  return { getItem: key => items.get(key) ?? null, setItem: (key, value) => items.set(key, String(value)) };
+  return {
+    getItem: key => items.get(key) ?? null,
+    setItem: (key, value) => items.set(key, String(value)),
+    removeItem: key => items.delete(key),
+  };
 }
 
 // What each test has to put back, newest first, so installing twice in one test still ends with
