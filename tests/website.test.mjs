@@ -79,6 +79,12 @@ test('the latest download offers the Store and winget on Windows and Homebrew on
   // The command is the alternative to the main button, so it sits right under it.
   assert.ok(downloads.indexOf('class="dl-command"') < downloads.indexOf('class="dl-others"'));
   assert.match(downloads, /store \? words\.otherDownloads : words\.otherPlatforms/);
+  // A visitor on another system who opens the list for a Windows PC finds the Store before the unsigned installers.
+  assert.match(
+    downloads,
+    /<li v-if="!version && os !== 'Windows'"><a :href="STORE">\{\{ words\.storeOther \}\}<\/a><\/li>\s*<li v-for="f in others"/,
+  );
+  assert.equal(words.split('storeOther:').length - 1, 4, 'storeOther:');
   assert.match(downloads, /class="dl-word"/);
 });
 
@@ -199,6 +205,14 @@ test('default captures have their own real version and every landing capture exi
     for (const lang of SITE_LANGS) await access(`website/public/shots/${CAPTURE_VERSION}/${lang}/${name}.webp`);
   const prepare = await readFile('scripts/site-prepare.mjs', 'utf8');
   assert.match(prepare, /captureVersion: CAPTURE_VERSION/);
+  // The README's English screenshots move with the site's captures.
+  const readme = await readFile('README.md', 'utf8');
+  const shots = [...readme.matchAll(/website\/public\/shots\/([\d.]+)\/en\/([\w-]+\.webp)/g)];
+  assert.ok(shots.length >= 3);
+  for (const [path, version] of shots) {
+    assert.equal(version, CAPTURE_VERSION, path);
+    await access(path);
+  }
 });
 
 test('a screenshot renders its actual capture version independently of the app version', async () => {

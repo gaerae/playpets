@@ -248,6 +248,7 @@ The account holder does these one-time steps. Never paste a key into a chat, iss
 - Microsoft warns that mixing Partner Center edits and API changes on one draft can make it uncommittable.
 - Finish such a draft in one place.
 - To run `store` again: **Actions → store → Run workflow → Use workflow from → Tags → vx.y.z**.
+- That run uses the workflow and scripts as they were at the tag. A fix merged to `main` later applies from the next version's tag; finish the current version in Partner Center.
 - A run from a branch stops at `source`.
 - Do not use the MSI/EXE submission API for this MSIX product.
 

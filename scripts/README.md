@@ -106,6 +106,8 @@ Public captures:
 - Public captures have a version independent of the app package.
 - `CAPTURE_VERSION` in `site-content.mjs` selects the default capture directory
   for the site; captions show that actual version.
+- The README's three screenshots name that directory too; change their paths
+  with `CAPTURE_VERSION` (a website test checks them).
 - Update it only after real native captures for the new version exist in every
   site language and have been visually checked.
 - Never copy an earlier version's images into a newer version's directory.

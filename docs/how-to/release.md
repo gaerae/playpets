@@ -215,6 +215,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
    - With `STORE_PUBLISH_MODE=Immediate`, the Store publishes once certification passes.
    - Otherwise press **Publish now** in Partner Center after certification passes.
    - Without submission, upload the two `.msix` files from `store-bundle` in Partner Center and paste each language's text from its `notes.json`.
+   - Partner Center marks the older package for removal after the upload; press **Save** on the Packages page, or the submission stays incomplete.
 
 ## Verification
 - The release page has the files from step 6.

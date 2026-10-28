@@ -14,7 +14,7 @@
 ![Codex pet format compatible](https://img.shields.io/badge/pets-Codex%20pet%20format-4a9bd6?style=flat-square)
 
 [![Download for macOS](https://img.shields.io/badge/macOS-Download-1f1f1f?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/gaerae/playpets/releases/latest)
-[![Download for Windows](https://img.shields.io/badge/Windows-Download-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/gaerae/playpets/releases/latest)
+[![Get it from Microsoft Store](https://img.shields.io/badge/Windows-Microsoft%20Store-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://apps.microsoft.com/detail/9NSKXQ6R187M)
 [![Download for Linux](https://img.shields.io/badge/Linux-Download-e95420?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/gaerae/playpets/releases/latest)
 
 **[Website](https://playpets.gaerae.com/)** · **[User guide](https://playpets.gaerae.com/guide/)** · **[Install guide](https://playpets.gaerae.com/guide/install)** · **[Releases](https://playpets.gaerae.com/releases/)** · **[Developer docs](https://playpets.gaerae.com/dev/)**
@@ -33,6 +33,10 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 - 🏡 A yard of their own: four places or your own backgrounds, gifts like a swing or a pond, three games, a garden, fishing and an album.
 - 🌱 The four starter pets also dig, plant, fish and change clothes with the seasons.
 - 🔓 Free and open source (MIT) for macOS, Windows and Linux.
+
+| Friends talk among themselves | Out on your desktop while you code | A friend for each coding agent |
+|---|---|---|
+| ![Four friends in the yard, chatting in speech bubbles](website/public/shots/1.2.0/en/yard-talk.webp) | ![Four friends on the desktop below a terminal running tests](website/public/shots/1.2.0/en/desktop.webp) | ![Coding tools settings with a reacting friend chosen for each agent](website/public/shots/1.2.0/en/settings-agents.webp) |
 
 ## Features
 
@@ -97,11 +101,14 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 | System | Get it |
 |---|---|
 | macOS (Apple Silicon and Intel) | `PlayPets_<version>_macos-universal.dmg` from [releases](https://github.com/gaerae/playpets/releases/latest), or Homebrew (below) |
-| Windows x64 / ARM | `PlayPets_<version>_windows-x64-setup.exe` / `…_windows-arm64-setup.exe` |
+| Windows x64 / ARM | [Microsoft Store](https://apps.microsoft.com/detail/9NSKXQ6R187M) or winget (below), or `PlayPets_<version>_windows-x64-setup.exe` / `…_windows-arm64-setup.exe` from [releases](https://github.com/gaerae/playpets/releases/latest) |
 | Linux x64 / arm64 | `.deb` (Debian, Ubuntu) or `.AppImage` (needs FUSE 2) |
 
 ```bash
+# macOS
 brew install gaerae/tap/playpets
+# Windows
+winget install --id 9NSKXQ6R187M --source msstore
 ```
 
 - From 1.3.0 the macOS app is signed and notarized. The Windows installer from GitHub is not code-signed yet, so SmartScreen may warn; the Microsoft Store and winget packages are signed by Microsoft.
@@ -130,6 +137,9 @@ brew install gaerae/tap/playpets
 | Grok Build | `~/.grok/hooks/playpets.json`, a new file | Reports every step through hooks |
 | Other MCP tools | The tool's MCP settings | `set_pet_state`, `say`, `react`, `list_pets` |
 
+<details>
+<summary>Terminal commands</summary>
+
 ```
 playpets hook claude|gemini|cursor|grok   # hooks (stdin JSON, always exit code 0; prints {} for Gemini and Cursor)
 playpets hook codex <json>      # Codex notify
@@ -141,6 +151,8 @@ playpets pets
 playpets run -- <command>
 ```
 
+</details>
+
 > [!NOTE]
 > - The bridge stays on this computer: 127.0.0.1, with token authentication.
 > - Hooks leave out your prompts and tool inputs.
@@ -148,33 +160,22 @@ playpets run -- <command>
 > - Review terminal and MCP messages before sending. Use a local model to keep those details on this computer.
 
 ## Data and privacy
-
-| What | Where |
-|---|---|
-| Data folder | macOS `~/Library/Application Support/app.playpets/` · Windows `%APPDATA%\app.playpets\` · Linux `~/.local/share/app.playpets/` |
-| Open it | **Settings → About PlayPets → Open the data folder** |
-| Contents | `state.json` (pets, settings) · `bridge.json` (integration port, token) · `pets/` (imported) · `builtin/` (starters) |
-| Move it | `PLAYPETS_DATA` |
-| API keys | OS secure storage only: macOS Keychain, Windows Credential Manager, Linux Secret Service |
-| Conversations | Memory only; gone when the app quits |
+- Pets and settings stay in a data folder on your computer: **Settings → About PlayPets → Open the data folder**. `PLAYPETS_DATA` moves it.
+- API keys go only to the system's secure storage: macOS Keychain, Windows Credential Manager, Linux Secret Service.
+- Conversations stay in memory and are gone when the app quits.
+- More: [data folder](https://playpets.gaerae.com/guide/settings#data-folder) · [privacy policy](https://playpets.gaerae.com/privacy).
 
 ## Updates
-- A newer version shows as the leftmost yard button, before the place selector.
-  - In a small window: the corner button that appears on hover.
-- It opens **Settings → App updates**: **What's new**, **Later**, **Install and restart** (with progress).
-- Check by hand there, with **Check for updates…** in the tray, or from the macOS menu bar.
-  - The same place opens the notes of the version in use.
-- Automatic check: 20 seconds after start, then every 6 hours. Installs only when you choose.
-- Source: `latest.json` on GitHub releases, verified with the updater signing key before install (from the first public release).
-- After the restart, a short notification confirms the installed version.
+- The app checks 20 seconds after start, then every 6 hours, and installs only when you choose.
+- A new version shows as a yard button that opens **Settings → App updates** with what's new.
+- Each update is verified with the updater signing key before install.
+- The Microsoft Store version updates through the Store.
+- More: [app updates](https://playpets.gaerae.com/guide/settings#app-updates).
 
 ## Languages
-- The app follows the system language first; change it in **Settings → Language & startup** (`language` in `state.json`).
-- Force one for testing: `PLAYPETS_LANG=ko|en|ja|zh-hans`.
-- String tables: `src/core/strings/<language>.js` (page), `src-tauri/src/i18n/<language>.rs` (backend).
-  - Add a language: [docs/how-to/add-a-language.md](docs/how-to/add-a-language.md).
-  - Tests catch Korean left inside a module.
+- English, Korean, Japanese and Simplified Chinese. The app follows the system language; change it in **Settings → Language & startup**.
 - Coding agents and the terminal get English.
+- To add a language: [docs/how-to/add-a-language.md](docs/how-to/add-a-language.md).
 
 ## Development
 - Start at [docs/README.md](docs/README.md): architecture, standards, how-tos, decision records.
