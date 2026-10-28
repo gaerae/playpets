@@ -47,7 +47,7 @@ npm run site:dev
 ```
 
 3. To add a screen, use `<Shot name="name" caption="One sentence" />`.
-   - The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `studio-day`, `studio-night`, `mini-chat`, `companions`.
+   - The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `studio-day`, `studio-night`, `mini-chat`, `companions`, `play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`.
    - Without a version, it shows the capture for the current `package.json` version.
    - To add a new state, put it in the scenario in `scripts/shots.mjs` and capture again.
    - Normal captures and GIF frames target only the isolated app process's window, matched by its PID and outer bounds.
@@ -57,6 +57,8 @@ npm run site:dev
    - Nothing the system draws over the screen (the screen-sharing indicator, notifications, the screen's rounded corners) can appear in it.
    - `SHOT_SCENE=desktop` refreshes it alone.
    - On the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README).
+   - A second pass starts the app again from a lived-in garden (`playGarden` in `scripts/shots-lib.mjs`: flowers in bloom, grown trees, gifts, an album of finds) and takes the five play pictures. `SHOT_SCENE=play` takes only those.
+   - Before each picture and the README animation, keyboard focus is cleared, so no focus ring shows.
 
 ```bash
 npm run shots -- 0.2.0

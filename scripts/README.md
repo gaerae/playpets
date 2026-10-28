@@ -153,6 +153,15 @@ SHOT_SCENE=desktop SHOT_LANGS=en,ko,ja,zh-hans npm run shots
 - The desktop picture is the app's own overlay window laid on the backdrop page, never a region of the screen.
 - The screen-sharing indicator, notifications and the screen's corners stay out.
 
+To refresh only the play pictures (`play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`) in every language:
+
+```bash
+SHOT_SCENE=play SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+```
+
+- They start from a lived-in garden (`playGarden` in `shots-lib.mjs`) in a data folder of their own, so the other pictures are unchanged.
+- Keyboard focus is cleared before every picture, so no focus ring shows.
+
 - Chat captures cancel existing walks and place the actual views beside the real
   panel.
 - A bounds check logs every friend's canvas and stops if any of the four is

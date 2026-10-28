@@ -15,6 +15,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Release pages say what changed in the app in one short line per change, and mark a change for one system with its name; install ways, the user guide and security updates move to a section of their own. The Microsoft Store shows the Windows lines and Linux software centers the Linux lines; winget and the GitHub release link to the page.
 - The README shows three screenshots, its Windows button opens PlayPets in the Microsoft Store, and its install section lists the Store and the winget command before the GitHub installer. Its updates, data and language sections are shorter and link to the user guide.
 - On the website, a visitor on macOS or Linux who opens the other platforms list finds the Microsoft Store first for Windows, before the GitHub installers.
+- The website's front page shows real pictures of play: a garden decorated with flowers, trees and gifts, tag, digging, fishing and the album. Its comparison with a Codex pet starts with moving: friends stroll the yard and, with Stroll on desktop, your desktop, with a picture of them there.
+- Screenshots and the README animation no longer show a keyboard focus ring around a friend.
 
 ## [1.3.0] - 2026-10-27
 

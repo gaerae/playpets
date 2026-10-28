@@ -145,17 +145,56 @@ test('seasonal captures select explicit seasons with a bright ordinary scene', (
 
 test('capture preparation clears transient focus without changing selected controls', () => {
   let blurred = 0;
+  const classes = new Set();
+  const root = { classList: { add: name => classes.add(name) } };
   const selected = { checked: true, value: 'summer', blur: () => blurred++ };
-  shots.clearCaptureFocus({ activeElement: selected });
+  shots.clearCaptureFocus({ activeElement: selected, documentElement: root });
   assert.equal(blurred, 1);
   assert.equal(selected.checked, true);
   assert.equal(selected.value, 'summer');
+  // The page then draws focus as it does after a click: no keyboard ring on what gains it later.
+  assert.ok(classes.has('pointer-input'));
   assert.doesNotThrow(() => shots.clearCaptureFocus({ activeElement: null }));
   const source = readFileSync('scripts/shots.mjs', 'utf8');
   assert.match(source, /clearCaptureFocus\.toString\(\)/);
   assert.match(source, /parkPointer\(\)/);
   // Focus is cleared and the page given a moment to repaint before each picture is measured.
   assert.match(source, /clearFocus\(document\);\s*await wait\(\d+\)/);
+  // The README animation too: closing the chat returns focus to the friend it was opened from.
+  assert.match(source, /clearFocus\(document\);[^\n]*\n[^\n]*gif-start/);
+});
+
+test('the play pictures start from a lived-in garden that state.json accepts', () => {
+  const now = Date.UTC(2026, 9, 28);
+  const state = shots.playGarden(now);
+  const catalog = JSON.parse(readFileSync('src/content/catalog.json', 'utf8'));
+  const ids = list => new Set(list.map(item => item.id));
+  const { garden, album } = state;
+  // Spring flowers in bloom (planted well before the four hours a bloom takes) in the spring scene.
+  const flowers = ids(catalog.flowers);
+  assert.ok(garden.plants.length >= 4);
+  for (const plant of garden.plants) {
+    assert.ok(flowers.has(plant.kind), plant.kind);
+    assert.equal(catalog.flowers.find(f => f.id === plant.kind).season, 'spring');
+    assert.ok(now - plant.planted > 4 * 3600e3);
+  }
+  for (const tree of garden.trees) assert.ok(ids(catalog.trees).has(tree.kind) && tree.stage === 2 && tree.matured);
+  const gifts = ids(catalog.gifts);
+  for (const item of garden.decor) assert.ok(gifts.has(item.kind) && garden.received.includes(item.kind), item.kind);
+  for (const item of [...garden.plants, ...garden.decor, ...garden.trees])
+    assert.ok(item.x >= 0 && item.x <= 1 && item.y >= 0 && item.y <= 1, item.id);
+  assert.ok(garden.decor.length <= 12 && garden.plants.length <= 24);
+  for (const [book, kinds] of Object.entries(album))
+    for (const kind of Object.keys(kinds)) assert.ok(ids(catalog[book]).has(kind), `${book} ${kind}`);
+  assert.ok(Object.keys(album.fish).length >= 6, 'the album has a page of fish to show');
+});
+
+test('the play pass pictures fishing, tag, digging, the garden and the album in every site language', () => {
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  for (const name of ['play-garden', 'play-tag', 'play-dig', 'play-fishing', 'album'])
+    assert.match(source, new RegExp(`shot\\('${name}'\\)`), name);
+  assert.match(source, /playGarden\(/);
+  assert.match(source, /SHOT_SCENE === 'play'/);
 });
 
 test('refreshing captures keeps the accepted WebP until its replacement is encoded', () => {
@@ -234,7 +273,7 @@ test('chat captures reject a missing or panel-covered fourth friend', () => {
 test('chat refresh fixes actual views and skips unrelated capture scenes and GIFs', () => {
   const source = readFileSync('scripts/shots.mjs', 'utf8');
   assert.match(source, /const chatOnly = process.env.SHOT_SCENE === 'chat'/);
-  assert.match(source, /skipGif = chatOnly \|\|/);
+  assert.match(source, /skipGif =\s+chatOnly \|\|/);
   assert.match(source, /release\(view\)/);
   assert.match(source, /view\.x=at\.x;view\.y=at\.y;place\(view\)/);
   assert.match(source, /assertChatCast\.toString\(\)/);
