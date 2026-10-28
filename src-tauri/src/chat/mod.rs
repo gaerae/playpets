@@ -17,14 +17,17 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{AppHandle, State};
 
-/// How many messages a friend remembers, and how long one message may be.
+/// How many of the latest messages a friend is handed when it answers, how many the log on screen
+/// keeps for the session, and how long one message may be.
 const HISTORY_LIMIT: usize = 24;
+const LOG_LIMIT: usize = 500;
 const MESSAGE_LIMIT: usize = 4000;
 const GROUP_MAX: usize = 4;
 
 /// What the chat keeps while the app runs: each friend's conversation, and the answers on their way.
 #[derive(Default)]
 pub struct Talks {
+    /// Each friend's conversation as the log shows it; the AI is handed only its end.
     histories: HashMap<String, Vec<Value>>,
     /// Entries each history has had since it started, trimming aside (chat CLI sessions go by it).
     totals: HashMap<String, u64>,
@@ -34,7 +37,13 @@ pub struct Talks {
 }
 
 impl Talks {
+    /// The latest messages, which the friend answers with.
     pub fn history(&self, id: &str) -> Vec<Value> {
+        let log = self.histories.get(id).map(Vec::as_slice).unwrap_or_default();
+        log[log.len().saturating_sub(HISTORY_LIMIT)..].to_vec()
+    }
+    /// The whole conversation of this session, for the chat log.
+    pub fn log(&self, id: &str) -> Vec<Value> {
         self.histories.get(id).cloned().unwrap_or_default()
     }
     fn total(&self, id: &str) -> u64 {
@@ -44,7 +53,7 @@ impl Talks {
         *self.totals.entry(id.into()).or_default() += 1;
         let history = self.histories.entry(id.into()).or_default();
         history.push(entry);
-        let extra = history.len().saturating_sub(HISTORY_LIMIT);
+        let extra = history.len().saturating_sub(LOG_LIMIT);
         history.drain(..extra);
     }
     fn forget(&mut self, id: &str) {
@@ -592,6 +601,34 @@ mod tests {
             assert!(!talks.busy(id));
         }
         assert_eq!(talks.history("one").len(), 1);
+    }
+
+    #[test]
+    fn the_log_keeps_the_session_while_the_ai_is_handed_the_latest_messages() {
+        let mut talks = super::Talks::default();
+        let entry = |n: usize| json!({"role": "user", "content": format!("message {n}")});
+        for n in 0..30 {
+            talks.remember("one", entry(n));
+        }
+        assert_eq!(talks.log("one").len(), 30, "the log on screen loses nothing");
+        assert_eq!(talks.log("one")[0], entry(0));
+        let recalled = talks.history("one");
+        assert_eq!(recalled.len(), super::HISTORY_LIMIT);
+        assert_eq!(recalled[0], entry(30 - super::HISTORY_LIMIT));
+        assert_eq!(recalled.last(), Some(&entry(29)));
+        for n in 30..super::LOG_LIMIT + 5 {
+            talks.remember("one", entry(n));
+        }
+        assert_eq!(
+            talks.log("one").len(),
+            super::LOG_LIMIT,
+            "a very long session drops its start"
+        );
+        assert_eq!(talks.log("one")[0], entry(5));
+        assert_eq!(talks.total("one"), (super::LOG_LIMIT + 5) as u64);
+        assert!(talks.log("two").is_empty());
+        talks.forget("one");
+        assert!(talks.log("one").is_empty() && talks.history("one").is_empty());
     }
 
     #[test]

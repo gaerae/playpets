@@ -125,7 +125,7 @@ static COMMANDS: &[Command] = &[
     main("getChat", |c| {
         let d = lock(&c.state);
         let id = c.text(0);
-        require_pet(&d, id).map(|_| json!(d.talks.history(id)))
+        require_pet(&d, id).map(|_| json!(d.talks.log(id)))
     }),
     main("clearChat", |c| chat::clear(&c.state, &c.cli, c.text(0))),
     main("cancelChat", |c| {
