@@ -14,6 +14,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - A Claude Code friend no longer turns to Waiting a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error such as a usage limit or a sign-in shows Something went wrong.
 - The chat log keeps up to the last 500 messages with each friend for the session, instead of silently dropping everything before the last 24; a friend still answers with the latest 24 in mind.
+- On Windows, the Microsoft Store version declares `playpets://` links, so a pet gallery's import link opens PlayPets, and lists PlayPets under Settings → Apps → Startup to start at sign-in.
 
 ### Website and docs
 

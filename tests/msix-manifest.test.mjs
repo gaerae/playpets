@@ -53,3 +53,19 @@ test('native CI selects x64 or ARM64 without accepting arbitrary architecture te
   assert.match(renderManifest(template, '1.0.0'), /ProcessorArchitecture="x64"/);
   assert.throws(() => renderManifest(template, '1.0.0', { MSIX_ARCHITECTURE: 'x86' }), /architecture/i);
 });
+
+// A packaged app's writes to its own registry hive are private to the package, so the scheme and
+// the login entry the app registers for itself reach Windows only when the package declares them.
+test('the package declares the playpets:// links and a login task, which it leaves to the person', () => {
+  const xml = renderManifest(template, '1.0.0', identity);
+  const protocol = xml.match(/<uap:Extension Category="windows\.protocol"[^>]*>([\s\S]*?)<\/uap:Extension>/);
+  assert.ok(protocol, 'a protocol extension');
+  assert.match(protocol[0], /Executable="playpets\.exe" EntryPoint="Windows\.FullTrustApplication"/);
+  assert.match(protocol[1], /<uap:Protocol Name="playpets">/);
+  const startup = xml.match(/<desktop:Extension Category="windows\.startupTask"[^>]*>[\s\S]*?<\/desktop:Extension>/);
+  assert.ok(startup, 'a startup task');
+  assert.match(startup[0], /Executable="playpets\.exe" EntryPoint="Windows\.FullTrustApplication"/);
+  assert.match(startup[0], /<desktop:StartupTask TaskId="PlayPets" Enabled="false" DisplayName="PlayPets" \/>/);
+  for (const extensions of xml.match(/<Extensions>[\s\S]*?<\/Extensions>/g))
+    assert.ok(xml.indexOf(extensions) > xml.indexOf('<Application '), 'extensions belong to the application');
+});

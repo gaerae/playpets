@@ -43,6 +43,18 @@
             <desktop:ExecutionAlias Alias="playpets.exe" />
           </uap3:AppExecutionAlias>
         </uap3:Extension>
+        <!-- A packaged app's own registry writes stay inside the package, so the playpets:// links
+             (pet galleries' one-click import) and starting at login are declared here. Windows
+             passes a link to playpets.exe as its argument, as the unpackaged registration does. -->
+        <uap:Extension Category="windows.protocol" Executable="playpets.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap:Protocol Name="playpets">
+            <uap:DisplayName>PlayPets</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+        <!-- Off until the person turns it on in Windows Settings → Apps → Startup. -->
+        <desktop:Extension Category="windows.startupTask" Executable="playpets.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="PlayPets" Enabled="false" DisplayName="PlayPets" />
+        </desktop:Extension>
       </Extensions>
     </Application>
   </Applications>

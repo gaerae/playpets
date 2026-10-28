@@ -176,6 +176,7 @@ flowchart LR
 MSIX install on Windows:
 - The executable lives under WindowsApps and cannot be run by path from outside.
 - The settings snippet points at the execution alias instead: `%LOCALAPPDATA%\Microsoft\WindowsApps\playpets.exe`.
+- The package declares the `playpets` scheme (`windows.protocol`), since a packaged app's own registry writes stay inside the package; Windows passes the link to `playpets.exe` as its argument.
 
 ## Related decisions
 - Design record "[Stronger agent integration, community import, personality and activity memory](design/2026-09-29-agent-link-import-persona.md)": hook-first integration, CLI mode without Node, activity memory
@@ -186,3 +187,4 @@ MSIX install on Windows:
 - 2026-09-30 Hook states are sent as codes so they show in the app's language. CLI and MCP text is fixed to English
 - 2026-09-30 With an MSIX install, the settings snippet points at the execution alias
 - 2026-10-28 Grok Build reports through `hook grok`; hooks it borrows from Claude Code and Cursor send nothing
+- 2026-10-28 `hook claude` waits only on notices that ask, settles on `idle_prompt` and reports `StopFailure`; the MSIX package declares `playpets://`
