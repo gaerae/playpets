@@ -173,7 +173,7 @@ test("What's new comes from the four release pages, as plain text within the Sto
   assert.ok([...long.text].length <= 1500);
   assert.equal(long.left, 6);
   assert.match(long.text, /https:\/\/example\.test\/1$/);
-  assert.throws(() => storeNotes(page('Intro.', []), 'https://example.test/1'), /list of changes/);
+  assert.throws(() => storeNotes(page('', ['One change.']), 'https://example.test/1'), /opening sentence/);
 
   const read = file => {
     assert.match(file, /^website\/((ko|ja|zh-hans)\/)?releases\/1\.3\.0\.md$/);
@@ -189,13 +189,37 @@ test("What's new comes from the four release pages, as plain text within the Sto
   assert.throws(() => storeNotesFor('1.3.0-beta.1', read), /Not a release version/);
 });
 
+test("the Store gets the release page's first section for Windows: no Also section, no other system's line", () => {
+  const page = `---\nversion: 1.4.0\n---\n\n# 1.4.0\n\n<ReleaseMeta />\n\nPlayPets 1.4.0 brings rain.\n\n<Downloads version="1.4.0" />\n\n## What changed\n\n- Rain falls.\n- <Only os="macOS" /> The Mac app opens faster.\n- <Only os="Windows" /> The Windows tray icon is sharper.\n- <Only os="Linux" /> The AppImage starts on more systems.\n\n## Also\n\n- Install with winget.\n- Security updates.\n`;
+  const { text, left } = storeNotes(page, 'https://example.test/1.4.0');
+  assert.equal(
+    text,
+    'PlayPets 1.4.0 brings rain.\n\n• Rain falls.\n• The Windows tray icon is sharper.\n\nhttps://example.test/1.4.0',
+  );
+  assert.equal(left, 0);
+  // A release with nothing new on Windows still has the opening sentence and the address.
+  assert.deepEqual(storeNotes(page.replace('- Rain falls.\n', '').replace(/- <Only os="Windows" \/>.*\n/, ''), 'x'), {
+    text: 'PlayPets 1.4.0 brings rain.\n\nx',
+    left: 0,
+  });
+  assert.throws(() => storeNotes(page.replace('os="Linux"', 'os="Amiga"'), 'x'), /Only os="Amiga"/);
+});
+
 test("every published release page fits the Store as What's new", () => {
   const versions = readdirSync('website/releases')
     .map(file => file.replace(/\.md$/, ''))
     .filter(version => /^[1-9]\d*\.\d+\.\d+$/.test(version));
   assert.ok(versions.includes('1.2.0'));
-  for (const version of versions)
-    for (const text of Object.values(storeNotesFor(version).notes)) assert.ok(text.length <= 1500, version);
+  for (const version of versions) {
+    const { notes, left } = storeNotesFor(version);
+    for (const text of Object.values(notes)) assert.ok(text.length <= 1500, version);
+    // The four pages are one text in four languages, so each lists the same changes for the Store
+    // (a long language may leave its last ones to the page's address).
+    const counts = Object.entries(notes).map(
+      ([locale, text]) => text.split('\n').filter(line => line.startsWith('• ')).length + left[locale],
+    );
+    assert.equal(new Set(counts).size, 1, `${version}: ${counts}`);
+  }
 });
 
 test('a published release builds and submits its own tag, with Store credentials only in the submit job', () => {

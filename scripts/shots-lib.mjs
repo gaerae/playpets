@@ -97,6 +97,83 @@ export function seasonalScenes() {
 // Keep actual selected tabs, games and options; only a resting cursor and focus are absent.
 export function clearCaptureFocus(doc) {
   doc.activeElement?.blur?.();
+  // As after a click (core/interactions.js): focus gained later shows no keyboard ring either.
+  doc.documentElement?.classList.add('pointer-input');
+}
+
+/** The saved garden and album the play pictures start from (state.json in the capture's data
+ * folder): spring flowers in bloom, two grown cherry trees, gifts set out, and a season of finds.
+ * Places are field fractions, kept clear of where the four friends stand (y 0.58). */
+export function playGarden(now) {
+  const day = 24 * 3600e3;
+  const at = (list, prefix, extra) =>
+    list.map(([kind, x, y], i) => ({ id: `${prefix}-${i + 1}`, kind, x, y, ...extra(i) }));
+  const decor = at(
+    [
+      ['bench', 0.26, 0.16],
+      ['lantern', 0.12, 0.28],
+      ['swing', 0.83, 0.16],
+      ['picnic', 0.5, 0.94],
+      ['flowerpot', 0.05, 0.86],
+      ['pinwheel', 0.95, 0.9],
+    ],
+    'shot-gift',
+    () => ({}),
+  );
+  const entry = (count, best, ago) => ({ count, best, first: now - ago * day });
+  return {
+    garden: {
+      seeds: 2,
+      plants: at(
+        [
+          ['tulip', 0.15, 0.78],
+          ['daffodil', 0.22, 0.9],
+          ['crocus', 0.31, 0.82],
+          ['grape_hyacinth', 0.69, 0.84],
+          ['tulip', 0.77, 0.92],
+          ['daffodil', 0.88, 0.78],
+        ],
+        'shot-plant',
+        i => ({ planted: now - (2 + i) * day, bloomed: true }),
+      ),
+      trees: at(
+        [
+          ['cherry', 0.07, 0.06],
+          ['cherry', 0.94, 0.05],
+        ],
+        'shot-tree',
+        i => ({
+          world: 'woodland',
+          planted: now - (20 + i) * day,
+          stage: 2,
+          matured: true,
+        }),
+      ),
+      decor,
+      received: decor.map(item => item.kind),
+      giftDay: '',
+    },
+    album: {
+      fish: {
+        crucian: entry(3, 18.5, 9),
+        carp: entry(2, 41.5, 8),
+        killifish: entry(5, 3.2, 7),
+        minnow: entry(4, 6.1, 6),
+        goldfish: entry(1, 12, 5),
+        catfish: entry(1, 38, 3),
+        eel: entry(1, 52, 2),
+      },
+      bugs: {
+        cabbage_white: entry(2, 0, 7),
+        yellow_butterfly: entry(1, 0, 6),
+        swallowtail: entry(1, 0, 4),
+        dragonfly: entry(2, 0, 3),
+      },
+      flowers: { tulip: entry(2, 0, 6), daffodil: entry(2, 0, 5), crocus: entry(1, 0, 4) },
+      treasures: { striped_pebble: entry(3, 0, 8), sea_glass: entry(1, 0, 5), leaf_fossil: entry(1, 0, 2) },
+      trees: { cherry: entry(2, 0, 1) },
+    },
+  };
 }
 
 // Canonical cells include different headroom; equal canvas widths do not give equal silhouettes.

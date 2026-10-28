@@ -51,7 +51,17 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
         <tbody role="rowgroup"><tr role="row" v-for="([label, codex, ours]) in t.compare.rows" :key="label"><th scope="row" role="rowheader">{{ label }}</th><td role="cell">{{ codex }}</td><td class="ours" role="cell">{{ ours }}</td></tr></tbody>
       </table>
       <p class="codex-source"><a href="https://learn.chatgpt.com/docs/pets">{{ t.compare.source }}</a></p>
-      <p class="codex-note">{{ t.diffNote }} <a :href="path('/guide/import')">{{ t.codexPlusLink }} →</a></p>
+      <!-- The moving row, as the app shows it: friends out on the desktop, in front of other windows. -->
+      <figure class="compare-shot"><img :src="shotUrl('desktop')" :alt="t.compare.desktop" loading="lazy" decoding="async" width="1640" height="960" /><figcaption>{{ t.compare.desktop }} <a :href="path('/guide/desktop')">{{ t.miniDesktop }} →</a></figcaption></figure>
+      <p class="codex-note">{{ t.diffNote }} <a :href="path('/guide/import')">{{ t.codexPlusLink }} →</a> <a href="#play">{{ t.compare.seePlay }} ↓</a></p>
+    </section>
+    <section class="play-story" id="play">
+      <header><h2>{{ t.play.title }}</h2><p class="section-lead">{{ t.play.lead }}</p></header>
+      <!-- Real captures (scripts/shots.mjs, the play pass); the first is the garden they build together. -->
+      <ul class="play-shots">
+        <li v-for="([name, title, body]) in t.play.shots" :key="name"><figure><a class="play-frame" :href="shotUrl(name)"><img :src="shotUrl(name)" :alt="title" loading="lazy" decoding="async" width="2472" height="1672" /></a><figcaption><b>{{ title }}</b> {{ body }}</figcaption></figure></li>
+      </ul>
+      <p class="play-more"><a class="more" :href="path('/guide/play')">{{ t.play.link }} →</a><span>v{{ generated.captureVersion }}</span></p>
     </section>
     <section class="work-story feature">
       <div class="feature-text"><h2>{{ t.workTitle }}</h2><p>{{ t.workBody }}</p><p class="work-note">{{ t.workNote }}</p><a class="more" :href="path('/guide/agents')">{{ t.agentGuide }} →</a></div>

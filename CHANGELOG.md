@@ -2,10 +2,21 @@
 
 Changes people can see in PlayPets, release by release. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
-- In the PR that makes a change, add one line under `## [Unreleased]` (Added, Changed, Fixed, Removed, Security, Known limitations).
-- At release time, `npm run release -- x.y.z` moves this section into a dated `## [x.y.z]`, and pushing the tag turns that section into the release notes.
+- In the PR that makes a change people can notice, add one line under `## [Unreleased]`: Added, Changed, Fixed, Removed, Security, Known limitations, then `### Website and docs` last.
+- People here are those who use the app, install it or read the site. Tests, CI, release tools and developer docs need no line, unless they change what those people see; then the line says what they see.
+- Changes to the website, the user guide and the README go under `### Website and docs`, apart from changes to the app.
+- This is the full record. The release pages on the website say what changed for people using the app ([release notes by audience](docs/decisions/2026-10-28-release-notes-by-audience.md)).
+- At release time, `npm run release -- x.y.z` moves this section into a dated `## [x.y.z]`, and pushing the tag turns that section into the GitHub release, after a link to the website's release page.
 
 ## [Unreleased]
+
+### Website and docs
+
+- Release pages say what changed in the app in one short line per change, and mark a change for one system with its name; install ways, the user guide and security updates move to a section of their own. The Microsoft Store shows the Windows lines and Linux software centers the Linux lines; winget and the GitHub release link to the page.
+- The README shows three screenshots, its Windows button opens PlayPets in the Microsoft Store, and its install section lists the Store and the winget command before the GitHub installer. Its updates, data and language sections are shorter and link to the user guide.
+- On the website, a visitor on macOS or Linux who opens the other platforms list finds the Microsoft Store first for Windows, before the GitHub installers.
+- The website's front page shows real pictures of play: a garden decorated with flowers, trees and gifts, tag, digging, fishing and the album. Its comparison with a Codex pet starts with moving: friends stroll the yard and, with Stroll on desktop, your desktop, with a picture of them there.
+- Screenshots and the README animation no longer show a keyboard focus ring around a friend.
 
 ## [1.3.0] - 2026-10-27
 

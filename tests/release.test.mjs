@@ -12,6 +12,7 @@ import {
   lockVersion,
   notesFor,
   release,
+  releaseBody,
   setCargoVersion,
   setLockVersion,
   setMetainfoRelease,
@@ -47,6 +48,12 @@ test('the release notes are the section of that version, without its heading', (
   assert.equal(notesFor(CHANGELOG, '0.1.0'), '### Added\n- The first version');
   assert.equal(notesFor(release(CHANGELOG, '0.2.0', '2026-10-05'), '0.2.0'), '### Added\n- A new game');
   assert.throws(() => notesFor(CHANGELOG, '9.9.9'), /no section/i);
+  // The GitHub release keeps the full changelog for people working on PlayPets, and opens with the
+  // page written for people using it.
+  assert.equal(
+    releaseBody(CHANGELOG, '0.1.0'),
+    "What's new for people using PlayPets: https://playpets.gaerae.com/releases/0.1.0\n\n### Added\n- The first version",
+  );
 });
 
 test('the Linux metainfo gets the release first, replacing a development entry of the same version', () => {
@@ -197,4 +204,11 @@ test('the release push never publishes its tag when the main update is rejected'
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test('the release command makes every new file before it writes one, so a failure leaves the tree clean', async () => {
+  const script = await readFile('scripts/release.mjs', 'utf8');
+  const writes = [...script.matchAll(/writeFile\(/g)].map(match => match.index);
+  assert.equal(writes.length, 1, 'one place writes the files');
+  assert.ok(writes[0] > script.lastIndexOf('await edit('), 'the files are written after every edit is made');
 });

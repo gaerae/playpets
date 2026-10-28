@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = file => readFileSync(file, 'utf8');
@@ -31,7 +31,10 @@ test('the landing lets visitors play a chat and a coding session instead of look
   assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<PetGallery'));
   assert.ok(landing.indexOf('class="together-story') < landing.indexOf('<ChatDemo'));
   assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<AgentDemo'));
-  assert.doesNotMatch(landing, /shotUrl\('(yard-talk|desktop)'\)/);
+  // Talk and coding company play as demos; the desktop capture backs the comparison's moving row.
+  assert.doesNotMatch(landing, /shotUrl\('yard-talk'\)/);
+  assert.ok(landing.indexOf("shotUrl('desktop')") > landing.indexOf('class="codex-compare"'));
+  assert.ok(landing.indexOf("shotUrl('desktop')") < landing.indexOf('class="play-story"'));
   assert.match(landing, /path\('\/guide\/desktop'\)/);
   // The install command follows the visitor's system, inside the download block.
   assert.match(landing, /<Downloads>/);
@@ -83,6 +86,29 @@ test("the top of the landing sets a Codex pet's features beside PlayPets', in ev
     assert.match(copy.diffNote, /OpenAI/, lang);
     assert.equal(sections.codexPlusTitle.length, 2, lang);
     assert.match(sections.codexPlusTitle[0], /ChatGPT/, lang);
+  }
+});
+
+test('real captures show play right after the comparison, the same pictures in every language', async () => {
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.ok(landing.indexOf('class="codex-plus"') < landing.indexOf('class="play-story" id="play"'));
+  assert.ok(landing.indexOf('class="play-story"') < landing.indexOf('class="work-story'));
+  assert.match(landing, /<a href="#play">\{\{ t\.compare\.seePlay \}\}/);
+  assert.match(landing, /v-for="\(\[name, title, body\]\) in t\.play\.shots"/);
+  const { CAPTURE_VERSION } = await import('../scripts/site-content.mjs');
+  const en = (await import('../website/.vitepress/theme/landing-en.ts')).sections;
+  // Moving comes first: it is what a Codex pet does not do.
+  assert.match(en.compare.rows[0][2], /Stroll on desktop/);
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const names = sections.play.shots.map(([name]) => name);
+    assert.deepEqual(names, ['play-garden', 'play-tag', 'play-dig', 'play-fishing', 'album'], lang);
+    for (const [name, title, body] of sections.play.shots) {
+      assert.ok(title.length && body.length, `${lang}: ${name}`);
+      assert.ok(existsSync(`website/public/shots/${CAPTURE_VERSION}/${lang}/${name}.webp`), `${lang}: ${name}`);
+    }
+    for (const key of ['title', 'lead', 'link']) assert.ok(sections.play[key]?.length, `${lang}: play.${key}`);
+    for (const key of ['desktop', 'seePlay']) assert.ok(sections.compare[key]?.length, `${lang}: compare.${key}`);
   }
 });
 

@@ -426,6 +426,147 @@ html[lang^="ja"] .landing {
     padding: 0 6px;
   }
 }
+/* The comparison's moving row, as the app shows it on the desktop. */
+.compare-shot {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 24px;
+  align-items: center;
+  margin: 28px 0 0;
+}
+.compare-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  box-shadow: 0 18px 50px #17382b14;
+  background: var(--world-paper);
+}
+.compare-shot figcaption {
+  font-size: 15px;
+  line-height: 1.6;
+}
+.compare-shot figcaption a {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+  color: inherit;
+}
+.codex-plus .codex-note a + a {
+  margin-left: 12px;
+}
+
+/* ---- play: real captures of the yard, the garden first and largest ---- */
+.play-story {
+  max-width: 1100px;
+  margin: 110px auto 0;
+  padding: 0 32px;
+}
+.play-story header {
+  max-width: 720px;
+  margin-bottom: 32px;
+}
+.play-story h2 {
+  margin: 0 0 16px;
+}
+.play-story .section-lead {
+  margin: 0;
+}
+.play-shots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 30px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.play-shots li {
+  margin: 0;
+}
+.play-shots li:first-child {
+  grid-column: 1 / -1;
+}
+.play-shots figure {
+  margin: 0;
+}
+.play-shots li:first-child figure {
+  display: grid;
+  grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+/* The captures keep a margin of capture backdrop around the window (scripts/shots.mjs, 28 of
+   1236 points across); the frame shows the window alone, so it sits on the page in either theme. */
+.play-frame {
+  display: block;
+  aspect-ratio: 1180 / 780;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px #17382b14;
+  background: var(--world-lilac);
+}
+.play-frame img {
+  display: block;
+  width: 104.746%;
+  max-width: none;
+  height: auto;
+  margin: -2.373% 0 0 -2.373%;
+}
+.play-shots figcaption {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--vp-c-text-2);
+}
+.play-shots figcaption b {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 16px;
+  color: var(--vp-c-text-1);
+}
+.play-shots li:first-child figcaption {
+  margin: 0;
+  font-size: 16px;
+}
+.play-shots li:first-child figcaption b {
+  margin-bottom: 10px;
+  font-size: 25px;
+  letter-spacing: -0.03em;
+}
+.play-more {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin: 28px 0 0;
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+}
+@media (max-width: 900px) {
+  .compare-shot,
+  .play-shots li:first-child figure {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .play-shots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .play-story {
+    margin-top: 80px;
+    padding: 0 16px;
+  }
+  .play-shots {
+    gap: 24px 12px;
+  }
+  .play-shots figcaption {
+    font-size: 13px;
+  }
+  .play-shots figcaption b {
+    font-size: 15px;
+  }
+}
 .feature,
 .connections,
 .creator-story,

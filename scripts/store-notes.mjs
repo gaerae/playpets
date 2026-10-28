@@ -5,37 +5,26 @@
 
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { localePath, SITE_LANGS } from './site-content.mjs';
+import { userNotes } from './release-page.mjs';
+import { localePath, releasePageUrl, SITE_LANGS } from './site-content.mjs';
 
 export const STORE_LOCALES = Object.freeze({ en: 'en-us', ko: 'ko-kr', ja: 'ja-jp', 'zh-hans': 'zh-cn' });
 export const STORE_NOTES_LIMIT = 1500;
-const SITE = 'https://playpets.gaerae.com';
 
-// Store notes are plain text: links keep their words, bold and code marks go.
-const plain = line =>
-  line
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')
-    .trim();
-
-// The page's opening sentence and the bullets under its first section, then the page's address.
-// Bullets that do not fit the Store's limit are left out from the end; the address leads to all of them.
+// The page's opening sentence and its "What changed" lines for Windows (scripts/release-page.mjs),
+// then the page's address. "Also" (install ways, the guide, security updates) and lines for other
+// systems stay on the page; a release with nothing new on Windows says just the sentence and the
+// address. Bullets that do not fit the Store's limit are left out from the end; the address leads to
+// all of them.
 export function storeNotes(page, address) {
-  const body = page.replace(/^---\n[\s\S]*?\n---\n/, '');
-  const lines = body.split('\n');
-  const intro = lines.find(line => line.trim() && !/^(#|<|- |:::)/.test(line.trim()));
-  const section = lines.findIndex(line => line.startsWith('## '));
-  const bullets = [];
-  for (const line of section < 0 ? [] : lines.slice(section + 1)) {
-    if (line.startsWith('- ')) bullets.push(`• ${plain(line.slice(2))}`);
-    else if (line.startsWith('## ') || (line.trim() && bullets.length && !line.startsWith('  '))) break;
-  }
-  if (!intro || !bullets.length) throw new Error('The release page needs an opening sentence and a list of changes');
-  const text = kept => [plain(intro), kept.join('\n'), address].join('\n\n');
+  const { intro, changes } = userNotes(page, 'Windows');
+  const bullets = changes.map(line => `• ${line}`);
+  if (!intro) throw new Error('The release page needs an opening sentence');
+  const text = kept => [intro, kept.join('\n'), address].filter(Boolean).join('\n\n');
   let kept = bullets.length;
   while (kept && [...text(bullets.slice(0, kept))].length > STORE_NOTES_LIMIT) kept--;
-  if (!kept) throw new Error(`The release page's first change is longer than the Store allows (${STORE_NOTES_LIMIT})`);
+  if (bullets.length && !kept)
+    throw new Error(`The release page's first change is longer than the Store allows (${STORE_NOTES_LIMIT})`);
   return { text: text(bullets.slice(0, kept)), left: bullets.length - kept };
 }
 
@@ -45,7 +34,7 @@ export function storeNotesFor(version, read = file => readFileSync(file, 'utf8')
   const left = {};
   for (const lang of SITE_LANGS) {
     const page = `website${localePath(lang, `/releases/${version}.md`)}`;
-    const result = storeNotes(read(page), `${SITE}${localePath(lang, `/releases/${version}`)}`);
+    const result = storeNotes(read(page), releasePageUrl(version, lang));
     notes[STORE_LOCALES[lang]] = result.text;
     left[STORE_LOCALES[lang]] = result.left;
   }

@@ -22,6 +22,7 @@ const arm = ref(false);
 const releases = `https://github.com/${generated.slug}/releases`;
 // Windows gets the Store first: Microsoft signs that package and the Store keeps it updated, while
 // the GitHub installer is not code-signed yet. winget's msstore source installs the same package.
+// Visitors on another system see the Store first in the other-platforms list, for the same reason.
 const STORE = 'https://apps.microsoft.com/detail/9NSKXQ6R187M';
 const COMMANDS: Partial<Record<'macOS' | 'Windows' | 'Linux', string>> = {
   macOS: 'brew install gaerae/tap/playpets',
@@ -104,6 +105,7 @@ onBeforeUnmount(() => {
       <details class="dl-others">
         <summary>{{ store ? words.otherDownloads : words.otherPlatforms }}</summary>
         <ul>
+          <li v-if="!version && os !== 'Windows'"><a :href="STORE">{{ words.storeOther }}</a></li>
           <li v-for="f in others" :key="f"><a :href="url(f)">{{ words.files[f] }}</a></li>
           <li><a :href="`${releases}/tag/v${resolvedVersion}`">{{ words.allFiles }}</a></li>
         </ul>

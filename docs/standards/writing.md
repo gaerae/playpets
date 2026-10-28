@@ -2,12 +2,13 @@
 
 ## Scope
 - README, CONTRIBUTING, SECURITY and every current guide in `docs/`.
-- The user guide on the site, in all four languages (`website/**/*.md`).
+- The user guide and the release pages on the site, in all four languages (`website/**/*.md`).
+- `CHANGELOG.md` entries under `[Unreleased]`.
 - Folder READMEs that explain tools or assets (`scripts/`, `tests/`, `packaging/`, `assets/`, `src/`).
 - Not covered:
   - Dated records in `docs/decisions` and `docs/design`. They are not rewritten ([decision](../decisions/2026-10-13-design-records.md)).
-  - `CHANGELOG.md` entries already released.
-  - Generated pages (`website/dev/`, `website/releases/`).
+  - `CHANGELOG.md` entries already released, and release pages before 1.3.0.
+  - Generated pages (`website/dev/`).
   - Prompt files for artwork. They are input to a tool, not docs.
 
 ## Rules
@@ -24,6 +25,50 @@
 - Keep headings stable. Other pages and the site link to their anchors, and each site language keeps the same headings in the same order.
 - Keep page structure the site needs: front matter, `<Shot>`, `<Since>`, `:::` boxes.
 - No middle dots (·) on the site. Use commas, "and" or a list.
+
+## Release notes
+Each reader gets the text written for them ([decision](../decisions/2026-10-28-release-notes-by-audience.md)).
+
+| Text | Reader | Holds |
+|---|---|---|
+| `CHANGELOG.md` | People working on PlayPets | Every change people notice; the website, the user guide and the README under `### Website and docs` |
+| Release page, `website/releases/x.y.z.md` in four languages | People using the app, on every system | What they notice, written short |
+
+The release page:
+
+| Part | Rule | Length (English / ko, ja, zh-hans) |
+|---|---|---|
+| `headline:` in the front matter | The main change, a few words. The release lists show it | Short |
+| Opening sentence | One or two sentences on the main change for every system. The one place for a little wit, in the yard's own words | 200 / 100 characters |
+| `## What changed`, the first section | One change per line, what the person gets first. No commands or paths: link the guide instead | 100 / 60 characters a line |
+| A line for some systems | Starts with `<Only os="macOS" />` (or `Windows`, `Linux`, or two names: `os="macOS, Linux"`) and does not name the system again | |
+| `## Also`, the second section | Install ways, the user guide, security updates. Short; one link each | |
+| Last paragraph | A link to the guide for each thing to set up | |
+
+- The two sections are `## What changed` and `## Also` in English, in that order. Each language has its own two headings, listed in `HEADINGS` in `scripts/release-page.mjs`; the check names the heading it expects.
+
+From the changelog to the page, at release time:
+
+1. Read the version's `## [Unreleased]` section in `CHANGELOG.md`.
+2. Added, Changed and Fixed: each change a person notices becomes one line of the first section. Leave out what only people working on PlayPets see.
+3. Security: one line in the second section. Library names and advisory IDs stay in the changelog.
+4. Website and docs: a line in the second section only when a person using the app gains from it (a rewritten guide, a new install way).
+5. Known limitations: the guide page that covers them, linked from the last paragraph.
+6. Write the English page, then the other three with the same lines.
+
+- The four languages list the same changes, in the same order, each line for the same systems.
+- A release with nothing new for one system: that system's channels show the opening sentence and the page's address.
+- Each channel reads the page for its system: the Store the Windows lines, Linux software centers the Linux lines, the app's **What's new** the whole page.
+- `npm run release` stops on a page that breaks these rules; `node --test tests/release-notes.test.mjs` checks them before that.
+- To check a version's pages and see each system's text: `node scripts/release-page.mjs x.y.z`. The Store's text as it is sent: `node scripts/store-notes.mjs x.y.z`.
+
+Before:
+
+> - Grok Build joins Claude Code, Codex, Gemini CLI and Cursor. Copy its settings from Settings → Coding tools and save them in `~/.grok/hooks/`; a friend then shows when Grok thinks, uses a tool, waits for you and finishes.
+
+After:
+
+> - A friend reacts while Grok Build thinks, uses a tool, waits for you and finishes.
 
 ## Tone by language
 - English: plain, short sentences or fragments.

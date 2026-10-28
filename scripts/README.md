@@ -21,7 +21,7 @@
 | Security review | `npm run security:check` with Gitleaks 8.30.1 and cargo-audit 0.22.2 installed | Redacted full-history secret scan, npm high-severity dependency check and RustSec review; advisory warnings stay visible |
 | Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check`; `prepare-appimage-licenses.mjs` before Linux packaging; `appimage-license.mjs` on the finished image | Native dependency notice and fingerprint under `packaging/licenses/`; collected distro copyright files and an exact AppImage system-source manifest during a release build |
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs`, `site-motion.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/` |
-| Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; native package install-and-launch verification runs in release CI |
+| Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `release-page.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; the release pages read per system and checked against the release notes rules (`node scripts/release-page.mjs x.y.z` prints each system's text); native package install-and-launch verification runs in release CI |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
 | Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit`, `store-notes.mjs` | Redacted read-only credential check; the release's Store submission and its What's new from the website release pages, run by `store.yml` (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
 | Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` includes the illustrated Clover face for the app and every platform’s tray; it needs macOS (`iconutil` makes the `.icns`) |
@@ -106,6 +106,8 @@ Public captures:
 - Public captures have a version independent of the app package.
 - `CAPTURE_VERSION` in `site-content.mjs` selects the default capture directory
   for the site; captions show that actual version.
+- The README's three screenshots name that directory too; change their paths
+  with `CAPTURE_VERSION` (a website test checks them).
 - Update it only after real native captures for the new version exist in every
   site language and have been visually checked.
 - Never copy an earlier version's images into a newer version's directory.
@@ -150,6 +152,15 @@ SHOT_SCENE=desktop SHOT_LANGS=en,ko,ja,zh-hans npm run shots
 
 - The desktop picture is the app's own overlay window laid on the backdrop page, never a region of the screen.
 - The screen-sharing indicator, notifications and the screen's corners stay out.
+
+To refresh only the play pictures (`play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`) in every language:
+
+```bash
+SHOT_SCENE=play SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+```
+
+- They start from a lived-in garden (`playGarden` in `shots-lib.mjs`) in a data folder of their own, so the other pictures are unchanged.
+- Keyboard focus is cleared before every picture, so no focus ring shows.
 
 - Chat captures cancel existing walks and place the actual views beside the real
   panel.

@@ -47,7 +47,7 @@ npm run site:dev
 ```
 
 3. To add a screen, use `<Shot name="name" caption="One sentence" />`.
-   - The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `studio-day`, `studio-night`, `mini-chat`, `companions`.
+   - The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `studio-day`, `studio-night`, `mini-chat`, `companions`, `play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`.
    - Without a version, it shows the capture for the current `package.json` version.
    - To add a new state, put it in the scenario in `scripts/shots.mjs` and capture again.
    - Normal captures and GIF frames target only the isolated app process's window, matched by its PID and outer bounds.
@@ -57,6 +57,8 @@ npm run site:dev
    - Nothing the system draws over the screen (the screen-sharing indicator, notifications, the screen's rounded corners) can appear in it.
    - `SHOT_SCENE=desktop` refreshes it alone.
    - On the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README).
+   - A second pass starts the app again from a lived-in garden (`playGarden` in `scripts/shots-lib.mjs`: flowers in bloom, grown trees, gifts, an album of finds) and takes the five play pictures. `SHOT_SCENE=play` takes only those.
+   - Before each picture and the README animation, keyboard focus is cleared, so no focus ring shows.
 
 ```bash
 npm run shots -- 0.2.0
@@ -77,13 +79,16 @@ SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans npm run shots -- 0.2.0
 ```
 
 4. Mark the version where a feature first arrived with `<Since v="0.2.0" />` at the end of its heading. A first-release badge (`0.1.0`) shows nothing, and no badge appears in the page outline.
-5. If you changed the headline or the first-screen text, redraw the share card and banner too.
+5. On a release page, start a change for some systems with `<Only os="macOS" />` (or `Windows`, `Linux`, or two: `os="macOS, Linux"`).
+   - The page shows a badge such as "macOS only".
+   - The rest of the page follows the [release notes rules](../standards/writing.md#release-notes).
+6. If you changed the headline or the first-screen text, redraw the share card and banner too.
 
 ```bash
 npm run og
 ```
 
-6. Build and check.
+7. Build and check.
    - A single dead link fails the build and names the file and the link.
    - The test checks that every version in the changelog has a page and that every capture a page points to exists.
 
@@ -97,7 +102,7 @@ npm run site:build && node --test tests/website.test.mjs
    - Static HTML can load while a stale preview returns missing script files.
    - Use `npm run site:dev` for ongoing edits.
 
-7. Commit.
+8. Commit.
    - Git ignores what `scripts/site-prepare.mjs` generates (`website/dev/`, the icon and pet sheets it copies into `website/public/`, and `website/.vitepress/generated.json`), so those files are not committed.
    - Captures and intro videos under `website/public/` are committed.
 

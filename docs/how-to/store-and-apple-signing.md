@@ -165,7 +165,8 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
   - People write them before the release.
   - `npm run release` stops without them.
   - Nothing is machine-translated.
-- Text: the opening sentence, the bullets under the first `##` section, then the page's address.
+- Text: the opening sentence, the Windows lines of `What changed`, then the page's address (`scripts/release-page.mjs` reads the page).
+- Lines for macOS or Linux and the `Also` section stay on the page. See the [release notes rules](../standards/writing.md#release-notes).
 - Links keep their words; bold and code marks are dropped.
 - The Store allows 1500 characters per language.
 - Bullets that do not fit are left out, starting from the end.
@@ -247,6 +248,7 @@ The account holder does these one-time steps. Never paste a key into a chat, iss
 - Microsoft warns that mixing Partner Center edits and API changes on one draft can make it uncommittable.
 - Finish such a draft in one place.
 - To run `store` again: **Actions → store → Run workflow → Use workflow from → Tags → vx.y.z**.
+- That run uses the workflow and scripts as they were at the tag. A fix merged to `main` later applies from the next version's tag; finish the current version in Partner Center.
 - A run from a branch stops at `source`.
 - Do not use the MSI/EXE submission API for this MSIX product.
 

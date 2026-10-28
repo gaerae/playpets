@@ -7,16 +7,9 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import {
-  notesFor,
-  release,
-  releasePage,
-  setCargoVersion,
-  setLockVersion,
-  setMetainfoRelease,
-  setPageDate,
-} from './release-lib.mjs';
-import { releasePagesFor } from './site-content.mjs';
+import { release, setCargoVersion, setLockVersion, setMetainfoRelease, setPageDate } from './release-lib.mjs';
+import { pagesProblems, userNotes } from './release-page.mjs';
+import { releasePagesFor, releasePageUrl, SITE_LANGS } from './site-content.mjs';
 
 const version = process.argv[2];
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
@@ -33,19 +26,28 @@ if (git('tag', '--list', `v${version}`)) {
   process.exit(1);
 }
 
-// The website has a page for the version in every language. The English one can be started from the
-// changelog; the Korean, Japanese and Chinese ones are written ahead of time, so a release without them stops
-// here, before anything changes.
-const english = `website/releases/${version}.md`;
+// The website's release pages are the user notes, written ahead of time in every language and kept to
+// the rules in docs/standards/writing.md; a release without them, or with a page that breaks a rule,
+// stops here, before anything changes.
 const pages = releasePagesFor(version);
-const missing = pages.filter(page => page !== english && !existsSync(page));
+const missing = pages.filter(page => !existsSync(page));
 if (missing.length) {
   console.error(`Write the release page first: ${missing.join(', ')}`);
   process.exit(1);
 }
+const texts = Object.fromEntries(
+  await Promise.all(pages.map(async (page, i) => [SITE_LANGS[i], await readFile(page, 'utf8')])),
+);
+const problems = pagesProblems(texts);
+if (problems.length) {
+  console.error(`Fix the release pages first (docs/standards/writing.md#release-notes):\n- ${problems.join('\n- ')}`);
+  process.exit(1);
+}
 
 const date = new Date().toISOString().slice(0, 10);
-const edit = async (file, change) => writeFile(file, change(await readFile(file, 'utf8')));
+// Every file's new text is made first, so a release that cannot be made leaves the tree as it was.
+const changes = [];
+const edit = async (file, change) => changes.push([file, change(await readFile(file, 'utf8'))]);
 await edit('CHANGELOG.md', text => release(text, version, date));
 await edit('package.json', text => text.replace(/("version": ")[^"]+(")/, `$1${version}$2`));
 await edit('package-lock.json', text => {
@@ -57,12 +59,12 @@ await edit('package-lock.json', text => {
 await edit('src-tauri/Cargo.toml', text => setCargoVersion(text, version));
 await edit('src-tauri/Cargo.lock', text => setLockVersion(text, version));
 const metainfo = 'packaging/linux/app.playpets.metainfo.xml';
-await edit(metainfo, text => setMetainfoRelease(text, version, date));
-// The pages written ahead of time get today's date; a missing English page starts from the changelog.
-for (const page of pages) {
-  if (existsSync(page)) await edit(page, text => setPageDate(text, date));
-  else await writeFile(page, releasePage(notesFor(await readFile('CHANGELOG.md', 'utf8'), version), version, date));
-}
+await edit(metainfo, text =>
+  setMetainfoRelease(text, version, date, { ...userNotes(texts.en, 'Linux'), url: releasePageUrl(version) }),
+);
+// The pages written ahead of time get today's date.
+for (const page of pages) await edit(page, text => setPageDate(text, date));
+for (const [file, text] of changes) await writeFile(file, text);
 
 git(
   'add',

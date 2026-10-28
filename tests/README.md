@@ -16,7 +16,7 @@
 | Yard behavior and lifecycle | `garden`, `fishing-style`, `catch-*`, `worlds`, `*-lifecycle` |
 | Panels and recovery | `chat-*`, `invite*`, `settings-*`, `friend-*` |
 | Artwork and creator files | `atlas`, `*-art`, `creator-*`, `companion-*` |
-| Site and repository tooling | `website*`, `landing`, `site-content`, `release`, `distribute`, `repository-config`, `local-commands` |
+| Site and repository tooling | `website*`, `landing`, `site-content`, `release`, `release-notes`, `distribute`, `repository-config`, `local-commands` |
 
 - `support/` holds reusable fixture builders and loaders:
   - `content.mjs` loads the yard's content (catalog, yard, events, worlds) the

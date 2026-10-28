@@ -49,17 +49,32 @@ export const worldCopy = {
   discoveryLink: 'Bring it into your yard',
 };
 export const sections = {
+  play: {
+    title: 'A yard that fills up as you play.',
+    lead: 'Pictures from the app. Games, the garden and the album need no AI account.',
+    shots: [
+      [
+        'play-garden',
+        'Decorate the yard together',
+        'Plant the flower seeds and saplings your friends dig up, and set out the gift they bring each day: a bench, a swing, a picnic blanket.',
+      ],
+      ['play-tag', 'Tag, hide and seek, parade', 'Start a game and everyone joins in.'],
+      ['play-dig', 'Dig for little finds', 'A friend digs where you point: a flower seed, a sapling or a keepsake.'],
+      ['play-fishing', 'Fish and catch bugs', 'A friend fishes at the water, and what they catch goes in the album.'],
+      ['album', 'Fill the album', '100 finds: aquatic life, bugs, flowers, gifts, trees and keepsakes.'],
+    ],
+    link: 'How to play',
+  },
   compare: {
     caption: 'Pet features: what a Codex pet does on its own, and what PlayPets adds',
     head: ['Codex pet', 'With PlayPets'],
     rows: [
-      ['Pet file', 'A sprite sheet you make with the hatch-pet skill or upload', 'The same pet, read as it is'],
       [
-        'Motions',
-        'Animates Running, Needs input, Ready and Blocked',
-        'Every action and look direction in the sheet, plus strolls in the yard and on your desktop',
+        'Moving around',
+        'Stays where you drag it, showing Running, Needs input, Ready and Blocked',
+        'Strolls the yard on its own with every action in its sheet; on your desktop too, with Stroll on desktop',
       ],
-      ['Pets at once', 'One at a time', 'Up to 12 together'],
+      ['Pets at once', 'One at a time', 'Up to 12, playing together'],
       [
         'Conversation',
         'Starts a chat from your desktop',
@@ -70,12 +85,16 @@ export const sections = {
         'Follows your ChatGPT and Codex threads in one pet',
         'Each agent reports to its own pet: Claude Code, Codex, Gemini CLI, Cursor, Grok Build and MCP tools',
       ],
+      ['Games', '—', 'Hide and seek, parade and tag'],
+      ['Garden', '—', 'Dig up seeds and saplings, plant flowers and trees, and set out the gifts friends bring'],
+      ['Collecting', '—', 'Fish, catch bugs and fill an album of 100 finds'],
       ['Places', '—', 'Four places or your own backgrounds, with time of day, weather and seasons'],
-      ['Decorations', '—', 'Friends bring gifts like a bench, a swing or a pond, then sit and play by them'],
-      ['Play', '—', 'Hide and seek, parade and tag; dig, plant, fish, catch bugs and fill an album'],
       ['Outfits', '—', 'Starter pets dress for the season; any pet file can add seasonal sheets'],
     ],
     source: 'Codex pet column: OpenAI’s pet guide, October 2026',
+    desktop:
+      'On the desktop, friends stand in front of your other windows. Turn on Stroll on desktop and they wander around it.',
+    seePlay: 'See them play',
   },
   codexPlusTitle: ['Keep your pet in ChatGPT,', 'and bring the whole group here.'],
   codexPlusLead:

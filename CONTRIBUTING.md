@@ -25,7 +25,7 @@
 4. `npm run test:e2e` — runs the real app with isolated data and checks it end to end
 5. Screen changed: build it and look (steps 6 and 8 of the getting-started doc).
 6. Drawing loop or animations changed: run `npm run measure` before and after, and attach the results to the PR ([performance standard](docs/standards/performance.md)).
-7. Change people can see: add one line in English under `## [Unreleased]` in `CHANGELOG.md`, in the same PR.
+7. Change people can see: add one line in English under `## [Unreleased]` in `CHANGELOG.md`, in the same PR. Website, user guide and README changes go under `### Website and docs`; tests, CI and developer docs need no line. The release pages are written at release time ([release notes rules](docs/standards/writing.md#release-notes)).
 8. Site (`website/`) or `docs/` changed: `npm run site:build` has to pass. Dead links block the build ([Edit and check the website](docs/how-to/website.md)).
 
 ## Commits and PRs

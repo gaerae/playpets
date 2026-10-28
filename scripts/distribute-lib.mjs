@@ -2,6 +2,8 @@
 // winget's manifests and the Homebrew cask. Plain functions (tests/distribute.test.mjs); the
 // release and distribute workflows call them through scripts/distribute.mjs.
 
+import { releasePageUrl } from './site-content.mjs';
+
 const APP = 'PlayPets';
 const WINGET_ID = 'gaerae.PlayPets';
 const WINGET_SCHEMA = '1.12.0';
@@ -85,7 +87,7 @@ export function wingetManifests({ version, date, slug, sums }) {
       `${head('defaultLocale')}PackageLocale: en-US\nPublisher: ${slug.split('/')[0]}\nPublisherUrl: https://github.com/${slug.split('/')[0]}\n` +
       `PackageName: ${APP}\nPackageUrl: ${home}\nLicense: MIT\nLicenseUrl: ${home}/blob/main/LICENSE\n` +
       `ShortDescription: A yard where your pets talk to each other\n` +
-      `Tags:\n  - desktop-pet\n  - pet\n  - ai\n  - tauri\nReleaseNotesUrl: ${home}/releases/tag/v${version}\n` +
+      `Tags:\n  - desktop-pet\n  - pet\n  - ai\n  - tauri\nReleaseNotesUrl: ${releasePageUrl(version)}\n` +
       tail('defaultLocale'),
   };
 }

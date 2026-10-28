@@ -7,8 +7,10 @@
 // Normal shots isolate the app window and compose a controlled backdrop behind its alpha corners.
 // Desktop friends are their own overlay window, set on the same backdrop with a small terminal.
 // The English run also films the yard for a few seconds and writes assets/demo.gif.
+// A second pass starts the app again from a lived-in garden (playGarden) and pictures play: the
+// garden, tag, digging, fishing and the album.
 // SHOT_SCENE=seasons captures only spring, summer and winter; chat refreshes only the two chat pictures;
-// desktop refreshes only the desktop picture.
+// desktop refreshes only the desktop picture; play takes only the second pass.
 
 import { spawn, spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
@@ -31,6 +33,7 @@ import {
   composeWindow,
   desktopWindow,
   mainDisplay,
+  playGarden,
   seasonalScenes,
 } from './shots-lib.mjs';
 import { SITE_LANGS as siteLanguages } from './site-content.mjs';
@@ -60,8 +63,10 @@ const smallOnly = process.env.SHOT_SCENE === 'small';
 const adultsOnly = process.env.SHOT_SCENE === 'adults';
 const placesOnly = process.env.SHOT_SCENE === 'places';
 const desktopOnly = process.env.SHOT_SCENE === 'desktop';
+const playOnly = process.env.SHOT_SCENE === 'play';
 const seasonsOnly = process.env.SHOT_SCENE === 'seasons' || placesOnly;
-const skipGif = chatOnly || smallOnly || adultsOnly || seasonsOnly || desktopOnly || process.env.SKIP_GIF === '1';
+const skipGif =
+  chatOnly || smallOnly || adultsOnly || seasonsOnly || desktopOnly || playOnly || process.env.SKIP_GIF === '1';
 // Store listings (Microsoft Store, Product Hunt, GitHub's social card) want 16:9 pictures of at
 // least 1366×768: these scenes are also set on a 1920×1080 backdrop, centred with a shadow, as
 // PNGs under release/store/<lang>/ (not part of the site).
@@ -292,7 +297,7 @@ function scenario(lang) {
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
     // A few seconds of the yard for the demo animation: a wave together, then a parade.
     if(!${skipGif}&&'${lang}'===${JSON.stringify(GIF.lang)}){
-      const r=(await inv('e2eWindow',['main'])).data;
+      clearFocus(document);await wait(350);const r=(await inv('e2eWindow',['main'])).data;
       await L('gif-start '+JSON.stringify(r));
       const {react}=await import('./yard/care.js');react({action:'wave'});await wait(1500);
       playPets.chatWith([p1.id,p2.id,p3.id,p4.id],${JSON.stringify(s.talkTo)});await wait(3600);
@@ -323,6 +328,67 @@ function scenario(lang) {
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
     // Named adult baselines and their ordinary friend settings use the real moving scene.
     await companionScene();
+    await L('DONE');
+  }catch(e){await L('FATAL:'+String(e).slice(0,200));}
+})();`;
+}
+
+// The second pass, from playGarden's saved garden: the yard in bloom with its gifts, a game of tag,
+// a friend digging, a friend fishing at the lakeside, and the album's fish page.
+function playScenario(lang) {
+  return `(async()=>{
+  const inv=(n,a)=>window.__TAURI__.core.invoke('call',{name:n,args:a});
+  const L=m=>inv('e2eLog',[m]);
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const until=async(test,ms=8000)=>{for(let i=0;i<ms/100;i++){if(test())return true;await wait(100);}return false;};
+  const $=id=>document.getElementById(id);
+  const must=async(label,p)=>{const r=await p;if(!r||r.ok===false)await L(label+'=err:'+(r&&r.error));return r;};
+  const settledScene=async()=>{await wait(300);for(let i=0;i<50;i++){if($('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1)return;await wait(100);}throw new Error('Background did not finish loading and fading');};
+  const clearFocus=${clearCaptureFocus.toString()};
+  const shot=async name=>{clearFocus(document);await wait(350);const r=(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
+  const scene=async(world,season='spring')=>{for(const [id,value] of [['world',world],['scene-season',season],['period','day'],['weather','clear']]){$(id).value=value;$(id).dispatchEvent(new Event('change'));}await settledScene();};
+  try{
+    if(document.documentElement.lang!=='${lang}'){localStorage.setItem('lang','${lang}');await L('RELANG');await playPets.quitApp();return;}
+    await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
+    await scene('woodland');
+    const boot=await playPets.bootstrap();
+    const cast=${JSON.stringify(companionCast())};
+    const coat=n=>{const found=boot.data.assets.find(a=>a.displayName===n);if(!found)throw new Error('Missing capture companion: '+n);return found;};
+    for(const p of boot.data.pets)await playPets.removePet(p.id);
+    const pets=[];for(const n of ['Daisy','Clover','Pip','Miso'])pets.push((await must('add'+n,playPets.addPet(coat(n).id))).data);
+    const save=(await must('saveProvider',playPets.saveProvider({type:'ollama',model:'tabby',endpoint:'${endpoint}'}))).data;
+    for(const p of pets)await must('attach',playPets.updatePet(p.id,{providerId:save.id}));
+    await until(()=>$('empty-yard').hidden,2000);
+    $('close-panel').click();
+    const {views}=await import('./core/state.js');
+    const hold=async()=>{
+      const {release}=await import('./yard/trips.js');
+      const {place}=await import('./yard/views.js');
+      for(const [i,p] of pets.entries()){
+        const view=views.get(p.id);if(!view)throw new Error('Missing capture view '+p.id);
+        release(view);view.nextWander=Infinity;
+        await must('positionCast',playPets.updatePet(p.id,cast[i]));
+        view.x=cast[i].x;view.y=cast[i].y;place(view);
+      }
+    };
+    await hold();await wait(1800);await shot('play-garden');
+    document.querySelector('[data-game=tag]').click();await wait(2600);await shot('play-tag');
+    const playing=document.querySelector('[data-game].playing');if(playing)playing.click();await wait(600);
+    // Let them dig, as the app does it on its own: one friend sets off for a spot and digs.
+    await hold();await wait(400);
+    const {autoDig}=await import('./yard/discovery.js');
+    let draw=0;if(!autoDig(()=>[0.3,0.5,0.2][draw++%3]))throw new Error('No friend could dig');
+    if(!await until(()=>document.querySelector('.dig-effect')))throw new Error('The dig did not start');
+    await wait(500);await shot('play-dig');
+    await until(()=>!document.querySelector('.dig-effect'));await until(()=>$('catch-card').hidden,12000);
+    await scene('lakeside','summer');await hold();await wait(600);
+    $('fish-tool').click();
+    if(!await until(()=>document.querySelector('.bobber'),10000))throw new Error('Nobody cast a line');
+    await wait(1200);await shot('play-fishing');
+    await scene('woodland');await hold();
+    $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
+    document.querySelector('.album-tabs [data-book=fish]').click();await wait(800);await shot('album');
+    $('album-dialog').close();
     await L('DONE');
   }catch(e){await L('FATAL:'+String(e).slice(0,200));}
 })();`;
@@ -557,15 +623,25 @@ async function captureAll(lang) {
   // An empty Codex pet folder: the shelf shows only the pets that ship with the app.
   const codexHome = path.join(dataDir, 'codex');
   await mkdir(path.join(codexHome, 'pets'), { recursive: true });
-  let result;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    result = await run(lang, dataDir, codexHome, outDir);
-    if (result !== 'RELANG') break;
-  }
-  if (result !== 'DONE') throw new Error(`${lang} capture did not complete: ${result}`);
+  const pass = async (folder, code) => {
+    let result;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      result = await run(lang, folder, codexHome, outDir, code);
+      if (result !== 'RELANG') break;
+    }
+    if (result !== 'DONE') throw new Error(`${lang} capture did not complete: ${result}`);
+  };
+  if (!playOnly) await pass(dataDir, scenario(lang));
   // The frames live in the data folder, so the GIF is written before it goes.
   if (gifFrames) await writeGif(gifFrames, path.join(root, 'assets/demo.gif'));
   gifFrames = null;
+  // The play pictures on the site start from their own saved garden, in a fresh data folder.
+  if (onSite && (playOnly || !process.env.SHOT_SCENE)) {
+    const playData = path.join(dataDir, 'play');
+    await mkdir(playData, { recursive: true });
+    await writeFile(path.join(playData, 'state.json'), JSON.stringify(playGarden(Date.now())));
+    await pass(playData, playScenario(lang));
+  }
   if (onSite) await toWebp(outDir);
   await rm(dataDir, { recursive: true, force: true });
   await toStoreSize(path.join(root, 'release/store', lang));
@@ -629,7 +705,7 @@ async function toStoreSize(dir) {
   await encoder.close();
 }
 
-async function run(lang, dataDir, codexHome, outDir) {
+async function run(lang, dataDir, codexHome, outDir, code) {
   const storeDir = path.join(root, 'release/store', lang);
   // The backdrop fills the screen, so every margin and the window's rounded corners show it and
   // nothing else. Chrome wants the real size: a larger request falls back to a default window.
@@ -642,7 +718,7 @@ async function run(lang, dataDir, codexHome, outDir) {
         PLAYPETS_DATA: dataDir,
         CODEX_HOME: codexHome,
         PLAYPETS_LANG: lang,
-        PLAYPETS_E2E_EVAL: scenario(lang),
+        PLAYPETS_E2E_EVAL: code,
       },
     });
     let outcome = 'TIMEOUT';
