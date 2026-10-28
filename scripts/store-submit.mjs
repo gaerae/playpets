@@ -13,6 +13,20 @@ const notOlder = (a, b) => {
   return i < 0 || a[i] > b[i];
 };
 
+// The release notes' languages, and the listing names Partner Center may use for each.
+const LISTING_NAMES = {
+  'en-us': ['en-us', 'en'],
+  'ko-kr': ['ko-kr', 'ko'],
+  'ja-jp': ['ja-jp', 'ja'],
+  'zh-cn': ['zh-cn', 'zh-hans', 'zh-hans-cn'],
+};
+const LANGUAGE_NAMES = {
+  'en-us': 'English',
+  'ko-kr': 'Korean',
+  'ja-jp': 'Japanese',
+  'zh-cn': 'Simplified Chinese',
+};
+
 export async function submitStore(client, release) {
   const { version, files, notes, publishMode } = release;
   if (
@@ -52,6 +66,19 @@ export async function submitStore(client, release) {
     )
   )
     throw stop('The Store already has this version or a later one; no changes made');
+  // A listing is named after the package's language, so zh-Hans in the manifest is zh-hans there.
+  // Check the published one before making a draft: the draft copies its listings.
+  const listingKeys = Object.keys(baseline.listings || {}).filter(key => baseline.listings[key]?.baseListing);
+  const listingFor = {};
+  for (const locale of locales) {
+    listingFor[locale] = listingKeys.find(key => LISTING_NAMES[locale].includes(key.toLowerCase()));
+    if (!listingFor[locale]) {
+      const seen = listingKeys.map(key => (/^[a-z]{2,3}(-[a-z0-9]{2,8}){0,3}$/i.test(key) ? key : '?')).join(', ');
+      throw stop(
+        `The published Store submission has no ${LANGUAGE_NAMES[locale]} listing (it has ${seen}); no changes made`,
+      );
+    }
+  }
   const draft = await client.request('POST', '/submissions');
   if (!/^\d+$/.test(draft.id)) throw stop('Invalid created submission ID; inspect Partner Center');
   const path = `/submissions/${draft.id}`;
@@ -88,9 +115,9 @@ export async function submitStore(client, release) {
   ];
   // Do not send Pricing V2 back through the legacy API or rewrite approved store descriptions.
   for (const locale of locales) {
-    if (!update.listings?.[locale]?.baseListing)
+    if (!update.listings?.[listingFor[locale]]?.baseListing)
       throw stop('Published listing is missing a supported Store language; inspect the created draft');
-    update.listings[locale].baseListing.releaseNotes = notes[locale].trim();
+    update.listings[listingFor[locale]].baseListing.releaseNotes = notes[locale].trim();
   }
   // notesForCertification stays as the published submission had it: it carries the runFullTrust
   // justification and the reviewer's test steps.
