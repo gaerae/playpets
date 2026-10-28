@@ -169,15 +169,52 @@ fn settles_when_working(agent: &str, payload: &Value) -> bool {
         && payload.get(key).and_then(|v| v.as_str()) == Some("idle_prompt")
 }
 
-/// Whether the friend a hook reports to (`--pet`, or the first one) is working on an agent's turn,
-/// by `/pets`; a chat answer on its way is working too, and the idle notice leaves it alone.
-fn still_working(pets: &Value, pet: &str) -> bool {
+/// Whether the friend a hook reports to (`--pet`, or the first one) is working on the turn `by`
+/// reported, by `/pets`. Another agent or session at work on the same friend, a chat answer on its
+/// way or a status nobody named (MCP, `playpets status`) is left alone by this idle notice.
+fn still_working(pets: &Value, pet: &str, by: &str) -> bool {
     let Some(id) = super::bridge::resolve_pet(pets, Some(pet)) else {
         return false;
     };
     pets.as_array()
         .and_then(|list| list.iter().find(|p| p.get("id").and_then(|v| v.as_str()) == Some(&id)))
-        .is_some_and(|p| p["state"] == "working" && p["source"] != "chat")
+        .is_some_and(|p| p["state"] == "working" && p["source"] != "chat" && p["by"] == by)
+}
+
+/// Who a hook reports for: the agent, and its session when the payload names one (Claude Code and
+/// Gemini `session_id`, Grok `sessionId`, Cursor `conversation_id`).
+fn reporter(agent: &str, payload: &Value) -> String {
+    let session = ["session_id", "sessionId", "conversation_id"]
+        .iter()
+        .find_map(|key| payload.get(*key).and_then(|v| v.as_str()))
+        .filter(|s| !s.is_empty());
+    let by = match session {
+        Some(session) => format!("{agent}:{session}"),
+        None => agent.to_string(),
+    };
+    by.chars().take(80).collect()
+}
+
+/// The `/events` body a hook sends, if any: `borrowed` is a hook Grok ran from another agent's file.
+fn hook_report(
+    agent: &str,
+    payload: &Value,
+    borrowed: bool,
+    pet: &str,
+    pets: &dyn Fn() -> Result<Value, String>,
+) -> Option<Value> {
+    if borrowed {
+        return None;
+    }
+    let by = reporter(agent, payload);
+    let (state, message) = if settles_when_working(agent, payload) {
+        pets()
+            .is_ok_and(|list| still_working(&list, pet, &by))
+            .then(|| ("idle".to_string(), String::new()))?
+    } else {
+        hook_event(agent, payload)?
+    };
+    Some(json!({"state": state, "message": message, "by": by}))
 }
 
 /// Where the running app writes bridge.json: $PLAYPETS_BRIDGE, $PLAYPETS_DATA, or Tauri's app data dir.
@@ -345,21 +382,9 @@ fn hook(rest: &[&str], send: Send, pets: &dyn Fn() -> Result<Value, String>, pet
         read_stdin(1024 * 1024, Duration::from_secs(1))
     };
     let payload: Value = serde_json::from_str(&raw).unwrap_or(Value::Null);
-    let report = if borrowed_by_grok(agent, std::env::var_os("GROK_SESSION_ID").is_some()) {
-        None
-    } else if settles_when_working(agent, &payload) {
-        pets()
-            .is_ok_and(|list| still_working(&list, pet))
-            .then(|| ("idle".to_string(), String::new()))
-    } else {
-        hook_event(agent, &payload)
-    };
-    if let Some((state, message)) = report
-        && let Err(e) = send(
-            "/events",
-            json!({"state": state, "message": message}),
-            Duration::from_millis(1500),
-        )
+    let borrowed = borrowed_by_grok(agent, std::env::var_os("GROK_SESSION_ID").is_some());
+    if let Some(body) = hook_report(agent, &payload, borrowed, pet, pets)
+        && let Err(e) = send("/events", body, Duration::from_millis(1500))
         && std::env::var_os("PLAYPETS_DEBUG").is_some()
     {
         eprintln!("[PlayPets] {e}");
@@ -391,23 +416,87 @@ fn run_command(command: &[String], send: Send) -> i32 {
         }
     };
     publish("working", format!("@running {}", command[0]));
-    let status = std::process::Command::new(&command[0]).args(&command[1..]).status();
-    let code = match status {
-        Ok(s) => s.code().unwrap_or(1),
+    let status = std::process::Command::new(&command[0])
+        .args(&command[1..])
+        .spawn()
+        .and_then(|mut child| {
+            interrupt::wait_through(child.id());
+            child.wait()
+        });
+    let (code, state, message) = match status {
+        Ok(status) => ended(status),
         Err(e) => {
             eprintln!("{e}");
-            1
+            (1, "error", "@failed 1".to_string())
         }
     };
-    publish(
-        if code == 0 { "done" } else { "error" },
-        if code == 0 {
-            "@done".into()
-        } else {
-            format!("@failed {code}")
-        },
-    );
+    publish(state, message);
     code
+}
+
+/// How a command `run` waited for ended: its exit code, as a shell gives it (128 and the signal
+/// when one stopped it), and what the friend shows. Stopped from its terminal, the friend is idle.
+fn ended(status: std::process::ExitStatus) -> (i32, &'static str, String) {
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::ExitStatusExt;
+        if let Some(signal) = status.signal() {
+            let code = 128 + signal;
+            return if [libc::SIGINT, libc::SIGTERM, libc::SIGHUP, libc::SIGQUIT].contains(&signal) {
+                (code, "idle", "@stopped".to_string())
+            } else {
+                (code, "error", format!("@failed {code}"))
+            };
+        }
+    }
+    let code = status.code().unwrap_or(1);
+    // STATUS_CONTROL_C_EXIT: a Windows console program ended by Ctrl-C.
+    if cfg!(windows) && code as u32 == 0xC000_013A {
+        return (code, "idle", "@stopped".to_string());
+    }
+    match code {
+        0 => (0, "done", "@done".to_string()),
+        _ => (code, "error", format!("@failed {code}")),
+    }
+}
+
+/// Ctrl-C in a terminal reaches `run` and its command together. The command decides what it
+/// means, and `run` stays to say how it ended; a SIGTERM sent to `run` alone is passed on.
+mod interrupt {
+    #[cfg(unix)]
+    pub fn wait_through(child: u32) {
+        use std::sync::atomic::{AtomicI32, Ordering};
+        static CHILD: AtomicI32 = AtomicI32::new(0);
+        extern "C" fn on_signal(signal: libc::c_int) {
+            let child = CHILD.load(Ordering::SeqCst);
+            if signal == libc::SIGTERM && child > 0 {
+                // SAFETY: kill is async-signal-safe.
+                unsafe { libc::kill(child, libc::SIGTERM) };
+            }
+        }
+        CHILD.store(child as i32, Ordering::SeqCst);
+        for signal in [libc::SIGINT, libc::SIGQUIT, libc::SIGTERM, libc::SIGHUP] {
+            // SAFETY: a zeroed sigaction with an empty mask and a handler that only calls kill.
+            // A handler, unlike SIG_IGN, is not inherited: the command still stops at Ctrl-C.
+            unsafe {
+                let mut action: libc::sigaction = std::mem::zeroed();
+                action.sa_sigaction = on_signal as extern "C" fn(libc::c_int) as usize;
+                libc::sigemptyset(&mut action.sa_mask);
+                libc::sigaction(signal, &action, std::ptr::null_mut());
+            }
+        }
+    }
+
+    #[cfg(windows)]
+    pub fn wait_through(_child: u32) {
+        use windows_sys::Win32::System::Console::SetConsoleCtrlHandler;
+        // A handler, unlike ignoring Ctrl-C outright, is not inherited by the command.
+        unsafe extern "system" fn handled(_event: u32) -> windows_sys::core::BOOL {
+            1
+        }
+        // SAFETY: registers a handler that only reports the event handled.
+        unsafe { SetConsoleCtrlHandler(Some(handled), 1) };
+    }
 }
 
 /// `mcp`: a stdio MCP server, one JSON-RPC line in, at most one out.
@@ -834,21 +923,74 @@ mod tests {
             &json!({"hook_event_name": "Notification", "notificationType": "permission_prompt"})
         ));
         let pets = json!([
-            {"id": "p1", "name": "Clover", "state": "working"},
-            {"id": "p2", "name": "Pip", "state": "done"},
-            {"id": "p3", "name": "Miso", "state": "waiting"},
+            {"id": "p1", "name": "Clover", "state": "working", "by": "grok"},
+            {"id": "p2", "name": "Pip", "state": "done", "by": "grok"},
+            {"id": "p3", "name": "Miso", "state": "waiting", "by": "grok"},
             {"id": "p4", "name": "Daisy", "state": "working", "source": "chat"}
         ]);
-        assert!(still_working(&pets, ""), "no --pet is the first friend");
+        assert!(still_working(&pets, "", "grok"), "no --pet is the first friend");
         assert!(
-            !still_working(&pets, "Daisy"),
+            !still_working(&pets, "Daisy", "grok"),
             "a chat answer on its way is not the agent's turn"
         );
-        assert!(still_working(&pets, "clover"));
-        assert!(!still_working(&pets, "Pip"), "done stays done until it fades");
-        assert!(!still_working(&pets, "p3"));
-        assert!(!still_working(&pets, "nobody"));
-        assert!(!still_working(&json!({"error": "x"}), ""));
+        assert!(still_working(&pets, "clover", "grok"));
+        assert!(!still_working(&pets, "Pip", "grok"), "done stays done until it fades");
+        assert!(!still_working(&pets, "p3", "grok"));
+        assert!(!still_working(&pets, "nobody", "grok"));
+        assert!(!still_working(&json!({"error": "x"}), "", "grok"));
+    }
+
+    #[test]
+    fn an_idle_notice_settles_only_the_turn_its_own_session_left() {
+        let idle = json!({"hook_event_name": "Notification", "notification_type": "idle_prompt", "session_id": "a1"});
+        assert_eq!(reporter("claude", &idle), "claude:a1");
+        assert_eq!(reporter("grok", &json!({"sessionId": "g"})), "grok:g");
+        assert_eq!(
+            reporter("codex", &Value::Null),
+            "codex",
+            "no session named: the agent alone"
+        );
+        assert_eq!(reporter("claude", &json!({"session_id": "x".repeat(200)})).len(), 80);
+        let pets = |by: &str| Ok(json!([{"id": "p1", "name": "Clover", "state": "working", "by": by}]));
+        let settle = |by: &str| hook_report("claude", &idle, false, "", &|| pets(by));
+        assert_eq!(
+            settle("claude:a1"),
+            Some(json!({"state": "idle", "message": "", "by": "claude:a1"}))
+        );
+        assert_eq!(settle("codex"), None, "Codex is still at work on the same friend");
+        assert_eq!(
+            settle("claude:b2"),
+            None,
+            "another Claude Code session is still at work"
+        );
+        assert_eq!(
+            settle(""),
+            None,
+            "a status nobody named (MCP, `playpets status`) is left alone"
+        );
+        // Every report says who sent it, so a later idle notice can tell its own turn.
+        let tool = json!({"hook_event_name": "PreToolUse", "tool_name": "Bash", "session_id": "a1"});
+        assert_eq!(
+            hook_report("claude", &tool, false, "", &|| unreachable!()),
+            Some(json!({"state": "working", "message": "@tool Bash", "by": "claude:a1"}))
+        );
+        assert_eq!(
+            hook_report("claude", &tool, true, "", &|| unreachable!()),
+            None,
+            "borrowed by Grok"
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_command_stopped_by_its_terminal_leaves_the_friend_idle() {
+        let ran = |script: &str| ended(std::process::Command::new("sh").args(["-c", script]).status().unwrap());
+        assert_eq!(ran("exit 0"), (0, "done", "@done".to_string()));
+        assert_eq!(ran("exit 3"), (3, "error", "@failed 3".to_string()));
+        // Ctrl-C: the shell's own code for it, and the friend is no longer left working.
+        assert_eq!(ran("kill -INT $$"), (130, "idle", "@stopped".to_string()));
+        assert_eq!(ran("kill -TERM $$"), (143, "idle", "@stopped".to_string()));
+        assert_eq!(ran("kill -KILL $$"), (137, "error", "@failed 137".to_string()));
     }
 
     #[test]

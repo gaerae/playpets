@@ -509,6 +509,46 @@ test('the tree tool stops at a full place, counting the trees friends are on the
   );
 });
 
+test('a tree just saved counts until the state the page is sent shows it', async t => {
+  const { v } = fixture(t);
+  t.mock.method(performance, 'now', () => 1e9);
+  const other = {
+    pet: { id: 'second', size: 112, name: 'Pip' },
+    px: 600,
+    py: 400,
+    x: 0.6,
+    y: 0.5,
+    pose: 'idle',
+    bubble: element('span'),
+  };
+  views.set(other.pet.id, other);
+  state.data.pets.push(other.pet);
+  t.after(() => release(other));
+  const tree = (id, x) => ({ id, kind: 'maple', world: 'woodland', planted: 0, x, y: 0.9 });
+  state.data.garden.trees = [0.05, 0.15, 0.25, 0.35, 0.45].map((x, i) => tree(`t${i}`, x));
+  state.data.garden.saplings = { maple: 3 };
+  const previous = state.api.plantTree;
+  state.api.plantTree = async () => ({ ok: true, data: tree('sixth', 0.5) });
+  t.after(() => {
+    if (previous) state.api.plantTree = previous;
+    else delete state.api.plantTree;
+  });
+  setupDiscovery();
+  beginDiscovery('tree');
+  await document.getElementById('yard').dispatch('click', { clientX: 500, clientY: 620 });
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  await arrive();
+  // Saved, but the new state has not reached the page yet.
+  await document.getElementById('yard').dispatch('click', { clientX: 800, clientY: 620 });
+  assert.equal(other.trip, undefined, 'no friend walks off to plant a seventh');
+  assert.equal(
+    document.getElementById('toast').textContent,
+    'This place has 6 trees. Remove one before planting another.',
+  );
+});
+
 test('the tool strip switches between digging, trees and seeds without reopening Play', async t => {
   fixture(t);
   state.data.garden.saplings = { maple: 1 };

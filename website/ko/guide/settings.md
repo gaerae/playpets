@@ -35,7 +35,7 @@ description: 언어와 시작, 친구와 AI, PlayPets 정보와 앱 업데이트
 
 이 선택은 시스템이 보관해요. macOS는 로그인 항목, Windows는 시작 프로그램, Linux는 자동 시작 항목에 들어가요. 어느 쪽에서 꺼도 꺼져요.
 
-Microsoft Store 버전에서는 아직 이 스위치가 Windows에 닿지 않아요. 대신 Windows **설정 → 앱 → 시작 프로그램**에서 PlayPets를 켜 주세요. 거기서 시작하면 바탕화면 모드를 켜 두었어도 놀이터 창이 열려요.
+Microsoft Store 버전은 Windows에서 끈 PlayPets를 앱에서 다시 켤 수 없어요. Windows **설정 → 앱 → 시작 프로그램**에서 켜 주세요.
 
 ## 친구와 AI <Since v="1.2.0" />
 

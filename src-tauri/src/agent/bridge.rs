@@ -14,6 +14,9 @@ pub enum AgentEvent {
         pet_id: String,
         state: String,
         message: String,
+        /// Who reported it (`claude:<session>`), so its own idle notice can tell its turn; empty
+        /// for MCP and `playpets status`.
+        by: String,
     },
     Say {
         pet_id: String,
@@ -83,10 +86,15 @@ fn parse(route: &str, body: &Value) -> Option<AgentEvent> {
                 None => "",
                 Some(v) => v.as_str()?,
             };
+            let by = match body.get("by") {
+                None => "",
+                Some(v) => v.as_str()?,
+            };
             Some(AgentEvent::Status {
                 pet_id: String::new(),
                 state: state.into(),
                 message: clip(message, 240),
+                by: clip(by, 80),
             })
         }
         "/say" => {
@@ -116,10 +124,11 @@ fn parse(route: &str, body: &Value) -> Option<AgentEvent> {
 
 fn with_pet(event: AgentEvent, id: String) -> AgentEvent {
     match event {
-        AgentEvent::Status { state, message, .. } => AgentEvent::Status {
+        AgentEvent::Status { state, message, by, .. } => AgentEvent::Status {
             pet_id: id,
             state,
             message,
+            by,
         },
         AgentEvent::Say { message, .. } => AgentEvent::Say { pet_id: id, message },
         AgentEvent::React { action, .. } => AgentEvent::React { pet_id: id, action },
@@ -280,13 +289,18 @@ mod tests {
         assert_eq!(post("/say", r#"{"message":""}"#), 400);
         assert_eq!(post("/react", r#"{"action":"explode"}"#), 400);
         assert_eq!(post("/nope", "{}"), 404);
-        assert_eq!(post("/events", r#"{"pet":null,"petId":"b","state":"idle"}"#), 200);
+        assert_eq!(post("/events", r#"{"state":"idle","by":7}"#), 400);
+        assert_eq!(
+            post("/events", r#"{"pet":null,"petId":"b","state":"idle","by":"claude:s1"}"#),
+            200
+        );
         assert_eq!(
             events.lock().unwrap().pop(),
             Some(AgentEvent::Status {
                 pet_id: "b".into(),
                 state: "idle".into(),
-                message: String::new()
+                message: String::new(),
+                by: "claude:s1".into()
             })
         );
         assert_eq!(
@@ -295,12 +309,14 @@ mod tests {
                 AgentEvent::Status {
                     pet_id: "a".into(),
                     state: "working".into(),
-                    message: "coding".into()
+                    message: "coding".into(),
+                    by: String::new()
                 },
                 AgentEvent::Status {
                     pet_id: "a".into(),
                     state: "done".into(),
-                    message: String::new()
+                    message: String::new(),
+                    by: String::new()
                 },
                 AgentEvent::Say {
                     pet_id: "b".into(),

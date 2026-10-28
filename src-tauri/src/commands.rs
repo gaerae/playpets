@@ -652,12 +652,22 @@ fn add_zip(app: &AppHandle, state: &State<Shared>, file: &std::path::Path) -> Re
 fn remove_asset(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Value, String> {
     let mut taken = None;
     commit(app, state, |d| {
-        let (pets, parked) = (&d.pets, &d.parked_pets);
-        // A friend parked over the limit comes back with its pet at a later start.
+        // A friend parked over the limit comes back with its pet at a later start; the page cannot
+        // see it, so the refusal names it.
+        let title = d
+            .assets
+            .iter()
+            .find(|a| a.id == id)
+            .map(|a| a.display_name.clone())
+            .unwrap_or_default();
+        if let Some(name) = model::parked_user(&d.parked_pets, id, &title) {
+            return Err(i18n::tr("error.pet_kept_for_later", &[("name", &name)]));
+        }
+        let pets = &d.pets;
         let asset = catalog::take_imported(
             &mut d.assets,
             &mut d.imports,
-            |id| pets.iter().any(|p| p.asset_id == id) || parked.iter().any(|p| p["assetId"] == id),
+            |id| pets.iter().any(|p| p.asset_id == id),
             id,
         )?;
         taken = Some((asset, d.store.dir.join("pets")));
@@ -775,17 +785,10 @@ fn set_auto_play(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Val
     })
 }
 
-/// Whether the app starts when the person logs in. The system keeps the answer (a login item on
-/// macOS, the Run key on Windows, an autostart entry on Linux); a test run only pretends.
+/// Whether the app starts when the person logs in. The system keeps the answer (startup.rs); a
+/// test run only pretends.
 fn set_autostart(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
-    let now = if e2e_mode() {
-        on
-    } else {
-        use tauri_plugin_autostart::ManagerExt;
-        let launcher = app.autolaunch();
-        if on { launcher.enable() } else { launcher.disable() }.map_err(|_| i18n::t("error.autostart"))?;
-        launcher.is_enabled().unwrap_or(on)
-    };
+    let now = if e2e_mode() { on } else { crate::startup::set(app, on)? };
     let mut d = lock(state);
     d.autostart = now;
     changed(app, &d);

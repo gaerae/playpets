@@ -91,6 +91,14 @@ test('the fishing tool sends the chosen friend rather than a nearer unselected f
   await nodes.get('fish-tool').dispatch('click');
   assert.equal(typeof chosen.trip?.arrive, 'function');
   assert.equal(nearer.trip, undefined);
+  // A chosen friend that is busy (digging, planting) keeps at it; the nearest free one goes.
+  endFishing();
+  chosen.trip = undefined;
+  chosen.target = null;
+  chosen.doing = { end() {} };
+  await nodes.get('fish-tool').dispatch('click');
+  assert.equal(chosen.trip, undefined, 'its dig is not called off');
+  assert.equal(typeof nearer.trip?.arrive, 'function');
 });
 
 test('bundled fishing moves from its cast to a looping wait and clears on cancellation', async context => {

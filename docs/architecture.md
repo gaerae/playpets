@@ -336,6 +336,8 @@ The `e2e` build (`cargo build --profile e2e --features e2e`):
 
 Start at login:
 - The system starts the app at login with `--autostart` (`tauri-plugin-autostart`): a LaunchAgent on macOS, the Run key on Windows, an autostart entry on Linux.
+- A Microsoft Store package's Run key is its own copy, which Windows does not read at sign-in. There `startup.rs` switches the package's startup task (`TaskId="PlayPets"` in `AppxManifest.xml`), and a launch activated by it counts as at login.
+- A startup task the person turned off in Windows Settings can only be turned back on there; the switch says so (`error.autostart_in_settings`).
 - Started that way with desktop mode on, the yard window stays hidden.
 
 The yard window:

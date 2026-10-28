@@ -143,6 +143,28 @@ test('a removed background leaves the webview before the data folder, so a stop 
   assert.equal(oldLeft, false);
 });
 
+test("another data folder sharing the webview leaves the installed app's old copies alone", async t => {
+  keepGlobals(t, 'indexedDB');
+  freshWorlds(t);
+  const old = fakeIndexedDB([{ id: LAKE, pack: pack('Lake') }]);
+  globalThis.indexedDB = old;
+  const storage = installStorage(t);
+  storage.setItem('world', 'courtyard');
+  setData({ ownsWebviewStorage: false, scene: { world: 'woodland' } });
+  t.after(() => setData({ pets: [], assets: [], providers: [], statuses: {}, busy: [] }));
+  const { files, scene } = backend({ refuse: key => key === 'weather' });
+  await restoreBackgrounds();
+  await moveOldScene();
+  assert.equal(files.size, 0);
+  assert.equal(old.store.size, 1, 'still there for the data folder it belongs to');
+  assert.deepEqual(worlds, []);
+  assert.deepEqual(scene, {});
+  assert.equal(storage.getItem('world'), 'courtyard');
+  assert.equal(savedScene().world, 'woodland', "this folder's own choice is the one shown");
+  await keepScene('weather', 'rain');
+  assert.equal(storage.getItem('weather'), null, 'nor does it leave a choice it could not save there');
+});
+
 test('with no old storage the backgrounds come from the data folder alone', async t => {
   keepGlobals(t, 'indexedDB');
   freshWorlds(t);

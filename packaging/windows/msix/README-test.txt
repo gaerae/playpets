@@ -40,10 +40,11 @@ What to check
   [ ] Optional coding-agent integration works
   [ ] A playpets://import?url=... link opened from a browser starts PlayPets (or brings it forward)
       and imports the pet; the package declares the scheme
-  [ ] Settings > Apps > Startup lists PlayPets, off; turned on, PlayPets starts at the next sign-in
-      (expected for now: it opens the yard window, since a startup task passes no --autostart)
-  [ ] Note what the in-app Start at login switch does in the package (expected: it writes the Run
-      key into the package's own registry, so it shows on but Windows does not start PlayPets)
+  [ ] Settings > Apps > Startup lists PlayPets, off; the in-app Start at login switch turns it on
+      and off there, and turned on, PlayPets starts at the next sign-in (with desktop mode on, the
+      yard window waits in the tray)
+  [ ] Turned off in Settings > Apps > Startup, the in-app switch shows off, and turning it on says
+      to use Settings
   [ ] Imported pets, preferences and collection progress survive a restart
   [ ] The data-folder action works under package virtualization
   [ ] All four app languages work

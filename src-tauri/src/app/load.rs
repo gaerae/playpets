@@ -192,9 +192,30 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
     })
 }
 
+/// Whether the webview's storage belongs to this data folder, so what a version before 1.4.0 kept
+/// there may move in: the system's own folder, or a test run's private webview. Another folder
+/// (`PLAYPETS_DATA`) shares the webview with the installed app and leaves its copies alone.
+pub fn owns_webview_storage(custom: Option<&str>, e2e: bool) -> bool {
+    e2e || custom.is_none_or(str::is_empty)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_the_systems_own_data_folder_takes_what_the_webview_kept() {
+        assert!(owns_webview_storage(None, false));
+        assert!(owns_webview_storage(Some(""), false));
+        assert!(
+            !owns_webview_storage(Some("/tmp/dev-data"), false),
+            "a second folder shares the webview"
+        );
+        assert!(
+            owns_webview_storage(Some("/tmp/e2e"), true),
+            "a test run's webview is its own"
+        );
+    }
 
     #[test]
     fn parked_friends_with_missing_assets_are_not_counted_as_yard_overflow() {

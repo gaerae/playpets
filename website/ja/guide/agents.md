@@ -116,7 +116,7 @@ playpets run -- <コマンド>
 | `playpets say "Tests passed"` | 状態を変えずに吹き出しを出します |
 | `playpets status working "Building"` | 状態を変えます。`idle`、`working`、`waiting`、`done`、`error`のどれか |
 | `playpets react wave` | 1回反応します。`wave`、`jump`、`pet`のどれか |
-| `playpets run -- npm test` | 実行中は**作業中**、終わると**作業完了**か**問題が起きました**になります |
+| `playpets run -- npm test` | 実行中は**作業中**、終わると**作業完了**か**問題が起きました**になります。Ctrl-Cで止めると**休憩中**に戻ります |
 
 - 特定の友だちに送るときは`--pet 名前`か`--pet 友だちID`を付けます。付けなければ最初の友だちに届きます。
 - 友だちIDは**友だち設定**の窓のいちばん下にあります。

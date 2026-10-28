@@ -80,8 +80,12 @@ export function syncDiscovery() {
   if (intent?.action === 'tree') treeChoices();
 }
 
-// Trees friends are on their way to plant, not yet saved.
-const planting = () => [...tasks.values()].filter(task => task.action === 'tree' && !task.saved);
+// Trees friends are on their way to plant: not saved yet, or saved but not yet in the state the
+// page was sent, which can come a moment after the answer.
+const planting = () =>
+  [...tasks.values()].filter(
+    task => task.action === 'tree' && !data.garden?.trees?.some(tree => tree.id === task.saved),
+  );
 // Why no other tree fits, counting those on their way; nothing when one does.
 function noRoomForTree() {
   const trees = data.garden?.trees || [],
@@ -262,8 +266,8 @@ export function sendDiscovery(v, point, action, kind) {
           action === 'dig'
             ? await call('dig', v.pet.id, world, point.x, point.y, ground, context)
             : await call('plantTree', v.pet.id, world, kind, point.x, point.y, ground);
-        // Saved: from here the tree and its sapling are in the state, no longer only on the way.
-        task.saved = true;
+        // Saved: once the page's state holds this tree, it is no longer only on the way.
+        task.saved = result?.id;
       } catch (error) {
         if (v.doing?.end === cleanup) release(v);
         else cleanup();

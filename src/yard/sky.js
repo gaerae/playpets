@@ -142,18 +142,23 @@ function showRainbow(yard) {
 // travel with the data folder. A value in the webview's storage is newer than the app's: a version
 // before 1.4.0 wrote it, or the app could not save it. It wins, moves over and leaves that storage
 // once the app saved it.
+// A data folder other than the system's own shares the webview with the installed app, and
+// leaves that storage to it (`ownsWebviewStorage`, app/load.rs).
 const SCENE_KEYS = ['world', 'weather', 'period', 'season'];
-export const savedScene = () => Object.fromEntries(SCENE_KEYS.map(key => [key, recall(key) ?? data.scene?.[key]]));
+const webview = () => data.ownsWebviewStorage !== false;
+export const savedScene = () =>
+  Object.fromEntries(SCENE_KEYS.map(key => [key, (webview() ? recall(key) : null) ?? data.scene?.[key]]));
 export async function keepScene(key, value) {
   try {
     await call('setScene', key, value);
-    forget(key);
+    if (webview()) forget(key);
   } catch {
     // Not saved by the app: the webview keeps it, read again at the next start.
-    remember(key, value);
+    if (webview()) remember(key, value);
   }
 }
 export function moveOldScene() {
+  if (!webview()) return Promise.resolve([]);
   return Promise.all(
     SCENE_KEYS.map(key => {
       const old = recall(key);

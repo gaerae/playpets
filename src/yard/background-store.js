@@ -1,7 +1,7 @@
 // Imported backgrounds live in the data folder (the backend's `backgrounds`). Before 1.4.0 the
 // page kept them in the webview's own storage: each moves over once, and leaves that storage only
 // after the data folder holds it. One that could not move is still shown from there.
-import { call } from '../core/state.js';
+import { call, data } from '../core/state.js';
 import { backgroundWorld, validateBackgroundPack } from './background-pack.js';
 import { worlds } from './worlds.js';
 
@@ -30,9 +30,10 @@ async function transaction(mode, action) {
     };
   });
 }
-// The webview's old copies; none when that storage is missing or cannot open.
+// The webview's old copies; none when that storage is missing or cannot open, or belongs to the
+// installed app's data folder rather than this one (`ownsWebviewStorage`, app/load.rs).
 async function oldRows() {
-  if (typeof indexedDB === 'undefined') return [];
+  if (typeof indexedDB === 'undefined' || data.ownsWebviewStorage === false) return [];
   try {
     return (await transaction('readonly', store => store.getAll())).filter(row => isCustom(row?.id));
   } catch {

@@ -85,14 +85,16 @@ function stopFishing(retainArtwork = false) {
   }
   return tackle;
 }
-function startFishing(x, friend) {
+// `friend` goes when it is free, else the nearest free one; `solo` is a friend fishing on its own
+// (soloFishing), which reels in by itself.
+function startFishing(x, friend, solo = false) {
   if (!worldAllows(scene.world, 'fishing')) return;
   if (fishing) return;
   const l = lake(),
     shore = l.ridgeAt(x),
-    v = friend || nearestFree(x, shore);
+    v = (friend && isFree(friend) ? friend : null) || nearestFree(x, shore);
   if (!v) return toast(t('catch.busy'));
-  if (!friend) {
+  if (!solo) {
     remember('fished', '1');
     hint();
   }
@@ -105,7 +107,7 @@ function startFishing(x, friend) {
     arrive: fishArrived,
     cancel: stopFishing,
   });
-  fishing = { v, x, y: l.shoreAt(x) + (shore - l.shoreAt(x)) * 0.45, solo: !!friend, world: scene.world };
+  fishing = { v, x, y: l.shoreAt(x) + (shore - l.shoreAt(x)) * 0.45, solo, world: scene.world };
 }
 // The friend reached the shore it was sent to.
 function fishingAction(v, name) {
@@ -296,7 +298,7 @@ export function soloFishing(now) {
   const [a, b] = l.ends,
     x = a + (b - a) * (0.3 + Math.random() * 0.4);
   // Only where the water shows (a lake drawn lower than the hill in front shows none).
-  if (l.onWater(x, l.ridgeAt(x) - 1)) startFishing(x, pick(keen));
+  if (l.onWater(x, l.ridgeAt(x) - 1)) startFishing(x, pick(keen), true);
 }
 
 const nets = new Set();

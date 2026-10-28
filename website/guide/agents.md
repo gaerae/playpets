@@ -115,7 +115,7 @@ playpets run -- <command>
 | `playpets say "Tests passed"` | Shows a speech bubble without changing the status |
 | `playpets status working "Building"` | Changes the status. One of `idle`, `working`, `waiting`, `done`, `error` |
 | `playpets react wave` | Reacts once. One of `wave`, `jump`, `pet` |
-| `playpets run -- npm test` | "Working" while the command runs, then "Done" or "Something went wrong" |
+| `playpets run -- npm test` | "Working" while the command runs, then "Done" or "Something went wrong". Stopped with Ctrl-C, it goes back to "Resting" |
 
 - Point at a specific friend with `--pet name` or `--pet friendID`. Without it, the first friend gets it.
 - The friend ID is at the bottom of the Friend settings window.

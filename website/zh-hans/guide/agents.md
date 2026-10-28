@@ -115,7 +115,7 @@ playpets run -- <命令>
 | `playpets say "测试通过"` | 不改状态，只显示一个气泡 |
 | `playpets status working "正在构建"` | 更改状态。`idle`、`working`、`waiting`、`done`、`error` 之一 |
 | `playpets react wave` | 做一次反应。`wave`、`jump`、`pet` 之一 |
-| `playpets run -- npm test` | 命令运行期间是“工作中”，结束后变成“任务完成”或“出了点问题” |
+| `playpets run -- npm test` | 命令运行期间是“工作中”，结束后变成“任务完成”或“出了点问题”。用 Ctrl-C 停下时，回到“休息中” |
 
 - 用 `--pet 名字` 或 `--pet 伙伴ID` 指定某位伙伴，不加就发给第一位伙伴。
 - 伙伴 ID 在伙伴设置窗口的最下面。

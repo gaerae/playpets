@@ -34,9 +34,9 @@ Turn this on and PlayPets starts whenever you log in to your computer. It's off 
 
 If desktop mode is on, the yard window doesn't open at login. Your friends come out on the desktop, and the window waits in the tray.
 
-Your system keeps this choice: Login Items on macOS, the Run list on Windows, an autostart entry on Linux. Turning it off in either place turns it off.
+Your system keeps this choice: Login Items on macOS, Startup apps on Windows, an autostart entry on Linux. Turning it off in either place turns it off.
 
-In the Microsoft Store version this switch can't reach Windows yet. Turn PlayPets on in Windows **Settings → Apps → Startup** instead. Started from there, it opens the yard window even when desktop mode is on.
+In the Microsoft Store version, once PlayPets is turned off in Windows, the app can't turn it back on. Turn it on in Windows **Settings → Apps → Startup**.
 
 ## Friends & AI <Since v="1.2.0" />
 

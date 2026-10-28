@@ -152,8 +152,24 @@ pub(super) fn private_dir() -> Option<PathBuf> {
 /// On Unix the CLI leads a process group of its own; on Windows it is put in a job object that
 /// ends every process in it when stopped or dropped.
 pub(super) struct Tree {
+    #[cfg(unix)]
+    group: i32,
     #[cfg(windows)]
     job: isize,
+}
+
+/// The process groups of the CLIs running now. A group of its own outlives the app on Unix, so
+/// quitting stops each one, the session answering a turn too (Windows' job ends with the app).
+#[cfg(unix)]
+static GROUPS: Mutex<Vec<i32>> = Mutex::new(Vec::new());
+
+/// At quit: every CLI the app started and what it started.
+pub(super) fn stop_every_tree() {
+    #[cfg(unix)]
+    for group in crate::app::hold(&GROUPS).drain(..) {
+        // SAFETY: a plain signal to a process group a live Tree leads.
+        unsafe { libc::kill(-group, libc::SIGKILL) };
+    }
 }
 
 impl Tree {
@@ -169,17 +185,24 @@ impl Tree {
         let tree = Tree {
             job: windows_job(&child),
         };
-        #[cfg(not(windows))]
-        let tree = Tree {};
+        #[cfg(unix)]
+        let tree = {
+            let group = i32::try_from(child.id()).unwrap_or(0);
+            if group > 0 {
+                crate::app::hold(&GROUPS).push(group);
+            }
+            Tree { group }
+        };
         Ok((child, tree))
     }
 
     /// Stops the CLI and everything it started. The caller reaps `child` (killed, it ends at once).
     pub(super) fn kill(&self, child: &mut Child) {
         #[cfg(unix)]
-        if let Ok(group) = i32::try_from(child.id()) {
+        if self.group > 0 {
             // SAFETY: a plain signal to the process group this CLI leads (made in `spawn`).
-            unsafe { libc::kill(-group, libc::SIGKILL) };
+            unsafe { libc::kill(-self.group, libc::SIGKILL) };
+            self.forget();
         }
         #[cfg(windows)]
         if self.job != 0 {
@@ -188,6 +211,21 @@ impl Tree {
             unsafe { TerminateJobObject(self.job as _, 1) };
         }
         let _ = child.kill();
+    }
+}
+
+#[cfg(unix)]
+impl Tree {
+    /// Off the list once stopped or gone, so a group id the system hands out again is never hit.
+    fn forget(&self) {
+        crate::app::hold(&GROUPS).retain(|&g| g != self.group);
+    }
+}
+
+#[cfg(unix)]
+impl Drop for Tree {
+    fn drop(&mut self) {
+        self.forget();
     }
 }
 
@@ -293,6 +331,29 @@ mod tests {
             unsafe { libc::kill(grandchild, 0) != 0 }
         });
         assert!(gone, "the wrapper's child ({grandchild}) still runs");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_cli_still_answering_when_the_app_quits_is_stopped_with_it() {
+        // A turn in progress holds its session outside the manager's map; quitting stops it anyway.
+        let mut cmd = Command::new("sh");
+        cmd.args(["-c", "sleep 30 & echo $!; wait"]).stdout(Stdio::piped());
+        let (mut child, tree) = Tree::spawn(&mut cmd).unwrap();
+        let mut line = String::new();
+        BufReader::new(child.stdout.take().unwrap())
+            .read_line(&mut line)
+            .unwrap();
+        let grandchild: i32 = line.trim().parse().unwrap();
+        stop_every_tree();
+        let _ = child.wait();
+        let gone = (0..60).any(|_| {
+            std::thread::sleep(Duration::from_millis(50));
+            // SAFETY: signal 0 only asks whether the process is still there.
+            unsafe { libc::kill(grandchild, 0) != 0 }
+        });
+        assert!(gone, "the CLI's child ({grandchild}) outlived the app");
+        drop(tree);
     }
 
     const NPM_SHIM: &str = "@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST \"%dp0%\\node.exe\" (\r\n  SET \"_prog=%dp0%\\node.exe\"\r\n) ELSE (\r\n  SET \"_prog=node\"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & \"%_prog%\"  \"%dp0%\\node_modules\\@anthropic-ai\\claude-code\\cli.js\" %*\r\n";

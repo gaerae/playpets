@@ -270,6 +270,14 @@ pub fn parked_pets(raw: &Value, kept: &[Pet]) -> Vec<Value> {
         .collect()
 }
 
+/// The name of a friend kept for later that still needs the pet file `asset_id` (`fallback`, the
+/// file's own name, when it has none of its own).
+pub fn parked_user(parked: &[Value], asset_id: &str, fallback: &str) -> Option<String> {
+    let pet = parked.iter().find(|p| p["assetId"] == asset_id)?;
+    let name = pet.get("name").and_then(|v| v.as_str()).map(str::trim).unwrap_or("");
+    Some(if name.is_empty() { fallback } else { name }.chars().take(40).collect())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -456,6 +464,11 @@ mod tests {
         assert_eq!(pets.len(), 1);
         assert_eq!(parked.len(), 1);
         assert_eq!(parked[0]["name"], "Mochi");
+        // Its pet file cannot leave the shelf while it waits, and the person is told who waits.
+        assert_eq!(parked_user(&parked, "unplugged", "Fallback"), Some("Mochi".to_string()));
+        let unnamed = vec![json!({"id": "x", "assetId": "white"})];
+        assert_eq!(parked_user(&unnamed, "white", "Snow"), Some("Snow".to_string()));
+        assert_eq!(parked_user(&parked, "white", "Snow"), None);
     }
 
     #[test]

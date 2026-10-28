@@ -202,6 +202,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "agents": agent::kinds::agents_json(),
         "version": app.package_info().version.to_string(),
         "updateChannel": if crate::update::store_managed() { "store" } else { "github" },
+        "ownsWebviewStorage": load::owns_webview_storage(std::env::var("PLAYPETS_DATA").ok().as_deref(), crate::commands::e2e_mode()),
         "project": {"site": env!("CARGO_PKG_HOMEPAGE"), "repository": env!("CARGO_PKG_REPOSITORY")},
         "assets": d.assets.iter().map(sprite::asset_json).collect::<Vec<_>>(),
         "providers": d.providers.iter().map(|p| { let mut p = p.clone(); p["hasKey"] = json!(d.secret_ids.contains(providers::id_of(&p))); p }).collect::<Vec<_>>(),

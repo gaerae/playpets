@@ -3185,6 +3185,7 @@ dependencies = [
  "ureq",
  "url",
  "uuid",
+ "windows",
  "windows-sys 0.61.2",
  "x11rb 0.14.0",
 ]

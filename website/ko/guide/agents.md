@@ -114,7 +114,7 @@ playpets run -- <명령>
 | `playpets say "테스트 통과"` | 상태는 그대로 두고 말풍선만 띄워요 |
 | `playpets status working "빌드 중"` | 상태를 바꿔요. `idle`, `working`, `waiting`, `done`, `error` 중 하나 |
 | `playpets react wave` | 한 번 반응해요. `wave`, `jump`, `pet` 중 하나 |
-| `playpets run -- npm test` | 명령이 도는 동안 "일하는 중", 끝나면 "작업 완료" 또는 "문제가 생겼어요" |
+| `playpets run -- npm test` | 명령이 도는 동안 "일하는 중", 끝나면 "작업 완료" 또는 "문제가 생겼어요". Ctrl-C로 멈추면 "쉬는 중"으로 돌아가요 |
 
 - 특정 친구에게 보내려면 `--pet 이름`이나 `--pet 친구ID`를 붙여요. 붙이지 않으면 첫 친구에게 가요.
 - 친구 ID는 친구 설정 창 맨 아래에 있어요.
