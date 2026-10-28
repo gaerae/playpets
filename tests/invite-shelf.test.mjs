@@ -269,3 +269,71 @@ test('a folded search still says that the visible shelf is filtered', t => {
   invite.renderShelf();
   assert.equal(label.getAttribute('data-i18n'), 'invite.filter');
 });
+
+test('only pets brought in by hand can be removed, and not while a friend made from them is in the yard', async t => {
+  // The notices' own timers would outlive the test.
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const nodes = page(t);
+  const { setupConfirm } = await import('../src/core/confirm.js');
+  setupConfirm();
+  const removed = [];
+  globalThis.playPets.removeAsset = async id => {
+    removed.push(id);
+    return { ok: true, data: null };
+  };
+  setData({
+    assets: [
+      { id: 'starter', place: 'builtin', displayName: 'Starter' },
+      { id: 'codex', place: 'codex', displayName: 'Codex' },
+      { id: 'saved', place: 'downloaded', displayName: 'Saved' },
+      { id: 'picked', place: 'folder', displayName: 'Picked', folderPath: '/Users/me/pets/picked' },
+    ],
+    pets: [{ id: 'friend', assetId: 'saved', name: 'Mossy' }],
+  });
+  invite.setupInvite({ refresh: async () => {} });
+  invite.renderShelf();
+  const buttons = nodes.get('shelf').querySelectorAll('.asset-remove');
+  assert.deepEqual(
+    buttons.map(b => b.dataset.assetId),
+    ['saved', 'picked'],
+  );
+  const [saved, picked] = buttons;
+  assert.match(saved.getAttribute('aria-label'), /Saved/);
+  // A friend made from the pet is named, and nothing is asked or removed.
+  await saved.onclick();
+  assert.ok(!nodes.get('confirm-dialog').open);
+  assert.match(nodes.get('toast').textContent, /Mossy/);
+  assert.deepEqual(removed, []);
+  // A picked folder is only taken off the list, which the question says before anything goes.
+  const asked = picked.onclick();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(nodes.get('confirm-dialog').open, true);
+  assert.match(nodes.get('confirm-body').textContent, /picked/);
+  assert.deepEqual(removed, [], 'nothing is removed before the answer');
+  nodes.get('confirm-ok').onclick();
+  await asked;
+  assert.deepEqual(removed, ['picked']);
+});
+
+test('a ZIP import brings the pet in like a folder, and a cancelled pick changes nothing', async t => {
+  // The notices' own timers would outlive the test.
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const nodes = page(t);
+  const added = [];
+  let picked = null;
+  globalThis.playPets.importZip = async () => ({ ok: true, data: picked });
+  globalThis.playPets.addPet = async (...args) => {
+    added.push(args);
+    return { ok: true, data: { id: 'zipped-friend' } };
+  };
+  setData({ assets: [{ id: 'zipped', place: 'downloaded', displayName: 'Zipped' }], pets: [] });
+  invite.setupInvite({ refresh: async () => {} });
+  nodes.get('import-dialog').showModal();
+  await nodes.get('import-zip').onclick();
+  assert.deepEqual(added, [], 'no file picked');
+  assert.equal(nodes.get('import-dialog').open, true);
+  picked = 'zipped';
+  await nodes.get('import-zip').onclick();
+  assert.deepEqual(added, [['zipped', { visualStyle: 'illustrated' }]]);
+  assert.equal(nodes.get('import-dialog').open, false);
+});

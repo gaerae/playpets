@@ -390,6 +390,31 @@ pub fn place_of(downloads: &Path, folder: &Path) -> Place {
     }
 }
 
+/// Takes a pet the person brought in (imported, or a folder picked by hand) off the shelf, so it is
+/// not read again at the next start; the starter pets and Codex's own folder stay. Refused while
+/// `in_use` says a friend in the yard is made from it. The caller deletes the files of an imported
+/// one; a picked folder is the person's own and stays where it is.
+pub fn take_imported(
+    assets: &mut Vec<Asset>,
+    imports: &mut Vec<String>,
+    in_use: impl Fn(&str) -> bool,
+    id: &str,
+) -> Result<Asset, String> {
+    let at = assets
+        .iter()
+        .position(|a| a.id == id)
+        .ok_or_else(|| i18n::t("error.pet_missing"))?;
+    if !matches!(assets[at].place, Place::Downloaded | Place::Folder) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    if in_use(id) {
+        return Err(i18n::t("error.pet_in_use"));
+    }
+    let asset = assets.remove(at);
+    imports.retain(|folder| Path::new(folder) != asset.folder);
+    Ok(asset)
+}
+
 /// Every pet folder directly inside `root`, all marked as living in `place`.
 pub fn scan_pets(root: &Path, place: Place) -> (Vec<Asset>, Vec<String>) {
     let mut assets = Vec::new();
@@ -446,6 +471,53 @@ mod tests {
             fs::write(root.join("portrait.png"), png_header(size.0, size.1)).unwrap();
             assert!(read_pet(&root).unwrap().portrait_path.is_none());
         }
+        fs::remove_dir_all(base).unwrap();
+    }
+
+    #[test]
+    fn only_a_pet_brought_in_by_hand_leaves_the_shelf_and_not_while_a_friend_uses_it() {
+        let base = std::env::temp_dir().join(format!("playpets-take-{}", uuid::Uuid::new_v4()));
+        let pet = |name: &str, place: Place| {
+            let root = base.join(name);
+            fs::create_dir_all(&root).unwrap();
+            fs::write(root.join("sprite.png"), png_header(1536, 1872)).unwrap();
+            fs::write(
+                root.join("pet.json"),
+                format!(r#"{{"id":"{name}","displayName":"{name}","spritesheetPath":"sprite.png"}}"#),
+            )
+            .unwrap();
+            Asset {
+                place,
+                ..read_pet(&root).unwrap()
+            }
+        };
+        let mut assets = vec![
+            pet("starter", Place::Builtin),
+            pet("codex", Place::Codex),
+            pet("saved", Place::Downloaded),
+            pet("picked", Place::Folder),
+        ];
+        let mut imports: Vec<String> = assets[2..]
+            .iter()
+            .map(|a| a.folder.to_string_lossy().into_owned())
+            .collect();
+        let ids: Vec<String> = assets.iter().map(|a| a.id.clone()).collect();
+        for fixed in &ids[..2] {
+            assert!(take_imported(&mut assets, &mut imports, |_| false, fixed).is_err());
+        }
+        assert!(take_imported(&mut assets, &mut imports, |_| false, "nobody").is_err());
+        assert!(
+            take_imported(&mut assets, &mut imports, |id| id == ids[3], &ids[3]).is_err(),
+            "a friend in the yard keeps its pet"
+        );
+        assert_eq!((assets.len(), imports.len()), (4, 2), "a refusal changes nothing");
+        let picked = take_imported(&mut assets, &mut imports, |_| false, &ids[3]).unwrap();
+        assert_eq!(picked.place, Place::Folder);
+        let saved = take_imported(&mut assets, &mut imports, |_| false, &ids[2]).unwrap();
+        assert_eq!(saved.place, Place::Downloaded);
+        assert_eq!(assets.len(), 2);
+        assert!(imports.is_empty(), "neither is read again at the next start");
+        assert!(picked.folder.is_dir(), "taking a pet off the shelf deletes no files");
         fs::remove_dir_all(base).unwrap();
     }
 

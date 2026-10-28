@@ -105,6 +105,8 @@ static COMMANDS: &[Command] = &[
     }),
     // Pet files.
     main("importFolder", |c| import_from_folder(c.app, &c.state)),
+    main("importZip", |c| import_from_zip(c.app, &c.state)),
+    main("removeAsset", |c| remove_asset(c.app, &c.state, c.text(0))),
     main("importUrl", |c| {
         let root = lock(&c.state).store.dir.join("pets");
         let folder = importer::import_from_url(c.text(0), &root, &importer::http_fetch)?;
@@ -593,6 +595,53 @@ fn import_from_folder(app: &AppHandle, state: &State<Shared>) -> Result<Value, S
     };
     let asset = catalog::read_pet(&path)?;
     register_asset(app, &mut lock(state), asset)
+}
+
+/// A pet ZIP picked on this computer is copied into the data folder's pets, so the ZIP can go.
+fn import_from_zip(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
+    let mut dialog = app
+        .dialog()
+        .file()
+        .set_title(i18n::t("dialog.pick_pet_zip"))
+        .add_filter("ZIP", &["zip"]);
+    if let Some(main) = app.get_webview_window("main") {
+        dialog = dialog.set_parent(&main);
+    }
+    let Some(file) = dialog.blocking_pick_file().and_then(|f| f.into_path().ok()) else {
+        return Ok(Value::Null);
+    };
+    let root = lock(state).store.dir.join("pets");
+    let folder = importer::import_from_zip(&file, &root)?;
+    let asset = catalog::read_pet(&folder)?;
+    register_asset(app, &mut lock(state), asset)
+}
+
+/// Takes an imported or picked pet off the shelf. An imported one's folder in the data folder goes
+/// with it; a folder picked by hand is the person's and stays.
+fn remove_asset(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Value, String> {
+    let mut taken = None;
+    commit(app, state, |d| {
+        let pets = &d.pets;
+        let asset = catalog::take_imported(
+            &mut d.assets,
+            &mut d.imports,
+            |id| pets.iter().any(|p| p.asset_id == id),
+            id,
+        )?;
+        taken = Some((asset, d.store.dir.join("pets")));
+        Ok(Value::Null)
+    })?;
+    // Deleted once the shelf is saved without it: files left by a failed delete are never read
+    // again, since only the listed imports are.
+    if let Some((asset, downloads)) = taken
+        && asset.place == catalog::Place::Downloaded
+        && let Ok(downloads) = dunce::canonicalize(downloads)
+        && asset.folder.starts_with(&downloads)
+        && asset.folder != downloads
+    {
+        let _ = std::fs::remove_dir_all(&asset.folder);
+    }
+    Ok(Value::Null)
 }
 
 /// Shows where pets live: "codex", "downloaded" or "builtin" for those folders, or a pet file's id.

@@ -92,6 +92,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.bad_request", "请求无法处理。请重新打开应用。"),
     ("error.request_failed", "无法处理请求。"),
     ("error.pet_missing", "找不到宠物文件。"),
+    ("error.pet_in_use", "请先把用这只宠物邀请的伙伴送走。"),
     ("error.pet_unselected", "请选择一只宠物。"),
     ("error.pets_limit", "最多可以有 {limit} 位伙伴一起玩。"),
     ("error.bad_settings", "无法读取设置。请重新保存。"),
@@ -107,6 +108,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.unknown_link", "不认识这种代理联动方式。"),
 
     ("dialog.pick_pet_folder", "选择包含 pet.json 的宠物文件夹"),
+    ("dialog.pick_pet_zip", "选择宠物 ZIP 文件"),
 
     ("chat.still_answering", "还在等待回答。"),
     ("chat.too_long", "消息最多 {limit} 个字。"),
@@ -193,6 +195,9 @@ const TABLE: &[(&str, &str)] = &[
     ("import.no_sprite", "在这个页面上找不到宠物图片。"),
     ("import.sprite_size", "宠物图片尺寸不符。只能导入 Codex 宠物规格（1536 × 1872px 或 1536 × 2288px）。"),
     ("import.save_failed", "无法保存宠物。"),
+    ("import.zip_unreadable", "无法把这个 ZIP 读取为宠物。请使用创作工具包里的 ZIP，或把宠物文件夹压缩成的 ZIP。"),
+    ("import.zip_too_big", "这个 ZIP 太大，不像是宠物文件。"),
+    ("import.zip_no_pet", "这个 ZIP 的最上层和其中唯一的文件夹里都没有 pet.json。"),
 
     ("store.unreadable", "无法读取 {name} 文件。已保留原文件的副本。"),
     ("pet.unreadable", "无法读取宠物文件。{detail}"),

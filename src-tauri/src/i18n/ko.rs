@@ -92,6 +92,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.bad_request", "요청을 처리하지 못했어요. 앱을 다시 열어 주세요."),
     ("error.request_failed", "요청을 처리하지 못했어요."),
     ("error.pet_missing", "펫 파일을 찾을 수 없어요."),
+    ("error.pet_in_use", "이 펫으로 만든 친구를 먼저 내보내 주세요."),
     ("error.pet_unselected", "펫을 선택해 주세요."),
     ("error.pets_limit", "친구는 {limit}명까지 함께 놀 수 있어요."),
     ("error.bad_settings", "설정을 읽지 못했어요. 다시 저장해 주세요."),
@@ -107,6 +108,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.unknown_link", "알 수 없는 에이전트 연동 방식이에요."),
 
     ("dialog.pick_pet_folder", "pet.json이 있는 펫 폴더 선택"),
+    ("dialog.pick_pet_zip", "펫 ZIP 파일 선택"),
 
     ("chat.still_answering", "아직 답변을 기다리고 있어요."),
     ("chat.too_long", "메시지는 {limit}자까지 입력할 수 있어요."),
@@ -193,6 +195,9 @@ const TABLE: &[(&str, &str)] = &[
     ("import.no_sprite", "이 페이지에서 펫 이미지를 찾지 못했어요."),
     ("import.sprite_size", "펫 이미지 크기가 맞지 않아요. Codex 펫 규격(1536 × 1872px 또는 1536 × 2288px)만 가져올 수 있어요."),
     ("import.save_failed", "펫을 저장하지 못했어요."),
+    ("import.zip_unreadable", "이 ZIP은 펫으로 읽을 수 없어요. 크리에이터 키트의 ZIP이나 펫 폴더를 압축한 ZIP을 써 주세요."),
+    ("import.zip_too_big", "펫으로 쓰기에는 ZIP이 너무 커요."),
+    ("import.zip_no_pet", "이 ZIP에는 맨 위에도, 안에 든 폴더 하나에도 pet.json이 없어요."),
 
     ("store.unreadable", "{name} 파일을 읽지 못했어요. 원본 사본을 보관했어요."),
     ("pet.unreadable", "펫 파일을 읽지 못했어요. {detail}"),

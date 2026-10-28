@@ -20,12 +20,13 @@ playpets://import?url=https%3A%2F%2Fpetdex.dev%2Fpets%2Fboba
 
 ## The Import a pet window <Since v="0.1.0" />
 
-Click **Import a pet** at the top of **Invite a friend**. There are two ways to bring a pet in:
+Click **Import a pet** at the top of **Invite a friend**. There are three ways to bring a pet in:
 
 | Way | How |
 |---|---|
 | From an address | Paste the address of a pet page on a community site, or of a GitHub pet folder, into **Pet page address** and click **Import** |
-| From this computer | Click **Import from a folder on this computer** and pick a pet folder |
+| From a folder on this computer | Click **Import from a folder on this computer** and pick a pet folder |
+| From a ZIP file on this computer | Click **Import a ZIP file on this computer** and pick a pet ZIP, such as one from the creator kit |
 
 When the import finishes, the pet joins the yard as a friend right away. A notice says "Imported a new pet and invited it into the yard."
 
@@ -59,11 +60,7 @@ An entry marked **(browse only)** has no dedicated importer. You can still open 
 
 A folder you pick with **Import from a folder on this computer** isn't copied into app storage. The app reads the pet right where it is, which is why it shows up in Invite a friend under **Pets picked from this computer**, with the folder name.
 
-For a ZIP from the creator kit:
-
-1. Extract it into a permanent location.
-2. Choose that folder.
-3. Keep it at the same path. Don't move or delete it while you use the pet.
+Keep a folder you pick in a permanent location. A ZIP from the creator kit doesn't need extracting: import it as a [ZIP file](#a-zip-file) instead.
 
 ::: warning Move the folder and the friend waits
 A friend recognizes its pet by the pet folder's path. If you move or delete the picked folder, or unplug its drive, that friend can't come into the yard the next time you open the app.
@@ -71,19 +68,34 @@ A friend recognizes its pet by the pet folder's path. If you move or delete the 
 It isn't removed, though. It waits with its closeness kept, and a notice tells you how many friends are waiting. Put the folder back in the same place and the friend comes back.
 :::
 
+## A ZIP file <Since v="1.4.0" />
+
+A ZIP you pick with **Import a ZIP file on this computer** is copied into the app, so you can move or delete the ZIP afterwards. It shows up in Invite a friend under **Pets imported from an address or ZIP**.
+
+- A ZIP from the creator kit works, and so does a pet folder you compressed yourself. `pet.json` sits at the top of the ZIP or inside its one folder.
+- Importing the same ZIP again brings no second copy. A changed ZIP comes in as a new pet beside the old one.
+
 ## Where pets are saved <Since v="0.1.0" />
 
-A pet imported from an address is saved as one folder in `pets/` in the [data folder](./install.md#data-folder).
+A pet imported from an address or a ZIP is saved as one folder in `pets/` in the [data folder](./install.md#data-folder).
 
 - **Open folder** opens that folder right away. These groups in Invite a friend have the button:
-  - **Pets imported from an address**
+  - **Pets imported from an address or ZIP**
   - **PlayPets starter pets**
   - **Codex pet folder**
 - **Pets picked from this computer** has no button. Each card shows its folder name instead.
 
 An imported pet's `pet.json` records where it came from, and its card shows the site, creator and license on one line, like "Petdex, creator, CC BY-NC 4.0". Community pets are their creators' work, so check the license before you use one.
 
-To remove a pet you no longer use, delete its folder inside `pets/`. Friends made from it wait outside the yard from the next start, as described above. If you want them gone too, send them away first.
+## Remove a pet <Since v="1.4.0" />
+
+A pet you brought in has a trash button beside its card in Invite a friend.
+
+- A pet imported from an address or a ZIP: its folder in `pets/` is deleted. To use it again, import it again.
+- A pet picked from this computer: it only leaves the list, and its folder stays where it is.
+- While friends made from the pet are in the yard, it can't be removed. Send them away first.
+
+The starter pets and the pets in Codex's pet folder have no trash button.
 
 ## Make your own
 

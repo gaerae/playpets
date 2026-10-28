@@ -77,6 +77,24 @@
   background: #f2f6ee;
   box-shadow: 0 3px 10px var(--ink-8);
 }
+/* A pet brought in by hand: its card, with the button that takes it off the shelf beside it. */
+.asset-slot {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.asset-slot > .asset-card {
+  flex: 1;
+}
+.asset-remove {
+  flex: none;
+  color: var(--muted);
+}
+.asset-remove svg {
+  width: 16px;
+  height: 16px;
+}
 .asset-card canvas {
   width: 40px;
   height: 44px;

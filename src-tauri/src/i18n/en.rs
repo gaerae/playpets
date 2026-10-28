@@ -92,6 +92,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.bad_request", "That couldn't be done. Reopen the app."),
     ("error.request_failed", "Couldn't complete that request."),
     ("error.pet_missing", "Couldn't find that pet file."),
+    ("error.pet_in_use", "Send away the friends made from this pet first."),
     ("error.pet_unselected", "Choose a pet first."),
     ("error.pets_limit", "Up to {limit} friends can play together."),
     ("error.bad_settings", "Couldn't read those settings. Save them again."),
@@ -107,6 +108,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.unknown_link", "That kind of agent link isn't known."),
 
     ("dialog.pick_pet_folder", "Choose the pet folder that holds pet.json"),
+    ("dialog.pick_pet_zip", "Choose a pet ZIP file"),
 
     ("chat.still_answering", "Still waiting for the answer."),
     ("chat.too_long", "A message can be up to {limit} characters."),
@@ -193,6 +195,9 @@ const TABLE: &[(&str, &str)] = &[
     ("import.no_sprite", "Couldn't find a pet image on this page."),
     ("import.sprite_size", "The pet image is the wrong size. Only Codex pet sheets (1536 × 1872 px or 1536 × 2288 px) can be imported."),
     ("import.save_failed", "Couldn't save the pet."),
+    ("import.zip_unreadable", "This ZIP can't be read as a pet. Use a ZIP from the creator kit or a compressed pet folder."),
+    ("import.zip_too_big", "This ZIP is too large for a pet."),
+    ("import.zip_no_pet", "This ZIP has no pet.json, at its top or in its one folder."),
 
     ("store.unreadable", "Couldn't read the {name} file. A copy of the original was kept."),
     ("pet.unreadable", "Couldn't read the pet file. {detail}"),

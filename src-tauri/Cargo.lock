@@ -3164,6 +3164,7 @@ name = "playpets"
 version = "1.3.0"
 dependencies = [
  "dunce",
+ "flate2",
  "keyring",
  "libc",
  "objc2",

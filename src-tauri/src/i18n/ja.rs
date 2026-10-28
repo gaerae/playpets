@@ -92,6 +92,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.bad_request", "処理できませんでした。アプリを開き直してください。"),
     ("error.request_failed", "リクエストを処理できませんでした。"),
     ("error.pet_missing", "そのペットファイルが見つかりません。"),
+    ("error.pet_in_use", "このペットから迎えた友だちと、先にお別れしてください。"),
     ("error.pet_unselected", "ペットを選んでください。"),
     ("error.pets_limit", "一緒に遊べる友だちは {limit} 人までです。"),
     ("error.bad_settings", "設定を読み込めませんでした。もう一度保存してください。"),
@@ -107,6 +108,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.unknown_link", "不明なエージェント連携の種類です。"),
 
     ("dialog.pick_pet_folder", "pet.json があるペットフォルダーを選択"),
+    ("dialog.pick_pet_zip", "ペットの ZIP ファイルを選択"),
 
     ("chat.still_answering", "まだ返事を待っています。"),
     ("chat.too_long", "メッセージは {limit} 文字までです。"),
@@ -193,6 +195,9 @@ const TABLE: &[(&str, &str)] = &[
     ("import.no_sprite", "このページにペット画像が見つかりませんでした。"),
     ("import.sprite_size", "ペット画像のサイズが合いません。Codex ペットの規格（1536 × 1872px または 1536 × 2288px）だけ取り込めます。"),
     ("import.save_failed", "ペットを保存できませんでした。"),
+    ("import.zip_unreadable", "この ZIP はペットとして読み込めません。クリエイターキットの ZIP か、ペットフォルダーを圧縮した ZIP を使ってください。"),
+    ("import.zip_too_big", "ペットにしては ZIP が大きすぎます。"),
+    ("import.zip_no_pet", "この ZIP には、いちばん上にも中のフォルダーにも pet.json がありません。"),
 
     ("store.unreadable", "{name} ファイルを読めませんでした。元のファイルのコピーを保管しています。"),
     ("pet.unreadable", "ペットファイルを読めませんでした。{detail}"),

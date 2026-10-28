@@ -53,7 +53,7 @@ export const creationCopy = {
     capability:
       'The website does not generate images or accept artwork uploads. The skill needs image generation, file execution, Python 3 and Pillow. It does not provide an image model or use your chat subscription automatically. Set up the supported tools in your chosen environment; check any generation costs there.',
     petOutput:
-      'Final output: pet.zip. Unzip it into a permanent location, then select the folder in PlayPets Friends & settings → Invite a friend → Import a pet → Import from a folder on this computer. The app reads that folder directly; do not move or delete it. A reference or one motion row is not a finished pet.',
+      'Final output: pet.zip. In PlayPets 1.4.0 or later, choose it with Friends & settings → Invite a friend → Import a pet → Import a ZIP file on this computer; the app copies it in. In earlier versions, unzip it into a permanent location and choose the folder with Import from a folder on this computer instead, then leave that folder where it is. A reference or one motion row is not a finished pet.',
     backgroundOutput:
       'Final output: background.json. Add it with Import background in the app’s Place & atmosphere. The skill checks image dimensions, transparency, geometry and package limits; verify scene alignment in the app.',
     busy: 'Gathering kit files…',
@@ -121,7 +121,7 @@ export const creationCopy = {
     capability:
       '이 웹은 이미지를 생성하거나 그림 파일을 업로드받지 않아요. 스킬을 실행하려면 이미지 생성, 파일 실행, Python 3와 Pillow가 필요해요. 이미지 모델을 제공하거나 채팅 구독을 자동으로 연결하지는 않아요. 사용하는 환경에서 도구를 준비하고 생성 비용도 확인해 주세요.',
     petOutput:
-      '완성 파일은 pet.zip이에요. 계속 보관할 위치에 압축을 풀고 PlayPets의 친구와 설정 → 친구 초대 → 펫 가져오기 → 내 컴퓨터의 폴더에서 가져오기로 선택해요. 앱은 그 폴더를 직접 읽으니 옮기거나 지우지 마세요. 참고 그림이나 동작 한 줄은 완성된 펫이 아니에요.',
+      '완성 파일은 pet.zip이에요. PlayPets 1.4.0부터는 친구와 설정 → 친구 초대 → 펫 가져오기 → 내 컴퓨터의 ZIP 파일에서 가져오기로 ZIP을 고르면 앱이 복사해 가져가요. 이전 버전에서는 계속 보관할 위치에 압축을 풀고 내 컴퓨터의 폴더에서 가져오기로 폴더를 고른 뒤, 그 폴더를 옮기거나 지우지 마세요. 참고 그림이나 동작 한 줄은 완성된 펫이 아니에요.',
     backgroundOutput:
       '완성 파일은 background.json이에요. 앱의 배경과 분위기에서 배경 가져오기로 추가해요. 스킬이 그림 크기, 투명도, 좌표, 패키지 제한을 검사하며, 실제 풍경과 동선은 앱에서 확인해요.',
     busy: '키트에 자료를 담고 있어요…',
@@ -188,7 +188,7 @@ export const creationCopy = {
     capability:
       'このサイトは画像生成や画像アップロードを行いません。スキルには画像生成、ファイル実行、Python 3とPillowが必要です。画像モデルの提供やチャット契約の自動接続は行いません。利用環境のツールと生成料金を確認してください。',
     petOutput:
-      '完成ファイルはpet.zipです。保管する場所に解凍し、PlayPetsの友だちと設定 → 友だちを招待 → ペットを取り込む → このパソコンのフォルダから取り込むで選びます。アプリはそのフォルダーを直接読むため、移動や削除しないでください。参考画像や動作1行だけでは完成ペットになりません。',
+      '完成ファイルはpet.zipです。PlayPets 1.4.0以降は、友だちと設定 → 友だちを招待 → ペットを取り込む → このパソコンのZIPファイルから取り込むでZIPを選ぶと、アプリがコピーして取り込みます。それより前のバージョンでは、保管する場所に解凍してこのパソコンのフォルダから取り込むでフォルダーを選び、そのフォルダーは移動や削除しないでください。参考画像や動作1行だけでは完成ペットになりません。',
     backgroundOutput:
       '完成ファイルはbackground.jsonです。アプリの「場所と雰囲気」の「背景を読み込む」から追加します。スキルは画像寸法、透明度、座標、サイズ制限を検証します。実際の配置はアプリで確認します。',
     busy: 'キットの資料を準備中…',
@@ -245,7 +245,7 @@ export const creationCopy = {
     capability:
       '网站不生成图片，也不接收图片上传。技能需要图片生成、文件执行、Python 3和Pillow，不提供图像模型或自动连接聊天订阅。请在所选环境中准备工具并确认生成费用。',
     petOutput:
-      '最终文件为pet.zip。解压到长期保存的位置，再在PlayPets的伙伴与设置 → 邀请伙伴 → 导入宠物 → 从本机文件夹导入中选择。应用直接读取该文件夹，请勿移动或删除。参考图或一行动作不是完整宠物。',
+      '最终文件为pet.zip。PlayPets 1.4.0及以上版本可在伙伴与设置 → 邀请伙伴 → 导入宠物 → 从本机 ZIP 文件导入中选择它，应用会复制进来。更早的版本请解压到长期保存的位置，再用从本机文件夹导入选择该文件夹，之后不要移动或删除它。参考图或一行动作不是完整宠物。',
     backgroundOutput:
       '最终文件为background.json。在应用的场景与氛围中用导入背景添加。技能检查图片尺寸、透明度、坐标和资源包限制，实际布局请在应用中确认。',
     busy: '正在收集套件文件…',

@@ -10,6 +10,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Import a pet from a ZIP file on your computer, such as one from the creator kit or a compressed pet folder. PlayPets copies the pet in, so the ZIP can be moved or deleted afterwards.
+- Remove a pet you imported or picked from the trash button beside its card in Invite a friend. An imported pet's files are deleted; a picked folder only leaves the list. While friends made from the pet are in the yard, PlayPets names them to send away first.
+
 ### Fixed
 
 - A Claude Code friend no longer turns to Waiting a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error such as a usage limit or a sign-in shows Something went wrong.
@@ -18,6 +23,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The import guide, the creator kit page and the creator skill explain importing a pet ZIP directly in 1.4.0 and removing a pet in the app, and keep the steps for earlier versions.
 - Release pages say what changed in the app in one short line per change, and mark a change for one system with its name; install ways, the user guide and security updates move to a section of their own. The Microsoft Store shows the Windows lines and Linux software centers the Linux lines; winget and the GitHub release link to the page.
 - The README shows three screenshots, its Windows button opens PlayPets in the Microsoft Store, and its install section lists the Store and the winget command before the GitHub installer. Its updates, data and language sections are shorter and link to the user guide.
 - On the website, a visitor on macOS or Linux who opens the other platforms list finds the Microsoft Store first for Windows, before the GitHub installers.
