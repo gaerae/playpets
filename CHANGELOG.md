@@ -24,6 +24,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Website and docs
 
 - The import guide, the creator kit page and the creator skill explain importing a pet ZIP directly in 1.4.0 and removing a pet in the app, and keep the steps for earlier versions.
+- The user guide counts 20 gifts in the album, says an OpenAI-compatible server needs an API key only when it asks for one, lists what About PlayPets holds under Privacy and license in every language, and gives the Store and winget data folder in the FAQ. The README says a compatible server needs a model name and that friends dig on their own only with the switch on.
 - Release pages say what changed in the app in one short line per change, and mark a change for one system with its name; install ways, the user guide and security updates move to a section of their own. The Microsoft Store shows the Windows lines and Linux software centers the Linux lines; winget and the GitHub release link to the page.
 - The README shows three screenshots, its Windows button opens PlayPets in the Microsoft Store, and its install section lists the Store and the winget command before the GitHub installer. Its updates, data and language sections are shorter and link to the user guide.
 - On the website, a visitor on macOS or Linux who opens the other platforms list finds the Microsoft Store first for Windows, before the GitHub installers.

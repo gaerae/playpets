@@ -148,7 +148,7 @@ import DiscoveryGuide from '../../.vitepress/theme/DiscoveryGuide.vue';
 
 - 最多放 12 件摆设，放满时会暂停送礼。
 - 收起一件仍保留图鉴记录，也为剩下的礼物腾出位置。
-- 礼物共 18 种，其中 4 种只在对应活动的日期送来。
+- 礼物共 20 种，其中 4 种只在对应活动的日期送来。
 
 ## 钓鱼和捉虫 <Since v="0.1.0" />
 

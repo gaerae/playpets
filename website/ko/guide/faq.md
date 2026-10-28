@@ -86,7 +86,7 @@
 | 운영체제 | 위치 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`. 스토어, winget: 패키지 전용 폴더 안 |
 | Linux | `~/.local/share/app.playpets/` |
 
 - 친구와 설정은 `state.json`, 가져온 펫은 `pets/`, 기본 펫은 `builtin/`에 있어요.

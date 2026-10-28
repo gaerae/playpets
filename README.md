@@ -73,7 +73,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
   - Morning, day, evening and night follow the clock; the weather (clear, rain, snow) changes on its own.
   - The moon shows its real phase at night. You can set all of these yourself.
   - Put down a treat and friends walk over to eat it.
-  - Left alone, friends wander, talk to themselves, and may dig.
+  - Left alone, friends wander and talk to themselves. Turn on a switch in Settings and they dig now and then too.
 - **Garden**
   - A tool stays in hand from one spot to the next.
   - Right-click bare ground for **Dig here**.
@@ -119,7 +119,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 1. Open **Friends & settings → Invite a friend** and pick Daisy, Clover, Pip or Miso.
 2. Connect an AI in **Settings → Friends & AI**.
    - Installed Claude Code and Codex are found automatically.
-   - Ollama and OpenAI-compatible servers need only an address.
+   - Ollama and OpenAI-compatible servers need a model name; a compatible server also needs its address, and an API key only if it asks for one.
 3. Click a friend's name tag to chat.
 4. In **Friend settings**, choose a personality, a relationship and what the friend calls you.
 5. Optional: add your coding tool's hooks from **Settings → Coding tools**.

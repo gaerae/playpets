@@ -174,7 +174,7 @@ To put one away, right-click it or press **Delete** or **Backspace** on it. It g
 
 - The yard holds 12 decorations. A full yard pauses deliveries.
 - Putting one away keeps its album entry and makes room for the remaining gifts.
-- The album has 18 gifts, including four delivered only during their calendar events.
+- The album has 20 gifts, including four delivered only during their calendar events.
 
 ## Fishing and bugs <Since v="0.1.0" />
 

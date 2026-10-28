@@ -82,7 +82,7 @@
 | OS | 場所 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`。Store、winget：パッケージ専用のフォルダー内 |
 | Linux | `~/.local/share/app.playpets/` |
 
 - 友だちと設定は`state.json`、取り込んだペットは`pets/`、付属のペットは`builtin/`にあります。

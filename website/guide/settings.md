@@ -68,7 +68,7 @@ This section shows the version, then three groups. Links open in your browser. A
 |---|---|
 | **Help** | The user guide, reporting a problem, **Open the data folder** (friends, settings and backups; see [Data folder](#data-folder)) |
 | **Project** | The website, release notes, GitHub |
-| **Privacy and license** | — |
+| **Privacy and license** | The privacy policy, the license |
 
 ## App updates <Since v="0.1.0" />
 
