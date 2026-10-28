@@ -72,6 +72,8 @@ test('winget gets the three manifests of a version, with both installers', () =>
   ]);
   const installer = files[`${dir}/gaerae.PlayPets.installer.yaml`];
   assert.match(installer, /InstallerType: nullsoft/);
+  // Tauri's NSIS installer names its uninstall entry after the product, for both architectures.
+  assert.match(installer, /^ProductCode: PlayPets$/m);
   assert.match(
     installer,
     /Architecture: x64\n {4}InstallerUrl: https:\/\/github\.com\/gaerae\/playpets\/releases\/download\/v0\.2\.0\/PlayPets_0\.2\.0_windows-x64-setup\.exe\n {4}InstallerSha256: B{64}/,

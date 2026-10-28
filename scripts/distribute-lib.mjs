@@ -81,7 +81,7 @@ export function wingetManifests({ version, date, slug, sums }) {
   return {
     [`${dir}/${WINGET_ID}.yaml`]: `${head('version')}DefaultLocale: en-US\n${tail('version')}`,
     [`${dir}/${WINGET_ID}.installer.yaml`]:
-      `${head('installer')}InstallerType: nullsoft\nScope: user\nUpgradeBehavior: install\nReleaseDate: ${date}\nInstallers:\n` +
+      `${head('installer')}InstallerType: nullsoft\nScope: user\nProductCode: PlayPets\nUpgradeBehavior: install\nReleaseDate: ${date}\nInstallers:\n` +
       `${installer('x64')}${installer('arm64')}${tail('installer')}`,
     [`${dir}/${WINGET_ID}.locale.en-US.yaml`]:
       `${head('defaultLocale')}PackageLocale: en-US\nPublisher: ${slug.split('/')[0]}\nPublisherUrl: https://github.com/${slug.split('/')[0]}\n` +
