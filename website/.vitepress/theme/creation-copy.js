@@ -53,7 +53,7 @@ export const creationCopy = {
     capability:
       'The website does not generate images or accept artwork uploads. The skill needs image generation, file execution, Python 3 and Pillow. It does not provide an image model or use your chat subscription automatically. Set up the supported tools in your chosen environment; check any generation costs there.',
     petOutput:
-      'Final output: pet.zip. In PlayPets 1.4.0 or later, choose it with Friends & settings → Invite a friend → Import a pet → Import a ZIP file on this computer; the app copies it in. In earlier versions, unzip it into a permanent location and choose the folder with Import from a folder on this computer instead, then leave that folder where it is. A reference or one motion row is not a finished pet.',
+      'Final output: pet.zip. In PlayPets 1.4.0 or later, choose it with Friends & settings → Invite a friend → Import a pet → Import from a ZIP file on this computer; the app copies it in. In earlier versions, unzip it into a permanent location and choose the folder with Import from a folder on this computer instead, then leave that folder where it is. A reference or one motion row is not a finished pet.',
     backgroundOutput:
       'Final output: background.json. Add it with Import background in the app’s Place & atmosphere. The skill checks image dimensions, transparency, geometry and package limits; verify scene alignment in the app.',
     busy: 'Gathering kit files…',

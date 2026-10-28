@@ -195,7 +195,7 @@ const TABLE: &[(&str, &str)] = &[
     ("import.no_sprite", "이 페이지에서 펫 이미지를 찾지 못했어요."),
     ("import.sprite_size", "펫 이미지 크기가 맞지 않아요. Codex 펫 규격(1536 × 1872px 또는 1536 × 2288px)만 가져올 수 있어요."),
     ("import.save_failed", "펫을 저장하지 못했어요."),
-    ("import.zip_unreadable", "이 ZIP은 펫으로 읽을 수 없어요. 크리에이터 키트의 ZIP이나 펫 폴더를 압축한 ZIP을 써 주세요."),
+    ("import.zip_unreadable", "이 ZIP은 펫으로 읽을 수 없어요. 제작 키트의 ZIP이나 펫 폴더를 압축한 ZIP을 써 주세요."),
     ("import.zip_too_big", "펫으로 쓰기에는 ZIP이 너무 커요."),
     ("import.zip_no_pet", "이 ZIP에는 맨 위에도, 안에 든 폴더 하나에도 pet.json이 없어요."),
 

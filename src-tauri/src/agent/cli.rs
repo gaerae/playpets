@@ -169,16 +169,15 @@ fn settles_when_working(agent: &str, payload: &Value) -> bool {
         && payload.get(key).and_then(|v| v.as_str()) == Some("idle_prompt")
 }
 
-/// Whether the friend a hook reports to (`--pet`, or the first one) is working, by `/pets`.
+/// Whether the friend a hook reports to (`--pet`, or the first one) is working on an agent's turn,
+/// by `/pets`; a chat answer on its way is working too, and the idle notice leaves it alone.
 fn still_working(pets: &Value, pet: &str) -> bool {
     let Some(id) = super::bridge::resolve_pet(pets, Some(pet)) else {
         return false;
     };
     pets.as_array()
         .and_then(|list| list.iter().find(|p| p.get("id").and_then(|v| v.as_str()) == Some(&id)))
-        .and_then(|p| p.get("state"))
-        .and_then(|v| v.as_str())
-        == Some("working")
+        .is_some_and(|p| p["state"] == "working" && p["source"] != "chat")
 }
 
 /// Where the running app writes bridge.json: $PLAYPETS_BRIDGE, $PLAYPETS_DATA, or Tauri's app data dir.
@@ -837,9 +836,14 @@ mod tests {
         let pets = json!([
             {"id": "p1", "name": "Clover", "state": "working"},
             {"id": "p2", "name": "Pip", "state": "done"},
-            {"id": "p3", "name": "Miso", "state": "waiting"}
+            {"id": "p3", "name": "Miso", "state": "waiting"},
+            {"id": "p4", "name": "Daisy", "state": "working", "source": "chat"}
         ]);
         assert!(still_working(&pets, ""), "no --pet is the first friend");
+        assert!(
+            !still_working(&pets, "Daisy"),
+            "a chat answer on its way is not the agent's turn"
+        );
         assert!(still_working(&pets, "clover"));
         assert!(!still_working(&pets, "Pip"), "done stays done until it fades");
         assert!(!still_working(&pets, "p3"));

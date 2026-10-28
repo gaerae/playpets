@@ -29,7 +29,7 @@
 | `importable-pet.zip` | Only `pet.json`, `spritesheet.png`, `summer.png` and `winter.png` |
 | `baseline-pet.zip` | Only `pet.json` and `spritesheet.png` |
 
-- To import in PlayPets 1.4.0 or later: Import a pet → Import a ZIP file on this computer, and choose the ZIP.
+- To import in PlayPets 1.4.0 or later: Import a pet → Import from a ZIP file on this computer, and choose the ZIP.
 - In earlier versions: extract the ZIP and choose that folder.
 - The ID `playpets-creator-<kit>` keeps the copy separate from the built-in friend of the same name.
 

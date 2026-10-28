@@ -252,7 +252,7 @@ What each arrow in the diagram carries, path by path.
      - an HTTP AI
    - API keys are read from the OS secure storage after the lock is released.
    - Answers stay in the in-memory chat log (the latest 500 per friend, shown by `getChat`) and reach the page as a `chat-message` event.
-   - A friend is handed only the latest 24 of its log when it answers.
+   - A friend is handed only the latest 24 of its log when it answers; a live Claude CLI session also keeps what it was told before.
    - Chat history is not saved to a file.
 6. **Desktop:**
    - The overlay thread reads the cursor every 40 ms while moving and every 120 ms while quiet.

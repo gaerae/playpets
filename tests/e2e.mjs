@@ -4,13 +4,14 @@
 // Run: npm run test:e2e   (repo root)
 
 import { spawn, spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { strings as KO } from '../src/core/strings/ko.js';
-import { writeFixturePet } from './support/fixture-pet.mjs';
+import { writeFixturePet, writeFixtureZip } from './support/fixture-pet.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const binary =
@@ -20,6 +21,9 @@ const dataDir = await mkdtemp(path.join(os.tmpdir(), 'playpets-tauri-e2e-'));
 // A self-contained Codex pet so the run never depends on the machine's ~/.codex/pets.
 const codexHome = path.join(dataDir, 'codex');
 await writeFixturePet(codexHome);
+// A pet ZIP as Finder makes one, for the import a file dialog would start.
+const petZip = path.join(dataDir, 'e2e-zip.zip');
+await writeFixtureZip(petZip);
 // Saved pockets and an uncommon find survive an upgrade without depending on a lucky random draw.
 const rareLedgerAt = Date.now() - 60_000;
 await writeFile(
@@ -261,6 +265,16 @@ const scenario = `(async()=>{
     $('import').click();await until(()=>$('import-dialog').open);const discovery=$('community-discovery'),discoveryClosed=!discovery.open;
     discovery.querySelector('summary').click();await until(()=>discovery.open);
     await L('inviteDiscovery='+(discoveryClosed&&discovery.open&&document.querySelectorAll('#community-links [data-community-id]').length===boot.data.communities.length?'collapsed-expandable':'err'));
+    // The ZIP import past its file dialog: copied into the data folder once, then taken off the
+    // shelf only when no friend uses it, its folder deleted (the harness checks the disk).
+    const zipFirst=await window.__TAURI__.core.invoke('call',{name:'e2eImportZip',args:[${JSON.stringify(petZip)}]}),zipAgain=await window.__TAURI__.core.invoke('call',{name:'e2eImportZip',args:[${JSON.stringify(petZip)}]});
+    const zipAsset=(await playPets.bootstrap()).data.assets.find(a=>a.id===zipFirst.data),zipFriend=await playPets.addPet(zipFirst.data),zipInUse=await playPets.removeAsset(zipFirst.data);
+    if(zipFriend.data?.id)await playPets.removePet(zipFriend.data.id);
+    const zipStarter=await playPets.removeAsset(boot.data.assets.find(a=>a.place==='builtin')?.id),zipGone=await playPets.removeAsset(zipFirst.data),zipLeft=(await playPets.bootstrap()).data.assets.some(a=>a.id===zipFirst.data);
+    await until(async()=>(await playPets.bootstrap()).data.pets.length===inviteBefore.length);
+    await L('zipImport='+(zipFirst.ok&&zipAgain.data===zipFirst.data&&zipAsset?.place==='downloaded'&&zipAsset?.displayName==='Zipped'?'copied-once':'err:'+JSON.stringify({zipFirst,zipAgain,place:zipAsset?.place})));
+    await L('zipRemove='+(zipFriend.ok&&zipInUse.ok===false&&zipStarter.ok===false&&zipGone.ok&&!zipLeft?'guarded-removed':'err:'+JSON.stringify({zipInUse,zipStarter,zipGone,zipLeft})));
+    await L('zipFolder='+zipAsset?.folderPath);
     $('cancel-import').click();panelTasks.openPanel('settings');await until(()=>!$('panel-settings').hidden);
     const opened=!$('side-panel').hidden,indexed=!$('settings-home').hidden?'tasks':'err';
     const settingsWindow=(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']})).data;
@@ -1296,6 +1310,8 @@ const expect = [
   [/^inviteAtomic=rejected-no-orphans$/, 'invalid or unsupported invitation options add no friend'],
   [/^inviteLegacy=default-illustrated$/, 'legacy invitations keep the illustrated default'],
   [/^inviteDiscovery=collapsed-expandable$/, 'discovery sites start collapsed and can expand'],
+  [/^zipImport=copied-once$/, 'a pet ZIP is copied into the data folder once'],
+  [/^zipRemove=guarded-removed$/, 'an imported pet leaves the shelf only when no friend uses it'],
   [/^place=codex\/folder-known$/, 'where a pet lives (Codex pet folder)'],
   [/^agentStatus=working$/, 'agent status arrives through the bridge'],
   [/^snippet=binary$/, 'agent setup points at the app binary (no Node)'],
@@ -1463,6 +1479,7 @@ for (const [key, label] of [
   if (!agentChecks[key]) failed++;
 }
 const system = chatRequests[0]?.messages?.[0]?.content || '';
+const zipFolder = lines.find(l => l.startsWith('zipFolder='))?.slice('zipFolder='.length) || '';
 for (const [ok, label] of [
   [system.includes('반말로 짧게 대답해요.'), 'personality reaches the system prompt'],
   [
@@ -1495,6 +1512,10 @@ for (const [ok, label] of [
       r => r.messages?.[0]?.content.includes('named 둘째') && r.messages[0].content.includes('these pets: 타우리'),
     ) && system.includes('only pet in the yard'),
     'the list of friends in the yard reaches the system prompt',
+  ],
+  [
+    path.basename(zipFolder).startsWith('zip-e2e-zip-') && !existsSync(zipFolder),
+    "a removed ZIP pet's folder is deleted with it",
   ],
 ]) {
   console.log(ok ? '  ✓' : '  ✖', label);

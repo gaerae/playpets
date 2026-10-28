@@ -112,11 +112,21 @@ pub fn import_from_url(raw: &str, root: &Path, fetch: Fetch) -> Result<PathBuf, 
 /// Imports a pet ZIP (the creator kit's, or a compressed pet folder) into its own folder in `root`,
 /// so the ZIP itself can go. The same ZIP twice is the same folder; a changed one is a new pet.
 pub fn import_from_zip(file: &Path, root: &Path) -> Result<PathBuf, String> {
-    let size = fs::metadata(file).map_err(|e| i18n::detail("pet.unreadable", e))?.len();
-    if size > archive::ARCHIVE_LIMIT {
+    // Only a plain file, and never more of it than the limit: a pipe or a device has no size.
+    let meta = fs::metadata(file).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    if !meta.is_file() {
+        return Err(i18n::t("import.zip_unreadable"));
+    }
+    if meta.len() > archive::ARCHIVE_LIMIT {
         return Err(i18n::t("import.zip_too_big"));
     }
-    let bytes = fs::read(file).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    let mut bytes = Vec::new();
+    fs::File::open(file)
+        .and_then(|f| f.take(archive::ARCHIVE_LIMIT + 1).read_to_end(&mut bytes))
+        .map_err(|e| i18n::detail("pet.unreadable", e))?;
+    if bytes.len() as u64 > archive::ARCHIVE_LIMIT {
+        return Err(i18n::t("import.zip_too_big"));
+    }
     let files = archive::pet_files(archive::read_entries(&bytes)?)?;
     let manifest: Value = files
         .iter()
@@ -349,6 +359,9 @@ mod tests {
             fs::write(&file, archive).unwrap();
             assert!(import_from_zip(&file, &pets).is_err(), "{name}");
         }
+        let folder = root.join("folder.zip");
+        fs::create_dir_all(&folder).unwrap();
+        assert!(import_from_zip(&folder, &pets).is_err(), "only a plain file is read");
         assert!(
             fs::read_dir(&pets).map(|d| d.count()).unwrap_or(0) == 0,
             "nothing written"

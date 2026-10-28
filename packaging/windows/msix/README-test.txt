@@ -41,7 +41,9 @@ What to check
   [ ] A playpets://import?url=... link opened from a browser starts PlayPets (or brings it forward)
       and imports the pet; the package declares the scheme
   [ ] Settings > Apps > Startup lists PlayPets, off; turned on, PlayPets starts at the next sign-in
-  [ ] Note what the in-app Start at login switch does in the package (it writes the Run key)
+      (expected for now: it opens the yard window, since a startup task passes no --autostart)
+  [ ] Note what the in-app Start at login switch does in the package (expected: it writes the Run
+      key into the package's own registry, so it shows on but Windows does not start PlayPets)
   [ ] Imported pets, preferences and collection progress survive a restart
   [ ] The data-folder action works under package virtualization
   [ ] All four app languages work

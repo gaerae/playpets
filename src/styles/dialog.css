@@ -528,6 +528,12 @@ body.compact .update-compact {
 :is(#pet-dialog, #import-dialog, #connection-dialog) .dialog-description {
   font-size: 13px;
 }
+/* The two ways in from this computer, one under the other in every language. */
+#import-dialog .import-local {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 #import-dialog .community-links {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

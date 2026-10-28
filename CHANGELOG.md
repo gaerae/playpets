@@ -17,14 +17,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Fixed
 
-- A Claude Code friend no longer turns to Waiting a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error such as a usage limit or a sign-in shows Something went wrong.
+- A Claude Code friend no longer turns to Waiting a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.
 - The chat log keeps up to the last 500 messages with each friend for the session, instead of silently dropping everything before the last 24; a friend still answers with the latest 24 in mind.
 - On Windows, the Microsoft Store version declares `playpets://` links, so a pet gallery's import link opens PlayPets, and lists PlayPets under Settings → Apps → Startup to start at sign-in.
 
 ### Website and docs
 
-- The import guide, the creator kit page and the creator skill explain importing a pet ZIP directly in 1.4.0 and removing a pet in the app, and keep the steps for earlier versions.
-- The user guide counts 20 gifts in the album, says an OpenAI-compatible server needs an API key only when it asks for one, lists what About PlayPets holds under Privacy and license in every language, and gives the Store and winget data folder in the FAQ. The README says a compatible server needs a model name and that friends dig on their own only with the switch on.
+- The import guide explains importing a pet ZIP directly in 1.4.0 and removing a pet in the app; the creator kit page, the kit's request and the creator skill say the same and keep the folder steps for earlier versions.
+- The user guide counts 20 gifts in the album, says an OpenAI-compatible server needs an API key only when it asks for one, lists what About PlayPets holds under Privacy and license in every language, and gives the Store and winget data folder in the FAQ. The README says Ollama and compatible servers need a model name, and that friends dig on their own only with the switch on.
 - Release pages say what changed in the app in one short line per change, and mark a change for one system with its name; install ways, the user guide and security updates move to a section of their own. The Microsoft Store shows the Windows lines and Linux software centers the Linux lines; winget and the GitHub release link to the page.
 - The README shows three screenshots, its Windows button opens PlayPets in the Microsoft Store, and its install section lists the Store and the winget command before the GitHub installer. Its updates, data and language sections are shorter and link to the user guide.
 - On the website, a visitor on macOS or Linux who opens the other platforms list finds the Microsoft Store first for Windows, before the GitHub installers.

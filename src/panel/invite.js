@@ -1,4 +1,5 @@
-// The invite tab: pets on the shelf, and bringing new ones in from a page or a folder.
+// The invite tab: pets on the shelf, bringing new ones in from a page, a ZIP or a folder, and
+// taking those back off.
 
 import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
 import { joinList, language, t } from '../core/i18n.js';
@@ -40,8 +41,11 @@ const PLACES = [
   { place: 'downloaded', title: 'invite.place_downloaded', folder: 'downloaded' },
   { place: 'folder', title: 'invite.place_folder', folder: null },
 ];
+const folderName = a =>
+  String(a.folderPath || '')
+    .split(/[\\/]/)
+    .pop();
 // Who made a downloaded pet, as the page it came from said: "Petdex, hongtao, CC BY-NC 4.0".
-const folderName = a => String(a.folderPath || '').split(/[\\/]/).pop();
 const creditLine = credit => joinList([credit.site, credit.creator, credit.license].filter(Boolean));
 function card(a) {
   const card = document.createElement('button');
@@ -211,6 +215,8 @@ export function renderShelf() {
   if (full) $('yard-full').textContent = t('invite.full', { limit: most });
   // A shape with no pets says so, with the way back to every pet.
   $('no-kind').hidden = !data.assets.length || shown.length > 0;
+  // A pet on its way into the yard is not taken off the shelf meanwhile.
+  for (const b of $('shelf').querySelectorAll('.asset-remove')) b.disabled = inviting.has(b.dataset.assetId);
   for (const b of $('shelf').querySelectorAll('.asset-card')) {
     b.disabled = full || inviting.has(b.dataset.assetId);
     b.setAttribute('aria-busy', String(inviting.has(b.dataset.assetId)));

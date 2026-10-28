@@ -322,6 +322,10 @@ static COMMANDS: &[Command] = &[
     }),
     test_only("e2eWindow", |c| window::e2e_window(c.app, c.args)),
     test_only("e2eTray", |_| Ok(crate::tray::e2e_state())),
+    // The ZIP import after its file dialog, which a test cannot answer.
+    test_only("e2eImportZip", |c| {
+        add_zip(c.app, &c.state, std::path::Path::new(c.text(0)))
+    }),
     // A garden with no gifts yet, so the gift checks do not depend on whether the page's own first
     // gift (a few minutes in) came before them.
     test_only("e2eFreshGifts", |c| {
@@ -610,8 +614,13 @@ fn import_from_zip(app: &AppHandle, state: &State<Shared>) -> Result<Value, Stri
     let Some(file) = dialog.blocking_pick_file().and_then(|f| f.into_path().ok()) else {
         return Ok(Value::Null);
     };
+    add_zip(app, state, &file)
+}
+
+/// Copies a pet ZIP into the data folder and puts it on the shelf.
+fn add_zip(app: &AppHandle, state: &State<Shared>, file: &std::path::Path) -> Result<Value, String> {
     let root = lock(state).store.dir.join("pets");
-    let folder = importer::import_from_zip(&file, &root)?;
+    let folder = importer::import_from_zip(file, &root)?;
     let asset = catalog::read_pet(&folder)?;
     register_asset(app, &mut lock(state), asset)
 }
@@ -621,11 +630,12 @@ fn import_from_zip(app: &AppHandle, state: &State<Shared>) -> Result<Value, Stri
 fn remove_asset(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Value, String> {
     let mut taken = None;
     commit(app, state, |d| {
-        let pets = &d.pets;
+        let (pets, parked) = (&d.pets, &d.parked_pets);
+        // A friend parked over the limit comes back with its pet at a later start.
         let asset = catalog::take_imported(
             &mut d.assets,
             &mut d.imports,
-            |id| pets.iter().any(|p| p.asset_id == id),
+            |id| pets.iter().any(|p| p.asset_id == id) || parked.iter().any(|p| p["assetId"] == id),
             id,
         )?;
         taken = Some((asset, d.store.dir.join("pets")));
@@ -634,12 +644,9 @@ fn remove_asset(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Valu
     // Deleted once the shelf is saved without it: files left by a failed delete are never read
     // again, since only the listed imports are.
     if let Some((asset, downloads)) = taken
-        && asset.place == catalog::Place::Downloaded
-        && let Ok(downloads) = dunce::canonicalize(downloads)
-        && asset.folder.starts_with(&downloads)
-        && asset.folder != downloads
+        && let Some(folder) = catalog::deletable(&downloads, asset.place, &asset.folder)
     {
-        let _ = std::fs::remove_dir_all(&asset.folder);
+        let _ = std::fs::remove_dir_all(folder);
     }
     Ok(Value::Null)
 }

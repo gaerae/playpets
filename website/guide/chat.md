@@ -59,7 +59,7 @@ Each of your friend's turns opens with its picture, as in a messenger. While you
 
 - **Clear chat** in the **⋯** menu by the friend's name deletes the whole conversation with this friend. Name and personality stay.
 - Chat history lives only in memory. It's gone when you quit the app and is never saved to a file.
-- The log keeps up to the last 500 messages with each friend. When it answers, your friend recalls the latest 24.
+- The log keeps up to the last 500 messages with each friend. When it answers, your friend recalls the latest 24. A friend on Claude Code also remembers the rest while its session stays open.
 
 ## Setting a personality <Since v="0.1.0" />
 

@@ -29,14 +29,30 @@ fn not_a_pet() -> String {
     i18n::t("import.zip_unreadable")
 }
 
-/// A name the folder can hold as it is: relative, `/`-separated, without `..`, `.` or a drive.
+/// A name the folder can hold as it is: relative, without `..`, `.` or a drive.
 fn safe_name(name: &str) -> bool {
     !name.is_empty()
         && !name.starts_with('/')
-        && !name.contains(['\\', ':', '\0'])
+        && !name.contains([':', '\0'])
         && name
             .split('/')
             .all(|part| !part.is_empty() && part != "." && part != "..")
+}
+
+/// A name every system can write: Windows refuses its device names, a few characters and a name
+/// ending in a dot or a space. What a Mac leaves (a folder's `Icon\r`) is such a file, never one
+/// a pet names.
+fn portable(name: &str) -> bool {
+    const DEVICES: [&str; 22] = [
+        "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1",
+        "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+    ];
+    name.split('/').all(|part| {
+        let stem = part.split('.').next().unwrap_or("").trim_end();
+        !part.ends_with(['.', ' '])
+            && !part.contains(|c: char| c.is_control() || "<>\"|?*".contains(c))
+            && !DEVICES.iter().any(|d| d.eq_ignore_ascii_case(stem))
+    })
 }
 
 /// What a zipping tool adds beside the files: macOS's resource forks and Finder's notes.
@@ -76,7 +92,9 @@ pub fn read_entries(zip: &[u8]) -> Result<Vec<(String, Vec<u8>)>, String> {
         let (name_len, extra_len, comment_len) = (field(28)? as usize, field(30)? as usize, field(32)? as usize);
         let local = u32_at(zip, at + 42).ok_or_else(not_a_pet)? as usize;
         let name = zip.get(at + 46..at + 46 + name_len).ok_or_else(not_a_pet)?;
-        let name = std::str::from_utf8(name).map_err(|_| not_a_pet())?.to_string();
+        // Windows tools may write names in the system's own code page and `\` between folders;
+        // the pet's files are named in ASCII by pet.json, and the top folder's name is dropped.
+        let name = String::from_utf8_lossy(name).replace('\\', "/");
         at += 46 + name_len + extra_len + comment_len;
         if name.ends_with('/') || clutter(&name) {
             continue;
@@ -84,6 +102,9 @@ pub fn read_entries(zip: &[u8]) -> Result<Vec<(String, Vec<u8>)>, String> {
         // Bit 0 is encryption; sizes this large mean ZIP64 again.
         if flags & 1 != 0 || packed == 0xFFFF_FFFF || size == 0xFFFF_FFFF || !safe_name(&name) {
             return Err(not_a_pet());
+        }
+        if !portable(&name) {
+            continue;
         }
         unpacked += size;
         if unpacked > UNPACKED_LIMIT {
@@ -170,7 +191,8 @@ mod tests {
             "../pet.json",
             "/etc/pet.json",
             "a/../../pet.json",
-            r"a\pet.json",
+            r"..\pet.json",
+            r"a\..\..\pet.json",
             "C:pet.json",
             "a//b",
             "./pet.json",
@@ -178,6 +200,47 @@ mod tests {
             assert!(read_entries(&zip(&[(name, b"x", false)])).is_err(), "{name}");
         }
         assert!(read_entries(&zip(&[("Pet.json", b"x", false), ("pet.json", b"y", false)])).is_err());
+    }
+
+    #[test]
+    fn windows_tools_names_are_read_as_they_meant() {
+        // PowerShell 5.1's Compress-Archive writes `\` between folders; Explorer and 7-Zip on a
+        // Korean Windows write a folder named 보바 in CP949, which only the dropped top folder holds.
+        let mut archive = zip(&[(r"boba\pet.json", b"{}", false), ("XXXX/spritesheet.png", b"", false)]);
+        for at in (0..archive.len() - 4)
+            .filter(|&at| &archive[at..at + 4] == b"XXXX")
+            .collect::<Vec<_>>()
+        {
+            archive[at..at + 4].copy_from_slice(&[0xba, 0xb8, 0xb9, 0xd9]);
+        }
+        let entries = read_entries(&archive).unwrap();
+        assert_eq!(entries[0].0, "boba/pet.json");
+        assert!(entries[1].0.ends_with("/spritesheet.png"));
+        let files = pet_files(
+            read_entries(&zip(&[
+                (r"boba\pet.json", b"{}", false),
+                (r"boba\rows\a.png", b"", false),
+            ]))
+            .unwrap(),
+        );
+        let names: Vec<String> = files.unwrap().into_iter().map(|(n, _)| n).collect();
+        assert_eq!(names, ["pet.json", "rows/a.png"]);
+    }
+
+    #[test]
+    fn names_windows_cannot_hold_are_left_out() {
+        let archive = zip(&[
+            ("pet.json", b"{}", false),
+            ("CON", b"x", false),
+            ("rows/aux.txt", b"x", false),
+            ("a|b.png", b"x", false),
+            ("Icon\r", b"x", false),
+            ("note.", b"x", false),
+            ("a/.. /b", b"x", false),
+            ("ok.png", b"x", false),
+        ]);
+        let names: Vec<String> = read_entries(&archive).unwrap().into_iter().map(|(n, _)| n).collect();
+        assert_eq!(names, ["pet.json", "ok.png"]);
     }
 
     #[test]

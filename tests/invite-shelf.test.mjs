@@ -315,6 +315,24 @@ test('only pets brought in by hand can be removed, and not while a friend made f
   assert.deepEqual(removed, ['picked']);
 });
 
+test('a pet on its way into the yard cannot be removed meanwhile', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const nodes = page(t);
+  let arrive;
+  globalThis.playPets.addPet = () => new Promise(resolve => (arrive = resolve));
+  setData({ assets: [{ id: 'saved', place: 'downloaded', displayName: 'Saved' }], pets: [] });
+  invite.setupInvite({ refresh: async () => {} });
+  invite.renderShelf();
+  const card = () => nodes.get('shelf').querySelectorAll('.asset-card')[0];
+  const remove = () => nodes.get('shelf').querySelectorAll('.asset-remove')[0];
+  assert.equal(remove().disabled, false);
+  const inviting = card().onclick();
+  assert.equal(remove().disabled, true);
+  arrive({ ok: true, data: { id: 'friend' } });
+  await inviting;
+  assert.equal(remove().disabled, false);
+});
+
 test('a ZIP import brings the pet in like a folder, and a cancelled pick changes nothing', async t => {
   // The notices' own timers would outlive the test.
   t.mock.timers.enable({ apis: ['setTimeout'] });

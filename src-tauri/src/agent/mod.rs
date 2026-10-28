@@ -61,13 +61,17 @@ pub fn start(app: &tauri::App) {
             d.pets
                 .iter()
                 .map(|p| {
-                    let status = d
-                        .statuses
-                        .get(&p.id)
+                    let status = d.statuses.get(&p.id);
+                    let state = status
                         .and_then(|s| s.get("state"))
                         .and_then(|v| v.as_str())
                         .unwrap_or("idle");
-                    json!({"id": p.id, "name": pet_name(&d, p, ""), "state": status})
+                    // "chat" when the state is a chat answer on its way rather than an agent's turn.
+                    let source = status
+                        .and_then(|s| s.get("source"))
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("");
+                    json!({"id": p.id, "name": pet_name(&d, p, ""), "state": state, "source": source})
                 })
                 .chain(d.parked_pets.iter().map(|p| json!({"id": p["id"], "parked": true})))
                 .collect::<Vec<_>>()

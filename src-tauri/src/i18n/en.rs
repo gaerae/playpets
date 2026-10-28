@@ -197,7 +197,7 @@ const TABLE: &[(&str, &str)] = &[
     ("import.save_failed", "Couldn't save the pet."),
     ("import.zip_unreadable", "This ZIP can't be read as a pet. Use a ZIP from the creator kit or a compressed pet folder."),
     ("import.zip_too_big", "This ZIP is too large for a pet."),
-    ("import.zip_no_pet", "This ZIP has no pet.json, at its top or in its one folder."),
+    ("import.zip_no_pet", "This ZIP has no pet.json at its top level or in its single folder."),
 
     ("store.unreadable", "Couldn't read the {name} file. A copy of the original was kept."),
     ("pet.unreadable", "Couldn't read the pet file. {detail}"),

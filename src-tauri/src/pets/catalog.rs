@@ -415,6 +415,14 @@ pub fn take_imported(
     Ok(asset)
 }
 
+/// The folder to delete with a pet taken off the shelf: only an imported pet's own folder, directly
+/// inside the data folder's `pets` (by its canonical path, as pet folders are). A picked folder,
+/// anything deeper and anything else stays.
+pub fn deletable<'a>(downloads: &Path, place: Place, folder: &'a Path) -> Option<&'a Path> {
+    let downloads = dunce::canonicalize(downloads).ok()?;
+    (place == Place::Downloaded && folder.parent() == Some(downloads.as_path())).then_some(folder)
+}
+
 /// Every pet folder directly inside `root`, all marked as living in `place`.
 pub fn scan_pets(root: &Path, place: Place) -> (Vec<Asset>, Vec<String>) {
     let mut assets = Vec::new();
@@ -518,6 +526,48 @@ mod tests {
         assert_eq!(assets.len(), 2);
         assert!(imports.is_empty(), "neither is read again at the next start");
         assert!(picked.folder.is_dir(), "taking a pet off the shelf deletes no files");
+        fs::remove_dir_all(base).unwrap();
+    }
+
+    #[test]
+    fn only_a_folder_the_app_keeps_for_a_pet_is_ever_deleted() {
+        let base = dunce::canonicalize(std::env::temp_dir())
+            .unwrap()
+            .join(format!("playpets-deletable-{}", uuid::Uuid::new_v4()));
+        let pets = base.join("pets");
+        fs::create_dir_all(pets.join("zip-boba-1a2b3c4d/rows")).unwrap();
+        fs::create_dir_all(base.join("mine")).unwrap();
+        let saved = pets.join("zip-boba-1a2b3c4d");
+        assert_eq!(deletable(&pets, Place::Downloaded, &saved), Some(saved.as_path()));
+        assert_eq!(deletable(&pets, Place::Folder, &saved), None, "a picked folder");
+        assert_eq!(
+            deletable(&pets, Place::Downloaded, &pets),
+            None,
+            "the pets folder itself"
+        );
+        let nested = pets.join("zip-boba-1a2b3c4d/rows");
+        assert_eq!(
+            deletable(&pets, Place::Downloaded, &nested),
+            None,
+            "only a pet folder of its own"
+        );
+        assert_eq!(
+            deletable(&pets, Place::Downloaded, &base.join("mine")),
+            None,
+            "outside pets"
+        );
+        assert_eq!(
+            deletable(&base.join("gone"), Place::Downloaded, &saved),
+            None,
+            "no pets folder"
+        );
+        // A pet folder is canonical, so a link inside pets to a folder elsewhere names that folder.
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(base.join("mine"), pets.join("linked")).unwrap();
+            let linked = dunce::canonicalize(pets.join("linked")).unwrap();
+            assert_eq!(deletable(&pets, Place::Downloaded, &linked), None, "a link out of pets");
+        }
         fs::remove_dir_all(base).unwrap();
     }
 

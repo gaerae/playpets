@@ -524,10 +524,12 @@ export const strings = {
   'invite.from_zip': 'このパソコンのZIPファイルから取り込む',
   'invite.remove_aria': '{name}を削除',
   'invite.remove_confirm': '{name}をPlayPetsから削除しますか？',
-  'invite.remove_body_saved': 'データフォルダにあるこのペットのファイルが削除されます。また使うときは、取り込み直してください。',
-  'invite.remove_body_folder': '「友だちを招待する」の一覧から外れるだけです。このパソコンの{folder}フォルダはそのまま残ります。',
+  'invite.remove_body_saved':
+    'データフォルダにあるこのペットのファイルが削除されます。また使うときは、取り込み直してください。',
+  'invite.remove_body_folder':
+    '「友だちを招待する」の一覧から外れるだけです。このパソコンの{folder}フォルダはそのまま残ります。',
   'invite.remove_go': '削除',
-  'invite.remove_in_use': '先に{names}とお別れしてください。このペットから迎えた友だちが庭にいます。',
+  'invite.remove_in_use': '先に{names}とお別れしてください。このペットから招待した友だちが庭にいます。',
   'invite.import_go': '取り込む',
   'invite.import_confirm': 'このペットを取り込みますか？',
   'invite.import_from': '{host}からのリンクです。ペットのページを取り込み、「友だちを招待」に並べます。\n{url}',

@@ -26,7 +26,7 @@ Click **Import a pet** at the top of **Invite a friend**. There are three ways t
 |---|---|
 | From an address | Paste the address of a pet page on a community site, or of a GitHub pet folder, into **Pet page address** and click **Import** |
 | From a folder on this computer | Click **Import from a folder on this computer** and pick a pet folder |
-| From a ZIP file on this computer | Click **Import a ZIP file on this computer** and pick a pet ZIP, such as one from the creator kit |
+| From a ZIP file on this computer | Click **Import from a ZIP file on this computer** and pick a pet ZIP, such as one from the creator kit |
 
 When the import finishes, the pet joins the yard as a friend right away. A notice says "Imported a new pet and invited it into the yard."
 
@@ -70,7 +70,7 @@ It isn't removed, though. It waits with its closeness kept, and a notice tells y
 
 ## A ZIP file <Since v="1.4.0" />
 
-A ZIP you pick with **Import a ZIP file on this computer** is copied into the app, so you can move or delete the ZIP afterwards. It shows up in Invite a friend under **Pets imported from an address or ZIP**.
+A ZIP you pick with **Import from a ZIP file on this computer** is copied into the app, so you can move or delete the ZIP afterwards. It shows up in Invite a friend under **Pets imported from an address or ZIP**.
 
 - A ZIP from the creator kit works, and so does a pet folder you compressed yourself. `pet.json` sits at the top of the ZIP or inside its one folder.
 - Importing the same ZIP again brings no second copy. A changed ZIP comes in as a new pet beside the old one.
