@@ -4,7 +4,7 @@
 - Every pet file PlayPets reads:
   - The starter pets bundled with the app: packed into the executable and unpacked into `builtin/` in the data folder. `assets/pets/` is the source.
   - The Codex pet folder (`~/.codex/pets`; `CODEX_HOME` can change it).
-  - Pets imported from an address and saved in `pets/` in the data folder.
+  - Pets imported from an address or a ZIP file and copied into `pets/` in the data folder.
   - Folders a person picks.
 - The required baseline follows the Codex pet format.
 - Optional PlayPets artwork fields are described below; other hosts may ignore them.

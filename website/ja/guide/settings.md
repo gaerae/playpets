@@ -35,6 +35,8 @@ description: 言語と起動、友だちとAI、PlayPetsについてとアプリ
 
 この選択はシステム側が覚えています。macOSではログイン項目、WindowsではRun一覧、Linuxでは自動起動項目です。どちらでオフにしてもオフになります。
 
+Microsoft Store版では、このスイッチはまだWindowsに届きません。代わりにWindowsの **設定 → アプリ → スタートアップ** でPlayPetsをオンにしてください。そこから起動すると、デスクトップモードがオンでも庭の窓が開きます。
+
 ## 友だちとAI <Since v="1.2.0" />
 
 ここにはすべてのAI接続が、それぞれを使っている友だちの数と一緒に並びます。接続がまだなくても、友だちは遊んだり反応したりします。
@@ -134,7 +136,7 @@ Microsoft Storeから入れた場合、更新はStoreが管理します。**Micr
 | OS | 場所 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`。Microsoft Store（wingetで入れた場合も）：パッケージ専用のフォルダー内 |
 | Linux | `~/.local/share/app.playpets/` |
 
 | ファイル | 内容 |

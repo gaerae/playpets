@@ -159,6 +159,7 @@ Format:
 - Unpacks the starter pets bundled with the app.
 - Reads and checks pet folders, in one place (`catalog.rs`).
 - Imports from community pages (`importer/`): trusted adapters in `sites.rs`, ordered discovery links in `src/content/communities.json`.
+- Imports a pet ZIP from this computer (`importer/archive.rs`): names, sizes and checksums are checked before anything is written, and the pet is copied into `pets/`.
 - Creates and edits friends.
 - Keeps the rules of the garden and its gifts (`garden.rs`), the album (`album.rs`) and closeness (`bond.rs`), so the page cannot hand out seeds, catches or points of its own.
 
@@ -279,11 +280,12 @@ What each arrow in the diagram carries, path by path.
 | Area | Commands |
 |---|---|
 | Friends | `addPet`, `updatePet`, `removePet`, `play` |
-| Pet files | `importUrl`, `importFolder`, `openFolder` |
+| Pet files | `importUrl`, `importZip`, `importFolder`, `removeAsset`, `openFolder` |
 | AI and chat | `saveProvider`, `chat`, `chatWith` |
 | Yard chatter | `chatter`, `setAutoChatter` |
 | Yard sounds | `setSound` |
 | The garden and its gifts | `plant`, `pullPlant`, `receiveGift`, `moveDecor`, `putAway` |
+| The scene and imported backgrounds | `setScene`, `listBackgrounds`, `saveBackground`, `removeBackground` |
 | Discoveries and trees | `dig`, `plantTree`, `moveTree`, `removeTree`, `growTrees` |
 | The album | `catch`, `bloomed` |
 | Closeness | `befriend` |

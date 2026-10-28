@@ -203,6 +203,7 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.unreadable", "Couldn't read the pet file. {detail}"),
     ("store.read_failed", "Couldn't read the {name} file. {detail}"),
     ("store.write_failed", "Couldn't save the {name} file. {detail}"),
+    ("backgrounds.full", "You have {limit} backgrounds. Remove one before adding another."),
     ("import.save_detail", "Couldn't save the pet. {detail}"),
     ("clipboard.failed", "Couldn't copy to the clipboard. {detail}"),
     ("bridge.failed", "Couldn't start coding agent integration. Reopen the app. {detail}"),

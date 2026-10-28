@@ -27,9 +27,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A friend on an API connection (OpenAI, Grok, Ollama or a compatible server) keeps who it is in a long conversation: its persona and notes are no longer dropped once the chat passes 24 messages.
 - ■ stops a friend on an API connection at once, instead of after the server answers or times out.
 - Changing an AI connection to another type or server without typing a new key, when the new one needs a key, is refused without deleting the key the connection had.
-- A coding agent reporting for a friend that was sent away now reaches the first friend, as a report with no name does, instead of failing. A `playpets say` message that starts with `@` is shown as written.
-- `state.json` and imported backgrounds are written to disk before they replace the old file, so a power cut while saving cannot leave an empty file.
-- A stalled update download ends with an error after 20 minutes, so Update can be tried again.
+- A coding agent reporting for a friend that was sent away now reaches the first friend, as a report with no name does, instead of failing. A `playpets say` message that starts with `@` is shown as written, unless it is one of the app's own status codes.
+- `state.json` is written to disk before it replaces the old file, so a power cut while saving cannot leave an empty file.
+- An update download that takes more than 20 minutes stops with an error instead of waiting on a stalled connection forever, so Update can be tried again.
 - The tray's red mark for a coding agent's error goes away after 30 minutes, as the yard's dot does.
 - In the yard, a friend whose coding agent finished or failed more than 30 minutes ago stands and chats like the others again, as its dot and the desktop show.
 - A tree pulled up just before moving to another place is removed, instead of coming back.
@@ -38,6 +38,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The tree tool says a place or the yard is full when you click, counting trees friends are on their way to plant, instead of letting a friend walk over to fail.
 - The page is no longer redrawn every minute once anyone has chatted, so a picker or an open album keeps its place and focus.
 - Inviting a pet again uses the first free number, so sending one copy away and inviting again never repeats a name.
+
+### Known limitations
+
+- In the Microsoft Store version, Start PlayPets when you log in in the app does not start it yet. Turn PlayPets on in Windows Settings → Apps → Startup instead; started from there, it opens the yard window even in desktop mode.
 
 ### Website and docs
 
@@ -49,6 +53,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The website's front page shows real pictures of play: a garden decorated with flowers, trees and gifts, tag, digging, fishing and the album. Its comparison with a Codex pet starts with moving: friends stroll the yard and, with Stroll on desktop, your desktop, with a picture of them there.
 - Screenshots and the README animation no longer show a keyboard focus ring around a friend.
 - The coding agents guide says a hook gives up within a few seconds, not three: a hook that waits for the app can take a little longer.
+- The settings guide says where Start at login is for the Microsoft Store version, and its data folder table gives the Store location, as the FAQ and the install page do. The first-friend guide names the group of pets imported from an address or a ZIP, and the privacy page says the season and time of day picked are saved too.
 
 ## [1.3.0] - 2026-10-27
 

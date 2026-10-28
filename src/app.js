@@ -148,6 +148,9 @@ onShortcut('friends', () => openPanel('pet'));
 onShortcut('invite', () => openPanel('invite'));
 onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
+// The place, season and weather picked are kept in the app's state: it is in before the sky reads
+// them. A failure here is shown by the full start below.
+setData(await call('bootstrap').catch(() => data));
 setupSky({
   seasonChanged: season => {
     if (setSpriteSeason(season) && data.assets.length) render();

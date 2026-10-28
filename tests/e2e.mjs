@@ -564,16 +564,19 @@ const scenario = `(async()=>{
     const portableWorld=worldFor(imported);
     const stored=(await playPets.listBackgrounds()).data.find(b=>b.id===imported)?.pack?.name;
     // A background an older version kept in the webview moves into the data folder at the next
-    // start and leaves the webview once it is there; a place picked then is dropped from the webview
-    // when the app already keeps one.
+    // start and leaves the webview once it is there; a time of day left in the webview is newer than
+    // the app's (an older version or a failed save wrote it), so it moves over too.
     const oldId='custom-'+crypto.randomUUID(),backgroundStore=await import('./yard/background-store.js'),{worlds:allWorlds}=await import('./yard/worlds.js'),worldCount=allWorlds.length;
     await new Promise((resolve,reject)=>{const request=indexedDB.open('playpets-backgrounds',1);request.onupgradeneeded=()=>request.result.createObjectStore('packs',{keyPath:'id'});request.onerror=reject;request.onsuccess=()=>{const db=request.result,tx=db.transaction('packs','readwrite');tx.objectStore('packs').put({id:oldId,pack:{...portable,name:'Before 1.4.0'}});tx.oncomplete=()=>{db.close();resolve();};tx.onerror=reject;};});
+    const priorPeriod=(await playPets.bootstrap()).data.scene?.period;
     localStorage.setItem('period','night');
     await backgroundStore.restoreBackgrounds();await (await import('./yard/sky.js')).moveOldScene();
     const movedPack=(await playPets.listBackgrounds()).data.find(b=>b.id===oldId)?.pack?.name,leftInWebview=await new Promise(resolve=>{const request=indexedDB.open('playpets-backgrounds',1);request.onsuccess=()=>{const db=request.result,tx=db.transaction('packs'),rows=tx.objectStore('packs').getAll();rows.onsuccess=()=>resolve(rows.result.length);tx.oncomplete=()=>db.close();};});
     const shownOnce=allWorlds.filter(w=>w.id===oldId).length===1;
     allWorlds.splice(worldCount);await playPets.removeBackground(oldId);
-    await L('backgroundUpgrade='+(movedPack==='Before 1.4.0'&&leftInWebview===0&&shownOnce&&localStorage.getItem('period')===null&&(await playPets.bootstrap()).data.scene?.period==='day'?'moved-to-data-folder':'err:'+JSON.stringify({movedPack,leftInWebview,shownOnce,period:localStorage.getItem('period')})));
+    const movedPeriod=(await playPets.bootstrap()).data.scene?.period;
+    if(priorPeriod)await playPets.setScene('period',priorPeriod);
+    await L('backgroundUpgrade='+(movedPack==='Before 1.4.0'&&leftInWebview===0&&shownOnce&&localStorage.getItem('period')===null&&movedPeriod==='night'?'moved-to-data-folder':'err:'+JSON.stringify({movedPack,leftInWebview,shownOnce,period:localStorage.getItem('period'),movedPeriod})));
     await until(()=>$('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1);
     await L('backgroundImport='+(imported&&stored===portable.name&&portableWorld.capabilities.fishing&&portableWorld.capabilities.seasonalEffects&&onLake(lx,ly)&&document.querySelector('[data-world="'+imported+'"][aria-pressed="true"]')?'file-gallery-storage-and-fishing':'err'));
     // Resizing changes layout, never the pin or the active activity.

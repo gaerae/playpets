@@ -203,6 +203,7 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.unreadable", "ペットファイルを読めませんでした。{detail}"),
     ("store.read_failed", "{name} ファイルを読めませんでした。{detail}"),
     ("store.write_failed", "{name} ファイルを保存できませんでした。{detail}"),
+    ("backgrounds.full", "背景が{limit}個あります。1つ削除してから追加してください。"),
     ("import.save_detail", "ペットを保存できませんでした。{detail}"),
     ("clipboard.failed", "クリップボードにコピーできませんでした。{detail}"),
     ("bridge.failed", "コーディングエージェント連携を始められませんでした。アプリを開き直してください。{detail}"),

@@ -20,7 +20,7 @@ description: What PlayPets keeps on your device, what reaches the services you c
 **Saved on your device**
 - Friends, names, personas, relationships, collection progress, imported assets, AI connection settings and app preferences.
 - API keys you save through PlayPets go to the operating system's credential store, separate from the app's JSON settings.
-- Imported backgrounds and the place and weather you pick are saved in the data folder with the rest. A few interface notes, such as which tips you have seen, stay in the app's local webview storage.
+- Imported backgrounds and the place, season, time of day and weather you pick are saved in the data folder with the rest. A few interface notes, such as which tips you have seen, stay in the app's local webview storage.
 
 **Conversations**
 

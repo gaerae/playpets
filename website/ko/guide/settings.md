@@ -35,6 +35,8 @@ description: 언어와 시작, 친구와 AI, PlayPets 정보와 앱 업데이트
 
 이 선택은 시스템이 보관해요. macOS는 로그인 항목, Windows는 시작 프로그램, Linux는 자동 시작 항목에 들어가요. 어느 쪽에서 꺼도 꺼져요.
 
+Microsoft Store 버전에서는 아직 이 스위치가 Windows에 닿지 않아요. 대신 Windows **설정 → 앱 → 시작 프로그램**에서 PlayPets를 켜 주세요. 거기서 시작하면 바탕화면 모드를 켜 두었어도 놀이터 창이 열려요.
+
 ## 친구와 AI <Since v="1.2.0" />
 
 AI 연결이 모두 여기 모여 있고, 연결마다 몇 명의 친구가 쓰는지 함께 보여요. 아직 연결이 없어도 친구들은 놀고 반응해요.
@@ -135,7 +137,7 @@ Microsoft Store에서 설치했다면 업데이트는 Store가 맡아요. **Micr
 | 운영체제 | 위치 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`. Microsoft Store(winget으로 설치한 경우 포함): 패키지 전용 폴더 안 |
 | Linux | `~/.local/share/app.playpets/` |
 
 | 파일 | 내용 |

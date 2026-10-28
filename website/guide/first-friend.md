@@ -72,7 +72,7 @@ Cards come in four groups, by where the pet file lives. An empty group isn't sho
 |---|---|
 | PlayPets starter pets | Four pets bundled with the app, unpacked in `builtin/` in the data folder |
 | Codex pet folder | Codex pets in `~/.codex/pets`. They show up automatically |
-| Pets imported from an address | Community pets you got with **Import a pet**. Saved in `pets/` in the data folder |
+| Pets imported from an address or ZIP | Pets you got with **Import a pet**, from a community page or a ZIP file. Copied into `pets/` in the data folder |
 | Pets picked from this computer | Pets in a folder you picked yourself. Not copied; the app reads that folder as it is |
 
 - The first three groups have an **Open folder** button that opens the folder in Explorer or Finder.

@@ -86,6 +86,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
   - GitHub pet folders and other codex-pet-share sites work too.
   - Pets in `~/.codex/pets` load on their own.
   - A gallery link `playpets://import?url=<pet page>` imports in one click.
+  - A pet ZIP on your computer, such as one made with the creator kit, imports directly.
 - **A window beside your work**
   - Resizes down to 300 × 210; the dock folds into a corner button that appears on hover.
   - Right-click a friend for **Talk**, **Play** and **Dig**.
@@ -219,7 +220,7 @@ src/              Page (HTML, CSS, JS, used as is with no build tool)
 src-tauri/src/    App core (Rust)
   main.rs         Startup wiring · app.rs state (app/ loading, sprites) · commands.rs the COMMANDS table
   chat/           Chat, AI connections (subscription CLIs, HTTP), prompts
-  pets/           Pet files, import from an address, friends in the yard
+  pets/           Pet files, import from an address or a ZIP, friends in the yard
   agent/          Coding agents: the app's CLI mode (hooks, MCP) and the bridge
   desktop/        Desktop overlay and strolling
   i18n/           Backend strings tables

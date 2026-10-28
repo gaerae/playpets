@@ -44,14 +44,21 @@ pub fn list(dir: &Path) -> Vec<Value> {
 }
 
 /// Writes a background under its id, whole or not at all (a temporary file, then its name).
-/// Saving an id again keeps the first file: an import never replaces one already kept.
+/// Saving an id again keeps the first file, while it can be read: an import never replaces one
+/// already kept, and a damaged one gives way to the copy being moved over.
 pub fn save(dir: &Path, id: &str, pack: &Value) -> Result<(), String> {
     if !valid_id(id) || !pack.is_object() {
         return Err(i18n::t("error.bad_request"));
     }
     let folder = dir.join(FOLDER);
     let file = folder.join(format!("{id}.json"));
-    if file.is_file() {
+    let readable = || {
+        fs::read(&file)
+            .ok()
+            .and_then(|text| serde_json::from_slice::<Value>(&text).ok())
+            .is_some_and(|saved| saved.get("pack").is_some())
+    };
+    if file.is_file() && readable() {
         return Ok(());
     }
     let at = SystemTime::now()
@@ -63,8 +70,14 @@ pub fn save(dir: &Path, id: &str, pack: &Value) -> Result<(), String> {
     }
     let failed = |e: std::io::Error| i18n::detail_for("store.write_failed", FOLDER, e);
     fs::create_dir_all(&folder).map_err(failed)?;
-    if fs::read_dir(&folder).map_err(failed)?.count() >= COUNT_LIMIT {
-        return Err(i18n::t("error.bad_request"));
+    // Only backgrounds count, not the leftovers of a write that was stopped.
+    let kept = fs::read_dir(&folder)
+        .map_err(failed)?
+        .flatten()
+        .filter(|entry| entry.file_name().to_string_lossy().ends_with(".json"))
+        .count();
+    if !file.is_file() && kept >= COUNT_LIMIT {
+        return Err(i18n::tr("backgrounds.full", &[("limit", &COUNT_LIMIT.to_string())]));
     }
     let tmp = folder.join(format!(".{id}.tmp"));
     let written = fs::File::create(&tmp)
@@ -121,6 +134,33 @@ mod tests {
         remove(&dir, A).unwrap();
         assert_eq!(list(&dir).len(), 1);
         assert!(!dir.join(FOLDER).join(format!("{A}.json")).exists());
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn a_damaged_file_is_replaced_and_a_full_folder_says_so() {
+        let dir = temp();
+        fs::create_dir_all(dir.join(FOLDER)).unwrap();
+        fs::write(dir.join(FOLDER).join(format!("{A}.json")), "not json").unwrap();
+        save(&dir, A, &json!({"name": "Lake"})).unwrap();
+        assert_eq!(
+            list(&dir)[0]["pack"]["name"],
+            "Lake",
+            "a file that cannot be read is not kept over a good copy"
+        );
+        // Leftovers of a stopped write do not count against the limit.
+        for n in 0..5 {
+            fs::write(dir.join(FOLDER).join(format!(".{n}.tmp")), "").unwrap();
+        }
+        for n in 1..COUNT_LIMIT {
+            let id = format!("custom-{}", uuid::Uuid::from_u128(n as u128));
+            save(&dir, &id, &json!({})).unwrap();
+        }
+        let full = save(&dir, B, &json!({})).unwrap_err();
+        assert_eq!(
+            full,
+            i18n::tr("backgrounds.full", &[("limit", &COUNT_LIMIT.to_string())])
+        );
         fs::remove_dir_all(dir).unwrap();
     }
 

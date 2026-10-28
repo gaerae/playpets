@@ -6,6 +6,7 @@
 use crate::app::{AppData, Shared, lock, pet_name};
 use crate::i18n;
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use tauri::image::Image;
 use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
@@ -229,12 +230,32 @@ pub fn retitle(app: &AppHandle) {
     }
 }
 
+/// When the latest agent error fades, and whether a thread is waiting for it.
+static FADE_AT: AtomicU64 = AtomicU64::new(0);
+static FADING: AtomicBool = AtomicBool::new(false);
+
 /// An agent's error stops counting after `FADE_MS`, and nothing else may redraw the tray by
-/// then: it looks once more when that time has passed.
+/// then: it looks once more when that time has passed. One thread waits for the latest error,
+/// however many come.
 pub fn fade_later(app: &AppHandle) {
+    FADE_AT.store(crate::app::now_ms() + FADE_MS + 1000, Ordering::SeqCst);
+    if FADING.swap(true, Ordering::SeqCst) {
+        return;
+    }
     let app = app.clone();
     std::thread::spawn(move || {
-        std::thread::sleep(std::time::Duration::from_millis(FADE_MS + 1000));
+        loop {
+            let wait = FADE_AT.load(Ordering::SeqCst).saturating_sub(crate::app::now_ms());
+            if wait > 0 {
+                std::thread::sleep(std::time::Duration::from_millis(wait));
+                continue;
+            }
+            FADING.store(false, Ordering::SeqCst);
+            // An error that came as this one ended, with no thread of its own, is waited for here.
+            if FADE_AT.load(Ordering::SeqCst) <= crate::app::now_ms() || FADING.swap(true, Ordering::SeqCst) {
+                break;
+            }
+        }
         retitle(&app);
     });
 }

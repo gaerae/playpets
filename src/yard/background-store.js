@@ -48,7 +48,9 @@ async function forgetOld(id) {
   }
 }
 export async function restoreBackgrounds() {
-  const rows = new Map((await call('listBackgrounds')).map(row => [row.id, row]));
+  // Unread, the data folder holds nothing as far as this start knows; the old copies still show.
+  const saved = await call('listBackgrounds').catch(() => []);
+  const rows = new Map(saved.map(row => [row.id, row]));
   for (const row of await oldRows()) {
     if (!rows.has(row.id)) {
       rows.set(row.id, row);
@@ -88,9 +90,9 @@ export async function saveBackground(input) {
 }
 export async function removeBackground(id) {
   if (!worlds.some(world => world.id === id && world.custom)) return;
-  await call('removeBackground', id);
-  // A copy that never moved would bring it back at the next start.
+  // A copy that never moved would bring it back at the next start, so it goes first.
   await forgetOld(id);
+  await call('removeBackground', id);
   const index = worlds.findIndex(world => world.id === id);
   if (index >= 0) worlds.splice(index, 1);
 }

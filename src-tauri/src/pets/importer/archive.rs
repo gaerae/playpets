@@ -142,6 +142,11 @@ pub fn read_entries(zip: &[u8]) -> Result<Vec<(String, Vec<u8>)>, String> {
             .iter()
             .any(|(n, _): &(String, Vec<u8>)| n.eq_ignore_ascii_case(&name))
         {
+            // Two names in a code page can read alike; neither is one pet.json names, so the
+            // second is left out. Two real names alike would put one file over the other: refused.
+            if name.contains('\u{FFFD}') {
+                continue;
+            }
             return Err(not_a_pet());
         }
         entries.push((name, bytes));
@@ -205,7 +210,8 @@ mod tests {
     #[test]
     fn windows_tools_names_are_read_as_they_meant() {
         // PowerShell 5.1's Compress-Archive writes `\` between folders; Explorer and 7-Zip on a
-        // Korean Windows write a folder named 보바 in CP949, which only the dropped top folder holds.
+        // Korean Windows write a folder with a Korean name in CP949, which only the dropped top
+        // folder holds.
         let mut archive = zip(&[(r"boba\pet.json", b"{}", false), ("XXXX/spritesheet.png", b"", false)]);
         for at in (0..archive.len() - 4)
             .filter(|&at| &archive[at..at + 4] == b"XXXX")
@@ -225,6 +231,27 @@ mod tests {
         );
         let names: Vec<String> = files.unwrap().into_iter().map(|(n, _)| n).collect();
         assert_eq!(names, ["pet.json", "rows/a.png"]);
+    }
+
+    #[test]
+    fn notes_named_in_a_code_page_that_read_alike_do_not_refuse_the_pet() {
+        // Two notes with Korean names in CP949 both read as four unknown characters, then `.txt`.
+        let mut archive = zip(&[
+            ("pet.json", b"{}", false),
+            ("AAAA.txt", b"1", false),
+            ("BBBB.txt", b"2", false),
+        ]);
+        for (from, to) in [(b"AAAA", [0xbf, 0xf8, 0xba, 0xbb]), (b"BBBB", [0xba, 0xb8, 0xb9, 0xd9])] {
+            for at in (0..archive.len() - 4)
+                .filter(|&at| &archive[at..at + 4] == from)
+                .collect::<Vec<_>>()
+            {
+                archive[at..at + 4].copy_from_slice(&to);
+            }
+        }
+        let names: Vec<String> = read_entries(&archive).unwrap().into_iter().map(|(n, _)| n).collect();
+        assert_eq!(names.len(), 2, "the second unreadable name is left out: {names:?}");
+        assert_eq!(names[0], "pet.json");
     }
 
     #[test]

@@ -203,6 +203,7 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.unreadable", "无法读取宠物文件。{detail}"),
     ("store.read_failed", "无法读取 {name} 文件。{detail}"),
     ("store.write_failed", "无法保存 {name} 文件。{detail}"),
+    ("backgrounds.full", "已有 {limit} 个背景。请先删除一个再添加。"),
     ("import.save_detail", "无法保存宠物。{detail}"),
     ("clipboard.failed", "无法复制到剪贴板。{detail}"),
     ("bridge.failed", "无法启动编码代理联动。请重新打开应用。{detail}"),

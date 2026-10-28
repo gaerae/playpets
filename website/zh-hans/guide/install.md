@@ -181,7 +181,7 @@ chmod +x PlayPets_*.AppImage
 | 操作系统 | 位置 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\`。商店、winget：在安装包专用的文件夹里 |
+| Windows | `%APPDATA%\app.playpets\`。Microsoft Store（包括用 winget 安装）：在安装包专用的文件夹里 |
 | Linux | `~/.local/share/app.playpets/` |
 
 | 文件 | 内容 |

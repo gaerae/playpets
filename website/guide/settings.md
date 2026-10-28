@@ -36,6 +36,8 @@ If desktop mode is on, the yard window doesn't open at login. Your friends come 
 
 Your system keeps this choice: Login Items on macOS, the Run list on Windows, an autostart entry on Linux. Turning it off in either place turns it off.
 
+In the Microsoft Store version this switch can't reach Windows yet. Turn PlayPets on in Windows **Settings → Apps → Startup** instead. Started from there, it opens the yard window even when desktop mode is on.
+
 ## Friends & AI <Since v="1.2.0" />
 
 This section lists every AI connection, with how many friends use it and an **Edit** button. No connection yet? Friends still play and react without one.
@@ -138,7 +140,7 @@ Neither is a direct item in the scenery's right-click menu. Choose Friends & set
 | Operating system | Location |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`. Microsoft Store, also through winget: inside the package's own folder |
 | Linux | `~/.local/share/app.playpets/` |
 
 | File | Contents |

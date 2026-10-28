@@ -112,6 +112,37 @@ test("an older version's backgrounds move into the data folder and leave the web
   assert.ok(!worlds.some(w => w.id === ATTIC));
 });
 
+test("with the data folder unreadable, the webview's old copies are still shown", async t => {
+  keepGlobals(t, 'indexedDB');
+  freshWorlds(t);
+  globalThis.indexedDB = fakeIndexedDB([{ id: LAKE, pack: pack('Lake') }]);
+  backend();
+  globalThis.playPets.listBackgrounds = async () => ({ ok: false, error: 'unreadable' });
+  await restoreBackgrounds();
+  assert.deepEqual(
+    worlds.map(w => w.name),
+    ['Lake'],
+  );
+});
+
+test('a removed background leaves the webview before the data folder, so a stop between cannot bring it back', async t => {
+  keepGlobals(t, 'indexedDB');
+  freshWorlds(t);
+  const old = fakeIndexedDB([{ id: LAKE, pack: pack('Lake') }]);
+  globalThis.indexedDB = old;
+  const { files } = backend({ saved: [{ id: LAKE, pack: pack('Lake') }], refuse: id => id === LAKE });
+  await restoreBackgrounds();
+  let oldLeft;
+  globalThis.playPets.removeBackground = async id => {
+    oldLeft = old.store.has(id);
+    files.delete(id);
+    return { ok: true, data: null };
+  };
+  old.store.set(LAKE, { id: LAKE, pack: pack('Lake') });
+  await removeBackground(LAKE);
+  assert.equal(oldLeft, false);
+});
+
 test('with no old storage the backgrounds come from the data folder alone', async t => {
   keepGlobals(t, 'indexedDB');
   freshWorlds(t);
@@ -137,13 +168,16 @@ test("an older version's place and weather move into the app's state and leave t
   setData({ scene: { weather: 'rain' } });
   t.after(() => setData({ pets: [], assets: [], providers: [], statuses: {}, busy: [] }));
   const { scene } = backend({ refuse: key => key === 'season' });
-  // Before anything moves, the app's own choice wins and the webview fills in the rest.
-  assert.deepEqual(savedScene(), { world: 'courtyard', weather: 'rain', period: null, season: 'winter' });
+  // What the webview still holds is newer than the app's: an older version wrote it, or the app
+  // could not save it. It wins, and the app's own choice fills in the rest.
+  assert.deepEqual(savedScene(), { world: 'courtyard', weather: 'snow', period: undefined, season: 'winter' });
   await moveOldScene();
-  assert.deepEqual(scene, { world: 'courtyard' }, 'the app keeps its own weather');
+  assert.deepEqual(scene, { world: 'courtyard', weather: 'snow' });
   assert.equal(storage.getItem('world'), null);
-  assert.equal(storage.getItem('weather'), null, 'an old value the app already replaced is dropped');
+  assert.equal(storage.getItem('weather'), null);
   assert.equal(storage.getItem('season'), 'winter', 'not saved by the app, it stays where it was');
+  setData({ scene: { ...scene } });
+  assert.equal(savedScene().season, 'winter', 'and is still the one shown at the next start');
   // A new choice the app cannot save is still kept in the webview for the next start.
   await keepScene('season', 'spring');
   assert.equal(storage.getItem('season'), 'spring');

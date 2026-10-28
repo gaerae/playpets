@@ -86,7 +86,7 @@
 | Operating system | Location |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\`. Store or winget: inside the package's own folder |
+| Windows | `%APPDATA%\app.playpets\`. Microsoft Store, also through winget: inside the package's own folder |
 | Linux | `~/.local/share/app.playpets/` |
 
 - `state.json`: friends and settings. `pets/`: imported pets. `backgrounds/`: imported backgrounds. `builtin/`: the starter pets.

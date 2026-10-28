@@ -203,6 +203,7 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.unreadable", "펫 파일을 읽지 못했어요. {detail}"),
     ("store.read_failed", "{name} 파일을 읽지 못했어요. {detail}"),
     ("store.write_failed", "{name} 파일을 저장하지 못했어요. {detail}"),
+    ("backgrounds.full", "배경이 {limit}개 있어요. 하나를 지운 뒤에 추가해 주세요."),
     ("import.save_detail", "펫을 저장하지 못했어요. {detail}"),
     ("clipboard.failed", "클립보드에 복사하지 못했어요. {detail}"),
     ("bridge.failed", "코딩 에이전트 연동을 시작하지 못했어요. 앱을 다시 열어 주세요. {detail}"),

@@ -35,6 +35,8 @@ description: 语言与启动、伙伴与 AI、关于与应用更新、菜单与�
 
 这个选择由系统记着：macOS 是登录项，Windows 是启动项，Linux 是自动启动项。在哪一边关掉都算关掉。
 
+Microsoft Store 版目前还用不了这个开关。请改到 Windows 的 **设置 → 应用 → 启动** 里打开 PlayPets。从那里启动时，即使桌面模式开着，也会打开乐园窗口。
+
 ## 伙伴与 AI <Since v="1.2.0" />
 
 这里列出所有 AI 连接，每个连接旁边写着有几位伙伴在用。还没有连接也没关系，伙伴们照样会玩耍、会回应。
@@ -133,7 +135,7 @@ description: 语言与启动、伙伴与 AI、关于与应用更新、菜单与�
 | 操作系统 | 位置 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`。Microsoft Store（包括用 winget 安装）：在安装包专用的文件夹里 |
 | Linux | `~/.local/share/app.playpets/` |
 
 | 文件 | 内容 |

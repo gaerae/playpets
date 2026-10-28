@@ -73,7 +73,9 @@ test('a friend whose agent finished long ago is quiet again, and chats like one'
     setData(before);
     views.clear();
   });
+  // The first call may only set when chatter is next due; the second is past any wait.
   idleChatter(5_000_000);
+  idleChatter(5_200_000);
   assert.ok(finished.bubble.textContent, 'the faded "done" no longer keeps it from talking');
   assert.ok(!fresh.bubble.textContent, 'a friend that just finished is still showing it');
 });
