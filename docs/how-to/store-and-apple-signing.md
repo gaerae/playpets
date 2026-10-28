@@ -153,7 +153,7 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
 
 - `submit` steps, in order:
   1. Refuses a product other than PlayPets, a product with no published submission, and any pending submission. Nothing changes.
-  2. Refuses a version the Store already has (a rerun). Nothing changes.
+  2. Refuses a version the Store already has (a rerun), and a published submission without an English, Korean, Japanese or Simplified Chinese listing. Nothing changes.
   3. Creates a submission. Microsoft makes it a copy of the published one: listings, screenshots, certification notes (the `runFullTrust` explanation), markets and options stay.
   4. Replaces both packages, sets each language's "What's new", and sets the publish mode. Pricing is left out of the update.
   5. Uploads the two MSIX to the API's Azure Blob address only, checks that the publish mode was kept, and commits. Certification starts.
@@ -171,6 +171,7 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
 - Bullets that do not fit are left out, starting from the end.
 - The address leads to all of them, and the `source` log says how many were left out.
 - Store languages: `en-us`, `ko-kr`, `ja-jp`, `zh-cn`.
+- Partner Center names a listing after the package's language, so Simplified Chinese is `zh-hans` (from `zh-Hans` in the manifest); `zh-cn` and `zh-hans-cn` are matched too.
 - To check a version before tagging:
 
 ```bash

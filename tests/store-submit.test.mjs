@@ -19,7 +19,9 @@ const release = {
 };
 const fullTrust = 'runFullTrust: desktop windows, tray and the coding-tool bridge the person turns on.';
 
-function clientFor(product = app, hold = 'Manual', storeVersion = '1.2.0.0') {
+const listingsFor = keys => Object.fromEntries(keys.map(key => [key, { baseListing: { releaseNotes: 'old' } }]));
+
+function clientFor(product = app, hold = 'Manual', storeVersion = '1.2.0.0', listingKeys = Object.keys(notes)) {
   const calls = [];
   return {
     calls,
@@ -27,7 +29,11 @@ function clientFor(product = app, hold = 'Manual', storeVersion = '1.2.0.0') {
       calls.push({ method, path, body });
       if (path === '') return product;
       if (method === 'GET' && path === '/submissions/10')
-        return { id: '10', applicationPackages: [{ id: 'old', version: storeVersion }] };
+        return {
+          id: '10',
+          applicationPackages: [{ id: 'old', version: storeVersion }],
+          listings: listingsFor(listingKeys),
+        };
       if (method === 'POST' && path === '/submissions')
         return {
           id: '20',
@@ -35,7 +41,7 @@ function clientFor(product = app, hold = 'Manual', storeVersion = '1.2.0.0') {
           pricing: { priceId: 'unknown' },
           notesForCertification: fullTrust,
           applicationPackages: [{ id: 'old', fileName: 'old.msix', fileStatus: 'Uploaded' }],
-          listings: Object.fromEntries(Object.keys(notes).map(key => [key, { baseListing: { releaseNotes: 'old' } }])),
+          listings: listingsFor(listingKeys),
         };
       if (method === 'GET' && path === '/submissions/20') return { id: '20', targetPublishMode: hold };
       if (path.endsWith('/status')) return { status: 'CommitStarted', fileUploadUrl: 'private' };
@@ -237,4 +243,35 @@ test('a stopped submission names its own reason and nothing else', async () => {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+// Partner Center names a listing after the package's language: zh-Hans in the manifest is zh-hans.
+test("Store submission writes each What's new into the listing named for that language", async () => {
+  const client = clientFor(app, 'Manual', '1.2.0.0', ['en-us', 'ko-kr', 'ja-jp', 'zh-hans']);
+  await submitStore(client, release);
+  const update = client.calls.find(call => call.method === 'PUT').body;
+  assert.deepEqual(Object.keys(update.listings), ['en-us', 'ko-kr', 'ja-jp', 'zh-hans']);
+  assert.equal(update.listings['zh-hans'].baseListing.releaseNotes, notes['zh-cn']);
+  const upper = clientFor(app, 'Manual', '1.2.0.0', ['en-US', 'ko-KR', 'ja-JP', 'zh-Hans']);
+  await submitStore(upper, release);
+  assert.deepEqual(Object.keys(upper.calls.find(call => call.method === 'PUT').body.listings), [
+    'en-US',
+    'ko-KR',
+    'ja-JP',
+    'zh-Hans',
+  ]);
+});
+
+test('Store submission stops before making a draft when the published listing lacks a language', async () => {
+  const client = clientFor(app, 'Manual', '1.2.0.0', ['en-us', 'ko-kr', 'ja-jp', 'fr-fr']);
+  await assert.rejects(
+    submitStore(client, release),
+    /no Simplified Chinese listing \(it has en-us, ko-kr, ja-jp, fr-fr\); no changes made/,
+  );
+  assert.deepEqual(
+    client.calls.map(call => call.method),
+    ['GET', 'GET'],
+  );
+  const odd = clientFor(app, 'Manual', '1.2.0.0', ['en-us', 'ko-kr', 'ja-jp', '<b>zh</b>']);
+  await assert.rejects(submitStore(odd, release), /\(it has en-us, ko-kr, ja-jp, \?\)/);
 });
