@@ -341,7 +341,7 @@ export const strings = {
   'catch.album_title': '꽃, 선물, 물속 생물, 곤충 도감',
   'catch.album_heading': '도감',
   'catch.album_lead':
-    '땅파기로 꽃씨와 묘목을 찾아 심고 키워요. 물속 생물과 곤충은 알맞은 환경에서 만나요. 선물은 놀이터 전체에서 하루에 하나 받아요.',
+    '땅파기로 꽃씨와 묘목을 찾아 심고 키워요. 물속 생물과 곤충은 알맞은 환경에서 만나요. 선물은 함께 논 친구가 가져와요.',
   'catch.tab_fish': '물속 생물',
   'catch.tab_bugs': '곤충',
   'catch.total': '발견 {caught}/{total}',

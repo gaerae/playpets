@@ -11,7 +11,7 @@ export const strings = {
   'album.gift_rule':
     'On a day you do something with a friend, it may bring a gift, one every other day. Friends also bring one when you grow closer.',
   'album.set_out_full': 'The yard is full. Put a decoration away to set this out.',
-  'album.set_out': 'Set {kind} out in the yard',
+  'album.set_out': '{kind}: set it out in the yard',
   'album.box_title': 'Gift box {count}/{limit}',
   'album.favored': 'More likely: {conditions}',
   'album.dig_context': '{conditions}.',
@@ -279,11 +279,11 @@ export const strings = {
   'decor.brought': '{name} brought a gift: {kind}. Drag it wherever you like.',
   'decor.title': '{kind}, drag to move it',
   'decor.put_away_done': '{kind} put away',
-  'decor.keepsake_put_away': '{kind} is back in the gift box',
-  'decor.keepsake_title': "{name}'s memento, {kind}: drag to move it",
-  'decor.brought_boxed': '{name} brought {kind}. The yard is full, so it is in the gift box in the album.',
+  'decor.keepsake_put_away': '{kind} put back in the gift box',
+  'decor.keepsake_title': "{kind}, {name}'s memento: drag to move it",
+  'decor.brought_boxed': '{name} brought a gift: {kind}. The yard is full, so it is in the gift box in the album.',
   'decor.brought_keepsake': '{name} brought its memento: {kind}. Put away, it stays in the gift box.',
-  'decor.brought_thanks': '{name} brought {kind} to mark growing closer.',
+  'decor.brought_thanks': '{name} brought a gift for growing closer: {kind}.',
   'decor.gift_keepsake': [
     'This is my favourite thing. I want you to have it!',
     'Keep this and think of me!',
@@ -361,7 +361,7 @@ export const strings = {
   'catch.album_title': 'Flowers, gifts, aquatic life and bugs',
   'catch.album_heading': 'Album',
   'catch.album_lead':
-    'Dig for flower seeds and tree saplings, then plant and grow them. Collect aquatic life and bugs in their habitats. Gifts arrive once a day for the whole yard.',
+    'Dig for flower seeds and tree saplings, then plant and grow them. Collect aquatic life and bugs in their habitats. Gifts come from the friends you play with.',
   'catch.tab_fish': 'Aquatic life',
   'catch.tab_bugs': 'Bugs',
   'catch.total': '{caught}/{total} found',

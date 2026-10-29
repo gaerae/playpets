@@ -333,8 +333,7 @@ export const strings = {
   'catch.reel': '收竿拉起收获',
   'catch.album_title': '花、礼物、水中生物和昆虫的图鉴',
   'catch.album_heading': '图鉴',
-  'catch.album_lead':
-    '挖土找到花种和树苗，再种下培育。在合适的环境中寻找水中生物和昆虫。整个院子每天最多收到一件礼物。',
+  'catch.album_lead': '挖土找到花种和树苗，再种下培育。在合适的环境中寻找水中生物和昆虫。礼物由一起玩的伙伴送来。',
   'catch.tab_fish': '水中生物',
   'catch.tab_bugs': '虫',
   'catch.total': '已发现 {caught}/{total}',

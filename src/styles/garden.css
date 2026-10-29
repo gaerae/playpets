@@ -115,16 +115,22 @@
   outline: none;
 }
 /* A friend's keepsake wears a small heart, the tags' colour, so it is told from the same gift
-   brought on another day. */
+   brought on another day; the white disc keeps it apart from the name tags' hearts. */
 .decor.keepsake::after {
   content: "♥";
   position: absolute;
-  top: -2px;
-  right: 0;
+  top: -4px;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fffaf5;
+  box-shadow: 0 1px 2px #5a3b2a40;
   color: #ec7d96;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1;
-  text-shadow: 0 1px 0 #fff;
   pointer-events: none;
 }
 .decor:focus-visible svg {

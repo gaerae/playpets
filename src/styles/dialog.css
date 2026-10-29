@@ -479,6 +479,7 @@ body.compact .update-compact {
 }
 .album-tabs small {
   font-weight: 600;
+  white-space: nowrap;
   color: var(--muted);
 }
 /* On the selected tab's tint the muted count is too faint (3.8:1 in dark); it takes the ink. */
