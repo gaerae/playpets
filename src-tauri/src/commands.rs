@@ -305,6 +305,9 @@ static COMMANDS: &[Command] = &[
         copy_connection(c.app, &c.state, c.arg(0).as_str().unwrap_or("mcp"))
     }),
     main("assignAgent", |c| assign_agent(c.app, &c.state, c.text(0), c.text(1))),
+    main("agentLinks", |c| agent_links(c.app, &c.state)),
+    main("connectAgent", |c| link_agent(c.app, &c.state, c.text(0), true)),
+    main("disconnectAgent", |c| link_agent(c.app, &c.state, c.text(0), false)),
     // The desktop and the windows.
     main("toggleDesktop", |c| {
         crate::app::toggle_flag(c.app, &mut lock(&c.state), false).map(Value::Bool)
@@ -780,8 +783,9 @@ fn project_page(raw: &str) -> Option<url::Url> {
     (target.scheme() == "https" && own).then_some(target)
 }
 
-/// The settings a coding agent needs to reach this app, put on the clipboard.
-fn copy_connection(app: &AppHandle, state: &State<Shared>, kind: &str) -> Result<Value, String> {
+/// The settings a coding agent needs to reach this app: the app binary, its bridge file and the
+/// friend the agent reports to, read under the lock and used after it.
+fn connection_snippet(state: &State<Shared>, kind: &str) -> Result<String, String> {
     let exe = std::env::current_exe().map_err(|_| i18n::t("error.exe_missing"))?;
     let (bridge_file, pet) = {
         let d = lock(state);
@@ -794,15 +798,63 @@ fn copy_connection(app: &AppHandle, state: &State<Shared>, kind: &str) -> Result
     };
     let local = std::env::var("LOCALAPPDATA").ok();
     let command = agent::cli::agent_command(&exe.to_string_lossy(), local.as_deref());
-    let snippet = agent::snippets::connection_snippet(kind, &command, &bridge_file.to_string_lossy(), pet.as_deref())?;
+    agent::snippets::connection_snippet(kind, &command, &bridge_file.to_string_lossy(), pet.as_deref())
+}
+
+/// The settings a coding agent needs to reach this app, put on the clipboard.
+fn copy_connection(app: &AppHandle, state: &State<Shared>, kind: &str) -> Result<Value, String> {
+    let snippet = connection_snippet(state, kind)?;
     app.clipboard()
         .write_text(snippet.clone())
         .map_err(|e| i18n::detail("clipboard.failed", e))?;
     Ok(json!(snippet))
 }
 
+/// Set by the e2e harness: the home folder whose agent settings Connect writes, so a test run
+/// never touches the real ones.
+pub const E2E_HOME_ENV: &str = "PLAYPETS_E2E_HOME";
+/// The folder the agents' settings files are under (`~`).
+fn agent_home(app: &AppHandle) -> Result<std::path::PathBuf, String> {
+    if e2e_mode() {
+        return std::env::var_os(E2E_HOME_ENV)
+            .filter(|v| !v.is_empty())
+            .map(std::path::PathBuf::from)
+            .ok_or_else(|| i18n::t("link.home_missing"));
+    }
+    app.path().home_dir().map_err(|_| i18n::t("link.home_missing"))
+}
+
+/// Where each agent that can be connected stands (agent/connect.rs Link), read from its file.
+fn agent_links(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
+    let home = agent_home(app)?;
+    let mut links = serde_json::Map::new();
+    for a in agent::kinds::AGENTS
+        .iter()
+        .filter(|a| a.format != agent::kinds::Format::None)
+    {
+        let snippet = connection_snippet(state, a.kind)?;
+        links.insert(
+            a.kind.into(),
+            json!(agent::connect::status(&home, a.kind, &snippet).code()),
+        );
+    }
+    Ok(Value::Object(links))
+}
+
+/// Connect or Disconnect, after the page asked the person; answers where the agent stands now.
+fn link_agent(app: &AppHandle, state: &State<Shared>, kind: &str, on: bool) -> Result<Value, String> {
+    let home = agent_home(app)?;
+    let snippet = connection_snippet(state, kind)?;
+    if on {
+        agent::connect::connect(&home, kind, &snippet)?;
+    } else {
+        agent::connect::disconnect(&home, kind)?;
+    }
+    Ok(json!(agent::connect::status(&home, kind, &snippet).code()))
+}
+
 /// Which friend a coding agent reports to. An empty pet id clears the choice (back to the first
-/// friend). The copied settings carry it as `--pet`, so they must be pasted again.
+/// friend). The copied or connected settings carry it as `--pet`, so they must be pasted or connected again.
 fn assign_agent(app: &AppHandle, state: &State<Shared>, kind: &str, pet: &str) -> Result<Value, String> {
     if agent::kinds::by_kind(kind).is_none() {
         return Err(i18n::t("error.unknown_link"));

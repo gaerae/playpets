@@ -93,6 +93,11 @@ export function element(tag = 'div', { rect, ...props } = {}) {
       const list = this.listeners.get(type) || [];
       if (list.includes(listener)) list.splice(list.indexOf(listener), 1);
     },
+    /** The browser's own call: a page module may send an event to its own listeners. */
+    dispatchEvent(event) {
+      for (const listener of [...(this.listeners.get(event.type) || [])]) listener.call(this, event);
+      return true;
+    },
     /**
      * Calls this node's listeners for `type` in order, as the browser does, with an event whose
      * fields `init` adds to or replaces. Returns a promise for async listeners to finish.
