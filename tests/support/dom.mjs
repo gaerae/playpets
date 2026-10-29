@@ -95,7 +95,8 @@ export function element(tag = 'div', { rect, ...props } = {}) {
     },
     /** The browser's own call: a page module may send an event to its own listeners. */
     dispatchEvent(event) {
-      for (const listener of [...(this.listeners.get(event.type) || [])]) listener.call(this, event);
+      // A copy, so a listener that removes itself does not skip the next one.
+      for (const listener of (this.listeners.get(event.type) || []).slice()) listener.call(this, event);
       return true;
     },
     /**

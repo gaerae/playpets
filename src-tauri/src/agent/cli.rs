@@ -130,12 +130,13 @@ fn grok_event(event: &str, payload: &Value) -> Option<(String, String)> {
 }
 
 /// Kimi Code asks the person through PermissionRequest (its Notification only tells of background
-/// tasks), and a turn stopped with Esc fires Interrupt instead of Stop (kimi-code hooks.md).
+/// tasks), and a turn stopped with Esc fires Interrupt instead of Stop (kimi-code hooks.md). It
+/// writes every payload key snake_case; its `error_type` is the error's class name, not a kind.
 fn kimi_event(event: &str, payload: &Value) -> Option<(String, String)> {
     let (state, message) = match event {
         "UserPromptSubmit" => ("working", "@thinking".to_string()),
         "PreToolUse" => {
-            let tool = clip(payload.get("tool_name").or_else(|| payload.get("toolName")), 60);
+            let tool = clip(payload.get("tool_name"), 60);
             (
                 "working",
                 if tool.is_empty() {
@@ -147,10 +148,7 @@ fn kimi_event(event: &str, payload: &Value) -> Option<(String, String)> {
         }
         "PermissionRequest" => ("waiting", "@confirm".into()),
         "Stop" => ("done", "@done".into()),
-        "StopFailure" => (
-            "error",
-            failure_message(payload.get("error_type").and_then(|v| v.as_str())).into(),
-        ),
+        "StopFailure" => ("error", "@error".into()),
         "Interrupt" | "SessionEnd" => ("idle", String::new()),
         _ => return None,
     };
@@ -629,9 +627,10 @@ mod tests {
         assert_eq!(
             e(
                 "kimi",
-                json!({"hook_event_name": "StopFailure", "error_type": "rate_limit", "error_message": "slow down"})
+                json!({"hook_event_name": "StopFailure", "error_type": "ChatProviderError", "error_message": "slow down"})
             ),
-            Some(("error".into(), "@rate_limit".into()))
+            Some(("error".into(), "@error".into())),
+            "the error's own text never reaches the friend"
         );
         for event in ["Interrupt", "SessionEnd"] {
             assert_eq!(

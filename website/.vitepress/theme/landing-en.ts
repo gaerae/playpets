@@ -83,7 +83,7 @@ export const sections = {
       [
         'Coding agents',
         'Follows your ChatGPT and Codex threads in one pet',
-        'Each agent reports to its own pet: Claude Code, Codex, Gemini CLI, Cursor, Grok Build and MCP tools',
+        'Each agent reports to its own pet: Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code and MCP tools',
       ],
       ['Games', '—', 'Hide and seek, parade and tag'],
       ['Garden', '—', 'Dig up seeds and saplings, plant flowers and trees, and set out the gifts friends bring'],
@@ -98,7 +98,7 @@ export const sections = {
   },
   codexPlusTitle: ['Keep your pet in ChatGPT,', 'and bring the whole group here.'],
   codexPlusLead:
-    'A pet made for ChatGPT and Codex works in PlayPets as it is. In the ChatGPT desktop app, one pet follows your threads. In PlayPets, up to 12 gather, talk to each other and follow Claude Code, Gemini CLI, Cursor and Grok Build too.',
+    'A pet made for ChatGPT and Codex works in PlayPets as it is. In the ChatGPT desktop app, one pet follows your threads. In PlayPets, up to 12 gather, talk to each other and follow Claude Code, Gemini CLI and other coding agents too.',
   codexPlusLink: 'Bring in your Codex pets',
   discoveryGuide: 'See what you can discover',
   galleryCreate: 'Create with this friend',
@@ -147,7 +147,7 @@ export const sections = {
   togetherLink: 'How chatting together works',
   workTitle: 'Company while you code.',
   workBody:
-    'Your friend notices whenever your coding agent reports in: Claude Code, Gemini CLI and Grok Build at every step, Cursor on edits and when it finishes, Codex at the end of each reply. Ask “What were you doing?” for a quick recap.',
+    'Your friend notices whenever your coding agent reports in: Claude Code, Gemini CLI, Grok Build, Qoder and Kimi Code at every step, Cursor on edits and when it finishes, Codex at the end of each reply. Ask “What were you doing?” for a quick recap.',
   workNote:
     'The connection stays on this computer. Hooks leave out your prompts and tool inputs; short status reports can still mention your work.',
   chatPlay: 'Let them chat',

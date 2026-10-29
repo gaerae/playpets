@@ -394,12 +394,12 @@ impl Settings {
 }
 
 /// A handler PlayPets wrote: the app binary called as `hook <kind>` (agent/cli.rs), from wherever
-/// the app was then.
+/// the app was then, in one command or with its arguments apart (Qoder on Windows).
 fn own_handler(handler: &Value, kind: &str) -> bool {
-    handler
-        .get("command")
-        .and_then(Value::as_str)
-        .is_some_and(|c| c.contains(&format!(" hook {kind} --bridge ")))
+    let command = handler.get("command").and_then(Value::as_str);
+    let args = handler.get("args").and_then(Value::as_array);
+    command.is_some_and(|c| c.contains(&format!(" hook {kind} --bridge ")))
+        || args.is_some_and(|a| a.len() > 1 && a[0] == "hook" && a[1] == kind)
 }
 
 /// A Kimi Code hook row PlayPets wrote, by its command alone: the row may hold no other key.
@@ -512,6 +512,25 @@ mod tests {
         assert_eq!(status(&home, "claude", &snippet("claude", None)), Link::On);
         // The file as it was stays beside it.
         assert_eq!(fs::read_to_string(sibling(&path, "playpets-backup")).unwrap(), original);
+    }
+
+    #[test]
+    fn a_qoder_hook_with_its_arguments_apart_is_known_as_playpets_own() {
+        let home = home();
+        let exec = r#"{"type": "command", "command": "C:\\PlayPets\\playpets.exe", "args": ["hook", "qoder", "--bridge", "b.json"], "timeout": 5}"#;
+        let path = put(
+            &home,
+            "qoder",
+            &format!(
+                r#"{{"hooks": {{"Stop": [{{"hooks": [{exec}, {{"type": "command", "command": "say done"}}]}}]}}}}"#
+            ),
+        );
+        assert_eq!(status(&home, "qoder", &snippet("qoder", None)), Link::Outdated);
+        assert!(disconnect(&home, "qoder").unwrap());
+        assert_eq!(
+            json_at(&path)["hooks"]["Stop"][0]["hooks"],
+            json!([{"type": "command", "command": "say done"}])
+        );
     }
 
     #[test]

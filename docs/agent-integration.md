@@ -113,10 +113,12 @@ flowchart LR
 - Qoder:
   - It names its events and payload fields as Claude Code does, so `hook qoder` reads them as `hook claude` does, `idle_prompt` included.
   - The Qoder IDE reads hook changes only after a restart; Qoder CLI reads them at once.
+  - On Windows it may run a hook command through PowerShell, which refuses a quoted path followed by arguments. There the handler names the app in `command` and the rest in `args` (Qoder's exec form), and no shell reads it.
 - Kimi Code:
   - It waits on the person through `PermissionRequest`. Its `Notification` only tells of background tasks and is not sent.
   - A turn stopped with Esc fires `Interrupt` instead of `Stop`.
-  - The tool name is read from `tool_name`, or `toolName` if a version spells it so.
+  - It writes every payload key snake_case (`tool_name`). Its `error_type` is the error's class name, so `StopFailure` is always `@error`.
+  - On Windows it runs a hook through `cmd.exe`; its folder is `.kimi-code` under the home folder, as on macOS and Linux.
 - The app turns codes into the current language.
 - `by` names who reported: `<agent>:<session id>` from a hook, or `<agent>` alone when the payload names no session (Codex); cut at 80 characters; empty from older hooks and other commands.
   - `/pets` returns the `by` of the friend's last report, and `source`: `chat` while the state is a chat answer on its way rather than an agent's turn.
@@ -130,7 +132,8 @@ flowchart LR
 | Claude, Qoder `Notification` of a type that asks (or no type), Gemini `Notification`, Grok `Notification` of type `permission_prompt` | waiting | The agent's notification sentence, or `@confirm` when there is none |
 | Kimi `PermissionRequest` | waiting | `@confirm` |
 | Claude, Qoder, Kimi `Stop`, Grok `Stop` with reason `end_turn`, Gemini `AfterAgent`, Cursor `stop` | done | `@done` |
-| Claude, Qoder, Grok, Kimi `StopFailure` | error | `@rate_limit`, `@sign_in` (`authentication_failed`, `oauth_org_not_allowed`), or `@error` |
+| Claude, Qoder, Grok `StopFailure` | error | `@rate_limit`, `@sign_in` (`authentication_failed`, `oauth_org_not_allowed`), or `@error` |
+| Kimi `StopFailure` | error | `@error` |
 | Claude, Qoder, Grok `Notification` of type `idle_prompt` | idle, only while the friend is working | None |
 | Claude, Qoder, Gemini, Grok, Kimi `SessionEnd`, Grok `StopCancelled`, Kimi `Interrupt`, Cursor `sessionEnd` | idle | None |
 | Codex `agent-turn-complete` | done | The last answer (120 characters), or `@done` when there is none |

@@ -44,6 +44,32 @@ const KIMI_EVENTS: [&str; 7] = [
     "SessionEnd",
 ];
 
+/// Claude Code's hooks, for Claude Code and Qoder. With `exec`, the handler names the app and its
+/// arguments apart (Qoder's exec form), so no shell reads it: on Windows Qoder may run a command
+/// through PowerShell, which takes a quoted path followed by arguments as a syntax error.
+fn claude_shape(kind: &str, exe: &str, bridge_file: &str, pet: Option<&str>, exec: bool) -> String {
+    let handler = if exec {
+        let mut args = vec!["hook", kind, "--bridge", bridge_file];
+        args.extend(pet.map(|p| ["--pet", p]).into_iter().flatten());
+        json!({"type": "command", "command": exe, "args": args, "timeout": 5})
+    } else {
+        let quote = |s: &str| Value::String(s.to_string()).to_string();
+        let target = pet.map(|p| format!(" --pet {}", quote(p))).unwrap_or_default();
+        let command = format!("{} hook {kind} --bridge {}{target}", quote(exe), quote(bridge_file));
+        json!({"type": "command", "command": command, "timeout": 5})
+    };
+    let mut hooks = Map::new();
+    for event in CLAUDE_EVENTS {
+        let mut entry = Map::new();
+        if event == "PreToolUse" {
+            entry.insert("matcher".into(), json!("*"));
+        }
+        entry.insert("hooks".into(), json!([handler.clone()]));
+        hooks.insert(event.into(), json!([Value::Object(entry)]));
+    }
+    pretty(&json!({"hooks": Value::Object(hooks)}))
+}
+
 /// The app binary itself serves hooks and MCP (agent/cli.rs), so snippets need no Node.js.
 /// With `pet`, the agent reports to that friend instead of the first one.
 pub fn connection_snippet(kind: &str, exe: &str, bridge_file: &str, pet: Option<&str>) -> Result<String, String> {
@@ -51,22 +77,13 @@ pub fn connection_snippet(kind: &str, exe: &str, bridge_file: &str, pet: Option<
     let target = pet.map(|p| format!(" --pet {}", quote(p))).unwrap_or_default();
     match kind {
         // Qoder reads Claude Code's own settings shape, events and timeouts in seconds.
-        "claude" | "qoder" => {
-            let command = format!("{} hook {kind} --bridge {}{target}", quote(exe), quote(bridge_file));
-            let mut hooks = Map::new();
-            for event in CLAUDE_EVENTS {
-                let mut entry = Map::new();
-                if event == "PreToolUse" {
-                    entry.insert("matcher".into(), json!("*"));
-                }
-                entry.insert(
-                    "hooks".into(),
-                    json!([{"type": "command", "command": command, "timeout": 5}]),
-                );
-                hooks.insert(event.into(), json!([Value::Object(entry)]));
-            }
-            Ok(pretty(&json!({"hooks": Value::Object(hooks)})))
-        }
+        "claude" | "qoder" => Ok(claude_shape(
+            kind,
+            exe,
+            bridge_file,
+            pet,
+            kind == "qoder" && cfg!(windows),
+        )),
         "gemini" => {
             let command = format!("{} hook gemini --bridge {}{target}", quote(exe), quote(bridge_file));
             let mut hooks = Map::new();
@@ -268,6 +285,24 @@ mod tests {
         assert_eq!(
             qoder["hooks"]["Stop"][0]["hooks"][0]["command"],
             r#""/opt/playpets" hook qoder --bridge "/data/bridge.json""#
+        );
+        // On Windows no shell reads it: PowerShell would refuse a quoted path before arguments.
+        let exec: Value = serde_json::from_str(&claude_shape(
+            "qoder",
+            r"C:\Program Files\PlayPets\playpets.exe",
+            bridge,
+            Some("pet-1"),
+            true,
+        ))
+        .unwrap();
+        assert_eq!(
+            exec["hooks"]["Stop"][0]["hooks"][0],
+            json!({
+                "type": "command",
+                "command": r"C:\Program Files\PlayPets\playpets.exe",
+                "args": ["hook", "qoder", "--bridge", "/data/bridge.json", "--pet", "pet-1"],
+                "timeout": 5
+            })
         );
         let kimi: toml_edit::DocumentMut = connection_snippet("kimi", exe, bridge, Some("pet-1"))
             .unwrap()
