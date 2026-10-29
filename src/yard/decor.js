@@ -17,7 +17,7 @@ import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { effectLayers, effectsVisited } from './effects.js';
-import { decorField, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
+import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
 import { propButton, reconcile, removeWithUndo, setDown, giftSize as size } from './props.js';
 import { cue } from './sound.js';
@@ -35,7 +35,9 @@ const fresh = new Set();
 const kindName = kind => t(`decor.kind_${kind}`);
 
 function placement(kind, point) {
-  const at = fieldToYard(point, decorField()),
+  // A gift friends stand on stays where they can reach it (footTarget keeps them on their field);
+  // others go down to just above the dock.
+  const at = fieldToYard({ x: point.x, y: Math.min(point.y, standOn(kind) ? 1 : decorFloor()) }),
     { w, h } = size(kind);
   // Saved coordinates locate the foot; wide furniture still needs room at either edge.
   at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
@@ -45,7 +47,7 @@ function placement(kind, point) {
 // where it stops, so dragging it back moves it at once.
 const drawnPlace = (kind, point) => {
   const at = placement(kind, point);
-  return yardToField(at.x, at.y, decorField());
+  return yardToDecor(at.x, at.y);
 };
 function position(v, x, y) {
   const at = placement(v.kind, { x, y });
@@ -66,7 +68,7 @@ function create(d) {
     e.preventDefault();
     e.stopPropagation();
     const current = data.garden?.decor.find(item => item.id === v.id),
-      f = decorField();
+      f = field();
     if (!current) return;
     const from = drawnPlace(v.kind, current);
     v.drag = {
@@ -90,7 +92,7 @@ function create(d) {
     button.classList.add('dragging');
     drag.at = {
       x: clamp(drag.x + (e.clientX - drag.startX) / drag.width),
-      y: clamp(drag.y + (e.clientY - drag.startY) / drag.height),
+      y: clamp(drag.y + (e.clientY - drag.startY) / drag.height, 0, decorFloor()),
     };
     position(v, drag.at.x, drag.at.y);
   });
@@ -124,7 +126,7 @@ function create(d) {
       const d = data.garden?.decor.find(x => x.id === v.id);
       if (!d) return;
       const at = placement(v.kind, d);
-      save(v.id, drawnPlace(v.kind, yardToField(at.x + step[0], at.y + step[1], decorField())));
+      save(v.id, drawnPlace(v.kind, yardToDecor(at.x + step[0], at.y + step[1])));
     } else if (e.key === 'Delete' || e.key === 'Backspace') putAway(v.id);
   });
   return v;
@@ -327,7 +329,7 @@ function bring(v, ask, { say, detail }) {
   // Set down beside the friend, on the side with more room.
   const width = sizeOf(v.pet),
     right = v.px + width / 2 < field().width / 2,
-    at = yardToField(v.px + width / 2 + (right ? 1 : -1) * width * 0.9, v.py + petHeight(v.pet), decorField());
+    at = yardToDecor(v.px + width / 2 + (right ? 1 : -1) * width * 0.9, v.py + petHeight(v.pet));
   bringing = true;
   const seen = new Set(data.garden?.received || []);
   return ask(at)

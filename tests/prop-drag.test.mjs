@@ -15,15 +15,15 @@ globalThis.playPets = {
 };
 const { setData } = await import('../src/core/state.js');
 const { renderDecor } = await import('../src/yard/decor.js');
-const { measureYard } = await import('../src/yard/field.js');
+const { decorFloor, measureYard } = await import('../src/yard/field.js');
 
-function fixture(t, at = { x: 0.4, y: 0.6 }) {
+function fixture(t, at = { x: 0.4, y: 0.6 }, kind = 'bench') {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { nodes } = installDom(t, { anyId: true, ids: ['yard', 'garden-layer'] });
   nodes.get('yard').getBoundingClientRect = () => ({ left: 10, top: 20, width: 800, height: 560 });
   setData({ garden: { decor: [], plants: [], trees: [] }, pets: [] });
   renderDecor();
-  const prop = { id: 'bench-drag', kind: 'bench', ...at };
+  const prop = { id: `${kind}-drag`, kind, ...at };
   setData({ garden: { decor: [prop], plants: [], trees: [] }, pets: [] });
   measureYard();
   renderDecor();
@@ -85,6 +85,21 @@ for (const [width, height] of [
     const [x, y] = moved();
     assert.ok(near(x, 0.4 + 16 / (width - 28)), `${x}`);
     assert.ok(near(y, 0.6));
+    pending({ ok: true, data: {} });
+  });
+}
+
+for (const [kind, lowest] of [
+  ['lantern', () => decorFloor()],
+  ['bench', () => 1],
+]) {
+  test(`a ${kind} dragged to the bottom stops ${kind === 'bench' ? 'where friends can still sit on it' : 'just above the dock'}`, async t => {
+    const { button } = fixture(t, { x: 0.4, y: 0.6 }, kind);
+    await button.dispatch('pointerdown', { button: 0, clientX: 300, clientY: 360, pointerId: 7 });
+    await button.dispatch('pointermove', { clientX: 300, clientY: 900, pointerId: 7 });
+    button.dispatch('pointerup', { pointerId: 7 });
+    assert.ok(decorFloor() > 1);
+    assert.ok(near(moved()[1], lowest()), `${moved()[1]}`);
     pending({ ok: true, data: {} });
   });
 }

@@ -60,12 +60,15 @@ export function geometry(p) {
     h: Math.max(1, r.height - petHeight(p) - footRoom() - top),
   };
 }
-/** A place on the field (0 to 1 each way, as plants keep it) in yard pixels. */
-export function fieldToYard({ x, y }, f = field()) {
+/** A place on the field (0 to 1 each way, as plants and decorations keep it; a gift's y may go
+ * past 1, decorFloor) in yard pixels. */
+export function fieldToYard({ x, y }) {
+  const f = field();
   return { x: EDGE + x * Math.max(1, f.width - EDGE * 2), y: f.top + y * Math.max(1, f.bottom - f.top) };
 }
 /** A point in the yard, in pixels, as a place on the field. */
-export function yardToField(px, py, f = field()) {
+export function yardToField(px, py) {
+  const f = field();
   return {
     x: clamp((px - EDGE) / Math.max(1, f.width - EDGE * 2)),
     y: clamp((py - f.top) / Math.max(1, f.bottom - f.top)),
@@ -73,12 +76,22 @@ export function yardToField(px, py, f = field()) {
 }
 // Gifts have no name tag, so they stand lower than friends can: down to just above the dock
 // (42px tall, 12px from the foot, shell.css .yard-dock), or nearly to the foot in a small window,
-// where the dock is hidden. Their place keeps 0 to 1 over that deeper field.
+// where the dock is hidden. Their place stays on the friends' field, going past 1 below it, so a
+// gift placed before keeps its place (garden.rs DECOR_FLOOR_MAX holds the same bound).
 const decorRoom = () => (document.body.classList.contains('compact') ? 8 : 58);
-/** The field gifts stand on: the friends' field, reaching further down. */
-export function decorField() {
+const DECOR_FLOOR_MAX = 4;
+/** The lowest a gift's place goes (1 or more): just above the dock, in the friends' field. */
+export function decorFloor() {
   const f = field();
-  return { ...f, bottom: f.height - decorRoom() };
+  return clamp((f.height - decorRoom() - f.top) / Math.max(1, f.bottom - f.top), 1, DECOR_FLOOR_MAX);
+}
+/** A point in the yard, in pixels, as a gift's place: as yardToField, reaching down to decorFloor. */
+export function yardToDecor(px, py) {
+  const f = field();
+  return {
+    x: clamp((px - EDGE) / Math.max(1, f.width - EDGE * 2)),
+    y: clamp((py - f.top) / Math.max(1, f.bottom - f.top), 0, decorFloor()),
+  };
 }
 /** How near the viewer something whose foot is at `py` stands: the draw order friends use
  * (views.js), so a gift below every friend's foot is in front of them all. */

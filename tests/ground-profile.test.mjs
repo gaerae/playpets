@@ -72,12 +72,19 @@ test('decor roots follow edge-clamped rendered placement and flat props occupy t
   assert.ok(profile.obstacles[1].y < 0.8, 'blanket footprint extends back from its front foot');
 });
 
-test('decor roots stand on the deeper gift field, so a gift at its foot keeps the ground below the friends free', () => {
-  // The gift field reaches 30px further down than the friends' field (300px tall).
-  const profile = base({ decorBottom: bounds.bottom + 30, garden: { decor: [{ kind: 'bench', x: 0.5, y: 0.5 }] } });
-  assert.equal(profile.obstacles[0].y, (0.5 * 330) / 300);
-  const low = base({ decorBottom: bounds.bottom + 300, garden: { decor: [{ kind: 'bench', x: 0.5, y: 1 }] } });
-  assert.equal(low.obstacles.length, 0, "a gift below the friends' field takes no root from them");
+test('decor roots go below the field as far as gifts may, and gifts friends stand on stay on it', () => {
+  const lantern = y => ({ kind: 'lantern', x: 0.5, y });
+  // Well below the field it takes no root from plants there; a bench stays on the field's edge.
+  const [bench] = base({
+    giftFloor: 1.2,
+    garden: { decor: [lantern(1.15), { kind: 'bench', x: 0.5, y: 1.15 }] },
+  }).obstacles;
+  assert.equal(bench.y, 1, 'a bench stays where friends can sit on it');
+  const [near] = base({ giftFloor: 1.2, garden: { decor: [lantern(1.02)] } }).obstacles;
+  assert.ok(Math.abs(near.y - 1.02) < 1e-9, 'just below, its footprint still reaches the field');
+  const [kept] = base({ giftFloor: 1.01, garden: { decor: [lantern(1.02)] } }).obstacles;
+  assert.ok(Math.abs(kept.y - 1.01) < 1e-9, 'drawn no lower than the floor of a smaller window');
+  assert.equal(base({ giftFloor: Number.NaN }).soil, false);
 });
 
 test('flower and tree roots exclude only current-world trees and skip the tree being moved', () => {

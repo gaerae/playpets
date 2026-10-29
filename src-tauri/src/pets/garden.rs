@@ -132,6 +132,7 @@ fn placed<T: serde::de::DeserializeOwned>(
     max: usize,
     known: impl Fn(&T) -> bool,
     at: impl Fn(&mut T) -> (&mut f64, &mut f64),
+    lowest: f64,
 ) -> Vec<T> {
     raw.and_then(Value::as_array)
         .into_iter()
@@ -141,7 +142,7 @@ fn placed<T: serde::de::DeserializeOwned>(
         .filter_map(|mut t| {
             let (x, y) = at(&mut t);
             *x = place(*x)?;
-            *y = place(*y)?;
+            *y = y.is_finite().then(|| y.clamp(0.0, lowest))?;
             Some(t)
         })
         .take(max)
@@ -150,6 +151,16 @@ fn placed<T: serde::de::DeserializeOwned>(
 
 fn place(v: f64) -> Option<f64> {
     v.is_finite().then(|| v.clamp(0.0, 1.0))
+}
+
+/// How far below the friends' field (y over 1) a gift may stand: gifts have no name tag, so the
+/// page lets them down to just above the dock, a distance it measures in the friends' field
+/// (src/yard/field.js decorFloor). Kept in those units, a gift placed before keeps its place.
+pub const DECOR_FLOOR_MAX: f64 = 4.0;
+
+/// A gift's place: across like any other, down to DECOR_FLOOR_MAX.
+fn decor_place(x: f64, y: f64) -> Option<(f64, f64)> {
+    Some((place(x)?, y.is_finite().then(|| y.clamp(0.0, DECOR_FLOOR_MAX))?))
 }
 
 impl Garden {
@@ -166,12 +177,14 @@ impl Garden {
             PLANT_MAX,
             |p: &Plant| catalog().is_flower(&p.kind),
             |p| (&mut p.x, &mut p.y),
+            1.0,
         );
         let decor = placed(
             raw.get("decor"),
             DECOR_MAX,
             |d: &Decor| catalog().is_gift(&d.kind),
             |d| (&mut d.x, &mut d.y),
+            DECOR_FLOOR_MAX,
         );
         let mut received: Vec<String> = Vec::new();
         for kind in raw.get("received").and_then(Value::as_array).into_iter().flatten() {
@@ -193,6 +206,7 @@ impl Garden {
             BOX_MAX,
             |d: &Decor| catalog().is_gift(&d.kind),
             |d| (&mut d.x, &mut d.y),
+            DECOR_FLOOR_MAX,
         );
         let thanked = raw
             .get("thanked")
@@ -314,7 +328,7 @@ impl Garden {
         event: Option<&str>,
         from: &str,
     ) -> Result<Given, String> {
-        let (Some(x), Some(y), true) = (place(x), place(y), is_day(day)) else {
+        let (Some((x, y)), true) = (decor_place(x, y), is_day(day)) else {
             return Err(i18n::t("error.bad_request"));
         };
         // Too soon after the last, or the page's clock went back to a day before it.
@@ -335,7 +349,7 @@ impl Garden {
     /// first time after it) its memento, otherwise the next everyday one. The caller checks the
     /// friend has reached the level.
     pub fn thanks(&mut self, from: &str, level: u32, x: f64, y: f64, turn: usize) -> Result<Given, String> {
-        let (Some(x), Some(y)) = (place(x), place(y)) else {
+        let Some((x, y)) = decor_place(x, y) else {
             return Err(i18n::t("error.bad_request"));
         };
         if !THANKS_LEVELS.contains(&level) || self.thanked.get(from).is_some_and(|&had| had >= level) {
@@ -386,7 +400,7 @@ impl Garden {
 
     /// Takes a gift out of the box and sets it down at (x, y).
     pub fn set_out(&mut self, id: &str, x: f64, y: f64) -> Result<Decor, String> {
-        let (Some(x), Some(y)) = (place(x), place(y)) else {
+        let Some((x, y)) = decor_place(x, y) else {
             return Err(i18n::t("error.bad_request"));
         };
         let at = self
@@ -422,7 +436,7 @@ impl Garden {
 
     /// Moves a decoration to (x, y).
     pub fn move_decor(&mut self, id: &str, x: f64, y: f64) -> Result<(), String> {
-        let (Some(x), Some(y)) = (place(x), place(y)) else {
+        let Some((x, y)) = decor_place(x, y) else {
             return Err(i18n::t("error.bad_request"));
         };
         let d = self
@@ -486,6 +500,22 @@ mod tests {
             0,
         );
         assert_eq!(serde_json::to_value(g).unwrap()["trees"][0]["kind"], "future_tree");
+    }
+
+    #[test]
+    fn a_gift_may_stand_below_the_friends_field_and_a_plant_may_not() {
+        let mut g = Garden::restore(
+            Some(&json!({
+                "decor": [{"id": "a", "kind": "bench", "x": 0.5, "y": 1.5}],
+                "plants": [{"id": "p", "kind": "tulip", "x": 0.5, "y": 1.5}]
+            })),
+            0,
+        );
+        assert_eq!(g.decor[0].y, 1.5);
+        assert!(g.plants.iter().all(|p| p.y <= 1.0));
+        g.move_decor("a", 0.5, 9.0).unwrap();
+        assert_eq!(g.decor[0].y, DECOR_FLOOR_MAX);
+        assert!(g.move_decor("a", 0.5, f64::NAN).is_err());
     }
 
     #[test]
@@ -581,10 +611,11 @@ mod tests {
     fn an_everyday_gift_comes_every_other_day_each_kind_first_in_order() {
         let mut g = Garden::default();
         assert!(g.gift(0.5, 0.5, "today", 0, None, "miso").is_err(), "a day is a date");
-        let first = g.gift(0.3, 1.7, &gift_day(0), 0, None, "miso").unwrap();
+        // A gift's place may go below the friends' field, down to DECOR_FLOOR_MAX.
+        let first = g.gift(0.3, 5.0, &gift_day(0), 0, None, "miso").unwrap();
         assert_eq!(
             (first.decor.kind.as_str(), first.decor.y, first.boxed),
-            ("bench", 1.0, false)
+            ("bench", DECOR_FLOOR_MAX, false)
         );
         assert_eq!(first.decor.from.as_deref(), Some("miso"));
         let next_day = super::super::latest_day(1_793_491_200_000 + 86_400_000);
@@ -797,14 +828,14 @@ mod tests {
         assert_eq!(Garden::restore(None, 0), Garden::default());
         let with_decor = Garden::restore(
             Some(&json!({
-                "decor": [{"id": "a", "kind": "bench", "x": 0.5, "y": 2.0}, {"id": "b", "kind": "castle", "x": 0.5, "y": 0.5}],
+                "decor": [{"id": "a", "kind": "bench", "x": 0.5, "y": 9.0}, {"id": "b", "kind": "castle", "x": 0.5, "y": 0.5}],
                 "received": ["bench", "bench", "castle", "lantern"],
                 "giftDay": "2026-10-09"
             })),
             0,
         );
         assert_eq!(with_decor.decor.len(), 1);
-        assert_eq!(with_decor.decor[0].y, 1.0);
+        assert_eq!(with_decor.decor[0].y, DECOR_FLOOR_MAX);
         assert_eq!(with_decor.received, ["bench", "lantern"]);
         assert_eq!(with_decor.gift_day, "2026-10-09");
         assert_eq!(Garden::restore(Some(&json!({"giftDay": "soon"})), 0).gift_day, "");
