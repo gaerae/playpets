@@ -4,7 +4,7 @@ import { data } from '../core/state.js';
 import { giftKind, treeKind } from './catalog.js';
 import { projectFootprint, treeStage } from './discovery-rules.js';
 import { environmentLake } from './environment.js';
-import { EDGE, field, yardZoom } from './field.js';
+import { decorField, EDGE, field, yardZoom } from './field.js';
 import { giftSize } from './props.js';
 import { scene } from './world.js';
 import { worldFor } from './worlds.js';
@@ -25,6 +25,8 @@ export function buildGroundProfile({
   world,
   worldId = world?.id,
   bounds,
+  // Gifts stand on a deeper field than friends and plants (field.js decorField).
+  decorBottom = bounds?.bottom,
   garden = {},
   lake = null,
   scale = 1,
@@ -68,8 +70,9 @@ export function buildGroundProfile({
       zoom = scale * (treeScale[stage] ?? treeScale[0]);
     add(profile.obstacles, { ...foot(tree), rx: rx * zoom, ry: ry * zoom });
   }
+  const decorHeight = Math.max(1, (Number.isFinite(decorBottom) ? decorBottom : bounds.bottom) - bounds.top);
   for (const item of garden.decor || []) {
-    const at = foot(item),
+    const at = { x: EDGE + item.x * width, y: bounds.top + item.y * decorHeight },
       { w, h } = giftDimensions(item.kind),
       flat = giftKind(item.kind)?.flat;
     // Furniture drawing clamps its foot inward by half its rendered width plus four pixels.
@@ -94,6 +97,7 @@ export function groundProfile({ skipTreeId = null } = {}) {
     world: worldFor(scene.world),
     worldId: scene.world,
     bounds,
+    decorBottom: decorField().bottom,
     garden: data.garden,
     lake: environmentLake(bounds.width, bounds.height, scene),
     scale: yardZoom(),

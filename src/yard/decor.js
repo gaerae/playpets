@@ -17,7 +17,7 @@ import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { effectLayers, effectsVisited } from './effects.js';
-import { EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
+import { decorField, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
 import { propButton, reconcile, removeWithUndo, setDown, giftSize as size } from './props.js';
 import { cue } from './sound.js';
@@ -26,6 +26,8 @@ import { bubble, cheer, effect } from './views.js';
 import { scene } from './world.js';
 
 const flat = kind => !!giftKind(kind)?.flat;
+// Arrow keys move a gift by yard pixels: [x, y].
+const KEY_STEPS = { ArrowLeft: [-16, 0], ArrowRight: [16, 0], ArrowUp: [0, -8], ArrowDown: [0, 8] };
 const standOn = kind => giftKind(kind)?.stand === 'on';
 const shown = new Map();
 // Gifts that just came, shown with a little pop the first time they are drawn.
@@ -33,15 +35,21 @@ const fresh = new Set();
 const kindName = kind => t(`decor.kind_${kind}`);
 
 function placement(kind, point) {
-  const at = fieldToYard(point),
+  const at = fieldToYard(point, decorField()),
     { w, h } = size(kind);
   // Saved coordinates locate the foot; wide furniture still needs room at either edge.
   at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
   return { ...at, w, h };
 }
+// Where a gift is drawn, as a place: a place past the edge a wide gift cannot reach is kept as
+// where it stops, so dragging it back moves it at once.
+const drawnPlace = (kind, point) => {
+  const at = placement(kind, point);
+  return yardToField(at.x, at.y, decorField());
+};
 function position(v, x, y) {
   const at = placement(v.kind, { x, y });
-  setDown(v.button, at.x, at.y, at.w, at.h, flat(v.kind) ? 0 : 1 + Math.round(y * 100));
+  setDown(v.button, at.x, at.y, at.w, at.h, flat(v.kind) ? 0 : depthAt(at.y));
 }
 
 function create(d) {
@@ -58,13 +66,14 @@ function create(d) {
     e.preventDefault();
     e.stopPropagation();
     const current = data.garden?.decor.find(item => item.id === v.id),
-      f = field();
+      f = decorField();
     if (!current) return;
+    const from = drawnPlace(v.kind, current);
     v.drag = {
       startX: e.clientX,
       startY: e.clientY,
-      x: current.x,
-      y: current.y,
+      x: from.x,
+      y: from.y,
       width: Math.max(1, f.width - EDGE * 2),
       height: Math.max(1, f.bottom - f.top),
       moved: false,
@@ -94,7 +103,7 @@ function create(d) {
     } catch {}
     if (!drag) return;
     if (!drag.moved) return visit(v.id);
-    if (drag.at) return save(v.id, drag.at);
+    if (drag.at) return save(v.id, drawnPlace(v.kind, drag.at));
   };
   button.addEventListener('pointerup', drop);
   button.addEventListener('pointercancel', () => {
@@ -107,13 +116,15 @@ function create(d) {
     e.preventDefault();
     putAway(v.id);
   });
-  // By keyboard: arrows move it a little, Delete puts it away.
+  // By keyboard: arrows move it a few pixels, the same in any window or place; Delete puts it away.
   button.addEventListener('keydown', e => {
-    const step = { ArrowLeft: [-0.03, 0], ArrowRight: [0.03, 0], ArrowUp: [0, -0.05], ArrowDown: [0, 0.05] }[e.key];
+    const step = KEY_STEPS[e.key];
     if (step) {
       e.preventDefault();
       const d = data.garden?.decor.find(x => x.id === v.id);
-      if (d) save(v.id, { x: clamp(d.x + step[0]), y: clamp(d.y + step[1]) });
+      if (!d) return;
+      const at = placement(v.kind, d);
+      save(v.id, drawnPlace(v.kind, yardToField(at.x + step[0], at.y + step[1], decorField())));
     } else if (e.key === 'Delete' || e.key === 'Backspace') putAway(v.id);
   });
   return v;
@@ -181,7 +192,7 @@ function walkTo(v, d) {
 function visit(id) {
   const d = data.garden?.decor.find(x => x.id === id);
   if (!d || game) return;
-  const at = fieldToYard(d),
+  const at = placement(d.kind, d),
     v = nearestFree(at.x, at.y);
   if (v) walkTo(v, d);
 }
@@ -300,7 +311,7 @@ function bring(v, ask, { say, detail }) {
   // Set down beside the friend, on the side with more room.
   const width = sizeOf(v.pet),
     right = v.px + width / 2 < field().width / 2,
-    at = yardToField(v.px + width / 2 + (right ? 1 : -1) * width * 0.9, v.py + petHeight(v.pet));
+    at = yardToField(v.px + width / 2 + (right ? 1 : -1) * width * 0.9, v.py + petHeight(v.pet), decorField());
   bringing = true;
   const seen = new Set(data.garden?.received || []);
   return ask(at)

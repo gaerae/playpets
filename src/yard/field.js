@@ -60,18 +60,31 @@ export function geometry(p) {
     h: Math.max(1, r.height - petHeight(p) - footRoom() - top),
   };
 }
-/** A place on the field (0 to 1 each way, as plants and decorations keep it) in yard pixels. */
-export function fieldToYard({ x, y }) {
-  const f = field();
+/** A place on the field (0 to 1 each way, as plants keep it) in yard pixels. */
+export function fieldToYard({ x, y }, f = field()) {
   return { x: EDGE + x * Math.max(1, f.width - EDGE * 2), y: f.top + y * Math.max(1, f.bottom - f.top) };
 }
 /** A point in the yard, in pixels, as a place on the field. */
-export function yardToField(px, py) {
-  const f = field();
+export function yardToField(px, py, f = field()) {
   return {
     x: clamp((px - EDGE) / Math.max(1, f.width - EDGE * 2)),
     y: clamp((py - f.top) / Math.max(1, f.bottom - f.top)),
   };
+}
+// Gifts have no name tag, so they stand lower than friends can: down to just above the dock
+// (42px tall, 12px from the foot, shell.css .yard-dock), or nearly to the foot in a small window,
+// where the dock is hidden. Their place keeps 0 to 1 over that deeper field.
+const decorRoom = () => (document.body.classList.contains('compact') ? 8 : 58);
+/** The field gifts stand on: the friends' field, reaching further down. */
+export function decorField() {
+  const f = field();
+  return { ...f, bottom: f.height - decorRoom() };
+}
+/** How near the viewer something whose foot is at `py` stands: the draw order friends use
+ * (views.js), so a gift below every friend's foot is in front of them all. */
+export function depthAt(py) {
+  const f = field();
+  return 1 + Math.round(((py - f.top) / Math.max(1, f.bottom - f.top)) * 100);
 }
 /** Where a friend heads (its place, 0 to 1 each way) so that its feet come to (px, py) in the yard. */
 export function footTarget(v, px, py, lift = 4) {

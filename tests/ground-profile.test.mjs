@@ -72,6 +72,14 @@ test('decor roots follow edge-clamped rendered placement and flat props occupy t
   assert.ok(profile.obstacles[1].y < 0.8, 'blanket footprint extends back from its front foot');
 });
 
+test('decor roots stand on the deeper gift field, so a gift at its foot keeps the ground below the friends free', () => {
+  // The gift field reaches 30px further down than the friends' field (300px tall).
+  const profile = base({ decorBottom: bounds.bottom + 30, garden: { decor: [{ kind: 'bench', x: 0.5, y: 0.5 }] } });
+  assert.equal(profile.obstacles[0].y, (0.5 * 330) / 300);
+  const low = base({ decorBottom: bounds.bottom + 300, garden: { decor: [{ kind: 'bench', x: 0.5, y: 1 }] } });
+  assert.equal(low.obstacles.length, 0, "a gift below the friends' field takes no root from them");
+});
+
 test('flower and tree roots exclude only current-world trees and skip the tree being moved', () => {
   const garden = {
     plants: [{ x: 0.2, y: 0.7, kind: 'tulip' }],
