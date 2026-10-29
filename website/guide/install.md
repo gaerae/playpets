@@ -60,6 +60,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 
 - SmartScreen judges file and publisher reputation, so a new version can warn again. See [Microsoft's explanation of SmartScreen reputation](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
 - Keep the protections on. A malware warning is a different case from an unrecognized-app warning.
+- SmartScreen is set under **Reputation-based protection** in Windows Security ([Microsoft's guide to App & browser control](https://support.microsoft.com/en-us/windows/security/windows-security/app-browser-control-in-the-windows-security-app)).
 - ARM PC (Snapdragon and the like): use the arm64 file.
   - The x64 file also runs there, through emulation.
   - But its installer and uninstaller cannot close a running PlayPets for you: quit it from the tray first.

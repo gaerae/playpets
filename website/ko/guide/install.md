@@ -60,6 +60,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 
 - SmartScreen은 파일과 게시자의 평판을 보므로 새 버전에서 다시 경고할 수 있어요. [Microsoft의 SmartScreen 평판 안내](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)
 - 보안 기능은 켜 두세요. 악성 프로그램 경고는 알 수 없는 앱 경고와 다른 경우예요.
+- SmartScreen 설정은 Windows 보안의 **평판 기반 보호**에 있어요([Microsoft의 앱 및 브라우저 컨트롤 안내](https://support.microsoft.com/ko-kr/windows/security/windows-security/app-browser-control-in-the-windows-security-app)).
 - ARM PC(스냅드래곤 등)에서는 arm64 파일을 쓰세요.
 - x64 파일도 에뮬레이션으로 돌아가지만, 그 설치, 제거 프로그램은 실행 중인 PlayPets를 대신 닫지 못해요. 먼저 트레이에서 종료해 주세요.
 

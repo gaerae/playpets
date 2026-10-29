@@ -31,6 +31,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Starting PlayPets with `PLAYPETS_LANG` no longer replaces the language you picked: the next start without it is in your language again.
 - A Claude Code friend no longer turns to Waiting for you a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.
 - The chat log keeps up to the last 500 messages with each friend for the session, instead of silently dropping everything before the last 24; a friend still answers with the latest 24 in mind.
+- winget's package for the GitHub installer names the app's product code, so `winget list` and `winget upgrade` recognize PlayPets installed with that installer.
 - On Windows, the Microsoft Store version declares `playpets://` links, so a pet gallery's import link opens PlayPets.
 - A friend on an API connection (OpenAI, Grok, Ollama or a compatible server) keeps who it is in a long conversation: its persona and notes are no longer dropped once the chat passes 24 messages.
 - ■ stops a friend on an API connection at once, instead of after the server answers or times out.
@@ -73,6 +74,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - On the website, a visitor on macOS or Linux who opens the other platforms list finds the Microsoft Store first for Windows, before the GitHub installers.
 - The website's front page shows real pictures of play: a garden decorated with flowers, trees and gifts, tag, digging, fishing and the album. Its comparison with a Codex pet starts with moving: friends stroll the yard and, with Stroll on desktop, your desktop, with a picture of them there.
 - Screenshots and the README animation no longer show a keyboard focus ring around a friend.
+- On Windows, the website's download section says the installer from GitHub is not code-signed yet and links to the install guide's steps for the SmartScreen warning; the README links there too, and the install guide links Microsoft's page on where SmartScreen is set.
 - The coding agents guide says a hook gives up within a few seconds, not three: a hook that waits for the app can take a little longer.
 - The coding agents guide says a `playpets run` stopped with Ctrl-C leaves its friend Resting.
 - The settings guide says how Start at login works in the Microsoft Store version, and its data folder table gives the Store location, as the FAQ and the install page do. The first-friend guide names the group of pets imported from an address or a ZIP, and the privacy page says the season and time of day picked are saved too.

@@ -110,6 +110,10 @@ onBeforeUnmount(() => {
           <li><a :href="`${releases}/tag/v${resolvedVersion}`">{{ words.allFiles }}</a></li>
         </ul>
       </details>
+      <!-- Wherever the GitHub installer is offered on Windows: SmartScreen warns about an unsigned one. -->
+      <p v-if="os === 'Windows'" class="dl-note">
+        {{ words.unsigned }}<a :href="words.unsignedGuide">{{ words.unsignedHow }}</a>
+      </p>
     </template>
     <template v-else>
       <div class="dl-row">

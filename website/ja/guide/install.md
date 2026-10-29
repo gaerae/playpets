@@ -61,6 +61,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 - SmartScreenはファイルと発行元の評判を見るため、新しいバージョンでもまた警告が出ることがあります（[MicrosoftによるSmartScreenの評判の説明](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)）。
 - 保護機能はオンのままにしてください。
 - マルウェアの警告は、認識されないアプリの警告とは別のものです。
+- SmartScreenの設定は、Windows セキュリティの**評価ベースの保護**にあります（[Microsoftによるアプリとブラウザーのコントロールの説明](https://support.microsoft.com/ja-jp/windows/security/windows-security/app-browser-control-in-the-windows-security-app)）。
 - ARM PC（Snapdragonなど）ではarm64のファイルを使ってください。
 - x64のファイルもエミュレーションで動きます。ただしそのインストーラーとアンインストーラーは、実行中のPlayPetsを代わりに閉じられません。先にトレイから終了してください。
 
