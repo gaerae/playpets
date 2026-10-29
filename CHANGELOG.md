@@ -21,6 +21,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Fixed
 
+- In Places, the Import, Remove and Background studio buttons no longer run over the Places title or get cut off at the right in a narrow window or a longer language; what does not fit moves to the next line.
+- Starting PlayPets with `PLAYPETS_LANG` no longer replaces the language you picked: the next start without it is in your language again.
 - A Claude Code friend no longer turns to Waiting for you a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.
 - The chat log keeps up to the last 500 messages with each friend for the session, instead of silently dropping everything before the last 24; a friend still answers with the latest 24 in mind.
 - On Windows, the Microsoft Store version declares `playpets://` links, so a pet gallery's import link opens PlayPets.

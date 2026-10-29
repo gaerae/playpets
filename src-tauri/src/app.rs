@@ -306,7 +306,7 @@ pub fn persist(d: &AppData) -> Result<(), String> {
         "album": d.album,
         "bonds": d.bonds,
     });
-    carry(&mut state, &d.prefs.json());
+    carry(&mut state, &d.prefs.saved());
     carry(&mut state, &d.extra);
     d.store.write("state.json", &state)
 }

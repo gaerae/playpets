@@ -26,7 +26,7 @@ Changing it reloads the yard and the desktop windows in the new language, and th
 Friends greet you and chatter in the language you picked, and AI replies use it too by default. Want an answer in another language? Ask for it in your latest message. With coding agents and the terminal, the app speaks English.
 
 - Saved as `language` in `state.json`.
-- For testing: start the app with `PLAYPETS_LANG=ko|en|ja|zh-hans`. It takes priority over the saved language.
+- For testing: start the app with `PLAYPETS_LANG=ko|en|ja|zh-hans`. It takes priority over the saved language for that run only; the saved language stays as it was.
 
 ## Start PlayPets when you log in <Since v="0.1.0" />
 

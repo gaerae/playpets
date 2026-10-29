@@ -45,6 +45,9 @@ pub struct Prefs {
     pub wander: bool,
     /// The language the app speaks to the person in; the pet is asked to answer in it too.
     pub language: i18n::Lang,
+    /// The person's own language while `PLAYPETS_LANG` forces another for one run: it is what
+    /// state.json keeps, so the next run without the variable is in their language again.
+    pub kept_language: Option<i18n::Lang>,
     /// The friends talk among themselves every so often (the page keeps the timer).
     pub auto_chatter: bool,
     /// Idle friends now and then dig on their own (the page keeps the timer).
@@ -81,6 +84,7 @@ impl Prefs {
             desktop: flag("desktop"),
             wander: flag("desktopWander"),
             language,
+            kept_language: None,
             auto_chatter: flag("autoChatter"),
             auto_play: flag("autoPlay"),
             sound: Sound::restore(raw.get("sound")),
@@ -121,11 +125,31 @@ impl Prefs {
         m.insert("scene".into(), Value::Object(self.scene.clone()));
         m
     }
+
+    /// As written to state.json: the switches, with the person's own language when a run forces another.
+    pub fn saved(&self) -> Map<String, Value> {
+        let mut m = self.json();
+        if let Some(kept) = self.kept_language {
+            m.insert("language".into(), json!(kept.code()));
+        }
+        m
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_forced_language_is_spoken_but_the_persons_own_is_saved() {
+        let (en, ko) = (i18n::Lang::parse("en").unwrap(), i18n::Lang::parse("ko").unwrap());
+        let mut prefs = Prefs::restore(&json!({"language": "en"}), ko);
+        prefs.kept_language = Some(en);
+        assert_eq!(prefs.json()["language"], json!("ko"));
+        assert_eq!(prefs.saved()["language"], json!("en"));
+        prefs.kept_language = None;
+        assert_eq!(prefs.saved()["language"], json!("ko"));
+    }
 
     #[test]
     fn the_yard_sounds_start_on_and_quiet_and_a_saved_volume_is_held_to_100() {
@@ -162,6 +186,7 @@ mod tests {
             desktop: true,
             wander: true,
             language: lang,
+            kept_language: None,
             auto_chatter: true,
             auto_play: true,
             sound: Sound { on: false, volume: 7 },

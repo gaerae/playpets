@@ -107,11 +107,11 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         store.keep_copy("state.json", &format!("newer-{schema}"));
         warnings.push(i18n::tr("store.newer", &[("name", "state.json")]));
     }
-    let language = i18n::pick_language(
-        raw.get("language").and_then(|v| v.as_str()),
-        i18n::forced().as_deref(),
-        sys_locale::get_locale().as_deref(),
-    );
+    let saved_language = raw.get("language").and_then(|v| v.as_str());
+    let system = sys_locale::get_locale();
+    let language = i18n::pick_language(saved_language, i18n::forced().as_deref(), system.as_deref());
+    // The run speaks the forced language; state.json keeps the one the person would have had.
+    let own = i18n::pick_language(saved_language, None, system.as_deref());
     i18n::set(language);
     let strings = |raw: &serde_json::Value, key: &str| -> Vec<String> {
         raw.get(key)
@@ -173,7 +173,10 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         assets,
         warnings,
         pets,
-        prefs: Prefs::restore(&raw, language),
+        prefs: Prefs {
+            kept_language: (own != language).then_some(own),
+            ..Prefs::restore(&raw, language)
+        },
         imports,
         picked,
         agent_pets,

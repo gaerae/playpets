@@ -830,6 +830,8 @@ fn set_language(app: &AppHandle, state: &State<Shared>, code: &str) -> Result<Va
         }
         i18n::set(lang);
         d.prefs.language = lang;
+        // Picked by the person, it is theirs to keep even in a run that forced another.
+        d.prefs.kept_language = None;
         Ok(Value::Null)
     });
     // Rewording the tray waits on the main thread, which may itself be waiting for the state.
