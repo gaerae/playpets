@@ -45,6 +45,11 @@ const others = computed(() =>
     f => (store.value || f !== primaryFile.value) && (available.value === null || available.value.includes(f)),
   ),
 );
+// The GitHub installer is offered here on Windows (the main button or the list): it is not
+// code-signed yet, so the note on SmartScreen goes with it.
+const offersInstaller = computed(
+  () => os.value === 'Windows' && (available.value === null || available.value.some(f => f.startsWith('windows-'))),
+);
 const releaseUrl = computed(() => (resolvedVersion.value ? `${releases}/tag/v${resolvedVersion.value}` : releases));
 const showRelease = (result: { version: string; files: string[]; status: 'ready' | 'missing' | 'error' }) => {
   if (!active) return;
@@ -110,8 +115,7 @@ onBeforeUnmount(() => {
           <li><a :href="`${releases}/tag/v${resolvedVersion}`">{{ words.allFiles }}</a></li>
         </ul>
       </details>
-      <!-- Wherever the GitHub installer is offered on Windows: SmartScreen warns about an unsigned one. -->
-      <p v-if="os === 'Windows'" class="dl-note">
+      <p v-if="offersInstaller" class="dl-note">
         {{ words.unsigned }}<a :href="words.unsignedGuide">{{ words.unsignedHow }}</a>
       </p>
     </template>

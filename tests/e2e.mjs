@@ -439,14 +439,16 @@ const scenario = `(async()=>{
     for(const d of thankedState.decor.filter(d=>d.from===fid))await playPets.putAway(d.id);
     await L('thanksGift='+(thankedState.thanked?.[fid]===2&&apart.ok===false&&(!thanks.ok||thanks.data.from===fid)&&thanksAgain.ok===false&&tooHigh.ok===false?'once-a-level-reached':'err:'+JSON.stringify([apart,thanks,thanksAgain,tooHigh,thankedState.thanked])));
     // Pats bring at most a quarter of a day's worth; at Very close (level 4) the thanks gift is the friend's memento,
-    // which goes back into the gift box when put away and comes out of it again (it stays there afterwards).
-    const bondOf=async()=>(await playPets.bootstrap()).data.bonds[fid];
-    const beforePats=(await bondOf()).points;for(let k=0;k<15;k++)await playPets.befriend(fid,'pat','2026-01-04');
+    // which goes back into the gift box when put away and comes out of it again. A friend invited for it and sent
+    // away after, so the steps below keep their first friend as it was; its memento stays in the box.
+    const closeFriend=(await playPets.addPet((await playPets.bootstrap()).data.pets[0].assetId)).data,mid=closeFriend?.id;
+    const bondOf=async()=>(await playPets.bootstrap()).data.bonds[mid]||{points:0};
+    const beforePats=(await bondOf()).points;for(let k=0;k<15;k++)await playPets.befriend(mid,'pat','2026-01-04');
     const patsCapped=(await bondOf()).points-beforePats===10;
     let closeDay='2026-01-04';
-    for(let n=4;n<40&&(await bondOf()).points<500;n++){closeDay=new Date(Date.UTC(2026,0,n)).toISOString().slice(0,10);for(let k=0;k<8;k++)await playPets.befriend(fid,'gift',closeDay);}
-    const third=await playPets.thanksGift(fid,3,0.4,0.6,closeDay),fourth=await playPets.thanksGift(fid,4,0.6,0.6,closeDay);
-    const memento=fourth.data;let mementoFlow=third.ok&&fourth.ok&&memento?.memento===true&&memento.from===fid;
+    for(let n=4;n<40&&(await bondOf()).points<500;n++){closeDay=new Date(Date.UTC(2026,0,n)).toISOString().slice(0,10);for(let k=0;k<8;k++)await playPets.befriend(mid,'gift',closeDay);}
+    const third=await playPets.thanksGift(mid,3,0.4,0.6,closeDay),fourth=await playPets.thanksGift(mid,4,0.6,0.6,closeDay);
+    const memento=fourth.data;let mementoFlow=third.ok&&fourth.ok&&memento?.memento===true&&memento.from===mid;
     if(third.ok)await playPets.putAway(third.data.id);
     if(mementoFlow){
       await playPets.putAway(memento.id);
@@ -456,7 +458,8 @@ const scenario = `(async()=>{
       await playPets.putAway(memento.id);
       mementoFlow=boxedMemento?.memento===true&&backOut.ok&&outAgain;
     }
-    await L('memento='+(patsCapped&&mementoFlow?'pats-capped-memento-boxed-and-set-out':'err:'+JSON.stringify({patsCapped,third,fourth,closeDay,bond:await bondOf()})));
+    if(mid)await playPets.removePet(mid);
+    await L('memento='+(mid&&patsCapped&&mementoFlow?'pats-capped-memento-boxed-and-set-out':'err:'+JSON.stringify({patsCapped,third,fourth,closeDay,bond:await bondOf()})));
     // Yard sounds: on by default; the chip turns them off and on, the volume is kept and held to 0–100.
     // The settings change while the yard stays quiet: the volume goes to 0 before the chip turns it on.
     await playPets.setSound(null,300);const held=(await playPets.bootstrap()).data.sound.volume;await playPets.setSound(null,0);
