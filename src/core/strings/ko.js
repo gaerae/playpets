@@ -8,10 +8,11 @@ export const name = '한국어';
 export const sentence = /[가-힣]/;
 export const strings = {
   'catch.rain_hint': '비 오는 날 더 잘 만나요',
-  'album.gift_full': '놀이터가 가득 찼어요. 새 선물은 선물 상자에 담기고, 장식 하나를 치우면 꺼내 놓을 수 있어요.',
+  'album.gift_full': '놀이터가 가득 찼어요. 새 선물은 선물 상자에 담기고, 소품 하나를 치우면 꺼내 놓을 수 있어요.',
+  'album.gifts_full': '놀이터와 선물 상자가 모두 가득 찼어요. 소품을 하나 치우면 자리가 생겨요.',
   'album.gift_rule':
     '친구와 함께 무언가를 한 날, 그 친구가 이틀에 한 번 선물을 가져와요. 사이가 가까워질 때도 선물이 와요.',
-  'album.set_out_full': '놀이터가 가득 찼어요. 장식 하나를 치우면 꺼내 놓을 수 있어요.',
+  'album.set_out_full': '놀이터가 가득 찼어요. 소품 하나를 치우면 꺼내 놓을 수 있어요.',
   'album.set_out': '{kind:을/를} 놀이터에 꺼내 놓아요',
   'album.box_title': '선물 상자 {count}/{limit}',
   'album.favored': '잘 나오는 곳: {conditions}',
@@ -279,12 +280,12 @@ export const strings = {
   'decor.brought': '{name:이/가} 선물로 {kind:을/를} 가져왔어요. 원하는 곳으로 끌어다 놓아요.',
   'decor.title': '{kind}, 끌어서 옮길 수 있어요',
   'decor.put_away_done': '{kind:을/를} 치웠어요',
-  'decor.keepsake_put_away': '{kind:을/를} 선물 상자에 넣었어요',
-  'decor.keepsake_title': '{name}의 추억의 선물 {kind}, 끌어서 옮길 수 있어요',
+  'decor.memento_put_away': '{kind:을/를} 선물 상자에 넣었어요',
+  'decor.memento_title': '{name}의 추억의 선물 {kind}, 끌어서 옮길 수 있어요',
   'decor.brought_boxed': '{name:이/가} {kind:을/를} 가져왔어요. 놀이터가 가득 차서 도감의 선물 상자에 넣어 뒀어요.',
-  'decor.brought_keepsake': '{name:이/가} 추억의 선물로 {kind:을/를} 가져왔어요. 치워도 선물 상자에 남아요.',
+  'decor.brought_memento': '{name:이/가} 추억의 선물로 {kind:을/를} 가져왔어요. 치워도 선물 상자에 남아요.',
   'decor.brought_thanks': '{name:이/가} 더 가까워진 기념으로 {kind:을/를} 가져왔어요.',
-  'decor.gift_keepsake': [
+  'decor.gift_memento': [
     '이건 내가 아끼는 거야. 너한테 줄게!',
     '이거 보면 나 생각해 줘!',
     '제일 소중한 거야. 받아 줘!',

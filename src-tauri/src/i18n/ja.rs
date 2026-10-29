@@ -91,7 +91,6 @@ const TABLE: &[(&str, &str)] = &[
     ("error.decor_full", "庭に置ける飾りは{limit}個までです。ひとつ片付けると置けます。"),
     ("error.decor_missing", "その飾りが見つかりません。"),
     ("error.gifts_full", "庭もプレゼント箱もいっぱいです。飾りをひとつ片付けると置けます。"),
-    ("error.box_full", "プレゼント箱には{limit}個まで入ります。先に箱からひとつ出してください。"),
     ("error.not_allowed", "この操作はできません。アプリを開き直してください。"),
     ("error.bad_request", "処理できませんでした。アプリを開き直してください。"),
     ("error.request_failed", "リクエストを処理できませんでした。"),

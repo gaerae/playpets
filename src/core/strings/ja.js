@@ -10,6 +10,7 @@ export const listSeparator = '、';
 export const strings = {
   'catch.rain_hint': '雨の日に見つけやすい',
   'album.gift_full': '庭がいっぱいです。新しいプレゼントはプレゼント箱に入ります。飾りを一つ片付けると出せます。',
+  'album.gifts_full': '庭もプレゼント箱もいっぱいです。飾りを一つ片付けると置けます。',
   'album.gift_rule':
     '友だちと何かをした日に、その友だちが二日に一度プレゼントを持ってきます。仲良くなったときにも届きます。',
   'album.set_out_full': '庭がいっぱいです。飾りを一つ片付けると出せます。',
@@ -278,12 +279,12 @@ export const strings = {
   'decor.brought': '{name}がプレゼントに{kind}を持ってきました。好きな場所にドラッグしてください。',
   'decor.title': '{kind}、ドラッグで動かせます',
   'decor.put_away_done': '{kind}を片づけました',
-  'decor.keepsake_put_away': '{kind}をプレゼント箱にしまいました',
-  'decor.keepsake_title': '{name}の思い出のプレゼント、{kind}。ドラッグで動かせます',
+  'decor.memento_put_away': '{kind}をプレゼント箱にしまいました',
+  'decor.memento_title': '{name}の思い出のプレゼント、{kind}。ドラッグで動かせます',
   'decor.brought_boxed': '{name}が{kind}を持ってきました。庭がいっぱいなので、図鑑のプレゼント箱に入れました。',
-  'decor.brought_keepsake': '{name}が思い出のプレゼントに{kind}を持ってきました。片付けてもプレゼント箱に残ります。',
+  'decor.brought_memento': '{name}が思い出のプレゼントに{kind}を持ってきました。片付けてもプレゼント箱に残ります。',
   'decor.brought_thanks': '{name}が仲良くなった記念に{kind}を持ってきました。',
-  'decor.gift_keepsake': [
+  'decor.gift_memento': [
     'これ、ずっと大事にしてたんだ。あげるね！',
     'これを見たら思い出してね！',
     'いちばんの宝物だよ。受け取って！',

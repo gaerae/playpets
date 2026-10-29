@@ -157,11 +157,11 @@ export function renderDecor() {
   };
   reconcile(shown, data.garden?.decor || [], make, (v, d) => {
     if (!v.drag?.moved) position(v, d.x, d.y);
-    const from = d.keepsake && data.pets.find(p => p.id === d.from);
+    const from = d.memento && data.pets.find(p => p.id === d.from);
     const label = from
-      ? t('decor.keepsake_title', { name: name(from), kind: kindName(d.kind) })
+      ? t('decor.memento_title', { name: name(from), kind: kindName(d.kind) })
       : t('decor.title', { kind: kindName(d.kind) });
-    v.button.classList.toggle('keepsake', !!d.keepsake);
+    v.button.classList.toggle('memento', !!d.memento);
     v.button.title = label;
     v.button.setAttribute('aria-label', label);
   });
@@ -199,17 +199,19 @@ function visited(v, kind) {
 }
 
 // Put away at once with a moment to undo it (props.js); a friend may bring it again another day,
-// and a keepsake goes back into the gift box instead.
+// and a memento goes back into the gift box instead.
 function putAway(id) {
   const d = data.garden?.decor.find(x => x.id === id),
     view = shown.get(id);
   if (!d || !view) return;
-  const done = t(d.keepsake ? 'decor.keepsake_put_away' : 'decor.put_away_done', { kind: kindName(d.kind) });
+  // With the box full a memento goes as any gift does (garden.rs put_away).
+  const boxed = d.memento && (data.garden.boxed?.length ?? 0) < limit(data, 'giftBox');
+  const done = t(boxed ? 'decor.memento_put_away' : 'decor.put_away_done', { kind: kindName(d.kind) });
   removeWithUndo(id, view, done, () => call('putAway', id));
 }
 
 // A friend brings a gift on its own: an everyday one every other day, from a friend the person
-// did something with that day, and one for each level it grows closer (its keepsake at 4). A gift
+// did something with that day, and one for each level it grows closer (its memento at 4). A gift
 // that finds the yard full waits in the gift box (album.js). The wait for the next everyday gift
 // is the backend's (garden giftWait), so a restart keeps it.
 const GIFT_RETRY_MS = 60 * 1000;
@@ -222,17 +224,30 @@ let bringing = false,
 const refused = new Set();
 const togetherToday = (id, day) => data.bonds?.[id]?.day === day && data.bonds[id].today > 0;
 const full = g => (g.decor?.length ?? 0) >= limit(data, 'decor') && (g.boxed?.length ?? 0) >= limit(data, 'giftBox');
-// The highest level a friend has brought a gift for; level 1 needs none.
-const thankedFor = (g, id) => g.thanked?.[id] ?? 1;
+// The level a friend brings its next thanks gift for: the one after the last it brought, so a
+// level reached while the yard and the box were full still comes. A friend with none brought yet
+// brings one for where it is (it may have been close before thanks gifts began).
+function thanksLevel(g, id) {
+  const level = levelOf(id),
+    had = g.thanked?.[id];
+  return had === undefined ? level : Math.min(level, had + 1);
+}
 
 /** When the next everyday gift may come: the saved wait, or a new one saved now. */
-function giftDueAt(g, now) {
+function giftDueAt(g, now, today) {
   const after = g.giftDay || '',
     first = !g.received?.length,
     saved = g.giftWait;
-  // A clock correction keeps the wait bounded instead of retaining a far-future deadline.
+  // A clock correction keeps the wait bounded instead of retaining a far-future deadline, and a
+  // wait from an earlier day starts again, so a gift never comes the moment someone plays.
   const longest = first ? FIRST_GIFT : GIFT_WAIT[1];
-  if (saved?.after === after && Number.isSafeInteger(saved.dueAt) && saved.dueAt <= now + longest) return saved.dueAt;
+  if (
+    saved?.after === after &&
+    Number.isSafeInteger(saved.dueAt) &&
+    saved.dueAt <= now + longest &&
+    localDay(new Date(saved.dueAt)) >= today
+  )
+    return saved.dueAt;
   const dueAt = Math.ceil(now + giftWait(Math.random, first));
   // Kept here at once so the next frame does not ask again before the backend's state comes back.
   g.giftWait = { after, dueAt };
@@ -247,12 +262,15 @@ export function giftTick() {
   const now = Date.now(),
     today = localDay(new Date(now));
   if (now < retryAt || !giftDue(g.giftDay, today, limit(data, 'giftEveryDays'))) return;
-  if (now < giftDueAt(g, now)) return;
-  const free = [...views.values()].filter(v => isFree(v) && togetherToday(v.pet.id, today));
+  // The wait starts once the person has done something with a friend that day.
+  const together = [...views.values()].filter(v => togetherToday(v.pet.id, today));
+  if (!together.length || now < giftDueAt(g, now, today)) return;
+  const free = together.filter(isFree);
   if (!free.length) return;
   const v = pick(free);
   // During a seasonal event, the gift is its own the first time (the backend checks the dates).
-  bring(v, at => call('receiveGift', at.x, at.y, today, scene.event, v.pet.id), 'decor.gift').then(ok => {
+  const ask = at => call('receiveGift', at.x, at.y, today, scene.event, v.pet.id);
+  bring(v, ask, { say: 'decor.gift', detail: 'decor.brought' }).then(ok => {
     if (ok) befriend(v.pet.id, 'gift');
     // A failed save must not replay the gift and its request on every frame.
     else retryAt = Date.now() + GIFT_RETRY_MS;
@@ -264,19 +282,20 @@ export function thanksTick(now) {
   const g = data.garden;
   if (!g || bringing || full(g) || !thanking.due(now)) return;
   const v = [...views.values()].find(v => {
-    const level = levelOf(v.pet.id);
-    return isFree(v) && level > thankedFor(g, v.pet.id) && !refused.has(`${v.pet.id}:${level}`);
+    const level = thanksLevel(g, v.pet.id);
+    return isFree(v) && level > (g.thanked?.[v.pet.id] ?? 1) && !refused.has(`${v.pet.id}:${level}`);
   });
   if (!v) return;
-  const level = levelOf(v.pet.id);
-  bring(v, at => call('thanksGift', v.pet.id, level, at.x, at.y), 'decor.gift_thanks').then(ok => {
+  const level = thanksLevel(g, v.pet.id);
+  const ask = at => call('thanksGift', v.pet.id, level, at.x, at.y);
+  bring(v, ask, { say: 'decor.gift_thanks', detail: 'decor.brought_thanks' }).then(ok => {
     if (!ok) refused.add(`${v.pet.id}:${level}`);
   });
 }
 
-// A friend sets a gift down beside it (`ask` gets the spot and asks the backend) and says so; the
-// card says where it went. Resolves to whether it came.
-function bring(v, ask, lines) {
+// A friend sets a gift down beside it (`ask` gets the spot and asks the backend) and says `say`;
+// the card says `detail`, or where it went. Resolves to whether it came.
+function bring(v, ask, { say, detail }) {
   rest(v);
   // Set down beside the friend, on the side with more room.
   const width = sizeOf(v.pet),
@@ -286,23 +305,17 @@ function bring(v, ask, lines) {
   const seen = new Set(data.garden?.received || []);
   return ask(at)
     .then(d => {
-      cheer(v, d.keepsake ? 'decor.gift_keepsake' : lines, { mark: '', say: 3500 });
+      cheer(v, d.memento ? 'decor.gift_memento' : say, { mark: '', say: 3500 });
       if (!d.boxed) {
         fresh.add(d.id);
         renderDecor();
       }
       cue('gift');
-      effect(v, d.keepsake ? '♥' : '✦');
+      effect(v, d.memento ? '♥' : '✦');
       const gift = giftKind(d.kind),
         said = { name: name(v.pet), kind: kindName(d.kind) };
-      const detail = d.boxed
-        ? 'decor.brought_boxed'
-        : d.keepsake
-          ? 'decor.brought_keepsake'
-          : lines === 'decor.gift_thanks'
-            ? 'decor.brought_thanks'
-            : 'decor.brought';
-      if (gift) showCard(giftSvg(gift), kindName(d.kind), t(detail, said), !seen.has(d.kind), 'gift');
+      const card = d.boxed ? 'decor.brought_boxed' : d.memento ? 'decor.brought_memento' : detail;
+      if (gift) showCard(giftSvg(gift), kindName(d.kind), t(card, said), !seen.has(d.kind), 'gift');
       return true;
     })
     .catch(() => false)

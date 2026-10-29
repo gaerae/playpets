@@ -237,13 +237,20 @@ mod tests {
 
     #[test]
     fn saved_bonds_are_kept_for_the_friends_there_are() {
-        let raw = json!({"a": {"points": 70, "day": "2026-10-09", "today": 3, "time_at": 5}, "gone": {"points": 9}, "b": "nonsense"});
+        let raw = json!({"a": {"points": 70, "day": "2026-10-09", "today": 3, "patToday": 2, "timeToday": 4, "time_at": 5}, "gone": {"points": 9}, "b": "nonsense"});
         let b = Bonds::restore(Some(&raw), &["a".into(), "b".into()]);
         assert_eq!(b.0.keys().collect::<Vec<_>>(), ["a"]);
         assert_eq!(b.0["a"].points, 70);
         // Saved as timeAt like the rest of state.json; the older time_at is still read.
         assert_eq!(b.0["a"].time_at, 5);
         assert_eq!(serde_json::to_value(&b.0["a"]).unwrap()["timeAt"], 5);
+        // The day's pats and time are kept across a restart, so a restart does not refill them.
+        assert_eq!((b.0["a"].pat_today, b.0["a"].time_today), (2, 4));
+        let saved = serde_json::to_value(&b.0["a"]).unwrap();
+        assert_eq!(
+            (saved["patToday"].as_u64(), saved["timeToday"].as_u64()),
+            (Some(2), Some(4))
+        );
         assert_eq!(Bonds::restore(None, &[]), Bonds::default());
     }
 }

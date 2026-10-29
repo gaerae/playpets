@@ -114,9 +114,9 @@
 .decor:focus-visible {
   outline: none;
 }
-/* A friend's keepsake wears a small heart, the tags' colour, so it is told from the same gift
+/* A friend's memento wears a small heart, the tags' colour, so it is told from the same gift
    brought on another day; the white disc keeps it apart from the name tags' hearts. */
-.decor.keepsake::after {
+.decor.memento::after {
   content: "♥";
   position: absolute;
   top: -4px;

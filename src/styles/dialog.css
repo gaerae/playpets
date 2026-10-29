@@ -394,7 +394,7 @@ body.compact .update-compact {
   color: inherit;
   cursor: pointer;
 }
-.album-box-item.keepsake::after {
+.album-box-item.memento::after {
   content: "♥";
   position: absolute;
   top: 2px;

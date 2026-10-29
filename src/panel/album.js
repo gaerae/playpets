@@ -144,7 +144,7 @@ function card(b, kind, entry) {
   }
   return el;
 }
-// The gift box, in the gift book: gifts that came while the yard was full, and keepsakes put away.
+// The gift box, in the gift book: gifts that came while the yard was full, and mementos put away.
 // Each is set out near the front of the yard, from where the person drags it on.
 function renderBox(open) {
   const boxed = data.garden?.boxed || [],
@@ -161,17 +161,21 @@ function renderBox(open) {
         named = t(`decor.kind_${d.kind}`);
       button.type = 'button';
       button.className = 'album-box-item';
-      button.classList.toggle('keepsake', !!d.keepsake);
+      button.classList.toggle('memento', !!d.memento);
       button.disabled = !room;
       button.title = room ? t('album.set_out', { kind: named }) : t('album.set_out_full');
       button.setAttribute('aria-label', button.title);
       button.innerHTML = kind ? giftSvg(kind) : '';
       label.textContent = named;
       button.append(label);
-      button.onclick = () =>
-        call('setOut', d.id, 0.3 + Math.random() * 0.4, 0.8).catch(error =>
-          toast(spoken(error, t('error.generic')), { error: true }),
-        );
+      button.onclick = () => {
+        // Set out once: a second click before the album redraws would find it gone.
+        button.disabled = true;
+        call('setOut', d.id, 0.3 + Math.random() * 0.4, 0.8).catch(error => {
+          button.disabled = false;
+          toast(spoken(error, t('error.generic')), { error: true });
+        });
+      };
       return button;
     }),
   );
@@ -204,8 +208,9 @@ export function renderAlbum() {
   }
   if (giftBook) {
     status.title = '';
-    status.textContent =
-      (data.garden?.decor?.length ?? 0) >= limit(data, 'decor') ? t('album.gift_full') : t('album.gift_rule');
+    const yardFull = (data.garden?.decor?.length ?? 0) >= limit(data, 'decor'),
+      boxFull = (data.garden?.boxed?.length ?? 0) >= limit(data, 'giftBox');
+    status.textContent = t(yardFull ? (boxFull ? 'album.gifts_full' : 'album.gift_full') : 'album.gift_rule');
   }
   renderBox(giftBook);
   let found = 0,

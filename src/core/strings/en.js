@@ -8,6 +8,7 @@ export const sentence = /[.!?]$/;
 export const strings = {
   'catch.rain_hint': 'More likely in rain',
   'album.gift_full': 'The yard is full. New gifts go into the gift box; put a decoration away to set one out.',
+  'album.gifts_full': 'The yard and the gift box are both full. Put a decoration away to make room.',
   'album.gift_rule':
     'On a day you do something with a friend, it may bring a gift, one every other day. Friends also bring one when you grow closer.',
   'album.set_out_full': 'The yard is full. Put a decoration away to set this out.',
@@ -279,12 +280,12 @@ export const strings = {
   'decor.brought': '{name} brought a gift: {kind}. Drag it wherever you like.',
   'decor.title': '{kind}, drag to move it',
   'decor.put_away_done': '{kind} put away',
-  'decor.keepsake_put_away': '{kind} put back in the gift box',
-  'decor.keepsake_title': "{kind}, {name}'s memento: drag to move it",
+  'decor.memento_put_away': '{kind} put back in the gift box',
+  'decor.memento_title': "{kind}, {name}'s memento: drag to move it",
   'decor.brought_boxed': '{name} brought a gift: {kind}. The yard is full, so it is in the gift box in the album.',
-  'decor.brought_keepsake': '{name} brought its memento: {kind}. Put away, it stays in the gift box.',
+  'decor.brought_memento': '{name} brought its memento: {kind}. Put away, it stays in the gift box.',
   'decor.brought_thanks': '{name} brought a gift for growing closer: {kind}.',
-  'decor.gift_keepsake': [
+  'decor.gift_memento': [
     'This is my favourite thing. I want you to have it!',
     'Keep this and think of me!',
     "It's special. It's yours now!",

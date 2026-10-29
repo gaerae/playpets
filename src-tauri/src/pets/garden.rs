@@ -1,7 +1,7 @@
 //! The garden friends and the person grow together: seeds a friend found, the plants grown from
 //! them, and the decorations friends bring as gifts. Digging awards seeds and saplings.
 //! A friend brings a gift on a day the two did something together, every few days, and one when it
-//! grows closer (a keepsake of its own at level 4); while the yard is full they wait in a box.
+//! grows closer (a memento of its own at level 4); while the yard is full they wait in a box.
 //! The page decides when (it knows who is idle, whether the yard is seen and the local day); every
 //! limit, and which gift comes next, is kept here. Growth is not stored: a plant's stage follows
 //! from when it was planted (src/yard/garden.js). What can grow and what friends bring are the
@@ -27,9 +27,9 @@ pub const DECOR_MAX: usize = 12;
 pub const BOX_MAX: usize = 12;
 /// Days from one everyday gift to the next.
 pub const GIFT_EVERY_DAYS: i64 = 2;
-/// The levels a friend brings a gift for when it reaches them; at KEEPSAKE_LEVEL it is a keepsake.
+/// The levels a friend brings a gift for when it reaches them; at MEMENTO_LEVEL it is a memento.
 pub const THANKS_LEVELS: std::ops::RangeInclusive<u32> = 2..=5;
-pub const KEEPSAKE_LEVEL: u32 = 4;
+pub const MEMENTO_LEVEL: u32 = 4;
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -85,9 +85,9 @@ pub struct Decor {
     /// The friend who brought it (friend id); none for a gift from before friends were named.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub from: Option<String>,
-    /// The friend's keepsake: brought at level 4, and kept in the box when put away.
+    /// The friend's memento: brought at level 4, and kept in the box when put away.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub keepsake: bool,
+    pub memento: bool,
 }
 
 /// A day as the page writes it: YYYY-MM-DD, with a month and a day of the month that can be.
@@ -277,8 +277,8 @@ impl Garden {
         Ok(Some(plant.kind.clone()))
     }
 
-    /// What the next gift is: each kind once, in order; after that one that is not in the yard
-    /// (any kind, once every kind is), turned by `turn` so it is not always the same.
+    /// What the next gift is: each kind once, in order; after that one that is not in the yard or
+    /// the box (any kind, once every kind is), turned by `turn` so it is not always the same.
     pub fn next_gift(&self, turn: usize) -> &'static str {
         let kinds = catalog().gifts();
         if let Some(kind) = kinds.iter().find(|k| !self.received.iter().any(|r| r == *k)) {
@@ -287,7 +287,7 @@ impl Garden {
         let away: Vec<&'static str> = kinds
             .iter()
             .copied()
-            .filter(|k| !self.decor.iter().any(|d| d.kind == *k))
+            .filter(|k| !self.decor.iter().chain(&self.boxed).any(|d| d.kind == *k))
             .collect();
         let from = if away.is_empty() { kinds } else { away };
         from.get(turn % from.len().max(1)).copied().unwrap_or_default()
@@ -323,8 +323,8 @@ impl Garden {
         Ok(given)
     }
 
-    /// A friend that reached `level` brings a gift for it, once a level: at KEEPSAKE_LEVEL (or the
-    /// first time after it) its keepsake, otherwise the next everyday one. The caller checks the
+    /// A friend that reached `level` brings a gift for it, once a level: at MEMENTO_LEVEL (or the
+    /// first time after it) its memento, otherwise the next everyday one. The caller checks the
     /// friend has reached the level.
     pub fn thanks(&mut self, from: &str, level: u32, x: f64, y: f64, turn: usize) -> Result<Given, String> {
         let (Some(x), Some(y)) = (place(x), place(y)) else {
@@ -333,27 +333,27 @@ impl Garden {
         if !THANKS_LEVELS.contains(&level) || self.thanked.get(from).is_some_and(|&had| had >= level) {
             return Err(i18n::t("error.bad_request"));
         }
-        let keepsake = level >= KEEPSAKE_LEVEL && !self.has_keepsake(from);
-        let kind = if keepsake {
-            keepsake_kind(from)
+        let memento = level >= MEMENTO_LEVEL && !self.has_memento(from);
+        let kind = if memento {
+            memento_kind(from)
         } else {
             self.next_gift(turn)
         };
-        let given = self.give(kind, from, keepsake, x, y)?;
+        let given = self.give(kind, from, memento, x, y)?;
         self.thanked.insert(from.into(), level);
         Ok(given)
     }
 
-    /// Whether a friend's keepsake is in the yard or the box.
-    pub fn has_keepsake(&self, from: &str) -> bool {
+    /// Whether a friend's memento is in the yard or the box.
+    pub fn has_memento(&self, from: &str) -> bool {
         self.decor
             .iter()
             .chain(&self.boxed)
-            .any(|d| d.keepsake && d.from.as_deref() == Some(from))
+            .any(|d| d.memento && d.from.as_deref() == Some(from))
     }
 
     /// Sets a gift down, or puts it in the box when the yard is full; counted the first time.
-    fn give(&mut self, kind: &str, from: &str, keepsake: bool, x: f64, y: f64) -> Result<Given, String> {
+    fn give(&mut self, kind: &str, from: &str, memento: bool, x: f64, y: f64) -> Result<Given, String> {
         if kind.is_empty() {
             return Err(i18n::t("error.bad_request"));
         }
@@ -363,7 +363,7 @@ impl Garden {
             x,
             y,
             from: Some(from.into()),
-            keepsake,
+            memento,
         };
         let boxed = self.decor.len() >= DECOR_MAX;
         if boxed && self.boxed.len() >= BOX_MAX {
@@ -426,29 +426,25 @@ impl Garden {
         Ok(())
     }
 
-    /// Puts a decoration away (a friend may bring it again another day). A keepsake goes into the
-    /// box instead, to be set out again.
+    /// Puts a decoration away (a friend may bring it again another day). A memento goes into the
+    /// box instead, to be set out again; with the box full it goes as any gift does, so a yard of
+    /// mementos and a full box can still make room.
     pub fn put_away(&mut self, id: &str) -> Result<(), String> {
         let at = self
             .decor
             .iter()
             .position(|d| d.id == id)
             .ok_or_else(|| i18n::t("error.decor_missing"))?;
-        if self.decor[at].keepsake {
-            if self.boxed.len() >= BOX_MAX {
-                return Err(i18n::tr("error.box_full", &[("limit", &BOX_MAX.to_string())]));
-            }
-            let kept = self.decor.remove(at);
-            self.boxed.push(kept);
-        } else {
-            self.decor.remove(at);
+        let gone = self.decor.remove(at);
+        if gone.memento && self.boxed.len() < BOX_MAX {
+            self.boxed.push(gone);
         }
         Ok(())
     }
 }
 
-/// A friend's keepsake: one of the everyday gifts, always the same for the same friend.
-pub fn keepsake_kind(from: &str) -> &'static str {
+/// A friend's memento: one of the everyday gifts, always the same for the same friend.
+pub fn memento_kind(from: &str) -> &'static str {
     let kinds = catalog().gifts();
     // FNV-1a: stable across runs and builds, unlike the standard hasher.
     let hash = from.bytes().fold(0xcbf2_9ce4_8422_2325_u64, |h, b| {
@@ -647,7 +643,53 @@ mod tests {
     }
 
     #[test]
-    fn a_friend_brings_one_gift_a_level_and_its_own_keepsake_at_level_four() {
+    fn a_full_yard_and_box_take_no_gift_and_can_always_make_room() {
+        let mut g = Garden::default();
+        let gift = |kind: &str, memento| Decor {
+            id: Uuid::new_v4().to_string(),
+            kind: kind.into(),
+            x: 0.5,
+            y: 0.5,
+            from: Some("miso".into()),
+            memento,
+        };
+        // Every kind has come before; the yard holds a few of them, all mementos.
+        g.received = catalog().gifts().iter().map(|k| k.to_string()).collect();
+        g.decor = (0..DECOR_MAX).map(|_| gift("bench", true)).collect();
+        g.boxed = vec![gift("lantern", false), gift("pond", false)];
+        // The box is not filled with what is already in it.
+        for turn in 0..catalog().gifts().len() {
+            let next = g.next_gift(turn);
+            assert!(
+                !["bench", "lantern", "pond"].contains(&next),
+                "{next} is in the yard or the box"
+            );
+        }
+        // A memento or thanks gift that finds the yard full waits in the box too.
+        let thanks = g.thanks("pip", 4, 0.5, 0.5, 0).unwrap();
+        assert!(thanks.boxed && thanks.decor.memento);
+        while g.boxed.len() < BOX_MAX {
+            g.boxed.push(gift("swing", false));
+        }
+        assert_eq!(
+            g.thanks("pip", 5, 0.5, 0.5, 0).unwrap_err(),
+            i18n::t("error.gifts_full")
+        );
+        assert_eq!(
+            g.gift(0.5, 0.5, &gift_day(0), 0, None, "pip").unwrap_err(),
+            i18n::t("error.gifts_full")
+        );
+        assert_eq!(g.thanked.get("pip"), Some(&4), "a refused gift is not counted");
+        // With the box full, a memento put away goes as any gift does, so the yard has room again.
+        let id = g.decor[0].id.clone();
+        g.put_away(&id).unwrap();
+        assert_eq!((g.decor.len(), g.boxed.len()), (DECOR_MAX - 1, BOX_MAX));
+        let waiting = g.boxed[0].id.clone();
+        assert!(g.set_out(&waiting, 0.5, 0.8).is_ok());
+    }
+
+    #[test]
+    fn a_friend_brings_one_gift_a_level_and_its_own_memento_at_level_four() {
         let mut g = Garden::default();
         assert!(
             g.thanks("miso", 1, 0.5, 0.5, 0).is_err(),
@@ -655,31 +697,32 @@ mod tests {
         );
         assert!(g.thanks("miso", 6, 0.5, 0.5, 0).is_err());
         let two = g.thanks("miso", 2, 0.5, 0.5, 0).unwrap();
-        assert!(!two.decor.keepsake);
+        assert!(!two.decor.memento);
         assert!(g.thanks("miso", 2, 0.5, 0.5, 0).is_err(), "once a level");
         let four = g.thanks("miso", 4, 0.5, 0.5, 0).unwrap();
-        assert!(four.decor.keepsake);
-        assert_eq!(four.decor.kind, keepsake_kind("miso"));
+        assert!(four.decor.memento);
+        assert_eq!(four.decor.kind, memento_kind("miso"));
         assert!(
             g.thanks("miso", 3, 0.5, 0.5, 0).is_err(),
             "a level passed is not given again"
         );
         assert!(
-            !g.thanks("miso", 5, 0.5, 0.5, 0).unwrap().decor.keepsake,
-            "one keepsake a friend"
+            !g.thanks("miso", 5, 0.5, 0.5, 0).unwrap().decor.memento,
+            "one memento a friend"
         );
-        // A friend already past level 4 when keepsakes began still brings one at its next level.
-        assert!(g.thanks("pip", 5, 0.5, 0.5, 0).unwrap().decor.keepsake);
-        // The same friend has the same keepsake on every run; friends differ between them.
-        assert_eq!(keepsake_kind("miso"), keepsake_kind("miso"));
-        assert!(catalog().gifts().contains(&keepsake_kind("miso")));
+        // A friend already past level 4 when mementos began still brings one at its next level.
+        assert!(g.thanks("pip", 5, 0.5, 0.5, 0).unwrap().decor.memento);
+        // The same friend has the same memento on every run; friends differ between them.
+        assert_eq!(memento_kind("miso"), memento_kind("miso"));
+        assert_ne!(memento_kind("miso"), memento_kind("pip"));
+        assert!(catalog().gifts().contains(&memento_kind("miso")));
         // Thanks gifts leave the everyday gift's day alone.
         assert_eq!(g.gift_day, "");
-        // A keepsake put away waits in the box; another gift is simply gone.
-        let keepsake = g.decor.iter().find(|d| d.keepsake).unwrap().id.clone();
-        g.put_away(&keepsake).unwrap();
-        assert!(g.boxed.iter().any(|d| d.id == keepsake));
-        assert!(g.has_keepsake("miso"));
+        // A memento put away waits in the box; another gift is simply gone.
+        let memento = g.decor.iter().find(|d| d.memento).unwrap().id.clone();
+        g.put_away(&memento).unwrap();
+        assert!(g.boxed.iter().any(|d| d.id == memento));
+        assert!(g.has_memento("miso"));
         g.forget_friend("miso");
         assert!(!g.thanked.contains_key("miso"));
     }
@@ -735,14 +778,14 @@ mod tests {
         let boxed = Garden::restore(
             Some(&json!({
                 "giftDay": "2026-10-09",
-                "boxed": [{"id": "k", "kind": "swing", "x": 0.5, "y": 0.5, "from": "miso", "keepsake": true}, {"id": "z", "kind": "castle", "x": 0.5, "y": 0.5}],
+                "boxed": [{"id": "k", "kind": "swing", "x": 0.5, "y": 0.5, "from": "miso", "memento": true}, {"id": "z", "kind": "castle", "x": 0.5, "y": 0.5}],
                 "thanked": {"miso": 4, "pip": 99, "odd": "high"},
                 "giftWait": {"after": "2026-10-09", "dueAt": 77}
             })),
             0,
         );
         assert_eq!(boxed.boxed.len(), 1);
-        assert!(boxed.has_keepsake("miso"));
+        assert!(boxed.has_memento("miso"));
         assert_eq!(boxed.thanked.get("miso"), Some(&4));
         assert_eq!(boxed.thanked.get("pip"), Some(&5));
         assert!(!boxed.thanked.contains_key("odd"));

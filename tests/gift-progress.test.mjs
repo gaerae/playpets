@@ -18,10 +18,10 @@ globalThis.playPets = {
     calls.push(['thanks', from, level]);
     if (refuseThanks) return { ok: false, error: 'fixture refusal' };
     state.data.garden.thanked = { ...state.data.garden.thanked, [from]: level };
-    const keepsake = level >= 4;
+    const memento = level >= 4;
     return {
       ok: true,
-      data: { id: `thanks-${calls.length}`, kind: 'bench', x: 0.5, y: 0.5, from, keepsake, boxed: false },
+      data: { id: `thanks-${calls.length}`, kind: 'bench', x: 0.5, y: 0.5, from, memento, boxed: false },
     };
   },
   waitForGift: async (after, dueAt) => {
@@ -100,7 +100,12 @@ test('time alone brings no gift; a friend the person did something with today br
   decor.giftTick();
   await flush();
   assert.equal(gifts().length, 0, 'no one did anything with the friend today');
+  assert.equal(state.data.garden.giftWait, undefined, 'the wait starts only once someone plays');
   clock.together();
+  decor.giftTick();
+  await flush();
+  assert.equal(gifts().length, 0, 'not the moment the person plays');
+  clock.advance(20 * MIN);
   decor.giftTick();
   await flush();
   assert.deepEqual(gifts(), [['gift', clock.today, pet.id]]);
@@ -140,11 +145,17 @@ test("the wait is the backend's, so a restart keeps it", async t => {
   assert.equal(gifts().length, 1);
 });
 
-test('a wait set before the last gift, malformed or too far ahead is drawn again', async t => {
-  for (const saved of [{ after: '2026-01-01', dueAt: 0 }, { after: '2026-01-03', dueAt: 'later' }, 'future']) {
+test('a wait set before the last gift, on an earlier day, malformed or too far ahead is drawn again', async t => {
+  for (const saved of [
+    { after: '2026-01-01', dueAt: 0 },
+    { after: '2026-01-03', dueAt: 'later' },
+    'future',
+    'yesterday',
+  ]) {
     await t.test(JSON.stringify(saved), async t => {
       const clock = fixture(t);
-      state.data.garden.giftWait = saved === 'future' ? { after: '2026-01-03', dueAt: clock.now + 10 * DAY } : saved;
+      const at = { future: clock.now + 10 * DAY, yesterday: clock.now - DAY };
+      state.data.garden.giftWait = at[saved] ? { after: '2026-01-03', dueAt: at[saved] } : saved;
       clock.together();
       (await fresh()).giftTick();
       await flush();
@@ -181,12 +192,15 @@ test('a full yard sends the gift to the box; with both full no gift is asked for
   const twelve = () => Array.from({ length: 12 }, (_, id) => ({ id: `${id}`, kind: 'bench', x: 0.5, y: 0.5 }));
   state.data.garden.decor = twelve();
   state.data.garden.boxed = twelve();
+  state.data.bonds[pet.id] = { points: 500 };
   clock.together();
   const decor = await fresh();
   decor.giftTick();
   clock.advance(20 * MIN);
   decor.giftTick();
+  // A friend at level 4 would bring a thanks gift by the second tick (the first sets its moment).
   decor.thanksTick(1e12);
+  decor.thanksTick(2e12);
   await flush();
   assert.equal(calls.length, 0);
   state.data.garden.boxed = [];
@@ -237,4 +251,19 @@ test('a friend that grew closer brings one gift for the level it reached', async
   await tick(4e9);
   await tick(5e9);
   assert.equal(calls.length, 2, 'a refused level is not asked for again');
+});
+
+test('a level reached while there was no room still brings its gift, one level at a time', async t => {
+  fixture(t);
+  const decor = await fresh();
+  state.data.garden.thanked = { [pet.id]: 2 };
+  state.data.bonds[pet.id] = { points: 500 };
+  for (const now of [1e9, 2e9, 3e9, 4e9]) {
+    decor.thanksTick(now);
+    await flush();
+  }
+  assert.deepEqual(calls, [
+    ['thanks', pet.id, 3],
+    ['thanks', pet.id, 4],
+  ]);
 });
