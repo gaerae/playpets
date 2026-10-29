@@ -472,10 +472,14 @@ body:not(.compact) .atmosphere-choice summary {
   min-height: 36px;
 }
 /* Importing and the creation room sit beside the Places label, so the gallery starts at once. Both
-   are plain actions with an icon, so the pair never reads as tabs with one chosen. */
+   are plain actions with an icon, so the pair never reads as tabs with one chosen. A narrow dock, or
+   a long language, puts them on their own line, kept to the right and wrapping inside it. */
 .dock-section-head .background-actions {
-  flex: none;
-  flex-wrap: nowrap;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-left: auto;
+  min-width: 0;
   gap: 2px;
 }
 .dock-section-head .background-actions .button {

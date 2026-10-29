@@ -524,6 +524,7 @@ body.compact .toast > span {
 }
 .dock-section-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px;
 }
@@ -534,9 +535,10 @@ body.compact .toast > span {
   font-weight: 600;
   color: var(--muted);
 }
+/* The label keeps its whole word; what does not fit beside it moves to the next line. */
 .dock-section-head .dock-section-label {
-  flex: 1;
-  min-width: 0;
+  flex: 1 0 auto;
+  white-space: nowrap;
 }
 #management-window .view-button,
 #management-window .view-wander {
