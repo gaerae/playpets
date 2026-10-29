@@ -178,7 +178,20 @@ fn still_working(pets: &Value, pet: &str, by: &str) -> bool {
     };
     pets.as_array()
         .and_then(|list| list.iter().find(|p| p.get("id").and_then(|v| v.as_str()) == Some(&id)))
-        .is_some_and(|p| p["state"] == "working" && p["source"] != "chat" && p["by"] == by)
+        .is_some_and(|p| {
+            p["state"] == "working"
+                && p["source"] != "chat"
+                && p["by"].as_str().is_some_and(|was| same_reporter(was, by))
+        })
+}
+
+/// Whether two reports came from the same turn: the same agent and session, or the agent with no
+/// session named on one side (a hook whose payload left it out), so a notice without a session id
+/// still settles its agent's turn. Two sessions both named stay apart.
+fn same_reporter(a: &str, b: &str) -> bool {
+    let (agent_a, session_a) = a.split_once(':').map_or((a, None), |(x, s)| (x, Some(s)));
+    let (agent_b, session_b) = b.split_once(':').map_or((b, None), |(x, s)| (x, Some(s)));
+    agent_a == agent_b && (session_a.is_none() || session_b.is_none() || session_a == session_b)
 }
 
 /// Who a hook reports for: the agent, and its session when the payload names one (Claude Code and
@@ -952,6 +965,14 @@ mod tests {
         assert!(!still_working(&pets, "p3", "grok"));
         assert!(!still_working(&pets, "nobody", "grok"));
         assert!(!still_working(&json!({"error": "x"}), "", "grok"));
+        // A session named on one side only is the same agent's turn; two named sessions are not.
+        let pets = json!([{"id": "p1", "name": "Clover", "state": "working", "by": "grok:s1"}]);
+        assert!(still_working(&pets, "", "grok"));
+        assert!(still_working(&pets, "", "grok:s1"));
+        assert!(!still_working(&pets, "", "grok:s2"));
+        assert!(!still_working(&pets, "", "claude"));
+        let pets = json!([{"id": "p1", "name": "Clover", "state": "working", "by": "grok"}]);
+        assert!(still_working(&pets, "", "grok:s1"));
     }
 
     #[test]
