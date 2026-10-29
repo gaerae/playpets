@@ -126,6 +126,25 @@ impl Prefs {
         m
     }
 
+    /// The language a run speaks (`forced`, `PLAYPETS_LANG`, before the saved one) and, when that
+    /// is not the person's own, the own one kept for state.json, so the next run without the
+    /// variable is in their language again.
+    pub fn languages(
+        saved: Option<&str>,
+        forced: Option<&str>,
+        system: Option<&str>,
+    ) -> (i18n::Lang, Option<i18n::Lang>) {
+        let language = i18n::pick_language(saved, forced, system);
+        let own = i18n::pick_language(saved, None, system);
+        (language, (own != language).then_some(own))
+    }
+
+    /// A language the person picked: theirs to keep, even in a run that forced another.
+    pub fn choose_language(&mut self, lang: i18n::Lang) {
+        self.language = lang;
+        self.kept_language = None;
+    }
+
     /// As written to state.json: the switches, with the person's own language when a run forces another.
     pub fn saved(&self) -> Map<String, Value> {
         let mut m = self.json();
@@ -149,6 +168,40 @@ mod tests {
         assert_eq!(prefs.saved()["language"], json!("en"));
         prefs.kept_language = None;
         assert_eq!(prefs.saved()["language"], json!("ko"));
+    }
+
+    #[test]
+    fn a_run_forced_into_another_language_keeps_the_persons_until_they_pick_one() {
+        let (en, ja, ko) = (
+            i18n::Lang::parse("en").unwrap(),
+            i18n::Lang::parse("ja").unwrap(),
+            i18n::Lang::parse("ko").unwrap(),
+        );
+        assert_eq!(Prefs::languages(Some("ko"), None, Some("en-US")), (ko, None));
+        assert_eq!(Prefs::languages(Some("ko"), Some("en"), None), (en, Some(ko)));
+        assert_eq!(
+            Prefs::languages(None, Some("ja"), Some("ko-KR")),
+            (ja, Some(ko)),
+            "the system's"
+        );
+        assert_eq!(
+            Prefs::languages(Some("en"), Some("en"), None),
+            (en, None),
+            "the same: nothing kept"
+        );
+        assert_eq!(
+            Prefs::languages(Some("ko"), Some("xx"), None),
+            (ko, None),
+            "an unknown one is not forced"
+        );
+        let mut prefs = Prefs::restore(&json!({}), en);
+        prefs.kept_language = Some(ko);
+        prefs.choose_language(ja);
+        assert_eq!(
+            prefs.saved()["language"],
+            json!("ja"),
+            "picked in a forced run, it is kept"
+        );
     }
 
     #[test]
