@@ -146,11 +146,20 @@ pub(super) fn launcher(bin: &Path) -> (PathBuf, Vec<PathBuf>) {
 }
 
 pub fn resolve_bin(name: &str) -> Option<PathBuf> {
-    let mut dirs: Vec<PathBuf> = std::env::var_os("PATH")
-        .map(|path| std::env::split_paths(&path).collect())
-        .unwrap_or_default();
-    dirs.extend(extra_dirs());
-    find_in(name, &dirs)
+    find_in(
+        name,
+        &search_dirs(&std::env::var_os("PATH").unwrap_or_default(), extra_dirs()),
+    )
+}
+
+/// Where a CLI is looked for: this app's PATH, then the folders it leaves out. An empty entry
+/// (`a::b`, a trailing `:`) means the current folder to a shell; it is skipped, so a file of the
+/// same name there is never taken for the CLI.
+fn search_dirs(path: &OsStr, extra: Vec<PathBuf>) -> Vec<PathBuf> {
+    std::env::split_paths(path)
+        .filter(|dir| !dir.as_os_str().is_empty())
+        .chain(extra)
+        .collect()
 }
 
 /// The first `name` in `dirs` that can run: a file, executable on Unix.
@@ -669,6 +678,16 @@ mod tests {
         // A folder whose name holds the separator would split in two: it is left out.
         let odd = PathBuf::from(format!("/odd{sep}name"));
         assert_eq!(child_path(None, OsStr::new(""), &[odd]), "");
+    }
+
+    #[test]
+    fn an_empty_path_entry_is_not_the_current_folder() {
+        let sep = if cfg!(windows) { ";" } else { ":" };
+        let path = OsString::from(["/usr/bin", "", "/bin", ""].join(sep));
+        assert_eq!(
+            search_dirs(&path, vec![PathBuf::from("/extra")]),
+            ["/usr/bin", "/bin", "/extra"].map(PathBuf::from)
+        );
     }
 
     #[test]
