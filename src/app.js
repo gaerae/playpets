@@ -33,8 +33,8 @@ import { every, everyMinute } from './core/ticker.js';
 import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
 import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
-import { drawPortrait, select, setupFriend } from './panel/friend.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
+import { drawPortrait, select, setupFriend } from './panel/friend.js';
 import { drawPreviews, invite, setupInvite } from './panel/invite.js';
 import {
   announceInstalledUpdate,

@@ -78,7 +78,7 @@ export function inspectPng(bytes) {
     dataEnded = false;
   const compressed = [],
     metadata = [];
-  for (let at = 8; at < bytes.length; ) {
+  for (let at = 8; at < bytes.length;) {
     if (at + 12 > bytes.length) fail();
     const size = bytes.readUInt32BE(at),
       end = at + size + 12;

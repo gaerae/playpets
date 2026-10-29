@@ -65,7 +65,7 @@ export function validatePng(bytes, { canonical = false } = {}) {
     channels,
     ended = false;
   const compressed = [];
-  for (let at = 8; at < bytes.length; ) {
+  for (let at = 8; at < bytes.length;) {
     if (at + 12 > bytes.length) fail();
     const size = bytes.readUInt32BE(at),
       type = bytes.toString('ascii', at + 4, at + 8),

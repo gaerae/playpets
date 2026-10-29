@@ -10,8 +10,8 @@ import ReleaseList from './ReleaseList.vue';
 import ReleaseMeta from './ReleaseMeta.vue';
 import Shot from './Shot.vue';
 import Since from './Since.vue';
-import Sprite from './Sprite.vue';
 import { seedReleases, setupSiteLocale } from './site-runtime.mjs';
+import Sprite from './Sprite.vue';
 import './style.css';
 import './studio.css';
 

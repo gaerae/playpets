@@ -13,9 +13,8 @@ globalThis.playPets = {
     });
   },
 };
-const { sendDiscovery, setupDiscovery, beginDiscovery, cancelDiscovery, syncDiscovery } = await import(
-  '../src/yard/discovery.js'
-);
+const { sendDiscovery, setupDiscovery, beginDiscovery, cancelDiscovery, syncDiscovery } =
+  await import('../src/yard/discovery.js');
 const state = await import('../src/core/state.js');
 const { setData, setSelected, views } = state;
 const { measureYard } = await import('../src/yard/field.js');
