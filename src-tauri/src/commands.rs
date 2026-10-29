@@ -268,6 +268,19 @@ static COMMANDS: &[Command] = &[
         commit(c.app, &c.state, |d| d.garden.pull(c.text(0)).map(|_| Value::Null))
     }),
     main("receiveGift", receive_gift),
+    main("thanksGift", thanks_gift),
+    // (id, x, y): a gift out of the box, set down in the yard.
+    main("setOut", |c| {
+        let (x, y) = (c.float(1), c.float(2));
+        commit(c.app, &c.state, |d| d.garden.set_out(c.text(0), x, y).map(|d| json!(d)))
+    }),
+    // (giftDay it follows, due at in ms): the wait for the next everyday gift, kept across restarts.
+    main("waitForGift", |c| {
+        let due = c.arg(1).as_u64().ok_or_else(|| i18n::t("error.bad_request"))?;
+        commit(c.app, &c.state, |d| {
+            d.garden.wait_for_gift(c.text(0), due).map(|_| Value::Null)
+        })
+    }),
     main("moveDecor", |c| {
         let (x, y) = (c.float(1), c.float(2));
         commit(c.app, &c.state, |d| {
@@ -356,6 +369,9 @@ static COMMANDS: &[Command] = &[
             d.garden.gift_day.clear();
             d.garden.decor.clear();
             d.garden.received.clear();
+            d.garden.boxed.clear();
+            d.garden.thanked.clear();
+            d.garden.gift_wait = None;
             Ok(Value::Null)
         })
     }),
@@ -444,20 +460,40 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
 }
 
 // Commands with more to them than a line.
+/// (x, y, day, event, friend): the friend brings an everyday gift, on a day the two did something
+/// together (bond.rs counts it).
 fn receive_gift(c: &Ctx) -> Result<Value, String> {
     let (x, y) = (c.float(0), c.float(1));
+    let (day, from) = (c.text(2), c.text(4));
     let turn = (now_ms() / 1000) as usize;
     // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
-    if !crate::pets::has_come(c.text(2), now_ms()) {
+    if !crate::pets::has_come(day, now_ms()) {
         return Err(i18n::t("error.bad_request"));
     }
     commit(c.app, &c.state, |d| {
         // A clock set ahead and put right while the app ran left a day still to come.
         let latest = crate::pets::latest_day(now_ms());
         crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &latest);
+        require_pet(d, from)?;
+        if !d.bonds.together_on(from, day) {
+            return Err(i18n::t("error.bad_request"));
+        }
         d.garden
-            .gift(x, y, c.text(2), turn, c.arg(3).as_str())
-            .map(|d| json!(d))
+            .gift(x, y, day, turn, c.arg(3).as_str(), from)
+            .map(|g| json!(g))
+    })
+}
+/// (friend, level, x, y): a friend that grew closer brings a gift for the level it reached.
+fn thanks_gift(c: &Ctx) -> Result<Value, String> {
+    let (from, x, y) = (c.text(0), c.float(2), c.float(3));
+    let level = c.arg(1).as_u64().unwrap_or(0) as u32;
+    let turn = (now_ms() / 1000) as usize;
+    commit(c.app, &c.state, |d| {
+        require_pet(d, from)?;
+        if d.bonds.level_of(from) < level {
+            return Err(i18n::t("error.bad_request"));
+        }
+        d.garden.thanks(from, level, x, y, turn).map(|g| json!(g))
     })
 }
 /// Something done together with a friend: its bond grows (bond.rs keeps what it is worth).
@@ -585,6 +621,7 @@ fn remove_pet(app: &AppHandle, state: &State<Shared>, cli: &chat::cli::CliManage
         d.statuses.remove(id);
         d.activity.remove(id);
         d.bonds.forget(id);
+        d.garden.forget_friend(id);
         // An agent that reported to this friend goes back to the first one.
         d.agent_pets.retain(|_, pet| pet != id);
         Ok(Value::Null)

@@ -4,7 +4,7 @@ PlayPets is a shared yard for companions who talk to you and to each other. Invi
 
 The first yard opens on a sunny spring day. Pick the season, time and weather yourself, or leave them on Auto. Friends stroll, eat treats and play three games, and digging turns up flower seeds and saplings.
 
-The yard gets one gift per local calendar day, shared by all your friends. Grow flowers, fish and catch bugs to fill the album, and you grow closer over time.
+Friends you play with bring gifts: one every other day for the whole yard, and another each time a friend grows closer. Grow flowers, fish and catch bugs to fill the album, and you grow closer over time.
 
 Resize the window to keep the yard beside your work, or switch to desktop mode and let friends roam over your other windows.
 

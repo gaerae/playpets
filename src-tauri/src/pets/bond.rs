@@ -107,6 +107,16 @@ impl Bonds {
         Ok((bond.points, after, after > before))
     }
 
+    /// Whether the person did something with this friend on `day` (time together aside).
+    pub fn together_on(&self, pet: &str, day: &str) -> bool {
+        self.0.get(pet).is_some_and(|b| b.day == day && b.today > 0)
+    }
+
+    /// A friend's level now (1 for a friend with no bond yet).
+    pub fn level_of(&self, pet: &str) -> u32 {
+        level(self.0.get(pet).map_or(0, |b| b.points))
+    }
+
     /// A friend that left takes its bond with it.
     pub fn forget(&mut self, pet: &str) {
         self.0.remove(pet);

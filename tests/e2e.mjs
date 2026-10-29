@@ -367,36 +367,43 @@ const scenario = `(async()=>{
     await until(()=>document.querySelectorAll('.plant').length===1);
     const gb=(await playPets.bootstrap()).data.garden;
     await L('garden='+(gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant').dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true'?'found-planted':'err:'+JSON.stringify(gb)));
-    // A gift: the backend picks the first kind and allows one a day; a drag moves it and it stays moved; it can be put away.
+    // A gift: a friend the person did something with that day brings it, every other day; the backend picks the first
+    // kind; a drag moves it and it stays moved; it can be put away.
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});await until(()=>!document.querySelector('.decor'));
-    const gift=(await playPets.receiveGift(0.3,0.2,'2025-01-01')).data;await until(()=>document.querySelectorAll('.decor').length===1);
-    const twice=await playPets.receiveGift(0.5,0.5,'2025-01-01');const deco=document.querySelector('.decor'),dr=deco.getBoundingClientRect(),dp={bubbles:true,pointerId:7,button:0,clientX:dr.left+dr.width/2,clientY:dr.bottom-4};
+    const giver=(await playPets.bootstrap()).data.pets[0].id,alone=await playPets.receiveGift(0.3,0.2,'2025-01-01',null,giver);
+    const giftOn=async(x,y,day,event=null)=>{await playPets.befriend(giver,'pat',day);return playPets.receiveGift(x,y,day,event,giver);};
+    const gift=(await giftOn(0.3,0.2,'2025-01-01')).data;await until(()=>document.querySelectorAll('.decor').length===1);
+    const twice=await giftOn(0.5,0.5,'2025-01-01'),nextDay=await giftOn(0.5,0.5,'2025-01-02');const deco=document.querySelector('.decor'),dr=deco.getBoundingClientRect(),dp={bubbles:true,pointerId:7,button:0,clientX:dr.left+dr.width/2,clientY:dr.bottom-4};
     deco.dispatchEvent(new PointerEvent('pointerdown',dp));deco.dispatchEvent(new PointerEvent('pointermove',{...dp,clientX:dp.clientX+120}));deco.dispatchEvent(new PointerEvent('pointerup',{...dp,clientX:dp.clientX+120}));
     const moved=await until(async()=>(await playPets.bootstrap()).data.garden.decor[0]?.x>0.35);
     await playPets.putAway(gift.id);const away=await until(()=>!document.querySelector('.decor'));
-    await L('gift='+(gift.kind==='bench'&&twice.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-once-moved-away':'err:'+JSON.stringify([gift,twice])));
+    await L('gift='+(alone.ok===false&&gift.kind==='bench'&&gift.from===giver&&twice.ok===false&&nextDay.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-every-other-day-moved-away':'err:'+JSON.stringify([alone,gift,twice,nextDay])));
     // A seasonal event: its gift comes on its days (the backend checks them), and the label beside the scene shows the event on now.
-    const snow=(await playPets.receiveGift(0.6,0.3,'2025-12-20','lights')).data;await until(()=>document.querySelectorAll('.decor').length===1);await playPets.putAway(snow.id);
+    const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(()=>document.querySelectorAll('.decor').length===1);await playPets.putAway(snow.id);
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
     await L('event='+(snow.kind==='snowman'&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
-    // Real saved gifts fill the yard; putting one away retains its album record and frees the capacity.
+    // Real saved gifts fill the yard; the next waits in the gift box, putting one away retains its album record and
+    // frees the capacity, and the boxed one is set out from the album.
     const capacityGifts=[];
     for(let day=1;day<=12;day++){
-      const result=await playPets.receiveGift(0.12+(day%4)*0.2,0.5+Math.floor((day-1)/4)*0.1,'2026-01-'+String(day).padStart(2,'0'));
+      const result=await giftOn(0.12+(day%4)*0.2,0.5+Math.floor((day-1)/4)*0.1,'2026-03-'+String(day*2).padStart(2,'0'));
       if(!result.ok)throw Error('Gift capacity fixture failed: '+result.error);
       capacityGifts.push(result.data);
     }
     await until(()=>document.querySelectorAll('.decor').length===12);
     $('album-button').click();$('album-select').value='gift';$('album-select').dispatchEvent(new Event('change'));
-    const fullGiftState=(await playPets.bootstrap()).data.garden,capacityDenied=await playPets.receiveGift(0.5,0.5,'2026-01-13');
-    const capacityExplained=$('album-dig-status').textContent===${say('album.gift_full')}&&!$('album-dig-status').hidden&&!$('album-odds-button')&&capacityDenied.ok===false;
+    const boxedGift=(await giftOn(0.5,0.5,'2026-03-26')).data,fullGiftState=(await playPets.bootstrap()).data.garden;
+    const boxShown=await until(()=>!$('album-box').hidden&&document.querySelectorAll('.album-box-item').length===1&&document.querySelector('.album-box-item').disabled);
+    const capacityExplained=$('album-dig-status').textContent===${say('album.gift_full')}&&!$('album-dig-status').hidden&&!$('album-odds-button')&&boxedGift?.boxed===true&&fullGiftState.decor.length===12&&fullGiftState.boxed.length===1&&!!boxShown;
     await playPets.putAway(capacityGifts[0].id);
-    const capacityFreed=await until(()=>$('album-dig-status').textContent===${say('album.gift_rule')});
+    const capacityFreed=await until(()=>$('album-dig-status').textContent===${say('album.gift_rule')}&&!document.querySelector('.album-box-item').disabled);
     const afterGiftAway=(await playPets.bootstrap()).data.garden;
     const giftRecordKept=afterGiftAway.received.length===fullGiftState.received.length&&afterGiftAway.received.includes(capacityGifts[0].kind)&&afterGiftAway.decor.length===11;
-    $('close-album').click();for(const item of capacityGifts.slice(1))await playPets.putAway(item.id);
+    document.querySelector('.album-box-item').click();
+    const setOut=await until(async()=>{const g=(await playPets.bootstrap()).data.garden;return g.boxed.length===0&&g.decor.some(d=>d.id===boxedGift.id)&&$('album-box').hidden;});
+    $('close-album').click();for(const item of [...capacityGifts.slice(1),boxedGift])await playPets.putAway(item.id);
     await until(()=>!document.querySelector('.decor'));
-    await L('giftCapacity='+(capacityExplained&&capacityFreed&&giftRecordKept?'full-explained-free-space-record-kept':'err:'+JSON.stringify({capacityExplained,capacityFreed:!!capacityFreed,giftRecordKept})));
+    await L('giftCapacity='+(capacityExplained&&capacityFreed&&giftRecordKept&&setOut?'full-boxed-set-out-record-kept':'err:'+JSON.stringify({capacityExplained,capacityFreed:!!capacityFreed,giftRecordKept,setOut:!!setOut})));
 
     // The album: a catch is kept (the biggest fish, a count), nonsense is refused, and the album shows it.
     await playPets.catch('fish','carp',41.5);await playPets.catch('fish','carp',33);const tooBig=await playPets.catch('fish','carp',999);
@@ -411,8 +418,8 @@ const scenario = `(async()=>{
     let extensionAccepted=true;
     for(const id of extensionFish)extensionAccepted&&=(await playPets.catch('fish',id,3)).ok;
     for(const id of extensionBugs)extensionAccepted&&=(await playPets.catch('bug',id,0)).ok;
-    for(let day=13;day<=18;day++){
-      const result=await playPets.receiveGift(0.4,0.3,'2026-01-'+day);
+    for(let day=1;day<=6;day++){
+      const result=await giftOn(0.4,0.3,'2026-04-'+String(day*2).padStart(2,'0'));
       if(result.ok)await playPets.putAway(result.data.id);else extensionAccepted=false;
     }
     const extensionState=(await playPets.bootstrap()).data;
@@ -425,6 +432,11 @@ const scenario = `(async()=>{
     let rose=0;for(const day of ['2026-01-02','2026-01-03'])for(let k=0;k<12;k++)rose+=(await playPets.befriend(fid,'gift',day)).data.up?1:0;
     const hearts=await until(()=>document.querySelector('.tag-bond')?.textContent==='♥');
     await L('friendship='+((await playPets.bootstrap()).data.bonds[fid].points-p0)+'/'+rose+'/'+(hearts?'hearts':'none')+'/'+(bribe.ok===false?'refused':'taken'));
+    // A friend that grew closer brings one gift for the level it reached (the yard may bring it first on its own).
+    const thanks=await playPets.thanksGift(fid,2,0.5,0.6),thanksAgain=await playPets.thanksGift(fid,2,0.5,0.6),tooHigh=await playPets.thanksGift(fid,3,0.5,0.6);
+    const thankedState=(await playPets.bootstrap()).data.garden;
+    for(const d of thankedState.decor.filter(d=>d.from===fid))await playPets.putAway(d.id);
+    await L('thanksGift='+(thankedState.thanked?.[fid]===2&&(!thanks.ok||thanks.data.from===fid)&&thanksAgain.ok===false&&tooHigh.ok===false?'once-a-level-reached':'err:'+JSON.stringify([thanks,thanksAgain,tooHigh,thankedState.thanked])));
     // Yard sounds: on by default; the chip turns them off and on, the volume is kept and held to 0–100.
     // The settings change while the yard stays quiet: the volume goes to 0 before the chip turns it on.
     await playPets.setSound(null,300);const held=(await playPets.bootstrap()).data.sound.volume;await playPets.setSound(null,0);
@@ -751,7 +763,7 @@ const scenario = `(async()=>{
     await L('menuCopy='+(menuCopyFits?'four-locales-fit-small-and-wide':'err:'+JSON.stringify(menuCopyTrace)));
     await L('digRewardLocales='+(rewardLocaleFits?'four-locales-small-wide-hints-status':'err:'+JSON.stringify(rewardTrace)));
     await L('albumConditionsOnly='+(conditionsOnlyFits?'no-numbers-or-toggle-four-locales-small-wide':'err:'+JSON.stringify(rewardTrace)));
-    await L('giftAlbumRule='+(giftRuleFits?'whole-yard-daily-four-locales-small-wide':'err:'+JSON.stringify(rewardTrace)));
+    await L('giftAlbumRule='+(giftRuleFits?'every-other-day-four-locales-small-wide':'err:'+JSON.stringify(rewardTrace)));
     await L('digRewardCustom='+(customRewardProof?.correct?'localized-fallback-without-untranslated-key':'err'));
     await L('digRewardCustomDetail='+JSON.stringify(customRewardProof));
     await L('digRewardIndoors='+(indoorRewardFits?'four-locales-small-wide-no-soil-explained':'err:'+JSON.stringify(rewardTrace)));
@@ -1247,16 +1259,16 @@ const expect = [
   ],
   [/^assets=[1-9]/, 'catalog scan'],
   [
-    /^giftCapacity=full-explained-free-space-record-kept$/,
-    'a full12gift yard explains capacity, rejects another gift and frees space without losing its album record',
+    /^giftCapacity=full-boxed-set-out-record-kept$/,
+    'a full 12-gift yard explains capacity, keeps the next gift in the box, frees space without losing its album record and sets the boxed gift out',
   ],
   [
     /^albumConditionsOnly=no-numbers-or-toggle-four-locales-small-wide$/,
     'discovery books show conditions without exact percentages or their control in all locales and sizes',
   ],
   [
-    /^giftAlbumRule=whole-yard-daily-four-locales-small-wide$/,
-    'the gift album explains its shared daily rule without a discovery-odds control in every locale and size',
+    /^giftAlbumRule=every-other-day-four-locales-small-wide$/,
+    'the gift album explains how gifts come without a discovery-odds control in every locale and size',
   ],
   [
     /^digRewardCustom=localized-fallback-without-untranslated-key$/,
@@ -1442,7 +1454,14 @@ const expect = [
     'yard sounds are on by default, the chip turns them off and on, and the volume is held to 0–100',
   ],
   [/^event=gift-and-label$/, "a seasonal event's gift comes on its days, and the scene label shows the event on now"],
-  [/^gift=bench-once-moved-away$/, 'a gift comes once a day, is dragged to a new place that is kept, and is put away'],
+  [
+    /^gift=bench-every-other-day-moved-away$/,
+    "a friend's gift comes every other day after something done together, is dragged to a new place that is kept, and is put away",
+  ],
+  [
+    /^thanksGift=once-a-level-reached$/,
+    'a friend that grew closer brings one gift for a level it reached, and none for one it has not',
+  ],
   [
     /^reach=compact-chat\/layered\/labels-over$/,
     'chat stays in the small window; nearer friends are drawn on top, among the garden things, with labels over all',

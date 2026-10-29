@@ -196,7 +196,7 @@ npm run test:e2e
 ## Troubleshooting
 | Symptom | Cause | Fix |
 |---|---|---|
-| A new gift never comes | The yard holds 12 decorations (`DECOR_MAX` in `pets/garden.rs`, `decor` in `src/core/limits.js`), or not every earlier gift has come yet | Put some away; gifts come in the catalogue's order, once a day |
+| A new gift never comes | Both the yard and the gift box hold 12 (`DECOR_MAX` and `BOX_MAX` in `pets/garden.rs`), no one did anything with a friend today, or not every earlier gift has come yet | Put some away and play with a friend; gifts come in the catalogue's order, every other day ([gifts from friends](../design/2026-10-29-gifts-from-friends.md)) |
 | A new fish is refused (`error.bad_request`) | The backend was built before the catalogue changed | Build the app again: the backend builds the catalogue in |
 | A drawing does not show | The path in `art` does not match the file, or the file has no `viewBox` | `tests/content.test.mjs` names the file |
 | A drawing is black or a single colour | It paints with a colour name the yard does not set | Use the names listed under "Drawings" |

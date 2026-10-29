@@ -74,28 +74,6 @@ test('a saved gift day ahead of the local clock does not request another gift', 
   assert.deepEqual(calls, []);
 });
 
-test('a failed daily gift waits before retrying instead of celebrating every frame', async t => {
-  const { pet, now } = yard(t);
-  const bubble = { textContent: '' };
-  views.set(pet.id, { pet, px: 100, py: 100, bubble });
-  giftTick(0);
-  now(300001);
-  giftTick(300001);
-  await flush();
-  assert.deepEqual(calls, ['gift']);
-  assert.equal(bubble.textContent, '', 'a rejected gift does not announce a successful delivery');
-  for (let i = 1; i < 6; i++) {
-    now(300001 + i * 40);
-    giftTick(300001 + i * 40);
-    await flush();
-  }
-  assert.deepEqual(calls, ['gift']);
-  now(360001);
-  giftTick(360001);
-  await flush();
-  assert.deepEqual(calls, ['gift', 'gift']);
-});
-
 test('a click on the name tag opens the conversation its tooltip promises', async t => {
   const { pet } = yard(t);
   const opened = [];

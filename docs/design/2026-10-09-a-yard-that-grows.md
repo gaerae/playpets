@@ -116,3 +116,10 @@ which falls between September 8 and October 8, is inside it every year. The
 moon keeps its real phase through the event; it rises big and golden only on
 the nights within two days of the event's first full moon (`harvestMoon` in
 `src/yard/scene.js`), one harvest moon a year.
+
+## Follow-up: gifts come from friends (2026-10-29)
+
+The once-a-day gift above is historical. An everyday gift now comes at most every
+other day, from a friend the person did something with that day, and a friend
+brings one more each time it grows closer. A full yard keeps new gifts in a gift
+box. See [gifts from friends](2026-10-29-gifts-from-friends.md).

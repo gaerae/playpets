@@ -54,3 +54,11 @@ Remove the optional exact-odds view from the album and public collection guide.
 A zero caused by an indoor scene or rare-find waiting period looks like a broken
 or permanently unobtainable item. Keep habitat clues, rarity and explicit waiting
 status instead. Probability calculations remain internal for balancing and tests.
+
+## Follow-up: gifts come from friends (2026-10-29)
+
+"Gifts belong to the yard" above is historical. Gifts still come one at a time for
+the whole yard, but every other day and only from a friend the person did
+something with that day. The wait is kept in `state.json` (`giftWait`), not in
+browser storage, and a full yard keeps new gifts in a gift box instead of pausing.
+See [gifts from friends](2026-10-29-gifts-from-friends.md).

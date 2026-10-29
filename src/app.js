@@ -52,7 +52,7 @@ import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
-import { giftTick, renderDecor, setupDecor } from './yard/decor.js';
+import { giftTick, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
 import {
   autoDig,
   beginDiscovery,
@@ -327,7 +327,7 @@ const BUSY_MS = 50,
   SNOW_MS = 80,
   CALM_MS = 100;
 // What goes on in the yard between games, looked at every frame: each knows when it is due.
-const YARD_LIFE = [idleChatter, giftTick, soloFishing];
+const YARD_LIFE = [idleChatter, giftTick, thanksTick, soloFishing];
 let last = 0;
 function interval(now) {
   if (game || aiming) return BUSY_MS;

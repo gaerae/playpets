@@ -114,6 +114,19 @@
 .decor:focus-visible {
   outline: none;
 }
+/* A friend's keepsake wears a small heart, the tags' colour, so it is told from the same gift
+   brought on another day. */
+.decor.keepsake::after {
+  content: "♥";
+  position: absolute;
+  top: -2px;
+  right: 0;
+  color: #ec7d96;
+  font-size: 11px;
+  line-height: 1;
+  text-shadow: 0 1px 0 #fff;
+  pointer-events: none;
+}
 .decor:focus-visible svg {
   filter: drop-shadow(0 0 2px var(--focus));
 }

@@ -14,9 +14,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Import a pet from a ZIP file on your computer, such as one from the creator kit or a compressed pet folder. PlayPets copies the pet in, so the ZIP can be moved or deleted afterwards.
 - Remove a pet you imported or picked from the trash button beside its card in Invite a friend. An imported pet's files are deleted; a picked folder only leaves the list. While friends made from the pet are in the yard, PlayPets names them to send away first.
+- A friend brings a gift each time it grows closer, from At ease on, and at Very close its own memento, marked with a heart. A friend already close when you update brings one for the level it is at.
+- A gift box in the album's Gifts book keeps up to 12 gifts that came while the yard was full; press one to set it out once there is room. A memento you put away goes back into the box.
 
 ### Changed
 
+- Everyday gifts come from friends, not from the clock: at most one every other day, brought by a friend you did something with that day, 10 to 20 minutes after it may come. Leaving the yard open alone brings none. The wait is saved in `state.json` instead of the app's webview storage.
 - Imported backgrounds and the place, season, time of day and weather picked for the yard are saved in the data folder (`backgrounds/` and `state.json`), so a copy of the folder keeps them and deleting it removes them. At the first start of 1.4.0 they move over from the app's webview storage, which keeps its copy until the move is saved. Going back to 1.3.0 afterwards shows the default place and no imported backgrounds; they come back with 1.4.0.
 
 ### Fixed
@@ -54,6 +57,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The guide explains how gifts, the gift box and mementos come.
 - The import guide explains importing a pet ZIP directly in 1.4.0 and removing a pet in the app; the creator kit page, the kit's request and the creator skill say the same and keep the folder steps for earlier versions.
 - The user guide counts 20 gifts in the album, says an OpenAI-compatible server needs an API key only when it asks for one, lists what About PlayPets holds under Privacy and license in every language, and gives the Store and winget data folder in the FAQ. The README says Ollama and compatible servers need a model name, and that friends dig on their own only with the switch on.
 - Release pages say what changed in the app in one short line per change, and mark a change for one system with its name; install ways, the user guide and security updates move to a section of their own. The Microsoft Store shows the Windows lines and Linux software centers the Linux lines; winget and the GitHub release link to the page.
