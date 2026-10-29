@@ -221,7 +221,8 @@ const land = guard(async () => {
   const active = v.doing === reeling;
   if (active) release(v);
   if (views.get(v.pet.id) === v) {
-    befriend(v.pet.id, 'catch');
+    // A fish landed alone is the friend's own; only fishing with the person brings them closer.
+    if (!solo) befriend(v.pet.id, 'catch');
     if (active && scene.world === world && !game) {
       cue('splash');
       cheer(v, 'catch.caught', { ms: 1200 });

@@ -15,7 +15,7 @@ globalThis.playPets = {
 globalThis.matchMedia = () => ({ matches: true });
 installStorage();
 const { setData, setGame, views } = await import('../src/core/state.js');
-const { endFishing, onLake, setupCatch } = await import('../src/yard/catch.js');
+const { endFishing, onLake, setupCatch, soloFishing } = await import('../src/yard/catch.js');
 const { scene, setScenery } = await import('../src/yard/world.js');
 
 function page(context) {
@@ -171,6 +171,34 @@ test('fishing renders decorative tackle and labels the bite with its action', as
     assert.ok(Number(rod.style.zIndex) < view.z, 'the shaft passes behind the friend instead of covering its face');
     assert.ok(Number(line.style.zIndex) > view.z, 'the cast line stays in front of the fishing friend');
     assert.equal(float.getAttribute('aria-label'), (await import('../src/core/i18n.js')).t('catch.reel'));
+  } finally {
+    for (const request of catches) request.resolve({ ok: false, error: 'Save cancelled.' });
+    await settled();
+    endFishing();
+    views.clear();
+  }
+});
+
+// A friend fishing on its own is not something done with the person: no closeness, and so no
+// "together today" for an everyday gift (bond.rs together_on).
+test('a fish a friend lands alone earns no closeness', async context => {
+  context.mock.timers.enable({ apis: ['setTimeout'] });
+  context.mock.method(Math, 'random', () => 0);
+  const { view } = page(context);
+  setData({ pets: [view.pet], assets: [], statuses: {}, bonds: { [view.pet.id]: { points: 300 } } });
+  try {
+    soloFishing(0);
+    soloFishing(60 * 60 * 1000);
+    const trip = view.trip;
+    assert.ok(trip, 'a close friend goes fishing on its own');
+    view.trip = null;
+    view.target = null;
+    trip.arrive(view);
+    for (let i = 0; i < 20; i++) context.mock.timers.tick(3000);
+    assert.equal(catches.length, 1, 'it lands the fish by itself');
+    catches[0].resolve({ ok: true, data: { first: false, entry: { count: 1 } } });
+    await settled();
+    assert.equal(bonds.length, 0);
   } finally {
     for (const request of catches) request.resolve({ ok: false, error: 'Save cancelled.' });
     await settled();
