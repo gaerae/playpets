@@ -55,9 +55,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A question that comes while another is open, such as a pet link arriving, waits for the first to be answered instead of answering it No.
 - On macOS and Linux, Claude Code or Codex CLI installed with nvm, fnm, asdf, mise, Bun or pnpm is now found and marked Installed, and it runs with the Node it was installed with instead of failing to find `node` or picking up an older one.
 
+### Known limitations
+
+- Codex CLI tells PlayPets only when a reply finishes, so its friend shows Done but never Working or Waiting for you. Cursor has no hook for a confirmation, so its friend never shows Waiting for you.
+- On Linux with Wayland, clicking and dragging friends on the desktop has not been tested.
+
 ### Website and docs
 
-- The guide explains how gifts, the gift box and mementos come.
+- The guide explains how gifts, the gift box and mementos come, what each coding agent can report, and that clicking friends on Wayland has not been tested.
 - The import guide explains importing a pet ZIP directly in 1.4.0 and removing a pet in the app; the creator kit page, the kit's request and the creator skill say the same and keep the folder steps for earlier versions.
 - The user guide counts 20 gifts in the album, says an OpenAI-compatible server needs an API key only when it asks for one, lists what About PlayPets holds under Privacy and license in every language, and gives the Store and winget data folder in the FAQ. The README says Ollama and compatible servers need a model name, and that friends dig on their own only with the switch on.
 - Release pages say what changed in the app in one short line per change, and mark a change for one system with its name; install ways, the user guide and security updates move to a section of their own. The Microsoft Store shows the Windows lines and Linux software centers the Linux lines; winget and the GitHub release link to the page.

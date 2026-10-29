@@ -69,6 +69,8 @@ Each step the agent takes becomes your friend's status. You see it next to the f
 | Hit an error | Something went wrong |
 | Session ended | Resting |
 
+Not every agent reports every step. Codex CLI reports only when a reply finishes, so its friend shows Done but never Working or Waiting for you. Cursor has no hook for a confirmation, so its friend never shows Waiting for you.
+
 Your friend remembers up to 8 recent activities. Ask "what were you doing?" in the [chat](./chat.md) and it tells you.
 
 ## Copy and paste the settings <Since v="0.1.0" />

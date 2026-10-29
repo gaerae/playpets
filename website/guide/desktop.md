@@ -46,7 +46,7 @@ With **Stroll on desktop** on, your friends slowly wander around the desktop. Th
 |---|---|
 | macOS | Everything, even another app in full screen. The desktop window becomes a special panel that also shows in full-screen spaces |
 | Windows, Linux | Normal windows |
-| Linux, Wayland session | Not guaranteed. Wayland gives apps no way to stay on top or know where the mouse is, so friends can end up behind other windows and don't follow the mouse |
+| Linux, Wayland session | Not guaranteed. Wayland gives apps no way to stay on top or know where the mouse is, so friends can end up behind other windows and don't follow the mouse. Clicking and dragging friends there hasn't been tested yet |
 | Linux, X11 session | Normal windows, with mouse following |
 
 ## Still there after you close the window <Since v="0.1.0" />
