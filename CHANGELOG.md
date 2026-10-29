@@ -19,6 +19,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Closeness grows from what you do together: time with the yard seen counts up to an hour a day, and pats up to a quarter of a day's worth. Leaving the window open no longer makes friends close faster than playing; points already earned stay.
+- A friend fishing on its own calls you when a fish bites; press the float within a few seconds to reel it in together, or it gets away. The album keeps only what you catch.
 - Everyday gifts come from friends, not from the clock: at most one every other day, brought by a friend you did something with that day, 10 to 20 minutes after it may come. Leaving the yard open alone brings none. The wait is saved in `state.json` instead of the app's webview storage.
 - Imported backgrounds and the place, season, time of day and weather picked for the yard are saved in the data folder (`backgrounds/` and `state.json`), so a copy of the folder keeps them and deleting it removes them. At the first start of 1.4.0 they move over from the app's webview storage, which keeps its copy until the move is saved. Going back to 1.3.0 afterwards shows the default place and no imported backgrounds; they come back with 1.4.0.
 

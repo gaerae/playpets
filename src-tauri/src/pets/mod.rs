@@ -58,6 +58,8 @@ pub fn forget_days_after(bonds: &mut bond::Bonds, garden: &mut garden::Garden, l
         if !garden::is_day(&b.day) || b.day.as_str() > latest {
             b.day.clear();
             b.today = 0;
+            b.pat_today = 0;
+            b.time_today = 0;
         }
     }
     if garden.gift_day.as_str() > latest {

@@ -12,6 +12,12 @@ use std::collections::BTreeMap;
 pub const LEVELS: [u32; 5] = [0, 60, 200, 500, 1000];
 /// Points a day can bring from things done together (time together is not counted in this).
 pub const DAILY: u32 = 40;
+/// Points a day can bring from time together: an hour of the yard seen. Leaving it open longer
+/// brings no more, so a friend grows closer by what is done with it, not by the window alone.
+pub const TIME_DAILY: u32 = 12;
+/// Of a day's worth, how much pats can bring, so the rest comes from treats, talk, watering and
+/// catching rather than a minute of clicking.
+pub const PAT_DAILY: u32 = 10;
 /// Time together counts once in this long at most, however often the page says so (every 10
 /// minutes, src/yard/bond.js: a little longer, so a timer that fires early still counts).
 pub const TIME_EVERY_MS: u64 = 9 * 60 * 1000;
@@ -39,6 +45,12 @@ pub struct Bond {
     /// Points brought today by things done together.
     #[serde(default)]
     pub today: u32,
+    /// Of those, the points pats brought today.
+    #[serde(default, rename = "patToday")]
+    pub pat_today: u32,
+    /// Points time together brought today.
+    #[serde(default, rename = "timeToday")]
+    pub time_today: u32,
     /// When time together last counted, in ms since 1970.
     #[serde(default)]
     #[serde(rename = "timeAt", alias = "time_at")]
@@ -80,26 +92,36 @@ impl Bonds {
         // The day counts what a day can bring: it has to be a date (one that has come, checked where
         // the clock is, commands.rs). Another day starts a new day's worth, so a clock moved back
         // and forth (travel, a fix) never locks the count.
-        if reason != "time" && !super::garden::is_day(day) {
+        if !super::garden::is_day(day) {
             return Err(i18n::t("error.bad_request"));
         }
         let bond = self.0.entry(pet.to_string()).or_default();
         let before = level(bond.points);
+        if bond.day != day {
+            bond.day = day.to_string();
+            bond.today = 0;
+            bond.pat_today = 0;
+            bond.time_today = 0;
+        }
         let gained = if reason == "time" {
             if now.saturating_sub(bond.time_at) < TIME_EVERY_MS {
                 0
             } else {
                 bond.time_at = now;
-                worth
+                let gained = worth.min(TIME_DAILY.saturating_sub(bond.time_today));
+                bond.time_today += gained;
+                gained
             }
         } else {
-            if bond.day != day {
-                bond.day = day.to_string();
-                bond.today = 0;
+            let mut room = DAILY.saturating_sub(bond.today);
+            if reason == "pat" {
+                room = room.min(PAT_DAILY.saturating_sub(bond.pat_today));
             }
-            let room = DAILY.saturating_sub(bond.today);
             let gained = worth.min(room);
             bond.today += gained;
+            if reason == "pat" {
+                bond.pat_today += gained;
+            }
             gained
         };
         bond.points = bond.points.saturating_add(gained);
@@ -161,19 +183,56 @@ mod tests {
             DAILY + 3,
             "too soon"
         );
+        assert!(
+            b.befriend("a", "time", "someday", 0).is_err(),
+            "time counts by a date too"
+        );
         // Rising a level says so once.
         let mut points = b.0["a"].points;
         let mut rose = 0;
         let mut now = TIME_EVERY_MS;
         while points < LEVELS[1] {
             now += TIME_EVERY_MS;
-            let (p, _, up) = b.befriend("a", "time", "2026-10-10", now).unwrap();
+            let (p, _, up) = b.befriend("a", "water", "2026-10-11", now).unwrap();
             points = p;
             rose += up as u32;
         }
         assert_eq!(rose, 1);
         b.forget("a");
         assert!(b.0.is_empty());
+    }
+
+    #[test]
+    fn time_together_and_pats_each_bring_only_part_of_a_day() {
+        let mut b = Bonds::default();
+        // A whole day of the yard seen, a tick every ten minutes: an hour's worth counts.
+        for tick in 1..=48 {
+            b.befriend("a", "time", "2026-10-09", tick * TIME_EVERY_MS).unwrap();
+        }
+        assert_eq!(b.0["a"].points, TIME_DAILY);
+        assert!(
+            !b.together_on("a", "2026-10-09"),
+            "the yard seen is not something done together"
+        );
+        // A minute of pats brings PAT_DAILY; the rest of a day's worth comes from other things.
+        for _ in 0..100 {
+            b.befriend("a", "pat", "2026-10-09", 0).unwrap();
+        }
+        assert_eq!(b.0["a"].points, TIME_DAILY + PAT_DAILY);
+        for _ in 0..20 {
+            b.befriend("a", "treat", "2026-10-09", 0).unwrap();
+        }
+        assert_eq!(b.0["a"].points, TIME_DAILY + DAILY, "pats count toward the day's worth");
+        // The next day both start again.
+        let next = 49 * TIME_EVERY_MS;
+        assert_eq!(
+            b.befriend("a", "time", "2026-10-10", next).unwrap().0,
+            TIME_DAILY + DAILY + 2
+        );
+        assert_eq!(
+            b.befriend("a", "pat", "2026-10-10", next).unwrap().0,
+            TIME_DAILY + DAILY + 3
+        );
     }
 
     #[test]

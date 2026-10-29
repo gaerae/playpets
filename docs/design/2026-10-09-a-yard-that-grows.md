@@ -123,3 +123,9 @@ The once-a-day gift above is historical. An everyday gift now comes at most ever
 other day, from a friend the person did something with that day, and a friend
 brings one more each time it grows closer. A full yard keeps new gifts in a gift
 box. See [gifts from friends](2026-10-29-gifts-from-friends.md).
+
+## Follow-up: time together has a daily cap, fishing alone needs the person (2026-10-29)
+
+Time together now brings at most 12 points a day and pats at most 10 of the day's 40.
+A friend fishing on its own calls the person when a fish bites and lands it only if
+the person presses the float. See [gifts from friends](2026-10-29-gifts-from-friends.md#follow-up-closeness-and-the-album-follow-what-is-done-2026-10-29).

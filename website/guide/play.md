@@ -192,7 +192,7 @@ Bugs appear only in clear outdoor weather; rain and snow stop them. In the morni
 
 **Fishing on its own**
 
-From closeness level 3, an idle friend may go fishing on its own every 12 to 25 minutes while the yard is visible. Games, another fishing trip or an active placement tool pause it, and a catch isn't guaranteed.
+From closeness level 3, an idle friend may go fishing on its own every 12 to 25 minutes while the yard is visible. Games, another fishing trip or an active placement tool pause it. When a fish bites, the friend calls you; press the float within a few seconds to reel it in together. If no one does, the fish gets away, so the album only keeps what you catch.
 
 **What you find**
 
@@ -241,7 +241,7 @@ Levels say how close you are, not what you are to each other. They read the same
 | Very close | It brings you its memento |
 | Dearest | A flower on its name tag, and now and then it says something just for you |
 
-Time together counts every ten minutes the yard is seen. Patting, treats, chatting, watering, catching and gifts count too, up to a day's worth. So a few minutes of clicking can't rush it: closeness comes over days, and nothing is ever lost by being away.
+Time together counts every ten minutes the yard is seen, up to an hour's worth a day. Patting, treats, chatting, watering, catching and gifts count more, up to a day's worth, and pats alone fill only a quarter of it. So leaving the window open or a minute of clicking can't rush it: closeness comes from what you do together over days, and nothing is ever lost by being away.
 
 Closeness is saved as `bonds` in `state.json`.
 

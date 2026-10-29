@@ -15,7 +15,7 @@ import {
 import { list, t } from '../core/i18n.js';
 import { between, pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
-import { $, aiming, call, data, game, guard, name, remember, selected, toast, views } from '../core/state.js';
+import { $, aiming, call, data, game, guard, remember, selected, toast, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
@@ -36,6 +36,8 @@ import { worldAllows } from './worlds.js';
 // How long a fish takes to bite (ms), and how long the float stays down before it gets away.
 const BITE_AFTER = [3000, 9000];
 const BITE_WINDOW = 1700;
+// A friend fishing alone has to catch the person's eye first.
+const SOLO_BITE_WINDOW = 4000;
 
 // The lake as it lies in the yard now: the same shape the painter draws (layout.js lakeShape),
 // made again only when the yard changes size.
@@ -86,7 +88,7 @@ function stopFishing(retainArtwork = false) {
   return tackle;
 }
 // `friend` goes when it is free, else the nearest free one; `solo` is a friend fishing on its own
-// (soloFishing), which reels in by itself.
+// (soloFishing), which calls the person when a fish bites: only the person reels it in.
 function startFishing(x, friend, solo = false) {
   if (!worldAllows(scene.world, 'fishing')) return;
   if (fishing) return;
@@ -166,23 +168,24 @@ function nibble() {
   fishing.float.classList.add('bite');
   cue('plip');
   fishing.float.setAttribute('aria-label', t('catch.reel'));
-  // Fishing alone, the friend reels in itself, and lands most of what bites.
-  if (fishing.solo && Math.random() < SOLO_LANDS) {
-    fishing.timer = setTimeout(land, 500 + Math.random() * 700);
-    return;
-  }
-  fishing.timer = setTimeout(() => {
-    if (!fishing) return;
-    bubble(fishing.v, pick(list('catch.missed')), 2600);
-    stopFishing();
-  }, BITE_WINDOW);
+  // Fishing alone, the friend calls the person over and waits longer: the album fills only with
+  // what the person reels in, so a bite no one answers gets away.
+  if (fishing.solo) bubble(fishing.v, pick(list('catch.solo_bite')), SOLO_BITE_WINDOW);
+  fishing.timer = setTimeout(
+    () => {
+      if (!fishing) return;
+      bubble(fishing.v, pick(list('catch.missed')), 2600);
+      stopFishing();
+    },
+    fishing.solo ? SOLO_BITE_WINDOW : BITE_WINDOW,
+  );
 }
 const reelingFriends = new Set();
 const reelingArtwork = new Map();
 const land = guard(async () => {
   if (!fishing?.biting) return;
   const world = scene.world,
-    { v, solo } = fishing,
+    { v } = fishing,
     { fish, size } = bite(scene.season, scene.period, scene.weather, Math.random, scene.event);
   const tackle = stopFishing(true);
   let reelTimer;
@@ -221,18 +224,15 @@ const land = guard(async () => {
   const active = v.doing === reeling;
   if (active) release(v);
   if (views.get(v.pet.id) === v) {
-    // A fish landed alone is the friend's own; only fishing with the person brings them closer.
-    if (!solo) befriend(v.pet.id, 'catch');
+    // Every catch is reeled in by the person, a friend's own trip included.
+    befriend(v.pet.id, 'catch');
     if (active && scene.world === world && !game) {
       cue('splash');
       cheer(v, 'catch.caught', { ms: 1200 });
       fishingAction(v, 'discover');
     }
   }
-  const title = solo
-    ? t('bond.solo_catch', { name: name(v.pet), fish: t(`catch.fish_${fish.id}`) })
-    : t(`catch.fish_${fish.id}`);
-  showCard(fishSvg(fish), title, t('catch.size', { size: size.toFixed(1) }), first, 'fish');
+  showCard(fishSvg(fish), t(`catch.fish_${fish.id}`), t('catch.size', { size: size.toFixed(1) }), first, 'fish');
 });
 function reel() {
   if (!fishing) return;
@@ -287,7 +287,6 @@ export function syncFishingArtwork(now) {
 // A close friend fishes on its own now and then, while the yard is quiet: no game, no trip already
 // at the lake, and the friend idle.
 const SOLO_EVERY = [12 * 60 * 1000, 25 * 60 * 1000];
-const SOLO_LANDS = 0.75;
 const solo = cadence(() => between(Math.random, SOLO_EVERY));
 /** Called by the frame loop while the yard is seen. */
 export function soloFishing(now) {

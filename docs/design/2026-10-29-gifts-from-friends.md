@@ -31,3 +31,25 @@
 - `garden` in `state.json` gains `boxed`, `thanked` and `giftWait`; `decor` items gain `from` and `keepsake`. Older files read as empty.
 - `limits()` sends `giftBox` and `giftEveryDays`; `src/core/limits.js` keeps the same values (`tests/limits.test.mjs`).
 - The old per-profile browser record (`gift-progress:<folder>`) is no longer read.
+
+## Follow-up: closeness and the album follow what is done (2026-10-29)
+
+Level gifts made the speed of closeness matter: a yard left open for a day grew a friend faster than playing with it, and so brought gifts for time alone.
+
+| What | Rule | Why |
+|---|---|---|
+| Time together | 2 points every 10 minutes the yard is seen, up to 12 a day (`TIME_DAILY`, an hour) | A window left open no longer outruns play |
+| Pats | Up to 10 of the day's 40 points (`PAT_DAILY`) | A minute of clicking does not fill the day; treats, talk, watering and catching do the rest |
+| A day | Every reason, time included, counts toward a date that has come (`has_come`) | One day's counters for all reasons |
+| Fishing alone | A friend at level 3 still goes on its own, but a bite waits 4 seconds for the person to press the float and gets away otherwise | The album and closeness fill only from what the person does |
+
+Days to each level for one friend, before → after:
+
+| Play | Points a day | Levels 2 / 3 / 4 / 5 |
+|---|---|---|
+| Yard open 8 hours, no play | 96 → 12 | 1 / 3 / 6 / 11 → 5 / 17 / 42 / 84 |
+| Day's worth of play, 2 hours seen | 64 → 52 | 1 / 4 / 8 / 16 → 2 / 4 / 10 / 20 |
+| Some play (25), 1 hour seen | 37 → 37 | 2 / 6 / 14 / 28 (same) |
+
+- Points already earned stay; no friend's level goes down.
+- Flowers and trees still reach the album as they grow: the person planted them.

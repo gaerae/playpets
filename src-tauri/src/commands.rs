@@ -500,8 +500,8 @@ fn thanks_gift(c: &Ctx) -> Result<Value, String> {
 fn befriend(c: &Ctx) -> Result<Value, String> {
     let now = now_ms();
     let (pet, reason, day) = (c.text(0), c.text(1), c.text(2));
-    // Time together counts by the clock, not the day; the rest by a day that has come.
-    if reason != "time" && !crate::pets::has_come(day, now) {
+    // Every reason counts toward a day that has come; time together also waits its turn by the clock.
+    if !crate::pets::has_come(day, now) {
         return Err(i18n::t("error.bad_request"));
     }
     commit(c.app, &c.state, |d| {
