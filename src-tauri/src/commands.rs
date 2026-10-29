@@ -483,14 +483,18 @@ fn receive_gift(c: &Ctx) -> Result<Value, String> {
             .map(|g| json!(g))
     })
 }
-/// (friend, level, x, y): a friend that grew closer brings a gift for the level it reached.
+/// (friend, level, x, y, local day): a friend that grew closer brings a gift for the level it
+/// reached, on a day the person did something with it, as an everyday gift comes.
 fn thanks_gift(c: &Ctx) -> Result<Value, String> {
-    let (from, x, y) = (c.text(0), c.float(2), c.float(3));
+    let (from, x, y, day) = (c.text(0), c.float(2), c.float(3), c.text(4));
     let level = c.arg(1).as_u64().unwrap_or(0) as u32;
     let turn = (now_ms() / 1000) as usize;
+    if !crate::pets::has_come(day, now_ms()) {
+        return Err(i18n::t("error.bad_request"));
+    }
     commit(c.app, &c.state, |d| {
         require_pet(d, from)?;
-        if d.bonds.level_of(from) < level {
+        if d.bonds.level_of(from) < level || !d.bonds.together_on(from, day) {
             return Err(i18n::t("error.bad_request"));
         }
         d.garden.thanks(from, level, x, y, turn).map(|g| json!(g))

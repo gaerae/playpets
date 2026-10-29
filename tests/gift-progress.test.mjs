@@ -234,6 +234,13 @@ test('a failed save waits a minute instead of retrying every frame', async t => 
 test('a friend that grew closer brings one gift for the level it reached', async t => {
   const clock = fixture(t);
   const decor = await fresh();
+  state.data.bonds[pet.id] = { points: 500 };
+  decor.thanksTick(1);
+  decor.thanksTick(1e9);
+  await flush();
+  assert.equal(calls.length, 0, 'not on a day the person did nothing with it');
+  clock.together();
+  state.data.bonds[pet.id].points = 0;
   const tick = async now => {
     decor.thanksTick(now);
     await flush();
@@ -241,12 +248,12 @@ test('a friend that grew closer brings one gift for the level it reached', async
   await tick(0);
   await tick(1e9);
   assert.equal(calls.length, 0, 'level 1 brings none');
-  state.data.bonds[pet.id] = { points: 500 };
+  state.data.bonds[pet.id] = { ...state.data.bonds[pet.id], points: 500 };
   await tick(2e9);
   assert.deepEqual(calls, [['thanks', pet.id, 4]], 'a friend already at 4 brings one gift, for 4');
   await tick(3e9);
   assert.equal(calls.length, 1, 'once a level');
-  state.data.bonds[pet.id] = { points: 1000 };
+  state.data.bonds[pet.id] = { ...state.data.bonds[pet.id], points: 1000 };
   refuseThanks = true;
   await tick(4e9);
   await tick(5e9);
@@ -258,10 +265,11 @@ test('a friend that grew closer brings one gift for the level it reached', async
 });
 
 test('a level reached while there was no room still brings its gift, one level at a time', async t => {
-  fixture(t);
+  const clock = fixture(t);
   const decor = await fresh();
   state.data.garden.thanked = { [pet.id]: 2 };
-  state.data.bonds[pet.id] = { points: 500 };
+  clock.together();
+  state.data.bonds[pet.id].points = 500;
   for (const now of [1e9, 2e9, 3e9, 4e9]) {
     decor.thanksTick(now);
     await flush();

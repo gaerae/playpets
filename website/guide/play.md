@@ -145,7 +145,7 @@ Only after that is the plant gone for good. If the app closes first, it stays. T
 
 Gifts come from friends, not from the clock. On a day you do something with a friend, such as patting it, giving it a treat, talking or fishing together, that friend may bring a gift. The whole yard gets at most one every other day, and time alone in the yard brings none. Once a gift may come, it takes 10 to 20 minutes, or five minutes for the first one.
 
-Friends also bring a gift when they grow closer, one for each new level from **At ease** on. At **Very close** it's the friend's memento, marked with a small heart.
+Friends also bring a gift when they grow closer, one for each new level from **At ease** on, on a day you play with that friend. At **Very close** it's the friend's memento, marked with a small heart.
 
 The wait is saved, and time with the app closed counts too, so you don't need to keep the app open. The friend jumps, tells you, and sets the gift down beside it.
 

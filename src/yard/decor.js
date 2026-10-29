@@ -294,14 +294,21 @@ export function giftTick() {
 export function thanksTick(now) {
   const g = data.garden;
   if (!g || bringing || full(g) || !thanking.due(now)) return;
-  const wall = Date.now();
+  const wall = Date.now(),
+    today = localDay(new Date(wall));
+  // Like an everyday gift, it comes on a day the person did something with that friend.
   const v = [...views.values()].find(v => {
     const level = thanksLevel(g, v.pet.id);
-    return isFree(v) && level > (g.thanked?.[v.pet.id] ?? 1) && !(wall < refused.get(`${v.pet.id}:${level}`));
+    return (
+      isFree(v) &&
+      togetherToday(v.pet.id, today) &&
+      level > (g.thanked?.[v.pet.id] ?? 1) &&
+      !(wall < refused.get(`${v.pet.id}:${level}`))
+    );
   });
   if (!v) return;
   const level = thanksLevel(g, v.pet.id);
-  const ask = at => call('thanksGift', v.pet.id, level, at.x, at.y);
+  const ask = at => call('thanksGift', v.pet.id, level, at.x, at.y, today);
   bring(v, ask, { say: 'decor.gift_thanks', detail: 'decor.brought_thanks' }).then(ok => {
     if (!ok) refused.set(`${v.pet.id}:${level}`, Date.now() + THANKS_RETRY_MS);
   });

@@ -432,11 +432,12 @@ const scenario = `(async()=>{
     let rose=0;for(const day of ['2026-01-02','2026-01-03'])for(let k=0;k<12;k++)rose+=(await playPets.befriend(fid,'gift',day)).data.up?1:0;
     const hearts=await until(()=>document.querySelector('.tag-bond')?.textContent==='♥');
     await L('friendship='+((await playPets.bootstrap()).data.bonds[fid].points-p0)+'/'+rose+'/'+(hearts?'hearts':'none')+'/'+(bribe.ok===false?'refused':'taken'));
-    // A friend that grew closer brings one gift for the level it reached (the yard may bring it first on its own).
-    const thanks=await playPets.thanksGift(fid,2,0.5,0.6),thanksAgain=await playPets.thanksGift(fid,2,0.5,0.6),tooHigh=await playPets.thanksGift(fid,3,0.5,0.6);
+    // A friend that grew closer brings one gift for the level it reached, on a day the person did something with it
+    // (the last befriend day above; the yard may bring it first on its own).
+    const apart=await playPets.thanksGift(fid,2,0.5,0.6,'2026-01-02'),thanks=await playPets.thanksGift(fid,2,0.5,0.6,'2026-01-03'),thanksAgain=await playPets.thanksGift(fid,2,0.5,0.6,'2026-01-03'),tooHigh=await playPets.thanksGift(fid,3,0.5,0.6,'2026-01-03');
     const thankedState=(await playPets.bootstrap()).data.garden;
     for(const d of thankedState.decor.filter(d=>d.from===fid))await playPets.putAway(d.id);
-    await L('thanksGift='+(thankedState.thanked?.[fid]===2&&(!thanks.ok||thanks.data.from===fid)&&thanksAgain.ok===false&&tooHigh.ok===false?'once-a-level-reached':'err:'+JSON.stringify([thanks,thanksAgain,tooHigh,thankedState.thanked])));
+    await L('thanksGift='+(thankedState.thanked?.[fid]===2&&apart.ok===false&&(!thanks.ok||thanks.data.from===fid)&&thanksAgain.ok===false&&tooHigh.ok===false?'once-a-level-reached':'err:'+JSON.stringify([apart,thanks,thanksAgain,tooHigh,thankedState.thanked])));
     // Yard sounds: on by default; the chip turns them off and on, the volume is kept and held to 0–100.
     // The settings change while the yard stays quiet: the volume goes to 0 before the chip turns it on.
     await playPets.setSound(null,300);const held=(await playPets.bootstrap()).data.sound.volume;await playPets.setSound(null,0);
