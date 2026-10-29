@@ -231,8 +231,10 @@ const THANKS_AFTER = [60 * 1000, 3 * 60 * 1000];
 const thanking = cadence(() => between(Math.random, THANKS_AFTER));
 let bringing = false,
   retryAt = 0;
-// A thanks gift the backend refused (friend id:level) is not asked for again until the page reloads.
-const refused = new Set();
+// A thanks gift the backend refused (friend id:level -> when it may be asked again) waits a while,
+// so a failed save neither repeats every frame nor loses the gift until the page reloads.
+const THANKS_RETRY_MS = 10 * 60 * 1000;
+const refused = new Map();
 const togetherToday = (id, day) => data.bonds?.[id]?.day === day && data.bonds[id].today > 0;
 const full = g => (g.decor?.length ?? 0) >= limit(data, 'decor') && (g.boxed?.length ?? 0) >= limit(data, 'giftBox');
 // The level a friend brings its next thanks gift for: the one after the last it brought, so a
@@ -292,16 +294,23 @@ export function giftTick() {
 export function thanksTick(now) {
   const g = data.garden;
   if (!g || bringing || full(g) || !thanking.due(now)) return;
+  const wall = Date.now();
   const v = [...views.values()].find(v => {
     const level = thanksLevel(g, v.pet.id);
-    return isFree(v) && level > (g.thanked?.[v.pet.id] ?? 1) && !refused.has(`${v.pet.id}:${level}`);
+    return isFree(v) && level > (g.thanked?.[v.pet.id] ?? 1) && !(wall < refused.get(`${v.pet.id}:${level}`));
   });
   if (!v) return;
   const level = thanksLevel(g, v.pet.id);
   const ask = at => call('thanksGift', v.pet.id, level, at.x, at.y);
   bring(v, ask, { say: 'decor.gift_thanks', detail: 'decor.brought_thanks' }).then(ok => {
-    if (!ok) refused.add(`${v.pet.id}:${level}`);
+    if (!ok) refused.set(`${v.pet.id}:${level}`, Date.now() + THANKS_RETRY_MS);
   });
+}
+
+/** What the card says of a gift that came (`detail` for an everyday or thanks gift set out). */
+export function broughtCard(d, detail) {
+  if (d.memento) return d.boxed ? 'decor.brought_memento_boxed' : 'decor.brought_memento';
+  return d.boxed ? 'decor.brought_boxed' : detail;
 }
 
 // A friend sets a gift down beside it (`ask` gets the spot and asks the backend) and says `say`;
@@ -325,8 +334,7 @@ function bring(v, ask, { say, detail }) {
       effect(v, d.memento ? '♥' : '✦');
       const gift = giftKind(d.kind),
         said = { name: name(v.pet), kind: kindName(d.kind) };
-      const card = d.boxed ? 'decor.brought_boxed' : d.memento ? 'decor.brought_memento' : detail;
-      if (gift) showCard(giftSvg(gift), kindName(d.kind), t(card, said), !seen.has(d.kind), 'gift');
+      if (gift) showCard(giftSvg(gift), kindName(d.kind), t(broughtCard(d, detail), said), !seen.has(d.kind), 'gift');
       return true;
     })
     .catch(() => false)

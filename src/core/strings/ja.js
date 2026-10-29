@@ -283,6 +283,7 @@ export const strings = {
   'decor.memento_title': '{name}の思い出のプレゼント、{kind}。ドラッグで動かせます',
   'decor.brought_boxed': '{name}が{kind}を持ってきました。庭がいっぱいなので、図鑑のプレゼント箱に入れました。',
   'decor.brought_memento': '{name}が思い出のプレゼントに{kind}を持ってきました。片付けてもプレゼント箱に残ります。',
+  'decor.brought_memento_boxed': '{name}が思い出のプレゼントに{kind}を持ってきました。庭がいっぱいなので、図鑑のプレゼント箱に入れました。',
   'decor.brought_thanks': '{name}が仲良くなった記念に{kind}を持ってきました。',
   'decor.gift_memento': [
     'これ、ずっと大事にしてたんだ。あげるね！',

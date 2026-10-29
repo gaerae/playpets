@@ -281,6 +281,7 @@ export const strings = {
   'decor.memento_title': '{name}的纪念礼物{kind}，可以拖动',
   'decor.brought_boxed': '{name}送来了{kind}。乐园满了，已放进图鉴里的礼物盒。',
   'decor.brought_memento': '{name}送来了纪念礼物：{kind}。收起来也会留在礼物盒里。',
+  'decor.brought_memento_boxed': '{name}送来了纪念礼物：{kind}。乐园满了，已放进图鉴里的礼物盒。',
   'decor.brought_thanks': '{name}送来了{kind}，纪念你们变得更亲近。',
   'decor.gift_memento': ['这是我最珍惜的东西，送给你！', '看到它就想想我吧！', '这是我的宝贝，收下吧！'],
   'decor.gift_thanks': ['最近感觉和你更亲近了，送你！', '这是我的谢礼！', '这是我们的纪念！'],

@@ -12,6 +12,17 @@ pub mod garden;
 pub mod importer;
 pub mod model;
 
+/// A field added to state.json in a later version, read leniently: a value of the wrong type
+/// (an edited file) becomes the default instead of dropping the gift or bond it belongs to.
+pub(crate) fn or_default<'de, D, T>(d: D) -> Result<T, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: serde::de::DeserializeOwned + Default,
+{
+    let v = <serde_json::Value as serde::Deserialize>::deserialize(d)?;
+    Ok(serde_json::from_value(v).unwrap_or_default())
+}
+
 /// The latest date it is anywhere on Earth at `now_ms` (UTC+14), as YYYY-MM-DD. A day the page
 /// names (its own local date) is never after it; one that is comes from a clock set ahead, and is
 /// refused rather than kept, which would hold back the days after (bond.rs, garden.rs).

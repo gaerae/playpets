@@ -68,7 +68,7 @@
 - The backend accepts only flowers in the catalogue.
 
 ### Add a gift
-1. Add an entry to `gifts`. The first gifts arrive in list order.
+1. Add an entry to the end of `gifts`. The first gifts arrive in list order, and a friend's memento is picked from the first 16 everyday gifts (`MEMENTO_KINDS` in `pets/garden.rs`), so a gift added in between would change mementos already given.
 
    | Field | Meaning |
    |---|---|

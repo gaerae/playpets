@@ -232,7 +232,7 @@ test('a failed save waits a minute instead of retrying every frame', async t => 
 });
 
 test('a friend that grew closer brings one gift for the level it reached', async t => {
-  fixture(t);
+  const clock = fixture(t);
   const decor = await fresh();
   const tick = async now => {
     decor.thanksTick(now);
@@ -250,7 +250,11 @@ test('a friend that grew closer brings one gift for the level it reached', async
   refuseThanks = true;
   await tick(4e9);
   await tick(5e9);
-  assert.equal(calls.length, 2, 'a refused level is not asked for again');
+  assert.equal(calls.length, 2, 'a refused level is not asked again at once');
+  refuseThanks = false;
+  clock.advance(10 * 60_000);
+  await tick(6e9);
+  assert.deepEqual(calls.at(-1), ['thanks', pet.id, 5], 'but is asked again after a while');
 });
 
 test('a level reached while there was no room still brings its gift, one level at a time', async t => {
@@ -266,4 +270,12 @@ test('a level reached while there was no room still brings its gift, one level a
     ['thanks', pet.id, 3],
     ['thanks', pet.id, 4],
   ]);
+});
+
+test('the card says where a gift went: set out, or in the box, a memento as such', async () => {
+  const { broughtCard } = await fresh();
+  assert.equal(broughtCard({}, 'decor.brought'), 'decor.brought');
+  assert.equal(broughtCard({ boxed: true }, 'decor.brought'), 'decor.brought_boxed');
+  assert.equal(broughtCard({ memento: true }, 'decor.brought_thanks'), 'decor.brought_memento');
+  assert.equal(broughtCard({ memento: true, boxed: true }, 'decor.brought_thanks'), 'decor.brought_memento_boxed');
 });

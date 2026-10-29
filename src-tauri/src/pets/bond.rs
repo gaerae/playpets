@@ -46,10 +46,10 @@ pub struct Bond {
     #[serde(default)]
     pub today: u32,
     /// Of those, the points pats brought today.
-    #[serde(default, rename = "patToday")]
+    #[serde(default, rename = "patToday", deserialize_with = "super::or_default")]
     pub pat_today: u32,
     /// Points time together brought today.
-    #[serde(default, rename = "timeToday")]
+    #[serde(default, rename = "timeToday", deserialize_with = "super::or_default")]
     pub time_today: u32,
     /// When time together last counted, in ms since 1970.
     #[serde(default)]
@@ -252,5 +252,9 @@ mod tests {
             (Some(2), Some(4))
         );
         assert_eq!(Bonds::restore(None, &[]), Bonds::default());
+        // A day's counts of the wrong type (an edited file) read as none, keeping the bond.
+        let raw = json!({"a": {"points": 70, "patToday": "two", "timeToday": -1}});
+        let b = Bonds::restore(Some(&raw), &["a".into()]);
+        assert_eq!((b.0["a"].points, b.0["a"].pat_today, b.0["a"].time_today), (70, 0, 0));
     }
 }

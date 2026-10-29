@@ -83,10 +83,18 @@ pub struct Decor {
     pub x: f64,
     pub y: f64,
     /// The friend who brought it (friend id); none for a gift from before friends were named.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub from: Option<String>,
     /// The friend's memento: brought at level 4, and kept in the box when put away.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    #[serde(
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "std::ops::Not::not"
+    )]
     pub memento: bool,
 }
 
@@ -443,9 +451,14 @@ impl Garden {
     }
 }
 
+/// How many of the catalogue's first everyday gifts a memento is picked from. Gifts added after
+/// them do not change any friend's memento (docs/how-to/add-to-the-yard.md: new gifts go last).
+const MEMENTO_KINDS: usize = 16;
+
 /// A friend's memento: one of the everyday gifts, always the same for the same friend.
 pub fn memento_kind(from: &str) -> &'static str {
-    let kinds = catalog().gifts();
+    let mut kinds = catalog().gifts();
+    kinds.truncate(MEMENTO_KINDS);
     // FNV-1a: stable across runs and builds, unlike the standard hasher.
     let hash = from.bytes().fold(0xcbf2_9ce4_8422_2325_u64, |h, b| {
         (h ^ u64::from(b)).wrapping_mul(0x100_0000_01b3)
@@ -473,6 +486,20 @@ mod tests {
             0,
         );
         assert_eq!(serde_json::to_value(g).unwrap()["trees"][0]["kind"], "future_tree");
+    }
+
+    #[test]
+    fn a_gift_with_a_bad_giver_or_memento_mark_is_kept() {
+        let g = Garden::restore(
+            Some(&json!({
+                "decor": [{"id": "a", "kind": "bench", "x": 0.5, "y": 0.5, "from": 7, "memento": "yes"}],
+                "boxed": [{"id": "b", "kind": "tent", "x": 0.5, "y": 0.5, "from": "miso", "memento": 1}]
+            })),
+            0,
+        );
+        assert_eq!((g.decor.len(), g.boxed.len()), (1, 1));
+        assert_eq!((g.decor[0].from.as_deref(), g.decor[0].memento), (None, false));
+        assert_eq!((g.boxed[0].from.as_deref(), g.boxed[0].memento), (Some("miso"), false));
     }
 
     #[test]
@@ -716,6 +743,12 @@ mod tests {
         assert_eq!(memento_kind("miso"), memento_kind("miso"));
         assert_ne!(memento_kind("miso"), memento_kind("pip"));
         assert!(catalog().gifts().contains(&memento_kind("miso")));
+        // A friend's memento stays the same when gifts are added: these come from the first 16.
+        assert_eq!(
+            ["miso", "pip", "clover", "daisy"].map(memento_kind),
+            ["windchime", "pinwheel", "swing", "flowerpot"],
+            "a new gift goes last in the catalogue"
+        );
         // Thanks gifts leave the everyday gift's day alone.
         assert_eq!(g.gift_day, "");
         // A memento put away waits in the box; another gift is simply gone.
