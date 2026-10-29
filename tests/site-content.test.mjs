@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { globSync } from 'node:fs';
 import { access, readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { pngSize } from '../scripts/png-lossless-lib.mjs';
@@ -27,4 +28,15 @@ test('all four illustrated built-in pets have distinct landing sources with vali
     assert.deepEqual(pngSize(await readFile(pet.source)), { width: 1536, height: 2288 }, pet.id);
   }
   assert.ok(LANDING_PETS.every(pet => !pet.source.includes('/realistic/')));
+});
+
+// VitePress decomposes a heading's id (NFKD), so a link that spells a Hangul or voiced-kana
+// heading as typed never reaches it; such a heading takes an explicit {#id} instead.
+test('a link to a section uses an id the site keeps as written', async () => {
+  const typed = [];
+  for (const page of globSync('website/**/*.md', { exclude: ['website/dev/**', '**/node_modules/**'] })) {
+    for (const [, id] of (await readFile(page, 'utf8')).matchAll(/\]\([^)\s]*#([^)\s]+)\)/g))
+      if (id !== id.normalize('NFKD')) typed.push(`${page}#${id}`);
+  }
+  assert.deepEqual(typed, []);
 });

@@ -133,7 +133,7 @@ chmod +x PlayPets_*.AppImage
   - Ollama와 구독 CLI는 키가 없어서 상관없어요.
 :::
 
-## 업데이트 <Since v="0.1.0" />
+## 업데이트 <Since v="0.1.0" /> {#updates}
 
 - Microsoft Store 설치본은 Store에서 업데이트해요. **Microsoft Store → 라이브러리**에서 확인해 주세요.
 - 아래 안내는 MSIX가 아닌 GitHub 설치본에 해당해요. 테스트용 MSIX도 패키지 관리 방식으로 업데이트해요.
@@ -176,7 +176,7 @@ chmod +x PlayPets_*.AppImage
 - 스토어, winget: 앱을 지우면 Windows가 패키지 데이터도 함께 지워요.
 - 설정과 가져온 펫까지 모두 지우려면 데이터 폴더도 지워 주세요.
 
-## 데이터 폴더 <Since v="0.1.0" />
+## 데이터 폴더 <Since v="0.1.0" /> {#data-folder}
 
 | 운영체제 | 위치 |
 |---|---|
