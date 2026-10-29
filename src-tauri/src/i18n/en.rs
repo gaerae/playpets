@@ -112,7 +112,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.unknown_link", "That kind of agent link isn't known."),
     ("link.unreadable", "Couldn't read {file}, so it was left as it is. Use Copy settings and paste them in yourself."),
     ("link.write_failed", "Couldn't save {file}. {detail}"),
-    ("link.notify_taken", "{file} already runs another program as notify. Codex runs only one, so it was left as it is."),
+    ("link.notify_taken", "{file} already sets another program as notify. Codex runs only one, so it was left as it is."),
     ("link.home_missing", "Couldn't find your home folder."),
 
     ("dialog.pick_pet_folder", "Choose the pet folder that holds pet.json"),

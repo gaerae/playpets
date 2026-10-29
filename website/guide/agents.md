@@ -77,13 +77,13 @@ Your friend remembers up to 8 recent activities. Ask "what were you doing?" in t
 
 1. Open **Friends & settings → Settings → Coding tools**.
 2. Press **Connect** next to the tool you use. PlayPets names the file it will change and asks first.
-3. Press **Connect** in the question. The row now says **Connected**, and the sessions you start from then on report to your friend.
+3. Confirm with **Connect**. The row now says **Connected**, and the sessions you start from then on report to your friend.
 
 PlayPets adds only its own hook to that file. Your other settings and other tools' hooks stay as they are, and the file as it was is kept beside it, for example `settings.json.playpets-backup`. Pressing Connect when it's already connected changes nothing.
 
 If you pick another reacting friend or move the app, the row says it needs connecting again; press **Connect again**. **Disconnect** takes out only PlayPets' entries and leaves the rest of the file alone.
 
-PlayPets never writes a file it can't read, such as settings with a comment in them. The row then says so, and **Copy settings** below still works. Codex runs only one `notify` program, so if another program already has that place, PlayPets leaves it too.
+PlayPets never writes a file it can't read, such as settings with a comment in them. The row then says so, and **Copy settings** below still works. Codex runs only one `notify` program, so if another program already holds that spot, PlayPets leaves the file as it is too.
 
 ## Copy and paste the settings <Since v="0.1.0" />
 
