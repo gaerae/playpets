@@ -36,6 +36,8 @@ url = "2.5.8"
 dunce = "1"
 # Pet ZIPs (pets/importer/archive.rs); already in the tree through the image crates.
 flate2 = "1.1"
+# Codex's config.toml, changed in place with its comments and tables kept (agent/connect.rs).
+toml_edit = "0.25"
 sys-locale = "0.3.2"
 tauri-plugin-updater = { version = "2", default-features = false, features = ["rustls-tls", "system-proxy"] }
 # 2.6.2 fills rust-ini 0.21.3's ParseOption with two of its four fields and does not build on Linux

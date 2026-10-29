@@ -36,8 +36,11 @@ function selectSettingsSection(section, focus = false) {
   const back = t(sideBySide() ? 'controls.back' : 'settings.all');
   $('panel-menu')?.setAttribute('aria-label', back);
   $('panel-menu')?.setAttribute('title', back);
-  for (const body of document.querySelectorAll('.settings-section[data-settings-section]'))
+  for (const body of document.querySelectorAll('.settings-section[data-settings-section]')) {
     body.hidden = body.dataset.settingsSection !== next;
+    // A section that reads something outside the app (an agent's settings file) reads it again.
+    if (!body.hidden) body.dispatchEvent(new Event('settings-shown'));
+  }
   if (focus) $('panel-title').focus({ preventScroll: true });
 }
 function showSettingsHome() {

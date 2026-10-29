@@ -110,6 +110,10 @@ const TABLE: &[(&str, &str)] = &[
     ("error.open_folder", "폴더를 열지 못했어요."),
     ("error.open_browser", "브라우저를 열지 못했어요."),
     ("error.unknown_link", "알 수 없는 에이전트 연동 방식이에요."),
+    ("link.unreadable", "{file} 파일을 읽지 못해서 그대로 두었어요. 설정 복사를 눌러 직접 붙여 넣어 주세요."),
+    ("link.write_failed", "{file} 파일을 저장하지 못했어요. {detail}"),
+    ("link.notify_taken", "{file}에 다른 프로그램의 notify가 이미 있어요. Codex는 하나만 실행해서 그대로 두었어요."),
+    ("link.home_missing", "홈 폴더를 찾지 못했어요."),
 
     ("dialog.pick_pet_folder", "pet.json이 있는 펫 폴더 선택"),
     ("dialog.pick_pet_zip", "펫 ZIP 파일 선택"),

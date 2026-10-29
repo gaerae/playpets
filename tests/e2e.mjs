@@ -4,8 +4,8 @@
 // Run: npm run test:e2e   (repo root)
 
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
@@ -24,6 +24,17 @@ await writeFixturePet(codexHome);
 // A pet ZIP as Finder makes one, for the import a file dialog would start.
 const petZip = path.join(dataDir, 'e2e-zip.zip');
 await writeFixtureZip(petZip);
+// A home folder of its own for Connect: Claude Code settings with someone else's hook in them, and
+// Gemini CLI settings with a comment, which PlayPets cannot read and so never writes.
+const agentHome = path.join(dataDir, 'home');
+const claudeSettings = path.join(agentHome, '.claude', 'settings.json');
+const claudeOriginal = { model: 'opus', hooks: { Stop: [{ hooks: [{ type: 'command', command: 'say done' }] }] } };
+const geminiSettings = path.join(agentHome, '.gemini', 'settings.json');
+const geminiOriginal = '{\n  // dark, always\n  "theme": "dark"\n}\n';
+await mkdir(path.dirname(claudeSettings), { recursive: true });
+await mkdir(path.dirname(geminiSettings), { recursive: true });
+await writeFile(claudeSettings, JSON.stringify(claudeOriginal, null, 2));
+await writeFile(geminiSettings, geminiOriginal);
 // Saved pockets and an uncommon find survive an upgrade without depending on a lucky random draw.
 const rareLedgerAt = Date.now() - 60_000;
 await writeFile(
@@ -991,6 +1002,21 @@ const scenario = `(async()=>{
     const sel=document.querySelector('select[data-agent=claude]');
     await L('assigned='+(assigned.ok&&assigned.data.includes('--pet')&&assigned.data.includes(p1.data.id)&&sel.value===p1.data.id?'named':'err:'+(assigned.ok?assigned.data.includes('--pet'):assigned.error)+'/'+sel.value));
     await must('unassignAgent',playPets.assignAgent('claude',''));
+    // Connect writes the hook into the agent's own file (in a home folder of the test's own) after
+    // asking which file; a file it cannot read offers only Copy settings; Disconnect is not asked.
+    panelTasks.openPanel('settings','agent-link-title');
+    await until(()=>!$('settings-agents').hidden&&!$('agent-connect-claude').hidden);
+    const unreadableRow=$('agent-connect-gemini').hidden&&!document.querySelector('[data-link-problem=gemini]').hidden;
+    $('agent-connect-claude').click();const connectAsked=!!await until(()=>$('confirm-dialog').open);
+    const connectNamesFile=$('confirm-body').textContent.includes('settings.json');
+    $('confirm-ok').click();
+    const linkedOn=!!await until(()=>!document.querySelector('[data-link-state=claude]').hidden&&$('agent-connect-claude').textContent===${JSON.stringify(KO['settings.disconnect'])});
+    const linksOn=(await playPets.agentLinks()).data;
+    await L('agentConnected=claude');
+    $('agent-connect-claude').click();
+    const unlinked=!!await until(async()=>(await playPets.agentLinks()).data.claude==='off'&&document.querySelector('[data-link-state=claude]').hidden);
+    await L('agentConnect='+(unreadableRow&&connectAsked&&connectNamesFile&&linkedOn&&linksOn.claude==='on'&&linksOn.gemini==='unreadable'&&unlinked&&!$('confirm-dialog').open?'asks-connects-disconnects':'err:'+JSON.stringify({unreadableRow,connectAsked,connectNamesFile,linkedOn,linksOn,unlinked})));
+    $('close-panel').click();
     // Hidden to the tray, the page is told so and rests (WebView2 may not say it through
     // document.hidden); shown again, it moves again.
     await $('hide-window').onclick();const unseen=!!await until(()=>document.documentElement.hasAttribute('data-unseen'));
@@ -1192,6 +1218,7 @@ const child = spawn(binary, [], {
     ...process.env,
     PLAYPETS_DATA: dataDir,
     CODEX_HOME: codexHome,
+    PLAYPETS_E2E_HOME: agentHome,
     PLAYPETS_LANG: 'ko',
     PLAYPETS_E2E_EVAL: scenario,
   },
@@ -1210,6 +1237,7 @@ child.stdout.on('data', d => {
     console.log(' ', msg);
     if (msg === 'DONE' || msg.startsWith('FATAL')) done = true;
     if (msg === 'attach=ok') agentReports();
+    if (msg === 'agentConnected=claude') connectedFile();
     if (msg === 'ask=waiting')
       spawnSync(binary, ['status', 'waiting', '--pet', '둘째', '--bridge', path.join(dataDir, 'bridge.json')], {
         encoding: 'utf8',
@@ -1218,6 +1246,21 @@ child.stdout.on('data', d => {
       });
   }
 });
+// While Claude Code is connected: PlayPets' hook sits beside the other one, and the rest is kept.
+function connectedFile() {
+  try {
+    const settings = JSON.parse(readFileSync(claudeSettings, 'utf8'));
+    const stop = settings.hooks.Stop.map(group => group.hooks[0].command);
+    agentChecks.connected =
+      settings.model === 'opus' &&
+      stop[0] === 'say done' &&
+      stop[1]?.includes(' hook claude --bridge ') &&
+      settings.hooks.PreToolUse?.[0]?.matcher === '*' &&
+      readFileSync(geminiSettings, 'utf8') === geminiOriginal;
+  } catch {
+    agentChecks.connected = false;
+  }
+}
 // Plays a coding agent through the app binary's own CLI mode — no Node.js involved.
 const agentChecks = {};
 function agentReports() {
@@ -1365,6 +1408,10 @@ const expect = [
   [/^place=codex\/folder-known$/, 'where a pet lives (Codex pet folder)'],
   [/^agentStatus=working$/, 'agent status arrives through the bridge'],
   [/^snippet=binary$/, 'agent setup points at the app binary (no Node)'],
+  [
+    /^agentConnect=asks-connects-disconnects$/,
+    'Connect asks first and writes the hook, an unreadable file offers only Copy settings, Disconnect takes it out',
+  ],
   [/^unseen=true\/false$/, 'a hidden window rests and moves again when shown'],
   [/^models=2/, 'live model list'],
   [/^chat=\*\*타우리\*\* 응답!/, 'HTTP chat round trip'],
@@ -1535,6 +1582,7 @@ for (const [key, label] of [
   ['run', 'CLI run: passes the command exit code through'],
   ['geminiJson', 'Gemini hook: prints {} for events it does not report'],
   ['mcp', 'MCP stdio server (no Node)'],
+  ['connected', "Connect adds PlayPets' hook beside the others and keeps the rest of the file"],
 ]) {
   console.log(agentChecks[key] ? '  ✓' : '  ✖', label);
   if (!agentChecks[key]) failed++;
@@ -1573,6 +1621,12 @@ for (const [ok, label] of [
       r => r.messages?.[0]?.content.includes('named 둘째') && r.messages[0].content.includes('these pets: 타우리'),
     ) && system.includes('only pet in the yard'),
     'the list of friends in the yard reaches the system prompt',
+  ],
+  [
+    JSON.stringify(JSON.parse(readFileSync(claudeSettings, 'utf8'))) === JSON.stringify(claudeOriginal) &&
+      existsSync(`${claudeSettings}.playpets-backup`) &&
+      readFileSync(geminiSettings, 'utf8') === geminiOriginal,
+    "Disconnect leaves the agent's settings as they were, with a backup beside them",
   ],
   [
     path.basename(zipFolder).startsWith('zip-e2e-zip-') && !existsSync(zipFolder),

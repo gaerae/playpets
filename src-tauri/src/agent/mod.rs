@@ -3,6 +3,7 @@
 //! is shown on the friend and remembered so the pet can talk about it.
 pub mod bridge;
 pub mod cli;
+pub mod connect;
 pub mod kinds;
 mod run;
 pub mod snippets;

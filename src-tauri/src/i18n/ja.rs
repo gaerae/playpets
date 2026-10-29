@@ -110,6 +110,10 @@ const TABLE: &[(&str, &str)] = &[
     ("error.open_folder", "フォルダーを開けませんでした。"),
     ("error.open_browser", "ブラウザを開けませんでした。"),
     ("error.unknown_link", "不明なエージェント連携の種類です。"),
+    ("link.unreadable", "{file} を読み取れなかったので、そのままにしました。「設定をコピー」で手動で貼り付けてください。"),
+    ("link.write_failed", "{file} を保存できませんでした。{detail}"),
+    ("link.notify_taken", "{file} には別のプログラムの notify がすでにあります。Codex は 1 つしか実行しないため、そのままにしました。"),
+    ("link.home_missing", "ホームフォルダが見つかりませんでした。"),
 
     ("dialog.pick_pet_folder", "pet.json があるペットフォルダーを選択"),
     ("dialog.pick_pet_zip", "ペットの ZIP ファイルを選択"),

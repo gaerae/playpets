@@ -15,6 +15,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Import a pet from a ZIP file on your computer, such as one from the creator kit or a compressed pet folder. PlayPets copies the pet in, so the ZIP can be moved or deleted afterwards.
 - Remove a pet you imported or picked from the trash button beside its card in Invite a friend. An imported pet's files are deleted; a picked folder only leaves the list. While friends made from the pet are in the yard, PlayPets names them to send away first.
 - A friend brings a gift each time it grows closer, from At ease on, on a day you play with it, and at Very close its own memento, marked with a heart. A friend already close when you update brings one for the level it is at.
+- Connect a coding agent in one press from Settings → Coding tools: PlayPets names the file, asks, then adds its hook to the agent's own settings beside everything already there and keeps a backup. Disconnect takes out only PlayPets' entries; a file PlayPets cannot read is left alone and Copy settings still works. Qoder and Kimi Code join the agents a friend can follow.
 - A gift box in the album's Gifts book keeps up to 12 gifts that came while the yard was full; press one to set it out once there is room. A memento you put away goes back into the box.
 
 ### Changed

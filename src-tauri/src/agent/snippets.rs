@@ -33,6 +33,16 @@ const GROK_EVENTS: [&str; 7] = [
     "StopCancelled",
     "SessionEnd",
 ];
+// Kimi Code asks through PermissionRequest, and Esc ends a turn with Interrupt instead of Stop.
+const KIMI_EVENTS: [&str; 7] = [
+    "UserPromptSubmit",
+    "PreToolUse",
+    "PermissionRequest",
+    "Stop",
+    "StopFailure",
+    "Interrupt",
+    "SessionEnd",
+];
 
 /// The app binary itself serves hooks and MCP (agent/cli.rs), so snippets need no Node.js.
 /// With `pet`, the agent reports to that friend instead of the first one.
@@ -40,8 +50,9 @@ pub fn connection_snippet(kind: &str, exe: &str, bridge_file: &str, pet: Option<
     let quote = |s: &str| Value::String(s.to_string()).to_string();
     let target = pet.map(|p| format!(" --pet {}", quote(p))).unwrap_or_default();
     match kind {
-        "claude" => {
-            let command = format!("{} hook claude --bridge {}{target}", quote(exe), quote(bridge_file));
+        // Qoder reads Claude Code's own settings shape, events and timeouts in seconds.
+        "claude" | "qoder" => {
+            let command = format!("{} hook {kind} --bridge {}{target}", quote(exe), quote(bridge_file));
             let mut hooks = Map::new();
             for event in CLAUDE_EVENTS {
                 let mut entry = Map::new();
@@ -85,6 +96,22 @@ pub fn connection_snippet(kind: &str, exe: &str, bridge_file: &str, pet: Option<
                 );
             }
             Ok(pretty(&json!({"hooks": Value::Object(hooks)})))
+        }
+        // Kimi Code refuses its whole config for any other key in a row, so a row has no marker:
+        // PlayPets knows its own by the command. No matcher is every tool; timeouts are seconds.
+        "kimi" => {
+            let command = format!("{} hook kimi --bridge {}{target}", quote(exe), quote(bridge_file));
+            Ok(KIMI_EVENTS
+                .iter()
+                .map(|event| {
+                    format!(
+                        "[[hooks]]\nevent = {}\ncommand = {}\ntimeout = 5\n",
+                        quote(event),
+                        quote(&command)
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("\n"))
         }
         "codex" => {
             let mut parts = vec![
@@ -227,6 +254,49 @@ mod tests {
                 && cursor["hooks"].get("beforeShellExecution").is_none()
         );
         assert!(connection_snippet("nope", exe, bridge, None).is_err());
+    }
+
+    #[test]
+    fn qoder_takes_claude_codes_shape_and_kimi_code_takes_toml_rows() {
+        let (exe, bridge) = ("/opt/playpets", "/data/bridge.json");
+        let claude: Value = serde_json::from_str(&connection_snippet("claude", exe, bridge, None).unwrap()).unwrap();
+        let qoder: Value = serde_json::from_str(&connection_snippet("qoder", exe, bridge, None).unwrap()).unwrap();
+        assert_eq!(
+            qoder["hooks"].as_object().unwrap().keys().collect::<Vec<_>>(),
+            claude["hooks"].as_object().unwrap().keys().collect::<Vec<_>>()
+        );
+        assert_eq!(
+            qoder["hooks"]["Stop"][0]["hooks"][0]["command"],
+            r#""/opt/playpets" hook qoder --bridge "/data/bridge.json""#
+        );
+        let kimi: toml_edit::DocumentMut = connection_snippet("kimi", exe, bridge, Some("pet-1"))
+            .unwrap()
+            .parse()
+            .unwrap();
+        let rows = kimi["hooks"].as_array_of_tables().unwrap();
+        assert_eq!(
+            rows.iter().map(|r| r["event"].as_str().unwrap()).collect::<Vec<_>>(),
+            [
+                "UserPromptSubmit",
+                "PreToolUse",
+                "PermissionRequest",
+                "Stop",
+                "StopFailure",
+                "Interrupt",
+                "SessionEnd"
+            ]
+        );
+        let row = rows.get(0).unwrap();
+        assert_eq!(
+            row.len(),
+            3,
+            "no matcher is every tool, and no key Kimi Code does not allow"
+        );
+        assert_eq!(row["timeout"].as_integer(), Some(5), "Kimi Code timeouts are seconds");
+        assert_eq!(
+            row["command"].as_str(),
+            Some(r#""/opt/playpets" hook kimi --bridge "/data/bridge.json" --pet "pet-1""#)
+        );
     }
 
     #[test]

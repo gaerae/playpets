@@ -1,7 +1,7 @@
 # Architecture: coding agent integration
 
 ## Scope
-- How coding agents (Claude Code, Codex, Gemini CLI, Cursor, Grok Build, and tools that use MCP) report their status to PlayPets friends, as it works today.
+- How coding agents (Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code, and tools that use MCP) report their status to PlayPets friends, as it works today.
 - For people adding a new integration or building tools on the agent side.
 - The whole app's architecture: [PlayPets app architecture](architecture.md).
 
@@ -44,6 +44,7 @@ flowchart LR
 | Bridge | `src-tauri/src/agent/bridge.rs` | The HTTP server inside the app. A random port on `127.0.0.1`, a token check on every request, browser requests refused |
 | Event handling | `src-tauri/src/agent/mod.rs` | Turns codes into sentences in the current language, remembers them as recent activity, and shows them as the friend's status |
 | Settings snippets | `connection_snippet` in `agent/snippets.rs` (the agent list is in `agent/kinds.rs`) | The snippet to paste into each agent's settings file, built by "Copy settings" in the Settings tab ([details](#settings-snippets)) |
+| Connect | `src-tauri/src/agent/connect.rs` | Merges the same snippet into the agent's own settings file, and takes PlayPets' entries out again ([details](#connect)) |
 
 ## Data flow
 1. **When the app launches:**
@@ -90,7 +91,7 @@ flowchart LR
 | `playpets say <message>` | Only a speech bubble, without changing the state |
 | `playpets react <wave\|jump\|pet>` | A one-off reaction |
 | `playpets run -- <command…>` | Status notifications while a command runs |
-| `playpets hook <claude\|gemini\|cursor\|grok>` | Handles hook JSON on standard input |
+| `playpets hook <claude\|gemini\|cursor\|grok\|qoder\|kimi>` | Handles hook JSON on standard input |
 | `playpets hook codex <json>` | Handles a Codex notification |
 | `playpets mcp` | MCP server (standard input and output) |
 
@@ -109,6 +110,13 @@ flowchart LR
   - Its `UserPromptSubmit`, `StopFailure`, `StopCancelled` and `SessionEnd` from a subagent (`subagentType` set) are not sent.
   - It also runs the hooks in `~/.claude/settings.json` and `~/.cursor/hooks.json`. A `hook claude` or `hook cursor` it runs (`GROK_SESSION_ID` set) sends nothing, so its work shows only on the Grok Build friend. Other agents' hooks still report with the variable set.
   - Some turns end without a Stop (cancel-and-send, rewind, a finished `!` command). `idle_prompt` follows every turn, so `hook grok` reads `GET /pets` first and settles the friend only while it is still working.
+- Qoder:
+  - It names its events and payload fields as Claude Code does, so `hook qoder` reads them as `hook claude` does, `idle_prompt` included.
+  - The Qoder IDE reads hook changes only after a restart; Qoder CLI reads them at once.
+- Kimi Code:
+  - It waits on the person through `PermissionRequest`. Its `Notification` only tells of background tasks and is not sent.
+  - A turn stopped with Esc fires `Interrupt` instead of `Stop`.
+  - The tool name is read from `tool_name`, or `toolName` if a version spells it so.
 - The app turns codes into the current language.
 - `by` names who reported: `<agent>:<session id>` from a hook, or `<agent>` alone when the payload names no session (Codex); cut at 80 characters; empty from older hooks and other commands.
   - `/pets` returns the `by` of the friend's last report, and `source`: `chat` while the state is a chat answer on its way rather than an agent's turn.
@@ -116,14 +124,15 @@ flowchart LR
 
 | Agent event | State | Sentence sent |
 |---|---|---|
-| Claude, Grok `UserPromptSubmit`, Gemini `BeforeAgent`, Cursor `afterAgentThought` | working | `@thinking` |
-| Claude, Grok `PreToolUse`, Gemini `BeforeTool`, Cursor `postToolUse` | working | `@tool <tool name>`, or `@tool_any` when there is no name |
+| Claude, Qoder, Grok, Kimi `UserPromptSubmit`, Gemini `BeforeAgent`, Cursor `afterAgentThought` | working | `@thinking` |
+| Claude, Qoder, Grok, Kimi `PreToolUse`, Gemini `BeforeTool`, Cursor `postToolUse` | working | `@tool <tool name>`, or `@tool_any` when there is no name |
 | Cursor `afterFileEdit`, `afterShellExecution`, `subagentStart` | working | `@editing`, `@command`, `@subtask` |
-| Claude `Notification` of a type that asks (or no type), Gemini `Notification`, Grok `Notification` of type `permission_prompt` | waiting | The agent's notification sentence, or `@confirm` when there is none |
-| Claude `Stop`, Grok `Stop` with reason `end_turn`, Gemini `AfterAgent`, Cursor `stop` | done | `@done` |
-| Claude, Grok `StopFailure` | error | `@rate_limit`, `@sign_in` (`authentication_failed`, `oauth_org_not_allowed`), or `@error` |
-| Claude, Grok `Notification` of type `idle_prompt` | idle, only while the friend is working | None |
-| Claude, Gemini, Grok `SessionEnd`, Grok `StopCancelled`, Cursor `sessionEnd` | idle | None |
+| Claude, Qoder `Notification` of a type that asks (or no type), Gemini `Notification`, Grok `Notification` of type `permission_prompt` | waiting | The agent's notification sentence, or `@confirm` when there is none |
+| Kimi `PermissionRequest` | waiting | `@confirm` |
+| Claude, Qoder, Kimi `Stop`, Grok `Stop` with reason `end_turn`, Gemini `AfterAgent`, Cursor `stop` | done | `@done` |
+| Claude, Qoder, Grok, Kimi `StopFailure` | error | `@rate_limit`, `@sign_in` (`authentication_failed`, `oauth_org_not_allowed`), or `@error` |
+| Claude, Qoder, Grok `Notification` of type `idle_prompt` | idle, only while the friend is working | None |
+| Claude, Qoder, Gemini, Grok, Kimi `SessionEnd`, Grok `StopCancelled`, Kimi `Interrupt`, Cursor `sessionEnd` | idle | None |
 | Codex `agent-turn-complete` | done | The last answer (120 characters), or `@done` when there is none |
 | `playpets run` start, failure | working, error | `@running <command>`, `@failed <exit code>` |
 | `playpets run` stopped by Ctrl-C, a TERM or its terminal closing (also a command that exits 130 or 143) | idle | `@stopped` |
@@ -160,7 +169,7 @@ flowchart LR
 | `react` | `action` (required), `pet` | Reaction |
 
 ## Environment and touchpoints
-- The Settings tab's "Copy settings" tells you which file to paste into.
+- The Settings tab's "Connect" writes the settings into the file below; "Copy settings" tells you which file to paste into.
 
 | Agent | Settings file | What you paste |
 |---|---|---|
@@ -169,6 +178,8 @@ flowchart LR
 | Gemini CLI | `~/.gemini/settings.json` | A `hook gemini` command for each event |
 | Cursor | `~/.cursor/hooks.json` | A `hook cursor` command for each event |
 | Grok Build | `~/.grok/hooks/playpets.json`, a new file | A `hook grok` command for each event (timeouts in seconds) |
+| Qoder | `~/.qoder/settings.json` | A `hook qoder` command for each event, in Claude Code's shape |
+| Kimi Code | End of `~/.kimi-code/config.toml` | A `[[hooks]]` row with a `hook kimi` command for each event |
 | Other MCP tools | Each tool's MCP settings | The `playpets mcp` server |
 
 ### Settings snippets
@@ -176,6 +187,30 @@ flowchart LR
 - Contains the executable path and the `bridge.json` path.
 - If a friend was picked for that agent in the Settings tab, it adds `--pet <friend id>` (`PLAYPETS_PET` for MCP).
 - The assignment is saved in `AppData.agent_pets` and removed when that friend is sent away.
+
+### Connect
+- "Connect" asks first and names the file, then merges the snippet into it (`agent::connect::connect`).
+- Everything else in the file stays, other tools' hooks and `mcpServers` included. New entries go after the file's own.
+- Formats (`Format` in `agent/kinds.rs`):
+
+| Format | Agents | Where PlayPets' entries go |
+|---|---|---|
+| `Grouped` | Claude Code, Gemini CLI, Grok Build, Qoder | A group with one handler in `hooks.<event>` |
+| `Flat` | Cursor | A handler in `hooks.<event>`; `version` only when the file has none |
+| `Notify` | Codex | The top-level `notify` key; comments and tables stay (`toml_edit`) |
+| `HookRows` | Kimi Code | `[[hooks]]` rows of `event`, `command` and `timeout` only; any other key stops Kimi Code loading its config |
+
+- PlayPets' entries are the ones whose command has ` hook <kind> --bridge `, or a Codex `notify` with `"hook", "codex"`. No marker key is added.
+- `agentLinks` reports each agent as `on`, `off`, `outdated`, `unreadable` or `taken`:
+  - `on`: PlayPets' entries are exactly what Connect would write now. Connect then writes nothing.
+  - `outdated`: another Reacting friend, a moved app or older events. Connect replaces the entries.
+  - `unreadable`: not JSON or TOML (a comment, a typo), or `hooks` in another shape. Nothing is written; Copy settings stays.
+  - `taken`: Codex's `notify` runs another program. Codex runs only one, so nothing is written.
+- Before a write, the file as it was is copied to `<name>.playpets-backup`. The write goes through `<name>.playpets-tmp` and a rename, keeping the file's permissions.
+- A linked settings file (a dotfiles folder) is written through its link.
+- "Disconnect" removes only PlayPets' entries and the groups and events they leave empty. A file left empty is removed, as before Connect made it.
+- The home folder is the system's. An e2e run reads `PLAYPETS_E2E_HOME` instead, and only in an e2e run; unit tests pass a temporary folder.
+- File work runs without the state lock; only the bridge path and the Reacting friend are read under it.
 
 MSIX install on Windows:
 - The executable lives under WindowsApps and cannot be run by path from outside.
@@ -192,3 +227,5 @@ MSIX install on Windows:
 - 2026-09-30 With an MSIX install, the settings snippet points at the execution alias
 - 2026-10-28 Grok Build reports through `hook grok`; hooks it borrows from Claude Code and Cursor send nothing
 - 2026-10-28 `hook claude` waits only on notices that ask, settles on `idle_prompt` and reports `StopFailure`; the MSIX package declares `playpets://`
+- 2026-10-30 Connect and Disconnect write and remove PlayPets' entries in each agent's own settings file
+- 2026-10-30 Qoder reports through `hook qoder` and Kimi Code through `hook kimi`
