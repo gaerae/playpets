@@ -53,6 +53,19 @@ jobs:
           path: store
           if-no-files-found: error
 
+  # The site's download buttons name the published release's files (scripts/site-releases.mjs), so
+  # the site is built again from main once the release is out. A run started with this token may
+  # start workflow_dispatch, and Pages deploys only from main.
+  site:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main --repo "$GITHUB_REPOSITORY"
+
   winget:
     needs: manifests
     runs-on: windows-latest

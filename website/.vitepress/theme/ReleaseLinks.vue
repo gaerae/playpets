@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import generated from '../generated.json';
-import { taggedRelease, watchRelease } from './site-runtime.mjs';
+import { knownRelease, taggedRelease, watchRelease } from './site-runtime.mjs';
 import { useWords } from './words';
 
 const props = defineProps<{ version: string }>();
@@ -14,6 +14,8 @@ let detach: (() => void) | undefined;
 const update = (result: { status: string }) => {
   if (active) published.value = result.status === 'ready';
 };
+const built = knownRelease(generated.slug, props.version);
+if (built) update(built);
 onMounted(async () => {
   detach = watchRelease(generated.slug, update, props.version);
   update(await taggedRelease(generated.slug, props.version));

@@ -130,3 +130,16 @@ test('distribute builds from the workflow ref and keeps the winget token off the
   assert.doesNotMatch(workflow, /--token/);
   assert.match(workflow, /WINGET_CREATE_GITHUB_TOKEN: \$\{\{ env\.WINGET_TOKEN \}\}/);
 });
+
+test('publishing a release builds the site again from main, which reads the releases with the token', async () => {
+  const distribute = await readFile('.github/workflows/distribute.yml', 'utf8');
+  const site = distribute.slice(distribute.indexOf('\n  site:'), distribute.indexOf('\n  winget:'));
+  assert.match(site, /if: github\.event_name == 'release'/);
+  assert.match(site, /gh workflow run pages\.yml --ref main/);
+  // Only this job may start a workflow.
+  assert.match(site, /permissions:\n {6}actions: write\n/);
+  assert.equal(distribute.split('actions: write').length - 1, 1);
+  const pages = await readFile('.github/workflows/pages.yml', 'utf8');
+  assert.match(pages, /- run: npm run site:build\n {8}env:\n {10}GH_TOKEN: \$\{\{ github\.token \}\}/);
+  assert.match(pages, /workflow_dispatch:/);
+});

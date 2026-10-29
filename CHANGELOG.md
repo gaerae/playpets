@@ -75,6 +75,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The website's front page shows real pictures of play: a garden decorated with flowers, trees and gifts, tag, digging, fishing and the album. Its comparison with a Codex pet starts with moving: friends stroll the yard and, with Stroll on desktop, your desktop, with a picture of them there.
 - Screenshots and the README animation no longer show a keyboard focus ring around a friend.
 - On Windows, the website's download section says the installer from GitHub is not code-signed yet and links to the install guide's steps for the SmartScreen warning; the README links there too, and the install guide links Microsoft's page on where SmartScreen is set.
+- The website's download buttons link the release files directly from the first moment: the site reads the published releases when it is built and is built again when one is published, so a busy network or GitHub's lookup limit no longer sends visitors to the release list. The README's download badges open that section.
 - The guide's first page starts with four steps and what each one shows, and the FAQ's answers on problems become one table of what you see, why and what to do.
 - The coding agents guide says a hook gives up within a few seconds, not three: a hook that waits for the app can take a little longer.
 - The coding agents guide says a `playpets run` stopped with Ctrl-C leaves its friend Resting.

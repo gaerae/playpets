@@ -32,7 +32,11 @@ jobs:
           node-version-file: .node-version
           cache: npm
       - run: npm ci
+      # The download buttons name the files of the published releases; the token reads them
+      # without the anonymous rate limit. distribute.yml runs this again when a release is published.
       - run: npm run site:build
+        env:
+          GH_TOKEN: ${{ github.token }}
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
