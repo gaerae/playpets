@@ -1,6 +1,6 @@
 //! The coding agents the app knows, one record each: the kind the page and the CLI name it by,
-//! how it is shown, whether it reports through a hook, and the settings file it reads. Adding
-//! an agent is a record here, an arm in `cli::hook_event` and in `snippets::connection_snippet`,
+//! how it is shown, whether it reports through a hook, the settings file it reads and how hooks
+//! sit in that file (for Connect). Adding an agent is a record here, an arm in `cli::hook_event` and in `snippets::connection_snippet`,
 //! a row in index.html's settings tab, and the strings those name.
 use serde_json::{Value, json};
 

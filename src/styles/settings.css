@@ -93,8 +93,9 @@
 }
 .link-row strong {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 2px 6px;
   font-size: 13px;
 }
 .link-row small {
@@ -210,6 +211,14 @@
 /* A row with a friend to pick wraps: text and button first, the pick on its own line below. */
 .link-row:has(.agent-pet) {
   flex-wrap: wrap;
+}
+/* A long reason under an agent's name wraps beside the buttons rather than pushing them down;
+   in a small window the buttons take a line of their own under it. */
+.link-row:has(.agent-pet) > div {
+  flex: 1 1 0;
+}
+body.compact .link-row:has(.agent-actions) > div {
+  flex-basis: 100%;
 }
 .link-row .agent-pet {
   order: 3;
