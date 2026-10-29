@@ -68,7 +68,7 @@ pub struct AppData {
     pub picked: Vec<String>,
     /// Which friend each coding agent reports to (agent kind → pet id). Unset means the first friend.
     pub agent_pets: HashMap<String, String>,
-    /// Whether the app starts at login, as the system said at start (not saved: the system keeps it).
+    /// Whether the app starts at login, as the system last said (not saved: the system keeps it).
     pub autostart: bool,
     /// Seeds friends found, the plants grown from them, and the gifts friends brought.
     pub garden: garden::Garden,

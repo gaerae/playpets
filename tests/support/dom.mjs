@@ -211,11 +211,12 @@ export function keepGlobals(t, ...names) {
 /**
  * Sets globalThis.document to a fake whose getElementById finds the nodes listed in `ids`. With
  * `anyId`, any other id gets a node the first time it is asked for, as for tests that do not list
- * them. `props` are given to every node the document makes, `rect` included. Without a test
- * context the fake stays. Returns the document, the nodes by id, and the element maker it uses.
+ * them. `props` are given to every node the document makes, `rect` included. A window that takes
+ * listeners is set too, unless the test made its own first. Without a test context the fakes stay.
+ * Returns the document, the window, the nodes by id, and the element maker it uses.
  */
 export function installDom(t, { ids = [], anyId = false, props = {} } = {}) {
-  keepGlobals(t, 'document');
+  keepGlobals(t, 'document', 'window');
   const make = (tag, extra) => element(tag, { ...props, ...extra });
   const nodes = new Map();
   const add = id => nodes.set(id, make('div', { id })).get(id);
@@ -229,7 +230,8 @@ export function installDom(t, { ids = [], anyId = false, props = {} } = {}) {
   document.append(document.body);
   document.activeElement = document.body;
   globalThis.document = document;
-  return { document, nodes, element: make };
+  globalThis.window ??= make('#window');
+  return { document, window: globalThis.window, nodes, element: make };
 }
 
 /** Sets globalThis.localStorage (a getter in recent Node) to `storage` until the test ends. */

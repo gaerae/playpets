@@ -179,6 +179,7 @@ static COMMANDS: &[Command] = &[
     main("setAutostart", |c| {
         set_autostart(c.app, &c.state, c.arg(0).as_bool().unwrap_or(false))
     }),
+    main("readAutostart", |c| read_autostart(c.app, &c.state)),
     main("setLanguage", |c| set_language(c.app, &c.state, c.text(0))),
     // The garden, gifts, the album and closeness.
     main("dig", |c| {
@@ -800,6 +801,22 @@ fn set_autostart(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Val
     let mut d = lock(state);
     d.autostart = now;
     changed(app, &d);
+    Ok(Value::Bool(now))
+}
+
+/// Whether the app starts at login, asked again: the person may have changed it in the system's
+/// own settings while the app ran. The system is asked before the lock is taken.
+fn read_autostart(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
+    let now = if e2e_mode() {
+        lock(state).autostart
+    } else {
+        crate::startup::is_enabled(app)
+    };
+    let mut d = lock(state);
+    if d.autostart != now {
+        d.autostart = now;
+        changed(app, &d);
+    }
     Ok(Value::Bool(now))
 }
 

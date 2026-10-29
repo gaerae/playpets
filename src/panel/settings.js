@@ -388,4 +388,10 @@ export function setupSettings() {
       throw e;
     }
   });
+  // The system's own settings can change it while the app runs; coming back to the window asks again.
+  window.addEventListener('focus', async () => {
+    try {
+      $('autostart').checked = await call('readAutostart');
+    } catch {}
+  });
 }
