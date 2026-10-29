@@ -10,7 +10,7 @@ import { icons } from '../core/icons.js';
 import { displayName } from '../core/names.js';
 import { setupSeason, southern } from '../core/season.js';
 import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/sprites.js';
-import { recall } from '../core/state.js';
+import { sceneValue } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
@@ -33,10 +33,7 @@ const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
 const seasonChanged = setupSeason({
   // As the yard reads it (yard/sky.js): a season the app could not save is still in the webview.
-  read: () =>
-    data.ownsWebviewStorage === false
-      ? (data.scene?.season ?? recall('season'))
-      : (recall('season') ?? data.scene?.season),
+  read: () => sceneValue('season', data),
   apply: season => {
     if (setSpriteSeason(season)) render();
   },

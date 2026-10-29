@@ -284,7 +284,8 @@ export const strings = {
   'decor.memento_title': '{name}의 추억의 선물 {kind}, 끌어서 옮길 수 있어요',
   'decor.brought_boxed': '{name:이/가} {kind:을/를} 가져왔어요. 놀이터가 가득 차서 도감의 선물 상자에 넣어 뒀어요.',
   'decor.brought_memento': '{name:이/가} 추억의 선물로 {kind:을/를} 가져왔어요. 치워도 선물 상자에 남아요.',
-  'decor.brought_memento_boxed': '{name:이/가} 추억의 선물로 {kind:을/를} 가져왔어요. 놀이터가 가득 차서 도감의 선물 상자에 넣어 뒀어요.',
+  'decor.brought_memento_boxed':
+    '{name:이/가} 추억의 선물로 {kind:을/를} 가져왔어요. 놀이터가 가득 차서 도감의 선물 상자에 넣어 뒀어요.',
   'decor.brought_thanks': '{name:이/가} 더 가까워진 기념으로 {kind:을/를} 가져왔어요.',
   'decor.gift_memento': [
     '이건 내가 아끼는 거야. 너한테 줄게!',

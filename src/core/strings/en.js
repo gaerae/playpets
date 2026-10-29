@@ -284,7 +284,8 @@ export const strings = {
   'decor.memento_title': "{kind}, {name}'s memento: drag to move it",
   'decor.brought_boxed': '{name} brought a gift: {kind}. The yard is full, so it is in the gift box in the album.',
   'decor.brought_memento': '{name} brought its memento: {kind}. Put away, it stays in the gift box.',
-  'decor.brought_memento_boxed': '{name} brought its memento: {kind}. The yard is full, so it is in the gift box in the album.',
+  'decor.brought_memento_boxed':
+    '{name} brought its memento: {kind}. The yard is full, so it is in the gift box in the album.',
   'decor.brought_thanks': '{name} brought a gift for growing closer: {kind}.',
   'decor.gift_memento': [
     'This is my favourite thing. I want you to have it!',

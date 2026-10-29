@@ -5,7 +5,7 @@ import test from 'node:test';
 import { installStorage, keepGlobals } from './support/dom.mjs';
 
 globalThis.playPets = {};
-const { setData } = await import('../src/core/state.js');
+const { sceneValue, setData } = await import('../src/core/state.js');
 const { restoreBackgrounds, removeBackground } = await import('../src/yard/background-store.js');
 const { keepScene, moveOldScene, savedScene } = await import('../src/yard/sky.js');
 const { worlds } = await import('../src/yard/worlds.js');
@@ -219,4 +219,15 @@ test("an older version's place and weather move into the app's state and leave t
   await keepScene('period', 'night');
   assert.equal(scene.period, 'night');
   assert.equal(storage.getItem('period'), null);
+});
+
+// The desktop window reads the season as the yard does (overlay.js), from its own copy of the state.
+test("another data folder prefers its own scene to the installed app's webview copy", t => {
+  const storage = installStorage(t);
+  storage.setItem('season', 'winter');
+  const own = { scene: { season: 'summer' } },
+    other = { ...own, ownsWebviewStorage: false };
+  assert.equal(sceneValue('season', own), 'winter');
+  assert.equal(sceneValue('season', other), 'summer');
+  assert.equal(sceneValue('season', { ownsWebviewStorage: false }), 'winter', 'or copies one it has none of');
 });

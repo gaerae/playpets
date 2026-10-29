@@ -1,7 +1,7 @@
 // Imported backgrounds live in the data folder (the backend's `backgrounds`). Before 1.4.0 the
 // page kept them in the webview's own storage: each moves over once, and leaves that storage only
 // after the data folder holds it. One that could not move is still shown from there.
-import { call, data } from '../core/state.js';
+import { call, data, ownsWebview } from '../core/state.js';
 import { backgroundWorld, validateBackgroundPack } from './background-pack.js';
 import { worlds } from './worlds.js';
 
@@ -39,10 +39,9 @@ async function oldRows() {
     return [];
   }
 }
-// A data folder other than the system's own shares the webview with the installed app
-// (`ownsWebviewStorage`, app/load.rs): it copies the old rows and leaves them to that app.
+// Another data folder copies the old rows and leaves them to the installed app (ownsWebview, state.js).
 async function forgetOld(id) {
-  if (typeof indexedDB === 'undefined' || data.ownsWebviewStorage === false) return;
+  if (typeof indexedDB === 'undefined' || !ownsWebview()) return;
   try {
     await transaction('readwrite', store => store.delete(id));
   } catch {
@@ -55,7 +54,7 @@ export async function restoreBackgrounds() {
   const rows = new Map(saved.map(row => [row.id, row]));
   // Another data folder copies the installed app's once, before it keeps any: one removed here
   // later is not copied back from the copy it left.
-  const copied = data.ownsWebviewStorage === false && data.hasBackgroundsFolder;
+  const copied = !ownsWebview() && data.hasBackgroundsFolder;
   for (const row of copied ? [] : await oldRows()) {
     if (!rows.has(row.id)) {
       rows.set(row.id, row);

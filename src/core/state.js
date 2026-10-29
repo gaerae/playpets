@@ -185,3 +185,11 @@ export const recall = key => {
     return null;
   }
 };
+// Whether the webview's storage is this data folder's own. A data folder other than the system's
+// own shares the webview with the installed app (`ownsWebviewStorage`, app/load.rs): it copies
+// what it has none of and leaves that storage as the installed app's (sky.js, background-store.js).
+export const ownsWebview = (d = data) => d.ownsWebviewStorage !== false;
+/** A scene value (place, season, time, weather) as the yard reads it: the webview's copy is newer
+ * than the app's (a version before 1.4.0 wrote it, or the app could not save it) where it is ours. */
+export const sceneValue = (key, d = data) =>
+  ownsWebview(d) ? (recall(key) ?? d.scene?.[key]) : (d.scene?.[key] ?? recall(key));

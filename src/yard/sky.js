@@ -5,7 +5,7 @@ import { t } from '../core/i18n.js';
 import { dropdown } from '../core/menu.js';
 import { isSeason, selectedSeason, southern } from '../core/season.js';
 import { reduced } from '../core/sprites.js';
-import { $, call, data, forget, recall, remember } from '../core/state.js';
+import { $, call, data, forget, ownsWebview, recall, remember, sceneValue } from '../core/state.js';
 import { everyMinute } from '../core/ticker.js';
 import { createEasel } from './easel.js';
 import { eventStart, sceneEvent } from './events.js';
@@ -139,32 +139,24 @@ function showRainbow(yard) {
   rainbowTimer = setTimeout(() => $('yard').classList.remove('after-rain'), RAINBOW_MS);
 }
 // The place, season, time of day and weather picked are kept in state.json (`scene`), so they
-// travel with the data folder. A value in the webview's storage is newer than the app's: a version
-// before 1.4.0 wrote it, or the app could not save it. It wins, moves over and leaves that storage
-// once the app saved it.
-// A data folder other than the system's own shares the webview with the installed app
-// (`ownsWebviewStorage`, app/load.rs): it copies a value it has none of, and leaves that storage
-// as the installed app's.
+// travel with the data folder. A value still in the webview's storage (sceneValue, state.js) moves
+// over and leaves that storage once the app saved it, where that storage is this folder's own.
 const SCENE_KEYS = ['world', 'weather', 'period', 'season'];
-const webview = () => data.ownsWebviewStorage !== false;
-export const savedScene = () =>
-  Object.fromEntries(
-    SCENE_KEYS.map(key => [key, webview() ? (recall(key) ?? data.scene?.[key]) : (data.scene?.[key] ?? recall(key))]),
-  );
+export const savedScene = () => Object.fromEntries(SCENE_KEYS.map(key => [key, sceneValue(key)]));
 export async function keepScene(key, value) {
   try {
     await call('setScene', key, value);
-    if (webview()) forget(key);
+    if (ownsWebview()) forget(key);
   } catch {
     // Not saved by the app: the webview keeps it, read again at the next start.
-    if (webview()) remember(key, value);
+    if (ownsWebview()) remember(key, value);
   }
 }
 export function moveOldScene() {
   return Promise.all(
     SCENE_KEYS.map(key => {
       const old = recall(key);
-      if (old === null || (!webview() && data.scene?.[key] != null)) return undefined;
+      if (old === null || (!ownsWebview() && data.scene?.[key] != null)) return undefined;
       return keepScene(key, old);
     }),
   );
