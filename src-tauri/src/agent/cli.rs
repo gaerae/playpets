@@ -1,6 +1,6 @@
 // Command-line mode of the app binary, so coding agents need no Node.js:
 //   playpets pets | status <state> [msg] | say <msg> | react <action> | run -- <cmd...>
-//   playpets hook claude|gemini|cursor|grok   (hook; JSON on stdin)
+//   playpets hook claude|gemini|cursor|grok|qoder|kimi   (hook; JSON on stdin)
 //   playpets hook codex <json>           (Codex notify; JSON as last argument)
 //   playpets mcp                         (MCP stdio server)
 // Options: --pet <id or name> (default: first pet, or $PLAYPETS_PET), --bridge <bridge.json>
@@ -64,6 +64,11 @@ pub fn hook_event(agent: &str, payload: &Value) -> Option<(String, String)> {
     if agent == "grok" {
         return grok_event(event, payload);
     }
+    if agent == "kimi" {
+        return kimi_event(event, payload);
+    }
+    // Qoder names its events and payload fields as Claude Code does (docs.qoder.com/cli/hooks).
+    let agent = if agent == "qoder" { "claude" } else { agent };
     let (state, message) = match (agent, event) {
         ("claude", "UserPromptSubmit") | ("gemini", "BeforeAgent") | ("cursor", "afterAgentThought") => {
             ("working", "@thinking".to_string())
@@ -124,6 +129,34 @@ fn grok_event(event: &str, payload: &Value) -> Option<(String, String)> {
     Some((state.into(), message))
 }
 
+/// Kimi Code asks the person through PermissionRequest (its Notification only tells of background
+/// tasks), and a turn stopped with Esc fires Interrupt instead of Stop (kimi-code hooks.md).
+fn kimi_event(event: &str, payload: &Value) -> Option<(String, String)> {
+    let (state, message) = match event {
+        "UserPromptSubmit" => ("working", "@thinking".to_string()),
+        "PreToolUse" => {
+            let tool = clip(payload.get("tool_name").or_else(|| payload.get("toolName")), 60);
+            (
+                "working",
+                if tool.is_empty() {
+                    "@tool_any".into()
+                } else {
+                    format!("@tool {tool}")
+                },
+            )
+        }
+        "PermissionRequest" => ("waiting", "@confirm".into()),
+        "Stop" => ("done", "@done".into()),
+        "StopFailure" => (
+            "error",
+            failure_message(payload.get("error_type").and_then(|v| v.as_str())).into(),
+        ),
+        "Interrupt" | "SessionEnd" => ("idle", String::new()),
+        _ => return None,
+    };
+    Some((state.into(), message))
+}
+
 /// Whether a Claude Code notification waits on the person. It also says it is idle a minute after
 /// every turn and tells of sign-ins and quotas; one without `notification_type` comes from a version
 /// that only notified to ask.
@@ -162,7 +195,7 @@ fn borrowed_by_grok(agent: &str, grok_session: bool) -> bool {
 fn settles_when_working(agent: &str, payload: &Value) -> bool {
     let key = match agent {
         "grok" => "notificationType",
-        "claude" => "notification_type",
+        "claude" | "qoder" => "notification_type",
         _ => return false,
     };
     payload.get("hook_event_name").and_then(|v| v.as_str()) == Some("Notification")
@@ -541,6 +574,72 @@ mod tests {
 
     fn strs(v: &[&str]) -> Vec<String> {
         v.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn qoder_reports_as_claude_code_and_kimi_code_asks_through_permission_requests() {
+        let e = |a: &str, v: Value| hook_event(a, &v);
+        for event in [
+            json!({"hook_event_name": "UserPromptSubmit", "prompt": "secret"}),
+            json!({"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": {"command": "rm"}}),
+            json!({"hook_event_name": "Notification", "notification_type": "permission_prompt", "message": "Allow?"}),
+            json!({"hook_event_name": "Notification", "notification_type": "idle_prompt"}),
+            json!({"hook_event_name": "Stop"}),
+            json!({"hook_event_name": "StopFailure", "error_type": "rate_limit"}),
+            json!({"hook_event_name": "SessionEnd"}),
+        ] {
+            assert_eq!(e("qoder", event.clone()), e("claude", event.clone()), "{event}");
+        }
+        let idle = json!({"hook_event_name": "Notification", "notification_type": "idle_prompt"});
+        assert!(settles_when_working("qoder", &idle));
+
+        assert_eq!(
+            e(
+                "kimi",
+                json!({"hook_event_name": "UserPromptSubmit", "prompt": "secret"})
+            ),
+            Some(("working".into(), "@thinking".into()))
+        );
+        assert_eq!(
+            e(
+                "kimi",
+                json!({"hook_event_name": "PreToolUse", "tool_name": "Shell", "tool_input": {}})
+            ),
+            Some(("working".into(), "@tool Shell".into()))
+        );
+        assert_eq!(
+            e(
+                "kimi",
+                json!({"hook_event_name": "PermissionRequest", "tool_name": "Shell"})
+            ),
+            Some(("waiting".into(), "@confirm".into()))
+        );
+        assert_eq!(
+            e(
+                "kimi",
+                json!({"hook_event_name": "Notification", "type": "task.completed"})
+            ),
+            None,
+            "Kimi Code's notifications tell of background tasks, not of waiting"
+        );
+        assert_eq!(
+            e("kimi", json!({"hook_event_name": "Stop"})),
+            Some(("done".into(), "@done".into()))
+        );
+        assert_eq!(
+            e(
+                "kimi",
+                json!({"hook_event_name": "StopFailure", "error_type": "rate_limit", "error_message": "slow down"})
+            ),
+            Some(("error".into(), "@rate_limit".into()))
+        );
+        for event in ["Interrupt", "SessionEnd"] {
+            assert_eq!(
+                e("kimi", json!({"hook_event_name": event})),
+                Some(("idle".into(), String::new())),
+                "{event}"
+            );
+        }
     }
 
     #[test]

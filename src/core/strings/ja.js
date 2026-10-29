@@ -723,6 +723,7 @@ export const strings = {
   'settings.codex_note': '先頭に貼り付け、終わったときに知らせます',
   'settings.cursor_note': '編集、コマンド、完了を知らせます',
   'settings.grok_note': '新しいファイルとして保存すると、ステップごとに知らせます',
+  'settings.qoder_note': 'ステップごとに知らせます。IDE は再起動後に反映されます',
   'settings.mcp': 'MCP (ほかのAIツール)',
   'settings.mcp_note': 'ツールのMCP設定に追加、AIが状態、吹き出し、動作を直接送ります',
   'settings.copy': '設定をコピー',

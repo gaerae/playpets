@@ -704,6 +704,7 @@ export const strings = {
   'settings.codex_note': '맨 위에, 끝날 때 알려 줘요',
   'settings.cursor_note': '편집, 명령, 완료를 알려줘요',
   'settings.grok_note': '새 파일로 저장하면 단계마다 알려 줘요',
+  'settings.qoder_note': '단계마다 알려 줘요, IDE는 다시 시작하면 반영돼요',
   'settings.mcp': 'MCP (다른 AI 도구)',
   'settings.mcp_note': '도구의 MCP 설정에 추가, AI가 직접 상태, 말풍선, 동작을 보내요',
   'settings.copy': '설정 복사',

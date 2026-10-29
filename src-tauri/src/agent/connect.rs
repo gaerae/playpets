@@ -150,6 +150,10 @@ enum Settings {
     Notify {
         doc: toml_edit::DocumentMut,
     },
+    Rows {
+        kind: String,
+        doc: toml_edit::DocumentMut,
+    },
 }
 
 impl Settings {
@@ -180,6 +184,14 @@ impl Settings {
             Format::Notify => Ok(Settings::Notify {
                 doc: text.parse().map_err(|_| ())?,
             }),
+            Format::HookRows => {
+                let doc: toml_edit::DocumentMut = text.parse().map_err(|_| ())?;
+                // `hooks` must already be rows for one to be added beside the others.
+                if doc.get("hooks").is_some_and(|h| h.as_array_of_tables().is_none()) {
+                    return Err(());
+                }
+                Ok(Settings::Rows { kind: kind.into(), doc })
+            }
             Format::None => Err(()),
         }
     }
@@ -202,6 +214,16 @@ impl Settings {
                 Some(item) if notify_args(item) == notify_args(&notify_snippet(snippet)) => Link::On,
                 Some(_) => Link::Outdated,
             },
+            Settings::Rows { kind, doc } => {
+                let own = own_rows(doc, kind);
+                if own.is_empty() {
+                    Link::Off
+                } else if own == own_rows(&rows_snippet(snippet), kind) {
+                    Link::On
+                } else {
+                    Link::Outdated
+                }
+            }
         }
     }
 
@@ -286,6 +308,18 @@ impl Settings {
                     false
                 }
             }
+            Settings::Rows { kind, doc } => {
+                let Some(rows) = doc.get_mut("hooks").and_then(toml_edit::Item::as_array_of_tables_mut) else {
+                    return false;
+                };
+                let before = rows.len();
+                rows.retain(|row| !own_row(row, kind));
+                let removed = rows.len() != before;
+                if removed && rows.is_empty() {
+                    doc.remove("hooks");
+                }
+                removed
+            }
         }
     }
 
@@ -316,20 +350,45 @@ impl Settings {
             Settings::Notify { doc } => {
                 doc.insert("notify", notify_snippet(snippet));
             }
+            Settings::Rows { doc, .. } => {
+                let wanted = rows_snippet(snippet);
+                if doc.get("hooks").is_none() {
+                    doc.insert("hooks", toml_edit::Item::ArrayOfTables(Default::default()));
+                }
+                let Some(rows) = doc.get_mut("hooks").and_then(toml_edit::Item::as_array_of_tables_mut) else {
+                    return;
+                };
+                // Rows made anew, so they print after the file's own rather than where the
+                // snippet had them.
+                for row in wanted
+                    .get("hooks")
+                    .and_then(toml_edit::Item::as_array_of_tables)
+                    .into_iter()
+                    .flatten()
+                {
+                    let mut fresh = toml_edit::Table::new();
+                    for (key, value) in row.iter() {
+                        fresh.insert(key, value.clone());
+                    }
+                    rows.push(fresh);
+                }
+            }
         }
     }
 
     fn is_empty(&self) -> bool {
         match self {
             Settings::Json { root, .. } => root.is_empty(),
-            Settings::Notify { doc } => doc.as_table().is_empty() && doc.to_string().trim().is_empty(),
+            Settings::Notify { doc } | Settings::Rows { doc, .. } => {
+                doc.as_table().is_empty() && doc.to_string().trim().is_empty()
+            }
         }
     }
 
     fn text(&self) -> String {
         match self {
             Settings::Json { root, .. } => format!("{}\n", serde_json::to_string_pretty(root).unwrap_or_default()),
-            Settings::Notify { doc } => doc.to_string(),
+            Settings::Notify { doc } | Settings::Rows { doc, .. } => doc.to_string(),
         }
     }
 }
@@ -341,6 +400,38 @@ fn own_handler(handler: &Value, kind: &str) -> bool {
         .get("command")
         .and_then(Value::as_str)
         .is_some_and(|c| c.contains(&format!(" hook {kind} --bridge ")))
+}
+
+/// A Kimi Code hook row PlayPets wrote, by its command alone: the row may hold no other key.
+fn own_row(row: &toml_edit::Table, kind: &str) -> bool {
+    row.get("command")
+        .and_then(toml_edit::Item::as_str)
+        .is_some_and(|c| c.contains(&format!(" hook {kind} --bridge ")))
+}
+
+/// PlayPets' rows, each as its keys and values, in one order however the file has them.
+fn own_rows(doc: &toml_edit::DocumentMut, kind: &str) -> Vec<String> {
+    let mut rows: Vec<String> = doc
+        .get("hooks")
+        .and_then(toml_edit::Item::as_array_of_tables)
+        .into_iter()
+        .flatten()
+        .filter(|row| own_row(row, kind))
+        .map(|row| {
+            let mut keys: Vec<String> = row
+                .iter()
+                .map(|(key, value)| format!("{key}={}", value.to_string().trim()))
+                .collect();
+            keys.sort();
+            keys.join("\n")
+        })
+        .collect();
+    rows.sort();
+    rows
+}
+
+fn rows_snippet(snippet: &str) -> toml_edit::DocumentMut {
+    snippet.parse().unwrap_or_default()
 }
 
 /// A Codex notify program PlayPets wrote: `[<app>, "hook", "codex", …]`.
@@ -426,7 +517,7 @@ mod tests {
     #[test]
     fn connecting_twice_changes_nothing() {
         let home = home();
-        for kind in ["claude", "gemini", "cursor", "grok", "codex"] {
+        for kind in ["claude", "gemini", "cursor", "grok", "codex", "qoder", "kimi"] {
             assert!(connect(&home, kind, &snippet(kind, None)).unwrap(), "{kind}");
             let path = settings_path(&home, kind).unwrap();
             let first = fs::read_to_string(&path).unwrap();
@@ -510,6 +601,7 @@ mod tests {
             ("claude", "[1, 2]"),
             ("claude", r#"{"hooks": {"Stop": "say"}}"#),
             ("codex", "model = \n"),
+            ("kimi", "hooks = \"none\"\n"),
         ] {
             let path = put(&home, kind, text);
             assert_eq!(status(&home, kind, &snippet(kind, None)), Link::Unreadable, "{kind}");
@@ -549,6 +641,37 @@ mod tests {
         assert_eq!(status(&home, "codex", &snippet("codex", None)), Link::Taken);
         assert!(connect(&home, "codex", &snippet("codex", None)).is_err());
         assert!(!disconnect(&home, "codex").unwrap());
+        assert_eq!(fs::read_to_string(&path).unwrap(), original);
+    }
+
+    #[test]
+    fn kimi_code_rows_go_after_the_files_own_and_hold_only_its_four_keys() {
+        let home = home();
+        let original = "default_model = \"kimi\"\n\n[[hooks]]\nevent = \"PreToolUse\"\nmatcher = \"Bash\"\ncommand = \"guard.sh\"\ntimeout = 5\n";
+        let path = put(&home, "kimi", original);
+        assert!(path.ends_with(".kimi-code/config.toml"));
+        assert_eq!(status(&home, "kimi", &snippet("kimi", None)), Link::Off);
+        connect(&home, "kimi", &snippet("kimi", Some("pet-1"))).unwrap();
+        let text = fs::read_to_string(&path).unwrap();
+        assert!(text.starts_with(original), "{text}");
+        let doc: toml_edit::DocumentMut = text.parse().unwrap();
+        let rows = doc["hooks"].as_array_of_tables().unwrap();
+        assert_eq!(rows.len(), 8);
+        assert_eq!(rows.get(0).unwrap()["command"].as_str(), Some("guard.sh"));
+        for row in rows.iter().skip(1) {
+            let mut keys: Vec<&str> = row.iter().map(|(k, _)| k).collect();
+            keys.sort();
+            assert_eq!(
+                keys,
+                ["command", "event", "timeout"],
+                "any other key stops Kimi Code loading"
+            );
+            assert!(row["command"].as_str().unwrap().ends_with(r#"--pet "pet-1""#));
+        }
+        assert_eq!(status(&home, "kimi", &snippet("kimi", Some("pet-1"))), Link::On);
+        assert_eq!(status(&home, "kimi", &snippet("kimi", None)), Link::Outdated);
+        assert!(!connect(&home, "kimi", &snippet("kimi", Some("pet-1"))).unwrap());
+        assert!(disconnect(&home, "kimi").unwrap());
         assert_eq!(fs::read_to_string(&path).unwrap(), original);
     }
 

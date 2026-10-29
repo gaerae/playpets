@@ -687,6 +687,7 @@ export const strings = {
   'settings.codex_note': '放在最上面，结束时通知',
   'settings.cursor_note': '通知编辑、命令和完成',
   'settings.grok_note': '另存为新文件后，每一步都会通知',
+  'settings.qoder_note': '每一步都会通知，IDE 需重启后生效',
   'settings.mcp': 'MCP（其他 AI 工具）',
   'settings.mcp_note': '添加到工具的 MCP 设置，AI 直接发送状态、气泡和动作',
   'settings.copy': '复制设置',

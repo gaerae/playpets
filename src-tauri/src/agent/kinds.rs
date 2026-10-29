@@ -13,6 +13,8 @@ pub enum Format {
     Flat,
     /// TOML: the one top-level `notify` program.
     Notify,
+    /// TOML `[[hooks]]` rows of exactly `event`, `matcher`, `command` and `timeout`.
+    HookRows,
     /// Nothing to write: each tool adds MCP servers its own way.
     None,
 }
@@ -27,7 +29,7 @@ pub struct Agent {
     pub format: Format,
 }
 
-pub const AGENTS: [Agent; 6] = [
+pub const AGENTS: [Agent; 8] = [
     Agent {
         kind: "claude",
         label: "Claude Code",
@@ -62,6 +64,20 @@ pub const AGENTS: [Agent; 6] = [
         hook: true,
         settings_file: &[".grok", "hooks", "playpets.json"],
         format: Format::Grouped,
+    },
+    Agent {
+        kind: "qoder",
+        label: "Qoder",
+        hook: true,
+        settings_file: &[".qoder", "settings.json"],
+        format: Format::Grouped,
+    },
+    Agent {
+        kind: "kimi",
+        label: "Kimi Code",
+        hook: true,
+        settings_file: &[".kimi-code", "config.toml"],
+        format: Format::HookRows,
     },
     Agent {
         kind: "mcp",

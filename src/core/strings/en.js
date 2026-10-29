@@ -730,6 +730,7 @@ export const strings = {
   'settings.codex_note': 'At the top, reports when it finishes',
   'settings.cursor_note': 'Reports edits, commands and completion',
   'settings.grok_note': 'A file of its own, reports every step',
+  'settings.qoder_note': 'Reports every step, the IDE after a restart',
   'settings.mcp': 'MCP (other AI tools)',
   'settings.mcp_note': 'Add to the tool’s MCP settings, the AI sends status, bubbles and actions itself',
   'settings.copy': 'Copy settings',
