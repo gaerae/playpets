@@ -65,14 +65,14 @@ pub fn connect(home: &Path, kind: &str, snippet: &str) -> Result<bool, String> {
     let shown = path.to_string_lossy().to_string();
     let original = read(&path).map_err(|_| unreadable(&shown))?;
     let mut settings = Settings::parse(kind, original.as_deref().unwrap_or("")).map_err(|_| unreadable(&shown))?;
-    match settings.link(snippet) {
+    let clean = match settings.link(snippet) {
         Link::On => return Ok(false),
         Link::Taken => return Err(i18n::tr("link.notify_taken", &[("file", &shown)])),
-        _ => {}
-    }
+        link => link == Link::Off,
+    };
     settings.remove_own();
     settings.add(snippet);
-    save(&path, original.is_some(), Some(&settings.text()))?;
+    save(&path, original.is_some(), clean, Some(&settings.text()))?;
     Ok(true)
 }
 
@@ -89,7 +89,7 @@ pub fn disconnect(home: &Path, kind: &str) -> Result<bool, String> {
         return Ok(false);
     }
     let text = settings.text();
-    save(&path, true, (!settings.is_empty()).then_some(text.as_str()))?;
+    save(&path, true, false, (!settings.is_empty()).then_some(text.as_str()))?;
     Ok(true)
 }
 
@@ -108,13 +108,21 @@ fn read(path: &Path) -> std::io::Result<Option<String>> {
 }
 
 /// Writes `text` (or removes the file for None) through a temporary file beside it, so the agent
-/// never reads half a file. The file as it was is kept beside it first.
-fn save(path: &Path, existed: bool, text: Option<&str>) -> Result<(), String> {
-    let path = fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+/// never reads half a file. The backup beside it keeps the file as it was before PlayPets was in
+/// it: a `clean` file (no PlayPets entry) replaces it, and a later Connect or Disconnect leaves it,
+/// so connecting twice never overwrites the person's own settings with PlayPets' copy.
+fn save(path: &Path, existed: bool, clean: bool, text: Option<&str>) -> Result<(), String> {
+    // dunce keeps Windows paths free of the `\\?\` prefix a person would see in a message.
+    let path = dunce::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
     let shown = path.to_string_lossy().to_string();
     let failed = |e: std::io::Error| i18n::tr("link.write_failed", &[("file", &shown), ("detail", &e.to_string())]);
-    if existed {
-        fs::copy(&path, sibling(&path, "playpets-backup")).map_err(failed)?;
+    // A file made read-only is one the person keeps as it is; Windows would refuse the rename anyway.
+    if existed && fs::metadata(&path).is_ok_and(|m| m.permissions().readonly()) {
+        return Err(failed(std::io::ErrorKind::PermissionDenied.into()));
+    }
+    let backup = sibling(&path, "playpets-backup");
+    if existed && (clean || !backup.exists()) {
+        fs::copy(&path, &backup).map_err(failed)?;
     }
     let Some(text) = text else {
         return fs::remove_file(&path).map_err(failed);
@@ -594,6 +602,50 @@ mod tests {
             json_at(&path),
             json!({"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "say"}]}]}})
         );
+    }
+
+    #[test]
+    fn the_backup_keeps_the_settings_from_before_playpets_was_in_them() {
+        let home = home();
+        let original = r#"{"model": "opus"}"#;
+        let path = put(&home, "claude", original);
+        let backup = sibling(&path, "playpets-backup");
+        connect(&home, "claude", &snippet("claude", None)).unwrap();
+        // Another friend, then Disconnect: each writes the file, and neither touches the backup.
+        connect(&home, "claude", &snippet("claude", Some("pet-2"))).unwrap();
+        disconnect(&home, "claude").unwrap();
+        assert_eq!(fs::read_to_string(&backup).unwrap(), original);
+
+        // Changed by the person since, the file is the one Connect keeps next.
+        fs::write(&path, r#"{"model": "sonnet"}"#).unwrap();
+        connect(&home, "claude", &snippet("claude", None)).unwrap();
+        assert_eq!(fs::read_to_string(&backup).unwrap(), r#"{"model": "sonnet"}"#);
+
+        // A file someone pasted PlayPets' settings into by hand gets a backup the first time.
+        let path = put(&home, "cursor", &snippet("cursor", Some("pet-1")));
+        connect(&home, "cursor", &snippet("cursor", None)).unwrap();
+        assert_eq!(
+            fs::read_to_string(sibling(&path, "playpets-backup")).unwrap(),
+            snippet("cursor", Some("pet-1"))
+        );
+    }
+
+    #[test]
+    fn a_read_only_file_is_left_as_it_is() {
+        let home = home();
+        let original = r#"{"model": "opus"}"#;
+        let path = put(&home, "claude", original);
+        let mut readonly = fs::metadata(&path).unwrap().permissions();
+        readonly.set_readonly(true);
+        fs::set_permissions(&path, readonly.clone()).unwrap();
+        let error = connect(&home, "claude", &snippet("claude", None)).unwrap_err();
+        assert!(error.contains(&path.to_string_lossy().to_string()), "{error}");
+        assert_eq!(fs::read_to_string(&path).unwrap(), original);
+        assert!(!sibling(&path, "playpets-backup").exists());
+        assert!(!sibling(&path, "playpets-tmp").exists());
+        #[allow(clippy::permissions_set_readonly_false)]
+        readonly.set_readonly(false);
+        fs::set_permissions(&path, readonly).unwrap();
     }
 
     #[test]

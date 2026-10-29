@@ -203,13 +203,15 @@ flowchart LR
 | `Notify` | Codex | The top-level `notify` key; comments and tables stay (`toml_edit`) |
 | `HookRows` | Kimi Code | `[[hooks]]` rows of `event`, `command` and `timeout` only; any other key stops Kimi Code loading its config |
 
-- PlayPets' entries are the ones whose command has ` hook <kind> --bridge `, or a Codex `notify` with `"hook", "codex"`. No marker key is added.
+- PlayPets' entries are the ones whose command has ` hook <kind> --bridge `, whose `args` start with `hook <kind>` (Qoder on Windows), or a Codex `notify` with `"hook", "codex"`. No marker key is added.
 - `agentLinks` reports each agent as `on`, `off`, `outdated`, `unreadable` or `taken`:
   - `on`: PlayPets' entries are exactly what Connect would write now. Connect then writes nothing.
   - `outdated`: another Reacting friend, a moved app or older events. Connect replaces the entries.
   - `unreadable`: not JSON or TOML (a comment, a typo), or `hooks` in another shape. Nothing is written; Copy settings stays.
   - `taken`: Codex's `notify` runs another program. Codex runs only one, so nothing is written.
-- Before a write, the file as it was is copied to `<name>.playpets-backup`. The write goes through `<name>.playpets-tmp` and a rename, keeping the file's permissions.
+- `<name>.playpets-backup` keeps the file as it was before PlayPets was in it. A write to a file without PlayPets' entries copies it there first; a later Connect or Disconnect leaves the backup, unless there is none yet.
+- The write goes through `<name>.playpets-tmp` and a rename, keeping the file's permissions.
+- A read-only file is left as it is, with the write error shown.
 - A linked settings file (a dotfiles folder) is written through its link.
 - "Disconnect" removes only PlayPets' entries and the groups and events they leave empty. A file left empty is removed, as before Connect made it.
 - The home folder is the system's. An e2e run reads `PLAYPETS_E2E_HOME` instead, and only in an e2e run; unit tests pass a temporary folder.

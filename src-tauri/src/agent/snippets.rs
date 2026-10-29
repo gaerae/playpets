@@ -277,7 +277,12 @@ mod tests {
     fn qoder_takes_claude_codes_shape_and_kimi_code_takes_toml_rows() {
         let (exe, bridge) = ("/opt/playpets", "/data/bridge.json");
         let claude: Value = serde_json::from_str(&connection_snippet("claude", exe, bridge, None).unwrap()).unwrap();
-        let qoder: Value = serde_json::from_str(&connection_snippet("qoder", exe, bridge, None).unwrap()).unwrap();
+        assert_eq!(
+            connection_snippet("qoder", exe, bridge, None).unwrap(),
+            claude_shape("qoder", exe, bridge, None, cfg!(windows)),
+            "exec form on Windows only"
+        );
+        let qoder: Value = serde_json::from_str(&claude_shape("qoder", exe, bridge, None, false)).unwrap();
         assert_eq!(
             qoder["hooks"].as_object().unwrap().keys().collect::<Vec<_>>(),
             claude["hooks"].as_object().unwrap().keys().collect::<Vec<_>>()
