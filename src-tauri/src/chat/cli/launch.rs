@@ -2,6 +2,7 @@
 // leaves out, version managers' included), a PATH on which it finds its node, npm's Windows shims
 // run as node plus script, a child that opens no console window, and a private folder to work in.
 use super::*;
+use std::ffi::{OsStr, OsString};
 
 /// The folders a GUI app's PATH leaves out, where a CLI and the node it runs on may be. An app
 /// opened from the Dock or a desktop menu gets the system's short PATH, not the one a login shell
@@ -145,11 +146,9 @@ pub(super) fn launcher(bin: &Path) -> (PathBuf, Vec<PathBuf>) {
 }
 
 pub fn resolve_bin(name: &str) -> Option<PathBuf> {
-    let mut dirs: Vec<PathBuf> = std::env::var("PATH")
-        .unwrap_or_default()
-        .split(if cfg!(windows) { ';' } else { ':' })
-        .map(PathBuf::from)
-        .collect();
+    let mut dirs: Vec<PathBuf> = std::env::var_os("PATH")
+        .map(|path| std::env::split_paths(&path).collect())
+        .unwrap_or_default();
     dirs.extend(extra_dirs());
     find_in(name, &dirs)
 }
@@ -195,7 +194,7 @@ pub(super) fn setup_child(cmd: &mut Command, bin: &Path) {
             cmd.env_remove(&key);
         }
     }
-    let inherited = std::env::var("PATH").unwrap_or_default();
+    let inherited = std::env::var_os("PATH").unwrap_or_default();
     cmd.env("PATH", child_path(bin.parent(), &inherited, &extra_dirs()));
     // This app has no console, so on Windows a console child (claude.cmd via cmd.exe, node,
     // codex) would get a new, visible one; the pet talks through pipes and needs none.
@@ -210,19 +209,18 @@ pub(super) fn setup_child(cmd: &mut Command, bin: &Path) {
 /// The PATH a CLI runs with: the folder it was found in first, then this app's own PATH and the
 /// folders that leaves out. npm's CLIs start with `#!/usr/bin/env node`, so the node beside the
 /// CLI (nvm's or fnm's, the one it was installed with) has to come before an older one the
-/// system may have in `/usr/bin`. No empty entry, which Unix reads as the current folder.
-fn child_path(found_in: Option<&Path>, inherited: &str, extra: &[PathBuf]) -> String {
-    let sep = if cfg!(windows) { ";" } else { ":" };
+/// system may have in `/usr/bin`. No empty entry, which Unix reads as the current folder, and no
+/// folder whose name holds the separator (or a quote on Windows), which a PATH cannot carry.
+fn child_path(found_in: Option<&Path>, inherited: &OsStr, extra: &[PathBuf]) -> OsString {
     let mut seen = std::collections::HashSet::new();
-    let found_in = found_in.map(|dir| dir.to_string_lossy().into_owned());
-    let extra = extra.iter().map(|dir| dir.to_string_lossy().into_owned());
-    found_in
+    let dirs: Vec<PathBuf> = found_in
+        .map(Path::to_path_buf)
         .into_iter()
-        .chain(inherited.split(sep).map(str::to_string))
-        .chain(extra)
-        .filter(|dir| !dir.is_empty() && seen.insert(dir.clone()))
-        .collect::<Vec<_>>()
-        .join(sep)
+        .chain(std::env::split_paths(inherited))
+        .chain(extra.iter().cloned())
+        .filter(|dir| !dir.as_os_str().is_empty() && std::env::join_paths([dir]).is_ok() && seen.insert(dir.clone()))
+        .collect();
+    std::env::join_paths(dirs).unwrap_or_default()
 }
 
 /// Where the chat CLIs run: a folder of this app's own (0700 on Unix), so no one else can leave
@@ -652,7 +650,9 @@ mod tests {
         let sep = if cfg!(windows) { ";" } else { ":" };
         let found = fake_home();
         let extra = [found.join("extra"), found.clone()];
-        let path = child_path(Some(&found), &["/usr/bin", "", "/bin"].join(sep), &extra);
+        let inherited = OsString::from(["/usr/bin", "", "/bin"].join(sep));
+        let path = child_path(Some(&found), &inherited, &extra);
+        let path = path.to_string_lossy();
         let parts: Vec<&str> = path.split(sep).collect();
         let found = found.to_string_lossy();
         let extra = extra[0].to_string_lossy();
@@ -661,7 +661,33 @@ mod tests {
             [&*found, "/usr/bin", "/bin", &*extra],
             "no empty entry, each folder once"
         );
-        assert_eq!(child_path(None, "", &[]), "", "nothing to add, nothing added");
+        assert_eq!(
+            child_path(None, OsStr::new(""), &[]),
+            "",
+            "nothing to add, nothing added"
+        );
+        // A folder whose name holds the separator would split in two: it is left out.
+        let odd = PathBuf::from(format!("/odd{sep}name"));
+        assert_eq!(child_path(None, OsStr::new(""), &[odd]), "");
+    }
+
+    #[test]
+    fn a_child_gets_its_path_and_none_of_this_app_s_session_env() {
+        let found = fake_home();
+        let bin = found.join("codex");
+        let mut cmd = Command::new(&bin);
+        setup_child(&mut cmd, &bin);
+        let path = cmd
+            .get_envs()
+            .find(|(key, _)| *key == "PATH")
+            .and_then(|(_, value)| value)
+            .expect("PATH is set");
+        assert_eq!(
+            std::env::split_paths(path).next().as_deref(),
+            Some(found.as_path()),
+            "the CLI's own folder comes first"
+        );
+        std::fs::remove_dir_all(&found).unwrap();
     }
 
     #[cfg(unix)]
@@ -676,7 +702,7 @@ mod tests {
         program(&system.join("node"), "#!/bin/sh\necho old-node\n");
         program(&nvm_bin.join("codex"), "#!/usr/bin/env node\n");
         let codex = find_in("codex", &searched_under(&home)).unwrap();
-        let inherited = format!("{}:/usr/bin:/bin", system.display());
+        let inherited = OsString::from(format!("{}:/usr/bin:/bin", system.display()));
         let mut cmd = Command::new(&codex);
         cmd.env("PATH", child_path(codex.parent(), &inherited, &[]));
         // A temp folder mounted noexec cannot run it; only then is this skipped.
