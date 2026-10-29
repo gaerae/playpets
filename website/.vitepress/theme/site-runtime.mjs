@@ -120,9 +120,10 @@ export function seedReleases(slug, built) {
   settle(releaseKey(slug), built.latest ?? MISSING);
   for (const result of Object.values(built.tagged)) settle(releaseKey(slug, result.version), result);
 }
-/** What a lookup would answer without waiting: a release the site was built with, or nothing yet. */
+/** A release the site was built with, or nothing when the browser has to look it up. A browser
+ * lookup's answer isn't one: a failed one must stay open to Retry. */
 export const knownRelease = (slug, version) =>
-  settled.get(releaseKey(slug, version)) ?? (known.has(slug) ? MISSING : undefined);
+  known.has(slug) ? (settled.get(releaseKey(slug, version)) ?? MISSING) : undefined;
 
 function fetchRelease(slug, version, fetcher) {
   const key = releaseKey(slug, version);

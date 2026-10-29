@@ -17,6 +17,7 @@ const update = (result: { status: string }) => {
 const built = knownRelease(generated.slug, props.version);
 if (built) update(built);
 onMounted(async () => {
+  if (built) return;
   detach = watchRelease(generated.slug, update, props.version);
   update(await taggedRelease(generated.slug, props.version));
 });

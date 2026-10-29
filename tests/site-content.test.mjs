@@ -38,5 +38,10 @@ test('a link to a section uses an id the site keeps as written', async () => {
     for (const [, id] of (await readFile(page, 'utf8')).matchAll(/\]\([^)\s]*#([^)\s]+)\)/g))
       if (id !== id.normalize('NFKD')) typed.push(`${page}#${id}`);
   }
+  // The theme links guide sections too (words.ts, the landing copy).
+  for (const file of globSync('website/.vitepress/theme/*.{ts,vue,mjs}')) {
+    for (const [, id] of (await readFile(file, 'utf8')).matchAll(/\/guide\/[\w-]*#([^'"`\s)]+)/g))
+      if (id !== id.normalize('NFKD')) typed.push(`${file}#${id}`);
+  }
   assert.deepEqual(typed, []);
 });

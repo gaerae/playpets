@@ -324,4 +324,8 @@ test('releases the site was built with answer at once, and a version not among t
     ).version,
     '1.3.0',
   );
+  // Nor is a browser lookup's answer built: a failed one stays open to Retry.
+  assert.equal(knownRelease('test/unbuilt'), undefined);
+  assert.equal((await latestRelease('test/unbuilt-failed', async () => ({ status: 500 }))).status, 'error');
+  assert.equal(knownRelease('test/unbuilt-failed'), undefined);
 });

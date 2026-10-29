@@ -17,6 +17,7 @@ const update = (result: { status: string; publishedAt?: string }) => {
 const built = knownRelease(generated.slug, String(frontmatter.value.version ?? ''));
 if (built) update(built);
 onMounted(async () => {
+  if (built) return;
   const version = String(frontmatter.value.version ?? '');
   detach = watchRelease(generated.slug, update, version);
   update(await taggedRelease(generated.slug, version));

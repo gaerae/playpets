@@ -185,7 +185,7 @@ git push --atomic origin HEAD v0.2.0
 7. After the checks pass, press "Publish release" on the draft. Publishing starts the `distribute` and `store` workflows.
    - `distribute` starts the Pages build on `main`. The site reads the published releases while it is built, so the download buttons and the four version pages then link that version's files.
    - Publication therefore needs no follow-up documentation commit.
-   - Until that deployment finishes, the site still offers the previous release. If the build could not reach GitHub, the pages look the release up in the visitor's browser and keep a safe link to the release list.
+   - Until that deployment finishes, the site still offers the previous release. Check that the `pages` run `distribute` started succeeded: the pages don't look again, so a failed run leaves the previous release's links until the next deployment. If the build could not reach GitHub, the pages look the release up in the visitor's browser and keep a safe link to the release list.
 
 8. When the `distribute` run finishes, check the results. A channel without a token is left in the `store-manifests` artifact.
 

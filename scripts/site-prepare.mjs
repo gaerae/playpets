@@ -49,7 +49,10 @@ for (const { source, destination } of previewCopies) {
 await copyCreatorKit();
 
 const creatorSkillRevision = await copyCreatorSkill();
-const releases = await publishedReleases(slug, { token: process.env.GH_TOKEN || process.env.GITHUB_TOKEN });
+// Only a build with a token (the Pages workflow) looks the releases up: checks and local builds stay
+// off the network, and their pages look the release up in the browser.
+const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+const releases = token ? await publishedReleases(slug, { token }) : null;
 await writeFile(
   'website/.vitepress/generated.json',
   `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, petMotions, creatorSkillRevision, releases }, null, 2)}\n`,
