@@ -204,7 +204,7 @@ const TABLE: &[(&str, &str)] = &[
     ("import.sprite_size", "宠物图片尺寸不符。只能导入 Codex 宠物规格（1536 × 1872px 或 1536 × 2288px）。"),
     ("import.save_failed", "无法保存宠物。"),
     ("import.zip_unreadable", "无法把这个 ZIP 读取为宠物。请使用制作套件生成的 ZIP，或由宠物文件夹压缩成的 ZIP。"),
-    ("import.zip_too_big", "这个 ZIP 太大，不像是宠物文件。"),
+    ("import.zip_too_big", "这个 ZIP 太大了，不能作为宠物导入。"),
     ("import.zip_no_pet", "这个 ZIP 的最上层和其中唯一的文件夹里都没有 pet.json。"),
 
     ("store.unreadable", "无法读取 {name} 文件。已保留原文件的副本。"),

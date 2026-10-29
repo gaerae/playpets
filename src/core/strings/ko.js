@@ -689,7 +689,7 @@ export const strings = {
   'settings.agents_tab': '코딩 도구 연결',
   'settings.about_tab': 'PlayPets 정보',
   'settings.agents_lead':
-    '에이전트가 일하는 동안 친구가 함께 반응해요. 친구에게 “뭐 하고 있었어?”라고 물으면 최근 작업을 이야기해 줘요. 쓰는 도구의 연결을 누르면 PlayPets가 그 도구의 설정 파일에 훅을 넣어요. 직접 넣고 싶으면 설정을 복사해 붙여 넣으면 돼요. 도구마다 담당 친구를 정하면 그 친구가 반응해요.',
+    '에이전트가 일하는 동안 친구가 함께 반응해요. 친구에게 “뭐 하고 있었어?”라고 물으면 최근 작업을 이야기해 줘요. 쓰는 도구 옆의 연결을 누르면 PlayPets가 그 도구의 설정 파일에 훅을 넣어요. 직접 넣고 싶으면 설정을 복사해 붙여 넣으면 돼요. 도구마다 담당 친구를 정하면 그 친구가 반응해요.',
   'settings.recommended': '추천',
   'settings.auto_chatter': '가끔 자기들끼리 이야기해요',
   'settings.auto_chatter_note': 'AI 친구들이 20분마다 대화해요. 숨긴 창이나 응답 중에는 쉬어요.',

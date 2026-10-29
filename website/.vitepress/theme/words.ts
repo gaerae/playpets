@@ -89,7 +89,7 @@ const table = {
     otherPlatforms: 'Other platforms',
     storeOther: 'Windows: get it from Microsoft Store',
     unsigned: 'The installer from GitHub is not code-signed yet, so SmartScreen may warn. ',
-    unsignedHow: 'How to install it through the warning',
+    unsignedHow: 'How to install when the warning shows',
     unsignedGuide: '/guide/install#installer-from-github',
     allFiles: 'All files',
     releases: 'Releases',

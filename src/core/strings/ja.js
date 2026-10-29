@@ -733,9 +733,9 @@ export const strings = {
   'settings.linked': '接続済み',
   'settings.link_outdated': '再接続が必要です',
   'settings.link_unreadable':
-    'このファイルを読み取れないため、変更しません。「設定をコピー」で手動で貼り付けてください。',
+    'このファイルを読み取れないため、変更しません。「設定をコピー」を使って、自分で貼り付けてください。',
   'settings.link_taken': 'Codex には別の notify プログラムがあるため、変更しません。Codex は 1 つしか実行しません。',
-  'settings.connect_title': '{tool} に接続しますか?',
+  'settings.connect_title': '{tool} に接続しますか？',
   'settings.connect_body':
     '{file} に PlayPets のフックを追加します。ほかの設定はそのままで、元のファイルは隣にバックアップします。接続を解除すると PlayPets の項目だけを削除します。',
   'settings.agent_pet_changed_linked': '{name} が担当します。「再接続」を押して反映してください。',
