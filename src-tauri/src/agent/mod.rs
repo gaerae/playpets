@@ -1,9 +1,10 @@
 //! Coding agents and the app: the same binary run as a command (cli: hooks, MCP, status
-//! commands) reaches the running app through a local HTTP bridge (bridge). What agents report
+//! commands; run: a command the friend works on) reaches the running app through a local HTTP bridge (bridge). What agents report
 //! is shown on the friend and remembered so the pet can talk about it.
 pub mod bridge;
 pub mod cli;
 pub mod kinds;
+mod run;
 pub mod snippets;
 
 use crate::app::{AppData, Shared, lock, pet_name, push_event, require_pet, set_status};
