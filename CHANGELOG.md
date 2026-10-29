@@ -39,6 +39,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Changing an AI connection to another type or server without typing a new key, when the new one needs a key, is refused without deleting the key the connection had.
 - A coding agent reporting for a friend that was sent away now reaches the first friend, as a report with no name does, instead of failing. A `playpets say` message that starts with `@` is shown as written, unless it is one of the app's own status codes.
 - `state.json` is written to disk before it replaces the old file, so a power cut while saving cannot leave an empty file.
+- On Windows, the hooks for Claude Code, Gemini CLI and Cursor run under PowerShell. Before, PowerShell could not read them: Gemini CLI and Cursor friends never reacted, and Claude Code without Git Bash could stop its tool calls. Connect, or copy the settings again, to get the new hooks.
 - An update download that takes more than 20 minutes stops with an error instead of waiting on a stalled connection forever, so Update can be tried again.
 - The tray's red mark for a coding agent's error goes away after 30 minutes, as the yard's dot does.
 - In the yard, a friend whose coding agent finished or failed more than 30 minutes ago stands and chats like the others again, as its dot and the desktop show.

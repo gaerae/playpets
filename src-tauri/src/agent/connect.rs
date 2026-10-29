@@ -510,12 +510,7 @@ mod tests {
         assert_eq!(after["mcpServers"]["other"]["command"], "x");
         assert_eq!(after["hooks"]["PostToolUse"][0]["hooks"][0]["command"], "fmt");
         assert_eq!(after["hooks"]["Stop"][0]["hooks"][0]["command"], "say done");
-        assert!(
-            after["hooks"]["Stop"][1]["hooks"][0]["command"]
-                .as_str()
-                .unwrap()
-                .contains(" hook claude --bridge ")
-        );
+        assert!(own_handler(&after["hooks"]["Stop"][1]["hooks"][0], "claude"));
         assert_eq!(after["hooks"]["PreToolUse"][0]["matcher"], "*");
         assert_eq!(status(&home, "claude", &snippet("claude", None)), Link::On);
         // The file as it was stays beside it.

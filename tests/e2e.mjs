@@ -1250,11 +1250,14 @@ child.stdout.on('data', d => {
 function connectedFile() {
   try {
     const settings = JSON.parse(readFileSync(claudeSettings, 'utf8'));
-    const stop = settings.hooks.Stop.map(group => group.hooks[0].command);
+    const stop = settings.hooks.Stop.map(group => group.hooks[0]);
+    // On Windows the hook names the app and its arguments apart, so no shell reads it.
+    const own = hook =>
+      hook?.command.includes(' hook claude --bridge ') || hook?.args?.slice(0, 2).join(' ') === 'hook claude';
     agentChecks.connected =
       settings.model === 'opus' &&
-      stop[0] === 'say done' &&
-      stop[1]?.includes(' hook claude --bridge ') &&
+      stop[0].command === 'say done' &&
+      own(stop[1]) &&
       settings.hooks.PreToolUse?.[0]?.matcher === '*' &&
       readFileSync(geminiSettings, 'utf8') === geminiOriginal;
   } catch {

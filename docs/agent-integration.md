@@ -113,7 +113,6 @@ flowchart LR
 - Qoder:
   - It names its events and payload fields as Claude Code does, so `hook qoder` reads them as `hook claude` does, `idle_prompt` included.
   - The Qoder IDE reads hook changes only after a restart; Qoder CLI reads them at once.
-  - On Windows it may run a hook command through PowerShell, which refuses a quoted path followed by arguments. There the handler names the app in `command` and the rest in `args` (Qoder's exec form), and no shell reads it.
 - Kimi Code:
   - It waits on the person through `PermissionRequest`. Its `Notification` only tells of background tasks and is not sent.
   - A turn stopped with Esc fires `Interrupt` instead of `Stop`.
@@ -203,7 +202,7 @@ flowchart LR
 | `Notify` | Codex | The top-level `notify` key; comments and tables stay (`toml_edit`) |
 | `HookRows` | Kimi Code | `[[hooks]]` rows of `event`, `command` and `timeout` only; any other key stops Kimi Code loading its config |
 
-- PlayPets' entries are the ones whose command has ` hook <kind> --bridge `, whose `args` start with `hook <kind>` (Qoder on Windows), or a Codex `notify` with `"hook", "codex"`. No marker key is added.
+- PlayPets' entries are the ones whose command has ` hook <kind> --bridge `, whose `args` start with `hook <kind>` (Claude Code and Qoder on Windows), or a Codex `notify` with `"hook", "codex"`. No marker key is added.
 - `agentLinks` reports each agent as `on`, `off`, `outdated`, `unreadable` or `taken`:
   - `on`: PlayPets' entries are exactly what Connect would write now. Connect then writes nothing.
   - `outdated`: another Reacting friend, a moved app or older events. Connect replaces the entries.
@@ -216,6 +215,18 @@ flowchart LR
 - "Disconnect" removes only PlayPets' entries and the groups and events they leave empty. A file left empty is removed, as before Connect made it.
 - The home folder is the system's. An e2e run reads `PLAYPETS_E2E_HOME` instead, and only in an e2e run; unit tests pass a temporary folder.
 - File work runs without the state lock; only the bridge path and the Reacting friend are read under it.
+
+Hook commands on Windows (`agent/snippets.rs`):
+- PowerShell takes a quoted path followed by arguments as a syntax error, so each agent gets the form its shell reads.
+- Claude Code runs a failing `PreToolUse` hook as a block on the tool call, so a command PowerShell cannot parse would stop every tool.
+
+| Agent | Shell on Windows | Hook written |
+|---|---|---|
+| Claude Code, Qoder | Git Bash, or PowerShell without it | `command` is the app, the rest is in `args` (exec form); no shell reads it |
+| Gemini CLI, Cursor | PowerShell | `& '<app>' hook <kind> --bridge '<file>'`; a `'` in a path is doubled |
+| Kimi Code | `cmd.exe` | The quoted form used on macOS and Linux |
+| Grok Build | Not checked | The quoted form used on macOS and Linux |
+| Codex | None (`notify` is an argument list) | Unchanged |
 
 MSIX install on Windows:
 - The executable lives under WindowsApps and cannot be run by path from outside.
