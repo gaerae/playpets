@@ -32,7 +32,7 @@ A friend is a pet you invited into the yard. Invite the same pet several times a
 1. Install PlayPets ([Install](./install.md)) and open it. The yard asks **Who would you like to play with?**
 2. Click one of the four friends. It comes into the yard and waves. Click it again to pat it: it jumps and shows a heart.
 3. Connect an AI. If Claude Code or Codex CLI is on this computer, press **Connect now** on the **Next up** card. Otherwise follow [Making a connection](./chat.md#making-a-connection). Then click the friend's name tag and say hello: the answer shows in the chat and as a speech bubble in the yard.
-4. Optional: open **Friends & settings → Settings → Coding tools**, press **Copy settings** and paste it into the file the notice names. Restart the agent. While it works, the dot by your friend's head pulses orange ([Coding agent hooks](./agents.md)).
+4. Optional: open **Friends & settings → Settings → Coding tools**, press **Connect** next to the tool you use and confirm. Start a new session in the agent. While it works, the dot by your friend's head pulses orange ([Coding agent hooks](./agents.md)).
 
 Something not working? See [the table in the FAQ](./faq.md#troubleshooting).
 

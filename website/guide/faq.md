@@ -51,8 +51,8 @@
 | The friend says "Ready to play!" and doesn't answer | That friend has no AI | [Connect an AI](./chat.md#making-a-connection) |
 | The Claude Code or Codex CLI card isn't marked **Installed** | The app can't find the command | Check that `claude` or `codex` runs in a terminal. On Windows, an npm install has to be in `%APPDATA%\npm` |
 | Saving a connection says the secure storage can't be reached | The key store is locked or missing (on Linux, no Secret Service) | Allow PlayPets to use it, or use GNOME Keyring or KWallet on Linux. Ollama and the signed-in CLIs need no key |
-| The friend doesn't react to the coding agent | The settings aren't pasted, the agent wasn't restarted, or the app moved | Copy the settings again, paste them and restart the agent ([Coding agent hooks](./agents.md)). Codex CLI shows only Done, never Working |
-| Reports go to the wrong friend | No **Reacting friend** is picked, so the first friend gets them | Pick a Reacting friend in **Settings → Coding tools**, then copy and paste the settings again |
+| The friend doesn't react to the coding agent | The agent isn't connected, no new session was started, or the app moved | Press **Connect** or **Connect again** in **Settings → Coding tools**, or copy and paste the settings again, then start a new session ([Coding agent hooks](./agents.md)). Codex CLI shows only Done, never Working |
+| Reports go to the wrong friend | No **Reacting friend** is picked, so the first friend gets them | Pick a Reacting friend in **Settings → Coding tools**, then press **Connect again** or copy and paste the settings again |
 | A pet address won't import | The site isn't supported, or its files are on another site | Download the pet and import its folder or ZIP ([Import a pet](./import.md)) |
 | It feels slow or uses battery | Friends are drawn often while they move | Close the yard window: a hidden yard isn't drawn. Try fewer friends, or turn off **Stroll on desktop** |
 
