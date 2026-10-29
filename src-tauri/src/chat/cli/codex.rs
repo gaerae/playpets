@@ -47,7 +47,7 @@ fn run(bin: &Path, model: &str, prompt: &str, cancel: &AtomicBool) -> Result<Str
         cmd.arg(format!("--model={model}"));
     }
     cmd.arg("-");
-    setup_child(&mut cmd);
+    setup_child(&mut cmd, bin);
     cmd.current_dir(workdir())
         .stdin(Stdio::piped())
         .stdout(Stdio::null())

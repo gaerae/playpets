@@ -111,7 +111,7 @@ impl Session {
         if !model.is_empty() {
             cmd.arg(format!("--model={model}"));
         }
-        setup_child(&mut cmd);
+        setup_child(&mut cmd, bin);
         // Errors in a turn arrive as `result` messages on stdout; stderr only says why the CLI
         // quit before it could answer (an option this version does not know, say).
         cmd.current_dir(workdir())

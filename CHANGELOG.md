@@ -50,6 +50,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A pet ZIP brings in only the pet's JSON, pictures and text notes; a script, a web page or a shortcut packed beside them is left out.
 - Fishing with a friend chosen while it is busy takes the nearest free friend, and fishing from the tool counts toward its hint like other play.
 - A question that comes while another is open, such as a pet link arriving, waits for the first to be answered instead of answering it No.
+- On macOS and Linux, Claude Code or Codex CLI installed with nvm, fnm, asdf, mise, Bun or pnpm is now found and marked Installed, and it runs with the Node it was installed with instead of failing to find `node` or picking up an older one.
 
 ### Website and docs
 
