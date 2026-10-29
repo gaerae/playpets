@@ -287,3 +287,17 @@ test('the card says where a gift went: set out, or in the box, a memento as such
   assert.equal(broughtCard({ memento: true }, 'decor.brought_thanks'), 'decor.brought_memento');
   assert.equal(broughtCard({ memento: true, boxed: true }, 'decor.brought_thanks'), 'decor.brought_memento_boxed');
 });
+
+test('no thanks gift is asked for while another gift is on its way', async t => {
+  const clock = fixture(t);
+  const decor = await fresh();
+  clock.together();
+  state.data.bonds[pet.id].points = 500;
+  decor.thanksTick(1);
+  // Both before the first answer comes back: the second waits.
+  decor.thanksTick(1e9);
+  decor.thanksTick(2e9);
+  assert.equal(calls.length, 1);
+  await flush();
+  assert.deepEqual(calls, [['thanks', pet.id, 4]]);
+});
