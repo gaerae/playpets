@@ -53,7 +53,10 @@ export async function restoreBackgrounds() {
   // Unread, the data folder holds nothing as far as this start knows; the old copies still show.
   const saved = await call('listBackgrounds').catch(() => []);
   const rows = new Map(saved.map(row => [row.id, row]));
-  for (const row of await oldRows()) {
+  // Another data folder copies the installed app's once, before it keeps any: one removed here
+  // later is not copied back from the copy it left.
+  const copied = data.ownsWebviewStorage === false && data.hasBackgroundsFolder;
+  for (const row of copied ? [] : await oldRows()) {
     if (!rows.has(row.id)) {
       rows.set(row.id, row);
       try {

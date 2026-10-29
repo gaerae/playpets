@@ -19,7 +19,7 @@ use tauri::{AppHandle, State};
 
 /// How many of the latest messages a friend is handed when it answers, how many the log on screen
 /// keeps for the session, and how long one message may be.
-const HISTORY_LIMIT: usize = 24;
+pub(crate) const HISTORY_LIMIT: usize = 24;
 const LOG_LIMIT: usize = 500;
 const MESSAGE_LIMIT: usize = 4000;
 const GROUP_MAX: usize = 4;

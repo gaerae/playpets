@@ -168,9 +168,14 @@ test("another data folder sharing the webview copies the installed app's old cop
   assert.equal(savedScene().world, 'woodland', "this folder's own choice is the one shown");
   await keepScene('weather', 'rain');
   assert.equal(storage.getItem('weather'), null, 'nor does it leave a choice it could not save there');
-  globalThis.playPets.removeBackground = async () => ({ ok: true, data: null });
   await removeBackground(LAKE);
   assert.equal(old.store.size, 1, "removing it here leaves the installed app's copy");
+  // The next start: this folder has kept backgrounds before, so the one removed stays removed.
+  worlds.splice(0);
+  setData({ ownsWebviewStorage: false, hasBackgroundsFolder: true, scene: { world: 'woodland' } });
+  await restoreBackgrounds();
+  assert.deepEqual([...files.keys()], [], 'not copied again');
+  assert.deepEqual(worlds, []);
 });
 
 test('with no old storage the backgrounds come from the data folder alone', async t => {

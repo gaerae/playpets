@@ -391,6 +391,12 @@ pub fn place_of(downloads: &Path, folder: &Path, picked: &[String]) -> Place {
     }
 }
 
+/// Whether a folder picked by hand is kept as the person's own: one inside the downloads folder
+/// that is not on the shelf yet. An imported pet picked again stays imported, its files the app's.
+pub fn picked_by_hand(downloads: &Path, folder: &Path, picked: &[String], shelf: &[Asset]) -> bool {
+    place_of(downloads, folder, picked) == Place::Downloaded && !shelf.iter().any(|a| a.folder == folder)
+}
+
 /// Takes a pet the person brought in (imported, or a folder picked by hand) off the shelf, so it is
 /// not read again at the next start; the starter pets and Codex's own folder stay. Refused while
 /// `in_use` says a friend in the yard is made from it. The caller deletes the files of an imported
@@ -787,7 +793,16 @@ mod tests {
             Place::Folder
         );
         // A folder the person made there and picked by hand stays theirs: never deleted with the pet.
+        assert!(picked_by_hand(&downloads, &read.folder, &[], &[]));
+        assert!(
+            !picked_by_hand(&downloads, &read.folder, &[], std::slice::from_ref(&read)),
+            "an imported pet picked again stays imported"
+        );
         let picked = [read.folder.to_string_lossy().into_owned()];
+        assert!(
+            !picked_by_hand(&downloads, &read.folder, &picked, &[]),
+            "already picked"
+        );
         assert_eq!(place_of(&downloads, &read.folder, &picked), Place::Folder);
         assert_eq!(
             deletable(&downloads, place_of(&downloads, &read.folder, &picked), &read.folder),

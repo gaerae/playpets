@@ -207,6 +207,9 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "version": app.package_info().version.to_string(),
         "updateChannel": if crate::update::store_managed() { "store" } else { "github" },
         "ownsWebviewStorage": load::owns_webview_storage(std::env::var("PLAYPETS_DATA").ok().as_deref(), crate::commands::e2e_mode()),
+        // Whether the data folder has kept a background before; another data folder copies the
+        // installed app's old ones only until it has (background-store.js).
+        "hasBackgroundsFolder": d.store.dir.join(backgrounds::FOLDER).is_dir(),
         "project": {"site": env!("CARGO_PKG_HOMEPAGE"), "repository": env!("CARGO_PKG_REPOSITORY")},
         "assets": d.assets.iter().map(sprite::asset_json).collect::<Vec<_>>(),
         "providers": d.providers.iter().map(|p| { let mut p = p.clone(); p["hasKey"] = json!(d.secret_ids.contains(providers::id_of(&p))); p }).collect::<Vec<_>>(),

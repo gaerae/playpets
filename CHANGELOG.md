@@ -45,8 +45,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The tree tool says a place or the yard is full when you click, counting trees friends are on their way to plant, instead of letting a friend walk over to fail.
 - The page is no longer redrawn every minute once anyone has chatted, so a picker or an open album keeps its place and focus.
 - Inviting a pet again uses the first free number, so sending one copy away and inviting again never repeats a name.
-- In the Microsoft Store version, Start PlayPets when you log in now starts it at sign-in, through Windows Settings → Apps → Startup, and with desktop mode on the yard window waits in the tray. If PlayPets was turned off there, the switch says to turn it on there. The switch also shows a change made there while PlayPets was open, once you come back to its window.
-- Two coding agents reporting for one friend no longer undo each other: one session's Waiting notice leaves another session's Working alone.
+- In the Microsoft Store version, Start PlayPets when you log in now starts it at sign-in, through Windows Settings → Apps → Startup, and with desktop mode on the yard window waits in the tray. If PlayPets was turned off there, the switch says to turn it on there. On every system, the switch also shows a change made in the system's settings while PlayPets was open, once you come back to its window.
+- Two coding agents reporting for one friend no longer undo each other: one session's idle notice no longer turns another session's Working friend to Resting.
 - A command stopped with Ctrl-C under `playpets run` leaves its friend Resting, instead of Working, and a `kill -INT` sent to `playpets run` alone now reaches the command.
 - On macOS and Linux, a Claude or Codex CLI still answering when PlayPets quits is stopped with it.
 - Removing a pet that a friend waiting to come back still uses names that friend, instead of a general error.
@@ -55,7 +55,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A pet ZIP brings in only the pet's JSON, pictures and text notes; a script, a web page or a shortcut packed beside them is left out.
 - Fishing with a friend chosen while it is busy takes the nearest free friend, and fishing from the tool counts toward its hint like other play.
 - A question that comes while another is open, such as a pet link arriving, waits for the first to be answered instead of answering it No.
-- On macOS and Linux, Claude Code or Codex CLI installed with nvm, fnm, asdf, mise, Bun or pnpm is now found and marked Installed, and it runs with the Node it was installed with instead of failing to find `node` or picking up an older one.
+- On macOS and Linux, Claude Code or Codex CLI installed with nvm, fnm, asdf, mise, Volta, Bun or pnpm is now found and marked Installed. One installed with nvm, fnm, asdf, mise or Volta runs with the Node it was installed with, instead of failing to find `node` or picking up an older one.
 
 ### Known limitations
 

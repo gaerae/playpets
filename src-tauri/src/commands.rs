@@ -661,9 +661,8 @@ fn import_from_folder(app: &AppHandle, state: &State<Shared>) -> Result<Value, S
     let mut d = lock(state);
     // Picked from where imported pets live, it is still the person's own folder.
     let downloads = d.store.dir.join("pets");
-    let folder = asset.folder.to_string_lossy().into_owned();
-    if catalog::place_of(&downloads, &asset.folder, &[]) == catalog::Place::Downloaded && !d.picked.contains(&folder) {
-        d.picked.push(folder);
+    if catalog::picked_by_hand(&downloads, &asset.folder, &d.picked, &d.assets) {
+        d.picked.push(asset.folder.to_string_lossy().into_owned());
     }
     register_asset(app, &mut d, asset)
 }

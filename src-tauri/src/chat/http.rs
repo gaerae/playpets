@@ -145,13 +145,15 @@ fn read_bounded(resp: ureq::http::Response<ureq::Body>) -> Result<Value, String>
 }
 
 /// What a request carries: the system message the friend is (first, whatever the length), then
-/// the latest 24 of the rest.
+/// the latest of the rest, as many as a friend answers with (`HISTORY_LIMIT`).
 fn sent(messages: &[Value]) -> impl Iterator<Item = &Value> {
     let system = messages
         .first()
         .filter(|m| m.get("role").and_then(|v| v.as_str()) == Some("system"));
     let rest = &messages[usize::from(system.is_some())..];
-    system.into_iter().chain(&rest[rest.len().saturating_sub(24)..])
+    system
+        .into_iter()
+        .chain(&rest[rest.len().saturating_sub(super::HISTORY_LIMIT)..])
 }
 
 pub fn chat(config: &Config, messages: &[Value]) -> Result<String, String> {
