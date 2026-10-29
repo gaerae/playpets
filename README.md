@@ -50,7 +50,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 | Play | Hide and seek, parade, tag |
 | Garden and album | Dig for seeds, saplings and keepsakes; plant; fish and catch bugs |
 | Desktop mode | Pets stroll the desktop (on macOS, over full-screen apps too) |
-| Coding company | Hooks and MCP for Claude Code, Codex, Gemini CLI, Cursor, Grok Build and other MCP tools |
+| Coding company | Hooks and MCP for Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code and other MCP tools |
 | Languages | English, Korean, Japanese, Simplified Chinese |
 
 <details>
@@ -126,7 +126,8 @@ winget install --id 9NSKXQ6R187M --source msstore
 5. Optional: add your coding tool's hooks from **Settings → Coding tools**.
 
 ## Coding agent integration
-- In **Settings → Coding tools**, press **Copy settings** and paste.
+- In **Settings → Coding tools**, press **Connect**: PlayPets asks, then adds its hook to that tool's settings file and keeps a backup beside it.
+- **Disconnect** takes out only PlayPets' entries; **Copy settings** still gives the snippet to paste yourself.
 - No Node.js needed: the app binary is the integration command.
 
 | Tool | Where to paste | What it does |
@@ -136,13 +137,15 @@ winget install --id 9NSKXQ6R187M --source msstore
 | Gemini CLI | `~/.gemini/settings.json` | Reports every step through hooks |
 | Cursor | `~/.cursor/hooks.json` | Reports edits, commands and completion (observe-only hooks) |
 | Grok Build | `~/.grok/hooks/playpets.json`, a new file | Reports every step through hooks |
+| Qoder | `~/.qoder/settings.json` | Reports every step through hooks |
+| Kimi Code | `~/.kimi-code/config.toml`, at the end | Reports every step through hooks |
 | Other MCP tools | The tool's MCP settings | `set_pet_state`, `say`, `react`, `list_pets` |
 
 <details>
 <summary>Terminal commands</summary>
 
 ```
-playpets hook claude|gemini|cursor|grok   # hooks (stdin JSON, always exit code 0; prints {} for Gemini and Cursor)
+playpets hook claude|gemini|cursor|grok|qoder|kimi   # hooks (stdin JSON, always exit code 0; prints {} for Gemini and Cursor)
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP stdio server
 playpets status <state> [message]   [--pet name|ID] [--bridge file]

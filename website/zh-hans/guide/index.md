@@ -16,7 +16,7 @@ PlayPets 是一个大家共同的乐园，伙伴们会和你聊天，也会彼�
 |---|---|
 | 操作系统 | macOS、Windows、Linux |
 | AI | 可选。不连接也能邀请、玩耍、使用桌面模式 |
-| 编码代理 | 可选。可以和 Claude Code、Codex CLI、Gemini CLI、Cursor、Grok Build 以及使用 MCP 的工具联动 |
+| 编码代理 | 可选。可以和 Claude Code、Codex CLI、Gemini CLI、Cursor、Grok Build、Qoder、Kimi Code 以及使用 MCP 的工具联动 |
 | 网络 | 下载、导入社区宠物、更新和使用远程 AI 时需要。乐园里的活动和已下载到本机的 Ollama 模型可以离线使用 |
 
 PlayPets 用 Tauri 制作，直接使用操作系统自带的 WebView，不会捆绑一整个浏览器。

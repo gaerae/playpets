@@ -1,17 +1,17 @@
 ---
-description: 코딩 에이전트가 일하는 모습을 친구가 따라 하게 하는 설정, 터미널 명령, 보안 안내
+description: 코딩 에이전트가 일하는 모습을 친구가 따라 하게 하는 한 번에 연결하기와 설정, 터미널 명령, 보안 안내
 ---
 
 # 코딩 에이전트 연동
 
-Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build 같은 코딩 에이전트가 일하면 친구도 옆에서 같이 반응해요. 설정 한 조각을 복사해 붙여 넣으면 끝이고, Node.js는 없어도 돼요.
+Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code 같은 코딩 에이전트가 일하면 친구도 옆에서 같이 반응해요. **연결**을 한 번 누르거나 설정 한 조각을 복사해 붙여 넣으면 끝이고, Node.js는 없어도 돼요.
 
 ## 친구마다 담당 에이전트 <Since v="0.1.0" />
 
 1. **설정 → 코딩 도구 연결**에서 도구마다 있는 **담당 친구**를 골라요.
-2. **설정 복사**를 다시 눌러 붙여 넣어요.
+2. 그 줄의 **다시 연결**을 누르거나, 설정을 다시 복사해 붙여 넣어요.
 
-복사한 설정에는 그 친구가 적혀요(`--pet`). Claude Code는 Clover가, Codex는 Pip가 맡는 식으로 나눠 맡길 수 있어요. 아무도 고르지 않으면("정하지 않음, 첫 친구가 반응해요") 첫 친구가 받고, 담당 친구를 내보냈을 때도 첫 친구에게 돌아가요.
+설정에는 그 친구가 적혀요(`--pet`). Claude Code는 Clover가, Codex는 Pip가 맡는 식으로 나눠 맡길 수 있어요. 아무도 고르지 않으면("정하지 않음, 첫 친구가 반응해요") 첫 친구가 받고, 담당 친구를 내보냈을 때도 첫 친구에게 돌아가요.
 
 친구마다 다른 에이전트를 맡기면 놀이터가 누가 지금 무슨 일을 하는지 보여 주는 현황판이 돼요.
 
@@ -29,7 +29,7 @@ Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build 같은 코딩 에이전�
 
 ### 같은 에이전트를 두 세션에서
 
-1. **설정 → 코딩 도구 연결**에서 그 도구의 **담당 친구**를 비워 두고 설정을 복사해 붙여 넣어요.
+1. **설정 → 코딩 도구 연결**에서 그 도구의 **담당 친구**를 비워 두고 연결하거나 설정을 복사해 붙여 넣어요.
 2. 세션마다 맡을 친구를 정해 시작해요.
 
 ```bash
@@ -40,7 +40,7 @@ PLAYPETS_PET=Pip claude
 - PowerShell에서는 `$env:PLAYPETS_PET="Clover"; claude`처럼 써요.
 - `PLAYPETS_PET`에는 `--pet`처럼 친구 이름이나 ID를 넣어요.
 - **담당 친구**를 고르면 설정에 그 친구가 적히고(`--pet`), `PLAYPETS_PET`보다 먼저 쓰여요.
-- 터미널에서 시작하는 Claude Code, Codex CLI, Gemini CLI, Grok Build에서 돼요. Cursor는 Cursor 앱이 훅을 실행하니 친구 하나에게만 알려요.
+- 터미널에서 시작하는 Claude Code, Codex CLI, Gemini CLI, Grok Build, Qoder CLI, Kimi Code에서 돼요. Cursor는 Cursor 앱이 훅을 실행하니 친구 하나에게만 알려요.
 
 ## 놀이터에서 보이는 것 <Since v="0.1.0" />
 
@@ -71,9 +71,23 @@ PLAYPETS_PET=Pip claude
 
 친구는 최근 활동을 8개까지 기억해요. [대화](./chat.md)에서 "뭐 하고 있었어?" 하고 물어보면 이야기해 줘요.
 
+## 한 번에 연결하기 <Since v="1.4.0" />
+
+1. **친구와 설정 → 설정 → 코딩 도구 연결**을 열어요.
+2. 쓰는 도구 옆의 **연결**을 눌러요. PlayPets가 어느 파일을 바꿀지 알려 주고 먼저 물어봐요.
+3. 질문 창에서 **연결**을 눌러요. 그 줄에 **연결됨**이 보이고, 이제부터 시작하는 세션은 친구에게 알려 줘요.
+
+PlayPets는 그 파일에 자기 훅만 더해요. 다른 설정이나 다른 도구의 훅은 그대로 두고, 원래 파일은 `settings.json.playpets-backup`처럼 옆에 남겨 둬요. 이미 연결된 상태에서 다시 눌러도 바뀌는 건 없어요.
+
+담당 친구를 바꾸거나 앱을 다른 곳으로 옮기면 그 줄에 다시 연결이 필요하다고 나와요. 그때 **다시 연결**을 눌러요. **연결 해제**는 PlayPets 항목만 지우고 파일의 나머지는 건드리지 않아요.
+
+주석이 들어 있는 설정처럼 PlayPets가 읽지 못하는 파일은 절대 고쳐 쓰지 않아요. 그럴 땐 그 줄에 이유가 나오고, 아래의 **설정 복사**는 그대로 쓸 수 있어요. Codex는 `notify` 프로그램을 하나만 실행해서, 다른 프로그램이 이미 그 자리에 있으면 그대로 둬요.
+
 ## 설정 복사해 붙이기 <Since v="0.1.0" />
 
-<Shot name="settings-agents" caption="설정 → 코딩 도구 연결. 도구마다 설정 복사 버튼이 있어요." />
+<Shot name="settings-agents" caption="설정 → 코딩 도구 연결. 도구마다 연결과 설정 복사 버튼이 있어요." />
+
+설정을 직접 넣고 싶다면 이렇게 해요.
 
 1. **친구와 설정 → 설정 → 코딩 도구 연결**을 열어요.
 2. 쓰는 도구 옆의 **설정 복사**를 눌러요. 어느 파일에 붙일지 알림이 알려 줘요.
@@ -86,11 +100,13 @@ PLAYPETS_PET=Pip claude
 | Gemini CLI | `~/.gemini/settings.json` | 훅으로 단계마다 알려 줘요 |
 | Cursor | `~/.cursor/hooks.json` | 편집, 명령, 완료를 알려 줘요. 관찰용 훅만 써요 |
 | Grok Build | `~/.grok/hooks/playpets.json`, 새 파일로 저장 | 훅으로 단계마다 알려 줘요 |
+| Qoder | `~/.qoder/settings.json` | 훅으로 단계마다 알려 줘요. Qoder IDE는 다시 시작하면 반영돼요 |
+| Kimi Code | `~/.kimi-code/config.toml` 맨 끝 | 훅으로 단계마다 알려 줘요 |
 | 그 밖의 MCP 도구 | 도구의 MCP 설정 | AI가 `set_pet_state`, `say`, `react`, `list_pets` 도구로 직접 상태와 말풍선을 보내요 |
 
 - 복사한 조각에는 PlayPets 실행 파일 경로가 들어 있어요.
 - 이 실행 파일이 곧 연동 명령이라 따로 설치할 게 없어요.
-- 앱을 다른 곳으로 옮겼다면 설정을 다시 복사해 붙여 넣어요.
+- 앱을 다른 곳으로 옮겼다면 **다시 연결**을 누르거나 설정을 다시 복사해 붙여 넣어요.
 - 1.4.0보다 앞선 버전에서 Claude Code 설정을 복사했다면 다시 복사해 붙여 넣어요. 그래야 사용 한도 같은 오류로 멈췄을 때도 친구가 알려 줘요.
 - 파일에 `hooks`나 `mcpServers` 항목이 이미 있으면 그 항목 안에 조각을 합쳐 넣어요.
 - Grok Build는 Claude Code와 Cursor의 훅도 함께 실행해요. 그래도 Grok Build의 작업은 Grok Build 친구에게만 보여요.
@@ -100,7 +116,7 @@ PLAYPETS_PET=Pip claude
 같은 실행 파일을 터미널에서 불러 친구에게 말을 걸 수도 있어요. 아래 `playpets`는 앱 실행 파일이에요. macOS에서는 `/Applications/PlayPets.app/Contents/MacOS/playpets`예요.
 
 ```
-playpets hook claude|gemini|cursor|grok   # 훅 (stdin JSON, 항상 종료 코드 0; Gemini, Cursor에는 {} 출력)
+playpets hook claude|gemini|cursor|grok|qoder|kimi   # 훅 (stdin JSON, 항상 종료 코드 0; Gemini, Cursor에는 {} 출력)
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP stdio 서버
 playpets status <상태> [메시지]   [--pet 이름|ID] [--bridge 파일]

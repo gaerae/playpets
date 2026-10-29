@@ -1,17 +1,17 @@
 ---
-description: 让伙伴跟着编码代理的工作状态做出反应：要粘贴的设置、终端命令和安全说明
+description: 让伙伴跟着编码代理的工作状态做出反应：一键连接或要粘贴的设置、终端命令和安全说明
 ---
 
 # 编码代理联动
 
-Claude Code、Codex CLI、Gemini CLI、Cursor、Grok Build 这类编码代理干活的时候，伙伴也会跟着做出反应。只要复制一段设置粘贴进去就好，不需要 Node.js。
+Claude Code、Codex CLI、Gemini CLI、Cursor、Grok Build、Qoder、Kimi Code 这类编码代理干活的时候，伙伴也会跟着做出反应。点一下**连接**，或复制一段设置粘贴进去就好，不需要 Node.js。
 
 ## 每位伙伴负责一个代理 <Since v="0.1.0" />
 
 1. 在**设置 → 编码工具连接**里，每个工具那一行都有**负责的伙伴**，选好伙伴。
-2. 再点一次**复制设置**，粘贴进去。
+2. 点那一行的**重新连接**，或重新复制设置再粘贴。
 
-复制出的设置里写着这位伙伴（`--pet`），所以可以让 Clover 负责 Claude Code，让 Pip 负责 Codex。没有指定时（“未指定，由第一位伙伴反应”），由第一位伙伴接收；负责的伙伴送走以后，也会交回给第一位伙伴。
+设置里写着这位伙伴（`--pet`），所以可以让 Clover 负责 Claude Code，让 Pip 负责 Codex。没有指定时（“未指定，由第一位伙伴反应”），由第一位伙伴接收；负责的伙伴送走以后，也会交回给第一位伙伴。
 
 让每位伙伴负责不同的代理，乐园就成了一块状态板，现在谁在做什么一眼就能看到。
 
@@ -29,7 +29,7 @@ Claude Code、Codex CLI、Gemini CLI、Cursor、Grok Build 这类编码代理干
 
 ### 同一个代理开两个会话
 
-1. 在**设置 → 编码工具连接**里，这个工具的**负责的伙伴**留空，然后复制设置并粘贴。
+1. 在**设置 → 编码工具连接**里，这个工具的**负责的伙伴**留空，然后连接，或复制设置并粘贴。
 2. 每个会话启动时指定各自的伙伴：
 
 ```bash
@@ -40,7 +40,7 @@ PLAYPETS_PET=Pip claude
 - PowerShell 里这样写：`$env:PLAYPETS_PET="Clover"; claude`。
 - `PLAYPETS_PET` 和 `--pet` 一样，填伙伴的名字或 ID。
 - 选了**负责的伙伴**后，设置里会写上这位伙伴（`--pet`），它比 `PLAYPETS_PET` 优先。
-- 从终端启动的 Claude Code、Codex CLI、Gemini CLI、Grok Build 都可以这样用。Cursor 的钩子由 Cursor 应用运行，所以只会通知一位伙伴。
+- 从终端启动的 Claude Code、Codex CLI、Gemini CLI、Grok Build、Qoder CLI、Kimi Code 都可以这样用。Cursor 的钩子由 Cursor 应用运行，所以只会通知一位伙伴。
 
 ## 乐园里看得到的东西 <Since v="0.1.0" />
 
@@ -71,9 +71,23 @@ PLAYPETS_PET=Pip claude
 
 伙伴最多记得 8 条最近的活动。在[聊天](./chat.md)里问它“刚才在做什么？”，它就会讲给你听。
 
+## 一键连接 <Since v="1.4.0" />
+
+1. 打开**伙伴与设置 → 设置 → 编码工具连接**。
+2. 点你所用工具旁边的**连接**。PlayPets 会先告诉你要改哪个文件，并询问你。
+3. 在询问框里点**连接**。那一行会显示**已连接**，之后启动的会话都会通知伙伴。
+
+PlayPets 只往那个文件里加自己的钩子。其他设置和其他工具的钩子保持不变，原文件会留在旁边，比如 `settings.json.playpets-backup`。已经连接时再点一次，什么也不会变。
+
+换了负责的伙伴，或把应用挪到了别处，那一行会提示需要重新连接，这时点**重新连接**就好。**断开连接**只删除 PlayPets 的条目，文件的其他部分不会动。
+
+像带注释的设置这样 PlayPets 读不懂的文件，它绝不会改写。这时那一行会说明原因，下面的**复制设置**照样能用。Codex 只运行一个 `notify` 程序，所以那里已经有别的程序时，PlayPets 也不会动它。
+
 ## 复制设置并粘贴 <Since v="0.1.0" />
 
-<Shot name="settings-agents" caption="设置 → 编码工具连接。每个工具都有一个复制设置按钮。" />
+<Shot name="settings-agents" caption="设置 → 编码工具连接。每个工具都有连接和复制设置按钮。" />
+
+想自己加设置的话，这样做：
 
 1. 打开**伙伴与设置 → 设置 → 编码工具连接**。
 2. 点你所用工具旁边的**复制设置**。提示会告诉你要粘贴到哪个文件。
@@ -86,10 +100,12 @@ PLAYPETS_PET=Pip claude
 | Gemini CLI | `~/.gemini/settings.json` | 通过钩子每一步都通知 |
 | Cursor | `~/.cursor/hooks.json` | 通知编辑、命令和完成。只用观察用的钩子 |
 | Grok Build | `~/.grok/hooks/playpets.json`，另存为新文件 | 通过钩子每一步都会通知 |
+| Qoder | `~/.qoder/settings.json` | 通过钩子每一步都会通知。Qoder IDE 重启后生效 |
+| Kimi Code | `~/.kimi-code/config.toml` 的末尾 | 通过钩子每一步都会通知 |
 | 其他 MCP 工具 | 工具的 MCP 设置 | AI 用 `set_pet_state`、`say`、`react`、`list_pets` 工具直接发送状态和气泡 |
 
 - 复制的设置里有 PlayPets 可执行文件的路径。这个可执行文件本身就是联动命令，不用另外安装。
-- 如果把应用挪到了别处，请重新复制设置再粘贴一次。
+- 如果把应用挪到了别处，请点**重新连接**，或重新复制设置再粘贴一次。
 - 如果是在 1.4.0 之前的版本复制的 Claude Code 设置，请重新复制再粘贴。这样遇到使用上限之类的错误停下时，伙伴也会告诉你。
 - 文件里已经有 `hooks` 或 `mcpServers` 项时，把这段设置合并到那一项里。
 - Grok Build 也会运行 Claude Code 和 Cursor 的钩子，但它的工作只显示在 Grok Build 的伙伴身上。
@@ -99,7 +115,7 @@ PLAYPETS_PET=Pip claude
 同一个可执行文件也可以在终端里调用，用来跟伙伴说话。下面的 `playpets` 指应用的可执行文件，在 macOS 上是 `/Applications/PlayPets.app/Contents/MacOS/playpets`。
 
 ```
-playpets hook claude|gemini|cursor|grok   # 钩子（stdin 传入 JSON，退出码始终为 0；对 Gemini、Cursor 输出 {}）
+playpets hook claude|gemini|cursor|grok|qoder|kimi   # 钩子（stdin 传入 JSON，退出码始终为 0；对 Gemini、Cursor 输出 {}）
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP stdio 服务器
 playpets status <状态> [消息]   [--pet 名字|ID] [--bridge 文件]

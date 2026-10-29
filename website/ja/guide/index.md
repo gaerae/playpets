@@ -16,7 +16,7 @@ PlayPetsは、友だちが暮らす庭です。友だちはあなたとも、友
 |---|---|
 | OS | macOS、Windows、Linux |
 | AI | 任意。招待、遊び、デスクトップモードは接続なしで使えます |
-| コーディングエージェント | 任意。Claude Code、Codex CLI、Gemini CLI、Cursor、Grok Build、MCPを使うツールと連携できます |
+| コーディングエージェント | 任意。Claude Code、Codex CLI、Gemini CLI、Cursor、Grok Build、Qoder、Kimi Code、MCPを使うツールと連携できます |
 | インターネット | ダウンロード、コミュニティのペットの取り込み、更新、外部AIとの会話に必要。庭での遊びと、ダウンロード済みのローカルOllamaモデルはオフラインでも使えます |
 
 Tauriで作られていて、OSに備わっているWebViewを使います。ブラウザーを丸ごと同梱してはいません。
