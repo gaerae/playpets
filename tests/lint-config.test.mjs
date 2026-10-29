@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
@@ -46,6 +46,57 @@ test('Oxlint rejects JavaScript and Vue script mistakes while excluding generate
     writeFileSync(join(dir, 'src/valid.js'), 'export const valid = true;');
     const ignored = run('.');
     assert.equal(ignored.status, 0, ignored.stdout + ignored.stderr);
+    // A missing import fails only on the path that reaches it; the check finds it before then.
+    writeFileSync(join(dir, 'src/undeclared.js'), 'export const later = () => missingImport();');
+    const undeclared = run('src/undeclared.js');
+    assert.equal(undeclared.status, 1, undeclared.stdout + undeclared.stderr);
+    assert.match(undeclared.stdout + undeclared.stderr, /no-undef/);
+    // `!= null` is one check for null and undefined; any other loose comparison fails.
+    writeFileSync(join(dir, 'src/nullish.js'), 'export const set = x => x != null;');
+    const nullish = run('src/nullish.js');
+    assert.equal(nullish.status, 0, nullish.stdout + nullish.stderr);
+    writeFileSync(join(dir, 'src/loose.js'), 'export const one = x => x != 1;');
+    const loose = run('src/loose.js');
+    assert.equal(loose.status, 1, loose.stdout + loose.stderr);
+    assert.match(loose.stdout + loose.stderr, /eqeqeq/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// The formatter's reach is a rule too: hand-kept markup must stay as written, and source must not drift.
+test('Oxfmt formats JavaScript, CSS and JSON while leaving hand-kept files as written', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'playpets-format-'));
+  try {
+    copyFileSync('.oxfmtrc.jsonc', join(dir, '.oxfmtrc.jsonc'));
+    const files = {
+      'src/messy.js': 'import {b} from "./b.js"\nimport {a} from "./a.js"\nexport const x = (y) => [a,b,y]\n',
+      'src/messy.css': ".a{content:'x'}\n",
+      'src/messy.json': '{"a":1,\n"b":[1,2]}\n',
+      'src/kept.html': '<p><b>hand</b>   kept</p>\n',
+      'src/kept.svg': '<svg><path d="M0 0"/></svg>\n',
+      'website/Kept.vue': '<template><p>{{  a  }}</p></template>\n<script setup>\nconst a = "x"\n</script>\n',
+      'docs/kept.md': '*  hand   kept*\n',
+    };
+    for (const [path, text] of Object.entries(files)) {
+      mkdirSync(dirname(join(dir, path)), { recursive: true });
+      writeFileSync(join(dir, path), text);
+    }
+    const result = spawnSync(process.execPath, [resolve('node_modules/oxfmt/bin/oxfmt'), '.'], {
+      cwd: dir,
+      encoding: 'utf8',
+    });
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    const read = path => readFileSync(join(dir, path), 'utf8');
+    assert.equal(
+      read('src/messy.js'),
+      "import { a } from './a.js';\nimport { b } from './b.js';\nexport const x = y => [a, b, y];\n",
+    );
+    assert.equal(read('src/messy.css'), '.a {\n  content: "x";\n}\n');
+    assert.equal(read('src/messy.json'), '{ "a": 1, "b": [1, 2] }\n');
+    for (const path of ['src/kept.html', 'src/kept.svg', 'website/Kept.vue', 'docs/kept.md']) {
+      assert.equal(read(path), files[path], path);
+    }
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

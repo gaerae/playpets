@@ -190,7 +190,7 @@ playpets run -- <command>
 |---|---|
 | Install dependencies | `npm ci` |
 | Unit tests (Rust and page) | `npm test` |
-| Format / check | `npm run format` / `npm run lint` (rustfmt, clippy, Oxlint, Biome) |
+| Format / check | `npm run format` / `npm run lint` (rustfmt, clippy, Oxlint, Oxfmt) |
 | Real-app E2E | `npm run test:e2e` (isolated data folder, own test pet, fake AI server) |
 | Live check against community sites | `npm run test:live-import` |
 | Site dev server / build | `npm run site:dev` / `npm run site:build` (fails on a dead link) |

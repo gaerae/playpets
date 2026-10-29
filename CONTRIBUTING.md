@@ -21,7 +21,7 @@
    - Backend: [backend locks and threads](docs/standards/backend-locks.md).
 2. When a rule changes, change the test first, watch it fail, then change the code ([testing standard](docs/standards/testing.md)).
 3. `npm test` — Rust unit tests and page-side tests
-   `npm run lint` — code format (rustfmt, Biome) and static checks (clippy, Oxlint, Biome). Warnings count as failures too (same as CI)
+   `npm run lint` — code format (rustfmt, Oxfmt) and static checks (clippy, Oxlint). Warnings count as failures too (same as CI)
 4. `npm run test:e2e` — runs the real app with isolated data and checks it end to end
 5. Screen changed: build it and look (steps 6 and 8 of the getting-started doc).
 6. Drawing loop or animations changed: run `npm run measure` before and after, and attach the results to the PR ([performance standard](docs/standards/performance.md)).
@@ -45,10 +45,10 @@ Full rules: [commits, branches and history](docs/standards/commits-and-branches.
 ## Code format
 - Do not format by hand. `npm run format` formats:
   - Rust with rustfmt (`src-tauri/rustfmt.toml`)
-  - JS, CSS and JSON with Biome (`biome.jsonc`)
+  - JS, CSS and JSON with Oxfmt (`.oxfmtrc.jsonc`)
 - The recommended extensions (`.vscode/extensions.json`) provide these formatters.
 - Recommendations alone do not enable format-on-save; turn it on in your local editor settings if wanted.
-- HTML and SVG are kept by hand (a formatter does not help files like a one-line logo path).
+- HTML, SVG and the site's Vue templates are kept by hand (a formatter does not help files like a one-line logo path).
 
 ## Tone
 - UI and error text is written in every app language: Korean, English, Japanese, Simplified Chinese.

@@ -163,7 +163,7 @@ Records are dated and never rewritten. When two disagree, the later one holds. T
 | `npm run test:js` / `test:rust` | Focused Node / Rust tests |
 | `npm run build:app` / `start` | Build the normal native executable / run that existing build |
 | `npm run assets:audit` | Check image dimensions and references; save an inventory under ignored `scratch/asset-audit/` |
-| `npm run lint` / `npm run format` | Check / tidy code layout (rustfmt, clippy, Oxlint, Biome) |
+| `npm run lint` / `npm run format` | Check / tidy code layout (rustfmt, clippy, Oxlint, Oxfmt) |
 | `npm run test:e2e` | Real-app E2E |
 | `npm run measure` | CPU measurement in five states (macOS, Linux) |
 | `npm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |

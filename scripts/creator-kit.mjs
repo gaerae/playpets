@@ -236,9 +236,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     execFileSync(
       process.execPath,
       [
-        'node_modules/@biomejs/biome/bin/biome',
-        'format',
-        '--write',
+        'node_modules/oxfmt/bin/oxfmt',
         ...creatorKits.flatMap(kit =>
           ['identity.json', 'kit.json'].map(name => `assets/creator-kit/${kit.id}/${name}`),
         ),

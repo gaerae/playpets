@@ -90,10 +90,10 @@ Notices and lint:
   a Tauri build.
 - The website build emits a license asset for the dependencies in its actual
   bundle.
-- `npm run lint:js` runs Oxlint correctness checks, then Biome formatting, import
-  sorting and static checks.
-- `npm run lint:oxlint`: correctness checks alone. `npm run format:js`: format
-  source.
+- `npm run lint:js` runs Oxlint, then Oxfmt's format and import-order check
+  (`oxfmt --check`).
+- `npm run lint:oxlint`: static checks alone. `npm run format:js`: format
+  source with Oxfmt (`.oxfmtrc.jsonc`).
 - Do not apply spread fixes blindly to live DOM collections; removing a snapshot
   can skip nodes or attributes during mutation.
 - Tool checks belong in `tests/*.test.mjs`. Export pure transformations where

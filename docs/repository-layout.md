@@ -50,8 +50,8 @@ A package passes through three places. Only the first is in Git.
 | `package-lock.json` | Exact npm dependency graph; update with npm and install with `npm ci` |
 | `.node-version` | Node major used locally and by Actions |
 | `.npmrc` | Reject unsupported engines before dependency installation |
-| `.oxlintrc.json` | JavaScript, TypeScript and Vue script correctness rules and generated-output exclusions |
-| `biome.jsonc` | JavaScript, TypeScript, CSS and JSON formatting and static checks |
+| `.oxlintrc.json` | JavaScript, TypeScript and Vue script static checks and generated-output exclusions |
+| `.oxfmtrc.jsonc` | JavaScript, TypeScript, CSS and JSON formatting and import order; HTML, SVG, Vue and Markdown are kept by hand |
 | `.editorconfig` | Editor-independent indentation, encoding and line endings |
 | `.gitattributes` | Git line endings, binary handling and generated-file review metadata |
 | `.gitignore` | Local state, credentials and reproducible build output excluded from commits |

@@ -120,14 +120,14 @@ npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
 
 ## Optional editor setup
 
-- The repository recommends Biome, rust-analyzer and EditorConfig extensions.
+- The repository recommends the Oxc (Oxlint and Oxfmt), rust-analyzer and EditorConfig extensions.
 - Keep personal editor settings in the ignored `.vscode/settings.json`.
 - A starting point for format-on-save and Rust checks:
 
 ```json
 {
   "[javascript]": {
-    "editor.defaultFormatter": "biomejs.biome",
+    "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.formatOnSave": true
   },
   "[rust]": {
