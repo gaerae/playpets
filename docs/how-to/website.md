@@ -61,13 +61,13 @@ pnpm run site:dev
    - Before each picture and the README animation, keyboard focus is cleared, so no focus ring shows.
 
 ```bash
-pnpm run shots -- 0.2.0
+pnpm run shots 0.2.0
 ```
 
    - For a faster pass with screenshots only, skip recording and encoding the GIF. The existing demo animation stays as it is.
 
 ```bash
-SKIP_GIF=1 pnpm run shots -- 0.2.0
+SKIP_GIF=1 pnpm run shots 0.2.0
 ```
 
    - For only the four-companion picture, in all four site languages, use the shorter scene.
@@ -75,7 +75,7 @@ SKIP_GIF=1 pnpm run shots -- 0.2.0
    - The capture option keeps its historical name, `adults`.
 
 ```bash
-SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans pnpm run shots -- 0.2.0
+SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans pnpm run shots 0.2.0
 ```
 
 4. Mark the version where a feature first arrived with `<Since v="0.2.0" />` at the end of its heading. A first-release badge (`0.1.0`) shows nothing, and no badge appears in the page outline.

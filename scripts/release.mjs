@@ -1,4 +1,4 @@
-// Makes a release commit and tag: pnpm run release -- 0.2.0  (take the screenshots first: pnpm run shots -- 0.2.0)
+// Makes a release commit and tag: pnpm run release 0.2.0  (take the screenshots first: pnpm run shots 0.2.0)
 // Moves the changelog's [Unreleased] into a dated 0.2.0 section, writes 0.2.0 everywhere the
 // version lives (package.json, Cargo.toml, Cargo.lock, the Linux metainfo's releases; tauri.conf.json
 // reads package.json, and pnpm-lock.yaml does not record it), commits "Release 0.2.0" and tags v0.2.0. Nothing is pushed: pushing the tag is
@@ -14,7 +14,7 @@ import { releasePagesFor, releasePageUrl, SITE_LANGS } from './site-content.mjs'
 const version = process.argv[2];
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
 if (!version) {
-  console.error('Usage: pnpm run release -- <x.y.z>');
+  console.error('Usage: pnpm run release <x.y.z>');
   process.exit(2);
 }
 if (git('status', '--porcelain')) {

@@ -64,7 +64,6 @@ test('Oxlint rejects JavaScript and Vue script mistakes while excluding generate
   }
 });
 
-// The formatter's reach is a rule too: hand-kept markup must stay as written, and source must not drift.
 test('Biome rejects CSS mistakes and leaves JavaScript to Oxlint', () => {
   const dir = mkdtempSync(join(tmpdir(), 'playpets-css-lint-'));
   try {
@@ -93,6 +92,7 @@ test('Biome rejects CSS mistakes and leaves JavaScript to Oxlint', () => {
   }
 });
 
+// The formatter's reach is a rule too: hand-kept markup must stay as written, and source must not drift.
 test('Oxfmt formats JavaScript, CSS and JSON while leaving hand-kept files as written', () => {
   const dir = mkdtempSync(join(tmpdir(), 'playpets-format-'));
   try {

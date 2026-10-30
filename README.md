@@ -194,7 +194,7 @@ playpets run -- <command>
 | Real-app E2E | `pnpm run test:e2e` (isolated data folder, own test pet, fake AI server) |
 | Live check against community sites | `pnpm run test:live-import` |
 | Site dev server / build | `pnpm run site:dev` / `pnpm run site:build` (fails on a dead link) |
-| Site screenshots (macOS) | `pnpm run shots -- x.y.z` → `website/public/shots/` |
+| Site screenshots (macOS) | `pnpm run shots x.y.z` → `website/public/shots/` |
 | Installer art | `pnpm run art` (DMG window, Windows installer pictures, Linux store screenshots) |
 | macOS dmg | `pnpm run dist:mac` → `release/macos/` |
 | Linux packages and E2E | `pnpm run dist:linux` (Docker) → `release/linux/` (deb, AppImage, E2E under Xvfb) |
@@ -204,7 +204,7 @@ playpets run -- <command>
 | Workflow | What it does |
 |---|---|
 | `.github/workflows/build.yml` | Builds and E2E on macOS, Windows x64/arm64, Linux x64/arm64 for every push to `main` and every PR; artifacts in the run |
-| `.github/workflows/release.yml` | After `pnpm run release -- x.y.z` and `git push origin HEAD vx.y.z`: builds every platform, drafts a GitHub release with the changelog section ([Release a new version](docs/how-to/release.md)) |
+| `.github/workflows/release.yml` | After `pnpm run release x.y.z` and `git push origin HEAD vx.y.z`: builds every platform, drafts a GitHub release with the changelog section ([Release a new version](docs/how-to/release.md)) |
 | `.github/workflows/distribute.yml` | On a published release: makes the winget manifest and the Homebrew cask; with tokens, opens the winget PR and updates the tap ([Signing keys and secrets](docs/standards/keys-and-secrets.md)) |
 
 <details>

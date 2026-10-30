@@ -35,7 +35,7 @@
 
 ### Companion action plans
 
-- Run `pnpm run companions:pack -- plan.json output.png` with Python and Pillow
+- Run `pnpm run companions:pack plan.json output.png` with Python and Pillow
   available.
 - The plan names an RGBA source, one shared `scale`, and explicit frame
   rectangles, foot anchors and durations.
@@ -232,7 +232,7 @@ Background creation:
 
 ### High-resolution website companions
 
-- `pnpm run preview:pack -- source-row.png idle-row.png destination.png idle 165`
+- `pnpm run preview:pack source-row.png idle-row.png destination.png idle 165`
   packs an approved transparent 1536×1024 eight-pose row into a 3072×416 website
   strip.
   - The second file is the approved idle row shared by every state.

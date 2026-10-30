@@ -24,7 +24,7 @@
   - Branch commits stay useful for review; they do not become separate commits on `main`.
 - Repository settings allow squash merging only; merge commits and rebase merging are disabled.
 - Rebasing a feature branch onto the latest `main` before its final CI run is a separate step from the pull request's merge method.
-- Versions are tags (`vX.Y.Z`) on `main`, made by `pnpm run release -- x.y.z` and pushed by a maintainer.
+- Versions are tags (`vX.Y.Z`) on `main`, made by `pnpm run release x.y.z` and pushed by a maintainer.
 - No release branches: a fix for a released version goes to `main` and out in the next patch version.
 
 ### Commits

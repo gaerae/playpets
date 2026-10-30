@@ -122,7 +122,7 @@ jobs:
       - name: MSIX install, activation and Store updater gate
         if: runner.os == 'Windows'
         shell: powershell
-        run: pnpm run test:msix:ci -- -ProductionBinary "$env:RUNNER_TEMP/playpets-msix-production.exe" -ProbeBinary "$env:GITHUB_WORKSPACE/src-tauri/target/release/playpets.exe" -Architecture "${{ matrix.name == 'windows-arm64' && 'arm64' || 'x64' }}"
+        run: pnpm run test:msix:ci -ProductionBinary "$env:RUNNER_TEMP/playpets-msix-production.exe" -ProbeBinary "$env:GITHUB_WORKSPACE/src-tauri/target/release/playpets.exe" -Architecture "${{ matrix.name == 'windows-arm64' && 'arm64' || 'x64' }}"
       - name: MSIX verification reports
         if: always() && runner.os == 'Windows'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

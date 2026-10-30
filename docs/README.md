@@ -167,11 +167,11 @@ Records are dated and never rewritten. When two disagree, the later one holds. T
 | `pnpm run test:e2e` | Real-app E2E |
 | `pnpm run measure` | CPU measurement in five states (macOS, Linux) |
 | `pnpm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |
-| `pnpm run shots -- x.y.z` | Real-app screenshots in every app language (macOS) |
+| `pnpm run shots x.y.z` | Real-app screenshots in every app language (macOS) |
 | `pnpm run og` | Redraw the four share cards (`website/public/og.png` in English, `og-ko.png`, `og-ja.png`, `og-zh-hans.png`) and the README banner |
 | `pnpm run art` | Redraw the installer art (list below) |
 | `pnpm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/<platform>/`) |
-| `pnpm run release -- x.y.z` | Release commit and tag |
+| `pnpm run release x.y.z` | Release commit and tag |
 | `pnpm run icons` | Every icon from `assets/icon.png` |
 
 What `pnpm run art` redraws:

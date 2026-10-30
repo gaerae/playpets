@@ -47,7 +47,7 @@ Preparing the next version on a development branch:
 - Keep the published version's captures.
 - Put current captures under the next version's directory.
 - A prepared version is not a public release: the site's default download still resolves the latest published GitHub release.
-- Once the branch is reviewed and merged into main, `pnpm run release -- x.y.z` finalizes the notes and dates, commits, and creates the local tag.
+- Once the branch is reviewed and merged into main, `pnpm run release x.y.z` finalizes the notes and dates, commits, and creates the local tag.
 - The command does not push.
 - Push the tag only once cross-platform checks and publication are approved.
 
@@ -138,14 +138,14 @@ git switch main && git pull
    - Commit all of it.
 
 ```bash
-pnpm run shots -- 0.2.0
+pnpm run shots 0.2.0
 pnpm run art
 ```
 
 3. Make the release commit and tag.
 
 ```bash
-pnpm run release -- 0.2.0
+pnpm run release 0.2.0
 ```
 
    | What the command changes | Where |

@@ -288,7 +288,7 @@ test('pnpm is the package manager, at an exact version', () => {
 });
 
 // A hijacked release is usually found and pulled within days; packages that end up in a release wait
-// a week before Dependabot proposes them. Security updates ignore the cooldown.
+// a week before Dependabot proposes them. Security updates skip the cooldown, but pnpm's day still holds.
 test('Dependabot proposes npm, Cargo and Actions versions a week after release', () => {
   const entries = read('.github/dependabot.yml')
     .split(/^ {2}- package-ecosystem: /m)
@@ -518,4 +518,41 @@ test('code imports only the packages package.json declares', () => {
       if (!declared.has(name)) undeclared.push(`${file}: ${specifier}`);
     }
   assert.deepEqual(undeclared, []);
+});
+
+// The tests import vue, its compiler and esbuild, which the site's tools also use. Two copies would let
+// the tests check one version and the site build with another, so each direct dependency resolves once.
+test('each direct dependency resolves to one version in the lockfile', () => {
+  const { devDependencies = {}, dependencies = {} } = JSON.parse(read('package.json'));
+  // The lockfile's last document is the project's; the first one locks pnpm itself.
+  const project = read('pnpm-lock.yaml')
+    .split(/^---\n/m)
+    .at(-1);
+  const packages = project.match(/^packages:\n([\s\S]*?)^snapshots:\n/m)?.[1];
+  assert.ok(packages, 'pnpm-lock.yaml lists its packages');
+  const versions = new Map();
+  for (const [, name, version] of packages.matchAll(/^ {2}'?(@?[^@'\s]+)@([^':\s]+)'?:$/gm))
+    versions.set(name, [...(versions.get(name) || []), version]);
+  for (const name of [...Object.keys(devDependencies), ...Object.keys(dependencies)])
+    assert.equal(versions.get(name)?.length, 1, `${name}: ${versions.get(name)?.join(', ')}`);
+});
+
+// pnpm hands a script every word after its name, `--` included (npm dropped it), so a `--` before the
+// release version would become the version. Commands are written without it; dated records keep the npm they used.
+test('documented pnpm commands pass their arguments without --', () => {
+  const files = execFileSync(
+    'git',
+    ['ls-files', '*.md', '*.mjs', '*.js', '*.yml', '*.yaml', '*.json', '*.sh', '*.ps1'],
+    {
+      encoding: 'utf8',
+      ...git,
+    },
+  )
+    .split('\n')
+    .filter(file => file && !/^docs\/(decisions|design)\//.test(file));
+  const found = [];
+  for (const file of files)
+    for (const [line] of read(file).matchAll(/^.*\bp?npm (?:run )?[a-z][\w:.-]* -- .*$/gm))
+      found.push(`${file}: ${line.trim()}`);
+  assert.deepEqual(found, []);
 });

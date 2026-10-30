@@ -1,5 +1,5 @@
 # Builds every platform for a version tag and puts the files on a draft GitHub release, with the
-# changelog's section for that version as its notes. Start it with `pnpm run release -- x.y.z`
+# changelog's section for that version as its notes. Start it with `pnpm run release x.y.z`
 # followed by `git push --atomic origin HEAD vx.y.z` (see docs/how-to/release.md). A person reads the draft and
 # publishes it.
 #
