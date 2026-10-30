@@ -140,6 +140,6 @@ test('publishing a release builds the site again from main, which reads the rele
   assert.match(site, /permissions:\n {6}actions: write\n/);
   assert.equal(distribute.split('actions: write').length - 1, 1);
   const pages = await readFile('.github/workflows/pages.yml', 'utf8');
-  assert.match(pages, /- run: npm run site:build\n {8}env:\n {10}GH_TOKEN: \$\{\{ github\.token \}\}/);
+  assert.match(pages, /- run: pnpm run site:build\n {8}env:\n {10}GH_TOKEN: \$\{\{ github\.token \}\}/);
   assert.match(pages, /workflow_dispatch:/);
 });

@@ -55,7 +55,7 @@ function woods(ctx, ridge, w, h, pal, rng, lit, haze, amount, cap) {
   const far = { dark: tint(t.deep), body: tint(t.dark), glow: tint(t.body) };
   const row = (lift, size) => {
     const tops = [];
-    for (let x = -20; x < w + 20; ) {
+    for (let x = -20; x < w + 20;) {
       const tall = rng() < 0.18 ? 1.7 : 1,
         r = h * size * (0.7 + rng() * 0.6) * tall;
       tops.push({ x, r, y: heightAt(ridge, x) - r * (0.3 + lift) });

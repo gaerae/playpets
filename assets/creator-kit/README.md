@@ -38,7 +38,7 @@
 Regenerate only the supplemental collages from approved production sheets:
 
 ```sh
-npm ci
+pnpm install --frozen-lockfile
 node scripts/creator-kit.mjs
 ```
 
@@ -51,13 +51,13 @@ After changing the spec or approved source images, refresh tracked metadata:
 node scripts/creator-kit.mjs --metadata
 ```
 
-- Node only; formats its JSON with the repository's installed Biome.
+- Node only; formats its JSON with the repository's installed Oxfmt.
 - Regular site builds leave tracked metadata unchanged.
 
 Validate and publish all four kits, with deterministic uncompressed ZIP files:
 
 ```sh
-npm run site:build
+pnpm run site:build
 ```
 
 - Node only.

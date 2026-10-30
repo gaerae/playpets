@@ -59,7 +59,7 @@ From the changelog to the page, at release time:
 - The four languages list the same changes, in the same order, each line for the same systems.
 - A release with nothing new for one system: that system's channels show the opening sentence and the page's address.
 - Each channel reads the page for its system: the Store the Windows lines, Linux software centers the Linux lines, the app's **What's new** the whole page.
-- `npm run release` stops on a page that breaks these rules; `node --test tests/release-notes.test.mjs` checks them before that.
+- `pnpm run release` stops on a page that breaks these rules; `node --test tests/release-notes.test.mjs` checks them before that.
 - To check a version's pages and see each system's text: `node scripts/release-page.mjs x.y.z`. The Store's text as it is sent: `node scripts/store-notes.mjs x.y.z`.
 
 Before:

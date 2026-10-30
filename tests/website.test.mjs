@@ -310,7 +310,7 @@ test('every place that names the site uses the address in package.json', async (
   const files = execFileSync('git', ['ls-files'], { encoding: 'utf8' })
     .split('\n')
     .filter(f => /\.(md|json|ya?ml|xml|toml|mts|ts|vue|mjs|js|html)$/.test(f) && !f.startsWith('website/public/'))
-    .filter(f => !/(^|\/)package-lock\.json$|Cargo\.lock$/.test(f))
+    .filter(f => !/(^|\/)pnpm-lock\.yaml$|Cargo\.lock$/.test(f))
     // The how-to for moving the site names the future address on purpose.
     .filter(f => f !== 'docs/how-to/site-address.md');
   const site = /https?:\/\/[a-z0-9.-]*(?:github\.io\/playpets|gaerae\.com\/playpets|playpets\.app)[^\s)"'<>`]*/g;

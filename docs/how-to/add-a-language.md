@@ -41,7 +41,7 @@
 | Place | What to change |
 |---|---|
 | Site | `locales` in `website/.vitepress/config.mts` and the docs in `website/<code>/guide/`. Register the locale in `scripts/site-content.mjs`, add `theme/landing-<code>.ts` and its active copy contract, and update `theme/words.ts` and the creator components. Add an Open Graph card, guide pages and release notes, then test canonical and alternate links |
-| Captures | Add the language's names, personalities and sample conversation to `script` in `scripts/shots.mjs`; `npm run shots` then captures screens in that language too (it reads the language list from `strings.js`). Choose languages with `SHOT_LANGS=ko,en` |
+| Captures | Add the language's names, personalities and sample conversation to `script` in `scripts/shots.mjs`; `pnpm run shots` then captures screens in that language too (it reads the language list from `strings.js`). Choose languages with `SHOT_LANGS=ko,en` |
 | `docs/standards/i18n.md` | The supported-languages line |
 | OG images | `scripts/make-og.mjs` makes one image per language the site has. Add the language once the site has it |
 | `README.md` and this doc | The language line in `README.md` and the first line of this doc |
@@ -61,7 +61,7 @@
 ## 4. Check
 
 ```bash
-npm test
+pnpm test
 ```
 
 - `tests/i18n.test.mjs` checks that every language file has the same keys and placeholders, that no Korean is left in a module, and that every key the code asks for is in the table.

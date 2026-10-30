@@ -80,7 +80,7 @@ The order:
 
 1. One-time setup: create the GitHub repository, set it up and push, so CI runs for the first time ([Set up the repository, keys and store accounts](../how-to/set-up-the-repository.md)).
 2. Add the update secret key to the repository secrets ([Managing signing keys and secrets](../standards/keys-and-secrets.md)).
-3. Run `npm run release -- 0.1.0`, push the tag, check the draft and publish it ([Release a new version](../how-to/release.md)).
+3. Run `pnpm run release 0.1.0`, push the tag, check the draft and publish it ([Release a new version](../how-to/release.md)).
 4. Create the `homebrew-tap` repository and the winget-pkgs fork, and add their tokens (one-time setup). `distribute` then submits each version, including the first winget one.
 5. After joining the Apple Developer Program, add the `APPLE_*` secrets together, verify code signing and notarization, and consider the official Homebrew cask.
 6. For Windows, start with free individual registration in the Microsoft Store. Revisit Azure Artifact Signing when we become an organization or the region limit for individuals is lifted.

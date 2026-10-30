@@ -33,7 +33,7 @@ export function verifyNativeNotices(root) {
   const inputs = noticeFingerprint(root);
   const notice = readFileSync(path.join(root, 'packaging/licenses/THIRD-PARTY-NOTICES.txt'));
   if (JSON.stringify(inputs) !== JSON.stringify(recorded.inputs) || digest(notice) !== recorded.noticeSha256)
-    throw new Error('Native license notices are stale; run npm run licenses:generate and review the changes.');
+    throw new Error('Native license notices are stale; run pnpm run licenses:generate and review the changes.');
 }
 export function licenseFiles(directory) {
   return readdirSync(directory, { withFileTypes: true, recursive: true })

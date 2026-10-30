@@ -5,7 +5,7 @@
   "identifier": "app.playpets",
   "build": {
     "frontendDist": "../src",
-    "beforeBuildCommand": "npm run licenses:check"
+    "beforeBuildCommand": "pnpm run licenses:check"
   },
   "app": {
     "macOSPrivateApi": true,

@@ -92,59 +92,66 @@ test('plugin metadata permits the exact compatibility manifest without allowing 
     assert.throws(() => zipStore([{ name, bytes: Buffer.from('{}') }]));
 });
 
-test('skills CLI installs the complete local source for Codex and Claude Code without global changes', {
-  skip: process.env.PLAYPETS_TEST_SKILLS_INSTALL !== '1',
-  timeout: 180000,
-}, async () => {
-  const dest = await mkdtemp(join(tmpdir(), 'playpets-skills-cli-'));
-  try {
-    const result = spawnSync(
-      process.platform === 'win32' ? 'npx.cmd' : 'npx',
-      [
-        '--yes',
-        'skills@1.7.2',
-        'add',
-        resolve('.'),
-        '--skill',
-        'playpets-creator',
-        '--agent',
-        'codex',
-        'claude-code',
-        '--copy',
-        '--yes',
-      ],
-      {
-        cwd: dest,
-        encoding: 'utf8',
-        timeout: 150000,
-        env: {
-          ...process.env,
-          HOME: join(dest, 'home'),
-          USERPROFILE: join(dest, 'home'),
-          XDG_CONFIG_HOME: join(dest, 'home', '.config'),
-          npm_config_cache: join(dest, 'npm-cache'),
-          DISABLE_TELEMETRY: '1',
-          DO_NOT_TRACK: '1',
+test(
+  'skills CLI installs the complete local source for Codex and Claude Code without global changes',
+  {
+    skip: process.env.PLAYPETS_TEST_SKILLS_INSTALL !== '1',
+    timeout: 180000,
+  },
+  async () => {
+    const dest = await mkdtemp(join(tmpdir(), 'playpets-skills-cli-'));
+    try {
+      const result = spawnSync(
+        process.platform === 'win32' ? 'npx.cmd' : 'npx',
+        [
+          '--yes',
+          'skills@1.7.2',
+          'add',
+          resolve('.'),
+          '--skill',
+          'playpets-creator',
+          '--agent',
+          'codex',
+          'claude-code',
+          '--copy',
+          '--yes',
+        ],
+        {
+          cwd: dest,
+          encoding: 'utf8',
+          timeout: 150000,
+          env: {
+            ...process.env,
+            HOME: join(dest, 'home'),
+            USERPROFILE: join(dest, 'home'),
+            XDG_CONFIG_HOME: join(dest, 'home', '.config'),
+            npm_config_cache: join(dest, 'npm-cache'),
+            DISABLE_TELEMETRY: '1',
+            DO_NOT_TRACK: '1',
+          },
         },
-      },
-    );
-    assert.equal(result.status, 0, result.stderr + result.stdout);
-    for (const host of ['.agents', '.claude']) {
-      const installed = join(dest, host, 'skills/playpets-creator');
-      for (const file of [
-        'SKILL.md',
-        'requirements.txt',
-        'LICENSE',
-        'scripts/creator-workflow.py',
-        'references/formats.md',
-      ])
-        assert.equal(await readFile(join(installed, file), 'utf8'), await readFile(join(root, file), 'utf8'));
-      const helper = spawnSync(python, ['scripts/creator-workflow.py', '--help'], { cwd: installed, encoding: 'utf8' });
-      assert.equal(helper.status, 0, helper.stderr);
-      assert.match(helper.stdout, /pack-pet/);
-      assert.match(helper.stdout, /pack-background/);
+      );
+      assert.equal(result.status, 0, result.stderr + result.stdout);
+      for (const host of ['.agents', '.claude']) {
+        const installed = join(dest, host, 'skills/playpets-creator');
+        for (const file of [
+          'SKILL.md',
+          'requirements.txt',
+          'LICENSE',
+          'scripts/creator-workflow.py',
+          'references/formats.md',
+        ])
+          assert.equal(await readFile(join(installed, file), 'utf8'), await readFile(join(root, file), 'utf8'));
+        const helper = spawnSync(python, ['scripts/creator-workflow.py', '--help'], {
+          cwd: installed,
+          encoding: 'utf8',
+        });
+        assert.equal(helper.status, 0, helper.stderr);
+        assert.match(helper.stdout, /pack-pet/);
+        assert.match(helper.stdout, /pack-background/);
+      }
+    } finally {
+      await rm(dest, { recursive: true, force: true });
     }
-  } finally {
-    await rm(dest, { recursive: true, force: true });
-  }
-});
+  },
+);

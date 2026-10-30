@@ -25,7 +25,7 @@ Plans:
 Repack from the repository root, using the corresponding action name:
 
 ```sh
-npm run companions:pack -- assets/sources/companion-actions-2026-10-19/pip/base/dig-plan.json src/art/companions/pip/base/dig.png
+pnpm run companions:pack assets/sources/companion-actions-2026-10-19/pip/base/dig-plan.json src/art/companions/pip/base/dig.png
 ```
 
 Generation direction:

@@ -1,4 +1,4 @@
-// Takes the website's screenshots from the real app: npm run shots -- 0.2.0   (macOS only)
+// Takes the website's screenshots from the real app: pnpm run shots 0.2.0   (macOS only)
 // For each language the release binary starts with an isolated data folder, the four starter pets and a
 // fake AI server, then a scenario (PLAYPETS_E2E_EVAL, as in tests/e2e.mjs) walks it through the
 // states below and reports each one with the window's frame; this script captures that frame with

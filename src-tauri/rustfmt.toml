@@ -1,4 +1,4 @@
-# How the Rust side is laid out; `npm run format` applies it and `npm run lint` checks it.
+# How the Rust side is laid out; `pnpm run format` applies it and `pnpm run lint` checks it.
 max_width = 120
 use_field_init_shorthand = true
 use_try_shorthand = true

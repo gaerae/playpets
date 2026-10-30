@@ -70,7 +70,7 @@ gh release delete <unknown tag> --repo gaerae/playpets --cleanup-tag --yes
 4. Generate a new key pair. Set a password this time.
 
 ```bash
-npx tauri signer generate -w ~/.tauri/playpets-updater.key --force
+pnpm exec tauri signer generate -w ~/.tauri/playpets-updater.key --force
 ```
 
 5. Put the new public key in the app config.

@@ -3,7 +3,7 @@
 // area free of scenery; its sage surface supports both black and white native labels.
 // Windows owns the translated instructions: its raster artwork carries only the brand.
 // Linux software-center screenshots are exported from the current English app captures.
-// Run npm run art, then rebuild the platform packages to include the exports.
+// Run pnpm run art, then rebuild the platform packages to include the exports.
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import {

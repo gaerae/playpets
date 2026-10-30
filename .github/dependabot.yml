@@ -1,11 +1,16 @@
 # Weekly update PRs for each kind of dependency. Minor and patch updates of each kind come
 # as one PR, so CI checks them together; major updates come one by one.
+# A version is proposed only a week after its release, time for a hijacked release to be found and
+# pulled. Cooldown delays version updates only: security updates skip it, though for npm packages
+# pnpm still waits a day (minimumReleaseAge in pnpm-workspace.yaml says how to take one at once).
 version: 2
 updates:
   - package-ecosystem: cargo
     directory: /src-tauri
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       rust:
         update-types: [minor, patch]
@@ -13,6 +18,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       npm:
         update-types: [minor, patch]
@@ -20,10 +27,13 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       actions:
         update-types: [minor, patch]
-  # The local Docker builds (npm run dist:linux / dist:windows).
+  # The local Docker builds (pnpm run dist:linux / dist:windows). They keep Dependabot's default 3
+  # days: the official Node and Rust images are rebuilt mostly for fixes, and no release uses them.
   - package-ecosystem: docker
     directories: [/packaging/linux, /packaging/windows]
     schedule:

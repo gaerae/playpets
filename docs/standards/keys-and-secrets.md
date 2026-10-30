@@ -5,7 +5,7 @@
 - Secrets the app handles while running.
 - Wherever they are kept or used: the maintainer's local machine, GitHub repository secrets (Settings → Secrets and variables → Actions) and CI workflows.
 - Not covered: contributors' development and testing.
-  - `npm test`, `npm run test:e2e`, `npm run dist:mac` and `npm run dist:windows` need no keys.
+  - `pnpm test`, `pnpm run test:e2e`, `pnpm run dist:mac` and `pnpm run dist:windows` need no keys.
   - Without keys, only signing and update file generation are skipped.
 
 ## Rules
@@ -21,7 +21,7 @@ Where each key is stored and where it is used.
 | `HOMEBREW_TAP_TOKEN` | Pushes to `<account>/homebrew-tap` | GitHub token (contents write on that one repository) | Not used | `HOMEBREW_TAP_TOKEN` | Token expiry date |
 | `GITHUB_TOKEN` | Release drafts, uploading files | Issued by GitHub for each run | Not used | Automatic | For the run |
 | Store application key | Authenticates the dedicated Entra application's Store API requests | Protected `microsoft-store` environment Secret; optional backup in the maintainer's password manager | Not used for normal builds | `STORE_CLIENT_SECRET` (Key value, not Client ID or key identifier) | Entra key expiry date; record it privately and rotate before expiry |
-| MSIX test certificate | Signs the test MSIX | The private key in the `playpets-msix-key` Docker volume (the build creates it if missing); only the public `PlayPets-test.cer` goes to `release/windows/msix-test/`. A key an older build left there is moved into the volume | Used by `npm run dist:windows` | None | Disposable. After `docker volume rm playpets-msix-key` the next build makes a new one, and testers trust the new certificate again |
+| MSIX test certificate | Signs the test MSIX | The private key in the `playpets-msix-key` Docker volume (the build creates it if missing); only the public `PlayPets-test.cer` goes to `release/windows/msix-test/`. A key an older build left there is moved into the volume | Used by `pnpm run dist:windows` | None | Disposable. After `docker volume rm playpets-msix-key` the next build makes a new one, and testers trust the new certificate again |
 | Agent bridge token | Authenticates requests the agent CLI sends to the running app | `bridge.json` in the user data folder | The app creates a new one at each launch | None | While the app runs |
 | The user's AI API key | AI connection | OS secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service) | Handled by the app | None | Until the user deletes it |
 
@@ -60,7 +60,7 @@ Build update files locally (macOS):
 ```bash
 printf 'Key password: '; read -rs TAURI_SIGNING_PRIVATE_KEY_PASSWORD; echo
 export TAURI_SIGNING_PRIVATE_KEY_PASSWORD
-TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/playpets-updater.key)" npx tauri build --bundles app --config '{"bundle":{"createUpdaterArtifacts":true}}'
+TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/playpets-updater.key)" pnpm exec tauri build --bundles app --config '{"bundle":{"createUpdaterArtifacts":true}}'
 ```
 
 Create a new key:
@@ -68,7 +68,7 @@ Create a new key:
 2. Put the contents of `~/.tauri/playpets-updater.key.pub` into `pubkey` in `tauri.conf.json`.
 
 ```bash
-npx tauri signer generate -w ~/.tauri/playpets-updater.key
+pnpm exec tauri signer generate -w ~/.tauri/playpets-updater.key
 ```
 
 - The whole first-time sequence (password manager, backup, secrets, store tokens): [Set up the repository, keys and store accounts](../how-to/set-up-the-repository.md).

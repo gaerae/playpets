@@ -1,7 +1,7 @@
 // PlayPets Tauri E2E: launches the release binary with an isolated data dir,
 // drives the real UI bridge via PLAYPETS_E2E_EVAL, reads results from the
 // [e2e] stdout channel. A fake ollama server covers the HTTP chat path.
-// Run: npm run test:e2e   (repo root)
+// Run: pnpm run test:e2e   (repo root)
 
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';

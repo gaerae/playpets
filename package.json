@@ -18,20 +18,21 @@
   ],
   "type": "module",
   "scripts": {
-    "check": "npm run lint && npm test && npm run site:build",
-    "test": "npm run test:rust && npm run test:js",
+    "check": "pnpm run lint && pnpm test && pnpm run site:build",
+    "test": "pnpm run test:rust && pnpm run test:js",
     "test:js": "node --test tests/*.test.mjs",
     "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
     "test:e2e": "cargo build --profile e2e --features e2e --manifest-path src-tauri/Cargo.toml && node tests/e2e.mjs",
     "test:msix:ci": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File packaging/windows/msix/ci.ps1",
-    "test:e2e:linux": "bash scripts/linux-e2e.sh npm run test:e2e",
+    "test:e2e:linux": "bash scripts/linux-e2e.sh pnpm run test:e2e",
     "test:live-import": "cargo test --manifest-path src-tauri/Cargo.toml live_import -- --ignored --nocapture",
-    "lint": "npm run lint:rust && npm run lint:js",
-    "lint:js": "npm run lint:oxlint && biome ci",
+    "lint": "pnpm run lint:rust && pnpm run lint:js && pnpm run lint:css",
+    "lint:css": "biome lint --error-on-warnings",
+    "lint:js": "pnpm run lint:oxlint && oxfmt --check",
     "lint:oxlint": "oxlint --deny-warnings .",
     "lint:rust": "cargo fmt --manifest-path src-tauri/Cargo.toml --check && cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings",
-    "format": "npm run format:rust && npm run format:js",
-    "format:js": "biome format --write",
+    "format": "pnpm run format:rust && pnpm run format:js",
+    "format:js": "oxfmt",
     "format:rust": "cargo fmt --manifest-path src-tauri/Cargo.toml",
     "start": "node scripts/local.mjs start",
     "build:app": "cargo build --release --manifest-path src-tauri/Cargo.toml",
@@ -39,8 +40,8 @@
     "tauri": "tauri",
     "preview:pack": "node scripts/pack-site-preview.mjs",
     "site:prepare": "node scripts/site-prepare.mjs",
-    "site:dev": "npm run site:prepare && vitepress dev website",
-    "site:build": "npm run site:prepare && vitepress build website",
+    "site:dev": "pnpm run site:prepare && vitepress dev website",
+    "site:build": "pnpm run site:prepare && vitepress build website",
     "site:preview": "vitepress preview website",
     "assets:audit": "node scripts/asset-audit.mjs",
     "assets:optimize": "node scripts/optimize-png.mjs",
@@ -56,7 +57,7 @@
     "licenses:generate": "node scripts/licenses.mjs",
     "licenses:check": "node scripts/licenses.mjs --check",
     "creator:skill": "node scripts/creator-skill.mjs",
-    "security:check": "gitleaks git --redact --no-banner --log-opts=--all && npm audit --audit-level=high && cargo audit --file src-tauri/Cargo.lock",
+    "security:check": "gitleaks git --redact --no-banner --log-opts=--all && pnpm audit --audit-level high && cargo audit --file src-tauri/Cargo.lock",
     "store:verify": "node scripts/store-api.mjs",
     "store:submit": "node scripts/store-submit.mjs",
     "companions:pack": "node scripts/pack-companion-actions.mjs"
@@ -64,18 +65,19 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@tauri-apps/cli": "^2.12.4",
+    "@vue/compiler-sfc": "3.5.43",
+    "esbuild": "0.25.12",
     "mermaid": "^12.2.0",
+    "oxfmt": "0.75.0",
     "oxlint": "1.90.0",
     "playwright-core": "^1.64.1",
-    "vitepress": "^1.6.4"
+    "vitepress": "^1.6.4",
+    "vue": "3.5.43"
   },
   "license": "MIT",
   "engines": {
     "node": ">=26.12.1",
-    "npm": ">=11"
+    "pnpm": ">=12.16.1"
   },
-  "overrides": {
-    "katex": "^0.19.0",
-    "vite": "^6.4.3"
-  }
+  "packageManager": "pnpm@12.16.1"
 }

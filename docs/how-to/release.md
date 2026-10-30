@@ -35,7 +35,7 @@ Versions:
 - That workflow builds both Store packages and, once submission is switched on, submits them to Partner Center (step 9). See [Store setup and submission](store-and-apple-signing.md).
 - Versions change for a release, not automatically for each commit.
 - `package.json` is the source of truth.
-- The npm lockfile and the Rust package version match it.
+- The Rust package version matches it; `pnpm-lock.yaml` does not record the app's version.
 - New features bump the minor version; fixes bump the patch version.
 - Pet and background format versions are separate compatibility contracts and do not advance with the app version.
 
@@ -47,7 +47,7 @@ Preparing the next version on a development branch:
 - Keep the published version's captures.
 - Put current captures under the next version's directory.
 - A prepared version is not a public release: the site's default download still resolves the latest published GitHub release.
-- Once the branch is reviewed and merged into main, `npm run release -- x.y.z` finalizes the notes and dates, commits, and creates the local tag.
+- Once the branch is reviewed and merged into main, `pnpm run release x.y.z` finalizes the notes and dates, commits, and creates the local tag.
 - The command does not push.
 - Push the tag only once cross-platform checks and publication are approved.
 
@@ -76,11 +76,11 @@ Updater archives:
 
 Do these in order. A local build that succeeds does not prove that a published update downloads and installs.
 
-1. Merge reviewed local branches into `main`, then run `npm run check` and `npm run test:e2e` on the resulting commit.
+1. Merge reviewed local branches into `main`, then run `pnpm run check` and `pnpm run test:e2e` on the resulting commit.
 2. Before the first push of `main`, scan the reachable history with `gitleaks git --redact --log-opts=main`.
    - Check tracked files as well as ignore rules.
    - Private data and build output do not belong in Git.
-3. Run `npm audit`, `cargo audit --file src-tauri/Cargo.lock` and `actionlint` with current advisory data.
+3. Run `pnpm audit`, `cargo audit --file src-tauri/Cargo.lock` and `actionlint` with current advisory data.
    - Review informational warnings too.
    - Record unresolved advisories, affected platforms and any reachability assessment in the release review.
    - A passing unit test does not prove that a dependency is safe.
@@ -89,7 +89,7 @@ Do these in order. A local build that succeeds does not prove that a published u
 4. Review third-party license notices for the dependencies bundled in each platform package and in the built website.
    - Ship the required license and copyright texts with those distributions.
    - The repository's MIT license does not replace dependency notices.
-   - Run `npm run licenses:check`. [Third-party notices](../../packaging/licenses/README.md) covers regeneration and distribution scope.
+   - Run `pnpm run licenses:check`. [Third-party notices](../../packaging/licenses/README.md) covers regeneration and distribution scope.
    - The Rust inventory does not cover system libraries copied into an AppImage.
    - Before publication, review the final image and the libraries' source and relinking obligations.
 5. Confirm that both Linux `SYSTEM-SOURCE-PACKAGES.txt` assets are present.
@@ -134,24 +134,24 @@ git switch main && git pull
    - The first time, macOS asks for screen recording permission; allow it.
    - The command writes the results to `website/public/shots/0.2.0/`, in every app language.
    - Look them over, then set `CAPTURE_VERSION` in `scripts/site-content.mjs` to the new version, so the site and the installer art use them.
-   - `npm run art` redraws the installer art. It also turns those English captures into the screenshots Linux software centers show.
+   - `pnpm run art` redraws the installer art. It also turns those English captures into the screenshots Linux software centers show.
    - Commit all of it.
 
 ```bash
-npm run shots -- 0.2.0
-npm run art
+pnpm run shots 0.2.0
+pnpm run art
 ```
 
 3. Make the release commit and tag.
 
 ```bash
-npm run release -- 0.2.0
+pnpm run release 0.2.0
 ```
 
    | What the command changes | Where |
    |---|---|
    | The changelog section moves to a dated section | `CHANGELOG.md` |
-   | The version | `package.json`, `package-lock.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock` |
+   | The version | `package.json`, `pnpm-lock.yaml`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock` |
    | The version is added, dated, with the English page's Linux lines | `packaging/linux/app.playpets.metainfo.xml` |
    | Today's date on the website release pages | `website/releases/0.2.0.md`, `website/ko/releases/0.2.0.md`, `website/ja/releases/0.2.0.md` and `website/zh-hans/releases/0.2.0.md` |
 

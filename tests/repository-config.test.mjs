@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, matchesGlob } from 'node:path';
 import test from 'node:test';
@@ -45,8 +45,8 @@ test('Pages redeploys when shared application artwork or publishing inputs chang
     'assets/creator-skill/playpets-creator/scripts/creator-workflow.py',
     'scripts/site-content.mjs',
     '.node-version',
-    '.npmrc',
-    'package-lock.json',
+    'pnpm-workspace.yaml',
+    'pnpm-lock.yaml',
     'packaging/licenses/website-supplements.json',
   ])
     assert.ok(
@@ -263,12 +263,58 @@ test('each Docker build context passes only the files its Dockerfile copies', ()
   }
 });
 
+// No dependency's install script runs, so a compromised package runs nothing on install; the flags in
+// jobs with secrets and in containers stay as a second guard. Every package with a script is listed
+// as reviewed, and strictDepBuilds (pnpm's default) fails the install on a new one.
+test('pnpm never runs dependency install scripts and stops on an unreviewed one', () => {
+  const settings = read('pnpm-workspace.yaml');
+  const builds = settings.match(/^allowBuilds:\n((?: {2}.+\n)+)/m)?.[1];
+  assert.ok(builds, 'allowBuilds lists the reviewed packages');
+  for (const line of builds.trimEnd().split('\n')) assert.match(line, /^ {2}[\w@/.-]+: false$/);
+  assert.doesNotMatch(settings, /^(strictDepBuilds: false|dangerouslyAllowAllBuilds: true|ignoreScripts: false)/m);
+  assert.equal(existsSync('.npmrc'), false, 'pnpm reads only registry and auth settings from .npmrc');
+});
+
+// One pnpm for everyone: CI and the containers install the version package.json names, and the
+// lockfile is pnpm's own.
+test('pnpm is the package manager, at an exact version', () => {
+  const pkg = JSON.parse(read('package.json'));
+  assert.match(pkg.packageManager, /^pnpm@\d+\.\d+\.\d+$/);
+  assert.equal(pkg.engines.pnpm, `>=${pkg.packageManager.slice('pnpm@'.length)}`);
+  assert.ok(existsSync('pnpm-lock.yaml'));
+  assert.equal(existsSync('package-lock.json'), false);
+  assert.equal(pkg.overrides, undefined, 'pnpm reads overrides from pnpm-workspace.yaml');
+  assert.match(read('pnpm-workspace.yaml'), /^engineStrict: true$/m);
+});
+
+// A hijacked release is usually found and pulled within days; packages that end up in a release wait
+// a week before Dependabot proposes them. Security updates skip the cooldown, but pnpm's day still holds.
+test('Dependabot proposes npm, Cargo and Actions versions a week after release', () => {
+  const entries = read('.github/dependabot.yml')
+    .split(/^ {2}- package-ecosystem: /m)
+    .slice(1);
+  for (const ecosystem of ['npm', 'cargo', 'github-actions']) {
+    const entry = entries.find(block => block.startsWith(`${ecosystem}\n`));
+    assert.ok(entry, `${ecosystem} has a Dependabot entry`);
+    const days = entry.match(/^ {4}cooldown:\n {6}default-days: (\d+)$/m);
+    assert.ok(days && Number(days[1]) >= 7, `${ecosystem} waits at least a week`);
+  }
+});
+
 test('container builds do not run dependency install scripts while the checkout is mounted', () => {
-  for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh'])
-    for (const line of read(script)
+  for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh']) {
+    const installs = read(script)
       .split('\n')
-      .filter(line => /^\s*npm ci\b/.test(line)))
-      assert.match(line, /--ignore-scripts/, script);
+      .filter(line => /^\s*p?npm (ci|install)\b/.test(line));
+    assert.deepEqual(installs, ['pnpm install --frozen-lockfile --ignore-scripts'], script);
+  }
+});
+
+// The images install pnpm themselves (no corepack since Node 25), at the version CI and contributors use.
+test('the Docker images install the pnpm version package.json names', () => {
+  const pnpm = JSON.parse(read('package.json')).packageManager;
+  for (const platform of ['linux', 'windows'])
+    assert.match(read(`packaging/${platform}/Dockerfile`), new RegExp(`^RUN npm install -g ${pnpm}$`, 'm'), platform);
 });
 
 // tauri-build watches src-tauri/capabilities, and Cargo counts a watched path that does not exist as
@@ -293,7 +339,24 @@ test('checkouts drop the job token, and the job holding signing secrets restores
   const release = read('.github/workflows/release.yml');
   const build = release.slice(release.indexOf('\n  build:'), release.indexOf('\n  publish:'));
   assert.match(build, /TAURI_SIGNING_PRIVATE_KEY/);
-  assert.doesNotMatch(build, /cache: npm|rust-cache/);
+  assert.doesNotMatch(build, /cache: (npm|pnpm|true)|rust-cache/);
+});
+
+// Every job that installs packages sets up the pnpm package.json names first (setup-node's pnpm cache
+// needs it), installs only what the lockfile says, and the jobs with secrets skip install scripts.
+test('CI installs with the pinned pnpm from the lockfile alone', () => {
+  for (const file of readdirSync('.github/workflows')) {
+    const workflow = read(`.github/workflows/${file}`);
+    assert.doesNotMatch(workflow, /(?<![\w-])(npm (ci|install)|npx )/, file);
+    for (const job of workflow.split(/\n {2}(?=[\w-]+:\n)/).filter(job => /pnpm install/.test(job))) {
+      const pnpm = job.indexOf('uses: pnpm/action-setup@');
+      assert.ok(pnpm > 0 && pnpm < job.indexOf('uses: actions/setup-node@'), `${file}: pnpm before setup-node`);
+      assert.match(job, /uses: pnpm\/action-setup@[0-9a-f]{40} # v\d/, file);
+      for (const install of job.match(/pnpm install.*/g)) assert.match(install, /--frozen-lockfile/, file);
+    }
+  }
+  for (const file of ['release.yml', 'store.yml', 'security.yml'])
+    assert.match(read(`.github/workflows/${file}`), /pnpm install --frozen-lockfile --ignore-scripts/, file);
 });
 
 test('native CI installs the creator image dependency before running the shared unit suite', () => {
@@ -306,13 +369,13 @@ test('native CI installs the creator image dependency before running the shared 
     assert.match(setup, /python -m pip install -r assets\/creator-skill\/playpets-creator\/requirements\.txt/, file);
     const step = workflow.slice(unit).split(/\n {6}- /)[0];
     assert.match(step, /PLAYPETS_PYTHON: python/, file);
-    assert.match(step, /run: npm test/, file);
+    assert.match(step, /run: pnpm test/, file);
   }
 });
 
 // Tauri skips a target the platform cannot build, so one list gives each platform what CI builds;
-// with only "app", `npm run build` on Windows or Linux made no package at all.
-test("npm run build makes each platform's packages, as CI does", () => {
+// with only "app", `pnpm run build` on Windows or Linux made no package at all.
+test("pnpm run build makes each platform's packages, as CI does", () => {
   const targets = JSON.parse(read('src-tauri/tauri.conf.json')).bundle.targets;
   const ci = [...read('.github/workflows/build.yml').matchAll(/bundles: "?([\w,]+)"?\}/g)].flatMap(m =>
     m[1].split(','),
@@ -337,7 +400,7 @@ test('Node has one major version: .node-version, package.json engines and the Do
 
 // CI runs the e2e from its release build instead of test:e2e's own profile (build.yml). A change to
 // test:e2e fails here until the workflow's E2E steps make the same change.
-test('the CI e2e builds and runs what npm run test:e2e does', () => {
+test('the CI e2e builds and runs what pnpm run test:e2e does', () => {
   const local = JSON.parse(read('package.json')).scripts['test:e2e'];
   assert.equal(
     local,
@@ -351,7 +414,7 @@ test('the CI e2e builds and runs what npm run test:e2e does', () => {
     ...workflow.matchAll(/PLAYPETS_BINARY: \$\{\{ github\.workspace \}\}\/src-tauri\/target\/release\/playpets/g),
   ];
   assert.equal(binaries.length, 2);
-  assert.doesNotMatch(workflow, /npm run test:e2e/);
+  assert.doesNotMatch(workflow, /p?npm run test:e2e/);
 });
 
 test('security CI checks the full redacted history and shares the local dependency command', () => {
@@ -362,9 +425,9 @@ test('security CI checks the full redacted history and shares the local dependen
   assert.match(workflow, /GITLEAKS_SHA256: [a-f0-9]{64}/);
   assert.match(workflow, /sha256sum -c -/);
   assert.match(workflow, /cargo-audit@0\.22\.2/);
-  assert.match(workflow, /npm run security:check/);
+  assert.match(workflow, /pnpm run security:check/);
   assert.match(scripts['security:check'], /gitleaks git --redact/);
-  assert.match(scripts['security:check'], /npm audit --audit-level=high/);
+  assert.match(scripts['security:check'], /pnpm audit --audit-level high/);
   assert.match(scripts['security:check'], /cargo audit --file src-tauri\/Cargo\.lock/);
   assert.doesNotMatch(workflow, /secrets\.|security-events: write|contents: write|continue-on-error/);
 });
@@ -378,12 +441,12 @@ test('CodeQL covers app, workflow and creator sources without exposing signing s
   assert.doesNotMatch(workflow, /secrets\.|contents: write|pull_request_target/);
 });
 
-test('root Rust tooling and future npm additions keep contributor setup explicit', () => {
+test('root Rust tooling and future dependency additions keep contributor setup explicit', () => {
   const toolchain = read('rust-toolchain.toml');
   assert.match(toolchain, /channel = "stable"/);
   assert.match(toolchain, /components = \["clippy", "rustfmt"\]/);
   assert.match(toolchain, /profile = "minimal"/);
-  assert.match(read('.npmrc'), /^save-exact=true$/m);
+  assert.match(read('pnpm-workspace.yaml'), /^saveExact: true$/m);
   assert.match(read('.github/pull_request_template.md'), /What changed and why/);
 });
 
@@ -431,4 +494,65 @@ test('container builds keep the image compiler and its installed cross targets',
   for (const platform of ['linux', 'windows']) {
     assert.match(read(`packaging/${platform}/Dockerfile`), /^ENV RUSTUP_TOOLCHAIN=\$\{RUST_VERSION\}$/m);
   }
+});
+
+// A package used but not declared resolves only while another package happens to bring it along;
+// a strict node_modules layout or a dependency update removes it without warning.
+test('code imports only the packages package.json declares', () => {
+  const { devDependencies = {}, dependencies = {} } = JSON.parse(read('package.json'));
+  const declared = new Set([...Object.keys(devDependencies), ...Object.keys(dependencies)]);
+  const files = execFileSync('git', ['ls-files', '*.js', '*.mjs', '*.ts', '*.mts', '*.vue'], {
+    encoding: 'utf8',
+    ...git,
+  })
+    .split('\n')
+    .filter(Boolean);
+  const undeclared = [];
+  for (const file of files)
+    for (const [, ...found] of read(file).matchAll(
+      /^\s*(?:import|export)\b[^;'"]*?\bfrom\s*['"]([^'"\n]+)['"]|^\s*import\s*['"]([^'"\n]+)['"]|\bimport\(\s*['"]([^'"\n]+)['"]\s*\)/gm,
+    )) {
+      const specifier = found.find(Boolean);
+      if (/^(\.|\/|node:|https?:)/.test(specifier)) continue;
+      const name = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0];
+      if (!declared.has(name)) undeclared.push(`${file}: ${specifier}`);
+    }
+  assert.deepEqual(undeclared, []);
+});
+
+// The tests import vue, its compiler and esbuild, which the site's tools also use. Two copies would let
+// the tests check one version and the site build with another, so each direct dependency resolves once.
+test('each direct dependency resolves to one version in the lockfile', () => {
+  const { devDependencies = {}, dependencies = {} } = JSON.parse(read('package.json'));
+  // The lockfile's last document is the project's; the first one locks pnpm itself.
+  const project = read('pnpm-lock.yaml')
+    .split(/^---\n/m)
+    .at(-1);
+  const packages = project.match(/^packages:\n([\s\S]*?)^snapshots:\n/m)?.[1];
+  assert.ok(packages, 'pnpm-lock.yaml lists its packages');
+  const versions = new Map();
+  for (const [, name, version] of packages.matchAll(/^ {2}'?(@?[^@'\s]+)@([^':\s]+)'?:$/gm))
+    versions.set(name, [...(versions.get(name) || []), version]);
+  for (const name of [...Object.keys(devDependencies), ...Object.keys(dependencies)])
+    assert.equal(versions.get(name)?.length, 1, `${name}: ${versions.get(name)?.join(', ')}`);
+});
+
+// pnpm hands a script every word after its name, `--` included (npm dropped it), so a `--` before the
+// release version would become the version. Commands are written without it; dated records keep the npm they used.
+test('documented pnpm commands pass their arguments without --', () => {
+  const files = execFileSync(
+    'git',
+    ['ls-files', '*.md', '*.mjs', '*.js', '*.yml', '*.yaml', '*.json', '*.sh', '*.ps1'],
+    {
+      encoding: 'utf8',
+      ...git,
+    },
+  )
+    .split('\n')
+    .filter(file => file && !/^docs\/(decisions|design)\//.test(file));
+  const found = [];
+  for (const file of files)
+    for (const [line] of read(file).matchAll(/^.*\bp?npm (?:run )?[a-z][\w:.-]* -- .*$/gm))
+      found.push(`${file}: ${line.trim()}`);
+  assert.deepEqual(found, []);
 });

@@ -24,21 +24,29 @@ function fixture(t) {
   };
 }
 
-test('macOS packaging selects the current version when older bundles remain', {
-  skip: process.platform === 'win32',
-}, t => {
-  const f = fixture(t);
-  writeFileSync(path.join(f.bundle, f.name), 'current version');
-  const result = f.run();
-  assert.equal(result.status, 0, result.stderr);
-  assert.equal(readFileSync(f.output, 'utf8'), 'current version');
-});
+test(
+  'macOS packaging selects the current version when older bundles remain',
+  {
+    skip: process.platform === 'win32',
+  },
+  t => {
+    const f = fixture(t);
+    writeFileSync(path.join(f.bundle, f.name), 'current version');
+    const result = f.run();
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(readFileSync(f.output, 'utf8'), 'current version');
+  },
+);
 
-test('macOS packaging refuses to relabel an old bundle when the current one is missing', {
-  skip: process.platform === 'win32',
-}, t => {
-  const f = fixture(t);
-  const result = f.run();
-  assert.notEqual(result.status, 0);
-  assert.equal(existsSync(f.output), false);
-});
+test(
+  'macOS packaging refuses to relabel an old bundle when the current one is missing',
+  {
+    skip: process.platform === 'win32',
+  },
+  t => {
+    const f = fixture(t);
+    const result = f.run();
+    assert.notEqual(result.status, 0);
+    assert.equal(existsSync(f.output), false);
+  },
+);

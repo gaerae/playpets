@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 120,
+  "singleQuote": true,
+  "arrowParens": "avoid",
+  // Imports are sorted: no module runs code when imported (tests/modules.test.mjs checks), so their
+  // order is style only; start-up order is written out in app.js.
+  "sortImports": { "newlinesBetween": false, "partitionByNewline": true },
+  // package.json keeps its hand order: name and purpose first, then scripts and dependencies.
+  "sortPackageJson": false,
+  "overrides": [{ "files": ["**/*.css"], "options": { "singleQuote": false } }],
+  "ignorePatterns": [
+    // HTML, SVG and Vue templates are kept by hand: the logo's one-line path and the site's compact
+    // templates gain nothing from a formatter, and inline whitespace in a template is visible text.
+    "**/*.html",
+    "**/*.svg",
+    "**/*.vue",
+    // Prose, workflows and Cargo files keep their hand layout, as before Oxfmt.
+    "**/*.md",
+    "**/*.yml",
+    "**/*.yaml",
+    "**/*.toml",
+    "src-tauri/gen",
+  ],
+}

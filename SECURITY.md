@@ -114,14 +114,33 @@ Official upstream references for the remaining work:
 
 ## Automated security checks
 
-- The `security` workflow runs `npm run security:check` on pull requests, main
+- The `security` workflow runs `pnpm run security:check` on pull requests, main
   and weekly:
   - Gitleaks scans the complete checked-out history, with redacted findings.
-  - npm audits all locked dependencies, including website tooling.
+  - `pnpm audit` checks all locked dependencies, including website tooling.
   - cargo-audit checks the Rust lockfile against current RustSec data.
 - Maintainers can run the same command locally with Gitleaks 8.30.1 and
   cargo-audit 0.22.2 installed.
 - CI verifies the Gitleaks archive checksum and pins the audit tool version.
+- pnpm never runs dependencies' install scripts (`allowBuilds` in
+  `pnpm-workspace.yaml` lists each package with one as reviewed and denied).
+  - A compromised package cannot run code during `pnpm install`.
+  - A new package with a script stops the install until someone reviews it.
+  - The jobs that hold signing secrets and the container builds also pass
+    `--ignore-scripts`, so a change to `pnpm-workspace.yaml` alone does not undo
+    it there.
+- pnpm installs no version younger than a day when it resolves the lockfile
+  again (`minimumReleaseAge`).
+  - This holds for Dependabot's security updates too: one for a fix released
+    less than a day ago fails until the day has passed.
+  - To take an urgent fix at once, list the package under
+    `minimumReleaseAgeExclude` in `pnpm-workspace.yaml`, and remove it once the
+    fixed version is a day old.
+- Dependabot proposes a new npm, Cargo or Actions version a week after its
+  release (`cooldown` in `.github/dependabot.yml`).
+  - A hijacked release is usually found and pulled within days.
+  - Security updates skip the cooldown; for npm packages, pnpm's one-day wait
+    above still applies.
 - No source paths or known advisories are broadly excluded to make the checks
   pass.
 - The separate `codeql` workflow analyzes Actions, JavaScript, Python creator

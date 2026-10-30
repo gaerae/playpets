@@ -16,7 +16,7 @@
 | `packaging/` | Platform-specific installer resources and local distribution recipes | App behavior and release credentials |
 | `scripts/` | Maintainer commands and pure helpers used by them | Runtime imports from the app |
 | `tests/` | Node test entries, isolated native E2E, helpers and shared fixtures | Private user data and captured build output |
-| `release/` | Ignored local packages from `npm run dist:*` and the store pictures from `npm run shots` | Audits, experiments, keys, or source that CI needs |
+| `release/` | Ignored local packages from `pnpm run dist:*` and the store pictures from `pnpm run shots` | Audits, experiments, keys, or source that CI needs |
 | `scratch/` | Ignored local audits, review captures, optimization backups and experiments | Packages, keys, or source that CI needs |
 
 - The runtime module split already follows ownership boundaries.
@@ -32,26 +32,27 @@ A package passes through three places. Only the first is in Git.
 
 | Stage | Place | Who writes it |
 | --- | --- | --- |
-| Recipe | `packaging/<platform>/` (Dockerfiles, build scripts, MSIX templates, installer art) and `src-tauri/tauri.conf.json` | People, and `npm run art` for the installer pictures |
-| Build | `src-tauri/target/release/` (the app `npm start` runs, and `bundle/` with the Tauri installers); `src-tauri/target/e2e/` for the e2e, capture and measurement builds | Cargo and the Tauri bundler; the Docker builds keep theirs in named volumes |
-| Hand-off | `release/<platform>/` (`macos/`, `windows/` with `msix-test/` or `msix-store/`, `linux/`) | `npm run dist:*`; CI stages its files in the runner's `out/` and uploads them to a draft release instead |
+| Recipe | `packaging/<platform>/` (Dockerfiles, build scripts, MSIX templates, installer art) and `src-tauri/tauri.conf.json` | People, and `pnpm run art` for the installer pictures |
+| Build | `src-tauri/target/release/` (the app `pnpm start` runs, and `bundle/` with the Tauri installers); `src-tauri/target/e2e/` for the e2e, capture and measurement builds | Cargo and the Tauri bundler; the Docker builds keep theirs in named volumes |
+| Hand-off | `release/<platform>/` (`macos/`, `windows/` with `msix-test/` or `msix-store/`, `linux/`) | `pnpm run dist:*`; CI stages its files in the runner's `out/` and uploads them to a draft release instead |
 
 - `release/` holds only what is handed off: the platform folders and `store/`.
 - Local audits, review captures and backups go in `scratch/` (`asset-audit/`, `asset-size/`, `legacy-pets/`, art review folders).
 - The Docker builds copy the checkout without local data, keys or build output (the root `.dockerignore`, which `packaging/*/build.sh` hands to rsync).
-- They install npm dependencies without running their install scripts, as the release workflow does.
+- They install pnpm dependencies without running their install scripts, as the release workflow does.
 - The Windows build keeps its MSIX test signing key in the `playpets-msix-key` volume. `release/windows/msix-test/` holds only the package, the public certificate and the install notes.
 
 ## Root configuration map
 
 | File | Role |
 | --- | --- |
-| `package.json` | App version, npm commands, development dependencies and supported Node/npm versions |
-| `package-lock.json` | Exact npm dependency graph; update with npm and install with `npm ci` |
+| `package.json` | App version, pnpm commands, development dependencies, supported Node/pnpm versions and the pnpm version (`packageManager`) |
+| `pnpm-lock.yaml` | Exact dependency graph, and pnpm's own executable; update with pnpm and install with `pnpm install --frozen-lockfile` |
 | `.node-version` | Node major used locally and by Actions |
-| `.npmrc` | Reject unsupported engines before dependency installation |
-| `.oxlintrc.json` | JavaScript, TypeScript and Vue script correctness rules and generated-output exclusions |
-| `biome.jsonc` | JavaScript, TypeScript, CSS and JSON formatting and static checks |
+| `pnpm-workspace.yaml` | pnpm's settings: reject unsupported engines, pin new direct dependencies exactly, skip dependencies' install scripts, the minimum release age and the vite and katex overrides |
+| `.oxlintrc.json` | JavaScript, TypeScript and Vue script static checks and generated-output exclusions |
+| `biome.jsonc` | CSS lint only (Biome's recommended rules); its formatter and import sorting are off |
+| `.oxfmtrc.jsonc` | JavaScript, TypeScript, CSS and JSON formatting and import order; HTML, SVG, Vue and Markdown are kept by hand |
 | `.editorconfig` | Editor-independent indentation, encoding and line endings |
 | `.gitattributes` | Git line endings, binary handling and generated-file review metadata |
 | `.gitignore` | Local state, credentials and reproducible build output excluded from commits |
@@ -72,18 +73,18 @@ A package passes through three places. Only the first is in Git.
 
 | Task | Command |
 | --- | --- |
-| Install the locked dependencies | `npm ci` |
-| Check code and documentation together | `npm run check` |
-| Check Node or Rust tests alone | `npm run test:js` / `npm run test:rust` |
-| Check page/tooling or Rust style alone | `npm run lint:js` / `npm run lint:rust` |
-| Format one tool's files | `npm run format:js` / `npm run format:rust` |
-| Build a normal app executable | `npm run build:app` |
-| Run the already-built executable | `npm start` |
-| Build this platform's packages (macOS `.app`, Windows NSIS installer, Linux deb and AppImage, as CI does) | `npm run build` |
-| Run isolated desktop checks | `npm run test:e2e` |
-| Prepare generated site inputs | `npm run site:prepare` |
-| Run, build or preview the built site | `npm run site:dev` / `npm run site:build` / `npm run site:preview` |
-| Check artwork files and references | `npm run assets:audit` |
+| Install the locked dependencies | `pnpm install --frozen-lockfile` |
+| Check code and documentation together | `pnpm run check` |
+| Check Node or Rust tests alone | `pnpm run test:js` / `pnpm run test:rust` |
+| Check page/tooling or Rust style alone | `pnpm run lint:js` / `pnpm run lint:rust` |
+| Format one tool's files | `pnpm run format:js` / `pnpm run format:rust` |
+| Build a normal app executable | `pnpm run build:app` |
+| Run the already-built executable | `pnpm start` |
+| Build this platform's packages (macOS `.app`, Windows NSIS installer, Linux deb and AppImage, as CI does) | `pnpm run build` |
+| Run isolated desktop checks | `pnpm run test:e2e` |
+| Prepare generated site inputs | `pnpm run site:prepare` |
+| Run, build or preview the built site | `pnpm run site:dev` / `pnpm run site:build` / `pnpm run site:preview` |
+| Check artwork files and references | `pnpm run assets:audit` |
 
 - `check` does not launch the desktop app, generate artwork or release anything.
 - E2E still needs a desktop session.

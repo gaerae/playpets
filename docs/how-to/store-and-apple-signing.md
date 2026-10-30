@@ -37,13 +37,13 @@
 MSIX_IDENTITY_NAME='12345.Publisher.PlayPets' \
 MSIX_PUBLISHER='CN=the-value-from-Partner-Center' \
 MSIX_PUBLISHER_DISPLAY_NAME='Your publisher display name' \
-npm run dist:windows
+pnpm run dist:windows
 ```
 
 Repeated local builds:
 - Put the three public values into a local `.env.store` file as `NAME=value` lines and run `node --env-file=.env.store scripts/local.mjs windows`.
 - That command loads the file explicitly.
-- `npm run dist:windows` does not load it.
+- `pnpm run dist:windows` does not load it.
 - `.env.store` is excluded from Git and from the Docker source copy.
 - Node passes the values into the container.
 - This local path does not read GitHub repository Variables.
@@ -59,7 +59,7 @@ The Store hand-off:
 - The `store` workflow builds x64 and ARM64.
 
 Local install test:
-1. Unset all three `MSIX_*` variables and run `npm run dist:windows`.
+1. Unset all three `MSIX_*` variables and run `pnpm run dist:windows`.
 2. Use the package and public certificate under `release/windows/msix-test/` only on a test Windows machine.
 
 - The private test key stays in Docker's `playpets-msix-key` volume.
@@ -76,7 +76,7 @@ Updates in a package:
 
 ## What Windows CI verifies
 
-- The x64 and ARM64 build jobs run `npm run test:msix:ci` after the regular native E2E.
+- The x64 and ARM64 build jobs run `pnpm run test:msix:ci` after the regular native E2E.
 - The gate uses a separate `PlayPets.CI` identity and a short-lived local certificate, without Store credentials or a submission API.
 
 1. Pack, sign, verify and install the production executable as MSIX.
@@ -147,7 +147,7 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
 | Job | Credentials | What it does |
 |---|---|---|
 | `source` | None | Checks that the tag is a stable `vx.y.z` on `main` and matches `package.json` and the changelog. Makes `notes.json` from the four website release pages |
-| `package` | None | Builds `playpets.exe` with `npx tauri build --no-bundle` on Windows x64 and ARM64, then `packaging/windows/msix/store.ps1` makes the unsigned MSIX |
+| `package` | None | Builds `playpets.exe` with `pnpm exec tauri build --no-bundle` on Windows x64 and ARM64, then `packaging/windows/msix/store.ps1` makes the unsigned MSIX |
 | `bundle` | None | Checks each package's identity, version and architecture, records SHA-256 values in `release.json`, keeps everything as the `store-bundle` artifact |
 | `submit` | `microsoft-store` environment | Runs only with `STORE_SUBMISSION_ENABLED=true`, after the environment's approval |
 
@@ -163,7 +163,7 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
 ### What's new
 - Source: the website release page in each language (`website/releases/x.y.z.md`, `website/ko/…`, `website/ja/…`, `website/zh-hans/…`).
   - People write them before the release.
-  - `npm run release` stops without them.
+  - `pnpm run release` stops without them.
   - Nothing is machine-translated.
 - Text: the opening sentence, the Windows lines of `What changed`, then the page's address (`scripts/release-page.mjs` reads the page).
 - Lines for macOS or Linux and the `Also` section stay on the page. See the [release notes rules](../standards/writing.md#release-notes).
@@ -235,7 +235,7 @@ The account holder does these one-time steps. Never paste a key into a chat, iss
 
 ### Check credentials without submitting
 - `Store API verification` (`store-api.yml`) runs its tests without credentials, then waits for the `microsoft-store` environment.
-- Its credentialed step runs `npm run store:verify` with no dependency install.
+- Its credentialed step runs `pnpm run store:verify` with no dependency install.
 - It requests a token, reads the app, checks the package identity and publisher, and reads any pending submission's publish mode.
 - For a pending submission it also shows its state (for example `Certification`, `CertificationFailed`, `PendingCommit`) and Microsoft's error and warning codes, never their text.
 - It never creates, uploads, commits or publishes a submission.
@@ -343,7 +343,7 @@ What the release workflow does:
 Local release test:
 1. Use the installed keychain identity and the `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD` and `APPLE_TEAM_ID` environment variables.
    - Enter passwords through a secure prompt instead of leaving them in shell history.
-2. Run `npm run dist:mac`.
+2. Run `pnpm run dist:mac`.
 3. Confirm both Apple Silicon and Intel artifacts when releasing both architectures.
 4. After building, run the following against the actual `.app`:
 

@@ -1,7 +1,7 @@
-// Makes a release commit and tag: npm run release -- 0.2.0  (take the screenshots first: npm run shots -- 0.2.0)
+// Makes a release commit and tag: pnpm run release 0.2.0  (take the screenshots first: pnpm run shots 0.2.0)
 // Moves the changelog's [Unreleased] into a dated 0.2.0 section, writes 0.2.0 everywhere the
-// version lives (package.json, package-lock.json, Cargo.toml, Cargo.lock, the Linux metainfo's
-// releases; tauri.conf.json reads package.json), commits "Release 0.2.0" and tags v0.2.0. Nothing is pushed: pushing the tag is
+// version lives (package.json, Cargo.toml, Cargo.lock, the Linux metainfo's releases; tauri.conf.json
+// reads package.json, and pnpm-lock.yaml does not record it), commits "Release 0.2.0" and tags v0.2.0. Nothing is pushed: pushing the tag is
 // what starts .github/workflows/release.yml, which builds every platform into a draft release.
 
 import { execFileSync } from 'node:child_process';
@@ -14,7 +14,7 @@ import { releasePagesFor, releasePageUrl, SITE_LANGS } from './site-content.mjs'
 const version = process.argv[2];
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
 if (!version) {
-  console.error('Usage: npm run release -- <x.y.z>');
+  console.error('Usage: pnpm run release <x.y.z>');
   process.exit(2);
 }
 if (git('status', '--porcelain')) {
@@ -50,12 +50,6 @@ const changes = [];
 const edit = async (file, change) => changes.push([file, change(await readFile(file, 'utf8'))]);
 await edit('CHANGELOG.md', text => release(text, version, date));
 await edit('package.json', text => text.replace(/("version": ")[^"]+(")/, `$1${version}$2`));
-await edit('package-lock.json', text => {
-  const lock = JSON.parse(text);
-  lock.version = version;
-  lock.packages[''].version = version;
-  return `${JSON.stringify(lock, null, 2)}\n`;
-});
 await edit('src-tauri/Cargo.toml', text => setCargoVersion(text, version));
 await edit('src-tauri/Cargo.lock', text => setLockVersion(text, version));
 const metainfo = 'packaging/linux/app.playpets.metainfo.xml';
@@ -66,16 +60,7 @@ await edit(metainfo, text =>
 for (const page of pages) await edit(page, text => setPageDate(text, date));
 for (const [file, text] of changes) await writeFile(file, text);
 
-git(
-  'add',
-  'CHANGELOG.md',
-  'package.json',
-  'package-lock.json',
-  'src-tauri/Cargo.toml',
-  'src-tauri/Cargo.lock',
-  metainfo,
-  ...pages,
-);
+git('add', 'CHANGELOG.md', 'package.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock', metainfo, ...pages);
 git('commit', '-m', `Release ${version}`);
 git('tag', '-a', `v${version}`, '-m', `PlayPets ${version}`);
 console.log(

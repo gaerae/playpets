@@ -37,10 +37,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
-          cache: npm
+          cache: pnpm
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch
         with:
           toolchain: stable
@@ -53,11 +54,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev libdbus-1-dev patchelf xvfb dbus-x11 openbox x11-utils
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
       # Layout and lint rules. Each platform has code of its own (macOS panels, the Windows
       # console), so each is checked.
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.15'
@@ -68,7 +69,7 @@ jobs:
       - name: Unit tests
         env:
           PLAYPETS_PYTHON: python
-        run: npm test
+        run: pnpm test
       # Tauri copies this generated tree into AppImages. Build the exact executable first so the
       # collector follows its linked distro libraries rather than maintaining a second package list.
       - name: Collect AppImage system licenses
@@ -81,13 +82,13 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          npx tauri build --bundles ${{ matrix.bundles }}
+          pnpm exec tauri build --bundles ${{ matrix.bundles }}
           if [ "$RUNNER_OS" = "Linux" ]; then
             bundle=src-tauri/target/release/bundle
             node scripts/prepare-appimage-licenses.mjs --appimage \
               "$(ls "$bundle"/appimage/*.AppImage)" \
               src-tauri/target/appimage-license-docs
-            npx tauri build --bundles ${{ matrix.bundles }}
+            pnpm exec tauri build --bundles ${{ matrix.bundles }}
           fi
         env:
           APPIMAGE_EXTRACT_AND_RUN: 1
@@ -121,7 +122,7 @@ jobs:
       - name: MSIX install, activation and Store updater gate
         if: runner.os == 'Windows'
         shell: powershell
-        run: npm run test:msix:ci -- -ProductionBinary "$env:RUNNER_TEMP/playpets-msix-production.exe" -ProbeBinary "$env:GITHUB_WORKSPACE/src-tauri/target/release/playpets.exe" -Architecture "${{ matrix.name == 'windows-arm64' && 'arm64' || 'x64' }}"
+        run: pnpm run test:msix:ci -ProductionBinary "$env:RUNNER_TEMP/playpets-msix-production.exe" -ProbeBinary "$env:GITHUB_WORKSPACE/src-tauri/target/release/playpets.exe" -Architecture "${{ matrix.name == 'windows-arm64' && 'arm64' || 'x64' }}"
       - name: MSIX verification reports
         if: always() && runner.os == 'Windows'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -148,10 +149,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - name: Site build
-        run: npm run site:build
+        run: pnpm run site:build

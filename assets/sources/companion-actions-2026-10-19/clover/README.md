@@ -19,7 +19,7 @@ Plans:
 Repack from the repository root, for example:
 
 ```sh
-npm run companions:pack -- assets/sources/companion-actions-2026-10-19/clover/dig-plan.json src/art/companions/clover/dig.png
+pnpm run companions:pack assets/sources/companion-actions-2026-10-19/clover/dig-plan.json src/art/companions/clover/dig.png
 ```
 
 - Use the matching plant, fish and discover plans for the other three exports.

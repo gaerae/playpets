@@ -75,4 +75,4 @@ Bootstrap entries:
 2. Run the repository's normal tests and lint checks.
 3. Rebuild the app so it picks up the embedded JSON.
 4. In the app, check the order of the Invite list and the browse-only explanation.
-5. If you changed this guide, also run `npm run site:build` to check the developer documentation.
+5. If you changed this guide, also run `pnpm run site:build` to check the developer documentation.

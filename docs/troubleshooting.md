@@ -9,7 +9,7 @@
 ## Scenarios and triggers
 | Scenario | How you find out |
 |---|---|
-| A local build or test fails | `npm test`, `npm run lint` or `npm run test:e2e` fails, or the app does not start |
+| A local build or test fails | `pnpm test`, `pnpm run lint` or `pnpm run test:e2e` fails, or the app does not start |
 | CI fails on only one environment | Only a specific runner (Windows, Linux arm64, and so on) in the `build` workflow is red |
 | A Windows user reports a problem | A console window appears, SmartScreen warns, a folder does not open, or AI chat does not work |
 | The release workflow fails or files are missing | A `release` or `distribute` run fails, or the draft is missing files |
@@ -33,7 +33,7 @@
 **CI fails on only one environment**
 - If code specific to that OS (`#[cfg(windows)]`, `cfg(target_os = "macos")`) changed recently, suspect that change first.
 - Windows-only code:
-  - Check that it compiles locally with `npm run dist:windows`.
+  - Check that it compiles locally with `pnpm run dist:windows`.
   - Run the installer in a Windows VM. UTM on Apple silicon runs Windows 11 ARM, where the x64 build runs under emulation.
 - Caused by a runner image change (tool versions): fix it with a PR that pins the version in the workflow.
 
@@ -72,7 +72,7 @@
 
 **The app is slow or uses a lot of battery**
 - Ask which state it happens in (yard only, desktop only, both, hidden).
-- macOS and Linux: measure with `npm run measure` on the same machine, and compare with the latest values in the [Performance standard](standards/performance.md).
+- macOS and Linux: measure with `pnpm run measure` on the same machine, and compare with the latest values in the [Performance standard](standards/performance.md).
 - High even with everything hidden: the hide signal is not getting through.
 - Windows: get the CPU of `msedgewebview2` and `playpets` from Task Manager.
 

@@ -187,12 +187,15 @@ body.compact .yard-context-menu > button {
 
 /* A destination already owns the header; the quiet update chip returns with the scenery. */
 body.compact:has(
-  :is(#side-panel, #yard-controls-panel, #scene-menu, #play-panel, #discovery-target, #yard-context-menu):not([hidden])
-) .update-compact {
+    :is(#side-panel, #yard-controls-panel, #scene-menu, #play-panel, #discovery-target, #yard-context-menu):not(
+      [hidden]
+    )
+  )
+  .update-compact {
   display: none;
 }
 /* The corner button stays only with the scenery and its own menu; an open panel has its Close. */
 body.compact:has(:is(#side-panel, #yard-controls-panel, #scene-menu, #play-panel, #discovery-target):not([hidden]))
-.compact-launcher {
+  .compact-launcher {
   display: none;
 }

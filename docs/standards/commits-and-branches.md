@@ -24,12 +24,12 @@
   - Branch commits stay useful for review; they do not become separate commits on `main`.
 - Repository settings allow squash merging only; merge commits and rebase merging are disabled.
 - Rebasing a feature branch onto the latest `main` before its final CI run is a separate step from the pull request's merge method.
-- Versions are tags (`vX.Y.Z`) on `main`, made by `npm run release -- x.y.z` and pushed by a maintainer.
+- Versions are tags (`vX.Y.Z`) on `main`, made by `pnpm run release x.y.z` and pushed by a maintainer.
 - No release branches: a fix for a released version goes to `main` and out in the next patch version.
 
 ### Commits
 - One commit is one change someone could review, revert or find with `git bisect` on its own.
-- Every commit passes `npm test` and `npm run lint`.
+- Every commit passes `pnpm test` and `pnpm run lint`.
 - The title:
   - One English sentence that says what is different for the people using or working on the app.
   - No period, no prefix such as `feat:`. Example: "Friends stand behind what is in front of them".
@@ -69,8 +69,8 @@ Follow these when you can. When you cannot, say why in the PR.
 ## Exceptions
 | When | How |
 |---|---|
-| The release commit and tag | `npm run release` commits to `main` directly; a maintainer pushes them (the ruleset's bypass list lets the release through) |
-| An urgent fix while CI is down | A maintainer merges after running `npm test`, `npm run lint` and `npm run test:e2e` locally and says so in the PR |
+| The release commit and tag | `pnpm run release` commits to `main` directly; a maintainer pushes them (the ruleset's bypass list lets the release through) |
+| An urgent fix while CI is down | A maintainer merges after running `pnpm test`, `pnpm run lint` and `pnpm run test:e2e` locally and says so in the PR |
 | Dependabot pull requests | Titles follow Dependabot's form; squash-merged once CI passes |
 
 ## Rationale

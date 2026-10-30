@@ -26,7 +26,7 @@ reviews:
   # Skip generated copies and binary payloads, not their manifests or source provenance.
   # Lockfile changes remain covered by dependency CI; visual changes need screen review.
   path_filters:
-    - "!package-lock.json"
+    - "!pnpm-lock.yaml"
     - "!src-tauri/Cargo.lock"
     - "!src-tauri/icons/**"
     - "!website/dev/**"
@@ -52,7 +52,7 @@ reviews:
         command, asset source or locale needs its consumer and verification path updated together.
         Do not request broad reorganization without a concrete failure. For a new environment
         variable, distinguish public build options from secrets and document the default.
-    - path: "{package.json,.gitignore,.gitattributes,.dockerignore,.editorconfig,.npmrc,.node-version,biome.jsonc,.oxlintrc.json,AGENTS.md,.coderabbit.yaml}"
+    - path: "{package.json,.gitignore,.gitattributes,.dockerignore,.editorconfig,pnpm-workspace.yaml,.node-version,.oxfmtrc.jsonc,.oxlintrc.json,biome.jsonc,AGENTS.md,.coderabbit.yaml}"
       instructions: >-
         Check repository-wide effects: command changes match CI and scripts/README.md, ignores
         cover local output without hiding source or fixtures, and text normalization never affects
@@ -65,7 +65,7 @@ reviews:
       instructions: >-
         Local distribution recipes. An image's build context is only what its Dockerfile copies
         (packaging/<platform>/.dockerignore); the container copies the mounted checkout through the
-        root .dockerignore and installs npm dependencies with --ignore-scripts. A private key is
+        root .dockerignore and installs pnpm dependencies with --ignore-scripts. A private key is
         never written to the output folder that is handed off (release/<platform>/); only public
         certificates go there. Files named in src-tauri/tauri.conf.json keep their paths.
     - path: "scripts/**"
@@ -174,8 +174,8 @@ reviews:
       mode: "off"
 
   tools:
-    # Biome, as CI runs it, so its findings land on the changed lines.
-    biome:
+    # Oxlint with .oxlintrc.json, as CI runs it, so its findings land on the changed lines.
+    oxc:
       enabled: true
     # Workflows, shell scripts and secrets.
     actionlint:
@@ -205,7 +205,9 @@ reviews:
       enabled: false
     htmlhint:
       enabled: false
-    oxc:
+    # Off so that CodeRabbit runs Oxlint (above), which it skips while Biome is on. Biome checks only
+    # CSS here, and CI runs it (pnpm run lint:css).
+    biome:
       enabled: false
 
 chat:

@@ -10,7 +10,7 @@ import { PREVIEW_STATES, previewPacking, validatePreview } from './site-preview-
 const [source, idleReference, destination, state = 'idle', target = '163'] = process.argv.slice(2);
 if (!source || !idleReference || !destination || !PREVIEW_STATES.includes(state) || !(Number(target) > 0))
   throw new Error(
-    'Usage: npm run preview:pack -- source-row.png idle-row.png destination.png idle|wave|jump idle-height',
+    'Usage: pnpm run preview:pack source-row.png idle-row.png destination.png idle|wave|jump idle-height',
   );
 let settings = {};
 try {

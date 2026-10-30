@@ -188,23 +188,23 @@ playpets run -- <command>
 
 | Task | Command |
 |---|---|
-| Install dependencies | `npm ci` |
-| Unit tests (Rust and page) | `npm test` |
-| Format / check | `npm run format` / `npm run lint` (rustfmt, clippy, Oxlint, Biome) |
-| Real-app E2E | `npm run test:e2e` (isolated data folder, own test pet, fake AI server) |
-| Live check against community sites | `npm run test:live-import` |
-| Site dev server / build | `npm run site:dev` / `npm run site:build` (fails on a dead link) |
-| Site screenshots (macOS) | `npm run shots -- x.y.z` → `website/public/shots/` |
-| Installer art | `npm run art` (DMG window, Windows installer pictures, Linux store screenshots) |
-| macOS dmg | `npm run dist:mac` → `release/macos/` |
-| Linux packages and E2E | `npm run dist:linux` (Docker) → `release/linux/` (deb, AppImage, E2E under Xvfb) |
-| Windows x64 packages | `npm run dist:windows` (Docker) → `release/windows/` (MinGW cross build, NSIS installer, portable zip, MSIX signed with a test certificate in `msix-test/`) |
-| Redraw icons | `npm run icons` (`assets/icon.png` → every icon) |
+| Install dependencies | `pnpm install --frozen-lockfile` |
+| Unit tests (Rust and page) | `pnpm test` |
+| Format / check | `pnpm run format` / `pnpm run lint` (rustfmt, clippy, Oxlint, Oxfmt, Biome for CSS) |
+| Real-app E2E | `pnpm run test:e2e` (isolated data folder, own test pet, fake AI server) |
+| Live check against community sites | `pnpm run test:live-import` |
+| Site dev server / build | `pnpm run site:dev` / `pnpm run site:build` (fails on a dead link) |
+| Site screenshots (macOS) | `pnpm run shots x.y.z` → `website/public/shots/` |
+| Installer art | `pnpm run art` (DMG window, Windows installer pictures, Linux store screenshots) |
+| macOS dmg | `pnpm run dist:mac` → `release/macos/` |
+| Linux packages and E2E | `pnpm run dist:linux` (Docker) → `release/linux/` (deb, AppImage, E2E under Xvfb) |
+| Windows x64 packages | `pnpm run dist:windows` (Docker) → `release/windows/` (MinGW cross build, NSIS installer, portable zip, MSIX signed with a test certificate in `msix-test/`) |
+| Redraw icons | `pnpm run icons` (`assets/icon.png` → every icon) |
 
 | Workflow | What it does |
 |---|---|
 | `.github/workflows/build.yml` | Builds and E2E on macOS, Windows x64/arm64, Linux x64/arm64 for every push to `main` and every PR; artifacts in the run |
-| `.github/workflows/release.yml` | After `npm run release -- x.y.z` and `git push origin HEAD vx.y.z`: builds every platform, drafts a GitHub release with the changelog section ([Release a new version](docs/how-to/release.md)) |
+| `.github/workflows/release.yml` | After `pnpm run release x.y.z` and `git push origin HEAD vx.y.z`: builds every platform, drafts a GitHub release with the changelog section ([Release a new version](docs/how-to/release.md)) |
 | `.github/workflows/distribute.yml` | On a published release: makes the winget manifest and the Homebrew cask; with tokens, opens the winget PR and updates the tap ([Signing keys and secrets](docs/standards/keys-and-secrets.md)) |
 
 <details>

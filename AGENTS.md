@@ -16,11 +16,11 @@ PlayPets is a Tauri v2 desktop pet app: a yard where pets from Codex pet files s
 | `website/` | The site (VitePress) in English, Korean, Japanese and Simplified Chinese |
 | `scripts/`, `assets/` | Maintainer tools and artwork sources; each README explains what it makes or owns |
 
-Never edit by hand what tools make: `website/dev/`, `website/.vitepress/generated.json`, `website/public/pets/`, `website/public/creator-kit/`, `website/public/yard/`, `src-tauri/gen/`, and lockfiles (use npm or Cargo). `release/` (packages to hand off) and `scratch/` (local audits, review captures, backups) are ignored and never a source dependency. Native icons, installer art and public captures are tracked exports; regenerate them through [scripts/README.md](scripts/README.md). Accepted generated artwork and provenance stay in source control ([assets/README.md](assets/README.md)).
+Never edit by hand what tools make: `website/dev/`, `website/.vitepress/generated.json`, `website/public/pets/`, `website/public/creator-kit/`, `website/public/yard/`, `src-tauri/gen/`, and lockfiles (use pnpm or Cargo). `release/` (packages to hand off) and `scratch/` (local audits, review captures, backups) are ignored and never a source dependency. Native icons, installer art and public captures are tracked exports; regenerate them through [scripts/README.md](scripts/README.md). Accepted generated artwork and provenance stay in source control ([assets/README.md](assets/README.md)).
 
 ## Before expanding the project
 Use [repository ownership](docs/repository-layout.md) to choose a home for new files. Extend an existing owner before adding a top-level directory. Keep these changes together:
-- **A command or build input:** its npm entry, script README, CI invocation and relevant workflow path filters. Keep private settings out of public build variables.
+- **A command or build input:** its `package.json` script, script README, CI invocation and relevant workflow path filters. Keep private settings out of public build variables.
 - **A locale or public page:** string placeholders, site routes/navigation, captures, metadata and release/creator links. Generated developer pages remain in English.
 - **Artwork or a scene:** source/provenance, its content references and exports. Check app and mini sizes, relevant seasons/times, dark mode and reduced motion; an asset inventory alone does not prove visual quality.
 - **Local output or credentials:** a narrow ignore rule, the same entry in `.dockerignore`, and a source/fixture counterexample in `tests/repository-config.test.mjs`. Keep secrets outside the checkout; an ignore rule cannot protect files already tracked.
@@ -30,15 +30,15 @@ Keep `CLAUDE.md` as the pointer to this file. Put detailed procedures in their o
 ## Checks
 | Command | What it runs |
 |---|---|
-| `npm test` | Rust unit tests, then the page's Node tests |
-| `npm run check` | Lint, unit tests and the website build; E2E remains a separate desktop check |
-| `npm run security:check` | Redacted Git history, npm dependency and RustSec checks (needs Gitleaks and cargo-audit; see SECURITY.md) |
-| `npm run lint` | rustfmt, clippy with warnings as errors, Oxlint correctness checks, Biome |
-| `npm run format` | Formats Rust and JS/CSS/JSON (HTML and SVG are kept by hand) |
-| `npm run test:e2e` | The real app with isolated data (needs a desktop session; CI runs it on every platform) |
-| `npm run site:build` | The website and developer docs; a dead link fails it |
+| `pnpm test` | Rust unit tests, then the page's Node tests |
+| `pnpm run check` | Lint, unit tests and the website build; E2E remains a separate desktop check |
+| `pnpm run security:check` | Redacted Git history, pnpm dependency audit and RustSec checks (needs Gitleaks and cargo-audit; see SECURITY.md) |
+| `pnpm run lint` | rustfmt, clippy with warnings as errors, Oxlint, Oxfmt's format check, Biome's CSS checks |
+| `pnpm run format` | Formats Rust and JS/CSS/JSON with rustfmt and Oxfmt (HTML, SVG and Vue templates are kept by hand) |
+| `pnpm run test:e2e` | The real app with isolated data (needs a desktop session; CI runs it on every platform) |
+| `pnpm run site:build` | The website and developer docs; a dead link fails it |
 
-A change is ready when `npm test` and `npm run lint` pass, and `npm run site:build` too if it touched `docs/` or `website/`. To try the app, build it (`cargo build --release --manifest-path src-tauri/Cargo.toml`) and run it with its own data: `PLAYPETS_DATA="$PWD/.dev-data" npm run start`. CI (`.github/workflows/build.yml`) builds every platform and runs the e2e on each.
+A change is ready when `pnpm test` and `pnpm run lint` pass, and `pnpm run site:build` too if it touched `docs/` or `website/`. To try the app, build it (`cargo build --release --manifest-path src-tauri/Cargo.toml`) and run it with its own data: `PLAYPETS_DATA="$PWD/.dev-data" pnpm run start`. CI (`.github/workflows/build.yml`) builds every platform and runs the e2e on each.
 
 ## Rules a change keeps
 - **Page modules** ([page-modules](docs/standards/page-modules.md)): a module does nothing when imported; its wiring goes in a `setup…()` that an entry point calls. Every module but the entry points imports in Node (`tests/modules.test.mjs`). Menus use `core/menu.js`; shortcuts are rows of `core/keys.js`, the same keys as the macOS menu bar (`menu.rs`).

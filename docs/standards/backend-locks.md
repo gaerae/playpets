@@ -76,7 +76,7 @@ Follow these when you can. When you cannot, say why in the PR.
 ## Automated checks
 - None. The compiler and clippy cannot tell whether a call runs inside a lock.
 - Review PRs that change code taking locks against the rules above.
-- E2E (`npm run test:e2e`) only confirms that runs finish without deadlock; it does not catch rare overlapping timing.
+- E2E (`pnpm run test:e2e`) only confirms that runs finish without deadlock; it does not catch rare overlapping timing.
 
 ## Change history
 - 2026-10-01 First version

@@ -6,7 +6,7 @@
     "packaging/licenses/about.toml": "419e132450dc0eeeec53dbf9e8f7ecd674c170b248cd316f619037eba1d37dc8",
     "packaging/licenses/rust-supplements.json": "f76f0af8e3969491508ce90c31d5b1eac85c7f12a956096cac5d2cc501611b00",
     "scripts/licenses.mjs": "d7dd8778046c8d4f24c437ce30dfc38104eb0dbeec4b63b6c2dec54b7b0078e2",
-    "scripts/licenses-lib.mjs": "ed843a1c8876cf09537fd0d35a92e55ed0c62e4c1eb7e3c0e0a59d5fbe57f390",
+    "scripts/licenses-lib.mjs": "9f64b91af81d9148a369f1bdccaa19f4fad6732b4b86b49e1f35771acb62fb91",
     "packaging/licenses/upstream/0af8f1b807512aae.txt": "0af8f1b807512aae39c2ac1aa4d0cae65cabecb6fd554b8439a5162a0d6eca55",
     "packaging/licenses/upstream/0d542e0c8804e39a.txt": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
     "packaging/licenses/upstream/0dcf41516e608bbc.txt": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73",

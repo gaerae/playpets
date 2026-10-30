@@ -6,7 +6,7 @@
   - the desktop overlay window (`overlay.html`, `overlay/`)
 - Not covered: test code in `tests/` and development tools in `scripts/`.
   - They run in Node, where page initialization order does not matter.
-  - Oxlint correctness checks and Biome's code style rules still apply to the whole repository.
+  - Oxlint and Oxfmt still apply to the whole repository.
 
 ## Rules
 ### Modules
@@ -137,23 +137,34 @@ Breaking a rule without recording an exception is a violation, not an exception.
   - a token with only a dark value read by a rule that is not dark
   - It does not check whether two different selectors compete for one element after rules are reordered; review that when you move rules between files.
 - `tests/i18n.test.mjs` catches Korean left in page code and markup, and keys missing from the table.
-- Oxlint in `npm run lint:oxlint`:
+- Oxlint in `pnpm run lint:oxlint`:
   - Correctness checks for JavaScript, TypeScript and Vue script blocks; warnings fail the command.
+  - Beyond correctness: `eqeqeq`, `no-undef`, `prefer-const` and the other JavaScript checks of Biome's recommended set, which the repository used before.
+  - It does not read CSS or JSON.
   - `.oxlintrc.json` excludes generated copies and local output.
   - The website build and review cover Vue template correctness.
   - Conditional expressions whose branches both call functions are allowed for the existing canvas drawing code.
   - Keep intentional snapshots of live DOM collections when fixing spread warnings.
-- Biome in `npm run lint:js`: formatting, import sorting and its existing static checks.
-- Oxlint runs first. Neither tool replaces the repository-specific tests.
-- `tests/lint-config.test.mjs`: broken page, tooling, test and Vue script fixtures fail Oxlint, while generated outputs are skipped.
+- Oxfmt in `pnpm run lint:js` (`oxfmt --check`): formatting and import sorting for JavaScript, TypeScript, CSS and JSON.
+- Biome in `pnpm run lint:css` (`biome.jsonc`): Biome's recommended CSS checks (unknown properties, invalid values, duplicate selectors and the like); warnings fail the command.
+  - It reads only CSS; its formatter and import sorting are off, so Oxfmt stays the one formatter.
+  - `noDescendingSpecificity` is off: it would order unrelated components by specificity across a file.
+  - An `!important` that has to win (`[hidden]`, a paused page, reduced motion) carries a `biome-ignore` comment with its reason.
+- JSON has no linter; Oxfmt formats it and the repository's tests check the files they read.
+- Oxlint runs first, then Oxfmt, then Biome. None of them replaces the repository-specific tests.
+- `tests/lint-config.test.mjs`:
+  - broken page, tooling, test and Vue script fixtures fail Oxlint, while generated outputs are skipped;
+  - Oxfmt formats JavaScript, CSS and JSON and leaves HTML, SVG, Vue and Markdown as written;
+  - a broken CSS fixture fails Biome, and Biome does not read JavaScript.
 
-All of these run with `npm test` and `npm run lint`, and CI runs the same commands.
+All of these run with `pnpm test` and `pnpm run lint`, and CI runs the same commands.
 
 ## Change history
 - 2026-10-01 First version — moved from "Where code lives" in CONTRIBUTING and organized as rules
 - 2026-10-10 Every module but the entry points imports without a page; menus from `core/menu.js`; one owner per class on the yard; menus built from tables; corrected what `ui-style.test.mjs` checks; shortcuts from `core/keys.js`; the yard's and the panel's styles split by area
 - 2026-10-12 The mini window's changes to the panel go at the end of the panel's files; shared colours as tokens in `base.css` (a recommendation); `ui-style.test.mjs` checks custom properties
 - 2026-10-15 Menu and task-panel components share surface, shape and state roles; close actions no longer have a separate circular style
+- 2026-10-30 Oxfmt formats and sorts imports in place of Biome, and Oxlint takes over Biome's JavaScript checks; Biome keeps linting CSS alone, and JSON has no linter beyond the repository's tests
 
 ## Quiet yard controls
 

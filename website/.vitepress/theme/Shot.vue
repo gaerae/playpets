@@ -1,4 +1,4 @@
-<!-- A screenshot of the app: website/public/shots/<version>/<language>/<name>.webp, taken by npm run shots. -->
+<!-- A screenshot of the app: website/public/shots/<version>/<language>/<name>.webp, taken by pnpm run shots. -->
 <script setup lang="ts">
 import { withBase } from 'vitepress';
 import { computed, ref } from 'vue';

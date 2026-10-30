@@ -2,7 +2,7 @@
 # Makes the NSIS installer, the portable zip and an MSIX package signed with a test certificate.
 # trixie: NSIS 3.10 ships Win\RestartManager.nsh, which the Tauri installer template needs.
 # (appindicator is only there because the Tauri CLI probes the host for it even for Windows targets.)
-# From the repo root: npm run dist:windows. scripts/local.mjs mounts sources read-only,
+# From the repo root: pnpm run dist:windows. scripts/local.mjs mounts sources read-only,
 # preserves the build cache and forwards all three MSIX identity fields when set on the host.
 # Node.js comes from the official image, so the build uses the same Node major as .node-version. A
 # stage of its own, so Dependabot sees the tag (it reads FROM lines).
@@ -23,7 +23,9 @@ RUN git clone https://github.com/microsoft/msix-packaging.git /opt/msix-packagin
     && rm -rf /opt/msix-packaging
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
-RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
+# pnpm at the version package.json names (packageManager); Node 25 and later ship no corepack.
+RUN npm install -g pnpm@12.16.1
 COPY build.sh /usr/local/bin/windows-build.sh
 COPY msix /usr/local/share/playpets-msix
 # Keep the image compiler and installed targets when a checkout declares its own toolchain.

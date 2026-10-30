@@ -230,14 +230,14 @@ test('a published release builds and submits its own tag, with Store credentials
   assert.match(workflow, /test "\$\(git rev-parse "\$GITHUB_REF\^\{commit\}"\)" = "\$GITHUB_SHA"/);
   assert.match(workflow, /git merge-base --is-ancestor "\$GITHUB_SHA" origin\/main/);
   assert.doesNotMatch(workflow, /^\s+ref:/m);
-  assert.match(workflow, /npx tauri build --target \$\{\{ matrix\.target \}\} --no-bundle/);
+  assert.match(workflow, /pnpm exec tauri build --target \$\{\{ matrix\.target \}\} --no-bundle/);
   assert.match(workflow, /architecture: x64/);
   assert.match(workflow, /architecture: arm64/);
   const jobs = workflow.split(/\n(?= {2}[a-z]+:\n)/);
   const submit = jobs.find(job => job.startsWith('  submit:'));
   assert.match(submit, /if: vars\.STORE_SUBMISSION_ENABLED == 'true'/);
   assert.match(submit, /environment: microsoft-store/);
-  assert.doesNotMatch(submit, /npm (ci|install)|cache:|rust-cache/);
+  assert.doesNotMatch(submit, /p?npm (ci|install)|cache:|rust-cache|action-setup/);
   for (const job of jobs.filter(job => job !== submit)) assert.doesNotMatch(job, /secrets\.|environment:/);
   // None of the four values skips the submission; some of them fails it, like the APPLE_* secrets.
   assert.match(submit, /if \[ "\$present" -eq 0 \]; then[\s\S]*exit 0/);

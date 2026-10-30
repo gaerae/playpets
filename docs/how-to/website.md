@@ -7,7 +7,7 @@
 - The developer docs are in English only and are served at https://playpets.gaerae.com/dev/.
 
 ## Audience and assumptions
-- Anyone who has cloned the repository and run `npm ci`.
+- Anyone who has cloned the repository and run `pnpm install --frozen-lockfile`.
 - Only taking new screen captures needs macOS.
 - Everything else works on any OS.
 - The decision "[Publish the introduction, user guide, per-version pages and developer docs as one VitePress site on GitHub Pages](../decisions/2026-10-03-website-on-github-pages.md)" explains the layout and the reasons for it.
@@ -15,10 +15,10 @@
 ## Prerequisites
 | What you need | Check |
 |---|---|
-| Node.js 26 and `npm ci` | `node --version` |
-| Screen captures only: macOS, Google Chrome, a Rust toolchain and Xcode Command Line Tools (`npm run shots` builds the app itself with `--profile e2e --features e2e` into `src-tauri/target/e2e/`; its window-list helper uses Swift) | `cargo --version` and `swiftc --version` |
+| Node.js 26, pnpm 12.16.1 and `pnpm install --frozen-lockfile` | `node --version` and `pnpm --version` |
+| Screen captures only: macOS, Google Chrome, a Rust toolchain and Xcode Command Line Tools (`pnpm run shots` builds the app itself with `--profile e2e --features e2e` into `src-tauri/target/e2e/`; its window-list helper uses Swift) | `cargo --version` and `swiftc --version` |
 
-`package.json` holds two `overrides` for the site's tools:
+`pnpm-workspace.yaml` holds two `overrides` for the site's tools:
 
 | Override | Why |
 |---|---|
@@ -26,7 +26,7 @@
 | `katex` at 0.19 | Pulled in by mermaid |
 
 - Remove them once a stable VitePress asks for a fixed vite and mermaid asks for a fixed katex.
-- Then check that `npm audit` stays clean and the site builds.
+- Then check that `pnpm audit` stays clean and the site builds.
 
 ## Steps
 1. Find the file for what you are changing.
@@ -43,7 +43,7 @@
 2. Edit while watching the dev server. Changes show up as soon as you save.
 
 ```bash
-npm run site:dev
+pnpm run site:dev
 ```
 
 3. To add a screen, use `<Shot name="name" caption="One sentence" />`.
@@ -61,13 +61,13 @@ npm run site:dev
    - Before each picture and the README animation, keyboard focus is cleared, so no focus ring shows.
 
 ```bash
-npm run shots -- 0.2.0
+pnpm run shots 0.2.0
 ```
 
    - For a faster pass with screenshots only, skip recording and encoding the GIF. The existing demo animation stays as it is.
 
 ```bash
-SKIP_GIF=1 npm run shots -- 0.2.0
+SKIP_GIF=1 pnpm run shots 0.2.0
 ```
 
    - For only the four-companion picture, in all four site languages, use the shorter scene.
@@ -75,7 +75,7 @@ SKIP_GIF=1 npm run shots -- 0.2.0
    - The capture option keeps its historical name, `adults`.
 
 ```bash
-SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans npm run shots -- 0.2.0
+SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans pnpm run shots 0.2.0
 ```
 
 4. Mark the version where a feature first arrived with `<Since v="0.2.0" />` at the end of its heading. A first-release badge (`0.1.0`) shows nothing, and no badge appears in the page outline.
@@ -85,7 +85,7 @@ SHOT_SCENE=adults SHOT_LANGS=ko,en,ja,zh-hans npm run shots -- 0.2.0
 6. If you changed the headline or the first-screen text, redraw the share card and banner too.
 
 ```bash
-npm run og
+pnpm run og
 ```
 
 7. Build and check.
@@ -93,14 +93,14 @@ npm run og
    - The test checks that every version in the changelog has a page and that every capture a page points to exists.
 
 ```bash
-npm run site:build && node --test tests/website.test.mjs
+pnpm run site:build && node --test tests/website.test.mjs
 ```
 
-   - To preview the production build, run `npm run site:preview` after the build.
+   - To preview the production build, run `pnpm run site:preview` after the build.
    - Stop and restart a running preview after each rebuild, so renamed JavaScript chunks are served.
    - Check an interactive control as well as the page text.
    - Static HTML can load while a stale preview returns missing script files.
-   - Use `npm run site:dev` for ongoing edits.
+   - Use `pnpm run site:dev` for ongoing edits.
 
 8. Commit.
    - Git ignores what `scripts/site-prepare.mjs` generates (`website/dev/`, the icon and pet sheets it copies into `website/public/`, and `website/.vitepress/generated.json`), so those files are not committed.
@@ -110,7 +110,7 @@ npm run site:build && node --test tests/website.test.mjs
 
 Icons:
 - `assets/icon.png` is the accepted illustrated Clover face. Its prompt is in `assets/icon-provenance.json`.
-- `npm run icons` exports the app and installer icon formats, the matching colored tray face, and a self-contained `assets/icon.svg` wrapper for browsers.
+- `pnpm run icons` exports the app and installer icon formats, the matching colored tray face, and a self-contained `assets/icon.svg` wrapper for browsers.
 - Site preparation copies that exported SVG and the generated PNG and ICO fallbacks.
 - The site config uses content-revisioned favicon addresses, so an unchanged path does not keep an older icon in browser tabs.
 - Regenerate these outputs through the scripts.
@@ -135,7 +135,7 @@ Scenes:
 - Refresh the spring, summer and winter captures in all four languages with:
 
 ```bash
-SHOT_SCENE=seasons SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+SHOT_SCENE=seasons SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
 - This shorter capture keeps the existing autumn, city and GIF exports.
@@ -190,7 +190,7 @@ The skill source:
 Packages:
 - The maintained skill folder installs on its own and includes its MIT license.
 - Keep it in this repository so the app formats and the validator change together.
-- `npm run creator:skill` also emits `playpets-creator-plugin.zip`, using the application version, with:
+- `pnpm run creator:skill` also emits `playpets-creator-plugin.zip`, using the application version, with:
   - a root `plugin.json`
   - a Claude Code `.claude-plugin/plugin.json` compatibility manifest
   - `skills/playpets-creator/`

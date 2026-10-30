@@ -44,7 +44,7 @@ node assets/sources/companion-actions-2026-10-19/daisy/isolate-source.mjs assets
 Repack an export with:
 
 ```sh
-npm run companions:pack -- assets/sources/companion-actions-2026-10-19/daisy/winter-fish-plan.json src/art/companions/daisy/winter/fish.png
+pnpm run companions:pack assets/sources/companion-actions-2026-10-19/daisy/winter-fish-plan.json src/art/companions/daisy/winter/fish.png
 ```
 
 - Every action uses one shared source scale for all six frames.

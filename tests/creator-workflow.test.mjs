@@ -13,7 +13,7 @@ function run(...args) {
 }
 function entries(bytes) {
   const result = {};
-  for (let at = 0; bytes.readUInt32LE(at) === 0x04034b50; ) {
+  for (let at = 0; bytes.readUInt32LE(at) === 0x04034b50;) {
     assert.equal(bytes.readUInt16LE(at + 8), 0);
     const size = bytes.readUInt32LE(at + 18),
       n = bytes.readUInt16LE(at + 26),

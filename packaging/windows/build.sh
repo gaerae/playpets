@@ -7,14 +7,14 @@ set -euo pipefail
 rsync -a --delete --exclude-from=/src/.dockerignore /src/ /work/
 cd /work
 # Dependency install scripts never run while the whole checkout is mounted (as in release.yml).
-npm ci --ignore-scripts --no-audit --no-fund
+pnpm install --frozen-lockfile --ignore-scripts
 # Validate Store identity before compiling or writing any hand-off package.
 version="$(node -p "require('./package.json').version")"
 stage="$(mktemp -d)"
 trap 'rm -rf "$stage"' EXIT
 mkdir -p "$stage/Assets"
 node scripts/msix-manifest.mjs /usr/local/share/playpets-msix/AppxManifest.xml "$stage/AppxManifest.xml" "$version"
-npx tauri build --target x86_64-pc-windows-gnu --bundles nsis
+pnpm exec tauri build --target x86_64-pc-windows-gnu --bundles nsis
 mkdir -p /out
 cp src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/*.exe /out/
 cp packaging/licenses/THIRD-PARTY-NOTICES.txt /out/
