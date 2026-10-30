@@ -1,6 +1,6 @@
 // Renders the pictures that travel with a link: the Open Graph cards (website/public/og.png and
 // og-<language>.png, 1200×630) that X, Slack and GeekNews show, and the README banner (assets/banner.png, 1600×560).
-// Both are drawn from the sample pets' real sprite sheets with the headline. Run: npm run og
+// Both are drawn from the sample pets' real sprite sheets with the headline. Run: pnpm run og
 // Needs Google Chrome or Playwright's Chromium (browser-lib.mjs drives it headless).
 
 import { readFile, writeFile } from 'node:fs/promises';

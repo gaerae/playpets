@@ -1,6 +1,6 @@
 // Prints the Microsoft Store "What's new" text for a version as JSON: node scripts/store-notes.mjs 1.3.0
 // The source is the website's release page in each language, written by people before the release
-// (npm run release stops without them), so no language is machine-translated. store.yml hands the
+// (pnpm run release stops without them), so no language is machine-translated. store.yml hands the
 // JSON to store-submit.mjs.
 
 import { readFileSync } from 'node:fs';

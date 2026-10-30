@@ -17,7 +17,7 @@ export async function launchBrowser(options = {}, { chromium } = {}) {
       return await chromium.launch(settings);
     } catch (bundled) {
       throw new Error(
-        'No browser to draw with. Install Google Chrome, or run `npx playwright install chromium` for ' +
+        'No browser to draw with. Install Google Chrome, or run `pnpm exec playwright-core install chromium` for ' +
           `Playwright's Chromium. Google Chrome: ${firstLine(chrome)}. Playwright's Chromium: ${firstLine(bundled)}.`,
         { cause: bundled },
       );

@@ -62,7 +62,7 @@
 *.cer binary
 
 # Generated files stay out of code review and language statistics.
-package-lock.json linguist-generated=true -diff
+pnpm-lock.yaml linguist-generated=true -diff
 src-tauri/Cargo.lock linguist-generated=true -diff
 src-tauri/icons/** linguist-generated=true
 src/logo.svg linguist-generated=true

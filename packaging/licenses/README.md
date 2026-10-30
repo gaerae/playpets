@@ -10,8 +10,8 @@ To update it after changing dependencies:
 
 ```sh
 cargo install cargo-about --version 0.9.2 --locked --features cli
-npm run licenses:generate
-npm run licenses:check
+pnpm run licenses:generate
+pnpm run licenses:check
 ```
 
 - The generator resolves the locked Rust graph for the desktop targets in

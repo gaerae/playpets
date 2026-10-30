@@ -20,7 +20,6 @@
     "**/*.yml",
     "**/*.yaml",
     "**/*.toml",
-    "package-lock.json",
     "src-tauri/gen",
   ],
 }

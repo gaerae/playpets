@@ -101,15 +101,12 @@ test('Cargo.toml and Cargo.lock are bumped for the app only', () => {
   assert.match(bumped, /name = "other"\nversion = "0\.1\.0"/, 'other packages keep their version');
 });
 
-// The version is written in package.json; tauri.conf.json reads it from there, and the Rust side
-// must say the same, or the installer, the About box and the binary disagree.
+// The version is written in package.json (pnpm-lock.yaml does not record it); tauri.conf.json reads
+// it from there, and the Rust side must say the same, or the installer, the About box and the binary disagree.
 test('every place that states the version states the same one, and the changelog is ready', async () => {
   const pkg = JSON.parse(await readFile('package.json', 'utf8'));
-  const lockfile = JSON.parse(await readFile('package-lock.json', 'utf8'));
   const conf = JSON.parse(await readFile('src-tauri/tauri.conf.json', 'utf8'));
   assert.equal(conf.version, '../package.json', 'tauri.conf.json takes the version from package.json');
-  assert.equal(lockfile.version, pkg.version);
-  assert.equal(lockfile.packages[''].version, pkg.version);
   assert.equal(cargoVersion(await readFile('src-tauri/Cargo.toml', 'utf8')), pkg.version);
   assert.equal(lockVersion(await readFile('src-tauri/Cargo.lock', 'utf8')), pkg.version);
   const changelog = await readFile('CHANGELOG.md', 'utf8');
@@ -119,9 +116,9 @@ test('every place that states the version states the same one, and the changelog
   assert.match(unreleased.trim() || notesFor(changelog, pkg.version), /^### /);
 });
 
-// The workflows call scripts and npm commands by name; a rename on one side must not leave the
+// The workflows call scripts and pnpm commands by name; a rename on one side must not leave the
 // other calling nothing (CI cannot be run from here, so this is checked where it can be).
-test('every script and npm command the workflows call exists', async () => {
+test('every script and pnpm command the workflows call exists', async () => {
   const { readdir } = await import('node:fs/promises');
   const { existsSync } = await import('node:fs');
   const scripts = JSON.parse(await readFile('package.json', 'utf8')).scripts;
@@ -129,7 +126,7 @@ test('every script and npm command the workflows call exists', async () => {
     const text = await readFile(`.github/workflows/${file}`, 'utf8');
     for (const [, path] of text.matchAll(/node (scripts\/[\w.-]+\.mjs)/g))
       assert.ok(existsSync(path), `${file}: ${path}`);
-    for (const [, name] of text.matchAll(/npm run ([\w:-]+)/g)) assert.ok(scripts[name], `${file}: npm run ${name}`);
+    for (const [, name] of text.matchAll(/pnpm run ([\w:-]+)/g)) assert.ok(scripts[name], `${file}: pnpm run ${name}`);
   }
 });
 

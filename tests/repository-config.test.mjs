@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, matchesGlob } from 'node:path';
 import test from 'node:test';
@@ -263,10 +263,28 @@ test('each Docker build context passes only the files its Dockerfile copies', ()
   }
 });
 
-// Every install skips dependencies' scripts, as pnpm does, so a compromised package runs nothing on
-// `npm ci`; the flags in jobs with secrets and in containers stay as a second guard.
-test('npm never runs dependency install scripts', () => {
-  assert.match(read('.npmrc'), /^ignore-scripts=true$/m);
+// No dependency's install script runs, so a compromised package runs nothing on install; the flags in
+// jobs with secrets and in containers stay as a second guard. Every package with a script is listed
+// as reviewed, and strictDepBuilds (pnpm's default) fails the install on a new one.
+test('pnpm never runs dependency install scripts and stops on an unreviewed one', () => {
+  const settings = read('pnpm-workspace.yaml');
+  const builds = settings.match(/^allowBuilds:\n((?: {2}.+\n)+)/m)?.[1];
+  assert.ok(builds, 'allowBuilds lists the reviewed packages');
+  for (const line of builds.trimEnd().split('\n')) assert.match(line, /^ {2}[\w@/.-]+: false$/);
+  assert.doesNotMatch(settings, /^(strictDepBuilds: false|dangerouslyAllowAllBuilds: true|ignoreScripts: false)/m);
+  assert.equal(existsSync('.npmrc'), false, 'pnpm reads only registry and auth settings from .npmrc');
+});
+
+// One pnpm for everyone: CI and the containers install the version package.json names, and the
+// lockfile is pnpm's own.
+test('pnpm is the package manager, at an exact version', () => {
+  const pkg = JSON.parse(read('package.json'));
+  assert.match(pkg.packageManager, /^pnpm@\d+\.\d+\.\d+$/);
+  assert.equal(pkg.engines.pnpm, `>=${pkg.packageManager.slice('pnpm@'.length)}`);
+  assert.ok(existsSync('pnpm-lock.yaml'));
+  assert.equal(existsSync('package-lock.json'), false);
+  assert.equal(pkg.overrides, undefined, 'pnpm reads overrides from pnpm-workspace.yaml');
+  assert.match(read('pnpm-workspace.yaml'), /^engineStrict: true$/m);
 });
 
 // A hijacked release is usually found and pulled within days; packages that end up in a release wait
@@ -398,12 +416,12 @@ test('CodeQL covers app, workflow and creator sources without exposing signing s
   assert.doesNotMatch(workflow, /secrets\.|contents: write|pull_request_target/);
 });
 
-test('root Rust tooling and future npm additions keep contributor setup explicit', () => {
+test('root Rust tooling and future dependency additions keep contributor setup explicit', () => {
   const toolchain = read('rust-toolchain.toml');
   assert.match(toolchain, /channel = "stable"/);
   assert.match(toolchain, /components = \["clippy", "rustfmt"\]/);
   assert.match(toolchain, /profile = "minimal"/);
-  assert.match(read('.npmrc'), /^save-exact=true$/m);
+  assert.match(read('pnpm-workspace.yaml'), /^saveExact: true$/m);
   assert.match(read('.github/pull_request_template.md'), /What changed and why/);
 });
 

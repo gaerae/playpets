@@ -1,4 +1,4 @@
-// CPU of the app in six states, on this machine: npm run measure (macOS and Linux).
+// CPU of the app in six states, on this machine: pnpm run measure (macOS and Linux).
 // Runs the release binary with a throwaway data folder and three copies of the test pet, holds
 // each state 30 s and measures seconds 4 to 16 of it (the first seconds settle a change), summing
 // the app process and the WebKit processes it started. Numbers are % of one core.
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { writeFixturePet } from '../tests/support/fixture-pet.mjs';
 
 if (process.platform === 'win32') {
-  console.error('npm run measure reads CPU time with ps: macOS and Linux only. On Windows, watch Task Manager.');
+  console.error('pnpm run measure reads CPU time with ps: macOS and Linux only. On Windows, watch Task Manager.');
   process.exit(2);
 }
 const here = path.dirname(fileURLToPath(import.meta.url));

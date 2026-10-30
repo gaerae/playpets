@@ -69,7 +69,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exitCode = runPlan(commandPlan(process.argv[2], { args: process.argv.slice(3) }));
   } catch (error) {
     console.error(error.message);
-    if (process.argv[2] === 'start') console.error('Build the executable first: npm run build:app');
+    if (process.argv[2] === 'start') console.error('Build the executable first: pnpm run build:app');
     process.exitCode = 1;
   }
 }

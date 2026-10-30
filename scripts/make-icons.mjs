@@ -6,7 +6,7 @@
 //   src-tauri/icons/tray.png    all-platform tray and website favicon (colored, 32px)
 //   src-tauri/icons/msix/*.png  Windows package (MSIX) tiles
 //   src/logo.svg                in-app brand mark
-// Run from the repo root: npm run icons   (uses the system Chrome, or Playwright's Chromium)
+// Run from the repo root: pnpm run icons   (uses the system Chrome, or Playwright's Chromium)
 
 import { execFileSync } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
