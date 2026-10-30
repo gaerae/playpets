@@ -1,11 +1,11 @@
 # Builds every platform for a version tag and puts the files on a draft GitHub release, with the
-# changelog's section for that version as its notes. Start it with `npm run release -- x.y.z`
+# changelog's section for that version as its notes. Start it with `pnpm run release -- x.y.z`
 # followed by `git push --atomic origin HEAD vx.y.z` (see docs/how-to/release.md). A person reads the draft and
 # publishes it.
 #
 # Signing is off until its secrets exist; nothing else changes when they are added.
 #   Updates (the app updating itself; free, independent of OS signing): TAURI_SIGNING_PRIVATE_KEY
-#     (contents of the key made by `npx tauri signer generate`) and TAURI_SIGNING_PRIVATE_KEY_PASSWORD.
+#     (contents of the key made by `pnpm exec tauri signer generate`) and TAURI_SIGNING_PRIVATE_KEY_PASSWORD.
 #     With them, updater files and signatures are built and latest.json is added to the release.
 #   macOS (Developer ID + notarization): APPLE_CERTIFICATE (base64 .p12), APPLE_CERTIFICATE_PASSWORD,
 #     APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD (app-specific), APPLE_TEAM_ID
@@ -73,6 +73,7 @@ jobs:
       # No cache is restored here: the job that holds the signing secrets builds only from the tag and
       # the locked registries, never from files another run saved. (A tag run could read only the
       # main branch's caches anyway, so a release cache would rarely be found.)
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
@@ -88,7 +89,7 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev libdbus-1-dev patchelf xvfb dbus-x11
       # No package's install script runs in the job that holds the signing secrets (the only ones
       # in the tree are esbuild's, for the site, and fsevents').
-      - run: npm ci --ignore-scripts
+      - run: pnpm install --frozen-lockfile --ignore-scripts
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.15'
@@ -97,7 +98,7 @@ jobs:
       - name: Unit tests
         env:
           PLAYPETS_PYTHON: python
-        run: npm test
+        run: pnpm test
       # linuxdeploy follows the executable's native library graph. Collect the matching distro
       # copyright files before AppImage assembly, then audit the finished image below.
       - name: Collect AppImage system licenses
@@ -150,13 +151,13 @@ jobs:
             export APPLE_PASSWORD="$APPLE_PASSWORD_SECRET"
             export APPLE_TEAM_ID="$APPLE_TEAM_ID_SECRET"
           fi
-          npx tauri build "${args[@]}"
+          pnpm exec tauri build "${args[@]}"
           if [ "$RUNNER_OS" = "Linux" ]; then
             bundle="src-tauri/target/${{ matrix.target }}/release/bundle"
             node scripts/prepare-appimage-licenses.mjs --appimage \
               "$(ls "$bundle"/appimage/*.AppImage)" \
               src-tauri/target/appimage-license-docs
-            npx tauri build "${args[@]}"
+            pnpm exec tauri build "${args[@]}"
           fi
       # Ad hoc or Developer ID, the app's signature has to seal its resources, or a download opens as "damaged".
       # Tauri notarizes the app but only signs the disk image, and a downloaded image that is signed

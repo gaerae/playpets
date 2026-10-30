@@ -45,8 +45,8 @@ test('Pages redeploys when shared application artwork or publishing inputs chang
     'assets/creator-skill/playpets-creator/scripts/creator-workflow.py',
     'scripts/site-content.mjs',
     '.node-version',
-    '.npmrc',
-    'package-lock.json',
+    'pnpm-workspace.yaml',
+    'pnpm-lock.yaml',
     'packaging/licenses/website-supplements.json',
   ])
     assert.ok(
@@ -331,7 +331,24 @@ test('checkouts drop the job token, and the job holding signing secrets restores
   const release = read('.github/workflows/release.yml');
   const build = release.slice(release.indexOf('\n  build:'), release.indexOf('\n  publish:'));
   assert.match(build, /TAURI_SIGNING_PRIVATE_KEY/);
-  assert.doesNotMatch(build, /cache: npm|rust-cache/);
+  assert.doesNotMatch(build, /cache: (npm|pnpm|true)|rust-cache/);
+});
+
+// Every job that installs packages sets up the pnpm package.json names first (setup-node's pnpm cache
+// needs it), installs only what the lockfile says, and the jobs with secrets skip install scripts.
+test('CI installs with the pinned pnpm from the lockfile alone', () => {
+  for (const file of readdirSync('.github/workflows')) {
+    const workflow = read(`.github/workflows/${file}`);
+    assert.doesNotMatch(workflow, /(?<![\w-])(npm (ci|install)|npx )/, file);
+    for (const job of workflow.split(/\n {2}(?=[\w-]+:\n)/).filter(job => /pnpm install/.test(job))) {
+      const pnpm = job.indexOf('uses: pnpm/action-setup@');
+      assert.ok(pnpm > 0 && pnpm < job.indexOf('uses: actions/setup-node@'), `${file}: pnpm before setup-node`);
+      assert.match(job, /uses: pnpm\/action-setup@[0-9a-f]{40} # v\d/, file);
+      for (const install of job.match(/pnpm install.*/g)) assert.match(install, /--frozen-lockfile/, file);
+    }
+  }
+  for (const file of ['release.yml', 'store.yml', 'security.yml'])
+    assert.match(read(`.github/workflows/${file}`), /pnpm install --frozen-lockfile --ignore-scripts/, file);
 });
 
 test('native CI installs the creator image dependency before running the shared unit suite', () => {
@@ -344,13 +361,13 @@ test('native CI installs the creator image dependency before running the shared 
     assert.match(setup, /python -m pip install -r assets\/creator-skill\/playpets-creator\/requirements\.txt/, file);
     const step = workflow.slice(unit).split(/\n {6}- /)[0];
     assert.match(step, /PLAYPETS_PYTHON: python/, file);
-    assert.match(step, /run: npm test/, file);
+    assert.match(step, /run: pnpm test/, file);
   }
 });
 
 // Tauri skips a target the platform cannot build, so one list gives each platform what CI builds;
-// with only "app", `npm run build` on Windows or Linux made no package at all.
-test("npm run build makes each platform's packages, as CI does", () => {
+// with only "app", `pnpm run build` on Windows or Linux made no package at all.
+test("pnpm run build makes each platform's packages, as CI does", () => {
   const targets = JSON.parse(read('src-tauri/tauri.conf.json')).bundle.targets;
   const ci = [...read('.github/workflows/build.yml').matchAll(/bundles: "?([\w,]+)"?\}/g)].flatMap(m =>
     m[1].split(','),
@@ -375,7 +392,7 @@ test('Node has one major version: .node-version, package.json engines and the Do
 
 // CI runs the e2e from its release build instead of test:e2e's own profile (build.yml). A change to
 // test:e2e fails here until the workflow's E2E steps make the same change.
-test('the CI e2e builds and runs what npm run test:e2e does', () => {
+test('the CI e2e builds and runs what pnpm run test:e2e does', () => {
   const local = JSON.parse(read('package.json')).scripts['test:e2e'];
   assert.equal(
     local,
@@ -389,7 +406,7 @@ test('the CI e2e builds and runs what npm run test:e2e does', () => {
     ...workflow.matchAll(/PLAYPETS_BINARY: \$\{\{ github\.workspace \}\}\/src-tauri\/target\/release\/playpets/g),
   ];
   assert.equal(binaries.length, 2);
-  assert.doesNotMatch(workflow, /npm run test:e2e/);
+  assert.doesNotMatch(workflow, /p?npm run test:e2e/);
 });
 
 test('security CI checks the full redacted history and shares the local dependency command', () => {
@@ -400,9 +417,9 @@ test('security CI checks the full redacted history and shares the local dependen
   assert.match(workflow, /GITLEAKS_SHA256: [a-f0-9]{64}/);
   assert.match(workflow, /sha256sum -c -/);
   assert.match(workflow, /cargo-audit@0\.22\.2/);
-  assert.match(workflow, /npm run security:check/);
+  assert.match(workflow, /pnpm run security:check/);
   assert.match(scripts['security:check'], /gitleaks git --redact/);
-  assert.match(scripts['security:check'], /npm audit --audit-level=high/);
+  assert.match(scripts['security:check'], /pnpm audit --audit-level high/);
   assert.match(scripts['security:check'], /cargo audit --file src-tauri\/Cargo\.lock/);
   assert.doesNotMatch(workflow, /secrets\.|security-events: write|contents: write|continue-on-error/);
 });

@@ -25,10 +25,11 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
-      - run: npm ci --ignore-scripts
+      - run: pnpm install --frozen-lockfile --ignore-scripts
       - uses: taiki-e/install-action@5488ac5a951645ce95062214902ac4b6bc1a1037 # v2.87.32
         with:
           tool: cargo-audit@0.22.2
@@ -44,4 +45,4 @@ jobs:
           echo "$GITLEAKS_SHA256  $scanner/gitleaks.tar.gz" | sha256sum -c -
           tar -xzf "$scanner/gitleaks.tar.gz" -C "$scanner" gitleaks
           echo "$scanner" >> "$GITHUB_PATH"
-      - run: npm run security:check
+      - run: pnpm run security:check

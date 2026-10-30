@@ -5,7 +5,7 @@ name: pages
 on:
   push:
     branches: [main]
-    paths: [packaging/licenses/**, website/**, docs/**, assets/**, src/art/**, src/core/animation.js, src/core/season.js, src/yard/background-pack.js, src-tauri/icons/**, CHANGELOG.md, scripts/**, .node-version, .npmrc, package.json, package-lock.json, .github/workflows/pages.yml]
+    paths: [packaging/licenses/**, website/**, docs/**, assets/**, src/art/**, src/core/animation.js, src/core/season.js, src/yard/background-pack.js, src-tauri/icons/**, CHANGELOG.md, scripts/**, .node-version, pnpm-workspace.yaml, package.json, pnpm-lock.yaml, .github/workflows/pages.yml]
   workflow_dispatch:
 
 permissions:
@@ -27,14 +27,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       # The download buttons name the files of the published releases; the token reads them
       # without the anonymous rate limit. distribute.yml runs this again when a release is published.
-      - run: npm run site:build
+      - run: pnpm run site:build
         env:
           GH_TOKEN: ${{ github.token }}
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

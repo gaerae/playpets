@@ -5,7 +5,7 @@ import test from 'node:test';
 
 const workflow = readFileSync('.github/workflows/release.yml', 'utf8');
 const start = workflow.indexOf('          args=(--target');
-const end = workflow.indexOf('          npx tauri build', start);
+const end = workflow.indexOf('          pnpm exec tauri build', start);
 const script = workflow
   .slice(start, end)
   .replace(/\$\{\{ matrix\.target \}\}/g, 'aarch64-apple-darwin')
