@@ -122,6 +122,10 @@ Official upstream references for the remaining work:
 - Maintainers can run the same command locally with Gitleaks 8.30.1 and
   cargo-audit 0.22.2 installed.
 - CI verifies the Gitleaks archive checksum and pins the audit tool version.
+- npm never runs dependencies' install scripts (`ignore-scripts=true` in `.npmrc`).
+  - A compromised package cannot run code during `npm ci`.
+  - The jobs that hold signing secrets and the container builds also pass
+    `--ignore-scripts`, so a change to `.npmrc` alone does not undo it there.
 - No source paths or known advisories are broadly excluded to make the checks
   pass.
 - The separate `codeql` workflow analyzes Actions, JavaScript, Python creator

@@ -263,6 +263,12 @@ test('each Docker build context passes only the files its Dockerfile copies', ()
   }
 });
 
+// Every install skips dependencies' scripts, as pnpm does, so a compromised package runs nothing on
+// `npm ci`; the flags in jobs with secrets and in containers stay as a second guard.
+test('npm never runs dependency install scripts', () => {
+  assert.match(read('.npmrc'), /^ignore-scripts=true$/m);
+});
+
 test('container builds do not run dependency install scripts while the checkout is mounted', () => {
   for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh'])
     for (const line of read(script)
