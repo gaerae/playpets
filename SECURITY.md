@@ -131,16 +131,16 @@ Official upstream references for the remaining work:
     it there.
 - pnpm installs no version younger than a day when it resolves the lockfile
   again (`minimumReleaseAge`).
-  - This holds for Dependabot's security updates too: one for a fix released
-    less than a day ago fails until the day has passed.
-  - To take an urgent fix at once, list the package under
+  - Dependabot lifts this wait for its security updates, so a fix comes at once.
+  - To take an urgent fix by hand, list the package under
     `minimumReleaseAgeExclude` in `pnpm-workspace.yaml`, and remove it once the
     fixed version is a day old.
 - Dependabot proposes a new npm, Cargo or Actions version a week after its
   release (`cooldown` in `.github/dependabot.yml`).
   - A hijacked release is usually found and pulled within days.
-  - Security updates skip the cooldown; for npm packages, pnpm's one-day wait
-    above still applies.
+  - Security updates skip the cooldown.
+  - Dependabot cannot raise a package under `overrides` (vite, katex). A fix for
+    one is raised by hand in `pnpm-workspace.yaml`.
 - No source paths or known advisories are broadly excluded to make the checks
   pass.
 - The separate `codeql` workflow analyzes Actions, JavaScript, Python creator

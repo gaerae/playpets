@@ -27,6 +27,7 @@
 
 - Remove them once a stable VitePress asks for a fixed vite and mermaid asks for a fixed katex.
 - Then check that `pnpm audit` stays clean and the site builds.
+- Dependabot cannot raise an overridden package: it closes the pull request as no longer updatable. Raise the version in `pnpm-workspace.yaml` by hand.
 
 ## Steps
 1. Find the file for what you are changing.
