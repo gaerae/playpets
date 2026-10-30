@@ -6,3 +6,9 @@ contact_links:
   - name: User guide
     url: https://playpets.gaerae.com/guide/
     about: Guides to installing, your first friend, connecting an AI, and coding agent integration. Look here first; the answer may already be there.
+  - name: Questions and help
+    url: https://github.com/gaerae/playpets/discussions/categories/q-a
+    about: Not sure if it is a bug, or just want to ask how something works? Ask in Q&A.
+  - name: Show your pets
+    url: https://github.com/gaerae/playpets/discussions/categories/show-and-tell
+    about: Share the pets and yards you made, and see what others made.
