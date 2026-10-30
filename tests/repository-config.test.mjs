@@ -269,6 +269,20 @@ test('npm never runs dependency install scripts', () => {
   assert.match(read('.npmrc'), /^ignore-scripts=true$/m);
 });
 
+// A hijacked release is usually found and pulled within days; packages that end up in a release wait
+// a week before Dependabot proposes them. Security updates ignore the cooldown.
+test('Dependabot proposes npm, Cargo and Actions versions a week after release', () => {
+  const entries = read('.github/dependabot.yml')
+    .split(/^ {2}- package-ecosystem: /m)
+    .slice(1);
+  for (const ecosystem of ['npm', 'cargo', 'github-actions']) {
+    const entry = entries.find(block => block.startsWith(`${ecosystem}\n`));
+    assert.ok(entry, `${ecosystem} has a Dependabot entry`);
+    const days = entry.match(/^ {4}cooldown:\n {6}default-days: (\d+)$/m);
+    assert.ok(days && Number(days[1]) >= 7, `${ecosystem} waits at least a week`);
+  }
+});
+
 test('container builds do not run dependency install scripts while the checkout is mounted', () => {
   for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh'])
     for (const line of read(script)

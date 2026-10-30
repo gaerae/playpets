@@ -126,6 +126,10 @@ Official upstream references for the remaining work:
   - A compromised package cannot run code during `npm ci`.
   - The jobs that hold signing secrets and the container builds also pass
     `--ignore-scripts`, so a change to `.npmrc` alone does not undo it there.
+- Dependabot proposes a new npm, Cargo or Actions version a week after its
+  release (`cooldown` in `.github/dependabot.yml`).
+  - A hijacked release is usually found and pulled within days.
+  - Security updates are not delayed.
 - No source paths or known advisories are broadly excluded to make the checks
   pass.
 - The separate `codeql` workflow analyzes Actions, JavaScript, Python creator
