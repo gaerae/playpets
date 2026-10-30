@@ -40,9 +40,9 @@ test('CI and local Linux E2E provide the same native window manager', () => {
   assert.match(read('packaging/linux/Dockerfile'), /openbox x11-utils/);
   assert.match(read('.github/workflows/build.yml'), /openbox x11-utils/);
   assert.match(read('.github/workflows/build.yml'), /bash scripts\/linux-e2e\.sh node tests\/e2e\.mjs/);
-  assert.match(read('packaging/linux/build.sh'), /npm run test:e2e:linux/);
+  assert.match(read('packaging/linux/build.sh'), /pnpm run test:e2e:linux/);
   assert.equal(
     JSON.parse(read('package.json')).scripts['test:e2e:linux'],
-    'bash scripts/linux-e2e.sh npm run test:e2e',
+    'bash scripts/linux-e2e.sh pnpm run test:e2e',
   );
 });

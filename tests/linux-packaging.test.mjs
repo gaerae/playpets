@@ -30,11 +30,12 @@ function fixture(t, { bundles = '', rejects = false } = {}) {
     'harness.sh',
     `
 rsync() { :; }
-npm() { if [[ "$*" == "run test:e2e:linux" ]]; then echo 'PASS: tauri e2e'; fi; }
 cargo() { echo "cargo $*" >> "$TEST_ROOT/calls"; }
 uname() { echo aarch64; }
-npx() {
-  echo "npx $*" >> "$TEST_ROOT/calls"
+pnpm() {
+  if [[ "$1" == install ]]; then return; fi
+  if [[ "$*" == "run test:e2e:linux" ]]; then echo 'PASS: tauri e2e'; return; fi
+  echo "pnpm $*" >> "$TEST_ROOT/calls"
   mkdir -p src-tauri/target/release/bundle/{deb,appimage}
   echo deb > src-tauri/target/release/bundle/deb/PlayPets_0.2.0_arm64.deb
   if [[ "$*" == *appimage* ]]; then
@@ -76,7 +77,7 @@ test(
     assert.match(f.calls, /cargo build --release/);
     const steps = f.calls.trim().split('\n');
     assert.match(steps[1], /prepare-appimage-licenses\.mjs src-tauri\/target\/release\/playpets/);
-    assert.equal(steps.filter(s => s.startsWith('npx ')).length, 2);
+    assert.equal(steps.filter(s => s.startsWith('pnpm exec tauri ')).length, 2);
     assert.match(steps[3], /prepare-appimage-licenses\.mjs --appimage/);
     assert.match(steps[5], /appimage-license\.mjs/);
     assert.equal(existsSync(path.join(f.root, 'out/PlayPets_0.2.0_aarch64.AppImage')), true);

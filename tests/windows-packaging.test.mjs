@@ -45,8 +45,7 @@ function fixture(t, { oldKey = false, oldCert = true, key = true, strayCert = fa
     'harness.sh',
     `
 rsync() { :; }
-npm() { :; }
-npx() { :; }
+pnpm() { :; }
 zip() { :; }
 makemsix() {
   cp "$3/AppxManifest.xml" "$5"

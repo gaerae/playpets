@@ -302,11 +302,19 @@ test('Dependabot proposes npm, Cargo and Actions versions a week after release',
 });
 
 test('container builds do not run dependency install scripts while the checkout is mounted', () => {
-  for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh'])
-    for (const line of read(script)
+  for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh']) {
+    const installs = read(script)
       .split('\n')
-      .filter(line => /^\s*npm ci\b/.test(line)))
-      assert.match(line, /--ignore-scripts/, script);
+      .filter(line => /^\s*p?npm (ci|install)\b/.test(line));
+    assert.deepEqual(installs, ['pnpm install --frozen-lockfile --ignore-scripts'], script);
+  }
+});
+
+// The images install pnpm themselves (no corepack since Node 25), at the version CI and contributors use.
+test('the Docker images install the pnpm version package.json names', () => {
+  const pnpm = JSON.parse(read('package.json')).packageManager;
+  for (const platform of ['linux', 'windows'])
+    assert.match(read(`packaging/${platform}/Dockerfile`), new RegExp(`^RUN npm install -g ${pnpm}$`, 'm'), platform);
 });
 
 // tauri-build watches src-tauri/capabilities, and Cargo counts a watched path that does not exist as

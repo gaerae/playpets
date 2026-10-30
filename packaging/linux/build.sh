@@ -6,7 +6,7 @@ set -euo pipefail
 rsync -a --delete --exclude-from=/src/.dockerignore /src/ /work/
 cd /work
 # Dependency install scripts never run while the whole checkout is mounted (as in release.yml).
-npm ci --ignore-scripts --no-audit --no-fund
+pnpm install --frozen-lockfile --ignore-scripts
 export APPIMAGE_EXTRACT_AND_RUN=1
 # BUNDLES=deb skips AppImage (linuxdeploy does not run under x86_64 emulation on Apple Silicon).
 bundles="${BUNDLES:-deb,appimage}"
@@ -17,12 +17,12 @@ if [[ ",$bundles," == *,appimage,* ]]; then
   node scripts/prepare-appimage-licenses.mjs \
     src-tauri/target/release/playpets src-tauri/target/appimage-license-docs
 fi
-npx tauri build --bundles "$bundles"
+pnpm exec tauri build --bundles "$bundles"
 if [[ ",$bundles," == *,appimage,* ]]; then
   images=("$bundle"/appimage/*.AppImage)
   node scripts/prepare-appimage-licenses.mjs --appimage \
     "${images[0]}" src-tauri/target/appimage-license-docs
-  npx tauri build --bundles "$bundles"
+  pnpm exec tauri build --bundles "$bundles"
   for image in "$bundle"/appimage/*.AppImage; do
     node scripts/appimage-license.mjs "$image" "${image%.AppImage}-SYSTEM-SOURCE-PACKAGES.txt"
   done
@@ -37,5 +37,5 @@ if [[ ",$bundles," == *,appimage,* ]]; then
   cp "$bundle"/appimage/*.AppImage "$bundle"/appimage/*-SYSTEM-SOURCE-PACKAGES.txt /out/
 fi
 echo "== e2e ($arch, Xvfb)"
-npm run test:e2e:linux | tee /out/e2e.log
+pnpm run test:e2e:linux | tee /out/e2e.log
 grep -q "^PASS: tauri e2e" /out/e2e.log
