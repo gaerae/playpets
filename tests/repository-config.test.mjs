@@ -452,3 +452,27 @@ test('container builds keep the image compiler and its installed cross targets',
     assert.match(read(`packaging/${platform}/Dockerfile`), /^ENV RUSTUP_TOOLCHAIN=\$\{RUST_VERSION\}$/m);
   }
 });
+
+// A package used but not declared resolves only while another package happens to bring it along;
+// a strict node_modules layout or a dependency update removes it without warning.
+test('code imports only the packages package.json declares', () => {
+  const { devDependencies = {}, dependencies = {} } = JSON.parse(read('package.json'));
+  const declared = new Set([...Object.keys(devDependencies), ...Object.keys(dependencies)]);
+  const files = execFileSync('git', ['ls-files', '*.js', '*.mjs', '*.ts', '*.mts', '*.vue'], {
+    encoding: 'utf8',
+    ...git,
+  })
+    .split('\n')
+    .filter(Boolean);
+  const undeclared = [];
+  for (const file of files)
+    for (const [, ...found] of read(file).matchAll(
+      /^\s*(?:import|export)\b[^;'"]*?\bfrom\s*['"]([^'"\n]+)['"]|^\s*import\s*['"]([^'"\n]+)['"]|\bimport\(\s*['"]([^'"\n]+)['"]\s*\)/gm,
+    )) {
+      const specifier = found.find(Boolean);
+      if (/^(\.|\/|node:|https?:)/.test(specifier)) continue;
+      const name = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0];
+      if (!declared.has(name)) undeclared.push(`${file}: ${specifier}`);
+    }
+  assert.deepEqual(undeclared, []);
+});
