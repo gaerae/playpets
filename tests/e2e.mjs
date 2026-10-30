@@ -995,7 +995,10 @@ const scenario = `(async()=>{
     await L('trayWaiting='+(trayWait&&trayWait.tooltip.includes(${JSON.stringify(TRAY_KO_WAITING)})?'tooltip':'err:'+JSON.stringify(await trayAt())));
     await must('removePet2',playPets.removePet(p2.data.id));
     const snippet=await playPets.copyConnection('claude');
-    await L('snippet='+(snippet.ok&&snippet.data.includes('hook claude')&&!snippet.data.includes('node ')?'binary':'err'));
+    // On Windows the hook names the app and its arguments apart, so no shell reads it.
+    const hook=snippet.ok&&JSON.parse(snippet.data).hooks.Stop[0].hooks[0];
+    const calls=hook&&(hook.command.includes(' hook claude ')||hook.args?.slice(0,2).join(' ')==='hook claude');
+    await L('snippet='+(calls&&!snippet.data.includes('node ')?'binary':'err:'+(snippet.ok?snippet.data:snippet.error)));
     // An agent can report to a chosen friend: the copied settings then name it.
     await must('assignAgent',playPets.assignAgent('claude',p1.data.id));
     const assigned=await playPets.copyConnection('claude');
