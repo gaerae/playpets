@@ -47,7 +47,7 @@ node assets/sources/companion-actions-2026-10-19/miso/isolate-source.mjs assets/
 Repack an export with:
 
 ```sh
-npm run companions:pack -- assets/sources/companion-actions-2026-10-19/miso/winter-fish-plan.json src/art/companions/miso/winter/fish.png
+pnpm run companions:pack -- assets/sources/companion-actions-2026-10-19/miso/winter-fish-plan.json src/art/companions/miso/winter/fish.png
 ```
 
 - Every action uses one shared source scale for all six frames.

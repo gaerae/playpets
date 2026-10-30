@@ -45,10 +45,10 @@ node --test tests/website.test.mjs
 4. Redraw the share cards and check the project.
 
 ```bash
-npm run og
-npm test
-npm run lint
-npm run site:build
+pnpm run og
+pnpm test
+pnpm run lint
+pnpm run site:build
 ```
 
 5. Commit and push. The `pages` workflow deploys the site with the new base path.

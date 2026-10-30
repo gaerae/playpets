@@ -1,7 +1,7 @@
 # Test entry points and fixtures
 
-- `npm run test:js` runs every top-level `*.test.mjs` with Node's test runner.
-- `npm run test:rust` runs Rust unit tests; `npm test` runs both.
+- `pnpm run test:js` runs every top-level `*.test.mjs` with Node's test runner.
+- `pnpm run test:rust` runs Rust unit tests; `pnpm test` runs both.
 - New Node test entry points use the same suffix, so that command finds them.
 - Creator helper tests need Python with the Pillow version pinned in
   `assets/creator-skill/playpets-creator/requirements.txt`.
@@ -29,16 +29,16 @@
   it does not replace the combined checks before a PR.
 
 - `e2e.mjs` is not a Node unit-test entry, on purpose.
-- `npm run test:e2e` builds the test-feature app and runs its scenario with
+- `pnpm run test:e2e` builds the test-feature app and runs its scenario with
   isolated data.
 - Do not run it as a unit test or against the installed app's personal data.
   See the [testing standard](../docs/standards/testing.md).
-- Headless Linux host: `npm run test:e2e:linux` starts an isolated D-Bus, Xvfb
+- Headless Linux host: `pnpm run test:e2e:linux` starts an isolated D-Bus, Xvfb
   and Openbox session.
   - Needs `xvfb`, `xauth`, `dbus-x11`, `openbox` and `x11-utils`.
   - Xvfb alone cannot confirm native pinning or fullscreen restoration.
 
-- Windows CI also runs `npm run test:msix:ci` after the native E2E, on x64 and
+- Windows CI also runs `pnpm run test:msix:ci` after the native E2E, on x64 and
   ARM64.
 - `packaging/windows/msix/ci.ps1` refuses to run outside a GitHub Windows runner.
   It:

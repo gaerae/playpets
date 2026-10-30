@@ -43,7 +43,7 @@ What to review:
 
 After changing behavior:
 1. Run its focused regression checks.
-2. Run `npm test`, `npm run lint` and `npm run test:e2e`.
-3. For docs or website changes, run `npm run site:build`.
+2. Run `pnpm test`, `pnpm run lint` and `pnpm run test:e2e`.
+3. For docs or website changes, run `pnpm run site:build`.
 
 - A successful fixture run does not replace first-use testing with people or validation on the other desktop platforms.

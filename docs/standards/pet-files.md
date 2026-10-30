@@ -148,7 +148,7 @@ Follow these when you can. When you cannot, say why in the PR.
 
 ## Automated checks
 - Rust `pets::catalog::tests`: size per version, rejecting paths outside the folder, required fields, reading the size from the file header alone, and source information.
-- Rust `pets::importer::tests`: per-site address parsing and the saved result. Real site responses are checked with `npm run test:live-import`.
+- Rust `pets::importer::tests`: per-site address parsing and the saved result. Real site responses are checked with `pnpm run test:live-import`.
 
 ## Change history
 - 2026-10-01 First version

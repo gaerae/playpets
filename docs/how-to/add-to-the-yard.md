@@ -24,7 +24,7 @@
 
 ## Prerequisites
 - You finished [Set up a development environment and run the app](../getting-started.md).
-- `npm test` passes.
+- `pnpm test` passes.
 - To see the result without the app, use the isolated browser fixtures in `scripts/visual-audit.mjs`.
 - Native E2E and the normal screenshot script launch the real app.
 
@@ -177,9 +177,9 @@ To make a new effect:
 
 ## Verification
 ```bash
-npm test
-npm run lint
-npm run test:e2e
+pnpm test
+pnpm run lint
+pnpm run test:e2e
 ```
 
 - `tests/content.test.mjs` says what is missing: a name or a line in a language, a drawing file, an effect, a painter, a curve, a colour, an event's words or gift, or a look's rules.

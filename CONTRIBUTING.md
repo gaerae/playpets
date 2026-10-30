@@ -7,10 +7,10 @@
 
 ## Setup
 - Follow [Set up a development environment and run the app](docs/getting-started.md) once.
-- In short: Node.js 26.12.1 or later (`.node-version`), Rust stable 1.99 or later, the Tauri prerequisites for your OS, then `npm ci` and `rustup component add rustfmt clippy`.
+- In short: Node.js 26.12.1 or later (`.node-version`), Rust stable 1.99 or later, the Tauri prerequisites for your OS, then `pnpm install --frozen-lockfile` and `rustup component add rustfmt clippy`.
 
 ## Order of changing and checking
-- `npm run check` runs lint, unit tests and the site build together.
+- `pnpm run check` runs lint, unit tests and the site build together.
 - For a focused iteration, use `test:js`, `test:rust`, `lint:js` or `lint:rust`;
   run the combined checks before a PR.
 - Where source, generated content and local output belong:
@@ -20,13 +20,13 @@
    - Page: [page code structure](docs/standards/page-modules.md) and [multilingual strings](docs/standards/i18n.md) almost always apply.
    - Backend: [backend locks and threads](docs/standards/backend-locks.md).
 2. When a rule changes, change the test first, watch it fail, then change the code ([testing standard](docs/standards/testing.md)).
-3. `npm test` — Rust unit tests and page-side tests
-   `npm run lint` — code format (rustfmt, Oxfmt) and static checks (clippy, Oxlint). Warnings count as failures too (same as CI)
-4. `npm run test:e2e` — runs the real app with isolated data and checks it end to end
+3. `pnpm test` — Rust unit tests and page-side tests
+   `pnpm run lint` — code format (rustfmt, Oxfmt) and static checks (clippy, Oxlint). Warnings count as failures too (same as CI)
+4. `pnpm run test:e2e` — runs the real app with isolated data and checks it end to end
 5. Screen changed: build it and look (steps 6 and 8 of the getting-started doc).
-6. Drawing loop or animations changed: run `npm run measure` before and after, and attach the results to the PR ([performance standard](docs/standards/performance.md)).
+6. Drawing loop or animations changed: run `pnpm run measure` before and after, and attach the results to the PR ([performance standard](docs/standards/performance.md)).
 7. Change people can see: add one line in English under `## [Unreleased]` in `CHANGELOG.md`, in the same PR. Website, user guide and README changes go under `### Website and docs`; tests, CI and developer docs need no line. The release pages are written at release time ([release notes rules](docs/standards/writing.md#release-notes)).
-8. Site (`website/`) or `docs/` changed: `npm run site:build` has to pass. Dead links block the build ([Edit and check the website](docs/how-to/website.md)).
+8. Site (`website/`) or `docs/` changed: `pnpm run site:build` has to pass. Dead links block the build ([Edit and check the website](docs/how-to/website.md)).
 
 ## Commits and PRs
 Full rules: [commits, branches and history](docs/standards/commits-and-branches.md). In short:
@@ -35,7 +35,7 @@ Full rules: [commits, branches and history](docs/standards/commits-and-branches.
 - Fill in the template's checklist; add the issue number if there is a related issue.
 - Commit title: one English sentence describing the changed result, no period, like "The yard shows friends talking and working".
 - Commit body: what changed, why you did it that way, how you checked it.
-- Every commit passes `npm test` and `npm run lint`.
+- Every commit passes `pnpm test` and `pnpm run lint`.
 - Commit with your GitHub no-reply email (`git config user.email <id>+<name>@users.noreply.github.com`).
 - Never commit keys, tokens, personal data or generated build output.
 - Reviewed source artwork and reproducible asset exports already tracked by the repository stay with their source and provenance.
@@ -43,7 +43,7 @@ Full rules: [commits, branches and history](docs/standards/commits-and-branches.
 - First time? Start with issues labeled `good first issue`.
 
 ## Code format
-- Do not format by hand. `npm run format` formats:
+- Do not format by hand. `pnpm run format` formats:
   - Rust with rustfmt (`src-tauri/rustfmt.toml`)
   - JS, CSS and JSON with Oxfmt (`.oxfmtrc.jsonc`)
 - The recommended extensions (`.vscode/extensions.json`) provide these formatters.

@@ -137,7 +137,7 @@ Breaking a rule without recording an exception is a violation, not an exception.
   - a token with only a dark value read by a rule that is not dark
   - It does not check whether two different selectors compete for one element after rules are reordered; review that when you move rules between files.
 - `tests/i18n.test.mjs` catches Korean left in page code and markup, and keys missing from the table.
-- Oxlint in `npm run lint:oxlint`:
+- Oxlint in `pnpm run lint:oxlint`:
   - Correctness checks for JavaScript, TypeScript and Vue script blocks; warnings fail the command.
   - Beyond correctness: `eqeqeq`, `no-undef`, `prefer-const` and the other JavaScript checks of Biome's recommended set, which the repository used before.
   - It does not read CSS or JSON; `tests/ui-style.test.mjs` covers the stylesheet rules above.
@@ -145,13 +145,13 @@ Breaking a rule without recording an exception is a violation, not an exception.
   - The website build and review cover Vue template correctness.
   - Conditional expressions whose branches both call functions are allowed for the existing canvas drawing code.
   - Keep intentional snapshots of live DOM collections when fixing spread warnings.
-- Oxfmt in `npm run lint:js` (`oxfmt --check`): formatting and import sorting for JavaScript, TypeScript, CSS and JSON.
+- Oxfmt in `pnpm run lint:js` (`oxfmt --check`): formatting and import sorting for JavaScript, TypeScript, CSS and JSON.
 - Oxlint runs first. Neither tool replaces the repository-specific tests.
 - `tests/lint-config.test.mjs`:
   - broken page, tooling, test and Vue script fixtures fail Oxlint, while generated outputs are skipped;
   - Oxfmt formats JavaScript, CSS and JSON and leaves HTML, SVG, Vue and Markdown as written.
 
-All of these run with `npm test` and `npm run lint`, and CI runs the same commands.
+All of these run with `pnpm test` and `pnpm run lint`, and CI runs the same commands.
 
 ## Change history
 - 2026-10-01 First version — moved from "Where code lives" in CONTRIBUTING and organized as rules

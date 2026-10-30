@@ -29,7 +29,7 @@ Plans:
 Repack from the repository root with the matching action name:
 
 ```sh
-npm run companions:pack -- assets/sources/companion-actions-2026-10-19/pip/winter/dig-plan.json src/art/companions/pip/winter/dig.png
+pnpm run companions:pack -- assets/sources/companion-actions-2026-10-19/pip/winter/dig-plan.json src/art/companions/pip/winter/dig.png
 ```
 
 Generation direction:

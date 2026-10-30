@@ -1,7 +1,7 @@
 node_modules/
 src-tauri/target/
 src-tauri/gen/schemas/
-# Packages handed off by npm run dist:* and the store pictures (docs/repository-layout.md).
+# Packages handed off by pnpm run dist:* and the store pictures (docs/repository-layout.md).
 /release/
 # Local audits, review captures, backups and experiments; never a source or a package.
 /scratch/

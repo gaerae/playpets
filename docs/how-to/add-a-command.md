@@ -7,7 +7,7 @@
 
 ## Prerequisites
 - You finished [Set up a development environment and run the app](../getting-started.md).
-- `npm test` and `npm run test:e2e` pass.
+- `pnpm test` and `pnpm run test:e2e` pass.
 - You read the [backend locks standard](../standards/backend-locks.md) and the [i18n standard](../standards/i18n.md).
 - Commands run on a blocking thread, not the main thread.
 - Each handler takes the app state lock itself, with `lock(state)`.
@@ -58,9 +58,9 @@ $('center-button').onclick = guard(() => call('centerFriend', selected));
 
 ## Verification
 ```bash
-npm test
-npm run lint
-npm run test:e2e
+pnpm test
+pnpm run lint
+pnpm run test:e2e
 ```
 
 - All three pass.

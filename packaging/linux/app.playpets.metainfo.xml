@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- What Linux software centers (GNOME Software, KDE Discover, Ubuntu App Center) and Flathub show
      for PlayPets. The deb and the AppImage install it at /usr/share/metainfo/ (see bundle.linux in
-     src-tauri/tauri.conf.json). The screenshots are made by `npm run art`; `npm run release` adds
+     src-tauri/tauri.conf.json). The screenshots are made by `pnpm run art`; `pnpm run release` adds
      each version to the release list. Check it with: appstreamcli validate packaging/linux/app.playpets.metainfo.xml
      Two notes are expected: the id has two parts (it is the app's identifier, app.playpets; a
      Flathub listing would carry its own three-part id), and AppStream older than 1.0 (Ubuntu 22.04)

@@ -68,13 +68,13 @@
 | Yard only | 6.1% |
 | Yard only, sounds playing | 8.6% |
 
-- Source: measured 2026-10-10, Apple M2 Pro, macOS 26.6.2, `npm run measure` (3 test pets, each state held for 30 seconds and measured from second 4 to second 16), after the yard's sounds were added.
+- Source: measured 2026-10-10, Apple M2 Pro, macOS 26.6.2, `pnpm run measure` (3 test pets, each state held for 30 seconds and measured from second 4 to second 16), after the yard's sounds were added.
 - With sounds playing, most of the extra cost is WebKit's audio output itself.
 - Compare only values from the same machine.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
-- For a PR that changes loops, animations or the overlay thread, run `npm run measure` on the same machine before and after the change, and attach the results to the PR description.
+- For a PR that changes loops, animations or the overlay thread, run `pnpm run measure` on the same machine before and after the change, and attach the results to the PR description.
 
 ## Exceptions
 | When | How |
@@ -91,11 +91,11 @@ Follow these when you can. When you cannot, say why in the PR.
 
 ## Automated checks
 - None.
-- `npm run measure` is run by hand on macOS and Linux.
+- `pnpm run measure` is run by hand on macOS and Linux.
 - CI does not run it: load varies by runner, so there is no baseline.
 - On Windows, watch the CPU of the `msedgewebview2` process in Task Manager.
 
 ## Change history
-- 2026-10-01 First version — measurements are from the first run of `npm run measure`
+- 2026-10-01 First version — measurements are from the first run of `pnpm run measure`
 - 2026-10-09 The painted backdrop is painted only when the light or the size changes; new measurements
 - 2026-10-10 The yard's sounds: they play only while on and seen; a measured state with them playing

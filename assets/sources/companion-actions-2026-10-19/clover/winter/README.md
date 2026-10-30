@@ -25,7 +25,7 @@ Plans:
 Repack from the repository root, using the corresponding action name:
 
 ```sh
-npm run companions:pack -- assets/sources/companion-actions-2026-10-19/clover/winter/dig-plan.json src/art/companions/clover/winter/dig.png
+pnpm run companions:pack -- assets/sources/companion-actions-2026-10-19/clover/winter/dig-plan.json src/art/companions/clover/winter/dig.png
 ```
 
 Generation direction:

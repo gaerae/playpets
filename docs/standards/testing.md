@@ -10,8 +10,8 @@
   1. Change the test that checks the rule.
   2. Watch the changed test fail.
   3. Change the code.
-- `npm test` (Rust unit tests and the page's Node tests) and `npm run lint` (rustfmt, clippy with warnings as errors, Oxlint, Oxfmt) pass. CI runs the same commands.
-- A changed flow people see (buttons, windows, saving, agent integration): `npm run test:e2e` passes.
+- `pnpm test` (Rust unit tests and the page's Node tests) and `pnpm run lint` (rustfmt, clippy with warnings as errors, Oxlint, Oxfmt) pass. CI runs the same commands.
+- A changed flow people see (buttons, windows, saving, agent integration): `pnpm run test:e2e` passes.
 - A new flow: add a check line to the scenario and the expected list in `tests/e2e.mjs`.
 - Pure rules (calculation, conversion, parsing) are split into functions that run without the page or the app.
 - Unit tests check them (`src/core/`, `src/yard/`, `scripts/*-lib.mjs`, `mod tests` in each Rust module).
@@ -30,14 +30,14 @@ What goes where.
 
 | What it checks | Where | How to run |
 |---|---|---|
-| Rust logic | `mod tests` at the end of each `.rs` file | `npm test` |
-| Pure page logic, style contracts, module rules, strings tables | `tests/*.test.mjs` | `npm test` |
-| The yard's content loaded the way the page loads it, for tests of rules that read it | `tests/support/content.mjs` (import it before the module under test) | `npm test` |
-| Seasonal event dates, shared with the backend's `content.rs` test so the page and the backend agree | `tests/fixtures/event-dates.json` | `npm test` |
-| The page's limits and the backend's values kept equal (it reads the Rust source) | `tests/limits.test.mjs` | `npm test` |
-| Rules for generating release and distribution files | `tests/release.test.mjs`, `tests/distribute.test.mjs` | `npm test` |
-| The real app end to end | `tests/e2e.mjs`, test pet in `tests/support/fixture-pet.mjs` | `npm run test:e2e` |
-| Real responses from community sites | Rust `live_import` (skipped by default) | `npm run test:live-import` |
+| Rust logic | `mod tests` at the end of each `.rs` file | `pnpm test` |
+| Pure page logic, style contracts, module rules, strings tables | `tests/*.test.mjs` | `pnpm test` |
+| The yard's content loaded the way the page loads it, for tests of rules that read it | `tests/support/content.mjs` (import it before the module under test) | `pnpm test` |
+| Seasonal event dates, shared with the backend's `content.rs` test so the page and the backend agree | `tests/fixtures/event-dates.json` | `pnpm test` |
+| The page's limits and the backend's values kept equal (it reads the Rust source) | `tests/limits.test.mjs` | `pnpm test` |
+| Rules for generating release and distribution files | `tests/release.test.mjs`, `tests/distribute.test.mjs` | `pnpm test` |
+| The real app end to end | `tests/e2e.mjs`, test pet in `tests/support/fixture-pet.mjs` | `pnpm run test:e2e` |
+| Real responses from community sites | Rust `live_import` (skipped by default) | `pnpm run test:live-import` |
 
 ### How E2E runs
 - E2E launches the executable built with the `e2e` feature and an isolated data folder, then runs the scenario script inside the app.
@@ -49,11 +49,11 @@ What goes where.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
-- Windows-only code (`#[cfg(windows)]`): confirm it compiles with `npm run dist:windows`.
+- Windows-only code (`#[cfg(windows)]`): confirm it compiles with `pnpm run dist:windows`.
   - Compiling does not prove it runs.
   - If you cannot run the app on Windows yourself, list what still needs a run check in the PR description.
   - On a Mac, you can check the installers in a Windows virtual machine (for example UTM on Apple silicon, with Windows 11 on Arm).
-- Changes that touch Linux (`cfg(unix)`, tray, overlay, file permissions): check with `npm run dist:linux`.
+- Changes that touch Linux (`cfg(unix)`, tray, overlay, file permissions): check with `pnpm run dist:linux`.
   - It builds in Docker and then runs E2E on Xvfb with Openbox, so you can see Linux runs from a macOS machine.
 - Changes that affect performance: attach the measurements from the [performance standard](performance.md).
 
@@ -75,7 +75,7 @@ Follow these when you can. When you cannot, say why in the PR.
 - Runners: macOS, Windows x64 and arm64, Linux x64 and arm64.
 - Linux E2E runs on Xvfb with Openbox; the window manager is needed to verify native pinning and fullscreen restoration.
 - The site:
-  - The `site` job runs `npm run site:build`, which catches dead links.
+  - The `site` job runs `pnpm run site:build`, which catches dead links.
   - `tests/website.test.mjs` checks that every version in the changelog has a release page and that the screenshots a page points to exist.
 
 ## Change history

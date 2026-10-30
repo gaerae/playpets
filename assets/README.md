@@ -3,7 +3,7 @@
 | Location | Role |
 | --- | --- |
 | `icon.png`, `icon-provenance.json` | Accepted illustrated Clover face and its generation record |
-| `icon.svg` | Portable embedded-raster export made by `npm run icons`; do not edit by hand |
+| `icon.svg` | Portable embedded-raster export made by `pnpm run icons`; do not edit by hand |
 | `pets/` | Accepted pet manifests, canonical and seasonal sheets, identity references and generation provenance |
 | `concepts/` | Approved visual direction and identity source images |
 | `sources/` | Generated originals and retired variants of the runtime art in `src/art/`, kept as provenance; the app does not ship them |
@@ -27,13 +27,13 @@ Keeping sources:
   under ignored `scratch/`.
 - Provenance written before 2026-10-13 names local references under `release/`;
   those files now live under `scratch/`.
-- `npm run assets:audit` checks dimensions and raster references; visual quality
+- `pnpm run assets:audit` checks dimensions and raster references; visual quality
   still needs a screen review.
 - See [companion artwork](pets/README.md) and
   [repository ownership](../docs/repository-layout.md).
 
 Smaller PNG exports:
-- Install oxipng and run `npm run assets:optimize`.
+- Install oxipng and run `pnpm run assets:optimize`.
 - It keeps exact pixels and metadata, skips generation originals, and saves local
   backups and a report.
 - The [storage decision](../docs/decisions/2026-10-12-art-storage.md) covers
@@ -45,7 +45,7 @@ Creator skill:
   in its own `scripts/` directory.
 - The repository's `scripts/creator-workflow.py` is a thin launcher for that
   canonical helper.
-- `npm run creator:skill` creates portable skill and plugin ZIPs in the ignored
+- `pnpm run creator:skill` creates portable skill and plugin ZIPs in the ignored
   public creator-kit tree.
 - User-created art and drafts do not belong in this source directory.
 - The skill stays in `creator-skill/playpets-creator/` so app formats and

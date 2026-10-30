@@ -15,7 +15,7 @@
 |---|---|---|
 | Rust | stable, 1.99 or later | `rustc --version` |
 | Node.js | 26.12.1 or later (`.node-version`) | `node --version` |
-| npm | 11 or later, included with Node.js 26 | `npm --version` |
+| pnpm | 12.16.1 (`packageManager` in `package.json`) | `pnpm --version` |
 | Python | 3.15 (as in CI), with the pinned Pillow dependency | `python3 --version` (`py --version` on Windows) |
 | git | any version | `git --version` |
 | Tauri prerequisites | per OS | below |
@@ -29,6 +29,11 @@ sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librs
 
 - Windows: "Desktop development with C++" from Visual Studio Build Tools, and the WebView2 runtime (included in Windows 11).
 - Other OS requirements: the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
+- pnpm: Node.js 26 ships no corepack, so install it with the npm that comes with Node.js.
+
+```bash
+npm install -g pnpm@12.16.1
+```
 
 ## Steps
 1. Get the repository.
@@ -41,7 +46,7 @@ cd playpets
 2. Install the dependencies and confirm the Rust toolchain.
 
 ```bash
-npm ci
+pnpm install --frozen-lockfile
 rustup show active-toolchain
 ```
 
@@ -49,8 +54,9 @@ rustup show active-toolchain
 - It follows stable updates rather than pinning a compiler release.
 - `src-tauri/Cargo.toml` records the minimum supported Rust version.
 - Container builds keep the compiler and cross targets installed in their Rust base image.
-- npm records exact versions for new direct dependencies.
-- `npm ci` installs from the existing lockfile.
+- pnpm records exact versions for new direct dependencies (`pnpm-workspace.yaml`).
+- No dependency's install script runs; pnpm stops on a new package with one until it is listed in `allowBuilds`.
+- `pnpm install --frozen-lockfile` installs from the existing lockfile.
 - The creator helper tests also need Python and Pillow:
   - Use a virtual environment outside the checkout.
   - Activate it in each new shell before you run tests.
@@ -75,8 +81,8 @@ python -m pip install -r assets/creator-skill/playpets-creator/requirements.txt
 3. Run the unit tests and lint.
 
 ```bash
-npm test
-npm run lint
+pnpm test
+pnpm run lint
 ```
 
 4. Run the real-app E2E.
@@ -84,27 +90,27 @@ npm run lint
    - The first run takes a few minutes.
 
 ```bash
-npm run test:e2e
+pnpm run test:e2e
 ```
 
 5. Quit any installed PlayPets with "Quit" in the tray menu.
    - While it runs, a newly started app brings the running one to the front and exits right away.
 
 6. Build the normal app executable and run it with an isolated data folder.
-   - The E2E build has test-only features and stays in its own folder, so `npm run start` runs only what `npm run build:app` built.
+   - The E2E build has test-only features and stays in its own folder, so `pnpm run start` runs only what `pnpm run build:app` built.
    - Your usual friends and settings stay untouched.
 
 ```bash
-npm run build:app
-PLAYPETS_DATA="$PWD/.dev-data" npm run start
+pnpm run build:app
+PLAYPETS_DATA="$PWD/.dev-data" pnpm run start
 ```
 
 In Windows PowerShell:
 
 ```powershell
-npm run build:app
+pnpm run build:app
 $env:PLAYPETS_DATA = "$PWD\.dev-data"
-npm run start
+pnpm run start
 ```
 
 7. Pick a pet in the Invite tab.
@@ -115,7 +121,7 @@ npm run start
    - Page files are built into the executable, so every change needs a build.
 
 ```bash
-npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
+pnpm run build:app && PLAYPETS_DATA="$PWD/.dev-data" pnpm run start
 ```
 
 ## Optional editor setup
@@ -146,12 +152,12 @@ npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
 - Security checks run separately in CI.
 - Maintainers can also run them locally:
   - Install Gitleaks 8.30.1 and cargo-audit 0.22.2 (`cargo install cargo-audit --version 0.22.2 --locked`).
-  - Run `npm run security:check`.
+  - Run `pnpm run security:check`.
   - See the [security policy](https://github.com/gaerae/playpets/blob/main/SECURITY.md#automated-security-checks).
 
 ## Verification
-- At the end of `npm test`, Rust prints `test result: ok` and Node prints `fail 0`.
-- At the end of `npm run test:e2e`, `PASS: tauri e2e` is printed.
+- At the end of `pnpm test`, Rust prints `test result: ok` and Node prints `fail 0`.
+- At the end of `pnpm run test:e2e`, `PASS: tauri e2e` is printed.
 - The app opens. With no pets invited yet, the yard asks "Who would you like to play with?" over all four starter pets.
 - `.dev-data/state.json` exists and holds the friend you invited.
 
@@ -159,7 +165,7 @@ npm run build:app && PLAYPETS_DATA="$PWD/.dev-data" npm run start
 | Symptom | Cause and fix |
 |---|---|
 | `cargo: command not found` | `~/.cargo/bin` is not on `PATH`. Run `export PATH="$HOME/.cargo/bin:$PATH"` |
-| `npm run start` opens nothing | An installed PlayPets is running (step 5). Or there is no release build yet (step 4 or 8) |
+| `pnpm run start` opens nothing | An installed PlayPets is running (step 5). Or there is no release build yet (step 4 or 8) |
 | E2E prints "The app window was covered, so hide and seek only checked start and stop" | Not a failure. WebKit pauses animations in a covered window, so the walking check is skipped |
 | The Linux build cannot find `webkit2gtk` | Install the packages from Prerequisites |
 

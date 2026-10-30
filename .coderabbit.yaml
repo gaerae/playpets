@@ -65,7 +65,7 @@ reviews:
       instructions: >-
         Local distribution recipes. An image's build context is only what its Dockerfile copies
         (packaging/<platform>/.dockerignore); the container copies the mounted checkout through the
-        root .dockerignore and installs npm dependencies with --ignore-scripts. A private key is
+        root .dockerignore and installs pnpm dependencies with --ignore-scripts. A private key is
         never written to the output folder that is handed off (release/<platform>/); only public
         certificates go there. Files named in src-tauri/tauri.conf.json keep their paths.
     - path: "scripts/**"

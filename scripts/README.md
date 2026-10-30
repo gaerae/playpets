@@ -1,13 +1,13 @@
 # Maintainer tools
 
 - Run tools from the repository root.
-- Prefer the named npm command when there is one.
+- Prefer the named `pnpm run` command when there is one.
 - `*-lib.mjs` files and the content/specification modules are reusable helpers;
   import them instead of importing a command that writes files.
 - The tools that draw pictures (icons, share cards, installer art, creator kits, captures, atlas
   packing) start their browser through `launchBrowser()` in `browser-lib.mjs`:
   - an installed Google Chrome, or
-  - Playwright's own Chromium (`npx playwright install chromium`) when Chrome is missing.
+  - Playwright's own Chromium (`pnpm exec playwright-core install chromium`) when Chrome is missing.
 - Only the capture backdrop in `shots.mjs` needs Google Chrome.
 - Shared helpers live with their owner:
   - data URLs and sprite-sheet loading: `art-lib.mjs`;
@@ -16,9 +16,9 @@
 
 | Area | Commands and sources | Outputs |
 | --- | --- | --- |
-| Local execution and Docker builds | `local.mjs` via `npm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with all three Store identity variables (see [Store setup](../docs/how-to/store-and-apple-signing.md)) |
+| Local execution and Docker builds | `local.mjs` via `pnpm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with all three Store identity variables (see [Store setup](../docs/how-to/store-and-apple-signing.md)) |
 | Linux desktop checks | `linux-e2e.sh` via `test:e2e:linux` (build and run) or with `node tests/e2e.mjs` (CI prebuilt binary) | Isolated D-Bus/Xvfb/Openbox session; waits for a window manager before testing native pin and fullscreen |
-| Security review | `npm run security:check` with Gitleaks 8.30.1 and cargo-audit 0.22.2 installed | Redacted full-history secret scan, npm high-severity dependency check and RustSec review; advisory warnings stay visible |
+| Security review | `pnpm run security:check` with Gitleaks 8.30.1 and cargo-audit 0.22.2 installed | Redacted full-history secret scan, pnpm high-severity dependency audit and RustSec review; advisory warnings stay visible |
 | Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check`; `prepare-appimage-licenses.mjs` before Linux packaging; `appimage-license.mjs` on the finished image | Native dependency notice and fingerprint under `packaging/licenses/`; collected distro copyright files and an exact AppImage system-source manifest during a release build |
 | Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs`, `site-motion.mjs`, `site-releases.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/`; with `GH_TOKEN` set, the published releases' files for the download links |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `release-page.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; the release pages read per system and checked against the release notes rules (`node scripts/release-page.mjs x.y.z` prints each system's text); native package install-and-launch verification runs in release CI |
@@ -35,7 +35,7 @@
 
 ### Companion action plans
 
-- Run `npm run companions:pack -- plan.json output.png` with Python and Pillow
+- Run `pnpm run companions:pack -- plan.json output.png` with Python and Pillow
   available.
 - The plan names an RGBA source, one shared `scale`, and explicit frame
   rectangles, foot anchors and durations.
@@ -68,7 +68,7 @@ Linux Docker builds:
 - Container builds use the compiler already installed in their Rust image,
   including the Windows cross target, rather than downloading another toolchain
   because of the checkout's root configuration.
-- `BUNDLES=deb npm run dist:linux` skips AppImage collection and never exports
+- `BUNDLES=deb pnpm run dist:linux` skips AppImage collection and never exports
   an older image or manifest from the build cache.
 - Local Debian builds are development checks; CI uses Ubuntu for the published
   packages.
@@ -85,14 +85,14 @@ Notices and lint:
 
 - Install the pinned native notice generator with
   `cargo install cargo-about --version 0.9.2 --locked --features cli`.
-- Run `npm run licenses:generate` after dependency changes.
-- `npm run licenses:check` verifies the tracked native report fingerprint before
+- Run `pnpm run licenses:generate` after dependency changes.
+- `pnpm run licenses:check` verifies the tracked native report fingerprint before
   a Tauri build.
 - The website build emits a license asset for the dependencies in its actual
   bundle.
-- `npm run lint:js` runs Oxlint, then Oxfmt's format and import-order check
+- `pnpm run lint:js` runs Oxlint, then Oxfmt's format and import-order check
   (`oxfmt --check`).
-- `npm run lint:oxlint`: static checks alone. `npm run format:js`: format
+- `pnpm run lint:oxlint`: static checks alone. `pnpm run format:js`: format
   source with Oxfmt (`.oxfmtrc.jsonc`).
 - Do not apply spread fixes blindly to live DOM collections; removing a snapshot
   can skip nodes or attributes during mutation.
@@ -113,7 +113,7 @@ Public captures:
 - Never copy an earlier version's images into a newer version's directory.
 - Release pages can name an explicit capture version when they need a
   historical image.
-- The default `npm run shots` capture includes seasonal scenes, all four places,
+- The default `pnpm run shots` capture includes seasonal scenes, all four places,
   small windows and the app panels in every language.
 - Ordinary captures start in clear spring daylight; summer evening and night
   scenes and the winter comparison are explicit feature views.
@@ -123,31 +123,31 @@ Public captures:
 To refresh only seasonal landing scenes in every language:
 
 ```bash
-SHOT_SCENE=seasons SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+SHOT_SCENE=seasons SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
 To refresh seasonal scenes, all four places and small windows together (without the GIF):
 
 ```bash
-SHOT_SCENE=places SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+SHOT_SCENE=places SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
 To refresh only `friend-chat` and `companions` in every language (without the GIF):
 
 ```bash
-SHOT_SCENE=chat SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+SHOT_SCENE=chat SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
 To refresh only the small-window yard and conversation after a responsive layout change:
 
 ```sh
-SHOT_SCENE=small SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+SHOT_SCENE=small SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
 To refresh only `desktop` (and its store picture) in every language:
 
 ```bash
-SHOT_SCENE=desktop SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+SHOT_SCENE=desktop SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
 - The desktop picture is the app's own overlay window laid on the backdrop page, never a region of the screen.
@@ -156,7 +156,7 @@ SHOT_SCENE=desktop SHOT_LANGS=en,ko,ja,zh-hans npm run shots
 To refresh only the play pictures (`play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`) in every language:
 
 ```bash
-SHOT_SCENE=play SHOT_LANGS=en,ko,ja,zh-hans npm run shots
+SHOT_SCENE=play SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
 - They start from a lived-in garden (`playGarden` in `shots-lib.mjs`) in a data folder of their own, so the other pictures are unchanged.
@@ -230,7 +230,7 @@ Background creation:
 
 ### High-resolution website companions
 
-- `npm run preview:pack -- source-row.png idle-row.png destination.png idle 165`
+- `pnpm run preview:pack -- source-row.png idle-row.png destination.png idle 165`
   packs an approved transparent 1536×1024 eight-pose row into a 3072×416 website
   strip.
   - The second file is the approved idle row shared by every state.
@@ -326,7 +326,7 @@ Brand and installer art:
   height for installer and sharing art; `shots-lib.mjs` applies the same rule to
   native captures.
 - Recheck silhouette measurements when replacing starter art.
-- Regenerate installer artwork with `npm run art`.
+- Regenerate installer artwork with `pnpm run art`.
 - macOS (DMG):
   - The renderer reads the window and icon positions from
     `src-tauri/tauri.conf.json`.
@@ -384,7 +384,7 @@ Retiling a six-pose sheet:
 
 - `scripts/msix-manifest.mjs` validates and XML-escapes the Store identity before
   the Windows Docker build compiles the app.
-- `packaging/windows/build.sh` calls it through `npm run dist:windows`.
+- `packaging/windows/build.sh` calls it through `pnpm run dist:windows`.
 - Tests:
   - `tests/msix-manifest.test.mjs` covers identity validation;
   - `tests/windows-packaging.test.mjs` exercises the package hand-off.
@@ -393,7 +393,7 @@ Retiling a six-pose sheet:
 - Supply all three for Store packaging, or none for local test packaging.
 - The normal build CI already runs these tests; release files and Store
   submissions stay separate.
-- `npm run test:msix:ci` calls `packaging/windows/msix/ci.ps1` only on ephemeral
+- `pnpm run test:msix:ci` calls `packaging/windows/msix/ci.ps1` only on ephemeral
   GitHub Windows runners.
   - The build workflow keeps the production executable before rebuilding with
     the E2E feature, then packages both for native x64/ARM64 installation and

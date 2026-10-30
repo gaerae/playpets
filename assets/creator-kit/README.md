@@ -38,7 +38,7 @@
 Regenerate only the supplemental collages from approved production sheets:
 
 ```sh
-npm ci
+pnpm install --frozen-lockfile
 node scripts/creator-kit.mjs
 ```
 
@@ -57,7 +57,7 @@ node scripts/creator-kit.mjs --metadata
 Validate and publish all four kits, with deterministic uncompressed ZIP files:
 
 ```sh
-npm run site:build
+pnpm run site:build
 ```
 
 - Node only.

@@ -158,23 +158,23 @@ Records are dated and never rewritten. When two disagree, the later one holds. T
 **Common commands**
 | Command | What it does |
 |---|---|
-| `npm test` | Rust unit tests and page tests |
-| `npm run check` | Lint, unit tests and site build; run E2E separately |
-| `npm run test:js` / `test:rust` | Focused Node / Rust tests |
-| `npm run build:app` / `start` | Build the normal native executable / run that existing build |
-| `npm run assets:audit` | Check image dimensions and references; save an inventory under ignored `scratch/asset-audit/` |
-| `npm run lint` / `npm run format` | Check / tidy code layout (rustfmt, clippy, Oxlint, Oxfmt) |
-| `npm run test:e2e` | Real-app E2E |
-| `npm run measure` | CPU measurement in five states (macOS, Linux) |
-| `npm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |
-| `npm run shots -- x.y.z` | Real-app screenshots in every app language (macOS) |
-| `npm run og` | Redraw the four share cards (`website/public/og.png` in English, `og-ko.png`, `og-ja.png`, `og-zh-hans.png`) and the README banner |
-| `npm run art` | Redraw the installer art (list below) |
-| `npm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/<platform>/`) |
-| `npm run release -- x.y.z` | Release commit and tag |
-| `npm run icons` | Every icon from `assets/icon.png` |
+| `pnpm test` | Rust unit tests and page tests |
+| `pnpm run check` | Lint, unit tests and site build; run E2E separately |
+| `pnpm run test:js` / `test:rust` | Focused Node / Rust tests |
+| `pnpm run build:app` / `start` | Build the normal native executable / run that existing build |
+| `pnpm run assets:audit` | Check image dimensions and references; save an inventory under ignored `scratch/asset-audit/` |
+| `pnpm run lint` / `pnpm run format` | Check / tidy code layout (rustfmt, clippy, Oxlint, Oxfmt) |
+| `pnpm run test:e2e` | Real-app E2E |
+| `pnpm run measure` | CPU measurement in five states (macOS, Linux) |
+| `pnpm run site:dev` / `site:build` | Site dev server / build (includes dead link check) |
+| `pnpm run shots -- x.y.z` | Real-app screenshots in every app language (macOS) |
+| `pnpm run og` | Redraw the four share cards (`website/public/og.png` in English, `og-ko.png`, `og-ja.png`, `og-zh-hans.png`) and the README banner |
+| `pnpm run art` | Redraw the installer art (list below) |
+| `pnpm run dist:mac`, `dist:windows`, `dist:linux` | Local distribution files (`release/<platform>/`) |
+| `pnpm run release -- x.y.z` | Release commit and tag |
+| `pnpm run icons` | Every icon from `assets/icon.png` |
 
-What `npm run art` redraws:
+What `pnpm run art` redraws:
 - The macOS disk image background: `packaging/macos/dmg-background.png`.
 - The Windows installer's sidebar and header: `packaging/windows/nsis-*.bmp`.
 - The English screenshots Linux software centers show: `website/public/listing/en/`, from the current captures.
@@ -182,7 +182,7 @@ What `npm run art` redraws:
 
 ## Frequently asked questions
 **Can I change Windows code without checking it on Windows?**
-- Check that it compiles with `npm run dist:windows` (Docker).
+- Check that it compiles with `pnpm run dist:windows` (Docker).
 - The CI Windows runner runs E2E.
 - For behavior you only see at run time, such as how windows act, say in the PR description that it still needs checking.
 

@@ -48,7 +48,7 @@ The updater key:
 What the local repository already includes:
 - `.gitignore`, `.gitattributes`, `.editorconfig`, `.node-version`, Oxlint and Oxfmt settings, editor recommendations, issue and pull-request templates, Dependabot and review guidance.
 - Native build, Pages, release, distribution, dependency submission and security workflows.
-- `npm test` checks the ignored generated and secret paths, the pinned actions and the Pages input paths.
+- `pnpm test` checks the ignored generated and secret paths, the pinned actions and the Pages input paths.
 - Run `actionlint` too when it is available.
 - `CODEOWNERS` and funding metadata are optional.
 - Add them when there are review owners or a real funding destination to name.
@@ -62,7 +62,7 @@ What the local repository already includes:
 2. Create the key pair. When asked, paste the password twice.
 
 ```bash
-npx tauri signer generate -w ~/.tauri/playpets-updater.key
+pnpm exec tauri signer generate -w ~/.tauri/playpets-updater.key
 ```
 
    - It writes `~/.tauri/playpets-updater.key` (private, keep secret) and `~/.tauri/playpets-updater.key.pub` (public).
@@ -78,7 +78,7 @@ pbcopy < ~/.tauri/playpets-updater.key
 pbcopy < /dev/null
 ```
 
-4. Put the public key in `plugins.updater.pubkey` of `src-tauri/tauri.conf.json` (the whole content of the `.pub` file, as it is), run `npm test`, and commit.
+4. Put the public key in `plugins.updater.pubkey` of `src-tauri/tauri.conf.json` (the whole content of the `.pub` file, as it is), run `pnpm test`, and commit.
    - The private key and the password never go into the repository or a chat.
 
 ### The GitHub repository
