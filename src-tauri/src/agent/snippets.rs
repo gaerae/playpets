@@ -190,8 +190,13 @@ mod tests {
         let (exe, bridge) = ("/opt/playpets", "/data/bridge.json");
         let claude: Value =
             serde_json::from_str(&connection_snippet("claude", exe, bridge, Some("pet-1")).unwrap()).unwrap();
-        let command = claude["hooks"]["Stop"][0]["hooks"][0]["command"].as_str().unwrap();
-        assert!(command.ends_with(r#"--pet "pet-1""#), "{command}");
+        let handler = &claude["hooks"]["Stop"][0]["hooks"][0];
+        // On Windows the friend ends the hook's own arguments instead of its command line.
+        let named = match handler["args"].as_array() {
+            Some(args) => args.ends_with(&["--pet".into(), "pet-1".into()]),
+            None => handler["command"].as_str().unwrap().ends_with(r#"--pet "pet-1""#),
+        };
+        assert!(named, "{handler}");
         assert!(
             connection_snippet("codex", exe, bridge, Some("pet-1"))
                 .unwrap()

@@ -569,10 +569,13 @@ mod tests {
         assert_eq!(nvm_bin(&nvm), node("v20.18.0"), "a line: its newest");
         default("node");
         assert_eq!(nvm_bin(&nvm), node("v22.1.0"));
-        std::fs::write(alias.join("lts/*"), "lts/iron\n").unwrap();
-        std::fs::write(alias.join("lts/iron"), "v20.11.0\n").unwrap();
-        default("lts/*");
-        assert_eq!(nvm_bin(&nvm), node("v20.11.0"), "an alias that names another");
+        // nvm runs only on Unix; Windows refuses `*` in the file name of its LTS alias.
+        if cfg!(unix) {
+            std::fs::write(alias.join("lts/*"), "lts/iron\n").unwrap();
+            std::fs::write(alias.join("lts/iron"), "v20.11.0\n").unwrap();
+            default("lts/*");
+            assert_eq!(nvm_bin(&nvm), node("v20.11.0"), "an alias that names another");
+        }
         default("16");
         assert_eq!(nvm_bin(&nvm), node("v22.1.0"), "a version not installed: the newest");
         default("system");
@@ -675,9 +678,11 @@ mod tests {
             "",
             "nothing to add, nothing added"
         );
-        // A folder whose name holds the separator would split in two: it is left out.
+        // A folder whose name holds the separator would split in two: on Unix it is left out,
+        // and Windows keeps it in quotes, which its PATH reads as one folder.
         let odd = PathBuf::from(format!("/odd{sep}name"));
-        assert_eq!(child_path(None, OsStr::new(""), &[odd]), "");
+        let kept = if cfg!(windows) { "\"/odd;name\"" } else { "" };
+        assert_eq!(child_path(None, OsStr::new(""), &[odd]), kept);
     }
 
     #[test]

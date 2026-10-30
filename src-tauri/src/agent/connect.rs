@@ -562,12 +562,13 @@ mod tests {
         let after = json_at(&settings_path(&home, "claude").unwrap());
         // Replaced, not added beside the old entry.
         assert_eq!(after["hooks"]["Stop"].as_array().unwrap().len(), 1);
-        assert!(
-            after["hooks"]["Stop"][0]["hooks"][0]["command"]
-                .as_str()
-                .unwrap()
-                .ends_with(r#"--pet "pet-1""#)
-        );
+        let handler = &after["hooks"]["Stop"][0]["hooks"][0];
+        // On Windows the friend ends the hook's own arguments instead of its command line.
+        let named = match handler["args"].as_array() {
+            Some(args) => args.ends_with(&["--pet".into(), "pet-1".into()]),
+            None => handler["command"].as_str().unwrap().ends_with(r#"--pet "pet-1""#),
+        };
+        assert!(named, "{handler}");
         let moved = connection_snippet("claude", "/opt/playpets", BRIDGE, Some("pet-1")).unwrap();
         assert_eq!(status(&home, "claude", &moved), Link::Outdated);
     }
@@ -634,7 +635,10 @@ mod tests {
         readonly.set_readonly(true);
         fs::set_permissions(&path, readonly.clone()).unwrap();
         let error = connect(&home, "claude", &snippet("claude", None)).unwrap_err();
-        assert!(error.contains(&path.to_string_lossy().to_string()), "{error}");
+        // The message names the file by its full path: on Windows a temp folder may be given in
+        // its short 8.3 form (RUNNER~1), which canonicalizing spells out.
+        let shown = dunce::canonicalize(&path).unwrap();
+        assert!(error.contains(&shown.to_string_lossy().to_string()), "{error}");
         assert_eq!(fs::read_to_string(&path).unwrap(), original);
         assert!(!sibling(&path, "playpets-backup").exists());
         assert!(!sibling(&path, "playpets-tmp").exists());
