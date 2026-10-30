@@ -60,6 +60,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 
 - SmartScreen 检查文件和发布者的信誉，所以新版本也可能再次显示警告。详见 [Microsoft 的 SmartScreen 信誉说明](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)。
 - 请保持安全防护开启。恶意软件警告和无法识别应用警告是不同情况。
+- SmartScreen 的设置位于 Windows 安全中心的**基于信誉的保护**（[Microsoft 的应用和浏览器控制说明](https://support.microsoft.com/zh-cn/windows/security/windows-security/app-browser-control-in-the-windows-security-app)）。
 - ARM PC（骁龙等）请用 arm64 文件。
 - x64 文件也能通过模拟运行，但它的安装和卸载程序无法替你关闭正在运行的 PlayPets，请先从托盘退出。
 
@@ -181,7 +182,7 @@ chmod +x PlayPets_*.AppImage
 | 操作系统 | 位置 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\`。商店、winget：在安装包专用的文件夹里 |
+| Windows | `%APPDATA%\app.playpets\`。Microsoft Store（包括用 winget 安装）：在安装包专用的文件夹里 |
 | Linux | `~/.local/share/app.playpets/` |
 
 | 文件 | 内容 |
@@ -189,6 +190,7 @@ chmod +x PlayPets_*.AppImage
 | `state.json` | 伙伴和设置 |
 | `bridge.json` | 代理联动用的端口和令牌 |
 | `pets/` | 导入的宠物 |
+| `backgrounds/` | 导入的背景 |
 | `builtin/` | 自带的四位伙伴 |
 
 - 想放到别处：把文件夹路径填进环境变量 `PLAYPETS_DATA`，再运行应用。

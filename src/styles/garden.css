@@ -114,6 +114,25 @@
 .decor:focus-visible {
   outline: none;
 }
+/* A friend's memento wears a small heart, the tags' colour, so it is told from the same gift
+   brought on another day; the white disc keeps it apart from the name tags' hearts. */
+.decor.memento::after {
+  content: "♥";
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fffaf5;
+  box-shadow: 0 1px 2px #5a3b2a40;
+  color: #ec7d96;
+  font-size: 10px;
+  line-height: 1;
+  pointer-events: none;
+}
 .decor:focus-visible svg {
   filter: drop-shadow(0 0 2px var(--focus));
 }

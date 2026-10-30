@@ -8,7 +8,7 @@ test('overlay wardrobe follows saved season changes and minute fallback without 
   let choice = 'winter',
     minute;
   const now = () => new Date('2026-07-15T12:00:00Z');
-  setupSeason({
+  const refresh = setupSeason({
     read: () => choice,
     apply: season => applied.push(season),
     minute: cb => {
@@ -19,6 +19,13 @@ test('overlay wardrobe follows saved season changes and minute fallback without 
     south: false,
   });
   assert.deepEqual(applied, ['winter']);
+  // A choice saved by the yard reaches this window with the app's state, which reads it again.
+  choice = 'summer';
+  refresh();
+  assert.deepEqual(applied, ['winter', 'summer']);
+  choice = 'winter';
+  refresh();
+  applied.splice(0, applied.length, 'winter');
   const storage = key => {
     const e = new Event('storage');
     e.key = key;

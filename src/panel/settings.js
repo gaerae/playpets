@@ -2,7 +2,8 @@
 // coding agents, showing friends on the desktop, app updates and the app's own pages.
 
 import { agentFile } from '../core/agent-files.js';
-import { agentLabel, agentOf } from '../core/agents.js';
+import { agentLabel, agentOf, linkView } from '../core/agents.js';
+import { confirmAction } from '../core/confirm.js';
 import { closeUpdateDetails } from '../core/controls.js';
 import { language, t } from '../core/i18n.js';
 import { onShortcut } from '../core/keys.js';
@@ -23,6 +24,59 @@ function copied(kind) {
   if (kind === 'grok') return t('toast.copied_grok', { file });
   if (file && agentOf(data, kind)) return t('toast.copied', { tool: agentLabel(data, kind), file });
   return t('toast.copied_mcp');
+}
+// Where each agent stands, read from its own settings file (agent/connect.rs), kind → link.
+let agentLinks = {};
+async function refreshLinks() {
+  try {
+    agentLinks = (await call('agentLinks')) || {};
+  } catch {
+    agentLinks = {};
+  }
+  renderLinks();
+}
+function renderLinks() {
+  for (const button of document.querySelectorAll('#panel-settings button[data-connect]')) {
+    const kind = button.dataset.connect,
+      view = linkView(agentLinks[kind]),
+      mark = document.querySelector(`[data-link-state="${kind}"]`),
+      problem = document.querySelector(`[data-link-problem="${kind}"]`);
+    button.hidden = !view.button;
+    button.textContent = view.button ? t(view.button) : '';
+    // Connecting is the row's main action; Disconnect stands back beside Copy settings.
+    button.classList.toggle('primary', !!view.connect);
+    button.classList.toggle('secondary', !view.connect);
+    mark.hidden = !view.mark;
+    mark.textContent = view.mark ? t(view.mark) : '';
+    mark.classList.toggle('outdated', agentLinks[kind] === 'outdated');
+    problem.hidden = !view.problem;
+    problem.textContent = view.problem ? t(view.problem) : '';
+  }
+}
+// Connect asks first, naming the file it changes; Disconnect takes out only PlayPets' entries and
+// Connect puts them back, so it is not asked.
+async function linkAgent(button) {
+  const kind = button.dataset.connect,
+    tool = agentLabel(data, kind),
+    view = linkView(agentLinks[kind]);
+  if (!view.button) return;
+  if (view.connect) {
+    const file = agentFile(data, kind, windows());
+    const yes = await confirmAction({
+      title: t('settings.connect_title', { tool }),
+      body: t('settings.connect_body', { file }),
+      action: t(view.button),
+    });
+    if (!yes) return;
+  }
+  button.disabled = true;
+  try {
+    agentLinks[kind] = await call(view.connect ? 'connectAgent' : 'disconnectAgent', kind);
+    toast(t(view.connect ? 'toast.connected' : 'toast.disconnected', { tool }));
+  } finally {
+    button.disabled = false;
+    await refreshLinks();
+  }
 }
 export function renderDesktopSwitches() {
   // Desktop friends need someone in the yard; window pinning works independently.
@@ -313,7 +367,11 @@ export function setupSettings() {
       try {
         await call('assignAgent', kind, requested);
         const chosen = data.pets.find(p => p.id === requested);
-        toast(t('settings.agent_pet_changed', { name: chosen ? name(chosen) : t('settings.agent_pet_first') }));
+        await refreshLinks();
+        // A connected agent still names the friend it had until it is connected again.
+        const key =
+          agentLinks[kind] === 'outdated' ? 'settings.agent_pet_changed_linked' : 'settings.agent_pet_changed';
+        toast(t(key, { name: chosen ? name(chosen) : t('settings.agent_pet_first') }));
       } catch (error) {
         const current = data.agentPets?.[kind] || '';
         select.value = data.pets.some(p => p.id === current) ? current : '';
@@ -328,6 +386,9 @@ export function setupSettings() {
       await call('copyConnection', kind);
       toast(copied(kind));
     });
+  for (const button of document.querySelectorAll('#panel-settings button[data-connect]'))
+    button.onclick = guard(() => linkAgent(button));
+  $('settings-agents').addEventListener('settings-shown', refreshLinks);
   $('ai-add').onclick = () => openConnectionDialog(null, () => {}, { forFriend: null, inline: $('ai-editor') });
   $('update-button').onclick = guard(updateButton);
   const notes = guard(() => call('openExternal', links().notes(found.version)));
@@ -387,5 +448,11 @@ export function setupSettings() {
       $('autostart').checked = !want;
       throw e;
     }
+  });
+  // The system's own settings can change it while the app runs; coming back to the window asks again.
+  window.addEventListener('focus', async () => {
+    try {
+      $('autostart').checked = await call('readAutostart');
+    } catch {}
   });
 }

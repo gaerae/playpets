@@ -35,36 +35,23 @@
 - 简短的完成或通知报告（包括截取的代理回复）可能包含工作细节，并可能随伙伴对话发给所选 AI 服务。
 - 请检查通过终端或 MCP 发送的消息。想把这些内容留在本机，用已下载的本地模型。
 
-## 在 macOS 上打不开。
+## 遇到问题时 {#troubleshooting}
 
-- 从 1.3.0 起，macOS 应用已签名并经过公证。请确认版本是 1.3.0 或更高。
-- 1.2.0 及更早版本没有签名，macOS 可能显示警告。
-- 先确认文件来自本项目的发布页面。
-- 系统提供**仍要打开**时，按[安装指南](./install.md#macos)操作。
-- 能用哪些选项，取决于警告类型和系统策略。
+| 现象 | 原因 | 怎么办 |
+|---|---|---|
+| macOS 上打不开 PlayPets | 1.2.0 及更早版本没有签名 | 安装 1.3.0 或更高版本。旧版本请看[仍要打开](./install.md#macos) |
+| Windows 安装文件出现 SmartScreen 警告 | GitHub 上的安装文件暂无代码签名 | 用由 Microsoft 签名的 [Microsoft Store 或 winget](./install.md#microsoft-store) 安装。或者先核实来源，再选**更多信息 → 仍要运行**（[GitHub 安装文件](./install.md#installer-from-github)） |
+| Linux 上 AppImage 无法启动 | 缺少 FUSE 2 | 安装 `libfuse2`（Ubuntu 24.04 为 `libfuse2t64`），或用 `--appimage-extract-and-run` 运行（[Linux](./install.md#linux)） |
+| 关闭窗口后乐园不见了 | 关闭只是隐藏 | 在托盘图标里选**打开乐园**。GNOME 没有 AppIndicator 扩展时会隐藏托盘图标；再次启动应用也能让乐园回来 |
+| 伙伴只说“准备好一起玩了！”，不回答 | 这位伙伴还没有 AI | [连接 AI](./chat.md#创建连接) |
+| Claude Code 或 Codex CLI 的卡片上没有**已安装** | 应用找不到这个命令 | 确认终端里能运行 `claude` 或 `codex`。在 Windows 上用 npm 安装的，要在 `%APPDATA%\npm` 里 |
+| 保存连接时提示无法访问安全存储 | 密钥存储被锁定或不存在（Linux 上没有 Secret Service 时） | 允许访问；在 Linux 上可用 GNOME Keyring 或 KWallet。Ollama 和已登录的 CLI 不需要密钥 |
+| 编码代理在工作，伙伴却没有反应 | 没有连接、没有开始新的会话，或者移动过应用 | 在**设置 → 编码工具连接**里点**连接**或**重新连接**，或重新复制并粘贴设置，再开始新的会话（[编码代理联动](./agents.md)）。Codex CLI 的伙伴只显示任务完成，不显示工作中 |
+| 消息发给了别的伙伴 | 没有选**负责的伙伴**，所以由第一位伙伴接收 | 在**设置 → 编码工具连接**里选好负责的伙伴，再点**重新连接**，或重新复制并粘贴设置 |
+| 宠物地址导入不了 | 网站不受支持，或文件在另一个网站上 | 下载宠物，用文件夹或 ZIP 导入（[导入宠物](./import.md)） |
+| 很慢或很耗电 | 伙伴移动时会频繁绘制 | 关闭乐园窗口：隐藏的乐园不会绘制。也可以减少伙伴，或关掉**在桌面散步** |
 
-## Windows 上出现警告。
-
-- SmartScreen 可能对暂无代码签名的 GitHub 安装文件显示警告。先核实文件来源。
-- 部分系统提供**更多信息**和**仍要运行**；受管理的设备可能不允许继续。
-- 详见[安装指南](./install.md#windows)。
-- 想不看到警告直接安装，请用 [Microsoft Store](./install.md#microsoft-store) 或 winget：那个安装包由 Microsoft 签名。
-
-## Windows 上无法进行 AI 对话。
-
-- 用 npm 安装的 Claude Code 或 Codex CLI 要在 `%APPDATA%\npm` 里，应用才能找到。
-
-1. 先在终端确认 `claude` 或 `codex` 能运行。
-2. 再看连接窗口里对应的卡片是否标着“已安装”。
-
-- Windows 版还没在实际设备上充分测试。仍然不行的话，请通过 [Issue](https://github.com/gaerae/playpets/issues) 告诉我们。
-
-## 宠物很慢，或者很耗电。
-
-- 伙伴只在有动作时频繁绘制，静止时很少绘制。
-- 关闭乐园窗口把它隐藏后，乐园不再绘制。
-- 还是占用很多的话，减少伙伴数量，或关掉**在桌面散步**试试。
-- 告诉我们是在哪种状态下出现的（只有乐园、只有桌面、两者都有），会很有帮助。
+还有其他问题，请写上系统和 PlayPets 版本，通过 [Issue](https://github.com/gaerae/playpets/issues) 告诉我们。Windows 版还没在实际设备上充分测试。
 
 ## 可以自己做宠物吗？
 
@@ -83,10 +70,10 @@
 | 操作系统 | 位置 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`。Microsoft Store（包括用 winget 安装）：在安装包专用的文件夹里 |
 | Linux | `~/.local/share/app.playpets/` |
 
-- `state.json`：伙伴和设置。`pets/`：导入的宠物。`builtin/`：自带宠物。
+- `state.json`：伙伴和设置。`pets/`：导入的宠物。`backgrounds/`：导入的背景。`builtin/`：自带宠物。
 - API 密钥不在这里，而在操作系统的安全存储里。
 - PlayPets 不把对话记录存成文件，只在当前应用会话中保留。
 - 连接服务的对话保存，遵循该服务的政策。

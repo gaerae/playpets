@@ -28,6 +28,7 @@ test('release pages never render installer or tag links before GitHub confirms p
     const script = compileScript(parse(source).descriptor, { id: name, inlineTemplate: true });
     modules[name] = (await transform(script.content, { loader: 'ts', format: 'cjs' })).code;
   }
+  let built;
   const render = async (name, frontmatter) => {
     const dependencies = {
       vue,
@@ -35,6 +36,7 @@ test('release pages never render installer or tag links before GitHub confirms p
       '../generated.json': { slug: 'gaerae/playpets' },
       './site-runtime.mjs': {
         forgetRelease: () => {},
+        knownRelease: () => built,
         latestRelease: async () => ({ status: 'missing', version: '', files: [] }),
         taggedRelease: async () => ({ status: 'missing', version: '', files: [] }),
         watchRelease: () => () => {},
@@ -60,6 +62,22 @@ test('release pages never render installer or tag links before GitHub confirms p
   assert.match(pendingDownload, /Checking release/);
   assert.doesNotMatch(pendingDownload, /Preparing|Not released yet/);
   assert.match(pendingDownload, /aria-busy="true"/);
+  // A release the site was built with is in the served page: the file itself, no lookup.
+  built = {
+    status: 'ready',
+    version: '0.1.0',
+    publishedAt: '2026-10-13T00:00:00Z',
+    files: ['PlayPets_0.1.0_macos-universal.dmg'],
+  };
+  const servedDownload = await render('Downloads', {});
+  assert.match(
+    servedDownload,
+    /href="https:\/\/github.com\/gaerae\/playpets\/releases\/download\/v0.1.0\/PlayPets_0.1.0_macos-universal.dmg"/,
+  );
+  assert.doesNotMatch(servedDownload, /Checking release|aria-busy="true"/);
+  assert.match(await render('ReleaseMeta', { version: '0.1.0' }), /<time datetime="2026-10-13T00:00:00Z"/);
+  assert.match(await render('ReleaseLinks', { version: '0.1.0' }), /releases\/tag\/v0.1.0/);
+  built = undefined;
   const datedMeta = await render('ReleaseMeta', { version: '0.1.0', date: '2026-10-13' });
   assert.doesNotMatch(datedMeta, /<time/);
   assert.match(datedMeta, /Preparing/);

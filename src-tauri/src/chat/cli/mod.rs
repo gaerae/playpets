@@ -134,6 +134,7 @@ impl CliManager {
     /// turn still being answered (that session is out of the map while it waits).
     pub fn close(&self) {
         crate::app::hold(&self.sessions).clear();
+        stop_every_tree();
         if let Some(dir) = private_dir() {
             let _ = std::fs::remove_dir_all(dir);
         }

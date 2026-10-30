@@ -91,8 +91,43 @@ export function watchRelease(slug, update, version) {
 
 const validVersion = version => /^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(version);
 
+/** One release as the API returns it, as the pages read it; null for a tag that isn't a version. */
+export function releaseFrom(payload) {
+  const version = String(payload?.tag_name || '').replace(/^v/, '');
+  if (!validVersion(version)) return null;
+  return {
+    status: 'ready',
+    version,
+    publishedAt: typeof payload.published_at === 'string' ? payload.published_at : '',
+    files: Array.isArray(payload.assets)
+      ? payload.assets.map(a => a.name).filter(name => typeof name === 'string')
+      : [],
+  };
+}
+
+const MISSING = { status: 'missing', version: '', files: [], publishedAt: '' };
+// Slugs whose published releases the site was built with: a version not among them isn't out yet.
+const known = new Set();
+const settle = (key, result) => {
+  settled.set(key, result);
+  releases.set(key, Promise.resolve(result));
+};
+/** Takes the releases the site was built with (scripts/site-releases.mjs), so their lookups answer at
+ * once and the browser never asks GitHub. Null (GitHub couldn't be reached then) leaves them to the browser. */
+export function seedReleases(slug, built) {
+  if (!built) return;
+  known.add(slug);
+  settle(releaseKey(slug), built.latest ?? MISSING);
+  for (const result of Object.values(built.tagged)) settle(releaseKey(slug, result.version), result);
+}
+/** A release the site was built with, or nothing when the browser has to look it up. A browser
+ * lookup's answer isn't one: a failed one must stay open to Retry. */
+export const knownRelease = (slug, version) =>
+  known.has(slug) ? (settled.get(releaseKey(slug, version)) ?? MISSING) : undefined;
+
 function fetchRelease(slug, version, fetcher) {
   const key = releaseKey(slug, version);
+  if (!releases.has(key) && known.has(slug)) settle(key, MISSING);
   if (!releases.has(key))
     releases.set(
       key,
@@ -103,20 +138,11 @@ function fetchRelease(slug, version, fetcher) {
           const response = await fetcher(`https://api.github.com/repos/${slug}/${endpoint}`, {
             headers: { Accept: 'application/vnd.github+json' },
           });
-          if (response.status === 404) return { status: 'missing', version: '', files: [], publishedAt: '' };
+          if (response.status === 404) return MISSING;
           if (!response.ok) throw new Error('Release lookup failed');
-          const payload = await response.json(),
-            foundVersion = String(payload.tag_name || '').replace(/^v/, '');
-          if (!validVersion(foundVersion) || (version && foundVersion !== version))
-            throw new Error('Invalid release tag');
-          return {
-            status: 'ready',
-            version: foundVersion,
-            publishedAt: typeof payload.published_at === 'string' ? payload.published_at : '',
-            files: Array.isArray(payload.assets)
-              ? payload.assets.map(a => a.name).filter(name => typeof name === 'string')
-              : [],
-          };
+          const found = releaseFrom(await response.json());
+          if (!found || (version && found.version !== version)) throw new Error('Invalid release tag');
+          return found;
         } catch {
           return { status: 'error', version: '', files: [], publishedAt: '' };
         }

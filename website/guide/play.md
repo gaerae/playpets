@@ -143,9 +143,11 @@ Only after that is the plant gone for good. If the app closes first, it stays. T
 
 ### Gifts
 
-The whole yard gets at most one gift per local calendar day. All your friends share it; it isn't one per friend. The wait is 20 to 40 minutes, or five minutes for the first gift.
+Gifts come from friends, not from the clock. On a day you do something with a friend, such as patting it, giving it a treat, talking or fishing together, that friend may bring a gift. The whole yard gets at most one every other day, and time alone in the yard brings none. Once a gift may come, it takes 10 to 20 minutes, or five minutes for the first one.
 
-Once a gift is scheduled, its delivery time is saved and time with the app closed counts too, so you don't need to keep the app open. A gift that comes due while the app is closed can be delivered after you return. The friend jumps, tells you, and sets the gift down beside it.
+Friends also bring a gift when they grow closer, one for each new level from **At ease** on, on a day you play with that friend. At **Very close** it's the friend's memento, marked with a small heart.
+
+The wait is saved, and time with the app closed counts too, so you don't need to keep the app open. The friend jumps, tells you, and sets the gift down beside it.
 
 The first gifts come in this order:
 
@@ -172,9 +174,9 @@ Friends also visit decorations on their own. They sit on the bench, gather on th
 
 To put one away, right-click it or press **Delete** or **Backspace** on it. It goes at once, and **Undo** in the notice brings it back for about six seconds. If the app closes first, it stays. A friend may bring it again another day.
 
-- The yard holds 12 decorations. A full yard pauses deliveries.
-- Putting one away keeps its album entry and makes room for the remaining gifts.
-- The album has 18 gifts, including four delivered only during their calendar events.
+- The yard holds 12 decorations. When it's full, a new gift waits in the **gift box** at the top of the album's Gifts book, which holds 12 more. Press one there to set it out once there's room.
+- Putting one away keeps its album entry and makes room for the remaining gifts. A memento goes back into the gift box instead, unless the box is full.
+- The album has 20 gifts, including four delivered only during their calendar events. A memento is one of these 20, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
@@ -190,7 +192,7 @@ Bugs appear only in clear outdoor weather; rain and snow stop them. In the morni
 
 **Fishing on its own**
 
-From closeness level 3, an idle friend may go fishing on its own every 12 to 25 minutes while the yard is visible. Games, another fishing trip or an active placement tool pause it, and a catch isn't guaranteed.
+From closeness level 3, an idle friend may go fishing on its own every 12 to 25 minutes while the yard is visible. Games, another fishing trip or an active placement tool pause it. When a fish bites, the friend calls you; press the float within a few seconds to reel it in together. If no one does, the fish gets away, so the album only keeps what you catch.
 
 **What you find**
 
@@ -236,10 +238,10 @@ Levels say how close you are, not what you are to each other. They read the same
 | Just met | |
 | At ease | It welcomes you when the app opens and when you come back after a while |
 | Warm | It goes fishing on its own now and then |
-| Very close | |
+| Very close | It brings you its memento |
 | Dearest | A flower on its name tag, and now and then it says something just for you |
 
-Time together counts every ten minutes the yard is seen. Patting, treats, chatting, watering, catching and gifts count too, up to a day's worth. So a few minutes of clicking can't rush it: closeness comes over days, and nothing is ever lost by being away.
+Time together counts every ten minutes the yard is seen, up to an hour's worth a day. Patting, treats, chatting, watering, catching and gifts count more, up to a day's worth, and pats alone fill only a quarter of it. So leaving the window open or a minute of clicking can't rush it: closeness comes from what you do together over days, and nothing is ever lost by being away.
 
 Closeness is saved as `bonds` in `state.json`.
 

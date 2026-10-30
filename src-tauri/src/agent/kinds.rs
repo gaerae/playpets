@@ -1,8 +1,23 @@
 //! The coding agents the app knows, one record each: the kind the page and the CLI name it by,
-//! how it is shown, whether it reports through a hook, and the settings file it reads. Adding
-//! an agent is a record here, an arm in `cli::hook_event` and in `snippets::connection_snippet`,
+//! how it is shown, whether it reports through a hook, the settings file it reads and how hooks
+//! sit in that file (for Connect). Adding an agent is a record here, an arm in `cli::hook_event` and in `snippets::connection_snippet`,
 //! a row in index.html's settings tab, and the strings those name.
 use serde_json::{Value, json};
+
+/// How the settings file holds PlayPets' hook, so Connect can add it beside the rest (connect.rs).
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Format {
+    /// JSON `hooks.<event>`: groups, each with a `hooks` list of handlers.
+    Grouped,
+    /// JSON `hooks.<event>`: the handlers themselves.
+    Flat,
+    /// TOML: the one top-level `notify` program.
+    Notify,
+    /// TOML `[[hooks]]` rows of exactly `event`, `matcher`, `command` and `timeout`.
+    HookRows,
+    /// Nothing to write: each tool adds MCP servers its own way.
+    None,
+}
 
 pub struct Agent {
     pub kind: &'static str,
@@ -11,44 +26,65 @@ pub struct Agent {
     pub hook: bool,
     /// The settings file under the home folder the copied snippet goes into.
     pub settings_file: &'static [&'static str],
+    pub format: Format,
 }
 
-pub const AGENTS: [Agent; 6] = [
+pub const AGENTS: [Agent; 8] = [
     Agent {
         kind: "claude",
         label: "Claude Code",
         hook: true,
         settings_file: &[".claude", "settings.json"],
+        format: Format::Grouped,
     },
     Agent {
         kind: "codex",
         label: "Codex",
         hook: true,
         settings_file: &[".codex", "config.toml"],
+        format: Format::Notify,
     },
     Agent {
         kind: "gemini",
         label: "Gemini CLI",
         hook: true,
         settings_file: &[".gemini", "settings.json"],
+        format: Format::Grouped,
     },
     Agent {
         kind: "cursor",
         label: "Cursor",
         hook: true,
         settings_file: &[".cursor", "hooks.json"],
+        format: Format::Flat,
     },
     Agent {
         kind: "grok",
         label: "Grok Build",
         hook: true,
         settings_file: &[".grok", "hooks", "playpets.json"],
+        format: Format::Grouped,
+    },
+    Agent {
+        kind: "qoder",
+        label: "Qoder",
+        hook: true,
+        settings_file: &[".qoder", "settings.json"],
+        format: Format::Grouped,
+    },
+    Agent {
+        kind: "kimi",
+        label: "Kimi Code",
+        hook: true,
+        settings_file: &[".kimi-code", "config.toml"],
+        format: Format::HookRows,
     },
     Agent {
         kind: "mcp",
         label: "MCP",
         hook: false,
         settings_file: &[],
+        format: Format::None,
     },
 ];
 
@@ -81,6 +117,12 @@ mod tests {
                 a.hook,
                 !a.settings_file.is_empty(),
                 "{}: a hook agent has a file to paste into",
+                a.kind
+            );
+            assert_eq!(
+                a.hook,
+                a.format != Format::None,
+                "{}: a hook agent can be connected",
                 a.kind
             );
         }

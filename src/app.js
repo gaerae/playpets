@@ -27,6 +27,7 @@ import {
   toast,
   views,
 } from './core/state.js';
+import { fadedBetween } from './core/status.js';
 import { clip, plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
 import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
@@ -51,7 +52,7 @@ import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
-import { giftTick, renderDecor, setupDecor } from './yard/decor.js';
+import { giftTick, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
 import {
   autoDig,
   beginDiscovery,
@@ -116,6 +117,10 @@ function openChat(id) {
   $('message').focus();
 }
 
+// The app's state first: the backgrounds (loadContent) and the place, season and weather picked
+// (setupSky) are read from it, and whether this data folder owns the webview's old copies. A
+// failure here is shown by the full start below.
+setData(await call('bootstrap').catch(() => data));
 // What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
 await loadContent();
 await setupCompanionActions();
@@ -256,13 +261,17 @@ const AUTO_PLAY_MS = 4 * 60 * 1000;
 setInterval(() => {
   if (data.autoPlay && shown) autoDig();
 }, AUTO_PLAY_MS);
-// A finished agent's state fades after a while (core/status.js): the page looks again each minute.
+// A finished agent's state fades after a while (core/status.js): the page looks each minute, and
+// is drawn again only when one did, so a picker or an open album is not rebuilt under the person.
+let looked = Date.now();
 everyMinute(() => {
   if (data.garden?.trees?.length) {
     call('growTrees').catch(console.error);
     renderTrees();
   }
-  if (Object.values(data.statuses).some(s => s.at)) render();
+  const now = Date.now();
+  if (fadedBetween(data, looked, now)) render();
+  looked = now;
 });
 // Speech bubbles from one conversation are spaced out by this much.
 const BUBBLE_GAP = 1200;
@@ -318,7 +327,7 @@ const BUSY_MS = 50,
   SNOW_MS = 80,
   CALM_MS = 100;
 // What goes on in the yard between games, looked at every frame: each knows when it is due.
-const YARD_LIFE = [idleChatter, giftTick, soloFishing];
+const YARD_LIFE = [idleChatter, giftTick, thanksTick, soloFishing];
 let last = 0;
 function interval(now) {
   if (game || aiming) return BUSY_MS;

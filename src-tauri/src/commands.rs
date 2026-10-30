@@ -105,6 +105,8 @@ static COMMANDS: &[Command] = &[
     }),
     // Pet files.
     main("importFolder", |c| import_from_folder(c.app, &c.state)),
+    main("importZip", |c| import_from_zip(c.app, &c.state)),
+    main("removeAsset", |c| remove_asset(c.app, &c.state, c.text(0))),
     main("importUrl", |c| {
         let root = lock(&c.state).store.dir.join("pets");
         let folder = importer::import_from_url(c.text(0), &root, &importer::http_fetch)?;
@@ -125,7 +127,7 @@ static COMMANDS: &[Command] = &[
     main("getChat", |c| {
         let d = lock(&c.state);
         let id = c.text(0);
-        require_pet(&d, id).map(|_| json!(d.talks.history(id)))
+        require_pet(&d, id).map(|_| json!(d.talks.log(id)))
     }),
     main("clearChat", |c| chat::clear(&c.state, &c.cli, c.text(0))),
     main("cancelChat", |c| {
@@ -152,9 +154,32 @@ static COMMANDS: &[Command] = &[
             Ok(json!(d.prefs.sound))
         })
     }),
+    // (key, value): the place, season, time of day or weather picked for the yard.
+    main("setScene", |c| {
+        let choice = crate::app::scene_choice(c.text(0), c.text(1)).ok_or_else(|| i18n::t("error.bad_request"))?;
+        commit(c.app, &c.state, |d| {
+            d.prefs.scene.insert(c.text(0).to_string(), choice);
+            Ok(Value::Null)
+        })
+    }),
+    // Imported backgrounds, a file each in the data folder; read and written outside the lock.
+    main("listBackgrounds", |c| {
+        let dir = lock(&c.state).store.dir.clone();
+        Ok(json!(crate::app::backgrounds::list(&dir)))
+    }),
+    // (id, package)
+    main("saveBackground", |c| {
+        let dir = lock(&c.state).store.dir.clone();
+        crate::app::backgrounds::save(&dir, c.text(0), c.arg(1)).map(|()| Value::Null)
+    }),
+    main("removeBackground", |c| {
+        let dir = lock(&c.state).store.dir.clone();
+        crate::app::backgrounds::remove(&dir, c.text(0)).map(|()| Value::Null)
+    }),
     main("setAutostart", |c| {
         set_autostart(c.app, &c.state, c.arg(0).as_bool().unwrap_or(false))
     }),
+    main("readAutostart", |c| read_autostart(c.app, &c.state)),
     main("setLanguage", |c| set_language(c.app, &c.state, c.text(0))),
     // The garden, gifts, the album and closeness.
     main("dig", |c| {
@@ -243,6 +268,19 @@ static COMMANDS: &[Command] = &[
         commit(c.app, &c.state, |d| d.garden.pull(c.text(0)).map(|_| Value::Null))
     }),
     main("receiveGift", receive_gift),
+    main("thanksGift", thanks_gift),
+    // (id, x, y): a gift out of the box, set down in the yard.
+    main("setOut", |c| {
+        let (x, y) = (c.float(1), c.float(2));
+        commit(c.app, &c.state, |d| d.garden.set_out(c.text(0), x, y).map(|d| json!(d)))
+    }),
+    // (giftDay it follows, due at in ms): the wait for the next everyday gift, kept across restarts.
+    main("waitForGift", |c| {
+        let due = c.arg(1).as_u64().ok_or_else(|| i18n::t("error.bad_request"))?;
+        commit(c.app, &c.state, |d| {
+            d.garden.wait_for_gift(c.text(0), due).map(|_| Value::Null)
+        })
+    }),
     main("moveDecor", |c| {
         let (x, y) = (c.float(1), c.float(2));
         commit(c.app, &c.state, |d| {
@@ -267,6 +305,9 @@ static COMMANDS: &[Command] = &[
         copy_connection(c.app, &c.state, c.arg(0).as_str().unwrap_or("mcp"))
     }),
     main("assignAgent", |c| assign_agent(c.app, &c.state, c.text(0), c.text(1))),
+    main("agentLinks", |c| agent_links(c.app, &c.state)),
+    main("connectAgent", |c| link_agent(c.app, &c.state, c.text(0), true)),
+    main("disconnectAgent", |c| link_agent(c.app, &c.state, c.text(0), false)),
     // The desktop and the windows.
     main("toggleDesktop", |c| {
         crate::app::toggle_flag(c.app, &mut lock(&c.state), false).map(Value::Bool)
@@ -320,6 +361,10 @@ static COMMANDS: &[Command] = &[
     }),
     test_only("e2eWindow", |c| window::e2e_window(c.app, c.args)),
     test_only("e2eTray", |_| Ok(crate::tray::e2e_state())),
+    // The ZIP import after its file dialog, which a test cannot answer.
+    test_only("e2eImportZip", |c| {
+        add_zip(c.app, &c.state, std::path::Path::new(c.text(0)))
+    }),
     // A garden with no gifts yet, so the gift checks do not depend on whether the page's own first
     // gift (a few minutes in) came before them.
     test_only("e2eFreshGifts", |c| {
@@ -327,6 +372,9 @@ static COMMANDS: &[Command] = &[
             d.garden.gift_day.clear();
             d.garden.decor.clear();
             d.garden.received.clear();
+            d.garden.boxed.clear();
+            d.garden.thanked.clear();
+            d.garden.gift_wait = None;
             Ok(Value::Null)
         })
     }),
@@ -415,28 +463,52 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
 }
 
 // Commands with more to them than a line.
+/// (x, y, day, event, friend): the friend brings an everyday gift, on a day the two did something
+/// together (bond.rs counts it).
 fn receive_gift(c: &Ctx) -> Result<Value, String> {
     let (x, y) = (c.float(0), c.float(1));
+    let (day, from) = (c.text(2), c.text(4));
     let turn = (now_ms() / 1000) as usize;
     // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
-    if !crate::pets::has_come(c.text(2), now_ms()) {
+    if !crate::pets::has_come(day, now_ms()) {
         return Err(i18n::t("error.bad_request"));
     }
     commit(c.app, &c.state, |d| {
         // A clock set ahead and put right while the app ran left a day still to come.
         let latest = crate::pets::latest_day(now_ms());
         crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &latest);
+        require_pet(d, from)?;
+        if !d.bonds.together_on(from, day) {
+            return Err(i18n::t("error.bad_request"));
+        }
         d.garden
-            .gift(x, y, c.text(2), turn, c.arg(3).as_str())
-            .map(|d| json!(d))
+            .gift(x, y, day, turn, c.arg(3).as_str(), from)
+            .map(|g| json!(g))
+    })
+}
+/// (friend, level, x, y, local day): a friend that grew closer brings a gift for the level it
+/// reached, on a day the person did something with it, as an everyday gift comes.
+fn thanks_gift(c: &Ctx) -> Result<Value, String> {
+    let (from, x, y, day) = (c.text(0), c.float(2), c.float(3), c.text(4));
+    let level = c.arg(1).as_u64().unwrap_or(0) as u32;
+    let turn = (now_ms() / 1000) as usize;
+    if !crate::pets::has_come(day, now_ms()) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    commit(c.app, &c.state, |d| {
+        require_pet(d, from)?;
+        if d.bonds.level_of(from) < level || !d.bonds.together_on(from, day) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        d.garden.thanks(from, level, x, y, turn).map(|g| json!(g))
     })
 }
 /// Something done together with a friend: its bond grows (bond.rs keeps what it is worth).
 fn befriend(c: &Ctx) -> Result<Value, String> {
     let now = now_ms();
     let (pet, reason, day) = (c.text(0), c.text(1), c.text(2));
-    // Time together counts by the clock, not the day; the rest by a day that has come.
-    if reason != "time" && !crate::pets::has_come(day, now) {
+    // Every reason counts toward a day that has come; time together also waits its turn by the clock.
+    if !crate::pets::has_come(day, now) {
         return Err(i18n::t("error.bad_request"));
     }
     commit(c.app, &c.state, |d| {
@@ -556,6 +628,7 @@ fn remove_pet(app: &AppHandle, state: &State<Shared>, cli: &chat::cli::CliManage
         d.statuses.remove(id);
         d.activity.remove(id);
         d.bonds.forget(id);
+        d.garden.forget_friend(id);
         // An agent that reported to this friend goes back to the first one.
         d.agent_pets.retain(|_, pet| pet != id);
         Ok(Value::Null)
@@ -592,7 +665,74 @@ fn import_from_folder(app: &AppHandle, state: &State<Shared>) -> Result<Value, S
         return Ok(Value::Null);
     };
     let asset = catalog::read_pet(&path)?;
+    let mut d = lock(state);
+    // Picked from where imported pets live, it is still the person's own folder.
+    let downloads = d.store.dir.join("pets");
+    if catalog::picked_by_hand(&downloads, &asset.folder, &d.picked, &d.assets) {
+        d.picked.push(asset.folder.to_string_lossy().into_owned());
+    }
+    register_asset(app, &mut d, asset)
+}
+
+/// A pet ZIP picked on this computer is copied into the data folder's pets, so the ZIP can go.
+fn import_from_zip(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
+    let mut dialog = app
+        .dialog()
+        .file()
+        .set_title(i18n::t("dialog.pick_pet_zip"))
+        .add_filter("ZIP", &["zip"]);
+    if let Some(main) = app.get_webview_window("main") {
+        dialog = dialog.set_parent(&main);
+    }
+    let Some(file) = dialog.blocking_pick_file().and_then(|f| f.into_path().ok()) else {
+        return Ok(Value::Null);
+    };
+    add_zip(app, state, &file)
+}
+
+/// Copies a pet ZIP into the data folder and puts it on the shelf.
+fn add_zip(app: &AppHandle, state: &State<Shared>, file: &std::path::Path) -> Result<Value, String> {
+    let root = lock(state).store.dir.join("pets");
+    let folder = importer::import_from_zip(file, &root)?;
+    let asset = catalog::read_pet(&folder)?;
     register_asset(app, &mut lock(state), asset)
+}
+
+/// Takes an imported or picked pet off the shelf. An imported one's folder in the data folder goes
+/// with it; a folder picked by hand is the person's and stays.
+fn remove_asset(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Value, String> {
+    let mut taken = None;
+    commit(app, state, |d| {
+        // A friend parked over the limit comes back with its pet at a later start; the page cannot
+        // see it, so the refusal names it.
+        let title = d
+            .assets
+            .iter()
+            .find(|a| a.id == id)
+            .map(|a| a.display_name.clone())
+            .unwrap_or_default();
+        if let Some(name) = model::parked_user(&d.parked_pets, id, &title) {
+            return Err(i18n::tr("error.pet_kept_for_later", &[("name", &name)]));
+        }
+        let pets = &d.pets;
+        let asset = catalog::take_imported(
+            &mut d.assets,
+            &mut d.imports,
+            |id| pets.iter().any(|p| p.asset_id == id),
+            id,
+        )?;
+        d.picked.retain(|folder| std::path::Path::new(folder) != asset.folder);
+        taken = Some((asset, d.store.dir.join("pets")));
+        Ok(Value::Null)
+    })?;
+    // Deleted once the shelf is saved without it: files left by a failed delete are never read
+    // again, since only the listed imports are.
+    if let Some((asset, downloads)) = taken
+        && let Some(folder) = catalog::deletable(&downloads, asset.place, &asset.folder)
+    {
+        let _ = std::fs::remove_dir_all(folder);
+    }
+    Ok(Value::Null)
 }
 
 /// Shows where pets live: "codex", "downloaded" or "builtin" for those folders, or a pet file's id.
@@ -643,8 +783,9 @@ fn project_page(raw: &str) -> Option<url::Url> {
     (target.scheme() == "https" && own).then_some(target)
 }
 
-/// The settings a coding agent needs to reach this app, put on the clipboard.
-fn copy_connection(app: &AppHandle, state: &State<Shared>, kind: &str) -> Result<Value, String> {
+/// The settings a coding agent needs to reach this app: the app binary, its bridge file and the
+/// friend the agent reports to, read under the lock and used after it.
+fn connection_snippet(state: &State<Shared>, kind: &str) -> Result<String, String> {
     let exe = std::env::current_exe().map_err(|_| i18n::t("error.exe_missing"))?;
     let (bridge_file, pet) = {
         let d = lock(state);
@@ -657,15 +798,63 @@ fn copy_connection(app: &AppHandle, state: &State<Shared>, kind: &str) -> Result
     };
     let local = std::env::var("LOCALAPPDATA").ok();
     let command = agent::cli::agent_command(&exe.to_string_lossy(), local.as_deref());
-    let snippet = agent::snippets::connection_snippet(kind, &command, &bridge_file.to_string_lossy(), pet.as_deref())?;
+    agent::snippets::connection_snippet(kind, &command, &bridge_file.to_string_lossy(), pet.as_deref())
+}
+
+/// The settings a coding agent needs to reach this app, put on the clipboard.
+fn copy_connection(app: &AppHandle, state: &State<Shared>, kind: &str) -> Result<Value, String> {
+    let snippet = connection_snippet(state, kind)?;
     app.clipboard()
         .write_text(snippet.clone())
         .map_err(|e| i18n::detail("clipboard.failed", e))?;
     Ok(json!(snippet))
 }
 
+/// Set by the e2e harness: the home folder whose agent settings Connect writes, so a test run
+/// never touches the real ones.
+pub const E2E_HOME_ENV: &str = "PLAYPETS_E2E_HOME";
+/// The folder the agents' settings files are under (`~`).
+fn agent_home(app: &AppHandle) -> Result<std::path::PathBuf, String> {
+    if e2e_mode() {
+        return std::env::var_os(E2E_HOME_ENV)
+            .filter(|v| !v.is_empty())
+            .map(std::path::PathBuf::from)
+            .ok_or_else(|| i18n::t("link.home_missing"));
+    }
+    app.path().home_dir().map_err(|_| i18n::t("link.home_missing"))
+}
+
+/// Where each agent that can be connected stands (agent/connect.rs Link), read from its file.
+fn agent_links(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
+    let home = agent_home(app)?;
+    let mut links = serde_json::Map::new();
+    for a in agent::kinds::AGENTS
+        .iter()
+        .filter(|a| a.format != agent::kinds::Format::None)
+    {
+        let snippet = connection_snippet(state, a.kind)?;
+        links.insert(
+            a.kind.into(),
+            json!(agent::connect::status(&home, a.kind, &snippet).code()),
+        );
+    }
+    Ok(Value::Object(links))
+}
+
+/// Connect or Disconnect, after the page asked the person; answers where the agent stands now.
+fn link_agent(app: &AppHandle, state: &State<Shared>, kind: &str, on: bool) -> Result<Value, String> {
+    let home = agent_home(app)?;
+    let snippet = connection_snippet(state, kind)?;
+    if on {
+        agent::connect::connect(&home, kind, &snippet)?;
+    } else {
+        agent::connect::disconnect(&home, kind)?;
+    }
+    Ok(json!(agent::connect::status(&home, kind, &snippet).code()))
+}
+
 /// Which friend a coding agent reports to. An empty pet id clears the choice (back to the first
-/// friend). The copied settings carry it as `--pet`, so they must be pasted again.
+/// friend). The copied or connected settings carry it as `--pet`, so they must be pasted or connected again.
 fn assign_agent(app: &AppHandle, state: &State<Shared>, kind: &str, pet: &str) -> Result<Value, String> {
     if agent::kinds::by_kind(kind).is_none() {
         return Err(i18n::t("error.unknown_link"));
@@ -697,20 +886,29 @@ fn set_auto_play(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Val
     })
 }
 
-/// Whether the app starts when the person logs in. The system keeps the answer (a login item on
-/// macOS, the Run key on Windows, an autostart entry on Linux); a test run only pretends.
+/// Whether the app starts when the person logs in. The system keeps the answer (startup.rs); a
+/// test run only pretends.
 fn set_autostart(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
-    let now = if e2e_mode() {
-        on
-    } else {
-        use tauri_plugin_autostart::ManagerExt;
-        let launcher = app.autolaunch();
-        if on { launcher.enable() } else { launcher.disable() }.map_err(|_| i18n::t("error.autostart"))?;
-        launcher.is_enabled().unwrap_or(on)
-    };
+    let now = if e2e_mode() { on } else { crate::startup::set(app, on)? };
     let mut d = lock(state);
     d.autostart = now;
     changed(app, &d);
+    Ok(Value::Bool(now))
+}
+
+/// Whether the app starts at login, asked again: the person may have changed it in the system's
+/// own settings while the app ran. The system is asked before the lock is taken.
+fn read_autostart(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
+    let now = if e2e_mode() {
+        lock(state).autostart
+    } else {
+        crate::startup::is_enabled(app)
+    };
+    let mut d = lock(state);
+    if d.autostart != now {
+        d.autostart = now;
+        changed(app, &d);
+    }
     Ok(Value::Bool(now))
 }
 
@@ -723,7 +921,7 @@ fn set_language(app: &AppHandle, state: &State<Shared>, code: &str) -> Result<Va
             d.talks.cancel_pending();
         }
         i18n::set(lang);
-        d.prefs.language = lang;
+        d.prefs.choose_language(lang);
         Ok(Value::Null)
     });
     // Rewording the tray waits on the main thread, which may itself be waiting for the state.

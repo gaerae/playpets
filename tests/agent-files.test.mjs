@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { agentFile } from '../src/core/agent-files.js';
-import { agentLabel, agentsOf } from '../src/core/agents.js';
+import { agentLabel, agentsOf, linkView } from '../src/core/agents.js';
 
 const data = {
   agents: [
@@ -42,4 +42,27 @@ test('the settings tab has a row for every agent the backend knows', async () =>
     assert.match(html, new RegExp(`data-agent="${kind}"`), kind);
     assert.match(html, new RegExp(`id="agent-copy-${kind}"[^>]*data-kind="${kind}"`), kind);
   }
+  // Every agent with a settings file to write can be connected in one press; MCP is copied only.
+  const connectable = [...read('src-tauri/src/agent/kinds.rs').matchAll(/kind: "(\w+)"[^}]*format: Format::(\w+)/g)]
+    .filter(m => m[2] !== 'None')
+    .map(m => m[1]);
+  assert.ok(connectable.includes('codex') && !connectable.includes('mcp'));
+  for (const kind of kinds) {
+    assert.equal(new RegExp(`data-connect="${kind}"`).test(html), connectable.includes(kind), kind);
+    assert.equal(new RegExp(`data-link-state="${kind}"`).test(html), connectable.includes(kind), kind);
+    assert.equal(new RegExp(`data-link-problem="${kind}"`).test(html), connectable.includes(kind), kind);
+  }
+});
+
+test('a row offers Connect, Disconnect or only Copy settings by where its agent stands', () => {
+  assert.deepEqual(linkView('off'), { button: 'settings.connect', connect: true });
+  assert.deepEqual(linkView('on'), { mark: 'settings.linked', button: 'settings.disconnect', connect: false });
+  assert.equal(linkView('outdated').button, 'settings.reconnect');
+  assert.ok(linkView('outdated').connect, 'connecting again asks first, like the first time');
+  // A file PlayPets cannot read, or Codex running another program, is never written: Copy settings only.
+  for (const link of ['unreadable', 'taken']) {
+    assert.equal(linkView(link).button, undefined, link);
+    assert.ok(linkView(link).problem, link);
+  }
+  assert.deepEqual(linkView(undefined), {}, 'nothing is offered before the backend answered');
 });

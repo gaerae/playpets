@@ -72,3 +72,20 @@ test('appearance refresh updates existing chat avatars without replacing history
   assert.equal(log.children[0], message, 'wardrobe changes preserve the conversation');
   setSpriteSeason('autumn');
 });
+
+test('a full chat log drops its oldest message from the top without redrawing or scrolling', async t => {
+  const { nodes } = installDom(t, { anyId: true, props: { scrollHeight: 600, scrollTop: 20, clientHeight: 100 } });
+  setData({ pets: [{ id: 'b', assetId: 'b' }], assets: [{ id: 'b', spriteUrl: 'toon' }], busy: [] });
+  setSelected('b');
+  history = ['one', 'two', 'three'].map(content => ({ role: 'user', content }));
+  await refreshChat();
+  const log = nodes.get('chat-log');
+  const [first, second] = log.children;
+  log.scrollTop = 20;
+  history = ['two', 'three', 'four'].map(content => ({ role: 'user', content }));
+  await refreshChat();
+  assert.equal(first.removed, true, 'the oldest leaves');
+  assert.equal(second.removed, undefined, 'the rest stays in place');
+  assert.equal(log.children.filter(n => !n.removed).length, 3);
+  assert.equal(log.scrollTop, 20, 'a person reading higher up stays there');
+});

@@ -12,6 +12,9 @@ export function statusOf(data, id, now = Date.now()) {
   const faded = s.source !== 'chat' && (s.state === 'done' || s.state === 'error') && s.at && now - s.at > FADE_MS;
   return faded ? null : s;
 }
+/** Whether an agent's done or error faded between two moments, so what shows it is drawn again. */
+export const fadedBetween = (data, from, to) =>
+  Object.keys(data.statuses ?? {}).some(id => statusOf(data, id, from) && !statusOf(data, id, to));
 /** The state for the pose and the portrait: a chat's state counts too. */
 export const stateOf = (data, id, now) => statusOf(data, id, now)?.state || 'idle';
 /** The state a coding agent reported, for the dot, the summary line and the friend tab's pill. */

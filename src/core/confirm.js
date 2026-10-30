@@ -5,11 +5,22 @@
 import { t } from './i18n.js';
 import { $ } from './state.js';
 
-let answer = null;
+// The question on screen, and the ones asked while it was open (a pet link arriving), in order.
+let current = null;
+const waiting = [];
 
 // Resolves true only when the action button was pressed; Esc, Cancel and a click outside are false.
-export function confirmAction({ title, body, action, danger = false }) {
-  answer?.(false);
+export function confirmAction(question) {
+  return new Promise(resolve => {
+    const asked = { question, resolve };
+    // Until its close event, even a question already answered or cancelled still holds the dialog.
+    if (current) waiting.push(asked);
+    else show(asked);
+  });
+}
+function show(asked) {
+  const { title, body, action, danger = false } = asked.question;
+  current = asked;
   $('confirm-title').textContent = title;
   $('confirm-body').textContent = body;
   $('confirm-ok').textContent = action;
@@ -18,25 +29,25 @@ export function confirmAction({ title, body, action, danger = false }) {
   $('confirm-cancel').textContent = t(danger ? 'confirm.keep' : 'confirm.cancel');
   $('confirm-dialog').showModal();
   $('confirm-cancel').focus();
-  return new Promise(resolve => {
-    answer = resolve;
-  });
 }
 
 // Called once, by app.js.
 export function setupConfirm() {
   const dialog = $('confirm-dialog');
-  const settle = value => {
-    answer?.(value);
-    answer = null;
-  };
+  current = null;
+  waiting.length = 0;
+  // A promise keeps its first answer, so the false from the close that follows a yes changes nothing.
   $('confirm-ok').onclick = () => {
-    settle(true);
+    current?.resolve(true);
     dialog.close();
   };
   $('confirm-cancel').onclick = () => dialog.close();
   if ($('confirm-close')) $('confirm-close').onclick = () => dialog.close();
-  dialog.addEventListener('close', () => settle(false));
+  dialog.addEventListener('close', () => {
+    current?.resolve(false);
+    current = null;
+    if (waiting.length) show(waiting.shift());
+  });
   closeOnBackdrop(dialog);
 }
 

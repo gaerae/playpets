@@ -26,7 +26,7 @@ Changing it reloads the yard and the desktop windows in the new language, and th
 Friends greet you and chatter in the language you picked, and AI replies use it too by default. Want an answer in another language? Ask for it in your latest message. With coding agents and the terminal, the app speaks English.
 
 - Saved as `language` in `state.json`.
-- For testing: start the app with `PLAYPETS_LANG=ko|en|ja|zh-hans`. It takes priority over the saved language.
+- For testing: start the app with `PLAYPETS_LANG=ko|en|ja|zh-hans`. It takes priority over the saved language for that run only; the saved language stays as it was.
 
 ## Start PlayPets when you log in <Since v="0.1.0" />
 
@@ -34,7 +34,9 @@ Turn this on and PlayPets starts whenever you log in to your computer. It's off 
 
 If desktop mode is on, the yard window doesn't open at login. Your friends come out on the desktop, and the window waits in the tray.
 
-Your system keeps this choice: Login Items on macOS, the Run list on Windows, an autostart entry on Linux. Turning it off in either place turns it off.
+Your system keeps this choice: Login Items on macOS, Startup apps on Windows, an autostart entry on Linux. Turning it off in either place turns it off.
+
+In the Microsoft Store version, once PlayPets is turned off in Windows, the app can't turn it back on. Turn it on in Windows **Settings → Apps → Startup**.
 
 ## Friends & AI <Since v="1.2.0" />
 
@@ -68,7 +70,7 @@ This section shows the version, then three groups. Links open in your browser. A
 |---|---|
 | **Help** | The user guide, reporting a problem, **Open the data folder** (friends, settings and backups; see [Data folder](#data-folder)) |
 | **Project** | The website, release notes, GitHub |
-| **Privacy and license** | — |
+| **Privacy and license** | The privacy policy, the license |
 
 ## App updates <Since v="0.1.0" />
 
@@ -138,14 +140,15 @@ Neither is a direct item in the scenery's right-click menu. Choose Friends & set
 | Operating system | Location |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`. Microsoft Store, also through winget: inside the package's own folder |
 | Linux | `~/.local/share/app.playpets/` |
 
 | File | Contents |
 |---|---|
 | `state.json` | Friends, AI connections, settings and the yard's progress (list below) |
 | `bridge.json` | The port and token for agent hooks. Rewritten every time the app starts |
-| `pets/` | Pet folders imported from an address |
+| `pets/` | Pet folders imported from an address or a ZIP |
+| `backgrounds/` | Imported backgrounds, one file each |
 | `builtin/` | Four bundled starter entries, unpacked and checked at each start. Each has its own baseline artwork |
 
 - `state.json` holds:
@@ -153,6 +156,7 @@ Neither is a direct item in the scenery's right-click menu. Choose Friends & set
   - the list of AI connections (without keys)
   - language, desktop mode and roaming, each agent's friend, auto chatter, auto digging, yard sounds and their volume
   - the window's position and size and Always on top setting
+  - the place, season, time of day and weather picked for the yard (`scene`)
   - the garden and decorations (`garden`), the album (`album`), closeness (`bonds`)
   - hand-picked pet folders
   - the file's format number (`schema`)

@@ -267,9 +267,18 @@ export async function refreshChat() {
     $('clear-chat').disabled = data.busy.includes(p.id) || !hasHistory;
     const keys = entries.map(keyOf);
     const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 48;
-    // Only the same conversation, grown at its end, keeps what is on screen.
-    const grows =
-      shown.keys.length > 0 && shown.keys.length <= keys.length && shown.keys.every((k, n) => k === keys[n]);
+    // Only the same conversation, grown at its end, keeps what is on screen. A full log drops its
+    // oldest messages as new ones come: those leave the top and the rest stays where it is.
+    const follows = from =>
+      shown.keys.length - from <= keys.length && shown.keys.slice(from).every((k, n) => k === keys[n]);
+    let dropped = 0;
+    while (dropped < shown.keys.length && !follows(dropped)) dropped++;
+    const grows = shown.keys.length > dropped;
+    if (grows && dropped) {
+      for (const node of [...log.children].filter(n => !n.classList.contains('waiting')).slice(0, dropped))
+        node.remove();
+      shown.keys = shown.keys.slice(dropped);
+    }
     if (!grows) {
       log.replaceChildren();
       shown.keys = [];

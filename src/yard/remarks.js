@@ -6,6 +6,7 @@
 import { list } from '../core/i18n.js';
 import { between, pick, shuffle } from '../core/math.js';
 import { data, game, views } from '../core/state.js';
+import { stateOf } from '../core/status.js';
 import { cadence } from '../core/ticker.js';
 import { levelOf, lineFor } from './bond.js';
 import { chatterFor } from './scene.js';
@@ -62,9 +63,7 @@ const chatter = cadence(() => between(Math.random, CHATTER_DELAY));
 /** Called by the frame loop: now and then a quiet friend says something about the hour or the weather. */
 export function idleChatter(now) {
   if (!chatter.due(now)) return;
-  const quiet = [...views.values()].filter(
-    v => v.bubble.hidden && !v.drag && (data.statuses[v.pet.id]?.state || 'idle') === 'idle',
-  );
+  const quiet = [...views.values()].filter(v => v.bubble.hidden && !v.drag && stateOf(data, v.pet.id) === 'idle');
   if (!quiet.length) return;
   const v = pick(quiet);
   // The closest friends (level 5, bond.js) now and then say something to the person instead, and

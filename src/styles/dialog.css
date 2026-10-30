@@ -364,6 +364,59 @@ body.compact .update-compact {
   line-height: 1.4;
   color: var(--muted);
 }
+/* The gift box sits above the gift book: a row of small buttons, one for each gift waiting in it. */
+.album-box {
+  margin: 0 0 8px;
+}
+.album-box h3 {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.album-box-items {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.album-box-item {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 72px;
+  padding: 4px;
+  border: 1px solid var(--ink-12);
+  border-radius: var(--radius-card);
+  background: var(--white);
+  color: inherit;
+  cursor: pointer;
+}
+.album-box-item.memento::after {
+  content: "♥";
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  color: #ec7d96;
+  font-size: 10px;
+}
+.album-box-item:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.album-box-item svg {
+  width: 100%;
+  height: 36px;
+}
+.album-box-item small {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 /* the album draws flowers and gifts from the yard's own symbols, in daylight colours */
 .album-card {
   --soil: #8a6a4a;
@@ -426,6 +479,7 @@ body.compact .update-compact {
 }
 .album-tabs small {
   font-weight: 600;
+  white-space: nowrap;
   color: var(--muted);
 }
 /* On the selected tab's tint the muted count is too faint (3.8:1 in dark); it takes the ink. */
@@ -527,6 +581,12 @@ body.compact .update-compact {
 }
 :is(#pet-dialog, #import-dialog, #connection-dialog) .dialog-description {
   font-size: 13px;
+}
+/* The two ways in from this computer, one under the other in every language. */
+#import-dialog .import-local {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 #import-dialog .community-links {
   display: grid;

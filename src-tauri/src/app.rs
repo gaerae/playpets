@@ -15,11 +15,12 @@ use tauri::{AppHandle, Manager};
 
 // Loading the state at start (load.rs), the person's switches (prefs.rs) and serving sprite
 // sheets to the pages (sprite.rs).
+pub mod backgrounds;
 mod load;
 mod prefs;
 mod sprite;
 pub use load::load_state;
-pub use prefs::{Prefs, Sound};
+pub use prefs::{Prefs, Sound, scene_choice};
 pub use sprite::sprite_response;
 
 /// The shape of state.json this app writes. Read from a newer app's file, the known fields are
@@ -27,10 +28,11 @@ pub use sprite::sprite_response;
 pub const SCHEMA: u64 = 1;
 /// The top-level keys this app writes to state.json besides the switches (Prefs::KEYS); anything
 /// else in the file is `extra`.
-const KNOWN_KEYS: [&str; 9] = [
+const KNOWN_KEYS: [&str; 10] = [
     "schema",
     "pets",
     "imports",
+    "picked",
     "providers",
     "agentPets",
     "secretIds",
@@ -61,9 +63,12 @@ pub struct AppData {
     pub prefs: Prefs,
     /// Folders of pets brought in by hand, read again at every start.
     pub imports: Vec<String>,
+    /// Those of them picked by hand from inside the data folder's `pets`, where imported pets
+    /// live: the person's own, never deleted with the pet (catalog::place_of).
+    pub picked: Vec<String>,
     /// Which friend each coding agent reports to (agent kind → pet id). Unset means the first friend.
     pub agent_pets: HashMap<String, String>,
-    /// Whether the app starts at login, as the system said at start (not saved: the system keeps it).
+    /// Whether the app starts at login, as the system last said (not saved: the system keeps it).
     pub autostart: bool,
     /// Seeds friends found, the plants grown from them, and the gifts friends brought.
     pub garden: garden::Garden,
@@ -201,6 +206,10 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "agents": agent::kinds::agents_json(),
         "version": app.package_info().version.to_string(),
         "updateChannel": if crate::update::store_managed() { "store" } else { "github" },
+        "ownsWebviewStorage": load::owns_webview_storage(std::env::var("PLAYPETS_DATA").ok().as_deref(), crate::commands::e2e_mode()),
+        // Whether the data folder has kept a background before; another data folder copies the
+        // installed app's old ones only until it has (background-store.js).
+        "hasBackgroundsFolder": d.store.dir.join(backgrounds::FOLDER).is_dir(),
         "project": {"site": env!("CARGO_PKG_HOMEPAGE"), "repository": env!("CARGO_PKG_REPOSITORY")},
         "assets": d.assets.iter().map(sprite::asset_json).collect::<Vec<_>>(),
         "providers": d.providers.iter().map(|p| { let mut p = p.clone(); p["hasKey"] = json!(d.secret_ids.contains(providers::id_of(&p))); p }).collect::<Vec<_>>(),
@@ -292,6 +301,7 @@ pub fn persist(d: &AppData) -> Result<(), String> {
         "schema": SCHEMA,
         "pets": d.pets.iter().map(|p| json!(p)).chain(d.parked_pets.iter().cloned()).collect::<Vec<_>>(),
         "imports": d.imports,
+        "picked": d.picked,
         "providers": d.providers.iter().chain(&d.parked_providers).collect::<Vec<_>>(),
         "agentPets": d.agent_pets,
         "secretIds": d.secret_ids.iter().collect::<Vec<_>>(),
@@ -299,7 +309,7 @@ pub fn persist(d: &AppData) -> Result<(), String> {
         "album": d.album,
         "bonds": d.bonds,
     });
-    carry(&mut state, &d.prefs.json());
+    carry(&mut state, &d.prefs.saved());
     carry(&mut state, &d.extra);
     d.store.write("state.json", &state)
 }
@@ -355,12 +365,15 @@ pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, messa
         &json!({"type": "status", "petId": id, "state": state, "message": message, "source": source}),
     );
     changed(app, d);
+    if state == "error" && source != "chat" {
+        crate::tray::fade_later(app);
+    }
 }
 
 /// Puts a pet file on the shelf (once) and remembers its folder for the next start.
 pub fn register_asset(app: &AppHandle, d: &mut AppData, asset: catalog::Asset) -> Result<Value, String> {
     let asset = catalog::Asset {
-        place: catalog::place_of(&d.store.dir.join("pets"), &asset.folder),
+        place: catalog::place_of(&d.store.dir.join("pets"), &asset.folder, &d.picked),
         ..asset
     };
     let id = asset.id.clone();

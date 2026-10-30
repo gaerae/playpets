@@ -7,6 +7,7 @@ import { t } from '../core/i18n.js';
 import { between } from '../core/math.js';
 import { crown, drawSprite, reduced } from '../core/sprites.js';
 import { aiming, call, data, game, toast, views } from '../core/state.js';
+import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
 import { petHeight } from './field.js';
@@ -52,7 +53,8 @@ export function moveFriends(now, dt) {
         sendTo(v, wanderTarget({ x: v.x, y: v.y }, Math.random), { slow: true });
       v.nextWander = now + between(Math.random, WANDER_DELAY) * (quiet ? 1.8 : 1);
     }
-    const status = data.statuses[id]?.state || 'idle';
+    // Read as the dot and the overlay read it: an agent's done or error fades after a while.
+    const status = stateOf(data, id);
     const state = now < v.until ? v.pose : status;
     // A pose runs from when it began; standing animations share one clock, so friends that only
     // stand change cells together and the yard is redrawn less often.

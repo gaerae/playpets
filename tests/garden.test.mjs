@@ -57,7 +57,7 @@ test('a wait is said in hours and minutes, rounded up', () => {
   assert.deepEqual(hoursMinutes(30 * 1000), { hours: 0, minutes: 1 });
 });
 
-test('a gift comes once a day after the yard has been seen a while, the first one soon', () => {
+test('a gift waits a while once it may come, the first one soon', () => {
   assert.equal(
     giftWait(() => 0.9, true),
     FIRST_GIFT,

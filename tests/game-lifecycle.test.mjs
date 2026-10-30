@@ -83,6 +83,22 @@ test('hide feedback from a cancelled round cannot clear a later discovery', t =>
   assert.equal(views.get('a').button.classList.contains('found'), false);
 });
 
+test('two quick wrong guesses still bring back who is hiding', t => {
+  const { nodes, start, advance } = yard(t);
+  start('hide');
+  hideAll();
+  const sub = nodes.get('banner-sub');
+  const hiding = sub.textContent;
+  assert.ok(hiding);
+  const wrong = [...views.values()].find(v => v.pet.id !== game.target);
+  gameTap(wrong);
+  advance(500);
+  gameTap(wrong);
+  assert.notEqual(sub.textContent, hiding, 'a miss says so');
+  advance(3000);
+  assert.equal(sub.textContent, hiding);
+});
+
 test('a cancelled tag catch does not carry immunity into a replay', t => {
   const { start } = yard(t);
   start('tag');

@@ -93,6 +93,12 @@ export function element(tag = 'div', { rect, ...props } = {}) {
       const list = this.listeners.get(type) || [];
       if (list.includes(listener)) list.splice(list.indexOf(listener), 1);
     },
+    /** The browser's own call: a page module may send an event to its own listeners. */
+    dispatchEvent(event) {
+      // A copy, so a listener that removes itself does not skip the next one.
+      for (const listener of (this.listeners.get(event.type) || []).slice()) listener.call(this, event);
+      return true;
+    },
     /**
      * Calls this node's listeners for `type` in order, as the browser does, with an event whose
      * fields `init` adds to or replaces. Returns a promise for async listeners to finish.
@@ -174,7 +180,11 @@ export function element(tag = 'div', { rect, ...props } = {}) {
 /** A localStorage stand-in that keeps strings, and answers null for a key it never got. */
 export function fakeStorage() {
   const items = new Map();
-  return { getItem: key => items.get(key) ?? null, setItem: (key, value) => items.set(key, String(value)) };
+  return {
+    getItem: key => items.get(key) ?? null,
+    setItem: (key, value) => items.set(key, String(value)),
+    removeItem: key => items.delete(key),
+  };
 }
 
 // What each test has to put back, newest first, so installing twice in one test still ends with
@@ -207,11 +217,12 @@ export function keepGlobals(t, ...names) {
 /**
  * Sets globalThis.document to a fake whose getElementById finds the nodes listed in `ids`. With
  * `anyId`, any other id gets a node the first time it is asked for, as for tests that do not list
- * them. `props` are given to every node the document makes, `rect` included. Without a test
- * context the fake stays. Returns the document, the nodes by id, and the element maker it uses.
+ * them. `props` are given to every node the document makes, `rect` included. A window that takes
+ * listeners is set too, unless the test made its own first. Without a test context the fakes stay.
+ * Returns the document, the window, the nodes by id, and the element maker it uses.
  */
 export function installDom(t, { ids = [], anyId = false, props = {} } = {}) {
-  keepGlobals(t, 'document');
+  keepGlobals(t, 'document', 'window');
   const make = (tag, extra) => element(tag, { ...props, ...extra });
   const nodes = new Map();
   const add = id => nodes.set(id, make('div', { id })).get(id);
@@ -225,7 +236,8 @@ export function installDom(t, { ids = [], anyId = false, props = {} } = {}) {
   document.append(document.body);
   document.activeElement = document.body;
   globalThis.document = document;
-  return { document, nodes, element: make };
+  globalThis.window ??= make('#window');
+  return { document, window: globalThis.window, nodes, element: make };
 }
 
 /** Sets globalThis.localStorage (a getter in recent Node) to `storage` until the test ends. */

@@ -37,7 +37,14 @@ What to check
   [ ] MSIX uses package-managed updates rather than the GitHub installer updater
   [ ] A saved AI connection works; remove test connections before uninstalling to remove saved keys
   [ ] In a new terminal, `playpets.exe pets` lists friends with the execution alias enabled
-  [ ] Optional coding-agent integration and playpets:// imports work
+  [ ] Optional coding-agent integration works
+  [ ] A playpets://import?url=... link opened from a browser starts PlayPets (or brings it forward)
+      and imports the pet; the package declares the scheme
+  [ ] Settings > Apps > Startup lists PlayPets, off; the in-app Start at login switch turns it on
+      and off there, and turned on, PlayPets starts at the next sign-in (with desktop mode on, the
+      yard window waits in the tray)
+  [ ] Turned off in Settings > Apps > Startup, the in-app switch shows off, and turning it on says
+      to use Settings
   [ ] Imported pets, preferences and collection progress survive a restart
   [ ] The data-folder action works under package virtualization
   [ ] All four app languages work

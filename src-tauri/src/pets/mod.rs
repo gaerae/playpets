@@ -12,6 +12,17 @@ pub mod garden;
 pub mod importer;
 pub mod model;
 
+/// A field added to state.json in a later version, read leniently: a value of the wrong type
+/// (an edited file) becomes the default instead of dropping the gift or bond it belongs to.
+pub(crate) fn or_default<'de, D, T>(d: D) -> Result<T, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: serde::de::DeserializeOwned + Default,
+{
+    let v = <serde_json::Value as serde::Deserialize>::deserialize(d)?;
+    Ok(serde_json::from_value(v).unwrap_or_default())
+}
+
 /// The latest date it is anywhere on Earth at `now_ms` (UTC+14), as YYYY-MM-DD. A day the page
 /// names (its own local date) is never after it; one that is comes from a clock set ahead, and is
 /// refused rather than kept, which would hold back the days after (bond.rs, garden.rs).
@@ -27,6 +38,25 @@ pub fn latest_day(now_ms: u64) -> String {
     format!("{y:04}-{m:02}-{d:02}")
 }
 
+/// Days from one date (garden::is_day) to another, negative when `to` is before `from`.
+pub fn days_between(from: &str, to: &str) -> Option<i64> {
+    Some(day_number(to)? - day_number(from)?)
+}
+/// Days since 1970-01-01 for a date (H. Hinnant's algorithm, the other way from latest_day).
+fn day_number(day: &str) -> Option<i64> {
+    if !garden::is_day(day) {
+        return None;
+    }
+    let part = |range: std::ops::Range<usize>| day[range].parse::<i64>().ok();
+    let (y, m, d) = (part(0..4)?, part(5..7)?, part(8..10)?);
+    let y = if m <= 2 { y - 1 } else { y };
+    let era = y.div_euclid(400);
+    let yoe = y - era * 400;
+    let doy = (153 * (if m > 2 { m - 3 } else { m + 9 }) + 2) / 5 + d - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    Some(era * 146_097 + doe - 719_468)
+}
+
 /// Whether `day` is a date (garden::is_day) that has come somewhere by `now_ms`.
 pub fn has_come(day: &str, now_ms: u64) -> bool {
     garden::is_day(day) && day <= latest_day(now_ms).as_str()
@@ -39,10 +69,13 @@ pub fn forget_days_after(bonds: &mut bond::Bonds, garden: &mut garden::Garden, l
         if !garden::is_day(&b.day) || b.day.as_str() > latest {
             b.day.clear();
             b.today = 0;
+            b.pat_today = 0;
+            b.time_today = 0;
         }
     }
     if garden.gift_day.as_str() > latest {
         garden.gift_day.clear();
+        garden.gift_wait = None;
     }
 }
 
@@ -54,6 +87,8 @@ pub fn limits() -> serde_json::Value {
         "seeds": garden::SEED_MAX,
         "saplings": garden::SAPLING_MAX,
         "decor": garden::DECOR_MAX,
+        "giftBox": garden::BOX_MAX,
+        "giftEveryDays": garden::GIFT_EVERY_DAYS,
         "trees": discovery::TREE_MAX,
         "treesPerWorld": discovery::TREE_WORLD_MAX,
         "treeYoungMs": discovery::TREE_YOUNG_MS,
@@ -71,6 +106,17 @@ mod tests {
     use super::*;
 
     #[test]
+    fn days_between_counts_calendar_days_across_months_and_years() {
+        assert_eq!(days_between("2026-10-29", "2026-10-31"), Some(2));
+        assert_eq!(days_between("2026-12-31", "2027-01-02"), Some(2));
+        assert_eq!(days_between("2028-02-28", "2028-03-01"), Some(2), "a leap year");
+        assert_eq!(days_between("2026-11-03", "2026-11-01"), Some(-2));
+        assert_eq!(days_between("soon", "2026-11-01"), None);
+        assert_eq!(latest_day(0), "1970-01-01");
+        assert_eq!(days_between("1970-01-01", &latest_day(400 * 86_400_000)), Some(400));
+    }
+
+    #[test]
     fn the_latest_day_on_earth_is_a_little_ahead_of_utc() {
         // 2026-10-10 00:00 UTC is already the 10th in UTC+14; 10:00 UTC makes it the 11th there.
         assert_eq!(latest_day(1_791_590_400_000), "2026-10-10");
@@ -85,15 +131,20 @@ mod tests {
     fn days_saved_from_a_clock_set_ahead_are_forgotten_at_start() {
         let mut bonds = bond::Bonds::restore(
             Some(
-                &serde_json::json!({"a": {"points": 9, "day": "2027-10-10", "today": 40}, "b": {"points": 1, "day": "z", "today": 40}, "c": {"points": 1, "day": "2026-10-09", "today": 7}}),
+                &serde_json::json!({"a": {"points": 9, "day": "2027-10-10", "today": 40, "patToday": 10, "timeToday": 12}, "b": {"points": 1, "day": "z", "today": 40}, "c": {"points": 1, "day": "2026-10-09", "today": 7}}),
             ),
             &["a".into(), "b".into(), "c".into()],
         );
-        let mut garden = garden::Garden::restore(Some(&serde_json::json!({"giftDay": "2027-01-01"})), 0);
+        let mut garden = garden::Garden::restore(
+            Some(&serde_json::json!({"giftDay": "2027-01-01", "giftWait": {"after": "2027-01-01", "dueAt": 5}})),
+            0,
+        );
         forget_days_after(&mut bonds, &mut garden, "2026-10-10");
         assert_eq!((bonds.0["a"].day.as_str(), bonds.0["a"].today), ("", 0));
+        assert_eq!((bonds.0["a"].pat_today, bonds.0["a"].time_today), (0, 0));
         assert_eq!((bonds.0["b"].day.as_str(), bonds.0["b"].today), ("", 0));
         assert_eq!((bonds.0["c"].day.as_str(), bonds.0["c"].today), ("2026-10-09", 7));
         assert_eq!(garden.gift_day, "");
+        assert_eq!(garden.gift_wait, None);
     }
 }

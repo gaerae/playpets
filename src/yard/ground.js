@@ -4,7 +4,7 @@ import { data } from '../core/state.js';
 import { giftKind, treeKind } from './catalog.js';
 import { projectFootprint, treeStage } from './discovery-rules.js';
 import { environmentLake } from './environment.js';
-import { EDGE, field, yardZoom } from './field.js';
+import { decorFloor, EDGE, field, yardZoom } from './field.js';
 import { giftSize } from './props.js';
 import { scene } from './world.js';
 import { worldFor } from './worlds.js';
@@ -25,6 +25,8 @@ export function buildGroundProfile({
   world,
   worldId = world?.id,
   bounds,
+  // How far below the field a gift may stand (field.js decorFloor); 1 keeps gifts on it.
+  giftFloor = 1,
   garden = {},
   lake = null,
   scale = 1,
@@ -40,7 +42,7 @@ export function buildGroundProfile({
   };
   const validField =
     bounds &&
-    [bounds.width, bounds.height, bounds.top, bounds.bottom, scale].every(Number.isFinite) &&
+    [bounds.width, bounds.height, bounds.top, bounds.bottom, scale, giftFloor].every(Number.isFinite) &&
     bounds.width > EDGE * 2 &&
     bounds.bottom > bounds.top &&
     scale > 0;
@@ -69,9 +71,11 @@ export function buildGroundProfile({
     add(profile.obstacles, { ...foot(tree), rx: rx * zoom, ry: ry * zoom });
   }
   for (const item of garden.decor || []) {
-    const at = foot(item),
+    const gift = giftKind(item.kind),
+      // Drawn as decor.js places it: one friends stand on stays on the field.
+      at = foot({ x: item.x, y: Math.min(item.y, gift?.stand === 'on' ? 1 : giftFloor) }),
       { w, h } = giftDimensions(item.kind),
-      flat = giftKind(item.kind)?.flat;
+      flat = gift?.flat;
     // Furniture drawing clamps its foot inward by half its rendered width plus four pixels.
     at.x = clamp(at.x, w / 2 + 4, bounds.width - w / 2 - 4);
     add(profile.obstacles, {
@@ -94,6 +98,7 @@ export function groundProfile({ skipTreeId = null } = {}) {
     world: worldFor(scene.world),
     worldId: scene.world,
     bounds,
+    giftFloor: decorFloor(),
     garden: data.garden,
     lake: environmentLake(bounds.width, bounds.height, scene),
     scale: yardZoom(),

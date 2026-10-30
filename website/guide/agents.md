@@ -1,19 +1,19 @@
 ---
-description: Let your friend follow a coding agent's work, with the settings to paste, terminal commands and security notes
+description: Let your friend follow a coding agent's work, connected in one press or with settings to paste, plus terminal commands and security notes
 ---
 
 # Coding agent hooks
 
-While a coding agent works, your friend reacts along with it. This works with Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build and similar tools.
+While a coding agent works, your friend reacts along with it. This works with Claude Code, Codex CLI, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code and similar tools.
 
-Setup is one piece of settings you copy and paste. You don't need Node.js.
+Setup is one press of **Connect**, or one piece of settings you copy and paste. You don't need Node.js.
 
 ## A friend for each agent <Since v="0.1.0" />
 
 1. In **Settings → Coding tools**, pick a friend under **Reacting friend** on that tool's row.
-2. Press **Copy settings** again and paste.
+2. Press **Connect again** on that row, or copy and paste the settings again.
 
-The copied settings name that friend (`--pet`), so Claude Code can report to Clover while Codex reports to Pip. If you don't pick anyone, the first friend gets the reports. The same happens if you send the chosen friend away.
+The settings name that friend (`--pet`), so Claude Code can report to Clover while Codex reports to Pip. If you don't pick anyone, the first friend gets the reports. The same happens if you send the chosen friend away.
 
 Give each friend a different agent and the yard becomes a status board of who's doing what.
 
@@ -31,7 +31,7 @@ Give each friend a different agent and the yard becomes a status board of who's 
 
 ### Two sessions of the same agent
 
-1. In **Settings → Coding tools**, leave **Reacting friend** empty for that tool, then copy and paste the settings.
+1. In **Settings → Coding tools**, leave **Reacting friend** empty for that tool, then connect it or copy and paste the settings.
 2. Start each session with its own friend:
 
 ```bash
@@ -42,7 +42,7 @@ PLAYPETS_PET=Pip claude
 - In PowerShell: `$env:PLAYPETS_PET="Clover"; claude`.
 - `PLAYPETS_PET` takes a friend's name or ID, like `--pet`.
 - A friend picked under **Reacting friend** is written into the settings (`--pet`) and wins over `PLAYPETS_PET`.
-- This works for agents you start from a terminal: Claude Code, Codex CLI, Gemini CLI and Grok Build. Cursor runs its hooks from the Cursor app, so it reports to one friend.
+- This works for agents you start from a terminal: Claude Code, Codex CLI, Gemini CLI, Grok Build, Qoder CLI and Kimi Code. Cursor runs its hooks from the Cursor app, so it reports to one friend.
 
 ## What you see in the yard <Since v="0.1.0" />
 
@@ -69,11 +69,27 @@ Each step the agent takes becomes your friend's status. You see it next to the f
 | Hit an error | Something went wrong |
 | Session ended | Resting |
 
+Not every agent reports every step. Codex CLI reports only when a reply finishes, so its friend shows Done but never Working or Waiting for you. Cursor has no hook for a confirmation, so its friend never shows Waiting for you.
+
 Your friend remembers up to 8 recent activities. Ask "what were you doing?" in the [chat](./chat.md) and it tells you.
+
+## Connect in one press <Since v="1.4.0" />
+
+1. Open **Friends & settings → Settings → Coding tools**.
+2. Press **Connect** next to the tool you use. PlayPets names the file it will change and asks first.
+3. Confirm with **Connect**. The row now says **Connected**, and the sessions you start from then on report to your friend.
+
+PlayPets adds only its own hook to that file. Your other settings and other tools' hooks stay as they are, and the file as it was is kept beside it, for example `settings.json.playpets-backup`. Pressing Connect when it's already connected changes nothing.
+
+If you pick another reacting friend or move the app, the row says it needs connecting again; press **Connect again**. **Disconnect** takes out only PlayPets' entries and leaves the rest of the file alone.
+
+PlayPets never writes a file it can't read, such as settings with a comment in them. The row then says so, and **Copy settings** below still works. Codex runs only one `notify` program, so if another program already holds that spot, PlayPets leaves the file as it is too.
 
 ## Copy and paste the settings <Since v="0.1.0" />
 
-<Shot name="settings-agents" caption="Coding agent hooks in Settings → Coding tools. Each tool has a Copy settings button." />
+<Shot name="settings-agents" caption="Coding agent hooks in Settings → Coding tools. Each tool has Connect and Copy settings buttons." />
+
+If you'd rather add the settings yourself:
 
 1. Open **Friends & settings → Settings → Coding tools**.
 2. Click **Copy settings** next to the tool you use. A notice tells you which file to paste it into.
@@ -86,10 +102,13 @@ Your friend remembers up to 8 recent activities. Ask "what were you doing?" in t
 | Gemini CLI | `~/.gemini/settings.json` | Reports every step through hooks |
 | Cursor | `~/.cursor/hooks.json` | Reports edits, commands and completion. Only observe-only hooks are used |
 | Grok Build | `~/.grok/hooks/playpets.json`, saved as a new file | Reports every step through hooks |
+| Qoder | `~/.qoder/settings.json` | Reports every step through hooks. The Qoder IDE picks it up after a restart |
+| Kimi Code | At the end of `~/.kimi-code/config.toml` | Reports every step through hooks |
 | Other MCP tools | The tool's MCP settings | The AI sends status and speech bubbles itself with the `set_pet_state`, `say`, `react` and `list_pets` tools |
 
 - The copied piece holds the path to the PlayPets executable. That executable is the hook command itself, so there's nothing else to install.
-- Moved the app? Copy and paste the settings again.
+- Moved the app? Press **Connect again**, or copy and paste the settings again.
+- Copied the Claude Code settings before version 1.4.0? Copy and paste them again, so your friend also tells you when a turn stops on an error such as a usage limit.
 - If the file already has a `hooks` or `mcpServers` entry, merge the piece into that entry.
 - Grok Build also runs your Claude Code and Cursor hooks. Its work shows only on the Grok Build friend.
 
@@ -98,7 +117,7 @@ Your friend remembers up to 8 recent activities. Ask "what were you doing?" in t
 The same executable lets you talk to your friend from the terminal. Below, `playpets` stands for the app executable. On macOS it's `/Applications/PlayPets.app/Contents/MacOS/playpets`.
 
 ```
-playpets hook claude|gemini|cursor|grok   # hook (JSON on stdin, always exits 0; prints {} for Gemini and Cursor)
+playpets hook claude|gemini|cursor|grok|qoder|kimi   # hook (JSON on stdin, always exits 0; prints {} for Gemini and Cursor)
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP server over stdio
 playpets status <state> [message]   [--pet name|ID] [--bridge file]
@@ -114,7 +133,7 @@ playpets run -- <command>
 | `playpets say "Tests passed"` | Shows a speech bubble without changing the status |
 | `playpets status working "Building"` | Changes the status. One of `idle`, `working`, `waiting`, `done`, `error` |
 | `playpets react wave` | Reacts once. One of `wave`, `jump`, `pet` |
-| `playpets run -- npm test` | "Working" while the command runs, then "Done" or "Something went wrong" |
+| `playpets run -- npm test` | "Working" while the command runs, then "Done" or "Something went wrong". Stopped with Ctrl-C, it goes back to "Resting" |
 
 - Point at a specific friend with `--pet name` or `--pet friendID`. Without it, the first friend gets it.
 - The friend ID is at the bottom of the Friend settings window.
@@ -130,7 +149,7 @@ playpets run -- <command>
   - Check what you send through terminal or MCP messages.
   - To keep those details on this computer, use a downloaded local model.
 - The hooks never block the agent's work.
-  - They finish quietly within 3 seconds.
+  - They finish quietly within a few seconds.
   - The agent keeps running even when the app is closed.
 - Hooks are separate from the AI connection for chatting. Hooks alone don't let you chat with your friend.
 - Detailed design: [Coding agent integration](/dev/agent-integration) in the developer docs.

@@ -40,34 +40,23 @@
 - Review what you send through terminal or MCP messages.
 - Use a downloaded local model when those details need to stay on this computer.
 
-## It won't open on macOS.
+## Something isn't working {#troubleshooting}
 
-- From 1.3.0 the macOS app is signed and notarized. Make sure you have 1.3.0 or later.
-- 1.2.0 and earlier are not signed, so macOS may show a warning.
-- Check that the download came from this project's release page.
-- If your system offers **Open Anyway**, follow the steps in the [install guide](./install.md#macos).
-- Available options depend on the warning and your system's policy.
+| What you see | Why | What to do |
+|---|---|---|
+| macOS won't open PlayPets | 1.2.0 and earlier aren't signed | Install 1.3.0 or later. For an older version, see [Open Anyway](./install.md#macos) |
+| SmartScreen warns about the Windows installer | The installer from GitHub isn't code-signed yet | Install from the [Microsoft Store or winget](./install.md#microsoft-store), which Microsoft signs. Or check the source and choose **More info → Run anyway** ([installer from GitHub](./install.md#installer-from-github)) |
+| The AppImage doesn't start on Linux | FUSE 2 is missing | Install `libfuse2` (Ubuntu 24.04: `libfuse2t64`), or run it with `--appimage-extract-and-run` ([Linux](./install.md#linux)) |
+| The yard is gone after closing the window | Closing only hides it | Choose **Open the yard** from the tray icon. GNOME hides tray icons without the AppIndicator extension; starting the app again also brings the yard back |
+| The friend says "Ready to play!" and doesn't answer | That friend has no AI | [Connect an AI](./chat.md#making-a-connection) |
+| The Claude Code or Codex CLI card isn't marked **Installed** | The app can't find the command | Check that `claude` or `codex` runs in a terminal. On Windows, an npm install has to be in `%APPDATA%\npm` |
+| Saving a connection says the secure storage can't be reached | The key store is locked or missing (on Linux, no Secret Service) | Allow PlayPets to use it, or use GNOME Keyring or KWallet on Linux. Ollama and the signed-in CLIs need no key |
+| The friend doesn't react to the coding agent | The agent isn't connected, no new session was started, or the app moved | Press **Connect** or **Connect again** in **Settings → Coding tools**, or copy and paste the settings again, then start a new session ([Coding agent hooks](./agents.md)). Codex CLI shows only Done, never Working |
+| Reports go to the wrong friend | No **Reacting friend** is picked, so the first friend gets them | Pick a Reacting friend in **Settings → Coding tools**, then press **Connect again** or copy and paste the settings again |
+| A pet address won't import | The site isn't supported, or its files are on another site | Download the pet and import its folder or ZIP ([Import a pet](./import.md)) |
+| It feels slow or uses battery | Friends are drawn often while they move | Close the yard window: a hidden yard isn't drawn. Try fewer friends, or turn off **Stroll on desktop** |
 
-## Windows shows a warning.
-
-- SmartScreen may warn about the installer from GitHub, which is not code-signed yet. Check its source first.
-- Some systems offer **More info** and **Run anyway**. Managed devices may prevent this.
-- Details: [install guide](./install.md#windows).
-- To install without the warning, use the [Microsoft Store](./install.md#microsoft-store) or winget: Microsoft signs that package.
-
-## AI chat doesn't work on Windows.
-
-1. Claude Code or Codex CLI installed with npm must be in `%APPDATA%\npm` for the app to find them.
-2. Check that `claude` or `codex` runs in the terminal.
-3. Check that its card in the connection window is marked "Installed".
-4. Still not working? The Windows build is not tested enough on real machines yet; tell us in an [issue](https://github.com/gaerae/playpets/issues).
-
-## The pet is slow or uses battery.
-
-- Friends are drawn often only while they move, rarely when still.
-- Close the yard window to hide it: the yard is not drawn at all.
-- Still heavy? Try fewer friends, or turn off **Stroll on desktop** in desktop mode.
-- Tell us which state it happens in (yard only, desktop only, or both). It helps us fix it.
+Something else? Tell us in an [issue](https://github.com/gaerae/playpets/issues) with your system and PlayPets version. The Windows build hasn't been tested enough on real machines yet.
 
 ## Can I make my own pet?
 
@@ -86,10 +75,10 @@
 | Operating system | Location |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\` |
+| Windows | `%APPDATA%\app.playpets\`. Microsoft Store, also through winget: inside the package's own folder |
 | Linux | `~/.local/share/app.playpets/` |
 
-- `state.json`: friends and settings. `pets/`: imported pets. `builtin/`: the starter pets.
+- `state.json`: friends and settings. `pets/`: imported pets. `backgrounds/`: imported backgrounds. `builtin/`: the starter pets.
 - API keys are not here. They are in the OS's secure storage.
 - PlayPets does not save chat history to files. It lasts only for the current app session.
 - The connected provider may have its own retention policy.

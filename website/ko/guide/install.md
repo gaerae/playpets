@@ -60,6 +60,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 
 - SmartScreen은 파일과 게시자의 평판을 보므로 새 버전에서 다시 경고할 수 있어요. [Microsoft의 SmartScreen 평판 안내](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)
 - 보안 기능은 켜 두세요. 악성 프로그램 경고는 알 수 없는 앱 경고와 다른 경우예요.
+- SmartScreen 설정은 Windows 보안의 **평판 기반 보호**에 있어요([Microsoft의 앱 및 브라우저 컨트롤 안내](https://support.microsoft.com/ko-kr/windows/security/windows-security/app-browser-control-in-the-windows-security-app)).
 - ARM PC(스냅드래곤 등)에서는 arm64 파일을 쓰세요.
 - x64 파일도 에뮬레이션으로 돌아가지만, 그 설치, 제거 프로그램은 실행 중인 PlayPets를 대신 닫지 못해요. 먼저 트레이에서 종료해 주세요.
 
@@ -132,7 +133,7 @@ chmod +x PlayPets_*.AppImage
   - Ollama와 구독 CLI는 키가 없어서 상관없어요.
 :::
 
-## 업데이트 <Since v="0.1.0" />
+## 업데이트 <Since v="0.1.0" /> {#updates}
 
 - Microsoft Store 설치본은 Store에서 업데이트해요. **Microsoft Store → 라이브러리**에서 확인해 주세요.
 - 아래 안내는 MSIX가 아닌 GitHub 설치본에 해당해요. 테스트용 MSIX도 패키지 관리 방식으로 업데이트해요.
@@ -175,12 +176,12 @@ chmod +x PlayPets_*.AppImage
 - 스토어, winget: 앱을 지우면 Windows가 패키지 데이터도 함께 지워요.
 - 설정과 가져온 펫까지 모두 지우려면 데이터 폴더도 지워 주세요.
 
-## 데이터 폴더 <Since v="0.1.0" />
+## 데이터 폴더 <Since v="0.1.0" /> {#data-folder}
 
 | 운영체제 | 위치 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\`. 스토어, winget: 패키지 전용 폴더 안 |
+| Windows | `%APPDATA%\app.playpets\`. Microsoft Store(winget으로 설치한 경우 포함): 패키지 전용 폴더 안 |
 | Linux | `~/.local/share/app.playpets/` |
 
 | 안에 있는 것 | 내용 |
@@ -188,6 +189,7 @@ chmod +x PlayPets_*.AppImage
 | `state.json` | 친구와 설정 |
 | `bridge.json` | 에이전트 연동용 포트와 토큰 |
 | `pets/` | 가져온 펫 |
+| `backgrounds/` | 가져온 배경 |
 | `builtin/` | 기본 펫 네 개 |
 
 - 다른 곳에 두려면 환경 변수 `PLAYPETS_DATA`에 폴더 경로를 넣고 앱을 실행해요. 자세한 내용은 [설정](./settings.md)에 있어요.

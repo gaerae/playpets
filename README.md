@@ -13,9 +13,9 @@
 ![macOS · Windows · Linux](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-Tauri%202-f9ae55?style=flat-square)
 ![Codex pet format compatible](https://img.shields.io/badge/pets-Codex%20pet%20format-4a9bd6?style=flat-square)
 
-[![Download for macOS](https://img.shields.io/badge/macOS-Download-1f1f1f?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/gaerae/playpets/releases/latest)
+[![Download for macOS](https://img.shields.io/badge/macOS-Download-1f1f1f?style=for-the-badge&logo=apple&logoColor=white)](https://playpets.gaerae.com/#download)
 [![Get it from Microsoft Store](https://img.shields.io/badge/Windows-Microsoft%20Store-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://apps.microsoft.com/detail/9NSKXQ6R187M)
-[![Download for Linux](https://img.shields.io/badge/Linux-Download-e95420?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/gaerae/playpets/releases/latest)
+[![Download for Linux](https://img.shields.io/badge/Linux-Download-e95420?style=for-the-badge&logo=linux&logoColor=white)](https://playpets.gaerae.com/#download)
 
 **[Website](https://playpets.gaerae.com/)** · **[User guide](https://playpets.gaerae.com/guide/)** · **[Install guide](https://playpets.gaerae.com/guide/install)** · **[Releases](https://playpets.gaerae.com/releases/)** · **[Developer docs](https://playpets.gaerae.com/dev/)**
 
@@ -50,7 +50,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 | Play | Hide and seek, parade, tag |
 | Garden and album | Dig for seeds, saplings and keepsakes; plant; fish and catch bugs |
 | Desktop mode | Pets stroll the desktop (on macOS, over full-screen apps too) |
-| Coding company | Hooks and MCP for Claude Code, Codex, Gemini CLI, Cursor, Grok Build and other MCP tools |
+| Coding company | Hooks and MCP for Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code and other MCP tools |
 | Languages | English, Korean, Japanese, Simplified Chinese |
 
 <details>
@@ -73,7 +73,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
   - Morning, day, evening and night follow the clock; the weather (clear, rain, snow) changes on its own.
   - The moon shows its real phase at night. You can set all of these yourself.
   - Put down a treat and friends walk over to eat it.
-  - Left alone, friends wander, talk to themselves, and may dig.
+  - Left alone, friends wander and talk to themselves. Turn on a switch in Settings and they dig now and then too.
 - **Garden**
   - A tool stays in hand from one spot to the next.
   - Right-click bare ground for **Dig here**.
@@ -86,6 +86,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
   - GitHub pet folders and other codex-pet-share sites work too.
   - Pets in `~/.codex/pets` load on their own.
   - A gallery link `playpets://import?url=<pet page>` imports in one click.
+  - A pet ZIP on your computer, such as one made with the creator kit, imports directly.
 - **A window beside your work**
   - Resizes down to 300 × 210; the dock folds into a corner button that appears on hover.
   - Right-click a friend for **Talk**, **Play** and **Dig**.
@@ -111,7 +112,7 @@ brew install gaerae/tap/playpets
 winget install --id 9NSKXQ6R187M --source msstore
 ```
 
-- From 1.3.0 the macOS app is signed and notarized. The Windows installer from GitHub is not code-signed yet, so SmartScreen may warn; the Microsoft Store and winget packages are signed by Microsoft.
+- From 1.3.0 the macOS app is signed and notarized. The Windows installer from GitHub is not code-signed yet, so SmartScreen may warn ([how to install it through the warning](https://playpets.gaerae.com/guide/install#installer-from-github)); the Microsoft Store and winget packages are signed by Microsoft.
 - The [install guide](https://playpets.gaerae.com/guide/install) covers those warnings and Linux notes.
 - To build from source, see [Development](#development).
 
@@ -119,13 +120,14 @@ winget install --id 9NSKXQ6R187M --source msstore
 1. Open **Friends & settings → Invite a friend** and pick Daisy, Clover, Pip or Miso.
 2. Connect an AI in **Settings → Friends & AI**.
    - Installed Claude Code and Codex are found automatically.
-   - Ollama and OpenAI-compatible servers need only an address.
+   - Ollama and OpenAI-compatible servers need a model name; a compatible server also needs its address, and an API key only if it asks for one.
 3. Click a friend's name tag to chat.
 4. In **Friend settings**, choose a personality, a relationship and what the friend calls you.
 5. Optional: add your coding tool's hooks from **Settings → Coding tools**.
 
 ## Coding agent integration
-- In **Settings → Coding tools**, press **Copy settings** and paste.
+- In **Settings → Coding tools**, press **Connect**: PlayPets asks, then adds its hook to that tool's settings file and keeps a backup beside it.
+- **Disconnect** takes out only PlayPets' entries; **Copy settings** still gives the snippet to paste yourself.
 - No Node.js needed: the app binary is the integration command.
 
 | Tool | Where to paste | What it does |
@@ -135,13 +137,15 @@ winget install --id 9NSKXQ6R187M --source msstore
 | Gemini CLI | `~/.gemini/settings.json` | Reports every step through hooks |
 | Cursor | `~/.cursor/hooks.json` | Reports edits, commands and completion (observe-only hooks) |
 | Grok Build | `~/.grok/hooks/playpets.json`, a new file | Reports every step through hooks |
+| Qoder | `~/.qoder/settings.json` | Reports every step through hooks |
+| Kimi Code | `~/.kimi-code/config.toml`, at the end | Reports every step through hooks |
 | Other MCP tools | The tool's MCP settings | `set_pet_state`, `say`, `react`, `list_pets` |
 
 <details>
 <summary>Terminal commands</summary>
 
 ```
-playpets hook claude|gemini|cursor|grok   # hooks (stdin JSON, always exit code 0; prints {} for Gemini and Cursor)
+playpets hook claude|gemini|cursor|grok|qoder|kimi   # hooks (stdin JSON, always exit code 0; prints {} for Gemini and Cursor)
 playpets hook codex <json>      # Codex notify
 playpets mcp                    # MCP stdio server
 playpets status <state> [message]   [--pet name|ID] [--bridge file]
@@ -219,7 +223,7 @@ src/              Page (HTML, CSS, JS, used as is with no build tool)
 src-tauri/src/    App core (Rust)
   main.rs         Startup wiring · app.rs state (app/ loading, sprites) · commands.rs the COMMANDS table
   chat/           Chat, AI connections (subscription CLIs, HTTP), prompts
-  pets/           Pet files, import from an address, friends in the yard
+  pets/           Pet files, import from an address or a ZIP, friends in the yard
   agent/          Coding agents: the app's CLI mode (hooks, MCP) and the bridge
   desktop/        Desktop overlay and strolling
   i18n/           Backend strings tables

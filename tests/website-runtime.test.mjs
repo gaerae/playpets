@@ -3,9 +3,11 @@ import test from 'node:test';
 import {
   chooseSiteLocale,
   forgetRelease,
+  knownRelease,
   latestRelease,
   localeFromTranslationLink,
   localeRedirect,
+  seedReleases,
   setupSiteLocale,
   taggedRelease,
   watchReducedMotion,
@@ -291,4 +293,39 @@ test('a retried release updates both download surfaces and detached listeners st
   forgetRelease('test/subscribed');
   await latestRelease('test/subscribed', async () => ({ status: 404 }));
   assert.deepEqual(hero, ['error', 'ready']);
+});
+
+test('releases the site was built with answer at once, and a version not among them is not out yet', async () => {
+  const release = {
+    status: 'ready',
+    version: '1.3.0',
+    publishedAt: '2026-10-20',
+    files: ['PlayPets_1.3.0_macos-universal.dmg'],
+  };
+  const asked = async () => {
+    throw new Error('the browser asked GitHub');
+  };
+  seedReleases('test/built', { latest: release, tagged: { '1.3.0': release } });
+  assert.deepEqual(knownRelease('test/built'), release);
+  assert.deepEqual(await latestRelease('test/built', asked), release);
+  assert.deepEqual(await taggedRelease('test/built', '1.3.0', asked), release);
+  assert.equal(knownRelease('test/built', '1.4.0').status, 'missing');
+  assert.equal((await taggedRelease('test/built', '1.4.0', asked)).status, 'missing');
+  // Built while GitHub couldn't be reached: the browser looks it up.
+  seedReleases('test/unbuilt', null);
+  assert.equal(knownRelease('test/unbuilt'), undefined);
+  assert.equal(
+    (
+      await latestRelease('test/unbuilt', async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({ tag_name: 'v1.3.0', assets: [] }),
+      }))
+    ).version,
+    '1.3.0',
+  );
+  // Nor is a browser lookup's answer built: a failed one stays open to Retry.
+  assert.equal(knownRelease('test/unbuilt'), undefined);
+  assert.equal((await latestRelease('test/unbuilt-failed', async () => ({ status: 500 }))).status, 'error');
+  assert.equal(knownRelease('test/unbuilt-failed'), undefined);
 });

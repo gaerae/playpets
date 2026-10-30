@@ -27,6 +27,14 @@ The one-site decision stands. Some details changed before the first release:
 - `npm run shots` captures 8 screens and saves them as WebP for each site language.
 - The screenshot regression check with a mock bridge and headless Chrome no longer exists.
 
+## Follow-up (2026-10-30)
+- The download links are now set when the site is built, from the releases GitHub lists as published (`scripts/site-releases.mjs`).
+- The two reasons given below no longer hold:
+  - Publishing a release starts the Pages build (`distribute.yml`), so no one rebuilds the site by hand.
+  - The links come from published releases, not from the version in `package.json`, so a draft never gets a link.
+- Why: the lookup in the browser was limited to 60 an hour per address and failed behind some networks; then the button only led to the release list.
+- A site built while GitHub can't be reached still looks the release up in the browser, as before.
+
 ## Alternatives considered
 | Alternative | Why rejected |
 |---|---|

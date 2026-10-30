@@ -1,5 +1,6 @@
 import type { Theme } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
+import generated from '../generated.json';
 import Downloads from './Downloads.vue';
 import Landing from './Landing.vue';
 import Mermaid from './Mermaid.vue';
@@ -10,7 +11,7 @@ import ReleaseMeta from './ReleaseMeta.vue';
 import Shot from './Shot.vue';
 import Since from './Since.vue';
 import Sprite from './Sprite.vue';
-import { setupSiteLocale } from './site-runtime.mjs';
+import { seedReleases, setupSiteLocale } from './site-runtime.mjs';
 import './style.css';
 import './studio.css';
 
@@ -21,6 +22,8 @@ export default {
     // offers translated /dev/ paths, which have no pages; this sends them to the English
     // page, whether typed, linked or clicked in the site, so the menu keeps working there.
     const base = siteData.value.base;
+    // The download links come from the releases the site was built with, in the page as served.
+    seedReleases(generated.slug, generated.releases);
     const moved = (to: string) =>
       to.startsWith(base) ? base + to.slice(base.length).replace(/^(?:ko|ja|zh-hans)\/dev(\/|$)/, 'dev$1') : to;
     if (typeof window !== 'undefined') {

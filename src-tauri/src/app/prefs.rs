@@ -25,6 +25,19 @@ impl Sound {
     }
 }
 
+/// What the person picked for the yard: the place (a built-in id or an imported background's),
+/// the season, the time of day and the weather. The page checks each against what it has.
+const SCENE_KEYS: [&str; 4] = ["world", "season", "period", "weather"];
+
+/// A scene choice as saved, or None for a key or value the page never sends.
+pub fn scene_choice(key: &str, value: &str) -> Option<Value> {
+    let fits = (1..=64).contains(&value.len())
+        && value
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-');
+    (SCENE_KEYS.contains(&key) && fits).then(|| json!(value))
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Prefs {
     /// Friends are out on the desktop, and (`wander`) roam it.
@@ -32,6 +45,9 @@ pub struct Prefs {
     pub wander: bool,
     /// The language the app speaks to the person in; the pet is asked to answer in it too.
     pub language: i18n::Lang,
+    /// The person's own language while `PLAYPETS_LANG` forces another for one run: it is what
+    /// state.json keeps, so the next run without the variable is in their language again.
+    pub kept_language: Option<i18n::Lang>,
     /// The friends talk among themselves every so often (the page keeps the timer).
     pub auto_chatter: bool,
     /// Idle friends now and then dig on their own (the page keeps the timer).
@@ -41,11 +57,13 @@ pub struct Prefs {
     /// The normal window bounds, restored across launches.
     pub window_rect: Option<window::Rect>,
     pub always_on_top: bool,
+    /// The place and the weather picked for the yard (`scene_choice`).
+    pub scene: Map<String, Value>,
 }
 
 impl Prefs {
     /// The keys of state.json these are saved under.
-    pub const KEYS: [&str; 9] = [
+    pub const KEYS: [&str; 10] = [
         "desktop",
         "desktopWander",
         "language",
@@ -55,6 +73,7 @@ impl Prefs {
         "windowRect",
         "alwaysOnTop",
         "miniRect",
+        "scene",
     ];
 
     /// Read back from a saved state; a key missing or of the wrong kind takes its default.
@@ -65,6 +84,7 @@ impl Prefs {
             desktop: flag("desktop"),
             wander: flag("desktopWander"),
             language,
+            kept_language: None,
             auto_chatter: flag("autoChatter"),
             auto_play: flag("autoPlay"),
             sound: Sound::restore(raw.get("sound")),
@@ -73,6 +93,16 @@ impl Prefs {
                 .or_else(|| raw.get("miniRect"))
                 .and_then(window::rect_of),
             always_on_top: flag("alwaysOnTop"),
+            scene: raw
+                .get("scene")
+                .and_then(Value::as_object)
+                .map(|saved| {
+                    saved
+                        .iter()
+                        .filter_map(|(key, value)| Some((key.clone(), scene_choice(key, value.as_str()?)?)))
+                        .collect()
+                })
+                .unwrap_or_default(),
         }
     }
 
@@ -92,6 +122,35 @@ impl Prefs {
             );
         }
         m.insert("alwaysOnTop".into(), json!(self.always_on_top));
+        m.insert("scene".into(), Value::Object(self.scene.clone()));
+        m
+    }
+
+    /// The language a run speaks (`forced`, `PLAYPETS_LANG`, before the saved one) and, when that
+    /// is not the person's own, the own one kept for state.json, so the next run without the
+    /// variable is in their language again.
+    pub fn languages(
+        saved: Option<&str>,
+        forced: Option<&str>,
+        system: Option<&str>,
+    ) -> (i18n::Lang, Option<i18n::Lang>) {
+        let language = i18n::pick_language(saved, forced, system);
+        let own = i18n::pick_language(saved, None, system);
+        (language, (own != language).then_some(own))
+    }
+
+    /// A language the person picked: theirs to keep, even in a run that forced another.
+    pub fn choose_language(&mut self, lang: i18n::Lang) {
+        self.language = lang;
+        self.kept_language = None;
+    }
+
+    /// As written to state.json: the switches, with the person's own language when a run forces another.
+    pub fn saved(&self) -> Map<String, Value> {
+        let mut m = self.json();
+        if let Some(kept) = self.kept_language {
+            m.insert("language".into(), json!(kept.code()));
+        }
         m
     }
 }
@@ -99,6 +158,51 @@ impl Prefs {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_forced_language_is_spoken_but_the_persons_own_is_saved() {
+        let (en, ko) = (i18n::Lang::parse("en").unwrap(), i18n::Lang::parse("ko").unwrap());
+        let mut prefs = Prefs::restore(&json!({"language": "en"}), ko);
+        prefs.kept_language = Some(en);
+        assert_eq!(prefs.json()["language"], json!("ko"));
+        assert_eq!(prefs.saved()["language"], json!("en"));
+        prefs.kept_language = None;
+        assert_eq!(prefs.saved()["language"], json!("ko"));
+    }
+
+    #[test]
+    fn a_run_forced_into_another_language_keeps_the_persons_until_they_pick_one() {
+        let (en, ja, ko) = (
+            i18n::Lang::parse("en").unwrap(),
+            i18n::Lang::parse("ja").unwrap(),
+            i18n::Lang::parse("ko").unwrap(),
+        );
+        assert_eq!(Prefs::languages(Some("ko"), None, Some("en-US")), (ko, None));
+        assert_eq!(Prefs::languages(Some("ko"), Some("en"), None), (en, Some(ko)));
+        assert_eq!(
+            Prefs::languages(None, Some("ja"), Some("ko-KR")),
+            (ja, Some(ko)),
+            "the system's"
+        );
+        assert_eq!(
+            Prefs::languages(Some("en"), Some("en"), None),
+            (en, None),
+            "the same: nothing kept"
+        );
+        assert_eq!(
+            Prefs::languages(Some("ko"), Some("xx"), None),
+            (ko, None),
+            "an unknown one is not forced"
+        );
+        let mut prefs = Prefs::restore(&json!({}), en);
+        prefs.kept_language = Some(ko);
+        prefs.choose_language(ja);
+        assert_eq!(
+            prefs.saved()["language"],
+            json!("ja"),
+            "picked in a forced run, it is kept"
+        );
+    }
 
     #[test]
     fn the_yard_sounds_start_on_and_quiet_and_a_saved_volume_is_held_to_100() {
@@ -135,11 +239,16 @@ mod tests {
             desktop: true,
             wander: true,
             language: lang,
+            kept_language: None,
             auto_chatter: true,
             auto_play: true,
             sound: Sound { on: false, volume: 7 },
             window_rect: Some((1.0, 2.0, 300.0, 210.0)),
             always_on_top: true,
+            scene: json!({"world": "custom-0b6f2c1e-8d4a-4f1b-9c3e-2a7d5e6f8a90", "season": "winter"})
+                .as_object()
+                .cloned()
+                .unwrap(),
         };
         let saved = Value::Object(prefs.json());
         assert_eq!(Prefs::restore(&saved, lang), prefs);
@@ -157,5 +266,20 @@ mod tests {
         let back = Prefs::restore(&odd, lang);
         assert!(!back.desktop && !back.auto_chatter && !back.auto_play && back.window_rect.is_none());
         assert!(!Prefs::restore(&odd, lang).json().contains_key("miniRect"));
+    }
+
+    #[test]
+    fn the_place_and_weather_picked_come_back_and_odd_ones_are_left_out() {
+        let lang = i18n::Lang::parse("en").unwrap();
+        let raw = json!({"scene": {
+            "world": "woodland", "season": "Winter!", "period": 7, "weather": "snow", "colour": "red"
+        }});
+        let scene = Prefs::restore(&raw, lang).scene;
+        assert_eq!(Value::Object(scene), json!({"world": "woodland", "weather": "snow"}));
+        assert!(Prefs::restore(&json!({"scene": "woodland"}), lang).scene.is_empty());
+        assert_eq!(scene_choice("period", "night"), Some(json!("night")));
+        assert_eq!(scene_choice("colour", "red"), None);
+        assert_eq!(scene_choice("world", &"a".repeat(65)), None);
+        assert_eq!(scene_choice("world", ""), None);
     }
 }

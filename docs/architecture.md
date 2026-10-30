@@ -159,6 +159,7 @@ Format:
 - Unpacks the starter pets bundled with the app.
 - Reads and checks pet folders, in one place (`catalog.rs`).
 - Imports from community pages (`importer/`): trusted adapters in `sites.rs`, ordered discovery links in `src/content/communities.json`.
+- Imports a pet ZIP from this computer (`importer/archive.rs`): names, sizes and checksums are checked before anything is written, and the pet is copied into `pets/`.
 - Creates and edits friends.
 - Keeps the rules of the garden and its gifts (`garden.rs`), the album (`album.rs`) and closeness (`bond.rs`), so the page cannot hand out seeds, catches or points of its own.
 
@@ -251,7 +252,8 @@ What each arrow in the diagram carries, path by path.
      - the Codex CLI (one run per message)
      - an HTTP AI
    - API keys are read from the OS secure storage after the lock is released.
-   - Answers stay in the in-memory chat history (the latest 24 per friend) and reach the page as a `chat-message` event.
+   - Answers stay in the in-memory chat log (the latest 500 per friend, shown by `getChat`) and reach the page as a `chat-message` event.
+   - A friend is handed only the latest 24 of its log when it answers; a live Claude CLI session also keeps what it was told before.
    - Chat history is not saved to a file.
 6. **Desktop:**
    - The overlay thread reads the cursor every 40 ms while moving and every 120 ms while quiet.
@@ -278,11 +280,12 @@ What each arrow in the diagram carries, path by path.
 | Area | Commands |
 |---|---|
 | Friends | `addPet`, `updatePet`, `removePet`, `play` |
-| Pet files | `importUrl`, `importFolder`, `openFolder` |
+| Pet files | `importUrl`, `importZip`, `importFolder`, `removeAsset`, `openFolder` |
 | AI and chat | `saveProvider`, `chat`, `chatWith` |
 | Yard chatter | `chatter`, `setAutoChatter` |
 | Yard sounds | `setSound` |
 | The garden and its gifts | `plant`, `pullPlant`, `receiveGift`, `moveDecor`, `putAway` |
+| The scene and imported backgrounds | `setScene`, `listBackgrounds`, `saveBackground`, `removeBackground` |
 | Discoveries and trees | `dig`, `plantTree`, `moveTree`, `removeTree`, `growTrees` |
 | The album | `catch`, `bloomed` |
 | Closeness | `befriend` |
@@ -301,9 +304,10 @@ What each arrow in the diagram carries, path by path.
 
 | In the data folder | Holds |
 |---|---|
-| `state.json` | Friends, settings, AI connections, the garden and its gifts, the album, closeness, friends and connections parked from an earlier start, the yard sounds' setting, the window bounds and Always on top setting |
+| `state.json` | Friends, settings, AI connections, the garden and its gifts, the album, closeness, friends and connections parked from an earlier start, the yard sounds' setting, the window bounds and Always on top setting, the place, season, time of day and weather picked (`scene`) |
 | `bridge.json` | The agent bridge's port and token. Both change on every launch |
-| `pets/` | Pets imported from an address |
+| `pets/` | Pets imported from an address or a ZIP |
+| `backgrounds/` | Imported backgrounds, one JSON file each (`app/backgrounds.rs`); the page checks a package again when it reads it |
 | `builtin/` | The four illustrated starter entries bundled in the executable, unpacked at launch |
 
 - API keys are not in this folder. They are in the OS secure storage.
@@ -332,6 +336,8 @@ The `e2e` build (`cargo build --profile e2e --features e2e`):
 
 Start at login:
 - The system starts the app at login with `--autostart` (`tauri-plugin-autostart`): a LaunchAgent on macOS, the Run key on Windows, an autostart entry on Linux.
+- A Microsoft Store package's Run key is its own copy, which Windows does not read at sign-in. There `startup.rs` switches the package's startup task (`TaskId="PlayPets"` in `AppxManifest.xml`), and a launch activated by it counts as at login.
+- A startup task the person turned off in Windows Settings can only be turned back on there; the switch says so (`error.autostart_in_settings`).
 - Started that way with desktop mode on, the yard window stays hidden.
 
 The yard window:

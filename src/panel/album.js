@@ -5,10 +5,11 @@
 import { closeOnBackdrop } from '../core/confirm.js';
 import { joinList, language, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
-import { $, data } from '../core/state.js';
+import { $, call, data, toast } from '../core/state.js';
+import { spoken } from '../core/text.js';
 import { artSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
-import { BUGS, FISH, FLOWERS, GIFTS, TREASURES, TREES } from '../yard/catalog.js';
+import { BUGS, FISH, FLOWERS, GIFTS, giftKind, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { scene } from '../yard/world.js';
@@ -143,6 +144,42 @@ function card(b, kind, entry) {
   }
   return el;
 }
+// The gift box, in the gift book: gifts that came while the yard was full, and mementos put away.
+// Each is set out near the front of the yard, from where the person drags it on.
+function renderBox(open) {
+  const boxed = data.garden?.boxed || [],
+    box = $('album-box');
+  box.hidden = !open || !boxed.length;
+  if (box.hidden) return;
+  const room = (data.garden?.decor?.length ?? 0) < limit(data, 'decor');
+  $('album-box-title').textContent = t('album.box_title', { count: boxed.length, limit: limit(data, 'giftBox') });
+  $('album-box-items').replaceChildren(
+    ...boxed.map(d => {
+      const button = document.createElement('button'),
+        label = document.createElement('small'),
+        kind = giftKind(d.kind),
+        named = t(`decor.kind_${d.kind}`);
+      button.type = 'button';
+      button.className = 'album-box-item';
+      button.classList.toggle('memento', !!d.memento);
+      button.disabled = !room;
+      button.title = room ? t('album.set_out', { kind: named }) : t('album.set_out_full');
+      button.setAttribute('aria-label', button.title);
+      button.innerHTML = kind ? giftSvg(kind) : '';
+      label.textContent = named;
+      button.append(label);
+      button.onclick = () => {
+        // Set out once: a second click before the album redraws would find it gone.
+        button.disabled = true;
+        call('setOut', d.id, 0.3 + Math.random() * 0.4, 0.8).catch(error => {
+          button.disabled = false;
+          toast(spoken(error, t('error.generic')), { error: true });
+        });
+      };
+      return button;
+    }),
+  );
+}
 /** Brings the album in line with what has been found (only while it is open). */
 export function renderAlbum() {
   clearTimeout(rareTimer);
@@ -171,9 +208,11 @@ export function renderAlbum() {
   }
   if (giftBook) {
     status.title = '';
-    status.textContent =
-      (data.garden?.decor?.length ?? 0) >= limit(data, 'decor') ? t('album.gift_full') : t('album.gift_rule');
+    const yardFull = (data.garden?.decor?.length ?? 0) >= limit(data, 'decor'),
+      boxFull = (data.garden?.boxed?.length ?? 0) >= limit(data, 'giftBox');
+    status.textContent = t(yardFull ? (boxFull ? 'album.gifts_full' : 'album.gift_full') : 'album.gift_rule');
   }
+  renderBox(giftBook);
   let found = 0,
     total = 0;
   for (const [id, b] of Object.entries(BOOKS)) {

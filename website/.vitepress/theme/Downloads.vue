@@ -1,11 +1,12 @@
 <!-- Download buttons. With a version: that release's files. Without one: the latest release,
-     with whatever the page puts in the slot (a second action) beside the main button;
-     read from the GitHub API in the browser. When that fails the button leads to the releases page:
+     with whatever the page puts in the slot (a second action) beside the main button.
+     The files come from the releases the site was built with; a site built without them reads the
+     GitHub API in the browser. When that fails the button leads to the releases page:
      a 404 means nothing is released yet; anything else (a rate limit, no network) only says where the files are. -->
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import generated from '../generated.json';
-import { forgetRelease, latestRelease, taggedRelease, watchRelease } from './site-runtime.mjs';
+import { forgetRelease, knownRelease, latestRelease, taggedRelease, watchRelease } from './site-runtime.mjs';
 import { FILES, useWords } from './words';
 
 const props = defineProps<{ version?: string; compact?: boolean }>();
@@ -45,6 +46,11 @@ const others = computed(() =>
     f => (store.value || f !== primaryFile.value) && (available.value === null || available.value.includes(f)),
   ),
 );
+// The GitHub installer is offered here on Windows (the main button or the list): it is not
+// code-signed yet, so the note on SmartScreen goes with it.
+const offersInstaller = computed(
+  () => os.value === 'Windows' && (available.value === null || available.value.some(f => f.startsWith('windows-'))),
+);
 const releaseUrl = computed(() => (resolvedVersion.value ? `${releases}/tag/v${resolvedVersion.value}` : releases));
 const showRelease = (result: { version: string; files: string[]; status: 'ready' | 'missing' | 'error' }) => {
   if (!active) return;
@@ -52,7 +58,11 @@ const showRelease = (result: { version: string; files: string[]; status: 'ready'
   available.value = FILES.filter(f => result.files.includes(`PlayPets_${result.version}_${f}`));
   lookup.value = result.status;
 };
+// A release the site was built with is in the page from the start: no lookup, no waiting.
+const built = knownRelease(generated.slug, props.version);
+if (built) showRelease(built);
 const loadRelease = async () => {
+  if (built) return;
   lookup.value = 'pending';
   showRelease(await (props.version ? taggedRelease(generated.slug, props.version) : latestRelease(generated.slug)));
 };
@@ -110,6 +120,9 @@ onBeforeUnmount(() => {
           <li><a :href="`${releases}/tag/v${resolvedVersion}`">{{ words.allFiles }}</a></li>
         </ul>
       </details>
+      <p v-if="offersInstaller" class="dl-note">
+        {{ words.unsigned }}<a :href="words.unsignedGuide">{{ words.unsignedHow }}</a>
+      </p>
     </template>
     <template v-else>
       <div class="dl-row">

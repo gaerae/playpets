@@ -2,7 +2,7 @@
 // they do together. The backend keeps the points and decides what each thing is worth and how much
 // a day can bring (src-tauri/src/pets/bond.rs); this tells it what happened, shows how close each
 // friend is (hearts on the name tag, a bar in the Friend panel), celebrates a new level, and holds
-// what the levels open: a welcome back (2), fishing alone (3, catch.js), a closer bond (4),
+// what the levels open: a welcome back (2), fishing alone (3, catch.js), a memento (4, decor.js),
 // a flower on the tag and words of its own (5, remarks.js).
 // Design: docs/design/2026-10-09-a-yard-that-grows.md.
 

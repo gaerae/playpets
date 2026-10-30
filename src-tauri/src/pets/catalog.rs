@@ -379,15 +379,55 @@ pub fn intro(kind: &str, description: &str) -> String {
     }
 }
 
-/// Pets brought in by address are saved under the downloads folder (`<data>/pets`); any other folder was picked by hand.
-pub fn place_of(downloads: &Path, folder: &Path) -> Place {
+/// Pets brought in by address or ZIP are saved under the downloads folder (`<data>/pets`); any
+/// other folder, and one there that is in `picked`, was picked by hand.
+pub fn place_of(downloads: &Path, folder: &Path, picked: &[String]) -> Place {
     // Pet folders are canonical, so the downloads folder is compared in the same form.
     let downloads = dunce::canonicalize(downloads).unwrap_or_else(|_| downloads.to_path_buf());
-    if folder.starts_with(&downloads) {
+    if folder.starts_with(&downloads) && !picked.iter().any(|p| Path::new(p) == folder) {
         Place::Downloaded
     } else {
         Place::Folder
     }
+}
+
+/// Whether a folder picked by hand is kept as the person's own: one inside the downloads folder
+/// that is not on the shelf yet. An imported pet picked again stays imported, its files the app's.
+pub fn picked_by_hand(downloads: &Path, folder: &Path, picked: &[String], shelf: &[Asset]) -> bool {
+    place_of(downloads, folder, picked) == Place::Downloaded && !shelf.iter().any(|a| a.folder == folder)
+}
+
+/// Takes a pet the person brought in (imported, or a folder picked by hand) off the shelf, so it is
+/// not read again at the next start; the starter pets and Codex's own folder stay. Refused while
+/// `in_use` says a friend in the yard is made from it. The caller deletes the files of an imported
+/// one; a picked folder is the person's own and stays where it is.
+pub fn take_imported(
+    assets: &mut Vec<Asset>,
+    imports: &mut Vec<String>,
+    in_use: impl Fn(&str) -> bool,
+    id: &str,
+) -> Result<Asset, String> {
+    let at = assets
+        .iter()
+        .position(|a| a.id == id)
+        .ok_or_else(|| i18n::t("error.pet_missing"))?;
+    if !matches!(assets[at].place, Place::Downloaded | Place::Folder) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    if in_use(id) {
+        return Err(i18n::t("error.pet_in_use"));
+    }
+    let asset = assets.remove(at);
+    imports.retain(|folder| Path::new(folder) != asset.folder);
+    Ok(asset)
+}
+
+/// The folder to delete with a pet taken off the shelf: only an imported pet's own folder, directly
+/// inside the data folder's `pets` (by its canonical path, as pet folders are). A picked folder,
+/// anything deeper and anything else stays.
+pub fn deletable<'a>(downloads: &Path, place: Place, folder: &'a Path) -> Option<&'a Path> {
+    let downloads = dunce::canonicalize(downloads).ok()?;
+    (place == Place::Downloaded && folder.parent() == Some(downloads.as_path())).then_some(folder)
 }
 
 /// Every pet folder directly inside `root`, all marked as living in `place`.
@@ -445,6 +485,95 @@ mod tests {
         for size in [(0, 1024), (4097, 1024), (1024, 4097)] {
             fs::write(root.join("portrait.png"), png_header(size.0, size.1)).unwrap();
             assert!(read_pet(&root).unwrap().portrait_path.is_none());
+        }
+        fs::remove_dir_all(base).unwrap();
+    }
+
+    #[test]
+    fn only_a_pet_brought_in_by_hand_leaves_the_shelf_and_not_while_a_friend_uses_it() {
+        let base = std::env::temp_dir().join(format!("playpets-take-{}", uuid::Uuid::new_v4()));
+        let pet = |name: &str, place: Place| {
+            let root = base.join(name);
+            fs::create_dir_all(&root).unwrap();
+            fs::write(root.join("sprite.png"), png_header(1536, 1872)).unwrap();
+            fs::write(
+                root.join("pet.json"),
+                format!(r#"{{"id":"{name}","displayName":"{name}","spritesheetPath":"sprite.png"}}"#),
+            )
+            .unwrap();
+            Asset {
+                place,
+                ..read_pet(&root).unwrap()
+            }
+        };
+        let mut assets = vec![
+            pet("starter", Place::Builtin),
+            pet("codex", Place::Codex),
+            pet("saved", Place::Downloaded),
+            pet("picked", Place::Folder),
+        ];
+        let mut imports: Vec<String> = assets[2..]
+            .iter()
+            .map(|a| a.folder.to_string_lossy().into_owned())
+            .collect();
+        let ids: Vec<String> = assets.iter().map(|a| a.id.clone()).collect();
+        for fixed in &ids[..2] {
+            assert!(take_imported(&mut assets, &mut imports, |_| false, fixed).is_err());
+        }
+        assert!(take_imported(&mut assets, &mut imports, |_| false, "nobody").is_err());
+        assert!(
+            take_imported(&mut assets, &mut imports, |id| id == ids[3], &ids[3]).is_err(),
+            "a friend in the yard keeps its pet"
+        );
+        assert_eq!((assets.len(), imports.len()), (4, 2), "a refusal changes nothing");
+        let picked = take_imported(&mut assets, &mut imports, |_| false, &ids[3]).unwrap();
+        assert_eq!(picked.place, Place::Folder);
+        let saved = take_imported(&mut assets, &mut imports, |_| false, &ids[2]).unwrap();
+        assert_eq!(saved.place, Place::Downloaded);
+        assert_eq!(assets.len(), 2);
+        assert!(imports.is_empty(), "neither is read again at the next start");
+        assert!(picked.folder.is_dir(), "taking a pet off the shelf deletes no files");
+        fs::remove_dir_all(base).unwrap();
+    }
+
+    #[test]
+    fn only_a_folder_the_app_keeps_for_a_pet_is_ever_deleted() {
+        let base = dunce::canonicalize(std::env::temp_dir())
+            .unwrap()
+            .join(format!("playpets-deletable-{}", uuid::Uuid::new_v4()));
+        let pets = base.join("pets");
+        fs::create_dir_all(pets.join("zip-boba-1a2b3c4d/rows")).unwrap();
+        fs::create_dir_all(base.join("mine")).unwrap();
+        let saved = pets.join("zip-boba-1a2b3c4d");
+        assert_eq!(deletable(&pets, Place::Downloaded, &saved), Some(saved.as_path()));
+        assert_eq!(deletable(&pets, Place::Folder, &saved), None, "a picked folder");
+        assert_eq!(
+            deletable(&pets, Place::Downloaded, &pets),
+            None,
+            "the pets folder itself"
+        );
+        let nested = pets.join("zip-boba-1a2b3c4d/rows");
+        assert_eq!(
+            deletable(&pets, Place::Downloaded, &nested),
+            None,
+            "only a pet folder of its own"
+        );
+        assert_eq!(
+            deletable(&pets, Place::Downloaded, &base.join("mine")),
+            None,
+            "outside pets"
+        );
+        assert_eq!(
+            deletable(&base.join("gone"), Place::Downloaded, &saved),
+            None,
+            "no pets folder"
+        );
+        // A pet folder is canonical, so a link inside pets to a folder elsewhere names that folder.
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(base.join("mine"), pets.join("linked")).unwrap();
+            let linked = dunce::canonicalize(pets.join("linked")).unwrap();
+            assert_eq!(deletable(&pets, Place::Downloaded, &linked), None, "a link out of pets");
         }
         fs::remove_dir_all(base).unwrap();
     }
@@ -655,13 +784,29 @@ mod tests {
         assert_eq!(read_pet(&pet).unwrap().credit, None, "no site, no credit");
         let downloads = root.join("..").join(root.file_name().unwrap());
         assert_eq!(
-            place_of(&downloads, &read.folder),
+            place_of(&downloads, &read.folder, &[]),
             Place::Downloaded,
             "compared after resolving the path"
         );
         assert_eq!(
-            place_of(&std::env::temp_dir().join("elsewhere"), &read.folder),
+            place_of(&std::env::temp_dir().join("elsewhere"), &read.folder, &[]),
             Place::Folder
+        );
+        // A folder the person made there and picked by hand stays theirs: never deleted with the pet.
+        assert!(picked_by_hand(&downloads, &read.folder, &[], &[]));
+        assert!(
+            !picked_by_hand(&downloads, &read.folder, &[], std::slice::from_ref(&read)),
+            "an imported pet picked again stays imported"
+        );
+        let picked = [read.folder.to_string_lossy().into_owned()];
+        assert!(
+            !picked_by_hand(&downloads, &read.folder, &picked, &[]),
+            "already picked"
+        );
+        assert_eq!(place_of(&downloads, &read.folder, &picked), Place::Folder);
+        assert_eq!(
+            deletable(&downloads, place_of(&downloads, &read.folder, &picked), &read.folder),
+            None
         );
         let _ = fs::remove_dir_all(&root);
     }

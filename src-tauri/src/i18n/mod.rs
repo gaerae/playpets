@@ -153,7 +153,8 @@ pub fn detail_for(key: &str, name: &str, error: impl std::fmt::Display) -> Strin
 }
 
 /// A status a coding agent reported, as agent/cli.rs codes it (`@tool Bash`), in words; any other
-/// message (a `say`, an MCP status) is a person's or an agent's own words and passes through.
+/// message (a `say`, an MCP status, words that only begin with `@`) is a person's or an agent's
+/// own and passes through.
 pub fn agent_message(message: &str) -> String {
     agent_message_in(current(), message)
 }
@@ -162,7 +163,11 @@ pub fn agent_message_in(lang: Lang, message: &str) -> String {
         return message.to_string();
     };
     let (key, arg) = code.split_once(' ').unwrap_or((code, ""));
-    tr_in(lang, &format!("agent.{key}"), &[("name", arg)])
+    let key = format!("agent.{key}");
+    if !lang.table().iter().any(|row| row.0 == key) {
+        return message.to_string();
+    }
+    tr_in(lang, &key, &[("name", arg)])
 }
 
 #[cfg(test)]
@@ -257,6 +262,12 @@ mod tests {
         assert_eq!(agent_message_in(lang("en"), "@done"), "Finished the task");
         assert_eq!(agent_message_in(lang("ja"), "tests passed"), "tests passed");
         assert_eq!(agent_message_in(lang("en"), "@rate_limit"), "Stopped at a usage limit");
+        // Words of one's own that start with @ are not a code.
+        assert_eq!(
+            agent_message_in(lang("en"), "@channel deploy finished"),
+            "@channel deploy finished"
+        );
+        assert_eq!(agent_message_in(lang("en"), "@alice"), "@alice");
         assert_eq!(
             agent_message_in(lang("ko"), "@failed 2"),
             "작업이 오류로 끝났어요 (코드 2)"

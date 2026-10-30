@@ -61,6 +61,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 - SmartScreenはファイルと発行元の評判を見るため、新しいバージョンでもまた警告が出ることがあります（[MicrosoftによるSmartScreenの評判の説明](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)）。
 - 保護機能はオンのままにしてください。
 - マルウェアの警告は、認識されないアプリの警告とは別のものです。
+- SmartScreenの設定は、Windows セキュリティの**評価ベースの保護**にあります（[Microsoftによるアプリとブラウザーのコントロールの説明](https://support.microsoft.com/ja-jp/windows/security/windows-security/app-browser-control-in-the-windows-security-app)）。
 - ARM PC（Snapdragonなど）ではarm64のファイルを使ってください。
 - x64のファイルもエミュレーションで動きます。ただしそのインストーラーとアンインストーラーは、実行中のPlayPetsを代わりに閉じられません。先にトレイから終了してください。
 
@@ -189,7 +190,7 @@ chmod +x PlayPets_*.AppImage
 | OS | 場所 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\`。Store、winget：パッケージ専用のフォルダー内 |
+| Windows | `%APPDATA%\app.playpets\`。Microsoft Store（wingetで入れた場合も）：パッケージ専用のフォルダー内 |
 | Linux | `~/.local/share/app.playpets/` |
 
 | 中身 | 内容 |
@@ -197,6 +198,7 @@ chmod +x PlayPets_*.AppImage
 | `state.json` | 友だちと設定 |
 | `bridge.json` | エージェント連携のポートとトークン |
 | `pets/` | 取り込んだペット |
+| `backgrounds/` | 取り込んだ背景 |
 | `builtin/` | 付属の4種類の仲間 |
 
 - 別の場所に置くには、環境変数`PLAYPETS_DATA`にフォルダーのパスを入れてアプリを起動します。

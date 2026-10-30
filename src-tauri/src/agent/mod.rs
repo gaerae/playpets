@@ -1,9 +1,11 @@
 //! Coding agents and the app: the same binary run as a command (cli: hooks, MCP, status
-//! commands) reaches the running app through a local HTTP bridge (bridge). What agents report
+//! commands; run: a command the friend works on) reaches the running app through a local HTTP bridge (bridge). What agents report
 //! is shown on the friend and remembered so the pet can talk about it.
 pub mod bridge;
 pub mod cli;
+pub mod connect;
 pub mod kinds;
+mod run;
 pub mod snippets;
 
 use crate::app::{AppData, Shared, lock, pet_name, push_event, require_pet, set_status};
@@ -17,9 +19,14 @@ use tauri::{AppHandle, Manager};
 /// only shown.
 fn on_event(app: &AppHandle, d: &mut AppData, event: bridge::AgentEvent) {
     use bridge::AgentEvent::*;
-    let (pet_id, kind, state, message) = match &event {
-        Status { pet_id, state, message } => (pet_id.clone(), "status", state.clone(), message.clone()),
-        Say { pet_id, message } => (pet_id.clone(), "say", String::new(), message.clone()),
+    let (pet_id, kind, state, message, by) = match &event {
+        Status {
+            pet_id,
+            state,
+            message,
+            by,
+        } => (pet_id.clone(), "status", state.clone(), message.clone(), by.clone()),
+        Say { pet_id, message } => (pet_id.clone(), "say", String::new(), message.clone(), String::new()),
         React { pet_id, action } => {
             if require_pet(d, pet_id).is_ok() {
                 push_event(app, &json!({"type": "play", "action": action, "petId": pet_id}));
@@ -46,6 +53,9 @@ fn on_event(app: &AppHandle, d: &mut AppData, event: bridge::AgentEvent) {
         push_event(app, &json!({"type": "say", "petId": pet_id, "message": message}));
     } else {
         set_status(app, d, &pet_id, &state, &message, "agent");
+        if let Some(status) = d.statuses.get_mut(&pet_id) {
+            status["by"] = json!(by);
+        }
     }
 }
 
@@ -61,13 +71,19 @@ pub fn start(app: &tauri::App) {
             d.pets
                 .iter()
                 .map(|p| {
-                    let status = d
-                        .statuses
-                        .get(&p.id)
+                    let status = d.statuses.get(&p.id);
+                    let state = status
                         .and_then(|s| s.get("state"))
                         .and_then(|v| v.as_str())
                         .unwrap_or("idle");
-                    json!({"id": p.id, "name": pet_name(&d, p, ""), "state": status})
+                    // "chat" when the state is a chat answer on its way rather than an agent's turn.
+                    let source = status
+                        .and_then(|s| s.get("source"))
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("");
+                    // Who reported it, for an idle notice to tell its own turn (agent/cli.rs).
+                    let by = status.and_then(|s| s.get("by")).and_then(|v| v.as_str()).unwrap_or("");
+                    json!({"id": p.id, "name": pet_name(&d, p, ""), "state": state, "source": source, "by": by})
                 })
                 .chain(d.parked_pets.iter().map(|p| json!({"id": p["id"], "parked": true})))
                 .collect::<Vec<_>>()

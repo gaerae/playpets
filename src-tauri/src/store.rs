@@ -62,6 +62,9 @@ impl Store {
             use std::io::Write;
             let mut file = options.open(&tmp).map_err(|e| failed(&e))?;
             file.write_all(text.as_bytes()).map_err(|e| failed(&e))?;
+            // On disk before it takes the name: a power cut after the rename must not leave an
+            // empty state.json where the last good one was.
+            file.sync_all().map_err(|e| failed(&e))?;
         }
         fs::rename(&tmp, self.dir.join(name)).map_err(|e| failed(&e))
     }

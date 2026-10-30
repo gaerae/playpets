@@ -3,7 +3,7 @@
 import { useData } from 'vitepress';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import generated from '../generated.json';
-import { taggedRelease, watchRelease } from './site-runtime.mjs';
+import { knownRelease, taggedRelease, watchRelease } from './site-runtime.mjs';
 import { useWords } from './words';
 
 const { frontmatter } = useData();
@@ -14,7 +14,10 @@ let detach: (() => void) | undefined;
 const update = (result: { status: string; publishedAt?: string }) => {
   if (active && result.status === 'ready') publishedAt.value = result.publishedAt ?? '';
 };
+const built = knownRelease(generated.slug, String(frontmatter.value.version ?? ''));
+if (built) update(built);
 onMounted(async () => {
+  if (built) return;
   const version = String(frontmatter.value.version ?? '');
   detach = watchRelease(generated.slug, update, version);
   update(await taggedRelease(generated.slug, version));

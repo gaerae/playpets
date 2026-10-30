@@ -46,6 +46,8 @@ const paths = {
   sound: '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
   'sound-off': '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 10 4 4m0-4-4 4"/>',
   more: '<circle cx="5.5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor"/>',
+  archive:
+    '<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4M10 5h1M10 8h1M10 11h1"/><rect x="9" y="13" width="3" height="3" rx=".5"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13"/>',
 };
 export function icons(root = document) {

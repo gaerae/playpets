@@ -10,7 +10,7 @@ import { icons } from '../core/icons.js';
 import { displayName } from '../core/names.js';
 import { setupSeason, southern } from '../core/season.js';
 import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/sprites.js';
-import { recall } from '../core/state.js';
+import { sceneValue } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
@@ -31,8 +31,9 @@ let data = { pets: [], assets: [], statuses: {} },
   layout = [];
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
-setupSeason({
-  read: () => recall('season'),
+const seasonChanged = setupSeason({
+  // As the yard reads it (yard/sky.js): a season the app could not save is still in the webview.
+  read: () => sceneValue('season', data),
   apply: season => {
     if (setSpriteSeason(season)) render();
   },
@@ -210,6 +211,7 @@ function say(v, message) {
 api.onChange(next => {
   data = next;
   layout = next.desktopLayout;
+  seasonChanged();
   render();
 });
 api.onEvent(event => {
@@ -257,6 +259,7 @@ if (result.ok) {
   // A language chosen in the yard reaches this window too (the page starts over in it).
   follow(data.language);
   layout = data.desktopLayout;
+  seasonChanged();
   render();
   // Standing cells last 110-320 ms, so ten frames a second show every one of them.
   every(100, animate);

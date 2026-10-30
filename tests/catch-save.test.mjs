@@ -15,7 +15,7 @@ globalThis.playPets = {
 globalThis.matchMedia = () => ({ matches: true });
 installStorage();
 const { setData, setGame, views } = await import('../src/core/state.js');
-const { endFishing, onLake, setupCatch } = await import('../src/yard/catch.js');
+const { endFishing, onLake, setupCatch, soloFishing } = await import('../src/yard/catch.js');
 const { scene, setScenery } = await import('../src/yard/world.js');
 
 function page(context) {
@@ -178,3 +178,41 @@ test('fishing renders decorative tackle and labels the bite with its action', as
     views.clear();
   }
 });
+
+// A friend fishing on its own calls the person when a fish bites; the album and closeness come
+// only from what the person reels in.
+for (const reeled of [false, true])
+  test(`a bite on a friend's own trip ${reeled ? 'is caught when the person reels it in' : 'gets away if no one reels it in'}`, async context => {
+    context.mock.timers.enable({ apis: ['setTimeout'] });
+    context.mock.method(Math, 'random', () => 0);
+    const { nodes, view } = page(context);
+    setData({ pets: [view.pet], assets: [], statuses: {}, bonds: { [view.pet.id]: { points: 300 } } });
+    try {
+      // The trip's cadence is the module's own: each case starts later than the last one's.
+      const start = reeled ? 1e9 : 0;
+      soloFishing(start);
+      soloFishing(start + 60 * 60 * 1000);
+      const trip = view.trip;
+      assert.ok(trip, 'a close friend goes fishing on its own');
+      view.trip = null;
+      view.target = null;
+      trip.arrive(view);
+      context.mock.timers.tick(3000);
+      const float = nodes.get('garden-layer').children.at(-1);
+      assert.ok(float.classList.contains('bite'), 'a fish bites');
+      assert.notEqual(view.bubble.textContent, '', 'the friend calls the person over');
+      if (reeled) float.dispatch('click');
+      else for (let i = 0; i < 10; i++) context.mock.timers.tick(1000);
+      assert.equal(catches.length, reeled ? 1 : 0);
+      if (reeled) {
+        catches[0].resolve({ ok: true, data: { first: false, entry: { count: 1 } } });
+        await settled();
+      }
+      assert.equal(bonds.length, reeled ? 1 : 0);
+    } finally {
+      for (const request of catches) request.resolve({ ok: false, error: 'Save cancelled.' });
+      await settled();
+      endFishing();
+      views.clear();
+    }
+  });

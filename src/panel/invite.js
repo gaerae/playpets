@@ -1,11 +1,12 @@
-// The invite tab: pets on the shelf, and bringing new ones in from a page or a folder.
+// The invite tab: pets on the shelf, bringing new ones in from a page, a ZIP or a folder, and
+// taking those back off.
 
-import { keepEdits, showFormError } from '../core/confirm.js';
+import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
 import { joinList, language, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
 import { canvas, drawSprite } from '../core/sprites.js';
-import { $, call, data, guard, recall, remember, setSelected, toast, views } from '../core/state.js';
+import { $, call, data, guard, name, recall, remember, setSelected, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { bubble, pose } from '../yard/views.js';
 
@@ -14,12 +15,22 @@ const inviting = new Set();
 let shelfKey = '';
 // Reloads the page's state; handed in by setupInvite.
 let refresh = async () => {};
+/** A name for another friend from the same pet file: its own title while free, else the first
+ * number not taken, so sending one away and inviting again never repeats a name. */
+export function twinName(title, taken) {
+  if (!taken.has(title)) return title;
+  let n = 2;
+  while (taken.has(`${title} ${n}`)) n++;
+  return `${title} ${n}`;
+}
 export async function invite(assetId) {
   const original = data.assets.find(a => a.id === assetId),
     patch = { visualStyle: 'illustrated' },
     twins = data.pets.filter(p => p.assetId === assetId).length,
     title = original?.displayName || t('friend.default');
-  if (twins > 0) patch.name = `${title} ${twins + 1}`;
+  // A friend never renamed goes by its pet file's title.
+  const called = p => p.name || data.assets.find(a => a.id === p.assetId)?.displayName;
+  if (twins > 0) patch.name = twinName(title, new Set(data.pets.map(called)));
   const created = await call('addPet', assetId, patch);
   setSelected(created.id);
   await refresh();
@@ -40,6 +51,10 @@ const PLACES = [
   { place: 'downloaded', title: 'invite.place_downloaded', folder: 'downloaded' },
   { place: 'folder', title: 'invite.place_folder', folder: null },
 ];
+const folderName = a =>
+  String(a.folderPath || '')
+    .split(/[\\/]/)
+    .pop();
 // Who made a downloaded pet, as the page it came from said: "Petdex, hongtao, CC BY-NC 4.0".
 const creditLine = credit => joinList([credit.site, credit.creator, credit.license].filter(Boolean));
 function card(a) {
@@ -64,7 +79,7 @@ function card(a) {
   const from = a.credit
     ? creditLine(a.credit)
     : a.place === 'folder'
-      ? t('invite.folder_name', { folder: a.folderPath.split(/[\\/]/).pop() })
+      ? t('invite.folder_name', { folder: folderName(a) })
       : '';
   if (from) {
     const line = document.createElement('small');
@@ -89,6 +104,50 @@ function card(a) {
   previews.set(a.id, { canvas: c, asset: a });
   return card;
 }
+// A pet brought in by hand (from an address, a ZIP or a picked folder) can leave the shelf. The
+// card is itself a button, so its remove button stands beside it rather than inside.
+const REMOVABLE = new Set(['downloaded', 'folder']);
+function entry(a) {
+  const c = card(a);
+  if (!REMOVABLE.has(a.place)) return c;
+  const slot = document.createElement('div'),
+    remove = document.createElement('button'),
+    icon = document.createElement('span'),
+    label = t('invite.remove_aria', { name: a.displayName });
+  slot.className = 'asset-slot';
+  remove.type = 'button';
+  remove.className = 'icon-button asset-remove';
+  remove.dataset.assetId = a.id;
+  remove.setAttribute('aria-label', label);
+  remove.title = label;
+  icon.dataset.icon = 'trash';
+  remove.append(icon);
+  remove.onclick = guard(() => removeAsset(a));
+  slot.append(c, remove);
+  return slot;
+}
+// Friends made from the pet keep it: they are named, so the person knows whom to send away first.
+// An imported pet's files go with it; a picked folder only leaves the list.
+async function removeAsset(a) {
+  const users = data.pets.filter(p => p.assetId === a.id);
+  if (users.length) {
+    toast(t('invite.remove_in_use', { names: joinList(users.map(name)) }));
+    return;
+  }
+  const picked = a.place === 'folder';
+  const sure = await confirmAction({
+    title: t('invite.remove_confirm', { name: a.displayName }),
+    body: picked ? t('invite.remove_body_folder', { folder: folderName(a) }) : t('invite.remove_body_saved'),
+    action: t('invite.remove_go'),
+    danger: !picked,
+  });
+  if (!sure || !data.assets.some(b => b.id === a.id)) return;
+  await call('removeAsset', a.id);
+  await refresh();
+  toast(t('toast.pet_removed', { name: a.displayName }));
+  // The pressed button is gone with its card: the panel's heading takes the focus.
+  $('panel-title')?.focus();
+}
 function group({ place, title, folder }, assets) {
   const box = document.createElement('section');
   box.className = 'shelf-group';
@@ -109,7 +168,7 @@ function group({ place, title, folder }, assets) {
     open.onclick = guard(() => call('openFolder', folder));
     head.append(open);
   }
-  box.append(head, ...assets.map(card));
+  box.append(head, ...assets.map(entry));
   box.dataset.place = place;
   return box;
 }
@@ -166,6 +225,8 @@ export function renderShelf() {
   if (full) $('yard-full').textContent = t('invite.full', { limit: most });
   // A shape with no pets says so, with the way back to every pet.
   $('no-kind').hidden = !data.assets.length || shown.length > 0;
+  // A pet on its way into the yard is not taken off the shelf meanwhile.
+  for (const b of $('shelf').querySelectorAll('.asset-remove')) b.disabled = inviting.has(b.dataset.assetId);
   for (const b of $('shelf').querySelectorAll('.asset-card')) {
     b.disabled = full || inviting.has(b.dataset.assetId);
     b.setAttribute('aria-busy', String(inviting.has(b.dataset.assetId)));
@@ -218,7 +279,7 @@ let importOpened = () => {};
 // Both import paths share the dialog: another action must not replace a request still running.
 function setImporting(busy) {
   importing = busy;
-  for (const id of ['close-import', 'cancel-import', 'import-folder', 'import-submit', 'import-url'])
+  for (const id of ['close-import', 'cancel-import', 'import-folder', 'import-zip', 'import-submit', 'import-url'])
     $(id).disabled = busy;
   $('import-form').setAttribute('aria-busy', String(busy));
   $('import-submit').textContent = t(busy ? 'invite.importing' : 'invite.import_go');
@@ -241,13 +302,13 @@ export function setupInvite(hooks) {
   $('close-import').onclick = $('cancel-import').onclick = () => {
     if (!importing) $('import-dialog').close();
   };
-  // A folder that is not a pet is said inside the dialog, beside the address field's errors.
-  $('import-folder').onclick = async () => {
+  // A folder or a ZIP that is not a pet is said inside the dialog, beside the address field's errors.
+  const fromComputer = command => async () => {
     if (importing) return;
     setImporting(true);
     $('import-error').textContent = '';
     try {
-      const id = await call('importFolder');
+      const id = await call(command);
       if (!id) return;
       await invite(id);
       $('import-dialog').close();
@@ -258,6 +319,8 @@ export function setupInvite(hooks) {
       setImporting(false);
     }
   };
+  $('import-folder').onclick = fromComputer('importFolder');
+  $('import-zip').onclick = fromComputer('importZip');
   importOpened = keepEdits(
     $('import-dialog'),
     () => $('import-url').value,

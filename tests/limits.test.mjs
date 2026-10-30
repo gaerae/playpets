@@ -18,6 +18,8 @@ test("the page's limits before the state arrives are the backend's", () => {
   assert.equal(String(LIMITS.seeds), constant(garden, 'SEED_MAX'));
   assert.equal(String(LIMITS.saplings), constant(garden, 'SAPLING_MAX'));
   assert.equal(String(LIMITS.decor), constant(garden, 'DECOR_MAX'));
+  assert.equal(String(LIMITS.giftBox), constant(garden, 'BOX_MAX'));
+  assert.equal(String(LIMITS.giftEveryDays), constant(garden, 'GIFT_EVERY_DAYS'));
   assert.equal(`[${LIMITS.bondLevels.join(', ')}]`, constant(bond, 'LEVELS'));
   assert.match(read('src/index.html'), new RegExp(`id="pet-persona" maxlength="${LIMITS.persona}"`));
 });

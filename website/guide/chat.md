@@ -17,7 +17,7 @@ Your friends can be invited and play without an AI, but to chat they need one co
 | Ollama | Uses a model through Ollama at `http://127.0.0.1:11434` | Local models keep conversations on this computer without hosted inference fees; cloud models use their service's terms |
 | OpenAI API | Connects to OpenAI with an API key | Conversations are sent to OpenAI, and API fees may apply |
 | Grok API | Connects to Grok with an xAI API key | Conversations are sent to xAI, and API fees may apply |
-| OpenAI-compatible server | You enter the server address and API key yourself | Conversations are sent to that server, and fees may apply |
+| OpenAI-compatible server | You enter the server address yourself, and an API key if the server asks for one | Conversations are sent to that server, and fees may apply |
 
 The connection window shows each kind as a card that says what it needs. If PlayPets finds Claude Code, Codex CLI or Ollama on this computer, that card is marked **Installed** and already picked. If it finds none, nothing is picked, and the fields appear once you choose a card.
 
@@ -59,6 +59,7 @@ Each of your friend's turns opens with its picture, as in a messenger. While you
 
 - **Clear chat** in the **⋯** menu by the friend's name deletes the whole conversation with this friend. Name and personality stay.
 - Chat history lives only in memory. It's gone when you quit the app and is never saved to a file.
+- The log keeps up to the last 500 messages with each friend. When it answers, your friend recalls the latest 24. A friend on Claude Code also remembers the rest while its session stays open.
 
 ## Setting a personality <Since v="0.1.0" />
 

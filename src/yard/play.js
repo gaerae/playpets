@@ -61,9 +61,13 @@ function say(text) {
   hint();
 }
 // The game's line in the lane above the dock says what a game is asking for; without a title it goes away.
-let missTimer;
+// `bannerSub` is the line a wrong guess covers for a moment, kept apart so a second miss cannot
+// take the first miss's words for it.
+let missTimer,
+  bannerSub = '';
 function banner(label, title, sub = '') {
   clearTimeout(missTimer);
+  bannerSub = sub;
   $('game-banner').classList.remove('miss');
   $('game-banner').hidden = !title;
   $('banner-label').textContent = label;
@@ -85,7 +89,6 @@ function tell(note = '') {
 }
 // A wrong guess only says so; the friend stays hidden and the same name is still asked for.
 function miss() {
-  const sub = $('banner-sub').textContent;
   $('banner-sub').textContent = t('hide.miss');
   $('banner-sub').hidden = false;
   $('game-banner').classList.remove('miss');
@@ -94,8 +97,8 @@ function miss() {
   clearTimeout(missTimer);
   missTimer = setTimeout(() => {
     $('game-banner').classList.remove('miss');
-    $('banner-sub').textContent = sub;
-    $('banner-sub').hidden = !sub;
+    $('banner-sub').textContent = bannerSub;
+    $('banner-sub').hidden = !bannerSub;
   }, 2400);
 }
 const hide = {

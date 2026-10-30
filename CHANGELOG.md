@@ -10,13 +10,79 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Import a pet from a ZIP file on your computer, such as one from the creator kit or a compressed pet folder. PlayPets copies the pet in, so the ZIP can be moved or deleted afterwards.
+- Remove a pet you imported or picked from the trash button beside its card in Invite a friend. An imported pet's files are deleted; a picked folder only leaves the list. While friends made from the pet are in the yard, PlayPets names them to send away first.
+- A friend brings a gift each time it grows closer, from At ease on, on a day you play with it, and at Very close its own memento, marked with a heart. A friend already close when you update brings one for the level it is at.
+- Connect a coding agent in one press from Settings → Coding tools: PlayPets names the file, asks, then adds its hook to the agent's own settings beside everything already there and keeps a backup. Disconnect takes out only PlayPets' entries; a file PlayPets cannot read is left alone and Copy settings still works. Qoder and Kimi Code join the agents a friend can follow.
+- A gift box in the album's Gifts book keeps up to 12 gifts that came while the yard was full; press one to set it out once there is room. A memento you put away goes back into the box.
+
+### Changed
+
+- Closeness grows from what you do together: time with the yard seen counts up to an hour a day, and pats up to a quarter of a day's worth. Leaving the window open no longer makes friends close faster than playing; points already earned stay.
+- A friend fishing on its own calls you when a fish bites; press the float within a few seconds to reel it in together, or it gets away. The album keeps only what you catch.
+- Everyday gifts come from friends, not from the clock: at most one every other day, brought by a friend you did something with that day, 10 to 20 minutes after it may come. Leaving the yard open alone brings none. The wait is saved in `state.json` instead of the app's webview storage.
+- Gifts can be set further down the yard, just above the dock, or nearly to the bottom of a small window, and stand in front of friends behind them. A bench, swing, stump or picnic blanket stops where friends can still reach it, and gifts already in the yard stay where they are. A wide gift dragged at the edge moves at once, and the arrow keys move a gift the same distance in any window size.
+- Imported backgrounds and the place, season, time of day and weather picked for the yard are saved in the data folder (`backgrounds/` and `state.json`), so a copy of the folder keeps them and deleting it removes them. At the first start of 1.4.0 they move over from the app's webview storage, which keeps its copy until the move is saved. Going back to 1.3.0 afterwards shows the default place and no imported backgrounds; they come back with 1.4.0.
+
+### Fixed
+
+- In Places, the Import, Remove and Background studio buttons no longer run over the Places title or get cut off at the right in a narrow window or a longer language; what does not fit moves to the next line.
+- Starting PlayPets with `PLAYPETS_LANG` no longer replaces the language you picked: the next start without it is in your language again.
+- A Claude Code friend no longer turns to Waiting for you a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.
+- The chat log keeps up to the last 500 messages with each friend for the session, instead of silently dropping everything before the last 24; a friend still answers with the latest 24 in mind.
+- winget's package for the GitHub installer names the app's product code, so `winget list` and `winget upgrade` recognize PlayPets installed with that installer.
+- On Windows, the Microsoft Store version declares `playpets://` links, so a pet gallery's import link opens PlayPets.
+- A friend on an API connection (OpenAI, Grok, Ollama or a compatible server) keeps who it is in a long conversation: its persona and notes are no longer dropped once the chat passes 24 messages.
+- ■ stops a friend on an API connection at once, instead of after the server answers or times out.
+- Changing an AI connection to another type or server without typing a new key, when the new one needs a key, is refused without deleting the key the connection had.
+- A coding agent reporting for a friend that was sent away now reaches the first friend, as a report with no name does, instead of failing. A `playpets say` message that starts with `@` is shown as written, unless it is one of the app's own status codes.
+- `state.json` is written to disk before it replaces the old file, so a power cut while saving cannot leave an empty file.
+- On Windows, the hooks for Claude Code, Gemini CLI and Cursor run under PowerShell. Before, PowerShell could not read them: Gemini CLI and Cursor friends never reacted, and Claude Code without Git Bash could stop its tool calls. Connect, or copy the settings again, to get the new hooks.
+- An update download that takes more than 20 minutes stops with an error instead of waiting on a stalled connection forever, so Update can be tried again.
+- The tray's red mark for a coding agent's error goes away after 30 minutes, as the yard's dot does.
+- In the yard, a friend whose coding agent finished or failed more than 30 minutes ago stands and chats like the others again, as its dot and the desktop show.
+- A tree pulled up just before moving to another place is removed, instead of coming back.
+- In hide and seek, two quick wrong guesses no longer leave "not them" in place of who is still hiding.
+- A friend sent to dig rests from when it digs, so a second dig shortly after is no longer refused once it has walked over. A dig called off on the way does not count.
+- The tree tool says a place or the yard is full when you click, counting trees friends are on their way to plant, instead of letting a friend walk over to fail.
+- The page is no longer redrawn every minute once anyone has chatted, so a picker or an open album keeps its place and focus.
+- Inviting a pet again uses the first free number, so sending one copy away and inviting again never repeats a name.
+- In the Microsoft Store version, Start PlayPets when you log in now starts it at sign-in, through Windows Settings → Apps → Startup, and with desktop mode on the yard window waits in the tray. If PlayPets was turned off there, the switch says to turn it on there. On every system, the switch also shows a change made in the system's settings while PlayPets was open, once you come back to its window.
+- Two coding agents reporting for one friend no longer undo each other: one session's idle notice no longer turns another session's Working friend to Resting.
+- A command stopped with Ctrl-C under `playpets run` leaves its friend Resting, instead of Working, and a `kill -INT` sent to `playpets run` alone now reaches the command.
+- On macOS and Linux, a Claude or Codex CLI still answering when PlayPets quits is stopped with it.
+- Removing a pet that a friend waiting to come back still uses names that friend, instead of a general error.
+- With `PLAYPETS_DATA` set to another folder, PlayPets copies the installed app's backgrounds and scene into it instead of moving them, so the installed app keeps its own.
+- A pet folder you picked by hand from inside the data folder's `pets` only leaves the list when removed; its files are no longer deleted.
+- A pet ZIP brings in only the pet's JSON, pictures and text notes; a script, a web page or a shortcut packed beside them is left out.
+- Fishing with a friend chosen while it is busy takes the nearest free friend, and fishing from the tool counts toward its hint like other play.
+- A question that comes while another is open, such as a pet link arriving, waits for the first to be answered instead of answering it No.
+- On macOS and Linux, Claude Code or Codex CLI installed with nvm, fnm, asdf, mise, Volta, Bun or pnpm is now found and marked Installed. One installed with nvm, fnm, asdf, mise or Volta runs with the Node it was installed with, instead of failing to find `node` or picking up an older one.
+
+### Known limitations
+
+- Codex CLI tells PlayPets only when a reply finishes, so its friend shows Done but never Working or Waiting for you. Cursor has no hook for a confirmation, so its friend never shows Waiting for you.
+- On Linux with Wayland, clicking and dragging friends on the desktop has not been tested.
+
 ### Website and docs
 
+- The guide explains how gifts, the gift box and mementos come, what each coding agent can report, and that clicking friends on Wayland has not been tested.
+- The import guide explains importing a pet ZIP directly in 1.4.0 and removing a pet in the app; the creator kit page, the kit's request and the creator skill say the same and keep the folder steps for earlier versions.
+- The user guide counts 20 gifts in the album, says an OpenAI-compatible server needs an API key only when it asks for one, lists what About PlayPets holds under Privacy and license in every language, and gives the Store and winget data folder in the FAQ. The README says Ollama and compatible servers need a model name, and that friends dig on their own only with the switch on.
 - Release pages say what changed in the app in one short line per change, and mark a change for one system with its name; install ways, the user guide and security updates move to a section of their own. The Microsoft Store shows the Windows lines and Linux software centers the Linux lines; winget and the GitHub release link to the page.
 - The README shows three screenshots, its Windows button opens PlayPets in the Microsoft Store, and its install section lists the Store and the winget command before the GitHub installer. Its updates, data and language sections are shorter and link to the user guide.
 - On the website, a visitor on macOS or Linux who opens the other platforms list finds the Microsoft Store first for Windows, before the GitHub installers.
 - The website's front page shows real pictures of play: a garden decorated with flowers, trees and gifts, tag, digging, fishing and the album. Its comparison with a Codex pet starts with moving: friends stroll the yard and, with Stroll on desktop, your desktop, with a picture of them there.
 - Screenshots and the README animation no longer show a keyboard focus ring around a friend.
+- On Windows, the website's download section says the installer from GitHub is not code-signed yet and links to the install guide's steps for the SmartScreen warning; the README links there too, and the install guide links Microsoft's page on where SmartScreen is set.
+- The website's download buttons link the release files directly from the first moment: the site reads the published releases when it is built and is built again when one is published, so a busy network or GitHub's lookup limit no longer sends visitors to the release list. The README's download badges open that section.
+- The guide's first page starts with four steps and what each one shows, and the FAQ's answers on problems become one table of what you see, why and what to do.
+- The guide's quick start and the FAQ point to Connect instead of pasting settings, and the 1.4.0 release page names Connect, Qoder and Kimi Code. The wording of the 1.4.0 strings and guide pages is smoother in all four languages.
+- The coding agents guide says a hook gives up within a few seconds, not three: a hook that waits for the app can take a little longer.
+- The coding agents guide says a `playpets run` stopped with Ctrl-C leaves its friend Resting.
+- The settings guide says how Start at login works in the Microsoft Store version, and its data folder table gives the Store location, as the FAQ and the install page do. The first-friend guide names the group of pets imported from an address or a ZIP, and the privacy page says the season and time of day picked are saved too.
 
 ## [1.3.0] - 2026-10-27
 

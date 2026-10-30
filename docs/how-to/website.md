@@ -174,7 +174,7 @@ What the website does and does not do:
 - Generation, review, assembly, validation and final packaging happen in the person's chosen AI environment.
 - The final hand-off is a pet ZIP or background JSON imported directly into PlayPets.
 - A local pet folder is registered by path, not copied into app storage.
-- Hand-off instructions say to extract the ZIP into a permanent location, and that the selected folder stays there while the pet is in use.
+- Hand-off instructions say to import the ZIP in PlayPets 1.4.0 or later, which copies the pet in. For an earlier version they say to extract the ZIP into a permanent location, and that the selected folder stays there while the pet is in use.
 - An image-only service cannot run the supplied scripts.
 - The workflow needs an AI agent that can read and write files and run Python, plus an image generation tool that environment supports.
 - Do not imply that a ChatGPT subscription automatically grants image API access, or assume that tools and inference are free.

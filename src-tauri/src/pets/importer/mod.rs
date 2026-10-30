@@ -13,6 +13,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 use url::{Host, Url};
 
+mod archive;
 mod html;
 mod net;
 mod sites;
@@ -108,6 +109,73 @@ pub fn import_from_url(raw: &str, root: &Path, fetch: Fetch) -> Result<PathBuf, 
     Ok(folder)
 }
 
+/// Imports a pet ZIP (the creator kit's, or a compressed pet folder) into its own folder in `root`,
+/// so the ZIP itself can go. The same ZIP twice is the same folder; a changed one is a new pet.
+pub fn import_from_zip(file: &Path, root: &Path) -> Result<PathBuf, String> {
+    // Only a plain file, and never more of it than the limit: a pipe or a device has no size.
+    let meta = fs::metadata(file).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    if !meta.is_file() {
+        return Err(i18n::t("import.zip_unreadable"));
+    }
+    if meta.len() > archive::ARCHIVE_LIMIT {
+        return Err(i18n::t("import.zip_too_big"));
+    }
+    let mut bytes = Vec::new();
+    fs::File::open(file)
+        .and_then(|f| f.take(archive::ARCHIVE_LIMIT + 1).read_to_end(&mut bytes))
+        .map_err(|e| i18n::detail("pet.unreadable", e))?;
+    if bytes.len() as u64 > archive::ARCHIVE_LIMIT {
+        return Err(i18n::t("import.zip_too_big"));
+    }
+    let files = archive::pet_files(archive::read_entries(&bytes)?)?;
+    let manifest: Value = files
+        .iter()
+        .find(|(name, _)| name == "pet.json")
+        .and_then(|(_, b)| serde_json::from_slice(b).ok())
+        .ok_or_else(|| i18n::t("pet.manifest_fields"))?;
+    // The pet's own id names the folder, as far as it is safe in a path.
+    let id: String = catalog::tidy(manifest.get("id").and_then(|v| v.as_str()).unwrap_or(""), 40)
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+                c.to_ascii_lowercase()
+            } else {
+                '-'
+            }
+        })
+        .collect();
+    let id = id.trim_matches('-');
+    let folder = root.join(format!(
+        "zip-{}-{}",
+        if id.is_empty() { "pet" } else { id },
+        &catalog::sha256_hex_short(&bytes)[..8]
+    ));
+    if folder.exists() && valid(&folder) {
+        return Ok(folder);
+    }
+    fs::create_dir_all(root).map_err(|e| i18n::detail("import.save_detail", e))?;
+    let temp = root.join(format!(".tmp-{}", uuid::Uuid::new_v4()));
+    let written = (|| -> Result<(), String> {
+        for (name, data) in &files {
+            let path = temp.join(name);
+            if let Some(parent) = path.parent() {
+                fs::create_dir_all(parent).map_err(|e| i18n::detail("import.save_detail", e))?;
+            }
+            fs::write(&path, data).map_err(|e| i18n::detail("import.save_detail", e))?;
+        }
+        // What the files say is checked before the pet joins the others.
+        catalog::read_pet(&temp)?;
+        if fs::rename(&temp, &folder).is_err() && !valid(&folder) {
+            return Err(i18n::t("import.save_failed"));
+        }
+        Ok(())
+    })();
+    let _ = fs::remove_dir_all(&temp);
+    written?;
+    catalog::read_pet(&folder)?;
+    Ok(folder)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -177,11 +245,128 @@ mod tests {
     fn html_hit(s: &str) -> Hit {
         Hit::Body(s.as_bytes().to_vec())
     }
+    /// A ZIP as tools write it: each entry stored or deflated, then the directory and its end.
+    pub fn zip(files: &[(&str, &[u8], bool)]) -> Vec<u8> {
+        use flate2::{Compression, write::DeflateEncoder};
+        use std::io::Write;
+        let mut out = Vec::new();
+        let mut directory = Vec::new();
+        for (name, data, deflate) in files {
+            let packed = if *deflate {
+                let mut e = DeflateEncoder::new(Vec::new(), Compression::default());
+                e.write_all(data).unwrap();
+                e.finish().unwrap()
+            } else {
+                data.to_vec()
+            };
+            let mut crc = flate2::Crc::new();
+            crc.update(data);
+            let method: u16 = if *deflate { 8 } else { 0 };
+            let offset = out.len() as u32;
+            let common = |b: &mut Vec<u8>| {
+                b.extend(20u16.to_le_bytes());
+                b.extend(0u16.to_le_bytes());
+                b.extend(method.to_le_bytes());
+                b.extend([0; 4]);
+                b.extend(crc.sum().to_le_bytes());
+                b.extend((packed.len() as u32).to_le_bytes());
+                b.extend((data.len() as u32).to_le_bytes());
+                b.extend((name.len() as u16).to_le_bytes());
+                b.extend(0u16.to_le_bytes());
+            };
+            out.extend(archive::LOCAL_SIGNATURE.to_le_bytes());
+            common(&mut out);
+            out.extend(name.as_bytes());
+            out.extend(&packed);
+            directory.extend(archive::CENTRAL_SIGNATURE.to_le_bytes());
+            directory.extend(20u16.to_le_bytes());
+            common(&mut directory);
+            // Comment length, disk, internal and external attributes.
+            directory.extend([0; 10]);
+            directory.extend(offset.to_le_bytes());
+            directory.extend(name.as_bytes());
+        }
+        let at = out.len() as u32;
+        out.extend(&directory);
+        out.extend(archive::END_SIGNATURE.to_le_bytes());
+        out.extend([0; 4]);
+        out.extend((files.len() as u16).to_le_bytes());
+        out.extend((files.len() as u16).to_le_bytes());
+        out.extend((directory.len() as u32).to_le_bytes());
+        out.extend(at.to_le_bytes());
+        out.extend(0u16.to_le_bytes());
+        out
+    }
+
     fn temp_root() -> PathBuf {
         std::env::temp_dir().join(format!("playpets-import-{}", uuid::Uuid::new_v4()))
     }
     fn manifest(folder: &Path) -> Value {
         serde_json::from_str(&fs::read_to_string(folder.join("pet.json")).unwrap()).unwrap()
+    }
+
+    #[test]
+    fn a_pet_zip_becomes_its_own_folder_and_the_same_zip_twice_is_the_same_pet() {
+        let root = temp_root();
+        let sheet = png(catalog::SHEET_WIDTH, 9 * catalog::ROW_HEIGHT);
+        let pet = br#"{"id": "Moss Cat!", "displayName": "Moss", "spriteVersionNumber": 1, "spritesheetPath": "spritesheet.png"}"#;
+        let file = root.join("moss.zip");
+        fs::create_dir_all(&root).unwrap();
+        fs::write(
+            &file,
+            zip(&[("moss/pet.json", pet, true), ("moss/spritesheet.png", &sheet, false)]),
+        )
+        .unwrap();
+        let pets = root.join("pets");
+        let folder = import_from_zip(&file, &pets).unwrap();
+        let name = folder.file_name().unwrap().to_string_lossy().into_owned();
+        assert!(name.starts_with("zip-moss-cat-"), "{name}");
+        assert_eq!(catalog::read_pet(&folder).unwrap().display_name, "Moss");
+        fs::remove_file(&file).unwrap();
+        assert!(
+            folder.join("spritesheet.png").is_file(),
+            "the pet no longer needs the ZIP"
+        );
+        let again = root.join("again.zip");
+        fs::write(
+            &again,
+            zip(&[("moss/pet.json", pet, true), ("moss/spritesheet.png", &sheet, false)]),
+        )
+        .unwrap();
+        assert_eq!(import_from_zip(&again, &pets).unwrap(), folder);
+        let only: Vec<_> = fs::read_dir(&pets).unwrap().flatten().collect();
+        assert_eq!(only.len(), 1, "no second copy and no temporary folder left");
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn a_zip_that_is_not_a_usable_pet_leaves_nothing_behind() {
+        let root = temp_root();
+        fs::create_dir_all(&root).unwrap();
+        let pets = root.join("pets");
+        let pet =
+            br#"{"id": "moss", "displayName": "Moss", "spriteVersionNumber": 1, "spritesheetPath": "spritesheet.png"}"#;
+        for (name, archive) in [
+            (
+                "wrong-size.zip",
+                zip(&[("pet.json", pet, false), ("spritesheet.png", &png(10, 10), false)]),
+            ),
+            ("no-sheet.zip", zip(&[("pet.json", pet, false)])),
+            ("no-pet.zip", zip(&[("readme.txt", b"hi", false)])),
+            ("not-a-zip.zip", b"PK nothing".to_vec()),
+        ] {
+            let file = root.join(name);
+            fs::write(&file, archive).unwrap();
+            assert!(import_from_zip(&file, &pets).is_err(), "{name}");
+        }
+        let folder = root.join("folder.zip");
+        fs::create_dir_all(&folder).unwrap();
+        assert!(import_from_zip(&folder, &pets).is_err(), "only a plain file is read");
+        assert!(
+            fs::read_dir(&pets).map(|d| d.count()).unwrap_or(0) == 0,
+            "nothing written"
+        );
+        let _ = fs::remove_dir_all(&root);
     }
 
     #[test]

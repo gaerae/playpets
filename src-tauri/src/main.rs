@@ -20,6 +20,7 @@ mod i18n;
 mod links;
 mod menu;
 mod pets;
+mod startup;
 mod store;
 mod system;
 mod tray;
@@ -41,7 +42,7 @@ fn main() {
     // Before any thread starts: it sets an environment variable WebKitGTK reads (window.rs).
     #[cfg(target_os = "linux")]
     window::choose_renderer();
-    let at_login = cli_args.iter().any(|a| a == AUTOSTART_ARG);
+    let at_login = startup::at_login(&cli_args);
     let mut builder = tauri::Builder::default();
     // A second launch normally just brings the running app forward and hands over any link it
     // was opened with (the single-instance plugin goes first for that). The e2e harness runs a
@@ -53,7 +54,7 @@ fn main() {
     if !commands::e2e_mode() {
         builder = builder.plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
-            Some(vec![AUTOSTART_ARG]),
+            Some(vec![startup::AUTOSTART_ARG]),
         ));
     }
     builder = builder
@@ -71,8 +72,7 @@ fn main() {
         .setup(move |app| {
             let mut data = app::load_state(app)?;
             if !commands::e2e_mode() {
-                use tauri_plugin_autostart::ManagerExt;
-                data.autostart = app.autolaunch().is_enabled().unwrap_or(false);
+                data.autostart = startup::is_enabled(app.handle());
             }
             // Started at login with friends on the desktop, the app stays out of the way: the
             // friends come out, the yard window waits in the tray.
@@ -161,9 +161,6 @@ fn main() {
             }
         });
 }
-
-/// The argument the system starts the app with at login (see the autostart plugin above).
-const AUTOSTART_ARG: &str = "--autostart";
 
 /// The desktop overlay, told where friends are set down so it is kept for the next start.
 fn start_overlay(app: &tauri::App) {

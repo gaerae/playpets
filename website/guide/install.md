@@ -60,6 +60,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 
 - SmartScreen judges file and publisher reputation, so a new version can warn again. See [Microsoft's explanation of SmartScreen reputation](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
 - Keep the protections on. A malware warning is a different case from an unrecognized-app warning.
+- SmartScreen is set under **Reputation-based protection** in Windows Security ([Microsoft's guide to App & browser control](https://support.microsoft.com/en-us/windows/security/windows-security/app-browser-control-in-the-windows-security-app)).
 - ARM PC (Snapdragon and the like): use the arm64 file.
   - The x64 file also runs there, through emulation.
   - But its installer and uninstaller cannot close a running PlayPets for you: quit it from the tray first.
@@ -185,7 +186,7 @@ chmod +x PlayPets_*.AppImage
 | Operating system | Location |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\`. Store or winget: inside the package's own folder |
+| Windows | `%APPDATA%\app.playpets\`. Microsoft Store, also through winget: inside the package's own folder |
 | Linux | `~/.local/share/app.playpets/` |
 
 | Inside | What it holds |
@@ -193,6 +194,7 @@ chmod +x PlayPets_*.AppImage
 | `state.json` | Friends and settings |
 | `bridge.json` | The port and token for agent hooks |
 | `pets/` | Imported pets |
+| `backgrounds/` | Imported backgrounds |
 | `builtin/` | The four starter pets |
 
 - To keep it somewhere else: put a folder path in the `PLAYPETS_DATA` environment variable, then start the app.

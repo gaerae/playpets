@@ -3,7 +3,15 @@
 use crate::i18n;
 use serde_json::{Map, Value, json};
 
-const CLAUDE_EVENTS: [&str; 5] = ["UserPromptSubmit", "PreToolUse", "Notification", "Stop", "SessionEnd"];
+// A turn that ends on an API error fires StopFailure instead of Stop.
+const CLAUDE_EVENTS: [&str; 6] = [
+    "UserPromptSubmit",
+    "PreToolUse",
+    "Notification",
+    "Stop",
+    "StopFailure",
+    "SessionEnd",
+];
 const GEMINI_EVENTS: [&str; 5] = ["BeforeAgent", "BeforeTool", "Notification", "AfterAgent", "SessionEnd"];
 // Observational Cursor hooks only: permission hooks block the agent on any output mismatch.
 const CURSOR_EVENTS: [&str; 6] = [
@@ -25,31 +33,72 @@ const GROK_EVENTS: [&str; 7] = [
     "StopCancelled",
     "SessionEnd",
 ];
+// Kimi Code asks through PermissionRequest, and Esc ends a turn with Interrupt instead of Stop.
+const KIMI_EVENTS: [&str; 7] = [
+    "UserPromptSubmit",
+    "PreToolUse",
+    "PermissionRequest",
+    "Stop",
+    "StopFailure",
+    "Interrupt",
+    "SessionEnd",
+];
+
+/// `<app> hook <kind> --bridge <file> [--pet <id>]` as one command line. PowerShell takes a
+/// quoted path followed by arguments as a syntax error, so for it the path is called with `&`, in
+/// single quotes that keep backslashes as they are.
+fn hook_command(kind: &str, exe: &str, bridge_file: &str, pet: Option<&str>, powershell: bool) -> String {
+    let quote = |s: &str| {
+        if powershell {
+            format!("'{}'", s.replace('\'', "''"))
+        } else {
+            Value::String(s.to_string()).to_string()
+        }
+    };
+    let target = pet.map(|p| format!(" --pet {}", quote(p))).unwrap_or_default();
+    let call = if powershell { "& " } else { "" };
+    format!(
+        "{call}{} hook {kind} --bridge {}{target}",
+        quote(exe),
+        quote(bridge_file)
+    )
+}
+
+/// Claude Code's hooks, for Claude Code and Qoder. With `exec`, the handler names the app and its
+/// arguments apart (their exec form), so no shell reads it. On Windows both may run a command
+/// through PowerShell, and Claude Code without Git Bash then blocks every tool call whose
+/// PreToolUse hook fails to parse.
+fn claude_shape(kind: &str, exe: &str, bridge_file: &str, pet: Option<&str>, exec: bool) -> String {
+    let handler = if exec {
+        let mut args = vec!["hook", kind, "--bridge", bridge_file];
+        args.extend(pet.map(|p| ["--pet", p]).into_iter().flatten());
+        json!({"type": "command", "command": exe, "args": args, "timeout": 5})
+    } else {
+        let command = hook_command(kind, exe, bridge_file, pet, false);
+        json!({"type": "command", "command": command, "timeout": 5})
+    };
+    let mut hooks = Map::new();
+    for event in CLAUDE_EVENTS {
+        let mut entry = Map::new();
+        if event == "PreToolUse" {
+            entry.insert("matcher".into(), json!("*"));
+        }
+        entry.insert("hooks".into(), json!([handler.clone()]));
+        hooks.insert(event.into(), json!([Value::Object(entry)]));
+    }
+    pretty(&json!({"hooks": Value::Object(hooks)}))
+}
 
 /// The app binary itself serves hooks and MCP (agent/cli.rs), so snippets need no Node.js.
 /// With `pet`, the agent reports to that friend instead of the first one.
 pub fn connection_snippet(kind: &str, exe: &str, bridge_file: &str, pet: Option<&str>) -> Result<String, String> {
     let quote = |s: &str| Value::String(s.to_string()).to_string();
-    let target = pet.map(|p| format!(" --pet {}", quote(p))).unwrap_or_default();
     match kind {
-        "claude" => {
-            let command = format!("{} hook claude --bridge {}{target}", quote(exe), quote(bridge_file));
-            let mut hooks = Map::new();
-            for event in CLAUDE_EVENTS {
-                let mut entry = Map::new();
-                if event == "PreToolUse" {
-                    entry.insert("matcher".into(), json!("*"));
-                }
-                entry.insert(
-                    "hooks".into(),
-                    json!([{"type": "command", "command": command, "timeout": 5}]),
-                );
-                hooks.insert(event.into(), json!([Value::Object(entry)]));
-            }
-            Ok(pretty(&json!({"hooks": Value::Object(hooks)})))
-        }
+        // Qoder reads Claude Code's own settings shape, events and timeouts in seconds.
+        "claude" | "qoder" => Ok(claude_shape(kind, exe, bridge_file, pet, cfg!(windows))),
         "gemini" => {
-            let command = format!("{} hook gemini --bridge {}{target}", quote(exe), quote(bridge_file));
+            // Gemini CLI runs every hook through PowerShell on Windows (its hookRunner).
+            let command = hook_command(kind, exe, bridge_file, pet, cfg!(windows));
             let mut hooks = Map::new();
             for event in GEMINI_EVENTS {
                 hooks.insert(
@@ -60,7 +109,8 @@ pub fn connection_snippet(kind: &str, exe: &str, bridge_file: &str, pet: Option<
             Ok(pretty(&json!({"hooks": Value::Object(hooks)})))
         }
         "cursor" => {
-            let command = format!("{} hook cursor --bridge {}{target}", quote(exe), quote(bridge_file));
+            // The Cursor app runs hooks through PowerShell on Windows, and takes no `args`.
+            let command = hook_command(kind, exe, bridge_file, pet, cfg!(windows));
             let mut hooks = Map::new();
             for event in CURSOR_EVENTS {
                 hooks.insert(event.into(), json!([{"command": command, "timeout": 5}]));
@@ -68,7 +118,7 @@ pub fn connection_snippet(kind: &str, exe: &str, bridge_file: &str, pet: Option<
             Ok(pretty(&json!({"version": 1, "hooks": Value::Object(hooks)})))
         }
         "grok" => {
-            let command = format!("{} hook grok --bridge {}{target}", quote(exe), quote(bridge_file));
+            let command = hook_command(kind, exe, bridge_file, pet, false);
             let mut hooks = Map::new();
             for event in GROK_EVENTS {
                 hooks.insert(
@@ -77,6 +127,23 @@ pub fn connection_snippet(kind: &str, exe: &str, bridge_file: &str, pet: Option<
                 );
             }
             Ok(pretty(&json!({"hooks": Value::Object(hooks)})))
+        }
+        // Kimi Code refuses its whole config for any other key in a row, so a row has no marker:
+        // PlayPets knows its own by the command. No matcher is every tool; timeouts are seconds.
+        "kimi" => {
+            // Kimi Code runs hooks through cmd.exe on Windows, which takes this form as it is.
+            let command = hook_command(kind, exe, bridge_file, pet, false);
+            Ok(KIMI_EVENTS
+                .iter()
+                .map(|event| {
+                    format!(
+                        "[[hooks]]\nevent = {}\ncommand = {}\ntimeout = 5\n",
+                        quote(event),
+                        quote(&command)
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("\n"))
         }
         "codex" => {
             let mut parts = vec![
@@ -123,8 +190,13 @@ mod tests {
         let (exe, bridge) = ("/opt/playpets", "/data/bridge.json");
         let claude: Value =
             serde_json::from_str(&connection_snippet("claude", exe, bridge, Some("pet-1")).unwrap()).unwrap();
-        let command = claude["hooks"]["Stop"][0]["hooks"][0]["command"].as_str().unwrap();
-        assert!(command.ends_with(r#"--pet "pet-1""#), "{command}");
+        let handler = &claude["hooks"]["Stop"][0]["hooks"][0];
+        // On Windows the friend ends the hook's own arguments instead of its command line.
+        let named = match handler["args"].as_array() {
+            Some(args) => args.ends_with(&["--pet".into(), "pet-1".into()]),
+            None => handler["command"].as_str().unwrap().ends_with(r#"--pet "pet-1""#),
+        };
+        assert!(named, "{handler}");
         assert!(
             connection_snippet("codex", exe, bridge, Some("pet-1"))
                 .unwrap()
@@ -144,13 +216,25 @@ mod tests {
         let keys: Vec<&String> = claude["hooks"].as_object().unwrap().keys().collect();
         assert_eq!(
             keys,
-            ["UserPromptSubmit", "PreToolUse", "Notification", "Stop", "SessionEnd"]
+            [
+                "UserPromptSubmit",
+                "PreToolUse",
+                "Notification",
+                "Stop",
+                "StopFailure",
+                "SessionEnd"
+            ]
         );
         assert_eq!(claude["hooks"]["PreToolUse"][0]["matcher"], "*");
         assert!(claude["hooks"]["Stop"][0].get("matcher").is_none());
         assert_eq!(
-            claude["hooks"]["Stop"][0]["hooks"][0]["command"],
+            hook_command("claude", exe, bridge, None, false),
             r#""/Applications/PlayPets.app/Contents/MacOS/playpets" hook claude --bridge "/Users/me/Library/Application Support/app.playpets/bridge.json""#
+        );
+        assert_eq!(
+            connection_snippet("claude", exe, bridge, None).unwrap(),
+            claude_shape("claude", exe, bridge, None, cfg!(windows)),
+            "exec form on Windows only"
         );
         assert_eq!(
             connection_snippet("codex", exe, bridge, None).unwrap(),
@@ -186,11 +270,9 @@ mod tests {
             gemini["hooks"]["BeforeTool"][0]["hooks"][0]["timeout"], 5000,
             "Gemini timeouts are milliseconds"
         );
-        assert!(
-            gemini["hooks"]["BeforeTool"][0]["hooks"][0]["command"]
-                .as_str()
-                .unwrap()
-                .ends_with(r#"hook gemini --bridge "/Users/me/Library/Application Support/app.playpets/bridge.json""#)
+        assert_eq!(
+            gemini["hooks"]["BeforeTool"][0]["hooks"][0]["command"],
+            hook_command("gemini", exe, bridge, None, cfg!(windows))
         );
         let cursor: Value = serde_json::from_str(&connection_snippet("cursor", exe, bridge, None).unwrap()).unwrap();
         assert_eq!(cursor["version"], 1);
@@ -207,11 +289,97 @@ mod tests {
             ]
         );
         assert_eq!(cursor["hooks"]["stop"][0]["timeout"], 5, "Cursor timeouts are seconds");
+        assert_eq!(
+            cursor["hooks"]["stop"][0]["command"],
+            hook_command("cursor", exe, bridge, None, cfg!(windows))
+        );
         assert!(
             cursor["hooks"].get("beforeSubmitPrompt").is_none()
                 && cursor["hooks"].get("beforeShellExecution").is_none()
         );
         assert!(connection_snippet("nope", exe, bridge, None).is_err());
+    }
+
+    #[test]
+    fn powershell_calls_the_app_with_its_paths_in_single_quotes() {
+        // Gemini CLI and Cursor run hooks through PowerShell on Windows: a quoted path needs `&`,
+        // and single quotes keep backslashes; a quote in a path is doubled.
+        assert_eq!(
+            hook_command(
+                "cursor",
+                r"C:\Program Files\PlayPets\playpets.exe",
+                r"C:\Users\O'Brien\AppData\Roaming\app.playpets\bridge.json",
+                Some("pet-1"),
+                true
+            ),
+            r"& 'C:\Program Files\PlayPets\playpets.exe' hook cursor --bridge 'C:\Users\O''Brien\AppData\Roaming\app.playpets\bridge.json' --pet 'pet-1'"
+        );
+    }
+
+    #[test]
+    fn qoder_takes_claude_codes_shape_and_kimi_code_takes_toml_rows() {
+        let (exe, bridge) = ("/opt/playpets", "/data/bridge.json");
+        let claude: Value = serde_json::from_str(&connection_snippet("claude", exe, bridge, None).unwrap()).unwrap();
+        assert_eq!(
+            connection_snippet("qoder", exe, bridge, None).unwrap(),
+            claude_shape("qoder", exe, bridge, None, cfg!(windows)),
+            "exec form on Windows only"
+        );
+        let qoder: Value = serde_json::from_str(&claude_shape("qoder", exe, bridge, None, false)).unwrap();
+        assert_eq!(
+            qoder["hooks"].as_object().unwrap().keys().collect::<Vec<_>>(),
+            claude["hooks"].as_object().unwrap().keys().collect::<Vec<_>>()
+        );
+        assert_eq!(
+            qoder["hooks"]["Stop"][0]["hooks"][0]["command"],
+            r#""/opt/playpets" hook qoder --bridge "/data/bridge.json""#
+        );
+        // On Windows no shell reads it: PowerShell would refuse a quoted path before arguments.
+        let exec: Value = serde_json::from_str(&claude_shape(
+            "qoder",
+            r"C:\Program Files\PlayPets\playpets.exe",
+            bridge,
+            Some("pet-1"),
+            true,
+        ))
+        .unwrap();
+        assert_eq!(
+            exec["hooks"]["Stop"][0]["hooks"][0],
+            json!({
+                "type": "command",
+                "command": r"C:\Program Files\PlayPets\playpets.exe",
+                "args": ["hook", "qoder", "--bridge", "/data/bridge.json", "--pet", "pet-1"],
+                "timeout": 5
+            })
+        );
+        let kimi: toml_edit::DocumentMut = connection_snippet("kimi", exe, bridge, Some("pet-1"))
+            .unwrap()
+            .parse()
+            .unwrap();
+        let rows = kimi["hooks"].as_array_of_tables().unwrap();
+        assert_eq!(
+            rows.iter().map(|r| r["event"].as_str().unwrap()).collect::<Vec<_>>(),
+            [
+                "UserPromptSubmit",
+                "PreToolUse",
+                "PermissionRequest",
+                "Stop",
+                "StopFailure",
+                "Interrupt",
+                "SessionEnd"
+            ]
+        );
+        let row = rows.get(0).unwrap();
+        assert_eq!(
+            row.len(),
+            3,
+            "no matcher is every tool, and no key Kimi Code does not allow"
+        );
+        assert_eq!(row["timeout"].as_integer(), Some(5), "Kimi Code timeouts are seconds");
+        assert_eq!(
+            row["command"].as_str(),
+            Some(r#""/opt/playpets" hook kimi --bridge "/data/bridge.json" --pet "pet-1""#)
+        );
     }
 
     #[test]

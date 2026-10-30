@@ -7,6 +7,7 @@ import { CAPTURE_VERSION, LANDING_PETS } from './site-content.mjs';
 import { destinationFor, docDisplayProse, rewriteDocLinks } from './site-lib.mjs';
 import { exportMotionStrips } from './site-motion.mjs';
 import { collectPreviewExports } from './site-preview-export.mjs';
+import { publishedReleases } from './site-releases.mjs';
 
 const pkg = JSON.parse(await readFile('package.json', 'utf8'));
 const slug = pkg.repository.replace(/^github:/, '');
@@ -48,7 +49,11 @@ for (const { source, destination } of previewCopies) {
 await copyCreatorKit();
 
 const creatorSkillRevision = await copyCreatorSkill();
+// Only a build with a token (the Pages workflow) looks the releases up: checks and local builds stay
+// off the network, and their pages look the release up in the browser.
+const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+const releases = token ? await publishedReleases(slug, { token }) : null;
 await writeFile(
   'website/.vitepress/generated.json',
-  `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, petMotions, creatorSkillRevision }, null, 2)}\n`,
+  `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, petMotions, creatorSkillRevision, releases }, null, 2)}\n`,
 );
