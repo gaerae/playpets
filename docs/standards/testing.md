@@ -10,7 +10,7 @@
   1. Change the test that checks the rule.
   2. Watch the changed test fail.
   3. Change the code.
-- `pnpm test` (Rust unit tests and the page's Node tests) and `pnpm run lint` (rustfmt, clippy with warnings as errors, Oxlint, Oxfmt) pass. CI runs the same commands.
+- `pnpm test` (Rust unit tests and the page's Node tests) and `pnpm run lint` (rustfmt, clippy with warnings as errors, Oxlint, Oxfmt, Biome for CSS) pass. CI runs the same commands.
 - A changed flow people see (buttons, windows, saving, agent integration): `pnpm run test:e2e` passes.
 - A new flow: add a check line to the scenario and the expected list in `tests/e2e.mjs`.
 - Pure rules (calculation, conversion, parsing) are split into functions that run without the page or the app.

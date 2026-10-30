@@ -190,7 +190,7 @@ playpets run -- <command>
 |---|---|
 | Install dependencies | `pnpm install --frozen-lockfile` |
 | Unit tests (Rust and page) | `pnpm test` |
-| Format / check | `pnpm run format` / `pnpm run lint` (rustfmt, clippy, Oxlint, Oxfmt) |
+| Format / check | `pnpm run format` / `pnpm run lint` (rustfmt, clippy, Oxlint, Oxfmt, Biome for CSS) |
 | Real-app E2E | `pnpm run test:e2e` (isolated data folder, own test pet, fake AI server) |
 | Live check against community sites | `pnpm run test:live-import` |
 | Site dev server / build | `pnpm run site:dev` / `pnpm run site:build` (fails on a dead link) |

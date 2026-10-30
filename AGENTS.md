@@ -33,7 +33,7 @@ Keep `CLAUDE.md` as the pointer to this file. Put detailed procedures in their o
 | `pnpm test` | Rust unit tests, then the page's Node tests |
 | `pnpm run check` | Lint, unit tests and the website build; E2E remains a separate desktop check |
 | `pnpm run security:check` | Redacted Git history, pnpm dependency audit and RustSec checks (needs Gitleaks and cargo-audit; see SECURITY.md) |
-| `pnpm run lint` | rustfmt, clippy with warnings as errors, Oxlint, Oxfmt's format check |
+| `pnpm run lint` | rustfmt, clippy with warnings as errors, Oxlint, Oxfmt's format check, Biome's CSS checks |
 | `pnpm run format` | Formats Rust and JS/CSS/JSON with rustfmt and Oxfmt (HTML, SVG and Vue templates are kept by hand) |
 | `pnpm run test:e2e` | The real app with isolated data (needs a desktop session; CI runs it on every platform) |
 | `pnpm run site:build` | The website and developer docs; a dead link fails it |

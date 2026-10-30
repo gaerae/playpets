@@ -92,6 +92,8 @@ Notices and lint:
   bundle.
 - `pnpm run lint:js` runs Oxlint, then Oxfmt's format and import-order check
   (`oxfmt --check`).
+- `pnpm run lint:css` runs Biome's CSS checks (`biome.jsonc`); JSON has no
+  linter.
 - `pnpm run lint:oxlint`: static checks alone. `pnpm run format:js`: format
   source with Oxfmt (`.oxfmtrc.jsonc`).
 - Do not apply spread fixes blindly to live DOM collections; removing a snapshot

@@ -200,7 +200,7 @@ button:active:not(:disabled) {
   transform: translateY(1px);
 }
 [hidden] {
-  /* `hidden` must win over any display a component sets. */
+  /* biome-ignore lint/complexity/noImportantStyles: `hidden` must win over any display a component sets. */
   display: none !important;
 }
 .button {
@@ -362,15 +362,17 @@ select:focus {
 }
 /* The window is hidden or minimized (app.js): nothing on it needs to move. */
 :root[data-unseen] * {
-  /* An unseen page pauses every animation. */
+  /* biome-ignore-start lint/complexity/noImportantStyles: an unseen page pauses every animation. */
   animation-play-state: paused !important;
+  /* biome-ignore-end lint/complexity/noImportantStyles: an unseen page pauses every animation. */
 }
 @media (prefers-reduced-motion: reduce) {
   * {
-    /* Reduced motion overrides every animation. */
+    /* biome-ignore-start lint/complexity/noImportantStyles: reduced motion overrides every animation. */
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+    /* biome-ignore-end lint/complexity/noImportantStyles: reduced motion overrides every animation. */
   }
 }
 .button.chip:hover {

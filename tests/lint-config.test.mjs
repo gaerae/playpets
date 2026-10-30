@@ -65,6 +65,34 @@ test('Oxlint rejects JavaScript and Vue script mistakes while excluding generate
 });
 
 // The formatter's reach is a rule too: hand-kept markup must stay as written, and source must not drift.
+test('Biome rejects CSS mistakes and leaves JavaScript to Oxlint', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'playpets-css-lint-'));
+  try {
+    // Biome reads the ignore file through Git, as in the checkout.
+    assert.equal(spawnSync('git', ['init', '-q'], { cwd: dir }).status, 0);
+    writeFileSync(join(dir, '.gitignore'), '');
+    copyFileSync('biome.jsonc', join(dir, 'biome.jsonc'));
+    mkdirSync(join(dir, 'src'));
+    const run = () =>
+      spawnSync(process.execPath, [resolve('node_modules/@biomejs/biome/bin/biome'), 'lint', '--error-on-warnings'], {
+        cwd: dir,
+        encoding: 'utf8',
+      });
+    writeFileSync(join(dir, 'src/broken.css'), '.friend { colr: red; }\n');
+    const broken = run();
+    assert.equal(broken.status, 1, broken.stdout + broken.stderr);
+    assert.match(broken.stdout + broken.stderr, /noUnknownProperty/);
+    rmSync(join(dir, 'src/broken.css'));
+    writeFileSync(join(dir, 'src/valid.css'), '.friend { color: red; }\n');
+    writeFileSync(join(dir, 'src/loose.js'), 'export const one = x => x == 1;\ndebugger;\n');
+    const valid = run();
+    assert.equal(valid.status, 0, valid.stdout + valid.stderr);
+    assert.doesNotMatch(valid.stdout + valid.stderr, /loose\.js/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('Oxfmt formats JavaScript, CSS and JSON while leaving hand-kept files as written', () => {
   const dir = mkdtempSync(join(tmpdir(), 'playpets-format-'));
   try {

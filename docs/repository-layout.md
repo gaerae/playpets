@@ -51,6 +51,7 @@ A package passes through three places. Only the first is in Git.
 | `.node-version` | Node major used locally and by Actions |
 | `pnpm-workspace.yaml` | pnpm's settings: reject unsupported engines, pin new direct dependencies exactly, skip dependencies' install scripts, the minimum release age and the vite and katex overrides |
 | `.oxlintrc.json` | JavaScript, TypeScript and Vue script static checks and generated-output exclusions |
+| `biome.jsonc` | CSS lint only (Biome's recommended rules); its formatter and import sorting are off |
 | `.oxfmtrc.jsonc` | JavaScript, TypeScript, CSS and JSON formatting and import order; HTML, SVG, Vue and Markdown are kept by hand |
 | `.editorconfig` | Editor-independent indentation, encoding and line endings |
 | `.gitattributes` | Git line endings, binary handling and generated-file review metadata |

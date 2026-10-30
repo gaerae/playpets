@@ -46,7 +46,7 @@ The updater key:
 - A signed release build and an update test confirm them.
 
 What the local repository already includes:
-- `.gitignore`, `.gitattributes`, `.editorconfig`, `.node-version`, Oxlint and Oxfmt settings, editor recommendations, issue and pull-request templates, Dependabot and review guidance.
+- `.gitignore`, `.gitattributes`, `.editorconfig`, `.node-version`, Oxlint, Oxfmt and Biome settings, editor recommendations, issue and pull-request templates, Dependabot and review guidance.
 - Native build, Pages, release, distribution, dependency submission and security workflows.
 - `pnpm test` checks the ignored generated and secret paths, the pinned actions and the Pages input paths.
 - Run `actionlint` too when it is available.

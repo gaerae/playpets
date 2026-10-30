@@ -11,7 +11,7 @@
 
 ## Order of changing and checking
 - `pnpm run check` runs lint, unit tests and the site build together.
-- For a focused iteration, use `test:js`, `test:rust`, `lint:js` or `lint:rust`;
+- For a focused iteration, use `test:js`, `test:rust`, `lint:js`, `lint:css` or `lint:rust`;
   run the combined checks before a PR.
 - Where source, generated content and local output belong:
   [repository layout](docs/repository-layout.md).
@@ -21,7 +21,7 @@
    - Backend: [backend locks and threads](docs/standards/backend-locks.md).
 2. When a rule changes, change the test first, watch it fail, then change the code ([testing standard](docs/standards/testing.md)).
 3. `pnpm test` — Rust unit tests and page-side tests
-   `pnpm run lint` — code format (rustfmt, Oxfmt) and static checks (clippy, Oxlint). Warnings count as failures too (same as CI)
+   `pnpm run lint` — code format (rustfmt, Oxfmt) and static checks (clippy, Oxlint, Biome for CSS). Warnings count as failures too (same as CI)
 4. `pnpm run test:e2e` — runs the real app with isolated data and checks it end to end
 5. Screen changed: build it and look (steps 6 and 8 of the getting-started doc).
 6. Drawing loop or animations changed: run `pnpm run measure` before and after, and attach the results to the PR ([performance standard](docs/standards/performance.md)).

@@ -126,7 +126,7 @@ pnpm run build:app && PLAYPETS_DATA="$PWD/.dev-data" pnpm run start
 
 ## Optional editor setup
 
-- The repository recommends the Oxc (Oxlint and Oxfmt), rust-analyzer and EditorConfig extensions.
+- The repository recommends the Oxc (Oxlint and Oxfmt), Biome (CSS checks), rust-analyzer and EditorConfig extensions.
 - Keep personal editor settings in the ignored `.vscode/settings.json`.
 - A starting point for format-on-save and Rust checks:
 

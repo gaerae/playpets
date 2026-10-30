@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  // Biome checks CSS alone: Oxlint has no CSS rules, and Oxfmt formats CSS as it does the rest.
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": { "includes": ["**/*.css"] },
+  "formatter": { "enabled": false },
+  "assist": { "enabled": false },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        // It asks every rule ending in the same compound (svg, summary, canvas) to be sorted by
+        // specificity across the whole file, whether or not they could meet on one element. That
+        // interleaves unrelated components; none of its findings here was a real override bug.
+        "noDescendingSpecificity": "off",
+      },
+    },
+  },
+}
