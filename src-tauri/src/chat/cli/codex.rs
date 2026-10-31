@@ -126,6 +126,9 @@ fn codex_failure(code: i32, stderr: &str) -> CodexError {
     if needs_login(stderr) {
         return CodexError::Failed(login_guide("codex"));
     }
+    if at_limit(stderr) {
+        return CodexError::Failed(i18n::t("agent.rate_limit"));
+    }
     let line = stderr
         .lines()
         .rev()

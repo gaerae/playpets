@@ -112,7 +112,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.open_browser", "Couldn't open the browser."),
     ("error.unknown_link", "That kind of agent link isn't known."),
     ("link.unreadable", "Couldn't read {file}, so it was left as it is. Use Copy settings and paste them in yourself."),
-    ("link.write_failed", "Couldn't save {file}. {detail}"),
+    ("link.write_failed", "Couldn't save {file}. Use Copy settings and paste them in yourself."),
     ("link.notify_taken", "{file} already sets another program as notify. Codex runs only one, so it was left as it is."),
     ("link.home_missing", "Couldn't find your home folder."),
 
@@ -212,6 +212,7 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.unreadable", "Couldn't read the pet file. {detail}"),
     ("store.read_failed", "Couldn't read the {name} file. {detail}"),
     ("store.write_failed", "Couldn't save the {name} file. {detail}"),
+    ("store.held", "Couldn't save that change. It stays in place, and saving will be tried again next time. Check that the disk has space."),
     ("backgrounds.full", "You have {limit} backgrounds. Remove one before adding another."),
     ("import.save_detail", "Couldn't save the pet. {detail}"),
     ("clipboard.failed", "Couldn't copy to the clipboard. {detail}"),

@@ -112,7 +112,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.open_browser", "ブラウザを開けませんでした。"),
     ("error.unknown_link", "不明なエージェント連携の種類です。"),
     ("link.unreadable", "{file} を読み取れなかったので、そのままにしました。「設定をコピー」を使って、自分で貼り付けてください。"),
-    ("link.write_failed", "{file} を保存できませんでした。{detail}"),
+    ("link.write_failed", "{file} を保存できませんでした。「設定をコピー」を使って、自分で貼り付けてください。"),
     ("link.notify_taken", "{file} には別のプログラムの notify がすでにあります。Codex は 1 つしか実行しないため、そのままにしました。"),
     ("link.home_missing", "ホームフォルダーが見つかりませんでした。"),
 
@@ -212,6 +212,7 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.unreadable", "ペットファイルを読めませんでした。{detail}"),
     ("store.read_failed", "{name} ファイルを読めませんでした。{detail}"),
     ("store.write_failed", "{name} ファイルを保存できませんでした。{detail}"),
+    ("store.held", "今の変更を保存できませんでした。変更はそのまま残し、次の保存でもう一度試します。ディスクの空き容量を確認してください。"),
     ("backgrounds.full", "背景が{limit}個あります。1つ削除してから追加してください。"),
     ("import.save_detail", "ペットを保存できませんでした。{detail}"),
     ("clipboard.failed", "クリップボードにコピーできませんでした。{detail}"),

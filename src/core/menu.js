@@ -21,9 +21,14 @@ export function dropdown(
       e.stopPropagation();
       show(panel.hidden);
     });
-  document.addEventListener('pointerdown', e => {
-    if (!panel.hidden && !panel.contains(e.target) && !(!dismissOnTrigger && button.contains(e.target))) show(false);
-  });
+  // On the way down: a friend keeps its press to itself, and a press there is still a press away.
+  document.addEventListener(
+    'pointerdown',
+    e => {
+      if (!panel.hidden && !panel.contains(e.target) && !(!dismissOnTrigger && button.contains(e.target))) show(false);
+    },
+    true,
+  );
   // Esc closes it from inside, or from the button that opened it (focus can stay there).
   const onEscape = e => {
     if (e.key !== 'Escape' || panel.hidden) return;

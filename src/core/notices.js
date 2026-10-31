@@ -5,11 +5,12 @@ import { $ } from './state.js';
 let current = '';
 let dismissed = '';
 
-export function renderNotices(messages = []) {
+/** `open` unfolds new notices: an empty yard after a failure would otherwise look like a first start. */
+export function renderNotices(messages = [], open = false) {
   const warnings = messages.filter(message => typeof message === 'string' && message.trim());
   const signature = JSON.stringify(warnings);
   if (signature !== current) {
-    $('warning-details').open = false;
+    $('warning-details').open = open;
     dismissed = '';
   }
   current = signature;

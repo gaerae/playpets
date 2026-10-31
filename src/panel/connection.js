@@ -100,10 +100,18 @@ async function attachAll(pets, providerId) {
   for (const p of pets) await call('updatePet', p.id, { providerId });
   return pets.length;
 }
+/** The connection a friend without one can take without being asked: the one every talking friend
+ * shares, or the only one saved. With two to choose from, the person chooses. */
+export function sharedConnection() {
+  const used = new Set(data.pets.map(p => p.providerId).filter(Boolean));
+  const choices = used.size ? [...used] : (data.providers || []).map(c => c.id);
+  return choices.length === 1 ? choices[0] : null;
+}
 // The first connection is the moment the yard changes: with two or more friends talking they
-// start a chat among themselves right away; with one, the chat box is ready.
+// start a chat among themselves right away; with one, the chat box is ready. With nobody there
+// yet it only waits for the first friend.
 function connected(first, able) {
-  if (first) onFirstConnection(able);
+  if (first && able) onFirstConnection(able);
 }
 /** The first-run card's "connect now": a CLI found on this computer is connected to every friend
  * without an AI in one step; otherwise the dialog opens for the selected friend. */
@@ -112,12 +120,14 @@ export async function quickConnect() {
   if (!data.pets.length) return;
   const d = data.detected || {};
   const type = d.claude ? 'claude' : d.codex ? 'codex' : null;
-  if (!type) return openConnectionDialog(null);
+  const shared = sharedConnection();
+  if (!type && !shared) return openConnectionDialog(null);
   const first = !data.pets.some(p => p.providerId);
   const targets = unconnected();
-  const config = await call('saveProvider', { id: null, type, model: '', endpoint: '', apiKey: '' });
-  const able = data.pets.length - targets.length + (await attachAll(targets, config.id));
-  toast(t('toast.connection_saved'));
+  const id = shared || (await call('saveProvider', { id: null, type, model: '', endpoint: '', apiKey: '' })).id;
+  const able = data.pets.length - targets.length + (await attachAll(targets, id));
+  // This path skips the dialog, so what the plan still costs is said here.
+  toast(shared ? t('toast.connection_saved') : t(`connection.note_${type}`));
   connected(first, able);
 }
 export function openConnectionDialog(current, onChange = () => {}, { forFriend = selected, inline = null } = {}) {

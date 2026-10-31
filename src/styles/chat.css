@@ -174,7 +174,7 @@
   outline: none;
   box-shadow: none;
 }
-.composer textarea:disabled {
+.composer textarea:read-only {
   background: transparent;
   color: var(--muted);
 }
@@ -359,5 +359,28 @@ body.compact .composer textarea {
     margin: 0;
     min-height: 32px;
     padding-block: 4px;
+  }
+  /* The box, the AI and Send share a line, so an answer has room. */
+  body.compact .composer {
+    display: flex;
+    align-items: flex-end;
+  }
+  body.compact .composer textarea {
+    flex: 1;
+    min-width: 0;
+  }
+  body.compact .composer textarea:placeholder-shown {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  body.compact .composer-bar {
+    flex: none;
+  }
+  body.compact .composer-select {
+    max-width: 64px;
+  }
+  body.compact .composer-gap,
+  body.compact #companion-summary {
+    display: none;
   }
 }

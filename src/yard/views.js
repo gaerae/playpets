@@ -341,6 +341,13 @@ function createView(p) {
         on.select(p.id);
         await pat();
       }
+      // A Mac keyboard has no menu key, and this is every platform's other way to the same menu.
+      if (e.key === 'F10' && e.shiftKey && on.friendMenu) {
+        e.preventDefault();
+        on.select(p.id);
+        const { left, bottom } = button.getBoundingClientRect();
+        on.friendMenu(p.id, { x: left, y: bottom });
+      }
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
         e.preventDefault();
         // Moved by hand, it stops where it was headed (a trip would put it back where it was going).

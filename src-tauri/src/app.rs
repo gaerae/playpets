@@ -150,7 +150,8 @@ pub fn hold<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
 
 /// A change to the state, saved and shown everywhere: `change` makes it and says what to answer.
 /// A change that could not be saved (a full disk, say) still stands and is shown, so every page
-/// agrees with what the app holds; it is written with the next save, and the error says so.
+/// agrees with what the app holds; it is written with the next save, and the error says so, so
+/// nobody takes it for a refusal and does it twice.
 pub fn commit(
     app: &AppHandle,
     state: &Mutex<AppData>,
@@ -164,7 +165,7 @@ pub fn commit(
 /// Saves a change made in place and shows it on every page, in that order. As in `commit`, a change
 /// that could not be saved still stands and is shown; the error is returned after.
 pub fn save_and_show(app: &AppHandle, d: &AppData) -> Result<(), String> {
-    let saved = persist(d);
+    let saved = persist(d).map_err(|_| i18n::t("store.held"));
     changed(app, d);
     saved
 }

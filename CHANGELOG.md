@@ -22,6 +22,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - A panel chosen from the right-click menu opens where you clicked instead of in the corner above the dock.
+- A friend you invite takes the AI connection your friends already use, and writing to a friend without one uses it too, so nothing asks you to connect again. With two or more connections in use, you still choose.
+- PlayPets starts on the yard with the friend you last talked to, instead of on whichever panel was open when you quit.
+- Right-clicking during a chat leaves the chat open until you pick something from the menu.
+- A chat opens ready to type in however you reach it, and the cursor stays in the box after you send, so the next message needs no click.
+- In a very short window the message box, the AI and Send share one line, leaving about three times the room for answers.
 - Closeness grows from what you do together: time with the yard seen counts up to an hour a day, and pats up to a quarter of a day's worth. Leaving the window open no longer makes friends close faster than playing; points already earned stay.
 - A friend fishing on its own calls you when a fish bites; press the float within a few seconds to reel it in together, or it gets away. The album keeps only what you catch.
 - Everyday gifts come from friends, not from the clock: at most one every other day, brought by a friend you did something with that day, 10 to 20 minutes after it may come. Leaving the yard open alone brings none. The wait is saved in `state.json` instead of the app's webview storage.
@@ -31,6 +36,20 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Fixed
 
 - After you unplug a monitor, a window bigger than the remaining screen comes back inside it without a restart, and a window can no longer grow past the screen it is on.
+- What you are writing stays with the friend you are writing to, instead of going to whoever you pick next. A message that fails after you moved on comes back to its friend.
+- The first time you open a friend's chat after starting PlayPets, it shows the latest messages, not the oldest.
+- Close the panel while a friend is answering and you still get the answer as a speech bubble in the yard, or a notice if it failed.
+- Connecting an AI that is not signed in now tells you to sign in, instead of promising a chat that never starts. The chat also stops asking you to connect once you have.
+- Connecting an AI with no friends in the yard leaves you in Settings, instead of telling you to greet nobody.
+- If the saved state can't be read at all, a copy of it is kept before anything replaces it, and the notice opens by itself.
+- A change that could not be saved now says it still stands and will be saved again, so nobody repeats it and ends up with two of a friend.
+- A coding agent that could not be connected says so in its own row, and a plan's usage limit is said in your language.
+- Importing a pet with the yard full, or one already in the yard, reports the import that worked and makes no copy.
+- Esc while composing Korean, Japanese or Chinese text no longer closes the chat, and Esc closes Place & atmosphere wherever the focus is.
+- A press on a friend closes an open menu, as a press anywhere else does.
+- The right-click menu shows all its rows in a small window after being squeezed once, and the Next up card is no longer cut off at the left.
+- A notice goes away when you press it, and a pointer left on it no longer holds it there.
+- Shift+F10 opens a friend's menu on any keyboard, and the Friends shortcut opens the friend the keyboard is on.
 - In Places, the Import, Remove and Background studio buttons no longer run over the Places title or get cut off at the right in a narrow window or a longer language; what does not fit moves to the next line.
 - Starting PlayPets with `PLAYPETS_LANG` no longer replaces the language you picked: the next start without it is in your language again.
 - A Claude Code friend no longer turns to Waiting for you a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.

@@ -115,7 +115,7 @@ fn save(path: &Path, existed: bool, clean: bool, text: Option<&str>) -> Result<(
     // dunce keeps Windows paths free of the `\\?\` prefix a person would see in a message.
     let path = dunce::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
     let shown = path.to_string_lossy().to_string();
-    let failed = |e: std::io::Error| i18n::tr("link.write_failed", &[("file", &shown), ("detail", &e.to_string())]);
+    let failed = |_: std::io::Error| i18n::tr("link.write_failed", &[("file", &shown)]);
     // A file made read-only is one the person keeps as it is; Windows would refuse the rename anyway.
     if existed && fs::metadata(&path).is_ok_and(|m| m.permissions().readonly()) {
         return Err(failed(std::io::ErrorKind::PermissionDenied.into()));

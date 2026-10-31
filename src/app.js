@@ -20,7 +20,8 @@ import {
   data,
   game,
   guard,
-  recall,
+  pet,
+  recallRun,
   selected,
   setData,
   setupToast,
@@ -96,9 +97,10 @@ async function importRequested(url) {
     if (!sure) return;
     const asset = await call('importUrl', url);
     openPanel('invite');
-    toast(t('invite.linked', { name: asset?.displayName || host }));
+    const named = data.assets.find(a => a.id === asset)?.displayName;
+    toast(t('invite.linked', { name: named || host }));
   } catch (e) {
-    toast(t('invite.link_failed', { error: spoken(e, t('error.generic')) }));
+    toast(t('invite.link_failed', { error: spoken(e, t('error.generic')) }), { error: true });
   } finally {
     importing = false;
   }
@@ -148,7 +150,12 @@ setupControls({
 });
 // Keyboard: the panels and the two views, with the keys the macOS menu bar shows (core/keys.js).
 onShortcut('controls', openControls);
-onShortcut('friends', () => openPanel('pet'));
+// The friend the keyboard is on, if any: that is the one being asked for.
+onShortcut('friends', () => {
+  const focused = [...views].find(([, v]) => v.button === document.activeElement)?.[0];
+  if (focused) select(focused);
+  openPanel('pet');
+});
 onShortcut('invite', () => openPanel('invite'));
 onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
@@ -222,7 +229,8 @@ setupChat();
 setupConnection({
   // The first friend that can talk: with two or more, they start talking among themselves at once
   // (the thing no other pet app does); with one, the chat box is ready for a first word.
-  first: async able => {
+  first: guard(async able => {
+    refreshChat();
     // A word was waiting to be sent (written before the AI was there): it goes now, nothing else.
     if ($('message').value.trim()) return;
     if (able >= 2) {
@@ -233,7 +241,7 @@ setupConnection({
       $('message').focus();
       toast(t('toast.first_chat'));
     }
-  },
+  }),
 });
 setupFriendSettings({ refresh });
 setupInvite({ refresh });
@@ -241,10 +249,12 @@ setupWelcome({ invite, more: openInvite });
 setupSettings();
 
 api.onChange(next => {
-  const old = selected;
+  const old = selected,
+    ai = pet()?.providerId;
   setData(next);
   render();
-  if (old !== selected) refreshChat();
+  // What the log says before a first word depends on whether the friend has an AI.
+  if (old !== selected || ai !== pet()?.providerId) refreshChat();
 });
 // The friends chat among themselves every so often when the setting is on: not while the window
 // is hidden, not while someone is answering, and only with two friends who have an AI.
@@ -360,7 +370,7 @@ try {
   await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
   setData(await call('bootstrap'));
   follow(data.language);
-  const saved = recall('panel');
+  const saved = recallRun('panel');
   // A first start opens on the yard alone: its card shows the starter pets.
   openPanel(PANELS.includes(saved) ? saved : null);
   render();

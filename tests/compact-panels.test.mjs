@@ -55,6 +55,8 @@ function page() {
     'layout',
     'side-panel',
     'panel-pet',
+    'pet-panel',
+    'message',
     'panel-invite',
     'panel-settings',
     'panel-title',
@@ -73,6 +75,7 @@ function page() {
   body.classList.toggle('compact', true);
   nodes.get('panel-invite').hidden = true;
   nodes.get('pet').hidden = false;
+  nodes.get('pet-panel').hidden = false;
   nodes.get('yard-controls-toggle').hidden = false;
   globalThis.document = {
     body,
@@ -95,6 +98,7 @@ test('opening a conversation keeps the small window and closing returns focus to
   assert.equal(calls.length, 0, 'conversation does not expand the native window');
   assert.ok(document.body.classList.contains('compact'));
   assert.equal(nodes.get('side-panel').hidden, false);
+  assert.equal(document.activeElement, nodes.get('message'), 'a chat opens ready to write in, however it was reached');
   nodes.get('close-panel').focus();
   nodes.get('close-panel').onclick();
   assert.equal(nodes.get('side-panel').hidden, true);
@@ -155,6 +159,8 @@ test('Escape from Settings restores its opener focus and respects a handled Esca
   nodes.get('close-panel').focus();
   listeners.get('keydown')({ key: 'Escape', defaultPrevented: true, preventDefault() {} });
   assert.equal(nodes.get('side-panel').hidden, false, 'a menu may consume Escape before the sheet');
+  listeners.get('keydown')({ key: 'Escape', isComposing: false, keyCode: 229, preventDefault() {} });
+  assert.equal(nodes.get('side-panel').hidden, false, "Escape ending a composition is the input method's");
   let prevented = false;
   listeners.get('keydown')({
     key: 'Escape',

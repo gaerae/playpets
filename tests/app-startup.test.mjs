@@ -18,7 +18,7 @@ test('a growth save error remains visible without stopping yard startup', async 
     },
     data: {},
     follow() {},
-    recall() {},
+    recallRun() {},
     PANELS: [],
     openPanel() {},
     render() {},

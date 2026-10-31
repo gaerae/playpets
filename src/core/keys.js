@@ -6,6 +6,10 @@
 
 const onMac = /Mac/.test(globalThis.navigator?.platform || '');
 
+/** A key the input method took. macOS WebKit ends a composition before that key's keydown, so
+ * `isComposing` is false there and only its key code says so. */
+export const composing = event => event.isComposing || event.keyCode === 229;
+
 /** `mod` is Cmd on a Mac and Ctrl elsewhere (either is taken, as the menu bar's CmdOrCtrl). */
 export const SHORTCUTS = {
   controls: { keys: 'mod+shift+p', menu: true },
