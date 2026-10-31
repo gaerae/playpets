@@ -1,8 +1,8 @@
 # Weekly update PRs for each kind of dependency. Minor and patch updates of each kind come
 # as one PR, so CI checks them together; major updates come one by one.
 # A version is proposed only a week after its release, time for a hijacked release to be found and
-# pulled. Cooldown delays version updates only: security updates skip it, though for npm packages
-# pnpm still waits a day (minimumReleaseAge in pnpm-workspace.yaml says how to take one at once).
+# pulled. Cooldown delays version updates only: security updates come at once, and Dependabot lifts
+# pnpm's minimumReleaseAge for them too, though CI still waits that day (SECURITY.md).
 version: 2
 updates:
   - package-ecosystem: cargo
