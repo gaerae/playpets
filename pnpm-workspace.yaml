@@ -14,9 +14,10 @@ allowBuilds:
   esbuild: false
   fsevents: false
 
-# A version newer than a day is not installed when the lockfile is resolved again. Dependabot uses its
-# own week for routine updates (.github/dependabot.yml) and lifts the wait for security updates. To
-# take an urgent fix by hand, list the package under minimumReleaseAgeExclude and remove it once the
+# A version newer than a day is not installed, and `pnpm install --frozen-lockfile` refuses one already
+# in the lockfile. Dependabot uses its own week for routine updates (.github/dependabot.yml) and lifts
+# the wait for security updates, but CI's install still fails until the fixed version is a day old. To
+# take an urgent fix sooner, list the package under minimumReleaseAgeExclude and remove it once the
 # fixed version is a day old.
 minimumReleaseAge: 1440
 

@@ -129,10 +129,13 @@ Official upstream references for the remaining work:
   - The jobs that hold signing secrets and the container builds also pass
     `--ignore-scripts`, so a change to `pnpm-workspace.yaml` alone does not undo
     it there.
-- pnpm installs no version younger than a day when it resolves the lockfile
-  again (`minimumReleaseAge`).
-  - Dependabot lifts this wait for its security updates, so a fix comes at once.
-  - To take an urgent fix by hand, list the package under
+- pnpm installs no version younger than a day (`minimumReleaseAge`), and
+  `pnpm install --frozen-lockfile` refuses one already in the lockfile.
+  - Dependabot lifts this wait for its security updates, so the pull request
+    comes at once.
+  - CI fails on that pull request while the fixed version is under a day old.
+    Run the checks again once it is a day old.
+  - To take an urgent fix sooner, list the package under
     `minimumReleaseAgeExclude` in `pnpm-workspace.yaml`, and remove it once the
     fixed version is a day old.
 - Dependabot proposes a new npm, Cargo or Actions version a week after its
