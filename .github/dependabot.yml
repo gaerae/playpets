@@ -20,6 +20,10 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    ignore:
+      # vite 6 accepts esbuild ^0.25.0 only (docs/how-to/website.md).
+      - dependency-name: esbuild
+        versions: ['>=0.26.0']
     groups:
       npm:
         update-types: [minor, patch]

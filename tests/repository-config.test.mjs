@@ -302,6 +302,17 @@ test('Dependabot proposes npm, Cargo and Actions versions a week after release',
   }
 });
 
+// vite accepts one esbuild minor, so a newer direct esbuild leaves two copies, which the lockfile test
+// below refuses. Dependabot stops short of it, and moving esbuild by hand moves this limit with it.
+test('Dependabot does not propose an esbuild past the minor in use', () => {
+  const [major, minor] = JSON.parse(read('package.json')).devDependencies.esbuild.split('.');
+  const limit = `>=${major}.${Number(minor) + 1}.0`;
+  const npm = read('.github/dependabot.yml')
+    .split(/^ {2}- package-ecosystem: /m)
+    .find(block => block.startsWith('npm\n'));
+  assert.ok(npm.includes(`- dependency-name: esbuild\n        versions: ['${limit}']`), limit);
+});
+
 test('container builds do not run dependency install scripts while the checkout is mounted', () => {
   for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh']) {
     const installs = read(script)
