@@ -104,6 +104,8 @@ export const strings = {
   'notices.title': '启动提示（{count}条）',
   'notices.label': '启动提示',
   'notices.dismiss': '关闭提示',
+  'win.fit': '重置窗口大小',
+  'win.minimize': '最小化',
   'win.close': '关闭窗口',
   'win.close_hint': '关闭窗口后，PlayPets仍在托盘中运行',
   'win.drag': '拖动以移动窗口',

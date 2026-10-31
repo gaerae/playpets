@@ -76,7 +76,7 @@ test('the menu has one Settings entry, and right-click offers the same places as
   const context = html.slice(html.indexOf('<div id="yard-context-menu"'), html.indexOf('<span id="yard-hint"'));
   assert.deepEqual(
     [...context.matchAll(/data-context-for="yard" data-context-action="([^"]+)"/g)].map(match => match[1]),
-    ['dig-here', 'scene', 'play', 'menu', 'pin'],
+    ['dig-here', 'scene', 'play', 'menu', 'fit', 'pin'],
   );
   assert.deepEqual(
     [...context.matchAll(/data-context-for="friend" data-context-action="([^"]+)"/g)].map(match => match[1]),

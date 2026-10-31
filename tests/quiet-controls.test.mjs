@@ -211,6 +211,45 @@ test('blank-yard context controls clamp inside a small window and restore a visi
   assert.equal(panel.style.left, undefined);
 });
 
+test('a panel chosen from the right-click menu opens at the pointer, and from the dock in its corner', async t => {
+  const { keepGlobals } = await import('./support/dom.mjs');
+  keepGlobals(t, 'innerWidth', 'innerHeight');
+  globalThis.innerWidth = 1000;
+  globalThis.innerHeight = 700;
+  const { nodes } = installDom(t);
+  const toggle = element('button', { id: 'yard-controls-toggle' });
+  const panel = element('div', { id: 'yard-controls-panel', hidden: true, rect: { width: 280, height: 320 } });
+  panel.offsetParent = element('div', { rect: { left: 0, top: 0, width: 1000, height: 700 } });
+  const context = element('div', { id: 'yard-context-menu', hidden: true, rect: { width: 200, height: 160 } });
+  const yard = element('div', { id: 'yard' });
+  const first = element('button', { dataset: { contextFor: 'yard' } });
+  context.querySelectorAll = () => [first];
+  for (const node of [toggle, panel, context, yard]) nodes.set(node.id, node);
+  const { setupControls } = await import('../src/core/controls.js');
+  setupControls();
+  await yard.dispatch('contextmenu', { clientX: 200, clientY: 150 });
+  await context.dispatch('click', { target: { closest: () => ({ dataset: { contextAction: 'menu' } }) } });
+  assert.equal(panel.hidden, false);
+  assert.deepEqual([panel.style.left, panel.style.top, panel.style.right], ['200px', '150px', 'auto']);
+  await toggle.dispatch('click');
+  await toggle.dispatch('click');
+  assert.equal(panel.hidden, false);
+  assert.deepEqual([panel.style.left, panel.style.top, panel.style.right], ['', '', '']);
+});
+
+test('the menu bar and the shortcut open the panel in its corner, not at what their event carries', async t => {
+  const { nodes } = installDom(t);
+  const toggle = element('button', { id: 'yard-controls-toggle' });
+  const panel = element('div', { id: 'yard-controls-panel', hidden: true, rect: { width: 280, height: 320 } });
+  panel.offsetParent = element('div', { rect: { left: 0, top: 0, width: 1000, height: 700 } });
+  for (const node of [toggle, panel]) nodes.set(node.id, node);
+  const { openControls, setupControls } = await import('../src/core/controls.js');
+  setupControls();
+  openControls({ type: 'open-controls' });
+  assert.equal(panel.hidden, false);
+  assert.deepEqual([panel.style.left ?? '', panel.style.right ?? ''], ['', '']);
+});
+
 test('yard context controls leave handled pet, plant and editing gestures alone', async t => {
   const { nodes } = installDom(t);
   const toggle = element('button', { id: 'yard-controls-toggle' });

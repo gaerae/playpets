@@ -104,6 +104,8 @@ export const strings = {
   'notices.title': '시작 안내 {count}건',
   'notices.label': '시작 안내',
   'notices.dismiss': '안내 닫기',
+  'win.fit': '창 크기 맞추기',
+  'win.minimize': '최소화',
   'win.close': '창 닫기',
   'win.close_hint': '창을 닫아도 PlayPets는 트레이에서 계속 실행돼요',
   'win.drag': '드래그해서 창을 옮겨요',

@@ -64,6 +64,15 @@ pub fn act(app: &AppHandle, id: &str) {
                 crate::tray::rebuild(&app);
             });
         }
+        "fit" => {
+            // Leaving fullscreen needs the main loop to run; menu callbacks run on that loop.
+            let app = app.clone();
+            tauri::async_runtime::spawn_blocking(move || {
+                if let Err(e) = window::show_fitted(&app) {
+                    warn(&app, &mut lock(&app.state::<Shared>()), e);
+                }
+            });
+        }
         "quit" => quit(app),
         _ => {}
     }
@@ -149,6 +158,7 @@ pub fn app_menu(
         t("menu.window"),
         true,
         &[
+            &item("fit", "tray.fit", Some("CmdOrCtrl+0"))?,
             &P::minimize(app, text("menu.minimize").as_deref())?,
             &P::close_window(app, text("menu.close").as_deref())?,
         ],

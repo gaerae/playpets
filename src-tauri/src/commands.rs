@@ -347,6 +347,7 @@ static COMMANDS: &[Command] = &[
     main("windowMinimize", |c| window::command(c.app, c.name, c.args)),
     main("windowMaximize", |c| window::command(c.app, c.name, c.args)),
     main("windowHide", |c| window::command(c.app, c.name, c.args)),
+    main("windowFit", |c| window::command(c.app, c.name, c.args)),
     // The app itself.
     main("checkUpdate", |c| crate::update::check(c.app)),
     main("installUpdate", |c| crate::update::install(c.app)),

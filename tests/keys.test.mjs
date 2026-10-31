@@ -24,6 +24,11 @@ test('every page shortcut is the key the menu bar shows, and the menu bar has no
   );
 });
 
+test('one key puts the window back at its usual size, wherever the window has gone', () => {
+  assert.equal(SHORTCUTS.fitWindow.keys, 'mod+0');
+  assert.ok(SHORTCUTS.fitWindow.menu, 'the menu bar answers it on a Mac, where the page may be out of reach');
+});
+
 test('a shortcut matches its modifiers exactly, Cmd or Ctrl alike', () => {
   const press = (key, mods = {}) => ({ key, metaKey: false, ctrlKey: false, shiftKey: false, altKey: false, ...mods });
   assert.ok(matches(press('1', { metaKey: true }), 'mod+1'));
