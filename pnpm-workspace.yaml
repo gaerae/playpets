@@ -2,7 +2,9 @@
 # pnpm reads only registry and auth settings from .npmrc; everything else lives here.
 
 # engineStrict stays off: Dependabot runs pnpm on its own Node, older than engines.node, and a strict
-# check would stop every update it tries. A Node below engines.node gets a warning here instead.
+# check would stop every update it tries. An older Node installs without a warning, so .node-version
+# is what names the one to use.
+
 # New direct dependencies record the chosen version; `pnpm install --frozen-lockfile` uses the lockfile.
 saveExact: true
 
