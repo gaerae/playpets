@@ -151,7 +151,7 @@ pnpm run release 0.2.0
    | What the command changes | Where |
    |---|---|
    | The changelog section moves to a dated section | `CHANGELOG.md` |
-   | The version | `package.json`, `pnpm-lock.yaml`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock` |
+   | The version | `package.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock` |
    | The version is added, dated, with the English page's Linux lines | `packaging/linux/app.playpets.metainfo.xml` |
    | Today's date on the website release pages | `website/releases/0.2.0.md`, `website/ko/releases/0.2.0.md`, `website/ja/releases/0.2.0.md` and `website/zh-hans/releases/0.2.0.md` |
 

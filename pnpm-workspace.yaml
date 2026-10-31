@@ -1,8 +1,10 @@
 # pnpm's settings for this repository, which is one package at the root (no `packages:`).
 # pnpm reads only registry and auth settings from .npmrc; everything else lives here.
 
-# Stop before installation when Node or pnpm cannot run this project's tooling.
-engineStrict: true
+# engineStrict stays off: Dependabot runs pnpm on its own Node, older than engines.node, and a strict
+# check would stop every update it tries. An older Node installs without a warning, so .node-version
+# is what names the one to use.
+
 # New direct dependencies record the chosen version; `pnpm install --frozen-lockfile` uses the lockfile.
 saveExact: true
 
@@ -14,15 +16,17 @@ allowBuilds:
   esbuild: false
   fsevents: false
 
-# A version newer than a day is not installed when the lockfile is resolved again. Dependabot waits
-# a week for routine updates only (.github/dependabot.yml); this day holds for its security updates
-# too, so one for a fix released today fails until tomorrow. To take an urgent fix at once, list the
-# package under minimumReleaseAgeExclude and remove it once the fixed version is a day old.
+# A version newer than a day is not installed, and `pnpm install --frozen-lockfile` refuses one already
+# in the lockfile. Dependabot uses its own week for routine updates (.github/dependabot.yml) and lifts
+# the wait for security updates, but CI's install still fails until the fixed version is a day old. To
+# take an urgent fix sooner, list the package under minimumReleaseAgeExclude and remove it once the
+# fixed version is a day old.
 minimumReleaseAge: 1440
 
 # The site's build tools have no known advisories (docs/how-to/website.md says when to drop these).
 overrides:
   # The pinned VitePress 1.6.4 still asks for vite 5, whose dev server has known advisories.
-  vite: ^6.4.3
+  # Dependabot cannot raise an overridden package, so a fixed vite is raised here by hand.
+  vite: ^6.4.5
   # Pulled in by mermaid.
   katex: ^0.19.0

@@ -284,11 +284,12 @@ test('pnpm is the package manager, at an exact version', () => {
   assert.ok(existsSync('pnpm-lock.yaml'));
   assert.equal(existsSync('package-lock.json'), false);
   assert.equal(pkg.overrides, undefined, 'pnpm reads overrides from pnpm-workspace.yaml');
-  assert.match(read('pnpm-workspace.yaml'), /^engineStrict: true$/m);
+  // Dependabot runs pnpm on its own Node, older than engines.node; a strict check stops every update it tries.
+  assert.doesNotMatch(read('pnpm-workspace.yaml'), /^engineStrict:/m);
 });
 
 // A hijacked release is usually found and pulled within days; packages that end up in a release wait
-// a week before Dependabot proposes them. Security updates skip the cooldown, but pnpm's day still holds.
+// a week before Dependabot proposes them. Security updates skip the cooldown.
 test('Dependabot proposes npm, Cargo and Actions versions a week after release', () => {
   const entries = read('.github/dependabot.yml')
     .split(/^ {2}- package-ecosystem: /m)

@@ -49,7 +49,7 @@ A package passes through three places. Only the first is in Git.
 | `package.json` | App version, pnpm commands, development dependencies, supported Node/pnpm versions and the pnpm version (`packageManager`) |
 | `pnpm-lock.yaml` | Exact dependency graph, and pnpm's own executable; update with pnpm and install with `pnpm install --frozen-lockfile` |
 | `.node-version` | Node major used locally and by Actions |
-| `pnpm-workspace.yaml` | pnpm's settings: reject unsupported engines, pin new direct dependencies exactly, skip dependencies' install scripts, the minimum release age and the vite and katex overrides |
+| `pnpm-workspace.yaml` | pnpm's settings: pin new direct dependencies exactly, skip dependencies' install scripts, the minimum release age and the vite and katex overrides |
 | `.oxlintrc.json` | JavaScript, TypeScript and Vue script static checks and generated-output exclusions |
 | `biome.jsonc` | CSS lint only (Biome's recommended rules); its formatter and import sorting are off |
 | `.oxfmtrc.jsonc` | JavaScript, TypeScript, CSS and JSON formatting and import order; HTML, SVG, Vue and Markdown are kept by hand |
