@@ -130,6 +130,9 @@ fn main() {
                 tauri::WindowEvent::Resized(_) | tauri::WindowEvent::Focused(true) => {
                     window::moved(&handle);
                     if let Some(w) = handle.get_webview_window("main") {
+                        if matches!(event, tauri::WindowEvent::Focused(true)) {
+                            window::settle(&w);
+                        }
                         let seen = w.is_visible().unwrap_or(true) && !w.is_minimized().unwrap_or(false);
                         window::shown(&handle, seen);
                     }
@@ -142,6 +145,7 @@ fn main() {
                 window::hide(app.handle());
             }
             tray::build(app)?;
+            window::watch_screens(app.handle());
             chat::providers::detect(app.handle().clone());
             agent::start(app);
             update::check_later(app.handle());

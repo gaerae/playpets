@@ -2,7 +2,7 @@
 
 import { prepareCompanionAction } from './companion-actions.js';
 import { t } from './i18n.js';
-import { dropdown, menuNavigation } from './menu.js';
+import { dropdown, menuNavigation, panelSpot } from './menu.js';
 import { $, aiming, data, game, name, selected, views } from './state.js';
 
 let surfaces = [];
@@ -10,12 +10,28 @@ let showControls = null;
 let showPlay = null;
 let showFriendMenu = null;
 const yardFocus = button => (document.body.classList.contains('compact') ? $('yard') : button);
+// The dock's corner stays clear of a panel opened elsewhere.
+const DOCK_ROOM = 56;
 
-export function openControls() {
-  showControls?.();
+/** Starts an open panel at `point`; with no point, or in a small window, it keeps its own place. */
+function placePanel(panel, point) {
+  const yard = panel.offsetParent;
+  if (!point || !yard || document.body.classList.contains('compact')) {
+    if (panel.style.left) Object.assign(panel.style, { left: '', top: '', right: '', bottom: '' });
+    return;
+  }
+  const { left, top, width, height } = yard.getBoundingClientRect();
+  const bounds = { left, top, width, height: height - DOCK_ROOM };
+  const spot = panelSpot(point, panel.getBoundingClientRect(), bounds);
+  Object.assign(panel.style, { left: `${spot.left}px`, top: `${spot.top}px`, right: 'auto', bottom: 'auto' });
 }
-export function openPlay() {
-  showPlay?.();
+
+/** Opens the panel at a point in the window, or in its corner above the dock with none. */
+export function openControls(point) {
+  showControls?.(point);
+}
+export function openPlay(point) {
+  showPlay?.(point);
 }
 /** A friend's own right-click menu at a point in the window: talk, or play with it. */
 export function openFriendMenu(id, point) {
@@ -65,6 +81,7 @@ export function setupControls({
   digWith = () => {},
 } = {}) {
   surfaces = [];
+  let spot = null;
   const closeOthers = except => {
     beforeOpen();
     for (const surface of surfaces) if (surface.panel !== except) surface.box.close();
@@ -85,6 +102,8 @@ export function setupControls({
         panel.scrollTop = 0;
         for (const body of panel.querySelectorAll('.dock-panel-body')) body.scrollTop = 0;
         if (panelId === 'play-panel') renderPlay();
+        placePanel(panel, spot);
+        spot = null;
 
         // The first action in the page, not the head's Close.
         const visible = [...(panel.querySelector('.dock-panel-body') || panel).querySelectorAll('button')].find(
@@ -110,8 +129,14 @@ export function setupControls({
     // Dig and Plant a tree also need soil; syncDiscovery (discovery.js) keeps those.
     for (const id of ['plant-tool', 'feed']) $(id).disabled = !pet || !!game;
   };
-  showControls = () => menu?.open();
-  showPlay = () => play?.open();
+  showControls = point => {
+    spot = point;
+    menu?.open();
+  };
+  showPlay = point => {
+    spot = point;
+    play?.open();
+  };
   $('play-button')?.addEventListener('click', () => {
     if (!$('play-panel').hidden) closeControls();
     else openPlay();
@@ -216,18 +241,25 @@ export function setupControls({
       const action = event.target.closest('[data-context-action]')?.dataset.contextAction;
       if (!action) return;
       closeControls();
-      if (action === 'scene') $('scene-button').click();
-      else if (action === 'play') openPlay();
+      if (action === 'scene') {
+        $('scene-button').click();
+        if (!$('scene-menu').hidden) placePanel($('scene-menu'), point);
+      } else if (action === 'play') openPlay(point);
       else if (action === 'pin') $('always-on-top').click();
-      else if (action === 'menu') openControls();
+      else if (action === 'fit') $('window-fit').click();
+      else if (action === 'menu') openControls(point);
       else if (action === 'dig-here') digAt(point.x, point.y);
       else if (action === 'talk') openChat(friend);
-      else if (action === 'play-friend') openPlay();
+      else if (action === 'play-friend') openPlay(point);
       else if (action === 'dig-friend') digWith(friend);
     });
-    globalThis.window?.addEventListener('resize', place);
+    globalThis.window?.addEventListener('resize', () => {
+      place();
+      for (const id of ['yard-controls-panel', 'play-panel', 'scene-menu']) if ($(id)) placePanel($(id), null);
+    });
   }
   $('scene-button')?.addEventListener('click', () => {
+    placePanel($('scene-menu'), null);
     beforeOpen();
     closeControls(false);
     const side = $('side-panel');

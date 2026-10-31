@@ -91,6 +91,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
   - Resizes down to 300 × 210; the dock folds into a corner button that appears on hover.
   - Right-click a friend for **Talk**, **Play** and **Dig**.
   - **Always on top** toggles on its own. Position, size and pin are remembered.
+  - Close, minimize and **Reset window size** appear when the pointer reaches the top; a window left bigger than the screen after unplugging a monitor comes back by itself.
 - **Light on resources**
   - Tauri: Rust and the system webview.
   - The yard redraws only while something moves.

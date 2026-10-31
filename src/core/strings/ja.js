@@ -105,6 +105,8 @@ export const strings = {
   'notices.title': '起動時のお知らせ（{count}件）',
   'notices.label': '起動時のお知らせ',
   'notices.dismiss': 'お知らせを閉じる',
+  'win.fit': 'ウィンドウサイズをリセット',
+  'win.minimize': '最小化',
   'win.close': 'ウィンドウを閉じる',
   'win.close_hint': 'ウィンドウを閉じてもPlayPetsはトレイで動作を続けます',
   'win.drag': 'ドラッグしてウィンドウを移動',

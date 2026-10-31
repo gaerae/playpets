@@ -37,6 +37,15 @@ export function dropdown(
   return { open: () => show(true), close: () => show(false) };
 }
 
+/** Where a panel of `size` starts at `point`, measured from `bounds` and kept whole inside them. */
+export function panelSpot(point, size, bounds) {
+  const inside = (at, room, own) => Math.max(8, Math.min(at, room - own - 8));
+  return {
+    left: inside(point.x - bounds.left, bounds.width, size.width),
+    top: inside(point.y - bounds.top, bounds.height, size.height),
+  };
+}
+
 /** Shared keyboard navigation for ordinary and checked menu actions. */
 export function menuNavigation(menu) {
   const items = () =>

@@ -12,6 +12,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
+- Move the pointer to the top of the yard to find buttons for **Reset window size**, minimize and close. **Reset window size** is also in the tray, the macOS Window menu, the scenery's right-click menu and <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>0</kbd>, and puts the yard back at its usual size in the middle of the screen.
 - Import a pet from a ZIP file on your computer, such as one from the creator kit or a compressed pet folder. PlayPets copies the pet in, so the ZIP can be moved or deleted afterwards.
 - Remove a pet you imported or picked from the trash button beside its card in Invite a friend. An imported pet's files are deleted; a picked folder only leaves the list. While friends made from the pet are in the yard, PlayPets names them to send away first.
 - A friend brings a gift each time it grows closer, from At ease on, on a day you play with it, and at Very close its own memento, marked with a heart. A friend already close when you update brings one for the level it is at.
@@ -20,6 +21,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- A panel chosen from the right-click menu opens where you clicked instead of in the corner above the dock.
 - Closeness grows from what you do together: time with the yard seen counts up to an hour a day, and pats up to a quarter of a day's worth. Leaving the window open no longer makes friends close faster than playing; points already earned stay.
 - A friend fishing on its own calls you when a fish bites; press the float within a few seconds to reel it in together, or it gets away. The album keeps only what you catch.
 - Everyday gifts come from friends, not from the clock: at most one every other day, brought by a friend you did something with that day, 10 to 20 minutes after it may come. Leaving the yard open alone brings none. The wait is saved in `state.json` instead of the app's webview storage.
@@ -28,6 +30,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Fixed
 
+- After you unplug a monitor, a window bigger than the remaining screen comes back inside it without a restart, and a window can no longer grow past the screen it is on.
 - In Places, the Import, Remove and Background studio buttons no longer run over the Places title or get cut off at the right in a narrow window or a longer language; what does not fit moves to the next line.
 - Starting PlayPets with `PLAYPETS_LANG` no longer replaces the language you picked: the next start without it is in your language again.
 - A Claude Code friend no longer turns to Waiting for you a minute after each finished turn, and a turn stopped with Esc no longer leaves it Working. With the Claude Code settings copied again, a turn that stops on an error says so: a usage limit, a sign-in to redo, or another error. The idle notice also leaves a chat answer's Thinking alone.
@@ -68,6 +71,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The settings guide explains the window buttons and **Reset window size** in all four languages.
 - The guide explains how gifts, the gift box and mementos come, what each coding agent can report, and that clicking friends on Wayland has not been tested.
 - The import guide explains importing a pet ZIP directly in 1.4.0 and removing a pet in the app; the creator kit page, the kit's request and the creator skill say the same and keep the folder steps for earlier versions.
 - The user guide counts 20 gifts in the album, says an OpenAI-compatible server needs an API key only when it asks for one, lists what About PlayPets holds under Privacy and license in every language, and gives the Store and winget data folder in the FAQ. The README says Ollama and compatible servers need a model name, and that friends dig on their own only with the switch on.

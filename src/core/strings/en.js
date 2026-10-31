@@ -103,6 +103,8 @@ export const strings = {
   'notices.title': 'Startup notices ({count})',
   'notices.label': 'Startup notices',
   'notices.dismiss': 'Dismiss notices',
+  'win.fit': 'Reset window size',
+  'win.minimize': 'Minimize',
   'win.close': 'Close window',
   'win.close_hint': 'Close this window and keep PlayPets running in the tray',
   'win.drag': 'Drag to move the window',

@@ -878,6 +878,13 @@ const scenario = `(async()=>{
     openMenu();await wait(30);$('menu-quit').scrollIntoView({block:'nearest'});await wait(20);
     const quitBeside=visibleNode($('menu-quit'))&&$('menu-quit').parentElement===$('hide-window').parentElement&&!$('quit-app');
     await L('windowQuit='+(quitBeside&&(await nativeWindow()).resizable?'beside-close-window':'err'));
+    // A window is limited to its screen, and Reset window size brings it back from any size.
+    const fitFrom=await nativeWindow();
+    await nativeWindow({...fitFrom,width:4000,height:2400});
+    await window.__TAURI__.core.invoke('call',{name:'windowFit',args:[]});
+    const fitDone=await until(async()=>{const w=await nativeWindow();return w.width<=1180.5&&w.height<=850.5&&w.width>=fitFrom.width&&w;});
+    await nativeWindow(fitFrom);await until(()=>Math.abs(innerWidth-fitFrom.width)<2);await wait(300);
+    await L('windowFit='+(fitDone&&fitDone.maximum?.width>=fitDone.width&&fitDone.maximum?.height>=fitDone.height?'limited-and-reset':'err:'+JSON.stringify(fitDone)));
     $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
     // Fullscreen returns to the same frame and pin; Escape dismisses the current surface first.
     let fullscreenRestored=true;
@@ -1476,6 +1483,7 @@ const expect = [
     'small-window collection remains reachable with a single category chooser and visible content scroller',
   ],
   [/^windowResize=one-responsive-window$/, 'one resizable window keeps its controls and native drag boundaries'],
+  [/^windowFit=limited-and-reset$/, 'a window is limited to its screen and Reset window size brings it back'],
   [
     /^menuCopy=four-locales-fit-small-and-wide$/,
     'four locales keep Play and menu names on one line in wide windows and inside their tiles in small ones',

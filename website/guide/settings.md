@@ -107,8 +107,11 @@ Neither is a direct item in the scenery's right-click menu. Choose Friends & set
 
 ## Menus and shortcuts <Since v="0.1.0" />
 
+Move the pointer to the top of the yard and buttons appear to reset the window size, minimize and close. **Reset window size** is in the scenery's right-click menu too. If you unplug a monitor and the window no longer fits, it comes back inside the screen that is left on its own.
+
 - **Tray menu** (the cat in the menu bar or taskbar), in order:
   - **Open the yard**, **Friends** (when friends are present), **Invite a Friend…**
+  - **Reset window size** puts the yard back at its usual size in the middle of the screen
   - Display switches: **Always on top**, **Show on desktop**, and **Stroll on desktop** while desktop mode is on
   - **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets**, **Quit PlayPets**
 - Tray details:
@@ -121,7 +124,7 @@ Neither is a direct item in the scenery's right-click menu. Choose Friends & set
   - **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding, **Quit PlayPets**
   - **Edit**: cut, copy and paste in text fields
   - **View** → **Friends & Settings**, **Friends**, **Invite a Friend…**; **Always on top** and **Show on desktop** with a check mark (the desktop switch is grayed out until a friend is in); **Yard Sounds** with a check mark
-  - **Window**
+  - **Window** → **Reset window size**, minimize and close
 - **Shortcuts** (<kbd>⌘</kbd> on macOS, <kbd>Ctrl</kbd> on Windows and Linux):
 
 | Keys | Does |
@@ -133,6 +136,7 @@ Neither is a direct item in the scenery's right-click menu. Choose Friends & set
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Always on top on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>D</kbd> | Show on desktop, on or off |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>S</kbd> | Yard sounds on or off |
+| <kbd>⌘</kbd> <kbd>0</kbd> | Reset window size |
 | <kbd>⌘</kbd> <kbd>Q</kbd> | Quit PlayPets (macOS) |
 
 ## Data folder <Since v="0.1.0" />

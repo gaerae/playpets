@@ -11,6 +11,8 @@ globalThis.playPets = Object.fromEntries(
     'windowResize',
     'windowDrag',
     'windowHide',
+    'windowMinimize',
+    'windowFit',
     'quitApp',
   ].map(name => [
     name,
@@ -35,6 +37,9 @@ function page(t) {
     'always-on-top',
     'window-drag',
     'hide-window',
+    'window-fit',
+    'window-minimize',
+    'window-close',
     'yard',
     'yard-controls-toggle',
     'yard-controls-panel',
@@ -50,6 +55,27 @@ function page(t) {
   calls.length = 0;
   return { document, nodes };
 }
+
+test('the window buttons do what their names say, and closing only hides', async t => {
+  const { nodes } = page(t);
+  windowUi.setupWindow();
+  await nodes.get('window-fit').onclick();
+  await nodes.get('window-minimize').onclick();
+  await nodes.get('window-close').onclick();
+  assert.deepEqual(calls, [['windowFit'], ['windowMinimize'], ['windowHide']]);
+});
+
+test('the window buttons show only while the pointer is near the top', async t => {
+  const { document } = page(t);
+  windowUi.setupWindow();
+  await document.dispatch('pointermove', { clientY: 20 });
+  assert.equal(document.body.classList.contains('window-top'), true);
+  await document.dispatch('pointermove', { clientY: 300 });
+  assert.equal(document.body.classList.contains('window-top'), false);
+  await document.dispatch('pointermove', { clientY: 20 });
+  await document.body.dispatch('pointerleave');
+  assert.equal(document.body.classList.contains('window-top'), false);
+});
 
 test('pinning works without friends and never resizes or changes the current layout', async t => {
   const { document, nodes } = page(t);

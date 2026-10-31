@@ -9,6 +9,10 @@ use tauri::{AppHandle, LogicalPosition, LogicalSize, Manager, WebviewUrl, Webvie
 
 const SIZE_DEFAULT: (f64, f64) = (1180.0, 850.0);
 const SIZE_MIN: (f64, f64) = (300.0, 210.0);
+/// How far below the window's top edge the middle of its drag strip lies (.window-drag in shell.css).
+const DRAG_STRIP: f64 = 13.0;
+/// How often `watch_screens` looks.
+const SCREEN_LOOK: std::time::Duration = std::time::Duration::from_secs(1);
 
 /// WebKitGTK's DMA-BUF renderer ends the page's web process where it finds no usable GPU (a VM,
 /// a remote desktop, some drivers, Xvfb), leaving a blank or frozen window. The shared-memory
@@ -70,6 +74,7 @@ pub fn build_main(app: &tauri::App, bridge_js: &str) -> tauri::Result<WebviewWin
     let (x, y, width, height) = restored_rect(saved, &work_areas(&w), default);
     w.set_size(size((width, height)))?;
     w.set_position(LogicalPosition::new(x, y))?;
+    limit_size(&w, size_limit((x, y, width, height), &work_areas(&w)));
     Ok(w)
 }
 
@@ -111,6 +116,7 @@ pub fn show(app: &AppHandle) {
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
         let _ = w.unminimize();
+        settle(&w);
         let _ = w.set_focus();
     }
     shown(app, true);
@@ -136,6 +142,7 @@ pub fn command(app: &AppHandle, name: &str, args: &[Value]) -> Result<Value, Str
             };
         }
         "windowHide" => hide(app),
+        "windowFit" => return fit(app),
         "windowFullscreen" => return set_fullscreen(app, arg(args, 0).as_bool().unwrap_or(false)),
         "windowIsFullscreen" => return fullscreen_now(app),
         "windowAlwaysOnTop" => return set_always_on_top(app, arg(args, 0).as_bool().unwrap_or(false)),
@@ -171,7 +178,7 @@ pub fn e2e_window(app: &AppHandle, args: &[Value]) -> Result<Value, String> {
     let pos = w.outer_position().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
     let size = w.outer_size().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
     Ok(
-        json!({"x": pos.x, "y": pos.y, "width": size.width, "height": size.height, "scale": scale, "fullscreen": w.is_fullscreen().map_err(|e| e.to_string())?, "alwaysOnTop": always_on_top_now(&w)?, "resizable": w.is_resizable().map_err(|e| e.to_string())?, "minimum": {"width": SIZE_MIN.0, "height": SIZE_MIN.1}}),
+        json!({"x": pos.x, "y": pos.y, "width": size.width, "height": size.height, "scale": scale, "fullscreen": w.is_fullscreen().map_err(|e| e.to_string())?, "alwaysOnTop": always_on_top_now(&w)?, "resizable": w.is_resizable().map_err(|e| e.to_string())?, "minimum": {"width": SIZE_MIN.0, "height": SIZE_MIN.1}, "maximum": hold(&SIZE_LIMIT).map(|(width, height)| json!({"width": width, "height": height}))}),
     )
 }
 
@@ -188,13 +195,7 @@ pub type Rect = (f64, f64, f64, f64);
 fn restored_rect(saved: Option<Rect>, areas: &[Rect], default: Rect) -> Rect {
     let valid = |r: Rect| [r.0, r.1, r.2, r.3].into_iter().all(f64::is_finite) && r.2 > 0.0 && r.3 > 0.0;
     let (x, y, width, height) = saved.filter(|r| valid(*r)).unwrap_or(default);
-    let on = |a: &&Rect| {
-        x + width / 2.0 >= a.0
-            && x + width / 2.0 <= a.0 + a.2
-            && y + height / 2.0 >= a.1
-            && y + height / 2.0 <= a.1 + a.3
-    };
-    let Some(area) = areas.iter().find(on).or(areas.first()) else {
+    let Some(area) = area_of((x, y, width, height), areas) else {
         return (x, y, width.max(SIZE_MIN.0), height.max(SIZE_MIN.1));
     };
     let width = width.max(SIZE_MIN.0).min(area.2);
@@ -205,6 +206,132 @@ fn restored_rect(saved: Option<Rect>, areas: &[Rect], default: Rect) -> Rect {
         width,
         height,
     )
+}
+
+/// Whether a point lies on a screen.
+fn on_area((x, y): (f64, f64), a: &Rect) -> bool {
+    x >= a.0 && x <= a.0 + a.2 && y >= a.1 && y <= a.1 + a.3
+}
+
+/// The screen the middle of `rect` is on, or else the first one.
+fn area_of((x, y, width, height): Rect, areas: &[Rect]) -> Option<&Rect> {
+    let middle = (x + width / 2.0, y + height / 2.0);
+    areas.iter().find(|a| on_area(middle, a)).or(areas.first())
+}
+
+/// Whether a person can still take hold of the window: its drag strip is on a screen that it fits.
+/// A window across two screens, or hanging past an edge, is theirs to have put there.
+fn reachable((x, y, width, height): Rect, areas: &[Rect]) -> bool {
+    let strip = (x + width / 2.0, y + DRAG_STRIP);
+    areas
+        .iter()
+        .any(|a| on_area(strip, a) && width <= a.2 + 0.5 && height <= a.3 + 0.5)
+}
+
+/// Where a window a person can no longer take hold of belongs; nothing for one they can.
+fn fitted(rect: Rect, areas: &[Rect]) -> Option<Rect> {
+    (!areas.is_empty() && !reachable(rect, areas)).then(|| restored_rect(Some(rect), areas, rect))
+}
+
+/// The usual size in the middle of the screen the window is on, or filling a smaller screen.
+fn usual_rect(rect: Rect, areas: &[Rect]) -> Rect {
+    let Some(area) = area_of(rect, areas) else {
+        return (rect.0, rect.1, SIZE_DEFAULT.0, SIZE_DEFAULT.1);
+    };
+    let (width, height) = (SIZE_DEFAULT.0.min(area.2), SIZE_DEFAULT.1.min(area.3));
+    (
+        area.0 + (area.2 - width) / 2.0,
+        area.1 + (area.3 - height) / 2.0,
+        width,
+        height,
+    )
+}
+
+/// The most a window can grow on the screen it is on.
+fn size_limit(rect: Rect, areas: &[Rect]) -> Option<(f64, f64)> {
+    area_of(rect, areas).map(|a| (a.2, a.3))
+}
+
+/// The limit as last given to the window.
+static SIZE_LIMIT: Mutex<Option<(f64, f64)>> = Mutex::new(None);
+
+fn limit_size(w: &WebviewWindow, limit: Option<(f64, f64)>) {
+    if *hold(&SIZE_LIMIT) != limit && w.set_max_size(limit.map(size)).is_ok() {
+        *hold(&SIZE_LIMIT) = limit;
+    }
+}
+
+/// A place and size that hold on `areas`; the limit goes first so that it allows the size.
+fn place(w: &WebviewWindow, rect: Rect, areas: &[Rect]) -> tauri::Result<()> {
+    limit_size(w, size_limit(rect, areas));
+    w.set_size(size((rect.2, rect.3)))?;
+    w.set_position(LogicalPosition::new(rect.0, rect.1))
+}
+
+/// Brings back a window a person can no longer take hold of.
+pub fn settle(w: &WebviewWindow) {
+    if !in_normal_bounds(w) {
+        return;
+    }
+    let Some(rect) = rect_now(w) else { return };
+    let areas = work_areas(w);
+    if let Some(rect) = fitted(rect, &areas) {
+        let _ = place(w, rect, &areas);
+    }
+}
+
+/// Puts the window at its usual size in the middle of its screen, out of fullscreen if it was.
+fn fit(app: &AppHandle) -> Result<Value, String> {
+    let w = app
+        .get_webview_window("main")
+        .ok_or_else(|| i18n::t("error.not_allowed"))?;
+    let error = |_| i18n::t("error.request_failed");
+    if w.is_fullscreen().map_err(error)? {
+        set_fullscreen(app, false)?;
+    }
+    let _ = w.unmaximize();
+    let rect = rect_now(&w).ok_or_else(|| i18n::t("error.request_failed"))?;
+    let areas = work_areas(&w);
+    place(&w, usual_rect(rect, &areas), &areas).map_err(error)?;
+    Ok(Value::Null)
+}
+
+/// From the tray and the menu bar, where no page asked: the window comes forward with its fit.
+pub fn show_fitted(app: &AppHandle) -> Result<Value, String> {
+    show(app);
+    fit(app)
+}
+
+/// Nothing tells the app that a screen went away or that the window crossed to another one, and a
+/// system moves a window off a lost screen without making it smaller, so this looks once a second.
+/// A screen waking up reports itself in steps: only a list that held for two looks counts.
+pub fn watch_screens(app: &AppHandle) {
+    let app = app.clone();
+    std::thread::spawn(move || {
+        let (mut last, mut settled) = (Vec::new(), Vec::new());
+        loop {
+            std::thread::sleep(SCREEN_LOOK);
+            let Some(w) = app.get_webview_window("main") else {
+                continue;
+            };
+            if !w.is_visible().unwrap_or(false) || !in_normal_bounds(&w) {
+                continue;
+            }
+            let areas = work_areas(&w);
+            let steady = areas == last;
+            last = areas.clone();
+            if !steady || areas.is_empty() {
+                continue;
+            }
+            if areas != settled {
+                settled = areas.clone();
+                settle(&w);
+            }
+            if let Some(rect) = rect_now(&w) {
+                limit_size(&w, size_limit(rect, &areas));
+            }
+        }
+    });
 }
 
 fn resize_direction(direction: &str) -> Option<tauri_runtime::ResizeDirection> {
@@ -375,7 +502,9 @@ fn confirm_normal_rect(
 
 fn restore_normal(app: &AppHandle, w: &WebviewWindow) -> Result<(), String> {
     let rect = *hold(&NORMAL_RECT);
-    if let Some((x, y, width, height)) = rect {
+    if let Some(rect) = rect {
+        // The screen it came from may have gone while it was fullscreen.
+        let (x, y, width, height) = fitted(rect, &work_areas(w)).unwrap_or(rect);
         w.set_size(size((width, height)))
             .map_err(|_| i18n::t("error.request_failed"))?;
         w.set_position(LogicalPosition::new(x, y))
@@ -418,6 +547,8 @@ fn set_fullscreen(app: &AppHandle, on: bool) -> Result<Value, String> {
         }
         crate::app::persist_soon(app);
         apply_always_on_top(&w, false)?;
+        // Fullscreen fills the whole screen, past the work area; `watch_screens` sets it again after.
+        limit_size(&w, None);
     }
     if actual != on {
         #[cfg(target_os = "macos")]
@@ -586,18 +717,22 @@ fn rect_now(w: &WebviewWindow) -> Option<Rect> {
     Some((p.x, p.y, s.width, s.height))
 }
 
+/// Whether the window has its normal bounds now, not maximized, minimized, fullscreen or on the way.
+fn in_normal_bounds(w: &WebviewWindow) -> bool {
+    !(WINDOW_CHANGING.load(Ordering::SeqCst)
+        || NATIVE_FULLSCREEN_CHANGING.load(Ordering::SeqCst)
+        || hold(&NORMAL_RECT).is_some()
+        || w.is_maximized().unwrap_or(false)
+        || w.is_minimized().unwrap_or(false)
+        || w.is_fullscreen().unwrap_or(false))
+}
+
 /// Keep only normal bounds; maximizing, minimizing or fullscreen never replace them.
 pub fn moved(app: &AppHandle) {
     let (Some(w), Some(state)) = (app.get_webview_window("main"), app.try_state::<Shared>()) else {
         return;
     };
-    if WINDOW_CHANGING.load(Ordering::SeqCst)
-        || NATIVE_FULLSCREEN_CHANGING.load(Ordering::SeqCst)
-        || hold(&NORMAL_RECT).is_some()
-        || w.is_maximized().unwrap_or(false)
-        || w.is_minimized().unwrap_or(false)
-        || w.is_fullscreen().unwrap_or(false)
-    {
+    if !in_normal_bounds(&w) {
         return;
     }
     let Some(rect) = rect_now(&w) else { return };
@@ -610,8 +745,65 @@ pub fn moved(app: &AppHandle) {
 
 #[cfg(test)]
 mod tests {
-    use super::{confirm_always_on_top, own_page, rect_of, resize_direction, restored_rect};
+    use super::{
+        confirm_always_on_top, fitted, own_page, reachable, rect_of, resize_direction, restored_rect, size_limit,
+        usual_rect,
+    };
     use serde_json::json;
+
+    const DESK: [(f64, f64, f64, f64); 2] = [(0.0, 25.0, 1440.0, 875.0), (1440.0, 0.0, 1920.0, 1080.0)];
+    const LAPTOP: [(f64, f64, f64, f64); 1] = [(0.0, 25.0, 1440.0, 875.0)];
+
+    #[test]
+    fn a_window_a_person_can_still_take_hold_of_is_left_where_it_is() {
+        // Across two screens, and hanging past the bottom: its drag strip is on a screen.
+        assert!(reachable((1000.0, 100.0, 1180.0, 850.0), &DESK));
+        assert!(reachable((100.0, 500.0, 1000.0, 700.0), &DESK));
+        assert_eq!(fitted((1000.0, 100.0, 1180.0, 850.0), &DESK), None);
+    }
+
+    #[test]
+    fn a_window_left_bigger_than_the_remaining_screen_comes_back_inside_it() {
+        // Made on the wide monitor, which was then unplugged.
+        let big = (0.0, 25.0, 1900.0, 1050.0);
+        assert!(!reachable(big, &LAPTOP));
+        assert_eq!(fitted(big, &LAPTOP), Some((0.0, 25.0, 1440.0, 875.0)));
+    }
+
+    #[test]
+    fn a_window_whose_drag_strip_is_off_every_screen_comes_back() {
+        let above = (200.0, -300.0, 800.0, 600.0);
+        assert!(!reachable(above, &DESK));
+        assert_eq!(fitted(above, &DESK), Some((200.0, 25.0, 800.0, 600.0)));
+        let gone = (2000.0, 300.0, 800.0, 600.0);
+        assert_eq!(fitted(gone, &LAPTOP), Some((640.0, 300.0, 800.0, 600.0)));
+    }
+
+    #[test]
+    fn with_no_screen_known_a_window_is_left_alone() {
+        assert_eq!(fitted((0.0, 0.0, 5000.0, 5000.0), &[]), None);
+    }
+
+    #[test]
+    fn the_usual_size_goes_to_the_middle_of_the_screen_the_window_is_on() {
+        assert_eq!(
+            usual_rect((1500.0, 100.0, 300.0, 210.0), &DESK),
+            (1810.0, 115.0, 1180.0, 850.0)
+        );
+        // A screen smaller than the usual size is filled instead.
+        let small = [(0.0, 25.0, 1024.0, 743.0)];
+        assert_eq!(
+            usual_rect((10.0, 40.0, 300.0, 210.0), &small),
+            (0.0, 25.0, 1024.0, 743.0)
+        );
+    }
+
+    #[test]
+    fn a_window_can_grow_as_far_as_the_screen_it_is_on() {
+        assert_eq!(size_limit((1500.0, 100.0, 800.0, 600.0), &DESK), Some((1920.0, 1080.0)));
+        assert_eq!(size_limit((100.0, 100.0, 800.0, 600.0), &DESK), Some((1440.0, 875.0)));
+        assert_eq!(size_limit((100.0, 100.0, 800.0, 600.0), &[]), None);
+    }
 
     #[test]
     fn saved_bounds_fit_available_monitors_and_keep_the_minimum() {
