@@ -418,6 +418,34 @@ test('the CI e2e builds and runs what pnpm run test:e2e does', () => {
   assert.doesNotMatch(workflow, /p?npm run test:e2e/);
 });
 
+// Pull requests restore main's Rust cache, so main builds when what that cache holds changes: the
+// crates (the listed files) and the Rust version (the weekly run). Nothing else needs a second build.
+test('CI builds on main only for what the Rust cache depends on, and only main saves that cache', () => {
+  const workflow = read('.github/workflows/build.yml');
+  const triggers = workflow.slice(workflow.indexOf('\non:\n'), workflow.indexOf('\npermissions:'));
+  assert.equal(
+    triggers
+      .match(/\n {2}push:\n([^]*?)\n {2}pull_request:/)?.[1]
+      .replace(/\s+/g, ' ')
+      .trim(),
+    'branches: [main] paths: [src-tauri/Cargo.lock, src-tauri/Cargo.toml, .github/workflows/build.yml]',
+  );
+  assert.match(triggers, /\n {2}schedule:\n {4}- cron: '\d+ \d+ \* \* 5'/);
+  assert.match(
+    workflow,
+    /uses: swatinem\/rust-cache@[^\n]*\n {8}with:\n {10}workspaces: src-tauri\n {10}save-if: \$\{\{ github\.ref == 'refs\/heads\/main' \}\}\n/,
+  );
+});
+
+// rust-cache puts CARGO* variables in its key, so the setting has to be the same on PRs and on main
+// or no PR finds main's cache: it belongs to the whole job. An unquoted off is a boolean in YAML.
+test('CI links without LTO and the release keeps it', () => {
+  const job = read('.github/workflows/build.yml').split('\n  site:\n')[0];
+  assert.match(job, /\n {4}env:\n {6}CARGO_PROFILE_RELEASE_LTO: 'off'\n {4}steps:\n/);
+  assert.doesNotMatch(read('.github/workflows/release.yml'), /CARGO_PROFILE_RELEASE_LTO/);
+  assert.match(read('src-tauri/Cargo.toml'), /\[profile\.release\]\nstrip = true\nlto = true\n/);
+});
+
 test('security CI checks the full redacted history and shares the local dependency command', () => {
   const workflow = read('.github/workflows/security.yml');
   const scripts = JSON.parse(read('package.json')).scripts;

@@ -71,7 +71,11 @@ Follow these when you can. When you cannot, say why in the PR.
 - Based on: decision “[Real-app E2E runs a scenario script inside the app](../decisions/2026-09-29-e2e-inside-the-real-app.md)”
 
 ## Automated checks
-- `.github/workflows/build.yml` runs lint, unit tests, build and E2E on every push to main and every PR.
+- `.github/workflows/build.yml` runs lint, unit tests, build and E2E on every PR.
+- It runs on main only when the crates or the workflow change, and every Friday:
+  - A PR merges only on top of the latest main after passing, so main already holds a tested tree.
+  - These runs keep the Rust cache that PRs restore; only main saves it.
+- It builds without link-time optimization. A release build is the first with it, and `release.yml` launches that package.
 - Runners: macOS, Windows x64 and arm64, Linux x64 and arm64.
 - Linux E2E runs on Xvfb with Openbox; the window manager is needed to verify native pinning and fullscreen restoration.
 - The site:
