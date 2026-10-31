@@ -26,9 +26,9 @@ function placePanel(panel, point) {
   Object.assign(panel.style, { left: `${spot.left}px`, top: `${spot.top}px`, right: 'auto', bottom: 'auto' });
 }
 
-/** Opens the panel at a point in the window, or in its corner above the dock with none. */
-export function openControls(point) {
-  showControls?.(point);
+/** Opens the panel in its corner above the dock; a backend event or a key press is not a place. */
+export function openControls() {
+  showControls?.();
 }
 export function openPlay(point) {
   showPlay?.(point);
@@ -247,7 +247,7 @@ export function setupControls({
       } else if (action === 'play') openPlay(point);
       else if (action === 'pin') $('always-on-top').click();
       else if (action === 'fit') $('window-fit').click();
-      else if (action === 'menu') openControls(point);
+      else if (action === 'menu') showControls?.(point);
       else if (action === 'dig-here') digAt(point.x, point.y);
       else if (action === 'talk') openChat(friend);
       else if (action === 'play-friend') openPlay(point);
