@@ -343,8 +343,13 @@ Start at login:
 The yard window:
 - Frameless on every OS.
 - A narrow transparent target along the top edge moves the window without reserving title-bar space.
-- Edges and corners resize it.
+- Edges and corners resize it, up to the work area of the screen it is on.
+- Buttons for fit, minimize and close appear with the pointer near the top or with keyboard focus.
 - Small sizes use responsive layouts in the same window.
+- A window a person cannot take hold of comes back: its drag strip is off every screen, or it no longer fits one.
+  - Checked when it is shown or focused, and when the screens change (`watch_screens`, once a second, because no event says so).
+  - A window across two screens or past an edge stays where it was put.
+- Reset window size (tray, macOS Window menu, right-click menu, Cmd/Ctrl+0, the top buttons) gives the usual size in the middle of the screen.
 - Always on top: the shared yard and right-click menu, the tray and the macOS menu bar each toggle it, independent of size.
 - Cmd/Ctrl+Shift+M toggles Always on top without resizing.
 - Fullscreen: the shared menu enters it and returns to the previous size.

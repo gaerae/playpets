@@ -110,6 +110,36 @@ body {
   cursor: grab;
 }
 
+/* The window's buttons come with the pointer near the top (window.js) or the keyboard. They sit in
+   the middle, where no corner control or open panel is. */
+.window-buttons {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 40;
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--dock-surface);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: 0 3px 14px var(--ink-12);
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+body.window-top .window-buttons,
+.window-buttons:has(:focus-visible) {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mac .window-buttons {
+  flex-direction: row-reverse;
+}
+
 /* Native resize gestures own only the outer boundary, leaving the landscape unobstructed. */
 .window-resize {
   position: fixed;
@@ -577,6 +607,7 @@ body.compact .toast > span {
 }
 
 /* Native fullscreen owns the frame until it returns to the saved window bounds. */
+.fullscreen .window-buttons,
 .fullscreen .window-drag,
 .fullscreen .window-resize {
   display: none;

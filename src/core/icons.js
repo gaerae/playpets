@@ -7,6 +7,8 @@ const paths = {
   monitor: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   close: '<path d="m6 6 12 12M18 6 6 18"/>',
+  minimize: '<path d="M6 12h12"/>',
+  fit: '<path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/><rect x="8.5" y="9" width="7" height="6" rx="1"/>',
   treat:
     '<path d="M12 3a9 9 0 1 0 9 9 4 4 0 0 1-4-4 4 4 0 0 1-5-5Z"/><path d="M8.5 9.5h.01M8 14.5h.01M12.5 12.5h.01M15 16.5h.01" stroke-width="2.2"/>',
   square: '<rect x="6" y="6" width="12" height="12" rx="1.5"/>',

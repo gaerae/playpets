@@ -107,6 +107,7 @@ fn lines(snap: &Snapshot) -> Vec<Line> {
         lines.push(Item("friends", None));
     }
     lines.extend([Item("invite", None), Separator]);
+    lines.push(Item("fit", None));
     lines.push(Item("alwaysOnTop", Some(snap.always_on_top)));
     if snap.friends {
         lines.push(Item("desktop", Some(snap.desktop)));
@@ -313,6 +314,7 @@ mod tests {
                 "open",
                 "invite",
                 "-",
+                "fit",
                 "alwaysOnTop:false",
                 "sound:false",
                 "-",
@@ -336,6 +338,7 @@ mod tests {
                 "friends",
                 "invite",
                 "-",
+                "fit",
                 "alwaysOnTop:true",
                 "desktop:false",
                 "sound:false",

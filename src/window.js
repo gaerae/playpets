@@ -1,6 +1,7 @@
 // One frameless window: its size and its always-on-top switch are independent.
 import { closeControls } from './core/controls.js';
 import { t } from './core/i18n.js';
+import { onShortcut } from './core/keys.js';
 import { $, call, data, guard } from './core/state.js';
 
 let fullscreen = false;
@@ -56,6 +57,9 @@ function fitWindow() {
   if (changed && $('play-panel')?.hidden !== false) closeControls(focused);
 }
 
+/** Whether a pointer this far down the window is near enough for the window buttons to show. */
+export const nearTop = y => y < 56;
+
 // Window movement and resizing use native gestures, so every platform keeps its own edge behavior.
 export function setupWindow() {
   if (/Mac/.test(navigator.userAgent)) document.documentElement.classList.add('mac');
@@ -73,10 +77,20 @@ export function setupWindow() {
       return guard(() => call('windowResize', grip.dataset.resize))();
     });
   $('menu-quit').onclick = guard(quitApp);
-  $('hide-window').onclick = guard(async () => {
+  const hideWindow = guard(async () => {
     closeControls(false);
     await call('windowHide');
   });
+  $('hide-window').onclick = hideWindow;
+  $('window-close').onclick = hideWindow;
+  $('window-minimize').onclick = guard(() => call('windowMinimize'));
+  const fit = guard(() => call('windowFit'));
+  $('window-fit').onclick = fit;
+  onShortcut('fitWindow', fit);
+  document.addEventListener('pointermove', event =>
+    document.body.classList.toggle('window-top', nearTop(event.clientY)),
+  );
+  document.body.addEventListener('pointerleave', () => document.body.classList.remove('window-top'));
   window.addEventListener(
     'resize',
     guard(async () => {

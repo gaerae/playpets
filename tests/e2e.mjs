@@ -375,7 +375,8 @@ const scenario = `(async()=>{
     await until(()=>$('seed-count').textContent==='1');
     $('plant-tool').click();const yr=$('yard').getBoundingClientRect();
     $('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:yr.left+yr.width*0.5,clientY:yr.top+yr.height*0.85}));
-    await until(()=>document.querySelectorAll('.plant').length===1);
+    // The friend walks to the spot first, from wherever it happened to be.
+    await until(()=>document.querySelectorAll('.plant').length===1,15000);
     const gb=(await playPets.bootstrap()).data.garden;
     await L('garden='+(gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant').dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true'?'found-planted':'err:'+JSON.stringify(gb)));
     // A gift: a friend the person did something with that day brings it, every other day; the backend picks the first
@@ -878,28 +879,37 @@ const scenario = `(async()=>{
     openMenu();await wait(30);$('menu-quit').scrollIntoView({block:'nearest'});await wait(20);
     const quitBeside=visibleNode($('menu-quit'))&&$('menu-quit').parentElement===$('hide-window').parentElement&&!$('quit-app');
     await L('windowQuit='+(quitBeside&&(await nativeWindow()).resizable?'beside-close-window':'err'));
+    // A window is limited to its screen, and Reset window size brings it back from any size.
+    const fitFrom=await nativeWindow();
+    const fitLarge=await nativeWindow({...fitFrom,width:4000,height:2400});
+    await window.__TAURI__.core.invoke('call',{name:'windowFit',args:[]});
+    const fitDone=await until(async()=>{const w=await nativeWindow();return w.width<=1180.5&&w.height<=850.5&&w.width>=fitFrom.width&&w;});
+    const fitEnd=await nativeWindow(),fitPage=[innerWidth,innerHeight];
+    await nativeWindow(fitFrom);await until(()=>Math.abs(innerWidth-fitFrom.width)<2);await wait(300);
+    await L('windowFit='+(fitDone&&fitDone.maximum?.width>=fitDone.width&&fitDone.maximum?.height>=fitDone.height?'limited-and-reset':'err:'+JSON.stringify({fitFrom,fitLarge,fitEnd,fitPage})));
     $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
     // Fullscreen returns to the same frame and pin; Escape dismisses the current surface first.
-    let fullscreenRestored=true;
+    let fullscreenRestored=true;const fullscreenMisses=[];
+    const fullscreenStep=(step,ok,seen)=>{fullscreenRestored&&=ok;if(!ok)fullscreenMisses.push({step,seen});};
     for(const pinned of [false,true]){
       if((await nativeWindow()).alwaysOnTop!==pinned)await $('always-on-top').onclick();
       const normal=await nativeWindow();
       await $('fullscreen').onclick();
       const expanded=await nativeWindow();
-      fullscreenRestored&&=expanded.fullscreen&&document.body.classList.contains('fullscreen')&&$('fullscreen').getAttribute('aria-pressed')==='true'&&getComputedStyle(document.querySelector('[data-resize]')).display==='none';
+      fullscreenStep('expanded',expanded.fullscreen&&document.body.classList.contains('fullscreen')&&$('fullscreen').getAttribute('aria-pressed')==='true'&&getComputedStyle(document.querySelector('[data-resize]')).display==='none',expanded);
       contextAt();await wait(30);
       $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
-      fullscreenRestored&&=$('yard-controls-panel').hidden&&(await nativeWindow()).fullscreen;
+      fullscreenStep('menu',$('yard-controls-panel').hidden&&(await nativeWindow()).fullscreen);
       openSettings('general');await wait(100);
       document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
-      fullscreenRestored&&=$('side-panel').hidden&&(await nativeWindow()).fullscreen;
+      fullscreenStep('panel',$('side-panel').hidden&&(await nativeWindow()).fullscreen);
       window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',cancelable:true}));
       await until(async()=>!$('fullscreen').disabled&&!(await nativeWindow()).fullscreen,15000);
       const returned=await nativeWindow();
-      fullscreenRestored&&=sameBounds(normal,returned)&&returned.alwaysOnTop===pinned&&!document.body.classList.contains('fullscreen');
+      fullscreenStep('returned',sameBounds(normal,returned)&&returned.alwaysOnTop===pinned&&!document.body.classList.contains('fullscreen'),{normal,returned});
     }
     if((await nativeWindow()).alwaysOnTop)await $('always-on-top').onclick();
-    await L('windowFullscreen='+(fullscreenRestored?'bounds-pin-and-escape-restored':'err'));
+    await L('windowFullscreen='+(fullscreenRestored?'bounds-pin-and-escape-restored':'err:'+JSON.stringify(fullscreenMisses)));
     worldSelect.value='woodland';worldSelect.dispatchEvent(new Event('change'));
     await (await import('./yard/background-store.js')).removeBackground(imported);
     // A conversation stays inside the current window; a friend nearer the bottom is drawn over one higher up.
@@ -1016,6 +1026,8 @@ const scenario = `(async()=>{
     const linkedOn=!!await until(()=>!document.querySelector('[data-link-state=claude]').hidden&&$('agent-connect-claude').textContent===${JSON.stringify(KO['settings.disconnect'])});
     const linksOn=(await playPets.agentLinks()).data;
     await L('agentConnected=claude');
+    // The test reads the file now, and Disconnect would put it back before a busy machine gets there.
+    await until(async()=>(await playPets.bootstrap()).data.statuses[p1.data.id]?.message==='file-read',8000);
     $('agent-connect-claude').click();
     const unlinked=!!await until(async()=>(await playPets.agentLinks()).data.claude==='off'&&document.querySelector('[data-link-state=claude]').hidden);
     await L('agentConnect='+(unreadableRow&&connectAsked&&connectNamesFile&&linkedOn&&linksOn.claude==='on'&&linksOn.gemini==='unreadable'&&unlinked&&!$('confirm-dialog').open?'asks-connects-disconnects':'err:'+JSON.stringify({unreadableRow,connectAsked,connectNamesFile,linkedOn,linksOn,unlinked})));
@@ -1241,14 +1253,16 @@ child.stdout.on('data', d => {
     if (msg === 'DONE' || msg.startsWith('FATAL')) done = true;
     if (msg === 'attach=ok') agentReports();
     if (msg === 'agentConnected=claude') connectedFile();
-    if (msg === 'ask=waiting')
-      spawnSync(binary, ['status', 'waiting', '--pet', '둘째', '--bridge', path.join(dataDir, 'bridge.json')], {
-        encoding: 'utf8',
-        timeout: 5000,
-        env: { ...process.env, PLAYPETS_E2E_EVAL: '' },
-      });
+    if (msg === 'ask=waiting') reportStatus('waiting', '둘째');
   }
 });
+function reportStatus(state, pet, message = '') {
+  spawnSync(binary, ['status', state, message, '--pet', pet, '--bridge', path.join(dataDir, 'bridge.json')], {
+    encoding: 'utf8',
+    timeout: 5000,
+    env: { ...process.env, PLAYPETS_E2E_EVAL: '' },
+  });
+}
 // While Claude Code is connected: PlayPets' hook sits beside the other one, and the rest is kept.
 function connectedFile() {
   try {
@@ -1266,6 +1280,7 @@ function connectedFile() {
   } catch {
     agentChecks.connected = false;
   }
+  reportStatus('done', '타우리', 'file-read');
 }
 // Plays a coding agent through the app binary's own CLI mode — no Node.js involved.
 const agentChecks = {};
@@ -1476,6 +1491,7 @@ const expect = [
     'small-window collection remains reachable with a single category chooser and visible content scroller',
   ],
   [/^windowResize=one-responsive-window$/, 'one resizable window keeps its controls and native drag boundaries'],
+  [/^windowFit=limited-and-reset$/, 'a window is limited to its screen and Reset window size brings it back'],
   [
     /^menuCopy=four-locales-fit-small-and-wide$/,
     'four locales keep Play and menu names on one line in wide windows and inside their tiles in small ones',

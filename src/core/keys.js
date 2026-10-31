@@ -15,6 +15,7 @@ export const SHORTCUTS = {
   alwaysOnTop: { keys: 'mod+shift+m', menu: true },
   desktop: { keys: 'mod+shift+d', menu: true },
   sound: { keys: 'mod+shift+s', menu: true },
+  fitWindow: { keys: 'mod+0', menu: true },
 };
 
 /** Whether a key press is `keys` ("mod+shift+s"): the modifiers named and no others. */
