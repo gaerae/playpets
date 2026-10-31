@@ -48,3 +48,9 @@ This is a companion with optional play, not a small dashboard. New discovery eff
 Control surfaces use an 8-pixel outer inset, with 4-pixel spacing between adjacent actions and 8-pixel spacing between groups. A header and a change of functional group can have a single separator. Individual action rows remain unboxed until hover, focus or selection. Keep the resting scenery free of panel outlines.
 
 The compact pointer menu fits all five actions at 300 by 210, including its outer margin. Compact pointer rows are 36 pixels high; the play strip keeps 44-pixel action targets. Do not reduce text or target sizes merely to hide an overflow problem. Wide menus, the scene chooser and management sheets share the tighter insets without changing their scroll ownership.
+
+## Follow-up: the pointer menu over a chat
+
+- The pointer menu is not a destination. It opens over a chat and leaves it open.
+- Choosing a destination from it closes the chat as before. Esc or a press away goes back to the chat.
+- The app starts on the resting view. The open panel is kept for a reload only, not for the next start.

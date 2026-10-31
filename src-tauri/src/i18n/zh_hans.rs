@@ -112,7 +112,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.open_browser", "无法打开浏览器。"),
     ("error.unknown_link", "不认识这种代理联动方式。"),
     ("link.unreadable", "无法读取 {file}，所以没有改动它。请点“复制设置”自己粘贴进去。"),
-    ("link.write_failed", "无法保存 {file}。{detail}"),
+    ("link.write_failed", "无法保存 {file}。请点“复制设置”自己粘贴进去。"),
     ("link.notify_taken", "{file} 里已经有别的程序作为 notify。Codex 只运行一个，所以没有改动它。"),
     ("link.home_missing", "找不到你的主文件夹。"),
 
@@ -212,6 +212,7 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.unreadable", "无法读取宠物文件。{detail}"),
     ("store.read_failed", "无法读取 {name} 文件。{detail}"),
     ("store.write_failed", "无法保存 {name} 文件。{detail}"),
+    ("store.held", "无法保存刚才的更改。更改会保留，下次保存时再试一次。请检查磁盘空间。"),
     ("backgrounds.full", "已有 {limit} 个背景。请先删除一个再添加。"),
     ("import.save_detail", "无法保存宠物。{detail}"),
     ("clipboard.failed", "无法复制到剪贴板。{detail}"),

@@ -14,7 +14,12 @@ impl Store {
         let path = self.dir.join(name);
         match fs::read_to_string(&path) {
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(fallback),
-            Err(e) => Err(i18n::detail_for("store.read_failed", name, e)),
+            // Only a copy makes it safe for the start to go on: the next save replaces this file.
+            Err(e) => Err(if self.keep_copy(name, "corrupt") {
+                i18n::tr("store.unreadable", &[("name", name)])
+            } else {
+                i18n::detail_for("store.read_failed", name, e)
+            }),
             Ok(text) => serde_json::from_str(&text).map_err(|_| {
                 self.keep_copy(name, "corrupt");
                 i18n::tr("store.unreadable", &[("name", name)])
@@ -23,13 +28,13 @@ impl Store {
     }
 
     /// Puts a timestamped copy of a file beside it (`state.json.corrupt-…`), so nothing a person
-    /// might want back is overwritten.
-    pub fn keep_copy(&self, name: &str, tag: &str) {
+    /// might want back is overwritten. Says whether the copy was made.
+    pub fn keep_copy(&self, name: &str, tag: &str) -> bool {
         let ts = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default()
             .as_millis();
-        let _ = fs::copy(self.dir.join(name), self.dir.join(format!("{name}.{tag}-{ts}")));
+        fs::copy(self.dir.join(name), self.dir.join(format!("{name}.{tag}-{ts}"))).is_ok()
     }
 
     pub fn write(&self, name: &str, value: &Value) -> Result<(), String> {
@@ -91,6 +96,23 @@ mod tests {
                 .flatten()
                 .any(|e| e.file_name().to_string_lossy().contains("corrupt"))
         );
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn a_file_that_cannot_be_read_as_text_is_copied_before_anything_replaces_it() {
+        let dir = std::env::temp_dir().join(format!("playpets-store-{}", uuid::Uuid::new_v4()));
+        let store = Store { dir: dir.clone() };
+        store.write("state.json", &json!({})).unwrap();
+        fs::write(dir.join("state.json"), [0xff, 0xfe, b'{']).unwrap();
+        let err = store.read("state.json", json!({})).unwrap_err();
+        assert!(err.contains("copy") && err.contains("state.json"), "{err}");
+        let copy = fs::read_dir(&dir)
+            .unwrap()
+            .flatten()
+            .find(|e| e.file_name().to_string_lossy().contains("corrupt"))
+            .expect("a copy beside the file");
+        assert_eq!(fs::read(copy.path()).unwrap(), [0xff, 0xfe, b'{']);
         let _ = fs::remove_dir_all(&dir);
     }
 }

@@ -135,10 +135,22 @@ test('opening Play skips invitation controls in a collapsed empty-state section'
   const body = element('div', { className: 'dock-panel-body' });
   body.querySelectorAll = () => [hiddenInvite, visibleAction];
   node('play-panel').querySelectorAll = () => [hiddenInvite, visibleAction];
-  node('play-panel').querySelector = selector => (selector === '.dock-panel-body' ? body : hiddenInvite);
+  node('play-panel').querySelector = selector =>
+    selector === '.dock-panel-body' ? body : selector === '.playing' ? null : hiddenInvite;
   setupControls();
   openPlay();
   assert.equal(document.activeElement, visibleAction);
+});
+
+test('Play opened during a game lands on the game, the thing to stop', t => {
+  const { node } = fixture(t);
+  const first = element('button', { getClientRects: () => [{}] });
+  const running = element('button');
+  node('play-panel').querySelectorAll = () => [first, running];
+  node('play-panel').querySelector = selector => (selector === '.playing' ? running : null);
+  setupControls();
+  openPlay();
+  assert.equal(document.activeElement, running);
 });
 
 // Pressing the tiles is in game-lifecycle.test.mjs.

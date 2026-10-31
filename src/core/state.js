@@ -41,6 +41,11 @@ export const labels = {
   error: t('status.error'),
 };
 export const pet = () => data.pets.find(p => p.id === selected);
+/** Who to start with: the friend talked to last, if still here, or the first. */
+export const lastFriend = () => {
+  const last = recall('friend');
+  return data.pets.find(p => p.id === last)?.id ?? data.pets[0]?.id ?? null;
+};
 export const asset = p =>
   styledAsset(
     data.assets?.find(a => a.id === p?.assetId),
@@ -84,12 +89,14 @@ export const readingTime = text => Math.max(3000, Math.min(8000, 2500 + [...Stri
 // stays its reading time, and longer while the pointer rests on it.
 const noticeLines = () => (document.body?.classList.contains('compact') ? 1 : 2);
 const lineTimers = new WeakMap();
-function keepLine(line, ms) {
+// A pointer left where a notice appeared is not reading it for ever, and the notice may sit on the
+// very thing just pressed.
+function keepLine(line, ms, holds = 4) {
   clearTimeout(lineTimers.get(line));
   lineTimers.set(
     line,
     setTimeout(() => {
-      if (line.matches?.(':hover')) return keepLine(line, 1500);
+      if (holds && line.matches?.(':hover')) return keepLine(line, 1500, holds - 1);
       dropLine(line);
     }, ms),
   );
@@ -120,6 +127,7 @@ export function toast(message, { error = false, action = null, ms = 0 } = {}) {
     line = document.createElement('span');
     line.dataset.words = words;
     line.textContent = words;
+    if (!action) line.addEventListener('click', () => dropLine(line));
     notice.append(line);
   }
   if (action) {
@@ -177,6 +185,19 @@ export const forget = key => {
   try {
     localStorage.removeItem(key);
   } catch {}
+};
+/** What only this run of the app keeps: a reload stays where it was, a new start begins on the yard. */
+export const rememberRun = (key, value) => {
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {}
+};
+export const recallRun = key => {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
 };
 export const recall = key => {
   try {

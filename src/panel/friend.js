@@ -5,15 +5,29 @@ import { agentsOf } from '../core/agents.js';
 import { joinList, t } from '../core/i18n.js';
 import { popup } from '../core/menu.js';
 import { drawSprite } from '../core/sprites.js';
-import { $, asset, companions, data, labels, name, pet, selected, setSelected, views } from '../core/state.js';
+import {
+  $,
+  asset,
+  companions,
+  data,
+  labels,
+  name,
+  pet,
+  remember,
+  selected,
+  setSelected,
+  views,
+} from '../core/state.js';
 import { agentStateOf, stateOf, statusOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { progressOf } from '../yard/bond.js';
-import { refreshChat, renderChat } from './chat.js';
+import { refreshChat, renderChat, swapDraft } from './chat.js';
 import { openFriendSettings } from './friend-settings.js';
 export function select(id) {
   if (selected === id) return;
+  swapDraft(selected, id);
   setSelected(id);
+  remember('friend', id);
   companions.clear();
   renderPanel();
   for (const [key, v] of views) v.button.classList.toggle('selected', key === id);

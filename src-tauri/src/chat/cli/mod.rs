@@ -54,6 +54,14 @@ fn needs_login(text: &str) -> bool {
         .any(|k| t.contains(k))
 }
 
+/// A plan's limit, which each CLI words in English; the person gets the app's own sentence.
+fn at_limit(text: &str) -> bool {
+    let t = text.to_lowercase();
+    ["hit your limit", "usage limit", "rate limit", "limit reached", "quota"]
+        .iter()
+        .any(|k| t.contains(k))
+}
+
 fn with_notes(notes: &str, text: &str) -> String {
     if notes.is_empty() {
         text.to_string()
@@ -279,6 +287,10 @@ mod tests {
         assert!(needs_login("Failed to authenticate: OAuth session expired"));
         assert!(needs_login("Not logged in. Run codex login first."));
         assert!(!needs_login("rate limit exceeded"));
+        assert!(at_limit("You've hit your limit · resets 3pm (Asia/Seoul)"));
+        assert!(at_limit("rate limit exceeded"));
+        assert!(at_limit("Usage limit reached"));
+        assert!(!at_limit("Could not reach the server"));
     }
 
     #[test]

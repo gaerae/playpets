@@ -336,6 +336,8 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
                 d.talks.remember(&id, json!({"role": "user", "content": text.trim()}));
                 d.talks.remember(&id, json!({"role": "assistant", "content": answer}));
                 chat_status(app, &mut d, &id, "done", &preview(&answer));
+                // A person who closed the panel to watch the yard hears it from the friend.
+                push_event(app, &json!({"type": "chat-message", "petId": id, "message": answer}));
             } else {
                 changed(app, &d);
             }

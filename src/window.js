@@ -1,7 +1,7 @@
 // One frameless window: its size and its always-on-top switch are independent.
-import { closeControls } from './core/controls.js';
+import { closeControls, closeScene } from './core/controls.js';
 import { t } from './core/i18n.js';
-import { onShortcut } from './core/keys.js';
+import { composing, onShortcut } from './core/keys.js';
 import { $, call, data, guard } from './core/state.js';
 
 let fullscreen = false;
@@ -102,7 +102,7 @@ export function setupWindow() {
   window.addEventListener(
     'keydown',
     guard(async event => {
-      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      if (event.key !== 'Escape' || composing(event) || event.defaultPrevented) return;
       const dialog = document.querySelector('dialog[open]');
       if (dialog) {
         if (fullscreen) {
@@ -116,6 +116,12 @@ export function setupWindow() {
       if (['yard-controls-panel', 'play-panel', 'yard-context-menu'].some(id => $(id) && !$(id).hidden)) {
         event.preventDefault();
         closeControls();
+        return;
+      }
+      if ($('scene-menu')?.hidden === false) {
+        event.preventDefault();
+        closeScene();
+        $('scene-button').focus();
         return;
       }
       if (fullscreen) {

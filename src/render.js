@@ -1,7 +1,7 @@
 // Brings every part of the page in line with the latest state from the backend.
 import { t } from './core/i18n.js';
 import { renderNotices } from './core/notices.js';
-import { $, data, recall, selected, setSelected } from './core/state.js';
+import { $, data, lastFriend, recall, selected, setSelected } from './core/state.js';
 import { renderAlbum } from './panel/album.js';
 import { detectedLabel } from './panel/connection.js';
 import { renderPanel } from './panel/friend.js';
@@ -20,7 +20,7 @@ import { renderSound } from './yard/sound.js';
 import { syncViews } from './yard/views.js';
 import { onboardingSteps, renderWelcome } from './yard/welcome.js';
 export function render() {
-  if (!data.pets.some(p => p.id === selected)) setSelected(data.pets[0]?.id || null);
+  if (!data.pets.some(p => p.id === selected)) setSelected(lastFriend());
   $('app-version').textContent = data.version ? `v${data.version}` : '';
   $('pet-count').textContent = !data.pets.length
     ? ''
@@ -47,7 +47,7 @@ export function render() {
   renderBonds();
   renderSound();
   renderShelf();
-  renderNotices(data.warnings);
+  renderNotices(data.warnings, !data.pets.length);
   renderPanel();
 }
 // The first-run card. An empty yard asks who to play with and shows the starter pets; once a friend
