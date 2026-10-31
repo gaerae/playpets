@@ -149,6 +149,8 @@ Breaking a rule without recording an exception is a violation, not an exception.
 - Biome in `pnpm run lint:css` (`biome.jsonc`): Biome's recommended CSS checks (unknown properties, invalid values, duplicate selectors and the like); warnings fail the command.
   - It reads only CSS; its formatter and import sorting are off, so Oxfmt stays the one formatter.
   - `noDescendingSpecificity` is off: it would order unrelated components by specificity across a file.
+  - It stays at 2.5: 2.6.3 crashes with an access violation on Windows on Arm, and `.github/dependabot.yml` ignores newer versions.
+  - Before raising it, check that `pnpm run lint:css` passes on the `windows-arm64` CI job.
   - An `!important` that has to win (`[hidden]`, a paused page, reduced motion) carries a `biome-ignore` comment with its reason.
 - JSON has no linter; Oxfmt formats it and the repository's tests check the files they read.
 - Oxlint runs first, then Oxfmt, then Biome. None of them replaces the repository-specific tests.
