@@ -3,6 +3,7 @@
 import { logEntries } from '../core/chatlog.js';
 import { confirmAction } from '../core/confirm.js';
 import { joinList, t } from '../core/i18n.js';
+import { composing } from '../core/keys.js';
 import { canvas, drawStill, spriteSource } from '../core/sprites.js';
 import {
   $,
@@ -419,7 +420,7 @@ export function setupChat() {
   };
   $('message').addEventListener('input', syncSend);
   $('message').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+    if (e.key === 'Enter' && !e.shiftKey && !composing(e)) {
       e.preventDefault();
       $('chat-form').requestSubmit();
     }

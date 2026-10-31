@@ -1,6 +1,7 @@
 import { closeControls, closeScene, closeUpdateDetails, openControls } from '../core/controls.js';
 // Management opens one task at a time; play never needs to pass through it.
 import { t } from '../core/i18n.js';
+import { composing } from '../core/keys.js';
 import { release } from '../core/sprites.js';
 import { $, data, guard, remember, rememberRun, selected, views } from '../core/state.js';
 import { chatShown } from './chat.js';
@@ -132,7 +133,7 @@ export function setupTabs({ beforeOpen = () => {} } = {}) {
   document.addEventListener('keydown', e => {
     if (
       e.key === 'Escape' &&
-      !e.isComposing &&
+      !composing(e) &&
       !e.defaultPrevented &&
       ($('layout').classList.contains('settings-open') || $('layout').classList.contains('panel-open')) &&
       !document.querySelector('dialog[open]')

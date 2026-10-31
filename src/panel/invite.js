@@ -6,9 +6,10 @@ import { joinList, language, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
 import { canvas, drawSprite } from '../core/sprites.js';
-import { $, call, data, guard, name, recall, remember, setSelected, toast, views } from '../core/state.js';
+import { $, call, data, guard, name, recall, remember, selected, setSelected, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { bubble, pose } from '../yard/views.js';
+import { swapDraft } from './chat.js';
 import { sharedConnection } from './connection.js';
 
 const previews = new Map();
@@ -35,7 +36,9 @@ export async function invite(assetId) {
   const shared = sharedConnection();
   const created = await call('addPet', assetId, patch);
   if (shared) await call('updatePet', created.id, { providerId: shared });
+  swapDraft(selected, created.id);
   setSelected(created.id);
+  remember('friend', created.id);
   await refresh();
   const v = views.get(created.id);
   if (v) pose(v, 'wave', 1500);

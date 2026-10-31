@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { installDom } from './support/dom.mjs';
+import { installDom, installStorage } from './support/dom.mjs';
 
 const calls = [];
 const say =
@@ -18,7 +18,8 @@ globalThis.playPets = {
   chat: say('chat', 'hi'),
   bootstrap: say('bootstrap', { pets: [], assets: [], providers: [], busy: [] }),
 };
-const { setData, setSelected } = await import('../src/core/state.js');
+const state = await import('../src/core/state.js');
+const { recall, setData, setSelected } = state;
 const { quickConnect, setupConnection, sharedConnection } = await import('../src/panel/connection.js');
 const { t } = await import('../src/core/i18n.js');
 const { setupChat, renderChat } = await import('../src/panel/chat.js');
@@ -137,4 +138,15 @@ test('importing a pet already in the yard makes no twin', async t => {
   setupInvite({ refresh: async () => {} });
   await arrived('lulu');
   assert.deepEqual(names(), []);
+});
+
+test('a friend just invited stays chosen next time, and the words in the box stay with the old one', async t2 => {
+  const get = page(t2, { pets: [friend('a'), friend('b')], assets: [{ id: 'dog', displayName: 'Dog' }] });
+  installStorage(t2);
+  setupInvite({ refresh: async () => {} });
+  get('message').value = 'half a thought';
+  await invite('dog');
+  assert.equal(get('message').value, '');
+  assert.equal(state.selected, 'c');
+  assert.equal(recall('friend'), 'c');
 });

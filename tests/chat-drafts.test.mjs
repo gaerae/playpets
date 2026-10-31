@@ -49,6 +49,23 @@ test('what is being written stays with the friend it was written to', t => {
   assert.equal(get('message').value, 'Hi');
 });
 
+test('Enter ending a composition stays in the box, as macOS WebKit reports it after the composition', t => {
+  const get = page(t);
+  let sent = 0;
+  get('chat-form').requestSubmit = () => sent++;
+  let handler;
+  const add = get('message').addEventListener;
+  get('message').addEventListener = (type, run, ...rest) => {
+    if (type === 'keydown') handler = run;
+    return add?.call(get('message'), type, run, ...rest);
+  };
+  setupChat();
+  handler({ key: 'Enter', isComposing: false, keyCode: 229, preventDefault() {} });
+  assert.equal(sent, 0);
+  handler({ key: 'Enter', isComposing: false, keyCode: 13, preventDefault() {} });
+  assert.equal(sent, 1);
+});
+
 test('a failed message comes back to its friend after the person moved to another', async t => {
   const get = page(t);
   const [a, b] = friendIds();

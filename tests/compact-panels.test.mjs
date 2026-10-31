@@ -159,6 +159,8 @@ test('Escape from Settings restores its opener focus and respects a handled Esca
   nodes.get('close-panel').focus();
   listeners.get('keydown')({ key: 'Escape', defaultPrevented: true, preventDefault() {} });
   assert.equal(nodes.get('side-panel').hidden, false, 'a menu may consume Escape before the sheet');
+  listeners.get('keydown')({ key: 'Escape', isComposing: false, keyCode: 229, preventDefault() {} });
+  assert.equal(nodes.get('side-panel').hidden, false, "Escape ending a composition is the input method's");
   let prevented = false;
   listeners.get('keydown')({
     key: 'Escape',
