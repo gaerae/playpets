@@ -9,6 +9,7 @@ import { canvas, drawSprite } from '../core/sprites.js';
 import { $, call, data, guard, name, recall, remember, setSelected, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { bubble, pose } from '../yard/views.js';
+import { sharedConnection } from './connection.js';
 
 const previews = new Map();
 const inviting = new Set();
@@ -31,7 +32,9 @@ export async function invite(assetId) {
   // A friend never renamed goes by its pet file's title.
   const called = p => p.name || data.assets.find(a => a.id === p.assetId)?.displayName;
   if (twins > 0) patch.name = twinName(title, new Set(data.pets.map(called)));
+  const shared = sharedConnection();
   const created = await call('addPet', assetId, patch);
+  if (shared) await call('updatePet', created.id, { providerId: shared });
   setSelected(created.id);
   await refresh();
   const v = views.get(created.id);
@@ -41,6 +44,16 @@ export async function invite(assetId) {
     remember('chat-tip', '1');
     setTimeout(() => views.has(created.id) && bubble(v, t('hint.first_chat'), 7000), 1600);
   }
+}
+// A pet that came in joins the yard if it can. With the yard full, or that pet already in it, the
+// import still worked: the pet is on the shelf, whose note says the rest.
+export async function arrived(id) {
+  const stays = data.pets.length >= limit(data, 'pets') || data.pets.some(p => p.assetId === id);
+  if (stays) await refresh();
+  else await invite(id);
+  $('import-dialog').close();
+  const title = data.assets.find(a => a.id === id)?.displayName || t('friend.default');
+  toast(stays ? t('invite.linked', { name: title }) : t('toast.pet_added'));
 }
 // The shelf is grouped by where the pet files live, so it is plain which folder each one is in.
 // Codex's pet folder and the app's download folder each have one place to open; a folder picked
@@ -309,10 +322,7 @@ export function setupInvite(hooks) {
     $('import-error').textContent = '';
     try {
       const id = await call(command);
-      if (!id) return;
-      await invite(id);
-      $('import-dialog').close();
-      toast(t('toast.pet_added'));
+      if (id) await arrived(id);
     } catch (error) {
       showFormError('import-error', spoken(error, t('error.generic')));
     } finally {
@@ -333,10 +343,7 @@ export function setupInvite(hooks) {
     setImporting(true);
     $('import-error').textContent = '';
     try {
-      const id = await call('importUrl', $('import-url').value);
-      await invite(id);
-      $('import-dialog').close();
-      toast(t('toast.pet_added'));
+      await arrived(await call('importUrl', $('import-url').value));
     } catch (error) {
       showFormError('import-error', spoken(error, t('error.generic')));
     } finally {

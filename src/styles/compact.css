@@ -164,7 +164,7 @@ body.compact .catch-card strong {
 body.compact .catch-card small:not(.catch-new) {
   display: none;
 }
-body.compact .empty-yard {
+body.compact .empty-yard:not(.aside) {
   top: 24px;
   transform: translateX(-50%);
   max-height: calc(100% - 88px);

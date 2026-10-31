@@ -246,7 +246,12 @@ export function openAlbum(open = null) {
 }
 /** Wires the album's button, tabs and dialog. Called once, by app.js. */
 export function setupAlbum() {
-  $('album-dialog').addEventListener('close', () => clearTimeout(rareTimer));
+  $('album-dialog').addEventListener('close', () => {
+    clearTimeout(rareTimer);
+    // The button it opened from went with the Play panel.
+    if (document.activeElement === document.body)
+      $(document.body.classList.contains('compact') ? 'yard' : 'play-button').focus();
+  });
   const picker = $('album-select');
   if (picker) {
     picker.replaceChildren(

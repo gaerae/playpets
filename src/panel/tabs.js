@@ -2,7 +2,8 @@ import { closeControls, closeScene, closeUpdateDetails, openControls } from '../
 // Management opens one task at a time; play never needs to pass through it.
 import { t } from '../core/i18n.js';
 import { release } from '../core/sprites.js';
-import { $, data, guard, remember, selected, views } from '../core/state.js';
+import { $, data, guard, remember, rememberRun, selected, views } from '../core/state.js';
+import { chatShown } from './chat.js';
 import { closeConnectionEditor, quickConnect } from './connection.js';
 export const PANELS = ['pet', 'invite', 'settings'];
 // Sheets shown only on the Invite tab are let go a minute after it closes, not at once, so
@@ -87,7 +88,7 @@ export function openPanel(kind, section) {
   if (kind) $('panel-title').textContent = t($(`panel-${kind}`).dataset.title);
   for (const tab of document.querySelectorAll('.panel-tab'))
     tab.setAttribute('aria-expanded', String(tab.dataset.panel === kind));
-  remember('panel', kind || 'closed');
+  rememberRun('panel', kind || 'closed');
   if (kind === 'settings') {
     if (section) selectSettingsSection(section, true);
     else showSettingsHome();
@@ -95,7 +96,10 @@ export function openPanel(kind, section) {
     $('panel-menu')?.setAttribute('aria-label', t('controls.back'));
     $('panel-menu')?.setAttribute('title', t('controls.back'));
   }
-  if (kind && !(kind === 'settings' && section)) $('panel-title').focus({ preventScroll: true });
+  if (kind === 'pet') chatShown();
+  // A chat is for writing in, whichever way it was reached.
+  if (kind === 'pet' && !$('pet-panel').hidden) $('message').focus({ preventScroll: true });
+  else if (kind && !(kind === 'settings' && section)) $('panel-title').focus({ preventScroll: true });
 }
 // The Invite tab, with the first pet card ready for the keyboard.
 export function openInvite() {
@@ -128,6 +132,7 @@ export function setupTabs({ beforeOpen = () => {} } = {}) {
   document.addEventListener('keydown', e => {
     if (
       e.key === 'Escape' &&
+      !e.isComposing &&
       !e.defaultPrevented &&
       ($('layout').classList.contains('settings-open') || $('layout').classList.contains('panel-open')) &&
       !document.querySelector('dialog[open]')

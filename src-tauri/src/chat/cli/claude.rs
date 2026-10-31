@@ -153,6 +153,8 @@ impl Session {
                     let detail = if result.is_empty() { subtype.to_string() } else { result };
                     Err(if needs_login(&detail) {
                         login_guide("claude")
+                    } else if at_limit(&detail) {
+                        i18n::t("agent.rate_limit")
                     } else {
                         i18n::tr(
                             "cli.error",
@@ -256,6 +258,9 @@ fn claude_quit(stderr: &str) -> String {
         .unwrap_or("");
     if line.is_empty() || needs_login(line) {
         return login_guide("claude");
+    }
+    if at_limit(line) {
+        return i18n::t("agent.rate_limit");
     }
     i18n::tr(
         "cli.error",

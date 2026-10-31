@@ -4,7 +4,7 @@
 import { agentFile } from '../core/agent-files.js';
 import { agentLabel, agentOf, linkView } from '../core/agents.js';
 import { confirmAction } from '../core/confirm.js';
-import { closeUpdateDetails } from '../core/controls.js';
+import { closeControls, closeUpdateDetails } from '../core/controls.js';
 import { language, t } from '../core/i18n.js';
 import { onShortcut } from '../core/keys.js';
 import { projectLinks } from '../core/project.js';
@@ -27,7 +27,9 @@ function copied(kind) {
 }
 // Where each agent stands, read from its own settings file (agent/connect.rs), kind → link.
 let agentLinks = {};
-async function refreshLinks() {
+// A write that failed leaves the link as it was, so only the row can say so.
+const linkFailures = new Map();
+export async function refreshLinks() {
   try {
     agentLinks = (await call('agentLinks')) || {};
   } catch {
@@ -49,13 +51,14 @@ function renderLinks() {
     mark.hidden = !view.mark;
     mark.textContent = view.mark ? t(view.mark) : '';
     mark.classList.toggle('outdated', agentLinks[kind] === 'outdated');
-    problem.hidden = !view.problem;
-    problem.textContent = view.problem ? t(view.problem) : '';
+    const failure = linkFailures.get(kind);
+    problem.hidden = !view.problem && !failure;
+    problem.textContent = failure || (view.problem ? t(view.problem) : '');
   }
 }
 // Connect asks first, naming the file it changes; Disconnect takes out only PlayPets' entries and
 // Connect puts them back, so it is not asked.
-async function linkAgent(button) {
+export async function linkAgent(button) {
   const kind = button.dataset.connect,
     tool = agentLabel(data, kind),
     view = linkView(agentLinks[kind]);
@@ -70,9 +73,12 @@ async function linkAgent(button) {
     if (!yes) return;
   }
   button.disabled = true;
+  linkFailures.delete(kind);
   try {
     agentLinks[kind] = await call(view.connect ? 'connectAgent' : 'disconnectAgent', kind);
     toast(t(view.connect ? 'toast.connected' : 'toast.disconnected', { tool }));
+  } catch (error) {
+    linkFailures.set(kind, error.message);
   } finally {
     button.disabled = false;
     await refreshLinks();
@@ -285,6 +291,8 @@ async function updateButton() {
     updateError = error.message;
     paintUpdateDetails();
     $('update-dialog').hidden = !updateCheckVisible();
+    // In a small window it opens below the fold, and the button would look as if nothing happened.
+    $('update-error').scrollIntoView({ block: 'nearest' });
   } finally {
     checking = false;
     button.disabled = false;
@@ -418,6 +426,8 @@ export function setupSettings() {
     // The first time friends go out on the desktop, how to talk to them there (it is not a double-click).
     if (turningOn && recall('desktop-tip') !== '1') {
       remember('desktop-tip', '1');
+      // Said once, so not under the panel the switch sits in.
+      closeControls(false);
       toast(t('toast.desktop_tip'));
     }
   });

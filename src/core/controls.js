@@ -82,13 +82,13 @@ export function setupControls({
 } = {}) {
   surfaces = [];
   let spot = null;
-  const closeOthers = except => {
+  const closeOthers = (except, keepChat = false) => {
     beforeOpen();
     for (const surface of surfaces) if (surface.panel !== except) surface.box.close();
     closeUpdateDetails();
     closeScene();
     const side = $('side-panel');
-    if (side && !side.hidden) $('close-panel').click();
+    if (side && !side.hidden && !keepChat) $('close-panel').click();
   };
   const wire = (buttonId, panelId, toggleOnClick = true) => {
     const button = $(buttonId),
@@ -105,11 +105,16 @@ export function setupControls({
         placePanel(panel, spot);
         spot = null;
 
-        // The first action in the page, not the head's Close.
+        // The game going on if there is one, else the first action in the page, not the head's Close.
         const visible = [...(panel.querySelector('.dock-panel-body') || panel).querySelectorAll('button')].find(
           action => !action.disabled && !action.hidden && action.getClientRects?.().length,
         );
-        (visible || panel.querySelector('.panel-tab') || panel.querySelector('button:not(:disabled)'))?.focus();
+        (
+          panel.querySelector('.playing') ||
+          visible ||
+          panel.querySelector('.panel-tab') ||
+          panel.querySelector('button:not(:disabled)')
+        )?.focus();
       },
       () => yardFocus(button),
       { toggleOnClick, dismissOnTrigger: buttonId === 'yard' },
@@ -171,6 +176,7 @@ export function setupControls({
     };
     const place = () => {
       if (context.hidden) return;
+      context.style.removeProperty('max-height');
       const { width, height } = context.getBoundingClientRect();
       context.style.left = `${Math.max(8, Math.min(point.x, innerWidth - width - 8))}px`;
       const top = Math.max(8, Math.min(point.y, innerHeight - height - 8));
@@ -181,7 +187,8 @@ export function setupControls({
       yard,
       context,
       () => {
-        closeOthers(context);
+        // Only a choice leaves the chat: each destination closes it, and Esc comes back to it.
+        closeOthers(context, true);
         const pin = context.querySelector('[data-context-action="pin"]');
         pin?.setAttribute('aria-checked', $('always-on-top')?.getAttribute('aria-pressed') || 'false');
         context.scrollTop = 0;
@@ -275,8 +282,9 @@ export function setupControls({
       if (!action) return;
       if (event.detail === 0 && aiming && ['feed', 'plant-tool'].includes(action.id)) return;
       if (action.hasAttribute('data-panel')) {
-        // The destination already closed its opener before showing its task details.
-        $('close-panel').focus();
+        // The destination already closed its opener before showing its task details; a chat
+        // keeps the focus in its own box.
+        if (action.dataset.panel !== 'pet') $('close-panel').focus();
       } else if (
         ['feed', 'chatter', 'plant-tool', 'fish-tool', 'album-button', 'dig-tool', 'tree-tool'].includes(action.id) ||
         action.hasAttribute('data-game')

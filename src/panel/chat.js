@@ -21,7 +21,7 @@ import {
 } from '../core/state.js';
 import { blocks, spoken, waitingLine } from '../core/text.js';
 import { befriend } from '../yard/bond.js';
-import { openConnectionDialog } from './connection.js';
+import { openConnectionDialog, sharedConnection } from './connection.js';
 
 let providerKey = '',
   chatEpoch = 0;
@@ -95,6 +95,14 @@ function syncWaiting() {
   node.querySelector('.waiting-clock').textContent = seconds >= 6 ? t('chat.seconds', { seconds }) : '';
   waitingTimer ??= setInterval(syncWaiting, 1000);
 }
+// What is being written belongs to the friend it is written to, so it cannot go to the next one.
+const drafts = new Map();
+/** Moves the composer from one friend to another, called just before `selected` changes. */
+export function swapDraft(from, to) {
+  if (from) drafts.set(from, $('message').value);
+  $('message').value = drafts.get(to) || '';
+  syncSend();
+}
 export function renderChat(p) {
   const key = JSON.stringify(data.providers);
   if (key !== providerKey) {
@@ -109,7 +117,8 @@ export function renderChat(p) {
   $('send').hidden = busy;
   $('cancel').hidden = !busy;
   // A friend with no AI can still be written to: sending connects one first.
-  $('message').disabled = busy;
+  // Read-only, not disabled: a disabled box drops the focus, and every turn would need a click.
+  $('message').readOnly = busy;
   syncSend();
   // Nothing said yet, nothing to clear.
   $('clear-chat').disabled = busy || !hasHistory;
@@ -150,6 +159,7 @@ export function renderChat(p) {
 // log redrawn, so a screen reader announces only what is new and someone reading further up is not
 // pulled down; switching friends, clearing, or a reset starts the log over.
 let shown = { pet: null, keys: [] };
+let endUnseen = false;
 const keyOf = m => `${m.role}|${m.name || ''}|${m.content}`;
 // Which friend said it: the friend talked with, or a friend in the group by its id (lines kept
 // before ids were, by its name); none for the person, or a friend no longer here.
@@ -290,10 +300,20 @@ export async function refreshChat() {
     shown.keys = keys;
     refreshAvatars(log);
     syncWaiting();
-    if (!grows || atBottom) log.scrollTop = log.scrollHeight;
+    if (!grows || atBottom) {
+      log.scrollTop = log.scrollHeight;
+      endUnseen = !log.clientHeight;
+    }
   } catch (e) {
     toast(spoken(e, t('error.history')), { error: true });
   }
+}
+/** The panel just opened: a log filled while hidden could not scroll, so it goes to its end now. */
+export function chatShown() {
+  if (!endUnseen) return;
+  endUnseen = false;
+  const log = $('chat-log');
+  log.scrollTop = log.scrollHeight;
 }
 // What the backend tells the chat about.
 export function chatEvent(event) {
@@ -357,12 +377,21 @@ export function setupChat() {
     if (!text || data.busy.includes(id) || pendingChats.has(id)) return;
     // A word for a friend with no AI yet is kept: connecting one sends it.
     if (!pet()?.providerId) {
-      openConnectionDialog(null, async () => {
-        setData(await call('bootstrap'));
-        refreshChat();
-        if (selected === id && pet()?.providerId && $('message').value.trim()) $('chat-form').requestSubmit();
-      });
-      return;
+      const shared = sharedConnection();
+      if (!shared) {
+        openConnectionDialog(null, async () => {
+          setData(await call('bootstrap'));
+          refreshChat();
+          if (selected === id && pet()?.providerId && $('message').value.trim()) $('chat-form').requestSubmit();
+        });
+        return;
+      }
+      try {
+        await call('updatePet', id, { providerId: shared });
+      } catch (error) {
+        toast(spoken(error, t('error.generic')), { error: true });
+        return;
+      }
     }
     pendingChats.add(id);
     $('message').value = '';
@@ -378,7 +407,10 @@ export function setupChat() {
       temporaryMessages.delete(id);
     } catch (error) {
       temporaryMessages.set(id, { role: 'error', content: error.message });
-      if (selected === id && !$('message').value.trim()) $('message').value = text;
+      // Nobody is looking at the log that says so.
+      if (selected !== id || $('panel-pet').hidden) toast(error.message, { error: true });
+      if (selected !== id) drafts.set(id, drafts.get(id)?.trim() ? drafts.get(id) : text);
+      else if (!$('message').value.trim()) $('message').value = text;
     } finally {
       pendingChats.delete(id);
       if (selected === id) syncSend();

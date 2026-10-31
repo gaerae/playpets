@@ -112,7 +112,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.open_browser", "브라우저를 열지 못했어요."),
     ("error.unknown_link", "알 수 없는 에이전트 연동 방식이에요."),
     ("link.unreadable", "{file} 파일을 읽지 못해서 그대로 두었어요. 설정 복사를 눌러 직접 붙여 넣어 주세요."),
-    ("link.write_failed", "{file} 파일을 저장하지 못했어요. {detail}"),
+    ("link.write_failed", "{file} 파일을 저장하지 못했어요. 설정 복사를 눌러 직접 붙여 넣어 주세요."),
     ("link.notify_taken", "{file}에 다른 프로그램의 notify가 이미 있어요. Codex는 하나만 실행해서 그대로 두었어요."),
     ("link.home_missing", "홈 폴더를 찾지 못했어요."),
 
@@ -212,6 +212,7 @@ const TABLE: &[(&str, &str)] = &[
     ("pet.unreadable", "펫 파일을 읽지 못했어요. {detail}"),
     ("store.read_failed", "{name} 파일을 읽지 못했어요. {detail}"),
     ("store.write_failed", "{name} 파일을 저장하지 못했어요. {detail}"),
+    ("store.held", "방금 바뀐 내용을 저장하지 못했어요. 바뀐 내용은 그대로 두고 다음에 다시 저장해 볼게요. 디스크 공간을 확인해 주세요."),
     ("backgrounds.full", "배경이 {limit}개 있어요. 하나를 지운 뒤에 추가해 주세요."),
     ("import.save_detail", "펫을 저장하지 못했어요. {detail}"),
     ("clipboard.failed", "클립보드에 복사하지 못했어요. {detail}"),

@@ -956,6 +956,8 @@ const scenario = `(async()=>{
     const after=(await playPets.bootstrap()).data.pets;
     const invited=after.length===before+1&&document.querySelectorAll('.yard-pet').length===after.length&&$('friend-select').value===after.at(-1).id;
     openMenu();$('menu-friends').click();await until(()=>!$('panel-pet').hidden);
+    // A friend invited here took the one connection there is, so this one lets it go to ask again.
+    await must('noAi',playPets.updatePet(after.at(-1).id,{providerId:''}));
     const sharingGuest=await must('sharingGuest',playPets.addPet(a));
     await until(()=>document.querySelectorAll('.yard-pet').length===after.length+1);
     $('friend-select').value=after.at(-1).id;$('friend-select').dispatchEvent(new Event('change'));await wait(150);
@@ -966,17 +968,26 @@ const scenario = `(async()=>{
     await until(()=>document.querySelectorAll('.yard-pet').length===after.length);
     // On a failure, which part: the friend saved, drawn, picked in the Friend tab; the dialog.
     await L('pageButtons='+(invited&&dialogOpen?'invite-and-connect':'err:'+[after.length-before,document.querySelectorAll('.yard-pet').length-after.length,$('friend-select').value===after.at(-1)?.id,dialogOpen].join('/')));
-    // A word written to a friend with no AI waits for one: sending opens the connection dialog,
-    // picking a kind on its cards and connecting sends the word.
+    // A word written to a friend with no AI waits for one: with two connections in use nothing says
+    // which, so sending opens the connection dialog, and picking a kind on its cards and connecting
+    // sends the word.
     const guestId=after.at(-1).id;
+    const others=after.filter(p=>p.id!==guestId).slice(0,2),apartAi=[];
+    for(const friend of others){
+      const made=await must('apart',playPets.saveProvider({id:null,type:'ollama',model:'apart-'+friend.id,endpoint:'${endpoint}',apiKey:''}));
+      apartAi.push(made.data.id);
+      await must('apartFriend',playPets.updatePet(friend.id,{providerId:made.data.id}));
+    }
     $('message').value='처음 인사';$('message').dispatchEvent(new Event('input'));
-    const typable=!$('message').disabled&&!$('send').disabled;
+    const typable=!$('message').readOnly&&!$('send').disabled;
     $('chat-form').requestSubmit();await until(()=>$('connection-dialog').open);
     document.querySelector('.ai-type[data-type=ollama] input').click();await wait(100);
     $('ai-endpoint').value='${endpoint}';$('ai-endpoint').dispatchEvent(new Event('change'));$('ai-model').value='flow-model';$('ai-share-all').checked=false;
     $('save-provider').click();
     await until(async()=>((await playPets.getChat(guestId)).data||[]).length>=2,15000);
     const sent=(await playPets.getChat(guestId)).data||[];
+    for(const friend of others)await must('backFriend',playPets.updatePet(friend.id,{providerId:friend.providerId||''}));
+    for(const id of apartAi)await must('apartGone',playPets.removeProvider(id));
     // Starting at login is one switch in Settings (a test run only pretends to the system).
     const {openPanel}=await import('./panel/tabs.js');openPanel('settings','general-title');await until(()=>!$('panel-settings').hidden&&!$('settings-general').hidden);
     $('autostart').click();await until(async()=>(await playPets.bootstrap()).data.autostart===true);
