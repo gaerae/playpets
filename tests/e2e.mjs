@@ -881,33 +881,35 @@ const scenario = `(async()=>{
     await L('windowQuit='+(quitBeside&&(await nativeWindow()).resizable?'beside-close-window':'err'));
     // A window is limited to its screen, and Reset window size brings it back from any size.
     const fitFrom=await nativeWindow();
-    await nativeWindow({...fitFrom,width:4000,height:2400});
+    const fitLarge=await nativeWindow({...fitFrom,width:4000,height:2400});
     await window.__TAURI__.core.invoke('call',{name:'windowFit',args:[]});
     const fitDone=await until(async()=>{const w=await nativeWindow();return w.width<=1180.5&&w.height<=850.5&&w.width>=fitFrom.width&&w;});
+    const fitEnd=await nativeWindow(),fitPage=[innerWidth,innerHeight];
     await nativeWindow(fitFrom);await until(()=>Math.abs(innerWidth-fitFrom.width)<2);await wait(300);
-    await L('windowFit='+(fitDone&&fitDone.maximum?.width>=fitDone.width&&fitDone.maximum?.height>=fitDone.height?'limited-and-reset':'err:'+JSON.stringify(fitDone)));
+    await L('windowFit='+(fitDone&&fitDone.maximum?.width>=fitDone.width&&fitDone.maximum?.height>=fitDone.height?'limited-and-reset':'err:'+JSON.stringify({fitFrom,fitLarge,fitEnd,fitPage})));
     $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
     // Fullscreen returns to the same frame and pin; Escape dismisses the current surface first.
-    let fullscreenRestored=true;
+    let fullscreenRestored=true;const fullscreenMisses=[];
+    const fullscreenStep=(step,ok,seen)=>{fullscreenRestored&&=ok;if(!ok)fullscreenMisses.push({step,seen});};
     for(const pinned of [false,true]){
       if((await nativeWindow()).alwaysOnTop!==pinned)await $('always-on-top').onclick();
       const normal=await nativeWindow();
       await $('fullscreen').onclick();
       const expanded=await nativeWindow();
-      fullscreenRestored&&=expanded.fullscreen&&document.body.classList.contains('fullscreen')&&$('fullscreen').getAttribute('aria-pressed')==='true'&&getComputedStyle(document.querySelector('[data-resize]')).display==='none';
+      fullscreenStep('expanded',expanded.fullscreen&&document.body.classList.contains('fullscreen')&&$('fullscreen').getAttribute('aria-pressed')==='true'&&getComputedStyle(document.querySelector('[data-resize]')).display==='none',expanded);
       contextAt();await wait(30);
       $('yard-controls-panel').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
-      fullscreenRestored&&=$('yard-controls-panel').hidden&&(await nativeWindow()).fullscreen;
+      fullscreenStep('menu',$('yard-controls-panel').hidden&&(await nativeWindow()).fullscreen);
       openSettings('general');await wait(100);
       document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
-      fullscreenRestored&&=$('side-panel').hidden&&(await nativeWindow()).fullscreen;
+      fullscreenStep('panel',$('side-panel').hidden&&(await nativeWindow()).fullscreen);
       window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',cancelable:true}));
       await until(async()=>!$('fullscreen').disabled&&!(await nativeWindow()).fullscreen,15000);
       const returned=await nativeWindow();
-      fullscreenRestored&&=sameBounds(normal,returned)&&returned.alwaysOnTop===pinned&&!document.body.classList.contains('fullscreen');
+      fullscreenStep('returned',sameBounds(normal,returned)&&returned.alwaysOnTop===pinned&&!document.body.classList.contains('fullscreen'),{normal,returned});
     }
     if((await nativeWindow()).alwaysOnTop)await $('always-on-top').onclick();
-    await L('windowFullscreen='+(fullscreenRestored?'bounds-pin-and-escape-restored':'err'));
+    await L('windowFullscreen='+(fullscreenRestored?'bounds-pin-and-escape-restored':'err:'+JSON.stringify(fullscreenMisses)));
     worldSelect.value='woodland';worldSelect.dispatchEvent(new Event('change'));
     await (await import('./yard/background-store.js')).removeBackground(imported);
     // A conversation stays inside the current window; a friend nearer the bottom is drawn over one higher up.
