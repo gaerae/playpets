@@ -176,7 +176,9 @@ pub fn e2e_window(app: &AppHandle, args: &[Value]) -> Result<Value, String> {
     }
     let scale = w.scale_factor().map_err(|e| e.to_string())?;
     let pos = w.outer_position().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
-    let size = w.outer_size().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
+    // The size `set_size` takes: Windows counts a frame in the outer size, so a size read back and
+    // set again would grow by that frame each time.
+    let size = w.inner_size().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
     Ok(
         json!({"x": pos.x, "y": pos.y, "width": size.width, "height": size.height, "scale": scale, "fullscreen": w.is_fullscreen().map_err(|e| e.to_string())?, "alwaysOnTop": always_on_top_now(&w)?, "resizable": w.is_resizable().map_err(|e| e.to_string())?, "minimum": {"width": SIZE_MIN.0, "height": SIZE_MIN.1}, "maximum": hold(&SIZE_LIMIT).map(|(width, height)| json!({"width": width, "height": height}))}),
     )
