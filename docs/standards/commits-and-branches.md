@@ -71,7 +71,7 @@ Follow these when you can. When you cannot, say why in the PR.
 |---|---|
 | The release commit and tag | `pnpm run release` commits to `main` directly; a maintainer pushes them (the ruleset's bypass list lets the release through) |
 | An urgent fix while CI is down | A maintainer merges after running `pnpm test`, `pnpm run lint` and `pnpm run test:e2e` locally and says so in the PR |
-| Dependabot pull requests | Titles follow Dependabot's form; squash-merged once CI passes |
+| Dependabot pull requests | Titles follow Dependabot's form; squash-merged once CI passes. A changed `Cargo.lock` needs `pnpm run licenses:generate` on the branch, which Dependabot cannot run |
 
 ## Rationale
 - A straight `main` where every commit passes the checks keeps `git bisect` and `git revert` useful, and lets a release be cut from any commit.

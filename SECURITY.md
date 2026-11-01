@@ -138,10 +138,10 @@ Official upstream references for the remaining work:
   - To take an urgent fix sooner, list the package under
     `minimumReleaseAgeExclude` in `pnpm-workspace.yaml`, and remove it once the
     fixed version is a day old.
-- Dependabot proposes a new npm, Cargo or Actions version a week after its
-  release (`cooldown` in `.github/dependabot.yml`).
+- Dependabot proposes new npm, Cargo and Actions versions once a month, each at
+  least a week after its release (`cooldown` in `.github/dependabot.yml`).
   - A hijacked release is usually found and pulled within days.
-  - Security updates skip the cooldown.
+  - Security updates skip the cooldown and the monthly schedule.
   - Dependabot cannot raise a package under `overrides` (vite, katex). A fix for
     one is raised by hand in `pnpm-workspace.yaml`.
 - No source paths or known advisories are broadly excluded to make the checks

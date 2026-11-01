@@ -1,5 +1,7 @@
-# Weekly update PRs for each kind of dependency. Minor and patch updates of each kind come
-# as one PR, so CI checks them together; major updates come one by one.
+# Monthly update PRs for each kind of dependency: each PR builds on every platform, and few
+# updates are urgent. Security updates come at once, whatever this schedule says.
+# Minor and patch updates of each kind come as one PR, so CI checks them together; major updates
+# come one by one. A PR that changes Cargo.lock needs `pnpm run licenses:generate` on its branch.
 # A version is proposed only a week after its release, time for a hijacked release to be found and
 # pulled. Cooldown delays version updates only: security updates come at once, and Dependabot lifts
 # pnpm's minimumReleaseAge for them too, though CI still waits that day (SECURITY.md).
@@ -8,7 +10,7 @@ updates:
   - package-ecosystem: cargo
     directory: /src-tauri
     schedule:
-      interval: weekly
+      interval: monthly
     cooldown:
       default-days: 7
     groups:
@@ -17,7 +19,7 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     cooldown:
       default-days: 7
     ignore:
@@ -33,7 +35,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     cooldown:
       default-days: 7
     groups:
@@ -44,4 +46,4 @@ updates:
   - package-ecosystem: docker
     directories: [/packaging/linux, /packaging/windows]
     schedule:
-      interval: weekly
+      interval: monthly
