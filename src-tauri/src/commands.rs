@@ -9,6 +9,8 @@ use crate::desktop::overlay;
 use crate::pets::{catalog, discovery, importer, model};
 use crate::{agent, i18n, system, tray, window};
 use serde_json::{Value, json};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{AppHandle, Manager, State};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_dialog::DialogExt;
@@ -107,11 +109,12 @@ static COMMANDS: &[Command] = &[
     main("importFolder", |c| import_from_folder(c.app, &c.state)),
     main("importZip", |c| import_from_zip(c.app, &c.state)),
     main("removeAsset", |c| remove_asset(c.app, &c.state, c.text(0))),
-    main("importUrl", |c| {
-        let root = lock(&c.state).store.dir.join("pets");
-        let folder = importer::import_from_url(c.text(0), &root, &importer::http_fetch)?;
-        let asset = catalog::read_pet(&folder)?;
-        register_asset(c.app, &mut lock(&c.state), asset)
+    main("importUrl", |c| import_from_url(c.app, &c.state, c.text(0))),
+    main("cancelImport", |c| {
+        for flag in &lock(&c.state).importing {
+            flag.store(true, Ordering::SeqCst);
+        }
+        Ok(Value::Null)
     }),
     main("openFolder", |c| open_folder(&c.state, c.text(0))),
     main("openExternal", |c| open_external(c.text(0))),
@@ -351,6 +354,10 @@ static COMMANDS: &[Command] = &[
     // The app itself.
     main("checkUpdate", |c| crate::update::check(c.app)),
     main("installUpdate", |c| crate::update::install(c.app)),
+    main("cancelUpdate", |c| {
+        crate::update::cancel(c.app);
+        Ok(Value::Null)
+    }),
     main("quitApp", |c| {
         crate::app::quit(c.app);
         Ok(Value::Null)
@@ -657,6 +664,25 @@ fn play(
     Ok(Value::Null)
 }
 
+/// Brings a pet in from its page. Cancel ends the wait at once; a read still under way ends with
+/// its own timeout, and nothing is saved.
+fn import_from_url(app: &AppHandle, state: &State<Shared>, url: &str) -> Result<Value, String> {
+    let cancel = Arc::new(AtomicBool::new(false));
+    let root = {
+        let mut d = lock(state);
+        d.importing.push(cancel.clone());
+        d.store.dir.join("pets")
+    };
+    let (url, flag) = (url.to_string(), cancel.clone());
+    let folder = chat::unless_called_off(&cancel, move || {
+        let fetch = importer::unless_cancelled(&flag, &importer::http_fetch);
+        importer::import_from_url(&url, &root, &fetch)
+    });
+    lock(state).importing.retain(|flag| !Arc::ptr_eq(flag, &cancel));
+    let asset = catalog::read_pet(&folder?)?;
+    register_asset(app, &mut lock(state), asset)
+}
+
 fn import_from_folder(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
     let mut dialog = app.dialog().file().set_title(i18n::t("dialog.pick_pet_folder"));
     if let Some(main) = app.get_webview_window("main") {
@@ -807,7 +833,7 @@ fn copy_connection(app: &AppHandle, state: &State<Shared>, kind: &str) -> Result
     let snippet = connection_snippet(state, kind)?;
     app.clipboard()
         .write_text(snippet.clone())
-        .map_err(|e| i18n::detail("clipboard.failed", e))?;
+        .map_err(|_| i18n::t("clipboard.failed"))?;
     Ok(json!(snippet))
 }
 

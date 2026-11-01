@@ -56,6 +56,27 @@ function showSettingsHome() {
 }
 let panelOpener = null;
 let beforePanelOpen = () => {};
+// In a small window each of these lies over the yard, so Tab goes round inside it instead of on to
+// friends hidden behind. Its Close and Esc are the way out.
+const SHEETS = ['side-panel', 'yard-controls-panel', 'play-panel', 'scene-menu'];
+const TAB_STOPS =
+  'a[href], button, select, textarea, summary, [tabindex="0"], input:not([type="hidden"], [type="radio"]:not(:checked))';
+export const tabStops = sheet =>
+  [...sheet.querySelectorAll(TAB_STOPS)].filter(
+    node =>
+      !node.disabled &&
+      node.tabIndex >= 0 &&
+      node.getClientRects().length &&
+      getComputedStyle(node).visibility !== 'hidden' &&
+      !node.matches('details:not([open]) > :not(summary), details:not([open]) > :not(summary) *'),
+  );
+/** Where Tab goes from `current` to stay among `stops`; null when the browser's own next stop is right. */
+export function wrapTab(stops, current, back) {
+  if (!stops.length) return null;
+  const at = stops.indexOf(current);
+  if (back) return at <= 0 ? stops.at(-1) : null;
+  return at === stops.length - 1 ? stops[0] : null;
+}
 function closePanel() {
   const compact = document.body.classList.contains('compact');
   const tab = document.querySelector('.panel-tab[aria-expanded="true"]');
@@ -129,6 +150,16 @@ export function setupTabs({ beforeOpen = () => {} } = {}) {
   // The sheet goes with a click beside it or Esc, as sheets do.
   $('layout').addEventListener('click', e => {
     if (e.target === $('layout') && $('layout').classList.contains('settings-open')) openPanel(null);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Tab' || sideBySide()) return;
+    const sheet = SHEETS.map(id => $(id)).find(node => node && !node.hidden && node.contains(document.activeElement));
+    if (!sheet) return;
+    const next = wrapTab(tabStops(sheet), document.activeElement, e.shiftKey);
+    if (next) {
+      e.preventDefault();
+      next.focus();
+    }
   });
   document.addEventListener('keydown', e => {
     if (

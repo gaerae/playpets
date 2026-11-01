@@ -18,7 +18,7 @@ impl Store {
             Err(e) => Err(if self.keep_copy(name, "corrupt") {
                 i18n::tr("store.unreadable", &[("name", name)])
             } else {
-                i18n::detail_for("store.read_failed", name, e)
+                i18n::detail_for("store.read_failed", name, &e)
             }),
             Ok(text) => serde_json::from_str(&text).map_err(|_| {
                 self.keep_copy(name, "corrupt");
@@ -48,10 +48,10 @@ impl Store {
     }
 
     fn write_with(&self, name: &str, value: &Value, private: bool) -> Result<(), String> {
-        let failed = |e: &dyn std::fmt::Display| i18n::detail_for("store.write_failed", name, e);
-        fs::create_dir_all(&self.dir).map_err(|e| failed(&e))?;
+        let failed = |e: std::io::Error| i18n::detail_for("store.write_failed", name, &e);
+        fs::create_dir_all(&self.dir).map_err(failed)?;
         let tmp = self.dir.join(format!("{name}.tmp"));
-        let text = serde_json::to_string_pretty(value).map_err(|e| failed(&e))?;
+        let text = serde_json::to_string_pretty(value).map_err(|e| failed(e.into()))?;
         let mut options = fs::OpenOptions::new();
         options.write(true).create(true).truncate(true);
         #[cfg(unix)]
@@ -65,13 +65,13 @@ impl Store {
         let _ = private;
         {
             use std::io::Write;
-            let mut file = options.open(&tmp).map_err(|e| failed(&e))?;
-            file.write_all(text.as_bytes()).map_err(|e| failed(&e))?;
+            let mut file = options.open(&tmp).map_err(failed)?;
+            file.write_all(text.as_bytes()).map_err(failed)?;
             // On disk before it takes the name: a power cut after the rename must not leave an
             // empty state.json where the last good one was.
-            file.sync_all().map_err(|e| failed(&e))?;
+            file.sync_all().map_err(failed)?;
         }
-        fs::rename(&tmp, self.dir.join(name)).map_err(|e| failed(&e))
+        fs::rename(&tmp, self.dir.join(name)).map_err(failed)
     }
 }
 

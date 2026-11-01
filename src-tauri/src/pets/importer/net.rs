@@ -1,5 +1,6 @@
 //! The network side of importing: fetching over https only, never to a private address, and within a size limit.
 use super::*;
+use std::sync::atomic::{AtomicBool, Ordering};
 use ureq::config::Config;
 use ureq::http::Uri;
 use ureq::unversioned::resolver::{DefaultResolver, ResolvedSocketAddrs, Resolver};
@@ -16,6 +17,20 @@ pub struct Fetched {
     pub too_big: bool,
 }
 pub type Fetch<'a> = &'a dyn Fn(&str, usize) -> Result<Fetched, String>;
+
+/// `fetch`, refusing its answer once `cancel` is set: the import stops there and saves nothing.
+pub fn unless_cancelled<'a>(
+    cancel: &'a AtomicBool,
+    fetch: Fetch<'a>,
+) -> impl Fn(&str, usize) -> Result<Fetched, String> + 'a {
+    move |url, limit| {
+        let fetched = fetch(url, limit);
+        if cancel.load(Ordering::SeqCst) {
+            return Err(i18n::t("chat.cancelled"));
+        }
+        fetched
+    }
+}
 
 /// Name resolution that refuses private addresses at the connection itself, so a name that
 /// answers with a public address first and a private one later (DNS rebinding) cannot get a

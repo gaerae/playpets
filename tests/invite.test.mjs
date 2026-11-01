@@ -18,6 +18,10 @@ globalThis.playPets = {
       finish = resolve;
     });
   },
+  cancelImport: async () => {
+    calls.push('cancel');
+    return { ok: true, data: null };
+  },
   addPet: async () => ({ ok: false, error: 'Your yard is full.' }),
 };
 const { setupInvite, twinName } = await import('../src/panel/invite.js');
@@ -59,8 +63,9 @@ test('a pending URL import prevents closing or starting a folder import', async 
   const nodes = page(context);
   const pending = nodes.get('import-form').onsubmit({ preventDefault() {} });
   try {
-    for (const id of ['close-import', 'cancel-import', 'import-folder', 'import-submit', 'import-url'])
+    for (const id of ['close-import', 'import-folder', 'import-submit', 'import-url'])
       assert.equal(nodes.get(id).disabled, true, `${id} stays unavailable during import`);
+    assert.equal(nodes.get('cancel-import').disabled, false, 'the import can be called off');
     nodes.get('close-import').onclick();
     assert.equal(nodes.get('import-dialog').open, true);
     await nodes.get('import-folder').onclick();
@@ -72,6 +77,24 @@ test('a pending URL import prevents closing or starting a folder import', async 
   assert.equal(nodes.get('import-error').textContent, 'The pet could not be imported.');
   for (const id of ['close-import', 'cancel-import', 'import-folder', 'import-submit', 'import-url'])
     assert.equal(nodes.get(id).disabled, false, `${id} returns after failure`);
+});
+
+test('Cancel calls off a URL import and leaves the address to change, with no error', async context => {
+  const nodes = page(context);
+  nodes.get('import-url').value = 'https://petdex.dev/pets/boba';
+  const pending = nodes.get('import-form').onsubmit({ preventDefault() {} });
+  await nodes.get('cancel-import').onclick();
+  assert.equal(calls.at(-1), 'cancel');
+  assert.equal(nodes.get('import-dialog').open, true);
+  assert.equal(nodes.get('cancel-import').disabled, true, 'pressed once');
+  finish({ ok: false, error: 'Stopped.' });
+  await pending;
+  assert.equal(nodes.get('import-error').textContent, '');
+  assert.equal(nodes.get('import-url').value, 'https://petdex.dev/pets/boba');
+  for (const id of ['close-import', 'cancel-import', 'import-submit', 'import-url'])
+    assert.equal(nodes.get(id).disabled, false, `${id} returns after the import is called off`);
+  nodes.get('cancel-import').onclick();
+  assert.equal(nodes.get('import-dialog').open, false, 'with nothing running, Cancel closes');
 });
 
 test('a pending folder picker prevents URL imports and returns after cancellation', async context => {

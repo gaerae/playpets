@@ -4,8 +4,13 @@ import { installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
 globalThis.requestAnimationFrame = () => {};
 let installs = 0;
+let cancels = 0;
 let finishInstall;
 globalThis.playPets = {
+  cancelUpdate: async () => {
+    cancels++;
+    return { ok: true, data: null };
+  },
   installUpdate: () => {
     installs++;
     return new Promise(resolve => {
@@ -94,6 +99,31 @@ test('an available update opens Settings for a guided download, shows each stage
   assert.equal(nodes.get('update-error').hidden, true, 'retry clears the old error');
   finishInstall({ ok: false, error: 'The update could not be installed.' });
   await retry;
+});
+
+test('a download can be called off and leaves the update ready to install', async context => {
+  installStorage(context);
+  keepGlobals(context, 'Option', 'setTimeout');
+  globalThis.Option = class {};
+  globalThis.setTimeout = () => 1;
+  const { nodes } = installDom(context, { anyId: true, props: { hidden: true } });
+  setData({ pets: [], version: '0.1.0', project: {} });
+  setupSettings();
+  updateFound({ version: '0.4.0', notes: '' });
+  const installing = nodes.get('update-install').onclick();
+  assert.equal(nodes.get('update-cancel').hidden, false, 'a download offers Cancel');
+  updateStatus({ phase: 'verifying' });
+  assert.equal(nodes.get('update-cancel').hidden, true, 'the signature check is too late to call off');
+  updateStatus({ phase: 'downloading', percent: 10 });
+  await nodes.get('update-cancel').onclick();
+  assert.equal(cancels, 1);
+  finishInstall({ ok: true, data: { cancelled: true } });
+  await installing;
+  assert.equal(nodes.get('update-install').disabled, false, 'the person can start it again');
+  assert.equal(nodes.get('update-cancel').hidden, true);
+  assert.equal(nodes.get('update-error').hidden, true, 'calling it off is not an error');
+  assert.equal(nodes.get('update-progress-wrap').hidden, true);
+  assert.equal(localStorage.getItem('update-restart'), '', 'no restart is on its way');
 });
 
 test('restart shows the completed update once at the usual notice position', context => {

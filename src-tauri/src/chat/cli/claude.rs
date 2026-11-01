@@ -124,7 +124,7 @@ impl Session {
             } else {
                 i18n::tr(
                     "cli.spawn_failed",
-                    &[("name", "Claude Code"), ("detail", &e.to_string())],
+                    &[("name", "Claude Code"), ("detail", &i18n::reason(&e))],
                 )
             }
         })?;

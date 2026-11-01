@@ -20,7 +20,7 @@ mod sites;
 
 use html::*;
 use net::*;
-pub use net::{Fetch, http_fetch};
+pub use net::{Fetch, http_fetch, unless_cancelled};
 use sites::*;
 pub use sites::{communities_json, openable};
 
@@ -79,12 +79,12 @@ pub fn import_from_url(raw: &str, root: &Path, fetch: Fetch) -> Result<PathBuf, 
         .candidates
         .retain(|c| check_url(c).is_ok_and(|u| on_site(&u, &source.hosts)));
     let (bytes, version, ext) = pick_sprite(&source.candidates, fetch)?;
-    fs::create_dir_all(root).map_err(|e| i18n::detail("import.save_detail", e))?;
+    fs::create_dir_all(root).map_err(|e| i18n::detail("import.save_detail", &e))?;
     let temp = root.join(format!(".tmp-{}", uuid::Uuid::new_v4()));
     let written = (|| -> Result<(), String> {
-        fs::create_dir(&temp).map_err(|e| i18n::detail("import.save_detail", e))?;
+        fs::create_dir(&temp).map_err(|e| i18n::detail("import.save_detail", &e))?;
         let file = format!("spritesheet.{ext}");
-        fs::write(temp.join(&file), &bytes).map_err(|e| i18n::detail("import.save_detail", e))?;
+        fs::write(temp.join(&file), &bytes).map_err(|e| i18n::detail("import.save_detail", &e))?;
         let display = Some(clean(&source.display_name, 60))
             .filter(|s| !s.is_empty())
             .unwrap_or_else(|| slug.clone());
@@ -97,7 +97,7 @@ pub fn import_from_url(raw: &str, root: &Path, fetch: Fetch) -> Result<PathBuf, 
             "spriteVersionNumber": version, "spritesheetPath": file, "source": origin,
         });
         fs::write(temp.join("pet.json"), serde_json::to_string_pretty(&manifest).unwrap())
-            .map_err(|e| i18n::detail("import.save_detail", e))?;
+            .map_err(|e| i18n::detail("import.save_detail", &e))?;
         if fs::rename(&temp, &folder).is_err() && !valid(&folder) {
             return Err(i18n::t("import.save_failed"));
         }
@@ -113,7 +113,7 @@ pub fn import_from_url(raw: &str, root: &Path, fetch: Fetch) -> Result<PathBuf, 
 /// so the ZIP itself can go. The same ZIP twice is the same folder; a changed one is a new pet.
 pub fn import_from_zip(file: &Path, root: &Path) -> Result<PathBuf, String> {
     // Only a plain file, and never more of it than the limit: a pipe or a device has no size.
-    let meta = fs::metadata(file).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    let meta = fs::metadata(file).map_err(|e| i18n::detail("pet.unreadable", &e))?;
     if !meta.is_file() {
         return Err(i18n::t("import.zip_unreadable"));
     }
@@ -123,7 +123,7 @@ pub fn import_from_zip(file: &Path, root: &Path) -> Result<PathBuf, String> {
     let mut bytes = Vec::new();
     fs::File::open(file)
         .and_then(|f| f.take(archive::ARCHIVE_LIMIT + 1).read_to_end(&mut bytes))
-        .map_err(|e| i18n::detail("pet.unreadable", e))?;
+        .map_err(|e| i18n::detail("pet.unreadable", &e))?;
     if bytes.len() as u64 > archive::ARCHIVE_LIMIT {
         return Err(i18n::t("import.zip_too_big"));
     }
@@ -153,15 +153,15 @@ pub fn import_from_zip(file: &Path, root: &Path) -> Result<PathBuf, String> {
     if folder.exists() && valid(&folder) {
         return Ok(folder);
     }
-    fs::create_dir_all(root).map_err(|e| i18n::detail("import.save_detail", e))?;
+    fs::create_dir_all(root).map_err(|e| i18n::detail("import.save_detail", &e))?;
     let temp = root.join(format!(".tmp-{}", uuid::Uuid::new_v4()));
     let written = (|| -> Result<(), String> {
         for (name, data) in &files {
             let path = temp.join(name);
             if let Some(parent) = path.parent() {
-                fs::create_dir_all(parent).map_err(|e| i18n::detail("import.save_detail", e))?;
+                fs::create_dir_all(parent).map_err(|e| i18n::detail("import.save_detail", &e))?;
             }
-            fs::write(&path, data).map_err(|e| i18n::detail("import.save_detail", e))?;
+            fs::write(&path, data).map_err(|e| i18n::detail("import.save_detail", &e))?;
         }
         // What the files say is checked before the pet joins the others.
         catalog::read_pet(&temp)?;
@@ -303,6 +303,33 @@ mod tests {
     }
     fn manifest(folder: &Path) -> Value {
         serde_json::from_str(&fs::read_to_string(folder.join("pet.json")).unwrap()).unwrap()
+    }
+
+    #[test]
+    fn an_import_called_off_saves_nothing() {
+        use std::sync::atomic::{AtomicBool, Ordering};
+        let root = temp_root();
+        let sprite = "https://assets.petdex.dev/curated/boba/sprite-v2.webp";
+        let site = Site::new(vec![
+            (
+                "https://petdex.dev/api/install-pet/boba",
+                json_hit(json!({"ok": true, "pet": {"slug": "boba", "displayName": "Boba", "spritesheetUrl": sprite}})),
+            ),
+            (sprite, Hit::Body(webp(1536, 2288))),
+        ]);
+        let cancel = AtomicBool::new(false);
+        let read = |u: &str, l: usize| {
+            cancel.store(u == sprite, Ordering::SeqCst);
+            site.fetch(u, l)
+        };
+        let fetch = unless_cancelled(&cancel, &read);
+        assert!(import_from_url("https://petdex.dev/pets/boba", &root, &fetch).is_err());
+        assert!(
+            site.calls.borrow().iter().any(|u| u == sprite),
+            "it got as far as the last read"
+        );
+        assert!(!root.exists() || fs::read_dir(&root).unwrap().next().is_none());
+        let _ = fs::remove_dir_all(&root);
     }
 
     #[test]

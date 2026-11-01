@@ -143,13 +143,27 @@ pub fn tr_in(lang: Lang, key: &str, args: &[(&str, &str)]) -> String {
     out.push_str(rest);
     out
 }
-/// A sentence of ours with the system's own words after it: `{detail}` takes the raw error, so
-/// a person reads what failed in their language and a report still carries the original.
-pub fn detail(key: &str, error: impl std::fmt::Display) -> String {
-    tr(key, &[("detail", &error.to_string())])
+/// Why a file could not be used, in the app's words where it has them. Anything rarer stays in the
+/// system's words, so a report still carries the original.
+pub fn reason(error: &std::io::Error) -> String {
+    reason_in(current(), error)
 }
-pub fn detail_for(key: &str, name: &str, error: impl std::fmt::Display) -> String {
-    tr(key, &[("name", name), ("detail", &error.to_string())])
+fn reason_in(lang: Lang, error: &std::io::Error) -> String {
+    use std::io::ErrorKind;
+    match error.kind() {
+        ErrorKind::PermissionDenied => t_in(lang, "io.permission"),
+        ErrorKind::NotFound => t_in(lang, "io.not_found"),
+        ErrorKind::StorageFull | ErrorKind::QuotaExceeded => t_in(lang, "io.disk_full"),
+        ErrorKind::ReadOnlyFilesystem => t_in(lang, "io.read_only"),
+        _ => error.to_string(),
+    }
+}
+/// A sentence of ours with `{detail}` saying why, so a person reads what failed in their language.
+pub fn detail(key: &str, error: &std::io::Error) -> String {
+    tr(key, &[("detail", &reason(error))])
+}
+pub fn detail_for(key: &str, name: &str, error: &std::io::Error) -> String {
+    tr(key, &[("name", name), ("detail", &reason(error))])
 }
 
 /// A status a coding agent reported, as agent/cli.rs codes it (`@tool Bash`), in words; any other
@@ -208,9 +222,31 @@ mod tests {
             "a value is never filled again"
         );
         assert_eq!(tr_in(en, "chat.from_friend", &[("name", "A")]), "A: {detail}");
+    }
+
+    #[test]
+    fn a_system_error_is_said_in_the_app_s_words_where_it_has_them() {
+        use std::io::{Error, ErrorKind};
         assert_eq!(
-            detail_for("store.write_failed", "state.json", "disk full"),
-            "Couldn't save the state.json file. disk full"
+            detail_for("store.write_failed", "state.json", &Error::from(ErrorKind::StorageFull)),
+            "Couldn't save the state.json file. The disk is full."
+        );
+        for kind in [
+            ErrorKind::PermissionDenied,
+            ErrorKind::NotFound,
+            ErrorKind::StorageFull,
+            ErrorKind::ReadOnlyFilesystem,
+        ] {
+            for lang in Lang::all() {
+                let said = reason_in(lang, &Error::from(kind));
+                assert!(!said.contains("os error") && said.ends_with(['.', '。']), "{said}");
+            }
+        }
+        let unknown = Error::other("a device stopped answering");
+        assert_eq!(
+            reason(&unknown),
+            "a device stopped answering",
+            "a report still carries the rest"
         );
     }
 

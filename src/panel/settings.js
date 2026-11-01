@@ -185,6 +185,7 @@ export function announceInstalledUpdate() {
 }
 function paintUpdateDetails() {
   $('update-install').hidden = !found;
+  $('update-cancel').hidden = true;
   if (!found) {
     $('update-title').textContent = t('settings.update');
     $('update-body').textContent = '';
@@ -203,6 +204,7 @@ function paintUpdateDetails() {
   $('update-error').hidden = !updateError;
   $('update-error').textContent = updateError;
   $('update-install').disabled = installing;
+  $('update-cancel').hidden = !installing || updateStage.phase !== 'downloading';
   $('update-install').textContent = updateError ? t('update.retry') : t('settings.update_install');
   $('update-later').disabled = false;
   $('update-later').textContent = installing ? t('update.collapse') : t('update.later');
@@ -234,14 +236,18 @@ async function install() {
   paintUpdateDetails();
   remember(RESTART_KEY, JSON.stringify({ version: found.version, from: data.version }));
   try {
-    await call('installUpdate');
+    // On success the app restarts and this never returns, unless the download was called off.
+    if ((await call('installUpdate'))?.cancelled) stopInstalling();
   } catch (error) {
-    remember(RESTART_KEY, '');
-    installing = false;
     updateError = error.message;
-    renderUpdate();
-    paintUpdateDetails();
+    stopInstalling();
   }
+}
+function stopInstalling() {
+  remember(RESTART_KEY, '');
+  installing = false;
+  renderUpdate();
+  paintUpdateDetails();
 }
 async function check() {
   showUpdate(t('settings.update_checking'), t('settings.update_check'));
@@ -410,6 +416,7 @@ export function setupSettings() {
     if (found && data.updateChannel !== 'store') openUpdatePanel();
   });
   $('update-install').onclick = guard(install);
+  $('update-cancel').onclick = guard(() => call('cancelUpdate'));
   $('update-later').onclick = () => {
     if (!installing && !updateError) later = true;
     renderUpdate();

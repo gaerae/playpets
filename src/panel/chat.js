@@ -28,6 +28,9 @@ let providerKey = '',
   chatEpoch = 0;
 // The bridge may reject before its first busy-state update reaches the page.
 const pendingChats = new Set();
+// Group rounds on their way. Once a friend has answered, the question stands in the log, so a round
+// that then fails does not hand it back to the message box.
+const rounds = new Set();
 // An answer shown with the styles its Markdown asked for. Every piece is set as text, never as markup.
 const STYLE_TAGS = { bold: 'strong', italic: 'em', code: 'code' };
 function rich(node, text) {
@@ -326,6 +329,8 @@ export function chatEvent(event) {
     const p = data.pets.find(q => q.id === event.petId);
     if (p) toast(t('toast.persona_saved', { name: name(p) }));
   }
+  if (event.type === 'chat-message' && event.name)
+    for (const round of rounds) if (round.friends.includes(event.petId)) round.answered = true;
   if (event.type === 'chat-message' && (event.petId === selected || companions.has(event.petId))) refreshChat();
 }
 // The composer grows with the text; the send button wakes up once there is something to send.
@@ -400,8 +405,10 @@ export function setupChat() {
     temporaryMessages.set(id, { role: 'user', content: text });
     refreshChat();
     const group = [...companions].filter(friend => friend !== id);
+    const round = { friends: [id, ...group], answered: false };
+    rounds.add(round);
     try {
-      if (group.length) await call('chatWith', [id, ...group], text);
+      if (group.length) await call('chatWith', round.friends, text);
       else await call('chat', id, text);
       // Talking is time together too, with each friend in the conversation.
       for (const friend of [id, ...group]) befriend(friend, 'chat');
@@ -410,9 +417,12 @@ export function setupChat() {
       temporaryMessages.set(id, { role: 'error', content: error.message });
       // Nobody is looking at the log that says so.
       if (selected !== id || $('panel-pet').hidden) toast(error.message, { error: true });
-      if (selected !== id) drafts.set(id, drafts.get(id)?.trim() ? drafts.get(id) : text);
-      else if (!$('message').value.trim()) $('message').value = text;
+      if (!round.answered) {
+        if (selected !== id) drafts.set(id, drafts.get(id)?.trim() ? drafts.get(id) : text);
+        else if (!$('message').value.trim()) $('message').value = text;
+      }
     } finally {
+      rounds.delete(round);
       pendingChats.delete(id);
       if (selected === id) syncSend();
     }

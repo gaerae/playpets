@@ -63,7 +63,7 @@ Update checks:
 | Store-managed packages | Their package manager updates them instead |
 
 - A background check shows a quiet version entry without opening Settings or starting an installation.
-- **Settings → App updates** holds the result, release notes, download progress, errors and Retry.
+- **Settings → App updates** holds the result, release notes, download progress, Cancel, errors and Retry.
 - Only **Install and restart** starts the signed download and installation.
 - Closing Settings leaves that operation running.
 - Reopening Settings does not start a second download.
@@ -111,7 +111,7 @@ Do these in order. A local build that succeeds does not prove that a published u
 10. Refresh public captures when a visible change affects them.
     - The full yard, small window, places, Friend, Invite and Settings have to match the shipped app.
 11. Test a signed upgrade from an older installed build to a newer published build on each supported installer format.
-    - Check download progress, a failed attempt and retry, restart, the one-time version notice, and that friends and settings are kept.
+    - Check download progress, Cancel, a failed attempt and retry, restart, the one-time version notice, and that friends and settings are kept.
     - A mocked updater event proves UI behavior, not the installer hand-off.
 12. Treat Homebrew, winget and optional platform signing as separate distribution steps.
     - Record in the release notes which channels are actually available.
