@@ -939,13 +939,17 @@ const scenario = `(async()=>{
     await until(()=>!$('panel-pet').hidden&&getComputedStyle($('side-panel')).display!=='none');await wait(300);
     $('panel-pet').scrollTop=0;
     const composer=$('message').getBoundingClientRect(),sendBox=$('send').getBoundingClientRect();
-    const chatFromSmall=quickPlayFits&&document.body.classList.contains('compact')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth&&sendBox.bottom<=innerHeight;
+    // Past the panel's last stop, Tab comes back to its first instead of a friend hidden behind it.
+    const panelStops=(await import('./panel/tabs.js')).tabStops($('side-panel'));
+    panelStops.at(-1).focus();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));
+    const tabStays=document.activeElement===panelStops[0],tabNow=[panelStops[0].id,panelStops.at(-1).id,panelStops.length,document.activeElement.id||document.activeElement.tagName];$('message').focus();
+    const chatFromSmall=quickPlayFits&&tabStays&&document.body.classList.contains('compact')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth&&sendBox.bottom<=innerHeight;
     // By where the feet are (the bottom), since friends of different sizes have their tops elsewhere.
     const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().bottom,z:Number(b.style.zIndex)%200}));
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true)),orderNow=yardNow();
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
-    await L('reach='+(chatFromSmall?'compact-chat':'err-small:'+JSON.stringify({quickPlayFits,quick:quickRect.toJSON(),viewport:[innerWidth,innerHeight],compact:document.body.classList.contains('compact'),pet:!$('panel-pet').hidden,composer:composer.toJSON(),send:sendBox.toJSON()}))+'/'+(layered?'layered':'err-order:'+JSON.stringify({...orderNow,frames:await framesIn(500)}))+'/'+(labelsOver?'labels-over':'err-labels'));
+    await L('reach='+(chatFromSmall?'compact-chat':'err-small:'+JSON.stringify({tabStays,tabNow,quickPlayFits,quick:quickRect.toJSON(),viewport:[innerWidth,innerHeight],compact:document.body.classList.contains('compact'),pet:!$('panel-pet').hidden,composer:composer.toJSON(),send:sendBox.toJSON()}))+'/'+(layered?'layered':'err-order:'+JSON.stringify({...orderNow,frames:await framesIn(500)}))+'/'+(labelsOver?'labels-over':'err-labels'));
     // The name tag says "Talk to …" and opens the conversation; play is on the friend's right-click.
     $('close-panel').click();await until(()=>$('side-panel').hidden);
     await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact')&&innerWidth===wide);await wait(200);

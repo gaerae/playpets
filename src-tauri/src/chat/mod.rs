@@ -56,6 +56,16 @@ impl Talks {
         let extra = history.len().saturating_sub(LOG_LIMIT);
         history.drain(..extra);
     }
+    /// Takes a question back out of a history it ended, as if it had not been asked.
+    fn take_back(&mut self, id: &str, question: &Value) {
+        let Some(history) = self.histories.get_mut(id) else {
+            return;
+        };
+        if history.last() == Some(question) {
+            history.pop();
+            *self.totals.entry(id.into()).or_default() -= 1;
+        }
+    }
     fn forget(&mut self, id: &str) {
         self.histories.remove(id);
         self.totals.remove(id);
@@ -226,7 +236,7 @@ fn ask(
 /// Runs a request that cannot be interrupted (an HTTP call) on its own thread, and stops waiting
 /// for it as soon as the conversation is called off: ■ ends the wait at once, and the request's
 /// own timeout ends the thread later, its answer dropped.
-fn unless_called_off<T: Send + 'static>(
+pub(crate) fn unless_called_off<T: Send + 'static>(
     cancel: &AtomicBool,
     work: impl FnOnce() -> Result<T, String> + Send + 'static,
 ) -> Result<T, String> {
@@ -494,8 +504,13 @@ fn group_round(
 
     let mut d = lock(state);
     let cancelled = cancel.load(Ordering::SeqCst);
+    let unanswered = !text.is_empty() && replies.is_empty() && (cancelled || outcome.is_err());
     for s in &speakers {
         d.talks.done(&s.id);
+        // The question goes back to the message box, so sending it again does not ask it twice.
+        if unanswered {
+            d.talks.take_back(&s.id, &json!({"role": "user", "content": text}));
+        }
     }
     match (outcome, cancelled) {
         (_, true) => {
@@ -677,6 +692,24 @@ mod tests {
         assert!(talks.log("two").is_empty());
         talks.forget("one");
         assert!(talks.log("one").is_empty() && talks.history("one").is_empty());
+    }
+
+    #[test]
+    fn a_question_nobody_answered_is_taken_back() {
+        let mut talks = super::Talks::default();
+        let earlier = json!({"role": "assistant", "content": "An earlier reply"});
+        let question = json!({"role": "user", "content": "Where shall we go?"});
+        talks.remember("one", earlier.clone());
+        talks.remember("one", question.clone());
+        talks.take_back("one", &question);
+        assert_eq!(talks.log("one"), vec![earlier.clone()]);
+        assert_eq!(
+            talks.total("one"),
+            1,
+            "a CLI session is not left counting a line it never saw"
+        );
+        talks.take_back("one", &question);
+        assert_eq!(talks.log("one"), vec![earlier], "only the question at the end goes");
     }
 
     #[test]

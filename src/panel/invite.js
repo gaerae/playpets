@@ -291,12 +291,16 @@ function openImportDialog() {
   $('import-url').focus();
 }
 let importing = false;
+let calledOff = false;
 let importOpened = () => {};
 // Both import paths share the dialog: another action must not replace a request still running.
-function setImporting(busy) {
+// Only an address can be called off: a folder or a ZIP waits on the system's own picker.
+function setImporting(busy, cancellable = false) {
   importing = busy;
+  calledOff = false;
   for (const id of ['close-import', 'cancel-import', 'import-folder', 'import-zip', 'import-submit', 'import-url'])
     $(id).disabled = busy;
+  $('cancel-import').disabled = busy && !cancellable;
   $('import-form').setAttribute('aria-busy', String(busy));
   $('import-submit').textContent = t(busy ? 'invite.importing' : 'invite.import_go');
 }
@@ -315,9 +319,15 @@ export function setupInvite(hooks) {
   if ($('invite-search')) $('invite-search').oninput = renderShelf;
   refresh = hooks.refresh;
   $('import').onclick = openImportDialog;
-  $('close-import').onclick = $('cancel-import').onclick = () => {
+  $('close-import').onclick = () => {
     if (!importing) $('import-dialog').close();
   };
+  $('cancel-import').onclick = guard(async () => {
+    if (!importing) return $('import-dialog').close();
+    calledOff = true;
+    $('cancel-import').disabled = true;
+    await call('cancelImport');
+  });
   // A folder or a ZIP that is not a pet is said inside the dialog, beside the address field's errors.
   const fromComputer = command => async () => {
     if (importing) return;
@@ -343,12 +353,12 @@ export function setupInvite(hooks) {
   $('import-form').onsubmit = async e => {
     e.preventDefault();
     if (importing) return;
-    setImporting(true);
+    setImporting(true, true);
     $('import-error').textContent = '';
     try {
       await arrived(await call('importUrl', $('import-url').value));
     } catch (error) {
-      showFormError('import-error', spoken(error, t('error.generic')));
+      if (!calledOff) showFormError('import-error', spoken(error, t('error.generic')));
     } finally {
       setImporting(false);
     }

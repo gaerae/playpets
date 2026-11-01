@@ -200,13 +200,13 @@ pub fn tidy(s: &str, max: usize) -> String {
 }
 
 pub fn read_pet(folder: &Path) -> Result<Asset, String> {
-    let root = dunce::canonicalize(folder).map_err(|e| i18n::detail("pet.unreadable", e))?;
-    let manifest_path = dunce::canonicalize(root.join("pet.json")).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    let root = dunce::canonicalize(folder).map_err(|e| i18n::detail("pet.unreadable", &e))?;
+    let manifest_path = dunce::canonicalize(root.join("pet.json")).map_err(|e| i18n::detail("pet.unreadable", &e))?;
     // Canonical paths have their symlinks and ".." resolved, so a prefix check cannot be escaped.
     if !manifest_path.starts_with(&root) {
         return Err(i18n::t("pet.manifest_inside"));
     }
-    let meta = fs::metadata(&manifest_path).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    let meta = fs::metadata(&manifest_path).map_err(|e| i18n::detail("pet.unreadable", &e))?;
     if !meta.is_file() {
         return Err(i18n::t("pet.manifest_not_file"));
     }
@@ -214,8 +214,8 @@ pub fn read_pet(folder: &Path) -> Result<Asset, String> {
         return Err(i18n::t("pet.manifest_too_big"));
     }
     let m: serde_json::Value =
-        serde_json::from_str(&fs::read_to_string(&manifest_path).map_err(|e| i18n::detail("pet.unreadable", e))?)
-            .map_err(|e| i18n::detail("pet.unreadable", e))?;
+        serde_json::from_str(&fs::read_to_string(&manifest_path).map_err(|e| i18n::detail("pet.unreadable", &e))?)
+            .map_err(|_| i18n::t("pet.manifest_broken"))?;
     let id = tidy(m.get("id").and_then(|v| v.as_str()).unwrap_or(""), 80);
     let display = tidy(m.get("displayName").and_then(|v| v.as_str()).unwrap_or(""), 60);
     if id.is_empty() || display.is_empty() {
@@ -319,14 +319,14 @@ pub fn open_image(root: &Path, path: &Path, limit: usize) -> Result<(fs::File, P
     if !path.starts_with(root) {
         return Err(sprite_inside());
     }
-    let meta = fs::metadata(&path).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    let meta = fs::metadata(&path).map_err(|e| i18n::detail("pet.unreadable", &e))?;
     if !meta.is_file() {
         return Err(i18n::t("pet.sprite_not_file"));
     }
     if meta.len() > limit as u64 {
         return Err(i18n::t("pet.sprite_too_big"));
     }
-    let file = fs::File::open(&path).map_err(|e| i18n::detail("pet.unreadable", e))?;
+    let file = fs::File::open(&path).map_err(|e| i18n::detail("pet.unreadable", &e))?;
     Ok((file, path))
 }
 /// Whether an image of this size is a whole sheet with `rows` rows.
@@ -339,7 +339,7 @@ fn validated_image(root: &Path, relative: &str, limit: usize) -> Result<(PathBuf
     let mut head = Vec::with_capacity(HEAD_BYTES);
     file.take(HEAD_BYTES as u64)
         .read_to_end(&mut head)
-        .map_err(|e| i18n::detail("pet.unreadable", e))?;
+        .map_err(|e| i18n::detail("pet.unreadable", &e))?;
     let size = image_size(&head)?;
     Ok((sprite_path, size))
 }

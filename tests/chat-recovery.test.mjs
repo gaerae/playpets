@@ -3,6 +3,7 @@ import test from 'node:test';
 import { installDom } from './support/dom.mjs';
 
 let resolveChat;
+let resolveRound;
 let updateSucceeds = false;
 const calls = [];
 globalThis.playPets = {
@@ -13,11 +14,15 @@ globalThis.playPets = {
       resolveChat = resolve;
     });
   },
+  chatWith: () =>
+    new Promise(resolve => {
+      resolveRound = resolve;
+    }),
   updatePet: async () =>
     updateSucceeds ? { ok: true, data: null } : { ok: false, error: 'Connection could not be saved.' },
 };
-const { setData, setSelected, temporaryMessages } = await import('../src/core/state.js');
-const { setupChat, renderChat } = await import('../src/panel/chat.js');
+const { companions, setData, setSelected, temporaryMessages } = await import('../src/core/state.js');
+const { chatEvent, setupChat, renderChat } = await import('../src/panel/chat.js');
 
 function page(t) {
   installDom(t, { anyId: true, props: { value: '', scrollHeight: 40, scrollTop: 0, clientHeight: 100 } });
@@ -26,6 +31,7 @@ function page(t) {
   setData({ pets: [friend], providers: [], assets: [], busy: [] });
   setSelected('a');
   temporaryMessages.clear();
+  companions.clear();
   calls.length = 0;
   updateSucceeds = false;
   setupChat();
@@ -58,6 +64,27 @@ test('a failed chat preserves newer composer text and a pending friend cannot su
   await duplicate;
   assert.equal(get('message').value, 'New draft');
   assert.equal(get('send').disabled, false);
+});
+
+test('a group round nobody answered offers its question again', async t => {
+  const get = page(t);
+  companions.add('b');
+  get('message').value = 'Where to?';
+  const pending = submit(get);
+  resolveRound({ ok: false, error: 'The AI could not reply.' });
+  await pending;
+  assert.equal(get('message').value, 'Where to?');
+});
+
+test('a group round a friend answered keeps its question in the log, not in the message box', async t => {
+  const get = page(t);
+  companions.add('b');
+  get('message').value = 'Where to?';
+  const pending = submit(get);
+  chatEvent({ type: 'chat-message', petId: 'a', name: 'Daisy', message: 'The lake!' });
+  resolveRound({ ok: false, error: 'The AI could not reply.' });
+  await pending;
+  assert.equal(get('message').value, '');
 });
 
 test('a rejected AI change shows the saved choice rather than an unsaved connection', async context => {

@@ -68,7 +68,7 @@ pub fn save(dir: &Path, id: &str, pack: &Value) -> Result<(), String> {
     if text.len() > PACK_LIMIT + 64 {
         return Err(i18n::t("error.bad_request"));
     }
-    let failed = |e: std::io::Error| i18n::detail_for("store.write_failed", FOLDER, e);
+    let failed = |e: std::io::Error| i18n::detail_for("store.write_failed", FOLDER, &e);
     fs::create_dir_all(&folder).map_err(failed)?;
     // Only backgrounds count, not the leftovers of a write that was stopped.
     let kept = fs::read_dir(&folder)
@@ -99,7 +99,7 @@ pub fn remove(dir: &Path, id: &str) -> Result<(), String> {
         return Err(i18n::t("error.bad_request"));
     }
     match fs::remove_file(dir.join(FOLDER).join(format!("{id}.json"))) {
-        Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(i18n::detail_for("store.write_failed", FOLDER, e)),
+        Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(i18n::detail_for("store.write_failed", FOLDER, &e)),
         _ => Ok(()),
     }
 }

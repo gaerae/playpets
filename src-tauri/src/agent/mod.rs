@@ -104,6 +104,6 @@ pub fn start(app: &tauri::App) {
                 .store
                 .write_private("bridge.json", &json!({"port": b.port, "token": token}));
         }
-        Err(e) => d.warnings.push(i18n::detail("bridge.failed", e)),
+        Err(_) => d.warnings.push(i18n::t("bridge.failed")),
     }
 }

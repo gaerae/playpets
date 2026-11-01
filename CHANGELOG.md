@@ -17,10 +17,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Remove a pet you imported or picked from the trash button beside its card in Invite a friend. An imported pet's files are deleted; a picked folder only leaves the list. While friends made from the pet are in the yard, PlayPets names them to send away first.
 - A friend brings a gift each time it grows closer, from At ease on, on a day you play with it, and at Very close its own memento, marked with a heart. A friend already close when you update brings one for the level it is at.
 - Connect a coding agent in one press from Settings → Coding tools: PlayPets names the file, asks, then adds its hook to the agent's own settings beside everything already there and keeps a backup. Disconnect takes out only PlayPets' entries; a file PlayPets cannot read is left alone and Copy settings still works. Qoder and Kimi Code join the agents a friend can follow.
+- Cancel stops a pet being imported from an address, and an update while it downloads. An update called off stays ready to install.
 - A gift box in the album's Gifts book keeps up to 12 gifts that came while the yard was full; press one to set it out once there is room. A memento you put away goes back into the box.
 
 ### Changed
 
+- File errors say what went wrong in your language, such as a full disk or a folder PlayPets may not use, instead of the system's own words.
 - A panel chosen from the right-click menu opens where you clicked instead of in the corner above the dock.
 - A friend you invite takes the AI connection your friends already use, and writing to a friend without one uses it too, so nothing asks you to connect again. With two or more connections in use, you still choose.
 - PlayPets starts on the yard with the friend you last talked to, instead of on whichever panel was open when you quit.
@@ -35,6 +37,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Fixed
 
+- Sending a group chat again after it failed no longer asks the question twice. Once a friend has answered, the question stays in the log and does not come back to the message box.
+- In a small window, Tab stays in the open panel instead of moving on to friends hidden behind it.
 - After you unplug a monitor, a window bigger than the remaining screen comes back inside it without a restart, and a window can no longer grow past the screen it is on.
 - What you are writing stays with the friend you are writing to, instead of going to whoever you pick next. A message that fails after you moved on comes back to its friend.
 - The first time you open a friend's chat after starting PlayPets, it shows the latest messages, not the oldest.

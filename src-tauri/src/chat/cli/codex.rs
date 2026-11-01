@@ -34,7 +34,7 @@ fn run(bin: &Path, model: &str, prompt: &str, cancel: &AtomicBool) -> Result<Str
     let out = own_file(&workdir(), "codex", "").map_err(|e| {
         CodexError::Failed(i18n::tr(
             "cli.spawn_failed",
-            &[("name", "Codex"), ("detail", &e.to_string())],
+            &[("name", "Codex"), ("detail", &i18n::reason(&e))],
         ))
     })?;
     let (program, script) = launcher(bin);
@@ -56,7 +56,7 @@ fn run(bin: &Path, model: &str, prompt: &str, cancel: &AtomicBool) -> Result<Str
         CodexError::Failed(if e.kind() == std::io::ErrorKind::NotFound {
             missing("codex")
         } else {
-            i18n::tr("cli.spawn_failed", &[("name", "Codex"), ("detail", &e.to_string())])
+            i18n::tr("cli.spawn_failed", &[("name", "Codex"), ("detail", &i18n::reason(&e))])
         })
     })?;
     let _ = child.stdin.take().unwrap().write_all(prompt.as_bytes());

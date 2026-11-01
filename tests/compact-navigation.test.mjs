@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
+const { wrapTab } = await import('../src/panel/tabs.js');
 const read = path => readFile(path, 'utf8');
 
 const panelBlock = (html, id) => {
@@ -134,4 +135,16 @@ test('the tool strip takes the place of the dock, where Play was opened and just
   assert.match(shell, /\.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\) \.yard-dock\s*\{[^}]*display:\s*none/s);
   const garden = await read('src/styles/garden.css');
   assert.match(garden, /\.discovery-target\s*\{[^}]*position:\s*absolute;[^}]*right:\s*12px;[^}]*bottom:\s*12px/s);
+});
+
+test("Tab goes round a small window's panel instead of on to friends hidden behind it", () => {
+  const [first, middle, last] = ['first', 'middle', 'last'];
+  const stops = [first, middle, last];
+  assert.equal(wrapTab(stops, last, false), first, 'past the last stop');
+  assert.equal(wrapTab(stops, first, true), last, 'back past the first stop');
+  assert.equal(wrapTab(stops, 'panel title', true), last, 'back from the title a panel opens on');
+  assert.equal(wrapTab(stops, middle, false), null, 'the browser moves between stops itself');
+  assert.equal(wrapTab(stops, middle, true), null);
+  assert.equal(wrapTab(stops, 'panel title', false), null, 'forward from the title is the first stop already');
+  assert.equal(wrapTab([], 'panel title', true), null);
 });

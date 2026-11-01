@@ -5,7 +5,9 @@
 use crate::app::push_event;
 use crate::i18n;
 use serde_json::{Value, json};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Condvar, Mutex};
+use tauri::async_runtime::JoinHandle;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_updater::{Update, UpdaterExt};
 
@@ -14,6 +16,8 @@ use tauri_plugin_updater::{Update, UpdaterExt};
 pub struct Found {
     state: Mutex<UpdateState>,
     checked: Condvar,
+    /// Set by the person's Cancel while a download runs.
+    cancel: AtomicBool,
 }
 
 #[derive(Default)]
@@ -92,6 +96,26 @@ pub fn found_version(app: &AppHandle) -> Option<String> {
 
 const DOWNLOAD_LIMIT: std::time::Duration = std::time::Duration::from_secs(20 * 60);
 
+/// Calls off the download under way; once its bytes are being installed it is too late.
+pub fn cancel(app: &AppHandle) {
+    let found = app.state::<Found>();
+    if crate::app::hold(&found.state).installing {
+        found.cancel.store(true, Ordering::SeqCst);
+    }
+}
+
+/// Waits for a task, ending it as soon as `cancel` is set. None when it did not finish.
+fn unless_called_off<T: Send + 'static>(task: JoinHandle<T>, cancel: &AtomicBool) -> Option<T> {
+    while !task.inner().is_finished() {
+        if cancel.load(Ordering::SeqCst) {
+            task.abort();
+            return None;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+    tauri::async_runtime::block_on(task).ok()
+}
+
 /// Downloads and installs the update found by `check`, then starts the new version.
 pub fn install(app: &AppHandle) -> Result<Value, String> {
     if store_managed() {
@@ -108,6 +132,7 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
         }
         let mut update = state.update.clone().ok_or_else(|| i18n::t("update.none"))?;
         state.installing = true;
+        found.cancel.store(false, Ordering::SeqCst);
         // The found update does not carry the check's timeout, and a stalled download would keep
         // the page on "downloading" with no way to try again. The limit is for the whole download,
         // so it is long enough for a slow connection.
@@ -117,35 +142,51 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
     push_event(app, &json!({"type": "update-status", "phase": "downloading"}));
     // The page shows meaningful steps rather than repainting for every network chunk.
     let (mut received, mut shown) = (0u64, 0u64);
-    let progress = |chunk: usize, total: Option<u64>| {
+    let (status, verifying) = (app.clone(), app.clone());
+    let progress = move |chunk: usize, total: Option<u64>| {
         received += chunk as u64;
         if let Some(total) = total.filter(|t| *t > 0) {
             let percent = (received.saturating_mul(100) / total).min(100);
             if percent >= shown + 5 || percent == 100 {
                 shown = percent;
                 push_event(
-                    app,
+                    &status,
                     &json!({"type": "update-status", "phase": "downloading", "percent": percent}),
                 );
             }
         }
     };
+    let download = update.clone();
     // `download` checks the signature before returning. Its finish callback fires before that check.
-    let bytes = tauri::async_runtime::block_on(update.download(progress, || {
-        push_event(app, &json!({"type": "update-status", "phase": "verifying"}));
-    }));
-    let result = bytes.and_then(|bytes| {
-        push_event(app, &json!({"type": "update-status", "phase": "installing"}));
-        // On Windows the installer can exit this process, so save before handing control to it.
-        crate::app::flush(app);
-        update.install(bytes)
+    let downloading = tauri::async_runtime::spawn(async move {
+        download
+            .download(progress, move || {
+                push_event(&verifying, &json!({"type": "update-status", "phase": "verifying"}));
+            })
+            .await
+    });
+    let bytes = unless_called_off(downloading, &found.cancel);
+    let cancelled = found.cancel.load(Ordering::SeqCst);
+    let installed = bytes.is_some_and(|bytes| {
+        bytes
+            .and_then(|bytes| {
+                push_event(app, &json!({"type": "update-status", "phase": "installing"}));
+                // On Windows the installer can exit this process, so save before handing control to it.
+                crate::app::flush(app);
+                update.install(bytes)
+            })
+            .is_ok()
     });
     // Keep the selected release stable while downloading, so periodic checks cannot replace it.
-    if result.is_err() {
+    if !installed {
         crate::app::hold(&found.state).installing = false;
         // The tray names the update again (it may have been rebuilt while this one was taken).
         crate::tray::rebuild(app);
-        return Err(i18n::t("update.install_failed"));
+        return if cancelled {
+            Ok(json!({"cancelled": true}))
+        } else {
+            Err(i18n::t("update.install_failed"))
+        };
     }
     app.restart();
 }
@@ -205,6 +246,20 @@ pub fn store_managed() -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn calling_off_ends_a_task_that_would_never_finish() {
+        let cancel = std::sync::Arc::new(AtomicBool::new(false));
+        let flag = cancel.clone();
+        std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_millis(50));
+            flag.store(true, Ordering::SeqCst);
+        });
+        let stuck = tauri::async_runtime::spawn(std::future::pending::<u8>());
+        assert_eq!(unless_called_off(stuck, &cancel), None);
+        let done = tauri::async_runtime::spawn(async { 7u8 });
+        assert_eq!(unless_called_off(done, &AtomicBool::new(false)), Some(7));
+    }
 
     #[test]
     fn checks_repeat_with_bounded_failure_backoff() {

@@ -85,6 +85,8 @@ pub struct AppData {
     pub statuses: Map<String, Value>,
     /// Each friend's conversation, and the answers on their way (chat/mod.rs).
     pub talks: chat::Talks,
+    /// The flags that call off the pet imports under way, not saved.
+    pub importing: Vec<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     /// Providers being saved right now.
     pub provider_updates: HashSet<String>,
     pub detected: Value,
