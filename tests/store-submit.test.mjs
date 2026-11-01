@@ -23,8 +23,12 @@ const listingsFor = keys => Object.fromEntries(keys.map(key => [key, { baseListi
 
 function clientFor(product = app, hold = 'Manual', storeVersion = '1.2.0.0', listingKeys = Object.keys(notes)) {
   const calls = [];
-  return {
+  const client = {
     calls,
+    statuses: [],
+    wait: async () => {
+      calls.push({ method: 'WAIT' });
+    },
     request: async (method, path, body) => {
       calls.push({ method, path, body });
       if (path === '') return product;
@@ -39,18 +43,21 @@ function clientFor(product = app, hold = 'Manual', storeVersion = '1.2.0.0', lis
           id: '20',
           fileUploadUrl: 'https://example.blob.core.windows.net/package?sig=private',
           pricing: { priceId: 'unknown' },
+          targetPublishDate: '1601-01-01T00:00:00Z',
           notesForCertification: fullTrust,
           applicationPackages: [{ id: 'old', fileName: 'old.msix', fileStatus: 'Uploaded' }],
           listings: listingsFor(listingKeys),
         };
       if (method === 'GET' && path === '/submissions/20') return { id: '20', targetPublishMode: hold };
-      if (path.endsWith('/status')) return { status: 'CommitStarted', fileUploadUrl: 'private' };
+      if (path.endsWith('/status'))
+        return { fileUploadUrl: 'private', ...(client.statuses.shift() ?? { status: 'PreProcessing' }) };
       return {};
     },
     upload: async url => {
       calls.push({ method: 'UPLOAD', url });
     },
   };
+  return client;
 }
 
 test('Store submission leaves the initial portal draft and unpublished products untouched', async () => {
@@ -78,12 +85,14 @@ test('Store submission leaves a version the Store already has untouched', async 
   }
 });
 
-test('Store submission keeps manual publication, replaces packages and leaves Pricing V2 out of updates', async () => {
+test('Store submission keeps manual publication, replaces packages and sends the copied pricing back', async () => {
   const client = clientFor();
   const report = await submitStore(client, release);
   const update = client.calls.find(call => call.method === 'PUT').body;
   assert.equal(update.targetPublishMode, 'Manual');
-  assert.equal('pricing' in update, false);
+  // Microsoft refuses an update without pricing (InvalidParameterValue, target pricing).
+  assert.deepEqual(update.pricing, { priceId: 'unknown' });
+  assert.equal(update.targetPublishDate, '1601-01-01T00:00:00Z');
   assert.equal(update.notesForCertification, fullTrust);
   assert.deepEqual(
     Object.fromEntries(
@@ -179,6 +188,52 @@ test('Store submission keeps a draft it already asked the Store to commit', asyn
   };
   await assert.rejects(submitStore(client, release), /refused/);
   assert.ok(client.calls.every(call => call.method !== 'DELETE'));
+});
+
+test('Store submission waits for the Store to take the commit', async () => {
+  const client = clientFor();
+  client.statuses = [{ status: 'CommitStarted' }, { status: 'CommitStarted' }, { status: 'PreProcessing' }];
+  const report = await submitStore(client, release);
+  assert.equal(report.storeStatus, 'PreProcessing');
+  assert.equal(client.calls.filter(call => call.method === 'WAIT').length, 2);
+});
+
+test('Store submission says when the commit is still running at the end of its wait', async () => {
+  const client = clientFor();
+  client.statuses = Array.from({ length: 100 }, () => ({ status: 'CommitStarted' }));
+  const report = await submitStore(client, release);
+  assert.equal(report.storeStatus, 'CommitStarted');
+  assert.ok(client.statuses.length > 0);
+});
+
+test('Store submission reports and removes a commit the Store refused', async () => {
+  const client = clientFor();
+  client.statuses = [
+    {
+      status: 'CommitFailed',
+      statusDetails: {
+        errors: [{ code: 'InvalidParameterValue', details: 'Bad listing at https://example.com/private' }],
+      },
+    },
+  ];
+  await assert.rejects(submitStore(client, release), error => {
+    assert.equal(error.safe, true);
+    assert.match(error.message, /CommitFailed/);
+    assert.match(error.message, /InvalidParameterValue: Bad listing/);
+    assert.match(error.message, /The new draft was removed\./);
+    assert.doesNotMatch(error.message, /https:|private/);
+    return true;
+  });
+  assert.deepEqual(client.calls.at(-1), { method: 'DELETE', path: '/submissions/20', body: undefined });
+});
+
+test('Store submission keeps a submission that failed after the commit', async () => {
+  for (const status of ['PreProcessingFailed', 'CertificationFailed']) {
+    const client = clientFor();
+    client.statuses = [{ status }];
+    await assert.rejects(submitStore(client, release), new RegExp(status));
+    assert.ok(client.calls.every(call => call.method !== 'DELETE'));
+  }
 });
 
 test("a refused Store request says Microsoft's reason, without an address or a long value", () => {

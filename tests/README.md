@@ -57,7 +57,8 @@
 - `store-submit.test.mjs` covers:
   - first-registration, pending-draft and same-version refusal;
   - the publish mode and kept certification notes;
-  - Pricing V2 omission and upload destination validation;
+  - copied pricing kept in the update, and upload destination validation;
+  - the wait after the commit and what happens to a refused submission;
   - What's new from the release pages;
   - the `store.yml` job boundaries and the `store-retry.yml` checks.
 - These tests do not request certification or establish that Store delivery

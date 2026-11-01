@@ -155,10 +155,13 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
   1. Refuses a product other than PlayPets, a product with no published submission, and any pending submission. Nothing changes.
   2. Refuses a version the Store already has (a rerun), and a published submission without an English, Korean, Japanese or Simplified Chinese listing. Nothing changes.
   3. Creates a submission. Microsoft makes it a copy of the published one: listings, screenshots, certification notes (the `runFullTrust` explanation), markets and options stay.
-  4. Replaces both packages, sets each language's "What's new", and sets the publish mode. Pricing is left out of the update.
-  5. Uploads the two MSIX to the API's Azure Blob address only, checks that the publish mode was kept, and commits. Certification starts.
+  4. Replaces both packages, sets each language's "What's new", and sets the publish mode. Pricing and everything else go back as the Store copied them: the Store refuses an update without pricing.
+  5. Uploads the two MSIX to the API's Azure Blob address only, checks that the publish mode was kept, and commits.
+  6. Waits up to 10 minutes for the Store to finish reading the commit. Certification starts after that.
 - It never calls the publish endpoint and never retries.
-- A failure before the commit removes the submission it created, so the next run isn't stopped by it.
+- A failure before the commit, or `CommitFailed` after it, removes the submission it created, so the next run isn't stopped by it.
+- A later failure, such as `CertificationFailed`, keeps the submission for a person to read in Partner Center.
+- The log's report gives the Store's status when the run ended. `CommitStarted` means the Store hadn't finished after 10 minutes; check Partner Center.
 - Logs show a short report and the Store's own reason for a refused request, with addresses and long values taken out. They show no token, key or upload address.
 - To send a published release again with a fix made after its tag, run `store-retry` from `main` with the tag and the ID of its `store` run. It uses that run's `store-bundle` artifact, kept for 14 days, and main's script.
 
