@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { storeNotes, storeNotesFor } from '../scripts/store-notes.mjs';
-import { submitStore } from '../scripts/store-submit.mjs';
+import { forThisRelease, storeFailure, submitStore } from '../scripts/store-submit.mjs';
 
 const app = {
   id: '9NSKXQ6R187M',
@@ -124,6 +124,87 @@ test('Store submission does not commit if the server did not retain the publish 
   const client = clientFor(app, 'Immediate');
   await assert.rejects(submitStore(client, release), /Manual publication was not retained/);
   assert.ok(client.calls.every(call => !call.path?.endsWith('/commit')));
+  assert.equal(client.calls.at(-1).method, 'DELETE');
+});
+
+// A draft left behind stops the next run, so one this script made goes as soon as it cannot be committed.
+const refusing = (method, removal = async () => ({})) => {
+  const client = clientFor();
+  const { request } = client;
+  client.request = async (verb, path, body) => {
+    if (verb === 'DELETE') {
+      client.calls.push({ method: verb, path });
+      return removal();
+    }
+    if (verb === method) throw Object.assign(new Error('Store request failed (HTTP 400): pricing'), { safe: true });
+    return request(verb, path, body);
+  };
+  return client;
+};
+
+test('Store submission removes its own draft when the update is refused', async () => {
+  const client = refusing('PUT');
+  await assert.rejects(submitStore(client, release), /HTTP 400\): pricing\. The new draft was removed\./);
+  assert.deepEqual(client.calls.at(-1), { method: 'DELETE', path: '/submissions/20' });
+  assert.ok(client.calls.every(call => call.method !== 'UPLOAD' && !call.path?.endsWith('/commit')));
+});
+
+test('Store submission says when its draft is still there', async () => {
+  const client = refusing('PUT', async () => {
+    throw new Error('network');
+  });
+  await assert.rejects(submitStore(client, release), /still in Partner Center; delete it before retrying/);
+});
+
+test('Store submission hides what it did not write when it removes its draft', async () => {
+  const client = clientFor();
+  const { request } = client;
+  client.request = async (verb, path, body) => {
+    if (verb === 'PUT') throw new Error('sig=private');
+    return request(verb, path, body);
+  };
+  await assert.rejects(submitStore(client, release), error => {
+    assert.equal(error.safe, true);
+    assert.doesNotMatch(error.message, /private/);
+    return true;
+  });
+});
+
+test('Store submission keeps a draft it already asked the Store to commit', async () => {
+  const client = clientFor();
+  const { request } = client;
+  client.request = async (verb, path, body) => {
+    if (path.endsWith('/commit')) throw Object.assign(new Error('refused'), { safe: true });
+    return request(verb, path, body);
+  };
+  await assert.rejects(submitStore(client, release), /refused/);
+  assert.ok(client.calls.every(call => call.method !== 'DELETE'));
+});
+
+test("a refused Store request says Microsoft's reason, without an address or a long value", () => {
+  const key = 'a'.repeat(40);
+  const body = JSON.stringify({
+    code: 'InvalidParameterValue',
+    target: 'pricing',
+    message: `Bad value\n  at https://example.blob.core.windows.net/package?sig=private ${key}`,
+  });
+  const text = storeFailure(400, body);
+  assert.match(text, /^Store request failed \(HTTP 400\): /);
+  assert.match(text, /InvalidParameterValue/);
+  assert.match(text, /pricing/);
+  assert.doesNotMatch(text, /https:|sig=|private|\n/);
+  assert.ok(!text.includes(key));
+  assert.equal(storeFailure(503, ''), 'Store request failed (HTTP 503)');
+  assert.ok(storeFailure(400, 'x '.repeat(2000)).length < 900);
+});
+
+test('a release is sent from its tag, or from main when main names the tag', () => {
+  assert.equal(forThisRelease({ GITHUB_REF: 'refs/tags/v1.4.0' }, '1.4.0'), true);
+  assert.equal(forThisRelease({ GITHUB_REF: 'refs/tags/v1.3.0' }, '1.4.0'), false);
+  assert.equal(forThisRelease({ GITHUB_REF: 'refs/heads/main', STORE_RELEASE_TAG: 'v1.4.0' }, '1.4.0'), true);
+  assert.equal(forThisRelease({ GITHUB_REF: 'refs/heads/main' }, '1.4.0'), false);
+  assert.equal(forThisRelease({ GITHUB_REF: 'refs/heads/main', STORE_RELEASE_TAG: 'v1.3.0' }, '1.4.0'), false);
+  assert.equal(forThisRelease({ GITHUB_REF: 'refs/heads/other', STORE_RELEASE_TAG: 'v1.4.0' }, '1.4.0'), false);
 });
 
 test('Store submission rejects non-Azure upload URLs without uploading credentials or packages', async () => {
@@ -242,6 +323,23 @@ test('a published release builds and submits its own tag, with Store credentials
   // None of the four values skips the submission; some of them fails it, like the APPLE_* secrets.
   assert.match(submit, /if \[ "\$present" -eq 0 \]; then[\s\S]*exit 0/);
   assert.match(submit, /if \[ "\$present" -lt "\$\{#fields\[@\]\}" \]; then[\s\S]*exit 1/);
+});
+
+test("a retry sends the tag's own packages with main's script, and builds nothing", () => {
+  const workflow = readFileSync('.github/workflows/store-retry.yml', 'utf8');
+  assert.match(workflow, /^on:\n {2}workflow_dispatch:\n/m);
+  assert.doesNotMatch(workflow, /^ {2}(push|pull_request|release)/m);
+  assert.match(workflow, /group: microsoft-store/);
+  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
+  assert.match(workflow, /environment: microsoft-store/);
+  assert.match(workflow, /name: store-bundle\n\s+path: release\/store\n\s+run-id: \$\{\{ inputs\.run \}\}/);
+  assert.doesNotMatch(workflow, /p?npm (ci|install)|cache:|rust-cache|action-setup|^\s+ref:/m);
+  const check = workflow.indexOf('sourceSha');
+  const hashes = workflow.indexOf('sha256');
+  const submit = workflow.indexOf('node scripts/store-submit.mjs release/store');
+  const secret = workflow.indexOf('secrets.STORE_CLIENT_SECRET');
+  assert.ok(check > 0 && hashes > 0 && check < submit && hashes < submit && check < secret);
+  assert.match(workflow, /STORE_RELEASE_TAG: \$\{\{ inputs\.tag \}\}/);
 });
 
 test('a stopped submission names its own reason and nothing else', async () => {

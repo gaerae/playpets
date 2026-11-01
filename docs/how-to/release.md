@@ -245,7 +245,8 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 | `gh release create` fails with "already exists" | A draft for the same tag already exists. Delete that draft and run `release` by hand |
 | `store` stops with "already has this version" | The Store has this version or a later one. Nothing changed |
 | `store` stops with "pending submission" | A submission is still in certification or a draft is open in Partner Center. **Store API verification** shows its state and error codes. Finish or delete it, then run `store` by hand from the tag (**Use workflow from → Tags → vx.y.z**) |
-| `store` stops after creating a submission | Open the draft in Partner Center, fix it there and submit by hand. Do not run `store` again while that draft exists |
+| `store` stops after creating a submission | The log gives the Store's reason and says whether the draft was removed. If it is still there, delete it in Partner Center. Fix the cause on main, then run `store-retry` from `main` with the tag and the `store` run's ID |
+| `store` stops after the commit | Open the submission in Partner Center and fix it there. Do not run `store` or `store-retry` while it is pending |
 | `distribute` fails for a published version (a manifest or the cask is refused) | Fix the generator on main, then run `distribute` by hand from main with that tag. The run uses main's generator and the tag's release files |
 
 For wider cases, see the [troubleshooting guide](../troubleshooting.md).
