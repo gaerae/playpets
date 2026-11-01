@@ -246,6 +246,7 @@ The account holder does these one-time steps. Never paste a key into a chat, iss
 - It never creates, uploads, commits or publishes a submission.
 - Logs show a short report with no token responses, provider error bodies, keys or upload addresses.
 - It runs only by hand, from **Actions** on `main`.
+- It stays out of the `microsoft-store` queue, so a run waiting for approval holds up no submission.
 
 ### When a run stops
 - A failure after the submission was created leaves a draft in Partner Center.

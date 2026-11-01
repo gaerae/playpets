@@ -380,6 +380,12 @@ test('a published release builds and submits its own tag, with Store credentials
   assert.match(submit, /if \[ "\$present" -lt "\$\{#fields\[@\]\}" \]; then[\s\S]*exit 1/);
 });
 
+test('a read-only Store check waiting for approval holds no submission up', () => {
+  const workflow = readFileSync('.github/workflows/store-api.yml', 'utf8');
+  assert.match(workflow, /^on:\n {2}workflow_dispatch:\n/m);
+  assert.doesNotMatch(workflow, /^concurrency:|group: microsoft-store/m);
+});
+
 test("a retry sends the tag's own packages with main's script, and builds nothing", () => {
   const workflow = readFileSync('.github/workflows/store-retry.yml', 'utf8');
   assert.match(workflow, /^on:\n {2}workflow_dispatch:\n/m);

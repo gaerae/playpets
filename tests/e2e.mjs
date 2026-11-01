@@ -98,7 +98,9 @@ const scenario = `(async()=>{
   const L=m=>window.__TAURI__.core.invoke('call',{name:'e2eLog',args:[m]});
   const must=async(label,p)=>{const r=await p;await L(label+'='+(r&&r.ok!==undefined?(r.ok?'ok':'err:'+r.error):JSON.stringify(r).slice(0,60)));return r;};
   // Polls until f() is truthy (or ms pass) and returns that value, so no check sleeps for a fixed time.
-  const until=async(f,ms=5000)=>{const end=Date.now()+ms;let v=await f();while(!v&&Date.now()<end){await new Promise(r=>setTimeout(r,50));v=await f();}return v;};
+  // What ran out of time is named at the end: a wait returns quietly, and the check that fails can be far from it.
+  const lateWaits=[];
+  const until=async(f,ms=5000)=>{const end=Date.now()+ms;let v=await f();while(!v&&Date.now()<end){await new Promise(r=>setTimeout(r,50));v=await f();}if(!v)lateWaits.push(String(f).replace(/\\s+/g,' ').slice(0,120));return v;};
   // "ResizeObserver loop completed with undelivered notifications" is the browser deferring a
   // resize to the next frame, not a fault in the page, so it is not counted.
   let pageError='';window.addEventListener('error',e=>{if(!pageError&&!String(e.message).startsWith('ResizeObserver loop'))pageError=e.message+' @'+(e.filename||'').split('/').pop()+':'+e.lineno;});
@@ -380,15 +382,17 @@ const scenario = `(async()=>{
     const yardStyle=$('yard').style;
     // The garden: a friend's find goes in the pocket, the tool plants it on the field, the backend keeps it.
     await until(()=>$('seed-count').textContent==='1');
-    // A press near a creature puts the tool away and catches it (catch.js), so this one waits for a clear spot.
-    const yr=$('yard').getBoundingClientRect(),spotX=yr.width*0.5,spotY=yr.height*0.85,wildlife=await import('./yard/world.js');
-    await until(()=>!wildlife.scenery.near(spotX,spotY));
+    // A press near a creature or on the lake puts the tool away and catches it (catch.js), and a beetle
+    // crawls too slowly to wait for, so this one takes a clear spot.
+    const yr=$('yard').getBoundingClientRect(),{scenery:wildlife}=await import('./yard/world.js'),{onLake:lakeAt}=await import('./yard/catch.js');
+    const clearSpot=()=>[0.5,0.4,0.6,0.3,0.7].flatMap(x=>[0.85,0.8,0.9].map(y=>[yr.width*x,yr.height*y])).find(([x,y])=>!wildlife.near(x,y)&&!lakeAt(x,y));
+    const [spotX,spotY]=await until(clearSpot);
     $('plant-tool').click();
     $('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:yr.left+spotX,clientY:yr.top+spotY}));
     // The friend walks to the spot first, from wherever it happened to be.
     await until(()=>document.querySelectorAll('.plant').length===1,15000);
     const gb=(await playPets.bootstrap()).data.garden;
-    const planted=gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant')?.dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true',gardenNow={...yardNow(),garden:gb,plants:document.querySelectorAll('.plant').length,aiming:$('yard').classList.contains('aiming'),tool:$('plant-tool').getAttribute('aria-disabled')};
+    const planted=gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant')?.dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true',gardenNow={...yardNow(),spot:[spotX,spotY],garden:gb,plants:document.querySelectorAll('.plant').length,aiming:$('yard').classList.contains('aiming'),tool:$('plant-tool').getAttribute('aria-disabled')};
     await L('garden='+(planted?'found-planted':'err:'+JSON.stringify({...gardenNow,frames:await framesIn(500)})));
     // A gift: a friend the person did something with that day brings it, every other day; the backend picks the first
     // kind; a drag moves it and it stays moved; it can be put away.
@@ -762,8 +766,9 @@ const scenario = `(async()=>{
         $('scene-button').click();await wait(30);
         const atmosphere=$('scene-body'),details=[...atmosphere.querySelectorAll('.atmosphere-choice')],summaries=details.map(group=>group.querySelector('summary'));
         // Atmosphere sits below Places on the same page: bring it into view first, as a person scrolls.
-        summaries.at(-1).scrollIntoView({block:'nearest'});await wait(20);
         const compactClimate=document.body.classList.contains('compact');
+        // The page may still be settling from opening, on a busy machine for longer than a fixed wait.
+        await until(()=>{summaries.at(-1).scrollIntoView({block:'nearest'});return !compactClimate||summaries.every(visibleNode);},1500);await wait(20);
         let climateFits=details.length===3&&(!compactClimate||summaries.every(visibleNode));
         const climateTrace=[['initial',climateFits,summaries.map(node=>({text:node.textContent,box:node.getBoundingClientRect().toJSON()}))]];
         for(const group of details){
@@ -1243,8 +1248,9 @@ const scenario = `(async()=>{
     for(const pet of [adultA,adultB,...extraCompanions])await playPets.removePet(pet.id);await playPets.openChat(p1.data.id);
 
     await L('pageErrors='+(pageError||'none'));
+    await L('lateWaits='+JSON.stringify(lateWaits));
     await L('DONE');
-  }catch(e){await L('FATAL:'+String(e).slice(0,140));}
+  }catch(e){await L('lateWaits='+JSON.stringify(lateWaits));await L('FATAL:'+String(e).slice(0,140));}
 })();`;
 
 // The scenario runs inside the app, where a syntax error would only show as every check failing.
@@ -1270,8 +1276,13 @@ child.stderr.on('data', d => console.log('  [stderr]', d.toString().trim().slice
 child.on('exit', (code, signal) => {
   if (!done) console.log('  [exit]', code, signal);
 });
+// Output comes in pieces of any size: a piece can end inside a line or inside a character.
+let partLine = '';
+child.stdout.setEncoding('utf8');
 child.stdout.on('data', d => {
-  for (const line of d.toString().split('\n')) {
+  const pieces = (partLine + d).split('\n');
+  partLine = pieces.pop();
+  for (const line of pieces) {
     if (!line.startsWith('[e2e] ')) continue;
     const msg = line.slice(6).trim();
     lines.push(msg);
