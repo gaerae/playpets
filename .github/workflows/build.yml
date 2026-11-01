@@ -4,10 +4,16 @@
 name: build
 
 on:
+  # The ruleset merges a PR only on top of the latest main and after this workflow passed, so main
+  # already holds a tested tree. It builds again only to refresh the Rust cache that PRs restore: when
+  # the crates change, and on Fridays for the Rust version, the morning after a Thursday stable release.
   push:
     branches: [main]
+    paths: [src-tauri/Cargo.lock, src-tauri/Cargo.toml, .github/workflows/build.yml]
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: '47 4 * * 5'
 
 permissions:
   contents: read
@@ -33,6 +39,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.name }}
     timeout-minutes: 90
+    # LTO takes most of each link, and this job links up to four times; only the release keeps it
+    # (Cargo.toml). Set for the whole job because rust-cache hashes CARGO* variables into its key.
+    env:
+      CARGO_PROFILE_RELEASE_LTO: 'off'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -46,9 +56,12 @@ jobs:
         with:
           toolchain: stable
           components: clippy, rustfmt
+      # A PR's cache serves that PR alone yet counts against the repository's limit, where it can
+      # push out the caches of main that every PR restores.
       - uses: swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           workspaces: src-tauri
+          save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Linux system libraries
         if: runner.os == 'Linux'
         run: |

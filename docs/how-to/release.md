@@ -16,7 +16,10 @@
 - The [signing keys and secrets standard](../standards/keys-and-secrets.md) lists the secrets.
 
 ## Prerequisites
-- CI (`build`, `security` and `codeql`) passed for the latest commit on main, including every desktop platform.
+- `security` and `codeql` passed for the latest commit on main.
+- `build` passed on every desktop platform for the pull request behind that commit.
+  - main builds only when the crates or the workflow change ([automated checks](../standards/testing.md#automated-checks)).
+  - For a run on main itself, use `gh workflow run build.yml --ref main`.
 - `CHANGELOG.md` lists this version's changes under `## [Unreleased]`. If it is empty, the release command stops.
 - You chose the version number: bump the second number for new features, the third when there are only fixes.
 - `git status` is empty locally.

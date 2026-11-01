@@ -147,7 +147,7 @@ Records are dated and never rewritten. When two disagree, the later one holds. T
 **Repository automation**
 | File | What it does |
 |---|---|
-| `.github/workflows/build.yml` | `build` job: lint, test, build and E2E on five environments. `site` job: builds the site, so a dead link fails the PR. Runs for every push to main and every PR |
+| `.github/workflows/build.yml` | `build` job: lint, test, build and E2E on five environments. `site` job: builds the site, so a dead link fails the PR. Runs for every PR, on main when the crates or this workflow change, and weekly |
 | `.github/workflows/release.yml` | Builds every environment from a version tag into a release draft |
 | `.github/workflows/distribute.yml` | winget manifest and Homebrew cask from a published release |
 | `.github/workflows/pages.yml` | Builds and publishes GitHub Pages when its source or shared inputs change on main |
