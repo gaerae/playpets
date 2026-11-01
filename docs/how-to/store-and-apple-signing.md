@@ -158,7 +158,9 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
   4. Replaces both packages, sets each language's "What's new", and sets the publish mode. Pricing is left out of the update.
   5. Uploads the two MSIX to the API's Azure Blob address only, checks that the publish mode was kept, and commits. Certification starts.
 - It never calls the publish endpoint and never retries.
-- Logs show a short report with no token, key, upload address or provider error body.
+- A failure before the commit removes the submission it created, so the next run isn't stopped by it.
+- Logs show a short report and the Store's own reason for a refused request, with addresses and long values taken out. They show no token, key or upload address.
+- To send a published release again with a fix made after its tag, run `store-retry` from `main` with the tag and the ID of its `store` run. It uses that run's `store-bundle` artifact, kept for 14 days, and main's script.
 
 ### What's new
 - Source: the website release page in each language (`website/releases/x.y.z.md`, `website/ko/…`, `website/ja/…`, `website/zh-hans/…`).

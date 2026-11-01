@@ -59,6 +59,6 @@
   - the publish mode and kept certification notes;
   - Pricing V2 omission and upload destination validation;
   - What's new from the release pages;
-  - the `store.yml` job boundaries.
+  - the `store.yml` job boundaries and the `store-retry.yml` checks.
 - These tests do not request certification or establish that Store delivery
   works.

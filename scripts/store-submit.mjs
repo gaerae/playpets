@@ -5,8 +5,24 @@ import { pathToFileURL } from 'node:url';
 import { verifyStore } from './store-api.mjs';
 
 const PUBLISH_MODES = ['Manual', 'Immediate'];
-// The script's own messages hold no provider data, so the log may show them; anything else is hidden.
+// The script's own messages and storeFailure hold no address or key, so the log may show them;
+// anything else is hidden.
 const stop = message => Object.assign(new Error(message), { safe: true });
+// Why the Store refused a request: a 400 names no field, only this body does. Upload addresses and
+// other long values are signed, so they never reach the log.
+export function storeFailure(status, body) {
+  const reason = String(body)
+    .replace(/https?:\/\/\S+/g, '[address]')
+    .replace(/[\w+/=%.-]{32,}/g, '[value]')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 800);
+  return `Store request failed (HTTP ${status})${reason ? `: ${reason}` : ''}`;
+}
+// store-retry.yml sends a release from main, with the tag's packages and main's script.
+export const forThisRelease = (env, version) =>
+  env.GITHUB_REF === `refs/tags/v${version}` ||
+  (env.GITHUB_REF === 'refs/heads/main' && env.STORE_RELEASE_TAG === `v${version}`);
 const packageVersion = text => (/^\d+(\.\d+){3}$/.test(text || '') ? text.split('.').map(Number) : null);
 const notOlder = (a, b) => {
   const i = a.findIndex((part, at) => part !== b[at]);
@@ -82,6 +98,34 @@ export async function submitStore(client, release) {
   const draft = await client.request('POST', '/submissions');
   if (!/^\d+$/.test(draft.id)) throw stop('Invalid created submission ID; inspect Partner Center');
   const path = `/submissions/${draft.id}`;
+  try {
+    await fillDraft(client, draft, path, { files, notes, publishMode, locales, listingFor });
+  } catch (error) {
+    // The next run stops at any pending submission, so this one takes back the draft it made.
+    const left = await client.request('DELETE', path).then(
+      () => 'The new draft was removed.',
+      () => 'The new draft is still in Partner Center; delete it before retrying.',
+    );
+    throw stop(error.safe ? `${error.message}. ${left}` : left);
+  }
+  await client.request('POST', `${path}/commit`);
+  const status = await client.request('GET', `${path}/status`);
+  if (
+    ['CommitFailed', 'PreProcessingFailed', 'CertificationFailed', 'PublishFailed', 'ReleaseFailed'].includes(
+      status.status,
+    )
+  )
+    throw stop('Store processing failed; inspect Partner Center without retrying submission');
+  return {
+    submissionId: draft.id,
+    version,
+    publishMode,
+    certificationRequested: true,
+    publishesAfterCertification: publishMode === 'Immediate',
+  };
+}
+
+async function fillDraft(client, draft, path, { files, notes, publishMode, locales, listingFor }) {
   let destination;
   try {
     destination = new URL(draft.fileUploadUrl);
@@ -125,31 +169,12 @@ export async function submitStore(client, release) {
   await client.upload(destination.href);
   const saved = await client.request('GET', path);
   if (saved.targetPublishMode !== publishMode) throw stop(`${publishMode} publication was not retained; not committed`);
-  await client.request('POST', `${path}/commit`);
-  const status = await client.request('GET', `${path}/status`);
-  if (
-    ['CommitFailed', 'PreProcessingFailed', 'CertificationFailed', 'PublishFailed', 'ReleaseFailed'].includes(
-      status.status,
-    )
-  )
-    throw stop('Store processing failed; inspect Partner Center without retrying submission');
-  return {
-    submissionId: draft.id,
-    version,
-    publishMode,
-    certificationRequested: true,
-    publishesAfterCertification: publishMode === 'Immediate',
-  };
 }
 
 async function run(env) {
   const dir = resolve(process.argv[2] || 'release/store');
   const release = JSON.parse(readFileSync(join(dir, 'release.json'), 'utf8'));
-  if (
-    env.GITHUB_ACTIONS !== 'true' ||
-    env.GITHUB_REF !== `refs/tags/v${release.version}` ||
-    env.STORE_SUBMISSION_ENABLED !== 'true'
-  )
+  if (env.GITHUB_ACTIONS !== 'true' || !forThisRelease(env, release.version) || env.STORE_SUBMISSION_ENABLED !== 'true')
     throw stop('Store submission is disabled or not running for this release tag');
   await verifyStore(env).catch(error => {
     throw stop(error.message);
@@ -163,14 +188,15 @@ async function run(env) {
   const archive = join(dir, 'submission.zip');
   rmSync(archive, { force: true });
   execFileSync('zip', ['-j', '-q', archive, ...expected.map(file => join(dir, file))], { stdio: 'ignore' });
-  const send = async (url, options) => {
+  // Only the Store's own answers are read: the identity service and the upload address are not ours to log.
+  const send = async (url, options, explain = false) => {
     let response;
     try {
       response = await fetch(url, { ...options, redirect: 'error', signal: AbortSignal.timeout(180_000) });
     } catch {
-      throw stop('Store request failed (network or timeout); inspect the draft before retrying');
+      throw stop('Store request failed (network or timeout)');
     }
-    if (!response.ok) throw stop(`Store request failed (HTTP ${response.status}); inspect the draft before retrying`);
+    if (!response.ok) throw stop(storeFailure(response.status, explain ? await response.text().catch(() => '') : ''));
     return response;
   };
   const tokenResponse = await send(`https://login.microsoftonline.com/${env.STORE_TENANT_ID}/oauth2/token`, {
@@ -194,6 +220,7 @@ async function run(env) {
             headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: body ? JSON.stringify(body) : undefined,
           },
+          true,
         );
         if (response.status === 204 || path.endsWith('/commit')) return {};
         try {
