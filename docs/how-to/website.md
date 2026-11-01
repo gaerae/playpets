@@ -27,6 +27,8 @@
 
 - Remove them once a stable VitePress asks for a fixed vite and mermaid asks for a fixed katex.
 - Then check that `pnpm audit` stays clean and the site builds.
+- `esbuild` stays at 0.25 while vite is at 6: vite 6 accepts `^0.25.0` only, and a newer direct version leaves two copies in the lockfile, which a test refuses.
+- `.github/dependabot.yml` ignores the newer versions. When vite moves, raise `esbuild` by hand and move that limit.
 - Dependabot cannot raise an overridden package: it closes the pull request as no longer updatable. Raise the version in `pnpm-workspace.yaml` by hand.
 
 ## Steps

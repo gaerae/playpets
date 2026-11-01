@@ -302,6 +302,21 @@ test('Dependabot proposes npm, Cargo and Actions versions a week after release',
   }
 });
 
+// Two packages stay on one minor. vite accepts one esbuild minor, so a newer direct esbuild leaves two
+// copies, which the lockfile test below refuses. Biome 2.6 crashes on Windows on Arm. Dependabot stops
+// short of both, and moving either by hand moves its limit with it.
+test('Dependabot does not propose esbuild or Biome past the minor in use', () => {
+  const { devDependencies } = JSON.parse(read('package.json'));
+  const npm = read('.github/dependabot.yml')
+    .split(/^ {2}- package-ecosystem: /m)
+    .find(block => block.startsWith('npm\n'));
+  for (const name of ['esbuild', '@biomejs/biome']) {
+    const [major, minor] = devDependencies[name].split('.');
+    const limit = `>=${major}.${Number(minor) + 1}.0`;
+    assert.ok(npm.includes(`- dependency-name: '${name}'\n        versions: ['${limit}']`), `${name} ${limit}`);
+  }
+});
+
 test('container builds do not run dependency install scripts while the checkout is mounted', () => {
   for (const script of ['packaging/linux/build.sh', 'packaging/windows/build.sh']) {
     const installs = read(script)
