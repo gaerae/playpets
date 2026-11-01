@@ -380,8 +380,11 @@ const scenario = `(async()=>{
     const yardStyle=$('yard').style;
     // The garden: a friend's find goes in the pocket, the tool plants it on the field, the backend keeps it.
     await until(()=>$('seed-count').textContent==='1');
-    $('plant-tool').click();const yr=$('yard').getBoundingClientRect();
-    $('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:yr.left+yr.width*0.5,clientY:yr.top+yr.height*0.85}));
+    // A press near a creature puts the tool away and catches it (catch.js), so this one waits for a clear spot.
+    const yr=$('yard').getBoundingClientRect(),spotX=yr.width*0.5,spotY=yr.height*0.85,wildlife=await import('./yard/world.js');
+    await until(()=>!wildlife.scenery.near(spotX,spotY));
+    $('plant-tool').click();
+    $('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:yr.left+spotX,clientY:yr.top+spotY}));
     // The friend walks to the spot first, from wherever it happened to be.
     await until(()=>document.querySelectorAll('.plant').length===1,15000);
     const gb=(await playPets.bootstrap()).data.garden;
