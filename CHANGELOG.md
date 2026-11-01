@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-01
+
 ### Added
 
 - Move the pointer to the top of the yard to find buttons for **Reset window size**, minimize and close. **Reset window size** is also in the tray, the macOS Window menu, the scenery's right-click menu and <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>0</kbd>, and puts the yard back at its usual size in the middle of the screen.
