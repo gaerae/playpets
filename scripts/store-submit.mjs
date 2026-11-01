@@ -8,15 +8,19 @@ const PUBLISH_MODES = ['Manual', 'Immediate'];
 // The script's own messages and storeFailure hold no address or key, so the log may show them;
 // anything else is hidden.
 const stop = message => Object.assign(new Error(message), { safe: true });
+// About ten minutes, 30 seconds apart, inside the submit job's 15.
+const COMMIT_CHECKS = 20;
 // Why the Store refused a request: a 400 names no field, only this body does. Upload addresses and
 // other long values are signed, so they never reach the log.
-export function storeFailure(status, body) {
-  const reason = String(body)
+const clean = text =>
+  String(text)
     .replace(/https?:\/\/\S+/g, '[address]')
     .replace(/[\w+/=%.-]{32,}/g, '[value]')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 800);
+export function storeFailure(status, body) {
+  const reason = clean(body);
   return `Store request failed (HTTP ${status})${reason ? `: ${reason}` : ''}`;
 }
 // store-retry.yml sends a release from main, with the tag's packages and main's script.
@@ -98,31 +102,46 @@ export async function submitStore(client, release) {
   const draft = await client.request('POST', '/submissions');
   if (!/^\d+$/.test(draft.id)) throw stop('Invalid created submission ID; inspect Partner Center');
   const path = `/submissions/${draft.id}`;
-  try {
-    await fillDraft(client, draft, path, { files, notes, publishMode, locales, listingFor });
-  } catch (error) {
-    // The next run stops at any pending submission, so this one takes back the draft it made.
-    const left = await client.request('DELETE', path).then(
+  // The next run stops at any pending submission, so this one takes back the draft it made.
+  const takeBack = () =>
+    client.request('DELETE', path).then(
       () => 'The new draft was removed.',
       () => 'The new draft is still in Partner Center; delete it before retrying.',
     );
+  try {
+    await fillDraft(client, draft, path, { files, notes, publishMode, locales, listingFor });
+  } catch (error) {
+    const left = await takeBack();
     throw stop(error.safe ? `${error.message}. ${left}` : left);
   }
   await client.request('POST', `${path}/commit`);
-  const status = await client.request('GET', `${path}/status`);
-  if (
-    ['CommitFailed', 'PreProcessingFailed', 'CertificationFailed', 'PublishFailed', 'ReleaseFailed'].includes(
-      status.status,
-    )
-  )
-    throw stop('Store processing failed; inspect Partner Center without retrying submission');
+  const status = await afterCommit(client, path);
+  if (status.status === 'CommitFailed') throw stop(`${failure(status)}. ${await takeBack()}`);
+  if (['PreProcessingFailed', 'CertificationFailed', 'PublishFailed', 'ReleaseFailed'].includes(status.status))
+    throw stop(`${failure(status)}. Inspect Partner Center without retrying submission`);
   return {
     submissionId: draft.id,
     version,
     publishMode,
     certificationRequested: true,
+    storeStatus: status.status,
     publishesAfterCertification: publishMode === 'Immediate',
   };
+}
+
+// A commit returns at once; the Store reads the packages and listings after that, and a refusal
+// shows only in the status.
+async function afterCommit(client, path) {
+  for (let check = 1; ; check++) {
+    const status = await client.request('GET', `${path}/status`);
+    if (status.status !== 'CommitStarted' || check === COMMIT_CHECKS) return status;
+    await client.wait();
+  }
+}
+
+function failure({ status, statusDetails }) {
+  const errors = (statusDetails?.errors || []).map(({ code, details }) => `${code}: ${details}`);
+  return `Store processing failed (${status})${errors.length ? `: ${clean(errors.join('; '))}` : ''}`;
 }
 
 async function fillDraft(client, draft, path, { files, notes, publishMode, locales, listingFor }) {
@@ -140,13 +159,13 @@ async function fillDraft(client, draft, path, { files, notes, publishMode, local
     destination.password
   )
     throw stop('Invalid Store upload destination');
+  // Everything else goes back as the Store copied it: it refuses an update without pricing, and
+  // leaving the copy alone is what keeps the price.
   const update = structuredClone(draft);
-  delete update.pricing;
   delete update.fileUploadUrl;
   delete update.status;
   delete update.statusDetails;
   update.targetPublishMode = publishMode;
-  delete update.targetPublishDate;
   update.applicationPackages = [
     ...(draft.applicationPackages || []).map(item => ({ ...item, fileStatus: 'PendingDelete' })),
     // The submission API requires these legacy minimum fields even for modern MSIX targets.
@@ -157,7 +176,7 @@ async function fillDraft(client, draft, path, { files, notes, publishMode, local
       minimumSystemRam: 'None',
     })),
   ];
-  // Do not send Pricing V2 back through the legacy API or rewrite approved store descriptions.
+  // Only What's new changes: approved store descriptions stay.
   for (const locale of locales) {
     if (!update.listings?.[listingFor[locale]]?.baseListing)
       throw stop('Published listing is missing a supported Store language; inspect the created draft');
@@ -236,6 +255,7 @@ async function run(env) {
           body: readFileSync(archive),
         });
       },
+      wait: () => new Promise(done => setTimeout(done, 30_000)),
     },
     release,
   );
