@@ -189,6 +189,13 @@ const scenario = `(async()=>{
     // The yard itself: scenery-first layout, games.
     const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||${say('game.label')};
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
+    // What a failed yard check records: the window, the field and each friend, with where its place
+    // puts its feet (feet) beside where it is drawn (bottom), so a friend left behind shows. Read in
+    // one go, so the numbers belong to the same moment as the check.
+    const yardState=await import('./core/state.js'),yardField=await import('./yard/field.js'),hundredths=n=>Math.round(n*100)/100;
+    const yardNow=()=>{const yard=$('yard').getBoundingClientRect();return{window:[innerWidth,innerHeight],yard:[yard.width,yard.height],compact:document.body.classList.contains('compact'),hidden:document.hidden,world:$('yard').dataset.world,environment:$('yard').dataset.environment,field:yardField.field(),friends:[...yardState.views.values()].map(v=>{const g=yardField.geometry(v.pet);return{id:v.pet.id,y:hundredths(v.y),z:v.z,bottom:hundredths(v.button.getBoundingClientRect().bottom-yard.top),feet:hundredths(g.top+v.y*g.h+yardField.petHeight(v.pet)),target:v.target,trip:!!v.trip,doing:!!v.doing,away:!!v.away,drag:!!v.drag};})};};
+    // How many frames the page draws in this long, which tells a stalled page from a stuck friend.
+    const framesIn=ms=>new Promise(done=>{let frames=0,on=true;const tick=()=>{if(on){frames++;requestAnimationFrame(tick);}};requestAnimationFrame(tick);setTimeout(()=>{on=false;done(frames);},ms);});
     const panelTasks=await import('./panel/tabs.js');
     // The menu is one page; Settings opens on its list of sections, and a section is one more click.
     const openMenu=()=>{if($('yard-controls-panel').hidden)$('yard-controls-toggle').click();};
@@ -373,12 +380,16 @@ const scenario = `(async()=>{
     const yardStyle=$('yard').style;
     // The garden: a friend's find goes in the pocket, the tool plants it on the field, the backend keeps it.
     await until(()=>$('seed-count').textContent==='1');
-    $('plant-tool').click();const yr=$('yard').getBoundingClientRect();
-    $('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:yr.left+yr.width*0.5,clientY:yr.top+yr.height*0.85}));
+    // A press near a creature puts the tool away and catches it (catch.js), so this one waits for a clear spot.
+    const yr=$('yard').getBoundingClientRect(),spotX=yr.width*0.5,spotY=yr.height*0.85,wildlife=await import('./yard/world.js');
+    await until(()=>!wildlife.scenery.near(spotX,spotY));
+    $('plant-tool').click();
+    $('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:yr.left+spotX,clientY:yr.top+spotY}));
     // The friend walks to the spot first, from wherever it happened to be.
     await until(()=>document.querySelectorAll('.plant').length===1,15000);
     const gb=(await playPets.bootstrap()).data.garden;
-    await L('garden='+(gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant').dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true'?'found-planted':'err:'+JSON.stringify(gb)));
+    const planted=gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant')?.dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true',gardenNow={...yardNow(),garden:gb,plants:document.querySelectorAll('.plant').length,aiming:$('yard').classList.contains('aiming'),tool:$('plant-tool').getAttribute('aria-disabled')};
+    await L('garden='+(planted?'found-planted':'err:'+JSON.stringify({...gardenNow,frames:await framesIn(500)})));
     // A gift: a friend the person did something with that day brings it, every other day; the backend picks the first
     // kind; a drag moves it and it stays moved; it can be put away.
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});await until(()=>!document.querySelector('.decor'));
@@ -931,10 +942,10 @@ const scenario = `(async()=>{
     const chatFromSmall=quickPlayFits&&document.body.classList.contains('compact')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth&&sendBox.bottom<=innerHeight;
     // By where the feet are (the bottom), since friends of different sizes have their tops elsewhere.
     const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().bottom,z:Number(b.style.zIndex)%200}));
-    const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true));
+    const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true)),orderNow=yardNow();
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
-    await L('reach='+(chatFromSmall?'compact-chat':'err-small:'+JSON.stringify({quickPlayFits,quick:quickRect.toJSON(),viewport:[innerWidth,innerHeight],compact:document.body.classList.contains('compact'),pet:!$('panel-pet').hidden,composer:composer.toJSON(),send:sendBox.toJSON()}))+'/'+(layered?'layered':'err-order')+'/'+(labelsOver?'labels-over':'err-labels'));
+    await L('reach='+(chatFromSmall?'compact-chat':'err-small:'+JSON.stringify({quickPlayFits,quick:quickRect.toJSON(),viewport:[innerWidth,innerHeight],compact:document.body.classList.contains('compact'),pet:!$('panel-pet').hidden,composer:composer.toJSON(),send:sendBox.toJSON()}))+'/'+(layered?'layered':'err-order:'+JSON.stringify({...orderNow,frames:await framesIn(500)}))+'/'+(labelsOver?'labels-over':'err-labels'));
     // The name tag says "Talk to …" and opens the conversation; play is on the friend's right-click.
     $('close-panel').click();await until(()=>$('side-panel').hidden);
     await nativeWindow(fullAt);await until(()=>!document.body.classList.contains('compact')&&innerWidth===wide);await wait(200);
