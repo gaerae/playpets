@@ -302,6 +302,16 @@ test('Dependabot proposes npm, Cargo and Actions versions a week after release',
   }
 });
 
+// Each update PR costs a build on every platform, and few updates are urgent. Security updates do not
+// follow this schedule, so a fix still comes at once.
+test('Dependabot proposes version updates once a month', () => {
+  const entries = read('.github/dependabot.yml')
+    .split(/^ {2}- package-ecosystem: /m)
+    .slice(1);
+  assert.equal(entries.length, 4);
+  for (const entry of entries) assert.match(entry, /^ {4}schedule:\n {6}interval: monthly$/m, entry.split('\n')[0]);
+});
+
 // Two packages stay on one minor. vite accepts one esbuild minor, so a newer direct esbuild leaves two
 // copies, which the lockfile test below refuses. Biome 2.6 crashes on Windows on Arm. Dependabot stops
 // short of both, and moving either by hand moves its limit with it.
