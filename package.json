@@ -65,14 +65,14 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@tauri-apps/cli": "^2.12.4",
-    "@vue/compiler-sfc": "3.5.43",
+    "@vue/compiler-sfc": "3.5.44",
     "esbuild": "0.25.12",
     "mermaid": "^12.2.0",
     "oxfmt": "0.75.0",
     "oxlint": "1.90.0",
     "playwright-core": "^1.64.1",
     "vitepress": "^1.6.4",
-    "vue": "3.5.43"
+    "vue": "3.5.44"
   },
   "license": "MIT",
   "engines": {

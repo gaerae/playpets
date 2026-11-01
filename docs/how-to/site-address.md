@@ -30,7 +30,7 @@ For a subdomain such as `playpets.gaerae.com`:
 1. Change the canonical address. Keep the trailing slash.
 
 ```bash
-npm pkg set homepage=https://example.com/
+pnpm pkg set homepage=https://example.com/
 ```
 
 2. Run the repository test to list every remaining old reference.
