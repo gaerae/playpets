@@ -46,6 +46,9 @@ What goes where.
 - Check persistence across restarts separately, with a disposable normal profile.
 - Results come out as `[e2e] name=value` lines.
 - The harness compares them with the expected list and prints `✓`/`✖`.
+- The last line before `DONE` is `lateWaits=[...]`: every wait that ran out of time, with its condition. Read it first when a check fails.
+- A scenario waits for a condition, not for a fixed time, and doesn't assume a wait worked: `until` returns quietly when it runs out.
+- The yard is alive during a scenario. Creatures and friends move, so a click on the field looks for a clear spot first.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.

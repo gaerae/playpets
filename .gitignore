@@ -34,6 +34,7 @@ src-tauri/gen/schemas/
 *.rej
 # local assistant settings and the worktrees agent sessions make inside the checkout
 .claude/settings.local.json
+.claude/launch.json
 .claude/worktrees/
 # website: generated from docs/ and assets/ by scripts/site-prepare.mjs, built by vitepress
 website/dev/
