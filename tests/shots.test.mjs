@@ -279,3 +279,14 @@ test('chat refresh fixes actual views and skips unrelated capture scenes and GIF
   assert.match(source, /assertChatCast\.toString\(\)/);
   assert.match(source, /if\(\$\{chatOnly\}\)\{await companionScene\(\);await L\('DONE'\);return;\}/);
 });
+
+test('the README animation ends with a coding agent finishing, and SHOT_SCENE=demo films only that', () => {
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  assert.match(source, /const demoOnly = process.env.SHOT_SCENE === 'demo'/);
+  assert.match(source, /const shot=async\(name,rect\)=>\{if\(\$\{demoOnly\}\)return;/);
+  const film = source.slice(source.indexOf("'gif-start '"), source.indexOf("L('gif-end')"));
+  assert.match(film, /L\('agent claude '\+p1\.id\+' Stop'\)/);
+  assert.match(source, /L\('gif-end'\);await wait\(600\);\s*if\(\$\{demoOnly\}\)\{await L\('DONE'\);return;\}/);
+  assert.match(source, /const \[, kind, petId, event = 'PreToolUse'\] = msg\.split\(' '\)/);
+  assert.match(source, /hook_event_name: event/);
+});
