@@ -114,7 +114,7 @@ pnpm run site:build && node --test tests/website.test.mjs
 Icons:
 - `assets/icon.png` is the accepted illustrated Clover face. Its prompt is in `assets/icon-provenance.json`.
 - `pnpm run icons` exports the app and installer icon formats, the matching colored tray face, and a self-contained `assets/icon.svg` wrapper for browsers.
-- Site preparation copies that exported SVG and the generated PNG and ICO fallbacks.
+- Site preparation draws a 96 px `icon.png` from that SVG for the tab, the top bar and search results (`scripts/site-images.mjs`), and copies the PNG and ICO fallbacks.
 - The site config uses content-revisioned favicon addresses, so an unchanged path does not keep an older icon in browser tabs.
 - Regenerate these outputs through the scripts.
 - After changing the source, inspect the tab icon the site actually serves.
@@ -135,6 +135,8 @@ Scenes:
 - The landing uses real app captures.
 - `WorldPreview.vue` offers the four built-in places and four outdoor seasons.
 - Visitors choose a scene instead of waiting for a carousel.
+- Site preparation saves every scene as WebP in `website/public/yard/scenes/` (`scripts/site-images.mjs`); the app keeps the lossless PNGs.
+- Without a browser, site preparation skips the WebP copies and the scenes show the PNGs.
 - Refresh the spring, summer and winter captures in all four languages with:
 
 ```bash
@@ -156,6 +158,8 @@ Motion:
 
 Copy and layout:
 - Keep the landing copy in all four language modules.
+- A page without `description` in its frontmatter is described in search results by its first paragraph, or by the first item of a list that comes first; write that so it says what the page is.
+- A release page's title is its version and headline.
 - Lead with what a person can do.
 - Keep AI costs and privacy visible.
 - Put coding integration details in the expandable developer note.

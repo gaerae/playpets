@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { LANDING_PETS } from '../../../scripts/site-content.mjs';
 import { lookFrame } from '../../../src/core/animation.js';
 import { whenDecoded } from './site-runtime.mjs';
+import { sceneryUrl } from './scenery';
 import { sheetFor } from './sprite-sheet';
 import VisibleSprite from './VisibleSprite.vue';
 
@@ -29,11 +30,6 @@ const props = defineProps<{
   paused: boolean;
 }>();
 const emit = defineEmits<{ pause: [] }>();
-const art = import.meta.glob('../../../src/art/environments/*.png', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-}) as Record<string, string>;
 const place = ref(0);
 // The app's two forms: the yard in its own window, or friends loose on the desktop over other
 // windows. The desktop has no place or season of its own.
@@ -138,7 +134,7 @@ let greetingTimer: ReturnType<typeof setTimeout> | undefined;
 const image = computed(() => {
   const suffix = ['spring', 'green', 'autumn', 'winter'][season.value];
   const file = place.value === 3 ? 'studio-cozy-day' : `${['', 'courtyard-', 'lakeside-'][place.value]}${suffix}`;
-  return art[`../../../src/art/environments/${file}.png`];
+  return sceneryUrl(file);
 });
 function greet(id: string) {
   if (selected.value !== id) held.value = 'idle';
@@ -199,7 +195,7 @@ onBeforeUnmount(() => {
       <div class="living-friends">
         <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" :ref="element => { friendElements[index] = element as HTMLElement }" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :style="{ left: `${spots[index]}%`, transitionDuration: `${strides[index]}s` }" :aria-label="`${pet.displayName}, ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><span v-if="greeted === pet.id" class="living-bubble" aria-hidden="true">{{ words.greetings[pet.id] }}</span><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="poseOf(pet.id).state" :frame="poseOf(pet.id).frame" :scale="0.46" /><span class="living-name">{{ pet.displayName }}</span></button>
       </div>
-      <div class="desk-bar" aria-hidden="true"><i /><img :src="withBase('/icon.svg')" alt="" width="24" height="24" /><i /><i /></div>
+      <div class="desk-bar" aria-hidden="true"><i /><img :src="withBase('/icon.png')" alt="" width="24" height="24" /><i /><i /></div>
     </div>
     <!-- One dock under the scene: the first row picks the world, the second plays with a friend. -->
     <div class="world-dock">

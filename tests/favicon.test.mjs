@@ -10,15 +10,18 @@ test('browser icons have portable fallbacks and a revision matching the current 
   const links = config.head.filter(([tag, attributes]) => tag === 'link' && attributes.rel.endsWith('icon'));
   assert.deepEqual(
     links.map(([, attributes]) => attributes.type).sort(),
-    ['image/png', 'image/svg+xml', 'image/x-icon'].sort(),
+    // No SVG link: assets/icon.svg wraps the whole 1024 px PNG, so a 96 px PNG stands in for it.
+    ['image/png', 'image/png', 'image/x-icon'].sort(),
   );
   for (const [, attributes] of links) {
     const url = new URL(attributes.href, 'https://example.test');
     assert.equal(url.searchParams.get('v'), revision);
     assert.ok(url.pathname.startsWith(config.base));
   }
-  assert.equal(links.find(([, attributes]) => attributes.type === 'image/png')[1].sizes, '32x32');
-  assert.equal(links.find(([, attributes]) => attributes.type === 'image/svg+xml')[1].sizes, 'any');
+  assert.deepEqual(
+    links.filter(([, attributes]) => attributes.type === 'image/png').map(([, attributes]) => attributes.sizes),
+    ['32x32', '96x96'],
+  );
 });
 
 // The site's icons are copies made at build time (and ignored by Git), so they cannot drift from

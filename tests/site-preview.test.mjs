@@ -157,3 +157,21 @@ test('the motion export plans every official companion, sheet and motion row', a
     assert.equal(sheet.rows.right, `website/public/pets/motion/pip/${sheet.sheet}/right.webp`);
   }
 });
+
+test('the site shows its scenes as WebP and a small icon instead of the app originals', async () => {
+  const { siteImagePlan } = await import('../scripts/site-images.mjs');
+  const plan = siteImagePlan(['src/art/environments/spring.png', 'src/art/environments/courtyard-autumn.png']);
+  assert.deepEqual(plan.scenes, [
+    {
+      name: 'spring',
+      source: 'src/art/environments/spring.png',
+      destination: 'website/public/yard/scenes/spring.webp',
+    },
+    {
+      name: 'courtyard-autumn',
+      source: 'src/art/environments/courtyard-autumn.png',
+      destination: 'website/public/yard/scenes/courtyard-autumn.webp',
+    },
+  ]);
+  assert.deepEqual(plan.icon, { source: 'assets/icon.svg', destination: 'website/public/icon.png', size: 96 });
+});

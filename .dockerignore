@@ -34,6 +34,7 @@
 **/*.provisionprofile
 /website/dev
 /website/public/icon.svg
+/website/public/icon.png
 /website/public/favicon.png
 /website/public/favicon.ico
 /website/public/pets

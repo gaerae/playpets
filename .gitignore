@@ -39,6 +39,7 @@ src-tauri/gen/schemas/
 # website: generated from docs/ and assets/ by scripts/site-prepare.mjs, built by vitepress
 website/dev/
 website/public/icon.svg
+website/public/icon.png
 website/public/favicon.png
 website/public/favicon.ico
 website/public/pets/
