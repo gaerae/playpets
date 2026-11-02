@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { pngFor } from '../scripts/art-webp-lib.mjs';
 import { pngSize } from '../scripts/png-lossless-lib.mjs';
 
 const python = process.env.PLAYPETS_PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
@@ -272,7 +273,7 @@ test('generated companion action registry stays inside canonical transparent atl
           label,
         );
         assert.ok(finitePoint(offset), label);
-        assert.match(clip.url, /^art\/[a-zA-Z0-9/_-]+\.png$/, label);
+        assert.match(clip.url, /^art\/[a-zA-Z0-9/_-]+\.webp$/, label);
         assert.ok(finitePoint(clip.anchor), label);
         assert.ok(
           clip.anchor[0] >= 0 && clip.anchor[0] <= canvas[0] && clip.anchor[1] >= 0 && clip.anchor[1] <= canvas[1],
@@ -280,7 +281,7 @@ test('generated companion action registry stays inside canonical transparent atl
         );
         assert.equal(clip.scale, 1, label);
         assert.ok(Array.isArray(clip.frames) && clip.frames.length > 0 && clip.frames.length <= 64, label);
-        const bytes = await readFile(new URL(`../src/${clip.url}`, import.meta.url));
+        const bytes = await readFile(new URL(`../${pngFor(clip.url)}`, import.meta.url));
         const size = pngSize(bytes);
         assert.equal(size.height, canvas[1], label);
         assert.equal(size.width % canvas[0], 0, label);
@@ -291,7 +292,7 @@ test('generated companion action registry stays inside canonical transparent atl
           );
         assert.equal(bytes[25], 6, `${label}: RGBA PNG`);
         if (!checkedImages.has(clip.url)) {
-          const imagePath = new URL(`../src/${clip.url}`, import.meta.url);
+          const imagePath = new URL(`../${pngFor(clip.url)}`, import.meta.url);
           const alpha = spawnSync(
             python,
             [

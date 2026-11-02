@@ -12,7 +12,7 @@ test('garden styles and current module guide no longer describe spontaneous seed
 
 test('removing pickup visuals preserves the planted seed growth stage', async () => {
   const art = await readFile('src/art/plants/seed.svg', 'utf8');
-  assert.match(art, /art\/plants\/growth\.png/);
+  assert.match(art, /art\/plants\/growth\.webp/);
   const catalogue = await readFile('src/content/catalog.json', 'utf8');
   assert.match(catalogue, /plants\/seed\.svg/);
 });

@@ -5,7 +5,7 @@ export const ROD = Object.freeze({
   grip: { x: 200, y: 510 },
   tip: { x: 1495, y: 480 },
 });
-export const rodUrl = new URL('../art/props/fishing-rod.png', import.meta.url).href;
+export const rodUrl = new URL('../art/props/fishing-rod.webp', import.meta.url).href;
 
 /** A near-bank click still casts into open water, away from the friend's face. */
 export function castLandingX(gripX, requestedX, petWidth, ends) {

@@ -8,12 +8,12 @@
   "exports": [
     {
       "variant": "base",
-      "path": "src/art/discovery/dug-soil.png",
+      "path": "assets/art/discovery/dug-soil.png",
       "sha256": "f3860159202a8efc44a064389fdf9c64a1f01c7c9334390a414ccf618836ed48"
     },
     {
       "variant": "winter",
-      "path": "src/art/discovery/dug-soil-winter.png",
+      "path": "assets/art/discovery/dug-soil-winter.png",
       "sha256": "9a93ea9f2ec9a7b7fa26c30fd5346beceff20ef0ff04dd08f32d98cf9c014ca5"
     }
   ]

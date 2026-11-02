@@ -46,7 +46,7 @@
   z-index: 1;
   width: 180px;
   height: 120px;
-  background: url("../art/props/picnic-snacks.png") center / contain no-repeat;
+  background: url("../art/props/picnic-snacks.webp") center / contain no-repeat;
   filter: drop-shadow(2px 4px 2px #526c5230);
 }
 

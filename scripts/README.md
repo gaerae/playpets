@@ -31,7 +31,8 @@
 | Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets, metadata and downloadable bundles |
 | Atlas preparation | `pack-*.mjs`, `normalize-cat-row.mjs`, atlas/art/normalization helpers | Explicit destination files from approved image sources |
 | Companion action packing | `companions:pack -- plan.json output.png`, source `pack-companion-actions.py` | Bounded action atlases from approved RGBA art, with 192 × 208 cells by default; requires Pillow, honors `PLAYPETS_PYTHON`, rejects clipped frames and preserves shared scale and foot anchors |
-| Discovery artwork | `node scripts/pack-discovery.mjs`, source records in `assets/discovery/` | Tracked tree, keepsake and shovel PNG atlases and clipped SVG viewports in `src/art/trees/` and `src/art/discovery/` |
+| Discovery artwork | `node scripts/pack-discovery.mjs`, source records in `assets/discovery/` | Tracked tree, keepsake and shovel PNG atlases in `assets/art/` and clipped SVG viewports in `src/art/trees/` and `src/art/discovery/` |
+| Shipped art | `art-webp.mjs`, `art-webp-lib.mjs` via `assets:webp`; `--check` needs no encoder | Near-lossless WebP in `src/art/` from the PNG exports in `assets/art/`, each sample checked against the PNG; hashes in `assets/art/webp.json` |
 
 ### Companion action plans
 
@@ -55,8 +56,8 @@
 - The packer refuses visible artwork outside a cell instead of silently clipping
   it or scaling individual poses differently.
 - Keep accepted source PNGs, plans and provenance together under
-  `assets/sources/companion-actions-2026-10-19/`; the runtime atlases belong in
-  `src/art/companions/`.
+  `assets/sources/companion-actions-2026-10-19/`; the packed atlases belong in
+  `assets/art/companions/`, and `pnpm run assets:webp` makes their shipped copies.
 - A successful pack verifies geometry, not the visual quality of motion.
 
 Linux Docker builds:
@@ -79,7 +80,7 @@ Art tools and the site:
   character views.
 - Art tools can overwrite their documented outputs: compare results with the
   accepted files before keeping a change.
-- Exact character prompts and sources are in `assets/pets/` and `src/art/`.
+- Exact character prompts and sources are in `assets/pets/` and `assets/art/`.
 
 Notices and lint:
 
@@ -179,7 +180,7 @@ node scripts/optimize-png.mjs --report-dir scratch/asset-size/review-1
 node scripts/optimize-png.mjs --report-dir scratch/asset-size/review-2 assets/pets/clover
 ```
 
-- Default scope: PNG artwork in `src/art/`, `assets/pets/` and
+- Default scope: PNG artwork in `assets/art/`, `assets/pets/` and
   `assets/creator-kit/`, plus the banner and public Open Graph images.
 - Excluded: Git-ignored files, generated website copies, original generation
   folders, source rows, and pet identity originals.
@@ -228,7 +229,7 @@ Background creation:
 - Keep that validator and its `src/core/season.js` dependency in Pages path
   filters.
 - Accepted built-in image provenance is recorded in
-  [`src/art/environments/FOUR-PLACES-PROVENANCE.md`](../src/art/environments/FOUR-PLACES-PROVENANCE.md).
+  [`assets/art/environments/FOUR-PLACES-PROVENANCE.md`](../assets/art/environments/FOUR-PLACES-PROVENANCE.md).
 
 ### High-resolution website companions
 

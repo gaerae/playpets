@@ -81,3 +81,9 @@ again with their backups; all 25 skipped originals retained their exact bytes.
 
 Local backups and reports moved from `release/asset-size/` to `scratch/asset-size/`, so
 `release/` holds only packages to hand off ([repository layout](../repository-layout.md)).
+
+## Follow-up (2026-11-03)
+
+- The yard's PNG exports moved from `src/art/` to `assets/art/`; the PNG rules above now apply there.
+- The app ships near-lossless WebP copies in `src/art/`, made by `pnpm run assets:webp` ([shipped WebP](../../assets/README.md)).
+- Reason: everything under `src/` is embedded in the executable, twice in the universal macOS build, and lossless PNG made up most of each download.

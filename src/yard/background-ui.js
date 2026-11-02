@@ -23,7 +23,7 @@ function options(selected) {
 export function backgroundPreview(world) {
   if (world.imageSources) return world.imageSources.base;
   const { art } = environmentLook({ world: world.id, season: 'summer', period: 'day', weather: 'clear' });
-  return new URL(`../art/environments/${art}.png`, import.meta.url).href;
+  return new URL(`../art/environments/${art}.webp`, import.meta.url).href;
 }
 function renderGallery() {
   $('background-gallery').replaceChildren(

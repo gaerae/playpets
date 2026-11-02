@@ -316,7 +316,7 @@ test('background names use the same UTF-16 limit as app import', async () => {
     const args = [
       'pack-background',
       '--image',
-      'src/art/environments/studio-cozy-day.png',
+      'assets/art/environments/studio-cozy-day.png',
       '--config',
       config,
       '--output',

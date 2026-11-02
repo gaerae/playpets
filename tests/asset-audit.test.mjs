@@ -14,8 +14,9 @@ test('the audit records every shipping image and resolves all local raster refer
   }
   for (const path of [
     'assets/pets/tabby/spritesheet.png',
-    'src/art/weather/seasonal.png',
-    'src/art/fish/specimens.png',
+    'assets/art/weather/seasonal.png',
+    'src/art/weather/seasonal.webp',
+    'src/art/fish/specimens.webp',
     'website/public/og-ko.png',
     'src-tauri/icons/icon.ico',
     'src/logo.svg',

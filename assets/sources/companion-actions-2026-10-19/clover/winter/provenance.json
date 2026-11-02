@@ -10,7 +10,7 @@
     {
       "action": "dig",
       "plan": "dig-plan.json",
-      "output": "../../../../../src/art/companions/clover/winter/dig.png",
+      "output": "../../../../../assets/art/companions/clover/winter/dig.png",
       "sourceSha256": "ea32a18bad3c4682248bd98bdbda8a9557a8a3a3260c6242411ab39051886dad",
       "outputSha256": "5fe62617e4b1d61b270df28f2f27e407e95d7a832e089c0c62a5401e9ab990e9",
       "sourceScale": 0.69,
@@ -19,7 +19,7 @@
     {
       "action": "plant",
       "plan": "plant-plan.json",
-      "output": "../../../../../src/art/companions/clover/winter/plant.png",
+      "output": "../../../../../assets/art/companions/clover/winter/plant.png",
       "sourceSha256": "ea32a18bad3c4682248bd98bdbda8a9557a8a3a3260c6242411ab39051886dad",
       "outputSha256": "3eff41467940005352460b662c99084ba8a911cf04be842378848bb83d92caab",
       "sourceScale": 0.7,
@@ -28,7 +28,7 @@
     {
       "action": "discover",
       "plan": "discover-plan.json",
-      "output": "../../../../../src/art/companions/clover/winter/discover.png",
+      "output": "../../../../../assets/art/companions/clover/winter/discover.png",
       "sourceSha256": "ea32a18bad3c4682248bd98bdbda8a9557a8a3a3260c6242411ab39051886dad",
       "outputSha256": "e56c2f5aec7b6cfa993dc896e768c641862edcdbedd22e266dc91fb922027c1e",
       "sourceScale": 0.7,
@@ -37,7 +37,7 @@
     {
       "action": "fish",
       "plan": "fish-plan.json",
-      "output": "../../../../../src/art/companions/clover/winter/fish.png",
+      "output": "../../../../../assets/art/companions/clover/winter/fish.png",
       "source": "fish-source.png",
       "originalSha256": "fe5dd28f5cc7ecdd7582977c4afac2d2e165be1509211e96aa9939371247c733",
       "normalization": "fish-normalization.json",

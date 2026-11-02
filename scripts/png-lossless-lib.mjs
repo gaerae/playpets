@@ -10,7 +10,7 @@ export function eligiblePng(path) {
   if (/\.(?:optimize|restore)-\d+/.test(path)) return false;
   if (path.startsWith('assets/pets/') && /(?:identity-reference|original|source)\.png$/.test(path)) return false;
   return (
-    /^(?:src\/art\/|assets\/pets\/|assets\/creator-kit\/)/.test(path) ||
+    /^(?:assets\/art\/|assets\/pets\/|assets\/creator-kit\/)/.test(path) ||
     path === 'assets/banner.png' ||
     /^website\/public\/og(?:-[a-z-]+)?\.png$/.test(path)
   );
@@ -67,7 +67,7 @@ export function unfilterPng(raw, width, height, channels, fail) {
 }
 
 // Keep the original sample bytes, including RGB hidden by zero alpha.
-export function inspectPng(bytes) {
+export function decodePng(bytes) {
   const fail = () => {
     throw new Error('Invalid PNG');
   };
@@ -116,7 +116,12 @@ export function inspectPng(bytes) {
   const raw = inflateSync(Buffer.concat(compressed), { maxOutputLength: expected });
   if (raw.length !== expected) fail();
   const pixels = unfilterPng(raw, width, height, channels, fail);
-  return { width, height, channels, header: header.toString('hex'), metadata, pixelSha256: sha256(pixels) };
+  return { width, height, channels, header: header.toString('hex'), metadata, pixels };
+}
+
+export function inspectPng(bytes) {
+  const { pixels, ...png } = decodePng(bytes);
+  return { ...png, pixelSha256: sha256(pixels) };
 }
 
 export function verifyLossless(before, after) {

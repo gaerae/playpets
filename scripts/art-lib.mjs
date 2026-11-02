@@ -20,7 +20,7 @@ export async function loadSheets() {
 }
 
 /** Sunny summer scenery shared by installation and link artwork. */
-export const loadEnvironment = () => readDataUrl('src/art/environments/green.png');
+export const loadEnvironment = () => readDataUrl('assets/art/environments/green.png');
 
 /** One cell of a sheet as an element with the sheet as background. row/col follow src/core/animation.js. */
 export const cell = (sheets, id, row, col, scale) =>

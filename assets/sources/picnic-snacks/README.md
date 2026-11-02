@@ -1,6 +1,6 @@
 # Shared picnic snack prop
 
-- `original.png` is the accepted image-generation source for `src/art/props/picnic-snacks.png`.
+- `original.png` is the accepted image-generation source for `assets/art/props/picnic-snacks.png`.
 - It replaces the single-cookie care marker with a shared meal on a blanket.
 - It is separate from the collectible picnic gift.
 - The runtime keeps the full transparent artwork and scales it with the yard.

@@ -71,7 +71,7 @@ test('row filters are reversed from the bytes already decoded', () => {
 });
 test('optimization scope excludes generation sources and unrelated files', () => {
   for (const path of [
-    'src/art/sky/cloud.png',
+    'assets/art/sky/cloud.png',
     'assets/pets/aria/spritesheet.png',
     'assets/creator-kit/aria/face-detail.png',
     'website/public/og-ko.png',
@@ -82,8 +82,8 @@ test('optimization scope excludes generation sources and unrelated files', () =>
     'assets/pets/tabby/identity-reference.png',
     'assets/pets/generated-originals/x.png',
     'website/public/pets/aria/spritesheet.png',
-    '../src/art/x.png',
-    'src/art/sky/cloud.png.optimize-4242.png',
+    '../assets/art/x.png',
+    'assets/art/sky/cloud.png.optimize-4242.png',
     'assets/sources/environments/studio.png',
     'src/art/a.svg',
   ])

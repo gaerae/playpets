@@ -6,13 +6,15 @@
 | `icon.svg` | Portable embedded-raster export made by `pnpm run icons`; do not edit by hand |
 | `pets/` | Accepted pet manifests, canonical and seasonal sheets, identity references and generation provenance |
 | `concepts/` | Approved visual direction and identity source images |
-| `sources/` | Generated originals and retired variants of the runtime art in `src/art/`, kept as provenance; the app does not ship them |
+| `art/` | Lossless PNG exports of the yard's raster art and their provenance; the app ships them as WebP in `src/art/` |
+| `sources/` | Generated originals and retired variants of the yard's art, kept as provenance; the app does not ship them |
 | `discovery/` | Accepted tree stages, seasonal variants, keepsakes, shovel and generation provenance; repacked by `scripts/pack-discovery.mjs` |
 | `creator-kit/` | Reusable reference sheets and metadata used to build public creator downloads |
 | `banner.png`, `demo.gif` | Repository-facing product media |
 
-- Environment layers, weather, collection artwork and props: `src/art/`, near
-  their runtime content definitions in `src/content/`.
+- Environment layers, weather, collection artwork and props: reviewed as PNG in
+  `art/`, shipped as WebP in `src/art/`, near their runtime content definitions
+  in `src/content/`.
 - Installer exports: `packaging/`. Public captures and share cards:
   `website/public/`.
 - These locations name their consumer; they are not separate copies edited
@@ -31,6 +33,20 @@ Keeping sources:
   still needs a screen review.
 - See [companion artwork](pets/README.md) and
   [repository ownership](../docs/repository-layout.md).
+
+Shipped WebP:
+- The app embeds `src/`, once per processor in the macOS build, so raster art
+  ships as WebP.
+- Review, crop and pack the PNG in `art/`, then run `pnpm run assets:webp`
+  (needs `cwebp` and `dwebp` from libwebp: `brew install webp` or
+  `apt install webp`).
+- It encodes near-lossless (level 60): every drawn sample stays within 4 of 255
+  of the PNG, the script checks each one, and full transparency stays exact.
+- `art/webp.json` records the PNG and WebP hashes. A test fails when a PNG
+  changes without its WebP, or a WebP has no PNG.
+- Page code, content and SVG wrappers name the `.webp` file; scripts, tests and
+  the site read the PNG.
+- `src/art/` holds only what the page loads: WebP, SVG and `collection.json`.
 
 Smaller PNG exports:
 - Install oxipng and run `pnpm run assets:optimize`.

@@ -69,7 +69,7 @@
                 "duration": 200
               }
             ],
-            "url": "art/companions/clover/dig.png",
+            "url": "art/companions/clover/dig.webp",
             "heldTool": true,
             "ground": [174, 199],
             "contactAt": 460,
@@ -140,7 +140,7 @@
                 "duration": 100
               }
             ],
-            "url": "art/companions/clover/plant.png",
+            "url": "art/companions/clover/plant.webp",
             "heldTool": true,
             "ground": [149, 199],
             "contactAt": 660,
@@ -212,7 +212,7 @@
                 "duration": 100
               }
             ],
-            "url": "art/companions/clover/discover.png",
+            "url": "art/companions/clover/discover.webp",
             "heldTool": false,
             "canvas": [192, 208],
             "offset": [0, 0]
@@ -258,7 +258,7 @@
                 "tip": [186.76000000000002, 53.36]
               }
             ],
-            "url": "art/companions/clover/fish.png",
+            "url": "art/companions/clover/fish.webp",
             "heldTool": true,
             "canvas": [224, 216],
             "offset": [0, -8],
@@ -281,7 +281,7 @@
                 "tip": [192.52, 54.36]
               }
             ],
-            "url": "art/companions/clover/fish.png",
+            "url": "art/companions/clover/fish.webp",
             "heldTool": true,
             "canvas": [224, 216],
             "offset": [0, -8],
@@ -316,7 +316,7 @@
                 "tip": [188.8, 48.88]
               }
             ],
-            "url": "art/companions/clover/fish.png",
+            "url": "art/companions/clover/fish.webp",
             "heldTool": true,
             "canvas": [224, 216],
             "offset": [0, -8],
@@ -389,7 +389,7 @@
                 "duration": 200
               }
             ],
-            "url": "art/companions/clover/dig.png",
+            "url": "art/companions/clover/dig.webp",
             "heldTool": true,
             "ground": [174, 199],
             "contactAt": 460,
@@ -460,7 +460,7 @@
                 "duration": 100
               }
             ],
-            "url": "art/companions/clover/plant.png",
+            "url": "art/companions/clover/plant.webp",
             "heldTool": true,
             "ground": [149, 199],
             "contactAt": 660,
@@ -532,7 +532,7 @@
                 "duration": 100
               }
             ],
-            "url": "art/companions/clover/discover.png",
+            "url": "art/companions/clover/discover.webp",
             "heldTool": false,
             "canvas": [192, 208],
             "offset": [0, 0]
@@ -578,7 +578,7 @@
                 "tip": [186.76000000000002, 53.36]
               }
             ],
-            "url": "art/companions/clover/fish.png",
+            "url": "art/companions/clover/fish.webp",
             "heldTool": true,
             "canvas": [224, 216],
             "offset": [0, -8],
@@ -601,7 +601,7 @@
                 "tip": [192.52, 54.36]
               }
             ],
-            "url": "art/companions/clover/fish.png",
+            "url": "art/companions/clover/fish.webp",
             "heldTool": true,
             "canvas": [224, 216],
             "offset": [0, -8],
@@ -636,7 +636,7 @@
                 "tip": [188.8, 48.88]
               }
             ],
-            "url": "art/companions/clover/fish.png",
+            "url": "art/companions/clover/fish.webp",
             "heldTool": true,
             "canvas": [224, 216],
             "offset": [0, -8],
@@ -709,7 +709,7 @@
                 "duration": 200
               }
             ],
-            "url": "art/companions/clover/dig.png",
+            "url": "art/companions/clover/dig.webp",
             "heldTool": true,
             "ground": [174, 199],
             "contactAt": 460,
@@ -780,7 +780,7 @@
                 "duration": 100
               }
             ],
-            "url": "art/companions/clover/plant.png",
+            "url": "art/companions/clover/plant.webp",
             "heldTool": true,
             "ground": [149, 199],
             "contactAt": 660,
@@ -852,7 +852,7 @@
                 "duration": 100
               }
             ],
-            "url": "art/companions/clover/discover.png",
+            "url": "art/companions/clover/discover.webp",
             "heldTool": false,
             "canvas": [192, 208],
             "offset": [0, 0]
@@ -898,7 +898,7 @@
                 "tip": [186.76000000000002, 53.36]
               }
             ],
-            "url": "art/companions/clover/fish.png",
+            "url": "art/companions/clover/fish.webp",
             "heldTool": true,
             "canvas": [224, 216],
             "offset": [0, -8],
@@ -921,7 +921,7 @@
                 "tip": [192.52, 54.36]
               }
             ],
-            "url": "art/companions/clover/fish.png",
+            "url": "art/companions/clover/fish.webp",
             "heldTool": true,
             "canvas": [224, 216],
             "offset": [0, -8],
@@ -956,7 +956,7 @@
                 "tip": [188.8, 48.88]
               }
             ],
-            "url": "art/companions/clover/fish.png",
+            "url": "art/companions/clover/fish.webp",
             "heldTool": true,
             "canvas": [224, 216],
             "offset": [0, -8],
@@ -1001,7 +1001,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/clover/winter/dig.png",
+            "url": "art/companions/clover/winter/dig.webp",
             "heldTool": true,
             "ground": [164, 199],
             "contactAt": 540,
@@ -1044,7 +1044,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/clover/winter/plant.png",
+            "url": "art/companions/clover/winter/plant.webp",
             "heldTool": true,
             "ground": [125, 199],
             "contactAt": 900,
@@ -1088,7 +1088,7 @@
                 "duration": 260
               }
             ],
-            "url": "art/companions/clover/winter/discover.png",
+            "url": "art/companions/clover/winter/discover.webp",
             "heldTool": false
           },
           "cast": {
@@ -1110,7 +1110,7 @@
                 "tip": [309.28000000000003, 90.42]
               }
             ],
-            "url": "art/companions/clover/winter/fish.png",
+            "url": "art/companions/clover/winter/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -1133,7 +1133,7 @@
                 "tip": [242, 72.2]
               }
             ],
-            "url": "art/companions/clover/winter/fish.png",
+            "url": "art/companions/clover/winter/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -1156,7 +1156,7 @@
                 "tip": [245.06, 17.68]
               }
             ],
-            "url": "art/companions/clover/winter/fish.png",
+            "url": "art/companions/clover/winter/fish.webp",
             "heldTool": true,
             "loop": false
           }
@@ -1203,7 +1203,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/dig.png",
+            "url": "art/companions/daisy/dig.webp",
             "heldTool": true,
             "ground": [145, 199],
             "contactAt": 560,
@@ -1246,7 +1246,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/plant.png",
+            "url": "art/companions/daisy/plant.webp",
             "heldTool": true,
             "ground": [123, 199],
             "contactAt": 520,
@@ -1272,7 +1272,7 @@
             ],
             "canvas": [240, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/fish.png",
+            "url": "art/companions/daisy/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -1295,7 +1295,7 @@
             ],
             "canvas": [240, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/fish.png",
+            "url": "art/companions/daisy/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -1318,7 +1318,7 @@
             ],
             "canvas": [240, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/fish.png",
+            "url": "art/companions/daisy/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -1359,7 +1359,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/discover.png",
+            "url": "art/companions/daisy/discover.webp",
             "heldTool": false
           }
         },
@@ -1401,7 +1401,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/dig.png",
+            "url": "art/companions/daisy/dig.webp",
             "heldTool": true,
             "ground": [145, 199],
             "contactAt": 560,
@@ -1444,7 +1444,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/plant.png",
+            "url": "art/companions/daisy/plant.webp",
             "heldTool": true,
             "ground": [123, 199],
             "contactAt": 520,
@@ -1470,7 +1470,7 @@
             ],
             "canvas": [240, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/fish.png",
+            "url": "art/companions/daisy/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -1493,7 +1493,7 @@
             ],
             "canvas": [240, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/fish.png",
+            "url": "art/companions/daisy/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -1516,7 +1516,7 @@
             ],
             "canvas": [240, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/fish.png",
+            "url": "art/companions/daisy/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -1557,7 +1557,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/discover.png",
+            "url": "art/companions/daisy/discover.webp",
             "heldTool": false
           }
         },
@@ -1599,7 +1599,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/summer/dig.png",
+            "url": "art/companions/daisy/summer/dig.webp",
             "heldTool": true,
             "ground": [157, 199],
             "contactAt": 560,
@@ -1642,7 +1642,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/summer/plant.png",
+            "url": "art/companions/daisy/summer/plant.webp",
             "heldTool": true,
             "ground": [121, 199],
             "contactAt": 520,
@@ -1668,7 +1668,7 @@
             ],
             "canvas": [256, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/summer/fish.png",
+            "url": "art/companions/daisy/summer/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -1691,7 +1691,7 @@
             ],
             "canvas": [256, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/summer/fish.png",
+            "url": "art/companions/daisy/summer/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -1714,7 +1714,7 @@
             ],
             "canvas": [256, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/summer/fish.png",
+            "url": "art/companions/daisy/summer/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -1755,7 +1755,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/summer/discover.png",
+            "url": "art/companions/daisy/summer/discover.webp",
             "heldTool": false
           }
         },
@@ -1797,7 +1797,7 @@
             ],
             "canvas": [224, 224],
             "offset": [0, 0],
-            "url": "art/companions/daisy/winter/dig.png",
+            "url": "art/companions/daisy/winter/dig.webp",
             "heldTool": true,
             "ground": [145, 199],
             "contactAt": 560,
@@ -1840,7 +1840,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/winter/plant.png",
+            "url": "art/companions/daisy/winter/plant.webp",
             "heldTool": true,
             "ground": [119, 199],
             "contactAt": 520,
@@ -1866,7 +1866,7 @@
             ],
             "canvas": [272, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/winter/fish.png",
+            "url": "art/companions/daisy/winter/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -1889,7 +1889,7 @@
             ],
             "canvas": [272, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/winter/fish.png",
+            "url": "art/companions/daisy/winter/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -1912,7 +1912,7 @@
             ],
             "canvas": [272, 216],
             "offset": [0, -8],
-            "url": "art/companions/daisy/winter/fish.png",
+            "url": "art/companions/daisy/winter/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -1953,7 +1953,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/daisy/winter/discover.png",
+            "url": "art/companions/daisy/winter/discover.webp",
             "heldTool": false
           }
         }
@@ -1999,7 +1999,7 @@
             ],
             "canvas": [224, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/dig.png",
+            "url": "art/companions/miso/dig.webp",
             "heldTool": true,
             "ground": [145, 199],
             "contactAt": 560,
@@ -2042,7 +2042,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/plant.png",
+            "url": "art/companions/miso/plant.webp",
             "heldTool": true,
             "ground": [145, 199],
             "contactAt": 520,
@@ -2068,7 +2068,7 @@
             ],
             "canvas": [264, 240],
             "offset": [-8, -24],
-            "url": "art/companions/miso/fish.png",
+            "url": "art/companions/miso/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -2091,7 +2091,7 @@
             ],
             "canvas": [264, 240],
             "offset": [-8, -24],
-            "url": "art/companions/miso/fish.png",
+            "url": "art/companions/miso/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -2114,7 +2114,7 @@
             ],
             "canvas": [264, 240],
             "offset": [-8, -24],
-            "url": "art/companions/miso/fish.png",
+            "url": "art/companions/miso/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -2155,7 +2155,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/discover.png",
+            "url": "art/companions/miso/discover.webp",
             "heldTool": false
           }
         },
@@ -2197,7 +2197,7 @@
             ],
             "canvas": [224, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/dig.png",
+            "url": "art/companions/miso/dig.webp",
             "heldTool": true,
             "ground": [145, 199],
             "contactAt": 560,
@@ -2240,7 +2240,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/plant.png",
+            "url": "art/companions/miso/plant.webp",
             "heldTool": true,
             "ground": [145, 199],
             "contactAt": 520,
@@ -2266,7 +2266,7 @@
             ],
             "canvas": [264, 240],
             "offset": [-8, -24],
-            "url": "art/companions/miso/fish.png",
+            "url": "art/companions/miso/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -2289,7 +2289,7 @@
             ],
             "canvas": [264, 240],
             "offset": [-8, -24],
-            "url": "art/companions/miso/fish.png",
+            "url": "art/companions/miso/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -2312,7 +2312,7 @@
             ],
             "canvas": [264, 240],
             "offset": [-8, -24],
-            "url": "art/companions/miso/fish.png",
+            "url": "art/companions/miso/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -2353,7 +2353,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/discover.png",
+            "url": "art/companions/miso/discover.webp",
             "heldTool": false
           }
         },
@@ -2395,7 +2395,7 @@
             ],
             "canvas": [224, 224],
             "offset": [0, 0],
-            "url": "art/companions/miso/summer/dig.png",
+            "url": "art/companions/miso/summer/dig.webp",
             "heldTool": true,
             "ground": [143, 199],
             "contactAt": 560,
@@ -2438,7 +2438,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/summer/plant.png",
+            "url": "art/companions/miso/summer/plant.webp",
             "heldTool": true,
             "ground": [123, 199],
             "contactAt": 520,
@@ -2464,7 +2464,7 @@
             ],
             "canvas": [240, 216],
             "offset": [0, -8],
-            "url": "art/companions/miso/summer/fish.png",
+            "url": "art/companions/miso/summer/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -2487,7 +2487,7 @@
             ],
             "canvas": [240, 216],
             "offset": [0, -8],
-            "url": "art/companions/miso/summer/fish.png",
+            "url": "art/companions/miso/summer/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -2510,7 +2510,7 @@
             ],
             "canvas": [240, 216],
             "offset": [0, -8],
-            "url": "art/companions/miso/summer/fish.png",
+            "url": "art/companions/miso/summer/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -2551,7 +2551,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/summer/discover.png",
+            "url": "art/companions/miso/summer/discover.webp",
             "heldTool": false
           }
         },
@@ -2593,7 +2593,7 @@
             ],
             "canvas": [224, 224],
             "offset": [0, 0],
-            "url": "art/companions/miso/winter/dig.png",
+            "url": "art/companions/miso/winter/dig.webp",
             "heldTool": true,
             "ground": [152, 199],
             "contactAt": 560,
@@ -2636,7 +2636,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/winter/plant.png",
+            "url": "art/companions/miso/winter/plant.webp",
             "heldTool": true,
             "ground": [140, 199],
             "contactAt": 520,
@@ -2662,7 +2662,7 @@
             ],
             "canvas": [272, 216],
             "offset": [0, -8],
-            "url": "art/companions/miso/winter/fish.png",
+            "url": "art/companions/miso/winter/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -2685,7 +2685,7 @@
             ],
             "canvas": [272, 216],
             "offset": [0, -8],
-            "url": "art/companions/miso/winter/fish.png",
+            "url": "art/companions/miso/winter/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -2708,7 +2708,7 @@
             ],
             "canvas": [272, 216],
             "offset": [0, -8],
-            "url": "art/companions/miso/winter/fish.png",
+            "url": "art/companions/miso/winter/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -2749,7 +2749,7 @@
             ],
             "canvas": [192, 208],
             "offset": [0, 0],
-            "url": "art/companions/miso/winter/discover.png",
+            "url": "art/companions/miso/winter/discover.webp",
             "heldTool": false
           }
         }
@@ -2795,7 +2795,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/pip/base/dig.png",
+            "url": "art/companions/pip/base/dig.webp",
             "heldTool": true,
             "ground": [164, 199],
             "contactAt": 540,
@@ -2838,7 +2838,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/pip/base/plant.png",
+            "url": "art/companions/pip/base/plant.webp",
             "heldTool": true,
             "ground": [125, 199],
             "contactAt": 900,
@@ -2882,7 +2882,7 @@
                 "duration": 260
               }
             ],
-            "url": "art/companions/pip/base/discover.png",
+            "url": "art/companions/pip/base/discover.webp",
             "heldTool": false
           },
           "cast": {
@@ -2904,7 +2904,7 @@
                 "tip": [301, 55]
               }
             ],
-            "url": "art/companions/pip/base/fish.png",
+            "url": "art/companions/pip/base/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -2927,7 +2927,7 @@
                 "tip": [247.5, 70]
               }
             ],
-            "url": "art/companions/pip/base/fish.png",
+            "url": "art/companions/pip/base/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -2950,7 +2950,7 @@
                 "tip": [266, 36]
               }
             ],
-            "url": "art/companions/pip/base/fish.png",
+            "url": "art/companions/pip/base/fish.webp",
             "heldTool": true,
             "loop": false
           }
@@ -2993,7 +2993,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/pip/summer/dig.png",
+            "url": "art/companions/pip/summer/dig.webp",
             "heldTool": true,
             "ground": [164, 199],
             "contactAt": 540,
@@ -3036,7 +3036,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/pip/summer/plant.png",
+            "url": "art/companions/pip/summer/plant.webp",
             "heldTool": true,
             "ground": [125, 199],
             "contactAt": 900,
@@ -3080,7 +3080,7 @@
                 "duration": 260
               }
             ],
-            "url": "art/companions/pip/summer/discover.png",
+            "url": "art/companions/pip/summer/discover.webp",
             "heldTool": false
           },
           "cast": {
@@ -3102,7 +3102,7 @@
                 "tip": [227.51, 51.22]
               }
             ],
-            "url": "art/companions/pip/summer/fish.png",
+            "url": "art/companions/pip/summer/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -3125,7 +3125,7 @@
                 "tip": [186.44, 42.38]
               }
             ],
-            "url": "art/companions/pip/summer/fish.png",
+            "url": "art/companions/pip/summer/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -3148,7 +3148,7 @@
                 "tip": [186.09, 48.03]
               }
             ],
-            "url": "art/companions/pip/summer/fish.png",
+            "url": "art/companions/pip/summer/fish.webp",
             "heldTool": true,
             "loop": false
           }
@@ -3191,7 +3191,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/pip/base/dig.png",
+            "url": "art/companions/pip/base/dig.webp",
             "heldTool": true,
             "ground": [164, 199],
             "contactAt": 540,
@@ -3234,7 +3234,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/pip/base/plant.png",
+            "url": "art/companions/pip/base/plant.webp",
             "heldTool": true,
             "ground": [125, 199],
             "contactAt": 900,
@@ -3278,7 +3278,7 @@
                 "duration": 260
               }
             ],
-            "url": "art/companions/pip/base/discover.png",
+            "url": "art/companions/pip/base/discover.webp",
             "heldTool": false
           },
           "cast": {
@@ -3300,7 +3300,7 @@
                 "tip": [301, 55]
               }
             ],
-            "url": "art/companions/pip/base/fish.png",
+            "url": "art/companions/pip/base/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -3323,7 +3323,7 @@
                 "tip": [247.5, 70]
               }
             ],
-            "url": "art/companions/pip/base/fish.png",
+            "url": "art/companions/pip/base/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -3346,7 +3346,7 @@
                 "tip": [266, 36]
               }
             ],
-            "url": "art/companions/pip/base/fish.png",
+            "url": "art/companions/pip/base/fish.webp",
             "heldTool": true,
             "loop": false
           }
@@ -3389,7 +3389,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/pip/winter/dig.png",
+            "url": "art/companions/pip/winter/dig.webp",
             "heldTool": true,
             "ground": [164, 199],
             "contactAt": 540,
@@ -3432,7 +3432,7 @@
                 "duration": 320
               }
             ],
-            "url": "art/companions/pip/winter/plant.png",
+            "url": "art/companions/pip/winter/plant.webp",
             "heldTool": true,
             "ground": [125, 199],
             "contactAt": 900,
@@ -3476,7 +3476,7 @@
                 "duration": 260
               }
             ],
-            "url": "art/companions/pip/winter/discover.png",
+            "url": "art/companions/pip/winter/discover.webp",
             "heldTool": false
           },
           "cast": {
@@ -3498,7 +3498,7 @@
                 "tip": [265.6, 42.32]
               }
             ],
-            "url": "art/companions/pip/winter/fish.png",
+            "url": "art/companions/pip/winter/fish.webp",
             "heldTool": true,
             "loop": false
           },
@@ -3521,7 +3521,7 @@
                 "tip": [209.76, 48.2]
               }
             ],
-            "url": "art/companions/pip/winter/fish.png",
+            "url": "art/companions/pip/winter/fish.webp",
             "heldTool": true,
             "loop": true
           },
@@ -3544,7 +3544,7 @@
                 "tip": [178.56, 41.2]
               }
             ],
-            "url": "art/companions/pip/winter/fish.png",
+            "url": "art/companions/pip/winter/fish.webp",
             "heldTool": true,
             "loop": false
           }

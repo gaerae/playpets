@@ -4,7 +4,7 @@ import { dataUrlBytes, readDataUrl } from './art-lib.mjs';
 import { atlasPoses } from './atlas-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 
-const [source, destination = 'src/art/plants/growth.png'] = process.argv.slice(2);
+const [source, destination = 'assets/art/plants/growth.png'] = process.argv.slice(2);
 if (!source) throw new Error('Usage: node scripts/pack-growth.mjs generated-source.png destination.png');
 const browser = await launchBrowser();
 try {

@@ -5,7 +5,7 @@ import { environmentLake, environmentLook } from '../src/yard/environment.js';
 
 test('every seasonal layer ships at matching dimensions with real alpha', async () => {
   for (const name of ['spring', 'green', 'autumn', 'winter']) {
-    const png = await readFile(new URL(`../src/art/environments/${name}.png`, import.meta.url));
+    const png = await readFile(new URL(`../assets/art/environments/${name}.png`, import.meta.url));
     assert.equal(png.readUInt32BE(16), 1536);
     assert.equal(png.readUInt32BE(20), 1024);
     assert.equal(png[25], 6);

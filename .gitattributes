@@ -77,6 +77,9 @@ assets/banner.png linguist-generated=true
 assets/demo.gif linguist-generated=true
 # Written by the packers and the creator kit builder (scripts/README.md); provenance stays diffable.
 *.png.json linguist-generated=true
+# Made from assets/art by scripts/art-webp.mjs.
+src/art/**/*.webp linguist-generated=true
+assets/art/webp.json linguist-generated=true
 assets/creator-kit/*/kit.json linguist-generated=true
 assets/creator-kit/*/identity.json linguist-generated=true
 assets/creator-kit/*/prompts/** linguist-generated=true

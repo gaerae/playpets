@@ -45,6 +45,7 @@
     "site:preview": "vitepress preview website",
     "assets:audit": "node scripts/asset-audit.mjs",
     "assets:optimize": "node scripts/optimize-png.mjs",
+    "assets:webp": "node scripts/art-webp.mjs",
     "icons": "node scripts/make-icons.mjs",
     "art": "node scripts/make-installer-art.mjs",
     "og": "node scripts/make-og.mjs",
