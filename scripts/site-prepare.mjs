@@ -1,9 +1,10 @@
-// Copies docs/ into the website (website/dev, generated) with links rewritten, and brings the icon and sample pet sheets into website/public. Runs before vitepress.
+// Copies docs/ into the website (website/dev, generated) with links rewritten, and brings the icon, the scenes and sample pet sheets into website/public. Runs before vitepress.
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { copyCreatorKit } from './creator-kit.mjs';
 import { copyCreatorSkill } from './creator-skill.mjs';
 import { CAPTURE_VERSION, LANDING_PETS } from './site-content.mjs';
+import { exportSiteImages } from './site-images.mjs';
 import { destinationFor, docDisplayProse, rewriteDocLinks } from './site-lib.mjs';
 import { exportMotionStrips } from './site-motion.mjs';
 import { collectPreviewExports } from './site-preview-export.mjs';
@@ -40,6 +41,7 @@ await rm('website/public/pets', { recursive: true, force: true });
 await mkdir('website/public/pets', { recursive: true });
 for (const pet of LANDING_PETS) await cp(pet.source, `website/public/pets/${pet.id}.png`);
 const petMotions = await exportMotionStrips(LANDING_PETS);
+const sceneImages = await exportSiteImages();
 
 for (const { source, destination } of previewCopies) {
   await mkdir(path.dirname(destination), { recursive: true });
@@ -55,5 +57,5 @@ const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
 const releases = token ? await publishedReleases(slug, { token }) : null;
 await writeFile(
   'website/.vitepress/generated.json',
-  `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, petMotions, creatorSkillRevision, releases }, null, 2)}\n`,
+  `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, petMotions, sceneImages, creatorSkillRevision, releases }, null, 2)}\n`,
 );

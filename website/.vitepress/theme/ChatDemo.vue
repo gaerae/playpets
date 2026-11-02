@@ -3,19 +3,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { LANDING_PETS } from '../../../scripts/site-content.mjs';
+import { sceneryUrl } from './scenery';
 import VisibleSprite from './VisibleSprite.vue';
 
 const props = defineProps<{
   words: { chatPlay: string; chatAgain: string; chatNote: string; chats: [string, string][][] };
   paused: boolean;
 }>();
-const scenery = Object.values(
-  import.meta.glob('../../../src/art/environments/courtyard-autumn.png', {
-    eager: true,
-    query: '?url',
-    import: 'default',
-  }) as Record<string, string>,
-)[0];
+const scenery = sceneryUrl('courtyard-autumn');
 // Where each friend stands, as a share of the scene's width.
 const SPOTS = [17, 39, 61, 83];
 const stage = ref<HTMLElement | null>(null);

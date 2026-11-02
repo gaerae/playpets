@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Website and docs
+
+- The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
+
 ## [1.4.0] - 2026-11-01
 
 ### Added

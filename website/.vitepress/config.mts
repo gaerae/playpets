@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'vitepress';
 import { websiteNotices } from '../../scripts/licenses-lib.mjs';
-import { alternateLinks, appStructuredData } from './locale-head.mjs';
+import { alternateLinks, appStructuredData, faqStructuredData, leadDescription, releaseTitle } from './locale-head.mjs';
 import { devSidebar } from './sidebar-dev.mts';
 
 const repo = 'https://github.com/gaerae/playpets';
@@ -17,6 +17,11 @@ const iconRevision = createHash('sha256')
   .update(readFileSync(new URL('../../assets/icon.svg', import.meta.url)))
   .digest('hex')
   .slice(0, 12);
+// A page's Markdown; the 404 page has none.
+const source = (relativePath: string) => {
+  const file = new URL(`../${relativePath}`, import.meta.url);
+  return existsSync(file) ? readFileSync(file, 'utf8') : '';
+};
 // "Edit this page" opens the file in the repository: the developer docs live in docs/ (the site
 // has a generated copy under dev/), every other page in website/. VitePress sends this function
 // to the browser as source text, so it names the repository itself instead of using `repo`.
@@ -38,7 +43,7 @@ export default defineConfig({
   head: [
     ['link', { rel: 'shortcut icon', type: 'image/x-icon', href: `${base}favicon.ico?v=${iconRevision}` }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${base}favicon.png?v=${iconRevision}` }],
-    ['link', { rel: 'icon', type: 'image/svg+xml', sizes: 'any', href: `${base}icon.svg?v=${iconRevision}` }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '96x96', href: `${base}icon.png?v=${iconRevision}` }],
     ['meta', { name: 'theme-color', content: '#244d43' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'PlayPets' }],
@@ -282,7 +287,7 @@ export default defineConfig({
     },
   },
   themeConfig: {
-    logo: '/icon.svg',
+    logo: { src: '/icon.png', width: 24, height: 24 },
     search: {
       provider: 'local',
       options: {
@@ -328,6 +333,14 @@ export default defineConfig({
     },
     socialLinks: [{ icon: 'github', link: repo }],
   },
+  // Pages without their own description or title get one from what they say, so search results
+  // tell them apart (locale-head.mjs).
+  transformPageData(pageData) {
+    const markdown = source(pageData.relativePath);
+    const description = pageData.frontmatter.description ? undefined : leadDescription(markdown);
+    const title = pageData.frontmatter.title ? undefined : releaseTitle(pageData.frontmatter);
+    return { ...(description && { description }), ...(title && { title }) };
+  },
   // The share card in the page's language: og.png for English, og-<language>.png for the others,
   // with the page's own title, description, address (clean URLs: no .html, index → the folder)
   // and locale.
@@ -346,6 +359,7 @@ export default defineConfig({
       ['meta', { property: 'og:image', content: image }],
       ['meta', { name: 'twitter:image', content: image }],
       ...appStructuredData(pageData.relativePath, site, { description, version }),
+      ...faqStructuredData(pageData.relativePath, source(pageData.relativePath)),
     ];
   },
   markdown: {
