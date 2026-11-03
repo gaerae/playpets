@@ -13,10 +13,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
+- Fish and bug odds follow how common they are: bass and bluegill are everyday catches, snakeheads, sweetfish, eels and mandarin fish come more often, and goldfish less. The golden carp, now only at dusk and night, is the rarest fish outside an event, the moon carp is a rarer find during the harvest moon, and the common skimmer flies from spring to autumn.
+- The album marks everything that comes only during a seasonal event as rare, and its hint now gives the event's dates.
 - The album reads like a collector's notebook: each find sits on its own numbered card over its book's ground (water for aquatic life, wood for gifts), the ones still to find wait as faint outlines with where to look, rare ones have a gold edge, and each book's tab fills as you collect, with a star once the book is complete.
 
 ### Fixed
 
+- In the Microsoft Store version, the icon on the taskbar and in the Start menu no longer sits on a blue square.
 - Switching books in the album starts at the top of the new book instead of where the last one was scrolled.
 
 ### Website and docs

@@ -4,7 +4,8 @@ import './support/content.mjs';
 import { t as translate } from '../src/core/i18n.js';
 import { data, setData } from '../src/core/state.js';
 import { renderAlbum, setupAlbum } from '../src/panel/album.js';
-import { BUGS, TREASURES, TREES } from '../src/yard/catalog.js';
+import { BUGS, FISH, GIFTS, TREASURES, TREES } from '../src/yard/catalog.js';
+import { eventDates } from '../src/yard/events.js';
 import { scene } from '../src/yard/world.js';
 import { installDom } from './support/dom.mjs';
 
@@ -84,12 +85,25 @@ test('tree and keepsake books use saved counts, mature artwork and explicit keep
   cards = document.getElementById('album-grid').children;
   for (const [index, kind] of BUGS.entries()) {
     const badge = cards[index].children.find(child => child.className === 'album-rare');
-    assert.equal(!!badge, kind.rarity === 'rare', `${kind.id} uses encounter rarity`);
+    assert.equal(!!badge, kind.rarity === 'rare' || !!kind.event, `${kind.id} uses encounter rarity`);
     assert.equal(
       cards[index].classList.contains('rare'),
       !!badge,
       `${kind.id} takes the rare card's edge with its badge`,
     );
     assert.ok(cards[index].children[2].textContent.includes(translate('catch.bug_clear')));
+  }
+  // What comes only on certain dates is rare in every book, and its hint says when.
+  for (const [book, kinds] of [
+    ['fish', FISH],
+    ['gift', GIFTS],
+  ]) {
+    tabs.find(tab => tab.dataset.book === book).onclick();
+    cards = document.getElementById('album-grid').children;
+    for (const [index, kind] of kinds.entries()) {
+      const badge = cards[index].children.find(child => child.className === 'album-rare');
+      assert.equal(!!badge, kind.rarity === 'rare' || !!kind.event, `${book} ${kind.id}`);
+      if (kind.event) assert.ok(cards[index].children[2].textContent.includes(eventDates(kind.event)), kind.id);
+    }
   }
 });

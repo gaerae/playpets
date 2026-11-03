@@ -386,7 +386,7 @@ body.compact .update-compact {
   flex-shrink: 0;
 }
 .album-dig-status {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   font-size: 11px;
   line-height: 1.4;
   color: var(--muted);
@@ -878,6 +878,12 @@ body.compact .update-compact {
   .album-dialog .dialog-heading .icon-button {
     width: 36px;
     height: 36px;
+  }
+}
+/* A short window keeps its height for the list: the chooser already shows each book's count. */
+@media (max-height: 480px) {
+  .album-total::after {
+    display: none;
   }
 }
 

@@ -220,7 +220,9 @@ Bug odds:
 - Species weights then apply within each family.
 - Do not normalize both families to 100% independently.
 - Rain, snow and unavailable seasons return an empty bug pool.
-- A bug's explicit `rarity` field controls its rare badge.
+- A fish's or a bug's explicit `rarity: "rare"` gives it the album's rare badge.
+- Anything with an `event` (fish, bug or gift) is rare in the album, and its hint gives the event's dates.
+- Over a year, a rare fish has to bite less often than every ordinary one (`tests/collection-goal.test.mjs`); a fish that comes in few seasons or hours needs a higher weight.
 
 Fish odds:
 - Percentages are species odds for a fish that has landed, separate from the chance of landing one.
