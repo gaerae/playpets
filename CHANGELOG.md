@@ -13,7 +13,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
-- Fish odds are rebalanced: goldfish and salmon come less often, and snakeheads, sweetfish, eels, mandarin fish and the moon carp more often, so no ordinary fish is scarcer over a year than a rare one.
+- Fish and bug odds follow how common they are: bass and bluegill are everyday catches, snakeheads, sweetfish, eels and mandarin fish come more often, and goldfish and salmon less. The golden carp, now only at dusk and night, is the rarest fish outside an event, the moon carp is a rarer find during the harvest moon, and the common skimmer flies from spring to autumn.
 - The album marks everything that comes only during a seasonal event as rare, and its hint now gives the event's dates.
 
 ### Website and docs

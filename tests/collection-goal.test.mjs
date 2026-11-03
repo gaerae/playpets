@@ -86,3 +86,35 @@ test('over a year a rare fish bites less often than any ordinary one', () => {
     for (const fish of rare) assert.ok(year[fish.id] < rarest, `${weather}: ${fish.id} ${year[fish.id]} < ${rarest}`);
   }
 });
+
+test('everyday fish are common, golden ones the rarest, and an event special stays special', () => {
+  const year = Object.fromEntries(catalog.fish.map(fish => [fish.id, 0]));
+  for (const season of seasons)
+    for (const period of ['morning', 'day', 'evening', 'night'])
+      for (const row of relativeChances(eligibleKinds(catalog.fish, season, period), fish => fishWeight(fish, 'clear')))
+        year[row.id] += row.chance / 16;
+  // The fish anyone pulls out of a Korean pond: about one catch in twenty or better.
+  for (const id of ['crucian', 'loach', 'carp', 'bass']) assert.ok(year[id] >= 0.05, `${id} ${year[id]}`);
+  // Gold is the prize: rarer than the goldfish and every ordinary fish. (Salmon run only in
+  // autumn, so over a year they can be scarcer still.)
+  for (const fish of catalog.fish.filter(fish => !fish.event && fish.id !== 'golden_carp' && fish.id !== 'salmon'))
+    assert.ok(year.golden_carp < year[fish.id], `golden carp before ${fish.id}`);
+  // During its event a special is a find, not a regular: at most 3% of what comes then.
+  const during = (kinds, weight, kind) => {
+    let best = 0;
+    for (const season of kind.seasons)
+      for (const period of kind.periods)
+        best = Math.max(
+          best,
+          relativeChances(
+            eligibleKinds(kinds, season, period, kind.event).filter(other => !kind.kind || other.kind === kind.kind),
+            weight,
+          ).find(row => row.id === kind.id)?.chance || 0,
+        );
+    return best;
+  };
+  for (const fish of catalog.fish.filter(fish => fish.event))
+    assert.ok(during(catalog.fish, other => fishWeight(other, 'clear'), fish) <= 0.03, fish.id);
+  for (const bug of catalog.bugs.filter(bug => bug.event))
+    assert.ok(during(catalog.bugs, other => other.weight, bug) <= 0.03, bug.id);
+});

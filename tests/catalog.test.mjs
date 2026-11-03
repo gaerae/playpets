@@ -55,7 +55,11 @@ test('bugs fly by their season and hour: none in winter, fireflies only after da
   assert.equal(flyingBug('firefly', 'summer', 'day', Math.random), null);
   assert.equal(flyingBug('firefly', 'summer', 'night', () => 0)?.kind, 'firefly');
   assert.equal(flyingBug('firefly', 'spring', 'night', Math.random)?.id, 'firefly', 'in spring only the one kind');
-  assert.equal(flyingBug('dragonfly', 'autumn', 'day', () => 0)?.id, 'red_dragonfly');
+  // The common skimmer flies from spring to autumn; the red dragonfly joins it in late summer.
+  assert.deepEqual(
+    new Set([0, 0.99].map(roll => flyingBug('dragonfly', 'autumn', 'day', () => roll)?.id)),
+    new Set(['dragonfly', 'red_dragonfly']),
+  );
 });
 
 test('every kind has a name in every language, and a name the album keeps', async () => {
