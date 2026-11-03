@@ -225,24 +225,21 @@ export async function copyCreatorKit(destination = 'website/public/creator-kit',
 }
 
 /** Each starter friend as the app ships it, in one folder named for its id: unzipped into a Codex
- * pets folder it is a Codex pet, and PlayPets imports the ZIP as it is. */
-export async function petDownloads(pets = LANDING_PETS) {
+ * pets folder it is a Codex pet, and PlayPets imports the ZIP as it is. The sheets are the ones
+ * copyCreatorKit checks in the same build, so they are not checked again here. */
+export async function petDownloads() {
   return Promise.all(
-    pets.map(async pet => {
+    LANDING_PETS.map(async pet => {
       const root = path.dirname(pet.source),
         bytes = await readFile(`${root}/pet.json`),
-        manifest = JSON.parse(bytes),
-        sheets = [manifest.spritesheetPath, ...Object.values(manifest.seasonalSpritesheets ?? {})];
-      const entries = [{ name: 'pet.json', bytes }];
-      for (const sheet of sheets) {
-        const image = await readFile(`${root}/${sheet}`);
-        validatePng(image, { canonical: true });
-        entries.push({ name: sheet, bytes: image });
-      }
-      return {
-        file: `${manifest.id}.zip`,
-        entries: entries.map(entry => ({ ...entry, name: `${manifest.id}/${entry.name}` })),
-      };
+        { id, spritesheetPath, seasonalSpritesheets = {} } = JSON.parse(bytes);
+      const sheets = await Promise.all(
+        [spritesheetPath, ...Object.values(seasonalSpritesheets)].map(async sheet => ({
+          name: `${id}/${sheet}`,
+          bytes: await readFile(`${root}/${sheet}`),
+        })),
+      );
+      return { file: `${id}.zip`, entries: [{ name: `${id}/pet.json`, bytes }, ...sheets] };
     }),
   );
 }

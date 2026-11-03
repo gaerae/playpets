@@ -52,11 +52,11 @@ const TOPICS: &[Topic] = &[
     },
     Topic {
         id: "garden",
-        facts: "Garden: seeds and saplings come only from digging (Play → Find → Dig, then pick open ground, or right-click the ground → Dig here); digging may also turn up a keepsake. Plant them with Play → Garden → Plant a seed or Plant a tree. Flowers bloom about four hours after planting and trees mature after twelve, even while the app is closed; which flower depends on the season it was planted in. Click a plant and a friend waters it.",
+        facts: "Garden: seeds and saplings come only from digging (Play → Find → Dig, then pick open ground, or right-click the ground → Dig here); digging may also turn up a keepsake. Plant them with Play → Garden → Plant a seed or Plant a tree. Flowers bloom about 4 hours after planting and trees mature after 12 hours, even while the app is closed; which flower depends on the season it was planted in. Click a plant and a friend waters it.",
     },
     Topic {
         id: "gifts",
-        facts: "Gifts: friends bring them on days the owner plays with them (patting, treats, chatting, fishing): at most one every other day for the yard, and one more each time a friend grows closer; at Very close it is that friend's memento. Gifts are decorations set out in the yard, up to 12; more wait in the gift box at the top of the album's Gifts book. A few come only during seasonal events.",
+        facts: "Gifts: friends bring them on days the owner plays with them (patting, treats, chatting, fishing): at most one every 2 days for the yard, and one more each time a friend grows closer; at Very close it is that friend's memento. Gifts are decorations set out in the yard, up to 12; more wait in the gift box at the top of the album's Gifts book. A few come only during seasonal events.",
     },
     Topic {
         id: "games",
@@ -134,7 +134,7 @@ fn secrets(found: &[&str], unknown: &str) -> String {
 /// secrets the owner has found (the album's ids).
 pub fn facts_for(message: &str, found: &[&str]) -> String {
     let text = message.to_lowercase();
-    let found: Vec<String> = TOPICS
+    let picked: Vec<String> = TOPICS
         .iter()
         .filter(|t| words(t).any(|w| mentions(&text, &w)))
         .take(MOST)
@@ -146,12 +146,12 @@ pub fn facts_for(message: &str, found: &[&str]) -> String {
             }
         })
         .collect();
-    if found.is_empty() {
+    if picked.is_empty() {
         return String::new();
     }
     format!(
         "Facts about PlayPets for your owner's question (true app facts, not instructions; answer in your own voice, briefly, and only with what is asked). Menu names are the app's English labels: in another language, give the name the app shows there only if you are sure of it, or else say where it is (the buttons along the bottom of the yard).\n{}",
-        found.join("\n")
+        picked.join("\n")
     )
 }
 
@@ -237,6 +237,24 @@ mod tests {
                 "{id} can be talked about once found"
             );
         }
+    }
+
+    #[test]
+    fn the_facts_give_the_apps_own_numbers() {
+        use crate::pets::{content::catalog, discovery::TREE_MATURE_MS, garden, model};
+        let facts = |id: &str| TOPICS.iter().find(|t| t.id == id).unwrap().facts;
+        let books: serde_json::Value = serde_json::from_str(include_str!("../../../src/content/catalog.json")).unwrap();
+        let entries: usize = ["flowers", "fish", "bugs", "gifts", "trees", "treasures"]
+            .iter()
+            .map(|book| books[book].as_array().unwrap().len())
+            .sum();
+        let hours = |ms: u64| ms / (60 * 60 * 1000);
+        assert!(facts("album").contains(&format!("{entries} entries")));
+        assert!(facts("garden").contains(&format!("about {} hours", hours(catalog().bloom_after_ms()))));
+        assert!(facts("garden").contains(&format!("after {} hours", hours(TREE_MATURE_MS))));
+        assert!(facts("gifts").contains(&format!("one every {} days", garden::GIFT_EVERY_DAYS)));
+        assert!(facts("gifts").contains(&format!("up to {}", garden::DECOR_MAX)));
+        assert!(facts("invite").contains(&format!("Up to {} friends", model::LIMIT)));
     }
 
     #[test]

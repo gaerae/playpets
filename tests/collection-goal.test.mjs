@@ -4,16 +4,12 @@ import { LIMITS } from '../src/core/limits.js';
 import { bugChances, eligibleKinds, fishWeight, relativeChances } from '../src/yard/catalog.js';
 import { discoveryFindChances } from '../src/yard/discovery-rewards.js';
 import { flowerFor } from '../src/yard/growth.js';
-import { catalog } from './support/content.mjs';
+import { albumEntries, catalog } from './support/content.mjs';
 
-const books = ['flowers', 'fish', 'bugs', 'gifts', 'trees', 'treasures'];
 const seasons = ['spring', 'summer', 'autumn', 'winter'];
 
 test('the collection has 115 distinct entries with four equally reachable flowers per season', () => {
-  assert.equal(
-    books.reduce((sum, book) => sum + catalog[book].length, 0),
-    115,
-  );
+  assert.equal(albumEntries, 115);
   for (const season of seasons) {
     const kinds = catalog.flowers.filter(item => item.season === season);
     assert.equal(kinds.length, 4, season);

@@ -50,7 +50,7 @@ const caughtLine = (entry, size) =>
 // and describes a kind (`unknown`: what a card not found yet says, when not "not met yet"). A kind
 // added to the catalogue shows up in its book; a new book is one more entry here (its tab is made
 // from it). A `hidden` book shows only what has been found, is not there at all before that, and
-// stays out of the album's count.
+// stays out of the album's count; `note` is what its status line says.
 const BOOKS = {
   flower: {
     tab: 'catch.tab_flowers',
@@ -136,11 +136,10 @@ const BOOKS = {
         date: new Date(entry.first).toLocaleDateString(language(), { year: 'numeric', month: 'long', day: 'numeric' }),
       }),
     hidden: true,
+    note: () => t('album.secret_more'),
   },
 };
 let book = 'flower';
-// Each book's tab, as setupAlbum made it.
-const tabOf = new Map();
 let rareTimer;
 
 function card(b, kind, entry) {
@@ -217,8 +216,8 @@ export function renderAlbum() {
     digging = book === 'tree' || book === 'treasure';
   const status = $('album-dig-status');
   const giftBook = book === 'gift';
-  status.hidden = !digging && !giftBook && !BOOKS[book].hidden;
-  if (BOOKS[book].hidden) status.textContent = t('album.secret_more');
+  status.hidden = !digging && !giftBook && !BOOKS[book].note;
+  if (BOOKS[book].note) status.textContent = BOOKS[book].note();
   status.title = '';
   if (digging) {
     const conditions = joinList([
@@ -248,9 +247,6 @@ export function renderAlbum() {
       tally = document.querySelector(`[data-count="${id}"]`);
     if (b.hidden) {
       tally.textContent = String(count);
-      if (tabOf.has(id)) tabOf.get(id).hidden = !count;
-      const option = $('album-select')?.querySelector?.(`option[value="${id}"]`);
-      if (option) option.hidden = !count;
       continue;
     }
     found += count;
@@ -260,7 +256,10 @@ export function renderAlbum() {
   if ($('album-select')) $('album-select').value = book;
   $('album-total').textContent = t('catch.total', { caught: found, total });
   for (const tab of document.querySelectorAll('.album-tabs [data-book]')) {
-    const active = tab.dataset.book === book;
+    const active = tab.dataset.book === book,
+      option = $('album-select')?.querySelector?.(`option[value="${tab.dataset.book}"]`);
+    tab.hidden = !shown(tab.dataset.book);
+    if (option) option.hidden = tab.hidden;
     tab.setAttribute('aria-selected', String(active));
     tab.tabIndex = active ? 0 : -1;
     if (active) $('album-grid').setAttribute('aria-labelledby', tab.id);
@@ -270,7 +269,10 @@ export function renderAlbum() {
   $('album-grid').replaceChildren(...b.kinds.filter(k => !b.hidden || have[k.id]).map(k => card(b, k, have[k.id])));
 }
 // Whether a book is there to open: a hidden one once something in it is found.
-const shown = id => !!BOOKS[id] && (!BOOKS[id].hidden || BOOKS[id].kinds.some(k => BOOKS[id].found()[k.id]));
+const shown = id => {
+  const b = BOOKS[id];
+  return !!b && (!b.hidden || b.kinds.some(k => b.found()[k.id]));
+};
 /** Opens the album (the tools' button), at a given book when a card asks for it. */
 export function openAlbum(open = null) {
   if (open && shown(open)) {
@@ -319,7 +321,6 @@ export function setupAlbum() {
       name.textContent = t(b.tab);
       count.dataset.count = id;
       tab.append(name, count);
-      tabOf.set(id, tab);
       return tab;
     }),
   );

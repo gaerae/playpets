@@ -1,13 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import './support/content.mjs';
+import { albumEntries } from './support/content.mjs';
 
 globalThis.playPets ??= {};
 const state = await import('../src/core/state.js');
 const { t: translate } = await import('../src/core/i18n.js');
 const { renderAlbum, setupAlbum } = await import('../src/panel/album.js');
-const { BUGS, FISH, FLOWERS, GIFTS, TREASURES, TREES } = await import('../src/yard/catalog.js');
 const { discover, SECRETS } = await import('../src/yard/secrets.js');
 const { installDom } = await import('./support/dom.mjs');
 
@@ -31,10 +30,9 @@ function album(t, secrets) {
 test('the hidden book is nowhere until something in it is found, and never counts toward the album', t => {
   const { secret } = album(t, {});
   assert.equal(secret.hidden, true);
-  const kinds = [FLOWERS, FISH, BUGS, GIFTS, TREES, TREASURES].reduce((sum, list) => sum + list.length, 0);
   assert.equal(
     document.getElementById('album-total').textContent,
-    translate('catch.total', { caught: 0, total: kinds }),
+    translate('catch.total', { caught: 0, total: albumEntries }),
   );
 });
 
