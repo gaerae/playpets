@@ -33,6 +33,19 @@ test('tree and keepsake books use saved counts, mature artwork and explicit keep
   assert.match(cards[0].children[0].innerHTML, /cherry-mature/);
   assert.equal(treeTab.children[1].textContent, `1/${TREES.length}`);
   assert.equal(cards[0].children.at(-1).textContent.includes('2'), true);
+  // Each card carries its place in the book; each tab, how full its book is, marked once complete.
+  assert.deepEqual(
+    cards.map(card => card.children[0].children.at(-1).textContent),
+    TREES.map((_, index) => String(index + 1).padStart(2, '0')),
+  );
+  assert.equal(treeTab.style['--album-found'], String(1 / TREES.length));
+  assert.equal(treeTab.classList.contains('complete'), false);
+  setData({ ...data, album: { ...data.album, trees: Object.fromEntries(TREES.map(k => [k.id, { count: 1 }])) } });
+  renderAlbum();
+  assert.equal(treeTab.style['--album-found'], '1');
+  assert.equal(treeTab.classList.contains('complete'), true);
+  assert.equal(document.getElementById('album-grid').dataset.book, 'tree');
+  setData({ ...data, album: { ...data.album, trees: { cherry: { count: 2 } } } });
   treasureTab.onclick();
   cards = document.getElementById('album-grid').children;
   assert.equal(cards.length, TREASURES.length);
@@ -72,6 +85,11 @@ test('tree and keepsake books use saved counts, mature artwork and explicit keep
   for (const [index, kind] of BUGS.entries()) {
     const badge = cards[index].children.find(child => child.className === 'album-rare');
     assert.equal(!!badge, kind.rarity === 'rare', `${kind.id} uses encounter rarity`);
+    assert.equal(
+      cards[index].classList.contains('rare'),
+      !!badge,
+      `${kind.id} takes the rare card's edge with its badge`,
+    );
     assert.ok(cards[index].children[2].textContent.includes(translate('catch.bug_clear')));
   }
 });

@@ -13,6 +13,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
+- The album reads like a collector's notebook: each find sits on its own numbered card over its book's ground (water for aquatic life, wood for gifts), the ones still to find wait as faint outlines with where to look, rare ones have a gold edge, and each book's tab fills as you collect, with a star once the book is complete.
+
+### Fixed
+
+- Switching books in the album starts at the top of the new book instead of where the last one was scrolled.
 
 ### Website and docs
 
