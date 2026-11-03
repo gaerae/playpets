@@ -65,6 +65,12 @@ for (const [name, size] of [
   ['Square150x150Logo', 150],
 ])
   tiles[name] = await render(size, Math.round(size * 0.84), `${name}.png`);
+// The taskbar and Start icon at each size Windows asks for. Without an unplated variant Windows puts
+// the tile on a plate of the accent color; the light one is for a light taskbar. Both are the same
+// full-bleed artwork as icon.ico, so the Store app looks like the installed one.
+for (const size of [16, 24, 32, 48, 256])
+  for (const form of ['unplated', 'lightunplated'])
+    tiles[`Square44x44Logo.targetsize-${size}_altform-${form}`] = full[size];
 await browser.close();
 
 // macOS .icns via iconutil
