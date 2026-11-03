@@ -36,6 +36,15 @@ test('native install and sharing exports retain their actual required dimensions
     'src-tauri/icons/msix/StoreLogo.png': [50, 50],
     'src-tauri/icons/msix/Square44x44Logo.png': [44, 44],
     'src-tauri/icons/msix/Square150x150Logo.png': [150, 150],
+    // Without an unplated variant Windows draws the taskbar and Start icon on an accent-colored plate.
+    ...Object.fromEntries(
+      [16, 24, 32, 48, 256].flatMap(size =>
+        ['unplated', 'lightunplated'].map(form => [
+          `src-tauri/icons/msix/Square44x44Logo.targetsize-${size}_altform-${form}.png`,
+          [size, size],
+        ]),
+      ),
+    ),
     'packaging/macos/dmg-background.png': [1320, 840],
     'packaging/windows/nsis-sidebar.bmp': [164, 314],
     'packaging/windows/nsis-header.bmp': [150, 57],

@@ -5,6 +5,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $root = (Resolve-Path "$PSScriptRoot/../../..").Path
+. "$PSScriptRoot/resources.ps1"
 $version = (Get-Content -Raw "$root/package.json" | ConvertFrom-Json).version
 $work = Join-Path $env:RUNNER_TEMP ('playpets-store-' + [guid]::NewGuid())
 $out = Join-Path $root 'release/store'
@@ -22,6 +23,7 @@ $sdk = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/bin'
 $tools = Get-ChildItem $sdk -Directory | Where-Object { Test-Path "$($_.FullName)/x64/makeappx.exe" } |
     Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
 if (!$tools) { throw 'Windows SDK packaging tools are missing' }
+Write-PackageResources "$($tools.FullName)/x64/makepri.exe" $work
 & "$($tools.FullName)/x64/makeappx.exe" pack /d $work /p "$out/PlayPets_${version}_${Architecture}.msix" /o
 if ($LASTEXITCODE -ne 0) { throw 'Store package creation failed' }
 Remove-Item -Recurse -Force $work
