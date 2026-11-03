@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { LIMITS } from '../src/core/limits.js';
-import { eligibleKinds, fishWeight, relativeChances } from '../src/yard/catalog.js';
+import { bugChances, eligibleKinds, fishWeight, relativeChances } from '../src/yard/catalog.js';
 import { discoveryFindChances } from '../src/yard/discovery-rewards.js';
 import { flowerFor } from '../src/yard/growth.js';
 import { catalog } from './support/content.mjs';
@@ -9,10 +9,10 @@ import { catalog } from './support/content.mjs';
 const books = ['flowers', 'fish', 'bugs', 'gifts', 'trees', 'treasures'];
 const seasons = ['spring', 'summer', 'autumn', 'winter'];
 
-test('the collection has 100 distinct entries with four equally reachable flowers per season', () => {
+test('the collection has 115 distinct entries with four equally reachable flowers per season', () => {
   assert.equal(
     books.reduce((sum, book) => sum + catalog[book].length, 0),
-    100,
+    115,
   );
   for (const season of seasons) {
     const kinds = catalog.flowers.filter(item => item.season === season);
@@ -40,7 +40,18 @@ test('new finds are ordinary discoveries with themed affinities and no additiona
 });
 
 test('added freshwater creatures have a reachable seasonal pool without becoming vanishingly rare', () => {
-  for (const id of ['freshwater_prawn', 'crayfish', 'pond_snail', 'stickleback']) {
+  for (const id of [
+    'freshwater_prawn',
+    'crayfish',
+    'pond_snail',
+    'stickleback',
+    'bullhead',
+    'bitterling',
+    'paradise_fish',
+    'dark_sleeper',
+    'mitten_crab',
+    'mussel',
+  ]) {
     const fish = catalog.fish.find(item => item.id === id);
     assert.ok(fish, id);
     let best = 0;
@@ -54,7 +65,18 @@ test('added freshwater creatures have a reachable seasonal pool without becoming
   }
 });
 
-test('green field cricket keeps its grounded discovery route and the 100-entry collection', () => {
+test('an ordinary bug is one in twenty somewhere, a rare one never more', () => {
+  const best = Object.fromEntries(catalog.bugs.map(bug => [bug.id, 0]));
+  for (const season of seasons)
+    for (const period of ['morning', 'day', 'evening', 'night'])
+      for (const row of bugChances(season, period, 'clear', null, catalog.bugs))
+        best[row.id] = Math.max(best[row.id], row.chance);
+  for (const bug of catalog.bugs.filter(bug => !bug.event))
+    if (bug.rarity === 'rare') assert.ok(best[bug.id] <= 0.05, `${bug.id} ${best[bug.id]}`);
+    else assert.ok(best[bug.id] > 0.05, `${bug.id} ${best[bug.id]}`);
+});
+
+test('green field cricket keeps its grounded discovery route in the 115-entry collection', () => {
   const cricket = catalog.bugs.find(bug => bug.id === 'field_cricket');
   assert.ok(cricket);
   assert.equal(cricket.kind, 'cricket');
@@ -65,7 +87,7 @@ test('green field cricket keeps its grounded discovery route and the 100-entry c
     catalog.bugs.some(bug => bug.id === 'stag_beetle'),
     false,
   );
-  assert.equal(catalog.bugs.length, 18);
+  assert.equal(catalog.bugs.length, 26);
 });
 
 test('over a year a rare fish bites less often than any ordinary one', () => {

@@ -219,7 +219,9 @@ Bug odds:
 - The mix renormalizes when a family is unavailable.
 - Species weights then apply within each family.
 - Do not normalize both families to 100% independently.
+- Clear autumn evenings and nights have only crickets: a couple at a time, from the bugs of kind `cricket` whose `periods` include that hour.
 - Rain, snow and unavailable seasons return an empty bug pool.
+- Each family holds a fixed share, so a family with many species in one season dilutes each of them; keep at most about two ordinary beetles or crickets in a season, or an ordinary one falls under 5% (`tests/collection-goal.test.mjs`).
 - A fish's or a bug's explicit `rarity: "rare"` gives it the album's rare badge.
 - Anything with an `event` (fish, bug or gift) is rare in the album, and its hint gives the event's dates.
 - Over a year, a rare fish has to bite less often than every ordinary one (`tests/collection-goal.test.mjs`); a fish that comes in few seasons or hours needs a higher weight.
@@ -294,6 +296,8 @@ Ground bugs:
 - Beetles crawl and crickets hop near the floor.
 - Keep their specimen heads pointing up in the atlas so heading rotation stays correct.
 - They share the clear-daytime appearance rules but stay on the ground.
+- Crickets also come out on clear autumn evenings and nights.
+- `kind` sets how a bug moves, not its family name: a mantis crawls as a `beetle`.
 - The native album shows ground habitat clues.
 - `ambient-art.js` loads each referenced bug atlas once and invalidates its canvas when decoding finishes.
 - Exact probabilities stay internal.

@@ -91,15 +91,16 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
   const enabled = () =>
     precipitation() || ['sky', 'wildlife', 'seasonalEffects'].some(capability => worldAllows(world, capability));
   const clear = () => weather === 'clear';
-  // Fireflies on spring and summer nights, butterflies by day until autumn, when one is left, and
-  // dragonflies with them in summer and autumn. Which kinds fly is the catalogue's (catalog.js).
+  // Fireflies on spring and summer nights, a couple of crickets on autumn ones, butterflies by day
+  // until autumn, when one is left, and dragonflies with them in summer and autumn. Which kinds fly
+  // is the catalogue's (catalog.js).
   function lifeCount() {
     if (!worldAllows(world, 'wildlife')) return { glow: false, count: 0 };
     const warm = season === 'spring' || season === 'summer',
       group = wildlifeGroup(season, period, weather),
       glow = group === 'firefly',
       flutter = group === 'day';
-    const count = glow ? (period === 'night' ? 9 : 4) : flutter ? (warm ? 3 : 1) : 0;
+    const count = glow ? (period === 'night' ? 9 : 4) : flutter ? (warm ? 3 : 1) : group === 'cricket' ? 2 : 0;
     return { glow, count: Math.round(count * boostOf(event, glow ? 'fireflies' : 'butterflies')) };
   }
   // The small life of a spell. Arriving, butterflies come in from the sides, fireflies fade in and

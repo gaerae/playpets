@@ -1,0 +1,47 @@
+{
+  "generated": "2026-11-03",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "lake-fish",
+      "prompt": "Use case: stylized-concept. Production transparent game specimen atlas for a cozy desktop pet game, exactly FOUR different small freshwater fish in FOUR equal square cells in ONE row, ample transparent gutters. Every fish in side profile facing RIGHT. 1: KOREAN BULLHEAD catfish (Tachysurus fulvidraco): golden-yellow body with irregular dark brown saddle blotches, flat broad head with FOUR pairs of short barbels, sharp dorsal spine, adipose fin and deeply forked tail; clearly yellow and blotched, NOT a grey flat catfish. 2: KOREAN ROSE BITTERLING (Rhodeus uyekii): small deep laterally compressed oval body, silvery with rosy-pink and violet iridescent flush, orange-red edged dorsal and anal fins, a thin blue-green stripe toward the tail; delicate and jewel-like, NOT a crucian carp. 3: ROUNDTAIL PARADISE FISH (Macropodus ocellatus): olive-brown body with vivid alternating blue and rusty-red vertical bars, long flowing trailing dorsal and anal fins, rounded fan tail, dark eye spot on gill cover. 4: KOREAN DARK SLEEPER goby (Odontobutis platycephala): big broad flattened head and wide mouth, tapering body, mottled dark chocolate and tan camouflage, two separate dorsal fins and rounded fan-like pectoral and tail fins. Each fish wholly inside central 75% of its cell, nothing crosses cells. Style: same warm softly sculpted painted miniature collectible as the reference, subtle pearlescent scales, authentic anatomy, restrained highlights, clean silhouette readable at 64px. Reference image is STYLE and MATERIAL only, do not copy its fish. ACTUAL fully transparent RGBA background, NO water, floor, haze, cards, gridlines, labels, text or contact shadows. Exactly four fish, no duplicates, no extra objects. IMPORTANT: the background must be truly transparent alpha everywhere outside each fish, with no white, grey or glowing band behind the fish.",
+      "references": ["assets/art/fish/specimens.png"],
+      "file": "lake-fish.png",
+      "sha256": "d5578ddbe4d6c1be978e2876b1187c4a779d3fafb4643b599a8e1d50e97c1620",
+      "size": [2172, 724],
+      "runtimeAtlas": "collection-extension/lake-fish.png",
+      "acceptedIds": ["bullhead", "bitterling", "paradise_fish", "dark_sleeper"]
+    },
+    {
+      "name": "lake-creatures",
+      "prompt": "Use case: stylized-concept. Production transparent game specimen atlas for a cozy desktop pet game, exactly THREE different freshwater creatures in THREE equal square cells in ONE row, ample transparent gutters. 1: MITTEN CRAB (Eriocheir) three-quarter top view facing RIGHT: square olive-brown carapace, two claws covered with dense soft brown fur mittens, eight long slender walking legs; clearly a crab, NOT a crayfish. 2: FRESHWATER MUSSEL (Unio) side view, long oval closed bivalve shell, glossy dark olive-green to brown with fine concentric growth rings and a soft pearly sheen at the edge, a small pale foot peeking out at the bottom right. 3: CHINESE SOFTSHELL TURTLE three-quarter top view facing RIGHT: flat round leathery olive-grey shell with soft edges and faint dark speckles, long neck, distinctive long tubular snorkel snout, webbed feet with claws, short tail; friendly and calm. Each creature wholly inside central 75% of its cell, nothing crosses cells. Style: same warm softly sculpted painted miniature collectible as the reference, authentic anatomy, subtle material shading, clean silhouettes readable at 64px. Reference image is STYLE and MATERIAL only. ACTUAL fully transparent RGBA background, NO water, floor, haze, labels, text, gridlines or contact shadows, no food plating. Exactly three creatures, no extra objects.",
+      "references": ["assets/art/fish/specimens.png"],
+      "file": "lake-creatures.png",
+      "sha256": "c6f1cc6bfbdc5cbf10e0ffec894d6c3db73471204eb72e3e9da7dd683a5b9198",
+      "size": [2172, 724],
+      "runtimeAtlas": "collection-extension/lake-creatures.png",
+      "acceptedIds": ["mitten_crab", "mussel", "softshell_turtle"]
+    },
+    {
+      "name": "beetles",
+      "prompt": "Use case: stylized-concept. Production transparent game specimen atlas for a cozy desktop pet game, exactly FOUR different insects in a strict TWO columns by TWO rows grid of equal square cells, ample transparent gutters. ALL insects seen from directly ABOVE with HEADS pointing UP, legs symmetrical. Row1 col1: TIGER BEETLE (Cicindela chinensis): slim elongated body, shimmering iridescent metallic coppery red, emerald green and deep blue wing covers with small cream spots, big eyes, long slender legs, sickle jaws. Row1 col2: WHITE-SPOTTED LONGHORN BEETLE (Anoplophora): glossy black elongated body with scattered round white spots, very long black-and-pale-blue banded antennae curving back along the sides, six legs. Row2 col1: JAPANESE RHINOCEROS BEETLE (Trypoxylus dichotomus) male: large rounded glossy chestnut-mahogany body, long forked head horn pointing forward/up and a short thorax horn, six sturdy legs. Row2 col2: PRAYING MANTIS: slender bright leaf-green body, triangular head with big eyes, long neck-like thorax, folded spiny raptorial front legs held up, four walking legs, narrow wings folded over the abdomen. Each insect including every antenna and leg tip wholly inside central 80% of its cell, nothing crosses cells. Style: same warm softly sculpted painted miniature as the reference, delicate texture, restrained gloss, friendly not creepy, clean silhouettes readable at 32px. Reference is STYLE and MATERIAL only. ACTUAL fully transparent RGBA background, NO scenery, floor, haze, text, gridlines or shadows. Exactly four insects, no duplicates, no extra objects.",
+      "references": ["assets/art/bugs/specimens.png"],
+      "file": "beetles.png",
+      "sha256": "33a105ed0f4f965a95b0b25e46dfb8b0fa41b89827eb1e27e4c482f8223cf872",
+      "size": [1254, 1254],
+      "runtimeAtlas": "collection-extension/beetles.png",
+      "acceptedIds": ["tiger_beetle", "longhorn_beetle", "rhinoceros_beetle", "mantis"]
+    },
+    {
+      "name": "hoppers",
+      "prompt": "Use case: stylized-concept. Production transparent game specimen atlas for a cozy desktop pet game, exactly FOUR different insects in a strict TWO columns by TWO rows grid of equal square cells, ample transparent gutters. ALL insects seen from directly ABOVE with HEADS pointing UP, symmetrical. Row1 col1: ORIENTAL LONG-HEADED GRASSHOPPER (Acrida cinerea) in its STRAW-TAN brown form: very long slender body, pointed cone-shaped head, short flat sword antennae, extremely long thin folded hind jumping legs, narrow wings; tan and straw colored, NOT green. Row1 col2: BUTTERFLY DRAGONFLY (Rhyothemis fuliginosa): small dark body, FOUR broad rounded wings that are deep iridescent blue-violet black with clear transparent tips, wings spread flat. Row2 col1: HUMMINGBIRD HAWK-MOTH (Macroglossum stellatarum) with wings spread: plump furry grey-brown body with black and white tail tuft, narrow triangular grey-brown forewings and small bright ORANGE hindwings, short antennae; clearly a moth, not a butterfly. Row2 col2: EMMA FIELD CRICKET (Teleogryllus emma): glossy dark chocolate-black round cricket, cream eyebrow stripe over the eyes, very long slender antennae, folded dark wings, big folded hind jumping legs. Each insect including every antenna, leg and wing tip wholly inside central 80% of its cell, nothing crosses cells. Style: same warm softly sculpted painted miniature as the reference, delicate veins and texture, restrained gloss, friendly not creepy, clean silhouettes readable at 32px. Reference is STYLE and MATERIAL only. ACTUAL fully transparent RGBA background, NO scenery, floor, haze, glow, text, gridlines or shadows. Exactly four insects, no duplicates, no extra objects.",
+      "references": ["assets/art/bugs/specimens.png"],
+      "file": "hoppers.png",
+      "sha256": "c9eab471860c37784a3d8f89c59252b5d1ff7a8a05c0d889015009cee129d6f8",
+      "size": [1282, 1227],
+      "runtimeAtlas": "collection-extension/hoppers.png",
+      "acceptedIds": ["longheaded_grasshopper", "butterfly_dragonfly", "hawk_moth", "emma_cricket"]
+    }
+  ],
+  "review": "One fish atlas came back with a painted white haze instead of alpha and was generated again with the transparency requirement repeated; that rejected image is not kept. Every accepted atlas has actual alpha and was checked on light and dark grounds. Crops follow measured silhouettes with a small margin."
+}
