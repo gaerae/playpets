@@ -32,6 +32,16 @@ test('every language says every key, with the same holes', () => {
 
 // Every relationship the friend settings offer (index.html) has its own voice for the moments a
 // friend speaks up on its own (bond.js lineFor); a friend uses the plain lines.
+// The album's badge and the dig's 24-hour rule name the same finds: one word for them in each
+// language, so a "rare" badge never sits beside an "uncommon" rule.
+test('the dig rule calls its finds by the word on the album badge', () => {
+  for (const [language, table] of Object.entries(STRINGS)) {
+    const word = table['catch.rare'];
+    for (const key of ['album.rare_rule', 'album.rare_wait'])
+      assert.ok(table[key].toLowerCase().includes(word.toLowerCase()), `${language} ${key} says ${word}`);
+  }
+});
+
 test('every relationship has its own welcome, closeness and dear lines', async () => {
   const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
   const relations = [...html.matchAll(/name="relation" value="(\w+)"/g)].map(m => m[1]);

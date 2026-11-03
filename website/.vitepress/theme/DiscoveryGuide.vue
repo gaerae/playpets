@@ -16,7 +16,7 @@ const copy = {
     digNote:
       'Digging may uncover seeds, saplings or keepsakes, or nothing. Matching season, weather and place favor some finds. Full storage adds no item and does not convert a reward. The same patch gives no further reward for 24 hours.',
     digCooldown:
-      'This is a preview, not your saved state. After an uncommon find, all friends and places wait 24 hours for another. Repeats are possible and completion time is not guaranteed.',
+      'This is a preview, not your saved state. After a rare find, all friends and places wait 24 hours for another. Repeats are possible and completion time is not guaranteed.',
     place: 'Outdoor place',
     customPlace: 'Custom outdoor background',
     affinity: 'More likely with',
@@ -51,7 +51,7 @@ const copy = {
     digNote:
       '땅을 파면 꽃씨, 묘목, 작은 발견을 얻거나 아무것도 나오지 않을 수 있어요. 계절, 날씨, 장소에 따라 더 찾기 쉬운 것이 달라져요. 보관함이 가득 차면 더 받지 못하고 다른 보상으로 바뀌지 않아요. 같은 땅은 24시간 동안 추가 보상이 없어요.',
     digCooldown:
-      '이 페이지는 미리보기이며 앱의 저장 상태를 읽지 않아요. 드문 발견을 얻으면 모든 친구와 장소에서 다음 드문 발견까지 24시간을 기다려요. 중복이 나올 수 있고 완료 시점은 보장하지 않아요.',
+      '이 페이지는 미리보기이며 앱의 저장 상태를 읽지 않아요. 희귀한 발견을 얻으면 모든 친구와 장소에서 다음 희귀한 발견까지 24시간을 기다려요. 중복이 나올 수 있고 완료 시점은 보장하지 않아요.',
     place: '야외 장소',
     customPlace: '직접 추가한 야외 배경',
     affinity: '더 잘 나오는 조건',
@@ -85,7 +85,7 @@ const copy = {
     digNote:
       '土を掘ると種、苗木、小さな発見が出ることも、何も出ないこともあります。季節、天気、場所によって見つけやすさが変わります。収納が満杯でも別の報酬には変わりません。同じ場所は24時間追加の報酬がありません。',
     digCooldown:
-      'これはプレビューで、保存状態は読みません。珍しい発見の後は全員と全場所で次の珍しい発見まで24時間待ちます。重複があり、完了時期は保証されません。',
+      'これはプレビューで、保存状態は読みません。レアな発見の後は全員と全場所で次のレアな発見まで24時間待ちます。重複があり、完了時期は保証されません。',
     place: '屋外の場所',
     customPlace: '追加した屋外背景',
     affinity: '出やすい条件',

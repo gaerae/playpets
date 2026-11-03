@@ -274,7 +274,7 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 **What a dig finds**
 
 - A flower seed, a sapling, one of seventeen keepsakes, or nothing. Keepsakes appear in **Album → Keepsakes**.
-- After an uncommon find, all friends and places wait 24 hours for another uncommon find.
+- After a rare find, all friends and places wait 24 hours for another rare find.
 - Repeats happen, so completing the set can take longer.
 - The same patch gives no further reward for 24 hours.
 - Each friend waits eight seconds between digs.
