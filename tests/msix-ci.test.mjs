@@ -134,3 +134,17 @@ try {
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /SHARED_LOG_VERIFIED/);
 });
+
+test('Store and CI packages index the unplated icons, so Windows finds them', () => {
+  const helper = readFileSync('packaging/windows/msix/resources.ps1', 'utf8');
+  assert.match(helper, /createconfig/);
+  assert.match(helper, /resources\.pri/);
+  assert.match(helper, /dump[\s\S]*altform-unplated/);
+  for (const file of ['ci.ps1', 'store.ps1']) {
+    const script = readFileSync(`packaging/windows/msix/${file}`, 'utf8');
+    assert.match(script, /\. "\$PSScriptRoot\/resources\.ps1"/, file);
+    assert.match(script, /makepri\.exe/, file);
+    const resources = script.indexOf('Write-PackageResources ');
+    assert.ok(resources > 0 && resources < script.search(/pack'?,? '?\/d/), file);
+  }
+});
