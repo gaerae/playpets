@@ -67,3 +67,22 @@ test('green field cricket keeps its grounded discovery route and the 100-entry c
   );
   assert.equal(catalog.bugs.length, 18);
 });
+
+test('over a year a rare fish bites less often than any ordinary one', () => {
+  // Every season and time of day alike, clear or rainy: a rare fish that comes all year must not
+  // outnumber an ordinary one that comes only in one season.
+  for (const weather of ['clear', 'rain']) {
+    const year = Object.fromEntries(catalog.fish.map(fish => [fish.id, 0]));
+    for (const season of seasons)
+      for (const period of ['morning', 'day', 'evening', 'night'])
+        for (const row of relativeChances(eligibleKinds(catalog.fish, season, period), fish =>
+          fishWeight(fish, weather),
+        ))
+          year[row.id] += row.chance / 16;
+    const ordinary = catalog.fish.filter(fish => !fish.event && fish.rarity !== 'rare');
+    const rare = catalog.fish.filter(fish => fish.rarity === 'rare');
+    assert.ok(rare.length >= 3, 'golden carp, goldfish and salmon are rare');
+    const rarest = Math.min(...ordinary.map(fish => year[fish.id]));
+    for (const fish of rare) assert.ok(year[fish.id] < rarest, `${weather}: ${fish.id} ${year[fish.id]} < ${rarest}`);
+  }
+});

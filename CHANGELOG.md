@@ -13,6 +13,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
+- Fish odds are rebalanced: goldfish and salmon come less often, and snakeheads, sweetfish, eels, mandarin fish and the moon carp more often, so no ordinary fish is scarcer over a year than a rare one.
+- The album marks everything that comes only during a seasonal event as rare, and its hint now gives the event's dates.
 
 ### Website and docs
 

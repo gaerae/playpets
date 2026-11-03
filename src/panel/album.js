@@ -5,6 +5,7 @@
 import { closeOnBackdrop } from '../core/confirm.js';
 import { joinList, language, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
+import { southern } from '../core/season.js';
 import { $, call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSvg } from '../yard/art.js';
@@ -12,6 +13,7 @@ import { albumSeen } from '../yard/card.js';
 import { BUGS, FISH, FLOWERS, GIFTS, giftKind, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
+import { eventDates } from '../yard/events.js';
 import { scene } from '../yard/world.js';
 import { worldFor } from '../yard/worlds.js';
 
@@ -22,8 +24,14 @@ function when(kind, where) {
     periods = kind.periods.length === 4 ? t('catch.any_time') : joinList(kind.periods.map(p => t(`period.${p}`)));
   return joinList([seasons, periods, t(where)]);
 }
-// A kind that comes only during a seasonal event says when.
-const eventHint = k => t('catch.event_hint', { event: t(`event.${k.event}.name`) });
+// A kind that comes only during a seasonal event says when, by the dates of the system's hemisphere.
+const eventHint = k =>
+  t('catch.event_hint', {
+    event: t(`event.${k.event}.name`),
+    dates: eventDates(k.event, southern(Intl.DateTimeFormat().resolvedOptions().timeZone)),
+  });
+// What comes only on certain dates is rare, whatever its weight.
+const rare = k => k.rarity === 'rare' || !!k.event;
 const favored = kind =>
   t('album.favored', {
     conditions: joinList([
@@ -65,6 +73,7 @@ const BOOKS = {
         ...(k.rain > 1 ? [t('catch.rain_hint')] : []),
       ]),
     record: entry => caughtLine(entry, true),
+    rare,
   },
   bug: {
     tab: 'catch.tab_bugs',
@@ -79,7 +88,7 @@ const BOOKS = {
         t('catch.bug_clear'),
       ]),
     record: entry => caughtLine(entry, false),
-    rare: k => k.rarity === 'rare',
+    rare,
   },
   gift: {
     tab: 'catch.tab_gifts',
@@ -91,6 +100,7 @@ const BOOKS = {
     unknown: 'catch.unknown_gift',
     hint: k => (k.event ? eventHint(k) : t('catch.gift_hint')),
     record: () => t('catch.received'),
+    rare,
   },
   tree: {
     tab: 'album.trees',
@@ -115,8 +125,6 @@ const BOOKS = {
 };
 let book = 'flower';
 let rareTimer;
-// A kind this seldom (its weight among those that come at the same time, catalog.json) is rare.
-const RARE = 4;
 
 function card(b, kind, entry) {
   const el = document.createElement('div');
@@ -130,8 +138,8 @@ function card(b, kind, entry) {
   name.textContent = entry ? b.name(kind) : t(b.unknown || 'catch.unknown');
   hint.textContent = b.hint(kind);
   el.append(name, hint);
-  // A fish or a bug that comes seldom says so, found or not, so it is worth waiting for.
-  if (b.rare ? b.rare(kind) : kind.weight <= RARE) {
+  // A kind that comes seldom, or only on certain dates, says so, found or not, so it is worth waiting for.
+  if (b.rare?.(kind)) {
     const rare = document.createElement('span');
     rare.className = 'album-rare';
     rare.textContent = t('catch.rare');

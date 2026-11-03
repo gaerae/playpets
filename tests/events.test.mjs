@@ -4,8 +4,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import './support/content.mjs';
+import { setLanguageForTests } from '../src/core/i18n.js';
 import { bite, flyingBug } from '../src/yard/catalog.js';
-import { boostOf, eventOn, eventStart, inEvent } from '../src/yard/events.js';
+import { boostOf, eventDates, eventOn, eventStart, inEvent } from '../src/yard/events.js';
 
 const on = (iso, south = false) => eventOn(new Date(`${iso}T12:00:00`), south)?.id ?? null;
 
@@ -67,4 +68,17 @@ test('an event brings more small life and kinds of its own, only while it is on'
 test('the page sees each event on the dates the backend checks', () => {
   const { cases } = JSON.parse(readFileSync(new URL('./fixtures/event-dates.json', import.meta.url), 'utf8'));
   for (const { day, south, event } of cases) assert.equal(on(day, south), event, `${day} ${south ? 'south' : 'north'}`);
+});
+
+test('an event names its dates in the person language, six months on in the south', t => {
+  t.after(() => setLanguageForTests('en'));
+  setLanguageForTests('en');
+  assert.equal(eventDates('harvest'), 'Sep 8 – Oct 15');
+  assert.equal(eventDates('harvest', true), 'Mar 8 – Apr 15');
+  assert.equal(eventDates('newyear', true), 'Jan 1 – Jan 7', 'the new year keeps its date');
+  setLanguageForTests('ja');
+  assert.equal(eventDates('lights'), '12月10日～12月31日');
+  setLanguageForTests('ko');
+  assert.equal(eventDates('lights'), '12월 10일~12월 31일');
+  assert.equal(eventDates('missing'), '');
 });
