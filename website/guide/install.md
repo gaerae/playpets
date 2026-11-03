@@ -186,8 +186,10 @@ chmod +x PlayPets_*.AppImage
 | Operating system | Location |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\`. Microsoft Store, also through winget: inside the package's own folder |
+| Windows | `%APPDATA%\app.playpets\`. Microsoft Store, also through winget: `%LOCALAPPDATA%\Packages\…\LocalCache\Roaming\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
+
+- **Open the data folder** in **About PlayPets** opens it on any system.
 
 | Inside | What it holds |
 |---|---|

@@ -24,11 +24,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Fixed
 
 - In the Microsoft Store version, the icon on the taskbar and in the Start menu no longer sits on a blue square.
+- In the Microsoft Store version, **Open folder** in Invite a friend and **Open the data folder** in About PlayPets now open the folder in File Explorer instead of failing.
 
 ### Website and docs
 
 - The guide says how long a memento's heart shows.
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.
+- The install guide gives where the Microsoft Store version keeps its data folder.
 - The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
 - The guide counts 115 album entries, names some of the new finds and says when crickets come out on autumn nights, in all four languages.
 
