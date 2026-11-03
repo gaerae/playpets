@@ -59,7 +59,8 @@ pnpm run site:dev
    - The desktop picture captures only the app's overlay window and lays it on the same backdrop with a small terminal.
    - Nothing the system draws over the screen (the screen-sharing indicator, notifications, the screen's rounded corners) can appear in it.
    - `SHOT_SCENE=desktop` refreshes it alone.
-   - On the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README).
+   - On the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README): a wave, a chat, Claude Code finishing the first friend's task and a parade.
+   - `SHOT_SCENE=demo SHOT_LANGS=en` records only that animation and takes no pictures.
    - A second pass starts the app again from a lived-in garden (`playGarden` in `scripts/shots-lib.mjs`: flowers in bloom, grown trees, gifts, an album of finds) and takes the five play pictures. `SHOT_SCENE=play` takes only those.
    - Before each picture and the README animation, keyboard focus is cleared, so no focus ring shows.
 
