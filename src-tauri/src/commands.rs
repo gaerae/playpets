@@ -476,9 +476,9 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
 fn receive_gift(c: &Ctx) -> Result<Value, String> {
     let (x, y) = (c.float(0), c.float(1));
     let (day, from) = (c.text(2), c.text(4));
-    let turn = (now_ms() / 1000) as usize;
+    let now = now_ms();
     // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
-    if !crate::pets::has_come(day, now_ms()) {
+    if !crate::pets::has_come(day, now) {
         return Err(i18n::t("error.bad_request"));
     }
     commit(c.app, &c.state, |d| {
@@ -489,9 +489,7 @@ fn receive_gift(c: &Ctx) -> Result<Value, String> {
         if !d.bonds.together_on(from, day) {
             return Err(i18n::t("error.bad_request"));
         }
-        d.garden
-            .gift(x, y, day, turn, c.arg(3).as_str(), from)
-            .map(|g| json!(g))
+        d.garden.gift(x, y, day, now, c.arg(3).as_str(), from).map(|g| json!(g))
     })
 }
 /// (friend, level, x, y, local day): a friend that grew closer brings a gift for the level it
@@ -499,8 +497,8 @@ fn receive_gift(c: &Ctx) -> Result<Value, String> {
 fn thanks_gift(c: &Ctx) -> Result<Value, String> {
     let (from, x, y, day) = (c.text(0), c.float(2), c.float(3), c.text(4));
     let level = c.arg(1).as_u64().unwrap_or(0) as u32;
-    let turn = (now_ms() / 1000) as usize;
-    if !crate::pets::has_come(day, now_ms()) {
+    let now = now_ms();
+    if !crate::pets::has_come(day, now) {
         return Err(i18n::t("error.bad_request"));
     }
     commit(c.app, &c.state, |d| {
@@ -508,7 +506,7 @@ fn thanks_gift(c: &Ctx) -> Result<Value, String> {
         if d.bonds.level_of(from) < level || !d.bonds.together_on(from, day) {
             return Err(i18n::t("error.bad_request"));
         }
-        d.garden.thanks(from, level, x, y, turn).map(|g| json!(g))
+        d.garden.thanks(from, level, x, y, now).map(|g| json!(g))
     })
 }
 /// Something done together with a friend: its bond grows (bond.rs keeps what it is worth).
