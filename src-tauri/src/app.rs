@@ -222,7 +222,8 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "busy": d.talks.busy_ids().collect::<Vec<_>>(),
         "desktopLayout": layout,
         "communities": importer::communities_json(),
-        "petFolders": {"builtin": d.builtin_pets, "codex": d.codex_pets, "downloaded": d.store.dir.join("pets")},
+        // The paths shown are the ones Explorer finds, as Open folder opens them (system.rs).
+        "petFolders": {"builtin": crate::system::outside_view(&d.builtin_pets), "codex": d.codex_pets, "downloaded": crate::system::outside_view(&d.store.dir.join("pets"))},
     });
     // The window's place is the backend's alone (window.rs); the pages have no use for it.
     let mut prefs = d.prefs.json();

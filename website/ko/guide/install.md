@@ -181,8 +181,10 @@ chmod +x PlayPets_*.AppImage
 | 운영체제 | 위치 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\`. Microsoft Store(winget으로 설치한 경우 포함): 패키지 전용 폴더 안 |
+| Windows | `%APPDATA%\app.playpets\`. Microsoft Store(winget으로 설치한 경우 포함): `%LOCALAPPDATA%\Packages\…\LocalCache\Roaming\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
+
+- **PlayPets 정보**의 **데이터 폴더 열기**를 누르면 어느 시스템에서든 이 폴더가 열려요.
 
 | 안에 있는 것 | 내용 |
 |---|---|

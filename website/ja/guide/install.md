@@ -190,8 +190,10 @@ chmod +x PlayPets_*.AppImage
 | OS | 場所 |
 |---|---|
 | macOS | `~/Library/Application Support/app.playpets/` |
-| Windows | `%APPDATA%\app.playpets\`。Microsoft Store（wingetで入れた場合も）：パッケージ専用のフォルダー内 |
+| Windows | `%APPDATA%\app.playpets\`。Microsoft Store（wingetで入れた場合も）：`%LOCALAPPDATA%\Packages\…\LocalCache\Roaming\app.playpets\` |
 | Linux | `~/.local/share/app.playpets/` |
+
+- **PlayPets について**の**データフォルダーを開く**で、どのシステムでもこのフォルダーを開けます。
 
 | 中身 | 内容 |
 |---|---|
