@@ -16,6 +16,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The front page is plainer: each section says what is in the app and where to find it, the download block ends with three steps for after installing, and gifts are described as coming at most once every two days.
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.
 - The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
 

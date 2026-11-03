@@ -735,6 +735,50 @@ html[lang^="ja"] .landing {
   font-size: 12px;
   margin-top: 35px;
 }
+/* What to do after installing: three short steps under the buttons, read left to right. */
+.start-steps {
+  max-width: 980px;
+  margin: 56px auto 0;
+  text-align: left;
+}
+.start-steps h3 {
+  font-size: 18px;
+  margin: 0 0 16px;
+  text-align: center;
+}
+.start-steps ol {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.start-steps li {
+  counter-increment: step;
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--world-ink) 14%, transparent);
+  border-radius: 16px;
+  background: var(--world-paper);
+}
+.start-steps b::before {
+  content: counter(step) ". ";
+}
+.start-steps p {
+  font-size: 14px;
+  margin: 6px 0 10px;
+  line-height: 1.7;
+}
+.start-steps a {
+  font-size: 13px;
+  font-weight: 600;
+}
+@media (max-width: 720px) {
+  .start-steps ol {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
