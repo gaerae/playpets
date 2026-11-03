@@ -96,6 +96,19 @@ pub struct Decor {
         skip_serializing_if = "std::ops::Not::not"
     )]
     pub memento: bool,
+    /// When it came (ms); 0 for a gift from before this was kept. The page marks a memento as
+    /// new for a while after it.
+    #[serde(default, deserialize_with = "super::or_default", skip_serializing_if = "is_zero")]
+    pub came_at: u64,
+}
+
+fn is_zero(n: &u64) -> bool {
+    *n == 0
+}
+
+/// Which gift comes next is turned by the second a friend brings it (Garden::next_gift).
+fn turn_of(now: u64) -> usize {
+    (now / 1000) as usize
 }
 
 /// A day as the page writes it: YYYY-MM-DD, with a month and a day of the month that can be.
@@ -318,13 +331,13 @@ impl Garden {
     /// A friend (`from`) brings an everyday gift and sets it down at (x, y): one every
     /// GIFT_EVERY_DAYS days, on a day the two did something together (the caller checks that).
     /// `day` is the page's local date. During a seasonal event (`event`, which the page says and
-    /// the dates check), its own gift comes the first time instead.
+    /// the dates check), its own gift comes the first time instead. `now` (ms) is when it came.
     pub fn gift(
         &mut self,
         x: f64,
         y: f64,
         day: &str,
-        turn: usize,
+        now: u64,
         event: Option<&str>,
         from: &str,
     ) -> Result<Given, String> {
@@ -338,8 +351,8 @@ impl Garden {
         let kind = event
             .and_then(|e| super::content::event_gift(e, day))
             .filter(|g| !self.received.iter().any(|r| r == g))
-            .unwrap_or_else(|| self.next_gift(turn));
-        let given = self.give(kind, from, false, x, y)?;
+            .unwrap_or_else(|| self.next_gift(turn_of(now)));
+        let given = self.give(kind, from, false, x, y, now)?;
         self.gift_day = day.into();
         self.gift_wait = None;
         Ok(given)
@@ -347,8 +360,8 @@ impl Garden {
 
     /// A friend that reached `level` brings a gift for it, once a level: at MEMENTO_LEVEL (or the
     /// first time after it) its memento, otherwise the next everyday one. The caller checks the
-    /// friend has reached the level.
-    pub fn thanks(&mut self, from: &str, level: u32, x: f64, y: f64, turn: usize) -> Result<Given, String> {
+    /// friend has reached the level. `now` (ms) is when it came.
+    pub fn thanks(&mut self, from: &str, level: u32, x: f64, y: f64, now: u64) -> Result<Given, String> {
         let Some((x, y)) = decor_place(x, y) else {
             return Err(i18n::t("error.bad_request"));
         };
@@ -359,9 +372,9 @@ impl Garden {
         let kind = if memento {
             memento_kind(from)
         } else {
-            self.next_gift(turn)
+            self.next_gift(turn_of(now))
         };
-        let given = self.give(kind, from, memento, x, y)?;
+        let given = self.give(kind, from, memento, x, y, now)?;
         self.thanked.insert(from.into(), level);
         Ok(given)
     }
@@ -375,7 +388,7 @@ impl Garden {
     }
 
     /// Sets a gift down, or puts it in the box when the yard is full; counted the first time.
-    fn give(&mut self, kind: &str, from: &str, memento: bool, x: f64, y: f64) -> Result<Given, String> {
+    fn give(&mut self, kind: &str, from: &str, memento: bool, x: f64, y: f64, now: u64) -> Result<Given, String> {
         if kind.is_empty() {
             return Err(i18n::t("error.bad_request"));
         }
@@ -386,6 +399,7 @@ impl Garden {
             y,
             from: Some(from.into()),
             memento,
+            came_at: now,
         };
         let boxed = self.decor.len() >= DECOR_MAX;
         if boxed && self.boxed.len() >= BOX_MAX {
@@ -710,6 +724,7 @@ mod tests {
             y: 0.5,
             from: Some("miso".into()),
             memento,
+            came_at: 0,
         };
         // Every kind has come before; the yard holds a few of them, all mementos.
         g.received = catalog().gifts().iter().map(|k| k.to_string()).collect();
@@ -789,6 +804,22 @@ mod tests {
         assert!(g.has_memento("miso"));
         g.forget_friend("miso");
         assert!(!g.thanked.contains_key("miso"));
+    }
+
+    #[test]
+    fn a_gift_keeps_when_it_came_through_the_box_and_a_save() {
+        let now = 1_793_491_200_000;
+        let mut g = Garden::default();
+        let memento = g.thanks("miso", 4, 0.5, 0.5, now).unwrap().decor;
+        assert_eq!(memento.came_at, now);
+        g.put_away(&memento.id).unwrap();
+        assert_eq!(g.set_out(&memento.id, 0.4, 0.6).unwrap().came_at, now);
+        let gift = g.gift(0.5, 0.5, &gift_day(0), now + 1, None, "miso").unwrap();
+        assert_eq!(gift.decor.came_at, now + 1);
+        // A gift from before this was kept came at no known time, and its save stays as it was.
+        let old: Decor = serde_json::from_value(json!({"id": "a", "kind": "bench", "x": 0.5, "y": 0.5})).unwrap();
+        assert_eq!(old.came_at, 0);
+        assert!(serde_json::to_value(&old).unwrap().get("came_at").is_none());
     }
 
     #[test]

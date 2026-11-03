@@ -33,6 +33,10 @@ const shown = new Map();
 // Gifts that just came, shown with a little pop the first time they are drawn.
 const fresh = new Set();
 const kindName = kind => t(`decor.kind_${kind}`);
+// A memento's heart shows for a day after it came; after that only while it is pointed at, chosen
+// or dragged (garden.css), so a yard full of mementos is not covered in hearts.
+const MEMENTO_NEW_MS = 86_400_000;
+let heartsFade = null;
 
 function placement(kind, point) {
   // A gift friends stand on stays where they can reach it (footTarget keeps them on their field);
@@ -168,8 +172,13 @@ export function renderDecor() {
     if (fresh.delete(d.id)) v.button.classList.add('arrive');
     return v;
   };
+  const now = Date.now();
+  let fadeAt = Infinity;
   reconcile(shown, data.garden?.decor || [], make, (v, d) => {
     if (!v.drag?.moved) position(v, d.x, d.y);
+    const until = d.memento && d.came_at ? d.came_at + MEMENTO_NEW_MS : 0;
+    if (until > now) fadeAt = Math.min(fadeAt, until);
+    v.button.classList.toggle('memento-new', until > now);
     const from = d.memento && data.pets.find(p => p.id === d.from);
     const label = from
       ? t('decor.memento_title', { name: name(from), kind: kindName(d.kind) })
@@ -178,6 +187,9 @@ export function renderDecor() {
     v.button.title = label;
     v.button.setAttribute('aria-label', label);
   });
+  // One timer for the next heart to fade, not a check every frame.
+  clearTimeout(heartsFade);
+  heartsFade = fadeAt < Infinity ? setTimeout(renderDecor, fadeAt - now) : null;
 }
 
 // Sends a friend to a decoration: onto the bench or the blanket, beside the others.

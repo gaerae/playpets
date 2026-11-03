@@ -16,6 +16,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- A memento's heart shows for a day after it arrives, then only while you point at the memento, select it or drag it, so a yard of mementos is no longer covered in hearts.
 - Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
 - Fish and bug odds follow how common they are: bass and bluegill are everyday catches, snakeheads, sweetfish, eels and mandarin fish come more often, and goldfish less. The golden carp, now only at dusk and night, is the rarest fish outside an event, the moon carp is a rarer find during the harvest moon, and the common skimmer flies from spring to autumn.
 - The album marks everything that comes only during a seasonal event as rare, and its hint now gives the event's dates.
@@ -26,6 +27,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The guide says how long a memento's heart shows.
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.
 - The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
 - The guide counts 115 album entries, names some of the new finds and says when crickets come out on autumn nights, in all four languages.
