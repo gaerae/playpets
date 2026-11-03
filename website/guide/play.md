@@ -87,7 +87,7 @@ With the season on **Auto**, the outdoor places follow the date:
 
 You can also choose a season in **Place & atmosphere → Atmosphere**. If your computer's time zone is south of the equator, the automatic seasons are reversed.
 
-When rain clears in daylight, a rainbow stands over the hills for a few minutes. On clear days a flock of birds crosses the sky now and then. Butterflies flutter until autumn, and fireflies glow on spring and summer nights.
+When rain clears in daylight, a rainbow stands over the hills for a few minutes. On clear days a flock of birds crosses the sky now and then. Butterflies flutter until autumn, fireflies glow on spring and summer nights, and crickets come out on autumn nights.
 
 If you pick a time of day or weather yourself, it stays fixed, and your choice is still there the next time you open the app.
 
@@ -184,11 +184,11 @@ To put one away, right-click it or press **Delete** or **Backspace** on it. It g
 
 Click visible water to fish by hand with the nearest free friend. When the float dips and **!** appears, click it. Too early or too late and the catch gets away.
 
-**Play → Fish** has the selected friend finish the trip on its own. Both ways use that background's fishing spot. Your rod can also bring up freshwater prawns, crayfish and pond snails, and the album keeps them with the fish under **Aquatic life**.
+**Play → Fish** has the selected friend finish the trip on its own. Both ways use that background's fishing spot. Your rod can also bring up freshwater prawns, crayfish, pond snails, mitten crabs, mussels and, now and then, a softshell turtle, and the album keeps them with the fish under **Aquatic life**.
 
 **Bugs**
 
-Bugs appear only in clear outdoor weather; rain and snow stop them. In the morning and at midday, click butterflies or dragonflies. On spring and summer evenings and nights, click fireflies. The nearest friend catches the bug.
+Bugs appear only in clear outdoor weather; rain and snow stop them. In the morning and at midday, click butterflies or dragonflies. On spring and summer evenings and nights, click fireflies; on autumn evenings and nights, crickets in the grass. The nearest friend catches the bug.
 
 **Fishing on its own**
 
@@ -400,11 +400,11 @@ To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). It wor
 
 ## Collecting at your own pace
 
-The album has 100 entries across aquatic life, bugs, flowers, gifts, trees and little finds. Look for pond creatures, ladybugs and field crickets. Dig up a glass marble, a wooden whale, a felt mushroom, an acorn teacup or a sleeping fox figurine. And make room for a bunny watering can or a hedgehog planter from a friend.
+The album has 115 entries across aquatic life, bugs, flowers, gifts, trees and little finds. Look for pond creatures and mitten crabs, tiger beetles and mantises in the grass, and crickets on autumn nights. Dig up a glass marble, a wooden whale, a felt mushroom, an acorn teacup or a sleeping fox figurine. And make room for a bunny watering can or a hedgehog planter from a friend.
 
 **How long it takes**
 
-The full 100-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 16 ordinary gifts arrive on different local dates.
+The full 115-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 16 ordinary gifts arrive on different local dates.
 
 The four event gifts need festivals spread across the calendar, so depending on when you start, collecting them all can take months. Changing the season doesn't start a festival.
 
@@ -416,6 +416,7 @@ Flowers bloom four hours after planting and trees mature after twelve hours. Bot
 - **Bugs:** look in clear outdoor weather.
   - Morning and daytime: butterflies and dragonflies.
   - Spring and summer evenings and nights: fireflies.
+  - Autumn evenings and nights: crickets.
   - Festivals follow the calendar; changing the season alone doesn't start one.
 - **Digging:** season, weather and outdoor place change which sapling or keepsake is more likely.
   - Matching conditions favor some finds, but the others stay reachable.

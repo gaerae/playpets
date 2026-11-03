@@ -64,3 +64,14 @@ antennae, folded hind legs and short ground hops. The ladybug stays red and roun
 so the two ground creatures differ in color, outline and movement. Acquisition,
 family weights and the 100-entry album remain unchanged. Retire the unused stag
 proposal outside runtime content.
+
+## Follow-up: 115 entries and autumn crickets (2026-11-03)
+
+Add seven aquatic creatures and eight bugs; the books become 16 flowers, 30
+aquatic creatures, 26 bugs, 20 gifts, six trees and 17 keepsakes. The new fish
+fill thin winter and night pools. The new bugs are mostly ground creatures with
+distinct silhouettes (beetles, a mantis, a grasshopper) plus a moth and a dark-
+winged dragonfly, since earlier extra butterflies and dragonflies looked alike.
+Three of the fifteen are rare: the softshell turtle, the rhinoceros beetle and the
+butterfly dragonfly. Clear autumn evenings and nights, which had no small life,
+now bring a couple of crickets; winter and bad weather still bring none.

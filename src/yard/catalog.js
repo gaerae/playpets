@@ -83,7 +83,7 @@ export function wildlifeGroup(season, period, weather) {
   if (weather !== 'clear' || season === 'winter') return null;
   if (period === 'day' || period === 'morning') return 'day';
   if (season === 'spring' || season === 'summer') return 'firefly';
-  return null;
+  return 'cricket';
 }
 /** Probabilities per spawned individual, including the daytime family split. */
 export function bugChances(season, period, weather, event = null, kinds = BUGS) {
@@ -95,7 +95,7 @@ export function bugChances(season, period, weather, event = null, kinds = BUGS) 
       eligible.filter(bug => bug.kind === kind),
       bug => bug.weight,
     );
-  if (group === 'firefly') return chances('firefly');
+  if (group !== 'day') return chances(group);
   const families = [
     ['butterfly', 0.55],
     ['dragonfly', 0.25],

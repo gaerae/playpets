@@ -610,5 +610,140 @@
     "crop": [527, 535, 480, 433],
     "size": [70, 70],
     "art": "decor/hedgehog_planter.svg"
+  },
+  {
+    "id": "bullhead",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-fish.webp",
+    "atlasSize": [2172, 724],
+    "crop": [14, 200, 528, 280],
+    "size": [100, 50],
+    "art": "fish/bullhead.svg"
+  },
+  {
+    "id": "bitterling",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-fish.webp",
+    "atlasSize": [2172, 724],
+    "crop": [584, 185, 481, 314],
+    "size": [100, 50],
+    "art": "fish/bitterling.svg"
+  },
+  {
+    "id": "paradise_fish",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-fish.webp",
+    "atlasSize": [2172, 724],
+    "crop": [1090, 173, 527, 355],
+    "size": [100, 50],
+    "art": "fish/paradise_fish.svg"
+  },
+  {
+    "id": "dark_sleeper",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-fish.webp",
+    "atlasSize": [2172, 724],
+    "crop": [1632, 216, 534, 262],
+    "size": [100, 50],
+    "art": "fish/dark_sleeper.svg"
+  },
+  {
+    "id": "mitten_crab",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-creatures.webp",
+    "atlasSize": [2172, 724],
+    "crop": [28, 134, 665, 481],
+    "size": [100, 65],
+    "art": "fish/mitten_crab.svg"
+  },
+  {
+    "id": "mussel",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-creatures.webp",
+    "atlasSize": [2172, 724],
+    "crop": [766, 214, 613, 315],
+    "size": [100, 65],
+    "art": "fish/mussel.svg"
+  },
+  {
+    "id": "softshell_turtle",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-creatures.webp",
+    "atlasSize": [2172, 724],
+    "crop": [1473, 190, 685, 397],
+    "size": [100, 65],
+    "art": "fish/softshell_turtle.svg"
+  },
+  {
+    "id": "tiger_beetle",
+    "kind": "bugs",
+    "atlas": "collection-extension/beetles.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [109, 26, 435, 563],
+    "size": [60, 60],
+    "art": "bugs/tiger_beetle.svg"
+  },
+  {
+    "id": "longhorn_beetle",
+    "kind": "bugs",
+    "atlas": "collection-extension/beetles.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [674, 54, 509, 516],
+    "size": [60, 60],
+    "art": "bugs/longhorn_beetle.svg"
+  },
+  {
+    "id": "rhinoceros_beetle",
+    "kind": "bugs",
+    "atlas": "collection-extension/beetles.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [112, 621, 430, 598],
+    "size": [60, 60],
+    "art": "bugs/rhinoceros_beetle.svg"
+  },
+  {
+    "id": "mantis",
+    "kind": "bugs",
+    "atlas": "collection-extension/beetles.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [709, 620, 437, 595],
+    "size": [60, 60],
+    "art": "bugs/mantis.svg"
+  },
+  {
+    "id": "longheaded_grasshopper",
+    "kind": "bugs",
+    "atlas": "collection-extension/hoppers.webp",
+    "atlasSize": [1282, 1227],
+    "crop": [182, 35, 289, 576],
+    "size": [60, 60],
+    "art": "bugs/longheaded_grasshopper.svg"
+  },
+  {
+    "id": "butterfly_dragonfly",
+    "kind": "bugs",
+    "atlas": "collection-extension/hoppers.webp",
+    "atlasSize": [1282, 1227],
+    "crop": [661, 143, 572, 395],
+    "size": [60, 50],
+    "art": "bugs/butterfly_dragonfly.svg"
+  },
+  {
+    "id": "hawk_moth",
+    "kind": "bugs",
+    "atlas": "collection-extension/hoppers.webp",
+    "atlasSize": [1282, 1227],
+    "crop": [37, 712, 581, 405],
+    "size": [60, 50],
+    "art": "bugs/hawk_moth.svg"
+  },
+  {
+    "id": "emma_cricket",
+    "kind": "bugs",
+    "atlas": "collection-extension/hoppers.webp",
+    "atlasSize": [1282, 1227],
+    "crop": [720, 619, 447, 553],
+    "size": [60, 60],
+    "art": "bugs/emma_cricket.svg"
   }
 ]

@@ -178,8 +178,8 @@ test('ground bugs crawl or briefly hop within the walkable field', () => {
 
 test('new ground families spawn on land and stay catchable with reduced motion', t => {
   for (const [random, species, kind] of [
-    [0.85, 'ladybug', 'beetle'],
-    [0.95, 'field_cricket', 'cricket'],
+    [0.82, 'ladybug', 'beetle'],
+    [0.92, 'field_cricket', 'cricket'],
   ]) {
     const { scene, draws } = yard(t, true, random);
     scene.set('day', 'clear', 'summer');
