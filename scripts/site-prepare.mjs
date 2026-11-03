@@ -1,7 +1,7 @@
 // Copies docs/ into the website (website/dev, generated) with links rewritten, and brings the icon, the scenes and sample pet sheets into website/public. Runs before vitepress.
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { copyCreatorKit } from './creator-kit.mjs';
+import { copyCreatorKit, writePetDownloads } from './creator-kit.mjs';
 import { copyCreatorSkill } from './creator-skill.mjs';
 import { CAPTURE_VERSION, LANDING_PETS } from './site-content.mjs';
 import { exportSiteImages } from './site-images.mjs';
@@ -40,6 +40,8 @@ for (const name of ['sun', 'moon', 'small', 'wisps'])
 await rm('website/public/pets', { recursive: true, force: true });
 await mkdir('website/public/pets', { recursive: true });
 for (const pet of LANDING_PETS) await cp(pet.source, `website/public/pets/${pet.id}.png`);
+// Each friend can also be taken home by itself, for PlayPets or a Codex pets folder.
+await writePetDownloads();
 const petMotions = await exportMotionStrips(LANDING_PETS);
 const sceneImages = await exportSiteImages();
 

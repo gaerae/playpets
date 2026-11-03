@@ -101,7 +101,7 @@ test('importable kits use the same independent friend names as Invite', async ()
 });
 
 test('generic extension prompts accept any permitted pet reference and preserve the runtime contract', async () => {
-  const { extensionPrompts, baselineManifest, kitEntries } = await import('../scripts/creator-specs.mjs');
+  const { extensionPrompts, kitEntries } = await import('../scripts/creator-specs.mjs');
   assert.deepEqual(
     kitEntries.map(entry => entry.name),
     ['Daisy', 'Clover', 'Pip', 'Miso'],
@@ -121,16 +121,6 @@ test('generic extension prompts accept any permitted pet reference and preserve 
   }
   assert.match(prompts['04-state-row'], /wave/);
   assert.match(prompts['05-canonical-export'], /1536×2288/);
-  assert.equal(
-    baselineManifest({
-      id: 'custom',
-      name: 'Paper fox',
-      kind: 'animal',
-      identity: { description: 'Paper fox' },
-      style: 'paper',
-    }).seasonalSpritesheets,
-    undefined,
-  );
 });
 
 test('extension metadata is quoted data and cannot escape into generation instructions', async () => {

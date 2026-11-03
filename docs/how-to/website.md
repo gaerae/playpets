@@ -122,12 +122,13 @@ Icons:
 
 Creator kits:
 - `scripts/creator-specs.mjs` describes the approved Daisy, Clover, Pip and Miso sources.
-- Site preparation runs `scripts/creator-kit.mjs` to copy accepted references and build each friend's baseline ZIP and design ZIP.
+- Site preparation runs `scripts/creator-kit.mjs` to copy accepted references into `website/public/creator-kit/<kit>/`; the studio packs its creation kit from them in the browser.
 - Keep existing kit IDs and bookmarked query links working.
-- The baseline ZIP contains `pet.json` and `spritesheet.png`.
+- Each starter friend is also one download, `website/public/pets/playpets-<id>.zip` (`petDownloads`): its `pet.json` and every sheet that file names, as the app ships them, in one folder named for the pet's `id`.
+- That folder works unzipped in a Codex pets folder (`~/.codex/pets`) and as a PlayPets ZIP import; the landing gallery and the studio's ready friend both link it.
 - Optional PlayPets materials do not imply support in other hosts.
 - `kitEntries` records the available detailed references and seasonal sheets.
-- Source provenance, identity locks and detailed references ship with design kits.
+- Source provenance, identity locks and detailed references stay in each kit's folder.
 - A runtime collage is not a detailed turnaround.
 
 ## Landing scenes and motion

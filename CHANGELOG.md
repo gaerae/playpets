@@ -32,6 +32,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- Each of the four friends can be downloaded by itself from the front page as `playpets-<name>.zip`, seasonal outfits included: PlayPets imports it as it is, and unzipped into `~/.codex/pets` the friend comes to ChatGPT and Codex too. The character studio's ready friend is the same download, and the old kit ZIPs are gone.
 - The play guide says where the rainbow ends and what a dig there finds.
 - The play guide describes the sunshower, the morning mist, the moonlit snow and the meteor shower.
 - The guide says how long a memento's heart shows.

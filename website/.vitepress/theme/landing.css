@@ -886,6 +886,20 @@ html[lang^="ja"] .landing {
   color: #fff;
   font-size: 13px;
 }
+/* Taking the friend home is the quieter button beside it: the same pill, drawn in outline. */
+.pet-download {
+  display: inline-flex;
+  border: 1px solid currentColor;
+  border-radius: 100px;
+  padding: 10px 17px;
+  color: var(--vp-c-brand-1);
+  font-size: 13px;
+}
+.pet-description .pet-download-hint {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+}
 
 /* The page opens onto a computer screen in miniature, so visitors see what they would install:
    a wallpaper, a work window and a taskbar, with the yard as an app window on top. On the

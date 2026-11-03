@@ -102,6 +102,9 @@ export const sections = {
   codexPlusLink: 'Bring in your Codex pets',
   discoveryGuide: 'See what you can discover',
   galleryCreate: 'Create with this friend',
+  galleryDownload: 'Download',
+  galleryDownloadHint:
+    'One ZIP with every season’s outfit. Unzip it into ~/.codex/pets and they join you in ChatGPT and Codex too.',
   petNotes: {
     daisy: 'A curious explorer who always wonders what is around the next corner.',
     clover: 'A gentle kitten gardener who can’t wait to show you what grew today.',
