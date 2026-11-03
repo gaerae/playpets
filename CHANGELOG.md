@@ -12,10 +12,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- A memento's heart shows for a day after it arrives, then only while you point at the memento, select it or drag it, so a yard of mementos is no longer covered in hearts.
 - Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
 
 ### Website and docs
 
+- The guide says how long a memento's heart shows.
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.
 - The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
 
