@@ -789,7 +789,8 @@ export const strings = {
   'toast.first_chat': 'Say hello first. With two or more friends you can start a chat between them too',
   'toast.connected_many': '{count} friends can talk now; starting a chat between them',
   'event.started': 'Now on: {name}!',
-  'catch.event_hint': '{event} only',
+  'catch.dates': '{from} – {to}',
+  'catch.event_hint': '{event} ({dates}) only',
   'event.blossom.name': 'Cherry blossom festival',
   'event.blossom.about': 'Petals drift everywhere and more butterflies come out. A friend may bring a cherry sapling.',
   'event.blossom.lines': [

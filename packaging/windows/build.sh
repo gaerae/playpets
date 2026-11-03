@@ -39,6 +39,8 @@ cp packaging/licenses/THIRD-PARTY-NOTICES.txt "$stage/"
 cp src-tauri/icons/msix/*.png "$stage/Assets/"
 rm -f "$msix"/PlayPets_*_x64.msix
 package="$msix/PlayPets_${version}_x64.msix"
+# makemsix has no makepri, so this package has no resources.pri: Windows shows its taskbar icon on an
+# accent-colored plate. The Store and CI packages index the unplated icons (msix/resources.ps1).
 makemsix pack -d "$stage" -p "$package"
 if [ -z "${MSIX_PUBLISHER:-}" ]; then
   # The private key stays in the playpets-msix-key volume (/keys), never in the folder handed to

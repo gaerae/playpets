@@ -209,6 +209,7 @@ When something new arrives, **Album** in **Play → Find** and **Play** in the d
   - caught: how many, and the biggest fish
   - not yet: a silhouette with when and where to look
 - It shows when and where to look, and how long until a rare find can come again. It doesn't show exact percentages.
+- **Rare** marks the kinds that seldom come, and everything that comes only during a seasonal event. An event's card gives its dates.
 - Saved as `album` in `state.json`.
 
 ## Seasonal events <Since v="0.1.0" />

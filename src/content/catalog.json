@@ -374,7 +374,8 @@
       "size": [5, 15],
       "seasons": ["spring", "summer", "autumn", "winter"],
       "periods": ["morning", "day", "evening", "night"],
-      "weight": 3,
+      "weight": 1,
+      "rarity": "rare",
       "look": {
         "body": "#f08a3a",
         "belly": "#f8c47c",
@@ -405,7 +406,7 @@
       "size": [40, 100],
       "seasons": ["summer", "autumn"],
       "periods": ["evening", "night"],
-      "weight": 6,
+      "weight": 10,
       "rain": 2,
       "look": {
         "body": "#4f5a45",
@@ -434,7 +435,7 @@
       "size": [15, 25],
       "seasons": ["summer"],
       "periods": ["morning", "day", "evening"],
-      "weight": 12,
+      "weight": 16,
       "look": {
         "body": "#9db0a0",
         "belly": "#e8e4c8",
@@ -465,7 +466,7 @@
       "size": [20, 50],
       "seasons": ["summer", "autumn"],
       "periods": ["morning", "day", "evening", "night"],
-      "weight": 6,
+      "weight": 8,
       "look": {
         "body": "#b39a50",
         "belly": "#e8d9a6",
@@ -479,8 +480,9 @@
       "id": "golden_carp",
       "size": [40, 80],
       "seasons": ["spring", "summer", "autumn", "winter"],
-      "periods": ["morning", "day", "evening", "night"],
+      "periods": ["evening", "night"],
       "weight": 1,
+      "rarity": "rare",
       "look": {
         "body": "#f2c14e",
         "belly": "#fbe7a4",
@@ -512,7 +514,7 @@
       "size": [10, 25],
       "seasons": ["summer", "autumn"],
       "periods": ["morning", "day", "evening"],
-      "weight": 14,
+      "weight": 24,
       "look": {
         "body": "#6f8a7a",
         "belly": "#e8b35a",
@@ -527,7 +529,7 @@
       "size": [25, 60],
       "seasons": ["spring", "summer", "autumn"],
       "periods": ["morning", "day", "evening", "night"],
-      "weight": 8,
+      "weight": 20,
       "look": {
         "body": "#7a8a4f",
         "belly": "#e3e0b8",
@@ -542,7 +544,7 @@
       "size": [40, 90],
       "seasons": ["summer"],
       "periods": ["evening", "night"],
-      "weight": 5,
+      "weight": 12,
       "rain": 2,
       "look": {
         "body": "#4a4e3e",
@@ -574,6 +576,7 @@
       "seasons": ["autumn"],
       "periods": ["morning", "day", "evening", "night"],
       "weight": 3,
+      "rarity": "rare",
       "look": {
         "body": "#8c9aa8",
         "belly": "#e9a08a",
@@ -588,7 +591,7 @@
       "size": [40, 80],
       "seasons": ["autumn"],
       "periods": ["evening", "night"],
-      "weight": 6,
+      "weight": 3,
       "event": "harvest",
       "look": {
         "body": "#f4efe0",
@@ -745,7 +748,7 @@
     {
       "id": "dragonfly",
       "kind": "dragonfly",
-      "seasons": ["summer"],
+      "seasons": ["spring", "summer", "autumn"],
       "periods": ["morning", "day"],
       "weight": 20,
       "look": {

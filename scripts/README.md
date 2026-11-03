@@ -425,6 +425,10 @@ Retiling a six-pose sheet:
   - It uses the same manifest generator and Store identity as the Docker
     hand-off.
   - Its unsigned packages are for Partner Center, not direct local installation.
+- `store.ps1` and `ci.ps1` index `Assets` into `resources.pri` with `makepri` (`msix/resources.ps1`).
+  - Windows finds the unplated taskbar icons (`Square44x44Logo.targetsize-*_altform-unplated.png`) only through it.
+  - Without them it draws the icon on a plate of the accent color.
+  - The Docker package has no `makepri`, so its icon keeps the plate.
 - The `store` workflow:
   - checks package contents before the `microsoft-store` approval;
   - refuses a product without a published submission, any pending draft and a

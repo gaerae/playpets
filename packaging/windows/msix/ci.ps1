@@ -10,6 +10,7 @@ if ($env:GITHUB_ACTIONS -ne 'true' -or $env:RUNNER_OS -ne 'Windows') {
     throw 'MSIX installation tests run only on ephemeral GitHub Windows runners.'
 }
 $root = (Resolve-Path "$PSScriptRoot/../../..").Path
+. "$PSScriptRoot/resources.ps1"
 $out = Join-Path $root 'release/windows/msix-ci'
 $work = Join-Path $env:RUNNER_TEMP ('playpets-msix-' + [guid]::NewGuid())
 New-Item -ItemType Directory -Force $out, $work | Out-Null
@@ -47,6 +48,7 @@ function Package([string]$Binary, [string]$Label, [bool]$Upgrade = $false) {
         $xml.Package.Identity.Version = "$($v.Major).$($v.Minor).$($v.Build + 1).0"
         $xml.Save($manifest)
     }
+    Write-PackageResources $makePri $stage
     $package = Join-Path $work "$Label.msix"
     Native $makeAppx @('pack', '/d', $stage, '/p', $package, '/o')
     Native $signTool @('sign', '/fd', 'SHA256', '/sha1', $cert.Thumbprint, '/s', 'My', $package)
@@ -123,6 +125,7 @@ try {
         Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
     if (!$tools) { throw 'Windows SDK packaging tools are missing' }
     $makeAppx = "$($tools.FullName)/x64/makeappx.exe"
+    $makePri = "$($tools.FullName)/x64/makepri.exe"
     $signTool = "$($tools.FullName)/x64/signtool.exe"
     $appVersion = (Get-Content -Raw "$root/package.json" | ConvertFrom-Json).version
     $env:MSIX_IDENTITY_NAME = $identity
