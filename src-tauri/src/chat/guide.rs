@@ -98,14 +98,53 @@ fn mentions(text: &str, word: &str) -> bool {
         .any(|(at, _)| edge(text[..at].chars().next_back()) && edge(text[at + word.len()..].chars().next()))
 }
 
-/// The facts the owner's message asks about, labeled for the model, or empty.
-pub fn facts_for(message: &str) -> String {
+/// What each of the yard's secrets is (pets/album.rs SECRETS), said only once the owner has found it.
+const SEEN: &[(&str, &str)] = &[
+    (
+        "wish",
+        "a wish (tapping the moon seven times on a clear night sends a long shooting star from it)",
+    ),
+    (
+        "dizzy",
+        "a dizzy friend (spinning a friend round three times while holding it makes it turn and see stars)",
+    ),
+    (
+        "fireworks",
+        "the fireworks (the Konami code, up up down down left right left right B A, has the friends put on a fireworks show)",
+    ),
+];
+
+/// The secrets topic: what the owner has found (album ids) may be talked about, nothing else.
+fn secrets(found: &[&str], unknown: &str) -> String {
+    let seen: Vec<&str> = SEEN
+        .iter()
+        .filter(|(id, _)| found.contains(id))
+        .map(|(_, said)| *said)
+        .collect();
+    if seen.is_empty() {
+        return unknown.to_string();
+    }
+    format!(
+        "Secrets: your owner has already found {}, so you may talk about that freely and happily. Never say what any other secret is, where or how to find it, or whether a guess is right, and never make one up; tease playfully that there might be more.",
+        seen.join("; ")
+    )
+}
+
+/// The facts the owner's message asks about, labeled for the model, or empty. `found` are the
+/// secrets the owner has found (the album's ids).
+pub fn facts_for(message: &str, found: &[&str]) -> String {
     let text = message.to_lowercase();
-    let found: Vec<&str> = TOPICS
+    let found: Vec<String> = TOPICS
         .iter()
         .filter(|t| words(t).any(|w| mentions(&text, &w)))
         .take(MOST)
-        .map(|t| t.facts)
+        .map(|t| {
+            if t.id == "secret" {
+                secrets(found, t.facts)
+            } else {
+                t.facts.to_string()
+            }
+        })
         .collect();
     if found.is_empty() {
         return String::new();
@@ -128,7 +167,7 @@ mod tests {
             "図鑑ってどうやって埋めるの？",
             "图鉴怎么收集？",
         ] {
-            assert!(facts_for(asked).contains("Album:"), "{asked}");
+            assert!(facts_for(asked, &[]).contains("Album:"), "{asked}");
         }
         for asked in [
             "이 게임 뭐야?",
@@ -136,9 +175,12 @@ mod tests {
             "このアプリって何？",
             "这个游戏是什么？",
         ] {
-            assert!(facts_for(asked).contains("PlayPets: a free desktop pet app"), "{asked}");
+            assert!(
+                facts_for(asked, &[]).contains("PlayPets: a free desktop pet app"),
+                "{asked}"
+            );
         }
-        assert!(facts_for("낚시는 어떻게 해?").contains("Fishing:"));
+        assert!(facts_for("낚시는 어떻게 해?", &[]).contains("Fishing:"));
     }
 
     #[test]
@@ -149,31 +191,52 @@ mod tests {
             "今日は楽しかったね",
             "你好呀",
         ] {
-            assert_eq!(facts_for(said), "", "{said}");
+            assert_eq!(facts_for(said, &[]), "", "{said}");
         }
     }
 
     #[test]
     fn english_words_match_whole_words_only() {
-        assert!(facts_for("Let's go fishing").contains("Fishing:"));
-        assert!(!facts_for("That was selfish").contains("Fishing:"));
-        assert!(!facts_for("I'm agentless").contains("Coding agents:"));
+        assert!(facts_for("Let's go fishing", &[]).contains("Fishing:"));
+        assert!(!facts_for("That was selfish", &[]).contains("Fishing:"));
+        assert!(!facts_for("I'm agentless", &[]).contains("Coding agents:"));
     }
 
     #[test]
     fn a_message_brings_two_topics_at_most() {
-        let facts = facts_for("album, fishing, bugs, garden, gifts and games?");
+        let facts = facts_for("album, fishing, bugs, garden, gifts and games?", &[]);
         assert_eq!(facts.lines().count(), 1 + MOST);
     }
 
     #[test]
     fn secrets_are_kept_and_never_made_up() {
         for asked in ["이스터에그 있어?", "Any easter eggs?", "隠し要素ある？", "有彩蛋吗？"] {
-            let facts = facts_for(asked);
+            let facts = facts_for(asked, &[]);
             assert!(facts.contains("Never say what they are"), "{asked}");
             assert!(facts.contains("never make one up"), "{asked}");
         }
         assert!(ABOUT.contains("never invent features"));
+    }
+
+    #[test]
+    fn only_the_secrets_the_owner_has_found_are_talked_about() {
+        let none = facts_for("이스터에그 있어?", &[]);
+        let one = facts_for("이스터에그 있어?", &["dizzy"]);
+        assert!(!SEEN.iter().any(|(_, said)| none.contains(said)));
+        assert!(one.contains(SEEN.iter().find(|(id, _)| *id == "dizzy").unwrap().1));
+        assert!(
+            !SEEN
+                .iter()
+                .filter(|(id, _)| *id != "dizzy")
+                .any(|(_, said)| one.contains(said))
+        );
+        assert!(one.contains("Never say what any other"));
+        for id in crate::pets::album::SECRETS {
+            assert!(
+                SEEN.iter().any(|(seen, _)| seen == id),
+                "{id} can be talked about once found"
+            );
+        }
     }
 
     #[test]

@@ -30,8 +30,9 @@ function dismiss() {
   if (next) present(next);
 }
 /** Shows the card in the yard's one lane of messages, above the dock: a drawing (SVG markup), a name,
- * a detail line, whether it is a first, and the album book it is kept in (none for news such as an
- * event starting). Who found it says so in its own bubble. */
+ * a detail line, whether it is a first (or, for news of another kind, the words saying why), and the
+ * album book it is kept in (none for news such as an event starting). Who found it says so in its
+ * own bubble. */
 export function showCard(svg, name, detail, first, book = null) {
   const next = [svg, name, detail, first, book];
   if (!$('catch-card').hidden) return wait(next);
@@ -93,7 +94,7 @@ function draw(args) {
   card.querySelector('strong').textContent = name;
   card.querySelector('small').textContent = detail;
   if (first) {
-    card.querySelector('.catch-new').textContent = t('catch.new');
+    card.querySelector('.catch-new').textContent = first === true ? t('catch.new') : first;
     if (book) {
       remember('album-new', '1');
       syncNew();

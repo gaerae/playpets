@@ -14,6 +14,7 @@ import { BUGS, FISH, FLOWERS, GIFTS, giftKind, TREASURES, TREES } from '../yard/
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates } from '../yard/events.js';
+import { SECRETS } from '../yard/secrets.js';
 import { scene } from '../yard/world.js';
 import { worldFor } from '../yard/worlds.js';
 
@@ -48,7 +49,8 @@ const caughtLine = (entry, size) =>
 // Each book: its tab's name, its kinds (the catalogue's), what has been found, and how a card draws
 // and describes a kind (`unknown`: what a card not found yet says, when not "not met yet"). A kind
 // added to the catalogue shows up in its book; a new book is one more entry here (its tab is made
-// from it).
+// from it). A `hidden` book shows only what has been found, is not there at all before that, and
+// stays out of the album's count.
 const BOOKS = {
   flower: {
     tab: 'catch.tab_flowers',
@@ -122,8 +124,23 @@ const BOOKS = {
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
   },
+  secret: {
+    tab: 'album.secrets',
+    kinds: SECRETS,
+    found: () => data.album?.secrets || {},
+    draw: k => k.svg,
+    name: k => t(`secret.${k.id}`),
+    hint: k => t(`secret.${k.id}_note`),
+    record: entry =>
+      t('album.secret_found', {
+        date: new Date(entry.first).toLocaleDateString(language(), { year: 'numeric', month: 'long', day: 'numeric' }),
+      }),
+    hidden: true,
+  },
 };
 let book = 'flower';
+// Each book's tab, as setupAlbum made it.
+const tabOf = new Map();
 let rareTimer;
 
 function card(b, kind, entry) {
@@ -192,6 +209,7 @@ function renderBox(open) {
 export function renderAlbum() {
   clearTimeout(rareTimer);
   if (!$('album-dialog').open) return;
+  if (!shown(book)) book = 'flower';
   const now = Date.now(),
     readyAt = rareReadyAt(data.garden?.digs, TREASURES, now),
     capabilities = worldFor(scene.world).capabilities,
@@ -199,7 +217,8 @@ export function renderAlbum() {
     digging = book === 'tree' || book === 'treasure';
   const status = $('album-dig-status');
   const giftBook = book === 'gift';
-  status.hidden = !digging && !giftBook;
+  status.hidden = !digging && !giftBook && !BOOKS[book].hidden;
+  if (BOOKS[book].hidden) status.textContent = t('album.secret_more');
   status.title = '';
   if (digging) {
     const conditions = joinList([
@@ -225,10 +244,18 @@ export function renderAlbum() {
     total = 0;
   for (const [id, b] of Object.entries(BOOKS)) {
     const have = b.found(),
-      count = b.kinds.filter(k => have[k.id]).length;
+      count = b.kinds.filter(k => have[k.id]).length,
+      tally = document.querySelector(`[data-count="${id}"]`);
+    if (b.hidden) {
+      tally.textContent = String(count);
+      if (tabOf.has(id)) tabOf.get(id).hidden = !count;
+      const option = $('album-select')?.querySelector?.(`option[value="${id}"]`);
+      if (option) option.hidden = !count;
+      continue;
+    }
     found += count;
     total += b.kinds.length;
-    document.querySelector(`[data-count="${id}"]`).textContent = `${count}/${b.kinds.length}`;
+    tally.textContent = `${count}/${b.kinds.length}`;
   }
   if ($('album-select')) $('album-select').value = book;
   $('album-total').textContent = t('catch.total', { caught: found, total });
@@ -240,11 +267,13 @@ export function renderAlbum() {
   }
   const b = BOOKS[book],
     have = b.found();
-  $('album-grid').replaceChildren(...b.kinds.map(k => card(b, k, have[k.id])));
+  $('album-grid').replaceChildren(...b.kinds.filter(k => !b.hidden || have[k.id]).map(k => card(b, k, have[k.id])));
 }
+// Whether a book is there to open: a hidden one once something in it is found.
+const shown = id => !!BOOKS[id] && (!BOOKS[id].hidden || BOOKS[id].kinds.some(k => BOOKS[id].found()[k.id]));
 /** Opens the album (the tools' button), at a given book when a card asks for it. */
 export function openAlbum(open = null) {
-  if (open && BOOKS[open]) {
+  if (open && shown(open)) {
     book = open;
     if ($('album-select')) $('album-select').value = open;
   }
@@ -271,7 +300,7 @@ export function setupAlbum() {
       }),
     );
     picker.onchange = () => {
-      if (!BOOKS[picker.value]) return;
+      if (!shown(picker.value)) return;
       book = picker.value;
       renderAlbum();
       $('album-grid').scrollTop = 0;
@@ -290,6 +319,7 @@ export function setupAlbum() {
       name.textContent = t(b.tab);
       count.dataset.count = id;
       tab.append(name, count);
+      tabOf.set(id, tab);
       return tab;
     }),
   );
@@ -297,22 +327,25 @@ export function setupAlbum() {
   $('close-album').onclick = () => $('album-dialog').close();
   closeOnBackdrop($('album-dialog'));
   const tabs = [...document.querySelectorAll('.album-tabs [data-book]')];
-  for (const [index, tab] of tabs.entries()) {
+  for (const tab of tabs) {
     tab.onclick = () => {
       book = tab.dataset.book;
       renderAlbum();
     };
     tab.onkeydown = e => {
-      const next = {
-        ArrowRight: (index + 1) % tabs.length,
-        ArrowLeft: (index + tabs.length - 1) % tabs.length,
-        Home: 0,
-        End: tabs.length - 1,
-      }[e.key];
+      // Among the tabs there are: a hidden book's appears only once something in it is found.
+      const open = tabs.filter(other => !other.hidden),
+        index = open.indexOf(tab),
+        next = {
+          ArrowRight: (index + 1) % open.length,
+          ArrowLeft: (index + open.length - 1) % open.length,
+          Home: 0,
+          End: open.length - 1,
+        }[e.key];
       if (next === undefined) return;
       e.preventDefault();
-      tabs[next].onclick();
-      tabs[next].focus();
+      open[next].onclick();
+      open[next].focus();
     };
   }
 }

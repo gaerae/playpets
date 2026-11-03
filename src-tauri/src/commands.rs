@@ -301,6 +301,13 @@ static COMMANDS: &[Command] = &[
             Ok(json!({"entry": entry, "first": first}))
         })
     }),
+    main("foundSecret", |c| {
+        let now = now_ms();
+        commit(c.app, &c.state, |d| {
+            let (entry, first) = d.album.found(c.text(0), now)?;
+            Ok(json!({"entry": entry, "first": first}))
+        })
+    }),
     main("bloomed", bloomed),
     main("befriend", befriend),
     // Coding agents.

@@ -5,6 +5,7 @@ import { pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, views } from '../core/state.js';
 import { brightColor, fireworks } from './fireworks.js';
+import { discover } from './secrets.js';
 import { boom } from './sound.js';
 import { effect, pose } from './views.js';
 import { scenery } from './world.js';
@@ -114,11 +115,13 @@ function celebrate(yard) {
       .sort((a, b) => a.x - b.x);
   const launchers = friends.map(({ v, x, y }) => ({ x, y, color: colorOf(v.canvas) }));
   scenery.flare((w, h, now) => {
-    const show = fireworks(w, h, now, launchers);
+    const show = fireworks(w, h, now, launchers),
+      end = Math.max(...show.sparks.map(s => s.since + s.life));
     stayToWatch(
       friends.map(({ v }) => v),
-      Math.max(...show.sparks.map(s => s.since + s.life)),
+      end,
     );
+    discover('fireworks', end - now);
     for (const b of show.bursts) {
       const wait = b.at - now,
         big = b.kind === 'heart' || b.kind === 'willow';
@@ -172,8 +175,10 @@ export function setupTouches() {
       const near = Math.hypot(e.clientX - body.left - body.width / 2, e.clientY - body.top - body.height / 2);
       if (near > body.width * 0.75 || !taps.tap(e.timeStamp)) return;
       const box = yard.getBoundingClientRect();
-      if (scenery.shoot({ x: body.left - box.left + body.width / 2, y: body.top - box.top + body.height / 2 }))
+      if (scenery.shoot({ x: body.left - box.left + body.width / 2, y: body.top - box.top + body.height / 2 })) {
         wished(yard);
+        discover('wish', 3000);
+      }
     },
     { capture: true, passive: true },
   );
@@ -193,6 +198,7 @@ export function setupTouches() {
       return;
     friend.classList.add('dizzy');
     setTimeout(() => friend.classList.remove('dizzy'), 2200);
+    discover('dizzy', 2200);
   };
   yard.addEventListener('pointerup', done, { capture: true, passive: true });
   yard.addEventListener('pointercancel', done, { capture: true, passive: true });

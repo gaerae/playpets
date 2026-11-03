@@ -110,6 +110,8 @@ struct Speaker {
     identity: String,
     language: i18n::Lang,
     notes: String,
+    /// The secrets the owner has found, which the friend may talk about.
+    found: Vec<String>,
 }
 
 fn speaker(d: &AppData, id: &str, in_group: bool) -> Result<Speaker, String> {
@@ -164,13 +166,16 @@ fn speaker(d: &AppData, id: &str, in_group: bool) -> Result<Speaker, String> {
         identity,
         language: d.prefs.language,
         notes: prompt::activity_notes(activity, crate::app::now_ms()),
+        found: d.album.secrets.keys().cloned().collect(),
     })
 }
 
 /// A speaker's notes for a turn the owner asked something in: with the app's facts on what was
-/// asked (guide.rs), which go with this message only and are never kept in the history.
-fn with_facts(notes: &str, message: &str) -> String {
-    let facts = guide::facts_for(message);
+/// asked (guide.rs), which go with this message only and are never kept in the history. `found`
+/// are the secrets the owner has found.
+fn with_facts(notes: &str, message: &str, found: &[String]) -> String {
+    let found: Vec<&str> = found.iter().map(String::as_str).collect();
+    let facts = guide::facts_for(message, &found);
     if facts.is_empty() {
         notes.to_string()
     } else {
@@ -326,7 +331,7 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
         speaker(&d, &id, false)?
     };
     unlock(std::slice::from_mut(&mut speaker))?;
-    speaker.notes = with_facts(&speaker.notes, &text);
+    speaker.notes = with_facts(&speaker.notes, &text, &speaker.found);
     let (messages, at, cancel) = {
         let mut d = lock(state);
         still_ready(&d, &speaker)?;
@@ -485,7 +490,7 @@ fn group_round(
     // Friends chatting among themselves (no message from the owner) are told nothing more.
     if !text.is_empty() {
         for s in &mut speakers {
-            s.notes = with_facts(&s.notes, &text);
+            s.notes = with_facts(&s.notes, &text, &s.found);
         }
     }
     let speakers = speakers;
@@ -743,10 +748,10 @@ mod tests {
     #[test]
     fn an_owners_question_about_the_app_brings_its_facts_for_that_turn_only() {
         let notes = "Do not claim to have run tools or observed work.";
-        let asked = with_facts(notes, "도감은 어떻게 채워?");
+        let asked = with_facts(notes, "도감은 어떻게 채워?", &[]);
         assert!(asked.starts_with(notes));
         assert!(asked.contains("Album:"));
-        assert_eq!(with_facts(notes, "오늘 기분 어때?"), notes);
+        assert_eq!(with_facts(notes, "오늘 기분 어때?", &[]), notes);
     }
 
     #[test]
