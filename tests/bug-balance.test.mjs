@@ -41,8 +41,34 @@ test('ordinary fireflies remain common while the festival species is a small par
   const rare = catalog.BUGS.filter(b => b.rarity === 'rare')
     .map(b => b.id)
     .sort();
-  assert.deepEqual(rare, ['black_swallowtail', 'emperor_dragonfly', 'golden_firefly', 'peacock', 'purple_emperor']);
-  for (const bug of catalog.BUGS.filter(b => b.kind !== 'firefly')) assert.deepEqual(bug.periods, ['morning', 'day']);
+  assert.deepEqual(rare, [
+    'black_swallowtail',
+    'butterfly_dragonfly',
+    'emperor_dragonfly',
+    'golden_firefly',
+    'peacock',
+    'purple_emperor',
+    'rhinoceros_beetle',
+  ]);
+  // Fireflies and the crickets of autumn nights come after dark; everything else by day.
+  for (const bug of catalog.BUGS.filter(b => b.kind !== 'firefly'))
+    assert.ok(
+      bug.periods.every(p => p === 'morning' || p === 'day') ||
+        (bug.kind === 'cricket' && bug.seasons.join() === 'autumn'),
+      bug.id,
+    );
+});
+
+test('crickets sing on clear autumn evenings and nights, alone and only then', () => {
+  for (const period of ['evening', 'night']) {
+    const pool = catalog.bugChances('autumn', period, 'clear');
+    assert.ok(pool.length, period);
+    assert.ok(pool.every(b => b.kind === 'cricket'));
+    assert.ok(pool.some(b => b.id === 'emma_cricket'));
+    assert.deepEqual(catalog.bugChances('autumn', period, 'rain'), []);
+    assert.ok(!catalog.bugChances('summer', period, 'clear').some(b => b.kind === 'cricket'));
+  }
+  assert.ok(!catalog.bugChances('autumn', 'day', 'clear').some(b => b.id === 'emma_cricket'));
 });
 
 test('daytime families renormalize when a season has no members of a family', () => {
