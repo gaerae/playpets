@@ -11,7 +11,7 @@ import { createEasel } from './easel.js';
 import { eventStart, sceneEvent } from './events.js';
 import { eventChanged } from './festival.js';
 import { clearRainbowEnd, placeMark, placeRainbowEnd } from './rainbow-end.js';
-import { cancelRemarks, rainbowRemark, remark } from './remarks.js';
+import { cancelRemarks, momentRemark, remark } from './remarks.js';
 import {
   autoWeather,
   harvestMoon,
@@ -26,6 +26,7 @@ import {
   sunAt,
 } from './scene.js';
 import { createScenery } from './scenery.js';
+import { createMoments } from './sky-moments.js';
 import { soundScene } from './sound.js';
 import { scene, scenery, setScenery } from './world.js';
 import { worldAllows, worldFor, worlds } from './worlds.js';
@@ -38,9 +39,31 @@ const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
 let painted = {};
 // The moon's mask last set, so it is set again only when the phase has moved on.
 let moonMaskShown = '';
-// A rainbow follows rain that clears up in daylight, for a few minutes.
-const RAINBOW_MS = 4 * 60 * 1000;
-let rainbowTimer = null;
+// The moments the sky makes as the weather turns (sky-moments.js), each shown by a `moment-<id>`
+// class on the yard that only showMoment sets, and the weather the shown one dresses the yard in.
+const moments = createMoments(showMoment);
+let dressed = null;
+// Whether paintScene is running, so a moment that changes the yard's dress during it waits for it.
+let painting = false;
+// What a moment does besides its look: `begin(lasts)` says whether the friends point it out.
+const MOMENT_PARTS = {
+  // the rainbow's lines point at its end, so they wait for a patch of ground to dig
+  rainbow: { begin: lasts => !!placeRainbowEnd(Date.now() + lasts), end: clearRainbowEnd },
+  meteors: {
+    begin: () => {
+      scenery.shower(true);
+      return true;
+    },
+    end: () => scenery.shower(false),
+  },
+  sunshower: {
+    begin: () => {
+      scenery.sunlit(true);
+      return true;
+    },
+    end: () => scenery.sunlit(false),
+  },
+};
 // What the person picked for the yard, or 'auto'.
 let weatherChoice = 'auto';
 let periodChoice = 'auto';
@@ -72,28 +95,35 @@ export function paintScene() {
   // A seasonal event (events.js): a class on the yard, and one for each way it looks (scenery.css).
   const event = worldAllows(scene.world, 'seasonalEffects') ? sceneEvent(now, south, scene.season) : null;
   scene.event = event?.id ?? null;
+  const fullMoon = !!event?.looks?.length && harvestMoon(now.getTime(), eventStart(event, now, south).getTime());
+  scenery.set(scene.period, scene.weather, scene.season, scene.event, scene.world);
+  // After the scenery, so a meteor shower lands on tonight's stars. The harvest moon's look is the
+  // event's own night, and no moment shares it.
+  painting = true;
+  moments({
+    sky: worldAllows(scene.world, 'sky'),
+    before,
+    weather: scene.weather,
+    period: scene.period,
+    season: scene.season,
+    quiet: fullMoon && scene.period === 'night',
+  });
+  painting = false;
+  // The weather the yard is dressed in: its own, or a moment's (a sunshower keeps the clear day).
+  const looks = dressed ?? scene.weather;
   // The scene's own classes on the yard (scenery.css): only these are changed here; the others
   // belong to whoever sets them (aiming, playing, the catch hand, the rainbow).
   setMarks(yard, [
     `world-${scene.world}`,
     `period-${scene.period}`,
-    `weather-${scene.weather}`,
+    `weather-${looks}`,
     `season-${scene.season}`,
     ...(event ? [`event-${event.id}`, ...(event.looks || []).map(look => `look-${look}`)] : []),
     // the event's own full moon and the nights either side, for the harvest moon's look
-    ...(event?.looks?.length && harvestMoon(now.getTime(), eventStart(event, now, south).getTime())
-      ? ['moon-full']
-      : []),
+    ...(fullMoon ? ['moon-full'] : []),
   ]);
   paintSeason(yard);
   paintSky(yard, now);
-  // Rain clearing in daylight starts the rainbow's few minutes; night or new weather takes it away.
-  if (worldAllows(scene.world, 'sky') && before === 'rain' && scene.weather === 'clear' && scene.period !== 'night')
-    showRainbow(yard);
-  else if (!worldAllows(scene.world, 'sky') || scene.weather !== 'clear' || scene.period === 'night') {
-    yard.classList.remove('after-rain');
-    clearRainbowEnd();
-  }
   $('sky-dot').className = `sun-dot ${scene.period === 'night' ? 'moon' : ''}`;
   $('scene-caption').textContent = worldCaption(scene.world, scene.period, scene.weather);
   $('weather').disabled = !worldAllows(scene.world, 'weather');
@@ -101,8 +131,7 @@ export function paintScene() {
   const note = worldFor(scene.world).about;
   $('world-note').textContent = note ? t(note) : '';
   $('world-note').hidden = !note;
-  scenery.set(scene.period, scene.weather, scene.season, scene.event, scene.world);
-  easel.set(scene);
+  easel.set({ ...scene, weather: looks });
   soundScene(scene);
   if (was !== scene.event) eventChanged(event);
   seasonChanged(scene.season);
@@ -136,14 +165,18 @@ function paintSky(yard, now) {
   if (mask !== moonMaskShown) yard.style.setProperty('--moon-lit', mask);
   moonMaskShown = mask;
 }
-function showRainbow(yard) {
-  yard.classList.add('after-rain');
-  clearTimeout(rainbowTimer);
-  if (placeRainbowEnd(Date.now() + RAINBOW_MS)) rainbowRemark();
-  rainbowTimer = setTimeout(() => {
-    $('yard').classList.remove('after-rain');
-    clearRainbowEnd();
-  }, RAINBOW_MS);
+function showMoment({ id, lasts, looks }, on) {
+  const yard = $('yard'),
+    mark = `moment-${id}`,
+    parts = MOMENT_PARTS[id];
+  yard.classList.toggle(mark, on);
+  if (looks) {
+    dressed = on ? looks : null;
+    // Begun or ended by its own timer: the yard is dressed again now.
+    if (!painting) paintScene();
+  }
+  if (!on) parts?.end();
+  else if (parts?.begin(lasts) ?? true) momentRemark(id, () => yard.classList.contains(mark));
 }
 // The place, season, time of day and weather picked are kept in state.json (`scene`), so they
 // travel with the data folder. A value still in the webview's storage (sceneValue, state.js) moves

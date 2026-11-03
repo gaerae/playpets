@@ -105,7 +105,7 @@ test('glows and celestial materials allocate only during scene preparation, neve
   for (let frame = 0; frame < 100; frame++) {
     assert.equal(art.glow(ctx, creature, 0.5), true);
     assert.equal(art.star(ctx, { x: 20, y: 30, r: 1 }), true);
-    assert.equal(art.streak(ctx, 20, 30, 50, 80), true);
+    assert.equal(art.streak(ctx, 20, 30, 0.5, 60, 2), true);
   }
   assert.equal(canvases, 3);
   assert.equal(gradients, 3);

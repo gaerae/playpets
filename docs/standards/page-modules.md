@@ -57,7 +57,7 @@
 - What opens from a button uses `dropdown` (a panel) or `popup` (a menu, with arrow keys) from `src/core/menu.js`, so every menu opens, closes and moves focus the same way.
 - Each class on the yard element has one owner.
   - The scene (`yard/sky.js`) sets only its own classes: `period-…`, `weather-…`, `season-…`, `event-…`, `look-…` and `moon-full`.
-  - The module that sets `aiming` (`care.js`), `playing` (`play.js`), `can-catch` (`catch.js`) or `after-rain` (the rainbow in `sky.js`) owns that class and removes it again.
+  - The module that sets `aiming` (`care.js`), `playing` (`play.js`), `can-catch` (`catch.js`) or `moment-…` (the sky's moments, set by `showMoment` in `sky.js`) owns that class and removes it again.
   - No other module adds or removes it, and the scene's updates leave it in place.
 - A menu whose rows come from something in code is built from a table, not written in the markup.
   - The Games menu is built from the games' rules (`RULES` in `yard/play.js`: icon, name, tooltip), so a new game adds no markup.

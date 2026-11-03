@@ -3,6 +3,7 @@ import { beginCompanionAction, playCompanionAction, prepareCompanionAction } fro
 import { closeControls, closeScene } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
+import { typing } from '../core/keys.js';
 import { limit } from '../core/limits.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { artSvg } from './art.js';
@@ -406,7 +407,7 @@ export function setupDiscovery() {
   // Only while a tool is in hand (not the menu bar's shortcuts): 1, 2 and 3 pick a tool from the strip.
   document.addEventListener('keydown', event => {
     if (!TOOLS.some(([tool]) => tool === aiming) || event.metaKey || event.ctrlKey || event.altKey) return;
-    if (event.target?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+    if (typing(event)) return;
     const tool = TOOLS[Number(event.key) - 1]?.[0];
     if (!tool || tool === aiming) return;
     event.preventDefault?.();

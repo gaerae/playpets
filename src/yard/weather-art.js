@@ -25,6 +25,8 @@ export function createWeatherArt(changed, { loadImage = loadSeasonalImage, makeC
       for (const [key, ink] of [
         ['rain-day', '168,192,214'],
         ['rain-night', '190,208,230'],
+        // a sunshower's drops catch the sun
+        ['rain-sun', '255,236,186'],
       ])
         material(key, ctx => {
           const gradient = ctx.createLinearGradient(0, 0, 0, 64);
@@ -109,8 +111,9 @@ export function createWeatherArt(changed, { loadImage = loadSeasonalImage, makeC
     ctx.restore();
     return true;
   }
-  function rain(ctx, particle, scale, night) {
-    const sprite = materials.get(night ? 'rain-night' : 'rain-day');
+  // `light` is 'day', 'night' or 'sun' (a sunshower).
+  function rain(ctx, particle, scale, light) {
+    const sprite = materials.get(`rain-${light}`);
     if (!sprite) return false;
     const width = (0.8 + particle.depth * 0.9) * scale * 12,
       length = particle.size * scale;

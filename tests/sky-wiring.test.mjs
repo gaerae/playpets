@@ -115,3 +115,39 @@ test('setupSky hands world and season changes to the entry point, around its own
   assert.equal(scene.season, 'winter');
   assert.equal(scene.weather, 'clear');
 });
+
+test('a sunshower dresses the yard as a clear day while the rain still falls, until it passes', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout', 'setInterval'] });
+  const { nodes } = installDom(t, { anyId: true, props: { getContext: () => anything() } });
+  installStorage(t);
+  keepGlobals(t, 'ResizeObserver', 'Image', 'window');
+  globalThis.ResizeObserver = class {
+    observe() {}
+  };
+  globalThis.Image = class {
+    set src(_) {}
+    decode() {
+      return Promise.reject(new Error('no pictures here'));
+    }
+  };
+  globalThis.window = { devicePixelRatio: 1 };
+  const { setupSky } = await import('../src/yard/sky.js');
+  const { scene } = await import('../src/yard/world.js');
+  setupSky();
+  const pick = (id, value) => {
+    nodes.get(id).value = value;
+    nodes.get(id).onchange();
+  };
+  pick('scene-season', 'summer');
+  pick('period', 'day');
+  pick('weather', 'clear');
+  pick('weather', 'rain');
+  const yard = nodes.get('yard').classList;
+  assert.equal(scene.weather, 'rain', 'it is raining');
+  assert.ok(yard.contains('moment-sunshower'));
+  assert.ok(yard.contains('weather-clear') && !yard.contains('weather-rain'), 'under a clear sky');
+  t.mock.timers.tick(90_000);
+  assert.ok(!yard.contains('moment-sunshower'));
+  assert.ok(yard.contains('weather-rain') && !yard.contains('weather-clear'), 'then the rain sky comes back');
+  assert.equal(scene.weather, 'rain');
+});

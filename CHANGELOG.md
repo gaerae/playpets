@@ -13,6 +13,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Added
 
 - When a rainbow follows the rain, the ground glimmers where it ends, a friend points it out, and a dig there before it fades never comes up empty.
+- The sky has more moments as the weather turns, one at a time and never over a seasonal event's own look: a sunshower when rain falls from a clear daytime sky, mist on clear autumn mornings, snow glittering under the moon when it stops at night, and a meteor shower all through clear summer nights. A friend points each one out.
 - Fifteen more finds for the album, now 115: a Korean bullhead, rose bitterling, paradise fish, dark sleeper, mitten crab, freshwater mussel and a rare softshell turtle in the lake, and a tiger beetle, white-spotted longhorn, praying mantis, long-headed grasshopper, hummingbird hawk-moth and a rare rhinoceros beetle and butterfly dragonfly in the yard. Winter and night fishing have more to catch, and on clear autumn evenings and nights emma field crickets come out in the grass.
 
 ### Changed
@@ -30,6 +31,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Website and docs
 
 - The play guide says where the rainbow ends and what a dig there finds.
+- The play guide describes the sunshower, the morning mist, the moonlit snow and the meteor shower.
 - The guide says how long a memento's heart shows.
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.
 - The install guide gives where the Microsoft Store version keeps its data folder.

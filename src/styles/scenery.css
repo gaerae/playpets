@@ -250,7 +250,7 @@
 .weather-snow .sky-body {
   opacity: 0.16;
 }
-/* After rain clears in daylight, a rainbow stands behind the hills for a few minutes (sky.js). */
+/* After rain clears in daylight, a rainbow stands behind the hills for a few minutes (sky-moments.js). */
 .rainbow {
   position: absolute;
   left: 50%;
@@ -276,15 +276,15 @@
   );
   mask-image: linear-gradient(to top, transparent, #000 45%);
 }
-.yard.after-rain .rainbow {
-  opacity: 0.36;
+.yard.moment-rainbow .rainbow {
+  opacity: 0.46;
 }
 /* Where the rainbow ends (rainbow-end.js): a soft glimmer on the ground, under the friends. */
 .rainbow-end {
   position: absolute;
   z-index: 1;
-  width: 46px;
-  height: 22px;
+  width: 64px;
+  height: 28px;
   border-radius: 50%;
   pointer-events: none;
   transform: translate(-50%, -50%);
@@ -300,8 +300,117 @@
     opacity: 1;
   }
 }
+/* and a sparkle over it now and then, so it is found from across the yard */
+.rainbow-end::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 70%;
+  width: 18px;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  background: url("../art/ambient/spark.svg") center / contain no-repeat;
+  animation: rainbow-end-spark 2.2s ease-in-out infinite;
+}
+@keyframes rainbow-end-spark {
+  0%,
+  60%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(0);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1) rotate(45deg);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .rainbow-end {
+  .rainbow-end,
+  .rainbow-end::after {
+    animation: none;
+  }
+}
+/* The other moments (sky-moments.js), on one layer over the land and under the friends: the sun
+   through a shower (the yard dressed as a clear day, sky.js), mist drifting on the field, and the
+   snow glittering under the moon. */
+.moment-layer,
+.moment-layer::before,
+.moment-layer::after {
+  position: absolute;
+  pointer-events: none;
+}
+.moment-layer {
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 4s;
+  background: radial-gradient(circle at var(--orb-x, 68%) var(--orb-y, 14%), #ffe7a85c, #ffe7a81f 45%, transparent 75%);
+}
+.moment-layer::before,
+.moment-layer::after {
+  content: "";
+  opacity: 0;
+  transition: opacity 2.5s;
+}
+.moment-layer::before {
+  inset: 50% -12% 14%;
+  background:
+    radial-gradient(ellipse 34% 46% at 26% 52%, #f7f5f0d9, transparent 72%),
+    radial-gradient(ellipse 30% 40% at 62% 40%, #f7f5f0bf, transparent 72%),
+    radial-gradient(ellipse 28% 44% at 88% 58%, #f7f5f0cc, transparent 72%),
+    linear-gradient(transparent, #f7f5f04d 35%, #f7f5f04d 65%, transparent);
+}
+.yard.moment-sunshower .moment-layer {
+  opacity: 1;
+}
+.yard.moment-mist .moment-layer {
+  opacity: 1;
+  background: none;
+}
+/* moonlight on the snow, brightest under the moon */
+.yard.moment-snowlight .moment-layer {
+  opacity: 1;
+  background: radial-gradient(ellipse 34% 30% at var(--orb-x, 68%) 82%, #dfe9ff47, #dfe9ff14 60%, transparent);
+}
+.yard.moment-mist .moment-layer::before {
+  opacity: 1;
+  animation: moment-mist 36s ease-in-out infinite alternate;
+}
+.yard.moment-snowlight .moment-layer::before,
+.yard.moment-snowlight .moment-layer::after {
+  opacity: 1;
+  animation: moment-glint 2.6s ease-in-out infinite alternate;
+}
+/* glints on the snow (sky/glints.svg), in two layers of different sizes so no pattern shows */
+.yard.moment-snowlight .moment-layer::before {
+  inset: 62% 0 0;
+  background: url("../art/sky/glints.svg") 97px 41px / 168px 105px;
+  animation-delay: -1.3s;
+}
+.yard.moment-snowlight .moment-layer::after {
+  inset: 62% 0 0;
+  background: url("../art/sky/glints.svg") 0 0 / 240px 150px;
+}
+@keyframes moment-mist {
+  from {
+    transform: translateX(-5%);
+  }
+  to {
+    transform: translateX(5%);
+  }
+}
+@keyframes moment-glint {
+  from {
+    opacity: 0.1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yard.moment-mist .moment-layer::before,
+  .yard.moment-snowlight .moment-layer::before,
+  .yard.moment-snowlight .moment-layer::after {
     animation: none;
   }
 }
@@ -437,6 +546,7 @@
 .yard[data-sky="false"] .sky-glow,
 .yard[data-sky="false"] .sky-body,
 .yard[data-sky="false"] .rainbow,
+.yard[data-sky="false"] .moment-layer,
 .yard[data-sky="false"] .cloud-lane,
 .yard[data-sky="false"]::after,
 .yard[data-sky="false"] .star-layer,

@@ -121,14 +121,15 @@ export function createAmbientArt(
     ctx.drawImage(sprite, point.x - size / 2, point.y - size / 2, size, size);
     return true;
   }
-  function streak(ctx, x, y, dx, dy) {
+  // A shooting star's tail behind its head at (x, y), flying at `angle`; the tail's taper is a
+  // tenth of the material's height, so it is drawn ten times as thick as the star.
+  function streak(ctx, x, y, angle, length, width) {
     const sprite = materials.get('tail');
     if (!sprite) return false;
-    const length = Math.hypot(dx, dy) * 0.22;
     ctx.save();
     ctx.translate(x, y);
-    ctx.rotate(Math.atan2(dy, dx));
-    ctx.drawImage(sprite, -length, -6, length, 12);
+    ctx.rotate(angle);
+    ctx.drawImage(sprite, -length, -width * 5, length, width * 10);
     ctx.restore();
     return true;
   }
