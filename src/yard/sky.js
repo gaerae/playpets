@@ -10,7 +10,8 @@ import { everyMinute } from '../core/ticker.js';
 import { createEasel } from './easel.js';
 import { eventStart, sceneEvent } from './events.js';
 import { eventChanged } from './festival.js';
-import { cancelRemarks, remark } from './remarks.js';
+import { clearRainbowEnd, placeMark, placeRainbowEnd } from './rainbow-end.js';
+import { cancelRemarks, rainbowRemark, remark } from './remarks.js';
 import {
   autoWeather,
   harvestMoon,
@@ -89,8 +90,10 @@ export function paintScene() {
   // Rain clearing in daylight starts the rainbow's few minutes; night or new weather takes it away.
   if (worldAllows(scene.world, 'sky') && before === 'rain' && scene.weather === 'clear' && scene.period !== 'night')
     showRainbow(yard);
-  else if (!worldAllows(scene.world, 'sky') || scene.weather !== 'clear' || scene.period === 'night')
+  else if (!worldAllows(scene.world, 'sky') || scene.weather !== 'clear' || scene.period === 'night') {
     yard.classList.remove('after-rain');
+    clearRainbowEnd();
+  }
   $('sky-dot').className = `sun-dot ${scene.period === 'night' ? 'moon' : ''}`;
   $('scene-caption').textContent = worldCaption(scene.world, scene.period, scene.weather);
   $('weather').disabled = !worldAllows(scene.world, 'weather');
@@ -136,7 +139,11 @@ function paintSky(yard, now) {
 function showRainbow(yard) {
   yard.classList.add('after-rain');
   clearTimeout(rainbowTimer);
-  rainbowTimer = setTimeout(() => $('yard').classList.remove('after-rain'), RAINBOW_MS);
+  if (placeRainbowEnd(Date.now() + RAINBOW_MS)) rainbowRemark();
+  rainbowTimer = setTimeout(() => {
+    $('yard').classList.remove('after-rain');
+    clearRainbowEnd();
+  }, RAINBOW_MS);
 }
 // The place, season, time of day and weather picked are kept in state.json (`scene`), so they
 // travel with the data folder. A value still in the webview's storage (sceneValue, state.js) moves
@@ -176,6 +183,7 @@ export function setupSky(options = {}) {
     worldChanged = options.worldChanged || (enter => enter()),
     landChanged = options.landChanged || none;
   setScenery(createScenery($('weather-layer'), reduced, undefined, undefined, $('star-layer')));
+  globalThis.window?.addEventListener?.('resize', placeMark);
   easel = createEasel($('yard'), reduced, landChanged);
   const saved = savedScene();
   moveOldScene();

@@ -12,6 +12,7 @@ import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
 import { field, fieldToYard, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
+import { atRainbowEnd } from './rainbow-end.js';
 import { isFree, release, rest } from './trips.js';
 import { bubble } from './views.js';
 import { holdAtWork, sendToWork, stopWork } from './work.js';
@@ -178,7 +179,7 @@ export function sendDiscovery(v, point, action, kind) {
       if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
       let ground = groundProfile();
       if (!groundAllows(point, ground)) return cleanup();
-      const context = { season: scene.season, weather: scene.weather };
+      const context = { season: scene.season, weather: scene.weather, rainbow: atRainbowEnd(point) };
       holdAtWork(v, cleanup);
       const authored = playCompanionAction(v, action === 'tree' ? 'plant' : 'dig');
       const duration = authored?.duration ?? 1950;

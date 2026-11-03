@@ -58,6 +58,20 @@ export function remark() {
     remarkTimers.add(timer);
   });
 }
+/** The rainbow after rain (sky.js): a friend points it out, and the glimmer where it ends. */
+export function rainbowRemark() {
+  if (game) return;
+  cancelRemarks();
+  const [v] = shuffle([...views.values()]),
+    world = scene.world;
+  if (!v) return;
+  const timer = setTimeout(() => {
+    remarkTimers.delete(timer);
+    if (!game && views.get(v.pet.id) === v && scene.world === world && scene.weather === 'clear')
+      bubble(v, pick(list('chatter.rainbow')), 3500);
+  }, 1200);
+  remarkTimers.add(timer);
+}
 const CHATTER_DELAY = [40000, 110000];
 const chatter = cadence(() => between(Math.random, CHATTER_DELAY));
 /** Called by the frame loop: now and then a quiet friend says something about the hour or the weather. */

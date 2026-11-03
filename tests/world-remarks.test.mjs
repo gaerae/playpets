@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { list } from '../src/core/i18n.js';
 import { data, setData, setGame, views } from '../src/core/state.js';
-import { idleChatter, remark } from '../src/yard/remarks.js';
+import { idleChatter, rainbowRemark, remark } from '../src/yard/remarks.js';
 import { scene } from '../src/yard/world.js';
 import { useWorlds } from '../src/yard/worlds.js';
 import { worlds as definitions } from './support/content.mjs';
@@ -108,4 +108,34 @@ test('selectable studio weather never produces outdoor rain or snow remarks', t 
     t.mock.timers.tick(1600);
     assert.equal(friend.bubble.hidden, true, 'friends remain indoors instead of asking for outdoor gear');
   }
+});
+
+test('a rainbow after rain is pointed out by one friend, unless the sky has changed again', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  setGame(null);
+  views.clear();
+  const before = { ...scene };
+  Object.assign(scene, { world: 'woodland', weather: 'clear', period: 'day' });
+  const friend = { pet: { id: 'friend' }, bubble: { hidden: true } },
+    other = { pet: { id: 'other' }, bubble: { hidden: true } };
+  views.set('friend', friend);
+  views.set('other', other);
+  t.after(() => {
+    Object.assign(scene, before);
+    views.clear();
+  });
+  rainbowRemark();
+  t.mock.timers.tick(1600);
+  const spoke = [friend, other].filter(v => !v.bubble.hidden);
+  assert.equal(spoke.length, 1);
+  assert.ok(list('chatter.rainbow').includes(spoke[0].bubble.textContent), spoke[0].bubble.textContent);
+
+  for (const v of [friend, other]) v.bubble.hidden = true;
+  rainbowRemark();
+  scene.weather = 'rain';
+  t.mock.timers.tick(1600);
+  assert.ok(
+    [friend, other].every(v => v.bubble.hidden),
+    'a fresh shower takes the rainbow away',
+  );
 });

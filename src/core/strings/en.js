@@ -219,6 +219,7 @@ export const strings = {
   'greet.evening': ['Good evening!', 'Nice work today', 'Pretty sunset', 'Hey~'],
   'greet.night': ['Lovely night~', 'Long day, huh?', 'The stars are out', 'Night already!'],
   'chatter.rain': ['Rain!', 'Got an umbrella?', 'Love that sound', 'Splish splash!'],
+  'chatter.rainbow': ['A rainbow!', "What's at the end of the rainbow?", 'Something sparkles over there. Dig?'],
   'chatter.snow': ['Snow!', 'Snowman time?', 'So fluffy', 'Brr, cold toes'],
   'chatter.morning': ['Yaaawn~', 'Fresh morning air', 'What to do today?'],
   'chatter.day': ['Nice day~', 'Let’s play!', 'La la la', 'I’m bored~'],

@@ -179,6 +179,13 @@ fn roll_outcome(
     context: Option<&DiscoveryContext>,
     world: &str,
 ) -> Result<(&'static str, Option<String>), String> {
+    // At the rainbow's end, on a clear sky, a patch is never empty: the roll is spread over the
+    // other bands, each keeping its share.
+    let roll = if context.is_some_and(|c| c.rainbow && c.weather == "clear") {
+        DIG_ODDS[0] + (u16::from(roll) * u16::from(100 - DIG_ODDS[0]) / 100) as u8
+    } else {
+        roll
+    };
     if roll < DIG_ODDS[0] {
         return Ok(("empty", None));
     }
@@ -487,14 +494,43 @@ mod tests {
     }
 
     #[test]
+    fn a_dig_at_the_rainbows_end_never_comes_up_empty_and_keeps_the_other_odds() {
+        let context = |weather: &str, rainbow| super::super::content::DiscoveryContext {
+            season: "spring".into(),
+            weather: weather.into(),
+            rainbow,
+        };
+        let outcome = |roll, context: &super::super::content::DiscoveryContext| {
+            roll_outcome(&Garden::default(), roll, 0, Some(context), "woodland")
+                .unwrap()
+                .0
+        };
+        let mut seen = std::collections::HashMap::new();
+        for roll in 0..100 {
+            let found = outcome(roll, &context("clear", true));
+            assert_ne!(found, "empty", "roll {roll}");
+            *seen.entry(found).or_insert(0u32) += 1;
+        }
+        // What an empty dig would have been is shared out in the usual proportions.
+        assert_eq!(seen["seed"], 36);
+        assert_eq!(seen["sapling"], 29);
+        assert_eq!(seen["keepsake"], 35);
+        // Only a clear sky keeps a rainbow: in rain the patch can be empty as always.
+        assert_eq!(outcome(0, &context("rain", true)), "empty");
+        assert_eq!(outcome(0, &context("clear", false)), "empty");
+    }
+
+    #[test]
     fn environmental_context_changes_never_reroll_saved_or_future_repaired_patches() {
         let first_context = super::super::content::DiscoveryContext {
             season: "spring".into(),
             weather: "clear".into(),
+            rainbow: false,
         };
         let changed_context = super::super::content::DiscoveryContext {
             season: "winter".into(),
             weather: "snow".into(),
+            rainbow: false,
         };
         let mut garden = Garden::default();
         let mut album = Album::default();
@@ -563,6 +599,7 @@ mod tests {
             let context = super::super::content::DiscoveryContext {
                 season: season.into(),
                 weather: weather.into(),
+                rainbow: false,
             };
             assert!(
                 super::dig(
