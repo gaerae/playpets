@@ -39,6 +39,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The install guide gives where the Microsoft Store version keeps its data folder.
 - The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
 - The guide counts 115 album entries, names some of the new finds and says when crickets come out on autumn nights, in all four languages.
+- The front page counts the album's 115 entries too, the character and background studios each ask for their own kind of details (a friend's look and clothes, a place's scenery and light), and the switch between them no longer shows an outward arrow.
 
 ## [1.4.0] - 2026-11-01
 

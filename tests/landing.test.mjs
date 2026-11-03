@@ -396,3 +396,17 @@ test('the moving scenes wait until they are seen and stop for paused or reduced 
   assert.match(preview, /lookFrame/);
   assert.match(preview, /strollTimer/);
 });
+
+test('the landing counts the album as the catalog does, in every language', async () => {
+  const { catalog } = await import('./support/content.mjs');
+  const entries = ['flowers', 'fish', 'bugs', 'gifts', 'trees', 'treasures'].reduce(
+    (sum, book) => sum + catalog[book].length,
+    0,
+  );
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const said = JSON.stringify(sections).match(/\b\d{3}\b/g) ?? [];
+    assert.ok(said.length, `${lang} gives the album a size`);
+    for (const count of said) assert.equal(Number(count), entries, `${lang} says ${count}`);
+  }
+});
