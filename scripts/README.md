@@ -156,6 +156,12 @@ SHOT_SCENE=desktop SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 - The desktop picture is the app's own overlay window laid on the backdrop page, never a region of the screen.
 - The screen-sharing indicator, notifications and the screen's corners stay out.
 
+To refresh only the README animation (`assets/demo.gif`) without taking any picture:
+
+```bash
+SHOT_SCENE=demo SHOT_LANGS=en pnpm run shots
+```
+
 To refresh only the play pictures (`play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`) in every language:
 
 ```bash

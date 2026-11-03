@@ -21,7 +21,7 @@
 
 Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.gaerae.com/ko/) · [Japanese](https://playpets.gaerae.com/ja/) · [Simplified Chinese](https://playpets.gaerae.com/zh-hans/)
 
-<img src="assets/demo.gif" alt="Three friends saying hi and going for a walk in the yard">
+<img src="assets/demo.gif" alt="Four friends wave and chat in the yard, one cheers as Claude Code finishes its task, then they walk in a parade">
 
 </div>
 

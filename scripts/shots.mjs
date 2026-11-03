@@ -10,7 +10,8 @@
 // A second pass starts the app again from a lived-in garden (playGarden) and pictures play: the
 // garden, tag, digging, fishing and the album.
 // SHOT_SCENE=seasons captures only spring, summer and winter; chat refreshes only the two chat pictures;
-// desktop refreshes only the desktop picture; play takes only the second pass.
+// desktop refreshes only the desktop picture; play takes only the second pass; demo films only the
+// README animation (run it with SHOT_LANGS=en).
 
 import { spawn, spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
@@ -64,6 +65,7 @@ const adultsOnly = process.env.SHOT_SCENE === 'adults';
 const placesOnly = process.env.SHOT_SCENE === 'places';
 const desktopOnly = process.env.SHOT_SCENE === 'desktop';
 const playOnly = process.env.SHOT_SCENE === 'play';
+const demoOnly = process.env.SHOT_SCENE === 'demo';
 const seasonsOnly = process.env.SHOT_SCENE === 'seasons' || placesOnly;
 const skipGif =
   chatOnly || smallOnly || adultsOnly || seasonsOnly || desktopOnly || playOnly || process.env.SKIP_GIF === '1';
@@ -169,7 +171,7 @@ function scenario(lang) {
   const settledScene=async()=>{await wait(300);for(let i=0;i<50;i++){if($('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1)return;await wait(100);}throw new Error('Background did not finish loading and fading');};
   const clearFocus=${clearCaptureFocus.toString()};
   const checkChat=${assertChatCast.toString()};
-  const shot=async(name,rect)=>{if(${desktopOnly}&&name!=='desktop')return;if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
+  const shot=async(name,rect)=>{if(${demoOnly})return;if(${desktopOnly}&&name!=='desktop')return;if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
   try{
     if(document.documentElement.lang!=='${lang}'){localStorage.setItem('lang','${lang}');await L('RELANG');await playPets.quitApp();return;}
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
@@ -295,15 +297,18 @@ function scenario(lang) {
     await playPets.openChat(p1.id);await wait(900);await shot('mini-chat');
     $('close-panel').click();await wait(300);
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
-    // A few seconds of the yard for the demo animation: a wave together, then a parade.
+    // A few seconds of the yard for the demo animation: a wave together, a chat, Claude Code
+    // finishing the first friend's task, then a parade.
     if(!${skipGif}&&'${lang}'===${JSON.stringify(GIF.lang)}){
       clearFocus(document);await wait(350);const r=(await inv('e2eWindow',['main'])).data;
       await L('gif-start '+JSON.stringify(r));
-      const {react}=await import('./yard/care.js');react({action:'wave'});await wait(1500);
-      playPets.chatWith([p1.id,p2.id,p3.id,p4.id],${JSON.stringify(s.talkTo)});await wait(3600);
-      document.querySelector('[data-game=parade]').click();await wait(5200);
+      const {react}=await import('./yard/care.js');react({action:'wave'});await wait(1000);
+      playPets.chatWith([p1.id,p2.id,p3.id,p4.id],${JSON.stringify(s.talkTo)});await wait(3200);
+      await L('agent claude '+p1.id+' Stop');await wait(2400);
+      document.querySelector('[data-game=parade]').click();await wait(3000);
       const on=document.querySelector('[data-game].playing');if(on)on.click();
       await L('gif-end');await wait(600);
+      if(${demoOnly}){await L('DONE');return;}
     }
     // Desktop mode: friends stand still, the window moves out of the way, the picture is taken around them.
     const state=(await playPets.bootstrap()).data;
@@ -743,9 +748,9 @@ async function run(lang, dataDir, codexHome, outDir, code) {
               await cp(file, path.join(storeDir, `${name}.png`));
             }
           } else if (msg.startsWith('agent ')) {
-            const [, kind, petId] = msg.split(' ');
+            const [, kind, petId, event = 'PreToolUse'] = msg.split(' ');
             spawnSync(binary, ['hook', kind, '--pet', petId, '--bridge', path.join(dataDir, 'bridge.json')], {
-              input: JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: 'Bash' }),
+              input: JSON.stringify({ hook_event_name: event, tool_name: 'Bash' }),
               encoding: 'utf8',
               timeout: 5000,
               env: { ...process.env, PLAYPETS_E2E_EVAL: '' },
