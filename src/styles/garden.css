@@ -115,7 +115,9 @@
   outline: none;
 }
 /* A friend's memento wears a small heart, the tags' colour, so it is told from the same gift
-   brought on another day; the white disc keeps it apart from the name tags' hearts. */
+   brought on another day; the white disc keeps it apart from the name tags' hearts. It shows for a
+   day after the memento came (decor.js), then only while the gift is pointed at, chosen or
+   dragged, so a yard of mementos is not covered in hearts. */
 .decor.memento::after {
   content: "♥";
   position: absolute;
@@ -132,6 +134,14 @@
   font-size: 10px;
   line-height: 1;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.decor.memento.memento-new::after,
+.decor.memento:hover::after,
+.decor.memento:focus-visible::after,
+.decor.memento.dragging::after {
+  opacity: 1;
 }
 .decor:focus-visible svg {
   filter: drop-shadow(0 0 2px var(--focus));

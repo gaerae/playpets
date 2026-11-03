@@ -126,16 +126,23 @@ const BOOKS = {
 let book = 'flower';
 let rareTimer;
 
-function card(b, kind, entry) {
+function card(b, kind, entry, index) {
   const el = document.createElement('div');
   el.className = `album-card${entry ? '' : ' unknown'}`;
   const stage = document.createElement('div');
   stage.className = 'album-specimen';
   stage.innerHTML = b.draw(kind, !entry);
+  // Its place in the book, as on a collector's page: the gaps between numbers are what is left.
+  const number = document.createElement('span');
+  number.className = 'album-no';
+  number.setAttribute('aria-hidden', 'true');
+  number.textContent = String(index + 1).padStart(2, '0');
+  stage.append(number);
   el.append(stage);
   const name = document.createElement('strong'),
     hint = document.createElement('small');
   name.textContent = entry ? b.name(kind) : t(b.unknown || 'catch.unknown');
+  hint.className = 'album-hint';
   hint.textContent = b.hint(kind);
   el.append(name, hint);
   // A kind that comes seldom, or only on certain dates, says so, found or not, so it is worth waiting for.
@@ -144,9 +151,11 @@ function card(b, kind, entry) {
     rare.className = 'album-rare';
     rare.textContent = t('catch.rare');
     el.append(rare);
+    el.classList.add('rare');
   }
   if (entry) {
     const record = document.createElement('small');
+    record.className = 'album-record';
     record.textContent = b.record(entry);
     el.append(record);
   }
@@ -223,24 +232,36 @@ export function renderAlbum() {
   renderBox(giftBook);
   let found = 0,
     total = 0;
+  const share = {};
   for (const [id, b] of Object.entries(BOOKS)) {
     const have = b.found(),
       count = b.kinds.filter(k => have[k.id]).length;
     found += count;
     total += b.kinds.length;
+    share[id] = count / b.kinds.length;
     document.querySelector(`[data-count="${id}"]`).textContent = `${count}/${b.kinds.length}`;
   }
-  if ($('album-select')) $('album-select').value = book;
+  if ($('album-select')) {
+    $('album-select').value = book;
+    for (const option of $('album-select').options || [])
+      option.textContent = `${t(BOOKS[option.value].tab)} ${document.querySelector(`[data-count="${option.value}"]`).textContent}`;
+  }
   $('album-total').textContent = t('catch.total', { caught: found, total });
+  $('album-total').style.setProperty('--album-found', found / total);
   for (const tab of document.querySelectorAll('.album-tabs [data-book]')) {
     const active = tab.dataset.book === book;
+    // How full each book is, as a thin line under its name; a book with every kind found is marked.
+    tab.style.setProperty('--album-found', share[tab.dataset.book]);
+    tab.classList.toggle('complete', share[tab.dataset.book] === 1);
     tab.setAttribute('aria-selected', String(active));
     tab.tabIndex = active ? 0 : -1;
     if (active) $('album-grid').setAttribute('aria-labelledby', tab.id);
   }
   const b = BOOKS[book],
     have = b.found();
-  $('album-grid').replaceChildren(...b.kinds.map(k => card(b, k, have[k.id])));
+  // Each book has its own ground under the drawings: water for fish, wood for gifts (dialog.css).
+  $('album-grid').dataset.book = book;
+  $('album-grid').replaceChildren(...b.kinds.map((k, index) => card(b, k, have[k.id], index)));
 }
 /** Opens the album (the tools' button), at a given book when a card asks for it. */
 export function openAlbum(open = null) {
@@ -287,9 +308,12 @@ export function setupAlbum() {
       tab.setAttribute('role', 'tab');
       tab.setAttribute('aria-controls', 'album-grid');
       tab.dataset.book = id;
+      const meter = document.createElement('i');
       name.textContent = t(b.tab);
       count.dataset.count = id;
-      tab.append(name, count);
+      meter.className = 'album-meter';
+      meter.setAttribute('aria-hidden', 'true');
+      tab.append(name, count, meter);
       return tab;
     }),
   );
@@ -301,6 +325,7 @@ export function setupAlbum() {
     tab.onclick = () => {
       book = tab.dataset.book;
       renderAlbum();
+      $('album-grid').scrollTop = 0;
     };
     tab.onkeydown = e => {
       const next = {

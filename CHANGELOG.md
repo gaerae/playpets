@@ -17,17 +17,25 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- A memento's heart shows for a day after it arrives, then only while you point at the memento, select it or drag it, so a yard of mementos is no longer covered in hearts.
 - Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
 - Fish and bug odds follow how common they are: bass and bluegill are everyday catches, snakeheads, sweetfish, eels and mandarin fish come more often, and goldfish less. The golden carp, now only at dusk and night, is the rarest fish outside an event, the moon carp is a rarer find during the harvest moon, and the common skimmer flies from spring to autumn.
 - The album marks everything that comes only during a seasonal event as rare, and its hint now gives the event's dates.
+- The album's digging note calls its 24-hour limit a rule for rare finds, the same word as the badge, instead of uncommon ones.
+- The album reads like a collector's notebook: each find sits on its own numbered card over its book's ground (water for aquatic life, wood for gifts), the ones still to find wait as faint outlines with where to look, rare ones have a gold edge, and each book's tab fills as you collect, with a star once the book is complete.
 
 ### Fixed
 
 - In the Microsoft Store version, the icon on the taskbar and in the Start menu no longer sits on a blue square.
+- Switching books in the album starts at the top of the new book instead of where the last one was scrolled.
+- In the Microsoft Store version, **Open folder** in Invite a friend and **Open the data folder** in About PlayPets now open the folder in File Explorer instead of failing.
 
 ### Website and docs
 
+- The guide says how long a memento's heart shows.
+- The front page is plainer: each section says what is in the app and where to find it, the download block ends with three steps for after installing, and gifts are described as coming at most once every two days.
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.
+- The install guide gives where the Microsoft Store version keeps its data folder.
 - The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
 - The guide counts 150 album entries, names some of the new finds, lists all twelve trees and says when crickets come out on autumn nights, in all four languages.
 
