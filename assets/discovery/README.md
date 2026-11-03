@@ -94,6 +94,8 @@ More finds (2026-11-03):
 - `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
   key, paper boat, spinning top, freshwater pearl and four-leaf clover in
   reading order.
+- The cicada shell cell is not exported: an insect part did not suit a dug-up
+  keepsake. The old coin (`old-coin-source.png`) takes its place.
 - The pearl and the clover are uncommon; the other six are ordinary.
 
 Whimsical finds:

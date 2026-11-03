@@ -44,7 +44,7 @@ test('whimsical keepsakes have translated names and year-round weighted discover
     ['tiny_crown', 'uncommon'],
     ['star_fragment', 'uncommon'],
     ...['glass_marble', 'wooden_whale', 'felt_mushroom', 'acorn_teacup', 'sleeping_fox'].map(id => [id, 'common']),
-    ...['cicada_shell', 'blue_feather', 'pinecone', 'old_key', 'paper_boat', 'spinning_top'].map(id => [id, 'common']),
+    ...['old_coin', 'blue_feather', 'pinecone', 'old_key', 'paper_boat', 'spinning_top'].map(id => [id, 'common']),
     ['freshwater_pearl', 'uncommon'],
     ['four_leaf_clover', 'uncommon'],
   ]) {

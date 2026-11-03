@@ -783,13 +783,13 @@
     "art": "fish/melania_snail.svg"
   },
   {
-    "id": "frog",
+    "id": "aucha_perch",
     "kind": "fish",
-    "atlas": "collection-extension/lake-creatures-2.webp",
+    "atlas": "collection-extension/aucha-perch.webp",
     "atlasSize": [1774, 887],
-    "crop": [968, 186, 727, 531],
-    "size": [100, 65],
-    "art": "fish/frog.svg"
+    "crop": [139, 58, 1480, 779],
+    "size": [100, 50],
+    "art": "fish/aucha_perch.svg"
   },
   {
     "id": "katydid",

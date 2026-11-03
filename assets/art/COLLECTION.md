@@ -94,12 +94,14 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 
 ## Album of 150 (2026-11-03)
 
-- 21 new specimens in five atlases: three fish, two other water creatures, two
+- 21 new specimens in six atlases: four fish, one other water creature, two
   night bugs, eight flowers (two per season) and six gifts.
 - Accepted sources, prompts, hashes and per-atlas IDs:
   `assets/sources/album-150-2026-11-03/accepted-art.json`.
 - Runtime atlases: `collection-extension/lake-fish-2`, `lake-creatures-2`,
-  `night-bugs`, `flowers-2` and `village-props`.
+  `aucha-perch`, `night-bugs`, `flowers-2` and `village-props`.
+- The pond frog in `lake-creatures-2` is not exported; the Korean aucha perch
+  replaced it, since a frog does not belong in the fish book.
 - The first flowers sheet painted a cream haze behind the plants and was
   regenerated with an explicit transparency line, recorded in its prompt.
 - Gift viewports use the gift's catalog size; flowers use 40 by 54 like the

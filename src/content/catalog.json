@@ -935,20 +935,14 @@
       "art": "fish/melania_snail.svg"
     },
     {
-      "id": "frog",
-      "size": [6, 12],
+      "id": "aucha_perch",
+      "size": [10, 20],
       "seasons": ["spring", "summer"],
       "periods": ["evening", "night"],
       "weight": 10,
       "rain": 2,
-      "look": {
-        "body": "#7d8f4a",
-        "belly": "#e9e0b8",
-        "fin": "#5f6e36",
-        "shape": "round",
-        "spots": "#3e4626"
-      },
-      "art": "fish/frog.svg"
+      "look": { "body": "#7a6a3c", "belly": "#d8cc9c", "fin": "#5b4f2c", "shape": "normal", "spots": "#3b3220" },
+      "art": "fish/aucha_perch.svg"
     },
     {
       "id": "sturgeon",
@@ -1868,8 +1862,8 @@
       }
     },
     {
-      "id": "cicada_shell",
-      "art": "discovery/cicada_shell.svg",
+      "id": "old_coin",
+      "art": "discovery/old_coin.svg",
       "rarity": "common",
       "weight": 1,
       "seasons": ["spring", "summer", "autumn", "winter"],

@@ -199,6 +199,19 @@
         "role": "Style reference only"
       },
       "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha."
+    },
+    {
+      "id": "old-coin",
+      "file": "old-coin-source.png",
+      "atlas": "discovery/old-coin.png",
+      "size": [1263, 1246],
+      "sha256": "9e52faf5c2f388031a184f7c0f80353f3613486a0bcb69ae07cb8e0f55c825cc",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game keepsake sprite. Reference image is STYLE REFERENCE ONLY: match its warm sculpted illustrated materials, soft hand-painted detail, crisp edges, natural tactile finish and soft top-left lighting. Create a genuine transparent RGBA sprite of exactly ONE isolated object, centered, filling about 65% of the image width, orthographic slightly top-front view, readable at 40 CSS pixels: one old round Korean bronze coin (yeopjeon) with a square hole in the middle, a raised rim around the edge and around the hole, worn dark bronze with soft verdigris green patina in the recesses and a little earth still clinging to one edge, as if just dug up. Four small raised blocky marks around the hole are abstract worn bumps, NOT readable characters or letters. No background, no checkerboard ink, no ground shadow, no text, labels, brands or extra objects. Preserve genuine alpha.",
+      "input": {
+        "path": "assets/discovery/finds-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Replaces the cicada shell cell of more-finds, which is no longer exported. Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha."
     }
   ],
   "assets": [
@@ -873,11 +886,11 @@
       "frame": [1105.5, 518, 312, 485]
     },
     {
-      "id": "cicada_shell",
-      "source": "more-finds",
-      "art": "discovery/cicada_shell.svg",
+      "id": "old_coin",
+      "source": "old-coin",
+      "art": "discovery/old_coin.svg",
       "size": [40, 40],
-      "crop": [62, 83, 348, 316],
+      "crop": [201, 196, 833, 840],
       "anchor": [0.5, 0.5]
     },
     {

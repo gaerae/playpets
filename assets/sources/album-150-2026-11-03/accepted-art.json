@@ -20,7 +20,8 @@
       "sha256": "a4ce380811fb75b65ce039134ba77b680645358bdaf5b3171e996da2ca651d70",
       "size": [1774, 887],
       "runtimeAtlas": "collection-extension/lake-creatures-2.png",
-      "acceptedIds": ["melania_snail", "frog"]
+      "acceptedIds": ["melania_snail"],
+      "notes": "The pond frog cell is not exported; the Korean aucha perch replaced it in the fish book."
     },
     {
       "name": "night-bugs",
@@ -51,6 +52,16 @@
       "size": [1536, 1024],
       "runtimeAtlas": "collection-extension/village-props.png",
       "acceptedIds": ["water_wheel", "hammock", "scarecrow", "stepping_stones", "onggi", "kite"]
+    },
+    {
+      "name": "aucha-perch",
+      "prompt": "Use case: stylized-concept. Production transparent game specimen sprite for a cozy desktop pet game: exactly ONE freshwater fish, centered, side profile facing RIGHT, with ample transparent margins. KOREAN AUCHA PERCH (Coreoperca herzi, 꺽지): a stocky perch with a deep compressed body and large mouth, olive-brown to dark golden-brown body with six or seven darker irregular vertical bands, many small pale yellowish dots, a distinctive dark eye-spot ringed in bright blue-green on the rear of the gill cover, long spiny first dorsal fin joined to a soft second dorsal, rounded tail and rounded pectoral fins; clearly a banded perch, NOT a leopard-spotted mandarin fish and NOT a goby. The fish fills about 80% of the image width. Style: same warm softly sculpted painted miniature collectible as the reference, authentic anatomy, restrained highlights, clean silhouette readable at 64px. Reference image is STYLE and MATERIAL only, do not copy its fish. ACTUAL fully transparent RGBA background everywhere outside the fish, no white, grey or glowing band, NO water, floor, haze, labels, text, gridlines or shadows. Exactly one fish.",
+      "references": ["assets/art/fish/specimens.png"],
+      "file": "aucha-perch.png",
+      "sha256": "d859c083890eaedc291d94d2ce8fc8326a1e547071db80a486809c212606d30c",
+      "size": [1774, 887],
+      "runtimeAtlas": "collection-extension/aucha-perch.png",
+      "acceptedIds": ["aucha_perch"]
     }
   ]
 }

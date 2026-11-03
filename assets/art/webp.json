@@ -11,6 +11,10 @@
     "png": "0742fb0721a97cad17e66a3833c26e2a2a7780bcb5788f0f280b0b2eb142f884",
     "webp": "2faeeb1e2935707a2bb96ca2ff7614b0935b2ae42366845a60f49a0261c5cb56"
   },
+  "collection-extension/aucha-perch.png": {
+    "png": "d859c083890eaedc291d94d2ce8fc8326a1e547071db80a486809c212606d30c",
+    "webp": "44e5aab5a7eac8a148212f80b514b8f8c73e682ea95c983deb9f578499f6bda8"
+  },
   "collection-extension/beetles.png": {
     "png": "33a105ed0f4f965a95b0b25e46dfb8b0fa41b89827eb1e27e4c482f8223cf872",
     "webp": "69a959e3a46e58b55111c6b5750d6636adbb87f6c483452c8d377b83056e2902"
@@ -274,6 +278,10 @@
   "discovery/more-finds.png": {
     "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
     "webp": "f048f53a3312642138725c0c1bfa7d6071a29c9788e07c35658f4661b4c2d255"
+  },
+  "discovery/old-coin.png": {
+    "png": "9e52faf5c2f388031a184f7c0f80353f3613486a0bcb69ae07cb8e0f55c825cc",
+    "webp": "ba88eb22f3cdf2b96bd42b04055ed977b79c935440821e98161eda38c93891c4"
   },
   "discovery/whimsical-finds.png": {
     "png": "dfe7469fd947a890adcd637fcaf56b6dd75d9e719e5d2f18814e21f8e879af81",

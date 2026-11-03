@@ -54,7 +54,7 @@ test('added freshwater creatures have a reachable seasonal pool without becoming
     'splendid_dace',
     'skygazer',
     'melania_snail',
-    'frog',
+    'aucha_perch',
   ]) {
     const fish = catalog.fish.find(item => item.id === id);
     assert.ok(fish, id);
