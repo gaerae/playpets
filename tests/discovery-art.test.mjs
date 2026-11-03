@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { webpName } from '../scripts/art-webp-lib.mjs';
 import { STRINGS } from '../src/core/strings.js';
 
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url));
@@ -59,9 +60,9 @@ test('every discovery catalog asset resolves to a reviewed atlas viewport', () =
     const source = sources.sources.find(item => item.id === asset.source);
     assert.ok(source, art);
     const svg = read(`src/art/${art}`).toString();
-    assert.ok(svg.includes(`href="art/${source.atlas}"`), art);
+    assert.ok(svg.includes(`href="art/${webpName(source.atlas)}"`), art);
     assert.ok(svg.includes('clip-path='), art);
-    assert.equal(read(`src/art/${source.atlas}`).readUInt32BE(16), source.size[0]);
-    assert.equal(read(`src/art/${source.atlas}`)[25], 6, `${art}: RGBA source`);
+    assert.equal(read(`assets/art/${source.atlas}`).readUInt32BE(16), source.size[0]);
+    assert.equal(read(`assets/art/${source.atlas}`)[25], 6, `${art}: RGBA source`);
   }
 });

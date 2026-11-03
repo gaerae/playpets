@@ -1,7 +1,7 @@
 // Textures decode only when their season is visible; small precipitation materials are cached.
 import { canvasFor, decodeImage, materialCache } from './raster.js';
 
-const loadSeasonalImage = () => decodeImage('../art/weather/seasonal.png');
+const loadSeasonalImage = () => decodeImage('../art/weather/seasonal.webp');
 
 export function createWeatherArt(changed, { loadImage = loadSeasonalImage, makeCanvas = canvasFor } = {}) {
   let image = null,

@@ -33,9 +33,9 @@ await cp('src-tauri/icons/tray.png', 'website/public/favicon.png');
 await cp('src-tauri/icons/icon.ico', 'website/public/favicon.ico');
 // The site's live scene uses the same environment layer as the app.
 await mkdir('website/public/yard', { recursive: true });
-await cp('src/art/environments/green.png', 'website/public/yard/green.png');
+await cp('assets/art/environments/green.png', 'website/public/yard/green.png');
 for (const name of ['sun', 'moon', 'small', 'wisps'])
-  await cp(`src/art/sky/${name}.png`, `website/public/yard/${name}.png`);
+  await cp(`assets/art/sky/${name}.png`, `website/public/yard/${name}.png`);
 // The landing page animates the sample pets' real sprite sheets.
 await rm('website/public/pets', { recursive: true, force: true });
 await mkdir('website/public/pets', { recursive: true });

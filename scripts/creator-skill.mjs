@@ -69,7 +69,7 @@ export async function copyCreatorSkill(destination = 'website/public/creator-kit
     ['lakeside', 'lakeside-spring'],
     ['interior', 'studio-cozy-day'],
   ])
-    await cp(`src/art/environments/${file}.png`, `${destination}/${id}.png`);
+    await cp(`assets/art/environments/${file}.png`, `${destination}/${id}.png`);
   return revision;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await copyCreatorSkill();

@@ -7,12 +7,12 @@
     {
       "id": "base",
       "rect": [70, 285, 730, 420],
-      "output": "src/art/discovery/dug-soil.png"
+      "output": "assets/art/discovery/dug-soil.png"
     },
     {
       "id": "winter",
       "rect": [881, 285, 730, 420],
-      "output": "src/art/discovery/dug-soil-winter.png"
+      "output": "assets/art/discovery/dug-soil-winter.png"
     }
   ]
 }

@@ -530,9 +530,9 @@ test('a token defined only for dark mode is read only by dark rules', async () =
 test('indoor flowers use a planter without blocking their controls', async () => {
   const css = await styles();
   const rule = css.match(/\.yard\[data-sky="false"\] \.plant::after\{([^}]*)\}/)?.[1] || '';
-  assert.match(rule, /indoor-planter\.png/);
+  assert.match(rule, /indoor-planter\.webp/);
   assert.match(rule, /pointer-events:none/);
-  await readFile('src/art/decor/indoor-planter.png');
+  await readFile('src/art/decor/indoor-planter.webp');
 });
 
 test('indoor planters follow evening and night flower lighting', async () => {

@@ -1,7 +1,7 @@
 # New Year's dawn glyph
 
 - The built-in image generation tool created `newyear-source.png` on 2026-10-11 (kept in `assets/sources/events/`, with the vector reference beside it).
-- Reference: the project's own `src/art/environments/green.png`, with transparency enabled.
+- Reference: the project's own `assets/art/environments/green.png`, with transparency enabled.
 - The exact generated 1536 × 1024 source is kept.
 - A browser canvas only downsamples it to `newyear.png` at 384 × 256; code draws or
   repairs no shapes.

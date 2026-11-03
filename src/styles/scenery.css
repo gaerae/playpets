@@ -242,7 +242,7 @@
   inset: -50%;
   pointer-events: none;
   background:
-    url("../art/sky/moon.png") center / 50% 50% no-repeat,
+    url("../art/sky/moon.webp") center / 50% 50% no-repeat,
     linear-gradient(var(--orb-glow) 0 0);
   mask: var(--moon-lit) center / 100% 100% no-repeat;
 }
@@ -402,7 +402,7 @@
 .look-fullmoon.moon-full.period-night .sky-body::after {
   background:
     radial-gradient(closest-side, #f5c86a38 99%, transparent) center / 50% 50% no-repeat,
-    url("../art/sky/moon.png") center / 50% 50% no-repeat,
+    url("../art/sky/moon.webp") center / 50% 50% no-repeat,
     linear-gradient(var(--orb-glow) 0 0);
 }
 

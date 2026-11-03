@@ -4,11 +4,11 @@
   "tool": "Built-in image_gen imagegen",
   "references": [
     {
-      "path": "src/art/decor/collection.png",
+      "path": "assets/art/decor/collection.png",
       "role": "Style reference"
     },
     {
-      "path": "src/art/decor/props.png",
+      "path": "assets/art/decor/props.png",
       "role": "Style reference"
     }
   ],

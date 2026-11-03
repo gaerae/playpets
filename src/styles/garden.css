@@ -41,7 +41,7 @@
   bottom: -12%;
   width: 100%;
   height: 45%;
-  background: url("../art/decor/indoor-planter.png") center / 100% 100% no-repeat;
+  background: url("../art/decor/indoor-planter.webp") center / 100% 100% no-repeat;
   pointer-events: none;
 }
 /* Early-stage soil sits inside the pot mouth; blossoms already end at their stem. */
@@ -368,11 +368,11 @@
   height: 37px;
   left: -20px;
   bottom: -16px;
-  background: url("../art/discovery/dug-soil.png") center / contain no-repeat;
+  background: url("../art/discovery/dug-soil.webp") center / contain no-repeat;
   opacity: 0;
 }
 .dig-effect[data-soil="winter"] .dig-soil {
-  background-image: url("../art/discovery/dug-soil-winter.png");
+  background-image: url("../art/discovery/dug-soil-winter.webp");
 }
 .dig-effect.contact .dig-soil {
   opacity: 1;

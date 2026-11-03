@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+
+- Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
+
 ### Website and docs
 
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.

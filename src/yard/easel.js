@@ -69,7 +69,7 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
         last = '';
         paint();
       };
-      image.src = new URL(`../art/sky/${name}.png`, import.meta.url).href;
+      image.src = new URL(`../art/sky/${name}.webp`, import.meta.url).href;
     }
   }
   function loadEnvironment(name) {
@@ -90,7 +90,7 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
     const sources = worldFor(scene.world).imageSources;
     image.src = sources
       ? sources[name.slice(name.lastIndexOf(':') + 1)]
-      : new URL(`../art/environments/${name}.png`, import.meta.url).href;
+      : new URL(`../art/environments/${name}.webp`, import.meta.url).href;
   }
   function paint() {
     const w = yard.clientWidth,

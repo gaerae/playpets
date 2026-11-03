@@ -12,7 +12,7 @@
 | `src-tauri/` | Rust backend, Tauri configuration, capabilities and native icon exports | Website code and generated build output in commits |
 | `website/` | Four-language public pages, Vue theme and public site media | Hand-edited copies of developer docs or generated pet downloads |
 | `docs/` | Current developer instructions, standards, dated decisions and research | User-facing translations maintained on the site |
-| `assets/` | Character source material, accepted atlases, creator references and brand sources | Disposable generation attempts and build logs |
+| `assets/` | Character source material, accepted atlases and PNG art exports, creator references and brand sources | Disposable generation attempts and build logs |
 | `packaging/` | Platform-specific installer resources and local distribution recipes | App behavior and release credentials |
 | `scripts/` | Maintainer commands and pure helpers used by them | Runtime imports from the app |
 | `tests/` | Node test entries, isolated native E2E, helpers and shared fixtures | Private user data and captured build output |

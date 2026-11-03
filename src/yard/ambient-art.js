@@ -17,7 +17,7 @@ function loadBugs() {
     .catch(() => null);
   return bugsReady;
 }
-const loadBirds = () => decodeImage('../art/ambient/birds.png');
+const loadBirds = () => decodeImage('../art/ambient/birds.webp');
 export function createAmbientArt(
   changed,
   { loadBugs: bugs = loadBugs, loadBirds: birds = loadBirds, makeCanvas = canvasFor } = {},

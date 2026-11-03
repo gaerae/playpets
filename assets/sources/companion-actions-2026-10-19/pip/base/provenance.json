@@ -10,7 +10,7 @@
     {
       "action": "dig",
       "plan": "dig-plan.json",
-      "output": "../../../../../src/art/companions/pip/base/dig.png",
+      "output": "../../../../../assets/art/companions/pip/base/dig.png",
       "sourceSha256": "5473f69d3b094268430a2fe54679c888889e68e943c05bc6f10abc533e52d935",
       "outputSha256": "df79a0fbf13aceac730e3105808c192732108a68e439cb95ec624b8f43158e2a",
       "sourceScale": 0.69,
@@ -19,7 +19,7 @@
     {
       "action": "plant",
       "plan": "plant-plan.json",
-      "output": "../../../../../src/art/companions/pip/base/plant.png",
+      "output": "../../../../../assets/art/companions/pip/base/plant.png",
       "sourceSha256": "5473f69d3b094268430a2fe54679c888889e68e943c05bc6f10abc533e52d935",
       "outputSha256": "63a07d39d2e09bdb4fec47e2d760a3a12d26f65eba1afe7442400d45b17121de",
       "sourceScale": 0.69,
@@ -28,7 +28,7 @@
     {
       "action": "discover",
       "plan": "discover-plan.json",
-      "output": "../../../../../src/art/companions/pip/base/discover.png",
+      "output": "../../../../../assets/art/companions/pip/base/discover.png",
       "sourceSha256": "5473f69d3b094268430a2fe54679c888889e68e943c05bc6f10abc533e52d935",
       "outputSha256": "9e6a59d9c29e048a5d9e91745318e9c147f55a209dd48f9786f431fe39f03b12",
       "sourceScale": 0.66,
@@ -37,7 +37,7 @@
     {
       "action": "fish",
       "plan": "fish-plan.json",
-      "output": "../../../../../src/art/companions/pip/base/fish.png",
+      "output": "../../../../../assets/art/companions/pip/base/fish.png",
       "source": "fish-source.png",
       "originalSha256": "b3b46933c62fecaa29d5ad6223a16953e06149df51e725936825393a15c171d3",
       "normalization": "fish-normalization.json",

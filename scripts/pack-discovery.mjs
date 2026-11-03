@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { EXPORTS, webpName } from './art-webp-lib.mjs';
 import { pngSize } from './png-lossless-lib.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -14,7 +15,7 @@ for (const source of manifest.sources) {
   if (width !== source.size[0] || height !== source.size[1]) throw new Error(`Wrong source size: ${source.file}`);
   if (createHash('sha256').update(bytes).digest('hex') !== source.sha256)
     throw new Error(`Source changed: ${source.file}`);
-  const destination = path.join(root, 'src/art', source.atlas);
+  const destination = path.join(root, EXPORTS, source.atlas);
   await mkdir(path.dirname(destination), { recursive: true });
   await copyFile(original, destination);
 }
@@ -42,7 +43,8 @@ for (const asset of manifest.assets) {
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(
     target,
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}"><svg width="${width}" height="${height}" viewBox="${frame.join(' ')}" preserveAspectRatio="xMidYMax meet" overflow="hidden"><defs><clipPath id="${clip}"><rect x="${x}" y="${y}" width="${cropWidth}" height="${cropHeight}"/></clipPath></defs><image href="art/${source.atlas}" width="${source.size[0]}" height="${source.size[1]}" clip-path="url(#${clip})"/></svg></svg>\n`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}"><svg width="${width}" height="${height}" viewBox="${frame.join(' ')}" preserveAspectRatio="xMidYMax meet" overflow="hidden"><defs><clipPath id="${clip}"><rect x="${x}" y="${y}" width="${cropWidth}" height="${cropHeight}"/></clipPath></defs><image href="art/${webpName(source.atlas)}" width="${source.size[0]}" height="${source.size[1]}" clip-path="url(#${clip})"/></svg></svg>\n`,
   );
 }
 console.log(`Packed ${manifest.assets.length} discovery viewports from ${manifest.sources.length} accepted sources`);
+console.log('Run `pnpm run assets:webp` to update the shipped WebP atlases.');

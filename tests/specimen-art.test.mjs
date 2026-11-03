@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { pngFor } from '../scripts/art-webp-lib.mjs';
 import { catalog } from './support/content.mjs';
 
 const art = path => new URL(`../src/art/${path}`, import.meta.url);
@@ -10,7 +11,7 @@ test('specimen viewports isolate a valid part of a local RGBA atlas', () => {
   const indexed = new Set(records.map(record => record.art));
   for (const kind of [...catalog.fish, ...catalog.bugs]) assert.ok(indexed.has(kind.art), kind.id);
   for (const record of records) {
-    const png = readFileSync(art(record.atlas));
+    const png = readFileSync(pngFor(record.atlas));
     const width = png.readUInt32BE(16),
       height = png.readUInt32BE(20);
     assert.deepEqual(record.atlasSize, [width, height]);

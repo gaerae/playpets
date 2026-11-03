@@ -31,8 +31,8 @@ try {
       }),
     );
   }, dataUrl(bytes));
-  await mkdir('src/art/sky', { recursive: true });
-  for (const [name, data] of Object.entries(layers)) await writeFile(`src/art/sky/${name}.png`, dataUrlBytes(data));
+  await mkdir('assets/art/sky', { recursive: true });
+  for (const [name, data] of Object.entries(layers)) await writeFile(`assets/art/sky/${name}.png`, dataUrlBytes(data));
 } finally {
   await browser.close();
 }

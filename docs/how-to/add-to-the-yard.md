@@ -88,10 +88,10 @@ Collection art:
 - Current collection art uses generated transparent atlases and SVG crop wrappers.
 - `src/art/collection.json` records each specimen's atlas, reviewed crop and display size.
 - `scripts/pack-collection.mjs` reproduces each wrapper.
-- Preserve the accepted PNG source and record prompts and provenance alongside it.
+- Keep the PNG atlas in `assets/art/` with its prompts and provenance, then run `pnpm run assets:webp`; the wrapper's `<image>` names the `.webp` copy in `src/art/` ([shipped WebP](../../assets/README.md)).
 - Measure each crop rather than assuming equally spaced generated cells.
 - Review the whole body, the alpha, the isolation from neighbouring cells and the real album and yard size.
-- See `src/art/COLLECTION.md` and the related specimen and atlas tests.
+- See `assets/art/COLLECTION.md` and the related specimen and atlas tests.
 - The original vector and procedural drawings stay as fallback and reference material.
 
 Vector drawings:
@@ -107,7 +107,7 @@ Vector drawings:
   - `--bird`: 1 by day, 0 at night and in rain or snow; use it as an opacity
   - a flower's `--petal`, `--petal-hi`, `--petal-lo`, `--heart`
 - A fixed colour (`fill:#c45c4a`) stays the same in every light.
-- The shipped drawings now wrap painted atlases (an `<image>` of a PNG cell) and use none of these names.
+- The shipped drawings now wrap painted atlases (an `<image>` of a WebP cell) and use none of these names.
 - The names are still how a vector drawing takes on the yard's light.
 - Move a drawing the content no longer names to `assets/sources/`, out of `src/art/`, which ships inside the app.
 - Nothing in a drawing runs. Scripts and `on…` attributes are stripped when it loads, and a test refuses them.

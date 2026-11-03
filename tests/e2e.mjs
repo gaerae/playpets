@@ -617,8 +617,10 @@ const scenario = `(async()=>{
     await until(()=>$('yard').classList.contains('world-woodland'));
     await L('worldSwitch='+(roomClean&&indoorGame&&!st.game&&!$('weather').disabled&&onLake(lx,ly)?'indoor-clean-and-games-outdoor-restored':'err'));
     // The exported format enters through the same file input as a downloaded studio package.
-    const png=await fetch('./art/environments/green.png').then(r=>r.blob());
-    const pngUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(png);});
+    // Packs carry PNG; the app's own scenes ship as WebP, so the fixture is redrawn as PNG.
+    const scene=new Image();scene.src='./art/environments/green.webp';await scene.decode();
+    const sceneCanvas=Object.assign(document.createElement('canvas'),{width:scene.naturalWidth,height:scene.naturalHeight});sceneCanvas.getContext('2d').drawImage(scene,0,0);
+    const pngUrl=sceneCanvas.toDataURL('image/png');
     const portable={format:'playpets-background',version:1,name:'Native studio fixture',images:{base:pngUrl,spring:pngUrl,summer:pngUrl,autumn:pngUrl,winter:pngUrl},floor:0.66,water:{from:0.48,to:0.7,center:0.595,radius:0.018},fishingSpot:{x:0.48,y:0.68},sky:true,weather:true,ambient:false,windows:[]};
     const transfer=new DataTransfer();transfer.items.add(new File([JSON.stringify(portable)],'studio.json',{type:'application/json'}));
     $('background-file').files=transfer.files;$('background-file').dispatchEvent(new Event('change',{bubbles:true}));
@@ -1199,7 +1201,7 @@ const scenario = `(async()=>{
     const soilNode=effect?.querySelector('.dig-soil'),soilBackground=soilNode&&getComputedStyle(soilNode).backgroundImage,soilAtlas=new Image();
     if(soilBackground?.startsWith('url('))soilAtlas.src=soilBackground.slice(4,-1).replaceAll('"','');
     const soilDecoded=await until(()=>soilAtlas.complete&&soilAtlas.naturalWidth>0,10000);
-    const soilLayer=!!soilNode&&effect.dataset.soil==='base'&&soilBackground.includes('dug-soil.png')&&Number(effect.style.zIndex)<Number(cloverView.button.style.zIndex);
+    const soilLayer=!!soilNode&&effect.dataset.soil==='base'&&soilBackground.includes('dug-soil.webp')&&Number(effect.style.zIndex)<Number(cloverView.button.style.zIndex);
     let soilContact=false;
 
     const bodyFrames=new Set(),startAt=authoredStarted?.since||performance.now();
@@ -1438,7 +1440,7 @@ const expect = [
   ],
   [
     /^authoredSoil=decoded-contact-depth-clean$/,
-    'the real transparent soil PNG appears on contact behind the paws and clears after the saved discovery',
+    'the real transparent soil picture appears on contact behind the paws and clears after the saved discovery',
   ],
   [
     /^weatherSeason=independent-radio-and-render$/,

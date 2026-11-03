@@ -30,8 +30,8 @@ test('Pages redeploys when shared application artwork or publishing inputs chang
     'website/ja/guide/install.md',
     'docs/how-to/website.md',
     'assets/pets/aria/realistic/spritesheet.png',
-    'src/art/environments/green.png',
-    'src/art/sky/sun.png',
+    'assets/art/environments/green.png',
+    'assets/art/sky/sun.png',
     'src/core/animation.js',
     'src/core/season.js',
     'src/yard/background-pack.js',
@@ -135,7 +135,7 @@ test('ignore rules retain examples, fixtures, artwork sources and shared configu
     'tests/fixtures/archive.zip',
     'assets/pets/daisy/generated-originals/identity.png',
     'assets/pets/daisy/ART-SOURCES.json',
-    'src/art/weather/README.md',
+    'assets/art/weather/GENERATION.md',
     'website/public/video.json',
     'signing.key.pub',
     'docs/release/notes.md',
@@ -189,7 +189,7 @@ test('installer packages, fonts and certificates are binary, batch files keep CR
     'packaging/test.cer',
     'packaging/libmsix.dylib',
   ];
-  const generated = ['src/art/ambient/birds.png.json', 'assets/creator-kit/aria/kit.json'];
+  const generated = ['assets/art/ambient/birds.png.json', 'assets/creator-kit/aria/kit.json'];
   const paths = [...binary, ...generated, 'scripts/run.bat', 'assets/creator-kit/README.md'];
   const values = execFileSync('git', ['check-attr', '-z', '--stdin', 'binary', 'eol', 'linguist-generated'], {
     input: `${paths.join('\0')}\0`,

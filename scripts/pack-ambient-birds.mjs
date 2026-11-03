@@ -5,7 +5,7 @@ import { atlasPoses, isolatePose } from './atlas-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 
 // The generated original is provenance, kept outside the shipped art (assets/sources).
-const out = fileURLToPath(new URL('../src/art/ambient', import.meta.url)),
+const out = fileURLToPath(new URL('../assets/art/ambient', import.meta.url)),
   kept = fileURLToPath(new URL('../assets/sources/ambient/birds-source.png', import.meta.url)),
   source = process.argv[2] || kept;
 await mkdir(out, { recursive: true });

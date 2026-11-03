@@ -21,7 +21,7 @@ export function siteImagePlan(sources) {
 // Returns the scenes written, for generated.json. Without a browser the site still builds: the
 // scenes then show the PNGs and the icon is the app's own 1024 px one.
 export async function exportSiteImages(launch = launchBrowser) {
-  const folder = 'src/art/environments';
+  const folder = 'assets/art/environments';
   const sources = (await readdir(folder)).filter(name => name.endsWith('.png')).map(name => `${folder}/${name}`);
   const plan = siteImagePlan(sources.sort());
   await mkdir(path.dirname(plan.icon.destination), { recursive: true });

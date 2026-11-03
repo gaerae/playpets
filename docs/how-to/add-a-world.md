@@ -18,7 +18,7 @@
    - For weather through windows, enable `weather` and define `windowPanes` as normalized `x`, `y`, `width` and `height` rectangles over the glass.
    - Rain, snow and overcast shading share the background crop and stay inside those panes.
    - Do not enable fishing to make an activity button work when the image has no usable water.
-5. Put generated or illustrated images in `src/art/environments/`. Keep earlier source assets.
+5. Put generated or illustrated images in `assets/art/environments/` and run `pnpm run assets:webp` for the copies in `src/art/environments/`. Keep earlier source assets.
    - With authored lighting, name the images in `art.morning`, `art.day`, `art.evening` and `art.night`, and set `"authoredLighting": true` so `environmentLook` does not tint the painted light again.
    - Without it, `environmentLook` lights each time of day in a place with pictures with its own gentle filter and tint.
 6. Set `fit` to keep the image's proportions as the window changes shape.
