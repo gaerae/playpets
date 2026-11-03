@@ -108,6 +108,97 @@
         "role": "Style reference only"
       },
       "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "ginkgo",
+      "file": "ginkgo-source.png",
+      "atlas": "trees/ginkgo.png",
+      "size": [1536, 1024],
+      "sha256": "8a2376d416e58e9f2f454e4db8bc750ae3a1b37e282e29d7fc87782ac057a014",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. Reference image is STYLE ONLY: match its warm tactile miniature sculpted illustration, detailed natural hand-painted wood/leaves, crisp botanical silhouette, soft top-left light. Create NEW tree species, not cherries/maples/pines/birches/oaks/willows. Genuine transparent RGBA, no floor, cast shadow, background, checkerboard ink, labels, text, grid or pot. Six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside cells with transparent gutters. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered. Row1: small seedling (30% cell height), young sapling (60%), mature SUMMER tree (85%). Row2: same mature tree SPRING, AUTUMN, WINTER (all 85%, same trunk branching/root identity and proportions). Little root rosette as reference, no large dirt mound. Designed to look polished at 35/70/160 CSS pixels.\nGinkgo: upright grey-brown trunk with short ascending branches and a tall slightly irregular crown of small fan-shaped two-lobed leaves. Summer rich green fans; spring fresh pale lime fans; autumn brilliant pure golden-yellow fans with a few fallen at the roots; winter bare twiggy branches with short spur shoots.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "persimmon",
+      "file": "persimmon-source.png",
+      "atlas": "trees/persimmon.png",
+      "size": [1536, 1024],
+      "sha256": "5f6ef2c5bb57e1692e346028fae2ae740bea5769d8a82afc3fdf2f8f180521e1",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. Reference image is STYLE ONLY: match its warm tactile miniature sculpted illustration, detailed natural hand-painted wood/leaves, crisp botanical silhouette, soft top-left light. Create NEW tree species, not cherries/maples/pines/birches/oaks/willows. Genuine transparent RGBA, no floor, cast shadow, background, checkerboard ink, labels, text, grid or pot. Six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside cells with transparent gutters. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered. Row1: small seedling (30% cell height), young sapling (60%), mature SUMMER tree (85%). Row2: same mature tree SPRING, AUTUMN, WINTER (all 85%, same trunk branching/root identity and proportions). Little root rosette as reference, no large dirt mound. Designed to look polished at 35/70/160 CSS pixels.\nPersimmon: dark furrowed blocky-bark trunk, gnarled spreading branches, broad rounded crown of glossy oval leaves. Summer deep glossy green leaves with small green fruits; spring fresh light green leaves with tiny cream four-petal flowers; autumn orange-red leaves with many round ORANGE persimmon fruits; winter bare dark branches still holding several bright orange persimmons.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "bamboo",
+      "file": "bamboo-source.png",
+      "atlas": "trees/bamboo.png",
+      "size": [1536, 1024],
+      "sha256": "2308990b8de34e59f5744ec2e426e998480e5cc4629a341ed8b9d045fe8860d5",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. Reference image is STYLE ONLY: match its warm tactile miniature sculpted illustration, detailed natural hand-painted wood/leaves, crisp botanical silhouette, soft top-left light. Create NEW tree species, not cherries/maples/pines/birches/oaks/willows. Genuine transparent RGBA, no floor, cast shadow, background, checkerboard ink, labels, text, grid or pot. Six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside cells with transparent gutters. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered. Row1: small seedling (30% cell height), young sapling (60%), mature SUMMER tree (85%). Row2: same mature tree SPRING, AUTUMN, WINTER (all 85%, same trunk branching/root identity and proportions). Little root rosette as reference, no large dirt mound. Designed to look polished at 35/70/160 CSS pixels.\nBamboo: an evergreen clump of three to five tall straight segmented green culms with visible nodes, slender side branches and feathery sprays of narrow lance leaves; seedling is a single new shoot with papery sheath, young is two short culms. Summer lush green; spring same lush green with one new pale sheath-wrapped shoot at the base; autumn same green with a few yellowing leaves; winter same green with a light dusting of snow on the leaf sprays.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "magnolia",
+      "file": "magnolia-source.png",
+      "atlas": "trees/magnolia.png",
+      "size": [1536, 1024],
+      "sha256": "4533b4db8ee912e2f126a76ccb916264eeb4b7fd37d5d68029d937abd2fbdd74",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. Reference image is STYLE ONLY: match its warm tactile miniature sculpted illustration, detailed natural hand-painted wood/leaves, crisp botanical silhouette, soft top-left light. Create NEW tree species, not cherries/maples/pines/birches/oaks/willows. Genuine transparent RGBA, no floor, cast shadow, background, checkerboard ink, labels, text, grid or pot. Six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside cells with transparent gutters. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered. Row1: small seedling (30% cell height), young sapling (60%), mature SUMMER tree (85%). Row2: same mature tree SPRING, AUTUMN, WINTER (all 85%, same trunk branching/root identity and proportions). Little root rosette as reference, no large dirt mound. Designed to look polished at 35/70/160 CSS pixels.\nMagnolia: smooth silver-grey trunk with a few strong upturned branches and an oval crown. Summer large broad glossy green leaves; spring BARE branches covered in big upright creamy WHITE cup-shaped flowers with a soft pink blush at the base; autumn broad leaves turning tawny gold-brown; winter bare branches tipped with fuzzy silver-grey flower buds.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "crape_myrtle",
+      "file": "crape_myrtle-source.png",
+      "atlas": "trees/crape_myrtle.png",
+      "size": [1536, 1024],
+      "sha256": "2e3913e17b8fcc80a4db7032817892350ee321fcdb2d93bc426baca506886487",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. Reference image is STYLE ONLY: match its warm tactile miniature sculpted illustration, detailed natural hand-painted wood/leaves, crisp botanical silhouette, soft top-left light. Create NEW tree species, not cherries/maples/pines/birches/oaks/willows. Genuine transparent RGBA, no floor, cast shadow, background, checkerboard ink, labels, text, grid or pot. Six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside cells with transparent gutters. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered. Row1: small seedling (30% cell height), young sapling (60%), mature SUMMER tree (85%). Row2: same mature tree SPRING, AUTUMN, WINTER (all 85%, same trunk branching/root identity and proportions). Little root rosette as reference, no large dirt mound. Designed to look polished at 35/70/160 CSS pixels.\nCrape myrtle: smooth mottled tan and pinkish-cream peeling bark, a multi-stem twisting trunk and a broad vase-shaped crown. Summer green small leaves with big frothy clusters of crinkled MAGENTA-PINK flowers at the branch tips; spring fresh bronze-green new leaves, no flowers; autumn leaves turning orange and red, a few seed clusters; winter bare twisting smooth mottled branches.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "metasequoia",
+      "file": "metasequoia-source.png",
+      "atlas": "trees/metasequoia.png",
+      "size": [1536, 1024],
+      "sha256": "62e075c5f61df462b056a3879e1f7afc180791df3ad09664345aceddc2ab6652",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. Reference image is STYLE ONLY: match its warm tactile miniature sculpted illustration, detailed natural hand-painted wood/leaves, crisp botanical silhouette, soft top-left light. Create NEW tree species, not cherries/maples/pines/birches/oaks/willows. Genuine transparent RGBA, no floor, cast shadow, background, checkerboard ink, labels, text, grid or pot. Six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside cells with transparent gutters. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered. Row1: small seedling (30% cell height), young sapling (60%), mature SUMMER tree (85%). Row2: same mature tree SPRING, AUTUMN, WINTER (all 85%, same trunk branching/root identity and proportions). Little root rosette as reference, no large dirt mound. Designed to look polished at 35/70/160 CSS pixels.\nMetasequoia (dawn redwood): a single straight reddish-brown fibrous trunk and a tall narrow symmetrical CONICAL crown of soft feathery flat needle sprays. Summer soft fresh green; spring bright pale lime green; autumn rich russet orange-brown; winter bare conical frame of fine horizontal twigs on the straight trunk. Clearly deciduous and softer than a pine.",
+      "input": {
+        "path": "assets/discovery/trees-growth-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "more-finds",
+      "file": "more-finds-source.png",
+      "atlas": "discovery/more-finds.png",
+      "size": [1774, 887],
+      "sha256": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game keepsake sprites. Reference image is STYLE REFERENCE ONLY. Match its warm sculpted illustrated materials, soft hand-painted detail, crisp edges, natural tactile finish and soft top-left lighting. Create a genuine transparent RGBA sprite sheet with exactly EIGHT isolated whole objects in a strict FOUR columns by TWO rows grid of equal cells, generous clear gutters, no background, no checkerboard ink, no ground shadow, no text/labels/brands or extra objects. Each fills about 65% of its cell width, orthographic slightly top-front view; all readable at 40 CSS pixels. Row1: an empty translucent amber-brown cicada shell clinging shape with split back and little legs; one long soft blue jay-like feather with a fine banded tip; one brown pine cone with open scales; one small old brass key with a round loop and simple teeth. Row2: a folded white paper boat with soft creases; a small wooden spinning top painted in faded red and green bands with a short tip; one lustrous irregular freshwater pearl, soft cream with pink-silver sheen, resting on a small half mussel shell; one four-leaf clover with heart-shaped leaflets and a short stem. Distinctive silhouettes, tasteful, preserve genuine alpha.",
+      "input": {
+        "path": "assets/discovery/finds-source.png",
+        "role": "Style reference only"
+      },
+      "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha."
     }
   ],
   "assets": [
@@ -494,6 +585,355 @@
       "art": "discovery/star_fragment.svg",
       "size": [40, 40],
       "crop": [687, 683, 476, 481],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "ginkgo-seedling",
+      "source": "ginkgo",
+      "art": "trees/ginkgo-seedling.svg",
+      "size": [35, 40],
+      "crop": [206, 335, 117, 142],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "ginkgo-young",
+      "source": "ginkgo",
+      "art": "trees/ginkgo-young.svg",
+      "size": [70, 95],
+      "crop": [636, 129, 238, 351],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "ginkgo-mature",
+      "source": "ginkgo",
+      "art": "trees/ginkgo-mature.svg",
+      "size": [160, 170],
+      "crop": [1062, 0, 417, 480],
+      "anchor": [0.5, 1],
+      "frame": [1062.0, -1, 417, 481]
+    },
+    {
+      "id": "ginkgo-mature-spring",
+      "source": "ginkgo",
+      "art": "trees/ginkgo-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [42, 512, 416, 481],
+      "anchor": [0.5, 1],
+      "frame": [41.5, 512, 417, 481]
+    },
+    {
+      "id": "ginkgo-mature-autumn",
+      "source": "ginkgo",
+      "art": "trees/ginkgo-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [553, 511, 414, 481],
+      "anchor": [0.5, 1],
+      "frame": [551.5, 511, 417, 481]
+    },
+    {
+      "id": "ginkgo-mature-winter",
+      "source": "ginkgo",
+      "art": "trees/ginkgo-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1082, 516, 388, 477],
+      "anchor": [0.5, 1],
+      "frame": [1067.5, 512, 417, 481]
+    },
+    {
+      "id": "persimmon-seedling",
+      "source": "persimmon",
+      "art": "trees/persimmon-seedling.svg",
+      "size": [35, 40],
+      "crop": [190, 303, 150, 175],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "persimmon-young",
+      "source": "persimmon",
+      "art": "trees/persimmon-young.svg",
+      "size": [70, 95],
+      "crop": [589, 116, 347, 363],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "persimmon-mature",
+      "source": "persimmon",
+      "art": "trees/persimmon-mature.svg",
+      "size": [160, 170],
+      "crop": [1019, 7, 509, 474],
+      "anchor": [0.5, 1],
+      "frame": [1019.0, 7, 509, 474]
+    },
+    {
+      "id": "persimmon-mature-spring",
+      "source": "persimmon",
+      "art": "trees/persimmon-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [2, 522, 504, 470],
+      "anchor": [0.5, 1],
+      "frame": [-0.5, 518, 509, 474]
+    },
+    {
+      "id": "persimmon-mature-autumn",
+      "source": "persimmon",
+      "art": "trees/persimmon-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [513, 519, 504, 473],
+      "anchor": [0.5, 1],
+      "frame": [510.5, 518, 509, 474]
+    },
+    {
+      "id": "persimmon-mature-winter",
+      "source": "persimmon",
+      "art": "trees/persimmon-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1023, 520, 509, 472],
+      "anchor": [0.5, 1],
+      "frame": [1023.0, 518, 509, 474]
+    },
+    {
+      "id": "bamboo-seedling",
+      "source": "bamboo",
+      "art": "trees/bamboo-seedling.svg",
+      "size": [35, 40],
+      "crop": [210, 284, 118, 194],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "bamboo-young",
+      "source": "bamboo",
+      "art": "trees/bamboo-young.svg",
+      "size": [70, 95],
+      "crop": [623, 124, 259, 355],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "bamboo-mature",
+      "source": "bamboo",
+      "art": "trees/bamboo-mature.svg",
+      "size": [160, 170],
+      "crop": [1034, 15, 446, 466],
+      "anchor": [0.5, 1],
+      "frame": [1034.0, 15, 446, 466]
+    },
+    {
+      "id": "magnolia-seedling",
+      "source": "magnolia",
+      "art": "trees/magnolia-seedling.svg",
+      "size": [35, 40],
+      "crop": [188, 297, 144, 177],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "magnolia-young",
+      "source": "magnolia",
+      "art": "trees/magnolia-young.svg",
+      "size": [70, 95],
+      "crop": [603, 108, 285, 369],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "magnolia-mature",
+      "source": "magnolia",
+      "art": "trees/magnolia-mature.svg",
+      "size": [160, 170],
+      "crop": [1007, 3, 499, 476],
+      "anchor": [0.5, 1],
+      "frame": [1007.0, -8, 499, 487]
+    },
+    {
+      "id": "magnolia-mature-spring",
+      "source": "magnolia",
+      "art": "trees/magnolia-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [16, 514, 465, 483],
+      "anchor": [0.5, 1],
+      "frame": [-1.0, 510, 499, 487]
+    },
+    {
+      "id": "magnolia-mature-autumn",
+      "source": "magnolia",
+      "art": "trees/magnolia-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [508, 518, 496, 479],
+      "anchor": [0.5, 1],
+      "frame": [506.5, 510, 499, 487]
+    },
+    {
+      "id": "magnolia-mature-winter",
+      "source": "magnolia",
+      "art": "trees/magnolia-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1039, 511, 463, 487],
+      "anchor": [0.5, 1],
+      "frame": [1021.0, 511, 499, 487]
+    },
+    {
+      "id": "crape_myrtle-seedling",
+      "source": "crape_myrtle",
+      "art": "trees/crape_myrtle-seedling.svg",
+      "size": [35, 40],
+      "crop": [178, 305, 122, 158],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "crape_myrtle-young",
+      "source": "crape_myrtle",
+      "art": "trees/crape_myrtle-young.svg",
+      "size": [70, 95],
+      "crop": [595, 129, 290, 339],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "crape_myrtle-mature",
+      "source": "crape_myrtle",
+      "art": "trees/crape_myrtle-mature.svg",
+      "size": [160, 170],
+      "crop": [1008, 5, 516, 466],
+      "anchor": [0.5, 1],
+      "frame": [1008.0, 5, 516, 466]
+    },
+    {
+      "id": "crape_myrtle-mature-spring",
+      "source": "crape_myrtle",
+      "art": "trees/crape_myrtle-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [8, 524, 489, 460],
+      "anchor": [0.5, 1],
+      "frame": [-5.5, 518, 516, 466]
+    },
+    {
+      "id": "crape_myrtle-mature-autumn",
+      "source": "crape_myrtle",
+      "art": "trees/crape_myrtle-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [516, 524, 496, 460],
+      "anchor": [0.5, 1],
+      "frame": [506.0, 518, 516, 466]
+    },
+    {
+      "id": "crape_myrtle-mature-winter",
+      "source": "crape_myrtle",
+      "art": "trees/crape_myrtle-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1026, 530, 496, 455],
+      "anchor": [0.5, 1],
+      "frame": [1016.0, 519, 516, 466]
+    },
+    {
+      "id": "metasequoia-seedling",
+      "source": "metasequoia",
+      "art": "trees/metasequoia-seedling.svg",
+      "size": [35, 40],
+      "crop": [215, 326, 130, 158],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "metasequoia-young",
+      "source": "metasequoia",
+      "art": "trees/metasequoia-young.svg",
+      "size": [70, 95],
+      "crop": [664, 164, 201, 321],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "metasequoia-mature",
+      "source": "metasequoia",
+      "art": "trees/metasequoia-mature.svg",
+      "size": [160, 170],
+      "crop": [1106, 6, 307, 483],
+      "anchor": [0.5, 1],
+      "frame": [1103.5, 4, 312, 485]
+    },
+    {
+      "id": "metasequoia-mature-spring",
+      "source": "metasequoia",
+      "art": "trees/metasequoia-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [119, 519, 311, 485],
+      "anchor": [0.5, 1],
+      "frame": [118.5, 519, 312, 485]
+    },
+    {
+      "id": "metasequoia-mature-autumn",
+      "source": "metasequoia",
+      "art": "trees/metasequoia-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [610, 519, 312, 485],
+      "anchor": [0.5, 1],
+      "frame": [610.0, 519, 312, 485]
+    },
+    {
+      "id": "metasequoia-mature-winter",
+      "source": "metasequoia",
+      "art": "trees/metasequoia-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1107, 520, 309, 483],
+      "anchor": [0.5, 1],
+      "frame": [1105.5, 518, 312, 485]
+    },
+    {
+      "id": "cicada_shell",
+      "source": "more-finds",
+      "art": "discovery/cicada_shell.svg",
+      "size": [40, 40],
+      "crop": [62, 83, 348, 316],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "blue_feather",
+      "source": "more-finds",
+      "art": "discovery/blue_feather.svg",
+      "size": [40, 40],
+      "crop": [498, 45, 349, 374],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "pinecone",
+      "source": "more-finds",
+      "art": "discovery/pinecone.svg",
+      "size": [40, 40],
+      "crop": [941, 47, 340, 372],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "old_key",
+      "source": "more-finds",
+      "art": "discovery/old_key.svg",
+      "size": [40, 40],
+      "crop": [1465, 45, 186, 377],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "paper_boat",
+      "source": "more-finds",
+      "art": "discovery/paper_boat.svg",
+      "size": [40, 40],
+      "crop": [40, 555, 377, 225],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "spinning_top",
+      "source": "more-finds",
+      "art": "discovery/spinning_top.svg",
+      "size": [40, 40],
+      "crop": [517, 481, 303, 354],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "freshwater_pearl",
+      "source": "more-finds",
+      "art": "discovery/freshwater_pearl.svg",
+      "size": [40, 40],
+      "crop": [910, 514, 379, 295],
+      "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "four_leaf_clover",
+      "source": "more-finds",
+      "art": "discovery/four_leaf_clover.svg",
+      "size": [40, 40],
+      "crop": [1381, 482, 335, 364],
       "anchor": [0.5, 0.5]
     }
   ]

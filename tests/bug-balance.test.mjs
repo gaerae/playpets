@@ -31,9 +31,9 @@ test('individual wildlife chances share the actual group split and preserve ever
 test('ordinary fireflies remain common while the festival species is a small part of its pool', () => {
   assert.equal(typeof catalog.bugChances, 'function');
   const ordinary = catalog.bugChances('summer', 'night', 'clear');
-  assert.ok(Math.abs(ordinary.find(b => b.id === 'firefly').chance - 70 / 95) < 1e-12);
+  assert.ok(Math.abs(ordinary.find(b => b.id === 'firefly').chance - 70 / 110) < 1e-12);
   const festival = catalog.bugChances('summer', 'night', 'clear', 'fireflies');
-  assert.ok(Math.abs(festival.find(b => b.id === 'golden_firefly').chance - 1 / 96) < 1e-12);
+  assert.ok(Math.abs(festival.find(b => b.id === 'golden_firefly').chance - 1 / 111) < 1e-12);
   assert.deepEqual(
     catalog.bugChances('spring', 'night', 'clear').map(b => [b.id, b.chance]),
     [['firefly', 1]],
@@ -44,9 +44,7 @@ test('ordinary fireflies remain common while the festival species is a small par
   assert.deepEqual(rare, [
     'black_swallowtail',
     'butterfly_dragonfly',
-    'emperor_dragonfly',
     'golden_firefly',
-    'peacock',
     'purple_emperor',
     'rhinoceros_beetle',
   ]);

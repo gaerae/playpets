@@ -9,14 +9,14 @@ import { catalog } from './support/content.mjs';
 const books = ['flowers', 'fish', 'bugs', 'gifts', 'trees', 'treasures'];
 const seasons = ['spring', 'summer', 'autumn', 'winter'];
 
-test('the collection has 115 distinct entries with four equally reachable flowers per season', () => {
+test('the collection has 150 distinct entries with six equally reachable flowers per season', () => {
   assert.equal(
     books.reduce((sum, book) => sum + catalog[book].length, 0),
-    115,
+    150,
   );
   for (const season of seasons) {
     const kinds = catalog.flowers.filter(item => item.season === season);
-    assert.equal(kinds.length, 4, season);
+    assert.equal(kinds.length, 6, season);
     const found = new Set(Array.from({ length: 400 }, (_, i) => flowerFor(season, () => (i + 0.5) / 400)));
     assert.deepEqual(found, new Set(kinds.map(item => item.id)));
   }
@@ -51,6 +51,10 @@ test('added freshwater creatures have a reachable seasonal pool without becoming
     'dark_sleeper',
     'mitten_crab',
     'mussel',
+    'splendid_dace',
+    'skygazer',
+    'melania_snail',
+    'frog',
   ]) {
     const fish = catalog.fish.find(item => item.id === id);
     assert.ok(fish, id);
@@ -76,7 +80,7 @@ test('an ordinary bug is one in twenty somewhere, a rare one never more', () => 
     else assert.ok(best[bug.id] > 0.05, `${bug.id} ${best[bug.id]}`);
 });
 
-test('green field cricket keeps its grounded discovery route in the 115-entry collection', () => {
+test('green field cricket keeps its grounded discovery route in the 150-entry collection', () => {
   const cricket = catalog.bugs.find(bug => bug.id === 'field_cricket');
   assert.ok(cricket);
   assert.equal(cricket.kind, 'cricket');
@@ -87,7 +91,7 @@ test('green field cricket keeps its grounded discovery route in the 115-entry co
     catalog.bugs.some(bug => bug.id === 'stag_beetle'),
     false,
   );
-  assert.equal(catalog.bugs.length, 26);
+  assert.equal(catalog.bugs.length, 28);
 });
 
 test('over a year a rare fish bites less often than any ordinary one', () => {
@@ -188,4 +192,14 @@ test('everyday fish are common, golden ones the rarest, and an event special sta
     assert.ok(during(catalog.fish, other => fishWeight(other, 'clear'), fish) <= 0.03, fish.id);
   for (const bug of catalog.bugs.filter(bug => bug.event))
     assert.ok(during(catalog.bugs, other => other.weight, bug) <= 0.03, bug.id);
+});
+
+test('each book keeps its rare finds to about one in five', () => {
+  const rare = kind => kind.rarity === 'rare' || Boolean(kind.event);
+  for (const book of ['fish', 'bugs', 'gifts']) {
+    const share = catalog[book].filter(rare).length / catalog[book].length;
+    assert.ok(share >= 0.1 && share <= 0.2, `${book} ${share}`);
+  }
+  const uncommon = catalog.treasures.filter(item => item.rarity === 'uncommon').length / catalog.treasures.length;
+  assert.ok(uncommon >= 0.2 && uncommon <= 0.25, `keepsakes ${uncommon}`);
 });

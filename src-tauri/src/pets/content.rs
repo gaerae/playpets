@@ -311,7 +311,7 @@ mod tests {
         );
         assert_eq!(event_gift("blossom", "2026-06-05"), None);
         assert_eq!(event_gift("lights", "2026-12-31"), Some("snowman"));
-        assert_eq!(event_gift("newyear", "2027-01-02"), None, "an event without a gift");
+        assert_eq!(event_gift("newyear", "2027-01-02"), Some("kite"));
         assert_eq!(event_gift("bogus", "2026-04-05"), None);
         // The dates the page is checked against too (tests/fixtures/event-dates.json): on every day
         // the page sees an event with a gift, north or south, the backend gives that gift.

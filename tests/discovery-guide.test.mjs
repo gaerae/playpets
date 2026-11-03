@@ -27,7 +27,7 @@ test('wildlife availability follows actual clear-day, warm-evening and autumn-ni
 test('event species only enter their active event pool', () => {
   assert.ok(!eligibleKinds(catalog.bugs, 'summer', 'night').some(b => b.id === 'golden_firefly'));
   const pool = eligibleKinds(catalog.bugs, 'summer', 'night', 'fireflies').filter(b => b.kind === 'firefly');
-  assert.equal(relativeChances(pool, b => b.weight).find(b => b.id === 'golden_firefly').chance, 1 / 96);
+  assert.equal(relativeChances(pool, b => b.weight).find(b => b.id === 'golden_firefly').chance, 1 / 111);
 });
 
 test('shared wildlife predicate preserves every valid scenery condition', () => {
@@ -79,10 +79,10 @@ test('guide bug percentages use one actual spawned-individual pool, not two full
   assert.deepEqual(discoveryBugChances(catalog, 'summer', 'day', 'rain'), []);
   assert.deepEqual(discoveryBugChances(catalog, 'summer', 'night', 'snow', 'fireflies'), []);
   const festival = discoveryBugChances(catalog, 'summer', 'night', 'clear', 'fireflies');
-  assert.ok(Math.abs(festival.find(item => item.id === 'golden_firefly').chance - 1 / 96) < 1e-12);
+  assert.ok(Math.abs(festival.find(item => item.id === 'golden_firefly').chance - 1 / 111) < 1e-12);
 });
 
-test('all 115 album entries remain reachable and event gifts retain calendar gates', async () => {
+test('all 150 album entries remain reachable and event gifts retain calendar gates', async () => {
   const { discoveryBugChances, discoveryFindChances } = await import('../website/.vitepress/theme/discovery-odds.js');
   const { LIMITS } = await import('../src/core/limits.js');
   const events = JSON.parse(await readFile(new URL('../src/content/events.json', import.meta.url))).events;
@@ -117,7 +117,7 @@ test('all 115 album entries remain reachable and event gifts retain calendar gat
   for (const [book, found] of Object.entries(seen)) assert.equal(found.size, catalog[book].length, book);
   assert.equal(
     Object.values(seen).reduce((sum, found) => sum + found.size, 0),
-    115,
+    150,
   );
 });
 

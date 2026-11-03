@@ -8,12 +8,25 @@ const read = name => readFileSync(new URL(`../${name}`, import.meta.url));
 const catalog = JSON.parse(read('src/content/catalog.json'));
 const sources = JSON.parse(read('assets/discovery/ART-SOURCES.json'));
 
-test('discovery offers six distinct tree species with growth and deciduous seasonal art', () => {
+test('discovery offers twelve distinct tree species with growth and deciduous seasonal art', () => {
   assert.deepEqual(
     catalog.trees.map(tree => tree.id),
-    ['cherry', 'maple', 'pine', 'oak', 'birch', 'willow'],
+    [
+      'cherry',
+      'maple',
+      'pine',
+      'oak',
+      'birch',
+      'willow',
+      'ginkgo',
+      'persimmon',
+      'bamboo',
+      'magnolia',
+      'crape_myrtle',
+      'metasequoia',
+    ],
   );
-  for (const id of ['oak', 'birch', 'willow']) {
+  for (const id of ['oak', 'birch', 'willow', 'ginkgo', 'persimmon', 'magnolia', 'crape_myrtle', 'metasequoia']) {
     const tree = catalog.trees.find(item => item.id === id);
     assert.deepEqual(
       tree.stages.map(stage => stage.name),
@@ -31,6 +44,9 @@ test('whimsical keepsakes have translated names and year-round weighted discover
     ['tiny_crown', 'uncommon'],
     ['star_fragment', 'uncommon'],
     ...['glass_marble', 'wooden_whale', 'felt_mushroom', 'acorn_teacup', 'sleeping_fox'].map(id => [id, 'common']),
+    ...['cicada_shell', 'blue_feather', 'pinecone', 'old_key', 'paper_boat', 'spinning_top'].map(id => [id, 'common']),
+    ['freshwater_pearl', 'uncommon'],
+    ['four_leaf_clover', 'uncommon'],
   ]) {
     const treasure = catalog.treasures.find(item => item.id === id);
     assert.equal(treasure?.rarity, rarity, id);
@@ -38,13 +54,23 @@ test('whimsical keepsakes have translated names and year-round weighted discover
     assert.deepEqual(treasure.seasons, ['spring', 'summer', 'autumn', 'winter']);
     for (const strings of Object.values(STRINGS)) assert.ok(strings[`treasure.${id}`]);
   }
-  for (const id of ['oak', 'birch', 'willow'])
+  for (const id of [
+    'oak',
+    'birch',
+    'willow',
+    'ginkgo',
+    'persimmon',
+    'bamboo',
+    'magnolia',
+    'crape_myrtle',
+    'metasequoia',
+  ])
     for (const strings of Object.values(STRINGS)) assert.ok(strings[`tree.${id}`]);
 });
 
 test('every discovery catalog asset resolves to a reviewed atlas viewport', () => {
   const paths = [
-    ...catalog.trees.flatMap(tree => [...tree.stages.map(stage => stage.art), ...Object.values(tree.seasonArt)]),
+    ...catalog.trees.flatMap(tree => [...tree.stages.map(stage => stage.art), ...Object.values(tree.seasonArt || {})]),
     ...catalog.treasures.map(item => item.art),
   ];
   for (const art of paths) {

@@ -12,7 +12,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- Fifteen more finds for the album, now 115: a Korean bullhead, rose bitterling, paradise fish, dark sleeper, mitten crab, freshwater mussel and a rare softshell turtle in the lake, and a tiger beetle, white-spotted longhorn, praying mantis, long-headed grasshopper, hummingbird hawk-moth and a rare rhinoceros beetle and butterfly dragonfly in the yard. Winter and night fishing have more to catch, and on clear autumn evenings and nights emma field crickets come out in the grass.
+- Fifteen more finds for the album: a Korean bullhead, rose bitterling, paradise fish, dark sleeper, mitten crab, freshwater mussel and a rare softshell turtle in the lake, and a tiger beetle, white-spotted longhorn, praying mantis, long-headed grasshopper, hummingbird hawk-moth and a rare rhinoceros beetle and butterfly dragonfly in the yard. Winter and night fishing have more to catch, and on clear autumn evenings and nights emma field crickets come out in the grass.
+- The album grows to 150. In the lake: a Korean splendid dace, skygazer, melania snail, pond frog and a rare sturgeon on cold nights. In the yard: katydids on autumn nights, late fireflies in summer, and dandelions, azaleas, morning glories, balsam, red spider lilies, celosia, adonis and pansies to grow. Six new trees to plant (ginkgo, persimmon, bamboo, magnolia, crape myrtle, dawn redwood), eight new keepsakes to dig up, from a cicada shell to an uncommon four-leaf clover, and six new gifts: a water wheel, hammock, scarecrow, stepping stones, crock stand and, at New Year, a kite. The peacock butterfly and emperor dragonfly are no longer rare.
 
 ### Changed
 
@@ -28,7 +29,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.
 - The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
-- The guide counts 115 album entries, names some of the new finds and says when crickets come out on autumn nights, in all four languages.
+- The guide counts 150 album entries, names some of the new finds, lists all twelve trees and says when crickets come out on autumn nights, in all four languages.
 
 ## [1.4.0] - 2026-11-01
 

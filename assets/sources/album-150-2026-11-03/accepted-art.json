@@ -1,0 +1,56 @@
+{
+  "generated": "2026-11-03",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "lake-fish-2",
+      "prompt": "Use case: stylized-concept. Production transparent game specimen atlas for a cozy desktop pet game, exactly THREE different freshwater fish in THREE equal square cells in ONE row, ample transparent gutters. Every fish in side profile facing RIGHT. 1: KOREAN SPLENDID DACE (Coreoleuciscus splendidus): slender small fish, olive-brown back, a bold golden-yellow stripe and a dark brown stripe along the side, orange-tinted fins with dark bands. 2: SKYGAZER (Chanodichthys erythropterus): long laterally compressed bright SILVER body, strongly UPTURNED mouth, large silver scales, reddish-pink tinted anal and tail fins. 3: STURGEON: long grey-olive body with rows of bony diamond scutes along the back and sides, long pointed shovel snout with four barbels underneath, shark-like upturned tail, cream belly; clearly a sturgeon. Each fish wholly inside central 75% of its cell, nothing crosses cells. Style: same warm softly sculpted painted miniature collectible as the reference, authentic anatomy, restrained highlights, clean silhouette readable at 64px. Reference image is STYLE and MATERIAL only. ACTUAL fully transparent RGBA background everywhere outside each fish, no white, grey or glowing band, NO water, floor, haze, labels, text, gridlines or shadows. Exactly three fish.",
+      "references": ["assets/art/fish/specimens.png"],
+      "file": "lake-fish-2.png",
+      "sha256": "cf346de0a43afa9482b685f8be76c0b9f676cbc8d11c30d1a8e0668bff7ac10f",
+      "size": [2172, 724],
+      "runtimeAtlas": "collection-extension/lake-fish-2.png",
+      "acceptedIds": ["splendid_dace", "skygazer", "sturgeon"]
+    },
+    {
+      "name": "lake-creatures-2",
+      "prompt": "Use case: stylized-concept. Production transparent game specimen atlas for a cozy desktop pet game, exactly TWO different freshwater creatures in TWO equal square cells in ONE row, ample transparent gutters. 1: MELANIA freshwater snail (Semisulcospira): a tall narrow tapering cone-shaped spiral shell, dark olive-brown with subtle ribs, soft grey body and two short tentacles peeking out at the aperture, facing right; clearly a tall tower shell, NOT a round pond snail. 2: KOREAN BROWN-SPOTTED POND FROG (Pelophylax nigromaculatus) three-quarter view facing right, sitting: green-olive back with dark rounded blotches and a pale stripe down the middle of the back, cream belly, golden eye, long folded hind legs; friendly and calm. Each creature wholly inside central 75% of its cell, nothing crosses cells. Style: same warm softly sculpted painted miniature collectible as the reference, authentic anatomy, clean silhouette readable at 64px. Reference image is STYLE and MATERIAL only. ACTUAL fully transparent RGBA background everywhere outside each creature, NO water, floor, haze, labels, text, gridlines or shadows. Exactly two creatures.",
+      "references": ["assets/art/fish/specimens.png"],
+      "file": "lake-creatures-2.png",
+      "sha256": "a4ce380811fb75b65ce039134ba77b680645358bdaf5b3171e996da2ca651d70",
+      "size": [1774, 887],
+      "runtimeAtlas": "collection-extension/lake-creatures-2.png",
+      "acceptedIds": ["melania_snail", "frog"]
+    },
+    {
+      "name": "night-bugs",
+      "prompt": "Use case: stylized-concept. Production transparent game specimen atlas for a cozy desktop pet game, exactly TWO different insects in TWO equal square cells in ONE row, ample transparent gutters. ALL insects seen from directly ABOVE with HEADS pointing UP, symmetrical. 1: KATYDID bush cricket (Hexacentrus): slender soft leaf-GREEN body, long leaf-like folded green wings with a brown stripe down the middle of the back, extremely long thin antennae curving back, long spiny legs and long folded hind jumping legs; clearly green, NOT a dark cricket. 2: LATE FIREFLY (Pyrocoelia rufa): a larger firefly beetle, soft dark brown-black wing covers, a broad ORANGE-pink rounded shield over the head, short antennae, six small legs, a pale yellow-green softly glowing abdominal tip with glow confined close to the tip. Each insect including every antenna and leg tip wholly inside central 80% of its cell. Style: same warm softly sculpted painted miniature as the reference, delicate texture, friendly not creepy, clean silhouettes readable at 32px. Reference is STYLE and MATERIAL only. ACTUAL fully transparent RGBA background, NO scenery, floor, haze, text, gridlines or shadows. Exactly two insects.",
+      "references": ["assets/art/bugs/specimens.png"],
+      "file": "night-bugs.png",
+      "sha256": "ba50e20476e930e4d4a8bfbd37a78e2cfbb2a100fcdae5e3b8963636a5228dff",
+      "size": [1774, 887],
+      "runtimeAtlas": "collection-extension/night-bugs.png",
+      "acceptedIds": ["katydid", "late_firefly"]
+    },
+    {
+      "name": "flowers",
+      "prompt": "Use case: stylized-concept. Production transparent game sprite atlas, exactly 8 botanical flower specimens, strict FOUR columns by TWO rows, equal cells. Style matches reference solely for soft sculpted painted miniature detail and rich restrained colors. New flowers only. Row1: yellow dandelion with one bright many-rayed flower head, one white round seed puff on a second stem and jagged basal leaves; pink-magenta azalea small shrub sprig with clusters of open funnel blossoms and few small leaves; morning glory vine twining up a thin bamboo stake with blue-violet trumpet flowers with white throats and heart leaves; garden balsam upright fleshy stem with pink-red cupped flowers tucked along the stem and narrow serrated leaves. Row2: red spider lily, bare green stem topped by a scarlet ring of curled narrow petals with long curving stamens, no leaves; crested celosia with a velvety crimson wavy cockscomb crest on a stout stem with green leaves; pheasant's eye adonis with glossy golden-yellow cup flowers over finely divided feathery green leaves, low to the ground; winter pansy with three round flat purple-and-yellow faces with dark whisker centers and rounded leaves. Entire plant including all stem bases/leaf tips in central80% of cell. Similar overall height in each cell, upright specimens, bottom baseline aligned. Deliberate clean silhouettes readable at50px, subtle material shading, softly dimensional with beautiful distinctive petals. ACTUAL fully transparent RGBA background, no painted haze, no floor, no pot, no text, labels or gridlines. No national/political symbols.\n IMPORTANT: the background must be truly transparent alpha everywhere outside each plant, no paper, cream, white or grey background, no haze.",
+      "references": ["assets/art/flowers/specimens.png"],
+      "file": "flowers.png",
+      "sha256": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/flowers-2.png",
+      "acceptedIds": ["dandelion", "azalea", "morning_glory", "balsam", "spider_lily", "celosia", "adonis", "pansy"]
+    },
+    {
+      "name": "gifts",
+      "prompt": "Use case: stylized-concept. PlayPets PREMIUM COZY GAME garden prop atlas, exactly SIX different complete objects, strict THREE columns by TWO rows, each entirely within the central 80% of its equal cell with clear wide gutters. Matching reference style: softly sculpted painterly miniature, rich gentle colors, natural wood, stone and fabric texture, intentional believable craft detail, attractive at 40-90 pixels, NOT flat icons. Three-quarter view, consistent lighting upper left. Row1: small wooden water wheel on a short wooden frame with a little trough and a few water drops, complete and freestanding; striped canvas hammock in sage and cream slung between two short wooden A-frame posts, complete; friendly scarecrow on a wooden post with a straw hat, patched sage shirt, straw hands, button eyes and a gentle smile. Row2: a short path of five flat round grey stepping stones laid in a gentle curve with small tufts of grass, seen from above at a low angle, lying flat; a cluster of three glazed dark brown earthenware storage jars (onggi) of different sizes with lids on a low stone base; a red and white diamond paper kite with a long ribbon tail, standing on its own short reel stand. No text, letters, flags, national or religious symbols. ACTUAL transparent RGBA background, no floor, no haze, no gridlines, no exterior shadows.",
+      "references": ["assets/art/decor/props.png"],
+      "file": "gifts.png",
+      "sha256": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/village-props.png",
+      "acceptedIds": ["water_wheel", "hammock", "scarecrow", "stepping_stones", "onggi", "kite"]
+    }
+  ]
+}

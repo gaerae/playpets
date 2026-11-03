@@ -745,5 +745,194 @@
     "crop": [720, 619, 447, 553],
     "size": [60, 60],
     "art": "bugs/emma_cricket.svg"
+  },
+  {
+    "id": "splendid_dace",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-fish-2.webp",
+    "atlasSize": [2172, 724],
+    "crop": [56, 217, 617, 263],
+    "size": [100, 50],
+    "art": "fish/splendid_dace.svg"
+  },
+  {
+    "id": "skygazer",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-fish-2.webp",
+    "atlasSize": [2172, 724],
+    "crop": [748, 200, 651, 304],
+    "size": [100, 50],
+    "art": "fish/skygazer.svg"
+  },
+  {
+    "id": "sturgeon",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-fish-2.webp",
+    "atlasSize": [2172, 724],
+    "crop": [1459, 239, 683, 233],
+    "size": [100, 50],
+    "art": "fish/sturgeon.svg"
+  },
+  {
+    "id": "melania_snail",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-creatures-2.webp",
+    "atlasSize": [1774, 887],
+    "crop": [81, 327, 734, 342],
+    "size": [100, 65],
+    "art": "fish/melania_snail.svg"
+  },
+  {
+    "id": "frog",
+    "kind": "fish",
+    "atlas": "collection-extension/lake-creatures-2.webp",
+    "atlasSize": [1774, 887],
+    "crop": [968, 186, 727, 531],
+    "size": [100, 65],
+    "art": "fish/frog.svg"
+  },
+  {
+    "id": "katydid",
+    "kind": "bugs",
+    "atlas": "collection-extension/night-bugs.webp",
+    "atlasSize": [1774, 887],
+    "crop": [118, 70, 648, 744],
+    "size": [60, 60],
+    "art": "bugs/katydid.svg"
+  },
+  {
+    "id": "late_firefly",
+    "kind": "bugs",
+    "atlas": "collection-extension/night-bugs.webp",
+    "atlasSize": [1774, 887],
+    "crop": [1085, 103, 493, 666],
+    "size": [60, 50],
+    "art": "bugs/late_firefly.svg"
+  },
+  {
+    "id": "dandelion",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [37, 53, 316, 428],
+    "size": [40, 54],
+    "art": "flowers/dandelion.svg"
+  },
+  {
+    "id": "azalea",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [406, 66, 346, 415],
+    "size": [40, 54],
+    "art": "flowers/azalea.svg"
+  },
+  {
+    "id": "morning_glory",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [788, 38, 323, 444],
+    "size": [40, 54],
+    "art": "flowers/morning_glory.svg"
+  },
+  {
+    "id": "balsam",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1167, 50, 330, 432],
+    "size": [40, 54],
+    "art": "flowers/balsam.svg"
+  },
+  {
+    "id": "spider_lily",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [23, 553, 343, 400],
+    "size": [40, 54],
+    "art": "flowers/spider_lily.svg"
+  },
+  {
+    "id": "celosia",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [395, 540, 337, 414],
+    "size": [40, 54],
+    "art": "flowers/celosia.svg"
+  },
+  {
+    "id": "adonis",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [775, 560, 340, 394],
+    "size": [40, 54],
+    "art": "flowers/adonis.svg"
+  },
+  {
+    "id": "pansy",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1159, 543, 347, 411],
+    "size": [40, 54],
+    "art": "flowers/pansy.svg"
+  },
+  {
+    "id": "water_wheel",
+    "kind": "gifts",
+    "atlas": "collection-extension/village-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [32, 29, 436, 459],
+    "size": [90, 80],
+    "art": "decor/water_wheel.svg"
+  },
+  {
+    "id": "hammock",
+    "kind": "gifts",
+    "atlas": "collection-extension/village-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [494, 94, 544, 358],
+    "size": [140, 100],
+    "art": "decor/hammock.svg"
+  },
+  {
+    "id": "scarecrow",
+    "kind": "gifts",
+    "atlas": "collection-extension/village-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1077, 15, 396, 487],
+    "size": [70, 100],
+    "art": "decor/scarecrow.svg"
+  },
+  {
+    "id": "stepping_stones",
+    "kind": "gifts",
+    "atlas": "collection-extension/village-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [30, 579, 440, 383],
+    "size": [130, 60],
+    "art": "decor/stepping_stones.svg"
+  },
+  {
+    "id": "onggi",
+    "kind": "gifts",
+    "atlas": "collection-extension/village-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [508, 563, 519, 412],
+    "size": [90, 75],
+    "art": "decor/onggi.svg"
+  },
+  {
+    "id": "kite",
+    "kind": "gifts",
+    "atlas": "collection-extension/village-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1086, 527, 428, 467],
+    "size": [70, 90],
+    "art": "decor/kite.svg"
   }
 ]

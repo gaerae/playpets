@@ -176,7 +176,7 @@ To put one away, right-click it or press **Delete** or **Backspace** on it. It g
 
 - The yard holds 12 decorations. When it's full, a new gift waits in the **gift box** at the top of the album's Gifts book, which holds 12 more. Press one there to set it out once there's room.
 - Putting one away keeps its album entry and makes room for the remaining gifts. A memento goes back into the gift box instead, unless the box is full.
-- The album has 20 gifts, including four delivered only during their calendar events. A memento is one of these 20, so it adds no new entry.
+- The album has 26 gifts, including five delivered only during their calendar events. A memento is one of these 26, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
@@ -222,7 +222,7 @@ A few times a year the yard changes for a while. The event's name shows beside t
 | Firefly nights | July 20 to August 20 | Many more fireflies at night, and a golden one to catch; a friend brings a watermelon |
 | Harvest moon | September 8 to October 15 | On the nights around the event's first full moon (two days either side), as at Chuseok and the Mid-Autumn Festival, the moon rises big and golden; the other nights it keeps its phase. The moonlight carp comes to the lake at night; a friend brings a pumpkin |
 | Winter lights | December 10 to 31 | Little lights along the trees, glowing from evening on; a friend brings a snowman |
-| New Year | January 1 to 7 | Friends greet the new year |
+| New Year | January 1 to 7 | Friends greet the new year; a friend brings a kite |
 
 An event's gift comes the first time a gift is due during the event, and only then. The album shows when each one comes.
 
@@ -273,7 +273,7 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 
 **What a dig finds**
 
-- A flower seed, a sapling, one of seventeen keepsakes, or nothing. Keepsakes appear in **Album → Keepsakes**.
+- A flower seed, a sapling, one of twenty-five keepsakes, or nothing. Keepsakes appear in **Album → Keepsakes**.
 - After an uncommon find, all friends and places wait 24 hours for another uncommon find.
 - Repeats happen, so completing the set can take longer.
 - The same patch gives no further reward for 24 hours.
@@ -283,7 +283,7 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 **Planting a tree**
 
 1. Find a sapling by digging first.
-2. Choose **Plant a tree** to see the stock: cherry, maple, pine, oak, birch, willow.
+2. Choose **Plant a tree** to see the stock: cherry, maple, pine, oak, birch, willow, ginkgo, persimmon, bamboo, magnolia, crape myrtle and dawn redwood.
 3. Pick a species you have and choose clear ground. Planting uses one matching sapling.
 
 - Growth counts time with the app closed: young after two hours, mature after twelve.
@@ -400,13 +400,13 @@ To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). It wor
 
 ## Collecting at your own pace
 
-The album has 115 entries across aquatic life, bugs, flowers, gifts, trees and little finds. Look for pond creatures and mitten crabs, tiger beetles and mantises in the grass, and crickets on autumn nights. Dig up a glass marble, a wooden whale, a felt mushroom, an acorn teacup or a sleeping fox figurine. And make room for a bunny watering can or a hedgehog planter from a friend.
+The album has 150 entries across aquatic life, bugs, flowers, gifts, trees and little finds. Look for pond frogs and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
 
 **How long it takes**
 
-The full 115-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 16 ordinary gifts arrive on different local dates.
+The full 150-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
 
-The four event gifts need festivals spread across the calendar, so depending on when you start, collecting them all can take months. Changing the season doesn't start a festival.
+The five event gifts need festivals spread across the calendar, so depending on when you start, collecting them all can take months. Changing the season doesn't start a festival.
 
 Flowers bloom four hours after planting and trees mature after twelve hours. Both count time with the app closed.
 

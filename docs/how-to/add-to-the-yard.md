@@ -247,7 +247,7 @@ Guide labels:
 - Event gifts stay tied to the calendar.
 - Gifts follow a deterministic sequence, not a loot probability.
 - The cap of 12 placed decorations pauses deliveries.
-- Removing a decoration keeps its album entry, so all 20 gifts can be collected over time.
+- Removing a decoration keeps its album entry, so all 26 gifts can be collected over time.
 
 Reachability:
 - Keep every album entry reachable across valid contexts.

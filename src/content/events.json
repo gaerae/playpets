@@ -37,7 +37,8 @@
       "from": "01-01",
       "to": "01-07",
       "fixed": true,
-      "art": "events/newyear.svg"
+      "art": "events/newyear.svg",
+      "gift": "kite"
     }
   ]
 }
