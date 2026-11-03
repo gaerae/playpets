@@ -575,7 +575,7 @@
       "size": [50, 90],
       "seasons": ["autumn"],
       "periods": ["morning", "day", "evening", "night"],
-      "weight": 1,
+      "weight": 3,
       "rarity": "rare",
       "look": {
         "body": "#8c9aa8",

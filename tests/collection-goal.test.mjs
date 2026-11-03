@@ -95,9 +95,8 @@ test('everyday fish are common, golden ones the rarest, and an event special sta
         year[row.id] += row.chance / 16;
   // The fish anyone pulls out of a Korean pond: about one catch in twenty or better.
   for (const id of ['crucian', 'loach', 'carp', 'bass']) assert.ok(year[id] >= 0.05, `${id} ${year[id]}`);
-  // Gold is the prize: rarer than the goldfish and every ordinary fish. (Salmon run only in
-  // autumn, so over a year they can be scarcer still.)
-  for (const fish of catalog.fish.filter(fish => !fish.event && fish.id !== 'golden_carp' && fish.id !== 'salmon'))
+  // Gold is the prize: rarer than every other fish that comes outside an event, rare ones too.
+  for (const fish of catalog.fish.filter(fish => !fish.event && fish.id !== 'golden_carp'))
     assert.ok(year.golden_carp < year[fish.id], `golden carp before ${fish.id}`);
   // During its event a special is a find, not a regular: at most 3% of what comes then.
   const during = (kinds, weight, kind) => {
