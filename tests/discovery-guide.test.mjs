@@ -16,9 +16,10 @@ test('guide odds normalize only currently eligible fish and rain weights', () =>
     [],
   );
 });
-test('wildlife availability follows actual clear-day and warm-evening gates', () => {
+test('wildlife availability follows actual clear-day, warm-evening and autumn-night gates', () => {
   assert.equal(wildlifeGroup('summer', 'evening', 'clear'), 'firefly');
-  assert.equal(wildlifeGroup('autumn', 'evening', 'clear'), null);
+  assert.equal(wildlifeGroup('autumn', 'evening', 'clear'), 'cricket');
+  assert.equal(wildlifeGroup('autumn', 'night', 'rain'), null);
   assert.equal(wildlifeGroup('winter', 'day', 'clear'), null);
   assert.equal(wildlifeGroup('spring', 'day', 'rain'), null);
   assert.equal(wildlifeGroup('spring', 'morning', 'clear'), 'day');
@@ -36,7 +37,11 @@ test('shared wildlife predicate preserves every valid scenery condition', () => 
         const warm = season === 'spring' || season === 'summer';
         const glow = warm && weather === 'clear' && (period === 'night' || period === 'evening');
         const flutter = season !== 'winter' && weather === 'clear' && (period === 'day' || period === 'morning');
-        assert.equal(wildlifeGroup(season, period, weather), glow ? 'firefly' : flutter ? 'day' : null);
+        const chirp = season === 'autumn' && weather === 'clear' && (period === 'night' || period === 'evening');
+        assert.equal(
+          wildlifeGroup(season, period, weather),
+          glow ? 'firefly' : flutter ? 'day' : chirp ? 'cricket' : null,
+        );
       }
     }
   }
@@ -77,7 +82,7 @@ test('guide bug percentages use one actual spawned-individual pool, not two full
   assert.ok(Math.abs(festival.find(item => item.id === 'golden_firefly').chance - 1 / 96) < 1e-12);
 });
 
-test('all 100 album entries remain reachable and event gifts retain calendar gates', async () => {
+test('all 115 album entries remain reachable and event gifts retain calendar gates', async () => {
   const { discoveryBugChances, discoveryFindChances } = await import('../website/.vitepress/theme/discovery-odds.js');
   const { LIMITS } = await import('../src/core/limits.js');
   const events = JSON.parse(await readFile(new URL('../src/content/events.json', import.meta.url))).events;
@@ -112,7 +117,7 @@ test('all 100 album entries remain reachable and event gifts retain calendar gat
   for (const [book, found] of Object.entries(seen)) assert.equal(found.size, catalog[book].length, book);
   assert.equal(
     Object.values(seen).reduce((sum, found) => sum + found.size, 0),
-    100,
+    115,
   );
 });
 
