@@ -67,3 +67,53 @@ test('green field cricket keeps its grounded discovery route and the 100-entry c
   );
   assert.equal(catalog.bugs.length, 18);
 });
+
+test('over a year a rare fish bites less often than any ordinary one', () => {
+  // Every season and time of day alike, clear or rainy: a rare fish that comes all year must not
+  // outnumber an ordinary one that comes only in one season.
+  for (const weather of ['clear', 'rain']) {
+    const year = Object.fromEntries(catalog.fish.map(fish => [fish.id, 0]));
+    for (const season of seasons)
+      for (const period of ['morning', 'day', 'evening', 'night'])
+        for (const row of relativeChances(eligibleKinds(catalog.fish, season, period), fish =>
+          fishWeight(fish, weather),
+        ))
+          year[row.id] += row.chance / 16;
+    const ordinary = catalog.fish.filter(fish => !fish.event && fish.rarity !== 'rare');
+    const rare = catalog.fish.filter(fish => fish.rarity === 'rare');
+    assert.ok(rare.length >= 3, 'golden carp, goldfish and salmon are rare');
+    const rarest = Math.min(...ordinary.map(fish => year[fish.id]));
+    for (const fish of rare) assert.ok(year[fish.id] < rarest, `${weather}: ${fish.id} ${year[fish.id]} < ${rarest}`);
+  }
+});
+
+test('everyday fish are common, golden ones the rarest, and an event special stays special', () => {
+  const year = Object.fromEntries(catalog.fish.map(fish => [fish.id, 0]));
+  for (const season of seasons)
+    for (const period of ['morning', 'day', 'evening', 'night'])
+      for (const row of relativeChances(eligibleKinds(catalog.fish, season, period), fish => fishWeight(fish, 'clear')))
+        year[row.id] += row.chance / 16;
+  // The fish anyone pulls out of a Korean pond: about one catch in twenty or better.
+  for (const id of ['crucian', 'loach', 'carp', 'bass']) assert.ok(year[id] >= 0.05, `${id} ${year[id]}`);
+  // Gold is the prize: rarer than every other fish that comes outside an event, rare ones too.
+  for (const fish of catalog.fish.filter(fish => !fish.event && fish.id !== 'golden_carp'))
+    assert.ok(year.golden_carp < year[fish.id], `golden carp before ${fish.id}`);
+  // During its event a special is a find, not a regular: at most 3% of what comes then.
+  const during = (kinds, weight, kind) => {
+    let best = 0;
+    for (const season of kind.seasons)
+      for (const period of kind.periods)
+        best = Math.max(
+          best,
+          relativeChances(
+            eligibleKinds(kinds, season, period, kind.event).filter(other => !kind.kind || other.kind === kind.kind),
+            weight,
+          ).find(row => row.id === kind.id)?.chance || 0,
+        );
+    return best;
+  };
+  for (const fish of catalog.fish.filter(fish => fish.event))
+    assert.ok(during(catalog.fish, other => fishWeight(other, 'clear'), fish) <= 0.03, fish.id);
+  for (const bug of catalog.bugs.filter(bug => bug.event))
+    assert.ok(during(catalog.bugs, other => other.weight, bug) <= 0.03, bug.id);
+});
