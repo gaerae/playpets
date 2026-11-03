@@ -154,6 +154,10 @@ Format:
 - A stopped CLI ends with every process it started: a process group on Unix, a job object on Windows.
 - Also handles HTTP AI and prompts.
 - Everything that differs per AI kind (request and response shape, key rules, default address) is one table in `kind.rs`.
+- What a friend knows about the app is in `guide.rs`:
+  - one line always in its identity: where it lives, and not to invent features
+  - facts on a topic go with the owner's message only when it asks about one (words in `guide.words.*` of every language's table), as that turn's notes
+  - friends chatting among themselves get none
 
 ### Pets
 - Unpacks the starter pets bundled with the app.
