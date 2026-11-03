@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Fixed
+
+- In the Microsoft Store version, **Open folder** in Invite a friend and **Open the data folder** in About PlayPets now open the folder in File Explorer instead of failing.
+
 ### Changed
 
 - Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
@@ -23,6 +27,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Website and docs
 
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.
+- The install guide gives where the Microsoft Store version keeps its data folder.
 - The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
 
 ## [1.4.0] - 2026-11-01
