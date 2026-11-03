@@ -81,3 +81,13 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 - The earlier ground-bugs atlas stays active for the ladybug only.
 - The separate green sprite keeps complete antennae and jumping legs.
 - The proposed stag beetle is not runtime content.
+
+## Lake and yard extension (2026-11-03)
+
+- 15 new specimens in four atlases: four fish, three other water creatures, four
+  crawling insects and four flying or hopping ones.
+- Accepted sources, prompts, hashes and per-atlas IDs:
+  `assets/sources/collection-extension-2026-11-03/accepted-art.json`.
+- Crops follow measured silhouettes with a 14-pixel margin; reproduce the wrappers
+  with `node scripts/pack-collection.mjs`.
+- Ground bugs face up in their atlases, so heading rotation stays correct.

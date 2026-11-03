@@ -661,6 +661,112 @@
         "shape": "normal"
       },
       "art": "fish/pond_snail.svg"
+    },
+    {
+      "id": "bullhead",
+      "size": [10, 30],
+      "seasons": ["spring", "summer", "autumn"],
+      "periods": ["evening", "night"],
+      "weight": 10,
+      "rain": 2,
+      "look": {
+        "body": "#c9a447",
+        "belly": "#efdfa6",
+        "fin": "#8a6d34",
+        "shape": "flat",
+        "spots": "#5a4526",
+        "whiskers": true
+      },
+      "art": "fish/bullhead.svg"
+    },
+    {
+      "id": "bitterling",
+      "size": [3, 8],
+      "seasons": ["spring", "summer"],
+      "periods": ["morning", "day"],
+      "weight": 14,
+      "look": {
+        "body": "#c8b4c0",
+        "belly": "#f2e6ea",
+        "fin": "#d9744e",
+        "shape": "round",
+        "band": "#5fa3a0"
+      },
+      "art": "fish/bitterling.svg"
+    },
+    {
+      "id": "paradise_fish",
+      "size": [4, 8],
+      "seasons": ["summer", "autumn"],
+      "periods": ["morning", "day", "evening"],
+      "weight": 10,
+      "look": {
+        "body": "#7a6a4a",
+        "belly": "#d9c9a0",
+        "fin": "#b5553e",
+        "shape": "normal",
+        "stripes": "#4f78b0"
+      },
+      "art": "fish/paradise_fish.svg"
+    },
+    {
+      "id": "dark_sleeper",
+      "size": [8, 20],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "periods": ["evening", "night"],
+      "weight": 8,
+      "look": {
+        "body": "#5e4a34",
+        "belly": "#c9b48c",
+        "fin": "#4d3c2a",
+        "shape": "normal",
+        "spots": "#2f251a"
+      },
+      "art": "fish/dark_sleeper.svg"
+    },
+    {
+      "id": "mitten_crab",
+      "size": [5, 10],
+      "seasons": ["autumn", "winter"],
+      "periods": ["evening", "night"],
+      "weight": 10,
+      "rain": 2,
+      "look": {
+        "body": "#6b6040",
+        "belly": "#d8ccaa",
+        "fin": "#6b6040",
+        "shape": "normal"
+      },
+      "art": "fish/mitten_crab.svg"
+    },
+    {
+      "id": "mussel",
+      "size": [5, 15],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "periods": ["morning", "day"],
+      "weight": 8,
+      "look": {
+        "body": "#4f553a",
+        "belly": "#d8d2bd",
+        "fin": "#4f553a",
+        "shape": "round"
+      },
+      "art": "fish/mussel.svg"
+    },
+    {
+      "id": "softshell_turtle",
+      "size": [15, 35],
+      "seasons": ["summer", "autumn"],
+      "periods": ["day", "evening"],
+      "weight": 4,
+      "rarity": "rare",
+      "look": {
+        "body": "#7d806a",
+        "belly": "#e1dcc4",
+        "fin": "#6a6d58",
+        "shape": "flat"
+      },
+      "art": "fish/softshell_turtle.svg"
     }
   ],
   "bugs": [
@@ -899,6 +1005,111 @@
         "edge": "#3f5732"
       },
       "art": "bugs/field_cricket.svg"
+    },
+    {
+      "id": "tiger_beetle",
+      "kind": "beetle",
+      "seasons": ["spring"],
+      "periods": ["morning", "day"],
+      "weight": 10,
+      "look": {
+        "body": "#2f8a6a",
+        "wing": "#b5473a",
+        "edge": "#2c3f73"
+      },
+      "art": "bugs/tiger_beetle.svg"
+    },
+    {
+      "id": "longhorn_beetle",
+      "kind": "beetle",
+      "seasons": ["summer"],
+      "periods": ["morning", "day"],
+      "weight": 14,
+      "look": {
+        "body": "#1f2226",
+        "wing": "#1f2226",
+        "edge": "#e8ecef"
+      },
+      "art": "bugs/longhorn_beetle.svg"
+    },
+    {
+      "id": "rhinoceros_beetle",
+      "kind": "beetle",
+      "seasons": ["summer"],
+      "periods": ["morning", "day"],
+      "weight": 2,
+      "rarity": "rare",
+      "look": {
+        "body": "#5a2f1e",
+        "wing": "#6e3a24",
+        "edge": "#2b1810"
+      },
+      "art": "bugs/rhinoceros_beetle.svg"
+    },
+    {
+      "id": "mantis",
+      "kind": "beetle",
+      "seasons": ["autumn"],
+      "periods": ["morning", "day"],
+      "weight": 12,
+      "look": {
+        "body": "#7fae55",
+        "wing": "#93c06a",
+        "edge": "#4e7a32"
+      },
+      "art": "bugs/mantis.svg"
+    },
+    {
+      "id": "longheaded_grasshopper",
+      "kind": "cricket",
+      "seasons": ["summer"],
+      "periods": ["morning", "day"],
+      "weight": 11,
+      "look": {
+        "body": "#c2a66e",
+        "wing": "#b0955e",
+        "edge": "#7a6438"
+      },
+      "art": "bugs/longheaded_grasshopper.svg"
+    },
+    {
+      "id": "butterfly_dragonfly",
+      "kind": "dragonfly",
+      "seasons": ["summer"],
+      "periods": ["morning", "day"],
+      "weight": 6,
+      "rarity": "rare",
+      "look": {
+        "body": "#2b2a3a",
+        "wing": "#3d3a78"
+      },
+      "art": "bugs/butterfly_dragonfly.svg"
+    },
+    {
+      "id": "hawk_moth",
+      "kind": "butterfly",
+      "seasons": ["summer", "autumn"],
+      "periods": ["morning", "day"],
+      "weight": 8,
+      "look": {
+        "wing": "#7a6e5e",
+        "edge": "#4a4038",
+        "spots": "#e88a3a"
+      },
+      "art": "bugs/hawk_moth.svg"
+    },
+    {
+      "id": "emma_cricket",
+      "kind": "cricket",
+      "seasons": ["autumn"],
+      "periods": ["evening", "night"],
+      "weight": 10,
+      "look": {
+        "body": "#3a2c22",
+        "wing": "#2e231b",
+        "edge": "#1d1712"
+      },
+      "art": "bugs/emma_cricket.svg"
     }
   ],
   "trees": [
