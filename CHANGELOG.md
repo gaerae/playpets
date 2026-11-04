@@ -35,12 +35,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Fixed
 
+- On a narrow album card, a catch's biggest size stays on one line with its "cm" instead of leaving the unit alone on the next line.
 - In the Microsoft Store version, the icon on the taskbar and in the Start menu no longer sits on a blue square.
 - Switching books in the album starts at the top of the new book instead of where the last one was scrolled.
 - In the Microsoft Store version, **Open folder** in Invite a friend and **Open the data folder** in About PlayPets now open the folder in File Explorer instead of failing.
 
 ### Website and docs
 
+- The README opens with friends that come with the app, so it no longer reads as only for people with Codex pets, and is shorter: it adds a Windows installer (.exe) download beside the Microsoft Store, describes friends and gifts going out to the desktop one by one, says which Windows the Store package needs and where to report a bug, and leaves the developer commands, workflows and repository map to the developer docs.
 - On Windows, the download section shows the GitHub installer (.exe) for your PC with its version right under the Microsoft Store button, and the SmartScreen note under it, instead of only in the folded list.
 - The desktop guide and the play guide describe sending one friend or one gift to the desktop, the desktop's right-click menu and setting a gift out again from the album.
 - Each of the four friends can be downloaded by itself from the front page as `playpets-<name>.zip`, seasonal outfits included: PlayPets imports it as it is, and unzipped into `~/.codex/pets` the friend comes to ChatGPT and Codex too. The character studio's ready friend is the same download, and the old kit ZIPs are gone.
