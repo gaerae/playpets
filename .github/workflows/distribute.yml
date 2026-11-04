@@ -3,6 +3,7 @@
 #   WINGET_TOKEN: a GitHub token (public_repo) of an account with a fork of microsoft/winget-pkgs.
 #     With it, wingetcreate opens the pull request to winget-pkgs. The first version of a package
 #     is reviewed by winget's moderators; later versions are merged by their bots once checks pass.
+#     While that first pull request is still open, no further one is opened.
 #   HOMEBREW_TAP_TOKEN: a token that can push to <owner>/homebrew-tap. With it, Casks/playpets.rb
 #     is updated there, so `brew install <owner>/tap/playpets` installs the new version.
 # Without the tokens, download the "store-manifests" artifact and submit by hand (docs/how-to/release.md).
@@ -76,8 +77,29 @@ jobs:
         with:
           name: store-manifests
           path: store
+      # The package's first version waits for winget's moderators. While that pull request is open
+      # and the package is not in winget-pkgs yet, another one per release would only queue behind
+      # it, so none is opened; run this workflow by hand for the latest tag once it is merged.
+      - id: hold
+        name: Is the first version still in review
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.manifests.outputs.version }}
+        run: |
+          $out = gh api repos/microsoft/winget-pkgs/contents/manifests/g/gaerae/PlayPets --silent 2>&1
+          if ($LASTEXITCODE -eq 0) { "waiting=false" >> $env:GITHUB_OUTPUT; exit 0 }
+          if ("$out" -notmatch 'HTTP 404') { throw "Could not look the package up in winget-pkgs: $out" }
+          $open = gh pr list -R microsoft/winget-pkgs --state open --search 'gaerae.PlayPets in:title' --json number --jq 'length'
+          if ($LASTEXITCODE -ne 0) { throw 'Could not list the open pull requests in winget-pkgs' }
+          if ([int]$open -gt 0) {
+            "waiting=true" >> $env:GITHUB_OUTPUT
+            Write-Host "::notice::gaerae.PlayPets is still in review in winget-pkgs, so no pull request for $env:VERSION. Once it is merged, run distribute by hand for the latest tag."
+          } else {
+            "waiting=false" >> $env:GITHUB_OUTPUT
+          }
       - name: Pull request to winget-pkgs
-        if: env.WINGET_TOKEN != ''
+        if: env.WINGET_TOKEN != '' && steps.hold.outputs.waiting != 'true'
         shell: pwsh
         env:
           VERSION: ${{ needs.manifests.outputs.version }}
