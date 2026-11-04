@@ -9,7 +9,7 @@ import { launchBrowser } from './browser-lib.mjs';
 import { publicProvenance, validatePng, zipStore } from './creator-bundle-lib.mjs';
 import { kitEntries, kitPrompts, kitSpec, petManifest } from './creator-specs.mjs';
 import { pngSize, sha256 } from './png-lossless-lib.mjs';
-import { LANDING_PETS } from './site-content.mjs';
+import { LANDING_PETS, petDownload } from './site-content.mjs';
 
 // A fork's kits credit the fork (package.json, as site-prepare reads it).
 const { repository: slug } = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
@@ -232,14 +232,17 @@ export async function petDownloads() {
     LANDING_PETS.map(async pet => {
       const root = path.dirname(pet.source),
         bytes = await readFile(`${root}/pet.json`),
-        { id, spritesheetPath, seasonalSpritesheets = {} } = JSON.parse(bytes);
+        { id, spritesheetPath, seasonalSpritesheets = {} } = JSON.parse(bytes),
+        file = path.basename(petDownload(pet.id));
+      // The folder is named for the pet's id, and the pages link the file by the friend's.
+      if (file !== `${id}.zip`) throw new Error(`${pet.source}: pet.json id ${id} does not match ${file}`);
       const sheets = await Promise.all(
         [spritesheetPath, ...Object.values(seasonalSpritesheets)].map(async sheet => ({
           name: `${id}/${sheet}`,
           bytes: await readFile(`${root}/${sheet}`),
         })),
       );
-      return { file: `${id}.zip`, entries: [{ name: `${id}/pet.json`, bytes }, ...sheets] };
+      return { file, entries: [{ name: `${id}/pet.json`, bytes }, ...sheets] };
     }),
   );
 }

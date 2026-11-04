@@ -32,7 +32,7 @@ test('creation kits keep approved reference files and ready pet downloads in the
   ])
     assert.ok(studio.includes(file));
   // The ready friend is the same download as the landing gallery's, not a kit of its own.
-  assert.match(studio, /\/pets\/playpets-\$\{starter\}\.zip/);
+  assert.match(studio, /petDownload\(starter\)/);
   assert.match(studio, /v-for="entry in kitEntries"/);
   assert.match(studio, /starter==='custom'/);
   assert.doesNotMatch(studio, /type="file"|readStudioImage|inspectPng/);
@@ -40,12 +40,13 @@ test('creation kits keep approved reference files and ready pet downloads in the
 
 test('each starter friend downloads as playpets-<name>.zip, one folder a Codex pets folder or a ZIP import takes as it is', async () => {
   const { creatorKits, petDownloads } = await import('../scripts/creator-kit.mjs');
-  const { LANDING_PETS } = await import('../scripts/site-content.mjs');
+  const { LANDING_PETS, petDownload } = await import('../scripts/site-content.mjs');
   const downloads = await petDownloads();
   assert.deepEqual(
-    downloads.map(d => d.file),
-    LANDING_PETS.map(pet => `playpets-${pet.id}.zip`),
+    downloads.map(d => `/pets/${d.file}`),
+    LANDING_PETS.map(pet => petDownload(pet.id)),
   );
+  assert.equal(petDownload('daisy'), '/pets/playpets-daisy.zip');
   // The kit step of the same build checks these sheets, so the download does not check them again.
   const checked = creatorKits.flatMap(kit => kit.sheets);
   for (const [index, { file, entries }] of downloads.entries()) {

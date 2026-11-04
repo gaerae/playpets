@@ -15,7 +15,7 @@ description: 친구 초대에서 펫을 골라 친구로 맞이하고, 놀이터
 
 네 친구도 Codex 펫 형식이라 다른 펫처럼 초대하고, 바탕화면에 내보내고, AI를 연결하면 돼요. 펫 파일은 데이터 폴더의 `builtin/` 아래에 풀려 있어요.
 
-네 친구는 하나씩 따로 받을 수도 있어요. [홈페이지](../index.md#companions)의 친구 소개에서 계절 옷까지 담긴 `playpets-<이름>.zip`을 받아요. PlayPets에서는 [ZIP 파일](./import.md#zip-file)로 가져오고, 압축을 풀어 `~/.codex/pets`에 넣으면 ChatGPT와 Codex에서도 함께해요.
+네 친구는 하나씩 따로 받을 수도 있어요. [홈페이지](../index.md#companions)의 친구 소개에서 계절 옷까지 담긴 `playpets-<이름>.zip`을 받아요. PlayPets에서는 [ZIP 파일](./import.md#zip-file)로 가져오고, Codex 펫 폴더(`~/.codex/pets`, Windows는 `%USERPROFILE%\.codex\pets`)에 압축을 풀면 ChatGPT와 Codex에서도 함께해요.
 
 예전 기본 친구들은 저장된 이름과 설정, 친밀도를 그대로 지닌 채 모습만 바뀌어요. Aria는 Daisy로, Noah는 Pip으로, 기존 고양이는 Clover로 이어져요. 직접 가져온 펫은 바뀌지 않아요. 대화는 앱을 실행하는 동안만 남고, 다시 시작하면 되살아나지 않아요.
 

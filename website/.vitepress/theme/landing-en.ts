@@ -104,7 +104,7 @@ export const sections = {
   galleryCreate: 'Create with this friend',
   galleryDownload: 'Download',
   galleryDownloadHint:
-    'One ZIP with every season’s outfit. Unzip it into ~/.codex/pets and they join you in ChatGPT and Codex too.',
+    'One ZIP with every season’s outfit. Unzip it into your Codex pets folder (~/.codex/pets, or %USERPROFILE%\\.codex\\pets on Windows) and they join you in ChatGPT and Codex too.',
   petNotes: {
     daisy: 'A curious explorer who always wonders what is around the next corner.',
     clover: 'A gentle kitten gardener who can’t wait to show you what grew today.',

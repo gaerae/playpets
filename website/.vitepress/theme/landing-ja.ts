@@ -98,7 +98,8 @@ export const sections = {
   discoveryGuide: 'どんな発見があるか見てみる',
   galleryCreate: 'この子をもとに作る',
   galleryDownload: 'ファイルを保存',
-  galleryDownloadHint: '季節の服まで入ったZIPひとつです。~/.codex/petsに展開すると、ChatGPTやCodexでもいっしょです。',
+  galleryDownloadHint:
+    '季節の服まで入ったZIPひとつです。Codexのペットフォルダー（~/.codex/pets、Windowsは%USERPROFILE%\\.codex\\pets）に展開すると、ChatGPTやCodexでもいっしょです。',
   galleryTitle: '会えると、うれしくなる友だち。',
   galleryLead: 'デイジー、クローバー、ピップ、ミソ。4人それぞれに、個性と物語があります。',
   galleryLabel: '友だちを選ぶ',

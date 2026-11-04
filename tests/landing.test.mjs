@@ -272,7 +272,7 @@ test('every landing companion leads to its own creator kit', async () => {
 test('every landing companion can be taken home by itself, and the guide says where it goes', async () => {
   const { SITE_LANGS } = await import('../scripts/site-content.mjs');
   const gallery = read('website/.vitepress/theme/PetGallery.vue');
-  assert.match(gallery, /\/pets\/playpets-\$\{selected\.id\}\.zip/);
+  assert.match(gallery, /petDownload\(selected\.id\)/);
   assert.match(gallery, /download[ >]/);
   assert.match(gallery, /words\.galleryDownload/);
   assert.match(gallery, /words\.galleryDownloadHint/);
@@ -414,10 +414,12 @@ test('the moving scenes wait until they are seen and stop for paused or reduced 
 
 test('the landing counts the album as the catalog does, in every language', async () => {
   const { albumEntries: entries } = await import('./support/content.mjs');
+  // The album's own shot and the comparison's collecting row, wherever else a number may appear.
+  const { sections: en } = await import('../website/.vitepress/theme/landing-en.ts');
+  const collecting = en.compare.rows.findIndex(row => row[0] === 'Collecting');
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
     const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
-    const said = JSON.stringify(sections).match(/\b\d{3}\b/g) ?? [];
-    assert.ok(said.length, `${lang} gives the album a size`);
-    for (const count of said) assert.equal(Number(count), entries, `${lang} says ${count}`);
+    for (const line of [sections.play.shots.find(shot => shot[0] === 'album')[2], sections.compare.rows[collecting][2]])
+      assert.equal(Number(line.match(/\d+/)?.[0]), entries, `${lang}: ${line}`);
   }
 });

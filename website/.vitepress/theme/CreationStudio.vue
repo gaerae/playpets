@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue';
 import { backgroundSheet } from '../../../scripts/background-specs.mjs';
 import { kitEntries, kitFromQuery, kitSpec, petManifest } from '../../../scripts/creator-specs.mjs';
 import generated from '../generated.json';
+import { petDownload } from '../../../scripts/site-content.mjs';
 import { creationCopy } from './creation-copy.js';
 import { creationRequest, creationZip, kitRequest, requestEntries, saveCreationFile } from './creation-kit.mjs';
 import StudioNav from './StudioNav.vue';
@@ -158,7 +159,7 @@ async function download() {
     <aside class="creation-takeaway"><h3>{{ t.contents }}</h3><ul><li v-for="item in t.included" :key="item">{{ item }}</li></ul><ol><li v-for="step in t.steps" :key="step">{{ step }}</li></ol><p v-if="kind==='background'" class="creation-capability">{{ t.coordinates }}</p><p class="creation-output">{{ kind==='pet'?t.petOutput:t.backgroundOutput }}</p><a :href="withBase(`/${prefix}guide/import`)">{{ t.import }} ↗</a><p class="creation-capability">{{ t.capability }}</p><a :href="withBase(`/creator-kit/skill/playpets-creator.zip?rev=${generated.creatorSkillRevision}`)" download>{{ t.skill }} ↓</a><br><a :href="withBase(`/creator-kit/skill/playpets-creator-plugin.zip?rev=${generated.creatorSkillRevision}`)" download>{{ t.plugin }} ↓</a></aside>
   </div>
   <details class="creation-install"><summary>{{ t.installTitle }}</summary><p>{{ t.installHint }}</p><div v-for="agent in ['codex','claude-code']" :key="agent"><h3>{{ agent==='codex'?'Codex':'Claude Code' }}</h3><pre tabindex="0"><code>{{ installCommand(agent) }}</code></pre><button type="button" :disabled="!ready" @click="copyInstall(agent)">{{ t.installCopy }}</button></div><p>{{ t.installScope }}</p><p>{{ t.installPending }}</p><p><a href="https://github.com/vercel-labs/skills">skills CLI</a>, <a href="https://developers.openai.com/codex/skills/">Codex</a>, <a href="https://code.claude.com/docs/en/skills">Claude Code</a></p></details>
-  <details v-if="kind==='pet' &&starter!=='custom'" class="creation-ready"><summary>{{ t.ready }}</summary><p>{{ t.readyHint }}</p><a :href="withBase(`/pets/playpets-${starter}.zip`)" download>{{ t.readyDownload }} ↓</a></details>
+  <details v-if="kind==='pet' &&starter!=='custom'" class="creation-ready"><summary>{{ t.ready }}</summary><p>{{ t.readyHint }}</p><a :href="withBase(petDownload(starter))" download>{{ t.readyDownload }} ↓</a></details>
 </section>
 </template>
 <style scoped>

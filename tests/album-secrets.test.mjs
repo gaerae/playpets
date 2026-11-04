@@ -48,6 +48,15 @@ test('once found, the book shows only what was found, with no blanks and no tota
   assert.equal(document.getElementById('album-dig-status').hidden, false);
 });
 
+test('the compact chooser lists the hidden book only once something in it is found', t => {
+  const books = () => document.getElementById('album-select').children.map(option => option.value);
+  album(t, {});
+  assert.ok(!books().includes('secret'), 'a select popup may not honour a hidden option, so it is not there');
+  assert.ok(books().includes('flower'));
+  album(t, { wish: { count: 1, best: 0, first: 1 } });
+  assert.equal(books().at(-1), 'secret');
+});
+
 test('the page and the backend keep the same secrets', () => {
   const rust = readFileSync(new URL('../src-tauri/src/pets/album.rs', import.meta.url), 'utf8');
   const listed = rust
@@ -71,7 +80,7 @@ test('a secret found says so the first time, after its moment has played out', a
     shown = [];
   state.api.foundSecret = async id => {
     found.push(id);
-    return { ok: true, data: { first } };
+    return { ok: true, data: { first, found: new Set(found).size } };
   };
   t.after(() => delete state.api.foundSecret);
   const show = (...card) => shown.push(card);
@@ -86,8 +95,8 @@ test('a secret found says so the first time, after its moment has played out', a
     [name, detail, isNew, book],
     [translate('secret.wish'), translate('secret.wish_note'), translate('secret.found'), 'secret'],
   );
-  // the next one is one more in a book already there
-  state.setData({ ...state.data, album: { secrets: { wish: { count: 1 } } } });
+  // the next one is one more in a book already there, as the backend counts it: the page may not
+  // have heard of the first yet
   await discover('dizzy', 0, show);
   t.mock.timers.tick(0);
   assert.equal(shown[1][3], translate('secret.found_more'));

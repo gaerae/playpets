@@ -15,7 +15,7 @@ description: 在邀请伙伴里选一只宠物让它成为伙伴，然后在乐�
 
 它们用的是 Codex 宠物格式，和其他宠物一样可以邀请、放到桌面上、接上 AI。宠物文件解压在数据文件夹的 `builtin/` 下。
 
-这四位也可以单独下载。在[首页](../index.md#companions)的伙伴介绍里下载 `playpets-<名字>.zip`，里面带着各季服装。在 PlayPets 里按 [ZIP 文件](./import.md#zip-文件)导入；解压到 `~/.codex/pets`，在 ChatGPT 和 Codex 里也能陪着你。
+这四位也可以单独下载。在[首页](../index.md#companions)的伙伴介绍里下载 `playpets-<名字>.zip`，里面带着各季服装。在 PlayPets 里按 [ZIP 文件](./import.md#zip-文件)导入；解压到 Codex 宠物文件夹（`~/.codex/pets`，Windows 为 `%USERPROFILE%\.codex\pets`），在 ChatGPT 和 Codex 里也能陪着你。
 
 从旧版本升级的话，之前的内置伙伴会保留已保存的名字、设置和亲密度，只换外观：Aria 换成 Daisy，Noah 换成 Pip，原来的猫咪换成 Clover。自己导入的宠物不变。对话只在本次运行中保留，重启后不会恢复。
 

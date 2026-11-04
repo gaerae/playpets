@@ -253,13 +253,11 @@ export function renderAlbum() {
     total += b.kinds.length;
     tally.textContent = `${count}/${b.kinds.length}`;
   }
-  if ($('album-select')) $('album-select').value = book;
+  if ($('album-select')) listBooks($('album-select'));
   $('album-total').textContent = t('catch.total', { caught: found, total });
   for (const tab of document.querySelectorAll('.album-tabs [data-book]')) {
-    const active = tab.dataset.book === book,
-      option = $('album-select')?.querySelector?.(`option[value="${tab.dataset.book}"]`);
+    const active = tab.dataset.book === book;
     tab.hidden = !shown(tab.dataset.book);
-    if (option) option.hidden = tab.hidden;
     tab.setAttribute('aria-selected', String(active));
     tab.tabIndex = active ? 0 : -1;
     if (active) $('album-grid').setAttribute('aria-labelledby', tab.id);
@@ -273,6 +271,23 @@ const shown = id => {
   const b = BOOKS[id];
   return !!b && (!b.hidden || b.kinds.some(k => b.found()[k.id]));
 };
+// The compact chooser holds only the books there are to open: a select's popup may offer a hidden
+// option all the same.
+function listBooks(picker) {
+  const ids = Object.keys(BOOKS).filter(shown);
+  if (picker.dataset.books !== ids.join()) {
+    picker.dataset.books = ids.join();
+    picker.replaceChildren(
+      ...ids.map(id => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = t(BOOKS[id].tab);
+        return option;
+      }),
+    );
+  }
+  picker.value = book;
+}
 /** Opens the album (the tools' button), at a given book when a card asks for it. */
 export function openAlbum(open = null) {
   if (open && shown(open)) {
@@ -293,14 +308,7 @@ export function setupAlbum() {
   });
   const picker = $('album-select');
   if (picker) {
-    picker.replaceChildren(
-      ...Object.entries(BOOKS).map(([id, b]) => {
-        const option = document.createElement('option');
-        option.value = id;
-        option.textContent = t(b.tab);
-        return option;
-      }),
-    );
+    listBooks(picker);
     picker.onchange = () => {
       if (!shown(picker.value)) return;
       book = picker.value;

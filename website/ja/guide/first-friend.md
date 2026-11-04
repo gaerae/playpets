@@ -15,7 +15,7 @@ description: 「友だちを招待」でペットを選んで友だちにし、�
 
 4人ともCodexのペット形式なので、ほかのペットと同じように招待したり、デスクトップへ出したり、AIをつけたりできます。ファイルはデータフォルダーの`builtin/`にあります。
 
-4人は1人ずつ保存することもできます。[ホームページ](../index.md#companions)の友だち紹介から、季節の服まで入った`playpets-<名前>.zip`を保存できます。PlayPetsでは[ZIPファイル](./import.md#zip-file)として取り込み、`~/.codex/pets`に展開するとChatGPTやCodexでもいっしょです。
+4人は1人ずつ保存することもできます。[ホームページ](../index.md#companions)の友だち紹介から、季節の服まで入った`playpets-<名前>.zip`を保存できます。PlayPetsでは[ZIPファイル](./import.md#zip-file)として取り込み、Codexのペットフォルダー（`~/.codex/pets`、Windowsは`%USERPROFILE%\.codex\pets`）に展開するとChatGPTやCodexでもいっしょです。
 
 以前の基本ペットは、保存された名前、設定、なかよし度をそのまま引き継ぎます。AriaはDaisy、NoahはPip、元の猫はCloverの姿になります。自分で取り込んだペットは変わりません。会話は起動している間だけ保持され、再起動すると復元されません。
 

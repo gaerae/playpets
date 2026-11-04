@@ -619,3 +619,7 @@ test('the collection reserves a viewport-bounded height before laying out its sc
   const css = await styles();
   assert.match(css, /\.album-dialog\{[^}]*height:min\(560px,calc\(100dvh - 16px\)\)/);
 });
+
+test('a dialog heading wraps a long word instead of running past the dialog', async () => {
+  assert.match(await styles(), /\.dialog-heading h2\{[^}]*overflow-wrap:anywhere/);
+});

@@ -1,7 +1,7 @@
 // What the yard keeps to itself (pets/album.rs SECRETS has the same list). Each is kept in the
 // album once found, in a book that shows nothing until then, and told of once, on a card.
 import { t } from '../core/i18n.js';
-import { call, data } from '../core/state.js';
+import { call } from '../core/state.js';
 import { showCard } from './card.js';
 
 // Each drawing sits on the same night-blue seal, so the book reads as one set; a faint rim keeps it
@@ -43,9 +43,11 @@ export const SECRETS = [
 export async function discover(id, after = 0, show = showCard) {
   const kind = SECRETS.find(s => s.id === id);
   if (!kind) return;
-  const more = Object.keys(data.album?.secrets || {}).length > 0;
+  // How many are found comes from the backend: two moments close together may both end before the
+  // page hears of the first.
   const found = await call('foundSecret', id).catch(() => null);
   if (!found?.first) return;
+  const more = found.found > 1;
   // What was done is the detail; that it was a secret is the news, which a narrow yard still shows.
   setTimeout(
     () =>
