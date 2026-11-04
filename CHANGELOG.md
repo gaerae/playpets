@@ -29,7 +29,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Right-clicking a decoration in the yard opens a menu (**Show on desktop**, **Put away**) instead of putting it away at once; **Delete** and **Backspace** still put it away.
 - With anything out on the desktop, the **Show on desktop** switch brings everything in; otherwise it sends every friend out.
 - A memento's heart shows for a day after it arrives, then only while you point at the memento, select it or drag it, so a yard of mementos is no longer covered in hearts.
-- Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 180 MB instead of 315 MB, and the Windows and Linux packages about 65 MB lighter.
+- Downloads are smaller, with the yard's pictures unchanged to the eye: the macOS disk image is about 200 MB instead of 315 MB, and the Windows and Linux packages nearly 60 MB lighter.
 - Fish and bug odds follow how common they are: bass and bluegill are everyday catches, snakeheads, sweetfish, eels and mandarin fish come more often, and goldfish less. The golden carp, now only at dusk and night, is the rarest fish outside an event, the moon carp is a rarer find during the harvest moon, and the common skimmer flies from spring to autumn.
 - The album marks everything that comes only during a seasonal event as rare, and its hint now gives the event's dates.
 - The album's digging note calls its 24-hour limit a rule for rare finds, the same word as the badge, instead of uncommon ones.
