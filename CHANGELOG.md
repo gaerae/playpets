@@ -41,6 +41,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- On Windows, the download section shows the GitHub installer (.exe) for your PC with its version right under the Microsoft Store button, and the SmartScreen note under it, instead of only in the folded list.
 - The desktop guide and the play guide describe sending one friend or one gift to the desktop, the desktop's right-click menu and setting a gift out again from the album.
 - Each of the four friends can be downloaded by itself from the front page as `playpets-<name>.zip`, seasonal outfits included: PlayPets imports it as it is, and unzipped into `~/.codex/pets` the friend comes to ChatGPT and Codex too. The character studio's ready friend is the same download, and the old kit ZIPs are gone.
 - The play guide says where the rainbow ends and what a dig there finds.

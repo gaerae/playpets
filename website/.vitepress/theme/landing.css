@@ -721,7 +721,8 @@ html[lang^="ja"] .landing {
   justify-items: center;
 }
 .landing-download .dl-row,
-.landing-download .dl-command {
+.landing-download .dl-command,
+.landing-download .dl-direct {
   justify-content: center;
 }
 .landing-download .dl-command code {

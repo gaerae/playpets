@@ -230,6 +230,26 @@ h3,
   background: var(--vp-c-bg-soft);
   user-select: all;
 }
+/* The installer link under the Store button: as quiet as the command, with its architecture and version. */
+.dl-direct {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: baseline;
+  margin: 0;
+  font-size: 13px;
+}
+.dl-direct a {
+  display: inline-block;
+  min-height: 28px;
+  padding-block: 3px;
+  font-weight: 600;
+  color: var(--vp-c-brand-1);
+}
+.dl-direct span {
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+}
 /* A command wraps only between its words, never after the hyphen of a flag. */
 .dl-word {
   white-space: nowrap;
