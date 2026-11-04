@@ -194,7 +194,7 @@ git push --atomic origin HEAD v0.2.0
 
 | Channel | With its token | Without it |
 |---|---|---|
-| winget | If `WINGET_TOKEN` exists, `wingetcreate` opens the PR on winget-pkgs, for the first version too. winget's moderators review a new package by hand; their bots merge later versions once checks pass | Submit the artifact's `winget/manifests/…` folder yourself (below) |
+| winget | If `WINGET_TOKEN` exists, `wingetcreate` opens the PR on winget-pkgs, for the first version too. winget's moderators review a new package by hand; their bots merge later versions once checks pass. While the first version's PR is still open, no other PR is opened and the run leaves a notice; after it is merged, run `distribute` by hand for the latest tag | Submit the artifact's `winget/manifests/…` folder yourself (below) |
 | Homebrew | If `HOMEBREW_TAP_TOKEN` exists, the run updates `Casks/playpets.rb` in `<account>/homebrew-tap` | Copy the artifact's `homebrew/Casks/playpets.rb` into the tap repository and commit it |
 
    Submitting to winget by hand:

@@ -131,6 +131,24 @@ test('distribute builds from the workflow ref and keeps the winget token off the
   assert.match(workflow, /WINGET_CREATE_GITHUB_TOKEN: \$\{\{ env\.WINGET_TOKEN \}\}/);
 });
 
+test('winget gets no new pull request while the first one waits for review', async () => {
+  const workflow = await readFile('.github/workflows/distribute.yml', 'utf8');
+  const winget = workflow.slice(workflow.indexOf('\n  winget:'), workflow.indexOf('\n  homebrew:'));
+  // The first version waits for a moderator; a pull request per release would queue behind it.
+  const check = winget.indexOf('repos/microsoft/winget-pkgs/contents/manifests/g/gaerae/PlayPets');
+  assert.ok(check > 0, 'looks the package up first');
+  assert.ok(check < winget.indexOf('wingetcreate.exe submit'));
+  assert.match(winget, /id: hold/);
+  assert.match(winget, /if: env\.WINGET_TOKEN != '' && steps\.hold\.outputs\.waiting != 'true'/);
+  // Not there yet and a pull request open for it: that one is still in review. With none open, the
+  // first pull request still goes.
+  assert.match(winget, /gh pr list -R microsoft\/winget-pkgs --state open --search 'gaerae\.PlayPets in:title'/);
+  // Only "not there" holds it back: any other failure of the lookup stops the job instead of skipping.
+  assert.match(winget, /HTTP 404/);
+  // The lookup needs no secret.
+  assert.match(winget, /GH_TOKEN: \$\{\{ github\.token \}\}/);
+});
+
 test('publishing a release builds the site again from main, which reads the releases with the token', async () => {
   const distribute = await readFile('.github/workflows/distribute.yml', 'utf8');
   const site = distribute.slice(distribute.indexOf('\n  site:'), distribute.indexOf('\n  winget:'));

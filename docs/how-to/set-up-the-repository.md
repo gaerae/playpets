@@ -211,6 +211,8 @@ gh secret set WINGET_TOKEN --repo gaerae/playpets
    - `distribute` opens the first pull request after the first release is published.
    - On that pull request, a Microsoft bot asks for the Contributor License Agreement. Agree by commenting `@microsoft-github-policy-service agree` on it.
    - winget's moderators review a new package by hand (a few days).
+   - While that first pull request is open, `distribute` opens no other one: each later release would only queue behind it. The run leaves a notice instead.
+   - Once it is merged, run `distribute` by hand for the latest tag (`gh workflow run distribute.yml -f tag=v<version>`), so winget gets the newest version.
    - Their bots merge later versions once checks pass.
    - Users then install with `winget install gaerae.PlayPets`.
 
