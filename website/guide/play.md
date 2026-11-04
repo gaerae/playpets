@@ -172,10 +172,12 @@ Drag a decoration anywhere on the field to move it, or select it and use the arr
 
 Friends also visit decorations on their own. They sit on the bench, gather on the blanket and look into the pond. The lantern is lit from evening on, the pond mirrors the sky, and a bird sits on the birdhouse by day.
 
-To put one away, right-click it or press **Delete** or **Backspace** on it. It goes at once, and **Undo** in the notice brings it back for about six seconds. If the app closes first, it stays. A friend may bring it again another day.
+To put one away, right-click it and choose **Put away**, or press **Delete** or **Backspace** on it. It goes at once, and **Undo** in the notice brings it back for about six seconds. If the app closes first, it stays. A friend may bring it again another day.
 
 - The yard holds 12 decorations. When it's full, a new gift waits in the **gift box** at the top of the album's Gifts book, which holds 12 more. Press one there to set it out once there's room.
 - Putting one away keeps its album entry and makes room for the remaining gifts. A memento goes back into the gift box instead, unless the box is full.
+- Any gift that came before can come back out: press **Set out** on its card in the album's Gifts book, once there's room in the yard.
+- The same right-click menu sends a gift out to the desktop ([Gifts on the desktop](./desktop.md#gifts-on-the-desktop)).
 - The album has 26 gifts, including five delivered only during their calendar events. A memento is one of these 26, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
