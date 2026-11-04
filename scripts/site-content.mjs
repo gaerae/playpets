@@ -17,6 +17,9 @@ export const SITE_URL = 'https://playpets.gaerae.com';
 // A version's release page, the notes written for people using the app.
 export const releasePageUrl = (version, lang = 'en') => `${SITE_URL}${localePath(lang, `/releases/${version}`)}`;
 
+/** Where a starter friend's own download is served (scripts/creator-kit.mjs writes it). */
+export const petDownload = id => `/pets/playpets-${id}.zip`;
+
 export const LANDING_PETS = Object.freeze([
   { id: 'daisy', displayName: 'Daisy', source: 'assets/pets/daisy/spritesheet.png', kit: 'daisy' },
   { id: 'clover', displayName: 'Clover', source: 'assets/pets/clover/spritesheet.png', kit: 'clover' },

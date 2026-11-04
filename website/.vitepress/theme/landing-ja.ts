@@ -113,6 +113,9 @@ export const sections = {
   codexPlusLink: 'Codexのペットを迎える',
   discoveryGuide: 'どんな発見があるか見てみる',
   galleryCreate: 'この子をもとに作る',
+  galleryDownload: 'ファイルを保存',
+  galleryDownloadHint:
+    '季節の服まで入ったZIPひとつです。Codexのペットフォルダー（~/.codex/pets、Windowsは%USERPROFILE%\\.codex\\pets）に展開すると、ChatGPTやCodexでもいっしょです。',
   galleryTitle: 'はじめからいる4人',
   galleryLead:
     'デイジー、クローバー、ピップ、ミソがアプリに入っています。招待したら、名前、性格、あなたとの関係を決めます。',

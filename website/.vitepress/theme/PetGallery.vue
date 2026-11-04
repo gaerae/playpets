@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { withBase } from 'vitepress';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { LANDING_PETS } from '../../../scripts/site-content.mjs';
+import { LANDING_PETS, petDownload } from '../../../scripts/site-content.mjs';
 import VisibleSprite from './VisibleSprite.vue';
 
 const props = defineProps<{
@@ -14,6 +15,8 @@ const props = defineProps<{
     petNotes: Record<string, string>;
     galleryGuide: string;
     galleryCreate: string;
+    galleryDownload: string;
+    galleryDownloadHint: string;
   };
   guide: string;
   creator: string;
@@ -62,7 +65,8 @@ const select = (id: string) => {
         <div class="choice-group pose-controls" role="group" :aria-label="words.posesLabel">
           <button v-for="(state, i) in poses" :key="state" type="button" :aria-pressed="pose === state" @click="pose = state">{{ words.poses[i] }}</button>
         </div>
-        <div class="pet-actions"><a class="pet-create" :href="`${props.creator}?kit=${encodeURIComponent(selected.kit)}`">{{ words.galleryCreate }} ↗</a><a class="more" :href="props.guide">{{ words.galleryGuide }} →</a></div>
+        <div class="pet-actions"><a class="pet-create" :href="`${props.creator}?kit=${encodeURIComponent(selected.kit)}`">{{ words.galleryCreate }} ↗</a><a class="pet-download" :href="withBase(petDownload(selected.id))" download>{{ words.galleryDownload }} ↓</a><a class="more" :href="props.guide">{{ words.galleryGuide }} →</a></div>
+        <p class="pet-download-hint">{{ words.galleryDownloadHint }}</p>
       </div>
     </div>
   </section>

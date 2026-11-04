@@ -28,7 +28,10 @@ function audio() {
     const result = {
       ...node(),
       stops: [],
-      start() {},
+      starts: [],
+      start(at) {
+        this.starts.push(at);
+      },
       stop(at) {
         this.stops.push(at);
       },
@@ -71,5 +74,24 @@ test('entering a silent indoor scene cancels already scheduled wildlife while pr
     cues.map(source => source.stops),
     stops,
     'indoor activity cues keep playing',
+  );
+});
+
+test('a shell bursts with a thump and crackles after it, and a quiet scene does not cut it short', () => {
+  const { sources, scape } = audio();
+  const first = sources.length;
+  scape.boom(20, -0.4, 1);
+  const voices = sources.slice(first);
+  assert.ok(voices.length >= 4);
+  assert.ok(voices.every(source => source.starts[0] >= 20));
+  assert.ok(
+    voices.some(source => source.starts[0] > 20.3),
+    'crackles come after the thump',
+  );
+  const stops = voices.map(source => [...source.stops]);
+  scape.setMix({ breeze: 0, leaves: 0, water: 0, rain: 0, birds: 0, crickets: 0 });
+  assert.deepEqual(
+    voices.map(source => source.stops),
+    stops,
   );
 });

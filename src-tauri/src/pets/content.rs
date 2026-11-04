@@ -69,6 +69,9 @@ fn one() -> u32 {
 pub struct DiscoveryContext {
     pub season: String,
     pub weather: String,
+    /// The dig is at the rainbow's end the page shows after rain (rainbow-end.js).
+    #[serde(default)]
+    pub rainbow: bool,
 }
 impl DiscoveryContext {
     pub fn valid(&self) -> bool {
@@ -259,6 +262,7 @@ mod tests {
                     let context = DiscoveryContext {
                         season: season.into(),
                         weather: weather.into(),
+                        rainbow: false,
                     };
                     let expected = (if season == "spring" { 2 } else { 1 })
                         * (if weather == "rain" { 2 } else { 1 })

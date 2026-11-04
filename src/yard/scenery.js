@@ -11,19 +11,25 @@ import { createAmbientArt } from './ambient-art.js';
 import { bugChances, weighted, wildlifeGroup } from './catalog.js';
 import { environmentFrame, weatherPanes } from './environment.js';
 import { boostOf } from './events.js';
+import { sparkAt } from './fireworks.js';
+import { meteorAt, shower as showerOf, wish } from './meteors.js';
 import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
 import { createWeatherArt } from './weather-art.js';
 import { worldAllows, worldFor } from './worlds.js';
 
 const TAU = Math.PI * 2;
 const INK = {
-  rain: { day: '168,192,214', night: '190,208,230' },
+  rain: { day: '168,192,214', night: '190,208,230', sun: '255,236,186' },
   snow: '255,255,255',
   star: '255,250,230',
   firefly: '236,240,150',
 };
 const PETALS = ['#f7c1d2', '#fbd7e3', '#f3a9c1'];
 const LEAVES = ['#e6a03c', '#d65a3a', '#f0c25a', '#c4702f'];
+// A shooting star now and then on an ordinary clear night, and every few seconds in a meteor
+// shower: this long between them.
+const STREAK_GAP = [18000, 48000];
+const SHOWER_GAP = [1500, 4000];
 // A flock crosses the sky now and then on a clear day: this long between flocks.
 const FLOCK_GAP = [45000, 120000];
 // A spell of small life lasts SPELL ms; the rest between spells is drawn from REST.
@@ -74,8 +80,21 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     stars = [],
     critters = [],
     refillAt = 0,
-    streak = null,
+    // Shooting stars crossing (meteors.js), and when the next comes.
+    meteors = [],
     nextStreak = 0,
+    // A meteor shower (sky-moments.js): shooting stars every few seconds; `soon` brings the next one
+    // on as it begins, `calm` puts it off to an ordinary night's wait as it ends.
+    shower = false,
+    soon = false,
+    calm = false,
+    // A sunshower (sky-moments.js): the rain catches the sun.
+    sunlit = false,
+    // A wish asked for from the moon (where it is), sent on the next frame; sparks to be made then,
+    // and those flaring.
+    wishFrom = null,
+    flaring = null,
+    sparks = [],
     // Whether a spell of small life is on, and when it ends (or the next begins).
     spell = true,
     spellTurn = 0,
@@ -155,7 +174,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     );
     flock = null;
     splashes = [];
-    streak = null;
     stars =
       worldAllows(world, 'sky') && period === 'night' && clear()
         ? Array.from({ length: Math.round(Math.min(90, w / 9)) }, () => ({
@@ -203,6 +221,9 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     weather = nextWeather;
     season = nextSeason;
     event = nextEvent;
+    // A new scene takes what was crossing its sky with it; a resize keeps it (populate).
+    meteors = [];
+    sparks = [];
     populate();
     paint(performance.now());
     paintStars(performance.now());
@@ -266,26 +287,87 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       starCtx.arc(s.x, s.y, s.r, 0, TAU);
       starCtx.fill();
     }
-    if (streak) {
-      const t = (now - streak.since) / streak.life,
-        x = streak.x + streak.dx * t,
-        y = streak.y + streak.dy * t;
-      starCtx.globalAlpha = 0.9 * (1 - t);
-      if (!ambient.streak(starCtx, x, y, streak.dx, streak.dy)) {
-        const tail = starCtx.createLinearGradient(x, y, x - streak.dx * 0.22, y - streak.dy * 0.22);
-        tail.addColorStop(0, `rgba(${INK.star},${0.9 * (1 - t)})`);
+    if (meteors.length) drawMeteors(now);
+    if (sparks.length) drawSparks(starCtx, now, false);
+    starCtx.globalAlpha = 1;
+  }
+  // Shooting stars add their light to the sky: a tail that tapers behind a glowing head.
+  function drawMeteors(now) {
+    starCtx.globalCompositeOperation = 'lighter';
+    for (const m of meteors) {
+      const at = meteorAt(m, now);
+      if (!at) continue;
+      starCtx.globalAlpha = at.alpha;
+      if (!ambient.streak(starCtx, at.x, at.y, at.angle, at.length, m.width)) {
+        const ex = at.x - Math.cos(at.angle) * at.length,
+          ey = at.y - Math.sin(at.angle) * at.length,
+          tail = starCtx.createLinearGradient(at.x, at.y, ex, ey);
+        tail.addColorStop(0, `rgba(${INK.star},${at.alpha})`);
         tail.addColorStop(1, `rgba(${INK.star},0)`);
-        starCtx.globalAlpha = 1;
         starCtx.strokeStyle = tail;
-        starCtx.lineWidth = 1.6;
+        starCtx.lineWidth = m.width;
         starCtx.lineCap = 'round';
         starCtx.beginPath();
-        starCtx.moveTo(x, y);
-        starCtx.lineTo(x - streak.dx * 0.22, y - streak.dy * 0.22);
+        starCtx.moveTo(at.x, at.y);
+        starCtx.lineTo(ex, ey);
         starCtx.stroke();
       }
+      ambient.star(starCtx, { x: at.x, y: at.y, r: m.width * (m.wish ? 1.1 : 0.7) });
     }
-    starCtx.globalAlpha = 1;
+    starCtx.globalCompositeOperation = 'source-over';
+  }
+  // Fireworks (fireworks.js) add their light, as fire does: a soft flash where a shell bursts, then
+  // each star as a bright head with a fading tail; a burning-out star flickers, glitter all along.
+  // Shells climb from the friends in front of the land (`front`); they burst in the sky behind it.
+  function drawSparks(c, now, front) {
+    c.globalCompositeOperation = 'lighter';
+    c.lineCap = 'round';
+    for (const s of sparks) {
+      if (!!s.rise !== front) continue;
+      const at = sparkAt(s, now);
+      if (!at) continue;
+      if (s.flash) {
+        const glow = c.createRadialGradient(at.x, at.y, 0, at.x, at.y, 46 * scale);
+        glow.addColorStop(0, s.color);
+        glow.addColorStop(1, 'transparent');
+        c.globalAlpha = at.alpha * 0.45;
+        c.fillStyle = glow;
+        c.fillRect(at.x - 46 * scale, at.y - 46 * scale, 92 * scale, 92 * scale);
+        continue;
+      }
+      const flicker = Math.random() < (s.glitter ? 0.5 : at.alpha < 1 ? 0.3 : 0),
+        alpha = flicker ? at.alpha * 0.3 : at.alpha;
+      c.strokeStyle = s.color;
+      tail(c, s, at, now - (s.trail ?? (s.rise ? 220 : 150)), 1.2 * scale, alpha * 0.35);
+      tail(c, s, at, now - 40, 2.2 * scale, alpha);
+    }
+    c.globalCompositeOperation = 'source-over';
+    c.globalAlpha = 1;
+  }
+  // A spark's tail: a line from where it was `since` to where it is now (`at`).
+  function tail(c, s, at, since, width, alpha) {
+    const from = sparkAt(s, since) || { x: s.cx, y: s.cy };
+    c.globalAlpha = alpha;
+    c.lineWidth = width;
+    c.beginPath();
+    c.moveTo(from.x, from.y);
+    c.lineTo(at.x, at.y);
+    c.stroke();
+  }
+  // Each burst lights the whole yard for a moment in its colour, the friends too; bursts together
+  // light it no more than a little, so the finale does not turn to haze.
+  function lightYard(now) {
+    ctx.globalCompositeOperation = 'lighter';
+    let left = 0.08;
+    for (const s of sparks) {
+      const at = s.flash && sparkAt(s, now);
+      if (!at || left <= 0) continue;
+      ctx.globalAlpha = Math.min(left, at.alpha * 0.05);
+      left -= ctx.globalAlpha;
+      ctx.fillStyle = s.color;
+      ctx.fillRect(0, 0, w, h);
+    }
+    ctx.globalCompositeOperation = 'source-over';
   }
   function paint(now) {
     dirty = false;
@@ -303,14 +385,15 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     }
     if (weather === 'rain') {
       // The window clips the same rain used outdoors.
-      const ink = INK.rain[period === 'night' ? 'night' : 'day'];
+      const light = period === 'night' ? 'night' : sunlit ? 'sun' : 'day';
       ctx.lineCap = 'round';
-      ctx.strokeStyle = `rgb(${ink})`;
+      ctx.strokeStyle = `rgb(${INK.rain[light]})`;
       for (const d of drops) {
         if (!seen(d)) continue;
-        ctx.globalAlpha = 0.22 + d.depth * 0.4;
+        // drops lit by the sun stand out against the bright sky behind them
+        ctx.globalAlpha = (sunlit ? 0.4 : 0.22) + d.depth * 0.4;
         ctx.lineWidth = (0.6 + d.depth * 0.9) * scale;
-        if (art.rain(ctx, d, scale, period === 'night')) continue;
+        if (art.rain(ctx, d, scale, light)) continue;
         ctx.beginPath();
         ctx.moveTo(d.x, d.y);
         ctx.lineTo(d.x - (d.vx / d.vy) * d.size * scale, d.y - d.size * scale);
@@ -468,6 +551,10 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
         ctx.fillRect(c.x - 0.6 * k, c.y - 3.5 * k, 1.2 * k, 6 * k);
       }
     }
+    if (sparks.length) {
+      lightYard(now);
+      drawSparks(ctx, now, true);
+    }
     ctx.globalAlpha = 1;
   }
   // One step: moves what is moving and repaints only if something did.
@@ -479,10 +566,13 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
         fallers = [];
         flock = null;
         // A shooting star half way across is wiped from the sky layer, not left frozen there.
-        if (streak) {
-          streak = null;
+        if (meteors.length || sparks.length) {
+          meteors = [];
+          sparks = [];
           paintStars(now);
         }
+        wishFrom = null;
+        flaring = null;
         splashes = [];
         // Creatures arriving from outside or fading in remain available to catch.
         for (const c of critters) {
@@ -533,27 +623,58 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       if (nextFlock) launchFlock(now);
       nextFlock = now + between(Math.random, FLOCK_GAP);
     }
+    const lit = meteors.length > 0 || sparks.length > 0;
     if (stars.length) {
-      const crossing = !!streak;
-      if (streak && now - streak.since >= streak.life) streak = null;
-      if (!streak && now >= nextStreak) {
-        if (nextStreak)
-          streak = {
-            x: w * (0.2 + Math.random() * 0.6),
-            y: h * (0.05 + Math.random() * 0.2),
-            dx: w * 0.28 * (Math.random() < 0.5 ? -1 : 1),
-            dy: h * 0.16,
-            since: now,
-            life: 900,
-          };
-        nextStreak = now + 18000 + Math.random() * 30000;
+      meteors = meteors.filter(m => now < m.since + m.life);
+      if (soon && nextStreak) nextStreak = Math.min(nextStreak, now + 1500);
+      if (calm) nextStreak = now + between(Math.random, STREAK_GAP);
+      soon = calm = false;
+      if (wishFrom) {
+        const sent = wish(wishFrom, w, h, now);
+        meteors.push(sent.meteor);
+        sparks.push(...sent.dust);
       }
-      if (crossing || streak) paintStars(now);
+      if (now >= nextStreak) {
+        // On an ordinary night one star now and then; in a shower one to three every few seconds.
+        if (nextStreak) meteors.push(...(shower ? showerOf(w, h, now) : showerOf(w, h, now).slice(0, 1)));
+        nextStreak = now + between(Math.random, shower ? SHOWER_GAP : STREAK_GAP);
+      }
     }
+    wishFrom = null;
+    if (flaring) sparks.push(...flaring(w, h, now));
+    flaring = null;
+    if (sparks.length) {
+      sparks = sparks.filter(s => now < s.since + s.life);
+      moved = true;
+    }
+    if (lit || meteors.length || sparks.length) paintStars(now);
     if (moved) paint(now);
   }
   // Whether the canvas will change on the next frame (app.js runs the yard faster while it does).
-  const busy = () => enabled() && !reduced.matches && (drops.length > 0 || !!flock || !!streak);
+  const busy = () =>
+    enabled() &&
+    !reduced.matches &&
+    (drops.length > 0 || !!flock || meteors.length > 0 || !!wishFrom || !!flaring || sparks.length > 0);
+  // The sky layer's extras; each says whether it could be shown here and now.
+  const showers = on => {
+    soon = on && !shower;
+    calm = !on && shower;
+    shower = on;
+  };
+  const sunlights = on => {
+    sunlit = on;
+  };
+  // A wish from the moon at `from` (yard pixels); one at a time.
+  const shoot = from => {
+    if (!from || reduced.matches || !stars.length || wishFrom || meteors.some(m => m.wish)) return false;
+    wishFrom = from;
+    return true;
+  };
+  const flare = build => {
+    if (reduced.matches || !starCtx || !worldAllows(world, 'sky')) return false;
+    flaring = build;
+    return true;
+  };
   // The creature within `reach` of a point in the yard, nearest first, or null.
   function near(x, y, reach = 22) {
     if (!worldAllows(world, 'wildlife')) return null;
@@ -574,5 +695,16 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     dirty = true;
     return { kind: c.kind, species: c.species, x: c.x, y: c.y };
   }
-  return { resize, set, frame, busy, near: (x, y) => !!near(x, y), catchAt };
+  return {
+    resize,
+    set,
+    frame,
+    busy,
+    near: (x, y) => !!near(x, y),
+    catchAt,
+    shower: showers,
+    sunlit: sunlights,
+    shoot,
+    flare,
+  };
 }

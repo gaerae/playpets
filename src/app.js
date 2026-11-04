@@ -72,6 +72,7 @@ import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
 import { setupSky } from './yard/sky.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
+import { setupTouches } from './yard/touches.js';
 import { release } from './yard/trips.js';
 import { bubble, place, setupViews, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
@@ -195,6 +196,7 @@ setupSky({
     renderTrees();
   },
 });
+setupTouches();
 setupBackgrounds();
 setupViews({
   gameTap,

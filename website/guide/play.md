@@ -87,7 +87,7 @@ With the season on **Auto**, the outdoor places follow the date:
 
 You can also choose a season in **Place & atmosphere → Atmosphere**. If your computer's time zone is south of the equator, the automatic seasons are reversed.
 
-When rain clears in daylight, a rainbow stands over the hills for a few minutes. On clear days a flock of birds crosses the sky now and then. Butterflies flutter until autumn, fireflies glow on spring and summer nights, and crickets come out on autumn nights.
+When rain clears in daylight, a rainbow stands over the hills for a few minutes. Where it ends, a patch of ground glimmers: dig there before it fades and you never come up empty-handed. Other turns of the weather bring their own moments: rain from a clear daytime sky falls as a sunshower with the sun still out, mist lies on the field on clear autumn mornings, snow that stops at night glitters under the moon, and shooting stars come often all through clear summer nights. On clear days a flock of birds crosses the sky now and then. Butterflies flutter until autumn, fireflies glow on spring and summer nights, and crickets come out on autumn nights.
 
 If you pick a time of day or weather yourself, it stays fixed, and your choice is still there the next time you open the app.
 

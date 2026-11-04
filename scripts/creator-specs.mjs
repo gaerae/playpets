@@ -327,11 +327,6 @@ export function kitFromQuery(search) {
   return kitEntries.some(entry => entry.id === id) ? id : 'daisy';
 }
 
-export function baselineManifest(spec) {
-  const { seasonalSpritesheets: _seasons, portraitPath: _portrait, ...baseline } = petManifest(spec);
-  return baseline;
-}
-
 export function extensionPrompts({
   name = '[PET NAME]',
   reference = '[APPROVED REFERENCE FILES]',

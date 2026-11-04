@@ -110,10 +110,12 @@ test('precipitation builds its materials once, then draws cached near flakes and
   const drop = { x: 30, y: 40, depth: 0.95, size: 4, phase: 1, vx: -0.18, vy: 1 };
   for (let i = 0; i < 100; i++) {
     assert.equal(art.snow(ctx, drop, 0.5), true);
-    assert.equal(art.rain(ctx, drop, 0.5, false), true);
+    // by day, by night, and lit gold by the sun in a sunshower
+    for (const light of ['day', 'night', 'sun']) assert.equal(art.rain(ctx, drop, 0.5, light), true);
   }
   assert.deepEqual([allocations, gradients], built, 'painting creates no canvas, image or gradient');
-  assert.equal(ctx.calls.length, 200);
+  assert.equal(ctx.calls.length, 400);
+  assert.equal(new Set(ctx.calls.slice(1, 4).map(([sprite]) => sprite)).size, 3, 'each light its own drop');
 });
 
 test('rain impact uses a depth-scaled cached ring and never paints an expired splash', () => {
@@ -208,5 +210,5 @@ test('rain uses one daylight material regardless of the scene', () => {
     },
   });
   art.use('summer', 'rain', false);
-  assert.equal(allocations, 4, 'two rain and two ripple materials, no dark glass variant');
+  assert.equal(allocations, 5, 'three rain (day, night, sunlit) and two ripple materials, no dark glass variant');
 });

@@ -620,3 +620,14 @@ test('the collection reserves a viewport-bounded height before laying out its sc
   const css = await styles();
   assert.match(css, /\.album-dialog\{[^}]*height:min\(640px,calc\(100dvh - 16px\)\)/);
 });
+
+test('a dialog heading wraps a long word instead of running past the dialog', async () => {
+  assert.match(await styles(), /\.dialog-heading h2\{[^}]*overflow-wrap:anywhere/);
+});
+
+test('an album tab is as wide as its name, so a long one in Japanese stays on one line', async () => {
+  const css = await styles();
+  assert.match(css, /\.album-tabs\{[^}]*grid-auto-columns:minmax\(min-content,1fr\)/);
+  assert.match(css, /\.album-tabs button\{[^}]*min-width:max-content/);
+  assert.match(css, /\.album-tabs button>span\{[^}]*white-space:nowrap/);
+});

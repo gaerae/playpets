@@ -110,6 +110,9 @@ export const sections = {
   codexPlusLink: '내 Codex 펫 데려오기',
   discoveryGuide: '도감에서 만날 것들',
   galleryCreate: '이 친구로 만들기',
+  galleryDownload: '파일 받기',
+  galleryDownloadHint:
+    '계절 옷까지 담긴 ZIP 하나예요. Codex 펫 폴더(~/.codex/pets, Windows는 %USERPROFILE%\\.codex\\pets)에 압축을 풀면 ChatGPT와 Codex에서도 함께해요.',
   petNotes: {
     daisy: '다음 모퉁이 너머가 늘 궁금한 탐험가예요.',
     clover: '다정한 고양이 정원사예요. 오늘 뭐가 자랐는지 얼른 보여 주고 싶어 해요.',

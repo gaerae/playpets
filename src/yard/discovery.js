@@ -3,6 +3,7 @@ import { beginCompanionAction, playCompanionAction, prepareCompanionAction } fro
 import { closeControls, closeScene } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
+import { typing } from '../core/keys.js';
 import { limit } from '../core/limits.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { artSvg } from './art.js';
@@ -12,6 +13,7 @@ import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
 import { field, fieldToYard, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
+import { atRainbowEnd } from './rainbow-end.js';
 import { isFree, release, rest } from './trips.js';
 import { bubble } from './views.js';
 import { holdAtWork, sendToWork, stopWork } from './work.js';
@@ -178,7 +180,7 @@ export function sendDiscovery(v, point, action, kind) {
       if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
       let ground = groundProfile();
       if (!groundAllows(point, ground)) return cleanup();
-      const context = { season: scene.season, weather: scene.weather };
+      const context = { season: scene.season, weather: scene.weather, rainbow: atRainbowEnd(point) };
       holdAtWork(v, cleanup);
       const authored = playCompanionAction(v, action === 'tree' ? 'plant' : 'dig');
       const duration = authored?.duration ?? 1950;
@@ -405,7 +407,7 @@ export function setupDiscovery() {
   // Only while a tool is in hand (not the menu bar's shortcuts): 1, 2 and 3 pick a tool from the strip.
   document.addEventListener('keydown', event => {
     if (!TOOLS.some(([tool]) => tool === aiming) || event.metaKey || event.ctrlKey || event.altKey) return;
-    if (event.target?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+    if (typing(event)) return;
     const tool = TOOLS[Number(event.key) - 1]?.[0];
     if (!tool || tool === aiming) return;
     event.preventDefault?.();

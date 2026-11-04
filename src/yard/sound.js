@@ -123,6 +123,11 @@ export function cue(name) {
   else scape.cue(name);
 }
 
+/** A firework bursting `delay` ms from now, `pan` from -1 (left) to 1, `size` 1 for a full shell. */
+export function boom(delay, pan, size) {
+  if (awake) scape.boom(now() + delay / 1000, pan, size);
+}
+
 /** Atmosphere's sound toggle and volume, as the setting is now. */
 export function renderSound() {
   const button = $('sound-button'),

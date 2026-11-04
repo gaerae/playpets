@@ -298,6 +298,21 @@ test('every landing companion leads to its own creator kit', async () => {
   assert.match(gallery, /words\.galleryCreate/);
 });
 
+test('every landing companion can be taken home by itself, and the guide says where it goes', async () => {
+  const { SITE_LANGS } = await import('../scripts/site-content.mjs');
+  const gallery = read('website/.vitepress/theme/PetGallery.vue');
+  assert.match(gallery, /petDownload\(selected\.id\)/);
+  assert.match(gallery, /download[ >]/);
+  assert.match(gallery, /words\.galleryDownload/);
+  assert.match(gallery, /words\.galleryDownloadHint/);
+  for (const lang of SITE_LANGS) {
+    const prefix = lang === 'en' ? '' : `${lang}/`,
+      guide = read(`website/${prefix}guide/first-friend.md`);
+    assert.match(guide, /playpets-/, lang);
+    assert.match(guide, /~\/\.codex\/pets/, lang);
+  }
+});
+
 test('landing groups preserve the four-friend order and normalize the approved idle silhouettes', async () => {
   const { castHeightFactor } = await import('../website/.vitepress/theme/site-runtime.mjs');
   for (const [pet, height] of [

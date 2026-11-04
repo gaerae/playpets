@@ -98,6 +98,9 @@ export const sections = {
   codexPlusLink: '带来你的 Codex 宠物',
   discoveryGuide: '看看都能发现什么',
   galleryCreate: '用这位伙伴来创作',
+  galleryDownload: '下载文件',
+  galleryDownloadHint:
+    '一个 ZIP 就带齐各季服装。解压到 Codex 宠物文件夹（~/.codex/pets，Windows 为 %USERPROFILE%\\.codex\\pets），在 ChatGPT 和 Codex 里也能陪着你。',
   petNotes: {
     daisy: '好奇的小探险家，总想知道下个转角有什么。',
     clover: '温柔的小猫园丁，迫不及待想给你看今天长出了什么。',

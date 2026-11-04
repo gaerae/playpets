@@ -225,6 +225,14 @@ export function createSoundscape(ctx, destination) {
         start = name === 'water' ? t + 0.5 : t;
       for (const [i, s] of steps.entries()) pluck(start + i * gap, stepHz(s), name === 'pat' ? 0.06 : 0.09);
     },
+    /** A firework bursting at `t`: a low thump, then its stars crackling; `size` 1 is a full shell. */
+    boom(t, pan, size = 1) {
+      burst(t, 1.4, 320, 50, 0.32 * size, pan, 0.5);
+      tone(t, 110, 38, 0.7, 0.22 * size, pan, 0.004, 'sine', false);
+      const crackles = 6 + Math.floor(rand() * 6);
+      for (let i = 0; i < crackles; i++)
+        burst(t + 0.35 + rand() * 1.2, 0.025, 3000 + rand() * 3000, 1500, 0.05 * size, pan + (rand() - 0.5) * 0.6, 2);
+    },
     /** The float dips: a drop into the water. */
     plip(t = ctx.currentTime + 0.01) {
       tone(t, 1500, 380, 0.1, 0.12, 0, 0.004, 'sine', false);

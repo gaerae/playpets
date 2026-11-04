@@ -477,10 +477,13 @@ body.compact .update-compact {
 .unknown-art {
   filter: brightness(0) invert(0.4);
 }
-/* The books as tabs: a name, how many of its kinds are found, and a line that fills with them. */
+/* The books as tabs: a name, how many of its kinds are found, and a line that fills with them. As
+   many columns as there are books showing (a hidden one takes none until it is found), each at
+   least as wide as its name. */
 .album-tabs {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(min-content, 1fr);
   gap: 3px;
   padding: 4px;
   margin: 6px 0 10px;
@@ -488,12 +491,15 @@ body.compact .update-compact {
   border-radius: var(--radius-control);
   background: var(--segment-track);
 }
+/* The name over its count and line. A name never breaks: in Japanese it would break letter by
+   letter. */
 .album-tabs button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   align-content: center;
   gap: 3px 6px;
+  min-width: max-content;
   min-height: 40px;
   padding: 6px 8px 7px;
   border: 0;
@@ -501,6 +507,7 @@ body.compact .update-compact {
   background: transparent;
   font: inherit;
   font-weight: 650;
+  line-height: 1.2;
   color: var(--muted);
   text-align: left;
   cursor: pointer;
@@ -508,6 +515,7 @@ body.compact .update-compact {
 .album-tabs button > span {
   grid-column: 1 / -1;
   line-height: 1.25;
+  white-space: nowrap;
 }
 .album-tabs button[aria-selected="true"] {
   color: var(--ink);

@@ -72,7 +72,7 @@ It isn't removed, though. It waits with its closeness kept, and a notice tells y
 
 A ZIP you pick with **Import from a ZIP file on this computer** is copied into the app, so you can move or delete the ZIP afterwards. It shows up in Invite a friend under **Pets imported from an address or ZIP**.
 
-- A ZIP from the creator kit works, and so does a pet folder you compressed yourself. `pet.json` sits at the top of the ZIP or inside its one folder.
+- A ZIP from the creator kit or a friend's `playpets-<name>.zip` from the home page works, and so does a pet folder you compressed yourself. `pet.json` sits at the top of the ZIP or inside its one folder.
 - Importing the same ZIP again brings no second copy. A changed ZIP comes in as a new pet beside the old one.
 
 ## Where pets are saved <Since v="0.1.0" />

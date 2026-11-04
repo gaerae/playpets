@@ -159,6 +159,7 @@ pub fn identity(name: &str, persona: &str, from: Provenance, bond: &str, friends
     } else {
         format!("The friends in the yard with you right now are these pets: {}. When asked who your friends are or who is around, these are the ones.", friends.join(", "))
     });
+    lines.push(super::guide::ABOUT.into());
     lines.push(PLAIN_TEXT_RULE.into());
     lines.push(PERSONA_RULE.into());
     lines.join("\n")

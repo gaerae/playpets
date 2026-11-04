@@ -15,10 +15,13 @@ import { scene } from './world.js';
 import { worldAllows, worldFor } from './worlds.js';
 
 const remarkTimers = new Set();
+// A moment's line on its way (momentRemark): the weather that brought the moment waits for it.
+let pointing = null;
 /** A place change cancels remarks queued for its previous weather. */
 export function cancelRemarks() {
   for (const timer of remarkTimers) clearTimeout(timer);
   remarkTimers.clear();
+  pointing = null;
 }
 
 // A change in the weather is worth a remark from a friend or two.
@@ -33,7 +36,13 @@ function aboutTheWeather() {
 }
 /** The weather changed: a friend or two say something about it. */
 export function remark() {
-  if (game || !worldAllows(scene.world, 'sky') || !worldAllows(scene.world, 'weather') || scene.weather === 'clear')
+  if (
+    pointing ||
+    game ||
+    !worldAllows(scene.world, 'sky') ||
+    !worldAllows(scene.world, 'weather') ||
+    scene.weather === 'clear'
+  )
     return;
   cancelRemarks();
   const when = { world: scene.world, period: scene.period, weather: scene.weather };
@@ -57,6 +66,23 @@ export function remark() {
     );
     remarkTimers.add(timer);
   });
+}
+/** A moment in the sky (sky-moments.js) as it begins: one friend points it out, if `still()` says it
+ * is still there by then. */
+export function momentRemark(id, still) {
+  if (game) return;
+  cancelRemarks();
+  const [v] = shuffle([...views.values()]),
+    world = scene.world;
+  if (!v) return;
+  const timer = setTimeout(() => {
+    remarkTimers.delete(timer);
+    pointing = null;
+    if (!game && views.get(v.pet.id) === v && scene.world === world && still())
+      bubble(v, pick(list(`chatter.${id}`)), 3500);
+  }, 1200);
+  remarkTimers.add(timer);
+  pointing = timer;
 }
 const CHATTER_DELAY = [40000, 110000];
 const chatter = cadence(() => between(Math.random, CHATTER_DELAY));

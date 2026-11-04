@@ -11,6 +11,11 @@ export const catalog = content('catalog');
 export const yard = content('yard');
 export const events = content('events');
 export const worlds = content('worlds');
+/** How many entries the album's books hold, all told (the hidden one aside). */
+export const albumEntries = ['flowers', 'fish', 'bugs', 'gifts', 'trees', 'treasures'].reduce(
+  (sum, book) => sum + catalog[book].length,
+  0,
+);
 useCatalog(catalog);
 useScenery(yard);
 useEvents(events);

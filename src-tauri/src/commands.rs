@@ -301,6 +301,18 @@ static COMMANDS: &[Command] = &[
             Ok(json!({"entry": entry, "first": first}))
         })
     }),
+    main("foundSecret", |c| {
+        let now = now_ms();
+        let mut d = lock(&c.state);
+        let (entry, first) = d.album.found(c.text(0), now)?;
+        let answer = json!({"entry": entry, "first": first, "found": d.album.secrets.len()});
+        // Found again, only a count no page shows changes: it goes with the next save.
+        if !first {
+            crate::app::persist_soon(c.app);
+            return Ok(answer);
+        }
+        crate::app::save_and_show(c.app, &d).map(|()| answer)
+    }),
     main("bloomed", bloomed),
     main("befriend", befriend),
     // Coding agents.

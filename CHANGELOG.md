@@ -12,6 +12,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
+- When a rainbow follows the rain, the ground glimmers where it ends, a friend points it out, and a dig there before it fades never comes up empty.
+- The sky has more moments as the weather turns, one at a time and never over a seasonal event's own look: a sunshower when rain falls from a clear daytime sky, mist on clear autumn mornings, snow glittering under the moon when it stops at night, and a meteor shower all through clear summer nights. A friend points each one out.
+- Ask a friend about the app, such as how to fill the album, how fishing works or what this place is, and it answers from the app's own facts instead of guessing. The facts go with that question only, so other chats cost no more.
 - Fifteen more finds for the album: a Korean bullhead, rose bitterling, paradise fish, dark sleeper, mitten crab, freshwater mussel and a rare softshell turtle in the lake, and a tiger beetle, white-spotted longhorn, praying mantis, long-headed grasshopper, hummingbird hawk-moth and a rare rhinoceros beetle and butterfly dragonfly in the yard. Winter and night fishing have more to catch, and on clear autumn evenings and nights emma field crickets come out in the grass.
 - The album grows to 150. In the lake: a Korean splendid dace, skygazer, melania snail, Korean aucha perch and a rare sturgeon on cold nights. In the yard: katydids on autumn nights, late fireflies in summer, and dandelions, azaleas, morning glories, balsam, red spider lilies, celosia, adonis and pansies to grow. Six new trees to plant (ginkgo, persimmon, bamboo, magnolia, crape myrtle, dawn redwood), eight new keepsakes to dig up, from an old coin to an uncommon four-leaf clover, and six new gifts: a water wheel, hammock, scarecrow, stepping stones, crock stand and, at New Year, a kite. The peacock butterfly and emperor dragonfly are no longer rare.
 
@@ -22,7 +25,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Fish and bug odds follow how common they are: bass and bluegill are everyday catches, snakeheads, sweetfish, eels and mandarin fish come more often, and goldfish less. The golden carp, now only at dusk and night, is the rarest fish outside an event, the moon carp is a rarer find during the harvest moon, and the common skimmer flies from spring to autumn.
 - The album marks everything that comes only during a seasonal event as rare, and its hint now gives the event's dates.
 - The album's digging note calls its 24-hour limit a rule for rare finds, the same word as the badge, instead of uncommon ones.
-- The album reads like a collector's notebook: each find sits on its own numbered card over its book's ground (water for aquatic life, wood for gifts), the ones still to find wait as faint outlines with where to look, rare ones have a gold edge, and each book's tab fills as you collect, with a star once the book is complete.
+- The album reads like a collector's notebook: each find sits on its own numbered card over its book's ground (water for aquatic life, wood for gifts), the ones still to find wait as faint outlines with where to look, rare ones have a gold edge, and each book's tab shows its count under its name and fills as you collect, with a star once the book is complete; every name stays whole on one row in every language.
 
 ### Fixed
 
@@ -32,12 +35,16 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- Each of the four friends can be downloaded by itself from the front page as `playpets-<name>.zip`, seasonal outfits included: PlayPets imports it as it is, and unzipped into `~/.codex/pets` the friend comes to ChatGPT and Codex too. The character studio's ready friend is the same download, and the old kit ZIPs are gone.
+- The play guide says where the rainbow ends and what a dig there finds.
+- The play guide describes the sunshower, the morning mist, the moonlit snow and the meteor shower.
 - The guide says how long a memento's heart shows.
 - The front page is plainer: each section says what is in the app and where to find it, the download block ends with three steps for after installing, and gifts are described as coming at most once every two days.
 - The README's moving picture now shows a friend cheering when Claude Code finishes its task.
 - The install guide gives where the Microsoft Store version keeps its data folder.
 - The front page's scenes are about eight times smaller to download, and the guide, the FAQ and each release page now show their own description in search results.
 - The guide counts 150 album entries, names some of the new finds, lists all twelve trees and says when crickets come out on autumn nights, in all four languages.
+- The character and background studios each ask for their own kind of details (a friend's look and clothes, a place's scenery and light), and the switch between them no longer shows an outward arrow.
 
 ## [1.4.0] - 2026-11-01
 

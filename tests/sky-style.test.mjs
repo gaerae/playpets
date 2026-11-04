@@ -32,3 +32,27 @@ test('night stars sit behind the land and only show on a clear night', async () 
   assert.ok(field, 'the twinkling star field exists');
   assert.match(field.selectors, /\.weather-clear/, 'the star field waits for a clear night');
 });
+
+test('snow under the moon glitters in two layers that twinkle in turn, lit most under the moon, still with reduced motion', async () => {
+  const css = (await readFile('src/styles/scenery.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const body = selector =>
+    [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)]
+      .filter(([, selectors]) => selectors.split(',').some(s => s.trim() === selector))
+      .map(([, , b]) => b)
+      .join('');
+  const before = body('.yard.moment-snowlight .moment-layer::before'),
+    after = body('.yard.moment-snowlight .moment-layer::after');
+  for (const layer of [before, after]) {
+    assert.match(layer, /glints\.svg/);
+    assert.match(layer, /animation:\s*moment-glint/);
+  }
+  assert.match(before, /animation-delay:\s*-/, 'out of step with the other layer');
+  assert.match(
+    body('.yard.moment-snowlight .moment-layer'),
+    /radial-gradient\(.*var\(--orb-x/,
+    'a sheen under the moon',
+  );
+  const still = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[^@]*moment-snowlight[^@]*/)?.[0] ?? '';
+  assert.match(still, /moment-snowlight \.moment-layer::before/);
+  assert.match(still, /moment-snowlight \.moment-layer::after/);
+});
