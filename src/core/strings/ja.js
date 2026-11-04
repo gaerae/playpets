@@ -429,7 +429,7 @@ export const strings = {
   'catch.unknown_gift': 'まだもらっていません',
   'catch.rare': 'レア',
   'catch.count': '{count}回捕まえました',
-  'catch.best': '最大 {size} cm',
+  'catch.best': '最大 {size}\u00a0cm',
   'catch.size': '{size} cm',
   'catch.new': '図鑑に新しく載りました！',
   'catch.all_year': '一年中',

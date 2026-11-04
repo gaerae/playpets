@@ -406,7 +406,7 @@ export const strings = {
   'catch.unknown_gift': '还没收到',
   'catch.rare': '稀有',
   'catch.count': '捉到 {count} 次',
-  'catch.best': '最大 {size} cm',
+  'catch.best': '最大 {size}\u00a0cm',
   'catch.size': '{size} cm',
   'catch.new': '图鉴里新添了一种！',
   'catch.all_year': '一年四季',

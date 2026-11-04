@@ -414,7 +414,7 @@ export const strings = {
   'catch.unknown_gift': '아직 받지 못했어요',
   'catch.rare': '희귀',
   'catch.count': '{count}번 잡았어요',
-  'catch.best': '최대 {size} cm',
+  'catch.best': '최대 {size}\u00a0cm',
   'catch.size': '{size} cm',
   'catch.new': '도감에 새로 올렸어요!',
   'catch.all_year': '일 년 내내',
