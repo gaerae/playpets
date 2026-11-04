@@ -645,6 +645,26 @@ body.compact .update-compact {
 .album-hint {
   margin-bottom: 4px;
 }
+/* A gift that came before, back out into the yard: a small press under its stamp. */
+.album-take-out {
+  margin-top: 4px;
+  padding: 3px 10px;
+  border: 1px solid var(--album-edge);
+  border-radius: 99px;
+  background: var(--album-paper);
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.album-take-out:hover:not(:disabled) {
+  border-color: var(--album-gold);
+}
+.album-take-out:disabled {
+  cursor: default;
+  color: var(--muted);
+}
 /* One not found yet is an empty place on the page: a dashed outline, a faint shape and the hint. */
 .album-card.unknown {
   border-style: dashed;

@@ -37,6 +37,7 @@ Features were added one at a time (scenery pickers, a greet button, games, a gar
 
 - 2026-10-10: Desktop mode and the mini view left the top bar for the yard's view controls; the Friend panel became a messenger layout, with what is done to the friend in its menu and the AI picker and group chat in the composer.
 - 2026-10-31: The window can always be recovered from outside it. The top of the window shows Reset window size, minimize and close with the pointer or the keyboard, still with no title bar; the tray, the macOS Window menu, the scenery's right-click menu and Cmd/Ctrl+0 also reset it. A panel chosen from the right-click menu opens at the pointer.
+- 2026-11-04: Each friend and each gift goes out to the desktop on its own, from its right-click menu in the yard (**Show on desktop** with a check mark). The one switch in the tray, the menu bar and Settings keeps its name: with anything out it brings everything in, otherwise it sends every friend out. A right-click on the desktop opens a native menu (talk to the friend, take it off the desktop).
 - 2026-10-10 (later): The Friend tab's header shows the friend's relationship as a chip (a click opens it in Friend settings) and a closeness row (the level and a bar), in place of the friendship shown before; hearts on the name tag now stand for closeness.
 
 - The caption bar and the toolbar became chips and a floating row over the scene; the two always-shown pickers became the scene label's menu.

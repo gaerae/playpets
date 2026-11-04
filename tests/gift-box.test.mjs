@@ -10,6 +10,10 @@ globalThis.playPets = {
     calls.push(args);
     return refuse ? { ok: false, error: 'fixture refusal' } : { ok: true, data: {} };
   },
+  takeOut: async (...args) => {
+    calls.push(['takeOut', ...args]);
+    return refuse ? { ok: false, error: 'fixture refusal' } : { ok: true, data: {} };
+  },
 };
 const state = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
@@ -71,4 +75,42 @@ test('a boxed gift is set out once, near the front of the yard', async ctx => {
   item.onclick();
   await flush();
   assert.equal(item.disabled, false, 'a refused set-out can be tried again');
+});
+
+// What the album keeps can always come back out: a gift put away is set out again from its card.
+test('a gift that came before comes back out of its card, once, unless it is out already', async ctx => {
+  ctx.mock.timers.enable({ apis: ['setTimeout'] });
+  const takeOut = nodes => {
+    const cards = nodes.get('album-grid').children;
+    return Object.fromEntries(
+      cards.map((card, i) => [i, card.children.find(child => child.classList?.contains('album-take-out'))]),
+    );
+  };
+  // The bench came and was put away; the lantern is in the yard; the pond waits in the box.
+  let nodes = album(ctx, {
+    received: ['bench', 'lantern', 'pond'],
+    decor: [{ id: 'l', kind: 'lantern', x: 0.5, y: 0.5 }],
+    boxed: [{ id: 'p', kind: 'pond', x: 0.5, y: 0.5 }],
+  });
+  const [bench, lantern, , pond, , , , , , flowerpot] = Object.values(takeOut(nodes));
+  assert.ok(bench && !bench.disabled);
+  assert.equal(bench.title, t('album.set_out', { kind: t('decor.kind_bench') }));
+  assert.equal(lantern?.disabled, true, 'in the yard already');
+  assert.equal(lantern.title, t('album.in_yard'));
+  assert.equal(pond, undefined, 'the box sets that one out');
+  assert.equal(flowerpot, undefined, 'one that never came');
+  bench.onclick();
+  assert.equal(bench.disabled, true);
+  await flush();
+  const [name, kind, x, y] = calls[0];
+  assert.deepEqual([name, kind, y], ['takeOut', 'bench', 0.8]);
+  assert.ok(x >= 0.3 && x <= 0.7);
+  refuse = true;
+  bench.onclick();
+  await flush();
+  assert.equal(bench.disabled, false, 'a refused one can be tried again');
+  nodes = album(ctx, { received: ['bench'], decor: gifts(12, { kind: 'lantern' }) });
+  const full = Object.values(takeOut(nodes))[0];
+  assert.equal(full.disabled, true);
+  assert.equal(full.title, t('album.set_out_full'));
 });

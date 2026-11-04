@@ -20,6 +20,8 @@ const TABLE: &[(&str, &str)] = &[
     ("tray.sound", "乐园声音"),
     ("tray.desktop", "在桌面上显示"),
     ("tray.wander", "在桌面散步"),
+    ("desktop.talk", "和{name}聊天"),
+    ("desktop.take_in", "从桌面移走"),
     ("tray.update", "检查更新…"),
     ("tray.alwaysOnTop", "始终置顶"),
     ("tray.fit", "重置窗口大小"),

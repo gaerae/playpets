@@ -31,11 +31,15 @@ const MONITOR_REFRESH: Duration = Duration::from_secs(2);
 /// A drag nobody ended (the pointer-up never arrived) is ended for them.
 const DRAG_TIMEOUT: Duration = Duration::from_secs(15);
 
+/// A friend or a decoration out on the desktop (items.rs says which).
 #[derive(Clone)]
-pub struct PetLite {
+pub struct Item {
     pub id: String,
+    /// A friend's size (its sprite's width in pixels); unused for a decoration.
     pub size: f64,
     pub saved: Option<(f64, f64)>,
+    /// A decoration: its kind and the box it is drawn in. It stays where it is put.
+    pub decor: Option<(String, f64, f64)>,
 }
 
 struct Drag {
@@ -47,11 +51,13 @@ struct Drag {
 struct Roam {
     target: Option<(f64, f64)>,
     next_at: Instant,
+    /// The decoration this walk goes to (its id and kind), told to the pages when the friend gets there.
+    visiting: Option<(String, String)>,
 }
 
 #[derive(Default)]
 struct Inner {
-    pets: Vec<PetLite>,
+    pets: Vec<Item>,
     visible: bool,
     wander: bool,
     positions: HashMap<String, (f64, f64)>,
@@ -72,11 +78,20 @@ pub struct Overlay {
     inner: Arc<Mutex<Inner>>,
 }
 
-/// The box a friend of this size takes up: the sprite, room for its speech bubble above (the
-/// top BUBBLE_ROOM) and for its name below (the bottom FOOT, shown while the pointer is on it).
-fn dims(size: f64) -> (f64, f64) {
+/// The box a friend takes up: the sprite, room for its speech bubble above (the top BUBBLE_ROOM)
+/// and for its name below (the bottom FOOT, shown while the pointer is on it). A decoration's is
+/// its drawing.
+fn dims(item: &Item) -> (f64, f64) {
+    if let Some((_, w, h)) = item.decor {
+        return (w, h);
+    }
+    let size = item.size;
     ((size + 48.0).max(200.0), (size * 208.0 / 192.0 + 88.0 + FOOT).round())
 }
+/// A friend's sprite stands this far above the bottom of its box (FOOT in overlay.js).
+const SPRITE_FOOT: f64 = FOOT + 4.0;
+/// How often a friend setting off on a stroll goes over to a decoration on its screen instead.
+const VISIT_CHANCE: f64 = 0.4;
 /// The top of a friend's box is for its speech bubble, which lets clicks through.
 const BUBBLE_ROOM: f64 = 60.0;
 /// Under the sprite: the name button (src/overlay/overlay.css, `.friend` bottom).
@@ -157,7 +172,7 @@ impl Overlay {
         overlay
     }
 
-    pub fn sync(&self, pets: Vec<PetLite>, visible: bool, wander: bool) {
+    pub fn sync(&self, pets: Vec<Item>, visible: bool, wander: bool) {
         let mut d = crate::app::hold(&self.inner);
         d.visible = visible;
         d.wander = wander;
@@ -206,12 +221,14 @@ fn layout_of(d: &Inner, mons: &[Mon]) -> Vec<Value> {
         .iter()
         .filter_map(|p| {
             let (x, y) = d.positions.get(&p.id)?;
-            let (w, h) = dims(p.size);
+            let (w, h) = dims(p);
             let mon = monitor_of_box(mons, *x, *y, (w, h))?;
-            Some(
-                json!({"id": p.id, "x": x, "y": y, "width": w, "height": h, "displayId": mon.id,
-                    "origin": {"x": mon.area.x, "y": mon.area.y, "width": mon.area.w, "height": mon.area.h}}),
-            )
+            let mut item = json!({"id": p.id, "x": x, "y": y, "width": w, "height": h, "displayId": mon.id,
+                "origin": {"x": mon.area.x, "y": mon.area.y, "width": mon.area.w, "height": mon.area.h}});
+            if let Some((kind, _, _)) = &p.decor {
+                item["decor"] = json!(kind);
+            }
+            Some(item)
         })
         .collect()
 }
@@ -226,11 +243,12 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     let (mons, primary) = current_monitors(app, inner);
     let cursor = cursor_in(app, &mons, primary);
     let mut arrivals: Vec<(String, i64, i64)> = Vec::new();
+    let mut visits: Vec<(String, String)> = Vec::new();
     let (moved, busy) = {
         let mut d = crate::app::hold(inner);
         let placed = place_newcomers(&mut d, &mons);
         let dragged = follow_drag(&mut d, &mons, cursor, &mut arrivals);
-        let strolled = stroll(&mut d, &mons, cursor, dt_ms, &mut arrivals);
+        let strolled = stroll(&mut d, &mons, cursor, dt_ms, &mut arrivals, &mut visits);
         let moved = placed || dragged || strolled;
         let walking = d.roams.values().any(|r| r.target.is_some());
         (moved, moved || walking || d.drag.is_some() || pointer_near(&d, cursor))
@@ -238,6 +256,10 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     // Saving happens outside the lock: it reaches back into the app state.
     for (id, x, y) in &arrivals {
         on_position(id, *x, *y);
+    }
+    // A friend that walked over to a decoration says something about it (overlay.js).
+    for (pet, kind) in &visits {
+        crate::app::push_event(app, &json!({"type": "visit", "petId": pet, "kind": kind}));
     }
     sync_windows(app, inner, &mons, cursor, moved || !arrivals.is_empty());
     busy
@@ -250,7 +272,7 @@ fn pointer_near(d: &Inner, cursor: Option<(f64, f64)>) -> bool {
         let Some(&(x, y)) = d.positions.get(&p.id) else {
             return false;
         };
-        let (w, h) = dims(p.size);
+        let (w, h) = dims(p);
         cx >= x - NEAR && cx <= x + w + NEAR && cy >= y - NEAR && cy <= y + h + NEAR
     })
 }
@@ -262,15 +284,31 @@ fn place_newcomers(d: &mut Inner, mons: &[Mon]) -> bool {
         return false;
     };
     let mut placed = false;
-    for (index, p) in d.pets.iter().enumerate() {
+    let (mut friends, mut decorations) = (0, 0);
+    for p in &d.pets {
+        let index = if p.decor.is_some() {
+            &mut decorations
+        } else {
+            &mut friends
+        };
+        *index += 1;
+        let index = *index - 1;
         if d.positions.contains_key(&p.id) {
             continue;
         }
-        let (w, h) = dims(p.size);
-        let fallback = (
-            primary.area.x + 35.0 + (index % 6) as f64 * 145.0,
-            primary.area.y + primary.area.h - h - 25.0 - (index / 6) as f64 * 145.0,
-        );
+        let (w, h) = dims(p);
+        // Friends in a row from the left; decorations from the right, so the two do not stack up.
+        let fallback = if p.decor.is_some() {
+            (
+                primary.area.x + primary.area.w - w - 60.0 - (index % 5) as f64 * 180.0,
+                primary.area.y + primary.area.h - h - 25.0,
+            )
+        } else {
+            (
+                primary.area.x + 35.0 + (index % 6) as f64 * 145.0,
+                primary.area.y + primary.area.h - h - 25.0 - (index / 6) as f64 * 145.0,
+            )
+        };
         let start = p.saved.unwrap_or(fallback);
         let area = &monitor_of_box(mons, start.0, start.1, (w, h)).unwrap_or(primary).area;
         d.positions.insert(p.id.clone(), clamp_to(area, start.0, start.1, w, h));
@@ -312,6 +350,7 @@ fn stroll(
     cursor: Option<(f64, f64)>,
     dt_ms: f64,
     arrivals: &mut Vec<(String, i64, i64)>,
+    visits: &mut Vec<(String, String)>,
 ) -> bool {
     if !d.wander || !d.visible || d.drag.is_some() {
         return false;
@@ -319,11 +358,21 @@ fn stroll(
     let now = Instant::now();
     let rest = || now + Duration::from_millis(roam::delay(rand01(), roam::ROAM_DELAY) as u64);
     let mut moved = false;
-    for p in &d.pets {
+    // The decorations out, where they stand: a stroll may go to one.
+    let decorations: Vec<(String, String, Bounds)> = d
+        .pets
+        .iter()
+        .filter_map(|item| {
+            let (kind, w, h) = item.decor.clone()?;
+            let &(x, y) = d.positions.get(&item.id)?;
+            Some((item.id.clone(), kind, Bounds { x, y, w, h }))
+        })
+        .collect();
+    for p in d.pets.iter().filter(|p| p.decor.is_none()) {
         let Some(&(px, py)) = d.positions.get(&p.id) else {
             continue;
         };
-        let (w, h) = dims(p.size);
+        let (w, h) = dims(p);
         if cursor.is_some_and(|c| c.0 >= px - 30.0 && c.0 <= px + w + 30.0 && c.1 >= py - 30.0 && c.1 <= py + h + 30.0)
         {
             if let Some(r) = d.roams.get_mut(&p.id) {
@@ -334,22 +383,31 @@ fn stroll(
         let roaming = d.roams.entry(p.id.clone()).or_insert_with(|| Roam {
             target: None,
             next_at: rest(),
+            visiting: None,
         });
         match roaming.target {
             None if now >= roaming.next_at => {
-                let area = monitor_of_box(mons, px, py, (w, h)).map(|m| m.area).unwrap_or(Bounds {
+                let mon = monitor_of_box(mons, px, py, (w, h));
+                let area = mon.map(|m| m.area).unwrap_or(Bounds {
                     x: 0.0,
                     y: 0.0,
                     w: 1440.0,
                     h: 900.0,
                 });
-                roaming.target = Some(roam::roam_target(
-                    &Bounds { x: px, y: py, w, h },
-                    &area,
-                    rand01(),
-                    rand01(),
-                    rand01(),
-                ));
+                let here = Bounds { x: px, y: py, w, h };
+                // Only one on the same screen: a walk never crosses from one monitor to another.
+                let near: Vec<_> = decorations
+                    .iter()
+                    .filter(|(_, _, b)| monitor_of_box(mons, b.x, b.y, (b.w, b.h)).map(|m| &m.id) == mon.map(|m| &m.id))
+                    .collect();
+                roaming.visiting = None;
+                roaming.target = Some(if !near.is_empty() && rand01() < VISIT_CHANCE {
+                    let (id, kind, b) = near[((rand01() * near.len() as f64) as usize).min(near.len() - 1)];
+                    roaming.visiting = Some((id.clone(), kind.clone()));
+                    roam::beside(&here, p.size, SPRITE_FOOT, b, &area, rand01() < 0.5)
+                } else {
+                    roam::roam_target(&here, &area, rand01(), rand01(), rand01())
+                });
             }
             None => {}
             Some((tx, ty)) => {
@@ -360,6 +418,9 @@ fn stroll(
                     roaming.target = None;
                     roaming.next_at = rest();
                     arrivals.push((p.id.clone(), nx.round() as i64, ny.round() as i64));
+                    if let Some((_, kind)) = roaming.visiting.take() {
+                        visits.push((p.id.clone(), kind));
+                    }
                 }
             }
         }
@@ -381,8 +442,12 @@ fn hovered(d: &Inner, layout: &[Value], cursor: Option<(f64, f64)>) -> (HashMap<
             item["height"].as_f64().unwrap_or(0.0),
         );
         let pet = d.pets.iter().find(|p| p.id == item["id"].as_str().unwrap_or(""));
-        let margin = pet.map(|p| (w - p.size) / 2.0).unwrap_or(0.0);
-        let inside = c.0 >= x + margin && c.0 <= x + w - margin && c.1 >= y + BUBBLE_ROOM && c.1 <= y + h;
+        // A friend takes clicks on its sprite and name, not on the room for its bubble; a decoration on all of it.
+        let (margin, top) = match pet {
+            Some(p) if p.decor.is_none() => ((w - p.size) / 2.0, BUBBLE_ROOM),
+            _ => (0.0, 0.0),
+        };
+        let inside = c.0 >= x + margin && c.0 <= x + w - margin && c.1 >= y + top && c.1 <= y + h;
         if inside && pet_id.is_none() {
             pet_id = item["id"].as_str().map(String::from);
         }
@@ -472,7 +537,7 @@ fn finish_drag(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64
     let Some(&(x, y)) = d.positions.get(&drag.id) else {
         return;
     };
-    let (w, h) = dims(pet.size);
+    let (w, h) = dims(pet);
     let area = monitor_of_box(mons, x, y, (w, h)).map(|m| m.area).unwrap_or(Bounds {
         x: 0.0,
         y: 0.0,

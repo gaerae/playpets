@@ -20,6 +20,8 @@ const TABLE: &[(&str, &str)] = &[
     ("tray.sound", "庭の音"),
     ("tray.desktop", "デスクトップに表示"),
     ("tray.wander", "デスクトップでおさんぽ"),
+    ("desktop.talk", "{name}に話しかける"),
+    ("desktop.take_in", "デスクトップから外す"),
     ("tray.update", "アップデートを確認…"),
     ("tray.alwaysOnTop", "常に手前に表示"),
     ("tray.fit", "ウィンドウサイズをリセット"),

@@ -103,6 +103,7 @@ const BOOKS = {
     hint: k => (k.event ? eventHint(k) : t('catch.gift_hint')),
     record: () => t('catch.received'),
     rare,
+    action: k => takeOutButton(k.id),
   },
   tree: {
     tab: 'album.trees',
@@ -174,8 +175,38 @@ function card(b, kind, entry, index) {
     record.className = 'album-record';
     record.textContent = b.record(entry);
     el.append(record);
+    const action = b.action?.(kind);
+    if (action) el.append(action);
   }
   return el;
+}
+// A gift that came before can always come back out of its card (garden.rs take_out): one in the
+// yard says so, and one waiting in the box is set out from the box below the book.
+function takeOutButton(kind) {
+  const garden = data.garden || {};
+  if ((garden.boxed || []).some(d => d.kind === kind)) return null;
+  const out = (garden.decor || []).some(d => d.kind === kind),
+    room = (garden.decor?.length ?? 0) < limit(data, 'decor'),
+    button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'album-take-out';
+  button.textContent = t(out ? 'album.in_yard' : 'album.take_out');
+  button.disabled = out || !room;
+  button.title = out
+    ? t('album.in_yard')
+    : room
+      ? t('album.set_out', { kind: t(`decor.kind_${kind}`) })
+      : t('album.set_out_full');
+  button.setAttribute('aria-label', button.title);
+  button.onclick = () => {
+    // Taken out once: a second click before the album redraws would find it out already.
+    button.disabled = true;
+    call('takeOut', kind, 0.3 + Math.random() * 0.4, 0.8).catch(error => {
+      button.disabled = false;
+      toast(spoken(error, t('error.generic')), { error: true });
+    });
+  };
+  return button;
 }
 // The gift box, in the gift book: gifts that came while the yard was full, and mementos put away.
 // Each is set out near the front of the yard, from where the person drags it on.

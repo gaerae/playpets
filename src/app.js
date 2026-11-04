@@ -53,7 +53,7 @@ import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
-import { giftTick, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
+import { giftTick, putAway, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
 import {
   autoDig,
   beginDiscovery,
@@ -138,6 +138,7 @@ setupWindow();
 setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
   openChat,
+  putAway,
   canDigAt,
   digAt,
   digWith: id => {

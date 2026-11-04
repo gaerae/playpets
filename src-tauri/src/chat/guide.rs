@@ -76,7 +76,7 @@ const TOPICS: &[Topic] = &[
     },
     Topic {
         id: "desktop",
-        facts: "Desktop mode: Friends & settings → Window & desktop → Show on desktop puts the friends over the owner's other windows; Stroll on desktop lets them wander there. Click a friend's name to chat. The tray icon has the same switches.",
+        facts: "Desktop mode: right-click a friend or a gift (a bench, a flowerpot…) in the yard → Show on desktop puts it over the owner's other windows. Window & desktop → Show on desktop sends every friend, or takes everything off; Stroll on desktop lets friends wander and visit what is out. On the desktop: click a name to chat, drag to move, right-click to chat or take it off. The album's gift book sets any gift that came before back in the yard.",
     },
     Topic {
         id: "scene",

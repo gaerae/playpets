@@ -17,6 +17,9 @@ struct Kind {
     weight: u32,
     #[serde(default)]
     affinity: Affinity,
+    /// A gift's footprint, [width, height] in catalogue units.
+    #[serde(default)]
+    size: Option<[f64; 2]>,
 }
 #[derive(Deserialize)]
 struct Event {
@@ -225,6 +228,11 @@ impl Catalog {
             .map(|k| k.id.as_str())
             .collect()
     }
+    /// A gift's footprint, [width, height] in catalogue units (the yard's, before its zoom).
+    pub fn gift_size(&self, id: &str) -> Option<(f64, f64)> {
+        let [w, h] = self.gifts.iter().find(|k| k.id == id)?.size?;
+        Some((w, h))
+    }
     /// Whether friends can bring this as a gift.
     pub fn is_gift(&self, id: &str) -> bool {
         self.gifts.iter().any(|k| k.id == id)
@@ -246,6 +254,16 @@ impl Catalog {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn every_gift_has_the_footprint_the_desktop_draws_it_by() {
+        let c = catalog();
+        assert_eq!(c.gift_size("bench"), Some((144.0, 115.2)));
+        for gift in c.gifts.iter().map(|k| k.id.as_str()) {
+            assert!(c.gift_size(gift).is_some(), "{gift}");
+        }
+        assert_eq!(c.gift_size("no-such-gift"), None);
+    }
 
     #[test]
     fn environmental_weights_cover_each_season_weather_and_place_without_mixing_rarities() {

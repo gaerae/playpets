@@ -62,6 +62,17 @@ test('flower raster specimens resolve locally with transparent isolated atlas cr
   }
 });
 
+// The desktop draws a gift by its footprint as the yard does, and the backend reads the same number
+// to know where a press on the desktop lands on it, so every gift names it.
+test('every gift has a footprint in the shape of its drawing', () => {
+  for (const g of catalog.gifts) {
+    assert.ok(Array.isArray(g.size) && g.size.length === 2 && g.size.every(n => n > 0), `${g.id}: size`);
+    const box = readFileSync(new URL(`../src/art/${g.art}`, import.meta.url), 'utf8').match(/viewBox="([^"]+)"/)[1];
+    const [, , w, h] = box.split(/\s+/).map(Number);
+    assert.ok(Math.abs(g.size[0] / g.size[1] - w / h) < 0.03 * (w / h), `${g.id}: ${g.size} keeps ${w}×${h}`);
+  }
+});
+
 test('every effect a gift names exists', () => {
   for (const g of catalog.gifts)
     for (const name of g.effects || []) assert.ok(EFFECT_NAMES.includes(name), `${g.id}: ${name}`);

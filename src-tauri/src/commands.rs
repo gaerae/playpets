@@ -325,10 +325,14 @@ static COMMANDS: &[Command] = &[
     main("disconnectAgent", |c| link_agent(c.app, &c.state, c.text(0), false)),
     // The desktop and the windows.
     main("toggleDesktop", |c| {
-        crate::app::toggle_flag(c.app, &mut lock(&c.state), false).map(Value::Bool)
+        crate::app::toggle_desktop(c.app, &mut lock(&c.state)).map(Value::Bool)
     }),
     main("toggleDesktopWander", |c| {
-        crate::app::toggle_flag(c.app, &mut lock(&c.state), true).map(Value::Bool)
+        crate::app::toggle_wander(c.app, &mut lock(&c.state)).map(Value::Bool)
+    }),
+    main("setOnDesktop", |c| {
+        let on = c.arg(1).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;
+        crate::app::put_on_desktop(c.app, &mut lock(&c.state), c.text(0), on).map(|()| Value::Null)
     }),
     overlay("openChat", |c| {
         let id = c.text(0);
@@ -339,6 +343,25 @@ static COMMANDS: &[Command] = &[
         window::show(c.app);
         push_event(c.app, &json!({"type": "select", "petId": id}));
         Ok(Value::Null)
+    }),
+    // (id): the right-click menu for a friend or a decoration on the desktop, at the pointer.
+    overlay("desktopMenu", |c| {
+        let id = c.text(0);
+        if !c.may_touch(id) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        // Worked out under the lock, shown after it: the menu waits on the main thread.
+        let choices = crate::menu::desktop_choices(&lock(&c.state), id).ok_or_else(|| i18n::t("error.bad_request"))?;
+        // A menu that cannot be shown leaves nothing to tell: the press simply did nothing.
+        let _ = crate::menu::pop_desktop_menu(c.app, c.sender, &choices);
+        Ok(Value::Null)
+    }),
+    // (kind, x, y): a gift that came before, out of the album and down in the yard again.
+    main("takeOut", |c| {
+        let (x, y, now) = (c.float(1), c.float(2), now_ms());
+        commit(c.app, &c.state, |d| {
+            d.garden.take_out(c.text(0), x, y, now).map(|d| json!(d))
+        })
     }),
     overlay("dragStart", |c| {
         let id = c.text(0);
@@ -1031,11 +1054,23 @@ mod tests {
             .filter(|c| c.who == Who::Overlay)
             .map(|c| c.name)
             .collect();
-        assert_eq!(overlay, ["bootstrap", "play", "openChat", "dragStart", "dragStop"]);
+        assert_eq!(
+            overlay,
+            ["bootstrap", "play", "openChat", "desktopMenu", "dragStart", "dragStop"]
+        );
         for name in &overlay {
             assert!(may_call("overlay0", name) && may_call("main", name));
         }
-        for name in ["dig", "plantTree", "moveTree", "removeTree", "growTrees"] {
+        // What goes out on the desktop is chosen in the yard; the desktop only brings things back in.
+        for name in [
+            "dig",
+            "plantTree",
+            "moveTree",
+            "removeTree",
+            "growTrees",
+            "setOnDesktop",
+            "takeOut",
+        ] {
             assert!(may_call("main", name));
             assert!(!may_call("overlay0", name));
         }

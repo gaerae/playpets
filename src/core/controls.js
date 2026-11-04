@@ -3,12 +3,13 @@
 import { prepareCompanionAction } from './companion-actions.js';
 import { t } from './i18n.js';
 import { dropdown, menuNavigation, panelSpot } from './menu.js';
-import { $, aiming, data, game, name, selected, views } from './state.js';
+import { $, aiming, call, data, game, guard, name, recall, remember, selected, toast, views } from './state.js';
 
 let surfaces = [];
 let showControls = null;
 let showPlay = null;
 let showFriendMenu = null;
+let showDecorMenu = null;
 const yardFocus = button => (document.body.classList.contains('compact') ? $('yard') : button);
 // The dock's corner stays clear of a panel opened elsewhere.
 const DOCK_ROOM = 56;
@@ -37,6 +38,23 @@ export function openPlay(point) {
 export function openFriendMenu(id, point) {
   showFriendMenu?.(id, point);
 }
+/** Opens a gift's own menu (out to the desktop, put away) at `point`. */
+export function openDecorMenu(id, point) {
+  showDecorMenu?.(id, point);
+}
+/** The first time anything goes out on the desktop, how to talk to it and move it there. */
+export function desktopTip() {
+  if (recall('desktop-tip') === '1') return;
+  remember('desktop-tip', '1');
+  // Said once, so not under the panel the switch sits in.
+  closeControls(false);
+  toast(t('toast.desktop_tip'));
+}
+// One friend or one gift, out to the desktop or back in (desktop/items.rs).
+const sendOut = guard(async (id, on) => {
+  await call('setOnDesktop', id, on);
+  if (on) desktopTip();
+});
 export function closeUpdateDetails(focus = false) {
   const panel = $('update-dialog');
   if (!panel || panel.hidden) return;
@@ -79,6 +97,7 @@ export function setupControls({
   canDigAt = () => false,
   digAt = () => {},
   digWith = () => {},
+  putAway = () => {},
 } = {}) {
   surfaces = [];
   let spot = null;
@@ -151,7 +170,7 @@ export function setupControls({
   const context = $('yard-context-menu'),
     yard = $('yard');
   if (context && yard) {
-    // One menu, two sets of items: the scenery's (where to go) and a friend's (what to do with it).
+    // One menu, three sets of items: the scenery's (where to go), a friend's and a gift's (what to do with it).
     let point = { x: 8, y: 8 },
       friend = null;
     const items = menuNavigation(context);
@@ -173,6 +192,11 @@ export function setupControls({
         const dig = context.querySelector('[data-context-action="dig-friend"] .context-label');
         if (dig) dig.textContent = t('discovery.dig_with', { name: name(pet) });
       }
+      const out = forWhat === 'friend' ? pet : forWhat === 'decor' && data.garden?.decor?.find(d => d.id === id);
+      const check = [...context.querySelectorAll('[data-context-for]')].find(
+        item => item.dataset.contextAction === `desktop-${forWhat}`,
+      );
+      check?.setAttribute('aria-checked', String(!!out?.onDesktop));
     };
     const place = () => {
       if (context.hidden) return;
@@ -244,6 +268,11 @@ export function setupControls({
       show('friend', id);
       box.open();
     };
+    showDecorMenu = (id, at) => {
+      point = at;
+      show('decor', id);
+      box.open();
+    };
     context.addEventListener('click', event => {
       const action = event.target.closest('[data-context-action]')?.dataset.contextAction;
       if (!action) return;
@@ -259,6 +288,9 @@ export function setupControls({
       else if (action === 'talk') openChat(friend);
       else if (action === 'play-friend') openPlay(point);
       else if (action === 'dig-friend') digWith(friend);
+      else if (action === 'desktop-friend') sendOut(friend, !data.pets.find(p => p.id === friend)?.onDesktop);
+      else if (action === 'desktop-decor') sendOut(friend, !data.garden?.decor?.find(d => d.id === friend)?.onDesktop);
+      else if (action === 'put-away') putAway(friend);
     });
     globalThis.window?.addEventListener('resize', () => {
       place();

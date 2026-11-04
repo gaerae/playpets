@@ -306,20 +306,24 @@
     {
       "id": "lantern",
       "art": "decor/sculpted/lantern.svg",
+      "size": [30, 72],
       "effects": ["glow"]
     },
     {
       "id": "birdhouse",
-      "art": "decor/sculpted/birdhouse.svg"
+      "art": "decor/sculpted/birdhouse.svg",
+      "size": [36, 74]
     },
     {
       "id": "pond",
       "art": "decor/pond.svg",
+      "size": [100, 75],
       "flat": true
     },
     {
       "id": "mailbox",
-      "art": "decor/mailbox.svg"
+      "art": "decor/mailbox.svg",
+      "size": [45, 70]
     },
     {
       "id": "picnic",
@@ -330,11 +334,13 @@
     },
     {
       "id": "pinwheel",
-      "art": "decor/sculpted/pinwheel.svg"
+      "art": "decor/sculpted/pinwheel.svg",
+      "size": [30, 64]
     },
     {
       "id": "campfire",
       "art": "decor/campfire.svg",
+      "size": [64, 64],
       "effects": ["glow"]
     },
     {
@@ -345,7 +351,8 @@
     },
     {
       "id": "flowerpot",
-      "art": "decor/sculpted/flowerpot.svg"
+      "art": "decor/sculpted/flowerpot.svg",
+      "size": [32, 44]
     },
     {
       "id": "stump",
@@ -360,32 +367,38 @@
     },
     {
       "id": "signpost",
-      "art": "decor/sculpted/signpost.svg"
+      "art": "decor/sculpted/signpost.svg",
+      "size": [40, 68]
     },
     {
       "id": "windchime",
       "art": "decor/sculpted/windchime.svg",
+      "size": [36, 72],
       "effects": ["chime"]
     },
     {
       "id": "cherry_sapling",
       "art": "decor/sculpted/cherry_sapling.svg",
+      "size": [36, 58],
       "event": "blossom"
     },
     {
       "id": "watermelon",
       "art": "decor/sculpted/watermelon.svg",
+      "size": [60, 34],
       "flat": true,
       "event": "fireflies"
     },
     {
       "id": "pumpkin",
       "art": "decor/sculpted/pumpkin.svg",
+      "size": [46, 40],
       "event": "harvest"
     },
     {
       "id": "snowman",
       "art": "decor/sculpted/snowman.svg",
+      "size": [40, 60],
       "event": "lights"
     },
     {

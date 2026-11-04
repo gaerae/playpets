@@ -968,7 +968,7 @@ const scenario = `(async()=>{
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:200,clientY:200}));await wait(40);
     const friendItems=[...$('yard-context-menu').querySelectorAll('[data-context-action]')].filter(item=>!item.hidden).map(item=>item.dataset.contextAction).join(',');
     $('yard-context-menu').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
-    await L('playTag='+(tagChat&&friendItems==='talk,play-friend,dig-friend'?'tag-talks-right-click-offers-play':'err:'+friendItems));
+    await L('playTag='+(tagChat&&friendItems==='talk,play-friend,dig-friend,desktop-friend'?'tag-talks-right-click-offers-play':'err:'+friendItems));
     // Inviting from the shelf and opening the AI dialog go through the page's own buttons.
     const before=(await playPets.bootstrap()).data.pets.length;
     openMenu();$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
@@ -1077,6 +1077,18 @@ const scenario = `(async()=>{
     await must('wanderOn',playPets.toggleDesktopWander());
     const trayDesk=await until(async()=>{const t=await trayAt();return t.items.includes('wander:on')&&t;},5000);
     await L('traySwitches='+(trayDesk&&trayDesk.items.includes('friends')&&trayDesk.items.some(i=>i.startsWith('sound:'))&&trayDesk.items.includes('desktop:on')&&trayDesk.items.includes('alwaysOnTop:off')?'checked':'err:'+JSON.stringify(await trayAt())));
+    // One at a time: a gift out of the album goes out on its own, and a friend comes in on its own.
+    const gardenOut=(await playPets.bootstrap()).data.garden;
+    const outKind=gardenOut.received.find(k=>![...gardenOut.decor,...gardenOut.boxed].some(d=>d.kind===k));
+    const outGift=outKind&&(await playPets.takeOut(outKind,0.5,0.8)).data;
+    await must('decorOut',playPets.setOnDesktop(outGift?.id,true));
+    const withGift=await until(async()=>{const l=(await playPets.bootstrap()).data.desktopLayout;return l.some(i=>i.id===outGift.id&&i.decor===outKind)&&l;},8000);
+    await must('friendIn',playPets.setOnDesktop(p1.data.id,false));
+    const withoutFriend=await until(async()=>{const l=(await playPets.bootstrap()).data.desktopLayout;return !l.some(i=>i.id===p1.data.id)&&l.some(i=>i.id===outGift.id)&&l;},8000);
+    await L('desktopItems='+(withGift&&withoutFriend?'one-at-a-time':'err:'+JSON.stringify({outKind,withGift,withoutFriend})));
+    // Back out again, so the switch below brings everything in rather than sending everyone out.
+    await must('friendOut',playPets.setOnDesktop(p1.data.id,true));
+    await playPets.putAway(outGift.id);
     await must('removeProvider',playPets.removeProvider(save.data.id));
     const b3=await playPets.bootstrap();
     await L('detached='+(b3.data.pets[0].providerId===''&&b3.data.providers.length===0));
@@ -1620,6 +1632,10 @@ const expect = [
   [/^desktopOn=ok/, 'turn on desktop mode'],
   [/^overlayLayout=[1-9]/, 'overlay layout created'],
   [/^wanderOn=ok/, 'roaming toggle'],
+  [
+    /^desktopItems=one-at-a-time$/,
+    'a gift taken out of the album goes out on the desktop, and a friend comes in, each on its own',
+  ],
   [/^removeProvider=ok/, 'delete a provider'],
   [/^detached=true/, 'deleting a provider detaches it from pets'],
   [/^overlayClosed=alive$/, 'the app stays alive when desktop mode turns off'],

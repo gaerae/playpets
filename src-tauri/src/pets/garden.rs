@@ -75,7 +75,7 @@ pub struct Given {
     pub boxed: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct Decor {
     pub id: String,
     pub kind: String,
@@ -100,6 +100,22 @@ pub struct Decor {
     /// new for a while after it.
     #[serde(default, deserialize_with = "super::or_default", skip_serializing_if = "is_zero")]
     pub came_at: u64,
+    /// Out on the desktop too, as a friend can be (src-tauri/src/desktop/).
+    #[serde(
+        rename = "onDesktop",
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "std::ops::Not::not"
+    )]
+    pub on_desktop: bool,
+    /// Where it was last left on the desktop, in logical screen pixels.
+    #[serde(
+        rename = "desktopPosition",
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub desktop_position: Option<super::model::Pos>,
 }
 
 fn is_zero(n: &u64) -> bool {
@@ -400,6 +416,7 @@ impl Garden {
             from: Some(from.into()),
             memento,
             came_at: now,
+            ..Decor::default()
         };
         let boxed = self.decor.len() >= DECOR_MAX;
         if boxed && self.boxed.len() >= BOX_MAX {
@@ -427,6 +444,34 @@ impl Garden {
         }
         let mut decor = self.boxed.remove(at);
         (decor.x, decor.y) = (x, y);
+        self.decor.push(decor.clone());
+        Ok(decor)
+    }
+
+    /// Sets down again, at (x, y), a kind of gift that came before and was put away: what the album
+    /// keeps can always come back out. One that is in the yard or waiting in the box already is not
+    /// taken out twice.
+    pub fn take_out(&mut self, kind: &str, x: f64, y: f64, now: u64) -> Result<Decor, String> {
+        let Some((x, y)) = decor_place(x, y) else {
+            return Err(i18n::t("error.bad_request"));
+        };
+        if !self.received.iter().any(|k| k == kind) {
+            return Err(i18n::t("error.decor_missing"));
+        }
+        if self.decor.iter().chain(&self.boxed).any(|d| d.kind == kind) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        if self.decor.len() >= DECOR_MAX {
+            return Err(i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
+        }
+        let decor = Decor {
+            id: Uuid::new_v4().to_string(),
+            kind: kind.into(),
+            x,
+            y,
+            came_at: now,
+            ..Decor::default()
+        };
         self.decor.push(decor.clone());
         Ok(decor)
     }
@@ -471,7 +516,8 @@ impl Garden {
             .iter()
             .position(|d| d.id == id)
             .ok_or_else(|| i18n::t("error.decor_missing"))?;
-        let gone = self.decor.remove(at);
+        let mut gone = self.decor.remove(at);
+        gone.on_desktop = false;
         if gone.memento && self.boxed.len() < BOX_MAX {
             self.boxed.push(gone);
         }
@@ -530,6 +576,58 @@ mod tests {
         g.move_decor("a", 0.5, 9.0).unwrap();
         assert_eq!(g.decor[0].y, DECOR_FLOOR_MAX);
         assert!(g.move_decor("a", 0.5, f64::NAN).is_err());
+    }
+
+    #[test]
+    fn a_gift_that_came_once_comes_back_out_of_the_album_once_put_away() {
+        let mut g = Garden::default();
+        let given = g.give("bench", "miso", false, 0.5, 0.5, 1).unwrap();
+        assert!(g.take_out("bench", 0.4, 0.8, 2).is_err(), "it is in the yard already");
+        g.put_away(&given.decor.id).unwrap();
+        let out = g.take_out("bench", 0.4, 0.8, 2).unwrap();
+        assert_eq!(
+            (out.kind.as_str(), out.x, out.y, out.memento, out.from.as_deref()),
+            ("bench", 0.4, 0.8, false, None)
+        );
+        assert_eq!(g.decor, vec![out.clone()]);
+        assert!(g.take_out("tent", 0.4, 0.8, 2).is_err(), "a gift that never came");
+        g.put_away(&out.id).unwrap();
+        assert!(g.take_out("bench", f64::NAN, 0.8, 2).is_err());
+        g.decor = (0..DECOR_MAX)
+            .map(|i| Decor {
+                id: i.to_string(),
+                kind: "lantern".into(),
+                ..Decor::default()
+            })
+            .collect();
+        assert!(g.take_out("bench", 0.4, 0.8, 2).is_err(), "a full yard");
+        g.decor.clear();
+        g.boxed.push(Decor {
+            id: "boxed".into(),
+            kind: "bench".into(),
+            ..Decor::default()
+        });
+        assert!(g.take_out("bench", 0.4, 0.8, 2).is_err(), "the box sets that one out");
+    }
+
+    #[test]
+    fn a_decoration_keeps_its_desktop_place_and_leaves_the_desktop_when_put_away() {
+        let mut g = Garden::restore(
+            Some(&json!({
+                "decor": [
+                    {"id": "a", "kind": "bench", "x": 0.5, "y": 0.5, "onDesktop": true, "desktopPosition": {"x": 40, "y": 700}},
+                    {"id": "b", "kind": "tent", "x": 0.5, "y": 0.5, "memento": true, "from": "miso", "onDesktop": true},
+                    {"id": "c", "kind": "pond", "x": 0.5, "y": 0.5, "onDesktop": "yes", "desktopPosition": "here"}
+                ]
+            })),
+            0,
+        );
+        let saved = serde_json::to_value(&g).unwrap();
+        assert_eq!(saved["decor"][0]["onDesktop"], true);
+        assert_eq!(saved["decor"][0]["desktopPosition"], json!({"x": 40, "y": 700}));
+        assert!(saved["decor"][2].get("onDesktop").is_none() && saved["decor"][2].get("desktopPosition").is_none());
+        g.put_away("b").unwrap();
+        assert_eq!((g.boxed[0].id.as_str(), g.boxed[0].on_desktop), ("b", false));
     }
 
     #[test]
@@ -724,7 +822,7 @@ mod tests {
             y: 0.5,
             from: Some("miso".into()),
             memento,
-            came_at: 0,
+            ..Decor::default()
         };
         // Every kind has come before; the yard holds a few of them, all mementos.
         g.received = catalog().gifts().iter().map(|k| k.to_string()).collect();

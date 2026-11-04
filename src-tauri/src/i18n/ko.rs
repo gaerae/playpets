@@ -20,6 +20,8 @@ const TABLE: &[(&str, &str)] = &[
     ("tray.sound", "놀이터 소리"),
     ("tray.desktop", "바탕화면에 보이기"),
     ("tray.wander", "바탕화면 산책"),
+    ("desktop.talk", "{name}에게 말 걸기"),
+    ("desktop.take_in", "바탕화면에서 빼기"),
     ("tray.update", "업데이트 확인…"),
     ("tray.alwaysOnTop", "항상 위에 표시"),
     ("tray.fit", "창 크기 맞추기"),
