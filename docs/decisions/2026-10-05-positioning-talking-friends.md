@@ -36,3 +36,10 @@ Before launch (2026-10-05), we looked at open-source desktop pet apps that react
 - The Codex column of the features table repeats only what that guide says: a sprite sheet made with the hatch-pet skill or uploaded, the Running, Needs input, Ready and Blocked states, starting a chat, and following ChatGPT and Codex threads.
 - The guide's custom sheet is 1536 × 1872 with no look directions, so the sixteen look directions are claimed only for sheets that have them.
 - ChatGPT is named with Codex wherever the trademark line appears on the site and in the README.
+
+## Follow-up: friends first, Codex pets as ones that join (2026-11-04)
+
+- The site's first title, page titles and descriptions now open with pet friends that live on the desktop; the README's first line says the same.
+- Why: a first line about "your Codex pets" reads as only for people who already have one. Four friends come with the app, so nobody needs a Codex pet to start.
+- Codex pets stay in the first paragraph, right after the four friends, as pets that can join; the comparison with the ChatGPT app's pet and the FAQ still use the name people search for.
+- A test checks that no first title or page title names Codex, and that the lead and description name the four friends before Codex pets (`tests/landing.test.mjs`).

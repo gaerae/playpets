@@ -42,6 +42,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The front page opens with pet friends that live on your desktop, four of which come with the app, and then Codex pets as ones that can join, in its title, its search result and its first lines in every language.
 - The README opens with friends that come with the app, so it no longer reads as only for people with Codex pets, and is shorter: it adds a Windows installer (.exe) download beside the Microsoft Store, describes friends and gifts going out to the desktop one by one, says which Windows the Store package needs and where to report a bug, and leaves the developer commands, workflows and repository map to the developer docs.
 - On Windows, the download section shows the GitHub installer (.exe) for your PC with its version right under the Microsoft Store button, and the SmartScreen note under it, instead of only in the folded list.
 - The desktop guide and the play guide describe sending one friend or one gift to the desktop, the desktop's right-click menu and setting a gift out again from the album.

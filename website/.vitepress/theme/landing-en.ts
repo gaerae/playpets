@@ -30,8 +30,8 @@ export const worldCopy = {
   previewNote:
     'An interactive scene sample with the app’s artwork. Select a friend to wave; games and weather live in the app.',
   greet: 'Say hello',
-  title: ['Your Codex pets,', 'together in one yard.'],
-  lead: 'Invite the Codex pets you have, or the four friends that come with PlayPets. Up to 12 play together, talk through the AI you choose and tell you what your coding agent is doing.',
+  title: ['Pet friends', 'that live on your desktop.'],
+  lead: 'Four friends come with PlayPets, and any Codex pet can join them. Up to 12 play together, talk through the AI you choose and tell you what your coding agent is doing.',
   worldsTitle: 'Try a little of it here.',
   worldsLead: 'Open the yard window or let them out onto the desktop, then say hello to a friend.',
   viewLabel: 'Where your friends are',

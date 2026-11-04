@@ -60,6 +60,32 @@ test('the first screen names the coding agents and every question on the landing
   }
 });
 
+// Most visitors have no Codex pet yet: the first words say friends come with the app, and Codex
+// pets come after, as ones that can join.
+test('the first title and the search result say friends come with the app, not only Codex pets', async () => {
+  const config = read('website/.vitepress/config.mts');
+  const descriptions = [...config.matchAll(/^ {6}description:\s*'([^']+)'/gm)].map(([, d]) => d);
+  assert.equal(descriptions.length, 4);
+  for (const [i, lang] of ['en', 'ko', 'ja', 'zh-hans'].entries()) {
+    const { worldCopy } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const page = read(`website/${lang === 'en' ? '' : `${lang}/`}index.md`);
+    const template = page.match(/^titleTemplate: (.+)$/m)[1];
+    for (const [what, text] of [
+      ['title', worldCopy.title.join('')],
+      ['titleTemplate', template],
+    ])
+      assert.doesNotMatch(text, /Codex/, `${lang}: ${what}`);
+    // The lead and the description name the four friends before Codex pets.
+    for (const [what, text] of [
+      ['lead', worldCopy.lead],
+      ['description', descriptions[i]],
+    ]) {
+      const four = text.search(/four|넷|4人|四位/i);
+      assert.ok(four >= 0 && four < text.indexOf('Codex'), `${lang}: ${what}`);
+    }
+  }
+});
+
 test("the top of the landing sets a Codex pet's features beside PlayPets', in every language", async () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.ok(landing.indexOf('</section>') < landing.indexOf('class="codex-plus"'), 'right after the hero');
