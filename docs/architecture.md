@@ -367,7 +367,7 @@ What differs per OS:
 | OS | Differences |
 |---|---|
 | macOS | The overlay becomes an NSPanel, so it shows even over other apps' full screen. The original class is restored before closing; without that the app crashes. Closing the yard also hides the Dock icon. The menu bar exists only on macOS |
-| Windows | CLI child processes get no console window. A `claude.cmd` installed through npm runs directly as node plus the script (a `.cmd` cannot take arguments that contain line breaks). Folders and addresses open through ShellExecuteW. Cursor coordinates are converted with the scale of the monitor under the cursor. Installed through MSIX, the agent settings point at the execution alias `playpets.exe` |
+| Windows | CLI child processes get no console window. A `claude.cmd` installed through npm runs directly as node plus the script (a `.cmd` cannot take arguments that contain line breaks). Folders and addresses open through ShellExecuteW. Cursor coordinates are converted with the scale of the monitor under the cursor. Installed through MSIX, the agent settings point at the execution alias `playpets.exe`. The MinGW build needs `WebView2Loader.dll` next to the exe (the installer and the portable zip include it); an MSVC build links it statically |
 | Linux | Distributed as deb and AppImage. E2E runs on Xvfb |
 
 ## Related decisions
