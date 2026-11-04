@@ -73,6 +73,27 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.5.0" date="2026-11-04">
+      <description>
+        <p>Your desk can have a bench now: send friends and gifts out one at a time, and a strolling friend stops by to say hello. The album grows to 150 finds.</p>
+        <ul>
+          <li>Right-click a friend and choose Show on desktop to send just that friend out.</li>
+          <li>Gifts go out to the desktop too, and strolling friends stop by them to say something.</li>
+          <li>Press Set out in the album to bring back any gift that came before.</li>
+          <li>A right-click on the desktop lets you talk to a friend or take it off the desktop.</li>
+          <li>The album grows to 150: new fish, bugs, flowers, trees, keepsakes and six gifts.</li>
+          <li>The album reads like a collector's notebook, with a star for each finished book.</li>
+          <li>Where a rainbow ends the ground glimmers, and a dig there always finds something.</li>
+          <li>Sunshowers, autumn mist, moonlit snow and summer meteor showers, each pointed out.</li>
+          <li>Ask a friend about the app and it answers from the app's own facts.</li>
+          <li>Fish and bugs turn up as often as they are common; event-only finds are marked rare.</li>
+          <li>A memento's heart shows for a day, then only when you point at the memento.</li>
+          <li>Downloads are smaller: the macOS disk image is about 180 MB instead of 315 MB.</li>
+          <li>Switching books in the album starts at the top of the new book.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.5.0</url>
+    </release>
     <release version="1.4.0" date="2026-11-01">
       <description>
         <p>Gifts now come from friends, not from the clock: play with a friend and it may bring you something, and growing closer brings one too.</p>

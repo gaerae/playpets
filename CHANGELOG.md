@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-04
+
 ### Added
 
 - When a rainbow follows the rain, the ground glimmers where it ends, a friend points it out, and a dig there before it fades never comes up empty.
