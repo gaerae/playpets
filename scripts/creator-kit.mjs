@@ -2,12 +2,14 @@
 
 import { execFileSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { dataUrl, dataUrlBytes } from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 import { publicProvenance, validatePng, zipStore } from './creator-bundle-lib.mjs';
-import { baselineManifest, kitEntries, kitPrompts, kitSpec, petManifest } from './creator-specs.mjs';
+import { kitEntries, kitPrompts, kitSpec, petManifest } from './creator-specs.mjs';
 import { pngSize, sha256 } from './png-lossless-lib.mjs';
+import { LANDING_PETS, petDownload } from './site-content.mjs';
 
 // A fork's kits credit the fork (package.json, as site-prepare reads it).
 const { repository: slug } = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
@@ -181,7 +183,7 @@ export async function copyCreatorKit(destination = 'website/public/creator-kit',
     files.set(
       'README.txt',
       Buffer.from(
-        `${spec.name} — ${spec.style} design kit\n\n${details.length ? 'Turnaround and face-detail are high-resolution extension references, not runtime sprites.' : 'Detailed turnaround and face-detail sheets have not been created for this pet. Prompts describe how to propose them; the shipped runtime collages remain the approved identity source.'} identity-reference, wardrobe-reference, expression-reference and motion-reference are supplemental collages of shipped cells. Read identity.json and prompts/ before generation; inspect every generated face, accessory side and action manually.\n\nRuntime remains v2: 1536x2288, 8x11 cells of 192x208, 88 cells; leading counts [6, 8, 8, 4, 5, 8, 6, 6, 6] plus 16 gaze. Do not import the reference images.\n\nTo use the separate pet download: extract importable-pet.zip, then choose its containing folder in PlayPets. This design ZIP also contains those same runtime files. ZIP import itself is not required or promised. This is an independent creator-kit copy; each named built-in entry retains its own default artwork. All drawing styles use the same pet format. baseline-pet.zip contains only pet.json and spritesheet.png; importable-pet.zip adds only available optional PlayPets seasonal sheets and chat portrait. Check identity.json references for availability; absent seasonal artwork is not supplied or simulated.\n\nSource artwork: PlayPets, ${repository}, MIT. Fictional characters only.\n`,
+        `${spec.name} — ${spec.style} design kit\n\n${details.length ? 'Turnaround and face-detail are high-resolution extension references, not runtime sprites.' : 'Detailed turnaround and face-detail sheets have not been created for this pet. Prompts describe how to propose them; the shipped runtime collages remain the approved identity source.'} identity-reference, wardrobe-reference, expression-reference and motion-reference are supplemental collages of shipped cells. Read identity.json and prompts/ before generation; inspect every generated face, accessory side and action manually.\n\nRuntime remains v2: 1536x2288, 8x11 cells of 192x208, 88 cells; leading counts [6, 8, 8, 4, 5, 8, 6, 6, 6] plus 16 gaze. Do not import the reference images.\n\nTo use a friend as it is, download playpets-<name>.zip from the PlayPets website instead. This is an independent creator-kit copy; each named built-in entry retains its own default artwork. All drawing styles use the same pet format. Check identity.json references for availability; absent seasonal artwork is not supplied or simulated.\n\nSource artwork: PlayPets, ${repository}, MIT. Fictional characters only.\n`,
       ),
     );
     const manifest = {
@@ -200,21 +202,15 @@ export async function copyCreatorKit(destination = 'website/public/creator-kit',
       ),
     };
     files.set('kit.json', json(manifest));
-    const entries = [...files].map(([name, bytes]) => ({ name, bytes }));
-    const petEntries = entries.filter(entry =>
-      ['pet.json', 'spritesheet.png', 'summer.png', 'winter.png', 'portrait.png'].includes(entry.name),
-    );
-    const baseline = zipStore([
-      { name: 'pet.json', bytes: json(baselineManifest(spec)) },
-      { name: 'spritesheet.png', bytes: files.get('spritesheet.png') },
-    ]);
-    prepared.push({ kit, files, design: zipStore(entries), pet: zipStore(petEntries), baseline });
+    prepared.push({ kit, files });
   }
   for (const retired of ['aria-realistic', 'noah-realistic', 'aria', 'noah', 'tabby', 'smoky', 'mochi'])
     await rm(`${destination}/${retired}`, { recursive: true, force: true });
-  for (const { kit, files, design, pet, baseline } of prepared) {
+  for (const { kit, files } of prepared) {
     const target = `${destination}/${kit.id}`,
       source = `assets/creator-kit/${kit.id}`;
+    // Afresh, so a file this kit no longer has is not still served from an earlier build.
+    await rm(target, { recursive: true, force: true });
     await mkdir(target, { recursive: true });
     for (const [name, bytes] of files) {
       const slash = name.lastIndexOf('/');
@@ -225,10 +221,35 @@ export async function copyCreatorKit(destination = 'website/public/creator-kit',
         await writeFile(`${source}/${name}`, bytes);
       }
     }
-    await writeFile(`${target}/design-kit.zip`, design);
-    await writeFile(`${target}/importable-pet.zip`, pet);
-    await writeFile(`${target}/baseline-pet.zip`, baseline);
   }
+}
+
+/** Each starter friend as the app ships it, in one folder named for its id: unzipped into a Codex
+ * pets folder it is a Codex pet, and PlayPets imports the ZIP as it is. The sheets are the ones
+ * copyCreatorKit checks in the same build, so they are not checked again here. */
+export async function petDownloads() {
+  return Promise.all(
+    LANDING_PETS.map(async pet => {
+      const root = path.dirname(pet.source),
+        bytes = await readFile(`${root}/pet.json`),
+        { id, spritesheetPath, seasonalSpritesheets = {} } = JSON.parse(bytes),
+        file = path.basename(petDownload(pet.id));
+      // The folder is named for the pet's id, and the pages link the file by the friend's.
+      if (file !== `${id}.zip`) throw new Error(`${pet.source}: pet.json id ${id} does not match ${file}`);
+      const sheets = await Promise.all(
+        [spritesheetPath, ...Object.values(seasonalSpritesheets)].map(async sheet => ({
+          name: `${id}/${sheet}`,
+          bytes: await readFile(`${root}/${sheet}`),
+        })),
+      );
+      return { file, entries: [{ name: `${id}/pet.json`, bytes }, ...sheets] };
+    }),
+  );
+}
+
+export async function writePetDownloads(destination = 'website/public/pets') {
+  await mkdir(destination, { recursive: true });
+  for (const { file, entries } of await petDownloads()) await writeFile(`${destination}/${file}`, zipStore(entries));
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (process.argv[2] === '--metadata') {

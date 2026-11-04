@@ -25,7 +25,7 @@ impl VisualStyle {
     }
 }
 
-#[derive(Clone, Copy, Debug, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Pos {
     pub x: i64,
     pub y: i64,
@@ -56,6 +56,9 @@ pub struct Pet {
     pub call_me: String,
     #[serde(rename = "desktopPosition")]
     pub desktop_position: Option<Pos>,
+    /// Out on the desktop, in its own see-through window (src-tauri/src/desktop/), as well as in the yard.
+    #[serde(rename = "onDesktop")]
+    pub on_desktop: bool,
 }
 
 /// The relationships a friend can have with its owner besides being a friend. What each one
@@ -131,6 +134,7 @@ pub fn create_pet(asset_id: &str, pets: &[Pet]) -> Result<Pet, String> {
         relation: String::new(),
         call_me: String::new(),
         desktop_position: None,
+        on_desktop: false,
     })
 }
 
@@ -244,6 +248,9 @@ pub fn restore_pets(raw: &Value, asset_ids: &[String]) -> Vec<Pet> {
                 y: y.round() as i64,
             });
         }
+        // Saved before each friend went out on its own: the one switch sent every friend.
+        let everyone_out = raw.get("desktop").and_then(Value::as_bool).unwrap_or(false);
+        pet.on_desktop = p.get("onDesktop").and_then(Value::as_bool).unwrap_or(everyone_out);
         pets.push(pet);
     }
     pets
@@ -430,6 +437,29 @@ mod tests {
             &["cat".to_string()],
         );
         assert_eq!(restored[0].persona_from, "chat", "a saved source is kept as it was");
+    }
+
+    #[test]
+    fn each_friend_keeps_whether_it_is_on_the_desktop_and_an_old_save_sends_everyone() {
+        let pet = |id: &str, extra: Value| {
+            let mut p = json!({"id": id, "assetId": "white"});
+            p.as_object_mut().unwrap().extend(extra.as_object().unwrap().clone());
+            p
+        };
+        let raw = json!({"desktop": true, "pets": [pet("old", json!({})), pet("home", json!({"onDesktop": false}))]});
+        let pets = restore_pets(&raw, &["white".into()]);
+        assert_eq!(pets.iter().map(|p| p.on_desktop).collect::<Vec<_>>(), [true, false]);
+        let raw = json!({"pets": [pet("a", json!({})), pet("b", json!({"onDesktop": true})), pet("c", json!({"onDesktop": "yes"}))]});
+        let pets = restore_pets(&raw, &["white".into()]);
+        assert_eq!(
+            pets.iter().map(|p| p.on_desktop).collect::<Vec<_>>(),
+            [false, true, false]
+        );
+        assert_eq!(serde_json::to_value(&pets[1]).unwrap()["onDesktop"], true);
+        assert!(
+            !create_pet("white", &[]).unwrap().on_desktop,
+            "a new friend starts in the yard"
+        );
     }
 
     #[test]

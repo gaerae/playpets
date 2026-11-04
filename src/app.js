@@ -53,7 +53,7 @@ import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
-import { giftTick, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
+import { giftTick, putAway, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
 import {
   autoDig,
   beginDiscovery,
@@ -72,6 +72,7 @@ import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
 import { setupSky } from './yard/sky.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
+import { setupTouches } from './yard/touches.js';
 import { release } from './yard/trips.js';
 import { bubble, place, setupViews, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
@@ -137,6 +138,7 @@ setupWindow();
 setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
   openChat,
+  putAway,
   canDigAt,
   digAt,
   digWith: id => {
@@ -195,6 +197,7 @@ setupSky({
     renderTrees();
   },
 });
+setupTouches();
 setupBackgrounds();
 setupViews({
   gameTap,

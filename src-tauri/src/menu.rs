@@ -34,7 +34,12 @@ pub fn act(app: &AppHandle, id: &str) {
             {
                 let state = app.state::<Shared>();
                 let mut d = lock(&state);
-                if let Err(e) = crate::app::toggle_flag(app, &mut d, id == "wander") {
+                let flipped = if id == "wander" {
+                    crate::app::toggle_wander(app, &mut d)
+                } else {
+                    crate::app::toggle_desktop(app, &mut d)
+                };
+                if let Err(e) = flipped {
                     warn(app, &mut d, e);
                 }
             }
@@ -74,7 +79,62 @@ pub fn act(app: &AppHandle, id: &str) {
             });
         }
         "quit" => quit(app),
-        _ => {}
+        _ => desktop_act(app, id),
+    }
+}
+
+/// What a right click on the desktop offers, as (menu id, label): talking to a friend, and taking
+/// a friend or a decoration off the desktop (it stays in the yard). None for what is not out there.
+pub fn desktop_choices(d: &crate::app::AppData, id: &str) -> Option<Vec<(String, String)>> {
+    let name = |p: &crate::pets::model::Pet| crate::app::pet_name(d, p, &crate::i18n::t("chat.a_friend"));
+    choices_for(&d.pets, &d.garden, id, name)
+}
+
+fn choices_for(
+    pets: &[crate::pets::model::Pet],
+    garden: &crate::pets::garden::Garden,
+    id: &str,
+    name: impl Fn(&crate::pets::model::Pet) -> String,
+) -> Option<Vec<(String, String)>> {
+    use crate::i18n::{t, tr};
+    let take_in = (format!("desktop-in:{id}"), t("desktop.take_in"));
+    if let Some(p) = pets.iter().find(|p| p.id == id && p.on_desktop) {
+        return Some(vec![
+            (format!("desktop-talk:{id}"), tr("desktop.talk", &[("name", &name(p))])),
+            take_in,
+        ]);
+    }
+    garden
+        .decor
+        .iter()
+        .any(|g| g.id == id && g.on_desktop)
+        .then(|| vec![take_in])
+}
+
+/// Shows `choices` where the pointer is, over the overlay window `label`.
+pub fn pop_desktop_menu(app: &AppHandle, label: &str, choices: &[(String, String)]) -> tauri::Result<()> {
+    use tauri::menu::{Menu, MenuItem};
+    let Some(win) = app.get_webview_window(label) else {
+        return Ok(());
+    };
+    let menu = Menu::new(app)?;
+    for (id, text) in choices {
+        menu.append(&MenuItem::with_id(app, id, text, true, None::<&str>)?)?;
+    }
+    win.popup_menu(&menu)
+}
+
+/// A choice from the desktop's right-click menu (desktop_choices).
+fn desktop_act(app: &AppHandle, id: &str) {
+    if let Some(pet) = id.strip_prefix("desktop-talk:") {
+        window::show(app);
+        push_event(app, &json!({"type": "select", "petId": pet}));
+    } else if let Some(item) = id.strip_prefix("desktop-in:") {
+        let state = app.state::<Shared>();
+        let mut d = lock(&state);
+        if let Err(e) = crate::app::put_on_desktop(app, &mut d, item, false) {
+            warn(app, &mut d, e);
+        }
     }
 }
 
@@ -164,4 +224,41 @@ pub fn app_menu(
         ],
     )?;
     Menu::with_items(app, &[&app_menu, &edit, &view, &window_menu])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::pets::garden::{Decor, Garden};
+    use crate::pets::model::create_pet;
+
+    #[test]
+    fn a_right_click_on_the_desktop_talks_to_a_friend_or_takes_a_thing_off_it() {
+        let mut miso = create_pet("white", &[]).unwrap();
+        miso.id = "miso".into();
+        miso.on_desktop = true;
+        let mut garden = Garden::default();
+        for (id, out) in [("bench", true), ("tent", false)] {
+            garden.decor.push(Decor {
+                id: id.into(),
+                kind: id.into(),
+                on_desktop: out,
+                ..Decor::default()
+            });
+        }
+        let pets = vec![miso];
+        let ids = |id: &str| {
+            choices_for(&pets, &garden, id, |_| "Miso".into())
+                .map(|c| c.into_iter().map(|(id, _)| id).collect::<Vec<_>>())
+        };
+        assert_eq!(ids("miso").unwrap(), ["desktop-talk:miso", "desktop-in:miso"]);
+        assert!(
+            choices_for(&pets, &garden, "miso", |_| "Miso".into()).unwrap()[0]
+                .1
+                .contains("Miso")
+        );
+        assert_eq!(ids("bench").unwrap(), ["desktop-in:bench"]);
+        assert_eq!(ids("tent"), None, "only what is out there");
+        assert_eq!(ids("nobody"), None);
+    }
 }

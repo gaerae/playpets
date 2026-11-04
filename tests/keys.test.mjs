@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { matches, SHORTCUTS } from '../src/core/keys.js';
+import { matches, SHORTCUTS, typing } from '../src/core/keys.js';
 
 const menu = readFileSync(new URL('../src-tauri/src/menu.rs', import.meta.url), 'utf8');
 const accelerator = keys =>
@@ -38,4 +38,12 @@ test('a shortcut matches its modifiers exactly, Cmd or Ctrl alike', () => {
   assert.ok(matches(press('S', { ctrlKey: true, shiftKey: true }), 'mod+shift+s'), 'Shift makes the letter upper case');
   assert.ok(!matches(press('s', { ctrlKey: true, shiftKey: true, altKey: true }), 'mod+shift+s'), 'Alt is never part');
   assert.ok(matches(press(',', { metaKey: true }), 'mod+,'));
+});
+
+test('keys typed into a field are told apart from keys for the yard', () => {
+  const inside = selector => ({ target: { closest: fields => (fields.includes(selector) ? {} : null) } });
+  for (const field of ['input', 'textarea', 'select', '[contenteditable="true"]'])
+    assert.equal(typing(inside(field)), true);
+  assert.equal(typing({ target: { closest: () => null } }), false, 'the yard or a button');
+  assert.equal(typing({ target: null }), false, 'no target at all');
 });

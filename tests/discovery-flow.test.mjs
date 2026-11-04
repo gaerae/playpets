@@ -99,7 +99,7 @@ test('arrival commits once and cancellation during the backend wait removes pres
   assert.equal(commands.length, 1);
   assert.deepEqual(commands[0].slice(0, 4), ['friend', 'woodland', 0.5, 0.5]);
   assert.equal(commands[0][4].soil, true);
-  assert.deepEqual(commands[0][5], { season: 'summer', weather: 'snow' });
+  assert.deepEqual(commands[0][5], { season: 'summer', weather: 'snow', rainbow: false });
   assert.equal(v.pose, 'idle', 'digging never selects a coding sprite with a laptop');
   const effect = document.getElementById('garden-layer').children.at(-1);
   assert.match(effect.innerHTML, /dig-soil/);

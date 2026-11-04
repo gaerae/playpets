@@ -194,3 +194,124 @@ test('new ground families spawn on land and stay catchable with reduced motion',
     assert.equal(scene.busy(), false);
   }
 });
+
+// A yard with its sky layer, counting what each canvas draws.
+function layered(t, reduce = false) {
+  t.mock.method(Math, 'random', () => 0.5);
+  t.mock.method(performance, 'now', () => 0);
+  globalThis.window = { devicePixelRatio: 1 };
+  const counting = () => {
+    const calls = { arcs: 0, strokes: 0, clears: 0 };
+    const ctx = new Proxy(
+      {
+        arc() {
+          calls.arcs++;
+        },
+        stroke() {
+          calls.strokes++;
+        },
+        clearRect() {
+          calls.clears++;
+        },
+        createLinearGradient: () => ({ addColorStop() {} }),
+      },
+      { get: (object, key) => object[key] ?? (() => {}) },
+    );
+    return { calls, canvas: { getContext: () => ctx, getBoundingClientRect: () => ({ width: 1000, height: 600 }) } };
+  };
+  const weather = counting(),
+    sky = counting(),
+    reduced = { matches: reduce };
+  const scene = createScenery(weather.canvas, reduced, undefined, undefined, sky.canvas);
+  scene.resize();
+  return { scene, sky: sky.calls, reduced };
+}
+// How many shooting stars begin across the frames from `from` to `to`, 100 ms apart.
+function crossings(scene, sky, from, to) {
+  let count = 0,
+    crossing = false;
+  for (let now = from; now <= to; now += 100) {
+    const before = sky.strokes;
+    scene.frame(now, 100);
+    const drawn = sky.strokes > before;
+    if (drawn && !crossing) count++;
+    crossing = drawn;
+  }
+  return count;
+}
+
+test('in a meteor shower a shooting star crosses every few seconds, and only now and then after it', t => {
+  const { scene, sky } = layered(t);
+  scene.set('night', 'clear', 'summer');
+  scene.shower(true);
+  assert.ok(crossings(scene, sky, 1, 20000) >= 3);
+  scene.shower(false);
+  assert.ok(crossings(scene, sky, 20100, 40000) <= 1);
+});
+
+test('a wish can be sent from the moon across a clear night sky at once, never by day or without motion', t => {
+  const { scene, sky, reduced } = layered(t);
+  scene.set('night', 'clear', 'winter');
+  scene.frame(1, 1);
+  assert.equal(scene.shoot({ x: 200, y: 60 }), true);
+  assert.equal(scene.busy(), true);
+  let before = sky.strokes;
+  scene.frame(101, 100);
+  assert.ok(sky.strokes > before);
+  assert.equal(scene.shoot({ x: 200, y: 60 }), false, 'one wish at a time');
+  scene.frame(1000, 100);
+  before = sky.strokes;
+  scene.frame(2600, 100);
+  assert.ok(sky.strokes > before, 'its dust glitters after it has gone');
+  scene.frame(6000, 100);
+  before = sky.strokes;
+  scene.frame(6100, 100);
+  assert.equal(sky.strokes, before, 'then the sky is left as it was');
+  scene.set('day', 'clear', 'winter');
+  assert.equal(scene.shoot({ x: 200, y: 60 }), false);
+  scene.set('night', 'clear', 'winter');
+  reduced.matches = true;
+  scene.frame(7000, 100);
+  assert.equal(scene.shoot({ x: 200, y: 60 }), false);
+});
+
+test('sparks flare on the sky layer while they last, then the layer is left as it was', t => {
+  const { scene, sky, reduced } = layered(t);
+  scene.set('day', 'clear', 'summer');
+  scene.frame(1, 1);
+  const spark = { cx: 500, cy: 100, tx: 560, ty: 80, fall: 10, since: 100, life: 1000, color: '#ffd27a' };
+  assert.equal(
+    scene.flare(() => [spark]),
+    true,
+  );
+  assert.equal(scene.busy(), true);
+  const before = sky.strokes;
+  scene.frame(600, 100);
+  assert.ok(sky.strokes > before, 'drawn while it lasts');
+  scene.frame(1200, 100);
+  assert.equal(scene.busy(), false);
+  const clears = sky.clears,
+    strokes = sky.strokes;
+  scene.frame(1300, 100);
+  assert.equal(sky.clears, clears, 'nothing to draw once it is over');
+  assert.equal(sky.strokes, strokes);
+  reduced.matches = true;
+  scene.frame(1400, 100);
+  assert.equal(
+    scene.flare(() => [{ ...spark, since: 1500 }]),
+    false,
+  );
+});
+
+test('a window resized in the middle of a show (the panel opening) keeps the sparks in the sky', t => {
+  const { scene, sky } = layered(t);
+  scene.set('night', 'clear', 'summer');
+  scene.frame(1, 1);
+  scene.flare(() => [{ cx: 500, cy: 100, tx: 560, ty: 80, fall: 10, since: 100, life: 4000, color: '#ffd27a' }]);
+  scene.frame(200, 100);
+  scene.resize();
+  const before = sky.strokes;
+  scene.frame(1000, 100);
+  assert.ok(sky.strokes > before);
+  assert.equal(scene.busy(), true);
+});

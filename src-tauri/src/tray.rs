@@ -48,7 +48,7 @@ pub fn snapshot(d: &AppData) -> Snapshot {
     });
     Snapshot {
         friends: !d.pets.is_empty(),
-        desktop: d.prefs.desktop,
+        desktop: crate::app::desktop_on(d),
         wander: d.prefs.wander,
         sound: d.prefs.sound.on,
         always_on_top: d.prefs.always_on_top,

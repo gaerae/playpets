@@ -24,20 +24,20 @@
       "sha256": "58d236bf8ab6660ba4bcbbde5c1f7b3bf0249e3c0c479da9b9a09472cfd3b480"
     },
     "identity-reference.png": {
-      "bytes": 180443,
-      "sha256": "48f1d681bcf4f02af92ceec912deeda5fb2b2fdaf52cee51d01c8651edd8edcf"
+      "bytes": 211433,
+      "sha256": "86a9c1eb40c891651d37cbed44bd4adab9f6ebec9d46c1c108305d4542f03524"
     },
     "expression-reference.png": {
-      "bytes": 180797,
-      "sha256": "6f481ff04ef699c0e52054277106d925715aee379dc8373227e1b5f1536e3cc2"
+      "bytes": 212132,
+      "sha256": "9e95dd3bf3b3ff4f5f764cbb9f5748b84798aa82e23940c72ee07ea202659cbe"
     },
     "motion-reference.png": {
-      "bytes": 2520152,
-      "sha256": "bebe3fdc7326a7da7660ef3ae6cbcc42dd5e8dea3e837140939e22b7de74239c"
+      "bytes": 2921977,
+      "sha256": "d8596f506139a6da10559755e73c59cd31a681a1eb35887bca285cfe94a9877e"
     },
     "wardrobe-reference.png": {
-      "bytes": 92953,
-      "sha256": "3491ce7546e0bce5773b6143b3e4e4d75ef471871645aa7ac2d0d7ce002f7fa4"
+      "bytes": 110472,
+      "sha256": "96797011cb3eade590a8bd65b551d39e50c8016611106512e94f054d07c516f1"
     },
     "spritesheet.png": {
       "bytes": 2619646,
@@ -80,8 +80,8 @@
       "sha256": "faaaa9ab7c4a77bbefbbe1f5419422bc52b1f996ddf0058dbc24044a594e1aea"
     },
     "README.txt": {
-      "bytes": 1233,
-      "sha256": "52dcbe05a3f83122c43f39694ccdbb737af1df532a8a67c5be1e426f96ccaa88"
+      "bytes": 958,
+      "sha256": "81a63e6cf075317f46cb071092e4bd0e4dbbf32a933eaa8319582a089f55f4ff"
     }
   }
 }

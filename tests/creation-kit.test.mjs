@@ -166,3 +166,28 @@ test('the portable skill uses frontmatter accepted by current Codex skill valida
   const topLevelKeys = [...frontmatter[1].matchAll(/^([a-z][a-z-]*):/gm)].map(match => match[1]);
   assert.deepEqual(topLevelKeys, ['name', 'license', 'metadata', 'description']);
 });
+
+test('each studio asks for its own kind of thing: a friend wears clothes, a place has none', async () => {
+  const { creationCopy } = await import('../website/.vitepress/theme/creation-copy.js');
+  const place = { en: /place|space/i, ko: /공간|장소/, ja: /空間|場所/, 'zh-hans': /空间|地方/ };
+  const clothes = { en: /cloth/i, ko: /의상|옷/, ja: /服/, 'zh-hans': /服/ };
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const copy = creationCopy[lang];
+    for (const key of ['petNamePlaceholder', 'petBriefPlaceholder']) {
+      assert.ok(copy[key], `${lang}.${key}`);
+      assert.doesNotMatch(copy[key], place[lang], `${lang}.${key}`);
+    }
+    assert.match(copy.petBriefPlaceholder, clothes[lang], lang);
+    assert.doesNotMatch(copy.namePlaceholder, /friend|친구|友だち|伙伴/i, lang);
+    assert.doesNotMatch(copy.briefPlaceholder, clothes[lang], lang);
+  }
+  const studio = await readFile('website/.vitepress/theme/CreationStudio.vue', 'utf8');
+  assert.match(studio, /kind === 'pet' \? t\.petNamePlaceholder : t\.namePlaceholder/);
+  assert.match(studio, /kind === 'pet' \? t\.petBriefPlaceholder : t\.briefPlaceholder/);
+});
+
+test('the studio switch opens the other studio in place, so it points across, not out', async () => {
+  const nav = await readFile('website/.vitepress/theme/StudioNav.vue', 'utf8');
+  assert.doesNotMatch(nav, /↗|target="_blank"/);
+  assert.match(nav, /\[aria-current=page\] \.studio-nav-arrow \{ visibility: hidden; \}/);
+});

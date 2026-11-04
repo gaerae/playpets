@@ -15,6 +15,8 @@ On first start, Invite a friend shows **PlayPets starter pets**: Daisy the explo
 
 They use the Codex pet format, so you can invite them, send them to the desktop and give them an AI like any other pet. Their files sit under `builtin/` in the data folder.
 
+Each of the four can also be taken home by itself: the friend gallery on the [home page](../index.md#companions) downloads `playpets-<name>.zip`, seasonal outfits included. PlayPets imports it as a [ZIP file](./import.md#a-zip-file), and unzipped into the Codex pets folder (`~/.codex/pets`, or `%USERPROFILE%\.codex\pets` on Windows) the friend joins you in ChatGPT and Codex too.
+
 The official cast is Daisy, Clover, Pip and Miso. Built-in friends from earlier versions keep their saved IDs, names, settings and closeness, and only their appearance moves to this cast:
 
 | Earlier friend | Now looks like |

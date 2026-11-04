@@ -21,17 +21,11 @@
 - Extra views and detailed faces add no runtime states or facial resolution.
 - Every generated change needs a manual identity and motion review.
 
-## Downloads per kit
+## What is published
 
-| Download | Contents |
-| --- | --- |
-| `design-kit.zip` | High-resolution references, supplemental collages, identity and checksum manifests, five prompt files, production baseline, summer and winter PNGs, `pet.json` and usage notes; original generation sidecars when present |
-| `importable-pet.zip` | Only `pet.json`, `spritesheet.png`, `summer.png` and `winter.png` |
-| `baseline-pet.zip` | Only `pet.json` and `spritesheet.png` |
-
-- To import in PlayPets 1.4.0 or later: Import a pet → Import from a ZIP file on this computer, and choose the ZIP.
-- In earlier versions: extract the ZIP and choose that folder.
-- The ID `playpets-creator-<kit>` keeps the copy separate from the built-in friend of the same name.
+- Each kit's references, `identity.json`, `prompts/`, `pet.json` (ID `playpets-creator-<kit>`), sheets and `kit.json` are served one by one from `website/public/creator-kit/<kit>/`.
+- The character studio packs its creation kit from those files in the browser.
+- A friend to use as it is comes from `website/public/pets/playpets-<id>.zip` instead: the files in `assets/pets/<id>/` as the app ships them ([website how-to](../../docs/how-to/website.md)).
 
 ## Rebuild
 
@@ -54,7 +48,7 @@ node scripts/creator-kit.mjs --metadata
 - Node only; formats its JSON with the repository's installed Oxfmt.
 - Regular site builds leave tracked metadata unchanged.
 
-Validate and publish all four kits, with deterministic uncompressed ZIP files:
+Validate and publish all four kits, and each starter friend's deterministic uncompressed ZIP:
 
 ```sh
 pnpm run site:build
@@ -63,7 +57,7 @@ pnpm run site:build
 - Node only.
 - Checks CRCs, PNG scanlines, source sizes and runtime alpha, and validates every kit before writing anything.
 - ZIP entries use safe paths, sorted names and fixed dates.
-- Output goes to `website/public/creator-kit`, which Git ignores.
+- Output goes to `website/public/creator-kit` and `website/public/pets`, which Git ignores.
 - A missing or damaged reference fails publication instead of shipping an incomplete kit.
 
 ## Licensing and provenance

@@ -76,7 +76,7 @@ fn main() {
             }
             // Started at login with friends on the desktop, the app stays out of the way: the
             // friends come out, the yard window waits in the tray.
-            let quiet = at_login && data.prefs.desktop;
+            let quiet = at_login && app::desktop_on(&data);
             app.manage(Mutex::new(data));
             app.manage(CliHandle(chat::cli::CliManager::new()));
             app.manage(update::Found::default());
@@ -172,9 +172,8 @@ fn start_overlay(app: &tauri::App) {
     let sink: overlay::PositionFn = Arc::new(move |id, x, y| {
         let state = handle.state::<Shared>();
         let mut d = lock(&state);
-        if let Some(p) = d.pets.iter_mut().find(|p| p.id == id) {
-            p.desktop_position = Some(pets::model::Pos { x, y });
-        }
+        let app::AppData { pets, garden, .. } = &mut *d;
+        desktop::items::place(pets, garden, id, x, y);
         // Only the overlay, which already has it, uses a friend's place on the desktop: saved with
         // the next few, without sending every window the whole state again.
         app::persist_soon(&handle);
@@ -184,7 +183,7 @@ fn start_overlay(app: &tauri::App) {
     {
         let state = app.state::<Shared>();
         let d = lock(&state);
-        overlay.sync(app::pets_lite(&d), d.prefs.desktop, d.prefs.wander);
+        overlay.sync(app::desktop_items(&d), app::desktop_on(&d), d.prefs.wander);
     }
     app.manage(OverlayHandle(overlay));
 }

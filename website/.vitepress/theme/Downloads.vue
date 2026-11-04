@@ -43,11 +43,11 @@ const primaryFile = computed(() =>
 const hasPrimary = computed(() => available.value === null || available.value.includes(primaryFile.value));
 const others = computed(() =>
   FILES.filter(
-    f => (store.value || f !== primaryFile.value) && (available.value === null || available.value.includes(f)),
+    f => f !== primaryFile.value && (available.value === null || available.value.includes(f)),
   ),
 );
-// The GitHub installer is offered here on Windows (the main button or the list): it is not
-// code-signed yet, so the note on SmartScreen goes with it.
+// The GitHub installer is offered here on Windows (the main button, or a link under the Store's): it
+// is not code-signed yet, so the note on SmartScreen goes right under it.
 const offersInstaller = computed(
   () => os.value === 'Windows' && (available.value === null || available.value.some(f => f.startsWith('windows-'))),
 );
@@ -112,6 +112,10 @@ onBeforeUnmount(() => {
         <slot />
       </div>
       <p v-if="command && words.commands" class="dl-command"><span>{{ words.commands[os] }}</span><code><template v-for="(word, index) in command.split(' ')" :key="index">{{ index ? ' ' : '' }}<span class="dl-word">{{ word }}</span></template></code></p>
+      <p v-if="store && hasPrimary" class="dl-direct"><a :href="url(primaryFile)">{{ words.installer }}</a><span>{{ arm ? 'arm64' : 'x64' }}, {{ resolvedVersion }}</span></p>
+      <p v-if="offersInstaller" class="dl-note">
+        {{ words.unsigned }}<a :href="words.unsignedGuide">{{ words.unsignedHow }}</a>
+      </p>
       <details class="dl-others">
         <summary>{{ store ? words.otherDownloads : words.otherPlatforms }}</summary>
         <ul>
@@ -120,9 +124,6 @@ onBeforeUnmount(() => {
           <li><a :href="`${releases}/tag/v${resolvedVersion}`">{{ words.allFiles }}</a></li>
         </ul>
       </details>
-      <p v-if="offersInstaller" class="dl-note">
-        {{ words.unsigned }}<a :href="words.unsignedGuide">{{ words.unsignedHow }}</a>
-      </p>
     </template>
     <template v-else>
       <div class="dl-row">

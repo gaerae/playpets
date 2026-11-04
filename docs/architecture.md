@@ -55,7 +55,7 @@ flowchart LR
 | Chat | `src-tauri/src/chat/` | Chat with one friend or several together: CLI sessions, HTTP AI, prompts ([details](#chat)) |
 | Pets | `src-tauri/src/pets/` | Starter pets, pet folders, community import, friends, and the rules of the garden, album and closeness ([details](#pets)) |
 | Agent | `src-tauri/src/agent/` | The CLI mode of the same executable (hooks, MCP, status commands) and the local HTTP bridge inside the app. The agent list is one table in `kinds.rs`; the settings snippets to paste are in `snippets.rs` |
-| Desktop | `src-tauri/src/desktop/` | Opens and closes the overlay windows, computes friends' strolls and drags, and makes a window take clicks only while the cursor is over a friend |
+| Desktop | `src-tauri/src/desktop/` | Opens and closes the overlay windows, computes friends' strolls, visits and drags, and makes a window take clicks only while the cursor is over a friend or a gift. Each friend and gift says whether it is out (`items.rs`) |
 | Windows, tray, menus, OS open | `window.rs`, `tray.rs`, `menu.rs`, `system.rs` | The yard window, the tray menu, the macOS menu bar, opening folders and addresses through the OS ([details](#windows-tray-menus-os-open)) |
 | Strings | `src-tauri/src/i18n/<language>.rs`, `src/core/strings/<language>.js` | Per-language sentence tables. Registered in `i18n/mod.rs` and `core/strings.js` |
 | Import links | `src-tauri/src/links.rs` | Takes `playpets://import?url=…`, imports the pet through the same path as a pasted address, and opens the Invite tab |
@@ -116,7 +116,7 @@ The frame loop and shared tables:
 ### App state
 `AppData` holds:
 - friends, the pet list, AI connections
-- the switches in `Prefs`: desktop, roaming, language, chatter, sound, the window bounds and the Always on top setting. Each is one field, with one line to read it back and one to write it.
+- the switches in `Prefs`: roaming, language, chatter, sound, the window bounds and the Always on top setting. Each is one field, with one line to read it back and one to write it.
 - conversations and answers still arriving, in `chat::Talks`
 - status
 - the garden (`pets/garden.rs`), the album (`pets/album.rs`), closeness (`pets/bond.rs`)
@@ -154,6 +154,10 @@ Format:
 - A stopped CLI ends with every process it started: a process group on Unix, a job object on Windows.
 - Also handles HTTP AI and prompts.
 - Everything that differs per AI kind (request and response shape, key rules, default address) is one table in `kind.rs`.
+- What a friend knows about the app is in `guide.rs`:
+  - one line always in its identity: where it lives, and not to invent features
+  - facts on a topic go with the owner's message only when it asks about one (words in `guide.words.*` of every language's table), as that turn's notes
+  - friends chatting among themselves get none
 
 ### Pets
 - Unpacks the starter pets bundled with the app.

@@ -82,6 +82,22 @@ Oak, birch and willow:
   willow summer crowns extend slightly left of their nominal cells.
 - All existing tree artwork stays intact.
 
+Ginkgo, persimmon, bamboo, magnolia, crape myrtle and dawn redwood (2026-11-03):
+- Same six-tree sheet layout as oak, birch and willow, one source each.
+- Persimmon carries green fruit in summer and orange fruit in autumn and winter;
+  ginkgo drops a few golden leaves in autumn; dawn redwood turns rust in autumn
+  and is bare in winter.
+- Bamboo stays evergreen like pine: only its first row is exported, so the
+  sheet's seasonal bamboo is not runtime art.
+
+More finds (2026-11-03):
+- `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
+  key, paper boat, spinning top, freshwater pearl and four-leaf clover in
+  reading order.
+- The cicada shell cell is not exported: an insect part did not suit a dug-up
+  keepsake. The old coin (`old-coin-source.png`) takes its place.
+- The pearl and the clover are uncommon; the other six are ordinary.
+
 Whimsical finds:
 - `whimsical-finds-source.png` holds the bottle cap, toy robot, tiny crown and
   star fragment in reading order.

@@ -28,8 +28,10 @@ pub use sprite::sprite_response;
 pub const SCHEMA: u64 = 1;
 /// The top-level keys this app writes to state.json besides the switches (Prefs::KEYS); anything
 /// else in the file is `extra`.
-const KNOWN_KEYS: [&str; 10] = [
+const KNOWN_KEYS: [&str; 11] = [
     "schema",
+    // Written for an older app, which sends every friend out when it is true (desktop::items).
+    "desktop",
     "pets",
     "imports",
     "picked",
@@ -126,15 +128,14 @@ fn sprite_url(id: &str) -> String {
     }
 }
 
-pub fn pets_lite(d: &AppData) -> Vec<overlay::PetLite> {
-    d.pets
-        .iter()
-        .map(|p| overlay::PetLite {
-            id: p.id.clone(),
-            size: p.size,
-            saved: p.desktop_position.map(|q| (q.x as f64, q.y as f64)),
-        })
-        .collect()
+/// What the desktop overlay draws: the friends and decorations out there.
+pub fn desktop_items(d: &AppData) -> Vec<overlay::Item> {
+    crate::desktop::items::items(&d.pets, &d.garden)
+}
+
+/// Whether anything is out on the desktop: what the menus' switch shows.
+pub fn desktop_on(d: &AppData) -> bool {
+    crate::desktop::items::anything_out(&d.pets, &d.garden)
 }
 
 /// The state lock. A panic while it was held poisons the mutex; the data is still whole (every
@@ -221,6 +222,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "statuses": Value::Object(d.statuses.clone()),
         "busy": d.talks.busy_ids().collect::<Vec<_>>(),
         "desktopLayout": layout,
+        "desktop": desktop_on(d),
         "communities": importer::communities_json(),
         // The paths shown are the ones Explorer finds, as Open folder opens them (system.rs).
         "petFolders": {"builtin": crate::system::outside_view(&d.builtin_pets), "codex": d.codex_pets, "downloaded": crate::system::outside_view(&d.store.dir.join("pets"))},
@@ -257,7 +259,7 @@ pub fn push_event(app: &AppHandle, payload: &Value) {
 /// Call after any change to the state: the overlay and every page are brought up to date.
 pub fn changed(app: &AppHandle, d: &AppData) {
     if let Some(o) = app.try_state::<OverlayHandle>() {
-        o.0.sync(pets_lite(d), d.prefs.desktop, d.prefs.wander);
+        o.0.sync(desktop_items(d), desktop_on(d), d.prefs.wander);
     }
     crate::tray::refresh(app, crate::tray::snapshot(d));
     eval_all(app, &format!("window.__pp&&__pp('change',{})", public_state(app, d)));
@@ -312,6 +314,7 @@ pub fn persist(d: &AppData) -> Result<(), String> {
         "garden": d.garden,
         "album": d.album,
         "bonds": d.bonds,
+        "desktop": desktop_on(d),
     });
     carry(&mut state, &d.prefs.saved());
     carry(&mut state, &d.extra);
@@ -341,16 +344,25 @@ fn extras(raw: &Value) -> Map<String, Value> {
         .unwrap_or_default()
 }
 
-/// The desktop switches (friends on the desktop; roaming), flipped from the page or the tray.
-pub fn toggle_flag(app: &AppHandle, d: &mut AppData, wander: bool) -> Result<bool, String> {
-    let flag = if wander {
-        &mut d.prefs.wander
-    } else {
-        &mut d.prefs.desktop
-    };
-    *flag = !*flag;
-    let now = *flag;
+/// The menus' desktop switch: every friend goes out, or everything comes in (desktop::items::flip).
+pub fn toggle_desktop(app: &AppHandle, d: &mut AppData) -> Result<bool, String> {
+    let AppData { pets, garden, .. } = d;
+    let now = crate::desktop::items::flip(pets, garden);
     save_and_show(app, d).map(|()| now)
+}
+
+/// Friends out on the desktop roam it, or stay where they are put.
+pub fn toggle_wander(app: &AppHandle, d: &mut AppData) -> Result<bool, String> {
+    d.prefs.wander = !d.prefs.wander;
+    let now = d.prefs.wander;
+    save_and_show(app, d).map(|()| now)
+}
+
+/// Sends one friend or decoration out to the desktop, or brings it in.
+pub fn put_on_desktop(app: &AppHandle, d: &mut AppData, id: &str, on: bool) -> Result<(), String> {
+    let AppData { pets, garden, .. } = d;
+    crate::desktop::items::set(pets, garden, id, on)?;
+    save_and_show(app, d)
 }
 
 /// A friend's state (idle, working, …) and the line that goes with it, as every page shows it.

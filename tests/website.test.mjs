@@ -104,6 +104,14 @@ test('the latest download offers the Store and winget on Windows and Homebrew on
   );
   assert.equal(words.split('storeOther:').length - 1, 4, 'storeOther:');
   assert.match(downloads, /class="dl-word"/);
+  // Under the Store button the installer for this PC is one visible link, with its version (it is out
+  // before the Store's review ends) and the SmartScreen note right under it, not folded into the list.
+  assert.match(downloads, /<p v-if="store && hasPrimary" class="dl-direct"><a :href="url\(primaryFile\)">/);
+  assert.equal(words.split('installer:').length - 1, 4, 'installer:');
+  const direct = downloads.indexOf('class="dl-direct"');
+  assert.ok(downloads.indexOf('class="dl-command"') < direct && direct < downloads.indexOf('class="dl-others"'));
+  assert.ok(downloads.indexOf('words.unsigned', direct) < downloads.indexOf('class="dl-others"', direct));
+  assert.match(downloads, /f => f !== primaryFile\.value && \(available/, 'the list does not repeat it');
 });
 
 test('every install guide covers the Store, winget, Homebrew and direct files, with a download for the visitor', async () => {

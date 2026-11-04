@@ -17,6 +17,9 @@ struct Kind {
     weight: u32,
     #[serde(default)]
     affinity: Affinity,
+    /// A gift's footprint, [width, height] in catalogue units.
+    #[serde(default)]
+    size: Option<[f64; 2]>,
 }
 #[derive(Deserialize)]
 struct Event {
@@ -69,6 +72,9 @@ fn one() -> u32 {
 pub struct DiscoveryContext {
     pub season: String,
     pub weather: String,
+    /// The dig is at the rainbow's end the page shows after rain (rainbow-end.js).
+    #[serde(default)]
+    pub rainbow: bool,
 }
 impl DiscoveryContext {
     pub fn valid(&self) -> bool {
@@ -222,6 +228,11 @@ impl Catalog {
             .map(|k| k.id.as_str())
             .collect()
     }
+    /// A gift's footprint, [width, height] in catalogue units (the yard's, before its zoom).
+    pub fn gift_size(&self, id: &str) -> Option<(f64, f64)> {
+        let [w, h] = self.gifts.iter().find(|k| k.id == id)?.size?;
+        Some((w, h))
+    }
     /// Whether friends can bring this as a gift.
     pub fn is_gift(&self, id: &str) -> bool {
         self.gifts.iter().any(|k| k.id == id)
@@ -245,6 +256,16 @@ mod tests {
     use super::*;
 
     #[test]
+    fn every_gift_has_the_footprint_the_desktop_draws_it_by() {
+        let c = catalog();
+        assert_eq!(c.gift_size("bench"), Some((144.0, 115.2)));
+        for gift in c.gifts.iter().map(|k| k.id.as_str()) {
+            assert!(c.gift_size(gift).is_some(), "{gift}");
+        }
+        assert_eq!(c.gift_size("no-such-gift"), None);
+    }
+
+    #[test]
     fn environmental_weights_cover_each_season_weather_and_place_without_mixing_rarities() {
         let affinity = serde_json::json!({"seasons":["spring"],"weather":["rain"],"places":["woodland","custom"]});
         let c: Catalog = serde_json::from_value(serde_json::json!({
@@ -259,6 +280,7 @@ mod tests {
                     let context = DiscoveryContext {
                         season: season.into(),
                         weather: weather.into(),
+                        rainbow: false,
                     };
                     let expected = (if season == "spring" { 2 } else { 1 })
                         * (if weather == "rain" { 2 } else { 1 })
@@ -311,7 +333,7 @@ mod tests {
         );
         assert_eq!(event_gift("blossom", "2026-06-05"), None);
         assert_eq!(event_gift("lights", "2026-12-31"), Some("snowman"));
-        assert_eq!(event_gift("newyear", "2027-01-02"), None, "an event without a gift");
+        assert_eq!(event_gift("newyear", "2027-01-02"), Some("kite"));
         assert_eq!(event_gift("bogus", "2026-04-05"), None);
         // The dates the page is checked against too (tests/fixtures/event-dates.json): on every day
         // the page sees an event with a gift, north or south, the backend gives that gift.

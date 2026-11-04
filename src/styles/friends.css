@@ -68,6 +68,68 @@
   transform: scale(1.06, 0.92);
   transition-duration: 0.08s;
 }
+/* A friend spun round three times (touches.js) turns once more on its own, wobbles to a stop and
+   sees stars for a moment. */
+.yard-pet.dizzy > canvas {
+  transform-origin: 50% 62%;
+  animation: dizzy 1.6s ease-out;
+}
+@keyframes dizzy {
+  0% {
+    transform: rotate(0);
+  }
+  26% {
+    transform: rotate(360deg);
+  }
+  38% {
+    transform: rotate(338deg) scale(1.04, 0.96);
+  }
+  50% {
+    transform: rotate(378deg);
+  }
+  62% {
+    transform: rotate(347deg);
+  }
+  74% {
+    transform: rotate(369deg);
+  }
+  86% {
+    transform: rotate(355deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.yard-pet.dizzy::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  /* the picture's head sits below the top of its box */
+  top: 11%;
+  width: 66%;
+  aspect-ratio: 3;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    url("../art/ambient/spark.svg") 0 50% / 30% auto no-repeat,
+    url("../art/ambient/spark.svg") 50% 0 / 25% auto no-repeat,
+    url("../art/ambient/spark.svg") 100% 50% / 30% auto no-repeat;
+  animation: dizzy-stars 0.7s linear infinite;
+}
+@keyframes dizzy-stars {
+  from {
+    transform: translateX(-50%) perspective(160px) rotateX(58deg) rotate(0);
+  }
+  to {
+    transform: translateX(-50%) perspective(160px) rotateX(58deg) rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yard-pet.dizzy > canvas,
+  .yard-pet.dizzy::after {
+    animation: none;
+  }
+}
 .yard-pet:before {
   content: "";
   position: absolute;

@@ -91,3 +91,19 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 - Crops follow measured silhouettes with a 14-pixel margin; reproduce the wrappers
   with `node scripts/pack-collection.mjs`.
 - Ground bugs face up in their atlases, so heading rotation stays correct.
+
+## Album of 150 (2026-11-03)
+
+- 21 new specimens in six atlases: four fish, one other water creature, two
+  night bugs, eight flowers (two per season) and six gifts.
+- Accepted sources, prompts, hashes and per-atlas IDs:
+  `assets/sources/album-150-2026-11-03/accepted-art.json`.
+- Runtime atlases: `collection-extension/lake-fish-2`, `lake-creatures-2`,
+  `aucha-perch`, `night-bugs`, `flowers-2` and `village-props`.
+- The pond frog in `lake-creatures-2` is not exported; the Korean aucha perch
+  replaced it, since a frog does not belong in the fish book.
+- The first flowers sheet painted a cream haze behind the plants and was
+  regenerated with an explicit transparency line, recorded in its prompt.
+- Gift viewports use the gift's catalog size; flowers use 40 by 54 like the
+  earlier specimens.
+- New trees and keepsakes are discovery art; see `assets/discovery/README.md`.

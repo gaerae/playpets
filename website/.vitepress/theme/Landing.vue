@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { withBase } from 'vitepress';
 import { computed, ref } from 'vue';
+import catalog from '../../../src/content/catalog.json';
 import generated from '../generated.json';
 import AgentDemo from './AgentDemo.vue';
 import { AGENT_DEMOS } from './agent-demo.mjs';
@@ -26,6 +27,9 @@ const t = computed(() => {
 const shotUrl = (name: string) => withBase(`/shots/${generated.captureVersion}/${lang.value}/${name}.webp`);
 const path = (page: string) => withBase(localePath(lang.value, page));
 const paused = ref(false);
+// The album's size, as the app counts it: every kind in its six books.
+const albumCount = ['fish', 'bugs', 'flowers', 'gifts', 'trees', 'treasures'].reduce((n, book) => n + catalog[book].length, 0);
+const counted = (text: string) => text.replace('{count}', String(albumCount));
 // Product names, the same in every language; the guide lists what each one reports.
 const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
 </script>
@@ -36,7 +40,7 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
       <p class="eyebrow">{{ t.eyebrow }}</p>
       <h1><span>{{ t.title[0] }}</span> <span>{{ t.title[1] }}</span></h1>
       <p class="lead">{{ t.lead }}</p>
-      <div class="hero-actions"><a class="world-button" href="#download">{{ t.download }} <span aria-hidden="true">↓</span></a><a href="#companions">{{ t.meet }} <span aria-hidden="true">↓</span></a></div>
+      <div class="hero-actions"><a class="world-button" href="#download">{{ t.download }} <span aria-hidden="true">↓</span></a><a href="#play">{{ t.meet }} <span aria-hidden="true">↓</span></a></div>
       <ul class="hero-facts"><li v-for="fact in t.heroFacts" :key="fact">{{ fact }}</li></ul>
       <a class="hero-agents" :href="path('/guide/agents')"><span>{{ t.heroAgents }} →</span><b v-for="tool in AGENT_TOOLS" :key="tool">{{ tool }}</b></a>
       </div>
@@ -48,7 +52,7 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
       <table class="codex-compare" role="table">
         <caption class="visually-hidden">{{ t.compare.caption }}</caption>
         <thead role="rowgroup"><tr role="row"><td role="cell"></td><th scope="col" role="columnheader"><span class="compare-cast one" aria-hidden="true"><VisibleSprite equal-height pet="daisy" :scale="0.32" /></span>{{ t.compare.head[0] }}</th><th scope="col" class="ours" role="columnheader"><span class="compare-cast" aria-hidden="true"><VisibleSprite equal-height v-for="pet in LANDING_PETS" :key="pet.id" :pet="pet.id" state="wave" :scale="0.32" /></span>{{ t.compare.head[1] }}</th></tr></thead>
-        <tbody role="rowgroup"><tr role="row" v-for="([label, codex, ours]) in t.compare.rows" :key="label"><th scope="row" role="rowheader">{{ label }}</th><td role="cell">{{ codex }}</td><td class="ours" role="cell">{{ ours }}</td></tr></tbody>
+        <tbody role="rowgroup"><tr role="row" v-for="([label, codex, ours]) in t.compare.rows" :key="label"><th scope="row" role="rowheader">{{ label }}</th><td role="cell">{{ codex }}</td><td class="ours" role="cell">{{ counted(ours) }}</td></tr></tbody>
       </table>
       <p class="codex-source"><a href="https://learn.chatgpt.com/docs/pets">{{ t.compare.source }}</a></p>
       <!-- The moving row, as the app shows it: friends out on the desktop, in front of other windows. -->
@@ -59,7 +63,7 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
       <header><h2>{{ t.play.title }}</h2><p class="section-lead">{{ t.play.lead }}</p></header>
       <!-- Real captures (scripts/shots.mjs, the play pass); the first is the garden they build together. -->
       <ul class="play-shots">
-        <li v-for="([name, title, body]) in t.play.shots" :key="name"><figure><a class="play-frame" :href="shotUrl(name)"><img :src="shotUrl(name)" :alt="title" loading="lazy" decoding="async" width="2472" height="1672" /></a><figcaption><b>{{ title }}</b> {{ body }}</figcaption></figure></li>
+        <li v-for="([name, title, body]) in t.play.shots" :key="name"><figure><a class="play-frame" :href="shotUrl(name)"><img :src="shotUrl(name)" :alt="title" loading="lazy" decoding="async" width="2472" height="1672" /></a><figcaption><b>{{ title }}</b> {{ counted(body) }}</figcaption></figure></li>
       </ul>
       <p class="play-more"><a class="more" :href="path('/guide/play')">{{ t.play.link }} →</a><span>v{{ generated.captureVersion }}</span></p>
     </section>
@@ -82,6 +86,6 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
     </section>
     <section class="creator-story"><div class="creator-friend"><VisibleSprite equal-height v-for="pet in LANDING_PETS" :key="pet.id" :pet="pet.id" state="wave" :scale="0.55" /></div><div><h2>{{ t.creatorTitle }}</h2><p>{{ t.creatorBody }}</p><a class="more" :href="path('/guide/creator-kit')">{{ t.creatorLink }} →</a><p class="discovery">{{ t.discovery }} <a :href="path('/guide/import')">{{ t.discoveryLink }} →</a></p></div></section>
     <section class="quiet-details"><div><h3>{{ t.privacyTitle }}</h3><p>{{ t.privacyBody }}</p></div><details class="developer-note"><summary>{{ t.developerTitle }}</summary><p>{{ t.developerBody }}</p><a :href="withBase('/dev/')">{{ t.developerLink }} →</a></details></section>
-    <section class="landing-download" id="download"><p class="eyebrow">PlayPets</p><h2>{{ t.finalTitle }}</h2><Downloads><a class="dl-secondary" :href="path('/guide/')">{{ t.guide }}</a></Downloads><div class="closing-links"><a :href="path(`/releases/${generated.version}`)">{{ t.releaseLabel }}, {{ generated.version }}</a><a href="https://github.com/gaerae/playpets">{{ t.github }} ↗</a></div></section>
+    <section class="landing-download" id="download"><p class="eyebrow">PlayPets</p><h2>{{ t.finalTitle }}</h2><Downloads><a class="dl-secondary" :href="path('/guide/')">{{ t.guide }}</a></Downloads><div class="start-steps"><h3>{{ t.start.title }}</h3><ol><li v-for="([title, body, link]) in t.start.steps" :key="link"><b>{{ title }}</b><p>{{ body }}</p><a :href="path(link)">{{ t.more }} →</a></li></ol></div><div class="closing-links"><a :href="path(`/releases/${generated.version}`)">{{ t.releaseLabel }}, {{ generated.version }}</a><a href="https://github.com/gaerae/playpets">{{ t.github }} ↗</a></div></section>
   </main>
 </template>

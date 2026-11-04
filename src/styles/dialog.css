@@ -330,11 +330,27 @@ body.compact .update-compact {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
-/* ---- the album: fish and bugs caught, the ones not yet found as silhouettes with a hint ---- */
+/* ---- the album: a collector's notebook, each book a page of numbered specimens, the ones not yet
+   found as soft silhouettes with where to look ---- */
 .album-dialog {
-  height: min(560px, calc(100dvh - 16px));
-  width: min(640px, 94vw);
-  padding: 12px;
+  /* The notebook's own colours: cream paper, its ruled edge, the gold of what comes seldom, and
+     the ground under the drawings (each book sets its own below). */
+  --album-paper: #fffdf6;
+  --album-page: #f6f2e6;
+  --album-edge: #e5dcc6;
+  --album-gap: #d8cfb7;
+  --album-gold: #c99a2e;
+  --album-gold-soft: #fbefd2;
+  --album-gold-ink: #8a6417;
+  --album-fill: #6fa56a;
+  --album-ground: #e6efd9;
+  --album-ground-hi: #f4f8ec;
+  --album-wood: #f3e6d2;
+  --album-wood-hi: #fbf5ec;
+  height: min(640px, calc(100dvh - 16px));
+  width: min(760px, 94vw);
+  padding: 14px;
+  background: var(--album-page);
 }
 .album-dialog[open] {
   display: flex;
@@ -347,10 +363,21 @@ body.compact .update-compact {
 .album-picker {
   display: none;
 }
+/* The whole collection's count, with a thin line that fills as the books do. */
 .album-total {
   margin: 2px 0 0;
   font-size: 12px;
   color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.album-total::after {
+  content: "";
+  display: block;
+  width: 132px;
+  height: 4px;
+  margin-top: 5px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--album-gold) calc(var(--album-found, 0) * 100%), var(--album-edge) 0);
 }
 .album-heading-actions {
   display: flex;
@@ -366,12 +393,16 @@ body.compact .update-compact {
 }
 /* The gift box sits above the gift book: a row of small buttons, one for each gift waiting in it. */
 .album-box {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
+  padding: 8px 10px 10px;
+  border: 1px solid var(--album-edge);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--album-wood) 60%, var(--album-paper));
 }
 .album-box h3 {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 650;
 }
 .album-box-items {
   display: flex;
@@ -388,11 +419,14 @@ body.compact .update-compact {
   gap: 2px;
   width: 72px;
   padding: 4px;
-  border: 1px solid var(--ink-12);
+  border: 1px solid var(--album-edge);
   border-radius: var(--radius-card);
-  background: var(--white);
+  background: var(--album-paper);
   color: inherit;
   cursor: pointer;
+}
+.album-box-item:hover:not(:disabled) {
+  border-color: var(--album-gold);
 }
 .album-box-item.memento::after {
   content: "♥";
@@ -443,30 +477,45 @@ body.compact .update-compact {
 .unknown-art {
   filter: brightness(0) invert(0.4);
 }
+/* The books as tabs: a name, how many of its kinds are found, and a line that fills with them. As
+   many columns as there are books showing (a hidden one takes none until it is found), each at
+   least as wide as its name. */
 .album-tabs {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(min-content, 1fr);
   gap: 3px;
   padding: 4px;
-  margin: 4px 0 8px;
-  border: 1px solid var(--line);
+  margin: 6px 0 10px;
+  border: 1px solid var(--album-edge);
   border-radius: var(--radius-control);
   background: var(--segment-track);
 }
+/* The name over its count and line. A name never breaks: in Japanese it would break letter by
+   letter. */
 .album-tabs button {
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 6px;
-  min-height: 36px;
-  padding: 6px 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  align-content: center;
+  gap: 3px 6px;
+  min-width: max-content;
+  min-height: 40px;
+  padding: 6px 8px 7px;
   border: 0;
   border-radius: var(--radius-control);
   background: transparent;
   font: inherit;
   font-weight: 650;
+  line-height: 1.2;
   color: var(--muted);
+  text-align: left;
   cursor: pointer;
+}
+.album-tabs button > span {
+  grid-column: 1 / -1;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 .album-tabs button[aria-selected="true"] {
   color: var(--ink);
@@ -478,33 +527,55 @@ body.compact .update-compact {
   color: var(--ink);
 }
 .album-tabs small {
+  grid-area: 2 / 2;
+  font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
   color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 /* On the selected tab's tint the muted count is too faint (3.8:1 in dark); it takes the ink. */
 .album-tabs button[aria-selected="true"] small {
   color: var(--ink);
 }
-@media (max-width: 480px) {
-  .album-tabs button {
-    flex-direction: column;
-    align-items: center;
-    gap: 1px;
-    padding: 6px 2px;
-    line-height: 1.2;
-  }
-  .album-tabs small {
-    margin-top: 0;
-  }
+.album-meter {
+  grid-area: 2 / 1;
+  height: 3px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--album-fill) calc(var(--album-found, 0) * 100%), var(--album-edge) 0);
+}
+.album-tabs button.complete .album-meter {
+  background: var(--album-gold);
+}
+.album-tabs button.complete small::before {
+  content: "★ ";
+  color: var(--album-gold);
+}
+/* Each book's ground under its drawings. */
+.album-grid[data-book="fish"] {
+  --album-ground: #dcedf1;
+  --album-ground-hi: #f1f8f9;
+}
+.album-grid[data-book="gift"] {
+  --album-ground: var(--album-wood);
+  --album-ground-hi: var(--album-wood-hi);
+}
+.album-grid[data-book="tree"] {
+  --album-ground: #dfeadb;
+  --album-ground-hi: #f1f6ee;
+}
+.album-grid[data-book="treasure"] {
+  --album-ground: #efe7d6;
+  --album-ground-hi: #f9f5ec;
 }
 .album-grid {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
   align-content: start;
+  padding: 2px 2px 6px;
   overflow-y: auto;
 }
 .album-card {
@@ -512,33 +583,47 @@ body.compact .update-compact {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px;
-  border: 1px solid var(--ink-12);
+  gap: 3px;
+  padding: 8px 8px 10px;
+  border: 1px solid var(--album-edge);
   border-radius: var(--radius-card);
-  background: linear-gradient(160deg, var(--white), #eaf1e4);
-  box-shadow: 0 3px 0 var(--ink-12);
+  background: var(--album-paper);
+  box-shadow:
+    0 1px 0 var(--album-edge),
+    0 4px 10px -6px var(--ink-12);
   text-align: center;
 }
+/* The drawing on its own little ground, like a specimen on a card. */
 .album-specimen {
   display: grid;
   place-items: center;
   width: 100%;
-  height: 68px;
-  margin-bottom: 4px;
-  border-radius: var(--radius-card);
+  height: 84px;
+  margin-bottom: 5px;
+  border-radius: calc(var(--radius-card) - 2px);
   background:
-    radial-gradient(ellipse at 50% 66%, #b5c6a53d 0 24%, transparent 25%),
-    radial-gradient(ellipse at 50% 50%, #ffffffb3, #d6e3cc66 70%, transparent 71%);
+    radial-gradient(ellipse 34% 10% at 50% 82%, #2847311f, transparent),
+    radial-gradient(ellipse at 50% 38%, var(--album-ground-hi), var(--album-ground) 72%);
 }
 .album-specimen > svg:not(.unknown-art) {
-  filter: drop-shadow(0 5px 2px #28473120);
+  filter: drop-shadow(0 4px 2px #28473122);
 }
 /* Each drawing in the same box, so a wide pond or picnic blanket does not outweigh a lantern. */
 .album-card svg {
   width: 100%;
-  max-width: 104px;
-  height: 58px;
+  max-width: 112px;
+  height: 64px;
+}
+.album-no {
+  position: absolute;
+  top: 11px;
+  left: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
 }
 .album-card strong {
   font-size: 13px;
@@ -548,20 +633,84 @@ body.compact .update-compact {
   color: var(--muted);
   line-height: 1.4;
 }
-.album-card.unknown strong {
+/* What has been found, as a small stamp at the foot of its card. */
+.album-record {
+  margin-top: auto;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--green-soft);
+  color: var(--green-ink);
+  font-weight: 650;
+}
+.album-hint {
+  margin-bottom: 4px;
+}
+/* A gift that came before, back out into the yard: a small press under its stamp. */
+.album-take-out {
+  margin-top: 4px;
+  padding: 3px 10px;
+  border: 1px solid var(--album-edge);
+  border-radius: 99px;
+  background: var(--album-paper);
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.album-take-out:hover:not(:disabled) {
+  border-color: var(--album-gold);
+}
+.album-take-out:disabled {
+  cursor: default;
   color: var(--muted);
 }
-/* A kind that comes seldom says so in its corner, found or not. */
+/* One not found yet is an empty place on the page: a dashed outline, a faint shape and the hint. */
+.album-card.unknown {
+  border-style: dashed;
+  border-color: var(--album-gap);
+  background: transparent;
+  box-shadow: none;
+}
+.album-card.unknown .album-specimen {
+  background: radial-gradient(ellipse at 50% 38%, var(--album-ground-hi), var(--album-ground) 72%);
+  opacity: 0.8;
+}
+.album-card.unknown .album-specimen > svg {
+  opacity: 0.4;
+}
+.album-card.unknown strong {
+  color: var(--muted);
+  font-weight: 600;
+}
+/* A kind that comes seldom says so in its corner, found or not; found, its card takes a gold edge. */
 .album-rare {
   position: absolute;
   top: 8px;
   right: 8px;
   padding: 1px 7px;
   border-radius: 99px;
-  background: #fbefd2;
-  color: #a2741c;
+  background: var(--album-gold-soft);
+  color: var(--album-gold-ink);
   font-size: 10px;
   font-weight: 700;
+}
+.album-rare::before {
+  content: "✦ ";
+}
+.album-card.rare .album-specimen {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--album-gold) 45%, transparent);
+}
+.album-card.rare:not(.unknown) {
+  border-color: color-mix(in srgb, var(--album-gold) 60%, var(--album-edge));
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--album-gold) 50%, var(--album-edge)),
+    0 4px 12px -6px #c99a2e55;
+}
+.album-card.rare:not(.unknown) .album-specimen {
+  background:
+    radial-gradient(ellipse 34% 10% at 50% 82%, #2847311f, transparent),
+    radial-gradient(ellipse at 50% 38%, #fff8e4, var(--album-ground) 78%);
 }
 .connection-help {
   padding: 10px 12px;
@@ -652,18 +801,36 @@ body.compact .update-compact {
   .relation-card:hover {
     border-color: var(--green-line);
   }
-  .album-card {
-    border-color: var(--line);
-    background: var(--paper);
+  .album-dialog {
+    --album-paper: #26322c;
+    --album-page: #1d2823;
+    --album-edge: #3c4b42;
+    --album-gap: #4f6155;
+    --album-gold: #d8b25e;
+    --album-gold-soft: #493e29;
+    --album-gold-ink: #f0d399;
+    --album-fill: #91b08b;
+    --album-ground: #33452f;
+    --album-ground-hi: #41573b;
+    --album-wood: #43382a;
+    --album-wood-hi: #554735;
   }
-  .album-specimen {
+  .album-grid[data-book="fish"] {
+    --album-ground: #24403f;
+    --album-ground-hi: #2f5250;
+  }
+  .album-grid[data-book="tree"] {
+    --album-ground: #2c4230;
+    --album-ground-hi: #39543c;
+  }
+  .album-grid[data-book="treasure"] {
+    --album-ground: #3e3a2d;
+    --album-ground-hi: #4f4a39;
+  }
+  .album-card.rare:not(.unknown) .album-specimen {
     background:
-      radial-gradient(ellipse at 50% 66%, #9cb48b3d 0 24%, transparent 25%),
-      radial-gradient(ellipse at 50% 50%, #526a43b3, #40543866 70%, transparent 71%);
-  }
-  .album-rare {
-    background: #493e29;
-    color: #f0d399;
+      radial-gradient(ellipse 34% 10% at 50% 82%, #0000002e, transparent),
+      radial-gradient(ellipse at 50% 38%, #5b5238, var(--album-ground) 78%);
   }
   .unknown-art {
     filter: brightness(0) invert(0.7);
@@ -688,39 +855,49 @@ body.compact .update-compact {
     min-width: 0;
     min-height: 36px;
   }
+  .album-dialog {
+    padding: 12px;
+  }
   .album-grid {
     grid-template-columns: 1fr;
-    gap: 0;
+    gap: 6px;
   }
+  /* A narrow page lists the specimens as rows: the drawing on its ground, then the words. */
   .album-card {
     display: grid;
-    grid-template-columns: 48px minmax(0, 1fr);
-    gap: 2px 8px;
-    padding: 6px 0;
-    border: 0;
-    border-bottom: 1px solid var(--line);
-    border-radius: 0;
-    box-shadow: none;
-    background: none;
+    grid-template-columns: 56px minmax(0, 1fr);
+    justify-items: start;
+    align-content: center;
+    gap: 2px 10px;
+    padding: 6px 8px 6px 6px;
     text-align: left;
   }
   .album-specimen {
     grid-row: 1 / span 4;
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     margin: 0;
-    background: none;
   }
   .album-card svg {
-    max-width: 48px;
-    height: 44px;
+    max-width: 50px;
+    height: 46px;
   }
   .album-card > :not(.album-specimen) {
     grid-column: 2;
   }
+  .album-no {
+    top: 4px;
+    left: auto;
+    right: 8px;
+  }
+  .album-hint {
+    margin-bottom: 0;
+  }
+  .album-record {
+    margin-top: 2px;
+  }
   .album-rare {
     position: static;
-    justify-self: start;
     width: fit-content;
   }
   .album-dialog .dialog-heading h2 {
@@ -729,6 +906,12 @@ body.compact .update-compact {
   .album-dialog .dialog-heading .icon-button {
     width: 36px;
     height: 36px;
+  }
+}
+/* A short window keeps its height for the list: the chooser already shows each book's count. */
+@media (max-height: 480px) {
+  .album-total::after {
+    display: none;
   }
 }
 

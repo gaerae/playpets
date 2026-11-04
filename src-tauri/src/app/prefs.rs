@@ -40,8 +40,7 @@ pub fn scene_choice(key: &str, value: &str) -> Option<Value> {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Prefs {
-    /// Friends are out on the desktop, and (`wander`) roam it.
-    pub desktop: bool,
+    /// Friends out on the desktop roam it. Which ones are out is each friend's own (Pet::on_desktop).
     pub wander: bool,
     /// The language the app speaks to the person in; the pet is asked to answer in it too.
     pub language: i18n::Lang,
@@ -63,8 +62,7 @@ pub struct Prefs {
 
 impl Prefs {
     /// The keys of state.json these are saved under.
-    pub const KEYS: [&str; 10] = [
-        "desktop",
+    pub const KEYS: [&str; 9] = [
         "desktopWander",
         "language",
         "autoChatter",
@@ -81,7 +79,6 @@ impl Prefs {
     pub fn restore(raw: &Value, language: i18n::Lang) -> Prefs {
         let flag = |key: &str| raw.get(key).and_then(|v| v.as_bool()).unwrap_or(false);
         Prefs {
-            desktop: flag("desktop"),
             wander: flag("desktopWander"),
             language,
             kept_language: None,
@@ -109,7 +106,6 @@ impl Prefs {
     /// As saved; the pages get the switches without the window bounds.
     pub fn json(&self) -> Map<String, Value> {
         let mut m = Map::new();
-        m.insert("desktop".into(), json!(self.desktop));
         m.insert("desktopWander".into(), json!(self.wander));
         m.insert("language".into(), json!(self.language.code()));
         m.insert("autoChatter".into(), json!(self.auto_chatter));
@@ -236,7 +232,6 @@ mod tests {
     fn switches_come_back_as_they_were_saved_and_bad_ones_take_their_default() {
         let lang = i18n::Lang::parse("en").unwrap();
         let prefs = Prefs {
-            desktop: true,
             wander: true,
             language: lang,
             kept_language: None,
@@ -262,9 +257,9 @@ mod tests {
         expected.sort();
         assert_eq!(keys, expected, "every switch is saved under a key listed in KEYS");
 
-        let odd = json!({"desktop": "yes", "autoChatter": 1, "autoPlay": "on", "miniRect": {"x": 1}});
+        let odd = json!({"desktopWander": "yes", "autoChatter": 1, "autoPlay": "on", "miniRect": {"x": 1}});
         let back = Prefs::restore(&odd, lang);
-        assert!(!back.desktop && !back.auto_chatter && !back.auto_play && back.window_rect.is_none());
+        assert!(!back.wander && !back.auto_chatter && !back.auto_play && back.window_rect.is_none());
         assert!(!Prefs::restore(&odd, lang).json().contains_key("miniRect"));
     }
 

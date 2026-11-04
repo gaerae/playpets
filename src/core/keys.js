@@ -10,6 +10,9 @@ const onMac = /Mac/.test(globalThis.navigator?.platform || '');
  * `isComposing` is false there and only its key code says so. */
 export const composing = event => event.isComposing || event.keyCode === 229;
 
+/** A key typed into a field, which the yard's own keys leave alone. */
+export const typing = event => !!event.target?.closest?.('input, textarea, select, [contenteditable="true"]');
+
 /** `mod` is Cmd on a Mac and Ctrl elsewhere (either is taken, as the menu bar's CmdOrCtrl). */
 export const SHORTCUTS = {
   controls: { keys: 'mod+shift+p', menu: true },

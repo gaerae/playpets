@@ -75,3 +75,13 @@ winged dragonfly, since earlier extra butterflies and dragonflies looked alike.
 Three of the fifteen are rare: the softshell turtle, the rhinoceros beetle and the
 butterfly dragonfly. Clear autumn evenings and nights, which had no small life,
 now bring a couple of crickets; winter and bad weather still bring none.
+
+## Follow-up: 150 entries (2026-11-03)
+
+Grow every book toward a fuller album: 24 flowers (six per season), 35 aquatic
+creatures, 28 bugs, 26 gifts, 12 trees and 25 keepsakes. Rare finds stay near
+one in five of each book (fish 6 of 35, bugs 5 of 28, gifts 5 of 26 counting
+event gifts), and about one keepsake in four is uncommon. Only the sturgeon is a
+new rare kind; the peacock butterfly and emperor dragonfly become ordinary so
+the bug book keeps its share. The New Year gains its own gift, a kite, so every
+event brings one. Names that sound special stay on rare kinds.

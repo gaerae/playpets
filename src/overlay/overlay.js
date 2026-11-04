@@ -1,12 +1,14 @@
 import { poseClock } from '../core/animation.js';
 import { setupInteractions } from '../core/interactions.js';
-// The desktop overlay page, one per monitor: it draws the friends the backend places on this
-// monitor and reports presses and drags. Positions, drags and strolls are worked out in overlay.rs.
+// The desktop overlay page, one per monitor: it draws the friends and gifts the backend places on
+// this monitor and reports presses and drags. Positions, drags and strolls are worked out in
+// overlay.rs; a right click asks the backend for its menu (menu.rs desktop_choices).
 
 import { lookAt } from '../core/animation.js';
 import { styledAsset } from '../core/appearance.js';
-import { follow, language, t } from '../core/i18n.js';
+import { follow, language, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
+import { pick } from '../core/math.js';
 import { displayName } from '../core/names.js';
 import { setupSeason, southern } from '../core/season.js';
 import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/sprites.js';
@@ -14,12 +16,20 @@ import { sceneValue } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
+import { artSvg, loadArt } from '../yard/art.js';
 
 setupInteractions();
 document.documentElement.lang = language();
 const api = window.playPets,
   displayId = window.__DISPLAY,
-  views = new Map();
+  views = new Map(),
+  // Gifts out on the desktop, drawn once: nothing on them moves.
+  decorations = new Map();
+// Each gift's drawing, from the catalogue the yard draws it by.
+const giftArt = fetch('content/catalog.json')
+  .then(r => r.json())
+  .then(c => new Map(c.gifts.map(g => [g.id, g.art])))
+  .catch(() => new Map());
 // A look lasts this long after the last pointer move: the window gets no pointerleave once
 // the cursor is off the friend and the window is click-through again.
 const LOOK_MS = 400;
@@ -115,18 +125,85 @@ function create(pet) {
     view.drag = null;
     api.dragStop();
   };
-  // Right click (or Enter) opens the app too, as in the yard.
+  // A right click (or the menu key) offers talking and taking the friend off the desktop; Enter talks.
   button.oncontextmenu = e => {
     e.preventDefault();
-    api.openChat(pet.id);
+    api.desktopMenu(pet.id);
   };
   button.onkeydown = e => {
     if (e.key === 'Enter') api.openChat(pet.id);
+    if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) api.desktopMenu(pet.id);
   };
   return view;
 }
+// A gift out on the desktop: dragged to move, and its menu takes it off the desktop.
+function createDecor(id, kind) {
+  const wrap = document.createElement('div'),
+    button = document.createElement('button');
+  wrap.className = 'decor-wrap';
+  button.className = 'decor';
+  button.title = t(`decor.kind_${kind}`);
+  button.setAttribute('aria-label', button.title);
+  wrap.append(button);
+  document.getElementById('friends').append(wrap);
+  const view = { wrap, button, kind, drag: null };
+  giftArt.then(async arts => {
+    const art = arts.get(kind);
+    if (!art) return;
+    await loadArt([art]);
+    button.innerHTML = artSvg(art);
+  });
+  button.onpointerdown = async e => {
+    if (e.button !== 0) return;
+    view.drag = true;
+    button.setPointerCapture(e.pointerId);
+    await api.dragStart(id);
+  };
+  button.onpointerup = async e => {
+    if (!view.drag) return;
+    view.drag = null;
+    await api.dragStop();
+    if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
+  };
+  button.onpointercancel = () => {
+    view.drag = null;
+    api.dragStop();
+  };
+  button.oncontextmenu = e => {
+    e.preventDefault();
+    api.desktopMenu(id);
+  };
+  button.onkeydown = e => {
+    if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) api.desktopMenu(id);
+  };
+  return view;
+}
+function renderDecor(local) {
+  for (const [id, v] of decorations)
+    if (!local.some(p => p.id === id)) {
+      if (v.drag) {
+        v.wrap.style.visibility = 'hidden';
+        continue;
+      }
+      v.wrap.remove();
+      decorations.delete(id);
+    }
+  for (const position of local) {
+    let v = decorations.get(position.id);
+    if (!v) {
+      v = createDecor(position.id, position.decor);
+      decorations.set(position.id, v);
+    }
+    v.wrap.style.visibility = 'visible';
+    v.wrap.style.width = `${position.width}px`;
+    v.wrap.style.height = `${position.height}px`;
+    v.wrap.style.transform = `translate(${position.x - position.origin.x}px,${position.y - position.origin.y}px)`;
+  }
+}
 function render() {
-  const local = layout.filter(p => p.displayId === displayId);
+  const here = layout.filter(p => p.displayId === displayId),
+    local = here.filter(p => !p.decor);
+  renderDecor(here.filter(p => p.decor));
   for (const [id, v] of views)
     if (!local.some(p => p.id === id)) {
       // Preserve pointer capture in the source display during a cross-display drag.
@@ -226,6 +303,8 @@ api.onEvent(event => {
   }
   for (const [id, v] of views) {
     if (event.petId && event.petId !== id) continue;
+    // A friend that strolled over to a gift says something that fits it, as in the yard.
+    if (event.type === 'visit') say(v, pick(list(`decor.visit_${event.kind}`)) || '');
     if (event.type === 'status') {
       v.status = event.state;
       say(v, event.message);

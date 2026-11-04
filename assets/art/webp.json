@@ -11,6 +11,10 @@
     "png": "0742fb0721a97cad17e66a3833c26e2a2a7780bcb5788f0f280b0b2eb142f884",
     "webp": "2faeeb1e2935707a2bb96ca2ff7614b0935b2ae42366845a60f49a0261c5cb56"
   },
+  "collection-extension/aucha-perch.png": {
+    "png": "d859c083890eaedc291d94d2ce8fc8326a1e547071db80a486809c212606d30c",
+    "webp": "44e5aab5a7eac8a148212f80b514b8f8c73e682ea95c983deb9f578499f6bda8"
+  },
   "collection-extension/beetles.png": {
     "png": "33a105ed0f4f965a95b0b25e46dfb8b0fa41b89827eb1e27e4c482f8223cf872",
     "webp": "69a959e3a46e58b55111c6b5750d6636adbb87f6c483452c8d377b83056e2902"
@@ -22,6 +26,10 @@
   "collection-extension/finds.png": {
     "png": "02fe56390476c82539337f8e784d54d19bb23efc3519541530a3a38c055e5cf8",
     "webp": "ef88e698305cb086268b639704ed23e7a789d147132a36fbecfac1bc2fc703ad"
+  },
+  "collection-extension/flowers-2.png": {
+    "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+    "webp": "cc9f3f2428a7a81fadcf48fca45cf293ff070e7e3684203951374ad4c34467df"
   },
   "collection-extension/flowers.png": {
     "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
@@ -39,13 +47,29 @@
     "png": "c9eab471860c37784a3d8f89c59252b5d1ff7a8a05c0d889015009cee129d6f8",
     "webp": "27057c672c02b70110816e5f7c3f5fcbcf998f95850f6fa3a6c9800b250b356a"
   },
+  "collection-extension/lake-creatures-2.png": {
+    "png": "a4ce380811fb75b65ce039134ba77b680645358bdaf5b3171e996da2ca651d70",
+    "webp": "3a047411b85954bff4c0a7fd35933b2ed0db852587327a1f53c20917904bf96a"
+  },
   "collection-extension/lake-creatures.png": {
     "png": "c6f1cc6bfbdc5cbf10e0ffec894d6c3db73471204eb72e3e9da7dd683a5b9198",
     "webp": "54ad13937625a35efed701a2633fc4f84753f5eaea64bed77d7426f239fe1c3b"
   },
+  "collection-extension/lake-fish-2.png": {
+    "png": "cf346de0a43afa9482b685f8be76c0b9f676cbc8d11c30d1a8e0668bff7ac10f",
+    "webp": "7a8f78549af526b5d9c07879e861115f49bcc7943cd4b496e2afae0fe47ce825"
+  },
   "collection-extension/lake-fish.png": {
     "png": "d5578ddbe4d6c1be978e2876b1187c4a779d3fafb4643b599a8e1d50e97c1620",
     "webp": "fd11e034f641ad16e86de648cb1ccdc23bfd655f9ee8d527c5c70c48969eb960"
+  },
+  "collection-extension/night-bugs.png": {
+    "png": "ba50e20476e930e4d4a8bfbd37a78e2cfbb2a100fcdae5e3b8963636a5228dff",
+    "webp": "6415c6c9b226966f6b40ff68ed081ee11faacaf03ad94fe5e776d962c1ac1211"
+  },
+  "collection-extension/village-props.png": {
+    "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
+    "webp": "ca914cad036ddc906a71ca7a3d966df67512010d4dbef0b12166da8f7c7f2c31"
   },
   "collection-extension/wildlife.png": {
     "png": "7303eec4e412ed475ef0b5d636c79483c2e4d93d7b2ad58ef0821451bca812c6",
@@ -251,6 +275,14 @@
     "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
     "webp": "f45123894fe96a06666bd300d4f8c7520c3a327441ada1f8eeaba0c3035a808e"
   },
+  "discovery/more-finds.png": {
+    "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
+    "webp": "f048f53a3312642138725c0c1bfa7d6071a29c9788e07c35658f4661b4c2d255"
+  },
+  "discovery/old-coin.png": {
+    "png": "9e52faf5c2f388031a184f7c0f80353f3613486a0bcb69ae07cb8e0f55c825cc",
+    "webp": "ba88eb22f3cdf2b96bd42b04055ed977b79c935440821e98161eda38c93891c4"
+  },
   "discovery/whimsical-finds.png": {
     "png": "dfe7469fd947a890adcd637fcaf56b6dd75d9e719e5d2f18814e21f8e879af81",
     "webp": "5b57566cefa165b6a7b5b19101e3ce024dd3eb3ae66b16d8bea63bb2d76df328"
@@ -379,6 +411,10 @@
     "png": "4e75156866b86a7d2bf914fe83d08a5d83b9f06fd0f84f78207e710173a2c338",
     "webp": "ec73e2ad2d0b78d9785895c4899a13b1385a1631dfe240cce0baf4c5390d6b02"
   },
+  "trees/bamboo.png": {
+    "png": "2308990b8de34e59f5744ec2e426e998480e5cc4629a341ed8b9d045fe8860d5",
+    "webp": "af6b762bcf7b5fb7629049563f35db7e1f66e948077d44029cf390dfa1057a5e"
+  },
   "trees/birch.png": {
     "png": "4a0dba6dc7593af06164921d0ea5e1dd4237307075c146c83948fa88790442fc",
     "webp": "d3ec8322dd6a35d8ecbb8852409f6d7d1caa24e6e42d0b70322eb0ecbe37e3d9"
@@ -387,13 +423,33 @@
     "png": "4f132916aa6c848a7d2528054463707566cae4187dd134ac092916dfead36168",
     "webp": "8877681f6f1111fce34f49e6803ee85251297518ef5306a0f4be73fbb62fee47"
   },
+  "trees/crape_myrtle.png": {
+    "png": "2e3913e17b8fcc80a4db7032817892350ee321fcdb2d93bc426baca506886487",
+    "webp": "d1b0b44d942a3a5e34b8e2344cf11542fba3bbf68310fcf1942e9d2d35f62a7a"
+  },
+  "trees/ginkgo.png": {
+    "png": "8a2376d416e58e9f2f454e4db8bc750ae3a1b37e282e29d7fc87782ac057a014",
+    "webp": "1059e2c953be60b8036ab53a7044862ea5a318cbaed484bff6dd2ade45462ff3"
+  },
   "trees/growth.png": {
     "png": "5b01351d9ae5f1d84ff5710b65363b1d4de49a02e23d22625e9b8e000f9a9f7a",
     "webp": "54e92d3f74f7b56a6dc779a423b9fdeade43229971516aca3faf0847a5335a77"
   },
+  "trees/magnolia.png": {
+    "png": "4533b4db8ee912e2f126a76ccb916264eeb4b7fd37d5d68029d937abd2fbdd74",
+    "webp": "290b63cfda1b6ab6c65e83c4b838a8de7755cbd65067cf57ecf355cdc799a896"
+  },
+  "trees/metasequoia.png": {
+    "png": "62e075c5f61df462b056a3879e1f7afc180791df3ad09664345aceddc2ab6652",
+    "webp": "e5f45ce1b8b47149990042dbea5a8b4413679b7c807cf233c1dce1d544f942ad"
+  },
   "trees/oak.png": {
     "png": "644c6a15b82b247be8f623f2952c375cd84157f40e11857447a7636a47dec9a0",
     "webp": "920cb81d18983f78bb31951232f609d62251244d9f3a5a7186668ff9f679eeb4"
+  },
+  "trees/persimmon.png": {
+    "png": "5f6ef2c5bb57e1692e346028fae2ae740bea5769d8a82afc3fdf2f8f180521e1",
+    "webp": "dfa694edb6e701e4e185908886ae19a1c7bd4ad8aec832cbda38bcacd20498bd"
   },
   "trees/seasons.png": {
     "png": "b553c5caca07c86ff1ead83eb8cb6bab10c2d4d295bb92a3cf1298664083fa7e",

@@ -479,6 +479,7 @@ const SET_FROM_CODE = {
   '--orb-y': 'src/yard/sky.js',
   '--moon-lit': 'src/yard/sky.js',
   '--bubble-lift': 'src/yard/views.js',
+  '--album-found': 'src/panel/album.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.
@@ -617,5 +618,16 @@ test('compact controls hide the dock, offer a corner button and scroll only the 
 // WebKit otherwise resolves the flexible scroller to zero inside an auto-height dialog.
 test('the collection reserves a viewport-bounded height before laying out its scroller', async () => {
   const css = await styles();
-  assert.match(css, /\.album-dialog\{[^}]*height:min\(560px,calc\(100dvh - 16px\)\)/);
+  assert.match(css, /\.album-dialog\{[^}]*height:min\(640px,calc\(100dvh - 16px\)\)/);
+});
+
+test('a dialog heading wraps a long word instead of running past the dialog', async () => {
+  assert.match(await styles(), /\.dialog-heading h2\{[^}]*overflow-wrap:anywhere/);
+});
+
+test('an album tab is as wide as its name, so a long one in Japanese stays on one line', async () => {
+  const css = await styles();
+  assert.match(css, /\.album-tabs\{[^}]*grid-auto-columns:minmax\(min-content,1fr\)/);
+  assert.match(css, /\.album-tabs button\{[^}]*min-width:max-content/);
+  assert.match(css, /\.album-tabs button>span\{[^}]*white-space:nowrap/);
 });

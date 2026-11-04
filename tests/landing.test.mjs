@@ -112,6 +112,35 @@ test('real captures show play right after the comparison, the same pictures in e
   }
 });
 
+test('the download block says what to do after installing, in three steps that lead to the guide', async () => {
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  const download = landing.slice(landing.indexOf('id="download"'));
+  assert.ok(download.indexOf('<Downloads>') < download.indexOf('class="start-steps"'));
+  assert.match(download, /v-for="\(\[title, body, link\]\) in t\.start\.steps"/);
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    assert.ok(sections.start.title.length, lang);
+    assert.equal(sections.start.steps.length, 3, lang);
+    for (const [title, body, link] of sections.start.steps)
+      assert.ok(title.length && body.length && link.startsWith('/guide/'), `${lang}: ${title}`);
+  }
+});
+
+test('the landing counts the album from the catalog, so a new find needs no copy change', async () => {
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /import catalog from '\.\.\/\.\.\/\.\.\/src\/content\/catalog\.json'/);
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const source = read(`website/.vitepress/theme/landing-${lang}.ts`);
+    assert.doesNotMatch(source, /\b100\b/, lang);
+    const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    assert.match(sections.play.shots.find(([name]) => name === 'album')[2], /\{count\}/, lang);
+    assert.ok(
+      sections.compare.rows.some(row => row[2].includes('{count}')),
+      lang,
+    );
+  }
+});
+
 test('every page leads back to the landing from the nav', () => {
   const config = read('website/.vitepress/config.mts');
   for (const [label, link, match] of [
@@ -267,6 +296,21 @@ test('every landing companion leads to its own creator kit', async () => {
   const gallery = read('website/.vitepress/theme/PetGallery.vue');
   assert.match(gallery, /selected\.kit/);
   assert.match(gallery, /words\.galleryCreate/);
+});
+
+test('every landing companion can be taken home by itself, and the guide says where it goes', async () => {
+  const { SITE_LANGS } = await import('../scripts/site-content.mjs');
+  const gallery = read('website/.vitepress/theme/PetGallery.vue');
+  assert.match(gallery, /petDownload\(selected\.id\)/);
+  assert.match(gallery, /download[ >]/);
+  assert.match(gallery, /words\.galleryDownload/);
+  assert.match(gallery, /words\.galleryDownloadHint/);
+  for (const lang of SITE_LANGS) {
+    const prefix = lang === 'en' ? '' : `${lang}/`,
+      guide = read(`website/${prefix}guide/first-friend.md`);
+    assert.match(guide, /playpets-/, lang);
+    assert.match(guide, /~\/\.codex\/pets/, lang);
+  }
 });
 
 test('landing groups preserve the four-friend order and normalize the approved idle silhouettes', async () => {

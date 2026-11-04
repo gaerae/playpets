@@ -4,7 +4,7 @@
 import { agentFile } from '../core/agent-files.js';
 import { agentLabel, agentOf, linkView } from '../core/agents.js';
 import { confirmAction } from '../core/confirm.js';
-import { closeControls, closeUpdateDetails } from '../core/controls.js';
+import { closeUpdateDetails, desktopTip } from '../core/controls.js';
 import { language, t } from '../core/i18n.js';
 import { onShortcut } from '../core/keys.js';
 import { projectLinks } from '../core/project.js';
@@ -428,15 +428,8 @@ export function setupSettings() {
   for (const button of document.querySelectorAll('button[data-link]'))
     button.onclick = guard(() => call('openExternal', links()[button.dataset.link]));
   $('desktop').onclick = guard(async () => {
-    const turningOn = !data.desktop;
-    await call('toggleDesktop');
     // The first time friends go out on the desktop, how to talk to them there (it is not a double-click).
-    if (turningOn && recall('desktop-tip') !== '1') {
-      remember('desktop-tip', '1');
-      // Said once, so not under the panel the switch sits in.
-      closeControls(false);
-      toast(t('toast.desktop_tip'));
-    }
+    if (await call('toggleDesktop')) desktopTip();
   });
   for (const [id, method, key] of [
     ['desktop-wander', 'toggleDesktopWander', 'desktopWander'],

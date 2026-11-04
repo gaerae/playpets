@@ -76,7 +76,7 @@
    | `flat` | True if it lies on the ground under plants and friends, like the pond |
    | `stand` | `"on"` if friends stand on it, like the bench. Without it, friends stand beside it |
    | `effects` | See below |
-   | `size` (optional) | `[width, height]` in catalogue units, when furniture needs a different footprint from its SVG view box |
+   | `size` | `[width, height]` in catalogue units, in the drawing's shape. Usually its SVG view box; furniture may need a different footprint. The desktop draws the gift at this size too (`gift_size` in `pets/content.rs`) |
 
 2. Draw it in `src/art/decor/<id>.svg`.
    - Preserve the drawing's aspect ratio.
@@ -247,7 +247,7 @@ Guide labels:
 - Event gifts stay tied to the calendar.
 - Gifts follow a deterministic sequence, not a loot probability.
 - The cap of 12 placed decorations pauses deliveries.
-- Removing a decoration keeps its album entry, so all 20 gifts can be collected over time.
+- Removing a decoration keeps its album entry, so all 26 gifts can be collected over time.
 
 Reachability:
 - Keep every album entry reachable across valid contexts.

@@ -16,6 +16,9 @@ use std::collections::BTreeMap;
 pub const KINDS_MAX: usize = 64;
 /// The longest fish (cm) the album believes.
 pub const SIZE_MAX: f64 = 300.0;
+/// What the yard keeps to itself (src/yard/secrets.js has the same list): its book shows only
+/// what has been found.
+pub const SECRETS: &[&str] = &["wish", "dizzy", "fireworks"];
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
 pub struct Album {
@@ -27,6 +30,8 @@ pub struct Album {
     pub treasures: BTreeMap<String, Entry>,
     #[serde(default)]
     pub trees: BTreeMap<String, Entry>,
+    #[serde(default)]
+    pub secrets: BTreeMap<String, Entry>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -73,6 +78,7 @@ impl Album {
             flowers: read(raw.and_then(|r| r.get("flowers"))),
             treasures: read(raw.and_then(|r| r.get("treasures"))),
             trees: read(raw.and_then(|r| r.get("trees"))),
+            secrets: read(raw.and_then(|r| r.get("secrets"))),
         }
     }
 
@@ -85,6 +91,22 @@ impl Album {
         });
         entry.count = entry.count.saturating_add(1);
         entry.clone()
+    }
+
+    /// Records one of the yard's secrets found (SECRETS). Returns the entry and whether it is the
+    /// first time.
+    pub fn found(&mut self, id: &str, now: u64) -> Result<(Entry, bool), String> {
+        if !SECRETS.contains(&id) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        let first = !self.secrets.contains_key(id);
+        let entry = self.secrets.entry(id.to_string()).or_insert(Entry {
+            count: 0,
+            best: 0.0,
+            first: now,
+        });
+        entry.count = entry.count.saturating_add(1);
+        Ok((entry.clone(), first))
     }
 
     /// Records a catch: `kind` is "fish" or "bug", `id` the catalogue's name, `size` in cm (fish).
@@ -156,6 +178,21 @@ mod tests {
         assert!(a.catch("fish", "Carp!", 10.0, 1).is_err());
         assert!(a.catch("bird", "crow", 10.0, 1).is_err());
         assert_eq!(a.fish["carp"].count, 2, "a refused catch counts nothing");
+    }
+
+    #[test]
+    fn a_secret_is_kept_once_found_and_says_whether_it_is_the_first() {
+        let mut a = Album::default();
+        assert!(a.secrets.is_empty(), "nothing hidden shows before it is found");
+        let (e, first) = a.found(SECRETS[0], 7).unwrap();
+        assert!(first);
+        assert_eq!((e.count, e.first), (1, 7));
+        let (e, first) = a.found(SECRETS[0], 9).unwrap();
+        assert!(!first);
+        assert_eq!((e.count, e.first), (2, 7));
+        assert!(a.found("made_up", 1).is_err(), "only the yard's own secrets are kept");
+        let back = Album::restore(Some(&serde_json::to_value(&a).unwrap()));
+        assert_eq!(back.secrets[SECRETS[0]].count, 2, "and they are read back");
     }
 
     #[test]

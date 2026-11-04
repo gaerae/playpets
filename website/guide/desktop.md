@@ -10,11 +10,15 @@ Send your friends out of the yard window and they live on your desktop instead. 
 
 ## Turning it on and off <Since v="0.1.0" />
 
+To send one friend, right-click it in the yard and choose **Show on desktop**. A check mark shows it's out; choose it again to bring the friend back. Each friend goes out on its own, and stays in the yard too.
+
+To send every friend at once:
+
 1. Open **Friends & settings → Window & desktop**.
 2. Turn on **Show on desktop**.
-3. If you like, also turn on **Stroll on desktop**, right below it. It works only while desktop mode is on.
+3. If you like, also turn on **Stroll on desktop**, right below it. It works only while something is out on the desktop.
 
-Both switches show their current state, and the menu stays open while you adjust them. Turn off **Show on desktop** and your friends come back to the yard.
+Both switches show their current state, and the menu stays open while you adjust them. Turn off **Show on desktop** and everything on the desktop, friends and gifts, comes back to the yard.
 
 - Desktop mode is unavailable when you have no friends.
 - The tray icon's menu has the same items, so you can turn it on and off without opening the yard window.
@@ -25,12 +29,21 @@ Both switches show their current state, and the menu stays open while you adjust
 |---|---|
 | Pat | Left-click a friend once |
 | Move | Drag a friend and drop them. Another monitor works too |
-| Chat | Point at a friend: its name shows below it with a speech mark. Click the name and the yard window opens on that friend's chat. A right-click does the same |
+| Chat | Point at a friend: its name shows below it with a speech mark. Click the name and the yard window opens on that friend's chat |
+| Menu | Right-click a friend for **Talk to** the friend or **Take off the desktop**. A gift's menu has **Take off the desktop** |
 | Eye contact | Move the mouse over a resting friend's face, and their eyes follow it. Only v2 pets with 16-direction gaze artwork can do this |
 
-A double-click does nothing, so no window opens by accident while you move a friend. The first time you turn desktop mode on, a notice tells you how to chat.
+A double-click does nothing, so no window opens by accident while you move a friend. The first time you send something out, a notice tells you how to chat and how to bring it back.
 
 Names stay hidden until you point at a friend, so your friends blend in with your desk. The [coding agent](./agents.md)'s status and what a friend says float in a speech bubble above their head. A long line ends with "…" after three lines.
+
+## Gifts on the desktop <Since v="1.5.0" /> {#gifts-on-the-desktop}
+
+Decorate your desk with the gifts from your yard. Right-click a gift in the yard, such as the bench or a flowerpot, and choose **Show on desktop**. It stays in the yard too.
+
+- Drag a gift to move it, onto another monitor too. It stays where you leave it.
+- Friends strolling on the desktop walk over to a gift now and then, stand beside it and say something about it.
+- Putting a gift away in the yard takes it off the desktop too. A gift that came before can be set out again from the album ([Gifts](./play.md#gifts)).
 
 ## Friends on every monitor <Since v="0.1.0" />
 
@@ -61,7 +74,7 @@ On macOS the Dock icon goes away too, so no unresponsive icon is left in the Doc
 
 ## Opening it again
 
-Click the tray icon in the menu bar (macOS) or taskbar (Windows, Linux) and choose **Open the yard**. Clicking a friend's name on the desktop, or right-clicking the friend, opens the yard window too.
+Click the tray icon in the menu bar (macOS) or taskbar (Windows, Linux) and choose **Open the yard**. Clicking a friend's name on the desktop, or **Talk to** in its right-click menu, opens the yard window too.
 
 ## Quitting for good
 
@@ -71,4 +84,4 @@ Click the tray icon in the menu bar (macOS) or taskbar (Windows, Linux) and choo
   - <kbd>⌘</kbd> <kbd>Q</kbd> on macOS
 - In a small window, the corner button and a right-click on empty scenery lead to Friends & settings.
 
-Conversations aren't saved when you quit, and your friends on the desktop go too. PlayPets remembers each friend's name, personality and size for next time, and whether desktop mode was on.
+Conversations aren't saved when you quit, and your friends on the desktop go too. PlayPets remembers each friend's name, personality and size for next time, and which friends and gifts were out on the desktop.

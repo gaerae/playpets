@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue';
 import { backgroundSheet } from '../../../scripts/background-specs.mjs';
 import { kitEntries, kitFromQuery, kitSpec, petManifest } from '../../../scripts/creator-specs.mjs';
 import generated from '../generated.json';
+import { petDownload } from '../../../scripts/site-content.mjs';
 import { creationCopy } from './creation-copy.js';
 import { creationRequest, creationZip, kitRequest, requestEntries, saveCreationFile } from './creation-kit.mjs';
 import StudioNav from './StudioNav.vue';
@@ -150,7 +151,7 @@ async function download() {
         <div v-else class="creation-places"><button v-for="(id,i) in layouts" :key="id" type="button" :aria-pressed="starter===id" @click="choose(id)"><img :src="withBase(`/creator-kit/skill/${id}.png`)" alt=""><strong>{{ t.backgroundNames[i] }}</strong><span>{{ t.backgroundHints[i] }}</span></button></div>
         <p v-if="kind==='pet'&&starter==='custom'" class="creation-note">{{ t.ownHint }}</p>
       </fieldset>
-      <fieldset class="creation-fields" :disabled="busy"><legend>{{ t.customize }}</legend><label>{{ t.name }}<input v-model="name" maxlength="60" :placeholder="t.namePlaceholder"></label><label>{{ t.brief }}<textarea v-model="brief" maxlength="1000" rows="3" :placeholder="t.briefPlaceholder" /></label><label class="creation-season"><input v-model="seasonal" type="checkbox">{{ kind === 'pet' ? t.petSeasonal : t.seasonal }}</label></fieldset>
+      <fieldset class="creation-fields" :disabled="busy"><legend>{{ t.customize }}</legend><label>{{ t.name }}<input v-model="name" maxlength="60" :placeholder="kind === 'pet' ? t.petNamePlaceholder : t.namePlaceholder"></label><label>{{ t.brief }}<textarea v-model="brief" maxlength="1000" rows="3" :placeholder="kind === 'pet' ? t.petBriefPlaceholder : t.briefPlaceholder" /></label><label class="creation-season"><input v-model="seasonal" type="checkbox">{{ kind === 'pet' ? t.petSeasonal : t.seasonal }}</label></fieldset>
       <div class="creation-actions"><button class="creation-primary" type="button" :disabled="!ready||busy" @click="download">{{ busy?t.busy:t.download }} <span aria-hidden="true">↓</span></button><button type="button" :disabled="!ready||busy" @click="copy">{{ t.copy }}</button></div>
       <p class="creation-status" :role="error?'alert':'status'" aria-live="polite">{{ notice }}</p>
       <details class="creation-request" :open="showRequest" @toggle="showRequest=$event.target.open"><summary>{{ t.prompt }}</summary><pre tabindex="0"><code>{{ prompt }}</code></pre></details>
@@ -158,7 +159,7 @@ async function download() {
     <aside class="creation-takeaway"><h3>{{ t.contents }}</h3><ul><li v-for="item in t.included" :key="item">{{ item }}</li></ul><ol><li v-for="step in t.steps" :key="step">{{ step }}</li></ol><p v-if="kind==='background'" class="creation-capability">{{ t.coordinates }}</p><p class="creation-output">{{ kind==='pet'?t.petOutput:t.backgroundOutput }}</p><a :href="withBase(`/${prefix}guide/import`)">{{ t.import }} ↗</a><p class="creation-capability">{{ t.capability }}</p><a :href="withBase(`/creator-kit/skill/playpets-creator.zip?rev=${generated.creatorSkillRevision}`)" download>{{ t.skill }} ↓</a><br><a :href="withBase(`/creator-kit/skill/playpets-creator-plugin.zip?rev=${generated.creatorSkillRevision}`)" download>{{ t.plugin }} ↓</a></aside>
   </div>
   <details class="creation-install"><summary>{{ t.installTitle }}</summary><p>{{ t.installHint }}</p><div v-for="agent in ['codex','claude-code']" :key="agent"><h3>{{ agent==='codex'?'Codex':'Claude Code' }}</h3><pre tabindex="0"><code>{{ installCommand(agent) }}</code></pre><button type="button" :disabled="!ready" @click="copyInstall(agent)">{{ t.installCopy }}</button></div><p>{{ t.installScope }}</p><p>{{ t.installPending }}</p><p><a href="https://github.com/vercel-labs/skills">skills CLI</a>, <a href="https://developers.openai.com/codex/skills/">Codex</a>, <a href="https://code.claude.com/docs/en/skills">Claude Code</a></p></details>
-  <details v-if="kind==='pet' &&starter!=='custom'" class="creation-ready"><summary>{{ t.ready }}</summary><p>{{ t.readyHint }}</p><a :href="withBase(`/creator-kit/${starter}/importable-pet.zip`)" download>{{ t.readyDownload }} ↓</a></details>
+  <details v-if="kind==='pet' &&starter!=='custom'" class="creation-ready"><summary>{{ t.ready }}</summary><p>{{ t.readyHint }}</p><a :href="withBase(petDownload(starter))" download>{{ t.readyDownload }} ↓</a></details>
 </section>
 </template>
 <style scoped>

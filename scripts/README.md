@@ -28,7 +28,7 @@
 | Native captures | `shots.mjs`, `shots-lib.mjs`, `shot-windows.swift` via `shots` | Localized captures and listing media; macOS capture host required |
 | Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
 | Portable creation skill | `creator-skill.mjs` via `creator:skill`, source `assets/creator-skill/playpets-creator/`, `creator-workflow.py` launcher | Generated skill and plugin ZIPs and per-layout references under `website/public/creator-kit/skill/`; offline pet ZIP and background JSON from the supplied helper |
-| Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets, metadata and downloadable bundles |
+| Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets and metadata, and each starter friend's `playpets-<id>.zip` |
 | Atlas preparation | `pack-*.mjs`, `normalize-cat-row.mjs`, atlas/art/normalization helpers | Explicit destination files from approved image sources |
 | Companion action packing | `companions:pack -- plan.json output.png`, source `pack-companion-actions.py` | Bounded action atlases from approved RGBA art, with 192 × 208 cells by default; requires Pillow, honors `PLAYPETS_PYTHON`, rejects clipped frames and preserves shared scale and foot anchors |
 | Discovery artwork | `node scripts/pack-discovery.mjs`, source records in `assets/discovery/` | Tracked tree, keepsake and shovel PNG atlases in `assets/art/` and clipped SVG viewports in `src/art/trees/` and `src/art/discovery/` |

@@ -16,7 +16,7 @@ const copy = {
     digNote:
       'Digging may uncover seeds, saplings or keepsakes, or nothing. Matching season, weather and place favor some finds. Full storage adds no item and does not convert a reward. The same patch gives no further reward for 24 hours.',
     digCooldown:
-      'This is a preview, not your saved state. After an uncommon find, all friends and places wait 24 hours for another. Repeats are possible and completion time is not guaranteed.',
+      'This is a preview, not your saved state. After a rare find, all friends and places wait 24 hours for another. Repeats are possible and completion time is not guaranteed.',
     place: 'Outdoor place',
     customPlace: 'Custom outdoor background',
     affinity: 'More likely with',
@@ -40,7 +40,7 @@ const copy = {
     flowers:
       'Flower seeds and saplings come from digging. Flowers bloom after four hours and trees mature after twelve, including time with the app closed.',
     gifts:
-      'The whole yard receives at most one gift per local calendar day, shared by all friends. A scheduled delivery time survives closing the app, and closed time counts. New gifts follow catalogue order; after all ordinary gifts, friends bring decorations missing from the yard. Event gifts take priority the first time. This is not a random loot table. Twelve decorations pause delivery; putting one away retains its album entry. The four event gifts follow real calendar dates, so collecting them all can take months, not a guaranteed week.',
+      'The whole yard receives at most one gift per local calendar day, shared by all friends. A scheduled delivery time survives closing the app, and closed time counts. New gifts follow catalogue order; after all ordinary gifts, friends bring decorations missing from the yard. Event gifts take priority the first time. This is not a random loot table. Twelve decorations pause delivery; putting one away retains its album entry. The five event gifts follow real calendar dates, so collecting them all can take months, not a guaranteed week.',
     ordered: 'In order',
     seasonal: 'During the event',
     bloom: 'Hours to bloom',
@@ -51,7 +51,7 @@ const copy = {
     digNote:
       '땅을 파면 꽃씨, 묘목, 작은 발견을 얻거나 아무것도 나오지 않을 수 있어요. 계절, 날씨, 장소에 따라 더 찾기 쉬운 것이 달라져요. 보관함이 가득 차면 더 받지 못하고 다른 보상으로 바뀌지 않아요. 같은 땅은 24시간 동안 추가 보상이 없어요.',
     digCooldown:
-      '이 페이지는 미리보기이며 앱의 저장 상태를 읽지 않아요. 드문 발견을 얻으면 모든 친구와 장소에서 다음 드문 발견까지 24시간을 기다려요. 중복이 나올 수 있고 완료 시점은 보장하지 않아요.',
+      '이 페이지는 미리보기이며 앱의 저장 상태를 읽지 않아요. 희귀한 발견을 얻으면 모든 친구와 장소에서 다음 희귀한 발견까지 24시간을 기다려요. 중복이 나올 수 있고 완료 시점은 보장하지 않아요.',
     place: '야외 장소',
     customPlace: '직접 추가한 야외 배경',
     affinity: '더 잘 나오는 조건',
@@ -74,7 +74,7 @@ const copy = {
     bugs: '곤충은 맑은 야외에 나타나요. 아침과 한낮에는 나비, 나방, 잠자리가 날고 딱정벌레와 사마귀가 기어 다니며 메뚜기와 귀뚜라미가 뛰어요. 반딧불이는 봄과 여름의 저녁과 밤에, 귀뚜라미는 가을의 저녁과 밤에도 나타나요. 비나 눈이 오면 나타나지 않아요.',
     flowers: '꽃씨와 묘목은 땅파기로 찾아요. 꽃은 4시간 뒤 피고 나무는 12시간 뒤 자라요. 앱을 꺼 둔 시간도 포함해요.',
     gifts:
-      '선물은 현지 날짜 기준으로 놀이터 전체에서 하루 최대 하나이며 모든 친구가 횟수를 공유해요. 정해진 도착 시각은 앱을 닫아도 저장되고, 꺼 둔 시간도 포함해요. 새 선물은 도감 순서로 오고, 일반 선물을 다 받은 뒤에는 마당에 없는 장식이 다시 와요. 이벤트 선물은 처음 받을 때 우선하며 무작위 뽑기는 아니에요. 장식이 12개면 배달이 멈추고 하나를 치워도 도감 기록은 남아요. 이벤트 선물 네 종류는 실제 달력을 따라, 모두 모으려면 몇 달이 걸릴 수 있어요. 일주일 안에 모인다는 보장은 없어요.',
+      '선물은 현지 날짜 기준으로 놀이터 전체에서 하루 최대 하나이며 모든 친구가 횟수를 공유해요. 정해진 도착 시각은 앱을 닫아도 저장되고, 꺼 둔 시간도 포함해요. 새 선물은 도감 순서로 오고, 일반 선물을 다 받은 뒤에는 마당에 없는 장식이 다시 와요. 이벤트 선물은 처음 받을 때 우선하며 무작위 뽑기는 아니에요. 장식이 12개면 배달이 멈추고 하나를 치워도 도감 기록은 남아요. 이벤트 선물 다섯 종류는 실제 달력을 따라, 모두 모으려면 몇 달이 걸릴 수 있어요. 일주일 안에 모인다는 보장은 없어요.',
     ordered: '차례대로 와요',
     seasonal: '이벤트 중에 와요',
     bloom: '꽃이 피기까지 걸리는 시간',
@@ -85,7 +85,7 @@ const copy = {
     digNote:
       '土を掘ると種、苗木、小さな発見が出ることも、何も出ないこともあります。季節、天気、場所によって見つけやすさが変わります。収納が満杯でも別の報酬には変わりません。同じ場所は24時間追加の報酬がありません。',
     digCooldown:
-      'これはプレビューで、保存状態は読みません。珍しい発見の後は全員と全場所で次の珍しい発見まで24時間待ちます。重複があり、完了時期は保証されません。',
+      'これはプレビューで、保存状態は読みません。レアな発見の後は全員と全場所で次のレアな発見まで24時間待ちます。重複があり、完了時期は保証されません。',
     place: '屋外の場所',
     customPlace: '追加した屋外背景',
     affinity: '出やすい条件',
@@ -108,7 +108,7 @@ const copy = {
     bugs: '虫は晴れた屋外に現れます。朝と昼はチョウやガ、トンボが飛び、甲虫やカマキリが歩き、バッタやコオロギが跳ねます。ホタルは春と夏の夕方と夜、コオロギは秋の夕方と夜にも出ます。雨や雪では現れません。',
     flowers: '花の種と苗木は土を掘って見つけます。花は4時間、木は12時間で育ちます。アプリを閉じた時間も含みます。',
     gifts:
-      '贈り物は現地の日付で庭全体に一日最大一つ、全員で回数を共有します。決まった配達時刻は保存され、アプリを閉じた時間も数えます。新しい贈り物はカタログ順で、通常分を集めた後は庭にない飾りが届きます。イベントの初回分が優先され、ランダム抽選ではありません。飾りが12個なら配達は止まり、片付けても図鑑の記録は残ります。イベント限定4種類は実際の暦に従うため、集めるには数か月かかる場合があり、一週間の完成は保証されません。',
+      '贈り物は現地の日付で庭全体に一日最大一つ、全員で回数を共有します。決まった配達時刻は保存され、アプリを閉じた時間も数えます。新しい贈り物はカタログ順で、通常分を集めた後は庭にない飾りが届きます。イベントの初回分が優先され、ランダム抽選ではありません。飾りが12個なら配達は止まり、片付けても図鑑の記録は残ります。イベント限定5種類は実際の暦に従うため、集めるには数か月かかる場合があり、一週間の完成は保証されません。',
     ordered: '順番に届きます',
     seasonal: 'イベント中に届きます',
     bloom: '開花までの時間',
@@ -142,7 +142,7 @@ const copy = {
     bugs: '昆虫出现在晴朗的室外。早晨和白天有蝴蝶、蛾子和蜻蜓飞舞，甲虫和螳螂爬行，蝗虫和蟋蟀跳跃；萤火虫在春夏的傍晚和夜间出现，蟋蟀在秋天的傍晚和夜间也会出现。雨雪天不会出现。',
     flowers: '花种和树苗都来自挖土。花在4小时后开放，树木在12小时后长成，包括关闭应用的时间。',
     gifts:
-      '按本地日历，整个庭院每天最多收到一件礼物，所有伙伴共享次数。安排的送达时间会保存，关闭应用的时间也计入。新礼物按图鉴顺序到来，收齐普通礼物后会送来庭院缺少的装饰，首次活动礼物优先，并非随机抽奖。12件装饰会暂停送礼，收起后仍保留图鉴记录。4种活动礼物遵循真实日历，收齐可能需要数月，不保证一周完成。',
+      '按本地日历，整个庭院每天最多收到一件礼物，所有伙伴共享次数。安排的送达时间会保存，关闭应用的时间也计入。新礼物按图鉴顺序到来，收齐普通礼物后会送来庭院缺少的装饰，首次活动礼物优先，并非随机抽奖。12件装饰会暂停送礼，收起后仍保留图鉴记录。5种活动礼物遵循真实日历，收齐可能需要数月，不保证一周完成。',
     ordered: '按顺序到来',
     seasonal: '活动期间到来',
     bloom: '开花所需时间',

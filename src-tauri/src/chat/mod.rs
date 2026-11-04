@@ -3,6 +3,7 @@
 //! Each friend talks through an AI connection (providers): a subscription CLI (cli) or an
 //! HTTP API (http), told who it is by prompt.
 pub mod cli;
+pub mod guide;
 pub mod http;
 pub mod kind;
 pub mod prompt;
@@ -166,6 +167,22 @@ fn speaker(d: &AppData, id: &str, in_group: bool) -> Result<Speaker, String> {
     })
 }
 
+/// The app's facts on what the owner asked (guide.rs), knowing which secrets have been found.
+fn facts(d: &AppData, message: &str) -> String {
+    let found: Vec<&str> = d.album.secrets.keys().map(String::as_str).collect();
+    guide::facts_for(message, &found)
+}
+
+/// A speaker's notes for a turn the owner asked something in: with those facts, which go with
+/// this message only and are never kept in the history.
+fn with_facts(notes: &str, facts: &str) -> String {
+    if facts.is_empty() {
+        notes.to_string()
+    } else {
+        format!("{notes}\n{facts}")
+    }
+}
+
 /// Reads the speakers' API keys from the keychain. Called with the state lock released: the
 /// keychain may ask the person first, and nothing else in the app should wait for that.
 /// Friends that share an AI connection share its key, which is read once.
@@ -305,15 +322,16 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
     if text.trim().is_empty() || text.chars().count() > MESSAGE_LIMIT {
         return Err(too_long());
     }
-    let mut speaker = {
+    let (mut speaker, facts) = {
         let d = lock(state);
         require_pet(&d, &id)?;
         if d.talks.busy(&id) {
             return Err(i18n::t("chat.still_answering"));
         }
-        speaker(&d, &id, false)?
+        (speaker(&d, &id, false)?, facts(&d, &text))
     };
     unlock(std::slice::from_mut(&mut speaker))?;
+    speaker.notes = with_facts(&speaker.notes, &facts);
     let (messages, at, cancel) = {
         let mut d = lock(state);
         still_ready(&d, &speaker)?;
@@ -456,7 +474,8 @@ fn group_round(
     }
     let host = &ids[0];
     let cancel = Arc::new(AtomicBool::new(false));
-    let mut speakers: Vec<Speaker> = {
+    // Friends chatting among themselves (no message from the owner) are told nothing more.
+    let (mut speakers, facts) = {
         let d = lock(state);
         let mut speakers = Vec::new();
         for id in &ids {
@@ -466,9 +485,12 @@ fn group_round(
             }
             speakers.push(speaker(&d, id, true)?);
         }
-        speakers
+        (speakers, facts(&d, &text))
     };
     unlock(&mut speakers)?;
+    for s in &mut speakers {
+        s.notes = with_facts(&s.notes, &facts);
+    }
     let speakers = speakers;
     {
         let mut d = lock(state);
@@ -616,7 +638,7 @@ fn agent_busy(status: Option<&Value>) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{agent_busy, chatty, opener};
+    use super::{agent_busy, chatty, guide, opener, with_facts};
     use serde_json::json;
 
     #[test]
@@ -719,6 +741,20 @@ mod tests {
         assert!(!agent_busy(Some(&json!({"state": "done", "source": "agent"}))));
         assert!(!agent_busy(Some(&json!({"state": "working", "source": "chat"}))));
         assert!(!agent_busy(None));
+    }
+
+    #[test]
+    fn an_owners_question_about_the_app_brings_its_facts_for_that_turn_only() {
+        let notes = "Do not claim to have run tools or observed work.";
+        let asked = with_facts(notes, &guide::facts_for("도감은 어떻게 채워?", &[]));
+        assert!(asked.starts_with(notes));
+        assert!(asked.contains("Album:"));
+        assert_eq!(with_facts(notes, &guide::facts_for("오늘 기분 어때?", &[])), notes);
+        assert_eq!(
+            with_facts(notes, &guide::facts_for("", &[])),
+            notes,
+            "friends among themselves"
+        );
     }
 
     #[test]

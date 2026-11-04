@@ -6,6 +6,7 @@
 // due is in growth.js. Drawn once, like plants: nothing here moves on its own, and the lantern's
 // glow is a still layer the evening shows.
 
+import { openDecorMenu } from '../core/controls.js';
 import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { between, clamp, pick } from '../core/math.js';
@@ -118,12 +119,19 @@ function create(d) {
     renderDecor();
   });
   button.addEventListener('dragstart', event => event.preventDefault());
+  // Its menu: out to the desktop, or put away.
   button.addEventListener('contextmenu', e => {
     e.preventDefault();
-    putAway(v.id);
+    openDecorMenu(v.id, { x: e.clientX, y: e.clientY });
   });
-  // By keyboard: arrows move it a few pixels, the same in any window or place; Delete puts it away.
+  // By keyboard: arrows move it a few pixels, the same in any window or place; Delete puts it away;
+  // the menu key or Shift+F10 opens its menu, as a friend's does.
   button.addEventListener('keydown', e => {
+    if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
+      e.preventDefault();
+      const r = button.getBoundingClientRect();
+      return openDecorMenu(v.id, { x: r.left, y: r.bottom });
+    }
     const step = KEY_STEPS[e.key];
     if (step) {
       e.preventDefault();
@@ -225,7 +233,8 @@ function visited(v, kind) {
 
 // Put away at once with a moment to undo it (props.js); a friend may bring it again another day,
 // and a memento goes back into the gift box instead.
-function putAway(id) {
+/** Puts a gift away, with a moment to take it back (its menu, or Delete). */
+export function putAway(id) {
   const d = data.garden?.decor.find(x => x.id === id),
     view = shown.get(id);
   if (!d || !view) return;

@@ -39,7 +39,8 @@ test('album tabs have one tab stop and arrow keys select and label the collectio
     },
   });
   assert.equal(prevented, true);
-  const last = tabs.at(-1);
+  // a book with nothing in it yet keeps out of the way (the hidden ones)
+  const last = tabs.findLast(tab => !tab.hidden);
   assert.equal(document.activeElement, last);
   assert.equal(last.getAttribute('aria-selected'), 'true');
   assert.equal(nodes.get('album-grid').getAttribute('aria-labelledby'), last.id);

@@ -45,3 +45,18 @@ test('a find shows in the lane of messages, not apart above whoever found it', a
   assert.equal(card.style.left ?? '', '');
   assert.equal(card.style.top ?? '', '');
 });
+
+test('a first may say in its own words why it is news, on the line a narrow yard still shows', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  installDom(t, { anyId: true });
+  installStorage(t);
+  const parts = new Map();
+  Object.assign(document.getElementById('catch-card'), {
+    hidden: true,
+    querySelector: selector => parts.get(selector) ?? parts.set(selector, element()).get(selector),
+  });
+  setupCard();
+  showCard('<svg></svg>', 'Round and round', 'You spun a friend', 'You found a hidden secret!', 'secret');
+  assert.equal(parts.get('.catch-new').textContent, 'You found a hidden secret!');
+  assert.equal(parts.get('small').textContent, 'You spun a friend');
+});
