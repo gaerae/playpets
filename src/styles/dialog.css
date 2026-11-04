@@ -641,6 +641,7 @@ body.compact .update-compact {
   background: var(--green-soft);
   color: var(--green-ink);
   font-weight: 650;
+  text-wrap: balance;
 }
 .album-hint {
   margin-bottom: 4px;

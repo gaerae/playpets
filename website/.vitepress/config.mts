@@ -72,7 +72,7 @@ export default defineConfig({
       label: 'English',
       lang: 'en-US',
       description:
-        'Free, open-source desktop pet app for your Codex pets: up to 12 at once, chatting with each other and reacting to Claude Code, Codex and other coding agents.',
+        'Free, open-source desktop pet app: four friends come with it, any Codex pet can join, and up to 12 chat with each other and react to Claude Code, Codex and other coding agents.',
       themeConfig: {
         nav: [
           { text: 'Home', link: '/', activeMatch: '^/$' },
@@ -118,7 +118,7 @@ export default defineConfig({
       lang: 'ko-KR',
       link: '/ko/',
       description:
-        '내 Codex 펫을 바탕화면 놀이터로 데려오는 무료 데스크톱 펫 앱이에요. 12명까지 함께 놀고, 서로 이야기하고, Claude Code, Codex 같은 코딩 에이전트에 반응해요.',
+        '펫 친구들이 바탕화면에 사는 무료 데스크톱 펫 앱이에요. 기본 친구 넷이 함께 오고 Codex 펫도 데려올 수 있어요. 12명까지 서로 이야기하고, Claude Code, Codex 같은 코딩 에이전트에 반응해요.',
       themeConfig: {
         nav: [
           { text: '홈', link: '/ko/', activeMatch: '^/ko/$' },
@@ -173,7 +173,7 @@ export default defineConfig({
       lang: 'ja-JP',
       link: '/ja/',
       description:
-        '手もとのCodexペットをデスクトップの庭へ迎える無料アプリ。12人まで一緒に遊び、友だち同士で話し、Claude CodeやCodexなどのコーディングエージェントに反応します。',
+        'ペットの友だちがデスクトップで暮らす無料アプリ。はじめから4人いて、Codexのペットも迎えられます。12人まで一緒に遊び、友だち同士で話し、Claude CodeやCodexなどのコーディングエージェントに反応します。',
       themeConfig: {
         nav: [
           { text: 'ホーム', link: '/ja/', activeMatch: '^/ja/$' },
@@ -231,7 +231,7 @@ export default defineConfig({
       lang: 'zh-Hans',
       link: '/zh-hans/',
       description:
-        '把你的 Codex 宠物带到桌面乐园的免费桌宠应用：最多 12 位一起玩、互相聊天，还会对 Claude Code、Codex 等编码代理做出反应。',
+        '宠物伙伴住在桌面上的免费桌宠应用：自带四位伙伴，Codex 宠物也能加入；最多 12 位一起玩、互相聊天，还会对 Claude Code、Codex 等编码代理做出反应。',
       themeConfig: {
         nav: [
           { text: '首页', link: '/zh-hans/', activeMatch: '^/zh-hans/$' },

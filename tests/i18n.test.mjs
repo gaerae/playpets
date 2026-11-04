@@ -42,6 +42,11 @@ test('the dig rule calls its finds by the word on the album badge', () => {
   }
 });
 
+// A narrow album card wraps its stamp; a size never ends a line apart from its unit.
+test('a size stays on one line with its unit', () => {
+  for (const lang of Object.keys(STRINGS)) assert.match(STRINGS[lang]['catch.best'], /\{size\}\u00a0cm/, lang);
+});
+
 test('every relationship has its own welcome, closeness and dear lines', async () => {
   const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
   const relations = [...html.matchAll(/name="relation" value="(\w+)"/g)].map(m => m[1]);

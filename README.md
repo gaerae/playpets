@@ -4,17 +4,16 @@
 
 # PlayPets
 
-**Your Codex pets, together on your desktop: up to 12 at once, talking to each other and cheering on your coding agent.**
+**Pet friends that live on your desktop: four come with the app, any Codex pet can join them, and up to 12 talk to each other and cheer on your coding agent.**
 
 [![Latest release](https://img.shields.io/github/v/release/gaerae/playpets?style=flat-square&color=f9ae55&label=release)](https://github.com/gaerae/playpets/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/gaerae/playpets/total?style=flat-square&color=4a9bd6)](https://github.com/gaerae/playpets/releases)
-[![Build](https://img.shields.io/github/actions/workflow/status/gaerae/playpets/build.yml?branch=main&style=flat-square&label=build)](https://github.com/gaerae/playpets/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-3a2a1e?style=flat-square)](LICENSE)
 ![macOS · Windows · Linux](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-Tauri%202-f9ae55?style=flat-square)
-![Codex pet format compatible](https://img.shields.io/badge/pets-Codex%20pet%20format-4a9bd6?style=flat-square)
 
 [![Download for macOS](https://img.shields.io/badge/macOS-Download-1f1f1f?style=for-the-badge&logo=apple&logoColor=white)](https://playpets.gaerae.com/#download)
 [![Get it from Microsoft Store](https://img.shields.io/badge/Windows-Microsoft%20Store-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://apps.microsoft.com/detail/9NSKXQ6R187M)
+[![Download the Windows installer](https://img.shields.io/badge/Windows-.exe%20installer-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/gaerae/playpets/releases/latest)
 [![Download for Linux](https://img.shields.io/badge/Linux-Download-e95420?style=for-the-badge&logo=linux&logoColor=white)](https://playpets.gaerae.com/#download)
 
 **[Website](https://playpets.gaerae.com/)** · **[User guide](https://playpets.gaerae.com/guide/)** · **[Install guide](https://playpets.gaerae.com/guide/install)** · **[Releases](https://playpets.gaerae.com/releases/)** · **[Developer docs](https://playpets.gaerae.com/dev/)**
@@ -27,16 +26,16 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 
 ## Why PlayPets
 - 🐾 Reads Codex pet files (the custom pets made for ChatGPT and Codex) as they are: every action, and the sixteen look directions when the sheet has them. Codex is not needed.
-- 👥 Up to 12 friends at once, in the yard and out on your desktop. Keep your pet in the ChatGPT desktop app too: both read the same pet files.
+- 👥 Up to 12 friends at once, in the yard and out on your desktop, one by one, with gifts from the yard to decorate it. Keep your pet in the ChatGPT desktop app too: both read the same pet files.
 - 💬 They chat with you, and with each other, through the AI you pick.
 - 🧑‍💻 They react to Claude Code, Codex, Gemini CLI, Cursor and other MCP tools.
-- 🏡 A yard of their own: four places or your own backgrounds, gifts like a swing or a pond, three games, a garden, fishing and an album.
+- 🏡 A yard of their own: four places or your own backgrounds, gifts like a swing or a pond, three games, a garden, fishing and a 150-entry album.
 - 🌱 The four starter pets also dig, plant, fish and change clothes with the seasons.
 - 🔓 Free and open source (MIT) for macOS, Windows and Linux.
 
 | Friends talk among themselves | Out on your desktop while you code | A friend for each coding agent |
 |---|---|---|
-| ![Four friends in the yard, chatting in speech bubbles](website/public/shots/1.4.0/en/yard-talk.webp) | ![Four friends on the desktop below a terminal running tests](website/public/shots/1.4.0/en/desktop.webp) | ![Coding tools settings with a reacting friend chosen for each agent](website/public/shots/1.4.0/en/settings-agents.webp) |
+| ![Four friends in the yard, chatting in speech bubbles](website/public/shots/1.5.0/en/yard-talk.webp) | ![Four friends on the desktop below a terminal running tests](website/public/shots/1.5.0/en/desktop.webp) | ![Coding tools settings with a reacting friend chosen for each agent](website/public/shots/1.5.0/en/settings-agents.webp) |
 
 ## Features
 
@@ -48,55 +47,12 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 | AI connections | Signed-in Claude Code or Codex CLI, local Ollama, an OpenAI or Grok (xAI) API key, or an OpenAI-compatible server; one AI per friend |
 | Places | Four places and imported backgrounds; season, time and weather controls |
 | Play | Hide and seek, parade, tag |
-| Garden and album | Dig for seeds, saplings and keepsakes; plant; fish and catch bugs |
-| Desktop mode | Pets stroll the desktop (on macOS, over full-screen apps too) |
+| Garden and album | Dig for seeds, saplings and keepsakes; plant; fish and catch bugs; fill a 150-entry album |
+| Desktop mode | Send friends and gifts out one by one from their right-click menu; friends stroll and visit the gifts (on macOS, over full-screen apps too) |
 | Coding company | Hooks and MCP for Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code and other MCP tools |
 | Languages | English, Korean, Japanese, Simplified Chinese |
 
-<details>
-<summary>More about each feature</summary>
-
-- **AI and billing**
-  - Claude Code or Codex CLI: uses your subscription allowance; paid extra usage can still apply.
-  - API-key CLI sign-in: billed separately.
-  - Ollama: runs on your computer, no hosted inference fees.
-  - OpenAI, xAI (Grok) and compatible APIs: the provider's billing.
-- **Friends talk to each other**
-  - When the AI brings in another connected friend, they answer in turn.
-  - **Let them chat** under **Play → Group games** keeps them talking.
-  - They can also chat now and then on their own; the yard shows speech bubbles.
-- **Friends at work**
-  - Hooks, Codex notifications and MCP pass on thinking, tool use, permission requests and completion.
-  - Give each agent its own friend.
-  - Ask "What were you doing?" for a summary of recent work.
-- **A living yard**
-  - Morning, day, evening and night follow the clock; the weather (clear, rain, snow) changes on its own.
-  - The moon shows its real phase at night. You can set all of these yourself.
-  - Put down a treat and friends walk over to eat it.
-  - Left alone, friends wander and talk to themselves. Turn on a switch in Settings and they dig now and then too.
-- **Garden**
-  - A tool stays in hand from one spot to the next.
-  - Right-click bare ground for **Dig here**.
-- **Make your own**
-  - Pets: the [character studio](https://playpets.gaerae.com/guide/creator-kit).
-  - Places: the [background studio](https://playpets.gaerae.com/guide/background-kit).
-  - Starter pets use the Codex pet format and are MIT licensed.
-- **Import community pets**
-  - Paste a pet page address from OpenPets Registry (openpets.sh), Petdex, Codex PokéPets, Awesome Codex Pet (codexpet.top) or codex-pets.net.
-  - GitHub pet folders and other codex-pet-share sites work too.
-  - Pets in `~/.codex/pets` load on their own.
-  - A gallery link `playpets://import?url=<pet page>` imports in one click.
-  - A pet ZIP on your computer, such as one made with the creator kit, imports directly.
-- **A window beside your work**
-  - Resizes down to 300 × 210; the dock folds into a corner button that appears on hover.
-  - Right-click a friend for **Talk**, **Play** and **Dig**.
-  - **Always on top** toggles on its own. Position, size and pin are remembered.
-  - Close, minimize and **Reset window size** appear when the pointer reaches the top; a window left bigger than the screen after unplugging a monitor comes back by itself.
-- **Light on resources**
-  - Tauri: Rust and the system webview.
-  - The yard redraws only while something moves.
-
-</details>
+More in the [user guide](https://playpets.gaerae.com/guide/): [chat and AI billing](https://playpets.gaerae.com/guide/chat), [the yard and its games](https://playpets.gaerae.com/guide/play), [the desktop](https://playpets.gaerae.com/guide/desktop), [importing community pets](https://playpets.gaerae.com/guide/import) and the [character](https://playpets.gaerae.com/guide/creator-kit) and [background](https://playpets.gaerae.com/guide/background-kit) studios.
 
 ## Install
 
@@ -115,6 +71,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 
 - From 1.3.0 the macOS app is signed and notarized. The Windows installer from GitHub is not code-signed yet, so SmartScreen may warn ([how to install it through the warning](https://playpets.gaerae.com/guide/install#installer-from-github)); the Microsoft Store and winget packages are signed by Microsoft.
 - The [install guide](https://playpets.gaerae.com/guide/install) covers those warnings and Linux notes.
+- The Microsoft Store package needs Windows 10 version 1809 or later.
 - To build from source, see [Development](#development).
 
 ## Getting started
@@ -164,97 +121,24 @@ playpets run -- <command>
 > - Short completion and notification reports can still hold work details, including code in an agent's answer. They can reach your chosen AI provider in a friend's conversation.
 > - Review terminal and MCP messages before sending. Use a local model to keep those details on this computer.
 
-## Data and privacy
-- Pets and settings stay in a data folder on your computer: **Settings → About PlayPets → Open the data folder**. `PLAYPETS_DATA` moves it.
-- API keys go only to the system's secure storage: macOS Keychain, Windows Credential Manager, Linux Secret Service.
-- Conversations stay in memory and are gone when the app quits.
-- More: [data folder](https://playpets.gaerae.com/guide/settings#data-folder) · [privacy policy](https://playpets.gaerae.com/privacy).
-
-## Updates
-- The app checks 20 seconds after start, then every 6 hours, and installs only when you choose.
-- A new version shows as a yard button that opens **Settings → App updates** with what's new.
-- Each update is verified with the updater signing key before install.
-- The Microsoft Store version updates through the Store.
-- More: [app updates](https://playpets.gaerae.com/guide/settings#app-updates).
-
-## Languages
-- English, Korean, Japanese and Simplified Chinese. The app follows the system language; change it in **Settings → Language & startup**.
-- Coding agents and the terminal get English.
-- To add a language: [docs/how-to/add-a-language.md](docs/how-to/add-a-language.md).
+## Privacy, updates and languages
+- Pets and settings stay in a data folder on your computer ([data folder](https://playpets.gaerae.com/guide/settings#data-folder)); API keys go only to the system's secure storage.
+- Conversations stay in memory and are gone when the app quits. See the [privacy policy](https://playpets.gaerae.com/privacy).
+- The app looks for updates on its own and installs one only when you choose; each is checked against the updater signing key. The Store version updates through the Store ([app updates](https://playpets.gaerae.com/guide/settings#app-updates)).
+- English, Korean, Japanese and Simplified Chinese, following the system language; change it in **Settings → Language & startup**.
 
 ## Development
-- Start at [docs/README.md](docs/README.md): architecture, standards, how-tos, decision records.
-- First setup: [Set up a development environment and run the app](docs/getting-started.md).
-- Needs: Rust stable 1.99+, Node.js 26.12.1+, the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) (webkit2gtk and others on Linux).
-
-| Task | Command |
-|---|---|
-| Install dependencies | `pnpm install --frozen-lockfile` |
-| Unit tests (Rust and page) | `pnpm test` |
-| Format / check | `pnpm run format` / `pnpm run lint` (rustfmt, clippy, Oxlint, Oxfmt, Biome for CSS) |
-| Real-app E2E | `pnpm run test:e2e` (isolated data folder, own test pet, fake AI server) |
-| Live check against community sites | `pnpm run test:live-import` |
-| Site dev server / build | `pnpm run site:dev` / `pnpm run site:build` (fails on a dead link) |
-| Site screenshots (macOS) | `pnpm run shots x.y.z` → `website/public/shots/` |
-| Installer art | `pnpm run art` (DMG window, Windows installer pictures, Linux store screenshots) |
-| macOS dmg | `pnpm run dist:mac` → `release/macos/` |
-| Linux packages and E2E | `pnpm run dist:linux` (Docker) → `release/linux/` (deb, AppImage, E2E under Xvfb) |
-| Windows x64 packages | `pnpm run dist:windows` (Docker) → `release/windows/` (MinGW cross build, NSIS installer, portable zip, MSIX signed with a test certificate in `msix-test/`) |
-| Redraw icons | `pnpm run icons` (`assets/icon.png` → every icon) |
-
-| Workflow | What it does |
-|---|---|
-| `.github/workflows/build.yml` | Builds and E2E on macOS, Windows x64/arm64, Linux x64/arm64 for every PR, on `main` when the crates or this workflow change, and weekly; artifacts in the run |
-| `.github/workflows/release.yml` | After `pnpm run release x.y.z` and `git push origin HEAD vx.y.z`: builds every platform, drafts a GitHub release with the changelog section ([Release a new version](docs/how-to/release.md)) |
-| `.github/workflows/distribute.yml` | On a published release: makes the winget manifest and the Homebrew cask; with tokens, opens the winget PR and updates the tap ([Signing keys and secrets](docs/standards/keys-and-secrets.md)) |
-
-<details>
-<summary>Repository map</summary>
-
-```
-src/              Page (HTML, CSS, JS, used as is with no build tool)
-  index.html      Yard window · app.js entry point, render.js draws state, window.js window dragging, resizing and Always on top
-  overlay.html    Desktop pet window · overlay/ its scripts and styles
-  core/           Shared by both windows: state, sprites and animation, strings (i18n, strings), icons
-  yard/           The yard: the painted scenery, friends, games, treats, the garden and its gifts,
-                  fishing and bugs, closeness, seasonal events and the yard's sounds
-  content/        What the yard is made of, as data: catalogue, composition, events · art/ its drawings
-  panel/          Side panel: tabs, friends, chat, friend settings, AI connections, invite, settings
-  styles/         Styles by area (base, shell, scenery, yard, panel, dialog, loaded in this order)
-src-tauri/src/    App core (Rust)
-  main.rs         Startup wiring · app.rs state (app/ loading, sprites) · commands.rs the COMMANDS table
-  chat/           Chat, AI connections (subscription CLIs, HTTP), prompts
-  pets/           Pet files, import from an address or a ZIP, friends in the yard
-  agent/          Coding agents: the app's CLI mode (hooks, MCP) and the bridge
-  desktop/        Desktop overlay and strolling
-  i18n/           Backend strings tables
-  *.rs            window, tray, system, store (data files), update, links (playpets://)
-tests/            Page and script unit tests (*.test.mjs) and real-app E2E (e2e.mjs) · Rust tests live in each .rs file
-packaging/        Distribution builds: macos (dmg), linux and windows (Docker, MSIX)
-scripts/          Dev tools (release, distribution channels, site preparation, screenshots, installer art, OG images, mascot pets, measurement, icons)
-assets/           Source art: icon, mascot, starter companions, banner and demo GIF
-docs/             Developer docs (architecture, standards, how-to, decisions, design records)
-website/          The site (VitePress): landing page, user guide and release pages in English (the root), Korean (ko/), Japanese (ja/) and Simplified Chinese (zh-hans/); developer docs are copied in from docs/ to dev/
-```
-
-</details>
-
-### Platform notes
-- macOS: the overlay becomes an NSPanel so it shows over full-screen apps (`src-tauri/src/desktop/overlay.rs`).
-- Windows, MinGW build: needs `WebView2Loader.dll` next to the exe (the installer and the portable zip include it). An MSVC build links it statically.
-- Windows, mixed DPI: cursor coordinates use the scale of the monitor under the cursor.
-- Windows MSIX: `packaging/windows/msix/AppxManifest.xml`.
-  - A full-trust desktop app plus the execution alias `playpets.exe`.
-  - Installed as a package, agent settings point at the alias, not the exe path.
-  - Store build: set your Partner Center publisher ID in `MSIX_PUBLISHER`.
-  - Test install: `release/windows/msix-test/README.txt`.
-- The app identifier `app.playpets` is the data folder name; it never changes after release.
+- Needs Rust stable 1.99+, Node.js 26.12.1+ and the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
+- First setup and running the app: [Set up a development environment](docs/getting-started.md).
+- `pnpm install --frozen-lockfile`, then `pnpm test` and `pnpm run lint`; `pnpm run test:e2e` runs the real app.
+- Architecture, standards, every command and workflow, and the repository map: [developer docs](docs/README.md).
 
 ## Contributing
 - [CONTRIBUTING.md](CONTRIBUTING.md): the check order.
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): the code of conduct.
 - [SECURITY.md](SECURITY.md): how to report a vulnerability.
 - [CHANGELOG.md](CHANGELOG.md): what users see change in each release.
+- Found a bug or have an idea? [Open an issue](https://github.com/gaerae/playpets/issues). Questions people often ask are in the [FAQ](https://playpets.gaerae.com/guide/faq).
 
 ## License
 - MIT ([LICENSE](LICENSE)), including the pet mascot art in `assets/`.

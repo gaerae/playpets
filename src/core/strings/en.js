@@ -434,7 +434,7 @@ export const strings = {
   'catch.unknown_gift': 'Not received yet',
   'catch.rare': 'Rare',
   'catch.count': 'Caught {count}',
-  'catch.best': 'Biggest {size} cm',
+  'catch.best': 'Biggest {size}\u00a0cm',
   'catch.size': '{size} cm',
   'catch.new': 'New in the album!',
   'catch.all_year': 'All year',

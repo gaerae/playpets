@@ -1,7 +1,7 @@
 ---
 layout: page
 title: PlayPets
-titleTemplate: Codexのペットがそろうデスクトップマスコット
+titleTemplate: ペットの友だちが暮らすデスクトップマスコット
 ---
 
 <Landing />
