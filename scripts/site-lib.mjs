@@ -9,6 +9,22 @@ export function destinationFor(source) {
 }
 
 /**
+ * The files a sitemap address is written from, so its lastmod is their last commit. A language's
+ * front page is mostly its landing copy, a release index is made from its release pages, and developer
+ * pages are copies of docs/, which git never sees.
+ */
+export function sitemapSources(url) {
+  if (url === 'dev/' || url.startsWith('dev/')) {
+    const rest = url.slice(4);
+    return [`docs/${rest ? `${rest}.md` : 'README.md'}`];
+  }
+  const front = url.match(/^(?:(ko|ja|zh-hans)\/)?$/);
+  if (front) return [`website/${url}index.md`, `website/.vitepress/theme/landing-${front[1] ?? 'en'}.ts`];
+  if (/^(?:(?:ko|ja|zh-hans)\/)?releases\/$/.test(url)) return [`website/${url}`];
+  return [`website/${url.endsWith('/') ? `${url}index` : url}.md`];
+}
+
+/**
  * Rewrites the relative links of one docs file so they still resolve after the copy.
  * A link to another docs file follows that file's destination; a link that leaves docs/
  * (README, CONTRIBUTING, source files) points at GitHub.

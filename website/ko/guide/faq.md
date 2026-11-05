@@ -2,7 +2,7 @@
 
 ## PlayPets는 어떤 앱인가요?
 
-- PlayPets는 내 Codex 펫을 12명까지 함께 놀게 하는 무료 오픈소스 데스크톱 펫 앱이에요. macOS, Windows, Linux에서 써요.
+- PlayPets는 펫 친구들이 바탕화면에 사는 무료 오픈소스 데스크톱 펫 앱이에요. 기본 친구 넷이 함께 오고, 갖고 있는 Codex 펫도 데려올 수 있어요. 한 번에 12명까지 함께 지내요. macOS, Windows, Linux에서 써요.
 - 펫들은 한 놀이터에서 지내고, 바탕화면으로 나올 수도 있어요. ChatGPT 데스크톱 앱은 고른 펫 하나만 보여 줘요([OpenAI 안내](https://learn.chatgpt.com/docs/pets), 2026년 10월 기준).
 - 연결한 AI로 나와 이야기하고 친구끼리도 수다를 떨어요. Claude Code, Codex, Gemini CLI, Cursor가 일할 때 반응해요.
 
