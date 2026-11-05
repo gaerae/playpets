@@ -26,6 +26,7 @@
 | Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit`, `store-notes.mjs` | Redacted read-only credential check; the release's Store submission and its What's new from the website release pages, run by `store.yml`, or `store-retry.yml` for a fix after the tag (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
 | Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` includes the illustrated Clover face for the app and every platform’s tray; it needs macOS (`iconutil` makes the `.icns`) |
 | Native captures | `shots.mjs`, `shots-lib.mjs`, `shot-windows.swift` via `shots` | Localized captures and listing media; macOS capture host required |
+| Moving pictures | `shot-video.swift` via `SHOT_SCENE=reel` `shots`; `reel.mjs`, `reel-lib.mjs` via `reel` | The landing's film and its still in each site language, and the README's `assets/demo.gif`; needs macOS 15, ffmpeg and cwebp |
 | Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
 | Portable creation skill | `creator-skill.mjs` via `creator:skill`, source `assets/creator-skill/playpets-creator/`, `creator-workflow.py` launcher | Generated skill and plugin ZIPs and per-layout references under `website/public/creator-kit/skill/`; offline pet ZIP and background JSON from the supplied helper |
 | Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets and metadata, and each starter friend's `playpets-<id>.zip` |
@@ -121,7 +122,6 @@ Public captures:
 - Ordinary captures start in clear spring daylight; summer evening and night
   scenes and the winter comparison are explicit feature views.
 - The four companions stay visible beside the chat sheet.
-- Set `SKIP_GIF=1` to keep the existing GIF.
 
 To refresh only seasonal landing scenes in every language:
 
@@ -129,13 +129,13 @@ To refresh only seasonal landing scenes in every language:
 SHOT_SCENE=seasons SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
-To refresh seasonal scenes, all four places and small windows together (without the GIF):
+To refresh seasonal scenes, all four places and small windows together:
 
 ```bash
 SHOT_SCENE=places SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
-To refresh only `friend-chat` and `companions` in every language (without the GIF):
+To refresh only `friend-chat` and `companions` in every language:
 
 ```bash
 SHOT_SCENE=chat SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
@@ -156,11 +156,18 @@ SHOT_SCENE=desktop SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 - The desktop picture is the app's own overlay window laid on the backdrop page, never a region of the screen.
 - The screen-sharing indicator, notifications and the screen's corners stay out.
 
-To refresh only the README animation (`assets/demo.gif`) without taking any picture:
+To refresh the moving pictures (the landing's `reel.mp4` and `reel.webp`, and the README's `assets/demo.gif`), film a take in every language and cut it:
 
 ```bash
-SHOT_SCENE=demo SHOT_LANGS=en pnpm run shots
+SHOT_SCENE=reel SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
+pnpm run reel
 ```
+
+- The take is the app window alone, recorded by `shot-video.swift` (ScreenCaptureKit, macOS 15 or later) into `release/reel/<lang>/take.mov` with `marks.json`.
+- The first take asks for Screen Recording permission for the terminal.
+- There is no sound: the page plays it from a WebKit process the window capture does not carry.
+- `reel.mjs` needs ffmpeg and cwebp (`brew install ffmpeg webp`); the cuts are in `reel-lib.mjs`.
+- Check the frames before committing: a dig must have found something and the catch card must show.
 
 To refresh only the play pictures (`play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`) in every language:
 

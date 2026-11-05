@@ -160,8 +160,8 @@ test('capture preparation clears transient focus without changing selected contr
   assert.match(source, /parkPointer\(\)/);
   // Focus is cleared and the page given a moment to repaint before each picture is measured.
   assert.match(source, /clearFocus\(document\);\s*await wait\(\d+\)/);
-  // The README animation too: closing the chat returns focus to the friend it was opened from.
-  assert.match(source, /clearFocus\(document\);[^\n]*\n[^\n]*gif-start/);
+  // The film too: closing the chat returns focus to the friend it was opened from.
+  assert.match(source, /clearFocus\(document\);[^\n]*\n[^\n]*video-start/);
 });
 
 test('the play pictures start from a lived-in garden that state.json accepts', () => {
@@ -270,23 +270,25 @@ test('chat captures reject a missing or panel-covered fourth friend', () => {
   );
 });
 
-test('chat refresh fixes actual views and skips unrelated capture scenes and GIFs', () => {
+test('chat refresh fixes actual views and skips unrelated capture scenes', () => {
   const source = readFileSync('scripts/shots.mjs', 'utf8');
   assert.match(source, /const chatOnly = process.env.SHOT_SCENE === 'chat'/);
-  assert.match(source, /skipGif =\s+chatOnly \|\|/);
   assert.match(source, /release\(view\)/);
   assert.match(source, /view\.x=at\.x;view\.y=at\.y;place\(view\)/);
   assert.match(source, /assertChatCast\.toString\(\)/);
   assert.match(source, /if\(\$\{chatOnly\}\)\{await companionScene\(\);await L\('DONE'\);return;\}/);
 });
 
-test('the README animation ends with a coding agent finishing, and SHOT_SCENE=demo films only that', () => {
+test('SHOT_SCENE=reel films one take with a mark at each part the moving pictures are cut from', () => {
   const source = readFileSync('scripts/shots.mjs', 'utf8');
-  assert.match(source, /const demoOnly = process.env.SHOT_SCENE === 'demo'/);
-  assert.match(source, /const shot=async\(name,rect\)=>\{if\(\$\{demoOnly\}\)return;/);
-  const film = source.slice(source.indexOf("'gif-start '"), source.indexOf("L('gif-end')"));
-  assert.match(film, /L\('agent claude '\+p1\.id\+' Stop'\)/);
-  assert.match(source, /L\('gif-end'\);await wait\(600\);\s*if\(\$\{demoOnly\}\)\{await L\('DONE'\);return;\}/);
-  assert.match(source, /const \[, kind, petId, event = 'PreToolUse'\] = msg\.split\(' '\)/);
-  assert.match(source, /hook_event_name: event/);
+  assert.match(source, /const reelOnly = process.env.SHOT_SCENE === 'reel'/);
+  const film = source.slice(source.indexOf('const mark=m=>'), source.indexOf("L('video-end')"));
+  const marks = new Set([...film.matchAll(/(?:mark|card)\('(\w+)'\)/g)].map(m => m[1]));
+  // Every mark the edits use (reel-lib.mjs).
+  assert.deepEqual([...marks].sort(), ['bite', 'caught', 'chat', 'dig', 'end', 'fish', 'found', 'garden', 'show']);
+  // The window alone is recorded, and the take ends with its marks beside it.
+  assert.match(source, /path\.join\(captureTools, 'video'\)/);
+  assert.match(source, /'marks\.json'/);
+  // A coding agent reports in through the binary's own hook mode.
+  assert.match(source, /hook_event_name: 'PreToolUse'/);
 });

@@ -12,6 +12,7 @@ import * as ja from './landing-ja';
 import * as ko from './landing-ko';
 import * as zh from './landing-zh-hans';
 import PetGallery from './PetGallery.vue';
+import PlayReel from './PlayReel.vue';
 import VisibleSprite from './VisibleSprite.vue';
 import WorldPreview from './WorldPreview.vue';
 import './landing.css';
@@ -25,6 +26,7 @@ const t = computed(() => {
   return { ...copy, ...worldCopy, ...sections };
 });
 const shotUrl = (name: string) => withBase(`/shots/${generated.captureVersion}/${lang.value}/${name}.webp`);
+const filmUrl = computed(() => withBase(`/shots/${generated.captureVersion}/${lang.value}/reel.mp4`));
 const path = (page: string) => withBase(localePath(lang.value, page));
 const paused = ref(false);
 // The album's size, as the app counts it: every kind in its six books.
@@ -61,6 +63,7 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
     </section>
     <section class="play-story" id="play">
       <header><h2>{{ t.play.title }}</h2><p class="section-lead">{{ t.play.lead }}</p></header>
+      <PlayReel :src="filmUrl" :poster="shotUrl('reel')" :label="t.play.reel" :paused="paused" />
       <!-- Real captures (scripts/shots.mjs, the play pass); the first is the garden they build together. -->
       <ul class="play-shots">
         <li v-for="([name, title, body]) in t.play.shots" :key="name"><figure><a class="play-frame" :href="shotUrl(name)"><img :src="shotUrl(name)" :alt="title" loading="lazy" decoding="async" width="2472" height="1672" /></a><figcaption><b>{{ title }}</b> {{ counted(body) }}</figcaption></figure></li>

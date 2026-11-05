@@ -52,6 +52,7 @@ export const sections = {
   play: {
     title: 'What you can do in the yard',
     lead: 'All pictures are from the app. None of it needs an AI account; start from Play at the bottom of the yard.',
+    reel: 'Filmed in the app: a find from digging, a catch at the lake, a chat, and a show in the night sky.',
     shots: [
       [
         'play-garden',

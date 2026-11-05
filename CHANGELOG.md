@@ -13,6 +13,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Website and docs
 
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
+- The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.
 
 ## [1.5.0] - 2026-11-04
 
