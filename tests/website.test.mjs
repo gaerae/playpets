@@ -229,6 +229,15 @@ test('default captures have their own real version and every landing capture exi
   assert.match(landing, /\/shots\/\$\{generated\.captureVersion\}/);
   for (const [, name] of landing.matchAll(/shotUrl\('([\w-]+)'\)/g))
     for (const lang of SITE_LANGS) await access(`website/public/shots/${CAPTURE_VERSION}/${lang}/${name}.webp`);
+  // The film beside its still, in every language; it plays muted, inline, and only when the script starts it.
+  for (const lang of SITE_LANGS) await access(`website/public/shots/${CAPTURE_VERSION}/${lang}/reel.mp4`);
+  assert.match(landing, /<PlayReel [^>]*:poster="shotUrl\('reel'\)"/);
+  const reel = await readFile('website/.vitepress/theme/PlayReel.vue', 'utf8');
+  const video = reel.match(/<video[^>]*>/)[0];
+  for (const attribute of ['muted', 'loop', 'playsinline', 'preload="none"'])
+    assert.ok(video.includes(attribute), attribute);
+  assert.doesNotMatch(video, /autoplay/);
+  assert.match(reel, /prefers-reduced-motion: reduce/);
   const prepare = await readFile('scripts/site-prepare.mjs', 'utf8');
   assert.match(prepare, /captureVersion: CAPTURE_VERSION/);
   // The README's English screenshots move with the site's captures.
@@ -283,31 +292,6 @@ test('the share card exists at 1200×630', async () => {
   }
 });
 
-test('the GIF writer makes a GIF89a file with one palette and a frame per input', async () => {
-  const { encodeGif, lzw, palette } = await import('../scripts/gif-lib.mjs');
-  const w = 4;
-  const h = 2;
-  const red = new Uint8ClampedArray(w * h * 4).fill(255);
-  for (let i = 1; i < red.length; i += 4) red[i] = red[i + 1] = 0;
-  const blue = new Uint8ClampedArray(w * h * 4).fill(255);
-  for (let i = 0; i < blue.length; i += 4) blue[i] = blue[i + 1] = 0;
-  const gif = encodeGif([red, blue], w, h, 10);
-  const timed = encodeGif([red, blue], w, h, [18, 27]);
-  const delays = [];
-  for (let i = 0; i < timed.length - 7; i++)
-    if (timed[i] === 0x21 && timed[i + 1] === 0xf9 && timed[i + 2] === 4) delays.push(timed.readUInt16LE(i + 4));
-  assert.deepEqual(delays, [18, 27], 'capture timing survives encoding');
-  assert.equal(gif.subarray(0, 6).toString('ascii'), 'GIF89a');
-  assert.equal(gif.readUInt16LE(6), w);
-  assert.equal(gif.readUInt16LE(8), h);
-  assert.equal(gif[gif.length - 1], 0x3b);
-  assert.equal(gif.filter((b, i) => b === 0x2c && gif[i + 1] === 0 && gif[i + 2] === 0).length, 2);
-  const colors = palette([red, blue]);
-  assert.ok(colors.some(c => c[0] > 200 && c[2] < 50) && colors.some(c => c[2] > 200 && c[0] < 50));
-  const packed = lzw(Uint8Array.from([0, 0, 0, 1, 1, 1]), 2);
-  assert.equal(packed[packed.length - 1], 0);
-});
-
 // The site's address is package.json "homepage". Every other place that names it (README, the
 // security policy, the Linux metainfo, the bundle metadata, the docs) has to agree, so moving the
 // site to its own domain (docs/how-to/site-address.md) is caught here wherever it was missed.
@@ -342,6 +326,10 @@ test('every screenshot has the shape its page reserves for it', async () => {
     ]),
   );
   const fallback = shot.match(/\?\? '(\d+) \/ (\d+)'/).slice(1, 3);
+  // The landing's film (scripts/reel.mjs) is the window alone; its still is the shape its <video> reserves.
+  const reel = await readFile('website/.vitepress/theme/PlayReel.vue', 'utf8');
+  const [, reelWidth, reelHeight] = reel.match(/<video[^>]* width="(\d+)" height="(\d+)"/);
+  ratios.reel = reelWidth / reelHeight;
   const size = buffer => {
     const kind = buffer.toString('latin1', 12, 16);
     if (kind === 'VP8X') return [1 + buffer.readUIntLE(24, 3), 1 + buffer.readUIntLE(27, 3)];
@@ -354,6 +342,7 @@ test('every screenshot has the shape its page reserves for it', async () => {
   for (const version of await readdir('website/public/shots'))
     for (const lang of await readdir(`website/public/shots/${version}`))
       for (const file of await readdir(`website/public/shots/${version}/${lang}`)) {
+        if (file === 'reel.mp4') continue;
         const [width, height] = size(await readFile(`website/public/shots/${version}/${lang}/${file}`));
         const want = ratios[file.replace('.webp', '')] ?? fallback[0] / fallback[1];
         assert.ok(Math.abs(width / height - want) < 0.01, `${version}/${lang}/${file}: ${width}×${height}`);

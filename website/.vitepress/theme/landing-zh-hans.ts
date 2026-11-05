@@ -49,6 +49,7 @@ export const sections = {
   play: {
     title: '在乐园里能做的事',
     lead: '以下都是应用里的真实画面。都不需要 AI 账号，从乐园下方的“玩耍”开始。',
+    reel: '在应用里直接录下的视频：挖土挖到的小发现、湖边钓鱼、朋友们聊天，还有夜空中绽放的烟花。',
     shots: [
       [
         'play-garden',

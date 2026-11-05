@@ -53,29 +53,23 @@ pnpm run site:dev
    - The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `studio-day`, `studio-night`, `mini-chat`, `companions`, `play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`.
    - Without a version, it shows the capture for the current `package.json` version.
    - To add a new state, put it in the scenario in `scripts/shots.mjs` and capture again.
-   - Normal captures and GIF frames target only the isolated app process's window, matched by its PID and outer bounds.
+   - Normal captures and the film target only the isolated app process's window, matched by its PID and outer bounds.
    - A canvas adds the controlled backdrop behind transparent corners and the screenshot margin, so unrelated desktop windows cannot enter those pictures.
    - If the matching window is missing or ambiguous, capture stops.
    - The desktop picture captures only the app's overlay window and lays it on the same backdrop with a small terminal.
    - Nothing the system draws over the screen (the screen-sharing indicator, notifications, the screen's rounded corners) can appear in it.
    - `SHOT_SCENE=desktop` refreshes it alone.
-   - On the English pass, the script also records the yard for a few seconds to make `assets/demo.gif` (the moving picture in the README): a wave, a chat, Claude Code finishing the first friend's task and a parade.
-   - `SHOT_SCENE=demo SHOT_LANGS=en` records only that animation and takes no pictures.
    - A second pass starts the app again from a lived-in garden (`playGarden` in `scripts/shots-lib.mjs`: flowers in bloom, grown trees, gifts, an album of finds) and takes the five play pictures. `SHOT_SCENE=play` takes only those.
-   - Before each picture and the README animation, keyboard focus is cleared, so no focus ring shows.
+   - `SHOT_SCENE=reel` films one take of that garden per language instead: a dig that finds something, a catch at the lake, a chat and a show at night. The window alone is recorded with ScreenCaptureKit (`scripts/shot-video.swift`, macOS 15 or later), without sound, into `release/reel/<lang>/` with a mark at each part.
+   - `pnpm run reel` cuts the takes (ffmpeg and cwebp: `brew install ffmpeg webp`) into the landing's `reel.mp4` and its still `reel.webp` in each language, and the English take into `assets/demo.gif`, the README's moving picture.
+   - Before each picture and the film, keyboard focus is cleared, so no focus ring shows.
 
 ```bash
 pnpm run shots 0.2.0
 ```
 
-   - For a faster pass with screenshots only, skip recording and encoding the GIF. The existing demo animation stays as it is.
-
-```bash
-SKIP_GIF=1 pnpm run shots 0.2.0
-```
-
    - For only the four-companion picture, in all four site languages, use the shorter scene.
-   - It shows Daisy, Clover, Pip and Miso and leaves the GIF unchanged.
+   - It shows Daisy, Clover, Pip and Miso.
    - The capture option keeps its historical name, `adults`.
 
 ```bash
@@ -145,7 +139,7 @@ Scenes:
 SHOT_SCENE=seasons SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 ```
 
-- This shorter capture keeps the existing autumn, city and GIF exports.
+- This shorter capture keeps the existing autumn and city exports.
 - Before accepting each output, check framing, wardrobe, weather and legible UI.
 - Captures use isolated data and do not change the user's friends.
 - Before each image, the capture script clears transient focus and parks the pointer outside the app.

@@ -472,6 +472,25 @@ html[lang^="ja"] .landing {
 .play-story .section-lead {
   margin: 0;
 }
+/* The film (scripts/reel.mjs) is the window alone, so it takes the same frame as the captures. */
+.play-reel {
+  margin: 0 0 44px;
+}
+.play-reel video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1280 / 846;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px #17382b14;
+  background: var(--world-lilac);
+}
+.play-reel figcaption {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--vp-c-text-2);
+}
 .play-shots {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

@@ -20,7 +20,7 @@
 
 Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.gaerae.com/ko/) · [Japanese](https://playpets.gaerae.com/ja/) · [Simplified Chinese](https://playpets.gaerae.com/zh-hans/)
 
-<img src="assets/demo.gif" alt="Four friends wave and chat in the yard, one cheers as Claude Code finishes its task, then they walk in a parade">
+<img src="assets/demo.gif" alt="Four friends dig up a find and catch a fish in the yard, then watch a show light up the night sky">
 
 </div>
 

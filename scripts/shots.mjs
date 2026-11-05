@@ -6,12 +6,11 @@
 // Retina); every app language also gets the store pictures under release/store/<lang>/.
 // Normal shots isolate the app window and compose a controlled backdrop behind its alpha corners.
 // Desktop friends are their own overlay window, set on the same backdrop with a small terminal.
-// The English run also films the yard for a few seconds and writes assets/demo.gif.
 // A second pass starts the app again from a lived-in garden (playGarden) and pictures play: the
 // garden, tag, digging, fishing and the album.
 // SHOT_SCENE=seasons captures only spring, summer and winter; chat refreshes only the two chat pictures;
-// desktop refreshes only the desktop picture; play takes only the second pass; demo films only the
-// README animation (run it with SHOT_LANGS=en).
+// desktop refreshes only the desktop picture; play takes only the second pass; reel films the take the
+// moving pictures are cut from (scripts/reel.mjs).
 
 import { spawn, spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
@@ -23,7 +22,6 @@ import { chromium } from 'playwright-core';
 import { LANGUAGES } from '../src/core/strings.js';
 import { dataUrl, dataUrlBytes } from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
-import { encodeGif } from './gif-lib.mjs';
 import { pngSize } from './png-lossless-lib.mjs';
 import {
   assertChatCast,
@@ -57,18 +55,15 @@ const binary = process.env.PLAYPETS_BINARY || path.join(root, 'src-tauri/target/
 const WINDOW = { x: 80, y: 170, width: 1180, height: 780 };
 // Room around the window in every picture: the backdrop shows through with the window's shadow.
 const MARGIN = 28;
-// The README's demo animation, filmed in the README's language.
-const GIF = { lang: 'en', frames: 50, everyMs: 250, width: 720 };
 const chatOnly = process.env.SHOT_SCENE === 'chat';
 const smallOnly = process.env.SHOT_SCENE === 'small';
 const adultsOnly = process.env.SHOT_SCENE === 'adults';
 const placesOnly = process.env.SHOT_SCENE === 'places';
 const desktopOnly = process.env.SHOT_SCENE === 'desktop';
 const playOnly = process.env.SHOT_SCENE === 'play';
-const demoOnly = process.env.SHOT_SCENE === 'demo';
+// The moving pictures: a film of play from the lived-in garden (reelScenario), in each language.
+const reelOnly = process.env.SHOT_SCENE === 'reel';
 const seasonsOnly = process.env.SHOT_SCENE === 'seasons' || placesOnly;
-const skipGif =
-  chatOnly || smallOnly || adultsOnly || seasonsOnly || desktopOnly || playOnly || process.env.SKIP_GIF === '1';
 // Store listings (Microsoft Store, Product Hunt, GitHub's social card) want 16:9 pictures of at
 // least 1366×768: these scenes are also set on a 1920×1080 backdrop, centred with a shadow, as
 // PNGs under release/store/<lang>/ (not part of the site).
@@ -171,7 +166,7 @@ function scenario(lang) {
   const settledScene=async()=>{await wait(300);for(let i=0;i<50;i++){if($('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1)return;await wait(100);}throw new Error('Background did not finish loading and fading');};
   const clearFocus=${clearCaptureFocus.toString()};
   const checkChat=${assertChatCast.toString()};
-  const shot=async(name,rect)=>{if(${demoOnly})return;if(${desktopOnly}&&name!=='desktop')return;if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
+  const shot=async(name,rect)=>{if(${desktopOnly}&&name!=='desktop')return;if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
   try{
     if(document.documentElement.lang!=='${lang}'){localStorage.setItem('lang','${lang}');await L('RELANG');await playPets.quitApp();return;}
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
@@ -297,19 +292,6 @@ function scenario(lang) {
     await playPets.openChat(p1.id);await wait(900);await shot('mini-chat');
     $('close-panel').click();await wait(300);
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
-    // A few seconds of the yard for the demo animation: a wave together, a chat, Claude Code
-    // finishing the first friend's task, then a parade.
-    if(!${skipGif}&&'${lang}'===${JSON.stringify(GIF.lang)}){
-      clearFocus(document);await wait(350);const r=(await inv('e2eWindow',['main'])).data;
-      await L('gif-start '+JSON.stringify(r));
-      const {react}=await import('./yard/care.js');react({action:'wave'});await wait(1000);
-      playPets.chatWith([p1.id,p2.id,p3.id,p4.id],${JSON.stringify(s.talkTo)});await wait(3200);
-      await L('agent claude '+p1.id+' Stop');await wait(2400);
-      document.querySelector('[data-game=parade]').click();await wait(3000);
-      const on=document.querySelector('[data-game].playing');if(on)on.click();
-      await L('gif-end');await wait(600);
-      if(${demoOnly}){await L('DONE');return;}
-    }
     // Desktop mode: friends stand still, the window moves out of the way, the picture is taken around them.
     const state=(await playPets.bootstrap()).data;
     if(state.wander)await playPets.toggleDesktopWander();
@@ -376,6 +358,41 @@ function playScenario(lang) {
         view.x=cast[i].x;view.y=cast[i].y;place(view);
       }
     };
+    // The film: the garden, a dig, a catch at the lake, a chat, then the friends' show at night.
+    // Each part is marked, so the edit (reel.mjs) cuts it from one take.
+    if(${reelOnly}){
+      const mark=m=>L('video-mark '+m);
+      const bite=async()=>{if(!await until(()=>document.querySelector('.bobber.bite'),16000))throw new Error('No bite');await mark('bite');await wait(500);document.querySelector('.bobber').click();};
+      const card=async name=>{if(!await until(()=>!$('catch-card').hidden,10000))throw new Error('No catch card');await mark(name);await wait(2600);await until(()=>$('catch-card').hidden,12000);};
+      clearFocus(document);await wait(350);
+      await L('video-start '+JSON.stringify((await inv('e2eWindow',['main'])).data));await wait(2500);
+      await mark('garden');await wait(5000);
+      await hold();await wait(400);
+      const {autoDig}=await import('./yard/discovery.js');
+      // A dig can come up empty: the film keeps the first one that finds something for the album.
+      let found=false;
+      for(let tries=0;tries<10&&!found;tries++){
+        await mark('dig');if(!autoDig())throw new Error('No friend could dig');
+        if(!await until(()=>document.querySelector('.dig-effect')))throw new Error('The dig did not start');
+        await until(()=>!$('catch-card').hidden||!document.querySelector('.dig-effect'),12000);
+        found=await until(()=>!$('catch-card').hidden,2500);
+        if(!found){await hold();await wait(800);}
+      }
+      if(!found)throw new Error('No dig found anything');
+      await card('found');
+      await scene('lakeside','summer');await hold();await wait(600);
+      await mark('fish');$('fish-tool').click();
+      if(!await until(()=>document.querySelector('.bobber'),10000))throw new Error('Nobody cast a line');
+      await bite();await card('caught');
+      await mark('chat');playPets.chatWith(pets.map(p=>p.id),${JSON.stringify((script[lang] || script.en).talkTo)});await wait(6500);
+      for(const [id,value] of [['period','night'],['weather','clear']]){$(id).value=value;$(id).dispatchEvent(new Event('change'));}
+      await settledScene();await hold();await wait(1500);
+      await mark('show');
+      for(const code of ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'])document.dispatchEvent(new KeyboardEvent('keydown',{code}));
+      await wait(12500);
+      await mark('end');await L('video-end');await wait(2500);
+      await L('DONE');return;
+    }
     await hold();await wait(1800);await shot('play-garden');
     document.querySelector('[data-game=tag]').click();await wait(2600);await shot('play-tag');
     const playing=document.querySelector('[data-game].playing');if(playing)playing.click();await wait(600);
@@ -457,6 +474,12 @@ async function prepareCapture() {
     { encoding: 'utf8' },
   );
   if (compiled.status !== 0) throw new Error(`Cannot prepare window capture: ${compiled.stderr}`);
+  if (reelOnly) {
+    const video = spawnSync('swiftc', [path.join(here, 'shot-video.swift'), '-o', path.join(captureTools, 'video')], {
+      encoding: 'utf8',
+    });
+    if (video.status !== 0) throw new Error(`Cannot prepare window recording: ${video.stderr}`);
+  }
   captureEncoder = await launchBrowser();
   capturePage = await captureEncoder.newPage();
   await capturePage.addScriptTag({ content: `window.composeWindow=${composeWindow.toString()};` });
@@ -573,51 +596,6 @@ async function toWebp(dir) {
   await encoder.close();
 }
 
-// Scales the filmed frames to GIF.width in Chrome, reads their pixels back and writes the GIF.
-// The demo GIF's frames, filmed during the English run and encoded after it.
-let gifFrames = null;
-async function writeGif(files, out) {
-  if (files.length < 2) return;
-  const scaler = await launchBrowser();
-  const page = await scaler.newPage();
-  await page.addScriptTag({ content: `window.composeWindow=${composeWindow.toString()};` });
-  const frames = [];
-  let size = { width: 0, height: 0 };
-  for (const capture of files) {
-    const png = await readFile(capture.file);
-    const got = await page.evaluate(
-      async ([url, width]) => {
-        const img = new Image();
-        img.src = url;
-        await img.decode();
-        const height = Math.round((img.naturalHeight * width) / img.naturalWidth);
-        const c = document.createElement('canvas');
-        c.width = width;
-        c.height = height;
-        const ctx = c.getContext('2d');
-        ctx.imageSmoothingQuality = 'high';
-        const clean = document.createElement('canvas');
-        window.composeWindow(clean, img, img.naturalWidth);
-        ctx.drawImage(clean, 0, 0, width, height);
-        const data = ctx.getImageData(0, 0, width, height).data;
-        let bin = '';
-        for (let i = 0; i < data.length; i += 0x8000)
-          bin += String.fromCharCode.apply(null, data.subarray(i, i + 0x8000));
-        return { width, height, b64: btoa(bin) };
-      },
-      [dataUrl(png), GIF.width],
-    );
-    size = { width: got.width, height: got.height };
-    frames.push(new Uint8ClampedArray(Buffer.from(got.b64, 'base64')));
-  }
-  await scaler.close();
-  const delays = files.map((capture, index) =>
-    Math.max(2, Math.round(((files[index + 1]?.at ?? capture.end) - capture.at) / 10)),
-  );
-  await writeFile(out, encodeGif(frames, size.width, size.height, delays));
-  console.log(`  ${path.relative(root, out)} (${frames.length} frames, ${size.width}×${size.height})`);
-}
-
 async function captureAll(lang) {
   const dataDir = await mkdtemp(path.join(os.tmpdir(), 'playpets-shots-'));
   const onSite = SITE_LANGS.has(lang);
@@ -636,12 +614,9 @@ async function captureAll(lang) {
     }
     if (result !== 'DONE') throw new Error(`${lang} capture did not complete: ${result}`);
   };
-  if (!playOnly) await pass(dataDir, scenario(lang));
-  // The frames live in the data folder, so the GIF is written before it goes.
-  if (gifFrames) await writeGif(gifFrames, path.join(root, 'assets/demo.gif'));
-  gifFrames = null;
+  if (!playOnly && !reelOnly) await pass(dataDir, scenario(lang));
   // The play pictures on the site start from their own saved garden, in a fresh data folder.
-  if (onSite && (playOnly || !process.env.SHOT_SCENE)) {
+  if (onSite && (playOnly || reelOnly || !process.env.SHOT_SCENE)) {
     const playData = path.join(dataDir, 'play');
     await mkdir(playData, { recursive: true });
     await writeFile(path.join(playData, 'state.json'), JSON.stringify(playGarden(Date.now())));
@@ -716,7 +691,8 @@ async function run(lang, dataDir, codexHome, outDir, code) {
   // nothing else. Chrome wants the real size: a larger request falls back to a default window.
   await backdrop({ x: 0, y: 0, ...screenSize() });
   return new Promise(resolve => {
-    const gif = { timer: undefined, files: [], rect: undefined };
+    // The film's take: one recording of the window, and when each marked part began in it.
+    const film = { recorder: undefined, started: 0, marks: [], dir: path.join(root, 'release/reel', lang) };
     const child = spawn(binary, [], {
       env: {
         ...process.env,
@@ -748,36 +724,34 @@ async function run(lang, dataDir, codexHome, outDir, code) {
               await cp(file, path.join(storeDir, `${name}.png`));
             }
           } else if (msg.startsWith('agent ')) {
-            const [, kind, petId, event = 'PreToolUse'] = msg.split(' ');
+            const [, kind, petId] = msg.split(' ');
             spawnSync(binary, ['hook', kind, '--pet', petId, '--bridge', path.join(dataDir, 'bridge.json')], {
-              input: JSON.stringify({ hook_event_name: event, tool_name: 'Bash' }),
+              input: JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: 'Bash' }),
               encoding: 'utf8',
               timeout: 5000,
               env: { ...process.env, PLAYPETS_E2E_EVAL: '' },
             });
-          } else if (msg.startsWith('gif-start ')) {
-            gif.rect = JSON.parse(msg.slice(10));
-            gif.timer = setInterval(() => {
-              if (gif.files.length >= GIF.frames) return clearInterval(gif.timer);
-              const file = path.join(dataDir, `frame-${String(gif.files.length).padStart(3, '0')}.png`);
-              const at = performance.now();
-              try {
-                captureNativeWindow(child.pid, gif.rect, file);
-                gif.files.push({ file, at });
-              } catch (error) {
-                console.error('GIF capture stopped:', error.message);
-                outcome = 'FATAL';
-                clearInterval(gif.timer);
-                clearTimeout(timer);
-                finish();
-              }
-            }, GIF.everyMs);
-          } else if (msg === 'gif-end') {
-            // The frames are encoded once the scene is over: encoding blocks this process for
-            // a minute, and the desktop shot that follows must be taken while the scene holds.
-            clearInterval(gif.timer);
-            const end = performance.now();
-            gifFrames = gif.files.map(capture => ({ ...capture, end }));
+          } else if (msg.startsWith('video-start ')) {
+            await mkdir(film.dir, { recursive: true });
+            const window = captureWindow(appWindows(child.pid), child.pid, JSON.parse(msg.slice(12)));
+            film.recorder = spawn(path.join(captureTools, 'video'), [
+              String(window.id),
+              path.join(film.dir, 'take.mov'),
+            ]);
+            film.recorder.stderr.on('data', d => console.error('  [video]', d.toString().trim()));
+            await new Promise((resolve, reject) => {
+              film.recorder.stdout.once('data', () => resolve((film.started = performance.now())));
+              film.recorder.once('exit', code => reject(new Error(`Recording ended early (${code})`)));
+            });
+            console.log(`  ${lang} recording`);
+          } else if (msg.startsWith('video-mark ')) {
+            film.marks.push({ name: msg.slice(11), at: (performance.now() - film.started) / 1000 });
+          } else if (msg === 'video-end') {
+            const ended = new Promise(resolve => film.recorder.once('exit', resolve));
+            film.recorder.stdin.end();
+            await ended;
+            await writeFile(path.join(film.dir, 'marks.json'), `${JSON.stringify(film.marks, null, 2)}\n`);
+            console.log(`  ${path.relative(root, film.dir)}/take.mov (${film.marks.map(m => m.name).join(', ')})`);
           } else {
             console.log(' ', lang, msg);
             if (msg === 'DONE' || msg.startsWith('FATAL') || msg === 'RELANG') {
@@ -790,14 +764,13 @@ async function run(lang, dataDir, codexHome, outDir, code) {
       } catch (error) {
         console.error('Capture stopped:', error.message);
         outcome = 'FATAL';
-        clearInterval(gif.timer);
         clearTimeout(timer);
         finish();
       }
     });
     child.on('exit', () => {
       clearTimeout(timer);
-      clearInterval(gif.timer);
+      film.recorder?.stdin.end();
       resolve(outcome);
     });
   });

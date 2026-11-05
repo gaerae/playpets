@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Website and docs
+
+- The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.
+
 ## [1.5.0] - 2026-11-04
 
 ### Added
