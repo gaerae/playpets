@@ -2,7 +2,7 @@
 // link working and the release pages match the changelog.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { destinationFor, rewriteDocLinks } from '../scripts/site-lib.mjs';
+import { destinationFor, rewriteDocLinks, sitemapSources } from '../scripts/site-lib.mjs';
 import { LANGUAGES } from '../src/core/strings.js';
 
 const repo = 'https://github.com/gaerae/playpets/blob/main';
@@ -155,6 +155,24 @@ test('companion choices remain exposed to assistive technology', async () => {
 test('a docs file lands under dev/ and the index keeps its folder', () => {
   assert.equal(destinationFor('docs/README.md'), 'website/dev/index.md');
   assert.equal(destinationFor('docs/how-to/release.md'), 'website/dev/how-to/release.md');
+});
+
+test('the sitemap dates each page by the files it is written from', () => {
+  assert.deepEqual(sitemapSources(''), ['website/index.md', 'website/.vitepress/theme/landing-en.ts']);
+  assert.deepEqual(sitemapSources('ko/'), ['website/ko/index.md', 'website/.vitepress/theme/landing-ko.ts']);
+  // The release index lists every release page, so it changes with any of them.
+  assert.deepEqual(sitemapSources('releases/'), ['website/releases/']);
+  assert.deepEqual(sitemapSources('ko/releases/1.5.0'), ['website/ko/releases/1.5.0.md']);
+  assert.deepEqual(sitemapSources('ja/guide/faq'), ['website/ja/guide/faq.md']);
+  assert.deepEqual(sitemapSources('dev/'), ['docs/README.md']);
+  assert.deepEqual(sitemapSources('dev/how-to/release'), ['docs/how-to/release.md']);
+});
+
+test('the site build has the history the sitemap dates come from', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const workflow = await readFile(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
+  // A shallow clone gives every page the date of the one commit it has.
+  assert.match(workflow, /^ {6}- uses: actions\/checkout@.*\n(?: {8,}.*\n)*? {10}fetch-depth: 0$/m);
 });
 
 test('links between docs files survive the copy, and README becomes the index', () => {

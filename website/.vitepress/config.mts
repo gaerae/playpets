@@ -1,7 +1,9 @@
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'vitepress';
 import { websiteNotices } from '../../scripts/licenses-lib.mjs';
+import { sitemapSources } from '../../scripts/site-lib.mjs';
 import { alternateLinks, appStructuredData, faqStructuredData, leadDescription, releaseTitle } from './locale-head.mjs';
 import { devSidebar } from './sidebar-dev.mts';
 
@@ -39,7 +41,20 @@ export default defineConfig({
   base,
   cleanUrls: true,
   lastUpdated: false,
-  sitemap: { hostname: site },
+  // Each address carries the date its page last changed, so search engines come back for what changed.
+  // The dates are the last commit of its source files (scripts/site-lib.mjs): turning on lastUpdated
+  // would also print a date on every page.
+  sitemap: {
+    hostname: site,
+    transformItems: items =>
+      items.map(item => {
+        const date = execFileSync('git', ['log', '-1', '--format=%cI', '--', ...sitemapSources(item.url)], {
+          cwd: new URL('../..', import.meta.url),
+          encoding: 'utf8',
+        }).trim();
+        return date ? { ...item, lastmod: date } : item;
+      }),
+  },
   head: [
     ['link', { rel: 'shortcut icon', type: 'image/x-icon', href: `${base}favicon.ico?v=${iconRevision}` }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${base}favicon.png?v=${iconRevision}` }],
