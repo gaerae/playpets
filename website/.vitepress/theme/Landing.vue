@@ -7,6 +7,7 @@ import AgentDemo from './AgentDemo.vue';
 import { AGENT_DEMOS } from './agent-demo.mjs';
 import ChatDemo from './ChatDemo.vue';
 import Downloads from './Downloads.vue';
+import HeroDesk from './HeroDesk.vue';
 import * as en from './landing-en';
 import * as ja from './landing-ja';
 import * as ko from './landing-ko';
@@ -46,7 +47,7 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
       <ul class="hero-facts"><li v-for="fact in t.heroFacts" :key="fact">{{ fact }}</li></ul>
       <a class="hero-agents" :href="path('/guide/agents')"><span>{{ t.heroAgents }} →</span><b v-for="tool in AGENT_TOOLS" :key="tool">{{ tool }}</b></a>
       </div>
-      <WorldPreview :words="t" :paused="paused" @pause="paused = !paused" />
+      <HeroDesk :words="t" :paused="paused" />
     </section>
     <section class="codex-plus">
       <header><h2><span>{{ t.codexPlusTitle[0] }}</span> <span>{{ t.codexPlusTitle[1] }}</span></h2><p class="section-lead">{{ t.codexPlusLead }}</p></header>
@@ -63,6 +64,7 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
     </section>
     <section class="play-story" id="play">
       <header><h2>{{ t.play.title }}</h2><p class="section-lead">{{ t.play.lead }}</p></header>
+      <WorldPreview :words="t" :paused="paused" @pause="paused = !paused" />
       <PlayReel :src="filmUrl" :poster="shotUrl('reel')" :label="t.play.reel" :paused="paused" />
       <!-- Real captures (scripts/shots.mjs, the play pass); the first is the garden they build together. -->
       <ul class="play-shots">
