@@ -476,6 +476,7 @@ test('the Store gets one bundle with public symbols, and the x64 package passes 
   // The ARM64 runner image has no WACK, and an x64 runner cannot install an ARM64 package.
   assert.match(pack, /name: Windows App Certification Kit\n\s+if: matrix\.architecture == 'x64'/);
   assert.match(pack, /if: always\(\) && matrix\.architecture == 'x64'[\s\S]*name: wack-x64/);
+  assert.match(pack, /if: matrix\.architecture != 'x64'\n[\s\S]*?GITHUB_STEP_SUMMARY 'WACK skipped/);
   const bundle = job('bundle');
   assert.match(bundle, /runs-on: windows-latest/);
   assert.match(bundle, /bundle\.ps1/);

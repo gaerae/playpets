@@ -118,6 +118,10 @@ jobs:
           MSIX_PUBLISHER: CN=85817E6E-C9F8-44E1-B251-9010546EC6B8
           VERSION: ${{ needs.source.outputs.version }}
         run: ./packaging/windows/msix/wack.ps1 -Package "release/store/PlayPets_${env:VERSION}_${{ matrix.architecture }}.msix" -Report "release/wack/wack-${{ matrix.architecture }}.xml"
+      - name: No WACK on this runner
+        if: matrix.architecture != 'x64'
+        shell: pwsh
+        run: Add-Content $env:GITHUB_STEP_SUMMARY 'WACK skipped for ${{ matrix.architecture }}: the runner image has no App Certification Kit, and an x64 runner cannot install this package. The x64 package, the same apart from its binary, is certified; Partner Center certifies both.'
       - name: WACK report
         if: always() && matrix.architecture == 'x64'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

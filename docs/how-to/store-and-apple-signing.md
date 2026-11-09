@@ -104,7 +104,7 @@ After both architecture jobs pass, these checks stay manual:
   - CI checks package activation and update rules.
   - It cannot judge these interactions visually or cover every device setup.
 - The `store` workflow runs the Windows App Certification Kit (WACK) on the x64 package and fails on `OVERALL_RESULT="FAIL"`; the report is the `wack-x64` artifact.
-  - The `windows-11-arm` runner image has no WACK, and an x64 runner cannot install an ARM64 package. The two packages differ only in the binary's architecture.
+  - The `windows-11-arm` runner image has no WACK, and an x64 runner cannot install an ARM64 package; the ARM64 job says so in its summary. The two packages differ only in the binary's architecture, and Partner Center certifies both.
   - The optional "Blocked executables" test always flags `CreateProcessW` and `cmd.exe`: PlayPets starts the coding CLIs and npm's shims on purpose. It doesn't change the overall result.
   - WACK installs what it tests, so it runs on a copy signed with a certificate made on the runner for the Store publisher's name. The unsigned package goes on.
   - Passing WACK is not passing certification: Partner Center runs its own checks.
