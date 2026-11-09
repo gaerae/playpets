@@ -219,10 +219,10 @@
                 <div class="composer-bar">
                   <label class="sr-only" for="provider-select" data-i18n="chat.provider_label"></label>
                   <select id="provider-select" class="composer-select" data-i18n-title="chat.provider_label"><option value="" data-i18n="chat.no_ai"></option></select>
-                  <details id="companions" class="companions" hidden>
-                    <summary><span data-icon="plus"></span><span id="companion-summary" data-i18n="chat.pick_companions"></span></summary>
-                    <div id="companion-chips" class="companion-chips"></div>
-                  </details>
+                  <div id="companions" class="companions" hidden>
+                    <button id="companion-toggle" class="companion-toggle" type="button" aria-expanded="false" aria-controls="companion-chips"><span data-icon="plus"></span><span id="companion-summary" data-i18n="chat.pick_companions"></span></button>
+                    <div id="companion-chips" class="companion-chips" hidden></div>
+                  </div>
                   <span class="composer-gap"></span>
                   <button id="send" class="send-button" data-i18n-aria-label="chat.send" data-i18n-title="chat.send_title"><span data-icon="enter"></span></button><button id="cancel" class="cancel-button" type="button" data-i18n-aria-label="chat.stop" data-i18n-title="chat.stop" hidden><span data-icon="stop"></span></button>
                 </div>

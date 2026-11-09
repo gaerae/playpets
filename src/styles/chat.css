@@ -216,11 +216,10 @@
 .companions[hidden] {
   display: none;
 }
-.companions summary {
+.companion-toggle {
   display: flex;
   align-items: center;
   gap: 4px;
-  list-style: none;
   padding: 4px 8px;
   border-radius: var(--radius-control);
   font-size: 12px;
@@ -232,15 +231,12 @@
   text-overflow: ellipsis;
   max-width: 150px;
 }
-.companions summary::-webkit-details-marker {
-  display: none;
-}
-.companions summary:hover,
-.companions[open] summary {
+.companion-toggle:hover,
+.companion-toggle[aria-expanded="true"] {
   background: var(--paper);
   color: var(--ink);
 }
-.companions summary svg {
+.companion-toggle svg {
   width: 12px;
   height: 12px;
   flex: none;

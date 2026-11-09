@@ -4,7 +4,8 @@ import { logEntries } from '../core/chatlog.js';
 import { confirmAction } from '../core/confirm.js';
 import { joinList, t } from '../core/i18n.js';
 import { composing } from '../core/keys.js';
-import { canvas, drawStill, spriteSource } from '../core/sprites.js';
+import { dropdown } from '../core/menu.js';
+import { canvas, drawStill, photoOver, spriteSource } from '../core/sprites.js';
 import {
   $,
   asset,
@@ -194,13 +195,8 @@ function paintAvatar(frame, art) {
   if (art?.portraitUrl) {
     const image = document.createElement('img');
     image.alt = '';
-    image.hidden = true;
-    image.onload = () => {
-      image.hidden = false;
-      c.hidden = true;
-    };
-    image.src = art.portraitUrl;
     frame.append(image);
+    photoOver(image, c, art.portraitUrl);
   }
 }
 function refreshAvatars(log) {
@@ -343,18 +339,8 @@ function syncSend() {
 }
 // Wires the conversation: the AI choice, the composer and the chat buttons. Called once, by app.js.
 export function setupChat() {
-  // Who joins in opens above the composer and closes again on a click elsewhere or Esc.
-  const together = $('companions');
-  document.addEventListener('pointerdown', e => {
-    if (together.open && !together.contains(e.target)) together.open = false;
-  });
-  together.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && together.open) {
-      e.stopPropagation();
-      together.open = false;
-      together.querySelector('summary').focus();
-    }
-  });
+  // Who joins in opens above the composer.
+  dropdown($('companion-toggle'), $('companion-chips'));
   $('configure').onclick = () =>
     openConnectionDialog(data.providers.find(c => c.id === pet()?.providerId) || null, refreshChat);
   $('provider-select').onchange = guard(async () => {

@@ -1,8 +1,9 @@
 // The yard follows the clock and a chosen weather; both must map to stable classes and captions.
 
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { seasonFor, southern } from '../src/core/season.js';
+import { seasonFor, southern, systemSouth } from '../src/core/season.js';
 import { STRINGS } from '../src/core/strings.js';
 import {
   autoWeather,
@@ -152,6 +153,22 @@ test('the season follows the month, the other way round south of the equator', (
   assert.equal(seasonFor(at(0), true), 'summer');
   assert.ok(southern('Australia/Sydney') && southern('America/Argentina/Buenos_Aires') && southern('Pacific/Auckland'));
   assert.ok(!southern('Asia/Seoul') && !southern('Europe/Berlin') && !southern('America/New_York') && !southern(''));
+});
+
+test("the hemisphere comes from the system's time zone when asked, never as a module loads", async t => {
+  for (const [zone, south] of [
+    ['Australia/Sydney', true],
+    ['Asia/Seoul', false],
+  ]) {
+    t.mock.method(Intl, 'DateTimeFormat', () => ({ resolvedOptions: () => ({ timeZone: zone }) }));
+    assert.equal(systemSouth(), south, zone);
+    t.mock.restoreAll();
+  }
+  for (const file of ['src/yard/sky.js', 'src/panel/album.js', 'src/overlay/overlay.js']) {
+    const source = await readFile(file, 'utf8');
+    assert.ok(!source.includes('resolvedOptions'), `${file} asks systemSouth()`);
+  }
+  assert.doesNotMatch(await readFile('src/yard/sky.js', 'utf8'), /^const south = /m, 'sky.js reads it in setupSky');
 });
 
 test('each season keeps its tree and field colors under every precipitation', () => {

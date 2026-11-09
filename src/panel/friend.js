@@ -4,7 +4,7 @@
 import { agentsOf } from '../core/agents.js';
 import { joinList, t } from '../core/i18n.js';
 import { popup } from '../core/menu.js';
-import { drawSprite } from '../core/sprites.js';
+import { drawSprite, photoOver } from '../core/sprites.js';
 import {
   $,
   asset,
@@ -85,22 +85,7 @@ export function drawPortrait(now) {
     photo = $('portrait-photo'),
     sprite = $('portrait');
   const url = art?.portraitUrl || '';
-  if (photo.dataset.source !== url) {
-    photo.dataset.source = url;
-    photo.hidden = true;
-    sprite.hidden = false;
-    photo.onload = () => {
-      if (photo.dataset.source !== url) return;
-      photo.hidden = false;
-      sprite.hidden = true;
-    };
-    photo.onerror = () => {
-      photo.hidden = true;
-      sprite.hidden = false;
-    };
-    if (url) photo.src = url;
-    else photo.removeAttribute('src');
-  }
+  if (photo.dataset.source !== url) photoOver(photo, sprite, url);
   if (!sprite.hidden) drawSprite(sprite, art, stateOf(data, p.id), now);
 }
 // Wires the list that switches who you are talking to. Called once, by app.js.

@@ -169,6 +169,29 @@ export function canvas() {
   c.setAttribute('aria-hidden', 'true');
   return c;
 }
+/**
+ * A friend's photo (a realistic portrait) over its sprite: the sprite holds the place until the photo
+ * has loaded, and comes back if the photo cannot be read or there is none. A photo asked for earlier
+ * that loads late does not cover the one asked for now.
+ */
+export function photoOver(photo, sprite, url) {
+  photo.dataset.source = url || '';
+  photo.hidden = true;
+  sprite.hidden = false;
+  const current = () => photo.dataset.source === (url || '');
+  photo.onload = () => {
+    if (!current()) return;
+    photo.hidden = false;
+    sprite.hidden = true;
+  };
+  photo.onerror = () => {
+    if (!current()) return;
+    photo.hidden = true;
+    sprite.hidden = false;
+  };
+  if (url) photo.src = url;
+  else photo.removeAttribute('src');
+}
 const stillRequests = new WeakMap();
 /** Draws a friend's resting cell once (a chat avatar), as soon as its sheet is in. */
 export function drawStill(canvas, asset) {

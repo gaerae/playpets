@@ -10,7 +10,7 @@ import { follow, language, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { pick } from '../core/math.js';
 import { displayName } from '../core/names.js';
-import { setupSeason, southern } from '../core/season.js';
+import { setupSeason, systemSouth } from '../core/season.js';
 import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/sprites.js';
 import { sceneValue } from '../core/state.js';
 import { applyStatus, stateOf } from '../core/status.js';
@@ -40,7 +40,7 @@ const FOOT = 28;
 let data = { pets: [], assets: [], statuses: {} },
   layout = [];
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
-const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
+const south = systemSouth();
 const seasonChanged = setupSeason({
   // As the yard reads it (yard/sky.js): a season the app could not save is still in the webview.
   read: () => sceneValue('season', data),

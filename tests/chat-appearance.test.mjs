@@ -10,7 +10,8 @@ globalThis.Image = class {
 };
 const { setData, setSelected } = await import('../src/core/state.js');
 const { refreshChat } = await import('../src/panel/chat.js');
-const { setSpriteSeason } = await import('../src/core/sprites.js');
+const { photoOver, setSpriteSeason } = await import('../src/core/sprites.js');
+const { element } = await import('./support/dom.mjs');
 
 test('appearance refresh updates existing chat avatars without replacing history, scrolling, or drafts', async t => {
   const { nodes } = installDom(t, {
@@ -88,4 +89,24 @@ test('a full chat log drops its oldest message from the top without redrawing or
   assert.equal(second.removed, undefined, 'the rest stays in place');
   assert.equal(log.children.filter(n => !n.removed).length, 3);
   assert.equal(log.scrollTop, 20, 'a person reading higher up stays there');
+});
+
+test('a photo shows over the sprite once loaded, and the sprite comes back when it cannot be read', () => {
+  const photo = element('img'),
+    sprite = element('canvas');
+  photo.removeAttribute = name => delete photo[name];
+  photoOver(photo, sprite, 'first');
+  assert.deepEqual([photo.hidden, sprite.hidden, photo.src], [true, false, 'first'], 'the sprite holds the place');
+  const firstLoaded = photo.onload;
+  photoOver(photo, sprite, 'second');
+  firstLoaded();
+  assert.equal(photo.hidden, true, 'a picture asked for before does not cover the one asked for now');
+  photo.onload();
+  assert.deepEqual([photo.hidden, sprite.hidden], [false, true]);
+  photoOver(photo, sprite, 'broken');
+  photo.onerror();
+  assert.deepEqual([photo.hidden, sprite.hidden], [true, false], 'an unreadable photo leaves the sprite');
+  photoOver(photo, sprite, '');
+  assert.equal(photo.src, undefined, 'no photo, no request');
+  assert.equal(sprite.hidden, false);
 });
