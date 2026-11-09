@@ -18,7 +18,7 @@
    - A row gives the command name (the page's method), who may call it, and what it does.
    - Who may call it: `main` (the yard window), `overlay` (the desktop windows need it too) or `test_only` (the e2e scenario).
    - The table drives the bridge script, the check of which window may call what, and the dispatch.
-   - Read arguments with `c.text(i)`, `c.arg(i)` and `c.float(i)`.
+   - Read arguments with `c.text(i)`, `c.arg(i)` and `c.float(i)`; `c.parse::<T>(i)` reads a structured one and answers a bad request when it does not fit.
 
 ```rust
 static COMMANDS: &[Command] = &[
@@ -27,7 +27,7 @@ static COMMANDS: &[Command] = &[
 ];
 ```
 
-2. Write the handler in the same file, or in the module that owns the area.
+2. Write the handler in the `commands/` file for its area (`friends.rs`, `imports.rs`, `agents.rs`, `prefs.rs`), or in the module that owns the area.
    - A handler that changes the state goes through `commit`: it takes the lock, runs your change, then saves and notifies every window once.
    - If the save fails, the change still stands and every window shows it; `commit` then returns the error.
 

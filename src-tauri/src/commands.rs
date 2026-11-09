@@ -15,6 +15,15 @@ use tauri::{AppHandle, Manager, State};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_dialog::DialogExt;
 
+mod agents;
+mod friends;
+mod imports;
+mod prefs;
+use agents::*;
+use friends::*;
+use imports::*;
+use prefs::*;
+
 /// Injected into every window before its page runs: `window.playPets`, one method per command
 /// (each resolves to {ok, data} or {ok: false, error}), and `__pp`, which the backend calls
 /// to hand state changes and events to the page.
@@ -49,6 +58,10 @@ impl Ctx<'_> {
     }
     fn float(&self, i: usize) -> f64 {
         float(self.args, i)
+    }
+    /// An argument read as `T`; one the page could not have sent is a bad request.
+    fn parse<T: serde::de::DeserializeOwned>(&self, i: usize) -> Result<T, String> {
+        serde_json::from_value(self.arg(i).clone()).map_err(|_| i18n::t("error.bad_request"))
     }
     /// An overlay window may only act on the friends drawn on its own monitor.
     fn may_touch(&self, id: &str) -> bool {
@@ -186,10 +199,8 @@ static COMMANDS: &[Command] = &[
     main("setLanguage", |c| set_language(c.app, &c.state, c.text(0))),
     // The garden, gifts, the album and closeness.
     main("dig", |c| {
-        let ground: discovery::GroundProfile =
-            serde_json::from_value(c.arg(4).clone()).map_err(|_| i18n::t("error.bad_request"))?;
-        let context: Option<crate::pets::content::DiscoveryContext> =
-            serde_json::from_value(c.arg(5).clone()).map_err(|_| i18n::t("error.bad_request"))?;
+        let ground: discovery::GroundProfile = c.parse(4)?;
+        let context: Option<crate::pets::content::DiscoveryContext> = c.parse(5)?;
         if context.as_ref().is_some_and(|context| !context.valid()) {
             return Err(i18n::t("error.bad_request"));
         }
@@ -218,8 +229,7 @@ static COMMANDS: &[Command] = &[
         })
     }),
     main("plantTree", |c| {
-        let ground: discovery::GroundProfile =
-            serde_json::from_value(c.arg(5).clone()).map_err(|_| i18n::t("error.bad_request"))?;
+        let ground: discovery::GroundProfile = c.parse(5)?;
         let now = now_ms();
         commit(c.app, &c.state, |d| {
             require_pet(d, c.text(0))?;
@@ -236,8 +246,7 @@ static COMMANDS: &[Command] = &[
         })
     }),
     main("moveTree", |c| {
-        let ground: discovery::GroundProfile =
-            serde_json::from_value(c.arg(3).clone()).map_err(|_| i18n::t("error.bad_request"))?;
+        let ground: discovery::GroundProfile = c.parse(3)?;
         commit(c.app, &c.state, |d| {
             discovery::move_tree(&mut d.garden, c.text(0), c.float(1), c.float(2), &ground)?;
             Ok(Value::Null)
@@ -505,76 +514,6 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
     }
 }
 
-// Commands with more to them than a line.
-/// (x, y, day, event, friend): the friend brings an everyday gift, on a day the two did something
-/// together (bond.rs counts it).
-fn receive_gift(c: &Ctx) -> Result<Value, String> {
-    let (x, y) = (c.float(0), c.float(1));
-    let (day, from) = (c.text(2), c.text(4));
-    let now = now_ms();
-    // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
-    if !crate::pets::has_come(day, now) {
-        return Err(i18n::t("error.bad_request"));
-    }
-    commit(c.app, &c.state, |d| {
-        // A clock set ahead and put right while the app ran left a day still to come.
-        let latest = crate::pets::latest_day(now_ms());
-        crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &latest);
-        require_pet(d, from)?;
-        if !d.bonds.together_on(from, day) {
-            return Err(i18n::t("error.bad_request"));
-        }
-        d.garden.gift(x, y, day, now, c.arg(3).as_str(), from).map(|g| json!(g))
-    })
-}
-/// (friend, level, x, y, local day): a friend that grew closer brings a gift for the level it
-/// reached, on a day the person did something with it, as an everyday gift comes.
-fn thanks_gift(c: &Ctx) -> Result<Value, String> {
-    let (from, x, y, day) = (c.text(0), c.float(2), c.float(3), c.text(4));
-    let level = c.arg(1).as_u64().unwrap_or(0) as u32;
-    let now = now_ms();
-    if !crate::pets::has_come(day, now) {
-        return Err(i18n::t("error.bad_request"));
-    }
-    commit(c.app, &c.state, |d| {
-        require_pet(d, from)?;
-        if d.bonds.level_of(from) < level || !d.bonds.together_on(from, day) {
-            return Err(i18n::t("error.bad_request"));
-        }
-        d.garden.thanks(from, level, x, y, now).map(|g| json!(g))
-    })
-}
-/// Something done together with a friend: its bond grows (bond.rs keeps what it is worth).
-fn befriend(c: &Ctx) -> Result<Value, String> {
-    let now = now_ms();
-    let (pet, reason, day) = (c.text(0), c.text(1), c.text(2));
-    // Every reason counts toward a day that has come; time together also waits its turn by the clock.
-    if !crate::pets::has_come(day, now) {
-        return Err(i18n::t("error.bad_request"));
-    }
-    let mut d = lock(&c.state);
-    require_pet(&d, pet)?;
-    let before = d.bonds.get(pet).cloned();
-    let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
-    // A pat past the day's cap changes nothing: no save, no redraw of every page.
-    if d.bonds.get(pet) != before.as_ref() {
-        crate::app::save_and_show(c.app, &d)?;
-    }
-    Ok(json!({"points": points, "level": level, "up": up}))
-}
-/// A plant the page sees in flower: counted in the album the first time.
-fn bloomed(c: &Ctx) -> Result<Value, String> {
-    let now = now_ms();
-    let mut d = lock(&c.state);
-    // Asked again for a plant already counted: nothing changes, nothing is saved.
-    let Some(kind) = d.garden.bloom(c.text(0), now)? else {
-        return Ok(Value::Null);
-    };
-    let entry = d.album.flowered(&kind, now);
-    crate::app::save_and_show(c.app, &d)?;
-    Ok(json!({"kind": kind, "entry": entry}))
-}
-
 /// An overlay window may only act on the friends drawn on its own monitor.
 fn overlay_owns(app: &AppHandle, label: &str, pet_id: &str) -> bool {
     let Some(display) = label.strip_prefix("overlay") else {
@@ -586,413 +525,6 @@ fn overlay_owns(app: &AppHandle, label: &str, pet_id: &str) -> bool {
     o.0.layout()
         .iter()
         .any(|item| item["id"].as_str() == Some(pet_id) && item["displayId"].as_str() == Some(display))
-}
-
-/// The realistic look is a choice only for a pet file that has one (catalog::realistic_appearance).
-fn has_realistic_art(asset: &catalog::Asset) -> bool {
-    asset.realistic_sprite_paths.contains_key("default")
-}
-
-fn add_pet(app: &AppHandle, state: &State<Shared>, asset_id: &str, options: &Value) -> Result<Value, String> {
-    commit(app, state, |d| {
-        let Some(asset) = d.assets.iter().find(|a| a.id == asset_id) else {
-            return Err(i18n::t("error.pet_missing"));
-        };
-        let mut pet = model::create_pet_with_options(asset_id, &d.pets, options)?;
-        if pet.visual_style == model::VisualStyle::Realistic && !has_realistic_art(asset) {
-            return Err(i18n::t("error.bad_settings"));
-        }
-        // A new friend starts out as its pet file describes it; people edit from there.
-        pet.persona = asset.intro.chars().take(crate::pets::model::PERSONA_MAX).collect();
-        let out = serde_json::to_value(&pet).unwrap();
-        d.pets.push(pet);
-        Ok(out)
-    })
-}
-
-fn update_pet(
-    app: &AppHandle,
-    state: &State<Shared>,
-    cli: &chat::cli::CliManager,
-    id: &str,
-    patch: &Value,
-) -> Result<Value, String> {
-    let mut d = lock(state);
-    require_pet(&d, id)?;
-    let provider_of = |d: &AppData| d.pets.iter().find(|p| p.id == id).map(|p| p.provider_id.clone());
-    if let Some(wanted) = patch.get("providerId") {
-        let wanted = wanted.as_str().unwrap_or("");
-        if !wanted.is_empty() && providers::find(&d, wanted).is_none() {
-            return Err(i18n::t("provider.missing"));
-        }
-        if d.talks.busy(id) {
-            return Err(i18n::t("provider.busy"));
-        }
-    }
-    // Turning a friend realistic needs that art; one already realistic keeps saving its other
-    // settings even if its pet file lost the art since.
-    if patch.get("visualStyle").and_then(model::VisualStyle::from_value) == Some(model::VisualStyle::Realistic) {
-        let pet = d.pets.iter().find(|p| p.id == id);
-        let allowed = pet.is_some_and(|p| {
-            p.visual_style == model::VisualStyle::Realistic
-                || d.assets.iter().any(|a| a.id == p.asset_id && has_realistic_art(a))
-        });
-        if !allowed {
-            return Err(i18n::t("error.bad_settings"));
-        }
-    }
-    let before = provider_of(&d);
-    model::update_pet(&mut d.pets, id, patch)?;
-    // A conversation belongs to the AI it was held with.
-    if provider_of(&d) != before {
-        chat::reset(&mut d, cli, id);
-    }
-    // A friend that walked somewhere is saved with the next few; anything else at once.
-    let only_moved = patch
-        .as_object()
-        .is_some_and(|o| o.keys().all(|k| k == "x" || k == "y"));
-    if only_moved {
-        // A friend arrived somewhere: the page already drew it there, so it only hears where,
-        // rather than the whole state again (which every window would re-render).
-        crate::app::persist_soon(app);
-        if let Some(p) = d.pets.iter().find(|p| p.id == id) {
-            push_event(app, &json!({"type": "pet-moved", "petId": id, "x": p.x, "y": p.y}));
-        }
-    } else {
-        crate::app::save_and_show(app, &d)?;
-    }
-    Ok(Value::Null)
-}
-
-fn remove_pet(app: &AppHandle, state: &State<Shared>, cli: &chat::cli::CliManager, id: &str) -> Result<Value, String> {
-    commit(app, state, |d| {
-        require_pet(d, id)?;
-        chat::cancel(d, cli, id);
-        d.pets.retain(|p| p.id != id);
-        chat::reset(d, cli, id);
-        d.statuses.remove(id);
-        d.activity.remove(id);
-        d.bonds.forget(id);
-        d.garden.forget_friend(id);
-        // An agent that reported to this friend goes back to the first one.
-        d.agent_pets.retain(|_, pet| pet != id);
-        Ok(Value::Null)
-    })
-}
-
-/// A press, a treat, a wave or a jump; without a friend named, everyone joins in.
-fn play(
-    app: &AppHandle,
-    state: &State<Shared>,
-    action: &str,
-    pet_id: Option<&str>,
-    overlay_may: &dyn Fn(&str) -> bool,
-) -> Result<Value, String> {
-    if !["pet", "treat", "wave", "jump"].contains(&action) {
-        return Err(i18n::t("error.unknown_play"));
-    }
-    if let Some(id) = pet_id {
-        require_pet(&lock(state), id)?;
-        if !overlay_may(id) {
-            return Err(i18n::t("error.bad_request"));
-        }
-    }
-    push_event(app, &json!({"type": "play", "action": action, "petId": pet_id}));
-    Ok(Value::Null)
-}
-
-/// Brings a pet in from its page. Cancel ends the wait at once; a read still under way ends with
-/// its own timeout, and nothing is saved.
-fn import_from_url(app: &AppHandle, state: &State<Shared>, url: &str) -> Result<Value, String> {
-    let cancel = Arc::new(AtomicBool::new(false));
-    let root = {
-        let mut d = lock(state);
-        d.importing.push(cancel.clone());
-        d.store.dir.join("pets")
-    };
-    let (url, flag) = (url.to_string(), cancel.clone());
-    let folder = chat::unless_called_off(&cancel, move || {
-        let fetch = importer::unless_cancelled(&flag, &importer::http_fetch);
-        importer::import_from_url(&url, &root, &fetch)
-    });
-    lock(state).importing.retain(|flag| !Arc::ptr_eq(flag, &cancel));
-    let asset = catalog::read_pet(&folder?)?;
-    register_asset(app, &mut lock(state), asset)
-}
-
-fn import_from_folder(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
-    let mut dialog = app.dialog().file().set_title(i18n::t("dialog.pick_pet_folder"));
-    if let Some(main) = app.get_webview_window("main") {
-        dialog = dialog.set_parent(&main);
-    }
-    let Some(path) = dialog.blocking_pick_folder().and_then(|f| f.into_path().ok()) else {
-        return Ok(Value::Null);
-    };
-    let asset = catalog::read_pet(&path)?;
-    let mut d = lock(state);
-    // Picked from where imported pets live, it is still the person's own folder.
-    let downloads = d.store.dir.join("pets");
-    if catalog::picked_by_hand(&downloads, &asset.folder, &d.picked, &d.assets) {
-        d.picked.push(asset.folder.to_string_lossy().into_owned());
-    }
-    register_asset(app, &mut d, asset)
-}
-
-/// A pet ZIP picked on this computer is copied into the data folder's pets, so the ZIP can go.
-fn import_from_zip(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
-    let mut dialog = app
-        .dialog()
-        .file()
-        .set_title(i18n::t("dialog.pick_pet_zip"))
-        .add_filter("ZIP", &["zip"]);
-    if let Some(main) = app.get_webview_window("main") {
-        dialog = dialog.set_parent(&main);
-    }
-    let Some(file) = dialog.blocking_pick_file().and_then(|f| f.into_path().ok()) else {
-        return Ok(Value::Null);
-    };
-    add_zip(app, state, &file)
-}
-
-/// Copies a pet ZIP into the data folder and puts it on the shelf.
-fn add_zip(app: &AppHandle, state: &State<Shared>, file: &std::path::Path) -> Result<Value, String> {
-    let root = lock(state).store.dir.join("pets");
-    let folder = importer::import_from_zip(file, &root)?;
-    let asset = catalog::read_pet(&folder)?;
-    register_asset(app, &mut lock(state), asset)
-}
-
-/// Takes an imported or picked pet off the shelf. An imported one's folder in the data folder goes
-/// with it; a folder picked by hand is the person's and stays.
-fn remove_asset(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Value, String> {
-    let mut taken = None;
-    commit(app, state, |d| {
-        // A friend parked over the limit comes back with its pet at a later start; the page cannot
-        // see it, so the refusal names it.
-        let title = d
-            .assets
-            .iter()
-            .find(|a| a.id == id)
-            .map(|a| a.display_name.clone())
-            .unwrap_or_default();
-        if let Some(name) = model::parked_user(&d.parked_pets, id, &title) {
-            return Err(i18n::tr("error.pet_kept_for_later", &[("name", &name)]));
-        }
-        let pets = &d.pets;
-        let asset = catalog::take_imported(
-            &mut d.assets,
-            &mut d.imports,
-            |id| pets.iter().any(|p| p.asset_id == id),
-            id,
-        )?;
-        d.picked.retain(|folder| std::path::Path::new(folder) != asset.folder);
-        taken = Some((asset, d.store.dir.join("pets")));
-        Ok(Value::Null)
-    })?;
-    // Deleted once the shelf is saved without it: files left by a failed delete are never read
-    // again, since only the listed imports are.
-    if let Some((asset, downloads)) = taken
-        && let Some(folder) = catalog::deletable(&downloads, asset.place, &asset.folder)
-    {
-        let _ = std::fs::remove_dir_all(folder);
-    }
-    Ok(Value::Null)
-}
-
-/// Shows where pets live: "codex", "downloaded" or "builtin" for those folders, or a pet file's id.
-fn open_folder(state: &State<Shared>, which: &str) -> Result<Value, String> {
-    let folder = {
-        let d = lock(state);
-        match which {
-            "builtin" => d.builtin_pets.clone(),
-            "codex" => d.codex_pets.clone(),
-            "downloaded" => d.store.dir.join("pets"),
-            // the app's own data: friends, settings and the backups beside them (About)
-            "data" => d.store.dir.clone(),
-            id => d
-                .assets
-                .iter()
-                .find(|a| a.id == id)
-                .map(|a| a.folder.clone())
-                .ok_or_else(|| i18n::t("error.pet_missing"))?,
-        }
-    };
-    if !folder.is_dir() {
-        return Err(i18n::t("error.folder_empty"));
-    }
-    system::open_folder(&folder)?;
-    Ok(Value::Null)
-}
-
-fn open_external(raw: &str) -> Result<Value, String> {
-    let target = importer::openable(raw)
-        .or_else(|| project_page(raw))
-        .ok_or_else(|| i18n::t("error.url_not_openable"))?;
-    system::open_url(target.as_str())?;
-    Ok(Value::Null)
-}
-
-/// The app's own pages: its site and its repository (Cargo.toml `homepage` and `repository`, which
-/// a test keeps equal to package.json), at those addresses or below them, over https.
-fn project_page(raw: &str) -> Option<url::Url> {
-    let target = url::Url::parse(raw).ok()?;
-    let under = |base: &str| {
-        let base = base.trim_end_matches('/');
-        target
-            .as_str()
-            .strip_prefix(base)
-            .is_some_and(|rest| rest.is_empty() || rest.starts_with(['/', '?', '#']))
-    };
-    let own = under(env!("CARGO_PKG_HOMEPAGE")) || under(env!("CARGO_PKG_REPOSITORY"));
-    (target.scheme() == "https" && own).then_some(target)
-}
-
-/// The settings a coding agent needs to reach this app: the app binary, its bridge file and the
-/// friend the agent reports to, read under the lock and used after it.
-fn connection_snippet(state: &State<Shared>, kind: &str) -> Result<String, String> {
-    let exe = std::env::current_exe().map_err(|_| i18n::t("error.exe_missing"))?;
-    let (bridge_file, pet) = {
-        let d = lock(state);
-        (
-            d.store.dir.join("bridge.json"),
-            // The real choice, a parked friend too: the bridge sends its events to the first friend
-            // until it is back (agent/bridge.rs resolve_pet), and to it after.
-            d.agent_pets.get(kind).cloned(),
-        )
-    };
-    let local = std::env::var("LOCALAPPDATA").ok();
-    let command = agent::cli::agent_command(&exe.to_string_lossy(), local.as_deref());
-    agent::snippets::connection_snippet(kind, &command, &bridge_file.to_string_lossy(), pet.as_deref())
-}
-
-/// The settings a coding agent needs to reach this app, put on the clipboard.
-fn copy_connection(app: &AppHandle, state: &State<Shared>, kind: &str) -> Result<Value, String> {
-    let snippet = connection_snippet(state, kind)?;
-    app.clipboard()
-        .write_text(snippet.clone())
-        .map_err(|_| i18n::t("clipboard.failed"))?;
-    Ok(json!(snippet))
-}
-
-/// Set by the e2e harness: the home folder whose agent settings Connect writes, so a test run
-/// never touches the real ones.
-pub const E2E_HOME_ENV: &str = "PLAYPETS_E2E_HOME";
-/// The folder the agents' settings files are under (`~`).
-fn agent_home(app: &AppHandle) -> Result<std::path::PathBuf, String> {
-    if e2e_mode() {
-        return std::env::var_os(E2E_HOME_ENV)
-            .filter(|v| !v.is_empty())
-            .map(std::path::PathBuf::from)
-            .ok_or_else(|| i18n::t("link.home_missing"));
-    }
-    app.path().home_dir().map_err(|_| i18n::t("link.home_missing"))
-}
-
-/// Where each agent that can be connected stands (agent/connect.rs Link), read from its file.
-fn agent_links(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
-    let home = agent_home(app)?;
-    let mut links = serde_json::Map::new();
-    for a in agent::kinds::AGENTS
-        .iter()
-        .filter(|a| a.format != agent::kinds::Format::None)
-    {
-        let snippet = connection_snippet(state, a.kind)?;
-        links.insert(
-            a.kind.into(),
-            json!(agent::connect::status(&home, a.kind, &snippet).code()),
-        );
-    }
-    Ok(Value::Object(links))
-}
-
-/// Connect or Disconnect, after the page asked the person; answers where the agent stands now.
-fn link_agent(app: &AppHandle, state: &State<Shared>, kind: &str, on: bool) -> Result<Value, String> {
-    let home = agent_home(app)?;
-    let snippet = connection_snippet(state, kind)?;
-    if on {
-        agent::connect::connect(&home, kind, &snippet)?;
-    } else {
-        agent::connect::disconnect(&home, kind)?;
-    }
-    Ok(json!(agent::connect::status(&home, kind, &snippet).code()))
-}
-
-/// Which friend a coding agent reports to. An empty pet id clears the choice (back to the first
-/// friend). The copied or connected settings carry it as `--pet`, so they must be pasted or connected again.
-fn assign_agent(app: &AppHandle, state: &State<Shared>, kind: &str, pet: &str) -> Result<Value, String> {
-    if agent::kinds::by_kind(kind).is_none() {
-        return Err(i18n::t("error.unknown_link"));
-    }
-    commit(app, state, |d| {
-        if pet.is_empty() {
-            d.agent_pets.remove(kind);
-        } else {
-            require_pet(d, pet)?;
-            d.agent_pets.insert(kind.to_string(), pet.to_string());
-        }
-        Ok(Value::Null)
-    })
-}
-
-/// Whether the friends chat among themselves now and then without being asked.
-fn set_auto_chatter(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
-    commit(app, state, |d| {
-        d.prefs.auto_chatter = on;
-        Ok(Value::Bool(on))
-    })
-}
-
-/// Whether idle friends now and then dig on their own without being asked.
-fn set_auto_play(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
-    commit(app, state, |d| {
-        d.prefs.auto_play = on;
-        Ok(Value::Bool(on))
-    })
-}
-
-/// Whether the app starts when the person logs in. The system keeps the answer (startup.rs); a
-/// test run only pretends.
-fn set_autostart(app: &AppHandle, state: &State<Shared>, on: bool) -> Result<Value, String> {
-    let now = if e2e_mode() { on } else { crate::startup::set(app, on)? };
-    let mut d = lock(state);
-    d.autostart = now;
-    changed(app, &d);
-    Ok(Value::Bool(now))
-}
-
-/// Whether the app starts at login, asked again: the person may have changed it in the system's
-/// own settings while the app ran. The system is asked before the lock is taken.
-fn read_autostart(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
-    let now = if e2e_mode() {
-        lock(state).autostart
-    } else {
-        crate::startup::is_enabled(app)
-    };
-    let mut d = lock(state);
-    if d.autostart != now {
-        d.autostart = now;
-        changed(app, &d);
-    }
-    Ok(Value::Bool(now))
-}
-
-/// The language the person chose; the page reloads itself in it, the tray and title follow here.
-fn set_language(app: &AppHandle, state: &State<Shared>, code: &str) -> Result<Value, String> {
-    let lang = i18n::Lang::parse(code).ok_or_else(|| i18n::t("error.language"))?;
-    // The language stands even when it could not be saved (commit), so the pages follow it either way.
-    let saved = commit(app, state, |d| {
-        if d.prefs.language != lang {
-            d.talks.cancel_pending();
-        }
-        i18n::set(lang);
-        d.prefs.choose_language(lang);
-        Ok(Value::Null)
-    });
-    // Rewording the tray waits on the main thread, which may itself be waiting for the state.
-    tray::retitle(app);
-    // Every page (the yard, each desktop window) starts over in the new language at once.
-    crate::app::relanguage(app, lang.code());
-    saved.map(|_| json!(lang.code()))
 }
 
 #[cfg(test)]
@@ -1027,7 +559,7 @@ mod tests {
         let app = include_str!("app.rs");
         let start = app.find("\"petFolders\": {").unwrap();
         let folders = &app[start..start + app[start..].find('}').unwrap()];
-        let source = include_str!("commands.rs");
+        let source = include_str!("commands/prefs.rs");
         let open = &source[source.find("fn open_folder(").unwrap()..];
         let open = &open[..open.find("\n}\n").unwrap()];
         let parts: Vec<&str> = folders.split('"').skip(3).collect();

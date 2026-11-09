@@ -50,7 +50,7 @@ flowchart LR
 | Yard content | `src/content/catalog.json`, `src/content/yard.json`, `src/content/events.json`, `src/content/worlds.json`, `src/art/` | What the yard is made of, apart from the code ([details](#yard-content)) |
 | Yard life | `src/yard/` | The backdrop, friends, trips, features and the frame loop ([details](#yard-life)) |
 | Desktop window | `src/overlay.html`, `src/overlay/` | One transparent window per monitor. Draws friends where the backend places them and reports presses and drags |
-| Commands | `src-tauri/src/commands.rs` | The single command the page calls (`call`) and the `COMMANDS` table: one row per name, saying which windows may ask for it and what it does. The page's bridge, the access check and the dispatch all come from that table ([how to add one](how-to/add-a-command.md)) |
+| Commands | `src-tauri/src/commands.rs`, handlers by area in `commands/` | The single command the page calls (`call`) and the `COMMANDS` table: one row per name, saying which windows may ask for it and what it does. The page's bridge, the access check and the dispatch all come from that table ([how to add one](how-to/add-a-command.md)) |
 | App state | `src-tauri/src/app.rs`; loading in `app/load.rs`, the person's switches in `app/prefs.rs`, sprites in `app/sprite.rs` | `AppData`, loading and saving, announcing changes to every window, serving sprites ([details](#app-state)) |
 | Chat | `src-tauri/src/chat/` | Chat with one friend or several together: CLI sessions, HTTP AI, prompts ([details](#chat)) |
 | Pets | `src-tauri/src/pets/` | Starter pets, pet folders, community import, friends, and the rules of the garden, album and closeness ([details](#pets)) |
