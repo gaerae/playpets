@@ -150,6 +150,12 @@ export function renderDecorating() {
   drawStatus({ left, free, items, picking });
   drawKinds(items);
   drawTray(items, left > 0 && free.length > 0);
+  syncTakeDown();
+}
+// The card's Take down rests while a hang or a take-down is on its way.
+function syncTakeDown() {
+  const down = $('ornament-card').querySelector('.ornament-take-down');
+  if (down) down.disabled = !!view?.busy;
 }
 
 // The baubles on the tree, one node per hook kept between renders; what the catalogue no longer
@@ -219,7 +225,40 @@ function makeBauble(o, look) {
     if (cardFor === node) hideCard();
     else showCard(node, o);
   });
+  // The card comes after every bauble in the page, so the keyboard is taken into it: Enter or Space
+  // opens it on its button (the key's own click would shut it again), and Tab from a bauble whose
+  // card shows goes there before the next bauble.
+  node.addEventListener('keydown', e => {
+    const open = cardFor === node && !$('ornament-card').hidden;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      showCard(node, o);
+      intoCard();
+    } else if (e.key === 'Tab' && !e.shiftKey && open && intoCard()) e.preventDefault();
+  });
   return node;
+}
+// Focus on the card's Take down button; false when it cannot take it (a save under way).
+function intoCard() {
+  const down = $('ornament-card').querySelector('.ornament-take-down');
+  if (!down || down.disabled) return false;
+  down.focus();
+  return true;
+}
+// Tab from the card goes on to the bauble after its own, Shift+Tab back to its own; past the last
+// bauble Tab leaves the tree as the page order has it.
+function tabFromCard(e) {
+  if (e.key !== 'Tab' || !cardFor) return;
+  const node = cardFor,
+    baubles = [...view.baubles.values()],
+    next = e.shiftKey ? node : baubles[baubles.indexOf(node) + 1];
+  if (!next) return;
+  e.preventDefault();
+  if (e.shiftKey) {
+    quiet = true;
+    node.focus();
+    quiet = false;
+  } else next.focus();
 }
 
 // The hook points on the free hooks while an item is picked.
@@ -247,13 +286,14 @@ function drawSpots(free) {
 function drawStatus({ left, free, items, picking }) {
   const perDay = limit(data, 'ornamentsPerDay'),
     empty = !items.length && left > 0 && free.length > 0,
-    text =
-      view.note ||
+    // What was just done (a take-down) goes first, and never hides why the tray rests.
+    reason =
       (picking && t('decorating.pick')) ||
       (!free.length && t('decorating.full')) ||
       (!left && t('decorating.done_today')) ||
       (empty && t('decorating.empty')) ||
-      t('decorating.left', { count: left }),
+      (!view.note && t('decorating.left', { count: left })),
+    text = [view.note, reason].filter(Boolean).join(' '),
     dots = free.length && !empty ? perDay : 0,
     key = `${text}|${dots}|${left}`;
   if (key === view.statusKey) return;
@@ -298,8 +338,7 @@ function drawKinds(items) {
       }),
     );
   }
-  for (const chip of kinds.children)
-    if (typeof chip === 'object') chip.setAttribute('aria-pressed', String(chip.dataset.book === view.chosen));
+  for (const chip of kinds.children) chip.setAttribute('aria-pressed', String(chip.dataset.book === view.chosen));
 }
 
 // One chip per item of the chosen book that can hang, its node kept between renders.
@@ -389,6 +428,7 @@ function takeDown(o) {
   const v = view,
     name = ornamentLook(o.book, o.id)?.name || '';
   v.busy = true;
+  syncTakeDown();
   call('takeDownOrnament', o.book, o.id, localDay(new Date()))
     .then(() => {
       v.busy = false;
@@ -402,6 +442,7 @@ function takeDown(o) {
     .catch(error => {
       v.busy = false;
       toast(spoken(error, t('error.generic')), { error: true });
+      if (view === v) syncTakeDown();
     });
 }
 // Focus after a hang or a take-down, whose button has gone: the item's chip back in the tray, the
@@ -456,6 +497,7 @@ function showCard(node, o) {
     card.dataset.hook = String(o.hook);
     cardFor = node;
   }
+  syncTakeDown();
   node.setAttribute('aria-expanded', 'true');
   card.hidden = false;
   placeCard(card, node);
@@ -503,27 +545,42 @@ function leaveCard(ms = CARD_LEAVE_MS) {
   }, ms);
 }
 
-/** Wires the view: its close button, the backdrop, Escape (which first puts a picked item back or
- * hides the card), and the card that stays while it is pointed at. */
+// Escape takes one step back: it hides the card (focus goes back to its bauble only from inside
+// the card), then puts a picked item back, then closes the view.
+function escape(dialog) {
+  if (cardFor) {
+    const node = cardFor,
+      inside = $('ornament-card').contains(document.activeElement);
+    hideCard();
+    if (inside) {
+      quiet = true;
+      node.focus();
+      quiet = false;
+    }
+  } else if (view.picked) unpick();
+  else dialog.close();
+}
+
+/** Wires the view: its close button, the backdrop, Escape (one step back at a time), and the card
+ * that stays while it is pointed at and takes the keyboard on to the next bauble. */
 export function setupDecorating() {
   const dialog = $('decorating-dialog'),
     card = $('ornament-card');
   $('close-decorating').addEventListener('click', () => dialog.close());
   closeOnBackdrop(dialog);
-  dialog.addEventListener('cancel', e => {
-    if (!view) return;
+  // Escape is read as a key: Chromium (WebView2) lets a page hold back only the first of repeated
+  // `cancel` events, so the second Escape would close the view instead of putting a pick back.
+  dialog.addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || !view) return;
     e.preventDefault();
-    if (cardFor) {
-      const node = cardFor;
-      hideCard();
-      quiet = true;
-      node.focus();
-      quiet = false;
-      return;
-    }
-    if (view.picked) return unpick();
+    escape(dialog);
+  });
+  // A cancel that still comes (another way to dismiss the dialog) closes it.
+  dialog.addEventListener('cancel', e => {
+    e.preventDefault();
     dialog.close();
   });
+  card.addEventListener('keydown', tabFromCard);
   dialog.addEventListener('close', () => {
     const button = view?.button;
     hideCard();

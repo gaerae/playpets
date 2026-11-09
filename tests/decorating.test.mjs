@@ -254,8 +254,11 @@ test('picking an item lights only the free hooks; Escape puts it back without cl
   assert.equal(globalThis.document.activeElement, v.spots()[0]);
   assert.ok(v.status().startsWith(t('decorating.pick')));
 
+  // Escape is read as a key, not from `cancel`: Chromium lets a page hold back only the first of
+  // repeated cancels, so the second Escape would close the view.
   const event = { prevented: false };
-  await v.dialog.dispatch('cancel', {
+  await v.dialog.dispatch('keydown', {
+    key: 'Escape',
     preventDefault() {
       event.prevented = true;
     },
@@ -266,8 +269,12 @@ test('picking an item lights only the free hooks; Escape puts it back without cl
   assert.ok(v.dialog.open, 'still open');
   assert.equal(globalThis.document.activeElement, v.chipFor('snowdrop'));
   assert.equal(v.chipFor('snowdrop').getAttribute('aria-pressed'), 'false');
-  await v.dialog.dispatch('cancel');
+  await v.dialog.dispatch('keydown', { key: 'Escape' });
   assert.ok(!v.dialog.open, 'a second Escape closes it');
+  openDecorating();
+  await v.chipFor('snowdrop').dispatch('click');
+  await v.dialog.dispatch('cancel');
+  assert.ok(!v.dialog.open, 'a cancel that still comes closes it');
 });
 
 test('a hook sends book, id, hook and today once, and the new bauble shows', async ctx => {
@@ -432,8 +439,70 @@ test('the card shows a bauble’s art, name and book on hover after a moment, on
   await node.dispatch('click');
   assert.equal(card.hidden, false);
   // Escape hides the card first and keeps the view open.
-  await v.dialog.dispatch('cancel');
+  await v.dialog.dispatch('keydown', { key: 'Escape' });
   assert.equal(card.hidden, true);
+  assert.ok(v.dialog.open);
+});
+
+test('the keyboard reaches each card’s Take down and goes on to the next bauble', async ctx => {
+  const v = await decorating(ctx, { garden: hung({}, camellia(1), { book: 'tree', id: 'maple', hook: 4 }) });
+  openDecorating();
+  const card = v.$('ornament-card'),
+    [first, second] = v.baubles(),
+    down = () => find(card, 'ornament-take-down');
+  // Enter opens the card on its button; the key's own click must not shut it.
+  const enter = { prevented: false };
+  await first.dispatch('keydown', {
+    key: 'Enter',
+    preventDefault() {
+      enter.prevented = true;
+    },
+  });
+  assert.ok(enter.prevented);
+  assert.equal(card.hidden, false);
+  assert.equal(globalThis.document.activeElement, down());
+  // Tab from the card goes on to the next bauble, Shift+Tab back to its own.
+  const tab = { prevented: false };
+  await card.dispatch('keydown', {
+    key: 'Tab',
+    preventDefault() {
+      tab.prevented = true;
+    },
+  });
+  assert.ok(tab.prevented);
+  assert.equal(globalThis.document.activeElement, second);
+  await second.dispatch('focus');
+  assert.equal(card.dataset.hook, '4', 'its own card shows');
+  // Tab from a bauble whose card shows goes into the card first.
+  await second.dispatch('keydown', { key: 'Tab' });
+  assert.equal(globalThis.document.activeElement, down());
+  assert.ok(card.textContent.includes(t('tree.maple')));
+  await card.dispatch('keydown', { key: 'Tab', shiftKey: true });
+  assert.equal(globalThis.document.activeElement, second);
+  assert.equal(card.hidden, false);
+  // Escape from inside the card hides it and gives focus back to its bauble, without showing it again.
+  await second.dispatch('keydown', { key: 'Tab' });
+  await v.dialog.dispatch('keydown', { key: 'Escape' });
+  assert.equal(card.hidden, true);
+  assert.equal(globalThis.document.activeElement, second);
+  assert.ok(v.dialog.open);
+  // Space opens it too.
+  await second.dispatch('keydown', { key: ' ' });
+  assert.equal(globalThis.document.activeElement, down());
+});
+
+test('Escape on a card the pointer opened leaves focus where it was', async ctx => {
+  const v = await decorating(ctx, { garden: hung({}, camellia(1)) });
+  openDecorating();
+  const chip = v.chipFor('snowdrop');
+  chip.focus();
+  const [node] = v.baubles();
+  await node.dispatch('pointerenter', { pointerType: 'mouse' });
+  ctx.mock.timers.tick(300);
+  assert.equal(v.$('ornament-card').hidden, false);
+  await v.dialog.dispatch('keydown', { key: 'Escape' });
+  assert.equal(v.$('ornament-card').hidden, true);
+  assert.equal(globalThis.document.activeElement, chip, 'the tray keeps focus');
   assert.ok(v.dialog.open);
 });
 
@@ -467,6 +536,64 @@ test('a card takes its ornament down: the hook frees, the item returns to the tr
     'its hook is free',
   );
   assert.equal(v.spots().length, 12);
+});
+
+test('after a take-down on a day with its three hung, the status still says why the tray rests', async ctx => {
+  const v = await decorating(ctx, {
+    garden: { ...hung({}, camellia(4)), ornamentDay: { day: '2026-12-20', count: 3 } },
+  });
+  openDecorating();
+  await v.baubles()[0].dispatch('click');
+  await find(v.$('ornament-card'), 'ornament-take-down').dispatch('click');
+  await flush();
+  const name = ornamentLook('flower', 'camellia').name;
+  assert.ok(v.status().includes(t('decorating.taken_down', { name })));
+  assert.ok(v.status().includes(t('decorating.done_today')));
+  assert.ok(v.chips().every(c => c.disabled));
+});
+
+test('a refused take-down says why and leaves the bauble where it was', async ctx => {
+  const v = await decorating(ctx, { garden: hung({}, camellia(4)) });
+  const takes = globalThis.playPets.takeDownOrnament;
+  globalThis.playPets.takeDownOrnament = async (...args) => {
+    calls.push(['takeDownOrnament', ...args]);
+    return { ok: false, error: t('error.bad_request') };
+  };
+  ctx.after(() => {
+    globalThis.playPets.takeDownOrnament = takes;
+  });
+  openDecorating();
+  await v.baubles()[0].dispatch('click');
+  const down = find(v.$('ornament-card'), 'ornament-take-down');
+  await down.dispatch('click');
+  await flush();
+  assert.ok(kids(v.$('toast')).some(line => line.textContent === t('error.bad_request') && has(line, 'error')));
+  assert.equal(v.baubles().length, 1);
+  assert.equal(v.chipFor('camellia'), undefined);
+  assert.equal(down.disabled, false, 'it can be tried again');
+});
+
+test('Take down rests while a hang is on its way', async ctx => {
+  const v = await decorating(ctx, { garden: hung({}, camellia(4)) });
+  let settle;
+  globalThis.playPets.hangOrnament = (...args) => {
+    calls.push(['hangOrnament', ...args]);
+    return new Promise(resolve => {
+      settle = () => resolve(answer({ book: args[0], id: args[1], hook: args[2] }));
+    });
+  };
+  ctx.after(() => {
+    globalThis.playPets.hangOrnament = hangs;
+  });
+  openDecorating();
+  await v.chipFor('snowdrop').dispatch('click');
+  v.spots()[0].dispatch('click');
+  await v.baubles()[0].dispatch('click');
+  const down = find(v.$('ornament-card'), 'ornament-take-down');
+  assert.equal(down.disabled, true);
+  settle();
+  await flush();
+  assert.equal(down.disabled, false);
 });
 
 test('a friend near the tree says a line after a hang; with no friends nobody does', async ctx => {
