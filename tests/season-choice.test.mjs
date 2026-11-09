@@ -27,6 +27,8 @@ test('season selection preserves real festival dates without mismatched seasonal
   assert.equal(events.sceneEvent(new Date(2026, 5, 10), false, 'winter'), null);
   assert.equal(events.sceneEvent(new Date(2026, 0, 3), false, 'summer')?.id, 'newyear');
   assert.equal(events.sceneEvent(new Date(2026, 6, 3), false, 'winter'), null);
+  assert.equal(events.sceneEvent(new Date(2026, 11, 15), false, 'summer')?.id, 'lights');
+  assert.equal(events.sceneEvent(new Date(2026, 11, 15), true, 'spring')?.id, 'lights');
 });
 
 test('automatic weather uses the chosen season without moving the clock', () => {

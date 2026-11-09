@@ -124,12 +124,12 @@
     {
       "day": "2026-12-09",
       "south": false,
-      "event": null
+      "event": "lights"
     },
     {
       "day": "2026-12-09",
       "south": true,
-      "event": null
+      "event": "lights"
     },
     {
       "day": "2026-12-10",
@@ -139,7 +139,7 @@
     {
       "day": "2026-12-10",
       "south": true,
-      "event": null
+      "event": "lights"
     },
     {
       "day": "2026-12-31",
@@ -149,7 +149,7 @@
     {
       "day": "2026-12-31",
       "south": true,
-      "event": null
+      "event": "lights"
     },
     {
       "day": "2027-01-01",
@@ -279,7 +279,7 @@
     {
       "day": "2026-06-10",
       "south": true,
-      "event": "lights"
+      "event": null
     },
     {
       "day": "2026-06-30",
@@ -289,7 +289,7 @@
     {
       "day": "2026-06-30",
       "south": true,
-      "event": "lights"
+      "event": null
     },
     {
       "day": "2026-07-01",
@@ -319,7 +319,7 @@
     {
       "day": "2026-06-15",
       "south": true,
-      "event": "lights"
+      "event": null
     },
     {
       "day": "2026-09-07",
@@ -360,6 +360,26 @@
       "day": "2027-03-08",
       "south": true,
       "event": "harvest"
+    },
+    {
+      "day": "2026-11-30",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-11-30",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-12-01",
+      "south": false,
+      "event": "lights"
+    },
+    {
+      "day": "2026-12-01",
+      "south": true,
+      "event": "lights"
     }
   ]
 }

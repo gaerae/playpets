@@ -18,6 +18,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- The winter lights now run from December 1 to 31, on the same dates south of the equator.
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
 - Who joins a group chat opens as a dropdown.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.

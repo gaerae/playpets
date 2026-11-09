@@ -28,8 +28,9 @@
     },
     {
       "id": "lights",
-      "from": "12-10",
+      "from": "12-01",
       "to": "12-31",
+      "fixed": true,
       "gift": "snowman"
     },
     {
