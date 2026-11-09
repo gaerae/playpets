@@ -459,6 +459,13 @@ fn hovered(d: &Inner, layout: &[Value], cursor: Option<(f64, f64)>) -> (HashMap<
     (hover, pet_id)
 }
 
+/// Whether a monitor's window is wanted: only where something stands, so an empty screen keeps no
+/// page and no loop of its own. While a friend is being carried every screen has one, ready for it
+/// to arrive.
+fn needs_window(visible: bool, dragging: bool, layout: &[Value], mon_id: &str) -> bool {
+    visible && (dragging || layout.iter().any(|item| item["displayId"] == mon_id))
+}
+
 /// Opens, updates or closes each monitor's window. Windows are built and closed on the main thread.
 fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor: Option<(f64, f64)>, moved: bool) {
     let (visible, layout, hover, dragging, hover_changed) = {
@@ -475,7 +482,7 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
         let label = format!("overlay{}", mon.id);
         let existing = app.get_webview_window(&label);
         open |= existing.is_some();
-        match (visible, existing) {
+        match (needs_window(visible, dragging, &layout, &mon.id), existing) {
             (true, None) => {
                 // A new window starts from the whole state; the next move is sent to it in full.
                 crate::app::hold(inner).sent.remove(&mon.id);
@@ -531,7 +538,11 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
                 }
             }
             (false, Some(win)) => {
-                crate::app::hold(inner).sent.remove(&mon.id);
+                // A window opened again later is built ignoring the pointer and hears everything anew.
+                let mut d = crate::app::hold(inner);
+                d.sent.remove(&mon.id);
+                d.ignored.remove(&mon.id);
+                drop(d);
                 let _ = app.run_on_main_thread(move || {
                     restore_window_class(&win);
                     let _ = win.close();
@@ -570,5 +581,25 @@ pub fn stop_drag_and_save(overlay: &Overlay, app: &AppHandle, on_position: &Posi
     finish_drag(&mut crate::app::hold(&overlay.inner), &mons, &mut arrivals);
     for (id, x, y) in arrivals {
         on_position(&id, x, y);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn only_a_screen_with_something_on_it_keeps_a_window() {
+        let layout = vec![json!({"id": "pip", "displayId": "1"})];
+        assert!(needs_window(true, false, &layout, "1"));
+        assert!(
+            !needs_window(true, false, &layout, "2"),
+            "an empty screen has no window"
+        );
+        assert!(
+            needs_window(true, true, &layout, "2"),
+            "a friend carried over is drawn as it arrives"
+        );
+        assert!(!needs_window(false, true, &layout, "1"), "a hidden desktop has none");
     }
 }
