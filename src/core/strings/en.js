@@ -690,9 +690,9 @@ export const strings = {
   'connection.note_ollama':
     'Local models run on the chosen computer without hosted inference fees. Remote servers and cloud models send conversations outside this computer.',
   'connection.help_claude':
-    'Install Claude Code and run claude once to sign in. Then return here; the default model needs no model name.',
+    'Uses Claude Code on this computer. If it isn’t signed in, sign in here with your browser. Leave the model name empty for the default.',
   'connection.help_codex':
-    'Install Codex CLI and run codex once to sign in with ChatGPT. Then return here; leave the model name empty for the default.',
+    'Uses Codex CLI on this computer with your ChatGPT plan. If it isn’t signed in, sign in here with your browser. Leave the model name empty for the default.',
   'connection.help_ollama':
     'Install Ollama and download a local model, for example with ollama pull llama3.2. Keep Ollama running, then choose an installed model here.',
   'connection.note_openai': 'Conversations are sent to OpenAI. API fees may apply.',
@@ -848,6 +848,21 @@ export const strings = {
   'error.with_detail': '{sentence} ({detail})',
   'steps.ai_detected': '{tool} is on this computer. Connect with no key',
   'steps.go_connect': 'Connect now',
+  'steps.ai_login': '{tool} is on this computer. Sign in with your browser to connect',
+  'steps.go_login': 'Sign in',
+  'signin.group': 'Sign in',
+  'signin.title': 'Sign in to {tool}',
+  'signin.body': 'Sign in with your browser and your friends can talk right away. No key needed.',
+  'signin.start': 'Sign in with browser',
+  'signin.waiting': 'Finish signing in in your browser. PlayPets carries on by itself when you’re done.',
+  'signin.code_label': 'If the page shows a code, paste it here',
+  'signin.code_placeholder': 'Code from the browser',
+  'signin.code_send': 'Send code',
+  'signin.cancel': 'Cancel',
+  'signin.failed': 'The sign-in didn’t finish. Try again?',
+  'signin.retry': 'Sign in again',
+  'signin.done': 'Signed in to {tool}',
+  'signin.note': 'Sign in above, then you can start talking.',
   'connection.share_all': 'Also use this AI for other friends without one ({count})',
   'toast.first_chat': 'Say hello first. With two or more friends you can start a chat between them too',
   'toast.connected_many': '{count} friends can talk now; starting a chat between them',

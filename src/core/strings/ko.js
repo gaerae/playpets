@@ -666,9 +666,9 @@ export const strings = {
   'connection.note_ollama':
     '로컬 모델은 선택한 컴퓨터에서 실행돼 서버의 추론 요금이 없어요. 원격 서버나 클라우드 모델을 선택하면 대화가 이 컴퓨터 밖으로 전송돼요.',
   'connection.help_claude':
-    'Claude Code를 설치하고 claude를 한 번 실행해 로그인한 뒤 돌아오세요. 모델 이름을 비우면 기본 모델을 사용해요.',
+    '이 컴퓨터의 Claude Code를 사용해요. 로그인되어 있지 않으면 여기서 브라우저로 로그인할 수 있어요. 모델 이름을 비우면 기본 모델을 사용해요.',
   'connection.help_codex':
-    'Codex CLI를 설치하고 codex를 한 번 실행해 ChatGPT로 로그인한 뒤 돌아오세요. 모델 이름을 비우면 기본 모델을 사용해요.',
+    '이 컴퓨터의 Codex CLI를 ChatGPT 플랜으로 사용해요. 로그인되어 있지 않으면 여기서 브라우저로 로그인할 수 있어요. 모델 이름을 비우면 기본 모델을 사용해요.',
   'connection.help_ollama':
     'Ollama를 설치하고 ollama pull llama3.2 등으로 로컬 모델을 내려받으세요. Ollama를 켜 둔 상태에서 설치된 모델을 선택하면 돼요.',
   'connection.note_openai': '대화 내용이 OpenAI로 전송돼요. API 사용료가 발생할 수 있어요.',
@@ -820,6 +820,21 @@ export const strings = {
   'error.with_detail': '{sentence} ({detail})',
   'steps.ai_detected': '{tool:이/가} 이 컴퓨터에 있어요. 키 없이 바로 연결해요',
   'steps.go_connect': '바로 연결',
+  'steps.ai_login': '{tool:이/가} 이 컴퓨터에 있어요. 브라우저로 로그인하면 바로 연결돼요',
+  'steps.go_login': '로그인',
+  'signin.group': '로그인',
+  'signin.title': '{tool}에 로그인해요',
+  'signin.body': '브라우저에서 로그인하면 친구들과 바로 대화할 수 있어요. 키는 필요 없어요.',
+  'signin.start': '브라우저로 로그인',
+  'signin.waiting': '브라우저에서 로그인을 마쳐 주세요. 끝나면 알아서 이어져요.',
+  'signin.code_label': '브라우저에 코드가 나오면 여기에 붙여 넣어 주세요',
+  'signin.code_placeholder': '브라우저에 나온 코드',
+  'signin.code_send': '코드 보내기',
+  'signin.cancel': '취소',
+  'signin.failed': '로그인이 끝나지 않았어요. 다시 해 볼까요?',
+  'signin.retry': '다시 로그인',
+  'signin.done': '{tool}에 로그인했어요',
+  'signin.note': '위에서 로그인하면 바로 이야기할 수 있어요.',
   'connection.share_all': '아직 AI가 없는 다른 친구 {count}명에게도 이 AI를 써요',
   'toast.first_chat': '첫마디를 걸어 보세요. 친구가 둘 이상이면 수다도 시킬 수 있어요',
   'toast.connected_many': '친구 {count}명이 말할 수 있게 됐어요. 수다를 시작해요',

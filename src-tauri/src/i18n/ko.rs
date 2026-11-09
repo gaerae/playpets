@@ -161,8 +161,10 @@ const TABLE: &[(&str, &str)] = &[
     ("ai.models_unreachable", "모델 목록을 불러오지 못했어요. 서버 주소와 실행 상태를 확인해 주세요."),
     ("ai.models_unreadable", "모델 목록을 읽을 수 없어요."),
 
-    ("cli.login_claude", "Claude Code에 로그인해 주세요. 터미널에서 `claude`를 실행한 뒤 `/login`을 입력하면 돼요."),
-    ("cli.login_codex", "Codex에 로그인해 주세요. 터미널에서 `codex login`을 실행하면 돼요."),
+    ("cli.login_claude", "Claude Code에 로그인되어 있지 않아요. 메시지 입력칸 위의 로그인 버튼을 눌러 주세요."),
+    ("cli.login_codex", "Codex에 로그인되어 있지 않아요. 메시지 입력칸 위의 로그인 버튼을 눌러 주세요."),
+    ("cli.login_code_bad", "브라우저에 나온 코드를 그대로 붙여 넣어 주세요."),
+    ("cli.login_not_waiting", "코드를 기다리는 로그인이 없어요. 로그인 버튼을 다시 눌러 주세요."),
     ("cli.missing", "{name} CLI를 찾을 수 없어요. 터미널에서 설치해 주세요: {command}"),
     ("cli.spawn_failed", "{name} CLI를 실행하지 못했어요. {detail}"),
     ("cli.error", "{name} CLI 오류: {detail}"),

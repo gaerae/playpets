@@ -162,7 +162,7 @@ mod tests {
             CodexError::UnknownOption
         ));
         assert!(
-            matches!(codex_failure(1, "Not logged in. Run codex login"), CodexError::Failed(m) if m.contains("codex login"))
+            matches!(codex_failure(1, "Not logged in. Run codex login"), CodexError::Failed(m) if m == super::login_guide("codex"))
         );
     }
 }

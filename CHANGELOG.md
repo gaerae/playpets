@@ -15,11 +15,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the Microsoft Store version, PlayPets asks the Store for a newer version when it starts and every six hours, and **Check for updates** in Settings asks it at once. A version waiting in the Store shows beside the place selector and in Settings, and **Open in Microsoft Store** opens PlayPets' page there to install it. When the Store updates PlayPets while it is open, PlayPets opens again afterwards instead of staying closed.
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
+- Claude Code and Codex CLI sign in from PlayPets: when one is on the computer but signed out, a card above the message box (and in the connection window) opens the sign-in in your browser and connects once you finish, with a box for the code Claude's page may show. The message box opens once you're signed in. No terminal needed.
 
 ### Changed
 
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
 - Who joins a group chat opens as a dropdown.
+- **Connect now** and sending a first message no longer connect a CLI that is signed out, which used to fail at the first message; they lead to the sign-in instead. With a signed-in CLI found, sending a first message connects it without opening the connection window.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
 - Downloads are smaller again, with the four friends who come with the app looking exactly as before: their pictures take 27.6 MB inside the app instead of 37.0 MB.
 - An update removes the folders of built-in friends the app no longer ships, which stayed in the data folder before.
@@ -38,6 +40,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The install guide, the settings guide and the privacy policy say that the Microsoft Store version asks the Store for a newer version and shows it in the app.
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
 - The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.
+- The chat guide says how Claude Code and Codex CLI sign in from PlayPets.
 - The front page opens on the four friends in the yard with a coding agent at work beside them: when it finishes, one friend says so and the others cheer. The yard to play with, its places and seasons, and the button to pause the page's motion are now in the play section.
 
 ## [1.5.0] - 2026-11-04

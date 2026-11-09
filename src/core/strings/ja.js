@@ -685,9 +685,9 @@ export const strings = {
   'connection.note_ollama':
     'ローカルモデルは選んだパソコンで動き、サーバーの推論料金はかかりません。リモートサーバーやクラウドモデルでは会話がこのパソコンの外に送信されます。',
   'connection.help_claude':
-    'Claude Codeをインストールし、claudeを一度実行してログインしてから戻ってください。モデル名を空にすると標準モデルを使います。',
+    'このパソコンのClaude Codeを使います。ログインしていなければ、ここからブラウザでログインできます。モデル名を空にすると標準モデルを使います。',
   'connection.help_codex':
-    'Codex CLIをインストールし、codexを一度実行してChatGPTでログインしてから戻ってください。モデル名を空にすると標準モデルを使います。',
+    'このパソコンのCodex CLIをChatGPTのプランで使います。ログインしていなければ、ここからブラウザでログインできます。モデル名を空にすると標準モデルを使います。',
   'connection.help_ollama':
     'Ollamaをインストールし、ollama pull llama3.2などでローカルモデルを取得してください。Ollamaを起動したまま、インストール済みのモデルを選びます。',
   'connection.note_openai': '会話の内容はOpenAIに送信されます。API利用料がかかることがあります。',
@@ -841,6 +841,21 @@ export const strings = {
   'error.with_detail': '{sentence}（{detail}）',
   'steps.ai_detected': '{tool} がこのパソコンにあります。キーなしですぐつなげます',
   'steps.go_connect': 'すぐつなぐ',
+  'steps.ai_login': '{tool} がこのパソコンにあります。ブラウザでログインするとすぐつながります',
+  'steps.go_login': 'ログイン',
+  'signin.group': 'ログイン',
+  'signin.title': '{tool}にログイン',
+  'signin.body': 'ブラウザでログインすると、友だちとすぐに話せます。キーは要りません。',
+  'signin.start': 'ブラウザでログイン',
+  'signin.waiting': 'ブラウザでログインを済ませてください。終わると自動で続きます。',
+  'signin.code_label': 'ブラウザにコードが表示されたら、ここに貼り付けてください',
+  'signin.code_placeholder': 'ブラウザに表示されたコード',
+  'signin.code_send': 'コードを送る',
+  'signin.cancel': 'キャンセル',
+  'signin.failed': 'ログインが完了しませんでした。もう一度試しますか？',
+  'signin.retry': 'もう一度ログイン',
+  'signin.done': '{tool}にログインしました',
+  'signin.note': '上でログインすると、すぐに話せます。',
   'connection.share_all': 'AIのないほかの友だち{count}人にもこのAIを使う',
   'toast.first_chat': 'まず声をかけてみましょう。友だちが2人以上なら、おしゃべりもさせられます',
   'toast.connected_many': '{count} 人の友だちが話せるようになりました。おしゃべりを始めます',

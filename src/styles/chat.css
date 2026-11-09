@@ -380,3 +380,73 @@ body.compact .composer textarea {
     display: none;
   }
 }
+/* Signing a subscription CLI in: a card above the message box (and in the connection dialog) that
+   starts the browser sign-in, waits for it, and takes the code Claude's page may show. */
+.sign-in {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.sign-in[hidden] {
+  display: none;
+}
+.sign-in-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.sign-in-body {
+  margin: 0;
+  color: var(--muted);
+}
+.sign-in-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sign-in-actions .button {
+  min-height: 34px;
+  padding: 5px 12px;
+  font-size: 12px;
+}
+.sign-in-code {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+  align-items: center;
+}
+.sign-in-code label {
+  grid-column: 1 / -1;
+  color: var(--muted);
+}
+.sign-in-code input {
+  min-width: 0;
+  min-height: 34px;
+  font: inherit;
+}
+.sign-in-code .button {
+  min-height: 34px;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+/* A small window keeps the message box in view: the card tightens, and the field's label is kept
+   for screen readers only (its placeholder says the same). */
+body.compact .sign-in {
+  gap: 4px;
+  padding: 8px 10px;
+}
+body.compact .sign-in-code label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
