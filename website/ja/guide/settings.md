@@ -71,7 +71,7 @@ Microsoft Store版では、Windows側でオフにしたPlayPetsをアプリか�
 
 ## アプリのアップデート <Since v="0.1.0" /> {#updates}
 
-Microsoft Storeから入れた場合、更新はStoreが管理します。**Microsoft Store → ライブラリ**で確認してください。テスト用MSIXも、パッケージ管理による更新を使います。以下のGitHubインストーラーによる更新は、MSIX以外でインストールした場合の説明です。
+Microsoft Storeから入れた場合、更新はStoreが行います。PlayPetsは起動時と6時間ごとにStoreに新しいバージョンがあるか問い合わせ、**アップデートを確認**を押すとすぐに問い合わせます。新しいバージョンがあると庭とこの画面に表示され、**Microsoft Storeで開く**を押すとStoreのPlayPetsのページが開きます。Storeがインストールする間、PlayPetsはいったん閉じてから開き直します。テスト用MSIXも、パッケージ管理による更新を使います。以下のGitHubインストーラーによる更新は、MSIX以外でインストールした場合の説明です。
 
 何を保存し、どこと通信するかは[プライバシーポリシー](../privacy.md)にまとめています。
 

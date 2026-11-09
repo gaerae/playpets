@@ -7,17 +7,19 @@ export async function probeMsix({ api, document, renderUpdate, checkForUpdates, 
   if (!boot.ok || boot.data.updateChannel !== 'store') throw new Error('Missing package identity');
   const checked = await api.checkUpdate();
   if (!checked.ok || checked.data.channel !== 'store') throw new Error('Incorrect updater channel');
+  // Nothing waits in the Store for a test package, so neither the GitHub installer nor the Store
+  // runs: the answer is the backend's "no update" (CI runs in English).
   const installed = await api.installUpdate();
-  if (installed.ok || !installed.error?.includes('Microsoft Store')) throw new Error('GitHub installer guard failed');
+  if (installed.ok || !installed.error?.includes('no update')) throw new Error('GitHub installer guard failed');
   renderUpdate();
   await checkForUpdates();
-  if (!document.getElementById('update-button').hidden || !document.getElementById('update-pill').hidden)
-    throw new Error('GitHub installer controls are visible');
+  if (!document.getElementById('update-pill').hidden) throw new Error('An update pill is shown with nothing waiting');
+  if (document.getElementById('update-button').hidden) throw new Error('The Store check controls are hidden');
   if (document.getElementById('update-note').textContent !== storeNote) throw new Error('Missing Store explanation');
   if (phase === 'upgrade' && (boot.data.sound.on !== false || boot.data.sound.volume !== 37))
     throw new Error('Settings were not retained across package upgrade');
   if (phase === 'prepare' && !(await api.setSound(false, 37)).ok) throw new Error('Could not save settings');
-  return { channel: 'store', installerBlocked: true, controlsHidden: true, retained: phase === 'upgrade' };
+  return { channel: 'store', installerBlocked: true, pillHidden: true, retained: phase === 'upgrade' };
 }
 
 export function scenario(phase) {

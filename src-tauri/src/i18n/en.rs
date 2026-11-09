@@ -57,9 +57,9 @@ const TABLE: &[(&str, &str)] = &[
     ("update.check_failed", "Couldn't check for updates. Check your internet connection."),
 
     ("update.no_release", "No update information has been published yet. Try again later."),
-    ("update.store_managed", "Microsoft Store manages updates for this installation."),
     ("update.none", "There's no update to install. Check for updates first."),
     ("update.install_failed", "Couldn't install the update. Please try again in a moment."),
+    ("update.move_to_applications", "PlayPets can't update itself where it is now. Move it to the Applications folder, then open it again."),
     ("error.language", "That language is not available."),
 
     ("agent.thinking", "Thinking"),

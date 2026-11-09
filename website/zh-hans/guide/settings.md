@@ -73,7 +73,7 @@ Microsoft Store 版在 Windows 里关掉 PlayPets 后，无法在应用里重新
 
 ## 应用更新 <Since v="0.1.0" />
 
-从 Microsoft Store 安装的版本由 Store 管理更新，请在 **Microsoft Store → 库**里检查。测试用 MSIX 同样走包管理更新。下面讲的 GitHub 安装程序更新，适用于非 MSIX 安装版。
+从 Microsoft Store 安装的版本由 Store 安装更新。PlayPets 会在启动时和每 6 小时询问 Store 是否有新版本，点 **检查更新** 会立即询问。有新版本时会显示在乐园和这里，点 **在 Microsoft Store 中打开** 即可打开 Store 中的 PlayPets 页面。Store 安装期间，PlayPets 会先关闭再重新打开。测试用 MSIX 同样走包管理更新。下面讲的 GitHub 安装程序更新，适用于非 MSIX 安装版。
 
 会保存什么、和哪里通信，详见[隐私政策](../privacy.md)。
 

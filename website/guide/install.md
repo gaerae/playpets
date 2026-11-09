@@ -30,7 +30,7 @@ description: Microsoft Store, winget, Homebrew or the file for your system, the 
 2. Start PlayPets from the Start menu.
 
 - Regular (x64) and ARM PCs each get their own package.
-- The Store keeps it up to date. Check in **Microsoft Store → Library**.
+- The Store keeps it up to date. When it has a new version, PlayPets tells you in the yard.
 
 ### winget {#winget}
 
@@ -136,7 +136,8 @@ chmod +x PlayPets_*.AppImage
 
 ## Updates <Since v="0.1.0" />
 
-- Microsoft Store installation: the Store manages updates. Check in **Microsoft Store → Library**.
+- Microsoft Store installation: the Store installs updates. When it has a new version, PlayPets shows it in the yard and in Settings, and **Open in Microsoft Store** opens its page there.
+- After any update, the first start says which version PlayPets is now.
 - Test MSIX packages also use package-managed updates.
 - The GitHub installer update flow below is for installations outside MSIX.
 - Storage and network details: [privacy policy](../privacy.md).

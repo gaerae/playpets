@@ -711,13 +711,15 @@ export const strings = {
   'settings.autostart_note': 'デスクトップモードがオンなら、ウィンドウは開かず友だちだけがデスクトップに出てきます。',
   'settings.update': 'アプリのアップデート',
   'settings.update_current': '現在のバージョン {version}',
-  'settings.update_store': '更新はMicrosoft Storeが管理します。Storeのライブラリで更新を確認してください。',
+  'settings.update_store':
+    '更新はMicrosoft Storeが行います。新しいバージョンがStoreに出たら、ここと庭でお知らせします。',
   'about.privacy': 'プライバシーポリシー',
   'settings.update_check': 'アップデートを確認',
   'settings.update_checking': '確認中…',
   'settings.update_latest': '最新バージョンです（{version}）',
   'settings.update_available': '新しいバージョン {version} があります',
   'settings.update_install': 'インストールして再起動',
+  'settings.update_in_store': 'Microsoft Storeで開く',
   'settings.update_view': 'アップデートを見る',
   'settings.update_notes': '変更点を見る',
   'settings.update_auto': '起動時と6時間ごとに静かに確認し、インストールは選んだときだけ行います。',
@@ -762,6 +764,8 @@ export const strings = {
   'update.title': 'PlayPets {version} が出ました',
   'update.body':
     'インストールすると、新しいバージョンをダウンロードして署名を確かめ、PlayPets を再起動します。友だちと設定はそのままです。(今のバージョン {current})',
+  'update.store_body':
+    'Microsoft StoreのPlayPetsのページが開きます。Storeで更新すると、PlayPetsはいったん閉じてから開き直し、友だちと設定はそのままです。(今のバージョン {current})',
   'update.later': 'あとで',
   'update.progress': 'ダウンロード中… {percent}%',
   'update.downloading': '新しいバージョンをダウンロード中…',

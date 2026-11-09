@@ -73,7 +73,7 @@ AI 연결이 모두 여기 모여 있고, 연결마다 몇 명의 친구가 쓰�
 
 ## 앱 업데이트 <Since v="0.1.0" />
 
-Microsoft Store에서 설치했다면 업데이트는 Store가 맡아요. **Microsoft Store → 라이브러리**에서 확인해 주세요. 테스트용 MSIX도 패키지 관리 방식으로 업데이트해요. 아래 안내는 MSIX가 아닌 GitHub 설치본에 해당해요.
+Microsoft Store에서 설치했다면 업데이트는 Store가 맡아요. PlayPets는 켤 때와 6시간마다 Store에 새 버전이 있는지 물어보고, **업데이트 확인**을 누르면 바로 물어봐요. 새 버전이 있으면 마당과 이 화면에 보이고, **Microsoft Store에서 받기**를 누르면 Store의 PlayPets 페이지가 열려요. Store가 설치하는 동안 PlayPets는 잠깐 닫혔다가 다시 열려요. 테스트용 MSIX도 패키지 관리 방식으로 업데이트해요. 아래 안내는 MSIX가 아닌 GitHub 설치본에 해당해요.
 
 무엇을 저장하고 어디와 통신하는지는 [개인정보처리방침](../privacy.md)에 정리해 두었어요.
 

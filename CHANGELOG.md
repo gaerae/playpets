@@ -10,6 +10,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- In the Microsoft Store version, PlayPets asks the Store for a newer version when it starts and every six hours, and **Check for updates** in Settings asks it at once. A version waiting in the Store shows beside the place selector and in Settings, and **Open in Microsoft Store** opens PlayPets' page there to install it. When the Store updates PlayPets while it is open, PlayPets opens again afterwards instead of staying closed.
+- On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
+- After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
+
 ### Changed
 
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
@@ -29,6 +35,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The install guide, the settings guide and the privacy policy say that the Microsoft Store version asks the Store for a newer version and shows it in the app.
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
 - The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.
 - The front page opens on the four friends in the yard with a coding agent at work beside them: when it finishes, one friend says so and the others cheer. The yard to play with, its places and seasons, and the button to pause the page's motion are now in the play section.

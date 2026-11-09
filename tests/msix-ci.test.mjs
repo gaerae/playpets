@@ -7,7 +7,7 @@ import { probeMsix } from './msix-scenario.mjs';
 function fixture(overrides = {}) {
   const state = { updateChannel: 'store', sound: { on: false, volume: 37 } };
   const nodes = {
-    'update-button': { hidden: true },
+    'update-button': { hidden: false },
     'update-pill': { hidden: true },
     'update-note': { textContent: 'fixture store note' },
   };
@@ -28,7 +28,7 @@ function fixture(overrides = {}) {
       },
       async installUpdate() {
         calls.push('install');
-        return { ok: false, error: 'Microsoft Store fixture' };
+        return { ok: false, error: "There's no update to install. Check for updates first." };
       },
       async setSound(on, volume) {
         state.sound = { on, volume };
@@ -41,7 +41,7 @@ function fixture(overrides = {}) {
     ...overrides,
   };
 }
-test('MSIX probe checks the native updater guards, UI and retained settings', async () => {
+test('MSIX probe checks the native updater guards, Store check UI and retained settings', async () => {
   const f = fixture();
   assert.equal((await probeMsix(f)).channel, 'store');
   assert.deepEqual(f.calls, ['check', 'install']);
@@ -54,10 +54,13 @@ test('MSIX probe rejects a GitHub channel, allowed installer and lost settings',
   f.state.updateChannel = 'store';
   f.api.installUpdate = async () => ({ ok: true });
   await assert.rejects(probeMsix(f), /installer/);
-  f.api.installUpdate = async () => ({ ok: false, error: 'Microsoft Store fixture' });
-  f.nodes['update-button'].hidden = false;
-  await assert.rejects(probeMsix(f), /controls/);
+  f.api.installUpdate = async () => ({ ok: false, error: "There's no update to install. Check for updates first." });
+  f.nodes['update-pill'].hidden = false;
+  await assert.rejects(probeMsix(f), /pill/);
+  f.nodes['update-pill'].hidden = true;
   f.nodes['update-button'].hidden = true;
+  await assert.rejects(probeMsix(f), /check controls/);
+  f.nodes['update-button'].hidden = false;
   f.state.sound.volume = 50;
   await assert.rejects(probeMsix({ ...f, phase: 'upgrade' }), /retained/);
 });

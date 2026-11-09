@@ -159,6 +159,40 @@ test('restart on the old version does not claim that installation succeeded', co
   assert.equal(storage.getItem('update-restart'), '');
 });
 
+test('a newer version than the last run is announced once, however it was installed', context => {
+  const storage = installStorage(context);
+  keepGlobals(context, 'setTimeout');
+  globalThis.setTimeout = () => 1;
+  installDom(context, { anyId: true });
+  // Microsoft Store and a hand-run installer replace the app while it is closed, with no record.
+  storage.setItem('last-version', '1.5.0');
+  setData({ pets: [], version: '1.5.1' });
+  announceInstalledUpdate();
+  assert.equal(document.getElementById('toast').textContent, t('toast.update_installed', { version: 'v1.5.1' }));
+  assert.equal(storage.getItem('last-version'), '1.5.1');
+  document.getElementById('toast').textContent = 'already shown';
+  announceInstalledUpdate();
+  assert.equal(document.getElementById('toast').textContent, 'already shown');
+});
+
+test('a first run or an older version claims no update', context => {
+  const storage = installStorage(context);
+  installDom(context, { anyId: true });
+  const toast = document.getElementById('toast');
+  toast.hidden = true;
+  setData({ pets: [], version: '1.5.0' });
+  announceInstalledUpdate();
+  assert.equal(toast.hidden, true, 'nothing to compare with on a first run');
+  assert.equal(storage.getItem('last-version'), '1.5.0');
+  setData({ pets: [], version: '1.4.0' });
+  announceInstalledUpdate();
+  assert.equal(toast.hidden, true, 'going back is not an update');
+  storage.setItem('last-version', '1.10.0');
+  setData({ pets: [], version: '1.9.0' });
+  announceInstalledUpdate();
+  assert.equal(toast.hidden, true, 'versions compare by number, not by text');
+});
+
 test('repeated background discoveries stay silent and preserve focus', context => {
   installStorage(context);
   const { nodes, document } = installDom(context, { anyId: true, props: { hidden: true } });
