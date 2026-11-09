@@ -7,7 +7,7 @@ globalThis.playPets = {
 };
 globalThis.requestAnimationFrame = () => {};
 installStorage();
-const { checkForUpdates } = await import('../src/panel/settings.js');
+const { checkForUpdates } = await import('../src/panel/update.js');
 const { setData } = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
 
@@ -47,7 +47,7 @@ test('Store installations with nothing new say the Store installs updates and ke
     ids: ['update-button', 'update-note', 'update-notes', 'update-pill', 'update-compact', 'update-auto'],
   });
   setData({ pets: [], version: '0.2.0', updateChannel: 'store' });
-  const { renderUpdate } = await import('../src/panel/settings.js');
+  const { renderUpdate } = await import('../src/panel/update.js');
   renderUpdate();
   assert.equal(nodes.get('update-note').textContent, t('settings.update_store'));
   assert.equal(nodes.get('update-button').hidden, false, 'a person can ask the Store now');
@@ -160,7 +160,7 @@ test('the tray update action goes directly to Updates rather than app informatio
 test('a new version marks the single Settings entry in the menu', async context => {
   installDom(context, { anyId: true });
   const settings = document.getElementById('menu-settings');
-  const { updateFound, renderUpdate } = await import('../src/panel/settings.js');
+  const { updateFound, renderUpdate } = await import('../src/panel/update.js');
   setData({ pets: [], version: '1.0.0', updateChannel: 'github' });
   updateFound({ version: '1.1.0', notes: '' });
   assert.equal(settings.classList.contains('has-update'), true);

@@ -27,9 +27,9 @@ export function scenario(phase) {
   return `(async()=>{
     const log=value=>window.__TAURI__.core.invoke('call',{name:'e2eLog',args:['MSIX_RESULT '+JSON.stringify(value)]});
     try {
-      const settings=await import('./panel/settings.js');
+      const update=await import('./panel/update.js');
       const {t}=await import('./core/i18n.js');
-      const result=await (${probeMsix.toString()})({api:playPets,document,...settings,storeNote:t('settings.update_store'),phase:${JSON.stringify(phase)}});
+      const result=await (${probeMsix.toString()})({api:playPets,document,...update,storeNote:t('settings.update_store'),phase:${JSON.stringify(phase)}});
       await log({ok:true,...result});
     } catch(error) { await log({ok:false,error:String(error)}); }
   })()`;

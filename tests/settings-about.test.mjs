@@ -17,6 +17,7 @@ globalThis.playPets = {
   },
 };
 const { setupSettings } = await import('../src/panel/settings.js');
+const { setupUpdates } = await import('../src/panel/update.js');
 const { setData } = await import('../src/core/state.js');
 const { setLanguageForTests } = await import('../src/core/i18n.js');
 
@@ -54,6 +55,7 @@ test('About opens the data folder, and App updates opens the notes of the versio
   setData({ project, version: '1.2.0' });
   setLanguageForTests('ko');
   setupSettings();
+  setupUpdates();
   await nodes.get('open-data').onclick();
   assert.equal(folders.at(-1), 'data');
   await nodes.get('update-this-version').onclick();

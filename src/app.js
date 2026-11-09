@@ -37,15 +37,9 @@ import { setupConnection } from './panel/connection.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
 import { drawPreviews, importLink, invite, setupInvite } from './panel/invite.js';
-import {
-  announceInstalledUpdate,
-  checkForUpdates,
-  setupSettings,
-  showSection,
-  updateFound,
-  updateStatus,
-} from './panel/settings.js';
+import { setupSettings, showSection } from './panel/settings.js';
 import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
+import { announceInstalledUpdate, checkForUpdates, setupUpdates, updateFound, updateStatus } from './panel/update.js';
 import { render } from './render.js';
 import { setupWindow } from './window.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
@@ -223,6 +217,7 @@ setupFriendSettings({ refresh });
 setupInvite({ refresh, showInvite: () => openPanel('invite') });
 setupWelcome({ invite, more: openInvite });
 setupSettings();
+setupUpdates();
 
 api.onChange(next => {
   const old = selected,

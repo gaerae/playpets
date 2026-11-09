@@ -18,7 +18,7 @@ globalThis.playPets = {
     });
   },
 };
-const { announceInstalledUpdate, setupSettings, updateFound, updateStatus } = await import('../src/panel/settings.js');
+const { announceInstalledUpdate, setupUpdates, updateFound, updateStatus } = await import('../src/panel/update.js');
 const { setData } = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
 
@@ -29,7 +29,7 @@ test('an available update opens Settings for a guided download, shows each stage
   globalThis.setTimeout = () => 1;
   const { nodes } = installDom(context, { anyId: true, props: { hidden: true } });
   setData({ pets: [], version: '0.1.0', project: {} });
-  setupSettings();
+  setupUpdates();
   updateFound({ version: '0.2.0', notes: 'A calmer yard' });
   assert.equal(nodes.get('update-button').textContent, t('settings.update_view'));
   const { openPanel } = await import('../src/panel/tabs.js');
@@ -108,7 +108,7 @@ test('a download can be called off and leaves the update ready to install', asyn
   globalThis.setTimeout = () => 1;
   const { nodes } = installDom(context, { anyId: true, props: { hidden: true } });
   setData({ pets: [], version: '0.1.0', project: {} });
-  setupSettings();
+  setupUpdates();
   updateFound({ version: '0.4.0', notes: '' });
   const installing = nodes.get('update-install').onclick();
   assert.equal(nodes.get('update-cancel').hidden, false, 'a download offers Cancel');
