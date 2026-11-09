@@ -148,3 +148,23 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   wrappers with `node scripts/pack-collection.mjs`.
 - Accepted sources, prompts, hashes and measured boxes:
   `assets/sources/snowman-2026-11-09/accepted-art.json`.
+
+## Winter tails and trail bushes (2026-11-09)
+
+- Eleven drawings in two atlases: the eight trail animals' tails in
+  `collection-extension/winter-tails` (`tail_<id>`), and the snowy bush, the bare
+  twig bush and the snow puff in `collection-extension/winter-bush`.
+- The tail atlas is a composed sheet: the generated raccoon dog had a ringed
+  tail and read as a raccoon, so its cell holds a separately generated raccoon
+  dog with an unringed tail, scaled to the fox's height.
+- Alpha below 50 is cleared to fully transparent: the generator leaves a soft
+  halo that shows as a ring on a dark ground.
+- Each tail crop is the rear only (tail, haunch and hind legs; for the sparrow
+  and magpie the tail and the raised wing), cut before the shoulder, so no head,
+  eye, ear or nose is inside and the animal is never shown whole. The cut side
+  has no margin; the drawing fades out there behind the bush.
+- Tail crops add 14 pixels on the other three sides; bush, twigs and puff crops
+  follow measured silhouettes with a 14-pixel margin. Reproduce the wrappers with
+  `node scripts/pack-collection.mjs`.
+- Accepted sources, prompts, hashes, cut columns and measured boxes:
+  `assets/sources/tracks-2026-11-09/accepted-art.json`.

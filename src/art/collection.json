@@ -1015,5 +1015,104 @@
     "crop": [1214, 453, 208, 135],
     "size": [28, 18],
     "art": "decor/snow_nose.svg"
+  },
+  {
+    "id": "tail_hare",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-tails.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [47, 209, 183, 270],
+    "size": [20, 30],
+    "art": "tracks/tail_hare.svg"
+  },
+  {
+    "id": "tail_fox",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-tails.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [399, 124, 189, 348],
+    "size": [16, 30],
+    "art": "tracks/tail_fox.svg"
+  },
+  {
+    "id": "tail_water_deer",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-tails.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [787, 186, 158, 297],
+    "size": [16, 30],
+    "art": "tracks/tail_water_deer.svg"
+  },
+  {
+    "id": "tail_raccoon_dog",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-tails.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1148, 162, 170, 292],
+    "size": [17, 30],
+    "art": "tracks/tail_raccoon_dog.svg"
+  },
+  {
+    "id": "tail_squirrel",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-tails.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [27, 567, 213, 390],
+    "size": [16, 30],
+    "art": "tracks/tail_squirrel.svg"
+  },
+  {
+    "id": "tail_sparrow",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-tails.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [431, 585, 154, 303],
+    "size": [15, 30],
+    "art": "tracks/tail_sparrow.svg"
+  },
+  {
+    "id": "tail_magpie",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-tails.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [762, 549, 223, 397],
+    "size": [17, 30],
+    "art": "tracks/tail_magpie.svg"
+  },
+  {
+    "id": "tail_cat",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-tails.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1151, 566, 184, 395],
+    "size": [14, 30],
+    "art": "tracks/tail_cat.svg"
+  },
+  {
+    "id": "bush",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-bush.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [31, 360, 485, 376],
+    "size": [46, 32],
+    "art": "tracks/bush.svg"
+  },
+  {
+    "id": "twigs",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-bush.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [542, 337, 457, 391],
+    "size": [40, 34],
+    "art": "tracks/twigs.svg"
+  },
+  {
+    "id": "puff",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-bush.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1013, 382, 476, 347],
+    "size": [44, 30],
+    "art": "tracks/puff.svg"
   }
 ]

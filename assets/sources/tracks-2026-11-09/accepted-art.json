@@ -1,0 +1,170 @@
+{
+  "generated": "2026-11-09",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "tails2",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the reference props exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, a 4 by 2 grid of EIGHT equal cells, generous padding, nothing crossing cell boundaries. Match the warm fur colors of the second reference sheet.\nEight separate playful small animals retreating, each a COMPLETE whole animal (no cut body) seen in a consistent rear three-quarter view running away toward the upper right, chibi cute proportions, species-correct tail clearly visible and lifted, attached hind legs mid-hop, rounded readable silhouettes:\nRow 1: (1) hare, grey-white with a fluffy white cotton tail; (2) fox, rusty orange with a bushy white-tipped tail; (3) water deer, tawny with a tiny short tail and no antlers; (4) raccoon dog, grey-brown with a short bushy dark-banded tail.\nRow 2: (5) squirrel, grey-brown with a big curled fluffy tail; (6) sparrow flying away, small and complete; (7) magpie flying away, black and white with a long blue-black tail, complete; (8) cream and orange tabby cat with a raised striped tail.",
+      "references": [],
+      "file": "tails2.png",
+      "sha256": "559deff91006f4cb9dd8ac77f3f45f9743bd8f8e342237e2f52d6d852fae1717",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/winter-tails.png",
+      "acceptedIds": [
+        "tail_hare",
+        "tail_fox",
+        "tail_water_deer",
+        "tail_squirrel",
+        "tail_sparrow",
+        "tail_magpie",
+        "tail_cat"
+      ],
+      "notes": "The prompt says to match the reference props and a second reference sheet, but its Codex log shows no attached image, so no reference is recorded. Grid of eight 384 x 512 cells. The raccoon dog in row 1, column 4 has a ringed tail and a masked face and reads as a raccoon, so that cell is replaced by raccoondog.png. Only the rear of each animal is kept (see crops)."
+    },
+    {
+      "name": "raccoondog",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the reference props exactly: softly sculpted miniature, SMOOTH MATTE surfaces, soft painterly shading, muted cozy palette, key light from the UPPER LEFT. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, ONE object centered with 15% padding. Match the second reference sheet's animals in size, material and pose.\nA raccoon dog (tanuki-like, a canine, NOT a raccoon) seen in rear three-quarter view running away toward the upper right, complete body, chibi cute: compact round canine rump, grey-brown fluffy coat with darker legs, a short bushy UNRINGED brown-grey tail with a darker tip, attached hind legs mid-hop.",
+      "references": [],
+      "file": "raccoondog.png",
+      "sha256": "f37fbec71b6381b14fb0b23a053078dcc7deca995582ffd653dfd8eff438536e",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/winter-tails.png",
+      "acceptedIds": ["tail_raccoon_dog"],
+      "notes": "No attached image in its Codex log, so no reference is recorded. A canine raccoon dog with an unringed tail, pasted over the raccoon cell of tails2.png."
+    },
+    {
+      "name": "bush",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game prop atlas for a cozy, cute, healing desktop pet game. Landscape 1536x1024 canvas, exactly THREE objects in three equal columns, each centered with 10% transparent padding, nothing crossing column boundaries.\nStyle: match the reference props: softly sculpted miniature, SMOOTH MATTE surfaces, soft painterly shading, muted cozy palette, key light from the UPPER LEFT, clean silhouette readable at 70px.\nCOL1: a low round evergreen shrub heavily topped with soft white snow, a few red winter berries, wider than tall, front view, sitting on a small soft snow mound.\nCOL2: a small dry winter bush of bare brown twigs dusted with snow on a small snow mound.\nCOL3: a puff of kicked-up powder snow, soft white and pale blue clumps and sparkly flakes bursting to the right.\nTRUE transparent alpha background: NO painted background, NO haze, NO floor, NO cast shadow, no text.",
+      "references": [],
+      "file": "bush.png",
+      "sha256": "daf67e0c22dd6c91401d93d3feda1cb475680ae7fb81d2c57e1666575a7c46b7",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/winter-bush.png",
+      "acceptedIds": ["bush", "twigs", "puff"],
+      "notes": "No attached image in its Codex log, so no reference is recorded. Columns: the snowy evergreen bush with red berries (bush), the bare twig bush (twigs), the kicked-up snow puff with its flakes and sparkles (puff, many small pieces)."
+    }
+  ],
+  "composed": [
+    {
+      "name": "winter-tails-src",
+      "file": "winter-tails-src.png",
+      "sha256": "94db9494db6b5017fd2e9c7317288add1697cd92a5975fa99d3f8ffb5099d374",
+      "size": [1536, 1024],
+      "inputs": ["tails2.png", "raccoondog.png"],
+      "runtimeAtlas": "collection-extension/winter-tails.png",
+      "processing": [
+        "tails2.png with its row 1, column 4 cell (x 1152 to 1535, y 0 to 511) cleared to transparent: that raccoon dog has a ringed tail and reads as a raccoon.",
+        "raccoondog.png's alpha >= 50 component (box 308, 51, 914 x 927; lower alpha cleared) scaled with Lanczos to 363 x 368, the fox's measured height, and centred in the cleared cell at 1162, 72."
+      ]
+    },
+    {
+      "name": "winter-tails",
+      "file": "assets/art/collection-extension/winter-tails.png",
+      "sha256": "089633f5d65bed838224036e3dc0de49d0706dd86b941f40ec62f3a114521c11",
+      "size": [1536, 1024],
+      "inputs": ["winter-tails-src.png"],
+      "runtimeAtlas": "collection-extension/winter-tails.png",
+      "processing": [
+        "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; written as 8-bit RGBA, 1536 x 1024. No alpha from 1 to 49 is left.",
+        "Only the rear of each animal is cropped (tail, haunch and hind legs; for the birds the tail and the raised wing), cut before the shoulder, so no head, eye, ear or nose is inside a crop and the animal is never shown whole."
+      ]
+    },
+    {
+      "name": "winter-bush",
+      "file": "assets/art/collection-extension/winter-bush.png",
+      "sha256": "d770e8981bba8427aa6b6ce979054075997301693bf4d64f7b1899d1700bf500",
+      "size": [1536, 1024],
+      "inputs": ["bush.png"],
+      "runtimeAtlas": "collection-extension/winter-bush.png",
+      "processing": [
+        "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; written as 8-bit RGBA, 1536 x 1024. No alpha from 1 to 49 is left."
+      ]
+    }
+  ],
+  "measuredSilhouettes": {
+    "collection-extension/winter-tails.png": [
+      {
+        "id": "tail_hare",
+        "animalBox": [61, 57, 323, 408],
+        "cut": 230,
+        "earLine": 190,
+        "rearBox": [61, 223, 169, 242],
+        "crop": [47, 209, 183, 270],
+        "reason": "Cut at column 230, before the neck (the head starts at about column 235), and only rows from 190 down: the ears lie back over the body as far left as column 155, ending by row 186 left of the cut. Keeps the cotton tail, the rump and the hind feet."
+      },
+      {
+        "id": "tail_fox",
+        "animalBox": [413, 90, 357, 368],
+        "cut": 588,
+        "rearBox": [413, 138, 175, 320],
+        "crop": [399, 124, 189, 348],
+        "reason": "Cut at column 588, where the haunch meets the back; the ears and head start at about column 592. Keeps the white-tipped tail, the haunch and the hind legs."
+      },
+      {
+        "id": "tail_water_deer",
+        "animalBox": [801, 97, 308, 372],
+        "cut": 945,
+        "rearBox": [801, 200, 144, 269],
+        "crop": [787, 186, 158, 297],
+        "reason": "Cut at column 945, behind the shoulder; the ears start at about column 962. Keeps the short tail, the white rump and the hind legs."
+      },
+      {
+        "id": "tail_raccoon_dog",
+        "animalBox": [1162, 72, 363, 368],
+        "cut": 1318,
+        "rearBox": [1162, 176, 156, 264],
+        "crop": [1148, 162, 170, 292],
+        "reason": "Cut at column 1318, before the pale neck ruff; the dark ear starts at about column 1348. Keeps the unringed tail, the rump and the dark hind legs."
+      },
+      {
+        "id": "tail_squirrel",
+        "animalBox": [41, 581, 325, 362],
+        "cut": 240,
+        "rearBox": [41, 581, 199, 362],
+        "crop": [27, 567, 213, 390],
+        "reason": "Cut at column 240, past the curled tail; the ear and head start at about column 249. Keeps the curled tail, the haunch and the hind feet."
+      },
+      {
+        "id": "tail_sparrow",
+        "animalBox": [445, 599, 291, 275],
+        "cut": 585,
+        "rearBox": [445, 599, 140, 275],
+        "crop": [431, 585, 154, 303],
+        "reason": "Cut at column 585; the brown cap starts at about column 590. Keeps the tail, the raised left wing and the lower body; the head and the right wing stay out."
+      },
+      {
+        "id": "tail_magpie",
+        "animalBox": [776, 563, 339, 369],
+        "cut": 985,
+        "rearBox": [776, 563, 209, 369],
+        "crop": [762, 549, 223, 397],
+        "reason": "Cut at column 985; the head starts at about column 997. Keeps the long tail, the raised left wing and the white shoulder patch; the head and the right wing stay out."
+      },
+      {
+        "id": "tail_cat",
+        "animalBox": [1165, 580, 342, 367],
+        "cut": 1335,
+        "rearBox": [1165, 580, 170, 367],
+        "crop": [1151, 566, 184, 395],
+        "reason": "Cut at column 1335, where the haunch meets the back; the ear starts at about column 1345. Keeps the striped tail, the rump and the hind paws."
+      }
+    ],
+    "collection-extension/winter-bush.png": [
+      {
+        "id": "bush",
+        "box": [45, 374, 457, 348]
+      },
+      {
+        "id": "twigs",
+        "box": [556, 351, 429, 363]
+      },
+      {
+        "id": "puff",
+        "box": [1027, 396, 448, 319],
+        "note": "Union of the 22 alpha >= 50 pieces right of column 1024: the snow clumps, flakes and sparkles."
+      }
+    ],
+    "note": "Boxes are x, y, width, height of the alpha >= 50 pixels. A tail crop takes the animal's pixels left of its cut column (and, for the hare, below its ear line), adds 14 px on the left, top and bottom, and ends at the cut column; every opaque pixel of the animal inside a crop is a rear pixel. Bush, twigs and puff crops add 14 px on every side. Each crop was checked at 4x along its cut edge."
+  },
+  "review": "Codex art review (scratch/winter-tracks/review-peek.md, two passes, kept in scratch) of each tail tucked behind the bush with the right-edge mask, at album size (80 px) and yard size (48 px) on day and night snow, plus the three bush objects. Both passes: no head, eye or whole body visible, no halo, cute and calm; the fox, cat and squirrel read clearly, the hare, water deer, raccoon dog and the birds lean on their names. Between passes the tails were set higher with the cut over the mound, and the birds to the bush's left so their tails show. Earlier tries (tails.png) stay in scratch."
+}
