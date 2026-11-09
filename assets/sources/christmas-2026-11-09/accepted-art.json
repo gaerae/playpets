@@ -5,34 +5,21 @@
     {
       "name": "smalltree",
       "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the reference props exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, ONE object centered with 15% padding.\nA SMALL YOUNG version of the second reference Christmas tree (same family, as if it will grow into it): the same sage-green soft needle tiers with the same plush snow on the tier tops, the same blush-pink, pale-gold and soft-teal pastel baubles (only five or six), a thin warm-white string of tiny unlit bulbs, a small plain gold star on top with NO rays and NO glow, a short brown trunk standing in a small soft snow mound. NO ribbon, NO bow, NO presents, NO planter. Short and round, about two thirds as wide as tall.",
-      "references": [
-        "assets/art/decor/props.png",
-        "assets/sources/christmas-2026-11-09/tree2.png"
-      ],
+      "references": ["assets/art/decor/props.png", "assets/sources/christmas-2026-11-09/tree2.png"],
       "file": "smalltree.png",
       "sha256": "d8f8b18008e0f6752c307a29305747bbe19d2d16601fb6e6d6096c703857c046",
-      "size": [
-        1536,
-        1024
-      ],
+      "size": [1536, 1024],
       "runtimeAtlas": "collection-extension/christmas-trees.png",
-      "acceptedIds": [
-        "xmas_tree"
-      ],
+      "acceptedIds": ["xmas_tree"],
       "notes": "Input to christmas-trees-src.png (left half)."
     },
     {
       "name": "tree2",
       "prompt": "Use case: stylized-concept. Asset type: production transparent game prop for a cozy, cute, healing desktop pet game. Portrait 1024x1536 canvas, ONE object centered with 8% transparent padding.\nSubject: a GRAND magical Christmas fir tree for a snowy night, tall and elegant: height about 1.7x its width, seven soft rounded tiers of sage-green needles with thick pillows of snow on each tier, swooping gold satin ribbon garlands, many warm glowing string-light bulbs (kept as small luminous points, glow tight to each bulb), glass baubles in muted dusty rose-red, warm gold and pale ice blue, a LARGE radiant five-point gold star on top with short soft light rays, and a small cluster of three wrapped gift boxes (dusty red, cream, sage) with ribbons at its base. NO planter, NO crate, the trunk base sits in a small mound of snow.\nStyle: same rendering as the reference props: softly sculpted miniature game art, smooth matte surfaces, gentle rounded forms, restrained soft highlights, muted cozy palette (not candy colors), key light from the UPPER LEFT. Must look dazzling, cute and heart-warming.\nTRUE transparent alpha background: NO painted background, NO sky, NO haze or glow cloud around the tree, NO floor beyond the snow mound, NO cast shadow outside, no text.",
-      "references": [
-        "assets/art/decor/props.png"
-      ],
+      "references": ["assets/art/decor/props.png"],
       "file": "tree2.png",
       "sha256": "486108bdc8a8def66410e1ce6e83e108d0fbab858bc998388b4b099005610e11",
-      "size": [
-        1024,
-        1536
-      ],
+      "size": [1024, 1536],
       "runtimeAtlas": "collection-extension/christmas-trees.png",
       "acceptedIds": [],
       "notes": "The grand tree is kept in the atlas for the Christmas night part; no catalog entry names it yet."
@@ -46,15 +33,9 @@
       ],
       "file": "guests2.png",
       "sha256": "1374e3168a5164bb3dd0a15fb43c9f269095380ee97c3a2e057055decda3c02a",
-      "size": [
-        1536,
-        1024
-      ],
+      "size": [1536, 1024],
       "runtimeAtlas": "collection-extension/christmas-guests.png",
-      "acceptedIds": [
-        "baby_reindeer",
-        "santa"
-      ],
+      "acceptedIds": ["baby_reindeer", "santa"],
       "notes": "The sleigh in the third column is kept in the atlas for later; it is only ever drawn as a dark silhouette with a gold rim, so its two tiny reindeer keep their small red noses."
     }
   ],
@@ -63,14 +44,8 @@
       "name": "christmas-trees-src",
       "file": "christmas-trees-src.png",
       "sha256": "5ed3015921ec99495fd1154f8b6967aae5c16fa62e2af03930de717bfd01fcb7",
-      "size": [
-        1536,
-        1024
-      ],
-      "inputs": [
-        "smalltree.png",
-        "tree2.png"
-      ],
+      "size": [1536, 1024],
+      "inputs": ["smalltree.png", "tree2.png"],
       "runtimeAtlas": "collection-extension/christmas-trees.png",
       "processing": [
         "Small tree on the left and grand tree on the right placed on one 1536 x 1024 sheet, scaled with Lanczos, grand tree 900 px tall.",
@@ -81,69 +56,41 @@
       "name": "christmas-guests-src",
       "file": "christmas-guests-src.png",
       "sha256": "4c63f85e203d8964a04c212e89bb6ce30f5f68e163f0f84fa5fc00052dc64ca8",
-      "size": [
-        1536,
-        1024
-      ],
-      "inputs": [
-        "guests2.png",
-        "deer-brown.png"
-      ],
+      "size": [1536, 1024],
+      "inputs": ["guests2.png", "deer-brown.png"],
       "runtimeAtlas": "collection-extension/christmas-guests.png",
       "processing": [
         "guests2.png with the baby reindeer's nose recoloured from red to cocoa brown (only the nose pixels, so it does not read as a famous character); the recoloured reindeer, deer-brown.png (512 x 1024), is pasted over the first column.",
         "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; written as 8-bit RGBA, 1536 x 1024."
-      ]
+      ],
+      "inputsSha256": {
+        "deer-brown.png": "bffa848988543e0ae963126dfa10f5baf2fcbf3af19620641b42b836f8161bf1"
+      }
     }
   ],
   "measuredSilhouettes": {
     "collection-extension/christmas-trees.png": [
       {
         "id": "xmas_tree",
-        "box": [
-          234,
-          614,
-          300,
-          386
-        ]
+        "box": [234, 614, 300, 386]
       },
       {
         "id": "grand tree (not named yet)",
-        "box": [
-          879,
-          100,
-          546,
-          900
-        ]
+        "box": [879, 100, 546, 900]
       }
     ],
     "collection-extension/christmas-guests.png": [
       {
         "id": "baby_reindeer",
-        "box": [
-          83,
-          228,
-          383,
-          578
-        ]
+        "box": [83, 228, 383, 578]
       },
       {
         "id": "santa",
-        "box": [
-          508,
-          247,
-          453,
-          554
-        ]
+        "box": [508, 247, 453, 554]
       },
       {
         "id": "sleigh (not named yet)",
-        "box": [
-          1016,
-          395,
-          496,
-          243
-        ]
+        "box": [1016, 395, 496, 243]
       }
     ],
     "note": "Boxes are x, y, width, height of the alpha >= 50 components; crops in src/art/collection.json add a 14-pixel margin."
