@@ -176,6 +176,22 @@ test('Escape releases an authored planting task without spending inventory', asy
   assert.equal(planted.length, 0);
   assert.equal(v.doing, null);
 });
+test('Esc that only ends a composition in the message box leaves the walk to plant alone', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { v, click } = page(t);
+  await click();
+  assert.ok(v.trip, 'a friend is on the way to plant');
+  const box = element('textarea');
+  const esc = init => document.dispatch('keydown', { key: 'Escape', target: box, ...init });
+  await esc({ isComposing: true, keyCode: 229 });
+  assert.ok(v.trip, 'Esc taken by the input method');
+  await esc({ isComposing: false, keyCode: 229 });
+  assert.ok(v.trip, 'macOS WebKit has already ended the composition, and only the key code says so');
+  await esc({ defaultPrevented: true });
+  assert.ok(v.trip, 'Esc another surface already answered');
+  await esc({});
+  assert.equal(v.trip, null, 'a plain Esc puts the walk away');
+});
 test('a failed planting save releases its actor and leaves backend inventory authoritative', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { v, click, nodes } = page(t);

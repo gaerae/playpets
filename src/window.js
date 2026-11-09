@@ -1,7 +1,7 @@
 // One frameless window: its size and its always-on-top switch are independent.
 import { closeControls, closeScene } from './core/controls.js';
 import { t } from './core/i18n.js';
-import { composing, onShortcut } from './core/keys.js';
+import { onEscape, onShortcut } from './core/keys.js';
 import { $, call, data, guard } from './core/state.js';
 
 let fullscreen = false;
@@ -99,10 +99,8 @@ export function setupWindow() {
     }),
   );
   // Window bubbling runs after panel and dropdown handlers have consumed Escape.
-  window.addEventListener(
-    'keydown',
+  onEscape(
     guard(async event => {
-      if (event.key !== 'Escape' || composing(event) || event.defaultPrevented) return;
       const dialog = document.querySelector('dialog[open]');
       if (dialog) {
         if (fullscreen) {
@@ -129,6 +127,7 @@ export function setupWindow() {
         await setFullscreen(false);
       }
     }),
+    window,
   );
   fitWindow();
   renderWindow();

@@ -4,7 +4,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { matches, SHORTCUTS, typing } from '../src/core/keys.js';
+import { matches, onEscape, SHORTCUTS, typing } from '../src/core/keys.js';
+import { element } from './support/dom.mjs';
 
 const menu = readFileSync(new URL('../src-tauri/src/menu.rs', import.meta.url), 'utf8');
 const accelerator = keys =>
@@ -46,4 +47,17 @@ test('keys typed into a field are told apart from keys for the yard', () => {
     assert.equal(typing(inside(field)), true);
   assert.equal(typing({ target: { closest: () => null } }), false, 'the yard or a button');
   assert.equal(typing({ target: null }), false, 'no target at all');
+});
+
+test('Esc reaches the yard only when no input method or nearer surface took it', async () => {
+  const target = element('#window');
+  const heard = [];
+  onEscape(event => heard.push(event.why), target);
+  const esc = (why, init = {}) => target.dispatch('keydown', { key: 'Escape', keyCode: 27, why, ...init });
+  await esc('composing', { isComposing: true });
+  await esc('macOS ends the composition first', { keyCode: 229 });
+  await esc('a dropdown closed', { defaultPrevented: true });
+  await target.dispatch('keydown', { key: 'Enter', why: 'another key' });
+  await esc('plain');
+  assert.deepEqual(heard, ['plain']);
 });

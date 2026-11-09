@@ -5,6 +5,7 @@
 
 import { companionImage, playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
 import { joinList, list, t } from '../core/i18n.js';
+import { onEscape } from '../core/keys.js';
 import { pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
@@ -227,9 +228,7 @@ function plantNearby() {
 /** Wires the planting tool and the field's click. Called once, by app.js. */
 export function setupGarden() {
   $('world')?.addEventListener('change', cancelPlanting);
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape') cancelPlanting();
-  });
+  onEscape(cancelPlanting);
   // With the mouse the next click in the yard chooses the spot; from the keyboard a second press
   // plants beside the selected friend (or mid-field), as the picnic treat does.
   $('plant-tool').onclick = guard(async e => {
