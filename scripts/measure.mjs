@@ -5,9 +5,11 @@
 //   yard+desktop strolling | yard+desktop still | desktop only | all hidden | yard only |
 //   yard only with its sounds playing
 // Compare numbers from the same machine only; docs/standards/performance.md lists the last ones.
+// The scene is fixed (a clear spring day): rain, snow and the hour change what the yard draws, so
+// an unfixed run measured the weather of the moment, not the app.
 
 import { execSync, spawn } from 'node:child_process';
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,6 +24,10 @@ const binary = process.env.PLAYPETS_BINARY || path.join(here, '../src-tauri/targ
 const data = await mkdtemp(path.join(os.tmpdir(), 'playpets-measure-'));
 const codexHome = path.join(data, 'codex');
 await writeFixturePet(codexHome);
+await writeFile(
+  path.join(data, 'state.json'),
+  JSON.stringify({ scene: { weather: 'clear', period: 'day', season: 'spring' } }),
+);
 
 const HOLD = 30;
 const PHASES = {
