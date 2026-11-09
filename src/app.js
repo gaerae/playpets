@@ -49,6 +49,7 @@ import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { christmasNightCheck, setupChristmasNight } from './yard/christmas-night.js';
 import { loadContent } from './yard/content.js';
 import { giftTick, putAway, refreshShownDecor, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
+import { openDecorating, renderDecorating, setupDecorating } from './yard/decorating.js';
 import {
   autoDig,
   beginDiscovery,
@@ -203,12 +204,16 @@ setupDecor({
   drawn: () => {
     christmasNightCheck();
     drawTreeOrnaments();
+    // The decorating view follows the tree: put away, back with Undo, or gone after January 7.
+    renderDecorating();
   },
+  press: { xmas_tree: openDecorating },
 });
 setupDiscovery();
 setupTrees();
 setupCatch();
 setupAlbum();
+setupDecorating();
 setupCard({ openAlbum });
 setupSound();
 setupFriend();

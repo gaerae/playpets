@@ -58,6 +58,11 @@ const shownName = (kind, button) =>
   button.classList.contains('xmas-grand') ? t(`decor.kind_${kind}_grand`) : kindName(kind);
 // Called at the end of every drawing of the gifts (setupDecor).
 let afterDrawing = () => {};
+// What a press on a kind opens instead of sending a friend over (setupDecor): kind -> (id) => void.
+let presses = {};
+const pressOf = kind => (Object.hasOwn(presses, kind) ? presses[kind] : null);
+// A press that did not move: the kind's own view, or the nearest friend walks over.
+const pressed = v => (pressOf(v.kind) ? pressOf(v.kind)(v.id) : visit(v.id));
 // The kinds out of sight when the yard last drew its gifts (decor-shown.js), joined.
 let drawnHidden = null;
 // The list last sent to the backend, so the desktop hears of a change once, not at every repaint.
@@ -94,7 +99,8 @@ function create(d) {
   if (effects.length) button.dataset.effects = effects.join(' ');
   button.innerHTML = `${effectLayers(effects)}${gift ? artSvg(gift.art) : ''}`;
   const v = { id: d.id, kind: d.kind, button, drag: null, busy: false };
-  // Dragging moves it; a press that does not move sends the nearest friend over to it.
+  // Dragging moves it; a press that does not move opens its view (the Christmas tree's decorating)
+  // or sends the nearest friend over to it.
   button.addEventListener('pointerdown', e => {
     // Placing a seed or a treat, the press goes through to the field.
     if (e.button !== 0 || aiming || game || v.busy) return;
@@ -121,7 +127,7 @@ function create(d) {
     const drag = endDrag(v, button, event);
     button.classList.remove('dragging');
     if (!drag) return;
-    if (!drag.moved) return visit(v.id);
+    if (!drag.moved) return pressed(v);
     if (drag.at) return save(v.id, drawnPlace(v.kind, drag.at));
   };
   button.addEventListener('pointerup', drop);
@@ -137,10 +143,15 @@ function create(d) {
     openDecorMenu(v.id, { x: e.clientX, y: e.clientY });
   });
   // By keyboard: arrows move it a few pixels, the same in any window or place; Delete puts it away;
-  // the menu key or Shift+F10 opens its menu, as a friend's does. Aiming a treat or seed, or in a
-  // game, the keys leave it alone, as they do a tree and as a press does.
+  // the menu key or Shift+F10 opens its menu, as a friend's does; Enter or Space opens a kind's own
+  // view, as a press does. Aiming a treat or seed, or in a game, the keys leave it alone, as they do
+  // a tree and as a press does.
   button.addEventListener('keydown', e => {
     if (aiming || game) return;
+    if ((e.key === 'Enter' || e.key === ' ') && pressOf(v.kind)) {
+      e.preventDefault();
+      return pressed(v);
+    }
     if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
       e.preventDefault();
       const r = button.getBoundingClientRect();
@@ -170,9 +181,11 @@ const save = guard(async (id, at) => {
   });
 });
 
-/** `drawn` runs after every drawing of the gifts (the Christmas tree's night, christmas-night.js). */
-export function setupDecor({ drawn = () => {} } = {}) {
+/** `drawn` runs after every drawing of the gifts (the Christmas tree's night, christmas-night.js);
+ * `press` maps a kind to what a press on it opens (the Christmas tree's decorating view). */
+export function setupDecor({ drawn = () => {}, press = {} } = {}) {
   afterDrawing = drawn;
+  presses = press;
   globalThis.window?.addEventListener('resize', () => {
     for (const view of shown.values()) {
       view.drag = null;
@@ -208,7 +221,9 @@ export function renderDecor() {
     v.button.classList.toggle('memento-new', until > now);
     const from = d.memento && data.pets.find(p => p.id === d.from);
     const kind = shownName(d.kind, v.button);
-    const label = from ? t('decor.memento_title', { name: name(from), kind }) : t('decor.title', { kind });
+    const label = from
+      ? t('decor.memento_title', { name: name(from), kind })
+      : t(pressOf(d.kind) ? 'decor.title_decorate' : 'decor.title', { kind });
     v.button.classList.toggle('memento', !!d.memento);
     v.button.title = label;
     v.button.setAttribute('aria-label', label);

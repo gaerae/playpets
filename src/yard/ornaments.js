@@ -63,6 +63,9 @@ const BOOKS = {
 const bookOf = book => (Object.hasOwn(BOOKS, book) ? BOOKS[book] : null);
 const known = o => !!bookOf(o.book)?.kind(o.id);
 
+/** A book's name as the album calls it ("Flowers", "Keepsakes"); empty for one not of the four. */
+export const bookName = book => (bookOf(book) ? t(bookOf(book).tab) : '');
+
 /** The December whose ornaments `date` shows: its year in December, else the year before. */
 export function ornamentSeason(date) {
   return date.getMonth() === 11 ? date.getFullYear() : date.getFullYear() - 1;

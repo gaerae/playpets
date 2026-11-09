@@ -12,6 +12,7 @@ import { renderWindow } from './window.js';
 import { renderBonds } from './yard/bond.js';
 import { syncChatter } from './yard/care.js';
 import { renderDecor } from './yard/decor.js';
+import { renderDecorating } from './yard/decorating.js';
 import { syncDiscovery } from './yard/discovery.js';
 import { renderGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
@@ -45,6 +46,7 @@ export function render() {
   renderTrees();
   syncDiscovery();
   renderAlbum();
+  renderDecorating();
   renderBonds();
   renderSound();
   renderShelf();

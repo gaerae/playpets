@@ -499,7 +499,8 @@
    (cqi of its own width), so a small one is not all rim. In the yard there is no drawing inside:
    about 8 px wide on the small tree and 11 on the grand one in a full-width yard, it would be
    noise. A tree's layer covers its drawing (hooks are shares of it) and follows it: scaled with it
-   from the foot, faded with the small tree as it turns grand, dimmed with each tree at night. */
+   from the foot, faded with the small tree as it turns grand, dimmed with each tree at night. The
+   tints are the decorating view's too (dialog.css): its books' swatches and the tray's chips. */
 .bauble {
   position: absolute;
   aspect-ratio: 1;
@@ -549,22 +550,30 @@
     border-top-width: clamp(0.5px, 9cqi, 1.5px);
   }
 }
-.bauble.flower {
+.bauble.flower,
+.decorating-kind.flower,
+.ornament-chip.flower {
   --c: #dfa4aa;
   --c1: #f6d7da;
   --c2: #b06f78;
 }
-.bauble.tree {
+.bauble.tree,
+.decorating-kind.tree,
+.ornament-chip.tree {
   --c: #9cbf96;
   --c1: #dbead6;
   --c2: #5f8a5f;
 }
-.bauble.gift {
+.bauble.gift,
+.decorating-kind.gift,
+.ornament-chip.gift {
   --c: #b9a8d6;
   --c1: #e6def3;
   --c2: #7d6aa3;
 }
-.bauble.treasure {
+.bauble.treasure,
+.decorating-kind.treasure,
+.ornament-chip.treasure {
   --c: #ddbb70;
   --c1: #f5e6bf;
   --c2: #a8843a;

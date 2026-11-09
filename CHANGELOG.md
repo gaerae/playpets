@@ -19,6 +19,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In December, if the yard isn't showing winter, PlayPets asks once whether to show the winter yard until January 7. If you say yes, your season comes back on January 8.
 - On a snowy December evening or night, with the yard showing winter, the little Christmas tree lights up and grows into a grand tree, once a night. It stays while the snow falls, a bulb glinting now and then, and goes back when it stops.
 - With the baby reindeer and Santa set out in the yard, they look up, a sleigh crosses the moon once that night, and gold drifts down from the star.
+- Press the Christmas tree to decorate it: hang up to three things a day from the album (flowers, trees, gifts and keepsakes) as small baubles tinted by kind, and point at one to see what it is or take it down. They stay on the tree in the yard, grand tree included, until the next December starts a fresh tree.
 
 ### Changed
 

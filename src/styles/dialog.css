@@ -682,6 +682,336 @@ body.compact .update-compact {
     radial-gradient(ellipse 34% 10% at 50% 82%, #2847311f, transparent),
     radial-gradient(ellipse at 50% 38%, #fff8e4, var(--album-ground) 78%);
 }
+/* ---- Decorating the tree (yard/decorating.js): the tree on a winter evening in both themes, so
+   it and the bauble tints read the same in light and dark; hook points while an item is picked, a
+   card naming a bauble, the day's dots, the books and the tray of finds. The tints come from the
+   baubles' own rules (garden.css). ---- */
+.decorating-dialog {
+  width: min(560px, calc(100vw - 32px));
+  padding: 14px;
+}
+.decorating-stage {
+  position: relative;
+  height: min(300px, 44vh);
+  margin-top: 10px;
+  border-radius: var(--radius-card);
+  background: radial-gradient(120% 80% at 50% 30%, #2a3766, #141c38 70%);
+}
+/* The snowy rise the tree stands on. */
+.decorating-stage::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 20%;
+  border-radius: 50% 50% var(--radius-card) var(--radius-card) / 34% 34% var(--radius-card) var(--radius-card);
+  background: linear-gradient(#c9d5e8, #e7eef8);
+}
+.decorating-tree {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  height: 88%;
+  translate: -50% 0;
+}
+.decorating-tree > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 6px 5px #0b102466);
+}
+.decorating-tree .bauble {
+  z-index: 1;
+  min-height: 0;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+.decorating-tree.small .bauble {
+  width: max(22px, 16%);
+}
+.decorating-tree.grand .bauble {
+  width: max(22px, 12%);
+}
+.decorating-tree .bauble:focus-visible {
+  outline: 2px solid #ffe7ad;
+  outline-offset: 2px;
+}
+.decorating-tree .bauble-ball {
+  overflow: hidden;
+  transition: scale 0.15s;
+}
+.decorating-tree .bauble:hover .bauble-ball {
+  scale: 1.08;
+}
+/* The find's drawing inside its bauble, a little low, under the shine. */
+.decorating-tree .bauble-ball > svg {
+  position: absolute;
+  left: 14%;
+  top: 19%;
+  width: 72%;
+  height: 72%;
+}
+.ornament-hook {
+  position: absolute;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  /* A pale core in a bright ring, with only a small halo, tells a hook from the bulbs painted on
+     the tree and from the baubles' gold rims. */
+  background: radial-gradient(#fffaf0 0 20%, #ffe7ad66 34%, transparent 58%);
+  box-shadow:
+    inset 0 0 0 1.5px #fff3d6,
+    0 0 6px #ffe7ad80;
+  transition: scale 0.15s;
+}
+.ornament-hook:hover,
+.ornament-hook:focus-visible {
+  scale: 1.35;
+}
+.ornament-hook:focus-visible {
+  outline: 2px solid #ffe7ad;
+  outline-offset: 0;
+}
+/* The card: what a bauble is, and a button to take it down. Placed by decorating.js. */
+.ornament-card {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 132px;
+  padding: 8px 8px 10px;
+  border-radius: 12px;
+  background: #fff6e8;
+  color: #443b39;
+  box-shadow: 0 8px 24px #0b102466;
+  text-align: center;
+}
+.ornament-card-art {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 64px;
+}
+.ornament-card-art svg {
+  width: auto;
+  max-width: 100%;
+  height: 64px;
+}
+.ornament-card strong {
+  font-size: 13px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.ornament-card small {
+  margin-top: 0;
+  font-size: 11px;
+  color: #7c6c64;
+  overflow-wrap: anywhere;
+}
+.ornament-card .ornament-take-down {
+  min-height: 28px;
+  margin-top: 6px;
+  padding: 3px 12px;
+  border-color: #e3d3bd;
+  background: #fffdf8;
+  color: #443b39;
+  font-size: 12px;
+}
+.decorating-friend {
+  position: absolute;
+  right: 4%;
+  bottom: 4%;
+  height: 30%;
+  aspect-ratio: 192 / 208;
+}
+.decorating-friend canvas {
+  width: 100%;
+  height: 100%;
+}
+/* The friend's line above its picture, as the yard's bubble looks. */
+.decorating-bubble {
+  position: absolute;
+  right: 2%;
+  bottom: calc(34% + 4px);
+  z-index: 2;
+  width: max-content;
+  max-width: 55%;
+  padding: 6px 10px;
+  border: 1px solid var(--scene-line);
+  border-radius: 12px;
+  background: var(--scene-label);
+  box-shadow: 0 4px 12px #0b102433;
+  color: var(--scene-ink);
+  font-size: 11px;
+  line-height: 1.45;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+/* What can still be done today, and the day's three as dots (the spent ones quiet). */
+.decorating-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 20px;
+  margin: 10px 0 8px;
+  font-size: 13px;
+  text-align: center;
+}
+.decorating-status .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e3b04b;
+}
+.decorating-status .dot:first-of-type {
+  margin-left: 6px;
+}
+.decorating-status .dot.used {
+  background: var(--line);
+}
+.decorating-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.decorating-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--field-surface);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.decorating-kind:hover {
+  background: var(--control-hover);
+}
+.decorating-kind[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--panel-surface);
+}
+.decorating-kind .swatch {
+  width: 11px;
+  height: 11px;
+}
+.decorating-kind .swatch,
+.ornament-chip::before {
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, var(--c1), var(--c) 55%, var(--c2));
+  box-shadow: inset 0 0 0 1px #d9b25e;
+}
+.decorating-tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 6px;
+  max-height: 30vh;
+  padding: 2px;
+  overflow-y: auto;
+}
+.ornament-chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 4px 5px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--field-surface);
+  font-size: 11px;
+}
+/* The bauble tint it will wear, in its corner. */
+.ornament-chip::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+}
+.ornament-chip:hover:not(:disabled) {
+  background: var(--control-hover);
+}
+.ornament-chip[aria-pressed="true"] {
+  border-color: #d9b25e;
+  background: #fff3d6;
+  box-shadow: 0 0 0 1px #d9b25e;
+}
+.ornament-chip:disabled {
+  opacity: 0.4;
+}
+.ornament-chip-art {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 36px;
+}
+.ornament-chip-art svg {
+  width: auto;
+  max-width: 100%;
+  height: 36px;
+}
+/* Two lines at most, so a long name ("Baby reindeer") still reads in a narrow tray. */
+.ornament-chip-name {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.25;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+@media (prefers-color-scheme: dark) {
+  .ornament-card {
+    background: #2b2f45;
+    color: #f3ece4;
+  }
+  .ornament-card small {
+    color: #c9bdb3;
+  }
+  .ornament-card .ornament-take-down {
+    border-color: #4a4f6b;
+    background: #363b56;
+    color: #f3ece4;
+  }
+  .ornament-chip[aria-pressed="true"] {
+    background: #4a3e24;
+  }
+}
+@media (max-width: 640px), (max-height: 480px) {
+  .decorating-dialog {
+    width: calc(100vw - 16px);
+    max-width: none;
+    padding: 12px;
+  }
+  .decorating-stage {
+    height: min(230px, 38vh);
+  }
+  .decorating-tray {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  }
+  .ornament-card-art,
+  .ornament-card-art svg {
+    height: 48px;
+  }
+}
 .connection-help {
   padding: 10px 12px;
   border-radius: var(--radius-card);
