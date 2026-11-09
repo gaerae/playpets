@@ -223,14 +223,14 @@ function visited(v, kind) {
 }
 
 // Put away at once with a moment to undo it (props.js); a friend may bring it again another day,
-// and a memento goes back into the gift box instead.
+// and a memento or a Christmas gift goes back into the gift box instead.
 /** Puts a gift away, with a moment to take it back (its menu, or Delete). */
 export function putAway(id) {
   const d = data.garden?.decor.find(x => x.id === id),
     view = shown.get(id);
   if (!d || !view) return;
-  // With the box full a memento goes as any gift does (garden.rs put_away).
-  const boxed = d.memento && (data.garden.boxed?.length ?? 0) < limit(data, 'giftBox');
+  // With the box full it goes as any gift does (garden.rs put_away).
+  const boxed = (d.memento || !!giftKind(d.kind)?.shown) && (data.garden.boxed?.length ?? 0) < limit(data, 'giftBox');
   const done = t(boxed ? 'decor.memento_put_away' : 'decor.put_away_done', { kind: kindName(d.kind) });
   removeWithUndo(id, view, done, () => call('putAway', id));
 }

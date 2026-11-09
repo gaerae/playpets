@@ -251,9 +251,7 @@ impl Catalog {
             .map(|k| k.id.as_str())
             .collect()
     }
-    // Read by the desktop layout and the garden once they know the time of year; tested here first.
-    #[allow(dead_code)]
-    /// Whether this gift goes back into the box rather than staying out when it is not its time.
+    /// Whether putting this gift away keeps it in the gift box (a gift shown only at a time of year).
     pub fn kept_in_box(&self, id: &str) -> bool {
         self.gifts.iter().any(|k| k.id == id && k.shown.is_some())
     }

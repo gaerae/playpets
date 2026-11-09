@@ -507,9 +507,10 @@ impl Garden {
         Ok(())
     }
 
-    /// Puts a decoration away (a friend may bring it again another day). A memento goes into the
-    /// box instead, to be set out again; with the box full it goes as any gift does, so a yard of
-    /// mementos and a full box can still make room.
+    /// Puts a decoration away (a friend may bring it again another day). A memento or a gift shown
+    /// only at a time of year goes into the box instead, to be set out again; with the box full it
+    /// goes as any gift does (the album still sets a received kind out), so a yard of mementos and
+    /// a full box can still make room.
     pub fn put_away(&mut self, id: &str) -> Result<(), String> {
         let at = self
             .decor
@@ -518,7 +519,7 @@ impl Garden {
             .ok_or_else(|| i18n::t("error.decor_missing"))?;
         let mut gone = self.decor.remove(at);
         gone.on_desktop = false;
-        if gone.memento && self.boxed.len() < BOX_MAX {
+        if (gone.memento || catalog().kept_in_box(&gone.kind)) && self.boxed.len() < BOX_MAX {
             self.boxed.push(gone);
         }
         Ok(())
@@ -628,6 +629,32 @@ mod tests {
         assert!(saved["decor"][2].get("onDesktop").is_none() && saved["decor"][2].get("desktopPosition").is_none());
         g.put_away("b").unwrap();
         assert_eq!((g.boxed[0].id.as_str(), g.boxed[0].on_desktop), ("b", false));
+    }
+
+    #[test]
+    fn a_december_gift_goes_back_into_the_box_when_put_away() {
+        let mut g = Garden::default();
+        let tree = g.give("xmas_tree", "miso", false, 0.5, 0.5, 1).unwrap();
+        g.put_away(&tree.decor.id).unwrap();
+        assert_eq!(
+            g.boxed.iter().map(|d| d.kind.as_str()).collect::<Vec<_>>(),
+            ["xmas_tree"]
+        );
+        let bench = g.give("bench", "miso", false, 0.5, 0.5, 1).unwrap();
+        g.put_away(&bench.decor.id).unwrap();
+        assert_eq!(g.boxed.len(), 1, "an everyday gift is not kept");
+        // With the box full it leaves as a memento does, and the album sets it out again.
+        let out = g.set_out(&g.boxed[0].id.clone(), 0.5, 0.5).unwrap();
+        while g.boxed.len() < BOX_MAX {
+            g.boxed.push(Decor {
+                id: g.boxed.len().to_string(),
+                kind: "tent".into(),
+                ..Decor::default()
+            });
+        }
+        g.put_away(&out.id).unwrap();
+        assert!(g.decor.is_empty() && g.boxed.len() == BOX_MAX);
+        assert!(g.take_out("xmas_tree", 0.5, 0.5, 2).is_ok());
     }
 
     #[test]

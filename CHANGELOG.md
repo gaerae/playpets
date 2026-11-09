@@ -19,6 +19,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- The Christmas tree, the baby reindeer and Santa go back into the gift box when you put them away, as a memento does, so they can be set out again.
 - The winter lights' and the New Year's gifts come whatever season the yard shows, in every place, the studio too.
 - The winter lights now run from December 1 to 31, on the same dates south of the equator.
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.

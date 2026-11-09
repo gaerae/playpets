@@ -414,8 +414,11 @@ const scenario = `(async()=>{
     await L('gift='+(alone.ok===false&&gift.kind==='bench'&&gift.from===giver&&twice.ok===false&&nextDay.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-every-other-day-moved-away':'err:'+JSON.stringify([alone,gift,twice,nextDay])));
     // A seasonal event: its gift comes on its days (the backend checks them), and the label beside the scene shows the event on now.
     const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(async()=>(await playPets.bootstrap()).data.garden.decor.some(d=>d.id===snow.id));await playPets.putAway(snow.id);
+    const boxedTree=await until(async()=>(await playPets.bootstrap()).data.garden.boxed.some(d=>d.kind==='xmas_tree'));
+    // The capacity check below starts with an empty box.
+    await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
-    await L('event='+(snow.kind==='xmas_tree'&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
+    await L('event='+(snow.kind==='xmas_tree'&&boxedTree&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
     // Real saved gifts fill the yard; the next waits in the gift box, putting one away retains its album record and
     // frees the capacity, and the boxed one is set out from the album.
     const capacityGifts=[];
@@ -1609,7 +1612,7 @@ const expect = [
   ],
   [
     /^event=gift-and-label$/,
-    'the winter lights bring the Christmas tree on their days, and the scene label shows the event on now',
+    'the winter lights bring the Christmas tree on their days, it goes back into the gift box when put away, and the scene label shows the event on now',
   ],
   [
     /^gift=bench-every-other-day-moved-away$/,
