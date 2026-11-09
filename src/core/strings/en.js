@@ -964,7 +964,7 @@ export const strings = {
   'letter.fact_finds': 'This year we found {count} new things for the album. The newest: {thing}!',
   'letter.fact_finds_one': 'This year we found one new thing for the album: {thing}!',
   'letter.fact_tree': 'We grew one together, too: {tree}. It got so big!',
-  'letter.fact_close_1': 'We only just met, but I’m really glad it’s you.',
+  'letter.fact_close_1': 'We’re only just getting close, but I’m really glad it’s you.',
   'letter.fact_close_2': 'I feel at ease around you now.',
   'letter.fact_close_3': 'Being with you always feels warm.',
   'letter.fact_close_4': 'We’ve gotten really close, haven’t we?',
