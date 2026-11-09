@@ -4,10 +4,12 @@ import './support/content.mjs';
 import { element, installDom } from './support/dom.mjs';
 
 const calls = [];
+const events = [];
 let failGift = false;
 let refuseThanks = false;
 globalThis.playPets = {
-  receiveGift: async (_x, _y, day, _event, from) => {
+  receiveGift: async (_x, _y, day, event, from) => {
+    events.push(event);
     calls.push(['gift', day, from]);
     if (failGift) return { ok: false, error: 'fixture failure' };
     state.data.garden.giftDay = day;
@@ -32,6 +34,7 @@ globalThis.playPets = {
 };
 const state = await import('../src/core/state.js');
 const { measureYard } = await import('../src/yard/field.js');
+const { scene } = await import('../src/yard/world.js');
 const { daysBetween, giftDue, localDay } = await import('../src/yard/growth.js');
 let imports = 0;
 const fresh = () => import(`../src/yard/decor.js?gift-progress=${++imports}`);
@@ -41,8 +44,8 @@ const DAY = 86_400_000;
 const gifts = () => calls.filter(c => c[0] === 'gift');
 const pet = { id: 'gift-friend', size: 100 };
 
-function fixture(t) {
-  let wall = new Date(2026, 0, 5, 12).getTime();
+function fixture(t, start = new Date(2026, 0, 5, 12)) {
+  let wall = start.getTime();
   t.mock.timers.enable({ apis: ['setTimeout'] });
   t.mock.method(Date, 'now', () => wall);
   t.mock.method(Math, 'random', () => 0);
@@ -50,6 +53,7 @@ function fixture(t) {
   document.getElementById('yard').getBoundingClientRect = () => ({ width: 1000, height: 700 });
   measureYard();
   calls.length = 0;
+  events.length = 0;
   failGift = false;
   refuseThanks = false;
   const previous = state.data;
@@ -300,4 +304,27 @@ test('no thanks gift is asked for while another gift is on its way', async t => 
   assert.equal(calls.length, 1);
   await flush();
   assert.deepEqual(calls, [['thanks', pet.id, 4]]);
+});
+
+test('during the winter lights the gift asks for them in the studio too', async t => {
+  for (const [start, giftDay, expected] of [
+    [new Date(2026, 11, 15, 12), '2026-12-01', ['lights']],
+    [new Date(2026, 3, 5, 12), '2026-03-20', [null]],
+  ]) {
+    await t.test(`${start.toDateString()}`, async t => {
+      const clock = fixture(t, start);
+      const before = { world: scene.world, event: scene.event };
+      t.after(() => Object.assign(scene, before));
+      state.data.garden.giftDay = giftDay;
+      scene.world = 'studio';
+      scene.event = null;
+      clock.together();
+      const decor = await fresh();
+      decor.giftTick();
+      clock.advance(20 * MIN);
+      decor.giftTick();
+      await flush();
+      assert.deepEqual(events, expected);
+    });
+  }
 });

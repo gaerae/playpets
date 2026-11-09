@@ -10,6 +10,7 @@ import { openDecorMenu } from '../core/controls.js';
 import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { between, clamp, pick } from '../core/math.js';
+import { systemSouth } from '../core/season.js';
 import { aiming, call, data, game, guard, name, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { artSvg } from './art.js';
@@ -18,6 +19,7 @@ import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { effectLayers, effectsVisited } from './effects.js';
+import { giftEvent } from './events.js';
 import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
 import {
@@ -293,8 +295,10 @@ export function giftTick() {
   const free = together.filter(isFree);
   if (!free.length) return;
   const v = pick(free);
-  // During a seasonal event, the gift is its own the first time (the backend checks the dates).
-  const ask = at => call('receiveGift', at.x, at.y, today, scene.event, v.pet.id);
+  // During an event, the gift is its own the first time (the backend checks the dates). A calendar
+  // festival counts whatever the yard shows; a seasonal one needs the scene to show it.
+  const event = giftEvent(new Date(now), systemSouth(), scene.event);
+  const ask = at => call('receiveGift', at.x, at.y, today, event, v.pet.id);
   bring(v, ask, { say: 'decor.gift', detail: 'decor.brought' }).then(ok => {
     if (ok) befriend(v.pet.id, 'gift');
     // A failed save must not replay the gift and its request on every frame.

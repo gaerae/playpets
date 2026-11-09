@@ -6,7 +6,7 @@ import test from 'node:test';
 import './support/content.mjs';
 import { setLanguageForTests } from '../src/core/i18n.js';
 import { bite, flyingBug } from '../src/yard/catalog.js';
-import { boostOf, eventDates, eventOn, eventStart, inEvent } from '../src/yard/events.js';
+import { boostOf, eventDates, eventOn, eventStart, giftEvent, inEvent } from '../src/yard/events.js';
 
 const on = (iso, south = false) => eventOn(new Date(`${iso}T12:00:00`), south)?.id ?? null;
 
@@ -85,4 +85,14 @@ test('an event names its dates in the person language, six months on in the sout
   setLanguageForTests('ko');
   assert.equal(eventDates('lights'), '12월 1일~12월 31일');
   assert.equal(eventDates('missing'), '');
+});
+
+test('a gift during a calendar festival brings its event in any world', () => {
+  const at = iso => new Date(`${iso}T12:00:00`);
+  assert.equal(giftEvent(at('2026-12-15'), false, null), 'lights');
+  assert.equal(giftEvent(at('2026-12-15'), true, null), 'lights');
+  assert.equal(giftEvent(at('2027-01-03'), false, null), 'newyear');
+  assert.equal(giftEvent(at('2026-04-05'), false, null), null, 'a seasonal festival still needs its season');
+  assert.equal(giftEvent(at('2026-04-05'), false, 'blossom'), 'blossom');
+  assert.equal(giftEvent(at('2026-06-15'), false, null), null);
 });
