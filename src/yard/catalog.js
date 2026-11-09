@@ -37,6 +37,8 @@ export function artOf(catalog, events = { events: [] }) {
     ...catalog.garden.stages,
     ...catalog.flowers,
     ...catalog.gifts,
+    // A gift's Christmas night is a second look (the grand tree) and the sleigh that comes only with it.
+    ...catalog.gifts.flatMap(g => (g.night ? [{ art: g.night.art }, { art: g.night.sleigh }] : [])),
     ...(catalog.treasures || []),
     ...(catalog.discoveryTools || []),
     ...(catalog.trees || []).flatMap(tree => [

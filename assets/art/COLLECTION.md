@@ -121,7 +121,8 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 - Crops follow measured silhouettes with a 14-pixel margin; reproduce the
   wrappers with `node scripts/pack-collection.mjs`.
 - The grand tree (right of `christmas-trees`) and the sleigh (right of
-  `christmas-guests`) stay in the atlases for Christmas night; nothing names them
-  yet.
+  `christmas-guests`) are cropped the same way and drawn only on Christmas
+  night (the sleigh as a mirrored silhouette with a gold rim, so its small red
+  noses never show).
 - Accepted sources, prompts, hashes and measured boxes:
   `assets/sources/christmas-2026-11-09/accepted-art.json`.

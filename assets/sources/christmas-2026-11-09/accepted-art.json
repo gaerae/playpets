@@ -21,8 +21,8 @@
       "sha256": "486108bdc8a8def66410e1ce6e83e108d0fbab858bc998388b4b099005610e11",
       "size": [1024, 1536],
       "runtimeAtlas": "collection-extension/christmas-trees.png",
-      "acceptedIds": [],
-      "notes": "The grand tree is kept in the atlas for the Christmas night part; no catalog entry names it yet."
+      "acceptedIds": ["xmas_tree_grand"],
+      "notes": "The grand tree is cropped as xmas_tree_grand and drawn only on Christmas night."
     },
     {
       "name": "guests2",
@@ -35,8 +35,8 @@
       "sha256": "1374e3168a5164bb3dd0a15fb43c9f269095380ee97c3a2e057055decda3c02a",
       "size": [1536, 1024],
       "runtimeAtlas": "collection-extension/christmas-guests.png",
-      "acceptedIds": ["baby_reindeer", "santa"],
-      "notes": "The sleigh in the third column is kept in the atlas for later; it is only ever drawn as a dark silhouette with a gold rim, so its two tiny reindeer keep their small red noses."
+      "acceptedIds": ["baby_reindeer", "santa", "sleigh"],
+      "notes": "The sleigh in the third column is cropped as sleigh; it is only ever drawn as a dark silhouette with a gold rim, so its two tiny reindeer keep their small red noses."
     }
   ],
   "composed": [
@@ -75,7 +75,7 @@
         "box": [234, 614, 300, 386]
       },
       {
-        "id": "grand tree (not named yet)",
+        "id": "xmas_tree_grand",
         "box": [879, 100, 546, 900]
       }
     ],
@@ -89,11 +89,11 @@
         "box": [508, 247, 453, 554]
       },
       {
-        "id": "sleigh (not named yet)",
+        "id": "sleigh",
         "box": [1016, 395, 496, 243]
       }
     ],
     "note": "Boxes are x, y, width, height of the alpha >= 50 components; crops in src/art/collection.json add a 14-pixel margin."
   },
-  "review": "Codex art review (scratch/xmas-art/codex-review2.md, first and second pass, kept in scratch). Checked on light and dark grounds at album size (80 px) and yard size: no halo ring, no neighbour showing, star tip, antlers, sack and boots inside the crop. Earlier tries (trees.png, guests.png, snow2.png) stay in scratch."
+  "review": "Codex art review (scratch/xmas-art/codex-review2.md, first and second pass, kept in scratch). Checked on light and dark grounds at album size (80 px) and yard size: no halo ring, no neighbour showing, star tip, antlers, sack and boots inside the crop. Earlier tries (trees.png, guests.png, snow2.png) stay in scratch. The grand tree and the sleigh were checked again on light and dark grounds at yard size, with the star and bulb points ringed (scratch/xmas-night/review-crops.md, review-crops2.md): Codex found no cut edge or neighbour and the points on target, and flagged the baked grey glow around the star and the thin rim of the mirrored sleigh, left for the night drawing."
 }

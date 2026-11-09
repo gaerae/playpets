@@ -132,3 +132,20 @@ test('a gift says how it comes and when it shows', () => {
     ['xmas_tree', 'baby_reindeer', 'santa'],
   );
 });
+
+test("a gift's Christmas night names its drawings, its star, its bulbs and its guests", () => {
+  const loaded = new Set(artOf(catalog, events));
+  const nights = catalog.gifts.filter(g => g.night);
+  assert.deepEqual(
+    nights.map(g => g.id),
+    ['xmas_tree'],
+  );
+  for (const { id, event, night } of nights) {
+    assert.ok(loaded.has(night.art) && loaded.has(night.sleigh), `${id}: its drawings load`);
+    const inside = ([x, y]) => x >= 0 && x <= 1 && y >= 0 && y <= 1;
+    assert.ok(inside(night.star), `${id}: star`);
+    assert.ok(night.bulbs.length >= 6 && night.bulbs.every(inside), `${id}: bulbs`);
+    for (const guest of night.guests)
+      assert.equal(catalog.gifts.find(g => g.id === guest)?.event, event, `${id}: ${guest}`);
+  }
+});

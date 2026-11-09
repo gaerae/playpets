@@ -961,5 +961,23 @@
     "crop": [494, 233, 481, 582],
     "size": [58, 70],
     "art": "decor/santa.svg"
+  },
+  {
+    "id": "xmas_tree_grand",
+    "kind": "gifts",
+    "atlas": "collection-extension/christmas-trees.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [865, 86, 574, 928],
+    "size": [98, 158],
+    "art": "decor/xmas_tree_grand.svg"
+  },
+  {
+    "id": "sleigh",
+    "kind": "gifts",
+    "atlas": "collection-extension/christmas-guests.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1002, 381, 524, 271],
+    "size": [110, 57],
+    "art": "decor/sleigh.svg"
   }
 ]
