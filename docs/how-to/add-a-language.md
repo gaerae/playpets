@@ -11,7 +11,7 @@
 
 ## 1. Page strings
 
-1. Copy `src/core/strings/ko.js` to `src/core/strings/<code>.js` and translate the sentences. The file exports three required things and one optional one:
+1. Copy `src/core/strings/ko.js` to `src/core/strings/<code>.js` and translate the sentences. The file exports three required things and two optional ones:
 
    | Export | What it holds |
    |---|---|

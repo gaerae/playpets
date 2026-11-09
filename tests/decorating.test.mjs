@@ -32,7 +32,8 @@ const { reduced } = await import('../src/core/sprites.js');
 const { giftKind } = await import('../src/yard/catalog.js');
 const { christmasNightCheck, percent, setupChristmasNight } = await import('../src/yard/christmas-night.js');
 const { refreshShownDecor, setupDecor } = await import('../src/yard/decor.js');
-const { openDecorating, renderDecorating, setupDecorating } = await import('../src/yard/decorating.js');
+const { ARC_MS, CHEER_AT, GLINT_STEP, SETTLE_MS, openDecorating, renderDecorating, setupDecorating } =
+  await import('../src/yard/decorating.js');
 const { fieldToYard, petHeight } = await import('../src/yard/field.js');
 const { drawTreeOrnaments, hangable, ornamentLook } = await import('../src/yard/ornaments.js');
 const { drawYard } = await import('./support/yard.mjs');
@@ -947,4 +948,28 @@ test('the hanging keyframes move only transform and opacity, never loop, and rea
   }
   for (const { head, body } of blocks(css, /(?<=^|[{}])[^{}@]*(?:ornament|decorating)[^{}]*(?=\{)/g))
     assert.ok(!/\binfinite\b/.test(body), `${head.trim()} never loops`);
+});
+
+test('every part of a hang is over before its classes come off', async () => {
+  const css = uncommented(await readFile('src/styles/dialog.css', 'utf8'));
+  const length = name => {
+    const found = css.match(new RegExp(`animation:\\s*${name}\\s+(\\d+)ms`));
+    assert.ok(found, `${name} has a length in ms`);
+    return Number(found[1]);
+  };
+  // Begins at: the dip, the swing and the glints when the bauble lands, the last glint two steps
+  // later, the hop with the friend's line.
+  const ends = {
+    'ornament-dip': ARC_MS + length('ornament-dip'),
+    'ornament-swing': ARC_MS + length('ornament-swing'),
+    'ornament-glint': ARC_MS + 2 * GLINT_STEP + length('ornament-glint'),
+    'ornament-hop': CHEER_AT + length('ornament-hop'),
+  };
+  for (const [name, end] of Object.entries(ends)) assert.ok(end <= SETTLE_MS, `${name} ends at ${end}`);
+  for (const wrapper of ['x', 'y'])
+    assert.match(
+      css,
+      new RegExp(`\\.bauble-fly-${wrapper}\\s*\\{\\s*transition:\\s*transform ${ARC_MS}ms`),
+      `the arc's ${wrapper} takes ARC_MS`,
+    );
 });

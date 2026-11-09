@@ -776,6 +776,10 @@ body.compact .update-compact {
   position: absolute;
   inset: 0;
 }
+/* Its box already stands on the hook; it is not pointed at until it gets there. */
+.decorating-tree .bauble.flying {
+  pointer-events: none;
+}
 .decorating-tree .bauble.flying::before {
   content: none;
 }

@@ -50,9 +50,9 @@ const CARD_GAP = 6;
 // A hang's motion, in ms from the backend's yes. The arc onto the hook takes ARC_MS; then the
 // branch dips, the bauble swings and three glints flash GLINT_STEP apart (their lengths are
 // dialog.css's: dip 240, swing 650, glint 600); the friend speaks and hops at CHEER_AT, and its
-// 600 ms hop is over before SETTLE_MS takes every class off. With reduced motion the bauble is
+// 600 ms hop is over before SETTLE_MS takes every class off (a test reads dialog.css to keep it so). With reduced motion the bauble is
 // simply there (`appear`; base.css turns transitions off) and the friend speaks APPEAR_MS later.
-const ARC_MS = 460,
+export const ARC_MS = 460,
   GLINT_STEP = 70,
   CHEER_AT = 710,
   SETTLE_MS = 1320,
@@ -197,7 +197,8 @@ function drawBaubles(hanging) {
       view.baubles.set(o.hook, node);
       tree.append(node);
     }
-    // A hang on its way: the bauble stands where the arc begins until the backend answers.
+    // A hang on its way: the bauble waits unseen on its hook until the backend answers, and the
+    // arc (hangMotion) begins then.
     node.classList.toggle('hanging', !!view.hanging && view.hanging.hook === o.hook && !view.hanging.done);
     shown.add(o.hook);
   }
@@ -487,6 +488,8 @@ function hangMotion(node, from) {
     ball = node.querySelector('.bauble-ball'),
     at = (ms, run) => motion.timers.push(setTimeout(run, ms));
   if (reduced.matches || !from || !ball) {
+    // A marker only: reduced motion turns every transition off app-wide (base.css), so it is
+    // simply there.
     node.classList.add('appear');
     node.classList.remove('hanging');
     motion.end = () => node.classList.remove('appear');
