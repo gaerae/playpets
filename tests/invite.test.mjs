@@ -24,8 +24,9 @@ globalThis.playPets = {
   },
   addPet: async () => ({ ok: false, error: 'Your yard is full.' }),
 };
-const { setupInvite, twinName } = await import('../src/panel/invite.js');
+const { importLink, setupInvite, twinName } = await import('../src/panel/invite.js');
 const { t } = await import('../src/core/i18n.js');
+const { setupConfirm } = await import('../src/core/confirm.js');
 
 function page(context) {
   const { nodes } = installDom(context, {
@@ -48,9 +49,14 @@ function page(context) {
     nodes.get('import-url').value = '';
   };
   calls.length = 0;
-  setupInvite({ refresh: async () => {} });
+  nodes.shown = [];
+  setupInvite({ refresh: async () => {}, showInvite: () => nodes.shown.push('invite') });
+  setupConfirm();
   return nodes;
 }
+const settled = async () => {
+  for (let turn = 0; turn < 6; turn++) await Promise.resolve();
+};
 
 test('another friend from the same pet file gets the first name not taken', () => {
   assert.equal(twinName('Daisy', new Set(['Daisy'])), 'Daisy 2');
@@ -172,4 +178,36 @@ test('an import failure reveals its message after scrolling the form', async con
   finish({ ok: false, error: 'Import failed.' });
   await pending;
   assert.equal(revealed, 1);
+});
+
+test('a pet link waits for a yes and then holds the import dialog until it is done', async context => {
+  context.mock.timers.enable({ apis: ['setTimeout'] });
+  const nodes = page(context);
+  nodes.get('confirm-dialog').open = false;
+  const pending = importLink('https://petdex.dev/pets/boba');
+  assert.equal(nodes.get('confirm-dialog').open, true, 'the person is asked first');
+  assert.match(nodes.get('confirm-body').textContent, /petdex\.dev/);
+  assert.equal(nodes.get('import-submit').disabled, true, 'the dialog waits while the link is asked about');
+  nodes.get('confirm-ok').onclick();
+  await settled();
+  assert.deepEqual(calls, ['url']);
+  await nodes.get('import-form').onsubmit({ preventDefault() {} });
+  await nodes.get('import-folder').onclick();
+  await importLink('https://petdex.dev/pets/other');
+  assert.deepEqual(calls, ['url'], 'no second import while the link runs');
+  finish({ ok: true, data: 'boba' });
+  await pending;
+  assert.deepEqual(nodes.shown, ['invite'], 'Invite a friend opens on the pet');
+  assert.equal(nodes.get('import-submit').disabled, false, 'the dialog is free again');
+});
+
+test('a pet link that comes while the dialog imports is left alone', async context => {
+  const nodes = page(context);
+  const pending = nodes.get('import-form').onsubmit({ preventDefault() {} });
+  nodes.get('confirm-dialog').open = false;
+  await importLink('https://petdex.dev/pets/boba');
+  assert.equal(nodes.get('confirm-dialog').open, false, 'no question over a running import');
+  assert.deepEqual(calls, ['url']);
+  finish({ ok: false, error: 'Stopped.' });
+  await pending;
 });

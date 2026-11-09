@@ -6,7 +6,7 @@ import { setupBackgrounds } from './yard/background-ui.js';
 // No other module does anything when it is imported; each has a setup function, called here.
 
 import { setupCompanionActions } from './core/companion-actions.js';
-import { confirmAction, setupConfirm } from './core/confirm.js';
+import { setupConfirm } from './core/confirm.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
 import { onShortcut } from './core/keys.js';
@@ -36,7 +36,7 @@ import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
-import { drawPreviews, invite, setupInvite } from './panel/invite.js';
+import { drawPreviews, importLink, invite, setupInvite } from './panel/invite.js';
 import {
   announceInstalledUpdate,
   checkForUpdates,
@@ -78,34 +78,6 @@ import { bubble, place, setupViews, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { scene, scenery } from './yard/world.js';
 
-// A playpets://import link: any web page can open one once the browser remembers the choice,
-// so the person is asked before anything is downloaded. One request at a time.
-let importing = false;
-async function importRequested(url) {
-  if (importing) return;
-  importing = true;
-  try {
-    let host = url;
-    try {
-      host = new URL(url).host;
-    } catch {}
-    const sure = await confirmAction({
-      title: t('invite.import_confirm'),
-      body: t('invite.import_from', { host, url }),
-      action: t('invite.import'),
-      danger: false,
-    });
-    if (!sure) return;
-    const asset = await call('importUrl', url);
-    openPanel('invite');
-    const named = data.assets.find(a => a.id === asset)?.displayName;
-    toast(t('invite.linked', { name: named || host }));
-  } catch (e) {
-    toast(t('invite.link_failed', { error: spoken(e, t('error.generic')) }), { error: true });
-  } finally {
-    importing = false;
-  }
-}
 // Whether the yard can be seen; the backend says so for a window it hid or that was minimized.
 let shown = true;
 // Reloads everything from the backend, for actions that need the page current right away.
@@ -247,7 +219,7 @@ setupConnection({
   }),
 });
 setupFriendSettings({ refresh });
-setupInvite({ refresh });
+setupInvite({ refresh, showInvite: () => openPanel('invite') });
 setupWelcome({ invite, more: openInvite });
 setupSettings();
 
@@ -301,7 +273,7 @@ const ON_EVENT = {
   'update-status': updateStatus,
   'open-panel': e => showSection(e.panel, e.section),
   select: e => openChat(e.petId),
-  'import-request': e => importRequested(e.url),
+  'import-request': e => importLink(e.url),
   // A friend's saved place changed; the view already stands there, the record follows.
   'pet-moved': e => {
     const p = data.pets.find(q => q.id === e.petId);
