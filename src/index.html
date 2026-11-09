@@ -509,8 +509,8 @@
       <div class="letter-paper"><p id="letter-text"></p></div>
       <form id="letter-form" class="letter-form">
         <label for="letter-answer" data-i18n="letter.answer_label"></label>
-        <textarea id="letter-answer" rows="3" maxlength="400" data-i18n-placeholder="letter.answer_placeholder"></textarea>
-        <small id="letter-count" aria-live="polite"></small>
+        <textarea id="letter-answer" rows="3" maxlength="400" aria-describedby="letter-count" data-i18n-placeholder="letter.answer_placeholder"></textarea>
+        <small id="letter-count"></small>
         <div class="dialog-actions"><button type="button" id="letter-later" class="button text" data-i18n="letter.later"></button><button type="submit" id="letter-send" class="button primary" data-i18n="letter.send"></button></div>
       </form>
       <div id="letter-answered" class="letter-answered" hidden><small data-i18n="letter.your_answer"></small><p id="letter-quote"></p></div>

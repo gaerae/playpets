@@ -971,7 +971,7 @@ export const strings = {
   'letter.fact_close_5': 'You’re my dearest friend, you know?',
   'letter.fact_days': 'It’s been {days} days since we met.',
   'letter.fact_days_one': 'It’s been {days} day since we met!',
-  'letter.recall': 'Last year you wrote me, “{answer}” I read it again today.',
+  'letter.recall': 'Last year you wrote me, “{answer}” and I read it again today.',
   'letter.ask': 'How was your year? And what would you like to do next year? Tell me!',
   'letter.title': 'A letter from {name}',
   'letter.title_plain': 'A year-end letter',

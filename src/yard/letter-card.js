@@ -43,7 +43,8 @@ function setBusy(value) {
 /** Opens the card for `year`'s letter, if it still has its text. */
 export function openLetter(year) {
   const letter = letterOf(year);
-  if (!letter) return;
+  // Already open, the card keeps the answer being written.
+  if (!letter || $('letter-dialog').open) return;
   shown = year;
   const writer = data.pets.find(pet => pet.id === letter.friend);
   $('letter-title').textContent = writer ? t('letter.title', { name: name(writer) }) : t('letter.title_plain');

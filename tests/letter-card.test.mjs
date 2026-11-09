@@ -143,6 +143,9 @@ test('a typed answer stays when Esc or a click beside the card would close it', 
   await type($, 'A good year');
   assert.equal(await escCloses(), false);
   assert.equal($('letter-error').textContent, words('letter.unsaved'));
+  // Close is the deliberate way out, as Cancel is in the other form dialogs.
+  $('letter-close').onclick();
+  assert.equal($('letter-dialog').open, false);
   openLetter(2026);
   assert.equal(await escCloses(), true, 'opened again, the card starts fresh');
 });
@@ -210,4 +213,27 @@ test('opening the letter is remembered for the mark on the mailbox', t => {
   openLetter(2026);
   assert.equal(storage.getItem('letter-opened-2026'), '1');
   assert.equal($('letter-dialog').open, true);
+});
+
+test('opening the card while it is open keeps the answer being written', async t => {
+  const { $ } = page(t);
+  const dialog = $('letter-dialog');
+  // A browser refuses to open a dialog that is already open.
+  dialog.showModal = () => {
+    if (dialog.open) throw new Error('InvalidStateError');
+    dialog.open = true;
+  };
+  openLetter(2026);
+  await type($, 'A good year');
+  openLetter(2026);
+  assert.equal($('letter-answer').value, 'A good year');
+  assert.equal(dialog.open, true);
+});
+
+test('the counter is read with the answer box, not on every key', async () => {
+  const html = await readFile('src/index.html', 'utf8');
+  const count = html.match(/<small id="letter-count"[^>]*>/)[0],
+    box = html.match(/<textarea id="letter-answer"[^>]*>/)[0];
+  assert.doesNotMatch(count, /aria-live/);
+  assert.match(box, /aria-describedby="letter-count"/);
 });
