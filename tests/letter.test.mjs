@@ -700,3 +700,22 @@ test('a card shown to a window hidden meanwhile is not kept, and one not kept is
   retry();
   assert.equal(cards.length, 3);
 });
+
+test('a save that keeps failing is tried again once a run, so the card never comes every minute', async ctx => {
+  newYear(ctx);
+  const cards = [];
+  const check = setupLetters({ open() {}, card: (...args) => cards.push(args) });
+  bringing = () => ({ ok: false, error: 'Could not save.' });
+  check();
+  check();
+  cards[0][5]();
+  await flush();
+  check();
+  assert.equal(cards.length, 2, 'tried again once');
+  cards[1][5]();
+  await flush();
+  check();
+  check();
+  assert.equal(cards.length, 2, 'not a third time this run');
+  assert.deepEqual(backs, [2026, 2026]);
+});

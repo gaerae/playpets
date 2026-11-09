@@ -33,7 +33,7 @@ function dismiss() {
  * a detail line, whether it is a first (or, for news of another kind, the words saying why), and the
  * album book it is kept in (none for news such as an event starting). Who found it says so in its
  * own bubble. `shown()` is called once when the card goes on show, and never for one that gave way
- * in the queue. */
+ * in the queue; it runs at once, perhaps inside a click or a timer, so it must not throw. */
 export function showCard(svg, name, detail, first, book = null, shown = null) {
   const next = [svg, name, detail, first, book, shown];
   if (!$('catch-card').hidden) return wait(next);

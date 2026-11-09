@@ -179,9 +179,10 @@ export function setupLetters({ open: opener = openLetter, visible = () => !docum
   let armed = false,
     busy = false;
   // Years whose answer was brought back this run. Kept until the app closes even when the card gave
-  // way in the card queue (it comes again at the next start, as nothing was saved); let go only when
-  // saving that it showed failed, so a later check tries again.
-  const bringing = new Set();
+  // way in the card queue (it comes again at the next start, as nothing was saved); let go once when
+  // saving that it showed failed, so a later check tries again, but not every minute.
+  const bringing = new Set(),
+    retried = new Set();
   // The friend who wrote (or the closest, if it left) cheers and quotes the answer, from the string
   // tables only: no AI, so the New Year never turns into a question about whether a plan was done.
   // It counts as brought back once the card has shown in a yard that is seen.
@@ -206,7 +207,11 @@ export function setupLetters({ open: opener = openLetter, visible = () => !docum
           .then(() => {
             data.letters = (data.letters || []).map(kept => (kept.year === year ? { ...kept, back: true } : kept));
           })
-          .catch(() => bringing.delete(year));
+          .catch(() => {
+            if (retried.has(year)) return;
+            retried.add(year);
+            bringing.delete(year);
+          });
         const v = views.get(bringer.id);
         if (v) cheer(v, 'letter.back_bubble', { say: 4000 });
       },
