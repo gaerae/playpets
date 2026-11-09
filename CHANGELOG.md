@@ -34,6 +34,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A save put off for a moment is tried again if writing fails, and an older save never replaces a newer one.
 - Linking a coding agent writes its settings file to disk in full before it replaces the old one, so a crash at that moment can't leave it empty.
 - The arrow keys move a selected friend in the yard again, and holding Enter or Space on a friend pats it once instead of over and over.
+- While you aim a treat or seed or play a game, Delete, Backspace and a right-click leave a flower alone, as they already did a tree and a gift.
 
 ### Website and docs
 

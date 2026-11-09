@@ -55,12 +55,17 @@ function create(plant) {
     e.stopPropagation();
     water(plant.id);
   });
+  // Aiming a treat or seed, or in a game, a plant is left alone, as a tree and a gift are.
   button.addEventListener('contextmenu', e => {
     e.preventDefault();
-    pull(plant.id);
+    if (!aiming && !game) pull(plant.id);
   });
   button.addEventListener('keydown', e => {
-    if (e.key === 'Delete' || e.key === 'Backspace') pull(plant.id);
+    if (aiming || game) return;
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
+      pull(plant.id);
+    }
   });
   return { button, svg: button.querySelector('svg'), use: button.querySelector('use'), art: '' };
 }
