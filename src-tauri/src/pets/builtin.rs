@@ -1,6 +1,7 @@
-//! The four named companions (assets/pets),
-//! carried inside the binary and unpacked into the data folder, so the shelf is never empty on
-//! first start and a friend can be invited before any pet is imported.
+//! The four named companions, carried inside the binary and unpacked into the data folder, so the
+//! shelf is never empty on first start and a friend can be invited before any pet is imported.
+//! Their sheets are the accepted ones in assets/pets as lossless WebP in src-tauri/pets, made by
+//! `pnpm run assets:webp`, which reads the list below.
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -9,33 +10,44 @@ struct Builtin {
     id: &'static str,
     files: &'static [EmbeddedFile],
 }
-// Each file keeps its path relative to the manifest, so unpacking needs no special case. An entry
-// `from` another folder reuses that folder's accepted artwork under its own manifest.
+// Each file keeps its path relative to the manifest, so unpacking needs no special case.
 macro_rules! pet {
-    ($id:literal from $source:literal, $manifest:literal $(, $file:literal)*) => {
+    ($id:literal $(, $file:literal)*) => {
         Builtin {
             id: $id,
             files: &[
-                ("pet.json", include_bytes!(concat!("../../../assets/pets/", $source, "/", $manifest))),
-                $(($file, include_bytes!(concat!("../../../assets/pets/", $source, "/", $file))),)*
+                ("pet.json", include_bytes!(concat!("../../pets/", $id, "/pet.json"))),
+                $(($file, include_bytes!(concat!("../../pets/", $id, "/", $file))),)*
             ],
         }
-    };
-    ($id:literal $(, $file:literal)*) => {
-        pet!($id from $id, "pet.json" $(, $file)*)
     };
 }
 /// The official cast, in the shelf's order.
 const PETS: &[Builtin] = &[
-    pet!("daisy", "spritesheet.png", "seasonal/summer.png", "seasonal/winter.png"),
+    pet!(
+        "daisy",
+        "spritesheet.webp",
+        "seasonal/summer.webp",
+        "seasonal/winter.webp"
+    ),
     pet!(
         "clover",
-        "spritesheet.png",
-        "seasonal/summer.png",
-        "seasonal/winter.png"
+        "spritesheet.webp",
+        "seasonal/summer.webp",
+        "seasonal/winter.webp"
     ),
-    pet!("pip", "spritesheet.png", "seasonal/summer.png", "seasonal/winter.png"),
-    pet!("miso", "spritesheet.png", "seasonal/summer.png", "seasonal/winter.png"),
+    pet!(
+        "pip",
+        "spritesheet.webp",
+        "seasonal/summer.webp",
+        "seasonal/winter.webp"
+    ),
+    pet!(
+        "miso",
+        "spritesheet.webp",
+        "seasonal/summer.webp",
+        "seasonal/winter.webp"
+    ),
 ];
 
 /// Where a bundled pet's folder sorts on the shelf; anything else comes after them.
@@ -82,18 +94,22 @@ pub fn migrate_saved_friends(raw: &mut serde_json::Value, assets: &[crate::pets:
     }
 }
 
-/// Which build wrote the unpacked copy (build.rs fingerprints assets/pets).
+/// Which build wrote the unpacked copy (build.rs fingerprints src-tauri/pets).
 const STAMP: &str = env!("PLAYPETS_BUILTIN_STAMP");
 const STAMP_FILE: &str = ".stamp";
 
 /// Writes the app-owned sample pets under `root`. A copy stamped by this build is only checked for
 /// missing or resized files; after an update every file is compared, so a same-size change still
-/// lands. A pet that cannot be written is reported; others unpack.
+/// lands, and files the build no longer ships (an older format's sheets) are removed. A pet that
+/// cannot be written is reported; others unpack.
 pub fn unpack(root: &Path) -> (PathBuf, Vec<String>) {
     let mut warnings = Vec::new();
     let current = fs::read_to_string(root.join(STAMP_FILE)).is_ok_and(|s| s == STAMP);
     for pet in PETS {
         let dir = root.join(pet.id);
+        if !current {
+            remove_unshipped(&dir, &dir, pet.files, &mut warnings);
+        }
         for &(name, bytes) in pet.files {
             let file = dir.join(name);
             let same = fs::metadata(&file).is_ok_and(|m| m.len() == bytes.len() as u64)
@@ -121,6 +137,39 @@ pub fn unpack(root: &Path) -> (PathBuf, Vec<String>) {
         warnings.push(format!("{}: {e}", root.join(STAMP_FILE).display()));
     }
     (root.to_path_buf(), warnings)
+}
+
+/// Removes what `files` does not list from a built-in friend's own folder. Links are removed, never
+/// followed, so nothing outside the folder is touched.
+fn remove_unshipped(base: &Path, dir: &Path, files: &[EmbeddedFile], warnings: &mut Vec<String>) {
+    let Ok(entries) = fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let Ok(kind) = entry.file_type() else {
+            continue;
+        };
+        if kind.is_dir() {
+            remove_unshipped(base, &path, files, warnings);
+            // Only a folder this left empty goes; one that still holds a shipped file stays.
+            let _ = fs::remove_dir(&path);
+            continue;
+        }
+        let Ok(relative) = path.strip_prefix(base) else {
+            continue;
+        };
+        let name = relative
+            .components()
+            .map(|c| c.as_os_str().to_string_lossy())
+            .collect::<Vec<_>>()
+            .join("/");
+        if !files.iter().any(|&(shipped, _)| shipped == name)
+            && let Err(e) = fs::remove_file(&path)
+        {
+            warnings.push(format!("{}: {e}", path.display()));
+        }
+    }
 }
 
 #[cfg(test)]
@@ -178,7 +227,7 @@ mod tests {
     fn retired_cached_builtins_are_hidden_but_imported_copies_remain() {
         let root = unpacked("retired");
         std::fs::create_dir(root.join("aria")).unwrap();
-        for file in ["pet.json", "spritesheet.png"] {
+        for file in ["pet.json", "spritesheet.webp"] {
             std::fs::copy(root.join("daisy").join(file), root.join("aria").join(file)).unwrap();
         }
         assert_eq!(scan_pets(&root, Place::Builtin).0.len(), super::PETS.len());
@@ -208,7 +257,7 @@ mod tests {
     fn an_update_replaces_same_size_contents_and_a_current_copy_restores_missing_files() {
         let root = std::env::temp_dir().join(format!("playpets-builtin-update-{}", uuid::Uuid::new_v4()));
         unpack(&root);
-        for name in ["pet.json", "spritesheet.png", "seasonal/summer.png"] {
+        for name in ["pet.json", "spritesheet.webp", "seasonal/summer.webp"] {
             let file = root.join("daisy").join(name);
             let original = std::fs::read(&file).unwrap();
             let mut changed = original.clone();
@@ -223,10 +272,45 @@ mod tests {
                 "same-size {name} must refresh"
             );
         }
-        let gone = root.join("pip/seasonal/winter.png");
+        let gone = root.join("pip/seasonal/winter.webp");
         std::fs::remove_file(&gone).unwrap();
         unpack(&root);
         assert!(gone.is_file());
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn an_update_removes_files_this_build_no_longer_ships() {
+        let root = unpacked("builtin-stale");
+        // What a build that shipped PNG sheets left beside the WebP ones.
+        let retired = [
+            root.join("daisy/spritesheet.png"),
+            root.join("clover/seasonal/winter.png"),
+            root.join("miso/preview/idle.png"),
+        ];
+        for file in &retired {
+            std::fs::create_dir_all(file.parent().unwrap()).unwrap();
+            std::fs::write(file, b"an older build's sheet").unwrap();
+        }
+        let other = root.join("aria/spritesheet.png");
+        std::fs::create_dir_all(other.parent().unwrap()).unwrap();
+        std::fs::write(&other, b"not one of ours").unwrap();
+        // A copy this build stamped is trusted as it is.
+        assert!(unpack(&root).1.is_empty());
+        assert!(retired.iter().all(|file| file.is_file()));
+        std::fs::write(root.join(super::STAMP_FILE), "older build").unwrap();
+        assert!(unpack(&root).1.is_empty());
+        assert!(
+            retired.iter().all(|file| !file.exists()),
+            "an update leaves no stale file"
+        );
+        assert!(!root.join("miso/preview").exists());
+        for pet in super::PETS {
+            for (name, _) in pet.files {
+                assert!(root.join(pet.id).join(name).is_file(), "{}/{name}", pet.id);
+            }
+        }
+        assert!(other.is_file(), "only the built-in friends' own folders are tidied");
         std::fs::remove_dir_all(root).unwrap();
     }
 
@@ -257,13 +341,13 @@ mod tests {
         let realistic: Vec<_> = assets.iter().filter(|a| !a.realistic_sprite_paths.is_empty()).collect();
         assert_eq!(realistic.len(), 0);
         // A second run finds the files in place and writes nothing.
-        let before = std::fs::metadata(dir.join("daisy/spritesheet.png"))
+        let before = std::fs::metadata(dir.join("daisy/spritesheet.webp"))
             .unwrap()
             .modified()
             .unwrap();
         assert!(unpack(dir).1.is_empty());
         assert_eq!(
-            std::fs::metadata(dir.join("daisy/spritesheet.png"))
+            std::fs::metadata(dir.join("daisy/spritesheet.webp"))
                 .unwrap()
                 .modified()
                 .unwrap(),

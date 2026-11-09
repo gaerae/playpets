@@ -1,5 +1,6 @@
 // The yard's raster art is reviewed as lossless PNG in assets/art and ships as near-lossless WebP in
-// src/art, which the app embeds; this keeps the two in step without an encoder in tests or CI.
+// src/art, which the app embeds; the built-in friends' sheets ship as lossless WebP. This keeps
+// each export in step with its PNG without an encoder in tests or CI.
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { imageSize } from './asset-audit-lib.mjs';
@@ -41,14 +42,16 @@ async function filesIn(root, extension, folder = root) {
 export const pngExports = (root = '.') => filesIn(path.join(root, EXPORTS), '.png');
 export const runtimeWebps = (root = '.') => filesIn(path.join(root, RUNTIME), '.webp');
 
-export async function readManifest(root = '.') {
+async function readJson(file) {
   try {
-    return JSON.parse(await readFile(path.join(root, MANIFEST), 'utf8'));
+    return JSON.parse(await readFile(file, 'utf8'));
   } catch (error) {
     if (error.code === 'ENOENT') return {};
     throw error;
   }
 }
+
+export const readManifest = (root = '.') => readJson(path.join(root, MANIFEST));
 
 /**
  * What would make the shipped WebP differ from the reviewed PNG: an export without its WebP, an
@@ -113,4 +116,114 @@ export function largestError(png, decoded) {
       largest = Math.max(largest, Math.abs(png.pixels[i + c] * before - decoded.pixels[j + c] * after) / 255);
   }
   return Math.ceil(largest);
+}
+
+// The built-in friends' sheets ship losslessly: every pixel, colour under transparency included,
+// is the accepted sheet's. builtin.rs embeds the copies in src-tauri/pets, outside the webview's src/.
+export const BUILTIN_SOURCE = 'assets/pets';
+export const BUILTIN_RUNTIME = 'src-tauri/pets';
+export const BUILTIN_MANIFEST = `${BUILTIN_SOURCE}/webp.json`;
+export const BUILTIN_LIST = 'src-tauri/src/pets/builtin.rs';
+
+/** The friends builtin.rs embeds, in shelf order, with the files it names beside pet.json. */
+export async function builtinPets(root = '.') {
+  const text = await readFile(path.join(root, BUILTIN_LIST), 'utf8');
+  return [...text.matchAll(/\bpet!\(\s*"([\w-]+)"((?:\s*,\s*"[^"]+")*)\s*,?\s*\)/g)].map(([, id, files]) => ({
+    id,
+    files: [...files.matchAll(/"([^"]+)"/g)].map(([, file]) => file),
+  }));
+}
+
+// Codex pet manifests name files in `…Path` strings and `…Spritesheets` maps.
+const sheetFields = manifest =>
+  Object.entries(manifest).flatMap(([key, value]) =>
+    key.endsWith('Path') && typeof value === 'string'
+      ? [[manifest, key]]
+      : key.endsWith('Spritesheets') && value && typeof value === 'object'
+        ? Object.keys(value)
+            .filter(name => typeof value[name] === 'string')
+            .map(name => [value, name])
+        : [],
+  );
+
+/** The PNG sheets an accepted pet.json names, relative to its folder. */
+export const builtinSheets = text =>
+  sheetFields(JSON.parse(text))
+    .map(([object, key]) => object[key])
+    .filter(file => file.endsWith('.png'));
+
+/** The shipped pet.json: the accepted one with its sheets named as WebP. */
+export function builtinManifest(text) {
+  const manifest = JSON.parse(text);
+  for (const [object, key] of sheetFields(manifest)) object[key] = object[key].replace(/\.png$/, '.webp');
+  return `${JSON.stringify(manifest, null, 2)}\n`;
+}
+
+export const readBuiltinRecords = (root = '.') => readJson(path.join(root, BUILTIN_MANIFEST));
+
+/** Every file each built-in friend ships: its pet.json and the WebP of each sheet it names. */
+export async function builtinExports(root = '.') {
+  return Promise.all(
+    (await builtinPets(root)).map(async pet => {
+      const source = await readFile(path.join(root, BUILTIN_SOURCE, pet.id, 'pet.json'), 'utf8');
+      return { ...pet, source, sheets: builtinSheets(source) };
+    }),
+  );
+}
+
+/**
+ * What would make a built-in friend ship something other than its accepted art: a sheet changed
+ * after its WebP was made, a WebP missing or edited, a stale pet.json, a file builtin.rs does not
+ * embed, or a leftover file or folder the app no longer carries.
+ */
+export async function builtinWebpProblems(root = '.') {
+  const [pets, records] = await Promise.all([builtinExports(root), readBuiltinRecords(root)]);
+  const problems = [],
+    expected = new Set();
+  for (const pet of pets) {
+    const folder = `${BUILTIN_RUNTIME}/${pet.id}`,
+      ships = pet.sheets.map(webpName);
+    const shipped = await readFile(path.join(root, folder, 'pet.json'), 'utf8').catch(() => null);
+    if (shipped !== builtinManifest(pet.source))
+      problems.push(`${folder}/pet.json is not made from ${BUILTIN_SOURCE}/${pet.id}/pet.json`);
+    for (const sheet of pet.sheets) {
+      const name = `${pet.id}/${sheet}`,
+        record = records[name],
+        png = await readFile(path.join(root, BUILTIN_SOURCE, name));
+      expected.add(name);
+      let webp;
+      try {
+        webp = await readFile(path.join(root, BUILTIN_RUNTIME, webpName(name)));
+      } catch {
+        problems.push(`${BUILTIN_RUNTIME}/${webpName(name)} is missing`);
+        continue;
+      }
+      if (!record || record.png !== sha256(png))
+        problems.push(`${BUILTIN_SOURCE}/${name} changed after its WebP was made`);
+      else if (record.webp !== sha256(webp))
+        problems.push(`${BUILTIN_RUNTIME}/${webpName(name)} is not the recorded WebP`);
+      else if (imageSize(png, 'png').join('x') !== imageSize(webp, 'webp').join('x'))
+        problems.push(`${BUILTIN_RUNTIME}/${webpName(name)} has another size than its PNG`);
+    }
+    for (const file of await filesIn(path.join(root, folder), ''))
+      if (file !== 'pet.json' && !ships.includes(file))
+        problems.push(`${folder}/${file} is not made from ${BUILTIN_SOURCE}/${pet.id}`);
+    if (pet.files.join(', ') !== ships.join(', '))
+      problems.push(`${BUILTIN_LIST} embeds ${pet.id} as ${pet.files.join(', ')}, not ${ships.join(', ')}`);
+  }
+  const ids = pets.map(pet => pet.id);
+  for (const entry of await readdir(path.join(root, BUILTIN_RUNTIME)).catch(() => []))
+    if (!ids.includes(entry)) problems.push(`${BUILTIN_RUNTIME}/${entry} is not a built-in friend in ${BUILTIN_LIST}`);
+  for (const name of Object.keys(records))
+    if (!expected.has(name)) problems.push(`${BUILTIN_MANIFEST} names ${name}, which is gone`);
+  return problems;
+}
+
+/** Whether a decoded WebP holds exactly the PNG's samples, an opaque PNG read as alpha 255. */
+export function exactPixels(png, decoded) {
+  if (png.width !== decoded.width || png.height !== decoded.height) return false;
+  if (png.channels === 4) return Buffer.from(png.pixels).equals(decoded.pixels);
+  for (let i = 0, j = 0; j < decoded.pixels.length; i += png.channels, j += 4)
+    for (let c = 0; c < 4; c++) if ((c < 3 ? png.pixels[i + c] : 255) !== decoded.pixels[j + c]) return false;
+  return true;
 }

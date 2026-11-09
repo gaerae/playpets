@@ -4,6 +4,9 @@
 
 - Daisy, Clover, Pip and Miso are the bundled and publicly exported starter
   pets. Clover is the brand mascot.
+- The app embeds lossless WebP copies of their manifests and sheets from
+  `src-tauri/pets/`; after changing a sheet or `pet.json` here, run
+  `pnpm run assets:webp` ([shipped WebP](../README.md)).
 - Other character directories are archival source artwork: not embedded in the
   executable, not offered in the creator studio.
 - Retired built-in friends keep their saved identity and relationships through

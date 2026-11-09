@@ -6,7 +6,16 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { crc32 } from 'node:zlib';
-import { largestError, parsePam, pngFor, webpName, webpProblems } from '../scripts/art-webp-lib.mjs';
+import {
+  builtinManifest,
+  builtinWebpProblems,
+  exactPixels,
+  largestError,
+  parsePam,
+  pngFor,
+  webpName,
+  webpProblems,
+} from '../scripts/art-webp-lib.mjs';
 import { sha256 } from '../scripts/png-lossless-lib.mjs';
 
 function pngHeader(width, height) {
@@ -42,6 +51,7 @@ async function fixture(files) {
 
 test('every WebP the app ships is the recorded one for its current PNG export', async () => {
   assert.deepEqual(await webpProblems(), []);
+  assert.deepEqual(await builtinWebpProblems(), []);
 });
 
 test('a changed, missing, hand-edited or orphaned WebP is reported', async t => {
@@ -69,6 +79,86 @@ test('a changed, missing, hand-edited or orphaned WebP is reported', async t => 
     t.after(() => rm(root, { recursive: true, force: true }));
     assert.deepEqual(await webpProblems(root), expected, name);
   }
+});
+
+// The built-in friends ship as lossless WebP in src-tauri/pets, which builtin.rs embeds.
+test('a built-in friend with a stale, missing, unembedded or leftover sheet is reported', async t => {
+  const png = pngHeader(4, 2),
+    webp = webpHeader(4, 2),
+    source = JSON.stringify({ id: 'sun', spritesheetPath: 'spritesheet.png' }),
+    shipped = builtinManifest(source),
+    record = { 'sun/spritesheet.png': { png: sha256(png), webp: sha256(webp) } },
+    embeds = files =>
+      `const PETS: &[Builtin] = &[\n    pet!(\n        "sun"${files.map(f => `,\n        "${f}"`).join('')}\n    ),\n];\n`;
+  const current = {
+    'src-tauri/src/pets/builtin.rs': embeds(['spritesheet.webp']),
+    'assets/pets/sun/pet.json': source,
+    'assets/pets/sun/spritesheet.png': png,
+    'src-tauri/pets/sun/pet.json': shipped,
+    'src-tauri/pets/sun/spritesheet.webp': webp,
+  };
+  const cases = {
+    current: [{}, []],
+    'sheet changed': [
+      { 'assets/pets/sun/spritesheet.png': pngHeader(4, 3) },
+      ['assets/pets/sun/spritesheet.png changed after its WebP was made'],
+    ],
+    'WebP missing': [
+      { 'src-tauri/pets/sun/spritesheet.webp': null },
+      ['src-tauri/pets/sun/spritesheet.webp is missing'],
+    ],
+    'WebP edited': [
+      { 'src-tauri/pets/sun/spritesheet.webp': webpHeader(4, 3) },
+      ['src-tauri/pets/sun/spritesheet.webp is not the recorded WebP'],
+    ],
+    'manifest stale': [
+      { 'src-tauri/pets/sun/pet.json': source },
+      ['src-tauri/pets/sun/pet.json is not made from assets/pets/sun/pet.json'],
+    ],
+    'PNG left beside the WebP': [
+      { 'src-tauri/pets/sun/spritesheet.png': png },
+      ['src-tauri/pets/sun/spritesheet.png is not made from assets/pets/sun'],
+    ],
+    'not embedded': [
+      { 'src-tauri/src/pets/builtin.rs': embeds(['spritesheet.png']) },
+      ['src-tauri/src/pets/builtin.rs embeds sun as spritesheet.png, not spritesheet.webp'],
+    ],
+    'retired friend left behind': [
+      { 'src-tauri/pets/moon/pet.json': shipped },
+      ['src-tauri/pets/moon is not a built-in friend in src-tauri/src/pets/builtin.rs'],
+    ],
+  };
+  for (const [name, [changes, expected]] of Object.entries(cases)) {
+    const files = { ...current, ...changes, 'assets/pets/webp.json': JSON.stringify(record) };
+    const root = await fixture(Object.fromEntries(Object.entries(files).filter(([, bytes]) => bytes !== null)));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    assert.deepEqual(await builtinWebpProblems(root), expected, name);
+  }
+});
+
+test('a built-in sheet ships with every pixel as it was drawn', () => {
+  const png = (pixels, channels = 4) => ({ width: pixels.length / channels, height: 1, channels, pixels });
+  const decoded = pixels => ({ width: pixels.length / 4, height: 1, pixels: Buffer.from(pixels) });
+  assert.ok(exactPixels(png([10, 20, 30, 255]), decoded([10, 20, 30, 255])));
+  assert.ok(exactPixels(png([10, 20, 30], 3), decoded([10, 20, 30, 255])));
+  // Colour under a transparent pixel counts too: lossless means the same bytes.
+  assert.ok(!exactPixels(png([200, 0, 0, 0]), decoded([0, 0, 0, 0])));
+  assert.ok(!exactPixels(png([10, 20, 30, 255]), decoded([10, 20, 31, 255])));
+  assert.ok(!exactPixels(png([0, 0, 0, 0]), { width: 2, height: 1, pixels: Buffer.alloc(8) }));
+});
+
+test('a built-in manifest names its sheets as WebP and keeps everything else', () => {
+  const source = {
+    id: 'playpets-sun',
+    spritesheetPath: 'spritesheet.png',
+    seasonalSpritesheets: { summer: 'seasonal/summer.png' },
+    source: { url: 'https://example.org/sun.png.html' },
+  };
+  assert.deepEqual(JSON.parse(builtinManifest(JSON.stringify(source))), {
+    ...source,
+    spritesheetPath: 'spritesheet.webp',
+    seasonalSpritesheets: { summer: 'seasonal/summer.webp' },
+  });
 });
 
 test('the error a person could see weighs colour by its alpha', () => {

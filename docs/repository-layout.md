@@ -9,7 +9,7 @@
 | Directory | Owns | Keep out |
 | --- | --- | --- |
 | `src/` | The shipped page, shared core, yard, panels, styles and runtime artwork | Node tooling and website-only components |
-| `src-tauri/` | Rust backend, Tauri configuration, capabilities and native icon exports | Website code and generated build output in commits |
+| `src-tauri/` | Rust backend, Tauri configuration, capabilities, native icon exports and the built-in friends' embedded WebP sheets (`pets/`) | Website code and generated build output in commits |
 | `website/` | Four-language public pages, Vue theme and public site media | Hand-edited copies of developer docs or generated pet downloads |
 | `docs/` | Current developer instructions, standards, dated decisions and research | User-facing translations maintained on the site |
 | `assets/` | Character source material, accepted atlases and PNG art exports, creator references and brand sources | Disposable generation attempts and build logs |

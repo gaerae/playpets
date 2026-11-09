@@ -1,0 +1,18 @@
+{
+  "id": "playpets-daisy",
+  "displayName": "Daisy",
+  "kind": "person",
+  "description": "A curious young explorer in a daisy beret and apricot dress. She notices little things and loves a quiet walk with her friends.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.webp",
+  "seasonalSpritesheets": {
+    "summer": "seasonal/summer.webp",
+    "winter": "seasonal/winter.webp"
+  },
+  "source": {
+    "name": "PlayPets",
+    "url": "https://github.com/gaerae/playpets",
+    "creator": "gaerae",
+    "license": "MIT"
+  }
+}

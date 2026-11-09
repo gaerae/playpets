@@ -7,11 +7,11 @@ fn main() {
     tauri_build::build()
 }
 
-/// A fingerprint of the bundled pet art (pets/builtin.rs), so a start can tell its unpacked copy is
-/// current without reading ~100 MB back. Names, sizes and modification times are enough: any
+/// A fingerprint of the bundled pet art (src-tauri/pets, which src/pets/builtin.rs embeds), so a start
+/// can tell its unpacked copy is current without reading ~30 MB back. Names, sizes and modification times are enough: any
 /// edit or checkout changes them, and a false change costs only one full compare.
 fn builtin_stamp() {
-    let root = Path::new("../assets/pets");
+    let root = Path::new("pets");
     println!("cargo:rerun-if-changed={}", root.display());
     let mut files = Vec::new();
     walk(root, &mut files);
@@ -27,7 +27,7 @@ fn builtin_stamp() {
 }
 
 fn walk(dir: &Path, files: &mut Vec<PathBuf>) {
-    for entry in fs::read_dir(dir).expect("assets/pets").flatten() {
+    for entry in fs::read_dir(dir).expect("src-tauri/pets").flatten() {
         let path = entry.path();
         if path.is_dir() {
             walk(&path, files);

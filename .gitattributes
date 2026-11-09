@@ -80,6 +80,9 @@ assets/demo.gif linguist-generated=true
 # Made from assets/art by scripts/art-webp.mjs.
 src/art/**/*.webp linguist-generated=true
 assets/art/webp.json linguist-generated=true
+# Made from assets/pets by the same script.
+src-tauri/pets/** linguist-generated=true
+assets/pets/webp.json linguist-generated=true
 assets/creator-kit/*/kit.json linguist-generated=true
 assets/creator-kit/*/identity.json linguist-generated=true
 assets/creator-kit/*/prompts/** linguist-generated=true
