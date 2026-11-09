@@ -100,7 +100,7 @@ const BOOKS = {
     draw: (k, unknown) => giftSvg(k, unknown),
     name: k => t(`decor.kind_${k.id}`),
     unknown: 'catch.unknown_gift',
-    hint: k => (k.event ? eventHint(k) : t('catch.gift_hint')),
+    hint: k => (k.event ? eventHint(k) : t(k.built ? 'catch.built_hint' : 'catch.gift_hint')),
     record: () => t('catch.received'),
     rare,
     action: k => takeOutButton(k.id),

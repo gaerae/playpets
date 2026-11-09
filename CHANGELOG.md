@@ -15,6 +15,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the Microsoft Store version, PlayPets asks the Store for a newer version when it starts and every six hours, and **Check for updates** in Settings asks it at once. A version waiting in the Store shows beside the place selector and in Settings, and **Open in Microsoft Store** opens PlayPets' page there to install it. When the Store updates PlayPets while it is open, PlayPets opens again afterwards instead of staying closed.
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
+- During the winter lights, friends bring a small Christmas tree, then a baby reindeer, then Santa, one each time a gift is due. The snowman no longer comes as a gift.
 
 ### Changed
 

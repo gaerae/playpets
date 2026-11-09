@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { STRINGS } from '../src/core/strings.js';
 import { PAINTER_NAMES, THING_KINDS } from '../src/yard/backdrop.js';
-import { artOf } from '../src/yard/catalog.js';
+import { artOf, eventGifts } from '../src/yard/catalog.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
 import { catalog, events, yard } from './support/content.mjs';
@@ -100,10 +100,11 @@ test('every seasonal event has its words, its gift in the catalogue as its own, 
     for (const lang of LANGUAGES)
       for (const key of ['name', 'about', 'lines'])
         assert.ok(STRINGS[lang][`event.${e.id}.${key}`], `${lang}: ${e.id}.${key}`);
-    if (e.gift) assert.equal(catalog.gifts.find(g => g.id === e.gift)?.event, e.id, `${e.id}: ${e.gift}`);
+    assert.ok(eventGifts(e.id).length, `${e.id} brings a gift`);
     assert.match(e.from, /^\d\d-\d\d$/);
     assert.match(e.to, /^\d\d-\d\d$/);
   }
+  assert.ok(!events.events.some(e => 'gift' in e), 'an event’s gifts are the catalogue’s');
   // A kind marked with an event names one there is.
   for (const k of [...catalog.gifts, ...catalog.fish, ...catalog.bugs])
     if (k.event)
@@ -114,4 +115,19 @@ test('every seasonal event has its words, its gift in the catalogue as its own, 
   // Every look an event names has its rules in the stylesheet.
   const css = readFileSync(new URL('../src/styles/scenery.css', import.meta.url), 'utf8');
   for (const look of events.events.flatMap(e => e.looks || [])) assert.ok(css.includes(`.look-${look}`), look);
+});
+
+test('a gift says how it comes and when it shows', () => {
+  const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
+  for (const g of catalog.gifts) {
+    if (g.built) assert.ok(!g.event, `${g.id}: a built kind has no event`);
+    if (g.shown) assert.equal(g.shown, 'december', `${g.id}: shown`);
+    for (const s of g.seasons || []) assert.ok(SEASONS.includes(s), `${g.id}: ${s}`);
+  }
+  assert.ok(catalog.gifts.filter(g => g.shown || g.seasons).length <= 4);
+  assert.deepEqual(eventGifts('lights'), ['xmas_tree', 'baby_reindeer', 'santa']);
+  assert.deepEqual(
+    catalog.gifts.slice(-3).map(g => g.id),
+    ['xmas_tree', 'baby_reindeer', 'santa'],
+  );
 });

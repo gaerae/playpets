@@ -399,7 +399,8 @@
       "id": "snowman",
       "art": "decor/sculpted/snowman.svg",
       "size": [40, 60],
-      "event": "lights"
+      "built": true,
+      "seasons": ["winter"]
     },
     {
       "id": "bunny_watering_can",
@@ -444,6 +445,27 @@
       "art": "decor/kite.svg",
       "size": [70, 90],
       "event": "newyear"
+    },
+    {
+      "id": "xmas_tree",
+      "art": "decor/xmas_tree.svg",
+      "size": [56, 72],
+      "event": "lights",
+      "shown": "december"
+    },
+    {
+      "id": "baby_reindeer",
+      "art": "decor/baby_reindeer.svg",
+      "size": [44, 65],
+      "event": "lights",
+      "shown": "december"
+    },
+    {
+      "id": "santa",
+      "art": "decor/santa.svg",
+      "size": [58, 70],
+      "event": "lights",
+      "shown": "december"
     }
   ],
   "fish": [

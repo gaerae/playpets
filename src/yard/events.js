@@ -1,7 +1,7 @@
 // Seasonal events: a cherry blossom festival, firefly nights, the harvest moon, winter lights and
 // the new year. What there is, when, and what each brings comes from src/content/events.json: its
 // dates (month-day, north of the equator; south of it they come six months later, except the ones
-// fixed to the calendar), its gift (a decoration that comes only then, catalog.json "event"), what
+// fixed to the calendar), its gifts (the decorations marked with it in catalog.json "event", brought in catalogue order), what
 // it adds to the scenery ("boost": more petals, butterflies or fireflies) and how it looks ("looks":
 // a class on the yard whose rules are in scenery.css). Fish and bugs marked with an event come only
 // during it. Rules only, apart from the page; festival.js shows an event, the backend checks its

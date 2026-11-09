@@ -413,9 +413,9 @@ const scenario = `(async()=>{
     await playPets.putAway(gift.id);const away=await until(()=>!document.querySelector('.decor'));
     await L('gift='+(alone.ok===false&&gift.kind==='bench'&&gift.from===giver&&twice.ok===false&&nextDay.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-every-other-day-moved-away':'err:'+JSON.stringify([alone,gift,twice,nextDay])));
     // A seasonal event: its gift comes on its days (the backend checks them), and the label beside the scene shows the event on now.
-    const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(()=>document.querySelectorAll('.decor').length===1);await playPets.putAway(snow.id);
+    const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(async()=>(await playPets.bootstrap()).data.garden.decor.some(d=>d.id===snow.id));await playPets.putAway(snow.id);
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
-    await L('event='+(snow.kind==='snowman'&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
+    await L('event='+(snow.kind==='xmas_tree'&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
     // Real saved gifts fill the yard; the next waits in the gift box, putting one away retains its album record and
     // frees the capacity, and the boxed one is set out from the album.
     const capacityGifts=[];
@@ -1607,7 +1607,10 @@ const expect = [
     /^sound=off-on-held$/,
     'yard sounds are on by default, the chip turns them off and on, and the volume is held to 0–100',
   ],
-  [/^event=gift-and-label$/, "a seasonal event's gift comes on its days, and the scene label shows the event on now"],
+  [
+    /^event=gift-and-label$/,
+    'the winter lights bring the Christmas tree on their days, and the scene label shows the event on now',
+  ],
   [
     /^gift=bench-every-other-day-moved-away$/,
     "a friend's gift comes every other day after something done together, is dragged to a new place that is kept, and is put away",

@@ -347,7 +347,7 @@ impl Garden {
     /// A friend (`from`) brings an everyday gift and sets it down at (x, y): one every
     /// GIFT_EVERY_DAYS days, on a day the two did something together (the caller checks that).
     /// `day` is the page's local date. During a seasonal event (`event`, which the page says and
-    /// the dates check), its own gift comes the first time instead. `now` (ms) is when it came.
+    /// the dates check), its own gifts come first, in order, one each time. `now` (ms) is when it came.
     pub fn gift(
         &mut self,
         x: f64,
@@ -365,8 +365,8 @@ impl Garden {
             return Err(i18n::t("error.gift_today"));
         }
         let kind = event
-            .and_then(|e| super::content::event_gift(e, day))
-            .filter(|g| !self.received.iter().any(|r| r == g))
+            .map(|e| super::content::event_gifts(e, day))
+            .and_then(|gifts| gifts.into_iter().find(|g| !self.received.iter().any(|r| r == g)))
             .unwrap_or_else(|| self.next_gift(turn_of(now)));
         let given = self.give(kind, from, false, x, y, now)?;
         self.gift_day = day.into();
@@ -760,17 +760,31 @@ mod tests {
         assert_eq!(g.put_away(&id), Ok(()));
         let next = g.next_gift(3);
         assert!(!g.decor.iter().any(|d| d.kind == next), "{next} is not in the yard");
-        // During a seasonal event its own gift comes the first time, then the everyday ones again.
+        // During a seasonal event its own gifts come first, in order, one each time; once all three came, the everyday ones again.
         let mut e = Garden::default();
         assert_eq!(
             e.gift(0.5, 0.5, "2026-12-20", 0, Some("lights"), "miso")
                 .unwrap()
                 .decor
                 .kind,
-            "snowman"
+            "xmas_tree"
         );
         assert_eq!(
             e.gift(0.5, 0.5, "2026-12-22", 0, Some("lights"), "miso")
+                .unwrap()
+                .decor
+                .kind,
+            "baby_reindeer"
+        );
+        assert_eq!(
+            e.gift(0.5, 0.5, "2026-12-24", 0, Some("lights"), "miso")
+                .unwrap()
+                .decor
+                .kind,
+            "santa"
+        );
+        assert_eq!(
+            e.gift(0.5, 0.5, "2026-12-26", 0, Some("lights"), "miso")
                 .unwrap()
                 .decor
                 .kind,

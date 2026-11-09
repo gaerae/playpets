@@ -40,7 +40,7 @@ const TOPICS: &[Topic] = &[
     },
     Topic {
         id: "album",
-        facts: "Album: Play → Find → Album. Six books (Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes), 150 entries. Fish and pond creatures come from fishing, bugs from catching them, flowers when planted seeds bloom, trees when saplings mature, keepsakes from digging, gifts from friends. What is not found yet shows as a silhouette with when and where to look. It takes months to finish, and that is fine.",
+        facts: "Album: Play → Find → Album. Six books (Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes), 153 entries. Fish and pond creatures come from fishing, bugs from catching them, flowers when planted seeds bloom, trees when saplings mature, keepsakes from digging, gifts from friends. What is not found yet shows as a silhouette with when and where to look. It takes months to finish, and that is fine.",
     },
     Topic {
         id: "fishing",
