@@ -4,7 +4,7 @@ description: What PlayPets keeps on your device, what reaches the services you c
 ---
 # Privacy policy
 
-- Last updated: November 9, 2026.
+- Last updated: November 10, 2026.
 - Maintainer: gaerae, the maintainer of [PlayPets](https://github.com/gaerae/playpets).
 - Covers the desktop app and this website.
 - Takes effect when this version of the policy is published.
@@ -20,6 +20,7 @@ description: What PlayPets keeps on your device, what reaches the services you c
 **Saved on your device**
 - Friends, names, personas, relationships, collection progress, imported assets, AI connection settings and app preferences.
 - API keys you save through PlayPets go to the operating system's credential store, separate from the app's JSON settings.
+- Year-end letters from your friends and your answers.
 - Imported backgrounds and the place, season, time of day and weather you pick are saved in the data folder with the rest. A few interface notes, such as which tips you have seen, stay in the app's local webview storage.
 
 **Conversations**
@@ -35,8 +36,9 @@ With an AI connection on, prompts can include:
 - friend names and personas
 - relationship settings
 - relevant agent information
+- for a year-end letter written by a friend with an AI connection: a few facts about your year in the yard and your answer to last year's letter
 
-They go to the provider or local server you selected. Automatic chatter uses the same connection while it's on.
+They go to the provider or local server you selected. Automatic chatter uses the same connection while it's on. Without an AI connection, the year-end letter is written on your device and nothing is sent.
 - Remote providers may process information outside your country. Their own retention, training and deletion policies apply.
 - A local endpoint stays local only if the selected model and its configuration keep it that way.
 

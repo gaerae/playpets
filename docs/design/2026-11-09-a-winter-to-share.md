@@ -118,6 +118,8 @@ Follow-up (2026-11-10): the decorating view lets a person take a bauble down fro
 | Next December | The next year's letter recalls last year's answer to look back on |
 | A friend that left | Its letters stay; the closest friend now brings the answer back |
 
+Follow-up (2026-11-10): the letter has its own chip (`#letter-chip`) beside the event chip and a row in the yard menu, so it no longer shares the event chip. The New Year cheer is its own card, and the answer counts as brought back only after the card shows. The friend's AI writes only while the yard is seen and never without a connection; without one the letter is made on the device from the app's own lines. The letter's text is cleared after January 7 by the minute check, and the answer stays.
+
 ## Constraints
 
 - Repository rules: page modules act only in `setup…()`, every string in all four languages, Korean UI polite and friends casual, commands are one row of `COMMANDS`, no lock across a wait, text from outside labeled before an AI, a canvas repainted only when it changed.

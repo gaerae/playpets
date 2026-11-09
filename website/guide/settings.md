@@ -162,6 +162,7 @@ Move the pointer to the top of the yard and buttons appear to reset the window s
   - the window's position and size and Always on top setting
   - the place, season, time of day and weather picked for the yard (`scene`)
   - the garden and decorations (`garden`), the album (`album`), closeness (`bonds`)
+  - year-end letters and your answers (`letters`)
   - hand-picked pet folders
   - the file's format number (`schema`)
 - A `state.json` written by a newer version is copied aside, and the parts this version knows are read.
@@ -197,6 +198,7 @@ These notices don't delete the saved friend records. Dismissing the card hides i
 
 - Each friend's name, personality, relationship, what it calls you, size and position in the yard
 - Each friend's closeness
+- Year-end letters and your answers (the letter's text until January 7, then only the answer)
 - The garden, the decorations in the yard and the album
 - The kind, server address and model name of each AI connection
 - Language, desktop mode and strolling, the window position, size and Always on top setting, the chosen time of day, weather and season

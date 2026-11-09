@@ -236,6 +236,14 @@ On a snowy evening or night during the winter lights, if the yard is showing win
 
 Press the Christmas tree to decorate it. Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. They become small ornaments tinted by kind, and pointing at one shows what it is. To change the tree, take an ornament down from its card; the day's three stay used. Aquatic life and bugs stay in the water and the grass. The ornaments stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree. Decorating works in every place, the Cozy living room too.
 
+### The year-end letter
+
+On the first day you open PlayPets from December 26 to 31, the friend you're closest to writes you a letter about the year: what you found for the album, a tree you grew together, how close you've become and how long you've known each other. It asks how your year went and what you'd like to do next year.
+
+If there's a mailbox in the yard, the letter waits there. Otherwise the friend tells you about it, and the **Letter** chip beside the scene label or the yard menu opens it until January 7. You can write back in up to 200 characters, or skip it.
+
+On the first day you open PlayPets from January 1 to 7, a friend brings your answer back and cheers you on, and next December's letter looks back on it. A friend with an AI connection writes in its own words. Letters and answers are kept only on this computer, and the letter card can delete them.
+
 ## Closeness <Since v="0.1.0" />
 
 Each friend grows closer to you through time in the yard and the things you do together. Hearts on its name tag show how close it is. The Friend panel shows its level, how far it is to the next one and what the next one brings.
