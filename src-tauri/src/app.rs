@@ -139,7 +139,7 @@ pub fn desktop_items(d: &AppData) -> Vec<overlay::Item> {
 
 /// Whether anything is out on the desktop: what the menus' switch shows.
 pub fn desktop_on(d: &AppData) -> bool {
-    crate::desktop::items::anything_out(&d.pets, &d.garden)
+    crate::desktop::items::anything_out(&d.pets, &d.garden, d.hidden_decor.as_deref())
 }
 
 /// The state lock. A panic while it was held poisons the mutex; the data is still whole (every
@@ -431,8 +431,13 @@ fn extras(raw: &Value) -> Map<String, Value> {
 
 /// The menus' desktop switch: every friend goes out, or everything comes in (desktop::items::flip).
 pub fn toggle_desktop(app: &AppHandle, d: &mut AppData) -> Result<bool, String> {
-    let AppData { pets, garden, .. } = d;
-    let now = crate::desktop::items::flip(pets, garden);
+    let AppData {
+        pets,
+        garden,
+        hidden_decor,
+        ..
+    } = d;
+    let now = crate::desktop::items::flip(pets, garden, hidden_decor.as_deref());
     save_and_show(app, d).map(|()| now)
 }
 
