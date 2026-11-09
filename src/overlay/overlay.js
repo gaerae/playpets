@@ -247,10 +247,11 @@ function render() {
     }
     // A walk streams positions many times a second; the rest changes only with the friend itself,
     // so it is written only then.
+    // Its own key: `look` is where the friend's eyes turn.
     const name = nameOf(v),
-      look = `${position.width}x${position.height}|${pet.size}|${name}`;
-    if (look === v.look) continue;
-    v.look = look;
+      shape = `${position.width}x${position.height}|${pet.size}|${name}`;
+    if (shape === v.shape) continue;
+    v.shape = shape;
     v.wrap.style.width = `${position.width}px`;
     v.wrap.style.height = `${position.height}px`;
     v.sprite.style.width = `${pet.size}px`;
