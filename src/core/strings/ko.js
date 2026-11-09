@@ -319,6 +319,7 @@ export const strings = {
   'decor.kind_onggi': '장독대',
   'decor.kind_kite': '연',
   'decor.kind_xmas_tree': '작은 크리스마스트리',
+  'decor.kind_xmas_tree_grand': '크리스마스트리',
   'decor.kind_baby_reindeer': '아기 순록',
   'decor.kind_santa': '산타 할아버지',
   'decor.gift': ['선물 가져왔어!', '우리 놀이터에 줄 선물이야!', '이것 좀 봐, 찾아왔어!'],

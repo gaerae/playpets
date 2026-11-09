@@ -150,7 +150,7 @@
   cursor: inherit;
 }
 /* a gift that just came pops into place */
-.decor.arrive svg {
+.decor.arrive > svg {
   animation: arrive 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes arrive {
@@ -200,6 +200,186 @@
 }
 .period-night .decor[data-effects~="glow"] svg {
   filter: none;
+}
+/* Christmas night (yard/christmas-night.js): on a snowy December evening or night the little tree
+   grows into the grand one. The grand tree is a layer inside the small tree's button, standing on
+   the same foot and taking no presses; .xmas-grand shows it, and every turn either way is a short
+   crossfade. .xmas-rise is the change itself, once a night: a gold veil climbs from the roots and
+   uncovers the grand tree while the small one fades, the star swells once and warm light pools on
+   the snow. */
+.decor .xmas-night {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.6s,
+    visibility 0s 0.6s;
+}
+.decor.xmas-grand .xmas-night {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s;
+}
+.decor[data-kind="xmas_tree"] > svg {
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.6s;
+}
+.decor.xmas-grand > svg {
+  opacity: 0;
+}
+/* The window the grand tree shows through while it rises. It reaches 15 % of the tree's height
+   above it, room for its soft top edge (masked during the change) to clear the star at the end. */
+.xmas-reveal {
+  position: absolute;
+  inset: -15% 0 0;
+  overflow: hidden;
+}
+.xmas-art {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 86.96%;
+}
+/* The lit tree is dimmed at night a little, not as much as the rest, so it is lit but not pasted
+   on. */
+.period-night .decor .xmas-art svg {
+  filter: brightness(0.86);
+}
+.xmas-pool {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 170%;
+  height: 22%;
+  translate: -50% 50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #ffd27a66, #ffd27a00);
+}
+/* The veil rides the window's soft top edge, and is soft on every side, so it reads as light
+   rather than a band. */
+.xmas-veil {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -18.5%;
+  height: 22%;
+  background: radial-gradient(closest-side, #ffd98acc, #ffd98a00);
+  opacity: 0;
+}
+.xmas-star {
+  position: absolute;
+  width: 26%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff3c4cc, #ffd27a00 70%);
+  opacity: 0.85;
+}
+/* The change: every part runs 2.6 s on one curve (christmas-night.js RISE_MS ends it). The window
+   rises while the drawing in it moves down as much (115 % of the tree's height each), so the tree
+   stays put and is uncovered from the roots up. */
+.decor.xmas-rise > svg,
+.decor.xmas-rise .xmas-night {
+  transition: none;
+}
+.decor.xmas-rise > svg {
+  animation: xmas-small-out 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-reveal {
+  mask-image: linear-gradient(to bottom, #0000, #000 13%);
+  animation: xmas-reveal-out 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-art {
+  animation: xmas-reveal-in 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-veil {
+  animation: xmas-veil-rise 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-star {
+  animation: xmas-star-swell 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-pool {
+  animation: xmas-pool-in 2.6s ease-in-out both;
+}
+@keyframes xmas-small-out {
+  0%,
+  15% {
+    opacity: 1;
+  }
+  85%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes xmas-reveal-out {
+  0%,
+  8% {
+    transform: translateY(100%);
+  }
+  85%,
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes xmas-reveal-in {
+  0%,
+  8% {
+    transform: translateY(-115%);
+  }
+  85%,
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes xmas-veil-rise {
+  0%,
+  8% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-523%);
+  }
+  90% {
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-523%);
+    opacity: 0;
+  }
+}
+@keyframes xmas-star-swell {
+  0%,
+  70% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  85% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+}
+@keyframes xmas-pool-in {
+  0%,
+  40% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 .yard.period-night .plant[data-stage="bloom"] svg {
   filter: brightness(0.65) saturate(0.7);

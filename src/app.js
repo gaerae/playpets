@@ -46,6 +46,7 @@ import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
 import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
+import { christmasNightCheck, setupChristmasNight } from './yard/christmas-night.js';
 import { loadContent } from './yard/content.js';
 import { giftTick, putAway, refreshShownDecor, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
 import {
@@ -136,6 +137,7 @@ setupSky({
     // Each minute's repaint: a Christmas gift or a snowman comes or goes with the date and season.
     refreshShownDecor();
     winterCheck();
+    christmasNightCheck();
     if (setSpriteSeason(season) && data.assets.length) render();
     else renderAlbum();
   },
@@ -193,7 +195,9 @@ setupViews({
 setupPlay();
 setupCare();
 setupGarden();
-setupDecor();
+// The Christmas tree's night is checked whenever the gifts are drawn, and when the window is seen.
+setupChristmasNight({ seen: () => shown });
+setupDecor({ drawn: christmasNightCheck });
 setupDiscovery();
 setupTrees();
 setupCatch();
@@ -301,6 +305,7 @@ const ON_EVENT = {
     soundSeen(shown);
     // CSS animations (the clouds) rest too; see base.css.
     document.documentElement.toggleAttribute('data-unseen', !shown);
+    if (shown) christmasNightCheck();
   },
 };
 api.onEvent(event => {

@@ -319,6 +319,7 @@ export const strings = {
   'decor.kind_onggi': 'Crock stand',
   'decor.kind_kite': 'Kite',
   'decor.kind_xmas_tree': 'Little Christmas tree',
+  'decor.kind_xmas_tree_grand': 'Christmas tree',
   'decor.kind_baby_reindeer': 'Baby reindeer',
   'decor.kind_santa': 'Santa',
   'decor.gift': ['I brought you something!', 'A present for our yard!', 'Look what I found for us!'],

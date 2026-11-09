@@ -4,7 +4,8 @@
 // (right-click, or Delete). Friends visit them on their own and say something that fits. The
 // backend keeps them and decides which gift comes next (src-tauri/src/pets/garden.rs); when one is
 // due is in growth.js. Drawn once, like plants: nothing here moves on its own, and the lantern's
-// glow is a still layer the evening shows.
+// glow is a still layer the evening shows. The Christmas tree's night layers, inside its button,
+// are christmas-night.js's.
 
 import { openDecorMenu } from '../core/controls.js';
 import { list, t } from '../core/i18n.js';
@@ -47,6 +48,11 @@ const shown = new Map();
 // Gifts that just came, shown with a little pop the first time they are drawn.
 const fresh = new Set();
 const kindName = kind => t(`decor.kind_${kind}`);
+// The name a gift goes by as drawn now: the Christmas tree is called grand while it stands grand.
+const shownName = (kind, button) =>
+  button.classList.contains('xmas-grand') ? t(`decor.kind_${kind}_grand`) : kindName(kind);
+// Called at the end of every drawing of the gifts (setupDecor).
+let afterDrawing = () => {};
 // The kinds out of sight when the yard last drew its gifts (decor-shown.js), joined.
 let drawnHidden = null;
 // The list last sent to the backend, so the desktop hears of a change once, not at every repaint.
@@ -159,7 +165,9 @@ const save = guard(async (id, at) => {
   });
 });
 
-export function setupDecor() {
+/** `drawn` runs after every drawing of the gifts (the Christmas tree's night, christmas-night.js). */
+export function setupDecor({ drawn = () => {} } = {}) {
+  afterDrawing = drawn;
   globalThis.window?.addEventListener('resize', () => {
     for (const view of shown.values()) {
       view.drag = null;
@@ -191,9 +199,8 @@ export function renderDecor() {
     if (until > now) fadeAt = Math.min(fadeAt, until);
     v.button.classList.toggle('memento-new', until > now);
     const from = d.memento && data.pets.find(p => p.id === d.from);
-    const label = from
-      ? t('decor.memento_title', { name: name(from), kind: kindName(d.kind) })
-      : t('decor.title', { kind: kindName(d.kind) });
+    const kind = shownName(d.kind, v.button);
+    const label = from ? t('decor.memento_title', { name: name(from), kind }) : t('decor.title', { kind });
     v.button.classList.toggle('memento', !!d.memento);
     v.button.title = label;
     v.button.setAttribute('aria-label', label);
@@ -201,6 +208,17 @@ export function renderDecor() {
   // One timer for the next heart to fade, not a check every frame.
   clearTimeout(heartsFade);
   heartsFade = fadeAt < Infinity ? setTimeout(renderDecor, fadeAt - now) : null;
+  afterDrawing();
+}
+/** The decoration of `kind` the yard draws now (not one put away and waiting out its Undo): its
+ * button, and its foot point and size in yard pixels. Null when there is none. */
+export function shownDecor(kind) {
+  for (const v of shown.values()) {
+    if (v.kind !== kind || v.button.hidden) continue;
+    const d = data.garden?.decor.find(item => item.id === v.id);
+    if (d) return { button: v.button, at: placement(kind, d) };
+  }
+  return null;
 }
 /** Redraws the gifts when what is out of sight changed since they were drawn (the date or the
  * season), called with the scene's minute repaint rather than every frame. */

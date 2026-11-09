@@ -317,6 +317,7 @@ export const strings = {
   'decor.kind_onggi': '酱缸台',
   'decor.kind_kite': '风筝',
   'decor.kind_xmas_tree': '小圣诞树',
+  'decor.kind_xmas_tree_grand': '圣诞树',
   'decor.kind_baby_reindeer': '小驯鹿',
   'decor.kind_santa': '圣诞老人',
   'decor.gift': ['我给你带礼物来啦！', '送给我们乐园的礼物！', '看，我找来的！'],

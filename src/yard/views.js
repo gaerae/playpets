@@ -65,6 +65,14 @@ export function pose(view, state, duration = 1200) {
   view.pose = state;
   view.until = now + duration;
 }
+/** A friend looks toward `look` (pixels from its middle, as a pointer's lookAt) for `ms`: drawn while
+ * it stands idle, on a sheet with look rows. A look set meanwhile (the pointer's) is left alone. */
+export function gaze(v, look, ms) {
+  v.look = look;
+  setTimeout(() => {
+    if (v.look === look) v.look = null;
+  }, ms);
+}
 // Bubbles show plain words: an answer's Markdown marks are taken out.
 // Space kept between two bubbles when one rises above the other.
 const BUBBLE_GAP = 4;

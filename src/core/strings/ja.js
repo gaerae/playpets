@@ -318,6 +318,7 @@ export const strings = {
   'decor.kind_onggi': 'かめ置き場',
   'decor.kind_kite': '凧',
   'decor.kind_xmas_tree': '小さなクリスマスツリー',
+  'decor.kind_xmas_tree_grand': 'クリスマスツリー',
   'decor.kind_baby_reindeer': 'トナカイの赤ちゃん',
   'decor.kind_santa': 'サンタさん',
   'decor.gift': ['プレゼントを持ってきたよ！', 'みんなの庭へのプレゼントだよ！', '見て、見つけてきたよ！'],
