@@ -47,7 +47,7 @@ import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { loadContent } from './yard/content.js';
-import { giftTick, putAway, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
+import { giftTick, putAway, refreshShownDecor, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
 import {
   autoDig,
   beginDiscovery,
@@ -130,6 +130,8 @@ onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
 setupSky({
   seasonChanged: season => {
+    // Each minute's repaint: a Christmas gift or a snowman comes or goes with the date and season.
+    refreshShownDecor();
     if (setSpriteSeason(season) && data.assets.length) render();
     else renderAlbum();
   },

@@ -12,6 +12,8 @@ export const strings = {
   'album.gift_rule':
     'A friend you did something with that day may bring a gift, one every other day. Friends also bring one when you grow closer.',
   'album.set_out_full': 'The yard is full. Put a decoration away to set this out.',
+  'album.shown_december': 'Shows in the yard from December 1 to January 7',
+  'album.shown_winter': 'Shows while the yard shows winter',
   'album.set_out': '{kind}: set it out in the yard',
   'album.take_out': 'Set out',
   'album.in_yard': 'In the yard',

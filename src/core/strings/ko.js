@@ -13,6 +13,8 @@ export const strings = {
   'album.gift_rule':
     '친구와 함께 무언가를 한 날, 그 친구가 이틀에 한 번 선물을 가져와요. 사이가 가까워질 때도 선물이 와요.',
   'album.set_out_full': '놀이터가 가득 찼어요. 소품 하나를 치우면 꺼내 놓을 수 있어요.',
+  'album.shown_december': '12월 1일부터 1월 7일까지 놀이터에 나와요',
+  'album.shown_winter': '놀이터가 겨울일 때 나와요',
   'album.set_out': '{kind:을/를} 놀이터에 꺼내 놓아요',
   'album.take_out': '꺼내 놓기',
   'album.in_yard': '놀이터에 있어요',

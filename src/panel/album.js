@@ -12,6 +12,7 @@ import { artSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
 import { BUGS, FISH, FLOWERS, GIFTS, giftKind, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
+import { decorShown } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates } from '../yard/events.js';
 import { SECRETS } from '../yard/secrets.js';
@@ -180,6 +181,10 @@ function card(b, kind, entry, index) {
   }
   return el;
 }
+// Set out while out of sight (decor-shown.js), a gift would vanish into the yard: it waits, and says
+// when it shows: a Christmas gift its dates, a snowman winter.
+const showsNow = kind => decorShown(kind, new Date(), scene.season);
+const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_december' : 'album.shown_winter');
 // A gift that came before can always come back out of its card (garden.rs take_out): one in the
 // yard says so, and one waiting in the box is set out from the box below the book.
 function takeOutButton(kind) {
@@ -187,16 +192,19 @@ function takeOutButton(kind) {
   if ((garden.boxed || []).some(d => d.kind === kind)) return null;
   const out = (garden.decor || []).some(d => d.kind === kind),
     room = (garden.decor?.length ?? 0) < limit(data, 'decor'),
+    shows = showsNow(kind),
     button = document.createElement('button');
   button.type = 'button';
   button.className = 'album-take-out';
   button.textContent = t(out ? 'album.in_yard' : 'album.take_out');
-  button.disabled = out || !room;
+  button.disabled = out || !room || !shows;
   button.title = out
     ? t('album.in_yard')
-    : room
-      ? t('album.set_out', { kind: t(`decor.kind_${kind}`) })
-      : t('album.set_out_full');
+    : !shows
+      ? whenShown(kind)
+      : room
+        ? t('album.set_out', { kind: t(`decor.kind_${kind}`) })
+        : t('album.set_out_full');
   button.setAttribute('aria-label', button.title);
   button.onclick = () => {
     // Taken out once: a second click before the album redraws would find it out already.
@@ -222,12 +230,13 @@ function renderBox(open) {
       const button = document.createElement('button'),
         label = document.createElement('small'),
         kind = giftKind(d.kind),
-        named = t(`decor.kind_${d.kind}`);
+        named = t(`decor.kind_${d.kind}`),
+        shows = showsNow(d.kind);
       button.type = 'button';
       button.className = 'album-box-item';
       button.classList.toggle('memento', !!d.memento);
-      button.disabled = !room;
-      button.title = room ? t('album.set_out', { kind: named }) : t('album.set_out_full');
+      button.disabled = !room || !shows;
+      button.title = !shows ? whenShown(d.kind) : room ? t('album.set_out', { kind: named }) : t('album.set_out_full');
       button.setAttribute('aria-label', button.title);
       button.innerHTML = kind ? giftSvg(kind) : '';
       label.textContent = named;

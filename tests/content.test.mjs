@@ -7,6 +7,7 @@ import test from 'node:test';
 import { STRINGS } from '../src/core/strings.js';
 import { PAINTER_NAMES, THING_KINDS } from '../src/yard/backdrop.js';
 import { artOf, eventGifts } from '../src/yard/catalog.js';
+import { SHOWN } from '../src/yard/decor-shown.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
 import { catalog, events, yard } from './support/content.mjs';
@@ -121,7 +122,7 @@ test('a gift says how it comes and when it shows', () => {
   const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
   for (const g of catalog.gifts) {
     if (g.built) assert.ok(!g.event, `${g.id}: a built kind has no event`);
-    if (g.shown) assert.equal(g.shown, 'december', `${g.id}: shown`);
+    if (g.shown) assert.ok(Object.hasOwn(SHOWN, g.shown), `${g.id}: shown`);
     for (const s of g.seasons || []) assert.ok(SEASONS.includes(s), `${g.id}: ${s}`);
   }
   assert.ok(catalog.gifts.filter(g => g.shown || g.seasons).length <= 4);

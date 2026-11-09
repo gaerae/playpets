@@ -18,6 +18,7 @@ import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
+import { decorShown, hiddenKinds } from './decor-shown.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
 import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
@@ -46,6 +47,8 @@ const shown = new Map();
 // Gifts that just came, shown with a little pop the first time they are drawn.
 const fresh = new Set();
 const kindName = kind => t(`decor.kind_${kind}`);
+// The kinds out of sight when the yard last drew its gifts (decor-shown.js), joined.
+let drawnHidden = null;
 // A memento's heart shows for a day after it came; after that only while it is pointed at, chosen
 // or dragged (garden.css), so a yard full of mementos is not covered in hearts.
 const MEMENTO_NEW_MS = 86_400_000;
@@ -171,9 +174,13 @@ export function renderDecor() {
     if (fresh.delete(d.id)) v.button.classList.add('arrive');
     return v;
   };
-  const now = Date.now();
+  const now = Date.now(),
+    date = new Date(now);
   let fadeAt = Infinity;
-  reconcile(shown, data.garden?.decor || [], make, (v, d) => {
+  drawnHidden = hiddenKinds(date, scene.season).join();
+  // A kind out of sight is left out, not taken away: it keeps its place for when it shows.
+  const decor = (data.garden?.decor || []).filter(d => decorShown(d.kind, date, scene.season));
+  reconcile(shown, decor, make, (v, d) => {
     if (!v.drag?.moved) position(v, d.x, d.y);
     const until = d.memento && d.came_at ? d.came_at + MEMENTO_NEW_MS : 0;
     if (until > now) fadeAt = Math.min(fadeAt, until);
@@ -189,6 +196,11 @@ export function renderDecor() {
   // One timer for the next heart to fade, not a check every frame.
   clearTimeout(heartsFade);
   heartsFade = fadeAt < Infinity ? setTimeout(renderDecor, fadeAt - now) : null;
+}
+/** Redraws the gifts when what is out of sight changed since they were drawn (the date or the
+ * season), called with the scene's minute repaint rather than every frame. */
+export function refreshShownDecor() {
+  if (hiddenKinds(new Date(), scene.season).join() !== drawnHidden) renderDecor();
 }
 
 // Sends a friend to a decoration: onto the bench or the blanket, beside the others.
@@ -211,7 +223,8 @@ function visit(id) {
 }
 /** Now and then an idle friend goes to a decoration instead of strolling: the target, or null. */
 export function decorTarget(v) {
-  const decor = data.garden?.decor || [];
+  // Only what the yard draws: a hidden gift has no spot to visit.
+  const decor = (data.garden?.decor || []).filter(d => shown.has(d.id));
   if (!decor.length || Math.random() > 0.25) return null;
   walkTo(v, pick(decor));
   return v.target;

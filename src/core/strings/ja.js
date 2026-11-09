@@ -14,6 +14,8 @@ export const strings = {
   'album.gift_rule':
     '友だちと何かをした日に、その友だちが二日に一度プレゼントを持ってきます。仲良くなったときにも届きます。',
   'album.set_out_full': '庭がいっぱいです。飾りを一つ片付けると出せます。',
+  'album.shown_december': '12月1日から1月7日まで庭に出ます',
+  'album.shown_winter': '庭が冬のときに出ます',
   'album.set_out': '{kind}を庭に出す',
   'album.take_out': '庭に出す',
   'album.in_yard': '庭にあります',
