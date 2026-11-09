@@ -108,18 +108,21 @@ jobs:
           MSIX_PUBLISHER: CN=85817E6E-C9F8-44E1-B251-9010546EC6B8
           MSIX_PUBLISHER_DISPLAY_NAME: gaerae
         run: ./packaging/windows/msix/store.ps1 -Binary src-tauri/target/${{ matrix.target }}/release/playpets.exe -Architecture ${{ matrix.architecture }} -Symbols "$env:RUNNER_TEMP/playpets-public.pdb"
-      # On a signed copy; the unsigned package is what goes on.
+      # On a signed copy; the unsigned package is what goes on. The windows-11-arm image has no WACK,
+      # and an x64 runner cannot install an ARM64 package, so only the x64 one is certified here; the
+      # two differ only in the binary's architecture.
       - name: Windows App Certification Kit
+        if: matrix.architecture == 'x64'
         shell: pwsh
         env:
           MSIX_PUBLISHER: CN=85817E6E-C9F8-44E1-B251-9010546EC6B8
           VERSION: ${{ needs.source.outputs.version }}
         run: ./packaging/windows/msix/wack.ps1 -Package "release/store/PlayPets_${env:VERSION}_${{ matrix.architecture }}.msix" -Report "release/wack/wack-${{ matrix.architecture }}.xml"
       - name: WACK report
-        if: always()
+        if: always() && matrix.architecture == 'x64'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: wack-${{ matrix.architecture }}
+          name: wack-x64
           path: release/wack/*.xml
           if-no-files-found: warn
           retention-days: 14

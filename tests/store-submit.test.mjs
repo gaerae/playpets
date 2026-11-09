@@ -463,7 +463,7 @@ test('Store submission stops before making a draft when the published listing la
   await assert.rejects(submitStore(odd, release), /\(it has en-us, ko-kr, ja-jp, \?\)/);
 });
 
-test('the Store gets one bundle with public symbols, and each package passes WACK first', () => {
+test('the Store gets one bundle with public symbols, and the x64 package passes WACK first', () => {
   const workflow = readFileSync('.github/workflows/store.yml', 'utf8');
   const jobs = workflow.split(/\n(?= {2}[a-z]+:\n)/);
   const job = name => jobs.find(text => text.startsWith(`  ${name}:`));
@@ -473,10 +473,9 @@ test('the Store gets one bundle with public symbols, and each package passes WAC
   assert.match(pack, /store\.ps1 [^\n]*-Symbols /);
   const wack = pack.indexOf('wack.ps1');
   assert.ok(wack > pack.indexOf('store.ps1'), 'WACK runs on the package store.ps1 made');
-  assert.match(
-    pack,
-    /name: wack-\$\{\{ matrix\.architecture \}\}[\s\S]*if: always\(\)|if: always\(\)[\s\S]*name: wack-/,
-  );
+  // The ARM64 runner image has no WACK, and an x64 runner cannot install an ARM64 package.
+  assert.match(pack, /name: Windows App Certification Kit\n\s+if: matrix\.architecture == 'x64'/);
+  assert.match(pack, /if: always\(\) && matrix\.architecture == 'x64'[\s\S]*name: wack-x64/);
   const bundle = job('bundle');
   assert.match(bundle, /runs-on: windows-latest/);
   assert.match(bundle, /bundle\.ps1/);

@@ -211,7 +211,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 
 9. Check the `store` run (Microsoft Store). It skips prereleases.
    - `source` checks the tag and makes "What's new" from the four website release pages.
-   - `package` builds the x64 and ARM64 MSIX from the tag and runs the Windows App Certification Kit (WACK) on each; its reports are the `wack-x64` and `wack-arm64` artifacts.
+   - `package` builds the x64 and ARM64 MSIX from the tag and runs the Windows App Certification Kit (WACK) on the x64 one; its report is the `wack-x64` artifact.
    - `bundle` makes one `.msixupload` (both packages as a bundle, with their public symbols), checks it and keeps it as the `store-bundle` artifact.
    - `submit` runs only when the repository variable `STORE_SUBMISSION_ENABLED` is `true`.
    - `submit` waits for approval of the `microsoft-store` environment, then creates the submission and requests certification.

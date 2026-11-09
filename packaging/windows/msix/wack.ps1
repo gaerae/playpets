@@ -42,8 +42,13 @@ try {
     if (!(Test-Path $Report)) { throw "WACK wrote no report (exit code $LASTEXITCODE)" }
     [xml]$xml = Get-Content -Raw $Report
     $overall = $xml.REPORT.OVERALL_RESULT
-    $failed = @($xml.SelectNodes('//TEST[RESULT="FAIL"]') | ForEach-Object { $_.NAME })
-    $line = "WACK $(Split-Path -Leaf $Package): $overall" + $(if ($failed.Count) { " (failed: $($failed -join ', '))" } else { '' })
+    # An optional test that fails is a warning: "Blocked executables" always flags the CLIs PlayPets
+    # starts on purpose (CreateProcessW, cmd.exe for npm's shims).
+    $failed = @($xml.SelectNodes('//TEST[RESULT="FAIL" and not(@OPTIONAL="TRUE")]') | ForEach-Object { $_.NAME })
+    $optional = @($xml.SelectNodes('//TEST[RESULT="FAIL" and @OPTIONAL="TRUE"]') | ForEach-Object { $_.NAME })
+    $line = "WACK $(Split-Path -Leaf $Package): $overall" +
+        $(if ($failed.Count) { "; failed: $($failed -join ', ')" } else { '' }) +
+        $(if ($optional.Count) { "; optional checks flagged: $($optional -join ', ')" } else { '' })
     Write-Host $line
     if ($env:GITHUB_STEP_SUMMARY) { Add-Content $env:GITHUB_STEP_SUMMARY $line }
     if ($overall -eq 'FAIL') { throw 'The Windows App Certification Kit failed this package' }

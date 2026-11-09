@@ -103,7 +103,9 @@ After both architecture jobs pass, these checks stay manual:
 - On a clean Windows device without development tools, confirm WebView2 availability, visual layout, tray and desktop windows, close and exit, always-on-top and optional agent integration.
   - CI checks package activation and update rules.
   - It cannot judge these interactions visually or cover every device setup.
-- The `store` workflow runs the Windows App Certification Kit (WACK) on each package and fails on `OVERALL_RESULT="FAIL"`; the reports are the `wack-x64` and `wack-arm64` artifacts.
+- The `store` workflow runs the Windows App Certification Kit (WACK) on the x64 package and fails on `OVERALL_RESULT="FAIL"`; the report is the `wack-x64` artifact.
+  - The `windows-11-arm` runner image has no WACK, and an x64 runner cannot install an ARM64 package. The two packages differ only in the binary's architecture.
+  - The optional "Blocked executables" test always flags `CreateProcessW` and `cmd.exe`: PlayPets starts the coding CLIs and npm's shims on purpose. It doesn't change the overall result.
   - WACK installs what it tests, so it runs on a copy signed with a certificate made on the runner for the Store publisher's name. The unsigned package goes on.
   - Passing WACK is not passing certification: Partner Center runs its own checks.
 - To try the packaging without a release, start `store` by hand from a branch. It builds, certifies and bundles that branch's version and never submits.
@@ -151,7 +153,7 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
 | Job | Credentials | What it does |
 |---|---|---|
 | `source` | None | Checks that the tag is a stable `vx.y.z` on `main` and matches `package.json` and the changelog. Makes `notes.json` from the four website release pages |
-| `package` | None | Builds `playpets.exe` with `pnpm exec tauri build --no-bundle` on Windows x64 and ARM64, with a second PDB of public symbols (`/PDBSTRIPPED`). `packaging/windows/msix/store.ps1` makes the unsigned MSIX and its `.appxsym`; `wack.ps1` runs WACK on a signed copy |
+| `package` | None | Builds `playpets.exe` with `pnpm exec tauri build --no-bundle` on Windows x64 and ARM64, with a second PDB of public symbols (`/PDBSTRIPPED`). `packaging/windows/msix/store.ps1` makes the unsigned MSIX and its `.appxsym`; `wack.ps1` runs WACK on a signed copy of the x64 one |
 | `bundle` | None | `packaging/windows/msix/bundle.ps1` makes `PlayPets_<version>.msixbundle` and wraps it with both `.appxsym` in `PlayPets_<version>.msixupload`. Checks every identity, version and architecture inside, records the SHA-256 in `release.json`, keeps it as the `store-bundle` artifact |
 | `submit` | `microsoft-store` environment | Runs only from a release tag with `STORE_SUBMISSION_ENABLED=true`, after the environment's approval |
 
