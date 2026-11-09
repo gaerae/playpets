@@ -79,34 +79,45 @@ pub fn import_from_url(raw: &str, root: &Path, fetch: Fetch) -> Result<PathBuf, 
         .candidates
         .retain(|c| check_url(c).is_ok_and(|u| on_site(&u, &source.hosts)));
     let (bytes, version, ext) = pick_sprite(&source.candidates, fetch)?;
-    fs::create_dir_all(root).map_err(|e| i18n::detail("import.save_detail", &e))?;
+    let file = format!("spritesheet.{ext}");
+    let display = Some(clean(&source.display_name, 60))
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| slug.clone());
+    let mut origin = json!({"name": source.name, "url": source.page_url, "creator": clean(&source.creator, 80)});
+    if !source.license.is_empty() {
+        origin["license"] = json!(source.license);
+    }
+    let manifest = json!({
+        "id": slug, "displayName": display, "description": clean(&source.description, 300),
+        "spriteVersionNumber": version, "spritesheetPath": file, "source": origin,
+    });
+    let manifest = serde_json::to_vec_pretty(&manifest).map_err(|_| i18n::t("import.save_failed"))?;
+    install(root, &folder, &[(file, bytes), ("pet.json".into(), manifest)])
+}
+
+/// Writes a pet's files into a fresh folder beside `folder`, checks what they say, and only then
+/// gives the folder its name, so a half-written or unusable pet never joins the others. The
+/// same pet arriving twice at once keeps whichever copy got there first.
+fn install(root: &Path, folder: &Path, files: &[(String, Vec<u8>)]) -> Result<PathBuf, String> {
+    let failed = |e: std::io::Error| i18n::detail("import.save_detail", &e);
+    fs::create_dir_all(root).map_err(failed)?;
     let temp = root.join(format!(".tmp-{}", uuid::Uuid::new_v4()));
     let written = (|| -> Result<(), String> {
-        fs::create_dir(&temp).map_err(|e| i18n::detail("import.save_detail", &e))?;
-        let file = format!("spritesheet.{ext}");
-        fs::write(temp.join(&file), &bytes).map_err(|e| i18n::detail("import.save_detail", &e))?;
-        let display = Some(clean(&source.display_name, 60))
-            .filter(|s| !s.is_empty())
-            .unwrap_or_else(|| slug.clone());
-        let mut origin = json!({"name": source.name, "url": source.page_url, "creator": clean(&source.creator, 80)});
-        if !source.license.is_empty() {
-            origin["license"] = json!(source.license);
+        for (name, data) in files {
+            let path = temp.join(name);
+            if let Some(parent) = path.parent() {
+                fs::create_dir_all(parent).map_err(failed)?;
+            }
+            fs::write(&path, data).map_err(failed)?;
         }
-        let manifest = json!({
-            "id": slug, "displayName": display, "description": clean(&source.description, 300),
-            "spriteVersionNumber": version, "spritesheetPath": file, "source": origin,
-        });
-        fs::write(temp.join("pet.json"), serde_json::to_string_pretty(&manifest).unwrap())
-            .map_err(|e| i18n::detail("import.save_detail", &e))?;
-        if fs::rename(&temp, &folder).is_err() && !valid(&folder) {
+        catalog::read_pet(&temp)?;
+        if fs::rename(&temp, folder).is_err() && !valid(folder) {
             return Err(i18n::t("import.save_failed"));
         }
         Ok(())
     })();
     let _ = fs::remove_dir_all(&temp);
-    written?;
-    catalog::read_pet(&folder)?;
-    Ok(folder)
+    written.map(|()| folder.to_path_buf())
 }
 
 /// Imports a pet ZIP (the creator kit's, or a compressed pet folder) into its own folder in `root`,
@@ -153,27 +164,7 @@ pub fn import_from_zip(file: &Path, root: &Path) -> Result<PathBuf, String> {
     if folder.exists() && valid(&folder) {
         return Ok(folder);
     }
-    fs::create_dir_all(root).map_err(|e| i18n::detail("import.save_detail", &e))?;
-    let temp = root.join(format!(".tmp-{}", uuid::Uuid::new_v4()));
-    let written = (|| -> Result<(), String> {
-        for (name, data) in &files {
-            let path = temp.join(name);
-            if let Some(parent) = path.parent() {
-                fs::create_dir_all(parent).map_err(|e| i18n::detail("import.save_detail", &e))?;
-            }
-            fs::write(&path, data).map_err(|e| i18n::detail("import.save_detail", &e))?;
-        }
-        // What the files say is checked before the pet joins the others.
-        catalog::read_pet(&temp)?;
-        if fs::rename(&temp, &folder).is_err() && !valid(&folder) {
-            return Err(i18n::t("import.save_failed"));
-        }
-        Ok(())
-    })();
-    let _ = fs::remove_dir_all(&temp);
-    written?;
-    catalog::read_pet(&folder)?;
-    Ok(folder)
+    install(root, &folder, &files)
 }
 
 #[cfg(test)]
