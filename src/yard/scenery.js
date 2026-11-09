@@ -1,7 +1,8 @@
 // Draws the living part of the yard on one canvas: rain, snow, petals and leaves, small creatures,
 // now and then a flock of birds. Stars and shooting stars go on a second canvas behind the land
 // (.star-layer), so they show only where the painted sky does. The rules (where drops spawn, how
-// they fall) live in scene.js; this file only paints.
+// they fall) live in scene.js; this file only paints, and the light of stars, shooting stars and
+// fireworks is light-art.js's.
 // Every repaint of a canvas costs a screen update, so each is repainted only when something on it
 // moved. Stars are drawn once (their twinkle is the CSS layer's, scenery.css). Butterflies, fireflies
 // and falling petals or leaves come in spells: they are about for a while, leave, and the canvas
@@ -11,8 +12,8 @@ import { createAmbientArt } from './ambient-art.js';
 import { bugChances, weighted, wildlifeGroup } from './catalog.js';
 import { environmentFrame, weatherPanes } from './environment.js';
 import { boostOf } from './events.js';
-import { sparkAt } from './fireworks.js';
-import { meteorAt, shower as showerOf, wish } from './meteors.js';
+import { drawMeteors, drawSparks, drawStars, lightYard } from './light-art.js';
+import { shower as showerOf, wish } from './meteors.js';
 import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
 import { createWeatherArt } from './weather-art.js';
 import { worldAllows, worldFor } from './worlds.js';
@@ -21,7 +22,6 @@ const TAU = Math.PI * 2;
 const INK = {
   rain: { day: '168,192,214', night: '190,208,230', sun: '255,236,186' },
   snow: '255,255,255',
-  star: '255,250,230',
   firefly: '236,240,150',
 };
 const PETALS = ['#f7c1d2', '#fbd7e3', '#f3a9c1'];
@@ -279,101 +279,13 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
   function paintStars(now) {
     if (!starCtx) return;
     starCtx.clearRect(0, 0, w, h);
-    for (const s of stars) {
-      starCtx.globalAlpha = s.alpha;
-      if (ambient.star(starCtx, s)) continue;
-      starCtx.fillStyle = `rgb(${INK.star})`;
-      starCtx.beginPath();
-      starCtx.arc(s.x, s.y, s.r, 0, TAU);
-      starCtx.fill();
-    }
-    if (meteors.length) drawMeteors(now);
-    if (sparks.length) drawSparks(starCtx, now, false);
+    drawStars(starCtx, stars, ambient);
+    if (meteors.length) drawMeteors(starCtx, meteors, now, ambient);
+    if (sparks.length) drawSparks(starCtx, sparks, now, false, scale);
     starCtx.globalAlpha = 1;
   }
-  // Shooting stars add their light to the sky: a tail that tapers behind a glowing head.
-  function drawMeteors(now) {
-    starCtx.globalCompositeOperation = 'lighter';
-    for (const m of meteors) {
-      const at = meteorAt(m, now);
-      if (!at) continue;
-      starCtx.globalAlpha = at.alpha;
-      if (!ambient.streak(starCtx, at.x, at.y, at.angle, at.length, m.width)) {
-        const ex = at.x - Math.cos(at.angle) * at.length,
-          ey = at.y - Math.sin(at.angle) * at.length,
-          tail = starCtx.createLinearGradient(at.x, at.y, ex, ey);
-        tail.addColorStop(0, `rgba(${INK.star},${at.alpha})`);
-        tail.addColorStop(1, `rgba(${INK.star},0)`);
-        starCtx.strokeStyle = tail;
-        starCtx.lineWidth = m.width;
-        starCtx.lineCap = 'round';
-        starCtx.beginPath();
-        starCtx.moveTo(at.x, at.y);
-        starCtx.lineTo(ex, ey);
-        starCtx.stroke();
-      }
-      ambient.star(starCtx, { x: at.x, y: at.y, r: m.width * (m.wish ? 1.1 : 0.7) });
-    }
-    starCtx.globalCompositeOperation = 'source-over';
-  }
-  // Fireworks (fireworks.js) add their light, as fire does: a soft flash where a shell bursts, then
-  // each star as a bright head with a fading tail; a burning-out star flickers, glitter all along.
-  // Shells climb from the friends in front of the land (`front`); they burst in the sky behind it.
-  function drawSparks(c, now, front) {
-    c.globalCompositeOperation = 'lighter';
-    c.lineCap = 'round';
-    for (const s of sparks) {
-      if (!!s.rise !== front) continue;
-      const at = sparkAt(s, now);
-      if (!at) continue;
-      if (s.flash) {
-        const glow = c.createRadialGradient(at.x, at.y, 0, at.x, at.y, 46 * scale);
-        glow.addColorStop(0, s.color);
-        glow.addColorStop(1, 'transparent');
-        c.globalAlpha = at.alpha * 0.45;
-        c.fillStyle = glow;
-        c.fillRect(at.x - 46 * scale, at.y - 46 * scale, 92 * scale, 92 * scale);
-        continue;
-      }
-      const flicker = Math.random() < (s.glitter ? 0.5 : at.alpha < 1 ? 0.3 : 0),
-        alpha = flicker ? at.alpha * 0.3 : at.alpha;
-      c.strokeStyle = s.color;
-      tail(c, s, at, now - (s.trail ?? (s.rise ? 220 : 150)), 1.2 * scale, alpha * 0.35);
-      tail(c, s, at, now - 40, 2.2 * scale, alpha);
-    }
-    c.globalCompositeOperation = 'source-over';
-    c.globalAlpha = 1;
-  }
-  // A spark's tail: a line from where it was `since` to where it is now (`at`).
-  function tail(c, s, at, since, width, alpha) {
-    const from = sparkAt(s, since) || { x: s.cx, y: s.cy };
-    c.globalAlpha = alpha;
-    c.lineWidth = width;
-    c.beginPath();
-    c.moveTo(from.x, from.y);
-    c.lineTo(at.x, at.y);
-    c.stroke();
-  }
-  // Each burst lights the whole yard for a moment in its colour, the friends too; bursts together
-  // light it no more than a little, so the finale does not turn to haze.
-  function lightYard(now) {
-    ctx.globalCompositeOperation = 'lighter';
-    let left = 0.08;
-    for (const s of sparks) {
-      const at = s.flash && sparkAt(s, now);
-      if (!at || left <= 0) continue;
-      ctx.globalAlpha = Math.min(left, at.alpha * 0.05);
-      left -= ctx.globalAlpha;
-      ctx.fillStyle = s.color;
-      ctx.fillRect(0, 0, w, h);
-    }
-    ctx.globalCompositeOperation = 'source-over';
-  }
-  function paint(now) {
-    dirty = false;
-    ctx.clearRect(0, 0, w, h);
-    if (!enabled()) return;
-    // Indoors only the glass shows the weather: drops elsewhere are stepped but not drawn.
+  // Rain or snow; indoors only the glass shows it, so drops elsewhere are stepped but not drawn.
+  function paintWeather(now) {
     const seen = panes
       ? d => panes.some(p => d.x > p.x - 24 && d.x < p.x + p.width + 24 && d.y > p.y - 32 && d.y < p.y + p.height + 32)
       : () => true;
@@ -383,70 +295,74 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       for (const pane of panes) ctx.rect(pane.x, pane.y, pane.width, pane.height);
       ctx.clip();
     }
-    if (weather === 'rain') {
-      // The window clips the same rain used outdoors.
-      const light = period === 'night' ? 'night' : sunlit ? 'sun' : 'day';
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = `rgb(${INK.rain[light]})`;
-      for (const d of drops) {
-        if (!seen(d)) continue;
-        // drops lit by the sun stand out against the bright sky behind them
-        ctx.globalAlpha = (sunlit ? 0.4 : 0.22) + d.depth * 0.4;
-        ctx.lineWidth = (0.6 + d.depth * 0.9) * scale;
-        if (art.rain(ctx, d, scale, light)) continue;
-        ctx.beginPath();
-        ctx.moveTo(d.x, d.y);
-        ctx.lineTo(d.x - (d.vx / d.vy) * d.size * scale, d.y - d.size * scale);
-        ctx.stroke();
-      }
-      ctx.lineWidth = 1;
-      for (const s of splashes) {
-        const t = (now - s.since) / 280,
-          r = (2 + s.depth * 5) * t;
-        ctx.globalAlpha = (1 - t) * (0.3 + s.depth * 0.4);
-        if (art.ripple(ctx, s, scale, t, period === 'night')) continue;
-        ctx.beginPath();
-        ctx.ellipse(s.x, s.y, r * 1.8, r * 0.6, 0, 0, TAU);
-        ctx.stroke();
-      }
-    }
-    if (weather === 'snow') {
-      ctx.fillStyle = `rgb(${INK.snow})`;
-      for (const d of drops) {
-        if (!seen(d)) continue;
-        ctx.globalAlpha = 0.55 + d.depth * 0.45;
-        if (art.snow(ctx, d, scale)) continue;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.size * scale, 0, TAU);
-        ctx.fill();
-        if (d.depth > 0.7) {
-          ctx.globalAlpha = 0.16;
-          ctx.beginPath();
-          ctx.arc(d.x, d.y, d.size * 2.2 * scale, 0, TAU);
-          ctx.fill();
-        }
-      }
-    }
+    if (weather === 'rain') paintRain(now, seen);
+    if (weather === 'snow') paintSnow(seen);
     if (drops.length && panes) ctx.restore();
-    if (flock) {
-      ctx.globalAlpha = period === 'evening' ? 0.6 : 0.5;
-      ctx.strokeStyle = '#34464f';
-      ctx.lineWidth = 1.4 * scale;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      for (const b of flock.birds) {
-        const x = flock.x + b.dx * scale,
-          y = flock.y + b.dy * scale,
-          span = 5.5 * scale,
-          lift = Math.sin(b.phase + now * 0.009) * 2.6 * scale;
-        if (ambient.bird(ctx, x, y, b.phase, flock.dir, scale, now)) continue;
+  }
+  function paintRain(now, seen) {
+    // The window clips the same rain used outdoors.
+    const light = period === 'night' ? 'night' : sunlit ? 'sun' : 'day';
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = `rgb(${INK.rain[light]})`;
+    for (const d of drops) {
+      if (!seen(d)) continue;
+      // drops lit by the sun stand out against the bright sky behind them
+      ctx.globalAlpha = (sunlit ? 0.4 : 0.22) + d.depth * 0.4;
+      ctx.lineWidth = (0.6 + d.depth * 0.9) * scale;
+      if (art.rain(ctx, d, scale, light)) continue;
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - (d.vx / d.vy) * d.size * scale, d.y - d.size * scale);
+      ctx.stroke();
+    }
+    ctx.lineWidth = 1;
+    for (const s of splashes) {
+      const t = (now - s.since) / 280,
+        r = (2 + s.depth * 5) * t;
+      ctx.globalAlpha = (1 - t) * (0.3 + s.depth * 0.4);
+      if (art.ripple(ctx, s, scale, t, period === 'night')) continue;
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y, r * 1.8, r * 0.6, 0, 0, TAU);
+      ctx.stroke();
+    }
+  }
+  function paintSnow(seen) {
+    ctx.fillStyle = `rgb(${INK.snow})`;
+    for (const d of drops) {
+      if (!seen(d)) continue;
+      ctx.globalAlpha = 0.55 + d.depth * 0.45;
+      if (art.snow(ctx, d, scale)) continue;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.size * scale, 0, TAU);
+      ctx.fill();
+      if (d.depth > 0.7) {
+        ctx.globalAlpha = 0.16;
         ctx.beginPath();
-        ctx.moveTo(x - span, y - lift);
-        ctx.quadraticCurveTo(x - span * 0.4, y - 1.5 * scale, x, y);
-        ctx.quadraticCurveTo(x + span * 0.4, y - 1.5 * scale, x + span, y - lift);
-        ctx.stroke();
+        ctx.arc(d.x, d.y, d.size * 2.2 * scale, 0, TAU);
+        ctx.fill();
       }
     }
+  }
+  function paintFlock(now) {
+    ctx.globalAlpha = period === 'evening' ? 0.6 : 0.5;
+    ctx.strokeStyle = '#34464f';
+    ctx.lineWidth = 1.4 * scale;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (const b of flock.birds) {
+      const x = flock.x + b.dx * scale,
+        y = flock.y + b.dy * scale,
+        span = 5.5 * scale,
+        lift = Math.sin(b.phase + now * 0.009) * 2.6 * scale;
+      if (ambient.bird(ctx, x, y, b.phase, flock.dir, scale, now)) continue;
+      ctx.beginPath();
+      ctx.moveTo(x - span, y - lift);
+      ctx.quadraticCurveTo(x - span * 0.4, y - 1.5 * scale, x, y);
+      ctx.quadraticCurveTo(x + span * 0.4, y - 1.5 * scale, x + span, y - lift);
+      ctx.stroke();
+    }
+  }
+  function paintFallers(now) {
     for (const f of fallers) {
       const palette = season === 'spring' ? PETALS : LEAVES;
       ctx.globalAlpha = 0.6 + f.depth * 0.35;
@@ -467,93 +383,106 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       ctx.fill();
       ctx.restore();
     }
-    for (const c of critters) {
-      if (c.kind === 'firefly') {
-        const lit = (0.5 + 0.5 * Math.sin(c.phase)) * c.light;
-        ctx.globalAlpha = (0.15 + lit * 0.3) * c.light;
-        // Each kind glows in its own light (catalog.json look.glow), so a rare one can be found.
-        if (ambient.glow(ctx, c, scale)) {
-          ctx.globalAlpha = (0.55 + lit * 0.45) * c.light;
-          if (ambient.bug(ctx, c, scale)) continue;
-        }
-        ctx.fillStyle = c.look.glow || `rgb(${INK.firefly})`;
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 6 * scale, 0, TAU);
-        ctx.fill();
-        ctx.globalAlpha = (0.4 + lit * 0.6) * c.light;
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 1.7 * scale, 0, TAU);
-        ctx.fill();
-      } else if (grounded(c.kind)) {
-        ctx.globalAlpha = 0.95;
-        if (ambient.bug(ctx, c, scale)) continue;
-        ctx.save();
-        ctx.translate(c.x, c.y);
-        ctx.rotate(c.heading + Math.PI / 2);
-        ctx.fillStyle = c.look.body || c.look.wing || '#4a3829';
-        ctx.beginPath();
-        ctx.ellipse(0, 0, (c.kind === 'beetle' ? 4 : 2) * scale, 5 * scale, 0, 0, TAU);
-        ctx.fill();
-        ctx.strokeStyle = c.look.edge || '#342a22';
-        ctx.lineWidth = scale;
-        for (const side of [-1, 1])
-          for (const y of [-2, 1, 3]) {
-            ctx.beginPath();
-            ctx.moveTo(side * 2 * scale, y * scale);
-            ctx.lineTo(side * (c.kind === 'cricket' && y === 3 ? 7 : 5) * scale, (y + 2) * scale);
-            ctx.stroke();
-          }
-        ctx.restore();
-      } else if (c.kind === 'dragonfly') {
-        ctx.globalAlpha = 0.95;
-        if (ambient.bug(ctx, c, scale)) continue;
-        // Seen from above: two pairs of clear wings and a long body, pointing where it flies.
-        ctx.save();
-        ctx.translate(c.x, c.y);
-        ctx.rotate(c.heading + Math.PI / 2);
-        ctx.globalAlpha = 0.55;
-        ctx.fillStyle = c.look.wing;
-        const shimmer = 0.85 + 0.15 * Math.sin(c.phase);
-        for (const [dx, dy] of [
-          [-1, -1.5],
-          [1, -1.5],
-          [-1, 1],
-          [1, 1],
-        ]) {
-          ctx.beginPath();
-          ctx.ellipse(dx * 5 * scale, dy * scale, 5 * scale * shimmer, 1.5 * scale, 0, 0, TAU);
-          ctx.fill();
-        }
-        ctx.globalAlpha = 0.95;
-        ctx.fillStyle = c.look.body;
-        ctx.fillRect(-0.8 * scale, -3 * scale, 1.6 * scale, 10 * scale);
-        ctx.beginPath();
-        ctx.arc(0, -3.5 * scale, 1.6 * scale, 0, TAU);
-        ctx.fill();
-        ctx.restore();
-      } else {
-        ctx.globalAlpha = 0.95;
-        if (ambient.bug(ctx, c, scale)) continue;
-        // A touch larger than life, so one is easy to click.
-        const flap = 0.25 + 0.75 * Math.abs(Math.sin(c.phase)),
-          k = scale * 1.4;
-        ctx.globalAlpha = 0.95;
-        ctx.strokeStyle = c.look.edge;
-        ctx.lineWidth = 0.8 * k;
-        ctx.fillStyle = c.look.wing;
-        for (const side of [-1, 1]) {
-          ctx.beginPath();
-          ctx.ellipse(c.x + side * 3.2 * flap * k, c.y - k, 3.4 * flap * k, 4.4 * k, side * 0.5, 0, TAU);
-          ctx.fill();
-          ctx.stroke();
-        }
-        ctx.fillStyle = '#5b4a3f';
-        ctx.fillRect(c.x - 0.6 * k, c.y - 3.5 * k, 1.2 * k, 6 * k);
-      }
+  }
+  // Each creature as its collection artwork, or a drawing of its kind until that is ready.
+  function paintCritter(c) {
+    if (c.kind === 'firefly') return paintFirefly(c);
+    ctx.globalAlpha = 0.95;
+    if (ambient.bug(ctx, c, scale)) return;
+    if (grounded(c.kind)) paintGroundBug(c);
+    else if (c.kind === 'dragonfly') paintDragonfly(c);
+    else paintButterfly(c);
+  }
+  function paintFirefly(c) {
+    const lit = (0.5 + 0.5 * Math.sin(c.phase)) * c.light;
+    ctx.globalAlpha = (0.15 + lit * 0.3) * c.light;
+    // Each kind glows in its own light (catalog.json look.glow), so a rare one can be found.
+    if (ambient.glow(ctx, c, scale)) {
+      ctx.globalAlpha = (0.55 + lit * 0.45) * c.light;
+      if (ambient.bug(ctx, c, scale)) return;
     }
+    ctx.fillStyle = c.look.glow || `rgb(${INK.firefly})`;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 6 * scale, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = (0.4 + lit * 0.6) * c.light;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 1.7 * scale, 0, TAU);
+    ctx.fill();
+  }
+  function paintGroundBug(c) {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.rotate(c.heading + Math.PI / 2);
+    ctx.fillStyle = c.look.body || c.look.wing || '#4a3829';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, (c.kind === 'beetle' ? 4 : 2) * scale, 5 * scale, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = c.look.edge || '#342a22';
+    ctx.lineWidth = scale;
+    for (const side of [-1, 1])
+      for (const y of [-2, 1, 3]) {
+        ctx.beginPath();
+        ctx.moveTo(side * 2 * scale, y * scale);
+        ctx.lineTo(side * (c.kind === 'cricket' && y === 3 ? 7 : 5) * scale, (y + 2) * scale);
+        ctx.stroke();
+      }
+    ctx.restore();
+  }
+  // Seen from above: two pairs of clear wings and a long body, pointing where it flies.
+  function paintDragonfly(c) {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.rotate(c.heading + Math.PI / 2);
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = c.look.wing;
+    const shimmer = 0.85 + 0.15 * Math.sin(c.phase);
+    for (const [dx, dy] of [
+      [-1, -1.5],
+      [1, -1.5],
+      [-1, 1],
+      [1, 1],
+    ]) {
+      ctx.beginPath();
+      ctx.ellipse(dx * 5 * scale, dy * scale, 5 * scale * shimmer, 1.5 * scale, 0, 0, TAU);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 0.95;
+    ctx.fillStyle = c.look.body;
+    ctx.fillRect(-0.8 * scale, -3 * scale, 1.6 * scale, 10 * scale);
+    ctx.beginPath();
+    ctx.arc(0, -3.5 * scale, 1.6 * scale, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+  }
+  // A touch larger than life, so one is easy to click.
+  function paintButterfly(c) {
+    const flap = 0.25 + 0.75 * Math.abs(Math.sin(c.phase)),
+      k = scale * 1.4;
+    ctx.globalAlpha = 0.95;
+    ctx.strokeStyle = c.look.edge;
+    ctx.lineWidth = 0.8 * k;
+    ctx.fillStyle = c.look.wing;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.ellipse(c.x + side * 3.2 * flap * k, c.y - k, 3.4 * flap * k, 4.4 * k, side * 0.5, 0, TAU);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#5b4a3f';
+    ctx.fillRect(c.x - 0.6 * k, c.y - 3.5 * k, 1.2 * k, 6 * k);
+  }
+  function paint(now) {
+    dirty = false;
+    ctx.clearRect(0, 0, w, h);
+    if (!enabled()) return;
+    paintWeather(now);
+    if (flock) paintFlock(now);
+    paintFallers(now);
+    for (const c of critters) paintCritter(c);
     if (sparks.length) {
-      lightYard(now);
-      drawSparks(ctx, now, true);
+      lightYard(ctx, sparks, now, w, h);
+      drawSparks(ctx, sparks, now, true, scale);
     }
     ctx.globalAlpha = 1;
   }
