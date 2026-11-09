@@ -36,7 +36,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The arrow keys move a selected friend in the yard again, and holding Enter or Space on a friend pats it once instead of over and over.
 - While you aim a treat or seed or play a game, Delete, Backspace and a right-click leave a flower alone, as they already did a tree and a gift.
 - A friend on the desktop stops showing that its coding agent finished after a while, as in the yard, instead of keeping it for hours.
-- Pressing **Connect now** or **Send** twice quickly makes one connection and sends the message once.
+- Pressing **Connect now** twice quickly makes one connection, and sending a message twice quickly sends it once.
 - **Edit** on an AI connection in Settings shows its current address, also right after you changed it.
 
 ### Website and docs
