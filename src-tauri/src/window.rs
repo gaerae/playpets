@@ -185,6 +185,15 @@ pub fn e2e_window(app: &AppHandle, args: &[Value]) -> Result<Value, String> {
     )
 }
 
+/// For the e2e run: brings the main window to the front. A covered window counts as hidden and the
+/// yard stops drawing, so a step that watches friends move asks for this first.
+pub fn e2e_front(app: &AppHandle) -> Result<Value, String> {
+    let w = app.get_webview_window("main").ok_or("no window main")?;
+    w.show().map_err(|e| e.to_string())?;
+    w.set_focus().map_err(|e| e.to_string())?;
+    Ok(Value::Null)
+}
+
 /// `{x, y, width, height}` with every field a number, else nothing.
 pub fn rect_of(v: &Value) -> Option<Rect> {
     let n = |k: &str| v.get(k)?.as_f64();

@@ -101,6 +101,13 @@ const scenario = `(async()=>{
   // What ran out of time is named at the end: a wait returns quietly, and the check that fails can be far from it.
   const lateWaits=[];
   const until=async(f,ms=5000)=>{const end=Date.now()+ms;let v=await f();while(!v&&Date.now()<end){await new Promise(r=>setTimeout(r,50));v=await f();}if(!v)lateWaits.push(String(f).replace(/\\s+/g,' ').slice(0,120));return v;};
+  // A covered window counts as hidden: the yard stops drawing and a resize may not lay out. The run
+  // brings the window back whenever it is covered, except while a step hides it on purpose; a step
+  // that watches friends move checks again first, and one it still could not show is named at the end.
+  const covered=[];let mayHide=false;
+  const front=()=>window.__TAURI__.core.invoke('call',{name:'e2eFront',args:[]});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&!mayHide)front();});if(document.hidden)front();
+  const inView=async step=>{if(!document.hidden)return;await front();const end=Date.now()+3000;while(document.hidden&&Date.now()<end)await new Promise(r=>setTimeout(r,50));if(document.hidden)covered.push(step);};
   // "ResizeObserver loop completed with undelivered notifications" is the browser deferring a
   // resize to the next frame, not a fault in the page, so it is not counted.
   let pageError='';window.addEventListener('error',e=>{if(!pageError&&!String(e.message).startsWith('ResizeObserver loop'))pageError=e.message+' @'+(e.filename||'').split('/').pop()+':'+e.lineno;});
@@ -541,12 +548,16 @@ const scenario = `(async()=>{
     await until(()=>!document.querySelector('.planted-tree'));
     await L('discovery='+(discoveryNoEarly&&discoveryOnce&&discoverySaved?'arrival-replay-and-tree':'err'));
     const homeBefore=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
+    await inView('hide');
     document.querySelector('[data-game=hide]').click();
     // Friends only walk while the window is drawn. Behind other windows (or with the screen off)
     // the webview stops animating, so the walk to the hiding spots cannot be observed.
     if(document.visibilityState==='hidden'){const started=gameLabel();playing().click();await L('hide=window-hidden/'+started+'/'+gameLabel());}
     else{
-      await until(()=>document.querySelectorAll('.yard-pet.hiding').length>=2,8000);const hiding=document.querySelectorAll('.yard-pet.hiding').length;
+      // Covered while they walk, they stop: the window is brought back once and the walk watched again.
+      let hiding=0;for(let tries=0;tries<2&&hiding<2;tries++){await inView('hide');await until(()=>document.querySelectorAll('.yard-pet.hiding').length>=2,8000);hiding=document.querySelectorAll('.yard-pet.hiding').length;}
+      if(hiding<2){playing()?.click();await L('hide=err:'+hiding+' hid'+(document.hidden?', window covered':''));}
+      else{
       // The game names a friend: someone else is a miss and stays hidden, the named one is found.
       const asked=()=>$('banner-label').textContent===${say('hide.find_label')}?$('banner-title').textContent:null,byName=n=>{const l=[...document.querySelectorAll('.pet-label.hiding')].find(l=>l.querySelector('.tag-name').textContent===n);return l&&document.querySelector('.yard-pet[data-id="'+l.dataset.id+'"]');};
       const first=asked(),other=[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b!==byName(first));
@@ -555,6 +566,7 @@ const scenario = `(async()=>{
       press(byName(first));await wait(300);const second=asked();press(byName(second));await wait(2200);
       const cleared=$('game-banner').hidden;
       await L('hide='+hiding+'/'+document.querySelectorAll('.yard-pet.hiding').length+'/'+gameLabel()+'/'+(miss&&cleared&&second!==first?'by-name':'err:'+miss+':'+first+':'+second));
+      }
     }
     document.querySelector('[data-game=tag]').click();await wait(400);
     const tagger=document.querySelectorAll('.yard-pet.tagger').length;
@@ -572,13 +584,15 @@ const scenario = `(async()=>{
     await L('gameCompletion='+(transferred&&tagFinished&&!gameState.game&&!$('yard').classList.contains('playing')?'tag-transfer-and-both-end':'err:'+JSON.stringify([transferred,tagFinished,!!gameState.game])));
     const home=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
     await L('gamesKeepHome='+(home===homeBefore));
+    await inView('fishing');
     // A walk to the lake ends when a game takes the friend, and the lake can be fished again after.
     const {onLake}=await import('./yard/catch.js'),st=await import('./core/state.js'),lakeBox=$('yard').getBoundingClientRect(),lx=lakeBox.width*0.52;
     let ly=0;for(let y=0;y<lakeBox.height&&!ly;y+=2)if(onLake(lx,y))ly=y+6;
     const clickLake=()=>$('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:lakeBox.left+lx,clientY:lakeBox.top+ly}));
     // A trip to the lake: one that can be called off, by a friend not on its way home from a game.
     const toLake=()=>[...st.views.values()].filter(v=>v.trip?.cancel&&!v.away).length;
-    const fishFor=()=>until(()=>{if(!toLake())clickLake();return toLake();},8000);
+    // Covered while it walks, a friend stops short of the lake: the window is brought back once.
+    const fishFor=async()=>{const go=()=>until(()=>{if(!toLake())clickLake();return toLake();},8000);return (await go())||(await inView('fishing'),await go());};
     const first=await fishFor();
     document.querySelector('[data-game=tag]').click();await wait(200);const during=toLake();playing().click();
     await until(()=>[...st.views.values()].every(v=>!v.away),8000);const again=await fishFor();
@@ -820,6 +834,7 @@ const scenario = `(async()=>{
     await L('digRewardCustom='+(customRewardProof?.correct?'localized-fallback-without-untranslated-key':'err'));
     await L('digRewardCustomDetail='+JSON.stringify(customRewardProof));
     await L('digRewardIndoors='+(indoorRewardFits?'four-locales-small-wide-no-soil-explained':'err:'+JSON.stringify(rewardTrace)));
+    await inView('smallPanel');
     let panelFlow=true;const flowTrace=[];const markFlow=step=>flowTrace.push([step,panelFlow]);
     await nativeWindow({...fullAt,width:300,height:210});await wait(200);
     openMenu();await wait(40);
@@ -1067,8 +1082,8 @@ const scenario = `(async()=>{
     $('close-panel').click();
     // Hidden to the tray, the page is told so and rests (WebView2 may not say it through
     // document.hidden); shown again, it moves again.
-    await $('hide-window').onclick();const unseen=!!await until(()=>document.documentElement.hasAttribute('data-unseen'));
-    await playPets.openChat(p1.data.id);await until(()=>!document.documentElement.hasAttribute('data-unseen'));
+    mayHide=true;await $('hide-window').onclick();const unseen=!!await until(()=>document.documentElement.hasAttribute('data-unseen'));
+    await playPets.openChat(p1.data.id);await until(()=>!document.documentElement.hasAttribute('data-unseen'));mayHide=false;
     await L('unseen='+unseen+'/'+document.documentElement.hasAttribute('data-unseen'));
     await must('desktopOn',playPets.toggleDesktop());
     await until(async()=>(await playPets.bootstrap()).data.desktopLayout.length>0,8000);
@@ -1263,6 +1278,7 @@ const scenario = `(async()=>{
 
     await L('pageErrors='+(pageError||'none'));
     await L('lateWaits='+JSON.stringify(lateWaits));
+    if(covered.length)await L('covered='+covered.join(','));
     await L('DONE');
   }catch(e){await L('lateWaits='+JSON.stringify(lateWaits));await L('FATAL:'+String(e).slice(0,140));}
 })();`;
@@ -1637,6 +1653,11 @@ const expect = [
   [/^DONE$/, 'scenario finished'],
 ];
 let failed = 0;
+const coveredSteps = lines.find(l => l.startsWith('covered='))?.slice(8);
+if (coveredSteps)
+  console.log(
+    `  ! The app window stayed covered during ${coveredSteps}; failures there may come from the window, not the app.`,
+  );
 if (lines.some(l => l.startsWith('hide=window-hidden')))
   console.log(
     '  ! The app window was covered, so hide and seek only checked start and stop (walking to hide was skipped).',

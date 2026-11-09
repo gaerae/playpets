@@ -412,6 +412,7 @@ static COMMANDS: &[Command] = &[
         Ok(Value::Null)
     }),
     test_only("e2eWindow", |c| window::e2e_window(c.app, c.args)),
+    test_only("e2eFront", |c| window::e2e_front(c.app)),
     test_only("e2eTray", |_| Ok(crate::tray::e2e_state())),
     // The ZIP import after its file dialog, which a test cannot answer.
     test_only("e2eImportZip", |c| {

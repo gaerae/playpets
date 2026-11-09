@@ -334,7 +334,7 @@ What each arrow in the diagram carries, path by path.
 The `e2e` build (`cargo build --profile e2e --features e2e`):
 - Writes `src-tauri/target/e2e/`, so it never replaces the app in `target/release/`.
 - Turns off single-instance, deep-link registration and the start-at-login plugin (the switch only pretends).
-- Turns on the `test_only` rows of `COMMANDS`: `e2eLog`, `e2eWindow`, `e2eTray`, `e2eFreshGifts`.
+- Turns on the `test_only` rows of `COMMANDS`: `e2eLog`, `e2eWindow`, `e2eFront`, `e2eTray`, `e2eImportZip`, `e2eFreshGifts`.
 - Skips the update check.
 
 `WEBKIT_DISABLE_DMABUF_RENDERER` on Linux:
