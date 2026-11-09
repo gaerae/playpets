@@ -936,5 +936,6 @@ export const strings = {
   'letter.chip_title': '阅读年末来信',
   'letter.back_bubble': ['新年快乐！你写的话我都记着呢。'],
   'letter.back_title': '{name}还记得你的回信',
-  'letter.back_body': '“{answer}”今年我也会为你加油！',
+  'letter.back_quote': '“{answer}”',
+  'letter.back_cheer': '今年我也会为你加油！',
 };

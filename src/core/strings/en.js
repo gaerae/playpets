@@ -996,5 +996,6 @@ export const strings = {
   'letter.chip_title': 'Read the year-end letter',
   'letter.back_bubble': ['Happy New Year! I remember what you wrote.'],
   'letter.back_title': '{name} remembered your answer',
-  'letter.back_body': '“{answer}” I’m cheering you on this year!',
+  'letter.back_quote': '“{answer}”',
+  'letter.back_cheer': 'I’m cheering you on this year!',
 };

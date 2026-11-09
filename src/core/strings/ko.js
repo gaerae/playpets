@@ -951,5 +951,6 @@ export const strings = {
   'letter.chip_title': '연말 편지 읽기',
   'letter.back_bubble': ['새해 복 많이 받아! 네가 써 준 말 기억하고 있어.'],
   'letter.back_title': '{name:이/가} 답장을 기억하고 있어요',
-  'letter.back_body': '“{answer}” 올해도 응원할게!',
+  'letter.back_quote': '“{answer}”',
+  'letter.back_cheer': '올해도 응원할게!',
 };

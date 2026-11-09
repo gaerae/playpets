@@ -558,24 +558,25 @@ function newYear(ctx, { now = d(2027, 1, 2, 9), answer = 'Go camping <b>more</b>
   const opened = page(ctx, { now, letters, ...rest });
   const card = opened.$('catch-card'),
     title = element('strong'),
-    detail = element('small');
-  // Hidden as index.html has it; its slots are the two lines read below.
-  Object.assign(card, {
-    hidden: true,
-    querySelector: selector => (selector === 'strong' ? title : selector === 'small' ? detail : element()),
-  });
-  return { ...opened, card, title, detail };
+    detail = element('small'),
+    cheering = element('small');
+  const slots = { strong: title, small: detail, '.catch-new': cheering };
+  // Hidden as index.html has it; its slots are the three lines read below.
+  Object.assign(card, { hidden: true, querySelector: selector => slots[selector] ?? element() });
+  return { ...opened, card, title, detail, cheering };
 }
 
 test('on the first day open in the New Year the friend quotes the answer and cheers', async ctx => {
-  const { check, card, title, detail } = newYear(ctx);
+  const { check, card, title, detail, cheering } = newYear(ctx);
   check();
   assert.equal(card.hidden, true, 'the first check only arms');
   check();
   await flush();
   assert.equal(card.hidden, false);
   assert.equal(title.textContent, t('letter.back_title', { name: 'Mochi' }));
-  assert.equal(detail.textContent, t('letter.back_body', { answer: 'Go camping <b>more</b>' }), 'plain text');
+  assert.equal(detail.textContent, t('letter.back_quote', { answer: 'Go camping <b>more</b>' }), 'plain text');
+  // A line of its own, so a long answer shortened to four lines (play.css) never hides it.
+  assert.equal(cheering.textContent, t('letter.back_cheer'));
   assert.ok(list('letter.back_bubble').includes(bubbleOf('a').textContent));
   assert.equal(state.views.get('a').pose, 'jump');
   assert.deepEqual(backs, [2026], 'kept once it showed');

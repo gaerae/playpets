@@ -164,9 +164,10 @@ body.compact .catch-card strong {
 body.compact .catch-card small:not(.catch-new) {
   display: none;
 }
-/* The New Year card's line is the person's own answer, quoted: it is the card, so it stays. */
-body.compact .catch-card:has(.letter-back) small {
-  display: block;
+/* The New Year card's line is the person's own answer, quoted: it is the card, so it stays, in the
+   four lines play.css gives it. */
+body.compact .catch-card:has(.letter-back) small:not(.catch-new) {
+  display: -webkit-box;
 }
 body.compact .empty-yard:not(.aside) {
   top: 24px;

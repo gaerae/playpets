@@ -195,8 +195,9 @@ export function setupLetters({ open: opener = openLetter, visible = () => !docum
     card(
       artSvg(giftKind('mailbox').art, 'class="decor-art letter-back"'),
       t('letter.back_title', { name: name(bringer) }),
-      t('letter.back_body', { answer: letter.answer }),
-      false,
+      t('letter.back_quote', { answer: letter.answer }),
+      // The cheer has a line of its own, so the quote can be shortened without it (play.css).
+      t('letter.back_cheer'),
       null,
       // The cheer comes with the card, which may wait its turn behind another (the New Year's own).
       () => {
