@@ -134,6 +134,7 @@ test('a tree ornament wears its autumn drawing when it has one', () => {
   assert.ok(ornamentLook('tree', 'pine').art.includes(artHref(pine)));
   assert.equal(ornamentLook('fish', 'carp'), null);
   assert.equal(ornamentLook('flower', 'gone'), null);
+  assert.equal(ornamentLook('constructor', 'camellia'), null, 'a book name the object inherits is no book');
   const keepsake = ornamentLook('treasure', 'pinecone');
   assert.equal(keepsake.book, t('album.treasures'));
   assert.equal(keepsake.name, t('treasure.pinecone'));
@@ -254,6 +255,25 @@ test('a hook past the tree is left undrawn', async ctx => {
   });
   const [layer] = named(tree(), 'ornaments');
   assert.equal(named(layer, 'bauble').length, 0);
+});
+
+test('a corrupt save with an inherited book name or a hook that is not a whole number draws nothing', async ctx => {
+  const { tree } = await decorated(ctx, {
+    now: new Date(2026, 11, 20, 12),
+    garden: {
+      ornaments: [
+        { book: 'constructor', id: 'camellia', hook: 2 },
+        { book: '__proto__', id: 'camellia', hook: 4 },
+        { ...camellia(), hook: 'length' },
+        { ...pinecone(), hook: '3' },
+        camellia(0),
+      ],
+      ornamentYear: 2026,
+    },
+  });
+  const [layer] = named(tree(), 'ornaments');
+  assert.equal(named(layer, 'bauble').length, 1);
+  assert.equal(named(layer, 'bauble')[0].style.left, percent(giftKind('xmas_tree').hooks[0][0]));
 });
 
 // garden.css rules as selector lists and declarations; nested blocks (@media, keyframes) give

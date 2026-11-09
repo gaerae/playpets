@@ -59,7 +59,9 @@ const BOOKS = {
     tab: 'album.treasures',
   },
 };
-const known = o => !!BOOKS[o.book]?.kind(o.id);
+// A saved book is looked up only among the four, so one such as "constructor" finds nothing.
+const bookOf = book => (Object.hasOwn(BOOKS, book) ? BOOKS[book] : null);
+const known = o => !!bookOf(o.book)?.kind(o.id);
 
 /** The December whose ornaments `date` shows: its year in December, else the year before. */
 export function ornamentSeason(date) {
@@ -94,7 +96,7 @@ export function hangable(d, date) {
 }
 /** How an ornament looks: its drawing, its name and its book's name; null for one unknown. */
 export function ornamentLook(book, id) {
-  const b = BOOKS[book],
+  const b = bookOf(book),
     k = b?.kind(id);
   if (!k) return null;
   return { art: b.art(k), name: t(b.name(k)), book: t(b.tab) };
@@ -129,7 +131,7 @@ function layerIn(parent) {
 // Hangs `hanging` on `hooks` in `layer`; what has no hook there or no kind is left out. The same
 // list as last time changes nothing.
 function hang(layer, hanging, hooks, season) {
-  const shown = hanging.filter(o => hooks[o.hook] && known(o)),
+  const shown = hanging.filter(o => Number.isInteger(o.hook) && hooks[o.hook] && known(o)),
     key = `${season}|${shown.map(o => `${o.book}:${o.id}:${o.hook}`).join(',')}`;
   if (layer.dataset.key === key) return;
   layer.dataset.key = key;
