@@ -23,6 +23,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
 - Downloads are smaller again, with the four friends who come with the app looking exactly as before: their pictures take 27.6 MB inside the app instead of 37.0 MB.
 - An update removes the folders of built-in friends the app no longer ships, which stayed in the data folder before.
+- Moving the window or a friend no longer waits while a change is written to disk, which could stutter on a slow drive.
 
 ### Fixed
 
