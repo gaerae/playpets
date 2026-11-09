@@ -198,6 +198,30 @@ To make a new effect:
 - The first time each year, a card says it has begun.
 - Friends talk about it.
 
+### Add an animal's footprints
+1. Add an entry to `tracks` in `src/content/catalog.json`, copying a close one:
+
+   | Field | Meaning |
+   |---|---|
+   | `id` | Lowercase and `_` |
+   | `print` | `prints/<id>.svg`, the mark laid in the snow and shown in the album |
+   | `tail` | `tracks/tail_<id>.svg`, the tail that peeks out at the bush |
+   | `bird` | `true` for a bird: it flutters off instead of whisking away |
+   | `gait.group` | `true` for a bounder whose prints fall in one line; `false` for a walker whose prints alternate sides |
+   | `gait.step` | Distance between prints, before the yard's zoom |
+   | `gait.side` | How far a walker's prints sit off the line; ignored when `group` is `true` |
+   | `gait.size` | Size of one print |
+   | `finds` | Keepsake ids the animal likes to leave in the dig |
+
+2. Put the drawings in `src/art/prints/` and `src/art/tracks/`. `trailArt` lists the shared `bush`, `twigs` and `puff` drawings.
+3. Add the animal's name to every string table.
+
+- A print is a 24-unit vector mark with `fill="currentColor"`, so the snow shade colours it.
+- A tail is a rear-only crop, so the animal is never whole.
+- `finds` weigh `TRAIL_LEAN` (`pets/content.rs`) times more in a trail dig than in an ordinary one.
+- The album's Footprints book lists every track.
+- `tests/print-art.test.mjs` and the content tests check the references.
+
 ### Change the colours of a season or a time of day
 - Change the custom properties in `src/styles/scenery.css`, per season, time of day and weather.
 - The painter and every drawing read them.

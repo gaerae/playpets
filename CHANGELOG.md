@@ -52,6 +52,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The guide explains the winter footprints and the album's Footprints book, and the album now counts 161 entries.
 - The guide explains building a snowman with friends and dressing it up.
 - The guide explains how to decorate the Christmas tree with album finds.
 - The guide describes Christmas night: the grand tree on snowy December evenings and the sleigh across the moon.

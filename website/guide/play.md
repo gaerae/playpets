@@ -301,6 +301,14 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 - To remove one at once, right-click it or press **Delete** on it. As with flowers, **Undo** in the notice brings it back for about six seconds. Its album entry stays, but no sapling comes back.
 - Indoor places don't offer digging or tree planting. Imported backgrounds can explicitly allow or turn off soil.
 
+### Footprints in the snow
+
+In a winter yard, faint animal footprints cross the snow. There is one trail a day, plus another on a morning after a snowy night. From December 26 to January 7 there is only one a day.
+
+Click the prints, or press **Follow the footprints**, and a rested friend follows them, sniffing. At the end, a tail peeks out from behind a bush and is gone in a whisk. Something small waits there to be dug up, and each animal has finds it likes.
+
+An hour of new snow covers the prints, and the next day they are gone. The Cozy living room has none. **Album → Footprints** shows each print until you have followed it, then the tail and the name.
+
 ## Games <Since v="0.1.0" />
 
 The four games are in **Play → Group games**, and you play one at a time. While a game is on, its tile reads Stop with the game's name, such as **Stop Hide and seek**. Click it to end the game right away.
@@ -418,11 +426,11 @@ To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). It wor
 
 ## Collecting at your own pace
 
-The album has 153 entries across aquatic life, bugs, flowers, gifts, trees and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
+The album has 161 entries across aquatic life, bugs, flowers, gifts, trees, footprints and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
 
 **How long it takes**
 
-The full 153-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
+The full 161-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
 
 The seven event gifts need festivals spread across the calendar, so depending on when you start, collecting them all can take months. Changing the season doesn't start a festival.
 
