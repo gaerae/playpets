@@ -19,11 +19,12 @@ function options(selected) {
   $('world').value = selected;
   $('world').dispatchEvent(new Event('change'));
 }
-/** Daylight thumbnails let the person recognize a place before entering it. */
+/** Daylight thumbnails let the person recognize a place before entering it. A built-in place's is a
+ * small copy of its backdrop (scripts/art-webp-lib.mjs PREVIEWS), not the full picture. */
 export function backgroundPreview(world) {
   if (world.imageSources) return world.imageSources.base;
   const { art } = environmentLook({ world: world.id, season: 'summer', period: 'day', weather: 'clear' });
-  return new URL(`../art/environments/${art}.webp`, import.meta.url).href;
+  return new URL(`../art/environments/previews/${art}.webp`, import.meta.url).href;
 }
 function renderGallery() {
   $('background-gallery').replaceChildren(

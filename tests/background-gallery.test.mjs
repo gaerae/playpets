@@ -13,6 +13,16 @@ test('every built-in background has a real daylight gallery image', async () => 
   }
 });
 
+test('the gallery cards load small previews, not the full backdrops', async () => {
+  const { imageSize } = await import('../scripts/asset-audit-lib.mjs');
+  for (const world of worlds) {
+    const preview = new URL(backgroundPreview(world)),
+      [width, height] = imageSize(await readFile(preview), 'webp');
+    assert.equal(width, 400, world.id);
+    assert.equal(height, Math.round((400 * 1024) / 1536), world.id);
+  }
+});
+
 test('imported background thumbnails use their validated embedded image', () => {
   const source = 'data:image/png;base64,preview';
   assert.equal(backgroundPreview({ id: 'custom-example', imageSources: { base: source } }), source);

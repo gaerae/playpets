@@ -16,6 +16,22 @@ export const MAX_ERROR = 4;
 /** `trees/oak.png` (relative to assets/art) → `trees/oak.webp` (relative to src/art). */
 export const webpName = name => name.replace(/\.png$/, '.webp');
 
+// The place gallery's cards (src/yard/background-ui.js) show each place's summer daylight backdrop
+// at about card size; decoding four 1536 × 1024 backdrops for that cost more than the cards show.
+// These exports also ship as small lossy copies, PREVIEW_WIDTH wide, beside their full WebP.
+export const PREVIEWS = [
+  'environments/green.png',
+  'environments/studio-cozy-day.png',
+  'environments/courtyard-green.png',
+  'environments/lakeside-green.png',
+];
+export const PREVIEW_WIDTH = 400;
+export const PREVIEW_QUALITY = 82;
+/** `environments/green.png` → `environments/previews/green.webp` (relative to src/art). */
+export const previewName = name => name.replace(/([^/]+)\.png$/, 'previews/$1.webp');
+/** A preview's height for an export `width` × `height`, as cwebp scales it. */
+export const previewHeight = (width, height) => Math.round((PREVIEW_WIDTH * height) / width);
+
 /** The PNG export behind a shipped WebP, named as the page does (`art/…`) or from the repository. */
 export const pngFor = name => `${EXPORTS}/${name.replace(/^(?:src\/)?art\//, '').replace(/\.webp$/, '.png')}`;
 
@@ -76,9 +92,28 @@ export async function webpProblems(root = '.') {
     else if (imageSize(png, 'png').join('x') !== imageSize(webp, 'webp').join('x'))
       problems.push(`${RUNTIME}/${webpName(name)} has another size than its PNG`);
   }
+  // A preview is recorded under its own WebP name, with the hash of the export it was made from.
+  for (const name of PREVIEWS.filter(preview => pngs.includes(preview))) {
+    const target = previewName(name),
+      record = manifest[target],
+      png = await readFile(path.join(root, EXPORTS, name));
+    expected.add(target);
+    let webp;
+    try {
+      webp = await readFile(path.join(root, RUNTIME, target));
+    } catch {
+      problems.push(`${RUNTIME}/${target} is missing`);
+      continue;
+    }
+    const [width, height] = imageSize(png, 'png');
+    if (!record || record.png !== sha256(png)) problems.push(`${EXPORTS}/${name} changed after its preview was made`);
+    else if (record.webp !== sha256(webp)) problems.push(`${RUNTIME}/${target} is not the recorded preview`);
+    else if (imageSize(webp, 'webp').join('x') !== `${PREVIEW_WIDTH}x${previewHeight(width, height)}`)
+      problems.push(`${RUNTIME}/${target} is not ${PREVIEW_WIDTH} pixels wide`);
+  }
   for (const name of webps) if (!expected.has(name)) problems.push(`${RUNTIME}/${name} has no PNG in ${EXPORTS}`);
   for (const name of Object.keys(manifest))
-    if (!pngs.includes(name)) problems.push(`${MANIFEST} names ${name}, which is gone`);
+    if (!pngs.includes(name) && !expected.has(name)) problems.push(`${MANIFEST} names ${name}, which is gone`);
   return problems;
 }
 

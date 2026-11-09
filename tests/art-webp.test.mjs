@@ -161,6 +161,36 @@ test('a built-in manifest names its sheets as WebP and keeps everything else', (
   });
 });
 
+test("a place gallery preview is checked for its export's hash and its card width", async t => {
+  const png = pngHeader(1536, 1024),
+    full = webpHeader(1536, 1024),
+    small = webpHeader(400, 267),
+    record = {
+      'environments/green.png': { png: sha256(png), webp: sha256(full) },
+      'environments/previews/green.webp': { png: sha256(png), webp: sha256(small) },
+    },
+    files = { 'assets/art/environments/green.png': png, 'src/art/environments/green.webp': full };
+  const cases = {
+    current: [{ 'src/art/environments/previews/green.webp': small }, record, []],
+    missing: [{}, record, ['src/art/environments/previews/green.webp is missing']],
+    unrecorded: [
+      { 'src/art/environments/previews/green.webp': small },
+      { 'environments/green.png': record['environments/green.png'] },
+      ['assets/art/environments/green.png changed after its preview was made'],
+    ],
+    'full size': [
+      { 'src/art/environments/previews/green.webp': full },
+      { ...record, 'environments/previews/green.webp': { png: sha256(png), webp: sha256(full) } },
+      ['src/art/environments/previews/green.webp is not 400 pixels wide'],
+    ],
+  };
+  for (const [name, [extra, manifest, expected]] of Object.entries(cases)) {
+    const root = await fixture({ ...files, ...extra, 'assets/art/webp.json': JSON.stringify(manifest) });
+    t.after(() => rm(root, { recursive: true, force: true }));
+    assert.deepEqual(await webpProblems(root), expected, name);
+  }
+});
+
 test('the error a person could see weighs colour by its alpha', () => {
   const png = (pixels, channels = 4) => ({ width: pixels.length / channels, height: 1, channels, pixels });
   const decoded = pixels => ({ width: pixels.length / 4, height: 1, pixels });

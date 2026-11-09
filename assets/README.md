@@ -44,6 +44,10 @@ Shipped WebP:
   of the PNG, the script checks each one, and full transparency stays exact.
 - `art/webp.json` records the PNG and WebP hashes. A test fails when a PNG
   changes without its WebP, or a WebP has no PNG.
+- The places' summer daylight backdrops also ship as 400-pixel lossy previews in
+  `src/art/environments/previews/` for the place gallery's cards (`PREVIEWS` in
+  `scripts/art-webp-lib.mjs`); the same command makes them and the same test
+  checks their hashes and width.
 - Page code, content and SVG wrappers name the `.webp` file; scripts, tests and
   the site read the PNG.
 - `src/art/` holds only what the page loads: WebP, SVG and `collection.json`.

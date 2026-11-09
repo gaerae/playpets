@@ -327,6 +327,22 @@
     "png": "b88936a78335554b9b210d6db8a467b683db0e0714c618430d5840231f0b4369",
     "webp": "db3cb95832e6b59c6320650ca9c0a34730b880710ef7ed0733e485e59d843152"
   },
+  "environments/previews/courtyard-green.webp": {
+    "png": "67cb885fd3441b705af9814bb2bd66fe4c5660b91594032ecd4d8364b543dcfe",
+    "webp": "5c813728505625629d3c67b82bea7f82c3ccd32b9b47f3794d628a1a6ef1fca3"
+  },
+  "environments/previews/green.webp": {
+    "png": "a25126d1ea97d9a5ea609e6aab0101ea793a5c590c89fb4f45d12262d17ed9ae",
+    "webp": "fc8488914b0ac320047acfff1b55f81bc4c6c2eed06881060fb0ef31731f68cb"
+  },
+  "environments/previews/lakeside-green.webp": {
+    "png": "23e7bcea78d65fb2dff62f3cab34c52bf19ba28f77f043dba71c5b774c8f95bf",
+    "webp": "46471dd93afc2aac713f06645608e1a1c7ae3fa39a9af0409856d604b5505edf"
+  },
+  "environments/previews/studio-cozy-day.webp": {
+    "png": "9f356f9c71c03f3adc0d43a2aab8f6c8a794a0d649ae174def702878e78e01d3",
+    "webp": "b87e3f2b1b9386b9eb45ee4c779f221d225dcf80db3c66119206ec921fca45b3"
+  },
   "environments/spring.png": {
     "png": "02b4e0f20e976eb08943bfc3eb0a12e56bedf36b52cead843e23a023aea88d00",
     "webp": "7229d2c231bcaf618c4f68e82d06f87e74ac2a4c2a04d66708a326b318f78432"

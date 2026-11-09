@@ -1,6 +1,7 @@
 // Makes src/art/**/*.webp from the reviewed PNG exports in assets/art, and the built-in friends'
 // lossless sheets in src-tauri/pets from assets/pets, and checks every sample against the PNG
-// before keeping it. Needs libwebp's cwebp and dwebp; `--check` needs neither.
+// before keeping it; the place gallery's small previews (PREVIEWS) are made too. Needs libwebp's
+// cwebp and dwebp; `--check` needs neither.
 import { execFile } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { availableParallelism, tmpdir } from 'node:os';
@@ -14,6 +15,9 @@ import {
   MANIFEST,
   MAX_ERROR,
   NEAR_LOSSLESS,
+  PREVIEW_QUALITY,
+  PREVIEW_WIDTH,
+  PREVIEWS,
   RUNTIME,
   builtinExports,
   builtinManifest,
@@ -23,6 +27,7 @@ import {
   parsePam,
   pngExports,
   readBuiltinRecords,
+  previewName,
   readManifest,
   runtimeWebps,
   webpName,
@@ -106,6 +111,43 @@ async function convert(name, { from, to, records, made, encoding }) {
   report.push(`${source}: ${png.length} → ${webp.length} bytes, ${checked}`);
 }
 
+// A small lossy copy for a gallery card: only its size is checked, since it is meant to differ.
+async function preview(name) {
+  const png = await readFile(path.join(EXPORTS, name)),
+    key = previewName(name),
+    target = path.join(RUNTIME, key),
+    record = manifest[key];
+  if (!force && record?.png === sha256(png)) {
+    const current = await readFile(target).catch(() => null);
+    if (current && sha256(current) === record.webp) {
+      next[key] = record;
+      return;
+    }
+  }
+  const temporary = path.join(work, `${sha256(Buffer.from(key)).slice(0, 16)}.webp`);
+  await run('cwebp', [
+    '-quiet',
+    '-resize',
+    String(PREVIEW_WIDTH),
+    '0',
+    '-q',
+    String(PREVIEW_QUALITY),
+    '-m',
+    '6',
+    '-metadata',
+    'none',
+    path.join(EXPORTS, name),
+    '-o',
+    temporary,
+  ]);
+  const webp = await readFile(temporary);
+  await mkdir(path.dirname(target), { recursive: true });
+  await writeFile(`${target}.tmp`, webp);
+  await rename(`${target}.tmp`, target);
+  next[key] = { png: sha256(png), webp: sha256(webp) };
+  report.push(`${key}: ${png.length} → ${webp.length} bytes`);
+}
+
 const art = { from: EXPORTS, to: RUNTIME, records: manifest, made: next, encoding: nearLossless },
   builtin = { from: BUILTIN_SOURCE, to: BUILTIN_RUNTIME, records, made: nextBuiltin, encoding: lossless };
 for (const pet of pets) {
@@ -114,6 +156,7 @@ for (const pet of pets) {
   await writeFile(target, builtinManifest(pet.source));
 }
 try {
+  for (const name of PREVIEWS.filter(name => pngs.includes(name))) await preview(name);
   const queue = [
     ...pngs.map(name => [name, art]),
     ...pets.flatMap(pet => pet.sheets.map(sheet => [`${pet.id}/${sheet}`, builtin])),
@@ -140,10 +183,11 @@ const sorted = records =>
   );
 await writeFile(MANIFEST, `${JSON.stringify(sorted(next), null, 2)}\n`);
 await writeFile(BUILTIN_MANIFEST, `${JSON.stringify(sorted(nextBuiltin), null, 2)}\n`);
-const orphans = (await runtimeWebps()).filter(name => !pngs.map(webpName).includes(name)),
+const made = new Set([...pngs.map(webpName), ...PREVIEWS.filter(name => pngs.includes(name)).map(previewName)]),
+  orphans = (await runtimeWebps()).filter(name => !made.has(name)),
   // What is left is not the encoder's to fix: a leftover file, or builtin.rs naming other files.
   leftovers = await builtinWebpProblems(),
-  total = pngs.length + Object.keys(nextBuiltin).length;
+  total = made.size + Object.keys(nextBuiltin).length;
 for (const line of report.sort()) console.log(line);
 for (const name of orphans) console.error(`${RUNTIME}/${name} has no PNG in ${EXPORTS}; remove it or restore its PNG.`);
 for (const problem of leftovers) console.error(problem);
