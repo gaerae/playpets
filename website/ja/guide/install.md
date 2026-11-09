@@ -30,7 +30,7 @@ description: Microsoft Store、winget、Homebrew、OSに合ったファイルで
 2. スタートメニューからPlayPetsを起動します。
 
 - 通常のPC（x64）とARM PCには、それぞれに合ったパッケージが届きます。
-- アップデートはStoreが行います。**Microsoft Store → ライブラリ**で確認できます。
+- アップデートはStoreが行います。新しいバージョンが出ると、PlayPetsが庭でお知らせします。
 
 ### winget {#winget}
 
@@ -136,7 +136,8 @@ chmod +x PlayPets_*.AppImage
 
 ## アップデート <Since v="0.1.0" /> {#updates}
 
-- Microsoft Store版の更新はStoreが管理します。**Microsoft Store → ライブラリ**で確認してください。
+- Microsoft Store版の更新はStoreが行います。新しいバージョンが出ると庭と設定でお知らせし、**Microsoft Storeで開く**を押すとStoreのPlayPetsのページが開きます。
+- 更新後に初めて起動すると、どのバージョンになったかをお知らせします。
 - 以下のGitHubインストーラーによる更新は、MSIX以外のインストールに適用されます。テスト用MSIXもパッケージ管理による更新を使います。
 - 保存と外部通信は[プライバシーポリシー](../privacy.md)をご覧ください。
 

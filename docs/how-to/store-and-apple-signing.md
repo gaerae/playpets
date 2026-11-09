@@ -106,6 +106,7 @@ After both architecture jobs pass, these checks stay manual:
   - The CI gate is not a certification test.
 - Once submission is approved separately, use a private Store package flight to verify installation and a real Store-delivered update that keeps pets and credentials.
   - A local certificate and `Add-AppxPackage` cannot simulate Store signing, licensing, certification or the delivery service.
+  - With the app open on the older version, check that the waiting version shows beside the place selector, that **Open in Microsoft Store** opens PlayPets' Store page, that the app opens again after the Store installs the update, and that the first start says the new version.
 
 ## Prepare the listing and request certification
 

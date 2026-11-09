@@ -104,6 +104,9 @@ export function renderDesktopSwitches() {
 // Update actions live in Settings; the yard entries only navigate there. Background discoveries
 // and progress never open a panel or move focus.
 const RESTART_KEY = 'update-restart';
+// The version that ran last, so an update the Store or an installer made while the app was closed
+// is noticed too.
+const LAST_KEY = 'last-version';
 let found = null;
 let installing = false;
 let later = false;
@@ -122,22 +125,12 @@ function showUpdate(note, button) {
   $('update-notes').hidden = !found;
 }
 export function renderUpdate() {
-  const store = data.updateChannel === 'store';
-  $('update-button').hidden = store;
   // The Store keeps its own schedule; the note on quiet checks is about this app's own.
-  $('update-auto').hidden = store;
-  if (store) {
-    found = null;
-    showUpdate(t('settings.update_store'), '');
-    $('update-pill').hidden = true;
-    $('update-compact').hidden = true;
-    closeUpdateDetails();
-    $('menu-settings')?.classList.remove('has-update');
-    return;
-  }
+  $('update-auto').hidden = data.updateChannel === 'store';
   if (installing) showUpdate(stageLabel(), t('settings.update_view'));
   else if (found)
     showUpdate(t('settings.update_available', { version: `v${found.version}` }), t('settings.update_view'));
+  else if (data.updateChannel === 'store') showUpdate(t('settings.update_store'), t('settings.update_check'));
   else
     showUpdate(
       t('settings.update_current', { version: data.version ? `v${data.version}` : '' }),
@@ -175,13 +168,28 @@ export function updateFound(update) {
 // The new page confirms its own version after boot and clears the marker even if it is still old.
 export function announceInstalledUpdate() {
   const pending = recall(RESTART_KEY);
-  if (!pending) return;
-  remember(RESTART_KEY, '');
-  try {
-    const { version, from } = JSON.parse(pending);
-    if (version && from !== version && data.version === version)
-      toast(t('toast.update_installed', { version: `v${version}` }));
-  } catch {}
+  const last = recall(LAST_KEY);
+  if (data.version) remember(LAST_KEY, data.version);
+  let installed = !!last && newer(data.version, last);
+  if (pending) {
+    remember(RESTART_KEY, '');
+    try {
+      const { version, from } = JSON.parse(pending);
+      installed ||= !!version && from !== version && data.version === version;
+    } catch {}
+  }
+  if (installed) toast(t('toast.update_installed', { version: `v${data.version}` }));
+}
+// Whether version a comes after b, part by part as numbers (1.10.0 after 1.9.0).
+function newer(a, b) {
+  const parts = text =>
+    String(text ?? '')
+      .split('.')
+      .map(Number);
+  const [x, y] = [parts(a), parts(b)];
+  for (let i = 0; i < Math.max(x.length, y.length); i++)
+    if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0);
+  return false;
 }
 function paintUpdateDetails() {
   $('update-install').hidden = !found;
@@ -194,8 +202,9 @@ function paintUpdateDetails() {
     $('update-error').textContent = updateError;
     return;
   }
+  const store = data.updateChannel === 'store';
   $('update-title').textContent = t('update.title', { version: `v${found.version}` });
-  $('update-body').textContent = t('update.body', { current: `v${data.version}` });
+  $('update-body').textContent = t(store ? 'update.store_body' : 'update.body', { current: `v${data.version}` });
   $('update-progress-wrap').hidden = !installing;
   $('update-progress').hidden = installing && updateStage.phase !== 'downloading';
   if (installing && Number.isFinite(updateStage.percent)) $('update-progress').value = updateStage.percent;
@@ -205,19 +214,21 @@ function paintUpdateDetails() {
   $('update-error').textContent = updateError;
   $('update-install').disabled = installing;
   $('update-cancel').hidden = !installing || updateStage.phase !== 'downloading';
-  $('update-install').textContent = updateError ? t('update.retry') : t('settings.update_install');
+  $('update-install').textContent = updateError
+    ? t('update.retry')
+    : t(store ? 'settings.update_in_store' : 'settings.update_install');
   $('update-later').disabled = false;
   $('update-later').textContent = installing ? t('update.collapse') : t('update.later');
 }
 function revealUpdateDetails() {
-  if (!found || data.updateChannel === 'store') return;
+  if (!found) return;
   paintUpdateDetails();
   $('update-dialog').hidden = false;
   for (const id of ['update-pill', 'update-compact']) $(id).setAttribute('aria-expanded', 'true');
   $('update-title').focus();
 }
 function openUpdatePanel() {
-  if (!found || data.updateChannel === 'store') return;
+  if (!found) return;
   showSection('settings', 'updates');
   revealUpdateDetails();
 }
@@ -229,6 +240,8 @@ export function updateStatus(status) {
 }
 async function install() {
   if (installing || !found) return;
+  // The Store downloads and installs it; this only opens PlayPets' page there.
+  if (data.updateChannel === 'store') return call('installUpdate');
   installing = true;
   updateStage = { phase: 'downloading' };
   updateError = '';
@@ -253,7 +266,7 @@ async function check() {
   showUpdate(t('settings.update_checking'), t('settings.update_check'));
   const result = await call('checkUpdate');
   if (result?.channel === 'store') data.updateChannel = 'store';
-  found = result?.channel === 'store' ? null : result;
+  found = result?.version ? result : null;
   renderUpdate();
   if (!found && data.updateChannel !== 'store')
     $('update-note').textContent = t('settings.update_latest', { version: `v${data.version}` });
@@ -274,7 +287,6 @@ function updateCheckVisible() {
 // when the person has returned to the yard.
 export async function checkForUpdates() {
   showSection('settings', 'updates');
-  if (data.updateChannel === 'store') return renderUpdate();
   if (found) return openUpdatePanel();
   return updateButton();
 }
@@ -413,7 +425,7 @@ export function setupSettings() {
   $('update-pill').onclick = openUpdatePanel;
   $('update-compact').onclick = openUpdatePanel;
   $('settings-updates-task')?.addEventListener('click', () => {
-    if (found && data.updateChannel !== 'store') openUpdatePanel();
+    if (found) openUpdatePanel();
   });
   $('update-install').onclick = guard(install);
   $('update-cancel').onclick = guard(() => call('cancelUpdate'));

@@ -1,7 +1,8 @@
 // Updates of the app itself: the latest release's latest.json (GitHub) is checked, and a newer
 // version is downloaded, its signature checked against the public key in tauri.conf.json,
 // installed, and the app started again. This signature is the updater's own (a free key pair),
-// apart from macOS or Windows code signing.
+// apart from macOS or Windows code signing. A Microsoft Store installation asks the Store instead,
+// and only opens its Store page: the Store installs it.
 use crate::app::push_event;
 use crate::i18n;
 use serde_json::{Value, json};
@@ -26,6 +27,8 @@ struct UpdateState {
     checking: bool,
     installing: bool,
     result: Option<Result<Value, String>>,
+    /// The version waiting in Microsoft Store, for a Store installation.
+    store: Option<String>,
 }
 
 impl UpdateState {
@@ -40,7 +43,7 @@ impl UpdateState {
 /// Asks for the latest release. Returns {version, notes} when it is newer than this app, or null.
 pub fn check(app: &AppHandle) -> Result<Value, String> {
     if store_managed() {
-        return Ok(json!({"channel": "store"}));
+        return check_store(app);
     }
     let found = app.state::<Found>();
     {
@@ -87,11 +90,32 @@ pub fn check(app: &AppHandle) -> Result<Value, String> {
     response
 }
 
+/// Asks Microsoft Store whether it has a newer package of this app. The answer comes from the
+/// Store's own catalogue, so a GitHub release still in certification is not announced too early.
+fn check_store(app: &AppHandle) -> Result<Value, String> {
+    // An e2e run makes no network request; its test package is not in the Store's catalogue anyway.
+    let version = if crate::commands::e2e_mode() {
+        None
+    } else {
+        store::waiting_version().map_err(|()| i18n::t("update.check_failed"))?
+    };
+    crate::app::hold(&app.state::<Found>().state).store = version.clone();
+    crate::tray::retitle(app);
+    Ok(match version {
+        Some(version) => json!({"channel": "store", "version": version}),
+        None => json!({"channel": "store"}),
+    })
+}
+
 /// The version the last check found, while it waits to be installed.
 pub fn found_version(app: &AppHandle) -> Option<String> {
     let found = app.try_state::<Found>()?;
     let state = crate::app::hold(&found.state);
-    state.update.as_ref().map(|u| u.version.clone())
+    state
+        .update
+        .as_ref()
+        .map(|u| u.version.clone())
+        .or_else(|| state.store.clone())
 }
 
 const DOWNLOAD_LIMIT: std::time::Duration = std::time::Duration::from_secs(20 * 60);
@@ -119,7 +143,19 @@ fn unless_called_off<T: Send + 'static>(task: JoinHandle<T>, cancel: &AtomicBool
 /// Downloads and installs the update found by `check`, then starts the new version.
 pub fn install(app: &AppHandle) -> Result<Value, String> {
     if store_managed() {
-        return Err(i18n::t("update.store_managed"));
+        if crate::app::hold(&app.state::<Found>().state).store.is_none() {
+            return Err(i18n::t("update.none"));
+        }
+        crate::system::open_url(&store::page()?)?;
+        return Ok(json!({"store": true}));
+    }
+    // Opened straight from the disk image, the app sits where nothing can be replaced, and the
+    // download would only end in a failure that trying again cannot fix.
+    #[cfg(target_os = "macos")]
+    if let Ok(exe) = std::env::current_exe()
+        && app_bundle(&exe).is_some_and(read_only)
+    {
+        return Err(i18n::t("update.move_to_applications"));
     }
     let found = app.state::<Found>();
     let update = {
@@ -201,9 +237,10 @@ fn next_check_delay(failures: u32) -> std::time::Duration {
 }
 
 /// A quiet look for a newer version a while after start; the page is told only when there is one.
-/// Not in development builds or e2e runs, which have nothing to update to.
+/// Not in development builds or e2e runs, which have nothing to update to. A Store installation
+/// asks the Store on the same schedule, because the Store says nothing in the app on its own.
 pub fn check_later(app: &AppHandle) {
-    if store_managed() || cfg!(debug_assertions) || crate::commands::e2e_mode() {
+    if cfg!(debug_assertions) || crate::commands::e2e_mode() {
         return;
     }
     let app = app.clone();
@@ -228,6 +265,41 @@ pub fn check_later(app: &AppHandle) {
     });
 }
 
+/// Microsoft Store closes a running app to install its update, and starts it again only if the app
+/// asked for that. Asked for that alone: not after a crash, a hang or a restart for Windows Update.
+pub fn reopen_after_store_update() {
+    #[cfg(windows)]
+    if store_managed() && !crate::commands::e2e_mode() {
+        use windows_sys::Win32::System::Recovery::{
+            RESTART_NO_CRASH, RESTART_NO_HANG, RESTART_NO_REBOOT, RegisterApplicationRestart,
+        };
+        // No arguments: it comes back as an ordinary start, with the yard showing the update.
+        unsafe {
+            RegisterApplicationRestart(std::ptr::null(), RESTART_NO_CRASH | RESTART_NO_HANG | RESTART_NO_REBOOT);
+        }
+    }
+}
+
+/// The .app bundle an executable belongs to.
+#[cfg(target_os = "macos")]
+fn app_bundle(exe: &std::path::Path) -> Option<&std::path::Path> {
+    exe.ancestors()
+        .find(|path| path.extension().is_some_and(|ext| ext == "app"))
+}
+
+/// Whether the volume holding a path cannot be written: an opened disk image, or the read-only
+/// copy macOS runs an app from when it was never moved out of its download (App Translocation).
+#[cfg(target_os = "macos")]
+fn read_only(path: &std::path::Path) -> bool {
+    use std::os::unix::ffi::OsStrExt;
+    let Ok(path) = std::ffi::CString::new(path.as_os_str().as_bytes()) else {
+        return false;
+    };
+    // SAFETY: statvfs only writes into the zeroed struct it is given.
+    let mut volume: libc::statvfs = unsafe { std::mem::zeroed() };
+    unsafe { libc::statvfs(path.as_ptr(), &mut volume) == 0 && volume.f_flag & libc::ST_RDONLY != 0 }
+}
+
 /// MSIX updates belong to the package manager, even when installed for local testing.
 /// An unexpected identity API error also keeps an EXE installer out of a packaged app.
 pub fn store_managed() -> bool {
@@ -241,6 +313,64 @@ pub fn store_managed() -> bool {
     }
     #[cfg(not(windows))]
     false
+}
+
+/// What Microsoft Store has for this package.
+#[cfg(windows)]
+mod store {
+    use crate::i18n;
+    use windows::ApplicationModel::Package;
+    use windows::Services::Store::StoreContext;
+
+    /// The Store answers over the network, and a stalled answer must not hold a check forever.
+    const ANSWER_LIMIT: std::time::Duration = std::time::Duration::from_secs(30);
+
+    /// The newer version of this app the Store has, as 1.2.3 (the package's fourth part is
+    /// always 0), or None when there is none.
+    pub fn waiting_version() -> Result<Option<String>, ()> {
+        let (sent, answer) = std::sync::mpsc::channel();
+        // On a thread of its own: Windows may need the calling thread to finish the operation.
+        std::thread::spawn(move || {
+            let _ = sent.send(ask());
+        });
+        answer.recv_timeout(ANSWER_LIMIT).map_err(|_| ())?.map_err(|_| ())
+    }
+
+    fn ask() -> windows::core::Result<Option<String>> {
+        let updates = StoreContext::GetDefault()?
+            .GetAppAndOptionalStorePackageUpdatesAsync()?
+            .join()?;
+        // The list can also hold optional packages; only this app's own package counts.
+        let own = Package::Current()?.Id()?.FamilyName()?;
+        for index in 0..updates.Size()? {
+            let id = updates.GetAt(index)?.Package()?.Id()?;
+            if id.FamilyName()? == own {
+                let v = id.Version()?;
+                return Ok(Some(format!("{}.{}.{}", v.Major, v.Minor, v.Build)));
+            }
+        }
+        Ok(None)
+    }
+
+    /// This app's page in the Store app, found by the package family name rather than a product
+    /// ID kept in code.
+    pub fn page() -> Result<String, String> {
+        let family = Package::Current()
+            .and_then(|package| package.Id()?.FamilyName())
+            .map_err(|_| i18n::t("error.open_browser"))?;
+        Ok(format!("ms-windows-store://pdp/?PFN={family}"))
+    }
+}
+
+/// Only a Windows package has a Store.
+#[cfg(not(windows))]
+mod store {
+    pub fn waiting_version() -> Result<Option<String>, ()> {
+        Ok(None)
+    }
+    pub fn page() -> Result<String, String> {
+        Err(crate::i18n::t("error.open_browser"))
+    }
 }
 
 #[cfg(test)]
@@ -259,6 +389,21 @@ mod tests {
         assert_eq!(unless_called_off(stuck, &cancel), None);
         let done = tauri::async_runtime::spawn(async { 7u8 });
         assert_eq!(unless_called_off(done, &AtomicBool::new(false)), Some(7));
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn the_app_bundle_is_found_above_its_executable() {
+        use std::path::Path;
+        let exe = Path::new("/Volumes/PlayPets/PlayPets.app/Contents/MacOS/playpets");
+        assert_eq!(app_bundle(exe), Some(Path::new("/Volumes/PlayPets/PlayPets.app")));
+        assert_eq!(app_bundle(Path::new("/usr/bin/playpets")), None);
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_writable_folder_is_not_read_only() {
+        assert!(!read_only(&std::env::temp_dir()));
     }
 
     #[test]

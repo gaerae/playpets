@@ -4,7 +4,7 @@ description: What PlayPets keeps on your device, what reaches the services you c
 ---
 # Privacy policy
 
-- Last updated: October 29, 2026.
+- Last updated: November 9, 2026.
 - Maintainer: gaerae, the maintainer of [PlayPets](https://github.com/gaerae/playpets).
 - Covers the desktop app and this website.
 - Takes effect when this version of the policy is published.
@@ -51,7 +51,7 @@ They go to the provider or local server you selected. Automatic chatter uses the
 - Importing community pets or opening galleries contacts the external service you chose.
 - GitHub installations can contact GitHub automatically to check for updates and download a newer version.
 - MSIX installations use package-managed updates; PlayPets doesn't download the GitHub EXE installer for them.
-- Microsoft Store handles updates for Store installations.
+- Microsoft Store handles updates for Store installations. PlayPets asks it, through Windows, whether a newer version is waiting, when it starts and every six hours.
 - These services receive normal network information such as your IP address, and their own privacy policies apply.
 
 ## This website
