@@ -52,6 +52,7 @@ const paths = {
   more: '<circle cx="5.5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor"/>',
   archive:
     '<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4M10 5h1M10 8h1M10 11h1"/><rect x="9" y="13" width="3" height="3" rx=".5"/>',
+  mail: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m4 7 8 6 8-6"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13"/>',
 };
 export function icons(root = document) {

@@ -236,6 +236,99 @@ input[type="range"] {
 .button.primary.danger-fill:hover {
   background: var(--danger);
 }
+/* The year-end letter: the friend's lines on a soft ruled sheet, one sentence to a line, then a
+   short answer and a quiet footer. Nothing moves. */
+.letter-dialog {
+  width: min(440px, calc(100vw - 32px));
+}
+.letter-dialog .dialog-heading {
+  gap: 8px;
+}
+.letter-dialog h2 {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  line-height: 1.45;
+}
+/* A warm sheet; its rules sit under each line of text (line-height 1.7 at 14px) and scroll with it.
+   A long letter shows a soft shade at the edge with more to read: the covers scroll with the text
+   and hide the shades once an end is reached. */
+.letter-paper {
+  --letter-sheet: color-mix(in srgb, var(--field-surface) 95%, var(--accent));
+  --letter-rule: color-mix(in srgb, var(--line) 70%, transparent);
+  margin-top: 14px;
+  max-height: 40vh;
+  overflow: auto;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  font-size: 14px;
+  background:
+    linear-gradient(var(--letter-sheet) 40%, transparent) top / 100% 20px no-repeat local,
+    linear-gradient(transparent, var(--letter-sheet) 60%) bottom / 100% 20px no-repeat local,
+    linear-gradient(var(--ink-12), transparent) top / 100% 8px no-repeat scroll,
+    linear-gradient(transparent, var(--ink-12)) bottom / 100% 8px no-repeat scroll,
+    repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(1.7em - 1px),
+        var(--letter-rule) calc(1.7em - 1px),
+        var(--letter-rule) 1.7em
+      )
+      content-box local,
+    var(--letter-sheet);
+}
+#letter-text {
+  margin: 0;
+  white-space: pre-line;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.letter-form textarea {
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.6;
+}
+#letter-count {
+  text-align: right;
+}
+.letter-answered {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-card);
+  background: var(--soft);
+}
+.letter-answered small {
+  margin-top: 0;
+}
+#letter-quote {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#letter-error:empty {
+  display: none;
+}
+.letter-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.letter-footer small {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+  line-height: 1.5;
+}
+.letter-footer .button {
+  flex: none;
+}
 .update-compact {
   display: none;
 }

@@ -72,6 +72,7 @@ import {
 } from './yard/discovery.js';
 import { renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
+import { setupLetterCard } from './yard/letter-card.js';
 import { moveFriends } from './yard/motion.js';
 import { drawTreeOrnaments } from './yard/ornaments.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
@@ -116,6 +117,7 @@ await Promise.all([loadContent(), setupCompanionActions()]);
 apply();
 icons();
 setupConfirm();
+setupLetterCard();
 setupNotices();
 setupToast();
 setupInteractions();
