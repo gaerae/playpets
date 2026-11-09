@@ -1,7 +1,7 @@
 // The yard's dot and the friend tab's pill mean agent work; a chat's state only shapes the pose.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { agentStateOf, FADE_MS, fadedBetween, stateOf, statusOf } from '../src/core/status.js';
+import { agentStateOf, applyStatus, FADE_MS, fadedBetween, stateOf, statusOf } from '../src/core/status.js';
 
 const at = 1_000_000;
 const data = {
@@ -34,4 +34,14 @@ test('the page is drawn again only in the minute a status fades', () => {
   assert.equal(fadedBetween(data, at + FADE_MS - 30_000, at + FADE_MS + 30_000), true);
   assert.equal(fadedBetween(data, at + FADE_MS + 30_000, at + FADE_MS + 90_000), false, 'and not every minute after');
   assert.equal(fadedBetween({}, 0, at), false);
+});
+
+test('a status event updates only that friend, as the whole state would have', () => {
+  const page = { statuses: { other: { state: 'working', message: 'x', source: 'agent', at } } };
+  applyStatus(page, { type: 'status', petId: 'a', state: 'done', message: 'ok', source: 'agent', at: at + 1 });
+  assert.deepEqual(page.statuses.a, { state: 'done', message: 'ok', source: 'agent', at: at + 1 });
+  assert.equal(page.statuses.other.state, 'working');
+  const empty = {};
+  applyStatus(empty, { type: 'status', petId: 'b', state: 'working', message: '', source: 'chat', at });
+  assert.equal(stateOf(empty, 'b', at), 'working', 'a page without statuses yet gets them');
 });

@@ -96,6 +96,18 @@ fn too_long() -> String {
     i18n::tr("chat.too_long", &[("limit", &MESSAGE_LIMIT.to_string())])
 }
 
+/// What a person typed, trimmed: a blank one asks them to say something, a long one is refused.
+fn checked_message(raw: &str) -> Result<String, String> {
+    let text = raw.trim();
+    if text.is_empty() {
+        return Err(i18n::t("chat.speak_first"));
+    }
+    if text.chars().count() > MESSAGE_LIMIT {
+        return Err(too_long());
+    }
+    Ok(text.to_string())
+}
+
 /// One friend in a conversation: its AI connection and what it needs to answer as itself.
 /// `identity` stays the same from turn to turn; `notes` (agent activity) do not.
 struct Speaker {
@@ -317,11 +329,7 @@ fn save_persona(app: &AppHandle, d: &mut AppData, id: &str, persona: String) {
 
 pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args: &[Value]) -> Result<Value, String> {
     let id = text(args, 0).to_string();
-    let text = text(args, 1).to_string();
-
-    if text.trim().is_empty() || text.chars().count() > MESSAGE_LIMIT {
-        return Err(too_long());
-    }
+    let text = checked_message(text(args, 1))?;
     let (mut speaker, facts) = {
         let d = lock(state);
         require_pet(&d, &id)?;
@@ -399,15 +407,9 @@ pub fn chat_with(
         .as_array()
         .map(|a| a.iter().filter_map(|v| v.as_str().map(str::to_string)).collect())
         .unwrap_or_default();
-    let text = text(args, 1).trim().to_string();
     // Friends answer when spoken to; a round without a message is the yard's chatter (its own
     // command, with an opener), not this one.
-    if text.is_empty() {
-        return Err(i18n::t("chat.speak_first"));
-    }
-    if text.chars().count() > MESSAGE_LIMIT {
-        return Err(too_long());
-    }
+    let text = checked_message(text(args, 1))?;
     group_round(app, state, cli, ids, text, None)
 }
 
@@ -625,12 +627,12 @@ fn one_turn(
 /// A chat answer's state, unless a coding agent is in the middle of work on this friend: its word
 /// stands until it reports again, so the yard keeps showing the work.
 fn chat_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, message: &str) {
-    if agent_busy(d.statuses.get(id)) {
-        // The page still hears that the chat started or ended (who is waiting is part of the state).
-        changed(app, d);
-        return;
+    if !agent_busy(d.statuses.get(id)) {
+        set_status(app, d, id, state, message, "chat");
     }
-    set_status(app, d, id, state, message, "chat");
+    // The page hears that the chat started or ended either way: who is waiting, and the log, are
+    // part of the whole state, which a chat (unlike an agent's hook) changes rarely.
+    changed(app, d);
 }
 fn agent_busy(status: Option<&Value>) -> bool {
     status.is_some_and(|s| s["source"] == "agent" && matches!(s["state"].as_str(), Some("working" | "waiting")))
@@ -638,8 +640,20 @@ fn agent_busy(status: Option<&Value>) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{agent_busy, chatty, guide, opener, with_facts};
+    use super::{MESSAGE_LIMIT, agent_busy, chatty, checked_message, guide, i18n, opener, too_long, with_facts};
     use serde_json::json;
+
+    #[test]
+    fn a_message_is_trimmed_and_a_blank_one_asks_to_speak_first() {
+        assert_eq!(checked_message("  hi  ").unwrap(), "hi");
+        assert_eq!(checked_message("   ").unwrap_err(), i18n::t("chat.speak_first"));
+        let long = "a".repeat(MESSAGE_LIMIT + 1);
+        assert_eq!(checked_message(&long).unwrap_err(), too_long());
+        assert!(
+            checked_message(&format!(" {} ", "a".repeat(MESSAGE_LIMIT))).is_ok(),
+            "spaces around do not count"
+        );
+    }
 
     #[test]
     fn a_call_off_ends_the_wait_without_waiting_for_the_server() {

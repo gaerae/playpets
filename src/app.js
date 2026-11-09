@@ -28,7 +28,7 @@ import {
   toast,
   views,
 } from './core/state.js';
-import { fadedBetween } from './core/status.js';
+import { applyStatus, fadedBetween } from './core/status.js';
 import { clip, plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
 import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
@@ -308,7 +308,11 @@ const ON_EVENT = {
     if (p) Object.assign(p, { x: e.x, y: e.y });
   },
   say: speak,
-  status: e => e.source === 'agent' && speak(e),
+  status: e => {
+    applyStatus(data, e);
+    render();
+    if (e.source === 'agent') speak(e);
+  },
   'chat-message': e => {
     const v = views.get(e.petId);
     // Answers that arrive together are shown one after another, so a group chat reads as one.

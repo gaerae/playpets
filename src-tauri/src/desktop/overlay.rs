@@ -64,6 +64,9 @@ struct Inner {
     drag: Option<Drag>,
     roams: HashMap<String, Roam>,
     ignored: HashMap<String, bool>,
+    /// Each monitor's items as last sent to its window: a window hears only its own, and only
+    /// when they moved, so a friend walking on one screen leaves the others' windows asleep.
+    sent: HashMap<String, Value>,
     /// The friend the pointer is on, as last told to the pages (they show its name button).
     hover_pet: Option<String>,
     /// Whether any overlay window is (or is being) open; until all are closed the loop keeps its pace.
@@ -474,6 +477,8 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
         open |= existing.is_some();
         match (visible, existing) {
             (true, None) => {
+                // A new window starts from the whole state; the next move is sent to it in full.
+                crate::app::hold(inner).sent.remove(&mon.id);
                 let app2 = app.clone();
                 let mon_id = mon.id.clone();
                 let area = mon.area;
@@ -509,14 +514,24 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
                     let _ = win.set_ignore_cursor_events(ignore);
                 }
                 if moved {
-                    let payload = json!({"type": "layout", "layout": layout});
-                    let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
+                    let own: Vec<&Value> = layout
+                        .iter()
+                        .filter(|item| item["displayId"] == mon.id.as_str())
+                        .collect();
+                    let own = json!(own);
+                    let fresh = crate::app::hold(inner).sent.get(&mon.id) != Some(&own);
+                    if fresh {
+                        let payload = json!({"type": "layout", "layout": own});
+                        let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
+                        crate::app::hold(inner).sent.insert(mon.id.clone(), own);
+                    }
                 }
                 if let Some(payload) = &hover_changed {
                     let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
                 }
             }
             (false, Some(win)) => {
+                crate::app::hold(inner).sent.remove(&mon.id);
                 let _ = app.run_on_main_thread(move || {
                     restore_window_class(&win);
                     let _ = win.close();
