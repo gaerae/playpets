@@ -5,7 +5,7 @@
 //   src-tauri/icons/icon.png    Linux (512px)
 //   src-tauri/icons/tray.png    all-platform tray and website favicon (colored, 32px)
 //   src-tauri/icons/msix/*.png  Windows package (MSIX) tiles
-//   src/logo.svg                in-app brand mark
+//   src/logo.webp               in-app brand mark (96px: the About page's 24px mark at up to 4x)
 // Run from the repo root: pnpm run icons   (uses the system Chrome, or Playwright's Chromium)
 
 import { execFileSync } from 'node:child_process';
@@ -53,7 +53,7 @@ async function render(canvas, inner, name, plate = false, artwork = svg) {
 }
 const full = {},
   mac = {};
-for (const size of [16, 24, 32, 48, 64, 128, 256, 512]) full[size] = await render(size, size, `icon-${size}.png`);
+for (const size of [16, 24, 32, 48, 64, 96, 128, 256, 512]) full[size] = await render(size, size, `icon-${size}.png`);
 const MAC_CONTENT = 824 / 1024;
 for (const size of [16, 32, 64, 128, 256, 512, 1024])
   mac[size] = await render(size, Math.round(size * MAC_CONTENT), `mac-${size}.png`, true);
@@ -71,6 +71,21 @@ for (const [name, size] of [
 for (const size of [16, 24, 32, 48, 256])
   for (const form of ['unplated', 'lightunplated'])
     tiles[`Square44x44Logo.targetsize-${size}_altform-${form}`] = full[size];
+// Raster art under src/ ships as WebP (tests/art-webp.test.mjs); the browser encodes the mark.
+const logo = await page.evaluate(
+  async source => {
+    const image = new Image();
+    image.src = source;
+    await image.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    canvas.getContext('2d').drawImage(image, 0, 0);
+    return canvas.toDataURL('image/webp', 0.9);
+  },
+  `data:image/png;base64,${(await readFile(full[96])).toString('base64')}`,
+);
+if (!logo.startsWith('data:image/webp;base64,')) throw new Error('The browser could not encode WebP');
 await browser.close();
 
 // macOS .icns via iconutil
@@ -117,9 +132,9 @@ await writeFile(path.join(icons, 'icon.png'), await readFile(full[512]));
 await writeFile(path.join(icons, 'tray.png'), await readFile(full[32]));
 const portable = wrapped(await readFile(full[256]));
 await writeFile(path.join(root, 'assets', 'icon.svg'), portable);
-await writeFile(path.join(root, 'src', 'logo.svg'), portable);
+await writeFile(path.join(root, 'src', 'logo.webp'), Buffer.from(logo.slice(logo.indexOf(',') + 1), 'base64'));
 await mkdir(path.join(icons, 'msix'), { recursive: true });
 for (const [name, file] of Object.entries(tiles))
   await writeFile(path.join(icons, 'msix', `${name}.png`), await readFile(file));
 await rm(work, { recursive: true, force: true });
-console.log('icons written: src-tauri/icons/{icon.icns,icon.ico,icon.png,tray.png}, src/logo.svg');
+console.log('icons written: src-tauri/icons/{icon.icns,icon.ico,icon.png,tray.png}, src/logo.webp');

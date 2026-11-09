@@ -189,7 +189,7 @@ const scenario = `(async()=>{
     await slow;await new Promise(r=>setTimeout(r,500));
     await L('waiting='+(waitingShown&&!shownLog.querySelector('.waiting')&&!document.querySelector('.yard-pet.thinking')?'shown-then-gone':'err:'+waitingShown));
     // The yard itself: scenery-first layout, games.
-    const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||${say('game.label')};
+    const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||'none';
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
     // What a failed yard check records: the window, the field and each friend, with where its place
     // puts its feet (feet) beside where it is drawn (bottom), so a friend left behind shows. Read in
@@ -1524,15 +1524,10 @@ const expect = [
     'season setting updates yard and wardrobe, saves the choice and restores Auto',
   ],
   [
-    new RegExp(
-      `^hide=(2/0/${literal(KO['game.label'])}/by-name|window-hidden/${literal(stopGame('game.hide'))}/${literal(KO['game.label'])})$`,
-    ),
+    new RegExp(`^hide=(2/0/none/by-name|window-hidden/${literal(stopGame('game.hide'))}/none)$`),
     'hide and seek (find by name, try again when wrong)',
   ],
-  [
-    new RegExp(`^games=1/${literal(stopGame('game.parade'))}/${literal(KO['game.label'])}$`),
-    'tag and parade start and stop',
-  ],
+  [new RegExp(`^games=1/${literal(stopGame('game.parade'))}/none$`), 'tag and parade start and stop'],
   [
     /^discovery=arrival-replay-and-tree$/,
     'friend-led digging commits at arrival, replays safely and saves a visible scene-owned tree',

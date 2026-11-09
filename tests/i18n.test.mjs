@@ -111,6 +111,54 @@ test('every key the page names is in the table', async () => {
   assert.deepEqual(missing, [], 'keys named but not in the language files');
 });
 
+// The page builds these keys from a name it holds at run time, so they never appear whole in the
+// source. Each family is spelled out with the module that builds it; a closed set is listed in full,
+// and a catalog id (tree, treasure, flower, fish, bug, gift) is any id, since the content tests own those.
+const BUILT = [
+  /^caption\.(clear|rain|snow)\.(morning|day|evening|night)$/, // yard/scene.js
+  /^(tree|treasure)\.[a-z_]+$/, // panel/album.js, yard/discovery.js, yard/planted-trees.js
+  /^secret\.(wish|dizzy|fireworks)(_note)?$/, // yard/secrets.js, panel/album.js
+  /^garden\.(kind_[a-z_]+|stage_(seed|sprout|leaves|bud|bloom))$/, // yard/garden.js, panel/album.js
+  /^decor\.(kind|visit)_[a-z_]+$/, // yard/decor.js, panel/album.js, overlay/overlay.js
+  /^catch\.(fish|bug)_[a-z_]+$/, // yard/catch.js, panel/album.js
+  /^catch\.season_(spring|summer|autumn|winter)$/, // panel/album.js
+  /^event\.[a-z]+\.(name|about|lines)$/, // yard/festival.js, yard/remarks.js, panel/album.js
+  /^chatter\.(rainbow|sunshower|mist|snowlight|meteors)$/, // yard/remarks.js, one per sky moment
+  /^bond\.(level_[1-5]|unlock_[2-5])$/, // yard/bond.js, panel/friend.js
+  /^bond\.(welcome|up_line|dear)_(partner|senior|junior)$/, // yard/bond.js lineFor
+  /^pet\.call_me_(friend|partner|senior|junior)$/, // panel/friend-settings.js
+  /^connection\.(note|help)_[a-z]+$/, // panel/connection.js, by connection type
+  /^game\.(hide|parade|tag)_title$/, // yard/play.js
+  /^discovery\.((dig|tree)_hint|empty|seed|full)$/, // yard/discovery.js, by tool and by outcome
+];
+
+// The other way round: a sentence nothing names is never shown, yet goes on being translated and
+// kept in four tables. A key counts as used when src/ names it in quotes (a t() or list() call, a
+// data-i18n* attribute, a key chosen by a condition, a content file) or it is in a BUILT family.
+test('every key in the table is one the page names', async () => {
+  const files = [];
+  const walk = async dir => {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const path = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) await walk(path);
+      else if (/\.(js|html|json)$/.test(entry.name) && !path.includes('core/strings')) files.push(path);
+    }
+  };
+  await walk('src');
+  const quoted = new Set();
+  for (const file of files)
+    for (const [, key] of (await readFile(file, 'utf8')).matchAll(/['"`]([a-z_]+(?:\.[a-z0-9_]+)+)['"`]/g))
+      quoted.add(key);
+  const keys = Object.keys(STRINGS.en);
+  for (const family of BUILT)
+    assert.ok(
+      keys.some(key => family.test(key)),
+      `${family} no longer names any key; drop it from the list`,
+    );
+  const unused = keys.filter(key => !quoted.has(key) && !BUILT.some(family => family.test(key)));
+  assert.deepEqual(unused, [], 'keys in the language files that nothing in src/ names');
+});
+
 // Current contributor guidance stays readable in English; dated records preserve their history.
 test('current developer guidance keeps Korean in the language tables', async () => {
   const files = ['README.md', 'CONTRIBUTING.md'];

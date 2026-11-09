@@ -62,6 +62,7 @@ test('a new indoor place uses its registered atmosphere instead of studio lines'
 });
 
 test('a friend whose agent finished long ago is quiet again, and chats like one', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
   const before = data;
   views.clear();
   const done = { state: 'done', source: 'agent', at: Date.now() - 31 * 60 * 1000 };

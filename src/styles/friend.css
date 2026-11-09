@@ -103,32 +103,22 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
+/* A choice card (base.css) with a picture above its name, and its radio left in sight beside it. */
 .appearance-picker .appearance-card {
-  display: grid;
   grid-template-columns: 18px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
   padding: 10px;
-  border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  background: var(--white);
-  cursor: pointer;
-  margin: 0;
-}
-.appearance-card:has(:checked) {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
-}
-.appearance-card:has(:focus-visible) {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
 }
 .appearance-card input {
+  position: static;
+  opacity: 1;
   width: 16px;
   height: 16px;
   min-height: 16px;
   margin: 0;
-  accent-color: var(--accent);
+  accent-color: var(--green-ink);
 }
 .appearance-preview {
   grid-column: 1 / -1;

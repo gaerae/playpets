@@ -147,3 +147,9 @@ retains a small monochrome silhouette from `assets/tray.svg`.
 Every platform now shows the same illustrated Clover face in the tray. The
 separate macOS silhouette is retired; the existing blue waiting and red error
 badges remain on the colored face.
+
+## Follow-up — 2026-11-09: a small raster for the app's mark
+
+The About page's 24-pixel mark is `src/logo.webp`, a 96-pixel export from `npm run icons`,
+in place of `src/logo.svg`, which wrapped a 256-pixel PNG in about 147 KB. The website
+keeps its own `icon.svg` and favicons.

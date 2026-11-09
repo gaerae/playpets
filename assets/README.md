@@ -4,7 +4,7 @@
 | --- | --- |
 | `icon.png`, `icon-provenance.json` | Accepted illustrated Clover face and its generation record |
 | `icon.svg` | Portable embedded-raster export made by `pnpm run icons`; do not edit by hand |
-| `pets/` | Accepted pet manifests, canonical and seasonal sheets, identity references and generation provenance |
+| `pets/` | Accepted pet manifests, canonical and seasonal sheets, identity references and generation provenance; the app ships the built-in friends' sheets as WebP in `src-tauri/pets/` |
 | `concepts/` | Approved visual direction and identity source images |
 | `art/` | Lossless PNG exports of the yard's raster art and their provenance; the app ships them as WebP in `src/art/` |
 | `sources/` | Generated originals and retired variants of the yard's art, kept as provenance; the app does not ship them |
@@ -44,9 +44,20 @@ Shipped WebP:
   of the PNG, the script checks each one, and full transparency stays exact.
 - `art/webp.json` records the PNG and WebP hashes. A test fails when a PNG
   changes without its WebP, or a WebP has no PNG.
+- The places' summer daylight backdrops also ship as 400-pixel lossy previews in
+  `src/art/environments/previews/` for the place gallery's cards (`PREVIEWS` in
+  `scripts/art-webp-lib.mjs`); the same command makes them and the same test
+  checks their hashes and width.
 - Page code, content and SVG wrappers name the `.webp` file; scripts, tests and
   the site read the PNG.
 - `src/art/` holds only what the page loads: WebP, SVG and `collection.json`.
+- The same command makes the built-in friends' sheets in `src-tauri/pets/<id>/`
+  from `pets/<id>/`: lossless and exact, so every pixel, colour under
+  transparency included, is the accepted sheet's. The script checks each one.
+- It writes a `pet.json` beside them that names the `.webp` files, and records
+  the hashes in `pets/webp.json`. `src-tauri/src/pets/builtin.rs` lists the
+  friends and embeds these copies, outside `src/`, so the webview does not
+  carry them too.
 
 Smaller PNG exports:
 - Install oxipng and run `pnpm run assets:optimize`.

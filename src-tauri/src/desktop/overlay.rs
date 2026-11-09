@@ -64,6 +64,9 @@ struct Inner {
     drag: Option<Drag>,
     roams: HashMap<String, Roam>,
     ignored: HashMap<String, bool>,
+    /// Each monitor's items as last sent to its window: a window hears only its own, and only
+    /// when they moved, so a friend walking on one screen leaves the others' windows asleep.
+    sent: HashMap<String, Value>,
     /// The friend the pointer is on, as last told to the pages (they show its name button).
     hover_pet: Option<String>,
     /// Whether any overlay window is (or is being) open; until all are closed the loop keeps its pace.
@@ -456,6 +459,13 @@ fn hovered(d: &Inner, layout: &[Value], cursor: Option<(f64, f64)>) -> (HashMap<
     (hover, pet_id)
 }
 
+/// Whether a monitor's window is wanted: only where something stands, so an empty screen keeps no
+/// page and no loop of its own. While a friend is being carried every screen has one, ready for it
+/// to arrive.
+fn needs_window(visible: bool, dragging: bool, layout: &[Value], mon_id: &str) -> bool {
+    visible && (dragging || layout.iter().any(|item| item["displayId"] == mon_id))
+}
+
 /// Opens, updates or closes each monitor's window. Windows are built and closed on the main thread.
 fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor: Option<(f64, f64)>, moved: bool) {
     let (visible, layout, hover, dragging, hover_changed) = {
@@ -472,8 +482,10 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
         let label = format!("overlay{}", mon.id);
         let existing = app.get_webview_window(&label);
         open |= existing.is_some();
-        match (visible, existing) {
+        match (needs_window(visible, dragging, &layout, &mon.id), existing) {
             (true, None) => {
+                // A new window starts from the whole state; the next move is sent to it in full.
+                crate::app::hold(inner).sent.remove(&mon.id);
                 let app2 = app.clone();
                 let mon_id = mon.id.clone();
                 let area = mon.area;
@@ -509,14 +521,28 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
                     let _ = win.set_ignore_cursor_events(ignore);
                 }
                 if moved {
-                    let payload = json!({"type": "layout", "layout": layout});
-                    let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
+                    let own: Vec<&Value> = layout
+                        .iter()
+                        .filter(|item| item["displayId"] == mon.id.as_str())
+                        .collect();
+                    let own = json!(own);
+                    let fresh = crate::app::hold(inner).sent.get(&mon.id) != Some(&own);
+                    if fresh {
+                        let payload = json!({"type": "layout", "layout": own});
+                        let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
+                        crate::app::hold(inner).sent.insert(mon.id.clone(), own);
+                    }
                 }
                 if let Some(payload) = &hover_changed {
                     let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
                 }
             }
             (false, Some(win)) => {
+                // A window opened again later is built ignoring the pointer and hears everything anew.
+                let mut d = crate::app::hold(inner);
+                d.sent.remove(&mon.id);
+                d.ignored.remove(&mon.id);
+                drop(d);
                 let _ = app.run_on_main_thread(move || {
                     restore_window_class(&win);
                     let _ = win.close();
@@ -555,5 +581,25 @@ pub fn stop_drag_and_save(overlay: &Overlay, app: &AppHandle, on_position: &Posi
     finish_drag(&mut crate::app::hold(&overlay.inner), &mons, &mut arrivals);
     for (id, x, y) in arrivals {
         on_position(&id, x, y);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn only_a_screen_with_something_on_it_keeps_a_window() {
+        let layout = vec![json!({"id": "pip", "displayId": "1"})];
+        assert!(needs_window(true, false, &layout, "1"));
+        assert!(
+            !needs_window(true, false, &layout, "2"),
+            "an empty screen has no window"
+        );
+        assert!(
+            needs_window(true, true, &layout, "2"),
+            "a friend carried over is drawn as it arrives"
+        );
+        assert!(!needs_window(false, true, &layout, "1"), "a hidden desktop has none");
     }
 }

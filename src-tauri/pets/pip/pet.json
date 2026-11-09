@@ -1,0 +1,18 @@
+{
+  "id": "playpets-pip",
+  "displayName": "Pip",
+  "kind": "animal",
+  "description": "A cheerful floppy-eared puppy in a washed indigo denim chore jacket over an ivory T-shirt, a small white five-petal flower with a golden-yellow center on the left chest and warm ivory cuffed shorts. Loves greeting every friend.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.webp",
+  "seasonalSpritesheets": {
+    "summer": "seasonal/summer.webp",
+    "winter": "seasonal/winter.webp"
+  },
+  "source": {
+    "name": "PlayPets",
+    "url": "https://github.com/gaerae/playpets",
+    "creator": "gaerae",
+    "license": "MIT"
+  }
+}

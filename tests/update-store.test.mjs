@@ -10,7 +10,7 @@ globalThis.playPets = {
     return { ok: true, data: { store: true } };
   },
 };
-const { setupSettings, updateFound } = await import('../src/panel/settings.js');
+const { setupUpdates, updateFound } = await import('../src/panel/update.js');
 const { setData } = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
 
@@ -21,7 +21,7 @@ test('a version waiting in Microsoft Store shows in the yard and sends the perso
   globalThis.setTimeout = () => 1;
   const { nodes } = installDom(context, { anyId: true, props: { hidden: true } });
   setData({ pets: [], version: '1.5.0', updateChannel: 'store', project: {} });
-  setupSettings();
+  setupUpdates();
   updateFound({ channel: 'store', version: '1.6.0' });
   assert.equal(nodes.get('update-pill').hidden, false);
   assert.match(nodes.get('update-pill-label').textContent, /v1\.6\.0/);

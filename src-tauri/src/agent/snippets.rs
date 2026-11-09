@@ -22,7 +22,7 @@ const CURSOR_EVENTS: [&str; 6] = [
     "stop",
     "sessionEnd",
 ];
-// Every event `cli::hook_event` maps for Grok Build; a turn that fails or is cancelled ends
+// Every event `hooks::hook_event` maps for Grok Build; a turn that fails or is cancelled ends
 // without its Stop.
 const GROK_EVENTS: [&str; 7] = [
     "UserPromptSubmit",

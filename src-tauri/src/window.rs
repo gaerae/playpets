@@ -5,6 +5,7 @@ use crate::i18n;
 use serde_json::{Value, json};
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::Duration;
 use tauri::{AppHandle, LogicalPosition, LogicalSize, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 
 const SIZE_DEFAULT: (f64, f64) = (1180.0, 850.0);
@@ -258,7 +259,9 @@ fn size_limit(rect: Rect, areas: &[Rect]) -> Option<(f64, f64)> {
 static SIZE_LIMIT: Mutex<Option<(f64, f64)>> = Mutex::new(None);
 
 fn limit_size(w: &WebviewWindow, limit: Option<(f64, f64)>) {
-    if *hold(&SIZE_LIMIT) != limit && w.set_max_size(limit.map(size)).is_ok() {
+    // Read first: the guard must not stay held across the window call.
+    let set = *hold(&SIZE_LIMIT);
+    if set != limit && w.set_max_size(limit.map(size)).is_ok() {
         *hold(&SIZE_LIMIT) = limit;
     }
 }
@@ -453,6 +456,18 @@ fn watch_fullscreen(w: &WebviewWindow) {
 #[cfg(not(target_os = "macos"))]
 fn watch_fullscreen(_: &WebviewWindow) {}
 
+/// A retry for the confirm loops: true after a short pause, false once `limit` has passed.
+fn retry_for(limit: Duration) -> impl FnMut() -> bool {
+    let deadline = std::time::Instant::now() + limit;
+    move || {
+        if std::time::Instant::now() >= deadline {
+            return false;
+        }
+        std::thread::sleep(Duration::from_millis(10));
+        true
+    }
+}
+
 fn confirm_fullscreen(
     wanted: bool,
     mut get: impl FnMut() -> Result<(bool, bool), String>,
@@ -470,20 +485,13 @@ fn confirm_fullscreen(
 }
 
 fn wait_fullscreen(w: &WebviewWindow, wanted: bool) -> Result<bool, String> {
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(8);
     confirm_fullscreen(
         wanted,
         || {
             let actual = w.is_fullscreen().map_err(|_| i18n::t("error.request_failed"))?;
             Ok((actual, NATIVE_FULLSCREEN_CHANGING.load(Ordering::SeqCst)))
         },
-        || {
-            if std::time::Instant::now() >= deadline {
-                return false;
-            }
-            std::thread::sleep(std::time::Duration::from_millis(10));
-            true
-        },
+        retry_for(Duration::from_secs(8)),
     )
 }
 
@@ -513,18 +521,7 @@ fn restore_normal(app: &AppHandle, w: &WebviewWindow) -> Result<(), String> {
             .map_err(|_| i18n::t("error.request_failed"))?;
         flush_native_window(w)?;
         // GTK applies frame changes on later configure events, after the setter returns.
-        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
-        confirm_normal_rect(
-            (x, y, width, height),
-            || rect_now(w),
-            || {
-                if std::time::Instant::now() >= deadline {
-                    return false;
-                }
-                std::thread::sleep(std::time::Duration::from_millis(10));
-                true
-            },
-        )?;
+        confirm_normal_rect((x, y, width, height), || rect_now(w), retry_for(Duration::from_secs(2)))?;
         let pin = lock(&app.state::<Shared>()).prefs.always_on_top;
         apply_always_on_top(w, pin)?;
         *hold(&NORMAL_RECT) = None;
@@ -583,7 +580,7 @@ fn fullscreen_now(app: &AppHandle) -> Result<Value, String> {
     let w = app
         .get_webview_window("main")
         .ok_or_else(|| i18n::t("error.not_allowed"))?;
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(8);
+    let mut retry = retry_for(Duration::from_secs(8));
     // A resize can arrive halfway through native Escape or the page's own command. Wait off
     // the main thread so the returned state also includes normal-frame and pin restoration.
     let _change = loop {
@@ -592,10 +589,9 @@ fn fullscreen_now(app: &AppHandle) -> Result<Value, String> {
         {
             break change;
         }
-        if std::time::Instant::now() >= deadline {
+        if !retry() {
             return Err(i18n::t("error.request_failed"));
         }
-        std::thread::sleep(std::time::Duration::from_millis(10));
     };
     let actual = w.is_fullscreen().map_err(|_| i18n::t("error.request_failed"))?;
     if !actual {
@@ -680,18 +676,11 @@ fn always_on_top_now(w: &WebviewWindow) -> Result<bool, String> {
 }
 
 fn apply_always_on_top(w: &WebviewWindow, on: bool) -> Result<bool, String> {
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
     confirm_always_on_top(
         on,
         |on| w.set_always_on_top(on).map_err(|_| i18n::t("error.request_failed")),
         || always_on_top_now(w),
-        || {
-            if std::time::Instant::now() >= deadline {
-                return false;
-            }
-            std::thread::sleep(std::time::Duration::from_millis(10));
-            true
-        },
+        retry_for(Duration::from_secs(2)),
     )
 }
 

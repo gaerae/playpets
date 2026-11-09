@@ -1,0 +1,50 @@
+{
+  "clover/seasonal/summer.png": {
+    "png": "5358f7f7a9efd77c5e48b925f1179f06bf4d95241cf359e1ab2356a165b0f37c",
+    "webp": "b30fd04f36fa7c0b6fbbc51fd4db6f1813fc28a2837d8ad53e22b73eccd70aef"
+  },
+  "clover/seasonal/winter.png": {
+    "png": "b132ee2035937c07abc6ea4533fc4f02d763b5cb00626611d64f6421c84eae2b",
+    "webp": "d5438c3ac80d8433237aa54432f7a8e30b71e99ae04462074ce113dddd2d418b"
+  },
+  "clover/spritesheet.png": {
+    "png": "89395750d2f79f8925a2d1b6448a1215a4a537b1307531b567ad14d819feae2a",
+    "webp": "c8cb9828ccac9e21391f8b3e70fde5be860e33af38e29a5fa28a3a2ffe47bbb5"
+  },
+  "daisy/seasonal/summer.png": {
+    "png": "1d02ac40e39534dae020e56707f440d7663105a14bacb4da54fb4b3d932f6ed7",
+    "webp": "371b7a6097c7c409cf25d7f9f437075df8d49bb655d4f71bf3343870e622ada5"
+  },
+  "daisy/seasonal/winter.png": {
+    "png": "dd2d07918d5e16950fa4ffadab8ee2d7ffc4124aa7241ad024af2c990ea1dcee",
+    "webp": "7e3b33fb1ef1f9844caf8449d6d84b623e89671ba94586d6d413509c4faecc17"
+  },
+  "daisy/spritesheet.png": {
+    "png": "24edc4edf3ef84a0d1d28b35bafeaed1cedb2011d7d9b5ef66a399d390a98c71",
+    "webp": "1a92e234494850e61a43254a73117717e12ff7e5e7fa80772a57510c85b7ee25"
+  },
+  "miso/seasonal/summer.png": {
+    "png": "c1405797ad276961576cb996aef7a9bc55f1ae26673b089014423d459d294967",
+    "webp": "91168f20e275e6fda61e33f03087893f49779325bdd113362ea1bea85298b456"
+  },
+  "miso/seasonal/winter.png": {
+    "png": "f3980cdae324963d2325a64ef18abd772aed2c0b6ee61aaa6290e19d12ad427a",
+    "webp": "30768450dd8cbd8e032f7332517e7ae504f685e57707f78c4607927db48a144d"
+  },
+  "miso/spritesheet.png": {
+    "png": "d168ce8f3bbcc326df222a3397d540fbd0b9a883b151578e0b5850d4e2dd1d0a",
+    "webp": "5e44b80f08b2af2ded12efdfadbf691c7b4ac2f40af978545dd9794f83016035"
+  },
+  "pip/seasonal/summer.png": {
+    "png": "6fca5746dca6615bd8d2d481608f4efeba1032951b6067bf3b4f7d03be6b80df",
+    "webp": "b7625c8d88fbfe699db8b13ac33c1d90e399152841ac00c732995635aaf52aa8"
+  },
+  "pip/seasonal/winter.png": {
+    "png": "e90272d0c21dc0060fb91606508df53470504d20d6aa9bcfeae8e78d7bcdd1e6",
+    "webp": "ab507fc6e3eb615a2b89b06d11aa615bdaf82d3e3cc4699e54ceced8e8ed73db"
+  },
+  "pip/spritesheet.png": {
+    "png": "4af3be1be7d76f78f521c724bc7c93c092c3fb1b8843327c723315db406c31b1",
+    "webp": "c8af97f6ad76f0ce6af14a05cca6132d39695a7c5c6bb8754beb9fc84085f8c4"
+  }
+}

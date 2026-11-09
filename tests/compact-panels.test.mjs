@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { installDom, keepGlobals } from './support/dom.mjs';
 
 // The tabs use DOM visibility and focus; the native bridge is absent in Node.
 const calls = [];
@@ -14,43 +15,13 @@ globalThis.playPets = {
 const { openPanel, setupTabs } = await import('../src/panel/tabs.js');
 const { setSelected, views } = await import('../src/core/state.js');
 
-function page() {
-  const nodes = new Map(),
-    listeners = new Map();
-  const element = id => {
-    const classes = new Set();
-    const node = {
-      hidden: true,
-      dataset: { title: id },
-      isConnected: true,
-      classList: {
-        contains: name => classes.has(name),
-        toggle(name, on) {
-          if (on) classes.add(name);
-          else classes.delete(name);
-        },
-      },
-      setAttribute() {},
-      getAttribute() {
-        return 'false';
-      },
-      addEventListener() {},
-      querySelector() {
-        return null;
-      },
-      focus() {
-        document.activeElement = node;
-      },
-      getClientRects() {
-        return node.hidden ? [] : [{}];
-      },
-      matches() {
-        return id !== 'body';
-      },
-    };
-    nodes.set(id, node);
-    return node;
-  };
+// The yard window's panel parts, hidden as the page starts. The chat's own controls sit inside the
+// sheet so Tab has stops to go round, and the document keeps every keydown listener the tabs add.
+function page(t) {
+  const { document, nodes, element } = installDom(t, { props: { hidden: true, isConnected: true, tabIndex: 0 } });
+  keepGlobals(t, 'getComputedStyle');
+  globalThis.getComputedStyle = () => ({ visibility: 'visible' });
+  const tags = { 'close-panel': 'button', message: 'textarea', pet: 'button', 'yard-controls-toggle': 'button' };
   for (const id of [
     'layout',
     'side-panel',
@@ -66,33 +37,26 @@ function page() {
     'step-agent',
     'steps-dismiss',
     'yard-controls-toggle',
-    'brand',
     'pet',
   ])
-    element(id);
-  const body = element('body');
-  body.hidden = false;
-  body.classList.toggle('compact', true);
-  nodes.get('panel-invite').hidden = true;
-  nodes.get('pet').hidden = false;
-  nodes.get('pet-panel').hidden = false;
-  nodes.get('yard-controls-toggle').hidden = false;
-  globalThis.document = {
-    body,
-    activeElement: nodes.get('pet'),
-    getElementById: id => nodes.get(id),
-    querySelector: selector => (selector === '.brand' ? nodes.get('brand') : null),
-    querySelectorAll: () => [],
-    addEventListener: (type, fn) => listeners.set(type, fn),
-  };
+    nodes.set(id, element(tags[id] || 'div', { id, dataset: { title: id } }));
+  const brand = element('a', { className: 'brand' });
+  nodes.get('side-panel').append(nodes.get('panel-title'), nodes.get('close-panel'), nodes.get('panel-pet'));
+  nodes.get('panel-pet').append(nodes.get('pet-panel'));
+  nodes.get('pet-panel').append(nodes.get('message'));
+  document.body.append(brand, nodes.get('layout'), nodes.get('side-panel'), nodes.get('pet'));
+  document.body.hidden = false;
+  document.body.classList.toggle('compact', true);
+  for (const id of ['pet', 'pet-panel', 'message', 'close-panel', 'yard-controls-toggle']) nodes.get(id).hidden = false;
+  document.activeElement = nodes.get('pet');
   setSelected('pet');
   views.set('pet', { button: nodes.get('pet') });
   calls.length = 0;
-  return { nodes, listeners };
+  return { nodes, document };
 }
 
-test('opening a conversation keeps the small window and closing returns focus to its friend', () => {
-  const { nodes } = page();
+test('opening a conversation keeps the small window and closing returns focus to its friend', t => {
+  const { nodes } = page(t);
   setupTabs();
   openPanel('pet');
   assert.equal(calls.length, 0, 'conversation does not expand the native window');
@@ -105,23 +69,39 @@ test('opening a conversation keeps the small window and closing returns focus to
   assert.equal(document.activeElement, nodes.get('pet'));
 });
 
-test('Escape dismisses a small panel without dismissing a dialog over it', () => {
-  const { nodes, listeners } = page();
+test('Escape dismisses a small panel without dismissing a dialog over it', t => {
+  const { nodes, document } = page(t);
   setupTabs();
   openPanel('pet');
   const key = { key: 'Escape', preventDefault() {} };
   document.querySelector = selector => (selector === 'dialog[open]' ? {} : null);
-  listeners.get('keydown')(key);
+  document.dispatch('keydown', key);
   assert.equal(nodes.get('side-panel').hidden, false);
   document.querySelector = () => null;
   nodes.get('close-panel').focus();
-  listeners.get('keydown')(key);
+  document.dispatch('keydown', key);
   assert.equal(nodes.get('side-panel').hidden, true);
   assert.equal(document.activeElement, nodes.get('pet'));
 });
 
-test('closing a small panel from a shortcut restores focus when its opener is unavailable', () => {
-  const { nodes } = page();
+test('Tab goes round inside a small panel and passes through a wide one', t => {
+  const { nodes, document } = page(t);
+  setupTabs();
+  openPanel('pet');
+  const [close, message] = [nodes.get('close-panel'), nodes.get('message')];
+  const tab = shiftKey => document.dispatch('keydown', { key: 'Tab', shiftKey });
+  assert.equal(document.activeElement, message);
+  tab(false);
+  assert.equal(document.activeElement, close, 'past the last stop is the first, not the friends behind');
+  tab(true);
+  assert.equal(document.activeElement, message, 'back past the first stop is the last');
+  document.body.classList.toggle('compact', false);
+  tab(false);
+  assert.equal(document.activeElement, message, 'beside the yard the browser moves on by itself');
+});
+
+test('closing a small panel from a shortcut restores focus when its opener is unavailable', t => {
+  const { nodes } = page(t);
   setupTabs();
   document.activeElement = document.body;
   openPanel('pet');
@@ -130,19 +110,19 @@ test('closing a small panel from a shortcut restores focus when its opener is un
   assert.equal(document.activeElement, nodes.get('pet'));
 });
 
-test('Invite and Settings keep the same native window', async () => {
-  page();
+test('Invite and Settings keep the same native window', async t => {
+  page(t);
   openPanel('invite');
   await Promise.resolve();
   assert.deepEqual(calls, []);
-  page();
+  page(t);
   openPanel('settings');
   await Promise.resolve();
   assert.deepEqual(calls, []);
 });
 
-test('Escape from Settings restores its opener focus and respects a handled Escape', () => {
-  const { nodes, listeners } = page();
+test('Escape from Settings restores its opener focus and respects a handled Escape', t => {
+  const { nodes, document } = page(t);
   document.body.classList.toggle('compact', false);
   setupTabs();
   const tab = {
@@ -157,12 +137,12 @@ test('Escape from Settings restores its opener focus and respects a handled Esca
   document.activeElement = tab;
   openPanel('settings');
   nodes.get('close-panel').focus();
-  listeners.get('keydown')({ key: 'Escape', defaultPrevented: true, preventDefault() {} });
+  document.dispatch('keydown', { key: 'Escape', defaultPrevented: true, preventDefault() {} });
   assert.equal(nodes.get('side-panel').hidden, false, 'a menu may consume Escape before the sheet');
-  listeners.get('keydown')({ key: 'Escape', isComposing: false, keyCode: 229, preventDefault() {} });
+  document.dispatch('keydown', { key: 'Escape', isComposing: false, keyCode: 229, preventDefault() {} });
   assert.equal(nodes.get('side-panel').hidden, false, "Escape ending a composition is the input method's");
   let prevented = false;
-  listeners.get('keydown')({
+  document.dispatch('keydown', {
     key: 'Escape',
     preventDefault() {
       prevented = true;
@@ -175,20 +155,20 @@ test('Escape from Settings restores its opener focus and respects a handled Esca
 
 test('Escape also dismisses full Friend and Invite panels', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
-  const { nodes, listeners } = page();
+  const { nodes, document } = page(t);
   document.body.classList.toggle('compact', false);
   setupTabs();
   for (const kind of ['pet', 'invite']) {
     openPanel(kind);
-    listeners.get('keydown')({ key: 'Escape', defaultPrevented: true, preventDefault() {} });
+    document.dispatch('keydown', { key: 'Escape', defaultPrevented: true, preventDefault() {} });
     assert.equal(nodes.get('side-panel').hidden, false);
-    listeners.get('keydown')({ key: 'Escape', preventDefault() {} });
+    document.dispatch('keydown', { key: 'Escape', preventDefault() {} });
     assert.equal(nodes.get('side-panel').hidden, true, kind);
   }
 });
 
-test('an empty compact yard regains focus after Settings closes', () => {
-  const { nodes } = page();
+test('an empty compact yard regains focus after Settings closes', t => {
+  const { nodes } = page(t);
   const yard = {
     focus: () => {
       document.activeElement = yard;
@@ -205,8 +185,8 @@ test('an empty compact yard regains focus after Settings closes', () => {
   assert.equal(document.activeElement, yard);
 });
 
-test('opening a destination moves focus out of its now-hidden menu', () => {
-  const { nodes } = page();
+test('opening a destination moves focus out of its now-hidden menu', t => {
+  const { nodes } = page(t);
   setupTabs();
   openPanel('settings');
   assert.equal(document.activeElement, nodes.get('panel-title'));
@@ -214,7 +194,7 @@ test('opening a destination moves focus out of its now-hidden menu', () => {
 
 test('all panel entry routes run the same pending-yard-action cleanup', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
-  page();
+  page(t);
   const opened = [];
   setupTabs({ beforeOpen: kind => opened.push(kind) });
   openPanel('pet');
@@ -224,21 +204,21 @@ test('all panel entry routes run the same pending-yard-action cleanup', t => {
   assert.deepEqual(opened, ['pet', 'invite', 'settings']);
 });
 
-test('Escape closes a task and its inline update details together', () => {
-  const { nodes, listeners } = page();
+test('Escape closes a task and its inline update details together', t => {
+  const { nodes, document } = page(t);
   const update = { hidden: true };
   const lookup = document.getElementById;
   document.getElementById = id => (id === 'update-dialog' ? update : lookup(id));
   setupTabs();
   openPanel('pet');
   update.hidden = false;
-  listeners.get('keydown')({ key: 'Escape', preventDefault() {} });
+  document.dispatch('keydown', { key: 'Escape', preventDefault() {} });
   assert.equal(nodes.get('side-panel').hidden, true);
   assert.equal(update.hidden, true);
 });
 
-test('the friend sheet names its destination instead of repeating the identity selector', () => {
-  const { nodes } = page();
+test('the friend sheet names its destination instead of repeating the identity selector', t => {
+  const { nodes } = page(t);
   nodes.get('panel-pet').dataset.title = 'tabs.friend';
   const get = document.getElementById;
   document.getElementById = id =>

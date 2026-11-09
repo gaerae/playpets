@@ -6,7 +6,7 @@ import { setupBackgrounds } from './yard/background-ui.js';
 // No other module does anything when it is imported; each has a setup function, called here.
 
 import { setupCompanionActions } from './core/companion-actions.js';
-import { confirmAction, setupConfirm } from './core/confirm.js';
+import { setupConfirm } from './core/confirm.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
 import { onShortcut } from './core/keys.js';
@@ -28,7 +28,7 @@ import {
   toast,
   views,
 } from './core/state.js';
-import { fadedBetween } from './core/status.js';
+import { applyStatus, fadedBetween } from './core/status.js';
 import { clip, plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
 import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
@@ -36,16 +36,10 @@ import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
 import { drawPortrait, select, setupFriend } from './panel/friend.js';
-import { drawPreviews, invite, setupInvite } from './panel/invite.js';
-import {
-  announceInstalledUpdate,
-  checkForUpdates,
-  setupSettings,
-  showSection,
-  updateFound,
-  updateStatus,
-} from './panel/settings.js';
+import { drawPreviews, importLink, invite, setupInvite } from './panel/invite.js';
+import { setupSettings, showSection } from './panel/settings.js';
 import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
+import { announceInstalledUpdate, checkForUpdates, setupUpdates, updateFound, updateStatus } from './panel/update.js';
 import { render } from './render.js';
 import { setupWindow } from './window.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
@@ -78,34 +72,6 @@ import { bubble, place, setupViews, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { scene, scenery } from './yard/world.js';
 
-// A playpets://import link: any web page can open one once the browser remembers the choice,
-// so the person is asked before anything is downloaded. One request at a time.
-let importing = false;
-async function importRequested(url) {
-  if (importing) return;
-  importing = true;
-  try {
-    let host = url;
-    try {
-      host = new URL(url).host;
-    } catch {}
-    const sure = await confirmAction({
-      title: t('invite.import_confirm'),
-      body: t('invite.import_from', { host, url }),
-      action: t('invite.import'),
-      danger: false,
-    });
-    if (!sure) return;
-    const asset = await call('importUrl', url);
-    openPanel('invite');
-    const named = data.assets.find(a => a.id === asset)?.displayName;
-    toast(t('invite.linked', { name: named || host }));
-  } catch (e) {
-    toast(t('invite.link_failed', { error: spoken(e, t('error.generic')) }), { error: true });
-  } finally {
-    importing = false;
-  }
-}
 // Whether the yard can be seen; the backend says so for a window it hid or that was minimized.
 let shown = true;
 // Reloads everything from the backend, for actions that need the page current right away.
@@ -122,11 +88,12 @@ function openChat(id) {
 
 // The app's state first: the backgrounds (loadContent) and the place, season and weather picked
 // (setupSky) are read from it, and whether this data folder owns the webview's old copies. A
-// failure here is shown by the full start below.
-setData(await call('bootstrap').catch(() => data));
-// What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
-await loadContent();
-await setupCompanionActions();
+// failure here is asked again, and shown, by the full start below.
+const booted = await call('bootstrap').catch(() => null);
+setData(booted || data);
+// What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn;
+// the friends' authored actions come in alongside.
+await Promise.all([loadContent(), setupCompanionActions()]);
 // Words first: everything below builds its labels from them.
 apply();
 icons();
@@ -247,9 +214,10 @@ setupConnection({
   }),
 });
 setupFriendSettings({ refresh });
-setupInvite({ refresh });
+setupInvite({ refresh, showInvite: () => openPanel('invite') });
 setupWelcome({ invite, more: openInvite });
 setupSettings();
+setupUpdates();
 
 api.onChange(next => {
   const old = selected,
@@ -301,14 +269,18 @@ const ON_EVENT = {
   'update-status': updateStatus,
   'open-panel': e => showSection(e.panel, e.section),
   select: e => openChat(e.petId),
-  'import-request': e => importRequested(e.url),
+  'import-request': e => importLink(e.url),
   // A friend's saved place changed; the view already stands there, the record follows.
   'pet-moved': e => {
     const p = data.pets.find(q => q.id === e.petId);
     if (p) Object.assign(p, { x: e.x, y: e.y });
   },
   say: speak,
-  status: e => e.source === 'agent' && speak(e),
+  status: e => {
+    applyStatus(data, e);
+    render();
+    if (e.source === 'agent') speak(e);
+  },
   'chat-message': e => {
     const v = views.get(e.petId);
     // Answers that arrive together are shown one after another, so a group chat reads as one.
@@ -333,12 +305,13 @@ api.onEvent(event => {
 // Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed),
 // fifteen in rain and while birds or a shooting star cross, twelve in snow, ten while the friends
 // only stand and blink: every frame that changes a canvas costs a whole screen update. None at all
-// while the window cannot be seen: macOS says so through document.hidden, and the backend says so
-// for a window it hid or that was minimized.
+// while the window cannot be seen (macOS says so through document.hidden, and the backend says so
+// for a window it hid or that was minimized); the loop only looks once a second whether it is back.
 const BUSY_MS = 50,
   RAIN_MS = 66,
   SNOW_MS = 80,
-  CALM_MS = 100;
+  CALM_MS = 100,
+  UNSEEN_MS = 1000;
 // What goes on in the yard between games, looked at every frame: each knows when it is due.
 const YARD_LIFE = [idleChatter, giftTick, thanksTick, soloFishing];
 let last = 0;
@@ -350,7 +323,7 @@ function interval(now) {
   return CALM_MS;
 }
 function animate(now) {
-  if (document.hidden || !shown) return CALM_MS;
+  if (document.hidden || !shown) return UNSEEN_MS;
   const dt = Math.min(120, now - last);
   last = now;
   judge(now);
@@ -370,8 +343,9 @@ function animate(now) {
 }
 try {
   // Record growth during closed time before the first tree and album are drawn.
+  // Trees that grew are saved and come back as a change, like any other.
   await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
-  setData(await call('bootstrap'));
+  if (!booted) setData(await call('bootstrap'));
   follow(data.language);
   const saved = recallRun('panel');
   // A first start opens on the yard alone: its card shows the starter pets.

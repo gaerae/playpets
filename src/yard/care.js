@@ -1,6 +1,7 @@
 // Looking after friends: treats they walk over to, and the pats, waves and jumps they answer.
 
 import { t } from '../core/i18n.js';
+import { onEscape } from '../core/keys.js';
 import { between, clamp } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, guard, selected, setAiming, toast, views } from '../core/state.js';
@@ -103,8 +104,8 @@ export function setupCare() {
     const r = $('yard').getBoundingClientRect();
     dropTreat(e.clientX - r.left, e.clientY - r.top);
   });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && aiming) setAimingMode(false);
+  onEscape(() => {
+    if (aiming) setAimingMode(false);
   });
 }
 function dropNearby() {

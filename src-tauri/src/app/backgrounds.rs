@@ -80,13 +80,7 @@ pub fn save(dir: &Path, id: &str, pack: &Value) -> Result<(), String> {
         return Err(i18n::tr("backgrounds.full", &[("limit", &COUNT_LIMIT.to_string())]));
     }
     let tmp = folder.join(format!(".{id}.tmp"));
-    let written = fs::File::create(&tmp)
-        .and_then(|mut f| {
-            use std::io::Write;
-            f.write_all(&text)?;
-            f.sync_all()
-        })
-        .and_then(|()| fs::rename(&tmp, &file));
+    let written = crate::store::write_synced(&tmp, &text, false).and_then(|()| fs::rename(&tmp, &file));
     if written.is_err() {
         let _ = fs::remove_file(&tmp);
     }

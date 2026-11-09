@@ -257,6 +257,50 @@ button:active:not(:disabled) {
 .icon-button:hover {
   background: var(--control-hover);
 }
+/* One of a few choices as a card: a label around its radio, outlined and tinted when chosen. The
+   kinds (.ai-type in settings.css, .relation-card in dialog.css, .appearance-card in friend.css)
+   set only their size, spacing and hover. */
+.choice-card {
+  position: relative;
+  display: grid;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--white);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.choice-card:has(input:checked) {
+  border-color: var(--green-ink);
+  background: var(--control-selected);
+  box-shadow: inset 0 0 0 1px var(--green-ink);
+}
+.choice-card:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+/* The radio stays for the keyboard and screen readers; the card shows the choice. */
+.choice-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  min-height: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+}
+.choice-card small {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--muted);
+}
+/* On the chosen card's tint the muted line falls under 4.5:1; it takes the ink. */
+.choice-card:has(input:checked) small {
+  color: var(--ink);
+}
 .eyebrow {
   font-size: 10px;
   font-weight: 750;

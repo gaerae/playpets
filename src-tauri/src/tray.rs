@@ -32,12 +32,11 @@ pub fn snapshot(d: &AppData) -> Snapshot {
     let now = crate::app::now_ms();
     let state_of = |id: &str| {
         let s = d.statuses.get(id)?;
-        if s.get("source").and_then(|v| v.as_str()) == Some("chat") {
+        if s.source == crate::app::Source::Chat {
             return None;
         }
-        let state = s.get("state").and_then(|v| v.as_str())?;
-        let at = s.get("at").and_then(|v| v.as_u64()).unwrap_or(now);
-        (state == "waiting" || (state == "error" && now.saturating_sub(at) < FADE_MS)).then(|| state.to_string())
+        let state = s.state.as_str();
+        (state == "waiting" || (state == "error" && now.saturating_sub(s.at) < FADE_MS)).then(|| state.to_string())
     };
     // Waiting comes first: it is the one the person can answer.
     let attention = ["waiting", "error"].iter().find_map(|wanted| {

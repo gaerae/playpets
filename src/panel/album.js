@@ -5,7 +5,7 @@
 import { closeOnBackdrop } from '../core/confirm.js';
 import { joinList, language, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
-import { southern } from '../core/season.js';
+import { systemSouth } from '../core/season.js';
 import { $, call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSvg } from '../yard/art.js';
@@ -29,7 +29,7 @@ function when(kind, where) {
 const eventHint = k =>
   t('catch.event_hint', {
     event: t(`event.${k.event}.name`),
-    dates: eventDates(k.event, southern(Intl.DateTimeFormat().resolvedOptions().timeZone)),
+    dates: eventDates(k.event, systemSouth()),
   });
 // What comes only on certain dates is rare, whatever its weight.
 const rare = k => k.rarity === 'rare' || !!k.event;

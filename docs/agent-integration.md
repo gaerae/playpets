@@ -39,7 +39,7 @@ flowchart LR
 | Component | Location | Responsibility |
 |---|---|---|
 | CLI mode | `src-tauri/src/agent/cli.rs`, `agent/run.rs` for `run` | With a command argument (`hook`, `mcp`, `status`, `say`, `react`, `pets`, `run`), the app executable runs in this mode with no window. Node.js is not needed |
-| Hook translation | `agent::cli::hook_event` | Turns each agent's hook payload into a state and a code. Prompts and tool inputs are not sent |
+| Hook translation | `agent::hooks::hook_event` | Turns each agent's hook payload into a state and a code. Prompts and tool inputs are not sent |
 | MCP server | `agent::cli::mcp_reply` | An MCP server that takes JSON-RPC one line at a time over standard input and output. Four tools |
 | Bridge | `src-tauri/src/agent/bridge.rs` | The HTTP server inside the app. A random port on `127.0.0.1`, a token check on every request, browser requests refused |
 | Event handling | `src-tauri/src/agent/mod.rs` | Turns codes into sentences in the current language, remembers them as recent activity, and shows them as the friend's status |

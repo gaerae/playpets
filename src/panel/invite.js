@@ -304,7 +304,40 @@ function setImporting(busy, cancellable = false) {
   $('import-form').setAttribute('aria-busy', String(busy));
   $('import-submit').textContent = t(busy ? 'invite.importing' : 'invite.import_go');
 }
-// Wires the invite tab and the import dialog. `refresh` reloads the page's state once a friend arrives. Called once, by app.js.
+let showInvite = () => {};
+/**
+ * A playpets://import link: any web page can open one once the browser remembers the choice, so
+ * the person is asked before anything is downloaded. It shares the dialog's one import at a time.
+ * Unlike the dialog, the pet only lands on the shelf: a page asked for it, and the person invites
+ * it from there (the guide and the question say so).
+ */
+export async function importLink(url) {
+  if (importing) return;
+  setImporting(true);
+  try {
+    let host = url;
+    try {
+      host = new URL(url).host;
+    } catch {}
+    const sure = await confirmAction({
+      title: t('invite.import_confirm'),
+      body: t('invite.import_from', { host, url }),
+      action: t('invite.import'),
+      danger: false,
+    });
+    if (!sure) return;
+    const asset = await call('importUrl', url);
+    showInvite();
+    const named = data.assets.find(a => a.id === asset)?.displayName;
+    toast(t('invite.linked', { name: named || host }));
+  } catch (e) {
+    toast(t('invite.link_failed', { error: spoken(e, t('error.generic')) }), { error: true });
+  } finally {
+    setImporting(false);
+  }
+}
+// Wires the invite tab and the import dialog. `refresh` reloads the page's state once a friend
+// arrives; `showInvite` opens the tab a link's pet lands in. Called once, by app.js.
 export function setupInvite(hooks) {
   const chooseKind = chip => {
     kind = chip.dataset.kind;
@@ -318,6 +351,7 @@ export function setupInvite(hooks) {
   };
   if ($('invite-search')) $('invite-search').oninput = renderShelf;
   refresh = hooks.refresh;
+  showInvite = hooks.showInvite || showInvite;
   $('import').onclick = openImportDialog;
   $('close-import').onclick = () => {
     if (!importing) $('import-dialog').close();

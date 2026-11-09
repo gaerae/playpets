@@ -119,12 +119,6 @@
   font-size: 13px;
   line-height: 1.5;
 }
-.notice.warning {
-  background: #fff1e6;
-  color: #8c502c;
-  margin-top: 10px;
-  white-space: pre-line;
-}
 .version {
   margin-left: 8px;
   font-size: 10px;
@@ -144,10 +138,6 @@
   .empty-panel > span {
     background: var(--soft);
     color: #b6cda5;
-  }
-  .notice.warning {
-    background: var(--danger-soft);
-    color: #f5c3a9;
   }
 }
 

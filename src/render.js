@@ -6,7 +6,8 @@ import { renderAlbum } from './panel/album.js';
 import { detectedLabel } from './panel/connection.js';
 import { renderPanel } from './panel/friend.js';
 import { renderShelf } from './panel/invite.js';
-import { renderAgentPets, renderConnections, renderDesktopSwitches, renderUpdate } from './panel/settings.js';
+import { renderAgentPets, renderConnections, renderDesktopSwitches } from './panel/settings.js';
+import { renderUpdate, versionLabel } from './panel/update.js';
 import { renderWindow } from './window.js';
 import { renderBonds } from './yard/bond.js';
 import { syncChatter } from './yard/care.js';
@@ -21,7 +22,7 @@ import { syncViews } from './yard/views.js';
 import { onboardingSteps, renderWelcome } from './yard/welcome.js';
 export function render() {
   if (!data.pets.some(p => p.id === selected)) setSelected(lastFriend());
-  $('app-version').textContent = data.version ? `v${data.version}` : '';
+  $('app-version').textContent = versionLabel(data.version);
   $('pet-count').textContent = !data.pets.length
     ? ''
     : data.pets.length === 1

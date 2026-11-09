@@ -9,7 +9,7 @@ use crate::{i18n, store};
 use serde_json::{Map, Value, json};
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use tauri::{AppHandle, Manager};
 
@@ -84,7 +84,8 @@ pub struct AppData {
     pub extra: Map<String, Value>,
     /// Providers whose API key is in the keychain.
     pub secret_ids: HashSet<String>,
-    pub statuses: Map<String, Value>,
+    /// Each friend's last state from a coding agent or a chat, not saved.
+    pub statuses: HashMap<String, Status>,
     /// Each friend's conversation, and the answers on their way (chat/mod.rs).
     pub talks: chat::Talks,
     /// The flags that call off the pet imports under way, not saved.
@@ -219,7 +220,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "providers": d.providers.iter().map(|p| { let mut p = p.clone(); p["hasKey"] = json!(d.secret_ids.contains(providers::id_of(&p))); p }).collect::<Vec<_>>(),
         "detected": d.detected,
         "warnings": d.warnings,
-        "statuses": Value::Object(d.statuses.clone()),
+        "statuses": d.statuses,
         "busy": d.talks.busy_ids().collect::<Vec<_>>(),
         "desktopLayout": layout,
         "desktop": desktop_on(d),
@@ -277,6 +278,10 @@ impl SaveLater {
     fn take(&self) -> bool {
         self.0.swap(false, Ordering::SeqCst)
     }
+    /// Wants the save again after its write failed, so the write at exit tries it once more.
+    fn retry(&self) {
+        self.0.store(true, Ordering::SeqCst);
+    }
 }
 static SAVE_LATER: SaveLater = SaveLater(AtomicBool::new(false));
 
@@ -293,32 +298,75 @@ pub fn persist_soon(app: &AppHandle) {
     });
 }
 
-/// Writes a save `persist_soon` put off, if there is one.
+/// Writes a save `persist_soon` put off, if there is one. The state is taken under its lock and
+/// written after: the disk flush can take a while, and nothing else should wait for it.
 pub fn flush(app: &AppHandle) {
     if SAVE_LATER.take()
         && let Some(state) = app.try_state::<Shared>()
     {
-        let _ = persist(&lock(&state));
+        let (saving, store) = {
+            let d = lock(&state);
+            (
+                Saving::of(&d),
+                store::Store {
+                    dir: d.store.dir.clone(),
+                },
+            )
+        };
+        if saving.write(&store, &WRITTEN).is_err() {
+            SAVE_LATER.retry();
+        }
     }
 }
 
 pub fn persist(d: &AppData) -> Result<(), String> {
-    let mut state = json!({
-        "schema": SCHEMA,
-        "pets": d.pets.iter().map(|p| json!(p)).chain(d.parked_pets.iter().cloned()).collect::<Vec<_>>(),
-        "imports": d.imports,
-        "picked": d.picked,
-        "providers": d.providers.iter().chain(&d.parked_providers).collect::<Vec<_>>(),
-        "agentPets": d.agent_pets,
-        "secretIds": d.secret_ids.iter().collect::<Vec<_>>(),
-        "garden": d.garden,
-        "album": d.album,
-        "bonds": d.bonds,
-        "desktop": desktop_on(d),
-    });
-    carry(&mut state, &d.prefs.saved());
-    carry(&mut state, &d.extra);
-    d.store.write("state.json", &state)
+    Saving::of(d).write(&d.store, &WRITTEN)
+}
+
+/// How many saves have been taken; each takes the next number, under the state's lock.
+static TAKEN: AtomicU64 = AtomicU64::new(0);
+/// The number of the last save written. Held while writing, so two writes never share the
+/// temporary file, and a save taken earlier but written later is dropped.
+static WRITTEN: Mutex<u64> = Mutex::new(0);
+
+/// The state as it is to be written, numbered in the order it was taken.
+struct Saving {
+    order: u64,
+    state: Value,
+}
+
+impl Saving {
+    fn of(d: &AppData) -> Saving {
+        let mut state = json!({
+            "schema": SCHEMA,
+            "pets": d.pets.iter().map(|p| json!(p)).chain(d.parked_pets.iter().cloned()).collect::<Vec<_>>(),
+            "imports": d.imports,
+            "picked": d.picked,
+            "providers": d.providers.iter().chain(&d.parked_providers).collect::<Vec<_>>(),
+            "agentPets": d.agent_pets,
+            "secretIds": d.secret_ids.iter().collect::<Vec<_>>(),
+            "garden": d.garden,
+            "album": d.album,
+            "bonds": d.bonds,
+            "desktop": desktop_on(d),
+        });
+        carry(&mut state, &d.prefs.saved());
+        carry(&mut state, &d.extra);
+        Saving {
+            order: TAKEN.fetch_add(1, Ordering::SeqCst) + 1,
+            state,
+        }
+    }
+
+    fn write(&self, store: &store::Store, written: &Mutex<u64>) -> Result<(), String> {
+        let mut last = hold(written);
+        if self.order <= *last {
+            return Ok(());
+        }
+        store.write("state.json", &self.state)?;
+        *last = self.order;
+        Ok(())
+    }
 }
 
 /// Adds keys to a state object, never over one already there: the switches, then the keys a newer
@@ -365,23 +413,52 @@ pub fn put_on_desktop(app: &AppHandle, d: &mut AppData, id: &str, on: bool) -> R
     save_and_show(app, d)
 }
 
+/// A friend's state as every page shows it (src/core/status.js reads the same fields).
+#[derive(serde::Serialize, Clone, Debug, PartialEq)]
+pub struct Status {
+    /// idle, working, waiting, done or error (agent::bridge::STATES).
+    pub state: String,
+    pub message: String,
+    /// The yard marks agent work, not a chat answer.
+    pub source: Source,
+    pub at: u64,
+    /// Who reported it (`claude:<session>`), so an idle notice can tell its own turn; empty for
+    /// a chat, MCP and `playpets status`.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub by: String,
+}
+
+#[derive(serde::Serialize, Clone, Copy, Debug, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum Source {
+    Agent,
+    Chat,
+}
+
 /// A friend's state (idle, working, …) and the line that goes with it, as every page shows it.
-pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, message: &str, source: &str) {
+pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, message: &str, source: Source, by: &str) {
     if require_pet(d, id).is_err() {
         return;
     }
-    // The source stays with the state: the yard marks agent work, not a chat answer.
     let at = now_ms();
     d.statuses.insert(
         id.into(),
-        json!({"state": state, "message": message, "source": source, "at": at}),
+        Status {
+            state: state.into(),
+            message: message.into(),
+            source,
+            at,
+            by: by.into(),
+        },
     );
+    // Only this friend's status travels, and each page keeps it (core/status.js applyStatus): an
+    // agent's hook fires on every tool it uses, too often to rebuild and send the whole state.
     push_event(
         app,
-        &json!({"type": "status", "petId": id, "state": state, "message": message, "source": source}),
+        &json!({"type": "status", "petId": id, "state": state, "message": message, "source": source, "at": at}),
     );
-    changed(app, d);
-    if state == "error" && source != "chat" {
+    crate::tray::refresh(app, crate::tray::snapshot(d));
+    if state == "error" && source == Source::Agent {
         crate::tray::fade_later(app);
     }
 }
@@ -445,5 +522,64 @@ mod tests {
         assert!(!later.take(), "exit finds nothing left to write");
         assert!(later.ask(), "a later ask arranges a new write");
         assert!(later.take(), "and exit writes it if the timer has not");
+    }
+
+    #[test]
+    fn an_older_save_never_replaces_a_newer_one() {
+        let dir = std::env::temp_dir().join(format!("playpets-saves-{}", uuid::Uuid::new_v4()));
+        let store = store::Store { dir: dir.clone() };
+        let written = Mutex::new(0);
+        let (older, newer) = (
+            Saving {
+                order: 1,
+                state: json!({"n": 1}),
+            },
+            Saving {
+                order: 2,
+                state: json!({"n": 2}),
+            },
+        );
+        newer.write(&store, &written).unwrap();
+        older.write(&store, &written).unwrap();
+        assert_eq!(
+            store.read("state.json", json!({})).unwrap()["n"],
+            2,
+            "a save taken later wins"
+        );
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn a_status_reads_on_the_page_as_it_always_did() {
+        let agent = Status {
+            state: "working".into(),
+            message: "m".into(),
+            source: Source::Agent,
+            at: 5,
+            by: "claude:a1".into(),
+        };
+        assert_eq!(
+            json!(agent),
+            json!({"state": "working", "message": "m", "source": "agent", "at": 5, "by": "claude:a1"})
+        );
+        let chat = Status {
+            source: Source::Chat,
+            by: String::new(),
+            ..agent
+        };
+        assert_eq!(
+            json!(chat),
+            json!({"state": "working", "message": "m", "source": "chat", "at": 5}),
+            "no empty `by`"
+        );
+    }
+
+    #[test]
+    fn a_failed_put_off_write_is_tried_again() {
+        let later = SaveLater(AtomicBool::new(false));
+        later.ask();
+        assert!(later.take());
+        later.retry();
+        assert!(later.take(), "exit or the next write tries it again");
     }
 }

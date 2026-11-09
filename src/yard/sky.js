@@ -3,7 +3,7 @@
 
 import { t } from '../core/i18n.js';
 import { dropdown } from '../core/menu.js';
-import { isSeason, selectedSeason, southern } from '../core/season.js';
+import { isSeason, selectedSeason, systemSouth } from '../core/season.js';
 import { reduced } from '../core/sprites.js';
 import { $, call, data, forget, ownsWebview, recall, remember, sceneValue } from '../core/state.js';
 import { everyMinute } from '../core/ticker.js';
@@ -33,8 +33,9 @@ import { worldAllows, worldFor, worlds } from './worlds.js';
 
 // The painted backdrop, made with the weather canvas.
 let easel = null;
-// South of the equator the seasons and the moon turn the other way (by the system's time zone).
-const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
+// South of the equator the seasons and the moon turn the other way (by the system's time zone,
+// read by setupSky).
+let south = false;
 // The season's colours last set on the yard, to be taken off again when they change.
 let painted = {};
 // The moon's mask last set, so it is set again only when the phase has moved on.
@@ -210,6 +211,7 @@ export function moveOldScene() {
 // - landChanged(): the land was redrawn another way (its picture, or the painted fallback when the
 //   picture could not be loaded), so the field may begin at another height.
 export function setupSky(options = {}) {
+  south = systemSouth();
   const none = () => {};
   seasonChanged = options.seasonChanged || none;
   const seasonPicked = options.seasonPicked || none,

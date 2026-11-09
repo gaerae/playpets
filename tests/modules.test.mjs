@@ -18,8 +18,10 @@ async function scripts(dir = 'src') {
   return found;
 }
 
-test('every script parses', async () => {
-  for (const file of await scripts()) {
+// Every other module is parsed when the import test below loads it (the string tables through
+// core/strings.js), so only the two entry points, which act on import, are checked on their own.
+test('every script parses', () => {
+  for (const file of ['src/app.js', 'src/overlay/overlay.js']) {
     const check = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
     assert.equal(check.status, 0, `${file} does not parse:\n${check.stderr}`);
   }

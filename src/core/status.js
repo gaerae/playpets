@@ -5,6 +5,11 @@
 /** A finished or failed agent state fades after this long; working and waiting stand until the agent reports again. */
 export const FADE_MS = 30 * 60 * 1000;
 
+/** A `status` event from the backend, kept as the whole state would have kept it: an agent's hook
+ * sends one friend's status, not the whole state, since it fires on every tool the agent uses. */
+export function applyStatus(data, { petId, state, message, source, at }) {
+  data.statuses = { ...data.statuses, [petId]: { state, message, source, at } };
+}
 /** The status to show for a friend, or null once an agent's done/error has faded. */
 export function statusOf(data, id, now = Date.now()) {
   const s = data.statuses?.[id];

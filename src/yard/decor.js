@@ -20,7 +20,17 @@ import { giftSvg } from './creatures.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
-import { propButton, reconcile, removeWithUndo, setDown, giftSize as size } from './props.js';
+import {
+  beginDrag,
+  dragPoint,
+  endDrag,
+  moveSaved,
+  propButton,
+  reconcile,
+  removeWithUndo,
+  setDown,
+  giftSize as size,
+} from './props.js';
 import { cue } from './sound.js';
 import { isFree, nearestFree, rest, sendTo } from './trips.js';
 import { bubble, cheer, effect } from './views.js';
@@ -75,39 +85,23 @@ function create(d) {
     const current = data.garden?.decor.find(item => item.id === v.id),
       f = field();
     if (!current) return;
-    const from = drawnPlace(v.kind, current);
-    v.drag = {
-      startX: e.clientX,
-      startY: e.clientY,
-      x: from.x,
-      y: from.y,
+    v.drag = beginDrag(button, e, drawnPlace(v.kind, current), {
       width: Math.max(1, f.width - EDGE * 2),
       height: Math.max(1, f.bottom - f.top),
-      moved: false,
-    };
-    try {
-      button.setPointerCapture(e.pointerId);
-    } catch {}
+    });
   });
   button.addEventListener('pointermove', e => {
     const drag = v.drag;
     if (!drag) return;
-    if (!drag.moved && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) < 5) return;
-    drag.moved = true;
+    const at = dragPoint(drag, e, drag.width, drag.height, decorFloor());
+    if (!at) return;
     button.classList.add('dragging');
-    drag.at = {
-      x: clamp(drag.x + (e.clientX - drag.startX) / drag.width),
-      y: clamp(drag.y + (e.clientY - drag.startY) / drag.height, 0, decorFloor()),
-    };
-    position(v, drag.at.x, drag.at.y);
+    drag.at = at;
+    position(v, at.x, at.y);
   });
   const drop = event => {
-    const drag = v.drag;
-    v.drag = null;
+    const drag = endDrag(v, button, event);
     button.classList.remove('dragging');
-    try {
-      if (button.hasPointerCapture(event.pointerId)) button.releasePointerCapture(event.pointerId);
-    } catch {}
     if (!drag) return;
     if (!drag.moved) return visit(v.id);
     if (drag.at) return save(v.id, drawnPlace(v.kind, drag.at));
@@ -125,8 +119,10 @@ function create(d) {
     openDecorMenu(v.id, { x: e.clientX, y: e.clientY });
   });
   // By keyboard: arrows move it a few pixels, the same in any window or place; Delete puts it away;
-  // the menu key or Shift+F10 opens its menu, as a friend's does.
+  // the menu key or Shift+F10 opens its menu, as a friend's does. Aiming a treat or seed, or in a
+  // game, the keys leave it alone, as they do a tree and as a press does.
   button.addEventListener('keydown', e => {
+    if (aiming || game) return;
     if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
       e.preventDefault();
       const r = button.getBoundingClientRect();
@@ -148,19 +144,12 @@ const save = guard(async (id, at) => {
   const d = data.garden?.decor.find(x => x.id === id);
   const view = shown.get(id);
   if (!d || !view || view.busy) return;
-  const previous = { x: d.x, y: d.y };
-  view.busy = true;
-  Object.assign(d, at);
-  renderDecor();
-  try {
-    await call('moveDecor', id, at.x, at.y);
-  } catch (error) {
-    if (data.garden?.decor.find(item => item.id === id) === d) Object.assign(d, previous);
-    throw error;
-  } finally {
-    view.busy = false;
-    renderDecor();
-  }
+  await moveSaved(view, d, at, {
+    send: () => call('moveDecor', id, at.x, at.y),
+    current: () => data.garden?.decor.find(item => item.id === id),
+    show: renderDecor,
+    settle: renderDecor,
+  });
 });
 
 export function setupDecor() {

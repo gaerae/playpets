@@ -16,10 +16,26 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
 
+### Changed
+
+- The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
+- Who joins a group chat opens as a dropdown.
+- The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
+- Downloads are smaller again, with the four friends who come with the app looking exactly as before: their pictures take 27.6 MB inside the app instead of 37.0 MB.
+- An update removes the folders of built-in friends the app no longer ships, which stayed in the data folder before.
+
+### Fixed
+
+- Sending an empty message asks you to say something first instead of saying the message is too long.
+- Esc while typing Korean, Japanese or Chinese no longer cancels planting or aiming, and one Esc closes one thing at a time.
+- While you aim a treat or seed or play a game, the arrow keys, Delete and the menu key leave a selected gift alone, as they already did a tree.
+- A pet link opened while the import dialog is busy waits its turn instead of importing at the same time.
+- A save put off for a moment is tried again if writing fails, and an older save never replaces a newer one.
+- Linking a coding agent writes its settings file to disk in full before it replaces the old one, so a crash at that moment can't leave it empty.
+
 ### Website and docs
 
 - The install guide, the settings guide and the privacy policy say that the Microsoft Store version asks the Store for a newer version and shows it in the app.
-
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
 - The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.
 - The front page opens on the four friends in the yard with a coding agent at work beside them: when it finishes, one friend says so and the others cheer. The yard to play with, its places and seasons, and the button to pause the page's motion are now in the play section.

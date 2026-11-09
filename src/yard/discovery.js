@@ -3,7 +3,7 @@ import { beginCompanionAction, playCompanionAction, prepareCompanionAction } fro
 import { closeControls, closeScene } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
-import { typing } from '../core/keys.js';
+import { onEscape, typing } from '../core/keys.js';
 import { limit } from '../core/limits.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { artSvg } from './art.js';
@@ -438,12 +438,11 @@ export function setupDiscovery() {
     if (!groundAllows(point, groundProfile())) return toast(t('discovery.invalid'));
     order(point, actorFor(point));
   });
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && intent && !event.defaultPrevented) {
-      event.preventDefault();
-      cancelDiscovery();
-      $('yard').focus();
-    }
+  onEscape(event => {
+    if (!intent) return;
+    event.preventDefault();
+    cancelDiscovery();
+    $('yard').focus();
   });
   document.addEventListener('click', event => {
     if (intent && (!ownAim() || event.target.closest('[data-panel],#scene-button,#yard-controls-toggle')))

@@ -420,7 +420,7 @@ test('each coding demo replays the events that agent really reports', async () =
   const { LANDING_PETS } = await import('../scripts/site-content.mjs');
   const { sections } = await import('../website/.vitepress/theme/landing-en.ts');
   const bridge = read('src-tauri/src/agent/bridge.rs');
-  const hooks = read('src-tauri/src/agent/cli.rs');
+  const hooks = read('src-tauri/src/agent/hooks.rs');
   assert.deepEqual(
     AGENT_DEMOS.map(demo => demo.name),
     ['Claude Code', 'Codex', 'Gemini CLI', 'Cursor'],

@@ -8,7 +8,7 @@ import { treeKind } from './catalog.js';
 import { groundAllows, treeStage } from './discovery-rules.js';
 import { EDGE, field, fieldToYard, measureYard, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
-import { propButton, reconcile, removeWithUndo, setDown } from './props.js';
+import { beginDrag, dragPoint, endDrag, moveSaved, propButton, reconcile, removeWithUndo, setDown } from './props.js';
 import { scene } from './world.js';
 
 const shown = new Map();
@@ -43,20 +43,16 @@ const save = guard(async (view, point) => {
   if (!tree || view.busy) return;
   const ground = groundProfile({ skipTreeId: tree.id });
   if (!groundAllows(point, ground)) return renderTrees();
-  const previous = { x: tree.x, y: tree.y };
-  view.busy = true;
   view.button.disabled = true;
-  Object.assign(tree, point);
-  position(view, tree);
   try {
-    await call('moveTree', tree.id, point.x, point.y, ground);
-  } catch (error) {
-    if (current(tree.id) === tree) Object.assign(tree, previous);
-    throw error;
+    await moveSaved(view, tree, point, {
+      send: () => call('moveTree', tree.id, point.x, point.y, ground),
+      current: () => current(tree.id),
+      show: () => position(view, tree),
+      settle: renderTrees,
+    });
   } finally {
-    view.busy = false;
     view.button.disabled = false;
-    renderTrees();
   }
 });
 
@@ -85,41 +81,26 @@ function create(tree) {
     event.stopPropagation();
     const f = field(),
       tree = current(view.id);
-    view.drag = {
-      x: tree.x,
-      y: tree.y,
-      startX: event.clientX,
-      startY: event.clientY,
+    view.drag = beginDrag(button, event, tree, {
       width: Math.max(1, f.width - EDGE * 2),
       height: Math.max(1, f.bottom - f.top),
-      moved: false,
       world: scene.world,
-    };
-    try {
-      button.setPointerCapture(event.pointerId);
-    } catch {}
+    });
   });
   button.addEventListener('pointermove', event => {
     const drag = view.drag,
       tree = current(view.id);
     if (!drag || !tree || drag.world !== scene.world) return;
-    if (!drag.moved && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 5) return;
-    drag.moved = true;
-    drag.at = {
-      x: clamp(drag.x + (event.clientX - drag.startX) / drag.width),
-      y: clamp(drag.y + (event.clientY - drag.startY) / drag.height),
-    };
+    const at = dragPoint(drag, event, drag.width, drag.height);
+    if (!at) return;
+    drag.at = at;
     button.classList.add('dragging');
     button.classList.toggle('invalid', !groundAllows(drag.at, groundProfile({ skipTreeId: tree.id })));
     position(view, tree, drag.at);
   });
   const finish = async event => {
-    const drag = view.drag;
-    view.drag = null;
+    const drag = endDrag(view, button, event);
     button.classList.remove('dragging', 'invalid');
-    try {
-      if (button.hasPointerCapture(event.pointerId)) button.releasePointerCapture(event.pointerId);
-    } catch {}
     if (event.type === 'pointerup' && drag?.moved && drag.world === scene.world && !aiming && !game && drag.at)
       await save(view, drag.at);
     renderTrees();

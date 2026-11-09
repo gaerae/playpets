@@ -32,6 +32,8 @@ export function selectedSeason(date, south = false, choice = 'auto') {
 const SOUTH =
   /^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham|Fiji|Tongatapu|Apia|Noumea|Efate|Port_Moresby)|^America\/(Argentina|Buenos_Aires|Sao_Paulo|Santiago|Montevideo|Asuncion|La_Paz|Lima|Bahia|Recife|Maceio|Campo_Grande|Cuiaba|Punta_Arenas)|^Africa\/(Johannesburg|Maputo|Harare|Windhoek|Lusaka|Gaborone|Maseru|Mbabane|Blantyre|Lubumbashi)|^Indian\/(Mauritius|Reunion|Antananarivo)|^Atlantic\/Stanley/;
 export const southern = zone => SOUTH.test(zone || '');
+/** Whether the system's own time zone is south of the equator; read when needed, not as a module loads. */
+export const systemSouth = () => southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
 
 // The choice comes with the app's state, so the window calls the returned function when that
 // changes; storage changes (where a version before 1.4.0 kept it) and the minute tick still count.

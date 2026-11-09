@@ -15,6 +15,19 @@ const contexts = ['spring', 'summer', 'autumn', 'winter'].flatMap(season =>
   ['clear', 'rain', 'snow'].flatMap(weather => places.map(place => ({ season, weather, place }))),
 );
 const tables = contexts.map(context => ({ context, rows: discoveryFindChances(catalog, LIMITS.digOdds, context) }));
+const common = catalog.treasures.filter(item => item.rarity === 'common');
+const rare = catalog.treasures.filter(item => item.rarity === 'uncommon');
+// The simulation looks these up millions of times, so each table is indexed once instead of searched per attempt.
+const indexed = tables.map(table => ({
+  ...table,
+  chance: new Map(table.rows.map(row => [row.id, row.chance])),
+  pools: Object.fromEntries(
+    ['common', 'uncommon'].map(rarity => {
+      const pool = table.rows.filter(item => item.rarity === rarity);
+      return [rarity, { pool, total: pool.reduce((sum, item) => sum + item.chance, 0) }];
+    }),
+  ),
+}));
 
 test('every specimen remains reachable and a preferred route improves every digging find', () => {
   for (const item of [...catalog.trees, ...catalog.treasures]) {
@@ -23,8 +36,8 @@ test('every specimen remains reachable and a preferred route improves every digg
     assert.ok(Math.max(...chances) >= Math.min(...chances) * 2, item.id);
   }
   const bestChance = item => Math.max(...tables.map(table => table.rows.find(row => row.id === item.id).chance));
-  const hardestCommon = Math.min(...catalog.treasures.filter(item => item.rarity === 'common').map(bestChance));
-  const easiestRare = Math.max(...catalog.treasures.filter(item => item.rarity === 'uncommon').map(bestChance));
+  const hardestCommon = Math.min(...common.map(bestChance));
+  const easiestRare = Math.max(...rare.map(bestChance));
   assert.ok(
     hardestCommon > easiestRare,
     'with its own preferred habitat, every common find is easier than any rare find',
@@ -64,7 +77,6 @@ function simulate({ attempts, profiles = 2000, targeted = true }) {
   const counts = patchCounts();
   const completion = [],
     firstSession = [];
-  const rare = catalog.treasures.filter(item => item.rarity === 'uncommon');
   for (let p = 0; p < profiles; p++) {
     const found = new Set();
     let lastRare = -Infinity,
@@ -74,18 +86,14 @@ function simulate({ attempts, profiles = 2000, targeted = true }) {
       for (let attempt = 0; attempt < attempts; attempt++) {
         const at = day * 26 * 3600000 + attempt * 8000;
         const rareReady = at - lastRare >= LIMITS.digTtlMs;
-        const missing = (rareReady ? rare : catalog.treasures.filter(item => item.rarity === 'common')).filter(
-          item => !found.has(item.id),
-        );
+        const missing = (rareReady ? rare : common).filter(item => !found.has(item.id));
         const target = missing[(p + day) % Math.max(1, missing.length)];
-        const available = tables.filter(table => remaining[table.context.place] > 0);
+        const available = indexed.filter(table => remaining[table.context.place] > 0);
         if (!available.length) break;
         const best =
           targeted && target
             ? available.reduce((best, table) =>
-                table.rows.find(row => row.id === target.id).chance > best.rows.find(row => row.id === target.id).chance
-                  ? table
-                  : best,
+                table.chance.get(target.id) > best.chance.get(target.id) ? table : best,
               )
             : available[(p + day + attempt) % available.length];
         remaining[best.context.place]--;
@@ -93,8 +101,7 @@ function simulate({ attempts, profiles = 2000, targeted = true }) {
         const roll = Math.floor(random() * 100);
         if (roll < 75) continue;
         const rarity = roll >= 97 && rareReady ? 'uncommon' : 'common';
-        const pool = best.rows.filter(item => item.rarity === rarity);
-        const total = pool.reduce((sum, item) => sum + item.chance, 0);
+        const { pool, total } = best.pools[rarity];
         let choice = random() * total;
         let selected = pool.at(-1);
         for (const item of pool) {

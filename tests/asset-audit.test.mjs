@@ -19,7 +19,7 @@ test('the audit records every shipping image and resolves all local raster refer
     'src/art/fish/specimens.webp',
     'website/public/og-ko.png',
     'src-tauri/icons/icon.ico',
-    'src/logo.svg',
+    'src/logo.webp',
     'packaging/windows/nsis-sidebar.bmp',
   ])
     assert.ok(
@@ -52,6 +52,8 @@ test('native install and sharing exports retain their actual required dimensions
     'website/public/og-ko.png': [1200, 630],
     'website/public/og-zh-hans.png': [1200, 630],
     'assets/banner.png': [1600, 560],
+    // The About page draws it at 24px; 96 covers a 4x screen without shipping a large picture.
+    'src/logo.webp': [96, 96],
   })) {
     assert.deepEqual(imageSize(await readFile(path), path.split('.').pop()), dimensions, path);
   }

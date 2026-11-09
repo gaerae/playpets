@@ -86,6 +86,11 @@ impl Bonds {
         Bonds(map)
     }
 
+    /// A friend's bond as kept, for telling whether a change changed anything.
+    pub fn get(&self, pet: &str) -> Option<&Bond> {
+        self.0.get(pet)
+    }
+
     /// Something done together: returns the friend's points, its level and whether it rose.
     pub fn befriend(&mut self, pet: &str, reason: &str, day: &str, now: u64) -> Result<(u32, u32, bool), String> {
         let worth = worth(reason).ok_or_else(|| i18n::t("error.bad_request"))?;
@@ -219,6 +224,13 @@ mod tests {
             b.befriend("a", "pat", "2026-10-09", 0).unwrap();
         }
         assert_eq!(b.0["a"].points, TIME_DAILY + PAT_DAILY);
+        let capped = b.get("a").cloned();
+        b.befriend("a", "pat", "2026-10-09", 0).unwrap();
+        assert_eq!(
+            b.get("a"),
+            capped.as_ref(),
+            "a pat past the cap changes nothing to save"
+        );
         for _ in 0..20 {
             b.befriend("a", "treat", "2026-10-09", 0).unwrap();
         }

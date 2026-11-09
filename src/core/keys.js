@@ -13,6 +13,18 @@ export const composing = event => event.isComposing || event.keyCode === 229;
 /** A key typed into a field, which the yard's own keys leave alone. */
 export const typing = event => !!event.target?.closest?.('input, textarea, select, [contenteditable="true"]');
 
+/**
+ * Runs `run(event)` when Esc is pressed for the yard: not when it only ends a composition (Korean
+ * or Japanese in the message box), and not when a panel or dropdown nearer the key has already
+ * answered it. `target` is where to listen; the window hears the key after the document does.
+ */
+export function onEscape(run, target = document) {
+  target.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || composing(event) || event.defaultPrevented) return;
+    return run(event);
+  });
+}
+
 /** `mod` is Cmd on a Mac and Ctrl elsewhere (either is taken, as the menu bar's CmdOrCtrl). */
 export const SHORTCUTS = {
   controls: { keys: 'mod+shift+p', menu: true },

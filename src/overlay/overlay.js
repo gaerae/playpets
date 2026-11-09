@@ -10,10 +10,10 @@ import { follow, language, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { pick } from '../core/math.js';
 import { displayName } from '../core/names.js';
-import { setupSeason, southern } from '../core/season.js';
+import { setupSeason, systemSouth } from '../core/season.js';
 import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/sprites.js';
 import { sceneValue } from '../core/state.js';
-import { stateOf } from '../core/status.js';
+import { applyStatus, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
 import { artSvg, loadArt } from '../yard/art.js';
@@ -40,7 +40,7 @@ const FOOT = 28;
 let data = { pets: [], assets: [], statuses: {} },
   layout = [];
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
-const south = southern(Intl.DateTimeFormat().resolvedOptions().timeZone);
+const south = systemSouth();
 const seasonChanged = setupSeason({
   // As the yard reads it (yard/sky.js): a season the app could not save is still in the webview.
   read: () => sceneValue('season', data),
@@ -230,8 +230,6 @@ function render() {
     );
     v.status = stateOf(data, pet.id);
     v.wrap.style.visibility = 'visible';
-    v.wrap.style.width = `${position.width}px`;
-    v.wrap.style.height = `${position.height}px`;
     v.wrap.style.transform = `translate(${position.x - position.origin.x}px,${position.y - position.origin.y}px)`;
     // Roaming pets face the way they walk (positions stream in via layout events).
     if (v.lastX !== undefined && Math.abs(position.x - v.lastX) > 0.5 && !v.drag) {
@@ -240,15 +238,26 @@ function render() {
     }
     v.lastX = position.x;
     const height = (pet.size * 208) / 192;
-    v.sprite.style.width = `${pet.size}px`;
-    v.sprite.style.height = `${height}px`;
     // How much screen there is above the sprite: near the top edge the bubble slides down over
     // the sprite rather than off the screen.
-    const room = position.y - position.origin.y + position.height - FOOT - height;
-    v.button.style.setProperty('--room', `${Math.max(0, Math.round(room))}px`);
-    v.button.setAttribute('aria-label', t('yard.pat_name', { name: nameOf(v) }));
-    v.talk.querySelector('.talk-name').textContent = nameOf(v);
-    v.talk.title = t('friend.talk', { name: nameOf(v) });
+    const room = Math.max(0, Math.round(position.y - position.origin.y + position.height - FOOT - height));
+    if (room !== v.room) {
+      v.room = room;
+      v.button.style.setProperty('--room', `${room}px`);
+    }
+    // A walk streams positions many times a second; the rest changes only with the friend itself,
+    // so it is written only then.
+    const name = nameOf(v),
+      look = `${position.width}x${position.height}|${pet.size}|${name}`;
+    if (look === v.look) continue;
+    v.look = look;
+    v.wrap.style.width = `${position.width}px`;
+    v.wrap.style.height = `${position.height}px`;
+    v.sprite.style.width = `${pet.size}px`;
+    v.sprite.style.height = `${height}px`;
+    v.button.setAttribute('aria-label', t('yard.pat_name', { name }));
+    v.talk.querySelector('.talk-name').textContent = name;
+    v.talk.title = t('friend.talk', { name });
     v.talk.setAttribute('aria-label', v.talk.title);
     v.talk.style.maxWidth = `${Math.max(96, pet.size + 24)}px`;
   }
@@ -306,6 +315,7 @@ api.onEvent(event => {
     // A friend that strolled over to a gift says something that fits it, as in the yard.
     if (event.type === 'visit') say(v, pick(list(`decor.visit_${event.kind}`)) || '');
     if (event.type === 'status') {
+      applyStatus(data, event);
       v.status = event.state;
       say(v, event.message);
     }
