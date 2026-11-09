@@ -64,6 +64,6 @@
 pnpm test
 ```
 
-- `tests/i18n.test.mjs` checks that every language file has the same keys and placeholders, that no Korean is left in a module, and that every key the code asks for is in the table.
+- `tests/i18n.test.mjs` checks that every language file has the same keys and placeholders, that no Korean is left in a module, that every key the code asks for is in the table, and that every key in the table is one the code uses.
 - `i18n::tests` in `cargo test` checks the backend side the same way.
 - Then run the app with `PLAYPETS_LANG=<code>` and pick the language in the Settings tab.
