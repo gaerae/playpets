@@ -91,6 +91,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.tree_missing", "그 나무를 찾을 수 없어요."),
     ("error.plant_missing", "그 식물을 찾을 수 없어요."),
     ("error.gift_today", "선물은 이틀에 한 번 와요. 다음 선물은 조금만 기다려 주세요."),
+    ("error.ornaments_today", "장식은 하루에 세 개까지 걸 수 있어요. 내일 또 걸어요."),
     ("error.decor_full", "놀이터에는 소품을 {limit}개까지 둘 수 있어요. 하나를 치우면 자리가 생겨요."),
     ("error.decor_missing", "그 소품을 찾을 수 없어요."),
     ("error.gifts_full", "놀이터와 선물 상자가 모두 가득 찼어요. 소품을 하나 치우면 자리가 생겨요."),

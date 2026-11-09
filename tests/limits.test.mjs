@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { LIMITS } from '../src/core/limits.js';
+import { SHOWN } from '../src/yard/decor-shown.js';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const constant = (source, name) => source.match(new RegExp(`pub const ${name}: [^=]+= ([^;]+);`))?.[1];
@@ -20,6 +21,8 @@ test("the page's limits before the state arrives are the backend's", () => {
   assert.equal(String(LIMITS.decor), constant(garden, 'DECOR_MAX'));
   assert.equal(String(LIMITS.giftBox), constant(garden, 'BOX_MAX'));
   assert.equal(String(LIMITS.giftEveryDays), constant(garden, 'GIFT_EVERY_DAYS'));
+  assert.equal(String(LIMITS.ornamentHooks), constant(garden, 'ORNAMENT_HOOKS'));
+  assert.equal(String(LIMITS.ornamentsPerDay), constant(garden, 'ORNAMENTS_PER_DAY'));
   assert.equal(`[${LIMITS.bondLevels.join(', ')}]`, constant(bond, 'LEVELS'));
   assert.match(read('src/index.html'), new RegExp(`id="pet-persona" maxlength="${LIMITS.persona}"`));
 });
@@ -57,4 +60,11 @@ test('discovery limits and the public probability guide use the same backend rul
   const guide = read('website/.vitepress/theme/DiscoveryGuide.vue');
   assert.match(guide, /LIMITS\.digOdds/);
   assert.match(guide, /LIMITS\.treeMatureMs/);
+});
+
+test('ornaments hang on the days the Christmas tree shows', () => {
+  const [, from, to] = read('src-tauri/src/pets/garden.rs').match(
+    /fn tree_dates\(day: &str\) -> bool \{\n\s+is_day\(day\) && \(&day\[5\.\.\] >= "(\d\d-\d\d)" \|\| &day\[5\.\.\] <= "(\d\d-\d\d)"\)/,
+  );
+  assert.deepEqual({ from, to }, { from: SHOWN.december.from, to: SHOWN.december.to });
 });

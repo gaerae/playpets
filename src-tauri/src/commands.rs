@@ -410,6 +410,10 @@ static COMMANDS: &[Command] = &[
             d.garden.take_out(c.text(0), x, y, now).map(|d| json!(d))
         })
     }),
+    // (book, id, hook, local day): an ornament on the Christmas tree, three a day.
+    main("hangOrnament", hang_ornament),
+    // (book, id, local day): an ornament taken down, its hook free for another.
+    main("takeDownOrnament", take_down_ornament),
     overlay("dragStart", |c| {
         let id = c.text(0);
         if c.sender.starts_with("overlay") && overlay_owns(c.app, c.sender, id) {
@@ -646,6 +650,8 @@ mod tests {
             "setOnDesktop",
             "hideDecor",
             "takeOut",
+            "hangOrnament",
+            "takeDownOrnament",
         ] {
             assert!(may_call("main", name));
             assert!(!may_call("overlay0", name));

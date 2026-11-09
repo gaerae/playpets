@@ -24,6 +24,38 @@ pub(super) fn receive_gift(c: &Ctx) -> Result<Value, String> {
     })
 }
 
+/// (book, id, hook, local day): an album find hung on the Christmas tree (garden.rs hang_ornament).
+pub(super) fn hang_ornament(c: &Ctx) -> Result<Value, String> {
+    let (book, id, day) = (c.text(0), c.text(1), c.text(3));
+    let hook = c
+        .arg(2)
+        .as_u64()
+        .and_then(|h| u32::try_from(h).ok())
+        .ok_or_else(|| i18n::t("error.bad_request"))?;
+    // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
+    if !crate::pets::has_come(day, now_ms()) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    commit(c.app, &c.state, |d| {
+        crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &crate::pets::latest_day(now_ms()));
+        let AppData { garden, album, .. } = d;
+        garden.hang_ornament(album, book, id, hook, day).map(|o| json!(o))
+    })
+}
+
+/// (book, id, local day): an ornament taken down again, its hook free; the day's count stays
+/// (garden.rs take_down_ornament).
+pub(super) fn take_down_ornament(c: &Ctx) -> Result<Value, String> {
+    let (book, id, day) = (c.text(0), c.text(1), c.text(2));
+    if !crate::pets::has_come(day, now_ms()) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    commit(c.app, &c.state, |d| {
+        crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &crate::pets::latest_day(now_ms()));
+        d.garden.take_down_ornament(book, id, day).map(|o| json!(o))
+    })
+}
+
 /// (friend, level, x, y, local day): a friend that grew closer brings a gift for the level it
 /// reached, on a day the person did something with it, as an everyday gift comes.
 pub(super) fn thanks_gift(c: &Ctx) -> Result<Value, String> {

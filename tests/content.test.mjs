@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
+import { LIMITS } from '../src/core/limits.js';
 import { STRINGS } from '../src/core/strings.js';
 import { PAINTER_NAMES, THING_KINDS } from '../src/yard/backdrop.js';
 import { artOf, eventGifts } from '../src/yard/catalog.js';
@@ -164,7 +165,7 @@ test('the Christmas tree has twelve hooks on each drawing, apart from each other
     [tree.hooks, tree.size, 'small'],
     [tree.night.hooks, grand.size, 'grand'],
   ]) {
-    assert.equal(hooks.length, 12, label);
+    assert.equal(hooks.length, LIMITS.ornamentHooks, label);
     assert.ok(
       hooks.every(([x, y]) => x > 0 && x < 1 && y > 0 && y < 1),
       `${label}: inside`,

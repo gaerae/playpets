@@ -418,6 +418,19 @@ const scenario = `(async()=>{
     // A seasonal event: its gift comes on its days (the backend checks them), and the label beside the scene shows the event on now.
     const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(async()=>(await playPets.bootstrap()).data.garden.decor.some(d=>d.id===snow.id));await playPets.putAway(snow.id);
     const boxedTree=await until(async()=>(await playPets.bootstrap()).data.garden.boxed.some(d=>d.kind==='xmas_tree'));
+    // Ornaments: three more gifts come (the capacity check below clears them all), the tree is set out of the box, and three
+    // gifts that came hang on its hooks on a December day; a fourth waits for the next day, and one taken down frees its
+    // hook without giving that day's hang back.
+    const hangable=[];for(const day of ['2025-12-22','2025-12-24','2025-12-26']){const r=(await giftOn(0.2+hangable.length*0.2,0.6,day)).data;if(r)hangable.push(r);}
+    const treeOut=(await playPets.setOut(snow.id,0.6,0.3)).ok,hangKinds=['bench',...hangable.map(g=>g.kind)];
+    const hung=[];for(const [hook,kind] of hangKinds.slice(0,3).entries())hung.push(await playPets.hangOrnament('gift',kind,hook,'2025-12-20'));
+    const fourth=await playPets.hangOrnament('gift',hangKinds[3],3,'2025-12-20');
+    const three=treeOut&&hung.every(r=>r.ok)&&(await playPets.bootstrap()).data.garden.ornaments.length===3,refused=fourth.ok===false;
+    const down=await playPets.takeDownOrnament('gift','bench','2025-12-20'),downAgain=await playPets.takeDownOrnament('gift','bench','2025-12-20'),afterDown=(await playPets.bootstrap()).data.garden;
+    const takenDown=down.ok&&downAgain.ok===false&&afterDown.ornaments.length===2&&!afterDown.ornaments.some(o=>o.hook===0)&&afterDown.ornamentDay.count===3;
+    for(const item of [snow,...hangable])await playPets.putAway(item.id);
+    await L('ornaments='+(three&&refused?'ok':'err:'+[three,refused].join(',')));
+    await L('ornamentDown='+(takenDown?'hook-freed-count-kept':'err:'+JSON.stringify([down,downAgain,afterDown.ornaments,afterDown.ornamentDay])));
     // The capacity check below starts with an empty box.
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
@@ -1616,6 +1629,14 @@ const expect = [
   [
     /^event=gift-and-label$/,
     'the winter lights bring the Christmas tree on their days, it goes back into the gift box when put away, and the scene label shows the event on now',
+  ],
+  [
+    /^ornaments=ok$/,
+    'three gifts that came hang on the Christmas tree on a December day, and a fourth waits for the next day',
+  ],
+  [
+    /^ornamentDown=hook-freed-count-kept$/,
+    "an ornament taken down frees its hook and does not give that day's hang back",
   ],
   [
     /^gift=bench-every-other-day-moved-away$/,
