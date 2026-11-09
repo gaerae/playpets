@@ -64,12 +64,13 @@ import { moveFriends } from './yard/motion.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
 import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
-import { setupSky } from './yard/sky.js';
+import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
 import { release } from './yard/trips.js';
 import { bubble, place, setupViews, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
+import { setupWinter } from './yard/winter.js';
 import { scene, scenery } from './yard/world.js';
 
 // Whether the yard can be seen; the backend says so for a window it hid or that was minimized.
@@ -128,10 +129,13 @@ onShortcut('friends', () => {
 onShortcut('invite', () => openPanel('invite'));
 onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
+// December's question about the winter yard, checked at each repaint of the scene.
+const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason });
 setupSky({
   seasonChanged: season => {
     // Each minute's repaint: a Christmas gift or a snowman comes or goes with the date and season.
     refreshShownDecor();
+    winterCheck();
     if (setSpriteSeason(season) && data.assets.length) render();
     else renderAlbum();
   },

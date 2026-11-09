@@ -204,6 +204,11 @@ export const strings = {
   'toast.desktop_tip':
     'It is out on the desktop. Point at a friend to see its name, and click the name to chat. Drag to move it, and right-click to take it off the desktop.',
   'scene.title': 'Place, time of day and weather for your friends',
+  'scene.winter_title': 'Show the winter yard?',
+  'scene.winter_body':
+    'The winter lights are here. The yard can show winter until January 7 and go back to this season on January 8.',
+  'scene.winter_yes': 'Show winter',
+  'scene.winter_keep': 'Keep this season',
   'period.label': 'Time of day',
   'period.title': 'Time of day in the yard',
   'period.auto': 'Auto',

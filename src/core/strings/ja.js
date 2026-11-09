@@ -203,6 +203,10 @@ export const strings = {
   'toast.desktop_tip':
     'デスクトップに出てきました。友だちにマウスを乗せると名前が出て、名前をクリックするとおしゃべりできます。ドラッグで移動、右クリックでデスクトップから外せます。',
   'scene.title': '友だちが過ごす場所、時間帯と天気',
+  'scene.winter_title': '冬の庭にしますか？',
+  'scene.winter_body': '冬のイルミネーションの期間です。1月7日まで庭を冬にして、1月8日に今の季節に戻します。',
+  'scene.winter_yes': '冬にする',
+  'scene.winter_keep': '今の季節のまま',
   'period.label': '時間帯',
   'period.title': '庭の時間帯',
   'period.auto': '自動',

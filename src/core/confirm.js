@@ -1,5 +1,6 @@
-// Asking before something that cannot be taken back. The question names what it acts on, the
-// button says what will happen, and focus starts on the Cancel button so Enter never does the harm by itself.
+// Asking before something that cannot be taken back, or once about a change the app would make
+// on its own (December's winter yard, yard/winter.js). The question names what it acts on, the
+// button says what will happen, and focus starts on the other button so Enter never acts by itself.
 // The action is calm unless `danger` says something that cannot come back is lost (a saved key, a
 // friend's closeness, a background's files, a conversation); what can be undone is not asked at all (yard/props.js).
 import { t } from './i18n.js';
@@ -10,6 +11,7 @@ let current = null;
 const waiting = [];
 
 // Resolves true only when the action button was pressed; Esc, Cancel and a click outside are false.
+// `question`: { title, body, action, danger, keep }; `keep`, when given, is the other button's text.
 export function confirmAction(question) {
   return new Promise(resolve => {
     const asked = { question, resolve };
@@ -19,14 +21,14 @@ export function confirmAction(question) {
   });
 }
 function show(asked) {
-  const { title, body, action, danger = false } = asked.question;
+  const { title, body, action, danger = false, keep } = asked.question;
   current = asked;
   $('confirm-title').textContent = title;
   $('confirm-body').textContent = body;
   $('confirm-ok').textContent = action;
   $('confirm-ok').classList.toggle('danger-fill', danger);
-  // Before losing something for good, the other choice says what it keeps.
-  $('confirm-cancel').textContent = t(danger ? 'confirm.keep' : 'confirm.cancel');
+  // Before losing something for good, the other choice says what it keeps; a question can name it.
+  $('confirm-cancel').textContent = keep ?? t(danger ? 'confirm.keep' : 'confirm.cancel');
   $('confirm-dialog').showModal();
   $('confirm-cancel').focus();
 }

@@ -5,6 +5,7 @@ import test from 'node:test';
 import { installDom } from './support/dom.mjs';
 
 const { confirmAction, setupConfirm } = await import('../src/core/confirm.js');
+const { t: words } = await import('../src/core/i18n.js');
 
 test('a question asked while another is open waits its turn', async t => {
   const { nodes } = installDom(t, {
@@ -73,4 +74,24 @@ test('a question asked while a cancelled one is still closing comes after its an
   nodes.get('confirm-ok').onclick();
   await dialog.dispatch('close');
   assert.equal(await second, true);
+});
+
+test('a question can say what its other button keeps', async t => {
+  const { nodes } = installDom(t, {
+    ids: ['confirm-dialog', 'confirm-title', 'confirm-body', 'confirm-ok', 'confirm-cancel'],
+  });
+  const dialog = nodes.get('confirm-dialog');
+  setupConfirm();
+  const first = confirmAction({
+    title: 'Show the winter yard?',
+    body: '',
+    action: 'Show winter',
+    keep: 'Keep this season',
+  });
+  assert.equal(nodes.get('confirm-cancel').textContent, 'Keep this season');
+  nodes.get('confirm-cancel').onclick();
+  await dialog.dispatch('close');
+  assert.equal(await first, false);
+  confirmAction({ title: 'Import this pet?', body: '', action: 'Import' });
+  assert.equal(nodes.get('confirm-cancel').textContent, words('confirm.cancel'));
 });
