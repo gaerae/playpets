@@ -12,7 +12,7 @@ import { artSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
 import { BUGS, FISH, FLOWERS, GIFTS, giftKind, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
-import { decorShown } from '../yard/decor-shown.js';
+import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates } from '../yard/events.js';
 import { SECRETS } from '../yard/secrets.js';
@@ -183,7 +183,7 @@ function card(b, kind, entry, index) {
 }
 // Set out while out of sight (decor-shown.js), a gift would vanish into the yard: it waits, and says
 // when it shows: a Christmas gift its dates, a snowman winter.
-const showsNow = kind => decorShown(kind, new Date(), scene.season);
+const showsNow = kind => decorShown(kind, new Date(), yardSeason(scene));
 const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_december' : 'album.shown_winter');
 // A gift that came before can always come back out of its card (garden.rs take_out): one in the
 // yard says so, and one waiting in the box is set out from the box below the book.

@@ -150,6 +150,67 @@ test('a hidden yard still brings the season back on January 8', async t => {
   assert.equal(asks.length, 0);
 });
 
+test('opened after January 7, the season before comes back at the first paint', async t => {
+  endsWith = 'spring';
+  const { check, asks, shown } = yard(t, {
+    now: d(2027, 1, 9),
+    asked: { year: 2026, previous: 'spring' },
+  });
+  check();
+  await flush();
+  assert.equal(ends.length, 1, 'not a minute of winter left over');
+  assert.deepEqual(shown, ['spring']);
+  assert.equal(asks.length, 0);
+});
+
+test('the start-up paint only delays the question, even in December', async t => {
+  const { check, asks } = yard(t, { now: d(2026, 12, 5) });
+  check();
+  await flush();
+  assert.equal(asks.length, 0);
+  assert.equal(ends.length, 0);
+});
+
+test('nothing is asked while the person types or another dialog is open', async t => {
+  const typing = yard(t, { now: d(2026, 12, 5) });
+  for (const field of [
+    typing.document.createElement('input'),
+    typing.document.createElement('textarea'),
+    typing.document.createElement('div'),
+  ]) {
+    if (field.localName === 'div') field.isContentEditable = true;
+    field.focus();
+    typing.check();
+    typing.check();
+    await flush();
+    assert.equal(typing.asks.length, 0, `not while a ${field.localName} has focus`);
+  }
+  typing.document.body.focus?.();
+  typing.document.activeElement = typing.document.body;
+  const dialog = typing.document.createElement('dialog');
+  typing.document.body.append(dialog);
+  dialog.showModal();
+  typing.check();
+  await flush();
+  assert.equal(typing.asks.length, 0, 'not over another dialog');
+  dialog.close();
+  typing.check();
+  await flush();
+  assert.equal(typing.asks.length, 1, 'asked once the person is free');
+});
+
+test('a person typing still gets the season back on January 8', async t => {
+  endsWith = 'spring';
+  const { check, shown, document } = yard(t, {
+    now: new Date(2027, 0, 8, 9),
+    asked: { year: 2026, previous: 'spring' },
+  });
+  document.createElement('input').focus();
+  check();
+  await flush();
+  assert.deepEqual(shown, ['spring']);
+});
+
 test('a question still open is not asked again', async t => {
   const { check, asks } = yard(t, { now: d(2026, 12, 5), answer: new Promise(() => {}) });
   check();

@@ -18,7 +18,7 @@ import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
-import { decorShown, hiddenKinds } from './decor-shown.js';
+import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
 import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
@@ -179,17 +179,12 @@ export function renderDecor() {
   const now = Date.now(),
     date = new Date(now);
   let fadeAt = Infinity;
-  const hidden = hiddenKinds(date, scene.season);
+  const season = yardSeason(scene);
+  const hidden = hiddenKinds(date, season);
   drawnHidden = hidden.join();
-  // The desktop leaves the same kinds out, so nothing unseen there draws or catches clicks.
-  if (drawnHidden !== toldDesktop) {
-    toldDesktop = drawnHidden;
-    call('hideDecor', hidden).catch(() => {
-      toldDesktop = null;
-    });
-  }
+  tellDesktop(hidden);
   // A kind out of sight is left out, not taken away: it keeps its place for when it shows.
-  const decor = (data.garden?.decor || []).filter(d => decorShown(d.kind, date, scene.season));
+  const decor = (data.garden?.decor || []).filter(d => decorShown(d.kind, date, season));
   reconcile(shown, decor, make, (v, d) => {
     if (!v.drag?.moved) position(v, d.x, d.y);
     const until = d.memento && d.came_at ? d.came_at + MEMENTO_NEW_MS : 0;
@@ -210,7 +205,20 @@ export function renderDecor() {
 /** Redraws the gifts when what is out of sight changed since they were drawn (the date or the
  * season), called with the scene's minute repaint rather than every frame. */
 export function refreshShownDecor() {
-  if (hiddenKinds(new Date(), scene.season).join() !== drawnHidden) renderDecor();
+  const hidden = hiddenKinds(new Date(), yardSeason(scene));
+  if (hidden.join() !== drawnHidden) renderDecor();
+  else tellDesktop(hidden);
+}
+// The desktop leaves the same kinds out, so nothing unseen there draws or catches clicks. A send
+// that failed is tried again at the next minute's check; one that fails after a newer list went
+// out leaves that newer one standing.
+function tellDesktop(hidden) {
+  const sent = hidden.join();
+  if (sent === toldDesktop) return;
+  toldDesktop = sent;
+  call('hideDecor', hidden).catch(() => {
+    if (toldDesktop === sent) toldDesktop = null;
+  });
 }
 
 // Sends a friend to a decoration: onto the bench or the blanket, beside the others.

@@ -58,16 +58,17 @@ for (const [boxed, key] of [
 
 // Christmas decorations show from December 1 to January 7, a snowman only while the yard shows
 // winter; the rest always. A hidden one keeps its place in the garden.
-const { decorShown, hiddenKinds } = await import('../src/yard/decor-shown.js');
+const { decorShown, hiddenKinds, yardSeason } = await import('../src/yard/decor-shown.js');
 const { decorTarget, refreshShownDecor } = await import('../src/yard/decor.js');
 const state = await import('../src/core/state.js');
 
-function yard(ctx, now, season, decor) {
+function yard(ctx, now, season, decor, world = 'woodland') {
   ctx.mock.timers.enable({ apis: ['setTimeout', 'Date'], now });
-  const was = scene.season;
+  const was = { season: scene.season, world: scene.world };
   scene.season = season;
+  scene.world = world;
   ctx.after(() => {
-    scene.season = was;
+    Object.assign(scene, was);
   });
   const { nodes } = installDom(ctx, { anyId: true, ids: ['yard', 'garden-layer', 'toast'] });
   nodes.get('yard').getBoundingClientRect = () => ({ left: 0, top: 0, width: 800, height: 560 });
@@ -148,4 +149,79 @@ test('the yard tells the desktop which kinds are hidden, once per change', ctx =
   refreshShownDecor();
   assert.deepEqual(hidden.at(-1), []);
   assert.equal(hidden.length, sent + 1);
+});
+
+// The studio has no seasons to show (worlds.json seasonalEffects): a snowman waits there out of
+// sight even in winter, while the Christmas gifts keep to their dates.
+test('the yard shows winter only in a place with seasons', ctx => {
+  assert.equal(yardSeason({ world: 'woodland', season: 'winter' }), 'winter');
+  assert.equal(yardSeason({ world: 'lakeside', season: 'summer' }), 'summer');
+  assert.equal(yardSeason({ world: 'studio', season: 'winter' }), null);
+  const december = new Date(2026, 11, 24, 12);
+  assert.equal(decorShown('snowman', december, yardSeason({ world: 'studio', season: 'winter' })), false);
+  assert.equal(decorShown('xmas_tree', december, yardSeason({ world: 'studio', season: 'winter' })), true);
+  const buttons = yard(
+    ctx,
+    december.getTime(),
+    'winter',
+    [
+      { id: 's', kind: 'snowman', x: 0.3, y: 0.5 },
+      { id: 'x', kind: 'xmas_tree', x: 0.6, y: 0.5 },
+    ],
+    'studio',
+  );
+  assert.deepEqual(
+    buttons().map(b => b.title),
+    [t('decor.title', { kind: t('decor.kind_xmas_tree') })],
+  );
+});
+
+test('a list the desktop did not get is sent again at the next minute, and an old failure keeps the newer one', async ctx => {
+  hidden.length = 0;
+  let fail = true;
+  const was = globalThis.playPets.hideDecor;
+  ctx.after(() => {
+    globalThis.playPets.hideDecor = was;
+  });
+  const replies = [];
+  globalThis.playPets.hideDecor = kinds => {
+    hidden.push(kinds);
+    const reply = fail ? Promise.resolve({ ok: false, error: 'no' }) : Promise.resolve({ ok: true, data: null });
+    replies.push(reply);
+    return reply;
+  };
+  // A year this test has not drawn, so the list differs from the last one sent.
+  yard(ctx, new Date(2031, 6, 1, 12).getTime(), 'autumn', []);
+  const sent = hidden.length;
+  assert.ok(sent >= 1);
+  await new Promise(resolve => setImmediate(resolve));
+  fail = false;
+  refreshShownDecor();
+  assert.equal(hidden.length, sent + 1, 'the failed send is tried again');
+  await new Promise(resolve => setImmediate(resolve));
+  refreshShownDecor();
+  assert.equal(hidden.length, sent + 1, 'and only until it got through');
+  // A slow failure of the first list does not undo the newer list that got through.
+  let failLate;
+  globalThis.playPets.hideDecor = kinds => {
+    hidden.push(kinds);
+    return new Promise(resolve => {
+      failLate = () => resolve({ ok: false, error: 'no' });
+    });
+  };
+  ctx.mock.timers.setTime(new Date(2031, 11, 5, 12).getTime());
+  scene.season = 'winter';
+  refreshShownDecor();
+  const late = failLate;
+  globalThis.playPets.hideDecor = kinds => {
+    hidden.push(kinds);
+    return Promise.resolve({ ok: true, data: null });
+  };
+  scene.season = 'autumn';
+  refreshShownDecor();
+  const count = hidden.length;
+  late();
+  await new Promise(resolve => setImmediate(resolve));
+  renderDecor();
+  assert.equal(hidden.length, count, 'the newer list is not sent again');
 });
