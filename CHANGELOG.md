@@ -51,6 +51,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The guide explains building a snowman with friends and dressing it up.
 - The guide explains how to decorate the Christmas tree with album finds.
 - The guide describes Christmas night: the grand tree on snowy December evenings and the sleigh across the moon.
 - The guide gives the winter lights' new dates and gifts, December's winter question, and when Christmas decorations show. The README counts the album's 153 entries.

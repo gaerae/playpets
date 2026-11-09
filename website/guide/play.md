@@ -1,5 +1,5 @@
 ---
-description: How the yard changes with the time of day, the weather and the seasons, and what there is to do in it, from the garden, gifts, fishing and bugs to the album, closeness, seasonal events, yard sounds, three games and a window you can size freely
+description: How the yard changes with the time of day, the weather and the seasons, and what there is to do in it, from the garden, gifts, fishing and bugs to the album, closeness, seasonal events, yard sounds, four games and a window you can size freely
 ---
 
 <script setup>
@@ -10,7 +10,7 @@ import DiscoveryGuide from '../.vitepress/theme/DiscoveryGuide.vue';
 
 The yard changes with the time of day, the weather and the season, and it grows a little more each day. Friends dig up flower seeds and saplings and bring you gifts. You fish and catch bugs to fill the album, and your friends grow closer to you along the way.
 
-Seasonal events come and go, the yard has its own sounds, and there are three games to play with your friends.
+Seasonal events come and go, the yard has its own sounds, and there are four games to play with your friends, one of them only in winter.
 
 **The dock**
 
@@ -26,7 +26,7 @@ The Play panel is titled for the friend you've selected, such as **Play with Clo
 |---|---|
 | **Find** | **Dig**, **Fish**, **Album** |
 | **Garden** | **Plant a seed** (with how many seeds you have), **Plant a tree**, **Picnic** |
-| **Group games** | The three games, **Let them chat** |
+| **Group games** | The four games (**Snowman** only while the yard shows winter), **Let them chat** |
 
 Let them chat needs two friends connected to an AI. Everything else works without one.
 
@@ -66,7 +66,7 @@ The three outdoor places each have their own house, four seasonal landscapes and
 
 **Cozy living room** brings the same calm style indoors. Its lighting changes through morning, midday, evening and night, and the windows show spring blossoms, autumn leaves and winter snow. Rain and snow stay beyond the glass.
 
-You can pet friends, chat, grow flowers and play the three games in every place. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
+You can pet friends, chat, grow flowers and play the games in every place, apart from the winter-only **Snowman**, which needs a yard that shows winter, so not the Cozy living room. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
 
 <Shot name="studio-night" caption="Cozy living room at night: a quiet village view beyond the glass and warm light indoors." />
 
@@ -178,7 +178,7 @@ To put one away, right-click it and choose **Put away**, or press **Delete** or 
 - Putting one away keeps its album entry and makes room for the remaining gifts. A memento goes back into the gift box instead, unless the box is full.
 - Any gift that came before can come back out: press **Set out** on its card in the album's Gifts book, once there's room in the yard.
 - The same right-click menu sends a gift out to the desktop ([Gifts on the desktop](./desktop.md#gifts-on-the-desktop)).
-- The album has 29 gifts, including seven delivered only during their calendar events. A memento is one of these 29, so it adds no new entry.
+- The album has 29 gifts, including seven delivered only during their calendar events. The snowman is one of them, but a friend never brings it: you build it ([Snowman](#snowman)). A memento is one of these 29, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
@@ -303,7 +303,7 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 
 ## Games <Since v="0.1.0" />
 
-The three games are in **Play → Group games**, and you play one at a time. While a game is on, its tile reads Stop with the game's name, such as **Stop Hide and seek**. Click it to end the game right away.
+The four games are in **Play → Group games**, and you play one at a time. While a game is on, its tile reads Stop with the game's name, such as **Stop Hide and seek**. Click it to end the game right away.
 
 The other games, **Picnic**, **Plant a seed** and **Plant a tree** stay off for the whole game. When it ends, the friends walk back to where they were.
 
@@ -331,6 +331,16 @@ The other games, **Picnic**, **Plant a seed** and **Plant a tree** stay off for 
 2. The friend who is it chases the nearest friend while the others run away.
 3. When it overlaps another friend on screen, that friend is caught. The caught friend becomes it, and the one who caught them is safe for a moment.
 4. After a set time, the game ends with "Tag is over. Good running, everyone!".
+
+### Snowman
+
+While the yard shows winter, which leaves out the Cozy living room, **Snowman** in the play menu starts it. Now and then a friend suggests building one and starts rolling on its own. Two friends roll a snowball that grows as it goes: press it to help push, or drag it (or use the arrow keys) to roll it yourself, and a soft blue trail fades in the snow behind it. Three balls stack into a snowman with a few sparkles, and you can build one a day; ask again the same day and a friend only says they built one already.
+
+Then choose its hat, scarf and carrot nose. Press the snowman, or choose **Dress up** from its menu, to change them later.
+
+- A new snowman replaces the old one, which melts as a friend says goodbye.
+- The snowman stays in the yard only while the yard shows winter. It never goes out on the desktop, and putting it away melts it.
+- With 12 decorations in the yard and no snowman, a friend says the yard is full, and the game doesn't start.
 
 ## A window beside your work
 
