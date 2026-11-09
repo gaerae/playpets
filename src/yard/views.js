@@ -322,6 +322,8 @@ function createView(p) {
   button.addEventListener(
     'keydown',
     guard(async e => {
+      // A held key repeats; a pat, a game tap or the menu is one press.
+      if (e.repeat && !e.key.startsWith('Arrow')) return;
       if (game) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -345,11 +347,12 @@ function createView(p) {
         e.preventDefault();
         // Moved by hand, it stops where it was headed (a trip would put it back where it was going).
         release(v);
-        const patch = {
-          x: clamp(v.x + (e.key === 'ArrowRight' ? 0.04 : e.key === 'ArrowLeft' ? -0.04 : 0)),
-          y: clamp(v.y + (e.key === 'ArrowDown' ? 0.04 : e.key === 'ArrowUp' ? -0.04 : 0)),
-        };
-        await call('updatePet', p.id, patch);
+        v.x = clamp(v.x + (e.key === 'ArrowRight' ? 0.04 : e.key === 'ArrowLeft' ? -0.04 : 0));
+        v.y = clamp(v.y + (e.key === 'ArrowDown' ? 0.04 : e.key === 'ArrowUp' ? -0.04 : 0));
+        // As after a drag: the yard draws it there now, and the backend only hears where (no state
+        // comes back for a move).
+        place(v);
+        await call('updatePet', p.id, { x: v.x, y: v.y });
       }
     }),
   );

@@ -107,3 +107,26 @@ for (const moved of [false, true])
     assert.deepEqual({ x: v.x, y: v.y }, original);
     assert.equal(v.button.classList.contains('pressed'), false);
   });
+
+test('an arrow key moves the friend at once and saves where it stands', async t => {
+  const { pet } = yard(t);
+  setupViews({ select() {}, patted() {}, openChat() {} });
+  syncViews();
+  const v = views.get(pet.id),
+    before = v.button.style.transform;
+  await v.button.dispatch('keydown', { key: 'ArrowRight' });
+  assert.equal(Math.round(v.x * 100), 34);
+  assert.notEqual(v.button.style.transform, before, 'the friend is drawn where it went');
+  assert.deepEqual(calls, ['move']);
+});
+
+test('holding a key down pats a friend once, not on every repeat', async t => {
+  const { pet } = yard(t);
+  setupViews({ select() {}, patted() {}, openChat() {} });
+  syncViews();
+  const v = views.get(pet.id);
+  await v.button.dispatch('keydown', { key: 'Enter' });
+  await v.button.dispatch('keydown', { key: 'Enter', repeat: true });
+  await v.button.dispatch('keydown', { key: 'Enter', repeat: true });
+  assert.deepEqual(calls, ['pat']);
+});
