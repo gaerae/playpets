@@ -78,15 +78,16 @@ export function setupDress({ redraw: draw, button }) {
   buttonOf = button;
 }
 
-/** Opens the tray over the snowman `id`, one at a time; focus goes to its first toggle. */
-export function openDress(id) {
+/** Opens the tray over the snowman `id`, one at a time; focus goes to its first toggle, unless
+ * `focus` is false (a build the person was not watching must not take it from what they type in). */
+export function openDress(id, focus = true) {
   const gift = giftKind(kindOf(id)),
     button = buttonOf(id),
     yard = $('yard');
   if (!gift?.dress || !button || !yard) return;
   if (tray?.id === id) {
     place();
-    return tray.node.querySelector('.dress-toggle')?.focus();
+    return focus ? tray.node.querySelector('.dress-toggle')?.focus() : undefined;
   }
   close('rescue');
   const node = document.createElement('div');
@@ -133,7 +134,7 @@ export function openDress(id) {
   tray = { id, node, button, outside };
   show();
   place();
-  node.querySelector('.dress-toggle')?.focus();
+  if (focus) node.querySelector('.dress-toggle')?.focus();
 }
 
 /** Closes the tray. With `focus`, focus goes back to the snowman's button; without, it moves only

@@ -766,3 +766,60 @@ test('from the menu, a full yard or a snowman built today gets a friend’s line
   assert.equal(state.game, null);
   assert.ok(list('snowman.built_today').includes(y.said('a')));
 });
+
+// A build finished by friends must not take focus from a field the person types in.
+test('a finished snowman takes focus only from the body, the yard or the games menu', async ctx => {
+  for (const [name, where, takes] of [
+    ['a text field', y => y.document.createElement('textarea'), false],
+    ['the body', y => y.document.body, true],
+    ['the yard', y => y.nodes.get('yard'), true],
+  ])
+    await ctx.test(name, async t => {
+      const y = await yard(t);
+      builds();
+      start();
+      stackAll(y);
+      arrive(y, 'a');
+      const field = where(y);
+      if (field !== y.document.body) y.document.body.append(field);
+      field.focus();
+      y.tick(1600);
+      await flush();
+      y.tick(1400);
+      assert.equal(state.game, null, name);
+      assert.ok(tray(y), `${name}: the tray opens`);
+      const first = tray(y).children.find(has('dress-toggle'));
+      assert.equal(y.document.activeElement === first, takes, `${name}: focus ${takes ? 'moves' : 'stays'}`);
+      if (!takes) assert.equal(y.document.activeElement, field);
+      closeDress(false);
+      y.document.activeElement = y.document.body;
+    });
+});
+
+test('a snowman game closes an open dress tray', async ctx => {
+  const y = await yard(ctx, { garden: { decor: [OLD] } });
+  renderDecor();
+  const { openDress } = await import('../src/yard/snowman-dress.js');
+  openDress('o');
+  assert.ok(tray(y), 'the tray is open');
+  start();
+  assert.ok(state.game);
+  assert.equal(tray(y), null, 'and goes when the game starts');
+});
+
+test('a state event that landed before Stop keeps the day it carried', async ctx => {
+  const y = await yard(ctx);
+  let answered;
+  building = () => new Promise(resolve => (answered = resolve));
+  start();
+  stackAll(y);
+  y.tick(1600);
+  assert.equal(state.data.garden.snowmanDay, '2026-12-15');
+  // The backend's state event arrives first: a new garden with the day spent and the snowman.
+  const made = { id: 'n', kind: 'snowman', x: 0.72, y: 0.72, dress: [] };
+  state.data.garden = { ...state.data.garden, decor: [made], snowmanDay: '2026-12-15' };
+  play.endGame();
+  assert.equal(state.data.garden.snowmanDay, '2026-12-15', 'not given back');
+  answered(answer(made));
+  await flush();
+});

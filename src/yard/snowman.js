@@ -27,7 +27,7 @@ import { localDay } from './growth.js';
 import { hint } from './hint.js';
 import { beginDrag, dragPoint, endDrag, giftSize, KEY_STEPS, setDown } from './props.js';
 import { fadeTrail, trailFrame, trailStamp } from './snow-trail.js';
-import { openDress } from './snowman-dress.js';
+import { closeDress, openDress } from './snowman-dress.js';
 import {
   BALLS,
   dragStep,
@@ -553,6 +553,7 @@ function save(round) {
   const garden = data.garden,
     day = localDay(new Date());
   round.dayBefore = garden.snowmanDay ?? '';
+  round.garden = garden;
   garden.snowmanDay = day;
   call('buildSnowman', round.spot.x, round.spot.y, day)
     .then(made => {
@@ -588,8 +589,12 @@ function save(round) {
 function settled(round, what) {
   round.waiting.delete(what);
   if (round.waiting.size || game !== round) return;
+  // Read before the round ends: the tray takes focus only from the body, the yard or the games
+  // menu, never from a field the person is typing in while friends finish a build on their own.
+  const active = document.activeElement,
+    calm = !active || active === document.body || !!$('yard')?.contains(active) || !!$('games-menu')?.contains(active);
   play.end();
-  if (round.made) openDress(round.made);
+  if (round.made) openDress(round.made, calm);
 }
 
 // The friends who do not push stand by the stack, on the side away from the rolling, a row of three
@@ -643,6 +648,8 @@ export const snowmanGame = {
       season = yardSeason(scene),
       // The stack goes where the yard has room among what it shows.
       shown = (data.garden?.decor ?? []).filter(d => decorShown(d.kind, date, season));
+    // The tray would stay open beside a snowman that is about to melt.
+    closeDress(false);
     Object.assign(game, { spot: stackSpot(shown), stack: [], stage: 'rolling', saidAt: -Infinity, lift: null });
     game.ball = newBall(BALLS[0]);
     watch(game.ids.slice(2));
@@ -672,7 +679,10 @@ export const snowmanGame = {
       setTimeout(() => node.classList.remove('unmelting'), UNMELT_MS);
     }
     if (!over.saved) unsay(over.goodbye);
-    if (over.dayBefore !== undefined && !over.saved && data.garden) data.garden.snowmanDay = over.dayBefore;
+    // Only on the garden `save` wrote the day to: a state event that already arrived replaced it
+    // with the backend's, which has counted the day and holds the new snowman.
+    if (over.dayBefore !== undefined && !over.saved && over.garden && data.garden === over.garden)
+      over.garden.snowmanDay = over.dayBefore;
     fadeTrail();
   },
 };

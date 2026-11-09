@@ -798,9 +798,11 @@ const scenario = `(async()=>{
         const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded||labels.every(noWrap));};
         // With seeds or without, the same: a two-digit count is the widest the seed tile shows.
         const seedsBefore=$('seed-count').textContent;$('seed-count').textContent='12';
-        const tiles=[...$('play-sections').querySelectorAll('.play-action')];
+        // The snowman's row is part of the menu only while the yard shows winter (syncGameUi); a hidden row has no box to fit.
+        const tiles=[...$('play-sections').querySelectorAll('.play-action')].filter(tile=>!tile.hidden);
+        const snowmanShown=tiles.some(tile=>tile.dataset.game==='snowman');
         const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')])}));
-        const playOk=tiles.length===10&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
+        const playOk=tiles.length===10+(snowmanShown?1:0)&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
         $('seed-count').textContent=seedsBefore;
         if(!playOk)menuCopyTrace.push([lang,innerWidth,'play',playChecks]);
         $('close-play').click();openMenu();await wait(40);
