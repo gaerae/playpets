@@ -40,6 +40,11 @@ fn expires_after(year: u32) -> String {
     format!("{:04}-01-09", year.saturating_add(1))
 }
 
+/// The last day of a year's letter on the page's own calendar: January 7.
+fn season_end(year: u32) -> String {
+    format!("{:04}-01-07", year.saturating_add(1))
+}
+
 fn bad() -> String {
     i18n::t("error.bad_request")
 }
@@ -74,13 +79,26 @@ impl Letters {
     }
 
     /// Clears the text of letters past January 7 (`latest` is the latest date anywhere on Earth);
-    /// the answer stays. Run at restore and again at the minute check.
-    pub fn clear_expired(&mut self, latest: &str) {
+    /// the answer stays. Run at restore; true when one was cleared.
+    pub fn clear_expired(&mut self, latest: &str) -> bool {
+        self.clear_after(latest, expires_after)
+    }
+
+    /// The same once the page's own date (`today`) is past January 7, asked at its minute check
+    /// (`clearLetters`); true when one was cleared, so nothing is saved otherwise.
+    pub fn clear_ended(&mut self, today: &str) -> bool {
+        self.clear_after(today, season_end)
+    }
+
+    fn clear_after(&mut self, day: &str, last: fn(u32) -> String) -> bool {
+        let mut cleared = false;
         for l in &mut self.0 {
-            if latest > expires_after(l.year).as_str() {
+            if !l.text.is_empty() && day > last(l.year).as_str() {
                 l.text.clear();
+                cleared = true;
             }
         }
+        cleared
     }
 
     pub fn of(&self, year: u32) -> Option<&Letter> {
@@ -208,6 +226,19 @@ mod tests {
         l.clear_expired("2027-01-10");
         assert_eq!(l.of(2026).unwrap().text, "");
         assert!(l.answer(2026, "x").is_err());
+    }
+
+    #[test]
+    fn the_page_clears_a_letter_after_january_7_by_its_own_date() {
+        let mut l = Letters::default();
+        l.write(2026, "a", "hi", 1).unwrap();
+        l.answer(2026, "hike").unwrap();
+        assert!(!l.clear_ended("2027-01-07"));
+        assert_eq!(l.of(2026).unwrap().text, "hi");
+        assert!(l.clear_ended("2027-01-08"));
+        let kept = l.of(2026).unwrap();
+        assert_eq!((kept.text.as_str(), kept.answer.as_deref()), ("", Some("hike")));
+        assert!(!l.clear_ended("2027-01-09"), "nothing left to clear: no save");
     }
 
     #[test]

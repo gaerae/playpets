@@ -7,7 +7,8 @@ import test, { mock } from 'node:test';
 import './support/content.mjs';
 import { element, installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
-const writes = [];
+const writes = [],
+  clears = [];
 const write = (year, friend, _facts, text) => ({ ok: true, data: { year, friend, text, answer: null, at: 1 } });
 // What writeLetter answers in a test; by default the page's own letter is kept.
 let writing = write;
@@ -15,6 +16,14 @@ globalThis.playPets = {
   writeLetter: async (...args) => {
     writes.push(args);
     return writing(...args);
+  },
+  // The backend's rule (pets/letters.rs clear_ended): text goes after January 7 by the page's date.
+  clearLetters: async today => {
+    clears.push(today);
+    const letters = state.data.letters.map(letter =>
+      today > `${letter.year + 1}-01-07` ? { ...letter, text: '' } : letter,
+    );
+    return { ok: true, data: letters };
   },
   moveDecor: async () => ({ ok: true, data: null }),
   hideDecor: async () => ({ ok: true, data: null }),
@@ -191,6 +200,7 @@ function friends(ctx, { pets = PETS, bonds = BONDS, letters = [] } = {}) {
   ctx.after(() => state.views.clear());
   for (const pet of pets) state.views.set(pet.id, friendView(pet));
   writes.length = 0;
+  clears.length = 0;
   writing = write;
 }
 // A page at `now` with the letter's ways in; `open` records the years opened.
@@ -457,4 +467,39 @@ test('the yard menu offers the letter while one is there to read', async ctx => 
   assert.equal(row.hidden, false, 'the small window\u2019s menu too');
   await context.dispatch('click', { target: row });
   assert.deepEqual(opened, ['open']);
+});
+
+test('a letter past January 7 has its text cleared by the backend once, and kept after', async ctx => {
+  const letters = [
+    { year: 2025, friend: 'b', text: '', answer: 'more hikes', at: 1 },
+    { year: 2026, friend: 'b', text: 'Hi', answer: 'camping', at: 2 },
+  ];
+  const { check } = page(ctx, { now: d(2027, 1, 7, 23), letters });
+  check();
+  check();
+  await flush();
+  assert.deepEqual(clears, [], 'still its season');
+  ctx.mock.timers.setTime(new Date(2027, 0, 8, 0, 1).getTime());
+  check();
+  check();
+  await flush();
+  assert.deepEqual(clears, ['2027-01-08']);
+  assert.equal(state.data.letters.find(letter => letter.year === 2026).text, '', 'the page holds the answer');
+  assert.equal(state.data.letters.find(letter => letter.year === 2026).answer, 'camping');
+  check();
+  await flush();
+  assert.deepEqual(clears, ['2027-01-08'], 'nothing left to clear: not asked every minute');
+});
+
+test('the text is cleared while the window is hidden too, and nothing else happens', async ctx => {
+  const { check } = page(ctx, {
+    now: d(2027, 3, 1, 9),
+    letters: [{ year: 2026, friend: 'b', text: 'Hi', answer: null, at: 1 }],
+  });
+  document.hidden = true;
+  check();
+  await flush();
+  assert.deepEqual(clears, ['2027-03-01']);
+  assert.equal(writes.length, 0);
+  document.hidden = false;
 });

@@ -209,6 +209,21 @@ static COMMANDS: &[Command] = &[
         let year = c.parse::<u32>(0)?;
         commit(c.app, &c.state, |d| d.letters.delete(year).map(|()| Value::Null))
     }),
+    // (today): the page's date; letters whose season ended by it lose their text, the answer stays.
+    // Saved and shown only when one did. Returns the letters.
+    main("clearLetters", |c| {
+        let today = c.text(0);
+        if !crate::pets::garden::is_day(today) || today > crate::pets::latest_day(now_ms()).as_str() {
+            return Err(i18n::t("error.bad_request"));
+        }
+        let mut d = lock(&c.state);
+        let cleared = d.letters.clear_ended(today);
+        let letters = json!(d.letters);
+        if cleared {
+            crate::app::show_and_save(c.app, d)?;
+        }
+        Ok(letters)
+    }),
     // Imported backgrounds, a file each in the data folder; read and written outside the lock.
     main("listBackgrounds", |c| {
         let dir = lock(&c.state).store.dir.clone();
@@ -699,6 +714,7 @@ mod tests {
         assert!(may_call("main", "answerLetter") && may_call("main", "deleteLetter"));
         assert!(!may_call("overlay0", "answerLetter"));
         assert!(may_call("main", "writeLetter") && !may_call("overlay0", "writeLetter"));
+        assert!(may_call("main", "clearLetters") && !may_call("overlay0", "clearLetters"));
         assert!(may_call("main", "quitApp"));
         assert!(!may_call("overlay1", "quitApp"));
         assert!(!may_call("other", "bootstrap"));

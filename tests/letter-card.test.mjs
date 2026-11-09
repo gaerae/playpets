@@ -158,6 +158,7 @@ test('a failed answer says why and keeps the card open', async t => {
   await send($);
   assert.equal($('letter-error').textContent, 'The letter could not be saved.');
   assert.equal($('letter-dialog').open, true);
+  assert.equal(state.data.letters[0].text, LETTER.text, 'not deleted: kept as it was');
   assert.equal(state.views.get('a').bubble.hidden, true, 'no thanks for an answer not kept');
 });
 
@@ -177,6 +178,10 @@ test('deleting asks first and then clears the letter', async t => {
   $('confirm-ok').onclick();
   await second;
   assert.deepEqual(deletes, [[2026]]);
+  // Cleared here at once, so the chip, the envelope and the menu row go as the card closes,
+  // without waiting for the backend's change.
+  const kept = state.data.letters.find(letter => letter.year === 2026);
+  assert.deepEqual([kept.friend, kept.text, kept.answer], ['', '', null]);
   assert.equal($('letter-dialog').open, false);
   await $('letter-dialog').dispatch('close');
   assert.deepEqual(closed, [2026]);
@@ -192,6 +197,7 @@ test('a failed delete says why, even on an answered letter', async t => {
   await flush();
   assert.equal($('letter-error').textContent, 'The letter could not be saved.');
   assert.equal($('letter-dialog').open, true);
+  assert.equal(state.data.letters[0].text, LETTER.text, 'not deleted: kept as it was');
   // The answer box is hidden on an answered letter, so the error line sits outside it.
   const html = await readFile('src/index.html', 'utf8');
   const form = html.slice(

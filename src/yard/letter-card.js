@@ -119,6 +119,11 @@ export function setupLetterCard({ onClosed = () => {} } = {}) {
     $('letter-error').textContent = '';
     try {
       await call('deleteLetter', year);
+      // Cleared here at once, as the backend keeps it, so the ways in go as the card closes
+      // rather than with the backend's change.
+      data.letters = (data.letters || []).map(kept =>
+        kept.year === year ? { ...kept, friend: '', text: '', answer: null } : kept,
+      );
     } catch (error) {
       showFormError('letter-error', spoken(error, t('error.generic')));
       return;

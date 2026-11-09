@@ -161,10 +161,15 @@ function deliver(letter) {
   else bubble(v, pick(list('letter.bubble')), 9000, () => open(letter.year));
 }
 
+// A letter's text is kept until January 7 (the New Year card reads it); after that only the answer
+// stays. The backend clears it by the same date (pets/letters.rs clear_ended).
+const ended = (letter, today) => !!letter.text && today > `${letter.year + 1}-01-07`;
+
 /** Starts the letter, called by app.js before the sky; wires the chip. `visible()` says whether the
  * yard is seen: nothing is written, said or shown while it is not, so the friend's AI is asked only
  * then. Returns `check()`, for each repaint of the scene: the first only shows the ways in, the
- * next writes this year's letter once, from December 26. */
+ * next writes this year's letter once, from December 26. Each asks the backend to clear a letter's
+ * text once its season is over. */
 export function setupLetters({ open: opener = openLetter, visible = () => !document.hidden } = {}) {
   open = opener;
   let armed = false,
@@ -174,12 +179,31 @@ export function setupLetters({ open: opener = openLetter, visible = () => !docum
   return function check() {
     const first = !armed;
     armed = true;
-    if (busy || !visible()) return;
-    syncLetter();
-    if (first) return;
+    if (busy) return;
     const now = new Date(),
       year = now.getFullYear(),
       letters = data.letters || [];
+    // Asked only while there is text to clear, seen or not: nothing shows of it.
+    if (letters.some(letter => ended(letter, localDay(now)))) {
+      // Its season is over already: the ways in go at once.
+      syncLetter();
+      busy = true;
+      call('clearLetters', localDay(now))
+        .then(
+          kept => {
+            data.letters = kept;
+            syncLetter();
+          },
+          () => {},
+        )
+        .finally(() => {
+          busy = false;
+        });
+      return;
+    }
+    if (!visible()) return;
+    syncLetter();
+    if (first) return;
     // A year whose letter was deleted keeps its record, so it is not written again.
     if (letterTime(now) !== 'write' || letters.some(letter => letter.year === year)) return;
     const writer = writerOf(data.pets, data.bonds || {});
