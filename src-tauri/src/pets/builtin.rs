@@ -43,6 +43,17 @@ pub fn shelf_rank(folder: &Path) -> usize {
     PETS.iter().position(|p| folder.ends_with(p.id)).unwrap_or(usize::MAX)
 }
 
+/// Bundled pets that left the cast, and the friend who takes each one's place.
+const RETIRED: &[(&str, &str)] = &[
+    ("aria", "daisy"),
+    ("aria-full", "daisy"),
+    ("noah", "pip"),
+    ("noah-full", "pip"),
+    ("tabby", "clover"),
+    ("smoky", "clover"),
+    ("mochi", "clover"),
+];
+
 /// Remap retired app-owned appearances before restoration filters unavailable assets. The path
 /// hash is the old asset identity, so this never matches an imported copy of the same character.
 pub fn migrate_saved_friends(raw: &mut serde_json::Value, assets: &[crate::pets::catalog::Asset]) {
@@ -50,15 +61,7 @@ pub fn migrate_saved_friends(raw: &mut serde_json::Value, assets: &[crate::pets:
     let Some(pets) = raw.get_mut("pets").and_then(serde_json::Value::as_array_mut) else {
         return;
     };
-    for (name, replacement) in [
-        ("aria", "daisy"),
-        ("aria-full", "daisy"),
-        ("noah", "pip"),
-        ("noah-full", "pip"),
-        ("tabby", "clover"),
-        ("smoky", "clover"),
-        ("mochi", "clover"),
-    ] {
+    for &(name, replacement) in RETIRED {
         let Some(target) = assets
             .iter()
             .find(|a| a.place == Place::Builtin && a.folder.ends_with(replacement))
@@ -101,6 +104,13 @@ pub fn unpack(root: &Path) -> (PathBuf, Vec<String>) {
             if let Err(e) = fs::create_dir_all(file.parent().unwrap()).and_then(|_| fs::write(&file, bytes)) {
                 warnings.push(format!("{}: {e}", file.display()));
             }
+        }
+    }
+    // An update also clears the copies of pets that left the cast: saved friends move by the
+    // folder's path alone (migrate_saved_friends), so the files are only space.
+    if !current {
+        for &(name, _) in RETIRED {
+            let _ = fs::remove_dir_all(root.join(name));
         }
     }
     // Stamped only when whole, so an interrupted unpack compares everything again next time.
@@ -173,6 +183,24 @@ mod tests {
         }
         assert_eq!(scan_pets(&root, Place::Builtin).0.len(), super::PETS.len());
         assert_eq!(scan_pets(&root, Place::Codex).0.len(), super::PETS.len() + 1);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn an_update_removes_retired_copies_and_keeps_other_folders() {
+        let root = unpacked("cleanup");
+        for name in ["aria", "noah-full", "someone-else"] {
+            std::fs::create_dir(root.join(name)).unwrap();
+            std::fs::write(root.join(name).join("pet.json"), "{}").unwrap();
+        }
+        std::fs::write(root.join(super::STAMP_FILE), "older build").unwrap();
+        let (_, warnings) = unpack(&root);
+        assert!(warnings.is_empty(), "{warnings:?}");
+        assert!(!root.join("aria").exists() && !root.join("noah-full").exists());
+        assert!(
+            root.join("someone-else/pet.json").exists(),
+            "only retired names are removed"
+        );
         std::fs::remove_dir_all(root).unwrap();
     }
 

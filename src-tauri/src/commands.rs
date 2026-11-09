@@ -552,11 +552,15 @@ fn befriend(c: &Ctx) -> Result<Value, String> {
     if !crate::pets::has_come(day, now) {
         return Err(i18n::t("error.bad_request"));
     }
-    commit(c.app, &c.state, |d| {
-        require_pet(d, pet)?;
-        let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
-        Ok(json!({"points": points, "level": level, "up": up}))
-    })
+    let mut d = lock(&c.state);
+    require_pet(&d, pet)?;
+    let before = d.bonds.get(pet).cloned();
+    let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
+    // A pat past the day's cap changes nothing: no save, no redraw of every page.
+    if d.bonds.get(pet) != before.as_ref() {
+        crate::app::save_and_show(c.app, &d)?;
+    }
+    Ok(json!({"points": points, "level": level, "up": up}))
 }
 /// A plant the page sees in flower: counted in the album the first time.
 fn bloomed(c: &Ctx) -> Result<Value, String> {
