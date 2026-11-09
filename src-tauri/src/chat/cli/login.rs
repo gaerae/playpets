@@ -216,9 +216,14 @@ impl Logins {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(unix)]
     use std::path::{Path, PathBuf};
 
+    // The sign-in tests run fake CLIs written as shell scripts, so they and their helpers are
+    // Unix only; Windows still checks the arguments each CLI is given.
+
     /// A program at `path` that runs `body` (a shell script).
+    #[cfg(unix)]
     fn program(path: &Path, body: &str) {
         std::fs::create_dir_all(path.parent().unwrap()).unwrap();
         std::fs::write(path, body).unwrap();
@@ -226,10 +231,12 @@ mod tests {
         std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o755)).unwrap();
     }
 
+    #[cfg(unix)]
     fn running(logins: &Logins) -> bool {
         crate::app::hold(&logins.run).is_some()
     }
 
+    #[cfg(unix)]
     fn folder() -> PathBuf {
         std::env::temp_dir().join(format!("playpets-login-{}", uuid::Uuid::new_v4()))
     }
