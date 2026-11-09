@@ -76,6 +76,7 @@ import { renderTrees, setupTrees } from './yard/planted-trees.js';
 import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
 import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
+import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
 import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
@@ -204,6 +205,7 @@ setupViews({
     cancelDiscoveryWork();
     endFishing();
     scenery.resize();
+    resizeTrail();
     renderGarden();
     renderDecor();
     renderTrees();
@@ -227,6 +229,7 @@ setupDecor({
   press: { xmas_tree: openDecorating, snowman: openDress },
 });
 setupDress({ redraw: renderDecor, button: decorButton });
+setupSnowTrail();
 setupDiscovery();
 setupTrees();
 setupCatch();
