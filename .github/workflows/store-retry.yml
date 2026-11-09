@@ -61,7 +61,7 @@ jobs:
           }
           JS
       # No package installation, cache or third-party script runs with Store credentials.
-      - name: New submission with both packages and What's new
+      - name: New submission with the bundle and What's new
         env:
           STORE_RELEASE_TAG: ${{ inputs.tag }}
           STORE_SUBMISSION_ENABLED: ${{ vars.STORE_SUBMISSION_ENABLED }}

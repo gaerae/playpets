@@ -842,6 +842,8 @@ export const strings = {
   'connection.share_all': '아직 AI가 없는 다른 친구 {count}명에게도 이 AI를 써요',
   'toast.first_chat': '첫마디를 걸어 보세요. 친구가 둘 이상이면 수다도 시킬 수 있어요',
   'toast.connected_many': '친구 {count}명이 말할 수 있게 됐어요. 수다를 시작해요',
+  'toast.auto_chatter_tip':
+    '이제 AI가 연결된 친구들이 20분쯤마다 자기들끼리 이야기해요. 연결한 AI 요금제를 써요. 끄려면 설정 → {section}에서 ‘{setting}’ 스위치를 꺼 주세요.',
   'event.started': '{name:이/가} 시작됐어요!',
   'catch.dates': '{from}~{to}',
   'catch.event_hint': '{event}({dates}) 때만',

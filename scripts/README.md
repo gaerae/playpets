@@ -434,6 +434,11 @@ Retiling a six-pose sheet:
   - It uses the same manifest generator and Store identity as the Docker
     package.
   - Its unsigned packages are for Partner Center, not direct local installation.
+  - With `-Symbols`, it also keeps the linker's public-symbols PDB as the package's `.appxsym`.
+- `packaging/windows/msix/wack.ps1` runs the Windows App Certification Kit on a copy of each package,
+  signed with a certificate made on the runner, and fails on `OVERALL_RESULT="FAIL"`.
+- `packaging/windows/msix/bundle.ps1` bundles the x64 and ARM64 packages and wraps the bundle with
+  both `.appxsym` as the one `.msixupload` the Store gets.
 - `store.ps1` and `ci.ps1` index `Assets` into `resources.pri` with `makepri` (`msix/resources.ps1`).
   - Windows finds the unplated taskbar icons (`Square44x44Logo.targetsize-*_altform-unplated.png`) only through it.
   - Without them it draws the icon on a plate of the accent color.

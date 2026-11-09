@@ -13,7 +13,8 @@ const app = {
 const notes = { 'en-us': 'Update', 'ko-kr': 'Update', 'ja-jp': 'Update', 'zh-cn': 'Update' };
 const release = {
   version: '1.3.0',
-  files: ['PlayPets_1.3.0_x64.msix', 'PlayPets_1.3.0_arm64.msix'],
+  // One upload: the x64 and ARM64 packages in one bundle, with their public symbols.
+  files: ['PlayPets_1.3.0.msixupload'],
   notes,
   publishMode: 'Manual',
 };
@@ -273,10 +274,12 @@ test('Store submission rejects non-Azure upload URLs without uploading credentia
   assert.ok(client.calls.every(call => !['UPLOAD', 'PUT'].includes(call.method)));
 });
 
-test('Store submission requires both architectures and release notes before changing a draft', async () => {
+test('Store submission requires the one bundle upload and release notes before changing a draft', async () => {
   for (const invalid of [
     { ...release, files: ['../package.msix'] },
     { ...release, files: [] },
+    { ...release, files: ['PlayPets_1.3.0_x64.msix', 'PlayPets_1.3.0_arm64.msix'] },
+    { ...release, files: ['PlayPets_1.2.0.msixupload'] },
     { ...release, notes: {} },
   ]) {
     const client = clientFor();
@@ -371,7 +374,8 @@ test('a published release builds and submits its own tag, with Store credentials
   assert.match(workflow, /architecture: arm64/);
   const jobs = workflow.split(/\n(?= {2}[a-z]+:\n)/);
   const submit = jobs.find(job => job.startsWith('  submit:'));
-  assert.match(submit, /if: vars\.STORE_SUBMISSION_ENABLED == 'true'/);
+  // A run from a branch is a rehearsal: it builds, bundles and certifies, and never submits.
+  assert.match(submit, /if: vars\.STORE_SUBMISSION_ENABLED == 'true' && startsWith\(github\.ref, 'refs\/tags\/v'\)/);
   assert.match(submit, /environment: microsoft-store/);
   assert.doesNotMatch(submit, /p?npm (ci|install)|cache:|rust-cache|action-setup/);
   for (const job of jobs.filter(job => job !== submit)) assert.doesNotMatch(job, /secrets\.|environment:/);
@@ -457,4 +461,33 @@ test('Store submission stops before making a draft when the published listing la
   );
   const odd = clientFor(app, 'Manual', '1.2.0.0', ['en-us', 'ko-kr', 'ja-jp', '<b>zh</b>']);
   await assert.rejects(submitStore(odd, release), /\(it has en-us, ko-kr, ja-jp, \?\)/);
+});
+
+test('the Store gets one bundle with public symbols, and each package passes WACK first', () => {
+  const workflow = readFileSync('.github/workflows/store.yml', 'utf8');
+  const jobs = workflow.split(/\n(?= {2}[a-z]+:\n)/);
+  const job = name => jobs.find(text => text.startsWith(`  ${name}:`));
+  const pack = job('package');
+  // The linker writes a second PDB with public symbols only; the full one never leaves the runner.
+  assert.match(pack, /RUSTFLAGS: -C link-arg=\/PDBSTRIPPED:/);
+  assert.match(pack, /store\.ps1 [^\n]*-Symbols /);
+  const wack = pack.indexOf('wack.ps1');
+  assert.ok(wack > pack.indexOf('store.ps1'), 'WACK runs on the package store.ps1 made');
+  assert.match(
+    pack,
+    /name: wack-\$\{\{ matrix\.architecture \}\}[\s\S]*if: always\(\)|if: always\(\)[\s\S]*name: wack-/,
+  );
+  const bundle = job('bundle');
+  assert.match(bundle, /runs-on: windows-latest/);
+  assert.match(bundle, /bundle\.ps1/);
+  assert.match(bundle, /msixupload/);
+  const helper = readFileSync('packaging/windows/msix/wack.ps1', 'utf8');
+  assert.match(helper, /appcert\.exe/);
+  assert.match(helper, /OVERALL_RESULT/);
+  assert.match(helper, /New-SelfSignedCertificate/);
+  const bundler = readFileSync('packaging/windows/msix/bundle.ps1', 'utf8');
+  assert.match(bundler, /makeappx\.exe" bundle/);
+  assert.match(bundler, /\.appxsym/);
+  assert.match(readFileSync('packaging/windows/msix/store.ps1', 'utf8'), /\.appxsym/);
+  assert.match(workflow, /permissions:\n {2}contents: read\n/);
 });

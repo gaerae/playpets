@@ -863,6 +863,8 @@ export const strings = {
   'connection.share_all': 'AIのないほかの友だち{count}人にもこのAIを使う',
   'toast.first_chat': 'まず声をかけてみましょう。友だちが2人以上なら、おしゃべりもさせられます',
   'toast.connected_many': '{count} 人の友だちが話せるようになりました。おしゃべりを始めます',
+  'toast.auto_chatter_tip':
+    'AIを接続した友だちは、これから20分ほどごとに友だち同士で話します。接続したAIのプランを使います。止めるには、設定 → {section} で「{setting}」をオフにしてください。',
   'event.started': '{name}が始まりました！',
   'catch.dates': '{from}～{to}',
   'catch.event_hint': '{event}（{dates}）の間だけ',

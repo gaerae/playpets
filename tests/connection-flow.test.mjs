@@ -150,3 +150,27 @@ test('a friend just invited stays chosen next time, and the words in the box sta
   assert.equal(state.selected, 'c');
   assert.equal(recall('friend'), 'c');
 });
+
+// Automatic chatter is on by default and spends the person's own AI quota, so the first
+// connection says so once, and where to turn it off (Store policy 10.5.2, in spirit).
+test('the first connection says once that friends chat on their own, and where to turn it off', async context => {
+  installStorage(context);
+  const words = t('toast.auto_chatter_tip', { section: t('settings.friends_ai'), setting: t('settings.auto_chatter') });
+  assert.match(words, /20/);
+  let get = page(context, { providers: [], pets: [friend('a')], detected: { claude: true }, autoChatter: true });
+  await quickConnect();
+  assert.ok(get('toast').textContent.includes(words), 'said at the first connection');
+  assert.equal(recall('chatter-tip'), '1');
+  get = page(context, { providers: [], pets: [friend('b')], detected: { claude: true }, autoChatter: true });
+  await quickConnect();
+  assert.ok(!get('toast').textContent.includes(words), 'said once');
+});
+
+test('with automatic chatter off, the first connection says nothing about it', async context => {
+  installStorage(context);
+  const words = t('toast.auto_chatter_tip', { section: t('settings.friends_ai'), setting: t('settings.auto_chatter') });
+  const get = page(context, { providers: [], pets: [friend('a')], detected: { claude: true }, autoChatter: false });
+  await quickConnect();
+  assert.ok(!get('toast').textContent.includes(words));
+  assert.equal(recall('chatter-tip'), null);
+});

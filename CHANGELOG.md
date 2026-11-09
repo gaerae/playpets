@@ -17,6 +17,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
 - Claude Code and Codex CLI sign in from PlayPets: when one is on the computer but signed out, a card above the message box (and in the connection window) opens the sign-in in your browser and connects once you finish, with a box for the code Claude's page may show. The message box opens once you're signed in. No terminal needed.
 - **About** has **Report an AI reply**, which opens a short public form on GitHub: which AI, the relationship and what was wrong, in your own words and without the conversation.
+- The first time you connect an AI, PlayPets says once that friends with an AI chat among themselves about every 20 minutes on your AI plan, and where to turn it off.
 
 ### Changed
 
@@ -30,6 +31,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - **About** names Anthropic beside OpenAI: PlayPets isn't affiliated with either, and Claude and Claude Code are Anthropic's trademarks.
 - The import window says the pets on community sites are made by other people, and that you report one on the site it came from.
 - The Microsoft Store version's icons come in more sizes, so the taskbar, Start and the Store logo stay sharp on high-resolution screens.
+- The Microsoft Store version needs Windows 10 version 2004 or later, instead of 1809.
+- The Microsoft Store gets PlayPets as one bundle of the x64 and ARM64 versions, so a Windows on ARM computer is offered the ARM64 one.
 
 ### Fixed
 
@@ -41,6 +44,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Linking a coding agent writes its settings file to disk in full before it replaces the old one, so a crash at that moment can't leave it empty.
 - In the Microsoft Store version, the check for a newer version tells the Store which window it belongs to, as Microsoft asks of desktop apps, so the check no longer risks failing quietly.
 - On Windows without the Microsoft Edge WebView2 Runtime, PlayPets says it needs it and offers to open its download page, instead of closing without a word.
+- In the Microsoft Store version, Claude Code started by PlayPets no longer updates itself, so an update can't land in PlayPets' own folder, unseen by your terminal and deleted with PlayPets.
 
 ### Removed
 
@@ -59,6 +63,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The front page opens on the four friends in the yard with a coding agent at work beside them: when it finishes, one friend says so and the others cheer. The yard to play with, its places and seasons, and the button to pause the page's motion are now in the play section.
 
 ## [1.5.0] - 2026-11-04
+- The README says the Microsoft Store version needs Windows 10 version 2004 or later.
 
 ### Added
 
