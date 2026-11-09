@@ -15,15 +15,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the Microsoft Store version, PlayPets asks the Store for a newer version when it starts and every six hours, and **Check for updates** in Settings asks it at once. A version waiting in the Store shows beside the place selector and in Settings, and **Open in Microsoft Store** opens PlayPets' page there to install it. When the Store updates PlayPets while it is open, PlayPets opens again afterwards instead of staying closed.
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
-- During the winter lights, friends bring a small Christmas tree, then a baby reindeer, then Santa, one each time a gift is due. The snowman no longer comes as a gift.
+- During the winter lights, friends bring a small Christmas tree, then a baby reindeer, then Santa, one each time a gift is due. They show in the yard and on the desktop from December 1 to January 7; the rest of the year they wait out of sight in their places, still counting toward the yard's 12, and the album says when they show. Put away, they go back into the gift box, as a memento does, so they can be set out again.
 - In December, if the yard isn't showing winter, PlayPets asks once whether to show the winter yard until January 7. If you say yes, your season comes back on January 8.
 
 ### Changed
 
-- The Christmas tree, the baby reindeer and Santa go back into the gift box when you put them away, as a memento does, so they can be set out again.
-- The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7 and wait out of sight the rest of the year, still in their places; a snowman shows only while the yard shows winter. Hidden ones still count toward the yard's 12, and the album says when they show.
-- The winter lights' and the New Year's gifts come whatever season the yard shows, in every place, the studio too.
 - The winter lights now run from December 1 to 31, on the same dates south of the equator.
+- The gifts of the winter lights and the New Year come whatever season the yard shows, in every place, the studio too.
+- The snowman no longer comes as a gift. One already in the yard shows only while the yard shows winter, so not in the studio, and waits out of sight the rest of the time.
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
 - Who joins a group chat opens as a dropdown.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
@@ -47,7 +46,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
-- The guide gives the winter lights' new dates and gifts, December's winter question, and when Christmas decorations show.
+- The guide gives the winter lights' new dates and gifts, December's winter question, and when Christmas decorations show. The README counts the album's 153 entries.
 - The install guide, the settings guide and the privacy policy say that the Microsoft Store version asks the Store for a newer version and shows it in the app.
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
 - The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.

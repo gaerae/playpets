@@ -230,7 +230,7 @@ An event's gifts come the first times a gift is due during the event, one each t
 
 South of the equator, judged by your computer's time zone, seasonal events come six months later. The winter lights and the new year keep their dates.
 
-In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7, and your season comes back on January 8. The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and wait out of sight the rest of the year. They still count toward the 12 decorations, and when you put one away it goes back into the gift box.
+In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. If you say yes, your season comes back on January 8. The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and wait out of sight the rest of the year. They still count toward the 12 decorations, and when you put one away it goes back into the gift box.
 
 ## Closeness <Since v="0.1.0" />
 
