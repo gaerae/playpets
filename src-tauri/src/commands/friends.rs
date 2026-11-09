@@ -161,19 +161,22 @@ pub(super) fn remove_pet(
     cli: &chat::cli::CliManager,
     id: &str,
 ) -> Result<Value, String> {
-    commit(app, state, |d| {
-        require_pet(d, id)?;
-        chat::cancel(d, cli, id);
-        d.pets.retain(|p| p.id != id);
-        chat::reset(d, cli, id);
-        d.statuses.remove(id);
-        d.activity.remove(id);
-        d.bonds.forget(id);
-        d.garden.forget_friend(id);
-        // An agent that reported to this friend goes back to the first one.
-        d.agent_pets.retain(|_, pet| pet != id);
-        Ok(Value::Null)
-    })
+    commit(app, state, |d| forget(d, cli, id).map(|()| Value::Null))
+}
+
+/// Everything the state keeps about a friend goes with it: its talk, state, notes, bond and thanks.
+fn forget(d: &mut AppData, cli: &chat::cli::CliManager, id: &str) -> Result<(), String> {
+    require_pet(d, id)?;
+    chat::cancel(d, cli, id);
+    d.pets.retain(|p| p.id != id);
+    chat::reset(d, cli, id);
+    d.statuses.remove(id);
+    d.activity.remove(id);
+    d.bonds.forget(id);
+    d.garden.forget_friend(id);
+    // An agent that reported to this friend goes back to the first one.
+    d.agent_pets.retain(|_, pet| pet != id);
+    Ok(())
 }
 
 /// A press, a treat, a wave or a jump; without a friend named, everyone joins in.
@@ -195,4 +198,80 @@ pub(super) fn play(
     }
     push_event(app, &json!({"type": "play", "action": action, "petId": pet_id}));
     Ok(Value::Null)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::app::{Prefs, Source, Status};
+    use crate::pets::{album, bond, garden, model};
+    use std::collections::{HashMap, HashSet};
+
+    /// An empty yard in a fresh folder with these friends, for what a command does to the state.
+    fn yard(pets: Value) -> AppData {
+        let dir = std::env::temp_dir().join(format!("playpets-data-{}", uuid::Uuid::new_v4()));
+        let assets: Vec<String> = pets
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|p| p["assetId"].as_str().map(str::to_string))
+            .collect();
+        AppData {
+            store: crate::store::Store { dir: dir.clone() },
+            codex_pets: dir.join("codex"),
+            builtin_pets: dir.join("builtin"),
+            assets: Vec::new(),
+            warnings: Vec::new(),
+            pets: model::restore_pets(&json!({ "pets": pets }), &assets),
+            parked_pets: Vec::new(),
+            prefs: Prefs::restore(&json!({}), crate::i18n::Lang::default()),
+            imports: Vec::new(),
+            picked: Vec::new(),
+            agent_pets: HashMap::new(),
+            autostart: false,
+            garden: garden::Garden::restore(None, 0),
+            album: album::Album::restore(None),
+            bonds: bond::Bonds::restore(None, &[]),
+            providers: Vec::new(),
+            parked_providers: Vec::new(),
+            extra: serde_json::Map::new(),
+            secret_ids: HashSet::new(),
+            statuses: HashMap::new(),
+            talks: chat::Talks::default(),
+            importing: Vec::new(),
+            provider_updates: HashSet::new(),
+            detected: json!({}),
+            activity: HashMap::new(),
+        }
+    }
+
+    #[test]
+    fn a_friend_who_leaves_leaves_no_trace_behind() {
+        let pet = |id: &str| json!({"id": id, "assetId": "a", "name": id, "size": 96, "x": 0.5, "y": 0.5});
+        let mut d = yard(json!([pet("gone"), pet("stays")]));
+        let status = Status {
+            state: "working".into(),
+            message: String::new(),
+            source: Source::Agent,
+            at: 1,
+            by: String::new(),
+        };
+        for id in ["gone", "stays"] {
+            d.statuses.insert(id.into(), status.clone());
+            d.activity.insert(id.into(), Vec::new());
+            d.bonds.befriend(id, "gift", "2026-10-09", 0).unwrap();
+        }
+        d.agent_pets.insert("claude".into(), "gone".into());
+        d.agent_pets.insert("codex".into(), "stays".into());
+        forget(&mut d, &chat::cli::CliManager::default(), "gone").unwrap();
+        assert_eq!(d.pets.iter().map(|p| p.id.as_str()).collect::<Vec<_>>(), ["stays"]);
+        assert!(!d.statuses.contains_key("gone") && !d.activity.contains_key("gone"));
+        assert!(d.bonds.get("gone").is_none() && d.bonds.get("stays").is_some());
+        assert_eq!(d.agent_pets.get("codex").map(String::as_str), Some("stays"));
+        assert!(
+            !d.agent_pets.contains_key("claude"),
+            "its agent goes back to the first friend"
+        );
+        assert!(forget(&mut d, &chat::cli::CliManager::default(), "gone").is_err());
+    }
 }
