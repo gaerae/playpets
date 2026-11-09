@@ -305,7 +305,7 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 
 In a winter yard, faint animal footprints cross the snow. There is one trail a day, plus another on a morning after a snowy night. From December 26 to January 7 there is only one a day.
 
-Click the prints, or press **Follow the footprints**, and a rested friend follows them, sniffing. At the end, a tail peeks out from behind a bush and is gone in a whisk. Something small waits there to be dug up, and each animal has finds it likes.
+Click the prints, and a rested friend follows them, sniffing. With the keyboard, move to the prints with Tab and press Enter. At the end, a tail peeks out from behind a bush and is gone in a whisk. Something small waits there to be dug up, and each animal has finds it likes.
 
 An hour of new snow covers the prints, and the next day they are gone. The Cozy living room has none. **Album → Footprints** shows each print until you have followed it, then the tail and the name.
 
