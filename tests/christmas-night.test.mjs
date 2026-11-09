@@ -18,13 +18,13 @@ const { loadArt } = await import('../src/yard/art.js');
 const { renderDecor, setupDecor } = await import('../src/yard/decor.js');
 const { fieldToYard, measureYard, petHeight } = await import('../src/yard/field.js');
 const { scene } = await import('../src/yard/world.js');
-const { christmasNight, christmasNightCheck, nightOf, setupChristmasNight } =
+const { christmasNight, christmasNightCheck, nightOf, setupChristmasNight, sleighReady } =
   await import('../src/yard/christmas-night.js');
 
 // December 24 at nine in the evening, local time.
 const NOW = new Date(2026, 11, 24, 21).getTime();
 const TREE = { id: 'tree', kind: 'xmas_tree', x: 0.5, y: 0.5 };
-const ART = ['decor/xmas_tree.svg', 'decor/xmas_tree_grand.svg'];
+const ART = ['decor/xmas_tree.svg', 'decor/xmas_tree_grand.svg', 'decor/sleigh.svg'];
 
 // The drawings' sizes, as the page reads them from their view boxes (art.js loadArt).
 async function sizes(document) {
@@ -66,6 +66,8 @@ async function yard(ctx, { decor = [TREE], seen, before } = {}) {
     renderDecor();
   });
   const { nodes, document } = installDom(ctx, { anyId: true, ids: ['yard', 'garden-layer', 'toast'] });
+  // As index.html has it.
+  document.getElementById('xmas-sleigh').hidden = true;
   ctx.after(() => {
     delete globalThis.DOMParser;
     delete globalThis.fetch;
@@ -366,6 +368,194 @@ still('once the tree is put away', async ctx => {
   const { tree } = await yard(ctx, { before: TONIGHT });
   await tree().dispatch('keydown', { key: 'Delete', preventDefault() {} });
   quiet(ctx, tree());
+});
+
+// The sleigh: the grand tree with the baby reindeer and Santa out, on a night (not an evening).
+const GUESTS = [
+  TREE,
+  { id: 'reindeer', kind: 'baby_reindeer', x: 0.35, y: 0.5 },
+  { id: 'santa', kind: 'santa', x: 0.65, y: 0.5 },
+];
+const NO_SANTA = GUESTS.slice(0, 2);
+const decorButton = (nodes, kind) =>
+  nodes.get('garden-layer').children.find(b => !b.removed && b.dataset.kind === kind);
+async function sleighYard(ctx, { decor = GUESTS, before } = {}) {
+  ctx.mock.method(Math, 'random', () => 0);
+  const parts = await yard(ctx, {
+    decor,
+    before: opts => {
+      TONIGHT(opts);
+      before?.(opts);
+    },
+  });
+  const { nodes, document } = parts;
+  return {
+    ...parts,
+    sleigh: document.getElementById('xmas-sleigh'),
+    reindeer: () => decorButton(nodes, 'baby_reindeer'),
+    santa: () => decorButton(nodes, 'santa'),
+    moon: () => nodes.get('yard').classList.contains('xmas-moon'),
+    motes: () =>
+      layers(parts.tree())[0].children.filter(
+        c => typeof c === 'object' && !c.removed && c.classList.contains('xmas-mote'),
+      ),
+  };
+}
+const looking = button => !!button && has(button, 'look-up');
+
+test('the sleigh waits for the moon and for both guests', async ctx => {
+  const date = new Date(2026, 11, 24, 21),
+    night = { event: 'lights', season: 'winter', period: 'night', weather: 'snow' },
+    guests = ['baby_reindeer', 'santa'];
+  assert.equal(sleighReady(night, GUESTS, date, guests), true);
+  assert.equal(
+    sleighReady({ ...night, period: 'evening' }, GUESTS, date, guests),
+    false,
+    'the sun is up, not the moon',
+  );
+  assert.equal(sleighReady(night, NO_SANTA, date, guests), false);
+  assert.equal(sleighReady({ ...night, weather: 'clear' }, GUESTS, date, guests), false);
+
+  const { sleigh, tree } = await sleighYard(ctx, {
+    before: () => {
+      scene.period = 'evening';
+    },
+  });
+  assert.ok(has(tree(), 'xmas-grand'), 'the grand tree shows from evening');
+  ctx.mock.timers.tick(60_000);
+  assert.equal(sleigh.hidden, true);
+});
+
+test('the sleigh waits for Santa too', async ctx => {
+  const { sleigh, storage } = await sleighYard(ctx, { decor: NO_SANTA });
+  ctx.mock.timers.tick(60_000);
+  assert.equal(sleigh.hidden, true);
+  assert.equal(storage.getItem('xmas-sleigh'), null);
+});
+
+test('with the baby reindeer and Santa out, the sleigh crosses the moon once that night', async ctx => {
+  const parts = await sleighYard(ctx),
+    { sleigh, storage, reindeer, santa, moon, motes } = parts,
+    { timers } = ctx.mock;
+  timers.tick(19_999);
+  assert.ok(!moon());
+  assert.equal(storage.getItem('xmas-sleigh'), null);
+  timers.tick(1);
+  assert.ok(looking(reindeer()), 'the reindeer looks up first');
+  assert.ok(!looking(santa()));
+  assert.ok(moon(), 'the moon brightens');
+  assert.equal(storage.getItem('xmas-sleigh'), '2026-12-24');
+  assert.equal(sleigh.hidden, true);
+  timers.tick(400);
+  assert.ok(looking(santa()), 'then Santa');
+  timers.tick(800);
+  assert.ok(!looking(reindeer()));
+  assert.equal(sleigh.hidden, false);
+  assert.ok(has(sleigh, 'flying'));
+  assert.ok(sleigh.innerHTML.includes('#'), 'the sleigh is drawn the first time it flies');
+  timers.tick(4200);
+  assert.equal(sleigh.hidden, true);
+  assert.ok(!has(sleigh, 'flying'));
+  assert.equal(motes().length, 24, 'gold falls from the star');
+  timers.tick(4200);
+  assert.equal(motes().length, 0);
+  assert.ok(!moon());
+  for (let n = 0; n < 12; n++) {
+    timers.tick(10_000);
+    christmasNightCheck();
+    assert.equal(sleigh.hidden, true);
+    assert.ok(!moon(), 'no second flight');
+  }
+});
+
+test('a restart the same night after the sleigh brings no second one', async ctx => {
+  const { sleigh, moon } = await sleighYard(ctx, {
+    before: ({ storage }) => storage.setItem('xmas-sleigh', '2026-12-24'),
+  });
+  for (let n = 0; n < 12; n++) {
+    ctx.mock.timers.tick(10_000);
+    christmasNightCheck();
+    assert.equal(sleigh.hidden, true);
+    assert.ok(!moon());
+  }
+});
+
+test('with reduced motion the sleigh is a still vignette and no gold falls', async ctx => {
+  const { sleigh, reindeer, santa, moon, motes } = await sleighYard(ctx, {
+    before: () => {
+      reduced.matches = true;
+    },
+  });
+  ctx.mock.timers.tick(20_000);
+  assert.equal(sleigh.hidden, false);
+  assert.ok(has(sleigh, 'still'));
+  assert.ok(!has(sleigh, 'flying'));
+  assert.ok(moon());
+  assert.ok(!looking(reindeer()) && !looking(santa()));
+  for (let n = 0; n < 30; n++) {
+    ctx.mock.timers.tick(100);
+    assert.equal(motes().length, 0);
+    assert.ok(!looking(reindeer()) && !looking(santa()));
+  }
+  assert.equal(sleigh.hidden, true);
+  assert.ok(!has(sleigh, 'still'));
+  assert.ok(!moon());
+  ctx.mock.timers.tick(20_000);
+  assert.equal(motes().length, 0);
+});
+
+// Nothing of the sleigh is left, and the timers still to come change nothing.
+function allGone(ctx, { sleigh, reindeer, santa, moon, tree }) {
+  const gone = () => {
+    assert.equal(sleigh.hidden, true);
+    assert.ok(!has(sleigh, 'flying'));
+    assert.ok(!moon());
+    assert.ok(!looking(reindeer()) && !looking(santa()));
+    const layer = layers(tree())[0];
+    assert.equal(
+      layer.children.filter(c => typeof c === 'object' && !c.removed && c.classList.contains('xmas-mote')).length,
+      0,
+    );
+  };
+  gone();
+  for (let n = 0; n < 10; n++) {
+    ctx.mock.timers.tick(1_000);
+    gone();
+  }
+}
+
+test('if the night ends during the sleigh, everything goes', async ctx => {
+  const parts = await sleighYard(ctx);
+  // A tick starts the timers set during it from its end, so the crossing's own steps wait for the next.
+  ctx.mock.timers.tick(20_000);
+  ctx.mock.timers.tick(1_500);
+  assert.ok(has(parts.sleigh, 'flying'));
+  scene.weather = 'clear';
+  christmasNightCheck();
+  allGone(ctx, parts);
+});
+
+test('if Santa is put away while the reindeer looks up, everything goes', async ctx => {
+  const parts = await sleighYard(ctx);
+  ctx.mock.timers.tick(20_000);
+  ctx.mock.timers.tick(100);
+  assert.ok(looking(parts.reindeer()));
+  await parts.santa().dispatch('keydown', { key: 'Delete', preventDefault() {} });
+  allGone(ctx, parts);
+});
+
+test('the yard going out of sight ends a sleigh still to come, and it comes when the yard is seen', async ctx => {
+  const { sleigh, document, moon } = await sleighYard(ctx);
+  ctx.mock.timers.tick(10_000);
+  document.hidden = true;
+  christmasNightCheck();
+  ctx.mock.timers.tick(30_000);
+  assert.ok(!moon());
+  document.hidden = false;
+  document.dispatch('visibilitychange');
+  ctx.mock.timers.tick(20_000);
+  ctx.mock.timers.tick(1_200);
+  assert.ok(has(sleigh, 'flying'));
 });
 
 const uncommented = css => css.replace(/\/\*[\s\S]*?\*\//g, '');

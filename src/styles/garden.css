@@ -325,6 +325,82 @@
 .decor.xmas-rise .xmas-pool {
   animation: xmas-pool-in 2.6s ease-in-out both;
 }
+/* With the sleigh (christmas-night.js), the baby reindeer and Santa look up in turn: a short tilt
+   back from the foot. */
+.decor.look-up > svg {
+  animation: xmas-look-up 0.9s ease-in-out both;
+}
+/* After the sleigh, gold motes drift down from the star, each on one of three paths; the script
+   sets where each starts, its wait and its pace. */
+.xmas-mote {
+  position: absolute;
+  width: 3px;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: #fff0c4;
+  box-shadow: 0 0 4px 1px #ffd27aa0;
+  pointer-events: none;
+  opacity: 0;
+}
+.xmas-mote.m0 {
+  animation: xmas-mote-a 3s ease-out both;
+}
+.xmas-mote.m1 {
+  animation: xmas-mote-b 3s ease-out both;
+}
+.xmas-mote.m2 {
+  animation: xmas-mote-c 3s ease-out both;
+}
+@keyframes xmas-look-up {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  35%,
+  70% {
+    transform: rotate(-7deg);
+  }
+}
+@keyframes xmas-mote-a {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-20px, 74px);
+    opacity: 0;
+  }
+}
+@keyframes xmas-mote-b {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(6px, 88px);
+    opacity: 0;
+  }
+}
+@keyframes xmas-mote-c {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(22px, 66px);
+    opacity: 0;
+  }
+}
 @keyframes xmas-glint {
   0% {
     transform: scale(0.2);

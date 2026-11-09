@@ -18,6 +18,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - During the winter lights, friends bring a small Christmas tree, then a baby reindeer, then Santa, one each time a gift is due. They show in the yard and on the desktop from December 1 to January 7; the rest of the year they wait out of sight in their places, still counting toward the yard's 12, and the album says when they show. Put away, they go back into the gift box, as a memento does, so they can be set out again.
 - In December, if the yard isn't showing winter, PlayPets asks once whether to show the winter yard until January 7. If you say yes, your season comes back on January 8.
 - On a snowy December evening or night, with the yard showing winter, the little Christmas tree lights up and grows into a grand tree, once a night. It stays while the snow falls, a bulb glinting now and then, and goes back when it stops.
+- With the baby reindeer and Santa set out beside the grand tree, they look up, a sleigh crosses the moon once that night, and gold drifts down from the star.
 
 ### Changed
 
