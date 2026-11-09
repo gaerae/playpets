@@ -6,6 +6,7 @@
 
 use super::launch::{Tree, launcher, setup_child, workdir};
 use crate::i18n;
+use std::collections::HashSet;
 use std::io::{Read, Write};
 use std::path::Path;
 use std::process::{Child, ChildStdin, Command, Stdio};
@@ -54,31 +55,31 @@ fn command(bin: &Path, args: &[&str]) -> Command {
     cmd
 }
 
-/// Whether the CLI at `bin` says it is signed in (its status check exits 0).
-pub(super) fn signed_in_with(bin: &Path, kind: &str) -> bool {
+/// Whether the CLI at `bin` says it is signed in: its status check exits 0 or not. None when the
+/// check could not run or did not finish, which says nothing either way. (Claude's check counts an
+/// API key or Bedrock as signed in too; Codex's only its own sign-in.)
+pub(super) fn signed_in_with(bin: &Path, kind: &str) -> Option<bool> {
     let mut cmd = command(bin, status_args(kind));
     cmd.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
-    let Ok((mut child, tree)) = Tree::spawn(&mut cmd) else {
-        return false;
-    };
+    let (mut child, tree) = Tree::spawn(&mut cmd).ok()?;
     let deadline = Instant::now() + STATUS_TIMEOUT;
     loop {
         match child.try_wait() {
             // The tree drops with this return, off the list of groups to stop.
-            Ok(Some(status)) => return status.success(),
+            Ok(Some(status)) => return Some(status.success()),
             Ok(None) if Instant::now() < deadline => std::thread::sleep(POLL / 5),
             _ => {
                 tree.kill(&mut child);
                 let _ = child.wait();
-                return false;
+                return None;
             }
         }
     }
 }
 
-/// Whether `kind`'s CLI is on this computer and signed in.
-pub fn signed_in(kind: &str) -> bool {
-    super::resolve_bin(kind).is_some_and(|bin| signed_in_with(&bin, kind))
+/// Whether `kind`'s CLI says it is signed in; None when it is not on this computer.
+pub fn signed_in(kind: &str) -> Option<bool> {
+    signed_in_with(&super::resolve_bin(kind)?, kind)
 }
 
 /// What the person pasted, as the one line the CLI reads; None for nothing or more than a line.
@@ -95,11 +96,25 @@ struct Run {
     stdin: Option<ChildStdin>,
 }
 
+impl Run {
+    /// Stops the CLI and what it started. Called with the run already out of its slot, so nobody
+    /// waits on the lock while it goes.
+    fn stop(mut self) {
+        self.tree.kill(&mut self.child);
+        let _ = self.child.wait();
+    }
+}
+
 /// The sign-in under way, at most one: a second one replaces it.
 #[derive(Default)]
 pub struct Logins {
     run: Arc<Mutex<Option<Run>>>,
     next: AtomicU64,
+    /// Held while a sign-in starts, so two at once cannot both start (Codex's waits on one port).
+    starting: Mutex<()>,
+    /// The CLIs whose last chat turn said they are not signed in, whatever their status check says
+    /// (a sign-in that expired still reads as signed in there).
+    turned: Arc<Mutex<HashSet<&'static str>>>,
 }
 
 /// Waits for run `id` to end. True when it ended by itself (or ran out of time and was stopped);
@@ -107,24 +122,24 @@ pub struct Logins {
 fn ended_by_itself(run: &Mutex<Option<Run>>, id: u64) -> bool {
     let deadline = Instant::now() + LOGIN_TIMEOUT;
     loop {
-        {
+        let ended = {
             let mut slot = crate::app::hold(run);
             let Some(current) = slot.as_mut().filter(|r| r.id == id) else {
                 return false;
             };
             match current.child.try_wait() {
-                Ok(None) if Instant::now() < deadline => {}
-                waited => {
-                    let mut ended = slot.take().unwrap();
-                    if !matches!(waited, Ok(Some(_))) {
-                        ended.tree.kill(&mut ended.child);
-                        let _ = ended.child.wait();
-                    }
-                    return true;
-                }
+                Ok(None) if Instant::now() < deadline => None,
+                waited => slot.take().map(|run| (run, matches!(waited, Ok(Some(_))))),
+            }
+        };
+        match ended {
+            None => std::thread::sleep(POLL),
+            Some((_, true)) => return true,
+            Some((run, false)) => {
+                run.stop();
+                return true;
             }
         }
-        std::thread::sleep(POLL);
     }
 }
 
@@ -143,6 +158,9 @@ impl Logins {
         kind: &'static str,
         done: impl FnOnce(&'static str, bool) + Send + 'static,
     ) -> Result<(), String> {
+        // Only another start waits here, for as long as the old run takes to stop and this one to
+        // begin: two that overlapped would leave the first running with nobody to stop it.
+        let _starting = crate::app::hold(&self.starting);
         self.cancel();
         let mut cmd = command(bin, login_args(kind));
         cmd.stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped());
@@ -178,38 +196,68 @@ impl Logins {
             stdin,
         });
         let bin = bin.to_path_buf();
-        let run = Arc::clone(&self.run);
+        let (run, turned) = (Arc::clone(&self.run), Arc::clone(&self.turned));
         std::thread::spawn(move || {
             if ended_by_itself(&run, id) {
                 // The status, not the exit code, says whether it worked: asked after it ends.
-                done(kind, signed_in_with(&bin, kind));
+                let ok = signed_in_with(&bin, kind) == Some(true);
+                if ok {
+                    crate::app::hold(&turned).remove(kind);
+                }
+                done(kind, ok);
             }
         });
         Ok(())
     }
 
-    /// Gives the waiting Claude sign-in the code its browser page showed.
+    /// Gives the waiting Claude sign-in the code its browser page showed. The pipe is written with
+    /// the run's lock let go, and goes back to the run after, unless that run ended meanwhile.
     pub fn send_code(&self, text: &str) -> Result<(), String> {
         let code = clean_code(text).ok_or_else(|| i18n::t("cli.login_code_bad"))?;
-        let mut slot = crate::app::hold(&self.run);
-        let stdin = slot
-            .as_mut()
-            .filter(|r| r.kind == "claude")
-            .and_then(|r| r.stdin.as_mut())
-            .ok_or_else(|| i18n::t("cli.login_not_waiting"))?;
-        stdin
+        let not_waiting = || i18n::t("cli.login_not_waiting");
+        let (id, mut stdin) = {
+            let mut slot = crate::app::hold(&self.run);
+            let run = slot.as_mut().filter(|r| r.kind == "claude").ok_or_else(not_waiting)?;
+            (run.id, run.stdin.take().ok_or_else(not_waiting)?)
+        };
+        let written = stdin
             .write_all(format!("{code}\n").as_bytes())
-            .and_then(|()| stdin.flush())
-            .map_err(|_| i18n::t("cli.login_not_waiting"))
+            .and_then(|()| stdin.flush());
+        if let Some(run) = crate::app::hold(&self.run).as_mut().filter(|r| r.id == id) {
+            run.stdin = Some(stdin);
+        }
+        written.map_err(|_| not_waiting())
     }
 
     /// Stops the sign-in under way, if any; it then reports nothing.
     pub fn cancel(&self) {
         let ended = crate::app::hold(&self.run).take();
-        if let Some(mut ended) = ended {
-            ended.tree.kill(&mut ended.child);
-            let _ = ended.child.wait();
+        if let Some(run) = ended {
+            run.stop();
         }
+    }
+
+    /// What a chat turn with `kind`'s CLI said about its sign-in: turned away for not being signed
+    /// in, or through (which proves it is).
+    pub fn heard(&self, kind: &str, turn: &Result<String, String>) {
+        let Some(kind) = cli_kind(kind) else {
+            return;
+        };
+        let mut turned = crate::app::hold(&self.turned);
+        match turn {
+            Ok(_) => {
+                turned.remove(kind);
+            }
+            Err(error) if *error == super::login_guide(kind) => {
+                turned.insert(kind);
+            }
+            Err(_) => {}
+        }
+    }
+
+    /// Whether `kind`'s last chat turn was turned away for not being signed in.
+    pub fn turned_away(&self, kind: &str) -> bool {
+        crate::app::hold(&self.turned).contains(kind)
     }
 }
 
@@ -263,12 +311,13 @@ mod tests {
         program(&yes, "#!/bin/sh\n[ \"$1 $2\" = 'auth status' ] && exit 0\nexit 3\n");
         program(&no, "#!/bin/sh\necho 'Not logged in'\nexit 1\n");
         program(&odd, "#!/bin/sh\n[ \"$1 $2\" = 'login status' ] && exit 0\nexit 3\n");
-        assert!(signed_in_with(&yes, "claude"));
-        assert!(!signed_in_with(&no, "claude"));
-        assert!(signed_in_with(&odd, "codex"));
-        assert!(
-            !signed_in_with(&dir.join("gone/claude"), "claude"),
-            "a CLI that went is not signed in"
+        assert_eq!(signed_in_with(&yes, "claude"), Some(true));
+        assert_eq!(signed_in_with(&no, "claude"), Some(false));
+        assert_eq!(signed_in_with(&odd, "codex"), Some(true));
+        assert_eq!(
+            signed_in_with(&dir.join("gone/claude"), "claude"),
+            None,
+            "a check that cannot run says nothing, rather than signed out"
         );
         let _ = std::fs::remove_dir_all(dir);
     }
@@ -297,19 +346,25 @@ mod tests {
             &bin,
             &format!(
                 "#!/bin/sh\nif [ \"$1 $2\" = 'auth status' ]; then [ -f '{m}' ]; exit $?; fi\n\
-                 echo 'Paste code here if prompted >'\nread code\n[ \"$code\" = 'good#1' ] && touch '{m}'\n",
+                 echo 'Paste code here if prompted >'\n\
+                 while read code; do [ \"$code\" = 'good#1' ] && touch '{m}' && exit 0; done\n",
                 m = mark.display()
             ),
         );
         let logins = Logins::default();
+        // A turn said it is not signed in; a sign-in that goes through takes that back.
+        logins.heard("claude", &Err(super::super::login_guide("claude")));
         let (tx, rx) = std::sync::mpsc::channel();
         logins
             .start_with(&bin, "claude", move |kind, ok| tx.send((kind, ok)).unwrap())
             .unwrap();
         assert!(running(&logins));
+        // A wrong code leaves the sign-in waiting, and the next one still reaches it.
+        logins.send_code("bad#0").unwrap();
         logins.send_code("good#1").unwrap();
         let (kind, ok) = rx.recv_timeout(Duration::from_secs(10)).unwrap();
         assert_eq!((kind, ok), ("claude", true));
+        assert!(!logins.turned_away("claude"));
         assert!(!running(&logins));
         assert!(logins.send_code("good#1").is_err(), "nothing is waiting for a code now");
         let _ = std::fs::remove_dir_all(dir);
@@ -363,5 +418,72 @@ mod tests {
             "neither run reports after a cancel"
         );
         let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn sign_ins_started_at_once_leave_one_running() {
+        let dir = folder();
+        let bin = dir.join("codex");
+        let pids = dir.join("pids");
+        // Each run writes down its process and waits, as `codex login` does on its port.
+        program(
+            &bin,
+            &format!(
+                "#!/bin/sh\n[ \"$1\" = 'login' ] && [ -z \"$2\" ] && echo $$ >> '{p}' && exec sleep 30\nexit 1\n",
+                p = pids.display()
+            ),
+        );
+        let logins = std::sync::Arc::new(Logins::default());
+        let starts: Vec<_> = (0..6)
+            .map(|_| {
+                let (logins, bin) = (logins.clone(), bin.clone());
+                std::thread::spawn(move || logins.start_with(&bin, "codex", |_, _| {}).unwrap())
+            })
+            .collect();
+        for start in starts {
+            start.join().unwrap();
+        }
+        // Every run has written its line by the time it waits.
+        let deadline = Instant::now() + Duration::from_secs(5);
+        let alive = || -> Vec<String> {
+            std::fs::read_to_string(&pids)
+                .unwrap_or_default()
+                .lines()
+                .filter(|pid| {
+                    Command::new("kill")
+                        .args(["-0", pid])
+                        .status()
+                        .is_ok_and(|s| s.success())
+                })
+                .map(String::from)
+                .collect()
+        };
+        while std::fs::read_to_string(&pids).unwrap_or_default().lines().count() < 6 && Instant::now() < deadline {
+            std::thread::sleep(POLL);
+        }
+        assert_eq!(alive().len(), 1, "the runs replaced along the way were stopped");
+        logins.cancel();
+        assert!(alive().is_empty());
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn a_turn_turned_away_counts_as_signed_out_until_one_goes_through() {
+        let logins = Logins::default();
+        assert!(!logins.turned_away("claude"));
+        logins.heard("claude", &Err(super::super::login_guide("claude")));
+        assert!(
+            logins.turned_away("claude"),
+            "the CLI said so itself, whatever its status says"
+        );
+        assert!(!logins.turned_away("codex"));
+        logins.heard("claude", &Err("rate limit".into()));
+        assert!(
+            logins.turned_away("claude"),
+            "another failure says nothing about the sign-in"
+        );
+        logins.heard("claude", &Ok("hi".into()));
+        assert!(!logins.turned_away("claude"));
     }
 }

@@ -2,7 +2,7 @@
 import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
 import { $, call, data, guard, providerLabel, selected, toast } from '../core/state.js';
-import { cliChoice, focusSignIn, renderSignIn, signedOut } from './cli-login.js';
+import { cliChoice, focusSignIn, renderSignIn, signedOut, startSignIn } from './cli-login.js';
 
 // Per-type dialog behavior: which fields show, whether a model name is mandatory, and the data-flow note.
 const providerForms = {
@@ -115,8 +115,12 @@ export async function quickConnect() {
   if (!data.pets.length) return;
   const choice = cliChoice();
   const shared = sharedConnection();
-  // A connection to a CLI that is signed out would fail at the first word: the chat's card signs in.
-  if (!shared && choice?.signedIn === false) return focusSignIn($('chat-sign-in'));
+  // A connection to a CLI that is signed out would fail at the first word: the sign-in starts
+  // instead, and the chat's card waits for it (and connects once it ends).
+  if (!shared && choice?.signedIn === false) {
+    await startSignIn(choice.type);
+    return focusSignIn($('chat-sign-in'));
+  }
   const type = choice?.type || null;
   if (!type && !shared) return openConnectionDialog(null);
   const first = !data.pets.some(p => p.providerId);
