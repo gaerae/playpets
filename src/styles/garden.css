@@ -150,7 +150,8 @@
   cursor: inherit;
 }
 /* a gift that just came pops into place */
-.decor.arrive > svg {
+.decor.arrive > svg,
+.decor.arrive > .ornaments {
   animation: arrive 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes arrive {
@@ -203,10 +204,10 @@
 }
 /* Christmas night (yard/christmas-night.js): on a snowy December evening or night the little tree
    grows into the grand one. The grand tree is a layer inside the small tree's button, standing on
-   the same foot and taking no presses; .xmas-grand shows it, and every turn either way is a short
-   crossfade. .xmas-rise is the change itself, once a night: a gold veil climbs from the roots and
-   uncovers the grand tree while the small one fades, the star swells once and warm light pools on
-   the snow. */
+   the same foot and taking presses only through its handle (.xmas-hit, under "Ornaments");
+   .xmas-grand shows it, and every turn either way is a short crossfade. .xmas-rise is the change
+   itself, once a night: a gold veil climbs from the roots and uncovers the grand tree while the
+   small one fades, the star swells once and warm light pools on the snow. */
 .decor .xmas-night {
   position: absolute;
   left: 50%;
@@ -303,10 +304,12 @@
    rises while the drawing in it moves down as much (115 % of the tree's height each), so the tree
    stays put and is uncovered from the roots up. */
 .decor.xmas-rise > svg,
+.decor.xmas-rise > .ornaments,
 .decor.xmas-rise .xmas-night {
   transition: none;
 }
-.decor.xmas-rise > svg {
+.decor.xmas-rise > svg,
+.decor.xmas-rise > .ornaments {
   animation: xmas-small-out 2.6s ease-in-out both;
 }
 .decor.xmas-rise .xmas-reveal {
@@ -490,6 +493,112 @@
   100% {
     opacity: 1;
   }
+}
+/* Ornaments (yard/ornaments.js): found things hung on the Christmas tree, each a small bauble
+   tinted by its book with a gold rim, a cap and a shine; the rim and the shine grow with the bauble
+   (cqi of its own width), so a small one is not all rim. In the yard there is no drawing inside:
+   about 8 px wide on the small tree and 11 on the grand one in a full-width yard, it would be
+   noise. A tree's layer covers its drawing (hooks are shares of it) and follows it: scaled with it
+   from the foot, faded with the small tree as it turns grand, dimmed with each tree at night. */
+.bauble {
+  position: absolute;
+  aspect-ratio: 1;
+  translate: -50% -10%;
+  container-type: inline-size;
+}
+.bauble::before {
+  content: "";
+  position: absolute;
+  left: 35%;
+  top: -16%;
+  width: 30%;
+  height: 20%;
+  border-radius: 1px 1px 0 0;
+  background: linear-gradient(#f3d58c, #b98d3a);
+}
+.bauble-ball {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #fff 0 3%, var(--c1) 14%, var(--c) 44%, var(--c2) 86%);
+  box-shadow:
+    inset 0 0 0 clamp(0.5px, 6cqi, 1.5px) #d9b25e,
+    0 1px 2px #0004;
+}
+.bauble-ball::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  top: 10%;
+  width: 38%;
+  height: 22%;
+  border-top: clamp(0.5px, 9cqi, 1.5px) solid #fff2d8e6;
+  border-radius: 50%;
+  rotate: -24deg;
+}
+.bauble.flower {
+  --c: #dfa4aa;
+  --c1: #f6d7da;
+  --c2: #b06f78;
+}
+.bauble.tree {
+  --c: #9cbf96;
+  --c1: #dbead6;
+  --c2: #5f8a5f;
+}
+.bauble.gift {
+  --c: #b9a8d6;
+  --c1: #e6def3;
+  --c2: #7d6aa3;
+}
+.bauble.treasure {
+  --c: #ddbb70;
+  --c1: #f5e6bf;
+  --c2: #a8843a;
+}
+.decor .ornaments {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.6s;
+}
+.decor > .ornaments .bauble {
+  width: 13%;
+}
+.xmas-art .ornaments .bauble {
+  width: 10.5%;
+}
+.decor:hover > .ornaments,
+.decor:focus-visible > .ornaments,
+.decor.dragging > .ornaments,
+.decor:hover .xmas-art .ornaments,
+.decor:focus-visible .xmas-art .ornaments,
+.decor.dragging .xmas-art .ornaments {
+  transform: scale(1.06);
+}
+.decor.xmas-grand > .ornaments {
+  opacity: 0;
+}
+.period-night .decor > .ornaments {
+  filter: brightness(0.62) saturate(0.75);
+}
+.period-night .decor .xmas-art .ornaments {
+  filter: brightness(0.86);
+}
+/* The grand tree's handle: a tree-shaped area over the grand drawing that takes presses while it
+   stands grand, so it is dragged and decorated as the small one is; the drawing, the light pool,
+   the star and the glints stay click-through. */
+.decor .xmas-hit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  clip-path: polygon(50% 0, 94% 84%, 94% 100%, 6% 100%, 6% 84%);
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-hit {
+  pointer-events: auto;
 }
 .yard.period-night .plant[data-stage="bloom"] svg {
   filter: brightness(0.65) saturate(0.7);

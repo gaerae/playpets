@@ -118,9 +118,10 @@ const span = className => {
   node.className = className;
   return node;
 };
-const percent = share => `${+(share * 100).toFixed(1)}%`;
+/** A share of a layer (0 to 1) as the percentage a style takes, to a tenth: `0.29` is `29%`. */
+export const percent = share => `${+(share * 100).toFixed(1)}%`;
 // The grand tree's layers, made once inside the tree's button: sized from the two drawings and
-// standing on the same foot, taking no presses (the small tree's box stays the handle).
+// standing on the same foot, taking no presses but through the tree-shaped handle ornaments.js adds.
 function layers(button) {
   if (button.querySelector('.xmas-night')) return;
   const { small, big, night } = sizes();

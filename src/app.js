@@ -62,6 +62,7 @@ import {
 import { renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { moveFriends } from './yard/motion.js';
+import { drawTreeOrnaments } from './yard/ornaments.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
 import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
@@ -195,9 +196,15 @@ setupViews({
 setupPlay();
 setupCare();
 setupGarden();
-// The Christmas tree's night is checked whenever the gifts are drawn, and when the window is seen.
+// The Christmas tree's night is checked whenever the gifts are drawn, and when the window is seen;
+// its ornaments are drawn after that check, so the grand tree they also hang on is made first.
 setupChristmasNight({ seen: () => shown });
-setupDecor({ drawn: christmasNightCheck });
+setupDecor({
+  drawn: () => {
+    christmasNightCheck();
+    drawTreeOrnaments();
+  },
+});
 setupDiscovery();
 setupTrees();
 setupCatch();
