@@ -73,6 +73,9 @@ pub fn forget_days_after(bonds: &mut bond::Bonds, garden: &mut garden::Garden, l
             b.pat_today = 0;
             b.time_today = 0;
         }
+        if b.met.as_str() > latest {
+            b.met.clear();
+        }
     }
     if garden.gift_day.as_str() > latest {
         garden.gift_day.clear();
@@ -140,7 +143,7 @@ mod tests {
     fn days_saved_from_a_clock_set_ahead_are_forgotten_at_start() {
         let mut bonds = bond::Bonds::restore(
             Some(
-                &serde_json::json!({"a": {"points": 9, "day": "2027-10-10", "today": 40, "patToday": 10, "timeToday": 12}, "b": {"points": 1, "day": "z", "today": 40}, "c": {"points": 1, "day": "2026-10-09", "today": 7}}),
+                &serde_json::json!({"a": {"points": 9, "day": "2027-10-10", "today": 40, "patToday": 10, "timeToday": 12, "met": "2027-10-10"}, "b": {"points": 1, "day": "z", "today": 40}, "c": {"points": 1, "day": "2026-10-09", "today": 7, "met": "2026-10-01"}}),
             ),
             &["a".into(), "b".into(), "c".into()],
         );
@@ -153,6 +156,8 @@ mod tests {
         assert_eq!((bonds.0["a"].pat_today, bonds.0["a"].time_today), (0, 0));
         assert_eq!((bonds.0["b"].day.as_str(), bonds.0["b"].today), ("", 0));
         assert_eq!((bonds.0["c"].day.as_str(), bonds.0["c"].today), ("2026-10-09", 7));
+        assert_eq!(bonds.0["a"].met, "");
+        assert_eq!(bonds.0["c"].met, "2026-10-01");
         assert_eq!(garden.gift_day, "");
         assert_eq!(garden.gift_wait, None);
     }

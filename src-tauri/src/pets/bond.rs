@@ -55,6 +55,14 @@ pub struct Bond {
     #[serde(default)]
     #[serde(rename = "timeAt", alias = "time_at")]
     pub time_at: u64,
+    /// The local day the bond was first made (YYYY-MM-DD), so the year-end letter can say how long
+    /// the two have known each other. Bonds made before this was kept have none.
+    #[serde(
+        default,
+        skip_serializing_if = "String::is_empty",
+        deserialize_with = "super::or_default"
+    )]
+    pub met: String,
 }
 
 /// The level for so many points.
@@ -80,7 +88,11 @@ impl Bonds {
                 if let Some(o) = v.as_object_mut().filter(|o| o.contains_key("timeAt")) {
                     o.remove("time_at");
                 }
-                Some((id.clone(), serde_json::from_value::<Bond>(v).ok()?))
+                let mut bond = serde_json::from_value::<Bond>(v).ok()?;
+                if !super::garden::is_day(&bond.met) {
+                    bond.met.clear();
+                }
+                Some((id.clone(), bond))
             })
             .collect();
         Bonds(map)
@@ -100,7 +112,10 @@ impl Bonds {
         if !super::garden::is_day(day) {
             return Err(i18n::t("error.bad_request"));
         }
-        let bond = self.0.entry(pet.to_string()).or_default();
+        let bond = self.0.entry(pet.to_string()).or_insert_with(|| Bond {
+            met: day.to_string(),
+            ..Bond::default()
+        });
         let before = level(bond.points);
         if bond.day != day {
             bond.day = day.to_string();
@@ -154,6 +169,29 @@ impl Bonds {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn a_bond_remembers_the_day_it_began() {
+        let mut b = Bonds::default();
+        b.befriend("a", "time", "2026-10-09", TIME_EVERY_MS).unwrap();
+        b.befriend("a", "pat", "2026-11-01", 0).unwrap();
+        assert_eq!(b.0["a"].met, "2026-10-09", "the first day stays");
+        assert_eq!(serde_json::to_value(&b.0["a"]).unwrap()["met"], "2026-10-09");
+        let raw = json!({"old": {"points": 70}, "odd": {"points": 1, "met": "soon"}, "num": {"points": 1, "met": 5}});
+        let r = Bonds::restore(Some(&raw), &["old".into(), "odd".into(), "num".into()]);
+        assert_eq!(
+            (
+                r.0["old"].met.as_str(),
+                r.0["odd"].met.as_str(),
+                r.0["num"].met.as_str()
+            ),
+            ("", "", "")
+        );
+        assert!(
+            serde_json::to_value(&r.0["old"]).unwrap().get("met").is_none(),
+            "nothing to write for an older bond"
+        );
+    }
 
     #[test]
     fn levels_begin_at_their_points() {
