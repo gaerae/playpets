@@ -4,89 +4,41 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import './support/content.mjs';
-import { installDom, installStorage } from './support/dom.mjs';
 
 globalThis.playPets = {
   moveDecor: async () => ({ ok: true, data: null }),
   hideDecor: async () => ({ ok: true, data: null }),
   putAway: async () => ({ ok: true, data: null }),
 };
-const { setData, views } = await import('../src/core/state.js');
+const { views } = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
 const { reduced } = await import('../src/core/sprites.js');
-const { loadArt } = await import('../src/yard/art.js');
-const { markFresh, renderDecor, setupDecor } = await import('../src/yard/decor.js');
-const { fieldToYard, measureYard, petHeight } = await import('../src/yard/field.js');
+const { markFresh } = await import('../src/yard/decor.js');
+const { fieldToYard, petHeight } = await import('../src/yard/field.js');
 const { scene } = await import('../src/yard/world.js');
 const { christmasNight, christmasNightCheck, nightOf, setupChristmasNight, sleighReady } =
   await import('../src/yard/christmas-night.js');
+const { drawYard } = await import('./support/yard.mjs');
 
 // December 24 at nine in the evening, local time.
 const NOW = new Date(2026, 11, 24, 21).getTime();
 const TREE = { id: 'tree', kind: 'xmas_tree', x: 0.5, y: 0.5 };
 const ART = ['decor/xmas_tree.svg', 'decor/xmas_tree_grand.svg', 'decor/sleigh.svg'];
 
-// The drawings' sizes, as the page reads them from their view boxes (art.js loadArt).
-async function sizes(document) {
-  const defs = { append() {} };
-  document.querySelector = selector => (selector === '#art defs' ? defs : null);
-  globalThis.DOMParser = class {
-    parseFromString(text) {
-      const box = text.match(/viewBox="([^"]+)"/)[1];
-      return {
-        documentElement: {
-          nodeName: 'svg',
-          getAttribute: () => box,
-          querySelectorAll: () => [],
-          attributes: [],
-          childNodes: [],
-        },
-      };
-    }
-  };
-  globalThis.fetch = async path => ({
-    ok: true,
-    text: () => readFile(new URL(`../src/${path}`, import.meta.url), 'utf8'),
-  });
-  await loadArt(ART);
-}
+const NIGHT = { world: 'woodland', event: 'lights', season: 'winter', period: 'night', weather: 'snow' };
 
 async function yard(ctx, { decor = [TREE], seen, before } = {}) {
-  ctx.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: NOW });
-  const was = { world: scene.world, event: scene.event, season: scene.season, period: scene.period };
-  Object.assign(was, { weather: scene.weather });
-  Object.assign(scene, { world: 'woodland', event: 'lights', season: 'winter', period: 'night', weather: 'snow' });
-  const motion = reduced.matches;
-  ctx.after(() => {
-    Object.assign(scene, was);
-    reduced.matches = motion;
-    views.clear();
-    // The yard empties while this test's clock still runs, so no timer handle outlives it.
-    setData({ garden: { decor: [], plants: [], trees: [], boxed: [] }, pets: [], assets: [] });
-    renderDecor();
+  const parts = await drawYard(ctx, {
+    now: NOW,
+    scene: NIGHT,
+    art: ART,
+    garden: { decor },
+    drawn: christmasNightCheck,
+    setup: () => setupChristmasNight(seen ? { seen } : undefined),
+    before,
   });
-  const { nodes, document } = installDom(ctx, { anyId: true, ids: ['yard', 'garden-layer', 'toast'] });
-  // As index.html has it.
-  document.getElementById('xmas-sleigh').hidden = true;
-  ctx.after(() => {
-    delete globalThis.DOMParser;
-    delete globalThis.fetch;
-  });
-  await sizes(document);
-  nodes.get('yard').getBoundingClientRect = () => ({ left: 0, top: 0, width: 800, height: 560 });
-  const storage = installStorage(ctx);
-  setupDecor({ drawn: christmasNightCheck });
-  setupChristmasNight(seen ? { seen } : undefined);
-  // What an earlier test drew goes first.
-  setData({ garden: { decor: [], plants: [], trees: [], boxed: [] }, pets: [], assets: [] });
-  renderDecor();
-  setData({ garden: { decor, plants: [], trees: [], boxed: [] }, pets: [], assets: [] });
-  measureYard();
-  before?.({ document, storage });
-  renderDecor();
-  // remove() leaves a node in place, marked (support/dom.mjs).
-  const tree = () => nodes.get('garden-layer').children.find(b => !b.removed && b.dataset.kind === 'xmas_tree');
-  return { tree, document, storage, nodes };
+  const tree = () => parts.shown().find(b => b.dataset.kind === 'xmas_tree');
+  return { ...parts, tree };
 }
 const layers = button => button.children.filter(c => typeof c === 'object' && c.classList.contains('xmas-night'));
 const has = (button, name) => button.classList.contains(name);

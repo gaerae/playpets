@@ -23,6 +23,9 @@
     way the page does.
   - `dom.mjs` is the fake DOM (elements, document, localStorage, putting globals
     back) that page tests share instead of writing their own.
+  - `yard.mjs` draws the gifts' yard on that fake DOM with the real drawings'
+    sizes, a held clock and a scene put back after the test; import it after
+    setting `globalThis.playPets`.
 - `fixtures/` holds shared data, including seasonal dates also read by Rust tests.
 - Keep fixtures deterministic and free of user data.
 - One file: `node --test tests/animation.test.mjs`. Useful during development;
