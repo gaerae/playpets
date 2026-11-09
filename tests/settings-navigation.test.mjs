@@ -160,3 +160,17 @@ test('Settings follows the window between the two layouts without losing its sec
   assert.equal(nodes.get('settings-home').hidden, true, 'narrowed: the open section alone');
   assert.equal(nodes.get('updates-title-body').hidden, false);
 });
+
+test('a section that reads outside files reads them when it opens, not on every resize', async t => {
+  const { bodies } = page(t);
+  let reads = 0;
+  bodies[1].addEventListener('settings-shown', () => reads++);
+  openPanel('settings', 'agent-link');
+  assert.equal(reads, 1);
+  await window.dispatch('resize');
+  await window.dispatch('resize');
+  assert.equal(reads, 1, 'resizing the window reads nothing again');
+  openPanel(null);
+  openPanel('settings', 'agent-link');
+  assert.equal(reads, 2, 'opening it again reads again');
+});
