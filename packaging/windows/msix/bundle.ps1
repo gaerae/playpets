@@ -26,5 +26,5 @@ Copy-Item $symbols "$work/upload/"
 $zip = Join-Path $work 'upload.zip'
 Compress-Archive -Path "$work/upload/*" -DestinationPath $zip
 Move-Item $zip (Join-Path $dir "PlayPets_$version.msixupload") -Force
-Remove-Item -Force $packages, $symbols
+Remove-Item -Force ($packages + $symbols)
 Remove-Item -Recurse -Force $work
