@@ -107,3 +107,21 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 - Gift viewports use the gift's catalog size; flowers use 40 by 54 like the
   earlier specimens.
 - New trees and keepsakes are discovery art; see `assets/discovery/README.md`.
+
+## Christmas gifts (2026-11-09)
+
+- Three specimens in two atlases: a small Christmas tree in
+  `collection-extension/christmas-trees`, a baby reindeer and Santa in
+  `collection-extension/christmas-guests`.
+- Each atlas is a composed sheet from the generated originals; the baby
+  reindeer's nose is recoloured cocoa brown so it does not read as a famous
+  character.
+- Alpha below 50 is cleared to fully transparent: the generator leaves a soft
+  halo that shows as a ring on a dark ground.
+- Crops follow measured silhouettes with a 14-pixel margin; reproduce the
+  wrappers with `node scripts/pack-collection.mjs`.
+- The grand tree (right of `christmas-trees`) and the sleigh (right of
+  `christmas-guests`) stay in the atlases for Christmas night; nothing names them
+  yet.
+- Accepted sources, prompts, hashes and measured boxes:
+  `assets/sources/christmas-2026-11-09/accepted-art.json`.
