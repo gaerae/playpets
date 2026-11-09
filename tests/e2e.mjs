@@ -170,22 +170,30 @@ const scenario = `(async()=>{
     const p1=await must('addPet',playPets.addPet(a));
     await L('intro='+p1.data.persona);
     await must('rename',playPets.updatePet(p1.data.id,{name:'타우리',size:160,persona:'반말로 짧게 대답해요.'}));
-    const save=await must('saveProvider',playPets.saveProvider({type:'ollama',model:'flow-model',endpoint:'${endpoint}'}));
-    await must('attach',playPets.updatePet(p1.data.id,{providerId:save.data.id}));
-    await must('bond',playPets.updatePet(p1.data.id,{relation:'partner',callMe:'자기'}));
-    // The year-end letter is written here, as soon as the closest friend has its connection, so the page's own
-    // check (December 26 to 31) finds the year taken. The backend takes the latest year anywhere on Earth (UTC+14)
-    // or the one before, so both years follow that rule and not the page's calendar alone.
+    // The year-end letter: both years follow the backend's rule (the latest date on Earth, UTC+14, or the year before),
+    // not the page's calendar alone. The page's own check (December 26 to 31) writes only its local year, and from
+    // the lines. The friend has no connection yet, so whichever of the scenario and the page writes that year first
+    // sends nothing and takes the year; the checks accept the page's lines as well as this call's.
     const earthYear=new Date(Date.now()+14*3600e3).getUTCFullYear(),pageYear=new Date().getFullYear(),otherYear=pageYear===earthYear?pageYear-1:pageYear+1;
-    const letterWrites=await playPets.writeLetter(pageYear,p1.data.id,['FACT-ALPHA\\nsecond line'],'FALLBACK');
-    await L('letterAi='+(letterWrites.ok&&letterWrites.data.text==='편지 왔어!'?'ai-wrote':'err:'+JSON.stringify(letterWrites).slice(0,90)));
-    const letterAgain=await playPets.writeLetter(pageYear,p1.data.id,['FACT-ALPHA\\nsecond line'],'FALLBACK');
-    await L('letterOnce='+(letterAgain.ok&&letterAgain.data.text==='편지 왔어!'&&letterAgain.data.at===letterWrites.data?.at?'same-letter':'err:'+JSON.stringify(letterAgain).slice(0,90)));
+    const bareFriend=(await playPets.bootstrap()).data.pets.find(q=>q.id===p1.data.id);
+    const lineLetter=await playPets.writeLetter(pageYear,p1.data.id,['x'],'FALLBACK');
+    await L('letterLines='+(!bareFriend?.providerId&&lineLetter.ok&&lineLetter.data.text.length>0&&lineLetter.data.text!=='편지 왔어!'?'page-lines':'err:'+JSON.stringify([bareFriend?.providerId,lineLetter]).slice(0,90)));
     const answered=await playPets.answerLetter(pageYear,'캠핑 더 자주');
     const keptAnswer=(await playPets.bootstrap()).data.letters.find(l=>l.year===pageYear);
     await L('letterAnswer='+(answered.ok&&keptAnswer?.answer==='캠핑 더 자주'?'kept':'err:'+JSON.stringify(answered).slice(0,90)));
-    // Put away again, so no chip or envelope in the yard outlasts the check.
     await playPets.deleteLetter(pageYear);
+    const deletedLetter=(await playPets.bootstrap()).data.letters.find(l=>l.year===pageYear);
+    await L('letterDelete='+(deletedLetter&&deletedLetter.text===''&&deletedLetter.answer===null?'year-only':'err:'+JSON.stringify(deletedLetter).slice(0,90)));
+    const save=await must('saveProvider',playPets.saveProvider({type:'ollama',model:'flow-model',endpoint:'${endpoint}'}));
+    await must('attach',playPets.updatePet(p1.data.id,{providerId:save.data.id}));
+    await must('bond',playPets.updatePet(p1.data.id,{relation:'partner',callMe:'자기'}));
+    // The AI letter is for the year the page never writes (the page writes only its local year, and never one that is taken).
+    const letterWrites=await playPets.writeLetter(otherYear,p1.data.id,['FACT-ALPHA\\nsecond line'],'FALLBACK');
+    await L('letterAi='+(letterWrites.ok&&letterWrites.data.text==='편지 왔어!'?'ai-wrote':'err:'+JSON.stringify(letterWrites).slice(0,90)));
+    const letterAgain=await playPets.writeLetter(otherYear,p1.data.id,['FACT-ALPHA\\nsecond line'],'FALLBACK');
+    await L('letterOnce='+(letterAgain.ok&&letterWrites.ok&&letterAgain.data.text==='편지 왔어!'&&letterAgain.data.at>0&&letterAgain.data.at===letterWrites.data.at?'same-letter':'err:'+JSON.stringify(letterAgain).slice(0,90)));
+    // Put away again, so no chip or envelope in the yard outlasts the check.
+    await playPets.deleteLetter(otherYear);
     const agentState=await until(async()=>(await playPets.bootstrap()).data.statuses[p1.data.id]?.state==='working'&&'working',10000)||'none';
     await L('agentStatus='+agentState);
     const models=await playPets.listModels({type:'ollama',endpoint:'${endpoint}',model:''});
@@ -199,13 +207,6 @@ const scenario = `(async()=>{
     const hist=await playPets.getChat(p1.data.id);
     await L('history='+(hist.ok?hist.data.length:'err'));
     const p2=await must('addPet2',playPets.addPet(a));
-    // A friend with no connection writes the page's own lines, and nothing is sent.
-    const bareFriend=(await playPets.bootstrap()).data.pets.find(q=>q.id===p2.data.id);
-    const lineLetter=await playPets.writeLetter(otherYear,p2.data.id,['x'],'FALLBACK');
-    await L('letterLines='+(!bareFriend?.providerId&&lineLetter.ok&&lineLetter.data.text==='FALLBACK'?'page-lines':'err:'+JSON.stringify([bareFriend?.providerId,lineLetter]).slice(0,90)));
-    await playPets.deleteLetter(otherYear);
-    const deletedLetter=(await playPets.bootstrap()).data.letters.find(l=>l.year===otherYear);
-    await L('letterDelete='+(deletedLetter&&deletedLetter.text===''&&deletedLetter.answer===null?'year-only':'err:'+JSON.stringify(deletedLetter).slice(0,90)));
     await must('attach2',playPets.updatePet(p2.data.id,{name:'둘째',providerId:save.data.id,persona:''}));
     const group=await playPets.chatWith([p1.data.id,p2.data.id],'둘 다 안녕');
     await L('group='+(group.ok?group.data.map(r=>r.name).join('+'):'err:'+group.error));
