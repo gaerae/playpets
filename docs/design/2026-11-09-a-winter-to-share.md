@@ -73,6 +73,8 @@
 | Keeping | Ornaments stay on the tree all winter and show on it in the yard. At the next `lights` they are taken down, so each December starts a fresh tree |
 | Data | `garden.ornaments` (`[{book, id, hook}]`), `garden.ornamentDay` (`{day, count}`), `garden.ornamentYear` |
 
+Follow-up (2026-11-10): the decorating view lets a person take a bauble down from its card. It frees the hook and does not return the day's count. With three a day the tree fills in about four days, and taking one down lets it keep changing through the season.
+
 ## Building a snowman
 
 | What | Rule |

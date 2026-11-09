@@ -81,9 +81,11 @@
    | `shown` | `"december"`: shows in the yard and on the desktop from December 1 to January 7, and is hidden with its state kept the rest of the year. It goes back into the gift box when put away. The windows are `SHOWN` in `src/yard/decor-shown.js` |
    | `seasons` | Shows only while the yard shows one of these seasons; never in a place without seasons (`seasonalEffects: false`, the studio). The season the yard shows is `yardSeason` in `src/yard/decor-shown.js` |
    | `built` | `true`: never brought by a friend; it comes from building it (the snowman) |
-   | `night` | The gift's Christmas night look; only `xmas_tree` has one. Read by `src/yard/christmas-night.js` (see below) |
+   | `hooks` | Where ornaments hang on this drawing, as fractions of its box; only `xmas_tree` has them, and `ORNAMENT_HOOKS` in `garden.rs` is their count |
+   | `night` | The gift's Christmas night look; only `xmas_tree` has one. Read by `src/yard/christmas-night.js` (see below); its `hooks` name the same places on the grand tree |
 
    - At most four kinds use `shown` or `seasons`.
+   - What can hang and where: flowers, trees, gifts and keepsakes found in the album. The rule is `hang_ornament` in `garden.rs` and `src/yard/ornaments.js`.
 
    `night` holds:
 
