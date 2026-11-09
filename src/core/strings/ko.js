@@ -485,7 +485,6 @@ export const strings = {
   'catch.bug_late_firefly': '늦반딧불이',
   'care.hello': '안녕! 반가워.',
   'care.happy': '♥ 기분 좋아!',
-  'game.label': '놀이',
   'game.hide': '숨바꼭질',
   'game.parade': '산책 행렬',
   'game.tag': '술래잡기',

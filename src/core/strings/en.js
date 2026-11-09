@@ -505,7 +505,6 @@ export const strings = {
   'catch.bug_late_firefly': 'Late firefly',
   'care.hello': 'Hi! Good to see you.',
   'care.happy': '♥ That feels nice!',
-  'game.label': 'Games',
   'game.hide': 'Hide and seek',
   'game.parade': 'Parade',
   'game.tag': 'Tag',

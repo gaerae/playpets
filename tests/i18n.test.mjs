@@ -131,8 +131,6 @@ const BUILT = [
   /^game\.(hide|parade|tag)_title$/, // yard/play.js
   /^discovery\.((dig|tree)_hint|empty|seed|full)$/, // yard/discovery.js, by tool and by outcome
 ];
-// Kept though the page never shows it: the e2e reads it as its "no game playing" marker.
-const KEPT_FOR_E2E = new Set(['game.label']);
 
 // The other way round: a sentence nothing names is never shown, yet goes on being translated and
 // kept in four tables. A key counts as used when src/ names it in quotes (a t() or list() call, a
@@ -152,14 +150,12 @@ test('every key in the table is one the page names', async () => {
     for (const [, key] of (await readFile(file, 'utf8')).matchAll(/['"`]([a-z_]+(?:\.[a-z0-9_]+)+)['"`]/g))
       quoted.add(key);
   const keys = Object.keys(STRINGS.en);
-  for (const family of [...BUILT, ...KEPT_FOR_E2E])
+  for (const family of BUILT)
     assert.ok(
-      keys.some(key => (typeof family === 'string' ? key === family : family.test(key))),
+      keys.some(key => family.test(key)),
       `${family} no longer names any key; drop it from the list`,
     );
-  const unused = keys.filter(
-    key => !quoted.has(key) && !KEPT_FOR_E2E.has(key) && !BUILT.some(family => family.test(key)),
-  );
+  const unused = keys.filter(key => !quoted.has(key) && !BUILT.some(family => family.test(key)));
   assert.deepEqual(unused, [], 'keys in the language files that nothing in src/ names');
 });
 

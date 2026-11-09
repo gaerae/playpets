@@ -477,7 +477,6 @@ export const strings = {
   'catch.bug_late_firefly': '窗萤',
   'care.hello': '你好！见到你真高兴。',
   'care.happy': '♥ 心情真好！',
-  'game.label': '游戏',
   'game.hide': '捉迷藏',
   'game.parade': '散步队列',
   'game.tag': '鬼抓人',

@@ -500,7 +500,6 @@ export const strings = {
   'catch.bug_late_firefly': 'マドボタル',
   'care.hello': 'やあ！ 会えてうれしい。',
   'care.happy': '♥ 気持ちいい！',
-  'game.label': '遊び',
   'game.hide': 'かくれんぼ',
   'game.parade': 'おさんぽ行列',
   'game.tag': 'おにごっこ',
