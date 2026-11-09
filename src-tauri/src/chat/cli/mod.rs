@@ -168,8 +168,30 @@ impl CliManager {
     /// `turns` are the conversation so far, ending with the message to answer. `config` says
     /// which CLI (claude or codex) and model. `cancel` is the turn's flag: set at any point, from
     /// before the program has started to while it writes, the turn ends as cancelled.
+    /// What the turn says about the CLI's sign-in is kept for the next look (see `Logins::heard`).
     #[allow(clippy::too_many_arguments)]
     pub fn chat(
+        &self,
+        pet_id: &str,
+        config: &super::http::Config,
+        system: &str,
+        notes: &str,
+        turns: &[Value],
+        at: At,
+        cancel: &AtomicBool,
+    ) -> Result<String, String> {
+        let answer = self.turn(pet_id, config, system, notes, turns, at, cancel);
+        let kind = if config.kind == super::kind::Kind::Codex {
+            "codex"
+        } else {
+            "claude"
+        };
+        self.logins.heard(kind, &answer);
+        answer
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn turn(
         &self,
         pet_id: &str,
         config: &super::http::Config,

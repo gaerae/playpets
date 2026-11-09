@@ -10,18 +10,28 @@ import { spoken } from '../core/text.js';
 export const CLI_LABELS = Object.freeze({ claude: 'Claude Code', codex: 'Codex' });
 const CLIS = Object.keys(CLI_LABELS);
 
+// What the backend said about `kind`'s sign-in: true, false, or null while nobody knows (before
+// the first look, or a check that did not finish).
+const said = (detected, kind) => {
+  const word = detected.signedIn?.[kind];
+  return typeof word === 'boolean' ? word : null;
+};
+
 /** The subscription CLI to offer, as `{ type, signedIn }`: one found and signed in first, else the
- * first found. `signedIn` is null while the backend has not said yet, so nothing flashes at start. */
+ * first found. `signedIn` is null while nobody knows, so nothing flashes or locks on a guess. */
 export function cliChoice(detected = data.detected || {}) {
   const found = CLIS.filter(kind => detected[kind]);
-  const ready = found.find(kind => detected.signedIn?.[kind] === true);
+  const ready = found.find(kind => said(detected, kind) === true);
   if (ready) return { type: ready, signedIn: true };
-  if (!found.length) return null;
-  return { type: found[0], signedIn: detected.signedIn ? detected.signedIn[found[0]] === true : null };
+  return found.length ? { type: found[0], signedIn: said(detected, found[0]) } : null;
 }
 
-/** Whether `kind`'s CLI is known to be signed out (false while the backend has not said). */
-export const signedOut = kind => (data.detected?.signedIn || {})[kind] === false;
+/** Whether `kind`'s CLI is on this computer and known to be signed out. One that is not here has
+ * nothing to sign in to: its friends are told how to install it instead. */
+export const signedOut = kind => {
+  const detected = data.detected || {};
+  return !!detected[kind] && said(detected, kind) === false;
+};
 
 // The one sign-in this app runs at a time: which CLI, and whether it is waiting or did not finish.
 let run = { kind: null, phase: 'idle' };
@@ -61,7 +71,9 @@ export function renderSignIn(host, kind) {
   if (stop && kind === 'claude') return host.append(codeForm(stop));
   const actions = document.createElement('div');
   actions.className = 'sign-in-actions';
-  actions.append(stop || button(phase === 'failed' ? 'signin.retry' : 'signin.start', 'primary', () => start(kind)));
+  actions.append(
+    stop || button(phase === 'failed' ? 'signin.retry' : 'signin.start', 'primary', () => startSignIn(kind)),
+  );
   host.append(actions);
 }
 
@@ -106,7 +118,8 @@ function codeForm(stop) {
   return form;
 }
 
-async function start(kind) {
+/** Starts `kind`'s sign-in in the browser: the card's own button, and a step that leads here. */
+export async function startSignIn(kind) {
   run = { kind, phase: 'waiting' };
   onChange();
   try {
@@ -124,9 +137,10 @@ async function cancel() {
   await call('cancelCliLogin').catch(() => {});
 }
 
-/** Moves the focus to the first button of a sign-in card in `host`, for a step that led here. */
+/** Moves the focus into a sign-in card in `host` (its code box, else its first button), for a
+ * step that led here. */
 export function focusSignIn(host) {
-  host?.querySelector('button')?.focus();
+  host?.querySelector('input, button')?.focus();
 }
 
 /** Asks the backend to look again whether each CLI is signed in (after a CLI turn failed, say). */

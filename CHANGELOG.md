@@ -21,7 +21,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
 - Who joins a group chat opens as a dropdown.
-- **Connect now** and sending a first message no longer connect a CLI that is signed out, which used to fail at the first message; they lead to the sign-in instead. With a signed-in CLI found, sending a first message connects it without opening the connection window.
+- **Connect now** and sending a first message no longer connect a CLI that is signed out, which used to fail at the first message; **Connect now** starts the sign-in in your browser instead, and a first message waits for it. With a signed-in CLI found, sending a first message connects it without opening the connection window.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
 - Downloads are smaller again, with the four friends who come with the app looking exactly as before: their pictures take 27.6 MB inside the app instead of 37.0 MB.
 - An update removes the folders of built-in friends the app no longer ships, which stayed in the data folder before.

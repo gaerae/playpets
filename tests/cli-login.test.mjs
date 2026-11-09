@@ -67,16 +67,35 @@ test('the CLI offered is one signed in first, and nothing is offered before the 
     signedIn: false,
   });
   assert.deepEqual(cliChoice({ claude: true }), { type: 'claude', signedIn: null }, 'not asked yet');
+  assert.deepEqual(
+    cliChoice({ claude: true, signedIn: { claude: null } }),
+    { type: 'claude', signedIn: null },
+    'a check that could not finish',
+  );
   assert.equal(cliChoice({ ollama: ['llama3.2'] }), null);
 });
 
-test('connect now asks for a sign-in instead of a connection that would fail', async context => {
+test('connect now starts the sign-in instead of a connection that would fail', async context => {
   const get = page(context, { pets: [friend('a')], detected: signedOut });
   await quickConnect();
-  assert.deepEqual(names(), [], 'no connection is saved for a CLI that is signed out');
+  assert.deepEqual(calls, [['cliLogin', 'claude']], 'no connection is saved, the browser opens');
   renderChat(state.data.pets[0]);
   assert.equal(card(get).hidden, false);
-  assert.ok(card(get).textContent.includes(t('signin.title', { tool: 'Claude Code' })));
+  assert.ok(card(get).textContent.includes(t('signin.waiting')), 'the card waits for the browser');
+  await press(card(get), t('signin.cancel'));
+});
+
+test('nothing is locked while the backend has not said, or for a CLI that is not here', async context => {
+  for (const detected of [
+    { claude: true, ollama: [] },
+    { claude: true, ollama: [], signedIn: { claude: null, codex: null } },
+    { claude: false, ollama: [], signedIn: { claude: false, codex: false } },
+  ]) {
+    const get = page(context, { pets: [friend('a', 'one')], providers: [claude], detected });
+    renderChat(state.data.pets[0]);
+    assert.equal(card(get).hidden, true, JSON.stringify(detected));
+    assert.equal(get('message').disabled, false, JSON.stringify(detected));
+  }
 });
 
 test('a friend with no AI signs in above the message box and is connected once it ends', async context => {
