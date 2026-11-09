@@ -150,4 +150,8 @@ test('a December gift waits in the album until December', async ctx => {
   const snowman = cardOf(nodes, 'snowman');
   assert.equal(snowman.disabled, true);
   assert.equal(snowman.title, t('album.shown_winter'));
+  // Out in the yard but out of sight in July: the title says when it shows, not "In the yard".
+  ctx.mock.timers.setTime(new Date(2026, 6, 1, 12).getTime());
+  nodes = album(ctx, { received: ['xmas_tree'], decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5 }] });
+  assert.equal(cardOf(nodes, 'xmas_tree').title, t('album.shown_december'));
 });

@@ -242,6 +242,7 @@ mod tests {
             provider_updates: HashSet::new(),
             detected: json!({}),
             activity: HashMap::new(),
+            hidden_decor: None,
         }
     }
 

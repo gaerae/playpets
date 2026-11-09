@@ -193,6 +193,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         provider_updates: HashSet::new(),
         detected: json!({"claude": false, "codex": false, "ollama": []}),
         activity: HashMap::new(),
+        hidden_decor: None,
     })
 }
 

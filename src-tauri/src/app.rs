@@ -94,6 +94,9 @@ pub struct AppData {
     pub provider_updates: HashSet<String>,
     pub detected: Value,
     pub activity: HashMap<String, Vec<chat::prompt::Activity>>,
+    /// The gift kinds the yard hides right now, as it last reported (hideDecor); the desktop leaves
+    /// them out too. Not saved; `None` until the yard reports.
+    pub hidden_decor: Option<Vec<String>>,
 }
 
 pub type Shared = Mutex<AppData>;
@@ -131,7 +134,7 @@ fn sprite_url(id: &str) -> String {
 
 /// What the desktop overlay draws: the friends and decorations out there.
 pub fn desktop_items(d: &AppData) -> Vec<overlay::Item> {
-    crate::desktop::items::items(&d.pets, &d.garden)
+    crate::desktop::items::items(&d.pets, &d.garden, d.hidden_decor.as_deref())
 }
 
 /// Whether anything is out on the desktop: what the menus' switch shows.

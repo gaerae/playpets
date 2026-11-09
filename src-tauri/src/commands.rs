@@ -359,6 +359,28 @@ static COMMANDS: &[Command] = &[
         let on = c.arg(1).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;
         crate::app::put_on_desktop(c.app, &mut lock(&c.state), c.text(0), on).map(|()| Value::Null)
     }),
+    // (kinds): the gift kinds the yard hides now, so the desktop leaves them out too (not saved).
+    main("hideDecor", |c| {
+        let kinds = c
+            .arg(0)
+            .as_array()
+            .and_then(|list| {
+                list.iter()
+                    .map(|k| k.as_str().map(str::to_string))
+                    .collect::<Option<Vec<_>>>()
+            })
+            .ok_or_else(|| i18n::t("error.bad_request"))?;
+        if !kinds.iter().all(|k| crate::pets::content::catalog().is_gift(k)) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        let mut d = lock(&c.state);
+        if d.hidden_decor.as_ref() == Some(&kinds) {
+            return Ok(Value::Null);
+        }
+        d.hidden_decor = Some(kinds);
+        crate::app::changed(c.app, &d);
+        Ok(Value::Null)
+    }),
     overlay("openChat", |c| {
         let id = c.text(0);
         require_pet(&lock(&c.state), id)?;
@@ -622,6 +644,7 @@ mod tests {
             "removeTree",
             "growTrees",
             "setOnDesktop",
+            "hideDecor",
             "takeOut",
         ] {
             assert!(may_call("main", name));

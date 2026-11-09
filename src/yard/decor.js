@@ -49,6 +49,8 @@ const fresh = new Set();
 const kindName = kind => t(`decor.kind_${kind}`);
 // The kinds out of sight when the yard last drew its gifts (decor-shown.js), joined.
 let drawnHidden = null;
+// The list last sent to the backend, so the desktop hears of a change once, not at every repaint.
+let toldDesktop = null;
 // A memento's heart shows for a day after it came; after that only while it is pointed at, chosen
 // or dragged (garden.css), so a yard full of mementos is not covered in hearts.
 const MEMENTO_NEW_MS = 86_400_000;
@@ -177,7 +179,15 @@ export function renderDecor() {
   const now = Date.now(),
     date = new Date(now);
   let fadeAt = Infinity;
-  drawnHidden = hiddenKinds(date, scene.season).join();
+  const hidden = hiddenKinds(date, scene.season);
+  drawnHidden = hidden.join();
+  // The desktop leaves the same kinds out, so nothing unseen there draws or catches clicks.
+  if (drawnHidden !== toldDesktop) {
+    toldDesktop = drawnHidden;
+    call('hideDecor', hidden).catch(() => {
+      toldDesktop = null;
+    });
+  }
   // A kind out of sight is left out, not taken away: it keeps its place for when it shows.
   const decor = (data.garden?.decor || []).filter(d => decorShown(d.kind, date, scene.season));
   reconcile(shown, decor, make, (v, d) => {

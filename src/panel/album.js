@@ -198,10 +198,10 @@ function takeOutButton(kind) {
   button.className = 'album-take-out';
   button.textContent = t(out ? 'album.in_yard' : 'album.take_out');
   button.disabled = out || !room || !shows;
-  button.title = out
-    ? t('album.in_yard')
-    : !shows
-      ? whenShown(kind)
+  button.title = !shows
+    ? whenShown(kind)
+    : out
+      ? t('album.in_yard')
       : room
         ? t('album.set_out', { kind: t(`decor.kind_${kind}`) })
         : t('album.set_out_full');

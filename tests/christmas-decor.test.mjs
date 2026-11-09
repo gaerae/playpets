@@ -4,7 +4,14 @@ import test from 'node:test';
 import './support/content.mjs';
 import { installDom } from './support/dom.mjs';
 
-globalThis.playPets = { moveDecor: async () => ({ ok: true, data: null }) };
+const hidden = [];
+globalThis.playPets = {
+  moveDecor: async () => ({ ok: true, data: null }),
+  hideDecor: async kinds => {
+    hidden.push(kinds);
+    return { ok: true, data: null };
+  },
+};
 const { setData } = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
 const { renderDecor } = await import('../src/yard/decor.js');
@@ -126,4 +133,19 @@ test('the yard shows the tree from December 1 and hides it on January 8 without 
     ['tree'],
     'it keeps its place',
   );
+});
+
+test('the yard tells the desktop which kinds are hidden, once per change', ctx => {
+  hidden.length = 0;
+  yard(ctx, new Date(2026, 6, 1, 12).getTime(), 'summer', [{ id: 'tree', kind: 'xmas_tree', x: 0.5, y: 0.5 }]);
+  renderDecor();
+  assert.deepEqual(hidden.at(-1), ['snowman', 'xmas_tree', 'baby_reindeer', 'santa']);
+  const sent = hidden.length;
+  renderDecor();
+  assert.equal(hidden.length, sent, 'the same list is not sent twice');
+  ctx.mock.timers.setTime(new Date(2026, 11, 5, 12).getTime());
+  scene.season = 'winter';
+  refreshShownDecor();
+  assert.deepEqual(hidden.at(-1), []);
+  assert.equal(hidden.length, sent + 1);
 });

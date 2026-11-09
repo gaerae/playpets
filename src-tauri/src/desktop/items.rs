@@ -16,23 +16,34 @@ pub fn anything_out(pets: &[Pet], garden: &Garden) -> bool {
     pets.iter().any(|p| p.on_desktop) || garden.decor.iter().any(|d| d.on_desktop)
 }
 
-/// What the overlay draws: the friends out, then the decorations out, each with its last place.
-pub fn items(pets: &[Pet], garden: &Garden) -> Vec<Item> {
+/// What the overlay draws: the friends out, then the decorations out, each with its last place. A
+/// decoration the yard hides (`hidden`, the kinds it last reported) is left out, so nothing unseen
+/// draws or catches clicks; it keeps its place for when it shows. Before the yard reports (`None`),
+/// every kind that comes and goes is left out, so nothing flashes at start.
+pub fn items(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) -> Vec<Item> {
+    let left_out = |kind: &str| match hidden {
+        Some(kinds) => kinds.iter().any(|k| k == kind),
+        None => catalog().comes_and_goes(kind),
+    };
     let friends = pets.iter().filter(|p| p.on_desktop).map(|p| Item {
         id: p.id.clone(),
         size: p.size,
         saved: p.desktop_position.map(|q| (q.x as f64, q.y as f64)),
         decor: None,
     });
-    let decor = garden.decor.iter().filter(|d| d.on_desktop).map(|d| {
-        let (w, h) = catalog().gift_size(&d.kind).unwrap_or((64.0, 64.0));
-        Item {
-            id: d.id.clone(),
-            size: 0.0,
-            saved: d.desktop_position.map(|q| (q.x as f64, q.y as f64)),
-            decor: Some((d.kind.clone(), (w * DECOR_SCALE).round(), (h * DECOR_SCALE).round())),
-        }
-    });
+    let decor = garden
+        .decor
+        .iter()
+        .filter(|d| d.on_desktop && !left_out(&d.kind))
+        .map(|d| {
+            let (w, h) = catalog().gift_size(&d.kind).unwrap_or((64.0, 64.0));
+            Item {
+                id: d.id.clone(),
+                size: 0.0,
+                saved: d.desktop_position.map(|q| (q.x as f64, q.y as f64)),
+                decor: Some((d.kind.clone(), (w * DECOR_SCALE).round(), (h * DECOR_SCALE).round())),
+            }
+        });
     friends.chain(decor).collect()
 }
 
@@ -98,11 +109,11 @@ mod tests {
     #[test]
     fn each_friend_and_decoration_goes_out_on_its_own() {
         let (mut pets, mut garden) = yard();
-        assert!(!anything_out(&pets, &garden) && items(&pets, &garden).is_empty());
+        assert!(!anything_out(&pets, &garden) && items(&pets, &garden, Some(&[])).is_empty());
         set(&mut pets, &mut garden, "pip", true).unwrap();
         set(&mut pets, &mut garden, "bench", true).unwrap();
         assert!(set(&mut pets, &mut garden, "nobody", true).is_err());
-        let out = items(&pets, &garden);
+        let out = items(&pets, &garden, Some(&[]));
         assert_eq!(out.iter().map(|i| i.id.as_str()).collect::<Vec<_>>(), ["pip", "bench"]);
         assert!(out[0].decor.is_none());
         // Drawn beside a friend as in the yard: the bench is wider than a friend of the usual size.
@@ -110,10 +121,41 @@ mod tests {
         assert_eq!((kind.as_str(), w, h), ("bench", 151.0, 121.0));
         assert!(w > pets[1].size);
         place(&mut pets, &mut garden, "bench", 40, 700);
-        assert_eq!(items(&pets, &garden)[1].saved, Some((40.0, 700.0)));
+        assert_eq!(items(&pets, &garden, Some(&[]))[1].saved, Some((40.0, 700.0)));
         set(&mut pets, &mut garden, "pip", false).unwrap();
-        assert_eq!(items(&pets, &garden).len(), 1);
+        assert_eq!(items(&pets, &garden, Some(&[])).len(), 1);
         assert!(anything_out(&pets, &garden), "the bench is still out");
+    }
+
+    #[test]
+    fn a_hidden_kind_is_not_out_on_the_desktop_and_keeps_its_place() {
+        let mut garden = Garden::default();
+        for kind in ["bench", "xmas_tree"] {
+            garden.decor.push(Decor {
+                id: kind.into(),
+                kind: kind.into(),
+                on_desktop: true,
+                desktop_position: Some(crate::pets::model::Pos { x: 10, y: 20 }),
+                ..Decor::default()
+            });
+        }
+        let kinds = |out: &[Item]| {
+            out.iter()
+                .filter_map(|i| i.decor.as_ref())
+                .map(|d| d.0.clone())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(items(&[], &garden, Some(&[])).len(), 2);
+        let out = items(&[], &garden, Some(&["xmas_tree".to_string()]));
+        assert_eq!(kinds(&out), ["bench"]);
+        assert!(
+            garden
+                .decor
+                .iter()
+                .all(|d| d.on_desktop && d.desktop_position.is_some())
+        );
+        // Before the yard says, every kind that comes and goes stays in.
+        assert_eq!(kinds(&items(&[], &garden, None)), ["bench"]);
     }
 
     #[test]

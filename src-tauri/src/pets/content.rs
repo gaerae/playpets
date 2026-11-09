@@ -255,8 +255,8 @@ impl Catalog {
     pub fn kept_in_box(&self, id: &str) -> bool {
         self.gifts.iter().any(|k| k.id == id && k.shown.is_some())
     }
-    #[allow(dead_code)]
-    /// Whether this gift is drawn only part of the year (a time of year or a season).
+    /// Whether this gift is drawn only part of the year (a time of year or a season): the desktop
+    /// leaves these out until the yard says which are hidden (desktop/items.rs).
     pub fn comes_and_goes(&self, id: &str) -> bool {
         self.gifts
             .iter()
