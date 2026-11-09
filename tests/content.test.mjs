@@ -149,3 +149,58 @@ test("a gift's Christmas night names its drawings, its star, its bulbs and its g
       assert.equal(catalog.gifts.find(g => g.id === guest)?.event, event, `${id}: ${guest}`);
   }
 });
+
+test('the Christmas tree has twelve hooks on each drawing, apart from each other and from the lights', () => {
+  const tree = catalog.gifts.find(g => g.id === 'xmas_tree');
+  const collection = JSON.parse(readFileSync(new URL('../src/art/collection.json', import.meta.url), 'utf8'));
+  const grand = collection.find(r => r.id === 'xmas_tree_grand');
+  const tiersOf = hooks =>
+    hooks.reduce((tiers, h, i) => {
+      if (i && h[1] - hooks[i - 1][1] <= 0.06) tiers.at(-1).push(h);
+      else tiers.push([h]);
+      return tiers;
+    }, []);
+  for (const [hooks, [w, h], label] of [
+    [tree.hooks, tree.size, 'small'],
+    [tree.night.hooks, grand.size, 'grand'],
+  ]) {
+    assert.equal(hooks.length, 12, label);
+    assert.ok(
+      hooks.every(([x, y]) => x > 0 && x < 1 && y > 0 && y < 1),
+      `${label}: inside`,
+    );
+    assert.ok(
+      hooks.every(p => p.every(v => v === Math.round(v * 1000) / 1000)),
+      `${label}: three decimals`,
+    );
+    assert.deepEqual(
+      hooks,
+      hooks.toSorted((a, b) => a[1] - b[1] || a[0] - b[0]),
+      `${label}: top to bottom`,
+    );
+    const far = (a, b, min) => Math.hypot(a[0] - b[0], ((a[1] - b[1]) * h) / w) >= min;
+    hooks.forEach((a, i) =>
+      hooks.slice(i + 1).forEach(b => assert.ok(far(a, b, 0.18), `${label}: ${a} and ${b} apart`)),
+    );
+    if (label === 'grand')
+      for (const a of hooks)
+        for (const b of [tree.night.star, ...tree.night.bulbs])
+          assert.ok(far(a, b, 0.06), `grand: ${a} clear of the lights`);
+  }
+  // Hook i is the same place on both drawings: the same tier, and the same place left to right in it.
+  // The small tree's green comes in three bands (a snowy tree, 56 px wide), so its tiers are 1, 2, 5 and 4.
+  const small = tiersOf(tree.hooks);
+  const big = tiersOf(tree.night.hooks);
+  assert.deepEqual(
+    small.map(t => t.length),
+    [1, 2, 5, 4],
+    'small: tiers',
+  );
+  assert.deepEqual(
+    big.map(t => t.length),
+    [1, 2, 5, 4],
+    'grand: tiers',
+  );
+  const leftToRight = tiers => tiers.map(t => t.map(p => t.filter(q => q[0] < p[0]).length));
+  assert.deepEqual(leftToRight(small), leftToRight(big), 'hook i is in the same place in its tier on both');
+});
