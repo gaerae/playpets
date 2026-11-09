@@ -5,7 +5,7 @@ import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
 import { $, call, data, name, remember, toast, views } from '../core/state.js';
-import { spoken } from '../core/text.js';
+import { plain, spoken } from '../core/text.js';
 import { bubble } from './views.js';
 
 // The backend keeps at most this many characters (ANSWER_MAX in pets/letters.rs).
@@ -48,7 +48,8 @@ export function openLetter(year) {
   shown = year;
   const writer = data.pets.find(pet => pet.id === letter.friend);
   $('letter-title').textContent = writer ? t('letter.title', { name: name(writer) }) : t('letter.title_plain');
-  $('letter-text').textContent = letter.text;
+  // The reply of an AI may carry Markdown marks; the letter shows plain words, as a bubble does.
+  $('letter-text').textContent = plain(letter.text);
   $('letter-error').textContent = '';
   $('letter-answer').value = '';
   const answered = Boolean(letter.answer);
@@ -62,8 +63,8 @@ export function openLetter(year) {
   (answered ? $('letter-close') : $('letter-answer')).focus();
 }
 
-/** Wires the card once; `onClosed(year)` runs after every close. */
-export function setupLetterCard({ onClosed = () => {} } = {}) {
+/** Wires the card once; `onClosed(year)` runs after every close, `onAnswered(year)` after an answer is kept. */
+export function setupLetterCard({ onClosed = () => {}, onAnswered = () => {} } = {}) {
   const dialog = $('letter-dialog');
   shown = null;
   busy = false;
@@ -96,6 +97,7 @@ export function setupLetterCard({ onClosed = () => {} } = {}) {
     } finally {
       setBusy(false);
     }
+    await onAnswered(year);
     dialog.close();
     say(friend, 'letter.thanks');
   };

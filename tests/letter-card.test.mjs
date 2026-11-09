@@ -243,3 +243,9 @@ test('the counter is read with the answer box, not on every key', async () => {
   assert.doesNotMatch(count, /aria-live/);
   assert.match(box, /aria-describedby="letter-count"/);
 });
+
+test('Markdown marks in an AI letter are taken out of what the paper shows', t => {
+  const { $ } = page(t, { letter: { ...LETTER, text: 'Dear **you**,\n\n- we had *fun*' } });
+  openLetter(2026);
+  assert.equal($('letter-text').textContent, 'Dear you,\n\n\u2022 we had fun');
+});

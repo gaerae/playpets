@@ -168,6 +168,17 @@ function deliver(letter) {
 // stays. The backend clears it by the same date (pets/letters.rs clear_ended).
 const ended = (letter, today) => !!letter.text && today > `${letter.year + 1}-01-07`;
 
+/** An answer just sent: written from January 1 to 7, it is not "remembered" a minute later, so it
+ * counts as brought back already. A failure only means the cheer may come, which is harmless. */
+export function answered(year, now = new Date()) {
+  if (letterTime(now) !== 'back' || year !== letterYear(now)) return Promise.resolve();
+  return call('letterBack', year)
+    .then(() => {
+      data.letters = (data.letters || []).map(kept => (kept.year === year ? { ...kept, back: true } : kept));
+    })
+    .catch(() => {});
+}
+
 /** Starts the letter, called by app.js before the sky; wires the chip. `visible()` says whether the
  * yard is seen: nothing is written, said or shown while it is not, so the friend's AI is asked only
  * then. Returns `check()`, for each repaint of the scene: the first only shows the ways in, the

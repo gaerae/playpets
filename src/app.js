@@ -73,7 +73,7 @@ import {
 import { renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
-import { letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
+import { answered, letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
 import { moveFriends } from './yard/motion.js';
 import { drawTreeOrnaments } from './yard/ornaments.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
@@ -120,7 +120,7 @@ icons();
 setupConfirm();
 // The letter's ways in (the chip, the mailbox's envelope) follow the card: an opened letter loses
 // its envelope.
-setupLetterCard({ onClosed: syncLetter });
+setupLetterCard({ onClosed: syncLetter, onAnswered: answered });
 setupNotices();
 setupToast();
 setupInteractions();

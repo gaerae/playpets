@@ -982,7 +982,7 @@ export const strings = {
   'letter.later': 'Not now',
   'letter.your_answer': 'Your answer',
   'letter.private':
-    'Your answer stays on this computer. If your friend has an AI connection, only that AI reads it, to write next year’s letter.',
+    'Your answer stays on this computer. Next December, if the friend writing to you has an AI connection, that AI reads it to write the new letter.',
   'letter.unsaved': 'You’ve started writing back. Send it, or press Not now.',
   'letter.delete': 'Delete letter',
   'letter.delete_title': 'Delete this letter and your answer?',

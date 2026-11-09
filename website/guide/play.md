@@ -240,7 +240,7 @@ Press the Christmas tree to decorate it. Each day you can hang up to three thing
 
 On the first day you open PlayPets from December 26 to 31, the friend you're closest to writes you a letter about the year: what you found for the album, a tree you grew together, how close you've become and how long you've known each other. It asks how your year went and what you'd like to do next year.
 
-If there's a mailbox in the yard, the letter waits there. Otherwise the friend tells you about it, and the **Letter** chip beside the scene label or the yard menu opens it until January 7. You can write back in up to 200 characters, or skip it.
+If there's a mailbox in the yard, the letter waits there; otherwise the friend tells you about it. Either way, the **Letter** chip beside the scene label and the yard menu open it until January 7. You can write back in up to 200 characters, or skip it.
 
 On the first day you open PlayPets from January 1 to 7, a friend brings your answer back and cheers you on, and next December's letter looks back on it. A friend with an AI connection writes in its own words. Letters and answers are kept only on this computer, and the letter card can delete them.
 

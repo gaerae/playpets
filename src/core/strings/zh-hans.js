@@ -922,7 +922,7 @@ export const strings = {
   'letter.send': '寄出',
   'letter.later': '以后再写',
   'letter.your_answer': '你的回信',
-  'letter.private': '你的回信只保存在这台电脑上。如果你给伙伴连接了 AI，只有那个 AI 会在写明年的信时读到。',
+  'letter.private': '你的回信只保存在这台电脑上。明年 12 月，如果给你写信的伙伴连接了 AI，那个 AI 会在写新信时读到。',
   'letter.unsaved': '回信还没有寄出。请点“寄出”或“以后再写”。',
   'letter.delete': '删除信件',
   'letter.delete_title': '要删除这封信和你的回信吗？',

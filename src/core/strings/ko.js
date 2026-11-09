@@ -940,7 +940,8 @@ export const strings = {
   'letter.send': '보내기',
   'letter.later': '다음에 할게요',
   'letter.your_answer': '내 답장',
-  'letter.private': '답장은 이 컴퓨터에만 보관돼요. 친구에게 AI를 연결해 두었다면 내년 편지를 쓸 때 그 AI만 읽어요.',
+  'letter.private':
+    '답장은 이 컴퓨터에만 보관돼요. 내년 12월에 편지를 쓰는 친구에게 AI가 연결되어 있다면, 그 AI가 새 편지를 쓰려고 읽어요.',
   'letter.unsaved': '답장을 쓰고 있어요. 보내거나 ‘다음에 할게요’를 눌러 주세요.',
   'letter.delete': '편지 삭제',
   'letter.delete_title': '이 편지와 답장을 삭제할까요?',

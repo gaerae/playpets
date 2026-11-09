@@ -43,6 +43,7 @@ const { list, t } = await import('../src/core/i18n.js');
 const { levelOf } = await import('../src/yard/bond.js');
 const { markDecor, setupDecor } = await import('../src/yard/decor.js');
 const {
+  answered,
   bringerOf,
   composeLetter,
   factLines,
@@ -718,4 +719,47 @@ test('a save that keeps failing is tried again once a run, so the card never com
   check();
   assert.equal(cards.length, 2, 'not a third time this run');
   assert.deepEqual(backs, [2026, 2026]);
+});
+
+test('an answer written from January 1 to 7 counts as brought back, so no cheer follows', async ctx => {
+  const { check, card } = newYear(ctx, { answer: null });
+  check();
+  check();
+  await flush();
+  state.setData({ ...state.data, letters: state.data.letters.map(kept => ({ ...kept, answer: 'More walks' })) });
+  await answered(2026);
+  assert.deepEqual(backs, [2026]);
+  assert.equal(state.data.letters[0].back, true);
+  check();
+  await flush();
+  assert.equal(card.hidden, true, 'no "remembered your answer" a minute after writing it');
+  assert.deepEqual(backs, [2026], 'asked once');
+});
+
+test('an answer written in December is not brought back, and one for another year is not either', async ctx => {
+  newYear(ctx, { now: d(2026, 12, 28), answer: null });
+  await answered(2026);
+  await answered(2025, d(2027, 1, 2));
+  assert.deepEqual(backs, []);
+});
+
+test('across midnight into the New Year: writing ends, the letter stays readable, the answer comes back once', async ctx => {
+  const { check, card, $ } = newYear(ctx, { now: d(2026, 12, 31, 23, 59), answer: 'Go camping' });
+  check();
+  check();
+  await flush();
+  assert.equal(card.hidden, true, 'December: nothing to bring back');
+  assert.equal($('letter-chip').hidden, false, 'readable on December 31');
+  assert.deepEqual(backs, []);
+  assert.equal(writes.length, 0, 'this year already has its letter');
+  ctx.mock.timers.setTime(new Date(2027, 0, 1, 0, 1).getTime());
+  check();
+  await flush();
+  assert.equal($('letter-chip').hidden, false, 'still readable on January 1');
+  assert.equal(card.hidden, false);
+  assert.deepEqual(backs, [2026], 'the answer comes back once');
+  assert.equal(writes.length, 0, 'no new letter for 2027 in January');
+  check();
+  await flush();
+  assert.deepEqual(backs, [2026], 'once');
 });
