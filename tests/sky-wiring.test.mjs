@@ -8,8 +8,13 @@ import './support/content.mjs';
 import { installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
 // The app keeps the choices (setScene, in state.json); this records what it was given.
-const kept = {};
+const kept = {},
+  winterAnswers = [];
 globalThis.playPets = {
+  answerWinter: async (...args) => {
+    winterAnswers.push(args);
+    return { ok: true, data: null };
+  },
   setScene: async (key, value) => {
     kept[key] = value;
     return { ok: true, data: null };
@@ -150,4 +155,33 @@ test('a sunshower dresses the yard as a clear day while the rain still falls, un
   assert.ok(!yard.contains('moment-sunshower'));
   assert.ok(yard.contains('weather-rain') && !yard.contains('weather-clear'), 'then the rain sky comes back');
   assert.equal(scene.weather, 'rain');
+});
+
+// A season picked by hand during the winter lights is that December's answer: the yard does not
+// then ask whether to show winter. December 5 has the lights and Spring both north and south.
+test('picking a season by hand in December answers the winter question', async t => {
+  t.mock.timers.enable({ apis: ['Date', 'setTimeout', 'setInterval'], now: new Date(2026, 11, 5, 12).getTime() });
+  const { nodes } = installDom(t, { anyId: true, props: { getContext: () => anything() } });
+  installStorage(t);
+  keepGlobals(t, 'ResizeObserver', 'Image', 'window');
+  globalThis.ResizeObserver = class {
+    observe() {}
+  };
+  globalThis.Image = class {
+    set src(_) {}
+    decode() {
+      return Promise.reject(new Error('no pictures here'));
+    }
+  };
+  globalThis.window = { devicePixelRatio: 1 };
+  const { setupSky } = await import('../src/yard/sky.js');
+  const state = await import('../src/core/state.js');
+  state.setData({ ...state.data, winterAsked: null });
+  setupSky();
+  winterAnswers.length = 0;
+  nodes.get('scene-season').value = 'spring';
+  nodes.get('scene-season').onchange();
+  await settled();
+  assert.deepEqual(winterAnswers, [[2026, null]]);
+  assert.deepEqual(state.data.winterAsked, { year: 2026, previous: null });
 });

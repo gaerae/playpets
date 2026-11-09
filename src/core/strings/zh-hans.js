@@ -203,7 +203,8 @@ export const strings = {
     '已经来到桌面上了。把鼠标移到伙伴身上会显示名字，点名字就能聊天。拖动可以换位置，右键可以从桌面移走。',
   'scene.title': '伙伴的地点、时段和天气',
   'scene.winter_title': '把乐园换成冬天吗？',
-  'scene.winter_body': '冬日灯光期间到了。乐园可以显示冬天到1月7日，1月8日再回到现在的季节。',
+  'scene.winter_body':
+    '冬日灯光期间到了。乐园可以显示冬天到1\u2060月\u20607\u2060日，1\u2060月\u20608\u2060日再回到现在的季节。',
   'scene.winter_yes': '换成冬天',
   'scene.winter_keep': '保持现在的季节',
   'period.label': '时段',

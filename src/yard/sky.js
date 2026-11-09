@@ -28,6 +28,7 @@ import {
 import { createScenery } from './scenery.js';
 import { createMoments } from './sky-moments.js';
 import { soundScene } from './sound.js';
+import { seasonPickedByHand } from './winter.js';
 import { scene, scenery, setScenery } from './world.js';
 import { worldAllows, worldFor, worlds } from './worlds.js';
 
@@ -242,6 +243,7 @@ export function setupSky(options = {}) {
   $('scene-season').onchange = () => {
     const choice = $('scene-season').value;
     keepScene('season', isSeason(choice) ? choice : 'auto');
+    seasonPickedByHand(choice, new Date(), south);
     showSeason(choice);
   };
   scene.world = worldFor(saved.world).id;

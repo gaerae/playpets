@@ -20,7 +20,7 @@ globalThis.playPets = {
 };
 // The namespace, not a copy: setData replaces `data`.
 const state = await import('../src/core/state.js');
-const { setupWinter, winterAsk, winterOver } = await import('../src/yard/winter.js');
+const { seasonPickedByHand, setupWinter, winterAsk, winterOver } = await import('../src/yard/winter.js');
 const { scene } = await import('../src/yard/world.js');
 
 const d = (y, m, day) => new Date(y, m - 1, day, 12);
@@ -48,7 +48,7 @@ test('the season before comes back from January 8 of the next year', () => {
 });
 
 // A yard on the given date, with fakes for the question and for showing a season.
-function yard(t, { now, answer = true, world = 'woodland', asked = null }) {
+function yard(t, { now, answer = true, world = 'woodland', asked = null, visible }) {
   t.mock.timers.enable({ apis: ['Date'], now: now.getTime() });
   const { document } = installDom(t);
   scene.world = world;
@@ -60,11 +60,12 @@ function yard(t, { now, answer = true, world = 'woodland', asked = null }) {
   const check = setupWinter({
     choice: () => 'spring',
     show: season => shown.push(season),
-    ask: async question => {
+    ask: question => {
       asks.push(question);
-      return answer;
+      return typeof answer === 'boolean' ? Promise.resolve(answer) : answer;
     },
     south: false,
+    ...(visible ? { visible } : {}),
   });
   return { check, asks, shown, document };
 }
@@ -125,4 +126,85 @@ test('nothing is asked while the window is hidden or in the studio', async t => 
   await flush();
   assert.equal(studio.asks.length, 0, 'not in the studio');
   assert.deepEqual(answers, []);
+  t.mock.timers.reset();
+  const unseen = yard(t, { now: d(2026, 12, 5), visible: () => false });
+  unseen.check();
+  unseen.check();
+  await flush();
+  assert.equal(unseen.asks.length, 0, 'not while the app says the yard is hidden or minimized');
+});
+
+test('a hidden yard still brings the season back on January 8', async t => {
+  endsWith = 'spring';
+  const { check, asks, shown, document } = yard(t, {
+    now: new Date(2027, 0, 8, 9),
+    asked: { year: 2026, previous: 'spring' },
+  });
+  document.hidden = true;
+  check();
+  check();
+  await flush();
+  assert.equal(ends.length, 1);
+  assert.deepEqual(shown, ['spring']);
+  assert.equal(state.data.winterAsked.previous, null);
+  assert.equal(asks.length, 0);
+});
+
+test('a question still open is not asked again', async t => {
+  const { check, asks } = yard(t, { now: d(2026, 12, 5), answer: new Promise(() => {}) });
+  check();
+  check();
+  await flush();
+  check();
+  check();
+  await flush();
+  assert.equal(asks.length, 1);
+  assert.deepEqual(answers, []);
+});
+
+test("a season picked by hand during the lights is this year's answer, so nothing is asked after", async t => {
+  const { check, asks, shown } = yard(t, { now: d(2026, 12, 5) });
+  seasonPickedByHand('winter', new Date(), false);
+  seasonPickedByHand('auto', new Date(), false);
+  await flush();
+  assert.deepEqual(answers, [], 'winter (Auto in the north) needs no answer');
+  assert.equal(state.data.winterAsked, null);
+  seasonPickedByHand('spring', new Date(), false);
+  await flush();
+  assert.deepEqual(answers, [[2026, null]]);
+  assert.deepEqual(state.data.winterAsked, { year: 2026, previous: null });
+  check();
+  check();
+  await flush();
+  assert.equal(asks.length, 0);
+  assert.deepEqual(shown, []);
+  seasonPickedByHand('summer', new Date(), false);
+  await flush();
+  assert.equal(answers.length, 1, 'answered once a year');
+});
+
+test('a season picked by hand outside the lights answers nothing', async t => {
+  yard(t, { now: d(2026, 11, 30) });
+  seasonPickedByHand('spring', new Date(), false);
+  await flush();
+  assert.deepEqual(answers, []);
+  assert.equal(state.data.winterAsked, null);
+});
+
+// Japanese and Chinese lines may break between any two characters, so "1月8日" could end one line
+// with "1"; a word joiner (U+2060) inside each date keeps it whole (WebKit's keep-all would stop
+// every break in the sentence instead).
+test('the dates in the winter question stay whole where lines break between any characters', async () => {
+  for (const lang of ['ja', 'zh-hans']) {
+    const { strings } = await import(`../src/core/strings/${lang}.js`);
+    const body = strings['scene.winter_body'];
+    assert.match(body, /1⁠月⁠7⁠日/, `${lang}: January 7`);
+    assert.match(body, /1⁠月⁠8⁠日/, `${lang}: January 8`);
+    assert.doesNotMatch(body, /\d[月日]|月\d/, `${lang}: no date left to split`);
+  }
+  // Korean and English break at spaces: a no-break space keeps the month with its day.
+  const { strings: ko } = await import('../src/core/strings/ko.js');
+  assert.match(ko['scene.winter_body'], /1월\u00a07일.*1월\u00a08일/);
+  const { strings: en } = await import('../src/core/strings/en.js');
+  assert.match(en['scene.winter_body'], /January\u00a07.*January\u00a08/);
 });

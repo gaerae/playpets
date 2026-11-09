@@ -130,7 +130,7 @@ onShortcut('invite', () => openPanel('invite'));
 onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
 // December's question about the winter yard, checked at each repaint of the scene.
-const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason });
+const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
 setupSky({
   seasonChanged: season => {
     // Each minute's repaint: a Christmas gift or a snowman comes or goes with the date and season.

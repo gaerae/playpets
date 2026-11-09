@@ -27,11 +27,28 @@ export function winterOver(date, asked) {
   return !!asked?.previous && date >= new Date(asked.year + 1, 0, 8);
 }
 
+/** A season the person picked by hand during the lights is this December's answer, when it is not
+ * winter: the yard does not then ask to show winter right after. Called by the season picker. */
+export function seasonPickedByHand(choice, date = new Date(), south = systemSouth()) {
+  const year = date.getFullYear();
+  if (eventOn(date, south)?.id !== 'lights' || selectedSeason(date, south, choice) === 'winter') return;
+  if (data.winterAsked?.year === year) return;
+  data.winterAsked = { year, previous: null };
+  call('answerWinter', year, null).catch(() => {});
+}
+
 // Starts the check, called by app.js before the sky. `choice()` is the season picked (sky.js
-// chosenSeason), `show(season)` shows the yard in one the backend saved (sky.js showSeason).
+// chosenSeason), `show(season)` shows the yard in one the backend saved (sky.js showSeason), and
+// `visible()` whether the person can see the yard to answer.
 // Returns `check()`, for each repaint of the scene; the first is the start-up paint, which only
 // arms it, so nothing is asked over a window still opening.
-export function setupWinter({ choice, show, ask = confirmAction, south = systemSouth() }) {
+export function setupWinter({
+  choice,
+  show,
+  ask = confirmAction,
+  south = systemSouth(),
+  visible = () => !document.hidden,
+}) {
   let armed = false,
     busy = false;
   // An error leaves the answer to the next minute: asked again only if the backend's state did not
@@ -49,8 +66,9 @@ export function setupWinter({ choice, show, ask = confirmAction, south = systemS
       armed = true;
       return;
     }
-    if (busy || document.hidden) return;
+    if (busy) return;
     const now = new Date();
+    // The season comes back on January 8 whether or not the yard is seen: the desktop shows it too.
     if (winterOver(now, data.winterAsked)) {
       run(async () => {
         const season = await call('endWinter');
@@ -59,6 +77,7 @@ export function setupWinter({ choice, show, ask = confirmAction, south = systemS
       });
       return;
     }
+    if (!visible()) return;
     if (!winterAsk(now, south, choice(), data.winterAsked, worldAllows(scene.world, 'seasonalEffects'))) return;
     const year = now.getFullYear();
     run(async () => {

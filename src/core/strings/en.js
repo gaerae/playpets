@@ -206,7 +206,7 @@ export const strings = {
   'scene.title': 'Place, time of day and weather for your friends',
   'scene.winter_title': 'Show the winter yard?',
   'scene.winter_body':
-    'The winter lights are here. The yard can show winter until January 7 and go back to this season on January 8.',
+    'The winter lights are here. The yard can show winter until January\u00a07 and go back to this season on January\u00a08.',
   'scene.winter_yes': 'Show winter',
   'scene.winter_keep': 'Keep this season',
   'period.label': 'Time of day',
