@@ -20,6 +20,7 @@
 | Yard, in rain and while birds or a shooting star cross | 66ms |
 | Yard, in snow | 80ms |
 | Yard, otherwise | 100ms |
+| Yard, while it cannot be seen (nothing is drawn) | 1000ms |
 | Overlay | 100ms |
 
 - New movement adds a condition to `interval()` in `app.js`.
@@ -99,3 +100,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-10-01 First version — measurements are from the first run of `pnpm run measure`
 - 2026-10-09 The painted backdrop is painted only when the light or the size changes; new measurements
 - 2026-10-10 The yard's sounds: they play only while on and seen; a measured state with them playing
+- 2026-11-09 The yard's loop looks once a second, not ten times, while the window cannot be seen

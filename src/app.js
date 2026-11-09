@@ -310,12 +310,13 @@ api.onEvent(event => {
 // Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed),
 // fifteen in rain and while birds or a shooting star cross, twelve in snow, ten while the friends
 // only stand and blink: every frame that changes a canvas costs a whole screen update. None at all
-// while the window cannot be seen: macOS says so through document.hidden, and the backend says so
-// for a window it hid or that was minimized.
+// while the window cannot be seen (macOS says so through document.hidden, and the backend says so
+// for a window it hid or that was minimized); the loop only looks once a second whether it is back.
 const BUSY_MS = 50,
   RAIN_MS = 66,
   SNOW_MS = 80,
-  CALM_MS = 100;
+  CALM_MS = 100,
+  UNSEEN_MS = 1000;
 // What goes on in the yard between games, looked at every frame: each knows when it is due.
 const YARD_LIFE = [idleChatter, giftTick, thanksTick, soloFishing];
 let last = 0;
@@ -327,7 +328,7 @@ function interval(now) {
   return CALM_MS;
 }
 function animate(now) {
-  if (document.hidden || !shown) return CALM_MS;
+  if (document.hidden || !shown) return UNSEEN_MS;
   const dt = Math.min(120, now - last);
   last = now;
   judge(now);

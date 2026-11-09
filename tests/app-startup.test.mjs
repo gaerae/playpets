@@ -64,3 +64,32 @@ test("the companions' actions load alongside the yard's content, not after it", 
   const source = await readFile('src/app.js', 'utf8');
   assert.match(source, /await Promise\.all\(\[loadContent\(\), setupCompanionActions\(\)\]\)/);
 });
+
+// The frame loop's part of app.js (its constants, interval and animate), with the page around it.
+async function frameLoop({ hidden = false, shown = true } = {}) {
+  const source = await readFile('src/app.js', 'utf8');
+  const loop = source.slice(source.indexOf('\nconst BUSY_MS'), source.lastIndexOf('\ntry {'));
+  const noop = () => {};
+  const yardLife = ['idleChatter', 'giftTick', 'thanksTick', 'soloFishing', 'judge', 'moveFriends', 'bondTick'];
+  const context = {
+    document: { hidden },
+    shown,
+    game: null,
+    aiming: false,
+    views: new Map(),
+    scenery: { busy: () => false, frame: noop },
+    scene: {},
+    ...Object.fromEntries([...yardLife, 'playGame'].map(name => [name, noop])),
+    $: () => ({ hidden: true }),
+  };
+  return vm.runInNewContext(`${loop}\n({ animate, CALM_MS })`, context);
+}
+
+test('the frame loop wakes about once a second while the yard cannot be seen', async () => {
+  const seen = await frameLoop();
+  assert.equal(seen.animate(1000), seen.CALM_MS, 'a still yard in view keeps its calm pace');
+  for (const unseen of [{ hidden: true }, { shown: false }]) {
+    const { animate, CALM_MS } = await frameLoop(unseen);
+    assert.ok(animate(1000) >= 1000, `${JSON.stringify(unseen)} waits a second, not ${CALM_MS}ms`);
+  }
+});
