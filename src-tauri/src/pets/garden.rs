@@ -39,6 +39,8 @@ pub const ORNAMENT_HOOKS: u32 = 12;
 pub const ORNAMENTS_PER_DAY: u32 = 3;
 /// The gift the ornaments hang on, which never hangs on itself.
 const ORNAMENT_TREE: &str = "xmas_tree";
+/// The gift the person builds from snow in winter; it is built, never brought or set out.
+pub const SNOWMAN: &str = "snowman";
 /// The books an ornament comes from (src/panel/album.js BOOKS): not fish or bugs.
 const ORNAMENT_BOOKS: [&str; 4] = ["flower", "tree", "gift", "treasure"];
 
@@ -76,6 +78,10 @@ pub struct Garden {
     /// The decorating season (ornament_season) of the last hang; 0 before the first.
     #[serde(default)]
     pub ornament_year: u32,
+    /// The local day a snowman was last built; the page decides when, the backend refuses a
+    /// second the same day.
+    #[serde(default)]
+    pub snowman_day: String,
 }
 
 /// A find from the album (`book` and its `id`) hung on hook `hook` of the Christmas tree.
@@ -167,6 +173,13 @@ pub struct Decor {
         skip_serializing_if = "Option::is_none"
     )]
     pub desktop_position: Option<super::model::Pos>,
+    /// What a built snowman wears, by the catalogue's `dress` ids.
+    #[serde(
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "Vec::is_empty"
+    )]
+    pub dress: Vec<String>,
 }
 
 fn is_zero(n: &u64) -> bool {
@@ -243,6 +256,18 @@ fn decor_place(x: f64, y: f64) -> Option<(f64, f64)> {
     Some((place(x)?, y.is_finite().then(|| y.clamp(0.0, DECOR_FLOOR_MAX))?))
 }
 
+/// A decoration as state.json has it: it wears only what its kind can, once each in drawing order,
+/// and a built kind (the snowman) is never out on the desktop, as an older file may have it.
+fn tidy(d: &mut Decor) {
+    d.dress = catalog()
+        .dress_of(&d.kind)
+        .into_iter()
+        .filter(|part| d.dress.iter().any(|w| w == part))
+        .map(String::from)
+        .collect();
+    d.on_desktop &= !catalog().is_built(&d.kind);
+}
+
 /// Ornaments as state.json has them: a book of the four, an id shaped like a kind (not the tree
 /// itself), a hook on the tree, and no hook or find twice.
 fn restore_ornaments(raw: Option<&Value>) -> Vec<Ornament> {
@@ -298,13 +323,14 @@ impl Garden {
             |p| (&mut p.x, &mut p.y),
             1.0,
         );
-        let decor = placed(
+        let mut decor = placed(
             raw.get("decor"),
             DECOR_MAX,
             |d: &Decor| catalog().is_gift(&d.kind),
             |d| (&mut d.x, &mut d.y),
             DECOR_FLOOR_MAX,
         );
+        decor.iter_mut().for_each(tidy);
         let mut received: Vec<String> = Vec::new();
         for kind in raw.get("received").and_then(Value::as_array).into_iter().flatten() {
             if let Some(kind) = kind.as_str()
@@ -320,13 +346,20 @@ impl Garden {
             .filter(|d| is_day(d))
             .unwrap_or_default()
             .to_string();
-        let boxed = placed(
+        let mut boxed = placed(
             raw.get("boxed"),
             BOX_MAX,
             |d: &Decor| catalog().is_gift(&d.kind),
             |d| (&mut d.x, &mut d.y),
             DECOR_FLOOR_MAX,
         );
+        boxed.iter_mut().for_each(tidy);
+        let snowman_day = raw
+            .get("snowmanDay")
+            .and_then(Value::as_str)
+            .filter(|d| is_day(d))
+            .unwrap_or_default()
+            .to_string();
         let thanked = raw
             .get("thanked")
             .and_then(Value::as_object)
@@ -381,6 +414,7 @@ impl Garden {
             ornaments,
             ornament_day,
             ornament_year,
+            snowman_day,
         }
     }
 
@@ -612,6 +646,57 @@ impl Garden {
         Ok(Given { decor, boxed })
     }
 
+    /// Builds a snowman at (x, y) on the page's local `day`: once a day, and it replaces the one in
+    /// the yard (or the box), so a full yard that has one still has room. The first one is counted
+    /// as received. `now` (ms) is when it was built.
+    pub fn build_snowman(&mut self, x: f64, y: f64, day: &str, now: u64) -> Result<Decor, String> {
+        let (Some((x, y)), true) = (decor_place(x, y), is_day(day)) else {
+            return Err(i18n::t("error.bad_request"));
+        };
+        if self.snowman_day == day {
+            return Err(i18n::t("error.snowman_today"));
+        }
+        if !self.decor.iter().any(|d| d.kind == SNOWMAN) && self.decor.len() >= DECOR_MAX {
+            return Err(i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
+        }
+        self.decor.retain(|d| d.kind != SNOWMAN);
+        self.boxed.retain(|d| d.kind != SNOWMAN);
+        let snowman = Decor {
+            id: Uuid::new_v4().to_string(),
+            kind: SNOWMAN.into(),
+            x,
+            y,
+            came_at: now,
+            ..Decor::default()
+        };
+        if !self.received.iter().any(|k| k == SNOWMAN) {
+            self.received.push(SNOWMAN.into());
+        }
+        self.snowman_day = day.into();
+        self.decor.push(snowman.clone());
+        Ok(snowman)
+    }
+
+    /// Sets what a decoration wears: only parts of its own kind, kept once each in the
+    /// catalogue's drawing order.
+    pub fn dress(&mut self, id: &str, wanted: &[String]) -> Result<(), String> {
+        let d = self
+            .decor
+            .iter_mut()
+            .find(|d| d.id == id)
+            .ok_or_else(|| i18n::t("error.decor_missing"))?;
+        let parts = catalog().dress_of(&d.kind);
+        if wanted.iter().any(|w| !parts.contains(&w.as_str())) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        d.dress = parts
+            .into_iter()
+            .filter(|p| wanted.iter().any(|w| w == p))
+            .map(String::from)
+            .collect();
+        Ok(())
+    }
+
     /// Takes a gift out of the box and sets it down at (x, y).
     pub fn set_out(&mut self, id: &str, x: f64, y: f64) -> Result<Decor, String> {
         let Some((x, y)) = decor_place(x, y) else {
@@ -641,7 +726,8 @@ impl Garden {
         if !self.received.iter().any(|k| k == kind) {
             return Err(i18n::t("error.decor_missing"));
         }
-        if self.decor.iter().chain(&self.boxed).any(|d| d.kind == kind) {
+        // A built kind is built again, never set out; its put-away is a melt.
+        if catalog().is_built(kind) || self.decor.iter().chain(&self.boxed).any(|d| d.kind == kind) {
             return Err(i18n::t("error.bad_request"));
         }
         if self.decor.len() >= DECOR_MAX {
@@ -731,6 +817,110 @@ pub fn memento_kind(from: &str) -> &'static str {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn a_snowman_is_built_once_a_day_and_counts_as_received() {
+        let mut g = Garden::default();
+        let s = g.build_snowman(0.7, 0.72, "2026-12-15", 5).unwrap();
+        assert_eq!((s.kind.as_str(), s.came_at, s.dress.len()), (SNOWMAN, 5, 0));
+        assert_eq!(g.received, [SNOWMAN]);
+        assert_eq!(g.snowman_day, "2026-12-15");
+        assert_eq!(
+            g.build_snowman(0.3, 0.72, "2026-12-15", 6).unwrap_err(),
+            i18n::t("error.snowman_today")
+        );
+        assert!(g.build_snowman(0.3, 0.72, "2026-12-16", 7).is_ok());
+        assert_eq!(
+            g.decor.iter().filter(|d| d.kind == SNOWMAN).count(),
+            1,
+            "the old one melted"
+        );
+        assert!(g.build_snowman(f64::NAN, 0.5, "2026-12-17", 8).is_err());
+        assert!(g.build_snowman(0.5, 0.5, "12/17", 8).is_err());
+    }
+
+    #[test]
+    fn a_new_snowman_replaces_the_old_even_in_a_full_yard() {
+        let mut g = Garden::default();
+        let old = g.build_snowman(0.2, 0.7, "2026-12-15", 1).unwrap();
+        g.dress(&old.id, &["hat".into()]).unwrap();
+        while g.decor.len() < DECOR_MAX {
+            g.decor.push(Decor {
+                id: g.decor.len().to_string(),
+                kind: "bench".into(),
+                ..Decor::default()
+            });
+        }
+        g.boxed.push(Decor {
+            id: "b".into(),
+            kind: SNOWMAN.into(),
+            ..Decor::default()
+        });
+        let new = g.build_snowman(0.7, 0.7, "2026-12-16", 2).unwrap();
+        assert_eq!(g.decor.len(), DECOR_MAX);
+        assert!(g.decor.iter().all(|d| d.kind != SNOWMAN || d.id == new.id) && g.boxed.is_empty());
+        assert!(new.dress.is_empty(), "a new snowman starts bare");
+    }
+
+    #[test]
+    fn a_full_yard_without_a_snowman_has_no_room_to_build() {
+        let mut g = Garden {
+            decor: (0..DECOR_MAX)
+                .map(|i| Decor {
+                    id: i.to_string(),
+                    kind: "xmas_tree".into(),
+                    ..Decor::default()
+                })
+                .collect(),
+            ..Garden::default()
+        };
+        let err = g.build_snowman(0.5, 0.7, "2026-07-01", 1).unwrap_err();
+        assert_eq!(err, i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
+        assert!(g.snowman_day.is_empty() && g.received.is_empty(), "nothing spent");
+    }
+
+    #[test]
+    fn a_snowman_wears_only_its_own_things_in_catalogue_order() {
+        let mut g = Garden::default();
+        let s = g.build_snowman(0.5, 0.7, "2026-12-15", 1).unwrap();
+        g.dress(&s.id, &["hat".into(), "scarf".into(), "hat".into()]).unwrap();
+        assert_eq!(g.decor[0].dress, ["scarf", "hat"]);
+        g.dress(&s.id, &[]).unwrap();
+        assert!(g.decor[0].dress.is_empty());
+        assert!(g.dress(&s.id, &["crown".into()]).is_err());
+        g.received.push("bench".into());
+        let bench = g.take_out("bench", 0.5, 0.5, 2).unwrap();
+        assert!(g.dress(&bench.id, &["hat".into()]).is_err(), "a bench wears nothing");
+        assert!(g.dress("gone", &[]).is_err());
+    }
+
+    #[test]
+    fn a_built_kind_is_not_taken_out_of_the_album() {
+        let mut g = Garden::default();
+        let s = g.build_snowman(0.5, 0.7, "2026-12-15", 1).unwrap();
+        g.put_away(&s.id).unwrap();
+        assert!(g.boxed.is_empty(), "a snowman put away melts");
+        assert!(g.take_out(SNOWMAN, 0.5, 0.7, 2).is_err());
+    }
+
+    #[test]
+    fn the_snowman_and_its_day_come_back_as_saved() {
+        let raw = json!({"decor": [{"id": "s", "kind": "snowman", "x": 0.5, "y": 0.7, "onDesktop": true, "dress": ["nose", "crown", "hat", "nose"]},
+                                   {"id": "b", "kind": "bench", "x": 0.2, "y": 0.7, "dress": ["hat"]}],
+                         "snowmanDay": "2026-12-15", "plants": [], "received": [], "giftDay": "", "seeds": 0});
+        let g = Garden::restore(Some(&raw), 0);
+        assert_eq!(g.decor[0].dress, ["nose", "hat"]);
+        assert!(!g.decor[0].on_desktop, "a snowman never goes out on the desktop");
+        assert!(g.decor[1].dress.is_empty());
+        assert_eq!(g.snowman_day, "2026-12-15");
+        assert_eq!(serde_json::to_value(&g).unwrap()["snowmanDay"], "2026-12-15");
+        assert!(
+            serde_json::to_value(&g.decor[1]).unwrap().get("dress").is_none(),
+            "nothing worn, nothing written"
+        );
+        let old = Garden::restore(Some(&json!({"decor": [], "plants": [], "snowmanDay": "soon"})), 0);
+        assert!(old.snowman_day.is_empty());
+    }
 
     #[test]
     fn discovery_state_defaults_and_future_kinds_survive_restore() {

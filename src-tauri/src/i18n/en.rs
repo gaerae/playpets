@@ -92,6 +92,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.plant_missing", "Couldn't find that plant."),
     ("error.gift_today", "Gifts come every other day. The next one is on its way."),
     ("error.ornaments_today", "Three ornaments a day. Hang more tomorrow."),
+    ("error.snowman_today", "You built a snowman today. You can build another tomorrow."),
     ("error.decor_full", "The yard holds {limit} decorations. Put one away to make room."),
     ("error.decor_missing", "Couldn't find that decoration."),
     ("error.gifts_full", "The yard and the gift box are both full. Put a decoration away to make room."),

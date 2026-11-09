@@ -56,6 +56,20 @@ pub(super) fn take_down_ornament(c: &Ctx) -> Result<Value, String> {
     })
 }
 
+/// (x, y, local day): a snowman built there, once a day (garden.rs build_snowman).
+pub(super) fn build_snowman(c: &Ctx) -> Result<Value, String> {
+    let (x, y, day) = (c.float(0), c.float(1), c.text(2));
+    let now = now_ms();
+    // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
+    if !crate::pets::has_come(day, now) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    commit(c.app, &c.state, |d| {
+        crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &crate::pets::latest_day(now));
+        d.garden.build_snowman(x, y, day, now).map(|s| json!(s))
+    })
+}
+
 /// (friend, level, x, y, local day): a friend that grew closer brings a gift for the level it
 /// reached, on a day the person did something with it, as an everyday gift comes.
 pub(super) fn thanks_gift(c: &Ctx) -> Result<Value, String> {

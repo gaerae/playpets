@@ -414,6 +414,16 @@ static COMMANDS: &[Command] = &[
     main("hangOrnament", hang_ornament),
     // (book, id, local day): an ornament taken down, its hook free for another.
     main("takeDownOrnament", take_down_ornament),
+    // (x, y, local day): friends and the person built a snowman there; it replaces the one in the
+    // yard, once a day.
+    main("buildSnowman", build_snowman),
+    // (id, parts): what a snowman wears.
+    main("dressDecor", |c| {
+        let wanted = c.parse::<Vec<String>>(1)?;
+        commit(c.app, &c.state, |d| {
+            d.garden.dress(c.text(0), &wanted).map(|()| Value::Null)
+        })
+    }),
     overlay("dragStart", |c| {
         let id = c.text(0);
         if c.sender.starts_with("overlay") && overlay_owns(c.app, c.sender, id) {
@@ -473,6 +483,7 @@ static COMMANDS: &[Command] = &[
             d.garden.ornaments.clear();
             d.garden.ornament_day = Default::default();
             d.garden.ornament_year = 0;
+            d.garden.snowman_day.clear();
             Ok(Value::Null)
         })
     }),
@@ -655,6 +666,8 @@ mod tests {
             "takeOut",
             "hangOrnament",
             "takeDownOrnament",
+            "buildSnowman",
+            "dressDecor",
         ] {
             assert!(may_call("main", name));
             assert!(!may_call("overlay0", name));

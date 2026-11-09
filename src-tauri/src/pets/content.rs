@@ -17,6 +17,9 @@ struct Kind {
     /// everyday rotation nor an event's order holds it.
     #[serde(default)]
     built: bool,
+    /// What a built gift can wear, in the order it is drawn (the snowman's scarf, nose and hat).
+    #[serde(default)]
+    dress: Vec<DressPart>,
     /// A gift drawn only during part of the year ("december"); it waits in the box the rest of it.
     #[serde(default)]
     shown: Option<String>,
@@ -30,6 +33,10 @@ struct Kind {
     /// A gift's footprint, [width, height] in catalogue units.
     #[serde(default)]
     size: Option<[f64; 2]>,
+}
+#[derive(Deserialize)]
+struct DressPart {
+    id: String,
 }
 #[derive(Deserialize)]
 struct Event {
@@ -267,6 +274,18 @@ impl Catalog {
         let [w, h] = self.gifts.iter().find(|k| k.id == id)?.size?;
         Some((w, h))
     }
+    /// Whether this gift is built in the yard, not brought by a friend (the snowman).
+    pub fn is_built(&self, id: &str) -> bool {
+        self.gifts.iter().any(|k| k.id == id && k.built)
+    }
+    /// What a gift can wear, in drawing order; nothing for a kind that wears nothing.
+    pub fn dress_of(&self, id: &str) -> Vec<&str> {
+        self.gifts
+            .iter()
+            .filter(|k| k.id == id)
+            .flat_map(|k| k.dress.iter().map(|p| p.id.as_str()))
+            .collect()
+    }
     /// Whether friends can bring this as a gift.
     pub fn is_gift(&self, id: &str) -> bool {
         self.gifts.iter().any(|k| k.id == id)
@@ -288,6 +307,14 @@ impl Catalog {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_snowman_is_built_and_dressed_from_the_catalogue() {
+        let c = catalog();
+        assert!(c.is_built("snowman") && !c.is_built("bench") && !c.is_built("nothing"));
+        assert_eq!(c.dress_of("snowman"), ["scarf", "nose", "hat"]);
+        assert!(c.dress_of("bench").is_empty() && c.dress_of("nothing").is_empty());
+    }
 
     #[test]
     fn every_gift_has_the_footprint_the_desktop_draws_it_by() {

@@ -435,6 +435,15 @@ const scenario = `(async()=>{
     for(const item of [snow,...hangable])await playPets.putAway(item.id);
     await L('ornaments='+(three&&refused?'ok':'err:'+JSON.stringify([three,hangKinds,fourth])));
     await L('ornamentDown='+(takenDown?'hook-freed-count-kept':'err:'+JSON.stringify([down,downAgain,afterDown.ornaments,afterDown.ornamentDay])));
+    // A snowman: one a day, dressed in its own parts only, and a new one replaces the old.
+    await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
+    const snowA=await playPets.buildSnowman(0.5,0.7,'2025-12-30'),snowTwice=await playPets.buildSnowman(0.4,0.7,'2025-12-30');
+    const dressed=await playPets.dressDecor(snowA.data.id,['hat','scarf']),dressBad=await playPets.dressDecor(snowA.data.id,['crown']);
+    const snowDress=(await playPets.bootstrap()).data.garden.decor.find(d=>d.id===snowA.data.id)?.dress;
+    const snowB=await playPets.buildSnowman(0.4,0.7,'2025-12-31'),snowGarden=(await playPets.bootstrap()).data.garden;
+    const snowOk=snowA.ok&&snowTwice.ok===false&&dressed.ok&&dressBad.ok===false&&JSON.stringify(snowDress)==='["scarf","hat"]'&&snowB.ok&&snowGarden.decor.filter(d=>d.kind==='snowman').length===1&&snowGarden.snowmanDay==='2025-12-31';
+    await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
+    await L('snowman='+(snowOk?'once-a-day-dressed-replaced':'err:'+JSON.stringify([snowA,snowTwice,dressed,dressBad,snowDress,snowB])));
     // The capacity check below starts with an empty box.
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
@@ -1641,6 +1650,10 @@ const expect = [
   [
     /^ornamentDown=hook-freed-count-kept$/,
     "an ornament taken down frees its hook and does not give that day's hang back",
+  ],
+  [
+    /^snowman=once-a-day-dressed-replaced$/,
+    'a snowman is built once a day, wears only its own parts in drawing order, and a new one replaces the old',
   ],
   [
     /^gift=bench-every-other-day-moved-away$/,

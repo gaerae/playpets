@@ -63,7 +63,7 @@ pub fn has_come(day: &str, now_ms: u64) -> bool {
 }
 
 /// A day saved from a clock that was set ahead (or not a date at all) would hold back every day
-/// until it comes: the bonds' days, the last gift's day and the last ornament's day after `latest`
+/// until it comes: the bonds' days, the last gift's, ornament's and snowman's day after `latest`
 /// are forgotten at start.
 pub fn forget_days_after(bonds: &mut bond::Bonds, garden: &mut garden::Garden, latest: &str) {
     for b in bonds.0.values_mut() {
@@ -80,6 +80,9 @@ pub fn forget_days_after(bonds: &mut bond::Bonds, garden: &mut garden::Garden, l
     }
     if garden.ornament_day.day.as_str() > latest {
         garden.ornament_day = garden::OrnamentDay::default();
+    }
+    if garden.snowman_day.as_str() > latest {
+        garden.snowman_day.clear();
     }
 }
 
@@ -166,5 +169,15 @@ mod tests {
         forget_days_after(&mut bonds, &mut garden, "2026-12-20");
         assert_eq!(garden.ornament_day, garden::OrnamentDay::default());
         assert_eq!(garden.ornament_year, 2026, "what hangs stays");
+    }
+
+    #[test]
+    fn a_snowman_day_ahead_is_forgotten() {
+        let mut bonds = bond::Bonds::restore(None, &[]);
+        let mut garden = garden::Garden::restore(Some(&serde_json::json!({"snowmanDay": "2026-12-25"})), 0);
+        forget_days_after(&mut bonds, &mut garden, "2026-12-25");
+        assert_eq!(garden.snowman_day, "2026-12-25", "the day itself has come");
+        forget_days_after(&mut bonds, &mut garden, "2026-12-20");
+        assert!(garden.snowman_day.is_empty());
     }
 }
