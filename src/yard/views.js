@@ -26,6 +26,7 @@ import { agentStateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { EDGE, geometry, measureYard, petHeight, sizeOf } from './field.js';
 import { hint } from './hint.js';
+import { beginDrag, dragPoint, endDrag } from './props.js';
 import { release, rest } from './trips.js';
 
 // The yard's dot is about agent work; see core/status.js.
@@ -263,23 +264,17 @@ function createView(p) {
     on.select(p.id);
     release(v);
     rest(v);
-    v.drag = { startX: e.clientX, startY: e.clientY, x: v.x, y: v.y, moved: false, talk: onTag(e) };
-    // A press that is not a live pointer (a script's) has nothing to capture.
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {}
+    v.drag = beginDrag(e.currentTarget, e, v, { talk: onTag(e) });
     e.stopPropagation();
   });
   both('pointermove', e => {
     if (v.drag) {
-      const dx = e.clientX - v.drag.startX,
-        dy = e.clientY - v.drag.startY;
-      if (Math.hypot(dx, dy) > 5) v.drag.moved = true;
-      if (v.drag.moved) {
-        const { w, h } = geometry(v.pet);
-        v.x = clamp(v.drag.x + dx / w);
-        v.y = clamp(v.drag.y + dy / h);
-        pose(v, dx >= 0 ? 'right' : 'left', 200);
+      const { w, h } = geometry(v.pet),
+        at = dragPoint(v.drag, e, w, h);
+      if (at) {
+        v.x = at.x;
+        v.y = at.y;
+        pose(v, e.clientX >= v.drag.startX ? 'right' : 'left', 200);
         place(v);
       }
     } else {
@@ -299,9 +294,7 @@ function createView(p) {
   };
   const end = guard(async e => {
     if (!v.drag) return;
-    const { moved, talk, x, y } = v.drag;
-    v.drag = null;
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+    const { moved, talk, x, y } = endDrag(v, e.currentTarget, e);
     if (e.type === 'pointercancel') {
       v.x = x;
       v.y = y;

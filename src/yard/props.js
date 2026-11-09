@@ -1,7 +1,9 @@
-// What the garden (garden.js) and the gifts (decor.js) share: things kept on the field, drawn as
-// buttons in the garden layer, kept in line with the backend's list, sized with the yard as the
-// friends are, set down by their foot, and taken away gently, with a moment to undo it.
+// What the garden (garden.js), the gifts (decor.js) and the planted trees share: things kept on the
+// field, drawn as buttons in the garden layer, kept in line with the backend's list, sized with the
+// yard as the friends are, set down by their foot, dragged about (friends too, views.js), and taken
+// away gently, with a moment to undo it.
 import { t } from '../core/i18n.js';
+import { clamp } from '../core/math.js';
 import { $, dropLine, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
@@ -76,6 +78,55 @@ export function removeWithUndo(id, view, message, commit) {
       },
     },
   });
+}
+
+// A press that goes this far (screen pixels) is a drag; a shorter one is a click.
+const DRAG_SLOP = 5;
+/** Starts following a press on `target` (a prop, or a friend) that stands at the field point
+ * `from`: the pointer is captured so the drag keeps up outside the button. `more` rides along. */
+export function beginDrag(target, event, from, more = {}) {
+  // A press that is not a live pointer (a script's) has nothing to capture.
+  try {
+    target.setPointerCapture(event.pointerId);
+  } catch {}
+  return { startX: event.clientX, startY: event.clientY, x: from.x, y: from.y, moved: false, ...more };
+}
+/** Where the pointer has dragged the thing to, as a field point: it moves by the pointer's travel
+ * over the field's `width` × `height` pixels, never past the field (nor below `bottom`). Null while
+ * the press has not gone far enough to be a drag. */
+export function dragPoint(drag, event, width, height, bottom = 1) {
+  const dx = event.clientX - drag.startX,
+    dy = event.clientY - drag.startY;
+  if (!drag.moved && Math.hypot(dx, dy) < DRAG_SLOP) return null;
+  drag.moved = true;
+  return { x: clamp(drag.x + dx / width), y: clamp(drag.y + dy / height, 0, bottom) };
+}
+/** Ends `view`'s drag and lets the pointer go; returns the drag that was on, or null. */
+export function endDrag(view, target, event) {
+  const drag = view.drag;
+  view.drag = null;
+  try {
+    if (target.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId);
+  } catch {}
+  return drag;
+}
+/** Moves a saved thing (`item`) to `at` at once and only then asks the backend (`send`), so it does
+ * not jump back while it is saved; a refusal puts it back where it was, unless `current()` says the
+ * backend's list has since replaced it. `show` draws the move, `settle` everything once answered. */
+export async function moveSaved(view, item, at, { send, current, show, settle }) {
+  const previous = { x: item.x, y: item.y };
+  view.busy = true;
+  Object.assign(item, at);
+  show();
+  try {
+    await send();
+  } catch (error) {
+    if (current() === item) Object.assign(item, previous);
+    throw error;
+  } finally {
+    view.busy = false;
+    settle();
+  }
 }
 
 /** Full rendered gift dimensions, shared by drawing, visiting and ground placement. */

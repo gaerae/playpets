@@ -13,7 +13,7 @@ globalThis.playPets = {
     });
   },
 };
-const { setData } = await import('../src/core/state.js');
+const { setAiming, setData, setGame } = await import('../src/core/state.js');
 const { renderDecor } = await import('../src/yard/decor.js');
 const { decorFloor, measureYard } = await import('../src/yard/field.js');
 
@@ -103,3 +103,18 @@ for (const [kind, lowest] of [
     pending({ ok: true, data: {} });
   });
 }
+
+for (const busy of ['aiming', 'game'])
+  test(`while ${busy === 'aiming' ? 'a treat or seed is aimed' : 'a game is on'} the keyboard leaves a gift alone, as it does a tree`, async t => {
+    const { button } = fixture(t);
+    if (busy === 'aiming') setAiming(true);
+    else setGame({ kind: 'tag' });
+    t.after(() => {
+      setAiming(false);
+      setGame(null);
+    });
+    await button.dispatch('keydown', { key: 'ArrowRight', preventDefault() {} });
+    await button.dispatch('keydown', { key: 'Delete', preventDefault() {} });
+    assert.equal(requests.length, 0, 'no move is saved');
+    assert.equal(button.hidden, false, 'nothing is put away');
+  });
