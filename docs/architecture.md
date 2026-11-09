@@ -60,7 +60,7 @@ flowchart LR
 | Strings | `src-tauri/src/i18n/<language>.rs`, `src/core/strings/<language>.js` | Per-language sentence tables. Registered in `i18n/mod.rs` and `core/strings.js` |
 | Import links | `src-tauri/src/links.rs` | Takes `playpets://import?url=…`, imports the pet through the same path as a pasted address, and opens the Invite tab |
 | Saved files | `src-tauri/src/store.rs` | Reads and writes the JSON files in the data folder atomically. A file that cannot be parsed is kept as a timestamped copy beside it (`state.json.corrupt-…`), so nothing is lost |
-| Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, renames the tray's update item once a version is found, reports download, signature-check and install stages (`update-status`), then restarts ([update notice](#update-notice)) |
+| Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, renames the tray's update item once a version is found, reports download, signature-check and install stages (`update-status`), then restarts ([update notice](#update-notice)). A Store installation asks Microsoft Store (`StoreContext`) on the same schedule and opens its Store page instead of installing |
 
 ### Yard content
 - Every kind: fish, bugs, flowers, gifts, the garden's stages.
@@ -183,7 +183,11 @@ Format:
 - Before handing control to the platform installer, the page records the source and target version in local storage (`update-restart`).
 - After bootstrap, it consumes that record and shows one timed notice, but only if the running version matches the target.
 - A failed installation clears the record.
+- The page also keeps the version that ran last (`last-version`). A start on a higher version shows the same notice once, which covers Microsoft Store and installers run by hand while the app was closed.
 - An ordinary restart never claims an update succeeded.
+- A Store installation shows a version waiting in the Store the same way; its button opens the app's Store page (`ms-windows-store://pdp/?PFN=…`), and the Store installs it.
+- A Store installation registers with `RegisterApplicationRestart` (not for crashes, hangs or Windows Update restarts), because the Store closes a running app to update it and reopens only apps that asked.
+- On macOS, an install from a read-only volume (an opened disk image, App Translocation) stops before downloading and asks the person to move the app to Applications.
 
 ## Places, artwork and friend identity
 

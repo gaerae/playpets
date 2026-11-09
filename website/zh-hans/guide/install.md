@@ -30,7 +30,7 @@ description: 通过 Microsoft Store、winget、Homebrew 或适合你系统的文
 2. 从「开始」菜单启动 PlayPets。
 
 - 一般 PC（x64）和 ARM PC 会各自拿到合适的安装包。
-- 更新由商店负责，可在 **Microsoft Store → 库**中查看。
+- 更新由商店负责。有新版本时，PlayPets 会在乐园里提醒你。
 
 ### winget {#winget}
 
@@ -135,7 +135,8 @@ chmod +x PlayPets_*.AppImage
 
 ## 更新 <Since v="0.1.0" />
 
-- Microsoft Store 安装版由 Store 管理更新，请在 **Microsoft Store → 库**检查。
+- Microsoft Store 安装版由 Store 安装更新。有新版本时，会在乐园和设置里提醒你，点 **在 Microsoft Store 中打开** 即可打开 Store 中的 PlayPets 页面。
+- 更新后第一次启动时，会告诉你现在是哪个版本。
 - 下面通过 GitHub 安装程序更新的说明，适用于非 MSIX 安装版；测试用 MSIX 同样使用包管理更新。
 - 存储与外部通信详情见[隐私政策](../privacy.md)。
 

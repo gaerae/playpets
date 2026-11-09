@@ -4,7 +4,7 @@ description: PlayPets 在本地保存什么、会向你连接的服务发送什�
 ---
 # 隐私政策
 
-- 最后更新：2026年10月29日。
+- 最后更新：2026年11月9日。
 - 维护者：[PlayPets](https://github.com/gaerae/playpets) 项目维护者 gaerae。
 - 本政策涵盖桌面应用和本网站，自此版本发布之日起生效。
 
@@ -39,7 +39,7 @@ PlayPets 的对话历史只在应用运行期间留在内存里，不会把完�
 - 导入社区宠物或打开画廊时，会连接你选择的外部服务。
 - GitHub 安装版可能会自动连接 GitHub，检查并下载更新。
 - MSIX 安装版通过包管理更新，不会下载 GitHub 的 EXE 安装程序来更新。
-- Store 安装版的更新由 Microsoft Store 负责。
+- Store 安装版的更新由 Microsoft Store 负责。PlayPets 会在启动时和每 6 小时通过 Windows 询问 Store 是否有新版本。
 - 这些服务会收到 IP 地址等常规请求信息，并适用它们各自的政策。
 
 ## 本网站

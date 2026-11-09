@@ -732,13 +732,15 @@ export const strings = {
     'With desktop mode on, only your friends come out on the desktop; the window stays in the tray.',
   'settings.update': 'App updates',
   'settings.update_current': 'This is version {version}',
-  'settings.update_store': 'Updates are managed by Microsoft Store. Open Store → Library to check for updates.',
+  'settings.update_store':
+    'Microsoft Store installs updates for this copy. When a new version is in the Store, PlayPets tells you here and in the yard.',
   'about.privacy': 'Privacy policy',
   'settings.update_check': 'Check for updates',
   'settings.update_checking': 'Checking…',
   'settings.update_latest': "You're up to date ({version})",
   'settings.update_available': 'Version {version} is available',
   'settings.update_install': 'Install and restart',
+  'settings.update_in_store': 'Open in Microsoft Store',
   'settings.update_view': 'View update',
   'settings.update_notes': "What's new",
   'settings.update_auto':
@@ -784,6 +786,8 @@ export const strings = {
   'update.title': 'PlayPets {version} is available',
   'update.body':
     'Installing downloads it, checks its signature and restarts PlayPets. Your friends and settings stay as they are. (You have {current}.)',
+  'update.store_body':
+    "PlayPets' page in Microsoft Store opens. When the Store updates it, PlayPets closes for a moment and opens again, with your friends and settings as they were. (You have {current}.)",
   'update.later': 'Later',
   'update.progress': 'Downloading… {percent}%',
   'update.downloading': 'Downloading the new version…',

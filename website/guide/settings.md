@@ -74,7 +74,7 @@ This section shows the version, then three groups. Links open in your browser. A
 
 ## App updates <Since v="0.1.0" />
 
-If you installed PlayPets from the Microsoft Store, the Store manages updates. Check in **Microsoft Store → Library**. Test MSIX packages also use package-managed updates. The GitHub installer update flow below is for installations outside MSIX.
+If you installed PlayPets from the Microsoft Store, the Store installs updates. PlayPets asks the Store when it starts and every six hours, and **Check for updates** asks it now. When a new version is waiting, it shows in the yard and here, and **Open in Microsoft Store** opens its page there. While the Store installs it, PlayPets closes for a moment and opens again. Test MSIX packages also use package-managed updates. The GitHub installer update flow below is for installations outside MSIX.
 
 Storage and network details are in the [privacy policy](../privacy.md).
 

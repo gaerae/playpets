@@ -41,29 +41,65 @@ test('a failed tray update check restores the settings row and retry button', as
   assert.equal(nodes.get('update-note').textContent, t('settings.update_current', { version: 'v0.1.0' }));
 });
 
-test('Store installations explain Store-managed updates and hide the installer action', async context => {
+test('Store installations with nothing new say the Store installs updates and keep the check', async context => {
   const { nodes } = installDom(context, {
     anyId: true,
-    ids: ['update-button', 'update-note', 'update-notes', 'update-pill', 'update-compact'],
+    ids: ['update-button', 'update-note', 'update-notes', 'update-pill', 'update-compact', 'update-auto'],
   });
   setData({ pets: [], version: '0.2.0', updateChannel: 'store' });
   const { renderUpdate } = await import('../src/panel/settings.js');
   renderUpdate();
   assert.equal(nodes.get('update-note').textContent, t('settings.update_store'));
-  assert.equal(nodes.get('update-button').hidden, true);
+  assert.equal(nodes.get('update-button').hidden, false, 'a person can ask the Store now');
   assert.equal(nodes.get('update-pill').hidden, true);
+  assert.equal(nodes.get('update-auto').hidden, true, 'the Store keeps its own schedule');
   setData({ pets: [], version: '0.2.0', updateChannel: 'github' });
   renderUpdate();
   assert.equal(nodes.get('update-button').hidden, false);
+  assert.equal(nodes.get('update-auto').hidden, false);
 });
 
-test('the Store tray update action opens its explanation without calling the updater', async context => {
+test('the Store tray update action asks the Store and keeps its note when nothing is new', async context => {
   const { nodes } = installDom(context, { anyId: true, props: { hidden: true } });
   for (const node of nodes.values()) node.dataset.title = 'settings.title';
   setData({ pets: [], version: '0.2.0', updateChannel: 'store' });
-  // The installed backend fake rejects every check; reaching it would fail this test.
+  let asked = 0;
+  const previous = globalThis.playPets.checkUpdate;
+  context.after(() => {
+    globalThis.playPets.checkUpdate = previous;
+  });
+  globalThis.playPets.checkUpdate = async () => {
+    asked++;
+    return { ok: true, data: { channel: 'store' } };
+  };
   await checkForUpdates();
+  assert.equal(asked, 1);
   assert.equal(nodes.get('update-note').textContent, t('settings.update_store'));
+  assert.equal(nodes.get('update-pill').hidden, true);
+});
+
+test('concurrent manual checks share the pending request', async context => {
+  const { nodes } = installDom(context, { anyId: true, props: { hidden: true } });
+  // Runs before any test that leaves a discovery behind, so the check is really made.
+  setData({ pets: [], version: '1.0.0', updateChannel: 'github' });
+  let requests = 0;
+  let finish;
+  const previous = globalThis.playPets.checkUpdate;
+  context.after(() => {
+    globalThis.playPets.checkUpdate = previous;
+  });
+  globalThis.playPets.checkUpdate = () => {
+    requests++;
+    return new Promise(resolve => {
+      finish = resolve;
+    });
+  };
+  const pending = checkForUpdates();
+  await checkForUpdates();
+  assert.equal(requests, 1);
+  finish({ ok: true, data: null });
+  await pending;
+  assert.equal(nodes.get('update-button').disabled, false);
 });
 
 test('a slow update check keeps its result quiet after Settings closes', async context => {
@@ -85,34 +121,6 @@ test('a slow update check keeps its result quiet after Settings closes', async c
   await pending;
   assert.equal(nodes.get('update-dialog').hidden, true);
   assert.equal(nodes.get('update-pill').hidden, false, 'the result remains available without stealing focus');
-});
-
-test('concurrent manual checks share the pending request', async context => {
-  const { nodes } = installDom(context, { anyId: true, props: { hidden: true } });
-  setData({ pets: [], version: '1.0.0', updateChannel: 'github' });
-  // Clear the preceding discovery through the Store path first.
-  const { renderUpdate } = await import('../src/panel/settings.js');
-  setData({ pets: [], version: '1.0.0', updateChannel: 'store' });
-  renderUpdate();
-  setData({ pets: [], version: '1.0.0', updateChannel: 'github' });
-  let requests = 0;
-  let finish;
-  const previous = globalThis.playPets.checkUpdate;
-  context.after(() => {
-    globalThis.playPets.checkUpdate = previous;
-  });
-  globalThis.playPets.checkUpdate = () => {
-    requests++;
-    return new Promise(resolve => {
-      finish = resolve;
-    });
-  };
-  const pending = checkForUpdates();
-  await checkForUpdates();
-  assert.equal(requests, 1);
-  finish({ ok: true, data: null });
-  await pending;
-  assert.equal(nodes.get('update-button').disabled, false);
 });
 
 test('the tray update action goes directly to Updates rather than app information', async context => {
@@ -157,6 +165,7 @@ test('a new version marks the single Settings entry in the menu', async context 
   updateFound({ version: '1.1.0', notes: '' });
   assert.equal(settings.classList.contains('has-update'), true);
   setData({ pets: [], version: '1.0.0', updateChannel: 'store' });
+  updateFound({ channel: 'store', version: '1.2.0' });
   renderUpdate();
-  assert.equal(settings.classList.contains('has-update'), false);
+  assert.equal(settings.classList.contains('has-update'), true, 'a version waiting in the Store marks it too');
 });

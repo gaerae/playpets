@@ -149,6 +149,7 @@ fn main() {
             chat::providers::detect(app.handle().clone());
             agent::start(app);
             update::check_later(app.handle());
+            update::reopen_after_store_update();
             Ok(())
         })
         .build(tauri::generate_context!())
