@@ -47,6 +47,11 @@ const standOn = kind => giftKind(kind)?.stand === 'on';
 const shown = new Map();
 // Gifts that just came, shown with a little pop the first time they are drawn.
 const fresh = new Set();
+// The pop's length (garden.css .decor.arrive): after it the class goes, or a later change to the
+// button's animations would play it again.
+const ARRIVE_MS = 600;
+/** Marks a gift as just come, so its next drawing pops it into place. */
+export const markFresh = id => fresh.add(id);
 const kindName = kind => t(`decor.kind_${kind}`);
 // The name a gift goes by as drawn now: the Christmas tree is called grand while it stands grand.
 const shownName = (kind, button) =>
@@ -181,7 +186,10 @@ export function setupDecor({ drawn = () => {} } = {}) {
 export function renderDecor() {
   const make = d => {
     const v = create(d);
-    if (fresh.delete(d.id)) v.button.classList.add('arrive');
+    if (fresh.delete(d.id)) {
+      v.button.classList.add('arrive');
+      setTimeout(() => v.button.classList.remove('arrive'), ARRIVE_MS);
+    }
     return v;
   };
   const now = Date.now(),
@@ -402,7 +410,7 @@ function bring(v, ask, { say, detail }) {
     .then(d => {
       cheer(v, d.memento ? 'decor.gift_memento' : say, { mark: '', say: 3500 });
       if (!d.boxed) {
-        fresh.add(d.id);
+        markFresh(d.id);
         renderDecor();
       }
       cue('gift');

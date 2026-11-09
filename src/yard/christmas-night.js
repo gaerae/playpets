@@ -22,7 +22,7 @@
 
 import { between } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
-import { $, data, recall, remember, views } from '../core/state.js';
+import { $, data, forget, recall, remember, views } from '../core/state.js';
 import { artSize, artSvg } from './art.js';
 import { giftKind } from './catalog.js';
 import { decorShown } from './decor-shown.js';
@@ -78,6 +78,7 @@ const sparkles = new WeakMap();
 let sleighWait = null,
   sleighTimers = [],
   crossing = false,
+  appeared = false,
   lookers = [],
   motes = [];
 
@@ -192,6 +193,8 @@ function stopSleigh() {
   sleighTimers = [];
   if (!crossing) return;
   crossing = false;
+  // Stopped before the sleigh showed itself: nobody saw it, so the night is not used up.
+  if (!appeared) forget(SLEIGH_KEY);
   for (const button of lookers) button.classList.remove('look-up');
   for (const mote of motes) mote.remove();
   lookers = [];
@@ -238,11 +241,13 @@ function crossMoon(guests) {
   const sleigh = $('xmas-sleigh');
   if (!sleigh) return;
   crossing = true;
+  appeared = false;
   $('yard')?.classList.add('xmas-moon');
   if (!sleigh.innerHTML) sleigh.innerHTML = artSvg(sizes().night.sleigh);
   const show = name => {
     sleigh.classList.add(name);
     sleigh.hidden = false;
+    appeared = true;
   };
   if (reduced.matches) {
     show('still');

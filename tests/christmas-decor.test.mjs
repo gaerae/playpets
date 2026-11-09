@@ -225,3 +225,22 @@ test('a list the desktop did not get is sent again at the next minute, and an ol
   renderDecor();
   assert.equal(hidden.length, count, 'the newer list is not sent again');
 });
+
+test('a gift that just came drops its pop once the pop is over', async ctx => {
+  ctx.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: NOW });
+  const { nodes } = installDom(ctx, { anyId: true, ids: ['yard', 'garden-layer', 'toast'] });
+  nodes.get('yard').getBoundingClientRect = () => ({ left: 0, top: 0, width: 800, height: 560 });
+  setData({ garden: { decor: [], plants: [], trees: [] }, pets: [] });
+  renderDecor();
+  const { markFresh } = await import('../src/yard/decor.js');
+  setData({ garden: { plants: [], trees: [], decor: [{ id: 'pop', kind: 'tent', x: 0.3, y: 0.5 }] }, pets: [miso], assets: [] });
+  measureYard();
+  markFresh('pop');
+  renderDecor();
+  const button = nodes.get('garden-layer').children.at(-1);
+  assert.ok(button.classList.contains('arrive'));
+  ctx.mock.timers.tick(700);
+  assert.ok(!button.classList.contains('arrive'));
+  setData({ garden: { decor: [], plants: [], trees: [] }, pets: [] });
+  renderDecor();
+});
