@@ -98,6 +98,9 @@ pub struct AppData {
     /// Years whose letter a friend's AI is writing right now (chat/letter.rs), not saved: a page
     /// reloaded meanwhile is told to wait rather than asking the AI again.
     pub letters_writing: HashSet<u32>,
+    /// Whether a letter's key could not be read in this run, not saved: the next time the page's
+    /// letter is kept rather than asking the keychain every minute.
+    pub letters_key_missed: bool,
     pub detected: Value,
     pub activity: HashMap<String, Vec<chat::prompt::Activity>>,
     /// The gift kinds the yard hides right now, as it last reported (hideDecor); the desktop leaves
@@ -573,6 +576,7 @@ pub(crate) mod tests {
             importing: Vec::new(),
             provider_updates: HashSet::new(),
             letters_writing: HashSet::new(),
+            letters_key_missed: false,
             detected: json!({}),
             activity: HashMap::new(),
             hidden_decor: None,

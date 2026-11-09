@@ -4,9 +4,10 @@
 //! anywhere: the facts and the person's answer stay on this computer. The lock is let go while the
 //! keychain is read and the AI writes (docs/standards/backend-locks.md); the year is held meanwhile,
 //! so a page reloaded in the middle is told to wait rather than asking the AI again. What may pass
-//! (a connection being saved, a key that cannot be read, a friend sent away or a language changed
-//! meanwhile) writes nothing, and the page asks again the next minute; an AI that fails leaves the
-//! page's own letter, so a letter still arrives.
+//! (a connection being saved, a friend sent away or a language changed meanwhile, a key that cannot
+//! be read the first time in a run) writes nothing, and the page asks again the next minute; an AI
+//! that fails, or a key that cannot be read again, leaves the page's own letter, so a letter still
+//! arrives.
 use super::{Speaker, ask, cli, prompt, same_connection, speaker, unlock};
 use crate::app::{AppData, Shared, lock, now_ms, require_pet, show_and_save};
 use crate::commands::{arg, text};
@@ -117,18 +118,38 @@ fn still_writing(d: &AppData, friend: &str, writer: &Speaker) -> Result<(), Stri
     same_connection(d, friend, &writer.provider)
 }
 
+/// How asking went, once the lock is let go.
+enum Answer {
+    /// What the AI wrote, or its error.
+    Came(Result<String, String>),
+    /// The key could not be read from the keychain.
+    KeyUnread(String),
+    /// Something changed while the key was read (the friend, the language, the connection).
+    Again(String),
+}
+
 /// Keeps what the AI sent back, under the lock taken again. A friend sent away or a language changed
 /// meanwhile keeps nothing (the page asks again); an AI that failed leaves the page's own letter, so
-/// a letter still arrives.
+/// a letter still arrives. A key that cannot be read waits for the next minute once a run, and then
+/// takes the page's letter too, so the keychain is read at most twice, never once a minute.
 fn settle(
     d: &mut AppData,
     year: u32,
     friend: &str,
     language: i18n::Lang,
-    answer: Result<String, String>,
+    answer: Answer,
     fallback: &str,
     now: u64,
 ) -> Result<Letter, String> {
+    let answer = match answer {
+        Answer::Came(answer) => answer,
+        Answer::Again(e) => return Err(e),
+        Answer::KeyUnread(e) if !d.letters_key_missed => {
+            d.letters_key_missed = true;
+            return Err(e);
+        }
+        Answer::KeyUnread(e) => Err(e),
+    };
     require_pet(d, friend)?;
     if d.prefs.language != language {
         return Err(i18n::t("chat.cancelled"));
@@ -168,17 +189,20 @@ impl Drop for Held<'_> {
     }
 }
 
-/// Asks the AI once, without the lock. The outer error gives the year up for now (a key that cannot
-/// be read, or something changed meanwhile); the inner one is the AI's, which leaves the page's letter.
+/// Reads the key and asks the AI once, without the lock.
 fn ask_once(
     state: &Mutex<AppData>,
     cli: &cli::CliManager,
     friend: &str,
     mut writer: Speaker,
     request: String,
-) -> Result<Result<String, String>, String> {
-    unlock(std::slice::from_mut(&mut writer))?;
-    still_writing(&lock(state), friend, &writer)?;
+) -> Answer {
+    if let Err(e) = unlock(std::slice::from_mut(&mut writer)) {
+        return Answer::KeyUnread(e);
+    }
+    if let Err(e) = still_writing(&lock(state), friend, &writer) {
+        return Answer::Again(e);
+    }
     let turns = vec![json!({"role": "user", "content": request})];
     let at = cli::At {
         total: 0,
@@ -187,7 +211,7 @@ fn ask_once(
     };
     let answer = ask(cli, &writer, "", turns, at, &AtomicBool::new(false));
     cli.reset(&writer.id);
-    Ok(answer)
+    Answer::Came(answer)
 }
 
 /// `(year, friend, facts, fallback)`: that year's letter, written once. Returns the letter.
@@ -227,7 +251,6 @@ pub fn write(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args
 
     let mut d = lock(state);
     held.release(&mut d);
-    let answer = answer?;
     if let Some(letter) = d.letters.of(year) {
         return Ok(json!(letter));
     }
@@ -369,18 +392,60 @@ mod tests {
     fn what_came_back_is_kept_unless_the_friend_or_the_language_changed() {
         let mut d = yard();
         let lang = d.prefs.language;
-        let got = settle(&mut d, 2026, "a", lang, Ok("Dear you.".into()), "lines", 5).unwrap();
+        let got = settle(
+            &mut d,
+            2026,
+            "a",
+            lang,
+            Answer::Came(Ok("Dear you.".into())),
+            "lines",
+            5,
+        )
+        .unwrap();
         assert_eq!((got.text.as_str(), got.at), ("Dear you.", 5));
-        let got = settle(&mut d, 2025, "a", lang, Err("down".into()), "lines", 5).unwrap();
+        let got = settle(&mut d, 2025, "a", lang, Answer::Came(Err("down".into())), "lines", 5).unwrap();
         assert_eq!(got.text, "lines", "an AI that fails still leaves a letter");
-        assert!(settle(&mut d, 2024, "a", other(lang), Ok("Hi".into()), "lines", 5).is_err());
+        assert!(
+            settle(
+                &mut d,
+                2024,
+                "a",
+                other(lang),
+                Answer::Came(Ok("Hi".into())),
+                "lines",
+                5
+            )
+            .is_err()
+        );
         assert!(d.letters.of(2024).is_none(), "another language: the page asks again");
         d.pets.retain(|p| p.id != "a");
-        assert!(settle(&mut d, 2023, "a", lang, Err("down".into()), "lines", 5).is_err());
+        assert!(settle(&mut d, 2023, "a", lang, Answer::Came(Err("down".into())), "lines", 5).is_err());
         assert!(
             d.letters.of(2023).is_none(),
             "no letter from a friend who left meanwhile"
         );
+    }
+
+    #[test]
+    fn an_unreadable_key_waits_once_a_run_and_then_the_page_s_letter_is_kept() {
+        let mut d = yard();
+        let lang = d.prefs.language;
+        let unread = || Answer::KeyUnread("locked".into());
+        assert!(settle(&mut d, 2026, "a", lang, unread(), "lines", 5).is_err());
+        assert!(d.letters.of(2026).is_none(), "the first time: try again next minute");
+        assert!(d.letters_key_missed, "remembered for this run");
+        let got = settle(&mut d, 2026, "a", lang, unread(), "lines", 5).unwrap();
+        assert_eq!(got.text, "lines", "the second time: the keychain is not asked again");
+        assert!(settle(&mut d, 2025, "a", lang, Answer::Again("changed".into()), "lines", 5).is_err());
+        assert!(
+            d.letters.of(2025).is_none(),
+            "something changed meanwhile: nothing kept"
+        );
+        let mut d = yard();
+        d.letters_key_missed = true;
+        d.pets.retain(|p| p.id != "a");
+        assert!(settle(&mut d, 2026, "a", lang, unread(), "lines", 5).is_err());
+        assert!(d.letters.of(2026).is_none(), "no fallback from a friend who left");
     }
 
     #[test]

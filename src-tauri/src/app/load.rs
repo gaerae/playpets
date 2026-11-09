@@ -193,6 +193,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         importing: Vec::new(),
         provider_updates: HashSet::new(),
         letters_writing: HashSet::new(),
+        letters_key_missed: false,
         detected: json!({"claude": false, "codex": false, "ollama": []}),
         activity: HashMap::new(),
         hidden_decor: None,
