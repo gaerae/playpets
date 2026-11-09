@@ -1094,7 +1094,7 @@
     "atlas": "collection-extension/winter-bush.webp",
     "atlasSize": [1536, 1024],
     "crop": [31, 360, 485, 376],
-    "size": [46, 32],
+    "size": [41, 32],
     "art": "tracks/bush.svg"
   },
   {
@@ -1112,7 +1112,7 @@
     "atlas": "collection-extension/winter-bush.webp",
     "atlasSize": [1536, 1024],
     "crop": [1013, 382, 476, 347],
-    "size": [44, 30],
+    "size": [41, 30],
     "art": "tracks/puff.svg"
   }
 ]
