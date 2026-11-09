@@ -4,6 +4,7 @@
 pub mod bridge;
 pub mod cli;
 pub mod connect;
+pub mod hooks;
 pub mod kinds;
 mod run;
 pub mod snippets;

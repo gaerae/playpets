@@ -8,6 +8,9 @@
   - the chat CLIs' private folder (`chat/cli/`)
   - the tray's last-built menu (`SHOWN` in `tray.rs`)
   - the update that was found (`update::Found`)
+  - the last state file written (`WRITTEN` in `app.rs`)
+  - the main window's size limit and normal place (`SIZE_LIMIT`, `NORMAL_RECT` in `window.rs`)
+  - the chat CLIs' process groups (`GROUPS` in `chat/cli/launch.rs`)
 - That code lives in the commands the page calls (`commands.rs`), chat (`chat/`), the agent bridge (`agent/`), the overlay thread (`desktop/overlay.rs`), the tray and windows (`tray.rs`, `window.rs`) and auto-update (`update.rs`).
 - Not covered:
   - The app's CLI mode (`run` in `agent/cli.rs`): a separate process with no app state.
@@ -45,6 +48,11 @@
     - Taken on the main thread while the menu is built from a snapshot (`tray::apply`, queued with `run_on_main_thread`).
     - Taken briefly by `rebuild` and the e2e check.
     - The snapshot is read from `Shared` before, never under it.
+  - `WRITTEN` (the number of the last state file written):
+    - Held while `state.json` is written, so two writes never share the temporary file and an older save never replaces a newer one.
+    - Taken under `Shared` by a save made with a change; taken alone by a delayed save (`app::flush`), which reads the state under `Shared` first and writes after releasing it.
+  - `SIZE_LIMIT` and `NORMAL_RECT` (`window.rs`): read or written briefly on the main thread; never held across a window call.
+  - `GROUPS` (`chat/cli/launch.rs`): taken alone and briefly, to add, remove or stop the process groups of the CLIs the app started.
   - The update's `Found`:
     - Taken only to store, read or take the update.
     - The download and install run after the guard is dropped.
