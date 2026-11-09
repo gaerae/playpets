@@ -128,7 +128,7 @@ function glintLater() {
   const gap = between(Math.random, GLINT_GAP);
   glintTimer = setTimeout(() => {
     const node = grand && sparkles.get(grand);
-    if (!node || reduced.matches) return stopGlints();
+    if (!node || reduced.matches || document.hidden || !seen()) return stopGlints();
     const { bulbs } = sizes().night,
       n = bulbs.length;
     lastBulb = (lastBulb + 1 + Math.floor(Math.random() * (n - 1))) % n;

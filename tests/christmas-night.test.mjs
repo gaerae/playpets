@@ -350,6 +350,12 @@ still('while the yard cannot be seen, and a glint 10 s after it can', async ctx 
   ctx.mock.timers.tick(10_000);
   assert.ok(lit(tree()));
 });
+still('once the app hides the yard after setup', async ctx => {
+  let shown = true;
+  const { tree } = await yard(ctx, { before: TONIGHT, seen: () => shown });
+  shown = false;
+  quiet(ctx, tree());
+});
 still('once the snow stops', async ctx => {
   const { tree } = await yard(ctx, { before: TONIGHT });
   scene.weather = 'clear';
