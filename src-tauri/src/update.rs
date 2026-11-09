@@ -97,7 +97,7 @@ fn check_store(app: &AppHandle) -> Result<Value, String> {
     let version = if crate::commands::e2e_mode() {
         None
     } else {
-        store::waiting_version().map_err(|()| i18n::t("update.check_failed"))?
+        store::waiting_version(app).map_err(|()| i18n::t("update.check_failed"))?
     };
     crate::app::hold(&app.state::<Found>().state).store = version.clone();
     crate::tray::retitle(app);
@@ -319,27 +319,44 @@ pub fn store_managed() -> bool {
 #[cfg(windows)]
 mod store {
     use crate::i18n;
+    use tauri::{AppHandle, Manager};
     use windows::ApplicationModel::Package;
     use windows::Services::Store::StoreContext;
+    use windows::Win32::Foundation::HWND;
+    use windows::Win32::UI::Shell::IInitializeWithWindow;
+    use windows::core::Interface;
 
     /// The Store answers over the network, and a stalled answer must not hold a check forever.
     const ANSWER_LIMIT: std::time::Duration = std::time::Duration::from_secs(30);
 
     /// The newer version of this app the Store has, as 1.2.3 (the package's fourth part is
     /// always 0), or None when there is none.
-    pub fn waiting_version() -> Result<Option<String>, ()> {
+    pub fn waiting_version(app: &AppHandle) -> Result<Option<String>, ()> {
+        // A window handle is not Send; its value crosses to the thread instead.
+        let owner = app
+            .get_webview_window("main")
+            .and_then(|window| window.hwnd().ok())
+            .map(|hwnd| hwnd.0 as isize);
         let (sent, answer) = std::sync::mpsc::channel();
         // On a thread of its own: Windows may need the calling thread to finish the operation.
         std::thread::spawn(move || {
-            let _ = sent.send(ask());
+            let _ = sent.send(ask(owner));
         });
         answer.recv_timeout(ANSWER_LIMIT).map_err(|_| ())?.map_err(|_| ())
     }
 
-    fn ask() -> windows::core::Result<Option<String>> {
-        let updates = StoreContext::GetDefault()?
-            .GetAppAndOptionalStorePackageUpdatesAsync()?
-            .join()?;
+    fn ask(owner: Option<isize>) -> windows::core::Result<Option<String>> {
+        let context = StoreContext::GetDefault()?;
+        // A desktop app's StoreContext needs an owner window, or Microsoft says it may answer
+        // with wrong data or errors, even for a call that shows no dialog.
+        if let Some(owner) = owner {
+            unsafe {
+                context
+                    .cast::<IInitializeWithWindow>()?
+                    .Initialize(HWND(owner as *mut _))?
+            };
+        }
+        let updates = context.GetAppAndOptionalStorePackageUpdatesAsync()?.join()?;
         // The list can also hold optional packages; only this app's own package counts.
         let own = Package::Current()?.Id()?.FamilyName()?;
         for index in 0..updates.Size()? {
@@ -365,7 +382,7 @@ mod store {
 /// Only a Windows package has a Store.
 #[cfg(not(windows))]
 mod store {
-    pub fn waiting_version() -> Result<Option<String>, ()> {
+    pub fn waiting_version(_: &tauri::AppHandle) -> Result<Option<String>, ()> {
         Ok(None)
     }
     pub fn page() -> Result<String, String> {

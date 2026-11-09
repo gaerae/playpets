@@ -4,7 +4,7 @@ description: What PlayPets keeps on your device, what reaches the services you c
 ---
 # Privacy policy
 
-- Last updated: November 9, 2026.
+- Last updated: November 10, 2026.
 - Maintainer: gaerae, the maintainer of [PlayPets](https://github.com/gaerae/playpets).
 - Covers the desktop app and this website.
 - Takes effect when this version of the policy is published.
@@ -45,6 +45,11 @@ They go to the provider or local server you selected. Automatic chatter uses the
 - That tool and its provider may create their own files, sessions and logs. PlayPets doesn't control how long they keep them.
 - Coding-agent integrations receive the status and reports you set the agent to send, over a token-protected loopback connection.
 - Keep secrets and sensitive personal information out of conversations, personas and agent reports.
+
+**Reporting an AI reply**
+- PlayPets has no AI of its own; a friend's reply comes from the service you connected, and it can be wrong or unsuitable.
+- To report one, use **Report an AI reply** in Settings → About PlayPets, or [the AI reply form](https://github.com/gaerae/playpets/issues/new?template=ai-reply.yml). It asks which AI, the relationship and a short description, never the conversation.
+- The form is a public GitHub issue: describe what happened in your own words, without chat logs or personal data.
 
 ## Downloads, updates and external sites
 
@@ -88,6 +93,13 @@ Uninstalling alone may leave data, credentials or backups behind. Records held b
 
 - MSIX can virtualize the Windows path, so use the app's data-folder action.
 - A custom data location you set explicitly overrides these defaults.
+
+## Children
+
+- PlayPets isn't directed at children under 13.
+- The maintainer collects no personal information from anyone through the app, children included: there is no PlayPets account and no analytics.
+- The AI services you connect have their own age requirements. For a child, a parent or guardian should set up and manage those connections.
+- A parent or guardian who thinks a child's information reached the maintainer, for example in a GitHub issue, can ask for it to be removed through the contact route below.
 
 ## Contact and changes
 

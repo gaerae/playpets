@@ -50,13 +50,14 @@ Repeated local builds:
 - The `store` workflow has the same three public values in its own file.
 - Do not put Apple credentials into this file.
 
-The Store hand-off:
+The local Store package (for inspection only):
 - `release/windows/msix-store/PlayPets_<version>_x64.msix`, without a local test signature.
+- It shows the Store identity and version a release will carry. Do not upload it to Partner Center.
+- It is x64 only, built with MinGW, and has no `resources.pri`, so its icons sit on a plate.
+- The package to submit is the `store-bundle` artifact from the `store` workflow: x64 and ARM64, built with MSVC, with `resources.pri` ([Submission automation](#submission-automation-and-first-submission-setup)).
 - Microsoft signs the package distributed through the Store.
 - Do not upload the NSIS EXE, the portable ZIP, a test certificate or a private key in its place.
 - Store signing does not sign the EXE distributed through GitHub.
-- This local build path makes only the x64 MSIX.
-- The `store` workflow builds x64 and ARM64.
 
 Local install test:
 1. Unset all three `MSIX_*` variables and run `pnpm run dist:windows`.
@@ -64,7 +65,7 @@ Local install test:
 
 - The private test key stays in Docker's `playpets-msix-key` volume.
 - A test certificate is not a public Windows signing identity.
-- Do not try to install the unsigned Store hand-off by trusting a test certificate.
+- Do not try to install the unsigned Store package by trusting a test certificate.
 
 Updates in a package:
 - At runtime, the Windows package identity (from `GetCurrentPackageFullName`) decides who owns updates, not a path substring or an environment variable that users can change.
@@ -102,7 +103,7 @@ After both architecture jobs pass, these checks stay manual:
 - On a clean Windows device without development tools, confirm WebView2 availability, visual layout, tray and desktop windows, close and exit, always-on-top and optional agent integration.
   - CI checks package activation and update rules.
   - It cannot judge these interactions visually or cover every device setup.
-- Before submission, run the Windows App Certification Kit (WACK) against the actual Store hand-off.
+- Before submission, run the Windows App Certification Kit (WACK) against the `store-bundle` packages you submit.
   - The CI gate is not a certification test.
 - Once submission is approved separately, use a private Store package flight to verify installation and a real Store-delivered update that keeps pets and credentials.
   - A local certificate and `Add-AppxPackage` cannot simulate Store signing, licensing, certification or the delivery service.
@@ -129,7 +130,7 @@ Versions:
 The submission:
 1. Create the first submission in Partner Center.
 2. Complete pricing and markets, properties, age ratings, packages, localized listings and submission options.
-3. Upload the Store MSIX and resolve its validation messages.
+3. Upload the two MSIX files from `store-bundle` and resolve their validation messages.
 4. Keep the submission on a manual publication hold until the release is approved separately.
 
 References: [Store package requirements](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/app-package-requirements), [package-context debugging](https://learn.microsoft.com/en-us/powershell/module/appx/invoke-commandindesktoppackage).
@@ -261,10 +262,21 @@ The account holder does these one-time steps. Never paste a key into a chat, iss
 
 References: [MSIX API prerequisites and authentication](https://learn.microsoft.com/en-us/windows/uwp/monetize/create-and-manage-submissions-using-windows-store-services), [submission data and publish mode](https://learn.microsoft.com/en-us/windows/uwp/monetize/manage-app-submissions), [Store Developer CLI](https://learn.microsoft.com/en-us/windows/apps/publish/msstore-dev-cli/commands).
 
-Listing:
-- Prepare accurate descriptions and screenshots in the four supported languages.
-- Explain AI requirements and provider billing without promising a subscription or free inference that PlayPets does not supply.
-- Do not imply that PlayPets is an OpenAI product.
+Listing (Partner Center only; the API keeps the published listing and changes only What's new):
+- Prepare accurate descriptions and screenshots in the four supported languages. The current text to paste is in [the Store listing text](../../packaging/windows/store-listing.md).
+- Start each description with the generative-AI disclosure (policy 11.16): friends' replies are written live by the AI the person connects, can be wrong or unsuitable, and can be reported through **Report an AI reply** in About or the listing's support link.
+- Name the dependencies in the same opening paragraph (policy 10.2.4): AI chat needs Claude Code, Codex, Ollama or an OpenAI-compatible API, and Windows needs the Microsoft Edge WebView2 Runtime. The yard works without AI.
+- Explain provider billing without promising a subscription or free inference that PlayPets does not supply.
+- The category is Entertainment: call PlayPets a desktop pet app or companion, not a game (policy 10.1.1).
+- Do not imply that PlayPets is an OpenAI or Anthropic product.
+- Search terms: at most seven, with no other products' names such as Claude, Codex or Pokémon (policy 10.1.3).
+
+Properties and age rating (Partner Center only):
+- **Product declarations:** check "This product incorporates generative AI features" (policy 11.16). It counts AI from third-party platforms, which is how PlayPets uses it.
+- **Privacy policy:** give the URL below, not a pasted copy. A pasted copy freezes on the day it was pasted and falls behind the site (policy 10.5.1).
+- **Support contact:** the website field, set to `https://github.com/gaerae/playpets/issues/new/choose`; no support email. It lists the AI reply concern form, which the app's **Report an AI reply** in About opens directly (policy 11.16). The form asks for no conversation and warns that issues are public.
+- **Age rating (IARC):** answer the questions about user interaction for what the app does: AI chat generates text in reply to what the person types and can send it to the AI provider they chose, and community imports bring in pets other people made from any web address. Re-answer whenever these change.
+- **Pricing:** no free trial for a free app.
 
 Certification notes:
 - The manifest declares `runFullTrust`.

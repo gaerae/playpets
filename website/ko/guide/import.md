@@ -39,13 +39,12 @@ playpets://import?url=https%3A%2F%2Fpetdex.dev%2Fpets%2Fboba
 2. 사이트를 열어요.
 3. 마음에 드는 펫 페이지의 주소를 위 입력란에 붙여 넣어요.
 
-목록은 커뮤니티 링크예요. 목록에 있다고 해서 제휴 관계라는 뜻은 아니에요.
+목록은 커뮤니티 링크예요. 목록에 있다고 해서 제휴 관계라는 뜻은 아니에요. 이곳의 펫은 PlayPets가 아니라 다른 사람들이 만들어 올린 거예요. 문제가 있는 펫은 그 펫을 가져온 사이트에 신고해 주세요.
 
 | 사이트 | 사이트 주소 |
 |---|---|
 | OpenPets Registry | openpets.sh |
 | Petdex | petdex.dev |
-| Codex PokéPets | github.com/dnnyngyen/codex-pokepets |
 | Awesome Codex Pet | codexpet.top |
 | Codex Pets | codex-pets.net |
 

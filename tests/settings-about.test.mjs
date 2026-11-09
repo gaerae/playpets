@@ -22,7 +22,7 @@ const { setData } = await import('../src/core/state.js');
 const { setLanguageForTests } = await import('../src/core/i18n.js');
 
 test('every About button sends its localized project destination through the guarded opener', async t => {
-  const buttons = ['site', 'guide', 'releases', 'github', 'report', 'license', 'privacy'].map(link => ({
+  const buttons = ['site', 'guide', 'releases', 'github', 'report', 'aiReport', 'license', 'privacy'].map(link => ({
     dataset: { link },
   }));
   globalThis.Option = class {};
@@ -43,6 +43,7 @@ test('every About button sends its localized project destination through the gua
 test('Settings explains external publication and atmosphere labels the persisted season control', async () => {
   const html = await readFile('src/index.html', 'utf8');
   assert.match(html, /data-i18n="about.publication_note"/);
+  assert.match(html, /data-link="aiReport"><span data-i18n="about.ai_report">/);
   assert.match(html, /label for="scene-season"/);
   assert.match(html, /id="scene-season"/);
 });

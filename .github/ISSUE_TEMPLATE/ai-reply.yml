@@ -1,0 +1,40 @@
+name: AI reply concern
+description: Tell us about a friend's AI reply that was unsuitable, harmful or out of character.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Issues are public.** Don't paste chat logs, screenshots of a conversation, personal data, API keys or anything you wouldn't post openly. Describe what happened in your own words instead.
+
+        PlayPets has no AI of its own: replies come from the AI service you connected. A report here helps us tighten what PlayPets asks of that AI. To report the service itself, use its provider's own channel too.
+  - type: dropdown
+    id: ai
+    attributes:
+      label: Which AI wrote the reply?
+      options: [Claude Code, Codex, OpenAI-compatible API provider, Ollama (local model), Other or not sure]
+    validations:
+      required: true
+  - type: dropdown
+    id: relationship
+    attributes:
+      label: The friend's relationship
+      options: [Friend, Partner, Dependable mentor, Playful younger sibling, Group chat or automatic chatter, Not sure]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What was wrong with the reply?
+      description: A sentence or two in your own words, for example "it described violence in detail". No quotes from the conversation.
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How it was installed
+      options: [Microsoft Store, macOS dmg, Windows installer, Linux deb, Linux AppImage, Built from source]
+  - type: input
+    id: version
+    attributes:
+      label: PlayPets version
+      description: It is at the bottom of the Settings tab.

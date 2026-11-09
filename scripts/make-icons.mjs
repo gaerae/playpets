@@ -57,20 +57,30 @@ for (const size of [16, 24, 32, 48, 64, 96, 128, 256, 512]) full[size] = await r
 const MAC_CONTENT = 824 / 1024;
 for (const size of [16, 32, 64, 128, 256, 512, 1024])
   mac[size] = await render(size, Math.round(size * MAC_CONTENT), `mac-${size}.png`, true);
-// Windows package (MSIX) tiles: the artwork with a little air around it, as the Start menu shows them.
+// Windows package (MSIX) tiles: the artwork with a little air around it, as the Start menu shows them,
+// at 100, 200 and 400 percent so a high-DPI screen never scales a small tile up. The 150 tile stops
+// at 200: at 600px the artwork is larger than the certification kit's 204,800-byte limit.
 const tiles = {};
-for (const [name, size] of [
-  ['StoreLogo', 50],
-  ['Square44x44Logo', 44],
-  ['Square150x150Logo', 150],
+const TILE_ART = 0.84;
+for (const [name, size, scales] of [
+  ['StoreLogo', 50, [1, 2, 4]],
+  ['Square44x44Logo', 44, [1, 2, 4]],
+  ['Square150x150Logo', 150, [1, 2]],
 ])
-  tiles[name] = await render(size, Math.round(size * 0.84), `${name}.png`);
-// The taskbar and Start icon at each size Windows asks for. Without an unplated variant Windows puts
-// the tile on a plate of the accent color; the light one is for a light taskbar. Both are the same
-// full-bleed artwork as icon.ico, so the Store app looks like the installed one.
-for (const size of [16, 24, 32, 48, 256])
-  for (const form of ['unplated', 'lightunplated'])
-    tiles[`Square44x44Logo.targetsize-${size}_altform-${form}`] = full[size];
+  for (const scale of scales) {
+    const file = scale === 1 ? name : `${name}.scale-${scale * 100}`;
+    tiles[file] = await render(size * scale, Math.round(size * scale * TILE_ART), `${file}.png`);
+  }
+// The taskbar, Start and Explorer icon at every target size Microsoft lists. The plain one sits on
+// a plate of the accent color, so it keeps the tile's air. Without an unplated variant Windows uses
+// that plate everywhere; the light one is for a light taskbar. Both are the same full-bleed artwork
+// as icon.ico, so the Store app looks like the installed one.
+for (const size of [16, 20, 24, 30, 32, 36, 40, 48, 60, 64, 72, 80, 96, 256]) {
+  full[size] ??= await render(size, size, `icon-${size}.png`);
+  const name = `Square44x44Logo.targetsize-${size}`;
+  tiles[name] = await render(size, Math.round(size * TILE_ART), `${name}.png`);
+  for (const form of ['unplated', 'lightunplated']) tiles[`${name}_altform-${form}`] = full[size];
+}
 // Raster art under src/ ships as WebP (tests/art-webp.test.mjs); the browser encodes the mark.
 const logo = await page.evaluate(
   async source => {

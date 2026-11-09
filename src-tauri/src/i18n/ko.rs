@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("menu.minimize", "최소화"),
     ("menu.close", "창 닫기"),
 
+    ("startup.webview_missing", "PlayPets를 쓰려면 Microsoft Edge WebView2 런타임이 필요한데, 이 PC에는 설치돼 있지 않아요. {url}에서 설치한 뒤 PlayPets를 다시 열어 주세요.\n\n지금 다운로드 페이지를 열까요?"),
     ("update.check_failed", "업데이트를 확인하지 못했어요. 인터넷 연결을 확인해 주세요."),
 
     ("update.no_release", "아직 올라온 업데이트 정보가 없어요. 나중에 다시 확인해 주세요."),
@@ -188,7 +189,6 @@ const TABLE: &[(&str, &str)] = &[
 
     ("import.hint_openpets", "가장 큰 펫 모음: 여러 갤러리의 펫을 한곳에"),
     ("import.hint_petdex", "펫 수천 마리: 미리보기와 모음"),
-    ("import.hint_pokepets", "포켓몬 팬 펫: GitHub의 펫 폴더 주소를 붙여 넣어요"),
     ("import.hint_awesome", "엄선한 게임, 애니 캐릭터 펫"),
     ("import.hint_codexpets", "공유 사이트: 최신 업로드"),
     ("import.private_address", "내부 네트워크 주소는 가져올 수 없어요."),

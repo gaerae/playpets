@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("menu.minimize", "Minimize"),
     ("menu.close", "Close Window"),
 
+    ("startup.webview_missing", "PlayPets needs the Microsoft Edge WebView2 Runtime, and it isn't installed on this PC. Install it from {url}, then open PlayPets again.\n\nOpen the download page now?"),
     ("update.check_failed", "Couldn't check for updates. Check your internet connection."),
 
     ("update.no_release", "No update information has been published yet. Try again later."),
@@ -188,7 +189,6 @@ const TABLE: &[(&str, &str)] = &[
 
     ("import.hint_openpets", "The largest collection: pets from many galleries in one place"),
     ("import.hint_petdex", "Thousands of pets: previews and collections"),
-    ("import.hint_pokepets", "Pokémon fan pets: paste a pet folder address from GitHub"),
     ("import.hint_awesome", "Hand-picked game and anime character pets"),
     ("import.hint_codexpets", "A sharing site: the latest uploads"),
     ("import.private_address", "Addresses on a private network can't be imported."),

@@ -74,6 +74,45 @@ fn redirected(folder: &str, roaming: &str, local: &str, family: &str) -> Option<
         .or_else(|| under(local).map(|rest| format!(r"{cache}\Local{rest}")))
 }
 
+/// Where Microsoft hands out the WebView2 Runtime.
+#[cfg(windows)]
+const WEBVIEW2_DOWNLOAD: &str = "https://developer.microsoft.com/microsoft-edge/webview2/";
+
+/// Windows draws every PlayPets window with the WebView2 Runtime, and Windows 10 may not have it.
+/// Without it Tauri cannot start and the app would vanish without a word, so the Store's rule
+/// for a missing requirement holds: say so at launch and point at the download. False when
+/// the runtime is missing and the person has been told.
+#[cfg(windows)]
+pub fn webview_ready() -> bool {
+    use windows_sys::Win32::UI::WindowsAndMessaging::{IDYES, MB_ICONWARNING, MB_YESNO, MessageBoxW};
+    if tauri::webview_version().is_ok() {
+        return true;
+    }
+    // The saved language lives in a data folder not read yet; the system's is the best guess.
+    let forced = i18n::forced();
+    let system = sys_locale::get_locale();
+    let lang = i18n::pick_language(None, forced.as_deref(), system.as_deref());
+    let wide = |s: &str| s.encode_utf16().chain(std::iter::once(0)).collect::<Vec<u16>>();
+    let title = wide("PlayPets");
+    let text = wide(&i18n::tr_in(
+        lang,
+        "startup.webview_missing",
+        &[("url", WEBVIEW2_DOWNLOAD)],
+    ));
+    let answer = unsafe {
+        MessageBoxW(
+            std::ptr::null_mut(),
+            text.as_ptr(),
+            title.as_ptr(),
+            MB_YESNO | MB_ICONWARNING,
+        )
+    };
+    if answer == IDYES {
+        let _ = open_url(WEBVIEW2_DOWNLOAD);
+    }
+    false
+}
+
 pub fn open_url(url: &str) -> Result<(), String> {
     open(OsStr::new(url), false).map_err(|_| i18n::t("error.open_browser"))
 }

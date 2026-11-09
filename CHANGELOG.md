@@ -16,6 +16,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
 - Claude Code and Codex CLI sign in from PlayPets: when one is on the computer but signed out, a card above the message box (and in the connection window) opens the sign-in in your browser and connects once you finish, with a box for the code Claude's page may show. The message box opens once you're signed in. No terminal needed.
+- **About** has **Report an AI reply**, which opens a short public form on GitHub: which AI, the relationship and what was wrong, in your own words and without the conversation.
 
 ### Changed
 
@@ -25,6 +26,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
 - Downloads are smaller again, with the four friends who come with the app looking exactly as before: their pictures take 27.6 MB inside the app instead of 37.0 MB.
 - An update removes the folders of built-in friends the app no longer ships, which stayed in the data folder before.
+- Friends keep every AI reply suitable for ages 13 and up, whatever personality or relationship they're given; a partner stays sweet, never explicit.
+- **About** names Anthropic beside OpenAI: PlayPets isn't affiliated with either, and Claude and Claude Code are Anthropic's trademarks.
+- The import window says the pets on community sites are made by other people, and that you report one on the site it came from.
+- The Microsoft Store version's icons come in more sizes, so the taskbar, Start and the Store logo stay sharp on high-resolution screens.
 
 ### Fixed
 
@@ -34,13 +39,23 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A pet link opened while the import dialog is busy waits its turn instead of importing at the same time.
 - A save put off for a moment is tried again if writing fails, and an older save never replaces a newer one.
 - Linking a coding agent writes its settings file to disk in full before it replaces the old one, so a crash at that moment can't leave it empty.
+- In the Microsoft Store version, the check for a newer version tells the Store which window it belongs to, as Microsoft asks of desktop apps, so the check no longer risks failing quietly.
+- On Windows without the Microsoft Edge WebView2 Runtime, PlayPets says it needs it and offers to open its download page, instead of closing without a word.
+
+### Removed
+
+- Codex PokéPets is no longer among the community sites in the import window. A pet folder on GitHub still imports from its address.
 
 ### Website and docs
 
+- The privacy policy says how to report an AI reply: the in-app link or the GitHub form, which asks for no conversation and is public.
 - The install guide, the settings guide and the privacy policy say that the Microsoft Store version asks the Store for a newer version and shows it in the app.
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
 - The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.
 - The chat guide says how Claude Code and Codex CLI sign in from PlayPets.
+- The install guide says to press **Disconnect** for each coding agent and delete AI connections before uninstalling, because agent hooks and saved keys stay behind otherwise.
+- The privacy policy has a section on children.
+- The import guide no longer lists Codex PokéPets, and says community pets are made by other people and reported on their own site.
 - The front page opens on the four friends in the yard with a coding agent at work beside them: when it finishes, one friend says so and the others cheer. The yard to play with, its places and seasons, and the button to pause the page's motion are now in the play section.
 
 ## [1.5.0] - 2026-11-04

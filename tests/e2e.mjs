@@ -1512,7 +1512,7 @@ const expect = [
   [/^autoPlay=saved-both-ways$/, 'Let them dig is saved and comes back with the state'],
   [/^settingsScroll=fixed-navigation-single-body$/, 'Settings scrolls one body while its menu and title stay fixed'],
   [/^relation=chip-opens-cards$/, 'the relationship shows in the Friend tab and its chip opens the relationship cards'],
-  [/^about=7\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
+  [/^about=8\/addresses\/notes-hidden$/, "the About section links the app's own pages"],
   [
     /^updateUi=general-title,ai-title,agent-link-title,updates-title,about-title\/ok$/,
     'an update stays at the left of the yard dock before Place, opens Settings update details, and Later puts it away',

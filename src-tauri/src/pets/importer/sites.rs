@@ -11,8 +11,6 @@ pub(super) enum Route {
     Registry { api: &'static str, page: &'static str },
     /// Pets kept as raw files in a GitHub repository, `{base}/{id}` holding pet.json.
     RawFolder { base: &'static str, license: &'static str },
-    /// Pet folders on GitHub, any repository.
-    GitHub,
 }
 
 pub struct Community {
@@ -20,13 +18,13 @@ pub struct Community {
     pub id: &'static str,
     pub name: &'static str,
     pub url: &'static str,
-    /// Hosts (without `www.`) whose pet pages belong to this site; empty for a GitHub repository.
+    /// Hosts (without `www.`) whose pet pages belong to this site.
     pub hosts: &'static [&'static str],
     pub hint: fn() -> String,
     pub(super) route: Route,
 }
 // Trusted import adapters remain available when a discovery listing is hidden or removed.
-pub const COMMUNITIES: [Community; 5] = [
+pub const COMMUNITIES: [Community; 4] = [
     Community {
         id: "openpets",
         name: "OpenPets Registry",
@@ -45,14 +43,6 @@ pub const COMMUNITIES: [Community; 5] = [
         hosts: &["petdex.dev", "petdex.crafter.run"],
         hint: || i18n::t("import.hint_petdex"),
         route: Route::Petdex,
-    },
-    Community {
-        id: "github",
-        name: "Codex PokéPets",
-        url: "https://github.com/dnnyngyen/codex-pokepets",
-        hosts: &[],
-        hint: || i18n::t("import.hint_pokepets"),
-        route: Route::GitHub,
     },
     Community {
         id: "codexpet",
@@ -485,7 +475,7 @@ pub(super) fn resolve_source(url: &Url, site: &str, slug: &str, fetch: Fetch) ->
                 fetch,
             )
         }
-        Some((Route::GitHub, _)) | None => {
+        None => {
             let share = share_id(url);
             if !share.is_empty() {
                 let origin = url.origin().ascii_serialization();

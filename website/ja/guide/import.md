@@ -37,13 +37,12 @@ playpets://import?url=https%3A%2F%2Fpetdex.dev%2Fpets%2Fboba
 
 **ほかのペットを探す**は、URLの欄と取り込みの操作を見つけやすいように、最初は折りたたまれています。開くと、サイトの一覧と取り込みの案内がコンパクトに並びます。サイトをクリックするとブラウザーで開くので、ペットページのURLをコピーして上の欄に貼り付けてください。
 
-これらはコミュニティへのリンクで、掲載は提携を意味しません。
+これらはコミュニティへのリンクで、掲載は提携を意味しません。ここのペットは PlayPets ではなく、ほかの人が作って公開したものです。問題のあるペットは、取り込んだ元のサイトで報告してください。
 
 | サイト | サイトのアドレス |
 |---|---|
 | OpenPets Registry | openpets.sh |
 | Petdex | petdex.dev |
-| Codex PokéPets | github.com/dnnyngyen/codex-pokepets |
 | Awesome Codex Pet | codexpet.top |
 | Codex Pets | codex-pets.net |
 

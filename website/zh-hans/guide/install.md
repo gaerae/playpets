@@ -174,6 +174,8 @@ chmod +x PlayPets_*.AppImage
 | Linux deb | 用安装时的包管理器卸载 |
 | Linux AppImage | 删除文件 |
 
+- 卸载前，请对每个已连接的编码代理点击**断开连接**（[编码代理联动](./agents.md)）。钩子会留在 `~/.claude/settings.json`、`~/.codex/config.toml` 等文件里，PlayPets 卸载后，代理会提示钩子命令运行失败。
+- 卸载应用后，API 密钥仍会留在这台电脑的安全存储里（Windows 凭据管理器、macOS 钥匙串、Linux Secret Service）。请先对每个 AI 连接点击**删除连接**来删除它们。
 - 删除应用后，下面的数据文件夹仍会留下。
 - 商店、winget：卸载应用时，Windows 会一并删除安装包的数据。
 - 想把设置和导入的宠物也删掉，请一并删除数据文件夹。
