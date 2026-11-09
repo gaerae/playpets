@@ -94,11 +94,12 @@ function openChat(id) {
 
 // The app's state first: the backgrounds (loadContent) and the place, season and weather picked
 // (setupSky) are read from it, and whether this data folder owns the webview's old copies. A
-// failure here is shown by the full start below.
-setData(await call('bootstrap').catch(() => data));
-// What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
-await loadContent();
-await setupCompanionActions();
+// failure here is asked again, and shown, by the full start below.
+const booted = await call('bootstrap').catch(() => null);
+setData(booted || data);
+// What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn;
+// the friends' authored actions come in alongside.
+await Promise.all([loadContent(), setupCompanionActions()]);
 // Words first: everything below builds its labels from them.
 apply();
 icons();
@@ -346,8 +347,9 @@ function animate(now) {
 }
 try {
   // Record growth during closed time before the first tree and album are drawn.
+  // Trees that grew are saved and come back as a change, like any other.
   await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
-  setData(await call('bootstrap'));
+  if (!booted) setData(await call('bootstrap'));
   follow(data.language);
   const saved = recallRun('panel');
   // A first start opens on the yard alone: its card shows the starter pets.
