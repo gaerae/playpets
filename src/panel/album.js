@@ -10,12 +10,13 @@ import { $, call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
-import { BUGS, FISH, FLOWERS, GIFTS, giftKind, TREASURES, TREES } from '../yard/catalog.js';
+import { BUGS, FISH, FLOWERS, GIFTS, giftKind, TRACKS, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates } from '../yard/events.js';
 import { SECRETS } from '../yard/secrets.js';
+import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
 import { worldFor } from '../yard/worlds.js';
 
@@ -125,6 +126,17 @@ const BOOKS = {
     hint: favored,
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
+  },
+  // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen.
+  track: {
+    tab: 'album.tracks',
+    kinds: TRACKS,
+    found: () => data.album?.tracks || {},
+    draw: (k, unknown) => (unknown ? printSpecimen(k) : tailPeek(k)),
+    name: k => t(`track.${k.id}`),
+    unknown: 'album.whose_prints',
+    hint: () => t('album.tracks_hint'),
+    record: entry => t('album.followed', { count: entry.count }),
   },
   secret: {
     tab: 'album.secrets',

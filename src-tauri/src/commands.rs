@@ -338,6 +338,14 @@ static COMMANDS: &[Command] = &[
         }
         crate::app::show_and_save(c.app, d).map(|()| answer)
     }),
+    // (id): a friend followed this animal's prints to its end; counted in the footprint book.
+    main("followTracks", |c| {
+        let now = now_ms();
+        commit(c.app, &c.state, |d| {
+            let (entry, first) = d.album.followed(c.text(0), now)?;
+            Ok(json!({"entry": entry, "first": first}))
+        })
+    }),
     main("bloomed", bloomed),
     main("befriend", befriend),
     // Coding agents.
@@ -672,6 +680,7 @@ mod tests {
             assert!(may_call("main", name));
             assert!(!may_call("overlay0", name));
         }
+        assert!(may_call("main", "followTracks") && !may_call("overlay0", "followTracks"));
         assert!(may_call("main", "quitApp"));
         assert!(!may_call("overlay1", "quitApp"));
         assert!(!may_call("other", "bootstrap"));

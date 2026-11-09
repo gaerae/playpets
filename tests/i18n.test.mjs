@@ -130,6 +130,7 @@ const BUILT = [
   /^connection\.(note|help)_[a-z]+$/, // panel/connection.js, by connection type
   /^game\.(hide|parade|tag|snowman)_title$/, // yard/play.js
   /^discovery\.((dig|tree)_hint|empty|seed|full)$/, // yard/discovery.js, by tool and by outcome
+  /^track\.[a-z_]+$/, // panel/album.js, one per animal in the catalogue's tracks
 ];
 
 // The other way round: a sentence nothing names is never shown, yet goes on being translated and

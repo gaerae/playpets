@@ -32,6 +32,9 @@ pub struct Album {
     pub trees: BTreeMap<String, Entry>,
     #[serde(default)]
     pub secrets: BTreeMap<String, Entry>,
+    /// The animals whose prints a friend followed to the end, in the snow (the footprint book).
+    #[serde(default)]
+    pub tracks: BTreeMap<String, Entry>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -79,6 +82,7 @@ impl Album {
             treasures: read(raw.and_then(|r| r.get("treasures"))),
             trees: read(raw.and_then(|r| r.get("trees"))),
             secrets: read(raw.and_then(|r| r.get("secrets"))),
+            tracks: read(raw.and_then(|r| r.get("tracks"))),
         }
     }
 
@@ -101,6 +105,22 @@ impl Album {
         }
         let first = !self.secrets.contains_key(id);
         let entry = self.secrets.entry(id.to_string()).or_insert(Entry {
+            count: 0,
+            best: 0.0,
+            first: now,
+        });
+        entry.count = entry.count.saturating_add(1);
+        Ok((entry.clone(), first))
+    }
+
+    /// Records an animal whose prints a friend followed to the end (the catalogue's `tracks`).
+    /// Returns the entry and whether it is the first time.
+    pub fn followed(&mut self, id: &str, now: u64) -> Result<(Entry, bool), String> {
+        let first = !self.tracks.contains_key(id);
+        if !catalog().is_track(id) || (first && self.tracks.len() >= KINDS_MAX) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        let entry = self.tracks.entry(id.to_string()).or_insert(Entry {
             count: 0,
             best: 0.0,
             first: now,
@@ -148,6 +168,7 @@ mod tests {
         let old = serde_json::to_value(Album::restore(None)).unwrap();
         assert_eq!(old["treasures"], json!({}));
         assert_eq!(old["trees"], json!({}));
+        assert_eq!(old["tracks"], json!({}));
         let a = Album::restore(Some(
             &json!({"treasures":{"future_stone":{"count":2,"best":0.0,"first":7}}}),
         ));
@@ -193,6 +214,21 @@ mod tests {
         assert!(a.found("made_up", 1).is_err(), "only the yard's own secrets are kept");
         let back = Album::restore(Some(&serde_json::to_value(&a).unwrap()));
         assert_eq!(back.secrets[SECRETS[0]].count, 2, "and they are read back");
+    }
+
+    #[test]
+    fn following_tracks_is_counted_and_only_the_catalogues_animals_are_kept() {
+        let mut a = Album::default();
+        let (e, first) = a.followed("fox", 7).unwrap();
+        assert!(first);
+        assert_eq!((e.count, e.first), (1, 7));
+        let (e, first) = a.followed("fox", 9).unwrap();
+        assert!(!first, "the second time is not new");
+        assert_eq!((e.count, e.first), (2, 7), "the first stays");
+        assert!(a.followed("dragon", 1).is_err(), "only the catalogue's animals");
+        assert!(a.followed("Fox", 1).is_err());
+        let back = Album::restore(Some(&serde_json::to_value(&a).unwrap()));
+        assert_eq!(back.tracks["fox"].count, 2, "and they are read back");
     }
 
     #[test]

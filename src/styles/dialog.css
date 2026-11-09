@@ -537,6 +537,10 @@ body.compact .update-compact {
   --album-ground: #efe7d6;
   --album-ground-hi: #f9f5ec;
 }
+.album-grid[data-book="track"] {
+  --album-ground: #e1e9f2;
+  --album-ground-hi: #f7fafd;
+}
 .album-grid {
   flex: 1;
   min-height: 0;
@@ -582,6 +586,16 @@ body.compact .update-compact {
   width: 100%;
   max-width: 112px;
   height: 64px;
+}
+/* The footprint book (yard/trail-art.js): a run of prints in the snow's own blue (the yard's,
+   yard/snow-trail.js TRAIL_RGB), a little stronger than in the yard so the page reads; once followed,
+   the tail behind its bush, a little larger than in the yard. */
+.album-specimen > svg.print-run {
+  color: rgb(150 176 214);
+  filter: none;
+}
+.album-specimen > .tail-peek {
+  --u: 1.8px;
 }
 .album-no {
   position: absolute;
@@ -648,6 +662,13 @@ body.compact .update-compact {
 }
 .album-card.unknown .album-specimen > svg {
   opacity: 0.4;
+}
+/* A print is the clue to whose it is, not a silhouette: it keeps its strength, on its full snow. */
+.album-grid[data-book="track"] .album-card.unknown .album-specimen {
+  opacity: 1;
+}
+.album-card.unknown .album-specimen > .print-run {
+  opacity: 1;
 }
 .album-card.unknown strong {
   color: var(--muted);
@@ -1257,6 +1278,10 @@ body.compact .update-compact {
     --album-ground: #3e3a2d;
     --album-ground-hi: #4f4a39;
   }
+  .album-grid[data-book="track"] {
+    --album-ground: #2e3a4b;
+    --album-ground-hi: #3e4d62;
+  }
   .album-card.rare:not(.unknown) .album-specimen {
     background:
       radial-gradient(ellipse 34% 10% at 50% 82%, #0000002e, transparent),
@@ -1311,6 +1336,9 @@ body.compact .update-compact {
   .album-card svg {
     max-width: 50px;
     height: 46px;
+  }
+  .album-specimen > .tail-peek {
+    --u: 1px;
   }
   .album-card > :not(.album-specimen) {
     grid-column: 2;

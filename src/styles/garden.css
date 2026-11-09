@@ -1008,3 +1008,74 @@
     display: none;
   }
 }
+/* A winter animal's tail behind a snowy bush (yard/trail-art.js tailPeek), in units of --u (a yard
+   pixel; the album draws it larger). Each tail is the animal's rear cut off at the shoulder, so it
+   stands out past the bush's left side, turned a little as if the animal had dived in, with its cut
+   and the fade before it behind the mound: only fur ever shows. Each animal's place was measured
+   against the bush's silhouette: --x is the cut's foot from the box's left, --lift its height off
+   the ground, --turn how far it leans in about that foot, --w the tail drawing's width. */
+.tail-peek {
+  --u: 1px;
+  --x: 18;
+  --lift: 0;
+  --turn: 10deg;
+  --w: 16;
+  position: relative;
+  display: inline-block;
+  width: calc(48 * var(--u));
+  height: calc(46 * var(--u));
+}
+.tail-peek > svg.tail,
+.tail-peek > svg.peek-bush {
+  position: absolute;
+  max-width: none;
+}
+.tail-peek > svg.tail {
+  left: calc((var(--x) - var(--w)) * var(--u));
+  bottom: calc(var(--lift) * var(--u));
+  width: calc(var(--w) * var(--u));
+  height: calc(30 * var(--u));
+  transform-origin: right bottom;
+  rotate: var(--turn);
+  mask-image: linear-gradient(to right, #000 85%, transparent);
+}
+.tail-peek > svg.peek-bush {
+  left: calc(3.5 * var(--u));
+  bottom: 0;
+  width: calc(41 * var(--u));
+  height: calc(32 * var(--u));
+}
+.tail-peek[data-track="hare"] {
+  --x: 16;
+  --w: 20;
+}
+.tail-peek[data-track="fox"] {
+  --x: 19;
+  --lift: 5;
+}
+.tail-peek[data-track="water_deer"] {
+  --x: 16;
+  --lift: 1.5;
+}
+.tail-peek[data-track="raccoon_dog"] {
+  --x: 14;
+  --lift: 1.5;
+  --turn: 20deg;
+  --w: 17;
+}
+.tail-peek[data-track="squirrel"] {
+  --x: 17.5;
+  --turn: 3deg;
+}
+.tail-peek[data-track="sparrow"] {
+  --w: 15;
+  --lift: 6;
+}
+.tail-peek[data-track="magpie"] {
+  --w: 17;
+  --lift: 5;
+}
+.tail-peek[data-track="cat"] {
+  --w: 14;
+  --lift: 8;
+}
