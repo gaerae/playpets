@@ -83,7 +83,8 @@ export function stackSpot(taken) {
 /** Why building is not offered now, or null when it is. `season` is the yard's own (null in the living room). */
 export function snowmanOffer({ date, season, garden, decorMax }) {
   if (season !== 'winter') return 'not_winter';
-  if (garden?.snowmanDay === localDay(date)) return 'built_today';
+  // A day at or before the last snowman's is spent, as the backend refuses it (a clock set back).
+  if (garden?.snowmanDay && garden.snowmanDay >= localDay(date)) return 'built_today';
   const decor = garden?.decor ?? [];
   if (!decor.some(d => d.kind === SNOWMAN) && decor.length >= decorMax) return 'full';
   return null;
