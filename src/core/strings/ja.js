@@ -7,6 +7,8 @@ export const name = '日本語';
 export const sentence = /[぀-ヿ一-鿿]/;
 // 名前を並べるときの区切り。
 export const listSeparator = '、';
+// Sentences in a row follow one another without a space.
+export const sentenceSeparator = '';
 export const strings = {
   'catch.rain_hint': '雨の日に見つけやすい',
   'album.gift_full': '庭がいっぱいです。新しいプレゼントはプレゼント箱に入ります。飾りを一つ片付けると出せます。',

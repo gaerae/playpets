@@ -19,9 +19,10 @@
    | `sentence` | A regular expression that recognizes a sentence in that language (`text.js` uses it to tell error sentences from codes). Use a character range when the writing system gives the language away, otherwise punctuation |
    | `strings` | Key → sentence. Keys whose value is a list (greetings, chatter) stay lists |
    | `listSeparator` (optional) | The separator when listing names. Default `', '`; Japanese uses `'、'` |
+   | `sentenceSeparator` (optional) | What goes between two sentences shown in a row. Default `' '`; Japanese and Chinese use `''` |
 
 2. Add one `import` line and one entry to `MODULES` in `src/core/strings.js`. The language list in the Settings tab comes from here.
-3. Use plain placeholders. `words.js` adds Korean particles (a placeholder with the two particle forms after a colon) for Korean only. When listing names, `joinList` picks that language's comma.
+3. Use plain placeholders. `words.js` adds Korean particles (a placeholder with the two particle forms after a colon) for Korean only. When listing names, `joinList` picks that language's comma; sentences shown in a row go through `joinSentences`.
 4. For a different writing system, add a font stack for the language in `src/styles/base.css`, like `:root:lang(ja)` (Chinese drawn with Japanese fonts gets different glyph shapes).
 
 ## 2. Backend strings

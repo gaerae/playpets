@@ -690,8 +690,10 @@ body.compact .update-compact {
   width: min(560px, calc(100vw - 32px));
   padding: 14px;
 }
+/* Above the tray, so a bauble flying up from its chip passes over the chips. */
 .decorating-stage {
   position: relative;
+  z-index: 1;
   height: min(300px, 44vh);
   margin-top: 10px;
   border-radius: var(--radius-card);
@@ -753,6 +755,123 @@ body.compact .update-compact {
   top: 19%;
   width: 72%;
   height: 72%;
+}
+/* A hang (decorating.js hangMotion). The bauble waits unseen while the backend answers, then arcs
+   from its chip: one wrapper carries it across at an even pace, the other up, past the hook and
+   down onto it, while it shrinks from the chip's size. The wrappers fill the bauble, so the ball
+   inside keeps its size, and the cap rides on the inner one. Where it lands the branch dips, it
+   swings from its cap and three glints flash; then the friend hops. With reduced motion it is
+   simply there (base.css turns every transition off). The lengths here are the ones decorating.js
+   times. */
+.decorating-tree .bauble.hanging {
+  opacity: 0;
+  pointer-events: none;
+}
+/* In front of the friend while the bauble flies past it. */
+.decorating-tree.carrying {
+  z-index: 1;
+}
+.bauble-fly-x,
+.bauble-fly-y {
+  position: absolute;
+  inset: 0;
+}
+.decorating-tree .bauble.flying::before {
+  content: none;
+}
+.bauble.flying .bauble-fly-x {
+  transition: transform 460ms linear;
+}
+/* Up a little past the hook (about a twentieth of the climb), then down onto it: the curve
+   overshoots at its end, not its start, which would first sink the bauble below its chip and out
+   of a narrow dialog. */
+.bauble.flying .bauble-fly-y {
+  transition: transform 460ms cubic-bezier(0.4, 0, 0.7, 1.35);
+}
+.decorating-tree .bauble.flying .bauble-ball {
+  transition:
+    transform 460ms ease-in-out,
+    scale 0.15s;
+}
+.decorating-tree.dip {
+  animation: ornament-dip 240ms ease-in-out;
+}
+.decorating-tree .bauble.swing {
+  transform-origin: 50% -16%;
+  animation: ornament-swing 650ms ease-in-out;
+}
+/* A four-pointed sparkle, warm white. */
+.ornament-glint {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  background: #fff6d8;
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  pointer-events: none;
+  animation: ornament-glint 600ms ease-out both;
+}
+.decorating-friend.hop {
+  animation: ornament-hop 600ms ease-in-out;
+}
+@keyframes ornament-dip {
+  from {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(2px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes ornament-swing {
+  from {
+    transform: rotate(0);
+  }
+  24% {
+    transform: rotate(7deg);
+  }
+  54% {
+    transform: rotate(-4deg);
+  }
+  80% {
+    transform: rotate(1deg);
+  }
+  to {
+    transform: rotate(0);
+  }
+}
+@keyframes ornament-glint {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  35% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+}
+@keyframes ornament-hop {
+  from {
+    transform: translateY(0);
+  }
+  22% {
+    transform: translateY(-7px);
+  }
+  46% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-5px);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 .ornament-hook {
   position: absolute;
@@ -1004,8 +1123,16 @@ body.compact .update-compact {
   .decorating-stage {
     height: min(230px, 38vh);
   }
+  /* A column holds six full-width characters on one line (チューリップ) at the smallest size;
+     longer names still wrap to two. */
   .decorating-tray {
-    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+  .ornament-chip {
+    padding-inline: 2px;
+  }
+  .ornament-chip-name {
+    font-size: 10.5px;
   }
   .ornament-card-art,
   .ornament-card-art svg {

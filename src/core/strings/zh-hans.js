@@ -7,6 +7,8 @@ export const name = '简体中文';
 export const sentence = /[一-鿿]/;
 // Names in a row are joined with the enumeration comma.
 export const listSeparator = '、';
+// Sentences in a row follow one another without a space.
+export const sentenceSeparator = '';
 export const strings = {
   'catch.rain_hint': '雨天更容易遇到',
   'album.gift_full': '乐园满了。新礼物会放进礼物盒，收起一件摆设就能把它摆出来。',

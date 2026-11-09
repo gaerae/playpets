@@ -11,14 +11,14 @@
 // that changed under the pointer would move every hook at once.
 //
 // Bauble nodes are kept by hook across renders: a hang marks its hook at the press and the bauble
-// is made then (`hanging`), so a render while the backend answers leaves it alone, and the answer
-// only confirms it.
+// is made then (`hanging`, unseen), so a render while the backend answers leaves it alone, and the
+// answer only confirms it and sets it moving (hangMotion).
 
 import { closeOnBackdrop } from '../core/confirm.js';
-import { list, t } from '../core/i18n.js';
+import { joinSentences, list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { clamp, pick } from '../core/math.js';
-import { canvas, drawStill } from '../core/sprites.js';
+import { canvas, drawStill, reduced } from '../core/sprites.js';
 import { $, call, data, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSize, artSvg } from './art.js';
@@ -47,6 +47,22 @@ const CARD_DELAY_MS = 300,
 const CHEER_MS = 2600;
 // Room kept between the card and the stage's edge or its bauble, in pixels.
 const CARD_GAP = 6;
+// A hang's motion, in ms from the backend's yes. The arc onto the hook takes ARC_MS; then the
+// branch dips, the bauble swings and three glints flash GLINT_STEP apart (their lengths are
+// dialog.css's: dip 240, swing 650, glint 600); the friend speaks and hops at CHEER_AT, and its
+// 600 ms hop is over before SETTLE_MS takes every class off. With reduced motion the bauble is
+// simply there (`appear`; base.css turns transitions off) and the friend speaks APPEAR_MS later.
+const ARC_MS = 460,
+  GLINT_STEP = 70,
+  CHEER_AT = 710,
+  SETTLE_MS = 1320,
+  APPEAR_MS = 200;
+// Where the glints flash, in px from the bauble's middle.
+const GLINTS = [
+  [-14, -8],
+  [14, -4],
+  [2, 16],
+];
 
 const keyOf = o => `${o.book}:${o.id}`;
 const same = (a, b) => !!a && !!b && keyOf(a) === keyOf(b);
@@ -61,6 +77,8 @@ let cardFor = null,
   cheerTimer = null;
 // Set while Escape hands focus back to a bauble whose card it just hid, so focus does not show it.
 let quiet = false;
+// The hang in motion: its timers, and what puts everything back at rest.
+let motion = { timers: [], end: null };
 
 // The friend whose foot is nearest the tree's foot, busy or not; null with no friends out.
 function nearest(at) {
@@ -115,6 +133,7 @@ export function openDecorating() {
   }
   $('decorating-bubble').hidden = true;
   hideCard();
+  stopMotion();
   dialog.showModal();
   renderDecorating();
 }
@@ -232,6 +251,7 @@ function makeBauble(o, look) {
     const open = cardFor === node && !$('ornament-card').hidden;
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
+      if (e.repeat) return;
       showCard(node, o);
       intoCard();
     } else if (e.key === 'Tab' && !e.shiftKey && open && intoCard()) e.preventDefault();
@@ -293,7 +313,7 @@ function drawStatus({ left, free, items, picking }) {
       (!left && t('decorating.done_today')) ||
       (empty && t('decorating.empty')) ||
       (!view.note && t('decorating.left', { count: left })),
-    text = [view.note, reason].filter(Boolean).join(' '),
+    text = joinSentences([view.note, reason].filter(Boolean)),
     dots = free.length && !empty ? perDay : 0,
     key = `${text}|${dots}|${left}`;
   if (key === view.statusKey) return;
@@ -408,9 +428,11 @@ function hang(hook) {
     .then(() => {
       v.busy = false;
       if (view !== v) return;
+      const { from } = v.hanging;
       v.hanging.done = true;
       renderDecorating();
-      cheer();
+      const node = v.baubles.get(hook);
+      if (node) hangMotion(node, from);
     })
     .catch(error => {
       v.busy = false;
@@ -453,11 +475,87 @@ function settleFocus(item = null) {
   (next && !next.disabled ? next : $('close-decorating')).focus();
 }
 
+// The bauble arcs from where its chip was (`from`, read at the press) onto its hook: two wrappers
+// carry it, one across at an even pace and one up with its own easing, while it shrinks from the
+// chip's size; the transitions go on only after the start is laid out. Where it lands the branch
+// dips, it swings from its cap and three glints flash, then the friend speaks and hops. All of it
+// is classes that timers in one list take off again, so closing the view puts it at rest.
+function hangMotion(node, from) {
+  stopMotion();
+  const tree = $('decorating-tree'),
+    friend = $('decorating-friend'),
+    ball = node.querySelector('.bauble-ball'),
+    at = (ms, run) => motion.timers.push(setTimeout(run, ms));
+  if (reduced.matches || !from || !ball) {
+    node.classList.add('appear');
+    node.classList.remove('hanging');
+    motion.end = () => node.classList.remove('appear');
+    at(APPEAR_MS, () => {
+      stopMotion();
+      cheer();
+    });
+    return;
+  }
+  const across = span('bauble-fly-x'),
+    up = span('bauble-fly-y'),
+    hook = node.getBoundingClientRect(),
+    glints = [];
+  up.append(ball);
+  across.append(up);
+  node.append(across);
+  across.style.transform = `translateX(${from.left + from.width / 2 - (hook.left + hook.width / 2)}px)`;
+  up.style.transform = `translateY(${from.top + from.height / 2 - (hook.top + hook.height / 2)}px)`;
+  ball.style.transform = 'scale(1.3)';
+  node.classList.remove('hanging');
+  tree.classList.add('carrying');
+  // The start is laid out before the transitions go on, or they would have nothing to run from.
+  node.getBoundingClientRect();
+  node.classList.add('flying');
+  across.style.transform = up.style.transform = ball.style.transform = '';
+  motion.end = () => {
+    node.classList.remove('flying', 'swing');
+    tree.classList.remove('carrying', 'dip');
+    friend.classList.remove('hop');
+    for (const glint of glints) glint.remove();
+    node.append(ball);
+    across.remove();
+  };
+  at(ARC_MS, () => {
+    tree.classList.remove('carrying');
+    tree.classList.add('dip');
+    node.classList.add('swing');
+    GLINTS.forEach(([x, y], i) => {
+      const glint = span('ornament-glint');
+      glint.style.left = `calc(50% ${x < 0 ? '-' : '+'} ${Math.abs(x)}px)`;
+      glint.style.top = `calc(50% ${y < 0 ? '-' : '+'} ${Math.abs(y)}px)`;
+      glint.style.animationDelay = `${i * GLINT_STEP}ms`;
+      glints.push(glint);
+      node.append(glint);
+    });
+  });
+  at(CHEER_AT, () => {
+    if (cheer()) friend.classList.add('hop');
+  });
+  at(SETTLE_MS, stopMotion);
+}
+function stopMotion() {
+  for (const timer of motion.timers) clearTimeout(timer);
+  const end = motion.end;
+  motion = { timers: [], end: null };
+  end?.();
+}
+function span(className) {
+  const node = document.createElement('span');
+  node.className = className;
+  node.setAttribute('aria-hidden', 'true');
+  return node;
+}
+
 // The nearest friend's line after a hang: in the yard (shown and read aloud as its own) and in
-// the view's bubble beside its picture. A friend that has left says nothing.
+// the view's bubble beside its picture. A friend that has left says nothing; true when it spoke.
 function cheer() {
-  const friend = view.friend;
-  if (!friend || ![...views.values()].includes(friend)) return;
+  const friend = view?.friend;
+  if (!friend || ![...views.values()].includes(friend)) return false;
   const line = pick(list('decorating.cheer')),
     said = $('decorating-bubble');
   bubble(friend, line, CHEER_MS);
@@ -467,6 +565,7 @@ function cheer() {
   cheerTimer = setTimeout(() => {
     said.hidden = true;
   }, CHEER_MS);
+  return true;
 }
 
 // The card: the bauble's drawing, name and book, and a button to take it down. It sits above its
@@ -493,6 +592,10 @@ function showCard(node, o) {
     down.className = 'button secondary ornament-take-down';
     down.textContent = t('decorating.take_down');
     down.addEventListener('click', () => takeDown(o));
+    // A key held on the bauble repeats here once focus has moved: only a new press takes it down.
+    down.addEventListener('keydown', e => {
+      if (e.repeat && (e.key === 'Enter' || e.key === ' ')) e.preventDefault();
+    });
     card.replaceChildren(art, title, book, down);
     card.dataset.hook = String(o.hook);
     cardFor = node;
@@ -584,6 +687,7 @@ export function setupDecorating() {
   dialog.addEventListener('close', () => {
     const button = view?.button;
     hideCard();
+    stopMotion();
     clearTimeout(cheerTimer);
     $('decorating-bubble').hidden = true;
     view = null;

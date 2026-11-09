@@ -2,6 +2,7 @@
 // free hooks and hangs it, three a day; a card names each bauble and takes it down again; the
 // nearest friend says a line (src/yard/decorating.js).
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import './support/content.mjs';
 import { element, keepGlobals } from './support/dom.mjs';
@@ -26,7 +27,8 @@ globalThis.playPets = {
 };
 const hangs = globalThis.playPets.hangOrnament;
 const state = await import('../src/core/state.js');
-const { list, t } = await import('../src/core/i18n.js');
+const { list, setLanguageForTests, t } = await import('../src/core/i18n.js');
+const { reduced } = await import('../src/core/sprites.js');
 const { giftKind } = await import('../src/yard/catalog.js');
 const { christmasNightCheck, percent, setupChristmasNight } = await import('../src/yard/christmas-night.js');
 const { refreshShownDecor, setupDecor } = await import('../src/yard/decor.js');
@@ -86,7 +88,11 @@ async function decorating(
   { now = NOW, scene = DAY, garden = {}, album = ALBUM, withFriends = true, before } = {},
 ) {
   calls.length = 0;
-  let pals = {};
+  let pals = {},
+    shut = () => {};
+  // A hang still in motion stops with its test, while the fake document and the test's clock are
+  // still there (after-hooks run in the order they were added).
+  ctx.after(() => shut());
   const parts = await drawYard(ctx, {
     now: now.getTime(),
     scene,
@@ -121,6 +127,10 @@ async function decorating(
   const bench = () => parts.shown().find(b => b.dataset.kind === 'bench');
   const $ = id => nodes.get(id);
   const dialog = $('decorating-dialog');
+  shut = () => {
+    dialog.close();
+    dialog.dispatch('close');
+  };
   const chips = () => kids($('decorating-tray'));
   const kinds = () => kids($('decorating-kinds'));
   const spots = () => findAll($('decorating-tree'), 'ornament-hook');
@@ -552,6 +562,72 @@ test('after a take-down on a day with its three hung, the status still says why 
   assert.ok(v.chips().every(c => c.disabled));
 });
 
+test('in Japanese and Chinese the take-down note and the reason run on without a space', async ctx => {
+  const garden = { ...hung({}, camellia(4)), ornamentDay: { day: '2026-12-20', count: 3 } };
+  const v = await decorating(ctx, { garden });
+  ctx.after(() => setLanguageForTests('en'));
+  for (const lang of ['ja', 'zh-hans', 'en']) {
+    setLanguageForTests(lang);
+    openDecorating();
+    await v.baubles()[0].dispatch('click');
+    await find(v.$('ornament-card'), 'ornament-take-down').dispatch('click');
+    await flush();
+    const note = t('decorating.taken_down', { name: ornamentLook('flower', 'camellia').name }),
+      gap = lang === 'en' ? ' ' : '';
+    assert.equal(v.status(), `${note}${gap}${t('decorating.done_today')}`, lang);
+    v.dialog.close();
+    await v.dialog.dispatch('close');
+  }
+});
+
+test('holding Enter on a bauble opens its card and never goes on to take it down', async ctx => {
+  const v = await decorating(ctx, { garden: hung({}, camellia(1)) });
+  openDecorating();
+  const card = v.$('ornament-card'),
+    [node] = v.baubles();
+  await node.dispatch('keydown', { key: 'Enter' });
+  const down = find(card, 'ornament-take-down');
+  assert.equal(globalThis.document.activeElement, down);
+  // The key's repeats land on Take down, which now has focus; Enter would click it on keydown.
+  for (const key of ['Enter', ' ']) {
+    const held = { prevented: false };
+    await down.dispatch('keydown', {
+      key,
+      repeat: true,
+      preventDefault() {
+        held.prevented = true;
+      },
+    });
+    assert.ok(held.prevented, `a held ${key === ' ' ? 'Space' : key} is not a press`);
+  }
+  const fresh = { prevented: false };
+  await down.dispatch('keydown', {
+    key: 'Enter',
+    preventDefault() {
+      fresh.prevented = true;
+    },
+  });
+  assert.ok(!fresh.prevented, 'a new press still takes it down');
+  // A repeat that reaches the bauble itself does nothing.
+  await v.dialog.dispatch('keydown', { key: 'Escape' });
+  assert.equal(card.hidden, true);
+  const repeat = { prevented: false };
+  await node.dispatch('keydown', {
+    key: 'Enter',
+    repeat: true,
+    preventDefault() {
+      repeat.prevented = true;
+    },
+  });
+  assert.ok(repeat.prevented);
+  assert.equal(card.hidden, true);
+  assert.equal(globalThis.document.activeElement, node);
+  assert.deepEqual(
+    calls.filter(c => c[0] === 'takeDownOrnament'),
+    [],
+  );
+});
+
 test('a refused take-down says why and leaves the bauble where it was', async ctx => {
   const v = await decorating(ctx, { garden: hung({}, camellia(4)) });
   const takes = globalThis.playPets.takeDownOrnament;
@@ -606,6 +682,8 @@ test('a friend near the tree says a line after a hang; with no friends nobody do
   await v.chipFor('camellia').dispatch('click');
   await v.spots()[0].dispatch('click');
   await flush();
+  assert.equal(said.hidden, true, 'not while the bauble is on its way');
+  ctx.mock.timers.tick(710);
   const lines = list('decorating.cheer');
   assert.ok(lines.includes(v.near.bubble.textContent), 'the near friend says it in the yard');
   assert.equal(v.far.bubble.hidden, true, 'not the far one');
@@ -691,4 +769,182 @@ test('in the Cozy living room the tree is decorated in December too', async ctx 
     [['hangOrnament', 'flower', 'camellia', 0, '2026-12-20']],
   );
   assert.equal(v.baubles().length, 1);
+});
+
+// A hang whose call waits for `settle()`, so a test can look at the bauble before it flies.
+function waitingHang(ctx) {
+  const held = {};
+  globalThis.playPets.hangOrnament = (...args) => {
+    calls.push(['hangOrnament', ...args]);
+    return new Promise(resolve => {
+      held.settle = () => resolve(answer({ book: args[0], id: args[1], hook: args[2] }));
+    });
+  };
+  ctx.after(() => {
+    globalThis.playPets.hangOrnament = hangs;
+  });
+  return held;
+}
+const MOVING = ['flying', 'swing', 'appear', 'hanging'];
+
+test('a hung bauble arcs from the tray, the branch dips, it swings to rest and three glints follow', async ctx => {
+  const v = await decorating(ctx);
+  const held = waitingHang(ctx);
+  openDecorating();
+  const chip = v.chipFor('camellia');
+  chip.getBoundingClientRect = () => ({ left: 100, top: 400, width: 70, height: 60, right: 170, bottom: 460 });
+  await chip.dispatch('click');
+  await v.spots()[0].dispatch('click');
+  // The tray has changed by the time the backend answers; the arc starts where the chip was.
+  chip.getBoundingClientRect = () => ({ left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0 });
+  const [node] = v.baubles(),
+    tree = v.$('decorating-tree'),
+    friend = v.$('decorating-friend'),
+    said = v.$('decorating-bubble');
+  assert.ok(has(node, 'hanging'), 'unseen until the backend answers');
+  assert.ok(!has(node, 'flying'));
+  // The start of the arc, as it is when the transitions go on.
+  const start = {},
+    add = node.classList.add;
+  node.classList.add = (...names) => {
+    if (names.includes('flying'))
+      Object.assign(start, {
+        x: find(node, 'bauble-fly-x').style.transform,
+        y: find(node, 'bauble-fly-y').style.transform,
+        ball: find(node, 'bauble-ball').style.transform,
+        hanging: has(node, 'hanging'),
+      });
+    add(...names);
+  };
+  held.settle();
+  await flush();
+  assert.deepEqual(start, { x: 'translateX(135px)', y: 'translateY(430px)', ball: 'scale(1.3)', hanging: false });
+  assert.ok(has(node, 'flying'));
+  const fx = find(node, 'bauble-fly-x'),
+    fy = find(fx, 'bauble-fly-y'),
+    ball = find(fy, 'bauble-ball');
+  assert.ok(ball, 'the ball rides in its two wrappers');
+  assert.equal(fx.style.transform, '');
+  assert.equal(fy.style.transform, '');
+  assert.equal(ball.style.transform, '');
+  assert.equal(said.hidden, true);
+
+  ctx.mock.timers.tick(460);
+  assert.ok(has(tree, 'dip'));
+  assert.ok(has(node, 'swing'));
+  const glints = findAll(node, 'ornament-glint');
+  assert.equal(glints.length, 3);
+  assert.deepEqual(
+    glints.map(g => [g.style.left, g.style.top, g.style.animationDelay]),
+    [
+      ['calc(50% - 14px)', 'calc(50% - 8px)', '0ms'],
+      ['calc(50% + 14px)', 'calc(50% - 4px)', '70ms'],
+      ['calc(50% + 2px)', 'calc(50% + 16px)', '140ms'],
+    ],
+  );
+  assert.ok(!has(friend, 'hop'));
+
+  ctx.mock.timers.tick(250);
+  assert.ok(has(friend, 'hop'));
+  assert.equal(said.hidden, false);
+  assert.ok(list('decorating.cheer').includes(said.textContent));
+
+  ctx.mock.timers.tick(610);
+  for (const name of MOVING) assert.ok(!has(node, name), `no ${name}`);
+  assert.ok(!has(tree, 'dip'));
+  assert.ok(!has(friend, 'hop'));
+  assert.equal(findAll(node, 'ornament-glint').length, 0);
+  assert.equal(findAll(node, 'bauble-fly-x').length, 0, 'the wrappers are gone');
+  assert.ok(
+    kids(node).some(c => has(c, 'bauble-ball')),
+    'the ball is the bauble’s own again',
+  );
+});
+
+test('with reduced motion the bauble fades in where it hangs', async ctx => {
+  const v = await decorating(ctx);
+  reduced.matches = true;
+  openDecorating();
+  await v.chipFor('camellia').dispatch('click');
+  await v.spots()[0].dispatch('click');
+  await flush();
+  const [node] = v.baubles(),
+    tree = v.$('decorating-tree'),
+    friend = v.$('decorating-friend'),
+    said = v.$('decorating-bubble');
+  const still = () => {
+    for (const name of ['flying', 'swing', 'hanging']) assert.ok(!has(node, name), `no ${name}`);
+    assert.ok(!has(tree, 'dip'));
+    assert.ok(!has(friend, 'hop'));
+    assert.equal(findAll(node, 'ornament-glint').length, 0);
+    assert.equal(findAll(node, 'bauble-fly-x').length, 0);
+  };
+  assert.ok(has(node, 'appear'));
+  still();
+  ctx.mock.timers.tick(199);
+  assert.equal(said.hidden, true);
+  ctx.mock.timers.tick(1);
+  assert.equal(said.hidden, false, 'the line at 200 ms');
+  still();
+  ctx.mock.timers.tick(1500);
+  assert.ok(!has(node, 'appear'));
+  still();
+});
+
+test('closing the view mid-hang leaves nothing moving', async ctx => {
+  const v = await decorating(ctx);
+  openDecorating();
+  await v.chipFor('camellia').dispatch('click');
+  await v.spots()[0].dispatch('click');
+  await flush();
+  state.setData({ ...state.data, garden: hung(state.data.garden, camellia(0)) });
+  ctx.mock.timers.tick(300);
+  assert.ok(has(v.baubles()[0], 'flying'));
+  v.dialog.close();
+  await v.dialog.dispatch('close');
+  const tree = v.$('decorating-tree'),
+    friend = v.$('decorating-friend');
+  assert.ok(!has(tree, 'dip'));
+  assert.ok(!has(friend, 'hop'));
+  openDecorating();
+  const [node] = v.baubles();
+  assert.ok(node);
+  for (const name of MOVING) assert.ok(!has(node, name), `no ${name}`);
+  assert.equal(findAll(tree, 'ornament-glint').length, 0);
+  ctx.mock.timers.tick(2000);
+  assert.ok(!has(tree, 'dip'));
+  assert.ok(!has(friend, 'hop'));
+  assert.equal(v.$('decorating-bubble').hidden, true, 'no line for a hang the view no longer shows');
+  for (const name of MOVING) assert.ok(!has(node, name), `no ${name} later`);
+});
+
+const uncommented = css => css.replace(/\/\*[\s\S]*?\*\//g, '');
+// The body of each block that opens at `{` after a matching head, braces balanced.
+function blocks(css, head) {
+  const found = [];
+  for (const match of css.matchAll(head)) {
+    let depth = 0,
+      at = css.indexOf('{', match.index);
+    const start = at;
+    do {
+      if (css[at] === '{') depth++;
+      else if (css[at] === '}') depth--;
+      at++;
+    } while (depth && at < css.length);
+    found.push({ head: match[0], body: css.slice(start + 1, at - 1) });
+  }
+  return found;
+}
+
+test('the hanging keyframes move only transform and opacity, never loop, and read no variables', async () => {
+  const css = uncommented(await readFile('src/styles/dialog.css', 'utf8'));
+  const frames = blocks(css, /@keyframes\s+ornament-[\w-]+/g);
+  assert.ok(frames.length >= 4, 'the dip, the swing, the glint and the hop');
+  for (const { head, body } of frames) {
+    assert.ok(!body.includes('var('), `${head} reads no variable`);
+    for (const [, property] of body.matchAll(/([\w-]+)\s*:/g))
+      assert.ok(['transform', 'opacity'].includes(property), `${head} moves ${property}`);
+  }
+  for (const { head, body } of blocks(css, /(?<=^|[{}])[^{}@]*(?:ornament|decorating)[^{}]*(?=\{)/g))
+    assert.ok(!/\binfinite\b/.test(body), `${head.trim()} never loops`);
 });

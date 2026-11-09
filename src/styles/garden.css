@@ -507,7 +507,9 @@
   translate: -50% -10%;
   container-type: inline-size;
 }
-.bauble::before {
+/* The cap; in the decorating view it rides with the ball while the bauble flies (dialog.css). */
+.bauble::before,
+.bauble-fly-y::before {
   content: "";
   position: absolute;
   left: 35%;
