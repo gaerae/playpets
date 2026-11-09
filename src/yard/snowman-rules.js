@@ -2,8 +2,8 @@
 // Sizes are shares of the full base ball (1 = the base); distances and speeds are in field widths
 // (the playing field's width = 1). The glue that draws and moves things lives in snowman.js.
 //
-// Speeds: friends alone take about 80 s for the three balls (the base grows 0.18 to 1 over about
-// 1.6 widths at about 0.035/s, then about 23 s and about 11 s). A press is 1/16 of the base. A drag
+// Speeds: friends alone take about a minute for the three balls (the base grows 0.4 to 1 over about
+// 1.2 widths at about 0.03/s, then about 20 s and about 3 s). A press is 1/16 of the base. A drag
 // can be up to five times as fast as the friends, so a big ball still lags the pointer.
 
 import { localDay } from './growth.js';
@@ -12,7 +12,7 @@ export const SNOWMAN = 'snowman';
 /** The three balls' sizes, base first. */
 export const BALLS = Object.freeze([1, 0.7, 0.46]);
 /** A new ball, as a share of the full base ball. */
-export const START = 0.18;
+export const START = 0.4;
 /** Size gained by one press. */
 export const PUSH = 0.05;
 /** Size gained per field width rolled. */

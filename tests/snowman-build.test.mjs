@@ -307,6 +307,24 @@ test('a cancelled drag leaves the ball for the friends', async ctx => {
   assert.notEqual(state.game.ball.x, x, 'the friends roll it from there');
 });
 
+test('a drag whose pointer capture is lost ends where the ball is', async ctx => {
+  const y = await yard(ctx);
+  start();
+  y.run(300);
+  const el = y.ball(),
+    down = { button: 0, pointerId: 1, clientX: 300, clientY: 300 };
+  el.dispatch('pointerdown', down);
+  el.dispatch('pointermove', { ...down, clientX: 600 });
+  y.run(200);
+  const { x } = state.game.ball;
+  el.dispatch('lostpointercapture', down);
+  assert.equal(state.game.ball.drag, null);
+  assert.equal(el.classList.contains('dragging'), false);
+  assert.equal(state.game.ball.x, x);
+  y.run(500);
+  assert.notEqual(state.game.ball.x, x, 'the friends roll it from there');
+});
+
 test('a resized window ends a drag where the ball is', async ctx => {
   const y = await yard(ctx);
   start();

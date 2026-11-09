@@ -83,6 +83,13 @@ export function removeWithUndo(id, view, message, commit, restored = () => {}) {
   });
 }
 
+/** How far an arrow key moves a gift or rolls a snowball, in yard pixels: [x, y]. */
+export const KEY_STEPS = Object.freeze({
+  ArrowLeft: [-16, 0],
+  ArrowRight: [16, 0],
+  ArrowUp: [0, -8],
+  ArrowDown: [0, 8],
+});
 // A press that goes this far (screen pixels) is a drag; a shorter one is a click.
 const DRAG_SLOP = 5;
 /** Starts following a press on `target` (a prop, or a friend) that stands at the field point

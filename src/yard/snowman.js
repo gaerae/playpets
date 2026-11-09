@@ -17,7 +17,7 @@ import { artSize, artSvg } from './art.js';
 import { giftKind } from './catalog.js';
 import { decorShown, yardSeason } from './decor-shown.js';
 import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, geometry, sizeOf } from './field.js';
-import { beginDrag, dragPoint, endDrag, giftSize, setDown } from './props.js';
+import { beginDrag, dragPoint, endDrag, giftSize, KEY_STEPS, setDown } from './props.js';
 import { fadeTrail, trailFrame, trailStamp } from './snow-trail.js';
 import {
   BALLS,
@@ -67,8 +67,6 @@ const IN_FRONT = 3;
 const BEHIND = [0.26, 0.66];
 const BACK = [0, 20];
 const SAY_EVERY_MS = 2000;
-// Arrow keys roll the ball by yard pixels: [x, y], as they move a gift.
-const KEY_STEPS = { ArrowLeft: [-16, 0], ArrowRight: [16, 0], ArrowUp: [0, -8], ArrowDown: [0, 8] };
 // The snow a press kicks up, by the angle each puff flies at.
 const PUFFS = [-160, -125, -90, -55, -20];
 const MOTION = { push: 220, settle: 260, appear: 200 };
@@ -168,13 +166,16 @@ function listen(b) {
     if (drag.moved) letGo(b);
     else help(performance.now());
   });
-  // A drag that ends badly (the pointer taken away) leaves the ball where it is, for the friends.
-  button.addEventListener('pointercancel', () => {
+  // A drag that ends badly (the pointer taken away, or its capture lost without a pointerup) leaves
+  // the ball where it is, for the friends. After a pointerup the drag is already over.
+  const dropped = () => {
     if (!b.drag) return;
     b.drag = null;
     button.classList.remove('dragging');
     letGo(b);
-  });
+  };
+  button.addEventListener('pointercancel', dropped);
+  button.addEventListener('lostpointercapture', dropped);
   button.addEventListener('dragstart', e => e.preventDefault());
   button.addEventListener('keydown', e => {
     if (!rolling(b)) return;

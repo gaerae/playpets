@@ -28,6 +28,7 @@ import {
   beginDrag,
   dragPoint,
   endDrag,
+  KEY_STEPS,
   moveSaved,
   propButton,
   reconcile,
@@ -42,8 +43,6 @@ import { bubble, cheer, effect } from './views.js';
 import { scene } from './world.js';
 
 const flat = kind => !!giftKind(kind)?.flat;
-// Arrow keys move a gift by yard pixels: [x, y].
-const KEY_STEPS = { ArrowLeft: [-16, 0], ArrowRight: [16, 0], ArrowUp: [0, -8], ArrowDown: [0, 8] };
 const standOn = kind => giftKind(kind)?.stand === 'on';
 const shown = new Map();
 // Gifts that just came, shown with a little pop the first time they are drawn.

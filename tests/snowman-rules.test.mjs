@@ -18,11 +18,18 @@ import {
 
 test('a ball grows as it rolls and rolls more slowly as it grows', () => {
   assert.ok(rollSpeed(0.5) < rollSpeed(START) && rollSpeed(1) < rollSpeed(0.5));
-  assert.ok(rollSpeed(1) <= rollSpeed(START) / 2);
+  assert.ok(rollSpeed(1) <= rollSpeed(START) * 0.6);
   assert.ok(Math.abs(grow(0.18, 0.2, 1) - 0.28) < 1e-9);
   assert.equal(grow(0.68, 0.2, 0.7), 0.7, 'never past its size');
   assert.equal(push(0.44, 0.46), 0.46);
   assert.ok(Math.abs(push(0.2, 1) - 0.25) < 1e-9);
+});
+
+// About 17 px beside a friend about 112 px wide, so the friends are seen pushing it; still smaller
+// than the head, so every ball is rolled.
+test('a new ball is big enough to see being pushed, and smaller than every ball', () => {
+  assert.equal(START, 0.4);
+  assert.ok(START < Math.min(...BALLS));
 });
 
 test('a dragged ball follows the pointer no faster than its weight allows', () => {
