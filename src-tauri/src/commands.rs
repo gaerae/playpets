@@ -212,12 +212,9 @@ static COMMANDS: &[Command] = &[
     // (today): the page's date; letters whose season ended by it lose their text, the answer stays.
     // Saved and shown only when one did. Returns the letters.
     main("clearLetters", |c| {
-        let today = c.text(0);
-        if !crate::pets::garden::is_day(today) || today > crate::pets::latest_day(now_ms()).as_str() {
-            return Err(i18n::t("error.bad_request"));
-        }
+        let latest = crate::pets::latest_day(now_ms());
         let mut d = lock(&c.state);
-        let cleared = d.letters.clear_ended(today);
+        let cleared = d.letters.clear_for_page(c.text(0), &latest)?;
         let letters = json!(d.letters);
         if cleared {
             crate::app::show_and_save(c.app, d)?;

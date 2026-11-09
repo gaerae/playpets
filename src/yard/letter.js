@@ -189,13 +189,12 @@ export function setupLetters({ open: opener = openLetter, visible = () => !docum
       syncLetter();
       busy = true;
       call('clearLetters', localDay(now))
-        .then(
-          kept => {
-            data.letters = kept;
-            syncLetter();
-          },
-          () => {},
-        )
+        .then(kept => {
+          data.letters = kept;
+          syncLetter();
+        })
+        // Refused or failed: a later check asks again.
+        .catch(() => {})
         .finally(() => {
           busy = false;
         });
@@ -221,18 +220,18 @@ export function setupLetters({ open: opener = openLetter, visible = () => !docum
       lastAnswer = letters.find(letter => letter.year === year - 1)?.answer;
     busy = true;
     call('writeLetter', year, id, lines, composeLetter(lines, lastAnswer))
-      .then(
-        letter => {
-          // Kept at once, so the next check does not ask again; the backend's change event follows.
-          if (!(data.letters || []).some(kept => kept.year === letter.year))
-            data.letters = [...(data.letters || []), letter];
-          deliver(letter);
-          syncLetter();
-        },
-        // Still being written, a connection being saved, or another passing reason: a later check
-        // asks again, with nothing on screen.
-        () => {},
-      )
+      .then(letter => {
+        // Kept at once, so the next check does not ask again; the backend's change event follows.
+        if (!(data.letters || []).some(kept => kept.year === letter.year))
+          data.letters = [...(data.letters || []), letter];
+        // A window hidden while it was written: the chip, the menu row and the mailbox still lead
+        // to it, but nobody says it to an empty room.
+        syncLetter();
+        if (visible()) deliver(letter);
+      })
+      // Still being written, a connection being saved, or another passing reason: a later check
+      // asks again, with nothing on screen. A friend that could not say it changes nothing kept.
+      .catch(() => {})
       .finally(() => {
         busy = false;
       });

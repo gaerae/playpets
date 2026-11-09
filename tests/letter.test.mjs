@@ -496,10 +496,47 @@ test('the text is cleared while the window is hidden too, and nothing else happe
     now: d(2027, 3, 1, 9),
     letters: [{ year: 2026, friend: 'b', text: 'Hi', answer: null, at: 1 }],
   });
-  document.hidden = true;
+  const doc = document;
+  doc.hidden = true;
+  // Put back even when an assertion fails (the fake document goes when the test ends anyway).
+  ctx.after(() => (doc.hidden = false));
   check();
   await flush();
   assert.deepEqual(clears, ['2027-03-01']);
   assert.equal(writes.length, 0);
-  document.hidden = false;
+});
+
+test('a letter that comes while the window hid is not said, and its ways in still lead to it', async ctx => {
+  const { $ } = page(ctx);
+  let seen = true,
+    done;
+  const check = setupLetters({ open() {}, visible: () => seen });
+  check();
+  writing = (...args) => new Promise(resolve => (done = () => resolve(write(...args))));
+  check();
+  seen = false;
+  done();
+  await flush();
+  assert.equal(state.data.letters.length, 1, 'kept');
+  assert.equal(bubbleOf('b').hidden, true, 'nobody there to hear it');
+  assert.equal($('letter-chip').hidden, false);
+});
+
+test('a failure after the letter came is not left unhandled, and the check goes on', async ctx => {
+  const unhandled = [];
+  const record = reason => unhandled.push(reason);
+  process.on('unhandledRejection', record);
+  ctx.after(() => process.off('unhandledRejection', record));
+  const { check } = page(ctx);
+  // A friend whose bubble cannot be drawn: saying the letter throws.
+  state.views.get('b').bubble = null;
+  check();
+  check();
+  await flush();
+  await flush();
+  assert.deepEqual(unhandled, []);
+  assert.equal(state.data.letters.length, 1);
+  check();
+  await flush();
+  assert.equal(writes.length, 1, 'not busy for good, and not asked again');
 });

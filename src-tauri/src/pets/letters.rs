@@ -90,6 +90,15 @@ impl Letters {
         self.clear_after(today, season_end)
     }
 
+    /// `clearLetters`: the page's date (`today`) is checked against the latest date on Earth, so a
+    /// clock set ahead clears nothing; true when a letter was cleared and the change is to be saved.
+    pub fn clear_for_page(&mut self, today: &str, latest: &str) -> Result<bool, String> {
+        if !super::garden::is_day(today) || today > latest {
+            return Err(bad());
+        }
+        Ok(self.clear_ended(today))
+    }
+
     fn clear_after(&mut self, day: &str, last: fn(u32) -> String) -> bool {
         let mut cleared = false;
         for l in &mut self.0 {
@@ -239,6 +248,29 @@ mod tests {
         let kept = l.of(2026).unwrap();
         assert_eq!((kept.text.as_str(), kept.answer.as_deref()), ("", Some("hike")));
         assert!(!l.clear_ended("2027-01-09"), "nothing left to clear: no save");
+    }
+
+    #[test]
+    fn the_page_date_must_be_a_day_not_past_the_latest_on_earth_and_saves_only_on_a_change() {
+        let mut l = Letters::default();
+        l.write(2026, "a", "hi", 1).unwrap();
+        assert!(l.clear_for_page("2027-1-8", "2027-01-08").is_err(), "not a day");
+        assert!(
+            l.clear_for_page("2027-01-09", "2027-01-08").is_err(),
+            "a clock set ahead"
+        );
+        assert_eq!(l.of(2026).unwrap().text, "hi", "refused: nothing cleared");
+        assert_eq!(
+            l.clear_for_page("2027-01-07", "2027-01-08"),
+            Ok(false),
+            "still its season"
+        );
+        assert_eq!(l.clear_for_page("2027-01-08", "2027-01-08"), Ok(true));
+        assert_eq!(
+            l.clear_for_page("2027-01-08", "2027-01-08"),
+            Ok(false),
+            "nothing left: no save"
+        );
     }
 
     #[test]
