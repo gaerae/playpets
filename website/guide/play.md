@@ -178,7 +178,7 @@ To put one away, right-click it and choose **Put away**, or press **Delete** or 
 - Putting one away keeps its album entry and makes room for the remaining gifts. A memento goes back into the gift box instead, unless the box is full.
 - Any gift that came before can come back out: press **Set out** on its card in the album's Gifts book, once there's room in the yard.
 - The same right-click menu sends a gift out to the desktop ([Gifts on the desktop](./desktop.md#gifts-on-the-desktop)).
-- The album has 26 gifts, including five delivered only during their calendar events. A memento is one of these 26, so it adds no new entry.
+- The album has 29 gifts, including seven delivered only during their calendar events. A memento is one of these 29, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
@@ -223,12 +223,14 @@ A few times a year the yard changes for a while. The event's name shows beside t
 | Cherry blossom festival | April 1 to 20 | Petals drift everywhere and more butterflies come out; a friend brings a cherry sapling |
 | Firefly nights | July 20 to August 20 | Many more fireflies at night, and a golden one to catch; a friend brings a watermelon |
 | Harvest moon | September 8 to October 15 | On the nights around the event's first full moon (two days either side), as at Chuseok and the Mid-Autumn Festival, the moon rises big and golden; the other nights it keeps its phase. The moonlight carp comes to the lake at night; a friend brings a pumpkin |
-| Winter lights | December 10 to 31 | Little lights along the trees, glowing from evening on; a friend brings a snowman |
+| Winter lights | December 1 to 31 | Little lights along the trees, glowing from evening on; friends bring a small Christmas tree, then a baby reindeer, then Santa |
 | New Year | January 1 to 7 | Friends greet the new year; a friend brings a kite |
 
-An event's gift comes the first time a gift is due during the event, and only then. The album shows when each one comes.
+An event's gifts come the first times a gift is due during the event, one each time and in a fixed order, and only then. The album shows when each one comes.
 
-South of the equator, judged by your computer's time zone, seasonal events come six months later. The new year stays in January.
+South of the equator, judged by your computer's time zone, seasonal events come six months later. The winter lights and the new year keep their dates.
+
+In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7, and your season comes back on January 8. The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and wait out of sight the rest of the year. They still count toward the 12 decorations, and when you put one away it goes back into the gift box.
 
 ## Closeness <Since v="0.1.0" />
 
@@ -402,13 +404,13 @@ To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). It wor
 
 ## Collecting at your own pace
 
-The album has 150 entries across aquatic life, bugs, flowers, gifts, trees and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
+The album has 153 entries across aquatic life, bugs, flowers, gifts, trees and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
 
 **How long it takes**
 
-The full 150-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
+The full 153-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
 
-The five event gifts need festivals spread across the calendar, so depending on when you start, collecting them all can take months. Changing the season doesn't start a festival.
+The seven event gifts need festivals spread across the calendar, so depending on when you start, collecting them all can take months. Changing the season doesn't start a festival.
 
 Flowers bloom four hours after planting and trees mature after twelve hours. Both count time with the app closed.
 

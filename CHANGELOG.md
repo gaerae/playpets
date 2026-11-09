@@ -47,6 +47,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The guide gives the winter lights' new dates and gifts, December's winter question, and when Christmas decorations show.
 - The install guide, the settings guide and the privacy policy say that the Microsoft Store version asks the Store for a newer version and shows it in the app.
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
 - The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.

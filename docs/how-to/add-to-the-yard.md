@@ -8,7 +8,7 @@
 |---|---|---|
 | The catalogue: fish, bugs, flowers, gifts, trees, keepsakes and the garden's stages | `src/content/catalog.json` | the page (`src/yard/catalog.js`) and the backend (`src-tauri/src/pets/content.rs`, built in) |
 | The scenery's composition: curves, the lake, the field, the layers painted from back to front | `src/content/yard.json` | the page (`src/yard/layout.js`, `src/yard/backdrop.js`) |
-| Seasonal events: when, their gift, what they add to the scenery and how they look | `src/content/events.json` | the page (`src/yard/events.js`, `src/yard/festival.js`) and the backend (its gift's dates, `content.rs`) |
+| Seasonal events: when, what they add to the scenery and how they look | `src/content/events.json` | the page (`src/yard/events.js`, `src/yard/festival.js`) and the backend (its gifts' dates, `content.rs`) |
 | Drawings: plant stages, flowers, gifts (and any fish or bug that has its own) | `src/art/<folder>/<id>.svg` | the page (`src/yard/art.js`), as symbols |
 | Colours of the seasons, the light and the weather | `src/styles/scenery.css` | the stylesheet, the painter and every drawing |
 | Names and lines | `src/core/strings/<language>.js` | the page |
@@ -77,6 +77,13 @@
    | `stand` | `"on"` if friends stand on it, like the bench. Without it, friends stand beside it |
    | `effects` | See below |
    | `size` | `[width, height]` in catalogue units, in the drawing's shape. Usually its SVG view box; furniture may need a different footprint. The desktop draws the gift at this size too (`gift_size` in `pets/content.rs`) |
+   | `event` | An event's id. The gift comes only during that event. Several gifts of one event come in catalogue order, one each time a gift is due |
+   | `shown` | `"december"`: shows in the yard and on the desktop from December 1 to January 7, and is hidden with its state kept the rest of the year. It goes back into the gift box when put away. The windows are `SHOWN` in `src/yard/decor-shown.js` |
+   | `seasons` | Shows only while the yard shows one of these seasons |
+   | `built` | `true`: never brought by a friend; it comes from building it (the snowman) |
+
+   - At most four kinds use `shown` or `seasons`.
+   - Hidden kinds still count toward `DECOR_MAX`.
 
 2. Draw it in `src/art/decor/<id>.svg`.
    - Preserve the drawing's aspect ratio.
@@ -154,11 +161,12 @@ To make a new effect:
 ### Add a seasonal event
 1. Add an entry to `src/content/events.json` with `id`, `from` and `to`, and what it brings.
    - `from`, `to`: month-day (`"04-01"`), as seen north of the equator.
-   - South of the equator, the event comes six months later unless `"fixed": true` (as for the new year).
+   - South of the equator, the event comes six months later unless `"fixed": true` (as for the winter lights and the new year).
+   - `fixed` also means the event's gift is asked for whatever season the yard shows, in every place.
+   - An event's gifts are the catalogue kinds with its `event`, in catalogue order. Add them to `catalog.json` with `"event": "<id>"`; they are not everyday gifts.
 
    | Field | What it brings |
    |---|---|
-   | `gift` | The id of a gift that comes only then. Add that gift to `catalog.json` with `"event": "<id>"`. It comes the first time a gift is due during the event, and is not one of the everyday gifts |
    | `boost` | More small life while it is on: `petals`, `butterflies`, `fireflies` (each a multiplier) |
    | `looks` | Names of looks; each is a class on the yard (`look-<name>`) whose rules go in `src/styles/scenery.css`. The harvest moon's `fullmoon` makes the moon big and golden on the nights around the event's first real full moon, when `sky.js` also sets `moon-full` |
    | `art` | A drawing for its card, if it has no gift (the new year's sunrise) |
@@ -247,7 +255,7 @@ Guide labels:
 - Event gifts stay tied to the calendar.
 - Gifts follow a deterministic sequence, not a loot probability.
 - The cap of 12 placed decorations pauses deliveries.
-- Removing a decoration keeps its album entry, so all 26 gifts can be collected over time.
+- Removing a decoration keeps its album entry, so all 29 gifts can be collected over time.
 
 Reachability:
 - Keep every album entry reachable across valid contexts.
