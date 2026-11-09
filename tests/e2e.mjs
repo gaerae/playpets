@@ -57,6 +57,9 @@ await writeFile(
       ],
     },
     album: { treasures: { quartz: { count: 1, best: 0, first: rareLedgerAt } } },
+    // December's winter question already answered for this year: in the south "auto" is summer
+    // then, and the question would otherwise cover the yard the scenario clicks.
+    winterAsked: { year: new Date().getFullYear(), previous: null },
   }),
 );
 
