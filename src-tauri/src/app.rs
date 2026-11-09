@@ -95,6 +95,9 @@ pub struct AppData {
     pub importing: Vec<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     /// Providers being saved right now.
     pub provider_updates: HashSet<String>,
+    /// Years whose letter a friend's AI is writing right now (chat/letter.rs), not saved: a page
+    /// reloaded meanwhile is told to wait rather than asking the AI again.
+    pub letters_writing: HashSet<u32>,
     pub detected: Value,
     pub activity: HashMap<String, Vec<chat::prompt::Activity>>,
     /// The gift kinds the yard hides right now, as it last reported (hideDecor); the desktop leaves
@@ -389,7 +392,7 @@ impl Saving {
             "garden": d.garden,
             "album": d.album,
             "bonds": d.bonds,
-        "letters": d.letters,
+            "letters": d.letters,
             "desktop": desktop_on(d),
         });
         carry(&mut state, &d.prefs.saved());

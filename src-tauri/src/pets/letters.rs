@@ -37,21 +37,24 @@ pub struct Letters(pub Vec<Letter>);
 
 /// The first day after which a year's letter text goes: every time zone has passed January 7.
 fn expires_after(year: u32) -> String {
-    format!("{:04}-01-09", year + 1)
+    format!("{:04}-01-09", year.saturating_add(1))
 }
 
 fn bad() -> String {
     i18n::t("error.bad_request")
 }
 
-// `of`, `write` and `answer_before` are first called by the letter's writer and card, which come
-// in the commits after this one; remove the allow when they do.
-#[allow(dead_code)]
 impl Letters {
     /// The letters as state.json has them; what does not read as a letter is left out.
     pub fn restore(raw: Option<&Value>, latest: &str) -> Letters {
         let mut all: Vec<Letter> = Vec::new();
-        for entry in raw.and_then(Value::as_array).into_iter().flatten() {
+        // Only objects: serde would also read an array such as `[2026]` as a letter.
+        for entry in raw
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter(|e| e.is_object())
+        {
             let Ok(mut l) = serde_json::from_value::<Letter>(entry.clone()) else {
                 continue;
             };
@@ -84,10 +87,12 @@ impl Letters {
         self.0.iter().find(|l| l.year == year)
     }
 
-    /// Keeps a new letter for `year`; each year has one, even after it is deleted.
+    /// Keeps a new letter for `year`; each year has one, even after it is deleted. A year older
+    /// than all of a full list is refused rather than kept and dropped at once.
     pub fn write(&mut self, year: u32, friend: &str, text: &str, at: u64) -> Result<Letter, String> {
         let text: String = text.trim().chars().take(TEXT_MAX).collect();
-        if self.of(year).is_some() || text.is_empty() {
+        let too_old = self.0.len() >= LETTERS_MAX && self.0.iter().all(|l| l.year > year);
+        if self.of(year).is_some() || text.is_empty() || too_old {
             return Err(bad());
         }
         let letter = Letter {
@@ -264,5 +269,36 @@ mod tests {
         l.answer(2025, "hike").unwrap();
         assert_eq!(l.answer_before(2026), Some("hike"));
         assert_eq!(l.answer_before(2025), None);
+    }
+
+    #[test]
+    fn a_year_older_than_the_ten_kept_is_refused_not_dropped() {
+        let mut l = Letters::default();
+        for y in 2020..2030 {
+            l.write(y, "a", "t", 1).unwrap();
+        }
+        let before = l.clone();
+        assert!(l.write(2019, "a", "t", 1).is_err());
+        assert_eq!(l, before, "the ten kept stay");
+        assert!(l.write(2030, "a", "t", 1).is_ok(), "a newer year pushes the oldest out");
+        assert!(l.of(2020).is_none());
+    }
+
+    #[test]
+    fn restore_cuts_long_text_and_skips_what_is_not_a_letter() {
+        let list = json!([
+            "a letter?",
+            7,
+            [2026],
+            raw(json!(2026), "a", &"x".repeat(TEXT_MAX + 50), Value::Null, 1),
+        ]);
+        let got = Letters::restore(Some(&list), "2026-12-27");
+        assert_eq!(got.0.len(), 1);
+        assert_eq!(got.of(2026).unwrap().text.chars().count(), TEXT_MAX);
+    }
+
+    #[test]
+    fn the_last_year_there_is_does_not_overflow() {
+        assert_eq!(expires_after(u32::MAX), format!("{}-01-09", u32::MAX));
     }
 }

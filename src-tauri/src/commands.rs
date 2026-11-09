@@ -194,6 +194,9 @@ static COMMANDS: &[Command] = &[
     }),
     // (): winter shown on request ends; the season before comes back once. Returns the season now.
     main("endWinter", |c| commit(c.app, &c.state, |d| Ok(d.prefs.end_winter()))),
+    // (year, friend, facts, fallback): this year's letter, written once: the friend's AI from the
+    // labelled facts, or the page's own lines.
+    main("writeLetter", |c| chat::letter::write(c.app, &c.state, &c.cli, c.args)),
     // (year, answer): the person's answer to that year's letter, one line, kept on this computer only.
     main("answerLetter", |c| {
         let year = c.parse::<u32>(0)?;
@@ -695,6 +698,7 @@ mod tests {
         assert!(may_call("main", "followTracks") && !may_call("overlay0", "followTracks"));
         assert!(may_call("main", "answerLetter") && may_call("main", "deleteLetter"));
         assert!(!may_call("overlay0", "answerLetter"));
+        assert!(may_call("main", "writeLetter") && !may_call("overlay0", "writeLetter"));
         assert!(may_call("main", "quitApp"));
         assert!(!may_call("overlay1", "quitApp"));
         assert!(!may_call("other", "bootstrap"));

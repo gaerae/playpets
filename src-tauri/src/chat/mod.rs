@@ -6,6 +6,7 @@ pub mod cli;
 pub mod guide;
 pub mod http;
 pub mod kind;
+pub mod letter;
 pub mod prompt;
 pub mod providers;
 

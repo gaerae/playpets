@@ -287,6 +287,7 @@ mod tests {
             talks: chat::Talks::default(),
             importing: Vec::new(),
             provider_updates: HashSet::new(),
+            letters_writing: HashSet::new(),
             detected: json!({}),
             activity: HashMap::new(),
             hidden_decor: None,
