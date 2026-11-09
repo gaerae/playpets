@@ -123,7 +123,7 @@ The frame loop and shared tables:
 
 Saving and announcing:
 - A command that changes the state goes through `commit`, which saves and announces once.
-- A change made in place uses `save_and_show`.
+- A change made in place uses `save_and_show`; a caller done with the state passes its lock to `show_and_save`, which writes after letting it go.
 - A change that could not be saved still takes effect and is shown.
 
 Locks:
@@ -227,7 +227,7 @@ Format:
   - the original cats → Clover, before restoration
 - Friend IDs, names, settings and closeness stay unchanged.
 - Imported pets are not matched by this path-based migration.
-- Old unpacked directories stay on disk but are excluded from the built-in catalog.
+- An update removes the unpacked directories of built-in friends it no longer ships; the built-in catalog never lists them.
 - The catalog checks the optional baseline `portraitPath`, seasonal sheets and the legacy alternate-appearance fields, and serves them through the same sprite protocol.
 - A selected appearance changes drawing material, not the relationship or the AI connection.
 - Full contract: [Pet file format](standards/pet-files.md).

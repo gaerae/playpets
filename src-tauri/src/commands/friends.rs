@@ -56,7 +56,7 @@ pub(super) fn befriend(c: &Ctx) -> Result<Value, String> {
     let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
     // A pat past the day's cap changes nothing: no save, no redraw of every page.
     if d.bonds.get(pet) != before.as_ref() {
-        crate::app::save_and_show(c.app, &d)?;
+        crate::app::show_and_save(c.app, d)?;
     }
     Ok(json!({"points": points, "level": level, "up": up}))
 }
@@ -70,7 +70,7 @@ pub(super) fn bloomed(c: &Ctx) -> Result<Value, String> {
         return Ok(Value::Null);
     };
     let entry = d.album.flowered(&kind, now);
-    crate::app::save_and_show(c.app, &d)?;
+    crate::app::show_and_save(c.app, d)?;
     Ok(json!({"kind": kind, "entry": entry}))
 }
 
@@ -150,7 +150,7 @@ pub(super) fn update_pet(
             push_event(app, &json!({"type": "pet-moved", "petId": id, "x": p.x, "y": p.y}));
         }
     } else {
-        crate::app::save_and_show(app, &d)?;
+        crate::app::show_and_save(app, d)?;
     }
     Ok(Value::Null)
 }

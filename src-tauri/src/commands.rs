@@ -263,7 +263,7 @@ static COMMANDS: &[Command] = &[
         let mut d = lock(&c.state);
         let AppData { garden, album, .. } = &mut *d;
         if discovery::grow_trees(garden, album, now) {
-            crate::app::save_and_show(c.app, &d)?;
+            crate::app::show_and_save(c.app, d)?;
         }
         Ok(Value::Null)
     }),
@@ -320,7 +320,7 @@ static COMMANDS: &[Command] = &[
             crate::app::persist_soon(c.app);
             return Ok(answer);
         }
-        crate::app::save_and_show(c.app, &d).map(|()| answer)
+        crate::app::show_and_save(c.app, d).map(|()| answer)
     }),
     main("bloomed", bloomed),
     main("befriend", befriend),

@@ -163,15 +163,49 @@ pub fn commit(
 ) -> Result<Value, String> {
     let mut d = lock(state);
     let answer = change(&mut d)?;
-    save_and_show(app, &d).map(|()| answer)
+    show_and_save(app, d).map(|()| answer)
 }
 
 /// Saves a change made in place and shows it on every page, in that order. As in `commit`, a change
-/// that could not be saved still stands and is shown; the error is returned after.
+/// that could not be saved still stands and is shown; the error is returned after. A caller done
+/// with the state uses `show_and_save`, which writes after letting it go.
 pub fn save_and_show(app: &AppHandle, d: &AppData) -> Result<(), String> {
     let saved = persist(d).map_err(|_| i18n::t("store.held"));
     changed(app, d);
     saved
+}
+
+/// Like `save_and_show` for a caller done with the state: the state to save is taken and shown
+/// under the lock, which is let go before the disk write, so moving the window or a friend never
+/// waits for the disk. A save taken earlier but written later is dropped (`Saving::write`).
+pub fn show_and_save(app: &AppHandle, d: MutexGuard<'_, AppData>) -> Result<(), String> {
+    unlocked(
+        d,
+        |d| {
+            (
+                Saving::of(d),
+                store::Store {
+                    dir: d.store.dir.clone(),
+                },
+            )
+        },
+        |d| changed(app, d),
+        |(saving, store)| saving.write(&store, &WRITTEN),
+    )
+    .map_err(|_| i18n::t("store.held"))
+}
+
+/// Takes what to write and shows the change while holding the lock, then writes without it.
+fn unlocked<T, S>(
+    guard: MutexGuard<'_, T>,
+    take: impl FnOnce(&T) -> S,
+    show: impl FnOnce(&T),
+    write: impl FnOnce(S) -> Result<(), String>,
+) -> Result<(), String> {
+    let taken = take(&guard);
+    show(&guard);
+    drop(guard);
+    write(taken)
 }
 
 /// Milliseconds since 1970 by the system clock (0 if the clock is set before then).
@@ -486,6 +520,24 @@ pub fn quit(app: &AppHandle) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_change_is_shown_under_the_lock_and_written_after_it_is_let_go() {
+        let state = Mutex::new(7);
+        let mut shown = 0;
+        let saved = unlocked(
+            hold(&state),
+            |n| *n,
+            |n| shown = *n,
+            |taken| {
+                assert!(state.try_lock().is_ok(), "nothing waits for the disk");
+                assert_eq!(taken, 7);
+                Err("disk full".to_string())
+            },
+        );
+        assert_eq!(shown, 7, "shown before the write");
+        assert_eq!(saved.unwrap_err(), "disk full");
+    }
 
     #[test]
     fn unknown_top_level_keys_are_carried_and_known_ones_are_not() {
