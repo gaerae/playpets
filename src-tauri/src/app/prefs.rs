@@ -38,6 +38,34 @@ pub fn scene_choice(key: &str, value: &str) -> Option<Value> {
     (SCENE_KEYS.contains(&key) && fits).then(|| json!(value))
 }
 
+/// The answer to December's question ("show the winter yard until January 7?"). The page decides
+/// when to ask, since it knows the local date; this only keeps what was said.
+/// - `year`: the December it was answered in, so the question comes once a year.
+/// - `previous`: the season to bring back when winter ends, set only when winter was shown on
+///   request (None when the person kept their season, or once it has been brought back).
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug, PartialEq)]
+pub struct WinterAsked {
+    pub year: u32,
+    pub previous: Option<String>,
+}
+
+impl WinterAsked {
+    fn restore(raw: Option<&Value>) -> Option<WinterAsked> {
+        let raw = raw?.as_object()?;
+        let year = u32::try_from(raw.get("year")?.as_u64()?).ok()?;
+        let previous = raw
+            .get("previous")
+            .and_then(Value::as_str)
+            .filter(|season| scene_choice("season", season).is_some())
+            .map(String::from);
+        year_fits(year).then_some(WinterAsked { year, previous })
+    }
+}
+
+fn year_fits(year: u32) -> bool {
+    (2000..=9999).contains(&year)
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Prefs {
     /// Friends out on the desktop roam it. Which ones are out is each friend's own (Pet::on_desktop).
@@ -58,11 +86,13 @@ pub struct Prefs {
     pub always_on_top: bool,
     /// The place and the weather picked for the yard (`scene_choice`).
     pub scene: Map<String, Value>,
+    /// December's question and what the person answered (`WinterAsked`).
+    pub winter_asked: Option<WinterAsked>,
 }
 
 impl Prefs {
     /// The keys of state.json these are saved under.
-    pub const KEYS: [&str; 9] = [
+    pub const KEYS: [&str; 10] = [
         "desktopWander",
         "language",
         "autoChatter",
@@ -72,6 +102,7 @@ impl Prefs {
         "alwaysOnTop",
         "miniRect",
         "scene",
+        "winterAsked",
     ];
 
     /// Read back from a saved state; a key missing or of the wrong kind takes its default.
@@ -100,6 +131,7 @@ impl Prefs {
                         .collect()
                 })
                 .unwrap_or_default(),
+            winter_asked: WinterAsked::restore(raw.get("winterAsked")),
         }
     }
 
@@ -119,7 +151,41 @@ impl Prefs {
         }
         m.insert("alwaysOnTop".into(), json!(self.always_on_top));
         m.insert("scene".into(), Value::Object(self.scene.clone()));
+        m.insert("winterAsked".into(), json!(self.winter_asked));
         m
+    }
+
+    /// The person answered December's question. With `previous` they want winter shown: it is
+    /// chosen now and that season kept to come back to; without, their season stays.
+    pub fn answer_winter(&mut self, year: u32, previous: Option<&str>) -> Result<(), String> {
+        let bad = || i18n::t("error.bad_request");
+        if !year_fits(year) {
+            return Err(bad());
+        }
+        let previous = match previous {
+            Some(season) => {
+                scene_choice("season", season).ok_or_else(bad)?;
+                Some(season.to_string())
+            }
+            None => None,
+        };
+        if previous.is_some() {
+            self.scene.insert("season".into(), json!("winter"));
+        }
+        self.winter_asked = Some(WinterAsked { year, previous });
+        Ok(())
+    }
+
+    /// Winter shown on request ends: the season before comes back, but only if winter is still
+    /// what is chosen (a season picked by hand since stays). It comes back once. Returns the season now.
+    pub fn end_winter(&mut self) -> Value {
+        if let Some(asked) = self.winter_asked.as_mut()
+            && let Some(previous) = asked.previous.take()
+            && self.scene.get("season") == Some(&json!("winter"))
+        {
+            self.scene.insert("season".into(), json!(previous));
+        }
+        self.scene.get("season").cloned().unwrap_or(Value::Null)
     }
 
     /// The language a run speaks (`forced`, `PLAYPETS_LANG`, before the saved one) and, when that
@@ -244,6 +310,10 @@ mod tests {
                 .as_object()
                 .cloned()
                 .unwrap(),
+            winter_asked: Some(WinterAsked {
+                year: 2026,
+                previous: Some("auto".into()),
+            }),
         };
         let saved = Value::Object(prefs.json());
         assert_eq!(Prefs::restore(&saved, lang), prefs);
@@ -276,5 +346,61 @@ mod tests {
         assert_eq!(scene_choice("colour", "red"), None);
         assert_eq!(scene_choice("world", &"a".repeat(65)), None);
         assert_eq!(scene_choice("world", ""), None);
+    }
+
+    fn asked(year: u32, previous: Option<&str>) -> Option<WinterAsked> {
+        Some(WinterAsked {
+            year,
+            previous: previous.map(String::from),
+        })
+    }
+
+    #[test]
+    fn showing_winter_keeps_the_season_before_and_brings_it_back_once() {
+        let lang = i18n::Lang::parse("en").unwrap();
+        let mut prefs = Prefs::restore(&json!({"scene": {"season": "spring"}}), lang);
+        prefs.answer_winter(2026, Some("spring")).unwrap();
+        assert_eq!(prefs.scene["season"], json!("winter"));
+        assert_eq!(prefs.winter_asked, asked(2026, Some("spring")));
+        assert_eq!(prefs.end_winter(), json!("spring"));
+        assert_eq!(prefs.winter_asked, asked(2026, None));
+        assert_eq!(prefs.end_winter(), json!("spring"), "a second time changes nothing");
+        assert_eq!(prefs.winter_asked, asked(2026, None));
+
+        prefs.answer_winter(2026, Some("spring")).unwrap();
+        prefs.scene.insert("season".into(), json!("autumn"));
+        assert_eq!(prefs.end_winter(), json!("autumn"), "a season picked by hand stays");
+        assert_eq!(prefs.winter_asked, asked(2026, None));
+    }
+
+    #[test]
+    fn keeping_the_season_is_remembered_for_the_year() {
+        let lang = i18n::Lang::parse("en").unwrap();
+        let mut prefs = Prefs::restore(&json!({"scene": {"season": "spring"}}), lang);
+        let before = prefs.scene.clone();
+        prefs.answer_winter(2026, None).unwrap();
+        assert_eq!(prefs.scene, before);
+        assert_eq!(prefs.winter_asked, asked(2026, None));
+        prefs.end_winter();
+        assert_eq!(prefs.scene, before);
+        assert_eq!(prefs.winter_asked, asked(2026, None));
+    }
+
+    #[test]
+    fn the_december_answer_comes_back_and_odd_ones_are_left_out() {
+        let lang = i18n::Lang::parse("en").unwrap();
+        let mut prefs = Prefs::restore(&json!({}), lang);
+        assert_eq!(prefs.json()["winterAsked"], Value::Null);
+        prefs.answer_winter(2026, Some("summer")).unwrap();
+        let saved = Value::Object(prefs.json());
+        assert_eq!(saved["winterAsked"], json!({"year": 2026, "previous": "summer"}));
+        assert_eq!(Prefs::restore(&saved, lang).winter_asked, asked(2026, Some("summer")));
+        for odd in [json!({"year": 1999}), json!({"year": "2026"}), json!("yes")] {
+            assert_eq!(Prefs::restore(&json!({"winterAsked": odd}), lang).winter_asked, None);
+        }
+        let odd = json!({"winterAsked": {"year": 2026, "previous": "Winter!"}});
+        assert_eq!(Prefs::restore(&odd, lang).winter_asked, asked(2026, None));
+        assert!(prefs.answer_winter(2026, Some("Winter!")).is_err());
+        assert!(prefs.answer_winter(10000, None).is_err());
     }
 }

@@ -178,6 +178,22 @@ static COMMANDS: &[Command] = &[
             Ok(Value::Null)
         })
     }),
+    // (year, previous|null): the answer to December's question; with a season, winter is shown now.
+    main("answerWinter", |c| {
+        let year = u32::try_from(c.arg(0).as_u64().ok_or_else(|| i18n::t("error.bad_request"))?)
+            .map_err(|_| i18n::t("error.bad_request"))?;
+        let previous = match c.arg(1) {
+            Value::Null => None,
+            Value::String(season) => Some(season.as_str()),
+            _ => return Err(i18n::t("error.bad_request")),
+        };
+        commit(c.app, &c.state, |d| {
+            d.prefs.answer_winter(year, previous)?;
+            Ok(Value::Null)
+        })
+    }),
+    // (): winter shown on request ends; the season before comes back once. Returns the season now.
+    main("endWinter", |c| commit(c.app, &c.state, |d| Ok(d.prefs.end_winter()))),
     // Imported backgrounds, a file each in the data folder; read and written outside the lock.
     main("listBackgrounds", |c| {
         let dir = lock(&c.state).store.dir.clone();
