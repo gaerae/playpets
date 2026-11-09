@@ -12,6 +12,10 @@ if ($env:GITHUB_ACTIONS -ne 'true' -or $env:RUNNER_OS -ne 'Windows') {
     throw 'WACK runs only on ephemeral GitHub Windows runners: it trusts a certificate machine-wide.'
 }
 if (!$env:MSIX_PUBLISHER) { throw 'Store publisher is required' }
+# appcert takes only full paths, and its report goes in a folder that already exists.
+$Package = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Package)
+$Report = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Report)
+if (!(Test-Path $Package)) { throw "Missing $Package" }
 $appcert = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/App Certification Kit/appcert.exe'
 if (!(Test-Path $appcert)) { throw 'The Windows App Certification Kit is missing on this runner' }
 $sdk = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/bin'
