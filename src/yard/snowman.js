@@ -107,7 +107,8 @@ const SUGGEST_EVERY = [4 * 60 * 1000, 9 * 60 * 1000];
 const SUGGEST_CHANCE = 0.5;
 const START_AFTER_MS = 1200;
 let suggesting = cadence(() => between(Math.random, SUGGEST_EVERY)),
-  suggested = '';
+  suggested = '',
+  suggestedStart = false;
 
 /** Called by the frame loop beside the other yard life, never during a game: now and then a free
  * friend suggests a snowman and starts rolling, or says the yard is full. A suggestion is skipped
@@ -118,15 +119,23 @@ export function snowmanTick(now) {
   if (suggested === today || ![...views.values()].every(isFree)) return;
   const why = offered();
   if (why === 'not_winter' || why === 'built_today') return;
-  const ids = [...views.keys()].filter(id => stateOf(data, id, now) === 'idle');
+  const ids = [...views.keys()].filter(id => stateOf(data, id) === 'idle');
   if (!ids.length) return;
   const id = pick(ids);
   suggested = today;
   if (why) return snowmanGame.refused(`snowman.${why}`, id);
   bubble(views.get(id), pick(list('snowman.start')), 3000);
-  // Rechecked when it fires: the person may have started a game, the season turned or the friend left.
+  // A bare timer, not play.after: no round exists yet to own it. The recheck covers what may have
+  // changed in the gap: a game, the season or the place (offered), the friend leaving.
   setTimeout(() => {
-    if (!game && !aiming && views.has(id) && isFree(views.get(id)) && offered() === null) play.start('snowman', id);
+    if (game || aiming || !views.has(id) || !isFree(views.get(id)) || offered() !== null) return;
+    // The suggestion was the friend's line already, so the game does not say its own.
+    suggestedStart = true;
+    try {
+      play.start('snowman', id);
+    } finally {
+      suggestedStart = false;
+    }
   }, START_AFTER_MS);
 }
 const offered = () =>
@@ -637,7 +646,7 @@ export const snowmanGame = {
     Object.assign(game, { spot: stackSpot(shown), stack: [], stage: 'rolling', saidAt: -Infinity, lift: null });
     game.ball = newBall(BALLS[0]);
     watch(game.ids.slice(2));
-    bubble(views.get(lead), pick(list('snowman.start')), 3000);
+    if (!suggestedStart) bubble(views.get(lead), pick(list('snowman.start')), 3000);
     game.hint = t('snowman.hint_roll');
   },
   frame(now, dt) {

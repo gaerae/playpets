@@ -70,7 +70,16 @@ async function frameLoop({ hidden = false, shown = true } = {}) {
   const source = await readFile('src/app.js', 'utf8');
   const loop = source.slice(source.indexOf('\nconst BUSY_MS'), source.lastIndexOf('\ntry {'));
   const noop = () => {};
-  const yardLife = ['idleChatter', 'giftTick', 'thanksTick', 'soloFishing', 'snowmanTick', 'judge', 'moveFriends', 'bondTick'];
+  const yardLife = [
+    'idleChatter',
+    'giftTick',
+    'thanksTick',
+    'soloFishing',
+    'snowmanTick',
+    'judge',
+    'moveFriends',
+    'bondTick',
+  ];
   const context = {
     document: { hidden },
     shown,

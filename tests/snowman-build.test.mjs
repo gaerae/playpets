@@ -677,6 +677,54 @@ test('nothing is suggested in autumn, in the cozy living room, during a game, wh
     });
 });
 
+test('a friend whose agent report went stale long ago still suggests', async ctx => {
+  const y = await yard(ctx);
+  state.data.statuses = { a: { state: 'done', source: 'hook', at: NOW - 24 * 60 * MIN } };
+  const said = across(y, 9 * MIN);
+  assert.equal(said.length, 1);
+  assert.equal(said[0].id, 'a');
+});
+
+test('a friend whose agent is working does not suggest', async ctx => {
+  const y = await yard(ctx);
+  state.data.statuses = {
+    a: { state: 'working', source: 'hook', at: NOW },
+    b: { state: 'working', source: 'hook', at: NOW },
+    c: { state: 'working', source: 'hook', at: NOW },
+  };
+  assert.deepEqual(across(y, 30 * MIN), []);
+});
+
+test('a game that starts from a suggestion keeps to that line; one from the menu speaks', async ctx => {
+  const y = await yard(ctx);
+  const [first] = across(y, 9 * MIN);
+  y.tick(1100);
+  assert.equal(state.game, null);
+  const bubbleOf = id => state.views.get(id).bubble;
+  const before = bubbleOf(first.id).textContent;
+  bubbleOf(first.id).textContent = 'marker';
+  y.tick(100);
+  assert.equal(state.game.kind, 'snowman');
+  assert.equal(bubbleOf(first.id).textContent, 'marker', 'no second start line');
+  play.endGame();
+  assert.ok(before);
+  start();
+  assert.ok(list('snowman.start').includes(y.said('a')), 'a menu start still speaks');
+});
+
+test('a yard full with a hidden decoration says so, and nothing starts', async ctx => {
+  const y = await yard(ctx, {
+    garden: { decor: Array.from({ length: 12 }, (_, i) => ({ id: `x${i}`, kind: 'xmas_tree', x: 0.1, y: 0.5 })) },
+  });
+  // July: the trees are out of sight but still count toward the 12.
+  ctx.mock.timers.setTime(new Date(2026, 6, 15, 10).getTime());
+  const said = across(y, 9 * MIN);
+  assert.equal(said.length, 1);
+  assert.ok(list('snowman.full').includes(said[0].words));
+  y.tick(5000);
+  assert.equal(state.game, null);
+});
+
 test('a season that changes before the friend starts rolling cancels the start', async ctx => {
   const y = await yard(ctx);
   assert.equal(across(y, 9 * MIN).length, 1);
