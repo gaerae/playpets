@@ -9,7 +9,7 @@ pub mod kinds;
 mod run;
 pub mod snippets;
 
-use crate::app::{AppData, Shared, lock, pet_name, push_event, require_pet, set_status};
+use crate::app::{AppData, Shared, Source, lock, pet_name, push_event, require_pet, set_status};
 use crate::chat::prompt;
 use crate::i18n;
 use serde_json::{Value, json};
@@ -53,10 +53,7 @@ fn on_event(app: &AppHandle, d: &mut AppData, event: bridge::AgentEvent) {
     if kind == "say" {
         push_event(app, &json!({"type": "say", "petId": pet_id, "message": message}));
     } else {
-        set_status(app, d, &pet_id, &state, &message, "agent");
-        if let Some(status) = d.statuses.get_mut(&pet_id) {
-            status["by"] = json!(by);
-        }
+        set_status(app, d, &pet_id, &state, &message, Source::Agent, &by);
     }
 }
 
@@ -73,17 +70,11 @@ pub fn start(app: &tauri::App) {
                 .iter()
                 .map(|p| {
                     let status = d.statuses.get(&p.id);
-                    let state = status
-                        .and_then(|s| s.get("state"))
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("idle");
+                    let state = status.map_or("idle", |s| s.state.as_str());
                     // "chat" when the state is a chat answer on its way rather than an agent's turn.
-                    let source = status
-                        .and_then(|s| s.get("source"))
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("");
-                    // Who reported it, for an idle notice to tell its own turn (agent/cli.rs).
-                    let by = status.and_then(|s| s.get("by")).and_then(|v| v.as_str()).unwrap_or("");
+                    let source = status.map_or(json!(""), |s| json!(s.source));
+                    // Who reported it, for an idle notice to tell its own turn (agent/hooks.rs).
+                    let by = status.map_or("", |s| s.by.as_str());
                     json!({"id": p.id, "name": pet_name(&d, p, ""), "state": state, "source": source, "by": by})
                 })
                 .chain(d.parked_pets.iter().map(|p| json!({"id": p["id"], "parked": true})))

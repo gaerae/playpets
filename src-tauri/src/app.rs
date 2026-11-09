@@ -84,7 +84,8 @@ pub struct AppData {
     pub extra: Map<String, Value>,
     /// Providers whose API key is in the keychain.
     pub secret_ids: HashSet<String>,
-    pub statuses: Map<String, Value>,
+    /// Each friend's last state from a coding agent or a chat, not saved.
+    pub statuses: HashMap<String, Status>,
     /// Each friend's conversation, and the answers on their way (chat/mod.rs).
     pub talks: chat::Talks,
     /// The flags that call off the pet imports under way, not saved.
@@ -219,7 +220,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "providers": d.providers.iter().map(|p| { let mut p = p.clone(); p["hasKey"] = json!(d.secret_ids.contains(providers::id_of(&p))); p }).collect::<Vec<_>>(),
         "detected": d.detected,
         "warnings": d.warnings,
-        "statuses": Value::Object(d.statuses.clone()),
+        "statuses": d.statuses,
         "busy": d.talks.busy_ids().collect::<Vec<_>>(),
         "desktopLayout": layout,
         "desktop": desktop_on(d),
@@ -412,16 +413,43 @@ pub fn put_on_desktop(app: &AppHandle, d: &mut AppData, id: &str, on: bool) -> R
     save_and_show(app, d)
 }
 
+/// A friend's state as every page shows it (src/core/status.js reads the same fields).
+#[derive(serde::Serialize, Clone, Debug, PartialEq)]
+pub struct Status {
+    /// idle, working, waiting, done or error (agent::bridge::STATES).
+    pub state: String,
+    pub message: String,
+    /// The yard marks agent work, not a chat answer.
+    pub source: Source,
+    pub at: u64,
+    /// Who reported it (`claude:<session>`), so an idle notice can tell its own turn; empty for
+    /// a chat, MCP and `playpets status`.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub by: String,
+}
+
+#[derive(serde::Serialize, Clone, Copy, Debug, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum Source {
+    Agent,
+    Chat,
+}
+
 /// A friend's state (idle, working, …) and the line that goes with it, as every page shows it.
-pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, message: &str, source: &str) {
+pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, message: &str, source: Source, by: &str) {
     if require_pet(d, id).is_err() {
         return;
     }
-    // The source stays with the state: the yard marks agent work, not a chat answer.
     let at = now_ms();
     d.statuses.insert(
         id.into(),
-        json!({"state": state, "message": message, "source": source, "at": at}),
+        Status {
+            state: state.into(),
+            message: message.into(),
+            source,
+            at,
+            by: by.into(),
+        },
     );
     // Only this friend's status travels, and each page keeps it (core/status.js applyStatus): an
     // agent's hook fires on every tool it uses, too often to rebuild and send the whole state.
@@ -430,7 +458,7 @@ pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, messa
         &json!({"type": "status", "petId": id, "state": state, "message": message, "source": source, "at": at}),
     );
     crate::tray::refresh(app, crate::tray::snapshot(d));
-    if state == "error" && source != "chat" {
+    if state == "error" && source == Source::Agent {
         crate::tray::fade_later(app);
     }
 }
@@ -519,6 +547,31 @@ mod tests {
             "a save taken later wins"
         );
         let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn a_status_reads_on_the_page_as_it_always_did() {
+        let agent = Status {
+            state: "working".into(),
+            message: "m".into(),
+            source: Source::Agent,
+            at: 5,
+            by: "claude:a1".into(),
+        };
+        assert_eq!(
+            json!(agent),
+            json!({"state": "working", "message": "m", "source": "agent", "at": 5, "by": "claude:a1"})
+        );
+        let chat = Status {
+            source: Source::Chat,
+            by: String::new(),
+            ..agent
+        };
+        assert_eq!(
+            json!(chat),
+            json!({"state": "working", "message": "m", "source": "chat", "at": 5}),
+            "no empty `by`"
+        );
     }
 
     #[test]

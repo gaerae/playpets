@@ -187,7 +187,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         parked_pets,
         extra: extras(&raw),
         secret_ids: strings(&raw, "secretIds").into_iter().collect(),
-        statuses: Map::new(),
+        statuses: HashMap::new(),
         talks: chat::Talks::default(),
         importing: Vec::new(),
         provider_updates: HashSet::new(),

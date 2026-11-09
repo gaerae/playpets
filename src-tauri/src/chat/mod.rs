@@ -9,7 +9,7 @@ pub mod kind;
 pub mod prompt;
 pub mod providers;
 
-use crate::app::{AppData, Shared, changed, lock, pet_name, push_event, require_pet, set_status};
+use crate::app::{AppData, Shared, Source, Status, changed, lock, pet_name, push_event, require_pet, set_status};
 use crate::commands::{arg, text};
 use crate::i18n;
 use serde_json::{Value, json};
@@ -628,19 +628,20 @@ fn one_turn(
 /// stands until it reports again, so the yard keeps showing the work.
 fn chat_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, message: &str) {
     if !agent_busy(d.statuses.get(id)) {
-        set_status(app, d, id, state, message, "chat");
+        set_status(app, d, id, state, message, Source::Chat, "");
     }
     // The page hears that the chat started or ended either way: who is waiting, and the log, are
     // part of the whole state, which a chat (unlike an agent's hook) changes rarely.
     changed(app, d);
 }
-fn agent_busy(status: Option<&Value>) -> bool {
-    status.is_some_and(|s| s["source"] == "agent" && matches!(s["state"].as_str(), Some("working" | "waiting")))
+fn agent_busy(status: Option<&Status>) -> bool {
+    status.is_some_and(|s| s.source == Source::Agent && matches!(s.state.as_str(), "working" | "waiting"))
 }
 
 #[cfg(test)]
 mod tests {
     use super::{MESSAGE_LIMIT, agent_busy, chatty, checked_message, guide, i18n, opener, too_long, with_facts};
+    use super::{Source, Status};
     use serde_json::json;
 
     #[test]
@@ -750,10 +751,17 @@ mod tests {
 
     #[test]
     fn a_chat_answer_does_not_overwrite_an_agent_at_work() {
-        assert!(agent_busy(Some(&json!({"state": "working", "source": "agent"}))));
-        assert!(agent_busy(Some(&json!({"state": "waiting", "source": "agent"}))));
-        assert!(!agent_busy(Some(&json!({"state": "done", "source": "agent"}))));
-        assert!(!agent_busy(Some(&json!({"state": "working", "source": "chat"}))));
+        let status = |state: &str, source| Status {
+            state: state.into(),
+            message: String::new(),
+            source,
+            at: 0,
+            by: String::new(),
+        };
+        assert!(agent_busy(Some(&status("working", Source::Agent))));
+        assert!(agent_busy(Some(&status("waiting", Source::Agent))));
+        assert!(!agent_busy(Some(&status("done", Source::Agent))));
+        assert!(!agent_busy(Some(&status("working", Source::Chat))));
         assert!(!agent_busy(None));
     }
 
