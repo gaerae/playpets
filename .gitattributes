@@ -65,7 +65,7 @@
 pnpm-lock.yaml linguist-generated=true -diff
 src-tauri/Cargo.lock linguist-generated=true -diff
 src-tauri/icons/** linguist-generated=true
-src/logo.svg linguist-generated=true
+src/logo.webp linguist-generated=true
 
 # Tracked exports: regenerate through scripts/README.md. Keep provenance JSON and SVG sources diffable.
 website/public/shots/** linguist-generated=true

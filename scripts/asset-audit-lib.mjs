@@ -134,7 +134,7 @@ export async function inventoryAssets(root = '.') {
         path: relative,
         role: source
           ? 'reference'
-          : relative === 'src/logo.svg' ||
+          : relative === 'src/logo.webp' ||
               relative.startsWith('website/public/') ||
               relative.startsWith('src-tauri/icons/') ||
               relative.startsWith('packaging/')
