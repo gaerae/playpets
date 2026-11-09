@@ -626,3 +626,53 @@ test('with Let them dig on, an idle friend digs a spot of its own, never during 
     'a friend already digging is left alone',
   );
 });
+
+test("Let them dig on keeps off the end of a winter trail not yet followed; the person's own dig may go there", async t => {
+  const { v } = fixture(t);
+  t.mock.method(performance, 'now', () => 3e9);
+  const { autoDig } = await import('../src/yard/discovery.js');
+  const { setupTrails, trailsCheck } = await import('../src/yard/trails.js');
+  const open = { soil: true, bounds: { left: 0, right: 1, top: 0, bottom: 1 }, water: [], obstacles: [] };
+  scene.season = 'winter';
+  setupTrails({
+    profile: () => open,
+    weather: () => 'clear',
+    toYard: p => ({ x: p.x * 600, y: p.y * 400 }),
+    zoom: () => 1,
+    visible: () => true,
+  });
+  t.after(() => {
+    scene.season = 'spring';
+  });
+  trailsCheck();
+  const bush = document.getElementById('garden-layer').querySelectorAll('.trail-end')[0];
+  const end = { x: parseFloat(bush.style.left) / 600, y: parseFloat(bush.style.top) / 400 };
+  // The first spot it would choose is the trail's end; the second is elsewhere.
+  const away = { x: end.x < 0.5 ? 0.85 : 0.15, y: end.y < 0.5 ? 0.8 : 0.2 };
+  const rolls = [0, (end.x - 0.1) / 0.8, (end.y - 0.15) / 0.75, (away.x - 0.1) / 0.8, (away.y - 0.15) / 0.75];
+  assert.equal(
+    autoDig(() => rolls.shift()),
+    true,
+  );
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  arrive();
+  assert.equal(commands.length, 1);
+  const [x, y] = commands[0].slice(2, 4);
+  assert.ok(
+    Math.abs(x - away.x) < 1e-9 && Math.abs(y - away.y) < 1e-9,
+    `dug at ${x},${y}, the end is ${end.x},${end.y}`,
+  );
+  resolveDig({ ok: true, data: { outcome: 'empty' } });
+  release(v);
+  sendDiscovery(v, end, 'dig');
+  const own = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  own();
+  assert.deepEqual(commands[1].slice(2, 4), [end.x, end.y], 'a dig sent there is not moved');
+  // Out of winter, the trail goes and leaves nothing for the next test.
+  scene.season = 'spring';
+  trailsCheck();
+});

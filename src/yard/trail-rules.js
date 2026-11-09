@@ -86,7 +86,8 @@ function chance(seed) {
   };
 }
 
-const tileOf = p => `${Math.floor(p.x * 8)},${Math.floor(p.y * 8)}`;
+/** The dig tile a field point falls in, as the backend counts it (discovery.rs dig). */
+export const tileOf = p => `${Math.floor(p.x * 8)},${Math.floor(p.y * 8)}`;
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 function walksOnGround(points, profile) {
@@ -134,7 +135,7 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
     const end = points[points.length - 1];
     if (end.x < 0.06 || end.x > 0.94) continue;
     if (takenTiles.has(tileOf(end))) continue;
-    if (other && dist(end, other) < 0.15) continue;
+    if (other && (dist(end, other) < 0.15 || tileOf(end) === tileOf(other))) continue;
     let length = 0;
     for (let i = 1; i < points.length; i++) length += dist(points[i - 1], points[i]);
     if (length < 0.6 || length > 1.6) continue;

@@ -121,6 +121,26 @@ test("a trail ends on ground a friend can dig, away from today's digs and the ot
   assert.equal(trailPath(7, { ...profile, soil: false }), null);
 });
 
+test("the second trail's end never shares the first one's dig tile", () => {
+  // A tile's diagonal (0.177) is longer than the ends' 0.15 apart: with the first end in one corner
+  // of a tile, the second could end in the far corner, and its dig would come back as dug already.
+  const tile = p => [Math.floor(p.x * 8), Math.floor(p.y * 8)];
+  for (let tx = 2; tx < 6; tx++)
+    for (let ty = 1; ty < 7; ty++)
+      for (const [cx, cy] of [
+        [0.001, 0.001],
+        [0.124, 0.124],
+        [0.001, 0.124],
+        [0.124, 0.001],
+      ]) {
+        const other = { x: tx / 8 + cx, y: ty / 8 + cy };
+        for (let seed = 1; seed <= 300; seed++) {
+          const p = trailPath(seed, profile, { other });
+          if (p) assert.notDeepEqual(tile(p.end), tile(other), `seed ${seed} beside ${JSON.stringify(other)}`);
+        }
+      }
+});
+
 test('prints alternate for walkers and keep in line for bounders', () => {
   const line = [
     { x: 0, y: 0 },

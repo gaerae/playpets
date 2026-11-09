@@ -14,7 +14,7 @@ import { groundAllows } from './discovery-rules.js';
 import { field, fieldToYard, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
 import { atRainbowEnd } from './rainbow-end.js';
-import { atTrailEnd } from './trails.js';
+import { atTrailEnd, reservedForTrail } from './trails.js';
 import { isFree, release, rest } from './trips.js';
 import { bubble } from './views.js';
 import { holdAtWork, sendToWork, stopWork } from './work.js';
@@ -332,7 +332,8 @@ export function autoDig(rng = Math.random) {
   const v = idle[Math.floor(rng() * idle.length)];
   for (let tries = 0; tries < 12; tries++) {
     const point = { x: 0.1 + rng() * 0.8, y: 0.15 + rng() * 0.75 };
-    if (!groundAllows(point, groundProfile())) continue;
+    // A winter trail's end waits for its follow's dig.
+    if (!groundAllows(point, groundProfile()) || reservedForTrail(point)) continue;
     sendDiscovery(v, point, 'dig');
     return true;
   }

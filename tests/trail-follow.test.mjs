@@ -20,7 +20,7 @@ const { recall, remember, setAiming, setData, setGame, setSelected, views } = aw
 const { TRACKS, trackKind } = await import('../src/yard/catalog.js');
 const { footTarget, measureYard } = await import('../src/yard/field.js');
 const { BLOCK_MS, trailAnimal } = await import('../src/yard/trail-rules.js');
-const { atTrailEnd, followTrail, resizeTrails, setupTrails, trailsCheck, trailsSeen } =
+const { atTrailEnd, followTrail, reservedForTrail, resizeTrails, setupTrails, trailsCheck, trailsSeen } =
   await import('../src/yard/trails.js');
 const { release } = await import('../src/yard/trips.js');
 const { scene } = await import('../src/yard/world.js');
@@ -300,26 +300,65 @@ test('the window hidden before the tail shows calls the follow off; after, the r
   assert.deepEqual(y.saved().followed, [0]);
 });
 
-test('a resize mid-follow lets it go on and lays the trail out again afterwards', async t => {
+test('a resize mid-follow lays the trail out on the new size at once and the friend walks it there', async t => {
   const y = yard(t);
   trailsCheck();
   followTrail(0);
   arrive(y.v);
-  const [before] = y.live('.trail');
+  const [before] = y.live('.trail'),
+    old = y.live('.trail-end')[0],
+    left = parseFloat(old.style.left);
   y.look.width = 800;
   resizeTrails();
+  // The drawing moves now, with the same path, and the walk goes on along it.
+  const [trail] = y.live('.trail'),
+    end = y.live('.trail-end')[0];
+  assert.ok(before.removed && old.removed);
+  assert.notEqual(trail, before);
+  assert.ok(Math.abs(parseFloat(end.style.left) - (left * 800) / 600) < 0.2, 'the bush on the new size');
+  assert.ok(trail.classList.contains('following') && end.classList.contains('following'));
+  const points = pointsOf(trail),
+    next = footTarget(y.v, points[1][0], points[1][1]);
   assert.ok(y.v.target, 'still on its way');
-  assert.equal(y.live('.trail')[0], before, 'the drawing waits');
+  assert.ok(
+    Math.abs(y.v.target.x - next.x) < 1e-3 && Math.abs(y.v.target.y - next.y) < 1e-3,
+    'headed for the next print where it is drawn now',
+  );
   walk(y.v);
+  // It stops beside the bush where the bush now stands, and the tail peeks from that bush.
+  const bush = footTarget(y.v, parseFloat(end.style.left), parseFloat(end.style.top)),
+    tailLeft = !/tail-peek[^"]*mirror/.test(end.innerHTML);
+  assert.equal(walk.last.x < bush.x, tailLeft);
+  assert.ok(Math.abs(walk.last.x - bush.x) < 0.1, 'beside the new bush, not the old one');
+  assert.ok(Math.abs(walk.last.y - bush.y) < 1e-6);
+  assert.ok(end.classList.contains('peek'));
   await flush();
   t.mock.timers.tick(1000);
+  assert.ok(end.classList.contains('whisk') || end.classList.contains('flutter'));
   t.mock.timers.tick(400);
   assert.equal(followed.length, 1);
   assert.equal(y.digs.length, 1);
   await flush();
-  const [after] = y.live('.trail');
-  assert.notEqual(after, before, 'laid out on the new size once the follow is over');
-  assert.ok(after.classList.contains('followed'));
+  assert.equal(y.live('.trail')[0], trail, 'nothing is laid out again afterwards');
+  assert.ok(trail.classList.contains('followed'));
+  assert.equal(y.live('.trail-follow').length, 0);
+});
+
+test('a resize after the tail has shown moves the tail with the bush', async t => {
+  const y = yard(t, { day: dayOf(false) });
+  trailsCheck();
+  followTrail(0);
+  walk(y.v);
+  y.look.width = 800;
+  resizeTrails();
+  const end = y.live('.trail-end')[0];
+  assert.ok(end.classList.contains('peek'), 'the tail still shows');
+  await flush();
+  t.mock.timers.tick(1000);
+  assert.ok(end.classList.contains('whisk'));
+  assert.equal(end.querySelectorAll('.puff').filter(n => !n.removed).length, 1);
+  t.mock.timers.tick(400);
+  assert.equal(y.digs.length, 1);
 });
 
 test('a failed record keeps the trail to follow again and shows no card', async t => {
@@ -347,6 +386,45 @@ test('a failed record keeps the trail to follow again and shows no card', async 
   release(y.v);
   followTrail(0);
   assert.ok(y.v.target, 'followable again');
+  // The tail shows again: the last follow's whisk does not hide it.
+  walk(y.v);
+  const end = y.live('.trail-end')[0];
+  assert.ok(end.classList.contains('peek'));
+  for (const name of ['whisk', 'flutter', 'fade']) assert.ok(!end.classList.contains(name), name);
+});
+
+test("leaving winter takes a just-followed trail's end with it", async t => {
+  const y = yard(t);
+  trailsCheck();
+  followTrail(0);
+  walk(y.v);
+  await flush();
+  t.mock.timers.tick(1000);
+  t.mock.timers.tick(400);
+  const [, point] = y.digs[0];
+  scene.season = 'spring';
+  trailsCheck();
+  assert.equal(atTrailEnd(point), null, 'a dig there in spring has no trail');
+});
+
+test("the end of a trail not yet followed is kept for the follow's own dig", async t => {
+  const y = yard(t);
+  trailsCheck();
+  const end = endOf(y.live('.trail-end')[0]);
+  assert.ok(reservedForTrail(end));
+  assert.ok(
+    reservedForTrail({ x: (Math.floor(end.x * 8) + 0.9) / 8, y: (Math.floor(end.y * 8) + 0.1) / 8 }),
+    'the whole tile',
+  );
+  assert.ok(!reservedForTrail({ x: end.x + 0.13, y: end.y }), 'not the next tile');
+  followTrail(0);
+  walk(y.v);
+  await flush();
+  t.mock.timers.tick(1000);
+  t.mock.timers.tick(400);
+  assert.ok(reservedForTrail(end), 'until the follower digs there');
+  atTrailEnd(y.digs[0][1]);
+  assert.ok(!reservedForTrail(end), 'its dig took it');
 });
 
 test('the walk keeps to the friends’ own stroll', async () => {

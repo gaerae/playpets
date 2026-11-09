@@ -11,7 +11,7 @@ const { TRACKS } = await import('../src/yard/catalog.js');
 const { scene } = await import('../src/yard/world.js');
 const { BLOCK_MS, trailAnimal } = await import('../src/yard/trail-rules.js');
 const { TRAIL_RGB } = await import('../src/yard/snow-trail.js');
-const { resizeTrails, setupTrails, trailsCheck } = await import('../src/yard/trails.js');
+const { resizeTrails, setupTrails, trailsCheck, trailsSeen } = await import('../src/yard/trails.js');
 
 const ids = TRACKS.map(k => k.id);
 const at = (d, h, min = 0) => new Date(2026, 11, d, h, min).getTime();
@@ -31,12 +31,14 @@ function yard(t, { now = at(14, 9), profile = () => OPEN } = {}) {
   scene.season = 'winter';
   scene.world = 'woodland';
   let weatherAt = () => 'clear',
-    width = 600;
+    width = 600,
+    shown = true;
   setupTrails({
     profile,
     weather: ms => weatherAt(ms),
     toYard: p => ({ x: p.x * width, y: p.y * 400 }),
     zoom: () => 1,
+    visible: () => shown,
   });
   t.after(() => {
     scene.season = 'spring';
@@ -54,6 +56,9 @@ function yard(t, { now = at(14, 9), profile = () => OPEN } = {}) {
     },
     widen: w => {
       width = w;
+    },
+    show: on => {
+      shown = on;
     },
     saved: () => JSON.parse(recall('trails')),
     goTo: ms => t.mock.timers.setTime(ms),
@@ -74,6 +79,38 @@ test("a winter yard shows the day's trail and remembers when it was first seen",
   trailsCheck();
   assert.equal(y.layer.children.filter(n => !n.removed).length, children);
   assert.equal(y.trails()[0], trail, 'the same node, not drawn again');
+});
+
+test('a hidden yard lays no trail; the first sight of it does', t => {
+  // Left running overnight with the window hidden: the minute's checks keep coming.
+  const y = yard(t, { now: at(14, 0, 1) });
+  y.show(false);
+  trailsCheck();
+  y.goTo(at(14, 7));
+  trailsCheck();
+  assert.equal(recall('trails'), null, 'no record while nobody can see the yard');
+  assert.equal(y.trails().length, 0);
+  y.goTo(at(14, 9));
+  y.show(true);
+  trailsSeen();
+  assert.deepEqual(y.saved(), { day: '2026-12-14', seen: at(14, 9), followed: [] });
+  assert.equal(y.trails().length, 1, 'laid at once when the window shows');
+  // Once laid, a hidden check leaves the day's trail as it is.
+  y.show(false);
+  y.goTo(at(14, 9, 5));
+  trailsCheck();
+  assert.equal(y.saved().seen, at(14, 9));
+  assert.equal(y.trails().length, 1);
+});
+
+test("yesterday's trail goes while the yard is hidden past midnight", t => {
+  const y = yard(t);
+  trailsCheck();
+  y.show(false);
+  y.goTo(at(15, 0, 1));
+  trailsCheck();
+  assert.equal(y.trails().length, 0);
+  assert.equal(y.saved().day, '2026-12-14', 'the new day has no record yet');
 });
 
 test('a snowy night adds a second trail from five in the morning', t => {
