@@ -32,9 +32,10 @@ function dismiss() {
 /** Shows the card in the yard's one lane of messages, above the dock: a drawing (SVG markup), a name,
  * a detail line, whether it is a first (or, for news of another kind, the words saying why), and the
  * album book it is kept in (none for news such as an event starting). Who found it says so in its
- * own bubble. */
-export function showCard(svg, name, detail, first, book = null) {
-  const next = [svg, name, detail, first, book];
+ * own bubble. `shown()` is called once when the card goes on show, and never for one that gave way
+ * in the queue. */
+export function showCard(svg, name, detail, first, book = null, shown = null) {
+  const next = [svg, name, detail, first, book, shown];
   if (!$('catch-card').hidden) return wait(next);
   // A card held under a panel lets a newer one show if that one is in view, and goes next after it.
   if (held) {
@@ -128,9 +129,14 @@ function present(args) {
   reveal(args);
 }
 // On show: a sound for something new, and the shared reading time for its words, a little longer then.
-function reveal([, name, detail, first]) {
+function reveal(args) {
+  const [, name, detail, first, , shown] = args;
   if (first) soundTimer = setTimeout(() => cue('first'), 450);
   timer = setTimeout(expire, readingTime(`${name} ${detail}`) + (first ? 1500 : 0));
+  // Each card says so once, however it came to show; last, so the card goes on as usual whatever
+  // the caller does.
+  args[5] = null;
+  shown?.();
 }
 function expire() {
   if ($('catch-card').matches(':hover, :focus-within')) timer = setTimeout(expire, 1500);

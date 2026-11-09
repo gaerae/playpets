@@ -8,10 +8,13 @@ import './support/content.mjs';
 import { element, installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
 const writes = [],
-  clears = [];
+  clears = [],
+  backs = [];
 const write = (year, friend, _facts, text) => ({ ok: true, data: { year, friend, text, answer: null, at: 1 } });
 // What writeLetter answers in a test; by default the page's own letter is kept.
 let writing = write;
+// What letterBack answers.
+let bringing = () => ({ ok: true, data: null });
 globalThis.playPets = {
   writeLetter: async (...args) => {
     writes.push(args);
@@ -25,6 +28,12 @@ globalThis.playPets = {
     );
     return { ok: true, data: letters };
   },
+  letterBack: async year => {
+    backs.push(year);
+    return bringing(year);
+  },
+  // Not asked for in a test of the letter: the card answers it (letter-card.js).
+  answerLetter: async () => assert.fail('answerLetter'),
   moveDecor: async () => ({ ok: true, data: null }),
   hideDecor: async () => ({ ok: true, data: null }),
 };
@@ -201,7 +210,9 @@ function friends(ctx, { pets = PETS, bonds = BONDS, letters = [] } = {}) {
   for (const pet of pets) state.views.set(pet.id, friendView(pet));
   writes.length = 0;
   clears.length = 0;
+  backs.length = 0;
   writing = write;
+  bringing = () => ({ ok: true, data: null });
 }
 // A page at `now` with the letter's ways in; `open` records the years opened.
 function page(ctx, { now = d(2026, 12, 27, 10), ...rest } = {}) {
@@ -539,4 +550,152 @@ test('a failure after the letter came is not left unhandled, and the check goes 
   check();
   await flush();
   assert.equal(writes.length, 1, 'not busy for good, and not asked again');
+});
+
+// In the New Year. The card is the real one (card.js); its words are read from its two lines.
+function newYear(ctx, { now = d(2027, 1, 2, 9), answer = 'Go camping <b>more</b>', friend = 'a', ...rest } = {}) {
+  const letters = [{ year: 2026, friend, text: 'hi', answer, at: 1 }];
+  const opened = page(ctx, { now, letters, ...rest });
+  const card = opened.$('catch-card'),
+    title = element('strong'),
+    detail = element('small');
+  // Hidden as index.html has it; its slots are the two lines read below.
+  Object.assign(card, {
+    hidden: true,
+    querySelector: selector => (selector === 'strong' ? title : selector === 'small' ? detail : element()),
+  });
+  return { ...opened, card, title, detail };
+}
+
+test('on the first day open in the New Year the friend quotes the answer and cheers', async ctx => {
+  const { check, card, title, detail } = newYear(ctx);
+  check();
+  assert.equal(card.hidden, true, 'the first check only arms');
+  check();
+  await flush();
+  assert.equal(card.hidden, false);
+  assert.equal(title.textContent, t('letter.back_title', { name: 'Mochi' }));
+  assert.equal(detail.textContent, t('letter.back_body', { answer: 'Go camping <b>more</b>' }), 'plain text');
+  assert.ok(list('letter.back_bubble').includes(bubbleOf('a').textContent));
+  assert.equal(state.views.get('a').pose, 'jump');
+  assert.deepEqual(backs, [2026], 'kept once it showed');
+  assert.equal(state.data.letters[0].back, true);
+  card.hidden = true;
+  check();
+  await flush();
+  assert.equal(card.hidden, true, 'once');
+  // The next start: the backend kept it.
+  const again = setupLetters({ open() {} });
+  again();
+  again();
+  await flush();
+  assert.equal(card.hidden, true, 'not after a restart either');
+  assert.deepEqual(backs, [2026]);
+  assert.equal(writes.length, 0);
+});
+
+test('a friend that left: the closest one brings it back', async ctx => {
+  const { check, title } = newYear(ctx, {
+    friend: 'gone',
+    pets: [
+      { id: 'a', name: 'Mochi', size: 96 },
+      { id: 'b', name: 'Daisy', size: 96 },
+    ],
+    bonds: { a: { points: 0 }, b: { points: 50 } },
+  });
+  check();
+  check();
+  await flush();
+  assert.equal(title.textContent, t('letter.back_title', { name: 'Daisy' }));
+  assert.ok(list('letter.back_bubble').includes(bubbleOf('b').textContent));
+});
+
+test('no answer, no cheer, and the letter still opens until January 7', async ctx => {
+  const { check, card, $ } = newYear(ctx, { now: d(2027, 1, 1, 0), answer: null });
+  check();
+  check();
+  await flush();
+  assert.equal(card.hidden, true);
+  assert.equal($('letter-chip').hidden, false);
+  assert.deepEqual(backs, []);
+  ctx.mock.timers.setTime(new Date(2027, 0, 8, 0, 1).getTime());
+  check();
+  check();
+  await flush();
+  assert.equal($('letter-chip').hidden, true);
+  assert.equal(card.hidden, true);
+});
+
+test('no cheer while the window is hidden, or with no friends', async ctx => {
+  let { check, card } = newYear(ctx);
+  const doc = document;
+  doc.hidden = true;
+  ctx.after(() => (doc.hidden = false));
+  check();
+  check();
+  await flush();
+  assert.equal(card.hidden, true, 'hidden');
+  doc.hidden = false;
+  ({ check, card } = newYear(ctx, { pets: [] }));
+  check();
+  check();
+  await flush();
+  assert.equal(card.hidden, true, 'no friends');
+  assert.deepEqual(backs, []);
+});
+
+test('a card that gave way in the queue is not kept as brought back, and comes once a run', async ctx => {
+  newYear(ctx);
+  const cards = [];
+  // A card queue that drops the card: shown() never comes.
+  const check = setupLetters({ open() {}, card: (...args) => cards.push(args) });
+  check();
+  check();
+  check();
+  await flush();
+  assert.equal(cards.length, 1, 'asked for once this run');
+  assert.equal(bubbleOf('a').hidden, true, 'the cheer comes with the card');
+  assert.deepEqual(backs, [], 'never shown: not kept');
+  assert.equal(state.data.letters[0].back, undefined);
+  // The next start brings it again.
+  const next = setupLetters({ open() {}, card: (...args) => cards.push(args) });
+  next();
+  next();
+  await flush();
+  assert.equal(cards.length, 2);
+});
+
+test('a card shown to a window hidden meanwhile is not kept, and one not kept is tried again', async ctx => {
+  newYear(ctx);
+  const cards = [];
+  let seen = true;
+  const check = setupLetters({ open() {}, visible: () => seen, card: (...args) => cards.push(args) });
+  check();
+  check();
+  seen = false;
+  cards[0][5]();
+  await flush();
+  assert.deepEqual(backs, [], 'nobody saw it');
+  assert.equal(bubbleOf('a').hidden, true, 'nor heard it');
+  seen = true;
+  check();
+  assert.equal(cards.length, 1, 'not again this run');
+  // Keeping it failed: the next check shows it again and asks again.
+  const retry = setupLetters({ open() {}, card: (...args) => cards.push(args) });
+  bringing = () => ({ ok: false, error: 'Could not save.' });
+  retry();
+  retry();
+  cards[1][5]();
+  await flush();
+  assert.deepEqual(backs, [2026]);
+  assert.equal(state.data.letters[0].back, undefined);
+  retry();
+  assert.equal(cards.length, 3, 'tried again');
+  bringing = () => ({ ok: true, data: null });
+  cards[2][5]();
+  await flush();
+  assert.deepEqual(backs, [2026, 2026]);
+  assert.equal(state.data.letters[0].back, true);
+  retry();
+  assert.equal(cards.length, 3);
 });

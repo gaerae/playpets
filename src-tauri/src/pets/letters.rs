@@ -151,6 +151,18 @@ impl Letters {
         }
     }
 
+    /// `letterBack`: the New Year card has shown that year's answer, so it is not brought back
+    /// again. Kept here, not in the webview's storage, which every data folder shares.
+    pub fn bring_back(&mut self, year: u32) -> Result<(), String> {
+        let l = self
+            .0
+            .iter_mut()
+            .find(|l| l.year == year && l.answer.is_some())
+            .ok_or_else(bad)?;
+        l.back = true;
+        Ok(())
+    }
+
     /// Clears the letter and its answer; the year and time stay.
     pub fn delete(&mut self, year: u32) -> Result<(), String> {
         let l = self.0.iter_mut().find(|l| l.year == year).ok_or_else(bad)?;
@@ -323,6 +335,21 @@ mod tests {
         assert!(l.write(2026, "a", "again", 10).is_err());
         assert!(l.answer(2026, "x").is_err());
         assert_eq!(l.answer_before(2027), None);
+    }
+
+    #[test]
+    fn an_answer_is_brought_back_once_and_only_an_answer() {
+        let mut l = Letters::default();
+        l.write(2026, "a", "hi", 1).unwrap();
+        assert!(l.bring_back(2026).is_err(), "no answer: nothing to bring");
+        assert!(!l.of(2026).unwrap().back);
+        l.answer(2026, "hike").unwrap();
+        l.bring_back(2026).unwrap();
+        assert!(l.of(2026).unwrap().back);
+        assert!(l.bring_back(2026).is_ok(), "again: still brought back, no error");
+        assert!(l.bring_back(2025).is_err(), "no such year");
+        l.clear_ended("2027-01-08");
+        assert!(l.of(2026).unwrap().back, "kept when the text goes");
     }
 
     #[test]

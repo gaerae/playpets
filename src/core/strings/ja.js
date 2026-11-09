@@ -977,4 +977,7 @@ export const strings = {
   'letter.mailbox_bubble': ['郵便受けに手紙を入れておいたよ！'],
   'letter.chip': '手紙',
   'letter.chip_title': '年末の手紙を読む',
+  'letter.back_bubble': ['あけましておめでとう！書いてくれたこと、覚えてるよ。'],
+  'letter.back_title': '{name}があなたのお返事を覚えていました',
+  'letter.back_body': '「{answer}」今年も応援してるよ！',
 };

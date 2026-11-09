@@ -209,6 +209,11 @@ static COMMANDS: &[Command] = &[
         let year = c.parse::<u32>(0)?;
         commit(c.app, &c.state, |d| d.letters.delete(year).map(|()| Value::Null))
     }),
+    // (year): the New Year card showed that year's answer; it is not brought back again.
+    main("letterBack", |c| {
+        let year = c.parse::<u32>(0)?;
+        commit(c.app, &c.state, |d| d.letters.bring_back(year).map(|()| Value::Null))
+    }),
     // (today): the page's date; letters whose season ended by it lose their text, the answer stays.
     // Saved and shown only when one did. Returns the letters.
     main("clearLetters", |c| {
@@ -712,6 +717,7 @@ mod tests {
         assert!(!may_call("overlay0", "answerLetter"));
         assert!(may_call("main", "writeLetter") && !may_call("overlay0", "writeLetter"));
         assert!(may_call("main", "clearLetters") && !may_call("overlay0", "clearLetters"));
+        assert!(may_call("main", "letterBack") && !may_call("overlay0", "letterBack"));
         assert!(may_call("main", "quitApp"));
         assert!(!may_call("overlay1", "quitApp"));
         assert!(!may_call("other", "bootstrap"));

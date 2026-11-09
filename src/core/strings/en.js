@@ -994,4 +994,7 @@ export const strings = {
   'letter.mailbox_bubble': ['I left you a letter in the mailbox!'],
   'letter.chip': 'Letter',
   'letter.chip_title': 'Read the year-end letter',
+  'letter.back_bubble': ['Happy New Year! I remember what you wrote.'],
+  'letter.back_title': '{name} remembered your answer',
+  'letter.back_body': '“{answer}” I’m cheering you on this year!',
 };

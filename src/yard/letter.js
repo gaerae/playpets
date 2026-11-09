@@ -7,12 +7,15 @@
 
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
-import { $, call, data, recall, views } from '../core/state.js';
+import { $, call, data, name, recall, views } from '../core/state.js';
+import { artSvg } from './art.js';
 import { levelOf } from './bond.js';
+import { showCard } from './card.js';
+import { giftKind } from './catalog.js';
 import { markDecor, shownDecor } from './decor.js';
 import { localDay } from './growth.js';
 import { openLetter } from './letter-card.js';
-import { bubble } from './views.js';
+import { bubble, cheer } from './views.js';
 
 /** 'write' from December 26 to 31, 'back' from January 1 to 7, otherwise null (local date). */
 export function letterTime(date) {
@@ -168,12 +171,46 @@ const ended = (letter, today) => !!letter.text && today > `${letter.year + 1}-01
 /** Starts the letter, called by app.js before the sky; wires the chip. `visible()` says whether the
  * yard is seen: nothing is written, said or shown while it is not, so the friend's AI is asked only
  * then. Returns `check()`, for each repaint of the scene: the first only shows the ways in, the
- * next writes this year's letter once, from December 26. Each asks the backend to clear a letter's
- * text once its season is over. */
-export function setupLetters({ open: opener = openLetter, visible = () => !document.hidden } = {}) {
+ * next writes this year's letter once, from December 26, or from January 1 to 7 brings its answer
+ * back once. Each asks the backend to clear a letter's text once its season is over. `card` shows
+ * the New Year card (card.js). */
+export function setupLetters({ open: opener = openLetter, visible = () => !document.hidden, card = showCard } = {}) {
   open = opener;
   let armed = false,
     busy = false;
+  // Years whose answer was brought back this run. Kept until the app closes even when the card gave
+  // way in the card queue (it comes again at the next start, as nothing was saved); let go only when
+  // saving that it showed failed, so a later check tries again.
+  const bringing = new Set();
+  // The friend who wrote (or the closest, if it left) cheers and quotes the answer, from the string
+  // tables only: no AI, so the New Year never turns into a question about whether a plan was done.
+  // It counts as brought back once the card has shown in a yard that is seen.
+  function bringBack(letters, now) {
+    const year = letterYear(now),
+      letter = letters.find(kept => kept.year === year && kept.answer && !kept.back);
+    if (!letter || bringing.has(year)) return;
+    const bringer = bringerOf(letter, data.pets, data.bonds || {});
+    if (!bringer) return;
+    bringing.add(year);
+    card(
+      artSvg(giftKind('mailbox').art, 'class="decor-art letter-back"'),
+      t('letter.back_title', { name: name(bringer) }),
+      t('letter.back_body', { answer: letter.answer }),
+      false,
+      null,
+      // The cheer comes with the card, which may wait its turn behind another (the New Year's own).
+      () => {
+        if (!visible()) return;
+        call('letterBack', year)
+          .then(() => {
+            data.letters = (data.letters || []).map(kept => (kept.year === year ? { ...kept, back: true } : kept));
+          })
+          .catch(() => bringing.delete(year));
+        const v = views.get(bringer.id);
+        if (v) cheer(v, 'letter.back_bubble', { say: 4000 });
+      },
+    );
+  }
   const chip = $('letter-chip');
   if (chip) chip.onclick = openReadable;
   return function check() {
@@ -203,8 +240,13 @@ export function setupLetters({ open: opener = openLetter, visible = () => !docum
     if (!visible()) return;
     syncLetter();
     if (first) return;
+    const time = letterTime(now);
+    if (time === 'back') {
+      bringBack(letters, now);
+      return;
+    }
     // A year whose letter was deleted keeps its record, so it is not written again.
-    if (letterTime(now) !== 'write' || letters.some(letter => letter.year === year)) return;
+    if (time !== 'write' || letters.some(letter => letter.year === year)) return;
     const writer = writerOf(data.pets, data.bonds || {});
     if (!writer) return;
     const id = writer.id,

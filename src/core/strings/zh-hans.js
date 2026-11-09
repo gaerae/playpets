@@ -934,4 +934,7 @@ export const strings = {
   'letter.mailbox_bubble': ['我把信放进信箱啦！'],
   'letter.chip': '信',
   'letter.chip_title': '阅读年末来信',
+  'letter.back_bubble': ['新年快乐！你写的话我都记着呢。'],
+  'letter.back_title': '{name}还记得你的回信',
+  'letter.back_body': '“{answer}”今年我也会为你加油！',
 };
