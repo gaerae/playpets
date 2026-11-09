@@ -233,7 +233,11 @@ test('a gift that just came drops its pop once the pop is over', async ctx => {
   setData({ garden: { decor: [], plants: [], trees: [] }, pets: [] });
   renderDecor();
   const { markFresh } = await import('../src/yard/decor.js');
-  setData({ garden: { plants: [], trees: [], decor: [{ id: 'pop', kind: 'tent', x: 0.3, y: 0.5 }] }, pets: [miso], assets: [] });
+  setData({
+    garden: { plants: [], trees: [], decor: [{ id: 'pop', kind: 'tent', x: 0.3, y: 0.5 }] },
+    pets: [miso],
+    assets: [],
+  });
   measureYard();
   markFresh('pop');
   renderDecor();
