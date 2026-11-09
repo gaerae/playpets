@@ -443,7 +443,8 @@ body:not(.compact) .play-board {
 
 /* The snowman game's balls (yard/snowman.js): set down at their foot among the friends, as a gift
    is. The button's transform is where it stands, so a squash or a settle plays on the art inside
-   it and the turning on the drawing inside that. */
+   it and the turning on the drawing inside that. It moves with every frame's write, so it does not
+   ease behind it as other buttons do (base.css), as a gift does not. */
 .snowball {
   position: absolute;
   left: 0;
@@ -454,6 +455,7 @@ body:not(.compact) .play-board {
   cursor: grab;
   pointer-events: auto;
   touch-action: none;
+  transition: none;
   user-select: none;
 }
 .snowball.dragging {

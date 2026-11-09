@@ -423,16 +423,21 @@ test('a finished snowman is placed where it was stacked, counted for the day, an
   // and settles to the drawing's height, the top ball lowered most
   const lowered = leaving.map(b => Number(y.roll(b).style.transform.match(/translateY\(([\d.]+)px\)/)[1]));
   assert.ok(lowered[0] === 0 && lowered[1] > 0 && lowered[2] > lowered[1]);
-  assert.deepEqual(built, [[0.72, 0.72, '2026-12-15']]);
-  assert.equal(state.data.garden.snowmanDay, '2026-12-15');
+  // Saved only once the stack has faded, so the yard's own drawing never shows over a ball.
+  y.tick(350);
+  assert.deepEqual(built, []);
+  assert.equal(state.data.garden.snowmanDay, '');
+  assert.equal(y.live('snowman-preview').length, 1);
   // Set down as the yard will draw it.
   const preview = y.box(y.live('snowman-preview')[0]),
     size = giftSize('snowman'),
     foot = fieldToYard({ x: 0.72, y: 0.72 });
   assert.ok(Math.abs(preview.x - foot.x) < 0.5 && Math.abs(preview.bottom - foot.y) < 0.5);
   assert.ok(Math.abs(preview.w - size.w) < 0.5);
-  y.tick(400);
+  y.tick(50);
   assert.deepEqual(y.live('snowball'), [], 'the stack is gone');
+  assert.deepEqual(built, [[0.72, 0.72, '2026-12-15']]);
+  assert.equal(state.data.garden.snowmanDay, '2026-12-15');
   // The lead walks over beside it, then says so.
   assert.ok(state.views.get('a').target, 'the lead walks over');
   arrive(y, 'a');
@@ -489,9 +494,34 @@ test('a refused save brings the old snowman back and says why', async ctx => {
   assert.equal(state.data.garden.snowmanDay, '');
   assert.equal(y.nodes.get('toast').children.at(-1).dataset.words, 'Built today.');
   assert.equal(state.views.get('a').bubble.hidden, true, 'no cheer for a snowman not kept');
+  assert.ok(
+    ['b', 'c'].every(id => state.views.get(id).bubble.hidden || !list('snowman.melt').includes(y.said(id))),
+    'and no goodbye to one that stays',
+  );
+  assert.ok(decorButton('o').classList.contains('unmelting'), 'it fades back in');
+  y.tick(400);
+  assert.equal(decorButton('o').classList.contains('unmelting'), false);
   assert.equal(state.game, null);
   assert.deepEqual(y.live('snowman-preview'), []);
   assert.equal(tray(y), null);
+});
+
+test('a save whose answer cannot be drawn still ends the round', async ctx => {
+  const y = await yard(ctx);
+  building = async () =>
+    answer({
+      get id() {
+        throw new Error('broken answer');
+      },
+    });
+  ctx.mock.method(console, 'error', () => {});
+  start();
+  stackAll(y);
+  y.tick(400);
+  assert.equal(built.length, 1);
+  await flush();
+  assert.equal(state.game, null, 'not stuck in its last stage');
+  assert.deepEqual(y.live('snowman-preview'), []);
 });
 
 test('stopping during the melt keeps the old snowman', async ctx => {

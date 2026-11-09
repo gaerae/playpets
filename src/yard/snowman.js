@@ -86,6 +86,7 @@ const REFUSALS = ['snowman.built_today', 'snowman.full'];
 const FADE_MS = 400;
 const SPARKLE_MS = 1100;
 const MELT_MS = { moving: 1600, still: 600 };
+const UNMELT_MS = 400;
 const STAY_MS = 2500;
 // The snowman's drawing, measured: its head's middle and its top, as shares of its height from the
 // top (the hat's and the nose's anchors in catalog.json sit around the head).
@@ -403,13 +404,24 @@ function finish() {
   round.preview = preview(foot, size);
   sparkle(foot, size);
   leanIn(round, foot, size);
+  // Saved once the stack has faded at the earliest: the yard's own drawing of the new snowman
+  // comes in at full strength, and over a ball still showing it would show two faces.
   const old = shownDecor(SNOWMAN);
-  if (!old) return save(round);
+  if (!old) return later(FADE_MS, () => save(round));
   old.button.classList.add('melting');
   if (reduced.matches) old.button.classList.add('still');
   const by = nearest(old.at, round.ids.slice(1));
-  if (by) bubble(by, pick(list('snowman.melt')), 3000);
+  if (by) round.goodbye = say(by, 'snowman.melt', 3000);
   later(MELT_MS[reduced.matches ? 'still' : 'moving'], () => save(round));
+}
+// A friend says one of `lines`; the friend and the words, so a line that no longer fits can be
+// taken back while it still shows.
+function say(v, lines, ms) {
+  bubble(v, pick(list(lines)), ms);
+  return { v, words: v.bubble.textContent };
+}
+function unsay(said) {
+  if (said && !said.v.bubble.hidden && said.v.bubble.textContent === said.words) said.v.bubble.hidden = true;
 }
 // The stack stands taller than the drawing, whose balls are rounder and set lower: as it fades it
 // settles down to the drawing's height, each ball squashed and lowered with the whole, so the
@@ -471,6 +483,7 @@ function leanIn(round, foot, size) {
       const head = { x: foot.x, y: foot.y - size.h * (1 - HEAD) };
       gaze(v, { x: head.x - (v.px + width / 2), y: head.y - (v.py + petHeight(v.pet) / 2) }, STAY_MS);
       cheer(v, 'snowman.done', { as: 'wave', mark: '', say: STAY_MS });
+      round.cheered = { v, words: v.bubble.textContent };
       stay();
     },
     // Taken on the way (a press, a drag): it does not cheer, and the game still ends.
@@ -497,8 +510,8 @@ function save(round) {
     day = localDay(new Date());
   round.dayBefore = garden.snowmanDay ?? '';
   garden.snowmanDay = day;
-  call('buildSnowman', round.spot.x, round.spot.y, day).then(
-    made => {
+  call('buildSnowman', round.spot.x, round.spot.y, day)
+    .then(made => {
       round.saved = true;
       if (game !== round) return;
       // The answer may come before the state event that carries it.
@@ -509,16 +522,20 @@ function save(round) {
       round.preview.remove();
       round.made = made?.id ?? null;
       settled(round, 'save');
-    },
-    refused => {
+    })
+    .catch(error => {
       if (game !== round) return;
-      // The lead's cheer for a snowman that was not kept goes quiet before the reason shows.
-      const lead = views.get(round.ids[0]);
-      if (lead) lead.bubble.hidden = true;
+      // Saved, but the yard could not show it: the round ends, and the state event draws it.
+      if (round.saved) {
+        console.error(error);
+        return play.end();
+      }
+      // Refused: the cheer for a snowman not kept goes quiet before the reason shows, and the old
+      // one comes back (snowmanGame.end).
+      unsay(round.cheered);
       play.end();
-      toast(spoken(refused, t('error.generic')), { error: true });
-    },
-  );
+      toast(spoken(error, t('error.generic')), { error: true });
+    });
 }
 // Saved, and the lead has said its line and stayed: the friends go home and the dress tray opens
 // over the new snowman (after the line, which would otherwise stand over the tray).
@@ -607,7 +624,13 @@ export const snowmanGame = {
   end(over) {
     for (const node of $('garden-layer').querySelectorAll('.snowball, .snow-puff, .snowman-preview, .snow-sparkle'))
       node.remove();
-    for (const node of $('garden-layer').querySelectorAll('.melting')) node.classList.remove('melting', 'still');
+    // An old snowman that stays fades back in, and nobody says goodbye to it.
+    for (const node of $('garden-layer').querySelectorAll('.melting')) {
+      node.classList.remove('melting', 'still');
+      node.classList.add('unmelting');
+      setTimeout(() => node.classList.remove('unmelting'), UNMELT_MS);
+    }
+    if (!over.saved) unsay(over.goodbye);
     if (over.dayBefore !== undefined && !over.saved && data.garden) data.garden.snowmanDay = over.dayBefore;
     fadeTrail();
   },

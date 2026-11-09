@@ -659,6 +659,10 @@
    drawing and what it wears, not the button, whose transform is where it stands. It stays melted
    until the new one takes its place; a stop or a refused save takes the class off and it is back.
    With reduced motion it is set half faded instead, for a moment. */
+/* An old snowman melting cannot be pressed or dragged: it is going. */
+.decor.melting {
+  pointer-events: none;
+}
 .decor.melting > * {
   transform-origin: 50% 100%;
   animation: snowman-melt 1.6s ease-in forwards;
@@ -666,6 +670,18 @@
 .decor.melting.still > * {
   opacity: 0.4;
   animation: none;
+}
+/* Kept after all (a stop, a refused save): it fades back in rather than snapping back. */
+.decor.unmelting > * {
+  animation: snowman-unmelt 0.4s ease-out;
+}
+@keyframes snowman-unmelt {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes snowman-melt {
   from {
