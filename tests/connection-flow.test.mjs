@@ -174,3 +174,14 @@ test('sending twice before the first word leaves sends it once', async t => {
     ],
   );
 });
+
+test('editing a connection from Settings opens it as it is now, not as it was when listed', async t => {
+  const { renderConnections } = await import('../src/panel/settings.js');
+  const get = page(t, { providers: [{ ...claude, endpoint: 'http://old' }], pets: [] });
+  renderConnections();
+  setData({ ...state.data, providers: [{ ...claude, endpoint: 'http://new' }] });
+  renderConnections();
+  const edit = get('ai-connections').children[0].children.at(-1);
+  edit.onclick();
+  assert.equal(get('ai-endpoint').value, 'http://new');
+});

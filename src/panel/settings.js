@@ -150,7 +150,12 @@ export function renderConnections() {
       edit.className = 'button secondary small';
       edit.textContent = t('settings.ai_edit');
       edit.setAttribute('aria-labelledby', `${edit.id} ${title.id}`);
-      edit.onclick = () => openConnectionDialog(c, () => {}, { forFriend: null, inline: $('ai-editor') });
+      // The row outlives a change it does not show (an address, a key), so Edit opens it as saved now.
+      edit.onclick = () =>
+        openConnectionDialog(data.providers.find(x => x.id === c.id) || c, () => {}, {
+          forFriend: null,
+          inline: $('ai-editor'),
+        });
       row.append(copy, edit);
       return row;
     }),

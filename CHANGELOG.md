@@ -37,6 +37,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - While you aim a treat or seed or play a game, Delete, Backspace and a right-click leave a flower alone, as they already did a tree and a gift.
 - A friend on the desktop stops showing that its coding agent finished after a while, as in the yard, instead of keeping it for hours.
 - Pressing **Connect now** or **Send** twice quickly makes one connection and sends the message once.
+- **Edit** on an AI connection in Settings shows its current address, also right after you changed it.
 
 ### Website and docs
 
