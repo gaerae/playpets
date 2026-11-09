@@ -653,7 +653,8 @@ impl Garden {
         let (Some((x, y)), true) = (decor_place(x, y), is_day(day)) else {
             return Err(i18n::t("error.bad_request"));
         };
-        if self.snowman_day == day {
+        // The same day, or an earlier one (a clock set back), is no new day.
+        if day <= self.snowman_day.as_str() {
             return Err(i18n::t("error.snowman_today"));
         }
         if !self.decor.iter().any(|d| d.kind == SNOWMAN) && self.decor.len() >= DECOR_MAX {
@@ -828,6 +829,17 @@ mod tests {
         assert_eq!(
             g.build_snowman(0.3, 0.72, "2026-12-15", 6).unwrap_err(),
             i18n::t("error.snowman_today")
+        );
+        let standing = g.decor[0].id.clone();
+        assert!(g.build_snowman(0.3, 0.72, "2026-12-15", 6).is_err());
+        assert_eq!(
+            (g.decor[0].id.as_str(), g.snowman_day.as_str()),
+            (standing.as_str(), "2026-12-15")
+        );
+        assert!(g.build_snowman(0.3, 0.72, "2026-12-14", 6).is_err(), "a clock set back");
+        assert_eq!(
+            (g.decor[0].id.as_str(), g.snowman_day.as_str()),
+            (standing.as_str(), "2026-12-15")
         );
         assert!(g.build_snowman(0.3, 0.72, "2026-12-16", 7).is_ok());
         assert_eq!(
