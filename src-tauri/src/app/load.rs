@@ -191,9 +191,15 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         talks: chat::Talks::default(),
         importing: Vec::new(),
         provider_updates: HashSet::new(),
-        detected: json!({"claude": false, "codex": false, "ollama": [], "signedIn": {"claude": false, "codex": false}}),
+        detected: nothing_detected(),
         activity: HashMap::new(),
     })
+}
+
+/// What is known about the AIs on this computer before the first look (`providers::detect`): none
+/// found, and nothing said about signing in, which the page reads as unknown.
+fn nothing_detected() -> Value {
+    json!({"claude": false, "codex": false, "ollama": []})
 }
 
 /// Whether the webview's storage belongs to this data folder, so what a version before 1.4.0 kept
@@ -206,6 +212,14 @@ pub fn owns_webview_storage(custom: Option<&str>, e2e: bool) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn nothing_is_known_about_the_clis_before_the_first_look() {
+        let d = nothing_detected();
+        assert_eq!(d["claude"], json!(false));
+        // Signed out would lock a friend's chat for the second the look takes: unknown locks nothing.
+        assert!(d.get("signedIn").is_none());
+    }
 
     #[test]
     fn only_the_systems_own_data_folder_takes_what_the_webview_kept() {

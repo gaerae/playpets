@@ -253,19 +253,28 @@ pub fn detect(app: tauri::AppHandle) {
             let claude = s.spawn(|| cli::signed_in("claude"));
             let codex = s.spawn(|| cli::signed_in("codex"));
             let ollama = http::detect_ollama(http::OLLAMA_DEFAULT);
-            (claude.join().unwrap_or(false), codex.join().unwrap_or(false), ollama)
+            (claude.join().unwrap_or(None), codex.join().unwrap_or(None), ollama)
         });
+        let logins = &app.state::<crate::app::CliHandle>().0.logins;
+        let word = |kind, status| signed_word(status, logins.turned_away(kind));
         let found = json!({
             "claude": cli::resolve_bin("claude").is_some(),
             "codex": cli::resolve_bin("codex").is_some(),
             "ollama": ollama,
-            "signedIn": {"claude": claude, "codex": codex},
+            "signedIn": {"claude": word("claude", claude), "codex": word("codex", codex)},
         });
         let state = app.state::<Shared>();
         let mut d = lock(&state);
         d.detected = settle(found, &d.detected, LOOKS.load(Ordering::SeqCst) != begun);
         changed(&app, &d);
     });
+}
+
+/// What the page is told about one CLI's sign-in: false only when the CLI said so (its status
+/// check, or a chat turn it turned away), null when nobody knows (not found, or the check did not
+/// finish), so a guess never locks a friend's chat.
+fn signed_word(status: Option<bool>, turned_away: bool) -> Value {
+    if turned_away { json!(false) } else { json!(status) }
 }
 
 // Counts looks and sign-ins, so a look that a later one overtook can tell (see `settle`).
@@ -300,6 +309,17 @@ pub fn signed_in_now(app: &AppHandle, kind: &str, ok: bool) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_cli_is_signed_out_only_when_it_says_so() {
+        assert_eq!(signed_word(Some(true), false), json!(true));
+        assert_eq!(signed_word(Some(false), false), json!(false));
+        // Not found, or a check that could not finish: unknown, so nothing is locked on a guess.
+        assert_eq!(signed_word(None, false), Value::Null);
+        // A turn it turned away outweighs a status that still says yes (an expired sign-in).
+        assert_eq!(signed_word(Some(true), true), json!(false));
+        assert_eq!(signed_word(None, true), json!(false));
+    }
 
     #[test]
     fn a_look_begun_before_a_sign_in_ended_keeps_what_the_sign_in_said() {
