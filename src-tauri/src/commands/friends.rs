@@ -249,50 +249,8 @@ pub(super) fn play(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::app::{Prefs, Source, Status};
-    use crate::pets::{album, bond, garden, model};
-    use std::collections::{HashMap, HashSet};
-
-    /// An empty yard in a fresh folder with these friends, for what a command does to the state.
-    fn yard(pets: Value) -> AppData {
-        let dir = std::env::temp_dir().join(format!("playpets-data-{}", uuid::Uuid::new_v4()));
-        let assets: Vec<String> = pets
-            .as_array()
-            .into_iter()
-            .flatten()
-            .filter_map(|p| p["assetId"].as_str().map(str::to_string))
-            .collect();
-        AppData {
-            store: crate::store::Store { dir: dir.clone() },
-            codex_pets: dir.join("codex"),
-            builtin_pets: dir.join("builtin"),
-            assets: Vec::new(),
-            warnings: Vec::new(),
-            pets: model::restore_pets(&json!({ "pets": pets }), &assets),
-            parked_pets: Vec::new(),
-            prefs: Prefs::restore(&json!({}), crate::i18n::Lang::default()),
-            imports: Vec::new(),
-            picked: Vec::new(),
-            agent_pets: HashMap::new(),
-            autostart: false,
-            garden: garden::Garden::restore(None, 0),
-            album: album::Album::restore(None),
-            bonds: bond::Bonds::restore(None, &[]),
-            letters: Default::default(),
-            providers: Vec::new(),
-            parked_providers: Vec::new(),
-            extra: serde_json::Map::new(),
-            secret_ids: HashSet::new(),
-            statuses: HashMap::new(),
-            talks: chat::Talks::default(),
-            importing: Vec::new(),
-            provider_updates: HashSet::new(),
-            letters_writing: HashSet::new(),
-            detected: json!({}),
-            activity: HashMap::new(),
-            hidden_decor: None,
-        }
-    }
+    use crate::app::tests::yard;
+    use crate::app::{Source, Status};
 
     #[test]
     fn a_friend_who_leaves_leaves_no_trace_behind() {

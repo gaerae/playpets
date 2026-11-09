@@ -223,9 +223,15 @@ fn still_ready(d: &AppData, s: &Speaker) -> Result<(), String> {
     if d.talks.busy(&s.id) {
         return Err(i18n::t("chat.still_answering"));
     }
-    let id = providers::id_of(&s.provider);
-    let current = d.pets.iter().find(|p| p.id == s.id).map(|p| p.provider_id.as_str());
-    if d.provider_updates.contains(id) || current != Some(id) || providers::find(d, id) != Some(&s.provider) {
+    same_connection(d, &s.id, &s.provider)
+}
+
+/// The friend `pet_id` still talks through `provider` as it was when the lock was let go, and it is
+/// not being saved. The chat and the year-end letter (letter.rs) both check it after `unlock`.
+fn same_connection(d: &AppData, pet_id: &str, provider: &Value) -> Result<(), String> {
+    let id = providers::id_of(provider);
+    let current = d.pets.iter().find(|p| p.id == pet_id).map(|p| p.provider_id.as_str());
+    if d.provider_updates.contains(id) || current != Some(id) || providers::find(d, id) != Some(provider) {
         return Err(i18n::t("chat.provider_saving"));
     }
     Ok(())
