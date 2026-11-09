@@ -148,3 +148,30 @@ test('a resize clears the trail and the next stamp sizes the canvas again', t =>
   calls.length = 0;
   assert.equal(trailFrame(40), true);
 });
+
+test('a stamp while the trail fades starts a new roll and the old trail is dropped', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { canvas, calls } = setup(t);
+  trailStamp(100, 300, 40, 0);
+  trailFrame(10);
+  fadeTrail();
+  trailStamp(700, 300, 40, 50);
+  t.mock.timers.tick(600);
+  assert.equal(canvas.hidden, false);
+  assert.equal(canvas.classList.contains('fading'), false);
+  calls.length = 0;
+  assert.equal(trailFrame(100), true);
+  assert.equal(count(calls, 'drawImage'), 1);
+});
+
+test('ending the game twice clears once', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { calls } = setup(t);
+  trailStamp(100, 300, 40, 0);
+  trailFrame(10);
+  fadeTrail();
+  fadeTrail();
+  calls.length = 0;
+  t.mock.timers.tick(600);
+  assert.equal(count(calls, 'clearRect'), 1);
+});

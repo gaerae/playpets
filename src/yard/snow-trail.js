@@ -87,12 +87,9 @@ function clear() {
 /** A stamp at a ball's foot, in yard px; `width` is the ball's width, `now` the game's clock. */
 export function trailStamp(x, y, width, now) {
   if (!canvas || reduced.matches) return;
+  // A stamp while the last trail fades is a new roll: the old stamps go, not back in.
+  if (timer) clear();
   if (last && Math.hypot(x - last.x, y - last.y) < width * SPACING) return;
-  if (timer) {
-    clearTimeout(timer);
-    timer = 0;
-    canvas.classList.remove('fading');
-  }
   // A hidden canvas has no box to measure.
   canvas.hidden = false;
   if (!sized && !size()) {
@@ -116,7 +113,7 @@ export function trailFrame(now) {
   ctx.clearRect(0, 0, w, h);
   for (const s of stamps) {
     const rx = s.width / 2;
-    ctx.globalAlpha = 1 - (now - s.at) / FADE_MS;
+    ctx.globalAlpha = Math.min(1, 1 - (now - s.at) / FADE_MS);
     ctx.drawImage(sprite, s.x - rx, s.y - rx * SQUASH, s.width, s.width * SQUASH);
   }
   ctx.globalAlpha = 1;
