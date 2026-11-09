@@ -105,6 +105,7 @@ async function decorating(
         drawn: () => {
           christmasNightCheck();
           drawTreeOrnaments();
+          // Mirrors app.js's `drawn` wiring; the view closing tests rely on it.
           renderDecorating();
         },
         press: { xmas_tree: openDecorating },
@@ -711,7 +712,6 @@ test('the view closes when the tree leaves the yard', async ctx => {
   assert.ok(v.dialog.open);
   await v.tree().dispatch('keydown', { key: 'Delete' });
   assert.equal(v.tree().hidden, true, 'hidden while its Undo waits');
-  renderDecorating();
   assert.ok(!v.dialog.open, 'closed with the tree');
   const undo = find(v.$('toast'), 'toast-action');
   undo.onclick();
@@ -720,7 +720,6 @@ test('the view closes when the tree leaves the yard', async ctx => {
   assert.ok(v.dialog.open);
   ctx.mock.timers.setTime(new Date(2027, 0, 8, 9).getTime());
   refreshShownDecor();
-  renderDecorating();
   assert.ok(!v.dialog.open, 'closed when the season ends');
 });
 

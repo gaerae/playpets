@@ -140,6 +140,8 @@ setupSky({
     refreshShownDecor();
     winterCheck();
     christmasNightCheck();
+    // The decorating view ends at midnight with the season, not only when the yard is redrawn.
+    renderDecorating();
     if (setSpriteSeason(season) && data.assets.length) render();
     else renderAlbum();
   },

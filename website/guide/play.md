@@ -234,7 +234,7 @@ In December, if the yard isn't showing winter, PlayPets asks once whether to sho
 
 On a snowy evening or night during the winter lights, if the yard is showing winter and the little Christmas tree is out, the tree lights up and grows into a grand tree. This happens once a night. The grand tree stays while the snow falls, with a bulb glinting now and then, and shrinks back when the snow stops. If the baby reindeer and Santa are out in the yard, they look up late that night, and a sleigh crosses the moon once. In the Cozy living room the snow stays beyond the glass, so Christmas night happens only in the gardens, and the desktop keeps the little tree.
 
-Press the Christmas tree to decorate it. Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. They become small baubles tinted by kind, and pointing at one shows what it is. To change the tree, take a bauble down from its card; the day's three stay used. Fish and bugs stay in the water and the grass. The baubles stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree. Decorating works in every place, the Cozy living room too.
+Press the Christmas tree to decorate it. Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. They become small ornaments tinted by kind, and pointing at one shows what it is. To change the tree, take an ornament down from its card; the day's three stay used. Aquatic life and bugs stay in the water and the grass. The ornaments stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree. Decorating works in every place, the Cozy living room too.
 
 ## Closeness <Since v="0.1.0" />
 
