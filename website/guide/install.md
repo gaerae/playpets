@@ -178,6 +178,8 @@ chmod +x PlayPets_*.AppImage
 | Linux deb | Remove it with the package manager you installed it with |
 | Linux AppImage | Delete the file |
 
+- Before you remove the app, press **Disconnect** for each coding agent you connected ([Coding agent hooks](./agents.md)). Its hook stays in files such as `~/.claude/settings.json` and `~/.codex/config.toml`, and once PlayPets is gone the agent reports a failed hook command.
+- API keys stay in this computer's secure storage (Windows Credential Manager, macOS Keychain, Linux Secret Service) after the app is gone. Press **Delete connection** for each AI connection first to remove them.
 - The data folder below stays after you remove the app.
 - Store or winget: Windows removes the package's data together with the app.
 - To also remove settings and imported pets, delete the data folder too.

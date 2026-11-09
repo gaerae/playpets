@@ -584,6 +584,8 @@ export const strings = {
   'invite.url': '펫 페이지 주소',
   'invite.url_placeholder': 'https://openpets.sh/pets/… 또는 GitHub 펫 폴더 주소',
   'invite.browse': '펫 둘러보기 — 펫 페이지에서 주소를 복사해 위에 붙여 넣으세요',
+  'invite.others_made':
+    '이 사이트들의 펫은 PlayPets가 아니라 다른 사람들이 만들어 올린 거예요. 문제가 있는 펫은 그 사이트에 신고해 주세요.',
   'invite.from_folder': '내 컴퓨터의 폴더에서 가져오기',
   'invite.from_zip': '내 컴퓨터의 ZIP 파일에서 가져오기',
   'invite.remove_aria': '{name} 지우기',
@@ -705,7 +707,8 @@ export const strings = {
   'settings.update_auto': '켤 때와 6시간마다 조용히 확인하고, 설치는 직접 고를 때만 해요.',
   'settings.update_this_version': '이번 버전에서 달라진 점',
   'about.title': 'PlayPets 정보',
-  'about.lead': 'MIT 라이선스로 공개된 오픈소스예요. OpenAI와는 관계가 없고, Codex는 OpenAI의 상표예요.',
+  'about.lead':
+    'MIT 라이선스로 공개된 오픈소스예요. OpenAI, Anthropic과는 관계가 없어요. Codex는 OpenAI의 상표이고, Claude와 Claude Code는 Anthropic의 상표예요.',
   'about.publication_note': '링크는 브라우저에서 공개 프로젝트 페이지를 열어요.',
   'about.site': '사이트',
   'about.guide': '사용 안내',

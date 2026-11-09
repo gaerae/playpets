@@ -16,7 +16,7 @@
 
 | Area | Commands and sources | Outputs |
 | --- | --- | --- |
-| Local execution and Docker builds | `local.mjs` via `pnpm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` with all three Store identity variables (see [Store setup](../docs/how-to/store-and-apple-signing.md)) |
+| Local execution and Docker builds | `local.mjs` via `pnpm start`, `dist:linux`, `dist:windows` | Native app process or ignored `release/<platform>/`; Windows MSIX goes to `msix-test/` by default, unsigned `msix-store/` for inspection with all three Store identity variables (see [Store setup](../docs/how-to/store-and-apple-signing.md)) |
 | Linux desktop checks | `linux-e2e.sh` via `test:e2e:linux` (build and run) or with `node tests/e2e.mjs` (CI prebuilt binary) | Isolated D-Bus/Xvfb/Openbox session; waits for a window manager before testing native pin and fullscreen |
 | Security review | `pnpm run security:check` with Gitleaks 8.30.1 and cargo-audit 0.22.2 installed | Redacted full-history secret scan, pnpm high-severity dependency audit and RustSec review; advisory warnings stay visible |
 | Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check`; `prepare-appimage-licenses.mjs` before Linux packaging; `appimage-license.mjs` on the finished image | Native dependency notice and fingerprint under `packaging/licenses/`; collected distro copyright files and an exact AppImage system-source manifest during a release build |
@@ -425,12 +425,14 @@ Retiling a six-pose sheet:
 - The generator rejects pre-1.0 and prerelease inputs for this Store version
   series.
 - The Store Docker build regenerates `msix-store/README.txt` from the same
-  validated version and identity as the manifest, so a previous hand-off cannot
+  validated version and identity as the manifest, so a previous build cannot
   leave stale version instructions.
+  - That package is for inspecting the Store identity only (x64, MinGW, no
+    `resources.pri`); the `store` workflow's `store-bundle` is what gets submitted.
 - `packaging/windows/msix/store.ps1` assembles the native Windows binaries in the
   `store` workflow, which runs when a release is published.
   - It uses the same manifest generator and Store identity as the Docker
-    hand-off.
+    package.
   - Its unsigned packages are for Partner Center, not direct local installation.
 - `store.ps1` and `ci.ps1` index `Assets` into `resources.pri` with `makepri` (`msix/resources.ps1`).
   - Windows finds the unplated taskbar icons (`Square44x44Logo.targetsize-*_altform-unplated.png`) only through it.

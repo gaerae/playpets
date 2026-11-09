@@ -682,8 +682,9 @@ mod tests {
         for (id, url) in [
             ("petdex", "https://example.com/"),
             ("petdex", "https://petdex.dev.evil.com/"),
+            // GitHub folders import by address alone; no listing makes one a trusted adapter.
             ("github", "https://github.com/other/repo"),
-            ("github", "https://github.com/dnnyngyen/codex-pokepets-evil"),
+            ("github", "https://github.com/team/pets/tree/main/pets"),
         ] {
             let entries =
                 parse_discovery(&json!([{"id":id,"name":"Gallery","url":url,"visible":true}]).to_string()).unwrap();
@@ -691,7 +692,9 @@ mod tests {
             assert_eq!(shown[0]["importable"], false, "{url}");
             assert_eq!(shown[0]["hint"], "", "{url}");
         }
-        let entries = parse_discovery(r#"[{"id":"github","name":"Gallery","url":"https://github.com/dnnyngyen/codex-pokepets/tree/main/pets","visible":true}]"#).unwrap();
+        let entries =
+            parse_discovery(r#"[{"id":"petdex","name":"Gallery","url":"https://petdex.dev/","visible":true}]"#)
+                .unwrap();
         assert_eq!(discovery_json(&entries)[0]["importable"], true);
     }
 
@@ -807,13 +810,13 @@ mod tests {
         let root = temp_root();
         let site = Site::new(vec![
             (
-                "https://raw.githubusercontent.com/dnnyngyen/codex-pokepets/main/pets/pikachu/pet.json",
+                "https://raw.githubusercontent.com/kim/pet-folders/main/pets/mochi/pet.json",
                 json_hit(
-                    json!({"id": "pikachu", "displayName": "Pikachu", "description": "Electric mouse.", "spritesheetPath": "spritesheet.webp"}),
+                    json!({"id": "mochi", "displayName": "Mochi", "description": "A sleepy cat.", "spritesheetPath": "spritesheet.webp"}),
                 ),
             ),
             (
-                "https://raw.githubusercontent.com/dnnyngyen/codex-pokepets/main/pets/pikachu/spritesheet.webp",
+                "https://raw.githubusercontent.com/kim/pet-folders/main/pets/mochi/spritesheet.webp",
                 Hit::Body(webp(1536, 1872)),
             ),
             (
@@ -828,34 +831,29 @@ mod tests {
             ),
         ]);
         let fetch = |u: &str, l: usize| site.fetch(u, l);
-        let poke = import_from_url(
-            "https://github.com/dnnyngyen/codex-pokepets/tree/main/pets/pikachu",
-            &root,
-            &fetch,
-        )
-        .unwrap();
-        assert_eq!(poke.file_name().unwrap(), "github-dnnyngyen-codex-pokepets-pikachu");
-        let m = manifest(&poke);
+        let folder = import_from_url("https://github.com/kim/pet-folders/tree/main/pets/mochi", &root, &fetch).unwrap();
+        assert_eq!(folder.file_name().unwrap(), "github-kim-pet-folders-mochi");
+        let m = manifest(&folder);
         assert_eq!(
             (
                 m["displayName"].as_str(),
                 m["source"]["name"].as_str(),
                 m["source"]["creator"].as_str()
             ),
-            (Some("Pikachu"), Some("GitHub"), Some("dnnyngyen"))
+            (Some("Mochi"), Some("GitHub"), Some("kim"))
         );
         assert_eq!(
             m["source"]["url"],
-            "https://github.com/dnnyngyen/codex-pokepets/tree/main/pets/pikachu"
+            "https://github.com/kim/pet-folders/tree/main/pets/mochi"
         );
         assert_eq!(
             import_from_url(
-                "https://raw.githubusercontent.com/dnnyngyen/codex-pokepets/main/pets/pikachu/pet.json",
+                "https://raw.githubusercontent.com/kim/pet-folders/main/pets/mochi/pet.json",
                 &root,
                 &fetch
             )
             .unwrap(),
-            poke,
+            folder,
             "a raw pet.json link lands in the same folder"
         );
         let top = import_from_url("https://codexpet.top/pets/firefly--lingxiaotian", &root, &fetch).unwrap();
@@ -876,7 +874,7 @@ mod tests {
             )
         );
         assert!(
-            import_from_url("https://github.com/dnnyngyen/codex-pokepets", &root, &fetch)
+            import_from_url("https://github.com/kim/pet-folders", &root, &fetch)
                 .unwrap_err()
                 .contains("folder")
         );
@@ -917,7 +915,6 @@ mod tests {
         for u in [
             "https://openpets.sh/pets/round-eyes",
             "https://petdex.crafter.run/pets/boba",
-            "https://github.com/dnnyngyen/codex-pokepets/tree/main/pets/pikachu",
             "https://codexpet.top/pets/firefly--lingxiaotian",
             "https://codex-pets.net/#/pets/ameath",
             "https://spriteyard.com/pets/baron/",

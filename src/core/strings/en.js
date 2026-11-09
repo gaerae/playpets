@@ -604,6 +604,8 @@ export const strings = {
   'invite.url': 'Pet page address',
   'invite.url_placeholder': 'https://openpets.sh/pets/… or a GitHub pet folder address',
   'invite.browse': 'Browse pets — copy the address from a pet page and paste it above',
+  'invite.others_made':
+    'Pets on these sites are made and shared by other people, not by PlayPets. To report one, use the site it came from.',
   'invite.from_folder': 'Import from a folder on this computer',
   'invite.from_zip': 'Import from a ZIP file on this computer',
   'invite.remove_aria': 'Remove {name}',
@@ -732,7 +734,8 @@ export const strings = {
     'PlayPets checks quietly when it starts and every 6 hours, and installs only when you choose.',
   'settings.update_this_version': 'What changed in this version',
   'about.title': 'About PlayPets',
-  'about.lead': 'Open source under the MIT license. Not affiliated with OpenAI; Codex is a trademark of OpenAI.',
+  'about.lead':
+    'Open source under the MIT license. Not affiliated with OpenAI or Anthropic; Codex is a trademark of OpenAI, and Claude and Claude Code are trademarks of Anthropic.',
   'about.publication_note': 'Links open public project pages in your browser.',
   'about.site': 'Website',
   'about.guide': 'User guide',

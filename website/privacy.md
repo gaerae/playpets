@@ -89,6 +89,13 @@ Uninstalling alone may leave data, credentials or backups behind. Records held b
 - MSIX can virtualize the Windows path, so use the app's data-folder action.
 - A custom data location you set explicitly overrides these defaults.
 
+## Children
+
+- PlayPets isn't directed at children under 13.
+- The maintainer collects no personal information from anyone through the app, children included: there is no PlayPets account and no analytics.
+- The AI services you connect have their own age requirements. For a child, a parent or guardian should set up and manage those connections.
+- A parent or guardian who thinks a child's information reached the maintainer, for example in a GitHub issue, can ask for it to be removed through the contact route below.
+
 ## Contact and changes
 
 - Privacy questions or requests: [contact the maintainer through the project](https://github.com/gaerae/playpets/issues/new/choose).

@@ -113,6 +113,8 @@ test(
     assert.equal(existsSync(path.join(f.root, 'out/msix-store/PlayPets-test.cer')), false);
     assert.match(f.read('out/msix-store/README.txt'), /MSIX package version: 1\.0\.0\.0/);
     assert.match(f.read('out/msix-store/README.txt'), /not submit or publish/);
+    assert.match(f.read('out/msix-store/README.txt'), /for inspection only/);
+    assert.match(f.read('out/msix-store/README.txt'), /store-bundle/);
   },
 );
 

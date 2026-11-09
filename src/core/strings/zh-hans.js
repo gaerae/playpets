@@ -575,6 +575,7 @@ export const strings = {
   'invite.url': '宠物页面地址',
   'invite.url_placeholder': 'https://openpets.sh/pets/… 或 GitHub 宠物文件夹地址',
   'invite.browse': '浏览宠物：在宠物页面复制地址，粘贴到上面',
+  'invite.others_made': '这些站点上的宠物由其他人制作和分享，而不是 PlayPets。如需举报某只宠物，请前往它所在的站点。',
   'invite.from_folder': '从本机文件夹导入',
   'invite.from_zip': '从本机 ZIP 文件导入',
   'invite.remove_aria': '删除{name}',
@@ -692,7 +693,8 @@ export const strings = {
   'settings.update_auto': '启动时和每隔 6 小时会安静地检查，只有你选择时才会安装。',
   'settings.update_this_version': '本版本的更新内容',
   'about.title': '关于 PlayPets',
-  'about.lead': '以 MIT 许可证开源。与 OpenAI 无关，Codex 是 OpenAI 的商标。',
+  'about.lead':
+    '以 MIT 许可证开源。与 OpenAI 和 Anthropic 无关；Codex 是 OpenAI 的商标，Claude 和 Claude Code 是 Anthropic 的商标。',
   'about.publication_note': '链接会在浏览器中打开公开项目页面。',
   'about.site': '网站',
   'about.guide': '使用指南',

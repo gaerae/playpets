@@ -39,13 +39,12 @@ When the import finishes, the pet joins the yard as a friend right away. A notic
 2. Click a site to open it in your browser.
 3. Copy a pet page address into the field above.
 
-These are community links. Listing a site doesn't mean a partnership.
+These are community links. Listing a site doesn't mean a partnership. The pets on them are made and shared by other people, not by PlayPets; to report one, use the site it came from.
 
 | Site | Site address |
 |---|---|
 | OpenPets Registry | openpets.sh |
 | Petdex | petdex.dev |
-| Codex PokéPets | github.com/dnnyngyen/codex-pokepets |
 | Awesome Codex Pet | codexpet.top |
 | Codex Pets | codex-pets.net |
 

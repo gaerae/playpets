@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("menu.minimize", "最小化"),
     ("menu.close", "关闭窗口"),
 
+    ("startup.webview_missing", "PlayPets 需要 Microsoft Edge WebView2 运行时，但这台电脑上没有安装。请从 {url} 安装，然后重新打开 PlayPets。\n\n现在打开下载页面吗？"),
     ("update.check_failed", "无法检查更新。请检查网络连接。"),
 
     ("update.no_release", "还没有发布更新信息。请稍后再检查。"),
@@ -188,7 +189,6 @@ const TABLE: &[(&str, &str)] = &[
 
     ("import.hint_openpets", "最大的宠物合集：汇集多个画廊的宠物"),
     ("import.hint_petdex", "数千只宠物：预览与合集"),
-    ("import.hint_pokepets", "宝可梦粉丝宠物：粘贴 GitHub 上的宠物文件夹地址"),
     ("import.hint_awesome", "精选的游戏、动画角色宠物"),
     ("import.hint_codexpets", "分享站点：最新上传"),
     ("import.private_address", "无法导入内部网络地址。"),

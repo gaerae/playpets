@@ -600,6 +600,8 @@ export const strings = {
   'invite.url': 'ペットページのURL',
   'invite.url_placeholder': 'https://openpets.sh/pets/… または GitHubのペットフォルダのURL',
   'invite.browse': 'ペットを探す — ペットページでURLをコピーして上に貼り付けてください',
+  'invite.others_made':
+    'これらのサイトのペットは PlayPets ではなく、ほかの人が作って公開したものです。問題のあるペットは、そのサイトで報告してください。',
   'invite.from_folder': 'このパソコンのフォルダから取り込む',
   'invite.from_zip': 'このパソコンのZIPファイルから取り込む',
   'invite.remove_aria': '{name}を削除',
@@ -725,7 +727,8 @@ export const strings = {
   'settings.update_auto': '起動時と6時間ごとに静かに確認し、インストールは選んだときだけ行います。',
   'settings.update_this_version': 'このバージョンの変更点',
   'about.title': 'PlayPets について',
-  'about.lead': 'MIT ライセンスのオープンソースです。OpenAI とは関係がなく、Codex は OpenAI の商標です。',
+  'about.lead':
+    'MIT ライセンスのオープンソースです。OpenAI や Anthropic とは関係がありません。Codex は OpenAI の商標、Claude と Claude Code は Anthropic の商標です。',
   'about.publication_note': 'リンクはブラウザーで公開プロジェクトページを開きます。',
   'about.site': 'ウェブサイト',
   'about.guide': '使い方',

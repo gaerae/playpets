@@ -35,13 +35,12 @@ playpets://import?url=https%3A%2F%2Fpetdex.dev%2Fpets%2Fboba
 
 **发现更多宠物**默认是折叠的，这样地址输入框和导入按钮更好找。展开后能看到紧凑的站点列表和导入说明。打开站点，把喜欢的宠物页面地址复制到上面的输入框就行。
 
-这些是社区链接，列出某个站点并不代表有合作关系。
+这些是社区链接，列出某个站点并不代表有合作关系。这些宠物由其他人制作和分享，而不是 PlayPets；如需举报某只宠物，请前往它所在的站点。
 
 | 站点 | 站点地址 |
 |---|---|
 | OpenPets Registry | openpets.sh |
 | Petdex | petdex.dev |
-| Codex PokéPets | github.com/dnnyngyen/codex-pokepets |
 | Awesome Codex Pet | codexpet.top |
 | Codex Pets | codex-pets.net |
 

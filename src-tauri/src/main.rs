@@ -42,6 +42,10 @@ fn main() {
     // Before any thread starts: it sets an environment variable WebKitGTK reads (window.rs).
     #[cfg(target_os = "linux")]
     window::choose_renderer();
+    #[cfg(windows)]
+    if !system::webview_ready() {
+        std::process::exit(1);
+    }
     let at_login = startup::at_login(&cli_args);
     let mut builder = tauri::Builder::default();
     // A second launch normally just brings the running app forward and hands over any link it
