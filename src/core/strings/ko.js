@@ -64,6 +64,7 @@ export const strings = {
   'track.sparrow': '참새',
   'track.magpie': '까치',
   'track.cat': '고양이',
+  'trail.follow': '발자국 따라가기',
   'album.secrets': '비밀',
   'album.secret_more': '아직 더 있을지도 몰라요.',
   'album.secret_found': '{date}에 처음 찾았어요',

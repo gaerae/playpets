@@ -67,6 +67,7 @@ export const strings = {
   'track.sparrow': 'スズメ',
   'track.magpie': 'カササギ',
   'track.cat': 'ネコ',
+  'trail.follow': '足あとをたどる',
   'album.secrets': 'ひみつ',
   'album.secret_more': 'まだほかにもあるかもしれません。',
   'album.secret_found': '{date}にはじめて見つけました',

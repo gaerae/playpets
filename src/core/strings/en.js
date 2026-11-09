@@ -63,6 +63,7 @@ export const strings = {
   'track.sparrow': 'Sparrow',
   'track.magpie': 'Magpie',
   'track.cat': 'Cat',
+  'trail.follow': 'Follow the footprints',
   'album.secrets': 'Secrets',
   'album.secret_more': 'There may be more.',
   'album.secret_found': 'First found {date}',

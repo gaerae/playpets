@@ -66,6 +66,7 @@ export const strings = {
   'track.sparrow': '麻雀',
   'track.magpie': '喜鹊',
   'track.cat': '猫',
+  'trail.follow': '跟着脚印走',
   'album.secrets': '秘密',
   'album.secret_more': '也许还有更多。',
   'album.secret_found': '{date} 首次发现',

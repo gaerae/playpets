@@ -183,6 +183,8 @@ function showMoment({ id, lasts, looks }, on) {
 }
 /** The season picked for the yard, or 'auto'. */
 export const chosenSeason = () => seasonChoice;
+/** The weather picked for the yard, or 'auto'. */
+export const chosenWeather = () => weatherChoice;
 /** Shows the yard in a season picked here or by the backend (December's winter, winter.js), which
  * already saved it; anything not a season is Auto. */
 export function showSeason(choice) {
