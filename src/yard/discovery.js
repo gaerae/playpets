@@ -14,6 +14,7 @@ import { groundAllows } from './discovery-rules.js';
 import { field, fieldToYard, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
 import { atRainbowEnd } from './rainbow-end.js';
+import { atTrailEnd } from './trails.js';
 import { isFree, release, rest } from './trips.js';
 import { bubble } from './views.js';
 import { holdAtWork, sendToWork, stopWork } from './work.js';
@@ -180,7 +181,12 @@ export function sendDiscovery(v, point, action, kind) {
       if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
       let ground = groundProfile();
       if (!groundAllows(point, ground)) return cleanup();
-      const context = { season: scene.season, weather: scene.weather, rainbow: atRainbowEnd(point) };
+      const context = {
+        season: scene.season,
+        weather: scene.weather,
+        rainbow: atRainbowEnd(point),
+        trail: atTrailEnd(point),
+      };
       holdAtWork(v, cleanup);
       const authored = playCompanionAction(v, action === 'tree' ? 'plant' : 'dig');
       const duration = authored?.duration ?? 1950;
@@ -287,6 +293,8 @@ const rested = v => {
   const pause = limit(data, 'digCooldownMs');
   return performance.now() - (v.dugAt ?? -pause) >= pause;
 };
+/** Whether a friend may dig again yet (trails.js picks who follows a trail by it, through app.js). */
+export const digRested = rested;
 // The friend for the next spot: the selected one when it is free and rested, else the nearest such friend.
 function actorFor(point) {
   const ready = v => isFree(v) && !tasks.has(v) && (intent.action !== 'dig' || rested(v));

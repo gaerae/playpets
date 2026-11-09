@@ -1,5 +1,5 @@
 // Faint footprint trails across the winter yard, each ending at a snowy bush (the rules are
-// trail-rules.js's; the album's book is Task 7's follow).
+// trail-rules.js's), and a friend following one there (followTrail).
 //
 // - Static marks: a trail is drawn once, as one SVG of <use> prints below everything on the field,
 //   and changed only when its opacity steps, new snow covers it, or the yard changes size. Nothing
@@ -10,18 +10,28 @@
 //   is a look of one day, and losing it only lays the day's trail again from now.
 // - A day's paths are worked out once per place and size and kept here, so a dig or a gift placed
 //   later does not move a trail already on the snow.
-import { t } from '../core/i18n.js';
-import { $, data, recall, remember } from '../core/state.js';
+// - A follow is recorded when the tail shows, not when the friend sets off: taking the friend away
+//   before that leaves the trail to follow again. The dig at the end is discovery.js's, handed in
+//   through setupTrails so this module never imports it (discovery.js asks atTrailEnd).
+import { list, t } from '../core/i18n.js';
+import { clamp, pick } from '../core/math.js';
+import { reduced } from '../core/sprites.js';
+import { $, aiming, call, data, game, recall, remember, selected, toast, views } from '../core/state.js';
+import { spoken } from '../core/text.js';
 import { artHref, artSize, artSvg } from './art.js';
+import { showCard } from './card.js';
 import { TRACKS, trackKind, trailArt } from './catalog.js';
 import { yardSeason } from './decor-shown.js';
-import { depthAt, fieldToYard, yardZoom } from './field.js';
+import { depthAt, fieldToYard, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
 import { autoWeather } from './scene.js';
 import { chosenWeather } from './sky.js';
 import { tailPeek } from './trail-art.js';
 import { coveredAt, laidAt, seedOf, stamps, trailAnimal, trailOpacity, trailPath, trailsOn } from './trail-rules.js';
+import { isFree, release, sendTo } from './trips.js';
+import { bubble } from './views.js';
+import { holdAtWork, stopWork } from './work.js';
 import { scene } from './world.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -30,33 +40,74 @@ const DAY_MS = 86400000;
 const FADE_MS = 3000;
 // Prints shrink with the yard only this far: smaller, they are specks in the snow's grain.
 const PRINT_ZOOM_MIN = 0.7;
+// A follow: the sniffing walk takes 6 to 8 s at a stroll; the tail shows for a second, whisks away,
+// and the dig starts a moment later. A dig within a minute of that, near the end, finds the trail's.
+const STROLL = 0.00022,
+  WALK_MS = [6000, 8000],
+  PEEK_MS = 1000,
+  WHISK_MS = 400,
+  PUFF_MS = 600,
+  END_MS = 60000,
+  END_NEAR = 0.06;
+// How far from the bush's middle the friend stops, in yard pixels at zoom 1, past the tail's tip
+// (garden.css .tail-peek), so neither the friend nor its bubble covers the tail.
+const STAND = 26;
 
 const defaultWeather = ms => (chosenWeather() === 'auto' ? autoWeather(ms, 'winter') : chosenWeather());
-let deps = { profile: groundProfile, weather: defaultWeather, toYard: fieldToYard, zoom: yardZoom };
-// The trails on the yard by number: their nodes, the opacity last written and whether snow covered them.
+let deps = {
+  profile: groundProfile,
+  weather: defaultWeather,
+  toYard: fieldToYard,
+  zoom: yardZoom,
+  dig: () => {},
+  rested: () => true,
+  card: showCard,
+};
+// The trails on the yard by number: their nodes, the opacity last written, whether snow covered
+// them, whether they were followed, and the follow under way.
 const drawn = new Map();
 // The day's paths for the place and size in `pathsFor`, by trail number (null: no room for one).
 let paths = new Map(),
   pathsFor = '';
+// Trail ends a friend has just reached: { point, animal, until }.
+let ends = [];
+// The garden layers whose clicks already follow trails (setupTrails may be called again).
+const wired = new WeakSet();
 
-/** `profile`, `weather`, `toYard` and `zoom` replace the yard's own (tests). */
+/** `profile`, `weather`, `toYard` and `zoom` replace the yard's own (tests); `dig(v, point)` sends a
+ * friend to dig at a trail's end and `rested(v)` says whether it may dig yet (app.js hands in
+ * discovery.js's); `card` shows the first follow of an animal. */
 export function setupTrails({
   profile = groundProfile,
   weather = defaultWeather,
   toYard = fieldToYard,
   zoom = yardZoom,
+  dig = () => {},
+  rested = () => true,
+  card = showCard,
 } = {}) {
-  deps = { profile, weather, toYard, zoom };
+  deps = { profile, weather, toYard, zoom, dig, rested, card };
   clear();
   paths = new Map();
   pathsFor = '';
+  ends = [];
+  const layer = $('garden-layer');
+  if (!layer || wired.has(layer)) return;
+  wired.add(layer);
+  // A press on the prints, or Enter on the follow button. With a tool in hand, in a game, or over
+  // a creature to catch, the press is the yard's (garden.css also lets it through).
+  layer.addEventListener('click', event => {
+    const target = event.target.closest?.('.trail-hit, .trail-follow');
+    if (!target || game || aiming || $('yard')?.classList.contains('can-catch')) return;
+    event.stopPropagation();
+    followTrail(Number(target.closest('[data-trail]').dataset.trail));
+  });
 }
 
 /** Lays the trails out again on the yard's new size or land (app.js, once the yard is measured
- * again or its land redrawn): the paths are worked out afresh for the ground that shows. */
+ * again or its land redrawn). The place and size are the trails' key (trailsCheck): a resize that
+ * leaves them as they were, as each step of the side panel opening can, draws nothing again. */
 export function resizeTrails() {
-  clear();
-  pathsFor = '';
   trailsCheck();
 }
 
@@ -64,6 +115,7 @@ function forget(n) {
   const trail = drawn.get(n);
   if (!trail) return;
   clearTimeout(trail.timer);
+  stopFollow(trail);
   for (const node of trail.nodes) node.remove();
   drawn.delete(n);
 }
@@ -126,11 +178,12 @@ function el(tag, attrs = {}) {
 }
 const px = n => `${Math.round(n * 10) / 10}px`;
 const round = n => Math.round(n * 100) / 100;
+// The yard's width: the field's right edge and the side room fieldToYard keeps at its left.
+const yardWidth = () => deps.toYard({ x: 1, y: 0 }).x + deps.toYard({ x: 0, y: 0 }).x;
 
 function draw(n, track, path, followed) {
   const { toYard, zoom } = deps,
-    // The yard's width: the field's right edge and the side room fieldToYard keeps at its left.
-    width = toYard({ x: 1, y: 0 }).x + toYard({ x: 0, y: 0 }).x,
+    width = yardWidth(),
     points = path.points.map(toYard),
     [w, h] = artSize(track.print),
     marks = stamps(points, track.gait, Math.max(zoom(), PRINT_ZOOM_MIN)).filter(s => s.x >= 0 && s.x <= width);
@@ -164,12 +217,14 @@ function draw(n, track, path, followed) {
     (path.bush === 'twigs' ? artSvg(trailArt('twigs'), `class="trail-twigs ${exit}"`) : '') +
     tailPeek(track, 'bush', exit);
   const nodes = [svg, end];
+  let hit = null,
+    button = null;
   if (!followed && marks.length) {
-    const hit = el('polyline', { points: points.map(p => `${round(p.x)},${round(p.y)}`).join(' ') });
+    hit = el('polyline', { points: points.map(p => `${round(p.x)},${round(p.y)}`).join(' ') });
     hit.classList.add('trail-hit');
     svg.append(hit);
-    const middle = marks[Math.floor(marks.length / 2)],
-      button = document.createElement('button');
+    const middle = marks[Math.floor(marks.length / 2)];
+    button = document.createElement('button');
     button.type = 'button';
     button.className = 'trail-follow';
     button.dataset.trail = String(n);
@@ -179,7 +234,7 @@ function draw(n, track, path, followed) {
   }
   if (followed) for (const node of [svg, end]) node.classList.add('followed');
   $('garden-layer').append(...nodes);
-  return { nodes, svg, end, opacity: null, covered: false, timer: 0 };
+  return { nodes, svg, end, hit, button, track, path, followed, follow: null, opacity: null, covered: false, timer: 0 };
 }
 
 /** Brings the yard's trails in line with the day, the season, the place and the weather. */
@@ -191,8 +246,9 @@ export function trailsCheck(now = new Date()) {
   }
   const saved = today(now),
     { toYard, zoom, weather } = deps,
+    origin = toYard({ x: 0, y: 0 }),
     corner = toYard({ x: 1, y: 1 }),
-    place = `${saved.day}|${scene.world}|${corner.x}x${corner.y}|${zoom()}`;
+    place = `${saved.day}|${scene.world}|${origin.x},${origin.y}|${corner.x}x${corner.y}|${zoom()}`;
   if (place !== pathsFor) {
     clear();
     paths = new Map();
@@ -213,6 +269,8 @@ export function trailsCheck(now = new Date()) {
       if (!trail) continue;
       // New snow: the trail fades under it, then leaves.
       trail.covered = true;
+      // A friend still on its way gives up; once the tail has shown, the follow finishes.
+      if (!trail.follow?.seen) stopFollow(trail);
       for (const node of trail.nodes) node.classList.add('covered');
       trail.timer = setTimeout(() => forget(n), FADE_MS);
       shown.add(n);
@@ -221,7 +279,10 @@ export function trailsCheck(now = new Date()) {
     const path = pathOf(n, saved.day, profile, now),
       track = trackKind(trailAnimal(saved.day, n, ids));
     if (!path || !track) continue;
-    trail ??= drawn.set(n, draw(n, track, path, saved.followed.includes(n))).get(n);
+    if (!trail) {
+      trail = draw(n, track, path, saved.followed.includes(n));
+      drawn.set(n, trail);
+    }
     const opacity = trailOpacity(laid, ms);
     if (opacity !== trail.opacity) {
       trail.svg.style.setProperty('--trail-opacity', String(opacity));
@@ -230,4 +291,145 @@ export function trailsCheck(now = new Date()) {
     shown.add(n);
   }
   for (const n of drawn.keys()) if (!shown.has(n)) forget(n);
+}
+
+// The friend for a trail: the selected one when it is free and rested, else the nearest such
+// friend to where the trail starts (yard pixels).
+function followerFor(start) {
+  const ready = v => isFree(v) && deps.rested(v);
+  const first = views.get(selected);
+  if (first && ready(first)) return first;
+  let best = null,
+    bestD = Infinity;
+  for (const v of views.values()) {
+    if (!ready(v)) continue;
+    const d = Math.hypot(v.px + sizeOf(v.pet) / 2 - start.x, v.py + petHeight(v.pet) - start.y);
+    if (d < bestD) [best, bestD] = [v, d];
+  }
+  return best;
+}
+
+function marking(trail, on) {
+  for (const node of [trail.svg, trail.end]) node.classList.toggle('following', on);
+}
+
+// Calls a follow off: before the tail shows nothing was recorded, so the trail can be followed
+// again; after, only what is still to come (the whisk, the dig) is dropped.
+function stopFollow(trail) {
+  const follow = trail.follow;
+  if (!follow) return;
+  trail.follow = null;
+  for (const timer of follow.timers) clearTimeout(timer);
+  marking(trail, false);
+  follow.v.button?.classList.remove('sniffing', 'sniff-left');
+  if (follow.v.trip?.cancel === follow.cancel || follow.v.doing?.end === follow.end) release(follow.v);
+}
+
+/** Sends a free friend sniffing along trail `n` to its bush, where the animal's tail peeks out and
+ * whisks away, then the friend digs there (the dig's context names the trail's animal). */
+export function followTrail(n) {
+  const trail = drawn.get(n);
+  if (!trail || trail.covered || trail.followed || trail.follow || game || aiming) return;
+  const { toYard, zoom } = deps,
+    { path } = trail,
+    still = reduced.matches,
+    width = yardWidth(),
+    pixels = path.points.map(toYard),
+    from = Math.max(
+      0,
+      pixels.findIndex(p => p.x >= 0 && p.x <= width),
+    );
+  const v = followerFor(pixels[from]);
+  if (!v) return toast(t('catch.busy'));
+  // The friend stops beside the bush on the side the tail shows (the side the trail came from),
+  // and the prints it would pass on the way back from there are left out.
+  const end = toYard(path.end),
+    side = path.exit === 'left' ? 1 : -1,
+    stand = { x: end.x + side * (STAND * zoom() + sizeOf(v.pet) / 2), y: end.y },
+    way = still ? [] : pixels.slice(from, -1);
+  while (way.length > 1 && side * (way.at(-1).x - stand.x) < 0) way.pop();
+  const stops = [...way, stand].map(p => footTarget(v, p.x, p.y));
+  let length = 0;
+  for (let i = 1; i < stops.length; i++) length += Math.hypot(stops[i].x - stops[i - 1].x, stops[i].y - stops[i - 1].y);
+  const speed = length / clamp(length / STROLL, ...WALK_MS);
+  const follow = { v, seen: false, lost: false, timers: [], cancel: null, end: null };
+  follow.cancel = () => {
+    if (trail.follow === follow && !follow.seen) stopFollow(trail);
+  };
+  follow.end = () => {
+    follow.lost = true;
+    stopWork(v);
+  };
+  trail.follow = follow;
+  marking(trail, true);
+  bubble(v, pick(list('trail.sniff')));
+  if (!still) v.button?.classList.add('sniffing');
+  let leg = 0;
+  const go = () => {
+    const target = stops[leg];
+    if (!still) v.button?.classList.toggle('sniff-left', target.x < v.x);
+    sendTo(v, target, { arrive, cancel: follow.cancel, save: false, speed: leg ? speed : 0 });
+  };
+  const arrive = () => {
+    if (trail.follow !== follow) return;
+    if (++leg < stops.length) return go();
+    peek(n, trail, follow, still);
+  };
+  go();
+}
+
+// The end of the walk: the tail peeks out and the follow is recorded; a second later the tail
+// whisks away (a bird flutters off), and the friend digs where it was.
+function peek(n, trail, follow, still) {
+  const { v } = follow,
+    { track, path, end } = trail,
+    name = t(`track.${track.id}`);
+  follow.seen = true;
+  v.button?.classList.remove('sniffing', 'sniff-left');
+  holdAtWork(v, follow.end);
+  end.classList.add(still ? 'peek-still' : 'peek');
+  trail.followed = true;
+  // Nothing is left to press: the button would only say no.
+  if (trail.button && document.activeElement === trail.button) $('yard')?.focus();
+  for (const node of [trail.hit, trail.button]) node?.remove();
+  const saved = today(new Date());
+  if (!saved.followed.includes(n)) {
+    saved.followed.push(n);
+    remember('trails', JSON.stringify(saved));
+  }
+  bubble(v, t('trail.seen', { animal: name }));
+  call('followTracks', track.id)
+    .then(result => {
+      if (result?.first) deps.card(tailPeek(track), name, '', true, 'track');
+    })
+    .catch(e => toast(spoken(e, t('error.generic')), { error: true }));
+  const later = (ms, fn) => follow.timers.push(setTimeout(fn, ms));
+  later(PEEK_MS, () => {
+    end.classList.add(still ? 'fade' : track.bird ? 'flutter' : 'whisk');
+    if (!still && !track.bird) {
+      const puff = document.createElement('span');
+      puff.className = `puff${path.exit === 'left' ? ' mirror' : ''}`;
+      puff.innerHTML = artSvg(trailArt('puff'));
+      end.append(puff);
+      later(PUFF_MS, () => puff.remove());
+    }
+    later(WHISK_MS, () => {
+      marking(trail, false);
+      for (const node of [trail.svg, end]) node.classList.add('followed');
+      const now = Date.now();
+      ends = ends.filter(e => now < e.until);
+      ends.push({ point: path.end, animal: track.id, until: now + END_MS });
+      // The follow is over: the dig is discovery.js's, and taking the friend now ends only that.
+      trail.follow = null;
+      if (!follow.lost) deps.dig(v, path.end);
+    });
+  });
+}
+
+/** The animal whose trail ends near `point` (field coordinates), while a friend that just followed
+ * it may dig there; otherwise null. */
+export function atTrailEnd(point, now = Date.now()) {
+  return (
+    ends.find(e => now < e.until && Math.hypot(point.x - e.point.x, point.y - e.point.y) <= END_NEAR)?.animal ?? null
+  );
 }

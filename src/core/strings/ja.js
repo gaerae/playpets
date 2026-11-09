@@ -68,6 +68,8 @@ export const strings = {
   'track.magpie': 'カササギ',
   'track.cat': 'ネコ',
   'trail.follow': '足あとをたどる',
+  'trail.sniff': ['くんくん…', 'だれが通ったのかな？', 'ちいさな足あとだ！'],
+  'trail.seen': '{animal}だ！行っちゃった！',
   'album.secrets': 'ひみつ',
   'album.secret_more': 'まだほかにもあるかもしれません。',
   'album.secret_found': '{date}にはじめて見つけました',
@@ -445,7 +447,7 @@ export const strings = {
   'catch.album_title': '友だちが捕まえた水中の生きものと虫',
   'catch.album_heading': '図鑑',
   'catch.album_lead':
-    '穴掘りで花の種や苗木を見つけ、植えて育てます。水中の生きものや虫は適した環境で探しましょう。プレゼントは一緒に遊んだ友だちが持ってきます。',
+    '穴掘りで花の種や苗木を見つけ、植えて育てます。水中の生きものや虫は適した環境で探しましょう。プレゼントは一緒に遊んだ友だちが持ってきます。冬は雪の上の足あとをたどって、だれが残したのか確かめましょう。',
   'catch.tab_fish': '水中の生きもの',
   'catch.tab_bugs': '虫',
   'catch.total': '発見 {caught}/{total}',

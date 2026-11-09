@@ -65,6 +65,8 @@ import {
   cancelDiscoveryWork,
   canDigAt,
   digAt,
+  digRested,
+  sendDiscovery,
   setupDiscovery,
   syncDiscovery,
 } from './yard/discovery.js';
@@ -147,8 +149,9 @@ onShortcut('friends', () => {
 onShortcut('invite', () => openPanel('invite'));
 onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
-// The winter yard's footprint trails, before the sky: its first paint checks them.
-setupTrails();
+// The winter yard's footprint trails, before the sky: its first paint checks them. A friend that
+// follows one digs at its end, as the dig tool would send it.
+setupTrails({ dig: (v, point) => sendDiscovery(v, point, 'dig'), rested: digRested });
 // December's question about the winter yard, checked at each repaint of the scene.
 const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
 setupSky({

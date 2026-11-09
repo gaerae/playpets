@@ -1186,3 +1186,114 @@
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
+/* With a tool in hand or in a game, a press on the prints is the yard's (trails.js gives way too). */
+.yard.aiming .trail-hit,
+.yard.playing .trail-hit,
+.yard.aiming .trail-follow,
+.yard.playing .trail-follow {
+  pointer-events: none;
+}
+/* A friend following the prints (trails.js followTrail) leans in a little toward where it walks,
+   nose to the snow; the lean turns with the way it faces. */
+.yard-pet.sniffing > canvas {
+  rotate: 6deg;
+}
+.yard-pet.sniffing.sniff-left > canvas {
+  rotate: -6deg;
+}
+/* At the bush the tail rises into view, a second later whisks away behind it (sideways into the
+   bush, the way the animal went, and a little down so it never clears the bush's top; .mirror
+   turns it) with a puff of snow, or a bird's flutters up and off. Each runs once and keeps its
+   last frame. */
+.trail-end.peek .tail {
+  animation: tail-peek 0.25s ease-out forwards;
+}
+.trail-end.whisk .tail {
+  animation: tail-whisk 0.3s ease-in forwards;
+}
+.trail-end.flutter .tail {
+  animation: tail-flutter 0.7s ease-in forwards;
+}
+@keyframes tail-peek {
+  from {
+    translate: 0 calc(8 * var(--u));
+    opacity: 0;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+@keyframes tail-whisk {
+  from {
+    translate: 0 0;
+    opacity: 1;
+  }
+  to {
+    translate: calc(24 * var(--u)) calc(4 * var(--u));
+    opacity: 0;
+  }
+}
+@keyframes tail-flutter {
+  0% {
+    translate: 0 0;
+    opacity: 1;
+  }
+  30% {
+    translate: calc(-3 * var(--u)) calc(-12 * var(--u));
+    opacity: 0.6;
+  }
+  60% {
+    translate: calc(3 * var(--u)) calc(-26 * var(--u));
+    opacity: 0.15;
+  }
+  100% {
+    translate: 0 calc(-40 * var(--u));
+    opacity: 0;
+  }
+}
+/* The snow the tail throws up over the bush's top, its bulk where the tail was and its trail the
+   way it went; trails.js takes it away when it has gone. */
+.trail-end > .puff {
+  position: absolute;
+  left: calc(2 * var(--u));
+  bottom: calc(14 * var(--u));
+  width: calc(34 * var(--u));
+  height: calc(25 * var(--u));
+  transform-origin: 25% 75%;
+  /* A soft cool edge, so white snow reads against the white yard. */
+  filter: drop-shadow(0 calc(0.6 * var(--u)) calc(1.2 * var(--u)) rgb(96 118 166 / 0.7));
+  pointer-events: none;
+  animation: trail-puff 0.6s ease-out forwards;
+}
+.trail-end > .puff.mirror {
+  left: calc(12 * var(--u));
+  scale: -1 1;
+}
+.trail-end > .puff > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@keyframes trail-puff {
+  from {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.05);
+    opacity: 0;
+  }
+}
+/* Reduced motion (no animation runs): the tail only shows, then goes. */
+.trail-end.peek-still .tail {
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+.trail-end.fade .tail {
+  opacity: 0;
+  transition: opacity 0.4s;
+}

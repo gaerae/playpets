@@ -67,6 +67,8 @@ export const strings = {
   'track.magpie': '喜鹊',
   'track.cat': '猫',
   'trail.follow': '跟着脚印走',
+  'trail.sniff': ['嗅嗅…', '谁走过这里？', '小小的脚印！'],
+  'trail.seen': '是{animal}！跑掉了！',
   'album.secrets': '秘密',
   'album.secret_more': '也许还有更多。',
   'album.secret_found': '{date} 首次发现',
@@ -422,7 +424,8 @@ export const strings = {
   'catch.reel': '收竿拉起收获',
   'catch.album_title': '花、礼物、水中生物和昆虫的图鉴',
   'catch.album_heading': '图鉴',
-  'catch.album_lead': '挖土找到花种和树苗，再种下培育。在合适的环境中寻找水中生物和昆虫。礼物由一起玩的伙伴送来。',
+  'catch.album_lead':
+    '挖土找到花种和树苗，再种下培育。在合适的环境中寻找水中生物和昆虫。礼物由一起玩的伙伴送来。冬天可以跟着雪地上的脚印，看看是谁留下的。',
   'catch.tab_fish': '水中生物',
   'catch.tab_bugs': '虫',
   'catch.total': '已发现 {caught}/{total}',

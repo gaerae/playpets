@@ -65,6 +65,8 @@ export const strings = {
   'track.magpie': '까치',
   'track.cat': '고양이',
   'trail.follow': '발자국 따라가기',
+  'trail.sniff': ['킁킁…', '누가 지나갔을까?', '조그만 발자국이다!'],
+  'trail.seen': '{animal}였어! 저기 간다!',
   'album.secrets': '비밀',
   'album.secret_more': '아직 더 있을지도 몰라요.',
   'album.secret_found': '{date}에 처음 찾았어요',
@@ -428,7 +430,7 @@ export const strings = {
   'catch.album_title': '꽃, 선물, 물속 생물, 곤충 도감',
   'catch.album_heading': '도감',
   'catch.album_lead':
-    '땅파기로 꽃씨와 묘목을 찾아 심고 키워요. 물속 생물과 곤충은 알맞은 환경에서 만나요. 선물은 함께 논 친구가 가져와요.',
+    '땅파기로 꽃씨와 묘목을 찾아 심고 키워요. 물속 생물과 곤충은 알맞은 환경에서 만나요. 선물은 함께 논 친구가 가져와요. 겨울에는 눈 위 발자국을 따라가 누가 남겼는지 알아봐요.',
   'catch.tab_fish': '물속 생물',
   'catch.tab_bugs': '곤충',
   'catch.total': '발견 {caught}/{total}',

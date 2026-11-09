@@ -22,6 +22,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Press the Christmas tree to decorate it: hang up to three things a day from the album (flowers, trees, gifts and keepsakes) as small baubles tinted by kind that arc onto the branch and swing to rest, and point at one to see what it is or take it down. They stay on the tree in the yard, grand tree included, until the next December starts a fresh tree.
 - **Snowman** in the play menu: while the yard shows winter, roll snowballs with your friends (press a ball to help, or drag it to roll it yourself) and stack a snowman, once a day. It stays in the yard while the yard shows winter, and a new one replaces the one before. Now and then a friend suggests building one and starts rolling.
 - A snowman can wear a hat, a scarf and a carrot nose: press it or choose **Dress up** from its menu. A snowman stays in the yard (it doesn't go out on the desktop), and putting it away melts it.
+- In winter, animal footprints cross the snowy yard. Click them and a friend follows, sniffing, to a bush where a tail peeks out and a small find waits. The album's new Footprints book keeps whose prints you followed.
 
 ### Changed
 

@@ -64,6 +64,8 @@ export const strings = {
   'track.magpie': 'Magpie',
   'track.cat': 'Cat',
   'trail.follow': 'Follow the footprints',
+  'trail.sniff': ['Sniff, sniff…', 'Who went this way?', 'Tiny footprints!'],
+  'trail.seen': '{animal}! There it goes!',
   'album.secrets': 'Secrets',
   'album.secret_more': 'There may be more.',
   'album.secret_found': 'First found {date}',
@@ -448,7 +450,7 @@ export const strings = {
   'catch.album_title': 'Flowers, gifts, aquatic life and bugs',
   'catch.album_heading': 'Album',
   'catch.album_lead':
-    'Dig for flower seeds and tree saplings, then plant and grow them. Collect aquatic life and bugs in their habitats. Gifts come from the friends you play with.',
+    'Dig for flower seeds and tree saplings, then plant and grow them. Collect aquatic life and bugs in their habitats. Gifts come from the friends you play with. In winter, follow footprints in the snow to find who left them.',
   'catch.tab_fish': 'Aquatic life',
   'catch.tab_bugs': 'Bugs',
   'catch.total': '{caught}/{total} found',

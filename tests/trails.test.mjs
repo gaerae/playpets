@@ -30,11 +30,12 @@ function yard(t, { now = at(14, 9), profile = () => OPEN } = {}) {
   installStorage(t);
   scene.season = 'winter';
   scene.world = 'woodland';
-  let weatherAt = () => 'clear';
+  let weatherAt = () => 'clear',
+    width = 600;
   setupTrails({
     profile,
     weather: ms => weatherAt(ms),
-    toYard: p => ({ x: p.x * 600, y: p.y * 400 }),
+    toYard: p => ({ x: p.x * width, y: p.y * 400 }),
     zoom: () => 1,
   });
   t.after(() => {
@@ -50,6 +51,9 @@ function yard(t, { now = at(14, 9), profile = () => OPEN } = {}) {
     trails: () => live('.trail'),
     weather: fn => {
       weatherAt = fn;
+    },
+    widen: w => {
+      width = w;
     },
     saved: () => JSON.parse(recall('trails')),
     goTo: ms => t.mock.timers.setTime(ms),
@@ -191,13 +195,30 @@ test("the prints are the snowman trail's shade by day, deeper at night", async (
 test('a new size lays the trail out again, the same friend', t => {
   const y = yard(t);
   trailsCheck();
-  const [before] = y.trails();
+  const [before] = y.trails(),
+    left = parseFloat(y.live('.trail-end')[0].style.left);
+  y.widen(800);
   resizeTrails();
   const [after] = y.trails();
   assert.notEqual(after, before);
   assert.ok(before.removed);
   assert.equal(after.dataset.animal, before.dataset.animal);
   assert.equal(y.live('.trail-end').length, 1);
+  assert.ok(
+    Math.abs(parseFloat(y.live('.trail-end')[0].style.left) - (left * 800) / 600) < 0.2,
+    'laid on the new size',
+  );
+});
+
+test('a resize that leaves the yard the same size draws nothing again', t => {
+  const y = yard(t);
+  trailsCheck();
+  const [before] = y.trails(),
+    end = y.live('.trail-end')[0];
+  for (let i = 0; i < 5; i++) resizeTrails();
+  assert.equal(y.trails()[0], before);
+  assert.equal(y.live('.trail-end')[0], end);
+  assert.ok(!before.removed);
 });
 
 test('no trail ends behind something standing on the snow', t => {
