@@ -87,3 +87,10 @@ Local backups and reports moved from `release/asset-size/` to `scratch/asset-siz
 - The yard's PNG exports moved from `src/art/` to `assets/art/`; the PNG rules above now apply there.
 - The app ships near-lossless WebP copies in `src/art/`, made by `pnpm run assets:webp` ([shipped WebP](../../assets/README.md)).
 - Reason: everything under `src/` is embedded in the executable, twice in the universal macOS build, and lossless PNG made up most of each download.
+
+## Follow-up (2026-11-09)
+
+- The four built-in friends' sheets ship as lossless WebP in `src-tauri/pets/`, made by the same `pnpm run assets:webp` from the PNGs in `assets/pets/`.
+- They use `-lossless -exact`, so every pixel and the colour under transparency match the PNG; the script refuses a WebP that decodes differently.
+- The painted backdrops stay as they are; no lossy step was added.
+- Reason: the sheets were the largest lossless PNGs left in the executable (37.0 MB embedded, 27.6 MB as WebP).
