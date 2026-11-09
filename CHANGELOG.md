@@ -16,6 +16,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
 - Claude Code and Codex CLI sign in from PlayPets: when one is on the computer but signed out, a card above the message box (and in the connection window) opens the sign-in in your browser and connects once you finish, with a box for the code Claude's page may show. The message box opens once you're signed in. No terminal needed.
+- **About** has **Report an AI reply**, which opens a short public form on GitHub: which AI, the relationship and what was wrong, in your own words and without the conversation.
 
 ### Changed
 
@@ -47,6 +48,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The privacy policy says how to report an AI reply: the in-app link or the GitHub form, which asks for no conversation and is public.
 - The install guide, the settings guide and the privacy policy say that the Microsoft Store version asks the Store for a newer version and shows it in the app.
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
 - The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.

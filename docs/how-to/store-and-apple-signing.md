@@ -264,7 +264,7 @@ References: [MSIX API prerequisites and authentication](https://learn.microsoft.
 
 Listing (Partner Center only; the API keeps the published listing and changes only What's new):
 - Prepare accurate descriptions and screenshots in the four supported languages. The current text to paste is in [the Store listing text](../../packaging/windows/store-listing.md).
-- Start each description with the generative-AI disclosure (policy 11.16): friends' replies are written live by the AI the person connects, can be wrong or unsuitable, and can be reported.
+- Start each description with the generative-AI disclosure (policy 11.16): friends' replies are written live by the AI the person connects, can be wrong or unsuitable, and can be reported through **Report an AI reply** in About or the listing's support link.
 - Name the dependencies in the same opening paragraph (policy 10.2.4): AI chat needs Claude Code, Codex, Ollama or an OpenAI-compatible API, and Windows needs the Microsoft Edge WebView2 Runtime. The yard works without AI.
 - Explain provider billing without promising a subscription or free inference that PlayPets does not supply.
 - The category is Entertainment: call PlayPets a desktop pet app or companion, not a game (policy 10.1.1).
@@ -274,7 +274,7 @@ Listing (Partner Center only; the API keeps the published listing and changes on
 Properties and age rating (Partner Center only):
 - **Product declarations:** check "This product incorporates generative AI features" (policy 11.16). It counts AI from third-party platforms, which is how PlayPets uses it.
 - **Privacy policy:** give the URL below, not a pasted copy. A pasted copy freezes on the day it was pasted and falls behind the site (policy 10.5.1).
-- **Support contact:** a support email, so a person can report an AI reply or a privacy concern without a public GitHub issue (policy 11.16).
+- **Support contact:** the website field, set to `https://github.com/gaerae/playpets/issues/new/choose`; no support email. It lists the AI reply concern form, which the app's **Report an AI reply** in About opens directly (policy 11.16). The form asks for no conversation and warns that issues are public.
 - **Age rating (IARC):** answer the questions about user interaction for what the app does: AI chat generates text in reply to what the person types and can send it to the AI provider they chose, and community imports bring in pets other people made from any web address. Re-answer whenever these change.
 - **Pricing:** no free trial for a free app.
 

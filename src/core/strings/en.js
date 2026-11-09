@@ -742,6 +742,7 @@ export const strings = {
   'about.releases': 'Release notes',
   'about.github': 'GitHub',
   'about.report': 'Report a problem',
+  'about.ai_report': 'Report an AI reply',
   'about.license': 'License',
   'about.help': 'Help',
   'about.project': 'Project',

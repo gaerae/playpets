@@ -701,6 +701,7 @@ export const strings = {
   'about.releases': '版本记录',
   'about.github': 'GitHub',
   'about.report': '反馈问题',
+  'about.ai_report': '举报 AI 回复',
   'about.license': '许可证',
   'about.help': '帮助',
   'about.project': '项目',

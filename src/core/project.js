@@ -14,6 +14,8 @@ export function projectLinks({ site, repository }, lang) {
     notes: version => `${root}releases/${version}`,
     github: repo,
     report: `${repo}/issues/new/choose`,
+    // Store policy 11.16: a person can report an AI reply straight from the app.
+    aiReport: `${repo}/issues/new?template=ai-reply.yml`,
     license: `${repo}/blob/main/LICENSE`,
   };
 }

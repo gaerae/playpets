@@ -5,7 +5,7 @@
 - Rules each language follows are in [Store setup](../../docs/how-to/store-and-apple-signing.md#prepare-the-listing-and-request-certification):
   - the generative-AI disclosure (policy 11.16) and the dependencies (policy 10.2.4) come first;
   - the category is Entertainment, so PlayPets is a desktop pet app, not a game (policy 10.1.1);
-  - a person reports an AI reply through the support contact Partner Center shows on the listing.
+  - a person reports an AI reply with **Report an AI reply** in the app's About tab, which opens the public [AI reply form](https://github.com/gaerae/playpets/issues/new?template=ai-reply.yml), or through the listing's support link, the repository's issue chooser that lists the same form.
 - Features stay as they are in Partner Center.
 
 ## English (en-us)
@@ -21,7 +21,7 @@ Description:
 ```text
 A little place to unwind, right beside your work.
 
-AI and requirements: friends' chat replies are generated live by an AI service you choose and connect yourself: Claude Code or Codex signed in with your own account, a local Ollama model, or an OpenAI-compatible API. PlayPets has no AI of its own. AI chat is optional, and its replies can be wrong or unsuitable; to report one, use the support contact on this page. On Windows, PlayPets needs the Microsoft Edge WebView2 Runtime. The yard, games and collecting work without AI.
+AI and requirements: friends' chat replies are generated live by an AI service you choose and connect yourself: Claude Code or Codex signed in with your own account, a local Ollama model, or an OpenAI-compatible API. PlayPets has no AI of its own. AI chat is optional, and its replies can be wrong or unsuitable; to report one, use Report an AI reply in About PlayPets, or the support link on this page. On Windows, PlayPets needs the Microsoft Edge WebView2 Runtime. The yard, games and collecting work without AI.
 
 PlayPets is a free, open-source desktop pet app. Daisy, Clover, Pip and Miso wander through a sunny yard, and you can invite compatible community pets to join them. Leave your companions nearby while you work, or take a short break to play together.
 
@@ -56,7 +56,7 @@ Description:
 ```text
 일하는 화면 곁에, 잠시 쉬어갈 작은 공간을 놓아보세요.
 
-AI와 실행 환경: 친구들의 대화는 직접 고르고 연결한 AI 서비스가 그때그때 만들어요. 내 계정으로 로그인한 Claude Code나 Codex, 로컬 Ollama 모델, OpenAI 호환 API 중에서 고를 수 있어요. PlayPets에는 자체 AI가 없어요. AI 대화는 선택 기능이고, 답이 틀리거나 부적절할 수 있어요. 문제가 있는 답은 이 페이지의 지원 연락처로 알려 주세요. Windows에서는 Microsoft Edge WebView2 Runtime이 필요해요. 놀이터와 놀이, 수집은 AI 없이도 즐길 수 있어요.
+AI와 실행 환경: 친구들의 대화는 직접 고르고 연결한 AI 서비스가 그때그때 만들어요. 내 계정으로 로그인한 Claude Code나 Codex, 로컬 Ollama 모델, OpenAI 호환 API 중에서 고를 수 있어요. PlayPets에는 자체 AI가 없어요. AI 대화는 선택 기능이고, 답이 틀리거나 부적절할 수 있어요. 문제가 있는 답은 PlayPets 정보의 'AI 답 신고하기'나 이 페이지의 지원 링크로 알려 주세요. Windows에서는 Microsoft Edge WebView2 Runtime이 필요해요. 놀이터와 놀이, 수집은 AI 없이도 즐길 수 있어요.
 
 PlayPets는 무료 오픈소스 데스크톱 펫 앱이에요. Daisy, Clover, Pip, Miso가 화창한 놀이터를 거닐고, 호환되는 커뮤니티 펫도 친구로 초대할 수 있어요. 일할 때 곁에 두거나, 잠깐 함께 놀며 쉬어가세요.
 
@@ -91,7 +91,7 @@ Description:
 ```text
 作業画面のそばに、ひと休みできる小さな場所を。
 
-AIと動作環境：仲間との会話の返事は、自分で選んで接続したAIサービスがその場で生成します。自分のアカウントでログインしたClaude CodeやCodex、ローカルのOllamaモデル、OpenAI互換APIから選べます。PlayPets自体はAIを持ちません。AIとの会話は任意で、返事が誤っていたり不適切だったりすることがあります。問題のある返事は、このページのサポート連絡先からお知らせください。WindowsではMicrosoft Edge WebView2 Runtimeが必要です。庭、遊び、収集はAIなしで楽しめます。
+AIと動作環境：仲間との会話の返事は、自分で選んで接続したAIサービスがその場で生成します。自分のアカウントでログインしたClaude CodeやCodex、ローカルのOllamaモデル、OpenAI互換APIから選べます。PlayPets自体はAIを持ちません。AIとの会話は任意で、返事が誤っていたり不適切だったりすることがあります。問題のある返事は、「PlayPets について」の「AIの返事を報告」か、このページのサポートリンクからお知らせください。WindowsではMicrosoft Edge WebView2 Runtimeが必要です。庭、遊び、収集はAIなしで楽しめます。
 
 PlayPetsは無料のオープンソース・デスクトップペットアプリです。Daisy、Clover、Pip、Misoが晴れた庭を歩き、互換性のあるコミュニティのペットも仲間に招待できます。仕事中はそばに置いて、休憩には一緒に遊んでみてください。
 
@@ -126,7 +126,7 @@ Description:
 ```text
 在工作画面旁，留一处可以歇一歇的小天地。
 
-AI 与运行要求：伙伴的聊天回复由你自己选择并连接的 AI 服务实时生成，可选用以你自己的账号登录的 Claude Code 或 Codex、本地 Ollama 模型，或兼容 OpenAI 的 API。PlayPets 本身不含 AI。AI 对话是可选功能，回复可能有误或不妥；如需举报某条回复，请使用本页面的支持联系方式。在 Windows 上，PlayPets 需要 Microsoft Edge WebView2 Runtime。庭院、游戏和收集不需要 AI。
+AI 与运行要求：伙伴的聊天回复由你自己选择并连接的 AI 服务实时生成，可选用以你自己的账号登录的 Claude Code 或 Codex、本地 Ollama 模型，或兼容 OpenAI 的 API。PlayPets 本身不含 AI。AI 对话是可选功能，回复可能有误或不妥；如需举报某条回复，请使用“关于 PlayPets”中的“举报 AI 回复”，或本页面的支持链接。在 Windows 上，PlayPets 需要 Microsoft Edge WebView2 Runtime。庭院、游戏和收集不需要 AI。
 
 PlayPets是一款免费开源的桌面宠物应用。Daisy、Clover、Pip和Miso会在晴朗的庭院里散步，你也可以邀请兼容的社区宠物加入。工作时让伙伴陪在身边，休息时一起玩一会儿。
 

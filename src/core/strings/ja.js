@@ -735,6 +735,7 @@ export const strings = {
   'about.releases': 'リリースノート',
   'about.github': 'GitHub',
   'about.report': '問題を報告',
+  'about.ai_report': 'AIの返事を報告',
   'about.license': 'ライセンス',
   'about.help': 'ヘルプ',
   'about.project': 'プロジェクト',

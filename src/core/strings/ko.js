@@ -715,6 +715,7 @@ export const strings = {
   'about.releases': '버전 기록',
   'about.github': 'GitHub',
   'about.report': '문제 알리기',
+  'about.ai_report': 'AI 답 신고하기',
   'about.license': '라이선스',
   'about.help': '도움말',
   'about.project': '프로젝트',
