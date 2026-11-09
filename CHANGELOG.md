@@ -35,6 +35,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Linking a coding agent writes its settings file to disk in full before it replaces the old one, so a crash at that moment can't leave it empty.
 - The arrow keys move a selected friend in the yard again, and holding Enter or Space on a friend pats it once instead of over and over.
 - While you aim a treat or seed or play a game, Delete, Backspace and a right-click leave a flower alone, as they already did a tree and a gift.
+- A friend on the desktop stops showing that its coding agent finished after a while, as in the yard, instead of keeping it for hours.
 
 ### Website and docs
 
