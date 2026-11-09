@@ -61,6 +61,9 @@ Row3 col3: full ripe orange pumpkin with dimensional ribs, short curled woody st
 Row3 col4: friendly two-snowball snowman, black top hat, red knitted scarf, carrot nose, dark pebble eyes and buttons, twig arms, complete rounded snow base.
 Distinct12 objects only. No neighboring items overlap. All silhouettes clean and unclipped. Cohesive materials with the supplied props reference, but do not copy any subjects from it.
 
+- The row 3, column 4 snowman is no longer drawn (2026-11-09): the yard and the album show the plain
+  three-ball snowman from `collection-extension/snowman-set`; see [Snowman](#snowman-2026-11-09).
+
 ## Hundred-entry extension (2026-10-19)
 
 - 21 new specimens: eight seasonal flowers, four aquatic creatures, two ground insects,
@@ -126,3 +129,22 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   noses never show).
 - Accepted sources, prompts, hashes and measured boxes:
   `assets/sources/christmas-2026-11-09/accepted-art.json`.
+
+## Snowman (2026-11-09)
+
+- Four specimens in two atlases: the snowball and the plain three-ball snowman in
+  `collection-extension/snowman-set`, the hat, scarf and carrot nose in
+  `collection-extension/snowman-dress`.
+- The plain snowman replaces the old two-ball one from the gift atlas in the yard
+  and the album; `snowman` keeps its wrapper path, `decor/sculpted/snowman.svg`.
+- One ball drawing is scaled for all three balls the friends roll, so they read as
+  one snow; the medium and small balls in `snowman-set` stay in the atlas unused.
+- The hat, scarf and nose are drawn over the snowman by the anchors in
+  `src/content/catalog.json` (`snowman.dress[].at`), measured on a fit sheet at
+  yard and album size.
+- Alpha below 50 is cleared to fully transparent; that cut leaves no ring on a
+  light or dark ground and keeps the white balls' soft edge.
+- Crops follow measured silhouettes with a 14-pixel margin; reproduce the
+  wrappers with `node scripts/pack-collection.mjs`.
+- Accepted sources, prompts, hashes and measured boxes:
+  `assets/sources/snowman-2026-11-09/accepted-art.json`.

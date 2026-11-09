@@ -416,10 +416,10 @@
   {
     "id": "snowman",
     "kind": "gifts",
-    "atlas": "decor/collection.webp",
-    "atlasSize": [1448, 1086],
-    "crop": [1112, 701, 299, 343],
-    "size": [40, 60],
+    "atlas": "collection-extension/snowman-set.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1099, 270, 404, 526],
+    "size": [54, 70],
     "art": "decor/sculpted/snowman.svg"
   },
   {
@@ -979,5 +979,41 @@
     "crop": [1002, 381, 524, 271],
     "size": [110, 57],
     "art": "decor/sleigh.svg"
+  },
+  {
+    "id": "snowball",
+    "kind": "gifts",
+    "atlas": "collection-extension/snowman-set.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [10, 340, 425, 434],
+    "size": [40, 41],
+    "art": "decor/snowball.svg"
+  },
+  {
+    "id": "snow_hat",
+    "kind": "gifts",
+    "atlas": "collection-extension/snowman-dress.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [45, 347, 444, 337],
+    "size": [59, 45],
+    "art": "decor/snow_hat.svg"
+  },
+  {
+    "id": "snow_scarf",
+    "kind": "gifts",
+    "atlas": "collection-extension/snowman-dress.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [589, 390, 446, 354],
+    "size": [59, 47],
+    "art": "decor/snow_scarf.svg"
+  },
+  {
+    "id": "snow_nose",
+    "kind": "gifts",
+    "atlas": "collection-extension/snowman-dress.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1214, 453, 208, 135],
+    "size": [28, 18],
+    "art": "decor/snow_nose.svg"
   }
 ]

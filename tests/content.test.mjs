@@ -7,7 +7,7 @@ import test from 'node:test';
 import { LIMITS } from '../src/core/limits.js';
 import { STRINGS } from '../src/core/strings.js';
 import { PAINTER_NAMES, THING_KINDS } from '../src/yard/backdrop.js';
-import { artOf, eventGifts } from '../src/yard/catalog.js';
+import { artOf, eventGifts, giftKind } from '../src/yard/catalog.js';
 import { SHOWN } from '../src/yard/decor-shown.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
@@ -204,4 +204,20 @@ test('the Christmas tree has twelve hooks on each drawing, apart from each other
   );
   const leftToRight = tiers => tiers.map(t => t.map(p => t.filter(q => q[0] < p[0]).length));
   assert.deepEqual(leftToRight(small), leftToRight(big), 'hook i is in the same place in its tier on both');
+});
+
+test('the snowman has a ball, a stack and three things to wear, all drawn', () => {
+  const s = giftKind('snowman');
+  assert.equal(s.built, true);
+  assert.deepEqual(s.seasons, ['winter']);
+  assert.deepEqual(
+    s.dress.map(p => p.id),
+    ['scarf', 'nose', 'hat'],
+    'drawn in this order',
+  );
+  for (const p of s.dress) assert.ok(p.at.length === 3 && p.at.every(v => v > 0 && v < 1), p.id);
+  assert.ok(s.stack.length === 2 && s.stack[0] > 0.5 && s.stack[0] < 1 && s.stack[1] >= 0 && s.stack[1] < 0.3);
+  const arts = artOf(catalog);
+  for (const art of [s.ball, ...s.dress.map(p => p.art)])
+    assert.ok(arts.includes(art) && existsSync(`src/art/${art}`), art);
 });

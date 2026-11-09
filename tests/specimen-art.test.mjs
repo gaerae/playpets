@@ -49,7 +49,6 @@ test('the remaining gift specimens preserve original dimensions and vector sourc
     'cherry_sapling',
     'watermelon',
     'pumpkin',
-    'snowman',
   ];
   for (const id of ids) {
     const gift = catalog.gifts.find(g => g.id === id);
@@ -61,4 +60,25 @@ test('the remaining gift specimens preserve original dimensions and vector sourc
     assert.match(current, /<image /);
     assert.doesNotMatch(original, /collection.png/);
   }
+});
+
+// The built snowman is the plain three-ball one the person dresses, no longer the gift atlas's
+// two-ball drawing, so it keeps its wrapper path but not the old view box.
+test('the built snowman draws the plain snowman from its own atlas', () => {
+  const records = JSON.parse(readFileSync(art('collection.json'), 'utf8'));
+  const gift = catalog.gifts.find(g => g.id === 'snowman');
+  const record = records.find(r => r.id === 'snowman');
+  assert.equal(gift.art, 'decor/sculpted/snowman.svg');
+  assert.equal(record.art, gift.art);
+  assert.equal(record.atlas, 'collection-extension/snowman-set.webp');
+  assert.deepEqual(record.size, gift.size);
+  assert.equal(gift.size[1], 70);
+  const svg = readFileSync(art(gift.art), 'utf8');
+  assert.ok(svg.includes('href="art/collection-extension/snowman-set.webp"'));
+  assert.ok(
+    svg.includes(
+      `<rect x="${record.crop[0]}" y="${record.crop[1]}" width="${record.crop[2]}" height="${record.crop[3]}"/>`,
+    ),
+  );
+  assert.ok(svg.includes('clip-path="url(#specimen-gifts-snowman)"'));
 });
