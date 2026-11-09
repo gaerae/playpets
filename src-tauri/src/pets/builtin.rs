@@ -292,7 +292,7 @@ mod tests {
             std::fs::create_dir_all(file.parent().unwrap()).unwrap();
             std::fs::write(file, b"an older build's sheet").unwrap();
         }
-        let other = root.join("aria/spritesheet.png");
+        let other = root.join("keepsakes/spritesheet.png");
         std::fs::create_dir_all(other.parent().unwrap()).unwrap();
         std::fs::write(&other, b"not one of ours").unwrap();
         // A copy this build stamped is trusted as it is.
