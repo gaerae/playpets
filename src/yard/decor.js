@@ -281,7 +281,10 @@ export function putAway(id) {
   // With the box full it goes as any gift does (garden.rs put_away).
   const boxed = (d.memento || !!giftKind(d.kind)?.shown) && (data.garden.boxed?.length ?? 0) < limit(data, 'giftBox');
   const done = t(boxed ? 'decor.memento_put_away' : 'decor.put_away_done', { kind: kindName(d.kind) });
-  removeWithUndo(id, view, done, () => call('putAway', id));
+  // Drawn again at once and when it comes back, so what the yard shows of it follows (the
+  // Christmas tree lets go of its night, and comes back grand without the change).
+  removeWithUndo(id, view, done, () => call('putAway', id), renderDecor);
+  renderDecor();
 }
 
 // A friend brings a gift on its own: an everyday one every other day, from a friend the person

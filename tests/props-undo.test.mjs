@@ -86,3 +86,36 @@ test('at most two Undo lines stay; an older one gives way but its removal still 
   await Promise.resolve();
   assert.equal(commits, 3);
 });
+
+// Its own id: an earlier test leaves a rose waiting out its Undo.
+test('a thing brought back, by Undo or after a failed save, says so', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { document, nodes } = installDom(t, { ids: ['toast'] });
+  document.querySelectorAll = () => [];
+  nodes.get('toast').hidden = true;
+  const view = { button: element('button') };
+  let restored = 0;
+  removeWithUndo(
+    'lily',
+    view,
+    'Lily pulled up',
+    async () => {},
+    () => restored++,
+  );
+  assert.equal(restored, 0);
+  await nodes.get('toast').querySelector('.toast-action').onclick();
+  assert.equal(restored, 1, 'Undo');
+  removeWithUndo(
+    'lily',
+    view,
+    'Lily pulled up',
+    async () => {
+      throw new Error('no');
+    },
+    () => restored++,
+  );
+  t.mock.timers.tick(6000);
+  for (let i = 0; i < 5; i++) await Promise.resolve();
+  assert.equal(view.button.hidden, false);
+  assert.equal(restored, 2, 'a failed save');
+});

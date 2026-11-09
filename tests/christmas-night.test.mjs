@@ -240,20 +240,36 @@ test('a nearby friend with no look rows waves instead', async ctx => {
   assert.equal(near.look, null);
 });
 
-test('putting the tree away mid-change leaves nothing behind, and Undo brings it back grand', async ctx => {
+// Undo, from the notice (props.js removeWithUndo).
+const undo = nodes => nodes.get('toast').querySelector('.toast-action').onclick();
+
+test('putting the tree away mid-change leaves nothing behind, and Undo after it brings it back grand', async ctx => {
   const { tree, nodes } = await yard(ctx);
   ctx.mock.timers.tick(1000);
   await tree().dispatch('keydown', { key: 'Delete', preventDefault() {} });
-  christmasNightCheck();
   assert.ok(!has(tree(), 'xmas-grand'));
   assert.ok(!has(tree(), 'xmas-rise'));
   assert.doesNotThrow(() => ctx.mock.timers.tick(2000));
-  // Undo, from the notice (props.js removeWithUndo).
-  nodes.get('toast').querySelector('.toast-action').onclick();
+  undo(nodes);
   assert.equal(tree().hidden, false);
-  christmasNightCheck();
   assert.ok(has(tree(), 'xmas-grand'));
   assert.ok(!has(tree(), 'xmas-rise'));
+});
+
+test('Undo before the change would have ended brings the tree back grand, and the old end changes nothing', async ctx => {
+  const { tree, nodes } = await yard(ctx);
+  ctx.mock.timers.tick(1000);
+  await tree().dispatch('keydown', { key: 'Delete', preventDefault() {} });
+  assert.ok(!has(tree(), 'xmas-grand'));
+  assert.ok(!has(tree(), 'xmas-rise'));
+  ctx.mock.timers.tick(500);
+  undo(nodes);
+  assert.equal(tree().hidden, false);
+  assert.ok(has(tree(), 'xmas-grand'));
+  assert.ok(!has(tree(), 'xmas-rise'), 'not the change again');
+  const classes = tree().className;
+  ctx.mock.timers.tick(1100);
+  assert.equal(tree().className, classes, 'the 2.6 s mark passes with nothing to end');
 });
 
 const uncommented = css => css.replace(/\/\*[\s\S]*?\*\//g, '');
