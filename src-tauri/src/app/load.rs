@@ -182,6 +182,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         garden,
         album: album::Album::restore(raw.get("album")),
         bonds,
+        letters: letters::Letters::restore(raw.get("letters"), &crate::pets::latest_day(now)),
         providers,
         parked_providers: parked,
         parked_pets,

@@ -1,6 +1,6 @@
 //! Pets: the files on this computer (catalog), bringing new ones in from a page (importer), the
 //! friends made from them in the yard (model), the garden they grow (garden), the album (album),
-//! friendship (bond), and what the yard is made of (content, from src/content/catalog.json and
+//! friendship (bond), the year-end letters (letters), and what the yard is made of (content, from src/content/catalog.json and
 //! the seasonal events in src/content/events.json).
 pub mod album;
 pub mod bond;
@@ -10,6 +10,7 @@ pub mod content;
 pub mod discovery;
 pub mod garden;
 pub mod importer;
+pub mod letters;
 pub mod model;
 
 /// A field added to state.json in a later version, read leniently: a value of the wrong type

@@ -278,6 +278,7 @@ mod tests {
             garden: garden::Garden::restore(None, 0),
             album: album::Album::restore(None),
             bonds: bond::Bonds::restore(None, &[]),
+            letters: Default::default(),
             providers: Vec::new(),
             parked_providers: Vec::new(),
             extra: serde_json::Map::new(),
@@ -320,5 +321,14 @@ mod tests {
             "its agent goes back to the first friend"
         );
         assert!(forget(&mut d, &chat::cli::CliManager::default(), "gone").is_err());
+    }
+
+    #[test]
+    fn a_friend_who_leaves_keeps_the_letters_it_wrote() {
+        let pet = |id: &str| json!({"id": id, "assetId": "a", "name": id, "size": 96, "x": 0.5, "y": 0.5});
+        let mut d = yard(json!([pet("gone"), pet("stays")]));
+        d.letters.write(2026, "gone", "hi", 1).unwrap();
+        forget(&mut d, &chat::cli::CliManager::default(), "gone").unwrap();
+        assert_eq!(d.letters.of(2026).unwrap().friend, "gone");
     }
 }

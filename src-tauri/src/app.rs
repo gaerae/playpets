@@ -3,7 +3,7 @@
 use crate::agent;
 use crate::chat::{self, http, providers};
 use crate::desktop::overlay;
-use crate::pets::{album, bond, builtin, catalog, garden, importer, model};
+use crate::pets::{album, bond, builtin, catalog, garden, importer, letters, model};
 use crate::window;
 use crate::{i18n, store};
 use serde_json::{Map, Value, json};
@@ -28,7 +28,7 @@ pub use sprite::sprite_response;
 pub const SCHEMA: u64 = 1;
 /// The top-level keys this app writes to state.json besides the switches (Prefs::KEYS); anything
 /// else in the file is `extra`.
-const KNOWN_KEYS: [&str; 11] = [
+const KNOWN_KEYS: [&str; 12] = [
     "schema",
     // Written for an older app, which sends every friend out when it is true (desktop::items).
     "desktop",
@@ -41,13 +41,14 @@ const KNOWN_KEYS: [&str; 11] = [
     "garden",
     "album",
     "bonds",
+    "letters",
 ];
 fn known(key: &str) -> bool {
     KNOWN_KEYS.contains(&key) || Prefs::KEYS.contains(&key)
 }
 
 /// Everything the app knows. Saved to state.json: pets (with the parked ones), prefs, imports,
-/// providers (with the parked ones), agent_pets, secret_ids, garden, album, bonds and extra. The
+/// providers (with the parked ones), agent_pets, secret_ids, garden, album, bonds, letters and extra. The
 /// rest lasts until the app quits.
 pub struct AppData {
     pub store: store::Store,
@@ -76,6 +77,8 @@ pub struct AppData {
     pub garden: garden::Garden,
     pub album: album::Album,
     pub bonds: bond::Bonds,
+    /// The year-end letters a friend wrote and the person's answers, one a year.
+    pub letters: letters::Letters,
     pub providers: Vec<Value>,
     /// Connections this app could not read (a kind from a newer app, say): never shown, written back
     /// as they were so a later app finds them again.
@@ -244,6 +247,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "garden": d.garden,
         "album": d.album,
         "bonds": d.bonds,
+        "letters": d.letters,
         "defaults": {"ollamaEndpoint": http::OLLAMA_DEFAULT},
         "agents": agent::kinds::agents_json(),
         "version": app.package_info().version.to_string(),
@@ -385,6 +389,7 @@ impl Saving {
             "garden": d.garden,
             "album": d.album,
             "bonds": d.bonds,
+        "letters": d.letters,
             "desktop": desktop_on(d),
         });
         carry(&mut state, &d.prefs.saved());

@@ -12,9 +12,20 @@ pub struct Activity {
     pub message: String,
 }
 
+/// Text from outside as one line: whitespace runs (line breaks too) become one space, trimmed,
+/// cut to `max` characters.
+pub fn one_line(text: &str, max: usize) -> String {
+    text.split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .chars()
+        .take(max)
+        .collect()
+}
+
 // Agent text is flattened to one line so it can never pose as a new prompt line.
 pub fn record_activity(log: &mut Vec<Activity>, mut entry: Activity) {
-    entry.message = entry.message.split_whitespace().collect::<Vec<_>>().join(" ");
+    entry.message = one_line(&entry.message, usize::MAX);
     log.push(entry);
     let extra = log.len().saturating_sub(ACTIVITY_LIMIT);
     log.drain(..extra);
@@ -221,6 +232,12 @@ const PEER_LIMIT: usize = 2000;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn one_line_flattens_and_caps() {
+        assert_eq!(one_line("  a\n\nb\tc  ", 99), "a b c");
+        assert_eq!(one_line(&"가".repeat(300), 200).chars().count(), 200);
+    }
 
     #[test]
     fn reply_language_comes_from_settings_not_previous_dialogue_or_descriptions() {
