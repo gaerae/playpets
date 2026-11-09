@@ -881,6 +881,8 @@ export const strings = {
   'snowman.more': ['放上去啦！再来一个！', '这次小一点！'],
   'snowman.full': ['好想堆雪人，可是乐园已经满了。'],
   'snowman.built_today': ['今天已经堆过啦，明天再堆吧！'],
+  'snowman.done': ['雪人堆好啦！', '好可爱呀！'],
+  'snowman.melt': ['再见啦，之前的雪人，谢谢你！', '之前的雪人融化了……'],
   'catch.fish_moon_carp': '月光鲤',
   'catch.bug_golden_firefly': '金色萤火虫',
 };

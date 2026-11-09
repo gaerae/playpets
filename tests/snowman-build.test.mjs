@@ -8,10 +8,12 @@ import { element } from './support/dom.mjs';
 
 const built = [];
 const answer = (data = null) => ({ ok: true, data });
+// What buildSnowman answers: a test sets its own (the backend's snowman, a refusal, a wait).
+let building = async () => answer();
 globalThis.playPets = {
-  buildSnowman: async (...args) => {
+  buildSnowman: (...args) => {
     built.push(args);
-    return answer();
+    return building(...args);
   },
   hideDecor: async () => answer(),
   moveDecor: async () => answer(),
@@ -26,9 +28,11 @@ const { giftKind } = await import('../src/yard/catalog.js');
 const { scene } = await import('../src/yard/world.js');
 const play = await import('../src/yard/play.js');
 const snowman = await import('../src/yard/snowman.js');
-const { BALLS, DRAG_FASTER, GROW, LIFT_MS, PUSH, START, rollSpeed, stackBottoms, stackSpot } =
+const { BALLS, DRAG_FASTER, GROW, LIFT_MS, PUSH, SPARKLES, START, rollSpeed, stackBottoms, stackSpot } =
   await import('../src/yard/snowman-rules.js');
 const { setupSnowTrail } = await import('../src/yard/snow-trail.js');
+const { decorButton, renderDecor } = await import('../src/yard/decor.js');
+const { closeDress, setupDress } = await import('../src/yard/snowman-dress.js');
 const { drawYard } = await import('./support/yard.mjs');
 
 // December 15 at noon, local time.
@@ -49,6 +53,7 @@ const fakeContext = () => ({
 
 async function yard(ctx, { garden = {} } = {}) {
   built.length = 0;
+  building = async () => answer();
   let clock = 1000;
   ctx.mock.method(performance, 'now', () => clock);
   ctx.mock.method(Math, 'random', () => 0);
@@ -56,6 +61,7 @@ async function yard(ctx, { garden = {} } = {}) {
   let trail = null;
   // Before the yard's own cleanup, while the fake document is still there.
   ctx.after(() => {
+    closeDress(false);
     play.endGame();
     state.setGame(null);
   });
@@ -98,6 +104,7 @@ async function yard(ctx, { garden = {} } = {}) {
   reduced.matches = false;
   play.setupPlay();
   snowman.setupSnowman({ start: play.startGame, end: play.endGame, after: play.after });
+  setupDress({ redraw: renderDecor, button: decorButton });
   const layer = drawn.nodes.get('garden-layer');
   const live = cls => kids(layer).filter(has(cls));
   const ball = () => live('snowball').find(b => !b.classList.contains('stacked'));
@@ -370,4 +377,168 @@ test('with reduced motion the ball does not turn or squash and appears on the st
   const stacked = y.live('stacked');
   assert.equal(stacked.length, 1);
   assert.ok(y.art(stacked[0]).classList.contains('appear'));
+});
+
+// The finish (Task 7): the stack becomes the snowman, saved where it stood.
+const flush = () => new Promise(resolve => setImmediate(resolve));
+const OLD = { id: 'o', kind: 'snowman', x: 0.3, y: 0.7, dress: [] };
+// Each ball made full and pressed, then the frames run until it is on the stack.
+function stackAll(y) {
+  for (const full of BALLS) {
+    state.game.ball.size = full - 1e-9;
+    y.press();
+    while (state.game?.stage === 'lifting') y.run(50);
+  }
+}
+// The friend gets where the game sent it (motion.js moveFriends does this in the app).
+function arrive(y, id) {
+  const v = state.views.get(id),
+    trip = v.trip;
+  Object.assign(v, v.target);
+  v.target = null;
+  v.trip = null;
+  trip?.arrive?.(v, y.clock());
+}
+// The backend's snowman, put in the garden as its state event would.
+function builds() {
+  building = async (x, y, day) => {
+    const d = { id: 'n', kind: 'snowman', x, y, dress: [] };
+    state.data.garden.decor = [...state.data.garden.decor.filter(o => o.kind !== 'snowman'), d];
+    state.data.garden.snowmanDay = day;
+    return answer(d);
+  };
+}
+const tray = y => kids(y.nodes.get('yard')).find(has('dress-tray')) ?? null;
+
+test('a finished snowman is placed where it was stacked, counted for the day, and the yard shows it', async ctx => {
+  const y = await yard(ctx);
+  builds();
+  start();
+  stackAll(y);
+  assert.equal(state.game.stage, 'done');
+  assert.equal(y.live('snow-sparkle').length, SPARKLES);
+  assert.equal(y.live('snowman-preview').length, 1);
+  const leaving = y.live('leaving');
+  assert.equal(leaving.length, 3, 'the stack fades as the snowman shows');
+  // and settles to the drawing's height, the top ball lowered most
+  const lowered = leaving.map(b => Number(y.roll(b).style.transform.match(/translateY\(([\d.]+)px\)/)[1]));
+  assert.ok(lowered[0] === 0 && lowered[1] > 0 && lowered[2] > lowered[1]);
+  assert.deepEqual(built, [[0.72, 0.72, '2026-12-15']]);
+  assert.equal(state.data.garden.snowmanDay, '2026-12-15');
+  // Set down as the yard will draw it.
+  const preview = y.box(y.live('snowman-preview')[0]),
+    size = giftSize('snowman'),
+    foot = fieldToYard({ x: 0.72, y: 0.72 });
+  assert.ok(Math.abs(preview.x - foot.x) < 0.5 && Math.abs(preview.bottom - foot.y) < 0.5);
+  assert.ok(Math.abs(preview.w - size.w) < 0.5);
+  y.tick(400);
+  assert.deepEqual(y.live('snowball'), [], 'the stack is gone');
+  // The lead walks over beside it, then says so.
+  assert.ok(state.views.get('a').target, 'the lead walks over');
+  arrive(y, 'a');
+  assert.ok(list('snowman.done').includes(y.said('a')));
+  assert.ok(state.views.get('a').look, 'and looks at it');
+  await flush();
+  assert.ok(decorButton('n'), 'the yard draws the snowman');
+  assert.deepEqual(y.live('snowman-preview'), []);
+  y.tick(1100);
+  assert.deepEqual(y.live('snow-sparkle'), [], 'the sparkles go with one timeout');
+  assert.ok(state.game, 'the friends stay a moment');
+  assert.equal(tray(y), null, 'the tray waits for the line, which would stand over it');
+  y.tick(1400);
+  assert.equal(state.game, null);
+  assert.ok(tray(y), 'its dress tray opens as the friends go home');
+  y.tick(5000);
+  assert.ok(tray(y), 'and stays open');
+  assert.equal(state.data.garden.snowmanDay, '2026-12-15');
+});
+
+test('the old snowman melts with a friend’s line before the new one is saved', async ctx => {
+  const y = await yard(ctx, { garden: { decor: [OLD] } });
+  builds();
+  start();
+  stackAll(y);
+  assert.ok(decorButton('o').classList.contains('melting'));
+  assert.ok(
+    ['b', 'c'].some(id => list('snowman.melt').includes(y.said(id))),
+    'another friend says goodbye',
+  );
+  // A redraw of the gifts meanwhile keeps it melting.
+  renderDecor();
+  assert.ok(decorButton('o').classList.contains('melting'));
+  y.tick(1550);
+  assert.deepEqual(built, []);
+  y.tick(50);
+  assert.deepEqual(built, [[0.72, 0.72, '2026-12-15']]);
+  await flush();
+  assert.equal(decorButton('o'), null, 'the new one took its place');
+  assert.ok(decorButton('n'));
+});
+
+test('a refused save brings the old snowman back and says why', async ctx => {
+  const y = await yard(ctx, { garden: { decor: [OLD] } });
+  building = async () => ({ ok: false, error: 'Built today.' });
+  start();
+  stackAll(y);
+  arrive(y, 'a');
+  assert.ok(list('snowman.done').includes(y.said('a')));
+  y.tick(1600);
+  assert.equal(built.length, 1);
+  await flush();
+  assert.equal(decorButton('o').classList.contains('melting'), false);
+  assert.equal(state.data.garden.snowmanDay, '');
+  assert.equal(y.nodes.get('toast').children.at(-1).dataset.words, 'Built today.');
+  assert.equal(state.views.get('a').bubble.hidden, true, 'no cheer for a snowman not kept');
+  assert.equal(state.game, null);
+  assert.deepEqual(y.live('snowman-preview'), []);
+  assert.equal(tray(y), null);
+});
+
+test('stopping during the melt keeps the old snowman', async ctx => {
+  await ctx.test('before the save', async t => {
+    const y = await yard(t, { garden: { decor: [OLD] } });
+    builds();
+    start();
+    stackAll(y);
+    y.tick(800);
+    play.endGame();
+    assert.equal(decorButton('o').classList.contains('melting'), false);
+    assert.deepEqual(y.live('snowman-preview'), []);
+    assert.deepEqual(y.live('snow-sparkle'), []);
+    y.tick(5000);
+    assert.deepEqual(built, [], 'nothing is saved later');
+    assert.equal(state.data.garden.snowmanDay, '');
+  });
+  await ctx.test('while the save is on its way', async t => {
+    const y = await yard(t, { garden: { decor: [OLD] } });
+    let answered;
+    building = () => new Promise(resolve => (answered = resolve));
+    start();
+    stackAll(y);
+    y.tick(1600);
+    assert.equal(state.data.garden.snowmanDay, '2026-12-15');
+    play.endGame();
+    assert.equal(decorButton('o').classList.contains('melting'), false);
+    assert.equal(state.data.garden.snowmanDay, '', 'the day is given back until the save is answered');
+    answered(answer({ id: 'n', kind: 'snowman', x: 0.72, y: 0.72, dress: [] }));
+    await flush();
+    assert.equal(tray(y), null, 'a late answer leaves the yard alone');
+    assert.equal(state.game, null);
+  });
+});
+
+test('with reduced motion the snowman crossfades in and the old one fades', async ctx => {
+  const y = await yard(ctx, { garden: { decor: [OLD] } });
+  builds();
+  reduced.matches = true;
+  start();
+  stackAll(y);
+  const sparkles = y.live('snow-sparkle');
+  assert.equal(sparkles.length, SPARKLES);
+  assert.ok(sparkles.every(has('still')));
+  assert.ok(decorButton('o').classList.contains('melting'));
+  y.tick(550);
+  assert.deepEqual(built, []);
+  y.tick(50);
+  assert.equal(built.length, 1);
 });

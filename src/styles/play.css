@@ -545,3 +545,77 @@ body:not(.compact) .play-board {
     opacity: 0;
   }
 }
+/* The finish: the stack fades as the snowman's drawing fades in over it, set down where the yard
+   will draw it once saved, while the stack settles to the drawing's height (snowman.js
+   settleInto). Each ends as it is left (gone, shown), so with reduced motion, where nothing plays
+   (base.css), the drawing simply takes the stack's place. */
+.snowball.leaving {
+  opacity: 0;
+  animation: snowball-leave 0.4s ease-out;
+}
+.snowball.leaving .snowball-roll {
+  transition: transform 0.4s ease-out;
+}
+.snowman-preview {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  animation: snowman-preview-in 0.4s ease-out;
+}
+.snowman-preview svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+@keyframes snowball-leave {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes snowman-preview-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Five soft four-point glints in a fan over the new snowman's head (snowman.js sparkle), warm on
+   the snow: each swells, shines and fades. With reduced motion they are set, not played, and
+   leave together. */
+.snow-sparkle {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  translate: -50% -50%;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #fff0, #fffdf4 50%, #fff0) center / 100% 9% no-repeat,
+    linear-gradient(0deg, #fff0, #fffdf4 50%, #fff0) center / 9% 100% no-repeat,
+    radial-gradient(closest-side, #fff 0%, #fffaf0 18%, #ffe6a3cc 38%, #ffd27a55 66%, #ffd27a00);
+  opacity: 0;
+  animation: snow-sparkle 0.9s ease-out both;
+}
+.snow-sparkle.still {
+  opacity: 0.9;
+  animation: none;
+}
+@keyframes snow-sparkle {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}

@@ -5,6 +5,8 @@
 // - The numbers are snowman-rules.js's; this file draws the balls and moves the friends.
 // - Nothing is saved while the balls roll: stopping halfway takes every ball away and leaves the day
 //   unspent.
+// - The third ball on, the stack fades into the snowman's drawing, an old snowman melts, and only
+//   then is the new one saved (garden.rs build_snowman); its dress tray opens once it is.
 // - Its timers are the round's (play.js after, given to setupSnowman), so they end with it.
 // - It runs only inside the game's own frame; the trail behind the ball is snow-trail.js's.
 
@@ -12,13 +14,18 @@ import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { clamp, pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
-import { $, data, game, views } from '../core/state.js';
+import { $, call, data, game, toast, views } from '../core/state.js';
+import { spoken } from '../core/text.js';
 import { artSize, artSvg } from './art.js';
 import { giftKind } from './catalog.js';
 import { decorShown, yardSeason } from './decor-shown.js';
-import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, geometry, sizeOf } from './field.js';
+import { renderDecor, shownDecor } from './decor.js';
+import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, geometry, petHeight, sizeOf } from './field.js';
+import { localDay } from './growth.js';
+import { hint } from './hint.js';
 import { beginDrag, dragPoint, endDrag, giftSize, KEY_STEPS, setDown } from './props.js';
 import { fadeTrail, trailFrame, trailStamp } from './snow-trail.js';
+import { openDress } from './snowman-dress.js';
 import {
   BALLS,
   dragStep,
@@ -30,12 +37,13 @@ import {
   rollSpeed,
   SNOWMAN,
   snowmanOffer,
+  SPARKLES,
   stackBottoms,
   stackSpot,
   START,
 } from './snowman-rules.js';
 import { sendTo } from './trips.js';
-import { bubble, place, pose } from './views.js';
+import { bubble, cheer, gaze, place, pose } from './views.js';
 import { scene } from './world.js';
 
 // What play.js lends this game (setupSnowman): starting and ending a game, and the round's timers.
@@ -72,6 +80,21 @@ const PUFFS = [-160, -125, -90, -55, -20];
 const MOTION = { push: 220, settle: 260, appear: 200 };
 // The two lines a friend says when building cannot start; outside winter the row is not shown.
 const REFUSALS = ['snowman.built_today', 'snowman.full'];
+// The finish (ms): the stack's fade into the drawing (play.css .leaving), the sparkles, an old
+// snowman's melt (garden.css .melting; with reduced motion it only fades), and how long the friends
+// stay by the new one before they go home.
+const FADE_MS = 400;
+const SPARKLE_MS = 1100;
+const MELT_MS = { moving: 1600, still: 600 };
+const STAY_MS = 2500;
+// The snowman's drawing, measured: its head's middle and its top, as shares of its height from the
+// top (the hat's and the nose's anchors in catalog.json sit around the head).
+const HEAD = 0.24;
+const DRAWN_TOP = 0.03;
+// The sparkles fan over the head, from 70° left of straight up to 70° right, half the drawing's
+// width from the head's middle: just past the drawn head, which is rounder than the top ball.
+const SPARKLE_FAN = 140;
+const SPARKLE_OUT = 0.5;
 
 const across = () => Math.max(1, field().width - EDGE * 2);
 const deep = () => Math.max(1, field().bottom - field().top);
@@ -362,10 +385,148 @@ function land(now) {
   const v = views.get(game.ids[1]) ?? views.get(game.ids[0]);
   if (v) bubble(v, pick(list('snowman.more')), 2500);
 }
-// The third ball is on: the stack stands, and the game waits there.
+// The third ball is on: the stack fades into the snowman's drawing set down where it will stand,
+// sparkles go up over its head and the lead walks over to look. An old snowman melts first, with a
+// friend's goodbye, so stopping now keeps it; then the new one is saved. The game ends once the
+// save is answered and the lead has stayed a moment.
 function finish() {
-  game.stage = 'done';
-  game.ball = null;
+  const round = game,
+    foot = fieldToYard(round.spot),
+    size = giftSize(SNOWMAN);
+  Object.assign(round, { stage: 'done', ball: null, hint: '', waiting: new Set(['stay', 'save']) });
+  hint();
+  settleInto(round.stack, size);
+  later(FADE_MS, () => {
+    for (const b of round.stack) b.button.remove();
+    round.stack = [];
+  });
+  round.preview = preview(foot, size);
+  sparkle(foot, size);
+  leanIn(round, foot, size);
+  const old = shownDecor(SNOWMAN);
+  if (!old) return save(round);
+  old.button.classList.add('melting');
+  if (reduced.matches) old.button.classList.add('still');
+  const by = nearest(old.at, round.ids.slice(1));
+  if (by) bubble(by, pick(list('snowman.melt')), 3000);
+  later(MELT_MS[reduced.matches ? 'still' : 'moving'], () => save(round));
+}
+// The stack stands taller than the drawing, whose balls are rounder and set lower: as it fades it
+// settles down to the drawing's height, each ball squashed and lowered with the whole, so the
+// snowman fading in over it reads as the same one.
+function settleInto(stack, size) {
+  const bottoms = stackBottoms(BALLS),
+    tall = bottoms.at(-1) * baseWidth() + ballBox(BALLS.at(-1)).h,
+    k = Math.min(1, (size.h * (1 - giftKind(SNOWMAN).stack[1] - DRAWN_TOP)) / tall);
+  stack.forEach((b, i) => {
+    b.button.classList.add('leaving');
+    b.turn.style.transformOrigin = '50% 100%';
+    b.turn.style.transform = `translateY(${((1 - k) * bottoms[i] * baseWidth()).toFixed(2)}px) scaleY(${k.toFixed(3)})`;
+  });
+}
+// The snowman's drawing, set down as the yard will draw it once saved (decor.js), and in front of
+// the stack it fades in over, so its face shows whole rather than crossed by the top ball.
+function preview(foot, size) {
+  const node = document.createElement('span');
+  node.className = 'snowman-preview';
+  node.setAttribute('aria-hidden', 'true');
+  node.innerHTML = artSvg(giftKind(SNOWMAN).art);
+  $('garden-layer').append(node);
+  setDown(node, foot.x, foot.y, size.w, size.h, depthAt(foot.y) + BALLS.length);
+  return node;
+}
+// Five sparkles in a fan over the head, the middle one first; one timeout takes them all.
+function sparkle(foot, size) {
+  const x = foot.x,
+    y = foot.y - size.h * (1 - HEAD),
+    out = size.w * SPARKLE_OUT,
+    middle = (SPARKLES - 1) / 2;
+  const made = Array.from({ length: SPARKLES }, (_, i) => {
+    const angle = ((i - middle) / middle) * (SPARKLE_FAN / 2) * (Math.PI / 180),
+      node = document.createElement('span');
+    node.className = reduced.matches ? 'snow-sparkle still' : 'snow-sparkle';
+    node.setAttribute('aria-hidden', 'true');
+    node.style.left = `${x + out * Math.sin(angle)}px`;
+    node.style.top = `${y - out * Math.cos(angle)}px`;
+    node.style.zIndex = String(depthAt(foot.y) + BALLS.length + 1);
+    node.style.animationDelay = `${Math.abs(i - middle) * 70}ms`;
+    $('garden-layer').append(node);
+    return node;
+  });
+  later(SPARKLE_MS, () => {
+    for (const node of made) node.remove();
+  });
+}
+// The lead walks to just beside the snowman, waves and looks up at its head; then it stays a moment.
+function leanIn(round, foot, size) {
+  const v = views.get(round.ids[0]),
+    stay = () => later(STAY_MS, () => settled(round, 'stay'));
+  if (!v) return stay();
+  const width = sizeOf(v.pet),
+    side = v.px + width / 2 < foot.x ? -1 : 1;
+  sendTo(v, footTarget(v, foot.x + side * (size.w / 2 + width * 0.3), foot.y), {
+    save: false,
+    arrive: () => {
+      if (game !== round) return;
+      const head = { x: foot.x, y: foot.y - size.h * (1 - HEAD) };
+      gaze(v, { x: head.x - (v.px + width / 2), y: head.y - (v.py + petHeight(v.pet) / 2) }, STAY_MS);
+      cheer(v, 'snowman.done', { as: 'wave', mark: '', say: STAY_MS });
+      stay();
+    },
+    // Taken on the way (a press, a drag): it does not cheer, and the game still ends.
+    cancel: () => game === round && stay(),
+  });
+}
+// Of the friends `ids`, the one nearest a foot point in the yard.
+function nearest(at, ids) {
+  let best = null,
+    bestD = Infinity;
+  for (const id of ids) {
+    const v = views.get(id);
+    if (!v) continue;
+    const d = Math.hypot(v.px + sizeOf(v.pet) / 2 - at.x, v.py + petHeight(v.pet) - at.y);
+    if (d < bestD) [best, bestD] = [v, d];
+  }
+  return best;
+}
+// Saves the snowman where it was stacked, counting the day at once (as the backend will) and keeping
+// the day before, so a stop or a refusal gives it back (snowmanGame.end). An answer that comes after
+// the game ended leaves the yard alone: the backend's state event brings the snowman.
+function save(round) {
+  const garden = data.garden,
+    day = localDay(new Date());
+  round.dayBefore = garden.snowmanDay ?? '';
+  garden.snowmanDay = day;
+  call('buildSnowman', round.spot.x, round.spot.y, day).then(
+    made => {
+      round.saved = true;
+      if (game !== round) return;
+      // The answer may come before the state event that carries it.
+      const decor = data.garden?.decor;
+      if (made?.id && decor && !decor.some(d => d.id === made.id))
+        data.garden.decor = [...decor.filter(d => d.kind !== SNOWMAN), made];
+      renderDecor();
+      round.preview.remove();
+      round.made = made?.id ?? null;
+      settled(round, 'save');
+    },
+    refused => {
+      if (game !== round) return;
+      // The lead's cheer for a snowman that was not kept goes quiet before the reason shows.
+      const lead = views.get(round.ids[0]);
+      if (lead) lead.bubble.hidden = true;
+      play.end();
+      toast(spoken(refused, t('error.generic')), { error: true });
+    },
+  );
+}
+// Saved, and the lead has said its line and stayed: the friends go home and the dress tray opens
+// over the new snowman (after the line, which would otherwise stand over the tray).
+function settled(round, what) {
+  round.waiting.delete(what);
+  if (round.waiting.size || game !== round) return;
+  play.end();
+  if (round.made) openDress(round.made);
 }
 
 // The friends who do not push stand by the stack, on the side away from the rolling, a row of three
@@ -394,6 +555,11 @@ export function resizeSnowman() {
   }
   if (b && game.stage === 'rolling') draw(b);
   game.stack.forEach((s, i) => setOnStack(s, i));
+  if (game.preview) {
+    const size = giftSize(SNOWMAN),
+      foot = fieldToYard(game.spot);
+    setDown(game.preview, foot.x, foot.y, size.w, size.h, depthAt(foot.y) + BALLS.length);
+  }
 }
 
 /** The game's rules for play.js (RULES.snowman). */
@@ -435,12 +601,13 @@ export const snowmanGame = {
     }
     trailFrame(now);
   },
-  // Stopped at any point: every ball and what came with them go, the trail fades back into the
-  // snow, and a day the finish had counted but not yet saved (`dayBefore`) is given back.
+  // Stopped at any point: every ball and what came with them go, an old snowman stops melting and
+  // stays, the trail fades back into the snow, and a day the finish had counted but not yet saved
+  // (`dayBefore`) is given back. After a save, the yard already draws the new snowman.
   end(over) {
     for (const node of $('garden-layer').querySelectorAll('.snowball, .snow-puff, .snowman-preview, .snow-sparkle'))
       node.remove();
-    for (const node of $('garden-layer').querySelectorAll('.melting')) node.classList.remove('melting');
+    for (const node of $('garden-layer').querySelectorAll('.melting')) node.classList.remove('melting', 'still');
     if (over.dayBefore !== undefined && !over.saved && data.garden) data.garden.snowmanDay = over.dayBefore;
     fadeTrail();
   },

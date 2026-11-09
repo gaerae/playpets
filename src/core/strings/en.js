@@ -938,6 +938,8 @@ export const strings = {
   'snowman.more': ['Up it goes! One more!', 'Now a smaller one!'],
   'snowman.full': ['I’d love to build a snowman, but the yard’s full.'],
   'snowman.built_today': ['We built one today. Let’s build another tomorrow!'],
+  'snowman.done': ['We made a snowman!', 'Look, it’s so cute!'],
+  'snowman.melt': ['Bye, old snowman. Thank you!', 'The old one melted away…'],
   'catch.fish_moon_carp': 'Moonlight carp',
   'catch.bug_golden_firefly': 'Golden firefly',
 };

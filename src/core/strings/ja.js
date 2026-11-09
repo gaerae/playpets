@@ -921,6 +921,8 @@ export const strings = {
   'snowman.more': ['のせたよ！もうひとつ！', '次はもう少し小さく！'],
   'snowman.full': ['雪だるま作りたいけど、庭がいっぱいだね。'],
   'snowman.built_today': ['今日はもう作ったね。また明日作ろう！'],
+  'snowman.done': ['雪だるま、できた！', 'すっごくかわいい！'],
+  'snowman.melt': ['前の雪だるま、ありがとう。またね！', '前の雪だるま、とけちゃった…'],
   'catch.fish_moon_carp': '月光ゴイ',
   'catch.bug_golden_firefly': '金色のホタル',
 };

@@ -897,6 +897,8 @@ export const strings = {
   'snowman.more': ['올렸다! 하나 더!', '이번엔 좀 더 작게!'],
   'snowman.full': ['눈사람 만들고 싶은데, 놀이터가 꽉 찼어.'],
   'snowman.built_today': ['오늘은 벌써 만들었어. 내일 또 만들자!'],
+  'snowman.done': ['눈사람 완성!', '너무 귀엽다!'],
+  'snowman.melt': ['잘 가, 먼저 있던 눈사람. 고마웠어!', '먼저 있던 눈사람이 녹았네…'],
   'catch.fish_moon_carp': '달빛 잉어',
   'catch.bug_golden_firefly': '금빛 반딧불이',
 };
