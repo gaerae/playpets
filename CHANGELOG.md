@@ -18,13 +18,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - During the winter lights, friends bring a small Christmas tree, then a baby reindeer, then Santa, one each time a gift is due. They show in the yard and on the desktop from December 1 to January 7; the rest of the year they wait out of sight in their places, still counting toward the yard's 12, and the album says when they show. Put away, they go back into the gift box, as a memento does, so they can be set out again.
 - In December, if the yard isn't showing winter, PlayPets asks once whether to show the winter yard until January 7. If you say yes, your season comes back on January 8.
 - On a snowy December evening or night, with the yard showing winter, the little Christmas tree lights up and grows into a grand tree, once a night. It stays while the snow falls, a bulb glinting now and then, and goes back when it stops.
-- With the baby reindeer and Santa set out beside the grand tree, they look up, a sleigh crosses the moon once that night, and gold drifts down from the star.
+- With the baby reindeer and Santa set out in the yard, they look up, a sleigh crosses the moon once that night, and gold drifts down from the star.
 
 ### Changed
 
 - The winter lights now run from December 1 to 31, on the same dates south of the equator.
-- The gifts of the winter lights and the New Year come whatever season the yard shows, in every place, the studio too.
-- The snowman no longer comes as a gift. One already in the yard shows only while the yard shows winter, so not in the studio, and waits out of sight the rest of the time.
+- The gifts of the winter lights and the New Year come whatever season the yard shows, in every place, the Cozy living room too.
+- The snowman no longer comes as a gift. One already in the yard shows only while the yard shows winter, so not in the Cozy living room, and waits out of sight the rest of the time.
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
 - Who joins a group chat opens as a dropdown.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
