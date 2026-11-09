@@ -186,12 +186,14 @@ function card(b, kind, entry, index) {
 const showsNow = kind => decorShown(kind, new Date(), yardSeason(scene));
 const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_december' : 'album.shown_winter');
 // A gift that came before can always come back out of its card (garden.rs take_out): one in the
-// yard says so, and one waiting in the box is set out from the box below the book.
+// yard says so, and one waiting in the box is set out from the box below the book. A snowman is
+// built in the snow, never set out: its card only says when one stands in the yard.
 function takeOutButton(kind) {
   const garden = data.garden || {};
   if ((garden.boxed || []).some(d => d.kind === kind)) return null;
-  const out = (garden.decor || []).some(d => d.kind === kind),
-    room = (garden.decor?.length ?? 0) < limit(data, 'decor'),
+  const out = (garden.decor || []).some(d => d.kind === kind);
+  if (giftKind(kind)?.built && !out) return null;
+  const room = (garden.decor?.length ?? 0) < limit(data, 'decor'),
     shows = showsNow(kind),
     button = document.createElement('button');
   button.type = 'button';

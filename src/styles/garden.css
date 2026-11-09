@@ -640,6 +640,91 @@
 .yard.period-evening .plant[data-stage="bloom"]:focus-visible svg {
   filter: brightness(0.88) saturate(0.85) drop-shadow(0 0 2px var(--focus));
 }
+/* What a built snowman wears (yard/snowman-dress.js): each part placed over the drawing by its
+   anchor, free to rise above the box (the hat), and scaled with the snowman as one when it is
+   pointed at, chosen or dragged. */
+.decor .dress-layers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.decor:hover > .dress-layers,
+.decor:focus-visible > .dress-layers,
+.decor.dragging > .dress-layers {
+  transform: scale(1.06);
+}
+.dress-part {
+  position: absolute;
+}
+.decor .dress-part svg {
+  display: block;
+  height: auto;
+  transform: none;
+}
+/* The dress-up tray stands above the snowman inside the yard: a toggle for each part, then Done. */
+.dress-tray {
+  position: absolute;
+  z-index: 31;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  max-width: calc(100% - 16px);
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid var(--message-line);
+  border-radius: var(--radius-panel);
+  background: var(--message-surface);
+  box-shadow: var(--message-shadow);
+  color: var(--ink);
+  font-size: 12px;
+}
+.dress-toggle,
+.dress-done {
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.dress-toggle {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 52px;
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+.dress-toggle svg {
+  width: 28px;
+  height: 28px;
+}
+.dress-done {
+  align-self: center;
+  min-height: 32px;
+  padding: 4px 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dress-toggle:hover,
+.dress-done:hover {
+  background: var(--control-hover);
+}
+/* A part worn is lit as a game that is on (tools.css). */
+.dress-toggle[aria-pressed="true"],
+.dress-toggle[aria-pressed="true"]:hover {
+  background: var(--pink-soft);
+  color: var(--pink-ink);
+}
+.dress-toggle:focus-visible,
+.dress-done:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
 /* Ground targeting is temporary and leaves the friends visible above it: the strip stands where the
    dock was (shell.css), so the person's eye stays at the bottom with the ground. */
 .discovery-target {

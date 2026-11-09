@@ -48,7 +48,15 @@ import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { christmasNightCheck, setupChristmasNight } from './yard/christmas-night.js';
 import { loadContent } from './yard/content.js';
-import { giftTick, putAway, refreshShownDecor, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
+import {
+  decorButton,
+  giftTick,
+  putAway,
+  refreshShownDecor,
+  renderDecor,
+  setupDecor,
+  thanksTick,
+} from './yard/decor.js';
 import { openDecorating, renderDecorating, setupDecorating } from './yard/decorating.js';
 import {
   autoDig,
@@ -68,6 +76,7 @@ import { renderTrees, setupTrees } from './yard/planted-trees.js';
 import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
 import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
+import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
 import { release } from './yard/trips.js';
@@ -110,6 +119,9 @@ setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
   openChat,
   putAway,
+  dress: openDress,
+  canDress,
+  canGoOut,
   canDigAt,
   digAt,
   digWith: id => {
@@ -150,6 +162,7 @@ setupSky({
   // garden, the gifts and the hint are laid out in the new one.
   worldChanged: enter => {
     cancelDiscovery();
+    closeDress(false);
     endGame();
     endFishing();
     for (const v of views.values()) {
@@ -208,9 +221,12 @@ setupDecor({
     drawTreeOrnaments();
     // The decorating view follows the tree: put away, back with Undo, or gone after January 7.
     renderDecorating();
+    // The dress tray follows its snowman the same way.
+    renderDress();
   },
-  press: { xmas_tree: openDecorating },
+  press: { xmas_tree: openDecorating, snowman: openDress },
 });
+setupDress({ redraw: renderDecor, button: decorButton });
 setupDiscovery();
 setupTrees();
 setupCatch();

@@ -83,10 +83,10 @@ test('the menu has one Settings entry, and right-click offers the same places as
     [...context.matchAll(/data-context-for="friend" data-context-action="([^"]+)"/g)].map(match => match[1]),
     ['talk', 'play-friend', 'dig-friend', 'desktop-friend'],
   );
-  // A gift has its own: out to the desktop, or put away.
+  // A gift has its own: out to the desktop (a snowman is dressed up instead), or put away.
   assert.deepEqual(
     [...context.matchAll(/data-context-for="decor" data-context-action="([^"]+)"/g)].map(match => match[1]),
-    ['desktop-decor', 'put-away'],
+    ['desktop-decor', 'dress-decor', 'put-away'],
   );
   assert.match(html, /id="compact-launcher"[^>]*aria-controls="yard-context-menu"/);
 });

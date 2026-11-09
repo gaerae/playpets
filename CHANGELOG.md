@@ -20,6 +20,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - On a snowy December evening or night, with the yard showing winter, the little Christmas tree lights up and grows into a grand tree, once a night. It stays while the snow falls, a bulb glinting now and then, and goes back when it stops.
 - With the baby reindeer and Santa set out in the yard, they look up, a sleigh crosses the moon once that night, and gold drifts down from the star.
 - Press the Christmas tree to decorate it: hang up to three things a day from the album (flowers, trees, gifts and keepsakes) as small baubles tinted by kind that arc onto the branch and swing to rest, and point at one to see what it is or take it down. They stay on the tree in the yard, grand tree included, until the next December starts a fresh tree.
+- A snowman can wear a hat, a scarf and a carrot nose: press it or choose **Dress up** from its menu. A snowman stays in the yard (it doesn't go out on the desktop), and putting it away melts it.
 
 ### Changed
 

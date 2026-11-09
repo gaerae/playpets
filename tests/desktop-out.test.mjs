@@ -40,6 +40,7 @@ function menu(t, { pets = [], decor = [] } = {}) {
     item('friend', 'play-friend'),
     item('friend', 'desktop-friend', 'menuitemcheckbox'),
     item('decor', 'desktop-decor', 'menuitemcheckbox'),
+    item('decor', 'dress-decor'),
     item('decor', 'put-away'),
   ];
   context.querySelectorAll = () => all;
@@ -85,4 +86,24 @@ test("a gift's menu sends it out to the desktop or puts it away", async t => {
   await context.dispatch('click', { target: find('put-away') });
   assert.deepEqual(putAway, ['g1']);
   assert.equal(context.hidden, true);
+});
+
+// A snowman is dressed in the yard and stays there; other gifts go out and have nothing to wear.
+test("a snowman's menu dresses it and has no desktop item; a bench's is as before", async t => {
+  const { context, shown, find } = menu(t, {
+    decor: [
+      { id: 's', kind: 'snowman', x: 0.5, y: 0.7 },
+      { id: 'g1', kind: 'bench', x: 0.5, y: 0.5 },
+    ],
+  });
+  const dressed = [];
+  setupControls({ dress: id => dressed.push(id), canDress: id => id === 's', canGoOut: id => id !== 's' });
+  openDecorMenu('s', { x: 40, y: 40 });
+  assert.deepEqual(shown(), ['dress-decor', 'put-away']);
+  await context.dispatch('click', { target: find('dress-decor') });
+  assert.deepEqual(dressed, ['s']);
+  assert.equal(context.hidden, true);
+  setupControls();
+  openDecorMenu('g1', { x: 40, y: 40 });
+  assert.deepEqual(shown(), ['desktop-decor', 'put-away']);
 });

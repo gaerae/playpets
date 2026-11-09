@@ -38,7 +38,7 @@ export function openPlay(point) {
 export function openFriendMenu(id, point) {
   showFriendMenu?.(id, point);
 }
-/** Opens a gift's own menu (out to the desktop, put away) at `point`. */
+/** Opens a gift's own menu (out to the desktop or dress it up, put away) at `point`. */
 export function openDecorMenu(id, point) {
   showDecorMenu?.(id, point);
 }
@@ -98,6 +98,9 @@ export function setupControls({
   digAt = () => {},
   digWith = () => {},
   putAway = () => {},
+  dress = () => {},
+  canDress = () => false,
+  canGoOut = () => true,
 } = {}) {
   surfaces = [];
   let spot = null;
@@ -197,6 +200,12 @@ export function setupControls({
         item => item.dataset.contextAction === `desktop-${forWhat}`,
       );
       check?.setAttribute('aria-checked', String(!!out?.onDesktop));
+      // A snowman is dressed where it stands and never goes out (snowman-dress.js).
+      if (forWhat === 'decor')
+        for (const item of context.querySelectorAll('[data-context-for]')) {
+          if (item.dataset.contextAction === 'dress-decor') item.hidden = !canDress(id);
+          if (item.dataset.contextAction === 'desktop-decor') item.hidden = !canGoOut(id);
+        }
     };
     const place = () => {
       if (context.hidden) return;
@@ -290,6 +299,7 @@ export function setupControls({
       else if (action === 'dig-friend') digWith(friend);
       else if (action === 'desktop-friend') sendOut(friend, !data.pets.find(p => p.id === friend)?.onDesktop);
       else if (action === 'desktop-decor') sendOut(friend, !data.garden?.decor?.find(d => d.id === friend)?.onDesktop);
+      else if (action === 'dress-decor') dress(friend);
       else if (action === 'put-away') putAway(friend);
     });
     globalThis.window?.addEventListener('resize', () => {

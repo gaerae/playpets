@@ -177,6 +177,15 @@ body.compact .empty-yard:not(.aside) {
     padding: 4px 6px;
   }
 }
+/* The narrowest yards put the snowman's Done on a row of its own under the three parts. */
+@media (max-width: 360px) {
+  body.compact .dress-tray {
+    flex-wrap: wrap;
+  }
+  body.compact .dress-done {
+    flex-basis: 100%;
+  }
+}
 /* Five desktop pointer actions fit the minimum height without a hidden last row. */
 body.compact .yard-context-menu > button {
   min-height: 36px;

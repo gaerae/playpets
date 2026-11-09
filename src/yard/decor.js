@@ -35,6 +35,7 @@ import {
   setDown,
   giftSize as size,
 } from './props.js';
+import { dressLayers } from './snowman-dress.js';
 import { cue } from './sound.js';
 import { isFree, nearestFree, rest, sendTo } from './trips.js';
 import { bubble, cheer, effect } from './views.js';
@@ -98,7 +99,13 @@ function create(d) {
     effects = gift?.effects || [];
   if (effects.length) button.dataset.effects = effects.join(' ');
   button.innerHTML = `${effectLayers(effects)}${gift ? artSvg(gift.art) : ''}`;
-  const v = { id: d.id, kind: d.kind, button, drag: null, busy: false };
+  const v = { id: d.id, kind: d.kind, button, drag: null, busy: false, dressLayer: null, worn: null };
+  // What a snowman wears, over its drawing (snowman-dress.js); the update fills it.
+  if (gift?.dress) {
+    v.dressLayer = document.createElement('span');
+    v.dressLayer.className = 'dress-layers';
+    button.append(v.dressLayer);
+  }
   // Dragging moves it; a press that does not move opens its view (the Christmas tree's decorating)
   // or sends the nearest friend over to it.
   button.addEventListener('pointerdown', e => {
@@ -227,6 +234,11 @@ export function renderDecor() {
     v.button.classList.toggle('memento', !!d.memento);
     v.button.title = label;
     v.button.setAttribute('aria-label', label);
+    const worn = (d.dress || []).join();
+    if (v.dressLayer && worn !== v.worn) {
+      v.worn = worn;
+      v.dressLayer.innerHTML = dressLayers(d.kind, d.dress);
+    }
   });
   // One timer for the next heart to fade, not a check every frame.
   clearTimeout(heartsFade);
@@ -242,6 +254,12 @@ export function shownDecor(kind) {
     if (d) return { button: v.button, at: placement(kind, d) };
   }
   return null;
+}
+/** The button the yard draws now for the gift `id` (not one put away and waiting out its Undo), or
+ * null. */
+export function decorButton(id) {
+  const v = shown.get(id);
+  return v && !v.button.hidden ? v.button : null;
 }
 /** Redraws the gifts when what is out of sight changed since they were drawn (the date or the
  * season), called with the scene's minute repaint rather than every frame. */
@@ -303,7 +321,10 @@ export function putAway(id) {
   if (!d || !view) return;
   // With the box full it goes as any gift does (garden.rs put_away).
   const boxed = (d.memento || !!giftKind(d.kind)?.shown) && (data.garden.boxed?.length ?? 0) < limit(data, 'giftBox');
-  const done = t(boxed ? 'decor.memento_put_away' : 'decor.put_away_done', { kind: kindName(d.kind) });
+  // A snowman is not kept: it melts (garden.rs put_away).
+  const done = giftKind(d.kind)?.built
+    ? t('decor.snowman_put_away')
+    : t(boxed ? 'decor.memento_put_away' : 'decor.put_away_done', { kind: kindName(d.kind) });
   // Drawn again at once and when it comes back, so what the yard shows of it follows (the
   // Christmas tree lets go of its night, and comes back grand without the change).
   removeWithUndo(id, view, done, () => call('putAway', id), renderDecor);
