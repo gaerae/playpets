@@ -177,12 +177,10 @@ function rememberConnectionForm() {
 function updateProviderForm() {
   const d = data.detected || {},
     type = aiType();
-  // What this computer has is marked on its card.
+  // What this computer has is marked on its card; the chosen card is outlined by its checked radio.
   const found = { claude: d.claude, codex: d.codex, ollama: d.ollama?.length };
-  for (const card of $('ai-types').querySelectorAll('.ai-type')) {
+  for (const card of $('ai-types').querySelectorAll('.ai-type'))
     card.querySelector('.ai-found').hidden = !found[card.dataset.type];
-    card.classList.toggle('on', card.dataset.type === type);
-  }
   // Until a kind is picked there is nothing to fill in.
   $('type-fields').hidden = !type;
   $('save-provider').disabled = !type;

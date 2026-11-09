@@ -265,57 +265,23 @@ body.compact .link-row:has(.agent-actions) > div {
   margin-bottom: 6px;
   padding: 0;
 }
+/* A choice card (base.css) with room for what the computer has found. */
 .ai-type {
-  position: relative;
-  display: grid;
   gap: 3px;
-  margin: 0;
   padding: 10px;
   min-height: 68px;
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius-control);
-  background: var(--white);
-  cursor: pointer;
-  transition:
-    border-color 0.15s,
-    background 0.15s;
+  border-width: 1.5px;
 }
 .ai-type:hover {
   border-color: var(--green-ink);
-}
-.ai-type.on {
-  border-color: var(--green-ink);
-  background: var(--control-selected);
-  box-shadow: inset 0 0 0 1px var(--green-ink);
-}
-.ai-type:has(input:focus-visible) {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-}
-.ai-type input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  width: 1px;
-  min-height: 1px;
-  height: 1px;
-  padding: 0;
-  border: 0;
 }
 .ai-type-name {
   font-size: 13px;
   font-weight: 700;
 }
 .ai-type small {
-  margin: 0;
   font-size: 13px;
-  line-height: 1.5;
-  color: var(--muted);
   font-weight: 400;
-}
-/* On the chosen card's tint the muted line falls under 4.5:1; it takes the ink. */
-.ai-type.on small {
-  color: var(--ink);
 }
 .ai-found {
   justify-self: start;

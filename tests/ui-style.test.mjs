@@ -44,6 +44,21 @@ test('panels, controls and cards share restrained corner tokens while switches s
   assert.match(css, /\.wander-switch\{[^}]*border-radius:10px/);
 });
 
+test('the AI kind, relation and appearance cards are one choice card, chosen and focused alike', async () => {
+  const css = await styles(),
+    html = await readFile('src/index.html', 'utf8');
+  for (const kind of ['ai-type', 'relation-card', 'appearance-card']) {
+    const labels = [...html.matchAll(new RegExp(`<label class="([^"]*\\b${kind}\\b[^"]*)"`, 'g'))];
+    assert.ok(labels.length > 1, kind);
+    for (const [, classes] of labels) assert.match(classes, /\bchoice-card\b/, kind);
+    // The chosen state, the focus ring and the hidden radio are the shared rule's alone.
+    assert.doesNotMatch(css, new RegExp(`\\.${kind}(\\.on|:has\\()`), kind);
+  }
+  assert.match(css, /\.choice-card:has\(input:checked\)\{[^}]*background:var\(--control-selected\)/);
+  assert.match(css, /\.choice-card:has\(input:focus-visible\)\{outline:3px solid var\(--focus\)/);
+  assert.match(css, /\.choice-card input\{position:absolute;opacity:0;pointer-events:none/);
+});
+
 test('icon actions share the desktop control shape and a compact target', async () => {
   const css = await styles();
   const rule = css.match(/\.menu-anchor>\.icon-button[^{]*\{([^}]*)\}/);
