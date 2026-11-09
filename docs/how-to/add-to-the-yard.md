@@ -81,8 +81,21 @@
    | `shown` | `"december"`: shows in the yard and on the desktop from December 1 to January 7, and is hidden with its state kept the rest of the year. It goes back into the gift box when put away. The windows are `SHOWN` in `src/yard/decor-shown.js` |
    | `seasons` | Shows only while the yard shows one of these seasons; never in a place without seasons (`seasonalEffects: false`, the studio). The season the yard shows is `yardSeason` in `src/yard/decor-shown.js` |
    | `built` | `true`: never brought by a friend; it comes from building it (the snowman) |
+   | `night` | The gift's Christmas night look; only `xmas_tree` has one. Read by `src/yard/christmas-night.js` (see below) |
 
    - At most four kinds use `shown` or `seasons`.
+
+   `night` holds:
+
+   | Key | Meaning |
+   |---|---|
+   | `art` | The grand drawing, standing on the same foot point as the gift's own |
+   | `star`, `bulbs` | Fractions of that drawing's box: where the star swells, and where single bulbs glint |
+   | `sleigh` | A drawing shown as a mirrored silhouette over the moon |
+   | `guests` | Gift kinds that must also be out; they look up in this order |
+
+   - It plays during the winter lights, in a winter yard, at evening or night, while it snows.
+   - It plays once per night per webview; a night runs until 05:00.
    - Hidden kinds still count toward `DECOR_MAX`.
 
 2. Draw it in `src/art/decor/<id>.svg`.
