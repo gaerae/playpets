@@ -10,6 +10,20 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+
+- The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
+- Who joins a group chat opens as a dropdown.
+- An update removes the folders of built-in friends the app no longer ships, which stayed in the data folder before.
+
+### Fixed
+
+- Sending an empty message asks you to say something first instead of saying the message is too long.
+- Esc while typing Korean, Japanese or Chinese no longer cancels planting or aiming, and one Esc closes one thing at a time.
+- A pet link opened while the import dialog is busy waits its turn instead of importing at the same time.
+- A save put off for a moment is tried again if writing fails, and an older save never replaces a newer one.
+- Linking a coding agent writes its settings file to disk in full before it replaces the old one, so a crash at that moment can't leave it empty.
+
 ### Website and docs
 
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
