@@ -69,3 +69,10 @@ test('the package declares the playpets:// links and a login task, which it leav
   for (const extensions of xml.match(/<Extensions>[\s\S]*?<\/Extensions>/g))
     assert.ok(xml.indexOf(extensions) > xml.indexOf('<Application '), 'extensions belong to the application');
 });
+
+// Windows 10 2004 is the oldest build the package is tested against: before 1903 AppData writes are
+// copied on write, and 1809 often lacks the WebView2 Runtime. README says the same version.
+test('the package installs on Windows 10 2004 and later, as the README says', () => {
+  assert.match(template, /<TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" /);
+  assert.match(readFileSync('README.md', 'utf8'), /Windows 10 version 2004 or later/);
+});

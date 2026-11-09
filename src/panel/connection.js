@@ -1,7 +1,7 @@
 // Connecting an AI: one dialog for every kind of provider.
 import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
-import { $, call, data, guard, providerLabel, selected, toast } from '../core/state.js';
+import { $, call, data, guard, providerLabel, recall, remember, selected, toast } from '../core/state.js';
 import { cliChoice, focusSignIn, renderSignIn, signedOut, startSignIn } from './cli-login.js';
 
 // Per-type dialog behavior: which fields show, whether a model name is mandatory, and the data-flow note.
@@ -106,7 +106,16 @@ export function sharedConnection() {
 // start a chat among themselves right away; with one, the chat box is ready. With nobody there
 // yet it only waits for the first friend.
 function connected(first, able) {
-  if (first && able) onFirstConnection(able);
+  if (!first || !able) return;
+  onFirstConnection(able);
+  chatterTip();
+}
+// Automatic chatter is on by default and spends the person's own AI plan, so the first connection
+// says so once, and where it is turned off.
+function chatterTip() {
+  if (!data.autoChatter || recall('chatter-tip') === '1') return;
+  remember('chatter-tip', '1');
+  toast(t('toast.auto_chatter_tip', { section: t('settings.friends_ai'), setting: t('settings.auto_chatter') }));
 }
 /** The first-run card's "connect now": a CLI found on this computer is connected to every friend
  * without an AI in one step; otherwise the dialog opens for the selected friend. */

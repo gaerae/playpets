@@ -827,6 +827,8 @@ export const strings = {
   'connection.share_all': '让另外 {count} 位还没有 AI 的伙伴也用这个 AI',
   'toast.first_chat': '先打个招呼吧。伙伴有两位以上时，还可以让它们聊起来',
   'toast.connected_many': '{count} 位伙伴能说话了，它们这就聊起来',
+  'toast.auto_chatter_tip':
+    '连接了 AI 的伙伴现在大约每 20 分钟会自己聊一次，使用的是你连接的 AI 套餐。如需关闭，请在“设置 → {section}”中关闭“{setting}”。',
   'event.started': '{name}开始啦！',
   'catch.dates': '{from}至{to}',
   'catch.event_hint': '仅在{event}（{dates}）期间',

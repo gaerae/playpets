@@ -1,6 +1,9 @@
 param(
     [Parameter(Mandatory = $true)][string]$Binary,
-    [ValidateSet('x64', 'arm64')][string]$Architecture
+    [ValidateSet('x64', 'arm64')][string]$Architecture,
+    # The linker's public-symbols PDB (/PDBSTRIPPED): kept beside the package as an .appxsym, which
+    # bundle.ps1 puts in the Store upload. Function names only, no source paths or locals.
+    [string]$Symbols
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -26,4 +29,14 @@ if (!$tools) { throw 'Windows SDK packaging tools are missing' }
 Write-PackageResources "$($tools.FullName)/x64/makepri.exe" $work
 & "$($tools.FullName)/x64/makeappx.exe" pack /d $work /p "$out/PlayPets_${version}_${Architecture}.msix" /o
 if ($LASTEXITCODE -ne 0) { throw 'Store package creation failed' }
+if ($Symbols) {
+    if (!(Test-Path $Symbols)) { throw 'The public symbols file is missing' }
+    # An .appxsym is a zip of the PDBs, under the name the binary records.
+    $pdb = Join-Path $work 'symbols/playpets.pdb'
+    New-Item -ItemType Directory -Force (Split-Path $pdb) | Out-Null
+    Copy-Item $Symbols $pdb
+    $zip = Join-Path $work 'symbols.zip'
+    Compress-Archive -Path $pdb -DestinationPath $zip
+    Move-Item $zip "$out/PlayPets_${version}_${Architecture}.appxsym" -Force
+}
 Remove-Item -Recurse -Force $work

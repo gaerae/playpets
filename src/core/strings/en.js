@@ -870,6 +870,8 @@ export const strings = {
   'connection.share_all': 'Also use this AI for other friends without one ({count})',
   'toast.first_chat': 'Say hello first. With two or more friends you can start a chat between them too',
   'toast.connected_many': '{count} friends can talk now; starting a chat between them',
+  'toast.auto_chatter_tip':
+    'Friends with an AI now chat among themselves about every 20 minutes, on your AI plan. To stop it, turn off “{setting}” in Settings → {section}.',
   'event.started': 'Now on: {name}!',
   'catch.dates': '{from} – {to}',
   'catch.event_hint': '{event} ({dates}) only',

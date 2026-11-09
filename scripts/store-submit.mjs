@@ -33,6 +33,10 @@ const notOlder = (a, b) => {
   return i < 0 || a[i] > b[i];
 };
 
+// What the Store gets: one upload holding the x64 and ARM64 packages as a bundle, with each one's
+// public symbols, so Partner Center's crash reports name functions.
+const uploadFor = version => [`PlayPets_${version}.msixupload`];
+
 // The release notes' languages, and the listing names Partner Center may use for each.
 const LISTING_NAMES = {
   'en-us': ['en-us', 'en'],
@@ -49,12 +53,7 @@ const LANGUAGE_NAMES = {
 
 export async function submitStore(client, release) {
   const { version, files, notes, publishMode } = release;
-  if (
-    !/^[1-9]\d*\.\d+\.\d+$/.test(version) ||
-    !Array.isArray(files) ||
-    files.length !== 2 ||
-    !['x64', 'arm64'].every(arch => files.includes(`PlayPets_${version}_${arch}.msix`))
-  )
+  if (!/^[1-9]\d*\.\d+\.\d+$/.test(version) || JSON.stringify(files) !== JSON.stringify(uploadFor(version)))
     throw stop('Invalid Store package files');
   const locales = ['en-us', 'ko-kr', 'ja-jp', 'zh-cn'];
   if (
@@ -201,7 +200,7 @@ async function run(env) {
   release.notes = JSON.parse(readFileSync(join(dir, 'notes.json'), 'utf8'));
   release.publishMode = env.STORE_PUBLISH_MODE || 'Manual';
   // Build the upload before requesting any Store mutation; filenames are validated by submitStore.
-  const expected = ['x64', 'arm64'].map(arch => `PlayPets_${release.version}_${arch}.msix`);
+  const expected = uploadFor(release.version);
   if (!/^[1-9]\d*\.\d+\.\d+$/.test(release.version) || JSON.stringify(release.files) !== JSON.stringify(expected))
     throw stop('Invalid Store package files');
   const archive = join(dir, 'submission.zip');
