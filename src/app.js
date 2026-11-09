@@ -78,7 +78,7 @@ import { idleChatter } from './yard/remarks.js';
 import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
 import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
 import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
-import { resizeSnowman, setupSnowman, showsWinter } from './yard/snowman.js';
+import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/snowman.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
 import { release } from './yard/trips.js';
@@ -364,7 +364,7 @@ const BUSY_MS = 50,
   CALM_MS = 100,
   UNSEEN_MS = 1000;
 // What goes on in the yard between games, looked at every frame: each knows when it is due.
-const YARD_LIFE = [idleChatter, giftTick, thanksTick, soloFishing];
+const YARD_LIFE = [idleChatter, giftTick, thanksTick, soloFishing, snowmanTick];
 let last = 0;
 function interval(now) {
   if (game || aiming) return BUSY_MS;

@@ -572,3 +572,149 @@ test('with reduced motion the snowman crossfades in and the old one fades', asyn
   y.tick(50);
   assert.equal(built.length, 1);
 });
+
+// Stopping a first snowman (nothing to melt) in the stack's fade (Task 8 carry-over).
+test('stopping a first snowman while the stack fades saves nothing and spends no day', async ctx => {
+  const y = await yard(ctx);
+  builds();
+  start();
+  stackAll(y);
+  y.tick(200);
+  play.endGame();
+  y.tick(5000);
+  assert.deepEqual(built, [], 'no late save');
+  assert.equal(state.data.garden.snowmanDay, '');
+  assert.deepEqual(y.live('snowman-preview'), []);
+});
+
+test('an error after the game ended is logged, a refusal after it stays quiet', async ctx => {
+  for (const [why, error, logged] of [
+    ['a real error', new Error('boom'), 1],
+    ['a refusal', Object.assign(new Error('Built today.'), { spoken: true }), 0],
+  ])
+    await ctx.test(why, async t => {
+      const y = await yard(t);
+      const logs = t.mock.method(console, 'error', () => {});
+      let fail;
+      building = () => new Promise((_, reject) => (fail = reject));
+      start();
+      stackAll(y);
+      y.tick(500);
+      assert.equal(built.length, 1);
+      play.endGame();
+      fail(error);
+      await flush();
+      assert.equal(logs.mock.callCount(), logged);
+    });
+});
+
+// A friend suggests a snowman (Task 8).
+const MIN = 60 * 1000;
+// Ticks the suggestion over `ms`, 10 s at a time, until a friend speaks; the bubbles that showed
+// right after a tick.
+function across(y, ms) {
+  const shown = [];
+  for (let at = 0; at < ms; at += 10000) {
+    y.tick(10000);
+    snowman.snowmanTick(y.clock());
+    for (const id of state.views.keys()) {
+      const v = state.views.get(id);
+      if (!v.bubble.hidden && v.bubble.textContent) shown.push({ id, words: v.bubble.textContent });
+    }
+    if (shown.length) break;
+  }
+  return shown;
+}
+
+test('a friend suggests a snowman now and then, once a day', async ctx => {
+  const y = await yard(ctx);
+  const first = across(y, 9 * MIN);
+  assert.equal(first.length, 1);
+  assert.ok(list('snowman.start').includes(first[0].words));
+  assert.equal(state.game, null, 'it waits a moment before it starts rolling');
+  y.tick(1200);
+  assert.equal(state.game.kind, 'snowman');
+  assert.equal(state.game.ids[0], first[0].id);
+  play.endGame();
+  // The friends are home again.
+  for (const id of state.views.keys()) arrive(y, id);
+  assert.deepEqual(across(y, 30 * MIN), [], 'not twice in a day');
+  ctx.mock.timers.setTime(new Date(2026, 11, 16, 10).getTime());
+  assert.equal(across(y, 9 * MIN).length, 1, 'but again the next day');
+});
+
+test('with the yard full and no snowman, a friend says so instead, once a day', async ctx => {
+  const y = await yard(ctx, {
+    garden: { decor: Array.from({ length: 12 }, (_, i) => ({ id: `x${i}`, kind: 'xmas_tree', x: 0.1, y: 0.5 })) },
+  });
+  const said = across(y, 9 * MIN);
+  assert.equal(said.length, 1);
+  assert.ok(list('snowman.full').includes(said[0].words));
+  y.tick(5000);
+  assert.equal(state.game, null);
+  assert.deepEqual(across(y, 30 * MIN), []);
+});
+
+test('nothing is suggested in autumn, in the cozy living room, during a game, while aiming, or while a friend is busy', async ctx => {
+  const cases = {
+    autumn: () => (scene.season = 'autumn'),
+    'the cozy living room': () => (scene.world = 'studio'),
+    'a game': () => start(),
+    aiming: () => state.setAiming('treat'),
+    'a busy friend': () => (state.views.get('b').target = { x: 0, y: 0 }),
+  };
+  for (const [why, set] of Object.entries(cases))
+    await ctx.test(why, async t => {
+      const y = await yard(t);
+      set();
+      const lead = state.game?.ids[0];
+      const before = state.game;
+      const said = across(y, 30 * MIN).filter(s => !(before && s.words === state.views.get(lead).bubble.textContent));
+      assert.deepEqual(said, []);
+      y.tick(2000);
+      assert.equal(state.game, before, 'no game starts');
+      state.setAiming(false);
+    });
+});
+
+test('a season that changes before the friend starts rolling cancels the start', async ctx => {
+  const y = await yard(ctx);
+  assert.equal(across(y, 9 * MIN).length, 1);
+  scene.season = 'autumn';
+  y.tick(1200);
+  assert.equal(state.game, null);
+  assert.deepEqual(built, []);
+});
+
+test('a friend who left, or a game begun by the person, cancels the start', async ctx => {
+  for (const [why, change] of Object.entries({
+    'the friend left': () => state.views.delete(state.views.keys().next().value),
+    'a game began': () => play.startGame('snowman', 'c'),
+  }))
+    await ctx.test(why, async t => {
+      const y = await yard(t);
+      assert.equal(across(y, 9 * MIN).length, 1);
+      const lead = [...state.views.keys()][0];
+      change();
+      const game = state.game;
+      y.tick(1200);
+      assert.equal(state.game, game);
+      if (game) assert.equal(game.ids[0], 'c', 'the person’s game is left alone');
+      else assert.equal(state.views.has(lead), false);
+    });
+});
+
+test('from the menu, a full yard or a snowman built today gets a friend’s line', async ctx => {
+  const y = await yard(ctx, {
+    garden: { decor: Array.from({ length: 12 }, (_, i) => ({ id: `x${i}`, kind: 'xmas_tree', x: 0.1, y: 0.5 })) },
+  });
+  play.syncGameUi();
+  y.row().onclick();
+  assert.equal(state.game, null);
+  assert.ok(list('snowman.full').includes(y.said('a')));
+  state.data.garden.decor = [];
+  state.data.garden.snowmanDay = '2026-12-15';
+  y.row().onclick();
+  assert.equal(state.game, null);
+  assert.ok(list('snowman.built_today').includes(y.said('a')));
+});

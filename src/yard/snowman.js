@@ -12,10 +12,12 @@
 
 import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
-import { clamp, pick } from '../core/math.js';
+import { between, clamp, pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
-import { $, call, data, game, toast, views } from '../core/state.js';
+import { $, aiming, call, data, game, toast, views } from '../core/state.js';
+import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
+import { cadence } from '../core/ticker.js';
 import { artSize, artSvg } from './art.js';
 import { giftKind } from './catalog.js';
 import { decorShown, yardSeason } from './decor-shown.js';
@@ -42,7 +44,7 @@ import {
   stackSpot,
   START,
 } from './snowman-rules.js';
-import { sendTo } from './trips.js';
+import { isFree, sendTo } from './trips.js';
 import { bubble, cheer, gaze, place, pose } from './views.js';
 import { scene } from './world.js';
 
@@ -54,6 +56,8 @@ const later = (ms, fn) => play.after(ms, fn);
  * timers. Called once, by app.js. */
 export function setupSnowman({ start, end, after }) {
   Object.assign(play, { start, end, after });
+  suggesting = cadence(() => between(Math.random, SUGGEST_EVERY));
+  suggested = '';
 }
 
 /** Whether the yard shows winter now: the only time the snowman is offered. */
@@ -96,6 +100,37 @@ const DRAWN_TOP = 0.03;
 // width from the head's middle: just past the drawn head, which is rounder than the top ball.
 const SPARKLE_FAN = 140;
 const SPARKLE_OUT = 0.5;
+
+// A friend suggests a snowman every 4 to 9 minutes at most, half the time, and once a day as far as
+// this page remembers (the build itself is once a day in the backend, so a restart costs nothing).
+const SUGGEST_EVERY = [4 * 60 * 1000, 9 * 60 * 1000];
+const SUGGEST_CHANCE = 0.5;
+const START_AFTER_MS = 1200;
+let suggesting = cadence(() => between(Math.random, SUGGEST_EVERY)),
+  suggested = '';
+
+/** Called by the frame loop beside the other yard life, never during a game: now and then a free
+ * friend suggests a snowman and starts rolling, or says the yard is full. A suggestion is skipped
+ * while the person is busy, never queued. */
+export function snowmanTick(now) {
+  if (!suggesting.due(now) || game || aiming || Math.random() >= SUGGEST_CHANCE) return;
+  const today = localDay(new Date());
+  if (suggested === today || ![...views.values()].every(isFree)) return;
+  const why = offered();
+  if (why === 'not_winter' || why === 'built_today') return;
+  const ids = [...views.keys()].filter(id => stateOf(data, id, now) === 'idle');
+  if (!ids.length) return;
+  const id = pick(ids);
+  suggested = today;
+  if (why) return snowmanGame.refused(`snowman.${why}`, id);
+  bubble(views.get(id), pick(list('snowman.start')), 3000);
+  // Rechecked when it fires: the person may have started a game, the season turned or the friend left.
+  setTimeout(() => {
+    if (!game && !aiming && views.has(id) && isFree(views.get(id)) && offered() === null) play.start('snowman', id);
+  }, START_AFTER_MS);
+}
+const offered = () =>
+  snowmanOffer({ date: new Date(), season: yardSeason(scene), garden: data.garden, decorMax: limit(data, 'decor') });
 
 const across = () => Math.max(1, field().width - EDGE * 2);
 const deep = () => Math.max(1, field().bottom - field().top);
@@ -524,7 +559,9 @@ function save(round) {
       settled(round, 'save');
     })
     .catch(error => {
-      if (game !== round) return;
+      // After a Stop the yard is left alone; a refusal (the backend's sentence) is quiet, anything
+      // else is logged.
+      if (game !== round) return error?.spoken ? undefined : console.error(error);
       // Saved, but the yard could not show it: the round ends, and the state event draws it.
       if (round.saved) {
         console.error(error);
@@ -585,12 +622,7 @@ export const snowmanGame = {
   shown: showsWinter,
   // Why building is not offered now, as a key of the friends' lines, or null.
   needs() {
-    const why = snowmanOffer({
-      date: new Date(),
-      season: yardSeason(scene),
-      garden: data.garden,
-      decorMax: limit(data, 'decor'),
-    });
+    const why = offered();
     return why && `snowman.${why}`;
   },
   refused(key, lead) {
