@@ -243,8 +243,8 @@ fn decor_place(x: f64, y: f64) -> Option<(f64, f64)> {
     Some((place(x)?, y.is_finite().then(|| y.clamp(0.0, DECOR_FLOOR_MAX))?))
 }
 
-/// Ornaments as state.json has them: a book of the four, an id shaped like a kind, a hook on the
-/// tree, and no hook or find twice.
+/// Ornaments as state.json has them: a book of the four, an id shaped like a kind (not the tree
+/// itself), a hook on the tree, and no hook or find twice.
 fn restore_ornaments(raw: Option<&Value>) -> Vec<Ornament> {
     let mut kept: Vec<Ornament> = Vec::new();
     for o in raw.and_then(Value::as_array).into_iter().flatten() {
@@ -256,6 +256,7 @@ fn restore_ornaments(raw: Option<&Value>) -> Vec<Ornament> {
             .any(|k| k.hook == o.hook || (k.book == o.book && k.id == o.id));
         if ORNAMENT_BOOKS.contains(&o.book.as_str())
             && super::discovery::kind_id(&o.id)
+            && o.id != ORNAMENT_TREE
             && o.hook < ORNAMENT_HOOKS
             && !twice
         {
@@ -426,6 +427,7 @@ impl Garden {
         }
         if !this_season {
             self.ornaments.clear();
+            self.ornament_day = OrnamentDay::default();
             self.ornament_year = season;
         }
         if self.ornament_day.day != day {
@@ -1408,6 +1410,36 @@ mod tests {
     }
 
     #[test]
+    fn a_new_december_starts_its_days_count_fresh() {
+        // A hand-edited save: last year's season, with a full count on a day of the next December.
+        let mut g = Garden::restore(
+            Some(&json!({
+                "decor": [{"id": "t", "kind": "xmas_tree", "x": 0.5, "y": 0.5}],
+                "received": ["bench", "xmas_tree"],
+                "ornaments": [{"book": "gift", "id": "bench", "hook": 0}],
+                "ornamentDay": {"day": "2027-12-02", "count": 3},
+                "ornamentYear": 2026
+            })),
+            0,
+        );
+        assert_eq!(
+            g.hang_ornament(&found(), "flower", "camellia", 0, "2027-12-02"),
+            Ok(ornament("flower", "camellia", 0))
+        );
+        assert_eq!((g.ornament_year, g.ornament_day.count), (2027, 1));
+        assert_eq!(g.ornaments, [ornament("flower", "camellia", 0)]);
+    }
+
+    #[test]
+    fn hung_ornaments_come_back_the_same_from_a_save() {
+        let (mut g, album) = (tree_out(), found());
+        g.hang_ornament(&album, "flower", "camellia", 4, "2026-12-20").unwrap();
+        g.hang_ornament(&album, "gift", "bench", 7, "2026-12-20").unwrap();
+        let saved = serde_json::to_value(&g).unwrap();
+        assert_eq!(Garden::restore(Some(&saved), 0), g);
+    }
+
+    #[test]
     fn ornaments_are_read_back_keeping_only_what_makes_sense() {
         let g = Garden::restore(
             Some(&json!({
@@ -1418,7 +1450,8 @@ mod tests {
                     {"book": "gift", "id": "bench", "hook": 12},
                     {"book": "flower", "id": "camellia", "hook": 2},
                     {"book": "treasure", "id": "pinecone", "hook": 3},
-                    {"book": "tree", "id": "Bad!", "hook": 4}
+                    {"book": "tree", "id": "Bad!", "hook": 4},
+                    {"book": "gift", "id": "xmas_tree", "hook": 5}
                 ],
                 "ornamentDay": {"day": "2026-12-20", "count": 9},
                 "ornamentYear": 2026

@@ -96,6 +96,10 @@ const stopGame = game => KO['game.stop'].replace('{name}', KO[game]);
 const TRAY_KO_WAITING = (await readFile(path.join(here, '../src-tauri/src/i18n/ko.rs'), 'utf8')).match(
   /"tray\.state_waiting", "([^"]+)"/,
 )[1];
+// A fourth ornament on one day is refused with the backend's own Korean sentence.
+const ORNAMENTS_TODAY_KO = (await readFile(path.join(here, '../src-tauri/src/i18n/ko.rs'), 'utf8')).match(
+  /"error\.ornaments_today", "([^"]+)"/,
+)[1];
 const literal = text => text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const scenario = `(async()=>{
   const L=m=>window.__TAURI__.core.invoke('call',{name:'e2eLog',args:[m]});
@@ -419,17 +423,17 @@ const scenario = `(async()=>{
     const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(async()=>(await playPets.bootstrap()).data.garden.decor.some(d=>d.id===snow.id));await playPets.putAway(snow.id);
     const boxedTree=await until(async()=>(await playPets.bootstrap()).data.garden.boxed.some(d=>d.kind==='xmas_tree'));
     // Ornaments: three more gifts come (the capacity check below clears them all), the tree is set out of the box, and three
-    // gifts that came hang on its hooks on a December day; a fourth waits for the next day, and one taken down frees its
-    // hook without giving that day's hang back.
+    // gifts that came hang on its hooks on the day the last of them came; a fourth waits for the next day, and one taken
+    // down frees its hook without giving that day's hang back.
     const hangable=[];for(const day of ['2025-12-22','2025-12-24','2025-12-26']){const r=(await giftOn(0.2+hangable.length*0.2,0.6,day)).data;if(r)hangable.push(r);}
     const treeOut=(await playPets.setOut(snow.id,0.6,0.3)).ok,hangKinds=['bench',...hangable.map(g=>g.kind)];
-    const hung=[];for(const [hook,kind] of hangKinds.slice(0,3).entries())hung.push(await playPets.hangOrnament('gift',kind,hook,'2025-12-20'));
-    const fourth=await playPets.hangOrnament('gift',hangKinds[3],3,'2025-12-20');
-    const three=treeOut&&hung.every(r=>r.ok)&&(await playPets.bootstrap()).data.garden.ornaments.length===3,refused=fourth.ok===false;
-    const down=await playPets.takeDownOrnament('gift','bench','2025-12-20'),downAgain=await playPets.takeDownOrnament('gift','bench','2025-12-20'),afterDown=(await playPets.bootstrap()).data.garden;
+    const hung=[];for(const [hook,kind] of hangKinds.slice(0,3).entries())hung.push(await playPets.hangOrnament('gift',kind,hook,'2025-12-26'));
+    const fourth=await playPets.hangOrnament('gift',hangKinds[3],3,'2025-12-26');
+    const three=treeOut&&hangKinds.length===4&&hung.every(r=>r.ok)&&(await playPets.bootstrap()).data.garden.ornaments.length===3,refused=fourth.ok===false&&fourth.error===${JSON.stringify(ORNAMENTS_TODAY_KO)};
+    const down=await playPets.takeDownOrnament('gift','bench','2025-12-26'),downAgain=await playPets.takeDownOrnament('gift','bench','2025-12-26'),afterDown=(await playPets.bootstrap()).data.garden;
     const takenDown=down.ok&&downAgain.ok===false&&afterDown.ornaments.length===2&&!afterDown.ornaments.some(o=>o.hook===0)&&afterDown.ornamentDay.count===3;
     for(const item of [snow,...hangable])await playPets.putAway(item.id);
-    await L('ornaments='+(three&&refused?'ok':'err:'+[three,refused].join(',')));
+    await L('ornaments='+(three&&refused?'ok':'err:'+JSON.stringify([three,hangKinds,fourth])));
     await L('ornamentDown='+(takenDown?'hook-freed-count-kept':'err:'+JSON.stringify([down,downAgain,afterDown.ornaments,afterDown.ornamentDay])));
     // The capacity check below starts with an empty box.
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});

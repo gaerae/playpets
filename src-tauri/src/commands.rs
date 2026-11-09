@@ -470,6 +470,9 @@ static COMMANDS: &[Command] = &[
             d.garden.boxed.clear();
             d.garden.thanked.clear();
             d.garden.gift_wait = None;
+            d.garden.ornaments.clear();
+            d.garden.ornament_day = Default::default();
+            d.garden.ornament_year = 0;
             Ok(Value::Null)
         })
     }),
