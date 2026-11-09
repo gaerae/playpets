@@ -83,7 +83,7 @@ import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } fr
 import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/snowman.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
-import { resizeTrails, setupTrails, trailsCheck } from './yard/trails.js';
+import { resizeTrails, setupTrails, trailsCheck, trailsSeen } from './yard/trails.js';
 import { release } from './yard/trips.js';
 import { bubble, place, setupViews, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
@@ -150,8 +150,12 @@ onShortcut('invite', () => openPanel('invite'));
 onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
 // The winter yard's footprint trails, before the sky: its first paint checks them. A friend that
-// follows one digs at its end, as the dig tool would send it.
-setupTrails({ dig: (v, point) => sendDiscovery(v, point, 'dig'), rested: digRested });
+// follows one digs at its end, as the dig tool would send it, unless the window was hidden first.
+setupTrails({
+  dig: (v, point) => sendDiscovery(v, point, 'dig'),
+  rested: digRested,
+  visible: () => shown && !document.hidden,
+});
 // December's question about the winter yard, checked at each repaint of the scene.
 const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
 setupSky({
@@ -356,6 +360,8 @@ const ON_EVENT = {
     document.documentElement.toggleAttribute('data-unseen', !shown);
     // Seen again, Christmas night catches up; hidden, its check stops the sleigh and the glints.
     christmasNightCheck();
+    // Hidden, a friend on its way along a trail gives up (nobody would see the tail).
+    trailsSeen();
   },
 };
 api.onEvent(event => {

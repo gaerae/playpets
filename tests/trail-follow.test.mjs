@@ -19,8 +19,9 @@ const { reduced } = await import('../src/core/sprites.js');
 const { recall, remember, setAiming, setData, setGame, setSelected, views } = await import('../src/core/state.js');
 const { TRACKS, trackKind } = await import('../src/yard/catalog.js');
 const { footTarget, measureYard } = await import('../src/yard/field.js');
-const { trailAnimal } = await import('../src/yard/trail-rules.js');
-const { atTrailEnd, followTrail, setupTrails, trailsCheck } = await import('../src/yard/trails.js');
+const { BLOCK_MS, trailAnimal } = await import('../src/yard/trail-rules.js');
+const { atTrailEnd, followTrail, resizeTrails, setupTrails, trailsCheck, trailsSeen } =
+  await import('../src/yard/trails.js');
 const { release } = await import('../src/yard/trips.js');
 const { scene } = await import('../src/yard/world.js');
 const { useWorlds } = await import('../src/yard/worlds.js');
@@ -33,7 +34,6 @@ const OPEN = {
   water: [{ x: 0.5, y: 0.5, rx: 0.15, ry: 0.1 }],
   obstacles: [],
 };
-const toYard = p => ({ x: p.x * 600, y: p.y * 400 });
 // The first December day whose first trail is a bird's, and one whose is not.
 const dayOf = bird =>
   Array.from({ length: 31 }, (_, i) => i + 1).find(
@@ -67,15 +67,17 @@ function yard(t, { day = 14, rested = () => true } = {}) {
   setSelected(pet.id);
   followed.length = 0;
   const digs = [],
-    cards = [];
+    cards = [],
+    look = { weather: () => 'clear', visible: true, width: 600 };
   setupTrails({
     profile: () => OPEN,
-    weather: () => 'clear',
-    toYard,
+    weather: ms => look.weather(ms),
+    toYard: p => ({ x: p.x * look.width, y: p.y * 400 }),
     zoom: () => 1,
     dig: (...args) => digs.push(args),
     rested,
     card: (...args) => cards.push(args),
+    visible: () => look.visible,
   });
   t.after(() => {
     release(v);
@@ -87,7 +89,7 @@ function yard(t, { day = 14, rested = () => true } = {}) {
   });
   const layer = dom.document.getElementById('garden-layer');
   const live = selector => layer.querySelectorAll(selector).filter(n => !n.removed);
-  return { ...dom, layer, live, v, digs, cards, saved: () => JSON.parse(recall('trails')) };
+  return { ...dom, layer, live, v, digs, cards, look, saved: () => JSON.parse(recall('trails')) };
 }
 
 // As the frame loop does: the friend is where it was headed, its trip let go, then told.
@@ -148,8 +150,9 @@ for (const bird of [false, true])
     assert.ok(!y.v.button.classList.contains('sniffing'));
     assert.ok(end.classList.contains('peek'));
     assert.deepEqual(followed, [animal]);
-    assert.deepEqual(y.saved().followed, [0]);
+    // Kept once the backend has it.
     await flush();
+    assert.deepEqual(y.saved().followed, [0]);
     assert.equal(y.cards.length, 1);
     assert.equal(y.cards[0][1], say(`track.${animal}`));
     assert.equal(y.cards[0][3], true);
@@ -165,12 +168,13 @@ for (const bird of [false, true])
     assert.equal(who, y.v);
     const spot = endOf(end);
     assert.ok(Math.abs(point.x - spot.x) < 0.001 && Math.abs(point.y - spot.y) < 0.001);
-    assert.equal(atTrailEnd(point), animal);
+    assert.equal(atTrailEnd(point, Date.now() + 60000), null, 'only for a minute');
+    assert.equal(atTrailEnd(point), animal, 'the dig at the end takes it');
+    assert.equal(atTrailEnd(point), null, 'once');
     assert.ok(trail.classList.contains('followed'));
     assert.ok(!trail.classList.contains('following'));
     assert.equal(y.live('.trail-follow').length, 0);
-    t.mock.timers.tick(60000);
-    assert.equal(atTrailEnd(point), null);
+    t.mock.timers.tick(600);
     assert.equal(end.querySelectorAll('.puff').filter(n => !n.removed).length, 0);
   });
 
@@ -225,7 +229,7 @@ test('taking the friend away once the tail has shown keeps the record and loses 
   assert.ok(!y.v.target, 'a followed trail is not followed again');
 });
 
-test('the trail going under new snow or with the season calls the follow off', t => {
+test('the season leaving winter calls the follow off', t => {
   const y = yard(t);
   trailsCheck();
   followTrail(0);
@@ -235,6 +239,122 @@ test('the trail going under new snow or with the season calls the follow off', t
   assert.ok(!y.v.target);
   assert.ok(!y.v.button.classList.contains('sniffing'));
   assert.equal(followed.length, 0);
+});
+
+// Three blocks of snow from 10:20: the trail laid at 09:00 is covered by 11:00.
+const snowFrom = Math.floor(at(14, 10, 20) / BLOCK_MS) * BLOCK_MS;
+const snowfall = ms => (ms >= snowFrom && ms < snowFrom + 3 * BLOCK_MS ? 'snow' : 'clear');
+
+test('new snow over the trail mid-walk calls the follow off, and a covered trail is not followed', t => {
+  const y = yard(t);
+  trailsCheck();
+  followTrail(0);
+  arrive(y.v);
+  y.look.weather = snowfall;
+  t.mock.timers.setTime(at(14, 11));
+  trailsCheck();
+  const [trail] = y.live('.trail');
+  assert.ok(trail.classList.contains('covered'));
+  assert.ok(!y.v.target);
+  assert.ok(!trail.classList.contains('following'));
+  assert.ok(!y.v.button.classList.contains('sniffing'));
+  assert.equal(followed.length, 0);
+  assert.deepEqual(y.saved().followed, []);
+  followTrail(0);
+  assert.ok(!y.v.target, 'a covered trail is not followed');
+});
+
+test('new snow after the tail has shown lets the follow finish', async t => {
+  const y = yard(t);
+  trailsCheck();
+  followTrail(0);
+  walk(y.v);
+  await flush();
+  y.look.weather = snowfall;
+  t.mock.timers.setTime(at(14, 11));
+  trailsCheck();
+  t.mock.timers.tick(1000);
+  t.mock.timers.tick(400);
+  assert.equal(followed.length, 1);
+  assert.equal(y.digs.length, 1);
+});
+
+test('the window hidden before the tail shows calls the follow off; after, the record stands', async t => {
+  const y = yard(t);
+  trailsCheck();
+  followTrail(0);
+  arrive(y.v);
+  y.look.visible = false;
+  await y.document.dispatch('visibilitychange');
+  assert.ok(!y.v.target);
+  assert.equal(y.live('.following').length, 0);
+  assert.ok(!y.v.button.classList.contains('sniffing'));
+  y.look.visible = true;
+  followTrail(0);
+  assert.ok(y.v.target, 'followable again');
+  walk(y.v);
+  y.look.visible = false;
+  trailsSeen();
+  await flush();
+  assert.equal(followed.length, 1);
+  assert.deepEqual(y.saved().followed, [0]);
+});
+
+test('a resize mid-follow lets it go on and lays the trail out again afterwards', async t => {
+  const y = yard(t);
+  trailsCheck();
+  followTrail(0);
+  arrive(y.v);
+  const [before] = y.live('.trail');
+  y.look.width = 800;
+  resizeTrails();
+  assert.ok(y.v.target, 'still on its way');
+  assert.equal(y.live('.trail')[0], before, 'the drawing waits');
+  walk(y.v);
+  await flush();
+  t.mock.timers.tick(1000);
+  t.mock.timers.tick(400);
+  assert.equal(followed.length, 1);
+  assert.equal(y.digs.length, 1);
+  await flush();
+  const [after] = y.live('.trail');
+  assert.notEqual(after, before, 'laid out on the new size once the follow is over');
+  assert.ok(after.classList.contains('followed'));
+});
+
+test('a failed record keeps the trail to follow again and shows no card', async t => {
+  globalThis.playPets.followTracks = async () => ({ ok: false, error: 'No room' });
+  t.after(() => {
+    globalThis.playPets.followTracks = async id => {
+      followed.push(id);
+      return { ok: true, data: { entry: { count: 1 }, first: true } };
+    };
+  });
+  const y = yard(t);
+  trailsCheck();
+  followTrail(0);
+  walk(y.v);
+  await flush();
+  assert.equal(y.cards.length, 0);
+  assert.deepEqual(y.saved().followed, []);
+  assert.equal(y.document.getElementById('toast').textContent, 'No room');
+  t.mock.timers.tick(1000);
+  t.mock.timers.tick(400);
+  assert.equal(y.digs.length, 1, 'the find is the dig’s own');
+  const [trail] = y.live('.trail');
+  assert.ok(!trail.classList.contains('followed'));
+  assert.ok(trail.querySelector('.trail-hit'));
+  release(y.v);
+  followTrail(0);
+  assert.ok(y.v.target, 'followable again');
+});
+
+test('the walk keeps to the friends’ own stroll', async () => {
+  const motion = await readFile('src/yard/motion.js', 'utf8'),
+    trails = await readFile('src/yard/trails.js', 'utf8');
+  assert.match(motion, /export const STROLL/);
+  assert.match(trails, /import \{[^}]*\bSTROLL\b[^}]*\} from '\.\/motion\.js'/);
+  assert.doesNotMatch(trails, /0\.00022/);
 });
 
 test('a followed trail stays followed after a reload', t => {
