@@ -855,6 +855,7 @@ export const strings = {
   'signin.failed': 'ログインが完了しませんでした。もう一度試しますか？',
   'signin.retry': 'もう一度ログイン',
   'signin.done': '{tool}にログインしました',
+  'signin.note': '上でログインすると、すぐに話せます。',
   'connection.share_all': 'AIのないほかの友だち{count}人にもこのAIを使う',
   'toast.first_chat': 'まず声をかけてみましょう。友だちが2人以上なら、おしゃべりもさせられます',
   'toast.connected_many': '{count} 人の友だちが話せるようになりました。おしゃべりを始めます',

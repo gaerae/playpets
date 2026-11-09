@@ -820,6 +820,7 @@ export const strings = {
   'signin.failed': '登录没有完成。要再试一次吗？',
   'signin.retry': '重新登录',
   'signin.done': '已登录 {tool}',
+  'signin.note': '在上方登录后，就可以开始聊天了。',
   'connection.share_all': '让另外 {count} 位还没有 AI 的伙伴也用这个 AI',
   'toast.first_chat': '先打个招呼吧。伙伴有两位以上时，还可以让它们聊起来',
   'toast.connected_many': '{count} 位伙伴能说话了，它们这就聊起来',

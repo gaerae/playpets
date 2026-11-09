@@ -3,7 +3,7 @@
 // and says how it ended. The card lives in the chat (above the message box) and in the connection
 // dialog, and the same sign-in is shown in both.
 
-import { t } from '../core/i18n.js';
+import { language, t } from '../core/i18n.js';
 import { call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 
@@ -30,14 +30,19 @@ let onChange = () => {};
 // The window came back: the person may have signed in some other way. Asked at most this often.
 const RECHECK_MS = 5000;
 let checkedAt = 0;
+// The cards drawn now, by their element's id, for the window's return to know whether anybody is
+// waiting on one.
+const showing = new Set();
 
 /** Draws the sign-in card for `kind` into `host`, or hides it for null. Drawn again only when what
  * it says changes, so a code being typed into it survives the panel's other updates. */
 export function renderSignIn(host, kind) {
   if (!host) return;
   const phase = kind && run.kind === kind ? run.phase : 'idle';
-  const key = kind ? `${kind}|${phase}` : '';
+  const key = kind ? `${kind}|${phase}|${language()}` : '';
   host.hidden = !kind;
+  if (kind) showing.add(host.id);
+  else showing.delete(host.id);
   if (host.dataset.key === key) return;
   host.dataset.key = key;
   host.replaceChildren();
@@ -147,8 +152,9 @@ export function setupSignIn({ signedIn = () => {}, changed = () => {} } = {}) {
   onSignedIn = signedIn;
   onChange = changed;
   globalThis.window?.addEventListener('focus', () => {
-    // Only while a card offers a sign-in that is not under way, and not on every focus.
+    // Only while a card offers a sign-in that is not under way, and not on every focus: a CLI
+    // signed out that no friend uses is not worth starting it each time the window comes back.
     if (run.phase === 'waiting' || Date.now() - checkedAt < RECHECK_MS) return;
-    if (CLIS.some(signedOut)) recheckSignIn();
+    if ([...showing].some(id => document.getElementById(id)?.hidden === false)) recheckSignIn();
   });
 }

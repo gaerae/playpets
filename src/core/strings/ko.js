@@ -834,6 +834,7 @@ export const strings = {
   'signin.failed': '로그인이 끝나지 않았어요. 다시 해 볼까요?',
   'signin.retry': '다시 로그인',
   'signin.done': '{tool}에 로그인했어요',
+  'signin.note': '위에서 로그인하면 바로 이야기할 수 있어요.',
   'connection.share_all': '아직 AI가 없는 다른 친구 {count}명에게도 이 AI를 써요',
   'toast.first_chat': '첫마디를 걸어 보세요. 친구가 둘 이상이면 수다도 시킬 수 있어요',
   'toast.connected_many': '친구 {count}명이 말할 수 있게 됐어요. 수다를 시작해요',

@@ -37,7 +37,7 @@ const claude = { id: 'one', type: 'claude', model: '', endpoint: '' };
 const signedOut = { claude: true, codex: false, ollama: [], signedIn: { claude: false, codex: false } };
 function page(t2, state) {
   t2.mock.timers.reset();
-  t2.mock.timers.enable({ apis: ['setTimeout'] });
+  t2.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
   installDom(t2, { anyId: true, props: { value: '', reset() {}, scrollHeight: 40, clientHeight: 100 } });
   globalThis.Option = class {};
   calls.length = 0;
@@ -81,9 +81,15 @@ test('connect now asks for a sign-in instead of a connection that would fail', a
 
 test('a friend with no AI signs in above the message box and is connected once it ends', async context => {
   const get = page(context, { pets: [friend('a'), friend('b')], detected: signedOut });
+  get('message').value = 'hello';
   renderChat(state.data.pets[0]);
   assert.equal(card(get).hidden, false);
   assert.equal(card(get).textContent.includes(t('signin.body')), true);
+  // Nothing written can be sent before the sign-in, so the box waits instead of taking words.
+  assert.equal(get('message').disabled, true);
+  assert.equal(get('send').disabled, true);
+  assert.equal(get('chat-note').textContent, t('signin.note'));
+  assert.equal(get('message').placeholder, t('signin.note'), 'the box says why, where the small window shows it');
   await press(card(get), t('signin.start'));
   assert.deepEqual(calls.at(-1), ['cliLogin', 'claude']);
   assert.ok(card(get).textContent.includes(t('signin.waiting')), 'the card says where to finish');
@@ -92,18 +98,21 @@ test('a friend with no AI signs in above the message box and is connected once i
   form.querySelector('input').value = ' abc#123 ';
   await form.onsubmit({ preventDefault() {} });
   assert.deepEqual(calls.at(-1), ['cliLoginCode', ' abc#123 ']);
-  // The backend updates the state first, then says it ended. Words written meanwhile are sent, as
-  // the note under the box promises.
+  // The backend updates the state first, then says it ended. A word left in the box is not sent
+  // by itself: the box opens with it, for the person to send.
   calls.length = 0;
   let sent = 0;
   get('chat-form').requestSubmit = () => sent++;
-  get('message').value = 'hello';
   setData({ ...state.data, detected: { ...signedOut, signedIn: { claude: true, codex: false } } });
   chatEvent({ type: 'cliLogin', kind: 'claude', ok: true });
   await flush();
   assert.deepEqual(names(), ['saveProvider', 'updatePet', 'updatePet'], 'every friend without an AI gets it');
   assert.ok(get('toast').textContent.includes(t('signin.done', { tool: 'Claude Code' })));
-  assert.equal(sent, 1);
+  assert.equal(sent, 0);
+  renderChat(state.data.pets[0]);
+  assert.equal(get('message').disabled, false);
+  assert.equal(get('message').placeholder, t('chat.placeholder'));
+  assert.equal(get('message').value, 'hello');
 });
 
 test('writing to a friend with no AI connects a signed-in CLI without the dialog', async context => {
@@ -134,6 +143,25 @@ test('a friend whose CLI is signed out is offered the sign-in, and a failed turn
   setData({ ...state.data, detected: { claude: true, signedIn: { claude: false, codex: false } } });
   renderChat(state.data.pets[0]);
   assert.equal(card(get).hidden, false);
+  assert.equal(get('message').disabled, true);
+});
+
+test('coming back to the window looks again only while a sign-in card is shown', async context => {
+  const get = page(context, {
+    pets: [friend('a', 'one')],
+    providers: [{ ...claude, type: 'ollama' }],
+    detected: { claude: true, ollama: ['m'], signedIn: { claude: false, codex: false } },
+  });
+  renderChat(state.data.pets[0]);
+  assert.equal(card(get).hidden, true, 'this friend talks through another AI');
+  context.mock.timers.tick(10_000);
+  await window.dispatch('focus');
+  assert.deepEqual(names(), [], 'a CLI signed out that nobody uses is not asked about');
+  state.data.providers[0].type = 'claude';
+  renderChat(state.data.pets[0]);
+  assert.equal(card(get).hidden, false);
+  await window.dispatch('focus');
+  assert.deepEqual(names(), ['detectAi']);
 });
 
 test('a sign-in finished from the connection dialog leaves the saving to the dialog', async context => {

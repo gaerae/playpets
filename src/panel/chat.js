@@ -133,12 +133,17 @@ function signInFor(p) {
   const choice = cliChoice();
   return choice?.signedIn === false ? choice.type : null;
 }
-// The sign-in card above the message box, and the log's own connect button stepping aside for it.
+// The sign-in card above the message box. Until it is done nothing can be said, so the box waits
+// (keeping what it holds) and the log's own buttons step aside, leaving the card the one thing to do.
 function syncSignIn(p) {
   const kind = signInFor(p);
   renderSignIn($('chat-sign-in'), kind);
-  const cta = $('chat-log').querySelector('.connect-cta');
-  if (cta) cta.hidden = !!kind;
+  for (const node of $('chat-log').querySelectorAll('.connect-cta, .chat-starters')) node.hidden = !!kind;
+  $('message').disabled = !!kind;
+  // The box itself says why it waits: a small window hides the note under it.
+  $('message').placeholder = t(kind ? 'signin.note' : 'chat.placeholder');
+  if (kind) $('chat-note').textContent = t('signin.note');
+  syncSend();
 }
 export function renderChat(p) {
   const key = JSON.stringify(data.providers);
@@ -281,6 +286,7 @@ function placeholder(p) {
       };
       starters.append(line);
     }
+    starters.hidden = !!signInFor(p);
     log.append(starters);
   } else {
     // A CLI found and signed in connects in one press; otherwise the dialog lets the person choose.
@@ -370,19 +376,18 @@ export function chatEvent(event) {
 function syncSend() {
   const box = $('message');
   // With no AI yet, sending opens the connection first (see the form's submit).
-  $('send').disabled = !box.value.trim() || pendingChats.has(selected);
+  $('send').disabled = box.disabled || !box.value.trim() || pendingChats.has(selected);
   box.style.height = 'auto';
   box.style.height = `${Math.min(140, box.scrollHeight + 2)}px`;
 }
 // A sign-in started here ended well: a friend with no AI is connected (with every other one
-// without), and words written while it ran are sent, as the note under the box says.
+// without), and the box opens for the first word. A word kept in it waits for the person to send.
 async function afterSignIn() {
   // Signed in from the connection editor: its Save makes the connection, so none is made here too.
   if (connectionEditorOpen()) return;
   const p = pet();
   if (p && !p.providerId && !sharedConnection()) await quickConnect();
-  if ($('message').value.trim()) $('chat-form').requestSubmit();
-  else $('message').focus();
+  $('message').focus();
 }
 // Wires the conversation: the AI choice, the composer and the chat buttons. Called once, by app.js.
 export function setupChat() {
@@ -424,7 +429,7 @@ export function setupChat() {
     // A word for a friend with no AI yet is kept: connecting one sends it.
     if (!pet()?.providerId) {
       const shared = sharedConnection();
-      // A CLI that has to sign in first: the card above says how, and the words wait in the box.
+      // A CLI that has to sign in first (the box is closed then, so only a word sent another way).
       if (!shared && signInFor(pet())) return focusSignIn($('chat-sign-in'));
       if (!shared && !cliChoice()?.signedIn) {
         openConnectionDialog(null, async () => {

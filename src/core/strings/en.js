@@ -862,6 +862,7 @@ export const strings = {
   'signin.failed': 'The sign-in didn’t finish. Try again?',
   'signin.retry': 'Sign in again',
   'signin.done': 'Signed in to {tool}',
+  'signin.note': 'Sign in above, then you can start talking.',
   'connection.share_all': 'Also use this AI for other friends without one ({count})',
   'toast.first_chat': 'Say hello first. With two or more friends you can start a chat between them too',
   'toast.connected_many': '{count} friends can talk now; starting a chat between them',

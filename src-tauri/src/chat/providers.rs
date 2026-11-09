@@ -5,6 +5,7 @@ use super::{cli, http};
 use crate::app::{AppData, Shared, changed, lock, push_event};
 use crate::i18n;
 use serde_json::{Value, json};
+use std::sync::atomic::{AtomicU64, Ordering};
 use tauri::{AppHandle, State};
 
 pub const LIMIT: usize = 12;
@@ -245,23 +246,45 @@ pub fn list_models(state: &State<Shared>, raw: &Value) -> Result<Value, String> 
 pub fn detect(app: tauri::AppHandle) {
     use tauri::Manager;
     std::thread::spawn(move || {
-        let detected = json!({
+        let begun = LOOKS.fetch_add(1, Ordering::SeqCst) + 1;
+        // Each status check starts a CLI and Ollama is asked over the network: side by side, the
+        // page waits for the slowest one rather than for all of them in turn.
+        let (claude, codex, ollama) = std::thread::scope(|s| {
+            let claude = s.spawn(|| cli::signed_in("claude"));
+            let codex = s.spawn(|| cli::signed_in("codex"));
+            let ollama = http::detect_ollama(http::OLLAMA_DEFAULT);
+            (claude.join().unwrap_or(false), codex.join().unwrap_or(false), ollama)
+        });
+        let found = json!({
             "claude": cli::resolve_bin("claude").is_some(),
             "codex": cli::resolve_bin("codex").is_some(),
-            "ollama": http::detect_ollama(http::OLLAMA_DEFAULT),
-            "signedIn": {"claude": cli::signed_in("claude"), "codex": cli::signed_in("codex")},
+            "ollama": ollama,
+            "signedIn": {"claude": claude, "codex": codex},
         });
         let state = app.state::<Shared>();
         let mut d = lock(&state);
-        d.detected = detected;
+        d.detected = settle(found, &d.detected, LOOKS.load(Ordering::SeqCst) != begun);
         changed(&app, &d);
     });
+}
+
+// Counts looks and sign-ins, so a look that a later one overtook can tell (see `settle`).
+static LOOKS: AtomicU64 = AtomicU64::new(0);
+
+/// What a look leaves in the state. One overtaken by a sign-in (or a later look) keeps the
+/// signed-in word already there: a status check begun before a sign-in ended would undo it.
+fn settle(mut found: Value, now: &Value, overtaken: bool) -> Value {
+    if overtaken && now["signedIn"].is_object() {
+        found["signedIn"] = now["signedIn"].clone();
+    }
+    found
 }
 
 /// A sign-in started from the app ended: the page learns whether the CLI is signed in now, both in
 /// the state (what it offers) and as an event (the one moment to connect and move on).
 pub fn signed_in_now(app: &AppHandle, kind: &str, ok: bool) {
     use tauri::Manager;
+    LOOKS.fetch_add(1, Ordering::SeqCst);
     {
         let state = app.state::<Shared>();
         let mut d = lock(&state);
@@ -277,6 +300,18 @@ pub fn signed_in_now(app: &AppHandle, kind: &str, ok: bool) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_look_begun_before_a_sign_in_ended_keeps_what_the_sign_in_said() {
+        let found = json!({"claude": true, "ollama": [], "signedIn": {"claude": false, "codex": false}});
+        let now = json!({"claude": true, "ollama": [], "signedIn": {"claude": true, "codex": false}});
+        // Begun after the sign-in: what it found is the latest word.
+        assert_eq!(settle(found.clone(), &now, false)["signedIn"]["claude"], json!(false));
+        // Begun before it: the rest is taken, the sign-in's word stays.
+        let kept = settle(found, &now, true);
+        assert_eq!(kept["signedIn"]["claude"], json!(true));
+        assert_eq!(kept["claude"], json!(true));
+    }
 
     #[test]
     fn a_refused_save_never_costs_the_key_a_connection_had() {
