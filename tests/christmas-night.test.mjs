@@ -379,10 +379,11 @@ const GUESTS = [
 const NO_SANTA = GUESTS.slice(0, 2);
 const decorButton = (nodes, kind) =>
   nodes.get('garden-layer').children.find(b => !b.removed && b.dataset.kind === kind);
-async function sleighYard(ctx, { decor = GUESTS, before } = {}) {
+async function sleighYard(ctx, { decor = GUESTS, before, seen } = {}) {
   ctx.mock.method(Math, 'random', () => 0);
   const parts = await yard(ctx, {
     decor,
+    seen,
     before: opts => {
       TONIGHT(opts);
       before?.(opts);
@@ -457,7 +458,10 @@ test('with the baby reindeer and Santa out, the sleigh crosses the moon once tha
   assert.equal(sleigh.hidden, true);
   assert.ok(!has(sleigh, 'flying'));
   assert.equal(motes().length, 24, 'gold falls from the star');
-  timers.tick(4200);
+  timers.tick(4799);
+  assert.equal(motes().length, 24, 'the latest, slowest mote is still falling');
+  assert.ok(moon());
+  timers.tick(1);
   assert.equal(motes().length, 0);
   assert.ok(!moon());
   for (let n = 0; n < 12; n++) {
@@ -541,6 +545,17 @@ test('if Santa is put away while the reindeer looks up, everything goes', async 
   ctx.mock.timers.tick(100);
   assert.ok(looking(parts.reindeer()));
   await parts.santa().dispatch('keydown', { key: 'Delete', preventDefault() {} });
+  allGone(ctx, parts);
+});
+
+test('the app hiding the window during the sleigh ends it (app.js checks on every window event)', async ctx => {
+  let shown = true;
+  const parts = await sleighYard(ctx, { seen: () => shown });
+  ctx.mock.timers.tick(20_000);
+  ctx.mock.timers.tick(1_500);
+  assert.ok(has(parts.sleigh, 'flying'));
+  shown = false;
+  christmasNightCheck();
   allGone(ctx, parts);
 });
 

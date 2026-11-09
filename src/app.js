@@ -305,7 +305,8 @@ const ON_EVENT = {
     soundSeen(shown);
     // CSS animations (the clouds) rest too; see base.css.
     document.documentElement.toggleAttribute('data-unseen', !shown);
-    if (shown) christmasNightCheck();
+    // Seen again, Christmas night catches up; hidden, its check stops the sleigh and the glints.
+    christmasNightCheck();
   },
 };
 api.onEvent(event => {

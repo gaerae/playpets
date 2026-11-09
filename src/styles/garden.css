@@ -334,12 +334,14 @@
    sets where each starts, its wait and its pace. */
 .xmas-mote {
   position: absolute;
-  width: 3px;
+  width: 4px;
   aspect-ratio: 1;
   translate: -50% -50%;
   border-radius: 50%;
-  background: #fff0c4;
-  box-shadow: 0 0 4px 1px #ffd27aa0;
+  background: radial-gradient(circle, #fffdf2 0 45%, #ffe7a6);
+  box-shadow:
+    0 0 3px 1px #ffd98add,
+    0 0 8px 2px #ffcf7066;
   pointer-events: none;
   opacity: 0;
 }

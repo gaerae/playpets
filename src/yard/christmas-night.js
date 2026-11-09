@@ -54,14 +54,15 @@ const SLEIGH_AFTER = [20_000, 60_000],
   FLY_AT = 1200,
   FLY_MS = 4200,
   MOTES = [24, 36],
-  MOTES_MS = 4200,
   STILL_MS = 3000;
 // Webview storage: the night (nightOf) the sleigh last flew.
 const SLEIGH_KEY = 'xmas-sleigh';
-// Each mote starts this share of the grand tree off its star, and waits and falls in these ranges.
+// Each mote starts this share of the grand tree off its star, and waits and falls in these ranges;
+// they all stay until the latest and slowest one has fallen.
 const MOTE_JITTER = 0.04,
   MOTE_DELAY = [0, 1200],
-  MOTE_FALL = [2400, 3600];
+  MOTE_FALL = [2400, 3600],
+  MOTES_MS = MOTE_DELAY[1] + MOTE_FALL[1];
 
 let seen = () => true;
 // The tree's button while it stands grand, and the timer that ends its change.
