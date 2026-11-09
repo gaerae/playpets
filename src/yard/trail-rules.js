@@ -114,7 +114,9 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
     const fromLeft = rng() < 0.5;
     const startX = fromLeft ? left : right;
     const startY = bandTop + rng() * bandHeight;
-    const far = rng() < 1 / 3;
+    // A third of the seeds want the far side; the choice follows the seed, not the try, and a far
+    // trail that keeps meeting water gives up and ends inside in the last tries.
+    const far = (Math.imul(seed, 2654435761) >>> 0) / 4294967296 < 1 / 3 && attempt < 14;
     let endX;
     if (far) endX = fromLeft ? 0.9 + rng() * 0.04 : 0.06 + rng() * 0.04;
     else endX = 0.25 + rng() * 0.5;
@@ -144,8 +146,10 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
 }
 
 /** Prints along a pixel polyline: one every gait.step * zoom px, walkers alternating sides, bounders in line. */
-export function stamps(pixels, gait, zoom) {
+export function stamps(points, gait, zoom) {
   const out = [];
+  // A repeated point has no direction; dropping it keeps the first real segment's angle.
+  const pixels = points.filter((p, i) => i === 0 || p.x !== points[i - 1].x || p.y !== points[i - 1].y);
   const gap = gait.step * zoom,
     size = gait.size * zoom,
     side = gait.group ? 0 : gait.side * zoom;

@@ -26,6 +26,13 @@ test('an hour of snow that begins after a trail is laid covers it', () => {
   assert.equal(coveredAt(L, L + 10 * BLOCK_MS, snowFrom(L - BLOCK_MS, 6)), null);
 });
 
+test('a trail laid mid-block is covered by snow from the next block, not by snow already falling', () => {
+  const L = blockOf(at(2026, 12, 14, 9));
+  const laid = L + 0.5 * BLOCK_MS;
+  assert.equal(coveredAt(laid, L + 10 * BLOCK_MS, snowFrom(L + BLOCK_MS, 3)), L + 3 * BLOCK_MS);
+  assert.equal(coveredAt(laid, L + 10 * BLOCK_MS, snowFrom(L, 6)), null);
+});
+
 test('weather chosen by hand never covers a trail or makes a snowy morning', () => {
   const L = blockOf(at(2026, 12, 14, 9));
   assert.equal(
@@ -47,6 +54,7 @@ test('a snowy night brings a second trail, except from December 26 to January 7'
   assert.deepEqual(trailsOn(new Date(2026, 11, 14, 12), w), [0, 1]);
   assert.deepEqual(trailsOn(new Date(2026, 11, 14, 12), snowFrom(at(2026, 12, 14, 5, 20), 3)), [0]);
   for (const [y, m, d, want] of [
+    [2026, 12, 25, [0, 1]],
     [2026, 12, 26, [0]],
     [2027, 1, 7, [0]],
     [2027, 1, 8, [0, 1]],
@@ -82,12 +90,22 @@ const profile = {
 test("a trail ends on ground a friend can dig, away from today's digs and the other trail", () => {
   const taken = [{ x: 0.3, y: 0.7 }],
     other = { x: 0.5, y: 0.85 };
+  let nearSide = 0;
   for (let seed = 1; seed <= 200; seed++) {
     const p = trailPath(seed, profile, { taken, other });
     assert.ok(p, `seed ${seed}`);
     assert.ok(p.points[0].x === 0 || p.points[0].x === 1);
     assert.ok(p.points.length >= 5 && p.points.length <= 8);
     assert.ok(p.end.x >= 0.06 && p.end.x <= 0.94);
+    assert.ok(p.points[0].y >= 0.15 && p.points[0].y <= 0.85);
+    let total = 0;
+    for (let i = 1; i < p.points.length; i++)
+      total += Math.hypot(p.points[i].x - p.points[i - 1].x, p.points[i].y - p.points[i - 1].y);
+    assert.ok(total >= 0.6 && total <= 1.6, `length ${total}`);
+    const lastDx = p.end.x - p.points[p.points.length - 2].x;
+    assert.equal(p.exit, lastDx < 0 ? 'left' : 'right');
+    assert.equal(p.bush, seed % 3 === 0 ? 'twigs' : 'bush');
+    if (p.end.x <= 0.1 || p.end.x >= 0.9) nearSide++;
     assert.notDeepEqual([Math.floor(p.end.x * 8), Math.floor(p.end.y * 8)], [2, 5]);
     assert.ok(Math.hypot(p.end.x - other.x, p.end.y - other.y) >= 0.15);
     for (let i = 1; i < p.points.length; i++) {
@@ -98,6 +116,7 @@ test("a trail ends on ground a friend can dig, away from today's digs and the ot
         assert.ok(groundAllows({ x: a.x + ((b.x - a.x) * k) / n, y: a.y + ((b.y - a.y) * k) / n }, profile));
     }
   }
+  assert.ok(nearSide / 200 >= 0.2 && nearSide / 200 <= 0.5, `near side ${nearSide}`);
   assert.deepEqual(trailPath(7, profile), trailPath(7, profile));
   assert.equal(trailPath(7, { ...profile, soil: false }), null);
 });
@@ -116,6 +135,9 @@ test('prints alternate for walkers and keep in line for bounders', () => {
   );
   const hop = stamps(line, { group: true, step: 10, side: 3, size: 9 }, 1);
   assert.ok(hop.every(s => s.y === 0));
+  const dup = stamps([line[0], ...line], { group: false, step: 10, side: 3, size: 9 }, 1);
+  assert.equal(dup[0].angle, 90);
+  assert.equal(dup.length, 21);
   const small = stamps(line, { group: false, step: 10, side: 3, size: 9 }, 0.5);
   assert.equal(small.length, 41);
   assert.equal(small[0].size, 4.5);
