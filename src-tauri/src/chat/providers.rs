@@ -239,6 +239,9 @@ pub fn list_models(state: &State<Shared>, raw: &Value) -> Result<Value, String> 
 }
 
 /// Looks for AIs already on this computer, off the startup path: finding none takes the longest.
+/// A subscription CLI found is also asked whether it is signed in, so the page offers a sign-in
+/// instead of a connection that would fail at the first message. Called again by the page when it
+/// may have changed (a CLI turn failed, the window came back while a sign-in was offered).
 pub fn detect(app: tauri::AppHandle) {
     use tauri::Manager;
     std::thread::spawn(move || {
@@ -246,12 +249,29 @@ pub fn detect(app: tauri::AppHandle) {
             "claude": cli::resolve_bin("claude").is_some(),
             "codex": cli::resolve_bin("codex").is_some(),
             "ollama": http::detect_ollama(http::OLLAMA_DEFAULT),
+            "signedIn": {"claude": cli::signed_in("claude"), "codex": cli::signed_in("codex")},
         });
         let state = app.state::<Shared>();
         let mut d = lock(&state);
         d.detected = detected;
         changed(&app, &d);
     });
+}
+
+/// A sign-in started from the app ended: the page learns whether the CLI is signed in now, both in
+/// the state (what it offers) and as an event (the one moment to connect and move on).
+pub fn signed_in_now(app: &AppHandle, kind: &str, ok: bool) {
+    use tauri::Manager;
+    {
+        let state = app.state::<Shared>();
+        let mut d = lock(&state);
+        if !d.detected["signedIn"].is_object() {
+            d.detected["signedIn"] = json!({});
+        }
+        d.detected["signedIn"][kind] = json!(ok);
+        changed(app, &d);
+    }
+    push_event(app, &json!({"type": "cliLogin", "kind": kind, "ok": ok}));
 }
 
 #[cfg(test)]

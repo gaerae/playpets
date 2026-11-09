@@ -3,7 +3,7 @@ import { t } from './core/i18n.js';
 import { renderNotices } from './core/notices.js';
 import { $, data, lastFriend, recall, selected, setSelected } from './core/state.js';
 import { renderAlbum } from './panel/album.js';
-import { detectedLabel } from './panel/connection.js';
+import { CLI_LABELS, cliChoice } from './panel/cli-login.js';
 import { renderPanel } from './panel/friend.js';
 import { renderShelf } from './panel/invite.js';
 import { renderAgentPets, renderConnections, renderDesktopSwitches } from './panel/settings.js';
@@ -62,10 +62,13 @@ function renderSteps() {
   $('next-steps').hidden = !done.invite;
   if (!done.invite) renderWelcome();
   for (const li of card.querySelectorAll('[data-step]')) li.classList.toggle('done', !!done[li.dataset.step]);
-  // A subscription CLI on this computer makes the AI step one click, and the card says so.
-  const tool = done.ai ? null : detectedLabel();
+  // A subscription CLI on this computer makes the AI step one click (a sign-in first when it is
+  // signed out), and the card says so.
+  const choice = done.ai ? null : cliChoice();
+  const tool = choice && CLI_LABELS[choice.type];
+  const signIn = choice?.signedIn === false;
   card.querySelector('[data-step="ai"] [data-i18n]').textContent = tool
-    ? t('steps.ai_detected', { tool })
+    ? t(signIn ? 'steps.ai_login' : 'steps.ai_detected', { tool })
     : t('steps.ai');
-  $('step-ai').textContent = tool ? t('steps.go_connect') : t('steps.go_ai');
+  $('step-ai').textContent = tool ? t(signIn ? 'steps.go_login' : 'steps.go_connect') : t('steps.go_ai');
 }

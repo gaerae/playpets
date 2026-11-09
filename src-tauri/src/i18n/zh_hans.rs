@@ -161,8 +161,10 @@ const TABLE: &[(&str, &str)] = &[
     ("ai.models_unreachable", "无法加载模型列表。请检查服务器地址和运行状态。"),
     ("ai.models_unreadable", "无法读取模型列表。"),
 
-    ("cli.login_claude", "请登录 Claude Code。在终端运行 claude，然后输入 /login 即可。"),
-    ("cli.login_codex", "请登录 Codex。在终端运行 codex login 即可。"),
+    ("cli.login_claude", "Claude Code 尚未登录。请点击消息框上方的登录按钮。"),
+    ("cli.login_codex", "Codex 尚未登录。请点击消息框上方的登录按钮。"),
+    ("cli.login_code_bad", "请原样粘贴浏览器页面上显示的代码。"),
+    ("cli.login_not_waiting", "没有正在等待代码的登录。请重新点击登录按钮。"),
     ("cli.missing", "找不到 {name} CLI。请在终端安装：{command}"),
     ("cli.spawn_failed", "无法运行 {name} CLI。{detail}"),
     ("cli.error", "{name} CLI 错误：{detail}"),

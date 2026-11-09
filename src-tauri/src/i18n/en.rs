@@ -161,8 +161,10 @@ const TABLE: &[(&str, &str)] = &[
     ("ai.models_unreachable", "Couldn't load the list of models. Check the server address and that it's running."),
     ("ai.models_unreadable", "Couldn't read the list of models."),
 
-    ("cli.login_claude", "Sign in to Claude Code first: run `claude` in a terminal, then type `/login`."),
-    ("cli.login_codex", "Sign in to Codex first: run `codex login` in a terminal."),
+    ("cli.login_claude", "Claude Code isn't signed in. Press Sign in above the message box."),
+    ("cli.login_codex", "Codex isn't signed in. Press Sign in above the message box."),
+    ("cli.login_code_bad", "Paste the code from the browser page as it is."),
+    ("cli.login_not_waiting", "No sign-in is waiting for a code. Press Sign in again."),
     ("cli.missing", "Couldn't find the {name} CLI. Install it in a terminal: {command}"),
     ("cli.spawn_failed", "Couldn't start the {name} CLI. {detail}"),
     ("cli.error", "{name} CLI error: {detail}"),

@@ -161,8 +161,10 @@ const TABLE: &[(&str, &str)] = &[
     ("ai.models_unreachable", "モデル一覧を読み込めませんでした。サーバーのアドレスと、起動しているかを確認してください。"),
     ("ai.models_unreadable", "モデル一覧を読み取れませんでした。"),
 
-    ("cli.login_claude", "先に Claude Code にログインしてください。ターミナルで claude を実行し、続けて /login と入力します。"),
-    ("cli.login_codex", "先に Codex にログインしてください。ターミナルで codex login を実行します。"),
+    ("cli.login_claude", "Claude Code にログインしていません。メッセージ欄の上のログインボタンを押してください。"),
+    ("cli.login_codex", "Codex にログインしていません。メッセージ欄の上のログインボタンを押してください。"),
+    ("cli.login_code_bad", "ブラウザに表示されたコードをそのまま貼り付けてください。"),
+    ("cli.login_not_waiting", "コードを待っているログインはありません。もう一度ログインボタンを押してください。"),
     ("cli.missing", "{name} CLI が見つかりません。ターミナルでインストールしてください: {command}"),
     ("cli.spawn_failed", "{name} CLI を起動できませんでした。{detail}"),
     ("cli.error", "{name} CLI エラー: {detail}"),

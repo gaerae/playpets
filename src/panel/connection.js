@@ -2,6 +2,7 @@
 import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
 import { $, call, data, guard, providerLabel, selected, toast } from '../core/state.js';
+import { cliChoice, focusSignIn, renderSignIn, signedOut } from './cli-login.js';
 
 // Per-type dialog behavior: which fields show, whether a model name is mandatory, and the data-flow note.
 const providerForms = {
@@ -76,23 +77,17 @@ export function closeConnectionEditor() {
   formHome();
   if (inside) $('ai-add')?.focus();
 }
+/** Whether the connection editor is open, as the dialog or in Settings. */
+export const connectionEditorOpen = () => !!inlineHost || !!$('connection-dialog')?.open;
 // What to do once the very first friend can talk; app.js says (a chat between friends, or the chat box).
 let onFirstConnection = () => {};
 // What this computer has, as a kind to start from; nothing found leaves the choice to the person.
-const detectedType = () => {
-  const d = data.detected || {};
-  return d.claude ? 'claude' : d.codex ? 'codex' : d.ollama?.length ? 'ollama' : '';
-};
+const detectedType = () => cliChoice()?.type || (data.detected?.ollama?.length ? 'ollama' : '');
 // The kind of AI picked on the dialog's cards ('' while none is).
 const aiType = () => $('connection-form').querySelector('input[name="ai-type"]:checked')?.value || '';
 function setAiType(type) {
   for (const input of $('connection-form').querySelectorAll('input[name="ai-type"]'))
     input.checked = input.value === type;
-}
-/** The subscription CLI found on this computer, by its label, when one is (no key needed). */
-export function detectedLabel() {
-  const d = data.detected || {};
-  return d.claude ? providerForms.claude.label : d.codex ? providerForms.codex.label : null;
 }
 // Friends without an AI, other than `except`.
 const unconnected = except => data.pets.filter(p => !p.providerId && p.id !== except);
@@ -118,9 +113,11 @@ function connected(first, able) {
 export async function quickConnect() {
   // A connection belongs to friends: with none in the yard there is nobody to give it to.
   if (!data.pets.length) return;
-  const d = data.detected || {};
-  const type = d.claude ? 'claude' : d.codex ? 'codex' : null;
+  const choice = cliChoice();
   const shared = sharedConnection();
+  // A connection to a CLI that is signed out would fail at the first word: the chat's card signs in.
+  if (!shared && choice?.signedIn === false) return focusSignIn($('chat-sign-in'));
+  const type = choice?.type || null;
   if (!type && !shared) return openConnectionDialog(null);
   const first = !data.pets.some(p => p.providerId);
   const targets = unconnected();
@@ -186,6 +183,7 @@ function updateProviderForm() {
   $('save-provider').disabled = !type;
   $('connection-help').hidden = !['claude', 'codex', 'ollama'].includes(type);
   $('connection-help').textContent = ['claude', 'codex', 'ollama'].includes(type) ? t(`connection.help_${type}`) : '';
+  refreshConnectionSignIn();
   if (!type) return;
   const form = providerForms[type];
   $('endpoint-field').hidden = !form.endpoint;
@@ -199,6 +197,11 @@ function updateProviderForm() {
   $('provider-note').textContent = t(`connection.note_${type}`);
   $('model-req').hidden = !form.modelRequired;
   loadModels();
+}
+/** The dialog's sign-in card: shown for Claude Code or Codex when found here and signed out. */
+export function refreshConnectionSignIn() {
+  const type = aiType();
+  renderSignIn($('connection-sign-in'), (type === 'claude' || type === 'codex') && signedOut(type) ? type : null);
 }
 // Fill the model combobox from the live provider, so people pick instead of typing.
 let modelEpoch = 0;
