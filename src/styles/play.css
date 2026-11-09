@@ -440,3 +440,108 @@ body:not(.compact) .play-board {
 .trail-layer.fading {
   opacity: 0;
 }
+
+/* The snowman game's balls (yard/snowman.js): set down at their foot among the friends, as a gift
+   is. The button's transform is where it stands, so a squash or a settle plays on the art inside
+   it and the turning on the drawing inside that. */
+.snowball {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+}
+.snowball.dragging {
+  cursor: grabbing;
+}
+.snowball.lifting,
+.snowball.stacked {
+  pointer-events: none;
+}
+.snowball:focus-visible {
+  outline: none;
+}
+.snowball:focus-visible svg {
+  filter: drop-shadow(0 0 2px var(--focus));
+}
+.snowball-art,
+.snowball-roll {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.snowball-art {
+  transform-origin: 50% 100%;
+}
+.snowball svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+/* a press squashes it a little; a ball set on the stack settles; a new one fades in */
+.snowball-art.push {
+  animation: snowball-push 0.22s ease-out;
+}
+.snowball-art.settle {
+  animation: snowball-settle 0.26s ease-out;
+}
+.snowball-art.appear {
+  animation: snowball-appear 0.2s ease-out;
+}
+@keyframes snowball-push {
+  from {
+    transform: scale(1.1, 0.88);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes snowball-settle {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.06, 0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes snowball-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Snow a press kicks up: each puff is turned toward where it flies (its own `rotate`) and flies
+   out along that way. */
+.snow-puff {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #fbfdff;
+  box-shadow: 0 0 2px #c9d6e6;
+  pointer-events: none;
+  opacity: 0;
+  animation: snow-puff 0.6s ease-out forwards;
+}
+@keyframes snow-puff {
+  0% {
+    transform: translateX(2px) scale(0.6);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateX(16px) scale(1.1);
+    opacity: 0;
+  }
+}

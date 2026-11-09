@@ -128,7 +128,7 @@ const BUILT = [
   /^bond\.(welcome|up_line|dear)_(partner|senior|junior)$/, // yard/bond.js lineFor
   /^pet\.call_me_(friend|partner|senior|junior)$/, // panel/friend-settings.js
   /^connection\.(note|help)_[a-z]+$/, // panel/connection.js, by connection type
-  /^game\.(hide|parade|tag)_title$/, // yard/play.js
+  /^game\.(hide|parade|tag|snowman)_title$/, // yard/play.js
   /^discovery\.((dig|tree)_hint|empty|seed|full)$/, // yard/discovery.js, by tool and by outcome
 ];
 

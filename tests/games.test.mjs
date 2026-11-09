@@ -15,8 +15,8 @@ import {
 
 const inside = p => p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1;
 
-test('three games are offered', () => {
-  assert.deepEqual(Object.keys(GAMES), ['hide', 'parade', 'tag']);
+test('four games are offered', () => {
+  assert.deepEqual(Object.keys(GAMES), ['hide', 'parade', 'tag', 'snowman']);
 });
 
 test('friends hide along the ridge, apart from each other', () => {

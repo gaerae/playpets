@@ -26,6 +26,7 @@ import {
   touching,
 } from './games.js';
 import { hint } from './hint.js';
+import { snowmanGame } from './snowman.js';
 import { release, rest, sendTo } from './trips.js';
 import { bubble, effect, labelTag, place, pose } from './views.js';
 
@@ -34,8 +35,9 @@ const HIDE_WAIT_MS = 15000;
 const send = (v, target, speed) => sendTo(v, target, { save: false, speed, arrive: arrived });
 const called = id => name(views.get(id).pet);
 let gameButtons = [];
-// A round owns its delayed moves and feedback, so cancelling it also cancels its callbacks.
-function after(ms, fn) {
+// A round owns its delayed moves and feedback, so cancelling it also cancels its callbacks. The
+// snowman game gets it through setupSnowman (app.js), as it cannot import this file.
+export function after(ms, fn) {
   const round = game;
   const timer = setTimeout(() => {
     round.timers.delete(timer);
@@ -51,6 +53,8 @@ export function syncGameUi() {
       ? t('game.stop', { name: GAMES[b.dataset.game] })
       : GAMES[b.dataset.game];
     b.classList.toggle('playing', mine);
+    // A game only some yards have (the snowman, while the yard shows winter) leaves the menu elsewhere.
+    b.hidden = RULES[b.dataset.game].shown?.() === false;
     b.disabled = !data.pets.length || (!!game && !mine);
   }
   $('feed').disabled = !data.pets.length || !!game;
@@ -255,18 +259,20 @@ const tag = {
 };
 
 /** What each game does, by its id in GAMES. Hooks a game does not need are left out. */
-const RULES = { hide, parade, tag };
+const RULES = { hide, parade, tag, snowman: snowmanGame };
 const rules = () => RULES[game.kind];
 
-function startGame(kind) {
+/** Starts a game of `kind` led by the friend `lead` (else the selected friend, or the first). */
+export function startGame(kind, lead = null) {
   if (game) endGame();
   if (!views.size || !RULES[kind]) return;
+  if (!views.has(lead)) lead = views.has(selected) ? selected : [...views.keys()][0];
+  // Why it cannot start now: a notice, or the game's own way of saying so (a friend's line).
   const missing = RULES[kind].needs?.(views);
-  if (missing) return toast(t(missing));
+  if (missing) return RULES[kind].refused ? RULES[kind].refused(missing, lead) : toast(t(missing));
   if (aiming) setAimingMode(false);
   $('treat').hidden = true;
-  const lead = views.has(selected) ? selected : [...views.keys()][0],
-    now = performance.now();
+  const now = performance.now();
   setGame({ kind, ids: [lead, ...[...views.keys()].filter(id => id !== lead)], hint: '', timers: new Set() });
   // Whatever a friend was doing (a walk, fishing) ends when a game takes it.
   for (const v of party()) {

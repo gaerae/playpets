@@ -73,11 +73,12 @@ import { hint } from './yard/hint.js';
 import { moveFriends } from './yard/motion.js';
 import { drawTreeOrnaments } from './yard/ornaments.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
-import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
+import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGameUi } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
 import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
 import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
 import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
+import { resizeSnowman, setupSnowman, showsWinter } from './yard/snowman.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
 import { release } from './yard/trips.js';
@@ -155,6 +156,9 @@ setupSky({
     christmasNightCheck();
     // The decorating view ends at midnight with the season, not only when the yard is redrawn.
     renderDecorating();
+    // The snowman is built only while the yard shows winter: another season or place stops it.
+    if (game?.kind === 'snowman' && !showsWinter()) endGame();
+    syncGameUi();
     if (setSpriteSeason(season) && data.assets.length) render();
     else renderAlbum();
   },
@@ -206,12 +210,14 @@ setupViews({
     endFishing();
     scenery.resize();
     resizeTrail();
+    resizeSnowman();
     renderGarden();
     renderDecor();
     renderTrees();
   },
 });
 setupPlay();
+setupSnowman({ start: startGame, end: endGame, after });
 setupCare();
 setupGarden();
 // The Christmas tree's night is checked whenever the gifts are drawn, and when the window is seen;

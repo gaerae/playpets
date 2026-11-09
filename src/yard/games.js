@@ -2,7 +2,12 @@
 import { t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
 
-export const GAMES = { hide: t('game.hide'), parade: t('game.parade'), tag: t('game.tag') };
+export const GAMES = {
+  hide: t('game.hide'),
+  parade: t('game.parade'),
+  tag: t('game.tag'),
+  snowman: t('game.snowman'),
+};
 export const TAG_MS = 40000;
 export const PARADE_MS = 26000;
 const PARADE_GAP = 0.07;
