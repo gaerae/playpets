@@ -81,6 +81,18 @@ fn one() -> u32 {
     1
 }
 
+/// A winter animal that leaves prints; the finds are the treasures it leans a dig toward.
+#[derive(Deserialize)]
+pub struct Track {
+    pub id: String,
+    #[serde(default)]
+    pub finds: Vec<String>,
+}
+
+/// How many times likelier a find an animal leans to is, at the end of its trail. Six shows the
+/// leaning without making the other finds rare.
+pub const TRAIL_LEAN: u64 = 6;
+
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DiscoveryContext {
@@ -89,11 +101,18 @@ pub struct DiscoveryContext {
     /// The dig is at the rainbow's end the page shows after rain (rainbow-end.js).
     #[serde(default)]
     pub rainbow: bool,
+    /// The dig is where a friend followed this animal's prints to (trails.js); winter only.
+    #[serde(default)]
+    pub trail: Option<String>,
 }
 impl DiscoveryContext {
     pub fn valid(&self) -> bool {
         matches!(self.season.as_str(), "spring" | "summer" | "autumn" | "winter")
             && matches!(self.weather.as_str(), "clear" | "rain" | "snow")
+            && self
+                .trail
+                .as_deref()
+                .is_none_or(|trail| self.season == "winter" && catalog().is_track(trail))
     }
 }
 
@@ -144,6 +163,8 @@ pub struct Catalog {
     trees: Vec<Kind>,
     #[serde(default)]
     treasures: Vec<Treasure>,
+    #[serde(default)]
+    pub tracks: Vec<Track>,
 }
 
 fn events() -> &'static Events {
@@ -228,13 +249,32 @@ impl Catalog {
     pub fn treasure(&self, rarity: &str, roll: u64, context: Option<&DiscoveryContext>, world: &str) -> Option<&str> {
         weighted_id(
             self.treasures.iter().filter(|kind| kind.rarity == rarity).map(|kind| {
+                let lean = if self.leans_to(context, &kind.id) {
+                    TRAIL_LEAN
+                } else {
+                    1
+                };
                 (
                     kind.id.as_str(),
-                    u64::from(kind.weight) * kind.affinity.multiplier(context, world),
+                    u64::from(kind.weight) * kind.affinity.multiplier(context, world) * lean,
                 )
             }),
             roll,
         )
+    }
+
+    /// Whether this is an animal that leaves prints.
+    pub fn is_track(&self, id: &str) -> bool {
+        self.tracks.iter().any(|track| track.id == id)
+    }
+    /// Whether the dig's trail animal lists this treasure among its finds.
+    fn leans_to(&self, context: Option<&DiscoveryContext>, treasure: &str) -> bool {
+        let Some(trail) = context.and_then(|c| c.trail.as_deref()) else {
+            return false;
+        };
+        self.tracks
+            .iter()
+            .any(|track| track.id == trail && track.finds.iter().any(|find| find == treasure))
     }
 
     /// Whether a seed can grow into this flower.
@@ -308,6 +348,58 @@ impl Catalog {
 mod tests {
     use super::*;
 
+    fn trail_context(season: &str, weather: &str, trail: Option<&str>) -> DiscoveryContext {
+        DiscoveryContext {
+            season: season.into(),
+            weather: weather.into(),
+            rainbow: false,
+            trail: trail.map(Into::into),
+        }
+    }
+
+    #[test]
+    fn a_trail_context_is_valid_only_in_winter_for_a_known_animal() {
+        assert!(trail_context("winter", "clear", Some("fox")).valid());
+        assert!(trail_context("summer", "clear", None).valid());
+        assert!(!trail_context("summer", "clear", Some("fox")).valid());
+        assert!(!trail_context("winter", "snow", Some("dragon")).valid());
+        let older: DiscoveryContext =
+            serde_json::from_value(serde_json::json!({"season":"winter","weather":"clear","rainbow":false})).unwrap();
+        assert!(older.trail.is_none());
+    }
+
+    #[test]
+    fn a_trail_leans_to_its_animals_finds() {
+        let c = catalog();
+        let share = |rarity: &str, trail: Option<&str>, kinds: &[&str]| {
+            let context = trail_context("winter", "clear", trail);
+            (0..1000)
+                .filter(|roll| {
+                    c.treasure(rarity, *roll, Some(&context), "woodland")
+                        .is_some_and(|id| kinds.contains(&id))
+                })
+                .count()
+        };
+        // Six times the weight turns about 12% into about 44% of the common finds (19 kinds).
+        assert!(share("common", Some("squirrel"), &["pinecone", "acorn_teacup"]) > 400);
+        assert!(share("common", None, &["pinecone", "acorn_teacup"]) < 250);
+        assert!(share("uncommon", Some("magpie"), &["star_fragment", "quartz", "tiny_crown"]) > 700);
+        for track in &c.tracks {
+            assert!(!track.finds.is_empty(), "{}", track.id);
+            for find in &track.finds {
+                assert!(c.treasures.iter().any(|t| &t.id == find), "{find}");
+            }
+            assert!(
+                track
+                    .finds
+                    .iter()
+                    .any(|find| c.treasures.iter().any(|t| &t.id == find && t.rarity == "common")),
+                "{} has no common find",
+                track.id
+            );
+        }
+    }
+
     #[test]
     fn the_snowman_is_built_and_dressed_from_the_catalogue() {
         let c = catalog();
@@ -342,6 +434,7 @@ mod tests {
                         season: season.into(),
                         weather: weather.into(),
                         rainbow: false,
+                        trail: None,
                     };
                     let expected = (if season == "spring" { 2 } else { 1 })
                         * (if weather == "rain" { 2 } else { 1 })

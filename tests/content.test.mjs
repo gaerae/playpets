@@ -7,7 +7,7 @@ import test from 'node:test';
 import { LIMITS } from '../src/core/limits.js';
 import { STRINGS } from '../src/core/strings.js';
 import { PAINTER_NAMES, THING_KINDS } from '../src/yard/backdrop.js';
-import { artOf, eventGifts, giftKind } from '../src/yard/catalog.js';
+import { artOf, eventGifts, giftKind, TRACKS, trailArt } from '../src/yard/catalog.js';
 import { SHOWN } from '../src/yard/decor-shown.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
@@ -220,4 +220,25 @@ test('the snowman has a ball, a stack and three things to wear, all drawn', () =
   const arts = artOf(catalog);
   for (const art of [s.ball, ...s.dress.map(p => p.art)])
     assert.ok(arts.includes(art) && existsSync(`src/art/${art}`), art);
+});
+
+test("every animal's prints, tail and finds are in the catalogue", () => {
+  assert.deepEqual(
+    TRACKS.map(k => k.id),
+    ['hare', 'fox', 'water_deer', 'raccoon_dog', 'squirrel', 'sparrow', 'magpie', 'cat'],
+  );
+  const art = artOf(catalog, events);
+  const treasures = catalog.treasures.map(t => t.id);
+  for (const k of TRACKS) {
+    for (const path of [k.print, k.tail]) {
+      assert.ok(art.includes(path), `${k.id}: ${path} is named`);
+      assert.ok(existsSync(new URL(`../src/art/${path}`, import.meta.url)), `src/art/${path}`);
+    }
+    for (const find of k.finds) assert.ok(treasures.includes(find), `${k.id}: ${find} is a treasure`);
+    assert.equal(typeof k.gait.group, 'boolean', k.id);
+    for (const key of ['step', 'size']) assert.ok(k.gait[key] > 0, `${k.id}: ${key}`);
+    assert.ok(k.gait.side >= 0, `${k.id}: side`);
+    assert.equal(k.bird, k.id === 'sparrow' || k.id === 'magpie', k.id);
+  }
+  for (const id of ['bush', 'twigs', 'puff']) assert.ok(trailArt(id), id);
 });
