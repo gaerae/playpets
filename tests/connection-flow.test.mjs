@@ -150,3 +150,27 @@ test('a friend just invited stays chosen next time, and the words in the box sta
   assert.equal(state.selected, 'c');
   assert.equal(recall('friend'), 'c');
 });
+
+test('pressing connect now twice in a row makes one connection', async t => {
+  page(t, { providers: [], pets: [friend('a')], detected: { claude: true } });
+  await Promise.all([quickConnect(), quickConnect()]);
+  assert.deepEqual(names(), ['saveProvider', 'updatePet']);
+});
+
+test('sending twice before the first word leaves sends it once', async t => {
+  const a = friend('a', 'one'),
+    b = friend('b');
+  const get = page(t, { providers: [claude], pets: [b, a] });
+  setupChat();
+  renderChat(b);
+  get('message').value = 'Hello';
+  const submit = () => get('chat-form').onsubmit({ preventDefault() {} });
+  await Promise.all([submit(), submit()]);
+  assert.deepEqual(
+    calls.filter(c => c[0] !== 'getChat'),
+    [
+      ['updatePet', 'b', { providerId: 'one' }],
+      ['chat', 'b', 'Hello'],
+    ],
+  );
+});

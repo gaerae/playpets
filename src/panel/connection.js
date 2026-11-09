@@ -115,20 +115,27 @@ function connected(first, able) {
 }
 /** The first-run card's "connect now": a CLI found on this computer is connected to every friend
  * without an AI in one step; otherwise the dialog opens for the selected friend. */
+// A second press while the first is still saving would make a second connection.
+let quickConnecting = false;
 export async function quickConnect() {
   // A connection belongs to friends: with none in the yard there is nobody to give it to.
-  if (!data.pets.length) return;
+  if (!data.pets.length || quickConnecting) return;
   const d = data.detected || {};
   const type = d.claude ? 'claude' : d.codex ? 'codex' : null;
   const shared = sharedConnection();
   if (!type && !shared) return openConnectionDialog(null);
   const first = !data.pets.some(p => p.providerId);
   const targets = unconnected();
-  const id = shared || (await call('saveProvider', { id: null, type, model: '', endpoint: '', apiKey: '' })).id;
-  const able = data.pets.length - targets.length + (await attachAll(targets, id));
-  // This path skips the dialog, so what the plan still costs is said here.
-  toast(shared ? t('toast.connection_saved') : t(`connection.note_${type}`));
-  connected(first, able);
+  quickConnecting = true;
+  try {
+    const id = shared || (await call('saveProvider', { id: null, type, model: '', endpoint: '', apiKey: '' })).id;
+    const able = data.pets.length - targets.length + (await attachAll(targets, id));
+    // This path skips the dialog, so what the plan still costs is said here.
+    toast(shared ? t('toast.connection_saved') : t(`connection.note_${type}`));
+    connected(first, able);
+  } finally {
+    quickConnecting = false;
+  }
 }
 export function openConnectionDialog(current, onChange = () => {}, { forFriend = selected, inline = null } = {}) {
   if (dialogSaving) return;

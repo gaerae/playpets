@@ -378,9 +378,12 @@ export function setupChat() {
         });
         return;
       }
+      // Pending from here: a second press while the connection is given would send the words twice.
+      pendingChats.add(id);
       try {
         await call('updatePet', id, { providerId: shared });
       } catch (error) {
+        pendingChats.delete(id);
         toast(spoken(error, t('error.generic')), { error: true });
         return;
       }
