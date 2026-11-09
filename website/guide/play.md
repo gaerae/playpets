@@ -176,9 +176,9 @@ To put one away, right-click it and choose **Put away**, or press **Delete** or 
 
 - The yard holds 12 decorations. When it's full, a new gift waits in the **gift box** at the top of the album's Gifts book, which holds 12 more. Press one there to set it out once there's room.
 - Putting one away keeps its album entry and makes room for the remaining gifts. A memento goes back into the gift box instead, unless the box is full.
-- Any gift that came before can come back out: press **Set out** on its card in the album's Gifts book, once there's room in the yard.
+- Any gift that came before can come back out: press **Set out** on its card in the album's Gifts book, once there's room in the yard. The snowman is the exception: you build it again instead.
 - The same right-click menu sends a gift out to the desktop ([Gifts on the desktop](./desktop.md#gifts-on-the-desktop)).
-- The album has 29 gifts, including seven delivered only during their calendar events. The snowman is one of them, but a friend never brings it: you build it ([Snowman](#snowman)). A memento is one of these 29, so it adds no new entry.
+- The album has 29 gifts, including seven delivered only during their calendar events. The snowman is one of the 29, but a friend never brings it: you build it ([Snowman](#snowman)). A memento is one of these 29, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
@@ -338,7 +338,7 @@ While the yard shows winter, which leaves out the Cozy living room, **Snowman** 
 
 Then choose its hat, scarf and carrot nose. Press the snowman, or choose **Dress up** from its menu, to change them later.
 
-- A new snowman replaces the old one, which melts as a friend says goodbye.
+- A new snowman replaces the old one, which melts away; with company, a friend says goodbye to it.
 - The snowman stays in the yard only while the yard shows winter. It never goes out on the desktop, and putting it away melts it.
 - With 12 decorations in the yard and no snowman, a friend says the yard is full, and the game doesn't start.
 

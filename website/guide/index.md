@@ -2,7 +2,7 @@
 
 PlayPets is a shared yard for companions who talk to you and to each other. Invite a starter or import a compatible community pet file, then give it a name, a personality and a relationship. You don't need Codex itself.
 
-The first yard opens on a sunny spring day. Pick the season, time and weather yourself, or leave them on Auto. Friends stroll, eat treats and play three games, and digging turns up flower seeds and saplings.
+The first yard opens on a sunny spring day. Pick the season, time and weather yourself, or leave them on Auto. Friends stroll, eat treats and play four games (one only in winter), and digging turns up flower seeds and saplings.
 
 Friends you play with bring gifts: one every other day for the whole yard, and another each time a friend grows closer. Grow flowers, fish and catch bugs to fill the album, and you grow closer over time.
 
@@ -43,7 +43,7 @@ Something not working? See [the table in the FAQ](./faq.md#troubleshooting).
 3. [Talking with friends](./chat.md) — kinds of AI connections, personality, chatting with several friends at once
 4. [Coding agents](./agents.md) — letting your friend see what the agent is doing
 5. [Desktop mode](./desktop.md) — sending friends out onto the desktop
-6. [The yard and games](./play.md) — time of day, weather and seasons, garden and gifts, fishing and bugs, album, closeness, events, sounds, three games, resizing the window
+6. [The yard and games](./play.md) — time of day, weather and seasons, garden and gifts, fishing and bugs, album, closeness, events, sounds, four games, resizing the window
 7. [Importing pets](./import.md) — community pets and pet folders on your computer
 8. [Settings](./settings.md) — language, updates, quitting, what is saved and what is not
 9. [FAQ](./faq.md)
