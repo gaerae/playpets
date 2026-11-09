@@ -132,7 +132,11 @@ fn save(path: &Path, existed: bool, clean: bool, text: Option<&str>) -> Result<(
     }
     // The suffix keeps the temporary file out of a folder the agent reads whole (`*.json`).
     let temporary = sibling(&path, "playpets-tmp");
-    fs::write(&temporary, text).map_err(failed)?;
+    // On disk before the rename: a crash must not leave the agent an empty settings file.
+    crate::store::write_synced(&temporary, text.as_bytes(), false).map_err(|e| {
+        let _ = fs::remove_file(&temporary);
+        failed(e)
+    })?;
     if let Ok(meta) = fs::metadata(&path) {
         let _ = fs::set_permissions(&temporary, meta.permissions());
     }

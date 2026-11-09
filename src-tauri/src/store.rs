@@ -2,7 +2,7 @@
 use crate::i18n;
 use serde_json::Value;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct Store {
@@ -50,35 +50,59 @@ impl Store {
     fn write_with(&self, name: &str, value: &Value, private: bool) -> Result<(), String> {
         let failed = |e: std::io::Error| i18n::detail_for("store.write_failed", name, &e);
         fs::create_dir_all(&self.dir).map_err(failed)?;
-        let tmp = self.dir.join(format!("{name}.tmp"));
-        let text = serde_json::to_string_pretty(value).map_err(|e| failed(e.into()))?;
-        let mut options = fs::OpenOptions::new();
-        options.write(true).create(true).truncate(true);
         #[cfg(unix)]
         if private {
-            use std::os::unix::fs::OpenOptionsExt;
             use std::os::unix::fs::PermissionsExt;
-            options.mode(0o600);
             let _ = fs::set_permissions(&self.dir, fs::Permissions::from_mode(0o700));
         }
-        #[cfg(not(unix))]
-        let _ = private;
-        {
-            use std::io::Write;
-            let mut file = options.open(&tmp).map_err(failed)?;
-            file.write_all(text.as_bytes()).map_err(failed)?;
-            // On disk before it takes the name: a power cut after the rename must not leave an
-            // empty state.json where the last good one was.
-            file.sync_all().map_err(failed)?;
-        }
+        let tmp = self.dir.join(format!("{name}.tmp"));
+        let text = serde_json::to_string_pretty(value).map_err(|e| failed(e.into()))?;
+        write_synced(&tmp, text.as_bytes(), private).map_err(failed)?;
         fs::rename(&tmp, self.dir.join(name)).map_err(failed)
     }
+}
+
+/// Writes a file and waits until it is on disk, for a file about to be renamed over another: a
+/// power cut after the rename must not leave an empty file where the last good one was. A private
+/// file is made 0600 before anything is in it, where the system has such modes.
+pub fn write_synced(path: &Path, bytes: &[u8], private: bool) -> std::io::Result<()> {
+    use std::io::Write;
+    let mut options = fs::OpenOptions::new();
+    options.write(true).create(true).truncate(true);
+    #[cfg(unix)]
+    if private {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    #[cfg(not(unix))]
+    let _ = private;
+    let mut file = options.open(path)?;
+    file.write_all(bytes)?;
+    file.sync_all()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn a_synced_write_replaces_the_file_and_can_be_private() {
+        let dir = std::env::temp_dir().join(format!("playpets-synced-{}", uuid::Uuid::new_v4()));
+        fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("settings.json");
+        fs::write(&file, "old and longer").unwrap();
+        write_synced(&file, b"new", false).unwrap();
+        assert_eq!(fs::read_to_string(&file).unwrap(), "new");
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let secret = dir.join("bridge.json");
+            write_synced(&secret, b"{}", true).unwrap();
+            assert_eq!(fs::metadata(&secret).unwrap().permissions().mode() & 0o777, 0o600);
+        }
+        let _ = fs::remove_dir_all(&dir);
+    }
 
     #[test]
     fn store_round_trips_and_rescues_corrupt_files() {
