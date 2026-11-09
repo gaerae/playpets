@@ -15,6 +15,7 @@
 // the app starts at login and reloads after an update, and a page variable alone would play the
 // change again then. Losing it only means seeing the change once more.
 
+import { between } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { data, recall, remember, views } from '../core/state.js';
 import { artSize, artSvg } from './art.js';
@@ -36,11 +37,19 @@ const NEAR_WIDTHS = 2;
 const NIGHT_KEY = 'xmas-night';
 // A night runs until five in the morning (periodFor: night is 20:00 to 05:00).
 const NIGHT_ENDS = 5;
+// One bulb glints for GLINT_MS, then the next one a random wait after this one began.
+const GLINT_MS = 800,
+  GLINT_GAP = [10_000, 16_000];
 
 let seen = () => true;
 // The tree's button while it stands grand, and the timer that ends its change.
 let grand = null,
   riseTimer = null;
+// The glint chain: its timers, and the bulb that glinted last; each button's sparkle node.
+let glintTimer = null,
+  glintOff = null,
+  lastBulb = -1;
+const sparkles = new WeakMap();
 
 /** Whether `scene` (world.js) and the yard's `decor` make Christmas night at `date`. */
 export function christmasNight(scene, decor, date) {
@@ -86,7 +95,9 @@ function layers(button) {
   reveal.append(art);
   star.style.left = percent(night.star[0]);
   star.style.top = percent(night.star[1]);
-  layer.append(span('xmas-pool'), reveal, span('xmas-veil'), star);
+  const glint = span('xmas-glint');
+  sparkles.set(button, glint);
+  layer.append(span('xmas-pool'), reveal, span('xmas-veil'), star, glint);
   button.append(layer);
 }
 
@@ -106,8 +117,37 @@ function lookUp(at) {
   }
 }
 
+function stopGlints() {
+  clearTimeout(glintTimer);
+  clearTimeout(glintOff);
+  glintTimer = glintOff = null;
+  if (grand) sparkles.get(grand)?.classList.remove('glinting');
+}
+// One glint on a bulb other than the last, and the timer for the next one; a single timer at a time.
+function glintLater() {
+  const gap = between(Math.random, GLINT_GAP);
+  glintTimer = setTimeout(() => {
+    const node = grand && sparkles.get(grand);
+    if (!node || reduced.matches) return stopGlints();
+    const { bulbs } = sizes().night,
+      n = bulbs.length;
+    lastBulb = (lastBulb + 1 + Math.floor(Math.random() * (n - 1))) % n;
+    node.style.left = percent(bulbs[lastBulb][0]);
+    node.style.top = percent(bulbs[lastBulb][1]);
+    node.classList.add('glinting');
+    glintOff = setTimeout(() => node.classList.remove('glinting'), GLINT_MS);
+    glintLater();
+  }, gap);
+}
+function startGlints() {
+  if (glintTimer || reduced.matches) return;
+  lastBulb = -1;
+  glintLater();
+}
+
 // The tree goes back to small at once (its classes' transitions make it a crossfade).
 function calm() {
+  stopGlints();
   clearTimeout(riseTimer);
   riseTimer = null;
   grand?.classList.remove('xmas-grand', 'xmas-rise');
@@ -116,7 +156,7 @@ function calm() {
 
 /** Brings the tree in line with Christmas night: safe to call at any time, as often as needed. */
 export function christmasNightCheck() {
-  if (document.hidden || !seen()) return;
+  if (document.hidden || !seen()) return stopGlints();
   const now = new Date(),
     found = shownDecor('xmas_tree'),
     on = !!found && christmasNight(scene, data.garden?.decor || [], now);
@@ -148,6 +188,8 @@ export function christmasNightCheck() {
     calm();
     renderDecor();
   }
+  // Standing grand and settled (not mid-change) with no chain yet: begin the glints.
+  if (grand && !grand.classList.contains('xmas-rise')) startGlints();
 }
 
 /** Christmas night follows the window: `seen` says whether the app shows it (app.js). */

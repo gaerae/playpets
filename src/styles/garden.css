@@ -281,6 +281,23 @@
   background: radial-gradient(circle, #fff3c4cc, #ffd27a00 70%);
   opacity: 0.85;
 }
+/* A single bulb glints now and then (christmas-night.js GLINT_MS): a soft four-point sparkle, a
+   glow with two thin bars, centred on the bulb the script names with left and top. */
+.xmas-glint {
+  position: absolute;
+  width: 7%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  background:
+    radial-gradient(closest-side, #fff6d8, #ffd98a99 40%, #ffd98a00),
+    linear-gradient(90deg, #fff6d800, #fff6d8cc, #fff6d800) center / 100% 8% no-repeat,
+    linear-gradient(0deg, #fff6d800, #fff6d8cc, #fff6d800) center / 8% 100% no-repeat;
+  opacity: 0;
+}
+.xmas-glint.glinting {
+  animation: xmas-glint 0.7s ease-in-out both;
+}
 /* The change: every part runs 2.6 s on one curve (christmas-night.js RISE_MS ends it). The window
    rises while the drawing in it moves down as much (115 % of the tree's height each), so the tree
    stays put and is uncovered from the roots up. */
@@ -306,6 +323,20 @@
 }
 .decor.xmas-rise .xmas-pool {
   animation: xmas-pool-in 2.6s ease-in-out both;
+}
+@keyframes xmas-glint {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  35% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
 }
 @keyframes xmas-small-out {
   0%,

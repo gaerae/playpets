@@ -61,6 +61,9 @@ async function yard(ctx, { decor = [TREE], seen, before } = {}) {
     Object.assign(scene, was);
     reduced.matches = motion;
     views.clear();
+    // The yard empties while this test's clock still runs, so no timer handle outlives it.
+    setData({ garden: { decor: [], plants: [], trees: [], boxed: [] }, pets: [], assets: [] });
+    renderDecor();
   });
   const { nodes, document } = installDom(ctx, { anyId: true, ids: ['yard', 'garden-layer', 'toast'] });
   ctx.after(() => {
@@ -270,6 +273,93 @@ test('Undo before the change would have ended brings the tree back grand, and th
   const classes = tree().className;
   ctx.mock.timers.tick(1100);
   assert.equal(tree().className, classes, 'the 2.6 s mark passes with nothing to end');
+});
+
+const glint = button => layers(button)[0].children.find(c => c.classList.contains('xmas-glint'));
+const lit = button => glint(button).classList.contains('glinting');
+const bulbs = (await import('../src/yard/catalog.js')).giftKind('xmas_tree').night.bulbs;
+const at = bulb => ({ left: `${bulb[0] * 100}%`, top: `${bulb[1] * 100}%` });
+const spot = button => ({ left: glint(button).style.left, top: glint(button).style.top });
+const TONIGHT = ({ storage }) => storage.setItem('xmas-night', '2026-12-24');
+
+test('a single bulb glints now and then, 10 to 16 seconds apart', async ctx => {
+  ctx.mock.method(Math, 'random', () => 0);
+  const { tree } = await yard(ctx, { before: TONIGHT });
+  const { timers } = ctx.mock;
+
+  timers.tick(9_999);
+  assert.ok(!lit(tree()));
+  timers.tick(1);
+  assert.ok(lit(tree()));
+  assert.deepEqual(spot(tree()), at(bulbs[0]));
+  timers.tick(800);
+  assert.ok(!lit(tree()));
+  timers.tick(9_200);
+  assert.ok(lit(tree()));
+  assert.deepEqual(spot(tree()), at(bulbs[1]));
+});
+
+test('the next glint waits up to 16 seconds', async ctx => {
+  ctx.mock.method(Math, 'random', () => 0.999);
+  const { tree } = await yard(ctx, { before: TONIGHT });
+  ctx.mock.timers.tick(15_900);
+  assert.ok(!lit(tree()));
+  ctx.mock.timers.tick(100);
+  assert.ok(lit(tree()));
+});
+
+test('the change ends, then the glints begin', async ctx => {
+  ctx.mock.method(Math, 'random', () => 0);
+  const { tree } = await yard(ctx);
+  ctx.mock.timers.tick(2_600);
+  ctx.mock.timers.tick(9_999);
+  assert.ok(!lit(tree()));
+  ctx.mock.timers.tick(1);
+  assert.ok(lit(tree()));
+});
+
+// Forty seconds pass and no bulb has glinted.
+const quiet = (ctx, button) => {
+  ctx.mock.timers.tick(40_000);
+  assert.ok(!lit(button));
+};
+const still = (name, play) => {
+  test(`no glints ${name}`, async ctx => {
+    ctx.mock.method(Math, 'random', () => 0);
+    await play(ctx);
+  });
+};
+
+still('with reduced motion', async ctx => {
+  const { tree } = await yard(ctx, {
+    before: opts => {
+      TONIGHT(opts);
+      reduced.matches = true;
+    },
+  });
+  quiet(ctx, tree());
+});
+still('while the yard cannot be seen, and a glint 10 s after it can', async ctx => {
+  const { tree, document } = await yard(ctx, { before: TONIGHT });
+  document.hidden = true;
+  ctx.mock.timers.tick(5_000);
+  christmasNightCheck();
+  quiet(ctx, tree());
+  document.hidden = false;
+  document.dispatch('visibilitychange');
+  ctx.mock.timers.tick(10_000);
+  assert.ok(lit(tree()));
+});
+still('once the snow stops', async ctx => {
+  const { tree } = await yard(ctx, { before: TONIGHT });
+  scene.weather = 'clear';
+  christmasNightCheck();
+  quiet(ctx, tree());
+});
+still('once the tree is put away', async ctx => {
+  const { tree } = await yard(ctx, { before: TONIGHT });
+  await tree().dispatch('keydown', { key: 'Delete', preventDefault() {} });
+  quiet(ctx, tree());
 });
 
 const uncommented = css => css.replace(/\/\*[\s\S]*?\*\//g, '');
