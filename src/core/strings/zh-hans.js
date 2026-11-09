@@ -930,4 +930,8 @@ export const strings = {
   'letter.delete_action': '删除',
   'letter.thanks': ['谢谢你回信！我会好好收着的。'],
   'letter.skip': ['没关系！谢谢你陪了我一年，明年也一起玩吧。'],
+  'letter.bubble': ['我给你写了一封信！', '有你的信哦，是我写的！'],
+  'letter.mailbox_bubble': ['我把信放进信箱啦！'],
+  'letter.chip': '信',
+  'letter.chip_title': '阅读年末来信',
 };

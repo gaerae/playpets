@@ -101,6 +101,8 @@ export function setupControls({
   dress = () => {},
   canDress = () => false,
   canGoOut = () => true,
+  letterReadable = () => false,
+  openLetter = () => {},
 } = {}) {
   surfaces = [];
   let spot = null;
@@ -177,8 +179,15 @@ export function setupControls({
     let point = { x: 8, y: 8 },
       friend = null;
     const items = menuNavigation(context);
-    const digHere = () =>
-      [...context.querySelectorAll('[data-context-action]')].find(item => item.dataset.contextAction === 'dig-here');
+    const row = action =>
+      [...context.querySelectorAll('[data-context-action]')].find(item => item.dataset.contextAction === action);
+    const digHere = () => row('dig-here');
+    // The scenery's menu offers the year-end letter while there is one to read (letter.js).
+    const showYard = () => {
+      show('yard');
+      const letter = row('letter');
+      if (letter) letter.hidden = !letterReadable();
+    };
     const show = (forWhat, id = null) => {
       friend = id;
       for (const item of context.querySelectorAll('[data-context-for]'))
@@ -245,7 +254,7 @@ export function setupControls({
         return;
       event.preventDefault();
       point = { x: event.clientX, y: event.clientY };
-      show('yard');
+      showYard();
       // Bare ground offers digging right there, without a trip through Play.
       const dig = digHere();
       if (dig) dig.hidden = !canDigAt(point.x, point.y);
@@ -266,7 +275,7 @@ export function setupControls({
       }
       const r = launcher.getBoundingClientRect();
       point = { x: r.right, y: r.top - 8 };
-      show('yard');
+      showYard();
       const dig = digHere();
       if (dig) dig.hidden = true;
       box.open();
@@ -294,6 +303,7 @@ export function setupControls({
       else if (action === 'fit') $('window-fit').click();
       else if (action === 'menu') showControls?.(point);
       else if (action === 'dig-here') digAt(point.x, point.y);
+      else if (action === 'letter') openLetter();
       else if (action === 'talk') openChat(friend);
       else if (action === 'play-friend') openPlay(point);
       else if (action === 'dig-friend') digWith(friend);

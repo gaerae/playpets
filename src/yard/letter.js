@@ -1,10 +1,18 @@
 // The year-end letter: from December 26 to 31 the closest friend writes one, and from January 1 to
-// 7 it brings back the answer the person left. This file is the pure part: when, who writes and
-// what the letter says. The page owns the calendar; the backend keeps the record
-// (src-tauri/src/pets/letters.rs). No line of the letter asks whether a plan was done.
+// 7 it brings back the answer the person left. When, who writes and what the letter says come
+// first, without the page; then how it comes, at the scene's minute check (setupLetters). The page
+// owns the calendar; the backend keeps the record (src-tauri/src/pets/letters.rs) and decides
+// whether the friend's AI writes it (chat/letter.rs). No line of the letter asks whether a plan
+// was done.
 
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
+import { $, call, data, recall, views } from '../core/state.js';
+import { levelOf } from './bond.js';
+import { markDecor, shownDecor } from './decor.js';
+import { localDay } from './growth.js';
+import { openLetter } from './letter-card.js';
+import { bubble } from './views.js';
 
 /** 'write' from December 26 to 31, 'back' from January 1 to 7, otherwise null (local date). */
 export function letterTime(date) {
@@ -113,4 +121,96 @@ export function composeLetter(lines, lastAnswer) {
   if (lastAnswer) out.push(t('letter.recall', { answer: lastAnswer }));
   out.push(t('letter.ask'));
   return out.join('\n');
+}
+
+// How the letter comes. `open(year)` opens its card (letter-card.js; setupLetters can give another).
+let open = openLetter;
+const readable = () => readableLetter(data.letters || [], new Date());
+
+/** Whether there is a letter to read now: this season's, with its text. */
+export const letterReadable = () => readable() !== null;
+
+/** Opens the letter there is to read now, if any (the chip, the yard menu, the mailbox). */
+export function openReadable() {
+  const letter = readable();
+  if (letter) open(letter.year);
+}
+
+/** A press on the mailbox (decor.js): true when it opened the letter, else a friend visits it. */
+export function letterPress() {
+  if (!letterReadable()) return false;
+  openReadable();
+  return true;
+}
+
+/** Shows the ways in as they are now: the chip while there is a letter to read, and an envelope on
+ * the mailbox until it is opened. Also called when the card closes. */
+export function syncLetter() {
+  const letter = readable(),
+    chip = $('letter-chip');
+  if (chip) chip.hidden = !letter;
+  markDecor('mailbox', letter && recall(`letter-opened-${letter.year}`) !== '1' ? 'letter' : null);
+}
+
+// The friend the backend kept it from says so: that it is in the mailbox when the yard has one, or
+// in a bubble that opens it. A letter deleted meanwhile comes back without its text: nothing is said.
+function deliver(letter) {
+  const v = views.get(letter.friend);
+  if (!letter.text || !v) return;
+  if (shownDecor('mailbox')) bubble(v, pick(list('letter.mailbox_bubble')));
+  else bubble(v, pick(list('letter.bubble')), 9000, () => open(letter.year));
+}
+
+/** Starts the letter, called by app.js before the sky; wires the chip. `visible()` says whether the
+ * yard is seen: nothing is written, said or shown while it is not, so the friend's AI is asked only
+ * then. Returns `check()`, for each repaint of the scene: the first only shows the ways in, the
+ * next writes this year's letter once, from December 26. */
+export function setupLetters({ open: opener = openLetter, visible = () => !document.hidden } = {}) {
+  open = opener;
+  let armed = false,
+    busy = false;
+  const chip = $('letter-chip');
+  if (chip) chip.onclick = openReadable;
+  return function check() {
+    const first = !armed;
+    armed = true;
+    if (busy || !visible()) return;
+    syncLetter();
+    if (first) return;
+    const now = new Date(),
+      year = now.getFullYear(),
+      letters = data.letters || [];
+    // A year whose letter was deleted keeps its record, so it is not written again.
+    if (letterTime(now) !== 'write' || letters.some(letter => letter.year === year)) return;
+    const writer = writerOf(data.pets, data.bonds || {});
+    if (!writer) return;
+    const id = writer.id,
+      facts = letterFacts({
+        album: data.album,
+        trees: data.garden?.trees || [],
+        bond: data.bonds?.[id],
+        level: levelOf(id),
+        year,
+        today: localDay(now),
+      }),
+      lines = factLines(facts),
+      lastAnswer = letters.find(letter => letter.year === year - 1)?.answer;
+    busy = true;
+    call('writeLetter', year, id, lines, composeLetter(lines, lastAnswer))
+      .then(
+        letter => {
+          // Kept at once, so the next check does not ask again; the backend's change event follows.
+          if (!(data.letters || []).some(kept => kept.year === letter.year))
+            data.letters = [...(data.letters || []), letter];
+          deliver(letter);
+          syncLetter();
+        },
+        // Still being written, a connection being saved, or another passing reason: a later check
+        // asks again, with nothing on screen.
+        () => {},
+      )
+      .finally(() => {
+        busy = false;
+      });
+  };
 }

@@ -23,6 +23,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - **Snowman** in the play menu: while the yard shows winter, roll snowballs with your friends (press a ball to help, or drag it to roll it yourself) and stack a snowman, once a day. It stays in the yard while the yard shows winter, and a new one replaces the one before. Now and then a friend suggests building one and starts rolling.
 - A snowman can wear a hat, a scarf and a carrot nose: press it or choose **Dress up** from its menu. A snowman stays in the yard (it doesn't go out on the desktop), and putting it away melts it.
 - In winter, animal footprints cross the snowy yard. Click them and a friend follows, sniffing, to a bush where a tail peeks out and a small find waits. The album's new Footprints book keeps whose prints you followed.
+- On the first day you open PlayPets from December 26 to 31, the friend you're closest to writes you a year-end letter about your year together and asks how it went and what you'd like to do next. It waits in the mailbox if you have one; you can write back in up to 200 characters, skip it, or delete it. Letters and answers stay on this computer, and a friend with an AI connection writes in its own words.
 
 ### Changed
 

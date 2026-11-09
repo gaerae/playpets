@@ -973,4 +973,8 @@ export const strings = {
   'letter.delete_action': '削除',
   'letter.thanks': ['お返事ありがとう！大事にしまっておくね。'],
   'letter.skip': ['いいよいいよ！今年もありがとう。来年もいっしょに遊ぼうね。'],
+  'letter.bubble': ['お手紙書いたよ！', 'きみに手紙があるんだ！'],
+  'letter.mailbox_bubble': ['郵便受けに手紙を入れておいたよ！'],
+  'letter.chip': '手紙',
+  'letter.chip_title': '年末の手紙を読む',
 };

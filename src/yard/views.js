@@ -92,11 +92,20 @@ function clearOthers(v) {
   if (lift) v.bubble.style?.setProperty('--bubble-lift', `${Math.round(lift)}px`);
 }
 /** A friend says something above its head for its reading time (or `duration`, if longer); the
- * line is also read aloud, with the friend's name, from one quiet region. */
-export function bubble(v, message, duration = 0) {
+ * line is also read aloud, with the friend's name, from one quiet region. With `onPress` the bubble
+ * can be pressed (the letter it brought); every other bubble cannot, so none is by accident. */
+export function bubble(v, message, duration = 0, onPress = null) {
   if (!message) return;
   const words = plain(message);
   v.bubble.textContent = words;
+  // Its own press: the lake or a creature under it is not caught as well.
+  v.bubble.onclick = onPress
+    ? event => {
+        event.stopPropagation();
+        onPress();
+      }
+    : null;
+  v.bubble.classList?.toggle('acts', !!onPress);
   v.bubble.hidden = false;
   v.bubble.style?.removeProperty('--bubble-lift');
   clearOthers(v);

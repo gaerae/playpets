@@ -990,4 +990,8 @@ export const strings = {
   'letter.delete_action': 'Delete',
   'letter.thanks': ['Thanks for writing back! I’ll keep it safe.'],
   'letter.skip': ['That’s okay! Thanks for this year. Let’s have fun next year too.'],
+  'letter.bubble': ['I wrote you a letter!', 'I have a letter for you!'],
+  'letter.mailbox_bubble': ['I left you a letter in the mailbox!'],
+  'letter.chip': 'Letter',
+  'letter.chip_title': 'Read the year-end letter',
 };

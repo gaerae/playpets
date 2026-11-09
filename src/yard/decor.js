@@ -58,11 +58,21 @@ const shownName = (kind, button) =>
   button.classList.contains('xmas-grand') ? t(`decor.kind_${kind}_grand`) : kindName(kind);
 // Called at the end of every drawing of the gifts (setupDecor).
 let afterDrawing = () => {};
-// What a press on a kind opens instead of sending a friend over (setupDecor): kind -> (id) => void.
+// What a press on a kind does instead of sending a friend over (setupDecor): kind -> (id) => void,
+// a view it opens, or { take: (id) => boolean }, asked first and true when it took the press.
 let presses = {};
 const pressOf = kind => (Object.hasOwn(presses, kind) ? presses[kind] : null);
-// A press that did not move: the kind's own view, or the nearest friend walks over.
-const pressed = v => (pressOf(v.kind) ? pressOf(v.kind)(v.id) : visit(v.id));
+// A kind whose press opens its own view: named as one to decorate.
+const opensView = kind => typeof pressOf(kind) === 'function';
+// A press that did not move: the kind's own view, or what takes it, or the nearest friend walks over.
+const took = v => (opensView(v.kind) ? (pressOf(v.kind)(v.id), true) : !!pressOf(v.kind)?.take(v.id));
+const pressed = v => took(v) || visit(v.id);
+// A mark a kind wears (markDecor): kind -> its data-mark, kept through every drawing.
+const marks = new Map();
+const showMark = (button, kind) => {
+  if (marks.has(kind)) button.dataset.mark = marks.get(kind);
+  else delete button.dataset.mark;
+};
 // The kinds out of sight when the yard last drew its gifts (decor-shown.js), joined.
 let drawnHidden = null;
 // The list last sent to the backend, so the desktop hears of a change once, not at every repaint.
@@ -150,14 +160,11 @@ function create(d) {
   });
   // By keyboard: arrows move it a few pixels, the same in any window or place; Delete puts it away;
   // the menu key or Shift+F10 opens its menu, as a friend's does; Enter or Space opens a kind's own
-  // view, as a press does. Aiming a treat or seed, or in a game, the keys leave it alone, as they do
-  // a tree and as a press does.
+  // view, or gives the press to what takes it, as a press does (no friend is sent by key). Aiming a
+  // treat or seed, or in a game, the keys leave it alone, as they do a tree and as a press does.
   button.addEventListener('keydown', e => {
     if (aiming || game) return;
-    if ((e.key === 'Enter' || e.key === ' ') && pressOf(v.kind)) {
-      e.preventDefault();
-      return pressed(v);
-    }
+    if ((e.key === 'Enter' || e.key === ' ') && took(v)) return e.preventDefault();
     if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
       e.preventDefault();
       const r = button.getBoundingClientRect();
@@ -188,7 +195,8 @@ const save = guard(async (id, at) => {
 });
 
 /** `drawn` runs after every drawing of the gifts (the Christmas tree's night, christmas-night.js);
- * `press` maps a kind to what a press on it opens (the Christmas tree's decorating view). */
+ * `press` maps a kind to what a press on it opens (the Christmas tree's decorating view), or to
+ * `{ take(id) }`, asked first and true when it took the press (the mailbox with a letter in it). */
 export function setupDecor({ drawn = () => {}, press = {} } = {}) {
   afterDrawing = drawn;
   presses = press;
@@ -229,8 +237,9 @@ export function renderDecor() {
     const kind = shownName(d.kind, v.button);
     const label = from
       ? t('decor.memento_title', { name: name(from), kind })
-      : t(pressOf(d.kind) ? 'decor.title_decorate' : 'decor.title', { kind });
+      : t(opensView(d.kind) ? 'decor.title_decorate' : 'decor.title', { kind });
     v.button.classList.toggle('memento', !!d.memento);
+    showMark(v.button, d.kind);
     v.button.title = label;
     v.button.setAttribute('aria-label', label);
     const worn = v.dressLayer && wornDress(d);
@@ -253,6 +262,13 @@ export function shownDecor(kind) {
     if (d) return { button: v.button, at: placement(kind, d) };
   }
   return null;
+}
+/** Sets `mark` as the data-mark of every `kind` the yard draws, now and when drawn again (the
+ * letter waiting in the mailbox, garden.css); null takes it off. */
+export function markDecor(kind, mark) {
+  if (mark) marks.set(kind, mark);
+  else marks.delete(kind);
+  for (const v of shown.values()) if (v.kind === kind) showMark(v.button, kind);
 }
 /** The button the yard draws now for the gift `id` (not one put away and waiting out its Undo), or
  * null. */

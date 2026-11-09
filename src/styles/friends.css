@@ -331,6 +331,11 @@
   pointer-events: none;
   z-index: 3;
 }
+/* A bubble that brings something can be pressed (views.js bubble: the year-end letter). */
+.yard-bubble.acts {
+  pointer-events: auto;
+  cursor: pointer;
+}
 .yard-thinking {
   display: none;
   position: absolute;

@@ -73,6 +73,7 @@ import {
 import { renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
+import { letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
 import { moveFriends } from './yard/motion.js';
 import { drawTreeOrnaments } from './yard/ornaments.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
@@ -117,7 +118,9 @@ await Promise.all([loadContent(), setupCompanionActions()]);
 apply();
 icons();
 setupConfirm();
-setupLetterCard();
+// The letter's ways in (the chip, the mailbox's envelope) follow the card: an opened letter loses
+// its envelope.
+setupLetterCard({ onClosed: syncLetter });
 setupNotices();
 setupToast();
 setupInteractions();
@@ -131,6 +134,8 @@ setupControls({
   canGoOut,
   canDigAt,
   digAt,
+  letterReadable,
+  openLetter: openReadable,
   digWith: id => {
     select(id);
     beginDiscovery('dig');
@@ -160,11 +165,14 @@ setupTrails({
 });
 // December's question about the winter yard, checked at each repaint of the scene.
 const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
+// The year-end letter, written and brought while the yard is seen (letter.js).
+const letterCheck = setupLetters({ visible: () => shown && !document.hidden });
 setupSky({
   seasonChanged: season => {
     // Each minute's repaint: a Christmas gift or a snowman comes or goes with the date and season.
     refreshShownDecor();
     winterCheck();
+    letterCheck();
     // The winter yard's footprint trails come, soften and go under new snow.
     trailsCheck();
     christmasNightCheck();
@@ -248,7 +256,8 @@ setupDecor({
     // The dress tray follows its snowman the same way.
     renderDress();
   },
-  press: { xmas_tree: openDecorating, snowman: openDress },
+  // The mailbox takes a press while a letter waits in it; otherwise a friend visits it.
+  press: { xmas_tree: openDecorating, snowman: openDress, mailbox: { take: letterPress } },
 });
 setupDress({ redraw: renderDecor, button: decorButton });
 setupSnowTrail();

@@ -945,4 +945,8 @@ export const strings = {
   'letter.delete_action': '삭제',
   'letter.thanks': ['답장 고마워! 소중히 간직할게.'],
   'letter.skip': ['괜찮아! 올해 고마웠어. 내년에도 같이 놀자.'],
+  'letter.bubble': ['너한테 편지 썼어!', '편지 왔어! 내가 쓴 거야.'],
+  'letter.mailbox_bubble': ['우편함에 편지 넣어 뒀어!'],
+  'letter.chip': '편지',
+  'letter.chip_title': '연말 편지 읽기',
 };
