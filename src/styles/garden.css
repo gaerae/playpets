@@ -679,6 +679,16 @@
   box-shadow: var(--message-shadow);
   color: var(--ink);
   font-size: 12px;
+  /* not the yard's hand over something to catch (play.css) */
+  cursor: default;
+}
+/* While it is open the friends' lines paint above it, so a friend's word on the snowman is read
+   whole; their tags then let presses through, to the tray or to the yard (which closes it). */
+.yard:has(> .dress-tray) > .label-layer {
+  z-index: 32;
+}
+.yard:has(> .dress-tray) .pet-tag {
+  pointer-events: none;
 }
 .dress-toggle,
 .dress-done {

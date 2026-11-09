@@ -35,7 +35,7 @@ import {
   setDown,
   giftSize as size,
 } from './props.js';
-import { dressLayers } from './snowman-dress.js';
+import { dressLayers, wornDress } from './snowman-dress.js';
 import { cue } from './sound.js';
 import { isFree, nearestFree, rest, sendTo } from './trips.js';
 import { bubble, cheer, effect } from './views.js';
@@ -234,10 +234,10 @@ export function renderDecor() {
     v.button.classList.toggle('memento', !!d.memento);
     v.button.title = label;
     v.button.setAttribute('aria-label', label);
-    const worn = (d.dress || []).join();
-    if (v.dressLayer && worn !== v.worn) {
-      v.worn = worn;
-      v.dressLayer.innerHTML = dressLayers(d.kind, d.dress);
+    const worn = v.dressLayer && wornDress(d);
+    if (worn && worn.join() !== v.worn) {
+      v.worn = worn.join();
+      v.dressLayer.innerHTML = dressLayers(d.kind, worn);
     }
   });
   // One timer for the next heart to fade, not a check every frame.

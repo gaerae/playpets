@@ -20,7 +20,9 @@ globalThis.playPets = {
 };
 const state = await import('../src/core/state.js');
 const { list, t } = await import('../src/core/i18n.js');
-const { decorButton, renderDecor, setupDecor } = await import('../src/yard/decor.js');
+const { decorButton, refreshShownDecor, renderDecor, setupDecor } = await import('../src/yard/decor.js');
+const { fieldToYard, petHeight, sizeOf } = await import('../src/yard/field.js');
+const { scene } = await import('../src/yard/world.js');
 const { closeDress, openDress, renderDress, setupDress } = await import('../src/yard/snowman-dress.js');
 const { drawYard } = await import('./support/yard.mjs');
 
@@ -225,4 +227,97 @@ test('a press on the snowman opens its tray', async ctx => {
   await button.dispatch('pointerup', { button: 0, clientX: 10, clientY: 10, pointerId: 1 });
   assert.ok(y.tray());
   assert.equal(button.title, t('decor.title_decorate', { kind: t('decor.kind_snowman') }));
+});
+
+// The tray's own surface is not the yard's: a click there places no treat, fishes, catches or digs,
+// and a right-click opens no menu (each is a listener on #yard; events reach it by bubbling).
+test("a click or a right-click on the tray stays the tray's", async ctx => {
+  const y = await yard(ctx, [SNOWMAN()]);
+  openDress('s');
+  for (const type of ['click', 'contextmenu', 'pointerdown']) {
+    let stopped = false,
+      prevented = false;
+    await y.tray().dispatch(type, {
+      stopPropagation: () => (stopped = true),
+      preventDefault: () => (prevented = true),
+    });
+    assert.equal(stopped, true, `${type} goes no further`);
+    if (type === 'contextmenu') assert.equal(prevented, true, 'no menu of its own');
+  }
+  assert.ok(y.tray(), 'and it stays open');
+});
+
+test('a press elsewhere closes the tray without moving focus; a change of place moves it off the tray', async ctx => {
+  const y = await yard(ctx, [SNOWMAN()]);
+  openDress('s');
+  const [first] = y.toggles();
+  await document.dispatch('pointerdown', { target: element('button') });
+  assert.equal(y.tray(), null);
+  assert.equal(document.activeElement, first, 'focus is left to the press, as a menu leaves it');
+  // A change of place (app.js worldChanged): focus in the tray goes to the snowman, not lost.
+  openDress('s');
+  closeDress(false);
+  assert.equal(y.tray(), null);
+  assert.equal(document.activeElement, y.snowman());
+});
+
+test('the tray closes when its snowman goes out of sight with the season', async ctx => {
+  const y = await yard(ctx, [SNOWMAN()]);
+  openDress('s');
+  scene.season = 'autumn';
+  refreshShownDecor();
+  assert.equal(y.snowman(), undefined, 'hidden in autumn');
+  assert.equal(y.tray(), null);
+});
+
+// The backend tells of each save as it lands: the first save's state, coming while the second is
+// still going, does not take the second part off again for a moment.
+test('the yard shows the last list asked for until every save is settled', async ctx => {
+  const y = await yard(ctx, [SNOWMAN()]);
+  openDress('s');
+  const settle = [];
+  answers.push(new Promise(resolve => settle.push(resolve)), new Promise(resolve => settle.push(resolve)));
+  y.toggle('hat').dispatch('click');
+  y.toggle('scarf').dispatch('click');
+  await flush();
+  // The first save's state event.
+  state.setData({ ...state.data, garden: { ...state.data.garden, decor: [SNOWMAN(['hat'])] } });
+  renderDecor();
+  assert.deepEqual(parts(y.snowman()), ['scarf', 'hat']);
+  assert.equal(y.toggle('scarf').getAttribute('aria-pressed'), 'true');
+  settle[0](answer());
+  await flush();
+  await flush();
+  assert.deepEqual(calls.at(-1), ['s', ['scarf', 'hat']]);
+  assert.deepEqual(parts(y.snowman()), ['scarf', 'hat']);
+  settle[1](answer());
+  await flush();
+  await flush();
+  assert.deepEqual(y.dress(), ['scarf', 'hat'], 'settled, even before its own state event');
+  assert.deepEqual(parts(y.snowman()), ['scarf', 'hat']);
+});
+
+test('a friend whose line would fall under the tray leaves it to one in the clear', async ctx => {
+  const view = (id, px, py) => ({ pet: { id, name: id, size: 96 }, bubble: element('p', { hidden: true }), px, py });
+  const near = view('near', 0, 0),
+    far = view('far', 0, 0);
+  const y = await yard(ctx, [SNOWMAN()], { pets: [near, far] });
+  const at = fieldToYard(SNOWMAN()),
+    w = sizeOf(near.pet);
+  Object.assign(near, { px: at.x - w, py: at.y - petHeight(near.pet) });
+  Object.assign(far, { px: at.x + 300, py: at.y - petHeight(far.pet) });
+  openDress('s');
+  // Over the snowman and the nearer friend's head (the yard's box starts at 0, 0).
+  y.tray().getBoundingClientRect = () => ({
+    left: at.x - 150,
+    right: at.x + 150,
+    top: near.py - 90,
+    bottom: near.py,
+    width: 300,
+    height: 90,
+  });
+  await y.toggle('hat').dispatch('click');
+  await flush();
+  assert.equal(near.bubble.hidden, true);
+  assert.equal(far.bubble.hidden, false);
 });
