@@ -108,8 +108,10 @@ export function bubbleShift(center, width, yardWidth, edge = BUBBLE_EDGE) {
 // Keeps a bubble that shows inside the yard (--bubble-shift, friends.css). Measured when it is shown
 // and when the yard's size changes, not as the friend walks: a line lasts a few seconds.
 function keepInside(v) {
-  if (v.bubble.hidden || !v.pet) return;
-  const shift = bubbleShift(v.px + sizeOf(v.pet) / 2, v.bubble.offsetWidth, field().width);
+  const width = v.bubble.offsetWidth;
+  // Hidden, or not laid out (no yard to measure it in): nothing to keep inside.
+  if (v.bubble.hidden || !v.pet || !(width > 0)) return;
+  const shift = bubbleShift(v.px + sizeOf(v.pet) / 2, width, field().width);
   if (shift) v.bubble.style?.setProperty('--bubble-shift', `${shift}px`);
   else v.bubble.style?.removeProperty('--bubble-shift');
 }

@@ -192,7 +192,10 @@ test('outside shoot time the shoots build no ground to draw on', async ctx => {
   const trees = state.data.garden.trees;
   Object.defineProperty(state.data.garden, 'trees', {
     configurable: true,
-    get: () => (built++, trees),
+    get() {
+      built++;
+      return trees;
+    },
   });
   scene.season = 'summer';
   renderShoots();
@@ -658,5 +661,8 @@ test('a shoot being dug looks taken, stands out from the grass, and dims at nigh
   assert.doesNotMatch(soil, /animation|transition/);
   assert.match(css, /\.shoot \{[^}]*--shoot-lift: drop-shadow\(/);
   assert.match(css, /\.shoot svg \{[^}]*filter: var\(--shoot-lift\);/);
-  assert.match(css, /\.period-night \.shoot svg \{ filter: var\(--shoot-lift\) brightness\(0\.62\) saturate\(0\.75\); \}/);
+  assert.match(
+    css,
+    /\.period-night \.shoot svg \{ filter: var\(--shoot-lift\) brightness\(0\.62\) saturate\(0\.75\); \}/,
+  );
 });
