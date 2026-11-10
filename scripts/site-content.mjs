@@ -20,6 +20,94 @@ export const releasePageUrl = (version, lang = 'en') => `${SITE_URL}${localePath
 /** Where a starter friend's own download is served (scripts/creator-kit.mjs writes it). */
 export const petDownload = id => `/pets/playpets-${id}.zip`;
 
+// The landing's album: three kinds each book shows, drawn with the app's own artwork
+// (scripts/site-album.mjs), in the order of the album's books (src/yard/catalog.js ALBUM_BOOKS).
+export const ALBUM_SAMPLES = Object.freeze({
+  flowers: ['tulip', 'sunflower', 'camellia'],
+  fish: ['goldfish', 'crayfish', 'softshell_turtle'],
+  bugs: ['swallowtail', 'red_dragonfly', 'rhinoceros_beetle'],
+  gifts: ['swing', 'birdhouse', 'campfire'],
+  trees: ['cherry', 'maple', 'ginkgo'],
+  treasures: ['amber', 'toy_robot', 'sleeping_fox'],
+  tracks: ['fox', 'squirrel', 'magpie'],
+  shoots: ['fiddlehead', 'bamboo_shoot', 'morel'],
+});
+
+// The landing's year: each season's events (src/content/events.json, `event`) and the other
+// things a season brings, each with the album kinds that picture it as [book, id].
+export const YEAR = Object.freeze([
+  {
+    season: 'spring',
+    items: [
+      {
+        id: 'blossom',
+        event: true,
+        art: [
+          ['trees', 'cherry'],
+          ['gifts', 'cherry_sapling'],
+        ],
+      },
+      {
+        id: 'shoots',
+        art: [
+          ['shoots', 'wild_garlic'],
+          ['shoots', 'morel'],
+        ],
+      },
+    ],
+  },
+  {
+    season: 'summer',
+    items: [
+      {
+        id: 'fireflies',
+        event: true,
+        art: [
+          ['bugs', 'golden_firefly'],
+          ['gifts', 'watermelon'],
+        ],
+      },
+    ],
+  },
+  {
+    season: 'autumn',
+    items: [
+      {
+        id: 'harvest',
+        event: true,
+        art: [
+          ['fish', 'moon_carp'],
+          ['gifts', 'pumpkin'],
+        ],
+      },
+    ],
+  },
+  {
+    season: 'winter',
+    items: [
+      {
+        id: 'lights',
+        event: true,
+        art: [
+          ['gifts', 'xmas_tree'],
+          ['gifts', 'baby_reindeer'],
+          ['gifts', 'santa'],
+        ],
+      },
+      { id: 'snowman', art: [['gifts', 'snowman']] },
+      {
+        id: 'footprints',
+        art: [
+          ['tracks', 'hare'],
+          ['tracks', 'raccoon_dog'],
+        ],
+      },
+      { id: 'letter', from: '12-26', to: '12-31', art: [['gifts', 'mailbox']] },
+      { id: 'newyear', event: true, art: [['gifts', 'kite']] },
+    ],
+  },
+]);
+
 export const LANDING_PETS = Object.freeze([
   { id: 'daisy', displayName: 'Daisy', source: 'assets/pets/daisy/spritesheet.png', kit: 'daisy' },
   { id: 'clover', displayName: 'Clover', source: 'assets/pets/clover/spritesheet.png', kit: 'clover' },

@@ -107,6 +107,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The privacy policy has a section on children.
 - The import guide no longer lists Codex PokéPets, and says community pets are made by other people and reported on their own site.
 - The front page opens on the four friends in the yard with a coding agent at work beside them: when it finishes, one friend says so and the others cheer. The yard to play with, its places and seasons, and the button to pause the page's motion are now in the play section.
+- The front page shows all eight album books, each with a few of its kinds as the app draws them and how to fill it, and counts the album's 169 entries instead of 153.
+- The front page walks through the year: every seasonal event with its dates and what to do, the spring shoots, the snowman, winter footprints and the year-end letter.
+- The front page describes the weather's moments, such as the rainbow you can dig under and shooting stars on summer nights, and what each closeness level brings.
+- The discovery guide says gifts come at most every other day, from a friend you played with that day, instead of one a day.
 
 ## [1.5.0] - 2026-11-04
 - The README says the Microsoft Store version needs Windows 10 version 2004 or later.

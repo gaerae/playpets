@@ -2,8 +2,11 @@
 import { withBase } from 'vitepress';
 import { computed, ref } from 'vue';
 import catalog from '../../../src/content/catalog.json';
+import { ALBUM_BOOKS } from '../../../src/yard/catalog.js';
 import generated from '../generated.json';
 import AgentDemo from './AgentDemo.vue';
+import { appWord } from './album-art';
+import AlbumBooks from './AlbumBooks.vue';
 import { AGENT_DEMOS } from './agent-demo.mjs';
 import ChatDemo from './ChatDemo.vue';
 import Downloads from './Downloads.vue';
@@ -16,6 +19,7 @@ import PetGallery from './PetGallery.vue';
 import PlayReel from './PlayReel.vue';
 import VisibleSprite from './VisibleSprite.vue';
 import WorldPreview from './WorldPreview.vue';
+import YearStory from './YearStory.vue';
 import './landing.css';
 import { LANDING_PETS, localePath } from '../../../scripts/site-content.mjs';
 import { useWords } from './words';
@@ -30,8 +34,8 @@ const shotUrl = (name: string) => withBase(`/shots/${generated.captureVersion}/$
 const filmUrl = computed(() => withBase(`/shots/${generated.captureVersion}/${lang.value}/reel.mp4`));
 const path = (page: string) => withBase(localePath(lang.value, page));
 const paused = ref(false);
-// The album's size, as the app counts it: every kind in its six books.
-const albumCount = ['fish', 'bugs', 'flowers', 'gifts', 'trees', 'treasures'].reduce((n, book) => n + catalog[book].length, 0);
+// The album's size, as the app counts it: every kind in its books.
+const albumCount = ALBUM_BOOKS.reduce((n, book) => n + catalog[book].length, 0);
 const counted = (text: string) => text.replace('{count}', String(albumCount));
 // Product names, the same in every language; the guide lists what each one reports.
 const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
@@ -71,6 +75,31 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
         <li v-for="([name, title, body]) in t.play.shots" :key="name"><figure><a class="play-frame" :href="shotUrl(name)"><img :src="shotUrl(name)" :alt="title" loading="lazy" decoding="async" width="2472" height="1672" /></a><figcaption><b>{{ title }}</b> {{ counted(body) }}</figcaption></figure></li>
       </ul>
       <p class="play-more"><a class="more" :href="path('/guide/play')">{{ t.play.link }} →</a><span>v{{ generated.captureVersion }}</span></p>
+    </section>
+    <!-- What there is to collect, and the times of year the yard changes: each with how to take part. -->
+    <section class="album-story" id="album">
+      <header><h2>{{ t.album.title }}</h2><p class="section-lead">{{ counted(t.album.lead) }}</p></header>
+      <AlbumBooks :lang="lang" :copy="t.album" />
+      <p class="play-more"><a class="more" :href="path('/guide/play#discovery-guide')">{{ t.album.link }} →</a></p>
+    </section>
+    <section class="seasons-story" id="seasons">
+      <header><h2>{{ t.year.title }}</h2><p class="section-lead">{{ t.year.lead }}</p></header>
+      <YearStory :lang="lang" :seasons="t.seasons" :copy="t.year" />
+      <p class="year-south">{{ t.year.south }}</p>
+      <p class="play-more"><a class="more" :href="path('/guide/play#seasonal-events')">{{ t.year.link }} →</a></p>
+    </section>
+    <!-- What happens without being asked: the weather's moments, and closeness level by level. -->
+    <section class="moments-story" id="moments">
+      <header><h2>{{ t.moments.title }}</h2><p class="section-lead">{{ t.moments.lead }}</p></header>
+      <ul class="moments-list"><li v-for="([title, body]) in t.moments.items" :key="title"><h3>{{ title }}</h3><p>{{ body }}</p></li></ul>
+      <p class="play-more"><a class="more" :href="path('/guide/play#weather')">{{ t.moments.weatherLink }} →</a></p>
+      <div class="closeness">
+        <h3>{{ t.moments.closenessTitle }}</h3>
+        <p>{{ t.moments.closenessLead }}</p>
+        <ol class="closeness-ladder"><li v-for="(text, level) in t.moments.levels" :key="level"><span class="hearts" aria-hidden="true">{{ '♥'.repeat(level + 1) }}</span><b>{{ appWord(lang, `bond.level_${level + 1}`) }}</b><p>{{ text }}</p></li></ol>
+        <p class="play-more"><a class="more" :href="path('/guide/play#closeness')">{{ t.moments.link }} →</a></p>
+      </div>
+      <p class="moments-secret">{{ t.moments.secret }}</p>
     </section>
     <section class="work-story feature">
       <div class="feature-text"><h2>{{ t.workTitle }}</h2><p>{{ t.workBody }}</p><p class="work-note">{{ t.workNote }}</p><a class="more" :href="path('/guide/agents')">{{ t.agentGuide }} →</a></div>

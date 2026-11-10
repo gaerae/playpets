@@ -41,7 +41,7 @@ const copy = {
       'Flower seeds and saplings come from digging. Flowers bloom after four hours and trees mature after twelve, including time with the app closed.',
     shoots: 'In spring, a few shoots poke up after rain, and one comes up on fair mornings, outdoors only. Click one and a friend digs it up for the album.',
     gifts:
-      'The whole yard receives at most one gift per local calendar day, shared by all friends. A scheduled delivery time survives closing the app, and closed time counts. New gifts follow catalogue order; after all ordinary gifts, friends bring decorations missing from the yard. Event gifts take priority when one is due during their event. This is not a random loot table. Twelve decorations pause delivery; putting one away retains its album entry. Event gifts follow real calendar dates, so collecting them all can take months, not a guaranteed week.',
+      'Gifts come from friends, not from the clock: on a day you pat, feed, talk to or fish with a friend, it may bring one 10 to 20 minutes later. The whole yard gets at most one every other day, and time alone in the yard brings none. The wait is saved, and time with the app closed counts. Friends also bring one for each new closeness level from At ease on, and at Very close it is their memento. New gifts follow catalogue order; after all ordinary gifts, friends bring decorations missing from the yard. Event gifts take priority when one is due during their event. This is not a random loot table. With 12 decorations out, new gifts wait in the gift box; putting one away keeps its album entry. Event gifts follow real calendar dates, so collecting them all can take months.',
     ordered: 'In order',
     seasonal: 'During the event',
     built: 'Built with friends in the snow',
@@ -77,7 +77,7 @@ const copy = {
     flowers: '꽃씨와 묘목은 땅파기로 찾아요. 꽃은 4시간 뒤 피고 나무는 12시간 뒤 자라요. 앱을 꺼 둔 시간도 포함해요.',
     shoots: '봄에는 비 온 뒤에 새싹이 몇 개 올라오고, 맑은 아침에는 하나가 올라와요. 야외에서만 볼 수 있어요. 새싹을 누르면 친구가 캐서 도감에 넣어 줘요.',
     gifts:
-      '선물은 현지 날짜 기준으로 놀이터 전체에서 하루 최대 하나이며 모든 친구가 횟수를 공유해요. 정해진 도착 시각은 앱을 닫아도 저장되고, 꺼 둔 시간도 포함해요. 새 선물은 도감 순서로 오고, 일반 선물을 다 받은 뒤에는 마당에 없는 장식이 다시 와요. 이벤트 선물은 이벤트 중 선물이 올 차례에 우선하며 무작위 뽑기는 아니에요. 장식이 12개면 배달이 멈추고 하나를 치워도 도감 기록은 남아요. 이벤트 선물은 실제 달력을 따라, 모두 모으려면 몇 달이 걸릴 수 있어요. 일주일 안에 모인다는 보장은 없어요.',
+      '선물은 시간이 아니라 친구가 가져와요. 쓰다듬거나 간식을 주거나 대화하고 함께 낚시한 날, 그 친구가 10~20분 뒤에 선물을 가져올 수 있어요. 놀이터 전체에 이틀에 한 번까지 오고, 켜 두기만 해서는 오지 않아요. 기다리는 시간은 저장되고 앱을 꺼 둔 시간도 포함해요. 편한 사이부터 단계가 오를 때마다 하나씩 더 오고, 각별한 사이가 되면 그 친구만의 추억의 선물이 와요. 새 선물은 도감 순서로 오고, 일반 선물을 다 받은 뒤에는 마당에 없는 장식이 다시 와요. 이벤트 선물은 이벤트 중 선물이 올 차례에 우선하며 무작위 뽑기는 아니에요. 장식이 12개면 새 선물은 선물 상자에서 기다리고, 하나를 치워도 도감 기록은 남아요. 이벤트 선물은 실제 달력을 따라, 모두 모으려면 몇 달이 걸릴 수 있어요.',
     ordered: '차례대로 와요',
     seasonal: '이벤트 중에 와요',
     built: '친구들과 눈밭에서 만들어요',
@@ -113,7 +113,7 @@ const copy = {
     flowers: '花の種と苗木は土を掘って見つけます。花は4時間、木は12時間で育ちます。アプリを閉じた時間も含みます。',
     shoots: '春は雨のあとに芽がいくつか顔を出し、晴れた朝にもひとつ出ます。屋外だけです。芽をクリックすると、友だちが掘って図鑑に入れてくれます。',
     gifts:
-      '贈り物は現地の日付で庭全体に一日最大一つ、全員で回数を共有します。決まった配達時刻は保存され、アプリを閉じた時間も数えます。新しい贈り物はカタログ順で、通常分を集めた後は庭にない飾りが届きます。イベント中に届く番のときはイベント分が優先され、ランダム抽選ではありません。飾りが12個なら配達は止まり、片付けても図鑑の記録は残ります。イベント限定のプレゼントは実際の暦に従うため、集めるには数か月かかる場合があり、一週間の完成は保証されません。',
+      'プレゼントは時計ではなく友だちが持ってきます。なでる、おやつ、会話、一緒の釣りなどをした日に、その友だちが10〜20分後に持ってくることがあります。庭全体で2日に1回までで、開いておくだけでは届きません。待ち時間は保存され、アプリを閉じた時間も数えます。うちとけた仲から段階が上がるたびに1つずつ届き、特別な仲になるとその友だちの思い出のプレゼントが届きます。新しいプレゼントはカタログ順で、通常分を集めた後は庭にない飾りが届きます。イベント中に届く番のときはイベント分が優先され、ランダム抽選ではありません。飾りが12個なら新しいプレゼントはプレゼント箱で待ち、片付けても図鑑の記録は残ります。イベント限定のプレゼントは実際の暦に従うため、集めるには数か月かかる場合があります。',
     ordered: '順番に届きます',
     seasonal: 'イベント中に届きます',
     built: '友だちと雪の中で作ります',
@@ -149,7 +149,7 @@ const copy = {
     flowers: '花种和树苗都来自挖土。花在4小时后开放，树木在12小时后长成，包括关闭应用的时间。',
     shoots: '春天雨后会冒出几株嫩芽，晴朗的早晨还会冒出一株，只在户外出现。点一下嫩芽，伙伴就会去挖出来，收进图鉴。',
     gifts:
-      '按本地日历，整个庭院每天最多收到一件礼物，所有伙伴共享次数。安排的送达时间会保存，关闭应用的时间也计入。新礼物按图鉴顺序到来，收齐普通礼物后会送来庭院缺少的装饰，活动期间轮到送礼时活动礼物优先，并非随机抽奖。12件装饰会暂停送礼，收起后仍保留图鉴记录。活动礼物遵循真实日历，收齐可能需要数月，不保证一周完成。',
+      '礼物不是按时间来的，而是伙伴带来的：在你抚摸、喂零食、聊天或一起钓鱼的那天，那位伙伴可能在10到20分钟后带来礼物。整个乐园最多两天一件，只开着乐园不会收到。等待时间会保存，关闭应用的时间也计入。从熟络起每升一级会多带来一件，到特别要好时会送来它的纪念礼物。新礼物按图鉴顺序到来，收齐普通礼物后会送来乐园缺少的装饰，活动期间轮到送礼时活动礼物优先，并非随机抽奖。摆满12件装饰时，新礼物会在礼物盒里等着，收起装饰后仍保留图鉴记录。活动礼物遵循真实日历，收齐可能需要数月。',
     ordered: '按顺序到来',
     seasonal: '活动期间到来',
     built: '和伙伴们在雪地里堆',

@@ -18,6 +18,17 @@ export const TRACKS = [];
 /** The spring shoots a friend can dig up, each with its drawing and size. */
 export const SHOOTS = [];
 let trailArts = [];
+/** The catalogue's lists that are the album's books, in the album's order; the site counts them too. */
+export const ALBUM_BOOKS = Object.freeze([
+  'flowers',
+  'fish',
+  'bugs',
+  'gifts',
+  'trees',
+  'treasures',
+  'tracks',
+  'shoots',
+]);
 /** A plant's stages and when each begins, in ms from planting; `art` draws it (bloom: the flower's). */
 export const STAGES = [];
 
