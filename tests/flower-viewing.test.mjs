@@ -438,12 +438,14 @@ test('the play menu offers flower viewing only in blossom time', t => {
   state.setGame({ kind: 'hide', ids: [], hint: '', timers: new Set() });
   viewing.syncViewingAction();
   assert.equal(tool().disabled, true, 'while a game is on');
+  assert.equal(tool().title, t0('viewing.action_title'));
   state.setGame(null);
   viewing.syncViewingAction();
   assert.equal(tool().disabled, false);
   tool().onclick();
   assert.equal(viewing.viewing(), true);
   assert.equal(tool().disabled, true, 'during a gathering, so no one is told everyone is busy');
+  assert.equal(tool().title, t0('viewing.action_title'), 'disabled, it does not say to wait');
   viewing.endViewing();
   viewing.syncViewingAction();
   assert.equal(tool().disabled, false);
@@ -456,6 +458,9 @@ test('the play menu offers flower viewing only in blossom time', t => {
 test('the menu syncs without the button on the page', t => {
   menu(t);
   const lookup = document.getElementById;
+  t.after(() => {
+    if (globalThis.document) document.getElementById = lookup;
+  });
   document.getElementById = id => (id === 'viewing-tool' ? null : lookup(id));
   assert.doesNotThrow(() => viewing.syncViewingAction());
 });
@@ -525,3 +530,130 @@ test('petals fall a little thicker around the tree from the first arrival to the
   assert.equal(viewing.viewing(), false);
   assert.deepEqual(bands.slice(1), [null], 'and a null at the end');
 });
+
+// Friends with an AI talk in their own voices through the chatter command (chat/mod.rs).
+const chats = [];
+// `chatter` answers with `reply` (a promise's resolver can be taken by `hold`); `ai` friends have a provider.
+function voices(t, { ai = ['a', 'b'], auto = true, reply = { ok: true, data: null }, hold = false, ...options } = {}) {
+  const y = yard(t, options);
+  chats.length = 0;
+  const was = globalThis.playPets.chatter;
+  let release;
+  globalThis.playPets.chatter = async (...args) => {
+    chats.push(args);
+    if (hold) await new Promise(resolve => (release = resolve));
+    return reply;
+  };
+  t.after(() => {
+    globalThis.playPets.chatter = was;
+  });
+  for (const p of state.data.pets) if (ai.includes(p.id)) p.providerId = 'p';
+  state.data.autoChatter = auto;
+  return { ...y, finish: () => release() };
+}
+const stringLines = () =>
+  new Set([...list('viewing.lines'), ...list('viewing.tree_lines'), ...list('viewing.mat_lines')]);
+const flush = async () => {
+  for (let i = 0; i < 5; i++) await Promise.resolve();
+};
+
+test('a gathering the person called talks in the friends own voices', async t => {
+  const y = voices(t, { auto: false, count: 3 });
+  viewing.startViewing('person');
+  y.tick(900);
+  for (const v of y.views()) arrive(v);
+  const { lines } = watch(y, 20_000);
+  await flush();
+  assert.equal(chats.length, 1);
+  const [period, weather, about, ids] = chats[0];
+  assert.deepEqual([period, weather, about, [...ids].sort()], ['day', 'clear', 'blossom', ['a', 'b']]);
+  assert.deepEqual(
+    lines.filter(line => stringLines().has(line)),
+    [],
+    'the AI speaks, not the strings',
+  );
+});
+
+test('friends starting one use the AI only with Let them chat on their own', async t => {
+  const off = voices(t, { auto: false });
+  gathered(off);
+  const { lines } = watch(off, 20_000);
+  await flush();
+  assert.deepEqual(chats, []);
+  assert.ok(lines.some(line => stringLines().has(line)));
+  viewing.endViewing();
+  chats.length = 0;
+  state.data.autoChatter = true;
+  state.data.garden.viewed = '';
+  gathered(off);
+  watch(off, 3000);
+  await flush();
+  assert.equal(chats.length, 1);
+});
+
+test('fewer than two friends with an AI means the string lines', async t => {
+  const y = voices(t, { ai: ['a'], auto: true });
+  gathered(y);
+  const { lines } = watch(y, 20_000);
+  await flush();
+  assert.deepEqual(chats, []);
+  assert.ok(lines.some(line => stringLines().has(line)));
+});
+
+test('when the AI cannot talk, the string lines carry on', async t => {
+  const y = voices(t, { reply: { ok: false, error: 'x' } });
+  gathered(y);
+  y.tick(1500);
+  await flush();
+  assert.equal(chats.length, 1);
+  const { lines } = watch(y, 9000);
+  assert.ok(
+    lines.some(line => stringLines().has(line)),
+    'the string lines',
+  );
+});
+
+test('string lines wait while the AI answers, and a state event leaves friends in their seats', async t => {
+  const y = voices(t, { hold: true });
+  gathered(y);
+  const seats = new Map(y.views().map(v => [v, { x: v.x, y: v.y }]));
+  const { lines } = watch(y, 20_000);
+  assert.equal(chats.length, 1);
+  assert.deepEqual(
+    lines.filter(line => stringLines().has(line)),
+    [],
+  );
+  syncViews();
+  for (const v of y.views()) assert.deepEqual({ x: v.x, y: v.y }, seats.get(v), 'still in its seat');
+  assert.equal(viewing.viewing(), true);
+});
+
+for (const [name, reply] of [
+  ['an answer', { ok: true, data: null }],
+  ['a failure', { ok: false, error: 'x' }],
+])
+  test(`${name} that comes after the gathering ended starts nothing`, async t => {
+    const y = voices(t, { hold: true, reply });
+    gathered(y);
+    y.tick(1500);
+    assert.equal(chats.length, 1);
+    viewing.endViewing();
+    // A new gathering is on when the old one's answer comes, in weather that would end a stale turn.
+    assert.equal(viewing.startViewing('person'), true);
+    scene.weather = 'rain';
+    const wander = y.views().map(v => v.nextWander);
+    y.finish();
+    await flush();
+    assert.equal(viewing.viewing(), true, 'the answer did not end or take over the new gathering');
+    scene.weather = 'clear';
+    const { lines } = watch(y, 20_000);
+    assert.deepEqual(
+      lines.filter(line => stringLines().has(line)),
+      [],
+      'no string turn after the end',
+    );
+    assert.deepEqual(
+      y.views().map(v => v.nextWander),
+      wander,
+    );
+  });

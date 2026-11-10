@@ -61,7 +61,8 @@ let calling = null;
 // When the person last called friends from the menu (ms), kept in page memory only: a restart within
 // the hour costs nothing worth saving.
 let lastCalled = null;
-// The gathering under way: { spot, world, members, timers, pool, lines, turns, begun }, or null.
+// The gathering under way: { by, spot, world, members, timers, pool, lines, turns, begun, voiced }, or
+// null. `by` is who started it; `voiced` is set while the friends' own AI voices carry the talk.
 let gathering = null;
 // What a gathered friend is doing, waiting to set off and standing there (trips.js setDoing).
 const HERE = { end: v => leave(v) };
@@ -87,7 +88,7 @@ export function syncViewingAction() {
   // Waiting stays focusable, like the chatter button, and says why.
   const wait = !mayCall(Date.now(), lastCalled);
   tool.setAttribute('aria-disabled', String(wait));
-  tool.title = t(wait ? 'viewing.wait' : 'viewing.action_title');
+  tool.title = t(wait && !tool.disabled ? 'viewing.wait' : 'viewing.action_title');
 }
 
 // The person's call: friends come unless it is within the hour of the last one, which counts as the
@@ -170,6 +171,7 @@ export function startViewing(by) {
     // A branch line belongs under a tree, a picnic line on a blanket.
     extra = { tree: list('viewing.tree_lines'), mat: list('viewing.mat_lines') }[spot.kind] ?? [];
   const g = {
+    by,
     spot,
     world: scene.world,
     members,
@@ -228,7 +230,32 @@ function settle(v) {
   g.begun = true;
   // Petals fall a little thicker around the spot while they are there.
   scenery?.gather({ x: g.spot.x, width: Math.max(160 * yardZoom(), g.spot.w * 1.3) });
-  later(g, TURNS_AFTER_MS, () => turn(g));
+  later(g, TURNS_AFTER_MS, () => begin(g));
+}
+
+// The talk begins: friends with an AI speak for themselves when two or more are there and the person
+// called it or lets them chat on their own; else, or when the AI cannot (fewer than two free, a
+// friend still answering, an error), the string lines do.
+function begin(g) {
+  const ai = g.members.filter(v => v.pet.providerId);
+  if (ai.length < 2 || (g.by !== 'person' && !data.autoChatter)) return turn(g);
+  // The turns wait for the answer. A gathering that ended meanwhile is not touched.
+  call(
+    'chatter',
+    scene.period,
+    scene.weather,
+    'blossom',
+    ai.map(v => v.pet.id),
+  ).then(
+    () => {
+      if (gathering !== g) return;
+      g.voiced = true;
+      turn(g);
+    },
+    () => {
+      if (gathering === g) turn(g);
+    },
+  );
 }
 
 // The next line, from the shuffled lines; once all were said, they are shuffled again.
@@ -243,7 +270,8 @@ function turn(g) {
   if (!viewingTime(scene) || g.world !== scene.world) return endViewing();
   const standing = g.members.filter(v => v.viewing);
   // One at a time, so the blossom is not hidden behind bubbles: a turn while one talks stays quiet.
-  if (g.members.every(v => v.bubble.hidden) && standing.length) bubble(pick(standing), nextLine(g), LINE_MS);
+  if (!g.voiced && g.members.every(v => v.bubble.hidden) && standing.length)
+    bubble(pick(standing), nextLine(g), LINE_MS);
   if (!reduced.matches && g.turns % 2 === 0 && standing.length) {
     const v = pick(standing);
     v.button.classList.add('looking-up');
