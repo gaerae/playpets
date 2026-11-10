@@ -112,22 +112,32 @@ const settle = (key, result) => {
   settled.set(key, result);
   releases.set(key, Promise.resolve(result));
 };
+// Lookups the built releases can't answer: the site's own version and the latest, when the site was
+// built before that version was published. Pages keeps the first files deployed for a commit, so
+// the release commit's site, built while its release is a draft, stays until the next commit.
+const unbuilt = new Set();
 /** Takes the releases the site was built with (scripts/site-releases.mjs), so their lookups answer at
- * once and the browser never asks GitHub. Null (GitHub couldn't be reached then) leaves them to the browser. */
-export function seedReleases(slug, built) {
+ * once and the browser never asks GitHub. Null (GitHub couldn't be reached then) leaves them to the
+ * browser, and so does a `current` version (the site's own) that wasn't published yet. */
+export function seedReleases(slug, built, current) {
   if (!built) return;
   known.add(slug);
-  settle(releaseKey(slug), built.latest ?? MISSING);
+  if (current && !built.tagged[current]) {
+    unbuilt.add(releaseKey(slug, current));
+    unbuilt.add(releaseKey(slug));
+  } else settle(releaseKey(slug), built.latest ?? MISSING);
   for (const result of Object.values(built.tagged)) settle(releaseKey(slug, result.version), result);
 }
 /** A release the site was built with, or nothing when the browser has to look it up. A browser
  * lookup's answer isn't one: a failed one must stay open to Retry. */
 export const knownRelease = (slug, version) =>
-  known.has(slug) ? (settled.get(releaseKey(slug, version)) ?? MISSING) : undefined;
+  known.has(slug) && !unbuilt.has(releaseKey(slug, version))
+    ? (settled.get(releaseKey(slug, version)) ?? MISSING)
+    : undefined;
 
 function fetchRelease(slug, version, fetcher) {
   const key = releaseKey(slug, version);
-  if (!releases.has(key) && known.has(slug)) settle(key, MISSING);
+  if (!releases.has(key) && known.has(slug) && !unbuilt.has(key)) settle(key, MISSING);
   if (!releases.has(key))
     releases.set(
       key,

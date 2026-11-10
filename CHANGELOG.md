@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Website and docs
+
+- Right after a release is published, the website's download buttons offer it, instead of the previous release until the next site update.
+
 ## [1.6.0] - 2026-11-10
 
 ### Added

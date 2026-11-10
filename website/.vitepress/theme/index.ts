@@ -23,7 +23,7 @@ export default {
     // page, whether typed, linked or clicked in the site, so the menu keeps working there.
     const base = siteData.value.base;
     // The download links come from the releases the site was built with, in the page as served.
-    seedReleases(generated.slug, generated.releases);
+    seedReleases(generated.slug, generated.releases, generated.version);
     const moved = (to: string) =>
       to.startsWith(base) ? base + to.slice(base.length).replace(/^(?:ko|ja|zh-hans)\/dev(\/|$)/, 'dev$1') : to;
     if (typeof window !== 'undefined') {

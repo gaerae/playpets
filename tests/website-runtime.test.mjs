@@ -329,3 +329,26 @@ test('releases the site was built with answer at once, and a version not among t
   assert.equal((await latestRelease('test/unbuilt-failed', async () => ({ status: 500 }))).status, 'error');
   assert.equal(knownRelease('test/unbuilt-failed'), undefined);
 });
+
+test('a site built before its own version was published asks GitHub for that version and the latest', async () => {
+  const older = { status: 'ready', version: '1.5.0', publishedAt: '2026-11-04', files: [] };
+  // The release commit's site is built while 1.6.0 is still a draft, and a later deploy of the same
+  // commit keeps those files: its built answers for 1.6.0 and the latest are out of date.
+  seedReleases('test/before-publish', { latest: older, tagged: { '1.5.0': older } }, '1.6.0');
+  assert.equal(knownRelease('test/before-publish'), undefined);
+  assert.equal(knownRelease('test/before-publish', '1.6.0'), undefined);
+  assert.deepEqual(knownRelease('test/before-publish', '1.5.0'), older);
+  assert.equal(knownRelease('test/before-publish', '1.4.0').status, 'missing');
+  const published = async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ tag_name: 'v1.6.0', published_at: '2026-11-10', assets: [] }),
+  });
+  assert.equal((await latestRelease('test/before-publish', published)).version, '1.6.0');
+  assert.equal((await taggedRelease('test/before-publish', '1.6.0', published)).version, '1.6.0');
+  // Built after it was published, nothing is asked.
+  const current = { ...older, version: '1.6.0' };
+  seedReleases('test/after-publish', { latest: current, tagged: { '1.6.0': current } }, '1.6.0');
+  assert.deepEqual(knownRelease('test/after-publish'), current);
+  assert.deepEqual(knownRelease('test/after-publish', '1.6.0'), current);
+});

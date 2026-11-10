@@ -186,9 +186,10 @@ git push --atomic origin HEAD v0.2.0
 | `latest.json`, `PlayPets_0.2.0_macos-universal.app.tar.gz` | The updater signing secrets exist |
 
 7. After the checks pass, press "Publish release" on the draft. Publishing starts the `distribute` and `store` workflows.
-   - `distribute` starts the Pages build on `main`. The site reads the published releases while it is built, so the download buttons and the four version pages then link that version's files.
+   - `distribute` starts the Pages build on `main`. When `main` has moved past the release commit, that build reads the published release, and the download buttons and the four version pages link its files.
+   - When `main` is still the release commit, Pages keeps the files it first deployed for that commit, built while the release was a draft. Those pages know their own version isn't among the releases they were built with, so the visitor's browser looks up that version and the latest instead (1.6.0 shipped with the old links before this).
    - Publication therefore needs no follow-up documentation commit.
-   - Until that deployment finishes, the site still offers the previous release. Check that the `pages` run `distribute` started succeeded: the pages don't look again, so a failed run leaves the previous release's links until the next deployment. If the build could not reach GitHub, the pages look the release up in the visitor's browser and keep a safe link to the release list.
+   - If the build could not reach GitHub, the pages look the release up in the visitor's browser and keep a safe link to the release list.
 
 8. When the `distribute` run finishes, check the results. A channel without a token is left in the `store-manifests` artifact.
 
