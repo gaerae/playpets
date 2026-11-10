@@ -168,6 +168,8 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   `node scripts/pack-collection.mjs`.
 - Accepted sources, prompts, hashes, cut columns and measured boxes:
   `assets/sources/tracks-2026-11-09/accepted-art.json`.
+- Later: the sparrow, the magpie and the bush's base were redrawn on 2026-11-10
+  (see Season art pass).
 
 ## Spring shoots (2026-11-09)
 
@@ -181,6 +183,8 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   wrappers with `node scripts/pack-collection.mjs`.
 - Accepted sources, prompt, hash and measured boxes:
   `assets/sources/spring-shoots-2026-11-09/accepted-art.json`.
+- Later: the eight shoots were redrawn on flat earth on 2026-11-10 (see Season
+  art pass).
 
 ## Look-alikes redrawn (2026-11-10)
 
@@ -207,3 +211,20 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   silhouette, it filled the frame and read like the late firefly.
 - Accepted sources, prompts, hashes and measured boxes:
   `assets/sources/look-alikes-2026-11-10/accepted-art.json`.
+
+## Season art pass (2026-11-10)
+
+- The sparrow and magpie tails come from new birds diving head first, tail and
+  feet up. Each crop keeps the top of the bird (sparrow 58 percent, magpie 73
+  percent of its height), so the head, eyes and beak stay below the cut; the
+  cut sits in the bush's crown and fades out there.
+- The bush and the bare twigs are redrawn without the white snow plate under
+  them; the snow puff is kept from the 2026-11-09 atlas.
+- The eight shoots sit on a flat oval of smooth earth instead of a lumpy mound;
+  the fiddlehead is larger and a deeper green so it reads in the mini window.
+- Alpha below 50 is cleared as before; crops follow measured silhouettes with a
+  14-pixel margin, except a bird's, which ends at its cut.
+- In the yard, shoots and a trail's bush and tail shrink with the window only to
+  three quarters of their size (`shootScale`, `endZoom`).
+- Accepted sources, prompts, hashes, processing and measured boxes:
+  `assets/sources/season-leftovers-2026-11-10/accepted-art.json`.

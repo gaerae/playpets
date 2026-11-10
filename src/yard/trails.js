@@ -32,6 +32,7 @@ import { chosenWeather } from './sky.js';
 import { tailPeek } from './trail-art.js';
 import {
   coveredAt,
+  endZoom,
   laidAt,
   seedOf,
   stamps,
@@ -61,7 +62,7 @@ const WALK_MS = [6000, 8000],
   PUFF_MS = 600,
   END_MS = 60000,
   END_NEAR = 0.06;
-// How far from the bush's middle the friend stops, in yard pixels at zoom 1, past the tail's tip
+// How far from the bush's middle the friend stops, in the bush's units (endZoom), past the tail's tip
 // (garden.css .tail-peek), so neither the friend nor its bubble covers the tail.
 const STAND = 26;
 
@@ -89,7 +90,7 @@ let ends = [];
 // of size only redraws the followed trail on its own path at once (redraw).
 let relay = false;
 // What a trail end shows at a follow's end; the next follow starts without them.
-const TAIL = ['peek', 'peek-still', 'whisk', 'flutter', 'fade'];
+const TAIL = ['peek', 'peek-still', 'whisk', 'dive', 'fade'];
 // What a redrawn trail keeps of the nodes it replaces.
 const STATES = ['following', 'covered', ...TAIL];
 // The garden layers and documents whose events are already heard (setupTrails may be called again).
@@ -250,7 +251,7 @@ function draw(n, track, path, followed) {
   end.dataset.trail = String(n);
   const at = toYard(path.end);
   Object.assign(end.style, { left: px(at.x), top: px(at.y), zIndex: String(depthAt(at.y)) });
-  end.style.setProperty('--u', `${zoom()}px`);
+  end.style.setProperty('--u', `${endZoom(zoom())}px`);
   // Bare twigs show what is behind them, so the tail always peeks from the evergreen bush; the
   // twigs stand beside it, behind, on the side the tail is not.
   const exit = path.exit === 'left' ? 'mirror' : '';
@@ -416,7 +417,7 @@ export function followTrail(n) {
   const side = path.exit === 'left' ? 1 : -1,
     standAt = () => {
       const end = deps.toYard(path.end);
-      return { x: end.x + side * (STAND * deps.zoom() + sizeOf(v.pet) / 2), y: end.y };
+      return { x: end.x + side * (STAND * endZoom(deps.zoom()) + sizeOf(v.pet) / 2), y: end.y };
     },
     stand = standAt(),
     way = still ? [] : pixels.slice(from, -1).map((p, i) => ({ ...p, i: from + i }));
@@ -463,9 +464,9 @@ export function followTrail(n) {
 }
 
 // The end of the walk: the tail peeks out and the follow is recorded; a second later the tail
-// whisks away (a bird flutters off), and the friend digs where it was. The record is kept here only
-// once the backend has it: a follow it could not save leaves the trail to follow again, and the dig
-// still goes on (its find is the dig's own).
+// whisks away (a bird ducks into the bush), and the friend digs where it was. The record is kept
+// here only once the backend has it: a follow it could not save leaves the trail to follow again,
+// and the dig still goes on (its find is the dig's own).
 function peek(n, trail, follow, still) {
   const { v } = follow,
     { track, path } = trail,
@@ -500,7 +501,7 @@ function peek(n, trail, follow, still) {
   const later = (ms, fn) => follow.timers.push(setTimeout(fn, ms));
   later(PEEK_MS, () => {
     const { end } = trail;
-    end.classList.add(still ? 'fade' : track.bird ? 'flutter' : 'whisk');
+    end.classList.add(still ? 'fade' : track.bird ? 'dive' : 'whisk');
     if (!still && !track.bird) {
       const puff = document.createElement('span');
       puff.className = `puff${path.exit === 'left' ? ' mirror' : ''}`;

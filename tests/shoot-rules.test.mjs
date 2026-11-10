@@ -11,6 +11,7 @@ import {
   SHOOT_APART,
   SHOOT_STAYS_MS,
   SHOOTS_OUT,
+  shootScale,
   shootSpot,
   shootTime,
   sprouting,
@@ -189,4 +190,12 @@ test('kept shoots read back only what makes sense', () => {
   assert.equal(SHOOTS_OUT, 3);
   assert.equal(keptShoots(text([], { morning: 'today' }), T).morning, '');
   assert.equal(keptShoots(text([], { rainAt: T + 5 }), T).rainAt, 0);
+});
+
+test('a shoot shrinks with the yard down to three quarters, not into the grass of a small window', () => {
+  assert.equal(shootScale(1), 1);
+  assert.equal(shootScale(1.4), 1.4);
+  assert.equal(shootScale(0.8), 0.8);
+  assert.equal(shootScale(0.57), 0.75);
+  assert.equal(shootScale(0.3), 0.75);
 });

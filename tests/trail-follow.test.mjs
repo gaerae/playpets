@@ -1,6 +1,6 @@
 // A friend follows a winter trail (src/yard/trails.js followTrail): it sniffs along the prints, the
-// tail peeks from the bush and whisks away (a bird flutters off), the follow is recorded, then the
-// friend digs at the end with a trail context.
+// tail peeks from the bush and whisks away (a bird ducks into the bush), the follow is recorded,
+// then the friend digs at the end with a trail context.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
@@ -18,7 +18,7 @@ const { t: say } = await import('../src/core/i18n.js');
 const { reduced } = await import('../src/core/sprites.js');
 const { recall, remember, setAiming, setData, setGame, setSelected, views } = await import('../src/core/state.js');
 const { TRACKS, trackKind } = await import('../src/yard/catalog.js');
-const { footTarget, measureYard } = await import('../src/yard/field.js');
+const { footTarget, measureYard, sizeOf } = await import('../src/yard/field.js');
 const { BLOCK_MS, trailAnimal } = await import('../src/yard/trail-rules.js');
 const { atTrailEnd, followTrail, reservedForTrail, resizeTrails, setupTrails, trailsCheck, trailsSeen } =
   await import('../src/yard/trails.js');
@@ -40,7 +40,7 @@ const dayOf = bird =>
     d => trackKind(trailAnimal(`2026-12-${String(d).padStart(2, '0')}`, 0, ids)).bird === bird,
   );
 
-function yard(t, { day = 14, rested = () => true } = {}) {
+function yard(t, { day = 14, rested = () => true, zoom = 1 } = {}) {
   t.mock.timers.enable({ apis: ['Date', 'setTimeout'], now: at(day, 9) });
   const dom = installDom(t, { anyId: true });
   installStorage(t);
@@ -73,7 +73,7 @@ function yard(t, { day = 14, rested = () => true } = {}) {
     profile: () => OPEN,
     weather: ms => look.weather(ms),
     toYard: p => ({ x: p.x * look.width, y: p.y * 400 }),
-    zoom: () => 1,
+    zoom: () => zoom,
     dig: (...args) => digs.push(args),
     rested,
     card: (...args) => cards.push(args),
@@ -159,7 +159,7 @@ for (const bird of [false, true])
     assert.equal(y.cards[0][4], 'track');
     assert.equal(y.v.bubble.textContent, say('trail.seen', { animal: say(`track.${animal}`) }));
     t.mock.timers.tick(1000);
-    assert.ok(end.classList.contains(bird ? 'flutter' : 'whisk'));
+    assert.ok(end.classList.contains(bird ? 'dive' : 'whisk'));
     assert.equal(end.querySelectorAll('.puff').filter(n => !n.removed).length, bird ? 0 : 1);
     assert.equal(y.digs.length, 0);
     t.mock.timers.tick(400);
@@ -300,6 +300,23 @@ test('the window hidden before the tail shows calls the follow off; after, the r
   assert.deepEqual(y.saved().followed, [0]);
 });
 
+test('in a small window the bush keeps three quarters of its size and the friend stops clear of it', async t => {
+  const y = yard(t, { zoom: 0.5 });
+  trailsCheck();
+  const end = y.live('.trail-end')[0];
+  assert.equal(end.style['--u'], '0.75px');
+  followTrail(0);
+  walk(y.v);
+  const side = /tail-peek[^"]*mirror/.test(end.innerHTML) ? 1 : -1,
+    beside = footTarget(
+      y.v,
+      parseFloat(end.style.left) + side * (26 * 0.75 + sizeOf(y.v.pet) / 2),
+      parseFloat(end.style.top),
+    );
+  assert.ok(Math.abs(walk.last.x - beside.x) < 1e-3, 'beside the bush as it is drawn');
+  await flush();
+});
+
 test('a resize mid-follow lays the trail out on the new size at once and the friend walks it there', async t => {
   const y = yard(t);
   trailsCheck();
@@ -334,7 +351,7 @@ test('a resize mid-follow lays the trail out on the new size at once and the fri
   assert.ok(end.classList.contains('peek'));
   await flush();
   t.mock.timers.tick(1000);
-  assert.ok(end.classList.contains('whisk') || end.classList.contains('flutter'));
+  assert.ok(end.classList.contains('whisk') || end.classList.contains('dive'));
   t.mock.timers.tick(400);
   assert.equal(followed.length, 1);
   assert.equal(y.digs.length, 1);
@@ -390,7 +407,7 @@ test('a failed record keeps the trail to follow again and shows no card', async 
   walk(y.v);
   const end = y.live('.trail-end')[0];
   assert.ok(end.classList.contains('peek'));
-  for (const name of ['whisk', 'flutter', 'fade']) assert.ok(!end.classList.contains(name), name);
+  for (const name of ['whisk', 'dive', 'fade']) assert.ok(!end.classList.contains(name), name);
 });
 
 test("leaving winter takes a just-followed trail's end with it", async t => {
@@ -533,7 +550,7 @@ test('with a tool in hand, a game, or a creature to catch, a click on the prints
 
 test('every tail animation ends', async () => {
   const css = await readFile('src/styles/garden.css', 'utf8');
-  for (const name of ['tail-peek', 'tail-whisk', 'tail-flutter', 'trail-puff']) {
+  for (const name of ['tail-peek', 'tail-whisk', 'tail-dive', 'trail-puff']) {
     const rule = css.match(new RegExp(`animation: ${name} [^;]*;`))?.[0];
     assert.ok(rule, name);
     assert.doesNotMatch(rule, /infinite/);
