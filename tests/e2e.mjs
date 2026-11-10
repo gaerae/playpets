@@ -1175,6 +1175,10 @@ const scenario = `(async()=>{
     // Back out again, so the switch below brings everything in rather than sending everyone out.
     await must('friendOut',playPets.setOnDesktop(p1.data.id,true));
     await playPets.putAway(outGift.id);
+    // By now the startup look has long finished: a CLI or Ollama on this computer must not show,
+    // or sending a word connects to it instead of to the scenario's own provider.
+    const seen=(await playPets.bootstrap()).data.detected;
+    await L('machine='+(seen.claude||seen.codex||seen.ollama?.length?'seen:'+JSON.stringify(seen):'unseen'));
     await must('removeProvider',playPets.removeProvider(save.data.id));
     const b3=await playPets.bootstrap();
     await L('detached='+(b3.data.pets[0].providerId===''&&b3.data.providers.length===0));
@@ -1740,6 +1744,7 @@ const expect = [
     /^desktopItems=one-at-a-time$/,
     'a gift taken out of the album goes out on the desktop, and a friend comes in, each on its own',
   ],
+  [/^machine=unseen$/, 'the run never sees the AIs installed on this computer'],
   [/^removeProvider=ok/, 'delete a provider'],
   [/^detached=true/, 'deleting a provider detaches it from pets'],
   [/^overlayClosed=alive$/, 'the app stays alive when desktop mode turns off'],

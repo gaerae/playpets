@@ -244,6 +244,11 @@ pub fn list_models(state: &State<Shared>, raw: &Value) -> Result<Value, String> 
 /// may have changed (a CLI turn failed, the window came back while a sign-in was offered).
 pub fn detect(app: tauri::AppHandle) {
     use tauri::Manager;
+    // A test run stays a computer with nothing on it: a CLI found here would take the first word
+    // the scenario sends, and the run would pass or fail by what this machine has installed.
+    if crate::commands::e2e_mode() {
+        return;
+    }
     std::thread::spawn(move || {
         let begun = LOOKS.fetch_add(1, Ordering::SeqCst) + 1;
         // Each status check starts a CLI and Ollama is asked over the network: side by side, the
