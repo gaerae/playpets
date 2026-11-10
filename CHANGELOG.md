@@ -12,9 +12,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- Click a falling petal during the festival to catch it: it twirls into a little glint, and the first one each day brings a friend's wish that it will come true.
+- During the cherry blossom festival, friends gather once a day under a cherry tree you grew, on a picnic blanket or in the middle of the yard to look at the flowers while petals fall a little thicker around them, then wander off after a minute or so. They never interrupt a game, fishing or digging.
 - **Flower viewing** in the play menu calls your friends to the blossom during the festival, at most once an hour.
 - Friends connected to an AI talk about the blossom in their own words while they view it; a gathering they start on their own does so only with **Let them chat now and then** on.
+- During the festival a falling petal sometimes lands on a friend's head and stays until it moves, and now and then the friend notices.
+- Click a falling petal during the festival to catch it: it twirls into a little glint, and the first one each day brings a friend's wish that it will come true.
 - In the Microsoft Store version, PlayPets asks the Store for a newer version when it starts and every six hours, and **Check for updates** in Settings asks it at once. A version waiting in the Store shows beside the place selector and in Settings, and **Open in Microsoft Store** opens PlayPets' page there to install it. When the Store updates PlayPets while it is open, PlayPets opens again afterwards instead of staying closed.
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
@@ -27,8 +29,6 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A snowman can wear a hat, a scarf and a carrot nose: press it or choose **Dress up** from its menu. A snowman stays in the yard (it doesn't go out on the desktop), and putting it away melts it.
 - In winter, animal footprints cross the snowy yard. Click them and a friend follows, sniffing, to a bush where a tail peeks out and a small find waits. The album's new Footprints book keeps whose prints you followed.
 - On the first day you open PlayPets from December 26 to 31, the friend you're closest to writes you a year-end letter about your year together and asks how it went and what you'd like to do next. It waits in the mailbox if you have one; you can write back in up to 200 characters, skip it, or delete it. Letters and answers stay on this computer. A friend with an AI connection writes in its own words, and next December, if the friend writing to you has an AI connection, that AI reads your answer to write the new letter. On the first day you open PlayPets from January 1 to 7, that friend (or your closest one, if it has left) brings your answer back and cheers you on, and next December's letter looks back on it.
-- During the cherry blossom festival, friends gather once a day under a cherry tree you grew, on a picnic blanket or in the middle of the yard to look at the flowers while petals fall a little thicker around them, then wander off after a minute or so. They never interrupt a game, fishing or digging.
-- During the festival a falling petal sometimes lands on a friend's head and stays until it moves, and now and then the friend notices.
 
 ### Changed
 

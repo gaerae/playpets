@@ -413,7 +413,7 @@
    the head's top so it sits there rather than floats: the scenery's petal pinks, lit from the upper
    left, with the little notch at its tip and a soft contact shadow. --petal-x moves it off the
    middle and --petal-turn turns it; the turn is the rotate property, so the landing's transform
-   never replaces it. Base.css stops the landing under reduced motion (petals.js adds no class then). */
+   never replaces it. Under reduced motion there is no landing: petals.js never adds the class then. */
 .head-petal {
   position: absolute;
   top: calc(var(--head, 8px) + 2px);

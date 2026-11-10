@@ -242,7 +242,7 @@ During the cherry blossom festival, on a clear day from morning to evening, frie
 
 To call them yourself, choose **Flower viewing** in the play panel. You can do it once an hour, and the button is greyed out while friends are already viewing or a game is on. Friends connected to an AI talk about the blossom in their own words; when friends gather on their own, they do so only with **Let them chat now and then** on.
 
-Through the festival a petal now and then lands on a friend's head and stays until that friend moves, more often while friends view the blossom, when petals also fall a little thicker. Click a falling petal to catch it: it twirls into a little glint, and the first one each day brings a wish from a friend. With reduced motion, petals don't fall and can't be caught, but friends still gather and petals still rest on heads.
+On those clear festival days, from morning to evening, a petal now and then lands on a friend's head. It stays until that friend moves or night or rain comes, and lands more often while friends view the blossom, when petals also fall a little thicker. Click a falling petal to catch it: it twirls into a little glint, and the first one each day brings a wish from a friend. With reduced motion, petals don't fall and can't be caught, but friends still gather and petals still rest on heads.
 
 ### The year-end letter
 
