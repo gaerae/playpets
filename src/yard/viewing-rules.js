@@ -47,54 +47,82 @@ export function viewingSpot({ trees = [], decor = [], world, now, limits, season
   return { kind: 'middle', id: null, ...MIDDLE };
 }
 
-// Four seats on a blanket: two rows of two across its inner 70 %.
-const onMat = ({ x, y, w, h }) => [
-  [x - 0.175 * w, y - 0.65 * h],
-  [x + 0.175 * w, y - 0.65 * h],
-  [x - 0.175 * w, y - 0.25 * h],
-  [x + 0.175 * w, y - 0.25 * h],
-];
+// Neighbours keep most of a friend's width apart (or a name tag's, if wider), and a second row stands
+// this many gaps behind (or in front of) the first, half a gap aside, so it is as far from them.
+const GAP = 0.85;
+const ROW = 0.9;
+// Under a tree, how far in front of the foot the nearest seats stand, and how much further forward
+// each step out (a shallow arc); in the middle, how far in front of its point the row stands.
+const IN_FRONT = 10;
+const ARC = 8;
+const MIDDLE_FRONT = 12;
+// Rows tried before fewer friends come instead.
+const ROWS = 3;
 
-/** Where each of `count` friends stands, in yard pixels (the foot), and `side`, which the tilt and
- * the look follow: 'left' when the spot is left of the seat. `spot` is in yard pixels too. */
-export function viewingSeats({ spot, count, width, top, bottom, zoom }) {
-  const lo = EDGE + 20 * zoom,
-    hi = width - EDGE - 20 * zoom,
-    seat = (x, y) => {
-      const sx = clamp(x, lo, hi);
-      return { x: sx, y: clamp(y, top, bottom), side: spot.x < sx ? 'left' : 'right' };
-    },
-    points = [];
-  if (spot.kind === 'mat') {
-    // A blanket near the edge keeps its four seats by shifting them together, like the arc's centre.
-    const reach = 0.175 * spot.w,
-      mx = clamp(spot.x, lo + reach, hi - reach),
-      mat = { ...spot, x: mx };
-    points.push(...onMat(mat).slice(0, count));
-    // The rest sit beside its ends, left then right, a step further out for each pair; a side with
-    // no room gives its seat to the other.
-    const taken = { '-1': 0, 1: 0 };
-    for (let i = 0; points.length < count; i++) {
-      let dir = i % 2 ? 1 : -1;
-      const at = d => mx + d * (spot.w / 2 + 28 * zoom + taken[d] * 36 * zoom);
-      if (at(dir) < lo || at(dir) > hi) dir = -dir;
-      points.push([at(dir), spot.y - 0.2 * spot.h]);
-      taken[dir]++;
+// Places along a row, by distance from its middle, in gaps: 0, -1, 1, … for an odd row, -0.5, 0.5,
+// … for an even one. `n` is how many the row holds at most.
+function slots(odd, n) {
+  const out = [];
+  for (let k = 0; out.length < n; k++) {
+    const d = odd ? k : k + 0.5;
+    if (odd && k === 0) out.push(0);
+    else out.push(-d, d);
+  }
+  return out.slice(0, n);
+}
+
+/** Where each of up to `count` friends stands, in yard pixels (the foot), and `side`, which the tilt and
+ * the look follow: 'left' when the spot is left of the seat. `spot` is in yard pixels too; `size` is the
+ * widest friend's drawn width and `tag` its widest name tag. Neighbours keep apart so neither friends nor
+ * tags overlap: under a tree to both sides of the trunk, its crown left open; on a blanket in one row
+ * across it; in the middle in a shallow arc in front. A full row sends the rest to a row behind it (or in
+ * front, without room behind); a yard with no room for everyone gives fewer seats, never closer ones. */
+export function viewingSeats({ spot, count, width, top, bottom, zoom, size, tag = 0 }) {
+  const gap = Math.max(GAP * size, tag + 4 * zoom),
+    step = ROW * gap,
+    lo = EDGE + size / 2,
+    hi = width - EDGE - size / 2,
+    fit = hi >= lo ? Math.floor((hi - lo) / gap + 1e-9) + 1 : 0,
+    tree = spot.kind === 'tree',
+    open = spot.w / 2 + gap / 2,
+    // The first row, and which way the next ones go: behind a blanket when there is room, else in
+    // front; in front of a tree or the middle when there is room, else behind.
+    y0 =
+      spot.kind === 'mat'
+        ? spot.y - 0.45 * spot.h
+        : clamp(spot.y + (tree ? IN_FRONT : MIDDLE_FRONT) * zoom, top, bottom),
+    dir = spot.kind === 'mat' ? (y0 - step >= top ? -1 : 1) : y0 + step <= bottom ? 1 : -1,
+    // A blanket's or the middle's row is shifted whole to stay inside the field, as far as it fits.
+    n0 = Math.min(count, fit),
+    span = ((n0 - 1) / 2) * gap,
+    cx = tree ? spot.x : clamp(spot.x, Math.min(lo + span, (lo + hi) / 2), Math.max(hi - span, (lo + hi) / 2)),
+    candidates = [];
+  for (let r = 0; r < ROWS; r++) {
+    const y = clamp(y0 + dir * r * step, top, bottom),
+      stagger = r % 2 ? 0.5 : 0;
+    if (tree)
+      for (let k = 0; open + (k + stagger) * gap <= width; k++)
+        for (const d of [-1, 1])
+          candidates.push({
+            x: spot.x + d * (open + (k + stagger) * gap),
+            y: clamp(y + ARC * k * zoom, top, bottom),
+          });
+    else {
+      const row = slots((n0 % 2 === 1) !== !!stagger, fit + 1),
+        far = Math.max(...row.map(Math.abs));
+      for (const j of row)
+        candidates.push({
+          x: cx + j * gap,
+          y: spot.kind === 'mat' || r ? y : clamp(y + ARC * zoom * (far - Math.abs(j)), top, bottom),
+        });
     }
-    return points.map(([x, y]) => seat(x, y));
   }
-  // A loose half circle in front of the foot, or above it when the yard has no room below. The arc's
-  // centre is clamped, not each seat, so every seat keeps its own place.
-  const rx = Math.min(Math.max(spot.w / 2 + 40 * zoom, 70 * zoom), (hi - lo) / 2),
-    below = bottom - spot.y >= 60 * zoom,
-    ry = Math.max(0, Math.min(rx * 0.35, below ? bottom - spot.y : spot.y - top)),
-    cx = clamp(spot.x, lo + rx, hi - rx),
-    dir = below ? 1 : -1;
-  for (let i = 0; i < count; i++) {
-    const a = ((count === 1 ? 90 : 25 + (130 * i) / (count - 1)) * Math.PI) / 180;
-    const x = cx + rx * Math.cos(a);
-    const y = spot.y + dir * ry * Math.sin(a);
-    points.push([x, y]);
+  const seats = [];
+  for (const c of candidates) {
+    if (seats.length >= count) break;
+    if (c.x < lo - 1e-6 || c.x > hi + 1e-6) continue;
+    if (seats.some(s => Math.hypot(s.x - c.x, s.y - c.y) < gap - 1e-6)) continue;
+    seats.push({ x: c.x, y: c.y, side: spot.x < c.x ? 'left' : 'right' });
   }
-  return points.map(([x, y]) => seat(x, y));
+  return seats;
 }

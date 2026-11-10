@@ -70,80 +70,91 @@ test('the spot is a grown cherry tree here, else a blanket, else the middle', ()
   assert.equal(viewingSpot({ ...base, trees: [], decor: mats }).id, 'a');
 });
 
-for (const [width, height, zoom] of [
-  [1180, 780, 1],
-  [460, 320, 0.57],
-]) {
-  test(`seats stay inside the field and apart at ${width} px and at its edges`, () => {
-    const top = height * 0.62,
-      bottom = height - 20,
-      lo = EDGE + 20 * zoom,
-      hi = width - EDGE - 20 * zoom;
-    const feet = [
-      { x: width / 2, y: top + 20 * zoom },
-      { x: 8, y: top + 20 * zoom },
-      { x: width - 8, y: top + 20 * zoom },
-      { x: width / 2, y: bottom },
-      { x: 8, y: bottom },
-      { x: width - 8, y: bottom },
-    ];
-    for (const foot of feet)
-      for (const kind of ['tree', 'middle'])
-        for (let count = 1; count <= 6; count++) {
-          const spot = { kind, ...foot, w: 160 * zoom, h: 170 * zoom };
-          const seats = viewingSeats({ spot, count, width, top, bottom, zoom });
-          const label = `${kind} ${foot.x},${foot.y} x${count}`;
-          assert.equal(seats.length, count, label);
-          for (const s of seats) {
-            assert.ok(s.x >= lo - 1e-6 && s.x <= hi + 1e-6 && s.y >= top - 1e-6 && s.y <= bottom + 1e-6, label);
-            assert.equal(s.side, spot.x < s.x ? 'left' : 'right', label);
-            if (foot.y < bottom - 60 * zoom) assert.ok(s.y >= spot.y - 1e-6, `${label} in front`);
-          }
-          for (let i = 0; i < seats.length; i++)
-            for (let j = i + 1; j < seats.length; j++)
-              assert.ok(
-                Math.hypot(seats[i].x - seats[j].x, seats[i].y - seats[j].y) >= 20 * zoom - 1e-6,
-                `${label} apart`,
-              );
-        }
-  });
-}
+// The full window and a compact one: the yard, its zoom and a friend's drawn width there.
+const YARDS = [
+  { width: 1180, height: 780, zoom: 1, size: 112 },
+  { width: 460, height: 320, zoom: 0.57, size: 64 },
+];
+// How far apart neighbours keep: most of a friend's width, or a name tag's, whichever is wider.
+const gapOf = (size, tag, zoom) => Math.max(0.85 * size, tag + 4 * zoom);
+const apart = (seats, gap, label) => {
+  for (let i = 0; i < seats.length; i++)
+    for (let j = i + 1; j < seats.length; j++)
+      assert.ok(Math.hypot(seats[i].x - seats[j].x, seats[i].y - seats[j].y) >= gap - 1e-6, `${label} apart`);
+};
 
-test('on a blanket friends sit on it first and the rest beside it', () => {
-  const spot = { kind: 'mat', x: 590, y: 600, w: 140, h: 105 };
-  const seats = viewingSeats({ spot, count: 6, width: 1180, top: 483, bottom: 760, zoom: 1 });
-  assert.equal(seats.length, 6);
-  const on = s => s.x >= 520 && s.x <= 660 && s.y >= 495 && s.y <= 600;
-  assert.ok(seats.slice(0, 4).every(on));
-  assert.ok(seats.slice(4).every(s => !on(s)));
-  assert.ok(seats[4].x < 520 && seats[5].x > 660);
-  for (let i = 0; i < 6; i++)
-    for (let j = i + 1; j < 6; j++) assert.ok(Math.hypot(seats[i].x - seats[j].x, seats[i].y - seats[j].y) >= 20);
+for (const { width, height, zoom, size } of YARDS)
+  for (const tag of [0, 150 * zoom])
+    test(`seats stay whole inside the field and never overlap at ${width} px, tag ${tag}, even at its edges`, () => {
+      const top = height * 0.62,
+        bottom = height - 20,
+        lo = EDGE + size / 2,
+        hi = width - EDGE - size / 2,
+        gap = gapOf(size, tag, zoom);
+      const feet = [
+        { x: width / 2, y: top + 20 * zoom },
+        { x: 8, y: top + 20 * zoom },
+        { x: width - 8, y: top + 20 * zoom },
+        { x: width / 2, y: bottom },
+        { x: 8, y: bottom },
+        { x: width - 8, y: bottom },
+      ];
+      for (const foot of feet)
+        for (const kind of ['tree', 'middle', 'mat'])
+          for (let count = 1; count <= 6; count++) {
+            const spot = {
+              kind,
+              ...foot,
+              ...(kind === 'mat'
+                ? { w: 147 * zoom, h: 110 * zoom }
+                : { w: 160 * zoom, h: kind === 'tree' ? 170 * zoom : 0 }),
+            };
+            const seats = viewingSeats({ spot, count, width, top, bottom, zoom, size, tag });
+            const label = `${kind} ${foot.x},${foot.y} x${count}`;
+            assert.ok(seats.length >= 1 && seats.length <= count, `${label}: ${seats.length} seats`);
+            if (foot.x === width / 2 && (tag === 0 || width > 1000))
+              assert.equal(seats.length, count, `${label}: everyone fits in the middle of the yard`);
+            for (const s of seats) {
+              assert.ok(s.x >= lo - 1e-6 && s.x <= hi + 1e-6 && s.y >= top - 1e-6 && s.y <= bottom + 1e-6, label);
+              assert.equal(s.side, spot.x < s.x ? 'left' : 'right', label);
+              // The crown stays in sight: nobody stands in front of the trunk.
+              if (kind === 'tree') assert.ok(Math.abs(s.x - spot.x) >= spot.w / 2 + gap / 2 - 1e-6, `${label} open`);
+            }
+            apart(seats, gap, label);
+          }
+    });
+
+test('under a tree friends stand to both sides of the trunk in a shallow arc', () => {
+  const spot = { kind: 'tree', x: 590, y: 520, w: 160, h: 170 };
+  const seats = viewingSeats({ spot, count: 4, width: 1180, top: 483, bottom: 760, zoom: 1, size: 112 });
+  assert.equal(seats.length, 4);
+  assert.equal(seats.filter(s => s.x < spot.x).length, 2);
+  assert.equal(seats.filter(s => s.x > spot.x).length, 2);
+  for (const s of seats) assert.ok(s.y >= spot.y && s.y <= spot.y + 40, `shallow: ${s.y}`);
+  for (const s of seats) assert.equal(s.side, s.x < spot.x ? 'right' : 'left', 'each faces the tree');
 });
 
-for (const [width, height, zoom] of [
-  [1180, 780, 1],
-  [460, 320, 0.57],
-]) {
-  test(`blanket seats stay inside the field and apart at ${width} px, even at its edges`, () => {
-    const top = height * 0.62,
-      bottom = height - 20;
-    for (const x of [8, width / 2, width - 8])
-      for (let count = 1; count <= 6; count++) {
-        const spot = { kind: 'mat', x, y: bottom - 10, w: 140 * zoom, h: 105 * zoom };
-        const seats = viewingSeats({ spot, count, width, top, bottom, zoom });
-        assert.equal(seats.length, count);
-        for (const s of seats) {
-          assert.ok(s.x >= EDGE + 20 * zoom - 1e-6 && s.x <= width - EDGE - 20 * zoom + 1e-6);
-          assert.ok(s.y >= top - 1e-6 && s.y <= bottom + 1e-6);
-          assert.equal(s.side, spot.x < s.x ? 'left' : 'right');
-        }
-        for (let i = 0; i < count; i++)
-          for (let j = i + 1; j < count; j++)
-            assert.ok(
-              Math.hypot(seats[i].x - seats[j].x, seats[i].y - seats[j].y) >= 20 * zoom - 1e-6,
-              `${x} x${count}`,
-            );
-      }
-  });
-}
+test('on a blanket friends sit on it and beside it in one row', () => {
+  const spot = { kind: 'mat', x: 590, y: 600, w: 147, h: 110 };
+  for (let count = 1; count <= 6; count++) {
+    const seats = viewingSeats({ spot, count, width: 1180, top: 483, bottom: 760, zoom: 1, size: 112 });
+    assert.equal(seats.length, count);
+    assert.equal(new Set(seats.map(s => s.y)).size, 1, `x${count}: one row`);
+    assert.ok(seats[0].y < spot.y && seats[0].y > spot.y - spot.h, `x${count}: on the blanket's depth`);
+    const xs = seats.map(s => s.x).sort((a, b) => a - b);
+    assert.ok(Math.abs((xs[0] + xs.at(-1)) / 2 - spot.x) < 1e-6, `x${count}: around its middle`);
+    assert.ok(
+      xs.some(x => Math.abs(x - spot.x) <= spot.w / 2),
+      `x${count}: someone sits on it`,
+    );
+  }
+});
+
+test('when a row is full the rest stand in a row behind it rather than overlapping', () => {
+  // A compact yard with wide name tags: a row holds only a few.
+  const spot = { kind: 'middle', x: 230, y: 230, w: 114, h: 0 };
+  const seats = viewingSeats({ spot, count: 6, width: 460, top: 198, bottom: 300, zoom: 0.57, size: 64, tag: 140 });
+  const rows = new Set(seats.map(s => Math.round(s.y)));
+  assert.ok(rows.size >= 2, `${rows.size} rows`);
+  apart(seats, gapOf(64, 140, 0.57), 'two rows');
+});

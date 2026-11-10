@@ -21,7 +21,8 @@ globalThis.playPets = {
 const state = await import('../src/core/state.js');
 const { list } = await import('../src/core/i18n.js');
 const { reduced } = await import('../src/core/sprites.js');
-const { EDGE, geometry, measureYard, petHeight, sizeOf } = await import('../src/yard/field.js');
+const { EDGE, fieldToYard, geometry, measureYard, petHeight, sizeOf, yardZoom } = await import('../src/yard/field.js');
+const { treeSize } = await import('../src/yard/planted-trees.js');
 const { scene } = await import('../src/yard/world.js');
 const { release, sendTo } = await import('../src/yard/trips.js');
 const { place, syncViews } = await import('../src/yard/views.js');
@@ -106,6 +107,17 @@ function arrive(v) {
   v.trip = null;
   place(v);
   trip.arrive(v, performance.now());
+}
+// Where a friend's feet come to at the end of its trip, in yard pixels.
+function footAt(v) {
+  const { w, h, top } = geometry(v.pet);
+  return { x: EDGE + v.target.x * w + sizeOf(v.pet) / 2, y: top + v.target.y * h + petHeight(v.pet) };
+}
+// No two friends' feet closer than most of a friend's width: neither friends nor tags overlap.
+function apart(feet, size) {
+  for (let i = 0; i < feet.length; i++)
+    for (let j = i + 1; j < feet.length; j++)
+      assert.ok(Math.hypot(feet[i].x - feet[j].x, feet[i].y - feet[j].y) >= 0.85 * size - 1e-6, 'apart');
 }
 // A gathering under way, every friend in its seat.
 function gathered(y) {
@@ -198,6 +210,19 @@ test('a gathering waits for two free idle friends and for nothing the person sta
   assert.deepEqual(viewed, []);
 });
 
+test('under the tree friends stand apart to both sides of the trunk, its crown left open', t => {
+  const y = yard(t);
+  assert.equal(viewing.startViewing('friends'), true);
+  y.tick(900);
+  const feet = y.views().map(footAt),
+    size = sizeOf(y.views()[0].pet),
+    trunk = fieldToYard(cherry).x,
+    crown = treeSize('cherry', 2)[0] * yardZoom();
+  for (const foot of feet) assert.ok(Math.abs(foot.x - trunk) >= crown / 2, 'nobody in front of the trunk');
+  assert.ok(feet.some(foot => foot.x < trunk) && feet.some(foot => foot.x > trunk), 'both sides');
+  apart(feet, size);
+});
+
 test('friends stand facing the tree, look up now and then, and talk in turns', t => {
   const y = yard(t);
   gathered(y);
@@ -205,9 +230,7 @@ test('friends stand facing the tree, look up now and then, and talk in turns', t
     assert.ok(v.doing, `${v.pet.id} stays where it stands`);
     assert.ok(['left', 'right'].includes(v.viewing?.side));
     assert.equal(v.button.dataset.tilt, v.viewing.side);
-    // The one right in front of the tree looks straight up.
-    if (Math.abs(v.look.x) > 1)
-      assert.equal(Math.sign(v.look.x), v.viewing.side === 'left' ? -1 : 1, 'it looks toward the tree');
+    assert.equal(Math.sign(v.look.x), v.viewing.side === 'left' ? -1 : 1, 'it looks toward the tree');
     assert.ok(v.look.y < 0, 'and up');
   }
   // The suggestion still shows when the first turn comes.
@@ -299,19 +322,23 @@ test('with reduced motion friends gather and talk but never tilt', t => {
   for (const v of y.views()) assert.equal(v.button.classList.contains('looking-up'), false);
 });
 
-test('on a picnic blanket friends gather on it and may say a picnic line', t => {
+test('on a picnic blanket friends sit on it and beside it in one row and may say a picnic line', t => {
   const mat = { id: 'p', kind: 'picnic', x: 0.5, y: 0.5 };
   const y = yard(t, { garden: { trees: [], decor: [mat] } });
   assert.equal(viewing.startViewing('friends'), true);
   y.tick(900);
-  const box = decorPlacement(mat);
-  for (const v of y.views()) {
-    const { w, h, top } = geometry(v.pet),
-      footX = EDGE + v.target.x * w + sizeOf(v.pet) / 2,
-      footY = top + v.target.y * h + petHeight(v.pet);
-    assert.ok(Math.abs(footX - box.x) <= box.w / 2, `${v.pet.id} stands on the blanket (x)`);
-    assert.ok(footY <= box.y && footY >= box.y - box.h, `${v.pet.id} stands on the blanket (y)`);
+  const box = decorPlacement(mat),
+    feet = y.views().map(footAt);
+  // One row across the blanket's depth, around its middle, on it and beside it.
+  for (const foot of feet) {
+    assert.ok(Math.abs(foot.y - feet[0].y) < 1e-6, 'one row');
+    assert.ok(foot.y <= box.y && foot.y >= box.y - box.h, 'at the blanket');
   }
+  assert.ok(
+    feet.some(foot => Math.abs(foot.x - box.x) <= box.w / 2),
+    'someone sits on it',
+  );
+  apart(feet, sizeOf(y.views()[0].pet));
   for (const v of y.views()) arrive(v);
   for (const v of y.views()) v.bubble.hidden = true;
   const { lines } = watch(y, 58_000);

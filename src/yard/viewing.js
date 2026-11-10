@@ -98,26 +98,32 @@ function spotNow() {
 const footOf = v => ({ x: v.px + sizeOf(v.pet) / 2, y: v.py + petHeight(v.pet) });
 
 /** Starts a gathering, called by the friends (`'friends'`) or by the person (`'person'`). False when
- * it is not blossom time, one is under way, or no friend is free. */
+ * it is not blossom time, one is under way, or no friend is free (or the yard has no room for one). */
 export function startViewing(by) {
   if (gathering || !viewingTime(scene)) return false;
   const spot = spotNow(),
     near = v => Math.hypot(footOf(v).x - spot.x, footOf(v).y - spot.y),
-    members = freeFriends(by === 'friends')
+    free = freeFriends(by === 'friends')
       .sort((a, b) => near(a) - near(b))
       .slice(0, VIEWING_MAX);
-  if (!members.length) return false;
+  if (!free.length) return false;
+  // Seats for the biggest of them and its widest name tag, so no friend or tag covers another; a yard
+  // with room for fewer takes the nearest.
   const f = field(),
     seats = viewingSeats({
       spot,
-      count: members.length,
+      count: free.length,
       width: f.width,
       top: f.top,
       bottom: f.bottom,
       zoom: yardZoom(),
+      size: Math.max(...free.map(v => sizeOf(v.pet))),
+      tag: Math.max(0, ...free.map(v => v.tag?.getBoundingClientRect?.().width || 0)),
     }).sort((a, b) => a.x - b.x),
-    // Left to right, so no two cross on the way.
-    walkers = [...members].sort((a, b) => a.px - b.px),
+    members = free.slice(0, seats.length);
+  if (!members.length) return false;
+  // Left to right, so no two cross on the way.
+  const walkers = [...members].sort((a, b) => a.px - b.px),
     extra = spot.kind === 'mat' ? list('viewing.mat_lines') : [];
   const g = { spot, members, timers: new Set(), pool: [...list('viewing.lines'), ...extra], lines: [], turns: 0 };
   gathering = g;
