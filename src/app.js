@@ -309,7 +309,8 @@ api.onChange(next => {
 // is hidden, not while someone is answering, and only with two friends who have an AI.
 const AUTO_CHATTER_MS = 20 * 60 * 1000;
 setInterval(() => {
-  if (!data.autoChatter || !shown || data.busy.length) return;
+  // A gathering under the blossom has its own talk (yard/viewing.js).
+  if (!data.autoChatter || !shown || data.busy.length || viewing()) return;
   if (data.pets.filter(p => p.providerId).length < 2) return;
   // A round that could not start (someone left, an AI went away) is not worth a toast.
   startChatter().catch(() => {});

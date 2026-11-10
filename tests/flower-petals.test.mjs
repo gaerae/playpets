@@ -20,7 +20,7 @@ globalThis.playPets = {
 const state = await import('../src/core/state.js');
 const { list } = await import('../src/core/i18n.js');
 const { reduced } = await import('../src/core/sprites.js');
-const { measureYard } = await import('../src/yard/field.js');
+const { measureYard, petHeight, sizeOf } = await import('../src/yard/field.js');
 const { scene } = await import('../src/yard/world.js');
 const { brushPetal, sendTo } = await import('../src/yard/trips.js');
 const { place, syncViews } = await import('../src/yard/views.js');
@@ -210,6 +210,27 @@ test('petals land only in blossom time, more often during a gathering', t => {
   assert.equal(v.petal, null);
 });
 
+test('once blossom time is over every petal comes off, though no friend moved', t => {
+  const y = yard(t);
+  const [v, w] = y.views();
+  landPetal(v);
+  landPetal(w);
+  petalTick(y.clock());
+  assert.equal(y.petals().length, 2, 'they stay through blossom time');
+  // Night falls (viewing-rules.js viewingTime: clear weather, morning to evening, in the festival).
+  scene.period = 'night';
+  y.tick(100);
+  petalTick(y.clock());
+  assert.equal(y.petals().length, 0, 'brushed off at night');
+  assert.equal(petalsOn(v).length + petalsOn(w).length, 0);
+  scene.period = 'day';
+  landPetal(v);
+  scene.event = null;
+  y.tick(100);
+  petalTick(y.clock());
+  assert.equal(v.petal, null, 'and once the festival is over');
+});
+
 test('a friend on its way, held or already wearing one gets no petal', t => {
   const y = yard(t);
   const [v, w, u] = y.views();
@@ -289,6 +310,18 @@ test('the friend nearest the petal makes the wish, and one being dragged does no
   wishAt({ x: c.px, y: c.py });
   assert.equal(c.bubble.hidden, true, 'a friend in the hand says nothing');
   assert.equal(b.bubble.hidden, false, 'the next nearest does');
+});
+
+test('of two friends close together, the one whose feet are nearer the petal makes the wish', t => {
+  const y = yard(t);
+  const [a, b] = y.views();
+  const point = { x: b.px + sizeOf(b.pet) / 2, y: b.py + petHeight(b.pet) };
+  // a stands just below and left of the point, so its top-left corner is nearest it, its feet not.
+  a.px = point.x - 5;
+  a.py = point.y - 5;
+  wishAt(point);
+  assert.equal(b.bubble.hidden, false, 'the friend standing at the petal says it');
+  assert.equal(a.bubble.hidden, true);
 });
 
 test("with no friend in the yard a caught petal keeps the day's wish", t => {

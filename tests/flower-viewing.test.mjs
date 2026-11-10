@@ -28,7 +28,7 @@ const { release, sendTo } = await import('../src/yard/trips.js');
 const { place, syncViews } = await import('../src/yard/views.js');
 const { decorPlacement } = await import('../src/yard/decor.js');
 const { endFishing, fishingNow, setupCatch } = await import('../src/yard/catch.js');
-const { cancelDiscoveryWork, digging, sendDiscovery } = await import('../src/yard/discovery.js');
+const { autoDig, cancelDiscoveryWork, digging, sendDiscovery } = await import('../src/yard/discovery.js');
 const viewing = await import('../src/yard/viewing.js');
 
 const MIN = 60_000;
@@ -322,6 +322,64 @@ test('a friend taken by something else leaves, and the last one leaving ends it'
   assert.equal(viewing.viewing(), false);
 });
 
+test('the fish tool takes a gathered friend when every friend is gathered, and the gathering lets it go', async t => {
+  const y = yard(t);
+  installStorage(t);
+  document.getElementById('yard').dataset.environment = 'illustrated';
+  setupCatch();
+  gathered(y);
+  document.getElementById('toast').replaceChildren();
+  await document.getElementById('fish-tool').dispatch('click');
+  assert.equal(fishingNow(), true, 'someone went fishing');
+  assert.equal(document.getElementById('toast').children.length, 0, 'nobody is told everyone is busy');
+  const fisher = y.views().find(v => v.target);
+  assert.ok(fisher, 'a friend set off for the lake');
+  assert.equal(fisher.viewing, null);
+  assert.equal(fisher.away, false);
+  assert.equal(fisher.button.dataset.tilt, undefined);
+  assert.equal(viewing.viewing(), true, 'the others keep viewing');
+  for (const v of y.views()) if (v !== fisher) assert.ok(v.viewing, `${v.pet.id} still views`);
+  endFishing();
+});
+
+test('the fish tool takes a free friend before a gathered one, even the chosen one', async t => {
+  const y = yard(t);
+  installStorage(t);
+  document.getElementById('yard').dataset.environment = 'illustrated';
+  setupCatch();
+  const [a, , c] = y.views();
+  c.doing = { end() {} };
+  assert.equal(viewing.startViewing('friends'), true);
+  y.tick(900);
+  for (const v of y.views()) if (v.target) arrive(v);
+  c.doing = null;
+  assert.equal(c.viewing ?? null, null, 'c stayed out of it');
+  state.setSelected('a');
+  t.after(() => state.setSelected(null));
+  await document.getElementById('fish-tool').dispatch('click');
+  assert.ok(c.target, 'the free friend goes');
+  assert.ok(a.viewing, 'the chosen one keeps viewing');
+  endFishing();
+});
+
+test("friends' own doings never take a gathered friend", t => {
+  const y = yard(t);
+  gathered(y);
+  assert.equal(
+    autoDig(() => 0.5),
+    false,
+    'Let them dig finds no one',
+  );
+  for (const v of y.views()) assert.ok(v.viewing, `${v.pet.id} still views`);
+  viewing.endViewing();
+  assert.equal(
+    autoDig(() => 0.5),
+    true,
+    'it would have, with a friend free',
+  );
+  cancelDiscoveryWork();
+});
+
 test('outside blossom time nothing gathers, and a gathering under way ends at its next turn', t => {
   const y = yard(t);
   scene.weather = 'rain';
@@ -495,6 +553,36 @@ test('a call with every friend busy says so', t => {
   for (const v of y.views()) v.doing = null;
   tool().onclick();
   assert.equal(viewing.viewing(), true);
+});
+
+test('a friend out for a stroll comes along, one on an errand does not', t => {
+  const y = menu(t);
+  const [a, b, c] = y.views();
+  // As moveFriends sends a friend wandering, and as a decoration visit sends one.
+  sendTo(a, { x: 0.9, y: 0.6 }, { slow: true });
+  sendTo(b, { x: 0.1, y: 0.6 }, { slow: true, arrive() {} });
+  tool().onclick();
+  assert.equal(viewing.viewing(), true);
+  assert.equal(a.away, true, 'the stroller joins');
+  y.tick(900);
+  assert.ok(a.seat && a.target, 'and walks to its seat');
+  assert.ok(b.trip?.arrive && !b.away, 'the errand is kept');
+  assert.equal(c.away, true);
+});
+
+test('a call just after blossom time ended hides the button and says nothing', t => {
+  const y = menu(t);
+  assert.equal(tool().hidden, false);
+  // Night came within the minute before the menu's next sync.
+  scene.period = 'night';
+  tool().onclick();
+  assert.equal(said(), null, 'no toast');
+  assert.equal(tool().hidden, true, 'the button follows the sky');
+  assert.equal(viewing.viewing(), false);
+  assert.equal(
+    y.views().every(v => !v.away),
+    true,
+  );
 });
 
 test('a call with one free friend still gathers', t => {

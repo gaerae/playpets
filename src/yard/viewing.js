@@ -7,7 +7,9 @@
 //   person starts (a game, a treat, a dig, the rod, a drag) takes the friend, and the gathering
 //   hears it and lets that friend go.
 // - Gathered friends are `away`, as in a game, so a state event does not put them back where they
-//   were saved; when one leaves, the place it stands in is kept as its own.
+//   were saved; when one leaves, the place it stands in is kept as its own. They are `gathered` too:
+//   what the person starts may take one when no friend is free (trips.js forPerson), while the
+//   friends' own doings keep to the free ones.
 // - Its timers are the gathering's, cleared when it ends. It draws nothing itself; the petals that
 //   fall thicker around the spot are the scenery's (scenery.gather).
 
@@ -23,10 +25,10 @@ import { fishingNow } from './catch.js';
 import { yardSeason } from './decor-shown.js';
 import { decorPlacement } from './decor.js';
 import { digging } from './discovery.js';
-import { field, fieldToYard, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
+import { field, fieldToYard, footOf, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { localDay } from './growth.js';
 import { treeSize } from './planted-trees.js';
-import { isFree, sendTo, setDoing } from './trips.js';
+import { isFree, sendTo, setDoing, strolling } from './trips.js';
 import {
   mayCall,
   mayGather,
@@ -94,6 +96,9 @@ export function syncViewingAction() {
 // The person's call: friends come unless it is within the hour of the last one, which counts as the
 // day's gathering (startViewing marks it).
 function callFriends() {
+  // Blossom time ended since the menu last looked (night, rain): the button follows the sky, and
+  // nobody is told everyone is busy.
+  if (!viewingTime(scene)) return syncViewingAction();
   if (!mayCall(Date.now(), lastCalled)) return toast(t('viewing.wait'));
   if (!startViewing('person')) return toast(t('viewing.none_free'));
   lastCalled = Date.now();
@@ -106,8 +111,10 @@ export const viewing = () => !!gathering;
 
 // Nothing the person started that a gathering would call friends away from.
 const busy = () => !!game || !!aiming || fishingNow() || digging();
-// Friends free to come; when the friends start it, only those not busy with an agent or a chat.
-const freeFriends = idle => [...views.values()].filter(v => isFree(v) && (!idle || stateOf(data, v.pet.id) === 'idle'));
+// Friends free to come, a stroll let go of; when the friends start it, only those not busy with an
+// agent or a chat.
+const freeFriends = idle =>
+  [...views.values()].filter(v => (isFree(v) || strolling(v)) && (!idle || stateOf(data, v.pet.id) === 'idle'));
 
 /** Called by the frame loop beside the other yard life: now and then, in blossom time, friends who
  * have not viewed it today and have nothing else on gather of their own accord. */
@@ -139,7 +146,6 @@ function spotNow() {
   }
   return { ...at, ...foot, w: MIDDLE_W * zoom, h: 0 };
 }
-const footOf = v => ({ x: v.px + sizeOf(v.pet) / 2, y: v.py + petHeight(v.pet) });
 
 /** Starts a gathering, called by the friends (`'friends'`) or by the person (`'person'`). False when
  * it is not blossom time, one is under way, or no friend is free (or the yard has no room for one). */
@@ -189,6 +195,8 @@ export function startViewing(by) {
   for (const v of members) {
     setDoing(v, HERE);
     v.away = true;
+    // What the person starts may still take it (trips.js forPerson).
+    v.gathered = true;
   }
   bubble(members[0], pick(list('viewing.suggest')), SUGGEST_MS);
   later(g, WALK_AFTER_MS, () => {
@@ -289,6 +297,7 @@ function letGo(v) {
   v.seat = null;
   v.look = null;
   v.away = false;
+  v.gathered = false;
   const p = data.pets.find(p => p.id === v.pet.id);
   if (!p || (p.x === v.x && p.y === v.y)) return;
   p.x = v.x;

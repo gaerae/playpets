@@ -20,7 +20,7 @@ import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from '
 import { flowerFor, hoursMinutes, stageOf, untilBloom } from './growth.js';
 import { propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { cue } from './sound.js';
-import { isFree, nearestFree, release, rest, sendTo } from './trips.js';
+import { forPerson, release, rest, sendTo } from './trips.js';
 import { bubble, cheer } from './views.js';
 import { holdAtWork, sendToWork, stopWork } from './work.js';
 import { scene } from './world.js';
@@ -136,7 +136,7 @@ function water(id) {
   const plant = data.garden?.plants.find(p => p.id === id);
   if (!plant || game) return;
   const { x, y } = fieldToYard(plant);
-  const v = nearestFree(x, y);
+  const v = forPerson(x, y);
   if (v) walkTo(v, plant, { arrive: watered });
 }
 // A friend reached the plant it was sent to water.
@@ -218,9 +218,8 @@ function plantAt(cx, cy) {
   if (!spareSeeds()) return;
   const point = yardToField(cx, cy);
   const kind = flowerFor(scene.season);
-  const chosen = views.get(selected);
-  const v = chosen && isFree(chosen) ? chosen : nearestFree(cx, cy);
-  const clip = v && isFree(v) ? prepareCompanionAction(v.asset, 'plant') : null;
+  const v = forPerson(cx, cy, views.get(selected));
+  const clip = v ? prepareCompanionAction(v.asset, 'plant') : null;
   if (clip && companionImage({ clip })) return sendPlanting(v, point, kind, clip);
   return call('plant', kind, point.x, point.y);
 }

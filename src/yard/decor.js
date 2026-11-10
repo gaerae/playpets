@@ -38,7 +38,7 @@ import {
 } from './props.js';
 import { dressLayers, wornDress } from './snowman-dress.js';
 import { cue } from './sound.js';
-import { isFree, nearestFree, rest, sendTo } from './trips.js';
+import { forPerson, isFree, rest, sendTo } from './trips.js';
 import { bubble, cheer, effect } from './views.js';
 import { scene } from './world.js';
 
@@ -312,7 +312,7 @@ function visit(id) {
   const d = data.garden?.decor.find(x => x.id === id);
   if (!d || game) return;
   const at = placement(d.kind, d),
-    v = nearestFree(at.x, at.y);
+    v = forPerson(at.x, at.y);
   if (v) walkTo(v, d);
 }
 /** Now and then an idle friend goes to a decoration instead of strolling: the target, or null. */

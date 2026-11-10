@@ -28,7 +28,7 @@ import { authoredRodTip, castGeometry, castLandingX, linePath, ROD, rodPlacement
 import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
 import { cue } from './sound.js';
-import { isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
+import { forPerson, isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
 import { bubble, cheer } from './views.js';
 import { scene, scenery } from './world.js';
 import { worldAllows } from './worlds.js';
@@ -89,14 +89,15 @@ function stopFishing(retainArtwork = false) {
   }
   return tackle;
 }
-// `friend` goes when it is free, else the nearest free one; `solo` is a friend fishing on its own
-// (soloFishing), which calls the person when a fish bites: only the person reels it in.
+// `friend` goes when it is free, else the nearest free one; the person's rod may also take a friend
+// viewing the blossom (trips.js forPerson). `solo` is a friend fishing on its own (soloFishing),
+// which calls the person when a fish bites: only the person reels it in.
 function startFishing(x, friend, solo = false) {
   if (!worldAllows(scene.world, 'fishing')) return;
   if (fishing) return;
   const l = lake(),
     shore = l.ridgeAt(x),
-    v = (friend && isFree(friend) ? friend : null) || nearestFree(x, shore);
+    v = solo ? (friend && isFree(friend) ? friend : null) || nearestFree(x, shore) : forPerson(x, shore, friend);
   if (!v) return toast(t('catch.busy'));
   if (!solo) {
     remember('fished', '1');

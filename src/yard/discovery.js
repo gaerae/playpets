@@ -15,7 +15,7 @@ import { field, fieldToYard, petHeight, sizeOf, yardToField, yardZoom } from './
 import { groundProfile } from './ground.js';
 import { atRainbowEnd } from './rainbow-end.js';
 import { atTrailEnd, reservedForTrail } from './trails.js';
-import { isFree, release, rest } from './trips.js';
+import { forPerson, isFree, release, rest } from './trips.js';
 import { bubble } from './views.js';
 import { holdAtWork, sendToWork, stopWork } from './work.js';
 import { scene } from './world.js';
@@ -297,20 +297,12 @@ const rested = v => {
 };
 /** Whether a friend may dig again yet (trails.js picks who follows a trail by it, through app.js). */
 export const digRested = rested;
-// The friend for the next spot: the selected one when it is free and rested, else the nearest such friend.
+// The friend for the next spot: the selected one when it is free and rested, else the nearest such
+// friend, else one viewing the blossom (trips.js forPerson).
 function actorFor(point) {
-  const ready = v => isFree(v) && !tasks.has(v) && (intent.action !== 'dig' || rested(v));
-  const first = views.get(selected) || views.get(intent.petId);
-  if (first && ready(first)) return first;
-  const spot = fieldToYard(point);
-  let best = null,
-    bestD = Infinity;
-  for (const v of views.values()) {
-    if (!ready(v)) continue;
-    const d = Math.hypot(v.px + sizeOf(v.pet) / 2 - spot.x, v.py + petHeight(v.pet) - spot.y);
-    if (d < bestD) [best, bestD] = [v, d];
-  }
-  return best;
+  const ready = v => !tasks.has(v) && (intent.action !== 'dig' || rested(v)),
+    spot = fieldToYard(point);
+  return forPerson(spot.x, spot.y, views.get(selected) || views.get(intent.petId), ready);
 }
 // Sends a friend to the spot and keeps the tool in hand: the next spot sends the next free friend,
 // until Esc, the strip's Close or another tool puts it away.
