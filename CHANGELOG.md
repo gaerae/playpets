@@ -14,7 +14,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Click a falling petal during the festival to catch it: it twirls into a little glint, and the first one each day brings a friend's wish that it will come true.
 - **Flower viewing** in the play menu calls your friends to the blossom during the festival, at most once an hour.
-- Friends connected to an AI talk about the blossom in their own words while they view it; a gathering they start on their own does so only with **Let them chat on their own** on.
+- Friends connected to an AI talk about the blossom in their own words while they view it; a gathering they start on their own does so only with **Let them chat now and then** on.
 - In the Microsoft Store version, PlayPets asks the Store for a newer version when it starts and every six hours, and **Check for updates** in Settings asks it at once. A version waiting in the Store shows beside the place selector and in Settings, and **Open in Microsoft Store** opens PlayPets' page there to install it. When the Store updates PlayPets while it is open, PlayPets opens again afterwards instead of staying closed.
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
