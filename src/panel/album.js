@@ -1,5 +1,6 @@
 // The album: everything that grows, comes and is caught in the yard. Flowers grown
-// from seeds (counted by the backend when they bloom), fish and bugs caught, gifts friends brought.
+// from seeds (counted by the backend when they bloom), fish and bugs caught, gifts friends brought,
+// keepsakes dug up and spring shoots gathered.
 // The ones found show how many (and the biggest fish); the others are silhouettes with when and
 // where to look, so there is always a next one. What there is to find is the catalogue's.
 import { closeOnBackdrop } from '../core/confirm.js';
@@ -10,7 +11,7 @@ import { $, call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
-import { BUGS, FISH, FLOWERS, GIFTS, giftKind, TRACKS, TREASURES, TREES } from '../yard/catalog.js';
+import { BUGS, FISH, FLOWERS, GIFTS, giftKind, SHOOTS, TRACKS, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
@@ -137,6 +138,16 @@ const BOOKS = {
     unknown: 'album.whose_prints',
     hint: () => t('album.tracks_hint'),
     record: entry => t('album.followed', { count: entry.count }),
+  },
+  // Spring shoots a friend gathered: shown always, as silhouettes first; the hint says the season.
+  shoot: {
+    tab: 'album.shoots',
+    kinds: SHOOTS,
+    found: () => data.album?.shoots || {},
+    draw: (k, unknown) => artSvg(k.art, unknown ? 'class="unknown-art"' : ''),
+    name: k => t(`shoot.${k.id}`),
+    hint: k => t('shoot.hint', { season: t(`catch.season_${k.season}`) }),
+    record: entry => t('shoot.count', { count: entry.count }),
   },
   secret: {
     tab: 'album.secrets',

@@ -1,9 +1,9 @@
 //! The album: every kind of fish caught at the lake, bug caught in the yard, flower grown in
-//! the garden and spring shoot gathered, with how many and, for fish, the biggest. (The gifts in it are the garden's own
-//! record of what came, garden.rs `received`.) The page decides what was caught (where and when
-//! each kind is found: src/yard/catalog.js); this keeps the record and its limits, and refuses what
-//! could not be a catch: a kind the catalogue does not have (content.rs), or a fish longer than its
-//! kind grows.
+//! the garden and spring shoot gathered, with how many and, for fish, the biggest. (The gifts in
+//! it are the garden's own record of what came, garden.rs `received`.) The page decides what was
+//! caught (where and when each kind is found: src/yard/catalog.js); this keeps the record and its
+//! limits, and refuses what could not be a catch: a kind the catalogue does not have (content.rs),
+//! or a fish longer than its kind grows.
 //! Design: docs/design/2026-10-09-a-yard-that-grows.md.
 use super::content::catalog;
 use crate::i18n;
@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
 
-/// Kinds an album keeps, for each of its books (fish, bugs, flowers); far more than the catalogue has, so it only
-/// stops a file that grew out of hand.
+/// Kinds an album keeps, for each of its books (fish, bugs, flowers); far more than the catalogue
+/// has, so it only stops a file that grew out of hand.
 pub const KINDS_MAX: usize = 64;
 /// The longest fish (cm) the album believes.
 pub const SIZE_MAX: f64 = 300.0;
@@ -193,6 +193,31 @@ mod tests {
             serde_json::to_value(a).unwrap()["treasures"]["future_stone"]["count"],
             2
         );
+    }
+
+    #[test]
+    fn a_full_shoot_book_refuses_a_new_kind_but_still_counts_a_known_one() {
+        let mut a = Album::default();
+        a.gathered("fiddlehead", 1).unwrap();
+        for i in 0..KINDS_MAX - 1 {
+            a.shoots.insert(
+                format!("future_{i}"),
+                Entry {
+                    count: 1,
+                    best: 0.0,
+                    first: 1,
+                },
+            );
+        }
+        assert_eq!(a.shoots.len(), KINDS_MAX);
+        assert!(
+            a.gathered("morel", 2).is_err(),
+            "a new kind beyond KINDS_MAX is refused"
+        );
+        assert!(!a.shoots.contains_key("morel"));
+        let (e, first) = a.gathered("fiddlehead", 3).unwrap();
+        assert!(!first);
+        assert_eq!((e.count, e.first), (2, 1));
     }
 
     #[test]

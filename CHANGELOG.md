@@ -12,6 +12,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
+- The album has a new book, **Spring shoots**: shepherd's purse, mugwort, fiddleheads, wild garlic, bamboo shoots, horsetail, asparagus and morels.
 - During the cherry blossom festival, friends gather once a day under a cherry tree you grew, on a picnic blanket or in the middle of the yard to look at the flowers while petals fall a little thicker around them, then wander off after a minute or so. They never interrupt a game, fishing or digging.
 - **Flower viewing** in the play menu calls your friends to the blossom during the festival, at most once an hour.
 - Friends connected to an AI talk about the blossom in their own words while they view it; a gathering they start on their own does so only with **Let them chat now and then** on.

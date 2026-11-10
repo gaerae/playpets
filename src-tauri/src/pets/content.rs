@@ -1,9 +1,9 @@
 //! What the yard is made of, as src/content/catalog.json has it: the page reads the same file, so a
 //! flower, a gift, a fish or a bug is added in one place and both sides know it. Built into the app,
 //! so the backend always holds the catalogue the page was shipped with. Here it decides what a seed
-//! can grow into, which gift comes next, what the album believes was caught or gathered (a spring shoot included), and when a plant has
-//! flowered; and, from src/content/events.json, which seasonal event's gifts a day may bring. How to
-//! add to the yard: docs/how-to/add-to-the-yard.md.
+//! can grow into, which gift comes next, what the album believes was caught or gathered (a spring
+//! shoot included), and when a plant has flowered; and, from src/content/events.json, which seasonal
+//! event's gifts a day may bring. How to add to the yard: docs/how-to/add-to-the-yard.md.
 use serde::Deserialize;
 use std::sync::OnceLock;
 

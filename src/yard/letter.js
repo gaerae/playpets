@@ -55,7 +55,7 @@ export const bringerOf = (letter, pets, bonds) => pets.find(pet => pet.id === le
 
 // The books the letter counts, with the string family that names what is in each. The secrets are
 // left out so the letter never gives one away.
-const BOOKS = ['fish', 'bugs', 'flowers', 'treasures', 'trees', 'tracks'];
+const BOOKS = ['fish', 'bugs', 'flowers', 'treasures', 'trees', 'tracks', 'shoots'];
 const THING = {
   fish: id => t(`catch.fish_${id}`),
   bugs: id => t(`catch.bug_${id}`),
@@ -63,6 +63,7 @@ const THING = {
   treasures: id => t(`treasure.${id}`),
   trees: id => t(`tree.${id}`),
   tracks: id => t(`track.${id}`),
+  shoots: id => t(`shoot.${id}`),
 };
 
 const dayNumber = ymd => {

@@ -135,6 +135,19 @@ test('the footprint book counts too, and the newest find can be a track', () => 
   assert.equal(lines[0], t('letter.fact_finds_one', { thing: t('track.fox') }));
 });
 
+test('the spring shoot book counts too, and the newest find can be a shoot', () => {
+  const at = (y, m, day) => d(y, m, day).getTime();
+  const album = {
+    fish: { koi: { count: 1, first: at(2026, 3, 1) } },
+    shoots: { morel: { count: 1, first: at(2026, 4, 20) } },
+  };
+  const f = letterFacts({ album, trees: [], bond: {}, level: 1, year: 2026, today: '2026-12-27' });
+  assert.equal(f.finds, 2);
+  assert.deepEqual(f.newest, { book: 'shoots', id: 'morel' });
+  const lines = factLines({ finds: 1, newest: f.newest, tree: null, level: 1, days: null });
+  assert.equal(lines[0], t('letter.fact_finds_one', { thing: t('shoot.morel') }));
+});
+
 test('the letter says only what is true, and asks about the year and the next', () => {
   mock.method(Math, 'random', () => 0);
   try {
