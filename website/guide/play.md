@@ -206,7 +206,7 @@ When something new arrives, **Album** in **Play → Find** and **Play** in the d
 
 **Album** (in **Play → Find**)
 
-- Six books: Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes.
+- Eight books: Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes, Footprints, Spring shoots.
 - Every kind is listed:
   - caught: how many, and the biggest fish
   - not yet: a silhouette with when and where to look
