@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { createSequence, createTaps, createTurns, SPUN, stayToWatch } from '../src/yard/touches.js';
+import { createSequence, createTaps, createTurns, SPUN, setupTouches, stayToWatch } from '../src/yard/touches.js';
+import { installDom } from './support/dom.mjs';
 
 test('taps count only when enough of them fall close together', () => {
   const taps = createTaps(7, 4000);
@@ -93,4 +94,25 @@ test('a dizzy friend spins, wobbles to a stop under circling stars, and keeps st
     .map(m => m[1])
     .join('');
   assert.match(still, /\.yard-pet\.dizzy/);
+});
+
+test('turning a friend counts only a press the friend got: one the yard took for itself turns nothing', async context => {
+  context.mock.timers.enable({ apis: ['setTimeout'] });
+  const { nodes, element } = installDom(context, { ids: ['yard'] });
+  setupTouches();
+  const yard = nodes.get('yard');
+  const turn = async taken => {
+    const friend = element();
+    friend.classList.add('yard-pet');
+    yard.append(friend);
+    const [first, ...rest] = circle(3);
+    const at = ([clientX, clientY]) => ({ target: friend, pointerId: 1, clientX, clientY, timeStamp: 0 });
+    await yard.dispatch('pointerdown', { ...at(first), defaultPrevented: taken });
+    for (const point of rest) await yard.dispatch('pointermove', at(point));
+    await yard.dispatch('pointerup', at(rest.at(-1)));
+    return friend.classList.contains('dizzy');
+  };
+  assert.equal(await turn(false), true, 'three turns on a friend');
+  context.mock.timers.tick(2200);
+  assert.equal(await turn(true), false, 'a press that caught a creature in front of it');
 });

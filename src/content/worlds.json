@@ -142,7 +142,7 @@
   {
     "id": "courtyard",
     "label": "world.courtyard",
-    "about": "world.woodland.about",
+    "about": "world.courtyard.about",
     "fit": "cover-floor",
     "geometry": {
       "fieldTop": 0.74,
@@ -195,7 +195,7 @@
   {
     "id": "lakeside",
     "label": "world.lakeside",
-    "about": "world.woodland.about",
+    "about": "world.lakeside.about",
     "fit": "cover-floor",
     "geometry": {
       "fieldTop": 0.7,

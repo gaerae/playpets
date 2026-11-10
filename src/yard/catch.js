@@ -29,7 +29,7 @@ import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
 import { cue } from './sound.js';
 import { forPerson, isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
-import { bubble, cheer } from './views.js';
+import { bubble, cheer, place } from './views.js';
 import { scene, scenery } from './world.js';
 import { worldAllows } from './worlds.js';
 
@@ -104,16 +104,19 @@ function startFishing(x, friend, solo = false) {
     hint();
   }
   for (const name of ['cast', 'wait', 'reel', 'discover']) prepareCompanionAction(v.asset, name);
+  sendTo(v, standAt(v, x), { arrive: fishArrived, cancel: stopFishing });
+  fishing = { v, x, y: floatY(l, x), width: field().width, solo, world: scene.world };
+}
+// Where a friend stands to fish at `x` along the lake: an authored stance keeps it on a dock or bank;
+// otherwise it stands beside the visible shore.
+function standAt(v, x) {
   const area = field();
   const stance =
     $('yard').dataset.environment === 'illustrated' ? environmentFishingSpot(area.width, area.height, scene) : null;
-  // Authored stances keep pets on a dock or bank; otherwise stand beside the visible shore.
-  sendTo(v, footTarget(v, stance?.x ?? x - sizeOf(v.pet) * 0.55, stance?.y ?? shore + 6), {
-    arrive: fishArrived,
-    cancel: stopFishing,
-  });
-  fishing = { v, x, y: l.shoreAt(x) + (shore - l.shoreAt(x)) * 0.45, solo, world: scene.world };
+  return footTarget(v, stance?.x ?? x - sizeOf(v.pet) * 0.55, stance?.y ?? lake().ridgeAt(x) + 6);
 }
+// Where the float rests for a cast landing at `x`: a little out from the shore.
+const floatY = (water, x) => water.shoreAt(x) + (water.ridgeAt(x) - water.shoreAt(x)) * 0.45;
 // The friend reached the shore it was sent to.
 function fishingAction(v, name) {
   const action = playCompanionAction(v, name);
@@ -143,7 +146,7 @@ function fishArrived(v) {
     rodX = v.px + sizeOf(v.pet) * 0.6;
   const water = lake();
   fishing.x = castLandingX(rodX, fishing.x, sizeOf(v.pet), water.ends);
-  fishing.y = water.shoreAt(fishing.x) + (water.ridgeAt(fishing.x) - water.shoreAt(fishing.x)) * 0.45;
+  fishing.y = floatY(water, fishing.x);
   float.type = 'button';
   float.className = 'bobber';
   float.setAttribute('aria-label', t('catch.too_soon'));
@@ -353,6 +356,18 @@ function free(e) {
     !aiming && !game && data.pets.length && !e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button')
   );
 }
+// Creatures fly on the weather layer, in front of friends and of everything in the garden (plants,
+// gifts, trees, snowballs, the float), yet a press on one there reaches what is underneath. With an
+// empty hand, the creature takes a press on its body; one beside it, which in an open sky would
+// still catch it, stays with the friend or thing behind. The yard's own controls are not under it.
+const UNDER = '#pet-layer, #label-layer, #garden-layer';
+const BODY = 14;
+// `press`: a pointerdown, which only the main button makes a catch; a pointermove has no button.
+function inFront(e, press = true) {
+  if (aiming || game || !data.pets.length || (press && e.button !== 0) || !e.target.closest?.(UNDER)) return null;
+  const [x, y] = at(e);
+  return scenery?.near(x, y, BODY) ? [x, y] : null;
+}
 // The play tools that stay in hand (digging, a tree, a seed). Pressing the lake or a creature with one
 // still fishes or catches: the press puts the tool away first, so nothing in the yard is hidden by it.
 const TOOLS = ['dig', 'tree', 'seed'];
@@ -396,6 +411,36 @@ export function setupCatch({ wish = () => {} } = {}) {
       }
     });
   }
+  // A creature in front of a friend, a plant or a gift is caught on the press, before what is under
+  // it hears it (capture): the friend is not picked up, and the click that ends the press neither
+  // pats it nor opens the plant or the gift.
+  let caughtPress = false;
+  yard.addEventListener(
+    'pointerdown',
+    e => {
+      caughtPress = false;
+      const point = inFront(e),
+        caught = point && scenery.catchAt(...point, BODY);
+      if (!caught) return;
+      e.stopPropagation();
+      e.preventDefault();
+      caughtPress = true;
+      catchBug(caught);
+    },
+    { capture: true },
+  );
+  yard.addEventListener(
+    'click',
+    e => {
+      // A click from the keyboard (no press before it, detail 0) is never the end of that press,
+      // even when the press ended away from the yard and made no click of its own.
+      if (!caughtPress || e.detail === 0) return;
+      caughtPress = false;
+      e.stopPropagation();
+      e.preventDefault();
+    },
+    { capture: true },
+  );
   // Before the tools' own clicks (capture), so the dig or seed handlers never see this press.
   yard.addEventListener(
     'click',
@@ -419,14 +464,46 @@ export function setupCatch({ wish = () => {} } = {}) {
   yard.addEventListener('pointermove', e => {
     const [x, y] = at(e),
       // A petal is only for an empty hand: a tool in hand never gives way to one.
-      can = free(e) ? scenery.near(x, y) || scenery.nearPetal(x, y) || onLake(x, y) : toolGivesWay(e);
+      can = free(e)
+        ? scenery.near(x, y) || scenery.nearPetal(x, y) || onLake(x, y)
+        : toolGivesWay(e) || !!inFront(e, false);
     yard.classList.toggle('can-catch', !!can);
   });
 }
-/** The yard's size changing ends a fishing trip (the float would be left where the lake was). */
+/** Another place, land or season ends a fishing trip: the lake it was at is gone. */
 export function endFishing() {
   stopFishing();
   for (const v of reelingFriends) release(v);
   for (const net of nets) net.remove();
   $('yard').classList.remove('can-catch');
+}
+/** The yard changed size (the mini window, a drag on the window's edge): the lake is drawn again at
+ * the new size, and a fishing trip goes on at the same place along it. The friend on its way is
+ * sent there; the friend at the lake stands there again with its float on the water, its bite still
+ * coming. Only where no water shows at that size does the trip end. A reel in progress ends as
+ * before: the fish is kept. */
+export function refitFishing() {
+  for (const v of reelingFriends) release(v);
+  $('yard').classList.remove('can-catch');
+  if (!fishing) return;
+  const water = lake(),
+    { width } = field(),
+    middle = (water.ends[0] + water.ends[1]) / 2;
+  const x = [(fishing.x * width) / fishing.width, middle].find(spot => water.onWater(spot, floatY(water, spot)));
+  if (x === undefined) return stopFishing();
+  const v = fishing.v;
+  fishing.width = width;
+  if (!fishing.float) {
+    fishing.x = x;
+    fishing.y = floatY(water, x);
+    if (v.trip?.arrive === fishArrived) v.target = standAt(v, x);
+    return;
+  }
+  Object.assign(v, standAt(v, x));
+  place(v);
+  fishing.x = castLandingX(v.px + sizeOf(v.pet) * 0.6, x, sizeOf(v.pet), water.ends);
+  fishing.y = floatY(water, fishing.x);
+  fishing.float.style.left = `${fishing.x}px`;
+  fishing.float.style.top = `${fishing.y}px`;
+  syncFishingArtwork(performance.now());
 }

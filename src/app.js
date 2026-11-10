@@ -45,7 +45,7 @@ import { setupWindow } from './window.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
 import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
-import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
+import { endFishing, refitFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { christmasNightCheck, setupChristmasNight } from './yard/christmas-night.js';
 import { loadContent } from './yard/content.js';
 import {
@@ -242,7 +242,7 @@ setupViews({
   resized: () => {
     cancelDiscoveryWork();
     cancelShootDigs();
-    endFishing();
+    refitFishing();
     scenery.resize();
     resizeTrail();
     resizeSnowman();

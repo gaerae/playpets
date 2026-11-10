@@ -286,6 +286,8 @@ test('the scene dock uses one state label instead of a repeated category heading
   const html = await readFile('src/index.html', 'utf8');
   const scene = html.slice(html.indexOf('<button id="scene-button"'), html.indexOf('<span id="pet-count"'));
   assert.match(scene, /id="scene-caption"/);
+  // sky.js writes the whole line, place and all; a caption.* key alone is only part of one.
+  assert.doesNotMatch(scene, /id="scene-caption"[^>]*data-i18n=/);
   assert.match(scene, /data-i18n-title="scene.title"/);
   assert.doesNotMatch(scene, /<strong|class="scene-copy"/);
 });

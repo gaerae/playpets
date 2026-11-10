@@ -83,6 +83,43 @@ test('a room without weather names only the place and the time of day', context 
   setLanguageForTests('en');
 });
 
+// Outdoors the caption keeps its weather and time of day ("A sunny day") and names the place too, so
+// the hill garden, the courtyard, the lakeside and a background of the person's own each read as
+// themselves.
+test('every outdoor place names itself in its caption, a background of your own by its name', context => {
+  useWorlds([...definitions, { id: 'custom-1', custom: true, name: 'Rooftop', label: 'background.custom' }]);
+  context.after(() => useWorlds(definitions));
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    setLanguageForTests(lang);
+    const outdoor = definitions.filter(world => world.capabilities?.sky !== false);
+    assert.ok(outdoor.length >= 3);
+    const captions = new Set();
+    for (const world of [...outdoor, { id: 'custom-1' }]) {
+      const place = world.id === 'custom-1' ? 'Rooftop' : t(world.label);
+      for (const weather of ['clear', 'rain', 'snow'])
+        for (const period of ['morning', 'day', 'evening', 'night']) {
+          const caption = sky.worldCaption(world.id, period, weather);
+          assert.equal(caption, t('caption.outdoor', { scene: t(`caption.${weather}.${period}`), place }));
+          assert.ok(caption.includes(place), `${lang} ${world.id}: ${caption}`);
+          assert.ok(!caption.includes('{'), caption);
+          captions.add(caption);
+        }
+    }
+    assert.equal(captions.size, (outdoor.length + 1) * 12, `${lang}: no two places share a caption`);
+  }
+  setLanguageForTests('en');
+});
+
+test('each place has a description of its own', () => {
+  const abouts = definitions.map(world => world.about);
+  assert.equal(new Set(abouts).size, abouts.length, JSON.stringify(abouts));
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    setLanguageForTests(lang);
+    for (const about of abouts) assert.notEqual(t(about), about, `${lang}: ${about}`);
+  }
+  setLanguageForTests('en');
+});
+
 test('studio seasons change only the window view independently of snow', async () => {
   const { environmentWindowLook } = await import('../src/yard/environment.js');
   for (const period of ['morning', 'day', 'evening', 'night']) {

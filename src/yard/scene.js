@@ -32,7 +32,7 @@ export function periodFor(hour) {
 export function sceneCaption(period, weather) {
   const p = PERIODS[period] ? period : 'day',
     w = WEATHERS[weather] ? weather : 'clear';
-  // Each language composes its own line from the caption.* keys, e.g. "A cosy morning in the yard".
+  // The weather and time of day alone ("a cozy morning"); sky.js worldCaption adds the place.
   return t(`caption.${w}.${p}`);
 }
 // "Auto" lets the sky change on its own: one draw per 20-minute block, mostly clear, and with

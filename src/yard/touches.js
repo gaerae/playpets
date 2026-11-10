@@ -166,7 +166,7 @@ export function setupTouches() {
       if (!free()) return;
       const friend = e.target.closest?.('.yard-pet');
       if (friend) {
-        spin = { id: e.pointerId, friend, turns: createTurns() };
+        spin = { id: e.pointerId, friend, turns: createTurns(), press: e };
         spin.turns.add(e.clientX, e.clientY);
         return;
       }
@@ -191,10 +191,17 @@ export function setupTouches() {
   );
   const done = e => {
     if (spin?.id !== e.pointerId) return;
-    const { friend, turns } = spin;
+    const { friend, turns, press } = spin;
     spin = null;
-    // a friend still dizzy finishes the turn it is in
-    if (e.type !== 'pointerup' || Math.abs(turns.total()) < SPUN || !free() || friend.classList.contains('dizzy'))
+    // A press the yard took for itself (catch.js, a creature in front of the friend) was never the
+    // friend's, though this listener heard it first. A friend still dizzy finishes the turn it is in.
+    if (
+      press.defaultPrevented ||
+      e.type !== 'pointerup' ||
+      Math.abs(turns.total()) < SPUN ||
+      !free() ||
+      friend.classList.contains('dizzy')
+    )
       return;
     friend.classList.add('dizzy');
     setTimeout(() => friend.classList.remove('dizzy'), 2200);
