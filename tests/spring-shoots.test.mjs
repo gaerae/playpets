@@ -183,6 +183,27 @@ test('shoots show only while the yard shows spring outdoors', async ctx => {
   assert.equal(y.saved().out.length, 2);
 });
 
+test('outside shoot time the shoots build no ground to draw on', async ctx => {
+  const y = await springYard(ctx, { scene: { period: 'day' }, stored: record([standing('a', 'morel', 0.2, 0.5)]) });
+  shootsMinute();
+  assert.equal(y.live().length, 1);
+  // The ground is built from the garden's trees: a read of them is a ground built.
+  let built = 0;
+  const trees = state.data.garden.trees;
+  Object.defineProperty(state.data.garden, 'trees', {
+    configurable: true,
+    get: () => (built++, trees),
+  });
+  scene.season = 'summer';
+  renderShoots();
+  assert.equal(y.live().length, 0);
+  assert.equal(built, 0, 'a summer yard draws no shoots and measures no ground for them');
+  scene.season = 'spring';
+  renderShoots();
+  assert.equal(y.live().length, 1);
+  assert.ok(built > 0);
+});
+
 test('a shoot whose ground is taken is gone at once, and from storage at the next minute', async ctx => {
   const y = await springYard(ctx, { scene: { period: 'day' }, stored: record([standing('a', 'morel', 0.2, 0.6)]) });
   shootsMinute();

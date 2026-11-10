@@ -76,7 +76,8 @@ const widthOf = kind => shootKind(kind).size[0];
 const free = (shoot, ground) =>
   groundAllows(shoot, ground) && !behind(shoot, ground) && !underBody(shoot, widthOf(shoot.kind), ground);
 // What stands in the garden now, as much of it as takes ground: the gifts, the plants and every
-// place's trees at the stage they have now (a growing tree takes more).
+// place's trees at the stage they have now (a growing tree takes more). No time goes in, so the
+// garden reads the same each minute until something in it changes or a tree grows.
 function standingNow(now) {
   const garden = data.garden || {};
   return {
@@ -88,7 +89,6 @@ function standingNow(now) {
       world: tree.world,
       x: tree.x,
       y: tree.y,
-      planted: now,
       stage: treeStage({ ...tree, planted: tree.planted ?? now }, now),
     })),
   };
@@ -175,9 +175,10 @@ function update(v, shoot) {
 /** Draws the shoots out in this place, on ground still free; none while the yard is not spring
  * outdoors. */
 export function renderShoots() {
-  const ground = groundProfile(),
+  // Out of shoot time nothing is drawn, so no ground is measured for it.
+  const ground = kept && shootTime(scene, true) ? groundProfile() : null,
     out =
-      kept && shootTime(scene, ground.soil)
+      ground && shootTime(scene, ground.soil)
         ? freshShoots(kept.out, Date.now()).filter(s => s.world === scene.world && free(s, ground))
         : [];
   reconcile(shown, out, create, update);
