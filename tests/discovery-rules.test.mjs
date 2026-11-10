@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { groundAllows, projectFootprint, treeStage } from '../src/yard/discovery-rules.js';
+import { behind, freeSpot, groundAllows, projectFootprint, treeStage } from '../src/yard/discovery-rules.js';
 
 const ground = {
   soil: true,
@@ -34,4 +34,35 @@ test('footprints project into field coordinates without losing off-field water e
   assert.ok(ellipse.y < 0);
   assert.equal(ellipse.ry, 40 / 300);
   assert.equal(groundAllows({ x: 0.5, y: 0.01 }, { ...ground, water: [ellipse], obstacles: [] }), false);
+});
+
+const open = { soil: true, bounds: { left: 0, top: 0, right: 1, bottom: 1 }, water: [], obstacles: [] };
+const draws =
+  (...values) =>
+  () =>
+    values.shift() ?? 0.5;
+test('a free spot is the first draw inside the ranges that the ground allows and the check accepts', () => {
+  const pond = { ...open, water: [{ x: 0.5, y: 0.5, rx: 0.2, ry: 0.2 }] };
+  const ranges = { x: [0.1, 0.9], y: [0.2, 0.8] };
+  assert.deepEqual(freeSpot(draws(0, 1), open, ranges), { x: 0.1, y: 0.8 });
+  assert.deepEqual(freeSpot(draws(0.5, 0.5, 0, 0), pond, ranges), { x: 0.1, y: 0.2 }, 'the pond draw is skipped');
+  const left = p => p.x < 0.3;
+  const spot = freeSpot(draws(0.9, 0.5, 0.1, 0.5), open, ranges, left);
+  assert.ok(Math.abs(spot.x - 0.18) < 1e-9 && spot.y === 0.5, 'the check too');
+  assert.equal(
+    freeSpot(() => 0.5, pond, ranges),
+    null,
+    'twenty tries, then none',
+  );
+  assert.equal(
+    freeSpot(() => 0.5, { ...open, soil: false }, ranges),
+    null,
+  );
+});
+test('a spot behind an obstacle is one whose body would hide it', () => {
+  const bush = { ...open, obstacles: [{ x: 0.5, y: 0.6, rx: 0.1, ry: 0.1 }] };
+  assert.equal(behind({ x: 0.5, y: 0.4 }, bush), true, 'above the foot, where the body stands');
+  assert.equal(behind({ x: 0.5, y: 0.9 }, bush), false, 'in front of it');
+  assert.equal(behind({ x: 0.1, y: 0.4 }, bush), false, 'beside it');
+  assert.equal(behind({ x: 0.5, y: 0.4 }, open), false);
 });

@@ -22,6 +22,7 @@ import { artHref, artSize, artSvg } from './art.js';
 import { showCard } from './card.js';
 import { TRACKS, trackKind, trailArt } from './catalog.js';
 import { yardSeason } from './decor-shown.js';
+import { behind } from './discovery-rules.js';
 import { depthAt, fieldToYard, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
@@ -192,15 +193,6 @@ function taken(now) {
     .filter(d => d.world === scene.world && now.getTime() - d.at < DAY_MS)
     .map(d => ({ x: (d.tileX + 0.5) / 8, y: (d.tileY + 0.5) / 8 }));
 }
-
-// The ground keeps only the feet of what stands on it, so a print may pass behind a gift as a
-// friend's path would; but a bush behind one would hide the tail, so an end there is given up (its
-// tile taken) and the trail laid again, a few times at most.
-const BODY = 3;
-const behind = (p, profile) =>
-  (profile.obstacles || []).some(
-    o => ((p.x - o.x) / (o.rx * 1.2)) ** 2 + ((p.y - (o.y - o.ry * BODY)) / (o.ry * BODY)) ** 2 <= 1,
-  );
 
 function pathOf(n, day, profile, now) {
   if (!paths.has(n)) {
