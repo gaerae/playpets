@@ -245,12 +245,15 @@ function createView(p) {
     drag: null,
     look: null,
     nextWander: 0,
-    // Set by the features that use them: a game (away, speed, frozen, frozenUntil; play.js) and
-    // closeness (bondLevel, the hearts last drawn; bond.js).
+    // Set by the features that use them: a game (away, speed, frozen, frozenUntil; play.js), flower
+    // viewing (away too, seat, the place it walks to, and viewing, { side, look } while it stands
+    // there; viewing.js) and closeness (bondLevel, the hearts last drawn; bond.js).
     away: false,
     speed: 0,
     frozen: false,
     frozenUntil: 0,
+    seat: null,
+    viewing: null,
     bondLevel: 0,
   };
   rest(v);

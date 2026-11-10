@@ -158,3 +158,14 @@ test('when a row is full the rest stand in a row behind it rather than overlappi
   assert.ok(rows.size >= 2, `${rows.size} rows`);
   apart(seats, gapOf(64, 140, 0.57), 'two rows');
 });
+
+test('in the middle a row stands just in front of the point, in a shallow arc', () => {
+  const spot = { kind: 'middle', x: 590, y: 520, w: 200, h: 0 };
+  for (let count = 1; count <= 6; count++) {
+    const seats = viewingSeats({ spot, count, width: 1180, top: 483, bottom: 760, zoom: 1, size: 112 }),
+      ys = seats.map(s => s.y - spot.y),
+      far = (count - 1) / 2;
+    assert.ok(Math.abs(Math.min(...ys) - 12) < 1e-6, `x${count}: the ends 12 px in front`);
+    assert.ok(Math.max(...ys) <= 12 + 8 * far + 1e-6, `x${count}: the middle at most ${12 + 8 * far} px in front`);
+  }
+});

@@ -1003,9 +1003,9 @@ export const strings = {
     'So pretty…',
     'The petals are dancing!',
     'I could stay here all day.',
-    'Look, that branch is all pink!',
     'Even the sky looks pink.',
     'Let’s come again next year.',
   ],
+  'viewing.tree_lines': ['Look, that branch is all pink!'],
   'viewing.mat_lines': ['A picnic under the blossom is the best!'],
 };

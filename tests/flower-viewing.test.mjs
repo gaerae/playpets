@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
-import { installDom, keepGlobals } from './support/dom.mjs';
+import { installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
 const viewed = [];
 const saved = [];
@@ -27,6 +27,8 @@ const { scene } = await import('../src/yard/world.js');
 const { release, sendTo } = await import('../src/yard/trips.js');
 const { place, syncViews } = await import('../src/yard/views.js');
 const { decorPlacement } = await import('../src/yard/decor.js');
+const { endFishing, fishingNow, setupCatch } = await import('../src/yard/catch.js');
+const { cancelDiscoveryWork, digging, sendDiscovery } = await import('../src/yard/discovery.js');
 const viewing = await import('../src/yard/viewing.js');
 
 const MIN = 60_000;
@@ -210,6 +212,26 @@ test('a gathering waits for two free idle friends and for nothing the person sta
   assert.deepEqual(viewed, []);
 });
 
+test('friends do not gather while one of them fishes or digs, though two others are free', async t => {
+  const y = yard(t);
+  installStorage(t);
+  document.getElementById('yard').dataset.environment = 'illustrated';
+  state.setSelected('a');
+  setupCatch();
+  await document.getElementById('fish-tool').dispatch('click');
+  assert.equal(fishingNow(), true);
+  y.pastCadence();
+  assert.equal(viewing.viewing(), false, 'not while a friend fishes');
+  endFishing();
+  sendDiscovery(state.views.get('a'), { x: 0.3, y: 0.5 }, 'dig', null);
+  assert.equal(digging(), true);
+  y.pastCadence();
+  assert.equal(viewing.viewing(), false, 'not while a friend digs');
+  assert.deepEqual(viewed, []);
+  cancelDiscoveryWork();
+  state.setSelected(null);
+});
+
 test('under the tree friends stand apart to both sides of the trunk, its crown left open', t => {
   const y = yard(t);
   assert.equal(viewing.startViewing('friends'), true);
@@ -238,7 +260,7 @@ test('friends stand facing the tree, look up now and then, and talk in turns', t
   const lines = all.filter(line => !list('viewing.suggest').includes(line));
   assert.ok(lines.length >= 2, `${lines.length} lines`);
   assert.equal(most, 1, 'one talks at a time');
-  for (const line of lines) assert.ok(list('viewing.lines').includes(line), line);
+  for (const line of lines) assert.ok([...list('viewing.lines'), ...list('viewing.tree_lines')].includes(line), line);
   assert.equal(new Set(lines).size, lines.length, 'no line twice');
   assert.ok(ups.length >= 1, 'someone looked up');
   for (const ms of ups) assert.ok(ms <= 1600, `looked up for ${ms} ms`);
@@ -311,6 +333,41 @@ test('outside blossom time nothing gathers, and a gathering under way ends at it
   for (const v of y.views()) assert.equal(v.viewing, null);
 });
 
+test('moving to another place ends a gathering at its next turn', t => {
+  const y = yard(t);
+  gathered(y);
+  scene.world = 'lakeside';
+  y.tick(9000);
+  assert.equal(viewing.viewing(), false);
+  for (const v of y.views()) assert.equal(v.viewing, null);
+});
+
+test('a gathering whose walk never finishes still ends on time', t => {
+  const y = yard(t);
+  assert.equal(viewing.startViewing('friends'), true);
+  y.tick(900);
+  // Nobody arrives: the frame loop rests while the window is hidden.
+  y.tick(59_000);
+  assert.equal(viewing.viewing(), true);
+  y.tick(2000);
+  assert.equal(viewing.viewing(), false);
+  for (const v of y.views()) {
+    assert.equal(v.target, null);
+    assert.equal(v.away, false);
+  }
+});
+
+test('under the tree a friend may talk about its branches', t => {
+  const y = yard(t);
+  gathered(y);
+  for (const v of y.views()) v.bubble.hidden = true;
+  const { lines } = watch(y, 58_000);
+  assert.ok(
+    lines.some(line => list('viewing.tree_lines').includes(line)),
+    'a branch line comes up',
+  );
+});
+
 test('with reduced motion friends gather and talk but never tilt', t => {
   const y = yard(t);
   reduced.matches = true;
@@ -347,5 +404,6 @@ test('on a picnic blanket friends sit on it and beside it in one row and may say
     lines.some(line => picnic.includes(line)),
     'a picnic line comes up',
   );
+  // A branch line belongs under a tree.
   for (const line of lines) assert.ok([...list('viewing.lines'), ...picnic].includes(line), line);
 });

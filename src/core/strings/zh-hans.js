@@ -939,13 +939,7 @@ export const strings = {
   'letter.back_quote': '“{answer}”',
   'letter.back_cheer': '今年我也会为你加油！',
   'viewing.suggest': ['一起去看樱花吧！', '樱花开了，快来看！'],
-  'viewing.lines': [
-    '好美啊…',
-    '花瓣在跳舞！',
-    '真想一整天待在这里。',
-    '看，那根树枝全是粉色的！',
-    '连天空都变成粉色了。',
-    '明年还要一起来。',
-  ],
+  'viewing.lines': ['好美啊…', '花瓣在跳舞！', '真想一整天待在这里。', '连天空都变成粉色了。', '明年还要一起来。'],
+  'viewing.tree_lines': ['看，那根树枝全是粉色的！'],
   'viewing.mat_lines': ['在樱花下野餐最棒了！'],
 };

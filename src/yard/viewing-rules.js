@@ -108,8 +108,9 @@ export function viewingSeats({ spot, count, width, top, bottom, zoom, size, tag 
             y: clamp(y + ARC * k * zoom, top, bottom),
           });
     else {
+      // The arc is as deep as the friends who stand in it, not as the row could be long.
       const row = slots((n0 % 2 === 1) !== !!stagger, fit + 1),
-        far = Math.max(...row.map(Math.abs));
+        far = Math.max(0, ...row.slice(0, n0).map(Math.abs));
       for (const j of row)
         candidates.push({
           x: cx + j * gap,

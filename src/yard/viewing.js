@@ -46,8 +46,9 @@ const WANDER_AFTER = [1000, 5000];
 // The middle of the field has nothing to face: a spot about as wide as a tree.
 const MIDDLE_W = 200;
 
-let calling = cadence(() => between(Math.random, GATHER_EVERY));
-// The gathering under way: { spot, members, timers, pool, lines, turns, begun }, or null.
+// When the friends next look whether to gather (setupViewing).
+let calling = null;
+// The gathering under way: { spot, world, members, timers, pool, lines, turns, begun }, or null.
 let gathering = null;
 // What a gathered friend is doing, waiting to set off and standing there (trips.js setDoing).
 const HERE = { end: v => leave(v) };
@@ -68,7 +69,7 @@ const freeFriends = idle => [...views.values()].filter(v => isFree(v) && (!idle 
 /** Called by the frame loop beside the other yard life: now and then, in blossom time, friends who
  * have not viewed it today and have nothing else on gather of their own accord. */
 export function viewingTick(now) {
-  if (!calling.due(now) || gathering || Math.random() >= GATHER_CHANCE || !viewingTime(scene)) return;
+  if (!calling?.due(now) || gathering || Math.random() >= GATHER_CHANCE || !viewingTime(scene)) return;
   const today = localDay(new Date()),
     free = freeFriends(true).length;
   if (mayGather({ today, viewed: data.garden?.viewed ?? '', free, busy: busy() })) startViewing('friends');
@@ -124,8 +125,17 @@ export function startViewing(by) {
   if (!members.length) return false;
   // Left to right, so no two cross on the way.
   const walkers = [...members].sort((a, b) => a.px - b.px),
-    extra = spot.kind === 'mat' ? list('viewing.mat_lines') : [];
-  const g = { spot, members, timers: new Set(), pool: [...list('viewing.lines'), ...extra], lines: [], turns: 0 };
+    // A branch line belongs under a tree, a picnic line on a blanket.
+    extra = { tree: list('viewing.tree_lines'), mat: list('viewing.mat_lines') }[spot.kind] ?? [];
+  const g = {
+    spot,
+    world: scene.world,
+    members,
+    timers: new Set(),
+    pool: [...list('viewing.lines'), ...extra],
+    lines: [],
+    turns: 0,
+  };
   gathering = g;
   const today = localDay(new Date());
   if (data.garden) data.garden.viewed = today;
@@ -137,6 +147,9 @@ export function startViewing(by) {
   }
   bubble(members[0], pick(list('viewing.suggest')), SUGGEST_MS);
   later(g, WALK_AFTER_MS, () => {
+    // The clock runs from when they set off, so a walk the frame loop pauses (a hidden window) still
+    // ends in time.
+    later(g, between(Math.random, VIEWING_MS), endViewing);
     walkers.forEach((v, i) => {
       if (!g.members.includes(v)) return;
       const seat = seats[i];
@@ -158,7 +171,7 @@ function later(g, ms, fn) {
 }
 
 // A friend got to its seat: it stands there facing the spot and looking up at it. The first one
-// there starts the clock and the talk.
+// there starts the talk.
 function settle(v) {
   const g = gathering;
   if (!g?.members.includes(v)) return;
@@ -170,7 +183,6 @@ function settle(v) {
   gaze(v, look, VIEWING_MS[1]);
   if (g.begun) return;
   g.begun = true;
-  later(g, between(Math.random, VIEWING_MS), endViewing);
   later(g, TURNS_AFTER_MS, () => turn(g));
 }
 
@@ -183,7 +195,7 @@ function nextLine(g) {
 // One turn: a friend says a line, and every other turn one looks up at the blossom. It ends
 // when blossom time is over (night, rain, another place).
 function turn(g) {
-  if (!viewingTime(scene)) return endViewing();
+  if (!viewingTime(scene) || g.world !== scene.world) return endViewing();
   const standing = g.members.filter(v => v.viewing);
   // One at a time, so the blossom is not hidden behind bubbles: a turn while one talks stays quiet.
   if (g.members.every(v => v.bubble.hidden) && standing.length) bubble(pick(standing), nextLine(g), LINE_MS);
