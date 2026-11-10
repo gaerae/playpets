@@ -48,6 +48,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The snowman no longer comes as a gift. One already in the yard shows only while the yard shows winter, so not in the Cozy living room, and waits out of sight the rest of the time.
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
 - Who joins a group chat opens as a dropdown.
+- Friends have a few new things to say to themselves by day, in the evening and at night.
 - **Connect now** and sending a first message no longer connect a CLI that is signed out, which used to fail at the first message; **Connect now** starts the sign-in in your browser instead, and a first message waits for it. With a signed-in CLI found, sending a first message connects it without opening the connection window.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
 - The birds at the end of winter footprints now dive head first into the bush, tail and feet up, and the bush has lost its white plate. Spring shoots sit on smooth earth, and the fiddlehead is easier to see. In a small window, shoots and the bush stay at least three quarters of their size.
