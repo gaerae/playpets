@@ -132,3 +132,62 @@ test('a click catches a bug first, then a petal, and a tool in hand never gives 
     views.clear();
   }
 });
+
+test('a creature flying in front of a friend, a plant or a gift is caught by a press on it', async context => {
+  const { nodes, element } = installDom(context, {
+    ids: ['yard', 'catch-card', 'toast', 'yard-hint', 'agent-summary'],
+    props: { rect: { width: 800, height: 560 } },
+  });
+  nodes.get('catch-card').querySelector = () => element();
+  const pet = { id: 'friend', size: 112 },
+    view = { pet, px: 100, py: 200, z: 40, pose: 'idle', bubble: element(), button: element() };
+  views.set(pet.id, view);
+  setData({ pets: [pet], assets: [], statuses: {} });
+  let creature = null;
+  setScenery({ catchAt: () => creature, near: () => !!creature, nearPetal: () => true, catchPetal: () => null });
+  setupCatch();
+  const yard = nodes.get('yard');
+  const press = (target, onStop) => ({ target, button: 0, clientX: 100, clientY: 200, stopPropagation: onStop });
+  try {
+    for (const kind of ['yard-pet', 'pet-tag', 'plant', 'decor']) {
+      const under = element();
+      under.classList.add(kind);
+      yard.append(under);
+      creature = { species: catalog.bugs[0].id, x: 100, y: 200 };
+      const before = catches.length;
+      let stopped = false,
+        clickStopped = false;
+      await yard.dispatch(
+        'pointerdown',
+        press(under, () => (stopped = true)),
+      );
+      assert.equal(catches.length, before + 1, `a bug over a ${kind} is caught`);
+      assert.ok(stopped, `and the ${kind} beneath never hears the press`);
+      await yard.dispatch(
+        'click',
+        press(under, () => (clickStopped = true)),
+      );
+      assert.ok(clickStopped, 'nor the click that ends it: no pat, no plant or gift opened');
+      assert.equal(catches.length, before + 1, 'the click catches nothing more');
+    }
+    // With nothing flying there, a press on a friend is the friend's: picked up, patted.
+    creature = null;
+    const friend = element();
+    friend.classList.add('yard-pet');
+    let stopped = false,
+      clickStopped = false;
+    await yard.dispatch(
+      'pointerdown',
+      press(friend, () => (stopped = true)),
+    );
+    assert.equal(stopped, false, 'an empty sky leaves the press to the friend');
+    await yard.dispatch(
+      'click',
+      press(friend, () => (clickStopped = true)),
+    );
+    assert.equal(clickStopped, false, 'and its click too');
+  } finally {
+    endFishing();
+    views.clear();
+  }
+});

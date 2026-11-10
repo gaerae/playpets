@@ -216,3 +216,58 @@ for (const reeled of [false, true])
       views.clear();
     }
   });
+
+// Making the window smaller or larger (the mini window, a drag on its edge) keeps the fishing going:
+// the friend still walks to the lake, or stays at it with its float on the water.
+test('fishing goes on when the window changes size, on the way to the lake and at it', async context => {
+  context.mock.timers.enable({ apis: ['setTimeout'] });
+  context.mock.method(Math, 'random', () => 0);
+  const { measureYard } = await import('../src/yard/field.js');
+  const { refitFishing, fishingNow } = await import('../src/yard/catch.js');
+  const { nodes, view } = page(context);
+  // A friend at the lake is stood again, name tag and all.
+  view.label = element();
+  const yard = nodes.get('yard');
+  const resize = (width, height) => {
+    yard.getBoundingClientRect = () => ({ x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height });
+    measureYard();
+    refitFishing();
+  };
+  setScenery({ catchAt: () => null, catchPetal: () => null });
+  try {
+    resize(800, 560);
+    let point;
+    for (let y = 0; y < 560 && !point; y += 5)
+      for (let x = 0; x < 800; x += 5)
+        if (onLake(x, y)) {
+          point = [x, y];
+          break;
+        }
+    yard.dispatch('click', { clientX: point[0], clientY: point[1] });
+    assert.equal(typeof view.trip?.arrive, 'function', 'a friend heads for the lake');
+    resize(460, 320);
+    assert.ok(fishingNow(), 'the smaller window keeps the fishing');
+    assert.equal(typeof view.trip?.arrive, 'function', 'and the friend still on its way');
+    const trip = view.trip;
+    view.trip = null;
+    view.target = null;
+    trip.arrive(view);
+    const float = nodes.get('garden-layer').children.at(-1);
+    assert.equal(float.className, 'bobber');
+    const small = parseFloat(float.style.left);
+    resize(800, 560);
+    assert.ok(fishingNow(), 'a larger window keeps it too');
+    assert.equal(float.removed, undefined, 'with the float still out');
+    assert.ok(parseFloat(float.style.left) > small, 'moved with the lake');
+    assert.ok(onLake(parseFloat(float.style.left), parseFloat(float.style.top) - 2), 'and on its water');
+    context.mock.timers.tick(3000);
+    assert.ok(float.classList.contains('bite'), 'the fish still bites');
+    float.dispatch('click');
+    assert.equal(catches.length, 1, 'and is reeled in');
+  } finally {
+    for (const request of catches) request.resolve({ ok: false, error: 'Save cancelled.' });
+    await settled();
+    endFishing();
+    views.clear();
+  }
+});
