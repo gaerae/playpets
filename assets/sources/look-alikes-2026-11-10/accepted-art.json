@@ -1,0 +1,44 @@
+{
+  "generated": "2026-11-10",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "fireflies",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game specimen atlas for a cozy desktop pet game.\nStyle: match the reference specimens exactly: softly sculpted dimensional miniature, fine natural texture, warm studio highlights, restrained gloss, readable silhouette at 60px. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO broad glow halo, NO floor, NO cast shadow, NO text, NO labels, NO grid lines.\nLandscape 1536x1024 canvas, exactly TWO insects in two equal columns, each centered with 12% transparent padding, nothing crossing the column boundary. Both seen from directly ABOVE with the head UP, six thin legs and two antennae complete, nothing clipped.\nThe two must be told apart at a glance, unlike the near-identical pair in the reference (left two):\nCOL1: Genji firefly (Luciola cruciata), the LARGER, longer and slimmer one: long narrow charcoal-black wing covers, a SALMON-PINK thorax shield with a bold black CROSS-shaped mark in its middle, long antennae, and TWO broad pale cream lantern segments at the abdomen tip glowing soft yellow-green, the light kept tight to the segments.\nCOL2: Heike firefly (Aquatica lateralis), clearly SMALLER (about two thirds the length of col1) and plumper with short rounded wing covers in dark brown-black edged with a thin tan rim, a wider ORANGE thorax shield with ONE thick black STRIPE running straight down its centre (no cross), short antennae, and ONE small lantern segment glowing a cool MINT green, the light kept tight to the segment.",
+      "references": [
+        "a side-by-side sheet of the firefly, Heike firefly, late firefly and golden firefly specimens as they were (not kept), sha256 31945cfbd8f73d777f3f16265ba3b69ce20a8e2839510cd1bb7fe1ae89a22555"
+      ],
+      "file": "fireflies.png",
+      "sha256": "66151ad0e683f74c2da1c0affb272e745fb9864a3ed2ecb96d67936cd8f8e9ad",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/fireflies.png",
+      "runtimeSha256": "deffae088dfc25fa73b486e6891878aa6c1e1736f3b20baad59bbb6d366180de",
+      "acceptedIds": ["firefly", "heike_firefly"],
+      "boxes": {
+        "firefly": [218, 23, 453, 916],
+        "heike_firefly": [901, 33, 437, 916]
+      }
+    },
+    {
+      "name": "gudgeon",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game specimen for a cozy desktop pet game.\nStyle: match the reference fish exactly: softly sculpted miniature collectible, subtle pearlescent scales, rounded friendly shapes but authentic species anatomy, restrained soft highlights, believable dimensional fins, clean silhouette readable at 80px. TRUE transparent alpha background: NO painted background, NO water, NO haze, NO shadow, NO text.\nLandscape 1536x1024 canvas, ONE fish centered with 12% transparent padding, side profile facing RIGHT, every fin and the tail complete.\nSubject: a Korean sand gudgeon (Pseudogobio esocinus, 모래무지) that must NOT look like the loach in the reference (left fish): a pale silvery SAND-beige body that is deeper at the shoulder and tapers to a slim tail, a LONG POINTED, slightly downturned SNOUT with the mouth underneath, ONE pair of short barbels under the snout, large eyes set HIGH near the top of the head, a tall triangular dorsal fin, broad paddle-like pectoral fins, and soft irregular grey-brown speckles and cloudy saddle marks across the back instead of the loach's even row of round dark blotches. Fins pale translucent with faint dotted bands.",
+      "references": [
+        "a side-by-side sheet of the loach, gudgeon and dark sleeper specimens as they were (not kept), sha256 7286e86fe3499397cf5db847c8e54ffb53672d4d3ac57bdf979dccecf6f6887c"
+      ],
+      "file": "gudgeon.png",
+      "sha256": "560957e53920e58909c1d4f948e8caa90396e2c436c4f65ea2dcbb94e7e78b72",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/gudgeon.png",
+      "runtimeSha256": "413e0b3d320a16686e655be6253c4e8bf6d040f51ee514e3fba3e8f6738bb306",
+      "acceptedIds": ["gudgeon"],
+      "boxes": {
+        "gudgeon": [73, 219, 1387, 541]
+      }
+    }
+  ],
+  "processing": [
+    "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; written as 8-bit RGBA, 1536 x 1024.",
+    "Boxes are measured silhouettes with a 14-pixel margin; the firefly sheet is split at x = 768.",
+    "The Heike firefly's box is widened in height to the firefly's 916 px (its measured silhouette is [901, 236, 437, 511]), so the album shows both at the scale they were drawn: the Heike firefly about half as tall."
+  ]
+}

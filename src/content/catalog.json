@@ -1236,7 +1236,9 @@
       "weight": 25,
       "look": {
         "body": "#33302a",
-        "glow": "#d9f08a"
+        "glow": "#a8f07e",
+        "blink": 900,
+        "size": 0.8
       },
       "art": "bugs/heike_firefly.svg"
     },
@@ -1248,7 +1250,9 @@
       "weight": 15,
       "look": {
         "body": "#2e2a24",
-        "glow": "#e6f08a"
+        "glow": "#f4e486",
+        "blink": 0,
+        "size": 1.3
       },
       "art": "bugs/late_firefly.svg"
     },
@@ -1261,7 +1265,8 @@
       "event": "fireflies",
       "look": {
         "body": "#3a3326",
-        "glow": "#ffd84a"
+        "glow": "#ffd84a",
+        "blink": 3200
       },
       "art": "bugs/golden_firefly.svg",
       "rarity": "rare"

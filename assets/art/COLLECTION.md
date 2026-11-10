@@ -181,3 +181,25 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   wrappers with `node scripts/pack-collection.mjs`.
 - Accepted sources, prompt, hash and measured boxes:
   `assets/sources/spring-shoots-2026-11-09/accepted-art.json`.
+
+## Look-alikes redrawn (2026-11-10)
+
+- Three specimens that read as copies of a neighbour got their own drawing:
+  - the firefly and the Heike firefly in `collection-extension/fireflies`;
+  - the gudgeon (next to the loach) in `collection-extension/gudgeon`.
+- The firefly is drawn as a Genji firefly: long and slim, a black cross on a
+  pink thorax and two lit segments.
+- The Heike firefly is about two thirds as long and rounder: one black stripe
+  on an orange thorax, one mint-green lit segment.
+- The gudgeon is pale and sandy, with a long pointed snout, eyes set high and
+  cloudy speckles, against the loach's even row of round blotches.
+- Their old cells in `bugs/specimens` and `fish/specimens` stay in the atlases,
+  unused.
+- Alpha below 50 is cleared to fully transparent; crops follow measured
+  silhouettes with a 14-pixel margin. Reproduce the wrappers with
+  `node scripts/pack-collection.mjs`.
+- The Heike firefly's crop is as tall as the firefly's, so the album shows it at
+  its drawn size beside the firefly, about half as tall. Fitted to its own
+  silhouette, it filled the frame and read like the late firefly.
+- Accepted sources, prompts, hashes and measured boxes:
+  `assets/sources/look-alikes-2026-11-10/accepted-art.json`.

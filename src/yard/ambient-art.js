@@ -92,7 +92,11 @@ export function createAmbientArt(
     const specimen = crops.get(creature.species);
     if (!specimen) return false;
     const { image, crop } = specimen;
-    const size = ({ firefly: 12, dragonfly: 23, beetle: 13, cricket: 17 }[creature.kind] || 21) * scale;
+    // A kind can be smaller or larger than the rest of its kind (catalog.json look.size).
+    const size =
+      ({ firefly: 12, dragonfly: 23, beetle: 13, cricket: 17 }[creature.kind] || 21) *
+      (creature.look?.size ?? 1) *
+      scale;
     ctx.save();
     ctx.translate(creature.x, creature.y);
     if (['dragonfly', 'beetle', 'cricket'].includes(creature.kind)) ctx.rotate(creature.heading + Math.PI / 2);
@@ -136,7 +140,7 @@ export function createAmbientArt(
   function glow(ctx, creature, scale) {
     const sprite = materials.get(creature.look.glow || '#ecf096');
     if (!sprite) return false;
-    const size = 24 * scale;
+    const size = 24 * (creature.look.size ?? 1) * scale;
     ctx.drawImage(sprite, creature.x - size / 2, creature.y - size / 2, size, size);
     return true;
   }
