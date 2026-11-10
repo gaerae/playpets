@@ -1,0 +1,67 @@
+{
+  "generated": "2026-11-09",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "shoots2",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the reference props exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, a 4 by 2 grid of EIGHT equal cells, generous padding. Fresh but gently muted spring greens (not lime), at most one small dew drop per plant.\nEach cell: ONE young spring shoot just sprouting from a tiny round mound of soft brown earth, front three-quarter view, all at an early young growth stage, simple shapes without fine veins:\nRow 1: (1) shepherd's purse: a small flat rosette of lobed leaves with one short stalk of tiny heart-shaped pods; (2) mugwort: a small clump of soft grey-green lobed leaves; (3) fiddlehead: two tightly coiled green fern spirals; (4) wild garlic: three broad smooth green leaves rising from the earth.\nRow 2: (5) bamboo shoot: a short plump conical shoot in brown and tan sheaths with a green tip; (6) horsetail shoot: three slender beige jointed stems with little tan cone heads; (7) asparagus: three tender green spears with softly purple-tinged tips; (8) morel: one cute small mushroom with a tan cap of a FEW broad shallow rounded pits, on a cream stem.",
+      "references": ["assets/art/decor/props.png"],
+      "file": "shoots2.png",
+      "sha256": "91f3982d86b0f934283697f23b00833a2f9d47168fb91eba6c47ebedef7dd158",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/spring-shoots.png",
+      "acceptedIds": [
+        "shepherds_purse",
+        "mugwort",
+        "fiddlehead",
+        "wild_garlic",
+        "bamboo_shoot",
+        "horsetail",
+        "asparagus",
+        "morel"
+      ],
+      "processing": [
+        "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; nothing else changed; written as 8-bit RGBA, 1536 x 1024."
+      ],
+      "notes": "Eight cells in a 4 x 2 grid of 384 x 512, in the order of acceptedIds."
+    }
+  ],
+  "measuredSilhouettes": {
+    "collection-extension/spring-shoots.png": [
+      {
+        "id": "shepherds_purse",
+        "box": [45, 135, 322, 330]
+      },
+      {
+        "id": "mugwort",
+        "box": [424, 151, 299, 313]
+      },
+      {
+        "id": "fiddlehead",
+        "box": [830, 151, 229, 313]
+      },
+      {
+        "id": "wild_garlic",
+        "box": [1155, 159, 333, 305]
+      },
+      {
+        "id": "bamboo_shoot",
+        "box": [76, 586, 250, 336]
+      },
+      {
+        "id": "horsetail",
+        "box": [460, 555, 224, 368]
+      },
+      {
+        "id": "asparagus",
+        "box": [819, 559, 247, 364]
+      },
+      {
+        "id": "morel",
+        "box": [1210, 619, 226, 303]
+      }
+    ],
+    "note": "Boxes are x, y, width, height of the alpha >= 50 components; crops in src/art/collection.json add a 14-pixel margin."
+  },
+  "review": "Codex art review (scratch/spring-shoots/review-1.md). Checked on light and dark grounds at album size (80 px) and yard size (40 px) and at full crop size: no halo ring, no neighbour showing, the whole shoot and its earth mound inside every crop; Codex named no cell off-style or unreadable. The first pass, shoots.png, stays in scratch: its morel pits were too deep."
+}

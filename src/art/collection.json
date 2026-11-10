@@ -1114,5 +1114,77 @@
     "crop": [1013, 382, 476, 347],
     "size": [41, 30],
     "art": "tracks/puff.svg"
+  },
+  {
+    "id": "shepherds_purse",
+    "kind": "shoot",
+    "atlas": "collection-extension/spring-shoots.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [31, 121, 350, 358],
+    "size": [39, 40],
+    "art": "shoots/shepherds_purse.svg"
+  },
+  {
+    "id": "mugwort",
+    "kind": "shoot",
+    "atlas": "collection-extension/spring-shoots.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [410, 137, 327, 341],
+    "size": [38, 40],
+    "art": "shoots/mugwort.svg"
+  },
+  {
+    "id": "fiddlehead",
+    "kind": "shoot",
+    "atlas": "collection-extension/spring-shoots.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [816, 137, 257, 341],
+    "size": [30, 40],
+    "art": "shoots/fiddlehead.svg"
+  },
+  {
+    "id": "wild_garlic",
+    "kind": "shoot",
+    "atlas": "collection-extension/spring-shoots.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1141, 145, 361, 333],
+    "size": [40, 37],
+    "art": "shoots/wild_garlic.svg"
+  },
+  {
+    "id": "bamboo_shoot",
+    "kind": "shoot",
+    "atlas": "collection-extension/spring-shoots.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [62, 572, 278, 364],
+    "size": [31, 40],
+    "art": "shoots/bamboo_shoot.svg"
+  },
+  {
+    "id": "horsetail",
+    "kind": "shoot",
+    "atlas": "collection-extension/spring-shoots.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [446, 541, 252, 396],
+    "size": [25, 40],
+    "art": "shoots/horsetail.svg"
+  },
+  {
+    "id": "asparagus",
+    "kind": "shoot",
+    "atlas": "collection-extension/spring-shoots.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [805, 545, 275, 392],
+    "size": [28, 40],
+    "art": "shoots/asparagus.svg"
+  },
+  {
+    "id": "morel",
+    "kind": "shoot",
+    "atlas": "collection-extension/spring-shoots.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1196, 605, 254, 331],
+    "size": [31, 40],
+    "art": "shoots/morel.svg"
   }
 ]

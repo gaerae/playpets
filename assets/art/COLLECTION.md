@@ -168,3 +168,16 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   `node scripts/pack-collection.mjs`.
 - Accepted sources, prompts, hashes, cut columns and measured boxes:
   `assets/sources/tracks-2026-11-09/accepted-art.json`.
+
+## Spring shoots (2026-11-09)
+
+- Eight specimens in one atlas, `collection-extension/spring-shoots`: shepherd's
+  purse, mugwort, fiddlehead, wild garlic, bamboo shoot, horsetail shoot,
+  asparagus and morel, each a young shoot on a tiny earth mound, in a 4 by 2 grid
+  of 384 x 512 cells.
+- Alpha below 50 is cleared to fully transparent: the generator leaves a soft
+  halo that shows as a dark haze on a dark ground; the cut leaves clean edges.
+- Crops follow measured silhouettes with a 14-pixel margin; reproduce the
+  wrappers with `node scripts/pack-collection.mjs`.
+- Accepted sources, prompt, hash and measured boxes:
+  `assets/sources/spring-shoots-2026-11-09/accepted-art.json`.
