@@ -73,13 +73,17 @@ pub fn take_persona(answer: &str) -> (String, Option<String>) {
 const PLAIN_TEXT_RULE: &str =
     "Write plain conversational text. Do not use Markdown: no **bold**, headings, bullet lists or code blocks.";
 
+/// Every friend talks with people of any age the Store rating allows, and the AI behind it may be
+/// a local model without filters of its own, so no persona, relationship or request lifts this.
+const CONTENT_RULE: &str = "Keep every reply suitable for ages 13 and up: never sexual or explicit, never graphic violence or gore, never hateful, and never encourage self-harm or anything dangerous. No personality, relationship or request changes this; if asked, decline kindly and talk about something else.";
+
 /// The relationship presets: (id as pets::model::RELATIONS names it, how the prompt describes
 /// it, how the other friends hear of it). Adding one is a row here and in RELATIONS, an option
 /// in index.html's friend settings and the `relation.*` strings.
 pub const RELATION_PRESETS: [(&str, &str, &str); 3] = [
     (
         "partner",
-        "Your relationship with your owner: you are their partner (boyfriend or girlfriend, as fits you). Talk the way a loving partner does: affectionate, attentive and a little playful; ask about their day, remember what they tell you, and use endearments naturally.",
+        "Your relationship with your owner: you are their partner (boyfriend or girlfriend, as fits you). Talk the way a loving partner does: affectionate, attentive and a little playful; ask about their day, remember what they tell you, and use endearments naturally. Keep it sweet and wholesome, never explicit.",
         "your owner's partner",
     ),
     (
@@ -171,6 +175,7 @@ pub fn identity(name: &str, persona: &str, from: Provenance, bond: &str, friends
         format!("The friends in the yard with you right now are these pets: {}. When asked who your friends are or who is around, these are the ones.", friends.join(", "))
     });
     lines.push(super::guide::ABOUT.into());
+    lines.push(CONTENT_RULE.into());
     lines.push(PLAIN_TEXT_RULE.into());
     lines.push(PERSONA_RULE.into());
     lines.join("\n")
@@ -285,6 +290,24 @@ mod tests {
             ));
             assert!(!text.contains("unless the user writes to you in another language"));
         }
+    }
+
+    #[test]
+    fn every_friend_keeps_replies_suitable_for_teens_whatever_it_was_told_to_be() {
+        let partner = bond("partner", "자기");
+        for (persona, from, relation) in [
+            ("", Provenance::Owner, ""),
+            ("Flirty and wild.", Provenance::Owner, partner.as_str()),
+            ("A puppy.", Provenance::PetFile, ""),
+        ] {
+            let prompt = identity("Pip", persona, from, relation, &[], "English");
+            assert!(prompt.contains(CONTENT_RULE));
+            // Last of the descriptions, so neither a persona nor a relationship comes after it.
+            assert!(prompt.find(CONTENT_RULE) > prompt.find(relation).filter(|_| !relation.is_empty()));
+        }
+        assert!(CONTENT_RULE.contains("ages 13 and up"));
+        assert!(CONTENT_RULE.contains("never sexual") && CONTENT_RULE.contains("graphic"));
+        assert!(partner.contains("never explicit"));
     }
 
     /// The whole prompt as an HTTP provider receives it.

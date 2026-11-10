@@ -50,13 +50,14 @@ Repeated local builds:
 - The `store` workflow has the same three public values in its own file.
 - Do not put Apple credentials into this file.
 
-The Store hand-off:
+The local Store package (for inspection only):
 - `release/windows/msix-store/PlayPets_<version>_x64.msix`, without a local test signature.
+- It shows the Store identity and version a release will carry. Do not upload it to Partner Center.
+- It is x64 only, built with MinGW, and has no `resources.pri`, so its icons sit on a plate.
+- The package to submit is the `store-bundle` artifact from the `store` workflow: x64 and ARM64, built with MSVC, with `resources.pri` ([Submission automation](#submission-automation-and-first-submission-setup)).
 - Microsoft signs the package distributed through the Store.
 - Do not upload the NSIS EXE, the portable ZIP, a test certificate or a private key in its place.
 - Store signing does not sign the EXE distributed through GitHub.
-- This local build path makes only the x64 MSIX.
-- The `store` workflow builds x64 and ARM64.
 
 Local install test:
 1. Unset all three `MSIX_*` variables and run `pnpm run dist:windows`.
@@ -64,7 +65,7 @@ Local install test:
 
 - The private test key stays in Docker's `playpets-msix-key` volume.
 - A test certificate is not a public Windows signing identity.
-- Do not try to install the unsigned Store hand-off by trusting a test certificate.
+- Do not try to install the unsigned Store package by trusting a test certificate.
 
 Updates in a package:
 - At runtime, the Windows package identity (from `GetCurrentPackageFullName`) decides who owns updates, not a path substring or an environment variable that users can change.
@@ -102,8 +103,12 @@ After both architecture jobs pass, these checks stay manual:
 - On a clean Windows device without development tools, confirm WebView2 availability, visual layout, tray and desktop windows, close and exit, always-on-top and optional agent integration.
   - CI checks package activation and update rules.
   - It cannot judge these interactions visually or cover every device setup.
-- Before submission, run the Windows App Certification Kit (WACK) against the actual Store hand-off.
-  - The CI gate is not a certification test.
+- The `store` workflow runs the Windows App Certification Kit (WACK) on the x64 package and fails on `OVERALL_RESULT="FAIL"`; the report is the `wack-x64` artifact.
+  - The `windows-11-arm` runner image has no WACK, and an x64 runner cannot install an ARM64 package; the ARM64 job says so in its summary. The two packages differ only in the binary's architecture, and Partner Center certifies both.
+  - The optional "Blocked executables" test always flags `CreateProcessW` and `cmd.exe`: PlayPets starts the coding CLIs and npm's shims on purpose. It doesn't change the overall result.
+  - WACK installs what it tests, so it runs on a copy signed with a certificate made on the runner for the Store publisher's name. The unsigned package goes on.
+  - Passing WACK is not passing certification: Partner Center runs its own checks.
+- To try the packaging without a release, start `store` by hand from a branch. It builds, certifies and bundles that branch's version and never submits.
 - Once submission is approved separately, use a private Store package flight to verify installation and a real Store-delivered update that keeps pets and credentials.
   - A local certificate and `Add-AppxPackage` cannot simulate Store signing, licensing, certification or the delivery service.
   - With the app open on the older version, check that the waiting version shows beside the place selector, that **Open in Microsoft Store** opens PlayPets' Store page, that the app opens again after the Store installs the update, and that the first start says the new version.
@@ -129,7 +134,7 @@ Versions:
 The submission:
 1. Create the first submission in Partner Center.
 2. Complete pricing and markets, properties, age ratings, packages, localized listings and submission options.
-3. Upload the Store MSIX and resolve its validation messages.
+3. Upload the `.msixupload` file from `store-bundle` and resolve its validation messages.
 4. Keep the submission on a manual publication hold until the release is approved separately.
 
 References: [Store package requirements](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/app-package-requirements), [package-context debugging](https://learn.microsoft.com/en-us/powershell/module/appx/invoke-commandindesktoppackage).
@@ -148,22 +153,26 @@ References: [Store package requirements](https://learn.microsoft.com/en-us/windo
 | Job | Credentials | What it does |
 |---|---|---|
 | `source` | None | Checks that the tag is a stable `vx.y.z` on `main` and matches `package.json` and the changelog. Makes `notes.json` from the four website release pages |
-| `package` | None | Builds `playpets.exe` with `pnpm exec tauri build --no-bundle` on Windows x64 and ARM64, then `packaging/windows/msix/store.ps1` makes the unsigned MSIX |
-| `bundle` | None | Checks each package's identity, version and architecture, records SHA-256 values in `release.json`, keeps everything as the `store-bundle` artifact |
-| `submit` | `microsoft-store` environment | Runs only with `STORE_SUBMISSION_ENABLED=true`, after the environment's approval |
+| `package` | None | Builds `playpets.exe` with `pnpm exec tauri build --no-bundle` on Windows x64 and ARM64, with a second PDB of public symbols (`/PDBSTRIPPED`). `packaging/windows/msix/store.ps1` makes the unsigned MSIX and its `.appxsym`; `wack.ps1` runs WACK on a signed copy of the x64 one |
+| `bundle` | None | `packaging/windows/msix/bundle.ps1` makes `PlayPets_<version>.msixbundle` and wraps it with both `.appxsym` in `PlayPets_<version>.msixupload`. Checks every identity, version and architecture inside, records the SHA-256 in `release.json`, keeps it as the `store-bundle` artifact |
+| `submit` | `microsoft-store` environment | Runs only from a release tag with `STORE_SUBMISSION_ENABLED=true`, after the environment's approval |
 
 - `submit` steps, in order:
   1. Refuses a product other than PlayPets, a product with no published submission, and any pending submission. Nothing changes.
   2. Refuses a version the Store already has (a rerun), and a published submission without an English, Korean, Japanese or Simplified Chinese listing. Nothing changes.
   3. Creates a submission. Microsoft makes it a copy of the published one: listings, screenshots, certification notes (the `runFullTrust` explanation), markets and options stay.
-  4. Replaces both packages, sets each language's "What's new", and sets the publish mode. Pricing and everything else go back as the Store copied them: the Store refuses an update without pricing.
-  5. Uploads the two MSIX to the API's Azure Blob address only, checks that the publish mode was kept, and commits.
+  4. Replaces the packages with the `.msixupload`, sets each language's "What's new", and sets the publish mode. Pricing and everything else go back as the Store copied them: the Store refuses an update without pricing.
+  5. Uploads the `.msixupload` to the API's Azure Blob address only, checks that the publish mode was kept, and commits.
   6. Waits up to 10 minutes for the Store to finish reading the commit. Certification starts after that.
 - It never calls the publish endpoint and never retries.
 - A failure before the commit, or `CommitFailed` after it, removes the submission it created, so the next run isn't stopped by it.
 - A later failure, such as `CertificationFailed`, keeps the submission for a person to read in Partner Center.
 - The log's report gives the Store's status when the run ended. `CommitStarted` means the Store hadn't finished after 10 minutes; check Partner Center.
 - Logs show a short report and the Store's own reason for a refused request, with addresses and long values taken out. They show no token, key or upload address.
+- Bundle and symbols: from the first release after 1.5.0, the Store gets one `.msixupload` instead of two loose `.msix` files.
+  - Microsoft recommends a bundle, so a Windows on ARM device is served the ARM64 package and not the x64 one under emulation.
+  - The `.appxsym` files hold public symbols only, so Partner Center's crash reports name functions.
+  - **Confirm before the first release with the bundle:** moving a product from loose packages to a bundle may be one-way in Partner Center. Check the product's Packages page or ask Partner Center support. To stay on loose packages, revert the bundle change before tagging.
 - To send a published release again with a fix made after its tag, run `store-retry` from `main` with the tag and the ID of its `store` run. It uses that run's `store-bundle` artifact, kept for 14 days, and main's script.
 
 ### What's new
@@ -232,7 +241,7 @@ The account holder does these one-time steps. Never paste a key into a chat, iss
    - `STORE_PUBLISH_MODE` = `Immediate` to publish after certification, like 1.2.0.
    - Leave `STORE_PUBLISH_MODE` unset to keep a manual hold.
 8. For the first automated release, open the new submission in Partner Center once certification starts.
-   - Check What's new, both packages and the certification notes.
+   - Check What's new, the bundle's two architectures and the certification notes.
 
 - Missing values:
   - All four missing: `submit` writes a notice and ends green; upload `store-bundle` by hand.
@@ -261,10 +270,21 @@ The account holder does these one-time steps. Never paste a key into a chat, iss
 
 References: [MSIX API prerequisites and authentication](https://learn.microsoft.com/en-us/windows/uwp/monetize/create-and-manage-submissions-using-windows-store-services), [submission data and publish mode](https://learn.microsoft.com/en-us/windows/uwp/monetize/manage-app-submissions), [Store Developer CLI](https://learn.microsoft.com/en-us/windows/apps/publish/msstore-dev-cli/commands).
 
-Listing:
-- Prepare accurate descriptions and screenshots in the four supported languages.
-- Explain AI requirements and provider billing without promising a subscription or free inference that PlayPets does not supply.
-- Do not imply that PlayPets is an OpenAI product.
+Listing (Partner Center only; the API keeps the published listing and changes only What's new):
+- Prepare accurate descriptions and screenshots in the four supported languages. The current text to paste is in [the Store listing text](../../packaging/windows/store-listing.md).
+- Start each description with the generative-AI disclosure (policy 11.16): friends' replies are written live by the AI the person connects, can be wrong or unsuitable, and can be reported through **Report an AI reply** in About or the listing's support link.
+- Name the dependencies in the same opening paragraph (policy 10.2.4): AI chat needs Claude Code, Codex, Ollama or an OpenAI-compatible API, and Windows needs the Microsoft Edge WebView2 Runtime. The yard works without AI.
+- Explain provider billing without promising a subscription or free inference that PlayPets does not supply.
+- The category is Entertainment: call PlayPets a desktop pet app or companion, not a game (policy 10.1.1).
+- Do not imply that PlayPets is an OpenAI or Anthropic product.
+- Search terms: at most seven, with no other products' names such as Claude, Codex or Pokémon (policy 10.1.3).
+
+Properties and age rating (Partner Center only):
+- **Product declarations:** check "This product incorporates generative AI features" (policy 11.16). It counts AI from third-party platforms, which is how PlayPets uses it.
+- **Privacy policy:** give the URL below, not a pasted copy. A pasted copy freezes on the day it was pasted and falls behind the site (policy 10.5.1).
+- **Support contact:** the website field, set to `https://github.com/gaerae/playpets/issues/new/choose`; no support email. It lists the AI reply concern form, which the app's **Report an AI reply** in About opens directly (policy 11.16). The form asks for no conversation and warns that issues are public.
+- **Age rating (IARC):** answer the questions about user interaction for what the app does: AI chat generates text in reply to what the person types and can send it to the AI provider they chose, and community imports bring in pets other people made from any web address. Re-answer whenever these change.
+- **Pricing:** no free trial for a free app.
 
 Certification notes:
 - The manifest declares `runFullTrust`.

@@ -205,6 +205,7 @@ pub(super) fn setup_child(cmd: &mut Command, bin: &Path) {
     }
     let inherited = std::env::var_os("PATH").unwrap_or_default();
     cmd.env("PATH", child_path(bin.parent(), &inherited, &extra_dirs()));
+    no_self_update(cmd, crate::update::store_managed());
     // This app has no console, so on Windows a console child (claude.cmd via cmd.exe, node,
     // codex) would get a new, visible one; the pet talks through pipes and needs none.
     #[cfg(windows)]
@@ -212,6 +213,17 @@ pub(super) fn setup_child(cmd: &mut Command, bin: &Path) {
         use std::os::windows::process::CommandExt;
         const CREATE_NO_WINDOW: u32 = 0x0800_0000;
         cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+}
+
+/// Started from the Store package, a CLI may run inside its container, where what it writes under
+/// AppData lands in PlayPets' own LocalCache: a self-update there would be half seen by the
+/// person's terminal and deleted with PlayPets. Claude Code's documented switch turns its
+/// background updater off for these runs. Codex documents no such variable, and its startup check
+/// only shows a prompt. Outside the package nothing changes.
+fn no_self_update(cmd: &mut Command, packaged: bool) {
+    if packaged {
+        cmd.env("DISABLE_AUTOUPDATER", "1");
     }
 }
 
@@ -693,6 +705,23 @@ mod tests {
             search_dirs(&path, vec![PathBuf::from("/extra")]),
             ["/usr/bin", "/bin", "/extra"].map(PathBuf::from)
         );
+    }
+
+    #[test]
+    fn a_cli_started_from_the_store_package_never_updates_itself() {
+        let env = |packaged| {
+            let mut cmd = Command::new("claude");
+            no_self_update(&mut cmd, packaged);
+            cmd.get_envs()
+                .find(|(key, _)| *key == "DISABLE_AUTOUPDATER")
+                .and_then(|(_, value)| value.map(|v| v.to_os_string()))
+        };
+        assert_eq!(
+            env(true).as_deref(),
+            Some(OsStr::new("1")),
+            "packaged: the updater is off"
+        );
+        assert_eq!(env(false), None, "a person's own install updates as it always did");
     }
 
     #[test]

@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("menu.minimize", "Minimize"),
     ("menu.close", "Close Window"),
 
+    ("startup.webview_missing", "PlayPets needs the Microsoft Edge WebView2 Runtime, and it isn't installed on this PC. Install it from {url}, then open PlayPets again.\n\nOpen the download page now?"),
     ("update.check_failed", "Couldn't check for updates. Check your internet connection."),
 
     ("update.no_release", "No update information has been published yet. Try again later."),
@@ -163,8 +164,10 @@ const TABLE: &[(&str, &str)] = &[
     ("ai.models_unreachable", "Couldn't load the list of models. Check the server address and that it's running."),
     ("ai.models_unreadable", "Couldn't read the list of models."),
 
-    ("cli.login_claude", "Sign in to Claude Code first: run `claude` in a terminal, then type `/login`."),
-    ("cli.login_codex", "Sign in to Codex first: run `codex login` in a terminal."),
+    ("cli.login_claude", "Claude Code isn't signed in. Press Sign in above the message box."),
+    ("cli.login_codex", "Codex isn't signed in. Press Sign in above the message box."),
+    ("cli.login_code_bad", "Paste the code from the browser page as it is."),
+    ("cli.login_not_waiting", "No sign-in is waiting for a code. Press Sign in again."),
     ("cli.missing", "Couldn't find the {name} CLI. Install it in a terminal: {command}"),
     ("cli.spawn_failed", "Couldn't start the {name} CLI. {detail}"),
     ("cli.error", "{name} CLI error: {detail}"),
@@ -188,7 +191,6 @@ const TABLE: &[(&str, &str)] = &[
 
     ("import.hint_openpets", "The largest collection: pets from many galleries in one place"),
     ("import.hint_petdex", "Thousands of pets: previews and collections"),
-    ("import.hint_pokepets", "Pokémon fan pets: paste a pet folder address from GitHub"),
     ("import.hint_awesome", "Hand-picked game and anime character pets"),
     ("import.hint_codexpets", "A sharing site: the latest uploads"),
     ("import.private_address", "Addresses on a private network can't be imported."),

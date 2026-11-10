@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("menu.minimize", "しまう"),
     ("menu.close", "ウィンドウを閉じる"),
 
+    ("startup.webview_missing", "PlayPets には Microsoft Edge WebView2 ランタイムが必要ですが、この PC にはインストールされていません。{url} からインストールして、PlayPets をもう一度開いてください。\n\n今すぐダウンロードページを開きますか？"),
     ("update.check_failed", "アップデートを確認できませんでした。インターネット接続を確認してください。"),
 
     ("update.no_release", "アップデート情報はまだ公開されていません。あとでもう一度確認してください。"),
@@ -163,8 +164,10 @@ const TABLE: &[(&str, &str)] = &[
     ("ai.models_unreachable", "モデル一覧を読み込めませんでした。サーバーのアドレスと、起動しているかを確認してください。"),
     ("ai.models_unreadable", "モデル一覧を読み取れませんでした。"),
 
-    ("cli.login_claude", "先に Claude Code にログインしてください。ターミナルで claude を実行し、続けて /login と入力します。"),
-    ("cli.login_codex", "先に Codex にログインしてください。ターミナルで codex login を実行します。"),
+    ("cli.login_claude", "Claude Code にログインしていません。メッセージ欄の上のログインボタンを押してください。"),
+    ("cli.login_codex", "Codex にログインしていません。メッセージ欄の上のログインボタンを押してください。"),
+    ("cli.login_code_bad", "ブラウザに表示されたコードをそのまま貼り付けてください。"),
+    ("cli.login_not_waiting", "コードを待っているログインはありません。もう一度ログインボタンを押してください。"),
     ("cli.missing", "{name} CLI が見つかりません。ターミナルでインストールしてください: {command}"),
     ("cli.spawn_failed", "{name} CLI を起動できませんでした。{detail}"),
     ("cli.error", "{name} CLI エラー: {detail}"),
@@ -188,7 +191,6 @@ const TABLE: &[(&str, &str)] = &[
 
     ("import.hint_openpets", "最大のコレクション: いろいろなギャラリーのペットをひとつに"),
     ("import.hint_petdex", "数千のペット: プレビューとコレクション"),
-    ("import.hint_pokepets", "ポケモンのファンメイドペット: GitHub のペットフォルダーのアドレスを貼り付けます"),
     ("import.hint_awesome", "厳選されたゲーム、アニメキャラのペット"),
     ("import.hint_codexpets", "共有サイト: 最新の投稿"),
     ("import.private_address", "内部ネットワークのアドレスからは取り込めません。"),

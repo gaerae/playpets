@@ -173,6 +173,8 @@ chmod +x PlayPets_*.AppImage
 | Linux deb | 설치할 때 쓴 패키지 관리자로 제거해요 |
 | Linux AppImage | 파일을 지워요 |
 
+- 앱을 지우기 전에 연결한 코딩 에이전트마다 **연결 해제**를 눌러 주세요([코딩 에이전트 연동](./agents.md)). 훅은 `~/.claude/settings.json`, `~/.codex/config.toml` 같은 파일에 남아서, PlayPets가 없어진 뒤에는 에이전트가 훅 명령이 실패했다고 알려요.
+- API 키는 앱을 지운 뒤에도 이 컴퓨터의 보안 저장소(Windows 자격 증명 관리자, macOS 키체인, Linux Secret Service)에 남아요. 먼저 AI 연결마다 **연결 삭제**를 눌러 지워 주세요.
 - 앱을 지워도 아래 데이터 폴더는 남아요.
 - 스토어, winget: 앱을 지우면 Windows가 패키지 데이터도 함께 지워요.
 - 설정과 가져온 펫까지 모두 지우려면 데이터 폴더도 지워 주세요.

@@ -35,8 +35,8 @@ export function renderManifest(template, version, env = {}) {
 export function storeNotes(version, env) {
   const packageVersion = renderManifest('@VERSION@', version, env);
   if (!env.MSIX_PUBLISHER) throw new Error('Store notes require Store identity');
-  return `PlayPets Store hand-off
-=======================
+  return `PlayPets Store package check
+===========================
 
 App version: ${version}
 MSIX package version: ${packageVersion}
@@ -45,12 +45,15 @@ Name: ${env.MSIX_IDENTITY_NAME.trim()}
 Publisher: ${env.MSIX_PUBLISHER.trim()}
 PublisherDisplayName: ${env.MSIX_PUBLISHER_DISPLAY_NAME.trim()}
 
-This unsigned MSIX is for Partner Center submission. Building it does not submit or publish it.
-Microsoft signs the Store-distributed package after certification. This package is not a trusted
-local installer; use the separately signed msix-test package on a disposable Windows device.
+This unsigned MSIX is for inspection only: checking the Store identity and version before a
+release. Building it does not submit or publish it. Do not upload it to Partner Center: it is
+x64 only, built with MinGW and has no resources.pri. Submit the store-bundle artifact the store
+workflow makes (x64 and ARM64) instead.
+This package is not a trusted local installer; use the separately signed msix-test package on a
+disposable Windows device.
 WebView2 Runtime is required; the loader DLL alone does not include the runtime.
 
-Before submission, follow docs/how-to/store-and-apple-signing.md for identity, WACK,
+For a submission, follow docs/how-to/store-and-apple-signing.md for identity, WACK,
 first-submission metadata, privacy information and manual publication hold.
 `;
 }

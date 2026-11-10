@@ -33,14 +33,26 @@ test('native install and sharing exports retain their actual required dimensions
   for (const [path, dimensions] of Object.entries({
     'src-tauri/icons/icon.png': [512, 512],
     'src-tauri/icons/tray.png': [32, 32],
-    'src-tauri/icons/msix/StoreLogo.png': [50, 50],
-    'src-tauri/icons/msix/Square44x44Logo.png': [44, 44],
-    'src-tauri/icons/msix/Square150x150Logo.png': [150, 150],
-    // Without an unplated variant Windows draws the taskbar and Start icon on an accent-colored plate.
+    // Each tile at 100, 200 and 400 percent, so a high-DPI screen never scales a small one up. The
+    // 150 tile stops at 200: at 600px the artwork is larger than the certification kit accepts.
     ...Object.fromEntries(
-      [16, 24, 32, 48, 256].flatMap(size =>
-        ['unplated', 'lightunplated'].map(form => [
-          `src-tauri/icons/msix/Square44x44Logo.targetsize-${size}_altform-${form}.png`,
+      [
+        ['StoreLogo', 50, [1, 2, 4]],
+        ['Square44x44Logo', 44, [1, 2, 4]],
+        ['Square150x150Logo', 150, [1, 2]],
+      ].flatMap(([name, size, scales]) =>
+        scales.map(scale => [
+          `src-tauri/icons/msix/${scale === 1 ? name : `${name}.scale-${scale * 100}`}.png`,
+          [size * scale, size * scale],
+        ]),
+      ),
+    ),
+    // Every target size Microsoft lists for the taskbar, Start and Explorer. Without an unplated
+    // variant Windows draws the icon on an accent-colored plate; the light one is for a light taskbar.
+    ...Object.fromEntries(
+      [16, 20, 24, 30, 32, 36, 40, 48, 60, 64, 72, 80, 96, 256].flatMap(size =>
+        ['', '_altform-unplated', '_altform-lightunplated'].map(form => [
+          `src-tauri/icons/msix/Square44x44Logo.targetsize-${size}${form}.png`,
           [size, size],
         ]),
       ),
@@ -57,6 +69,13 @@ test('native install and sharing exports retain their actual required dimensions
   })) {
     assert.deepEqual(imageSize(await readFile(path), path.split('.').pop()), dimensions, path);
   }
+});
+
+// The Windows App Certification Kit fails a package with an image of 204,800 bytes or more.
+test('every MSIX tile stays under the certification kit size limit', async () => {
+  const { readdir, stat } = await import('node:fs/promises');
+  const folder = 'src-tauri/icons/msix';
+  for (const file of await readdir(folder)) assert.ok((await stat(`${folder}/${file}`)).size < 204800, file);
 });
 
 test('archived references and retired drawings are not counted as active artwork', async () => {

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs inside packaging/windows/Dockerfile: cross-compile x64, then make the NSIS installer, the portable
-# zip, and an MSIX package (msix-test/ by default, unsigned msix-store/ with MSIX_PUBLISHER).
+# zip, and an MSIX package (msix-test/ by default, unsigned msix-store/ for inspection with MSIX_PUBLISHER).
 set -euo pipefail
 # Build output, local app data, keys and generated site files stay on the host: the root .dockerignore
 # lists them, in patterns rsync reads the same way Docker does.
@@ -24,8 +24,8 @@ zip -j "/out/PlayPets_${version}_x64-portable.zip" src-tauri/target/x86_64-pc-wi
 
 # The MSIX package, for trying the app out as a package. Signed with a self-signed test certificate
 # that is kept between builds, so a PC that trusted it once keeps accepting new builds.
-# For the Store the package is submitted unsigned-by-us with MSIX_PUBLISHER set to the Partner
-# Center publisher id; the Store signs it.
+# With MSIX_PUBLISHER set to the Partner Center publisher id it is left unsigned in msix-store/,
+# to inspect the Store identity only: the store workflow's store-bundle is what gets submitted.
 release=src-tauri/target/x86_64-pc-windows-gnu/release
 publisher="${MSIX_PUBLISHER:-CN=PlayPets Test}"
 msix=/out/msix-test

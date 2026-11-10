@@ -42,6 +42,8 @@ You don't have to connect first. Write to a friend that has no AI and press send
 
 If Claude Code or Codex CLI is on this computer the first time you start PlayPets, the yard's starting card names it. **Connect now** attaches it to every friend in one step, with no key. With two or more friends, they start talking among themselves right after.
 
+If Claude Code or Codex CLI is on this computer but isn't signed in, a **Sign in to Claude Code** card shows above the message box instead. **Sign in with browser** opens the sign-in page; finish there and PlayPets connects by itself. If Claude's page shows a code, paste it into the card. The message box opens once you're signed in. You don't need a terminal.
+
 A connection isn't tied to one friend. Other friends can use one you made, or you can pick a different connection from each friend's AI list so each has its own AI.
 
 - To edit or delete a connection, open it from either place:

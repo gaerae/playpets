@@ -5,6 +5,7 @@ use super::{cli, http};
 use crate::app::{AppData, Shared, changed, lock, push_event};
 use crate::i18n;
 use serde_json::{Value, json};
+use std::sync::atomic::{AtomicU64, Ordering};
 use tauri::{AppHandle, State};
 
 pub const LIMIT: usize = 12;
@@ -238,24 +239,98 @@ pub fn list_models(state: &State<Shared>, raw: &Value) -> Result<Value, String> 
 }
 
 /// Looks for AIs already on this computer, off the startup path: finding none takes the longest.
+/// A subscription CLI found is also asked whether it is signed in, so the page offers a sign-in
+/// instead of a connection that would fail at the first message. Called again by the page when it
+/// may have changed (a CLI turn failed, the window came back while a sign-in was offered).
 pub fn detect(app: tauri::AppHandle) {
     use tauri::Manager;
     std::thread::spawn(move || {
-        let detected = json!({
+        let begun = LOOKS.fetch_add(1, Ordering::SeqCst) + 1;
+        // Each status check starts a CLI and Ollama is asked over the network: side by side, the
+        // page waits for the slowest one rather than for all of them in turn.
+        let (claude, codex, ollama) = std::thread::scope(|s| {
+            let claude = s.spawn(|| cli::signed_in("claude"));
+            let codex = s.spawn(|| cli::signed_in("codex"));
+            let ollama = http::detect_ollama(http::OLLAMA_DEFAULT);
+            (claude.join().unwrap_or(None), codex.join().unwrap_or(None), ollama)
+        });
+        let logins = &app.state::<crate::app::CliHandle>().0.logins;
+        let word = |kind, status| signed_word(status, logins.turned_away(kind));
+        let found = json!({
             "claude": cli::resolve_bin("claude").is_some(),
             "codex": cli::resolve_bin("codex").is_some(),
-            "ollama": http::detect_ollama(http::OLLAMA_DEFAULT),
+            "ollama": ollama,
+            "signedIn": {"claude": word("claude", claude), "codex": word("codex", codex)},
         });
         let state = app.state::<Shared>();
         let mut d = lock(&state);
-        d.detected = detected;
+        d.detected = settle(found, &d.detected, LOOKS.load(Ordering::SeqCst) != begun);
         changed(&app, &d);
     });
+}
+
+/// What the page is told about one CLI's sign-in: false only when the CLI said so (its status
+/// check, or a chat turn it turned away), null when nobody knows (not found, or the check did not
+/// finish), so a guess never locks a friend's chat.
+fn signed_word(status: Option<bool>, turned_away: bool) -> Value {
+    if turned_away { json!(false) } else { json!(status) }
+}
+
+// Counts looks and sign-ins, so a look that a later one overtook can tell (see `settle`).
+static LOOKS: AtomicU64 = AtomicU64::new(0);
+
+/// What a look leaves in the state. One overtaken by a sign-in (or a later look) keeps the
+/// signed-in word already there: a status check begun before a sign-in ended would undo it.
+fn settle(mut found: Value, now: &Value, overtaken: bool) -> Value {
+    if overtaken && now["signedIn"].is_object() {
+        found["signedIn"] = now["signedIn"].clone();
+    }
+    found
+}
+
+/// A sign-in started from the app ended: the page learns whether the CLI is signed in now, both in
+/// the state (what it offers) and as an event (the one moment to connect and move on).
+pub fn signed_in_now(app: &AppHandle, kind: &str, ok: bool) {
+    use tauri::Manager;
+    LOOKS.fetch_add(1, Ordering::SeqCst);
+    {
+        let state = app.state::<Shared>();
+        let mut d = lock(&state);
+        if !d.detected["signedIn"].is_object() {
+            d.detected["signedIn"] = json!({});
+        }
+        d.detected["signedIn"][kind] = json!(ok);
+        changed(app, &d);
+    }
+    push_event(app, &json!({"type": "cliLogin", "kind": kind, "ok": ok}));
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_cli_is_signed_out_only_when_it_says_so() {
+        assert_eq!(signed_word(Some(true), false), json!(true));
+        assert_eq!(signed_word(Some(false), false), json!(false));
+        // Not found, or a check that could not finish: unknown, so nothing is locked on a guess.
+        assert_eq!(signed_word(None, false), Value::Null);
+        // A turn it turned away outweighs a status that still says yes (an expired sign-in).
+        assert_eq!(signed_word(Some(true), true), json!(false));
+        assert_eq!(signed_word(None, true), json!(false));
+    }
+
+    #[test]
+    fn a_look_begun_before_a_sign_in_ended_keeps_what_the_sign_in_said() {
+        let found = json!({"claude": true, "ollama": [], "signedIn": {"claude": false, "codex": false}});
+        let now = json!({"claude": true, "ollama": [], "signedIn": {"claude": true, "codex": false}});
+        // Begun after the sign-in: what it found is the latest word.
+        assert_eq!(settle(found.clone(), &now, false)["signedIn"]["claude"], json!(false));
+        // Begun before it: the rest is taken, the sign-in's word stays.
+        let kept = settle(found, &now, true);
+        assert_eq!(kept["signedIn"]["claude"], json!(true));
+        assert_eq!(kept["claude"], json!(true));
+    }
 
     #[test]
     fn a_refused_save_never_costs_the_key_a_connection_had() {

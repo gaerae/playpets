@@ -71,7 +71,7 @@ winget install --id 9NSKXQ6R187M --source msstore
 
 - From 1.3.0 the macOS app is signed and notarized. The Windows installer from GitHub is not code-signed yet, so SmartScreen may warn ([how to install it through the warning](https://playpets.gaerae.com/guide/install#installer-from-github)); the Microsoft Store and winget packages are signed by Microsoft.
 - The [install guide](https://playpets.gaerae.com/guide/install) covers those warnings and Linux notes.
-- The Microsoft Store package needs Windows 10 version 1809 or later.
+- The Microsoft Store package needs Windows 10 version 2004 or later.
 - To build from source, see [Development](#development).
 
 ## Getting started

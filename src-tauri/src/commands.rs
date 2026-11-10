@@ -137,6 +137,27 @@ static COMMANDS: &[Command] = &[
         providers::remove(c.app, &c.state, &c.cli, c.text(0))
     }),
     main("listModels", |c| providers::list_models(&c.state, c.arg(0))),
+    // Looks again for the AIs on this computer and whether each CLI is signed in.
+    main("detectAi", |c| {
+        providers::detect(c.app.clone());
+        Ok(Value::Null)
+    }),
+    // (kind): signs Claude Code or Codex in through the browser; ends with a cliLogin event.
+    main("cliLogin", |c| {
+        let app = c.app.clone();
+        c.cli
+            .logins
+            .start(c.text(0), move |kind, ok| providers::signed_in_now(&app, kind, ok))?;
+        Ok(Value::Null)
+    }),
+    // (code): the code Claude's sign-in page showed, for the sign-in waiting for it.
+    main("cliLoginCode", |c| {
+        c.cli.logins.send_code(c.text(0)).map(|()| Value::Null)
+    }),
+    main("cancelCliLogin", |c| {
+        c.cli.logins.cancel();
+        Ok(Value::Null)
+    }),
     main("chat", |c| chat::chat(c.app, &c.state, &c.cli, c.args)),
     main("chatWith", |c| chat::chat_with(c.app, &c.state, &c.cli, c.args)),
     main("chatter", |c| chat::chatter(c.app, &c.state, &c.cli, c.args)),

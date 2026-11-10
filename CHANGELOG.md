@@ -31,6 +31,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A snowman can wear a hat, a scarf and a carrot nose: press it or choose **Dress up** from its menu. A snowman stays in the yard (it doesn't go out on the desktop), and putting it away melts it.
 - In winter, animal footprints cross the snowy yard. Click them and a friend follows, sniffing, to a bush where a tail peeks out and a small find waits. The album's new Footprints book keeps whose prints you followed.
 - On the first day you open PlayPets from December 26 to 31, the friend you're closest to writes you a year-end letter about your year together and asks how it went and what you'd like to do next. It waits in the mailbox if you have one; you can write back in up to 200 characters, skip it, or delete it. Letters and answers stay on this computer. A friend with an AI connection writes in its own words, and next December, if the friend writing to you has an AI connection, that AI reads your answer to write the new letter. On the first day you open PlayPets from January 1 to 7, that friend (or your closest one, if it has left) brings your answer back and cheers you on, and next December's letter looks back on it.
+- Claude Code and Codex CLI sign in from PlayPets: when one is on the computer but signed out, a card above the message box (and in the connection window) opens the sign-in in your browser and connects once you finish, with a box for the code Claude's page may show. The message box opens once you're signed in. No terminal needed.
+- **About** has **Report an AI reply**, which opens a short public form on GitHub: which AI, the relationship and what was wrong, in your own words and without the conversation.
+- The first time you connect an AI, PlayPets says once that friends with an AI chat among themselves about every 20 minutes on your AI plan, and where to turn it off.
 
 ### Changed
 
@@ -39,10 +42,17 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The snowman no longer comes as a gift. One already in the yard shows only while the yard shows winter, so not in the Cozy living room, and waits out of sight the rest of the time.
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
 - Who joins a group chat opens as a dropdown.
+- **Connect now** and sending a first message no longer connect a CLI that is signed out, which used to fail at the first message; **Connect now** starts the sign-in in your browser instead, and a first message waits for it. With a signed-in CLI found, sending a first message connects it without opening the connection window.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
 - Downloads are smaller again, with the four friends who come with the app looking exactly as before: their pictures take 27.6 MB inside the app instead of 37.0 MB.
 - An update removes the folders of built-in friends the app no longer ships, which stayed in the data folder before.
 - Moving the window or a friend no longer waits while a change is written to disk, which could stutter on a slow drive.
+- Friends keep every AI reply suitable for ages 13 and up, whatever personality or relationship they're given; a partner stays sweet, never explicit.
+- **About** names Anthropic beside OpenAI: PlayPets isn't affiliated with either, and Claude and Claude Code are Anthropic's trademarks.
+- The import window says the pets on community sites are made by other people, and that you report one on the site it came from.
+- The Microsoft Store version's icons come in more sizes, so the taskbar, Start and the Store logo stay sharp on high-resolution screens.
+- The Microsoft Store version needs Windows 10 version 2004 or later, instead of 1809.
+- The Microsoft Store gets PlayPets as one bundle of the x64 and ARM64 versions, so a Windows on ARM computer is offered the ARM64 one.
 
 ### Fixed
 
@@ -57,6 +67,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A friend on the desktop stops showing that its coding agent finished after a while, as in the yard, instead of keeping it for hours.
 - Pressing **Connect now** twice quickly makes one connection, and sending a message twice quickly sends it once.
 - **Edit** on an AI connection in Settings shows its current address, also right after you changed it.
+- In the Microsoft Store version, the check for a newer version tells the Store which window it belongs to, as Microsoft asks of desktop apps, so the check no longer risks failing quietly.
+- On Windows without the Microsoft Edge WebView2 Runtime, PlayPets says it needs it and offers to open its download page, instead of closing without a word.
+- In the Microsoft Store version, Claude Code started by PlayPets no longer updates itself, so an update can't land in PlayPets' own folder, unseen by your terminal and deleted with PlayPets.
+
+### Removed
+
+- Codex PokéPets is no longer among the community sites in the import window. A pet folder on GitHub still imports from its address.
 
 ### Website and docs
 
@@ -68,12 +85,19 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The guide describes Christmas night: the grand tree on snowy December evenings and the sleigh across the moon.
 - The guide gives the winter lights' new dates and gifts, December's winter question, and when Christmas decorations show.
 - The guide describes the year-end letter, and the privacy policy says what it keeps on your device and what it sends to a friend's AI.
+- The privacy policy says how to report an AI reply: the in-app link or the GitHub form, which asks for no conversation and is public.
+- The website publishes only the screenshots its pages show, so it deploys faster; earlier captures stay in the repository.
 - The install guide, the settings guide and the privacy policy say that the Microsoft Store version asks the Store for a newer version and shows it in the app.
 - The FAQ's first answer and the site summary for AI search say four friends come with the app before Codex pets, like the front page, and the sitemap tells search engines when each page last changed.
 - The landing's play section and the README show a short film of the app: a find from digging, a catch at the lake, a chat and a show in the night sky.
+- The chat guide says how Claude Code and Codex CLI sign in from PlayPets.
+- The install guide says to press **Disconnect** for each coding agent and delete AI connections before uninstalling, because agent hooks and saved keys stay behind otherwise.
+- The privacy policy has a section on children.
+- The import guide no longer lists Codex PokéPets, and says community pets are made by other people and reported on their own site.
 - The front page opens on the four friends in the yard with a coding agent at work beside them: when it finishes, one friend says so and the others cheer. The yard to play with, its places and seasons, and the button to pause the page's motion are now in the play section.
 
 ## [1.5.0] - 2026-11-04
+- The README says the Microsoft Store version needs Windows 10 version 2004 or later.
 
 ### Added
 

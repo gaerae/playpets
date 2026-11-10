@@ -211,13 +211,13 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
 
 9. Check the `store` run (Microsoft Store). It skips prereleases.
    - `source` checks the tag and makes "What's new" from the four website release pages.
-   - `package` builds the x64 and ARM64 MSIX from the tag.
-   - `bundle` checks their identity and keeps them as the `store-bundle` artifact.
+   - `package` builds the x64 and ARM64 MSIX from the tag and runs the Windows App Certification Kit (WACK) on the x64 one; its report is the `wack-x64` artifact.
+   - `bundle` makes one `.msixupload` (both packages as a bundle, with their public symbols), checks it and keeps it as the `store-bundle` artifact.
    - `submit` runs only when the repository variable `STORE_SUBMISSION_ENABLED` is `true`.
    - `submit` waits for approval of the `microsoft-store` environment, then creates the submission and requests certification.
    - With `STORE_PUBLISH_MODE=Immediate`, the Store publishes once certification passes.
    - Otherwise press **Publish now** in Partner Center after certification passes.
-   - Without submission, upload the two `.msix` files from `store-bundle` in Partner Center and paste each language's text from its `notes.json`.
+   - Without submission, upload the `.msixupload` file from `store-bundle` in Partner Center and paste each language's text from its `notes.json`.
    - Partner Center marks the older package for removal after the upload; press **Save** on the Packages page, or the submission stays incomplete.
 
 ## Verification
@@ -229,7 +229,7 @@ wingetcreate submit <folder where you unpacked the artifact>\winget\manifests\g\
   3. Close Settings during the download and reopen it. Check that no second download starts.
   4. Complete the installation and restart. Confirm the running version and the brief completion notice.
   5. Restart again and check that the notice does not repeat.
-- Partner Center shows the new submission with both packages and What's new in four languages.
+- Partner Center shows the new submission with the bundle (x64 and ARM64) and What's new in four languages.
 - Certification starts on its own.
 - The winget PR passes its checks, or `brew upgrade --cask playpets` on a computer with the tap gets the new version.
 - With signing secrets, `latest.json` lists every platform in the release, including `linux-x86_64-deb` and `linux-aarch64-deb` entries for deb installs.

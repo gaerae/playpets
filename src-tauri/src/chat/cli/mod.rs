@@ -4,12 +4,14 @@
 mod claude;
 mod codex;
 mod launch;
+mod login;
 
 use super::http::ANSWER_LIMIT;
 use crate::i18n;
 use claude::Session;
 pub use launch::resolve_bin;
 use launch::*;
+pub use login::signed_in;
 use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read, Write};
@@ -122,6 +124,8 @@ fn missed(seen: u64, at: At, turns: &[Value]) -> Option<Vec<Value>> {
 #[derive(Default)]
 pub struct CliManager {
     sessions: Mutex<HashMap<String, Session>>,
+    /// A sign-in started from the app (Settings or the chat), at most one at a time.
+    pub logins: login::Logins,
 }
 
 impl CliManager {
@@ -142,6 +146,7 @@ impl CliManager {
     /// turn still being answered (that session is out of the map while it waits).
     pub fn close(&self) {
         crate::app::hold(&self.sessions).clear();
+        self.logins.cancel();
         stop_every_tree();
         if let Some(dir) = private_dir() {
             let _ = std::fs::remove_dir_all(dir);
@@ -163,8 +168,30 @@ impl CliManager {
     /// `turns` are the conversation so far, ending with the message to answer. `config` says
     /// which CLI (claude or codex) and model. `cancel` is the turn's flag: set at any point, from
     /// before the program has started to while it writes, the turn ends as cancelled.
+    /// What the turn says about the CLI's sign-in is kept for the next look (see `Logins::heard`).
     #[allow(clippy::too_many_arguments)]
     pub fn chat(
+        &self,
+        pet_id: &str,
+        config: &super::http::Config,
+        system: &str,
+        notes: &str,
+        turns: &[Value],
+        at: At,
+        cancel: &AtomicBool,
+    ) -> Result<String, String> {
+        let answer = self.turn(pet_id, config, system, notes, turns, at, cancel);
+        let kind = if config.kind == super::kind::Kind::Codex {
+            "codex"
+        } else {
+            "claude"
+        };
+        self.logins.heard(kind, &answer);
+        answer
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn turn(
         &self,
         pet_id: &str,
         config: &super::http::Config,
@@ -279,11 +306,14 @@ mod tests {
     }
 
     #[test]
-    fn error_guides_name_exact_terminal_commands() {
+    fn error_guides_name_the_install_command_and_sign_in_from_the_app() {
         assert!(missing("claude").contains("npm install -g @anthropic-ai/claude-code"));
         assert!(missing("codex").contains("npm install -g @openai/codex"));
-        assert!(login_guide("claude").contains("/login"));
-        assert!(login_guide("codex").contains("codex login"));
+        // Signing in happens in the app now, so the guide no longer sends anyone to a terminal.
+        for kind in ["claude", "codex"] {
+            let guide = login_guide(kind);
+            assert!(!guide.contains("/login") && !guide.contains("codex login"), "{guide}");
+        }
         assert!(needs_login("Failed to authenticate: OAuth session expired"));
         assert!(needs_login("Not logged in. Run codex login first."));
         assert!(!needs_login("rate limit exceeded"));

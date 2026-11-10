@@ -23,7 +23,23 @@ import {
 } from '../core/state.js';
 import { blocks, spoken, waitingLine } from '../core/text.js';
 import { befriend } from '../yard/bond.js';
-import { openConnectionDialog, sharedConnection } from './connection.js';
+import {
+  CLI_LABELS,
+  cliChoice,
+  focusSignIn,
+  recheckSignIn,
+  renderSignIn,
+  setupSignIn,
+  signInEvent,
+  signedOut,
+} from './cli-login.js';
+import {
+  connectionEditorOpen,
+  openConnectionDialog,
+  quickConnect,
+  refreshConnectionSignIn,
+  sharedConnection,
+} from './connection.js';
 
 let providerKey = '',
   chatEpoch = 0;
@@ -108,6 +124,27 @@ export function swapDraft(from, to) {
   $('message').value = drafts.get(to) || '';
   syncSend();
 }
+// Which CLI this friend needs signed in before it can talk: its own, or the one a friend with no AI
+// would be given (none when a saved connection would be used instead).
+function signInFor(p) {
+  const provider = p?.providerId && data.providers.find(c => c.id === p.providerId);
+  if (provider) return signedOut(provider.type) ? provider.type : null;
+  if (!p || sharedConnection()) return null;
+  const choice = cliChoice();
+  return choice?.signedIn === false ? choice.type : null;
+}
+// The sign-in card above the message box. Until it is done nothing can be said, so the box waits
+// (keeping what it holds) and the log's own buttons step aside, leaving the card the one thing to do.
+function syncSignIn(p) {
+  const kind = signInFor(p);
+  renderSignIn($('chat-sign-in'), kind);
+  for (const node of $('chat-log').querySelectorAll('.connect-cta, .chat-starters')) node.hidden = !!kind;
+  $('message').disabled = !!kind;
+  // The box itself says why it waits: a small window hides the note under it.
+  $('message').placeholder = t(kind ? 'signin.note' : 'chat.placeholder');
+  if (kind) $('chat-note').textContent = t('signin.note');
+  syncSend();
+}
 export function renderChat(p) {
   const key = JSON.stringify(data.providers);
   if (key !== providerKey) {
@@ -159,6 +196,7 @@ export function renderChat(p) {
       })
     : t('chat.pick_companions');
   syncWaiting();
+  syncSignIn(p);
 }
 // The log shows one friend's conversation. A new message is added at the end rather than the whole
 // log redrawn, so a screen reader announces only what is new and someone reading further up is not
@@ -248,13 +286,17 @@ function placeholder(p) {
       };
       starters.append(line);
     }
+    starters.hidden = !!signInFor(p);
     log.append(starters);
   } else {
+    // A CLI found and signed in connects in one press; otherwise the dialog lets the person choose.
+    const ready = !!cliChoice()?.signedIn;
     const cta = document.createElement('button');
     cta.type = 'button';
     cta.className = 'button secondary connect-cta';
-    cta.textContent = t('connection.title_new');
-    cta.onclick = () => $('configure').click();
+    cta.textContent = ready ? t('steps.go_connect') : t('connection.title_new');
+    cta.onclick = ready ? guard(quickConnect) : () => $('configure').click();
+    cta.hidden = !!signInFor(p);
     log.append(cta);
   }
 }
@@ -317,6 +359,7 @@ export function chatShown() {
 }
 // What the backend tells the chat about.
 export function chatEvent(event) {
+  signInEvent(event);
   if (event.type === 'history-reset') {
     for (const id of event.petIds) temporaryMessages.delete(id);
     if (event.petIds.includes(selected)) refreshChat();
@@ -333,12 +376,28 @@ export function chatEvent(event) {
 function syncSend() {
   const box = $('message');
   // With no AI yet, sending opens the connection first (see the form's submit).
-  $('send').disabled = !box.value.trim() || pendingChats.has(selected);
+  $('send').disabled = box.disabled || !box.value.trim() || pendingChats.has(selected);
   box.style.height = 'auto';
   box.style.height = `${Math.min(140, box.scrollHeight + 2)}px`;
 }
+// A sign-in started here ended well: a friend with no AI is connected (with every other one
+// without), and the box opens for the first word. A word kept in it waits for the person to send.
+async function afterSignIn() {
+  // Signed in from the connection editor: its Save makes the connection, so none is made here too.
+  if (connectionEditorOpen()) return;
+  const p = pet();
+  if (p && !p.providerId && !sharedConnection()) await quickConnect();
+  $('message').focus();
+}
 // Wires the conversation: the AI choice, the composer and the chat buttons. Called once, by app.js.
 export function setupChat() {
+  setupSignIn({
+    signedIn: guard(afterSignIn),
+    changed() {
+      if (pet()) syncSignIn(pet());
+      refreshConnectionSignIn();
+    },
+  });
   // Who joins in opens above the composer.
   dropdown($('companion-toggle'), $('companion-chips'));
   $('configure').onclick = () =>
@@ -370,7 +429,9 @@ export function setupChat() {
     // A word for a friend with no AI yet is kept: connecting one sends it.
     if (!pet()?.providerId) {
       const shared = sharedConnection();
-      if (!shared) {
+      // A CLI that has to sign in first (the box is closed then, so only a word sent another way).
+      if (!shared && signInFor(pet())) return focusSignIn($('chat-sign-in'));
+      if (!shared && !cliChoice()?.signedIn) {
         openConnectionDialog(null, async () => {
           setData(await call('bootstrap'));
           refreshChat();
@@ -381,7 +442,9 @@ export function setupChat() {
       // Pending from here: a second press while the connection is given would send the words twice.
       pendingChats.add(id);
       try {
-        await call('updatePet', id, { providerId: shared });
+        // With nothing saved yet, a signed-in CLI is connected as the first-run card's button does.
+        if (shared) await call('updatePet', id, { providerId: shared });
+        else await quickConnect();
       } catch (error) {
         pendingChats.delete(id);
         toast(spoken(error, t('error.generic')), { error: true });
@@ -404,6 +467,9 @@ export function setupChat() {
       temporaryMessages.delete(id);
     } catch (error) {
       temporaryMessages.set(id, { role: 'error', content: error.message });
+      // A CLI that signed out says so only by failing: the backend looks again, and the card follows.
+      const provider = data.providers.find(c => c.id === data.pets.find(q => q.id === id)?.providerId);
+      if (Object.hasOwn(CLI_LABELS, provider?.type || '')) recheckSignIn();
       // Nobody is looking at the log that says so.
       if (selected !== id || $('panel-pet').hidden) toast(error.message, { error: true });
       if (!round.answered) {

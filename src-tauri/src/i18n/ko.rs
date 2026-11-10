@@ -54,6 +54,7 @@ const TABLE: &[(&str, &str)] = &[
     ("menu.minimize", "최소화"),
     ("menu.close", "창 닫기"),
 
+    ("startup.webview_missing", "PlayPets를 쓰려면 Microsoft Edge WebView2 런타임이 필요한데, 이 PC에는 설치돼 있지 않아요. {url}에서 설치한 뒤 PlayPets를 다시 열어 주세요.\n\n지금 다운로드 페이지를 열까요?"),
     ("update.check_failed", "업데이트를 확인하지 못했어요. 인터넷 연결을 확인해 주세요."),
 
     ("update.no_release", "아직 올라온 업데이트 정보가 없어요. 나중에 다시 확인해 주세요."),
@@ -163,8 +164,10 @@ const TABLE: &[(&str, &str)] = &[
     ("ai.models_unreachable", "모델 목록을 불러오지 못했어요. 서버 주소와 실행 상태를 확인해 주세요."),
     ("ai.models_unreadable", "모델 목록을 읽을 수 없어요."),
 
-    ("cli.login_claude", "Claude Code에 로그인해 주세요. 터미널에서 `claude`를 실행한 뒤 `/login`을 입력하면 돼요."),
-    ("cli.login_codex", "Codex에 로그인해 주세요. 터미널에서 `codex login`을 실행하면 돼요."),
+    ("cli.login_claude", "Claude Code에 로그인되어 있지 않아요. 메시지 입력칸 위의 로그인 버튼을 눌러 주세요."),
+    ("cli.login_codex", "Codex에 로그인되어 있지 않아요. 메시지 입력칸 위의 로그인 버튼을 눌러 주세요."),
+    ("cli.login_code_bad", "브라우저에 나온 코드를 그대로 붙여 넣어 주세요."),
+    ("cli.login_not_waiting", "코드를 기다리는 로그인이 없어요. 로그인 버튼을 다시 눌러 주세요."),
     ("cli.missing", "{name} CLI를 찾을 수 없어요. 터미널에서 설치해 주세요: {command}"),
     ("cli.spawn_failed", "{name} CLI를 실행하지 못했어요. {detail}"),
     ("cli.error", "{name} CLI 오류: {detail}"),
@@ -188,7 +191,6 @@ const TABLE: &[(&str, &str)] = &[
 
     ("import.hint_openpets", "가장 큰 펫 모음: 여러 갤러리의 펫을 한곳에"),
     ("import.hint_petdex", "펫 수천 마리: 미리보기와 모음"),
-    ("import.hint_pokepets", "포켓몬 팬 펫: GitHub의 펫 폴더 주소를 붙여 넣어요"),
     ("import.hint_awesome", "엄선한 게임, 애니 캐릭터 펫"),
     ("import.hint_codexpets", "공유 사이트: 최신 업로드"),
     ("import.private_address", "내부 네트워크 주소는 가져올 수 없어요."),
