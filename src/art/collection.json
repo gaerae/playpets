@@ -146,9 +146,9 @@
   {
     "id": "gudgeon",
     "kind": "fish",
-    "atlas": "fish/specimens.webp",
-    "atlasSize": [1448, 1086],
-    "crop": [26, 865, 317, 147],
+    "atlas": "collection-extension/gudgeon.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [73, 219, 1387, 541],
     "size": [100, 50],
     "art": "fish/gudgeon.svg"
   },
@@ -245,9 +245,9 @@
   {
     "id": "firefly",
     "kind": "bugs",
-    "atlas": "bugs/specimens.webp",
-    "atlasSize": [1254, 1254],
-    "crop": [70, 622, 175, 275],
+    "atlas": "collection-extension/fireflies.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [218, 23, 453, 916],
     "size": [60, 50],
     "art": "bugs/firefly.svg"
   },
@@ -299,9 +299,9 @@
   {
     "id": "heike_firefly",
     "kind": "bugs",
-    "atlas": "bugs/specimens.webp",
-    "atlasSize": [1254, 1254],
-    "crop": [703, 933, 163, 256],
+    "atlas": "collection-extension/fireflies.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [901, 33, 437, 916],
     "size": [60, 50],
     "art": "bugs/heike_firefly.svg"
   },

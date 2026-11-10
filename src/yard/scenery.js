@@ -49,6 +49,11 @@ const SPELL = 24000,
   REST = [30000, 60000];
 // Fireflies fade in and out over this long.
 const FADE_MS = 1500;
+// A firefly flashes once every BLINK ms unless its kind keeps its own rhythm (catalog.json look.blink,
+// in ms); a blink of 0 is a steady light that never flashes.
+const BLINK = 2100;
+export const fireflyPace = look => TAU / (look.blink || BLINK);
+export const fireflyLit = (look, phase) => (look.blink === 0 ? 0.85 : 0.5 + 0.5 * Math.sin(phase));
 const grounded = kind => kind === 'beetle' || kind === 'cricket';
 /** Crawling and short hops stay on the walkable field, below the painted water. */
 export function stepGroundBug(c, dt, bounds, leaving = false, rng = Math.random) {
@@ -286,7 +291,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
   // Moves a creature; returns false once it has left (a butterfly off the side, a firefly faded).
   function roam(c, dt) {
     if (grounded(c.kind)) return stepGroundBug(c, dt, groundBounds(), !spell);
-    c.phase += dt * (c.kind === 'firefly' ? 0.003 : c.kind === 'dragonfly' ? 0.05 : 0.02);
+    c.phase += dt * (c.kind === 'firefly' ? fireflyPace(c.look) : c.kind === 'dragonfly' ? 0.05 : 0.02);
     c.heading += (Math.random() - 0.5) * dt * 0.004;
     if (c.kind === 'firefly') {
       c.light = Math.max(0, Math.min(1, c.light + (spell ? 1 : -1) * (dt / FADE_MS)));
@@ -478,20 +483,21 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     else paintButterfly(c);
   }
   function paintFirefly(c) {
-    const lit = (0.5 + 0.5 * Math.sin(c.phase)) * c.light;
+    const lit = fireflyLit(c.look, c.phase) * c.light;
     ctx.globalAlpha = (0.15 + lit * 0.3) * c.light;
     // Each kind glows in its own light (catalog.json look.glow), so a rare one can be found.
     if (ambient.glow(ctx, c, scale)) {
       ctx.globalAlpha = (0.55 + lit * 0.45) * c.light;
       if (ambient.bug(ctx, c, scale)) return;
     }
+    const size = (c.look.size ?? 1) * scale;
     ctx.fillStyle = c.look.glow || `rgb(${INK.firefly})`;
     ctx.beginPath();
-    ctx.arc(c.x, c.y, 6 * scale, 0, TAU);
+    ctx.arc(c.x, c.y, 6 * size, 0, TAU);
     ctx.fill();
     ctx.globalAlpha = (0.4 + lit * 0.6) * c.light;
     ctx.beginPath();
-    ctx.arc(c.x, c.y, 1.7 * scale, 0, TAU);
+    ctx.arc(c.x, c.y, 1.7 * size, 0, TAU);
     ctx.fill();
   }
   function paintGroundBug(c) {

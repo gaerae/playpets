@@ -35,6 +35,10 @@
     "png": "02fe56390476c82539337f8e784d54d19bb23efc3519541530a3a38c055e5cf8",
     "webp": "ef88e698305cb086268b639704ed23e7a789d147132a36fbecfac1bc2fc703ad"
   },
+  "collection-extension/fireflies.png": {
+    "png": "deffae088dfc25fa73b486e6891878aa6c1e1736f3b20baad59bbb6d366180de",
+    "webp": "6232d56b55dddd1ce8122faa0925ae9978b1c17a5caefc63b552b8d37d29cfcd"
+  },
   "collection-extension/flowers-2.png": {
     "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
     "webp": "cc9f3f2428a7a81fadcf48fca45cf293ff070e7e3684203951374ad4c34467df"
@@ -50,6 +54,10 @@
   "collection-extension/ground-bugs.png": {
     "png": "480774c6b4ac79c37a955ae8208d2afae6c57f62b50709b41ad7799e237d5e9f",
     "webp": "e9b46045a69c776ea7d57637f97d40efc876f556a5ef97f44e7cd0f3019b88e3"
+  },
+  "collection-extension/gudgeon.png": {
+    "png": "413e0b3d320a16686e655be6253c4e8bf6d040f51ee514e3fba3e8f6738bb306",
+    "webp": "bb3062da3ab894ffd855581f9854dad9d796a656c99f71645d9b90f76469a469"
   },
   "collection-extension/hoppers.png": {
     "png": "c9eab471860c37784a3d8f89c59252b5d1ff7a8a05c0d889015009cee129d6f8",

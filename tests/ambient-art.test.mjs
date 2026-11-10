@@ -47,6 +47,30 @@ test('species art decodes once, draws the actual catchable species and keeps min
   assert.equal(ctx.calls[1][7], ctx.calls[0][7] / 2);
   assert.equal(art.bug(ctx, { ...bug, species: 'missing' }, 1), false);
 });
+test('a firefly is drawn and glows at its own size, so a small kind stays small', async () => {
+  const entries = [{ id: 'heike_firefly', kind: 'bugs', atlas: 'bugs/specimens.png', crop: [0, 0, 100, 160] }];
+  const art = factory(() => {}, {
+    loadBugs: async () => ({ images: new Map([['bugs/specimens.png', { width: 1254 }]]), entries }),
+    loadBirds: async () => null,
+    makeCanvas: () => ({
+      getContext: () =>
+        new Proxy({ createRadialGradient: () => ({ addColorStop() {} }) }, { get: (t, k) => t[k] ?? (() => {}) }),
+    }),
+  });
+  const plain = { species: 'heike_firefly', kind: 'firefly', look: { glow: '#c4f07e' }, x: 0, y: 0 },
+    small = { ...plain, look: { ...plain.look, size: 0.8 } };
+  art.use(true, false, [plain]);
+  await Promise.resolve();
+  await Promise.resolve();
+  const ctx = context();
+  art.bug(ctx, plain, 1);
+  art.bug(ctx, small, 1);
+  art.glow(ctx, plain, 1);
+  art.glow(ctx, small, 1);
+  const [bug, smallBug, glow, smallGlow] = ctx.calls;
+  assert.equal(smallBug[7], bug[7] * 0.8);
+  assert.equal(smallGlow[3], glow[3] * 0.8);
+});
 test('late artwork cannot invalidate a world after wildlife was disabled', async () => {
   let resolve,
     changed = 0;

@@ -37,6 +37,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- The firefly and the Heike firefly no longer look the same. In the album the firefly is long with a cross on its pink thorax, and the Heike firefly is small and round with one stripe on its orange thorax. In the yard at night the Heike firefly is smaller and flickers quickly in mint green, the firefly flashes slowly, and the late firefly is the big one that glows without blinking.
+- The gudgeon in the album no longer looks like the loach: it is pale and sandy, with a long pointed snout and large eyes set high.
 - The winter lights now run from December 1 to 31, on the same dates south of the equator.
 - The gifts of the winter lights and the New Year come whatever season the yard shows, in every place, the Cozy living room too.
 - The snowman no longer comes as a gift. One already in the yard shows only while the yard shows winter, so not in the Cozy living room, and waits out of sight the rest of the time.
