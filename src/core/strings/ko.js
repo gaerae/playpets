@@ -971,4 +971,5 @@ export const strings = {
   ],
   'viewing.tree_lines': ['저 가지 좀 봐, 온통 분홍색이야!'],
   'viewing.mat_lines': ['꽃 아래서 소풍이라니 최고야!'],
+  'viewing.petal_notice': ['어? 머리에 꽃잎 붙었어?', '나 꽃잎 달았다!'],
 };

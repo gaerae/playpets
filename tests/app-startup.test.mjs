@@ -78,6 +78,7 @@ async function frameLoop({ hidden = false, shown = true } = {}) {
     'snowmanTick',
     'viewingTick',
     'viewing',
+    'petalTick',
     'judge',
     'moveFriends',
     'bondTick',

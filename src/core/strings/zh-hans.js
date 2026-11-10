@@ -946,4 +946,5 @@ export const strings = {
   'viewing.lines': ['好美啊…', '花瓣在跳舞！', '真想一整天待在这里。', '连天空都变成粉色了。', '明年还要一起来。'],
   'viewing.tree_lines': ['看，那根树枝全是粉色的！'],
   'viewing.mat_lines': ['在樱花下野餐最棒了！'],
+  'viewing.petal_notice': ['咦？我头上有花瓣吗？', '我戴上花瓣啦！'],
 };

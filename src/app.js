@@ -76,6 +76,7 @@ import { setupLetterCard } from './yard/letter-card.js';
 import { answered, letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
 import { moveFriends } from './yard/motion.js';
 import { drawTreeOrnaments } from './yard/ornaments.js';
+import { petalTick, setupPetals } from './yard/petals.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
 import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGameUi } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
@@ -266,6 +267,7 @@ setupDiscovery();
 setupTrees();
 setupCatch();
 setupViewing();
+setupPetals();
 setupAlbum();
 setupDecorating();
 setupCard({ openAlbum });
@@ -394,7 +396,15 @@ const BUSY_MS = 50,
   UNSEEN_MS = 1000;
 // What goes on in the yard between games, looked at every frame: each knows when it is due. The
 // remarks on the weather and the hour rest while friends view the blossom.
-const YARD_LIFE = [now => viewing() || idleChatter(now), giftTick, thanksTick, soloFishing, snowmanTick, viewingTick];
+const YARD_LIFE = [
+  now => viewing() || idleChatter(now),
+  giftTick,
+  thanksTick,
+  soloFishing,
+  snowmanTick,
+  viewingTick,
+  petalTick,
+];
 let last = 0;
 function interval(now) {
   if (game || aiming) return BUSY_MS;

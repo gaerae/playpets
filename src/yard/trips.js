@@ -22,8 +22,10 @@ export function sendTo(v, target, { arrive, cancel, save = true, slow = false, s
   v.trip = { arrive, cancel, save, slow };
   v.speed = speed;
 }
-/** Lets go of whatever a friend was on its way to or doing, telling their owners. */
+/** Lets go of whatever a friend was on its way to or doing, telling their owners. Whatever moves it
+ * goes through here, so a petal resting on its head (petals.js) falls off too. */
 export function release(v) {
+  brushPetal(v);
   const { trip, doing } = v;
   v.target = null;
   v.trip = null;
@@ -48,4 +50,12 @@ export function nearestFree(px, py) {
 export function setDoing(v, doing) {
   release(v);
   v.doing = doing;
+}
+/** Takes the petal off a friend's head (petals.js), and with it the notice the friend might have
+ * given of it. */
+export function brushPetal(v) {
+  clearTimeout(v.petalTimer);
+  v.petalTimer = null;
+  v.petal?.remove();
+  v.petal = null;
 }

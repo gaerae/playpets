@@ -496,6 +496,8 @@ const SET_FROM_CODE = {
   '--bubble-lift': 'src/yard/views.js',
   '--album-found': 'src/panel/album.js',
   '--trail-opacity': 'src/yard/trails.js',
+  '--petal-x': 'src/yard/petals.js',
+  '--petal-turn': 'src/yard/petals.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.
