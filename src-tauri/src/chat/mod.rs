@@ -477,14 +477,16 @@ fn topic(about: &str) -> Option<&'static str> {
 /// What gets a chatter round going. The model sees it; the person does not. With a relationship
 /// among the speakers, each keeps its voice to the owner among friends too.
 fn opener(period: &str, weather: &str, bonds: bool, topic: Option<&str>) -> String {
-    let base = match topic {
-        Some(topic) => format!(
-            "(Start a short conversation with your friends. {topic} It is {period} and the weather is {weather}; talk about the blossom and the moment. One or two sentences each, in your own voice."
-        ),
-        None => format!(
-            "(Start a short conversation with your friends. It is {period} and the weather is {weather}; you may bring that up, or anything from your day. One or two sentences each, in your own voice."
-        ),
+    let head = "(Start a short conversation with your friends.";
+    let middle = match topic {
+        Some(topic) => {
+            format!("{topic} It is {period} and the weather is {weather}; talk about the blossom and the moment.")
+        }
+        None => {
+            format!("It is {period} and the weather is {weather}; you may bring that up, or anything from your day.")
+        }
     };
+    let base = format!("{head} {middle} One or two sentences each, in your own voice.");
     if bonds {
         format!(
             "{base} Speak as who you are to your owner: a partner, a senior or a younger sibling keeps that voice among friends too.)"

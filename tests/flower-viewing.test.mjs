@@ -458,10 +458,7 @@ test('the play menu offers flower viewing only in blossom time', t => {
 test('the menu syncs without the button on the page', t => {
   menu(t);
   const lookup = document.getElementById;
-  t.after(() => {
-    if (globalThis.document) document.getElementById = lookup;
-  });
-  document.getElementById = id => (id === 'viewing-tool' ? null : lookup(id));
+  t.mock.method(document, 'getElementById', id => (id === 'viewing-tool' ? null : lookup.call(document, id)));
   assert.doesNotThrow(() => viewing.syncViewingAction());
 });
 
@@ -557,21 +554,23 @@ const flush = async () => {
   for (let i = 0; i < 5; i++) await Promise.resolve();
 };
 
-test('a gathering the person called talks in the friends own voices', async t => {
+test("a gathering the person called talks in the friends' own voices", async t => {
   const y = voices(t, { auto: false, count: 3 });
   viewing.startViewing('person');
   y.tick(900);
   for (const v of y.views()) arrive(v);
-  const { lines } = watch(y, 20_000);
+  y.tick(1500);
   await flush();
   assert.equal(chats.length, 1);
   const [period, weather, about, ids] = chats[0];
   assert.deepEqual([period, weather, about, [...ids].sort()], ['day', 'clear', 'blossom', ['a', 'b']]);
+  const { lines, ups } = watch(y, 20_000);
   assert.deepEqual(
     lines.filter(line => stringLines().has(line)),
     [],
     'the AI speaks, not the strings',
   );
+  assert.ok(ups.length >= 1, 'the tilts go on');
 });
 
 test('friends starting one use the AI only with Let them chat on their own', async t => {
@@ -657,3 +656,13 @@ for (const [name, reply] of [
       wander,
     );
   });
+
+test('a place change while the AI round runs still ends the gathering within a turn', t => {
+  const y = voices(t, { hold: true });
+  gathered(y);
+  y.tick(1500);
+  assert.equal(chats.length, 1);
+  scene.world = 'lakeside';
+  y.tick(20_000);
+  assert.equal(viewing.viewing(), false);
+});

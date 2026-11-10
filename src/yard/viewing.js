@@ -235,27 +235,25 @@ function settle(v) {
 
 // The talk begins: friends with an AI speak for themselves when two or more are there and the person
 // called it or lets them chat on their own; else, or when the AI cannot (fewer than two free, a
-// friend still answering, an error), the string lines do.
+// friend still answering, an error), the string lines do. The turns run at once either way, so the
+// looks and the end at night, rain or a new place do not wait for the AI; `voiced` only holds the
+// string lines back while the AI may speak.
 function begin(g) {
   const ai = g.members.filter(v => v.pet.providerId);
-  if (ai.length < 2 || (g.by !== 'person' && !data.autoChatter)) return turn(g);
-  // The turns wait for the answer. A gathering that ended meanwhile is not touched.
-  call(
-    'chatter',
-    scene.period,
-    scene.weather,
-    'blossom',
-    ai.map(v => v.pet.id),
-  ).then(
-    () => {
-      if (gathering !== g) return;
-      g.voiced = true;
-      turn(g);
-    },
-    () => {
-      if (gathering === g) turn(g);
-    },
-  );
+  if (ai.length >= 2 && (g.by === 'person' || data.autoChatter)) {
+    g.voiced = true;
+    call(
+      'chatter',
+      scene.period,
+      scene.weather,
+      'blossom',
+      ai.map(v => v.pet.id),
+    ).catch(() => {
+      // A late failure of a gathering that ended is not this one's to answer.
+      if (gathering === g) g.voiced = false;
+    });
+  }
+  turn(g);
 }
 
 // The next line, from the shuffled lines; once all were said, they are shuffled again.
