@@ -120,3 +120,30 @@ test('on a blanket friends sit on it first and the rest beside it', () => {
   for (let i = 0; i < 6; i++)
     for (let j = i + 1; j < 6; j++) assert.ok(Math.hypot(seats[i].x - seats[j].x, seats[i].y - seats[j].y) >= 20);
 });
+
+for (const [width, height, zoom] of [
+  [1180, 780, 1],
+  [460, 320, 0.57],
+]) {
+  test(`blanket seats stay inside the field and apart at ${width} px, even at its edges`, () => {
+    const top = height * 0.62,
+      bottom = height - 20;
+    for (const x of [8, width / 2, width - 8])
+      for (let count = 1; count <= 6; count++) {
+        const spot = { kind: 'mat', x, y: bottom - 10, w: 140 * zoom, h: 105 * zoom };
+        const seats = viewingSeats({ spot, count, width, top, bottom, zoom });
+        assert.equal(seats.length, count);
+        for (const s of seats) {
+          assert.ok(s.x >= EDGE + 20 * zoom - 1e-6 && s.x <= width - EDGE - 20 * zoom + 1e-6);
+          assert.ok(s.y >= top - 1e-6 && s.y <= bottom + 1e-6);
+          assert.equal(s.side, spot.x < s.x ? 'left' : 'right');
+        }
+        for (let i = 0; i < count; i++)
+          for (let j = i + 1; j < count; j++)
+            assert.ok(
+              Math.hypot(seats[i].x - seats[j].x, seats[i].y - seats[j].y) >= 20 * zoom - 1e-6,
+              `${x} x${count}`,
+            );
+      }
+  });
+}

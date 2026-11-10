@@ -2,10 +2,9 @@
 // page. viewing.js runs a gathering with them.
 
 import { clamp } from '../core/math.js';
-import { decorShown } from './decor-shown.js';
+import { decorShown, yardSeason } from './decor-shown.js';
 import { treeStage } from './discovery-rules.js';
 import { EDGE } from './field.js';
-import { worldAllows } from './worlds.js';
 
 /** How long a gathering lasts, in ms (from, to). */
 export const VIEWING_MS = [60_000, 90_000];
@@ -21,11 +20,7 @@ const MIDDLE = { x: 0.5, y: 0.12 };
  * the yard shows (decor-shown.js), so a place without seasons never has it. */
 export function viewingTime({ event, season, period, weather, world }) {
   return (
-    event === 'blossom' &&
-    worldAllows(world, 'seasonalEffects') &&
-    season === 'spring' &&
-    FAIR.includes(period) &&
-    weather === 'clear'
+    event === 'blossom' && yardSeason({ world, season }) === 'spring' && FAIR.includes(period) && weather === 'clear'
   );
 }
 
@@ -71,11 +66,20 @@ export function viewingSeats({ spot, count, width, top, bottom, zoom }) {
     },
     points = [];
   if (spot.kind === 'mat') {
-    points.push(...onMat(spot).slice(0, count));
-    // The rest sit beside its ends, left then right, a step further out for each pair.
+    // A blanket near the edge keeps its four seats by shifting them together, like the arc's centre.
+    const reach = 0.175 * spot.w,
+      mx = clamp(spot.x, lo + reach, hi - reach),
+      mat = { ...spot, x: mx };
+    points.push(...onMat(mat).slice(0, count));
+    // The rest sit beside its ends, left then right, a step further out for each pair; a side with
+    // no room gives its seat to the other.
+    const taken = { '-1': 0, 1: 0 };
     for (let i = 0; points.length < count; i++) {
-      const out = spot.w / 2 + 28 * zoom + Math.floor(i / 2) * 36 * zoom;
-      points.push([spot.x + (i % 2 ? out : -out), spot.y - 0.2 * spot.h]);
+      let dir = i % 2 ? 1 : -1;
+      const at = d => mx + d * (spot.w / 2 + 28 * zoom + taken[d] * 36 * zoom);
+      if (at(dir) < lo || at(dir) > hi) dir = -dir;
+      points.push([at(dir), spot.y - 0.2 * spot.h]);
+      taken[dir]++;
     }
     return points.map(([x, y]) => seat(x, y));
   }
@@ -89,9 +93,7 @@ export function viewingSeats({ spot, count, width, top, bottom, zoom }) {
   for (let i = 0; i < count; i++) {
     const a = ((count === 1 ? 90 : 25 + (130 * i) / (count - 1)) * Math.PI) / 180;
     const x = cx + rx * Math.cos(a);
-    let y = spot.y + dir * ry * Math.sin(a);
-    // Too close to an earlier seat: step back into a second row.
-    if (points.some(p => Math.hypot(p[0] - x, p[1] - y) < 30 * zoom)) y += dir * 24 * zoom;
+    const y = spot.y + dir * ry * Math.sin(a);
     points.push([x, y]);
   }
   return points.map(([x, y]) => seat(x, y));
