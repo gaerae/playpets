@@ -73,11 +73,14 @@ let seasonChoice = 'auto';
 // What the entry point does as the scene changes (setupSky's options).
 let seasonChanged = () => {};
 let seasonPicked = () => {};
-/** Indoor weather stays outside the windows, so its caption continues to name the room. Each
- * language orders the place, the time of day and the weather in its own caption.indoor* line. */
+/** The line under the scene names the place: a background of the person's own by its name. Outdoors
+ * it pairs the place with the weather and time of day ("A sunny day", caption.outdoor); indoor
+ * weather stays outside the windows, so a room's line lists the place, the time of day and the
+ * weather (caption.indoor*). Each language orders them in its own line. */
 export function worldCaption(world, period, weather) {
-  if (worldAllows(world, 'sky')) return sceneCaption(period, weather);
-  const parts = { place: worldFor(world).name || t(worldFor(world).label), period: t(`period.${period}`) };
+  const place = worldFor(world).name || t(worldFor(world).label);
+  if (worldAllows(world, 'sky')) return t('caption.outdoor', { scene: sceneCaption(period, weather), place });
+  const parts = { place, period: t(`period.${period}`) };
   return worldAllows(world, 'weather')
     ? t('caption.indoor_weather', { ...parts, weather: t(`weather.${weather}`) })
     : t('caption.indoor', parts);
