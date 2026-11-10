@@ -73,6 +73,30 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.6.0" date="2026-11-10">
+      <description>
+        <p>Winter comes to the yard: roll a snowman together, follow footprints in the snow, trim the Christmas tree and read a letter from your closest friend. Then spring shoots and cherry blossoms.</p>
+        <ul>
+          <li>In a winter yard, roll snowballs with your friends into a snowman, then give it a hat and a scarf.</li>
+          <li>Animal footprints cross the snow; follow them with a friend to a small find in a bush.</li>
+          <li>In the winter lights, now December 1 to 31, friends bring a Christmas tree, a reindeer and Santa.</li>
+          <li>Hang up to three album finds a day on the Christmas tree.</li>
+          <li>Snowy December nights grow the tree grand; with reindeer and Santa out, a sleigh crosses the moon.</li>
+          <li>From December 26, your closest friend writes you a year-end letter, and you can write back.</li>
+          <li>In spring, shoots come up after rain; a friend digs them up for the album's new book.</li>
+          <li>At the cherry blossom festival, friends gather to view the flowers. Catch a petal for a wish.</li>
+          <li>The album holds 169 finds in eight books, with the Footprints and Spring shoots books.</li>
+          <li>Fireflies, the gudgeon, winter trees and other look-alikes are now easy to tell apart.</li>
+          <li>Claude Code and Codex CLI sign in from PlayPets, with no terminal.</li>
+          <li>Report an AI reply in About sends a short public form, without your conversation.</li>
+          <li>Friends keep every AI reply suitable for ages 13 and up.</li>
+          <li>A butterfly or dragonfly in front of a friend or a gift can be caught.</li>
+          <li>Fishing goes on when you resize the window.</li>
+          <li>The yard rests while its window is hidden, and downloads are smaller.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.6.0</url>
+    </release>
     <release version="1.5.0" date="2026-11-04">
       <description>
         <p>Your desk can have a bench now: send friends and gifts out one at a time, and a strolling friend stops by to say hello. The album grows to 150 finds.</p>

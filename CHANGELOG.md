@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-10
+
 ### Added
 
 - The album has a new book, **Spring shoots**: shepherd's purse, mugwort, fiddleheads, wild garlic, bamboo shoots, horsetail, asparagus and morels.
