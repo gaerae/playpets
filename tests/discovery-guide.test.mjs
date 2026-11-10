@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { eligibleKinds, fishWeight, relativeChances, wildlifeGroup } from '../src/yard/catalog.js';
 import { trailAnimal } from '../src/yard/trail-rules.js';
+import { ADVICE } from './support/advice.mjs';
 
 const catalog = JSON.parse(await readFile(new URL('../src/content/catalog.json', import.meta.url)));
 test('guide odds normalize only currently eligible fish and rain weights', () => {
@@ -156,4 +157,17 @@ test('collection guide does not render exact probability controls or values', as
   const guide = await readFile(new URL('../website/.vitepress/theme/DiscoveryGuide.vue', import.meta.url), 'utf8');
   const template = guide.split('<template>')[1].split('</template>')[0];
   assert.doesNotMatch(template, /percent\(|text\.details/);
+});
+
+test('the discovery guide has a Spring shoots book without picking or eating advice', async () => {
+  const guide = await readFile(new URL('../website/.vitepress/theme/DiscoveryGuide.vue', import.meta.url), 'utf8');
+  assert.match(guide, /const books = \[[^\]]*'shoots'/);
+  const labels = [...guide.matchAll(/^\s{4}books: \[([^\]]*)\]/gm)].map(m => m[1].split(',').length);
+  assert.deepEqual(labels, [5, 5, 5, 5], 'five book labels in each language');
+  const copy = [...guide.matchAll(/^\s{4}shoots:\s*'((?:[^'\\]|\\.)*)'/gm)].map(m => m[1]);
+  assert.equal(copy.length, 4, 'one shoots paragraph per language');
+  for (const [i, lang] of ['en', 'ko', 'ja', 'zh-hans'].entries()) {
+    assert.ok(copy[i].length > 20, `${lang}: the paragraph is there`);
+    assert.doesNotMatch(copy[i], ADVICE[lang], `${lang}: shoots paragraph`);
+  }
 });

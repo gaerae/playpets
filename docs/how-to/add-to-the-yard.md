@@ -322,6 +322,10 @@ Keepsakes:
 - Each tier uses the item weights within that tier.
 - Tier odds and timing limits are in `pets/discovery.rs`, and the backend exposes them.
 - The page fallback and the website guide share `core/limits.js`.
+
+Spring shoots:
+- Spring shoots use the `shoots` list: `id`, `season`, `art` and `size`, plus `shoot.<id>` in every language.
+- The backend's `is_shoot` and `album.shoots` read the same list; no string may say how to pick or eat one (`tests/i18n.test.mjs`).
 - Its test compares those values with Rust.
 
 Affinity:

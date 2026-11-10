@@ -22,7 +22,7 @@ const copy = {
     affinity: 'More likely with',
     baseline: 'No preferred conditions',
     title: 'What could you discover?',
-    books: ['Aquatic life', 'Bugs', 'Flowers', 'Gifts'],
+    books: ['Aquatic life', 'Bugs', 'Flowers', 'Gifts', 'Spring shoots'],
     season: ['Spring', 'Summer', 'Autumn', 'Winter'],
     none: 'No event',
     calendar:
@@ -39,6 +39,7 @@ const copy = {
     bugs: 'Bugs appear in clear outdoor places. Butterflies, moths and dragonflies fly, beetles and mantises crawl and grasshoppers and crickets hop in the morning and day; fireflies come on spring and summer evenings and nights, and crickets on autumn ones. Rain and snow stop appearances.',
     flowers:
       'Flower seeds and saplings come from digging. Flowers bloom after four hours and trees mature after twelve, including time with the app closed.',
+    shoots: 'In spring, a few shoots poke up after rain, and one comes up on fair mornings, outdoors only. Click one and a friend digs it up for the album.',
     gifts:
       'The whole yard receives at most one gift per local calendar day, shared by all friends. A scheduled delivery time survives closing the app, and closed time counts. New gifts follow catalogue order; after all ordinary gifts, friends bring decorations missing from the yard. Event gifts take priority when one is due during their event. This is not a random loot table. Twelve decorations pause delivery; putting one away retains its album entry. Event gifts follow real calendar dates, so collecting them all can take months, not a guaranteed week.',
     ordered: 'In order',
@@ -58,7 +59,7 @@ const copy = {
     affinity: '더 잘 나오는 조건',
     baseline: '선호 조건 없음',
     title: '어떤 발견을 할 수 있을까요?',
-    books: ['물속 생물', '곤충', '꽃', '선물'],
+    books: ['물속 생물', '곤충', '꽃', '선물', '봄 새싹'],
     season: ['봄', '여름', '가을', '겨울'],
     none: '이벤트 없음',
     calendar:
@@ -74,6 +75,7 @@ const copy = {
     fish: '물을 눌러 찌에 반응하거나 놀기의 낚시로 친구에게 맡겨요. 잡지 못하고 돌아올 수도 있어요.',
     bugs: '곤충은 맑은 야외에 나타나요. 아침과 한낮에는 나비, 나방, 잠자리가 날고 딱정벌레와 사마귀가 기어 다니며 메뚜기와 귀뚜라미가 뛰어요. 반딧불이는 봄과 여름의 저녁과 밤에, 귀뚜라미는 가을의 저녁과 밤에도 나타나요. 비나 눈이 오면 나타나지 않아요.',
     flowers: '꽃씨와 묘목은 땅파기로 찾아요. 꽃은 4시간 뒤 피고 나무는 12시간 뒤 자라요. 앱을 꺼 둔 시간도 포함해요.',
+    shoots: '봄에는 비 온 뒤에 새싹이 몇 개 올라오고, 맑은 아침에는 하나가 올라와요. 야외에서만 볼 수 있어요. 새싹을 누르면 친구가 캐서 도감에 넣어 줘요.',
     gifts:
       '선물은 현지 날짜 기준으로 놀이터 전체에서 하루 최대 하나이며 모든 친구가 횟수를 공유해요. 정해진 도착 시각은 앱을 닫아도 저장되고, 꺼 둔 시간도 포함해요. 새 선물은 도감 순서로 오고, 일반 선물을 다 받은 뒤에는 마당에 없는 장식이 다시 와요. 이벤트 선물은 이벤트 중 선물이 올 차례에 우선하며 무작위 뽑기는 아니에요. 장식이 12개면 배달이 멈추고 하나를 치워도 도감 기록은 남아요. 이벤트 선물은 실제 달력을 따라, 모두 모으려면 몇 달이 걸릴 수 있어요. 일주일 안에 모인다는 보장은 없어요.',
     ordered: '차례대로 와요',
@@ -93,7 +95,7 @@ const copy = {
     affinity: '出やすい条件',
     baseline: '優先条件なし',
     title: 'どんな出会いがある？',
-    books: ['水中の生きもの', '虫', '花', '贈り物'],
+    books: ['水中の生きもの', '虫', '花', '贈り物', '春の芽'],
     season: ['春', '夏', '秋', '冬'],
     none: 'イベントなし',
     calendar:
@@ -109,6 +111,7 @@ const copy = {
     fish: '水面を押して浮きに反応するか、遊ぶの釣りで友だちに任せます。釣れないこともあります。',
     bugs: '虫は晴れた屋外に現れます。朝と昼はチョウやガ、トンボが飛び、甲虫やカマキリが歩き、バッタやコオロギが跳ねます。ホタルは春と夏の夕方と夜、コオロギは秋の夕方と夜にも出ます。雨や雪では現れません。',
     flowers: '花の種と苗木は土を掘って見つけます。花は4時間、木は12時間で育ちます。アプリを閉じた時間も含みます。',
+    shoots: '春は雨のあとに芽がいくつか顔を出し、晴れた朝にもひとつ出ます。屋外だけです。芽をクリックすると、友だちが掘って図鑑に入れてくれます。',
     gifts:
       '贈り物は現地の日付で庭全体に一日最大一つ、全員で回数を共有します。決まった配達時刻は保存され、アプリを閉じた時間も数えます。新しい贈り物はカタログ順で、通常分を集めた後は庭にない飾りが届きます。イベント中に届く番のときはイベント分が優先され、ランダム抽選ではありません。飾りが12個なら配達は止まり、片付けても図鑑の記録は残ります。イベント限定のプレゼントは実際の暦に従うため、集めるには数か月かかる場合があり、一週間の完成は保証されません。',
     ordered: '順番に届きます',
@@ -128,7 +131,7 @@ const copy = {
     affinity: '更容易出现的条件',
     baseline: '无偏好条件',
     title: '会有什么新发现？',
-    books: ['水中生物', '昆虫', '花', '礼物'],
+    books: ['水中生物', '昆虫', '花', '礼物', '春日嫩芽'],
     season: ['春', '夏', '秋', '冬'],
     none: '无活动',
     calendar:
@@ -144,6 +147,7 @@ const copy = {
     fish: '点击水面并回应浮漂，或在玩耍中选择钓鱼交给伙伴。也可能空手而归。',
     bugs: '昆虫出现在晴朗的室外。早晨和白天有蝴蝶、蛾子和蜻蜓飞舞，甲虫和螳螂爬行，蝗虫和蟋蟀跳跃；萤火虫在春夏的傍晚和夜间出现，蟋蟀在秋天的傍晚和夜间也会出现。雨雪天不会出现。',
     flowers: '花种和树苗都来自挖土。花在4小时后开放，树木在12小时后长成，包括关闭应用的时间。',
+    shoots: '春天雨后会冒出几株嫩芽，晴朗的早晨还会冒出一株，只在户外出现。点一下嫩芽，伙伴就会去挖出来，收进图鉴。',
     gifts:
       '按本地日历，整个庭院每天最多收到一件礼物，所有伙伴共享次数。安排的送达时间会保存，关闭应用的时间也计入。新礼物按图鉴顺序到来，收齐普通礼物后会送来庭院缺少的装饰，活动期间轮到送礼时活动礼物优先，并非随机抽奖。12件装饰会暂停送礼，收起后仍保留图鉴记录。活动礼物遵循真实日历，收齐可能需要数月，不保证一周完成。',
     ordered: '按顺序到来',
@@ -166,7 +170,9 @@ const digName = item =>
 const text = computed(() => copy[props.lang] || copy.en);
 const strings = computed(() => ({ en, ko, ja, 'zh-hans': zh })[props.lang] || en);
 const tr = key => strings.value[key] || en[key] || key;
-const books = ['fish', 'bugs', 'flowers', 'gifts'];
+const books = ['fish', 'bugs', 'flowers', 'gifts', 'shoots'];
+// Books whose finds do not depend on the time of day, the weather or an event.
+const plain = () => book.value === 'flowers' || book.value === 'shoots';
 const seasons = ['spring', 'summer', 'autumn', 'winter'];
 const periods = ['morning', 'day', 'evening', 'night'];
 const book = ref('fish'),
@@ -200,9 +206,14 @@ const rows = computed(() => {
       source.filter(f => f.season === season.value),
       f => f.weight ?? 1,
     );
+  if (book.value === 'shoots')
+    chances = relativeChances(
+      source.filter(s => s.season === season.value),
+      () => 1,
+    );
   return source.map(item => {
     const chance = chances.find(c => c.id === item.id)?.chance ?? null;
-    const prefix = { fish: 'catch.fish_', bugs: 'catch.bug_', flowers: 'garden.kind_', gifts: 'decor.kind_' }[
+    const prefix = { fish: 'catch.fish_', bugs: 'catch.bug_', flowers: 'garden.kind_', gifts: 'decor.kind_', shoots: 'shoot.' }[
       book.value
     ];
     const condition =
@@ -251,9 +262,9 @@ const frequency = chance =>
     </div>
     <div v-if="book !== 'gifts'" class="discovery-filters">
       <label>{{ tr('settings.season') }}<select v-model="season"><option v-for="s in seasons" :key="s" :value="s">{{ seasonName(s) }}</option></select></label>
-      <label v-if="book !== 'flowers'">{{ tr('period.label') }}<select v-model="period"><option v-for="p in periods" :key="p" :value="p">{{ tr(`period.${p}`) }}</option></select></label>
-      <label v-if="book !== 'flowers'">{{ tr('weather.label') }}<select v-model="weather"><option v-for="w in ['clear', 'rain', 'snow']" :key="w" :value="w">{{ tr(`weather.${w}`) }}</option></select></label>
-      <label v-if="book !== 'flowers'">{{ text.event }}<select v-model="event"><option value="">{{ text.none }}</option><option v-for="e in events.events" :key="e.id" :value="e.id">{{ tr(`event.${e.id}.name`) }}, {{ e.from }}–{{ e.to }}</option></select></label>
+      <label v-if="!plain()">{{ tr('period.label') }}<select v-model="period"><option v-for="p in periods" :key="p" :value="p">{{ tr(`period.${p}`) }}</option></select></label>
+      <label v-if="!plain()">{{ tr('weather.label') }}<select v-model="weather"><option v-for="w in ['clear', 'rain', 'snow']" :key="w" :value="w">{{ tr(`weather.${w}`) }}</option></select></label>
+      <label v-if="!plain()">{{ text.event }}<select v-model="event"><option value="">{{ text.none }}</option><option v-for="e in events.events" :key="e.id" :value="e.id">{{ tr(`event.${e.id}.name`) }}, {{ e.from }}–{{ e.to }}</option></select></label>
     </div>
     <p v-if="book === 'fish' || book === 'bugs'" class="discovery-calendar">{{ text.calendar }}</p>
     <p>{{ text[book] }}</p>

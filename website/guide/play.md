@@ -200,7 +200,7 @@ From closeness level 3, an idle friend may go fishing on its own every 12 to 25 
 
 What you find depends on the season, the time of day and the weather. Catfish and eels come out after dark, and more of them in the rain. Pond smelt appear only in winter, and a golden carp is very rare. Each fish is a different size every time.
 
-A card shows what was caught and says so when it's new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift or a keepsake) has **See in album**, which opens the album at that book.
+A card shows what was caught and says so when it's new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift, a keepsake or a spring shoot) has **See in album**, which opens the album at that book.
 
 When something new arrives, **Album** in **Play → Find** and **Play** in the dock carry a small dot until you open the album.
 
@@ -325,6 +325,12 @@ Click the prints, and a rested friend follows them, sniffing. With the keyboard,
 
 An hour of new snow covers the prints, and the next day they are gone. The Cozy living room has none. **Album → Footprints** shows each print until you have followed it, then the tail and the name.
 
+### Spring shoots
+
+While the yard shows spring outdoors, a few shoots poke up after rain, and one comes up on a fair morning. At most three stand at a time, and each stays for a few hours. The Cozy living room has none.
+
+Click a shoot, and the selected friend, or the nearest free one, goes and digs it up. It goes into **Album → Spring shoots**, which holds eight: shepherd's purse, mugwort, fiddlehead, wild garlic, bamboo shoot, horsetail shoot, asparagus and morel. The album is for collecting, not a guide to wild plants.
+
 ## Games <Since v="0.1.0" />
 
 The four games are in **Play → Group games**, and you play one at a time. While a game is on, its tile reads Stop with the game's name, such as **Stop Hide and seek**. Click it to end the game right away.
@@ -442,11 +448,11 @@ To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). It wor
 
 ## Collecting at your own pace
 
-The album has 161 entries across aquatic life, bugs, flowers, gifts, trees, footprints and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
+The album has 169 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
 
 **How long it takes**
 
-The full 161-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
+The full 169-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
 
 The seven event gifts need festivals spread across the calendar, so depending on when you start, collecting them all can take months. Changing the season doesn't start a festival.
 

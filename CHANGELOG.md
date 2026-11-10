@@ -61,7 +61,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Website and docs
 
 - The guide explains flower viewing: when friends gather, calling them from the play menu, petals on heads and petal wishes.
-- The guide explains the winter footprints and the album's Footprints book, and the album now counts 161 entries.
+- The guide explains the winter footprints and the album's Footprints book, and the album now counts 169 entries.
+- The guide and the discovery guide describe spring shoots: when they come up, how friends dig them up and the album's new book.
 - The guide explains building a snowman with friends and dressing it up.
 - The guide explains how to decorate the Christmas tree with album finds.
 - The guide describes Christmas night: the grand tree on snowy December evenings and the sleigh across the moon.
