@@ -645,13 +645,18 @@ test('the shoot stays when the album cannot keep it', async ctx => {
   assert.ok(y.v.target, 'and it can be clicked again');
 });
 
-test('a shoot being dug looks taken, and shoots dim at night as the flowers do', async () => {
+test('a shoot being dug looks taken, stands out from the grass, and dims at night as the flowers do', async () => {
   const css = (await readFile('src/styles/garden.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
   assert.match(css, /\.shoot\.picking \{ cursor: default; \}/);
   assert.match(css, /\.shoot\.picking svg \{ opacity: 0\.7; transition: opacity 0\.3s; \}/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.shoot\.picking svg \{ transition: none; \}/);
-  assert.match(
-    css,
-    /\.period-night \.plant svg, \.period-night \.shoot svg \{ filter: brightness\(0\.62\) saturate\(0\.75\); \}/,
-  );
+  assert.match(css, /\.period-night \.plant svg \{ filter: brightness\(0\.62\) saturate\(0\.75\); \}/);
+  // Green shoots on green grass: a soft shade of soil under the foot and a shadow to the lower right
+  // (the light comes from the upper left), both still, and the night's dimming on top.
+  const soil = css.match(/\.shoot::before \{([^}]*)\}/)?.[1] || '';
+  assert.match(soil, /radial-gradient/);
+  assert.doesNotMatch(soil, /animation|transition/);
+  assert.match(css, /\.shoot \{[^}]*--shoot-lift: drop-shadow\(/);
+  assert.match(css, /\.shoot svg \{[^}]*filter: var\(--shoot-lift\);/);
+  assert.match(css, /\.period-night \.shoot svg \{ filter: var\(--shoot-lift\) brightness\(0\.62\) saturate\(0\.75\); \}/);
 });
