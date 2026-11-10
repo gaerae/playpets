@@ -5,9 +5,11 @@
 //! keychain is read and the AI writes (docs/standards/backend-locks.md); the year is held meanwhile,
 //! so a page reloaded in the middle is told to wait rather than asking the AI again. What may pass
 //! (a connection being saved, a friend sent away or a language changed meanwhile, a key that cannot
-//! be read the first time in a run) writes nothing, and the page asks again the next minute; an AI
-//! that fails, or a key that cannot be read again, leaves the page's own letter, so a letter still
-//! arrives.
+//! be read the first time in a run, a CLI that is signed out) writes nothing, and the page asks
+//! again the next minute; an AI that fails, or a key that cannot be read again, leaves the page's
+//! own letter, so a letter still arrives. A signed-out CLI waits for a sign-in until the new year
+//! has begun somewhere on Earth, and then leaves the page's letter too.
+use super::kind::Kind;
 use super::{Speaker, ask, cli, prompt, same_connection, speaker, unlock};
 use crate::app::{AppData, Shared, lock, now_ms, require_pet, show_and_save};
 use crate::commands::{arg, text};
@@ -92,10 +94,28 @@ fn checked(args: &[Value], latest: &str) -> Result<Asked, String> {
     })
 }
 
+/// Whether `year` is over somewhere on Earth at `now`: from then on nothing waits for a sign-in.
+fn year_over(year: u32, now: u64) -> bool {
+    latest_day(now)
+        .get(..4)
+        .and_then(|y| y.parse::<u32>().ok())
+        .is_some_and(|latest| latest > year)
+}
+
+/// The CLI a friend's AI runs through (claude or codex), or `None` for one spoken to over HTTP.
+fn cli_of(writer: &Speaker) -> Option<&'static str> {
+    match writer.config.kind {
+        Kind::Claude => Some("claude"),
+        Kind::Codex => Some("codex"),
+        _ => None,
+    }
+}
+
 /// The friend's AI, if it can write now: `None` without a connection (or with one that cannot be
 /// used), which takes the page's lines. A connection being saved answers "try again" instead, so a
-/// passing save does not settle the year on the lines.
-fn pen(d: &AppData, friend: &str) -> Result<Option<Speaker>, String> {
+/// passing save does not settle the year on the lines; so does a CLI the app knows is signed out
+/// (`detected`), without starting it, until `year` is over somewhere (`now`).
+fn pen(d: &AppData, friend: &str, year: u32, now: u64) -> Result<Option<Speaker>, String> {
     require_pet(d, friend)?;
     let provider = d
         .pets
@@ -105,7 +125,19 @@ fn pen(d: &AppData, friend: &str) -> Result<Option<Speaker>, String> {
     if d.provider_updates.contains(provider) {
         return Err(i18n::t("chat.provider_saving"));
     }
-    Ok(speaker(d, friend, false).ok())
+    let Ok(writer) = speaker(d, friend, false) else {
+        return Ok(None);
+    };
+    match cli_of(&writer) {
+        Some(kind) if d.detected["signedIn"][kind] == json!(false) => {
+            if year_over(year, now) {
+                Ok(None)
+            } else {
+                Err(cli::login_guide(kind))
+            }
+        }
+        _ => Ok(Some(writer)),
+    }
 }
 
 /// Checked once the key is read and the lock taken back, with the friend's own id (the writer's is
@@ -126,12 +158,25 @@ enum Answer {
     KeyUnread(String),
     /// Something changed while the key was read (the friend, the language, the connection).
     Again(String),
+    /// The CLI turned the request away for not being signed in.
+    SignedOut(String),
+}
+
+/// What came back from the friend's `kind` CLI (or `None` for HTTP): a turn it turned away for not
+/// being signed in is told apart, so the year waits for a sign-in instead of settling on the lines.
+fn answered(kind: Option<&str>, answer: Result<String, String>) -> Answer {
+    match (kind, answer) {
+        (Some(kind), Err(e)) if e == cli::login_guide(kind) => Answer::SignedOut(e),
+        (_, answer) => Answer::Came(answer),
+    }
 }
 
 /// Keeps what the AI sent back, under the lock taken again. A friend sent away or a language changed
 /// meanwhile keeps nothing (the page asks again); an AI that failed leaves the page's own letter, so
 /// a letter still arrives. A key that cannot be read waits for the next minute once a run, and then
-/// takes the page's letter too, so the keychain is read at most twice, never once a minute.
+/// takes the page's letter too, so the keychain is read at most twice, never once a minute. A
+/// signed-out CLI keeps nothing until the year is over somewhere, so a sign-in meanwhile still gets
+/// the AI's letter.
 fn settle(
     d: &mut AppData,
     year: u32,
@@ -149,6 +194,8 @@ fn settle(
             return Err(e);
         }
         Answer::KeyUnread(e) => Err(e),
+        Answer::SignedOut(e) if !year_over(year, now) => return Err(e),
+        Answer::SignedOut(e) => Err(e),
     };
     require_pet(d, friend)?;
     if d.prefs.language != language {
@@ -211,7 +258,7 @@ fn ask_once(
     };
     let answer = ask(cli, &writer, "", turns, at, &AtomicBool::new(false));
     cli.reset(&writer.id);
-    Answer::Came(answer)
+    answered(cli_of(&writer), answer)
 }
 
 /// `(year, friend, facts, fallback)`: that year's letter, written once. Returns the letter.
@@ -225,7 +272,7 @@ pub fn write(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args
     } = checked(args, &latest_day(now))?;
     let (mut writer, request) = {
         let mut d = lock(state);
-        let pen = pen(&d, &friend);
+        let pen = pen(&d, &friend, year, now);
         let plan = plan(&d.letters, year, matches!(pen, Ok(Some(_))));
         if let Plan::Written(letter) = plan {
             return Ok(json!(letter));
@@ -360,15 +407,18 @@ mod tests {
     #[test]
     fn a_connection_being_saved_waits_and_none_at_all_takes_the_lines() {
         let mut d = yard();
-        assert!(pen(&d, "a").unwrap().is_some());
+        assert!(pen(&d, "a", 2026, DEC_27).unwrap().is_some());
         assert!(
-            pen(&d, "b").unwrap().is_none(),
+            pen(&d, "b", 2026, DEC_27).unwrap().is_none(),
             "no connection: the page's lines, nothing sent"
         );
-        assert!(pen(&d, "gone").is_err(), "a friend sent away writes nothing");
+        assert!(
+            pen(&d, "gone", 2026, DEC_27).is_err(),
+            "a friend sent away writes nothing"
+        );
         d.provider_updates.insert("p".into());
         assert!(
-            pen(&d, "a").is_err(),
+            pen(&d, "a", 2026, DEC_27).is_err(),
             "being saved: try again next minute, not the lines for good"
         );
     }
@@ -376,7 +426,7 @@ mod tests {
     #[test]
     fn the_ai_writes_only_if_nothing_changed_while_the_key_was_read() {
         let mut d = yard();
-        let writer = pen(&d, "a").unwrap().unwrap();
+        let writer = pen(&d, "a", 2026, DEC_27).unwrap().unwrap();
         assert!(still_writing(&d, "a", &writer).is_ok());
         d.prefs.language = other(d.prefs.language);
         assert!(still_writing(&d, "a", &writer).is_err(), "another language");
@@ -446,6 +496,59 @@ mod tests {
         d.pets.retain(|p| p.id != "a");
         assert!(settle(&mut d, 2026, "a", lang, unread(), "lines", 5).is_err());
         assert!(d.letters.of(2026).is_none(), "no fallback from a friend who left");
+    }
+
+    // December 27, and December 31 at noon UTC, when the new year has begun somewhere.
+    const DEC_27: u64 = 1_798_329_600_000;
+    const NEW_YEAR_SOMEWHERE: u64 = 1_798_718_400_000;
+
+    #[test]
+    fn a_signed_out_cli_writes_nothing_until_the_year_is_over_somewhere() {
+        let mut d = yard();
+        let lang = d.prefs.language;
+        let out = || Answer::SignedOut(cli::login_guide("claude"));
+        assert!(settle(&mut d, 2026, "a", lang, out(), "lines", DEC_27).is_err());
+        assert!(
+            d.letters.of(2026).is_none(),
+            "signed out: nothing kept, the page asks again after a sign-in"
+        );
+        let got = settle(&mut d, 2026, "a", lang, out(), "lines", NEW_YEAR_SOMEWHERE).unwrap();
+        assert_eq!(got.text, "lines", "the year ending: the page's own letter still comes");
+        assert!(matches!(
+            answered(Some("claude"), Err(cli::login_guide("claude"))),
+            Answer::SignedOut(_)
+        ));
+        assert!(matches!(
+            answered(Some("claude"), Err("down".into())),
+            Answer::Came(Err(_))
+        ));
+        assert!(matches!(
+            answered(Some("claude"), Ok("Dear".into())),
+            Answer::Came(Ok(_))
+        ));
+    }
+
+    #[test]
+    fn a_cli_known_to_be_signed_out_is_not_asked_and_waits_for_a_sign_in() {
+        let mut d = yard();
+        d.detected["signedIn"] = json!({"claude": false, "codex": null});
+        assert!(
+            pen(&d, "a", 2026, DEC_27).is_err(),
+            "signed out: no CLI started, nothing kept"
+        );
+        assert!(
+            pen(&d, "a", 2026, NEW_YEAR_SOMEWHERE).unwrap().is_none(),
+            "the year ending: the page's lines"
+        );
+        assert!(
+            pen(&d, "b", 2026, DEC_27).unwrap().is_none(),
+            "no connection: still the lines"
+        );
+        d.detected["signedIn"]["claude"] = json!(null);
+        assert!(
+            pen(&d, "a", 2026, DEC_27).unwrap().is_some(),
+            "nobody knows: the AI is asked"
+        );
     }
 
     #[test]
