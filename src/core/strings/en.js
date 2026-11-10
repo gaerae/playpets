@@ -998,6 +998,10 @@ export const strings = {
   'letter.back_title': '{name} remembered your answer',
   'letter.back_quote': '“{answer}”',
   'letter.back_cheer': 'I’m cheering you on this year!',
+  'viewing.action': 'Flower viewing',
+  'viewing.action_title': 'Call friends to look at the blossom together',
+  'viewing.wait': 'Friends just went flower viewing. Call them again a little later.',
+  'viewing.none_free': 'Everyone is busy right now.',
   'viewing.suggest': ['Let’s go see the blossom!', 'The cherry tree’s in bloom. Come look!'],
   'viewing.lines': [
     'So pretty…',

@@ -10,10 +10,11 @@
 //   were saved; when one leaves, the place it stands in is kept as its own.
 // - Its timers are the gathering's, cleared when it ends. It draws nothing on the overlay.
 
+import { closeControls } from '../core/controls.js';
 import { list, t } from '../core/i18n.js';
 import { between, pick, shuffle } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
-import { aiming, call, data, game, toast, views } from '../core/state.js';
+import { $, aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { cadence } from '../core/ticker.js';
@@ -25,7 +26,15 @@ import { field, fieldToYard, footTarget, petHeight, sizeOf, yardZoom } from './f
 import { localDay } from './growth.js';
 import { treeSize } from './planted-trees.js';
 import { isFree, sendTo, setDoing } from './trips.js';
-import { mayGather, VIEWING_MAX, VIEWING_MS, viewingSeats, viewingSpot, viewingTime } from './viewing-rules.js';
+import {
+  mayCall,
+  mayGather,
+  VIEWING_MAX,
+  VIEWING_MS,
+  viewingSeats,
+  viewingSpot,
+  viewingTime,
+} from './viewing-rules.js';
 import { bubble, gaze } from './views.js';
 import { scene } from './world.js';
 
@@ -48,14 +57,46 @@ const MIDDLE_W = 200;
 
 // When the friends next look whether to gather (setupViewing).
 let calling = null;
+// When the person last called friends from the menu (ms), kept in page memory only: a restart within
+// the hour costs nothing worth saving.
+let lastCalled = null;
 // The gathering under way: { spot, world, members, timers, pool, lines, turns, begun }, or null.
 let gathering = null;
 // What a gathered friend is doing, waiting to set off and standing there (trips.js setDoing).
 const HERE = { end: v => leave(v) };
 
-/** Wiring only (the play menu's call is play.js's). Called once, by app.js. */
+/** Wiring: the friends' look at gathering, and the play menu's Flower viewing button. Called once, by
+ * app.js. */
 export function setupViewing() {
   calling = cadence(() => between(Math.random, GATHER_EVERY));
+  lastCalled = null;
+  const tool = $('viewing-tool');
+  if (tool) tool.onclick = callFriends;
+  syncViewingAction();
+}
+
+/** Shows the Flower viewing button in blossom time and says whether it can be used now. The play
+ * panel's sync calls it, and so a place or time change reaches it with the sky's repaint. */
+export function syncViewingAction() {
+  const tool = $('viewing-tool');
+  if (!tool) return;
+  tool.hidden = !viewingTime(scene);
+  // Disabled while a gathering is on, so a call is never answered with everyone being busy.
+  tool.disabled = !data?.pets?.length || !!game || !!gathering;
+  // Waiting stays focusable, like the chatter button, and says why.
+  const wait = !mayCall(Date.now(), lastCalled);
+  tool.setAttribute('aria-disabled', String(wait));
+  tool.title = t(wait ? 'viewing.wait' : 'viewing.action_title');
+}
+
+// The person's call: friends come unless it is within the hour of the last one, which counts as the
+// day's gathering (startViewing marks it).
+function callFriends() {
+  if (!mayCall(Date.now(), lastCalled)) return toast(t('viewing.wait'));
+  if (!startViewing('person')) return toast(t('viewing.none_free'));
+  lastCalled = Date.now();
+  closeControls();
+  syncViewingAction();
 }
 
 /** Whether friends are viewing the blossom now. */
@@ -137,6 +178,7 @@ export function startViewing(by) {
     turns: 0,
   };
   gathering = g;
+  syncViewingAction();
   const today = localDay(new Date());
   if (data.garden) data.garden.viewed = today;
   call('markViewed', today).catch(() => {});
@@ -241,6 +283,7 @@ export function endViewing() {
   const g = gathering;
   if (!g) return;
   gathering = null;
+  syncViewingAction();
   for (const timer of g.timers) clearTimeout(timer);
   for (const v of g.members) {
     // Let go of here, not through release, which would tell leave again.

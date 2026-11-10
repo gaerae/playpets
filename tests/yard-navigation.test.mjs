@@ -8,12 +8,15 @@ test('one Play board shows Find, Garden and Together on one page, each action on
   const ids = id => [...row(id).matchAll(/<button id="([^"]+)"/g)].map(match => match[1]);
   assert.deepEqual(ids('play-actions'), ['dig-tool', 'fish-tool', 'album-button']);
   assert.deepEqual(ids('play-garden'), ['plant-tool', 'tree-tool', 'feed']);
-  assert.match(html, /id="play-games" class="play-actions"><div id="games-menu"[^>]*><\/div><button id="chatter"/);
+  assert.match(
+    html,
+    /id="play-games" class="play-actions"><div id="games-menu"[^>]*><\/div><button id="chatter"[^>]*>.*?<\/button><button id="viewing-tool"/,
+  );
   assert.doesNotMatch(
     html,
     /id="quick-play"|data-quick-tool|class="play-toolbar"|id="games-button"|id="play-garden-button"/,
   );
-  for (const id of ['feed', 'chatter', 'plant-tool', 'tree-tool', 'album-button', 'games-menu'])
+  for (const id of ['feed', 'chatter', 'viewing-tool', 'plant-tool', 'tree-tool', 'album-button', 'games-menu'])
     assert.equal(html.split(`id="${id}"`).length - 1, 1, `${id} has one real control`);
 });
 

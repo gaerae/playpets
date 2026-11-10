@@ -17,6 +17,9 @@ const paths = {
   expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
   // Digging: a spade with its blade in the ground.
   shovel: '<path d="m14 4 6 6"/><path d="m17 7-6.5 6.5"/><path d="M10.5 13.5 8 11l-4.5 4.5L5 20l4.5 1.5L14 17Z"/>',
+  // Flower viewing: a cherry blossom, five notched petals around a dot.
+  blossom:
+    '<path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z"/><path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z" transform="rotate(72 12 12)"/><path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z" transform="rotate(144 12 12)"/><path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z" transform="rotate(216 12 12)"/><path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z" transform="rotate(288 12 12)"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/>',
   // A tree to plant from a sapling.
   tree: '<path d="M12 21v-5"/><path d="M12 3 6.5 10H9l-4 6h14l-4-6h2.5Z"/>',
   // A seedling: the garden's tool.

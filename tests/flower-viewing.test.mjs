@@ -19,7 +19,7 @@ globalThis.playPets = {
   },
 };
 const state = await import('../src/core/state.js');
-const { list } = await import('../src/core/i18n.js');
+const { list, t: t0 } = await import('../src/core/i18n.js');
 const { reduced } = await import('../src/core/sprites.js');
 const { EDGE, fieldToYard, geometry, measureYard, petHeight, sizeOf, yardZoom } = await import('../src/yard/field.js');
 const { treeSize } = await import('../src/yard/planted-trees.js');
@@ -38,6 +38,8 @@ const blossom = { world: 'woodland', season: 'spring', period: 'day', weather: '
 // A yard of 1000 x 700 on April 5, 2027 at 10:00 local time, in the festival, with `count` friends
 // drawn the way the page draws them (views.js), and a clock the test holds.
 function yard(t, { count = 3, garden = {}, statuses = {}, at = new Date(2027, 3, 5, 10) } = {}) {
+  // First registered, so first to run: the gathering ends while the page's nodes are still there.
+  t.after(() => viewing.endViewing());
   t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: at.getTime() });
   let clock = 1000;
   t.mock.method(performance, 'now', () => clock);
@@ -71,7 +73,6 @@ function yard(t, { count = 3, garden = {}, statuses = {}, at = new Date(2027, 3,
   syncViews();
   viewing.setupViewing();
   t.after(() => {
-    viewing.endViewing();
     state.views.clear();
     state.setGame(null);
     state.setAiming(false);
@@ -406,4 +407,99 @@ test('on a picnic blanket friends sit on it and beside it in one row and may say
   );
   // A branch line belongs under a tree.
   for (const line of lines) assert.ok([...list('viewing.lines'), ...picnic].includes(line), line);
+});
+
+// The play menu's Flower viewing button (viewing.js syncViewingAction): the page's `viewing-tool`.
+const tool = () => document.getElementById('viewing-tool');
+const said = () => document.getElementById('toast').children.at(-1)?.dataset.words ?? null;
+// The menu opened on a yard with `count` friends: the toast is empty, the button synced.
+function menu(t, options) {
+  const y = yard(t, options);
+  document.getElementById('toast').replaceChildren();
+  viewing.syncViewingAction();
+  return y;
+}
+
+test('the play menu offers flower viewing only in blossom time', t => {
+  const y = menu(t);
+  assert.equal(tool().hidden, false);
+  assert.equal(tool().disabled, false);
+  assert.equal(tool().title, t0('viewing.action_title'));
+  scene.event = null;
+  viewing.syncViewingAction();
+  assert.equal(tool().hidden, true, 'outside the festival');
+  scene.event = 'blossom';
+  scene.weather = 'rain';
+  viewing.syncViewingAction();
+  assert.equal(tool().hidden, true, 'in the rain');
+  scene.weather = 'clear';
+  viewing.syncViewingAction();
+  assert.equal(tool().hidden, false);
+  state.setGame({ kind: 'hide', ids: [], hint: '', timers: new Set() });
+  viewing.syncViewingAction();
+  assert.equal(tool().disabled, true, 'while a game is on');
+  state.setGame(null);
+  viewing.syncViewingAction();
+  assert.equal(tool().disabled, false);
+  tool().onclick();
+  assert.equal(viewing.viewing(), true);
+  assert.equal(tool().disabled, true, 'during a gathering, so no one is told everyone is busy');
+  viewing.endViewing();
+  viewing.syncViewingAction();
+  assert.equal(tool().disabled, false);
+  y.pets.length = 0;
+  state.data.pets = [];
+  viewing.syncViewingAction();
+  assert.equal(tool().disabled, true, 'with no friends');
+});
+
+test('the menu syncs without the button on the page', t => {
+  menu(t);
+  const lookup = document.getElementById;
+  document.getElementById = id => (id === 'viewing-tool' ? null : lookup(id));
+  assert.doesNotThrow(() => viewing.syncViewingAction());
+});
+
+test('calling friends works at most once an hour', t => {
+  const y = menu(t);
+  tool().onclick();
+  assert.equal(viewing.viewing(), true);
+  assert.deepEqual(viewed, ['2027-04-05']);
+  assert.equal(state.data.garden.viewed, '2027-04-05');
+  viewing.endViewing();
+  y.tick(30 * MIN);
+  viewing.syncViewingAction();
+  assert.equal(tool().getAttribute('aria-disabled'), 'true');
+  assert.equal(tool().title, t0('viewing.wait'));
+  tool().onclick();
+  assert.equal(said(), t0('viewing.wait'));
+  assert.equal(viewing.viewing(), false);
+  y.tick(31 * MIN);
+  viewing.syncViewingAction();
+  assert.equal(tool().getAttribute('aria-disabled'), 'false');
+  assert.equal(tool().title, t0('viewing.action_title'));
+  tool().onclick();
+  assert.equal(viewing.viewing(), true);
+});
+
+test('a call with every friend busy says so', t => {
+  const y = menu(t);
+  for (const v of y.views()) v.doing = { end() {} };
+  tool().onclick();
+  assert.equal(said(), t0('viewing.none_free'));
+  assert.equal(viewing.viewing(), false);
+  assert.deepEqual(viewed, []);
+  // A call that failed does not start the hour.
+  for (const v of y.views()) v.doing = null;
+  tool().onclick();
+  assert.equal(viewing.viewing(), true);
+});
+
+test('a call with one free friend still gathers', t => {
+  const y = menu(t);
+  const [first, ...rest] = y.views();
+  for (const v of rest) v.doing = { end() {} };
+  tool().onclick();
+  assert.equal(viewing.viewing(), true);
+  assert.equal(first.away, true);
 });

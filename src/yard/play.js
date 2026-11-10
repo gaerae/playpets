@@ -28,6 +28,7 @@ import {
 import { hint } from './hint.js';
 import { snowmanGame } from './snowman.js';
 import { release, rest, sendTo } from './trips.js';
+import { syncViewingAction } from './viewing.js';
 import { bubble, effect, labelTag, place, pose } from './views.js';
 
 const party = () => game.ids.map(id => views.get(id)).filter(Boolean);
@@ -47,6 +48,7 @@ export function after(ms, fn) {
 }
 export function syncGameUi() {
   syncFishingAction();
+  syncViewingAction();
   for (const b of gameButtons) {
     const mine = game?.kind === b.dataset.game;
     b.querySelector('.game-name').textContent = mine

@@ -957,6 +957,10 @@ export const strings = {
   'letter.back_title': '{name:이/가} 답장을 기억하고 있어요',
   'letter.back_quote': '“{answer}”',
   'letter.back_cheer': '올해도 응원할게!',
+  'viewing.action': '꽃구경',
+  'viewing.action_title': '친구들을 불러 함께 벚꽃을 봐요',
+  'viewing.wait': '친구들이 방금 꽃구경을 했어요. 조금 있다가 다시 불러 주세요.',
+  'viewing.none_free': '지금은 다들 바빠요.',
   'viewing.suggest': ['벚꽃 보러 가자!', '벚꽃 폈어. 다 같이 보자!'],
   'viewing.lines': [
     '정말 예쁘다…',
