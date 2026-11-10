@@ -253,6 +253,14 @@ const scenario = `(async()=>{
     const selectable=el=>{const css=getComputedStyle(el);return css.userSelect||css.webkitUserSelect;};
     const message=shownLog.querySelector('.message');
     await L('selection='+(selectable($('yard'))==='none'&&message&&selectable(message)!=='none'?'scenery-only':'err'));
+    // A creature on the friend's body takes the press in the browser's own event order: the friend
+    // hears neither the press nor the click that ends it. The yard's creatures are stood in for.
+    {const sc=(await import('./yard/world.js')).scenery,keep={near:sc.near,catchAt:sc.catchAt},v=[...yardState.views.values()].find(f=>!f.drag&&!f.away);let taken=0,heard=0;const hear=()=>heard++;
+     sc.near=()=>true;sc.catchAt=(x,y)=>(taken++,{kind:'butterfly',species:'',x,y});v.button.addEventListener('pointerdown',hear);v.button.addEventListener('click',hear);
+     const r=v.button.getBoundingClientRect(),at={button:0,bubbles:true,cancelable:true,clientX:r.left+r.width/2,clientY:r.top+r.height/2};
+     try{v.button.dispatchEvent(new PointerEvent('pointerdown',at));v.button.dispatchEvent(new PointerEvent('pointerup',at));v.button.dispatchEvent(new MouseEvent('click',{...at,detail:1}));}
+     finally{Object.assign(sc,keep);v.button.removeEventListener('pointerdown',hear);v.button.removeEventListener('click',hear);}
+     await L('frontCatch='+(taken===1&&heard===0&&!v.drag?'creature':'err:'+taken+':'+heard+':'+!!v.drag));}
     if(!$('side-panel').hidden)$('close-panel').click();
     // Startup explanations float above the scene and stay dismissed across ordinary renders.
     const startupNotices=await import('./core/notices.js');
@@ -1596,6 +1604,7 @@ const expect = [
   [/^letterDelete=year-only$/, 'deleting a letter keeps only the year'],
   [/^chrome=frameless$/, 'the yard has no title-bar controls on any OS'],
   [/^selection=scenery-only$/, 'scenery cannot select text while conversation messages remain selectable'],
+  [/^frontCatch=creature$/, 'a creature in front of a friend takes the press and its click; the friend hears neither'],
   [/^contextFull=clamped-escaped-and-reset$/, 'blank-yard context menu fits, closes and restores the normal anchor'],
   [/^contextSmall=clamped-and-escaped$/, 'small-window context menu fits and restores visible focus'],
   [

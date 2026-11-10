@@ -71,7 +71,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - On Windows without the Microsoft Edge WebView2 Runtime, PlayPets says it needs it and offers to open its download page, instead of closing without a word.
 - In the Microsoft Store version, Claude Code started by PlayPets no longer updates itself, so an update can't land in PlayPets' own folder, unseen by your terminal and deleted with PlayPets.
 - A friend's speech bubble stays inside the yard sideways, also in a small window, instead of running off the edge.
-- A butterfly, dragonfly or firefly flying in front of a friend, a plant or a gift can be caught by clicking it, instead of the click picking up or patting the friend or opening what is underneath.
+- A butterfly, dragonfly or firefly flying in front of a friend, a plant, a gift, a tree, a snowball or the fishing float can be caught by clicking it, instead of the click picking up, patting, opening or rolling what is underneath. A click just beside the creature still goes to what is behind it.
 - Fishing goes on when you make the window smaller or larger: the friend keeps walking to the lake, or stays there with its float on the water, instead of the trip ending.
 - The line under the scene names the place you picked, such as "Lakeside cottage, a golden evening", in every place and in a background of your own with a sky, instead of only the Cozy living room.
 - The Stone courtyard and the Lakeside cottage each describe themselves, instead of repeating the Hill garden's description.

@@ -712,8 +712,8 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     return best;
   }
   /** Catches the creature at a point: it leaves the canvas and its kind is returned, or null. */
-  function catchAt(x, y) {
-    const c = near(x, y);
+  function catchAt(x, y, reach) {
+    const c = near(x, y, reach);
     if (!c) return null;
     critters = critters.filter(other => other !== c);
     if (!critters.length) refillAt = performance.now() + between(Math.random, REST);
@@ -748,7 +748,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     set,
     frame,
     busy,
-    near: (x, y) => !!near(x, y),
+    near: (x, y, reach) => !!near(x, y, reach),
     catchAt,
     nearPetal: (x, y) => !!petalNear(x, y),
     catchPetal,

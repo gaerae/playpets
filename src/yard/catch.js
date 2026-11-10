@@ -356,14 +356,17 @@ function free(e) {
     !aiming && !game && data.pets.length && !e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button')
   );
 }
-// Creatures fly on the weather layer, in front of friends, plants and gifts, yet a press on one there
-// reaches what is underneath. With an empty hand, the creature takes it.
-const UNDER = '.yard-pet, .pet-tag, .plant, .decor';
+// Creatures fly on the weather layer, in front of friends and of everything in the garden (plants,
+// gifts, trees, snowballs, the float), yet a press on one there reaches what is underneath. With an
+// empty hand, the creature takes a press on its body; one beside it, which in an open sky would
+// still catch it, stays with the friend or thing behind. The yard's own controls are not under it.
+const UNDER = '#pet-layer, #label-layer, #garden-layer';
+const BODY = 14;
 // `press`: a pointerdown, which only the main button makes a catch; a pointermove has no button.
 function inFront(e, press = true) {
   if (aiming || game || !data.pets.length || (press && e.button !== 0) || !e.target.closest?.(UNDER)) return null;
   const [x, y] = at(e);
-  return scenery?.near(x, y) ? [x, y] : null;
+  return scenery?.near(x, y, BODY) ? [x, y] : null;
 }
 // The play tools that stay in hand (digging, a tree, a seed). Pressing the lake or a creature with one
 // still fishes or catches: the press puts the tool away first, so nothing in the yard is hidden by it.
@@ -417,7 +420,7 @@ export function setupCatch({ wish = () => {} } = {}) {
     e => {
       caughtPress = false;
       const point = inFront(e),
-        caught = point && scenery.catchAt(...point);
+        caught = point && scenery.catchAt(...point, BODY);
       if (!caught) return;
       e.stopPropagation();
       e.preventDefault();
@@ -429,7 +432,9 @@ export function setupCatch({ wish = () => {} } = {}) {
   yard.addEventListener(
     'click',
     e => {
-      if (!caughtPress) return;
+      // A click from the keyboard (no press before it, detail 0) is never the end of that press,
+      // even when the press ended away from the yard and made no click of its own.
+      if (!caughtPress || e.detail === 0) return;
       caughtPress = false;
       e.stopPropagation();
       e.preventDefault();

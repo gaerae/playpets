@@ -133,9 +133,9 @@ test('a click catches a bug first, then a petal, and a tool in hand never gives 
   }
 });
 
-test('a creature flying in front of a friend, a plant or a gift is caught by a press on it', async context => {
+test('a creature flying in front of anything in the yard is caught by a press on its body', async context => {
   const { nodes, element } = installDom(context, {
-    ids: ['yard', 'catch-card', 'toast', 'yard-hint', 'agent-summary'],
+    ids: ['yard', 'pet-layer', 'label-layer', 'garden-layer', 'catch-card', 'toast', 'yard-hint', 'agent-summary'],
     props: { rect: { width: 800, height: 560 } },
   });
   nodes.get('catch-card').querySelector = () => element();
@@ -143,17 +143,42 @@ test('a creature flying in front of a friend, a plant or a gift is caught by a p
     view = { pet, px: 100, py: 200, z: 40, pose: 'idle', bubble: element(), button: element() };
   views.set(pet.id, view);
   setData({ pets: [pet], assets: [], statuses: {} });
+  // The yard's own reach: a creature counts within `reach` of the press (22 in an open sky).
   let creature = null;
-  setScenery({ catchAt: () => creature, near: () => !!creature, nearPetal: () => true, catchPetal: () => null });
+  const within = (x, y, reach = 22) => creature && Math.hypot(creature.x - x, creature.y - y) < reach;
+  setScenery({
+    catchAt: (x, y, reach) => (within(x, y, reach) ? creature : null),
+    near: (x, y, reach) => !!within(x, y, reach),
+    nearPetal: () => false,
+    catchPetal: () => null,
+  });
   setupCatch();
   const yard = nodes.get('yard');
-  const press = (target, onStop) => ({ target, button: 0, clientX: 100, clientY: 200, stopPropagation: onStop });
+  for (const layer of ['pet-layer', 'label-layer', 'garden-layer']) yard.append(nodes.get(layer));
+  const press = (target, onStop, more = {}) => ({
+    target,
+    button: 0,
+    clientX: 100,
+    clientY: 200,
+    stopPropagation: onStop,
+    ...more,
+  });
+  // Each is a button in the yard (props.js, snowman.js, views.js), as here.
+  const thing = (kind, layer) => {
+    const node = element('button');
+    node.classList.add(kind);
+    nodes.get(layer).append(node);
+    return node;
+  };
   try {
-    for (const kind of ['yard-pet', 'pet-tag', 'plant', 'decor']) {
-      const under = element();
-      under.classList.add(kind);
-      yard.append(under);
-      creature = { species: catalog.bugs[0].id, x: 100, y: 200 };
+    const things = [
+      ['yard-pet', 'pet-layer'],
+      ['pet-tag', 'label-layer'],
+      ...['plant', 'decor', 'planted-tree', 'snowball', 'bobber'].map(kind => [kind, 'garden-layer']),
+    ];
+    for (const [kind, layer] of things) {
+      const under = thing(kind, layer);
+      creature = { species: catalog.bugs[0].id, x: 108, y: 200 };
       const before = catches.length;
       let stopped = false,
         clickStopped = false;
@@ -165,27 +190,51 @@ test('a creature flying in front of a friend, a plant or a gift is caught by a p
       assert.ok(stopped, `and the ${kind} beneath never hears the press`);
       await yard.dispatch(
         'click',
-        press(under, () => (clickStopped = true)),
+        press(under, () => (clickStopped = true), { detail: 1 }),
       );
-      assert.ok(clickStopped, 'nor the click that ends it: no pat, no plant or gift opened');
+      assert.ok(clickStopped, 'nor the click that ends it: no pat, nothing opened or rolled');
       assert.equal(catches.length, before + 1, 'the click catches nothing more');
     }
-    // With nothing flying there, a press on a friend is the friend's: picked up, patted.
-    creature = null;
-    const friend = element();
-    friend.classList.add('yard-pet');
-    let stopped = false,
-      clickStopped = false;
+    // A creature passing near, not on, a friend leaves the press to the friend: picked up, patted.
+    for (const at of [null, { species: catalog.bugs[0].id, x: 118, y: 200 }]) {
+      creature = at;
+      const friend = thing('yard-pet', 'pet-layer');
+      let stopped = false,
+        clickStopped = false;
+      await yard.dispatch(
+        'pointerdown',
+        press(friend, () => (stopped = true)),
+      );
+      assert.equal(stopped, false, at ? 'a creature 18px off is a near miss' : 'an empty sky leaves the press');
+      await yard.dispatch(
+        'click',
+        press(friend, () => (clickStopped = true), { detail: 1 }),
+      );
+      assert.equal(clickStopped, false, 'and its click too');
+    }
+    // The yard's own controls are not under the creatures.
+    creature = { species: catalog.bugs[0].id, x: 100, y: 200 };
+    const control = element('button');
+    yard.append(control);
+    let controlStopped = false;
     await yard.dispatch(
       'pointerdown',
-      press(friend, () => (stopped = true)),
+      press(control, () => (controlStopped = true)),
     );
-    assert.equal(stopped, false, 'an empty sky leaves the press to the friend');
+    assert.equal(controlStopped, false, 'a button on the yard keeps its press');
+    // A press that caught one but ended away from the yard makes no click; a click from the keyboard
+    // after it (Enter on a plant) still opens what it is on.
+    const plant = thing('plant', 'garden-layer');
+    await yard.dispatch(
+      'pointerdown',
+      press(plant, () => {}),
+    );
+    let keyStopped = false;
     await yard.dispatch(
       'click',
-      press(friend, () => (clickStopped = true)),
+      press(plant, () => (keyStopped = true), { detail: 0 }),
     );
-    assert.equal(clickStopped, false, 'and its click too');
+    assert.equal(keyStopped, false, 'a keyboard click is never the end of a press');
   } finally {
     endFishing();
     views.clear();
