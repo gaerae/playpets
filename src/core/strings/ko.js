@@ -76,6 +76,8 @@ export const strings = {
   'shoot.asparagus': '아스파라거스',
   'shoot.morel': '곰보버섯',
   'shoot.title': '봄 새싹이에요. 누르면 친구가 캐러 가요',
+  'shoot.found': ['봐봐, 새싹이 났어!', '여기 봄이 쏙 올라왔어!', '찾았다!'],
+  'shoot.no_friend': '친구를 초대하면 캐 줄 거예요',
   'trail.follow': '발자국 따라가기',
   'trail.sniff': ['킁킁…', '누가 지나갔을까?', '조그만 발자국이다!'],
   'trail.seen': '{animal}였어! 저기 간다!',

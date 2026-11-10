@@ -485,10 +485,10 @@ test('no custom property is defined from itself', async () => {
 
 // A custom property the page sets from code rather than in a stylesheet, and the file that sets it.
 const SET_FROM_CODE = {
-  '--dig-scale': 'src/yard/discovery.js',
-  '--dig-duration': 'src/yard/discovery.js',
-  '--dig-contact': 'src/yard/discovery.js',
-  '--dig-toss': 'src/yard/discovery.js',
+  '--dig-scale': 'src/yard/work.js',
+  '--dig-duration': 'src/yard/work.js',
+  '--dig-contact': 'src/yard/work.js',
+  '--dig-toss': 'src/yard/work.js',
   '--head': 'src/core/sprites.js',
   '--orb-x': 'src/yard/sky.js',
   '--orb-y': 'src/yard/sky.js',

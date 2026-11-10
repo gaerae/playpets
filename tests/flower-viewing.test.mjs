@@ -30,6 +30,7 @@ const { decorPlacement } = await import('../src/yard/decor.js');
 const { endFishing, fishingNow, setupCatch } = await import('../src/yard/catch.js');
 const { autoDig, cancelDiscoveryWork, digging, sendDiscovery } = await import('../src/yard/discovery.js');
 const viewing = await import('../src/yard/viewing.js');
+const { gatherShoot, setupShoots, shootDigging } = await import('../src/yard/shoots.js');
 
 const MIN = 60_000;
 const cherry = { id: 'c', kind: 'cherry', world: 'woodland', x: 0.5, y: 0.15, planted: 0, stage: 2 };
@@ -231,6 +232,30 @@ test('friends do not gather while one of them fishes or digs, though two others 
   assert.deepEqual(viewed, []);
   cancelDiscoveryWork();
   state.setSelected(null);
+});
+
+test('friends do not gather while one of them digs up a spring shoot', async t => {
+  const y = yard(t);
+  installStorage(t).setItem(
+    'shoots',
+    JSON.stringify({
+      morning: '2027-04-05',
+      rainAt: 0,
+      out: [{ id: 'm', kind: 'morel', world: 'woodland', x: 0.3, y: 0.6, at: Date.now() }],
+    }),
+  );
+  setupShoots();
+  state.setSelected('a');
+  const a = state.views.get('a');
+  t.after(() => {
+    release(a);
+    state.setSelected(null);
+  });
+  assert.equal(gatherShoot('m'), true);
+  assert.equal(shootDigging(), true);
+  y.pastCadence();
+  assert.equal(viewing.viewing(), false, 'not while a friend goes for a shoot');
+  assert.deepEqual(viewed, []);
 });
 
 test('under the tree friends stand apart to both sides of the trunk, its crown left open', t => {

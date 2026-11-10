@@ -4,8 +4,8 @@
 //
 // - Where, who and when are viewing-rules.js's; this file walks the friends and keeps the turns.
 // - Each friend's walk there is its trip and its standing there its task (trips.js): whatever the
-//   person starts (a game, a treat, a dig, the rod, a drag) takes the friend, and the gathering
-//   hears it and lets that friend go.
+//   person starts (a game, a treat, a dig, a spring shoot, the rod, a drag) takes the friend, and
+//   the gathering hears it and lets that friend go.
 // - Gathered friends are `away`, as in a game, so a state event does not put them back where they
 //   were saved; when one leaves, the place it stands in is kept as its own. They are `gathered` too:
 //   what the person starts may take one when no friend is free (trips.js forPerson), while the
@@ -28,6 +28,7 @@ import { digging } from './discovery.js';
 import { field, fieldToYard, footOf, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { localDay } from './growth.js';
 import { treeSize } from './planted-trees.js';
+import { shootDigging } from './shoots.js';
 import { isFree, sendTo, setDoing, strolling } from './trips.js';
 import {
   mayCall,
@@ -110,7 +111,7 @@ function callFriends() {
 export const viewing = () => !!gathering;
 
 // Nothing the person started that a gathering would call friends away from.
-const busy = () => !!game || !!aiming || fishingNow() || digging();
+const busy = () => !!game || !!aiming || fishingNow() || digging() || shootDigging();
 // Friends free to come, a stroll let go of; when the friends start it, only those not busy with an
 // agent or a chat.
 const freeFriends = idle =>

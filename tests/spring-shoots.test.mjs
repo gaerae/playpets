@@ -4,14 +4,25 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 import { t as translate } from '../src/core/i18n.js';
-import { data, setData } from '../src/core/state.js';
-import { setupAlbum } from '../src/panel/album.js';
 import { SHOOTS } from '../src/yard/catalog.js';
 import { albumEntries } from './support/content.mjs';
 import { installDom } from './support/dom.mjs';
 
+// The backend's gatherShoot, as the tests answer it (state.js reads the bridge when it first loads).
+const gathered = [];
+let answer = () => ({ ok: true, data: { entry: { count: 1 }, first: true } });
+globalThis.playPets = {
+  gatherShoot: async kind => {
+    gathered.push(kind);
+    return answer(kind);
+  },
+};
+const state = await import('../src/core/state.js');
+const { setData } = state;
+const { setupAlbum } = await import('../src/panel/album.js');
+
 test('the Spring shoots book shows each shoot, its name and the season', t => {
-  const before = data;
+  const before = state.data;
   t.after(() => setData(before));
   installDom(t, { anyId: true });
   document.querySelectorAll = () => document.getElementById('album-tabs').children;
@@ -52,9 +63,9 @@ test('the Spring shoots book shows each shoot, its name and the season', t => {
 // the webview's storage, shown only while the yard shows spring outdoors, gone where the ground is
 // taken and after six hours. The clock, the random draws and the scene are the test's.
 const { readFile } = await import('node:fs/promises');
-const { recall } = await import('../src/core/state.js');
+const { recall } = state;
 const { artHref } = await import('../src/yard/art.js');
-const { measureYard } = await import('../src/yard/field.js');
+const { EDGE, fieldToYard, geometry, measureYard, sizeOf } = await import('../src/yard/field.js');
 const { clearRainbowEnd, placeRainbowEnd } = await import('../src/yard/rainbow-end.js');
 const { SHOOT_APART, SHOOT_STAYS_MS } = await import('../src/yard/shoot-rules.js');
 const { renderShoots, setupShoots, shootsMinute } = await import('../src/yard/shoots.js');
@@ -174,7 +185,7 @@ test('a shoot whose ground is taken is gone at once, and from storage at the nex
   const y = await springYard(ctx, { scene: { period: 'day' }, stored: record([standing('a', 'morel', 0.2, 0.6)]) });
   shootsMinute();
   assert.equal(y.live().length, 1);
-  data.garden.decor.push({ id: 'bench', kind: 'bench', x: 0.2, y: 0.6 });
+  state.data.garden.decor.push({ id: 'bench', kind: 'bench', x: 0.2, y: 0.6 });
   renderShoots();
   assert.equal(y.live().length, 0, 'not drawn on the bench');
   assert.equal(y.saved().out.length, 1);
@@ -276,4 +287,223 @@ test('a shoot rises once, stays still for reduced motion, and lets a tool or a g
     assert.ok(['transform', 'opacity'].includes(property), property);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.shoot\.sprouted svg \{ animation: none; \}/);
   assert.match(css, /\.yard\.aiming \.shoot, \.yard\.playing \.shoot \{ pointer-events: none; \}/);
+});
+
+// Clicking a shoot (src/yard/shoots.js gatherShoot): a friend walks over, digs it up as for a
+// treasure, and the album keeps it. The friend is drawn as views.js has it; its trip's end is run
+// by the test, as the frame loop runs it when the friend gets there.
+const { element } = await import('./support/dom.mjs');
+const { list } = await import('../src/core/i18n.js');
+const { artSvg } = await import('../src/yard/art.js');
+const { setupCard } = await import('../src/yard/card.js');
+const { release } = await import('../src/yard/trips.js');
+const { gatherShoot, shootDigging } = await import('../src/yard/shoots.js');
+
+const flush = () => new Promise(resolve => setImmediate(resolve));
+async function digYard(ctx, { friend = true } = {}) {
+  gathered.length = 0;
+  answer = () => ({ ok: true, data: { entry: { count: 1 }, first: true } });
+  const y = await springYard(ctx, { scene: { period: 'day' }, stored: record([standing('m', 'morel', 0.3, 0.6)]) });
+  // The card's parts, kept so the test can read what it says.
+  const card = y.document.getElementById('catch-card'),
+    parts = new Map();
+  card.hidden = true;
+  card.querySelector = selector => parts.get(selector) ?? parts.set(selector, element()).get(selector);
+  const opened = [];
+  setupCard({ openAlbum: book => opened.push(book) });
+  shootsMinute();
+  const pet = { id: 'clover', size: 112, name: 'Clover' },
+    v = { pet, px: 120, py: 300, x: 0.1, y: 0.5, pose: 'idle', bubble: element('span') };
+  if (friend) {
+    state.views.set(pet.id, v);
+    state.setSelected(pet.id);
+  }
+  ctx.after(() => {
+    release(v);
+    state.views.clear();
+    state.setSelected(null);
+    state.setGame(null);
+    state.setAiming(false);
+  });
+  const [button] = y.live();
+  return {
+    ...y,
+    v,
+    button,
+    card,
+    parts,
+    opened,
+    click: (init = {}) => button.dispatch('click', init),
+    // The friend gets where it was sent: its trip is let go of, then its end runs.
+    async arrive() {
+      const { trip } = v;
+      v.target = null;
+      v.trip = null;
+      await trip.arrive(v, 0);
+    },
+    effect: () => y.nodes.get('garden-layer').children.find(n => !n.removed && n.classList.contains('dig-effect')),
+    said: () => y.document.getElementById('toast').children.map(line => line.textContent),
+  };
+}
+
+test('clicking a shoot sends a friend to dig it up and keeps it in the album', async ctx => {
+  const y = await digYard(ctx);
+  await y.click();
+  assert.ok(y.v.target, 'the friend sets off');
+  assert.ok(y.button.classList.contains('picking'));
+  assert.equal(shootDigging(), true);
+  // With no clip of its own the friend stands beside the shoot, so the shovel and the soil show.
+  const { w } = geometry(y.v.pet),
+    foot = EDGE + y.v.target.x * w + sizeOf(y.v.pet) / 2,
+    at = fieldToYard({ x: 0.3, y: 0.6 }).x;
+  assert.ok(Math.abs(foot - at) >= 0.25 * sizeOf(y.v.pet), `feet at ${foot}, shoot at ${at}`);
+  await y.arrive();
+  const effect = y.effect();
+  assert.ok(effect, 'it digs where the shoot is');
+  assert.match(effect.innerHTML, /dig-soil/);
+  assert.ok(
+    effect.innerHTML.includes(artHref('discovery/shovel.svg')),
+    'a friend with no tool of its own has a shovel',
+  );
+  ctx.mock.timers.tick(1949);
+  await flush();
+  assert.deepEqual(gathered, []);
+  ctx.mock.timers.tick(1);
+  await flush();
+  assert.deepEqual(gathered, ['morel']);
+  assert.equal(y.live().length, 0);
+  assert.deepEqual(y.saved().out, []);
+  assert.equal(y.parts.get('strong').textContent, translate('shoot.morel'));
+  assert.equal(y.parts.get('small').textContent, '', 'a first find says so on its own line');
+  assert.ok(y.card.innerHTML.includes(artSvg(SHOOTS.find(s => s.id === 'morel').art)), "the album's drawing");
+  await y.card.children.find(child => child.className === 'catch-album').onclick({ stopPropagation() {} });
+  assert.deepEqual(y.opened, ['shoot']);
+  assert.ok(list('shoot.found').includes(y.v.bubble.textContent), y.v.bubble.textContent);
+  assert.equal(effect.removed, true);
+  assert.equal(y.v.doing, null);
+  assert.equal(shootDigging(), false);
+});
+
+test('a second click while a friend is on the way sends no one', async ctx => {
+  const y = await digYard(ctx);
+  await y.click();
+  const trip = y.v.trip;
+  await y.click();
+  assert.equal(y.v.trip, trip, 'the same trip');
+  assert.equal(gatherShoot('m'), false);
+  await y.arrive();
+  ctx.mock.timers.tick(1950);
+  await flush();
+  assert.deepEqual(gathered, ['morel']);
+});
+
+test('a friend taken away leaves the shoot for another time', async ctx => {
+  const y = await digYard(ctx);
+  await y.click();
+  const trip = y.v.trip;
+  release(y.v);
+  assert.ok(!y.button.classList.contains('picking'));
+  assert.equal(shootDigging(), false);
+  await trip.arrive(y.v, 0);
+  ctx.mock.timers.tick(1950);
+  await flush();
+  assert.deepEqual(gathered, []);
+  assert.equal(y.effect(), undefined);
+  assert.equal(y.saved().out.length, 1);
+  await y.click();
+  assert.ok(y.v.target, 'a click again sends the friend again');
+  assert.ok(y.button.classList.contains('picking'));
+});
+
+test('a friend taken away while digging records nothing', async ctx => {
+  const y = await digYard(ctx);
+  await y.click();
+  await y.arrive();
+  const effect = y.effect();
+  ctx.mock.timers.tick(1000);
+  release(y.v);
+  ctx.mock.timers.tick(950);
+  await flush();
+  assert.deepEqual(gathered, []);
+  assert.equal(effect.removed, true);
+  assert.equal(y.v.doing, null);
+  assert.ok(!y.button.classList.contains('picking'));
+  assert.equal(y.live().length, 1);
+  assert.equal(y.saved().out.length, 1);
+});
+
+test('a dig that ends in another place records nothing', async ctx => {
+  const y = await digYard(ctx);
+  await y.click();
+  await y.arrive();
+  scene.world = 'studio';
+  ctx.mock.timers.tick(1950);
+  await flush();
+  assert.deepEqual(gathered, []);
+  assert.equal(y.v.doing, null, 'the friend is let go');
+  assert.equal(shootDigging(), false);
+  assert.equal(y.saved().out.length, 1);
+});
+
+test('no friend or every friend busy says so', async ctx => {
+  const y = await digYard(ctx, { friend: false });
+  await y.click();
+  assert.deepEqual(y.said(), [translate('shoot.no_friend')]);
+  state.views.set(y.v.pet.id, y.v);
+  y.v.doing = { end() {} };
+  await y.click();
+  assert.equal(y.v.target, undefined);
+  assert.ok(y.said().includes(translate('catch.busy')));
+  assert.ok(!y.button.classList.contains('picking'));
+});
+
+test('a friend viewing the blossom goes when no one else is free, and leaves the gathering', async ctx => {
+  const y = await digYard(ctx);
+  let left = false;
+  Object.assign(y.v, { away: true, gathered: true, doing: { end: () => (left = true) } });
+  await y.click();
+  assert.ok(y.v.target);
+  assert.equal(left, true);
+});
+
+test("with a tool in hand or in a game the click is the yard's", async ctx => {
+  const y = await digYard(ctx);
+  let stopped = false;
+  const stopPropagation = () => (stopped = true);
+  state.setAiming('seed');
+  await y.click({ stopPropagation });
+  state.setAiming(false);
+  state.setGame({ kind: 'hide', ids: [], hint: '', timers: new Set() });
+  await y.click({ stopPropagation });
+  assert.equal(y.v.target, undefined);
+  assert.equal(stopped, false);
+  assert.deepEqual(y.said(), []);
+});
+
+test('the shoot stays when the album cannot keep it', async ctx => {
+  const y = await digYard(ctx);
+  answer = () => Promise.reject(new Error('refused'));
+  await y.click();
+  await y.arrive();
+  ctx.mock.timers.tick(1950);
+  await flush();
+  assert.deepEqual(gathered, ['morel']);
+  assert.equal(y.live().length, 1);
+  assert.equal(y.saved().out.length, 1);
+  assert.ok(!y.button.classList.contains('picking'));
+  assert.equal(y.v.doing, null);
+  assert.equal(y.said().length, 1, 'the error is said');
+  await y.click();
+  assert.ok(y.v.target, 'and it can be clicked again');
+});
+
+test('a shoot being dug looks taken, and shoots dim at night as the flowers do', async () => {
+  const css = (await readFile('src/styles/garden.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
+  assert.match(css, /\.shoot\.picking \{ cursor: default; \}/);
+  assert.match(css, /\.shoot\.picking svg \{ opacity: 0\.7; transition: opacity 0\.3s; \}/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.shoot\.picking svg \{ transition: none; \}/);
+  assert.match(
+    css,
+    /\.period-night \.plant svg, \.period-night \.shoot svg \{ filter: brightness\(0\.62\) saturate\(0\.75\); \}/,
+  );
 });

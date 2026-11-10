@@ -77,8 +77,9 @@
   cursor: inherit;
 }
 /* each flower's colours (--petal, --petal-hi, --petal-lo, --heart) come from catalog.json, set on it */
-/* at night the flowers keep their shapes and lose their daylight */
-.period-night .plant svg {
+/* at night the flowers and the spring shoots keep their shapes and lose their daylight */
+.period-night .plant svg,
+.period-night .shoot svg {
   filter: brightness(0.62) saturate(0.75);
 }
 /* Spring shoots poking up from the grass (yard/shoots.js), set down at their depth like a plant. The
@@ -112,9 +113,20 @@
     transform: none;
   }
 }
+/* While a friend goes to dig it up, a shoot fades a little and takes no second press. */
+.shoot.picking {
+  cursor: default;
+}
+.shoot.picking svg {
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
 @media (prefers-reduced-motion: reduce) {
   .shoot.sprouted svg {
     animation: none;
+  }
+  .shoot.picking svg {
+    transition: none;
   }
 }
 /* With a tool in hand or in a game, a press on a shoot is the yard's: a dig or a tree goes there. */

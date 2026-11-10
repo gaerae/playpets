@@ -1,5 +1,4 @@
 // Brief, friend-led tasks: choose ground, walk there, then commit one discovery.
-import { beginCompanionAction, playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
 import { closeControls, closeScene } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
@@ -11,13 +10,13 @@ import { showCard } from './card.js';
 import { onAimingChange, setAimingMode } from './care.js';
 import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
-import { field, fieldToYard, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
+import { field, fieldToYard, petHeight, sizeOf, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
 import { atRainbowEnd } from './rainbow-end.js';
 import { atTrailEnd, reservedForTrail } from './trails.js';
-import { forPerson, isFree, release, rest } from './trips.js';
+import { forPerson, isFree, release } from './trips.js';
 import { bubble } from './views.js';
-import { holdAtWork, sendToWork, stopWork } from './work.js';
+import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
 import { scene } from './world.js';
 
 let intent = null;
@@ -151,15 +150,14 @@ function showMarker(event) {
 /** A task owns its timer and effect. Taking the friend away cancels only the presentation. */
 export function sendDiscovery(v, point, action, kind) {
   const world = scene.world,
-    pixel = fieldToYard(point),
+    stroke = action === 'tree' ? 'plant' : 'dig',
     task = {
       world,
       action,
       kind,
       cancelled: false,
-      effect: null,
+      dig: null,
       timer: null,
-      soilTimer: null,
       contactTimer: null,
       resumeContact: null,
     };
@@ -167,17 +165,14 @@ export function sendDiscovery(v, point, action, kind) {
     task.cancelled = true;
     clearTimeout(task.timer);
     clearTimeout(task.contactTimer);
-    clearTimeout(task.soilTimer);
     task.resumeContact?.();
-    task.effect?.remove();
+    task.dig?.stop();
     stopWork(v);
     if (tasks.get(v) === task) tasks.delete(v);
   };
   release(v);
   tasks.set(v, task);
-  const prepared = prepareCompanionAction(v.asset, action === 'tree' ? 'plant' : 'dig');
-  prepareCompanionAction(v.asset, 'discover');
-  sendToWork(v, pixel, prepared, {
+  sendToDig(v, point, stroke, {
     cancel: cleanup,
     arrive: guard(async () => {
       if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
@@ -189,40 +184,15 @@ export function sendDiscovery(v, point, action, kind) {
         rainbow: atRainbowEnd(point),
         trail: atTrailEnd(point),
       };
-      holdAtWork(v, cleanup);
-      const authored = playCompanionAction(v, action === 'tree' ? 'plant' : 'dig');
-      const duration = authored?.duration ?? 1950;
-      const effect = document.createElement('span');
-      effect.className = `dig-effect${authored ? ' authored' : ''}`;
-      effect.setAttribute('aria-hidden', 'true');
-      effect.dataset.soil = scene.season === 'winter' ? 'winter' : 'base';
-      effect.classList.toggle('planting', action === 'tree');
-      effect.style.zIndex = String(
-        Math.max(0, Math.min(1 + Math.round(point.y * 100), v.z ?? 1 + Math.round(v.y * 100)) - 1),
-      );
-      effect.innerHTML = `<span class="dig-soil"></span><span class="dig-dirt"></span>${authored?.clip.heldTool ? '' : artSvg('discovery/shovel.svg')}`;
-      effect.style.left = `${pixel.x}px`;
-      effect.style.top = `${pixel.y}px`;
-      effect.style.setProperty('--dig-scale', String(yardZoom()));
-      effect.style.setProperty('--dig-duration', `${duration}ms`);
-      if (authored) {
-        effect.style.setProperty('--dig-contact', `${authored.clip.contactAt ?? duration * 0.3}ms`);
-        effect.style.setProperty('--dig-toss', `${authored.clip.tossAt ?? duration * 0.65}ms`);
-      }
-      $('garden-layer').append(effect);
-      task.soilTimer = setTimeout(() => {
-        if (!task.cancelled) effect.classList.add('contact');
-      }, authored?.clip.contactAt ?? 300);
-      task.effect = effect;
+      task.dig = startDig(v, point, stroke, cleanup);
+      const { authored, duration } = task.dig;
       const before = new Set(Object.keys(data.album?.treasures || {}));
       let result,
         finished = false;
       const reveal = () => {
         if (!finished || !result || task.cancelled) return;
         if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
-        release(v);
-        rest(v);
-        if (action === 'tree' || (result.outcome && result.outcome !== 'empty')) beginCompanionAction(v, 'discover');
+        doneDigging(v, action === 'tree' || (result.outcome && result.outcome !== 'empty'));
         if (action === 'tree') return bubble(v, t('discovery.planted'), 2600);
         if (result.repeated) return bubble(v, t('discovery.repeated'), 2600);
         if (result.outcome === 'keepsake') {

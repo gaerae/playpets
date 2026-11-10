@@ -79,6 +79,8 @@ export const strings = {
   'shoot.asparagus': 'アスパラガス',
   'shoot.morel': 'アミガサタケ',
   'shoot.title': '春の芽です。クリックすると友だちが掘りに行きます',
+  'shoot.found': ['見て、芽が出てる！', 'ここに春が顔を出してたよ！', '見つけた！'],
+  'shoot.no_friend': '友だちを招くと掘ってくれます',
   'trail.follow': '足あとをたどる',
   'trail.sniff': ['くんくん…', 'だれが通ったのかな？', 'ちいさな足あとだ！'],
   'trail.seen': '{animal}だ！行っちゃった！',
