@@ -341,6 +341,18 @@ static COMMANDS: &[Command] = &[
             d.garden.wait_for_gift(c.text(0), due).map(|_| Value::Null)
         })
     }),
+    // (day): the local day friends gathered under the blossom, so it comes once a day (viewing.js).
+    main("markViewed", |c| {
+        commit(c.app, &c.state, |d| {
+            d.garden.mark_viewed(c.text(0)).map(|_| Value::Null)
+        })
+    }),
+    // (day): the local day a caught petal brought the special wish line (petals.js).
+    main("markWished", |c| {
+        commit(c.app, &c.state, |d| {
+            d.garden.mark_wished(c.text(0)).map(|_| Value::Null)
+        })
+    }),
     main("moveDecor", |c| {
         let (x, y) = (c.float(1), c.float(2));
         commit(c.app, &c.state, |d| {
@@ -524,6 +536,8 @@ static COMMANDS: &[Command] = &[
             d.garden.ornament_day = Default::default();
             d.garden.ornament_year = 0;
             d.garden.snowman_day.clear();
+            d.garden.viewed.clear();
+            d.garden.wished.clear();
             Ok(Value::Null)
         })
     }),
@@ -718,6 +732,8 @@ mod tests {
         assert!(may_call("main", "writeLetter") && !may_call("overlay0", "writeLetter"));
         assert!(may_call("main", "clearLetters") && !may_call("overlay0", "clearLetters"));
         assert!(may_call("main", "letterBack") && !may_call("overlay0", "letterBack"));
+        assert!(may_call("main", "markViewed") && !may_call("overlay0", "markViewed"));
+        assert!(may_call("main", "markWished") && !may_call("overlay0", "markWished"));
         assert!(may_call("main", "quitApp"));
         assert!(!may_call("overlay1", "quitApp"));
         assert!(!may_call("other", "bootstrap"));

@@ -124,6 +124,9 @@ const scenario = `(async()=>{
     const boot=await playPets.bootstrap();
     // The run stays quiet: the yard sounds are on by default (a unit test checks that), so they go off first.
     const soundDefault=boot.data.sound;await playPets.setSound(false,null);
+    // Today counts as viewed from the start, so a clear April day can never gather friends mid-run.
+    const todayLocal=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+    await playPets.markViewed(todayLocal());
     await L('assets='+boot.data.assets.length);
     await L('communities='+boot.data.communities.length);
     // The shelf says where each pet file lives: the fixture sits in Codex's pet folder.
@@ -471,6 +474,9 @@ const scenario = `(async()=>{
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
     await L('event='+(snow.kind==='xmas_tree'&&boxedTree&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
+    // e2eFreshGifts cleared the viewing day; the check keeps a far-off day, then today is marked again.
+    const viewedOk=(await playPets.markViewed('2027-04-05')).ok&&(await playPets.markViewed('soon')).ok===false&&(await playPets.bootstrap()).data.garden.viewed==='2027-04-05';await L('viewing='+(viewedOk?'day-kept':'err'));
+    await playPets.markViewed(todayLocal());
     // Real saved gifts fill the yard; the next waits in the gift box, putting one away retains its album record and
     // frees the capacity, and the boxed one is set out from the album.
     const capacityGifts=[];
@@ -1673,6 +1679,7 @@ const expect = [
     /^event=gift-and-label$/,
     'the winter lights bring the Christmas tree on their days, it goes back into the gift box when put away, and the scene label shows the event on now',
   ],
+  [/^viewing=day-kept$/, 'the day friends viewed the blossom is kept and an odd day is refused'],
   [
     /^ornaments=ok$/,
     'three gifts that came hang on the Christmas tree on a December day, and a fourth waits for the next day',

@@ -82,6 +82,14 @@ pub struct Garden {
     /// second the same day.
     #[serde(default)]
     pub snowman_day: String,
+    /// The local day friends last gathered under the blossom (YYYY-MM-DD, or empty); the page
+    /// decides when, so it comes once a day and a restart remembers.
+    #[serde(default)]
+    pub viewed: String,
+    /// The local day a caught petal last brought the special wish line (YYYY-MM-DD, or empty);
+    /// the page decides when.
+    #[serde(default)]
+    pub wished: String,
 }
 
 /// A find from the album (`book` and its `id`) hung on hook `hook` of the Christmas tree.
@@ -291,6 +299,15 @@ fn restore_ornaments(raw: Option<&Value>) -> Vec<Ornament> {
     kept
 }
 
+/// A saved local day under `key`, or empty when it is missing or not a day.
+fn day_at(raw: &Value, key: &str) -> String {
+    raw.get(key)
+        .and_then(Value::as_str)
+        .filter(|d| is_day(d))
+        .unwrap_or_default()
+        .to_string()
+}
+
 /// The last hang's day as state.json has it: a date, and no more than a day's hangs.
 fn restore_ornament_day(raw: Option<&Value>) -> OrnamentDay {
     let day = raw
@@ -340,12 +357,7 @@ impl Garden {
                 received.push(kind.into());
             }
         }
-        let gift_day = raw
-            .get("giftDay")
-            .and_then(Value::as_str)
-            .filter(|d| is_day(d))
-            .unwrap_or_default()
-            .to_string();
+        let gift_day = day_at(raw, "giftDay");
         let mut boxed = placed(
             raw.get("boxed"),
             BOX_MAX,
@@ -354,12 +366,7 @@ impl Garden {
             DECOR_FLOOR_MAX,
         );
         boxed.iter_mut().for_each(tidy);
-        let snowman_day = raw
-            .get("snowmanDay")
-            .and_then(Value::as_str)
-            .filter(|d| is_day(d))
-            .unwrap_or_default()
-            .to_string();
+        let snowman_day = day_at(raw, "snowmanDay");
         let thanked = raw
             .get("thanked")
             .and_then(Value::as_object)
@@ -415,6 +422,8 @@ impl Garden {
             ornament_day,
             ornament_year,
             snowman_day,
+            viewed: day_at(raw, "viewed"),
+            wished: day_at(raw, "wished"),
         }
     }
 
@@ -644,6 +653,24 @@ impl Garden {
         }
         if boxed { &mut self.boxed } else { &mut self.decor }.push(decor.clone());
         Ok(Given { decor, boxed })
+    }
+
+    /// Keeps the day friends gathered under the blossom; anything that is not a day is refused.
+    pub fn mark_viewed(&mut self, day: &str) -> Result<(), String> {
+        if !is_day(day) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        self.viewed = day.into();
+        Ok(())
+    }
+
+    /// Keeps the day of the special wish; anything that is not a day is refused.
+    pub fn mark_wished(&mut self, day: &str) -> Result<(), String> {
+        if !is_day(day) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        self.wished = day.into();
+        Ok(())
     }
 
     /// Builds a snowman at (x, y) on the page's local `day`: once a day, and it replaces the one in
@@ -913,6 +940,17 @@ mod tests {
         g.put_away(&s.id).unwrap();
         assert!(g.boxed.is_empty(), "a snowman put away melts");
         assert!(g.take_out(SNOWMAN, 0.5, 0.7, 2).is_err());
+    }
+
+    #[test]
+    fn a_viewing_day_and_a_wish_day_are_kept_and_odd_ones_are_refused() {
+        let mut g = Garden::default();
+        assert_eq!((g.viewed.as_str(), g.wished.as_str()), ("", ""));
+        g.mark_viewed("2027-04-05").unwrap();
+        g.mark_wished("2027-04-06").unwrap();
+        assert_eq!((g.viewed.as_str(), g.wished.as_str()), ("2027-04-05", "2027-04-06"));
+        assert!(g.mark_viewed("today").is_err() && g.mark_wished("2027-13-01").is_err());
+        assert_eq!(g.viewed, "2027-04-05", "a refused day changes nothing");
     }
 
     #[test]
@@ -1394,6 +1432,14 @@ mod tests {
         assert_eq!(with_decor.received, ["bench", "lantern"]);
         assert_eq!(with_decor.gift_day, "2026-10-09");
         assert_eq!(Garden::restore(Some(&json!({"giftDay": "soon"})), 0).gift_day, "");
+        assert_eq!((with_decor.viewed.as_str(), with_decor.wished.as_str()), ("", ""));
+        let days = Garden::restore(Some(&json!({"viewed": "2027-04-05", "wished": "2027-04-05"})), 0);
+        assert_eq!(
+            (days.viewed.as_str(), days.wished.as_str()),
+            ("2027-04-05", "2027-04-05")
+        );
+        let odd = Garden::restore(Some(&json!({"viewed": "soon", "wished": 7})), 0);
+        assert_eq!((odd.viewed.as_str(), odd.wished.as_str()), ("", ""));
         let boxed = Garden::restore(
             Some(&json!({
                 "giftDay": "2026-10-09",
