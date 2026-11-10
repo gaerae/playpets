@@ -250,7 +250,7 @@ On the first day you open PlayPets from December 26 to 31, the friend you're clo
 
 If there's a mailbox in the yard, the letter waits there; otherwise the friend tells you about it. Either way, the **Letter** chip beside the scene label and the yard menu open it until January 7. You can write back in up to 200 characters, or skip it.
 
-On the first day you open PlayPets from January 1 to 7, a friend brings your answer back and cheers you on, and next December's letter looks back on it. A friend with an AI connection writes in its own words. Letters and answers are kept only on this computer, and the letter card can delete them.
+On the first day you open PlayPets from January 1 to 7, a friend brings your answer back and cheers you on, and next December's letter looks back on it. A friend with an AI connection writes in its own words. Letters and answers are kept on this computer, and the letter card can delete them. When a friend with an AI connection writes next year's letter, that AI reads your answer.
 
 ## Closeness <Since v="0.1.0" />
 
