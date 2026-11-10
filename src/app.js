@@ -80,6 +80,7 @@ import { petalTick, setupPetals, wishAt } from './yard/petals.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
 import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGameUi } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
+import { renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
 import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
 import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
 import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
@@ -165,6 +166,9 @@ setupTrails({
   rested: digRested,
   visible: () => shown && !document.hidden,
 });
+// The spring shoots out, read back before the sky too: its first paint looks at them, and would
+// otherwise sprout over the stored ones.
+setupShoots();
 // December's question about the winter yard, checked at each repaint of the scene.
 const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
 // The year-end letter, written and brought while the yard is seen (letter.js).
@@ -173,6 +177,8 @@ setupSky({
   seasonChanged: season => {
     // Each minute's repaint: a Christmas gift or a snowman comes or goes with the date and season.
     refreshShownDecor();
+    // Spring shoots come up after rain and on fair mornings, and go after a few hours.
+    shootsMinute();
     winterCheck();
     letterCheck();
     // The winter yard's footprint trails come, soften and go under new snow.
@@ -202,6 +208,7 @@ setupSky({
     syncViews();
     renderGarden();
     renderDecor();
+    renderShoots();
     renderTrees();
     syncDiscovery();
     hint();
@@ -216,6 +223,7 @@ setupSky({
     resizeTrails();
     renderGarden();
     renderDecor();
+    renderShoots();
     renderTrees();
   },
 });
@@ -239,6 +247,7 @@ setupViews({
     resizeTrails();
     renderGarden();
     renderDecor();
+    renderShoots();
     renderTrees();
   },
 });

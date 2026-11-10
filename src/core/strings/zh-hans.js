@@ -77,6 +77,7 @@ export const strings = {
   'shoot.horsetail': '笔头菜',
   'shoot.asparagus': '芦笋',
   'shoot.morel': '羊肚菌',
+  'shoot.title': '春日嫩芽。点一下，伙伴会去挖出来',
   'trail.follow': '跟着脚印走',
   'trail.sniff': ['嗅嗅…', '谁走过这里？', '小小的脚印！'],
   'trail.seen': '是{animal}！跑掉了！',

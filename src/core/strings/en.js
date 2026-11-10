@@ -74,6 +74,7 @@ export const strings = {
   'shoot.horsetail': 'Horsetail shoot',
   'shoot.asparagus': 'Asparagus',
   'shoot.morel': 'Morel',
+  'shoot.title': 'A spring shoot. Click to send a friend to dig it up',
   'trail.follow': 'Follow the footprints',
   'trail.sniff': ['Sniff, sniff…', 'Who went this way?', 'Tiny footprints!'],
   'trail.seen': '{animal}! There it goes!',

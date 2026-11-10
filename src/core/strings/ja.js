@@ -78,6 +78,7 @@ export const strings = {
   'shoot.horsetail': 'ツクシ',
   'shoot.asparagus': 'アスパラガス',
   'shoot.morel': 'アミガサタケ',
+  'shoot.title': '春の芽です。クリックすると友だちが掘りに行きます',
   'trail.follow': '足あとをたどる',
   'trail.sniff': ['くんくん…', 'だれが通ったのかな？', 'ちいさな足あとだ！'],
   'trail.seen': '{animal}だ！行っちゃった！',

@@ -39,6 +39,9 @@ export function clearRainbowEnd() {
   mark = null;
 }
 
+/** The rainbow's end as a field point while the rainbow lasts, else null (shoots keep off it). */
+export const rainbowEnd = (now = Date.now()) => (end && now < end.until ? { x: end.x, y: end.y } : null);
+
 /** Whether a dig at this field point is at the rainbow's end while the rainbow lasts. */
 export function atRainbowEnd(point, now = Date.now()) {
   return !!end && now < end.until && Math.hypot(point.x - end.x, point.y - end.y) <= REACH;
