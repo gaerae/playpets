@@ -15,7 +15,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - During the cherry blossom festival, friends gather once a day under a cherry tree you grew, on a picnic blanket or in the middle of the yard to look at the flowers while petals fall a little thicker around them, then wander off after a minute or so. They never interrupt a game, fishing or digging.
 - **Flower viewing** in the play menu calls your friends to the blossom during the festival, at most once an hour.
 - Friends connected to an AI talk about the blossom in their own words while they view it; a gathering they start on their own does so only with **Let them chat now and then** on.
-- During the festival a falling petal sometimes lands on a friend's head and stays until it moves, and now and then the friend notices.
+- On clear festival days a falling petal sometimes lands on a friend's head and stays until it moves or the blossom weather ends, and now and then the friend notices.
 - Click a falling petal during the festival to catch it: it twirls into a little glint, and the first one each day brings a friend's wish that it will come true.
 - In the Microsoft Store version, PlayPets asks the Store for a newer version when it starts and every six hours, and **Check for updates** in Settings asks it at once. A version waiting in the Store shows beside the place selector and in Settings, and **Open in Microsoft Store** opens PlayPets' page there to install it. When the Store updates PlayPets while it is open, PlayPets opens again afterwards instead of staying closed.
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
