@@ -62,7 +62,16 @@
   transform-origin: 50% 100%;
   transition:
     transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    rotate 0.2s ease-out,
     opacity 0.4s;
+}
+/* A friend viewing the blossom looks up at it now and then, tilted toward the tree (viewing.js);
+   before the press, so a press still squashes. The canvas's transition eases it. */
+.yard-pet.looking-up:not(.pressed)[data-tilt="left"] > canvas {
+  transform: translateY(-1px) rotate(-4deg);
+}
+.yard-pet.looking-up:not(.pressed)[data-tilt="right"] > canvas {
+  transform: translateY(-1px) rotate(4deg);
 }
 .yard-pet.pressed > canvas {
   transform: scale(1.06, 0.92);
@@ -308,11 +317,12 @@
 .yard-bubble {
   position: absolute;
   /* just above the head: --head is the cell's empty top, measured per pet (core/sprites.js crown);
-     --bubble-lift raises it clear of a neighbour's bubble (views.js) */
+     --bubble-lift raises it clear of a neighbour's bubble and --bubble-shift moves it sideways to
+     stay inside the yard (views.js); it still pops from over the friend */
   bottom: calc(100% + 2px - var(--head, 8px) + var(--bubble-lift, 0px));
   left: 50%;
-  transform: translateX(-50%);
-  transform-origin: 50% 100%;
+  transform: translateX(calc(-50% + var(--bubble-shift, 0px)));
+  transform-origin: calc(50% - var(--bubble-shift, 0px)) 100%;
   animation: bubble-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   width: max-content;
   max-width: 190px;
@@ -329,6 +339,11 @@
   overflow-wrap: anywhere;
   pointer-events: none;
   z-index: 3;
+}
+/* A bubble that brings something can be pressed (views.js bubble: the year-end letter). */
+.yard-bubble.acts {
+  pointer-events: auto;
+  cursor: pointer;
 }
 .yard-thinking {
   display: none;
@@ -354,11 +369,11 @@
 @keyframes bubble-pop {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(6px) scale(0.7);
+    transform: translateX(calc(-50% + var(--bubble-shift, 0px))) translateY(6px) scale(0.7);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translateX(calc(-50% + var(--bubble-shift, 0px))) translateY(0) scale(1);
   }
 }
 /* the agent's state, by the head rather than the top of the cell: --head is the cell's empty top
@@ -393,6 +408,38 @@
   }
   50% {
     transform: scale(1.35);
+  }
+}
+/* A cherry petal resting on the head during the blossom festival (yard/petals.js), two pixels into
+   the head's top so it sits there rather than floats: the scenery's petal pinks, lit from the upper
+   left, with the little notch at its tip and a soft contact shadow. --petal-x moves it off the
+   middle and --petal-turn turns it; the turn is the rotate property, so the landing's transform
+   never replaces it. Under reduced motion there is no landing: petals.js never adds the class then. */
+.head-petal {
+  position: absolute;
+  top: calc(var(--head, 8px) + 2px);
+  left: calc(50% - 4.5px + var(--petal-x, 0px));
+  width: 9px;
+  height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 12'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fde3ec'/%3E%3Cstop offset='.5' stop-color='%23f7c1d2'/%3E%3Cstop offset='1' stop-color='%23f3a9c1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M1 6C3 1.6 7 .6 10.5.9 13.8 1.2 16.4 2.4 17.2 3.4L14.6 6l2.6 2.6C16.4 9.6 13.8 10.8 10.5 11.1 7 11.4 3 10.4 1 6Z' fill='url(%23p)' stroke='%23f3a9c1' stroke-width='.45'/%3E%3Cpath d='M2.6 6Q8 5.4 12.6 6' fill='none' stroke='%23f3a9c1' stroke-width='.6' stroke-linecap='round' opacity='.7'/%3E%3Cellipse cx='6.4' cy='3.9' rx='2.2' ry='1' fill='white' opacity='.55'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  /* a soft shadow below and to the right, where it touches the head */
+  filter: drop-shadow(0.4px 0.6px 0.4px #9c4a6440);
+  rotate: var(--petal-turn, 0deg);
+  pointer-events: none;
+  z-index: 2;
+}
+.head-petal.landing {
+  animation: petal-land 0.6s cubic-bezier(0.3, 0.6, 0.4, 1) both;
+}
+@keyframes petal-land {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 .particle {
@@ -439,9 +486,11 @@
   }
 }
 /* No motion when the system asks for none (base.css stops every animation and transition): a
-   pressed friend does not squash, and no hearts or sparkles fly. */
+   pressed friend does not squash, one viewing the blossom does not tilt (viewing.js gives it no
+   looking-up then either, but the setting can change mid-gathering), and no hearts or sparkles fly. */
 @media (prefers-reduced-motion: reduce) {
-  .yard-pet.pressed > canvas {
+  .yard-pet.pressed > canvas,
+  .yard-pet.looking-up:not(.pressed)[data-tilt] > canvas {
     transform: none;
   }
   .particle {

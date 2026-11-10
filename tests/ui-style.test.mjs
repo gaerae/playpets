@@ -485,16 +485,20 @@ test('no custom property is defined from itself', async () => {
 
 // A custom property the page sets from code rather than in a stylesheet, and the file that sets it.
 const SET_FROM_CODE = {
-  '--dig-scale': 'src/yard/discovery.js',
-  '--dig-duration': 'src/yard/discovery.js',
-  '--dig-contact': 'src/yard/discovery.js',
-  '--dig-toss': 'src/yard/discovery.js',
+  '--dig-scale': 'src/yard/work.js',
+  '--dig-duration': 'src/yard/work.js',
+  '--dig-contact': 'src/yard/work.js',
+  '--dig-toss': 'src/yard/work.js',
   '--head': 'src/core/sprites.js',
   '--orb-x': 'src/yard/sky.js',
   '--orb-y': 'src/yard/sky.js',
   '--moon-lit': 'src/yard/sky.js',
   '--bubble-lift': 'src/yard/views.js',
+  '--bubble-shift': 'src/yard/views.js',
   '--album-found': 'src/panel/album.js',
+  '--trail-opacity': 'src/yard/trails.js',
+  '--petal-x': 'src/yard/petals.js',
+  '--petal-turn': 'src/yard/petals.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.

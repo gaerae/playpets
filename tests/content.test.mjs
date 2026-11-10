@@ -4,9 +4,11 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
+import { LIMITS } from '../src/core/limits.js';
 import { STRINGS } from '../src/core/strings.js';
 import { PAINTER_NAMES, THING_KINDS } from '../src/yard/backdrop.js';
-import { artOf } from '../src/yard/catalog.js';
+import { artOf, eventGifts, giftKind, SHOOTS, shootKind, TRACKS, trailArt } from '../src/yard/catalog.js';
+import { SHOWN } from '../src/yard/decor-shown.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
 import { catalog, events, yard } from './support/content.mjs';
@@ -20,8 +22,25 @@ test('every kind has its name, and every gift its lines, in every language', () 
     ...catalog.fish.map(f => `catch.fish_${f.id}`),
     ...catalog.bugs.map(b => `catch.bug_${b.id}`),
     ...catalog.garden.stages.map(s => `garden.stage_${s.name}`),
+    ...catalog.shoots.map(s => `shoot.${s.id}`),
   ];
   for (const lang of LANGUAGES) for (const key of keys) assert.ok(STRINGS[lang][key], `${lang}: ${key}`);
+});
+
+test('the spring shoots are eight spring kinds with their drawings', () => {
+  assert.deepEqual(
+    catalog.shoots.map(s => s.id),
+    ['shepherds_purse', 'mugwort', 'fiddlehead', 'wild_garlic', 'bamboo_shoot', 'horsetail', 'asparagus', 'morel'],
+  );
+  for (const s of catalog.shoots) {
+    assert.equal(s.season, 'spring', s.id);
+    assert.equal(s.art, `shoots/${s.id}.svg`);
+    assert.ok(s.size.length === 2 && s.size.every(Number.isFinite), `${s.id}: a size`);
+    assert.equal(Math.max(...s.size), 40, `${s.id}: the longer side is 40`);
+  }
+  assert.equal(SHOOTS.length, 8);
+  assert.equal(shootKind('morel').art, 'shoots/morel.svg');
+  assert.equal(shootKind('carp'), null);
 });
 
 test('every drawing the catalogue names is an SVG file with a view box, and nothing in it runs', () => {
@@ -100,10 +119,11 @@ test('every seasonal event has its words, its gift in the catalogue as its own, 
     for (const lang of LANGUAGES)
       for (const key of ['name', 'about', 'lines'])
         assert.ok(STRINGS[lang][`event.${e.id}.${key}`], `${lang}: ${e.id}.${key}`);
-    if (e.gift) assert.equal(catalog.gifts.find(g => g.id === e.gift)?.event, e.id, `${e.id}: ${e.gift}`);
+    assert.ok(eventGifts(e.id).length, `${e.id} brings a gift`);
     assert.match(e.from, /^\d\d-\d\d$/);
     assert.match(e.to, /^\d\d-\d\d$/);
   }
+  assert.ok(!events.events.some(e => 'gift' in e), 'an event’s gifts are the catalogue’s');
   // A kind marked with an event names one there is.
   for (const k of [...catalog.gifts, ...catalog.fish, ...catalog.bugs])
     if (k.event)
@@ -114,4 +134,128 @@ test('every seasonal event has its words, its gift in the catalogue as its own, 
   // Every look an event names has its rules in the stylesheet.
   const css = readFileSync(new URL('../src/styles/scenery.css', import.meta.url), 'utf8');
   for (const look of events.events.flatMap(e => e.looks || [])) assert.ok(css.includes(`.look-${look}`), look);
+});
+
+test('a gift says how it comes and when it shows', () => {
+  const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
+  for (const g of catalog.gifts) {
+    if (g.built) assert.ok(!g.event, `${g.id}: a built kind has no event`);
+    if (g.shown) assert.ok(Object.hasOwn(SHOWN, g.shown), `${g.id}: shown`);
+    for (const s of g.seasons || []) assert.ok(SEASONS.includes(s), `${g.id}: ${s}`);
+  }
+  assert.ok(catalog.gifts.filter(g => g.shown || g.seasons).length <= 4);
+  assert.deepEqual(eventGifts('lights'), ['xmas_tree', 'baby_reindeer', 'santa']);
+  assert.deepEqual(
+    catalog.gifts.slice(-3).map(g => g.id),
+    ['xmas_tree', 'baby_reindeer', 'santa'],
+  );
+});
+
+test("a gift's Christmas night names its drawings, its star, its bulbs and its guests", () => {
+  const loaded = new Set(artOf(catalog, events));
+  const nights = catalog.gifts.filter(g => g.night);
+  assert.deepEqual(
+    nights.map(g => g.id),
+    ['xmas_tree'],
+  );
+  for (const { id, event, night } of nights) {
+    assert.ok(loaded.has(night.art) && loaded.has(night.sleigh), `${id}: its drawings load`);
+    const inside = ([x, y]) => x >= 0 && x <= 1 && y >= 0 && y <= 1;
+    assert.ok(inside(night.star), `${id}: star`);
+    assert.ok(night.bulbs.length >= 6 && night.bulbs.every(inside), `${id}: bulbs`);
+    for (const guest of night.guests)
+      assert.equal(catalog.gifts.find(g => g.id === guest)?.event, event, `${id}: ${guest}`);
+  }
+});
+
+test('the Christmas tree has twelve hooks on each drawing, apart from each other and from the lights', () => {
+  const tree = catalog.gifts.find(g => g.id === 'xmas_tree');
+  const collection = JSON.parse(readFileSync(new URL('../src/art/collection.json', import.meta.url), 'utf8'));
+  const grand = collection.find(r => r.id === 'xmas_tree_grand');
+  const tiersOf = hooks =>
+    hooks.reduce((tiers, h, i) => {
+      if (i && h[1] - hooks[i - 1][1] <= 0.06) tiers.at(-1).push(h);
+      else tiers.push([h]);
+      return tiers;
+    }, []);
+  for (const [hooks, [w, h], label] of [
+    [tree.hooks, tree.size, 'small'],
+    [tree.night.hooks, grand.size, 'grand'],
+  ]) {
+    assert.equal(hooks.length, LIMITS.ornamentHooks, label);
+    assert.ok(
+      hooks.every(([x, y]) => x > 0 && x < 1 && y > 0 && y < 1),
+      `${label}: inside`,
+    );
+    assert.ok(
+      hooks.every(p => p.every(v => v === Math.round(v * 1000) / 1000)),
+      `${label}: three decimals`,
+    );
+    assert.deepEqual(
+      hooks,
+      hooks.toSorted((a, b) => a[1] - b[1] || a[0] - b[0]),
+      `${label}: top to bottom`,
+    );
+    const far = (a, b, min) => Math.hypot(a[0] - b[0], ((a[1] - b[1]) * h) / w) >= min;
+    hooks.forEach((a, i) =>
+      hooks.slice(i + 1).forEach(b => assert.ok(far(a, b, 0.18), `${label}: ${a} and ${b} apart`)),
+    );
+    if (label === 'grand')
+      for (const a of hooks)
+        for (const b of [tree.night.star, ...tree.night.bulbs])
+          assert.ok(far(a, b, 0.06), `grand: ${a} clear of the lights`);
+  }
+  // Hook i is the same place on both drawings: the same tier, and the same place left to right in it.
+  // The small tree's green comes in three bands (a snowy tree, 56 px wide), so its tiers are 1, 2, 5 and 4.
+  const small = tiersOf(tree.hooks);
+  const big = tiersOf(tree.night.hooks);
+  assert.deepEqual(
+    small.map(t => t.length),
+    [1, 2, 5, 4],
+    'small: tiers',
+  );
+  assert.deepEqual(
+    big.map(t => t.length),
+    [1, 2, 5, 4],
+    'grand: tiers',
+  );
+  const leftToRight = tiers => tiers.map(t => t.map(p => t.filter(q => q[0] < p[0]).length));
+  assert.deepEqual(leftToRight(small), leftToRight(big), 'hook i is in the same place in its tier on both');
+});
+
+test('the snowman has a ball, a stack and three things to wear, all drawn', () => {
+  const s = giftKind('snowman');
+  assert.equal(s.built, true);
+  assert.deepEqual(s.seasons, ['winter']);
+  assert.deepEqual(
+    s.dress.map(p => p.id),
+    ['scarf', 'nose', 'hat'],
+    'drawn in this order',
+  );
+  for (const p of s.dress) assert.ok(p.at.length === 3 && p.at.every(v => v > 0 && v < 1), p.id);
+  assert.ok(s.stack.length === 2 && s.stack[0] > 0.5 && s.stack[0] < 1 && s.stack[1] >= 0 && s.stack[1] < 0.3);
+  const arts = artOf(catalog);
+  for (const art of [s.ball, ...s.dress.map(p => p.art)])
+    assert.ok(arts.includes(art) && existsSync(`src/art/${art}`), art);
+});
+
+test("every animal's prints, tail and finds are in the catalogue", () => {
+  assert.deepEqual(
+    TRACKS.map(k => k.id),
+    ['hare', 'fox', 'water_deer', 'raccoon_dog', 'squirrel', 'sparrow', 'magpie', 'cat'],
+  );
+  const art = artOf(catalog, events);
+  const treasures = catalog.treasures.map(t => t.id);
+  for (const k of TRACKS) {
+    for (const path of [k.print, k.tail]) {
+      assert.ok(art.includes(path), `${k.id}: ${path} is named`);
+      assert.ok(existsSync(new URL(`../src/art/${path}`, import.meta.url)), `src/art/${path}`);
+    }
+    for (const find of k.finds) assert.ok(treasures.includes(find), `${k.id}: ${find} is a treasure`);
+    assert.equal(typeof k.gait.group, 'boolean', k.id);
+    for (const key of ['step', 'size']) assert.ok(k.gait[key] > 0, `${k.id}: ${key}`);
+    assert.ok(k.gait.side >= 0, `${k.id}: side`);
+    assert.equal(k.bird, k.id === 'sparrow' || k.id === 'magpie', k.id);
+  }
+  for (const id of ['bush', 'twigs', 'puff']) assert.ok(trailArt(id), id);
 });

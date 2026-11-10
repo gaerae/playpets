@@ -12,21 +12,41 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
+- The album has a new book, **Spring shoots**: shepherd's purse, mugwort, fiddleheads, wild garlic, bamboo shoots, horsetail, asparagus and morels.
+- While the yard shows spring, a few shoots poke up after rain, and one comes up on fair mornings. Click one and a friend digs it up for the album's Spring shoots book; they stay for a few hours.
+- During the cherry blossom festival, friends gather once a day under a cherry tree you grew, on a picnic blanket or in the middle of the yard to look at the flowers while petals fall a little thicker around them, then wander off after a minute or so. They never interrupt a game, fishing or digging.
+- **Flower viewing** in the play menu calls your friends to the blossom during the festival, at most once an hour.
+- Friends connected to an AI talk about the blossom in their own words while they view it; a gathering they start on their own does so only with **Let them chat now and then** on.
+- On clear festival days a falling petal sometimes lands on a friend's head and stays until it moves or the blossom weather ends, and now and then the friend notices.
+- Click a falling petal during the festival to catch it: it twirls into a little glint, and the first one each day brings a friend's wish that it will come true.
 - In the Microsoft Store version, PlayPets asks the Store for a newer version when it starts and every six hours, and **Check for updates** in Settings asks it at once. A version waiting in the Store shows beside the place selector and in Settings, and **Open in Microsoft Store** opens PlayPets' page there to install it. When the Store updates PlayPets while it is open, PlayPets opens again afterwards instead of staying closed.
 - On macOS, installing an update from a copy opened straight from the disk image now says to move PlayPets to the Applications folder first, instead of failing with a message to try again later.
 - After an update, the first start says which version PlayPets is now, however it was installed, including updates the Microsoft Store made while the app was closed.
+- During the winter lights, friends bring a small Christmas tree, then a baby reindeer, then Santa, one each time a gift is due. They show in the yard and on the desktop from December 1 to January 7; the rest of the year they wait out of sight in their places, still counting toward the yard's 12, and the album says when they show. Put away, they go back into the gift box, as a memento does, so they can be set out again.
+- In December, if the yard isn't showing winter, PlayPets asks once whether to show the winter yard until January 7. If you say yes, your season comes back on January 8.
+- On a snowy December evening or night, with the yard showing winter, the little Christmas tree lights up and grows into a grand tree, once a night. It stays while the snow falls, a bulb glinting now and then, and goes back when it stops.
+- With the baby reindeer and Santa set out in the yard, they look up, a sleigh crosses the moon once that night, and gold drifts down from the star.
+- Press the Christmas tree to decorate it: hang up to three things a day from the album (flowers, trees, gifts and keepsakes) as small baubles tinted by kind that arc onto the branch and swing to rest, and point at one to see what it is or take it down. They stay on the tree in the yard, grand tree included, until the next December starts a fresh tree.
+- **Snowman** in the play menu: while the yard shows winter, roll snowballs with your friends (press a ball to help, or drag it to roll it yourself) and stack a snowman, once a day. It stays in the yard while the yard shows winter, and a new one replaces the one before. Now and then a friend suggests building one and starts rolling.
+- A snowman can wear a hat, a scarf and a carrot nose: press it or choose **Dress up** from its menu. A snowman stays in the yard (it doesn't go out on the desktop), and putting it away melts it.
+- In winter, animal footprints cross the snowy yard. Click them and a friend follows, sniffing, to a bush where a tail peeks out and a small find waits. The album's new Footprints book keeps whose prints you followed.
+- On the first day you open PlayPets from December 26 to 31, the friend you're closest to writes you a year-end letter about your year together and asks how it went and what you'd like to do next. It waits in the mailbox if you have one; you can write back in up to 200 characters, skip it, or delete it. Letters and answers stay on this computer. A friend with an AI connection writes in its own words, and next December, if the friend writing to you has an AI connection, that AI reads your answer to write the new letter. On the first day you open PlayPets from January 1 to 7, that friend (or your closest one, if it has left) brings your answer back and cheers you on, and next December's letter looks back on it.
 - Claude Code and Codex CLI sign in from PlayPets: when one is on the computer but signed out, a card above the message box (and in the connection window) opens the sign-in in your browser and connects once you finish, with a box for the code Claude's page may show. The message box opens once you're signed in. No terminal needed.
 - **About** has **Report an AI reply**, which opens a short public form on GitHub: which AI, the relationship and what was wrong, in your own words and without the conversation.
 - The first time you connect an AI, PlayPets says once that friends with an AI chat among themselves about every 20 minutes on your AI plan, and where to turn it off.
 
 ### Changed
 
+- The winter lights now run from December 1 to 31, on the same dates south of the equator.
+- The gifts of the winter lights and the New Year come whatever season the yard shows, in every place, the Cozy living room too.
+- The snowman no longer comes as a gift. One already in the yard shows only while the yard shows winter, so not in the Cozy living room, and waits out of sight the rest of the time.
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
 - Who joins a group chat opens as a dropdown.
 - **Connect now** and sending a first message no longer connect a CLI that is signed out, which used to fail at the first message; **Connect now** starts the sign-in in your browser instead, and a first message waits for it. With a signed-in CLI found, sending a first message connects it without opening the connection window.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
 - Downloads are smaller again, with the four friends who come with the app looking exactly as before: their pictures take 27.6 MB inside the app instead of 37.0 MB.
 - An update removes the folders of built-in friends the app no longer ships, which stayed in the data folder before.
+- Moving the window or a friend no longer waits while a change is written to disk, which could stutter on a slow drive.
 - Friends keep every AI reply suitable for ages 13 and up, whatever personality or relationship they're given; a partner stays sweet, never explicit.
 - **About** names Anthropic beside OpenAI: PlayPets isn't affiliated with either, and Claude and Claude Code are Anthropic's trademarks.
 - The import window says the pets on community sites are made by other people, and that you report one on the site it came from.
@@ -42,9 +62,15 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A pet link opened while the import dialog is busy waits its turn instead of importing at the same time.
 - A save put off for a moment is tried again if writing fails, and an older save never replaces a newer one.
 - Linking a coding agent writes its settings file to disk in full before it replaces the old one, so a crash at that moment can't leave it empty.
+- The arrow keys move a selected friend in the yard again, and holding Enter or Space on a friend pats it once instead of over and over.
+- While you aim a treat or seed or play a game, Delete, Backspace and a right-click leave a flower alone, as they already did a tree and a gift.
+- A friend on the desktop stops showing that its coding agent finished after a while, as in the yard, instead of keeping it for hours.
+- Pressing **Connect now** twice quickly makes one connection, and sending a message twice quickly sends it once.
+- **Edit** on an AI connection in Settings shows its current address, also right after you changed it.
 - In the Microsoft Store version, the check for a newer version tells the Store which window it belongs to, as Microsoft asks of desktop apps, so the check no longer risks failing quietly.
 - On Windows without the Microsoft Edge WebView2 Runtime, PlayPets says it needs it and offers to open its download page, instead of closing without a word.
 - In the Microsoft Store version, Claude Code started by PlayPets no longer updates itself, so an update can't land in PlayPets' own folder, unseen by your terminal and deleted with PlayPets.
+- A friend's speech bubble stays inside the yard sideways, also in a small window, instead of running off the edge.
 
 ### Removed
 
@@ -52,6 +78,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The guide explains flower viewing: when friends gather, calling them from the play menu, petals on heads and petal wishes.
+- The guide explains the winter footprints and the album's Footprints book, and the album now counts 169 entries.
+- The guide and the discovery guide describe spring shoots: when they come up, how friends dig them up and the album's new book.
+- The guide explains building a snowman with friends and dressing it up.
+- The guide explains how to decorate the Christmas tree with album finds.
+- The guide describes Christmas night: the grand tree on snowy December evenings and the sleigh across the moon.
+- The guide gives the winter lights' new dates and gifts, December's winter question, and when Christmas decorations show.
+- The guide describes the year-end letter, and the privacy policy says what it keeps on your device and what it sends to a friend's AI.
 - The privacy policy says how to report an AI reply: the in-app link or the GitHub form, which asks for no conversation and is public.
 - The website publishes only the screenshots its pages show, so it deploys faster; earlier captures stay in the repository.
 - The install guide, the settings guide and the privacy policy say that the Microsoft Store version asks the Store for a newer version and shows it in the app.

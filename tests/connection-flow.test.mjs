@@ -151,6 +151,41 @@ test('a friend just invited stays chosen next time, and the words in the box sta
   assert.equal(recall('friend'), 'c');
 });
 
+test('pressing connect now twice in a row makes one connection', async t => {
+  page(t, { providers: [], pets: [friend('a')], detected: { claude: true } });
+  await Promise.all([quickConnect(), quickConnect()]);
+  assert.deepEqual(names(), ['saveProvider', 'updatePet']);
+});
+
+test('sending twice before the first word leaves sends it once', async t => {
+  const a = friend('a', 'one'),
+    b = friend('b');
+  const get = page(t, { providers: [claude], pets: [b, a] });
+  setupChat();
+  renderChat(b);
+  get('message').value = 'Hello';
+  const submit = () => get('chat-form').onsubmit({ preventDefault() {} });
+  await Promise.all([submit(), submit()]);
+  assert.deepEqual(
+    calls.filter(c => c[0] !== 'getChat'),
+    [
+      ['updatePet', 'b', { providerId: 'one' }],
+      ['chat', 'b', 'Hello'],
+    ],
+  );
+});
+
+test('editing a connection from Settings opens it as it is now, not as it was when listed', async t => {
+  const { renderConnections } = await import('../src/panel/settings.js');
+  const get = page(t, { providers: [{ ...claude, endpoint: 'http://old' }], pets: [] });
+  renderConnections();
+  setData({ ...state.data, providers: [{ ...claude, endpoint: 'http://new' }] });
+  renderConnections();
+  const edit = get('ai-connections').children[0].children.at(-1);
+  edit.onclick();
+  assert.equal(get('ai-endpoint').value, 'http://new');
+});
+
 // Automatic chatter is on by default and spends the person's own AI quota, so the first
 // connection says so once, and where to turn it off (Store policy 10.5.2, in spirit).
 test('the first connection says once that friends chat on their own, and where to turn it off', async context => {

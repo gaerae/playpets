@@ -46,7 +46,7 @@ function attemptCatch(kind, nodes, view, timers) {
     setScenery({ catchAt: () => ({ species: catalog.bugs[0].id, x: 100, y: 200 }) });
     click(100, 200);
   } else {
-    setScenery({ catchAt: () => null });
+    setScenery({ catchAt: () => null, catchPetal: () => null });
     let point;
     for (let y = 0; y < 560 && !point; y += 5) {
       for (let x = 0; x < 800; x += 5) {

@@ -1,6 +1,6 @@
 //! Pets: the files on this computer (catalog), bringing new ones in from a page (importer), the
 //! friends made from them in the yard (model), the garden they grow (garden), the album (album),
-//! friendship (bond), and what the yard is made of (content, from src/content/catalog.json and
+//! friendship (bond), the year-end letters (letters), and what the yard is made of (content, from src/content/catalog.json and
 //! the seasonal events in src/content/events.json).
 pub mod album;
 pub mod bond;
@@ -10,6 +10,7 @@ pub mod content;
 pub mod discovery;
 pub mod garden;
 pub mod importer;
+pub mod letters;
 pub mod model;
 
 /// A field added to state.json in a later version, read leniently: a value of the wrong type
@@ -63,7 +64,8 @@ pub fn has_come(day: &str, now_ms: u64) -> bool {
 }
 
 /// A day saved from a clock that was set ahead (or not a date at all) would hold back every day
-/// until it comes: the bonds' days and the last gift's day after `latest` are forgotten at start.
+/// until it comes: the bonds' days, the last gift's, ornament's and snowman's day after `latest`
+/// are forgotten at start.
 pub fn forget_days_after(bonds: &mut bond::Bonds, garden: &mut garden::Garden, latest: &str) {
     for b in bonds.0.values_mut() {
         if !garden::is_day(&b.day) || b.day.as_str() > latest {
@@ -72,10 +74,19 @@ pub fn forget_days_after(bonds: &mut bond::Bonds, garden: &mut garden::Garden, l
             b.pat_today = 0;
             b.time_today = 0;
         }
+        if b.met.as_str() > latest {
+            b.met.clear();
+        }
     }
     if garden.gift_day.as_str() > latest {
         garden.gift_day.clear();
         garden.gift_wait = None;
+    }
+    if garden.ornament_day.day.as_str() > latest {
+        garden.ornament_day = garden::OrnamentDay::default();
+    }
+    if garden.snowman_day.as_str() > latest {
+        garden.snowman_day.clear();
     }
 }
 
@@ -89,6 +100,8 @@ pub fn limits() -> serde_json::Value {
         "decor": garden::DECOR_MAX,
         "giftBox": garden::BOX_MAX,
         "giftEveryDays": garden::GIFT_EVERY_DAYS,
+        "ornamentHooks": garden::ORNAMENT_HOOKS,
+        "ornamentsPerDay": garden::ORNAMENTS_PER_DAY,
         "trees": discovery::TREE_MAX,
         "treesPerWorld": discovery::TREE_WORLD_MAX,
         "treeYoungMs": discovery::TREE_YOUNG_MS,
@@ -131,7 +144,7 @@ mod tests {
     fn days_saved_from_a_clock_set_ahead_are_forgotten_at_start() {
         let mut bonds = bond::Bonds::restore(
             Some(
-                &serde_json::json!({"a": {"points": 9, "day": "2027-10-10", "today": 40, "patToday": 10, "timeToday": 12}, "b": {"points": 1, "day": "z", "today": 40}, "c": {"points": 1, "day": "2026-10-09", "today": 7}}),
+                &serde_json::json!({"a": {"points": 9, "day": "2027-10-10", "today": 40, "patToday": 10, "timeToday": 12, "met": "2027-10-10"}, "b": {"points": 1, "day": "z", "today": 40}, "c": {"points": 1, "day": "2026-10-09", "today": 7, "met": "2026-10-01"}}),
             ),
             &["a".into(), "b".into(), "c".into()],
         );
@@ -144,7 +157,33 @@ mod tests {
         assert_eq!((bonds.0["a"].pat_today, bonds.0["a"].time_today), (0, 0));
         assert_eq!((bonds.0["b"].day.as_str(), bonds.0["b"].today), ("", 0));
         assert_eq!((bonds.0["c"].day.as_str(), bonds.0["c"].today), ("2026-10-09", 7));
+        assert_eq!(bonds.0["a"].met, "");
+        assert_eq!(bonds.0["c"].met, "2026-10-01");
         assert_eq!(garden.gift_day, "");
         assert_eq!(garden.gift_wait, None);
+    }
+
+    #[test]
+    fn an_ornament_day_ahead_is_forgotten() {
+        let mut bonds = bond::Bonds::restore(None, &[]);
+        let mut garden = garden::Garden::restore(
+            Some(&serde_json::json!({"ornamentDay": {"day": "2026-12-25", "count": 2}, "ornamentYear": 2026})),
+            0,
+        );
+        forget_days_after(&mut bonds, &mut garden, "2026-12-25");
+        assert_eq!(garden.ornament_day.count, 2, "the day itself has come");
+        forget_days_after(&mut bonds, &mut garden, "2026-12-20");
+        assert_eq!(garden.ornament_day, garden::OrnamentDay::default());
+        assert_eq!(garden.ornament_year, 2026, "what hangs stays");
+    }
+
+    #[test]
+    fn a_snowman_day_ahead_is_forgotten() {
+        let mut bonds = bond::Bonds::restore(None, &[]);
+        let mut garden = garden::Garden::restore(Some(&serde_json::json!({"snowmanDay": "2026-12-25"})), 0);
+        forget_days_after(&mut bonds, &mut garden, "2026-12-25");
+        assert_eq!(garden.snowman_day, "2026-12-25", "the day itself has come");
+        forget_days_after(&mut bonds, &mut garden, "2026-12-20");
+        assert!(garden.snowman_day.is_empty());
     }
 }

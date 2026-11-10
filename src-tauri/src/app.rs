@@ -3,7 +3,7 @@
 use crate::agent;
 use crate::chat::{self, http, providers};
 use crate::desktop::overlay;
-use crate::pets::{album, bond, builtin, catalog, garden, importer, model};
+use crate::pets::{album, bond, builtin, catalog, garden, importer, letters, model};
 use crate::window;
 use crate::{i18n, store};
 use serde_json::{Map, Value, json};
@@ -28,7 +28,7 @@ pub use sprite::sprite_response;
 pub const SCHEMA: u64 = 1;
 /// The top-level keys this app writes to state.json besides the switches (Prefs::KEYS); anything
 /// else in the file is `extra`.
-const KNOWN_KEYS: [&str; 11] = [
+const KNOWN_KEYS: [&str; 12] = [
     "schema",
     // Written for an older app, which sends every friend out when it is true (desktop::items).
     "desktop",
@@ -41,13 +41,14 @@ const KNOWN_KEYS: [&str; 11] = [
     "garden",
     "album",
     "bonds",
+    "letters",
 ];
 fn known(key: &str) -> bool {
     KNOWN_KEYS.contains(&key) || Prefs::KEYS.contains(&key)
 }
 
 /// Everything the app knows. Saved to state.json: pets (with the parked ones), prefs, imports,
-/// providers (with the parked ones), agent_pets, secret_ids, garden, album, bonds and extra. The
+/// providers (with the parked ones), agent_pets, secret_ids, garden, album, bonds, letters and extra. The
 /// rest lasts until the app quits.
 pub struct AppData {
     pub store: store::Store,
@@ -76,6 +77,8 @@ pub struct AppData {
     pub garden: garden::Garden,
     pub album: album::Album,
     pub bonds: bond::Bonds,
+    /// The year-end letters a friend wrote and the person's answers, one a year.
+    pub letters: letters::Letters,
     pub providers: Vec<Value>,
     /// Connections this app could not read (a kind from a newer app, say): never shown, written back
     /// as they were so a later app finds them again.
@@ -92,8 +95,17 @@ pub struct AppData {
     pub importing: Vec<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     /// Providers being saved right now.
     pub provider_updates: HashSet<String>,
+    /// Years whose letter a friend's AI is writing right now (chat/letter.rs), not saved: a page
+    /// reloaded meanwhile is told to wait rather than asking the AI again.
+    pub letters_writing: HashSet<u32>,
+    /// Whether a letter's key could not be read in this run, not saved: the next time the page's
+    /// letter is kept rather than asking the keychain every minute.
+    pub letters_key_missed: bool,
     pub detected: Value,
     pub activity: HashMap<String, Vec<chat::prompt::Activity>>,
+    /// The gift kinds the yard hides right now, as it last reported (hideDecor); the desktop leaves
+    /// them out too. Not saved; `None` until the yard reports.
+    pub hidden_decor: Option<Vec<String>>,
 }
 
 pub type Shared = Mutex<AppData>;
@@ -131,12 +143,12 @@ fn sprite_url(id: &str) -> String {
 
 /// What the desktop overlay draws: the friends and decorations out there.
 pub fn desktop_items(d: &AppData) -> Vec<overlay::Item> {
-    crate::desktop::items::items(&d.pets, &d.garden)
+    crate::desktop::items::items(&d.pets, &d.garden, d.hidden_decor.as_deref())
 }
 
 /// Whether anything is out on the desktop: what the menus' switch shows.
 pub fn desktop_on(d: &AppData) -> bool {
-    crate::desktop::items::anything_out(&d.pets, &d.garden)
+    crate::desktop::items::anything_out(&d.pets, &d.garden, d.hidden_decor.as_deref())
 }
 
 /// The state lock. A panic while it was held poisons the mutex; the data is still whole (every
@@ -163,15 +175,49 @@ pub fn commit(
 ) -> Result<Value, String> {
     let mut d = lock(state);
     let answer = change(&mut d)?;
-    save_and_show(app, &d).map(|()| answer)
+    show_and_save(app, d).map(|()| answer)
 }
 
 /// Saves a change made in place and shows it on every page, in that order. As in `commit`, a change
-/// that could not be saved still stands and is shown; the error is returned after.
+/// that could not be saved still stands and is shown; the error is returned after. A caller done
+/// with the state uses `show_and_save`, which writes after letting it go.
 pub fn save_and_show(app: &AppHandle, d: &AppData) -> Result<(), String> {
     let saved = persist(d).map_err(|_| i18n::t("store.held"));
     changed(app, d);
     saved
+}
+
+/// Like `save_and_show` for a caller done with the state: the state to save is taken and shown
+/// under the lock, which is let go before the disk write, so moving the window or a friend never
+/// waits for the disk. A save taken earlier but written later is dropped (`Saving::write`).
+pub fn show_and_save(app: &AppHandle, d: MutexGuard<'_, AppData>) -> Result<(), String> {
+    unlocked(
+        d,
+        |d| {
+            (
+                Saving::of(d),
+                store::Store {
+                    dir: d.store.dir.clone(),
+                },
+            )
+        },
+        |d| changed(app, d),
+        |(saving, store)| saving.write(&store, &WRITTEN),
+    )
+    .map_err(|_| i18n::t("store.held"))
+}
+
+/// Takes what to write and shows the change while holding the lock, then writes without it.
+fn unlocked<T, S>(
+    guard: MutexGuard<'_, T>,
+    take: impl FnOnce(&T) -> S,
+    show: impl FnOnce(&T),
+    write: impl FnOnce(S) -> Result<(), String>,
+) -> Result<(), String> {
+    let taken = take(&guard);
+    show(&guard);
+    drop(guard);
+    write(taken)
 }
 
 /// Milliseconds since 1970 by the system clock (0 if the clock is set before then).
@@ -207,6 +253,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "garden": d.garden,
         "album": d.album,
         "bonds": d.bonds,
+        "letters": d.letters,
         "defaults": {"ollamaEndpoint": http::OLLAMA_DEFAULT},
         "agents": agent::kinds::agents_json(),
         "version": app.package_info().version.to_string(),
@@ -348,6 +395,7 @@ impl Saving {
             "garden": d.garden,
             "album": d.album,
             "bonds": d.bonds,
+            "letters": d.letters,
             "desktop": desktop_on(d),
         });
         carry(&mut state, &d.prefs.saved());
@@ -394,8 +442,13 @@ fn extras(raw: &Value) -> Map<String, Value> {
 
 /// The menus' desktop switch: every friend goes out, or everything comes in (desktop::items::flip).
 pub fn toggle_desktop(app: &AppHandle, d: &mut AppData) -> Result<bool, String> {
-    let AppData { pets, garden, .. } = d;
-    let now = crate::desktop::items::flip(pets, garden);
+    let AppData {
+        pets,
+        garden,
+        hidden_decor,
+        ..
+    } = d;
+    let now = crate::desktop::items::flip(pets, garden, hidden_decor.as_deref());
     save_and_show(app, d).map(|()| now)
 }
 
@@ -484,8 +537,69 @@ pub fn quit(app: &AppHandle) {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
+
+    /// An empty yard in a fresh folder with these friends, for what a command does to the state
+    /// (commands/friends.rs, chat/letter.rs).
+    pub(crate) fn yard(pets: Value) -> AppData {
+        let dir = std::env::temp_dir().join(format!("playpets-data-{}", uuid::Uuid::new_v4()));
+        let assets: Vec<String> = pets
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|p| p["assetId"].as_str().map(str::to_string))
+            .collect();
+        AppData {
+            store: crate::store::Store { dir: dir.clone() },
+            codex_pets: dir.join("codex"),
+            builtin_pets: dir.join("builtin"),
+            assets: Vec::new(),
+            warnings: Vec::new(),
+            pets: crate::pets::model::restore_pets(&json!({ "pets": pets }), &assets),
+            parked_pets: Vec::new(),
+            prefs: Prefs::restore(&json!({}), crate::i18n::Lang::default()),
+            imports: Vec::new(),
+            picked: Vec::new(),
+            agent_pets: HashMap::new(),
+            autostart: false,
+            garden: crate::pets::garden::Garden::restore(None, 0),
+            album: crate::pets::album::Album::restore(None),
+            bonds: crate::pets::bond::Bonds::restore(None, &[]),
+            letters: Default::default(),
+            providers: Vec::new(),
+            parked_providers: Vec::new(),
+            extra: serde_json::Map::new(),
+            secret_ids: HashSet::new(),
+            statuses: HashMap::new(),
+            talks: chat::Talks::default(),
+            importing: Vec::new(),
+            provider_updates: HashSet::new(),
+            letters_writing: HashSet::new(),
+            letters_key_missed: false,
+            detected: json!({}),
+            activity: HashMap::new(),
+            hidden_decor: None,
+        }
+    }
+
+    #[test]
+    fn a_change_is_shown_under_the_lock_and_written_after_it_is_let_go() {
+        let state = Mutex::new(7);
+        let mut shown = 0;
+        let saved = unlocked(
+            hold(&state),
+            |n| *n,
+            |n| shown = *n,
+            |taken| {
+                assert!(state.try_lock().is_ok(), "nothing waits for the disk");
+                assert_eq!(taken, 7);
+                Err("disk full".to_string())
+            },
+        );
+        assert_eq!(shown, 7, "shown before the write");
+        assert_eq!(saved.unwrap_err(), "disk full");
+    }
 
     #[test]
     fn unknown_top_level_keys_are_carried_and_known_ones_are_not() {

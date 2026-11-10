@@ -15,7 +15,7 @@ let settingsSection = 'general-title';
 // A wide window lists the sections beside the open one, as System Settings does on macOS; a small
 // one opens them one at a time, with Back to the list. The sections and their order are the same.
 const sideBySide = () => !document.body.classList.contains('compact');
-function selectSettingsSection(section, focus = false) {
+function selectSettingsSection(section, focus = false, reread = true) {
   const links = [...document.querySelectorAll('.settings-index [data-section]')];
   const requested = section && !section.endsWith('-title') ? `${section}-title` : section;
   const active = links.find(link => link.dataset.section === requested) || links[0];
@@ -39,9 +39,11 @@ function selectSettingsSection(section, focus = false) {
   $('panel-menu')?.setAttribute('aria-label', back);
   $('panel-menu')?.setAttribute('title', back);
   for (const body of document.querySelectorAll('.settings-section[data-settings-section]')) {
+    const was = body.hidden;
     body.hidden = body.dataset.settingsSection !== next;
-    // A section that reads something outside the app (an agent's settings file) reads it again.
-    if (!body.hidden) body.dispatchEvent(new Event('settings-shown'));
+    // A section that reads something outside the app (an agent's settings file) reads it again
+    // when it is opened, not when the window only changes size around it.
+    if (!body.hidden && (reread || was)) body.dispatchEvent(new Event('settings-shown'));
   }
   if (focus) $('panel-title').focus({ preventScroll: true });
 }
@@ -182,7 +184,11 @@ export function setupTabs({ beforeOpen = () => {} } = {}) {
     // A small window showing the list stays on it; otherwise the open section is kept, and a focus
     // in the list that folds away moves to the section's title.
     if (settings && !settings.hidden && (sideBySide() || !$('settings-content')?.hidden))
-      selectSettingsSection(settingsSection, !sideBySide() && !!$('settings-home')?.contains(document.activeElement));
+      selectSettingsSection(
+        settingsSection,
+        !sideBySide() && !!$('settings-home')?.contains(document.activeElement),
+        false,
+      );
   });
   $('go-invite').onclick = openInvite;
   // The steps left once a friend is in lead to where they are done.

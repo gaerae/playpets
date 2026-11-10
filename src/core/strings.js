@@ -17,3 +17,5 @@ export const STRINGS = each(m => m.strings);
 export const SENTENCES = each(m => m.sentence);
 /** Language code → what goes between names in a row ("A, B" or "A、B"). */
 export const LIST_SEPARATOR = each(m => m.listSeparator ?? ', ');
+/** Language code → what goes between two sentences in a row (a space, or nothing). */
+export const SENTENCE_SEPARATOR = each(m => m.sentenceSeparator ?? ' ');

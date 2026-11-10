@@ -57,6 +57,9 @@ await writeFile(
       ],
     },
     album: { treasures: { quartz: { count: 1, best: 0, first: rareLedgerAt } } },
+    // December's winter question already answered for this year: in the south "auto" is summer
+    // then, and the question would otherwise cover the yard the scenario clicks.
+    winterAsked: { year: new Date().getFullYear(), previous: null },
   }),
 );
 
@@ -77,7 +80,9 @@ const provider = http.createServer(async (req, res) => {
       message: {
         content: asked.includes('성격 바꿔')
           ? '좋아, 그렇게 할게!\n<persona>느긋하고 다정한 고양이</persona>'
-          : '**타우리** 응답!',
+          : asked.includes('year-end letter')
+            ? '편지 왔어!'
+            : '**타우리** 응답!',
       },
     }),
   );
@@ -93,6 +98,10 @@ const stopGame = game => KO['game.stop'].replace('{name}', KO[game]);
 const TRAY_KO_WAITING = (await readFile(path.join(here, '../src-tauri/src/i18n/ko.rs'), 'utf8')).match(
   /"tray\.state_waiting", "([^"]+)"/,
 )[1];
+// A fourth ornament on one day is refused with the backend's own Korean sentence.
+const ORNAMENTS_TODAY_KO = (await readFile(path.join(here, '../src-tauri/src/i18n/ko.rs'), 'utf8')).match(
+  /"error\.ornaments_today", "([^"]+)"/,
+)[1];
 const literal = text => text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const scenario = `(async()=>{
   const L=m=>window.__TAURI__.core.invoke('call',{name:'e2eLog',args:[m]});
@@ -101,6 +110,13 @@ const scenario = `(async()=>{
   // What ran out of time is named at the end: a wait returns quietly, and the check that fails can be far from it.
   const lateWaits=[];
   const until=async(f,ms=5000)=>{const end=Date.now()+ms;let v=await f();while(!v&&Date.now()<end){await new Promise(r=>setTimeout(r,50));v=await f();}if(!v)lateWaits.push(String(f).replace(/\\s+/g,' ').slice(0,120));return v;};
+  // A covered window counts as hidden: the yard stops drawing and a resize may not lay out. The run
+  // brings the window back whenever it is covered, except while a step hides it on purpose; a step
+  // that watches friends move checks again first, and one it still could not show is named at the end.
+  const covered=[];let mayHide=false;
+  const front=()=>window.__TAURI__.core.invoke('call',{name:'e2eFront',args:[]});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&!mayHide)front();});if(document.hidden)front();
+  const inView=async step=>{if(!document.hidden)return;await front();const end=Date.now()+3000;while(document.hidden&&Date.now()<end)await new Promise(r=>setTimeout(r,50));if(document.hidden)covered.push(step);};
   // "ResizeObserver loop completed with undelivered notifications" is the browser deferring a
   // resize to the next frame, not a fault in the page, so it is not counted.
   let pageError='';window.addEventListener('error',e=>{if(!pageError&&!String(e.message).startsWith('ResizeObserver loop'))pageError=e.message+' @'+(e.filename||'').split('/').pop()+':'+e.lineno;});
@@ -108,6 +124,13 @@ const scenario = `(async()=>{
     const boot=await playPets.bootstrap();
     // The run stays quiet: the yard sounds are on by default (a unit test checks that), so they go off first.
     const soundDefault=boot.data.sound;await playPets.setSound(false,null);
+    // Today counts as viewed from the start, so a clear April day can never gather friends mid-run.
+    const todayLocal=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+    await playPets.markViewed(todayLocal());
+    // No spring shoots come up mid-run to catch a click meant for the yard: the morning's one is spent
+    // and the last rain is now, so the sky clearing after rain brings none, and any already out go.
+    localStorage.setItem('shoots',JSON.stringify({morning:todayLocal(),rainAt:Date.now(),out:[]}));
+    {const shoots=await import('./yard/shoots.js');shoots.setupShoots();shoots.renderShoots();}
     await L('assets='+boot.data.assets.length);
     await L('communities='+boot.data.communities.length);
     // The shelf says where each pet file lives: the fixture sits in Codex's pet folder.
@@ -154,9 +177,30 @@ const scenario = `(async()=>{
     const p1=await must('addPet',playPets.addPet(a));
     await L('intro='+p1.data.persona);
     await must('rename',playPets.updatePet(p1.data.id,{name:'타우리',size:160,persona:'반말로 짧게 대답해요.'}));
+    // The year-end letter: both years follow the backend's rule (the latest date on Earth, UTC+14, or the year before),
+    // not the page's calendar alone. The page's own check (December 26 to 31) writes only its local year, and from
+    // the lines. The friend has no connection yet, so whichever of the scenario and the page writes that year first
+    // sends nothing and takes the year; the checks accept the page's lines as well as this call's.
+    const earthYear=new Date(Date.now()+14*3600e3).getUTCFullYear(),pageYear=new Date().getFullYear(),otherYear=pageYear===earthYear?pageYear-1:pageYear+1;
+    const bareFriend=(await playPets.bootstrap()).data.pets.find(q=>q.id===p1.data.id);
+    const lineLetter=await playPets.writeLetter(pageYear,p1.data.id,['x'],'FALLBACK');
+    await L('letterLines='+(!bareFriend?.providerId&&lineLetter.ok&&lineLetter.data.text.length>0&&lineLetter.data.text!=='편지 왔어!'?'page-lines':'err:'+JSON.stringify([bareFriend?.providerId,lineLetter]).slice(0,90)));
+    const answered=await playPets.answerLetter(pageYear,'캠핑 더 자주');
+    const keptAnswer=(await playPets.bootstrap()).data.letters.find(l=>l.year===pageYear);
+    await L('letterAnswer='+(answered.ok&&keptAnswer?.answer==='캠핑 더 자주'?'kept':'err:'+JSON.stringify(answered).slice(0,90)));
+    await playPets.deleteLetter(pageYear);
+    const deletedLetter=(await playPets.bootstrap()).data.letters.find(l=>l.year===pageYear);
+    await L('letterDelete='+(deletedLetter&&deletedLetter.text===''&&deletedLetter.answer===null?'year-only':'err:'+JSON.stringify(deletedLetter).slice(0,90)));
     const save=await must('saveProvider',playPets.saveProvider({type:'ollama',model:'flow-model',endpoint:'${endpoint}'}));
     await must('attach',playPets.updatePet(p1.data.id,{providerId:save.data.id}));
     await must('bond',playPets.updatePet(p1.data.id,{relation:'partner',callMe:'자기'}));
+    // The AI letter is for the year the page never writes (the page writes only its local year, and never one that is taken).
+    const letterWrites=await playPets.writeLetter(otherYear,p1.data.id,['FACT-ALPHA\\nsecond line'],'FALLBACK');
+    await L('letterAi='+(letterWrites.ok&&letterWrites.data.text==='편지 왔어!'?'ai-wrote':'err:'+JSON.stringify(letterWrites).slice(0,90)));
+    const letterAgain=await playPets.writeLetter(otherYear,p1.data.id,['FACT-ALPHA\\nsecond line'],'FALLBACK');
+    await L('letterOnce='+(letterAgain.ok&&letterWrites.ok&&letterAgain.data.text==='편지 왔어!'&&letterAgain.data.at>0&&letterAgain.data.at===letterWrites.data.at?'same-letter':'err:'+JSON.stringify(letterAgain).slice(0,90)));
+    // Put away again, so no chip or envelope in the yard outlasts the check.
+    await playPets.deleteLetter(otherYear);
     const agentState=await until(async()=>(await playPets.bootstrap()).data.statuses[p1.data.id]?.state==='working'&&'working',10000)||'none';
     await L('agentStatus='+agentState);
     const models=await playPets.listModels({type:'ollama',endpoint:'${endpoint}',model:''});
@@ -406,9 +450,37 @@ const scenario = `(async()=>{
     await playPets.putAway(gift.id);const away=await until(()=>!document.querySelector('.decor'));
     await L('gift='+(alone.ok===false&&gift.kind==='bench'&&gift.from===giver&&twice.ok===false&&nextDay.ok===false&&moved&&away&&(await playPets.bootstrap()).data.garden.received[0]==='bench'?'bench-every-other-day-moved-away':'err:'+JSON.stringify([alone,gift,twice,nextDay])));
     // A seasonal event: its gift comes on its days (the backend checks them), and the label beside the scene shows the event on now.
-    const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(()=>document.querySelectorAll('.decor').length===1);await playPets.putAway(snow.id);
+    const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(async()=>(await playPets.bootstrap()).data.garden.decor.some(d=>d.id===snow.id));await playPets.putAway(snow.id);
+    const boxedTree=await until(async()=>(await playPets.bootstrap()).data.garden.boxed.some(d=>d.kind==='xmas_tree'));
+    // Ornaments: three more gifts come (the capacity check below clears them all), the tree is set out of the box, and three
+    // gifts that came hang on its hooks on the day the last of them came; a fourth waits for the next day, and one taken
+    // down frees its hook without giving that day's hang back.
+    const hangable=[];for(const day of ['2025-12-22','2025-12-24','2025-12-26']){const r=(await giftOn(0.2+hangable.length*0.2,0.6,day)).data;if(r)hangable.push(r);}
+    const treeOut=(await playPets.setOut(snow.id,0.6,0.3)).ok,hangKinds=['bench',...hangable.map(g=>g.kind)];
+    const hung=[];for(const [hook,kind] of hangKinds.slice(0,3).entries())hung.push(await playPets.hangOrnament('gift',kind,hook,'2025-12-26'));
+    const fourthHang=await playPets.hangOrnament('gift',hangKinds[3],3,'2025-12-26');
+    const three=treeOut&&hangKinds.length===4&&hung.every(r=>r.ok)&&(await playPets.bootstrap()).data.garden.ornaments.length===3,refused=fourthHang.ok===false&&fourthHang.error===${JSON.stringify(ORNAMENTS_TODAY_KO)};
+    const down=await playPets.takeDownOrnament('gift','bench','2025-12-26'),downAgain=await playPets.takeDownOrnament('gift','bench','2025-12-26'),afterDown=(await playPets.bootstrap()).data.garden;
+    const takenDown=down.ok&&downAgain.ok===false&&afterDown.ornaments.length===2&&!afterDown.ornaments.some(o=>o.hook===0)&&afterDown.ornamentDay.count===3;
+    for(const item of [snow,...hangable])await playPets.putAway(item.id);
+    await L('ornaments='+(three&&refused?'ok':'err:'+JSON.stringify([three,hangKinds,fourthHang])));
+    await L('ornamentDown='+(takenDown?'hook-freed-count-kept':'err:'+JSON.stringify([down,downAgain,afterDown.ornaments,afterDown.ornamentDay])));
+    // A snowman: one a day, dressed in its own parts only, and a new one replaces the old.
+    await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
+    const snowA=await playPets.buildSnowman(0.5,0.7,'2025-12-30'),snowTwice=await playPets.buildSnowman(0.4,0.7,'2025-12-30');
+    const dressed=await playPets.dressDecor(snowA.data.id,['hat','scarf']),dressBad=await playPets.dressDecor(snowA.data.id,['crown']);
+    const snowDress=(await playPets.bootstrap()).data.garden.decor.find(d=>d.id===snowA.data.id)?.dress;
+    const snowB=await playPets.buildSnowman(0.4,0.7,'2025-12-31'),snowGarden=(await playPets.bootstrap()).data.garden;
+    const snowOk=snowA.ok&&snowTwice.ok===false&&dressed.ok&&dressBad.ok===false&&JSON.stringify(snowDress)==='["scarf","hat"]'&&snowB.ok&&snowGarden.decor.filter(d=>d.kind==='snowman').length===1&&snowGarden.snowmanDay==='2025-12-31';
+    await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
+    await L('snowman='+(snowOk?'once-a-day-dressed-replaced':'err:'+JSON.stringify([snowA,snowTwice,dressed,dressBad,snowDress,snowB])));
+    // The capacity check below starts with an empty box.
+    await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
-    await L('event='+(snow.kind==='snowman'&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
+    await L('event='+(snow.kind==='xmas_tree'&&boxedTree&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
+    // The check keeps a far-off day, so today is marked again right after it.
+    const viewedOk=(await playPets.markViewed('2027-04-05')).ok&&(await playPets.markViewed('soon')).ok===false&&(await playPets.bootstrap()).data.garden.viewed==='2027-04-05';await L('viewing='+(viewedOk?'day-kept':'err'));
+    await playPets.markViewed(todayLocal());
     // Real saved gifts fill the yard; the next waits in the gift box, putting one away retains its album record and
     // frees the capacity, and the boxed one is set out from the album.
     const capacityGifts=[];
@@ -440,6 +512,7 @@ const scenario = `(async()=>{
     const albumOk=document.querySelectorAll('.album-card').length===fishKinds&&document.querySelector('[data-count=fish]').textContent.endsWith('/'+fishKinds)&&document.querySelectorAll('.album-card:not(.unknown)').length===1&&(await playPets.bootstrap()).data.album.fish.carp.best===41.5&&tooBig.ok===false;
     $('album-dialog').close();
     await L('album='+(albumOk?'kept-and-shown':'err:'+JSON.stringify((await playPets.bootstrap()).data.album)));
+    const shootOk=(await playPets.gatherShoot('morel')).ok&&(await playPets.gatherShoot('carp')).ok===false&&(await playPets.bootstrap()).data.album.shoots.morel.count===1;await L('shoots='+(shootOk?'kept':'err'));
     // New catalogue IDs pass the native save boundary and use decoded local atlases.
     const extensionFish=['stickleback','freshwater_prawn','crayfish','pond_snail'],extensionBugs=['ladybug','field_cricket'];
     let extensionAccepted=true;
@@ -541,12 +614,16 @@ const scenario = `(async()=>{
     await until(()=>!document.querySelector('.planted-tree'));
     await L('discovery='+(discoveryNoEarly&&discoveryOnce&&discoverySaved?'arrival-replay-and-tree':'err'));
     const homeBefore=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
+    await inView('hide');
     document.querySelector('[data-game=hide]').click();
     // Friends only walk while the window is drawn. Behind other windows (or with the screen off)
     // the webview stops animating, so the walk to the hiding spots cannot be observed.
     if(document.visibilityState==='hidden'){const started=gameLabel();playing().click();await L('hide=window-hidden/'+started+'/'+gameLabel());}
     else{
-      await until(()=>document.querySelectorAll('.yard-pet.hiding').length>=2,8000);const hiding=document.querySelectorAll('.yard-pet.hiding').length;
+      // Covered while they walk, they stop: the window is brought back once and the walk watched again.
+      let hiding=0;for(let tries=0;tries<2&&hiding<2;tries++){await inView('hide');await until(()=>document.querySelectorAll('.yard-pet.hiding').length>=2,8000);hiding=document.querySelectorAll('.yard-pet.hiding').length;}
+      if(hiding<2){playing()?.click();await L('hide=err:'+hiding+' hid'+(document.hidden?', window covered':''));}
+      else{
       // The game names a friend: someone else is a miss and stays hidden, the named one is found.
       const asked=()=>$('banner-label').textContent===${say('hide.find_label')}?$('banner-title').textContent:null,byName=n=>{const l=[...document.querySelectorAll('.pet-label.hiding')].find(l=>l.querySelector('.tag-name').textContent===n);return l&&document.querySelector('.yard-pet[data-id="'+l.dataset.id+'"]');};
       const first=asked(),other=[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b!==byName(first));
@@ -555,6 +632,7 @@ const scenario = `(async()=>{
       press(byName(first));await wait(300);const second=asked();press(byName(second));await wait(2200);
       const cleared=$('game-banner').hidden;
       await L('hide='+hiding+'/'+document.querySelectorAll('.yard-pet.hiding').length+'/'+gameLabel()+'/'+(miss&&cleared&&second!==first?'by-name':'err:'+miss+':'+first+':'+second));
+      }
     }
     document.querySelector('[data-game=tag]').click();await wait(400);
     const tagger=document.querySelectorAll('.yard-pet.tagger').length;
@@ -572,13 +650,15 @@ const scenario = `(async()=>{
     await L('gameCompletion='+(transferred&&tagFinished&&!gameState.game&&!$('yard').classList.contains('playing')?'tag-transfer-and-both-end':'err:'+JSON.stringify([transferred,tagFinished,!!gameState.game])));
     const home=(await playPets.bootstrap()).data.pets.map(p=>p.x+','+p.y).join('|');
     await L('gamesKeepHome='+(home===homeBefore));
+    await inView('fishing');
     // A walk to the lake ends when a game takes the friend, and the lake can be fished again after.
     const {onLake}=await import('./yard/catch.js'),st=await import('./core/state.js'),lakeBox=$('yard').getBoundingClientRect(),lx=lakeBox.width*0.52;
     let ly=0;for(let y=0;y<lakeBox.height&&!ly;y+=2)if(onLake(lx,y))ly=y+6;
     const clickLake=()=>$('yard').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:lakeBox.left+lx,clientY:lakeBox.top+ly}));
     // A trip to the lake: one that can be called off, by a friend not on its way home from a game.
     const toLake=()=>[...st.views.values()].filter(v=>v.trip?.cancel&&!v.away).length;
-    const fishFor=()=>until(()=>{if(!toLake())clickLake();return toLake();},8000);
+    // Covered while it walks, a friend stops short of the lake: the window is brought back once.
+    const fishFor=async()=>{const go=()=>until(()=>{if(!toLake())clickLake();return toLake();},8000);return (await go())||(await inView('fishing'),await go());};
     const first=await fishFor();
     document.querySelector('[data-game=tag]').click();await wait(200);const during=toLake();playing().click();
     await until(()=>[...st.views.values()].every(v=>!v.away),8000);const again=await fishFor();
@@ -752,9 +832,14 @@ const scenario = `(async()=>{
         const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded||labels.every(noWrap));};
         // With seeds or without, the same: a two-digit count is the widest the seed tile shows.
         const seedsBefore=$('seed-count').textContent;$('seed-count').textContent='12';
-        const tiles=[...$('play-sections').querySelectorAll('.play-action')];
+        // The snowman's row (a winter yard) and Flower viewing (blossom time) show only in their season
+        // (syncGameUi): both are shown for this check, so each is fit in every language whatever the date.
+        const {syncGameUi}=await import('./yard/play.js'),seasonal=[document.querySelector('#games-menu [data-game=snowman]'),$('viewing-tool')];
+        syncGameUi();for(const tile of seasonal)tile.hidden=false;
+        const tiles=[...$('play-sections').querySelectorAll('.play-action')].filter(tile=>!tile.hidden);
         const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')])}));
-        const playOk=tiles.length===10&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
+        const playOk=tiles.length===12&&seasonal.every(tile=>tiles.includes(tile))&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
+        syncGameUi();
         $('seed-count').textContent=seedsBefore;
         if(!playOk)menuCopyTrace.push([lang,innerWidth,'play',playChecks]);
         $('close-play').click();openMenu();await wait(40);
@@ -820,6 +905,7 @@ const scenario = `(async()=>{
     await L('digRewardCustom='+(customRewardProof?.correct?'localized-fallback-without-untranslated-key':'err'));
     await L('digRewardCustomDetail='+JSON.stringify(customRewardProof));
     await L('digRewardIndoors='+(indoorRewardFits?'four-locales-small-wide-no-soil-explained':'err:'+JSON.stringify(rewardTrace)));
+    await inView('smallPanel');
     let panelFlow=true;const flowTrace=[];const markFlow=step=>flowTrace.push([step,panelFlow]);
     await nativeWindow({...fullAt,width:300,height:210});await wait(200);
     openMenu();await wait(40);
@@ -1067,8 +1153,8 @@ const scenario = `(async()=>{
     $('close-panel').click();
     // Hidden to the tray, the page is told so and rests (WebView2 may not say it through
     // document.hidden); shown again, it moves again.
-    await $('hide-window').onclick();const unseen=!!await until(()=>document.documentElement.hasAttribute('data-unseen'));
-    await playPets.openChat(p1.data.id);await until(()=>!document.documentElement.hasAttribute('data-unseen'));
+    mayHide=true;await $('hide-window').onclick();const unseen=!!await until(()=>document.documentElement.hasAttribute('data-unseen'));
+    await playPets.openChat(p1.data.id);await until(()=>!document.documentElement.hasAttribute('data-unseen'));mayHide=false;
     await L('unseen='+unseen+'/'+document.documentElement.hasAttribute('data-unseen'));
     await must('desktopOn',playPets.toggleDesktop());
     await until(async()=>(await playPets.bootstrap()).data.desktopLayout.length>0,8000);
@@ -1263,6 +1349,7 @@ const scenario = `(async()=>{
 
     await L('pageErrors='+(pageError||'none'));
     await L('lateWaits='+JSON.stringify(lateWaits));
+    if(covered.length)await L('covered='+covered.join(','));
     await L('DONE');
   }catch(e){await L('lateWaits='+JSON.stringify(lateWaits));await L('FATAL:'+String(e).slice(0,140));}
 })();`;
@@ -1498,6 +1585,11 @@ const expect = [
   [/^pageErrors=none$/, 'no page errors (frame loops included)'],
   [/^markdown=styled$/, 'markdown emphasis in replies is styled'],
   [/^waiting=shown-then-gone$/, 'waiting indicator while a reply is on its way'],
+  [/^letterAi=ai-wrote$/, "the friend's AI writes the year-end letter"],
+  [/^letterOnce=same-letter$/, 'the year-end letter is written once a year'],
+  [/^letterLines=page-lines$/, "a friend without an AI writes from the page's lines and nothing is sent"],
+  [/^letterAnswer=kept$/, "the person's answer to the letter is kept"],
+  [/^letterDelete=year-only$/, 'deleting a letter keeps only the year'],
   [/^chrome=frameless$/, 'the yard has no title-bar controls on any OS'],
   [/^selection=scenery-only$/, 'scenery cannot select text while conversation messages remain selectable'],
   [/^contextFull=clamped-escaped-and-reset$/, 'blank-yard context menu fits, closes and restores the normal anchor'],
@@ -1583,6 +1675,7 @@ const expect = [
     /^album=kept-and-shown$/,
     'a catch is kept in the album (count, biggest fish), nonsense is refused, and the album shows it',
   ],
+  [/^shoots=kept$/, 'a gathered spring shoot is kept in the album and anything else is refused'],
   [
     /^friendship=80\/1\/hearts\/refused$/,
     'friendship: a day brings so much and no more, a level up shows hearts, nonsense is refused',
@@ -1591,7 +1684,23 @@ const expect = [
     /^sound=off-on-held$/,
     'yard sounds are on by default, the chip turns them off and on, and the volume is held to 0–100',
   ],
-  [/^event=gift-and-label$/, "a seasonal event's gift comes on its days, and the scene label shows the event on now"],
+  [
+    /^event=gift-and-label$/,
+    'the winter lights bring the Christmas tree on their days, it goes back into the gift box when put away, and the scene label shows the event on now',
+  ],
+  [/^viewing=day-kept$/, 'the day friends viewed the blossom is kept and an odd day is refused'],
+  [
+    /^ornaments=ok$/,
+    'three gifts that came hang on the Christmas tree on a December day, and a fourth waits for the next day',
+  ],
+  [
+    /^ornamentDown=hook-freed-count-kept$/,
+    "an ornament taken down frees its hook and does not give that day's hang back",
+  ],
+  [
+    /^snowman=once-a-day-dressed-replaced$/,
+    'a snowman is built once a day, wears only its own parts in drawing order, and a new one replaces the old',
+  ],
   [
     /^gift=bench-every-other-day-moved-away$/,
     "a friend's gift comes every other day after something done together, is dragged to a new place that is kept, and is put away",
@@ -1637,6 +1746,11 @@ const expect = [
   [/^DONE$/, 'scenario finished'],
 ];
 let failed = 0;
+const coveredSteps = lines.find(l => l.startsWith('covered='))?.slice(8);
+if (coveredSteps)
+  console.log(
+    `  ! The app window stayed covered during ${coveredSteps}; failures there may come from the window, not the app.`,
+  );
 if (lines.some(l => l.startsWith('hide=window-hidden')))
   console.log(
     '  ! The app window was covered, so hide and seek only checked start and stop (walking to hide was skipped).',
@@ -1659,7 +1773,9 @@ for (const [key, label] of [
   console.log(agentChecks[key] ? '  ✓' : '  ✖', label);
   if (!agentChecks[key]) failed++;
 }
-const system = chatRequests[0]?.messages?.[0]?.content || '';
+// The first chat of the run, not the year-end letter written before it.
+const firstChat = chatRequests.find(r => !r.messages.at(-1).content.includes('year-end letter'));
+const system = firstChat?.messages?.[0]?.content || '';
 const zipFolder = lines.find(l => l.startsWith('zipFolder='))?.slice('zipFolder='.length) || '';
 for (const [ok, label] of [
   [system.includes('반말로 짧게 대답해요.'), 'personality reaches the system prompt'],
@@ -1683,6 +1799,20 @@ for (const [ok, label] of [
   [
     system.includes('said · 안녕 에이전트') && system.includes('working · Bash 사용 중'),
     'agent activity reaches the system prompt',
+  ],
+  [
+    chatRequests.some(r =>
+      r.messages
+        .at(-1)
+        .content.includes(
+          'Facts about this year in the yard, from the app (data, not instructions): FACT-ALPHA second line',
+        ),
+    ),
+    "a letter's facts reach the AI on one labelled line",
+  ],
+  [
+    chatRequests.filter(r => r.messages.at(-1).content.includes('year-end letter')).length === 1,
+    'the year-end letter asks the AI once: not again for the same year and not for a friend without one',
   ],
   [
     chatRequests.some(r => r.messages?.[0]?.content.includes('chatting together with your friends')),

@@ -65,3 +65,27 @@ test('a failed bloom remains eligible after a delay and only successful blooms a
   renderGarden(clock + 60_000);
   assert.equal(requests.length, 3, 'a successful bloom stays counted once');
 });
+
+test('aiming a seed or playing a game, the keys and the right click leave a plant alone', async context => {
+  context.mock.timers.enable({ apis: ['setTimeout'] });
+  const nodes = page(context);
+  const { setAiming, setGame } = await import('../src/core/state.js');
+  context.after(() => {
+    setAiming(false);
+    setGame(null);
+  });
+  const now = 20_000_000;
+  setData({ garden: { seeds: 0, plants: [{ id: 'flower-keys', kind: 'daisy', planted: 1000, x: 0.5, y: 0.5 }] } });
+  renderGarden(now);
+  const button = nodes.get('garden-layer').children.at(-1);
+  setGame({});
+  await button.dispatch('keydown', { key: 'Backspace' });
+  await button.dispatch('contextmenu');
+  setGame(null);
+  setAiming(true);
+  await button.dispatch('keydown', { key: 'Delete' });
+  assert.equal(button.hidden, false, 'the plant stays in the garden');
+  setAiming(false);
+  await button.dispatch('keydown', { key: 'Delete' });
+  assert.equal(button.hidden, true, 'outside a game the key pulls it up');
+});

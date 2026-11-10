@@ -46,8 +46,18 @@ import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
 import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, setupCatch, soloFishing } from './yard/catch.js';
+import { christmasNightCheck, setupChristmasNight } from './yard/christmas-night.js';
 import { loadContent } from './yard/content.js';
-import { giftTick, putAway, renderDecor, setupDecor, thanksTick } from './yard/decor.js';
+import {
+  decorButton,
+  giftTick,
+  putAway,
+  refreshShownDecor,
+  renderDecor,
+  setupDecor,
+  thanksTick,
+} from './yard/decor.js';
+import { openDecorating, renderDecorating, setupDecorating } from './yard/decorating.js';
 import {
   autoDig,
   beginDiscovery,
@@ -55,21 +65,34 @@ import {
   cancelDiscoveryWork,
   canDigAt,
   digAt,
+  digRested,
+  sendDiscovery,
   setupDiscovery,
   syncDiscovery,
 } from './yard/discovery.js';
 import { renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
+import { setupLetterCard } from './yard/letter-card.js';
+import { answered, letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
 import { moveFriends } from './yard/motion.js';
+import { drawTreeOrnaments } from './yard/ornaments.js';
+import { petalTick, setupPetals, wishAt } from './yard/petals.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
-import { endGame, gameTap, judge, playGame, setupPlay } from './yard/play.js';
+import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGameUi } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
-import { setupSky } from './yard/sky.js';
+import { cancelShootDigs, renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
+import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
+import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
+import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
+import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/snowman.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
+import { resizeTrails, setupTrails, trailsCheck, trailsSeen } from './yard/trails.js';
 import { release } from './yard/trips.js';
+import { setupViewing, viewing, viewingTick } from './yard/viewing.js';
 import { bubble, place, setupViews, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
+import { setupWinter } from './yard/winter.js';
 import { scene, scenery } from './yard/world.js';
 
 // Whether the yard can be seen; the backend says so for a window it hid or that was minimized.
@@ -98,6 +121,9 @@ await Promise.all([loadContent(), setupCompanionActions()]);
 apply();
 icons();
 setupConfirm();
+// The letter's ways in (the chip, the mailbox's envelope) follow the card: an opened letter loses
+// its envelope.
+setupLetterCard({ onClosed: syncLetter, onAnswered: answered });
 setupNotices();
 setupToast();
 setupInteractions();
@@ -106,8 +132,13 @@ setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
   openChat,
   putAway,
+  dress: openDress,
+  canDress,
+  canGoOut,
   canDigAt,
   digAt,
+  letterReadable,
+  openLetter: openReadable,
   digWith: id => {
     select(id);
     beginDiscovery('dig');
@@ -128,8 +159,36 @@ onShortcut('friends', () => {
 onShortcut('invite', () => openPanel('invite'));
 onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
+// The winter yard's footprint trails, before the sky: its first paint checks them. A friend that
+// follows one digs at its end, as the dig tool would send it, unless the window was hidden first.
+setupTrails({
+  dig: (v, point) => sendDiscovery(v, point, 'dig'),
+  rested: digRested,
+  visible: () => shown && !document.hidden,
+});
+// The spring shoots out, read back before the sky too: its first paint looks at them, and would
+// otherwise sprout over the stored ones.
+setupShoots();
+// December's question about the winter yard, checked at each repaint of the scene.
+const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
+// The year-end letter, written and brought while the yard is seen (letter.js).
+const letterCheck = setupLetters({ visible: () => shown && !document.hidden });
 setupSky({
   seasonChanged: season => {
+    // Each minute's repaint: a Christmas gift or a snowman comes or goes with the date and season.
+    refreshShownDecor();
+    // Spring shoots come up after rain and on fair mornings, and go after a few hours.
+    shootsMinute();
+    winterCheck();
+    letterCheck();
+    // The winter yard's footprint trails come, soften and go under new snow.
+    trailsCheck();
+    christmasNightCheck();
+    // The decorating view ends at midnight with the season, not only when the yard is redrawn.
+    renderDecorating();
+    // The snowman is built only while the yard shows winter: another season or place stops it.
+    if (game?.kind === 'snowman' && !showsWinter()) endGame();
+    syncGameUi();
     if (setSpriteSeason(season) && data.assets.length) render();
     else renderAlbum();
   },
@@ -138,6 +197,7 @@ setupSky({
   // garden, the gifts and the hint are laid out in the new one.
   worldChanged: enter => {
     cancelDiscovery();
+    closeDress(false);
     endGame();
     endFishing();
     for (const v of views.values()) {
@@ -148,6 +208,7 @@ setupSky({
     syncViews();
     renderGarden();
     renderDecor();
+    renderShoots();
     renderTrees();
     syncDiscovery();
     hint();
@@ -157,10 +218,13 @@ setupSky({
   // the friends, the garden and the gifts stand again on the land that shows.
   landChanged: () => {
     cancelDiscoveryWork();
+    cancelShootDigs();
     endFishing();
     for (const v of views.values()) place(v);
+    resizeTrails();
     renderGarden();
     renderDecor();
+    renderShoots();
     renderTrees();
   },
 });
@@ -177,21 +241,46 @@ setupViews({
   friendMenu: openFriendMenu,
   resized: () => {
     cancelDiscoveryWork();
+    cancelShootDigs();
     endFishing();
     scenery.resize();
+    resizeTrail();
+    resizeSnowman();
+    resizeTrails();
     renderGarden();
     renderDecor();
+    renderShoots();
     renderTrees();
   },
 });
 setupPlay();
+setupSnowman({ start: startGame, end: endGame, after });
 setupCare();
 setupGarden();
-setupDecor();
+// The Christmas tree's night is checked whenever the gifts are drawn, and when the window is seen;
+// its ornaments are drawn after that check, so the grand tree they also hang on is made first.
+setupChristmasNight({ seen: () => shown });
+setupDecor({
+  drawn: () => {
+    christmasNightCheck();
+    drawTreeOrnaments();
+    // The decorating view follows the tree: put away, back with Undo, or gone after January 7.
+    renderDecorating();
+    // The dress tray follows its snowman the same way.
+    renderDress();
+  },
+  // The mailbox takes a press while a letter waits in it; otherwise a friend visits it.
+  press: { xmas_tree: openDecorating, snowman: openDress, mailbox: { take: letterPress } },
+});
+setupDress({ redraw: renderDecor, button: decorButton });
+setupSnowTrail();
 setupDiscovery();
 setupTrees();
-setupCatch();
+setupCatch({ wish: wishAt });
+setupViewing();
+setupPetals();
 setupAlbum();
+setupDecorating();
 setupCard({ openAlbum });
 setupSound();
 setupFriend();
@@ -231,7 +320,8 @@ api.onChange(next => {
 // is hidden, not while someone is answering, and only with two friends who have an AI.
 const AUTO_CHATTER_MS = 20 * 60 * 1000;
 setInterval(() => {
-  if (!data.autoChatter || !shown || data.busy.length) return;
+  // A gathering under the blossom has its own talk (yard/viewing.js).
+  if (!data.autoChatter || !shown || data.busy.length || viewing()) return;
   if (data.pets.filter(p => p.providerId).length < 2) return;
   // A round that could not start (someone left, an AI went away) is not worth a toast.
   startChatter().catch(() => {});
@@ -295,6 +385,10 @@ const ON_EVENT = {
     soundSeen(shown);
     // CSS animations (the clouds) rest too; see base.css.
     document.documentElement.toggleAttribute('data-unseen', !shown);
+    // Seen again, Christmas night catches up; hidden, its check stops the sleigh and the glints.
+    christmasNightCheck();
+    // Hidden, a friend on its way along a trail gives up (nobody would see the tail).
+    trailsSeen();
   },
 };
 api.onEvent(event => {
@@ -312,8 +406,17 @@ const BUSY_MS = 50,
   SNOW_MS = 80,
   CALM_MS = 100,
   UNSEEN_MS = 1000;
-// What goes on in the yard between games, looked at every frame: each knows when it is due.
-const YARD_LIFE = [idleChatter, giftTick, thanksTick, soloFishing];
+// What goes on in the yard between games, looked at every frame: each knows when it is due. The
+// remarks on the weather and the hour rest while friends view the blossom.
+const YARD_LIFE = [
+  now => viewing() || idleChatter(now),
+  giftTick,
+  thanksTick,
+  soloFishing,
+  snowmanTick,
+  viewingTick,
+  petalTick,
+];
 let last = 0;
 function interval(now) {
   if (game || aiming) return BUSY_MS;

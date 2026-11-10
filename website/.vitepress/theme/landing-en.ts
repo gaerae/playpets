@@ -142,7 +142,7 @@ export const sections = {
   connections: [
     [
       'Without AI',
-      'Patting, picnic snacks, digging, planting flowers and trees, fishing, catching bugs and the three games.',
+      'Patting, picnic snacks, digging, planting flowers and trees, fishing, catching bugs and the four games (one only in winter).',
       '/guide/play',
     ],
     [

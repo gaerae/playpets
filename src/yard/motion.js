@@ -17,8 +17,8 @@ import { place, pose } from './views.js';
 import { idleAction, WANDER_DELAY, wanderTarget } from './wander.js';
 
 // How far a friend walks in a millisecond, in field units: strolling, and going somewhere.
-const STROLL = 0.00022,
-  WALK = 0.0005;
+export const STROLL = 0.00022;
+const WALK = 0.0005;
 export function moveFriends(now, dt) {
   for (const [id, v] of views) {
     if (game) clearCompanionAction(v);

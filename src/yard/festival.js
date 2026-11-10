@@ -5,7 +5,7 @@ import { pick } from '../core/math.js';
 import { $, recall, remember, views } from '../core/state.js';
 import { artSvg } from './art.js';
 import { showCard } from './card.js';
-import { giftKind } from './catalog.js';
+import { eventGifts, giftKind } from './catalog.js';
 import { bubble } from './views.js';
 import { scene } from './world.js';
 import { worldAllows } from './worlds.js';
@@ -43,7 +43,7 @@ export function eventChanged(event) {
       return;
     }
     remember(seen, '1');
-    const art = event.art || giftKind(event.gift)?.art;
+    const art = event.art || giftKind(eventGifts(event.id)[0])?.art;
     showCard(art ? artSvg(art, 'class="decor-art"') : '', t('event.started', { name }), about, false);
     const friend = pick([...views.values()]);
     if (friend) bubble(friend, pick(list(`event.${event.id}.lines`)), 4000);

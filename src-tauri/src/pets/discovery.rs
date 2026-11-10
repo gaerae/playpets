@@ -179,9 +179,15 @@ fn roll_outcome(
     context: Option<&DiscoveryContext>,
     world: &str,
 ) -> Result<(&'static str, Option<String>), String> {
-    // At the rainbow's end, on a clear sky, a patch is never empty: the roll is spread over the
-    // other bands, each keeping its share.
-    let roll = if context.is_some_and(|c| c.rainbow && c.weather == "clear") {
+    // At the end of a trail the roll maps onto the keepsake bands alone: the prints led to
+    // something, so the patch is never empty and never a seed or a sapling. (Before the
+    // rainbow rule, which would only spread an already-full roll again.)
+    let roll = if context.is_some_and(|c| c.trail.is_some()) {
+        let bands = u16::from(DIG_ODDS[3] + DIG_ODDS[4]);
+        DIG_ODDS[..3].iter().sum::<u8>() + (u16::from(roll) * bands / 100) as u8
+    } else if context.is_some_and(|c| c.rainbow && c.weather == "clear") {
+        // At the rainbow's end, on a clear sky, a patch is never empty: the roll is spread over the
+        // other bands, each keeping its share.
         DIG_ODDS[0] + (u16::from(roll) * u16::from(100 - DIG_ODDS[0]) / 100) as u8
     } else {
         roll
@@ -499,6 +505,7 @@ mod tests {
             season: "spring".into(),
             weather: weather.into(),
             rainbow,
+            trail: None,
         };
         let outcome = |roll, context: &super::super::content::DiscoveryContext| {
             roll_outcome(&Garden::default(), roll, 0, Some(context), "woodland")
@@ -521,16 +528,43 @@ mod tests {
     }
 
     #[test]
+    fn a_dig_at_the_end_of_a_trail_always_turns_up_a_keepsake() {
+        let context = super::super::content::DiscoveryContext {
+            season: "winter".into(),
+            weather: "snow".into(),
+            rainbow: false,
+            trail: Some("squirrel".into()),
+        };
+        for roll in 0..100 {
+            let outcome = roll_outcome(&Garden::default(), roll, 0, Some(&context), "woodland")
+                .unwrap()
+                .0;
+            assert_eq!(outcome, "keepsake", "roll {roll}");
+        }
+        let mut garden = Garden::default();
+        let mut uncommon = recorded_patch(0, 1);
+        uncommon.result.outcome = "keepsake".into();
+        uncommon.result.kind = Some("quartz".into());
+        garden.digs.push(uncommon);
+        for roll in 0..100 {
+            let outcome = roll_outcome(&garden, roll, 0, Some(&context), "woodland").unwrap().0;
+            assert_eq!(outcome, "keepsake", "roll {roll}");
+        }
+    }
+
+    #[test]
     fn environmental_context_changes_never_reroll_saved_or_future_repaired_patches() {
         let first_context = super::super::content::DiscoveryContext {
             season: "spring".into(),
             weather: "clear".into(),
             rainbow: false,
+            trail: None,
         };
         let changed_context = super::super::content::DiscoveryContext {
             season: "winter".into(),
             weather: "snow".into(),
             rainbow: false,
+            trail: None,
         };
         let mut garden = Garden::default();
         let mut album = Album::default();
@@ -600,6 +634,7 @@ mod tests {
                 season: season.into(),
                 weather: weather.into(),
                 rainbow: false,
+                trail: None,
             };
             assert!(
                 super::dig(

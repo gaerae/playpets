@@ -24,7 +24,7 @@ import {
 } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
-import { EDGE, geometry, measureYard, petHeight, sizeOf } from './field.js';
+import { EDGE, field, geometry, measureYard, petHeight, sizeOf } from './field.js';
 import { hint } from './hint.js';
 import { beginDrag, dragPoint, endDrag } from './props.js';
 import { release, rest } from './trips.js';
@@ -65,6 +65,14 @@ export function pose(view, state, duration = 1200) {
   view.pose = state;
   view.until = now + duration;
 }
+/** A friend looks toward `look` (pixels from its middle, as a pointer's lookAt) for `ms`: drawn while
+ * it stands idle, on a sheet with look rows. A look set meanwhile (the pointer's) is left alone. */
+export function gaze(v, look, ms) {
+  v.look = look;
+  setTimeout(() => {
+    if (v.look === look) v.look = null;
+  }, ms);
+}
 // Bubbles show plain words: an answer's Markdown marks are taken out.
 // Space kept between two bubbles when one rises above the other.
 const BUBBLE_GAP = 4;
@@ -83,14 +91,50 @@ function clearOthers(v) {
   }
   if (lift) v.bubble.style?.setProperty('--bubble-lift', `${Math.round(lift)}px`);
 }
+// Room kept between a bubble and either side of the yard.
+const BUBBLE_EDGE = 6;
+/** How far a bubble `width` pixels wide, centred over a friend at `center`, moves sideways to stay
+ * inside a yard `yardWidth` wide, `edge` clear of each side: by the least it can, or onto the yard's
+ * middle when it is wider than the room. 0 for a bubble or a yard not laid out yet. */
+export function bubbleShift(center, width, yardWidth, edge = BUBBLE_EDGE) {
+  if (!(width > 0) || !(yardWidth > 0)) return 0;
+  if (width >= yardWidth - edge * 2) return Math.round(yardWidth / 2 - center);
+  const left = center - width / 2,
+    right = center + width / 2;
+  if (left < edge) return Math.round(edge - left);
+  if (right > yardWidth - edge) return Math.round(yardWidth - edge - right);
+  return 0;
+}
+// Keeps a bubble that shows inside the yard (--bubble-shift, friends.css). Measured when it is shown
+// and when the yard's size changes, not as the friend walks: a line lasts a few seconds.
+function keepInside(v) {
+  // Hidden, or not laid out (no yard to measure it in): nothing to keep inside. A hidden bubble is
+  // ruled out before its width is read, so a resize does not lay out every friend's empty bubble.
+  if (v.bubble.hidden || !v.pet) return;
+  const width = v.bubble.offsetWidth;
+  if (!(width > 0)) return;
+  const shift = bubbleShift(v.px + sizeOf(v.pet) / 2, width, field().width);
+  if (shift) v.bubble.style?.setProperty('--bubble-shift', `${shift}px`);
+  else v.bubble.style?.removeProperty('--bubble-shift');
+}
 /** A friend says something above its head for its reading time (or `duration`, if longer); the
- * line is also read aloud, with the friend's name, from one quiet region. */
-export function bubble(v, message, duration = 0) {
+ * line is also read aloud, with the friend's name, from one quiet region. With `onPress` the bubble
+ * can be pressed (the letter it brought); every other bubble cannot, so none is by accident. */
+export function bubble(v, message, duration = 0, onPress = null) {
   if (!message) return;
   const words = plain(message);
   v.bubble.textContent = words;
+  // Its own press: the lake or a creature under it is not caught as well.
+  v.bubble.onclick = onPress
+    ? event => {
+        event.stopPropagation();
+        onPress();
+      }
+    : null;
+  v.bubble.classList?.toggle('acts', !!onPress);
   v.bubble.hidden = false;
   v.bubble.style?.removeProperty('--bubble-lift');
+  keepInside(v);
   clearOthers(v);
   const said = globalThis.document && $('friend-speech');
   if (said && v.pet) said.textContent = `${name(v.pet)}: ${words}`;
@@ -99,6 +143,7 @@ export function bubble(v, message, duration = 0) {
     () => {
       v.bubble.hidden = true;
       v.bubble.style?.removeProperty('--bubble-lift');
+      v.bubble.style?.removeProperty('--bubble-shift');
     },
     Math.max(duration, readingTime(words)),
   );
@@ -118,6 +163,7 @@ function fit(v) {
   v.label.style.width = `${size}px`;
   v.body.style.height = `${petHeight(v.pet)}px`;
   place(v);
+  keepInside(v);
 }
 export function place(v) {
   const { w, h, top } = geometry(v.pet);
@@ -228,12 +274,18 @@ function createView(p) {
     drag: null,
     look: null,
     nextWander: 0,
-    // Set by the features that use them: a game (away, speed, frozen, frozenUntil; play.js) and
-    // closeness (bondLevel, the hearts last drawn; bond.js).
+    // Set by the features that use them: a game (away, speed, frozen, frozenUntil; play.js), flower
+    // viewing (away too, seat, the place it walks to, and viewing, { side, look } while it stands
+    // there; viewing.js), a petal on its head (petal, the node, and petalTimer, its notice; petals.js,
+    // taken off by trips.js brushPetal) and closeness (bondLevel, the hearts last drawn; bond.js).
     away: false,
     speed: 0,
     frozen: false,
     frozenUntil: 0,
+    seat: null,
+    viewing: null,
+    petal: null,
+    petalTimer: null,
     bondLevel: 0,
   };
   rest(v);
@@ -322,6 +374,8 @@ function createView(p) {
   button.addEventListener(
     'keydown',
     guard(async e => {
+      // A held key repeats; a pat, a game tap or the menu is one press.
+      if (e.repeat && !e.key.startsWith('Arrow')) return;
       if (game) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -345,11 +399,12 @@ function createView(p) {
         e.preventDefault();
         // Moved by hand, it stops where it was headed (a trip would put it back where it was going).
         release(v);
-        const patch = {
-          x: clamp(v.x + (e.key === 'ArrowRight' ? 0.04 : e.key === 'ArrowLeft' ? -0.04 : 0)),
-          y: clamp(v.y + (e.key === 'ArrowDown' ? 0.04 : e.key === 'ArrowUp' ? -0.04 : 0)),
-        };
-        await call('updatePet', p.id, patch);
+        v.x = clamp(v.x + (e.key === 'ArrowRight' ? 0.04 : e.key === 'ArrowLeft' ? -0.04 : 0));
+        v.y = clamp(v.y + (e.key === 'ArrowDown' ? 0.04 : e.key === 'ArrowUp' ? -0.04 : 0));
+        // As after a drag: the yard draws it there now, and the backend only hears where (no state
+        // comes back for a move).
+        place(v);
+        await call('updatePet', p.id, { x: v.x, y: v.y });
       }
     }),
   );

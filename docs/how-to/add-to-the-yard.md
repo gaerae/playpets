@@ -8,7 +8,7 @@
 |---|---|---|
 | The catalogue: fish, bugs, flowers, gifts, trees, keepsakes and the garden's stages | `src/content/catalog.json` | the page (`src/yard/catalog.js`) and the backend (`src-tauri/src/pets/content.rs`, built in) |
 | The scenery's composition: curves, the lake, the field, the layers painted from back to front | `src/content/yard.json` | the page (`src/yard/layout.js`, `src/yard/backdrop.js`) |
-| Seasonal events: when, their gift, what they add to the scenery and how they look | `src/content/events.json` | the page (`src/yard/events.js`, `src/yard/festival.js`) and the backend (its gift's dates, `content.rs`) |
+| Seasonal events: when, what they add to the scenery and how they look | `src/content/events.json` | the page (`src/yard/events.js`, `src/yard/festival.js`) and the backend (its gifts' dates, `content.rs`) |
 | Drawings: plant stages, flowers, gifts (and any fish or bug that has its own) | `src/art/<folder>/<id>.svg` | the page (`src/yard/art.js`), as symbols |
 | Colours of the seasons, the light and the weather | `src/styles/scenery.css` | the stylesheet, the painter and every drawing |
 | Names and lines | `src/core/strings/<language>.js` | the page |
@@ -77,6 +77,32 @@
    | `stand` | `"on"` if friends stand on it, like the bench. Without it, friends stand beside it |
    | `effects` | See below |
    | `size` | `[width, height]` in catalogue units, in the drawing's shape. Usually its SVG view box; furniture may need a different footprint. The desktop draws the gift at this size too (`gift_size` in `pets/content.rs`) |
+   | `event` | An event's id. The gift comes only during that event. Several gifts of one event come in catalogue order, one each time a gift is due |
+   | `shown` | `"december"`: shows in the yard and on the desktop from December 1 to January 7, and is hidden with its state kept the rest of the year. It goes back into the gift box when put away. The windows are `SHOWN` in `src/yard/decor-shown.js` |
+   | `seasons` | Shows only while the yard shows one of these seasons; never in a place without seasons (`seasonalEffects: false`, the studio). The season the yard shows is `yardSeason` in `src/yard/decor-shown.js` |
+   | `built` | `true`: never brought by a friend; it comes from building it (the snowman) |
+   | `ball` | The drawing a built kind is rolled from |
+   | `stack` | `[base ball width ÷ box width, base ball bottom ÷ box height]` |
+   | `dress` | `[{id, art, at: [x, y, w]}]`, in drawing order; `at` is the centre and width as fractions of the box, and the backend reads only the ids |
+   | `hooks` | Where ornaments hang on this drawing, as fractions of its box; only `xmas_tree` has them, and `ORNAMENT_HOOKS` in `garden.rs` is their count |
+   | `night` | The gift's Christmas night look; only `xmas_tree` has one. Read by `src/yard/christmas-night.js` (see below); its `hooks` name the same places on the grand tree |
+
+   - At most four kinds use `shown` or `seasons`.
+   - A `built` kind is never set out from the album nor sent to the desktop, and putting it away removes it.
+   - What can hang and where: flowers, trees, gifts and keepsakes found in the album. The rule is `hang_ornament` in `garden.rs` and `src/yard/ornaments.js`.
+
+   `night` holds:
+
+   | Key | Meaning |
+   |---|---|
+   | `art` | The grand drawing, standing on the same foot point as the gift's own |
+   | `star`, `bulbs` | Fractions of that drawing's box: where the star swells, and where single bulbs glint |
+   | `sleigh` | A drawing shown as a mirrored silhouette over the moon |
+   | `guests` | Gift kinds that must also be out; they look up in this order |
+
+   - It plays during the winter lights, in a winter yard, at evening or night, while it snows.
+   - It plays once per night per webview; a night runs until 05:00.
+   - Hidden kinds still count toward `DECOR_MAX`.
 
 2. Draw it in `src/art/decor/<id>.svg`.
    - Preserve the drawing's aspect ratio.
@@ -154,11 +180,12 @@ To make a new effect:
 ### Add a seasonal event
 1. Add an entry to `src/content/events.json` with `id`, `from` and `to`, and what it brings.
    - `from`, `to`: month-day (`"04-01"`), as seen north of the equator.
-   - South of the equator, the event comes six months later unless `"fixed": true` (as for the new year).
+   - South of the equator, the event comes six months later unless `"fixed": true` (as for the winter lights and the new year).
+   - `fixed` also means the event's gift is asked for whatever season the yard shows, in every place.
+   - An event's gifts are the catalogue kinds with its `event`, in catalogue order. Add them to `catalog.json` with `"event": "<id>"`; they are not everyday gifts.
 
    | Field | What it brings |
    |---|---|
-   | `gift` | The id of a gift that comes only then. Add that gift to `catalog.json` with `"event": "<id>"`. It comes the first time a gift is due during the event, and is not one of the everyday gifts |
    | `boost` | More small life while it is on: `petals`, `butterflies`, `fireflies` (each a multiplier) |
    | `looks` | Names of looks; each is a class on the yard (`look-<name>`) whose rules go in `src/styles/scenery.css`. The harvest moon's `fullmoon` makes the moon big and golden on the nights around the event's first real full moon, when `sky.js` also sets `moon-full` |
    | `art` | A drawing for its card, if it has no gift (the new year's sunrise) |
@@ -170,6 +197,30 @@ To make a new effect:
 - While the event is on, the scene label shows it.
 - The first time each year, a card says it has begun.
 - Friends talk about it.
+
+### Add an animal's footprints
+1. Add an entry to `tracks` in `src/content/catalog.json`, copying a close one:
+
+   | Field | Meaning |
+   |---|---|
+   | `id` | Lowercase and `_` |
+   | `print` | `prints/<id>.svg`, the mark laid in the snow and shown in the album |
+   | `tail` | `tracks/tail_<id>.svg`, the tail that peeks out at the bush |
+   | `bird` | `true` for a bird: it flutters off instead of whisking away |
+   | `gait.group` | `true` for a bounder whose prints fall in one line; `false` for a walker whose prints alternate sides |
+   | `gait.step` | Distance between prints, before the yard's zoom |
+   | `gait.side` | How far a walker's prints sit off the line; ignored when `group` is `true` |
+   | `gait.size` | Size of one print |
+   | `finds` | Keepsake ids the animal likes to leave in the dig |
+
+2. Put the drawings in `src/art/prints/` and `src/art/tracks/`. `trailArt` lists the shared `bush`, `twigs` and `puff` drawings.
+3. Add the animal's name to every string table.
+
+- A print is a 24-unit vector mark with `fill="currentColor"`, so the snow shade colours it.
+- A tail is a rear-only crop, so the animal is never whole.
+- `finds` weigh `TRAIL_LEAN` (`pets/content.rs`) times more in a trail dig than in an ordinary one.
+- The album's Footprints book lists every track.
+- `tests/print-art.test.mjs` and the content tests check the references.
 
 ### Change the colours of a season or a time of day
 - Change the custom properties in `src/styles/scenery.css`, per season, time of day and weather.
@@ -247,7 +298,7 @@ Guide labels:
 - Event gifts stay tied to the calendar.
 - Gifts follow a deterministic sequence, not a loot probability.
 - The cap of 12 placed decorations pauses deliveries.
-- Removing a decoration keeps its album entry, so all 26 gifts can be collected over time.
+- Removing a decoration keeps its album entry, so all 29 gifts can be collected over time.
 
 Reachability:
 - Keep every album entry reachable across valid contexts.
@@ -272,6 +323,10 @@ Keepsakes:
 - Tier odds and timing limits are in `pets/discovery.rs`, and the backend exposes them.
 - The page fallback and the website guide share `core/limits.js`.
 - Its test compares those values with Rust.
+
+Spring shoots:
+- Spring shoots use the `shoots` list: `id`, `season`, `art` and `size`, plus `shoot.<id>` in every language.
+- The backend's `is_shoot` and `album.shoots` read the same list; no string may say how to pick or eat one (`tests/i18n.test.mjs`).
 
 Affinity:
 - Trees and keepsakes may include `affinity: { seasons: ["spring"], weather: ["rain"], places: ["woodland"] }`.

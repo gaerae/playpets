@@ -17,6 +17,9 @@ const paths = {
   expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
   // Digging: a spade with its blade in the ground.
   shovel: '<path d="m14 4 6 6"/><path d="m17 7-6.5 6.5"/><path d="M10.5 13.5 8 11l-4.5 4.5L5 20l4.5 1.5L14 17Z"/>',
+  // Flower viewing: a cherry blossom, five notched petals around a dot.
+  blossom:
+    '<path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z"/><path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z" transform="rotate(72 12 12)"/><path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z" transform="rotate(144 12 12)"/><path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z" transform="rotate(216 12 12)"/><path d="M12 11C8.8 9.8 7.4 6.4 9.2 4.4c1-1.1 2.2-.6 2.8.6.6-1.2 1.8-1.7 2.8-.6 1.8 2 .4 5.4-2.8 6.6Z" transform="rotate(288 12 12)"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/>',
   // A tree to plant from a sapling.
   tree: '<path d="M12 21v-5"/><path d="M12 3 6.5 10H9l-4 6h14l-4-6h2.5Z"/>',
   // A seedling: the garden's tool.
@@ -25,6 +28,8 @@ const paths = {
   eye: '<path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/>',
   paw: '<path d="M12 13c-3 0-5 2.6-5 4.6 0 1.5 1.2 2.4 2.6 2.4 1 0 1.6-.5 2.4-.5s1.4.5 2.4.5c1.4 0 2.6-.9 2.6-2.4 0-2-2-4.6-5-4.6Z"/><circle cx="5.5" cy="10.5" r="1.7"/><circle cx="9.3" cy="6.5" r="1.7"/><circle cx="14.7" cy="6.5" r="1.7"/><circle cx="18.5" cy="10.5" r="1.7"/>',
   dash: '<path d="M3 8h9M5 12h11M3 16h7"/><circle cx="18.5" cy="12" r="2.5"/>',
+  // A snowflake: the snowman game.
+  snow: '<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M14.3 4 12 6.4 9.7 4m10.38 5.99-3.23-.79.93-3.19m0 11.98-.93-3.19 3.23-.79M9.7 20l2.3-2.4 2.3 2.4m-10.38-5.99 3.23.79-.93 3.19m0-11.98.93 3.19-3.23.79"/>',
   spark: '<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/>',
   download: '<path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/>',
   external: '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
@@ -50,6 +55,7 @@ const paths = {
   more: '<circle cx="5.5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor"/>',
   archive:
     '<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4M10 5h1M10 8h1M10 11h1"/><rect x="9" y="13" width="3" height="3" rx=".5"/>',
+  mail: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m4 7 8 6 8-6"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13"/>',
 };
 export function icons(root = document) {

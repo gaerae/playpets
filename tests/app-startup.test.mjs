@@ -70,7 +70,19 @@ async function frameLoop({ hidden = false, shown = true } = {}) {
   const source = await readFile('src/app.js', 'utf8');
   const loop = source.slice(source.indexOf('\nconst BUSY_MS'), source.lastIndexOf('\ntry {'));
   const noop = () => {};
-  const yardLife = ['idleChatter', 'giftTick', 'thanksTick', 'soloFishing', 'judge', 'moveFriends', 'bondTick'];
+  const yardLife = [
+    'idleChatter',
+    'giftTick',
+    'thanksTick',
+    'soloFishing',
+    'snowmanTick',
+    'viewingTick',
+    'viewing',
+    'petalTick',
+    'judge',
+    'moveFriends',
+    'bondTick',
+  ];
   const context = {
     document: { hidden },
     shown,
@@ -92,4 +104,29 @@ test('the frame loop wakes about once a second while the yard cannot be seen', a
     const { animate, CALM_MS } = await frameLoop(unseen);
     assert.ok(animate(1000) >= 1000, `${JSON.stringify(unseen)} waits a second, not ${CALM_MS}ms`);
   }
+});
+
+// The Let them chat now and then interval of app.js, with the page around it: what it started.
+async function autoChatter({ gathered }) {
+  const source = await readFile('src/app.js', 'utf8');
+  const block = source.slice(source.indexOf('\nconst AUTO_CHATTER_MS'), source.indexOf('\nconst AUTO_PLAY_MS'));
+  const started = [];
+  let tick = null;
+  const context = {
+    data: { autoChatter: true, busy: [], pets: [{ providerId: 'p' }, { providerId: 'q' }] },
+    shown: true,
+    viewing: () => gathered,
+    startChatter: async () => {
+      started.push('chatter');
+    },
+    setInterval: fn => (tick = fn),
+  };
+  vm.runInNewContext(block, context);
+  tick();
+  return started;
+}
+
+test('the friends chat now and then, but not over a gathering under the blossom', async () => {
+  assert.deepEqual(await autoChatter({ gathered: false }), ['chatter']);
+  assert.deepEqual(await autoChatter({ gathered: true }), []);
 });

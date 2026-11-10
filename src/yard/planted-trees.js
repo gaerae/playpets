@@ -4,7 +4,7 @@ import { joinList, t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
 import { aiming, call, data, game, guard } from '../core/state.js';
 import { artSvg } from './art.js';
-import { treeKind } from './catalog.js';
+import { treeKind, treeSize } from './catalog.js';
 import { groundAllows, treeStage } from './discovery-rules.js';
 import { EDGE, field, fieldToYard, measureYard, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
@@ -12,11 +12,6 @@ import { beginDrag, dragPoint, endDrag, moveSaved, propButton, reconcile, remove
 import { scene } from './world.js';
 
 const shown = new Map();
-const sizes = [
-  [35, 40],
-  [70, 95],
-  [160, 170],
-];
 const stageKeys = ['tree.growth', 'tree.young', 'tree.mature'];
 const current = id => data.garden?.trees?.find(tree => tree.id === id && tree.world === scene.world);
 
@@ -30,7 +25,7 @@ function position(view, tree, point = tree) {
     view.button.innerHTML = artSvg(art);
     view.art = art;
   }
-  const [width, height] = drawing.size || sizes[stage],
+  const [width, height] = treeSize(tree.kind, stage),
     foot = fieldToYard(point),
     zoom = yardZoom();
   setDown(view.button, foot.x, foot.y, width * zoom, height * zoom, 1 + Math.round(point.y * 100));

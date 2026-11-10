@@ -138,7 +138,7 @@ fn store(
         }
         push_event(app, &json!({"type": "history-reset", "petIds": ids}));
     }
-    crate::app::save_and_show(app, &d)?;
+    crate::app::show_and_save(app, d)?;
     Ok(entry)
 }
 
@@ -187,8 +187,7 @@ pub fn remove(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, id:
     }
     d.providers.retain(|p| id_of(p) != id);
     let had_key = d.secret_ids.remove(id);
-    let saved = crate::app::save_and_show(app, &d);
-    drop(d);
+    let saved = crate::app::show_and_save(app, d);
     // The connection is gone either way, so is its key. The keychain may ask the person; nothing
     // else in the app should wait for that.
     if had_key {

@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { eligibleKinds, fishWeight, relativeChances, wildlifeGroup } from '../src/yard/catalog.js';
+import { trailAnimal } from '../src/yard/trail-rules.js';
+import { ADVICE } from './support/advice.mjs';
 
 const catalog = JSON.parse(await readFile(new URL('../src/content/catalog.json', import.meta.url)));
 test('guide odds normalize only currently eligible fish and rain weights', () => {
@@ -82,7 +84,7 @@ test('guide bug percentages use one actual spawned-individual pool, not two full
   assert.ok(Math.abs(festival.find(item => item.id === 'golden_firefly').chance - 1 / 111) < 1e-12);
 });
 
-test('all 150 album entries remain reachable and event gifts retain calendar gates', async () => {
+test('all 169 album entries remain reachable and event gifts retain calendar gates', async () => {
   const { discoveryBugChances, discoveryFindChances } = await import('../website/.vitepress/theme/discovery-odds.js');
   const { LIMITS } = await import('../src/core/limits.js');
   const events = JSON.parse(await readFile(new URL('../src/content/events.json', import.meta.url))).events;
@@ -93,6 +95,8 @@ test('all 150 album entries remain reachable and event gifts retain calendar gat
     gifts: new Set(),
     trees: new Set(),
     treasures: new Set(),
+    tracks: new Set(),
+    shoots: new Set(),
   };
   for (const season of ['spring', 'summer', 'autumn', 'winter']) {
     for (const period of ['morning', 'day', 'evening', 'night']) {
@@ -110,14 +114,20 @@ test('all 150 album entries remain reachable and event gifts retain calendar gat
     seen[catalog.trees.some(tree => tree.id === item.id) ? 'trees' : 'treasures'].add(item.id);
   }
   for (const gift of catalog.gifts) {
-    if (gift.event)
-      assert.ok(events.some(event => event.id === gift.event && event.gift === gift.id && event.from && event.to));
+    if (gift.event) assert.ok(events.some(event => event.id === gift.event && event.from && event.to));
     seen.gifts.add(gift.id);
+  }
+  for (const item of catalog.shoots) seen.shoots.add(item.id);
+  // Footprints: each day's two trails name two animals, so a year of days meets them all.
+  const ids = catalog.tracks.map(track => track.id);
+  for (let d = 0; d < 365; d++) {
+    const day = new Date(Date.UTC(2026, 0, 1 + d)).toISOString().slice(0, 10);
+    for (const n of [0, 1]) seen.tracks.add(trailAnimal(day, n, ids));
   }
   for (const [book, found] of Object.entries(seen)) assert.equal(found.size, catalog[book].length, book);
   assert.equal(
     Object.values(seen).reduce((sum, found) => sum + found.size, 0),
-    150,
+    169,
   );
 });
 
@@ -147,4 +157,17 @@ test('collection guide does not render exact probability controls or values', as
   const guide = await readFile(new URL('../website/.vitepress/theme/DiscoveryGuide.vue', import.meta.url), 'utf8');
   const template = guide.split('<template>')[1].split('</template>')[0];
   assert.doesNotMatch(template, /percent\(|text\.details/);
+});
+
+test('the discovery guide has a Spring shoots book without picking or eating advice', async () => {
+  const guide = await readFile(new URL('../website/.vitepress/theme/DiscoveryGuide.vue', import.meta.url), 'utf8');
+  assert.match(guide, /const books = \[[^\]]*'shoots'/);
+  const labels = [...guide.matchAll(/^\s{4}books: \[([^\]]*)\]/gm)].map(m => m[1].split(',').length);
+  assert.deepEqual(labels, [5, 5, 5, 5], 'five book labels in each language');
+  const copy = [...guide.matchAll(/^\s{4}shoots:\s*'((?:[^'\\]|\\.)*)'/gm)].map(m => m[1]);
+  assert.equal(copy.length, 4, 'one shoots paragraph per language');
+  for (const [i, lang] of ['en', 'ko', 'ja', 'zh-hans'].entries()) {
+    assert.ok(copy[i].length > 20, `${lang}: the paragraph is there`);
+    assert.doesNotMatch(copy[i], ADVICE[lang], `${lang}: shoots paragraph`);
+  }
 });

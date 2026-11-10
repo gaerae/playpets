@@ -182,6 +182,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         garden,
         album: album::Album::restore(raw.get("album")),
         bonds,
+        letters: letters::Letters::restore(raw.get("letters"), &crate::pets::latest_day(now)),
         providers,
         parked_providers: parked,
         parked_pets,
@@ -191,8 +192,11 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         talks: chat::Talks::default(),
         importing: Vec::new(),
         provider_updates: HashSet::new(),
+        letters_writing: HashSet::new(),
+        letters_key_missed: false,
         detected: nothing_detected(),
         activity: HashMap::new(),
+        hidden_decor: None,
     })
 }
 

@@ -13,7 +13,7 @@ import { displayName } from '../core/names.js';
 import { setupSeason, systemSouth } from '../core/season.js';
 import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/sprites.js';
 import { sceneValue } from '../core/state.js';
-import { applyStatus, stateOf } from '../core/status.js';
+import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
 import { artSvg, loadArt } from '../yard/art.js';
@@ -247,10 +247,11 @@ function render() {
     }
     // A walk streams positions many times a second; the rest changes only with the friend itself,
     // so it is written only then.
+    // Its own key: `look` is where the friend's eyes turn.
     const name = nameOf(v),
-      look = `${position.width}x${position.height}|${pet.size}|${name}`;
-    if (look === v.look) continue;
-    v.look = look;
+      shape = `${position.width}x${position.height}|${pet.size}|${name}`;
+    if (shape === v.shape) continue;
+    v.shape = shape;
     v.wrap.style.width = `${position.width}px`;
     v.wrap.style.height = `${position.height}px`;
     v.sprite.style.width = `${pet.size}px`;
@@ -310,13 +311,14 @@ api.onEvent(event => {
     showName(event.petId);
     return;
   }
+  // Kept for every friend, also one on another monitor now: it may walk over here later.
+  if (event.type === 'status') applyStatus(data, event);
   for (const [id, v] of views) {
     if (event.petId && event.petId !== id) continue;
     // A friend that strolled over to a gift says something that fits it, as in the yard.
     if (event.type === 'visit') say(v, pick(list(`decor.visit_${event.kind}`)) || '');
     if (event.type === 'status') {
-      applyStatus(data, event);
-      v.status = event.state;
+      v.status = stateOf(data, id);
       say(v, event.message);
     }
     if (event.type === 'say') say(v, event.message);
@@ -352,4 +354,12 @@ if (result.ok) {
   render();
   // Standing cells last 110-320 ms, so ten frames a second show every one of them.
   every(100, animate);
+  // A finished agent's state fades after a while, as in the yard; nothing else here may draw the
+  // friends again for hours, so the page looks each minute.
+  let looked = Date.now();
+  everyMinute(() => {
+    const now = Date.now();
+    if (fadedBetween(data, looked, now)) render();
+    looked = now;
+  });
 }

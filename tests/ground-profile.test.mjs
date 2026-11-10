@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 import { data, setData } from '../src/core/state.js';
+import { treeSize } from '../src/yard/catalog.js';
 import { groundAllows, projectFootprint } from '../src/yard/discovery-rules.js';
 import { environmentLake } from '../src/yard/environment.js';
 import { field, measureYard } from '../src/yard/field.js';
@@ -104,6 +105,35 @@ test('flower and tree roots exclude only current-world trees and skip the tree b
   assert.equal(groundAllows({ x: 0.9, y: 0.5 }, profile), true);
 });
 
+test('trees and standing gifts keep the box they are drawn in; flat gifts lie under everything', () => {
+  const profile = base({
+    now: 43_200_000,
+    scale: 0.5,
+    giftDimensions: () => ({ w: 50, h: 60 }),
+    garden: {
+      trees: [{ id: 'grown', world: 'meadow', kind: 'cherry', x: 0.5, y: 0.8, planted: 0 }],
+      decor: [
+        { kind: 'bench', x: 0.3, y: 0.5 },
+        { kind: 'picnic', x: 0.7, y: 0.5 },
+      ],
+    },
+  });
+  const width = bounds.width - 28,
+    height = bounds.bottom - bounds.top,
+    [w, h] = treeSize('cherry', 2);
+  assert.deepEqual(profile.unit, { x: 0.5 / width, y: 0.5 / height }, "a drawing's pixel at the yard's zoom");
+  assert.equal(profile.bodies.length, 2);
+  const [tree, bench] = profile.bodies;
+  const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} is not ${b}`);
+  near(tree.left, 0.5 - (w * 0.5) / 2 / width);
+  near(tree.right, 0.5 + (w * 0.5) / 2 / width);
+  near(tree.top, 0.8 - (h * 0.5) / height);
+  near(tree.bottom, 0.8);
+  near(bench.left, 0.3 - 25 / width);
+  near(bench.top, 0.5 - 60 / height);
+  near(bench.bottom, 0.5);
+});
+
 test('snapshots contain at most 64 valid intersecting ellipses', () => {
   const plants = Array.from({ length: 100 }, () => ({ x: 0.5, y: 0.5 }));
   plants.unshift({ x: NaN, y: 0.5 }, { x: 100, y: 100 });
@@ -135,4 +165,45 @@ test('live snapshot reads the measured field, current world and saved garden', t
   assert.equal(groundAllows({ x: 0.2, y: 0.8 }, live), false);
   assert.ok(worldFor(scene.world));
   assert.ok(field().height > 0);
+});
+
+test('gifts the yard does not draw leave their ground free; drawn, they take it', () => {
+  const garden = {
+    decor: [
+      { kind: 'xmas_tree', x: 0.5, y: 0.6 },
+      { kind: 'snowman', x: 0.2, y: 0.6 },
+    ],
+  };
+  const march = new Date(2027, 2, 10, 12).getTime(),
+    december = new Date(2026, 11, 20, 12).getTime();
+  const away = base({ garden, now: march, season: 'spring' });
+  assert.equal(away.obstacles.length, 0, 'a Christmas tree in March and a snowman in spring take no root');
+  assert.equal(away.bodies.length, 0);
+  assert.equal(groundAllows({ x: 0.5, y: 0.6 }, away), true);
+  assert.equal(groundAllows({ x: 0.2, y: 0.6 }, away), true);
+  const shown = base({ garden, now: december, season: 'winter' });
+  assert.equal(shown.obstacles.length, 2);
+  assert.equal(groundAllows({ x: 0.5, y: 0.6 }, shown), false);
+  assert.equal(groundAllows({ x: 0.2, y: 0.6 }, shown), false);
+  // December in a spring yard: the tree shows, the snowman does not.
+  const spring = base({ garden, now: december, season: 'spring' });
+  assert.equal(groundAllows({ x: 0.5, y: 0.6 }, spring), false);
+  assert.equal(groundAllows({ x: 0.2, y: 0.6 }, spring), true);
+});
+
+test('the live snapshot leaves out what the shown season hides', t => {
+  const before = data,
+    oldScene = { ...scene };
+  t.after(() => {
+    setData(before);
+    Object.assign(scene, oldScene);
+  });
+  const { nodes } = installDom(t, { ids: ['yard'] });
+  nodes.get('yard').getBoundingClientRect = () => ({ width: 1000, height: 700 });
+  measureYard();
+  Object.assign(scene, { world: 'woodland', season: 'spring' });
+  setData({ ...before, garden: { decor: [{ kind: 'snowman', x: 0.5, y: 0.8 }] } });
+  assert.equal(groundAllows({ x: 0.5, y: 0.8 }, groundProfile()), true);
+  scene.season = 'winter';
+  assert.equal(groundAllows({ x: 0.5, y: 0.8 }, groundProfile()), false);
 });

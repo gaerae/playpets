@@ -1,5 +1,4 @@
 // Brief, friend-led tasks: choose ground, walk there, then commit one discovery.
-import { beginCompanionAction, playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
 import { closeControls, closeScene } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
@@ -11,16 +10,19 @@ import { showCard } from './card.js';
 import { onAimingChange, setAimingMode } from './care.js';
 import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
-import { field, fieldToYard, petHeight, sizeOf, yardToField, yardZoom } from './field.js';
+import { field, fieldToYard, petHeight, sizeOf, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
 import { atRainbowEnd } from './rainbow-end.js';
-import { isFree, release, rest } from './trips.js';
+import { atTrailEnd, reservedForTrail } from './trails.js';
+import { forPerson, isFree, release } from './trips.js';
 import { bubble } from './views.js';
-import { holdAtWork, sendToWork, stopWork } from './work.js';
+import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
 import { scene } from './world.js';
 
 let intent = null;
 const tasks = new Map();
+/** Whether a tool is in hand or a friend is digging or planting: nothing else should call it away then. */
+export const digging = () => !!intent || tasks.size > 0;
 // The tools the strip offers while one is in hand: digging, a tree, a seed (garden.js owns seeds).
 const TOOLS = [
   ['dig', 'shovel', 'discovery.dig'],
@@ -148,15 +150,14 @@ function showMarker(event) {
 /** A task owns its timer and effect. Taking the friend away cancels only the presentation. */
 export function sendDiscovery(v, point, action, kind) {
   const world = scene.world,
-    pixel = fieldToYard(point),
+    stroke = action === 'tree' ? 'plant' : 'dig',
     task = {
       world,
       action,
       kind,
       cancelled: false,
-      effect: null,
+      dig: null,
       timer: null,
-      soilTimer: null,
       contactTimer: null,
       resumeContact: null,
     };
@@ -164,57 +165,34 @@ export function sendDiscovery(v, point, action, kind) {
     task.cancelled = true;
     clearTimeout(task.timer);
     clearTimeout(task.contactTimer);
-    clearTimeout(task.soilTimer);
     task.resumeContact?.();
-    task.effect?.remove();
+    task.dig?.stop();
     stopWork(v);
     if (tasks.get(v) === task) tasks.delete(v);
   };
   release(v);
   tasks.set(v, task);
-  const prepared = prepareCompanionAction(v.asset, action === 'tree' ? 'plant' : 'dig');
-  prepareCompanionAction(v.asset, 'discover');
-  sendToWork(v, pixel, prepared, {
+  sendToDig(v, point, stroke, {
     cancel: cleanup,
     arrive: guard(async () => {
       if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
       let ground = groundProfile();
       if (!groundAllows(point, ground)) return cleanup();
-      const context = { season: scene.season, weather: scene.weather, rainbow: atRainbowEnd(point) };
-      holdAtWork(v, cleanup);
-      const authored = playCompanionAction(v, action === 'tree' ? 'plant' : 'dig');
-      const duration = authored?.duration ?? 1950;
-      const effect = document.createElement('span');
-      effect.className = `dig-effect${authored ? ' authored' : ''}`;
-      effect.setAttribute('aria-hidden', 'true');
-      effect.dataset.soil = scene.season === 'winter' ? 'winter' : 'base';
-      effect.classList.toggle('planting', action === 'tree');
-      effect.style.zIndex = String(
-        Math.max(0, Math.min(1 + Math.round(point.y * 100), v.z ?? 1 + Math.round(v.y * 100)) - 1),
-      );
-      effect.innerHTML = `<span class="dig-soil"></span><span class="dig-dirt"></span>${authored?.clip.heldTool ? '' : artSvg('discovery/shovel.svg')}`;
-      effect.style.left = `${pixel.x}px`;
-      effect.style.top = `${pixel.y}px`;
-      effect.style.setProperty('--dig-scale', String(yardZoom()));
-      effect.style.setProperty('--dig-duration', `${duration}ms`);
-      if (authored) {
-        effect.style.setProperty('--dig-contact', `${authored.clip.contactAt ?? duration * 0.3}ms`);
-        effect.style.setProperty('--dig-toss', `${authored.clip.tossAt ?? duration * 0.65}ms`);
-      }
-      $('garden-layer').append(effect);
-      task.soilTimer = setTimeout(() => {
-        if (!task.cancelled) effect.classList.add('contact');
-      }, authored?.clip.contactAt ?? 300);
-      task.effect = effect;
+      const context = {
+        season: scene.season,
+        weather: scene.weather,
+        rainbow: atRainbowEnd(point),
+        trail: atTrailEnd(point),
+      };
+      task.dig = startDig(v, point, stroke, cleanup);
+      const { authored, duration } = task.dig;
       const before = new Set(Object.keys(data.album?.treasures || {}));
       let result,
         finished = false;
       const reveal = () => {
         if (!finished || !result || task.cancelled) return;
         if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
-        release(v);
-        rest(v);
-        if (action === 'tree' || (result.outcome && result.outcome !== 'empty')) beginCompanionAction(v, 'discover');
+        doneDigging(v, action === 'tree' || (!!result.outcome && result.outcome !== 'empty'));
         if (action === 'tree') return bubble(v, t('discovery.planted'), 2600);
         if (result.repeated) return bubble(v, t('discovery.repeated'), 2600);
         if (result.outcome === 'keepsake') {
@@ -287,20 +265,14 @@ const rested = v => {
   const pause = limit(data, 'digCooldownMs');
   return performance.now() - (v.dugAt ?? -pause) >= pause;
 };
-// The friend for the next spot: the selected one when it is free and rested, else the nearest such friend.
+/** Whether a friend may dig again yet (trails.js picks who follows a trail by it, through app.js). */
+export const digRested = rested;
+// The friend for the next spot: the selected one when it is free and rested, else the nearest such
+// friend, else one viewing the blossom (trips.js forPerson).
 function actorFor(point) {
-  const ready = v => isFree(v) && !tasks.has(v) && (intent.action !== 'dig' || rested(v));
-  const first = views.get(selected) || views.get(intent.petId);
-  if (first && ready(first)) return first;
-  const spot = fieldToYard(point);
-  let best = null,
-    bestD = Infinity;
-  for (const v of views.values()) {
-    if (!ready(v)) continue;
-    const d = Math.hypot(v.px + sizeOf(v.pet) / 2 - spot.x, v.py + petHeight(v.pet) - spot.y);
-    if (d < bestD) [best, bestD] = [v, d];
-  }
-  return best;
+  const ready = v => !tasks.has(v) && (intent.action !== 'dig' || rested(v)),
+    spot = fieldToYard(point);
+  return forPerson(spot.x, spot.y, views.get(selected) || views.get(intent.petId), ready);
 }
 // Sends a friend to the spot and keeps the tool in hand: the next spot sends the next free friend,
 // until Esc, the strip's Close or another tool puts it away.
@@ -324,7 +296,8 @@ export function autoDig(rng = Math.random) {
   const v = idle[Math.floor(rng() * idle.length)];
   for (let tries = 0; tries < 12; tries++) {
     const point = { x: 0.1 + rng() * 0.8, y: 0.15 + rng() * 0.75 };
-    if (!groundAllows(point, groundProfile())) continue;
+    // A winter trail's end waits for its follow's dig.
+    if (!groundAllows(point, groundProfile()) || reservedForTrail(point)) continue;
     sendDiscovery(v, point, 'dig');
     return true;
   }

@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { LANGUAGES, STRINGS } from '../src/core/strings.js';
+import { ADVICE } from './support/advice.mjs';
 
 const holes = text =>
   [...String(Array.isArray(text) ? text.join(' ') : text).matchAll(/\{(\w+)(?::[^}]+)?\}/g)].map(m => m[1]).sort();
@@ -128,8 +129,10 @@ const BUILT = [
   /^bond\.(welcome|up_line|dear)_(partner|senior|junior)$/, // yard/bond.js lineFor
   /^pet\.call_me_(friend|partner|senior|junior)$/, // panel/friend-settings.js
   /^connection\.(note|help)_[a-z]+$/, // panel/connection.js, by connection type
-  /^game\.(hide|parade|tag)_title$/, // yard/play.js
+  /^game\.(hide|parade|tag|snowman)_title$/, // yard/play.js
   /^discovery\.((dig|tree)_hint|empty|seed|full)$/, // yard/discovery.js, by tool and by outcome
+  /^track\.[a-z_]+$/, // panel/album.js, one per animal in the catalogue's tracks
+  /^shoot\.[a-z_]+$/, // panel/album.js, yard/shoots.js, one per spring shoot in the catalogue's shoots
 ];
 
 // The other way round: a sentence nothing names is never shown, yet goes on being translated and
@@ -157,6 +160,36 @@ test('every key in the table is one the page names', async () => {
     );
   const unused = keys.filter(key => !quoted.has(key) && !BUILT.some(family => family.test(key)));
   assert.deepEqual(unused, [], 'keys in the language files that nothing in src/ names');
+});
+
+// A shoot is only to be looked at and gathered into the album; nothing says how to pick it or
+// whether to eat it, in any language.
+test('spring shoots never say how to pick or eat them', () => {
+  for (const lang of Object.keys(STRINGS)) {
+    const keys = Object.keys(STRINGS[lang]).filter(
+      key => key.startsWith('shoot.') || key === 'album.shoots' || key === 'catch.album_lead',
+    );
+    assert.ok(
+      keys.some(key => key.startsWith('shoot.')),
+      `${lang}: has shoot names`,
+    );
+    for (const key of keys) {
+      const text = [STRINGS[lang][key]].flat().join(' ');
+      assert.doesNotMatch(text, ADVICE[lang], `${lang}: ${key}`);
+    }
+  }
+});
+
+// The guard above only means something while each pattern still catches advice in its own language.
+test('the advice patterns match a sample piece of advice in each language', () => {
+  const samples = {
+    en: 'Mugwort is delicious in soup.',
+    ko: '쑥은 국에 넣어 먹어요.',
+    ja: 'ヨモギは汁に入れて食べます。',
+    'zh-hans': '艾草可以煮汤吃。',
+  };
+  assert.deepEqual(Object.keys(samples).sort(), Object.keys(ADVICE).sort());
+  for (const [lang, sample] of Object.entries(samples)) assert.match(sample, ADVICE[lang], lang);
 });
 
 // Current contributor guidance stays readable in English; dated records preserve their history.

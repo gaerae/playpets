@@ -28,6 +28,7 @@ import {
 import { createScenery } from './scenery.js';
 import { createMoments } from './sky-moments.js';
 import { soundScene } from './sound.js';
+import { seasonPickedByHand } from './winter.js';
 import { scene, scenery, setScenery } from './world.js';
 import { worldAllows, worldFor, worlds } from './worlds.js';
 
@@ -71,6 +72,7 @@ let periodChoice = 'auto';
 let seasonChoice = 'auto';
 // What the entry point does as the scene changes (setupSky's options).
 let seasonChanged = () => {};
+let seasonPicked = () => {};
 /** Indoor weather stays outside the windows, so its caption continues to name the room. Each
  * language orders the place, the time of day and the weather in its own caption.indoor* line. */
 export function worldCaption(world, period, weather) {
@@ -179,6 +181,19 @@ function showMoment({ id, lasts, looks }, on) {
   if (!on) parts?.end();
   else if (parts?.begin(lasts) ?? true) momentRemark(id, () => yard.classList.contains(mark));
 }
+/** The season picked for the yard, or 'auto'. */
+export const chosenSeason = () => seasonChoice;
+/** The weather picked for the yard, or 'auto'. */
+export const chosenWeather = () => weatherChoice;
+/** Shows the yard in a season picked here or by the backend (December's winter, winter.js), which
+ * already saved it; anything not a season is Auto. */
+export function showSeason(choice) {
+  seasonChoice = isSeason(choice) ? choice : 'auto';
+  $('scene-season').value = seasonChoice;
+  cancelRemarks();
+  seasonPicked();
+  paintScene();
+}
 // The place, season, time of day and weather picked are kept in state.json (`scene`), so they
 // travel with the data folder. A value still in the webview's storage (sceneValue, state.js) moves
 // over and leaves that storage once the app saved it, where that storage is this folder's own.
@@ -214,8 +229,8 @@ export function setupSky(options = {}) {
   south = systemSouth();
   const none = () => {};
   seasonChanged = options.seasonChanged || none;
-  const seasonPicked = options.seasonPicked || none,
-    worldChanged = options.worldChanged || (enter => enter()),
+  seasonPicked = options.seasonPicked || none;
+  const worldChanged = options.worldChanged || (enter => enter()),
     landChanged = options.landChanged || none;
   setScenery(createScenery($('weather-layer'), reduced, undefined, undefined, $('star-layer')));
   globalThis.window?.addEventListener?.('resize', placeMark);
@@ -229,12 +244,9 @@ export function setupSky(options = {}) {
   $('scene-season').value = seasonChoice;
   $('scene-season').onchange = () => {
     const choice = $('scene-season').value;
-    seasonChoice = isSeason(choice) ? choice : 'auto';
-    keepScene('season', seasonChoice);
-    $('scene-season').value = seasonChoice;
-    cancelRemarks();
-    seasonPicked();
-    paintScene();
+    keepScene('season', isSeason(choice) ? choice : 'auto');
+    seasonPickedByHand(choice, new Date(), south);
+    showSeason(choice);
   };
   scene.world = worldFor(saved.world).id;
   $('world').replaceChildren(

@@ -6,9 +6,9 @@ import './support/content.mjs';
 import { installDom } from './support/dom.mjs';
 
 globalThis.playPets = { moveDecor: async () => ({ ok: true, data: null }) };
-const { setData } = await import('../src/core/state.js');
+const { setData, views } = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
-const { renderDecor } = await import('../src/yard/decor.js');
+const { markDecor, renderDecor, setupDecor } = await import('../src/yard/decor.js');
 const { measureYard } = await import('../src/yard/field.js');
 
 const miso = { id: 'miso', name: 'Miso' };
@@ -78,3 +78,62 @@ for (const [boxed, key] of [
     assert.equal(nodes.get('toast').children.at(-1).dataset.words, t(key, { kind: t('decor.kind_bench') }));
   });
 }
+
+// A kind that takes a press first (the mailbox with a letter in it): the press is its own when it
+// says so, and a friend walks over when it does not; it keeps its own name either way.
+test('a kind may take a press before a friend visits, and keeps its own name', async ctx => {
+  const taken = [];
+  let takes = true;
+  setupDecor({ press: { bench: { take: id => taken.push(id) && takes } } });
+  ctx.after(() => {
+    setupDecor();
+    views.clear();
+  });
+  const { buttons } = yard(ctx, { decor: [{ id: 'b', kind: 'bench', x: 0.5, y: 0.5 }] });
+  const friend = { pet: { id: 'miso', size: 96 }, x: 0.2, y: 0.5, px: 100, py: 300, target: null, trip: null };
+  views.set('miso', friend);
+  const [bench] = buttons;
+  const press = async () => {
+    await bench.dispatch('pointerdown', { button: 0, clientX: 10, clientY: 10, pointerId: 1 });
+    await bench.dispatch('pointerup', { button: 0, clientX: 10, clientY: 10, pointerId: 1 });
+  };
+  assert.equal(bench.title, t('decor.title', { kind: t('decor.kind_bench') }), 'not one to decorate');
+  await press();
+  assert.deepEqual(taken, ['b']);
+  assert.equal(friend.target, null, 'taken: nobody walks over');
+  takes = false;
+  await press();
+  assert.equal(taken.length, 2);
+  assert.ok(friend.target, 'not taken: the nearest friend walks over');
+  friend.target = friend.trip = null;
+  takes = true;
+  let prevented = 0;
+  const key = name => ({ key: name, preventDefault: () => prevented++ });
+  await bench.dispatch('keydown', key('Enter'));
+  assert.equal(taken.length, 3, 'Enter asks it too');
+  assert.equal(prevented, 1);
+  takes = false;
+  await bench.dispatch('keydown', key(' '));
+  assert.equal(prevented, 1, 'not taken: the key is left alone');
+  assert.equal(friend.target, null);
+});
+
+test('a mark set before its kind is placed shows once it is, and through every drawing', ctx => {
+  markDecor('mailbox', 'letter');
+  ctx.after(() => markDecor('mailbox', null));
+  const { buttons } = yard(ctx, {
+    decor: [
+      { id: 'mb', kind: 'mailbox', x: 0.4, y: 0.5 },
+      { id: 'b', kind: 'bench', x: 0.7, y: 0.5 },
+    ],
+  });
+  const [mailbox, bench] = buttons;
+  assert.equal(mailbox.dataset.mark, 'letter');
+  assert.equal(bench.dataset.mark, undefined);
+  renderDecor();
+  assert.equal(mailbox.dataset.mark, 'letter', 'kept when drawn again');
+  markDecor('mailbox', null);
+  assert.equal(mailbox.dataset.mark, undefined);
+  renderDecor();
+  assert.equal(mailbox.dataset.mark, undefined);
+});

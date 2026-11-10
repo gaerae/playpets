@@ -24,6 +24,52 @@ pub(super) fn receive_gift(c: &Ctx) -> Result<Value, String> {
     })
 }
 
+/// (book, id, hook, local day): an album find hung on the Christmas tree (garden.rs hang_ornament).
+pub(super) fn hang_ornament(c: &Ctx) -> Result<Value, String> {
+    let (book, id, day) = (c.text(0), c.text(1), c.text(3));
+    let hook = c
+        .arg(2)
+        .as_u64()
+        .and_then(|h| u32::try_from(h).ok())
+        .ok_or_else(|| i18n::t("error.bad_request"))?;
+    // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
+    if !crate::pets::has_come(day, now_ms()) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    commit(c.app, &c.state, |d| {
+        crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &crate::pets::latest_day(now_ms()));
+        let AppData { garden, album, .. } = d;
+        garden.hang_ornament(album, book, id, hook, day).map(|o| json!(o))
+    })
+}
+
+/// (book, id, local day): an ornament taken down again, its hook free; the day's count stays
+/// (garden.rs take_down_ornament).
+pub(super) fn take_down_ornament(c: &Ctx) -> Result<Value, String> {
+    let (book, id, day) = (c.text(0), c.text(1), c.text(2));
+    if !crate::pets::has_come(day, now_ms()) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    commit(c.app, &c.state, |d| {
+        crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &crate::pets::latest_day(now_ms()));
+        d.garden.take_down_ornament(book, id, day).map(|o| json!(o))
+    })
+}
+
+/// (x, y, local day): a snowman built there, once a day (garden.rs build_snowman).
+pub(super) fn build_snowman(c: &Ctx) -> Result<Value, String> {
+    let (x, y, day) = (c.float(0), c.float(1), c.text(2));
+    let now = now_ms();
+    // A day that has not come anywhere yet is a clock set ahead (pets::has_come).
+    if !crate::pets::has_come(day, now) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    commit(c.app, &c.state, |d| {
+        crate::pets::forget_days_after(&mut d.bonds, &mut d.garden, &crate::pets::latest_day(now));
+        d.garden.build_snowman(x, y, day, now).map(|s| json!(s))
+    })
+}
+
 /// (friend, level, x, y, local day): a friend that grew closer brings a gift for the level it
 /// reached, on a day the person did something with it, as an everyday gift comes.
 pub(super) fn thanks_gift(c: &Ctx) -> Result<Value, String> {
@@ -56,7 +102,7 @@ pub(super) fn befriend(c: &Ctx) -> Result<Value, String> {
     let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
     // A pat past the day's cap changes nothing: no save, no redraw of every page.
     if d.bonds.get(pet) != before.as_ref() {
-        crate::app::save_and_show(c.app, &d)?;
+        crate::app::show_and_save(c.app, d)?;
     }
     Ok(json!({"points": points, "level": level, "up": up}))
 }
@@ -70,7 +116,7 @@ pub(super) fn bloomed(c: &Ctx) -> Result<Value, String> {
         return Ok(Value::Null);
     };
     let entry = d.album.flowered(&kind, now);
-    crate::app::save_and_show(c.app, &d)?;
+    crate::app::show_and_save(c.app, d)?;
     Ok(json!({"kind": kind, "entry": entry}))
 }
 
@@ -150,7 +196,7 @@ pub(super) fn update_pet(
             push_event(app, &json!({"type": "pet-moved", "petId": id, "x": p.x, "y": p.y}));
         }
     } else {
-        crate::app::save_and_show(app, &d)?;
+        crate::app::show_and_save(app, d)?;
     }
     Ok(Value::Null)
 }
@@ -203,47 +249,8 @@ pub(super) fn play(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::app::{Prefs, Source, Status};
-    use crate::pets::{album, bond, garden, model};
-    use std::collections::{HashMap, HashSet};
-
-    /// An empty yard in a fresh folder with these friends, for what a command does to the state.
-    fn yard(pets: Value) -> AppData {
-        let dir = std::env::temp_dir().join(format!("playpets-data-{}", uuid::Uuid::new_v4()));
-        let assets: Vec<String> = pets
-            .as_array()
-            .into_iter()
-            .flatten()
-            .filter_map(|p| p["assetId"].as_str().map(str::to_string))
-            .collect();
-        AppData {
-            store: crate::store::Store { dir: dir.clone() },
-            codex_pets: dir.join("codex"),
-            builtin_pets: dir.join("builtin"),
-            assets: Vec::new(),
-            warnings: Vec::new(),
-            pets: model::restore_pets(&json!({ "pets": pets }), &assets),
-            parked_pets: Vec::new(),
-            prefs: Prefs::restore(&json!({}), crate::i18n::Lang::default()),
-            imports: Vec::new(),
-            picked: Vec::new(),
-            agent_pets: HashMap::new(),
-            autostart: false,
-            garden: garden::Garden::restore(None, 0),
-            album: album::Album::restore(None),
-            bonds: bond::Bonds::restore(None, &[]),
-            providers: Vec::new(),
-            parked_providers: Vec::new(),
-            extra: serde_json::Map::new(),
-            secret_ids: HashSet::new(),
-            statuses: HashMap::new(),
-            talks: chat::Talks::default(),
-            importing: Vec::new(),
-            provider_updates: HashSet::new(),
-            detected: json!({}),
-            activity: HashMap::new(),
-        }
-    }
+    use crate::app::tests::yard;
+    use crate::app::{Source, Status};
 
     #[test]
     fn a_friend_who_leaves_leaves_no_trace_behind() {
@@ -273,5 +280,14 @@ mod tests {
             "its agent goes back to the first friend"
         );
         assert!(forget(&mut d, &chat::cli::CliManager::default(), "gone").is_err());
+    }
+
+    #[test]
+    fn a_friend_who_leaves_keeps_the_letters_it_wrote() {
+        let pet = |id: &str| json!({"id": id, "assetId": "a", "name": id, "size": 96, "x": 0.5, "y": 0.5});
+        let mut d = yard(json!([pet("gone"), pet("stays")]));
+        d.letters.write(2026, "gone", "hi", 1).unwrap();
+        forget(&mut d, &chat::cli::CliManager::default(), "gone").unwrap();
+        assert_eq!(d.letters.of(2026).unwrap().friend, "gone");
     }
 }

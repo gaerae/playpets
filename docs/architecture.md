@@ -123,7 +123,7 @@ The frame loop and shared tables:
 
 Saving and announcing:
 - A command that changes the state goes through `commit`, which saves and announces once.
-- A change made in place uses `save_and_show`.
+- A change made in place uses `save_and_show`; a caller done with the state passes its lock to `show_and_save`, which writes after letting it go.
 - A change that could not be saved still takes effect and is shown.
 
 Locks:
@@ -227,7 +227,7 @@ Format:
   - the original cats → Clover, before restoration
 - Friend IDs, names, settings and closeness stay unchanged.
 - Imported pets are not matched by this path-based migration.
-- Old unpacked directories stay on disk but are excluded from the built-in catalog.
+- An update removes the unpacked directories of built-in friends it no longer ships; the built-in catalog never lists them.
 - The catalog checks the optional baseline `portraitPath`, seasonal sheets and the legacy alternate-appearance fields, and serves them through the same sprite protocol.
 - A selected appearance changes drawing material, not the relationship or the AI connection.
 - Full contract: [Pet file format](standards/pet-files.md).
@@ -312,7 +312,7 @@ What each arrow in the diagram carries, path by path.
 
 | In the data folder | Holds |
 |---|---|
-| `state.json` | Friends, settings, AI connections, the garden and its gifts, the album, closeness, friends and connections parked from an earlier start, the yard sounds' setting, the window bounds and Always on top setting, the place, season, time of day and weather picked (`scene`) |
+| `state.json` | Friends, settings, AI connections, the garden and its gifts, the album, closeness, year-end letters, friends and connections parked from an earlier start, the yard sounds' setting, the window bounds and Always on top setting, the place, season, time of day and weather picked (`scene`) |
 | `bridge.json` | The agent bridge's port and token. Both change on every launch |
 | `pets/` | Pets imported from an address or a ZIP |
 | `backgrounds/` | Imported backgrounds, one JSON file each (`app/backgrounds.rs`); the page checks a package again when it reads it |
@@ -334,7 +334,7 @@ What each arrow in the diagram carries, path by path.
 The `e2e` build (`cargo build --profile e2e --features e2e`):
 - Writes `src-tauri/target/e2e/`, so it never replaces the app in `target/release/`.
 - Turns off single-instance, deep-link registration and the start-at-login plugin (the switch only pretends).
-- Turns on the `test_only` rows of `COMMANDS`: `e2eLog`, `e2eWindow`, `e2eTray`, `e2eFreshGifts`.
+- Turns on the `test_only` rows of `COMMANDS`: `e2eLog`, `e2eWindow`, `e2eFront`, `e2eTray`, `e2eImportZip`, `e2eFreshGifts`.
 - Skips the update check.
 
 `WEBKIT_DISABLE_DMABUF_RENDERER` on Linux:

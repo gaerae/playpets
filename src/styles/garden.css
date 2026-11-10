@@ -77,9 +77,79 @@
   cursor: inherit;
 }
 /* each flower's colours (--petal, --petal-hi, --petal-lo, --heart) come from catalog.json, set on it */
-/* at night the flowers keep their shapes and lose their daylight */
+/* at night the flowers and the spring shoots keep their shapes and lose their daylight */
 .period-night .plant svg {
   filter: brightness(0.62) saturate(0.75);
+}
+.period-night .shoot svg {
+  filter: var(--shoot-lift) brightness(0.62) saturate(0.75);
+}
+/* Spring shoots poking up from the grass (yard/shoots.js), set down at their depth like a plant. The
+   button's own transform is its place (props.js setDown), so only the drawing inside rises.
+   Green on green grass, a shoot keeps a soft shade of soil under its foot and a shadow to the lower
+   right, as the light comes from the upper left (--shoot-lift); both are still. */
+.shoot {
+  --shoot-lift: drop-shadow(1px 1.6px 0.9px #222e14a6) drop-shadow(0 0 1px #fff8e08c);
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.shoot::before {
+  content: "";
+  position: absolute;
+  left: -22%;
+  right: -22%;
+  bottom: -16%;
+  height: 46%;
+  z-index: -1;
+  background: radial-gradient(closest-side, #3d2a1673 30%, #3d2a1638 62%, transparent);
+  pointer-events: none;
+}
+.shoot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  filter: var(--shoot-lift);
+}
+.shoot.sprouted svg {
+  animation: shoot-up 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes shoot-up {
+  from {
+    opacity: 0;
+    transform: scale(0.6, 0.2);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* While a friend goes to dig it up, a shoot fades a little and takes no second press. */
+.shoot.picking {
+  cursor: default;
+}
+.shoot.picking svg {
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .shoot.sprouted svg {
+    animation: none;
+  }
+  .shoot.picking svg {
+    transition: none;
+  }
+}
+/* With a tool in hand or in a game, a press on a shoot is the yard's: a dig or a tree goes there. */
+.yard.aiming .shoot,
+.yard.playing .shoot {
+  pointer-events: none;
 }
 /* Decorations friends bring (yard/decor.js): wood and iron in the yard's light, dragged to move. */
 .decor {
@@ -143,6 +213,42 @@
 .decor.memento.dragging::after {
   opacity: 1;
 }
+/* The year-end letter waiting in the mailbox (letter.js): a small envelope above its top right, in
+   the pink ink on the memento heart's cream disc. On ::before, so a mailbox that is also a memento
+   wears both; fixed colours, as the heart has, so it reads the same on the yard in either theme.
+   It settles once when it appears. */
+.decor[data-mark="letter"]::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 13px;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a8425b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5.5' width='18' height='13' rx='2'/%3E%3Cpath d='m4 7 8 6 8-6'/%3E%3C/svg%3E")
+      center / 12px no-repeat,
+    #fffaf5;
+  box-shadow: 0 1px 2px #5a3b2a40;
+  pointer-events: none;
+  animation: letter-mark 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes letter-mark {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .decor[data-mark="letter"]::before {
+    animation: none;
+  }
+}
 .decor:focus-visible svg {
   filter: drop-shadow(0 0 2px var(--focus));
 }
@@ -150,7 +256,8 @@
   cursor: inherit;
 }
 /* a gift that just came pops into place */
-.decor.arrive svg {
+.decor.arrive > svg,
+.decor.arrive > .ornaments {
   animation: arrive 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes arrive {
@@ -201,6 +308,428 @@
 .period-night .decor[data-effects~="glow"] svg {
   filter: none;
 }
+/* Christmas night (yard/christmas-night.js): on a snowy December evening or night the little tree
+   grows into the grand one. The grand tree is a layer inside the small tree's button, standing on
+   the same foot and taking presses only through its handle (.xmas-hit, under "Ornaments");
+   .xmas-grand shows it, and every turn either way is a short crossfade. .xmas-rise is the change
+   itself, once a night: a gold veil climbs from the roots and uncovers the grand tree while the
+   small one fades, the star swells once and warm light pools on the snow. */
+.decor .xmas-night {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.6s,
+    visibility 0s 0.6s;
+}
+.decor.xmas-grand .xmas-night {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s;
+}
+.decor[data-kind="xmas_tree"] > svg {
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.6s;
+}
+.decor.xmas-grand > svg {
+  opacity: 0;
+}
+/* The window the grand tree shows through while it rises. It reaches 15 % of the tree's height
+   above it, room for its soft top edge (masked during the change) to clear the star at the end. */
+.xmas-reveal {
+  position: absolute;
+  inset: -15% 0 0;
+  overflow: hidden;
+}
+.xmas-art {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 86.96%;
+}
+/* The lit tree is dimmed at night a little, not as much as the rest, so it is lit but not pasted
+   on. */
+.period-night .decor .xmas-art svg {
+  filter: brightness(0.86);
+}
+.xmas-pool {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 170%;
+  height: 22%;
+  translate: -50% 50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #ffd27a66, #ffd27a00);
+}
+/* The veil rides the window's soft top edge, and is soft on every side, so it reads as light
+   rather than a band. */
+.xmas-veil {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -18.5%;
+  height: 22%;
+  background: radial-gradient(closest-side, #ffd98acc, #ffd98a00);
+  opacity: 0;
+}
+.xmas-star {
+  position: absolute;
+  width: 26%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff3c4cc, #ffd27a00 70%);
+  opacity: 0.85;
+}
+/* A single bulb glints now and then (christmas-night.js GLINT_MS): a soft four-point sparkle, a
+   glow with two thin bars, centred on the bulb the script names with left and top. */
+.xmas-glint {
+  position: absolute;
+  width: 15%;
+  min-width: 6px;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #fff0, #fff 50%, #fff0) center / 100% 5% no-repeat,
+    linear-gradient(0deg, #fff0, #fff 50%, #fff0) center / 5% 100% no-repeat,
+    radial-gradient(closest-side, #fff 0%, #fff 12%, #ffe9a8dd 30%, #ffd27a66 60%, #ffd27a00);
+  opacity: 0;
+}
+.xmas-glint.glinting {
+  animation: xmas-glint 0.7s ease-in-out both;
+}
+/* The change: every part runs 2.6 s on one curve (christmas-night.js RISE_MS ends it). The window
+   rises while the drawing in it moves down as much (115 % of the tree's height each), so the tree
+   stays put and is uncovered from the roots up. */
+.decor.xmas-rise > svg,
+.decor.xmas-rise > .ornaments,
+.decor.xmas-rise .xmas-night {
+  transition: none;
+}
+.decor.xmas-rise > svg,
+.decor.xmas-rise > .ornaments {
+  animation: xmas-small-out 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-reveal {
+  mask-image: linear-gradient(to bottom, #0000, #000 13%);
+  animation: xmas-reveal-out 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-art {
+  animation: xmas-reveal-in 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-veil {
+  animation: xmas-veil-rise 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-star {
+  animation: xmas-star-swell 2.6s ease-in-out both;
+}
+.decor.xmas-rise .xmas-pool {
+  animation: xmas-pool-in 2.6s ease-in-out both;
+}
+/* With the sleigh (christmas-night.js), the baby reindeer and Santa look up in turn: a short tilt
+   back from the foot. */
+.decor.look-up > svg {
+  animation: xmas-look-up 0.9s ease-in-out both;
+}
+/* After the sleigh, gold motes drift down from the star, each on one of three paths; the script
+   sets where each starts, its wait and its pace. */
+.xmas-mote {
+  position: absolute;
+  width: 4px;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffdf2 0 45%, #ffe7a6);
+  box-shadow:
+    0 0 3px 1px #ffd98add,
+    0 0 8px 2px #ffcf7066;
+  pointer-events: none;
+  opacity: 0;
+}
+.xmas-mote.m0 {
+  animation: xmas-mote-a 3s ease-out both;
+}
+.xmas-mote.m1 {
+  animation: xmas-mote-b 3s ease-out both;
+}
+.xmas-mote.m2 {
+  animation: xmas-mote-c 3s ease-out both;
+}
+@keyframes xmas-look-up {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  35%,
+  70% {
+    transform: rotate(-7deg);
+  }
+}
+@keyframes xmas-mote-a {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-20px, 74px);
+    opacity: 0;
+  }
+}
+@keyframes xmas-mote-b {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(6px, 88px);
+    opacity: 0;
+  }
+}
+@keyframes xmas-mote-c {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(22px, 66px);
+    opacity: 0;
+  }
+}
+@keyframes xmas-glint {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  35% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+}
+@keyframes xmas-small-out {
+  0%,
+  15% {
+    opacity: 1;
+  }
+  85%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes xmas-reveal-out {
+  0%,
+  8% {
+    transform: translateY(100%);
+  }
+  85%,
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes xmas-reveal-in {
+  0%,
+  8% {
+    transform: translateY(-115%);
+  }
+  85%,
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes xmas-veil-rise {
+  0%,
+  8% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-523%);
+  }
+  90% {
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-523%);
+    opacity: 0;
+  }
+}
+@keyframes xmas-star-swell {
+  0%,
+  70% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  85% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+}
+@keyframes xmas-pool-in {
+  0%,
+  40% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+/* Ornaments (yard/ornaments.js): found things hung on the Christmas tree, each a small bauble
+   tinted by its book with a gold rim, a cap and a shine; the rim and the shine grow with the bauble
+   (cqi of its own width), so a small one is not all rim. In the yard there is no drawing inside:
+   about 8 px wide on the small tree and 11 on the grand one in a full-width yard, it would be
+   noise. A tree's layer covers its drawing (hooks are shares of it) and follows it: scaled with it
+   from the foot, faded with the small tree as it turns grand, dimmed with each tree at night. The
+   tints are the decorating view's too (dialog.css): its books' swatches and the tray's chips. */
+.bauble {
+  position: absolute;
+  aspect-ratio: 1;
+  translate: -50% -10%;
+  container-type: inline-size;
+}
+/* The cap; in the decorating view it rides with the ball while the bauble flies (dialog.css). */
+.bauble::before,
+.bauble-fly-y::before {
+  content: "";
+  position: absolute;
+  left: 35%;
+  top: -16%;
+  width: 30%;
+  height: 20%;
+  border-radius: 1px 1px 0 0;
+  background: linear-gradient(#f3d58c, #b98d3a);
+}
+.bauble-ball {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #fff 0 3%, var(--c1) 14%, var(--c) 44%, var(--c2) 86%);
+  box-shadow:
+    inset 0 0 0 1px #d9b25e,
+    0 1px 2px #0004;
+}
+.bauble-ball::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  top: 10%;
+  width: 38%;
+  height: 22%;
+  border-top: 1px solid #fff2d8e6;
+  border-radius: 50%;
+  rotate: -24deg;
+}
+/* The rim and the shine at a share of the bauble where cqi is known. WebKitGTK before 2.40 has no
+   cqi, would drop a whole declaration using it, and keeps the plain 1 px ones above; the CSS lint
+   forbids a property twice in one rule, so the fallback lives outside this block. */
+@supports (width: 1cqi) {
+  .bauble-ball {
+    box-shadow:
+      inset 0 0 0 clamp(0.5px, 6cqi, 1.5px) #d9b25e,
+      0 1px 2px #0004;
+  }
+  .bauble-ball::after {
+    border-top-width: clamp(0.5px, 9cqi, 1.5px);
+  }
+}
+.bauble.flower,
+.decorating-kind.flower,
+.ornament-chip.flower {
+  --c: #dfa4aa;
+  --c1: #f6d7da;
+  --c2: #b06f78;
+}
+.bauble.tree,
+.decorating-kind.tree,
+.ornament-chip.tree {
+  --c: #9cbf96;
+  --c1: #dbead6;
+  --c2: #5f8a5f;
+}
+.bauble.gift,
+.decorating-kind.gift,
+.ornament-chip.gift {
+  --c: #b9a8d6;
+  --c1: #e6def3;
+  --c2: #7d6aa3;
+}
+.bauble.treasure,
+.decorating-kind.treasure,
+.ornament-chip.treasure {
+  --c: #ddbb70;
+  --c1: #f5e6bf;
+  --c2: #a8843a;
+}
+.decor .ornaments {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.6s;
+}
+.decor > .ornaments .bauble {
+  width: 13%;
+}
+.xmas-art .ornaments .bauble {
+  width: 10.5%;
+}
+.decor:hover > .ornaments,
+.decor:focus-visible > .ornaments,
+.decor.dragging > .ornaments,
+.decor:hover .xmas-art .ornaments,
+.decor:focus-visible .xmas-art .ornaments,
+.decor.dragging .xmas-art .ornaments {
+  transform: scale(1.06);
+}
+.decor.xmas-grand > .ornaments {
+  opacity: 0;
+}
+.period-night .decor > .ornaments {
+  filter: brightness(0.62) saturate(0.75);
+}
+.period-night .decor .xmas-art .ornaments {
+  filter: brightness(0.86);
+}
+/* The grand tree's handle: a tree-shaped area over the grand drawing that takes presses while it
+   stands grand, so it is dragged and decorated as the small one is; the drawing, the light pool,
+   the star and the glints stay click-through. */
+.decor .xmas-hit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  clip-path: polygon(50% 0, 94% 84%, 94% 100%, 6% 100%, 6% 84%);
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-hit {
+  pointer-events: auto;
+}
 .yard.period-night .plant[data-stage="bloom"] svg {
   filter: brightness(0.65) saturate(0.7);
 }
@@ -216,6 +745,139 @@
 }
 .yard.period-evening .plant[data-stage="bloom"]:focus-visible svg {
   filter: brightness(0.88) saturate(0.85) drop-shadow(0 0 2px var(--focus));
+}
+/* What a built snowman wears (yard/snowman-dress.js): each part placed over the drawing by its
+   anchor, free to rise above the box (the hat), and scaled with the snowman as one when it is
+   pointed at, chosen or dragged. */
+.decor .dress-layers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.decor:hover > .dress-layers,
+.decor:focus-visible > .dress-layers,
+.decor.dragging > .dress-layers {
+  transform: scale(1.06);
+}
+/* The old snowman melts down into the snow as a new one is finished (snowman.js finish): its
+   drawing and what it wears, not the button, whose transform is where it stands. It stays melted
+   until the new one takes its place; a stop or a refused save takes the class off and it is back.
+   With reduced motion it is set half faded instead, for a moment. */
+/* An old snowman melting cannot be pressed or dragged: it is going. */
+.decor.melting {
+  pointer-events: none;
+}
+.decor.melting > * {
+  transform-origin: 50% 100%;
+  animation: snowman-melt 1.6s ease-in forwards;
+}
+.decor.melting.still > * {
+  opacity: 0.4;
+  animation: none;
+}
+/* Kept after all (a stop, a refused save): it fades back in rather than snapping back. */
+.decor.unmelting > * {
+  animation: snowman-unmelt 0.4s ease-out;
+}
+@keyframes snowman-unmelt {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes snowman-melt {
+  from {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  to {
+    transform: scaleY(0.15) translateY(4px);
+    opacity: 0;
+  }
+}
+.dress-part {
+  position: absolute;
+}
+.decor .dress-part svg {
+  display: block;
+  height: auto;
+  transform: none;
+}
+/* The dress-up tray stands above the snowman inside the yard: a toggle for each part, then Done. */
+.dress-tray {
+  position: absolute;
+  z-index: 31;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  max-width: calc(100% - 16px);
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid var(--message-line);
+  border-radius: var(--radius-panel);
+  background: var(--message-surface);
+  box-shadow: var(--message-shadow);
+  color: var(--ink);
+  font-size: 12px;
+  /* not the yard's hand over something to catch (play.css) */
+  cursor: default;
+}
+/* While it is open the friends' lines paint above it, so a friend's word on the snowman is read
+   whole; their tags then let presses through, to the tray or to the yard (which closes it). */
+.yard:has(> .dress-tray) > .label-layer {
+  z-index: 32;
+}
+.yard:has(> .dress-tray) .pet-tag {
+  pointer-events: none;
+}
+.dress-toggle,
+.dress-done {
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.dress-toggle {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 52px;
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+.dress-toggle svg {
+  width: 28px;
+  height: 28px;
+}
+.dress-done {
+  align-self: center;
+  min-height: 32px;
+  padding: 4px 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dress-toggle:hover,
+.dress-done:hover {
+  background: var(--control-hover);
+}
+/* A part worn is lit as a game that is on (tools.css). */
+.dress-toggle[aria-pressed="true"],
+.dress-toggle[aria-pressed="true"]:hover {
+  background: var(--pink-soft);
+  color: var(--pink-ink);
+}
+.dress-toggle:focus-visible,
+.dress-done:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
 }
 /* Ground targeting is temporary and leaves the friends visible above it: the strip stands where the
    dock was (shell.css), so the person's eye stays at the bottom with the ground. */
@@ -451,4 +1113,293 @@
   .dig-dirt {
     display: none;
   }
+}
+/* A winter animal's tail behind a snowy bush (yard/trail-art.js tailPeek), in units of --u (a yard
+   pixel; the album draws it larger). Each tail is the animal's rear cut off at the shoulder, so it
+   stands out past the bush's left side, turned a little as if the animal had dived in, with its cut
+   and the fade before it behind the mound: only fur ever shows. Each animal's place was measured
+   against the bush's silhouette: --x is the cut's foot from the box's left, --lift its height off
+   the ground, --turn how far it leans in about that foot, --w the tail drawing's width. */
+.tail-peek {
+  --u: 1px;
+  --x: 18;
+  --lift: 0;
+  --turn: 10deg;
+  --w: 16;
+  position: relative;
+  display: inline-block;
+  width: calc(48 * var(--u));
+  height: calc(46 * var(--u));
+}
+.tail-peek > svg.tail,
+.tail-peek > svg.peek-bush {
+  position: absolute;
+  max-width: none;
+}
+.tail-peek > svg.tail {
+  left: calc((var(--x) - var(--w)) * var(--u));
+  bottom: calc(var(--lift) * var(--u));
+  width: calc(var(--w) * var(--u));
+  height: calc(30 * var(--u));
+  transform-origin: right bottom;
+  rotate: var(--turn);
+  mask-image: linear-gradient(to right, #000 85%, transparent);
+}
+.tail-peek > svg.peek-bush {
+  left: calc(3.5 * var(--u));
+  bottom: 0;
+  width: calc(41 * var(--u));
+  height: calc(32 * var(--u));
+}
+.tail-peek[data-track="hare"] {
+  --x: 16;
+  --w: 20;
+}
+.tail-peek[data-track="fox"] {
+  --x: 19;
+  --lift: 5;
+}
+.tail-peek[data-track="water_deer"] {
+  --x: 16;
+  --lift: 1.5;
+}
+.tail-peek[data-track="raccoon_dog"] {
+  --x: 14;
+  --lift: 1.5;
+  --turn: 20deg;
+  --w: 17;
+}
+.tail-peek[data-track="squirrel"] {
+  --x: 17.5;
+  --turn: 3deg;
+}
+.tail-peek[data-track="sparrow"] {
+  --w: 15;
+  --lift: 6;
+}
+.tail-peek[data-track="magpie"] {
+  --w: 17;
+  --lift: 5;
+}
+.tail-peek[data-track="cat"] {
+  --w: 14;
+  --lift: 8;
+}
+/* In the yard the tail is behind the bush's right side when the animal went left. */
+.tail-peek.mirror {
+  scale: -1 1;
+}
+
+/* ---- footprint trails across the winter yard (yard/trails.js) ---- */
+/* The prints are the snow's own cool shadow, the shade the snowman's rolling ball leaves
+   (snow-trail.js TRAIL_RGB), softened and blurred; at night a deeper blue, a little stronger and
+   sharper, so they stay faint but can still be found on the darker snow. */
+.trail,
+.trail-end {
+  --snow-print: rgb(150 176 214);
+  --print-strength: 1.7;
+  --print-blur: 0.45px;
+}
+.period-evening .trail,
+.period-evening .trail-end {
+  --snow-print: rgb(112 132 176);
+  --print-blur: 0.5px;
+}
+.period-night .trail,
+.period-night .trail-end {
+  --snow-print: rgb(42 52 86);
+  --print-strength: 1.05;
+  --print-blur: 0.4px;
+}
+/* The bush keeps its shape at night and loses its daylight, as the gifts do. */
+.period-night .trail-end svg {
+  filter: brightness(0.62) saturate(0.75);
+}
+.trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: var(--snow-print);
+  opacity: calc(var(--trail-opacity, 0.6) * var(--print-strength));
+  filter: blur(var(--print-blur));
+  pointer-events: none;
+  transition: opacity 3s;
+}
+.trail-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 24;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+/* The bush at the trail's end stands on the snow at the friends' depth, its foot on the end. */
+.trail-end {
+  --u: 1px;
+  position: absolute;
+  translate: -50% -100%;
+  pointer-events: none;
+  transition: opacity 3s;
+}
+.trail-end > .tail-peek {
+  display: block;
+}
+/* The tail shows only once the trail is followed. */
+.trail-end .tail {
+  opacity: 0;
+}
+/* Bare twigs beside the bush, behind it, on the side the tail is not. */
+.trail-end > .trail-twigs {
+  position: absolute;
+  left: calc(26 * var(--u));
+  bottom: calc(2 * var(--u));
+  width: calc(34 * var(--u));
+  height: calc(29 * var(--u));
+  max-width: none;
+}
+.trail-end > .trail-twigs.mirror {
+  left: calc(-12 * var(--u));
+  scale: -1 1;
+}
+.trail.covered,
+.trail-end.covered {
+  opacity: 0;
+}
+/* A trail under new snow can no longer be followed while it fades. */
+.trail.covered .trail-hit {
+  pointer-events: none;
+}
+.trail-follow.covered {
+  display: none;
+}
+/* Over the middle print, for the keyboard: nothing shows until it has focus. */
+.trail-follow {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  translate: -50% -50%;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.trail-follow:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+/* With a tool in hand or in a game, a press on the prints is the yard's (trails.js gives way too). */
+.yard.aiming .trail-hit,
+.yard.playing .trail-hit,
+.yard.aiming .trail-follow,
+.yard.playing .trail-follow {
+  pointer-events: none;
+}
+/* A friend following the prints (trails.js followTrail) leans in a little toward where it walks,
+   nose to the snow; the lean turns with the way it faces. */
+.yard-pet.sniffing > canvas {
+  rotate: 6deg;
+}
+.yard-pet.sniffing.sniff-left > canvas {
+  rotate: -6deg;
+}
+/* At the bush the tail rises into view, a second later whisks away behind it (sideways into the
+   bush, the way the animal went, and a little down so it never clears the bush's top; .mirror
+   turns it) with a puff of snow, or a bird's flutters up and off. Each runs once and keeps its
+   last frame. */
+.trail-end.peek .tail {
+  animation: tail-peek 0.25s ease-out forwards;
+}
+.trail-end.whisk .tail {
+  animation: tail-whisk 0.3s ease-in forwards;
+}
+.trail-end.flutter .tail {
+  animation: tail-flutter 0.7s ease-in forwards;
+}
+@keyframes tail-peek {
+  from {
+    translate: 0 calc(8 * var(--u));
+    opacity: 0;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+@keyframes tail-whisk {
+  from {
+    translate: 0 0;
+    opacity: 1;
+  }
+  to {
+    translate: calc(24 * var(--u)) calc(4 * var(--u));
+    opacity: 0;
+  }
+}
+@keyframes tail-flutter {
+  0% {
+    translate: 0 0;
+    opacity: 1;
+  }
+  30% {
+    translate: calc(-3 * var(--u)) calc(-12 * var(--u));
+    opacity: 0.6;
+  }
+  60% {
+    translate: calc(3 * var(--u)) calc(-26 * var(--u));
+    opacity: 0.15;
+  }
+  100% {
+    translate: 0 calc(-40 * var(--u));
+    opacity: 0;
+  }
+}
+/* The snow the tail throws up over the bush's top, its bulk where the tail was and its trail the
+   way it went; trails.js takes it away when it has gone. */
+.trail-end > .puff {
+  position: absolute;
+  left: calc(2 * var(--u));
+  bottom: calc(14 * var(--u));
+  width: calc(34 * var(--u));
+  height: calc(25 * var(--u));
+  transform-origin: 25% 75%;
+  /* A soft cool edge, so white snow reads against the white yard. */
+  filter: drop-shadow(0 calc(0.6 * var(--u)) calc(1.2 * var(--u)) rgb(96 118 166 / 0.7));
+  pointer-events: none;
+  animation: trail-puff 0.6s ease-out forwards;
+}
+.trail-end > .puff.mirror {
+  left: calc(12 * var(--u));
+  scale: -1 1;
+}
+.trail-end > .puff > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@keyframes trail-puff {
+  from {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.05);
+    opacity: 0;
+  }
+}
+/* Reduced motion (no animation runs): the tail only shows, then goes. */
+.trail-end.peek-still .tail {
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+.trail-end.fade .tail {
+  opacity: 0;
+  transition: opacity 0.4s;
 }

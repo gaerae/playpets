@@ -250,6 +250,58 @@
 .weather-snow .sky-body {
   opacity: 0.16;
 }
+/* Christmas night's sleigh (yard/christmas-night.js): a dark silhouette with a gold rim crossing the
+   moon right to left, in front of it and behind the clouds and the land. Its drawing faces right,
+   so it is mirrored. The moon brightens through the snow while it crosses, so the shape reads, and
+   shows a little through it, so the black is not pasted on. */
+.yard.xmas-moon .sky-body {
+  opacity: 0.7;
+}
+.xmas-sleigh {
+  position: absolute;
+  left: var(--orb-x, 68%);
+  top: var(--orb-y, 14%);
+  height: min(5%, 34px);
+  aspect-ratio: 110 / 57;
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0;
+}
+.xmas-sleigh svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  scale: -1 1;
+  filter: brightness(0) drop-shadow(0 0 1px #ffd98a) drop-shadow(0 0 1px #ffd98a) drop-shadow(0 0 4px #ffcf7088);
+}
+.xmas-sleigh.flying {
+  animation: xmas-sleigh-fly 4.2s linear both;
+}
+/* Reduced motion turns every animation off (base.css), so the still sleigh is set, not played:
+   across the moon's upper half for STILL_MS, then gone, leaving most of the disc to see. */
+.xmas-sleigh.still {
+  transform: translate(-40%, -82%);
+  opacity: 0.9;
+}
+@keyframes xmas-sleigh-fly {
+  0% {
+    transform: translate(170%, -30%);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.92;
+  }
+  50% {
+    transform: translate(-50%, -62%);
+  }
+  88% {
+    opacity: 0.92;
+  }
+  100% {
+    transform: translate(-270%, -78%);
+    opacity: 0;
+  }
+}
 /* After rain clears in daylight, a rainbow stands behind the hills for a few minutes (sky-moments.js). */
 .rainbow {
   position: absolute;
@@ -545,6 +597,7 @@
 .yard[data-sky="false"] .paint-sky,
 .yard[data-sky="false"] .sky-glow,
 .yard[data-sky="false"] .sky-body,
+.yard[data-sky="false"] .xmas-sleigh,
 .yard[data-sky="false"] .rainbow,
 .yard[data-sky="false"] .moment-layer,
 .yard[data-sky="false"] .cloud-lane,

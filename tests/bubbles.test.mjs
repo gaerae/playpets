@@ -4,6 +4,7 @@ import { element, installDom } from './support/dom.mjs';
 
 const { setData, views } = await import('../src/core/state.js');
 const { bubble } = await import('../src/yard/views.js');
+const { measureYard } = await import('../src/yard/field.js');
 
 function friend(name, rect) {
   const b = element('div', { className: 'yard-bubble' });
@@ -31,4 +32,34 @@ test('a bubble that would cover another rises above it, stays its reading time a
   assert.equal(pip.bubble.hidden, false, 'a short line still stays three seconds');
   t.mock.timers.tick(1);
   assert.equal(pip.bubble.hidden, true);
+});
+
+test('a bubble near a side of the yard moves over to stay inside it, by the least it can', async () => {
+  const { bubbleShift } = await import('../src/yard/views.js');
+  // A 460-pixel yard, six pixels kept at each side.
+  assert.equal(bubbleShift(230, 180, 460), 0, 'in the middle it stays centred over the friend');
+  assert.equal(bubbleShift(420, 180, 460), -56, 'at the right it moves left: its right edge at 454');
+  assert.equal(bubbleShift(30, 180, 460), 66, 'at the left it moves right: its left edge at 6');
+  assert.equal(bubbleShift(400, 460, 460), -170, 'wider than the room: centred on the yard');
+  assert.equal(bubbleShift(400, 0, 460), 0, 'not laid out: left as it is');
+  assert.equal(bubbleShift(400, 180, 0), 0, 'a yard not measured: left as it is');
+});
+
+test('a bubble shown at the right edge of the mini window is moved inside it', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { nodes } = installDom(t, { ids: ['yard'], anyId: true });
+  nodes.get('yard').getBoundingClientRect = () => ({ left: 0, top: 0, width: 460, height: 320 });
+  measureYard();
+  const pip = friend('Pip', { left: 380, right: 560, top: 100, bottom: 140 });
+  pip.bubble.offsetWidth = 180;
+  Object.assign(pip, { px: 380, pet: { ...pip.pet, size: 80 } });
+  views.clear();
+  views.set('pip', pip);
+  setData({ pets: [pip.pet], assets: [] });
+  t.after(() => views.clear());
+  bubble(pip, 'Shall we have a picnic under the blossoms?');
+  // Centred over the friend at 380 + 40 (its size at the mini window's zoom), it would end past 460.
+  assert.ok(Number.parseFloat(pip.bubble.style['--bubble-shift']) < 0, 'moved left');
+  t.mock.timers.tick(10_000);
+  assert.equal(pip.bubble.style['--bubble-shift'], undefined, 'hidden: nothing kept for the next line');
 });

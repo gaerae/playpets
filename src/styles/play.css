@@ -311,6 +311,15 @@
   color: var(--accent);
   font-weight: 700;
 }
+/* The New Year card quotes the person's answer in four lines at most (the letter keeps it whole);
+   the friend's cheer is the line below it, so it always shows. */
+.catch-card:has(.letter-back) small:not(.catch-new) {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+}
 @keyframes card-in {
   from {
     opacity: 0;
@@ -424,4 +433,200 @@ body:not(.compact) .play-board {
   bottom: 64px;
   left: auto;
   margin-inline: 0;
+}
+
+/* The faint trail of a rolling snowball (yard/snow-trail.js): below the friends, blurred here
+   because WebKit's canvas has no filter. */
+.trail-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  filter: blur(3px);
+  transition: opacity 0.6s;
+}
+.trail-layer.fading {
+  opacity: 0;
+}
+
+/* The snowman game's balls (yard/snowman.js): set down at their foot among the friends, as a gift
+   is. The button's transform is where it stands, so a squash or a settle plays on the art inside
+   it and the turning on the drawing inside that. It moves with every frame's write, so it does not
+   ease behind it as other buttons do (base.css), as a gift does not. */
+.snowball {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  transition: none;
+  user-select: none;
+}
+.snowball.dragging {
+  cursor: grabbing;
+}
+.snowball.lifting,
+.snowball.stacked {
+  pointer-events: none;
+}
+.snowball:focus-visible {
+  outline: none;
+}
+.snowball:focus-visible svg {
+  filter: drop-shadow(0 0 2px var(--focus));
+}
+.snowball-art,
+.snowball-roll {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.snowball-art {
+  transform-origin: 50% 100%;
+}
+.snowball svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+/* a press squashes it a little; a ball set on the stack settles; a new one fades in */
+.snowball-art.push {
+  animation: snowball-push 0.22s ease-out;
+}
+.snowball-art.settle {
+  animation: snowball-settle 0.26s ease-out;
+}
+.snowball-art.appear {
+  animation: snowball-appear 0.2s ease-out;
+}
+@keyframes snowball-push {
+  from {
+    transform: scale(1.1, 0.88);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes snowball-settle {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.06, 0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes snowball-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Snow a press kicks up: each puff is turned toward where it flies (its own `rotate`) and flies
+   out along that way. */
+.snow-puff {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #fbfdff;
+  box-shadow: 0 0 2px #c9d6e6;
+  pointer-events: none;
+  opacity: 0;
+  animation: snow-puff 0.6s ease-out forwards;
+}
+@keyframes snow-puff {
+  0% {
+    transform: translateX(2px) scale(0.6);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateX(16px) scale(1.1);
+    opacity: 0;
+  }
+}
+/* The finish: the stack fades as the snowman's drawing fades in over it, set down where the yard
+   will draw it once saved, while the stack settles to the drawing's height (snowman.js
+   settleInto). Each ends as it is left (gone, shown), so with reduced motion, where nothing plays
+   (base.css), the drawing simply takes the stack's place. */
+.snowball.leaving {
+  opacity: 0;
+  animation: snowball-leave 0.4s ease-out;
+}
+.snowball.leaving .snowball-roll {
+  transition: transform 0.4s ease-out;
+}
+.snowman-preview {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  animation: snowman-preview-in 0.4s ease-out;
+}
+.snowman-preview svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+@keyframes snowball-leave {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes snowman-preview-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Five soft four-point glints in a fan over the new snowman's head (snowman.js sparkle), warm on
+   the snow: each swells, shines and fades. With reduced motion they are set, not played, and
+   leave together. */
+.snow-sparkle {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  translate: -50% -50%;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #fff0, #fffdf4 50%, #fff0) center / 100% 9% no-repeat,
+    linear-gradient(0deg, #fff0, #fffdf4 50%, #fff0) center / 9% 100% no-repeat,
+    radial-gradient(closest-side, #fff 0%, #fffaf0 18%, #ffe6a3cc 38%, #ffd27a55 66%, #ffd27a00);
+  opacity: 0;
+  animation: snow-sparkle 0.9s ease-out both;
+}
+.snow-sparkle.still {
+  opacity: 0.9;
+  animation: none;
+}
+@keyframes snow-sparkle {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
 }

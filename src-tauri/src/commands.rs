@@ -199,6 +199,54 @@ static COMMANDS: &[Command] = &[
             Ok(Value::Null)
         })
     }),
+    // (year, previous|null): the answer to December's question; with a season, winter is shown now.
+    main("answerWinter", |c| {
+        let year = u32::try_from(c.arg(0).as_u64().ok_or_else(|| i18n::t("error.bad_request"))?)
+            .map_err(|_| i18n::t("error.bad_request"))?;
+        let previous = match c.arg(1) {
+            Value::Null => None,
+            Value::String(season) => Some(season.as_str()),
+            _ => return Err(i18n::t("error.bad_request")),
+        };
+        commit(c.app, &c.state, |d| {
+            d.prefs.answer_winter(year, previous)?;
+            Ok(Value::Null)
+        })
+    }),
+    // (): winter shown on request ends; the season before comes back once. Returns the season now.
+    main("endWinter", |c| commit(c.app, &c.state, |d| Ok(d.prefs.end_winter()))),
+    // (year, friend, facts, fallback): this year's letter, written once: the friend's AI from the
+    // labelled facts, or the page's own lines.
+    main("writeLetter", |c| chat::letter::write(c.app, &c.state, &c.cli, c.args)),
+    // (year, answer): the person's answer to that year's letter, one line, kept on this computer only.
+    main("answerLetter", |c| {
+        let year = c.parse::<u32>(0)?;
+        commit(c.app, &c.state, |d| {
+            d.letters.answer(year, c.text(1)).map(|()| Value::Null)
+        })
+    }),
+    // (year): clears that year's letter and answer; the year stays so it is not written again.
+    main("deleteLetter", |c| {
+        let year = c.parse::<u32>(0)?;
+        commit(c.app, &c.state, |d| d.letters.delete(year).map(|()| Value::Null))
+    }),
+    // (year): the New Year card showed that year's answer; it is not brought back again.
+    main("letterBack", |c| {
+        let year = c.parse::<u32>(0)?;
+        commit(c.app, &c.state, |d| d.letters.bring_back(year).map(|()| Value::Null))
+    }),
+    // (today): the page's date; letters whose season ended by it lose their text, the answer stays.
+    // Saved and shown only when one did. Returns the letters.
+    main("clearLetters", |c| {
+        let latest = crate::pets::latest_day(now_ms());
+        let mut d = lock(&c.state);
+        let cleared = d.letters.clear_for_page(c.text(0), &latest)?;
+        let letters = json!(d.letters);
+        if cleared {
+            crate::app::show_and_save(c.app, d)?;
+        }
+        Ok(letters)
+    }),
     // Imported backgrounds, a file each in the data folder; read and written outside the lock.
     main("listBackgrounds", |c| {
         let dir = lock(&c.state).store.dir.clone();
@@ -284,7 +332,7 @@ static COMMANDS: &[Command] = &[
         let mut d = lock(&c.state);
         let AppData { garden, album, .. } = &mut *d;
         if discovery::grow_trees(garden, album, now) {
-            crate::app::save_and_show(c.app, &d)?;
+            crate::app::show_and_save(c.app, d)?;
         }
         Ok(Value::Null)
     }),
@@ -314,6 +362,18 @@ static COMMANDS: &[Command] = &[
             d.garden.wait_for_gift(c.text(0), due).map(|_| Value::Null)
         })
     }),
+    // (day): the local day friends gathered under the blossom, so it comes once a day (viewing.js).
+    main("markViewed", |c| {
+        commit(c.app, &c.state, |d| {
+            d.garden.mark_viewed(c.text(0)).map(|_| Value::Null)
+        })
+    }),
+    // (day): the local day a caught petal brought the special wish line (petals.js).
+    main("markWished", |c| {
+        commit(c.app, &c.state, |d| {
+            d.garden.mark_wished(c.text(0)).map(|_| Value::Null)
+        })
+    }),
     main("moveDecor", |c| {
         let (x, y) = (c.float(1), c.float(2));
         commit(c.app, &c.state, |d| {
@@ -341,7 +401,23 @@ static COMMANDS: &[Command] = &[
             crate::app::persist_soon(c.app);
             return Ok(answer);
         }
-        crate::app::save_and_show(c.app, &d).map(|()| answer)
+        crate::app::show_and_save(c.app, d).map(|()| answer)
+    }),
+    // (id): a friend followed this animal's prints to its end; counted in the footprint book.
+    main("followTracks", |c| {
+        let now = now_ms();
+        commit(c.app, &c.state, |d| {
+            let (entry, first) = d.album.followed(c.text(0), now)?;
+            Ok(json!({"entry": entry, "first": first}))
+        })
+    }),
+    // (id): a spring shoot a friend dug up (shoots.js); returns {entry, first}.
+    main("gatherShoot", |c| {
+        let now = now_ms();
+        commit(c.app, &c.state, |d| {
+            let (entry, first) = d.album.gathered(c.text(0), now)?;
+            Ok(json!({"entry": entry, "first": first}))
+        })
     }),
     main("bloomed", bloomed),
     main("befriend", befriend),
@@ -363,6 +439,28 @@ static COMMANDS: &[Command] = &[
     main("setOnDesktop", |c| {
         let on = c.arg(1).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;
         crate::app::put_on_desktop(c.app, &mut lock(&c.state), c.text(0), on).map(|()| Value::Null)
+    }),
+    // (kinds): the gift kinds the yard hides now, so the desktop leaves them out too (not saved).
+    main("hideDecor", |c| {
+        let kinds = c
+            .arg(0)
+            .as_array()
+            .and_then(|list| {
+                list.iter()
+                    .map(|k| k.as_str().map(str::to_string))
+                    .collect::<Option<Vec<_>>>()
+            })
+            .ok_or_else(|| i18n::t("error.bad_request"))?;
+        if !kinds.iter().all(|k| crate::pets::content::catalog().is_gift(k)) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        let mut d = lock(&c.state);
+        if d.hidden_decor.as_ref() == Some(&kinds) {
+            return Ok(Value::Null);
+        }
+        d.hidden_decor = Some(kinds);
+        crate::app::changed(c.app, &d);
+        Ok(Value::Null)
     }),
     overlay("openChat", |c| {
         let id = c.text(0);
@@ -391,6 +489,20 @@ static COMMANDS: &[Command] = &[
         let (x, y, now) = (c.float(1), c.float(2), now_ms());
         commit(c.app, &c.state, |d| {
             d.garden.take_out(c.text(0), x, y, now).map(|d| json!(d))
+        })
+    }),
+    // (book, id, hook, local day): an ornament on the Christmas tree, three a day.
+    main("hangOrnament", hang_ornament),
+    // (book, id, local day): an ornament taken down, its hook free for another.
+    main("takeDownOrnament", take_down_ornament),
+    // (x, y, local day): friends and the person built a snowman there; it replaces the one in the
+    // yard, once a day.
+    main("buildSnowman", build_snowman),
+    // (id, parts): what a snowman wears.
+    main("dressDecor", |c| {
+        let wanted = c.parse::<Vec<String>>(1)?;
+        commit(c.app, &c.state, |d| {
+            d.garden.dress(c.text(0), &wanted).map(|()| Value::Null)
         })
     }),
     overlay("dragStart", |c| {
@@ -433,6 +545,7 @@ static COMMANDS: &[Command] = &[
         Ok(Value::Null)
     }),
     test_only("e2eWindow", |c| window::e2e_window(c.app, c.args)),
+    test_only("e2eFront", |c| window::e2e_front(c.app)),
     test_only("e2eTray", |_| Ok(crate::tray::e2e_state())),
     // The ZIP import after its file dialog, which a test cannot answer.
     test_only("e2eImportZip", |c| {
@@ -448,6 +561,10 @@ static COMMANDS: &[Command] = &[
             d.garden.boxed.clear();
             d.garden.thanked.clear();
             d.garden.gift_wait = None;
+            d.garden.ornaments.clear();
+            d.garden.ornament_day = Default::default();
+            d.garden.ornament_year = 0;
+            d.garden.snowman_day.clear();
             Ok(Value::Null)
         })
     }),
@@ -626,11 +743,25 @@ mod tests {
             "removeTree",
             "growTrees",
             "setOnDesktop",
+            "hideDecor",
             "takeOut",
+            "hangOrnament",
+            "takeDownOrnament",
+            "buildSnowman",
+            "dressDecor",
         ] {
             assert!(may_call("main", name));
             assert!(!may_call("overlay0", name));
         }
+        assert!(may_call("main", "followTracks") && !may_call("overlay0", "followTracks"));
+        assert!(may_call("main", "gatherShoot") && !may_call("overlay0", "gatherShoot"));
+        assert!(may_call("main", "answerLetter") && may_call("main", "deleteLetter"));
+        assert!(!may_call("overlay0", "answerLetter"));
+        assert!(may_call("main", "writeLetter") && !may_call("overlay0", "writeLetter"));
+        assert!(may_call("main", "clearLetters") && !may_call("overlay0", "clearLetters"));
+        assert!(may_call("main", "letterBack") && !may_call("overlay0", "letterBack"));
+        assert!(may_call("main", "markViewed") && !may_call("overlay0", "markViewed"));
+        assert!(may_call("main", "markWished") && !may_call("overlay0", "markWished"));
         assert!(may_call("main", "quitApp"));
         assert!(!may_call("overlay1", "quitApp"));
         assert!(!may_call("other", "bootstrap"));

@@ -5,7 +5,7 @@
 // The language is decided as the modules load, so every constant built from t() is right from
 // the start: what the person chose (localStorage), else what the backend starts the page with,
 // else the system language. Changing it reloads the page.
-import { LANGUAGES, LIST_SEPARATOR, STRINGS } from './strings.js';
+import { LANGUAGES, LIST_SEPARATOR, SENTENCE_SEPARATOR, STRINGS } from './strings.js';
 import { withParticle } from './words.js';
 
 // Chinese comes in two scripts, and systems often say only the region: zh-CN, zh-SG and bare zh
@@ -66,6 +66,10 @@ export function t(key, params = {}) {
 // Names in a row, joined the way the language lists things ("A, B" or "A、B").
 export function joinList(items) {
   return items.join(LIST_SEPARATOR[current]);
+}
+// Sentences in a row, as the language runs them on ("A. B" or "A。B").
+export function joinSentences(items) {
+  return items.join(SENTENCE_SEPARATOR[current]);
 }
 // A key whose value is a list of sentences (greetings, idle chatter).
 export function list(key) {

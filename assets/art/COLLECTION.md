@@ -61,6 +61,9 @@ Row3 col3: full ripe orange pumpkin with dimensional ribs, short curled woody st
 Row3 col4: friendly two-snowball snowman, black top hat, red knitted scarf, carrot nose, dark pebble eyes and buttons, twig arms, complete rounded snow base.
 Distinct12 objects only. No neighboring items overlap. All silhouettes clean and unclipped. Cohesive materials with the supplied props reference, but do not copy any subjects from it.
 
+- The row 3, column 4 snowman is no longer drawn (2026-11-09): the yard and the album show the plain
+  three-ball snowman from `collection-extension/snowman-set`; see [Snowman](#snowman-2026-11-09).
+
 ## Hundred-entry extension (2026-10-19)
 
 - 21 new specimens: eight seasonal flowers, four aquatic creatures, two ground insects,
@@ -107,3 +110,74 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 - Gift viewports use the gift's catalog size; flowers use 40 by 54 like the
   earlier specimens.
 - New trees and keepsakes are discovery art; see `assets/discovery/README.md`.
+
+## Christmas gifts (2026-11-09)
+
+- Three specimens in two atlases: a small Christmas tree in
+  `collection-extension/christmas-trees`, a baby reindeer and Santa in
+  `collection-extension/christmas-guests`.
+- Each atlas is a composed sheet from the generated originals; the baby
+  reindeer's nose is recoloured cocoa brown so it does not read as a famous
+  character.
+- Alpha below 50 is cleared to fully transparent: the generator leaves a soft
+  halo that shows as a ring on a dark ground.
+- Crops follow measured silhouettes with a 14-pixel margin; reproduce the
+  wrappers with `node scripts/pack-collection.mjs`.
+- The grand tree (right of `christmas-trees`) and the sleigh (right of
+  `christmas-guests`) are cropped the same way and drawn only on Christmas
+  night (the sleigh as a mirrored silhouette with a gold rim, so its small red
+  noses never show).
+- Accepted sources, prompts, hashes and measured boxes:
+  `assets/sources/christmas-2026-11-09/accepted-art.json`.
+
+## Snowman (2026-11-09)
+
+- Four specimens in two atlases: the snowball and the plain three-ball snowman in
+  `collection-extension/snowman-set`, the hat, scarf and carrot nose in
+  `collection-extension/snowman-dress`.
+- The plain snowman replaces the old two-ball one from the gift atlas in the yard
+  and the album; `snowman` keeps its wrapper path, `decor/sculpted/snowman.svg`.
+- One ball drawing is scaled for all three balls the friends roll, so they read as
+  one snow; the medium and small balls in `snowman-set` stay in the atlas unused.
+- The hat, scarf and nose are drawn over the snowman by the anchors in
+  `src/content/catalog.json` (`snowman.dress[].at`), measured on a fit sheet at
+  yard and album size.
+- Alpha below 50 is cleared to fully transparent; that cut leaves no ring on a
+  light or dark ground and keeps the white balls' soft edge.
+- Crops follow measured silhouettes with a 14-pixel margin; reproduce the
+  wrappers with `node scripts/pack-collection.mjs`.
+- Accepted sources, prompts, hashes and measured boxes:
+  `assets/sources/snowman-2026-11-09/accepted-art.json`.
+
+## Winter tails and trail bushes (2026-11-09)
+
+- Eleven drawings in two atlases: the eight trail animals' tails in
+  `collection-extension/winter-tails` (`tail_<id>`), and the snowy bush, the bare
+  twig bush and the snow puff in `collection-extension/winter-bush`.
+- The tail atlas is a composed sheet: the generated raccoon dog had a ringed
+  tail and read as a raccoon, so its cell holds a separately generated raccoon
+  dog with an unringed tail, scaled to the fox's height.
+- Alpha below 50 is cleared to fully transparent: the generator leaves a soft
+  halo that shows as a ring on a dark ground.
+- Each tail crop is the rear only (tail, haunch and hind legs; for the sparrow
+  and magpie the tail and the raised wing), cut before the shoulder, so no head,
+  eye, ear or nose is inside and the animal is never shown whole. The cut side
+  has no margin; the drawing fades out there behind the bush.
+- Tail crops add 14 pixels on the other three sides; bush, twigs and puff crops
+  follow measured silhouettes with a 14-pixel margin. Reproduce the wrappers with
+  `node scripts/pack-collection.mjs`.
+- Accepted sources, prompts, hashes, cut columns and measured boxes:
+  `assets/sources/tracks-2026-11-09/accepted-art.json`.
+
+## Spring shoots (2026-11-09)
+
+- Eight specimens in one atlas, `collection-extension/spring-shoots`: shepherd's
+  purse, mugwort, fiddlehead, wild garlic, bamboo shoot, horsetail shoot,
+  asparagus and morel, each a young shoot on a tiny earth mound, in a 4 by 2 grid
+  of 384 x 512 cells.
+- Alpha below 50 is cleared to fully transparent: the generator leaves a soft
+  halo that shows as a dark haze on a dark ground; the cut leaves clean edges.
+- Crops follow measured silhouettes with a 14-pixel margin; reproduce the
+  wrappers with `node scripts/pack-collection.mjs`.
+- Accepted sources, prompt, hash and measured boxes:
+  `assets/sources/spring-shoots-2026-11-09/accepted-art.json`.

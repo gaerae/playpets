@@ -1,5 +1,6 @@
 // The album: everything that grows, comes and is caught in the yard. Flowers grown
-// from seeds (counted by the backend when they bloom), fish and bugs caught, gifts friends brought.
+// from seeds (counted by the backend when they bloom), fish and bugs caught, gifts friends brought,
+// keepsakes dug up and spring shoots gathered.
 // The ones found show how many (and the biggest fish); the others are silhouettes with when and
 // where to look, so there is always a next one. What there is to find is the catalogue's.
 import { closeOnBackdrop } from '../core/confirm.js';
@@ -10,11 +11,13 @@ import { $, call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
-import { BUGS, FISH, FLOWERS, GIFTS, giftKind, TREASURES, TREES } from '../yard/catalog.js';
+import { BUGS, FISH, FLOWERS, GIFTS, giftKind, SHOOTS, TRACKS, TREASURES, TREES } from '../yard/catalog.js';
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
+import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates } from '../yard/events.js';
 import { SECRETS } from '../yard/secrets.js';
+import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
 import { worldFor } from '../yard/worlds.js';
 
@@ -100,7 +103,7 @@ const BOOKS = {
     draw: (k, unknown) => giftSvg(k, unknown),
     name: k => t(`decor.kind_${k.id}`),
     unknown: 'catch.unknown_gift',
-    hint: k => (k.event ? eventHint(k) : t('catch.gift_hint')),
+    hint: k => (k.event ? eventHint(k) : t(k.built ? 'catch.built_hint' : 'catch.gift_hint')),
     record: () => t('catch.received'),
     rare,
     action: k => takeOutButton(k.id),
@@ -124,6 +127,27 @@ const BOOKS = {
     hint: favored,
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
+  },
+  // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen.
+  track: {
+    tab: 'album.tracks',
+    kinds: TRACKS,
+    found: () => data.album?.tracks || {},
+    draw: (k, unknown) => (unknown ? printSpecimen(k) : tailPeek(k)),
+    name: k => t(`track.${k.id}`),
+    unknown: 'album.whose_prints',
+    hint: () => t('album.tracks_hint'),
+    record: entry => t('album.followed', { count: entry.count }),
+  },
+  // Spring shoots a friend gathered: shown always, as silhouettes first; the hint says the season.
+  shoot: {
+    tab: 'album.shoots',
+    kinds: SHOOTS,
+    found: () => data.album?.shoots || {},
+    draw: (k, unknown) => artSvg(k.art, unknown ? 'class="unknown-art"' : ''),
+    name: k => t(`shoot.${k.id}`),
+    hint: k => t('shoot.hint', { season: t(`catch.season_${k.season}`) }),
+    record: entry => t('shoot.count', { count: entry.count }),
   },
   secret: {
     tab: 'album.secrets',
@@ -180,23 +204,32 @@ function card(b, kind, entry, index) {
   }
   return el;
 }
+// Set out while out of sight (decor-shown.js), a gift would vanish into the yard: it waits, and says
+// when it shows: a Christmas gift its dates, a snowman winter.
+const showsNow = kind => decorShown(kind, new Date(), yardSeason(scene));
+const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_december' : 'album.shown_winter');
 // A gift that came before can always come back out of its card (garden.rs take_out): one in the
-// yard says so, and one waiting in the box is set out from the box below the book.
+// yard says so, and one waiting in the box is set out from the box below the book. A snowman is
+// built in the snow, never set out: its card only says when one stands in the yard.
 function takeOutButton(kind) {
   const garden = data.garden || {};
   if ((garden.boxed || []).some(d => d.kind === kind)) return null;
-  const out = (garden.decor || []).some(d => d.kind === kind),
-    room = (garden.decor?.length ?? 0) < limit(data, 'decor'),
+  const out = (garden.decor || []).some(d => d.kind === kind);
+  if (giftKind(kind)?.built && !out) return null;
+  const room = (garden.decor?.length ?? 0) < limit(data, 'decor'),
+    shows = showsNow(kind),
     button = document.createElement('button');
   button.type = 'button';
   button.className = 'album-take-out';
   button.textContent = t(out ? 'album.in_yard' : 'album.take_out');
-  button.disabled = out || !room;
-  button.title = out
-    ? t('album.in_yard')
-    : room
-      ? t('album.set_out', { kind: t(`decor.kind_${kind}`) })
-      : t('album.set_out_full');
+  button.disabled = out || !room || !shows;
+  button.title = !shows
+    ? whenShown(kind)
+    : out
+      ? t('album.in_yard')
+      : room
+        ? t('album.set_out', { kind: t(`decor.kind_${kind}`) })
+        : t('album.set_out_full');
   button.setAttribute('aria-label', button.title);
   button.onclick = () => {
     // Taken out once: a second click before the album redraws would find it out already.
@@ -222,12 +255,13 @@ function renderBox(open) {
       const button = document.createElement('button'),
         label = document.createElement('small'),
         kind = giftKind(d.kind),
-        named = t(`decor.kind_${d.kind}`);
+        named = t(`decor.kind_${d.kind}`),
+        shows = showsNow(d.kind);
       button.type = 'button';
       button.className = 'album-box-item';
       button.classList.toggle('memento', !!d.memento);
-      button.disabled = !room;
-      button.title = room ? t('album.set_out', { kind: named }) : t('album.set_out_full');
+      button.disabled = !room || !shows;
+      button.title = !shows ? whenShown(d.kind) : room ? t('album.set_out', { kind: named }) : t('album.set_out_full');
       button.setAttribute('aria-label', button.title);
       button.innerHTML = kind ? giftSvg(kind) : '';
       label.textContent = named;

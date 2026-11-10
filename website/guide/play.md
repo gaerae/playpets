@@ -1,5 +1,5 @@
 ---
-description: How the yard changes with the time of day, the weather and the seasons, and what there is to do in it, from the garden, gifts, fishing and bugs to the album, closeness, seasonal events, yard sounds, three games and a window you can size freely
+description: How the yard changes with the time of day, the weather and the seasons, and what there is to do in it, from the garden, gifts, fishing and bugs to the album, closeness, seasonal events, yard sounds, four games and a window you can size freely
 ---
 
 <script setup>
@@ -10,7 +10,7 @@ import DiscoveryGuide from '../.vitepress/theme/DiscoveryGuide.vue';
 
 The yard changes with the time of day, the weather and the season, and it grows a little more each day. Friends dig up flower seeds and saplings and bring you gifts. You fish and catch bugs to fill the album, and your friends grow closer to you along the way.
 
-Seasonal events come and go, the yard has its own sounds, and there are three games to play with your friends.
+Seasonal events come and go, the yard has its own sounds, and there are four games to play with your friends, one of them only in winter.
 
 **The dock**
 
@@ -26,7 +26,7 @@ The Play panel is titled for the friend you've selected, such as **Play with Clo
 |---|---|
 | **Find** | **Dig**, **Fish**, **Album** |
 | **Garden** | **Plant a seed** (with how many seeds you have), **Plant a tree**, **Picnic** |
-| **Group games** | The three games, **Let them chat** |
+| **Group games** | The four games (**Snowman** only while the yard shows winter), **Flower viewing** during the cherry blossom festival, **Let them chat** |
 
 Let them chat needs two friends connected to an AI. Everything else works without one.
 
@@ -66,7 +66,7 @@ The three outdoor places each have their own house, four seasonal landscapes and
 
 **Cozy living room** brings the same calm style indoors. Its lighting changes through morning, midday, evening and night, and the windows show spring blossoms, autumn leaves and winter snow. Rain and snow stay beyond the glass.
 
-You can pet friends, chat, grow flowers and play the three games in every place. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
+You can pet friends, chat, grow flowers and play the games in every place, apart from the winter-only **Snowman**, which needs a yard that shows winter, so not the Cozy living room. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
 
 <Shot name="studio-night" caption="Cozy living room at night: a quiet village view beyond the glass and warm light indoors." />
 
@@ -176,9 +176,9 @@ To put one away, right-click it and choose **Put away**, or press **Delete** or 
 
 - The yard holds 12 decorations. When it's full, a new gift waits in the **gift box** at the top of the album's Gifts book, which holds 12 more. Press one there to set it out once there's room.
 - Putting one away keeps its album entry and makes room for the remaining gifts. A memento goes back into the gift box instead, unless the box is full.
-- Any gift that came before can come back out: press **Set out** on its card in the album's Gifts book, once there's room in the yard.
+- Any gift that came before can come back out: press **Set out** on its card in the album's Gifts book, once there's room in the yard. The snowman is the exception: you build it again instead.
 - The same right-click menu sends a gift out to the desktop ([Gifts on the desktop](./desktop.md#gifts-on-the-desktop)).
-- The album has 26 gifts, including five delivered only during their calendar events. A memento is one of these 26, so it adds no new entry.
+- The album has 29 gifts, including seven delivered only during their calendar events. The snowman is one of the 29, but a friend never brings it: you build it ([Snowman](#snowman)). A memento is one of these 29, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
@@ -200,13 +200,13 @@ From closeness level 3, an idle friend may go fishing on its own every 12 to 25 
 
 What you find depends on the season, the time of day and the weather. Catfish and eels come out after dark, and more of them in the rain. Pond smelt appear only in winter, and a golden carp is very rare. Each fish is a different size every time.
 
-A card shows what was caught and says so when it's new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift or a keepsake) has **See in album**, which opens the album at that book.
+A card shows what was caught and says so when it's new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift, a keepsake or a spring shoot) has **See in album**, which opens the album at that book.
 
 When something new arrives, **Album** in **Play → Find** and **Play** in the dock carry a small dot until you open the album.
 
 **Album** (in **Play → Find**)
 
-- Six books: Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes.
+- Eight books: Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes, Footprints, Spring shoots.
 - Every kind is listed:
   - caught: how many, and the biggest fish
   - not yet: a silhouette with when and where to look
@@ -220,15 +220,37 @@ A few times a year the yard changes for a while. The event's name shows beside t
 
 | Event | When | What it brings |
 |---|---|---|
-| Cherry blossom festival | April 1 to 20 | Petals drift everywhere and more butterflies come out; a friend brings a cherry sapling |
+| Cherry blossom festival | April 1 to 20 | Petals drift everywhere and more butterflies come out; friends gather to look at the flowers; a friend brings a cherry sapling |
 | Firefly nights | July 20 to August 20 | Many more fireflies at night, and a golden one to catch; a friend brings a watermelon |
 | Harvest moon | September 8 to October 15 | On the nights around the event's first full moon (two days either side), as at Chuseok and the Mid-Autumn Festival, the moon rises big and golden; the other nights it keeps its phase. The moonlight carp comes to the lake at night; a friend brings a pumpkin |
-| Winter lights | December 10 to 31 | Little lights along the trees, glowing from evening on; a friend brings a snowman |
+| Winter lights | December 1 to 31 | Little lights along the trees, glowing from evening on; friends bring a small Christmas tree, then a baby reindeer, then Santa |
 | New Year | January 1 to 7 | Friends greet the new year; a friend brings a kite |
 
-An event's gift comes the first time a gift is due during the event, and only then. The album shows when each one comes.
+An event's gifts come the first times a gift is due during the event, one each time and in a fixed order, and only then. The album shows when each one comes.
 
-South of the equator, judged by your computer's time zone, seasonal events come six months later. The new year stays in January.
+South of the equator, judged by your computer's time zone, seasonal events come six months later. The winter lights and the new year keep their dates.
+
+In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. If you say yes, your season comes back on January 8. The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and wait out of sight the rest of the year. They still count toward the 12 decorations, and when you put one away it goes back into the gift box.
+
+On a snowy evening or night during the winter lights, if the yard is showing winter and the little Christmas tree is out, the tree lights up and grows into a grand tree. This happens once a night. The grand tree stays while the snow falls, with a bulb glinting now and then, and shrinks back when the snow stops. If the baby reindeer and Santa are out in the yard, they look up late that night, and a sleigh crosses the moon once. In the Cozy living room the snow stays beyond the glass, so Christmas night happens only in the gardens, and the desktop keeps the little tree.
+
+Press the Christmas tree to decorate it. Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. They become small ornaments tinted by kind, and pointing at one shows what it is. To change the tree, take an ornament down from its card; the day's three stay used. Aquatic life and bugs stay in the water and the grass. The ornaments stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree. Decorating works in every place, the Cozy living room too.
+
+### Flower viewing
+
+During the cherry blossom festival, on a clear day from morning to evening, friends gather once a day under a cherry tree you grew. With no cherry tree they use a picnic blanket, or the middle of the yard. They look up and talk for a minute or so, then wander off. They never break into a game, fishing or digging, and the gathering ends early if the yard moves to another place, or night or rain comes.
+
+To call them yourself, choose **Flower viewing** in the play panel. You can do it once an hour, and the button is greyed out while friends are already viewing or a game is on. Friends connected to an AI talk about the blossom in their own words; when friends gather on their own, they do so only with **Let them chat now and then** on.
+
+On those clear festival days, from morning to evening, a petal now and then lands on a friend's head. It stays until that friend moves or night or rain comes, and lands more often while friends view the blossom, when petals also fall a little thicker. Click a falling petal to catch it: it twirls into a little glint, and the first one each day brings a wish from a friend. With reduced motion, petals don't fall and can't be caught, but friends still gather and petals still rest on heads.
+
+### The year-end letter
+
+On the first day you open PlayPets from December 26 to 31, the friend you're closest to writes you a letter about the year: what you found for the album, a tree you grew together, how close you've become and how long you've known each other. It asks how your year went and what you'd like to do next year.
+
+If there's a mailbox in the yard, the letter waits there; otherwise the friend tells you about it. Either way, the **Letter** chip beside the scene label and the yard menu open it until January 7. You can write back in up to 200 characters, or skip it.
+
+On the first day you open PlayPets from January 1 to 7, a friend brings your answer back and cheers you on, and next December's letter looks back on it. A friend with an AI connection writes in its own words. Letters and answers are kept on this computer, and the letter card can delete them. When a friend with an AI connection writes next year's letter, that AI reads your answer.
 
 ## Closeness <Since v="0.1.0" />
 
@@ -295,9 +317,23 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 - To remove one at once, right-click it or press **Delete** on it. As with flowers, **Undo** in the notice brings it back for about six seconds. Its album entry stays, but no sapling comes back.
 - Indoor places don't offer digging or tree planting. Imported backgrounds can explicitly allow or turn off soil.
 
+### Footprints in the snow
+
+In a winter yard, faint animal footprints cross the snow. There is one trail a day, plus another on a morning after a snowy night. From December 26 to January 7 there is only one a day.
+
+Click the prints, and a rested friend follows them, sniffing. With the keyboard, move to the prints with Tab and press Enter. At the end, a tail peeks out from behind a bush and is gone in a whisk. Something small waits there to be dug up, and each animal has finds it likes.
+
+An hour of new snow covers the prints, and the next day they are gone. The Cozy living room has none. **Album → Footprints** shows each print until you have followed it, then the tail and the name.
+
+### Spring shoots
+
+While the yard shows spring outdoors, a few shoots poke up after rain, and one comes up on a fair morning. At most three stand at a time, and each stays for a few hours. The Cozy living room has none.
+
+Click a shoot, and the selected friend, or the nearest free one, goes and digs it up. It goes into **Album → Spring shoots**, which holds eight: shepherd's purse, mugwort, fiddlehead, wild garlic, bamboo shoot, horsetail shoot, asparagus and morel. The album is for collecting, not a guide to wild plants.
+
 ## Games <Since v="0.1.0" />
 
-The three games are in **Play → Group games**, and you play one at a time. While a game is on, its tile reads Stop with the game's name, such as **Stop Hide and seek**. Click it to end the game right away.
+The four games are in **Play → Group games**, and you play one at a time. While a game is on, its tile reads Stop with the game's name, such as **Stop Hide and seek**. Click it to end the game right away.
 
 The other games, **Picnic**, **Plant a seed** and **Plant a tree** stay off for the whole game. When it ends, the friends walk back to where they were.
 
@@ -325,6 +361,16 @@ The other games, **Picnic**, **Plant a seed** and **Plant a tree** stay off for 
 2. The friend who is it chases the nearest friend while the others run away.
 3. When it overlaps another friend on screen, that friend is caught. The caught friend becomes it, and the one who caught them is safe for a moment.
 4. After a set time, the game ends with "Tag is over. Good running, everyone!".
+
+### Snowman
+
+While the yard shows winter, which leaves out the Cozy living room, **Snowman** in the play menu starts it. Now and then a friend suggests building one and starts rolling on its own. Two friends roll a snowball that grows as it goes: press it to help push, or drag it (or use the arrow keys) to roll it yourself, and a soft blue trail fades in the snow behind it. Three balls stack into a snowman with a few sparkles, and you can build one a day; ask again the same day and a friend only says they built one already.
+
+Then choose its hat, scarf and carrot nose. Press the snowman, or choose **Dress up** from its menu, to change them later.
+
+- A new snowman replaces the old one, which melts away; with company, a friend says goodbye to it.
+- The snowman stays in the yard only while the yard shows winter. It never goes out on the desktop, and putting it away melts it.
+- With 12 decorations in the yard and no snowman, a friend says the yard is full, and the game doesn't start.
 
 ## A window beside your work
 
@@ -402,13 +448,13 @@ To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). It wor
 
 ## Collecting at your own pace
 
-The album has 150 entries across aquatic life, bugs, flowers, gifts, trees and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
+The album has 169 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
 
 **How long it takes**
 
-The full 150-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
+The full 169-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
 
-The five event gifts need festivals spread across the calendar, so depending on when you start, collecting them all can take months. Changing the season doesn't start a festival.
+The seven event gifts need festivals spread across the calendar, so depending on when you start, collecting them all can take months. Changing the season doesn't start a festival.
 
 Flowers bloom four hours after planting and trees mature after twelve hours. Both count time with the app closed.
 

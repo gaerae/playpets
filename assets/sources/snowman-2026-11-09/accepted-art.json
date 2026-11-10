@@ -1,0 +1,94 @@
+{
+  "generated": "2026-11-09",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "snowset",
+      "generated": "2026-11-09",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the reference props exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, FOUR objects in four equal columns, generous non-overlapping margins.\nCOL1-3: separate softly sculpted powder-snow balls in three explicit sizes (large, medium 70%, small 46%), each with a fine subtle powder texture, simplified rounded contours, restrained lavender shadow on the lower right, a soft warm highlight upper left, two or three tiny clumps stuck on the surface. COL4: one friendly three-ball snowman of the same snow, rounded twig arms with round tips, a clear small dark coal smile and two dark coal eyes, rosy pink cheeks, NO hat, NO scarf, NO nose (those are added separately), sitting on a small snow base.",
+      "references": [],
+      "file": "snowset.png",
+      "sha256": "d8778c8faf2d3f3894d1bf703ae1815932fab0a994e130d6eac1b81caf6f1ba6",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/snowman-set.png",
+      "acceptedIds": ["snowman", "snowball"],
+      "notes": "The prompt says to match the reference props, but its Codex log shows no attached image, so no reference is recorded. Columns: a large, a medium (70 %) and a small (46 %) ball and a plain three-ball snowman with no hat, scarf or nose. The large ball is the one drawing for all three balls the friends roll; the medium and small balls stay in the atlas unused. The plain snowman is the built snowman in the yard and the album."
+    },
+    {
+      "name": "snowdress",
+      "generated": "2026-11-10",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the reference props exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, THREE objects in three equal columns, generous non-overlapping margins, each at the scale it would have on the plain snowman in the first reference (its fourth column), seen straight from the front.\nCOL1: a small soft charcoal top hat with a muted red band and a gently curved brim, to sit on the snowman's head. COL2: a muted red knitted scarf as worn: a short wrapped band about three times as wide as tall, ends curving down a little, with one short tail hanging on the right ending in a few soft fringe tips. COL3: a small rounded carrot nose seen from the front, as on a snowman facing the viewer: a soft orange cone whose round base faces us and whose blunt tip points slightly to the right, two faint ridges, short and stubby. The third reference shows the hat, scarf and nose look to keep.",
+      "references": [
+        "assets/sources/snowman-2026-11-09/snowset.png",
+        "assets/art/decor/props.png",
+        "crop of assets/art/decor/collection.png at x 1112, y 701, 299 x 343 (the old dressed snowman)"
+      ],
+      "file": "snowdress.png",
+      "sha256": "6cceda2f9c1168e7a29235621df143e3b37c8ef717162b5b07a4f2001864af18",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/snowman-dress.png",
+      "acceptedIds": ["snow_hat", "snow_scarf", "snow_nose"],
+      "notes": "Columns: hat, scarf, carrot nose. Accepted on the first try. The nose is asked front-facing with its tip slightly to the right, since the snowman faces front. Placed on the snowman by the anchors in src/content/catalog.json (snowman.dress[].at), measured on a fit sheet."
+    }
+  ],
+  "composed": [
+    {
+      "name": "snowman-set",
+      "file": "assets/art/collection-extension/snowman-set.png",
+      "sha256": "0fefa42f0e2772ef22ca5fd0e06ec21151ab85aec6735ce7870f396507d3e3ff",
+      "size": [1536, 1024],
+      "inputs": ["snowset.png"],
+      "runtimeAtlas": "collection-extension/snowman-set.png",
+      "processing": [
+        "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged); written as 8-bit RGBA, 1536 x 1024. 50 is the lowest cut that leaves no ring: the soft alpha is a 1-3 px antialiased edge (the sheet viewer shows the transparent pixels' white or red colour as a broad aura), and on #121e3c and #eef1ee no ring wider than 2 px is left, while the white balls keep their soft edge."
+      ]
+    },
+    {
+      "name": "snowman-dress",
+      "file": "assets/art/collection-extension/snowman-dress.png",
+      "sha256": "dc417ea9ff0c96152d0c32cc8cace0eaf7e474c46805a1705445ab57d055191f",
+      "size": [1536, 1024],
+      "inputs": ["snowdress.png"],
+      "runtimeAtlas": "collection-extension/snowman-dress.png",
+      "processing": [
+        "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged); written as 8-bit RGBA, 1536 x 1024. 50 is the lowest cut that leaves no ring: the soft alpha is a 1-3 px antialiased edge (the sheet viewer shows the transparent pixels' white or red colour as a broad aura), and on #121e3c and #eef1ee no ring wider than 2 px is left, while the white balls keep their soft edge."
+      ]
+    }
+  ],
+  "measuredSilhouettes": {
+    "collection-extension/snowman-set.png": [
+      {
+        "id": "snowball",
+        "box": [24, 354, 397, 406]
+      },
+      {
+        "id": "medium ball (not named)",
+        "box": [477, 430, 294, 308]
+      },
+      {
+        "id": "small ball (not named)",
+        "box": [839, 516, 208, 212]
+      },
+      {
+        "id": "snowman",
+        "box": [1113, 284, 376, 498]
+      }
+    ],
+    "collection-extension/snowman-dress.png": [
+      {
+        "id": "snow_hat",
+        "box": [59, 361, 416, 309]
+      },
+      {
+        "id": "snow_scarf",
+        "box": [603, 404, 418, 326]
+      },
+      {
+        "id": "snow_nose",
+        "box": [1228, 467, 180, 107]
+      }
+    ],
+    "note": "Boxes are x, y, width, height of the alpha >= 50 components, with any part within 12 px of a larger one merged in; crops in src/art/collection.json add a 14-pixel margin. The snowman's base ball is 298 px wide at its widest (0.74 of the 404 px crop); see snowman.stack in src/content/catalog.json."
+  },
+  "review": "Codex art review: snowset.png in scratch/xmas-art/codex-review2.md (second pass, ACCEPT WITH FIXES: clean silhouette masks, separate crops and anchors, all done here); snowdress.png and the fit sheet (the parts on the snowman at 70 px and 120 px, on #eef1ee and #121e3c, with the three-ball stack beside it) in scratch/xmas-art/review-snowdress.md: ACCEPT for both, no halo or coloured fringe, the carrot still reads at 70 px. Both kept in scratch."
+}

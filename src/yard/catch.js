@@ -28,7 +28,7 @@ import { authoredRodTip, castGeometry, castLandingX, linePath, ROD, rodPlacement
 import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
 import { cue } from './sound.js';
-import { isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
+import { forPerson, isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
 import { bubble, cheer } from './views.js';
 import { scene, scenery } from './world.js';
 import { worldAllows } from './worlds.js';
@@ -65,6 +65,8 @@ export function onLake(x, y) {
 // Fishing: one friend at a time, at the place on the shore that was clicked. The walk there is the
 // friend's trip and the fishing its task (views.js), so whatever takes the friend ends the fishing.
 let fishing = null;
+/** Whether a friend is fishing (or on its way to): nothing else should call it away then. */
+export const fishingNow = () => !!fishing;
 const atLake = { end: () => stopFishing() };
 function removeTackle(tackle) {
   tackle?.float?.remove();
@@ -87,14 +89,15 @@ function stopFishing(retainArtwork = false) {
   }
   return tackle;
 }
-// `friend` goes when it is free, else the nearest free one; `solo` is a friend fishing on its own
-// (soloFishing), which calls the person when a fish bites: only the person reels it in.
+// `friend` goes when it is free, else the nearest free one; the person's rod may also take a friend
+// viewing the blossom (trips.js forPerson). `solo` is a friend fishing on its own (soloFishing),
+// which calls the person when a fish bites: only the person reels it in.
 function startFishing(x, friend, solo = false) {
   if (!worldAllows(scene.world, 'fishing')) return;
   if (fishing) return;
   const l = lake(),
     shore = l.ridgeAt(x),
-    v = (friend && isFree(friend) ? friend : null) || nearestFree(x, shore);
+    v = solo ? (friend && isFree(friend) ? friend : null) || nearestFree(x, shore) : forPerson(x, shore, friend);
   if (!v) return toast(t('catch.busy'));
   if (!solo) {
     remember('fished', '1');
@@ -344,7 +347,7 @@ const catchBug = guard(async caught => {
   showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first, 'bug');
 });
 
-// What a point in the yard can be caught at: a creature in the air, or the lake.
+// What a point in the yard can be caught at: a creature in the air, a falling petal, or the lake.
 function free(e) {
   return (
     !aiming && !game && data.pets.length && !e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button')
@@ -369,8 +372,9 @@ export function syncFishingAction() {
   tool.hidden = false;
   tool.disabled = !data.pets.length || !!game || !worldAllows(scene.world, 'fishing');
 }
-/** Wires catching to the yard's clicks and its pointer. Called once, by app.js. */
-export function setupCatch() {
+/** Wires catching to the yard's clicks and its pointer. Called once, by app.js, which hands over
+ * `wish` (petals.js): it takes the point of a caught petal. */
+export function setupCatch({ wish = () => {} } = {}) {
   const yard = $('yard');
   const tool = $('fish-tool');
   if (tool) {
@@ -405,12 +409,17 @@ export function setupCatch() {
     const [x, y] = at(e),
       caught = scenery.catchAt(x, y);
     if (caught) catchBug(caught);
-    else if (onLake(x, y)) startFishing(x);
+    else {
+      const petal = scenery.catchPetal(x, y);
+      if (petal) wish(petal);
+      else if (onLake(x, y)) startFishing(x);
+    }
   });
   // Something to catch under the pointer shows as a hand.
   yard.addEventListener('pointermove', e => {
     const [x, y] = at(e),
-      can = (free(e) || toolGivesWay(e)) && (scenery.near(x, y) || onLake(x, y));
+      // A petal is only for an empty hand: a tool in hand never gives way to one.
+      can = free(e) ? scenery.near(x, y) || scenery.nearPetal(x, y) || onLake(x, y) : toolGivesWay(e);
     yard.classList.toggle('can-catch', !!can);
   });
 }

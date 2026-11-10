@@ -77,3 +77,58 @@ test('a tool in hand never hides a creature: pressing it puts the tool away and 
     views.clear();
   }
 });
+
+test('a click catches a bug first, then a petal, and a tool in hand never gives way to a petal', async context => {
+  const { nodes, element } = installDom(context, {
+    ids: ['yard', 'catch-card', 'toast', 'yard-hint', 'agent-summary', 'feed', 'plant-tool'],
+    props: { rect: { width: 800, height: 560 } },
+  });
+  nodes.get('catch-card').querySelector = () => element();
+  const pet = { id: 'friend', size: 112 },
+    view = { pet, px: 100, py: 200, z: 40, pose: 'idle', bubble: element(), button: element() };
+  views.set(pet.id, view);
+  setData({ pets: [pet], assets: [], statuses: {} });
+  const bug = { species: catalog.bugs[0].id, x: 100, y: 200 },
+    asked = [],
+    wished = [];
+  let creature = null,
+    petal = true;
+  setScenery({
+    catchAt: () => creature,
+    near: () => !!creature,
+    nearPetal: () => petal,
+    catchPetal: (x, y) => {
+      asked.push([x, y]);
+      return petal ? { x, y } : null;
+    },
+  });
+  const { setAiming } = await import('../src/core/state.js');
+  setupCatch({ wish: point => wished.push(point) });
+  const yard = nodes.get('yard');
+  const before = catches.length;
+  try {
+    creature = bug;
+    yard.dispatch('click', { clientX: 100, clientY: 200 });
+    assert.equal(catches.length, before + 1, 'a bug under the pointer is caught');
+    assert.deepEqual(wished, [], 'and no petal with it');
+    creature = null;
+    yard.dispatch('click', { clientX: 120, clientY: 210 });
+    assert.deepEqual(asked, [[120, 210]]);
+    assert.deepEqual(wished, [{ x: 120, y: 210 }], 'a petal under the pointer brings its wish');
+    petal = false;
+    yard.dispatch('click', { clientX: 130, clientY: 210 });
+    assert.equal(wished.length, 1, 'a missed press wishes nothing');
+    petal = true;
+    setAiming('dig');
+    asked.length = 0;
+    yard.dispatch('click', { clientX: 120, clientY: 210 });
+    const state = await import('../src/core/state.js');
+    assert.equal(state.aiming, 'dig', 'a dig press next to a passing petal still digs');
+    assert.deepEqual(asked, []);
+    assert.equal(wished.length, 1);
+  } finally {
+    setAiming(false);
+    endFishing();
+    views.clear();
+  }
+});

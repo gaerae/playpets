@@ -50,6 +50,34 @@
 .caption-event[hidden] {
   display: none;
 }
+/* The year-end letter while there is one to read (letter.js): a small pill that opens it. */
+.caption-letter {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  margin: 0 4px 0 6px;
+  padding: 3px 9px 3px 7px;
+  border: 0;
+  border-radius: 99px;
+  background: var(--pink-soft);
+  color: var(--pink-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.caption-letter svg {
+  width: 14px;
+  height: 14px;
+}
+.caption-letter[hidden] {
+  display: none;
+}
+/* The pill comes beside the scene's name rather than out of its room (shell.css, max-width 228px). */
+.yard-dock > .caption-main:has(> .caption-letter:not([hidden])) {
+  max-width: 316px;
+}
 .scene-button {
   display: inline-flex;
   align-items: center;

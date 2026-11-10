@@ -326,9 +326,15 @@ mod tests {
                     walk(&path, out);
                 } else if path.extension().is_some_and(|e| e == "rs") && !is_language_file(&path) {
                     let text = std::fs::read_to_string(&path).unwrap();
-                    // Only the test module is left out; anything test-only before it would
-                    // hide the lines after it, so it has to live inside the module.
-                    let body = text.split("#[cfg(test)]\nmod tests").next().unwrap().to_string();
+                    // Only the test module is left out (`pub(crate)` when it shares a test helper,
+                    // as app.rs's does); anything test-only before it would hide the lines after it,
+                    // so it has to live inside the module.
+                    let end = ["#[cfg(test)]\nmod tests", "#[cfg(test)]\npub(crate) mod tests"]
+                        .iter()
+                        .filter_map(|m| text.find(m))
+                        .min()
+                        .unwrap_or(text.len());
+                    let body = text[..end].to_string();
                     assert!(
                         !body.contains("#[cfg(test)]"),
                         "{}: keep test-only code inside `mod tests`",

@@ -114,3 +114,62 @@ test('a gift that came before comes back out of its card, once, unless it is out
   assert.equal(full.disabled, true);
   assert.equal(full.title, t('album.set_out_full'));
 });
+
+// Set out in July, a Christmas gift would go into a spot no one sees: it waits, and says when it shows.
+test('a December gift waits in the album until December', async ctx => {
+  ctx.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: new Date(2026, 6, 1, 12).getTime() });
+  const { GIFTS } = await import('../src/yard/catalog.js');
+  const { scene } = await import('../src/yard/world.js');
+  const was = scene.season;
+  ctx.after(() => {
+    scene.season = was;
+  });
+  scene.season = 'winter';
+  // A card's Set out button; cards are in catalogue order.
+  const cardOf = (nodes, kind) => {
+    const card = nodes.get('album-grid').children[GIFTS.findIndex(g => g.id === kind)];
+    return card.children.find(child => child.classList?.contains('album-take-out'));
+  };
+  const garden = { received: ['xmas_tree', 'santa'], boxed: [{ id: 's', kind: 'santa', x: 0.5, y: 0.5 }] };
+  let nodes = album(ctx, garden);
+  let tree = cardOf(nodes, 'xmas_tree'),
+    [santa] = nodes.get('album-box-items').children;
+  for (const button of [tree, santa]) {
+    assert.equal(button.disabled, true);
+    assert.equal(button.title, t('album.shown_december'));
+  }
+  ctx.mock.timers.setTime(new Date(2026, 11, 2, 12).getTime());
+  nodes = album(ctx, garden);
+  tree = cardOf(nodes, 'xmas_tree');
+  [santa] = nodes.get('album-box-items').children;
+  assert.equal(tree.disabled, false);
+  assert.equal(tree.title, t('album.set_out', { kind: t('decor.kind_xmas_tree') }));
+  assert.equal(santa.disabled, false);
+  // Out in the yard but out of sight in July: the title says when it shows, not "In the yard".
+  ctx.mock.timers.setTime(new Date(2026, 6, 1, 12).getTime());
+  nodes = album(ctx, { received: ['xmas_tree'], decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5 }] });
+  assert.equal(cardOf(nodes, 'xmas_tree').title, t('album.shown_december'));
+});
+
+// A snowman is built in the snow, never set out: its card offers nothing until one stands in the yard.
+test('a built snowman has no Set out, in any season, and says In the yard while out', async ctx => {
+  ctx.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: new Date(2026, 11, 15, 12).getTime() });
+  const { GIFTS } = await import('../src/yard/catalog.js');
+  const { scene } = await import('../src/yard/world.js');
+  const was = scene.season;
+  ctx.after(() => {
+    scene.season = was;
+  });
+  const cardOf = (nodes, kind) => {
+    const card = nodes.get('album-grid').children[GIFTS.findIndex(g => g.id === kind)];
+    return card.children.find(child => child.classList?.contains('album-take-out'));
+  };
+  for (const season of ['summer', 'winter']) {
+    scene.season = season;
+    assert.equal(cardOf(album(ctx, { received: ['snowman'] }), 'snowman'), undefined, season);
+  }
+  const nodes = album(ctx, { received: ['snowman'], decor: [{ id: 's', kind: 'snowman', x: 0.5, y: 0.7 }] });
+  const snowman = cardOf(nodes, 'snowman');
+  assert.equal(snowman.disabled, true);
+  assert.equal(snowman.title, t('album.in_yard'));
+});

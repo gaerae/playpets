@@ -6,7 +6,7 @@ import test from 'node:test';
 import './support/content.mjs';
 import { setLanguageForTests } from '../src/core/i18n.js';
 import { bite, flyingBug } from '../src/yard/catalog.js';
-import { boostOf, eventDates, eventOn, eventStart, inEvent } from '../src/yard/events.js';
+import { boostOf, eventDates, eventOn, eventStart, giftEvent, inEvent } from '../src/yard/events.js';
 
 const on = (iso, south = false) => eventOn(new Date(`${iso}T12:00:00`), south)?.id ?? null;
 
@@ -16,16 +16,19 @@ test('each event is on from its first day to its last, and not around it', () =>
   assert.equal(on('2026-04-21'), null);
   assert.equal(on('2026-08-01'), 'fireflies');
   assert.equal(on('2026-10-01'), 'harvest');
+  assert.equal(on('2026-11-30'), null);
+  assert.equal(on('2026-12-01'), 'lights');
   assert.equal(on('2026-12-31'), 'lights');
   assert.equal(on('2027-01-03'), 'newyear');
   assert.equal(on('2026-06-15'), null);
 });
 
-test('south of the equator the seasons come six months later, the new year does not', () => {
+test('south of the equator the seasons come six months later, the new year and the winter lights do not', () => {
   assert.equal(on('2026-10-05', true), 'blossom', 'spring in October');
   assert.equal(on('2026-04-05', true), 'harvest', 'the harvest moon in April');
   assert.equal(on('2027-01-03', true), 'newyear');
-  assert.equal(on('2026-06-20', true), 'lights');
+  assert.equal(on('2026-06-20', true), null, 'no winter lights in June');
+  assert.equal(on('2026-12-20', true), 'lights', 'the winter lights keep December');
   // Dates that cross the end of the year.
   assert.ok(inEvent({ from: '12-20', to: '01-05' }, '1-2'));
   assert.ok(!inEvent({ from: '12-20', to: '01-05' }, '6-2'));
@@ -76,9 +79,20 @@ test('an event names its dates in the person language, six months on in the sout
   assert.equal(eventDates('harvest'), 'Sep 8 – Oct 15');
   assert.equal(eventDates('harvest', true), 'Mar 8 – Apr 15');
   assert.equal(eventDates('newyear', true), 'Jan 1 – Jan 7', 'the new year keeps its date');
+  assert.equal(eventDates('lights', true), 'Dec 1 – Dec 31');
   setLanguageForTests('ja');
-  assert.equal(eventDates('lights'), '12月10日～12月31日');
+  assert.equal(eventDates('lights'), '12月1日～12月31日');
   setLanguageForTests('ko');
-  assert.equal(eventDates('lights'), '12월 10일~12월 31일');
+  assert.equal(eventDates('lights'), '12월 1일~12월 31일');
   assert.equal(eventDates('missing'), '');
+});
+
+test('a gift during a calendar festival brings its event in any world', () => {
+  const at = iso => new Date(`${iso}T12:00:00`);
+  assert.equal(giftEvent(at('2026-12-15'), false, null), 'lights');
+  assert.equal(giftEvent(at('2026-12-15'), true, null), 'lights');
+  assert.equal(giftEvent(at('2027-01-03'), false, null), 'newyear');
+  assert.equal(giftEvent(at('2026-04-05'), false, null), null, 'a seasonal festival still needs its season');
+  assert.equal(giftEvent(at('2026-04-05'), false, 'blossom'), 'blossom');
+  assert.equal(giftEvent(at('2026-06-15'), false, null), null);
 });

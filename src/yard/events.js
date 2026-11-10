@@ -1,11 +1,12 @@
 // Seasonal events: a cherry blossom festival, firefly nights, the harvest moon, winter lights and
 // the new year. What there is, when, and what each brings comes from src/content/events.json: its
 // dates (month-day, north of the equator; south of it they come six months later, except the ones
-// fixed to the calendar), its gift (a decoration that comes only then, catalog.json "event"), what
-// it adds to the scenery ("boost": more petals, butterflies or fireflies) and how it looks ("looks":
-// a class on the yard whose rules are in scenery.css). Fish and bugs marked with an event come only
-// during it. Rules only, apart from the page; festival.js shows an event, the backend checks its
-// gift (src-tauri/src/pets/content.rs). How to add one: docs/how-to/add-to-the-yard.md.
+// fixed to the calendar), its gifts (the decorations marked with it in catalog.json "event",
+// brought in catalogue order), what it adds to the scenery ("boost": more petals, butterflies or
+// fireflies) and how it looks ("looks": a class on the yard whose rules are in scenery.css). Fish
+// and bugs marked with an event come only during it. Rules only, apart from the page; festival.js
+// shows an event, the backend checks its gifts (src-tauri/src/pets/content.rs). How to add one:
+// docs/how-to/add-to-the-yard.md.
 
 import { language, t } from '../core/i18n.js';
 import { seasonFor } from '../core/season.js';
@@ -71,6 +72,12 @@ export function eventOn(date, south = false) {
 export function sceneEvent(date, south = false, season = seasonFor(date, south)) {
   const event = eventOn(date, south);
   return event && (event.fixed || season === seasonFor(date, south)) ? event : null;
+}
+/** The event a gift asks for: the calendar's when it is fixed (the same in every place and season,
+ * so the studio or a kept season never costs the winter lights), otherwise the scene's `shown`. */
+export function giftEvent(date, south, shown) {
+  const event = eventOn(date, south);
+  return event?.fixed ? event.id : (shown ?? null);
 }
 /** An event by its id. */
 const eventById = id => EVENTS.find(e => e.id === id) || null;

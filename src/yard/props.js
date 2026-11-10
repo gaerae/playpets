@@ -50,8 +50,9 @@ export function propButton(className, kind) {
 const UNDO_MS = 6000;
 const leaving = new Map();
 /** Takes a thing on the field away without asking: it leaves at once, a notice offers Undo for a few
- * seconds, and only then is it removed for good (`commit`). Closing the app before then keeps it. */
-export function removeWithUndo(id, view, message, commit) {
+ * seconds, and only then is it removed for good (`commit`). Closing the app before then keeps it.
+ * `restored` runs when it shows again, by Undo or because the removal could not be saved. */
+export function removeWithUndo(id, view, message, commit, restored = () => {}) {
   if (leaving.has(id)) return;
   view.button.hidden = true;
   let line = null;
@@ -63,6 +64,7 @@ export function removeWithUndo(id, view, message, commit) {
       await commit();
     } catch (error) {
       view.button.hidden = false;
+      restored();
       toast(spoken(error, t('error.generic')), { error: true });
     }
   }, UNDO_MS);
@@ -75,11 +77,19 @@ export function removeWithUndo(id, view, message, commit) {
         clearTimeout(leaving.get(id));
         leaving.delete(id);
         view.button.hidden = false;
+        restored();
       },
     },
   });
 }
 
+/** How far an arrow key moves a gift or rolls a snowball, in yard pixels: [x, y]. */
+export const KEY_STEPS = Object.freeze({
+  ArrowLeft: [-16, 0],
+  ArrowRight: [16, 0],
+  ArrowUp: [0, -8],
+  ArrowDown: [0, 8],
+});
 // A press that goes this far (screen pixels) is a drag; a shorter one is a click.
 const DRAG_SLOP = 5;
 /** Starts following a press on `target` (a prop, or a friend) that stands at the field point

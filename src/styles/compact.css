@@ -164,6 +164,11 @@ body.compact .catch-card strong {
 body.compact .catch-card small:not(.catch-new) {
   display: none;
 }
+/* The New Year card's line is the person's own answer, quoted: it is the card, so it stays, in the
+   four lines play.css gives it. */
+body.compact .catch-card:has(.letter-back) small:not(.catch-new) {
+  display: -webkit-box;
+}
 body.compact .empty-yard:not(.aside) {
   top: 24px;
   transform: translateX(-50%);
@@ -175,6 +180,15 @@ body.compact .empty-yard:not(.aside) {
 @media (max-width: 400px), (max-height: 280px) {
   body.compact .background-card span {
     padding: 4px 6px;
+  }
+}
+/* The narrowest yards put the snowman's Done on a row of its own under the three parts. */
+@media (max-width: 360px) {
+  body.compact .dress-tray {
+    flex-wrap: wrap;
+  }
+  body.compact .dress-done {
+    flex-basis: 100%;
   }
 }
 /* Five desktop pointer actions fit the minimum height without a hidden last row. */

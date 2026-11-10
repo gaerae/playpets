@@ -39,7 +39,8 @@ fn install(kind: &str) -> &'static str {
         "npm install -g @openai/codex"
     }
 }
-fn login_guide(kind: &str) -> String {
+/// What a turn with a signed-out `kind` CLI answers; the letter (letter.rs) tells it apart by it.
+pub(super) fn login_guide(kind: &str) -> String {
     if kind == "claude" {
         i18n::t("cli.login_claude")
     } else {

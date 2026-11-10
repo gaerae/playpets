@@ -305,10 +305,13 @@ export function fallerCount(season, period, weather, w) {
   if (weather !== 'clear' || period === 'night' || (season !== 'spring' && season !== 'autumn')) return 0;
   return Math.max(4, Math.min(12, Math.round(w / 110)));
 }
-export function spawnFaller(w, h, rng) {
+// With a `band` ({ x, width }, a gathering's spot) it starts inside it and keeps it, so it starts
+// again there while the band lasts.
+export function spawnFaller(w, h, rng, band = null) {
   const depth = rng();
   return {
-    x: rng() * w,
+    x: band ? band.x + (rng() - 0.5) * band.width : rng() * w,
+    ...(band ? { band } : {}),
     depth,
     y: rng() * groundFor(depth, h),
     phase: rng() * Math.PI * 2,
@@ -319,7 +322,8 @@ export function spawnFaller(w, h, rng) {
   };
 }
 // Returns the ones still falling: a landed one starts again above the yard, or, with `recycle`
-// off (the spell is over), is gone.
+// off (the spell is over), is gone. A banded one starts again inside its band until the band is
+// done, whatever `recycle` says, and then is gone.
 export function stepFallers(fallers, dt, w, h, rng, recycle = true) {
   const kept = [];
   for (const f of fallers) {
@@ -327,6 +331,13 @@ export function stepFallers(fallers, dt, w, h, rng, recycle = true) {
     f.y += f.vy * dt;
     f.x += Math.sin(f.phase) * (0.02 + f.depth * 0.02) * dt - 0.006 * dt;
     if (f.y >= groundFor(f.depth, h) || f.x < -20) {
+      if (f.band) {
+        if (f.band.done) continue;
+        f.x = f.band.x + (rng() - 0.5) * f.band.width;
+        f.y = -10 - rng() * h * 0.2;
+        kept.push(f);
+        continue;
+      }
       if (!recycle) continue;
       f.x = rng() * w * 1.1;
       f.y = -10 - rng() * h * 0.2;

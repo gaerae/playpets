@@ -12,11 +12,13 @@ import { renderWindow } from './window.js';
 import { renderBonds } from './yard/bond.js';
 import { syncChatter } from './yard/care.js';
 import { renderDecor } from './yard/decor.js';
+import { renderDecorating } from './yard/decorating.js';
 import { syncDiscovery } from './yard/discovery.js';
 import { renderGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { renderTrees } from './yard/planted-trees.js';
 import { endGameIfSomeoneLeft, syncGameUi } from './yard/play.js';
+import { renderShoots } from './yard/shoots.js';
 import { renderSound } from './yard/sound.js';
 import { syncViews } from './yard/views.js';
 import { onboardingSteps, renderWelcome } from './yard/welcome.js';
@@ -43,8 +45,12 @@ export function render() {
   renderGarden();
   renderDecor();
   renderTrees();
+  // After what stands on the ground: a shoot where a gift, a plant or a tree now stands is
+  // not drawn.
+  renderShoots();
   syncDiscovery();
   renderAlbum();
+  renderDecorating();
   renderBonds();
   renderSound();
   renderShelf();

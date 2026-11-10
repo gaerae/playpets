@@ -27,6 +27,8 @@ function zoomFor(width, height) {
 }
 export const sizeOf = p => p.size * zoom;
 export const petHeight = p => (sizeOf(p) * 208) / 192;
+/** Where a friend's feet are in the yard: the middle of its bottom edge. */
+export const footOf = v => ({ x: v.px + sizeOf(v.pet) / 2, y: v.py + petHeight(v.pet) });
 /** How much things on the field shrink in the yard as it is now (friends, plants and gifts alike). */
 export const yardZoom = () => zoom;
 // The yard's size is measured when it changes, not every time a friend takes a step.
