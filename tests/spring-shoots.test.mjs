@@ -66,6 +66,8 @@ const { readFile } = await import('node:fs/promises');
 const { recall } = state;
 const { artHref } = await import('../src/yard/art.js');
 const { EDGE, fieldToYard, geometry, measureYard, sizeOf } = await import('../src/yard/field.js');
+const { behind, groundAllows } = await import('../src/yard/discovery-rules.js');
+const { groundProfile } = await import('../src/yard/ground.js');
 const { clearRainbowEnd, placeRainbowEnd } = await import('../src/yard/rainbow-end.js');
 const { SHOOT_APART, SHOOT_STAYS_MS } = await import('../src/yard/shoot-rules.js');
 const { renderShoots, setupShoots, shootsMinute } = await import('../src/yard/shoots.js');
@@ -194,6 +196,70 @@ test('a shoot whose ground is taken is gone at once, and from storage at the nex
   assert.equal(y.saved().out.length, 0);
 });
 
+// The window sets how big the ground's things are on the field: a shoot their feet take in the mini
+// window is hidden there, not lost; only a change in the garden takes its ground for good.
+test('a smaller window hides a shoot beside a gift but keeps it', async ctx => {
+  const beside = { x: 0.42, y: 0.74 },
+    open = { x: 0.2, y: 0.5 };
+  const y = await springYard(ctx, {
+    scene: { period: 'day' },
+    garden: { decor: [{ id: 'bench', kind: 'bench', x: 0.5, y: 0.6 }] },
+    stored: record([standing('a', 'morel', beside.x, beside.y), standing('b', 'mugwort', open.x, open.y)]),
+  });
+  const size = (width, height) => {
+    y.nodes.get('yard').getBoundingClientRect = () => ({ left: 0, top: 0, width, height });
+    measureYard();
+  };
+  const taken = p => !groundAllows(p, groundProfile()) || behind(p, groundProfile());
+  assert.ok(!taken(beside), 'free beside the bench in the wide window');
+  size(460, 320);
+  assert.ok(taken(beside), "the bench's feet reach it in the mini window");
+  // The app may start in the mini window: its first look drops nothing.
+  shootsMinute();
+  shootsMinute();
+  assert.deepEqual(
+    y.live().map(b => b.dataset.kind),
+    ['mugwort'],
+  );
+  assert.equal(y.saved().out.length, 2, 'hidden, not lost');
+  size(800, 560);
+  shootsMinute();
+  assert.equal(y.live().length, 2, 'back when the window is wide again');
+  size(460, 320);
+  shootsMinute();
+  shootsMinute();
+  assert.equal(y.saved().out.length, 2);
+  // A seed planted on the other shoot is a change in the garden: that one goes, the hidden one stays.
+  state.data.garden.plants.push({ id: 'p1', kind: 'tulip', x: open.x, y: open.y, planted: MORNING });
+  shootsMinute();
+  assert.deepEqual(
+    y.saved().out.map(s => s.id),
+    ['a'],
+  );
+  size(800, 560);
+  shootsMinute();
+  assert.deepEqual(
+    y.live().map(b => b.dataset.kind),
+    ['morel'],
+  );
+});
+
+test("a shoot inside a grown tree's drawing is not drawn there, where the tree would take its click", async ctx => {
+  const inside = { x: 0.45, y: 0.5 };
+  const y = await springYard(ctx, {
+    scene: { period: 'day' },
+    garden: { trees: [{ id: 'c', world: 'woodland', kind: 'cherry', x: 0.5, y: 0.9, planted: MORNING - 86_400_000 }] },
+    stored: record([standing('a', 'morel', inside.x, inside.y), standing('b', 'mugwort', 0.2, 0.5)]),
+  });
+  const ground = groundProfile();
+  assert.ok(groundAllows(inside, ground) && !behind(inside, ground), 'clear of its feet');
+  shootsMinute();
+  assert.deepEqual(
+    y.live().map(b => b.dataset.kind),
+    ['mugwort'],
+  );
+});
+
 test('a shoot goes six hours after it came up', async ctx => {
   const y = await springYard(ctx);
   shootsMinute();
@@ -273,6 +339,9 @@ test('the yard wires the shoots in before the sky first paints, and draws them w
     const from = app.indexOf(`${hook}:`),
       body = app.slice(from, app.indexOf('},', app.indexOf('renderDecor();', from)) + 2);
     assert.ok(body.indexOf('renderShoots();') > body.indexOf('renderDecor();'), hook);
+    // A new size or land ends a dig under way, as it ends a dig for treasure.
+    if (hook !== 'worldChanged')
+      assert.ok(body.indexOf('cancelShootDigs();') > body.indexOf('cancelDiscoveryWork();'), hook);
   }
   assert.ok(render.indexOf('renderShoots();') > render.indexOf('renderTrees();'), 'a state change redraws them');
 });
@@ -297,7 +366,7 @@ const { list } = await import('../src/core/i18n.js');
 const { artSvg } = await import('../src/yard/art.js');
 const { setupCard } = await import('../src/yard/card.js');
 const { release } = await import('../src/yard/trips.js');
-const { gatherShoot, shootDigging } = await import('../src/yard/shoots.js');
+const { cancelShootDigs, gatherShoot, shootDigging } = await import('../src/yard/shoots.js');
 
 const flush = () => new Promise(resolve => setImmediate(resolve));
 async function digYard(ctx, { friend = true } = {}) {
@@ -443,6 +512,64 @@ test('a dig that ends in another place records nothing', async ctx => {
   assert.equal(y.v.doing, null, 'the friend is let go');
   assert.equal(shootDigging(), false);
   assert.equal(y.saved().out.length, 1);
+});
+
+test('a new window size or land ends a dig and leaves the shoot', async ctx => {
+  const y = await digYard(ctx);
+  await y.click();
+  await y.arrive();
+  const effect = y.effect();
+  cancelShootDigs();
+  assert.equal(effect.removed, true);
+  assert.equal(y.v.doing, null, 'the friend is let go');
+  assert.ok(!y.button.classList.contains('picking'));
+  assert.equal(shootDigging(), false);
+  ctx.mock.timers.tick(1950);
+  await flush();
+  assert.deepEqual(gathered, []);
+  assert.equal(y.live().length, 1);
+  assert.equal(y.saved().out.length, 1);
+  await y.click();
+  assert.ok(y.v.target);
+  cancelShootDigs();
+  assert.equal(y.v.target, null, 'a friend on the way stops too');
+  assert.equal(shootDigging(), false);
+});
+
+test('a shoot whose album call is still out is not gathered twice', async ctx => {
+  const y = await digYard(ctx);
+  let settle;
+  answer = () => new Promise(resolve => (settle = resolve));
+  await y.click();
+  await y.arrive();
+  ctx.mock.timers.tick(1950);
+  await flush();
+  assert.deepEqual(gathered, ['morel']);
+  // Taken away while the album keeps it: the friend is free, the shoot is still being gathered.
+  release(y.v);
+  assert.equal(y.v.doing, null);
+  assert.equal(shootDigging(), true);
+  assert.ok(y.button.classList.contains('picking'));
+  await y.click();
+  assert.equal(y.v.target, null, 'no friend sets off for it again');
+  assert.equal(gatherShoot('m'), false);
+  settle({ ok: true, data: { entry: { count: 1 }, first: true } });
+  await flush();
+  assert.deepEqual(gathered, ['morel']);
+  assert.deepEqual(y.saved().out, []);
+  assert.equal(shootDigging(), false);
+});
+
+test("a friend's old trip to a shoot leaves its new work alone", async ctx => {
+  const y = await digYard(ctx);
+  await y.click();
+  const trip = y.v.trip;
+  release(y.v);
+  // Another task holds the friend still where it works (work.js holdAtWork), then the old trip's
+  // end comes late.
+  Object.assign(y.v, { pose: 'idle', until: Infinity });
+  await trip.arrive(y.v, 0);
+  assert.equal(y.v.until, Infinity, 'its work pose is kept');
 });
 
 test('no friend or every friend busy says so', async ctx => {

@@ -192,7 +192,7 @@ export function sendDiscovery(v, point, action, kind) {
       const reveal = () => {
         if (!finished || !result || task.cancelled) return;
         if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
-        doneDigging(v, action === 'tree' || (result.outcome && result.outcome !== 'empty'));
+        doneDigging(v, action === 'tree' || (!!result.outcome && result.outcome !== 'empty'));
         if (action === 'tree') return bubble(v, t('discovery.planted'), 2600);
         if (result.repeated) return bubble(v, t('discovery.repeated'), 2600);
         if (result.outcome === 'keepsake') {

@@ -92,7 +92,7 @@ export function startDig(v, point, stroke, end) {
   };
 }
 /** The stroke is done: the friend is let go, rests a while, and looks pleased when it `found` something. */
-export function doneDigging(v, found = true) {
+export function doneDigging(v, found) {
   release(v);
   rest(v);
   if (found) beginCompanionAction(v, 'discover');

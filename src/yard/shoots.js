@@ -9,22 +9,32 @@
 //   second morning shoot. The backend keeps only what was found, as for bugs.
 // - A click on one sends a friend to dig it up (gatherShoot); the album keeps it and it leaves the
 //   yard. It is not a dig for treasure (no roll, no cooldown); only the walk and the stroke are shared.
-// - A shoot stands where nothing else does: one whose ground a gift, a plant or a tree takes is not
-//   drawn, and goes from the record at the next minute. A yard with no ground to see (not measured
-//   yet) drops none.
+// - A shoot stands where nothing else does, and where nothing tall stands in front of it: one this
+//   window shows covered is not drawn. It goes from the record only when the garden changes and the
+//   change takes its ground: a smaller window draws the same garden bigger on the field, and hides a
+//   shoot without losing it. A yard with no ground to see (not measured yet) drops none.
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
-import { aiming, call, game, guard, recall, remember, selected, toast, views } from '../core/state.js';
+import { aiming, call, data, game, guard, recall, remember, selected, toast, views } from '../core/state.js';
 import { artHref, artSvg } from './art.js';
 import { showCard } from './card.js';
 import { shootKind } from './catalog.js';
-import { behind, groundAllows } from './discovery-rules.js';
+import { behind, groundAllows, treeStage } from './discovery-rules.js';
 import { fieldToYard } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
 import { propButton, propScale, reconcile, setDown } from './props.js';
 import { rainbowEnd } from './rainbow-end.js';
-import { freshShoots, keptShoots, pickShoots, SHOOTS_OUT, shootSpot, shootTime, sprouting } from './shoot-rules.js';
+import {
+  freshShoots,
+  keptShoots,
+  pickShoots,
+  SHOOTS_OUT,
+  shootSpot,
+  shootTime,
+  sprouting,
+  underBody,
+} from './shoot-rules.js';
 import { forPerson, release } from './trips.js';
 import { bubble } from './views.js';
 import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
@@ -40,8 +50,12 @@ let before = null;
 const made = new Set();
 // The buttons on the yard, by shoot id.
 const shown = new Map();
-// The shoots friends are on their way to or digging up: shoot id → the task's end.
+// The shoots friends are on their way to or digging up, or the album is keeping: shoot id → the
+// task ({ v, end, pending }).
 const digs = new Map();
+// What stood in the garden at the last look on soil ({ garden, key, at }); null until the first one
+// after setupShoots, which only notes it (the app may start in the mini window).
+let standing = null;
 
 /** Whether a friend is going for a shoot or digging one up (a flower viewing waits for it). */
 export const shootDigging = () => digs.size > 0;
@@ -52,14 +66,36 @@ export function setupShoots() {
   shown.clear();
   made.clear();
   before = null;
+  standing = null;
   kept = keptShoots(recall('shoots'), Date.now());
 }
 
-// Whether a shoot's spot is still its own on this ground.
-const free = (shoot, ground) => groundAllows(shoot, ground) && !behind(shoot, ground);
+// A shoot's drawing's width, before the yard's zoom.
+const widthOf = kind => shootKind(kind).size[0];
+// Whether a shoot's spot is still its own on this ground, with nothing tall drawn in front of it.
+const free = (shoot, ground) =>
+  groundAllows(shoot, ground) && !behind(shoot, ground) && !underBody(shoot, widthOf(shoot.kind), ground);
+// What stands in the garden now, as much of it as takes ground: the gifts, the plants and every
+// place's trees at the stage they have now (a growing tree takes more).
+function standingNow(now) {
+  const garden = data.garden || {};
+  return {
+    decor: (garden.decor || []).map(({ id, kind, x, y }) => ({ id, kind, x, y })),
+    plants: (garden.plants || []).map(({ id, x, y }) => ({ id, x, y })),
+    trees: (garden.trees || []).map(tree => ({
+      id: tree.id,
+      kind: tree.kind,
+      world: tree.world,
+      x: tree.x,
+      y: tree.y,
+      planted: now,
+      stage: treeStage({ ...tree, planted: tree.planted ?? now }, now),
+    })),
+  };
+}
 
 /** One look at the yard, at each repaint of the scene: shoots that are due come up, and those no
- * longer fresh, or whose ground is taken, go. */
+ * longer fresh, or whose ground a change in the garden took, go. */
 export function shootsMinute(now = new Date()) {
   if (!kept) return;
   const ms = now.getTime(),
@@ -67,7 +103,18 @@ export function shootsMinute(now = new Date()) {
     seen = before;
   before = scene.weather;
   let next = { ...kept, out: freshShoots(kept.out, ms) };
-  if (ground.soil) next.out = next.out.filter(s => s.world !== scene.world || free(s, ground));
+  if (ground.soil) {
+    const garden = standingNow(ms),
+      key = JSON.stringify(garden),
+      was = standing;
+    standing = { garden, key, at: ms };
+    // The garden before and after the change, both as this window draws them: only a shoot the
+    // change took goes, not one this window already showed covered.
+    if (was && was.key !== key) {
+      const earlier = groundProfile({ garden: was.garden, now: was.at });
+      next.out = next.out.filter(s => s.world !== scene.world || free(s, ground) || !free(s, earlier));
+    }
+  }
   let changed = next.out.length !== kept.out.length;
   if (shootTime(scene, ground.soil)) {
     const due = sprouting(
@@ -80,7 +127,7 @@ export function shootsMinute(now = new Date()) {
       end = rainbowEnd(ms),
       near = [...next.out.filter(s => s.world === scene.world), ...(end ? [end] : [])].map(({ x, y }) => ({ x, y }));
     for (const [i, kind] of kinds.entries()) {
-      const spot = shootSpot(Math.random, ground, near);
+      const spot = shootSpot(Math.random, ground, near, widthOf(kind));
       if (!spot) break;
       const shoot = { id: `${ms}-${i}`, kind, world: scene.world, x: spot.x, y: spot.y, at: ms };
       next = { ...next, out: [...next.out, shoot] };
@@ -91,6 +138,7 @@ export function shootsMinute(now = new Date()) {
   }
   kept = next;
   if (changed) remember('shoots', JSON.stringify(kept));
+  for (const id of made) if (!kept.out.some(s => s.id === id)) made.delete(id);
   renderShoots();
 }
 
@@ -141,6 +189,12 @@ const stillOut = (id, world) =>
 // The button of a shoot, marked while a friend goes for it.
 const mark = (id, on) => shown.get(id)?.button.classList.toggle('picking', on);
 
+/** Ends every shoot dig a friend is on its way to or at (a new window size or land): the friend is
+ * let go and the shoot stays, as when the friend is taken away. */
+export function cancelShootDigs() {
+  for (const { v, end } of digs.values()) if (v.doing?.end === end || v.trip?.cancel === end) release(v);
+}
+
 /** Sends a friend to dig up the shoot `id` for the album: the selected friend when it is free, else
  * the nearest free one, else one viewing the blossom. Returns whether a friend set off. */
 export function gatherShoot(id) {
@@ -160,18 +214,24 @@ export function gatherShoot(id) {
     world = scene.world;
   let dig = null,
     timer = null;
+  const task = { v, end: null, pending: false };
   // The task's one end, however it comes (taken away, another place, a game, done): the stroke and
-  // its timer stop, and the shoot is free to be clicked again.
+  // its timer stop, and the shoot is free to be clicked again, unless the album is keeping it.
   const end = () => {
     clearTimeout(timer);
-    dig?.stop();
-    stopWork(v);
-    if (digs.get(id) === end) {
+    // Only a stroke under way is this task's to stop: a late end leaves the friend's next work alone.
+    if (dig) {
+      dig.stop();
+      stopWork(v);
+      dig = null;
+    }
+    if (digs.get(id) === task && !task.pending) {
       digs.delete(id);
       mark(id, false);
     }
   };
-  const ours = () => digs.get(id) === end && views.get(v.pet.id) === v;
+  task.end = end;
+  const ours = () => digs.get(id) === task && views.get(v.pet.id) === v;
   sendToDig(v, shoot, 'dig', {
     cancel: end,
     arrive: () => {
@@ -180,35 +240,45 @@ export function gatherShoot(id) {
       timer = setTimeout(
         guard(async () => {
           if (!ours() || !stillOut(id, world)) return release(v);
-          let found;
+          // Until the album answers, the shoot stays taken, so no second click or friend counts it again.
+          task.pending = true;
           try {
-            found = await call('gatherShoot', kind.id);
-          } catch (error) {
-            // A friend taken meanwhile has had its end already.
-            if (v.doing?.end === end) release(v);
-            throw error;
+            let found;
+            try {
+              found = await call('gatherShoot', kind.id);
+            } catch (error) {
+              // A friend taken meanwhile has had its end already.
+              if (v.doing?.end === end) release(v);
+              throw error;
+            }
+            // Kept in the album: it leaves the yard even if the friend was taken meanwhile.
+            kept = { ...kept, out: kept.out.filter(s => s.id !== id) };
+            remember('shoots', JSON.stringify(kept));
+            if (v.doing?.end === end) {
+              doneDigging(v, true);
+              bubble(v, pick(list('shoot.found')), 2600);
+            }
+            renderShoots();
+            showCard(
+              artSvg(kind.art),
+              t(`shoot.${kind.id}`),
+              found.first ? '' : t('discovery.kept'),
+              found.first,
+              'shoot',
+            );
+          } finally {
+            task.pending = false;
+            if (digs.get(id) === task) {
+              digs.delete(id);
+              mark(id, false);
+            }
           }
-          // Kept in the album: it leaves the yard even if the friend was taken meanwhile.
-          kept = { ...kept, out: kept.out.filter(s => s.id !== id) };
-          remember('shoots', JSON.stringify(kept));
-          if (v.doing?.end === end) {
-            doneDigging(v);
-            bubble(v, pick(list('shoot.found')), 2600);
-          }
-          renderShoots();
-          showCard(
-            artSvg(kind.art),
-            t(`shoot.${kind.id}`),
-            found.first ? '' : t('discovery.kept'),
-            found.first,
-            'shoot',
-          );
         }),
         dig.duration,
       );
     },
   });
-  digs.set(id, end);
+  digs.set(id, task);
   mark(id, true);
   return true;
 }

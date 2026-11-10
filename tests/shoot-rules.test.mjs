@@ -14,6 +14,7 @@ import {
   shootSpot,
   shootTime,
   sprouting,
+  underBody,
 } from '../src/yard/shoot-rules.js';
 
 const T = Date.UTC(2027, 3, 5, 9);
@@ -118,6 +119,27 @@ test('a spot is never where a body hides it', () => {
   assert.ok(groundAllows(hidden, ground), 'the ground alone would take it');
   assert.ok(behind(hidden, ground), 'but a body would hide it');
   const spot = shootSpot(seq(0.5, y, 0, 0), ground, []);
+  assert.ok(spot && Math.hypot(spot.x - 0.12, spot.y - 0.3) < 1e-9, 'the next draw is taken instead');
+});
+
+test("a spot is never inside a tree's or a tall gift's drawn box in front of it", () => {
+  // A mature tree's foot at (0.5, 0.8), drawn up to 0.3: its feet and the body behind() guesses
+  // take only the ground just around the foot.
+  const ground = {
+    ...open,
+    unit: { x: 0.001, y: 0.003 },
+    obstacles: [{ x: 0.5, y: 0.8, rx: 0.03, ry: 0.03 }],
+    bodies: [{ left: 0.4, right: 0.6, top: 0.3, bottom: 0.8 }],
+  };
+  const inside = { x: 0.5, y: 0.6 };
+  assert.ok(groundAllows(inside, ground) && !behind(inside, ground), 'clear of its feet');
+  assert.equal(underBody(inside, 40, ground), true, 'but drawn over by the tree');
+  assert.equal(underBody({ x: 0.5, y: 0.85 }, 40, ground), false, 'in front of the tree it is drawn over it');
+  assert.equal(underBody({ x: 0.7, y: 0.6 }, 40, ground), false, 'beside the tree');
+  // The shoot's own width counts, not only its foot.
+  assert.equal(underBody({ x: 0.615, y: 0.6 }, 40, ground), true);
+  assert.equal(underBody({ x: 0.615, y: 0.6 }, 0, ground), false);
+  const spot = shootSpot(seq((0.5 - 0.12) / 0.76, 0.5, 0, 0), ground, [], 40);
   assert.ok(spot && Math.hypot(spot.x - 0.12, spot.y - 0.3) < 1e-9, 'the next draw is taken instead');
 });
 

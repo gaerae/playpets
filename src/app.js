@@ -80,7 +80,7 @@ import { petalTick, setupPetals, wishAt } from './yard/petals.js';
 import { renderTrees, setupTrees } from './yard/planted-trees.js';
 import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGameUi } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
-import { renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
+import { cancelShootDigs, renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
 import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
 import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
 import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
@@ -218,6 +218,7 @@ setupSky({
   // the friends, the garden and the gifts stand again on the land that shows.
   landChanged: () => {
     cancelDiscoveryWork();
+    cancelShootDigs();
     endFishing();
     for (const v of views.values()) place(v);
     resizeTrails();
@@ -240,6 +241,7 @@ setupViews({
   friendMenu: openFriendMenu,
   resized: () => {
     cancelDiscoveryWork();
+    cancelShootDigs();
     endFishing();
     scenery.resize();
     resizeTrail();

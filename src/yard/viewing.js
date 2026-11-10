@@ -21,13 +21,13 @@ import { $, aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { cadence } from '../core/ticker.js';
+import { treeSize } from './catalog.js';
 import { fishingNow } from './catch.js';
 import { yardSeason } from './decor-shown.js';
 import { decorPlacement } from './decor.js';
 import { digging } from './discovery.js';
 import { field, fieldToYard, footOf, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { localDay } from './growth.js';
-import { treeSize } from './planted-trees.js';
 import { shootDigging } from './shoots.js';
 import { isFree, sendTo, setDoing, strolling } from './trips.js';
 import {

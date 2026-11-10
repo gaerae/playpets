@@ -70,6 +70,14 @@ export const giftKind = id => GIFTS.find(g => g.id === id) || null;
 /** The gifts an event brings, in catalogue order (the kinds marked with it; a built kind is not brought). */
 export const eventGifts = id => GIFTS.filter(g => g.event === id && !g.built).map(g => g.id);
 export const treeKind = id => TREES.find(tree => tree.id === id) || null;
+// A tree's drawn size at each stage when its drawing names none.
+const treeSizes = [
+  [35, 40],
+  [70, 95],
+  [160, 170],
+];
+/** A tree's drawn size at `stage`, before the yard's zoom: its drawing's own, else the stage's. */
+export const treeSize = (kind, stage) => treeKind(kind)?.stages[stage]?.size || treeSizes[stage];
 export const trackKind = id => TRACKS.find(k => k.id === id) || null;
 export const shootKind = id => SHOOTS.find(s => s.id === id) || null;
 /** The drawing of a trail's bush, twigs or snow puff. */

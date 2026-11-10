@@ -39,14 +39,25 @@ export function pickShoots(count, out, rng) {
   return picked;
 }
 
-/** A spot on free ground, where no body hides it, at least SHOOT_APART from each of `near` (plain
- * {x, y} points: other shoots, the rainbow's end); null when twenty tries find none. */
-export const shootSpot = (rng, ground, near) =>
+/** Whether a shoot `width` drawing pixels wide, its foot at `p`, is drawn under the box of a tree or
+ * a gift standing in front of it (ground.bodies): hidden, or seen with the click going to the box. */
+export const underBody = (p, width, ground) => {
+  const half = (width * (ground.unit?.x ?? 0)) / 2;
+  return (ground.bodies || []).some(b => b.bottom > p.y && b.top < p.y && b.left < p.x + half && b.right > p.x - half);
+};
+
+/** A spot on free ground for a shoot `width` drawing pixels wide, where nothing in front hides it, at
+ * least SHOOT_APART from each of `near` (plain {x, y} points: other shoots, the rainbow's end); null
+ * when twenty tries find none. */
+export const shootSpot = (rng, ground, near, width = 0) =>
   freeSpot(
     rng,
     ground,
     { x: [0.12, 0.88], y: [0.3, 0.9] },
-    p => !behind(p, ground) && near.every(n => Math.hypot(p.x - n.x, p.y - n.y) >= SHOOT_APART),
+    p =>
+      !behind(p, ground) &&
+      !underBody(p, width, ground) &&
+      near.every(n => Math.hypot(p.x - n.x, p.y - n.y) >= SHOOT_APART),
   );
 
 /** The shoots still standing at `now`. */

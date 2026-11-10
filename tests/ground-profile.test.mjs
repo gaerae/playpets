@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 import { data, setData } from '../src/core/state.js';
+import { treeSize } from '../src/yard/catalog.js';
 import { groundAllows, projectFootprint } from '../src/yard/discovery-rules.js';
 import { environmentLake } from '../src/yard/environment.js';
 import { field, measureYard } from '../src/yard/field.js';
@@ -102,6 +103,35 @@ test('flower and tree roots exclude only current-world trees and skip the tree b
   assert.equal(groundAllows({ x: 0.2, y: 0.7 }, profile), false);
   assert.equal(groundAllows({ x: 0.7, y: 0.5 }, profile), true);
   assert.equal(groundAllows({ x: 0.9, y: 0.5 }, profile), true);
+});
+
+test('trees and standing gifts keep the box they are drawn in; flat gifts lie under everything', () => {
+  const profile = base({
+    now: 43_200_000,
+    scale: 0.5,
+    giftDimensions: () => ({ w: 50, h: 60 }),
+    garden: {
+      trees: [{ id: 'grown', world: 'meadow', kind: 'cherry', x: 0.5, y: 0.8, planted: 0 }],
+      decor: [
+        { kind: 'bench', x: 0.3, y: 0.5 },
+        { kind: 'picnic', x: 0.7, y: 0.5 },
+      ],
+    },
+  });
+  const width = bounds.width - 28,
+    height = bounds.bottom - bounds.top,
+    [w, h] = treeSize('cherry', 2);
+  assert.deepEqual(profile.unit, { x: 0.5 / width, y: 0.5 / height }, "a drawing's pixel at the yard's zoom");
+  assert.equal(profile.bodies.length, 2);
+  const [tree, bench] = profile.bodies;
+  const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} is not ${b}`);
+  near(tree.left, 0.5 - (w * 0.5) / 2 / width);
+  near(tree.right, 0.5 + (w * 0.5) / 2 / width);
+  near(tree.top, 0.8 - (h * 0.5) / height);
+  near(tree.bottom, 0.8);
+  near(bench.left, 0.3 - 25 / width);
+  near(bench.top, 0.5 - 60 / height);
+  near(bench.bottom, 0.5);
 });
 
 test('snapshots contain at most 64 valid intersecting ellipses', () => {
