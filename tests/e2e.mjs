@@ -127,6 +127,10 @@ const scenario = `(async()=>{
     // Today counts as viewed from the start, so a clear April day can never gather friends mid-run.
     const todayLocal=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
     await playPets.markViewed(todayLocal());
+    // No spring shoots come up mid-run to catch a click meant for the yard: the morning's one is spent
+    // and the last rain is now, so the sky clearing after rain brings none, and any already out go.
+    localStorage.setItem('shoots',JSON.stringify({morning:todayLocal(),rainAt:Date.now(),out:[]}));
+    {const shoots=await import('./yard/shoots.js');shoots.setupShoots();shoots.renderShoots();}
     await L('assets='+boot.data.assets.length);
     await L('communities='+boot.data.communities.length);
     // The shelf says where each pet file lives: the fixture sits in Codex's pet folder.
@@ -828,11 +832,14 @@ const scenario = `(async()=>{
         const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded||labels.every(noWrap));};
         // With seeds or without, the same: a two-digit count is the widest the seed tile shows.
         const seedsBefore=$('seed-count').textContent;$('seed-count').textContent='12';
-        // The snowman's row is part of the menu only while the yard shows winter (syncGameUi); a hidden row has no box to fit.
+        // The snowman's row (a winter yard) and Flower viewing (blossom time) show only in their season
+        // (syncGameUi): both are shown for this check, so each is fit in every language whatever the date.
+        const {syncGameUi}=await import('./yard/play.js'),seasonal=[document.querySelector('#games-menu [data-game=snowman]'),$('viewing-tool')];
+        syncGameUi();for(const tile of seasonal)tile.hidden=false;
         const tiles=[...$('play-sections').querySelectorAll('.play-action')].filter(tile=>!tile.hidden);
-        const snowmanShown=tiles.some(tile=>tile.dataset.game==='snowman');
         const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')])}));
-        const playOk=tiles.length===10+(snowmanShown?1:0)&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
+        const playOk=tiles.length===12&&seasonal.every(tile=>tiles.includes(tile))&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
+        syncGameUi();
         $('seed-count').textContent=seedsBefore;
         if(!playOk)menuCopyTrace.push([lang,innerWidth,'play',playChecks]);
         $('close-play').click();openMenu();await wait(40);
