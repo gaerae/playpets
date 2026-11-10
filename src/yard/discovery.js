@@ -22,6 +22,8 @@ import { scene } from './world.js';
 
 let intent = null;
 const tasks = new Map();
+/** Whether a tool is in hand or a friend is digging or planting: nothing else should call it away then. */
+export const digging = () => !!intent || tasks.size > 0;
 // The tools the strip offers while one is in hand: digging, a tree, a seed (garden.js owns seeds).
 const TOOLS = [
   ['dig', 'shovel', 'discovery.dig'],

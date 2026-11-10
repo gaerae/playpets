@@ -17,6 +17,8 @@ const sizes = [
   [70, 95],
   [160, 170],
 ];
+/** A tree's drawn size at `stage`, before the yard's zoom: its drawing's own, else the stage's. */
+export const treeSize = (kind, stage) => treeKind(kind)?.stages[stage]?.size || sizes[stage];
 const stageKeys = ['tree.growth', 'tree.young', 'tree.mature'];
 const current = id => data.garden?.trees?.find(tree => tree.id === id && tree.world === scene.world);
 
@@ -30,7 +32,7 @@ function position(view, tree, point = tree) {
     view.button.innerHTML = artSvg(art);
     view.art = art;
   }
-  const [width, height] = drawing.size || sizes[stage],
+  const [width, height] = treeSize(tree.kind, stage),
     foot = fieldToYard(point),
     zoom = yardZoom();
   setDown(view.button, foot.x, foot.y, width * zoom, height * zoom, 1 + Math.round(point.y * 100));

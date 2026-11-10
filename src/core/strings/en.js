@@ -998,4 +998,14 @@ export const strings = {
   'letter.back_title': '{name} remembered your answer',
   'letter.back_quote': '“{answer}”',
   'letter.back_cheer': 'I’m cheering you on this year!',
+  'viewing.suggest': ['Let’s go see the blossom!', 'The cherry tree’s in bloom. Come look!'],
+  'viewing.lines': [
+    'So pretty…',
+    'The petals are dancing!',
+    'I could stay here all day.',
+    'Look, that branch is all pink!',
+    'Even the sky looks pink.',
+    'Let’s come again next year.',
+  ],
+  'viewing.mat_lines': ['A picnic under the blossom is the best!'],
 };

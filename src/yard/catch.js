@@ -65,6 +65,8 @@ export function onLake(x, y) {
 // Fishing: one friend at a time, at the place on the shore that was clicked. The walk there is the
 // friend's trip and the fishing its task (views.js), so whatever takes the friend ends the fishing.
 let fishing = null;
+/** Whether a friend is fishing (or on its way to): nothing else should call it away then. */
+export const fishingNow = () => !!fishing;
 const atLake = { end: () => stopFishing() };
 function removeTackle(tackle) {
   tackle?.float?.remove();

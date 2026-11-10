@@ -65,6 +65,14 @@
     rotate 0.2s ease-out,
     opacity 0.4s;
 }
+/* A friend viewing the blossom looks up at it now and then, tilted toward the tree (viewing.js);
+   before the press, so a press still squashes. The canvas's transition eases it. */
+.yard-pet.looking-up:not(.pressed)[data-tilt="left"] > canvas {
+  transform: translateY(-1px) rotate(-4deg);
+}
+.yard-pet.looking-up:not(.pressed)[data-tilt="right"] > canvas {
+  transform: translateY(-1px) rotate(4deg);
+}
 .yard-pet.pressed > canvas {
   transform: scale(1.06, 0.92);
   transition-duration: 0.08s;
@@ -445,9 +453,11 @@
   }
 }
 /* No motion when the system asks for none (base.css stops every animation and transition): a
-   pressed friend does not squash, and no hearts or sparkles fly. */
+   pressed friend does not squash, one viewing the blossom does not tilt (viewing.js gives it no
+   looking-up then either, but the setting can change mid-gathering), and no hearts or sparkles fly. */
 @media (prefers-reduced-motion: reduce) {
-  .yard-pet.pressed > canvas {
+  .yard-pet.pressed > canvas,
+  .yard-pet.looking-up:not(.pressed)[data-tilt] > canvas {
     transform: none;
   }
   .particle {

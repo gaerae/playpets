@@ -981,4 +981,14 @@ export const strings = {
   'letter.back_title': '{name}がお返事を覚えていました',
   'letter.back_quote': '「{answer}」',
   'letter.back_cheer': '今年も応援してるよ！',
+  'viewing.suggest': ['桜を見に行こうよ！', '桜が咲いてるよ。みんなで見よう！'],
+  'viewing.lines': [
+    'きれいだね…',
+    '花びらが踊ってる！',
+    'ずっとここにいたいな。',
+    '見て、あの枝まっピンク！',
+    '空までピンクに見えるね。',
+    '来年もまた来ようね。',
+  ],
+  'viewing.mat_lines': ['桜の下でピクニック、さいこう！'],
 };

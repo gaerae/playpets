@@ -957,4 +957,14 @@ export const strings = {
   'letter.back_title': '{name:이/가} 답장을 기억하고 있어요',
   'letter.back_quote': '“{answer}”',
   'letter.back_cheer': '올해도 응원할게!',
+  'viewing.suggest': ['벚꽃 보러 가자!', '벚꽃 폈어. 다 같이 보자!'],
+  'viewing.lines': [
+    '정말 예쁘다…',
+    '꽃잎이 춤춰!',
+    '하루 종일 여기 있고 싶어.',
+    '저 가지 좀 봐, 온통 분홍색이야!',
+    '하늘까지 분홍빛이야.',
+    '내년에도 또 오자.',
+  ],
+  'viewing.mat_lines': ['꽃 아래서 소풍이라니 최고야!'],
 };

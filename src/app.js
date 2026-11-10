@@ -87,6 +87,7 @@ import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
 import { resizeTrails, setupTrails, trailsCheck, trailsSeen } from './yard/trails.js';
 import { release } from './yard/trips.js';
+import { setupViewing, viewing, viewingTick } from './yard/viewing.js';
 import { bubble, place, setupViews, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { setupWinter } from './yard/winter.js';
@@ -264,6 +265,7 @@ setupSnowTrail();
 setupDiscovery();
 setupTrees();
 setupCatch();
+setupViewing();
 setupAlbum();
 setupDecorating();
 setupCard({ openAlbum });
@@ -390,8 +392,9 @@ const BUSY_MS = 50,
   SNOW_MS = 80,
   CALM_MS = 100,
   UNSEEN_MS = 1000;
-// What goes on in the yard between games, looked at every frame: each knows when it is due.
-const YARD_LIFE = [idleChatter, giftTick, thanksTick, soloFishing, snowmanTick];
+// What goes on in the yard between games, looked at every frame: each knows when it is due. The
+// remarks on the weather and the hour rest while friends view the blossom.
+const YARD_LIFE = [now => viewing() || idleChatter(now), giftTick, thanksTick, soloFishing, snowmanTick, viewingTick];
 let last = 0;
 function interval(now) {
   if (game || aiming) return BUSY_MS;

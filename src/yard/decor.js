@@ -91,6 +91,8 @@ function placement(kind, point) {
   at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
   return { ...at, w, h };
 }
+/** Where a gift is drawn, in yard pixels: its foot (x, y) and its size (w, h). */
+export const decorPlacement = d => placement(d.kind, d);
 // Where a gift is drawn, as a place: a place past the edge a wide gift cannot reach is kept as
 // where it stops, so dragging it back moves it at once.
 const drawnPlace = (kind, point) => {
