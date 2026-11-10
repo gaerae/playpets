@@ -19,7 +19,7 @@
 - No streaks, scores or "did you do it?" checks on the person's plans.
 - No Lunar New Year; it is a later design, as its date differs by country.
 - The desktop overlay stays as it is: friends, names, bubbles and gifts only.
-- No trademarked names: the reindeer is "baby reindeer" (아기 순록), never a named character.
+- No trademarked names: the reindeer is "baby reindeer", never a named character.
 
 ## Anti-goals (a failure even if it works)
 

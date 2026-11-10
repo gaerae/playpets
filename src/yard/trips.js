@@ -35,8 +35,9 @@ export function release(v) {
 }
 /** Free to be sent somewhere: not held, not on its way, not in a game, not busy where it stands. */
 export const isFree = v => !v.drag && !v.target && !v.away && !v.doing;
-/** Only strolling (a wander, sent with `slow` and nothing to do at its end): as good as free for
- * whatever comes along, and sendTo lets go of the stroll. */
+/** Only strolling (a wander, sent with `slow` and nothing to do at its end). The blossom gathering
+ * counts such a friend in with the free ones (viewing.js), and sendTo lets go of the stroll; the
+ * other pickers still pass it over. */
 export const strolling = v => !v.drag && !v.away && !v.doing && !!v.trip?.slow && !v.trip.arrive && !v.trip.cancel;
 // Standing with friends viewing the blossom (viewing.js marks it `gathered`): busy for what friends
 // start on their own, but what the person starts may take it, and the gathering lets it go.
