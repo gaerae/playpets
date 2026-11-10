@@ -24,7 +24,7 @@ import {
 } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
-import { EDGE, geometry, measureYard, petHeight, sizeOf } from './field.js';
+import { EDGE, field, geometry, measureYard, petHeight, sizeOf } from './field.js';
 import { hint } from './hint.js';
 import { beginDrag, dragPoint, endDrag } from './props.js';
 import { release, rest } from './trips.js';
@@ -91,6 +91,28 @@ function clearOthers(v) {
   }
   if (lift) v.bubble.style?.setProperty('--bubble-lift', `${Math.round(lift)}px`);
 }
+// Room kept between a bubble and either side of the yard.
+const BUBBLE_EDGE = 6;
+/** How far a bubble `width` pixels wide, centred over a friend at `center`, moves sideways to stay
+ * inside a yard `yardWidth` wide, `edge` clear of each side: by the least it can, or onto the yard's
+ * middle when it is wider than the room. 0 for a bubble or a yard not laid out yet. */
+export function bubbleShift(center, width, yardWidth, edge = BUBBLE_EDGE) {
+  if (!(width > 0) || !(yardWidth > 0)) return 0;
+  if (width >= yardWidth - edge * 2) return Math.round(yardWidth / 2 - center);
+  const left = center - width / 2,
+    right = center + width / 2;
+  if (left < edge) return Math.round(edge - left);
+  if (right > yardWidth - edge) return Math.round(yardWidth - edge - right);
+  return 0;
+}
+// Keeps a bubble that shows inside the yard (--bubble-shift, friends.css). Measured when it is shown
+// and when the yard's size changes, not as the friend walks: a line lasts a few seconds.
+function keepInside(v) {
+  if (v.bubble.hidden || !v.pet) return;
+  const shift = bubbleShift(v.px + sizeOf(v.pet) / 2, v.bubble.offsetWidth, field().width);
+  if (shift) v.bubble.style?.setProperty('--bubble-shift', `${shift}px`);
+  else v.bubble.style?.removeProperty('--bubble-shift');
+}
 /** A friend says something above its head for its reading time (or `duration`, if longer); the
  * line is also read aloud, with the friend's name, from one quiet region. With `onPress` the bubble
  * can be pressed (the letter it brought); every other bubble cannot, so none is by accident. */
@@ -108,6 +130,7 @@ export function bubble(v, message, duration = 0, onPress = null) {
   v.bubble.classList?.toggle('acts', !!onPress);
   v.bubble.hidden = false;
   v.bubble.style?.removeProperty('--bubble-lift');
+  keepInside(v);
   clearOthers(v);
   const said = globalThis.document && $('friend-speech');
   if (said && v.pet) said.textContent = `${name(v.pet)}: ${words}`;
@@ -116,6 +139,7 @@ export function bubble(v, message, duration = 0, onPress = null) {
     () => {
       v.bubble.hidden = true;
       v.bubble.style?.removeProperty('--bubble-lift');
+      v.bubble.style?.removeProperty('--bubble-shift');
     },
     Math.max(duration, readingTime(words)),
   );
@@ -135,6 +159,7 @@ function fit(v) {
   v.label.style.width = `${size}px`;
   v.body.style.height = `${petHeight(v.pet)}px`;
   place(v);
+  keepInside(v);
 }
 export function place(v) {
   const { w, h, top } = geometry(v.pet);

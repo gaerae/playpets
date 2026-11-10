@@ -317,11 +317,12 @@
 .yard-bubble {
   position: absolute;
   /* just above the head: --head is the cell's empty top, measured per pet (core/sprites.js crown);
-     --bubble-lift raises it clear of a neighbour's bubble (views.js) */
+     --bubble-lift raises it clear of a neighbour's bubble and --bubble-shift moves it sideways to
+     stay inside the yard (views.js); it still pops from over the friend */
   bottom: calc(100% + 2px - var(--head, 8px) + var(--bubble-lift, 0px));
   left: 50%;
-  transform: translateX(-50%);
-  transform-origin: 50% 100%;
+  transform: translateX(calc(-50% + var(--bubble-shift, 0px)));
+  transform-origin: calc(50% - var(--bubble-shift, 0px)) 100%;
   animation: bubble-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   width: max-content;
   max-width: 190px;
@@ -368,11 +369,11 @@
 @keyframes bubble-pop {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(6px) scale(0.7);
+    transform: translateX(calc(-50% + var(--bubble-shift, 0px))) translateY(6px) scale(0.7);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translateX(calc(-50% + var(--bubble-shift, 0px))) translateY(0) scale(1);
   }
 }
 /* the agent's state, by the head rather than the top of the cell: --head is the cell's empty top

@@ -494,6 +494,7 @@ const SET_FROM_CODE = {
   '--orb-y': 'src/yard/sky.js',
   '--moon-lit': 'src/yard/sky.js',
   '--bubble-lift': 'src/yard/views.js',
+  '--bubble-shift': 'src/yard/views.js',
   '--album-found': 'src/panel/album.js',
   '--trail-opacity': 'src/yard/trails.js',
   '--petal-x': 'src/yard/petals.js',
