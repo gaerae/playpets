@@ -166,3 +166,44 @@ test('live snapshot reads the measured field, current world and saved garden', t
   assert.ok(worldFor(scene.world));
   assert.ok(field().height > 0);
 });
+
+test('gifts the yard does not draw leave their ground free; drawn, they take it', () => {
+  const garden = {
+    decor: [
+      { kind: 'xmas_tree', x: 0.5, y: 0.6 },
+      { kind: 'snowman', x: 0.2, y: 0.6 },
+    ],
+  };
+  const march = new Date(2027, 2, 10, 12).getTime(),
+    december = new Date(2026, 11, 20, 12).getTime();
+  const away = base({ garden, now: march, season: 'spring' });
+  assert.equal(away.obstacles.length, 0, 'a Christmas tree in March and a snowman in spring take no root');
+  assert.equal(away.bodies.length, 0);
+  assert.equal(groundAllows({ x: 0.5, y: 0.6 }, away), true);
+  assert.equal(groundAllows({ x: 0.2, y: 0.6 }, away), true);
+  const shown = base({ garden, now: december, season: 'winter' });
+  assert.equal(shown.obstacles.length, 2);
+  assert.equal(groundAllows({ x: 0.5, y: 0.6 }, shown), false);
+  assert.equal(groundAllows({ x: 0.2, y: 0.6 }, shown), false);
+  // December in a spring yard: the tree shows, the snowman does not.
+  const spring = base({ garden, now: december, season: 'spring' });
+  assert.equal(groundAllows({ x: 0.5, y: 0.6 }, spring), false);
+  assert.equal(groundAllows({ x: 0.2, y: 0.6 }, spring), true);
+});
+
+test('the live snapshot leaves out what the shown season hides', t => {
+  const before = data,
+    oldScene = { ...scene };
+  t.after(() => {
+    setData(before);
+    Object.assign(scene, oldScene);
+  });
+  const { nodes } = installDom(t, { ids: ['yard'] });
+  nodes.get('yard').getBoundingClientRect = () => ({ width: 1000, height: 700 });
+  measureYard();
+  Object.assign(scene, { world: 'woodland', season: 'spring' });
+  setData({ ...before, garden: { decor: [{ kind: 'snowman', x: 0.5, y: 0.8 }] } });
+  assert.equal(groundAllows({ x: 0.5, y: 0.8 }, groundProfile()), true);
+  scene.season = 'winter';
+  assert.equal(groundAllows({ x: 0.5, y: 0.8 }, groundProfile()), false);
+});

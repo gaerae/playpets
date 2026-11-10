@@ -2,6 +2,7 @@
 import { clamp } from '../core/math.js';
 import { data } from '../core/state.js';
 import { giftKind, treeKind, treeSize } from './catalog.js';
+import { decorShown, yardSeason } from './decor-shown.js';
 import { projectFootprint, treeStage } from './discovery-rules.js';
 import { environmentLake } from './environment.js';
 import { decorFloor, EDGE, field, yardZoom } from './field.js';
@@ -33,6 +34,8 @@ export function buildGroundProfile({
   giftDimensions = giftSize,
   skipTreeId = null,
   now = Date.now(),
+  // The season the yard shows (decor-shown.js yardSeason): a gift it does not draw takes no ground.
+  season = null,
 }) {
   const profile = {
     soil: world?.capabilities?.soil ?? world?.capabilities?.sky !== false,
@@ -89,7 +92,9 @@ export function buildGroundProfile({
     add(profile.obstacles, { ...foot(tree), rx: rx * zoom, ry: ry * zoom });
     body(foot(tree), w * scale, h * scale);
   }
+  const date = new Date(now);
   for (const item of garden.decor || []) {
+    if (!decorShown(item.kind, date, season)) continue;
     const gift = giftKind(item.kind),
       // Drawn as decor.js places it: one friends stand on stays on the field.
       at = foot({ x: item.x, y: Math.min(item.y, gift?.stand === 'on' ? 1 : giftFloor) }),
@@ -126,5 +131,6 @@ export function groundProfile({ skipTreeId = null, garden = data.garden, now = D
     scale: yardZoom(),
     skipTreeId,
     now,
+    season: yardSeason(scene),
   });
 }

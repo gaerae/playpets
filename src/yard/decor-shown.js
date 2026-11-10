@@ -2,8 +2,9 @@
 // only inside its window and a built snowman ("seasons") only while the yard shows one of them, but
 // neither leaves the garden: the rest of the year it waits out of sight with its place and its
 // desktop spot, so it comes back where it was. A hidden one still counts toward the yard's 12, so
-// the yard never holds more than that when the window opens. The yard, friends' visits and the
-// album's Set out ask here rather than reading a gift's `shown` or `seasons` themselves.
+// the yard never holds more than that when the window opens; out of sight, it takes no ground. The
+// yard, its ground, friends' visits and the album's Set out ask here rather than reading a gift's
+// `shown` or `seasons` themselves.
 
 import { GIFTS, giftKind } from './catalog.js';
 import { inEvent } from './events.js';
