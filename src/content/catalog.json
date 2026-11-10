@@ -1082,7 +1082,8 @@
       "look": {
         "wing": "#8fb4e8",
         "edge": "#5576ad",
-        "small": true
+        "small": true,
+        "size": 0.75
       },
       "art": "bugs/blue_butterfly.svg"
     },
@@ -1212,7 +1213,8 @@
       "weight": 18,
       "look": {
         "body": "#4fa6c4",
-        "wing": "#eef6f8"
+        "wing": "#eef6f8",
+        "size": 0.75
       },
       "art": "bugs/damselfly.svg"
     },
@@ -1293,9 +1295,9 @@
       "weight": 10,
       "rarity": "common",
       "look": {
-        "body": "#7b9e57",
-        "wing": "#6d8b4d",
-        "edge": "#3f5732"
+        "body": "#9a5a34",
+        "wing": "#7e4a2c",
+        "edge": "#4a2a18"
       },
       "art": "bugs/field_cricket.svg"
     },

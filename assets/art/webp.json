@@ -31,6 +31,10 @@
     "png": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
     "webp": "9708e541bce878c3a388a2f2578f1febf7ec057e3b3c3b6bd2592169dd4afd32"
   },
+  "collection-extension/field-cricket.png": {
+    "png": "878d0c1a0d5a5139733b0f950a6d4c43c69a902cb25c258f736eea51310ca562",
+    "webp": "3cec095e7ffd86138206022cb0478f111c1b9a1cc5a6c65a259dbafacbe56637"
+  },
   "collection-extension/finds.png": {
     "png": "02fe56390476c82539337f8e784d54d19bb23efc3519541530a3a38c055e5cf8",
     "webp": "ef88e698305cb086268b639704ed23e7a789d147132a36fbecfac1bc2fc703ad"
@@ -499,6 +503,10 @@
     "png": "644c6a15b82b247be8f623f2952c375cd84157f40e11857447a7636a47dec9a0",
     "webp": "920cb81d18983f78bb31951232f609d62251244d9f3a5a7186668ff9f679eeb4"
   },
+  "trees/persimmon-growth.png": {
+    "png": "ccd4bac84d4cc40ba49aab2d83c794cb8d56a5678ad8f3ea64a3a2e16fc7e836",
+    "webp": "8f14a6b753fe59b660978dca7c628a652240997d957cb646e2a9c00c10d8cc85"
+  },
   "trees/persimmon.png": {
     "png": "5f6ef2c5bb57e1692e346028fae2ae740bea5769d8a82afc3fdf2f8f180521e1",
     "webp": "dfa694edb6e701e4e185908886ae19a1c7bd4ad8aec832cbda38bcacd20498bd"
@@ -510,6 +518,10 @@
   "trees/willow.png": {
     "png": "0da261196f35dd1d68e88749e608c9f46c86f3ed9ea693dae0c9546aefd73924",
     "webp": "406c1da42032c707c6848d8f177db195d9de33af319dbf4e33e9b66ecd2a5780"
+  },
+  "trees/winter.png": {
+    "png": "0b756ba037096ca7212ebd5e2d10f4eb966d6af8b26a116fe6ff74bd6754fac8",
+    "webp": "11aa8ee37fe40ba589c115152527497a28698f58d856461005198df08fe4bc02"
   },
   "weather/seasonal.png": {
     "png": "378ff476aa49d77b87e506e9254db51c7e79341c6e99f7c4c632f45ee2a97e98",

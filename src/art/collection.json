@@ -533,9 +533,9 @@
   {
     "id": "field_cricket",
     "kind": "bugs",
-    "atlas": "collection-extension/green-cricket.webp",
+    "atlas": "collection-extension/field-cricket.webp",
     "atlasSize": [1254, 1254],
-    "crop": [156, 42, 942, 1169],
+    "crop": [138, 51, 977, 1167],
     "size": [60, 60],
     "art": "bugs/field_cricket.svg"
   },

@@ -1,4 +1,5 @@
-// Each kind of firefly can be told apart in the yard at night, where only its light and size show.
+// Kinds that look alike in a small yard are told apart by how they are drawn there: a firefly at night
+// by its light, rhythm and size, a slender flier by its size, a cricket by its colour.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -50,4 +51,17 @@ test('the Heike firefly flickers quickly, the late firefly holds a steady light'
   assert.ok(late.swing < 0.01, 'its light stays the same');
   assert.ok(kind('heike_firefly').look.size < 1, 'and the Heike firefly is the small one');
   assert.ok(kind('late_firefly').look.size > 1, 'the late firefly the big one');
+});
+
+test('a damselfly flies smaller than the blue dragonfly it shares the pond with', () => {
+  const size = id => BUGS.find(bug => bug.id === id).look.size ?? 1;
+  assert.ok(size('damselfly') <= size('dragonfly') * 0.8, 'a damselfly is small and slender');
+  assert.ok(size('blue_butterfly') <= size('cabbage_white') * 0.8, 'and so is the little blue butterfly');
+});
+
+test('the field cricket is not the green of the katydid that hops beside it', () => {
+  const rgb = id => [1, 3, 5].map(i => parseInt(BUGS.find(bug => bug.id === id).look.body.slice(i, i + 2), 16));
+  const [cricket, katydid] = [rgb('field_cricket'), rgb('katydid')];
+  assert.ok(cricket[0] > cricket[1], 'the cricket is a warm brown');
+  assert.ok(katydid[1] > katydid[0], 'the katydid stays green');
 });

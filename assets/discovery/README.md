@@ -90,6 +90,20 @@ Ginkgo, persimmon, bamboo, magnolia, crape myrtle and dawn redwood (2026-11-03):
 - Bamboo stays evergreen like pine: only its first row is exported, so the
   sheet's seasonal bamboo is not runtime art.
 
+Winter trees and the persimmon's growth (2026-11-10):
+- `winter-trees-source.png` holds the cherry, maple and oak mature trees in
+  winter, left to right; they were the same rounded brown bare tree before.
+- The cherry is a wide umbrella with banded plum bark and pink buds, the maple
+  a tall oval with red twig tips and seeds, the oak furrowed with dry leaves
+  still clinging.
+- Each keeps its species' height through `frame`; the cherry is limited by the
+  viewport's width.
+- `persimmon-growth-source.png` holds the persimmon seedling and young tree,
+  which had looked like the magnolia's: round glossy leaves with copper tips,
+  and green fruit on the young tree.
+- Both sheets had alpha below 50 cleared to remove the generator's halo; the raw
+  generations are not kept, and their hashes are in `ART-SOURCES.json`.
+
 More finds (2026-11-03):
 - `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
   key, paper boat, spinning top, freshwater pearl and four-leaf clover in
