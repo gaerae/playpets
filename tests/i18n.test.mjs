@@ -166,7 +166,9 @@ test('every key in the table is one the page names', async () => {
 // whether to eat it, in any language.
 test('spring shoots never say how to pick or eat them', () => {
   for (const lang of Object.keys(STRINGS)) {
-    const keys = Object.keys(STRINGS[lang]).filter(key => key.startsWith('shoot.') || key === 'album.shoots');
+    const keys = Object.keys(STRINGS[lang]).filter(
+      key => key.startsWith('shoot.') || key === 'album.shoots' || key === 'catch.album_lead',
+    );
     assert.ok(
       keys.some(key => key.startsWith('shoot.')),
       `${lang}: has shoot names`,
@@ -176,6 +178,18 @@ test('spring shoots never say how to pick or eat them', () => {
       assert.doesNotMatch(text, ADVICE[lang], `${lang}: ${key}`);
     }
   }
+});
+
+// The guard above only means something while each pattern still catches advice in its own language.
+test('the advice patterns match a sample piece of advice in each language', () => {
+  const samples = {
+    en: 'Mugwort is delicious in soup.',
+    ko: '쑥은 국에 넣어 먹어요.',
+    ja: 'ヨモギは汁に入れて食べます。',
+    'zh-hans': '艾草可以煮汤吃。',
+  };
+  assert.deepEqual(Object.keys(samples).sort(), Object.keys(ADVICE).sort());
+  for (const [lang, sample] of Object.entries(samples)) assert.match(sample, ADVICE[lang], lang);
 });
 
 // Current contributor guidance stays readable in English; dated records preserve their history.

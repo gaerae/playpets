@@ -439,7 +439,7 @@ export const strings = {
   'catch.album_title': '花、礼物、水中生物和昆虫的图鉴',
   'catch.album_heading': '图鉴',
   'catch.album_lead':
-    '挖土找到花种和树苗，再种下培育。在合适的环境中寻找水中生物和昆虫。礼物由一起玩的伙伴送来。冬天可以跟着雪地上的脚印，看看是谁留下的。',
+    '挖土找到花种和树苗，再种下培育。在合适的环境中寻找水中生物和昆虫。礼物由一起玩的伙伴送来。冬天可以跟着雪地上的脚印，看看是谁留下的。春天可以挖一挖雨后冒出来的嫩芽。',
   'catch.tab_fish': '水中生物',
   'catch.tab_bugs': '虫',
   'catch.total': '已发现 {caught}/{total}',

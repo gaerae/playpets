@@ -40,7 +40,7 @@ const TOPICS: &[Topic] = &[
     },
     Topic {
         id: "album",
-        facts: "Album: Play → Find → Album. Six books (Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes), 153 entries. Fish and pond creatures come from fishing, bugs from catching them, flowers when planted seeds bloom, trees when saplings mature, keepsakes from digging, gifts from friends. What is not found yet shows as a silhouette with when and where to look. It takes months to finish, and that is fine.",
+        facts: "Album: Play → Find → Album. Eight books (Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes, Footprints, Spring shoots), 169 entries. Fish come from fishing, bugs from catching them, flowers and trees from planting, keepsakes from digging, gifts from friends, footprints from following them in winter snow, shoots from sending a friend to dig them up in spring. What is not found yet shows as a silhouette with when and where to look. It takes months, and that is fine.",
     },
     Topic {
         id: "fishing",
@@ -244,12 +244,28 @@ mod tests {
         use crate::pets::{content::catalog, discovery::TREE_MATURE_MS, garden, model};
         let facts = |id: &str| TOPICS.iter().find(|t| t.id == id).unwrap().facts;
         let books: serde_json::Value = serde_json::from_str(include_str!("../../../src/content/catalog.json")).unwrap();
-        let entries: usize = ["flowers", "fish", "bugs", "gifts", "trees", "treasures"]
+        // Each book of the catalogue and the name the facts give it; a new book fails here until the facts name it.
+        let named = [
+            ("flowers", "Flowers"),
+            ("fish", "Aquatic life"),
+            ("bugs", "Bugs"),
+            ("gifts", "Gifts"),
+            ("trees", "Trees"),
+            ("treasures", "Keepsakes"),
+            ("tracks", "Footprints"),
+            ("shoots", "Spring shoots"),
+        ];
+        let entries: usize = named
             .iter()
-            .map(|book| books[book].as_array().unwrap().len())
+            .map(|(book, _)| books[book].as_array().unwrap().len())
             .sum();
         let hours = |ms: u64| ms / (60 * 60 * 1000);
         assert!(facts("album").contains(&format!("{entries} entries")));
+        assert!(facts("album").contains("Eight books"));
+        assert_eq!(named.len(), 8);
+        for (_, name) in named {
+            assert!(facts("album").contains(name), "{name} in the album facts");
+        }
         assert!(facts("garden").contains(&format!("about {} hours", hours(catalog().bloom_after_ms()))));
         assert!(facts("garden").contains(&format!("after {} hours", hours(TREE_MATURE_MS))));
         assert!(facts("gifts").contains(&format!("one every {} days", garden::GIFT_EVERY_DAYS)));
