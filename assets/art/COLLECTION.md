@@ -81,6 +81,9 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 
 - The 2026-10-20 revision keeps the cricket and replaces its brown viewport with
   `collection-extension/green-cricket.png`.
+- Follow-up, 2026-11-10: the green looked like the katydid, so a brown redraw
+  replaced it (see "Look-alikes redrawn (2026-11-10)") and the green atlas was
+  removed; its source stays in `assets/sources/collection-extension-2026-10-19/`.
 - The earlier ground-bugs atlas stays active for the ladybug only.
 - The separate green sprite keeps complete antennae and jumping legs.
 - The proposed stag beetle is not runtime content.

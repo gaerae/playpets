@@ -157,7 +157,7 @@ test('each species selects its own atlas and ground bugs retain their shape', as
     { id: 'swallowtail', kind: 'bugs', atlas: 'bugs/specimens.png', crop: [1, 2, 30, 40] },
     { id: 'painted_lady', kind: 'bugs', atlas: 'collection-extension/wildlife.png', crop: [5, 6, 40, 30] },
     { id: 'ladybug', kind: 'bugs', atlas: 'collection-extension/ground-bugs.png', crop: [9, 10, 20, 30] },
-    { id: 'field_cricket', kind: 'bugs', atlas: 'collection-extension/green-cricket.png', crop: [40, 10, 25, 30] },
+    { id: 'field_cricket', kind: 'bugs', atlas: 'collection-extension/field-cricket.png', crop: [40, 10, 25, 30] },
   ];
   const art = factory(() => {}, {
     loadBugs: async () => ({
@@ -166,7 +166,7 @@ test('each species selects its own atlas and ground bugs retain their shape', as
         ['bugs/specimens.png', original],
         ['collection-extension/wildlife.png', extension],
         ['collection-extension/ground-bugs.png', ground],
-        ['collection-extension/green-cricket.png', extension],
+        ['collection-extension/field-cricket.png', extension],
       ]),
     }),
     loadBirds: async () => null,
@@ -190,9 +190,9 @@ test('each species selects its own atlas and ground bugs retain their shape', as
   assert.ok(ctx.calls[2][7] < ctx.calls[0][7], 'ladybug remains smaller than a butterfly');
 });
 
-test('green cricket fallback preserves its jumping legs and leaf-green body', () => {
+test('the cricket fallback keeps its jumping legs and its own body', () => {
   const ladybug = bugSvg({ kind: 'beetle', look: { body: '#da493d', edge: '#342a22' } });
-  const cricket = bugSvg({ kind: 'cricket', look: { body: '#7b9e57', edge: '#3f5732' } });
+  const cricket = bugSvg({ kind: 'cricket', look: { body: '#9a5a34', edge: '#4a2a18' } });
   assert.match(cricket, /M24 29L12 18L8 41/);
   assert.notEqual(ladybug, cricket);
 });

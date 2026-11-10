@@ -92,7 +92,9 @@ export function fishSvg(fish, unknown = false) {
 function butterfly(look, unknown) {
   const wing = unknown ? SHADOW : hex(look.wing),
     edge = unknown ? SHADOW : hex(look.edge),
-    s = look.small ? 0.8 : 1;
+    // A kind's yard size (look.size) narrows its wings here too; `small` alone is the brimstone's
+    // narrower wing, at its usual size.
+    s = look.size ?? (look.small ? 0.8 : 1);
   const wingPair = (dir, upper) => {
     const x = 30 + dir * (upper ? 3 : 2),
       tipX = 30 + dir * (upper ? 24 : 18) * s,

@@ -1082,7 +1082,6 @@
       "look": {
         "wing": "#8fb4e8",
         "edge": "#5576ad",
-        "small": true,
         "size": 0.75
       },
       "art": "bugs/blue_butterfly.svg"

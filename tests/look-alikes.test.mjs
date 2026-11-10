@@ -1,11 +1,19 @@
 // Kinds that look alike in a small yard are told apart by how they are drawn there: a firefly at night
-// by its light, rhythm and size, a slender flier by its size, a cricket by its colour.
+// by its light, rhythm and size, a slender flier by its size, a cricket by its colour. Any two bugs
+// of one kind and about one size differ in a colour or a marking, in the drawing that stands in
+// until the collection art is ready as much as in the art.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import './support/content.mjs';
 import { BUGS } from '../src/yard/catalog.js';
-import { fireflyLit, fireflyPace } from '../src/yard/scenery.js';
+import { bugSvg } from '../src/yard/creatures.js';
+import { fireflyLit, fireflyPace, paintPlainBug } from '../src/yard/scenery.js';
+
+const json = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
+const bug = id => BUGS.find(item => item.id === id);
+const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
 
 const fireflies = BUGS.filter(bug => bug.kind === 'firefly');
 const kind = id => fireflies.find(bug => bug.id === id);
@@ -60,8 +68,62 @@ test('a damselfly flies smaller than the blue dragonfly it shares the pond with'
 });
 
 test('the field cricket is not the green of the katydid that hops beside it', () => {
-  const rgb = id => [1, 3, 5].map(i => parseInt(BUGS.find(bug => bug.id === id).look.body.slice(i, i + 2), 16));
-  const [cricket, katydid] = [rgb('field_cricket'), rgb('katydid')];
+  const [cricket, katydid] = [rgb(bug('field_cricket').look.body), rgb(bug('katydid').look.body)];
   assert.ok(cricket[0] > cricket[1], 'the cricket is a warm brown');
   assert.ok(katydid[1] > katydid[0], 'the katydid stays green');
+  // The album and the yard draw the art, so it is the brown redraw that is checked, not only the
+  // colours above: the atlas its provenance records.
+  const art = id => json('../src/art/collection.json').find(entry => entry.id === id);
+  const redraw = json('../assets/sources/look-alikes-2026-11-10/accepted-art.json').sources.find(source =>
+    source.acceptedIds.includes('field_cricket'),
+  );
+  assert.equal(art('field_cricket').atlas, redraw.runtimeAtlas.replace(/\.png$/, '.webp'));
+  assert.deepEqual(art('field_cricket').crop, redraw.boxes.field_cricket);
+  assert.notEqual(art('katydid').atlas, art('field_cricket').atlas, 'the katydid keeps its own drawing');
+});
+
+test('a damselfly drawn before its art is ready is still smaller than the dragonfly', () => {
+  // The largest ellipse each bug's stand-in drawing makes, at one scale and one wingbeat.
+  const reach = id => {
+    let largest = 0;
+    const ctx = new Proxy(
+      {
+        ellipse(x, y, rx, ry) {
+          largest = Math.max(largest, rx, ry);
+        },
+      },
+      { get: (target, key) => target[key] ?? (() => {}) },
+    );
+    paintPlainBug(ctx, { ...bug(id), x: 100, y: 100, heading: 0, phase: 1 }, 2);
+    return largest;
+  };
+  assert.ok(reach('damselfly') < reach('dragonfly'), 'the damselfly');
+  assert.ok(reach('blue_butterfly') < reach('cabbage_white'), 'the little blue butterfly');
+});
+
+test('the album draws the little blue butterfly narrower than the cabbage white when it has no art', () => {
+  // How far the first (lower left) wing's tip reaches from the body at x 30: the curve's end point.
+  const span = id => {
+    const tip = bugSvg({ kind: 'butterfly', look: bug(id).look }).match(/d="M[\d.]+ [\d.]+C[\d.]+ [\d.]+ ([\d.]+)/);
+    return 30 - Number(tip[1]);
+  };
+  assert.ok(span('blue_butterfly') < span('cabbage_white') * 0.8, `${span('blue_butterfly')} ${span('cabbage_white')}`);
+});
+
+test('two bugs of one kind and about one size differ in a colour or a marking', () => {
+  const size = item => item.look.size ?? 1;
+  const COLOURS = ['body', 'wing', 'edge', 'glow', 'spots', 'stripes', 'sheen', 'eyes'];
+  const distance = (a, b) => Math.hypot(...rgb(a).map((value, i) => value - rgb(b)[i]));
+  const marks = item => Object.keys(item.look).filter(key => key !== 'size' && !COLOURS.includes(key));
+  for (const [i, a] of BUGS.entries())
+    for (const b of BUGS.slice(i + 1)) {
+      if (a.kind !== b.kind || Math.max(size(a), size(b)) / Math.min(size(a), size(b)) >= 1.25) continue;
+      const keys = new Set([...Object.keys(a.look), ...Object.keys(b.look)]);
+      const marked =
+        [...keys].some(key => key !== 'size' && a.look[key] === undefined) ||
+        [...keys].some(key => key !== 'size' && b.look[key] === undefined) ||
+        marks(a).some(key => a.look[key] !== b.look[key]);
+      const coloured = COLOURS.some(key => a.look[key] && b.look[key] && distance(a.look[key], b.look[key]) >= 40);
+      assert.ok(marked || coloured, `${a.id} and ${b.id} look alike`);
+    }
 });
