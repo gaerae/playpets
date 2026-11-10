@@ -2,10 +2,32 @@
 // link working and the release pages match the changelog.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { destinationFor, rewriteDocLinks, sitemapSources } from '../scripts/site-lib.mjs';
+import { destinationFor, rewriteDocLinks, sitemapSources, unusedShotVersions } from '../scripts/site-lib.mjs';
 import { LANGUAGES } from '../src/core/strings.js';
 
 const repo = 'https://github.com/gaerae/playpets/blob/main';
+
+test('the site publishes only the screenshot versions a built page shows', () => {
+  const versions = ['0.1.0', '0.2.0', '1.4.0', '1.5.0'];
+  const pages = [
+    '<img src="/shots/1.5.0/ko/mini.webp">',
+    // A release page pins its own capture; the landing names the current one from its script.
+    '<figure><img src="/shots/0.1.0/en/yard-evening.webp"></figure>',
+    'const film = "/shots/1.5.0/ja/reel.mp4";',
+  ];
+  assert.deepEqual(unusedShotVersions(versions, pages), ['0.2.0', '1.4.0']);
+  assert.deepEqual(unusedShotVersions(['1.5.0'], []), ['1.5.0'], 'a capture no page shows is left out');
+  assert.deepEqual(
+    unusedShotVersions(['1.5.0'], ['/shots/1.5.0.1/x.webp']),
+    ['1.5.0'],
+    'a longer version is not this one',
+  );
+  assert.deepEqual(
+    unusedShotVersions(['0.2.0'], ['<code>website/public/shots/0.2.0/</code>']),
+    ['0.2.0'],
+    'a guide naming the folder in the repository shows no picture',
+  );
+});
 
 test('release pages never render installer or tag links before GitHub confirms publication', async () => {
   const { readFile } = await import('node:fs/promises');

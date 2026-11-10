@@ -117,6 +117,8 @@ Public captures:
 - Never copy an earlier version's images into a newer version's directory.
 - Release pages can name an explicit capture version when they need a
   historical image.
+- The site build leaves out every capture version no built page names
+  (`unusedShotVersions` in `site-lib.mjs`); the repository keeps them all.
 - The default `pnpm run shots` capture includes seasonal scenes, all four places,
   small windows and the app panels in every language.
 - Ordinary captures start in clear spring daylight; summer evening and night
