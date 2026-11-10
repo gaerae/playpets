@@ -346,7 +346,7 @@ const catchBug = guard(async caught => {
   showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first, 'bug');
 });
 
-// What a point in the yard can be caught at: a creature in the air, or the lake.
+// What a point in the yard can be caught at: a creature in the air, a falling petal, or the lake.
 function free(e) {
   return (
     !aiming && !game && data.pets.length && !e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button')
@@ -371,8 +371,9 @@ export function syncFishingAction() {
   tool.hidden = false;
   tool.disabled = !data.pets.length || !!game || !worldAllows(scene.world, 'fishing');
 }
-/** Wires catching to the yard's clicks and its pointer. Called once, by app.js. */
-export function setupCatch() {
+/** Wires catching to the yard's clicks and its pointer. Called once, by app.js, which hands over
+ * `wish` (petals.js): it takes the point of a caught petal. */
+export function setupCatch({ wish = () => {} } = {}) {
   const yard = $('yard');
   const tool = $('fish-tool');
   if (tool) {
@@ -407,12 +408,17 @@ export function setupCatch() {
     const [x, y] = at(e),
       caught = scenery.catchAt(x, y);
     if (caught) catchBug(caught);
-    else if (onLake(x, y)) startFishing(x);
+    else {
+      const petal = scenery.catchPetal(x, y);
+      if (petal) wish(petal);
+      else if (onLake(x, y)) startFishing(x);
+    }
   });
   // Something to catch under the pointer shows as a hand.
   yard.addEventListener('pointermove', e => {
     const [x, y] = at(e),
-      can = (free(e) || toolGivesWay(e)) && (scenery.near(x, y) || onLake(x, y));
+      // A petal is only for an empty hand: a tool in hand never gives way to one.
+      can = free(e) ? scenery.near(x, y) || scenery.nearPetal(x, y) || onLake(x, y) : toolGivesWay(e);
     yard.classList.toggle('can-catch', !!can);
   });
 }

@@ -10,6 +10,8 @@
 // fall in a band around their spot, through the rests too: they last only as long as the gathering
 // (at most 90 s), so that is bounded work, and without it the gathering could fall in a rest and
 // show no petals. They land and go when the band is done, and never fall where petals do not.
+// A falling petal can be caught during the blossom festival (catchPetal): it leaves the fall, twirls
+// up and turns into a small glint; the twirls last about a second each, so that is bounded work too.
 import { between } from '../core/math.js';
 import { createAmbientArt } from './ambient-art.js';
 import { bugChances, weighted, wildlifeGroup } from './catalog.js';
@@ -29,6 +31,13 @@ const INK = {
 };
 const PETALS = ['#f7c1d2', '#fbd7e3', '#f3a9c1'];
 const LEAVES = ['#e6a03c', '#d65a3a', '#f0c25a', '#c4702f'];
+// A caught petal rises RISE px (times the yard's scale) turning TURNS times over TWIRL ms, then a
+// small four-point glint of GLINT_INK fades over GLINT_MS.
+const TWIRL = 700,
+  GLINT_MS = 400,
+  RISE = 26,
+  TURNS = 2,
+  GLINT_INK = '#fff6d8';
 // A shooting star now and then on an ordinary clear night, and every few seconds in a meteor
 // shower: this long between them.
 const STREAK_GAP = [18000, 48000];
@@ -100,6 +109,8 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     wishFrom = null,
     flaring = null,
     sparks = [],
+    // Caught petals twirling up and glinting ({ x, y, since, tint }).
+    twirls = [],
     // Whether a spell of small life is on, and when it ends (or the next begins).
     spell = true,
     spellTurn = 0,
@@ -411,6 +422,52 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       ctx.restore();
     }
   }
+  // A caught petal turns as it rises, then a four-point glint fades where it ends.
+  function paintTwirls(now) {
+    for (const k of twirls) {
+      const age = now - k.since;
+      if (age < 0) continue;
+      if (age < TWIRL) {
+        const t = age / TWIRL,
+          lift = 1 - (1 - t) ** 2;
+        ctx.globalAlpha = 0.95;
+        ctx.fillStyle = PETALS[Math.floor(k.tint * PETALS.length) % PETALS.length];
+        ctx.save();
+        ctx.translate(k.x, k.y - RISE * scale * lift);
+        ctx.rotate(t * TURNS * TAU);
+        // It tumbles as it turns, and a paler fold along one side keeps it from a flat oval.
+        ctx.scale(1, 0.55 + 0.45 * Math.abs(Math.cos(t * TURNS * Math.PI)));
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 5 * scale, 3 * scale, 0, 0, TAU);
+        ctx.fill();
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = PETALS[1];
+        ctx.beginPath();
+        ctx.ellipse(-1 * scale, -0.9 * scale, 2.6 * scale, 1 * scale, -0.3, 0, TAU);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        const t = Math.min(1, (age - TWIRL) / GLINT_MS),
+          r = (2.5 + 3 * Math.sin(t * Math.PI * 0.5)) * scale,
+          pinch = r * 0.3;
+        ctx.fillStyle = GLINT_INK;
+        // A faint halo first, so the glint glows rather than cuts.
+        ctx.globalAlpha = 0.28 * (1 - t);
+        ctx.beginPath();
+        ctx.arc(k.x, k.y - RISE * scale, r * 1.5, 0, TAU);
+        ctx.fill();
+        ctx.globalAlpha = 0.85 * (1 - t);
+        ctx.beginPath();
+        ctx.moveTo(k.x, k.y - RISE * scale - r);
+        ctx.quadraticCurveTo(k.x + pinch, k.y - RISE * scale - pinch, k.x + r, k.y - RISE * scale);
+        ctx.quadraticCurveTo(k.x + pinch, k.y - RISE * scale + pinch, k.x, k.y - RISE * scale + r);
+        ctx.quadraticCurveTo(k.x - pinch, k.y - RISE * scale + pinch, k.x - r, k.y - RISE * scale);
+        ctx.quadraticCurveTo(k.x - pinch, k.y - RISE * scale - pinch, k.x, k.y - RISE * scale - r);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+  }
   // Each creature as its collection artwork, or a drawing of its kind until that is ready.
   function paintCritter(c) {
     if (c.kind === 'firefly') return paintFirefly(c);
@@ -506,6 +563,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     paintWeather(now);
     if (flock) paintFlock(now);
     paintFallers(now);
+    if (twirls.length) paintTwirls(now);
     for (const c of critters) paintCritter(c);
     if (sparks.length) {
       lightYard(ctx, sparks, now, w, h);
@@ -520,6 +578,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       still = reduced.matches;
       if (still) {
         fallers = [];
+        twirls = [];
         flock = null;
         // A shooting star half way across is wiped from the sky layer, not left frozen there.
         if (meteors.length || sparks.length) {
@@ -571,6 +630,10 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       fallers = stepFallers(fallers, dt, w, h, Math.random, spell);
       moved = true;
     }
+    if (twirls.length) {
+      twirls = twirls.filter(k => now - k.since < TWIRL + GLINT_MS);
+      moved = true;
+    }
     if (flock) {
       flock.x += flock.dir * flock.speed * dt;
       if (flock.x < -120 || flock.x > w + 120) flock = null;
@@ -610,7 +673,13 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
   const busy = () =>
     enabled() &&
     !reduced.matches &&
-    (drops.length > 0 || !!flock || meteors.length > 0 || !!wishFrom || !!flaring || sparks.length > 0);
+    (drops.length > 0 ||
+      twirls.length > 0 ||
+      !!flock ||
+      meteors.length > 0 ||
+      !!wishFrom ||
+      !!flaring ||
+      sparks.length > 0);
   // The sky layer's extras; each says whether it could be shown here and now.
   const showers = on => {
     soon = on && !shower;
@@ -651,6 +720,29 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     dirty = true;
     return { kind: c.kind, species: c.species, x: c.x, y: c.y };
   }
+  // The falling petal within reach of a point, nearest first, when petals can be caught: in the
+  // blossom festival, with motion, where petals fall. Not one still above the yard.
+  function petalNear(x, y) {
+    if (event !== 'blossom' || season !== 'spring' || reduced.matches || !worldAllows(world, 'seasonalEffects'))
+      return null;
+    let best = null,
+      bestD = Math.max(14, 18 * scale);
+    for (const f of fallers) {
+      const d = Math.hypot(f.x - x, f.y - y);
+      if (f.y >= 0 && d < bestD) [best, bestD] = [f, d];
+    }
+    return best;
+  }
+  /** Catches the falling petal at a point: it leaves the fall and twirls into a glint, and its
+   * point is returned, or null. */
+  function catchPetal(x, y) {
+    const f = petalNear(x, y);
+    if (!f) return null;
+    fallers = fallers.filter(other => other !== f);
+    twirls.push({ x: f.x, y: f.y, since: performance.now(), tint: f.tint });
+    dirty = true;
+    return { x: f.x, y: f.y };
+  }
   return {
     resize,
     set,
@@ -658,6 +750,8 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     busy,
     near: (x, y) => !!near(x, y),
     catchAt,
+    nearPetal: (x, y) => !!petalNear(x, y),
+    catchPetal,
     gather,
     shower: showers,
     sunlit: sunlights,

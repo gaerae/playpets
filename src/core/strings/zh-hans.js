@@ -947,4 +947,5 @@ export const strings = {
   'viewing.tree_lines': ['看，那根树枝全是粉色的！'],
   'viewing.mat_lines': ['在樱花下野餐最棒了！'],
   'viewing.petal_notice': ['咦？我头上有花瓣吗？', '我戴上花瓣啦！'],
+  'viewing.wish': ['接住花瓣啦！愿望一定会实现。', '快许个愿吧，一定会实现的！'],
 };

@@ -1,25 +1,27 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
+import { groundFor } from '../src/yard/scene.js';
 import { createScenery, stepGroundBug } from '../src/yard/scenery.js';
 
 function yard(t, reduce = true, random = 0.5) {
   t.mock.method(Math, 'random', () => random);
   t.mock.method(performance, 'now', () => 0);
   globalThis.window = { devicePixelRatio: 1 };
-  const draws = { paints: 0, rotations: 0 };
-  const context = new Proxy(
-    {
-      clearRect() {
-        draws.paints++;
-      },
-      rotate() {
-        draws.rotations++;
-      },
-      createLinearGradient: () => ({ addColorStop() {} }),
+  const draws = { paints: 0, rotations: 0, fills: [] };
+  const target = {
+    clearRect() {
+      draws.paints++;
     },
-    { get: (object, key) => object[key] ?? (() => {}) },
-  );
+    rotate() {
+      draws.rotations++;
+    },
+    fill() {
+      draws.fills.push(target.fillStyle);
+    },
+    createLinearGradient: () => ({ addColorStop() {} }),
+  };
+  const context = new Proxy(target, { get: (object, key) => object[key] ?? (() => {}) });
   const reduced = { matches: reduce };
   const scene = createScenery(
     {
@@ -392,4 +394,56 @@ test('the band adds nothing at night, in rain or with reduced motion', t => {
   scene.gather({ x: 300, width: 200 });
   scene.frame(100, 100);
   assert.equal(draws.rotations, 0, 'reduced motion');
+});
+
+const GLINT = '#fff6d8';
+
+test('a falling petal can be caught during the festival and twirls into a glint', t => {
+  const { scene, draws } = yard(t, false, 0.5);
+  scene.set('day', 'clear', 'spring', 'blossom');
+  // With the random held at 0.5 the fallers all sit at x = 500, half way down the ground at depth 0.5.
+  const y = 0.5 * groundFor(0.5, 600);
+  assert.equal(scene.nearPetal(500, y), true);
+  assert.equal(scene.nearPetal(500, y + 60), false, 'a petal far from the pointer is not under it');
+  assert.equal(scene.near(500, y), false, 'a creature tool never sees petals');
+  assert.equal(scene.busy(), false);
+  const caught = scene.catchPetal(500, y);
+  assert.deepEqual(caught, { x: 500, y });
+  assert.equal(scene.busy(), true, 'frames repaint while the twirl lasts');
+  const before = draws.rotations;
+  scene.frame(350, 350);
+  assert.ok(draws.rotations > before, 'the twirling petal turns');
+  assert.equal(draws.fills.includes(GLINT), false, 'no glint yet');
+  assert.equal(scene.busy(), true);
+  draws.fills.length = 0;
+  scene.frame(800, 450);
+  assert.ok(draws.fills.includes(GLINT), 'the glint shows after the twirl');
+  assert.equal(scene.busy(), true);
+  scene.frame(1150, 350);
+  draws.fills.length = 0;
+  scene.frame(1200, 50);
+  assert.equal(scene.busy(), false, 'the twirl is over');
+  assert.equal(draws.fills.includes(GLINT), false, 'and its glint is gone');
+  scene.set('day', 'clear', 'spring', 'harvest');
+  assert.equal(scene.catchPetal(500, y), null, 'petals are wishes only in the festival');
+  assert.equal(scene.nearPetal(500, y), false);
+  scene.set('day', 'clear', 'autumn', null);
+  assert.equal(scene.catchPetal(500, y), null, 'leaves are not wishes');
+});
+
+test('a petal is caught once, and the nearest one is the one taken', t => {
+  const { scene } = yard(t, false, 0.5);
+  scene.set('day', 'clear', 'spring', 'blossom');
+  const y = 0.5 * groundFor(0.5, 600);
+  // Many petals sit on one point; one catch takes one, so the next press can take another.
+  assert.ok(scene.catchPetal(500, y));
+  assert.ok(scene.catchPetal(500, y));
+  assert.equal(scene.catchPetal(100, y), null, 'nothing within reach there');
+});
+
+test('petals cannot be caught with reduced motion', t => {
+  const { scene } = yard(t, true);
+  scene.set('day', 'clear', 'spring', 'blossom');
+  assert.equal(scene.catchPetal(500, 0.5 * groundFor(0.5, 600)), null);
+  assert.equal(scene.nearPetal(500, 0.5 * groundFor(0.5, 600)), false);
 });

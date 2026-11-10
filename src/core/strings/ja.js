@@ -996,4 +996,5 @@ export const strings = {
   'viewing.tree_lines': ['見て、あの枝まっピンク！'],
   'viewing.mat_lines': ['桜の下でピクニック、さいこう！'],
   'viewing.petal_notice': ['あれ？頭に花びらついてる？', '花びらの髪かざりだ！'],
+  'viewing.wish': ['花びらつかまえたね！願いごと、きっとかなうよ。', 'お願いしてみて。ぜったいかなうよ！'],
 };

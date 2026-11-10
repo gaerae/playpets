@@ -11,9 +11,10 @@
 import { list } from '../core/i18n.js';
 import { between, pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
-import { views } from '../core/state.js';
+import { data, call, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { sizeOf } from './field.js';
+import { localDay } from './growth.js';
 import { isFree } from './trips.js';
 import { viewingTime } from './viewing-rules.js';
 import { viewing } from './viewing.js';
@@ -79,4 +80,23 @@ export function petalTick(now) {
   if (!falling.due(now) || !viewingTime(scene)) return;
   const standing = [...views.values()].filter(v => (isFree(v) || v.viewing) && !v.drag && !v.petal);
   if (standing.length) landPetal(pick(standing));
+}
+
+const WISH_MS = 3500;
+/** A petal was caught at `point`: the first one each local day brings the nearest friend's wish
+ * that it will come true (garden.wished), later ones only glint. A friend in the hand or already
+ * speaking is left alone, and the day is spent only when a line is shown. */
+export function wishAt(point) {
+  const today = localDay(new Date());
+  if (!data.garden || data.garden.wished === today) return;
+  let best = null,
+    bestD = Infinity;
+  for (const v of views.values()) {
+    const d = Math.hypot(v.px - point.x, v.py - point.y);
+    if (!v.drag && v.bubble.hidden && d < bestD) [best, bestD] = [v, d];
+  }
+  if (!best) return;
+  data.garden.wished = today;
+  call('markWished', today).catch(() => {});
+  bubble(best, pick(list('viewing.wish')), WISH_MS);
 }

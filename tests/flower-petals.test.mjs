@@ -8,7 +8,12 @@ import test from 'node:test';
 import './support/content.mjs';
 import { installDom, keepGlobals } from './support/dom.mjs';
 
+const wishes = [];
 globalThis.playPets = {
+  markWished: async day => {
+    wishes.push(day);
+    return { ok: true, data: null };
+  },
   markViewed: async () => ({ ok: true, data: null }),
   updatePet: async () => ({ ok: true, data: null }),
 };
@@ -20,7 +25,7 @@ const { scene } = await import('../src/yard/world.js');
 const { brushPetal, sendTo } = await import('../src/yard/trips.js');
 const { place, syncViews } = await import('../src/yard/views.js');
 const viewing = await import('../src/yard/viewing.js');
-const { landPetal, petalTick, setupPetals } = await import('../src/yard/petals.js');
+const { landPetal, petalTick, setupPetals, wishAt } = await import('../src/yard/petals.js');
 
 const MIN = 60_000;
 const cherry = { id: 'c', kind: 'cherry', world: 'woodland', x: 0.5, y: 0.15, planted: 0, stage: 2 };
@@ -48,10 +53,17 @@ function yard(t) {
   reduced.matches = false;
   const previous = state.data;
   const pets = ['a', 'b', 'c'].map((id, i) => ({ id, name: id, size: 100, x: 0.2 + i * 0.3, y: 0.5 }));
-  state.setData({ pets, assets: [], statuses: {}, busy: [], garden: { viewed: '', decor: [], trees: [cherry] } });
+  state.setData({
+    pets,
+    assets: [],
+    statuses: {},
+    busy: [],
+    garden: { viewed: '', wished: '', decor: [], trees: [cherry] },
+  });
   state.views.clear();
   state.setGame(null);
   state.setAiming(false);
+  wishes.length = 0;
   syncViews();
   viewing.setupViewing();
   setupPetals();
@@ -244,4 +256,69 @@ test('the desktop overlay shows none of this', async () => {
   assert.ok(loaded.has(path.resolve('src/core/sprites.js')), 'the walk follows imports');
   for (const file of ['src/yard/petals.js', 'src/yard/viewing.js', 'src/yard/viewing-rules.js', 'src/yard/trips.js'])
     assert.equal(loaded.has(path.resolve(file)), false, `the overlay reaches ${file}`);
+});
+
+test("the first petal caught each day brings a friend's wish, later ones only glint", t => {
+  const y = yard(t);
+  const [v] = y.views();
+  wishAt({ x: v.px, y: v.py });
+  assert.equal(v.bubble.hidden, false);
+  assert.ok(list('viewing.wish').includes(v.bubble.textContent));
+  assert.deepEqual(wishes, ['2027-04-05']);
+  assert.equal(state.data.garden.wished, '2027-04-05');
+  v.bubble.hidden = true;
+  wishAt({ x: v.px, y: v.py });
+  assert.equal(v.bubble.hidden, true, 'a second catch says nothing more');
+  assert.deepEqual(wishes, ['2027-04-05']);
+  y.tick(24 * 60 * MIN);
+  wishAt({ x: v.px, y: v.py });
+  assert.equal(v.bubble.hidden, false, 'the next day brings a line again');
+  assert.deepEqual(wishes, ['2027-04-05', '2027-04-06']);
+});
+
+test('the friend nearest the petal makes the wish, and one being dragged does not', t => {
+  const y = yard(t);
+  const [a, b, c] = y.views();
+  wishAt({ x: c.px, y: c.py });
+  assert.equal(c.bubble.hidden, false);
+  assert.equal(a.bubble.hidden, true);
+  assert.equal(b.bubble.hidden, true);
+  state.data.garden.wished = '';
+  c.bubble.hidden = true;
+  c.drag = {};
+  wishAt({ x: c.px, y: c.py });
+  assert.equal(c.bubble.hidden, true, 'a friend in the hand says nothing');
+  assert.equal(b.bubble.hidden, false, 'the next nearest does');
+});
+
+test("with no friend in the yard a caught petal keeps the day's wish", t => {
+  const y = yard(t);
+  const [v] = y.views();
+  state.views.clear();
+  wishAt({ x: v.px, y: v.py });
+  assert.deepEqual(wishes, []);
+  assert.equal(state.data.garden.wished, '');
+  state.views.set(v.pet.id, v);
+  v.drag = {};
+  wishAt({ x: v.px, y: v.py });
+  assert.deepEqual(wishes, [], 'nor when everyone is in the hand');
+  assert.equal(state.data.garden.wished, '');
+});
+
+test("a friend already speaking keeps its words, and the day's wish waits for one that can say it", t => {
+  const y = yard(t);
+  const [a, b, c] = y.views();
+  for (const v of [a, b, c]) {
+    v.bubble.textContent = 'hm';
+    v.bubble.hidden = false;
+  }
+  wishAt({ x: a.px, y: a.py });
+  assert.deepEqual(wishes, [], 'nobody free to say it, so the day is kept');
+  assert.equal(state.data.garden.wished, '');
+  assert.equal(a.bubble.textContent, 'hm');
+  b.bubble.hidden = true;
+  wishAt({ x: a.px, y: a.py });
+  assert.ok(list('viewing.wish').includes(b.bubble.textContent), 'a friend with a quiet bubble says it');
+  assert.equal(a.bubble.textContent, 'hm', 'the speaking one is left alone');
+  assert.deepEqual(wishes, ['2027-04-05']);
 });

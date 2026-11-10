@@ -1013,4 +1013,5 @@ export const strings = {
   'viewing.tree_lines': ['Look, that branch is all pink!'],
   'viewing.mat_lines': ['A picnic under the blossom is the best!'],
   'viewing.petal_notice': ['Huh? Is there a petal on my head?', 'I’m wearing a petal!'],
+  'viewing.wish': ['You caught a petal! Your wish will come true.', 'Make a wish. It’ll come true, I just know it!'],
 };
