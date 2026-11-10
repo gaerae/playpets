@@ -14,6 +14,11 @@ export const MOTION_ROWS = Object.freeze({
   'look-1': 10,
 });
 
+// The site's copy of each 3072×416 preview: the largest sprite a page draws (0.65 of a 192 px cell)
+// on a 2x screen needs 250 px a cell, so 288 px cells as lossy WebP keep it sharp at a tenth of the
+// PNG's bytes.
+export const PREVIEW_STRIP = Object.freeze({ width: 2304, height: 312, quality: 0.9 });
+
 export function validatePreview(bytes) {
   const signature = [137, 80, 78, 71, 13, 10, 26, 10];
   if (bytes.length < 33 || signature.some((value, index) => bytes[index] !== value))
@@ -31,9 +36,9 @@ export function previewSource(pet, state, available, season = 'base', seasonalAv
   if (motion?.[pet]?.[sheet]?.includes(state)) return `/pets/motion/${pet}/${sheet}/${state}.webp`;
   if (seasonal)
     return seasonalAvailable?.[pet]?.[season]?.includes(state)
-      ? `/pets/previews/${pet}/${season}/${state}.png`
+      ? `/pets/previews/${pet}/${season}/${state}.webp`
       : `/creator-kit/${pet}/${season}.png`;
-  return available?.[pet]?.includes(state) ? `/pets/previews/${pet}/${state}.png` : null;
+  return available?.[pet]?.includes(state) ? `/pets/previews/${pet}/${state}.webp` : null;
 }
 
 export function previewPacking(state, config = {}) {
@@ -42,4 +47,16 @@ export function previewPacking(state, config = {}) {
   const scales = rowScales(config),
     lifts = jumpLifts(config);
   return { scale: scales[row], lifts: state === 'jump' ? lifts : null };
+}
+
+/** Whether every summer and winter row the site plays has its own strip, so no page falls back to
+ * a seasonal atlas and the build can leave those atlases out. */
+export function seasonStripsComplete(pets, seasonalPreviews, motion) {
+  return pets.every(({ id }) =>
+    ['summer', 'winter'].every(
+      season =>
+        PREVIEW_STATES.every(state => seasonalPreviews?.[id]?.[season]?.includes(state)) &&
+        Object.keys(MOTION_ROWS).every(state => motion?.[id]?.[season]?.includes(state)),
+    ),
+  );
 }

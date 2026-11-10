@@ -5,7 +5,7 @@ name: pages
 on:
   push:
     branches: [main]
-    paths: [packaging/licenses/**, website/**, docs/**, assets/**, src/art/**, src/core/animation.js, src/core/season.js, src/yard/background-pack.js, src-tauri/icons/**, CHANGELOG.md, scripts/**, .node-version, pnpm-workspace.yaml, package.json, pnpm-lock.yaml, .github/workflows/pages.yml]
+    paths: [packaging/licenses/**, website/**, docs/**, assets/**, src/art/**, src/core/animation.js, src/core/season.js, src/yard/background-pack.js, src-tauri/icons/**, src-tauri/pets/**, CHANGELOG.md, scripts/**, .node-version, pnpm-workspace.yaml, package.json, pnpm-lock.yaml, .github/workflows/pages.yml]
   workflow_dispatch:
 
 permissions:
@@ -55,8 +55,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      # deploy-pages gives up after ten minutes and allows no longer, so the site is kept small
+      # enough to sync well within that (scripts/README.md, website preparation).
       - id: deploy
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
-        # Pages has taken over ten minutes to sync a large site; the default gives up at ten.
-        with:
-          timeout: 1200000

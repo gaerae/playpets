@@ -2,30 +2,47 @@
 // link working and the release pages match the changelog.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { destinationFor, rewriteDocLinks, sitemapSources, unusedShotVersions } from '../scripts/site-lib.mjs';
+import { destinationFor, rewriteDocLinks, sitemapSources, unusedShots } from '../scripts/site-lib.mjs';
 import { LANGUAGES } from '../src/core/strings.js';
 
 const repo = 'https://github.com/gaerae/playpets/blob/main';
 
-test('the site publishes only the screenshot versions a built page shows', () => {
-  const versions = ['0.1.0', '0.2.0', '1.4.0', '1.5.0'];
+test('the site publishes only the screenshots a built page shows', () => {
+  const files = [
+    '0.1.0/en/yard-evening.webp',
+    '0.1.0/en/mini.webp',
+    '0.2.0/en/mini.webp',
+    '1.5.0/ko/mini.webp',
+    '1.5.0/en/mini.webp',
+    '1.5.0/ja/reel.mp4',
+    '1.5.0/ja/reel.webp',
+  ];
   const pages = [
     '<img src="/shots/1.5.0/ko/mini.webp">',
     // A release page pins its own capture; the landing names the current one from its script.
     '<figure><img src="/shots/0.1.0/en/yard-evening.webp"></figure>',
     'const film = "/shots/1.5.0/ja/reel.mp4";',
   ];
-  assert.deepEqual(unusedShotVersions(versions, pages), ['0.2.0', '1.4.0']);
-  assert.deepEqual(unusedShotVersions(['1.5.0'], []), ['1.5.0'], 'a capture no page shows is left out');
+  assert.deepEqual(unusedShots(files, pages), [
+    '0.1.0/en/mini.webp',
+    '0.2.0/en/mini.webp',
+    '1.5.0/en/mini.webp',
+    '1.5.0/ja/reel.webp',
+  ]);
   assert.deepEqual(
-    unusedShotVersions(['1.5.0'], ['/shots/1.5.0.1/x.webp']),
-    ['1.5.0'],
-    'a longer version is not this one',
+    unusedShots(['1.5.0/en/mini.webp'], []),
+    ['1.5.0/en/mini.webp'],
+    'a capture no page shows is left out',
   );
   assert.deepEqual(
-    unusedShotVersions(['0.2.0'], ['<code>website/public/shots/0.2.0/</code>']),
-    ['0.2.0'],
-    'a guide naming the folder in the repository shows no picture',
+    unusedShots(['1.5.0/en/mini.webp'], ['/shots/1.5.0.1/en/mini.webp', '/shots/1.5.0/en/mini.webp.bak']),
+    ['1.5.0/en/mini.webp'],
+    'a longer version or name is not this file',
+  );
+  assert.deepEqual(
+    unusedShots(['0.2.0/en/mini.webp'], ['<code>website/public/shots/0.2.0/en/mini.webp</code>']),
+    ['0.2.0/en/mini.webp'],
+    'a guide naming the file in the repository shows no picture',
   );
 });
 

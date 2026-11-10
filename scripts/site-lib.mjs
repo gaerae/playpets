@@ -67,13 +67,14 @@ export function docDisplayProse(text) {
     .join('\n');
 }
 
-/** The screenshot versions under public/shots/ that no built page names, so the deploy can leave
- * them out: every release keeps its captures in the repository, but the site shows only the
- * current capture and the few a release page pins. `texts` are the built pages and scripts; a
- * guide naming the repository's public/shots/ folder is not a picture. */
-export function unusedShotVersions(versions, texts) {
+/** The files under public/shots/ (as `<version>/<language>/<name>`) that no built page names, so
+ * the deploy can leave them out: every release keeps its captures in the repository, but the site
+ * shows only the current capture's pictures its pages use and the few a release page pins. `texts`
+ * are the built pages and scripts, which name each picture in full; a guide naming a file in the
+ * repository's public/shots/ folder is not a picture. */
+export function unusedShots(files, texts) {
   const shown = new Set();
   for (const text of texts)
-    for (const [, version] of text.matchAll(/(?<!public)\/shots\/(\d+\.\d+\.\d+)\//g)) shown.add(version);
-  return versions.filter(version => !shown.has(version));
+    for (const [, file] of text.matchAll(/(?<!public)\/shots\/(\d+\.\d+\.\d+\/[a-z-]+\/[\w.-]+)/g)) shown.add(file);
+  return files.filter(file => !shown.has(file));
 }

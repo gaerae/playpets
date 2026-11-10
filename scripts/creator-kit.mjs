@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { dataUrl, dataUrlBytes } from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 import { publicProvenance, validatePng, zipStore } from './creator-bundle-lib.mjs';
-import { kitEntries, kitPrompts, kitSpec, petManifest } from './creator-specs.mjs';
+import { STUDIO_REFERENCES, kitEntries, kitPrompts, kitSpec, petManifest } from './creator-specs.mjs';
 import { pngSize, sha256 } from './png-lossless-lib.mjs';
 import { LANDING_PETS, petDownload } from './site-content.mjs';
 
@@ -139,7 +139,17 @@ export async function createCreatorKit(destination = 'assets/creator-kit', kits 
   }
 }
 
-export async function copyCreatorKit(destination = 'website/public/creator-kit', { saveSpecs = false } = {}) {
+// Every kit is still built and checked in full, but the site publishes only the files the studio
+// packs (STUDIO_REFERENCES), plus the seasonal atlases when a page has to fall back to them because
+// a seasonal strip is missing (`seasonalAtlases`); --metadata saves the specs either way.
+export async function copyCreatorKit(
+  destination = 'website/public/creator-kit',
+  { saveSpecs = false, seasonalAtlases = false } = {},
+) {
+  const published = new Set([
+    ...STUDIO_REFERENCES.map(([source]) => source),
+    ...(seasonalAtlases ? ['summer.png', 'winter.png'] : []),
+  ]);
   const prepared = [];
   // Validate every kit before publishing any: a missing design reference is not a partial release.
   for (const kit of creatorKits) {
@@ -214,8 +224,7 @@ export async function copyCreatorKit(destination = 'website/public/creator-kit',
     await mkdir(target, { recursive: true });
     for (const [name, bytes] of files) {
       const slash = name.lastIndexOf('/');
-      if (slash >= 0) await mkdir(`${target}/${name.slice(0, slash)}`, { recursive: true });
-      await writeFile(`${target}/${name}`, bytes);
+      if (published.has(name)) await writeFile(`${target}/${name}`, bytes);
       if (saveSpecs && (name === 'identity.json' || name === 'kit.json' || name.startsWith('prompts/'))) {
         if (slash >= 0) await mkdir(`${source}/${name.slice(0, slash)}`, { recursive: true });
         await writeFile(`${source}/${name}`, bytes);
@@ -225,12 +234,13 @@ export async function copyCreatorKit(destination = 'website/public/creator-kit',
 }
 
 /** Each starter friend as the app ships it, in one folder named for its id: unzipped into a Codex
- * pets folder it is a Codex pet, and PlayPets imports the ZIP as it is. The sheets are the ones
- * copyCreatorKit checks in the same build, so they are not checked again here. */
+ * pets folder it is a Codex pet, and PlayPets imports the ZIP as it is. The sheets are the app's
+ * lossless WebP copies in src-tauri/pets/, which `pnpm run assets:webp --check` matches pixel
+ * for pixel with the PNGs copyCreatorKit checks, at about two thirds of their bytes. */
 export async function petDownloads() {
   return Promise.all(
     LANDING_PETS.map(async pet => {
-      const root = path.dirname(pet.source),
+      const root = `src-tauri/pets/${pet.id}`,
         bytes = await readFile(`${root}/pet.json`),
         { id, spritesheetPath, seasonalSpritesheets = {} } = JSON.parse(bytes),
         file = path.basename(petDownload(pet.id));

@@ -29,7 +29,7 @@
 | Moving pictures | `shot-video.swift` via `SHOT_SCENE=reel` `shots`; `reel.mjs`, `reel-lib.mjs` via `reel` | The landing's film and its still in each site language, and the README's `assets/demo.gif`; needs macOS 15, ffmpeg and cwebp |
 | Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
 | Portable creation skill | `creator-skill.mjs` via `creator:skill`, source `assets/creator-skill/playpets-creator/`, `creator-workflow.py` launcher | Generated skill and plugin ZIPs and per-layout references under `website/public/creator-kit/skill/`; offline pet ZIP and background JSON from the supplied helper |
-| Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets and metadata, and each starter friend's `playpets-<id>.zip` |
+| Creator references | `creator-kit.mjs`, `creator-specs.mjs`, `creator-bundle-lib.mjs` | Accepted reference sheets and metadata; on the site only the files the studio packs (`STUDIO_REFERENCES`), and each starter friend's `playpets-<id>.zip` with the app's lossless WebP sheets |
 | Atlas preparation | `pack-*.mjs`, `normalize-cat-row.mjs`, atlas/art/normalization helpers | Explicit destination files from approved image sources |
 | Companion action packing | `companions:pack -- plan.json output.png`, source `pack-companion-actions.py` | Bounded action atlases from approved RGBA art, with 192 × 208 cells by default; requires Pillow, honors `PLAYPETS_PYTHON`, rejects clipped frames and preserves shared scale and foot anchors |
 | Discovery artwork | `node scripts/pack-discovery.mjs`, source records in `assets/discovery/` | Tracked tree, keepsake and shovel PNG atlases in `assets/art/` and clipped SVG viewports in `src/art/trees/` and `src/art/discovery/` |
@@ -117,8 +117,9 @@ Public captures:
 - Never copy an earlier version's images into a newer version's directory.
 - Release pages can name an explicit capture version when they need a
   historical image.
-- The site build leaves out every capture version no built page names
-  (`unusedShotVersions` in `site-lib.mjs`); the repository keeps them all.
+- The site build leaves out every capture file no built page names
+  (`unusedShots` in `site-lib.mjs`), including whole versions; the repository
+  keeps them all.
 - The default `pnpm run shots` capture includes seasonal scenes, all four places,
   small windows and the app panels in every language.
 - Ordinary captures start in clear spring daylight; summer evening and night
@@ -283,12 +284,19 @@ Background creation:
   requested runtime height or justify upscaling an inadequate source.
 - `site:prepare`:
   - validates every available strip before replacing public files;
-  - exports it into generated `website/public/pets/previews/<id>/`;
+  - exports it as a WebP at the size the site draws it (`PREVIEW_STRIP`:
+    2304 × 312, 288 px cells) into generated
+    `website/public/pets/previews/<id>/`;
   - records base availability in `petPreviews` and seasonal availability in
     `petSeasonalPreviews` in `generated.json`.
-- Seasonal exports keep the `<season>/<state>.png` suffix.
-- Missing seasonal poses use that season's runtime atlas, so they keep the
-  correct clothes.
+- Seasonal exports keep the `<season>/<state>.webp` suffix.
+- It draws with the headless browser; without one it warns, publishes no
+  strips, and the landing plays those rows from the whole atlas.
+- A row without a strip plays from the whole atlas, the copy in the pet's
+  creator kit (`website/public/creator-kit/<id>/`):
+  - the base `spritesheet.png` is always there, as the studio packs it;
+  - `summer.png` and `winter.png` ship only when a seasonal strip is missing
+    (`seasonStripsComplete`), so a missing pose keeps the season's clothes.
 - Logical display size, frame counts and reduced-motion behavior stay unchanged;
   the extra pixels help Retina displays without enlarging the character.
 - The Pages workflow already watches `assets/**` and `scripts/**` and runs this

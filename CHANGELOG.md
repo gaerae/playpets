@@ -13,6 +13,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Website and docs
 
 - Right after a release is published, the website's download buttons offer it, instead of the previous release until the next site update.
+- The website's moving friends load smaller pictures, drawn at the size the page shows them, and each friend's `playpets-<name>.zip` now carries the same lossless WebP sheets the app uses, about a third smaller.
 
 ## [1.6.0] - 2026-11-10
 

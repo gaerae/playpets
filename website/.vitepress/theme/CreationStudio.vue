@@ -2,7 +2,7 @@
 import { withBase } from 'vitepress';
 import { computed, onMounted, ref } from 'vue';
 import { backgroundSheet } from '../../../scripts/background-specs.mjs';
-import { kitEntries, kitFromQuery, kitSpec, petManifest } from '../../../scripts/creator-specs.mjs';
+import { STUDIO_REFERENCES, kitEntries, kitFromQuery, kitSpec, petManifest } from '../../../scripts/creator-specs.mjs';
 import generated from '../generated.json';
 import { petDownload } from '../../../scripts/site-content.mjs';
 import { creationCopy } from './creation-copy.js';
@@ -98,15 +98,8 @@ async function download() {
       ...requestEntries(data),
     ];
     if (data.kind === 'pet' && data.starter !== 'custom') {
-      const sources = [
-        ['identity-reference.png', 'identity-reference.png'],
-        ['turnaround.png', 'turnaround.png'],
-        ['face-detail.png', 'face-detail.png'],
-        ['identity.json', 'identity.json'],
-        ['spritesheet.png', 'original-atlas.png'],
-      ];
       const references = await Promise.all(
-        sources.map(async ([source, target]) => ({
+        STUDIO_REFERENCES.map(async ([source, target]) => ({
           name: `references/${target}`,
           bytes: await bytes(`/creator-kit/${data.starter}/${source}`),
         })),
