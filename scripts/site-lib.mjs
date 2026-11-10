@@ -66,3 +66,14 @@ export function docDisplayProse(text) {
     })
     .join('\n');
 }
+
+/** The screenshot versions under public/shots/ that no built page names, so the deploy can leave
+ * them out: every release keeps its captures in the repository, but the site shows only the
+ * current capture and the few a release page pins. `texts` are the built pages and scripts; a
+ * guide naming the repository's public/shots/ folder is not a picture. */
+export function unusedShotVersions(versions, texts) {
+  const shown = new Set();
+  for (const text of texts)
+    for (const [, version] of text.matchAll(/(?<!public)\/shots\/(\d+\.\d+\.\d+)\//g)) shown.add(version);
+  return versions.filter(version => !shown.has(version));
+}

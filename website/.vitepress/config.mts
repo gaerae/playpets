@@ -1,9 +1,9 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { defineConfig } from 'vitepress';
 import { websiteNotices } from '../../scripts/licenses-lib.mjs';
-import { sitemapSources } from '../../scripts/site-lib.mjs';
+import { sitemapSources, unusedShotVersions } from '../../scripts/site-lib.mjs';
 import { alternateLinks, appStructuredData, faqStructuredData, leadDescription, releaseTitle } from './locale-head.mjs';
 import { devSidebar } from './sidebar-dev.mts';
 
@@ -390,5 +390,17 @@ export default defineConfig({
         return `<Mermaid id="${++n}" code="${encodeURIComponent(token.content)}" />`;
       };
     },
+  },
+  // Every release keeps its captures in public/shots/, but a page shows only the current one and the
+  // few a release page pins. The rest stay out of the deploy, which grows by a capture each release
+  // and otherwise outlasts GitHub Pages' deploy timeout.
+  buildEnd({ outDir }) {
+    const shots = `${outDir}/shots`;
+    if (!existsSync(shots)) return;
+    const texts = readdirSync(outDir, { recursive: true, encoding: 'utf8' })
+      .filter(file => /\.(html|js)$/.test(file) && !file.startsWith('shots/'))
+      .map(file => readFileSync(`${outDir}/${file}`, 'utf8'));
+    for (const version of unusedShotVersions(readdirSync(shots), texts))
+      rmSync(`${shots}/${version}`, { recursive: true });
   },
 });
