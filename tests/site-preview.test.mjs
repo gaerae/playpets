@@ -5,7 +5,7 @@ import { PREVIEW_STATES, previewSource, validatePreview } from '../scripts/site-
 
 test('high-resolution website animation is optional per pet and per state', () => {
   const available = { daisy: ['idle'], clover: ['idle', 'wave'] };
-  assert.equal(previewSource('daisy', 'idle', available), '/pets/previews/daisy/idle.png');
+  assert.equal(previewSource('daisy', 'idle', available), '/pets/previews/daisy/idle.webp');
   assert.equal(previewSource('daisy', 'wave', available), null);
   assert.equal(previewSource('pip', 'idle', available), null);
   assert.equal(previewSource('clover', 'wave', undefined), null);
@@ -62,7 +62,7 @@ test('preview export keeps seasonal paths separate and missing artwork out of me
   assert.deepEqual(result.petSeasonalPreviews, { pip: { winter: ['idle'] } });
   assert.deepEqual(
     result.copies.map(copy => copy.destination),
-    ['website/public/pets/previews/pip/idle.png', 'website/public/pets/previews/pip/winter/idle.png'],
+    ['website/public/pets/previews/pip/idle.webp', 'website/public/pets/previews/pip/winter/idle.webp'],
   );
   const atlas = await readFile('assets/pets/pip/seasonal/winter.png');
   await assert.rejects(
@@ -81,12 +81,12 @@ test('season previews preserve clothes when a high-resolution pose is unavailabl
   const base = { miso: ['idle', 'wave', 'jump'], visitor: ['idle'] };
   const seasonal = { miso: { summer: ['idle'], winter: ['idle', 'wave', 'jump'] } };
   for (const state of PREVIEW_STATES)
-    assert.equal(previewSource('miso', state, base, 'winter', seasonal), `/pets/previews/miso/winter/${state}.png`);
+    assert.equal(previewSource('miso', state, base, 'winter', seasonal), `/pets/previews/miso/winter/${state}.webp`);
   assert.equal(previewSource('miso', 'wave', base, 'summer', seasonal), '/creator-kit/miso/summer.png');
   assert.equal(previewSource('pip', 'jump', base, 'winter', seasonal), '/creator-kit/pip/winter.png');
   for (const season of ['base', 'spring', 'autumn'])
-    assert.equal(previewSource('miso', 'idle', base, season, seasonal), '/pets/previews/miso/idle.png');
-  assert.equal(previewSource('visitor', 'idle', base, 'winter', seasonal), '/pets/previews/visitor/idle.png');
+    assert.equal(previewSource('miso', 'idle', base, season, seasonal), '/pets/previews/miso/idle.webp');
+  assert.equal(previewSource('visitor', 'idle', base, 'winter', seasonal), '/pets/previews/visitor/idle.webp');
   assert.equal(previewSource('unknown', 'idle', base, 'winter', seasonal), null);
 });
 
@@ -109,7 +109,7 @@ test('all four friends resolve all preview poses in each approved seasonal outfi
       for (const state of PREVIEW_STATES)
         assert.equal(
           previewSource(pet, state, available, season, seasonal),
-          `/pets/previews/${pet}/${season}/${state}.png`,
+          `/pets/previews/${pet}/${season}/${state}.webp`,
         );
   }
 });
@@ -137,7 +137,7 @@ test('walking, agent and gaze rows use light motion strips cut from the runtime 
   // A missing strip falls back to the whole atlas, never to another season's clothes.
   assert.equal(previewSource('daisy', 'look-1', base, 'winter', {}, motion), '/creator-kit/daisy/winter.png');
   assert.equal(previewSource('daisy', 'left', base, 'base', {}, motion), null);
-  assert.equal(previewSource('daisy', 'idle', base, 'base', {}, motion), '/pets/previews/daisy/idle.png');
+  assert.equal(previewSource('daisy', 'idle', base, 'base', {}, motion), '/pets/previews/daisy/idle.webp');
 });
 
 test('the motion export plans every official companion, sheet and motion row', async () => {
@@ -174,4 +174,34 @@ test('the site shows its scenes as WebP and a small icon instead of the app orig
     },
   ]);
   assert.deepEqual(plan.icon, { source: 'assets/icon.svg', destination: 'website/public/icon.png', size: 96 });
+});
+
+test('preview strips are published at the size the site draws them', async () => {
+  const { readdir } = await import('node:fs/promises');
+  const { PREVIEW_STRIP } = await import('../scripts/site-preview-lib.mjs');
+  // Same shape as the 3072×416 source: eight cells of 12:13.
+  assert.equal(PREVIEW_STRIP.width * 416, PREVIEW_STRIP.height * 3072);
+  const scales = [];
+  for (const file of await readdir('website/.vitepress/theme'))
+    if (file.endsWith('.vue'))
+      for (const [, scale] of (await readFile(`website/.vitepress/theme/${file}`, 'utf8')).matchAll(
+        /:scale="([\d.]+)"/g,
+      ))
+        scales.push(Number(scale));
+  const { default: sprite } = { default: await readFile('website/.vitepress/theme/Sprite.vue', 'utf8') };
+  scales.push(Number(sprite.match(/scale: ([\d.]+)/)[1]));
+  // A 192 px cell at the largest scale a page uses, on a 2x screen, still gets a pixel per pixel.
+  assert.ok(PREVIEW_STRIP.width / 8 >= 2 * 192 * Math.max(...scales), `${Math.max(...scales)}`);
+});
+
+test('the seasonal atlases ship only when a seasonal strip is missing', async () => {
+  const { MOTION_ROWS, seasonStripsComplete } = await import('../scripts/site-preview-lib.mjs');
+  const pets = [{ id: 'pip' }];
+  const rows = Object.keys(MOTION_ROWS);
+  const previews = { pip: { summer: PREVIEW_STATES, winter: PREVIEW_STATES } };
+  const motion = { pip: { base: rows, summer: rows, winter: rows } };
+  assert.equal(seasonStripsComplete(pets, previews, motion), true);
+  assert.equal(seasonStripsComplete(pets, previews, {}), false, 'no browser made the motion strips');
+  assert.equal(seasonStripsComplete(pets, { pip: { summer: PREVIEW_STATES } }, motion), false);
+  assert.equal(seasonStripsComplete(pets, previews, { pip: { ...motion.pip, winter: ['right'] } }), false);
 });

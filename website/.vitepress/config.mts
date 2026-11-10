@@ -1,9 +1,10 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { sep } from 'node:path';
 import { defineConfig } from 'vitepress';
 import { websiteNotices } from '../../scripts/licenses-lib.mjs';
-import { sitemapSources, unusedShotVersions } from '../../scripts/site-lib.mjs';
+import { sitemapSources, unusedShots } from '../../scripts/site-lib.mjs';
 import { alternateLinks, appStructuredData, faqStructuredData, leadDescription, releaseTitle } from './locale-head.mjs';
 import { devSidebar } from './sidebar-dev.mts';
 
@@ -391,16 +392,22 @@ export default defineConfig({
       };
     },
   },
-  // Every release keeps its captures in public/shots/, but a page shows only the current one and the
-  // few a release page pins. The rest stay out of the deploy, which grows by a capture each release
-  // and otherwise outlasts GitHub Pages' deploy timeout.
+  // Every release keeps its captures in public/shots/, but a page shows only some of the current
+  // ones and the few a release page pins. The rest stay out of the deploy, which grows by a capture
+  // each release and otherwise outlasts GitHub Pages' deploy timeout.
   buildEnd({ outDir }) {
     const shots = `${outDir}/shots`;
     if (!existsSync(shots)) return;
     const texts = readdirSync(outDir, { recursive: true, encoding: 'utf8' })
       .filter(file => /\.(html|js)$/.test(file) && !file.startsWith('shots/'))
       .map(file => readFileSync(`${outDir}/${file}`, 'utf8'));
-    for (const version of unusedShotVersions(readdirSync(shots), texts))
-      rmSync(`${shots}/${version}`, { recursive: true });
+    const files = readdirSync(shots, { recursive: true, encoding: 'utf8' })
+      .map(file => file.split(sep).join('/'))
+      .filter(file => file.split('/').length === 3);
+    for (const file of unusedShots(files, texts)) rmSync(`${shots}/${file}`);
+    // A version or language left with nothing is removed too.
+    for (const folder of readdirSync(shots, { recursive: true, encoding: 'utf8' }).sort().reverse())
+      if (statSync(`${shots}/${folder}`).isDirectory() && readdirSync(`${shots}/${folder}`).length === 0)
+        rmSync(`${shots}/${folder}`, { recursive: true });
   },
 });

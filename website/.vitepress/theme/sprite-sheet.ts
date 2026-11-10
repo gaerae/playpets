@@ -9,7 +9,7 @@ const published = generated as {
 };
 
 // The file a sample pet plays one row from: a published one-row strip when there is one,
-// otherwise the pet's whole atlas.
+// otherwise the pet's whole atlas, which its creator kit publishes for the studio.
 export function sheetFor(pet: string, state: string, season = 'base') {
   const preview = previewSource(
     pet,
@@ -20,7 +20,7 @@ export function sheetFor(pet: string, state: string, season = 'base') {
     published.petMotions,
   );
   return {
-    url: withBase(preview || `/pets/${pet}.png`),
+    url: withBase(preview || `/creator-kit/${pet}/spritesheet.png`),
     strip: /^\/pets\/(previews|motion)\//.test(preview || ''),
   };
 }

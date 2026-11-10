@@ -179,6 +179,16 @@ identities.miso = {
   },
 };
 
+// The kit files the studio packs into a creation kit, as [file in the kit, name in the creation
+// kit]. The site publishes only these from each kit (scripts/creator-kit.mjs).
+export const STUDIO_REFERENCES = Object.freeze([
+  ['identity-reference.png', 'identity-reference.png'],
+  ['turnaround.png', 'turnaround.png'],
+  ['face-detail.png', 'face-detail.png'],
+  ['identity.json', 'identity.json'],
+  ['spritesheet.png', 'original-atlas.png'],
+]);
+
 // Existing IDs are stable download aliases, while pet IDs match ordinary app entries.
 export const kitEntries = [
   ['daisy', 'Daisy', 'daisy', true, true],
