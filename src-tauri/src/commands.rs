@@ -536,8 +536,6 @@ static COMMANDS: &[Command] = &[
             d.garden.ornament_day = Default::default();
             d.garden.ornament_year = 0;
             d.garden.snowman_day.clear();
-            d.garden.viewed.clear();
-            d.garden.wished.clear();
             Ok(Value::Null)
         })
     }),

@@ -474,7 +474,7 @@ const scenario = `(async()=>{
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
     const {scene:now}=await import('./yard/world.js'),chipOk=$('event-chip').hidden===!now.event&&(!now.event||$('event-chip').textContent.length>0);
     await L('event='+(snow.kind==='xmas_tree'&&boxedTree&&chipOk?'gift-and-label':'err:'+JSON.stringify([snow,now.event,$('event-chip').hidden])));
-    // e2eFreshGifts cleared the viewing day; the check keeps a far-off day, then today is marked again.
+    // The check keeps a far-off day, so today is marked again right after it.
     const viewedOk=(await playPets.markViewed('2027-04-05')).ok&&(await playPets.markViewed('soon')).ok===false&&(await playPets.bootstrap()).data.garden.viewed==='2027-04-05';await L('viewing='+(viewedOk?'day-kept':'err'));
     await playPets.markViewed(todayLocal());
     // Real saved gifts fill the yard; the next waits in the gift box, putting one away retains its album record and
