@@ -1,5 +1,5 @@
-//! The album: every kind of fish caught at the lake, bug caught in the yard and flower grown in
-//! the garden, with how many and, for fish, the biggest. (The gifts in it are the garden's own
+//! The album: every kind of fish caught at the lake, bug caught in the yard, flower grown in
+//! the garden and spring shoot gathered, with how many and, for fish, the biggest. (The gifts in it are the garden's own
 //! record of what came, garden.rs `received`.) The page decides what was caught (where and when
 //! each kind is found: src/yard/catalog.js); this keeps the record and its limits, and refuses what
 //! could not be a catch: a kind the catalogue does not have (content.rs), or a fish longer than its
@@ -35,6 +35,9 @@ pub struct Album {
     /// The animals whose prints a friend followed to the end, in the snow (the footprint book).
     #[serde(default)]
     pub tracks: BTreeMap<String, Entry>,
+    /// The spring shoots a friend dug up (the shoot book).
+    #[serde(default)]
+    pub shoots: BTreeMap<String, Entry>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -72,6 +75,22 @@ fn read(raw: Option<&Value>) -> BTreeMap<String, Entry> {
         .collect()
 }
 
+/// Counts one more of a kind the catalogue knows (`known`), keeping the first time; a new kind
+/// beyond KINDS_MAX is refused like an unknown one.
+fn count_known(book: &mut BTreeMap<String, Entry>, known: bool, id: &str, now: u64) -> Result<(Entry, bool), String> {
+    let first = !book.contains_key(id);
+    if !known || (first && book.len() >= KINDS_MAX) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    let entry = book.entry(id.to_string()).or_insert(Entry {
+        count: 0,
+        best: 0.0,
+        first: now,
+    });
+    entry.count = entry.count.saturating_add(1);
+    Ok((entry.clone(), first))
+}
+
 impl Album {
     /// The album as state.json has it, keeping only what makes sense.
     pub fn restore(raw: Option<&Value>) -> Album {
@@ -83,6 +102,7 @@ impl Album {
             trees: read(raw.and_then(|r| r.get("trees"))),
             secrets: read(raw.and_then(|r| r.get("secrets"))),
             tracks: read(raw.and_then(|r| r.get("tracks"))),
+            shoots: read(raw.and_then(|r| r.get("shoots"))),
         }
     }
 
@@ -116,17 +136,13 @@ impl Album {
     /// Records an animal whose prints a friend followed to the end (the catalogue's `tracks`).
     /// Returns the entry and whether it is the first time.
     pub fn followed(&mut self, id: &str, now: u64) -> Result<(Entry, bool), String> {
-        let first = !self.tracks.contains_key(id);
-        if !catalog().is_track(id) || (first && self.tracks.len() >= KINDS_MAX) {
-            return Err(i18n::t("error.bad_request"));
-        }
-        let entry = self.tracks.entry(id.to_string()).or_insert(Entry {
-            count: 0,
-            best: 0.0,
-            first: now,
-        });
-        entry.count = entry.count.saturating_add(1);
-        Ok((entry.clone(), first))
+        count_known(&mut self.tracks, catalog().is_track(id), id, now)
+    }
+
+    /// Records a spring shoot a friend dug up (the catalogue's `shoots`). Returns the entry and
+    /// whether it is the first time.
+    pub fn gathered(&mut self, id: &str, now: u64) -> Result<(Entry, bool), String> {
+        count_known(&mut self.shoots, catalog().is_shoot(id), id, now)
     }
 
     /// Records a catch: `kind` is "fish" or "bug", `id` the catalogue's name, `size` in cm (fish).
@@ -169,6 +185,7 @@ mod tests {
         assert_eq!(old["treasures"], json!({}));
         assert_eq!(old["trees"], json!({}));
         assert_eq!(old["tracks"], json!({}));
+        assert_eq!(old["shoots"], json!({}));
         let a = Album::restore(Some(
             &json!({"treasures":{"future_stone":{"count":2,"best":0.0,"first":7}}}),
         ));
@@ -232,6 +249,17 @@ mod tests {
     }
 
     #[test]
+    fn a_gathered_shoot_is_counted_and_only_a_shoot_is() {
+        let mut a = Album::default();
+        let (e, first) = a.gathered("morel", 5).unwrap();
+        assert_eq!((e.count, e.first, first), (1, 5, true));
+        let (e, first) = a.gathered("morel", 9).unwrap();
+        assert_eq!((e.count, e.first, first), (2, 5, false));
+        assert!(a.gathered("carp", 1).is_err() && a.gathered("tulip", 1).is_err() && a.gathered("", 1).is_err());
+        assert_eq!(a.shoots.keys().collect::<Vec<_>>(), ["morel"]);
+    }
+
+    #[test]
     fn a_saved_album_is_read_back_keeping_only_what_makes_sense() {
         let a = Album::restore(Some(&json!({
             "fish": {
@@ -240,8 +268,13 @@ mod tests {
                 "eel": {"count": 0, "best": 1.0, "first": 1},
                 "catfish": {"count": 1, "best": 9999.0, "first": 1}
             },
-            "bugs": "nonsense"
+            "bugs": "nonsense",
+            "shoots": {
+                "morel": {"count": 2, "best": 0.0, "first": 3},
+                "BAD": {"count": 1, "best": 0.0, "first": 1}
+            }
         })));
+        assert_eq!(a.shoots.keys().collect::<Vec<_>>(), ["morel"]);
         assert_eq!(a.fish.keys().collect::<Vec<_>>(), ["carp", "catfish"]);
         assert_eq!(a.fish["catfish"].best, SIZE_MAX);
         assert!(a.bugs.is_empty());

@@ -83,7 +83,7 @@ test('guide bug percentages use one actual spawned-individual pool, not two full
   assert.ok(Math.abs(festival.find(item => item.id === 'golden_firefly').chance - 1 / 111) < 1e-12);
 });
 
-test('all 161 album entries remain reachable and event gifts retain calendar gates', async () => {
+test('all 169 album entries remain reachable and event gifts retain calendar gates', async () => {
   const { discoveryBugChances, discoveryFindChances } = await import('../website/.vitepress/theme/discovery-odds.js');
   const { LIMITS } = await import('../src/core/limits.js');
   const events = JSON.parse(await readFile(new URL('../src/content/events.json', import.meta.url))).events;
@@ -95,6 +95,7 @@ test('all 161 album entries remain reachable and event gifts retain calendar gat
     trees: new Set(),
     treasures: new Set(),
     tracks: new Set(),
+    shoots: new Set(),
   };
   for (const season of ['spring', 'summer', 'autumn', 'winter']) {
     for (const period of ['morning', 'day', 'evening', 'night']) {
@@ -115,6 +116,7 @@ test('all 161 album entries remain reachable and event gifts retain calendar gat
     if (gift.event) assert.ok(events.some(event => event.id === gift.event && event.from && event.to));
     seen.gifts.add(gift.id);
   }
+  for (const item of catalog.shoots) seen.shoots.add(item.id);
   // Footprints: each day's two trails name two animals, so a year of days meets them all.
   const ids = catalog.tracks.map(track => track.id);
   for (let d = 0; d < 365; d++) {
@@ -124,7 +126,7 @@ test('all 161 album entries remain reachable and event gifts retain calendar gat
   for (const [book, found] of Object.entries(seen)) assert.equal(found.size, catalog[book].length, book);
   assert.equal(
     Object.values(seen).reduce((sum, found) => sum + found.size, 0),
-    161,
+    169,
   );
 });
 

@@ -8,8 +8,8 @@ import { albumEntries, catalog } from './support/content.mjs';
 
 const seasons = ['spring', 'summer', 'autumn', 'winter'];
 
-test('the collection has 161 distinct entries with six equally reachable flowers per season', () => {
-  assert.equal(albumEntries, 161);
+test('the collection has 169 distinct entries with six equally reachable flowers per season', () => {
+  assert.equal(albumEntries, 169);
   for (const season of seasons) {
     const kinds = catalog.flowers.filter(item => item.season === season);
     assert.equal(kinds.length, 6, season);
@@ -76,7 +76,7 @@ test('an ordinary bug is one in twenty somewhere, a rare one never more', () => 
     else assert.ok(best[bug.id] > 0.05, `${bug.id} ${best[bug.id]}`);
 });
 
-test('green field cricket keeps its grounded discovery route in the 161-entry collection', () => {
+test('green field cricket keeps its grounded discovery route in the 169-entry collection', () => {
   const cricket = catalog.bugs.find(bug => bug.id === 'field_cricket');
   assert.ok(cricket);
   assert.equal(cricket.kind, 'cricket');

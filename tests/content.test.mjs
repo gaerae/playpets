@@ -7,7 +7,7 @@ import test from 'node:test';
 import { LIMITS } from '../src/core/limits.js';
 import { STRINGS } from '../src/core/strings.js';
 import { PAINTER_NAMES, THING_KINDS } from '../src/yard/backdrop.js';
-import { artOf, eventGifts, giftKind, TRACKS, trailArt } from '../src/yard/catalog.js';
+import { artOf, eventGifts, giftKind, SHOOTS, shootKind, TRACKS, trailArt } from '../src/yard/catalog.js';
 import { SHOWN } from '../src/yard/decor-shown.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
@@ -22,8 +22,25 @@ test('every kind has its name, and every gift its lines, in every language', () 
     ...catalog.fish.map(f => `catch.fish_${f.id}`),
     ...catalog.bugs.map(b => `catch.bug_${b.id}`),
     ...catalog.garden.stages.map(s => `garden.stage_${s.name}`),
+    ...catalog.shoots.map(s => `shoot.${s.id}`),
   ];
   for (const lang of LANGUAGES) for (const key of keys) assert.ok(STRINGS[lang][key], `${lang}: ${key}`);
+});
+
+test('the spring shoots are eight spring kinds with their drawings', () => {
+  assert.deepEqual(
+    catalog.shoots.map(s => s.id),
+    ['shepherds_purse', 'mugwort', 'fiddlehead', 'wild_garlic', 'bamboo_shoot', 'horsetail', 'asparagus', 'morel'],
+  );
+  for (const s of catalog.shoots) {
+    assert.equal(s.season, 'spring', s.id);
+    assert.equal(s.art, `shoots/${s.id}.svg`);
+    assert.ok(s.size.length === 2 && s.size.every(Number.isFinite), `${s.id}: a size`);
+    assert.equal(Math.max(...s.size), 40, `${s.id}: the longer side is 40`);
+  }
+  assert.equal(SHOOTS.length, 8);
+  assert.equal(shootKind('morel').art, 'shoots/morel.svg');
+  assert.equal(shootKind('carp'), null);
 });
 
 test('every drawing the catalogue names is an SVG file with a view box, and nothing in it runs', () => {

@@ -1,7 +1,7 @@
 //! What the yard is made of, as src/content/catalog.json has it: the page reads the same file, so a
 //! flower, a gift, a fish or a bug is added in one place and both sides know it. Built into the app,
 //! so the backend always holds the catalogue the page was shipped with. Here it decides what a seed
-//! can grow into, which gift comes next, what the album believes was caught, and when a plant has
+//! can grow into, which gift comes next, what the album believes was caught or gathered (a spring shoot included), and when a plant has
 //! flowered; and, from src/content/events.json, which seasonal event's gifts a day may bring. How to
 //! add to the yard: docs/how-to/add-to-the-yard.md.
 use serde::Deserialize;
@@ -165,6 +165,8 @@ pub struct Catalog {
     treasures: Vec<Treasure>,
     #[serde(default)]
     pub tracks: Vec<Track>,
+    #[serde(default)]
+    shoots: Vec<Kind>,
 }
 
 fn events() -> &'static Events {
@@ -266,6 +268,10 @@ impl Catalog {
     /// Whether this is an animal that leaves prints.
     pub fn is_track(&self, id: &str) -> bool {
         self.tracks.iter().any(|track| track.id == id)
+    }
+    /// Whether this is a spring shoot a friend can dig up.
+    pub fn is_shoot(&self, id: &str) -> bool {
+        self.shoots.iter().any(|kind| kind.id == id)
     }
     /// Whether the dig's trail animal lists this treasure among its finds.
     fn leans_to(&self, context: Option<&DiscoveryContext>, treasure: &str) -> bool {
@@ -517,6 +523,7 @@ mod tests {
         );
         assert_eq!(c.fish_max("carp"), Some(80.0));
         assert!(c.is_bug("firefly") && !c.is_bug("carp"));
+        assert!(c.is_shoot("morel") && c.is_shoot("shepherds_purse") && !c.is_shoot("carp") && !c.is_shoot("tulip"));
         assert_eq!(c.bloom_after_ms(), 4 * 60 * 60 * 1000);
         // An event's gift comes only on its days, six months later in the south, and is not one of
         // the everyday gifts; the new year is the same everywhere.
@@ -556,6 +563,7 @@ mod tests {
             .iter()
             .chain(&c.gifts)
             .chain(&c.bugs)
+            .chain(&c.shoots)
             .map(|k| &k.id)
             .chain(c.fish.iter().map(|f| &f.id))
         {

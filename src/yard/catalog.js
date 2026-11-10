@@ -15,6 +15,8 @@ export const TREES = [];
 export const TREASURES = [];
 /** The winter animals that leave prints, each with its print, tail, gait and the finds it leans to. */
 export const TRACKS = [];
+/** The spring shoots a friend can dig up, each with its drawing and size. */
+export const SHOOTS = [];
 let trailArts = [];
 /** A plant's stages and when each begins, in ms from planting; `art` draws it (bloom: the flower's). */
 export const STAGES = [];
@@ -29,6 +31,7 @@ export function useCatalog(catalog) {
   fill(TREES, catalog.trees);
   fill(TREASURES, catalog.treasures);
   fill(TRACKS, catalog.tracks);
+  fill(SHOOTS, catalog.shoots);
   trailArts = catalog.trailArt || [];
   fill(
     STAGES,
@@ -47,6 +50,7 @@ export function artOf(catalog, events = { events: [] }) {
     // A built snowman's ball while it is rolled, and the things the person puts on it.
     ...catalog.gifts.flatMap(g => [...(g.ball ? [{ art: g.ball }] : []), ...(g.dress || [])]),
     ...(catalog.treasures || []),
+    ...(catalog.shoots || []),
     ...(catalog.tracks || []).flatMap(k => [{ art: k.print }, { art: k.tail }]),
     ...(catalog.trailArt || []),
     ...(catalog.discoveryTools || []),
@@ -67,6 +71,7 @@ export const giftKind = id => GIFTS.find(g => g.id === id) || null;
 export const eventGifts = id => GIFTS.filter(g => g.event === id && !g.built).map(g => g.id);
 export const treeKind = id => TREES.find(tree => tree.id === id) || null;
 export const trackKind = id => TRACKS.find(k => k.id === id) || null;
+export const shootKind = id => SHOOTS.find(s => s.id === id) || null;
 /** The drawing of a trail's bush, twigs or snow puff. */
 export const trailArt = id => trailArts.find(a => a.id === id)?.art;
 export const treasureKind = id => TREASURES.find(item => item.id === id) || null;

@@ -390,6 +390,14 @@ static COMMANDS: &[Command] = &[
             Ok(json!({"entry": entry, "first": first}))
         })
     }),
+    // (id): a spring shoot a friend dug up (shoots.js); returns {entry, first}.
+    main("gatherShoot", |c| {
+        let now = now_ms();
+        commit(c.app, &c.state, |d| {
+            let (entry, first) = d.album.gathered(c.text(0), now)?;
+            Ok(json!({"entry": entry, "first": first}))
+        })
+    }),
     main("bloomed", bloomed),
     main("befriend", befriend),
     // Coding agents.
@@ -725,6 +733,7 @@ mod tests {
             assert!(!may_call("overlay0", name));
         }
         assert!(may_call("main", "followTracks") && !may_call("overlay0", "followTracks"));
+        assert!(may_call("main", "gatherShoot") && !may_call("overlay0", "gatherShoot"));
         assert!(may_call("main", "answerLetter") && may_call("main", "deleteLetter"));
         assert!(!may_call("overlay0", "answerLetter"));
         assert!(may_call("main", "writeLetter") && !may_call("overlay0", "writeLetter"));

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { albumEntries } from './support/content.mjs';
+import { albumEntries, catalog } from './support/content.mjs';
 
 globalThis.playPets ??= {};
 const state = await import('../src/core/state.js');
@@ -32,7 +32,8 @@ test('the hidden book is nowhere until something in it is found, and never count
   assert.equal(secret.hidden, true);
   assert.equal(
     document.getElementById('album-total').textContent,
-    translate('catch.total', { caught: 0, total: albumEntries }),
+    // The shoots are in the catalogue but have no book on the page yet, so the panel does not count them.
+    translate('catch.total', { caught: 0, total: albumEntries - catalog.shoots.length }),
   );
 });
 

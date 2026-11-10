@@ -508,6 +508,7 @@ const scenario = `(async()=>{
     const albumOk=document.querySelectorAll('.album-card').length===fishKinds&&document.querySelector('[data-count=fish]').textContent.endsWith('/'+fishKinds)&&document.querySelectorAll('.album-card:not(.unknown)').length===1&&(await playPets.bootstrap()).data.album.fish.carp.best===41.5&&tooBig.ok===false;
     $('album-dialog').close();
     await L('album='+(albumOk?'kept-and-shown':'err:'+JSON.stringify((await playPets.bootstrap()).data.album)));
+    const shootOk=(await playPets.gatherShoot('morel')).ok&&(await playPets.gatherShoot('carp')).ok===false&&(await playPets.bootstrap()).data.album.shoots.morel.count===1;await L('shoots='+(shootOk?'kept':'err'));
     // New catalogue IDs pass the native save boundary and use decoded local atlases.
     const extensionFish=['stickleback','freshwater_prawn','crayfish','pond_snail'],extensionBugs=['ladybug','field_cricket'];
     let extensionAccepted=true;
@@ -1667,6 +1668,7 @@ const expect = [
     /^album=kept-and-shown$/,
     'a catch is kept in the album (count, biggest fish), nonsense is refused, and the album shows it',
   ],
+  [/^shoots=kept$/, 'a gathered spring shoot is kept in the album and anything else is refused'],
   [
     /^friendship=80\/1\/hearts\/refused$/,
     'friendship: a day brings so much and no more, a level up shows hearts, nonsense is refused',
