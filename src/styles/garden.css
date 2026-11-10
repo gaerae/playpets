@@ -86,8 +86,9 @@
 }
 /* Spring shoots poking up from the grass (yard/shoots.js), set down at their depth like a plant. The
    button's own transform is its place (props.js setDown), so only the drawing inside rises.
-   Green on green grass, a shoot keeps a soft shade of soil under its foot and a shadow to the lower
-   right, as the light comes from the upper left (--shoot-lift); both are still. */
+   Green on green grass, a shoot keeps a small soft shade under its patch of earth, no wider than
+   the patch so it never reads as a ring, and a shadow to the lower right, as the light comes from
+   the upper left (--shoot-lift); both are still. */
 .shoot {
   --shoot-lift: drop-shadow(1px 1.6px 0.9px #222e14a6) drop-shadow(0 0 1px #fff8e08c);
   position: absolute;
@@ -102,12 +103,12 @@
 .shoot::before {
   content: "";
   position: absolute;
-  left: -22%;
-  right: -22%;
-  bottom: -16%;
-  height: 46%;
+  left: 4%;
+  right: 4%;
+  bottom: -5%;
+  height: 20%;
   z-index: -1;
-  background: radial-gradient(closest-side, #3d2a1673 30%, #3d2a1638 62%, transparent);
+  background: radial-gradient(closest-side, #241a0c66, #241a0c2e 55%, transparent);
   pointer-events: none;
 }
 .shoot svg {
@@ -1149,7 +1150,7 @@
   left: calc(3.5 * var(--u));
   bottom: 0;
   width: calc(41 * var(--u));
-  height: calc(32 * var(--u));
+  height: calc(30 * var(--u));
 }
 .tail-peek[data-track="hare"] {
   --x: 16;
@@ -1173,13 +1174,29 @@
   --x: 17.5;
   --turn: 3deg;
 }
+/* A bird has dived head first into the bush's top: its tail, feet and rump stand up out of the
+   snow over the middle, its cut along the bottom and the fade before it (--fade of the drawing's
+   height, --h) inside the crown. --x is the drawing's left edge. */
+.tail-peek.bird > svg.tail {
+  left: calc(var(--x) * var(--u));
+  height: calc(var(--h) * var(--u));
+  transform-origin: center bottom;
+  mask-image: linear-gradient(to top, transparent, #000 var(--fade, 30%));
+}
 .tail-peek[data-track="sparrow"] {
-  --w: 15;
-  --lift: 6;
+  --x: 13.5;
+  --w: 21;
+  --h: 22;
+  --lift: 21;
+  --turn: -4deg;
 }
 .tail-peek[data-track="magpie"] {
+  --x: 15;
   --w: 17;
-  --lift: 5;
+  --h: 26;
+  --lift: 21;
+  --turn: 3deg;
+  --fade: 20%;
 }
 .tail-peek[data-track="cat"] {
   --w: 14;
@@ -1256,7 +1273,7 @@
   position: absolute;
   left: calc(26 * var(--u));
   bottom: calc(2 * var(--u));
-  width: calc(34 * var(--u));
+  width: calc(35 * var(--u));
   height: calc(29 * var(--u));
   max-width: none;
 }
@@ -1309,16 +1326,16 @@
 }
 /* At the bush the tail rises into view, a second later whisks away behind it (sideways into the
    bush, the way the animal went, and a little down so it never clears the bush's top; .mirror
-   turns it) with a puff of snow, or a bird's flutters up and off. Each runs once and keeps its
-   last frame. */
+   turns it) with a puff of snow, or a bird's ducks down into the crown. Each runs once and keeps
+   its last frame. */
 .trail-end.peek .tail {
   animation: tail-peek 0.25s ease-out forwards;
 }
 .trail-end.whisk .tail {
   animation: tail-whisk 0.3s ease-in forwards;
 }
-.trail-end.flutter .tail {
-  animation: tail-flutter 0.7s ease-in forwards;
+.trail-end.dive .tail {
+  animation: tail-dive 0.5s ease-in forwards;
 }
 @keyframes tail-peek {
   from {
@@ -1340,21 +1357,17 @@
     opacity: 0;
   }
 }
-@keyframes tail-flutter {
+@keyframes tail-dive {
   0% {
     translate: 0 0;
     opacity: 1;
   }
   30% {
-    translate: calc(-3 * var(--u)) calc(-12 * var(--u));
-    opacity: 0.6;
-  }
-  60% {
-    translate: calc(3 * var(--u)) calc(-26 * var(--u));
-    opacity: 0.15;
+    translate: 0 calc(-2 * var(--u));
+    opacity: 1;
   }
   100% {
-    translate: 0 calc(-40 * var(--u));
+    translate: 0 calc(12 * var(--u));
     opacity: 0;
   }
 }

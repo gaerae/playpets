@@ -4,6 +4,7 @@ import { groundAllows } from '../src/yard/discovery-rules.js';
 import {
   BLOCK_MS,
   coveredAt,
+  endZoom,
   laidAt,
   seedOf,
   stamps,
@@ -169,4 +170,11 @@ test('prints fade over the day', () => {
   assert.equal(trailOpacity(0, 2 * h), 0.55);
   assert.equal(trailOpacity(0, 8 * h), 0.35);
   assert.equal(trailOpacity(0, 24 * h), 0.35);
+});
+
+test("a trail's bush shrinks with the yard down to three quarters, so the tail still reads", () => {
+  assert.equal(endZoom(1), 1);
+  assert.equal(endZoom(1.25), 1.25);
+  assert.equal(endZoom(0.57), 0.75);
+  assert.equal(endZoom(0.2), 0.75);
 });

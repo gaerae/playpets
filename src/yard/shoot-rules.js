@@ -12,6 +12,10 @@ export const SHOOT_STAYS_MS = 6 * 3600_000;
 export const RAIN_GAP_MS = 3 * 3600_000;
 /** The least distance between two shoots, in field units. */
 export const SHOOT_APART = 0.1;
+// A shoot shrinks with the yard only this far: smaller, in the mini window, it sinks into the grass.
+const SHOOT_ZOOM_MIN = 0.75;
+/** A shoot's scale in a yard drawn at `zoom`. */
+export const shootScale = zoom => Math.max(zoom, SHOOT_ZOOM_MIN);
 
 /** Whether the yard can grow shoots now: spring, in a place that shows seasons, on soil. */
 export const shootTime = (scene, soil) => yardSeason(scene) === 'spring' && soil;
