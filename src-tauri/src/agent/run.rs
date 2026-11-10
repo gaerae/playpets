@@ -116,17 +116,36 @@ mod tests {
     #[cfg(unix)]
     #[test]
     fn a_command_stopped_by_its_terminal_leaves_the_friend_idle() {
-        let ran = |script: &str| ended(std::process::Command::new("sh").args(["-c", script]).status().unwrap());
-        assert_eq!(ran("exit 0"), (0, "done", "@done".to_string()));
-        assert_eq!(ran("exit 3"), (3, "error", "@failed 3".to_string()));
+        // Wait statuses built by hand, not a real `kill -INT $$`: a test run started in the
+        // background inherits an ignored SIGINT, and the shell would then exit 0 instead.
+        use std::os::unix::process::ExitStatusExt;
+        let exited = |code: i32| ended(std::process::ExitStatus::from_raw(code << 8));
+        let killed = |signal: i32| ended(std::process::ExitStatus::from_raw(signal));
+        assert_eq!(exited(0), (0, "done", "@done".to_string()));
+        assert_eq!(exited(3), (3, "error", "@failed 3".to_string()));
         // Ctrl-C: the shell's own code for it, and the friend is no longer left working.
-        assert_eq!(ran("kill -INT $$"), (130, "idle", "@stopped".to_string()));
-        assert_eq!(ran("kill -TERM $$"), (143, "idle", "@stopped".to_string()));
-        assert_eq!(ran("kill -KILL $$"), (137, "error", "@failed 137".to_string()));
+        assert_eq!(killed(libc::SIGINT), (130, "idle", "@stopped".to_string()));
+        assert_eq!(killed(libc::SIGTERM), (143, "idle", "@stopped".to_string()));
+        assert_eq!(killed(libc::SIGKILL), (137, "error", "@failed 137".to_string()));
         assert_eq!(
-            ran("exit 130"),
+            exited(130),
             (130, "idle", "@stopped".to_string()),
             "it caught Ctrl-C and left"
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn the_hand_built_statuses_read_as_a_real_command_s() {
+        use std::os::unix::process::ExitStatusExt;
+        let real = std::process::Command::new("sh")
+            .args(["-c", "exit 3"])
+            .status()
+            .unwrap();
+        assert_eq!(real, std::process::ExitStatus::from_raw(3 << 8));
+        assert_eq!(
+            std::process::ExitStatus::from_raw(libc::SIGKILL).signal(),
+            Some(libc::SIGKILL)
         );
     }
 
