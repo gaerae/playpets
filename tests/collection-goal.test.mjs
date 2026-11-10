@@ -76,11 +76,11 @@ test('an ordinary bug is one in twenty somewhere, a rare one never more', () => 
     else assert.ok(best[bug.id] > 0.05, `${bug.id} ${best[bug.id]}`);
 });
 
-test('green field cricket keeps its grounded discovery route in the 169-entry collection', () => {
+test('the brown field cricket keeps its grounded discovery route in the 169-entry collection', () => {
   const cricket = catalog.bugs.find(bug => bug.id === 'field_cricket');
   assert.ok(cricket);
   assert.equal(cricket.kind, 'cricket');
-  assert.equal(cricket.look.body, '#7b9e57');
+  assert.equal(cricket.look.body, '#9a5a34');
   assert.equal(cricket.art, 'bugs/field_cricket.svg');
   assert.ok(cricket.seasons.includes('summer'));
   assert.equal(

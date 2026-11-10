@@ -212,6 +212,32 @@
         "role": "Style reference only"
       },
       "notes": "Replaces the cicada shell cell of more-finds, which is no longer exported. Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha."
+    },
+    {
+      "id": "winter-trees",
+      "file": "winter-trees-source.png",
+      "atlas": "trees/winter.png",
+      "size": [1536, 1024],
+      "sha256": "0b756ba037096ca7212ebd5e2d10f4eb966d6af8b26a116fe6ff74bd6754fac8",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet.\nStyle: match the reference trees exactly: the same soft painterly illustrated look, warm brown bark with gentle highlights, the same small green root rosette at each base, the same size and proportions as the reference mature trees, key light from the upper left. TRUE transparent alpha background: NO painted background, NO sky, NO snow, NO ground beyond the root rosette, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, exactly THREE bare mature WINTER trees in three equal columns, each centered and standing on the same baseline near the bottom with 8% transparent padding, nothing crossing the column boundaries.\nIn the reference the three winter trees (left three) are the same brown rounded bare tree. Make each one unmistakable at a glance, at 80 px, by its own shape, bark colour and the little things it keeps in winter:\nCOL1: winter CHERRY tree: a wide, spreading UMBRELLA-shaped crown, wider than tall, branches arching outward and slightly down; smooth glossy dark RED-BROWN to plum bark with clear pale HORIZONTAL bands (lenticels) on the trunk; many short twigs dotted with plump round pinkish-brown flower BUDS.\nCOL2: winter MAPLE tree: a tall, airy, UPRIGHT oval crown, narrower than the others, with many fine slender twigs whose ends are bright CORAL-RED; smooth light grey-brown bark; a few pairs of dry tan winged maple seeds (samaras) still hanging from the twigs.\nCOL3: winter OAK tree: a massive short trunk with deeply FURROWED grey-brown bark, thick gnarled ZIG-ZAG branches in a broad rugged crown, and many DRY curled tan-brown oak leaves with rounded lobes still CLINGING all over the crown (oaks keep their dead leaves in winter).",
+      "input": {
+        "path": "a sheet of the cherry, maple and oak mature trees in winter and in leaf as they were (not kept), sha256 4d602d512a29a0aef23268d2f9bb5f47eb3961e23768e27701b61f3a1479ab8c",
+        "role": "Style and scale reference"
+      },
+      "notes": "Generated 2026-11-10. Replaces the cherry, maple and oak winter trees, which were the same rounded brown bare tree. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 ec42e3ba5e5d45008498c768c02f048960512a33672026b5728c0b005a25fada) is not kept."
+    },
+    {
+      "id": "persimmon-growth",
+      "file": "persimmon-growth-source.png",
+      "atlas": "trees/persimmon-growth.png",
+      "size": [1536, 1024],
+      "sha256": "ccd4bac84d4cc40ba49aab2d83c794cb8d56a5678ad8f3ea64a3a2e16fc7e836",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet.\nStyle: match the reference trees exactly: the same soft painterly illustrated look, gentle highlights, key light from the upper left, roots spreading at the base as in the reference seedlings. TRUE transparent alpha background: NO painted background, NO ground beyond the roots, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, exactly TWO plants in two equal columns, each centered and standing on the same baseline near the bottom with 10% transparent padding, nothing crossing the column boundary.\nIn the reference, the magnolia seedling and young tree (first and third) look almost the same as the persimmon seedling and young tree (second and fourth). Redraw ONLY the persimmon so that it matches the reference mature persimmon (last) and can never be mistaken for the magnolia, which has long pale leaves on a smooth grey stem:\nCOL1: persimmon SEEDLING: a short stocky DARK chocolate-brown stem, three or four BROAD ROUNDED oval leaves, thick, leathery and very GLOSSY deep green with a bright highlight, plus one small new leaf at the tip in coppery BRONZE-red.\nCOL2: persimmon YOUNG tree, about twice the seedling's height: a dark brown trunk with fine blocky checkered bark, a low rounded crown of the same broad rounded glossy deep-green leaves, a few coppery new leaves at the tips, and two or three tiny green persimmon fruits with four-lobed green caps tucked under the leaves.",
+      "input": {
+        "path": "a sheet of the magnolia and persimmon seedlings and young trees and the mature persimmon as they were (not kept), sha256 c4c23bbe3ae651f47bc12ee5575def7846ee2bd5b87a29add378873ffd97c96c",
+        "role": "Style reference"
+      },
+      "notes": "Generated 2026-11-10. Replaces the persimmon seedling and young tree, which looked like the magnolia's. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 32978aa3a487e35912750455839d89372dfff069b1a51b80fe85f6f8c1e0b241) is not kept."
     }
   ],
   "assets": [
@@ -370,11 +396,11 @@
     },
     {
       "id": "cherry-mature-winter",
-      "source": "seasons",
+      "source": "winter-trees",
       "art": "trees/cherry-mature-winter.svg",
       "size": [160, 170],
-      "crop": [861, 23, 373, 387],
-      "frame": [832.5, 0, 430, 410],
+      "crop": [0, 317, 560, 467],
+      "frame": [7.1, 193.3, 542.8, 576.7],
       "anchor": [0.5, 1]
     },
     {
@@ -397,11 +423,11 @@
     },
     {
       "id": "maple-mature-winter",
-      "source": "seasons",
+      "source": "winter-trees",
       "art": "trees/maple-mature-winter.svg",
       "size": [160, 170],
-      "crop": [857, 432, 379, 384],
-      "frame": [827, 406, 439, 410],
+      "crop": [554, 156, 422, 628],
+      "frame": [413.2, 59.7, 668.5, 710.3],
       "anchor": [0.5, 1]
     },
     {
@@ -457,12 +483,12 @@
     },
     {
       "id": "oak-mature-winter",
-      "source": "oak",
+      "source": "winter-trees",
       "art": "trees/oak-mature-winter.svg",
       "size": [160, 170],
-      "crop": [1019, 513, 503, 459],
+      "crop": [970, 222, 564, 562],
       "anchor": [0.5, 1],
-      "frame": [990.5, 499, 560, 473]
+      "frame": [934.8, 95.9, 634.5, 674.1]
     },
     {
       "id": "birch-seedling",
@@ -654,18 +680,18 @@
     },
     {
       "id": "persimmon-seedling",
-      "source": "persimmon",
+      "source": "persimmon-growth",
       "art": "trees/persimmon-seedling.svg",
       "size": [35, 40],
-      "crop": [190, 303, 150, 175],
+      "crop": [200, 470, 409, 423],
       "anchor": [0.5, 1]
     },
     {
       "id": "persimmon-young",
-      "source": "persimmon",
+      "source": "persimmon-growth",
       "art": "trees/persimmon-young.svg",
       "size": [70, 95],
-      "crop": [589, 116, 347, 363],
+      "crop": [703, 137, 723, 759],
       "anchor": [0.5, 1]
     },
     {

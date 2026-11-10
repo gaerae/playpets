@@ -41,8 +41,9 @@
    | `size` | fish | [shortest, longest] in cm; the backend refuses a longer catch |
    | `rain` | fish | More likely in rain |
    | `kind` | bug | `butterfly`, `dragonfly`, `firefly`, `beetle` or `cricket` |
-   | `look` | both | The colours the drawer paints it with; each drawer's fields are in `creatures.js` |
-   | `look.blink`, `look.size` | firefly | Its flash in the yard: ms between flashes (2100 when absent, 0 for a steady light) and size against the others (1 when absent). `tests/fireflies.test.mjs` keeps every two kinds apart by one of them |
+   | `look` | both | The colours the drawer paints it with; each drawer's fields are in `creatures.js`. `tests/look-alikes.test.mjs` fails when two bugs of one kind and about one size share every colour and marking |
+   | `look.size` | bug | Its size in the yard against others of its kind (1 when absent), in its art and in the plain drawing before the art loads; a small flier such as the damselfly is drawn smaller than the dragonfly beside it |
+   | `look.blink` | firefly | Its flash in the yard: ms between flashes (2100 when absent, 0 for a steady light). `tests/look-alikes.test.mjs` keeps every two fireflies apart by rhythm or size |
 
 2. To draw it yourself instead, add `"art": "fish/<id>.svg"` and put the drawing there (see "Drawings" below).
 3. Add its name to every string table: `catch.fish_<id>` or `catch.bug_<id>`.

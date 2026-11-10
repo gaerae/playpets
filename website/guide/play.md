@@ -40,7 +40,7 @@ The **Yard sounds** switch and **Volume** are in **Place & atmosphere → Atmosp
 
 Friends chatting on their own is a separate setting, in **Friends & settings → Settings → Friends & AI**.
 
-## Time of day and weather <Since v="0.1.0" />
+## Time of day and weather <Since v="0.1.0" /> {#weather}
 
 Season and weather are set separately. Choose Snow in summer and snow falls over the summer landscape and outfits. Choose Clear in winter and the winter landscape stays. The indoor window and imported backgrounds work the same way. Auto weather still keeps the snow it picks to winter.
 
@@ -214,7 +214,7 @@ When something new arrives, **Album** in **Play → Find** and **Play** in the d
 - **Rare** marks the kinds that seldom come, and everything that comes only during a seasonal event. An event's card gives its dates.
 - Saved as `album` in `state.json`.
 
-## Seasonal events <Since v="0.1.0" />
+## Seasonal events <Since v="0.1.0" /> {#seasonal-events}
 
 A few times a year the yard changes for a while. The event's name shows beside the scene label, a card tells you it has begun the first time you see it that year, and friends talk about it.
 
@@ -252,7 +252,7 @@ If there's a mailbox in the yard, the letter waits there; otherwise the friend t
 
 On the first day you open PlayPets from January 1 to 7, a friend brings your answer back and cheers you on, and next December's letter looks back on it. A friend with an AI connection writes in its own words. Letters and answers are kept on this computer, and the letter card can delete them. When a friend with an AI connection writes next year's letter, that AI reads your answer.
 
-## Closeness <Since v="0.1.0" />
+## Closeness <Since v="0.1.0" /> {#closeness}
 
 Each friend grows closer to you through time in the yard and the things you do together. Hearts on its name tag show how close it is. The Friend panel shows its level, how far it is to the next one and what the next one brings.
 

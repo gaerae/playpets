@@ -74,13 +74,85 @@ export const sections = {
         'Fishing and bugs',
         'Click the water, then click again when ! appears over the float. Click a bug outdoors on a clear day to catch it. What you find depends on the season, time of day and weather.',
       ],
-      [
-        'album',
-        'Album',
-        '{count} entries: aquatic life, bugs, flowers, gifts, trees and keepsakes. Ones you haven’t found yet say when and where to look.',
-      ],
+      ['album', 'Album', '{count} entries in eight books. Ones you haven’t found yet say when and where to look.'],
     ],
     link: 'Read the full play guide',
+  },
+  album: {
+    title: 'Eight books to fill',
+    lead: '{count} things to find, each in its own way. Nothing runs out and there is no deadline: a find you missed comes round again with its season.',
+    books: {
+      flowers:
+        'Dig up seeds, then plant them with Play → Plant a seed. They bloom in four hours; each season has its own.',
+      fish: 'Click the water and click again when ! shows over the float. Some come only at night, in rain or in one season.',
+      bugs: 'Click one outdoors on a clear day: butterflies and dragonflies by day, fireflies on spring and summer nights, crickets on autumn ones.',
+      gifts:
+        'A friend you played with brings one now and then. A few come only during an event, and the snowman you build together.',
+      trees:
+        'Dig up a sapling and plant it with Play → Plant a tree. It is kept here once it has grown, after twelve hours.',
+      treasures: 'Choose Play → Find → Dig and click open ground. A friend may turn up a little treasure.',
+      tracks:
+        'In a winter yard, click the footprints in the snow and a friend follows them to the animal that left them.',
+      shoots: 'In spring, shoots poke up after rain and on fair mornings. Click one and a friend digs it up.',
+    },
+    link: 'What you can find, and when',
+  },
+  year: {
+    title: 'Something new every season',
+    lead: 'The yard follows the calendar on your computer. These are the times it changes, and what to do then.',
+    letter: 'Year-end letter',
+    items: {
+      blossom:
+        'Petals drift and more butterflies come out. Choose Play → Flower viewing to gather your friends under a cherry tree, and click a falling petal to catch it. A friend brings a cherry sapling.',
+      shoots:
+        'After rain, and on fair mornings, a few shoots come up outdoors. Click one before it goes, in a few hours.',
+      fireflies:
+        'Many more fireflies glow at night, and a golden one is out there to catch. A friend brings a watermelon.',
+      harvest:
+        'Around the full moon it rises big and golden, and the moonlight carp comes to the lake at night. A friend brings a pumpkin.',
+      lights:
+        'Lights glow along the trees. Friends bring a little Christmas tree, a baby reindeer and Santa. Press the tree to hang up to three album finds a day. On a snowy night it grows into a grand tree, and with the reindeer and Santa out, a sleigh crosses the moon.',
+      snowman:
+        'While the yard shows winter, choose Play → Snowman. Roll three snowballs with your friends, stack them, then pick a hat, scarf and nose.',
+      footprints:
+        'Animal tracks cross the snow. Click them and a friend follows, sniffing, to a bush where a tail peeks out and a small find waits.',
+      letter:
+        'Your closest friend writes about the year you had together. Write back in up to 200 characters if you like.',
+      newyear:
+        'Friends greet the new year and a friend brings a kite. The answer you wrote to the letter comes back with a cheer.',
+    },
+    south:
+      'South of the equator, the cherry blossom festival, firefly nights and harvest moon come six months later; the winter lights, the letter and the New Year keep their dates.',
+    link: 'All about the seasonal events',
+  },
+  moments: {
+    title: 'The yard on its own',
+    lead: 'With time and weather on Auto, the yard follows your clock and picks its own weather. Some turns of it bring a moment worth catching.',
+    items: [
+      [
+        'Rainbow',
+        'When rain clears in daylight, a rainbow stands for a few minutes. Dig where it ends before it fades, and you never come up empty-handed.',
+      ],
+      ['Sunshower', 'Rain from a clear daytime sky falls with the sun still out.'],
+      ['Autumn mist', 'Mist lies on the field on clear autumn mornings.'],
+      ['Moonlit snow', 'Snow that stops at night glitters under the moon.'],
+      ['Shooting stars', 'They come often all through clear summer nights.'],
+      ['Birds', 'On clear days a flock crosses the sky now and then.'],
+    ],
+    closenessTitle: 'Growing closer',
+    closenessLead:
+      'Hearts on a name tag show how close a friend is. Time in the yard and things you do together count, a little each day.',
+    levels: [
+      'Where every friend starts.',
+      'It welcomes you when the app opens and when you come back after a while.',
+      'It goes fishing on its own now and then, and calls you when a fish bites.',
+      'It brings you its memento, a gift only it can give.',
+      'A flower blooms on its name tag, and now and then it says something just for you.',
+    ],
+    secret:
+      'A few more surprises are tucked away in the yard. No guide lists them; you’ll come across them playing with your friends.',
+    weatherLink: 'Time of day and weather',
+    link: 'How closeness works',
   },
   compare: {
     caption: 'Pet features: what a Codex pet does on its own, and what PlayPets adds',
@@ -102,9 +174,10 @@ export const sections = {
         'Follows your ChatGPT and Codex threads in one pet',
         'Each agent reports to its own pet: Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code and MCP tools',
       ],
-      ['Games', '—', 'Hide and seek, parade and tag'],
+      ['Games', '—', 'Hide and seek, parade, tag and, in winter, building a snowman'],
       ['Garden', '—', 'Dig up seeds and saplings, plant flowers and trees, and set out the gifts friends bring'],
-      ['Collecting', '—', 'Fish, catch bugs and fill an album of {count} finds'],
+      ['Collecting', '—', 'Fish, catch bugs, dig and follow tracks to fill an album of {count} finds'],
+      ['Seasons', '—', 'Cherry blossoms, firefly nights, a harvest moon, winter lights and the New Year'],
       ['Places', '—', 'Four places or your own backgrounds, with time of day, weather and seasons'],
       ['Outfits', '—', 'Starter pets dress for the season; any pet file can add seasonal sheets'],
     ],

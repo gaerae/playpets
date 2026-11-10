@@ -74,6 +74,79 @@ export function stepGroundBug(c, dt, bounds, leaving = false, rng = Math.random)
   }
   return true;
 }
+/**
+ * A bug drawn plainly in its kind's shape and colours, for while its collection art is not ready. It
+ * keeps its kind's size against the others (catalog.json look.size), so a damselfly does not pass for
+ * the dragonfly until the art arrives.
+ */
+export function paintPlainBug(ctx, c, scale) {
+  const s = scale * (c.look.size ?? 1);
+  if (grounded(c.kind)) paintGroundBug(ctx, c, s);
+  else if (c.kind === 'dragonfly') paintDragonfly(ctx, c, s);
+  else paintButterfly(ctx, c, s);
+}
+function paintGroundBug(ctx, c, scale) {
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate(c.heading + Math.PI / 2);
+  ctx.fillStyle = c.look.body || c.look.wing || '#4a3829';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, (c.kind === 'beetle' ? 4 : 2) * scale, 5 * scale, 0, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = c.look.edge || '#342a22';
+  ctx.lineWidth = scale;
+  for (const side of [-1, 1])
+    for (const y of [-2, 1, 3]) {
+      ctx.beginPath();
+      ctx.moveTo(side * 2 * scale, y * scale);
+      ctx.lineTo(side * (c.kind === 'cricket' && y === 3 ? 7 : 5) * scale, (y + 2) * scale);
+      ctx.stroke();
+    }
+  ctx.restore();
+}
+// Seen from above: two pairs of clear wings and a long body, pointing where it flies.
+function paintDragonfly(ctx, c, scale) {
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate(c.heading + Math.PI / 2);
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = c.look.wing;
+  const shimmer = 0.85 + 0.15 * Math.sin(c.phase);
+  for (const [dx, dy] of [
+    [-1, -1.5],
+    [1, -1.5],
+    [-1, 1],
+    [1, 1],
+  ]) {
+    ctx.beginPath();
+    ctx.ellipse(dx * 5 * scale, dy * scale, 5 * scale * shimmer, 1.5 * scale, 0, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 0.95;
+  ctx.fillStyle = c.look.body;
+  ctx.fillRect(-0.8 * scale, -3 * scale, 1.6 * scale, 10 * scale);
+  ctx.beginPath();
+  ctx.arc(0, -3.5 * scale, 1.6 * scale, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+}
+// A touch larger than life, so one is easy to click.
+function paintButterfly(ctx, c, scale) {
+  const flap = 0.25 + 0.75 * Math.abs(Math.sin(c.phase)),
+    k = scale * 1.4;
+  ctx.globalAlpha = 0.95;
+  ctx.strokeStyle = c.look.edge;
+  ctx.lineWidth = 0.8 * k;
+  ctx.fillStyle = c.look.wing;
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.ellipse(c.x + side * 3.2 * flap * k, c.y - k, 3.4 * flap * k, 4.4 * k, side * 0.5, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#5b4a3f';
+  ctx.fillRect(c.x - 0.6 * k, c.y - 3.5 * k, 1.2 * k, 6 * k);
+}
 export function createScenery(canvas, reduced, artOptions, ambientOptions, starCanvas = null) {
   const ctx = canvas.getContext('2d'),
     starCtx = starCanvas?.getContext('2d');
@@ -478,9 +551,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     if (c.kind === 'firefly') return paintFirefly(c);
     ctx.globalAlpha = 0.95;
     if (ambient.bug(ctx, c, scale)) return;
-    if (grounded(c.kind)) paintGroundBug(c);
-    else if (c.kind === 'dragonfly') paintDragonfly(c);
-    else paintButterfly(c);
+    paintPlainBug(ctx, c, scale);
   }
   function paintFirefly(c) {
     const lit = fireflyLit(c.look, c.phase) * c.light;
@@ -499,68 +570,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     ctx.beginPath();
     ctx.arc(c.x, c.y, 1.7 * size, 0, TAU);
     ctx.fill();
-  }
-  function paintGroundBug(c) {
-    ctx.save();
-    ctx.translate(c.x, c.y);
-    ctx.rotate(c.heading + Math.PI / 2);
-    ctx.fillStyle = c.look.body || c.look.wing || '#4a3829';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, (c.kind === 'beetle' ? 4 : 2) * scale, 5 * scale, 0, 0, TAU);
-    ctx.fill();
-    ctx.strokeStyle = c.look.edge || '#342a22';
-    ctx.lineWidth = scale;
-    for (const side of [-1, 1])
-      for (const y of [-2, 1, 3]) {
-        ctx.beginPath();
-        ctx.moveTo(side * 2 * scale, y * scale);
-        ctx.lineTo(side * (c.kind === 'cricket' && y === 3 ? 7 : 5) * scale, (y + 2) * scale);
-        ctx.stroke();
-      }
-    ctx.restore();
-  }
-  // Seen from above: two pairs of clear wings and a long body, pointing where it flies.
-  function paintDragonfly(c) {
-    ctx.save();
-    ctx.translate(c.x, c.y);
-    ctx.rotate(c.heading + Math.PI / 2);
-    ctx.globalAlpha = 0.55;
-    ctx.fillStyle = c.look.wing;
-    const shimmer = 0.85 + 0.15 * Math.sin(c.phase);
-    for (const [dx, dy] of [
-      [-1, -1.5],
-      [1, -1.5],
-      [-1, 1],
-      [1, 1],
-    ]) {
-      ctx.beginPath();
-      ctx.ellipse(dx * 5 * scale, dy * scale, 5 * scale * shimmer, 1.5 * scale, 0, 0, TAU);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 0.95;
-    ctx.fillStyle = c.look.body;
-    ctx.fillRect(-0.8 * scale, -3 * scale, 1.6 * scale, 10 * scale);
-    ctx.beginPath();
-    ctx.arc(0, -3.5 * scale, 1.6 * scale, 0, TAU);
-    ctx.fill();
-    ctx.restore();
-  }
-  // A touch larger than life, so one is easy to click.
-  function paintButterfly(c) {
-    const flap = 0.25 + 0.75 * Math.abs(Math.sin(c.phase)),
-      k = scale * 1.4;
-    ctx.globalAlpha = 0.95;
-    ctx.strokeStyle = c.look.edge;
-    ctx.lineWidth = 0.8 * k;
-    ctx.fillStyle = c.look.wing;
-    for (const side of [-1, 1]) {
-      ctx.beginPath();
-      ctx.ellipse(c.x + side * 3.2 * flap * k, c.y - k, 3.4 * flap * k, 4.4 * k, side * 0.5, 0, TAU);
-      ctx.fill();
-      ctx.stroke();
-    }
-    ctx.fillStyle = '#5b4a3f';
-    ctx.fillRect(c.x - 0.6 * k, c.y - 3.5 * k, 1.2 * k, 6 * k);
   }
   function paint(now) {
     dirty = false;

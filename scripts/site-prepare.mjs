@@ -3,6 +3,7 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { copyCreatorKit, writePetDownloads } from './creator-kit.mjs';
 import { copyCreatorSkill } from './creator-skill.mjs';
+import { exportAlbumArt } from './site-album.mjs';
 import { CAPTURE_VERSION, LANDING_PETS } from './site-content.mjs';
 import { exportSiteImages } from './site-images.mjs';
 import { destinationFor, docDisplayProse, rewriteDocLinks } from './site-lib.mjs';
@@ -36,6 +37,8 @@ await mkdir('website/public/yard', { recursive: true });
 await cp('assets/art/environments/green.png', 'website/public/yard/green.png');
 for (const name of ['sun', 'moon', 'small', 'wisps'])
   await cp(`assets/art/sky/${name}.png`, `website/public/yard/${name}.png`);
+// The landing's album and year show kinds as the app draws them.
+const albumArt = await exportAlbumArt();
 // The landing page animates the sample pets' real sprite sheets.
 await rm('website/public/pets', { recursive: true, force: true });
 await mkdir('website/public/pets', { recursive: true });
@@ -59,5 +62,5 @@ const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
 const releases = token ? await publishedReleases(slug, { token }) : null;
 await writeFile(
   'website/.vitepress/generated.json',
-  `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, petMotions, sceneImages, creatorSkillRevision, releases }, null, 2)}\n`,
+  `${JSON.stringify({ version: pkg.version, captureVersion: CAPTURE_VERSION, slug, petPreviews, petSeasonalPreviews, petMotions, sceneImages, albumArt, creatorSkillRevision, releases }, null, 2)}\n`,
 );

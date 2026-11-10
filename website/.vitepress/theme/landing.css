@@ -829,6 +829,251 @@ html[lang^="ja"] .landing {
     font-size: 15px;
   }
 }
+
+/* ---- album and year: every book and every season, each kind drawn as the app draws it ---- */
+.album-story,
+.seasons-story,
+.moments-story {
+  max-width: 1100px;
+  margin: 110px auto 0;
+  padding: 0 32px;
+}
+.album-story header,
+.seasons-story header,
+.moments-story header {
+  max-width: 720px;
+  margin-bottom: 32px;
+}
+.album-story h2,
+.seasons-story h2,
+.moments-story h2 {
+  margin: 0 0 16px;
+}
+.album-story .section-lead,
+.seasons-story .section-lead,
+.moments-story .section-lead {
+  margin: 0;
+}
+.book-art img,
+.year-art img {
+  display: block;
+  width: auto;
+  max-width: 34%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+}
+.album-books {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.album-books li {
+  margin: 0;
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  background: var(--world-lilac);
+}
+.book-art {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 10px;
+  height: 68px;
+  margin-bottom: 14px;
+}
+.album-books h3,
+.year-story h3,
+.moments-list h3,
+.closeness h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+}
+.book-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vp-c-text-2);
+}
+.album-books p,
+.year-story p,
+.moments-list p,
+.closeness p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+}
+.year-story {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.year-story > li {
+  --season: #f3bfd0;
+  margin: 0;
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--season) 30%, var(--world-paper));
+}
+.year-story > .season-summer {
+  --season: #b6e0a8;
+}
+.year-story > .season-autumn {
+  --season: #f0c37e;
+}
+.year-story > .season-winter {
+  --season: #c3d8f1;
+}
+.year-art {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 60px;
+  margin-bottom: 12px;
+}
+.year-story .year-when {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.year-when b {
+  padding: 0 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--season) 75%, var(--world-paper));
+  color: var(--world-ink);
+}
+.year-south {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+}
+.moments-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.moments-list li {
+  margin: 0;
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  background: color-mix(in srgb, #bcd6f0 28%, var(--world-paper));
+}
+.closeness {
+  margin-top: 48px;
+  padding: 26px 26px 20px;
+  border-radius: 22px;
+  background: color-mix(in srgb, #f3bfd0 22%, var(--world-paper));
+}
+.closeness > p {
+  max-width: 720px;
+}
+.closeness-ladder {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.closeness-ladder li {
+  margin: 0;
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  background: var(--world-paper);
+}
+.closeness-ladder .hearts {
+  display: block;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #e0607e;
+}
+.closeness-ladder b {
+  display: block;
+  margin: 4px 0 4px;
+  font-size: 15px;
+}
+.closeness .closeness-ladder p {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.moments-secret {
+  margin: 32px auto 0;
+  max-width: 640px;
+  padding: 14px 20px;
+  border: 1.5px dashed color-mix(in srgb, var(--world-ink) 30%, transparent);
+  border-radius: 999px;
+  font-size: 14px;
+  text-align: center;
+  color: var(--vp-c-text-2);
+}
+@media (max-width: 900px) {
+  .album-books,
+  .year-story,
+  .moments-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .closeness-ladder {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.dark .year-when b {
+  background: color-mix(in srgb, var(--season) 35%, var(--world-paper));
+}
+@media (max-width: 600px) {
+  .album-story,
+  .seasons-story,
+  .moments-story {
+    margin-top: 80px;
+    padding: 0 16px;
+  }
+  .album-books {
+    gap: 12px;
+  }
+  .album-books li {
+    padding: 14px 12px;
+  }
+  .book-art {
+    gap: 6px;
+    height: 52px;
+  }
+  .year-story,
+  .moments-list,
+  .closeness-ladder {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .closeness {
+    padding: 18px 14px 14px;
+  }
+  .closeness-ladder {
+    gap: 8px;
+  }
+  .closeness-ladder li {
+    padding: 10px 12px;
+  }
+  .closeness-ladder .hearts,
+  .closeness-ladder b {
+    display: inline;
+    margin-right: 8px;
+  }
+  .moments-secret {
+    border-radius: 18px;
+  }
+}
 .feature,
 .connections,
 .creator-story,

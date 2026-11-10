@@ -466,3 +466,77 @@ test('the moving scenes wait until they are seen and stop for paused or reduced 
   assert.match(preview, /lookFrame/);
   assert.match(preview, /strollTimer/);
 });
+
+// A visitor sees everything there is to collect and every time of year the yard changes, and how
+// to take part in each, not only the games.
+test('the landing shows every album book and every seasonal event with how to enjoy it, in every language', async () => {
+  const { ALBUM_BOOKS } = await import('../src/yard/catalog.js');
+  const { ALBUM_SAMPLES, YEAR } = await import('../scripts/site-content.mjs');
+  const { letterTime } = await import('../src/yard/letter.js');
+  const catalog = JSON.parse(read('src/content/catalog.json'));
+  // The books the app's album counts are the ones the landing counts and shows.
+  const appBooks = [...read('src/panel/album.js').matchAll(/^ {4}kinds: ([A-Z]+),$/gm)]
+    .map(([, list]) => list.toLowerCase())
+    .filter(list => list in catalog);
+  assert.deepEqual(appBooks, [...ALBUM_BOOKS]);
+  assert.deepEqual(Object.keys(ALBUM_SAMPLES), [...ALBUM_BOOKS]);
+  for (const [book, ids] of Object.entries(ALBUM_SAMPLES))
+    for (const id of ids)
+      assert.ok(
+        catalog[book].some(kind => kind.id === id),
+        `${book}: ${id}`,
+      );
+  // Every seasonal event has its place in the year, each picture is a kind the album knows.
+  const shown = YEAR.flatMap(season => season.items);
+  for (const { id } of JSON.parse(read('src/content/events.json')).events)
+    assert.ok(
+      shown.some(item => item.id === id && item.event),
+      id,
+    );
+  for (const item of shown)
+    for (const [book, id] of item.art)
+      assert.ok(
+        catalog[book].some(kind => kind.id === id),
+        `${item.id}: ${id}`,
+      );
+  // The letter's days are the app's.
+  const letter = shown.find(item => item.id === 'letter');
+  const day = md => new Date(2026, Number(md.slice(0, 2)) - 1, Number(md.slice(3)));
+  assert.equal(letterTime(day(letter.from)), 'write');
+  assert.equal(letterTime(day(letter.to)), 'write');
+  assert.equal(letterTime(new Date(day(letter.from).getTime() - 864e5)), null);
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    for (const book of ALBUM_BOOKS) assert.ok(sections.album.books[book]?.length > 20, `${lang}: ${book}`);
+    for (const item of shown) assert.ok(sections.year.items[item.id]?.length > 20, `${lang}: ${item.id}`);
+    for (const key of ['title', 'lead', 'link']) assert.ok(sections.album[key]?.length, `${lang}: album ${key}`);
+    for (const key of ['title', 'lead', 'south', 'link', 'letter'])
+      assert.ok(sections.year[key]?.length, `${lang}: year ${key}`);
+  }
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /ALBUM_BOOKS/);
+  assert.ok(landing.indexOf('class="play-story"') < landing.indexOf('<AlbumBooks'));
+  assert.ok(landing.indexOf('<AlbumBooks') < landing.indexOf('<YearStory'));
+});
+
+test('the landing shows the weather’s moments and every closeness level, in every language', async () => {
+  const { strings } = await import('../src/core/strings/en.js');
+  const levels = Object.keys(strings).filter(key => /^bond\.level_\d$/.test(key)).length;
+  assert.ok(levels >= 5);
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const { moments } = sections;
+    assert.equal(moments.items.length, 6, `${lang}: weather moments`);
+    for (const [title, body] of moments.items) assert.ok(title.length && body.length > 8, `${lang}: ${title}`);
+    // One line per level the app has, read beside the app's own level name.
+    assert.equal(moments.levels.length, levels, `${lang}: closeness levels`);
+    for (const key of ['title', 'lead', 'closenessTitle', 'closenessLead', 'secret', 'link', 'weatherLink'])
+      assert.ok(moments[key]?.length, `${lang}: moments ${key}`);
+    const guide = read(`website/${lang === 'en' ? '' : `${lang}/`}guide/play.md`);
+    for (const anchor of ['weather', 'closeness'])
+      assert.match(guide, new RegExp(`\\{#${anchor}\\}`), `${lang}: #${anchor}`);
+  }
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /bond\.level_\$\{level \+ 1\}/);
+  assert.ok(landing.indexOf('<YearStory') < landing.indexOf('class="moments-story"'));
+});

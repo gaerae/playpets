@@ -34,10 +34,26 @@
       "boxes": {
         "gudgeon": [73, 219, 1387, 541]
       }
+    },
+    {
+      "name": "field-cricket",
+      "prompt": "Use case: precise-object-edit. Asset type: PlayPets production transparent game insect sprite.\nUse the LEFT insect in the reference (the broad field cricket) as the ONLY identity and silhouette reference: recreate exactly that ONE cricket, seen from above with the head UP, with the same broad body, the same long antennae, the same six legs with large folded rear jumping legs, the same folded wing covers and the same pose and proportions.\nChange ONLY its colours, because its leaf green makes it look like the green katydid next to it: a warm CHESTNUT / russet brown body, slightly darker brown wing covers with fine pale golden veins, honey-gold leg joints and antennae, a soft pale cream band across the face between the eyes, warm amber eyes. It must stay clearly lighter and warmer than the dark plum-black Emma cricket (third in the reference) and clearly darker and broader than the pale straw grasshopper (fourth).\nStyle: the same cozy sculpted painted miniature as the reference, lightly textured, restrained highlights. Square 1024x1024 canvas, the whole cricket including every antenna and leg tip inside the central 80%, generous transparent margins. TRUE transparent alpha background: NO ground, NO haze, NO shadow, NO text, NO other insects.",
+      "references": [
+        "a side-by-side sheet of the field cricket, katydid, Emma cricket and grasshopper specimens as they were (not kept), sha256 1aca7032cf7d2ef497d1dfd6694482ff871ff59ea01bb91edf1d177b78562df9"
+      ],
+      "file": "field-cricket.png",
+      "sha256": "ec9099c64fce552bda0bd7d836ba1e17d9e037ae55bf551c978b0f15ccfad308",
+      "size": [1254, 1254],
+      "runtimeAtlas": "collection-extension/field-cricket.png",
+      "runtimeSha256": "878d0c1a0d5a5139733b0f950a6d4c43c69a902cb25c258f736eea51310ca562",
+      "acceptedIds": ["field_cricket"],
+      "boxes": {
+        "field_cricket": [138, 51, 977, 1167]
+      }
     }
   ],
   "processing": [
-    "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; written as 8-bit RGBA, 1536 x 1024.",
+    "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; written as 8-bit RGBA at the source size.",
     "Boxes are measured silhouettes with a 14-pixel margin; the firefly sheet is split at x = 768.",
     "The Heike firefly's box is widened in height to the firefly's 916 px (its measured silhouette is [901, 236, 437, 511]), so the album shows both at the scale they were drawn: the Heike firefly about half as tall."
   ]

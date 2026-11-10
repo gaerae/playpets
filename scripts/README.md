@@ -20,7 +20,7 @@
 | Linux desktop checks | `linux-e2e.sh` via `test:e2e:linux` (build and run) or with `node tests/e2e.mjs` (CI prebuilt binary) | Isolated D-Bus/Xvfb/Openbox session; waits for a window manager before testing native pin and fullscreen |
 | Security review | `pnpm run security:check` with Gitleaks 8.30.1 and cargo-audit 0.22.2 installed | Redacted full-history secret scan, pnpm high-severity dependency audit and RustSec review; advisory warnings stay visible |
 | Dependency notices | `licenses.mjs`, `licenses-lib.mjs` via `licenses:generate` and `licenses:check`; `prepare-appimage-licenses.mjs` before Linux packaging; `appimage-license.mjs` on the finished image | Native dependency notice and fingerprint under `packaging/licenses/`; collected distro copyright files and an exact AppImage system-source manifest during a release build |
-| Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs`, `site-motion.mjs`, `site-images.mjs`, `site-releases.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/`; with `GH_TOKEN` set, the published releases' files for the download links |
+| Website preparation | `site-prepare.mjs`, `site-lib.mjs`, `site-content.mjs`, `site-motion.mjs`, `site-images.mjs`, `site-album.mjs`, `site-releases.mjs` via `site:prepare` | Generated docs, downloads, artwork and metadata under `website/`; with `GH_TOKEN` set, the published releases' files for the download links |
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `release-page.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; the release pages read per system and checked against the release notes rules (`node scripts/release-page.mjs x.y.z` prints each system's text); native package install-and-launch verification runs in release CI |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
 | Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit`, `store-notes.mjs` | Redacted read-only credential check; the release's Store submission and its What's new from the website release pages, run by `store.yml`, or `store-retry.yml` for a fix after the tag (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
@@ -305,6 +305,13 @@ Background creation:
 - Availability goes into `petMotions` in `generated.json`.
 - It draws with the headless browser (`browser-lib.mjs`); without one it warns,
   and the scenes play those rows from the whole atlas instead.
+
+### Album pictures for the landing
+
+- `site-album.mjs` paints each kind the landing shows (`ALBUM_SAMPLES` and `YEAR` in `site-content.mjs`) from the app's own SVG wrapper, with its atlas inlined.
+- Each becomes a WebP, 136 px tall, in generated `website/public/yard/album/<book>-<id>.webp`; the folder is cleared first, so a kind taken off the landing leaves nothing behind.
+- Sizes and paths go into `albumArt` in `generated.json`.
+- It draws with the headless browser (`browser-lib.mjs`); without one it warns, and the landing shows the books' words alone.
 
 ### Companion batch scale corrections
 

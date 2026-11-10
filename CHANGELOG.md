@@ -39,11 +39,16 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - The firefly and the Heike firefly no longer look the same. In the album the firefly is long with a cross on its pink thorax, and the Heike firefly is small and round with one stripe on its orange thorax. In the yard at night the Heike firefly is smaller and flickers quickly in mint green, the firefly flashes slowly, and the late firefly is the big one that glows without blinking.
 - The gudgeon in the album no longer looks like the loach: it is pale and sandy, with a long pointed snout and large eyes set high.
+- The cherry, maple and oak no longer look alike in winter: the cherry spreads wide with plum bark and pink buds, the maple stands tall with red twig tips, and the oak keeps a few dry leaves.
+- The persimmon seedling and young tree no longer look like the magnolia's: they have round glossy leaves, and the young tree bears green fruit.
+- The field cricket is chestnut brown in the album and the yard, no longer the green of the katydid.
+- In the yard, the damselfly flies smaller than the dragonfly, and the little blue butterfly smaller than the cabbage white.
 - The winter lights now run from December 1 to 31, on the same dates south of the equator.
 - The gifts of the winter lights and the New Year come whatever season the yard shows, in every place, the Cozy living room too.
 - The snowman no longer comes as a gift. One already in the yard shows only while the yard shows winter, so not in the Cozy living room, and waits out of sight the rest of the time.
 - The yard rests while its window is hidden, checking once a second instead of ten times, and the desktop opens a window only on a screen with a friend or a gift on it. A coding agent's status now updates just that friend instead of redrawing the whole app.
 - Who joins a group chat opens as a dropdown.
+- Friends have a few new things to say to themselves by day, in the evening and at night.
 - **Connect now** and sending a first message no longer connect a CLI that is signed out, which used to fail at the first message; **Connect now** starts the sign-in in your browser instead, and a first message waits for it. With a signed-in CLI found, sending a first message connects it without opening the connection window.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
 - The birds at the end of winter footprints now dive head first into the bush, tail and feet up, and the bush has lost its white plate. Spring shoots sit on smooth earth, and the fiddlehead is easier to see. In a small window, shoots and the bush stay at least three quarters of their size.
@@ -103,6 +108,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The privacy policy has a section on children.
 - The import guide no longer lists Codex PokéPets, and says community pets are made by other people and reported on their own site.
 - The front page opens on the four friends in the yard with a coding agent at work beside them: when it finishes, one friend says so and the others cheer. The yard to play with, its places and seasons, and the button to pause the page's motion are now in the play section.
+- The front page shows all eight album books, each with a few of its kinds as the app draws them and how to fill it, and counts the album's 169 entries instead of 153.
+- The front page walks through the year: every seasonal event with its dates and what to do, the spring shoots, the snowman, winter footprints and the year-end letter.
+- The front page describes the weather's moments, such as the rainbow you can dig under and shooting stars on summer nights, and what each closeness level brings.
+- The discovery guide says gifts come at most every other day, from a friend you played with that day, instead of one a day.
 
 ## [1.5.0] - 2026-11-04
 - The README says the Microsoft Store version needs Windows 10 version 2004 or later.
