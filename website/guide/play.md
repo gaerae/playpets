@@ -26,7 +26,7 @@ The Play panel is titled for the friend you've selected, such as **Play with Clo
 |---|---|
 | **Find** | **Dig**, **Fish**, **Album** |
 | **Garden** | **Plant a seed** (with how many seeds you have), **Plant a tree**, **Picnic** |
-| **Group games** | The four games (**Snowman** only while the yard shows winter), **Let them chat** |
+| **Group games** | The four games (**Snowman** only while the yard shows winter), **Flower viewing** during the cherry blossom festival, **Let them chat** |
 
 Let them chat needs two friends connected to an AI. Everything else works without one.
 
@@ -220,7 +220,7 @@ A few times a year the yard changes for a while. The event's name shows beside t
 
 | Event | When | What it brings |
 |---|---|---|
-| Cherry blossom festival | April 1 to 20 | Petals drift everywhere and more butterflies come out; a friend brings a cherry sapling |
+| Cherry blossom festival | April 1 to 20 | Petals drift everywhere and more butterflies come out; friends gather to look at the flowers; a friend brings a cherry sapling |
 | Firefly nights | July 20 to August 20 | Many more fireflies at night, and a golden one to catch; a friend brings a watermelon |
 | Harvest moon | September 8 to October 15 | On the nights around the event's first full moon (two days either side), as at Chuseok and the Mid-Autumn Festival, the moon rises big and golden; the other nights it keeps its phase. The moonlight carp comes to the lake at night; a friend brings a pumpkin |
 | Winter lights | December 1 to 31 | Little lights along the trees, glowing from evening on; friends bring a small Christmas tree, then a baby reindeer, then Santa |
@@ -235,6 +235,14 @@ In December, if the yard isn't showing winter, PlayPets asks once whether to sho
 On a snowy evening or night during the winter lights, if the yard is showing winter and the little Christmas tree is out, the tree lights up and grows into a grand tree. This happens once a night. The grand tree stays while the snow falls, with a bulb glinting now and then, and shrinks back when the snow stops. If the baby reindeer and Santa are out in the yard, they look up late that night, and a sleigh crosses the moon once. In the Cozy living room the snow stays beyond the glass, so Christmas night happens only in the gardens, and the desktop keeps the little tree.
 
 Press the Christmas tree to decorate it. Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. They become small ornaments tinted by kind, and pointing at one shows what it is. To change the tree, take an ornament down from its card; the day's three stay used. Aquatic life and bugs stay in the water and the grass. The ornaments stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree. Decorating works in every place, the Cozy living room too.
+
+### Flower viewing
+
+During the cherry blossom festival, on a clear day from morning to evening, friends gather once a day under a cherry tree you grew. With no cherry tree they use a picnic blanket, or the middle of the yard. They look up and talk for a minute or so, then wander off. They never break into a game, fishing or digging, and the gathering ends early if the yard moves to another place, or night or rain comes.
+
+To call them yourself, choose **Flower viewing** in the play panel. You can do it once an hour, and the button is greyed out while friends are already viewing or a game is on. Friends connected to an AI talk about the blossom in their own words. They start such a gathering on their own only when **Let them chat now and then** is on.
+
+While they look, petals fall a little thicker and now and then one lands on a friend's head and stays until that friend moves. Click a falling petal to catch it: it twirls into a little glint, and the first one each day brings a wish from a friend. With reduced motion, petals don't fall and can't be caught, but friends still gather and petals still rest on heads.
 
 ### The year-end letter
 
