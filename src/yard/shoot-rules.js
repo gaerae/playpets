@@ -50,7 +50,8 @@ export const shootSpot = (rng, ground, near) =>
   );
 
 /** The shoots still standing at `now`. */
-export const freshShoots = (out, now) => out.filter(s => now - s.at >= 0 && now - s.at < SHOOT_STAYS_MS);
+export const freshShoots = (out, now) =>
+  out.filter(s => !!s && typeof s.at === 'number' && now - s.at >= 0 && now - s.at < SHOOT_STAYS_MS);
 
 const unit = n => Number.isFinite(n) && n >= 0 && n <= 1;
 

@@ -114,8 +114,11 @@ test('a spot is never where a body hides it', () => {
   const ground = { ...open, obstacles: [{ x: 0.5, y: 0.8, rx: 0.1, ry: 0.1 }] };
   // The draw lands at x 0.5, y 0.6: clear of the foot, but within the body standing above it.
   const y = (0.6 - 0.3) / 0.6;
+  const hidden = { x: 0.5, y: 0.6 };
+  assert.ok(groundAllows(hidden, ground), 'the ground alone would take it');
+  assert.ok(behind(hidden, ground), 'but a body would hide it');
   const spot = shootSpot(seq(0.5, y, 0, 0), ground, []);
-  assert.ok(spot && !(spot.x === 0.5 && Math.abs(spot.y - 0.6) < 1e-9), 'the hidden draw is skipped');
+  assert.ok(spot && Math.hypot(spot.x - 0.12, spot.y - 0.3) < 1e-9, 'the next draw is taken instead');
 });
 
 test('stale shoots are not fresh', () => {
@@ -145,6 +148,10 @@ test('kept shoots read back only what makes sense', () => {
     good('a'),
     good('a'),
     good('', {}),
+    good('h', { at: String(T - 1000) }),
+    null,
+    7,
+    'x',
     good('f', { world: '' }),
     good('g', { y: NaN }),
   ];
