@@ -44,6 +44,7 @@ What goes where.
 - Its windows use an ephemeral WebView profile, so localStorage and IndexedDB cannot change the normal app profile.
 - This profile lasts for one process.
 - Check persistence across restarts separately, with a disposable normal profile.
+- The app does not look for AIs on the computer (Claude Code, Codex, Ollama), so a signed-in CLI on a developer's machine cannot take the scenario's messages.
 - Results come out as `[e2e] name=value` lines.
 - The harness compares them with the expected list and prints `✓`/`✖`.
 - The last line before `DONE` is `lateWaits=[...]`: every wait that ran out of time, with its condition. Read it first when a check fails.
