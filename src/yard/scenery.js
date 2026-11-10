@@ -6,7 +6,10 @@
 // Every repaint of a canvas costs a screen update, so each is repainted only when something on it
 // moved. Stars are drawn once (their twinkle is the CSS layer's, scenery.css). Butterflies, fireflies
 // and falling petals or leaves come in spells: they are about for a while, leave, and the canvas
-// rests until the next spell.
+// rests until the next spell. While friends gather to view the blossom (viewing.js) a few more petals
+// fall in a band around their spot, through the rests too: they last only as long as the gathering
+// (at most 90 s), so that is bounded work, and without it the gathering could fall in a rest and
+// show no petals. They land and go when the band is done, and never fall where petals do not.
 import { between } from '../core/math.js';
 import { createAmbientArt } from './ambient-art.js';
 import { bugChances, weighted, wildlifeGroup } from './catalog.js';
@@ -74,6 +77,8 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     panes = null,
     drops = [],
     fallers = [],
+    // The gathering's band ({ x, width }) while one is on, else null.
+    band = null,
     flock = null,
     nextFlock = 0,
     splashes = [],
@@ -153,6 +158,8 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
         light: arriving && glow ? 0 : 1,
       };
     });
+    // A spell's start keeps the band's petals in the air; a scene change or resize starts them again.
+    const kept = fallers.filter(f => f.band && f.band === band && !f.band.done);
     fallers =
       reduced.matches || !worldAllows(world, 'seasonalEffects')
         ? []
@@ -161,8 +168,28 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
             if (arriving) f.y = -10 - Math.random() * h * 0.3;
             return f;
           });
+    if (bandAllowed()) fallers.push(...(kept.length ? kept : bandFallers()));
     art.use(season, precipitation() ? weather : 'clear', !reduced.matches && worldAllows(world, 'seasonalEffects'));
     ambient.use(worldAllows(world, 'wildlife'), worldAllows(world, 'sky'), critters);
+  }
+  // The band's petals fall where petals do: by day in clear spring or autumn weather, with motion.
+  const bandAllowed = () =>
+    !!band && !reduced.matches && worldAllows(world, 'seasonalEffects') && fallerCount(season, period, weather, w) > 0;
+  const bandFallers = () =>
+    Array.from({ length: Math.max(3, Math.min(6, Math.round(fallerCount(season, period, weather, w) * 0.6))) }, () => {
+      const f = spawnFaller(w, h, Math.random, band);
+      f.y = -10 - Math.random() * h * 0.3;
+      return f;
+    });
+  /** A gathering's band ({ x, width }, in yard pixels) adds a few petals around it; `null` lets them
+   * land and go. */
+  function gather(next) {
+    if (band) band.done = true;
+    band = next;
+    if (bandAllowed()) {
+      fallers.push(...bandFallers());
+      dirty = true;
+    }
   }
   function populate() {
     panes = weatherPanes(w, h, environmentFrame(w, h, { world }), worldFor(world).windowPanes);
@@ -631,6 +658,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     busy,
     near: (x, y) => !!near(x, y),
     catchAt,
+    gather,
     shower: showers,
     sunlit: sunlights,
     shoot,

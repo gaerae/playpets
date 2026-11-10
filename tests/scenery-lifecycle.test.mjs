@@ -315,3 +315,81 @@ test('a window resized in the middle of a show (the panel opening) keeps the spa
   assert.ok(sky.strokes > before);
   assert.equal(scene.busy(), true);
 });
+
+// What one frame paints, in rotations (one per petal), or null when the canvas rested.
+function petalsAt(scene, draws, now, dt = 16) {
+  const paints = draws.paints,
+    rotations = draws.rotations;
+  scene.frame(now, dt);
+  return draws.paints > paints ? draws.rotations - rotations : null;
+}
+// Runs frames from `from` to `to` ms in steps of `step`.
+function run(scene, from, to, step = 500) {
+  for (let now = from; now <= to; now += step) scene.frame(now, step);
+}
+
+test("a gathering's band adds a few petals near the tree, through the rest between spells", t => {
+  const { scene, draws } = yard(t, false);
+  scene.set('day', 'clear', 'spring', 'blossom');
+  const base = petalsAt(scene, draws, 16);
+  assert.ok(base > 0);
+  scene.gather({ x: 300, width: 200 });
+  const banded = petalsAt(scene, draws, 32) - base;
+  assert.ok(banded >= 3 && banded <= 6, `${banded} banded petals`);
+  // A resize (the panel opening) draws the scene again; the band is still there.
+  const before = draws.rotations;
+  scene.resize();
+  assert.equal(draws.rotations - before, base + banded, 'a resize keeps the band');
+  // The spell ends and its petals land; by 60 s only the band falls, and the canvas still paints.
+  run(scene, 500, 60000);
+  assert.equal(petalsAt(scene, draws, 60500), banded, 'the rest draws the banded ones');
+});
+
+test('a new spell during a gathering keeps its band', t => {
+  const { scene, draws } = yard(t, false);
+  scene.set('day', 'clear', 'spring', 'blossom');
+  const base = petalsAt(scene, draws, 16);
+  scene.gather({ x: 300, width: 200 });
+  const banded = petalsAt(scene, draws, 32) - base;
+  // The rest is 45 s here (random 0.5): the next spell starts at about 69 s and spawns its own petals.
+  run(scene, 500, 68000);
+  assert.equal(petalsAt(scene, draws, 68500), banded);
+  run(scene, 69000, 69500);
+  assert.equal(petalsAt(scene, draws, 70000), base + banded, "the new spell's petals and the band");
+});
+
+test('the band stops with the gathering', t => {
+  const { scene, draws } = yard(t, false);
+  scene.set('day', 'clear', 'spring', 'blossom');
+  const base = petalsAt(scene, draws, 16);
+  scene.gather({ x: 300, width: 200 });
+  const banded = petalsAt(scene, draws, 32) - base;
+  assert.ok(banded >= 3);
+  scene.gather(null);
+  // They are still falling, and nothing new joins them.
+  run(scene, 500, 20000);
+  assert.equal(petalsAt(scene, draws, 20500), base + banded, 'still on their way down');
+  // A banded petal starts about 100 px above the yard and falls 0.022 px/ms at this depth: it lands
+  // after about 26 s, and the spell's own petals, not recycled after 24 s, are down by about 37 s.
+  // The next spell is not before 69 s.
+  run(scene, 21000, 45000);
+  assert.equal(petalsAt(scene, draws, 45500) ?? 0, 0, 'every petal landed');
+});
+
+test('the band adds nothing at night, in rain or with reduced motion', t => {
+  for (const [period, weather] of [
+    ['night', 'clear'],
+    ['day', 'rain'],
+  ]) {
+    const { scene, draws } = yard(t, false);
+    scene.set(period, weather, 'spring', 'blossom');
+    const before = draws.rotations;
+    scene.gather({ x: 300, width: 200 });
+    run(scene, 16, 5000);
+    assert.equal(draws.rotations, before, `${period} ${weather}`);
+  }
+  const { scene, draws } = yard(t, true);
+  scene.gather({ x: 300, width: 200 });
+  scene.frame(100, 100);
+  assert.equal(draws.rotations, 0, 'reduced motion');
+});

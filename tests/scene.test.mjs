@@ -333,3 +333,21 @@ test('fresh yards start sunny in spring while explicit and automatic saved choic
     weather: 'auto',
   });
 });
+
+test('petals in a band start and start again inside it until the band is done', () => {
+  const band = { x: 200, width: 100 };
+  for (const value of [0, 0.5, 0.99]) {
+    const f = spawnFaller(1000, 600, () => value, band);
+    assert.ok(f.x >= 150 && f.x <= 250, `x ${f.x} for ${value}`);
+    assert.equal(f.band, band);
+  }
+  const f = spawnFaller(1000, 600, () => 0.5, band);
+  f.y = groundFor(f.depth, 600) - 0.5;
+  assert.equal(stepFallers([f], 500, 1000, 600, () => 0.99, false).length, 1, 'kept though the spell is over');
+  assert.ok(f.y < 0, 'back above the yard');
+  assert.ok(f.x >= 150 && f.x <= 250, `back inside the band (${f.x})`);
+  f.y = groundFor(f.depth, 600) - 0.5;
+  band.done = true;
+  assert.equal(stepFallers([f], 500, 1000, 600, () => 0.5, true).length, 0, 'gone once the band is done');
+  assert.equal(spawnFaller(1000, 600, () => 0.5).band, undefined, 'a plain petal has no band');
+});

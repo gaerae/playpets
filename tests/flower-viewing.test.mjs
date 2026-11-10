@@ -23,7 +23,7 @@ const { list, t: t0 } = await import('../src/core/i18n.js');
 const { reduced } = await import('../src/core/sprites.js');
 const { EDGE, fieldToYard, geometry, measureYard, petHeight, sizeOf, yardZoom } = await import('../src/yard/field.js');
 const { treeSize } = await import('../src/yard/planted-trees.js');
-const { scene } = await import('../src/yard/world.js');
+const { scene, setScenery } = await import('../src/yard/world.js');
 const { release, sendTo } = await import('../src/yard/trips.js');
 const { place, syncViews } = await import('../src/yard/views.js');
 const { decorPlacement } = await import('../src/yard/decor.js');
@@ -502,4 +502,26 @@ test('a call with one free friend still gathers', t => {
   tool().onclick();
   assert.equal(viewing.viewing(), true);
   assert.equal(first.away, true);
+});
+
+test('petals fall a little thicker around the tree from the first arrival to the end', t => {
+  const y = yard(t);
+  const bands = [];
+  setScenery({ gather: band => bands.push(band) });
+  t.after(() => setScenery(null));
+  assert.equal(viewing.startViewing('friends'), true);
+  y.tick(900);
+  assert.deepEqual(bands, [], 'not while they walk');
+  const [first, ...rest] = y.views();
+  arrive(first);
+  const x = fieldToYard(cherry).x,
+    w = treeSize('cherry', 2)[0] * yardZoom();
+  assert.equal(bands.length, 1);
+  assert.equal(bands[0].x, x);
+  assert.ok(Math.abs(bands[0].width - Math.max(160 * yardZoom(), w * 1.3)) < 1e-6);
+  for (const v of rest) arrive(v);
+  assert.equal(bands.length, 1, 'once, on the first arrival');
+  y.tick(91_000);
+  assert.equal(viewing.viewing(), false);
+  assert.deepEqual(bands.slice(1), [null], 'and a null at the end');
 });

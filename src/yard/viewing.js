@@ -8,7 +8,8 @@
 //   hears it and lets that friend go.
 // - Gathered friends are `away`, as in a game, so a state event does not put them back where they
 //   were saved; when one leaves, the place it stands in is kept as its own.
-// - Its timers are the gathering's, cleared when it ends. It draws nothing on the overlay.
+// - Its timers are the gathering's, cleared when it ends. It draws nothing itself; the petals that
+//   fall thicker around the spot are the scenery's (scenery.gather).
 
 import { closeControls } from '../core/controls.js';
 import { list, t } from '../core/i18n.js';
@@ -36,7 +37,7 @@ import {
   viewingTime,
 } from './viewing-rules.js';
 import { bubble, gaze } from './views.js';
-import { scene } from './world.js';
+import { scene, scenery } from './world.js';
 
 // The friends look now and then whether to gather: every 2 to 6 minutes, half the time.
 const GATHER_EVERY = [2 * 60 * 1000, 6 * 60 * 1000];
@@ -225,6 +226,8 @@ function settle(v) {
   gaze(v, look, VIEWING_MS[1]);
   if (g.begun) return;
   g.begun = true;
+  // Petals fall a little thicker around the spot while they are there.
+  scenery?.gather({ x: g.spot.x, width: Math.max(160 * yardZoom(), g.spot.w * 1.3) });
   later(g, TURNS_AFTER_MS, () => turn(g));
 }
 
@@ -284,6 +287,7 @@ export function endViewing() {
   if (!g) return;
   gathering = null;
   syncViewingAction();
+  scenery?.gather(null);
   for (const timer of g.timers) clearTimeout(timer);
   for (const v of g.members) {
     // Let go of here, not through release, which would tell leave again.
