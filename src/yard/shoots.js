@@ -29,6 +29,7 @@ import {
   freshShoots,
   keptShoots,
   pickShoots,
+  shootScale,
   SHOOTS_OUT,
   shootSpot,
   shootTime,
@@ -166,7 +167,7 @@ function create(shoot) {
 
 function update(v, shoot) {
   const [w, h] = shootKind(shoot.kind).size,
-    scale = propScale(),
+    scale = shootScale(propScale()),
     { x, y } = fieldToYard(shoot);
   setDown(v.button, x, y, w * scale, h * scale, 1 + Math.round(shoot.y * 100));
   v.button.classList.toggle('picking', digs.has(shoot.id));

@@ -1066,8 +1066,8 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-tails.webp",
     "atlasSize": [1536, 1024],
-    "crop": [431, 585, 154, 303],
-    "size": [15, 30],
+    "crop": [392, 582, 368, 400],
+    "size": [28, 30],
     "art": "tracks/tail_sparrow.svg"
   },
   {
@@ -1075,8 +1075,8 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-tails.webp",
     "atlasSize": [1536, 1024],
-    "crop": [762, 549, 223, 397],
-    "size": [17, 30],
+    "crop": [816, 528, 288, 454],
+    "size": [19, 30],
     "art": "tracks/tail_magpie.svg"
   },
   {
@@ -1093,8 +1093,8 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-bush.webp",
     "atlasSize": [1536, 1024],
-    "crop": [31, 360, 485, 376],
-    "size": [41, 32],
+    "crop": [40, 368, 469, 341],
+    "size": [41, 30],
     "art": "tracks/bush.svg"
   },
   {
@@ -1102,8 +1102,8 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-bush.webp",
     "atlasSize": [1536, 1024],
-    "crop": [542, 337, 457, 391],
-    "size": [40, 34],
+    "crop": [539, 335, 461, 380],
+    "size": [41, 34],
     "art": "tracks/twigs.svg"
   },
   {
@@ -1120,7 +1120,7 @@
     "kind": "shoot",
     "atlas": "collection-extension/spring-shoots.webp",
     "atlasSize": [1536, 1024],
-    "crop": [31, 121, 350, 358],
+    "crop": [32, 119, 344, 351],
     "size": [39, 40],
     "art": "shoots/shepherds_purse.svg"
   },
@@ -1129,8 +1129,8 @@
     "kind": "shoot",
     "atlas": "collection-extension/spring-shoots.webp",
     "atlasSize": [1536, 1024],
-    "crop": [410, 137, 327, 341],
-    "size": [38, 40],
+    "crop": [404, 135, 343, 330],
+    "size": [40, 38],
     "art": "shoots/mugwort.svg"
   },
   {
@@ -1138,8 +1138,8 @@
     "kind": "shoot",
     "atlas": "collection-extension/spring-shoots.webp",
     "atlasSize": [1536, 1024],
-    "crop": [816, 137, 257, 341],
-    "size": [30, 40],
+    "crop": [793, 105, 296, 360],
+    "size": [33, 40],
     "art": "shoots/fiddlehead.svg"
   },
   {
@@ -1147,8 +1147,8 @@
     "kind": "shoot",
     "atlas": "collection-extension/spring-shoots.webp",
     "atlasSize": [1536, 1024],
-    "crop": [1141, 145, 361, 333],
-    "size": [40, 37],
+    "crop": [1133, 145, 375, 320],
+    "size": [40, 34],
     "art": "shoots/wild_garlic.svg"
   },
   {
@@ -1156,8 +1156,8 @@
     "kind": "shoot",
     "atlas": "collection-extension/spring-shoots.webp",
     "atlasSize": [1536, 1024],
-    "crop": [62, 572, 278, 364],
-    "size": [31, 40],
+    "crop": [90, 568, 232, 346],
+    "size": [27, 40],
     "art": "shoots/bamboo_shoot.svg"
   },
   {
@@ -1165,8 +1165,8 @@
     "kind": "shoot",
     "atlas": "collection-extension/spring-shoots.webp",
     "atlasSize": [1536, 1024],
-    "crop": [446, 541, 252, 396],
-    "size": [25, 40],
+    "crop": [449, 535, 229, 378],
+    "size": [24, 40],
     "art": "shoots/horsetail.svg"
   },
   {
@@ -1174,7 +1174,7 @@
     "kind": "shoot",
     "atlas": "collection-extension/spring-shoots.webp",
     "atlasSize": [1536, 1024],
-    "crop": [805, 545, 275, 392],
+    "crop": [812, 539, 259, 375],
     "size": [28, 40],
     "art": "shoots/asparagus.svg"
   },
@@ -1183,8 +1183,8 @@
     "kind": "shoot",
     "atlas": "collection-extension/spring-shoots.webp",
     "atlasSize": [1536, 1024],
-    "crop": [1196, 605, 254, 331],
-    "size": [31, 40],
+    "crop": [1211, 602, 223, 312],
+    "size": [29, 40],
     "art": "shoots/morel.svg"
   }
 ]

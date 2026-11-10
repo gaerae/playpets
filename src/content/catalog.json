@@ -2117,13 +2117,13 @@
   ],
   "shoots": [
     { "id": "shepherds_purse", "season": "spring", "art": "shoots/shepherds_purse.svg", "size": [39, 40] },
-    { "id": "mugwort", "season": "spring", "art": "shoots/mugwort.svg", "size": [38, 40] },
-    { "id": "fiddlehead", "season": "spring", "art": "shoots/fiddlehead.svg", "size": [30, 40] },
-    { "id": "wild_garlic", "season": "spring", "art": "shoots/wild_garlic.svg", "size": [40, 37] },
-    { "id": "bamboo_shoot", "season": "spring", "art": "shoots/bamboo_shoot.svg", "size": [31, 40] },
-    { "id": "horsetail", "season": "spring", "art": "shoots/horsetail.svg", "size": [25, 40] },
+    { "id": "mugwort", "season": "spring", "art": "shoots/mugwort.svg", "size": [40, 38] },
+    { "id": "fiddlehead", "season": "spring", "art": "shoots/fiddlehead.svg", "size": [33, 40] },
+    { "id": "wild_garlic", "season": "spring", "art": "shoots/wild_garlic.svg", "size": [40, 34] },
+    { "id": "bamboo_shoot", "season": "spring", "art": "shoots/bamboo_shoot.svg", "size": [27, 40] },
+    { "id": "horsetail", "season": "spring", "art": "shoots/horsetail.svg", "size": [24, 40] },
     { "id": "asparagus", "season": "spring", "art": "shoots/asparagus.svg", "size": [28, 40] },
-    { "id": "morel", "season": "spring", "art": "shoots/morel.svg", "size": [31, 40] }
+    { "id": "morel", "season": "spring", "art": "shoots/morel.svg", "size": [29, 40] }
   ],
   "trailArt": [
     { "id": "bush", "art": "tracks/bush.svg" },

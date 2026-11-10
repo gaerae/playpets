@@ -1,0 +1,165 @@
+{
+  "generated": "2026-11-10",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "birdsB",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the reference image exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, two equal columns, each object centered with generous padding, nothing crossing the column boundary.\nThe same two birds as in the reference sheet (row 2: the sparrow and the magpie), now \"bottoms up\": each a COMPLETE small bird diving head-first straight DOWN, seen from behind, so its round fluffy rump, its fanned tail pointing UP to the sky and its two tiny feet kicking up are on top and its head is at the bottom; wings folded close to the body; chubby chibi shape; funny and cute, like a duck dabbling.\nCOL1: house sparrow, warm brown and cream. COL2: magpie, black and white with a long blue-black tail pointing up.",
+      "references": ["assets/sources/tracks-2026-11-09/tails2.png"],
+      "file": "birdsB.png",
+      "sha256": "a1df0d8184d3e2e9344be9fbd8ddc36c95332f18ab6935c8bddbae1a9b823d04",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/winter-tails.png",
+      "acceptedIds": ["tail_sparrow", "tail_magpie"],
+      "notes": "Two columns of 768: the sparrow and the magpie diving head first, tail and feet up. Only the top of each bird is kept (see composed)."
+    },
+    {
+      "name": "bush2",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game prop atlas for a cozy, cute, healing desktop pet game. Style: match the reference image exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, exactly THREE objects in three equal columns, each centered with 10% transparent padding, nothing crossing column boundaries. Keep the same three objects as the reference sheet, the same colors and the same snow caps, changing ONLY their bases:\nCOL1: the same low round evergreen shrub heavily topped with soft white snow, a few red winter berries, wider than tall, front view. Its leaves reach right down to the ground; NO separate white snow mound, NO snow plate or platform under it; at most a thin, low, soft-edged drift of snow hugging the bottom leaves.\nCOL2: the same small dry winter bush of bare brown twigs dusted with snow; its twigs come straight out of the ground with only a thin, low, soft-edged drift of snow at the foot; NO big snow mound under it.\nCOL3: the same puff of kicked-up powder snow bursting to the right, with fewer loose flakes and NO sparkle stars.",
+      "references": ["assets/sources/tracks-2026-11-09/bush.png"],
+      "file": "bush2.png",
+      "sha256": "1691a09dc211ecd8cea94cefac03cf2e7f90825ac28e5f09a72e5eb603437c1f",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/winter-bush.png",
+      "acceptedIds": ["bush", "twigs"],
+      "notes": "The same snowy bush and bare twigs as bush.png without the white snow plate under them. Its third column (a calmer puff) is not used: the puff stays bush.png's."
+    },
+    {
+      "name": "shoots3b",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the reference image exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, a 4 by 2 grid of EIGHT equal cells exactly like the reference sheet, the same plants in the same order, same sizes and the same positions in each cell. Keep each plant as it is, changing ONLY:\n(a) every earth mound: replace it with a small FLAT oval patch of smooth dark-brown earth seen at a low angle, like a tiny freshly opened spot in a lawn, very thin, with a smooth soft rounded outline; no dome, no crumbs, no pebbles, no lumps, no roots, no grass;\n(b) the fiddlehead (row 1, cell 3): make it a little larger and bolder, two plump tightly coiled fern spirals in a fresh, slightly deeper spring green with a pale cream highlight on each coil, so it reads clearly on green grass.\nRow 1: shepherd's purse, mugwort, fiddlehead, wild garlic. Row 2: bamboo shoot, horsetail shoot, asparagus, morel.",
+      "references": ["assets/sources/spring-shoots-2026-11-09/shoots2.png"],
+      "file": "shoots3b.png",
+      "sha256": "61047b045553019a53ad7edf5ee6bcbfa13dabad68374c1c208b23c0e00ee349",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/spring-shoots.png",
+      "acceptedIds": [
+        "shepherds_purse",
+        "mugwort",
+        "fiddlehead",
+        "wild_garlic",
+        "bamboo_shoot",
+        "horsetail",
+        "asparagus",
+        "morel"
+      ],
+      "notes": "The eight shoots of shoots2.png on a flat oval patch of smooth earth instead of a lumpy mound, and a larger, deeper green fiddlehead. 4 x 2 grid of 384 x 512 cells in the order of acceptedIds."
+    }
+  ],
+  "composed": [
+    {
+      "name": "winter-tails",
+      "file": "assets/art/collection-extension/winter-tails.png",
+      "sha256": "df41f89ac95e06b7c5f88265ca8db4ca1e62cb065d4fdcee93267c8fe45404ca",
+      "size": [1536, 1024],
+      "inputs": ["the previous winter-tails.png (assets/sources/tracks-2026-11-09)", "birdsB.png"],
+      "runtimeAtlas": "collection-extension/winter-tails.png",
+      "processing": [
+        "The previous atlas with its row 2, column 2 and 3 cells (x 384 to 1151, y 512 to 1023) cleared to transparent: the sparrow and magpie whose raised wings read as a loose feather fan.",
+        "From birdsB.png (alpha below 50 cleared), the top of each bird's alpha >= 50 box: the sparrow's top 58 percent (rows 193 to 588), the magpie's top 73 percent (rows 74 to 665): tail, feet and rump. The head, eyes and beak are below the cut.",
+        "Each part scaled with Lanczos (sparrow 0.977, magpie 0.745) and centred in its cell with its cut on row 982, its top left at [406, 596] and [830, 542]; alpha below 50 cleared again."
+      ]
+    },
+    {
+      "name": "winter-bush",
+      "file": "assets/art/collection-extension/winter-bush.png",
+      "sha256": "07859c8e18570bee3b8238e893ad842f158f5933510fa9238bb7d63151e3d489",
+      "size": [1536, 1024],
+      "inputs": ["the previous winter-bush.png (assets/sources/tracks-2026-11-09)", "bush2.png"],
+      "runtimeAtlas": "collection-extension/winter-bush.png",
+      "processing": [
+        "Columns x 0 to 999 replaced by bush2.png's (alpha below 50 cleared); x 1000 to 1535, the puff, kept from the previous atlas."
+      ]
+    },
+    {
+      "name": "spring-shoots",
+      "file": "assets/art/collection-extension/spring-shoots.png",
+      "sha256": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
+      "size": [1536, 1024],
+      "inputs": ["shoots3b.png"],
+      "runtimeAtlas": "collection-extension/spring-shoots.png",
+      "processing": [
+        "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; written as 8-bit RGBA, 1536 x 1024."
+      ]
+    }
+  ],
+  "measuredSilhouettes": {
+    "note": "Boxes are x, y, width, height of the alpha >= 50 connected components (40 px or more) whose centre lies in the drawing's cell. Crops add 14 px on every side, except a bird's, which ends at its cut. Sizes keep the longer side at 40 units for a shoot, the bush's 41-unit width, the twigs' 34-unit height and a tail's 30-unit height.",
+    "collection-extension/spring-shoots.png": [
+      {
+        "id": "shepherds_purse",
+        "box": [46, 133, 316, 323],
+        "crop": [32, 119, 344, 351],
+        "size": [39, 40]
+      },
+      {
+        "id": "mugwort",
+        "box": [418, 149, 315, 302],
+        "crop": [404, 135, 343, 330],
+        "size": [40, 38]
+      },
+      {
+        "id": "fiddlehead",
+        "box": [807, 119, 268, 332],
+        "crop": [793, 105, 296, 360],
+        "size": [33, 40]
+      },
+      {
+        "id": "wild_garlic",
+        "box": [1147, 159, 347, 292],
+        "crop": [1133, 145, 375, 320],
+        "size": [40, 34]
+      },
+      {
+        "id": "bamboo_shoot",
+        "box": [104, 582, 204, 318],
+        "crop": [90, 568, 232, 346],
+        "size": [27, 40]
+      },
+      {
+        "id": "horsetail",
+        "box": [463, 549, 201, 350],
+        "crop": [449, 535, 229, 378],
+        "size": [24, 40]
+      },
+      {
+        "id": "asparagus",
+        "box": [826, 553, 231, 347],
+        "crop": [812, 539, 259, 375],
+        "size": [28, 40]
+      },
+      {
+        "id": "morel",
+        "box": [1225, 616, 195, 284],
+        "crop": [1211, 602, 223, 312],
+        "size": [29, 40]
+      }
+    ],
+    "collection-extension/winter-bush.png": [
+      {
+        "id": "bush",
+        "box": [54, 382, 441, 313],
+        "crop": [40, 368, 469, 341],
+        "size": [41, 30]
+      },
+      {
+        "id": "twigs",
+        "box": [553, 349, 433, 352],
+        "crop": [539, 335, 461, 380],
+        "size": [41, 34]
+      }
+    ],
+    "collection-extension/winter-tails.png": [
+      {
+        "id": "tail_sparrow",
+        "crop": [392, 582, 368, 400],
+        "size": [28, 30]
+      },
+      {
+        "id": "tail_magpie",
+        "crop": [816, 528, 288, 454],
+        "size": [19, 30]
+      }
+    ]
+  },
+  "review": "Codex review of the final captures (album light and dark at 1180 and 600, trail ends by day, evening and night and in the mini window, the eight shoots in five views, reduced motion): no halo or fringe on the cut-outs on light or dark ground; no bird head visible; the bush without its plate and the shoots on flat earth stand grounded; the fiddlehead reads in the mini window. Two minor notes are kept as they are: the magpie's dark tail has low contrast on the dark album card's blue ground, and the morel is shaded a little more sculpturally than the other shoots, as it was in the 2026-11-09 sheet."
+}

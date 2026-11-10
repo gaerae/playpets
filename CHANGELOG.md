@@ -46,6 +46,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Who joins a group chat opens as a dropdown.
 - **Connect now** and sending a first message no longer connect a CLI that is signed out, which used to fail at the first message; **Connect now** starts the sign-in in your browser instead, and a first message waits for it. With a signed-in CLI found, sending a first message connects it without opening the connection window.
 - The place gallery shows small previews instead of the full pictures, so it opens with about 5 MB less to load.
+- The birds at the end of winter footprints now dive head first into the bush, tail and feet up, and the bush has lost its white plate. Spring shoots sit on smooth earth, and the fiddlehead is easier to see. In a small window, shoots and the bush stay at least three quarters of their size.
 - Downloads are smaller again, with the four friends who come with the app looking exactly as before: their pictures take 27.6 MB inside the app instead of 37.0 MB.
 - An update removes the folders of built-in friends the app no longer ships, which stayed in the data folder before.
 - Moving the window or a friend no longer waits while a change is written to disk, which could stutter on a slow drive.
