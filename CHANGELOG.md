@@ -70,6 +70,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the Microsoft Store version, the check for a newer version tells the Store which window it belongs to, as Microsoft asks of desktop apps, so the check no longer risks failing quietly.
 - On Windows without the Microsoft Edge WebView2 Runtime, PlayPets says it needs it and offers to open its download page, instead of closing without a word.
 - In the Microsoft Store version, Claude Code started by PlayPets no longer updates itself, so an update can't land in PlayPets' own folder, unseen by your terminal and deleted with PlayPets.
+- A friend's speech bubble stays inside the yard sideways, also in a small window, instead of running off the edge.
 
 ### Removed
 
