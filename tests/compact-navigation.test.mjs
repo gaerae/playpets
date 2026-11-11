@@ -174,9 +174,10 @@ test('the tree picker is one button with a menu of saplings, however many kinds 
 
 test('a small window keeps the ground clear: the tool strip goes up into the sky, in one row', async () => {
   const compact = await read('src/styles/compact.css');
-  const rule = selector =>
-    compact.match(new RegExp(`(?:^|\\}|\\*/)\\s*${selector.replace(/[.#()[\]]/g, '\\$&')}\\s*\\{([^}]*)\\}`))?.[1] ||
-    '';
+  const rule = selector => {
+    const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return compact.match(new RegExp(`(?:^|\\}|\\*/)\\s*${escapedSelector}\\s*\\{([^}]*)\\}`))?.[1] || '';
+  };
   assert.match(rule('body.compact .discovery-target'), /top:\s*8px;[^}]*bottom:\s*auto/s);
   assert.match(rule('body.compact .discovery-target'), /display:\s*grid;/);
   // The instruction stays for screen readers; the tools, Close and the marker on the ground show the rest.
