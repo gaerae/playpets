@@ -8,8 +8,9 @@ import { paintLand } from './backdrop.js';
 import { seeded } from './brush.js';
 import { paintCloud, paintSky } from './clouds.js';
 import { environmentLook, environmentWindowLook, paintEnvironment } from './environment.js';
+import { paintFronts } from './fronts.js';
 import { lightFor, readPalette } from './palette.js';
-import { worldAllows, worldFor } from './worlds.js';
+import { worldAllows, worldFor, worldHasSoil } from './worlds.js';
 
 // Canvas pixels per yard pixel: sharp on a dense screen, but never more than this many in all,
 // so a large window does not hold a huge picture. The sky is soft and needs fewer.
@@ -24,6 +25,14 @@ function sized(canvas, w, h, density) {
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   return ctx;
 }
+
+// The pictures a scene needs: its land, the view through its windows and its furniture fronts' masks.
+const wanted = scene =>
+  [
+    environmentLook(scene).art,
+    environmentWindowLook(scene)?.art,
+    ...(worldFor(scene.world).geometry?.fronts ?? []).map(front => front.art),
+  ].filter(Boolean);
 
 /** A new painting laid over the one before, fading in; the one before goes once it is covered. */
 function hang(slot, canvas, fade) {
@@ -44,6 +53,7 @@ function hang(slot, canvas, fade) {
 export function createEasel(yard, reduced, geometryChanged = () => {}) {
   const sky = yard.querySelector('.paint-sky'),
     land = yard.querySelector('.paint-land'),
+    garden = yard.querySelector('.garden-layer'),
     clouds = [...yard.querySelectorAll('.cloud-lane .cloud')];
   let last = '',
     scene = null,
@@ -80,7 +90,7 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
       loading.delete(name);
       if (ok) images.set(name, image);
       else failed.add(name);
-      if (scene && [environmentLook(scene).art, environmentWindowLook(scene)?.art].includes(name)) {
+      if (scene && wanted(scene).includes(name)) {
         last = '';
         paint();
       }
@@ -101,10 +111,11 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
       key = JSON.stringify([w, h, scene, pal]);
     if (key === last) return;
     const art = environmentLook(scene).art,
-      windowArt = environmentWindowLook(scene)?.art;
+      windowArt = environmentWindowLook(scene)?.art,
+      needed = wanted(scene);
     // The picture on the wall stays until the next has decoded: no flash of the painted
     // fallback, and fishing is not ended by a switch there and back.
-    if (loading.has(art) || (windowArt && loading.has(windowArt))) return;
+    if (needed.some(name => loading.has(name))) return;
     const fade = !!last && paintedWorld === scene.world && !reduced.matches && last.startsWith(`[${w},${h},`);
     paintedWorld = scene.world;
     last = key;
@@ -117,7 +128,7 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
     const landContext = sized(landCanvas, w, h, density),
       image = images.get(art);
     const illustrated = !!image;
-    for (const name of images.keys()) if (name !== art && name !== windowArt) images.delete(name);
+    for (const name of images.keys()) if (!needed.includes(name)) images.delete(name);
     const mode = illustrated ? 'illustrated' : 'painted',
       previousMode = yard.dataset.environment;
     yard.dataset.environment = mode;
@@ -129,6 +140,7 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
       landContext.fillRect(0, 0, w, h);
     }
     hang(land, landCanvas, fade);
+    paintFronts(garden, landCanvas, w, h, illustrated ? image : null, images);
     // Each drifting cloud, at the size it is shown.
     const lit = lightFor(scene.period, scene.weather);
     clouds.forEach((cloud, i) => {
@@ -161,13 +173,13 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
       };
       yard.dataset.world = scene.world;
       yard.dataset.sky = String(worldAllows(scene.world, 'sky'));
+      yard.dataset.soil = String(worldHasSoil(scene.world));
       yard.dataset.scenery = String(
         ['sky', 'weather', 'wildlife', 'seasonalEffects'].some(capability => worldAllows(scene.world, capability)),
       );
       if (worldAllows(scene.world, 'sky')) loadSky();
       loadEnvironment(environmentLook(scene).art);
-      const windowArt = environmentWindowLook(scene)?.art;
-      if (windowArt) loadEnvironment(windowArt);
+      for (const name of wanted(scene).slice(1)) loadEnvironment(name);
       paint();
     },
   };

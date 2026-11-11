@@ -438,8 +438,8 @@ export function syncViews() {
     }
     v.pet = p;
     v.asset = asset(p);
-    // A friend waiting for the person stands at the front, away from its own place (duty.js).
-    if (!v.drag && !v.target && !v.away && v.duty !== 'waiting') {
+    // A friend at a spot for its agent (the front, a desk) stands away from its own place (duty.js).
+    if (!v.drag && !v.target && !v.away && !v.spot) {
       v.x = p.x;
       v.y = p.y;
     }

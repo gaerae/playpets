@@ -29,9 +29,13 @@ export const sizeOf = p => p.size * zoom;
 // How big a friend at the ridge looks next to one at the front edge. Only the drawing shrinks,
 // about its feet (views.js place): the box, the place and the tag stay as they are, so where a
 // friend stands, what it walks to and where it is clicked do not change with it.
+// A deep room (an agent workspace) says its own (geometry.depthFar in worlds.json).
 export const DEPTH_FAR = 0.84;
 /** How big a friend looks where it stands (its place's y, 0 the ridge to 1 the front edge). */
-export const depthScale = y => DEPTH_FAR + (1 - DEPTH_FAR) * clamp(y);
+export function depthScale(y) {
+  const far = worldFor(scene.world).geometry?.depthFar ?? DEPTH_FAR;
+  return far + (1 - far) * clamp(y);
+}
 export const petHeight = p => (sizeOf(p) * 208) / 192;
 /** Where a friend's feet are in the yard: the middle of its bottom edge. */
 export const footOf = v => ({ x: v.px + sizeOf(v.pet) / 2, y: v.py + petHeight(v.pet) });

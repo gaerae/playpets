@@ -549,7 +549,7 @@ test('a token defined only for dark mode is read only by dark rules', async () =
 
 test('indoor flowers use a planter without blocking their controls', async () => {
   const css = await styles();
-  const rule = css.match(/\.yard\[data-sky="false"\] \.plant::after\{([^}]*)\}/)?.[1] || '';
+  const rule = css.match(/\.yard\[data-soil="false"\] \.plant::after\{([^}]*)\}/)?.[1] || '';
   assert.match(rule, /indoor-planter\.webp/);
   assert.match(rule, /pointer-events:none/);
   await readFile('src/art/decor/indoor-planter.webp');
@@ -561,7 +561,7 @@ test('indoor planters follow evening and night flower lighting', async () => {
     ['evening', '0.88'],
     ['night', '0.62'],
   ]) {
-    const selector = `.yard[data-sky="false"].period-${period} .plant::after`;
+    const selector = `.yard[data-soil="false"].period-${period} .plant::after`;
     const start = css.indexOf(selector);
     assert.ok(start >= 0, `${period} planter light`);
     const rule = css.slice(start, css.indexOf('}', start));
@@ -571,7 +571,10 @@ test('indoor planters follow evening and night flower lighting', async () => {
 
 test('indoor growth stages enter the planter mouth without moving mature stems', async () => {
   const css = await styles();
-  assert.match(css, /\.yard\[data-sky="false"\] \.plant:not\(\[data-stage="bloom"\]\)svg\{position:relative;top:-12%;/);
+  assert.match(
+    css,
+    /\.yard\[data-soil="false"\] \.plant:not\(\[data-stage="bloom"\]\)svg\{position:relative;top:-12%;/,
+  );
 });
 
 test('floating scene menus stay above the full panel placement', async () => {

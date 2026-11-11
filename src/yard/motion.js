@@ -17,6 +17,7 @@ import { groundProfile } from './ground.js';
 import { sendTo } from './trips.js';
 import { place, pose } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
+import { blocked } from './workspace.js';
 
 // How far a friend walks in a millisecond, in field units: strolling, and going somewhere.
 export const STROLL = 0.00022;
@@ -30,12 +31,16 @@ const feetInYard = (v, at) => {
   const { w, h, top } = geometry(v.pet);
   return [EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet)];
 };
-// A stroll the ground allows: around the lake, not onto a tree, a flower or a gift, and not to a
-// stop behind the dock.
+// A stroll the ground allows: around the lake, not onto a tree, a flower, a gift or a workspace's
+// furniture, and not to a stop behind the dock.
 function dryStroll(v) {
   const ground = groundProfile();
-  return (from, to) =>
-    !underDock(...feetInYard(v, to), sizeOf(v.pet) / 2) && strollClear(feetAt(v, from), feetAt(v, to), ground);
+  return (from, to) => {
+    const feet = feetInYard(v, to);
+    return (
+      !underDock(...feet, sizeOf(v.pet) / 2) && !blocked(...feet) && strollClear(feetAt(v, from), feetAt(v, to), ground)
+    );
+  };
 }
 // A walking friend bobs at each step (friends.css .walking), more slowly on a stroll. Written only
 // when it changes; with reduced motion a friend does not walk, it is set down where it goes.

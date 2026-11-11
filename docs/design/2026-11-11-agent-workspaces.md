@@ -56,6 +56,7 @@ The state is the coding agent's (`agentStateOf`, `src/core/status.js`), not a ch
 | Mockups | `scratch/bg-mockup/work-office.png`, not committed | `scratch/bg-mockup/work-garden.png`, not committed |
 
 - The art follows the app's painted style (the current places and companions). The mockups are not the art: the final pictures have no friends and no placed gifts, and keep the middle of the floor open.
+- Furniture is drawn at the friends' size. At 1180×850 a friend at the front is about 100px tall and one at the back about 60px (`depthFar` 0.6), so a seated friend's head shows above its desk. The mockups' furniture is about three times too large for that.
 - No text, letters or logos on screens, boards or papers.
 
 ### Sky through the glass
@@ -78,27 +79,28 @@ The state is the coding agent's (`agentStateOf`, `src/core/status.js`), not a ch
 
 ### Stations
 
-New `geometry.stations` in `worlds.json`, in source-image fractions like `geometry.fishingSpot`, transformed with the picture (`environmentFrame`):
+New `geometry.stations` in `worlds.json`, in source-image fractions like `geometry.fishingSpot`, transformed with the picture (`environmentFrame`; the picture is 1536×1024 like every place's):
 
 ```json
 "stations": {
   "desks": [{ "x": 0.38, "y": 0.52 }],
-  "approval": [{ "x": 0.5, "y": 0.82 }],
-  "rest": [{ "x": 0.16, "y": 0.6 }]
+  "approval": { "x": 0.5, "y": 0.82 },
+  "rest": { "x": 0.16, "y": 0.6 }
 }
 ```
 
 - Each point is where a friend's feet stand.
-- `desks` holds one point per seat, `approval` and `rest` one or more standing points.
+- `desks` holds one point per seat. `approval` and `rest` are one point each; several friends there stand side by side from it, a body apart, never behind the dock (`duty.js inLine`).
 - A friend keeps the same desk while it works and gets it back next time when it is free: the first free desk in the order the friends were added.
-- When there are more working friends than desks, the extra ones stand beside the nearest desk (an offset of one body), then anywhere on the floor.
+- When there are more working friends than desks, the extra ones stand beside a desk (one body to the right of each desk in turn, then to the left), then where they stand.
 - A station cropped out of a small window falls back to the nearest visible floor point, as a cropped fishing stance falls back to the visible shore.
 
 ### Furniture fronts
 
-- Each desk, the approval desk or post, and the sofa or hammock has a front piece: a transparent cut-out of the same pixels as the picture, with its rectangle and its foot line in source-image fractions (`geometry.fronts`).
-- A front is drawn in the yard's z-order like a gift. A friend whose feet are above the foot line is drawn behind it, so a friend at a desk looks seated.
-- Furniture blocks strolls the way trees do: a stroll does not end on it (`geometry.blocks`, ellipses in source-image fractions, added to the ground profile).
+- Each desk, the approval desk or post, and the sofa or hammock has a front piece (`geometry.fronts`): `{ "art", "x", "y", "width", "height", "foot" }`, its box and foot line in source-image fractions.
+- `art` names a mask (`src/art/environments/<art>.webp`) the size of the box. The front is the painted picture's own pixels inside the mask, cut each time the land is painted (`fronts.js`), so it carries the hour's light.
+- A front is drawn in the friends' layer at the depth of its foot line. A friend whose feet are above the foot line is drawn behind it, so a friend at a desk looks seated. Clicks pass through it.
+- Furniture blocks strolls the way trees do: a stroll does not end on it (`geometry.blocks`: `{ "x", "y", "rx", "ry" }` ellipses in source-image fractions, `workspace.js blocked`). A trip to a station ignores them.
 
 ### Depth
 

@@ -1,12 +1,15 @@
 // A friend linked to a coding agent shows the agent's state in what it does, not only in its dot
-// (docs/design/2026-11-11-agent-workspaces.md): working or failed, it stays where it stands;
-// waiting for the person, it comes to the front of the yard; done, it rests a moment and strolls on.
+// (docs/design/2026-11-11-agent-workspaces.md). Anywhere: working or failed, it stays where it
+// stands; waiting for the person, it comes to the front of the yard; done, it rests a moment and
+// strolls on. In a workspace (workspace.js stations) it works and fails at a desk, waits at the
+// approval spot and rests in the rest corner until its agent's next word.
 import { t } from '../core/i18n.js';
 import { call, data, game, toast, views } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
-import { EDGE, geometry, petHeight, sizeOf, underDock } from './field.js';
+import { EDGE, footTarget, geometry, petHeight, sizeOf, underDock } from './field.js';
 import { release, rest, sendTo } from './trips.js';
+import { stationAt, stations } from './workspace.js';
 
 // The states that keep a friend at its agent's side (`v.duty`); trips.js isFree passes it over.
 const DUTIES = new Set(['working', 'waiting', 'error']);
@@ -20,21 +23,37 @@ const held = v => !!v.drag || !!game || (!!v.away && !v.gathered) || ((!!v.targe
 export function keepDuty(v) {
   const state = agentStateOf(data, v.pet.id);
   if (state !== v.agent) {
-    // Back from the front, a friend walks to its own place, which the wait never changed.
-    v.back = v.duty === 'waiting';
+    // Away from its own place at a spot (`v.spot`), a friend walks back to it after, unless the new
+    // state has a spot of its own; the spot never changed the place it keeps.
+    v.back = !!v.spot;
     v.agent = state;
-    v.duty = DUTIES.has(state) ? state : null;
+    v.duty = DUTIES.has(state) || (state === 'done' && !!stations()?.rest) ? state : null;
     v.spot = null;
     v.due = true;
   }
   if (!v.due || held(v)) return;
   v.due = false;
   if (v.duty) release(v);
-  if (v.duty === 'waiting') return void sendTo(v, frontSpot(v), { save: false });
+  const spot = spotFor(v, state);
+  // Its own trip: the agent's next word may send it elsewhere on the way.
+  if (spot) return void sendTo(v, spot, { save: false, own: true });
   if (v.back) sendTo(v, { x: v.pet.x, y: v.pet.y }, { save: false, slow: true, own: true });
   else if (v.duty) stay(v);
   if (state === 'done') rest(v);
 }
+
+// Where the state sends the friend, or null to leave it be.
+function spotFor(v, state) {
+  const here = stations();
+  if (state === 'waiting') return here?.approval ? inLine(v, 'waiting', station(v, here.approval)) : frontSpot(v);
+  if ((state === 'working' || state === 'error') && here?.desks?.length) return desk(v, here.desks);
+  if (state === 'done' && here?.rest) return inLine(v, 'done', station(v, here.rest));
+  return null;
+}
+const station = (v, point) => {
+  const at = stationAt(point);
+  return footTarget(v, at.x, at.y, 0);
+};
 
 // Stopped where it stands, mid-stroll perhaps: that is its place now, as the stroll's end would
 // have been, so the yard drawn again does not take it back.
@@ -46,19 +65,45 @@ function stay(v) {
   call('updatePet', p.id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic')), { error: true }));
 }
 
-/** Where a waiting friend stands: on the friends' lowest row, nearest the middle first, a body apart
- * from the others waiting, never behind the dock. Kept as `v.spot` while it waits. */
-export function frontSpot(v) {
+/** Where a waiting friend stands outside a workspace: on the friends' lowest row, nearest the
+ * middle first, a body apart from the others waiting, never behind the dock. */
+export const frontSpot = v => inLine(v, 'waiting', { x: 0.5, y: 1 });
+
+// A place in line at `at` (a friend's place, 0 to 1 each way) for friends at the same kind of spot:
+// `at` itself, else a body to the right, the left, two to the right..., never behind the dock. Kept
+// as `v.spot` while the friend is there.
+function inLine(v, kind, at) {
   const { w, h, top } = geometry(v.pet),
     size = sizeOf(v.pet),
     step = Math.min(0.5, size / Math.max(1, w)),
-    feet = top + h + petHeight(v.pet),
-    taken = [...views.values()].filter(o => o !== v && o.duty === 'waiting' && o.spot).map(o => o.spot.x);
+    feet = top + at.y * h + petHeight(v.pet),
+    taken = [...views.values()].filter(o => o !== v && o.spot?.kind === kind).map(o => o.spot.x);
   for (let i = 0; i <= 2 / step; i++) {
-    const x = 0.5 + (i % 2 ? (i + 1) / 2 : -i / 2) * step;
-    if (x < 0 || x > 1 || taken.some(at => Math.abs(at - x) < step * 0.9)) continue;
+    const x = at.x + (i % 2 ? (i + 1) / 2 : -i / 2) * step;
+    if (x < 0 || x > 1 || taken.some(other => Math.abs(other - x) < step * 0.9)) continue;
     if (underDock(EDGE + x * w + size / 2, feet, size / 2)) continue;
-    return (v.spot = { x, y: 1 });
+    v.spot = { kind, x, y: at.y };
+    return { x, y: at.y };
   }
-  return (v.spot = { x: 0.5, y: 1 });
+  v.spot = { kind, ...at };
+  return { ...at };
+}
+
+// A desk for a working friend: its own one again when no one else sits there, else the first free
+// one (friends are seen to in the order they were added). With more working friends than desks, the
+// next stand beside one, a desk each side in turn; past that, a friend works where it stands.
+function desk(v, desks) {
+  const seated = [...views.values()].filter(o => o !== v && o.spot?.kind === 'desk'),
+    taken = new Set(seated.map(o => o.desk));
+  if (!(v.desk >= 0 && v.desk < desks.length) || taken.has(v.desk)) v.desk = desks.findIndex((_, i) => !taken.has(i));
+  let at = v.desk >= 0 ? station(v, desks[v.desk]) : null;
+  if (!at) {
+    const beside = seated.filter(o => o.desk < 0).length;
+    if (beside >= desks.length * 2) return null;
+    const point = stationAt(desks[beside % desks.length]),
+      side = beside < desks.length ? 1 : -1;
+    at = footTarget(v, point.x + side * sizeOf(v.pet), point.y, 0);
+  }
+  v.spot = { kind: 'desk', ...at };
+  return at;
 }

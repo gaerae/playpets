@@ -11,3 +11,9 @@ export function worldFor(id) {
 export function worldAllows(id, capability) {
   return worldFor(id).capabilities?.[capability] !== false;
 }
+/** Whether the place's floor is soil (digging, trails, flowers in the ground): as it says, else
+ * wherever the sky shows. A workspace shows the sky through glass over a paved floor. */
+export function worldHasSoil(id) {
+  const capabilities = worldFor(id).capabilities;
+  return capabilities?.soil ?? capabilities?.sky !== false;
+}

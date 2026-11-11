@@ -74,7 +74,7 @@ test('trees and flowers sway outdoors on the compositor, and not with reduced mo
   assert.ok(swaying.length > 0, 'something sways');
   for (const head of swaying) {
     assert.match(head, /\.(planted-tree|plant)\b/, `${head} is a tree or a flower`);
-    assert.match(head, /data-sky="false"/, `${head} leaves an indoor place still`);
+    assert.match(head, /data-soil="false"/, `${head} leaves a floor without soil still`);
   }
   assert.ok(!/\.decor\b/.test(swaying.join(' ')), 'gifts, and the ornaments hung on them, stay still');
   assert.match(reducedRules(css), /animation:\s*none/);
