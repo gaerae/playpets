@@ -564,7 +564,8 @@ test('a token defined only for dark mode is read only by dark rules', async () =
     for (const prop of Object.keys(r.props))
       if (prop.startsWith('--')) definedIn.set(prop, [...(definedIn.get(prop) || []), r.media]);
   const darkOnly = [...definedIn].filter(([, media]) => media.every(dark)).map(([name]) => name);
-  assert.ok(darkOnly.length, 'the dark tokens are found');
+  // Every token now has a light value too; the check stays for the next one added in dark alone.
+  assert.ok(definedIn.get('--ink')?.some(dark), 'the dark tokens are found');
   const misread = rules.flatMap(r =>
     dark(r.media)
       ? []
@@ -705,6 +706,27 @@ test('the narrowest windows keep the Invite title on one line', async () => {
     narrow,
     /body\.compact \.panel-head>#import>span:not\(\[data-icon\]\)\{[^}]*position:absolute;[^}]*clip-path:inset\(50%\)/,
   );
+});
+
+// The interface's colours come from tokens with a light and a dark value (base.css), and a themed
+// surface (the decorating night) names its palette as tokens on its own root. Only drawn things
+// keep colours of their own: the yard's art files, and the marks listed here. Before, 240 raw
+// colours were spread over the rules, and some (the Remove button, the Quit hover, the Settings
+// shadow) stayed light in dark mode.
+test('the interface takes its colours from tokens', async () => {
+  const art = new Set(['scenery.css', 'garden.css', 'play.css']);
+  const drawn =
+    /\.(?:sun-dot|treat|yard-pet|pet-state-dot|particle|head-petal|album-specimen|album-card\.rare|decorating-stage|decorating-tree|ornament-glint|ornament-hook|decorating-bubble|decorating-status|decorating-kind|ornament-chip::before|pet-label\.dear)\b/;
+  const raw = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\(|:(?:white|black)\b/i;
+  for (const file of (await readdir('src/styles')).filter(name => !art.has(name))) {
+    const css = compact(await readFile(`src/styles/${file}`, 'utf8'));
+    for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      for (const declaration of body.split(';')) {
+        if (declaration.startsWith('--') || !raw.test(declaration) || drawn.test(selector)) continue;
+        assert.fail(`${file}: ${selector.trim()} {${declaration}} uses a colour of its own`);
+      }
+    }
+  }
 });
 
 // A window's size changes the page at a few named steps only (docs/standards/page-modules.md): 640

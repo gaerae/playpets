@@ -34,6 +34,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In Japanese, the Updates row in Settings no longer runs the current version into the Check for updates button in a small window.
 - In the narrowest windows, Import background and Background studio stay on one line over the gallery, and Invite's title stays on one line beside Import's icon.
 - Settings' switches no longer turn smaller in windows narrower than about 860px.
+- In dark mode, the Remove button in a friend's settings, the Quit button under the pointer, the Settings sheet's shadow and the picture placeholder in Place & atmosphere now darken instead of staying light.
+- A friend's chips (how you know each other, its status, closeness) and the yard count use the same pink and green as the rest of the app, a little deeper, so their words read more clearly.
 
 ### Website and docs
 

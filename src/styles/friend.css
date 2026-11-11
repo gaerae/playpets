@@ -13,10 +13,10 @@
   flex: none;
   padding: 3px 9px;
   min-height: 28px;
-  border: 1px solid #f1cfe0;
+  border: 1px solid var(--pink-line);
   border-radius: 99px;
-  background: #fdf0f6;
-  color: #8a3b5c;
+  background: var(--pink-soft);
+  color: var(--pink-ink);
   font: inherit;
   font-weight: 650;
   cursor: pointer;
@@ -27,16 +27,16 @@
   color: var(--muted);
 }
 .relation-chip:hover {
-  border-color: #e3a9c3;
+  border-color: var(--pink-line-strong);
 }
 .relation-chip[data-relation="friend"]:hover {
   border-color: var(--line);
   color: var(--ink);
 }
 .fact-chip.agent {
-  color: #6b4b14;
-  border-color: #f0ddb8;
-  background: #fff6e4;
+  color: var(--amber-ink);
+  border-color: var(--amber-line);
+  background: var(--amber-soft);
 }
 .pet-id {
   display: block;
@@ -198,8 +198,8 @@
   white-space: nowrap;
   padding: 1px 7px;
   border-radius: 99px;
-  background: #edf4e9;
-  color: #4c6a49;
+  background: var(--green-soft);
+  color: var(--green-ink);
   font-weight: 650;
 }
 .bond-row {
@@ -217,14 +217,14 @@
   align-items: center;
   gap: 3px;
   flex: none;
-  color: #b2475f;
+  color: var(--pink-ink);
   font-weight: 650;
 }
 .bond-level svg {
   width: 12px;
   height: 12px;
-  fill: #f08aa0;
-  stroke: #c9576f;
+  fill: var(--heart);
+  stroke: var(--heart-deep);
 }
 .bond-bar {
   flex: 1;
@@ -232,14 +232,14 @@
   max-width: 90px;
   height: 5px;
   border-radius: 99px;
-  background: #f6dde2;
+  background: var(--pink-soft);
   overflow: hidden;
 }
 .bond-bar i {
   display: block;
   height: 100%;
   border-radius: 99px;
-  background: #ec7d96;
+  background: var(--heart);
   transition: width 0.6s;
 }
 /* Progress stays a quiet wrapping line below the identity, leaving room for conversation. */
@@ -329,7 +329,7 @@
 }
 .pop-menu [role="menuitem"].danger,
 .pop-menu [role="menuitem"].danger svg {
-  color: #b5452e;
+  color: var(--danger);
 }
 .pop-menu hr {
   border: 0;
@@ -339,32 +339,6 @@
 /* These surfaces belong to the friend, rather than changing the landscape's daylight colours. */
 .side-panel:has(#panel-pet:not([hidden])) {
   background: var(--sheet);
-}
-@media (prefers-color-scheme: dark) {
-  .relation-chip {
-    border-color: #7f5562;
-    background: var(--pink-soft);
-    color: var(--pink-ink);
-  }
-  .status-pill {
-    background: #3c4e38;
-    color: var(--green-ink);
-  }
-  .bond-level {
-    color: #f5aac0;
-  }
-  .bond-bar {
-    background: #69424e;
-  }
-  .fact-chip.agent {
-    background: #493e29;
-    border-color: #796d4e;
-    color: #f0d399;
-  }
-  .pop-menu [role="menuitem"].danger,
-  .pop-menu [role="menuitem"].danger svg {
-    color: var(--danger);
-  }
 }
 
 /* Small windows (body.compact, window.js): the friend's head and its extras fold away. */

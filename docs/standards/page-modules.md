@@ -51,6 +51,10 @@
 - Style select boxes completely instead of relying on the engine's default look. One stylesheet has to look the same in WebKit (macOS, Linux) and WebView2 (Windows).
 
 ### Sizes, surfaces and window tiers
+- The interface takes its colours from tokens in `base.css`, each with a light and a dark value.
+  - Words on their surfaces keep 4.5:1 in both schemes (`tests/contrast.test.mjs` lists the pairs).
+  - A themed surface (the decorating night) names its palette as tokens on its own root.
+  - Drawn things keep colours of their own: `scenery.css`, `garden.css`, `play.css` and the marks the test lists (the sun dot, the state dots, glows, particles, the decorating scene).
 - A size of words is one step of the type scale in `base.css`; nothing a person reads is under 11px.
 
   | Token | Size | Used for |
@@ -171,6 +175,8 @@ Breaking a rule without recording an exception is a violation, not an exception.
   - a custom property a stylesheet reads that no stylesheet defines and no code sets
   - a token with only a dark value read by a rule that is not dark
   - a font size off the type scale, and a media query on the window's size off the tiers
+  - a colour written into a rule instead of a token, outside the drawn things
+- `tests/contrast.test.mjs` catches words that fall under 4.5:1 on their surface in either scheme.
   - It does not check whether two different selectors compete for one element after rules are reordered; review that when you move rules between files.
 - `tests/i18n.test.mjs` catches Korean left in page code and markup, and keys missing from the table.
 - Oxlint in `pnpm run lint:oxlint`:
@@ -203,7 +209,7 @@ All of these run with `pnpm test` and `pnpm run lint`, and CI runs the same comm
 - 2026-10-12 The mini window's changes to the panel go at the end of the panel's files; shared colours as tokens in `base.css` (a recommendation); `ui-style.test.mjs` checks custom properties
 - 2026-10-15 Menu and task-panel components share surface, shape and state roles; close actions no longer have a separate circular style
 - 2026-10-30 Oxfmt formats and sorts imports in place of Biome, and Oxlint takes over Biome's JavaScript checks; Biome keeps linting CSS alone, and JSON has no linter beyond the repository's tests
-- 2026-11-11 A type scale, one width and shadow per kind of surface, and named window-size tiers, each checked by `ui-style.test.mjs`
+- 2026-11-11 A type scale, one width and shadow per kind of surface, named window-size tiers and colours from light and dark tokens, each checked by `ui-style.test.mjs`; contrast pairs checked by `contrast.test.mjs`
 
 ## Quiet yard controls
 

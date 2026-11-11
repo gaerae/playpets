@@ -37,8 +37,8 @@
 }
 .button.quit:hover {
   color: var(--danger);
-  border-color: #e4c4b8;
-  background: #fdf6f2;
+  border-color: var(--danger-line);
+  background: var(--danger-soft);
 }
 .button.quit svg {
   width: 15px;

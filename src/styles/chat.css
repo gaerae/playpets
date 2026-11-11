@@ -19,13 +19,13 @@
   overflow-wrap: anywhere;
 }
 .message.user {
-  background: var(--ink);
-  color: white;
+  background: var(--bubble-user);
+  color: var(--on-ink);
   align-self: flex-end;
   border-bottom-right-radius: 3px;
 }
 .message.assistant {
-  background: #f0f4ed;
+  background: var(--bubble-friend);
   align-self: flex-start;
   border-bottom-left-radius: 3px;
 }
@@ -38,7 +38,7 @@
 }
 /* another friend's line in a group chat, with its name on top */
 .message.peer {
-  background: #eef2f7;
+  background: var(--bubble-peer);
   align-self: flex-start;
   border-bottom-left-radius: 3px;
 }
@@ -50,7 +50,7 @@
   height: 30px;
   border-radius: 50%;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 70%, #e3eedd, #f4f7f1);
+  background: radial-gradient(circle at 50% 70%, var(--portrait), var(--paper));
   box-shadow: inset 0 0 0 1px var(--ink-8);
   display: grid;
   place-items: start center;
@@ -71,13 +71,13 @@
   margin-top: 4px;
 }
 .message.error {
-  background: #fff1ec;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 .message code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--font-sm);
-  background: #213e4312;
+  background: var(--code-surface);
   border-radius: 4px;
   padding: 1px 4px;
 }
@@ -111,7 +111,7 @@
   display: block;
   font-size: var(--font-xs);
   font-weight: 700;
-  color: #5a6f8a;
+  color: var(--peer-ink);
   margin-bottom: 2px;
 }
 /* The conversation fills what is left and gathers at the bottom, next to the composer. */
@@ -294,25 +294,6 @@
   color: var(--muted);
 }
 @media (prefers-color-scheme: dark) {
-  .message.user {
-    background: #cadcc1;
-    color: #203425;
-  }
-  .message.assistant {
-    background: #2f4034;
-  }
-  .message.peer {
-    background: #2d3c49;
-  }
-  .message.peer b {
-    color: #bacfe4;
-  }
-  .message.error {
-    background: var(--danger-soft);
-  }
-  .message code {
-    background: #e8eee51a;
-  }
   .chat-avatar {
     background: var(--soft);
   }
@@ -321,9 +302,6 @@
   }
   .chat-starters .button.chip:hover {
     background: var(--soft);
-  }
-  .send-button:hover:not(:disabled) {
-    color: #203425;
   }
 }
 

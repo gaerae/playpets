@@ -28,7 +28,7 @@
 }
 .caption-count {
   flex: none;
-  color: #57755d;
+  color: var(--green-ink);
   font-weight: 700;
   margin-left: 2px;
 }
@@ -253,12 +253,6 @@
 }
 /* The hint, while there is something to learn, under the view controls at the top right. */
 
-@media (prefers-color-scheme: dark) {
-  .caption-count {
-    color: #c8ddbb;
-  }
-}
-
 /* In a narrower yard the desktop switch keeps its icon and its words go to the tooltip. */
 
 .scene-world-note {
@@ -318,7 +312,7 @@
   width: 100%;
   aspect-ratio: 2 / 1;
   object-fit: cover;
-  background: #c9e0df;
+  background: var(--soft);
 }
 .background-card span {
   display: block;

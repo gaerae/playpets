@@ -191,7 +191,7 @@ input[type="range"] {
   font-size: var(--font-sm);
 }
 .relation-card:hover {
-  border-color: #c9d3cf;
+  border-color: var(--line-strong);
 }
 #pet-dialog .size-row {
   margin: 0;
@@ -495,7 +495,7 @@ body.compact .update-compact {
   position: absolute;
   top: 2px;
   right: 4px;
-  color: #ec7d96;
+  color: var(--heart);
   font-size: var(--font-xs);
 }
 .album-box-item:disabled {
@@ -801,6 +801,13 @@ body.compact .update-compact {
    card naming a bauble, the day's dots, the books and the tray of finds. The tints come from the
    baubles' own rules (garden.css). ---- */
 .decorating-dialog {
+  /* The card over the night tree, warm paper by day and the night's blue in dark mode. */
+  --ornament-surface: #fff6e8;
+  --ornament-ink: #443b39;
+  --ornament-muted: #7c6c64;
+  --ornament-button: #fffdf8;
+  --ornament-button-line: #e3d3bd;
+  --ornament-shadow: 0 8px 24px #0b102466;
   width: min(560px, calc(100vw - 32px));
   padding: 14px;
 }
@@ -1025,9 +1032,9 @@ body.compact .update-compact {
   width: 132px;
   padding: 8px 8px 10px;
   border-radius: 12px;
-  background: #fff6e8;
-  color: #443b39;
-  box-shadow: 0 8px 24px #0b102466;
+  background: var(--ornament-surface);
+  color: var(--ornament-ink);
+  box-shadow: var(--ornament-shadow);
   text-align: center;
 }
 .ornament-card-art {
@@ -1049,16 +1056,16 @@ body.compact .update-compact {
 .ornament-card small {
   margin-top: 0;
   font-size: var(--font-xs);
-  color: #7c6c64;
+  color: var(--ornament-muted);
   overflow-wrap: anywhere;
 }
 .ornament-card .ornament-take-down {
   min-height: 28px;
   margin-top: 6px;
   padding: 3px 12px;
-  border-color: #e3d3bd;
-  background: #fffdf8;
-  color: #443b39;
+  border-color: var(--ornament-button-line);
+  background: var(--ornament-button);
+  color: var(--ornament-ink);
   font-size: var(--font-sm);
 }
 .decorating-friend {
@@ -1186,9 +1193,9 @@ body.compact .update-compact {
   background: var(--control-hover);
 }
 .ornament-chip[aria-pressed="true"] {
-  border-color: #d9b25e;
-  background: #fff3d6;
-  box-shadow: 0 0 0 1px #d9b25e;
+  border-color: var(--gold);
+  background: var(--amber-soft);
+  box-shadow: 0 0 0 1px var(--gold);
 }
 .ornament-chip:disabled {
   opacity: 0.4;
@@ -1216,20 +1223,12 @@ body.compact .update-compact {
   overflow-wrap: anywhere;
 }
 @media (prefers-color-scheme: dark) {
-  .ornament-card {
-    background: #2b2f45;
-    color: #f3ece4;
-  }
-  .ornament-card small {
-    color: #c9bdb3;
-  }
-  .ornament-card .ornament-take-down {
-    border-color: #4a4f6b;
-    background: #363b56;
-    color: #f3ece4;
-  }
-  .ornament-chip[aria-pressed="true"] {
-    background: #4a3e24;
+  .decorating-dialog {
+    --ornament-surface: #2b2f45;
+    --ornament-ink: #f3ece4;
+    --ornament-muted: #c9bdb3;
+    --ornament-button: #363b56;
+    --ornament-button-line: #4a4f6b;
   }
 }
 @media (max-width: 640px), (max-height: 480px) {

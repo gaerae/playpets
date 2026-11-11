@@ -93,9 +93,9 @@
 }
 .empty-panel > span {
   padding: 12px;
-  background: #f2f5ee;
+  background: var(--soft);
   border-radius: 50%;
-  color: #95a88d;
+  color: var(--icon-soft);
 }
 .empty-panel svg {
   width: 24px;
@@ -130,12 +130,6 @@
   background: var(--accent);
   border-radius: 6px;
   padding: 1px 5px;
-}
-@media (prefers-color-scheme: dark) {
-  .empty-panel > span {
-    background: var(--soft);
-    color: #b6cda5;
-  }
 }
 
 #panel-expand {
