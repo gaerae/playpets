@@ -462,6 +462,7 @@ export const strings = {
   'catch.best': '最大 {size}\u00a0cm',
   'catch.size': '{size} cm',
   'catch.new': '图鉴里新添了一种！',
+  'catch.new_short': '新增',
   'catch.all_year': '一年四季',
   'catch.any_time': '随时',
   'catch.season_spring': '春',

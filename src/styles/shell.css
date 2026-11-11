@@ -542,6 +542,10 @@ body.compact .toast > span {
 .dock-panel-body[hidden] {
   display: none;
 }
+/* The body scrolls, so a ring drawn outside a button at its edge would be cut; it goes inside. */
+.dock-panel-body button:focus-visible {
+  outline-offset: -3px;
+}
 .dock-section {
   display: flex;
   flex-direction: column;

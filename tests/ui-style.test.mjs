@@ -136,6 +136,26 @@ test('one yard fills the freely resized window without mode-specific scene rules
   assert.match(css, /\.yard\{[^}]*flex:1;[^}]*height:auto;[^}]*min-height:0/);
 });
 
+test('a small window shows a find in one line: its name, a short New and its book, without Close', async () => {
+  const css = await styles();
+  assert.match(css, /(?:^|})\.catch-card \.catch-new-short\{display:none;/);
+  assert.match(css, /body\.compact \.catch-copy:has\(\.catch-new-short\)\{display:flex;[^}]*align-items:baseline/);
+  assert.match(css, /body\.compact \.catch-copy:has\(\.catch-new-short\)\.catch-new\{display:none;/);
+  assert.match(css, /body\.compact \.catch-card \.catch-new-short\{display:block;/);
+  assert.match(css, /body\.compact \.catch-dismiss\{display:none;/);
+});
+
+test('a tool name in a small window takes a second line instead of running into the next tool', async () => {
+  const css = await styles();
+  assert.match(css, /body\.compact \.discovery-tool\{flex-basis:auto;[^}]*white-space:normal;/);
+  assert.match(css, /@media\(max-width:360px\)\{body\.compact \.discovery-tool svg\{display:none;\}\}/);
+});
+
+test('a button in a scrolling dock panel draws its focus ring inside, where the scroller cannot cut it', async () => {
+  const css = await styles();
+  assert.match(css, /\.dock-panel-body button:focus-visible\{outline-offset:-3px;/);
+});
+
 test('compact windows keep every panel and shared menu within the viewport', async () => {
   const css = await styles();
   assert.match(css, /body\.compact \.layout.panel-open \.side-panel\{[^}]*inset:8px;[^}]*overflow:hidden/);

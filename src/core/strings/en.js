@@ -489,6 +489,7 @@ export const strings = {
   'catch.best': 'Biggest {size}\u00a0cm',
   'catch.size': '{size} cm',
   'catch.new': 'New in the album!',
+  'catch.new_short': 'New',
   'catch.all_year': 'All year',
   'catch.any_time': 'Any time',
   'catch.season_spring': 'Spring',

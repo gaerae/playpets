@@ -311,6 +311,13 @@
   color: var(--accent);
   font-weight: 700;
 }
+/* A new find's short word, for small windows only (compact.css). */
+.catch-card .catch-new-short {
+  display: none;
+  color: var(--accent);
+  font-weight: 700;
+  white-space: nowrap;
+}
 /* The New Year card quotes the person's answer in four lines at most (the letter keeps it whole);
    the friend's cheer is the line below it, so it always shows. */
 .catch-card:has(.letter-back) small:not(.catch-new) {

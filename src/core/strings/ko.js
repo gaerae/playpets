@@ -467,6 +467,7 @@ export const strings = {
   'catch.best': '최대 {size}\u00a0cm',
   'catch.size': '{size} cm',
   'catch.new': '도감에 새로 올렸어요!',
+  'catch.new_short': '새로 추가',
   'catch.all_year': '일 년 내내',
   'catch.any_time': '언제나',
   'catch.season_spring': '봄',

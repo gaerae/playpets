@@ -47,6 +47,21 @@ body.compact .discovery-target {
   bottom: 8px;
   width: auto;
 }
+/* Tools share the strip by the length of their names, and a name may take two lines, as a Play
+   tile's does, instead of running into the next tool. */
+body.compact .discovery-tool {
+  flex-basis: auto;
+  padding: 4px;
+  white-space: normal;
+  line-height: 1.2;
+  text-align: left;
+}
+/* The narrowest yards keep the names whole on one line; the icons give way. */
+@media (max-width: 360px) {
+  body.compact .discovery-tool svg {
+    display: none;
+  }
+}
 /* Each dock panel keeps its one page; small windows fold it into tiles. */
 body.compact .yard-controls-panel {
   inset: 8px;
@@ -161,7 +176,23 @@ body.compact .catch-specimen {
 body.compact .catch-card strong {
   font-size: 12px;
 }
-body.compact .catch-card small:not(.catch-new) {
+body.compact .catch-card small:not(.catch-new, .catch-new-short) {
+  display: none;
+}
+/* A small window says a find is new in a word beside its name, so the card keeps to one line;
+   the card puts itself away on a click or after a while, so it needs no Close. */
+body.compact .catch-copy:has(.catch-new-short) {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+body.compact .catch-copy:has(.catch-new-short) .catch-new {
+  display: none;
+}
+body.compact .catch-card .catch-new-short {
+  display: block;
+}
+body.compact .catch-dismiss {
   display: none;
 }
 /* The New Year card's line is the person's own answer, quoted: it is the card, so it stays, in the

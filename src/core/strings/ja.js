@@ -484,6 +484,7 @@ export const strings = {
   'catch.best': '最大 {size}\u00a0cm',
   'catch.size': '{size} cm',
   'catch.new': '図鑑に新しく載りました！',
+  'catch.new_short': '新しく追加',
   'catch.all_year': '一年中',
   'catch.any_time': 'いつでも',
   'catch.season_spring': '春',
