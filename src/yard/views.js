@@ -185,11 +185,15 @@ export function place(v) {
   // Farther back is smaller, about the feet, and so is where it is pressed; the tag stays its
   // size, and the body's room in the label shrinks too, so the bubble stays on the head. Rounded,
   // so a step does not write it again.
-  const depth = Math.round(depthScale(v.y) * 100) / 100;
-  if (v.depth !== depth) {
+  // Seated at a desk, its feet and the tag's place over them are behind the desk's front
+  // (workspace.js): the tag goes down to the feet, on that front, and leaves the face above it seen.
+  const depth = Math.round(depthScale(v.y) * 100) / 100,
+    room = v.spot?.kind === 'desk' ? 1 : depth;
+  if (v.depth !== depth || v.room !== room) {
     v.depth = depth;
+    v.room = room;
     v.button.style.scale = String(depth);
-    if (v.body) v.body.style.height = `${petHeight(v.pet) * depth}px`;
+    if (v.body) v.body.style.height = `${petHeight(v.pet) * room}px`;
   }
   stackLabel(v);
 }
@@ -242,7 +246,7 @@ function createView(p) {
   tagBond.className = 'tag-bond';
   tagBond.setAttribute('aria-hidden', 'true');
   agents.hidden = true;
-  tag.append(talkMark, tagName, tagBond, agents);
+  tag.append(talkMark, tagName, dot, tagBond, agents);
   dot.className = 'pet-state-dot';
   bubble.className = 'yard-bubble';
   bubble.hidden = true;
@@ -255,7 +259,7 @@ function createView(p) {
   // The body button already says the name and state; the label is what the eye reads.
   label.setAttribute('aria-hidden', 'true');
   body.className = 'label-body';
-  label.append(bubble, thinking, body, tag, dot);
+  label.append(bubble, thinking, body, tag);
   button.append(c);
   $('pet-layer').append(button);
   $('label-layer').append(label);

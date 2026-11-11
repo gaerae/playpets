@@ -45,14 +45,22 @@ export function keepDuty(v) {
 // Where the state sends the friend, or null to leave it be.
 function spotFor(v, state) {
   const here = stations();
-  if (state === 'waiting') return here?.approval ? inLine(v, 'waiting', station(v, here.approval)) : frontSpot(v);
+  if (state === 'waiting') {
+    const approval = here?.approval && station(v, here.approval);
+    return approval ? inLine(v, 'waiting', approval) : frontSpot(v);
+  }
   if ((state === 'working' || state === 'error') && here?.desks?.length) return desk(v, here.desks);
-  if (state === 'done' && here?.rest) return inLine(v, 'done', station(v, here.rest));
-  return null;
+  const corner = state === 'done' && here?.rest && station(v, here.rest);
+  return corner ? inLine(v, 'done', corner) : null;
 }
+// A station as a friend's place, or null where the window crops it away: a friend sent there would
+// stop at the floor's edge, often behind the very furniture that shows (a short, wide window).
 const station = (v, point) => {
-  const at = stationAt(point);
-  return footTarget(v, at.x, at.y, 0);
+  const at = stationAt(point),
+    { w, h, top } = geometry(v.pet),
+    x = (at.x - EDGE - sizeOf(v.pet) / 2) / w,
+    y = (at.y - top - petHeight(v.pet)) / h;
+  return x < -0.05 || x > 1.05 || y < -0.05 || y > 1.05 ? null : footTarget(v, at.x, at.y, 0);
 };
 
 // Stopped where it stands, mid-stroll perhaps: that is its place now, as the stroll's end would
@@ -96,14 +104,18 @@ function desk(v, desks) {
   const seated = [...views.values()].filter(o => o !== v && o.spot?.kind === 'desk'),
     taken = new Set(seated.map(o => o.desk));
   if (!(v.desk >= 0 && v.desk < desks.length) || taken.has(v.desk)) v.desk = desks.findIndex((_, i) => !taken.has(i));
-  let at = v.desk >= 0 ? station(v, desks[v.desk]) : null;
-  if (!at) {
+  let at;
+  if (v.desk >= 0) at = station(v, desks[v.desk]);
+  else {
     const beside = seated.filter(o => o.desk < 0).length;
     if (beside >= desks.length * 2) return null;
-    const point = stationAt(desks[beside % desks.length]),
-      side = beside < desks.length ? 1 : -1;
-    at = footTarget(v, point.x + side * sizeOf(v.pet), point.y, 0);
+    const point = desks[beside % desks.length],
+      side = beside < desks.length ? 1 : -1,
+      { x, y } = stationAt(point);
+    at = station(v, point) && footTarget(v, x + side * sizeOf(v.pet), y, 0);
   }
+  // A desk cropped away: the friend works where it stands.
+  if (!at) return null;
   v.spot = { kind: 'desk', ...at };
   return at;
 }

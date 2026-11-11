@@ -10,8 +10,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Two new places for friends who help a coding agent: **Sunny office** and **Garden workshop**. A working friend sits at a desk, a friend waiting for your approval stands at the approval spot, and one whose agent is done rests in the corner. The sky, the time of day and the weather show through their glass.
+
 ### Changed
 
+- A friend's agent state dot sits in its name tag, beside its name, instead of by its head.
 - Friends farther back in the yard look a little smaller, bob along as they walk and settle as they stop, and no longer stroll onto a tree or a flower.
 - Friends walk all the way down to the foot of the yard, with their name tags still in view, and do not stop behind the tools in the corner.
 - Outdoors, trees and flowers sway in the breeze. Indoors, and with reduced motion, they stay still.
@@ -26,6 +31,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The guide lists the two new places, says where a friend goes for each state of its agent, and shows the state dot beside the name.
 - The guide's first-friend page no longer says a double-click opens the conversation.
 - Right after a release is published, the website's download buttons offer it, instead of the previous release until the next site update.
 - The website's moving friends load smaller pictures, drawn at the size the page shows them, and each friend's `playpets-<name>.zip` now carries the same lossless WebP sheets the app uses, about a third smaller.

@@ -56,7 +56,7 @@ Season and weather are set separately. Choose Snow in summer and snow falls over
 
 | Choice | Options |
 |---|---|
-| Place | Hill garden, Stone courtyard, Lakeside cottage, Cozy living room |
+| Place | Hill garden, Stone courtyard, Lakeside cottage, Cozy living room, Sunny office, Garden workshop |
 | Time of day | Auto time, Morning, Midday, Evening, Night |
 | Weather | Auto weather, Clear, Rain, Snow |
 
@@ -66,7 +66,9 @@ The three outdoor places each have their own house, four seasonal landscapes and
 
 **Cozy living room** brings the same calm style indoors. Its lighting changes through morning, midday, evening and night, and the windows show spring blossoms, autumn leaves and winter snow. Rain and snow stay beyond the glass.
 
-You can pet friends, chat, grow flowers and play the games in every place, apart from the winter-only **Snowman**, which needs a yard that shows winter, so not the Cozy living room. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
+**Sunny office** and **Garden workshop** are rooms for friends who help a coding agent, each with four desks, a spot to wait for your approval and a corner to rest. The sky, the time of day and the weather show through their glass, and a free friend strolls around the room. [What friends do there](./agents.md#where-friends-go).
+
+You can pet friends, chat, grow flowers and play the games in every place, apart from the winter-only **Snowman**, which needs a yard that shows winter, so not the three rooms. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
 
 <Shot name="studio-night" caption="Cozy living room at night: a quiet village view beyond the glass and warm light indoors." />
 

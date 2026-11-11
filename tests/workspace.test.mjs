@@ -110,19 +110,32 @@ test('a place may say how small friends at the back look', t => {
   assert.equal(depthScale(0), DEPTH_FAR);
 });
 
-test("a station is where the picture puts it, and a station cropped away comes to the floor's edge", t => {
+// A wider window shows the picture larger from its foot: the front stays, the back is cut off.
+const wide = (width, height) => {
+  globalThis.document.getElementById = () => ({ dataset: {}, getBoundingClientRect: () => ({ width, height }) });
+  measureYard();
+};
+
+test('a station is where the picture puts it, and cropped away it lies outside the window', t => {
   inOffice(t);
   assert.deepEqual(stationAt({ x: 0.5, y: 0.85 }), { x: 768, y: 1024 * 0.85 });
-  // A wider window shows the picture larger from its foot: the front stays, the back is cut off.
-  globalThis.document.getElementById = () => ({
-    dataset: {},
-    getBoundingClientRect: () => ({ width: 3072, height: 1024 }),
-  });
-  measureYard();
+  wide(3072, 1024);
   assert.deepEqual(stationAt({ x: 0.5, y: 0.85 }), { x: 1536, y: 1024 - 2048 * 0.15 });
-  const back = stationAt({ x: 0.5, y: 0.3 });
-  assert.ok(back.y < 0, 'a desk at the back is out of the window');
-  assert.equal(footTarget(friend('a'), back.x, back.y, 0).y, 0, "its friend stands at the floor's top instead");
+  assert.ok(stationAt({ x: 0.5, y: 0.3 }).y < 0, 'a desk at the back is out of the window');
+});
+
+test('with its station cropped away, a friend is not sent behind the furniture in front of it', t => {
+  inOffice(t);
+  // 3072 by 300: the picture is 3072 by 2048 from its foot, so only its lowest 15% shows.
+  wide(3072, 300);
+  const a = friend('a'),
+    b = friend('b'),
+    c = friend('c');
+  agent({ a: 'waiting', b: 'working', c: 'done' });
+  moveFriends(1000, 50);
+  assert.equal(a.target?.y, 1, 'waiting, it comes to the front of the yard instead');
+  assert.equal(b.target, null, 'working, it stays where it stands');
+  assert.equal(c.target, null, 'done, it rests where it stands');
 });
 
 test('working friends sit at desks in turn, keep theirs, and the extra one stands beside one', t => {
@@ -210,4 +223,55 @@ test("a desk's front is drawn over a friend whose feet are behind its foot line"
     before = at(a, 0.3, 0.65);
   assert.ok(1 + Math.round(seated.y * 100) < front.z, 'seated, behind the desk');
   assert.ok(1 + Math.round(before.y * 100) > front.z, 'in front of it, in front');
+});
+
+test("a friend seated at a desk wears its tag at its feet, on the desk's front, not over its face", async t => {
+  inOffice(t);
+  const { place } = await import('../src/yard/views.js');
+  const { petHeight } = await import('../src/yard/field.js');
+  const a = friend('a', { y: 0.2 });
+  a.body = element();
+  place(a);
+  const full = petHeight(a.pet);
+  assert.ok(parseFloat(a.body.style.height) < full, 'at the back, standing, its tag rises with its smaller body');
+  a.spot = { kind: 'desk', x: 0.5, y: 0.2 };
+  place(a);
+  assert.equal(parseFloat(a.body.style.height), full, 'seated, the tag goes down to its feet');
+  a.spot = null;
+  place(a);
+  assert.ok(parseFloat(a.body.style.height) < full, 'up again, it rises again');
+});
+
+test('a workspace takes the outdoor light, and its glass is not washed over as a painted window is', async () => {
+  const { environmentLook, paintEnvironment } = await import('../src/yard/environment.js');
+  // The room and the view through its glass share one light: a darker view alone would need its
+  // own mask, and a pane's rectangle also covers frames, walls and plants.
+  for (const period of ['morning', 'day', 'evening', 'night'])
+    for (const weather of ['clear', 'rain']) {
+      const at = { season: 'summer', period, weather };
+      const { art, ...light } = environmentLook({ ...at, world: 'office' });
+      const { art: _, ...outdoors } = environmentLook({ ...at, world: 'woodland' });
+      assert.equal(art, 'office');
+      assert.deepEqual(light, outdoors);
+    }
+  // Rain over the yard's own sky already greys what the glass shows.
+  let fills = 0;
+  const ctx = {
+    save() {},
+    restore() {},
+    beginPath() {},
+    rect() {},
+    clip() {},
+    drawImage() {},
+    fillRect() {
+      fills++;
+    },
+  };
+  paintEnvironment(ctx, { width: 1536, height: 1024 }, 1180, 850, {
+    world: 'office',
+    season: 'summer',
+    period: 'day',
+    weather: 'rain',
+  });
+  assert.equal(fills, 1, 'the outdoor rain tint only');
 });

@@ -415,6 +415,10 @@
 .yard.moment-sunshower .moment-layer {
   opacity: 1;
 }
+/* Rooms keep out a moment's glow: furniture fronts cut from the land above it would show its edges. */
+.yard[data-soil="false"] .moment-layer {
+  display: none;
+}
 .yard.moment-mist .moment-layer {
   opacity: 1;
   background: none;

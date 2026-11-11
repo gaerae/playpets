@@ -547,6 +547,23 @@ test('a token defined only for dark mode is read only by dark rules', async () =
   assert.deepEqual(misread, []);
 });
 
+// A moment's glow (sunshower, mist, moonlit snow) lies over the land, under the friends; a room's
+// furniture fronts are cut from the land above it and would show its edges as boxes.
+test("a sky moment's glow stays out of rooms, where furniture fronts would show its edges", async () => {
+  const css = await styles();
+  assert.match(css, /\.yard\[data-soil="false"\] \.moment-layer\{display:none;?\}/);
+});
+
+// The agent's state rides in the name tag, beside the name: by the head it floated off a friend
+// drawn smaller at the back, and a seated friend's head is where a desk's laptop is.
+test("the agent's state dot sits in the name tag, beside the name", async () => {
+  const css = await styles();
+  const rule = css.match(/\.pet-state-dot\{([^}]*)\}/)?.[1] || '';
+  assert.doesNotMatch(rule, /position:absolute/);
+  const views = await readFile('src/yard/views.js', 'utf8');
+  assert.match(views, /tag\.append\(talkMark, tagName, dot,/);
+});
+
 test('indoor flowers use a planter without blocking their controls', async () => {
   const css = await styles();
   const rule = css.match(/\.yard\[data-soil="false"\] \.plant::after\{([^}]*)\}/)?.[1] || '';

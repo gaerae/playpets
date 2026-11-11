@@ -123,7 +123,13 @@ export function paintEnvironment(ctx, image, w, h, scene, windowImage = null) {
     }
     ctx.restore();
   }
-  if (panes?.length && worldAllows(scene.world, 'weather') && ['rain', 'snow'].includes(scene.weather)) {
+  // A painted window gets the weather's grey; glass over the yard's own sky shows that sky's.
+  if (
+    panes?.length &&
+    !worldAllows(scene.world, 'sky') &&
+    worldAllows(scene.world, 'weather') &&
+    ['rain', 'snow'].includes(scene.weather)
+  ) {
     ctx.save();
     ctx.beginPath();
     for (const pane of panes) ctx.rect(pane.x, pane.y, pane.width, pane.height);

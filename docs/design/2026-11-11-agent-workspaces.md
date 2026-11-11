@@ -134,3 +134,13 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 - How the glass alpha is made.
 - The exact station points, after the pictures exist.
 - The `working` pose at a desk faces the screen; turning toward the laptop is not required.
+
+## Follow-up: as built (2026-11-12)
+
+- The rooms take the outdoor light (`seasonArt`, one picture for every season), so the room and the view through its glass share one light. A pane-only light needed its own mask, and a pane's rectangle also covered frames, walls and plants. The panes get no second rain or snow wash.
+- A station the window crops away is not used, instead of falling back to the nearest visible floor point: that point is often behind the very furniture that shows. A waiting friend comes to the front of the yard; a working or resting friend stays where it stands (`duty.js station`).
+- A front starts at the tabletop. A laptop in the front covered a seated friend's face, so laptops stay in the picture behind the friend.
+- A seated friend's name tag goes down to its feet, on the desk's front (`views.js place`), and the agent's state dot sits in the tag beside the name.
+- The workshop's approval spot is beside the post, not behind it, and the post has no front.
+- The sunshower and other moment glows are hidden on floors without soil: fronts cut from the land above the glow showed their edges.
+

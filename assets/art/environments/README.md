@@ -105,3 +105,17 @@
 - Portable background files: [Add a place](../../../docs/how-to/add-a-world.md#portable-backgrounds).
 - The retired `studio-modern-city-*` images are kept in `assets/sources/environments/`
   and are no longer bundled as runtime art.
+
+## Agent workspaces (2026-11-12)
+
+- `office.png` (Sunny office) and `workshop.png` (Garden workshop) were made with the built-in image generation tool, with the existing places and companions as style references.
+- Briefs, not verbatim prompts:
+  - **Office:** a warm loft office from a gentle high three-quarter angle; four rounded wooden desks with small laptops, shelves, a coffee corner, a sofa corner and a reception desk with an in-tray and a bell at the front; tall windows across the back wall.
+  - **Workshop:** a glass-roofed workshop, half greenhouse, half pergola; four workbenches, hanging tools, a hammock corner and a small approval post with a paper tray and a bell at the front.
+  - Both: furniture at the friends' size, an open middle floor, no characters, text, letters or logos.
+- The window glass is transparent, so the app's live sky and weather show through it.
+- No scripted repainting was used. Desks, fronts, blocks and window panes were measured on the pictures and live in `src/content/worlds.json`.
+- SHA-256:
+  - `office.png`: `ec4f5a0288157baec38cabe688ccbfc224bfc84f9059a06bf72251e76c907952`
+  - `workshop.png`: `24a27417c01ac4587460f9e44eb8d7d542dd6ed9977d67077fb665cd685fd81a`
+

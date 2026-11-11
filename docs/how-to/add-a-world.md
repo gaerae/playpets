@@ -44,6 +44,29 @@
 - Before adding a place, run the repository's normal checks: Node and Rust tests, lint, the site build for documentation changes and the real-app E2E for the selector flow.
 - Isolated fixtures make the result reviewable, but they do not replace native interaction checks.
 
+## Workspaces for coding agents
+
+- A place can give a coding agent's friend somewhere to go for each state ([agent workspaces](../design/2026-11-11-agent-workspaces.md)). The office and the garden workshop are the built-in ones.
+- All of these live under `geometry` in source-image fractions and share the picture's transform (`environmentFrame`).
+
+| Field | What it is |
+|---|---|
+| `stations.desks` | One `{x, y}` per seat: where a working friend's feet stand |
+| `stations.approval` | Where a waiting friend stands; others line up beside it |
+| `stations.rest` | The corner a friend rests in once its agent is done |
+| `blocks` | `{x, y, rx, ry}` ellipses a stroll does not end on (furniture) |
+| `fronts` | `{x, y, width, height, foot, shape}`: a piece cut from the picture and drawn over friends whose feet are above `foot` |
+| `depthFar` | How small a friend at the back is drawn (default 0.84; about 0.6 for a deep room) |
+
+- Measure each front on the picture. Start its `shape` at the tabletop, not at a laptop or a lamp on it: anything above the top covers a seated friend's face.
+- A seated friend's name tag goes down to its feet, on the desk's front, so its face stays in view.
+- Set the `soil` capability to `false` for a paved floor: flowers stand in pots and nothing is dug.
+- Use `"fit": "cover-bottom"` so a short window keeps the front of the room.
+- A room whose glass shows the live sky takes the outdoor light: name its picture under `seasonArt` (the same id for every season is fine), not under `art`. Its panes are not washed over again in rain.
+- A station the window crops away is not used: a waiting friend comes to the front of the yard, and a working or resting friend stays where it stands.
+- Put a station where the friend standing there reads clearly: beside a narrow post, not behind it.
+- Check the room with every friend working, at day and night, in rain, and in a short wide window.
+
 ## Portable backgrounds
 
 1. Get a creation kit from [the background studio](../../website/guide/background-kit.md). It includes a starting layout, a guide, a complete request and a portable skill.
