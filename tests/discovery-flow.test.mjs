@@ -157,7 +157,7 @@ test('a layout change cancels a discovery trip before stale geometry can award i
   assert.equal(commands.length, 0);
 });
 
-test('tree choices show owned saplings and never default to an unavailable species', t => {
+test('tree choices show only owned saplings and never default to an unavailable species', t => {
   fixture(t);
   state.data.garden.saplings = { maple: 2 };
   beginDiscovery('tree');
@@ -165,8 +165,10 @@ test('tree choices show owned saplings and never default to an unavailable speci
   const maple = choices.find(button => button.dataset.treeKind === 'maple');
   assert.ok(maple);
   assert.equal(maple.disabled, false);
+  assert.equal(maple.hidden, false);
   assert.equal(maple.getAttribute('aria-pressed'), 'true');
-  assert.ok(choices.filter(button => button.dataset.treeKind !== 'maple').every(button => button.disabled));
+  // A kind with none in the pocket takes no room over the ground; the album lists every kind.
+  assert.ok(choices.filter(button => button.dataset.treeKind !== 'maple').every(button => button.hidden));
   assert.match(maple.textContent, /2/);
 });
 

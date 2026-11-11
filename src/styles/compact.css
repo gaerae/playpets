@@ -40,12 +40,48 @@ body.compact .compact-launcher {
     opacity: 0;
   }
 }
-/* The strip spans the bottom edge, where the corner button was. */
+/* A small window's ground is a thin band at the foot, which a strip there would cover whole, so the
+   strip goes up into the sky: the tools and Close in one row, the saplings in a row under them. */
 body.compact .discovery-target {
+  top: 8px;
   left: 8px;
   right: 8px;
-  bottom: 8px;
+  bottom: auto;
   width: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px;
+}
+/* The instruction stays for screen readers; the tools, Close and the marker on the ground say the
+   rest. */
+body.compact .discovery-target-heading {
+  display: contents;
+}
+body.compact #discovery-target-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+body.compact .discovery-tools {
+  grid-row: 1;
+  grid-column: 1;
+  padding-top: 0;
+}
+body.compact #discovery-cancel {
+  grid-row: 1;
+  grid-column: 2;
+}
+body.compact :is(#discovery-tree-choices, #discovery-find-saplings) {
+  grid-column: 1 / -1;
+}
+/* The window's own buttons would land on the strip at the top; the strip's Close and Esc come
+   first, and the buttons come back with the scenery. */
+body.compact:has(#discovery-target:not([hidden])) .window-buttons {
+  display: none;
 }
 /* Tools share the strip by the length of their names, and a name may take two lines, as a Play
    tile's does, instead of running into the next tool. */

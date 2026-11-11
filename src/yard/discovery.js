@@ -48,9 +48,12 @@ function treeChoices() {
         return button;
       }),
     );
+  // Only the saplings in the pocket show: the strip stands over the ground the person aims at, and
+  // the album lists every kind.
   for (const button of choices.children) {
     const kind = button.dataset.treeKind;
     button.disabled = !stock(kind);
+    button.hidden = !stock(kind);
     button.textContent = t('discovery.pocket', { kind: t(`tree.${kind}`), count: stock(kind) });
     button.title = t('discovery.sapling_source');
     button.setAttribute('aria-pressed', String(kind === intent.kind));

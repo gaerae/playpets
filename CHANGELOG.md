@@ -18,6 +18,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - A tree or a flower takes a click only where it is drawn, so a gift, a friend or the ground showing through its empty corners can be clicked.
 - The rainbow's end now glimmers only on ground not dug that day, so a dig there always finds something instead of saying the spot was already looked at, and it stops glimmering once dug.
+- In a small window, the dig and planting tools no longer cover the ground they aim at: they sit in one row up in the sky, so any spot of ground can be chosen. Before, a window about 360 by 240 or smaller left none of it to click.
+- Planting a tree lists only the saplings you have, so the list no longer covers the ground in any window size.
 - In a small window, the dig and planting tools no longer run into each other in English or Japanese.
 - The keyboard focus ring on the buttons in Play and Friends & settings is drawn whole instead of cut at the panel's edge.
 

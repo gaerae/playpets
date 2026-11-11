@@ -142,6 +142,29 @@ test('the tool strip takes the place of the dock, where Play was opened and just
   assert.match(garden, /\.discovery-target\s*\{[^}]*position:\s*absolute;[^}]*right:\s*12px;[^}]*bottom:\s*12px/s);
 });
 
+test('a small window keeps the ground clear: the tool strip goes up into the sky, in one row', async () => {
+  const compact = await read('src/styles/compact.css');
+  const rule = selector =>
+    compact.match(new RegExp(`(?:^|\\}|\\*/)\\s*${selector.replace(/[.#()[\]]/g, '\\$&')}\\s*\\{([^}]*)\\}`))?.[1] ||
+    '';
+  assert.match(rule('body.compact .discovery-target'), /top:\s*8px;[^}]*bottom:\s*auto/s);
+  assert.match(rule('body.compact .discovery-target'), /display:\s*grid;/);
+  // The instruction stays for screen readers; the tools, Close and the marker on the ground show the rest.
+  assert.match(rule('body.compact .discovery-target-heading'), /display:\s*contents/);
+  assert.match(rule('body.compact #discovery-target-label'), /clip-path:\s*inset\(50%\)/);
+  // The window's own buttons would land on the strip at the top; the strip's Close and Esc come first.
+  assert.match(
+    compact,
+    /body\.compact:has\(#discovery-target:not\(\[hidden\]\)\)\s*\.window-buttons\s*\{[^}]*display:\s*none/s,
+  );
+  const shell = await read('src/styles/shell.css');
+  // The lane of messages stays at the foot, below the ground, instead of rising over it.
+  assert.match(
+    shell,
+    /body\.compact \.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\) \.yard-feedback\s*\{[^}]*bottom:\s*8px/s,
+  );
+});
+
 test("Tab goes round a small window's panel instead of on to friends hidden behind it", () => {
   const [first, middle, last] = ['first', 'middle', 'last'];
   const stops = [first, middle, last];

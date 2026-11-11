@@ -731,9 +731,11 @@ body.compact .yard-feedback {
   inset: auto 52px 8px 8px;
   max-height: calc(100% - 16px);
 }
+/* A small window's strip is up in the sky (compact.css), so the lane stays at the foot, below the
+   ground, where the corner button was. */
 body.compact .yard-frame:has(#discovery-target:not([hidden])) .yard-feedback {
   right: 8px;
-  bottom: 100px;
+  bottom: 8px;
 }
 .yard-feedback > :is(.startup-notice, .game-banner, .catch-card) {
   flex-shrink: 0;
