@@ -1,7 +1,7 @@
 /* The tools at the foot of the yard: care, the garden's planting tool, the album and the games'
    menu, and the treat a friend goes to eat. */
 .button.tool {
-  font-size: 13px;
+  font-size: var(--font-md);
   padding: 7px 8px;
   min-height: 36px;
   justify-content: flex-start;
@@ -23,7 +23,7 @@
   border-radius: 9px;
   background: var(--green-soft);
   color: var(--green-ink);
-  font-size: 10.5px;
+  font-size: var(--font-xs);
   font-weight: 700;
   line-height: 17px;
   text-align: center;

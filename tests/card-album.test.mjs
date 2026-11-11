@@ -46,6 +46,25 @@ test('a find shows in the lane of messages, not apart above whoever found it', a
   assert.equal(card.style.top ?? '', '');
 });
 
+test('a new find also carries a short word for small windows, and news in its own words does not', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  installDom(t, { anyId: true });
+  installStorage(t);
+  const parts = new Map();
+  const card = Object.assign(document.getElementById('catch-card'), {
+    hidden: true,
+    querySelector: selector => parts.get(selector) ?? parts.set(selector, element()).get(selector),
+  });
+  setupCard();
+  showCard('<svg></svg>', 'Pond snail', 'A new one', true, 'fish');
+  assert.match(card.innerHTML, /class="catch-new-short"/);
+  assert.equal(parts.get('.catch-new').textContent, 'New in the album!');
+  assert.equal(parts.get('.catch-new-short').textContent, 'New');
+  card.hidden = true;
+  showCard('<svg></svg>', 'Round and round', 'You spun a friend', 'You found a hidden secret!', 'secret');
+  assert.doesNotMatch(card.innerHTML, /catch-new-short/, 'news in its own words keeps them whole');
+});
+
 test('a first may say in its own words why it is news, on the line a narrow yard still shows', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   installDom(t, { anyId: true });

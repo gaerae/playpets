@@ -2,7 +2,7 @@
 
 import { prepareCompanionAction } from './companion-actions.js';
 import { t } from './i18n.js';
-import { dropdown, menuNavigation, panelSpot } from './menu.js';
+import { dropdown, menuNavigation } from './menu.js';
 import { $, aiming, call, data, game, guard, name, recall, remember, selected, toast, views } from './state.js';
 
 let surfaces = [];
@@ -11,28 +11,15 @@ let showPlay = null;
 let showFriendMenu = null;
 let showDecorMenu = null;
 const yardFocus = button => (document.body.classList.contains('compact') ? $('yard') : button);
-// The dock's corner stays clear of a panel opened elsewhere.
-const DOCK_ROOM = 56;
 
-/** Starts an open panel at `point`; with no point, or in a small window, it keeps its own place. */
-function placePanel(panel, point) {
-  const yard = panel.offsetParent;
-  if (!point || !yard || document.body.classList.contains('compact')) {
-    if (panel.style.left) Object.assign(panel.style, { left: '', top: '', right: '', bottom: '' });
-    return;
-  }
-  const { left, top, width, height } = yard.getBoundingClientRect();
-  const bounds = { left, top, width, height: height - DOCK_ROOM };
-  const spot = panelSpot(point, panel.getBoundingClientRect(), bounds);
-  Object.assign(panel.style, { left: `${spot.left}px`, top: `${spot.top}px`, right: 'auto', bottom: 'auto' });
-}
-
-/** Opens the panel in its corner above the dock; a backend event or a key press is not a place. */
+// Each panel opens in its one place above the dock, however it was reached (the dock, the right-click
+// menu, a shortcut), so a person always finds it where it was last time.
+/** Opens the panel in its corner above the dock. */
 export function openControls() {
   showControls?.();
 }
-export function openPlay(point) {
-  showPlay?.(point);
+export function openPlay() {
+  showPlay?.();
 }
 /** A friend's own right-click menu at a point in the window: talk, or play with it. */
 export function openFriendMenu(id, point) {
@@ -105,7 +92,6 @@ export function setupControls({
   openLetter = () => {},
 } = {}) {
   surfaces = [];
-  let spot = null;
   const closeOthers = (except, keepChat = false) => {
     beforeOpen();
     for (const surface of surfaces) if (surface.panel !== except) surface.box.close();
@@ -126,8 +112,6 @@ export function setupControls({
         panel.scrollTop = 0;
         for (const body of panel.querySelectorAll('.dock-panel-body')) body.scrollTop = 0;
         if (panelId === 'play-panel') renderPlay();
-        placePanel(panel, spot);
-        spot = null;
 
         // The game going on if there is one, else the first action in the page, not the head's Close.
         const visible = [...(panel.querySelector('.dock-panel-body') || panel).querySelectorAll('button')].find(
@@ -158,14 +142,8 @@ export function setupControls({
     // Dig and Plant a tree also need soil; syncDiscovery (discovery.js) keeps those.
     for (const id of ['plant-tool', 'feed']) $(id).disabled = !pet || !!game;
   };
-  showControls = point => {
-    spot = point;
-    menu?.open();
-  };
-  showPlay = point => {
-    spot = point;
-    play?.open();
-  };
+  showControls = () => menu?.open();
+  showPlay = () => play?.open();
   $('play-button')?.addEventListener('click', () => {
     if (!$('play-panel').hidden) closeControls();
     else openPlay();
@@ -297,28 +275,23 @@ export function setupControls({
       closeControls();
       if (action === 'scene') {
         $('scene-button').click();
-        if (!$('scene-menu').hidden) placePanel($('scene-menu'), point);
-      } else if (action === 'play') openPlay(point);
+      } else if (action === 'play') openPlay();
       else if (action === 'pin') $('always-on-top').click();
       else if (action === 'fit') $('window-fit').click();
-      else if (action === 'menu') showControls?.(point);
+      else if (action === 'menu') showControls?.();
       else if (action === 'dig-here') digAt(point.x, point.y);
       else if (action === 'letter') openLetter();
       else if (action === 'talk') openChat(friend);
-      else if (action === 'play-friend') openPlay(point);
+      else if (action === 'play-friend') openPlay();
       else if (action === 'dig-friend') digWith(friend);
       else if (action === 'desktop-friend') sendOut(friend, !data.pets.find(p => p.id === friend)?.onDesktop);
       else if (action === 'desktop-decor') sendOut(friend, !data.garden?.decor?.find(d => d.id === friend)?.onDesktop);
       else if (action === 'dress-decor') dress(friend);
       else if (action === 'put-away') putAway(friend);
     });
-    globalThis.window?.addEventListener('resize', () => {
-      place();
-      for (const id of ['yard-controls-panel', 'play-panel', 'scene-menu']) if ($(id)) placePanel($(id), null);
-    });
+    globalThis.window?.addEventListener('resize', place);
   }
   $('scene-button')?.addEventListener('click', () => {
-    placePanel($('scene-menu'), null);
     beforeOpen();
     closeControls(false);
     const side = $('side-panel');

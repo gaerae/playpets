@@ -136,6 +136,26 @@ test('one yard fills the freely resized window without mode-specific scene rules
   assert.match(css, /\.yard\{[^}]*flex:1;[^}]*height:auto;[^}]*min-height:0/);
 });
 
+test('a small window shows a find in one line: its name, a short New and its book, without Close', async () => {
+  const css = await styles();
+  assert.match(css, /(?:^|})\.catch-card \.catch-new-short\{display:none;/);
+  assert.match(css, /body\.compact \.catch-copy:has\(\.catch-new-short\)\{display:flex;[^}]*align-items:baseline/);
+  assert.match(css, /body\.compact \.catch-copy:has\(\.catch-new-short\)\.catch-new\{display:none;/);
+  assert.match(css, /body\.compact \.catch-card \.catch-new-short\{display:block;/);
+  assert.match(css, /body\.compact \.catch-dismiss\{display:none;/);
+});
+
+test('a tool name in a small window takes a second line instead of running into the next tool', async () => {
+  const css = await styles();
+  assert.match(css, /body\.compact \.discovery-tool\{flex-basis:auto;[^}]*white-space:normal;/);
+  assert.match(css, /@media\(max-width:360px\)\{body\.compact \.discovery-tool svg\{display:none;\}\}/);
+});
+
+test('a button in a scrolling dock panel draws its focus ring inside, where the scroller cannot cut it', async () => {
+  const css = await styles();
+  assert.match(css, /\.dock-panel-body button:focus-visible\{outline-offset:-3px;/);
+});
+
 test('compact windows keep every panel and shared menu within the viewport', async () => {
   const css = await styles();
   assert.match(css, /body\.compact \.layout.panel-open \.side-panel\{[^}]*inset:8px;[^}]*overflow:hidden/);
@@ -176,6 +196,14 @@ test('compact chat keeps its composer visible while the log owns scrolling', asy
     'small chat does not force a taller sheet than the window',
   );
   assert.doesNotMatch(css, /body\.compact[^{}]*\.relation-chip[^{}]*\{[^}]*display:none/);
+});
+
+// Squeezed onto one line in a short window, the message lost its words ("今日はどんな一日だ…") and
+// the AI its name ("Oll…"). The message keeps its own row and the AI stays readable under it.
+test('a short window keeps the message on its own row and the AI readable', async () => {
+  const css = await styles();
+  assert.doesNotMatch(css, /body\.compact \.composer\{[^}]*display:flex/);
+  assert.doesNotMatch(css, /\.composer-select\{[^}]*max-width:64px/);
 });
 
 test('all eight resize boundaries are invisible and stay above the window surfaces', async () => {
@@ -536,7 +564,8 @@ test('a token defined only for dark mode is read only by dark rules', async () =
     for (const prop of Object.keys(r.props))
       if (prop.startsWith('--')) definedIn.set(prop, [...(definedIn.get(prop) || []), r.media]);
   const darkOnly = [...definedIn].filter(([, media]) => media.every(dark)).map(([name]) => name);
-  assert.ok(darkOnly.length, 'the dark tokens are found');
+  // Every token now has a light value too; the check stays for the next one added in dark alone.
+  assert.ok(definedIn.get('--ink')?.some(dark), 'the dark tokens are found');
   const misread = rules.flatMap(r =>
     dark(r.media)
       ? []
@@ -669,4 +698,84 @@ test('an album tab is as wide as its name, so a long one in Japanese stays on on
   assert.match(css, /\.album-tabs\{[^}]*grid-auto-columns:minmax\(min-content,1fr\)/);
   assert.match(css, /\.album-tabs button\{[^}]*min-width:max-content/);
   assert.match(css, /\.album-tabs button>span\{[^}]*white-space:nowrap/);
+});
+
+test('a settings row puts its button under the words when both do not fit, and a long word breaks', async () => {
+  const css = await styles();
+  // Japanese "現在のバージョン" kept whole ran under Check for updates at 300 by 210.
+  assert.match(css, /(?:^|\})\.link-row\{[^}]*flex-wrap:wrap/);
+  assert.match(css, /(?:^|\})\.link-row>div\{[^}]*flex:1 1 9em/);
+  assert.match(css, /(?:^|\})\.link-row small\{[^}]*overflow-wrap:anywhere/);
+});
+
+// At 300 by 210 in English, Import background and Background studio took two lines over the
+// gallery; the narrowest small windows keep the pair on one line and let their icons go.
+test('the narrowest windows keep the background actions on one line', async () => {
+  const css = await styles();
+  const narrow = [...css.matchAll(/@media\(max-width:400px\)[^{]*\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(narrow, /body\.compact \.dock-section-head \.background-actions\{[^}]*flex-wrap:nowrap/);
+  assert.match(narrow, /body\.compact \.dock-section-head \.background-actions \.button svg\{display:none/);
+});
+
+// At 300 by 210 in Japanese, "友だちを招待する" broke over two lines beside Import. The narrowest
+// windows keep Import's word for screen readers and show its icon.
+test('the narrowest windows keep the Invite title on one line', async () => {
+  const css = await styles();
+  const narrow = [...css.matchAll(/@media\(max-width:400px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(
+    narrow,
+    /body\.compact \.panel-head>#import>span:not\(\[data-icon\]\)\{[^}]*position:absolute;[^}]*clip-path:inset\(50%\)/,
+  );
+});
+
+// The interface's colours come from tokens with a light and a dark value (base.css), and a themed
+// surface (the decorating night) names its palette as tokens on its own root. Only drawn things
+// keep colours of their own: the yard's art files, and the marks listed here. Before, 240 raw
+// colours were spread over the rules, and some (the Remove button, the Quit hover, the Settings
+// shadow) stayed light in dark mode.
+test('the interface takes its colours from tokens', async () => {
+  const art = new Set(['scenery.css', 'garden.css', 'play.css']);
+  const drawn =
+    /\.(?:sun-dot|treat|yard-pet|pet-state-dot|particle|head-petal|album-specimen|album-card\.rare|decorating-stage|decorating-tree|ornament-glint|ornament-hook|decorating-bubble|decorating-status|decorating-kind|ornament-chip::before|pet-label\.dear)\b/;
+  const raw = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\(|:(?:white|black)\b/i;
+  for (const file of (await readdir('src/styles')).filter(name => !art.has(name))) {
+    const css = compact(await readFile(`src/styles/${file}`, 'utf8'));
+    for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      for (const declaration of body.split(';')) {
+        if (declaration.startsWith('--') || !raw.test(declaration) || drawn.test(selector)) continue;
+        assert.fail(`${file}: ${selector.trim()} {${declaration}} uses a colour of its own`);
+      }
+    }
+  }
+});
+
+// A window's size changes the page at a few named steps only (docs/standards/page-modules.md): 640
+// by 480 is where a window turns small (src/window.js), 480 wide is a small window wide enough for a
+// side sheet, 400 by 280 the tiniest, 360 the narrowest, and 1100 a wide one.
+test('every media query on the window size uses one of the size tiers', async () => {
+  const css = await styles();
+  const tiers = { width: [360, 400, 480, 640, 1100], height: [280, 480] };
+  const queries = [...css.matchAll(/@media([^{]*)\{/g)].map(m => m[1]);
+  for (const query of queries) {
+    for (const [, axis, px] of query.matchAll(/(?:min|max)-(width|height):(\d+)px/g)) {
+      assert.ok(tiers[axis].includes(Number(px)), `${query.trim()} uses ${axis} ${px}px, which is not a tier`);
+    }
+  }
+});
+
+// Sixteen sizes between 8 and 23px had grown up one rule at a time. Words take one of seven steps,
+// none under 11px; only drawn marks (a heart on a tag, a bite, a plus, a sparkle) keep their own.
+test('every size of words is a step of the type scale, none under 11px', async () => {
+  const css = await styles();
+  const steps = Object.fromEntries(
+    [...css.matchAll(/--font-([a-z]+):([\d.]+)px/g)].map(([, name, px]) => [name, Number(px)]),
+  );
+  assert.deepEqual(steps, { xs: 11, sm: 12, md: 13, base: 14, lg: 15, xl: 17, display: 18 });
+  const marks = /\.(?:tag-bond|bobber|add-mark|particle)\b/;
+  for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const [, size] of body.matchAll(/(?:^|;)font-size:([^;]+)/g)) {
+      if (/^var\(--font-[a-z]+\)$/.test(size) || size === 'inherit' || marks.test(selector)) continue;
+      assert.fail(`${selector.trim()} sets font-size:${size} outside the scale`);
+    }
+  }
 });

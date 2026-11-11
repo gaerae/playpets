@@ -14,7 +14,7 @@
   max-height: none;
   min-height: 0;
   padding: 8px;
-  font-size: 13px;
+  font-size: var(--font-md);
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -23,11 +23,11 @@
   top: 52px;
   right: 12px;
   bottom: 64px;
-  width: min(352px, calc(100% - 24px));
+  width: min(var(--sheet-width), calc(100% - 24px));
   z-index: 20;
   overflow: hidden;
   align-self: stretch;
-  box-shadow: 0 12px 36px var(--ink-20);
+  box-shadow: var(--shadow-sheet);
 }
 #panel-invite {
   overflow-y: auto;
@@ -44,13 +44,10 @@
   border-bottom: 1px solid var(--line);
   flex: none;
 }
-.layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
-  width: min(480px, calc(100% - 24px));
-}
 .panel-head h2 {
   flex: 1;
   min-width: 0;
-  font-size: 14px;
+  font-size: var(--font-base);
 }
 .panel-head .icon-button {
   width: 36px;
@@ -75,11 +72,11 @@
 }
 .section-heading p {
   margin-top: 3px;
-  font-size: 13px;
+  font-size: var(--font-md);
   color: var(--muted);
 }
 .section-heading .button {
-  font-size: 13px;
+  font-size: var(--font-md);
 }
 /* A tab with nothing to show yet says so in the middle. */
 .empty-panel {
@@ -96,49 +93,43 @@
 }
 .empty-panel > span {
   padding: 12px;
-  background: #f2f5ee;
+  background: var(--soft);
   border-radius: 50%;
-  color: #95a88d;
+  color: var(--icon-soft);
 }
 .empty-panel svg {
   width: 24px;
   height: 24px;
 }
 .empty-panel h2 {
-  font-size: 14px;
+  font-size: var(--font-base);
   color: var(--ink);
 }
 .empty-panel p {
-  font-size: 13px;
+  font-size: var(--font-md);
   line-height: 1.5;
 }
 .notice {
   padding: 10px;
   border-radius: var(--radius-control);
   background: var(--soft);
-  font-size: 13px;
+  font-size: var(--font-md);
   line-height: 1.5;
 }
 .version {
   margin-left: 8px;
-  font-size: 10px;
+  font-size: var(--font-xs);
   border: 1px solid var(--line);
   border-radius: 5px;
   padding: 2px 4px;
 }
 .badge {
-  font-size: 9px;
+  font-size: var(--font-xs);
   font-weight: 700;
   color: var(--white);
   background: var(--accent);
   border-radius: 6px;
   padding: 1px 5px;
-}
-@media (prefers-color-scheme: dark) {
-  .empty-panel > span {
-    background: var(--soft);
-    color: #b6cda5;
-  }
 }
 
 #panel-expand {
@@ -162,7 +153,7 @@
   min-height: 32px;
   padding: 4px 6px;
   gap: 4px;
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 .panel-head > #import svg {
   width: 15px;
@@ -204,13 +195,25 @@ body.compact #panel-expand {
     margin-bottom: 4px;
   }
 }
+/* The narrowest windows keep the panel's title on one line: Import shows its icon, and its word
+   stays for screen readers. */
+@media (max-width: 400px) {
+  body.compact .panel-head > #import {
+    padding: 4px 8px;
+  }
+  body.compact .panel-head > #import > span:not([data-icon]) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
 /* A short window may still be wide: the panel need not span the scenery. */
 @media (min-width: 480px) {
   body.compact .layout.panel-open .side-panel {
     left: auto;
-    width: min(352px, calc(100% - 16px));
-  }
-  body.compact .layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
-    width: min(480px, calc(100% - 16px));
+    width: min(var(--sheet-width), calc(100% - 16px));
   }
 }

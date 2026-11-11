@@ -4,7 +4,7 @@
    the side panel's in panel.css, invite.css, friend.css, chat.css and settings.css, dialogs in
    dialog.css). */
 body.compact .pet-tag {
-  font-size: 12px;
+  font-size: var(--font-sm);
   padding: 2px 6px;
   visibility: hidden;
 }
@@ -40,12 +40,71 @@ body.compact .compact-launcher {
     opacity: 0;
   }
 }
-/* The strip spans the bottom edge, where the corner button was. */
+/* A small window's ground is a thin band at the foot, which a strip there would cover whole, so the
+   strip goes up into the sky: the tools and Close in one row, the saplings in a row under them. */
 body.compact .discovery-target {
+  top: 8px;
   left: 8px;
   right: 8px;
-  bottom: 8px;
+  bottom: auto;
   width: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px;
+}
+/* The instruction stays for screen readers; the tools, Close and the marker on the ground say the
+   rest. */
+body.compact .discovery-target-heading {
+  display: contents;
+}
+body.compact #discovery-target-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+body.compact .discovery-tools {
+  grid-row: 1;
+  grid-column: 1;
+  padding-top: 0;
+}
+body.compact #discovery-cancel {
+  grid-row: 1;
+  grid-column: 2;
+}
+body.compact :is(#discovery-tree-picker, #discovery-find-saplings) {
+  grid-column: 1 / -1;
+}
+body.compact .tree-picker {
+  padding-top: 0;
+}
+/* Up in the sky the strip opens its menu downwards, over the scenery rather than off the top. */
+body.compact .tree-menu {
+  top: calc(100% + 6px);
+  bottom: auto;
+}
+/* The window's own buttons would land on the strip at the top; the strip's Close and Esc come
+   first, and the buttons come back with the scenery. */
+body.compact:has(#discovery-target:not([hidden])) .window-buttons {
+  display: none;
+}
+/* Tools share the strip by the length of their names, and a name may take two lines, as a Play
+   tile's does, instead of running into the next tool. */
+body.compact .discovery-tool {
+  flex-basis: auto;
+  padding: 4px;
+  white-space: normal;
+  line-height: 1.2;
+  text-align: left;
+}
+/* The narrowest yards keep the names whole on one line; the icons give way. */
+@media (max-width: 360px) {
+  body.compact .discovery-tool svg {
+    display: none;
+  }
 }
 /* Each dock panel keeps its one page; small windows fold it into tiles. */
 body.compact .yard-controls-panel {
@@ -59,7 +118,7 @@ body.compact .yard-controls-panel {
 body.compact #yard-controls-panel {
   left: auto;
   bottom: auto;
-  width: min(320px, calc(100% - 16px));
+  width: min(var(--dock-panel-width), calc(100% - 16px));
 }
 /* Section names stay for screen readers; spacing and the dividers show the groups. */
 body.compact .dock-section-label {
@@ -108,11 +167,11 @@ body.compact .background-gallery {
 body.compact .menu-destination {
   min-width: 0;
   padding: 4px;
-  font-size: 12px;
+  font-size: var(--font-sm);
   font-weight: 500;
 }
 body.compact .menu-destination-copy strong {
-  font-size: 12px;
+  font-size: var(--font-sm);
   font-weight: 500;
 }
 
@@ -122,7 +181,7 @@ body.compact .window-quick-actions > #fullscreen {
   min-width: 0;
   padding: 0 4px;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 body.compact #always-on-top > [data-icon] {
   display: none;
@@ -159,9 +218,25 @@ body.compact .catch-specimen {
   border-radius: 8px;
 }
 body.compact .catch-card strong {
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
-body.compact .catch-card small:not(.catch-new) {
+body.compact .catch-card small:not(.catch-new, .catch-new-short) {
+  display: none;
+}
+/* A small window says a find is new in a word beside its name, so the card keeps to one line;
+   the card puts itself away on a click or after a while, so it needs no Close. */
+body.compact .catch-copy:has(.catch-new-short) {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+body.compact .catch-copy:has(.catch-new-short) .catch-new {
+  display: none;
+}
+body.compact .catch-card .catch-new-short {
+  display: block;
+}
+body.compact .catch-dismiss {
   display: none;
 }
 /* The New Year card's line is the person's own answer, quoted: it is the card, so it stays, in the
@@ -195,8 +270,14 @@ body.compact .empty-yard:not(.aside) {
 body.compact .yard-context-menu > button {
   min-height: 36px;
   padding: 6px 8px;
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.25;
+}
+/* A finger needs more than a pointer; the menu scrolls if the rows no longer fit. */
+@media (pointer: coarse) {
+  body.compact .yard-context-menu > button {
+    min-height: 44px;
+  }
 }
 
 /* A destination already owns the header; the quiet update chip returns with the scenery. */

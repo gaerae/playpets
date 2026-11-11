@@ -216,7 +216,7 @@
   cursor: pointer;
 }
 .pet-tag {
-  font-size: 11px;
+  font-size: var(--font-xs);
   color: var(--scene-ink);
   font-weight: 650;
   background: var(--scene-label-soft);
@@ -259,9 +259,9 @@
   display: inline-flex;
 }
 .pet-label .pet-tag:hover {
-  background: #fff;
-  color: #2c6e57;
-  box-shadow: 0 1px 4px #213e4322;
+  background: var(--scene-label);
+  color: var(--scene-green);
+  box-shadow: 0 1px 4px var(--scene-line);
 }
 .yard.playing .tag-talk,
 .yard.aiming .tag-talk {
@@ -278,9 +278,9 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 600;
-  color: #2f6a92;
+  color: var(--scene-agent);
   white-space: nowrap;
 }
 .pet-tag small::before {
@@ -289,7 +289,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #4a9bd6;
+  background: var(--agent-blue);
   margin-right: 3px;
   vertical-align: 1px;
   text-overflow: ellipsis;
@@ -304,29 +304,29 @@
   background: var(--scene-label);
 }
 .pet-label.selected .pet-tag {
-  background: var(--accent);
-  color: #fff;
+  background: var(--scene-accent);
+  color: var(--scene-on-accent);
 }
 /* on a coloured tag the agent label turns light with it */
 .pet-label.selected .pet-tag small,
 .pet-label.tagger .pet-tag small {
   /* Solid white: the translucent white fell under 4.5:1 on the accent at this size. */
-  color: #fff;
+  color: var(--scene-on-accent);
 }
 .pet-label.selected .pet-tag small::before,
 .pet-label.tagger .pet-tag small::before {
-  background: #ffffffb0;
+  background: var(--scene-label-soft);
 }
 .pet-label.tagger .pet-tag {
-  background: var(--accent);
-  color: #fff;
+  background: var(--scene-accent);
+  color: var(--scene-on-accent);
 }
 .pet-label.hiding .pet-tag {
   visibility: hidden;
 }
 /* hearts on a friend's tag for how close it is; the dearest wears a flower */
 .tag-bond {
-  color: #ec7d96;
+  color: var(--heart);
   font-size: 8px;
   letter-spacing: -0.5px;
   margin-left: 3px;
@@ -355,8 +355,8 @@
   border-radius: 12px;
   background: var(--scene-label);
   border: 1px solid var(--scene-line);
-  box-shadow: 0 4px 12px #213e4314;
-  font-size: 11px;
+  box-shadow: 0 4px 12px var(--scene-shadow);
+  font-size: var(--font-xs);
   line-height: 1.45;
   color: var(--scene-ink);
   text-align: center;
@@ -380,7 +380,7 @@
   border-radius: 12px;
   background: var(--scene-label);
   border: 1px solid var(--scene-line);
-  box-shadow: 0 4px 12px #213e4314;
+  box-shadow: 0 4px 12px var(--scene-shadow);
   color: var(--scene-ink);
   pointer-events: none;
   z-index: 3;
@@ -517,11 +517,5 @@
   }
   .particle {
     display: none;
-  }
-}
-@media (prefers-color-scheme: dark) {
-  .pet-label.selected .pet-tag,
-  .pet-label.tagger .pet-tag {
-    background: #a3422c;
   }
 }
