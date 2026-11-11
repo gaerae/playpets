@@ -13,6 +13,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Friends farther back in the yard look a little smaller, bob along as they walk and settle as they stop, and no longer stroll onto a tree or a flower.
+- Friends walk all the way down to the foot of the yard, with their name tags still in view, and do not stop behind the tools in the corner.
 - Outdoors, trees and flowers sway in the breeze. Indoors, and with reduced motion, they stay still.
 - A double-click on a friend is two pats and no longer opens the conversation. To talk, click the friend's name tag or choose **Talk to** from its right-click menu.
 

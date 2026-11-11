@@ -1,6 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { decorFloor, depthAt, field, fieldTop, fieldToYard, measureYard, yardToDecor } from '../src/yard/field.js';
+import {
+  decorFloor,
+  depthAt,
+  field,
+  fieldTop,
+  fieldToYard,
+  geometry,
+  measureYard,
+  petHeight,
+  underDock,
+  yardToDecor,
+} from '../src/yard/field.js';
 import { composition } from '../src/yard/layout.js';
 import { scene } from '../src/yard/world.js';
 import { worldFor } from '../src/yard/worlds.js';
@@ -48,6 +59,25 @@ test('a room keeps its own floor line when its picture is missing', t => {
 
 // Gifts have no name tag under them, so they reach down to just above the dock (or nearly to the
 // foot of a small window, where the dock is hidden), while friends keep room for their names.
+test('a friend walks down to its name tag, past where plants keep to; a stroll does not end under the dock', t => {
+  yardIn(t);
+  const pet = { size: 96 },
+    { h, top } = geometry(pet);
+  // Its feet reach the foot of the yard but for the tag that hangs below them.
+  assert.equal(top + h + petHeight(pet), 700 - 28);
+  assert.equal(field().bottom, 700 - 76, 'plants and gifts keep their places');
+  // The dock floats over the foot at the right (shell.css .yard-dock).
+  globalThis.document.querySelector = selector =>
+    selector === '.yard-dock'
+      ? { getBoundingClientRect: () => ({ left: 600, right: 988, top: 646, bottom: 688, width: 388, height: 42 }) }
+      : null;
+  assert.equal(underDock(800, 660, 48), true);
+  assert.equal(underDock(570, 660, 48), true, 'half a body beside it is still behind it');
+  assert.equal(underDock(500, 660, 48), false);
+  assert.equal(underDock(800, 630, 48), false, 'feet above it leave the friend in view');
+  globalThis.document.querySelector = () => ({ getBoundingClientRect: () => ({ width: 0 }) });
+  assert.equal(underDock(800, 660, 48), false, 'a hidden dock hides nothing');
+});
 test("gifts stand below the friends' field, drawn in front of every friend above them", t => {
   yardIn(t, 'illustrated', 'studio');
   const f = field(),

@@ -10,7 +10,7 @@ import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
-import { EDGE, geometry, petHeight, sizeOf, yardToField } from './field.js';
+import { EDGE, geometry, petHeight, sizeOf, underDock, yardToField } from './field.js';
 import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { sendTo } from './trips.js';
@@ -23,13 +23,18 @@ const WALK = 0.0005;
 // Where a friend's feet are when it stands at a place (0 to 1 each way), as the ground measures
 // the water and what stands on the field.
 function feetAt(v, at) {
-  const { w, h, top } = geometry(v.pet);
-  return yardToField(EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet));
+  return yardToField(...feetInYard(v, at));
 }
-// A stroll the ground allows: around the lake, not onto a tree, a flower or a gift.
+const feetInYard = (v, at) => {
+  const { w, h, top } = geometry(v.pet);
+  return [EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet)];
+};
+// A stroll the ground allows: around the lake, not onto a tree, a flower or a gift, and not to a
+// stop behind the dock.
 function dryStroll(v) {
   const ground = groundProfile();
-  return (from, to) => strollClear(feetAt(v, from), feetAt(v, to), ground);
+  return (from, to) =>
+    !underDock(...feetInYard(v, to), sizeOf(v.pet) / 2) && strollClear(feetAt(v, from), feetAt(v, to), ground);
 }
 // A walking friend bobs at each step (friends.css .walking), more slowly on a stroll. Written only
 // when it changes; with reduced motion a friend does not walk, it is set down where it goes.
