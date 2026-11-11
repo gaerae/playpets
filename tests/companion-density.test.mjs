@@ -2,12 +2,18 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
+// A rule's declarations, with the type scale's steps (base.css) read as the sizes they stand for.
 async function rule(file, selector) {
   const css = await readFile(`src/styles/${file}.css`, 'utf8');
   const body = css.match(new RegExp(`${RegExp.escape(selector)}\\s*\\{([^}]+)\\}`))?.[1];
   assert.ok(body, `${selector} has an owning rule`);
+  const base = await readFile('src/styles/base.css', 'utf8');
+  const step = name => base.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1] ?? name;
   return Object.fromEntries(
-    [...body.matchAll(/([\w-]+)\s*:\s*([^;]+);/g)].map(([, key, value]) => [key, value.trim()]),
+    [...body.matchAll(/([\w-]+)\s*:\s*([^;]+);/g)].map(([, key, value]) => [
+      key,
+      value.trim().replace(/^var\(--(font-[a-z]+)\)$/, (_, name) => step(name)),
+    ]),
   );
 }
 

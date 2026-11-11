@@ -8,7 +8,7 @@
   border-bottom: 1px solid var(--line);
   border-radius: 0;
   background: transparent;
-  font-size: 13px;
+  font-size: var(--font-md);
   align-items: flex-start;
 }
 /* The native checkbox stays focusable without inheriting a full-width field's invisible box. */
@@ -25,20 +25,20 @@
 .auto-chatter small {
   font-weight: 400;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-md);
   line-height: 1.5;
   white-space: normal;
 }
 .button.quit {
-  font-size: 13px;
+  font-size: var(--font-md);
   min-height: 36px;
   padding: 6px 10px;
   color: var(--ink);
 }
 .button.quit:hover {
   color: var(--danger);
-  border-color: #e4c4b8;
-  background: #fdf6f2;
+  border-color: var(--danger-line);
+  background: var(--danger-soft);
 }
 .button.quit svg {
   width: 15px;
@@ -52,7 +52,7 @@
   margin-top: auto;
   padding-top: 10px;
   border-top: 1px solid var(--line);
-  font-size: 13px;
+  font-size: var(--font-md);
   color: var(--muted);
 }
 /* The settings tab: one titled list of agents. Each row names the file to paste into, in the spelling
@@ -64,14 +64,28 @@
 }
 .settings-section h3 {
   margin-bottom: 8px;
-  font-size: 14px;
+  font-size: var(--font-base);
   font-weight: 700;
 }
 .settings-lead {
   margin: 0 0 8px;
-  font-size: 13px;
+  font-size: var(--font-md);
   line-height: 1.5;
   color: var(--muted);
+}
+/* A section opens with one sentence; what only some people need waits behind a quiet line. */
+.settings-more {
+  margin: -4px 0 8px;
+}
+.settings-more > summary {
+  width: fit-content;
+  min-height: 28px;
+  padding: 4px 0;
+  font-size: var(--font-sm);
+  color: var(--muted);
+}
+.settings-more > p {
+  margin-top: 2px;
 }
 .link-list {
   list-style: none;
@@ -80,8 +94,11 @@
   border-top: 1px solid var(--line);
   background: transparent;
 }
+/* The words take the room; when they and the row's button do not both fit, the button goes under
+   them instead of squeezing them to a word a line or running over them. */
 .link-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -89,6 +106,7 @@
   border-bottom: 1px solid var(--line);
 }
 .link-row > div {
+  flex: 1 1 9em;
   min-width: 0;
 }
 .link-row strong {
@@ -96,20 +114,21 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 2px 6px;
-  font-size: 13px;
+  font-size: var(--font-md);
 }
 .link-row small {
   display: block;
   margin-top: 2px;
-  font-size: 13px;
+  font-size: var(--font-md);
   line-height: 1.5;
   color: var(--muted);
   word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 .link-row code {
   display: block;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--font-sm);
   overflow-wrap: anywhere;
   color: var(--ink);
 }
@@ -117,7 +136,7 @@
   flex: none;
   min-height: 36px;
   padding: 0 10px;
-  font-size: 13px;
+  font-size: var(--font-md);
 }
 .update-actions,
 .agent-actions {
@@ -127,7 +146,7 @@
 }
 /* Connected (or connected with an older setting) beside the agent's name. */
 .link-state {
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: var(--green-ink);
   background: var(--green-soft);
@@ -147,7 +166,7 @@
 }
 .settings-update-details h3 {
   margin: 0 0 8px;
-  font-size: 14px;
+  font-size: var(--font-base);
   color: var(--ink);
 }
 .settings-update-details .dialog-description {
@@ -167,7 +186,7 @@
 }
 .settings-group {
   margin: 10px 0 4px;
-  font-size: 12px;
+  font-size: var(--font-sm);
   font-weight: 650;
   color: var(--muted);
 }
@@ -186,7 +205,7 @@
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--font-md);
   text-align: left;
   cursor: pointer;
 }
@@ -196,7 +215,7 @@
 .link-button small {
   display: block;
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--font-sm);
   color: var(--muted);
 }
 .link-button > [data-icon] svg {
@@ -227,7 +246,7 @@ body.compact .link-row:has(.agent-actions) > div {
   align-items: center;
   gap: 6px;
   margin-top: 4px;
-  font-size: 13px;
+  font-size: var(--font-md);
   color: var(--muted);
   white-space: nowrap;
   min-width: 0;
@@ -239,7 +258,7 @@ body.compact .link-row:has(.agent-actions) > div {
   min-width: 0;
   min-height: 36px;
   padding: 0 32px 0 10px;
-  font-size: 13px;
+  font-size: var(--font-md);
 }
 .link-row .agent-pet .language-select {
   flex: 1;
@@ -260,7 +279,7 @@ body.compact .link-row:has(.agent-actions) > div {
   gap: 6px;
 }
 .ai-types legend {
-  font-size: 13px;
+  font-size: var(--font-md);
   font-weight: 700;
   margin-bottom: 6px;
   padding: 0;
@@ -276,16 +295,16 @@ body.compact .link-row:has(.agent-actions) > div {
   border-color: var(--green-ink);
 }
 .ai-type-name {
-  font-size: 13px;
+  font-size: var(--font-md);
   font-weight: 700;
 }
 .ai-type small {
-  font-size: 13px;
+  font-size: var(--font-md);
   font-weight: 400;
 }
 .ai-found {
   justify-self: start;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   color: var(--green-ink);
   background: var(--green-soft);
@@ -317,12 +336,12 @@ body.compact .link-row:has(.agent-actions) > div {
   bottom: auto;
   left: 50%;
   z-index: 20;
-  width: min(760px, calc(100% - 48px));
-  height: min(640px, calc(100% - 96px));
+  width: min(var(--settings-width), calc(100% - 48px));
+  height: min(var(--settings-height), calc(100% - 96px));
   max-height: calc(100% - 96px);
   align-self: start;
   transform: translate(-50%, -50%);
-  box-shadow: 0 18px 48px #1d2f2a40;
+  box-shadow: var(--shadow-settings);
   background: var(--panel-surface);
   overflow: hidden;
 }
@@ -411,7 +430,7 @@ body:not(.compact) .settings-index button[aria-current="page"] {
   min-width: 0;
 }
 .settings-task-copy strong {
-  font-size: 13px;
+  font-size: var(--font-md);
   font-weight: 600;
 }
 @media (prefers-color-scheme: dark) {
@@ -480,15 +499,18 @@ body.compact .settings-content .settings-section > h3 {
     display: none;
   }
 }
-/* A short window may still be wide: the Settings sheet need not span the scenery. */
+/* A short window may still be wide: the Settings sheet need not span the scenery. It keeps the
+   window's height from section to section, so Back and the title stay where they were; only the
+   list of sections is as tall as its rows. */
 @media (min-width: 480px) {
   body.compact .layout.settings-open .side-panel {
     left: auto;
-    bottom: auto;
     width: min(600px, calc(100% - 16px));
-    height: auto;
   }
-  body.compact .settings-content {
-    max-height: calc(100dvh - 128px);
+}
+/* Rows stay short for a mouse so the list fits a small window; a finger still gets 44px. */
+@media (pointer: coarse) {
+  body.compact .settings-index button {
+    min-height: 44px;
   }
 }

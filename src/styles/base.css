@@ -31,6 +31,11 @@
   --scene-label-soft: #ffffffb8;
   --scene-ink: #2c4440;
   --scene-line: #213e4326;
+  --scene-shadow: #213e4314;
+  --scene-green: #2c6e57;
+  --scene-agent: #2f6a92;
+  --scene-accent: #c45237;
+  --scene-on-accent: #fff;
   /* The edge of a focused field. */
   --field-focus: #88a392;
   --dock-surface: var(--panel-surface);
@@ -58,16 +63,70 @@
   /* something on for now: the season's event, the game being played */
   --pink-soft: #fbe7ef;
   --pink-ink: #a8425b;
+  --pink-line: #f1cfe0;
+  --pink-line-strong: #e3a9c3;
+  /* what a coding agent says about itself on a friend's sheet */
+  --amber-soft: #fff6e4;
+  --amber-line: #f0ddb8;
+  --amber-ink: #6b4b14;
+  /* the line round a picked or hovered card, a row's edge under the pointer */
+  --green-line: #9ab39a;
+  --line-strong: #c9d3cf;
+  --card-hover: #f2f6ee;
+  /* a surface and an edge that warn */
+  --danger-soft: #fbefea;
+  --danger-line: #e4c4b8;
+  /* a quiet picture standing for an empty tab */
+  --icon-soft: #95a88d;
+  /* words on an ink-filled surface: your own message, the send button under the pointer */
+  --on-ink: #fff;
+  /* the conversation: your words, your friend's, another friend's and its name, code */
+  --bubble-user: var(--ink);
+  --bubble-friend: #f0f4ed;
+  --bubble-peer: #eef2f7;
+  --peer-ink: #5a6f8a;
+  --code-surface: #213e4312;
+  /* a step of the first-run list that is done */
+  --done-mark: var(--ink);
+  --done-line: var(--ink);
+  /* Drawn marks that look the same in both schemes: hearts for closeness, the gold round an
+     ornament, a switch's knob, the blue of a coding agent. */
+  --heart: #ec7d96;
+  --heart-deep: #c9576f;
+  --gold: #d9b25e;
+  --knob: #fff;
+  --agent-blue: #4a9bd6;
   color-scheme: light;
   --radius-panel: 8px;
   --radius-control: 5px;
   --radius-card: 6px;
   --radius-pill: 999px;
+  /* The type scale: words take one of these steps, none under 11px (tests/ui-style.test.mjs). */
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-md: 13px;
+  --font-base: 14px;
+  --font-lg: 15px;
+  --font-xl: 17px;
+  --font-display: 18px;
+  /* How far each kind of surface stands off the yard: a dock panel or the right-click menu, a menu
+     opened from a control, a sheet beside the yard, Settings over it. */
+  --shadow-dock: 0 8px 24px var(--ink-12);
+  --shadow-menu: 0 12px 32px var(--ink-15);
+  --shadow-sheet: 0 12px 36px var(--ink-20);
+  --shadow-settings: 0 18px 48px #1d2f2a40;
+  /* Three kinds of surface, one size each wherever they are opened from: a dock panel above the dock
+     (Place & atmosphere, Play, Friends & settings), a sheet beside the yard (a friend, Invite), and
+     Settings over the yard, small enough that a short section does not leave most of it empty. */
+  --dock-panel-width: 360px;
+  --sheet-width: 440px;
+  --settings-width: 720px;
+  --settings-height: 560px;
   font-family:
     system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR",
     sans-serif;
   color: var(--ink);
-  font-size: 14px;
+  font-size: var(--font-base);
   font-synthesis: none;
 }
 @media (prefers-color-scheme: dark) {
@@ -98,10 +157,28 @@
     --green-ink: #d1e8c2;
     --pink-soft: #49323c;
     --pink-ink: #f8c6d9;
-    /* Only the dark rules use these two (each light rule has its own colour), so they have no
-       light value: the green line round a picked or hovered card, and a surface that warns. */
+    --pink-line: #7f5562;
+    --pink-line-strong: #a8708a;
+    --amber-soft: #493e29;
+    --amber-line: #796d4e;
+    --amber-ink: #f0d399;
     --green-line: #91b08b;
+    --line-strong: #5d7062;
+    --card-hover: #2e3d31;
     --danger-soft: #49332c;
+    --danger-line: #7a4a3d;
+    --icon-soft: #b6cda5;
+    --on-ink: #203425;
+    --bubble-user: #cadcc1;
+    --bubble-friend: #2f4034;
+    --bubble-peer: #2d3c49;
+    --peer-ink: #bacfe4;
+    --code-surface: #e8eee51a;
+    --done-mark: #5a7e48;
+    --done-line: #87a574;
+    /* The painted scene stays daylight, but a white tag on the light accent would not read. */
+    --scene-accent: #a3422c;
+    --shadow-settings: 0 18px 48px #00000080;
     --ink-8: #00000024;
     --ink-12: #00000033;
     --ink-15: #00000040;
@@ -212,7 +289,7 @@ button:active:not(:disabled) {
   font-weight: 650;
   min-height: 36px;
   padding: 8px 12px;
-  font-size: 13px;
+  font-size: var(--font-md);
   white-space: nowrap;
 }
 .button.secondary {
@@ -239,11 +316,11 @@ button:active:not(:disabled) {
 }
 .button.small {
   min-height: 32px;
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 .button.tiny {
   min-height: 28px;
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 .icon-button {
   width: 36px;
@@ -302,7 +379,7 @@ button:active:not(:disabled) {
   color: var(--ink);
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 750;
   letter-spacing: 1.65px;
   color: var(--muted);
@@ -317,7 +394,7 @@ button:active:not(:disabled) {
   outline: none;
 }
 h2 {
-  font-size: 17px;
+  font-size: var(--font-xl);
   letter-spacing: -0.5px;
   font-weight: 700;
 }
@@ -329,7 +406,7 @@ textarea {
   border-radius: var(--radius-control);
   width: 100%;
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: var(--font-md);
 }
 input:focus,
 textarea:focus,
@@ -338,22 +415,22 @@ select:focus {
 }
 .button.remove {
   margin-top: 16px;
-  font-size: 10px;
+  font-size: var(--font-xs);
   min-height: 30px;
   width: 100%;
-  color: #77837f;
-  border: 1px dashed #dce4de;
+  color: var(--muted);
+  border: 1px dashed var(--line);
 }
 .button.remove:hover {
-  background: #f8eeea;
-  color: #a64f3b;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 .button.remove svg {
   width: 13px;
   height: 13px;
 }
 .tiny {
-  font-size: 11px;
+  font-size: var(--font-xs);
   color: var(--muted);
   line-height: 1.6;
 }
@@ -436,7 +513,7 @@ select {
   border-radius: var(--radius-pill);
   padding: 4px 12px;
   min-height: 28px;
-  font-size: 11px;
+  font-size: var(--font-xs);
   background: var(--white);
   color: var(--ink);
   gap: 5px;

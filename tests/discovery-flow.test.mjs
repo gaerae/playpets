@@ -157,17 +157,58 @@ test('a layout change cancels a discovery trip before stale geometry can award i
   assert.equal(commands.length, 0);
 });
 
-test('tree choices show owned saplings and never default to an unavailable species', t => {
+test('the tree picker is one button naming the sapling in hand, its menu only the owned ones', t => {
   fixture(t);
-  state.data.garden.saplings = { maple: 2 };
+  state.data.garden.saplings = { maple: 2, oak: 1 };
+  // The menu starts shut, as the page has it.
+  document.getElementById('discovery-tree-choices').hidden = true;
   beginDiscovery('tree');
+  assert.equal(document.getElementById('discovery-tree-picker').hidden, false);
+  assert.match(
+    document.getElementById('discovery-tree-current').textContent,
+    /2/,
+    'the button says which sapling and how many',
+  );
   const choices = document.getElementById('discovery-tree-choices').children;
-  const maple = choices.find(button => button.dataset.treeKind === 'maple');
+  const maple = choices.find(choice => choice.dataset.treeKind === 'maple');
   assert.ok(maple);
-  assert.equal(maple.disabled, false);
-  assert.equal(maple.getAttribute('aria-pressed'), 'true');
-  assert.ok(choices.filter(button => button.dataset.treeKind !== 'maple').every(button => button.disabled));
+  assert.equal(maple.getAttribute('role'), 'menuitemradio');
+  assert.equal(maple.hidden, false);
+  assert.equal(maple.getAttribute('aria-checked'), 'true');
+  // A kind with none in the pocket takes no room; the album lists every kind.
+  const others = choices.filter(choice => !['maple', 'oak'].includes(choice.dataset.treeKind));
+  assert.ok(others.every(choice => choice.hidden));
   assert.match(maple.textContent, /2/);
+  // However many kinds are owned, the strip keeps one button for them.
+  state.data.garden.saplings = Object.fromEntries(choices.map(choice => [choice.dataset.treeKind, 1]));
+  syncDiscovery();
+  assert.ok(choices.every(choice => !choice.hidden));
+  assert.equal(document.getElementById('discovery-tree-choices').hidden, true, 'the menu stays shut until asked');
+});
+
+test('choosing a tree from the menu puts that sapling in hand and names it on the button', async t => {
+  fixture(t);
+  setupDiscovery();
+  state.data.garden.saplings = { maple: 2, oak: 1 };
+  beginDiscovery('tree');
+  const choices = document.getElementById('discovery-tree-choices');
+  const oak = choices.children.find(choice => choice.dataset.treeKind === 'oak');
+  await choices.dispatch('click', { target: oak });
+  assert.equal(oak.getAttribute('aria-checked'), 'true');
+  assert.equal(choices.children.find(c => c.dataset.treeKind === 'maple').getAttribute('aria-checked'), 'false');
+  assert.match(document.getElementById('discovery-tree-current').textContent, /1/);
+  assert.equal(choices.hidden, true, 'choosing closes the menu');
+  // Opened again, the menu starts on the sapling in hand, not the first in the list.
+  await document.getElementById('discovery-tree-button').dispatch('click');
+  assert.equal(choices.hidden, false);
+  assert.equal(document.activeElement, oak);
+});
+
+test('with no saplings the picker gives way to digging for some', t => {
+  fixture(t);
+  beginDiscovery('tree');
+  assert.equal(document.getElementById('discovery-tree-picker').hidden, true);
+  assert.equal(document.getElementById('discovery-find-saplings').hidden, false);
 });
 
 test('a state change keeps keyboard focus on the chosen tree choice', t => {

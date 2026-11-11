@@ -19,8 +19,8 @@ test('desktop controls use a compact reading scale while touch targets stay gene
   const base = await readFile('src/styles/base.css', 'utf8');
   const button = base.match(/\.button\s*\{([^}]+)\}/)?.[1] || '';
   assert.match(button, /min-height:\s*36px/);
-  assert.match(button, /font-size:\s*13px/);
+  assert.match(button, /font-size:\s*var\(--font-md\)/);
   assert.match(base, /@media\s*\(pointer:\s*coarse\)/);
   const play = await readFile('src/styles/play.css', 'utf8');
-  assert.match(play, /\.play-action,\s*\.discovery-tree-choice\s*\{[^}]*min-height:\s*40px/s);
+  assert.match(play, /(?:^|\})\s*\.play-action\s*\{[^}]*min-height:\s*40px/s);
 });

@@ -89,3 +89,42 @@ test('aiming a seed or playing a game, the keys and the right click leave a plan
   await button.dispatch('keydown', { key: 'Delete' });
   assert.equal(button.hidden, true, 'outside a game the key pulls it up');
 });
+
+test('a flower keeps its name to itself until its bud shows, as a gift of the season it was planted in', async context => {
+  context.mock.timers.enable({ apis: ['setTimeout'] });
+  const nodes = page(context);
+  // A young plant draws its stage, so each button needs the drawing's parts.
+  const make = document.createElement.bind(document);
+  document.createElement = tag => Object.assign(make(tag), { querySelector: () => element() });
+  const { stageOf } = await import('../src/yard/growth.js');
+  const now = 20_000_000;
+  context.mock.method(Date, 'now', () => now);
+  let bud = now - 1;
+  while (stageOf(bud, now).name !== 'bud' && now - bud < 20_000_000) bud -= 60_000;
+  assert.equal(stageOf(bud, now).name, 'bud');
+  setData({
+    garden: {
+      seeds: 0,
+      plants: [
+        { id: 'flower-young', kind: 'tulip', planted: now - 1, x: 0.3, y: 0.5 },
+        { id: 'flower-bud', kind: 'tulip', planted: bud, x: 0.6, y: 0.5 },
+      ],
+    },
+  });
+  renderGarden(now);
+  const buttons = nodes.get('garden-layer').children.slice(-2);
+  const budButton = buttons.find(b => b.title.includes('bud'));
+  const youngButton = buttons.find(b => b !== budButton);
+  assert.doesNotMatch(youngButton.title, /Tulip/, 'a seed does not tell which flower it will be');
+  assert.match(youngButton.title, /A flower yet to show/);
+  assert.match(budButton.title, /Tulip/, 'the bud shows its flower');
+  await youngButton.dispatch('keydown', { key: 'Delete' });
+  assert.doesNotMatch(nodes.get('toast').textContent, /Tulip/, 'pulling it up does not tell either');
+  assert.match(nodes.get('toast').textContent, /Young plant pulled up/);
+});
+
+test('finding a seed and the seed tool both say the season it is planted in picks the flower', async () => {
+  const { strings } = await import('../src/core/strings/en.js');
+  assert.match(strings['discovery.seed'], /when we plant/);
+  assert.match(strings['garden.plant_title'], /season/);
+});

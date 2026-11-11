@@ -42,7 +42,7 @@
 <div id="discovery-target" class="discovery-target" role="group" data-i18n-aria-label="discovery.explore" hidden>
   <div class="discovery-target-heading"><strong id="discovery-target-label"></strong><button id="discovery-cancel" type="button" class="icon-button" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
   <div id="discovery-tools" class="discovery-tools" role="group" data-i18n-aria-label="play.tools"></div>
-  <div id="discovery-tree-choices" class="discovery-tree-choices" hidden></div>
+  <div id="discovery-tree-picker" class="tree-picker" hidden><button id="discovery-tree-button" type="button" class="tree-button" aria-haspopup="menu" aria-expanded="false" aria-controls="discovery-tree-choices" data-i18n-title="discovery.tree_pick"><span id="discovery-tree-current"></span><span data-icon="chevron"></span></button><div id="discovery-tree-choices" class="tree-menu" role="menu" data-i18n-aria-label="discovery.tree_pick" hidden></div></div>
   <button id="discovery-find-saplings" type="button" class="button secondary" data-i18n="discovery.dig" hidden></button>
 </div>
               <div id="scene-menu" class="scene-menu dock-panel" role="group" data-i18n-aria-label="scene.title" hidden>
@@ -270,16 +270,17 @@
             <section id="settings-ai" class="settings-section" data-settings-section="ai-title" role="region" aria-labelledby="ai-title" hidden>
               <h3 id="ai-title" class="sr-only" tabindex="-1" data-i18n="settings.friends_ai"></h3>
               <p class="settings-lead" data-i18n="connection.lead"></p>
+              <div class="app-row"><button id="ai-add" type="button" class="button secondary small"><span data-icon="plus"></span><span data-i18n="connection.title_new"></span></button></div>
               <ul id="ai-connections" class="link-list"></ul>
               <div id="ai-editor" class="ai-editor" hidden></div>
               <p id="ai-none" class="settings-lead" data-i18n="settings.ai_none" hidden></p>
-              <div class="app-row"><button id="ai-add" type="button" class="button secondary small"><span data-icon="plus"></span><span data-i18n="connection.title_new"></span></button></div>
               <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-chatter"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_chatter"></span><small data-i18n="settings.auto_chatter_note"></small></span></label>
               <label class="wander-toggle auto-chatter"><input type="checkbox" id="auto-play"><span class="wander-switch" aria-hidden="true"></span><span><span data-i18n="settings.auto_play"></span><small data-i18n="settings.auto_play_note"></small></span></label>
             </section>
             <section id="settings-agents" class="settings-section" data-settings-section="agent-link-title" role="region" aria-labelledby="agent-link-title" hidden>
               <h3 id="agent-link-title" class="sr-only" tabindex="-1" data-i18n="settings.agents_tab"></h3>
               <p class="settings-lead" data-i18n="settings.agents_lead"></p>
+              <details class="settings-more"><summary data-i18n="settings.agents_how"></summary><p class="settings-lead" data-i18n="settings.agents_detail"></p></details>
               <ul class="link-list">
                 <li class="link-row">
                   <div>

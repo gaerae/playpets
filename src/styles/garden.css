@@ -203,7 +203,7 @@
   background: #fffaf5;
   box-shadow: 0 1px 2px #5a3b2a40;
   color: #ec7d96;
-  font-size: 10px;
+  font-size: var(--font-xs);
   line-height: 1;
   pointer-events: none;
   opacity: 0;
@@ -824,7 +824,7 @@
   background: var(--message-surface);
   box-shadow: var(--message-shadow);
   color: var(--ink);
-  font-size: 12px;
+  font-size: var(--font-sm);
   /* not the yard's hand over something to catch (play.css) */
   cursor: default;
 }
@@ -907,7 +907,7 @@
   justify-content: space-between;
   gap: 6px;
   padding-left: 6px;
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 .discovery-target-heading .icon-button {
   width: 32px;
@@ -936,7 +936,7 @@
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--font-sm);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -948,13 +948,94 @@
 .discovery-tool:hover {
   background: var(--control-hover);
 }
-#discovery-tree-choices {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 4px;
+/* The sapling in hand is one button that opens the others (discovery.js treeChoices), so the strip
+   keeps one row however many kinds are found. */
+.tree-picker {
+  position: relative;
+  padding-top: 4px;
 }
-#discovery-tree-choices[hidden] {
+.tree-picker[hidden] {
   display: none;
+}
+.tree-button {
+  max-width: 100%;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--control-selected);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--font-sm);
+  cursor: pointer;
+}
+.tree-button > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tree-button svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--muted);
+}
+.tree-button:hover {
+  background: var(--control-hover);
+}
+/* A menu above the strip, which stands on the ground's edge; a long list scrolls in it. */
+.tree-menu {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  bottom: calc(100% + 6px);
+  min-width: 180px;
+  max-height: 50vh;
+  overflow-y: auto;
+  display: grid;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  /* Solid: it lies over the strip's own words, which a see-through menu would let show. */
+  background: var(--panel-surface);
+  box-shadow: var(--shadow-menu);
+}
+.tree-menu[hidden] {
+  display: none;
+}
+.tree-menu [role="menuitemradio"] {
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--font-md);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tree-menu [role="menuitemradio"][hidden] {
+  display: none;
+}
+.tree-menu [role="menuitemradio"]:hover,
+.tree-menu [role="menuitemradio"]:focus-visible {
+  background: var(--control-hover);
+  outline: none;
+}
+.tree-menu [aria-checked="true"] {
+  background: var(--control-selected);
+  font-weight: 650;
+}
+@media (pointer: coarse) {
+  .tree-button,
+  .tree-menu [role="menuitemradio"] {
+    min-height: 44px;
+  }
 }
 .discovery-marker {
   position: absolute;

@@ -178,7 +178,7 @@ test('game choices are tiles beside chatting in the Together section of Play', a
   assert.match(html, /id="play-games"[\s\S]*?id="games-menu"/);
   assert.match(css, /\.games-menu\s*\{[^}]*display: contents;/);
   const play = await readFile('src/styles/play.css', 'utf8');
-  assert.match(play, /\.play-action,\s*\.discovery-tree-choice\s*\{[^}]*min-height: 40px;/);
+  assert.match(play, /(?:^|\})\s*\.play-action\s*\{[^}]*min-height: 40px;/);
 });
 
 test('blank-yard context controls clamp inside a small window and restore a visible focus target', async t => {
@@ -211,7 +211,9 @@ test('blank-yard context controls clamp inside a small window and restore a visi
   assert.equal(panel.style.left, undefined);
 });
 
-test('a panel chosen from the right-click menu opens at the pointer, and from the dock in its corner', async t => {
+// The right-click menu itself opens at the pointer; a panel it leads to opens where the dock opens
+// it, so each place has one spot however it was reached.
+test('a panel chosen from the right-click menu opens in its corner, as from the dock', async t => {
   const { keepGlobals } = await import('./support/dom.mjs');
   keepGlobals(t, 'innerWidth', 'innerHeight');
   globalThis.innerWidth = 1000;
@@ -230,11 +232,12 @@ test('a panel chosen from the right-click menu opens at the pointer, and from th
   await yard.dispatch('contextmenu', { clientX: 200, clientY: 150 });
   await context.dispatch('click', { target: { closest: () => ({ dataset: { contextAction: 'menu' } }) } });
   assert.equal(panel.hidden, false);
-  assert.deepEqual([panel.style.left, panel.style.top, panel.style.right], ['200px', '150px', 'auto']);
+  assert.equal(panel.style.left || '', '', 'not at the pointer');
+  assert.equal(panel.style.top || '', '');
   await toggle.dispatch('click');
   await toggle.dispatch('click');
   assert.equal(panel.hidden, false);
-  assert.deepEqual([panel.style.left, panel.style.top, panel.style.right], ['', '', '']);
+  assert.deepEqual([panel.style.left || '', panel.style.top || '', panel.style.right || ''], ['', '', '']);
 });
 
 test('the menu bar and the shortcut open the panel in its corner, not at what their event carries', async t => {

@@ -19,20 +19,20 @@
   pointer-events: none;
 }
 .game-banner small {
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 700;
   letter-spacing: 0.3px;
   color: var(--muted);
 }
 .game-banner strong {
-  font-size: 14px;
+  font-size: var(--font-base);
   font-weight: 800;
   letter-spacing: -0.4px;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 .game-banner span {
-  font-size: 12px;
+  font-size: var(--font-sm);
   color: var(--muted);
   line-height: 1.5;
 }
@@ -224,7 +224,7 @@
   background: var(--soft);
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--font-sm);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -300,16 +300,23 @@
 }
 .catch-card strong {
   display: block;
-  font-size: 15px;
+  font-size: var(--font-lg);
 }
 .catch-card small {
   display: block;
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: var(--font-sm);
 }
 .catch-card .catch-new {
   color: var(--accent);
   font-weight: 700;
+}
+/* A new find's short word, for small windows only (compact.css). */
+.catch-card .catch-new-short {
+  display: none;
+  color: var(--accent);
+  font-weight: 700;
+  white-space: nowrap;
 }
 /* The New Year card quotes the person's answer in four lines at most (the letter keeps it whole);
    the friend's cheer is the line below it, so it always shows. */
@@ -334,7 +341,7 @@
   left: 8px;
   right: 8px;
   top: 8px;
-  max-width: 420px;
+  max-width: var(--dock-panel-width);
   max-height: min(360px, calc(100% - 16px));
   margin-inline: auto;
   display: flex;
@@ -344,15 +351,13 @@
   border-radius: var(--radius-panel);
   background: var(--menu-surface);
   color: var(--ink);
-  box-shadow: 0 8px 24px var(--ink-12);
+  box-shadow: var(--shadow-dock);
 }
 .play-board[hidden],
-.play-actions[hidden],
-.discovery-tree-choices[hidden] {
+.play-actions[hidden] {
   display: none;
 }
-.play-actions,
-.discovery-tree-choices {
+.play-actions {
   /* room for a tile's focus ring at the panel's edge */
   padding-inline: 2px;
   display: flex;
@@ -360,8 +365,7 @@
   gap: 4px;
   align-items: stretch;
 }
-.play-action,
-.discovery-tree-choice {
+.play-action {
   min-height: 40px;
   padding: 5px 3px;
   display: flex;
@@ -374,14 +378,9 @@
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.3;
   cursor: pointer;
-}
-.discovery-tree-choice {
-  flex: 1;
-  min-width: 0;
-  overflow-wrap: anywhere;
 }
 .play-action {
   position: relative;
@@ -397,12 +396,10 @@
   top: 3px;
   right: max(3px, calc(50% - 34px));
 }
-.play-action:hover,
-.discovery-tree-choice:hover {
+.play-action:hover {
   background: var(--control-hover);
 }
-.play-action:disabled,
-.discovery-tree-choice:disabled {
+.play-action:disabled {
   opacity: 0.45;
   cursor: default;
 }
@@ -416,13 +413,12 @@
 }
 .play-board .play-empty {
   padding: 6px;
-  font-size: 13px;
+  font-size: var(--font-md);
   color: var(--muted);
   line-height: 1.5;
 }
 @media (pointer: coarse) {
-  .play-action,
-  .discovery-tree-choice {
+  .play-action {
     min-height: 44px;
   }
 }
@@ -432,6 +428,7 @@ body:not(.compact) .play-board {
   right: 12px;
   bottom: 64px;
   left: auto;
+  width: min(var(--dock-panel-width), calc(100% - 24px));
   margin-inline: 0;
 }
 
