@@ -178,7 +178,7 @@ test('game choices are tiles beside chatting in the Together section of Play', a
   assert.match(html, /id="play-games"[\s\S]*?id="games-menu"/);
   assert.match(css, /\.games-menu\s*\{[^}]*display: contents;/);
   const play = await readFile('src/styles/play.css', 'utf8');
-  assert.match(play, /\.play-action,\s*\.discovery-tree-choice\s*\{[^}]*min-height: 40px;/);
+  assert.match(play, /(?:^|\})\s*\.play-action\s*\{[^}]*min-height: 40px;/);
 });
 
 test('blank-yard context controls clamp inside a small window and restore a visible focus target', async t => {

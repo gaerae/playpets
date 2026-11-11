@@ -142,6 +142,24 @@ test('the tool strip takes the place of the dock, where Play was opened and just
   assert.match(garden, /\.discovery-target\s*\{[^}]*position:\s*absolute;[^}]*right:\s*12px;[^}]*bottom:\s*12px/s);
 });
 
+test('the tree picker is one button with a menu of saplings, however many kinds there are', async () => {
+  const html = await read('src/index.html');
+  const strip = html.slice(html.indexOf('id="discovery-target"'), html.indexOf('id="scene-menu"'));
+  assert.match(strip, /id="discovery-tree-button"[^>]*aria-haspopup="menu"[^>]*aria-controls="discovery-tree-choices"/);
+  assert.match(strip, /id="discovery-tree-choices"[^>]*role="menu"[^>]*hidden/);
+  const garden = await read('src/styles/garden.css');
+  // A menu above the strip in a large window, where the strip stands on the ground's edge…
+  assert.match(
+    garden,
+    /\.tree-menu\s*\{[^}]*position:\s*absolute;[^}]*bottom:\s*calc\(100% \+ 6px\);[^}]*overflow-y:\s*auto/s,
+  );
+  const compact = await read('src/styles/compact.css');
+  // …and below it in a small window, where the strip is up in the sky.
+  assert.match(compact, /body\.compact \.tree-menu\s*\{[^}]*top:\s*calc\(100% \+ 6px\);[^}]*bottom:\s*auto/s);
+  const menu = await read('src/core/menu.js');
+  assert.match(menu, /menuitemradio/, 'the shared menu moves through and closes on a radio choice too');
+});
+
 test('a small window keeps the ground clear: the tool strip goes up into the sky, in one row', async () => {
   const compact = await read('src/styles/compact.css');
   const rule = selector =>

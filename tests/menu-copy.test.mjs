@@ -15,7 +15,7 @@ test('app-owned copy does not use middle dots to join unrelated labels', () => {
 
 test('Play labels keep their intrinsic width and wrap whole actions rather than words', async () => {
   const css = await readFile('src/styles/play.css', 'utf8');
-  assert.match(css, /\.play-actions,\s*\.discovery-tree-choices\s*\{[^}]*flex-wrap:\s*wrap/s);
+  assert.match(css, /(?:^|\})\s*\.play-actions\s*\{[^}]*flex-wrap:\s*wrap/s);
   assert.match(css, /\.play-action\s*\{[^}]*flex:\s*1 0 max-content;[^}]*white-space:\s*nowrap/s);
 });
 

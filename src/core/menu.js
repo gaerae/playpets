@@ -51,10 +51,10 @@ export function panelSpot(point, size, bounds) {
   };
 }
 
-/** Shared keyboard navigation for ordinary and checked menu actions. */
+/** Shared keyboard navigation for ordinary, checked and one-of-several menu actions. */
 export function menuNavigation(menu) {
   const items = () =>
-    [...menu.querySelectorAll('[role="menuitem"], [role="menuitemcheckbox"]')].filter(
+    [...menu.querySelectorAll('[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]')].filter(
       item => !item.disabled && !item.hidden,
     );
   menu.addEventListener('keydown', e => {
@@ -79,7 +79,7 @@ export function popup(button, menu) {
   const items = menuNavigation(menu);
   const box = dropdown(button, menu, () => items()[0]?.focus());
   menu.addEventListener('click', e => {
-    if (e.target.closest('[role="menuitem"], [role="menuitemcheckbox"]')) box.close();
+    if (e.target.closest('[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]')) box.close();
   });
   return box;
 }

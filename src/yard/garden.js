@@ -39,10 +39,15 @@ function wait(ms) {
   const { hours, minutes } = hoursMinutes(ms);
   return hours ? t('garden.hm', { hours, minutes }) : t('garden.m', { minutes });
 }
+// The season a seed goes in picks its flower, and the flower is the surprise: it keeps its name
+// until the bud shows its colours.
+const YOUNG = new Set(['seed', 'sprout', 'leaves']);
+const young = (plant, now = Date.now()) => YOUNG.has(stageOf(plant.planted, now).name);
 function label(plant, now) {
   const stage = stageOf(plant.planted, now).name,
     left = untilBloom(plant.planted, now);
-  const what = joinList([t(`garden.kind_${plant.kind}`), t(`garden.stage_${stage}`)]);
+  const name = young(plant, now) ? t('garden.young') : t(`garden.kind_${plant.kind}`);
+  const what = joinList([name, t(`garden.stage_${stage}`)]);
   return left ? joinList([what, t('garden.until', { time: wait(left) })]) : what;
 }
 function create(plant) {
@@ -163,7 +168,10 @@ function pull(id) {
   const plant = data.garden?.plants.find(p => p.id === id),
     view = shown.get(id);
   if (!plant || !view) return;
-  removeWithUndo(id, view, t('garden.pulled', { kind: t(`garden.kind_${plant.kind}`) }), () => call('pullPlant', id));
+  const message = young(plant)
+    ? t('garden.pulled_young')
+    : t('garden.pulled', { kind: t(`garden.kind_${plant.kind}`) });
+  removeWithUndo(id, view, message, () => call('pullPlant', id));
 }
 
 const planting = new Map();

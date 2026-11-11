@@ -75,8 +75,16 @@ body.compact #discovery-cancel {
   grid-row: 1;
   grid-column: 2;
 }
-body.compact :is(#discovery-tree-choices, #discovery-find-saplings) {
+body.compact :is(#discovery-tree-picker, #discovery-find-saplings) {
   grid-column: 1 / -1;
+}
+body.compact .tree-picker {
+  padding-top: 0;
+}
+/* Up in the sky the strip opens its menu downwards, over the scenery rather than off the top. */
+body.compact .tree-menu {
+  top: calc(100% + 6px);
+  bottom: auto;
 }
 /* The window's own buttons would land on the strip at the top; the strip's Close and Esc come
    first, and the buttons come back with the scenery. */

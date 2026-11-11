@@ -19,6 +19,8 @@ const ZERO_BOX = { x: 0, y: 0, left: 0, top: 0, right: 0, bottom: 0, width: 0, h
 function matchesPart(node, part) {
   if (part.startsWith('.')) return node.classList.contains(part.slice(1));
   if (part.startsWith('#')) return node.id === part.slice(1);
+  const valued = part.match(/^\[([\w-]+)="([^"]*)"\]$/);
+  if (valued) return node.getAttribute(valued[1]) === valued[2];
   const attribute = part.match(/^\[([\w-]+)\]$/)?.[1];
   if (attribute?.startsWith('data-'))
     return attribute.slice(5).replace(/-(\w)/g, (_, c) => c.toUpperCase()) in node.dataset;

@@ -4,6 +4,7 @@ import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { onEscape, typing } from '../core/keys.js';
 import { limit } from '../core/limits.js';
+import { dropdown, menuNavigation } from '../core/menu.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { artSvg } from './art.js';
 import { showCard } from './card.js';
@@ -20,6 +21,8 @@ import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
 import { scene } from './world.js';
 
 let intent = null;
+// The menu of saplings, wired once by setupDiscovery; ending a choice closes it with the strip.
+let treeMenu = null;
 const tasks = new Map();
 /** Whether a tool is in hand or a friend is digging or planting: nothing else should call it away then. */
 export const digging = () => !!intent || tasks.size > 0;
@@ -36,28 +39,34 @@ function treeChoices() {
   const choices = $('discovery-tree-choices');
   if (intent?.action !== 'tree' || !choices) return;
   if (!stock(intent.kind)) intent.kind = TREES.find(tree => stock(tree.id))?.id || null;
-  // Every state change comes here; the buttons are made once and updated in place, so a keyboard
-  // user keeps focus on a choice.
+  // Every state change comes here; the choices are made once and updated in place, so a keyboard
+  // user keeps focus on one.
   if (choices.children.length !== TREES.length)
     choices.replaceChildren(
       ...TREES.map(tree => {
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = 'discovery-tree-choice';
+        button.setAttribute('role', 'menuitemradio');
         button.dataset.treeKind = tree.id;
         return button;
       }),
     );
-  // Only the saplings in the pocket show: the strip stands over the ground the person aims at, and
-  // the album lists every kind.
+  // One button names the sapling in hand and opens the rest, so the strip keeps its size however
+  // many kinds are found; the menu lists only the saplings in the pocket (the album lists every kind).
   for (const button of choices.children) {
     const kind = button.dataset.treeKind;
     button.disabled = !stock(kind);
     button.hidden = !stock(kind);
     button.textContent = t('discovery.pocket', { kind: t(`tree.${kind}`), count: stock(kind) });
     button.title = t('discovery.sapling_source');
-    button.setAttribute('aria-pressed', String(kind === intent.kind));
+    button.setAttribute('aria-checked', String(kind === intent.kind));
   }
+  if (intent.kind)
+    $('discovery-tree-current').textContent = t('discovery.pocket', {
+      kind: t(`tree.${intent.kind}`),
+      count: stock(intent.kind),
+    });
+  $('discovery-tree-picker').hidden = !intent.kind;
   $('discovery-target-label').textContent = t(intent.kind ? 'discovery.choose_tree' : 'discovery.no_saplings');
   $('discovery-find-saplings').hidden = !!intent.kind;
 }
@@ -65,6 +74,7 @@ function treeChoices() {
 export function cancelDiscovery() {
   if (ownAim()) setAimingMode(false);
   intent = null;
+  treeMenu?.close();
   if ($('discovery-target')) $('discovery-target').hidden = true;
   if ($('discovery-marker')) $('discovery-marker').hidden = true;
 }
@@ -118,7 +128,7 @@ export function beginDiscovery(action) {
   intent = { action, petId: v.pet.id, world: scene.world, kind: null };
   setAimingMode(action);
   $('discovery-target-label').textContent = t(action === 'dig' ? 'discovery.choose_dig' : 'discovery.choose_tree');
-  $('discovery-tree-choices').hidden = action !== 'tree';
+  $('discovery-tree-picker').hidden = true;
   $('discovery-find-saplings').hidden = true;
   treeChoices();
   $('discovery-target').hidden = false;
@@ -334,7 +344,8 @@ function syncTools(kind = aiming) {
   if (count) count.textContent = data.garden?.seeds ? String(data.garden.seeds) : '';
   if (kind === 'seed' || kind === 'treat') {
     $('discovery-target-label').textContent = t(kind === 'seed' ? 'hint.plant' : 'hint.treat');
-    $('discovery-tree-choices').hidden = true;
+    treeMenu?.close();
+    $('discovery-tree-picker').hidden = true;
     $('discovery-find-saplings').hidden = true;
     $('discovery-target').hidden = false;
   } else if (!kind && intent) {
@@ -392,12 +403,17 @@ export function setupDiscovery() {
     useTool(tool);
   });
   $('discovery-find-saplings').onclick = () => beginDiscovery('dig');
+  // A popup menu that opens on the sapling in hand rather than the first in the list.
+  const saplings = menuNavigation($('discovery-tree-choices'));
+  treeMenu = dropdown($('discovery-tree-button'), $('discovery-tree-choices'), () =>
+    (saplings().find(item => item.getAttribute('aria-checked') === 'true') || saplings()[0])?.focus(),
+  );
   $('discovery-tree-choices').addEventListener('click', event => {
     const button = event.target.closest('[data-tree-kind]');
     if (!intent || !button || button.disabled || !stock(button.dataset.treeKind)) return;
     intent.kind = button.dataset.treeKind;
-    for (const choice of $('discovery-tree-choices').querySelectorAll('[data-tree-kind]'))
-      choice.setAttribute('aria-pressed', String(choice === button));
+    treeMenu.close();
+    treeChoices();
     $('yard').focus();
   });
   $('yard').addEventListener('pointermove', showMarker);
