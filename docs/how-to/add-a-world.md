@@ -62,6 +62,7 @@
 - A seated friend's name tag goes down to its feet, on the desk's front, so its face stays in view.
 - Set the `soil` capability to `false` for a paved floor: flowers stand in pots and nothing is dug.
 - Use `"fit": "cover-bottom"` so a short window keeps the front of the room.
+- Draw the furniture at the friends' size for a window 850px tall: in a room, friends grow with the picture in larger windows (up to twice), so that size holds at full screen. With `cover-bottom`, the field follows the picture's floor line in a window wider than the picture.
 - A room whose glass shows the live sky takes the outdoor light: name its picture under `seasonArt` (the same id for every season is fine), not under `art`. Its panes are not washed over again in rain.
 - A station the window crops away is not used: a waiting friend comes to the front of the yard, and a working or resting friend stays where it stands.
 - Put a station where the friend standing there reads clearly: beside a narrow post, not behind it.

@@ -17,6 +17,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - A friend's agent state dot sits in its name tag, beside its name, instead of by its head.
+- In the Cozy living room, the Sunny office and the Garden workshop, friends grow with the room in a large window, so the furniture no longer looks up to twice as big next to them at full screen.
 - Friends farther back in the yard look a little smaller, bob along as they walk and settle as they stop, and no longer stroll onto a tree or a flower.
 - Friends walk all the way down to the foot of the yard, with their name tags still in view, and do not stop behind the tools in the corner.
 - Outdoors, trees and flowers sway in the breeze. Indoors, and with reduced motion, they stay still.
@@ -25,6 +26,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Fixed
 
+- In the Sunny office and the Garden workshop, in a window wider than the picture, friends sit at the back desks with their faces in view instead of working where they stand or hiding behind a laptop.
 - A tree or a flower takes a click only where it is drawn, so a gift, a friend or the ground showing through its empty corners can be clicked.
 - The rainbow's end now glimmers only on ground not dug that day, so a dig there always finds something instead of saying the spot was already looked at, and it stops glimmering once dug.
 - In the album, the trees book counts the trees you grew in its own words instead of a flower's, and a gift's line says it was received instead of always saying it is in the yard.

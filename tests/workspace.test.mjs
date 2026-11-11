@@ -9,7 +9,8 @@ import { element, installDom } from './support/dom.mjs';
 globalThis.playPets = { updatePet: async () => ({ ok: true, data: null }) };
 const { reduced } = await import('../src/core/sprites.js');
 const { setData, views } = await import('../src/core/state.js');
-const { DEPTH_FAR, depthScale, EDGE, footTarget, geometry, measureYard } = await import('../src/yard/field.js');
+const { DEPTH_FAR, depthScale, EDGE, field, footTarget, geometry, measureYard, yardZoom } =
+  await import('../src/yard/field.js');
 const { moveFriends } = await import('../src/yard/motion.js');
 const { scene } = await import('../src/yard/world.js');
 const { useWorlds, worldHasSoil, worlds } = await import('../src/yard/worlds.js');
@@ -115,6 +116,50 @@ const wide = (width, height) => {
   globalThis.document.getElementById = () => ({ dataset: {}, getBoundingClientRect: () => ({ width, height }) });
   measureYard();
 };
+
+test('in a room, friends grow with the picture past the size it was drawn for, and keep their size in a small window', t => {
+  inOffice(t);
+  const close = (a, b) => Math.abs(a - b) < 0.001;
+  // The picture fills a window 850px tall at 850/1024: the size its furniture was drawn for.
+  wide(1180, 850);
+  assert.equal(yardZoom(), 1);
+  // Larger, the picture and the friends grow alike, so a desk stays as tall next to a friend.
+  wide(1920, 1080);
+  assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), `${yardZoom()}`);
+  wide(2560, 1440);
+  assert.equal(yardZoom(), 2, 'up to twice the friend size');
+  scene.world = 'studio';
+  wide(1920, 1080);
+  assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), 'the living room is a room too');
+  // Small, friends keep the size that reads, larger than the picture shrinks them to.
+  scene.world = office.id;
+  wide(300, 210);
+  assert.equal(yardZoom(), 0.375);
+  wide(900, 260);
+  assert.ok(close(yardZoom(), 900 / 1536 / (850 / 1024)), 'a strip: the larger of the two');
+  // Outdoors, friends keep the size they always had.
+  scene.world = 'woodland';
+  wide(2560, 1440);
+  assert.equal(yardZoom(), 1);
+});
+
+test("in a window wider than the picture, the floor begins where the picture's floor shows, and the back desks are seats", t => {
+  inOffice(t);
+  // 1920 by 1080: the picture is 1920 by 1280 from its foot, so its top 200px are cut off.
+  wide(1920, 1080);
+  assert.ok(Math.abs(field().top - stationAt({ x: 0.5, y: office.geometry.fieldTop }).y) < 1e-6);
+  const a = friend('a'),
+    b = friend('b');
+  agent({ a: 'working', b: 'working' });
+  moveFriends(1000, 50);
+  const seat = footTarget(a, 1920 * 0.3, 1080 - 1280 * 0.45, 0);
+  assert.ok(Math.abs(a.target.x - seat.x) < 1e-6 && Math.abs(a.target.y - seat.y) < 1e-6, 'a desk at the back');
+  assert.ok(b.target, 'the second desk too');
+  // A friend at a desk is as deep, and so as large next to it, as in a window of the picture's shape.
+  const deep = depthScale(a.target.y);
+  wide(1536, 1024);
+  assert.ok(Math.abs(depthScale(footTarget(a, 1536 * 0.3, 1024 * 0.55, 0).y) - deep) < 0.01);
+});
 
 test('a station is where the picture puts it, and cropped away it lies outside the window', t => {
   inOffice(t);

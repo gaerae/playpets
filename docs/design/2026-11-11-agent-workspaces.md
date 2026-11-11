@@ -142,5 +142,6 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 - A front starts at the tabletop. A laptop in the front covered a seated friend's face, so laptops stay in the picture behind the friend.
 - A seated friend's name tag goes down to its feet, on the desk's front (`views.js place`), and the agent's state dot sits in the tag beside the name.
 - The workshop's approval spot is beside the post, not behind it, and the post has no front.
-- The sunshower and other moment glows are hidden on floors without soil: fronts cut from the land above the glow showed their edges.
+- The sunshower and other moment glows are hidden on floors without soil: fronts cut from the land above the glow showed their edges.- In a room (a floor without soil) friends grow with the picture past the size it was drawn for, a window 850px tall, up to twice their size (`field.js zoomFor`). At 2560×1440 the living room's armchair was 4.0 friends tall and is 2.0, as at 1180×850; small windows keep the friends' readable size.
+- A picture framed from its foot moves its floor line up in a window wider than it, so the field follows the picture's own floor there (`field.js fieldTop`). Before, the back desks lay above the field: no seat at 1920×1080, and a friend drawn too small behind its laptop at 2560×1440.
 
