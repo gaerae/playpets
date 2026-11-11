@@ -4,7 +4,7 @@
 // the trail was laid, so a passing flurry leaves the prints alone. Weather the person fixed by hand
 // is the same in every block, so it never has a block where snow begins: it covers no trail and
 // makes no snowy morning, and only the yard's own weather draw can.
-import { groundAllows } from './discovery-rules.js';
+import { groundAllows, tileOf } from './discovery-rules.js';
 
 // One weather block, as `autoWeather` draws it from epoch 0.
 export const BLOCK_MS = 1200000;
@@ -91,8 +91,6 @@ function chance(seed) {
   };
 }
 
-/** The dig tile a field point falls in, as the backend counts it (discovery.rs dig). */
-export const tileOf = p => `${Math.floor(p.x * 8)},${Math.floor(p.y * 8)}`;
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 function walksOnGround(points, profile) {

@@ -12,7 +12,7 @@ import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
 import { field, fieldToYard, petHeight, sizeOf, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
-import { atRainbowEnd } from './rainbow-end.js';
+import { atRainbowEnd, clearRainbowEnd } from './rainbow-end.js';
 import { atTrailEnd, reservedForTrail } from './trails.js';
 import { forPerson, isFree, release } from './trips.js';
 import { bubble } from './views.js';
@@ -248,6 +248,8 @@ export function sendDiscovery(v, point, action, kind) {
             : await call('plantTree', v.pet.id, world, kind, point.x, point.y, ground);
         // Saved: once the page's state holds this tree, it is no longer only on the way.
         task.saved = result?.id;
+        // The backend now remembers that tile, so another dig there would only repeat this find.
+        if (context.rainbow) clearRainbowEnd();
       } catch (error) {
         if (v.doing?.end === cleanup) release(v);
         else cleanup();
@@ -296,8 +298,8 @@ export function autoDig(rng = Math.random) {
   const v = idle[Math.floor(rng() * idle.length)];
   for (let tries = 0; tries < 12; tries++) {
     const point = { x: 0.1 + rng() * 0.8, y: 0.15 + rng() * 0.75 };
-    // A winter trail's end waits for its follow's dig.
-    if (!groundAllows(point, groundProfile()) || reservedForTrail(point)) continue;
+    // A winter trail's end waits for its follow's dig, and the rainbow's end for the person's.
+    if (!groundAllows(point, groundProfile()) || reservedForTrail(point) || atRainbowEnd(point)) continue;
     sendDiscovery(v, point, 'dig');
     return true;
   }

@@ -25,6 +25,23 @@ export function treeStage(tree, now = Date.now(), limits = LIMITS) {
   return Math.max(tree.stage || 0, age >= limits.treeMatureMs ? 2 : age >= limits.treeYoungMs ? 1 : 0);
 }
 
+// The backend remembers each dig by its tile on an 8 × 8 grid over the field, for a day
+// (discovery.rs dig): a second dig on a remembered tile only repeats what the first found.
+const TILES = 8;
+const DIG_MEMORY_MS = 86_400_000;
+/** The dig tile a field point falls in, as the backend counts it. */
+export const tileOf = p => `${Math.floor(p.x * TILES)},${Math.floor(p.y * TILES)}`;
+/** The middle of the dig tile a field point falls in. */
+export const tileMiddle = p => ({
+  x: (Math.floor(p.x * TILES) + 0.5) / TILES,
+  y: (Math.floor(p.y * TILES) + 0.5) / TILES,
+});
+/** The middles of the tiles dug in this place that the backend still remembers at `now` (ms). */
+export const dugSpots = (digs, world, now) =>
+  (digs || [])
+    .filter(d => d.world === world && now - d.at < DIG_MEMORY_MS)
+    .map(d => ({ x: (d.tileX + 0.5) / TILES, y: (d.tileY + 0.5) / TILES }));
+
 /** A free spot for something set on the field: the first of twenty draws, `x` and `y` within the
  * ranges (field units), that the ground allows and `ok` accepts; null when none does. The draws
  * are taken x then y. */
