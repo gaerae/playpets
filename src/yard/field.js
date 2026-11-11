@@ -26,6 +26,12 @@ function zoomFor(width, height) {
   return clamp(Math.min(height / (strip ? 380 : 560), width / 640), 0.35, 1);
 }
 export const sizeOf = p => p.size * zoom;
+// How big a friend at the ridge looks next to one at the front edge. Only the drawing shrinks,
+// about its feet (views.js place): the box, the place and the tag stay as they are, so where a
+// friend stands, what it walks to and where it is clicked do not change with it.
+export const DEPTH_FAR = 0.84;
+/** How big a friend looks where it stands (its place's y, 0 the ridge to 1 the front edge). */
+export const depthScale = y => DEPTH_FAR + (1 - DEPTH_FAR) * clamp(y);
 export const petHeight = p => (sizeOf(p) * 208) / 192;
 /** Where a friend's feet are in the yard: the middle of its bottom edge. */
 export const footOf = v => ({ x: v.px + sizeOf(v.pet) / 2, y: v.py + petHeight(v.pet) });
@@ -45,6 +51,9 @@ export const EDGE = 14;
 // Room kept at the foot of the yard for a friend's name tag, and for the tools floating over the
 // scene. Small windows hide the dock and need only the name tag's room.
 const footRoom = () => (document.body.classList.contains('compact') ? 42 : 76);
+// A friend itself needs only its name tag's room below its feet (friends.css .pet-tag), so it walks
+// on down past the field's foot; the dock floats over it there, and strolls end clear of it.
+const TAG_ROOM = 28;
 /** The field friends and plants stand on, in yard pixels: its width, the ridge (top) and the
  * front edge (bottom) a foot can reach. */
 export function field() {
@@ -59,8 +68,21 @@ export function geometry(p) {
   return {
     w: Math.max(1, r.width - sizeOf(p) - EDGE * 2),
     top,
-    h: Math.max(1, r.height - petHeight(p) - footRoom() - top),
+    h: Math.max(1, r.height - petHeight(p) - TAG_ROOM - top),
   };
+}
+/** The dock floating over the yard's foot (shell.css .yard-dock) in yard pixels, or null while it
+ * is hidden. It reads the layout: measure it once for the many questions a stroll asks. */
+export function dockBox() {
+  const dock = document.querySelector('.yard-dock')?.getBoundingClientRect?.();
+  if (!dock?.width) return null;
+  const yard = $('yard').getBoundingClientRect();
+  return { left: dock.left - (yard.left || 0), top: dock.top - (yard.top || 0), width: dock.width };
+}
+/** Whether a friend whose feet are at (px, py) in the yard, `half` its width each side, stands
+ * behind the dock (`box`, dockBox): a stroll does not end there. */
+export function underDock(px, py, half, box = dockBox()) {
+  return !!box && px + half > box.left && px - half < box.left + box.width && py > box.top;
 }
 /** A place on the field (0 to 1 each way, as plants and decorations keep it; a gift's y may go
  * past 1, decorFloor) in yard pixels. */

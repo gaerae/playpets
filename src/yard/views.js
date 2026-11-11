@@ -24,7 +24,20 @@ import {
 } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
-import { EDGE, field, geometry, measureYard, petHeight, sizeOf } from './field.js';
+import {
+  depthAt,
+  depthScale,
+  dockBox,
+  EDGE,
+  field,
+  footOf,
+  footTarget,
+  geometry,
+  measureYard,
+  petHeight,
+  sizeOf,
+  underDock,
+} from './field.js';
 import { hint } from './hint.js';
 import { beginDrag, dragPoint, endDrag } from './props.js';
 import { release, rest } from './trips.js';
@@ -161,24 +174,46 @@ function fit(v) {
   v.canvas.style.width = `${size}px`;
   v.canvas.style.height = `${petHeight(v.pet)}px`;
   v.label.style.width = `${size}px`;
-  v.body.style.height = `${petHeight(v.pet)}px`;
+  // The body's room in the label follows the friend's depth (place).
+  v.depth = null;
   place(v);
+  clearOfDock(v);
   keepInside(v);
+}
+/** Lifts a friend standing behind the dock to stand just above it, in view: one saved at the front
+ * edge before friends walked past the field's foot, one dropped there, or one the dock grew over. */
+export function clearOfDock(v) {
+  const box = dockBox();
+  if (!box) return;
+  const foot = footOf(v);
+  if (!underDock(foot.x, foot.y, sizeOf(v.pet) / 2, box)) return;
+  v.y = footTarget(v, foot.x, box.top, 0).y;
+  place(v);
 }
 export function place(v) {
   const { w, h, top } = geometry(v.pet);
   v.px = EDGE + v.x * w;
   v.py = top + v.y * h;
-  const at = `translate(${v.px}px,${v.py}px)`;
-  v.button.style.transform = at;
-  v.label.style.transform = at;
-  // Nearer the bottom is nearer the viewer: drawn on top, in front of what stands behind it (the
-  // garden's plants and gifts share the layer and the scale). Written only when it changes: this
-  // runs every frame a friend moves.
-  const z = 1 + Math.round(v.y * 100);
+  // The body goes by translate, so its depth (scale, below) shrinks it about its feet and not its
+  // place; the canvas inside keeps transform for a press, a tilt or a step.
+  v.button.style.translate = `${v.px}px ${v.py}px`;
+  v.label.style.transform = `translate(${v.px}px,${v.py}px)`;
+  // Nearer the bottom is nearer the viewer: drawn on top, in front of what stands behind it. By
+  // its feet, as the garden's plants and gifts in the same layer are (depthAt). Written only when
+  // it changes: this runs every frame a friend moves.
+  const z = depthAt(v.py + petHeight(v.pet));
   if (v.z !== z) {
     v.z = z;
     v.button.style.zIndex = String(z);
+  }
+  // Farther back is smaller, about the feet, and so is where it is pressed; the tag stays its
+  // size, and the body's room in the label shrinks too, so the bubble stays on the head. Rounded,
+  // so a step does not write it again.
+  const depth = Math.round(depthScale(v.y) * 100) / 100;
+  if (v.depth !== depth) {
+    v.depth = depth;
+    v.button.style.scale = String(depth);
+    if (v.body) v.body.style.height = `${petHeight(v.pet) * depth}px`;
   }
   stackLabel(v);
 }
@@ -354,6 +389,7 @@ function createView(p) {
       return;
     }
     if (moved) {
+      clearOfDock(v);
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {
       // The tag says "Talk to …", so it opens the conversation; play is the friend's right-click.
@@ -362,9 +398,8 @@ function createView(p) {
   });
   both('pointerup', end);
   both('pointercancel', end);
-  both('dblclick', () => {
-    if (!game) on.openChat(p.id);
-  });
+  // A double-click is two pats: the yard is for being together, and talking is a choice made on
+  // the friend's menu or its tag, not something a quick second click opens.
   // A friend's right-click offers what can be done with it: talk, or play.
   both('contextmenu', e => {
     e.preventDefault();

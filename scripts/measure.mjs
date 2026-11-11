@@ -5,8 +5,8 @@
 //   yard+desktop strolling | yard+desktop still | desktop only | all hidden | yard only |
 //   yard only with its sounds playing
 // Compare numbers from the same machine only; docs/standards/performance.md lists the last ones.
-// The scene is fixed (a clear spring day): rain, snow and the hour change what the yard draws, so
-// an unfixed run measured the weather of the moment, not the app.
+// The scene is fixed (a clear spring day in the woodland, with a small garden): rain, snow and the
+// hour change what the yard draws, so an unfixed run measured the weather of the moment, not the app.
 
 import { execSync, spawn } from 'node:child_process';
 import { mkdtemp, writeFile } from 'node:fs/promises';
@@ -24,9 +24,25 @@ const binary = process.env.PLAYPETS_BINARY || path.join(here, '../src-tauri/targ
 const data = await mkdtemp(path.join(os.tmpdir(), 'playpets-measure-'));
 const codexHome = path.join(data, 'codex');
 await writeFixturePet(codexHome);
+// A garden as people keep one: four flowers in bloom and two grown trees in the place shown, so the
+// garden layer (the breeze moves it) is part of what is measured.
+const grown = Date.now() - 30 * 86_400_000;
+const flower = (id, kind, x, y) => ({ id, kind, x, y, planted: grown, bloomed: true });
+const tree = (id, kind, x, y) => ({ id, world: 'woodland', kind, x, y, planted: grown, stage: 2, matured: true });
 await writeFile(
   path.join(data, 'state.json'),
-  JSON.stringify({ scene: { weather: 'clear', period: 'day', season: 'spring' } }),
+  JSON.stringify({
+    scene: { world: 'woodland', weather: 'clear', period: 'day', season: 'spring' },
+    garden: {
+      plants: [
+        flower('f1', 'tulip', 0.12, 0.7),
+        flower('f2', 'cosmos', 0.2, 0.85),
+        flower('f3', 'sunflower', 0.86, 0.8),
+        flower('f4', 'daffodil', 0.62, 0.92),
+      ],
+      trees: [tree('t1', 'cherry', 0.06, 0.25), tree('t2', 'maple', 0.93, 0.35)],
+    },
+  }),
 );
 
 const HOLD = 30;

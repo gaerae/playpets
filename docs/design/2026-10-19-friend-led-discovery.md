@@ -37,3 +37,10 @@ Review placed gifts, flowers, planted trees, the picnic, shovel, rod, net, rewar
 ## Delivery
 
 Complete the already approved navigation/update work first. Then implement friend actions and discovery/growth in reviewable units, with rule tests, import/save compatibility and real-app scenarios. Add all four app and site languages, guide odds, creator/background contract changes and the Unreleased changelog together. Do not label the Store-uploaded old MSIX as containing this work; build and verify a new release candidate before submission or publication.
+
+## Follow-up: no chat on a double-click (2026-11-11)
+
+"Double-click and keyboard chat remain available" above is historical. In the yard a double-click
+is two pats. Talking is a choice: the name tag, or **Talk to** on the friend's menu (a right-click, or
+Shift+F10 from the keyboard).
+The yard is for being together, and chat is one thing friends do, not the first thing a click opens.

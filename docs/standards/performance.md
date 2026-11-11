@@ -42,6 +42,11 @@
 
 ### CSS animations
 - Move only `transform` and `opacity`. Do not animate layout properties such as `left`, `top` or `width`.
+- A loop that runs on the compositor and asks nothing of the page may run while the yard is shown:
+  - the clouds' drift;
+  - the breeze in trees and flowers (`garden.css`);
+  - a walking friend's step (`friends.css`).
+- Such a loop pauses under `data-unseen` and stops with reduced motion. A loop that needs the page (a canvas, a style written each frame) is a drawing loop and follows the rules above.
 - Do not use CSS variables (`var()`) inside keyframes. Keyframes that contain variables do not run in the compositing stage.
 
 ### Backend, sound and memory
@@ -71,6 +76,8 @@
 
 - Source: measured 2026-10-10, Apple M2 Pro, macOS 26.6.2, `pnpm run measure` (3 test pets, each state held for 30 seconds and measured from second 4 to second 16), after the yard's sounds were added.
 - With sounds playing, most of the extra cost is WebKit's audio output itself.
+- From 2026-11-11, `pnpm run measure` also plants four flowers in bloom and two grown trees in the woodland. The values above were measured without a garden.
+- Runs on the same machine differ by several points when anything else is busy. Compare medians of alternating runs (before, after, before, after).
 - Compare only values from the same machine.
 
 ## Recommendations
@@ -88,7 +95,7 @@ Follow these when you can. When you cannot, say why in the PR.
 - The `requestAnimationFrame` loop woke WebKit on every display refresh, even while skipping most of them.
 - The `left` animation recalculated layout every frame.
 - With the rules above applied, CPU with 3 pets and both the yard and desktop on dropped from 23–25% to about 11%.
-- Based on: decisions “[The page draws often only when something moves, and drawing loops run on timers](../decisions/2026-09-30-timer-frame-loops.md)”, “[Never wait on the main thread while holding the app state lock](../decisions/2026-09-30-no-waiting-on-main-thread-under-state-lock.md)”
+- Based on: decisions “[The page draws often only when something moves, and drawing loops run on timers](../decisions/2026-09-30-timer-frame-loops.md)”, “[Never wait on the main thread while holding the app state lock](../decisions/2026-09-30-no-waiting-on-main-thread-under-state-lock.md)”, “[Make the yard livelier on the current renderer before reaching for a game engine](../decisions/2026-11-11-living-yard-on-the-current-renderer.md)”
 
 ## Automated checks
 - None.
@@ -101,3 +108,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-10-09 The painted backdrop is painted only when the light or the size changes; new measurements
 - 2026-10-10 The yard's sounds: they play only while on and seen; a measured state with them playing
 - 2026-11-09 The yard's loop looks once a second, not ten times, while the window cannot be seen
+- 2026-11-11 Loops on the compositor (the breeze, a walking friend's step) may run while the yard is shown; `pnpm run measure` plants a small garden
