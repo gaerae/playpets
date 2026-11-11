@@ -8,6 +8,7 @@ import { treeKind, treeSize } from './catalog.js';
 import { groundAllows, treeStage } from './discovery-rules.js';
 import { EDGE, field, fieldToYard, measureYard, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
+import { shapeHits } from './hit-shape.js';
 import { beginDrag, dragPoint, endDrag, moveSaved, propButton, reconcile, removeWithUndo, setDown } from './props.js';
 import { scene } from './world.js';
 
@@ -24,6 +25,7 @@ function position(view, tree, point = tree) {
   if (view.art !== art) {
     view.button.innerHTML = artSvg(art);
     view.art = art;
+    shapeHits(view.button, art);
   }
   const [width, height] = treeSize(tree.kind, stage),
     foot = fieldToYard(point),

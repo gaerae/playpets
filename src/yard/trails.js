@@ -22,7 +22,7 @@ import { artHref, artSize, artSvg } from './art.js';
 import { showCard } from './card.js';
 import { TRACKS, trackKind, trailArt } from './catalog.js';
 import { yardSeason } from './decor-shown.js';
-import { behind } from './discovery-rules.js';
+import { behind, dugSpots, tileOf } from './discovery-rules.js';
 import { depthAt, fieldToYard, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
@@ -36,7 +36,6 @@ import {
   laidAt,
   seedOf,
   stamps,
-  tileOf,
   trailAnimal,
   trailOpacity,
   trailPath,
@@ -48,7 +47,6 @@ import { holdAtWork, stopWork } from './work.js';
 import { scene } from './world.js';
 
 const NS = 'http://www.w3.org/2000/svg';
-const DAY_MS = 86400000;
 // How long a covered trail takes to fade before it leaves (garden.css .trail transition).
 const FADE_MS = 3000;
 // Prints shrink with the yard only this far: smaller, they are specks in the snow's grain.
@@ -189,11 +187,7 @@ function today(now) {
 }
 
 // Today's digs in this place, as the trails' ends keep off them.
-function taken(now) {
-  return (data.garden?.digs || [])
-    .filter(d => d.world === scene.world && now.getTime() - d.at < DAY_MS)
-    .map(d => ({ x: (d.tileX + 0.5) / 8, y: (d.tileY + 0.5) / 8 }));
-}
+const taken = now => dugSpots(data.garden?.digs, scene.world, now.getTime());
 
 function pathOf(n, day, profile, now) {
   if (!paths.has(n)) {

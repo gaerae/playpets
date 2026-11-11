@@ -112,6 +112,27 @@ test('arrival commits once and cancellation during the backend wait removes pres
   assert.equal(v.bubble.textContent, '');
 });
 
+test('a dig at the rainbow’s end puts out its glimmer, even when the friend is called away meanwhile', async t => {
+  const { v } = fixture(t);
+  const { placeRainbowEnd, rainbowEnd, clearRainbowEnd } = await import('../src/yard/rainbow-end.js');
+  t.after(clearRainbowEnd);
+  scene.weather = 'clear';
+  const ground = { soil: true, bounds: { left: 0, top: 0, right: 1, bottom: 1 }, water: [], obstacles: [] };
+  const end = placeRainbowEnd(Date.now() + 60_000, { ground, rng: () => 0.5, dug: [] }),
+    glimmer = document.getElementById('yard').children.at(-1);
+  sendDiscovery(v, { x: end.x + 0.04, y: end.y - 0.04 }, 'dig');
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  const pending = arrive();
+  assert.equal(commands[0][5].rainbow, true, 'a corner of its tile counts');
+  release(v);
+  resolveDig({ ok: true, data: { outcome: 'seed', attemptId: 'rainbow' } });
+  await pending;
+  assert.equal(rainbowEnd(), null, 'the patch is dug: another dig there would only repeat this one');
+  assert.equal(glimmer.removed, true);
+});
+
 test('ground selection refuses sky clicks and Escape cancels the armed tool', async t => {
   const { v } = fixture(t);
   setupDiscovery();
@@ -625,6 +646,29 @@ test('with Let them dig on, an idle friend digs a spot of its own, never during 
     false,
     'a friend already digging is left alone',
   );
+});
+
+test('Let them dig on keeps off the rainbow’s end, which waits for the person', async t => {
+  const { v } = fixture(t);
+  t.mock.method(performance, 'now', () => 3e9);
+  const { autoDig } = await import('../src/yard/discovery.js');
+  const { placeRainbowEnd, clearRainbowEnd } = await import('../src/yard/rainbow-end.js');
+  t.after(clearRainbowEnd);
+  const open = { soil: true, bounds: { left: 0, right: 1, top: 0, bottom: 1 }, water: [], obstacles: [] };
+  const end = placeRainbowEnd(Date.now() + 60_000, { ground: open, rng: () => 0.5, dug: [] });
+  // The first spot it would choose is on the rainbow's tile; the second is elsewhere.
+  const rolls = [0, (end.x - 0.1) / 0.8, (end.y - 0.15) / 0.75, (0.85 - 0.1) / 0.8, (0.8 - 0.15) / 0.75];
+  assert.equal(
+    autoDig(() => rolls.shift()),
+    true,
+  );
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  arrive();
+  const [x, y] = commands[0].slice(2, 4);
+  assert.ok(Math.abs(x - 0.85) < 1e-9 && Math.abs(y - 0.8) < 1e-9, `dug at ${x},${y}`);
+  resolveDig({ ok: true, data: { outcome: 'empty' } });
 });
 
 test("Let them dig on keeps off the end of a winter trail not yet followed; the person's own dig may go there", async t => {

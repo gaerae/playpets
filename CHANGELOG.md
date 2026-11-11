@@ -10,6 +10,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Fixed
+
+- A tree or a flower takes a click only where it is drawn, so a gift, a friend or the ground showing through its empty corners can be clicked.
+- The rainbow's end now glimmers only on ground not dug that day, so a dig there always finds something instead of saying the spot was already looked at, and it stops glimmering once dug.
+
 ### Website and docs
 
 - Right after a release is published, the website's download buttons offer it, instead of the previous release until the next site update.

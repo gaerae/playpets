@@ -18,6 +18,7 @@ import { flowerKind, STAGES } from './catalog.js';
 import { flowerSvg } from './creatures.js';
 import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { flowerFor, hoursMinutes, stageOf, untilBloom } from './growth.js';
+import { shapeHits } from './hit-shape.js';
 import { propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { cue } from './sound.js';
 import { forPerson, release, rest, sendTo } from './trips.js';
@@ -81,6 +82,7 @@ export function renderGarden(now = Date.now()) {
       v.use.setAttribute('href', artHref(art));
       v.svg.setAttribute('viewBox', `0 0 ${artSize(art).join(' ')}`);
       v.button.dataset.stage = stage;
+      shapeHits(v.button, art);
     }
     // Some flowers stand taller than others once grown (catalog.json "stature").
     const [aw, ah] = artSize(art),

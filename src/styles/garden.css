@@ -1019,6 +1019,20 @@
   height: 100%;
   overflow: visible;
 }
+/* A tree or a flower whose drawn shape is known takes the pointer only there, so a gift, a friend
+   or the ground showing through its empty corners can still be clicked (yard/hit-shape.js). */
+.plant.shaped,
+.planted-tree.shaped {
+  pointer-events: none;
+}
+.shaped .hit {
+  fill: transparent;
+  pointer-events: all;
+}
+/* An indoor flower's pot is drawn outside its drawing, and is part of the flower. */
+.yard[data-sky="false"] .plant.shaped::after {
+  pointer-events: auto;
+}
 .planted-tree.dragging {
   cursor: grabbing;
 }
