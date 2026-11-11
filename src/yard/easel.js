@@ -26,13 +26,8 @@ function sized(canvas, w, h, density) {
   return ctx;
 }
 
-// The pictures a scene needs: its land, the view through its windows and its furniture fronts' masks.
-const wanted = scene =>
-  [
-    environmentLook(scene).art,
-    environmentWindowLook(scene)?.art,
-    ...(worldFor(scene.world).geometry?.fronts ?? []).map(front => front.art),
-  ].filter(Boolean);
+// The pictures a scene needs: its land and the view through its windows.
+const wanted = scene => [environmentLook(scene).art, environmentWindowLook(scene)?.art].filter(Boolean);
 
 /** A new painting laid over the one before, fading in; the one before goes once it is covered. */
 function hang(slot, canvas, fade) {
@@ -140,7 +135,7 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
       landContext.fillRect(0, 0, w, h);
     }
     hang(land, landCanvas, fade);
-    paintFronts(garden, landCanvas, w, h, illustrated ? image : null, images);
+    paintFronts(garden, landCanvas, w, h, illustrated ? image : null);
     // Each drifting cloud, at the size it is shown.
     const lit = lightFor(scene.period, scene.weather);
     clouds.forEach((cloud, i) => {

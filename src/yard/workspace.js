@@ -36,8 +36,9 @@ export function blocked(px, py) {
 }
 
 /** The furniture fronts of a yard `w` by `h` with a picture of `sourceWidth` by `sourceHeight`: each
- * one's art (a cut-out mask), its box in yard pixels, and `z`, the layer of a friend whose feet are
- * on its foot line (views.js place), so a friend standing behind it is drawn under it. */
+ * one's box in yard pixels, its `shape` (the outline cut from that box, as [x, y] fractions of it;
+ * the whole box when it has none), and `z`, the layer of a friend whose feet are on its foot line
+ * (views.js place), so a friend standing behind it is drawn under it. */
 export function frontsIn(w, h, sourceWidth, sourceHeight) {
   const fronts = shape().fronts;
   if (!fronts?.length) return [];
@@ -45,7 +46,7 @@ export function frontsIn(w, h, sourceWidth, sourceHeight) {
     // Friends are layered by their feet the same way at any size: a size of 0 gives that line.
     floor = geometry({ size: 0 });
   return fronts.map(front => ({
-    art: front.art,
+    shape: front.shape ?? null,
     x: f.x + front.x * f.width,
     y: f.y + front.y * f.height,
     width: front.width * f.width,

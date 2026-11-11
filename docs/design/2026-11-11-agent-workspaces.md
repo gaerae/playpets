@@ -97,8 +97,8 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 
 ### Furniture fronts
 
-- Each desk, the approval desk or post, and the sofa or hammock has a front piece (`geometry.fronts`): `{ "art", "x", "y", "width", "height", "foot" }`, its box and foot line in source-image fractions.
-- `art` names a mask (`src/art/environments/<art>.webp`) the size of the box. The front is the painted picture's own pixels inside the mask, cut each time the land is painted (`fronts.js`), so it carries the hour's light.
+- Each desk, the approval desk or post, and the sofa or hammock has a front piece (`geometry.fronts`): `{ "x", "y", "width", "height", "foot", "shape" }`, its box and foot line in source-image fractions.
+- `shape` is the piece's outline, `[x, y]` points as fractions of the box. The front is the painted picture's own pixels inside it, cut each time the land is painted (`fronts.js`), so it carries the hour's light and needs no picture of its own.
 - A front is drawn in the friends' layer at the depth of its foot line. A friend whose feet are above the foot line is drawn behind it, so a friend at a desk looks seated. Clicks pass through it.
 - Furniture blocks strolls the way trees do: a stroll does not end on it (`geometry.blocks`: `{ "x", "y", "rx", "ry" }` ellipses in source-image fractions, `workspace.js blocked`). A trip to a station ignores them.
 
@@ -131,6 +131,6 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 
 ## Left to the builder
 
-- How fronts are cut (a mask per piece is fine) and how the glass alpha is made.
+- How the glass alpha is made.
 - The exact station points, after the pictures exist.
 - The `working` pose at a desk faces the screen; turning toward the laptop is not required.

@@ -24,6 +24,8 @@ export const PREVIEWS = [
   'environments/studio-cozy-day.png',
   'environments/courtyard-green.png',
   'environments/lakeside-green.png',
+  'environments/office.png',
+  'environments/workshop.png',
 ];
 export const PREVIEW_WIDTH = 400;
 export const PREVIEW_QUALITY = 82;

@@ -363,6 +363,10 @@
     "png": "b88936a78335554b9b210d6db8a467b683db0e0714c618430d5840231f0b4369",
     "webp": "db3cb95832e6b59c6320650ca9c0a34730b880710ef7ed0733e485e59d843152"
   },
+  "environments/office.png": {
+    "png": "ec4f5a0288157baec38cabe688ccbfc224bfc84f9059a06bf72251e76c907952",
+    "webp": "79c7c65d2b137c9d76982b48a2444ae8a295cc25238e74895e6e3c46ab99941e"
+  },
   "environments/previews/courtyard-green.webp": {
     "png": "67cb885fd3441b705af9814bb2bd66fe4c5660b91594032ecd4d8364b543dcfe",
     "webp": "5c813728505625629d3c67b82bea7f82c3ccd32b9b47f3794d628a1a6ef1fca3"
@@ -375,9 +379,17 @@
     "png": "23e7bcea78d65fb2dff62f3cab34c52bf19ba28f77f043dba71c5b774c8f95bf",
     "webp": "46471dd93afc2aac713f06645608e1a1c7ae3fa39a9af0409856d604b5505edf"
   },
+  "environments/previews/office.webp": {
+    "png": "ec4f5a0288157baec38cabe688ccbfc224bfc84f9059a06bf72251e76c907952",
+    "webp": "4e17d2500e7c7431448b651ef674be80052bed3bb75fbd3ece5d038e2eb1ea45"
+  },
   "environments/previews/studio-cozy-day.webp": {
     "png": "9f356f9c71c03f3adc0d43a2aab8f6c8a794a0d649ae174def702878e78e01d3",
     "webp": "b87e3f2b1b9386b9eb45ee4c779f221d225dcf80db3c66119206ec921fca45b3"
+  },
+  "environments/previews/workshop.webp": {
+    "png": "24a27417c01ac4587460f9e44eb8d7d542dd6ed9977d67077fb665cd685fd81a",
+    "webp": "05f4460bf3ca0c14906d32333b220420c5fa6ab37a75aa5420df0918cebf64d1"
   },
   "environments/spring.png": {
     "png": "02b4e0f20e976eb08943bfc3eb0a12e56bedf36b52cead843e23a023aea88d00",
@@ -414,6 +426,10 @@
   "environments/winter.png": {
     "png": "0eadb70af979392d06712b0f3ca80925772a991570dd34197089bfa695b39791",
     "webp": "828a547d6b4667b662502f6c2dc9ffbb45b0e14dda90333ffaa4b2ba7442b1d7"
+  },
+  "environments/workshop.png": {
+    "png": "24a27417c01ac4587460f9e44eb8d7d542dd6ed9977d67077fb665cd685fd81a",
+    "webp": "1afa8bf917688262762133dbcb624ee531ccb691b0dc6f9fa8ad48a41bdf3c3d"
   },
   "events/newyear.png": {
     "png": "c8cd54bd163dc614ed90ccac4ef9026874b813d1876ec3eb4a5b41e69dd03b1d",

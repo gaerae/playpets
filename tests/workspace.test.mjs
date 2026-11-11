@@ -31,7 +31,21 @@ const office = {
       rest: { x: 0.15, y: 0.6 },
     },
     blocks: [{ x: 0.3, y: 0.58, rx: 0.06, ry: 0.03 }],
-    fronts: [{ art: 'test-office-desk', x: 0.24, y: 0.5, width: 0.12, height: 0.1, foot: 0.6 }],
+    fronts: [
+      {
+        x: 0.24,
+        y: 0.5,
+        width: 0.12,
+        height: 0.1,
+        foot: 0.6,
+        shape: [
+          [0, 0.2],
+          [1, 0.2],
+          [1, 1],
+          [0, 1],
+        ],
+      },
+    ],
   },
   capabilities: {
     sky: true,
@@ -176,8 +190,19 @@ test("a desk's front is drawn over a friend whose feet are behind its foot line"
   inOffice(t);
   const [front] = frontsIn(1536, 1024);
   assert.deepEqual(
-    { art: front.art, x: front.x, y: front.y, width: front.width, height: front.height },
-    { art: 'test-office-desk', x: 1536 * 0.24, y: 1024 * 0.5, width: 1536 * 0.12, height: 1024 * 0.1 },
+    { shape: front.shape, x: front.x, y: front.y, width: front.width, height: front.height },
+    {
+      shape: [
+        [0, 0.2],
+        [1, 0.2],
+        [1, 1],
+        [0, 1],
+      ],
+      x: 1536 * 0.24,
+      y: 1024 * 0.5,
+      width: 1536 * 0.12,
+      height: 1024 * 0.1,
+    },
   );
   // Friends are layered by where their feet are (views.js place); a friend at the desk is behind.
   const a = friend('a');

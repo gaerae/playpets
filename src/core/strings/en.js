@@ -195,6 +195,24 @@ export const strings = {
     'That lamp makes everything feel softer.',
     'I like having you here with me.',
   ],
+  'world.office': 'Sunny office',
+  'world.office.about':
+    'An office for working alongside coding agents. Linked friends work at the desks and come to the front desk when an agent waits for you. The sky and the weather show through the windows.',
+  'world.office.lines': [
+    'One small step at a time today.',
+    'That coffee smells good. Break time?',
+    'Look at the sky out there.',
+    'It’s nice working side by side.',
+  ],
+  'world.workshop': 'Garden workshop',
+  'world.workshop.about':
+    'A workshop full of potted plants under a glass roof. Linked friends work at the benches and come to the post at the front when an agent waits for you. The sky and the weather show through the glass.',
+  'world.workshop.lines': [
+    'Working among the plants is so calming.',
+    'The sun comes right through the roof.',
+    'Maybe a quick rest in the hammock?',
+    'I think this pot needs water.',
+  ],
   'app.title': 'PlayPets, Pet yard',
   'app.home': 'PlayPets home',
   'app.tagline': 'Friends who talk to each other',
