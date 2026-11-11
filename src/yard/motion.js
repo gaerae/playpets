@@ -10,6 +10,7 @@ import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
+import { keepDuty } from './duty.js';
 import { EDGE, geometry, petHeight, sizeOf, underDock, yardToField } from './field.js';
 import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
@@ -51,6 +52,7 @@ const SETTLE = [{ transform: 'scale(1.05, 0.95)' }, { transform: 'none' }];
 export function moveFriends(now, dt) {
   for (const [id, v] of views) {
     if (game) clearCompanionAction(v);
+    keepDuty(v);
     const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
     stepping(v, walking, !!v.trip?.slow && !v.speed);
     if (v.target && !v.drag && !v.frozen) {
@@ -78,13 +80,22 @@ export function moveFriends(now, dt) {
         pose(v, dx >= 0 ? 'right' : 'left', 150);
         place(v);
       }
-    } else if (!v.drag && !v.doing && !aiming && !game && !v.away && !reduced.matches && now >= v.nextWander) {
+    } else if (
+      !v.drag &&
+      !v.doing &&
+      !v.duty &&
+      !aiming &&
+      !game &&
+      !v.away &&
+      !reduced.matches &&
+      now >= v.nextWander
+    ) {
       const quiet = document.body.classList.contains('compact');
       const action = idleAction(Math.random, quiet);
       if (action.type === 'pose') pose(v, action.pose, 1200);
       else if (!visitTarget(v) && !decorTarget(v)) {
         const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v));
-        if (target) sendTo(v, target, { slow: true });
+        if (target) sendTo(v, target, { slow: true, own: true });
       }
       v.nextWander = now + between(Math.random, WANDER_DELAY) * (quiet ? 1.8 : 1);
     }

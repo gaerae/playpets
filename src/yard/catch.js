@@ -104,7 +104,7 @@ function startFishing(x, friend, solo = false) {
     hint();
   }
   for (const name of ['cast', 'wait', 'reel', 'discover']) prepareCompanionAction(v.asset, name);
-  sendTo(v, standAt(v, x), { arrive: fishArrived, cancel: stopFishing });
+  sendTo(v, standAt(v, x), { arrive: fishArrived, cancel: stopFishing, own: solo });
   fishing = { v, x, y: floatY(l, x), width: field().width, solo, world: scene.world };
 }
 // Where a friend stands to fish at `x` along the lake: an authored stance keeps it on a dock or bank;
@@ -207,7 +207,8 @@ const land = guard(async () => {
     },
   };
   reelingFriends.add(v);
-  setDoing(v, reeling);
+  // Only the person reels in, a friend's own catch too.
+  setDoing(v, reeling, false);
   const reelAction = fishingAction(v, 'reel');
   if (reelAction) {
     reelingArtwork.set(v, tackle);

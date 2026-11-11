@@ -15,12 +15,14 @@ export const rest = v => {
 // friend leaving) lets go of both first, so the owner of a trip or a task always hears it ended.
 /** Sends a friend to `target`: `arrive(v, now)` runs when it gets there and `cancel(v)` if something
  * else takes it first; the place it ends at is kept unless `save` is false; `slow` strolls, and a
- * game gives its own `speed`. */
-export function sendTo(v, target, { arrive, cancel, save = true, slow = false, speed = 0 } = {}) {
+ * game gives its own `speed`. `own` marks a trip the friend set off on by itself, which its agent's
+ * state may cut short (duty.js); what it then does where it arrives is its own too. */
+export function sendTo(v, target, { arrive, cancel, save = true, slow = false, speed = 0, own = false } = {}) {
   release(v);
   v.target = target;
   v.trip = { arrive, cancel, save, slow };
   v.speed = speed;
+  v.own = own;
 }
 /** Lets go of whatever a friend was on its way to or doing, telling their owners. Whatever moves it
  * goes through here, so a petal resting on its head (petals.js) falls off too. */
@@ -33,8 +35,11 @@ export function release(v) {
   trip?.cancel?.(v);
   doing?.end?.(v);
 }
-/** Free to be sent somewhere: not held, not on its way, not in a game, not busy where it stands. */
-export const isFree = v => !v.drag && !v.target && !v.away && !v.doing;
+// Not held, not on its way, not in a game, not busy where it stands.
+const unoccupied = v => !v.drag && !v.target && !v.away && !v.doing;
+/** Free for what friends start on their own: unoccupied, and not seeing to a coding agent that is
+ * working, waiting or failed (duty.js). */
+export const isFree = v => unoccupied(v) && !v.duty;
 /** Only strolling (a wander, sent with `slow` and nothing to do at its end). The blossom gathering
  * counts such a friend in with the free ones (viewing.js), and sendTo lets go of the stroll; the
  * other pickers still pass it over. */
@@ -57,10 +62,11 @@ function nearest(px, py, ok) {
 /** The free friend nearest a point in the yard. */
 export const nearestFree = (px, py) => nearest(px, py, isFree);
 /** Who goes for what the person starts near a point (fishing, a dig, a seed, watering, a visit):
- * `chosen` when it is free, else the nearest free friend; when none is, `chosen` or the nearest
- * friend viewing the blossom, which leaves the gathering for it. `fits` is the picker's own test. */
+ * `chosen` when it is free, else the nearest free friend; then one seeing to its agent; when none
+ * is, `chosen` or the nearest friend viewing the blossom, which leaves the gathering for it. `fits`
+ * is the picker's own test. */
 export function forPerson(px, py, chosen = null, fits = () => true) {
-  for (const ok of [isFree, yields]) {
+  for (const ok of [isFree, unoccupied, yields]) {
     const fit = v => ok(v) && fits(v);
     if (chosen && fit(chosen)) return chosen;
     const v = nearest(px, py, fit);
@@ -68,10 +74,12 @@ export function forPerson(px, py, chosen = null, fits = () => true) {
   }
   return null;
 }
-/** Busies a friend where it stands (fishing): `end(v)` runs when anything takes it (release). */
-export function setDoing(v, doing) {
+/** Busies a friend where it stands (fishing): `end(v)` runs when anything takes it (release). It is
+ * the friend's own doing (`own`) when the trip that brought it there was, unless said otherwise. */
+export function setDoing(v, doing, own = v.own) {
   release(v);
   v.doing = doing;
+  v.own = own;
 }
 /** Takes the petal off a friend's head (petals.js), and with it the notice the friend might have
  * given of it. */

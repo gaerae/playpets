@@ -147,8 +147,9 @@ function showMarker(event) {
   marker.style.top = `${event.clientY - r.top}px`;
 }
 
-/** A task owns its timer and effect. Taking the friend away cancels only the presentation. */
-export function sendDiscovery(v, point, action, kind) {
+/** A task owns its timer and effect. Taking the friend away cancels only the presentation. `own` is
+ * a spot the friend chose itself (autoDig). */
+export function sendDiscovery(v, point, action, kind, own = false) {
   const world = scene.world,
     stroke = action === 'tree' ? 'plant' : 'dig',
     task = {
@@ -173,6 +174,7 @@ export function sendDiscovery(v, point, action, kind) {
   release(v);
   tasks.set(v, task);
   sendToDig(v, point, stroke, {
+    own,
     cancel: cleanup,
     arrive: guard(async () => {
       if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
@@ -300,7 +302,7 @@ export function autoDig(rng = Math.random) {
     const point = { x: 0.1 + rng() * 0.8, y: 0.15 + rng() * 0.75 };
     // A winter trail's end waits for its follow's dig, and the rainbow's end for the person's.
     if (!groundAllows(point, groundProfile()) || reservedForTrail(point) || atRainbowEnd(point)) continue;
-    sendDiscovery(v, point, 'dig');
+    sendDiscovery(v, point, 'dig', undefined, true);
     return true;
   }
   return false;
