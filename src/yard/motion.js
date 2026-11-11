@@ -14,6 +14,7 @@ import { keepDuty } from './duty.js';
 import { EDGE, geometry, petHeight, sizeOf, underDock, yardToField } from './field.js';
 import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
+import { loungeTarget, sitOut } from './lounge.js';
 import { sendTo } from './trips.js';
 import { place, pose } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
@@ -57,6 +58,7 @@ const SETTLE = [{ transform: 'scale(1.05, 0.95)' }, { transform: 'none' }];
 export function moveFriends(now, dt) {
   for (const [id, v] of views) {
     if (game) clearCompanionAction(v);
+    sitOut(v, now);
     keepDuty(v);
     const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
     stepping(v, walking, !!v.trip?.slow && !v.speed);
@@ -98,7 +100,7 @@ export function moveFriends(now, dt) {
       const quiet = document.body.classList.contains('compact');
       const action = idleAction(Math.random, quiet);
       if (action.type === 'pose') pose(v, action.pose, 1200);
-      else if (!visitTarget(v) && !decorTarget(v)) {
+      else if (!loungeTarget(v, now) && !visitTarget(v) && !decorTarget(v)) {
         const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v));
         if (target) sendTo(v, target, { slow: true, own: true });
       }

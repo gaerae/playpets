@@ -198,7 +198,7 @@ export const strings = {
   ],
   'world.office': 'Sunny office',
   'world.office.about':
-    'An office for working alongside coding agents. Linked friends work at the desks and come to the front desk when an agent waits for you. The sky and the weather show through the windows.',
+    'A cozy, sunlit office where friends read at the long tables, have tea and play checkers. A friend linked to a coding agent works at the tables and comes to the bench at the front when the agent needs you. The sky and the weather show through the windows.',
   'world.office.lines': [
     'One small step at a time today.',
     'That coffee smells good. Break time?',
@@ -207,13 +207,18 @@ export const strings = {
   ],
   'world.workshop': 'Garden workshop',
   'world.workshop.about':
-    'A workshop full of potted plants under a glass roof. Linked friends work at the benches and come to the post at the front when an agent waits for you. The sky and the weather show through the glass.',
+    'A workshop full of potted plants under a glass roof, where friends sort seeds at the long tables, have tea under the vines and play checkers. A friend linked to a coding agent works at the tables and comes to the garden bench at the front when the agent needs you. The sky and the weather show through the glass.',
   'world.workshop.lines': [
     'Working among the plants is so calming.',
     'The sun comes right through the roof.',
-    'Maybe a quick rest in the hammock?',
+    'Tea break, maybe?',
     'I think this pot needs water.',
   ],
+  'lounge.desk': ['This book is really good.', 'Nice and quiet in here.', 'Just one more page.'],
+  'lounge.done': ['Lovely tea.', 'One more cookie, maybe?', 'It’s cozy here.'],
+  'lounge.invite': ['Fancy some tea?', 'Want a cookie?', 'Game of checkers?'],
+  'lounge.reply': ['Sure!', 'I’ll have one too.', 'I’m winning this time.'],
+  'lounge.waiting': ['Just resting my feet.', 'Comfy bench.', 'I can see everyone from here.'],
   'app.title': 'PlayPets, Pet yard',
   'app.home': 'PlayPets home',
   'app.tagline': 'Friends who talk to each other',

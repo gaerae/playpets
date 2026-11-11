@@ -63,14 +63,14 @@ A friend also shows its agent's state in what it does.
 
 | State | Gardens and living room | Sunny office and Garden workshop |
 |---|---|---|
-| Working | Stops where it is and works | Sits at a desk |
-| Waiting | Comes to the front of the yard | Waits at the approval spot at the front |
-| Done | Strolls again | Rests in the corner until the agent's next step |
-| Trouble | Stops where it is | Stays at its desk |
+| Working | Stops where it is and works | Sits at a long table |
+| Waiting | Comes to the front of the yard | Waits by the bench at the front |
+| Done | Strolls again | Rests by the tea table until the agent's next step |
+| Trouble | Stops where it is | Stays in its seat |
 
 - Friends waiting together stand side by side.
-- With more working friends than desks, the others work beside a desk.
-- In a short, wide window that leaves the desks out, a friend works where it stands.
+- With more working friends than seats, the others work beside a table.
+- In a short, wide window that leaves the tables out, a friend works where it stands.
 
 ## What happens <Since v="0.1.0" />
 

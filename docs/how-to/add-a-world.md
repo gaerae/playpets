@@ -58,7 +58,8 @@
 | `fronts` | `{x, y, width, height, foot, shape}`: a piece cut from the picture and drawn over friends whose feet are above `foot` |
 | `depthFar` | How small a friend at the back is drawn (default 0.84; about 0.6 for a deep room) |
 
-- Measure each front on the picture. Start its `shape` at the tabletop, not at a laptop or a lamp on it: anything above the top covers a seated friend's face.
+- Measure each front on the picture. Start its `shape` at the tabletop, not at a lamp or a pot on it: anything above the top covers a seated friend's face.
+- Ask for only flat things on a table in front of a seat (books, paper, seed packets): a laptop or a tall pot there sits in front of a face.
 - A seated friend's name tag goes down to its feet, on the desk's front, so its face stays in view.
 - Set the `soil` capability to `false` for a paved floor: flowers stand in pots and nothing is dug.
 - Use `"fit": "cover-bottom"` so a short window keeps the front of the room.

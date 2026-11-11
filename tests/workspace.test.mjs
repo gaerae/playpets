@@ -15,6 +15,8 @@ const { moveFriends } = await import('../src/yard/motion.js');
 const { scene } = await import('../src/yard/world.js');
 const { useWorlds, worldHasSoil, worlds } = await import('../src/yard/worlds.js');
 const { blocked, frontsIn, stationAt } = await import('../src/yard/workspace.js');
+const { loungeTarget, sitOut } = await import('../src/yard/lounge.js');
+const { forPerson, release, rest } = await import('../src/yard/trips.js');
 
 // A picture of 1536 by 1024 in a yard of the same size: its fractions are the yard's.
 const office = {
@@ -319,4 +321,135 @@ test('a workspace takes the outdoor light, and its glass is not washed over as a
     weather: 'rain',
   });
   assert.equal(fills, 1, 'the outdoor rain tint only');
+});
+
+// An rng giving these numbers in turn, then 0.99.
+const draws =
+  (...values) =>
+  () =>
+    values.length ? values.shift() : 0.99;
+const SEAT = 0.1,
+  TEA = 0.6,
+  BENCH = 0.9;
+// Walks a friend the rest of its way, as a frame at the end of a trip does.
+function arrive(v, now) {
+  v.x = v.target.x;
+  v.y = v.target.y;
+  moveFriends(now, 50);
+}
+
+test('with no agent, an idle friend now and then sits at a free seat, has tea or sits by the bench, then strolls on', t => {
+  inOffice(t);
+  agent({});
+  const a = friend('a', { bubble: element() }),
+    b = friend('b', { bubble: element() }),
+    c = friend('c', { bubble: element() });
+  // A first frame reads each friend's agent state.
+  moveFriends(900, 50);
+  assert.equal(loungeTarget(a, 1000, draws(0.9)), null, 'most of the time it strolls instead');
+  assert.deepEqual(loungeTarget(a, 1000, draws(0, SEAT)), at(a, 0.3, 0.55));
+  assert.equal(a.trip.save, false, 'its own place stays where it lives');
+  assert.equal(a.own, true, 'its own trip');
+  assert.deepEqual(loungeTarget(b, 1000, draws(0, SEAT)), at(b, 0.6, 0.55), 'the next free seat');
+  assert.deepEqual(loungeTarget(c, 1000, draws(0, TEA)), at(c, 0.15, 0.6));
+  arrive(a, 1100);
+  assert.equal(a.target, null);
+  assert.ok(a.doing, 'seated a while');
+  moveFriends(1100 + 20000, 50);
+  assert.ok(a.doing, 'still seated after 20 seconds');
+  // Sitting costs one comparison a frame; when the time is up it gets up and strolls on.
+  sitOut(a, 1100 + 120000);
+  assert.equal(a.doing, null);
+  assert.equal(a.spot, null);
+  assert.equal(loungeTarget(a, 1100 + 121000, draws(0, SEAT)), null, 'not straight back to a seat');
+  const d = friend('d', { bubble: element() });
+  moveFriends(122200, 50);
+  assert.deepEqual(loungeTarget(d, 1000, draws(0, BENCH)), at(d, 0.5, 0.85));
+  // Another place: a friend sitting there gets up at once.
+  arrive(d, 122300);
+  assert.ok(d.doing);
+  scene.world = shipped.find(w => !w.geometry?.stations).id;
+  sitOut(d, 122400);
+  assert.equal(d.doing, null);
+});
+
+test('no two friends share a seat, and one that is only sitting gives way to an agent and to the person', t => {
+  inOffice(t);
+  agent({});
+  const a = friend('a', { bubble: element() }),
+    b = friend('b', { bubble: element() }),
+    c = friend('c', { bubble: element() });
+  moveFriends(900, 50);
+  loungeTarget(a, 1000, draws(0, SEAT));
+  loungeTarget(b, 1000, draws(0, SEAT));
+  assert.equal(loungeTarget(c, 1000, draws(0, SEAT)), null, 'both seats taken: it strolls');
+  arrive(a, 1100);
+  // Its friend's agent starts work: the seat goes to it, and the one sitting there walks home.
+  agent({ c: 'working' });
+  moveFriends(1200, 50);
+  assert.deepEqual(c.target, at(c, 0.3, 0.55));
+  assert.equal(a.doing, null);
+  assert.equal(a.spot, null);
+  assert.deepEqual(a.target, { x: 0.5, y: 0.3 });
+  // A seat a working friend holds is not offered.
+  a.target = null;
+  a.trip = null;
+  a.sitAgain = 0;
+  assert.equal(loungeTarget(a, 5000, draws(0, SEAT)), null);
+  // Its own agent's state takes a sitting friend at once.
+  agent({ c: 'working', b: 'waiting' });
+  moveFriends(1300, 50);
+  assert.deepEqual(b.target, at(b, 0.5, 0.85));
+  // The person asks for a friend: a free one first, else one only sitting.
+  const e = friend('e', { bubble: element() });
+  moveFriends(1350, 50);
+  loungeTarget(e, 1000, draws(0, TEA));
+  arrive(e, 1400);
+  assert.equal(
+    forPerson(0, 0, null, v => v === e),
+    e,
+  );
+});
+
+test('a friend picked up from its seat does not walk straight back to one', t => {
+  inOffice(t);
+  agent({});
+  const a = friend('a', { bubble: element() });
+  moveFriends(900, 50);
+  loungeTarget(a, 1000, draws(0, TEA));
+  arrive(a, 1100);
+  assert.ok(a.doing);
+  // What a press on the friend does (views.js): the trip and the sitting end.
+  release(a);
+  rest(a);
+  assert.equal(a.spot, null);
+  assert.equal(loungeTarget(a, 9000, draws(0, SEAT)), null, 'a while of strolling first');
+  assert.ok(loungeTarget(a, 1000 + 61000, draws(0, SEAT)));
+});
+
+test('a friend whose agent waits takes the bench from a friend only sitting by it', t => {
+  inOffice(t);
+  agent({});
+  const a = friend('a', { bubble: element() }),
+    b = friend('b', { bubble: element() });
+  moveFriends(900, 50);
+  loungeTarget(a, 1000, draws(0, BENCH));
+  arrive(a, 1100);
+  agent({ b: 'waiting' });
+  moveFriends(1200, 50);
+  assert.deepEqual(b.target, at(b, 0.5, 0.85));
+  assert.equal(a.spot, null);
+});
+
+test('outdoors and in rooms without stations, an idle friend strolls as before', t => {
+  inOffice(t);
+  agent({});
+  scene.world = shipped.find(w => !w.geometry?.stations).id;
+  const a = friend('a', { bubble: element() });
+  assert.equal(
+    loungeTarget(a, 1000, () => {
+      throw new Error('no draw outdoors');
+    }),
+    null,
+  );
 });

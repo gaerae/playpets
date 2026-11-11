@@ -12,7 +12,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- Two new places for friends who help a coding agent: **Sunny office** and **Garden workshop**. A working friend sits at a desk, a friend waiting for your approval stands at the approval spot, and one whose agent is done rests in the corner. The sky, the time of day and the weather show through their glass.
+- Two new places for friends who help a coding agent: **Sunny office** and **Garden workshop**. A working friend sits at one of two long tables, a friend waiting for your approval stands by the bench at the front, and one whose agent is done rests by the tea table. The sky, the time of day and the weather show through their glass.
+- With or without a coding agent, friends in the Sunny office and the Garden workshop now and then sit down at a table to read, have tea together or rest by the bench, then stroll on.
 
 ### Changed
 
@@ -37,7 +38,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Fixed
 
-- In the Sunny office and the Garden workshop, in a window wider than the picture, friends sit at the back desks with their faces in view instead of working where they stand or hiding behind a laptop.
+- In the Sunny office and the Garden workshop, in a window wider than the picture, friends sit at the tables with their faces in view instead of working where they stand.
 - A tree or a flower takes a click only where it is drawn, so a gift, a friend or the ground showing through its empty corners can be clicked.
 - The rainbow's end now glimmers only on ground not dug that day, so a dig there always finds something instead of saying the spot was already looked at, and it stops glimmering once dug.
 - In the album, the trees book counts the trees you grew in its own words instead of a flower's, and a gift's line says it was received instead of always saying it is in the yard.
@@ -53,6 +54,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Website and docs
 
 - The guide lists the two new places, says where a friend goes for each state of its agent, and shows the state dot beside the name.
+- The website's place picker shows the Sunny office and the Garden workshop, with a day sky through their glass, and the site counts six places.
 - The guide's first-friend page no longer says a double-click opens the conversation.
 - Right after a release is published, the website's download buttons offer it, instead of the previous release until the next site update.
 - The website's moving friends load smaller pictures, drawn at the size the page shows them, and each friend's `playpets-<name>.zip` now carries the same lossless WebP sheets the app uses, about a third smaller.

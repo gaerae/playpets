@@ -142,6 +142,27 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 - A front starts at the tabletop. A laptop in the front covered a seated friend's face, so laptops stay in the picture behind the friend.
 - A seated friend's name tag goes down to its feet, on the desk's front (`views.js place`), and the agent's state dot sits in the tag beside the name.
 - The workshop's approval spot is beside the post, not behind it, and the post has no front.
-- The sunshower and other moment glows are hidden on floors without soil: fronts cut from the land above the glow showed their edges.- In a room (a floor without soil) friends grow with the picture past the size it was drawn for, a window 850px tall, up to twice their size (`field.js zoomFor`). At 2560×1440 the living room's armchair was 4.0 friends tall and is 2.0, as at 1180×850; small windows keep the friends' readable size.
+- The sunshower and other moment glows are hidden on floors without soil: fronts cut from the land above the glow showed their edges.
+- In a room (a floor without soil) friends grow with the picture past the size it was drawn for, a window 850px tall, up to twice their size (`field.js zoomFor`). At 2560×1440 the living room's armchair was 4.0 friends tall and is 2.0, as at 1180×850; small windows keep the friends' readable size.
 - A picture framed from its foot moves its floor line up in a window wider than it, so the field follows the picture's own floor there (`field.js fieldTop`). Before, the back desks lay above the field: no seat at 1920×1080, and a friend drawn too small behind its laptop at 2560×1440.
 
+## Follow-up: long tables and a waiting bench (2026-11-12)
+
+- Both rooms were redrawn before release. Laptops did not suit the rooms, and long shared tables suit them better than single desks.
+- Work: two long low tables per room, two seats each on the far side, so a seated friend faces the viewer. Only flat things lie on them (books, paper, seed packets), so nothing stands in front of a face.
+- Waiting: a bench with a call bell at the front. Waiting friends stand in a line in front of it, drawn over it; the bench, its bell and the plant beside it are one front for a friend strolling behind.
+- Rest: a tea corner with a low round table, cushions, tea, cookies and a checkers board, where the office's sofa and the workshop's hammock were.
+- The desks keep their order: the inner seat of each table first, so two working friends sit at different tables.
+- Also drawn for the approval spot and not taken: a small closed door in the side wall with a knocker and a doormat.
+
+## Follow-up: friends at home without an agent (2026-11-12)
+
+- A workspace is lived in without an agent too. Now and then an idle friend sits at a free seat, has tea in the rest corner or stands by the bench, then strolls on (`lounge.js`).
+- How often: about one idle turn in three goes to the furniture instead of a stroll. A friend stays 30 to 70 seconds, then does not sit again for a minute. The minute also starts when it sets off, so a friend picked up on the way or from its seat strolls first.
+- Seats: the first free one, as `duty.js desk()` gives them. A seat held by any friend is not offered; the tea table and the bench take friends in a line (`inLine`).
+- The trip and the sitting are the friend's own (`own`). Its agent's state takes it at once, and the person's errand picks it after the free friends (`forPerson`).
+- A friend seeing to its agent takes the seat or the bench from a friend only sitting there, who walks back to its own place.
+- At the tea table, a friend joining another invites it and the other answers, both looking at each other. Lines are in the string tables (`lounge.*`).
+- Sitting costs one check a frame (`sitOut`). A friend gets up when its time is over or the place changes. The yard draws no more often: a seated friend stands still.
+- Outdoors, and in a room without stations, nothing changes.
+- The sprites have no sitting pose. A friend at the bench stands in front of it, as a waiting friend does.

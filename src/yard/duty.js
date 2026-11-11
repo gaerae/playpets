@@ -2,7 +2,8 @@
 // (docs/design/2026-11-11-agent-workspaces.md). Anywhere: working or failed, it stays where it
 // stands; waiting for the person, it comes to the front of the yard; done, it rests a moment and
 // strolls on. In a workspace (workspace.js stations) it works and fails at a desk, waits at the
-// approval spot and rests in the rest corner until its agent's next word.
+// approval spot and rests in the rest corner until its agent's next word. A friend only sitting
+// there on its own (lounge.js) gives its seat or the bench to one seeing to its agent.
 import { t } from '../core/i18n.js';
 import { call, data, game, toast, views } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
@@ -47,15 +48,17 @@ function spotFor(v, state) {
   const here = stations();
   if (state === 'waiting') {
     const approval = here?.approval && station(v, here.approval);
-    return approval ? inLine(v, 'waiting', approval) : frontSpot(v);
+    if (!approval) return frontSpot(v);
+    for (const o of views.values()) if (o !== v && sitting(o) && o.spot.kind === 'waiting') standUp(o);
+    return inLine(v, 'waiting', approval);
   }
   if ((state === 'working' || state === 'error') && here?.desks?.length) return desk(v, here.desks);
   const corner = state === 'done' && here?.rest && station(v, here.rest);
   return corner ? inLine(v, 'done', corner) : null;
 }
-// A station as a friend's place, or null where the window crops it away: a friend sent there would
-// stop at the floor's edge, often behind the very furniture that shows (a short, wide window).
-const station = (v, point) => {
+/** A station as a friend's place, or null where the window crops it away: a friend sent there would
+ * stop at the floor's edge, often behind the very furniture that shows (a short, wide window). */
+export const station = (v, point) => {
   const at = stationAt(point),
     { w, h, top } = geometry(v.pet),
     x = (at.x - EDGE - sizeOf(v.pet) / 2) / w,
@@ -77,10 +80,10 @@ function stay(v) {
  * middle first, a body apart from the others waiting, never behind the dock. */
 export const frontSpot = v => inLine(v, 'waiting', { x: 0.5, y: 1 });
 
-// A place in line at `at` (a friend's place, 0 to 1 each way) for friends at the same kind of spot:
-// `at` itself, else a body to the right, the left, two to the right..., never behind the dock. Kept
-// as `v.spot` while the friend is there.
-function inLine(v, kind, at) {
+/** A place in line at `at` (a friend's place, 0 to 1 each way) for friends at the same kind of spot:
+ * `at` itself, else a body to the right, the left, two to the right..., never behind the dock. Kept
+ * as `v.spot` while the friend is there. */
+export function inLine(v, kind, at) {
   const { w, h, top } = geometry(v.pet),
     size = sizeOf(v.pet),
     step = Math.min(0.5, size / Math.max(1, w)),
@@ -97,16 +100,21 @@ function inLine(v, kind, at) {
   return { ...at };
 }
 
-// A desk for a working friend: its own one again when no one else sits there, else the first free
-// one (friends are seen to in the order they were added). With more working friends than desks, the
-// next stand beside one, a desk each side in turn; past that, a friend works where it stands.
+// A desk for a working friend: its own one again when no friend at work sits there, else the first
+// free one (friends are seen to in the order they were added); a friend only sitting there gets up.
+// With more working friends than desks, the next stand beside one, a desk each side in turn; past
+// that, a friend works where it stands.
 function desk(v, desks) {
-  const seated = [...views.values()].filter(o => o !== v && o.spot?.kind === 'desk'),
+  const seated = [...views.values()].filter(o => o !== v && o.spot?.kind === 'desk' && !sitting(o)),
     taken = new Set(seated.map(o => o.desk));
   if (!(v.desk >= 0 && v.desk < desks.length) || taken.has(v.desk)) v.desk = desks.findIndex((_, i) => !taken.has(i));
   let at;
-  if (v.desk >= 0) at = station(v, desks[v.desk]);
-  else {
+  if (v.desk >= 0) {
+    at = station(v, desks[v.desk]);
+    if (at)
+      for (const o of views.values())
+        if (o !== v && sitting(o) && o.spot.kind === 'desk' && o.desk === v.desk) standUp(o);
+  } else {
     const beside = seated.filter(o => o.desk < 0).length;
     if (beside >= desks.length * 2) return null;
     const point = desks[beside % desks.length],
@@ -118,4 +126,13 @@ function desk(v, desks) {
   if (!at) return null;
   v.spot = { kind: 'desk', ...at };
   return at;
+}
+
+/** Whether a friend is only sitting somewhere on its own (lounge.js), or on its way there. */
+export const sitting = v => !!v.spot?.idle;
+// A friend only sitting gives way: it lets go of its seat and walks back to its own place.
+function standUp(v) {
+  release(v);
+  v.spot = null;
+  sendTo(v, { x: v.pet.x, y: v.pet.y }, { save: false, slow: true, own: true });
 }

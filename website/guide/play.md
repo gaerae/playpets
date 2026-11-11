@@ -66,7 +66,7 @@ The three outdoor places each have their own house, four seasonal landscapes and
 
 **Cozy living room** brings the same calm style indoors. Its lighting changes through morning, midday, evening and night, and the windows show spring blossoms, autumn leaves and winter snow. Rain and snow stay beyond the glass.
 
-**Sunny office** and **Garden workshop** are rooms for friends who help a coding agent, each with four desks, a spot to wait for your approval and a corner to rest. The sky, the time of day and the weather show through their glass, and a free friend strolls around the room. [What friends do there](./agents.md#where-friends-go).
+**Sunny office** and **Garden workshop** are cozy rooms with two long tables, a tea corner with a checkers board and a bench at the front. Friends stroll, read at a table, have tea together or rest by the bench, and the sky, the time of day and the weather show through the glass. A friend linked to a coding agent works at the tables and waits on the bench when the agent needs your approval. [What friends do there](./agents.md#where-friends-go).
 
 You can pet friends, chat, grow flowers and play the games in every place, apart from the winter-only **Snowman**, which needs a yard that shows winter, so not the three rooms. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
 

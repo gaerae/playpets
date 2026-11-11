@@ -110,12 +110,13 @@
 
 - `office.png` (Sunny office) and `workshop.png` (Garden workshop) were made with the built-in image generation tool, with the existing places and companions as style references.
 - Briefs, not verbatim prompts:
-  - **Office:** a warm loft office from a gentle high three-quarter angle; four rounded wooden desks with small laptops, shelves, a coffee corner, a sofa corner and a reception desk with an in-tray and a bell at the front; tall windows across the back wall.
-  - **Workshop:** a glass-roofed workshop, half greenhouse, half pergola; four workbenches, hanging tools, a hammock corner and a small approval post with a paper tray and a bell at the front.
-  - Both: furniture at the friends' size, an open middle floor, no characters, text, letters or logos.
+  - **Office:** a warm loft office from a gentle high three-quarter angle; two long low tables with two chairs each on the far side, only books, paper and a pen cup on them; shelves, a coffee corner, a tea corner (round rug, cushions, teapot, cookies, a checkers board) and a cushioned waiting bench at the front with a call bell and a small lamp; tall windows across the back wall.
+  - **Workshop:** a glass-roofed workshop, half greenhouse, half pergola; two long potting tables with two stools each, only notebooks, seed packets, a trowel and seedlings on them; hanging tools, a tea corner under the vines and a garden bench at the front with a call bell and a lantern.
+  - Both: furniture at the friends' size, an open middle floor, no laptops or screens, no characters, text, letters or logos.
+  - Each was made from the room's first picture as a reference, with the living room and the friends for style and scale. The first pictures (four desks with laptops, a reception desk, a post) were replaced before release.
 - The window glass is transparent, so the app's live sky and weather show through it.
-- No scripted repainting was used. Desks, fronts, blocks and window panes were measured on the pictures and live in `src/content/worlds.json`.
+- No scripted repainting was used. Seats, fronts, blocks and window panes were measured on the pictures and live in `src/content/worlds.json`.
 - SHA-256:
-  - `office.png`: `ec4f5a0288157baec38cabe688ccbfc224bfc84f9059a06bf72251e76c907952`
-  - `workshop.png`: `24a27417c01ac4587460f9e44eb8d7d542dd6ed9977d67077fb665cd685fd81a`
+  - `office.png`: `b3f793dd6dd9812b2921d870c909a40d46fd0449d14c5c356d1be0825d88520a`
+  - `workshop.png`: `c228ffa2a713ebc32cb5b1031119fe7e6c62371f13ef446b267e4d796bc925a2`
 

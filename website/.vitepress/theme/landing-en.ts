@@ -18,7 +18,7 @@ export const copy = {
   releaseLabel: 'Version and release notes',
 };
 export const worldCopy = {
-  places: ['Hill garden', 'Stone courtyard', 'Lakeside cottage', 'Cozy living room'],
+  places: ['Hill garden', 'Stone courtyard', 'Lakeside cottage', 'Cozy living room', 'Sunny office', 'Garden workshop'],
   seasons: ['Spring', 'Summer', 'Autumn', 'Winter'],
   greetings: {
     daisy: 'There might be something lovely just around the corner.',
@@ -178,7 +178,7 @@ export const sections = {
       ['Garden', '—', 'Dig up seeds and saplings, plant flowers and trees, and set out the gifts friends bring'],
       ['Collecting', '—', 'Fish, catch bugs, dig and follow tracks to fill an album of {count} finds'],
       ['Seasons', '—', 'Cherry blossoms, firefly nights, a harvest moon, winter lights and the New Year'],
-      ['Places', '—', 'Four places or your own backgrounds, with time of day, weather and seasons'],
+      ['Places', '—', 'Six places or your own backgrounds, with time of day, weather and seasons'],
       ['Outfits', '—', 'Starter pets dress for the season; any pet file can add seasonal sheets'],
     ],
     source: 'Codex pet column: OpenAI’s pet guide, October 2026',

@@ -133,7 +133,9 @@ let observer: IntersectionObserver | undefined;
 let greetingTimer: ReturnType<typeof setTimeout> | undefined;
 const image = computed(() => {
   const suffix = ['spring', 'green', 'autumn', 'winter'][season.value];
-  const file = place.value === 3 ? 'studio-cozy-day' : `${['', 'courtyard-', 'lakeside-'][place.value]}${suffix}`;
+  // The rooms have one picture for every season.
+  const room = ['studio-cozy-day', 'office', 'workshop'][place.value - 3];
+  const file = room ?? `${['', 'courtyard-', 'lakeside-'][place.value]}${suffix}`;
   return sceneryUrl(file);
 });
 function greet(id: string) {
@@ -203,7 +205,7 @@ onBeforeUnmount(() => {
       <div v-if="loose" class="dock-row"><p class="dock-note">{{ words.desktopNote }}</p></div>
       <div v-else class="dock-row" role="group" :aria-label="words.sceneLabel">
         <div class="choice-group place-choices"><button v-for="(name, index) in words.places" :key="name" type="button" :aria-pressed="place === index" @click="place = index">{{ name }}</button></div>
-        <div class="choice-group" role="group" :aria-label="words.seasonLabel"><button v-for="(name, index) in words.seasons" :key="name" type="button" :aria-pressed="season === index" :disabled="place === 3" @click="season = index">{{ name }}</button></div>
+        <div class="choice-group" role="group" :aria-label="words.seasonLabel"><button v-for="(name, index) in words.seasons" :key="name" type="button" :aria-pressed="season === index" :disabled="place >= 3" @click="season = index">{{ name }}</button></div>
       </div>
       <div class="dock-row">
         <p class="dock-friend" aria-live="polite"><strong>{{ selectedFriend?.displayName }}</strong><span>{{ words.greetings[selected] }}</span></p>

@@ -133,6 +133,7 @@ const BUILT = [
   /^discovery\.((dig|tree)_hint|empty|seed|full)$/, // yard/discovery.js, by tool and by outcome
   /^track\.[a-z_]+$/, // panel/album.js, one per animal in the catalogue's tracks
   /^shoot\.[a-z_]+$/, // panel/album.js, yard/shoots.js, one per spring shoot in the catalogue's shoots
+  /^lounge\.(desk|done|waiting)$/, // yard/lounge.js, by the furniture a friend sits at
 ];
 
 // The other way round: a sentence nothing names is never shown, yet goes on being translated and
