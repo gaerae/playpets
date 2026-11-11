@@ -101,6 +101,18 @@ test('atmosphere owns season and sound; Friends & AI owns automatic chat', async
   assert.doesNotMatch(html, /id="(?:season|sound-on|settings-yard|scene-back|play-back)"/);
   const ai = html.slice(html.indexOf('id="settings-ai"'), html.indexOf('id="settings-agents"'));
   for (const id of ['ai-connections', 'ai-add', 'auto-chatter']) assert.ok(ai.includes(`id="${id}"`));
+  // Adding a connection stays in reach however many there are already.
+  assert.ok(ai.indexOf('id="ai-add"') < ai.indexOf('id="ai-connections"'));
+  // Coding tools open with one sentence; how the hook gets in waits behind a disclosure.
+  const agents = html.slice(
+    html.indexOf('id="settings-agents"'),
+    html.indexOf('class="link-list"', html.indexOf('id="settings-agents"')),
+  );
+  assert.match(agents, /data-i18n="settings\.agents_lead"/);
+  assert.match(
+    agents,
+    /<details class="settings-more"><summary data-i18n="settings\.agents_how"><\/summary><p class="settings-lead" data-i18n="settings\.agents_detail"><\/p><\/details>/,
+  );
   const general = html.slice(html.indexOf('id="settings-general"'), html.indexOf('id="settings-ai"'));
   assert.doesNotMatch(general, /id="auto-chatter"/);
   const about = html.slice(html.indexOf('id="settings-about"'), html.indexOf('</aside>'));
@@ -140,6 +152,48 @@ test('the tool strip takes the place of the dock, where Play was opened and just
   assert.match(shell, /\.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\) \.yard-dock\s*\{[^}]*display:\s*none/s);
   const garden = await read('src/styles/garden.css');
   assert.match(garden, /\.discovery-target\s*\{[^}]*position:\s*absolute;[^}]*right:\s*12px;[^}]*bottom:\s*12px/s);
+});
+
+test('the tree picker is one button with a menu of saplings, however many kinds there are', async () => {
+  const html = await read('src/index.html');
+  const strip = html.slice(html.indexOf('id="discovery-target"'), html.indexOf('id="scene-menu"'));
+  assert.match(strip, /id="discovery-tree-button"[^>]*aria-haspopup="menu"[^>]*aria-controls="discovery-tree-choices"/);
+  assert.match(strip, /id="discovery-tree-choices"[^>]*role="menu"[^>]*hidden/);
+  const garden = await read('src/styles/garden.css');
+  // A menu above the strip in a large window, where the strip stands on the ground's edge…
+  assert.match(
+    garden,
+    /\.tree-menu\s*\{[^}]*position:\s*absolute;[^}]*bottom:\s*calc\(100% \+ 6px\);[^}]*overflow-y:\s*auto/s,
+  );
+  const compact = await read('src/styles/compact.css');
+  // …and below it in a small window, where the strip is up in the sky.
+  assert.match(compact, /body\.compact \.tree-menu\s*\{[^}]*top:\s*calc\(100% \+ 6px\);[^}]*bottom:\s*auto/s);
+  const menu = await read('src/core/menu.js');
+  assert.match(menu, /menuitemradio/, 'the shared menu moves through and closes on a radio choice too');
+});
+
+test('a small window keeps the ground clear: the tool strip goes up into the sky, in one row', async () => {
+  const compact = await read('src/styles/compact.css');
+  const rule = selector => {
+    const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return compact.match(new RegExp(`(?:^|\\}|\\*/)\\s*${escapedSelector}\\s*\\{([^}]*)\\}`))?.[1] || '';
+  };
+  assert.match(rule('body.compact .discovery-target'), /top:\s*8px;[^}]*bottom:\s*auto/s);
+  assert.match(rule('body.compact .discovery-target'), /display:\s*grid;/);
+  // The instruction stays for screen readers; the tools, Close and the marker on the ground show the rest.
+  assert.match(rule('body.compact .discovery-target-heading'), /display:\s*contents/);
+  assert.match(rule('body.compact #discovery-target-label'), /clip-path:\s*inset\(50%\)/);
+  // The window's own buttons would land on the strip at the top; the strip's Close and Esc come first.
+  assert.match(
+    compact,
+    /body\.compact:has\(#discovery-target:not\(\[hidden\]\)\)\s*\.window-buttons\s*\{[^}]*display:\s*none/s,
+  );
+  const shell = await read('src/styles/shell.css');
+  // The lane of messages stays at the foot, below the ground, instead of rising over it.
+  assert.match(
+    shell,
+    /body\.compact \.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\) \.yard-feedback\s*\{[^}]*bottom:\s*8px/s,
+  );
 });
 
 test("Tab goes round a small window's panel instead of on to friends hidden behind it", () => {

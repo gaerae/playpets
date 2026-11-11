@@ -15,18 +15,13 @@
   flex-direction: column;
   gap: 12px;
 }
-@media (max-width: 760px) {
-  .shelf-section {
-    order: 3;
-  }
-}
 /* The invite shelf in groups by where the pet files live; each group says where, and can open it. */
 .shelf-group {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 6px;
 }
-@container panel (min-width: 460px) {
+@container panel (min-width: 420px) {
   .shelf-group {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -43,14 +38,14 @@
 }
 .shelf-group-head h4 {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--font-sm);
   font-weight: 700;
   color: var(--muted);
 }
 .button.text.shelf-open {
   min-height: 28px;
   padding: 5px 0;
-  font-size: 12px;
+  font-size: var(--font-sm);
   gap: 4px;
 }
 .shelf-open svg {
@@ -73,8 +68,8 @@
   max-width: 100%;
 }
 .asset-card:hover {
-  border-color: #9ab39a;
-  background: #f2f6ee;
+  border-color: var(--green-line);
+  background: var(--card-hover);
   box-shadow: 0 3px 10px var(--ink-8);
 }
 /* A pet brought in by hand: its card, with the button that takes it off the shelf beside it. */
@@ -108,7 +103,7 @@
 }
 .asset-info strong {
   display: block;
-  font-size: 13px;
+  font-size: var(--font-md);
   line-height: 1.45;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -116,7 +111,7 @@
 }
 .asset-info small {
   display: block;
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.5;
   margin-top: 1px;
   color: var(--muted);
@@ -127,7 +122,7 @@
   white-space: nowrap;
 }
 .add-mark {
-  color: #5c7565;
+  color: var(--green-ink);
   background: var(--soft);
   border-radius: 50%;
   width: 28px;
@@ -142,7 +137,7 @@
   display: block;
   margin-bottom: 4px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 .invite-search {
   width: 100%;
@@ -158,7 +153,7 @@
 }
 #panel-invite .section-heading p {
   margin-top: 0;
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.6;
 }
 #panel-invite .notice {
@@ -169,10 +164,6 @@
   .add-mark {
     background: var(--soft);
     color: var(--green-ink);
-  }
-  .asset-card:hover {
-    border-color: var(--green-line);
-    background: #2e3d31;
   }
   #panel-invite .notice {
     background: var(--paper);
@@ -190,7 +181,7 @@
   cursor: pointer;
   min-height: 36px;
   padding: 6px 2px;
-  font-size: 12px;
+  font-size: var(--font-sm);
   color: var(--muted);
 }
 

@@ -3,7 +3,7 @@
 .fact-chip {
   border-radius: 20px;
   padding: 3px 10px;
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 600;
   background: var(--white);
   border: 1px solid var(--line);
@@ -13,10 +13,10 @@
   flex: none;
   padding: 3px 9px;
   min-height: 28px;
-  border: 1px solid #f1cfe0;
+  border: 1px solid var(--pink-line);
   border-radius: 99px;
-  background: #fdf0f6;
-  color: #8a3b5c;
+  background: var(--pink-soft);
+  color: var(--pink-ink);
   font: inherit;
   font-weight: 650;
   cursor: pointer;
@@ -27,20 +27,20 @@
   color: var(--muted);
 }
 .relation-chip:hover {
-  border-color: #e3a9c3;
+  border-color: var(--pink-line-strong);
 }
 .relation-chip[data-relation="friend"]:hover {
   border-color: var(--line);
   color: var(--ink);
 }
 .fact-chip.agent {
-  color: #6b4b14;
-  border-color: #f0ddb8;
-  background: #fff6e4;
+  color: var(--amber-ink);
+  border-color: var(--amber-line);
+  background: var(--amber-soft);
 }
 .pet-id {
   display: block;
-  font-size: 10px;
+  font-size: var(--font-xs);
   color: var(--muted);
   margin-top: 10px;
   word-break: break-all;
@@ -141,7 +141,7 @@
   object-position: center 32%;
 }
 .appearance-card strong {
-  font-size: 13px;
+  font-size: var(--font-md);
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -152,7 +152,7 @@
   gap: 2px;
 }
 .friend-id h3 {
-  font-size: 15px;
+  font-size: var(--font-lg);
   font-weight: 750;
   letter-spacing: -0.3px;
   overflow: hidden;
@@ -161,7 +161,7 @@
 }
 .friend-select {
   justify-self: start;
-  font-size: 15px;
+  font-size: var(--font-lg);
   font-weight: 750;
   letter-spacing: -0.3px;
   padding: 3px 24px 3px 6px;
@@ -185,7 +185,7 @@
   align-items: center;
   gap: 4px 8px;
   min-width: 0;
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 .status-pill[hidden] {
   display: none;
@@ -198,8 +198,8 @@
   white-space: nowrap;
   padding: 1px 7px;
   border-radius: 99px;
-  background: #edf4e9;
-  color: #4c6a49;
+  background: var(--green-soft);
+  color: var(--green-ink);
   font-weight: 650;
 }
 .bond-row {
@@ -217,14 +217,14 @@
   align-items: center;
   gap: 3px;
   flex: none;
-  color: #b2475f;
+  color: var(--pink-ink);
   font-weight: 650;
 }
 .bond-level svg {
   width: 12px;
   height: 12px;
-  fill: #f08aa0;
-  stroke: #c9576f;
+  fill: var(--heart);
+  stroke: var(--heart-deep);
 }
 .bond-bar {
   flex: 1;
@@ -232,14 +232,14 @@
   max-width: 90px;
   height: 5px;
   border-radius: 99px;
-  background: #f6dde2;
+  background: var(--pink-soft);
   overflow: hidden;
 }
 .bond-bar i {
   display: block;
   height: 100%;
   border-radius: 99px;
-  background: #ec7d96;
+  background: var(--heart);
   transition: width 0.6s;
 }
 /* Progress stays a quiet wrapping line below the identity, leaving room for conversation. */
@@ -247,7 +247,7 @@
   flex: none;
   margin: 4px 0 0;
   padding: 0;
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.5;
   color: var(--muted);
 }
@@ -293,7 +293,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
   background: var(--white);
-  box-shadow: 0 12px 32px var(--ink-15);
+  box-shadow: var(--shadow-menu);
   display: grid;
 }
 .pop-menu[hidden] {
@@ -308,7 +308,7 @@
   border-radius: var(--radius-control);
   background: none;
   color: var(--ink);
-  font-size: 12.5px;
+  font-size: var(--font-md);
   font-weight: 550;
   text-align: left;
   cursor: pointer;
@@ -329,7 +329,7 @@
 }
 .pop-menu [role="menuitem"].danger,
 .pop-menu [role="menuitem"].danger svg {
-  color: #b5452e;
+  color: var(--danger);
 }
 .pop-menu hr {
   border: 0;
@@ -339,32 +339,6 @@
 /* These surfaces belong to the friend, rather than changing the landscape's daylight colours. */
 .side-panel:has(#panel-pet:not([hidden])) {
   background: var(--sheet);
-}
-@media (prefers-color-scheme: dark) {
-  .relation-chip {
-    border-color: #7f5562;
-    background: var(--pink-soft);
-    color: var(--pink-ink);
-  }
-  .status-pill {
-    background: #3c4e38;
-    color: var(--green-ink);
-  }
-  .bond-level {
-    color: #f5aac0;
-  }
-  .bond-bar {
-    background: #69424e;
-  }
-  .fact-chip.agent {
-    background: #493e29;
-    border-color: #796d4e;
-    color: #f0d399;
-  }
-  .pop-menu [role="menuitem"].danger,
-  .pop-menu [role="menuitem"].danger svg {
-    color: var(--danger);
-  }
 }
 
 /* Small windows (body.compact, window.js): the friend's head and its extras fold away. */
@@ -390,7 +364,7 @@ body.compact .avatar canvas {
 }
 body.compact .friend-select,
 body.compact .friend-id h3 {
-  font-size: 14px;
+  font-size: var(--font-base);
 }
 body.compact .friend-select {
   min-height: 24px;
@@ -400,7 +374,11 @@ body.compact .friend-select {
 body.compact .friend-sub {
   margin-top: 0;
 }
-body.compact .friend-sub .status-pill,
+@media (pointer: coarse) {
+  body.compact .friend-select {
+    min-height: 44px;
+  }
+}
 body.compact .bond-row,
 body.compact .bond-next,
 body.compact .friend-chips,
@@ -415,7 +393,7 @@ body.compact .empty-panel {
   min-height: 0;
   gap: 10px;
 }
-@media (max-height: 300px) {
+@media (max-height: 280px) {
   body.compact .friend-sub {
     display: none;
   }

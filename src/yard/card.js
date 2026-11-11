@@ -87,7 +87,15 @@ function draw(args) {
   drawn = args;
   const [svg, name, detail, first, book] = args;
   const card = $('catch-card');
-  card.innerHTML = `<div class="catch-specimen">${svg}</div><div class="catch-copy"><strong></strong><small></small>${first ? '<small class="catch-new"></small>' : ''}</div><button class="icon-button catch-dismiss" type="button"><span data-icon="close"></span></button>`;
+  // A new find also carries a short word, which a small window shows beside the name instead of the
+  // sentence (compact.css); news in its own words keeps them.
+  const news =
+    first === true
+      ? '<small class="catch-new"></small><small class="catch-new-short"></small>'
+      : first
+        ? '<small class="catch-new"></small>'
+        : '';
+  card.innerHTML = `<div class="catch-specimen">${svg}</div><div class="catch-copy"><strong></strong><small></small>${news}</div><button class="icon-button catch-dismiss" type="button"><span data-icon="close"></span></button>`;
   const close = card.querySelector('.catch-dismiss');
   // The card's own click (setupCard) puts it away, Close included.
   close.setAttribute('aria-label', t('common.close'));
@@ -96,6 +104,7 @@ function draw(args) {
   card.querySelector('small').textContent = detail;
   if (first) {
     card.querySelector('.catch-new').textContent = first === true ? t('catch.new') : first;
+    if (first === true) card.querySelector('.catch-new-short').textContent = t('catch.new_short');
     if (book) {
       remember('album-new', '1');
       syncNew();

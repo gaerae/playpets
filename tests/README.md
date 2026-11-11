@@ -12,7 +12,7 @@
 
 | Area | Examples |
 | --- | --- |
-| Page rules and shared state | `modules`, `animation`, `i18n`, `keys`, `ui-style` |
+| Page rules and shared state | `modules`, `animation`, `i18n`, `keys`, `ui-style`, `contrast` |
 | Yard behavior and lifecycle | `garden`, `fishing-style`, `catch-*`, `worlds`, `*-lifecycle` |
 | Panels and recovery | `chat-*`, `invite*`, `settings-*`, `friend-*` |
 | Artwork and creator files | `atlas`, `*-art`, `creator-*`, `companion-*` |

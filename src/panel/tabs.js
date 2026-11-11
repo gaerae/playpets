@@ -45,7 +45,16 @@ function selectSettingsSection(section, focus = false, reread = true) {
     // when it is opened, not when the window only changes size around it.
     if (!body.hidden && (reread || was)) body.dispatchEvent(new Event('settings-shown'));
   }
+  syncBack();
   if (focus) $('panel-title').focus({ preventScroll: true });
+}
+// Back is shown only where there is a step behind: the list of sections from one section in a small
+// window, or the menu the panel was opened from. A chat opened from a name tag has neither.
+let fromMenu = false;
+function syncBack() {
+  const settings = $('panel-settings');
+  const inSection = !!settings && !settings.hidden && !sideBySide() && !!$('settings-home')?.hidden;
+  if ($('panel-menu')) $('panel-menu').hidden = !(inSection || fromMenu);
 }
 function showSettingsHome() {
   closeUpdateDetails();
@@ -55,6 +64,7 @@ function showSettingsHome() {
   $('panel-title').textContent = t('tabs.settings');
   $('panel-menu')?.setAttribute('aria-label', t('controls.back'));
   $('panel-menu')?.setAttribute('title', t('controls.back'));
+  syncBack();
 }
 let panelOpener = null;
 let beforePanelOpen = () => {};
@@ -87,8 +97,14 @@ function closePanel() {
   (opener || (compact && (views.get(selected)?.button || $('yard'))) || $('yard-controls-toggle') || tab)?.focus();
   panelOpener = null;
 }
-export function openPanel(kind, section) {
+/** Opens a panel (null closes it); `fromMenu` when Friends & settings opened it, so Back returns there. */
+export function openPanel(kind, section, { fromMenu: viaMenu = false } = {}) {
   if (!kind) closeUpdateDetails();
+  fromMenu = !!kind && viaMenu;
+  // Settings lies over the yard behind a scrim, so the yard takes no focus or click until it goes;
+  // a friend's or Invite's sheet stands beside the yard and leaves it in reach.
+  const stage = document.querySelector('.stage');
+  if (stage) stage.inert = kind === 'settings';
   // Leaving Settings folds an AI connection being edited there; its form goes back to its dialog.
   if (kind !== 'settings' && $('panel-settings') && !$('panel-settings').hidden) closeConnectionEditor();
   if (kind) {
@@ -119,6 +135,7 @@ export function openPanel(kind, section) {
   } else {
     $('panel-menu')?.setAttribute('aria-label', t('controls.back'));
     $('panel-menu')?.setAttribute('title', t('controls.back'));
+    syncBack();
   }
   if (kind === 'pet') chatShown();
   // A chat is for writing in, whichever way it was reached.
@@ -141,7 +158,9 @@ export function setupTabs({ beforeOpen = () => {} } = {}) {
   });
   for (const tab of document.querySelectorAll('.panel-tab[data-panel]'))
     tab.onclick = () =>
-      openPanel(tab.getAttribute('aria-expanded') === 'true' ? null : tab.dataset.panel, tab.dataset.settingsSection);
+      openPanel(tab.getAttribute('aria-expanded') === 'true' ? null : tab.dataset.panel, tab.dataset.settingsSection, {
+        fromMenu: !!tab.closest?.('#yard-controls-panel'),
+      });
   // Closing with the panel's own button leaves the focus on the tab it belonged to, not lost on the page.
   $('close-panel').onclick = closePanel;
   // The brand goes "home": the yard alone, the panel closed.
@@ -154,7 +173,8 @@ export function setupTabs({ beforeOpen = () => {} } = {}) {
     if (e.target === $('layout') && $('layout').classList.contains('settings-open')) openPanel(null);
   });
   document.addEventListener('keydown', e => {
-    if (e.key !== 'Tab' || sideBySide()) return;
+    // Settings is a sheet over the yard at any size; the other panels only in a small window.
+    if (e.key !== 'Tab' || (sideBySide() && !$('layout').classList.contains('settings-open'))) return;
     const sheet = SHEETS.map(id => $(id)).find(node => node && !node.hidden && node.contains(document.activeElement));
     if (!sheet) return;
     const next = wrapTab(tabStops(sheet), document.activeElement, e.shiftKey);
