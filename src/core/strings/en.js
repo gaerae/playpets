@@ -855,8 +855,10 @@ export const strings = {
   'update.installing': 'Installing… PlayPets will restart soon',
   'settings.agents_tab': 'Coding tools',
   'settings.about_tab': 'About PlayPets',
-  'settings.agents_lead':
-    'Your friend reacts while the agent works, and tells you about recent work when you ask “what were you doing?”. Press Connect beside your tool and PlayPets adds its hook to that tool’s settings file. To add it yourself, copy the settings and paste them in. Pick a friend for each tool and that friend reacts.',
+  'settings.agents_lead': 'Your friend reacts while the agent works. Press Connect beside the tool you use.',
+  'settings.agents_how': 'What connecting does',
+  'settings.agents_detail':
+    'Ask your friend “what were you doing?” and it tells you about recent work. Connect adds PlayPets’ hook to that tool’s settings file. To add it yourself, copy the settings and paste them in. Pick a friend for each tool and that friend reacts.',
   'settings.recommended': 'Recommended',
   'settings.auto_chatter': 'Let them chat now and then',
   'settings.auto_chatter_note': 'AI-connected friends chat every 20 minutes, pausing when hidden or busy.',

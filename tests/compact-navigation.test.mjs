@@ -101,6 +101,18 @@ test('atmosphere owns season and sound; Friends & AI owns automatic chat', async
   assert.doesNotMatch(html, /id="(?:season|sound-on|settings-yard|scene-back|play-back)"/);
   const ai = html.slice(html.indexOf('id="settings-ai"'), html.indexOf('id="settings-agents"'));
   for (const id of ['ai-connections', 'ai-add', 'auto-chatter']) assert.ok(ai.includes(`id="${id}"`));
+  // Adding a connection stays in reach however many there are already.
+  assert.ok(ai.indexOf('id="ai-add"') < ai.indexOf('id="ai-connections"'));
+  // Coding tools open with one sentence; how the hook gets in waits behind a disclosure.
+  const agents = html.slice(
+    html.indexOf('id="settings-agents"'),
+    html.indexOf('class="link-list"', html.indexOf('id="settings-agents"')),
+  );
+  assert.match(agents, /data-i18n="settings\.agents_lead"/);
+  assert.match(
+    agents,
+    /<details class="settings-more"><summary data-i18n="settings\.agents_how"><\/summary><p class="settings-lead" data-i18n="settings\.agents_detail"><\/p><\/details>/,
+  );
   const general = html.slice(html.indexOf('id="settings-general"'), html.indexOf('id="settings-ai"'));
   assert.doesNotMatch(general, /id="auto-chatter"/);
   const about = html.slice(html.indexOf('id="settings-about"'), html.indexOf('</aside>'));

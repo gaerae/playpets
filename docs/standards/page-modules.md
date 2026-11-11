@@ -50,6 +50,41 @@
 - This order decides which media rules apply last and which of two equally specific rules wins.
 - Style select boxes completely instead of relying on the engine's default look. One stylesheet has to look the same in WebKit (macOS, Linux) and WebView2 (Windows).
 
+### Sizes, surfaces and window tiers
+- A size of words is one step of the type scale in `base.css`; nothing a person reads is under 11px.
+
+  | Token | Size | Used for |
+  |---|---|---|
+  | `--font-xs` | 11px | badges, counts, notes under a row |
+  | `--font-sm` | 12px | small-window rows, secondary labels |
+  | `--font-md` | 13px | body text, buttons, rows |
+  | `--font-base` | 14px | panel titles, names |
+  | `--font-lg` | 15px | a card's title |
+  | `--font-xl` | 17px | a dialog's title in a small window |
+  | `--font-display` | 18px | a dialog's title |
+
+- Drawn marks (a heart on a tag, a bite, a plus, a sparkle) keep their own sizes; they are pictures, not words.
+- Each kind of surface takes its width and shadow from one token, wherever it was opened from:
+
+  | Surface | Width | Shadow |
+  |---|---|---|
+  | Dock panel: Place & atmosphere, Play, Friends & settings | `--dock-panel-width` (360px) | `--shadow-dock` (also the right-click menu) |
+  | Menu opened from a control | its content | `--shadow-menu` |
+  | Sheet beside the yard: a friend, Invite | `--sheet-width` (440px) | `--shadow-sheet` |
+  | Settings over the yard | `--settings-width` × `--settings-height` (720 × 560px) | `--shadow-settings` |
+
+- A media query on the window's size uses one of these tiers:
+
+  | Tier | Query | What changes |
+  |---|---|---|
+  | Small window | `max-width: 640px`, `max-height: 480px` | `body.compact` (`src/window.js`); dialogs fill the window |
+  | Small but wide | `min-width: 480px` | a small window's sheets keep their width instead of spanning it |
+  | Tiniest | `max-width: 400px`, `max-height: 280px` | notes, pictures and suggestions give way to the controls |
+  | Narrowest | `max-width: 360px` | icons beside names give way |
+  | Wide | `max-width: 1100px`, `min-width: 640px` | the header's subtitle; the empty yard's four picks |
+
+- A new tier changes the list in `tests/ui-style.test.mjs` and this table together.
+
 ### Shortcuts, menus and classes
 - A keyboard shortcut is a row in `SHORTCUTS` (`src/core/keys.js`).
   - The module that owns the action registers it with `onShortcut`.
@@ -135,6 +170,7 @@ Breaking a rule without recording an exception is a violation, not an exception.
   - a declaration always replaced by a later rule for the same selector (such as a media rule written before the base rule it is meant to change)
   - a custom property a stylesheet reads that no stylesheet defines and no code sets
   - a token with only a dark value read by a rule that is not dark
+  - a font size off the type scale, and a media query on the window's size off the tiers
   - It does not check whether two different selectors compete for one element after rules are reordered; review that when you move rules between files.
 - `tests/i18n.test.mjs` catches Korean left in page code and markup, and keys missing from the table.
 - Oxlint in `pnpm run lint:oxlint`:
@@ -167,6 +203,7 @@ All of these run with `pnpm test` and `pnpm run lint`, and CI runs the same comm
 - 2026-10-12 The mini window's changes to the panel go at the end of the panel's files; shared colours as tokens in `base.css` (a recommendation); `ui-style.test.mjs` checks custom properties
 - 2026-10-15 Menu and task-panel components share surface, shape and state roles; close actions no longer have a separate circular style
 - 2026-10-30 Oxfmt formats and sorts imports in place of Biome, and Oxlint takes over Biome's JavaScript checks; Biome keeps linting CSS alone, and JSON has no linter beyond the repository's tests
+- 2026-11-11 A type scale, one width and shadow per kind of surface, and named window-size tiers, each checked by `ui-style.test.mjs`
 
 ## Quiet yard controls
 

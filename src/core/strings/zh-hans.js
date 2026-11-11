@@ -814,8 +814,10 @@ export const strings = {
   'update.installing': '正在安装……PlayPets 即将重新启动',
   'settings.agents_tab': '编码工具连接',
   'settings.about_tab': '关于 PlayPets',
-  'settings.agents_lead':
-    '代理工作时，伙伴会跟着做出反应。问伙伴“刚才在做什么？”，它会说说最近的工作。点所用工具旁的“连接”，PlayPets 会把钩子加进该工具的设置文件。想自己加的话，复制设置后粘贴进去即可。为每个工具指定负责的伙伴，就由那位伙伴来反应。',
+  'settings.agents_lead': '代理工作时，伙伴会跟着做出反应。点所用工具旁的“连接”即可。',
+  'settings.agents_how': '连接后会怎样',
+  'settings.agents_detail':
+    '问伙伴“刚才在做什么？”，它会说说最近的工作。点“连接”后，PlayPets 会把钩子加进该工具的设置文件。想自己加的话，复制设置后粘贴进去即可。为每个工具指定负责的伙伴，就由那位伙伴来反应。',
   'settings.recommended': '推荐',
   'settings.auto_chatter': '偶尔让伙伴们自己聊聊',
   'settings.auto_chatter_note': '接上 AI 的伙伴每 20 分钟聊天，窗口隐藏或回复中会暂停。',

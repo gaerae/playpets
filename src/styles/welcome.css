@@ -23,11 +23,11 @@
   display: none;
 }
 .empty-yard p {
-  font-size: 15px;
+  font-size: var(--font-lg);
   font-weight: 700;
 }
 .empty-yard small {
-  font-size: 12px;
+  font-size: var(--font-sm);
   color: var(--muted);
 }
 /* An empty yard asks who to play with: the starter pets, each a big button that waves back. */
@@ -43,7 +43,7 @@
   display: none;
 }
 .welcome-title {
-  font-size: 17px;
+  font-size: var(--font-xl);
 }
 .starter-picks {
   display: grid;
@@ -64,7 +64,7 @@
   background: var(--soft);
   color: var(--ink);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--font-md);
   font-weight: 700;
   cursor: pointer;
   transition:
@@ -88,13 +88,13 @@
   opacity: 0.6;
   cursor: progress;
 }
-@media (min-width: 620px) {
+@media (min-width: 640px) {
   .starter-picks {
     grid-template-columns: repeat(4, minmax(0, 112px));
   }
 }
 .welcome .button.text {
-  font-size: 12px;
+  font-size: var(--font-sm);
   color: var(--muted);
   min-height: 28px;
   padding: 4px 8px;
@@ -117,7 +117,7 @@
   gap: 6px;
 }
 .empty-yard.aside p {
-  font-size: 12.5px;
+  font-size: var(--font-md);
 }
 .steps-list {
   list-style: none;
@@ -127,7 +127,7 @@
   gap: 6px;
   width: 100%;
   text-align: left;
-  font-size: 12.5px;
+  font-size: var(--font-md);
 }
 .steps-list li {
   display: flex;
@@ -161,7 +161,7 @@
 }
 .empty-yard .steps-list .button {
   min-height: 26px;
-  font-size: 11px;
+  font-size: var(--font-xs);
   padding: 3px 10px;
   margin: 0;
 }
@@ -169,7 +169,7 @@
   min-height: 0;
   padding: 0;
   margin: 2px 0 0;
-  font-size: 11px;
+  font-size: var(--font-xs);
   color: var(--muted);
   align-self: flex-end;
 }

@@ -194,7 +194,7 @@
   cursor: pointer;
 }
 .pet-tag {
-  font-size: 11px;
+  font-size: var(--font-xs);
   color: var(--scene-ink);
   font-weight: 650;
   background: var(--scene-label-soft);
@@ -256,7 +256,7 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: #2f6a92;
   white-space: nowrap;
@@ -331,7 +331,7 @@
   background: var(--scene-label);
   border: 1px solid var(--scene-line);
   box-shadow: 0 4px 12px #213e4314;
-  font-size: 11px;
+  font-size: var(--font-xs);
   line-height: 1.45;
   color: var(--scene-ink);
   text-align: center;

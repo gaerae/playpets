@@ -19,20 +19,20 @@
   pointer-events: none;
 }
 .game-banner small {
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 700;
   letter-spacing: 0.3px;
   color: var(--muted);
 }
 .game-banner strong {
-  font-size: 14px;
+  font-size: var(--font-base);
   font-weight: 800;
   letter-spacing: -0.4px;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 .game-banner span {
-  font-size: 12px;
+  font-size: var(--font-sm);
   color: var(--muted);
   line-height: 1.5;
 }
@@ -224,7 +224,7 @@
   background: var(--soft);
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--font-sm);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -300,12 +300,12 @@
 }
 .catch-card strong {
   display: block;
-  font-size: 15px;
+  font-size: var(--font-lg);
 }
 .catch-card small {
   display: block;
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: var(--font-sm);
 }
 .catch-card .catch-new {
   color: var(--accent);
@@ -341,7 +341,7 @@
   left: 8px;
   right: 8px;
   top: 8px;
-  max-width: 420px;
+  max-width: var(--dock-panel-width);
   max-height: min(360px, calc(100% - 16px));
   margin-inline: auto;
   display: flex;
@@ -351,7 +351,7 @@
   border-radius: var(--radius-panel);
   background: var(--menu-surface);
   color: var(--ink);
-  box-shadow: 0 8px 24px var(--ink-12);
+  box-shadow: var(--shadow-dock);
 }
 .play-board[hidden],
 .play-actions[hidden] {
@@ -378,7 +378,7 @@
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.3;
   cursor: pointer;
 }
@@ -413,7 +413,7 @@
 }
 .play-board .play-empty {
   padding: 6px;
-  font-size: 13px;
+  font-size: var(--font-md);
   color: var(--muted);
   line-height: 1.5;
 }
@@ -428,6 +428,7 @@ body:not(.compact) .play-board {
   right: 12px;
   bottom: 64px;
   left: auto;
+  width: min(var(--dock-panel-width), calc(100% - 24px));
   margin-inline: 0;
 }
 

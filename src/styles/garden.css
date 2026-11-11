@@ -202,7 +202,7 @@
   background: #fffaf5;
   box-shadow: 0 1px 2px #5a3b2a40;
   color: #ec7d96;
-  font-size: 10px;
+  font-size: var(--font-xs);
   line-height: 1;
   pointer-events: none;
   opacity: 0;
@@ -823,7 +823,7 @@
   background: var(--message-surface);
   box-shadow: var(--message-shadow);
   color: var(--ink);
-  font-size: 12px;
+  font-size: var(--font-sm);
   /* not the yard's hand over something to catch (play.css) */
   cursor: default;
 }
@@ -906,7 +906,7 @@
   justify-content: space-between;
   gap: 6px;
   padding-left: 6px;
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 .discovery-target-heading .icon-button {
   width: 32px;
@@ -935,7 +935,7 @@
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--font-sm);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -968,7 +968,7 @@
   background: var(--control-selected);
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--font-sm);
   cursor: pointer;
 }
 .tree-button > span:first-child {
@@ -1000,7 +1000,7 @@
   border-radius: var(--radius-panel);
   /* Solid: it lies over the strip's own words, which a see-through menu would let show. */
   background: var(--panel-surface);
-  box-shadow: 0 12px 32px var(--ink-15);
+  box-shadow: var(--shadow-menu);
 }
 .tree-menu[hidden] {
   display: none;
@@ -1013,7 +1013,7 @@
   background: none;
   color: var(--ink);
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--font-md);
   text-align: left;
   white-space: nowrap;
   cursor: pointer;

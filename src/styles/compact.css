@@ -4,7 +4,7 @@
    the side panel's in panel.css, invite.css, friend.css, chat.css and settings.css, dialogs in
    dialog.css). */
 body.compact .pet-tag {
-  font-size: 12px;
+  font-size: var(--font-sm);
   padding: 2px 6px;
   visibility: hidden;
 }
@@ -118,7 +118,7 @@ body.compact .yard-controls-panel {
 body.compact #yard-controls-panel {
   left: auto;
   bottom: auto;
-  width: min(320px, calc(100% - 16px));
+  width: min(var(--dock-panel-width), calc(100% - 16px));
 }
 /* Section names stay for screen readers; spacing and the dividers show the groups. */
 body.compact .dock-section-label {
@@ -167,11 +167,11 @@ body.compact .background-gallery {
 body.compact .menu-destination {
   min-width: 0;
   padding: 4px;
-  font-size: 12px;
+  font-size: var(--font-sm);
   font-weight: 500;
 }
 body.compact .menu-destination-copy strong {
-  font-size: 12px;
+  font-size: var(--font-sm);
   font-weight: 500;
 }
 
@@ -181,7 +181,7 @@ body.compact .window-quick-actions > #fullscreen {
   min-width: 0;
   padding: 0 4px;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 body.compact #always-on-top > [data-icon] {
   display: none;
@@ -218,7 +218,7 @@ body.compact .catch-specimen {
   border-radius: 8px;
 }
 body.compact .catch-card strong {
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 body.compact .catch-card small:not(.catch-new, .catch-new-short) {
   display: none;
@@ -270,8 +270,14 @@ body.compact .empty-yard:not(.aside) {
 body.compact .yard-context-menu > button {
   min-height: 36px;
   padding: 6px 8px;
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.25;
+}
+/* A finger needs more than a pointer; the menu scrolls if the rows no longer fit. */
+@media (pointer: coarse) {
+  body.compact .yard-context-menu > button {
+    min-height: 44px;
+  }
 }
 
 /* A destination already owns the header; the quiet update chip returns with the scenery. */

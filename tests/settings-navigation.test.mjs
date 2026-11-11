@@ -110,6 +110,34 @@ test('Escape closes the Updates task in one step and clears its inline details',
   assert.equal(nodes.get('update-dialog').hidden, true);
 });
 
+test('Back shows only where there is a step to go back to', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { nodes } = page(t);
+  openPanel('invite');
+  assert.equal(nodes.get('panel-menu').hidden, true, 'a panel opened from a shortcut has no menu behind it');
+  openPanel('invite', undefined, { fromMenu: true });
+  assert.equal(nodes.get('panel-menu').hidden, false, 'opened from Friends & settings, Back returns there');
+  openPanel(null);
+  openPanel('settings', 'general-title');
+  assert.equal(nodes.get('panel-menu').hidden, false, 'a section in a small window goes back to the list');
+  await nodes.get('panel-menu').dispatch('click');
+  assert.equal(nodes.get('settings-home').hidden, false);
+  assert.equal(nodes.get('panel-menu').hidden, true, 'the list, opened directly, has nothing behind it');
+});
+
+test('Settings over a wide window keeps the keyboard inside it and the yard out of reach', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { nodes } = page(t, { wide: true });
+  const stage = element('section');
+  const query = document.querySelector;
+  document.querySelector = selector => (selector === '.stage' ? stage : query(selector));
+  openPanel('settings');
+  assert.equal(stage.inert, true, 'the yard under the scrim takes no focus or clicks');
+  assert.equal(nodes.get('panel-menu').hidden, true, 'opened directly, there is no Back beside the list');
+  openPanel('invite');
+  assert.equal(stage.inert, false, 'a sheet beside the yard leaves it in reach');
+});
+
 test('Back from a section always returns to the list of sections, however it was opened', async t => {
   const { nodes } = page(t);
   openPanel('settings', 'general-title');

@@ -15,6 +15,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In a small window, a new find's card takes one line: its name, a short "New" and its album button. The card still puts itself away on a click or after a while, so Close is left out there.
 - Planting a tree shows the sapling in hand as one button, and it opens a list of only the saplings you have. The tools stay one row however many kinds you find, and the list no longer covers the ground.
 - A flower keeps its kind a surprise until its bud shows: a seed, a sprout or leaves is "a flower yet to show", and pulling one up does not tell either. Finding a seed and the seed tool now say that the season it is planted in picks the flower.
+- Panels come in three sizes: Place & atmosphere, Play and Friends & settings share one width above the dock, a friend and Invite share one sheet width, and Settings is a smaller sheet that keeps one size from section to section, in small windows too.
+- A panel chosen from the right-click menu opens in its usual place above the dock instead of at the pointer.
+- Settings over a wide window keeps the keyboard inside it, and Back shows only where there is a step to go back to.
+- Text is never smaller than 11px: badges, counts and notes that were 8 to 10px grew to the smallest readable size, and the other sizes settled on one scale.
+- Coding tools opens with one sentence, and how connecting works waits behind "What connecting does". In Friends & AI, the button to connect an AI comes before the list.
+- In a short window, the message box keeps its own line, so its hint and the AI's name show whole.
+- In a small window, a friend's status shows under its name when the window has room for the line.
+- On a touch screen, Settings' sections, the right-click menu and the friend picker keep 44px targets in small windows too.
 
 ### Fixed
 
@@ -23,6 +31,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In a small window, the dig and planting tools no longer cover the ground they aim at: they sit in one row up in the sky, so any spot of ground can be chosen. Before, a window about 360 by 240 or smaller left none of it to click.
 - In a small window, the dig and planting tools no longer run into each other in English or Japanese.
 - The keyboard focus ring on the buttons in Play and Friends & settings is drawn whole instead of cut at the panel's edge.
+- In Japanese, the Updates row in Settings no longer runs the current version into the Check for updates button in a small window.
+- In the narrowest windows, Import background and Background studio stay on one line over the gallery, and Invite's title stays on one line beside Import's icon.
+- Settings' switches no longer turn smaller in windows narrower than about 860px.
 
 ### Website and docs
 

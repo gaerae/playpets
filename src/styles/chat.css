@@ -3,7 +3,7 @@
 .chat-placeholder {
   margin: 0;
   text-align: center;
-  font-size: 13px;
+  font-size: var(--font-md);
   line-height: 1.55;
   color: var(--muted);
   padding: 6px;
@@ -13,7 +13,7 @@
   padding: 7px 9px;
   border-radius: 12px;
   max-width: 95%;
-  font-size: 13px;
+  font-size: var(--font-md);
   line-height: 1.55;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -76,7 +76,7 @@
 }
 .message code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--font-sm);
   background: #213e4312;
   border-radius: 4px;
   padding: 1px 4px;
@@ -96,20 +96,20 @@
   color: var(--muted);
 }
 .waiting-clock {
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-variant-numeric: tabular-nums;
   opacity: 0.75;
 }
 .connect-cta {
   align-self: center;
-  font-size: 12px;
+  font-size: var(--font-sm);
   min-height: 36px;
   padding: 6px 12px;
   margin: 4px 0 0;
 }
 .message.peer b {
   display: block;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   color: #5a6f8a;
   margin-bottom: 2px;
@@ -138,7 +138,7 @@
   margin: 4px 0 0;
 }
 .chat-starters .button.chip {
-  font-size: 12px;
+  font-size: var(--font-sm);
   min-height: 32px;
 }
 /* The composer: the message, then a bar with the AI the friend talks with, who joins in, and send. */
@@ -165,7 +165,7 @@
   border: 0;
   border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   background: transparent;
-  font-size: 13px;
+  font-size: var(--font-md);
   line-height: 1.55;
   overflow-y: auto;
   box-shadow: none;
@@ -198,7 +198,7 @@
   border-radius: var(--radius-control);
   background-color: transparent;
   background-position: right 6px center;
-  font-size: 12px;
+  font-size: var(--font-sm);
   font-weight: 650;
   color: var(--muted);
   text-overflow: ellipsis;
@@ -222,7 +222,7 @@
   gap: 4px;
   padding: 4px 8px;
   border-radius: var(--radius-control);
-  font-size: 12px;
+  font-size: var(--font-sm);
   font-weight: 650;
   color: var(--muted);
   cursor: pointer;
@@ -254,7 +254,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
   background: var(--white);
-  box-shadow: 0 12px 32px var(--ink-15);
+  box-shadow: var(--shadow-menu);
   z-index: 3;
 }
 .send-button,
@@ -289,7 +289,7 @@
   margin-top: 6px;
 }
 .chat-note {
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.5;
   color: var(--muted);
 }
@@ -342,7 +342,7 @@ body.compact .composer textarea {
   max-height: 54px;
 }
 /* A rare conversation in a tiny yard keeps the next action visible, without introductory copy. */
-@media (max-height: 300px) {
+@media (max-height: 280px) {
   body.compact .chat-placeholder {
     display: none;
   }
@@ -356,27 +356,24 @@ body.compact .composer textarea {
     min-height: 32px;
     padding-block: 4px;
   }
-  /* The box, the AI and Send share a line, so an answer has room. */
-  body.compact .composer {
-    display: flex;
-    align-items: flex-end;
-  }
+  /* The message keeps its own row, so its words show whole; the bar under it is thinner, so an
+     answer still has room. */
   body.compact .composer textarea {
-    flex: 1;
-    min-width: 0;
-  }
-  body.compact .composer textarea:placeholder-shown {
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    min-height: 30px;
+    padding-top: 5px;
   }
   body.compact .composer-bar {
-    flex: none;
+    padding: 0 4px 2px;
   }
   body.compact .composer-select {
-    max-width: 64px;
+    max-width: 60%;
   }
-  body.compact .composer-gap,
   body.compact #companion-summary {
+    display: none;
+  }
+  /* No whole row is left for the suggestions; half a chip reads as broken, and the message box is
+     right there. */
+  body.compact .chat-starters {
     display: none;
   }
 }
@@ -391,7 +388,7 @@ body.compact .composer textarea {
   border-radius: var(--radius-card);
   background: var(--soft);
   color: var(--ink);
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.5;
 }
 .sign-in[hidden] {
@@ -399,7 +396,7 @@ body.compact .composer textarea {
 }
 .sign-in-title {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--font-md);
   font-weight: 700;
 }
 .sign-in-body {
@@ -414,7 +411,7 @@ body.compact .composer textarea {
 .sign-in-actions .button {
   min-height: 34px;
   padding: 5px 12px;
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 .sign-in-code {
   display: grid;
@@ -434,7 +431,7 @@ body.compact .composer textarea {
 .sign-in-code .button {
   min-height: 34px;
   padding: 5px 10px;
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 /* A small window keeps the message box in view: the card tightens, and the field's label is kept
    for screen readers only (its placeholder says the same). */
