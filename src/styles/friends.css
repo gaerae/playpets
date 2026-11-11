@@ -35,10 +35,12 @@
   touch-action: none;
   user-select: none;
 }
+/* Placed by translate and sized by its depth with scale, about its feet (yard/views.js place). */
 .yard-pet {
   position: absolute;
   left: 0;
   top: 0;
+  transform-origin: 50% 100%;
   padding: 0;
   touch-action: none;
   cursor: grab;
@@ -76,6 +78,25 @@
 .yard-pet.pressed > canvas {
   transform: scale(1.06, 0.92);
   transition-duration: 0.08s;
+}
+/* A walking friend bobs at each step and leans into it, on the compositor (yard/motion.js); a
+   stroll's steps are slower. Before the dizzy spin, which wins over it. */
+.yard-pet.walking > canvas {
+  animation: stroll 0.3s ease-in-out infinite alternate;
+}
+.yard-pet.walking.strolling > canvas {
+  animation-duration: 0.42s;
+}
+@keyframes stroll {
+  0% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-2.5%) rotate(0deg);
+  }
+  100% {
+    transform: rotate(2deg);
+  }
 }
 /* A friend spun round three times (touches.js) turns once more on its own, wobbles to a stop and
    sees stars for a moment. */
@@ -135,7 +156,8 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .yard-pet.dizzy > canvas,
-  .yard-pet.dizzy::after {
+  .yard-pet.dizzy::after,
+  .yard-pet.walking > canvas {
     animation: none;
   }
 }

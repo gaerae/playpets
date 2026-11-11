@@ -61,3 +61,34 @@ test('quiet companions greet without spontaneous jumping', () => {
   assert.deepEqual(wander.idleAction(rngOf([0.1, 0.8]), true), { type: 'pose', pose: 'wave' });
   assert.deepEqual(wander.idleAction(rngOf([0.9]), true), { type: 'move' });
 });
+
+// The lake and what stands on the field, in field units, as ground.js measures them.
+const pond = { water: [{ x: 0.5, y: 0.5, rx: 0.2, ry: 0.2 }], obstacles: [{ x: 0.9, y: 0.9, rx: 0.06, ry: 0.06 }] };
+
+test('a stroll stays out of the water and ends clear of what stands on the field', () => {
+  assert.ok(wander.strollClear({ x: 0.1, y: 0.1 }, { x: 0.2, y: 0.1 }, pond), 'dry ground is fine');
+  assert.ok(!wander.strollClear({ x: 0.1, y: 0.1 }, { x: 0.5, y: 0.5 }, pond), 'never into the lake');
+  assert.ok(!wander.strollClear({ x: 0.1, y: 0.5 }, { x: 0.9, y: 0.5 }, pond), 'never across it');
+  assert.ok(!wander.strollClear({ x: 0.8, y: 0.8 }, { x: 0.9, y: 0.9 }, pond), 'never onto a tree or a flower');
+  assert.ok(
+    wander.strollClear({ x: 0.5, y: 0.5 }, { x: 0.1, y: 0.1 }, pond),
+    'a friend set down in the water walks out',
+  );
+  assert.ok(
+    wander.strollClear({ x: 0.1, y: 0.5 }, { x: 0.9, y: 0.5 }, null),
+    'a place without ground notes has no water',
+  );
+});
+
+test('a friend picks a stroll the ground allows, and stays put when there is none', () => {
+  const dry = (from, to) => wander.strollClear(from, to, pond);
+  for (let i = 0; i < 300; i++) {
+    const from = { x: 0.1, y: 0.15 },
+      target = wander.wanderTarget(from, Math.random, dry);
+    if (target) assert.ok(dry(from, target), `the stroll to ${JSON.stringify(target)} is dry`);
+  }
+  assert.equal(
+    wander.wanderTarget({ x: 0.5, y: 0.5 }, Math.random, () => false),
+    null,
+  );
+});

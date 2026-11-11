@@ -10,18 +10,44 @@ import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
-import { petHeight } from './field.js';
+import { EDGE, geometry, petHeight, sizeOf, yardToField } from './field.js';
 import { visitTarget } from './garden.js';
+import { groundProfile } from './ground.js';
 import { sendTo } from './trips.js';
 import { place, pose } from './views.js';
-import { idleAction, WANDER_DELAY, wanderTarget } from './wander.js';
+import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
 
 // How far a friend walks in a millisecond, in field units: strolling, and going somewhere.
 export const STROLL = 0.00022;
 const WALK = 0.0005;
+// Where a friend's feet are when it stands at a place (0 to 1 each way), as the ground measures
+// the water and what stands on the field.
+function feetAt(v, at) {
+  const { w, h, top } = geometry(v.pet);
+  return yardToField(EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet));
+}
+// A stroll the ground allows: around the lake, not onto a tree, a flower or a gift.
+function dryStroll(v) {
+  const ground = groundProfile();
+  return (from, to) => strollClear(feetAt(v, from), feetAt(v, to), ground);
+}
+// A walking friend bobs at each step (friends.css .walking), more slowly on a stroll. Written only
+// when it changes; with reduced motion a friend does not walk, it is set down where it goes.
+function stepping(v, walking, strolling) {
+  if (v.walking === walking && v.strolling === strolling) return;
+  v.walking = walking;
+  v.strolling = strolling;
+  v.button.classList.toggle('walking', walking);
+  v.button.classList.toggle('strolling', walking && strolling);
+}
+// The body settles as a friend stops (a short squash on the compositor; the canvas's own
+// transitions stay for a press).
+const SETTLE = [{ transform: 'scale(1.05, 0.95)' }, { transform: 'none' }];
 export function moveFriends(now, dt) {
   for (const [id, v] of views) {
     if (game) clearCompanionAction(v);
+    const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
+    stepping(v, walking, !!v.trip?.slow && !v.speed);
     if (v.target && !v.drag && !v.frozen) {
       const dx = v.target.x - v.x,
         dy = v.target.y - v.y;
@@ -37,6 +63,8 @@ export function moveFriends(now, dt) {
           call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic')), { error: true }));
         // Arrivals such as fishing anchor their drawings to the friend's pixel position.
         place(v);
+        stepping(v, false, false);
+        if (!reduced.matches) v.canvas?.animate?.(SETTLE, { duration: 260, easing: 'ease-out' });
         trip?.arrive?.(v, now);
       } else {
         const step = Math.min(1, (dt * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
@@ -49,8 +77,10 @@ export function moveFriends(now, dt) {
       const quiet = document.body.classList.contains('compact');
       const action = idleAction(Math.random, quiet);
       if (action.type === 'pose') pose(v, action.pose, 1200);
-      else if (!visitTarget(v) && !decorTarget(v))
-        sendTo(v, wanderTarget({ x: v.x, y: v.y }, Math.random), { slow: true });
+      else if (!visitTarget(v) && !decorTarget(v)) {
+        const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v));
+        if (target) sendTo(v, target, { slow: true });
+      }
       v.nextWander = now + between(Math.random, WANDER_DELAY) * (quiet ? 1.8 : 1);
     }
     // Read as the dot and the overlay read it: an agent's done or error fades after a while.

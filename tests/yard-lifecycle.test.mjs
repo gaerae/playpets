@@ -92,6 +92,29 @@ test('a click on the name tag opens the conversation its tooltip promises', asyn
   assert.deepEqual(calls, [], 'talking is not a pat');
 });
 
+test('a double-click on a friend is two pats, and talking is on its menu, not a double-click', async t => {
+  const { pet } = yard(t);
+  const opened = [];
+  setupViews({
+    select() {},
+    patted() {},
+    openChat: id => opened.push(['chat', id]),
+    friendMenu: id => opened.push(['menu', id]),
+  });
+  syncViews();
+  const v = views.get(pet.id);
+  for (let i = 0; i < 2; i++) {
+    await v.button.fire('pointerdown');
+    await v.button.fire('pointerup');
+  }
+  await v.button.fire('dblclick');
+  await flush();
+  assert.deepEqual(opened, [], 'a double-click opens nothing');
+  assert.deepEqual(calls, ['pat', 'pat']);
+  await v.button.fire('contextmenu', { preventDefault() {}, clientX: 10, clientY: 10 });
+  assert.deepEqual(opened, [['menu', pet.id]], 'the right-click menu has Talk to');
+});
+
 for (const moved of [false, true])
   test(`cancelling a ${moved ? 'drag' : 'press'} neither pats nor saves the friend`, async t => {
     const { pet } = yard(t);
@@ -113,10 +136,10 @@ test('an arrow key moves the friend at once and saves where it stands', async t 
   setupViews({ select() {}, patted() {}, openChat() {} });
   syncViews();
   const v = views.get(pet.id),
-    before = v.button.style.transform;
+    before = v.button.style.translate;
   await v.button.dispatch('keydown', { key: 'ArrowRight' });
   assert.equal(Math.round(v.x * 100), 34);
-  assert.notEqual(v.button.style.transform, before, 'the friend is drawn where it went');
+  assert.notEqual(v.button.style.translate, before, 'the friend is drawn where it went');
   assert.deepEqual(calls, ['move']);
 });
 
