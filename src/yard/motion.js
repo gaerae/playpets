@@ -10,7 +10,7 @@ import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
-import { EDGE, geometry, petHeight, sizeOf, underDock, yardToField } from './field.js';
+import { dockBox, EDGE, geometry, petHeight, sizeOf, underDock, yardToField } from './field.js';
 import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { sendTo } from './trips.js';
@@ -30,11 +30,12 @@ const feetInYard = (v, at) => {
   return [EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet)];
 };
 // A stroll the ground allows: around the lake, not onto a tree, a flower or a gift, and not to a
-// stop behind the dock.
+// stop behind the dock. The dock is measured once for all the tries.
 function dryStroll(v) {
-  const ground = groundProfile();
+  const ground = groundProfile(),
+    dock = dockBox();
   return (from, to) =>
-    !underDock(...feetInYard(v, to), sizeOf(v.pet) / 2) && strollClear(feetAt(v, from), feetAt(v, to), ground);
+    !underDock(...feetInYard(v, to), sizeOf(v.pet) / 2, dock) && strollClear(feetAt(v, from), feetAt(v, to), ground);
 }
 // A walking friend bobs at each step (friends.css .walking), more slowly on a stroll. Written only
 // when it changes; with reduced motion a friend does not walk, it is set down where it goes.
@@ -45,9 +46,9 @@ function stepping(v, walking, strolling) {
   v.button.classList.toggle('walking', walking);
   v.button.classList.toggle('strolling', walking && strolling);
 }
-// The body settles as a friend stops (a short squash on the compositor; the canvas's own
-// transitions stay for a press).
-const SETTLE = [{ transform: 'scale(1.05, 0.95)' }, { transform: 'none' }];
+// The body settles as a friend stops: a short squash on the compositor, by scale alone, so what
+// the canvas's transform shows (a press, a tilt, a spin) goes on through it.
+const SETTLE = [{ scale: '1.05 0.95' }, { scale: '1' }];
 export function moveFriends(now, dt) {
   for (const [id, v] of views) {
     if (game) clearCompanionAction(v);

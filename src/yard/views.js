@@ -24,7 +24,20 @@ import {
 } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
-import { depthScale, EDGE, field, geometry, measureYard, petHeight, sizeOf } from './field.js';
+import {
+  depthAt,
+  depthScale,
+  dockBox,
+  EDGE,
+  field,
+  footOf,
+  footTarget,
+  geometry,
+  measureYard,
+  petHeight,
+  sizeOf,
+  underDock,
+} from './field.js';
 import { hint } from './hint.js';
 import { beginDrag, dragPoint, endDrag } from './props.js';
 import { release, rest } from './trips.js';
@@ -164,7 +177,18 @@ function fit(v) {
   // The body's room in the label follows the friend's depth (place).
   v.depth = null;
   place(v);
+  clearOfDock(v);
   keepInside(v);
+}
+/** Lifts a friend standing behind the dock to stand just above it, in view: one saved at the front
+ * edge before friends walked past the field's foot, one dropped there, or one the dock grew over. */
+export function clearOfDock(v) {
+  const box = dockBox();
+  if (!box) return;
+  const foot = footOf(v);
+  if (!underDock(foot.x, foot.y, sizeOf(v.pet) / 2, box)) return;
+  v.y = footTarget(v, foot.x, box.top, 0).y;
+  place(v);
 }
 export function place(v) {
   const { w, h, top } = geometry(v.pet);
@@ -174,10 +198,10 @@ export function place(v) {
   // place; the canvas inside keeps transform for a press, a tilt or a step.
   v.button.style.translate = `${v.px}px ${v.py}px`;
   v.label.style.transform = `translate(${v.px}px,${v.py}px)`;
-  // Nearer the bottom is nearer the viewer: drawn on top, in front of what stands behind it (the
-  // garden's plants and gifts share the layer and the scale). Written only when it changes: this
-  // runs every frame a friend moves.
-  const z = 1 + Math.round(v.y * 100);
+  // Nearer the bottom is nearer the viewer: drawn on top, in front of what stands behind it. By
+  // its feet, as the garden's plants and gifts in the same layer are (depthAt). Written only when
+  // it changes: this runs every frame a friend moves.
+  const z = depthAt(v.py + petHeight(v.pet));
   if (v.z !== z) {
     v.z = z;
     v.button.style.zIndex = String(z);
@@ -365,6 +389,7 @@ function createView(p) {
       return;
     }
     if (moved) {
+      clearOfDock(v);
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {
       // The tag says "Talk to …", so it opens the conversation; play is the friend's right-click.

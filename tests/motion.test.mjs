@@ -62,7 +62,9 @@ test('a friend bobs while it walks, more slowly on a stroll, and stops bobbing w
       trip: { save: false, slow: true },
       button: element(),
       label: element(),
+      canvas: { animate: frames => settled.push(frames) },
     };
+    const settled = [];
     views.clear();
     views.set('friend', friend);
     moveFriends(100, 50);
@@ -76,6 +78,9 @@ test('a friend bobs while it walks, more slowly on a stroll, and stops bobbing w
     moveFriends(200, 50);
     assert.equal(friend.target, null);
     assert.ok(!friend.button.classList.contains('walking'), 'standing still, it stops bobbing');
+    // It settles by scale alone, so a spin or a tilt on the canvas (transform) goes on through it.
+    assert.equal(settled.length, 1, 'it settles as it stops');
+    for (const frame of settled[0]) assert.deepEqual(Object.keys(frame), ['scale']);
     reduced.matches = true;
     friend.target = { x: 0.2, y: 0.5 };
     friend.trip = { save: false };
@@ -85,5 +90,46 @@ test('a friend bobs while it walks, more slowly on a stroll, and stops bobbing w
   } finally {
     views.clear();
     reduced.matches = previousReduced;
+  }
+});
+
+// Every try at a stroll asks whether it ends behind the dock; the dock is measured once for them all,
+// not once a try, as this runs in the frame loop.
+test('a friend choosing a stroll measures the dock once', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  let measured = 0;
+  globalThis.document.querySelector = selector => {
+    if (selector !== '.yard-dock') return null;
+    return {
+      getBoundingClientRect: () => {
+        measured++;
+        // Over the whole yard, so no try is allowed and every one of them asks.
+        return { left: 0, top: 0, width: 800, height: 560, right: 800, bottom: 560 };
+      },
+    };
+  };
+  const previousReduced = reduced.matches,
+    random = Math.random;
+  reduced.matches = false;
+  Math.random = () => 0.5;
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.5,
+      y: 0.5,
+      nextWander: 0,
+      button: element(),
+      label: element(),
+    };
+    views.clear();
+    views.set('friend', friend);
+    moveFriends(100, 16);
+    assert.equal(friend.target ?? null, null, 'nowhere was clear, so it stays');
+    assert.equal(measured, 1);
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+    Math.random = random;
   }
 });

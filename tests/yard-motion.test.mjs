@@ -62,6 +62,9 @@ test('a walking friend bobs on the compositor, and not with reduced motion', asy
     'a walking friend runs the stroll',
   );
   compositorOnly(keyframes(css, 'stroll'));
+  // A step moves the parts of a transform, so a press (transform) still squashes a walking friend.
+  for (const { body } of keyframes(css, 'stroll'))
+    assert.doesNotMatch(body, /(^|[\s;{])transform\s*:/, 'the stroll leaves transform to a press');
   assert.match(reducedRules(css), /\.yard-pet\.walking\s*>\s*canvas\s*\{[^}]*animation:\s*none/);
 });
 
