@@ -20,6 +20,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - A tree or a flower takes a click only where it is drawn, so a gift, a friend or the ground showing through its empty corners can be clicked.
 - The rainbow's end now glimmers only on ground not dug that day, so a dig there always finds something instead of saying the spot was already looked at, and it stops glimmering once dug.
+- In the album, the trees book counts the trees you grew in its own words instead of a flower's, and a gift's line says it was received instead of always saying it is in the yard.
 
 ### Website and docs
 

@@ -116,7 +116,7 @@ const BOOKS = {
       artSvg(k.stages.find(stage => stage.name === 'mature').art, unknown ? 'class="unknown-art"' : ''),
     name: k => t(`tree.${k.id}`),
     hint: favored,
-    record: entry => t('catch.grown', { count: entry.count }),
+    record: entry => t('catch.trees_grown', { count: entry.count }),
   },
   treasure: {
     tab: 'album.treasures',
@@ -166,6 +166,8 @@ const BOOKS = {
 };
 let book = 'flower';
 let rareTimer;
+/** The line under a found entry in a book: what was done with it (caught, grown, received). */
+export const recordLine = (id, entry) => BOOKS[id].record(entry);
 
 function card(b, kind, entry, index) {
   const el = document.createElement('div');
