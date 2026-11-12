@@ -30,7 +30,8 @@ const state = await import('../src/core/state.js');
 const { list, setLanguageForTests, t } = await import('../src/core/i18n.js');
 const { reduced } = await import('../src/core/sprites.js');
 const { giftKind } = await import('../src/yard/catalog.js');
-const { christmasNightCheck, percent, setupChristmasNight } = await import('../src/yard/christmas-night.js');
+const { christmasNightCheck, setupChristmasNight } = await import('../src/yard/christmas-night.js');
+const { percent } = await import('../src/core/math.js');
 const { refreshShownDecor, setupDecor } = await import('../src/yard/decor.js');
 const { ARC_MS, CHEER_AT, GLINT_STEP, SETTLE_MS, openDecorating, renderDecorating, setupDecorating } =
   await import('../src/yard/decorating.js');

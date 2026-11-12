@@ -715,7 +715,7 @@ test('the narrowest windows keep the Invite title on one line', async () => {
 // colours were spread over the rules, and some (the Remove button, the Quit hover, the Settings
 // shadow) stayed light in dark mode.
 test('the interface takes its colours from tokens', async () => {
-  const art = new Set(['scenery.css', 'garden.css', 'play.css']);
+  const art = new Set(['scenery.css', 'garden.css', 'play.css', 'worn.css']);
   const drawn =
     /\.(?:sun-dot|treat|yard-pet|pet-state-dot|particle|head-petal|album-specimen|album-card\.rare|decorating-stage|decorating-tree|ornament-glint|ornament-hook|decorating-bubble|decorating-status|decorating-kind|ornament-chip::before|pet-label\.dear)\b/;
   const raw = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\(|:(?:white|black)\b/i;

@@ -28,6 +28,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In a small window, a friend's status shows under its name when the window has room for the line.
 - On a touch screen, Settings' sections, the right-click menu and the friend picker keep 44px targets in small windows too.
 - A built snowman wears its scarf wrapped around its neck, redrawn as worn, and its hat on top of its head, a little askew, instead of a scarf laid on its chest and a hat pulled down to its eyes.
+- A snowman can go out on the desktop too, from its right-click menu. Out there, a snowman wears its scarf, hat and nose and the Christmas tree its ornaments, as in the yard; before, the tree went out bare.
 
 ### Fixed
 

@@ -14,8 +14,9 @@ const state = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
 const { artHref } = await import('../src/yard/art.js');
 const { giftKind, treeKind } = await import('../src/yard/catalog.js');
-const { renderDecor } = await import('../src/yard/decor.js');
-const { christmasNightCheck, percent, setupChristmasNight } = await import('../src/yard/christmas-night.js');
+const { renderDecor, shownDecor } = await import('../src/yard/decor.js');
+const { christmasNightCheck, setupChristmasNight } = await import('../src/yard/christmas-night.js');
+const { percent } = await import('../src/core/math.js');
 const { drawTreeOrnaments, freeHooks, hangable, leftToday, ornamentLook, ornamentSeason, treeOrnaments } =
   await import('../src/yard/ornaments.js');
 const { drawYard } = await import('./support/yard.mjs');
@@ -48,7 +49,7 @@ async function decorated(ctx, { now, scene = DAY, garden = {}, before } = {}) {
     garden: { decor: [TREE], received: ['xmas_tree'], ...garden },
     drawn: () => {
       christmasNightCheck();
-      drawTreeOrnaments();
+      drawTreeOrnaments(shownDecor('xmas_tree')?.button, state.data.garden);
     },
     setup: () => setupChristmasNight(),
     before,
@@ -276,10 +277,11 @@ test('a corrupt save with an inherited book name or a hook that is not a whole n
   assert.equal(named(layer, 'bauble')[0].style.left, percent(giftKind('xmas_tree').hooks[0][0]));
 });
 
-// garden.css rules as selector lists and declarations; nested blocks (@media, keyframes) give
-// entries no test asks for.
+// The yard's gift rules (garden.css, then worn.css, as index.html loads them) as selector lists and
+// declarations; nested blocks (@media, keyframes) give entries no test asks for.
 async function styles() {
-  const css = (await readFile('src/styles/garden.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const files = await Promise.all(['garden.css', 'worn.css'].map(f => readFile(`src/styles/${f}`, 'utf8')));
+  const css = files.join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
   return [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, head, body]) => ({
     selectors: head.split(',').map(s => s.trim()),
     props: Object.fromEntries(

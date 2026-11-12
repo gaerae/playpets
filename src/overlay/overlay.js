@@ -17,19 +17,21 @@ import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
 import { artSvg, loadArt } from '../yard/art.js';
+import { giftKind, useCatalog } from '../yard/catalog.js';
+import { wear, wearArt } from './wear.js';
 
 setupInteractions();
 document.documentElement.lang = language();
 const api = window.playPets,
   displayId = window.__DISPLAY,
   views = new Map(),
-  // Gifts out on the desktop, drawn once: nothing on them moves.
+  // Gifts out on the desktop: nothing on them moves; what they wear changes with the garden.
   decorations = new Map();
-// Each gift's drawing, from the catalogue the yard draws it by.
-const giftArt = fetch('content/catalog.json')
+// The catalogue the yard draws gifts by, and what they wear.
+const catalogue = fetch('content/catalog.json')
   .then(r => r.json())
-  .then(c => new Map(c.gifts.map(g => [g.id, g.art])))
-  .catch(() => new Map());
+  .then(useCatalog)
+  .catch(() => {});
 // A look lasts this long after the last pointer move: the window gets no pointerleave once
 // the cursor is off the friend and the window is click-through again.
 const LOOK_MS = 400;
@@ -146,12 +148,15 @@ function createDecor(id, kind) {
   button.setAttribute('aria-label', button.title);
   wrap.append(button);
   document.getElementById('friends').append(wrap);
-  const view = { wrap, button, kind, drag: null };
-  giftArt.then(async arts => {
-    const art = arts.get(kind);
+  const view = { id, wrap, button, kind, drag: null, drawn: false, worn: null, dressLayer: null };
+  catalogue.then(async () => {
+    const art = giftKind(kind)?.art;
     if (!art) return;
-    await loadArt([art]);
-    button.innerHTML = artSvg(art);
+    await loadArt(wearArt(kind));
+    // Under what it wears, which is drawn once the drawings it needs are in.
+    button.insertAdjacentHTML('afterbegin', artSvg(art));
+    view.drawn = true;
+    wear(view, data.garden);
   });
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
@@ -194,6 +199,7 @@ function renderDecor(local) {
       v = createDecor(position.id, position.decor);
       decorations.set(position.id, v);
     }
+    if (v.drawn) wear(v, data.garden);
     v.wrap.style.visibility = 'visible';
     v.wrap.style.width = `${position.width}px`;
     v.wrap.style.height = `${position.height}px`;

@@ -87,7 +87,6 @@ export function setupControls({
   putAway = () => {},
   dress = () => {},
   canDress = () => false,
-  canGoOut = () => true,
   letterReadable = () => false,
   openLetter = () => {},
 } = {}) {
@@ -187,12 +186,10 @@ export function setupControls({
         item => item.dataset.contextAction === `desktop-${forWhat}`,
       );
       check?.setAttribute('aria-checked', String(!!out?.onDesktop));
-      // A snowman is dressed where it stands and never goes out (snowman-dress.js).
+      // Only a snowman has things to wear (snowman-dress.js).
       if (forWhat === 'decor')
-        for (const item of context.querySelectorAll('[data-context-for]')) {
+        for (const item of context.querySelectorAll('[data-context-for]'))
           if (item.dataset.contextAction === 'dress-decor') item.hidden = !canDress(id);
-          if (item.dataset.contextAction === 'desktop-decor') item.hidden = !canGoOut(id);
-        }
     };
     const place = () => {
       if (context.hidden) return;

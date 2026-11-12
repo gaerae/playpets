@@ -88,8 +88,9 @@ test("a gift's menu sends it out to the desktop or puts it away", async t => {
   assert.equal(context.hidden, true);
 });
 
-// A snowman is dressed in the yard and stays there; other gifts go out and have nothing to wear.
-test("a snowman's menu dresses it and has no desktop item; a bench's is as before", async t => {
+// Everything the yard shows can go out on the desktop, a snowman too (the overlay draws what it
+// wears); only a snowman has things to wear.
+test("a snowman's menu dresses it and sends it out as any gift's does; a bench's has nothing to wear", async t => {
   const { context, shown, find } = menu(t, {
     decor: [
       { id: 's', kind: 'snowman', x: 0.5, y: 0.7 },
@@ -97,9 +98,9 @@ test("a snowman's menu dresses it and has no desktop item; a bench's is as befor
     ],
   });
   const dressed = [];
-  setupControls({ dress: id => dressed.push(id), canDress: id => id === 's', canGoOut: id => id !== 's' });
+  setupControls({ dress: id => dressed.push(id), canDress: id => id === 's' });
   openDecorMenu('s', { x: 40, y: 40 });
-  assert.deepEqual(shown(), ['dress-decor', 'put-away']);
+  assert.deepEqual(shown(), ['desktop-decor', 'dress-decor', 'put-away']);
   await context.dispatch('click', { target: find('dress-decor') });
   assert.deepEqual(dressed, ['s']);
   assert.equal(context.hidden, true);

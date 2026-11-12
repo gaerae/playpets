@@ -20,7 +20,7 @@
 // the event card's year is (festival.js): the app starts at login and reloads after an update, and
 // a page variable alone would play them again then. Losing them only means seeing them once more.
 
-import { between } from '../core/math.js';
+import { between, percent } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, data, forget, recall, remember, views } from '../core/state.js';
 import { artSize, artSvg } from './art.js';
@@ -118,8 +118,6 @@ const span = className => {
   node.className = className;
   return node;
 };
-/** A share of a layer (0 to 1) as the percentage a style takes, to a tenth: `0.29` is `29%`. */
-export const percent = share => `${+(share * 100).toFixed(1)}%`;
 // The grand tree's layers, made once inside the tree's button: sized from the two drawings and
 // standing on the same foot, taking no presses but through the tree-shaped handle ornaments.js adds.
 function layers(button) {

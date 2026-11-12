@@ -74,10 +74,6 @@ pub fn set(pets: &mut [Pet], garden: &mut Garden, id: &str, on: bool) -> Result<
     if let Some(p) = pets.iter_mut().find(|p| p.id == id) {
         p.on_desktop = on;
     } else if let Some(d) = garden.decor.iter_mut().find(|d| d.id == id) {
-        // A snowman belongs to the snowy yard (the overlay has no snow).
-        if on && crate::pets::content::catalog().is_built(&d.kind) {
-            return Err(i18n::t("error.bad_request"));
-        }
         d.on_desktop = on;
     } else {
         return Err(i18n::t("error.bad_request"));
@@ -138,18 +134,22 @@ mod tests {
         assert!(anything_out(&pets, &garden, Some(&[])), "the bench is still out");
     }
 
+    // Everything the yard shows can go out, the snowman too: the overlay draws what it wears.
     #[test]
-    fn a_snowman_does_not_go_out_on_the_desktop() {
+    fn a_snowman_goes_out_on_the_desktop_as_any_gift_does() {
         let (mut pets, mut garden) = yard();
         garden.decor.push(Decor {
             id: "snow".into(),
             kind: "snowman".into(),
+            dress: vec!["hat".into()],
             ..Decor::default()
         });
-        assert!(set(&mut pets, &mut garden, "snow", true).is_err());
+        set(&mut pets, &mut garden, "snow", true).unwrap();
+        assert!(garden.decor[1].on_desktop);
+        let out = items(&pets, &garden, Some(&[]));
+        assert_eq!(out[0].decor.as_ref().map(|d| d.0.as_str()), Some("snowman"));
+        set(&mut pets, &mut garden, "snow", false).unwrap();
         assert!(!garden.decor[1].on_desktop);
-        assert!(set(&mut pets, &mut garden, "snow", false).is_ok());
-        assert!(set(&mut pets, &mut garden, "bench", true).is_ok() && garden.decor[0].on_desktop);
     }
 
     #[test]

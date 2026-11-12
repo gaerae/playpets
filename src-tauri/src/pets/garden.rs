@@ -264,8 +264,7 @@ fn decor_place(x: f64, y: f64) -> Option<(f64, f64)> {
     Some((place(x)?, y.is_finite().then(|| y.clamp(0.0, DECOR_FLOOR_MAX))?))
 }
 
-/// A decoration as state.json has it: it wears only what its kind can, once each in drawing order,
-/// and a built kind (the snowman) is never out on the desktop, as an older file may have it.
+/// A decoration as state.json has it: it wears only what its kind can, once each in drawing order.
 fn tidy(d: &mut Decor) {
     d.dress = catalog()
         .dress_of(&d.kind)
@@ -273,7 +272,6 @@ fn tidy(d: &mut Decor) {
         .filter(|part| d.dress.iter().any(|w| w == part))
         .map(String::from)
         .collect();
-    d.on_desktop &= !catalog().is_built(&d.kind);
 }
 
 /// Ornaments as state.json has them: a book of the four, an id shaped like a kind (not the tree
@@ -960,7 +958,7 @@ mod tests {
                          "snowmanDay": "2026-12-15", "plants": [], "received": [], "giftDay": "", "seeds": 0});
         let g = Garden::restore(Some(&raw), 0);
         assert_eq!(g.decor[0].dress, ["nose", "hat"]);
-        assert!(!g.decor[0].on_desktop, "a snowman never goes out on the desktop");
+        assert!(g.decor[0].on_desktop, "a snowman out on the desktop stays out");
         assert!(g.decor[1].dress.is_empty());
         assert_eq!(g.snowman_day, "2026-12-15");
         assert_eq!(serde_json::to_value(&g).unwrap()["snowmanDay"], "2026-12-15");

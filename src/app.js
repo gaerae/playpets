@@ -55,6 +55,7 @@ import {
   refreshShownDecor,
   renderDecor,
   setupDecor,
+  shownDecor,
   thanksTick,
 } from './yard/decor.js';
 import { openDecorating, renderDecorating, setupDecorating } from './yard/decorating.js';
@@ -83,7 +84,7 @@ import { idleChatter } from './yard/remarks.js';
 import { cancelShootDigs, renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
 import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
 import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
-import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
+import { canDress, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
 import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/snowman.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
@@ -134,7 +135,6 @@ setupControls({
   putAway,
   dress: openDress,
   canDress,
-  canGoOut,
   canDigAt,
   digAt,
   letterReadable,
@@ -263,7 +263,7 @@ setupChristmasNight({ seen: () => shown });
 setupDecor({
   drawn: () => {
     christmasNightCheck();
-    drawTreeOrnaments();
+    drawTreeOrnaments(shownDecor('xmas_tree')?.button, data.garden);
     // The decorating view follows the tree: put away, back with Undo, or gone after January 7.
     renderDecorating();
     // The dress tray follows its snowman the same way.

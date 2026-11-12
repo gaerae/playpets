@@ -1,6 +1,5 @@
-// What a built snowman wears: a hat, a scarf and a carrot nose, drawn over it in the yard from the
-// catalogue's anchors (catalog.json "dress"), and the small tray that puts each on or takes it
-// off. The tray opens from the snowman's menu (Dress up) or a press on it, stands above it inside
+// What a built snowman wears: a hat, a scarf and a carrot nose, drawn over it from the catalogue's
+// anchors (dress-layers.js), and the small tray that puts each on or takes it off. The tray opens from the snowman's menu (Dress up) or a press on it, stands above it inside
 // the yard, and saves every change at once (garden.rs dress_decor); a refused one comes off again.
 // It closes with Done, Escape, a press elsewhere, a change of place, or the snowman going. While it
 // is open the friends' labels paint above it (garden.css), so a line said then is read whole.
@@ -10,8 +9,9 @@ import { pick } from '../core/math.js';
 import { panelSpot } from '../core/menu.js';
 import { $, call, data, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
-import { artSize, artSvg } from './art.js';
+import { artSvg } from './art.js';
 import { giftKind } from './catalog.js';
+import { partBox } from './dress-layers.js';
 import { fieldToYard, petHeight, sizeOf } from './field.js';
 import { isFree } from './trips.js';
 import { bubble } from './views.js';
@@ -29,42 +29,11 @@ const BUBBLE_HALF = 95,
 
 const decorOf = id => data.garden?.decor.find(d => d.id === id) || null;
 const kindOf = id => decorOf(id)?.kind;
-const percent = n => +(n * 100).toFixed(2);
-// A part's box over the snowman's drawing, as fractions of it: placed by its anchor's centre, its
-// height from its own drawing's shape.
-function partBox(gift, part) {
-  const [boxW, boxH] = artSize(gift.art),
-    [x, y, w] = part.at,
-    [partW, partH] = artSize(part.art),
-    h = (w * boxW * partH) / partW / boxH;
-  return { left: x - w / 2, top: y - h / 2, width: w };
-}
-
-/** The parts a snowman of `kind` wears, as spans over its drawing, in the catalogue's (drawing)
- * order; each is placed by its anchor's centre, so a hat may rise above the box, and turned by its
- * `turn` (degrees), as a hat sits a little askew. */
-export function dressLayers(kind, dress) {
-  const gift = giftKind(kind),
-    worn = new Set(dress || []);
-  if (!gift?.dress || !worn.size) return '';
-  return gift.dress
-    .filter(part => worn.has(part.id))
-    .map(part => {
-      const box = partBox(gift, part);
-      const style =
-        `left:${percent(box.left)}%;top:${percent(box.top)}%;width:${percent(box.width)}%` +
-        (part.turn ? `;rotate:${part.turn}deg` : '');
-      return `<span class="dress-part" data-part="${part.id}" style="${style}">${artSvg(part.art)}</span>`;
-    })
-    .join('');
-}
 /** What the snowman `d` wears as the yard shows it: while its changes are being saved, the last
  * one asked for, so a state event from an earlier save does not take a part off for a moment. */
 export const wornDress = d => saving.get(d.id)?.want ?? d.dress ?? [];
 /** Whether the gift `id` has things to wear. */
 export const canDress = id => !!giftKind(kindOf(id))?.dress;
-/** Whether the gift `id` may go out on the desktop: a built one stays in the yard. */
-export const canGoOut = id => !giftKind(kindOf(id))?.built;
 
 let redraw = () => {};
 let buttonOf = () => null;
