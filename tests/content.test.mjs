@@ -96,6 +96,23 @@ test('every effect a gift names exists', () => {
   for (const g of catalog.gifts)
     for (const name of g.effects || []) assert.ok(EFFECT_NAMES.includes(name), `${g.id}: ${name}`);
   for (const g of catalog.gifts) assert.ok(!g.stand || g.stand === 'on', `${g.id}: stand is "on" or left out`);
+  // A contact shade: its width, its height and where its centre is, as shares of the gift's, for a
+  // drawing with no ground.
+  for (const g of catalog.gifts.filter(g => g.shade)) {
+    assert.ok(!g.flat, `${g.id}: a flat gift lies on the ground already`);
+    assert.ok(
+      g.shade.length === 3 &&
+        g.shade[0] > 0.2 &&
+        g.shade[0] <= 1.2 &&
+        g.shade[1] > 0 &&
+        g.shade[1] <= 0.3 &&
+        g.shade[2] > 0.7 &&
+        g.shade[2] <= 1,
+      `${g.id}: shade`,
+    );
+  }
+  for (const id of ['bench', 'swing', 'hammock', 'santa', 'baby_reindeer'])
+    assert.ok(giftKind(id).shade, `${id}: drawn without ground, so it stands on a shade`);
 });
 
 test('every layer of the scenery names a painter, every thing a kind, and every colour the palette', () => {
@@ -168,59 +185,66 @@ test("a gift's Christmas night names its drawings, its star, its bulbs and its g
   }
 });
 
-test('the Christmas tree has twelve hooks on each drawing, apart from each other and from the lights', () => {
+test('the Christmas tree has twelve hooks on each drawing, each on a painted bauble or clear of them all', () => {
   const tree = catalog.gifts.find(g => g.id === 'xmas_tree');
   const collection = JSON.parse(readFileSync(new URL('../src/art/collection.json', import.meta.url), 'utf8'));
   const grand = collection.find(r => r.id === 'xmas_tree_grand');
-  const tiersOf = hooks =>
-    hooks.reduce((tiers, h, i) => {
-      if (i && h[1] - hooks[i - 1][1] <= 0.06) tiers.at(-1).push(h);
-      else tiers.push([h]);
-      return tiers;
-    }, []);
-  for (const [hooks, [w, h], label] of [
-    [tree.hooks, tree.size, 'small'],
-    [tree.night.hooks, grand.size, 'grand'],
-  ]) {
+  // A hook and a painted bauble are a ball's centre and width: x and width as shares of the
+  // drawing's width, y of its height. Distances are in widths.
+  const drawings = [
+    [tree, tree.size, 'small'],
+    [tree.night, grand.size, 'grand'],
+  ];
+  for (const [{ hooks, baubles }, [w, h], label] of drawings) {
+    const apart = (a, b) => Math.hypot(a[0] - b[0], ((a[1] - b[1]) * h) / w);
+    const on = a => baubles.find(b => apart(a, b) <= 0.005);
     assert.equal(hooks.length, LIMITS.ornamentHooks, label);
-    assert.ok(
-      hooks.every(([x, y]) => x > 0 && x < 1 && y > 0 && y < 1),
-      `${label}: inside`,
-    );
-    assert.ok(
-      hooks.every(p => p.every(v => v === Math.round(v * 1000) / 1000)),
-      `${label}: three decimals`,
-    );
-    assert.deepEqual(
-      hooks,
-      hooks.toSorted((a, b) => a[1] - b[1] || a[0] - b[0]),
-      `${label}: top to bottom`,
-    );
-    const far = (a, b, min) => Math.hypot(a[0] - b[0], ((a[1] - b[1]) * h) / w) >= min;
+    assert.ok(baubles.length >= 5, `${label}: its painted baubles are listed`);
+    for (const ball of [...hooks, ...baubles]) {
+      assert.equal(ball.length, 3, `${label}: ${ball} is a centre and a width`);
+      assert.ok(ball[0] > 0 && ball[0] < 1 && ball[1] > 0 && ball[1] < 1, `${label}: ${ball} inside`);
+      assert.ok(ball[2] >= 0.05 && ball[2] <= 0.13, `${label}: ${ball} about a painted bauble's size`);
+      assert.ok(
+        ball.every(v => v === Math.round(v * 1000) / 1000),
+        `${label}: three decimals`,
+      );
+    }
+    for (const a of hooks) {
+      const under = on(a);
+      // A hung ball over a painted one covers it, and is not much larger, so it reads as that
+      // bauble in the ornament's tint; one elsewhere leaves a gap to every painted bauble.
+      if (under) assert.ok(a[2] >= under[2] + 0.005 && a[2] <= under[2] + 0.02, `${label}: ${a} covers ${under}`);
+      else for (const b of baubles) assert.ok(apart(a, b) >= (a[2] + b[2]) / 2 + 0.03, `${label}: ${a} clear of ${b}`);
+    }
     hooks.forEach((a, i) =>
-      hooks.slice(i + 1).forEach(b => assert.ok(far(a, b, 0.18), `${label}: ${a} and ${b} apart`)),
+      hooks
+        .slice(i + 1)
+        .forEach(b => assert.ok(apart(a, b) >= (a[2] + b[2]) / 2 + 0.03, `${label}: ${a} and ${b} apart`)),
     );
-    if (label === 'grand')
+    if (label === 'small')
+      assert.ok(
+        baubles.every(b => hooks.some(a => on(a) === b)),
+        'small: every painted bauble can be re-tinted',
+      );
+    if (label === 'grand') {
+      assert.ok(hooks.every(on), 'grand: crowded with painted baubles, so each hook takes the place of one');
       for (const a of hooks)
-        for (const b of [tree.night.star, ...tree.night.bulbs])
-          assert.ok(far(a, b, 0.06), `grand: ${a} clear of the lights`);
+        for (const l of [tree.night.star, ...tree.night.bulbs])
+          assert.ok(apart(a, l) >= a[2] / 2, `grand: ${a} leaves the light at ${l} uncovered`);
+    }
   }
-  // Hook i is the same place on both drawings: the same tier, and the same place left to right in it.
-  // The small tree's green comes in three bands (a snowy tree, 56 px wide), so its tiers are 1, 2, 5 and 4.
-  const small = tiersOf(tree.hooks);
-  const big = tiersOf(tree.night.hooks);
-  assert.deepEqual(
-    small.map(t => t.length),
-    [1, 2, 5, 4],
-    'small: tiers',
+  // Hook i is about the same place on both drawings: across, and down the run of hooks.
+  const down = hooks => {
+    const ys = hooks.map(p => p[1]),
+      top = Math.min(...ys),
+      bottom = Math.max(...ys);
+    return hooks.map(([x, y]) => [x, (y - top) / (bottom - top)]);
+  };
+  const small = down(tree.hooks),
+    big = down(tree.night.hooks);
+  small.forEach((a, i) =>
+    assert.ok(Math.hypot(a[0] - big[i][0], a[1] - big[i][1]) <= 0.25, `hook ${i}: ${a} and ${big[i]} close`),
   );
-  assert.deepEqual(
-    big.map(t => t.length),
-    [1, 2, 5, 4],
-    'grand: tiers',
-  );
-  const leftToRight = tiers => tiers.map(t => t.map(p => t.filter(q => q[0] < p[0]).length));
-  assert.deepEqual(leftToRight(small), leftToRight(big), 'hook i is in the same place in its tier on both');
 });
 
 test('the snowman has a ball, a stack and three things to wear, all drawn', () => {

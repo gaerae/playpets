@@ -37,13 +37,20 @@ test('a saved bug catch has a decorative net that expires or clears on a scene t
       );
       catches.shift()({ ok: true, data: { first: false, entry: { count: 1 } } });
       for (let turn = 0; turn < 6; turn++) await Promise.resolve();
-      const net = view.button.children.at(-1);
+      const net = view.button.children.at(-1),
+        grip = view.button.children.at(-2);
       assert.equal(net?.className, 'bug-net', 'the saved catch has a visible net beside its friend');
       assert.equal(net.getAttribute('aria-hidden'), 'true');
       assert.equal(net.removed, undefined);
+      // The net sweeps behind the friend's face; only its grip is drawn over the body, in the paws.
+      assert.equal(grip?.className, 'bug-net bug-net-grip', 'the end of the handle is in the paws, in front');
+      assert.equal(grip.getAttribute('aria-hidden'), 'true');
+      assert.equal(grip.style.left, net.style.left, 'the grip sits on the handle of the same net');
+      assert.equal(grip.style.top, net.style.top);
       if (cleanup === 'timeout') context.mock.timers.tick(900);
       else endFishing();
       assert.equal(net.removed, true, `${cleanup} removes the capture tool`);
+      assert.equal(grip.removed, true, `${cleanup} removes the grip with it`);
     }
   } finally {
     endFishing();

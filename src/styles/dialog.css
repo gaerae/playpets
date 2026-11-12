@@ -853,7 +853,7 @@ body.compact .update-compact {
   cursor: pointer;
 }
 .decorating-tree.small .bauble {
-  width: max(22px, 16%);
+  width: max(22px, 14.5%);
 }
 .decorating-tree.grand .bauble {
   width: max(22px, 12%);

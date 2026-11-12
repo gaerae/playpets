@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 import { data, setData } from '../src/core/state.js';
+import { giftKind } from '../src/yard/catalog.js';
 import { renderDecor } from '../src/yard/decor.js';
 import { measureYard, sizeOf } from '../src/yard/field.js';
 import { installDom, keepGlobals } from './support/dom.mjs';
@@ -47,4 +48,38 @@ test('furniture fits friends and keeps the same proportions at every display den
       }
     }
   }
+});
+
+// A gift drawn without ground of its own stands on a contact shade (catalog "shade"), drawn under
+// the drawing (first in its button), so it does not hover over the grass or the snow.
+test('a gift whose drawing has no ground stands on a shade, under its drawing', t => {
+  const before = data;
+  t.after(() => setData(before));
+  const { nodes } = installDom(t, { ids: ['yard', 'garden-layer'] });
+  nodes.get('yard').getBoundingClientRect = () => ({ width: 1180, height: 780 });
+  setData({
+    ...before,
+    garden: { decor: ['bench', 'pond'].map((kind, i) => ({ id: `shade-${i}`, kind, x: 0.5, y: 0.5 })) },
+  });
+  measureYard();
+  renderDecor();
+  const [bench, pond] = nodes.get('garden-layer').children;
+  const [shade] = bench.children;
+  assert.equal(shade?.className, 'decor-shade', 'a bench stands on a shade');
+  const [w, h, y] = giftKind('bench').shade;
+  assert.deepEqual(
+    [shade.style['--shade-w'], shade.style['--shade-h'], shade.style['--shade-y']],
+    [w, h, y].map(String),
+  );
+  assert.ok(!pond.children.some(c => c.className === 'decor-shade'), 'a flat gift lies on the ground already');
+});
+
+// A lit gift's light falls on the ground too: a warm pool at its foot, under the drawing, beside
+// the halo around the light itself.
+test('a lit gift pools its light on the ground at its foot', async () => {
+  const { effectLayers } = await import('../src/yard/effects.js');
+  const layers = effectLayers(['glow']);
+  assert.match(layers, /class="fx-glow"/);
+  assert.match(layers, /class="fx-pool"/);
+  assert.equal(effectLayers([]), '');
 });

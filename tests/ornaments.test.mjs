@@ -169,6 +169,8 @@ test('the small tree wears its ornaments where its hooks are', async ctx => {
   assert.equal(baubles[0].style.top, percent(hooks[0][1]));
   assert.equal(baubles[1].style.left, percent(hooks[11][0]));
   assert.equal(baubles[1].style.top, percent(hooks[11][1]));
+  assert.equal(baubles[0].style.width, percent(hooks[0][2]), 'as wide as its hook says');
+  assert.equal(baubles[1].style.width, percent(hooks[11][2]));
   for (const b of baubles) {
     const [ball] = named(b, 'bauble-ball');
     assert.equal(kids(ball).length, 0, 'tint, rim and shine only: no art at this size');
@@ -197,6 +199,8 @@ test('the grand tree wears the same ornaments on its own hooks', async ctx => {
   assert.equal(baubles[0].style.top, percent(hooks[0][1]));
   assert.equal(baubles[1].style.left, percent(hooks[11][0]));
   assert.equal(baubles[1].style.top, percent(hooks[11][1]));
+  assert.equal(baubles[0].style.width, percent(hooks[0][2]), 'as wide as its hook says');
+  assert.equal(baubles[1].style.width, percent(hooks[11][2]));
   assert.equal(named(named(button, 'ornaments')[0], 'bauble').length, 2, 'the small tree keeps its own');
   christmasNightCheck();
   renderDecor();

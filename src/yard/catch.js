@@ -72,6 +72,7 @@ function removeTackle(tackle) {
   tackle?.float?.remove();
   tackle?.line?.remove();
   tackle?.rod?.remove();
+  tackle?.grip?.remove();
 }
 function stopFishing(retainArtwork = false) {
   if (!fishing) return;
@@ -163,8 +164,13 @@ function fishArrived(v) {
   line.setAttribute('aria-hidden', 'true');
   line.setAttribute('fill', 'none');
   line.style.zIndex = String((v.z || 0) + 1);
-  layer.append(rod, line, float);
-  Object.assign(fishing, { float, line, rod });
+  // The rod's shaft passes behind the friend; its grip end is drawn again in front, in the paws.
+  const grip = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  grip.setAttribute('class', 'fishing-grip');
+  grip.setAttribute('aria-hidden', 'true');
+  grip.style.zIndex = String((v.z || 0) + 1);
+  layer.append(rod, line, grip, float);
+  Object.assign(fishing, { float, line, rod, grip });
   syncFishingArtwork(performance.now());
   fishing.timer = setTimeout(nibble, (castAction?.duration ?? 0) + between(Math.random, BITE_AFTER));
 }
@@ -260,14 +266,18 @@ function paintFishingArtwork(tackle, now) {
   const action = companionAction(v, now);
   const paintedTip =
     companionImage(action) && authoredRodTip(action, { x: v.px, y: v.py, width, height }, reduced.matches);
+  const rods = [tackle.rod, tackle.grip].filter(Boolean);
   if (paintedTip) {
-    if (!tackle.rod.hasAttribute('hidden')) tackle.rod.setAttribute('hidden', '');
+    for (const r of rods) if (!r.hasAttribute('hidden')) r.setAttribute('hidden', '');
   } else {
-    if (tackle.rod.hasAttribute('hidden')) tackle.rod.removeAttribute('hidden');
+    for (const r of rods) if (r.hasAttribute('hidden')) r.removeAttribute('hidden');
     const key = `${cast.grip.x}:${cast.grip.y}:${cast.tip.x}:${cast.tip.y}`;
     if (tackle.rodKey !== key) {
-      const matrix = rodPlacement(cast.grip, cast.tip);
-      tackle.rod.innerHTML = `<image href="${rodUrl}" width="${ROD.width}" height="${ROD.height}" transform="matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})"/>`;
+      const matrix = rodPlacement(cast.grip, cast.tip),
+        image = `<image href="${rodUrl}" width="${ROD.width}" height="${ROD.height}" transform="matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})"/>`;
+      for (const r of rods) r.innerHTML = image;
+      // Only the handle and the reel, about a seventh of the friend's width round the grip.
+      if (tackle.grip) tackle.grip.style.clipPath = `circle(${width * 0.14}px at ${cast.grip.x}px ${cast.grip.y}px)`;
       tackle.rodKey = key;
     }
   }
@@ -308,6 +318,9 @@ export function soloFishing(now) {
 }
 
 const nets = new Set();
+// The net's handle from its end (12, 114) about a quarter of the way up, with the dark grip.
+const NET_GRIP =
+  '<path d="M12 114L24 93" stroke="#493e30" stroke-width="6" stroke-linecap="round"/><path d="M12 114L24 93" stroke="#cda56c" stroke-width="3.6" stroke-linecap="round"/><path d="M12 114L20 100" stroke="#765840" stroke-width="5" stroke-linecap="round"/>';
 function sweepNet(v) {
   const net = document.createElement('span'),
     width = Math.max(36, sizeOf(v.pet) * 0.6),
@@ -321,11 +334,20 @@ function sweepNet(v) {
   net.style[leftSide ? 'right' : 'left'] = `${sizeOf(v.pet) * 0.58 - (width * 12) / 90}px`;
   net.innerHTML =
     '<svg viewBox="0 0 90 126" fill="none"><g class="net-sweep"><path d="M12 114L53 44" stroke="#493e30" stroke-width="6" stroke-linecap="round"/><path d="M12 114L53 44" stroke="#cda56c" stroke-width="3.6" stroke-linecap="round"/><path d="M12 114L20 100" stroke="#765840" stroke-width="5" stroke-linecap="round"/><g transform="rotate(-22 65 29)"><path d="M42 25Q43 60 65 59Q87 58 88 25" fill="#e9f4dc33" stroke="#496158" stroke-width="1.8"/><path d="M47 34Q65 43 83 34M50 44Q65 52 80 44M55 52Q65 57 75 52M52 26Q51 47 60 57M65 29V59M78 26Q79 47 70 57" stroke="#f4f4dc" stroke-width="1.3"/><ellipse cx="65" cy="25" rx="23" ry="12" fill="#e9f4dc22" stroke="#3a544a" stroke-width="4"/><ellipse cx="65" cy="25" rx="23" ry="12" stroke="#dbe8c7" stroke-width="2"/></g></g></svg>';
-  // A child of the friend follows its movement and stays behind its painted face.
-  v.button.append(net);
+  // The end of the handle again, over the body: the net sweeps behind the friend's painted face,
+  // and the paws hold its grip in front instead of it starting from behind the hip.
+  const grip = document.createElement('span');
+  grip.className = 'bug-net bug-net-grip';
+  grip.setAttribute('aria-hidden', 'true');
+  grip.dataset.side = net.dataset.side;
+  for (const side of ['width', 'height', 'top', 'left', 'right']) grip.style[side] = net.style[side];
+  grip.innerHTML = `<svg viewBox="0 0 90 126" fill="none"><g class="net-sweep">${NET_GRIP}</g></svg>`;
+  // Children of the friend follow its movement; the net stays behind its painted face.
+  v.button.append(grip, net);
   const remove = () => {
     clearTimeout(entry.timer);
     net.remove();
+    grip.remove();
     nets.delete(entry);
   };
   const entry = { remove, timer: setTimeout(remove, 850) };

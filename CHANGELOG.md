@@ -38,6 +38,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The keyboard focus ring on the buttons in Play and Friends & settings is drawn whole instead of cut at the panel's edge.
 - In Japanese, the Updates row in Settings no longer runs the current version into the Check for updates button in a small window.
 - In the narrowest windows, Import background and Background studio stay on one line over the gallery, and Invite's title stays on one line beside Import's icon.
+- Baubles hung on the Christmas tree sit on its painted baubles or in the gaps between branches, at the painted baubles' size with a thin rim, instead of floating over the needles. The grand tree's baubles take the places of its painted ones.
+- Santa, the baby reindeer, the bench, the swing and the hammock cast a soft shadow on the ground instead of floating over it.
+- At night, gifts, flowers, trees and the bush at the trail's end take on the night's blue instead of turning grey.
+- The birds peeking out of the bush at the trail's end are drawn at a bird's size next to it.
+- A lantern or a campfire at night lights a warm pool on the ground under it, and the snow around it no longer turns grey.
+- The fishing float sits in the water with a ripple at its waterline.
+- With reduced motion, the sleigh over the moon on Christmas night is a dark blue shape against the moon instead of a black sticker.
+- A friend from an imported pet file holds the fishing rod and the bug net in front of its body instead of from behind its hip.
 - Settings' switches no longer turn smaller in windows narrower than about 860px.
 - In dark mode, the Remove button in a friend's settings, the Quit button under the pointer, the Settings sheet's shadow and the picture placeholder in Place & atmosphere now darken instead of staying light.
 - A friend's chips (how you know each other, its status, closeness) and the yard count use the same pink and green as the rest of the app, a little deeper, so their words read more clearly.

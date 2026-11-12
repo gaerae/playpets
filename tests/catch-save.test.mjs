@@ -164,12 +164,15 @@ test('fishing renders decorative tackle and labels the bite with its action', as
   const { nodes, view } = page(context);
   try {
     attemptCatch('fish', nodes, view, context.mock.timers);
-    const [rod, line, float] = nodes.get('garden-layer').children;
+    const [rod, line, grip, float] = nodes.get('garden-layer').children;
     assert.equal(rod.getAttribute('aria-hidden'), 'true');
     assert.equal(line.getAttribute('aria-hidden'), 'true', 'the rod and line are decoration rather than controls');
     assert.equal(line.getAttribute('fill'), 'none', 'curved tackle paths do not become solid shapes');
     assert.ok(Number(rod.style.zIndex) < view.z, 'the shaft passes behind the friend instead of covering its face');
     assert.ok(Number(line.style.zIndex) > view.z, 'the cast line stays in front of the fishing friend');
+    assert.equal(grip?.getAttribute('class'), 'fishing-grip', 'the grip of the rod is drawn too');
+    assert.equal(grip.getAttribute('aria-hidden'), 'true');
+    assert.ok(Number(grip.style.zIndex) > view.z, 'the grip is in front, in the paws, where the shaft behind starts');
     assert.equal(float.getAttribute('aria-label'), (await import('../src/core/i18n.js')).t('catch.reel'));
   } finally {
     for (const request of catches) request.resolve({ ok: false, error: 'Save cancelled.' });
