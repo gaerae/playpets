@@ -52,7 +52,7 @@ test('an event knows the first day of this time round, at midnight, north or sou
 });
 
 test('an event brings more small life and kinds of its own, only while it is on', () => {
-  assert.equal(boostOf('fireflies', 'fireflies'), 2.5);
+  assert.equal(boostOf('fireflies', 'fireflies'), 1.5, 'richer, not crowded');
   assert.equal(boostOf('fireflies', 'petals'), 1);
   assert.equal(boostOf(null, 'petals'), 1);
   const golden = () => 0.999;

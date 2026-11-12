@@ -153,7 +153,10 @@ export function createAmbientArt(
   // A firefly in the yard is mostly its light, `lit` (0 to 1) along its blink. Its small body, the
   // bug alone (its yard crop in collection.json), stands upright with its lantern at the light and
   // shows most while the light is low; a soft halo and a warm-white core in its own glow go over
-  // it. Before the specimens are in, the light alone.
+  // it. The halo stays a hint and the core is the only bright point; both rise faster than
+  // `lit` near its peak, so halfway through its blink a firefly is still mostly dark and only some
+  // are lit at once.
+  // Before the specimens are in, the light alone.
   function firefly(ctx, creature, scale, lit) {
     const ink = creature.look.glow || '#ecf096',
       halo = materials.get(`halo ${ink}`),
@@ -170,9 +173,10 @@ export function createAmbientArt(
       ctx.globalAlpha = (0.35 + (1 - lit) * 0.45) * light;
       ctx.drawImage(specimen.image, ...specimen.yard, x - width / 2, y - height * 0.82, width, height);
     }
-    ctx.globalAlpha = (0.25 + lit * 0.55) * light;
-    ctx.drawImage(halo, x - 15 * size, y - 15 * size, 30 * size, 30 * size);
-    ctx.globalAlpha = (0.2 + lit * 0.8) * light;
+    const glow = lit ** 1.5;
+    ctx.globalAlpha = (0.05 + glow * 0.35) * light;
+    ctx.drawImage(halo, x - 12 * size, y - 12 * size, 24 * size, 24 * size);
+    ctx.globalAlpha = (0.12 + glow * 0.88) * light;
     ctx.drawImage(core, x - 5 * size, y - 5 * size, 10 * size, 10 * size);
     return true;
   }

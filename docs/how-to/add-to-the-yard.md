@@ -190,7 +190,7 @@ To make a new effect:
 
    | Field | What it brings |
    |---|---|
-   | `boost` | More small life while it is on: `petals`, `butterflies`, `fireflies` (each a multiplier) |
+   | `boost` | More small life while it is on: `petals`, `butterflies`, `fireflies` (each a multiplier; fireflies stay at 8 or fewer, `fireflyCount` in `scene.js`) |
    | `looks` | Names of looks; each is a class on the yard (`look-<name>`) whose rules go in `src/styles/scenery.css`. The harvest moon's `fullmoon` makes the moon big and golden on the nights around the event's first real full moon, when `sky.js` also sets `moon-full` |
    | `art` | A drawing for its card, if it has no gift (the new year's sunrise) |
 

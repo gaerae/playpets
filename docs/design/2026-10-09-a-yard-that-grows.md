@@ -129,3 +129,11 @@ box. See [gifts from friends](2026-10-29-gifts-from-friends.md).
 Time together now brings at most 12 points a day and pats at most 10 of the day's 40.
 A friend fishing on its own calls the person when a fish bites and lands it only if
 the person presses the float. See [gifts from friends](2026-10-29-gifts-from-friends.md#follow-up-closeness-and-the-album-follow-what-is-done-2026-10-29).
+
+## Follow-up: fewer fireflies, by the yard's size (2026-11-12)
+
+Firefly nights now bring 1.5× the fireflies, not 2.5×. The count follows the
+yard's area (`fireflyCount` in `src/yard/scene.js`): 5 at night and 3 in the
+evening on a 1180 by 850 yard, at least 2 and 1 in a small window, at most 6,
+and at most 8 during the event. The golden firefly keeps its weight; a spell of
+the event on a full yard has one about one time in fourteen.

@@ -617,7 +617,7 @@ test('at night the drawings in the yard darken toward the blue of the night, all
   ])
     assert.match(
       css,
-      new RegExp(`${selector.replace(/[.*()[\]>]/g, '\\$&')}\\{filter:url\\(#night-tint\\);\\}`),
+      new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\{filter:url\\(#night-tint\\);\\}`),
       selector,
     );
   const page = await readFile('src/index.html', 'utf8');
