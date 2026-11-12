@@ -1,4 +1,4 @@
-import { CAPTURE_VERSION, localePath, SITE_LANGS } from '../../scripts/site-content.mjs';
+import { CAPTURE_VERSION, localePath, SITE_LANGS, STEAM_TAGS } from '../../scripts/site-content.mjs';
 
 export function alternateLinks(relativePath, site, exists) {
   const page = relativePath.replace(/^(ko|ja|zh-hans)\//, '');
@@ -17,16 +17,20 @@ export function alternateLinks(relativePath, site, exists) {
   ];
 }
 
-// What a search or answer engine reads about the app, on each language's landing only. "<" is
+// What a search or answer engine reads about the app, on each language's landing only: its name as
+// said in that language (`alternateName`) and the kind of app in Steam's tag words. "<" is
 // written as \u003c so a description can never close the script tag early.
-export function appStructuredData(relativePath, site, { description, version }) {
+export function appStructuredData(relativePath, site, { description, version, alternateName }) {
   const lang = relativePath.match(/^(?:(ko|ja|zh-hans)\/)?index\.md$/);
   if (!lang) return [];
   const data = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name: 'PlayPets',
+    ...(alternateName && { alternateName }),
     applicationCategory: 'DesktopEnhancementApplication',
+    applicationSubCategory: STEAM_TAGS[0],
+    genre: STEAM_TAGS,
     operatingSystem: 'macOS, Windows, Linux',
     inLanguage: lang[1] === 'zh-hans' ? 'zh-Hans' : (lang[1] ?? 'en'),
     url: site + (lang[1] ? `${lang[1]}/` : ''),

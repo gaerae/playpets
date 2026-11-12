@@ -69,7 +69,11 @@ test('each landing describes the app to search and answer engines, and only the 
     ['ja/index.md', 'ja'],
     ['zh-hans/index.md', 'zh-Hans'],
   ]) {
-    const [[tag, attrs, json]] = appStructuredData(page, site, { description: 'About', version: '1.2.0' });
+    const [[tag, attrs, json]] = appStructuredData(page, site, {
+      description: 'About',
+      version: '1.2.0',
+      alternateName: lang === 'en' ? undefined : `Name-${lang}`,
+    });
     assert.equal(tag, 'script');
     assert.equal(attrs.type, 'application/ld+json');
     const data = JSON.parse(json);
@@ -78,6 +82,10 @@ test('each landing describes the app to search and answer engines, and only the 
     assert.equal(data.description, 'About');
     assert.equal(data.softwareVersion, '1.2.0');
     assert.equal(data.offers.price, '0');
+    // The name as said in the page's language, and the kind of app in Steam's own tag words.
+    assert.equal(data.alternateName, lang === 'en' ? undefined : `Name-${lang}`);
+    assert.equal(data.applicationSubCategory, 'Desktop Companion');
+    assert.ok(data.genre.includes('Cozy') && data.genre.includes('Idler'), data.genre);
     assert.match(data.operatingSystem, /macOS.*Windows.*Linux/);
     assert.ok(data.url.startsWith(site));
     // A real screen of the app in the page's language, from the published captures.

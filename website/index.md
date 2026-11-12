@@ -1,7 +1,7 @@
 ---
 layout: page
 title: PlayPets
-titleTemplate: Desktop pet app with friends that talk to each other
+titleTemplate: Cozy desktop pet app with friends that talk to each other
 ---
 
 <Landing />
