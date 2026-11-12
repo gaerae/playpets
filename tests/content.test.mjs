@@ -149,7 +149,7 @@ test('every layer of the scenery names a painter, every thing a kind, and every 
       for (const name of tones(c)) assert.ok(palette.includes(name), `colour ${name}`);
     for (const thing of layer.things || []) assert.ok(THING_KINDS.includes(thing.kind), `a thing "${thing.kind}"`);
   }
-  assert.ok(yard.curves[yard.field] && yard.curves[yard.lake.under], 'the field and the lake are on curves there are');
+  assert.ok(yard.curves[yard.lake.under], 'the lake is on a curve there is');
 });
 
 test('every seasonal event has its words, its gift in the catalogue as its own, and real looks', () => {

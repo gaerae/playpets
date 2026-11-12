@@ -1,5 +1,6 @@
 import type { Theme } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
+import { h } from 'vue';
 import generated from '../generated.json';
 import Downloads from './Downloads.vue';
 import Landing from './Landing.vue';
@@ -8,6 +9,8 @@ import Only from './Only.vue';
 import ReleaseLinks from './ReleaseLinks.vue';
 import ReleaseList from './ReleaseList.vue';
 import ReleaseMeta from './ReleaseMeta.vue';
+import SceneChips from './SceneChips.vue';
+import SectionHere from './SectionHere.vue';
 import Shot from './Shot.vue';
 import Since from './Since.vue';
 import { seedReleases, setupSiteLocale } from './site-runtime.mjs';
@@ -17,6 +20,8 @@ import './studio.css';
 
 export default {
   extends: DefaultTheme,
+  // Every page with an outline names the section being read in the bar under the menu.
+  Layout: () => h(DefaultTheme.Layout, null, { 'doc-before': () => h(SectionHere) }),
   enhanceApp({ app, router, siteData }) {
     // The developer docs exist only in English, under /dev/. On a /dev/ page the language menu
     // offers translated /dev/ paths, which have no pages; this sends them to the English
@@ -47,5 +52,6 @@ export default {
     app.component('ReleaseMeta', ReleaseMeta);
     app.component('ReleaseLinks', ReleaseLinks);
     app.component('ReleaseList', ReleaseList);
+    app.component('SceneChips', SceneChips);
   },
 } satisfies Theme;

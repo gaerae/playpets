@@ -28,7 +28,6 @@ test('background packages keep only known data and enable only declared activiti
   const world = backgroundWorld(p, 'custom-test');
   assert.equal(world.capabilities.fishing, true);
   assert.equal(world.capabilities.seasonalEffects, false);
-  assert.equal(world.eventLights, false);
 });
 test('untrusted images and invalid coordinates are rejected', () => {
   for (const images of [{ base: 'https://example.com/a.png' }, { base: 'data:image/svg+xml;base64,PHN2Zz4=' }, {}])

@@ -191,7 +191,7 @@ export function clearOfDock(v) {
   place(v);
 }
 export function place(v) {
-  const { w, h, top } = geometry(v.pet);
+  const { w, h, top } = geometry(v.pet, v.x);
   v.px = EDGE + v.x * w;
   v.py = top + v.y * h;
   // The body goes by translate, so its depth (scale, below) shrinks it about its feet and not its
@@ -354,7 +354,11 @@ function createView(p) {
     on.select(p.id);
     release(v);
     rest(v);
-    v.drag = beginDrag(e.currentTarget, e, v, { talk: onTag(e) });
+    v.drag = beginDrag(e.currentTarget, e, v, {
+      talk: onTag(e),
+      foot: footOf(v),
+      toField: (px, py) => footTarget(v, px, py, 0),
+    });
     e.stopPropagation();
   });
   both('pointermove', e => {

@@ -10,12 +10,14 @@ export function groundAllows(point, profile) {
     e => ((point.x - e.x) / e.rx) ** 2 + ((point.y - e.y) / e.ry) ** 2 <= 1,
   );
 }
-export function projectFootprint(ellipse, bounds) {
+/** A yard-pixel ellipse on the field (0 to 1 each way). `top` is where the field begins at the
+ * ellipse's x (field.js topAt, higher where a path reaches back); the field's line by default. */
+export function projectFootprint(ellipse, bounds, top = bounds.top) {
   const width = Math.max(1, bounds.width - EDGE * 2),
-    height = Math.max(1, bounds.bottom - bounds.top);
+    height = Math.max(1, bounds.bottom - top);
   return {
     x: (ellipse.x - EDGE) / width,
-    y: (ellipse.y - bounds.top) / height,
+    y: (ellipse.y - top) / height,
     rx: ellipse.rx / width,
     ry: ellipse.ry / height,
   };

@@ -7,7 +7,7 @@
 | `pets/` | Accepted pet manifests, canonical and seasonal sheets, identity references and generation provenance; the app ships the built-in friends' sheets as WebP in `src-tauri/pets/` |
 | `concepts/` | Approved visual direction and identity source images |
 | `art/` | Lossless PNG exports of the yard's raster art and their provenance; the app ships them as WebP in `src/art/` |
-| `sources/` | Generated originals and retired variants of the yard's art, kept as provenance; the app does not ship them |
+| `sources/` | Generated originals that a shipped export or a build still uses, kept as provenance; the app does not ship them |
 | `discovery/` | Accepted tree stages, seasonal variants, keepsakes, shovel and generation provenance; repacked by `scripts/pack-discovery.mjs` |
 | `creator-kit/` | Reusable reference sheets and metadata used to build public creator downloads |
 | `banner.png`, `demo.gif` | Repository-facing product media |
@@ -26,8 +26,10 @@
 Keeping sources:
 - Keep accepted generated source images and their provenance: they are not
   reproducible build output.
-- Everything under `src/` ships inside the app. A source image or retired
-  variant the app does not draw goes in `sources/`, not beside its export.
+- Everything under `src/` ships inside the app. A source image the app does
+  not draw goes in `sources/`, not beside its export.
+- Pictures of a place the app no longer has are removed, not kept in
+  `sources/`; Git history keeps them.
 - Discarded variants, local review captures and temporary processing results go
   under ignored `scratch/`.
 - Provenance written before 2026-10-13 names local references under `release/`;

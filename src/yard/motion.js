@@ -29,7 +29,7 @@ function feetAt(v, at) {
   return yardToField(...feetInYard(v, at));
 }
 const feetInYard = (v, at) => {
-  const { w, h, top } = geometry(v.pet);
+  const { w, h, top } = geometry(v.pet, at.x);
   return [EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet)];
 };
 // A stroll the ground allows: around the lake, not onto a tree, a flower, a gift or a workspace's

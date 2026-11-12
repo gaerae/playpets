@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 import { installDom, installStorage, keepGlobals } from './support/dom.mjs';
+import { flatField } from './support/flat-field.mjs';
 
 const viewed = [];
 const saved = [];
@@ -465,6 +466,7 @@ test('with reduced motion friends gather and talk but never tilt', t => {
 
 test('on a picnic blanket friends sit on it and beside it in one row and may say a picnic line', t => {
   const mat = { id: 'p', kind: 'picnic', x: 0.5, y: 0.5 };
+  flatField(t);
   const y = yard(t, { garden: { trees: [], decor: [mat] } });
   assert.equal(viewing.startViewing('friends'), true);
   y.tick(900);

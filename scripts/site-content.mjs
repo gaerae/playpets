@@ -2,7 +2,7 @@ import { MOMENTS } from '../src/yard/sky-moments.js';
 
 // One inventory for public captures, pet previews and locale-dependent publishing paths.
 // Advance only after native captures for the new version exist in every site language.
-export const CAPTURE_VERSION = '1.5.0';
+export const CAPTURE_VERSION = '1.7.0';
 
 export const SITE_LANGS = Object.freeze(['en', 'ko', 'ja', 'zh-hans']);
 
@@ -41,7 +41,8 @@ export const ALBUM_SAMPLES = Object.freeze({
 // `season:`, `period:` and `weather:` (`a|b` is either), `change:rain>clear` (the weather turning),
 // `gift:` (out in the yard) and `play:` (a Play menu item's string key). Each recipe's `gives` is its
 // line in the landing's `year.gives`, the item's id by default. `or` is another way to the same line;
-// `also` adds to the recipe before it for a line of its own.
+// `also` adds to the recipe before it for a line of its own. An event's dates and the scene that
+// calls it up on any day (its `scene`) come from events.json, so they are not repeated here.
 export const YEAR = Object.freeze([
   {
     season: 'spring',
@@ -49,7 +50,7 @@ export const YEAR = Object.freeze([
       {
         id: 'blossom',
         event: true,
-        recipes: [{ when: ['weather:clear', 'play:viewing.action'] }],
+        recipes: [{ when: ['play:viewing.action'] }],
         art: [
           ['trees', 'cherry'],
           ['gifts', 'cherry_sapling'],
@@ -74,7 +75,6 @@ export const YEAR = Object.freeze([
       {
         id: 'fireflies',
         event: true,
-        recipes: [{ when: ['period:evening|night'] }],
         art: [
           ['bugs', 'golden_firefly'],
           ['gifts', 'watermelon'],
@@ -88,7 +88,6 @@ export const YEAR = Object.freeze([
       {
         id: 'harvest',
         event: true,
-        recipes: [{ when: ['period:night'] }],
         art: [
           ['fish', 'moon_carp'],
           ['gifts', 'pumpkin'],

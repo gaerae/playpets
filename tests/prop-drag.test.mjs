@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 import { installDom } from './support/dom.mjs';
+import { flatField } from './support/flat-field.mjs';
 
 let requests = [],
   pending;
@@ -19,6 +20,7 @@ const { decorFloor, measureYard } = await import('../src/yard/field.js');
 
 function fixture(t, at = { x: 0.4, y: 0.6 }, kind = 'bench') {
   t.mock.timers.enable({ apis: ['setTimeout'] });
+  flatField(t);
   const { nodes } = installDom(t, { anyId: true, ids: ['yard', 'garden-layer'] });
   nodes.get('yard').getBoundingClientRect = () => ({ left: 10, top: 20, width: 800, height: 560 });
   setData({ garden: { decor: [], plants: [], trees: [] }, pets: [] });

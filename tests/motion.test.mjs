@@ -6,9 +6,11 @@ import { setData, views } from '../src/core/state.js';
 import { geometry } from '../src/yard/field.js';
 import { moveFriends } from '../src/yard/motion.js';
 import { element, installDom } from './support/dom.mjs';
+import { flatField } from './support/flat-field.mjs';
 
 test('trip arrivals use the destination pixels, including reduced-motion jumps', t => {
   installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  flatField(t);
   setData({ statuses: {} });
   const previousReduced = reduced.matches;
   try {

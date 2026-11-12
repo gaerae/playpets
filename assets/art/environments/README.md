@@ -1,132 +1,64 @@
 # Environment artwork
 
-- The built-in image generation tool made these local assets on 2026-10-11.
+- The backgrounds of the built-in places, as accepted from image generation.
+- `pnpm run assets:webp` exports them to `src/art/environments/`; `../webp.json` records both hashes.
 - No external game's artwork is included.
-- Visual reference: the clean shapes, material readability and calm composition of the
-  [official Animal Crossing gallery](https://animalcrossing.nintendo.com/new-horizons/).
+- Briefs, tone steps and SHA-256 of the outdoor pictures: [Four-place provenance](FOUR-PLACES-PROVENANCE.md).
+- Each place's geometry lives in `src/content/worlds.json`: floor line, traced edge, pond, fishing stance, festival lights, seats. [Add a place](../../../docs/how-to/add-a-world.md) explains each field.
 
-## Selected prompt set
+## Current places
 
-- Green land: transparent environment layer for a cozy pet game, smooth sculpted rounded tree crowns in large pillow-like forms, sage grass with occasional edge tufts, pale blue hills, a small central pond and a broad empty foreground. Soft ambient occlusion, no outlines, grain, realistic leaf detail, animals, text or UI. Preserve tree and pond placement while removing the sky to true alpha.
-- Spring: preserve the green layer's composition, add a blush-pink crown to the smaller left-center tree, sparse pale blossom clusters on fresh green crowns and small cream/pink flowers at the margins; preserve transparent sky and the clear foreground.
-- Autumn: preserve the green layer's camera, silhouettes, pond and clearing; honey-gold, apricot and terracotta crowns, olive grass, blue distant hills, sparse amber flowers and fallen leaves only at the margins; preserve transparent sky.
-- Winter: preserve the same composition; ivory snow caps and ground, pale blue-green crowns, lavender contact shadows, visible unfrozen teal pond, mist-blue hills, no daisies; preserve transparent sky.
+| Place | ID | Files |
+|---|---|---|
+| Hill garden | `woodland` | `spring`, `green`, `autumn`, `winter` |
+| Wild garden | `courtyard` | `courtyard-spring`, `-green`, `-autumn`, `-winter` |
+| Lakeside cottage | `lakeside` | `lakeside-spring`, `-green`, `-autumn`, `-winter` |
+| Garden workshop | `workshop` | `workshop` |
+
+- **Hill garden:** an open hillside with a sage-roof cottage and a pond for fishing.
+- **Wild garden:** an open meadow with a pond, a little waterfall and a big oak; no buildings.
+- **Lakeside cottage:** a wide, calm lake behind a cottage and a compact near shore.
+- **Garden workshop:** a glass-roofed workshop, half greenhouse, half pergola. Its glass is transparent, so the live sky and weather show through it.
+
+## Outdoor pictures
+
+- Each is 1536 × 1024 with a transparent sky; the app draws the sky, sun, clouds, weather and time-of-day light.
+- The summer picture of a place was the reference for its spring, autumn and winter pictures. Camera, shore and walking area stay.
+- The seasons share one lawn and land tone, so a season change does not jump in color.
+- No rain or snow is painted in.
+- The field's top follows the picture: `geometry.fieldTop`, raised where `geometry.edge` traces ground reaching back.
+- The pond people click is `geometry.lake`, an ellipse in picture fractions. `yard/environment.js` (`environmentLake`) applies the picture's crop to it.
+- The pictures keep their proportions with a floor-anchored cover crop (`environmentFrame`), shared with the pond, the fishing stance and the festival lights.
+- Night tint uses alpha compositing, so darkness does not depend on Canvas filter support.
+- Images load during easel setup; the procedural land (`src/content/yard.json`) stays as the loading and error fallback.
+
+## Atlases
+
+- Made with the built-in image generation tool on 2026-10-11, next to the first environment set.
 - Flower atlas (`../flowers/specimens.png`): a transparent 1536 by 1024 atlas with four columns and two rows; centered isolated tulip, daffodil, sunflower, hydrangea, cosmos, chrysanthemum, camellia and snowdrop. Smooth sculpted petal volumes, soft gradients, natural pastel colors, generous margins, no labels, pots, soil or panels.
 - Prop atlas (`../decor/props.png`): a transparent 1536 by 1024 atlas with three columns and two rows; honey-wood bench, sage tent with ivory trim, stone-lined pond with lily pad, cream mailbox with coral roof, gingham picnic blanket with basket and apples, and a stone-ring campfire. Rounded edges, soft highlights and ambient occlusion, consistent gently elevated front view, no labels, scenery or characters.
-
-- The land keeps its proportions with a floor-anchored cover crop.
-- The pond's fishing target uses the same transform in narrow and wide windows.
-- `yard/environment.js` records the raster pond's geometry.
-- The live sky, clouds, moon, sun and weather are separate layers.
-- Night tint uses alpha compositing, so darkness does not depend on Canvas filter support.
-- Images load only during easel setup; the original procedural land stays as the
-  loading/error fallback.
-
-- The existing eight SVG symbols reference the flower atlas, so planting, discovery cards
-  and the album share the same artwork.
+- The eight flower symbols reference the flower atlas, so planting, discovery cards and the album share the same artwork.
 - Original vector growth stages remain for seeds, sprouts, leaves and buds.
 
-## Depth revision
+## Garden workshop
 
-- The selected four environment files were regenerated after the first integration.
-- The final prompt restores layered misty mountains, a distant lake, overlapping forests,
-  detailed grouped leaves and dappled foreground shadows.
-- It keeps the central clearing free of characters and props, with transparent sky above
-  the mountain silhouette.
-- The pond occupies approximately x34–79%, y56.5–62.5%.
-- Seasonal variants keep this camera and layout and change foliage and ground to spring
-  blossoms, autumn gold and winter snow.
-- The first prompt set above records the earlier exploration; the depth revision is the
-  selected environment.
-
-## City studio revision
-
-- The four `studio-city-*` images keep the studio's furniture, window frame and open wooden
-  floor, and replace its outdoor forest with a high-floor view of a city, river and bridges.
-- The built-in image tool authored morning, midday, sunset and night separately from the
-  same day reference.
-- These images carry their own lighting; the renderer adds no second whole-room time tint.
-- Rain and snow use normalized window glass rectangles in `content/worlds.json`,
-  transformed by the same floor crop.
-- Overcast shading also stays within those rectangles.
-- The previous `studio.png` and `studio-night.png` source artwork remains in `assets/sources/environments/`.
-
-## Modern city studio follow-up
-
-- The selected `studio-modern-city-{morning,day,evening,night}.png` images replace the
-  rustic wooden room with ivory limestone flooring, graphite metal frames, a cream bouclé
-  chair, a small travertine table and a slim charcoal desk.
-- The broad pet floor, three glass regions and city composition keep the existing camera
-  and geometry.
-- The four `studio-city-*` images remain as comparisons in `assets/sources/environments/`.
-- The exact selected prompts are in [Modern studio prompts](MODERN-STUDIO-PROMPTS.md).
-
-- The built-in image generator edited the original city-day reference into the new day scene.
-- Its prompt asked for:
-  - a calm, accomplished personal workspace rather than a corporate office;
-  - refined material contrast, soft rounded furniture, restrained plants and books;
-  - no characters, labels, UI or rug, and an unobstructed lower half.
-- It explicitly preserved the window mullions, exterior city, camera, walkable floor and
-  image aspect ratio.
-
-- Each time variant used the accepted modern-day image as its reference.
-- The variant prompts preserved all furniture, window divisions, floor seams and object
-  positions, and changed only environmental lighting and the city sky:
-
-  | Variant | Lighting and sky |
-  |---|---|
-  | Morning | Pale peach/lavender, gentle sunlight |
-  | Sunset | Coral/plum, the first city lights |
-  | Night | Deep navy, illuminated buildings, river and bridge, soft warm lamps indoors |
-  | Day | Stays bright with a pale blue sky |
-
-- No generated paint was drawn or repaired with scripts.
-- The renderer still clips weather and overcast shading to the registered glass panes
-  instead of tinting the room.
-
-
-## Four-place follow-up (2026-10-13)
-
-- The current built-ins:
-
-  | Place | Files |
-  |---|---|
-  | Hillside garden | `spring`, `green`, `autumn`, `winter` |
-  | Stone courtyard | `courtyard-*` |
-  | Lakeside | `lakeside-*` |
-  | Village study | `studio-cozy-*` |
-
-- The village study has since given way to the garden workshop; see the 2026-11-12 follow-up below.
-- The earlier sections record previous accepted directions, not the current runtime selection.
-- The three outdoor places each have four seasonal images.
-- The study has four time-of-day images and seasonal window views.
-- Their geometry lives per place in `src/content/worlds.json`, including a separate fishing
-  stance where water is present.
-- Generation briefs, accepted filenames and SHA-256 hashes: [Four-place provenance](FOUR-PLACES-PROVENANCE.md).
-- Portable background files: [Add a place](../../../docs/how-to/add-a-world.md#portable-backgrounds).
-- The retired `studio-modern-city-*` images are kept in `assets/sources/environments/`
-  and are no longer bundled as runtime art.
-
-## Agent workspaces (2026-11-12)
-
-- `office.png` (Sunny office) and `workshop.png` (Garden workshop) were made with the built-in image generation tool, with the existing places and companions as style references.
-- Briefs, not verbatim prompts:
-  - **Office:** a warm loft office from a gentle high three-quarter angle; two long low tables with two chairs each on the far side, only books, paper and a pen cup on them; shelves, a coffee corner, a tea corner (round rug, cushions, teapot, cookies, a checkers board) and a cushioned waiting bench at the front with a call bell and a small lamp; tall windows across the back wall.
-  - **Workshop:** a glass-roofed workshop, half greenhouse, half pergola; two long potting tables with two stools each, only notebooks, seed packets, a trowel and seedlings on them; hanging tools, a tea corner under the vines and a garden bench at the front with a call bell and a lantern.
-  - Both: furniture at the friends' size, an open middle floor, no laptops or screens, no characters, text, letters or logos.
-  - Each was made from the room's first picture as a reference, with the living room and the friends for style and scale. The first pictures (four desks with laptops, a reception desk, a post) were replaced before release.
-- The window glass is transparent, so the app's live sky and weather show through it.
-- No scripted repainting was used. Seats, fronts, blocks and window panes were measured on the pictures and live in `src/content/worlds.json`.
-- SHA-256:
-  - `office.png`: `b3f793dd6dd9812b2921d870c909a40d46fd0449d14c5c356d1be0825d88520a`
-  - `workshop.png`: `c228ffa2a713ebc32cb5b1031119fe7e6c62371f13ef446b267e4d796bc925a2`
-
-
-## Follow-up: one workshop (2026-11-12)
-
-- The office was dropped and the workshop replaced the living room. `office.png` and the `studio-cozy-*` and `studio-view-*` pictures moved to `assets/sources/environments/` and are no longer bundled.
-- `workshop.png` was recomposed from itself with the built-in image generation tool (an edit with the picture as input), so it keeps its camera, glass roof, vines, wall and light.
-- Brief, not the verbatim prompt: move the two potting tables and the tea corner down a little, and the bench with its bell post and lantern down to the front; leave open floor to the right of the post and in the bottom-right quarter; keep the furniture's size; no characters, text or logos.
-- The edit returned the glass without transparency. The rows above 28.5% of the height were copied from the previous picture with its exact alpha, blended into the edit over the next 4%; no pixels were painted.
-- Seats, fronts and blocks were measured again on the new picture (`src/content/worlds.json`).
+- `workshop.png` was made with the built-in image generation tool on 2026-11-12, with the earlier places and companions as style references.
+- Brief, not the verbatim prompt: a glass-roofed workshop, half greenhouse, half pergola; two long potting tables with two stools each, only notebooks, seed packets, a trowel and seedlings on them; hanging tools, a tea corner under the vines and a garden bench at the front with a call bell and a lantern.
+  - Furniture at the friends' size, an open middle floor, no laptops or screens, no characters, text, letters or logos.
+  - The first picture (four desks with laptops, a reception desk, a post) was replaced before release.
+- It was then recomposed from itself (an edit with the picture as input), so it keeps its camera, glass roof, vines, wall and light.
+  - Brief: move the two potting tables and the tea corner down a little, and the bench with its bell post and lantern down to the front; leave open floor to the right of the post and in the bottom-right quarter; keep the furniture's size.
+  - The edit returned the glass without transparency. The rows above 28.5% of the height were copied from the previous picture with its exact alpha, blended into the edit over the next 4%; no pixels were painted.
+- Seats, fronts, blocks and window panes were measured on the picture and live in `src/content/worlds.json`.
 - SHA-256 of `workshop.png`: `07c772909e1b901069a2c4831a4de4444722c6b6cba5386cd68402fa65ffd403`
+
+## History
+
+| Date | Change |
+|---|---|
+| 2026-10-11 | First generated outdoor set, then a depth revision with layered mountains and a distant lake. City and modern-city studio rooms; their prompts stay in [Modern studio prompts](MODERN-STUDIO-PROMPTS.md) |
+| 2026-10-13 | Four places: hillside garden, stone courtyard, lakeside and village study ([provenance](FOUR-PLACES-PROVENANCE.md)) |
+| 2026-11-12 | Agent workspaces: a sunny office and the garden workshop. The office was dropped and the workshop replaced the village study (living room) |
+| 2026-11-13 | New outdoor set; the stone courtyard became the Wild garden. The previous outdoor pictures and the retired studio and office sources were removed from the repository; Git history keeps them |
+
+- Only `assets/sources/environments/studio-cozy-day.png` remains of the retired rooms: `scripts/creator-skill.mjs` copies it as the creator kit's interior example.

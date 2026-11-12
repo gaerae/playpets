@@ -719,7 +719,9 @@ const scenario = `(async()=>{
     const scene=new Image();scene.src='./art/environments/green.webp';await scene.decode();
     const sceneCanvas=Object.assign(document.createElement('canvas'),{width:scene.naturalWidth,height:scene.naturalHeight});sceneCanvas.getContext('2d').drawImage(scene,0,0);
     const pngUrl=sceneCanvas.toDataURL('image/png');
-    const portable={format:'playpets-background',version:1,name:'Native studio fixture',images:{base:pngUrl,spring:pngUrl,summer:pngUrl,autumn:pngUrl,winter:pngUrl},floor:0.66,water:{from:0.48,to:0.7,center:0.595,radius:0.018},fishingSpot:{x:0.48,y:0.68},sky:true,weather:true,ambient:false,windows:[]};
+    // The hill garden's own picture with its own pond, so the point on its water (lx, ly) is on this one's too.
+    const hill=worldFor('woodland').geometry;
+    const portable={format:'playpets-background',version:1,name:'Native studio fixture',images:{base:pngUrl,spring:pngUrl,summer:pngUrl,autumn:pngUrl,winter:pngUrl},floor:hill.fieldTop,water:hill.lake,fishingSpot:{x:0.52,y:hill.fieldTop+0.005},sky:true,weather:true,ambient:false,windows:[]};
     const transfer=new DataTransfer();transfer.items.add(new File([JSON.stringify(portable)],'studio.json',{type:'application/json'}));
     $('background-file').files=transfer.files;$('background-file').dispatchEvent(new Event('change',{bubbles:true}));
     const imported=await until(()=>worldSelect.value.startsWith('custom-')&&worldSelect.value,10000);

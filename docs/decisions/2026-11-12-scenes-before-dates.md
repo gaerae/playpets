@@ -41,3 +41,19 @@ How cozy and idle games handle this, read on 2026-11-12:
 | Keep Christmas night to December | People who start or look in another season wait up to a year, the pattern most criticised in the references |
 | Show the grand tree whenever the tree is out | The night, the snow and the winter yard are what make it a moment; with no scene it is only a bigger drawing |
 | A setting that turns Christmas night on | A switch for one moment adds a setting to find; the scene picker already says winter, night and snow |
+
+## Follow-up: seasonal events by scene (2026-11-13)
+- The seasonal events left on the calendar above now also come by scene: with the season picked by hand, an event comes on any day when the time of day and the weather are the ones it asks for (`"scene"` in `src/content/events.json`, `sceneEvent` in `src/yard/events.js`).
+
+  | Event | Scene picked by hand |
+  |---|---|
+  | Cherry blossom festival | Spring, morning or day, clear |
+  | Firefly nights | Summer, evening or night, clear |
+  | Harvest moon | Autumn, night, clear; the full moon shows that night |
+  | Winter lights | Winter, evening or night |
+  | New Year | Winter, morning |
+
+- On Auto the season is the calendar's, and only the dates bring an event, as before.
+- The calendar's own event comes first: December's lights stay whatever scene is picked.
+- Gifts still keep to the dates (`giftEvent`; the backend checks the day). The event's card mentions its gifts only on its dates (`event.<id>.gift`).
+- Event fish and bugs come whenever the event is on, either way, and the album names the scene beside the dates.

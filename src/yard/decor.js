@@ -86,7 +86,8 @@ let heartsFade = null;
 function placement(kind, point) {
   // A gift friends stand on stays where they can reach it (footTarget keeps them on their field);
   // others go down to just above the dock.
-  const at = fieldToYard({ x: point.x, y: Math.min(point.y, standOn(kind) ? 1 : decorFloor()) }),
+  const across = fieldToYard({ x: point.x, y: 0 }).x,
+    at = fieldToYard({ x: point.x, y: Math.min(point.y, standOn(kind) ? 1 : decorFloor(across)) }),
     { w, h } = size(kind);
   // Saved coordinates locate the foot; wide furniture still needs room at either edge.
   at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
@@ -140,9 +141,12 @@ function create(d) {
     const current = data.garden?.decor.find(item => item.id === v.id),
       f = field();
     if (!current) return;
-    v.drag = beginDrag(button, e, drawnPlace(v.kind, current), {
+    const from = drawnPlace(v.kind, current);
+    v.drag = beginDrag(button, e, from, {
       width: Math.max(1, f.width - EDGE * 2),
       height: Math.max(1, f.bottom - f.top),
+      foot: fieldToYard(from),
+      toField: yardToDecor,
     });
   });
   button.addEventListener('pointermove', e => {

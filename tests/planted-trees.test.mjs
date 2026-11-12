@@ -17,7 +17,7 @@ globalThis.playPets = Object.fromEntries(
 const state = await import('../src/core/state.js');
 const { setData } = state;
 const { renderTrees, setupTrees } = await import('../src/yard/planted-trees.js');
-const { fieldToYard, measureYard, yardZoom } = await import('../src/yard/field.js');
+const { depthAt, fieldToYard, measureYard, yardZoom } = await import('../src/yard/field.js');
 const { scene } = await import('../src/yard/world.js');
 const { treeKind } = await import('../src/yard/catalog.js');
 
@@ -64,7 +64,9 @@ test('trees retain scene ownership and their foot anchor while scaling with the 
   assert.equal(button.style.width, `${160 * yardZoom()}px`);
   assert.equal(button.style.height, `${170 * yardZoom()}px`);
   assert.equal(button.style.transform, `translate(${foot.x - 80 * yardZoom()}px,${foot.y - 170 * yardZoom()}px)`);
-  assert.equal(button.style.zIndex, String(1 + Math.round(tree.y * 100)));
+  // Ordered by where its feet are, as friends and gifts are, so a friend far behind it on raised
+  // ground is never drawn over it.
+  assert.equal(button.style.zIndex, String(depthAt(foot.y)));
   assert.match(button.innerHTML, /cherry-mature/);
   resize(300, 210);
   assert.equal(button.style.width, `${160 * yardZoom()}px`);

@@ -4,15 +4,21 @@ description: Microsoft Store, winget, Homebrew, 운영체제에 맞는 파일로
 
 # 설치하기
 
-- 아래 버튼은 지금 쓰는 운영체제에 맞는 설치 방법을 보여 줘요. 다른 파일은 그 아래 목록에 있어요.
+아래 버튼은 지금 쓰는 운영체제에 맞는 설치 방법을 보여 줘요. 다른 파일은 그 아래 목록에 있어요.
 
 <Downloads />
 
-| 운영체제 | 설치 방법 |
+::: tip 한눈에 보기
+| 하고 싶은 것 | 바로 가기 |
 |---|---|
-| Windows | [Microsoft Store](#microsoft-store)(추천, Microsoft 서명), [winget](#winget), [GitHub 설치 파일](#installer-from-github) |
-| macOS | [Homebrew](#homebrew), [GitHub dmg](#dmg-from-github) |
-| Linux | [AppImage 또는 deb](#linux) |
+| Windows에 설치 | [Microsoft Store](#microsoft-store)(추천, Microsoft 서명), [winget](#winget), [GitHub 설치 파일](#installer-from-github) |
+| macOS에 설치 | [Homebrew](#homebrew), [GitHub dmg](#dmg-from-github) |
+| Linux에 설치 | [AppImage 또는 deb](#linux) |
+| 처음 실행할 때 뜨는 경고 넘기기 | [Windows SmartScreen](#installer-from-github), [macOS 1.2.0 이하](#dmg-from-github), [Linux FUSE](#linux) |
+| 업데이트 | [업데이트](#updates) |
+| PlayPets 지우기 | [제거](#uninstall) |
+| 친구와 설정이 저장된 곳 찾기 | [데이터 폴더](#data-folder) |
+:::
 
 ## Windows <Since v="0.1.0" /> {#windows}
 
@@ -30,7 +36,7 @@ description: Microsoft Store, winget, Homebrew, 운영체제에 맞는 파일로
 2. 시작 메뉴에서 PlayPets를 실행해요.
 
 - 일반 PC(x64)와 ARM PC는 각자에 맞는 패키지를 받아요.
-- 업데이트는 스토어가 맡아요. 새 버전이 나오면 PlayPets가 마당에서 알려 줘요.
+- 업데이트는 스토어가 맡아요. 새 버전이 나오면 PlayPets가 놀이터에서 알려 줘요.
 
 ### winget {#winget}
 
@@ -135,35 +141,47 @@ chmod +x PlayPets_*.AppImage
 
 ## 업데이트 <Since v="0.1.0" /> {#updates}
 
-- Microsoft Store 설치본은 Store에서 업데이트해요. 새 버전이 나오면 마당과 설정에서 알려 주고, **Microsoft Store에서 받기**를 누르면 Store의 PlayPets 페이지가 열려요.
+| 설치한 곳 | 업데이트를 설치하는 쪽 |
+|---|---|
+| Microsoft Store, winget | Store가 해요. 새 버전이 나오면 놀이터와 설정에서 알려 주고, **Microsoft Store에서 받기**를 누르면 Store의 PlayPets 페이지가 열려요. 테스트용 MSIX도 패키지로 업데이트해요 |
+| 그 밖의 설치본 | 내가 고를 때만 PlayPets가 직접 해요(아래) |
+
 - 업데이트한 뒤 처음 켜면 몇 버전이 됐는지 알려 줘요.
-- 아래 안내는 MSIX가 아닌 GitHub 설치본에 해당해요. 테스트용 MSIX도 패키지 관리 방식으로 업데이트해요.
 - 저장과 외부 통신은 [개인정보처리방침](../privacy.md)에 있어요.
 
-지금 확인하기:
+### 지금 확인하기
+
+아래 어느 것을 눌러도 **설정 → 앱 업데이트**가 열리고, 확인 결과와 업데이트 작업을 한곳에서 봐요.
+
 - **설정 → 앱 업데이트**의 **업데이트 확인**
 - 트레이 메뉴의 **업데이트 확인…**
 - macOS 메뉴 막대의 **PlayPets → 업데이트 확인…**
-- 모두 설정의 **앱 업데이트**로 열려요. 확인 결과와 업데이트 작업을 한곳에서 봐요.
 
-새 버전 설치:
+### 새 버전 설치
+
 1. 새 버전이 있으면 버전 표시가 조용히 나타나요. 누르면 같은 설정 항목이 열려요.
-2. 새로운 점을 읽고 **설치하고 다시 시작**을 골라요.
-3. 다운로드, 서명 확인, 설치 후 다시 시작해요. 재시작 후 설치된 버전을 잠깐 알려 줘요.
+2. 새로운 점을 읽고 **설치하고 다시 시작**을 골라요. 내려받고 서명을 확인하고 설치한 뒤 다시 시작해요.
+3. 다시 시작하면 설치된 버전을 잠깐 알려 줘요.
 
 - 자동 확인만으로 설치를 시작하지는 않아요.
 - 다운로드 중에도 설정을 닫고 계속 놀 수 있어요. 작은 창에서도 진행 버튼이 남아요.
 - 다시 열어도 다운로드를 중복 실행하지 않아요.
-- 오류와 다시 시도도 **앱 업데이트**에서 봐요.
+- 오류와 다시 시도도 **설정 → 앱 업데이트**에서 봐요.
 
-자동 확인:
-- 앱 시작 20초 뒤 조용히 확인하고, 실행 중에는 6시간마다 다시 확인해요.
-- 실패하면 5분, 15분, 1시간 뒤에 조용히 다시 시도하고, 이후에는 6시간마다 시도해요. 성공하면 6시간 간격으로 돌아가요.
+### 자동 확인
+
+| 언제 | 어떻게 해요 |
+|---|---|
+| 앱 시작 20초 뒤 | 조용히 확인해요 |
+| 실행 중 | 6시간마다 조용히 확인해요 |
+| 확인에 실패하면 | 5분, 15분, 1시간 뒤에 조용히 다시 시도하고, 이후에는 6시간마다 시도해요 |
+| 확인에 성공하면 | 6시간 간격으로 돌아가요 |
+
 - 자동 확인으로 설정이 열리거나 알림이 뜨지는 않아요.
 - 새 버전은 GitHub 릴리스의 `latest.json`에서 찾아요.
 - 받은 파일은 업데이트 서명 키로 검증한 뒤에만 설치해요. 검증에 실패하면 설치하지 않아요.
 
-## 제거
+## 제거 {#uninstall}
 
 | 운영체제 | 방법 |
 |---|---|
@@ -173,10 +191,12 @@ chmod +x PlayPets_*.AppImage
 | Linux deb | 설치할 때 쓴 패키지 관리자로 제거해요 |
 | Linux AppImage | 파일을 지워요 |
 
-- 앱을 지우기 전에 연결한 코딩 에이전트마다 **연결 해제**를 눌러 주세요([코딩 에이전트 연동](./agents.md)). 훅은 `~/.claude/settings.json`, `~/.codex/config.toml` 같은 파일에 남아서, PlayPets가 없어진 뒤에는 에이전트가 훅 명령이 실패했다고 알려요.
-- API 키는 앱을 지운 뒤에도 이 컴퓨터의 보안 저장소(Windows 자격 증명 관리자, macOS 키체인, Linux Secret Service)에 남아요. 먼저 AI 연결마다 **연결 삭제**를 눌러 지워 주세요.
-- 앱을 지워도 아래 데이터 폴더는 남아요.
-- 스토어, winget: 앱을 지우면 Windows가 패키지 데이터도 함께 지워요.
+앱을 지우기 전에 이렇게 해 주세요.
+
+1. 연결한 코딩 에이전트마다 **연결 해제**를 눌러요([코딩 에이전트 연동](./agents.md)). 안 그러면 훅이 `~/.claude/settings.json`, `~/.codex/config.toml` 같은 파일에 남아서, PlayPets가 없어진 뒤 에이전트가 훅 명령이 실패했다고 알려요.
+2. AI 연결마다 **연결 삭제**를 눌러요. 안 그러면 API 키가 이 컴퓨터의 보안 저장소(Windows 자격 증명 관리자, macOS 키체인, Linux Secret Service)에 남아요.
+
+- 앱을 지워도 아래 데이터 폴더는 남아요. 스토어, winget: 앱을 지우면 Windows가 패키지 데이터도 함께 지워요.
 - 설정과 가져온 펫까지 모두 지우려면 데이터 폴더도 지워 주세요.
 
 ## 데이터 폴더 <Since v="0.1.0" /> {#data-folder}
@@ -197,4 +217,4 @@ chmod +x PlayPets_*.AppImage
 | `backgrounds/` | 가져온 배경 |
 | `builtin/` | 기본 펫 네 개 |
 
-- 다른 곳에 두려면 환경 변수 `PLAYPETS_DATA`에 폴더 경로를 넣고 앱을 실행해요. 자세한 내용은 [설정](./settings.md)에 있어요.
+- 다른 곳에 두려면 환경 변수 `PLAYPETS_DATA`에 폴더 경로를 넣고 앱을 실행해요. 자세한 내용은 [설정](./settings.md#data-folder)에 있어요.

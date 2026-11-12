@@ -2,10 +2,12 @@
 // it comes each year, and a friend who mentions it. What the events are and when: events.js.
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
+import { systemSouth } from '../core/season.js';
 import { $, recall, remember, views } from '../core/state.js';
 import { artSvg } from './art.js';
 import { showCard } from './card.js';
 import { eventGifts, giftKind } from './catalog.js';
+import { byDate } from './events.js';
 import { bubble } from './views.js';
 import { scene } from './world.js';
 import { worldAllows } from './worlds.js';
@@ -22,8 +24,11 @@ export function eventChanged(event) {
     waiting = null;
     return;
   }
+  // Its gifts keep to its dates; a scene picked by hand calls up only the look (events.js).
   const name = t(`event.${event.id}.name`),
-    about = t(`event.${event.id}.about`);
+    about = byDate(event.id, new Date(), systemSouth())
+      ? `${t(`event.${event.id}.about`)} ${t(`event.${event.id}.gift`)}`
+      : t(`event.${event.id}.about`);
   chip.textContent = name;
   chip.title = about;
   // Once a year, the first time the yard is seen with it: a window started hidden (with desktop

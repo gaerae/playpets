@@ -64,7 +64,7 @@ flowchart LR
 
 ### Yard content
 - Every kind: fish, bugs, flowers, gifts, the garden's stages.
-- The scenery's composition: curves, field, lake, layers.
+- The scenery's composition: curves, field top, lake, layers.
 - The seasonal events and the drawings.
 - Loaded at start by `src/yard/content.js`.
 - The backend has the catalogue built in (`pets/content.rs`).
@@ -198,11 +198,15 @@ Format:
 | Place | ID |
 |---|---|
 | Hill garden | `woodland` |
-| Stone courtyard | `courtyard` |
+| Wild garden | `courtyard` |
 | Lakeside cottage | `lakeside` |
 | Garden workshop | `workshop` |
 
 - Each describes its activity capabilities, floor and pond geometry, lighting images and window panes.
+- An outdoor place's floor is `geometry.fieldTop`, raised where `geometry.edge` traces ground reaching back ([traced edge](how-to/add-a-world.md#traced-edge)).
+  - `edge`: picture `[x, y]` points, left to right, joined by straight lines.
+  - The field's top at `x` is `min(fieldTop, edge(x))`; a saved `y` stays 0 to 1 at every `x`.
+  - `field.js` `topAt` and `hasEdge` read it.
 - `yard/environment.js` paints the accepted raster backdrop. `easel.js` keeps the procedural loading/error fallback.
 - `weatherPanes` clips indoor rain, snow and overcast shading to the authored windows.
 - Outdoor places support fishing and bugs.
@@ -219,7 +223,7 @@ Format:
 - New yards start in spring daylight with clear weather.
 - Saved choices, including Auto, stay unchanged.
 - The yard and overlay share that choice through local storage.
-- Festivals keep their calendar dates even when the visible season is overridden.
+- A festival comes on its calendar dates while the yard shows its season (the fixed ones in any season), or on any day when a season picked by hand and the time and weather match its `scene`; its gifts keep to the dates (`sceneEvent` and `giftEvent` in `yard/events.js`).
 
 ### Friend identity
 - The four bundled identities: Daisy, Clover, Pip and Miso.

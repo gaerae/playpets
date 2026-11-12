@@ -15,7 +15,7 @@ import { BUGS, FISH, FLOWERS, GIFTS, giftKind, SHOOTS, TRACKS, TREASURES, TREES 
 import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
-import { eventDates } from '../yard/events.js';
+import { eventDates, eventScene } from '../yard/events.js';
 import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
@@ -28,11 +28,18 @@ function when(kind, where) {
     periods = kind.periods.length === 4 ? t('catch.any_time') : joinList(kind.periods.map(p => t(`period.${p}`)));
   return joinList([seasons, periods, t(where)]);
 }
-// A kind that comes only during a seasonal event says when, by the dates of the system's hemisphere.
+// A kind that comes only during a seasonal event says when, by the dates of the system's hemisphere;
+// a fish or a bug also by the scene that calls the event up by hand (a gift keeps to the dates).
 const eventHint = k =>
   t('catch.event_hint', {
     event: t(`event.${k.event}.name`),
     dates: eventDates(k.event, systemSouth()),
+  });
+const eventSceneHint = k =>
+  t('catch.event_scene_hint', {
+    event: t(`event.${k.event}.name`),
+    dates: eventDates(k.event, systemSouth()),
+    scene: eventScene(k.event),
   });
 // What comes only on certain dates is rare, whatever its weight.
 const rare = k => k.rarity === 'rare' || !!k.event;
@@ -73,7 +80,7 @@ const BOOKS = {
     name: k => t(`catch.fish_${k.id}`),
     hint: k =>
       joinList([
-        ...(k.event ? [eventHint(k)] : []),
+        ...(k.event ? [eventSceneHint(k)] : []),
         when(k, 'catch.where_lake'),
         ...(k.rain > 1 ? [t('catch.rain_hint')] : []),
       ]),
@@ -88,7 +95,7 @@ const BOOKS = {
     name: k => t(`catch.bug_${k.id}`),
     hint: k =>
       joinList([
-        ...(k.event ? [eventHint(k)] : []),
+        ...(k.event ? [eventSceneHint(k)] : []),
         when(k, ['beetle', 'cricket'].includes(k.kind) ? 'catch.where_ground' : 'catch.where_air'),
         t('catch.bug_clear'),
       ]),

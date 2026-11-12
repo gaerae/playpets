@@ -56,3 +56,12 @@ test('snow under the moon glitters in two layers that twinkle in turn, lit most 
   assert.match(still, /moment-snowlight \.moment-layer::before/);
   assert.match(still, /moment-snowlight \.moment-layer::after/);
 });
+
+test('the harvest moon is a whole disc, not tonight’s phase through the big moon', async () => {
+  const css = (await readFile('src/styles/scenery.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)].find(([, selectors]) =>
+    selectors.split(',').some(s => s.trim() === '.look-fullmoon.moon-full.period-night .sky-body::after'),
+  );
+  assert.ok(rule, 'the harvest moon has its own drawing');
+  assert.match(rule[2], /mask:\s*radial-gradient/, 'its mask is a full disc, not the phase in --moon-lit');
+});

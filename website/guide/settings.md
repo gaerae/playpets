@@ -4,9 +4,22 @@ description: Language and startup, friends and AI, About and app updates, menus 
 
 # Settings
 
-Open **Friends & settings → Settings**. You'll find five sections there: **Language & startup**, **Friends & AI**, **Coding tools**, **App updates** and **About PlayPets**. [Coding tools](./agents.md) has its own guide.
+Open **Friends & settings → Settings**. It has five sections: **Language & startup**, **Friends & AI**, **Coding tools**, **App updates** and **About PlayPets**.
 
-Season, sound and volume aren't in Settings. They're in **Place & atmosphere → Atmosphere**. When an update is available, a dot shows on Settings in the menu.
+::: tip At a glance
+| To | Where | More |
+|---|---|---|
+| Change the language | **Language & startup** | [Language](#language) |
+| Start PlayPets with your computer | **Language & startup** | [Start at login](#start-at-login) |
+| Edit or add an AI connection | **Friends & AI** | [Friends & AI](#friends-ai) |
+| Let friends chat or dig on their own | Switches in **Friends & AI** | [Switches](#switches) |
+| Connect a coding agent | **Coding tools** | [Coding agents](./agents.md) |
+| Update PlayPets | **App updates** | [App updates](#app-updates) |
+| Open the data folder, the guide or the privacy policy | **About PlayPets** | [About PlayPets](#about) |
+| Change the season, sounds or volume | Not in Settings: **Place & atmosphere → Atmosphere** | [The yard](./play.md#weather) |
+| Close or quit | **Friends & settings** | [Quit PlayPets](#quit) |
+| Use the keyboard | | [Shortcuts](#shortcuts) |
+:::
 
 | | Large window | Small window |
 |---|---|---|
@@ -14,57 +27,51 @@ Season, sound and volume aren't in Settings. They're in **Place & atmosphere →
 | Opens on | The section you last had open | The list |
 | Back | Returns to Friends & settings | From a section: to the list. From the list: to Friends & settings |
 
-- These open their section directly: **About PlayPets** and **Check for updates…** in the tray and the macOS menu bar, and an update notice. In a small window, Back still returns to the list.
+- **About PlayPets** and **Check for updates…** in the tray and the macOS menu bar, and an update notice, open their section directly. In a small window, Back still returns to the list.
 - Close returns to the scenery.
+- When an update is available, a dot shows on Settings in the menu.
 
-## Language <Since v="0.1.0" />
+## Language <Since v="0.1.0" /> {#language}
 
 Pick 한국어, English, 日本語 or 简体中文. At first PlayPets follows your system language.
 
-Changing it reloads the yard and the desktop windows in the new language, and the tray menu and window title change with them. Any reply still being generated is canceled. Earlier messages stay as they were; they aren't translated.
-
-Friends greet you and chatter in the language you picked, and AI replies use it too by default. Want an answer in another language? Ask for it in your latest message. With coding agents and the terminal, the app speaks English.
-
+- Changing it reloads the yard and the desktop windows in the new language; the tray menu and window title change with them.
+- A reply still being generated is canceled. Earlier messages stay as they were, untranslated.
+- Friends greet you and chatter in the language you picked, and AI replies use it too by default. For an answer in another language, ask for it in your latest message.
+- With coding agents and the terminal, the app speaks English.
 - Saved as `language` in `state.json`.
 - For testing: start the app with `PLAYPETS_LANG=ko|en|ja|zh-hans`. It takes priority over the saved language for that run only; the saved language stays as it was.
 
-## Start PlayPets when you log in <Since v="0.1.0" />
+## Start PlayPets when you log in <Since v="0.1.0" /> {#start-at-login}
 
 Turn this on and PlayPets starts whenever you log in to your computer. It's off by default.
 
-If desktop mode is on, the yard window doesn't open at login. What you put out on the desktop comes out, and the window waits in the tray.
+- With desktop mode on, the yard window doesn't open at login: what you put out on the desktop comes out, and the window waits in the tray.
+- Your system keeps this choice: Login Items on macOS, Startup apps on Windows, an autostart entry on Linux. Turning it off in either place turns it off.
+- Microsoft Store version: once PlayPets is turned off in Windows, the app can't turn it back on. Turn it on in Windows **Settings → Apps → Startup**.
 
-Your system keeps this choice: Login Items on macOS, Startup apps on Windows, an autostart entry on Linux. Turning it off in either place turns it off.
+## Friends & AI <Since v="1.2.0" /> {#friends-ai}
 
-In the Microsoft Store version, once PlayPets is turned off in Windows, the app can't turn it back on. Turn it on in Windows **Settings → Apps → Startup**.
+Every AI connection is listed here, with how many friends use it and an **Edit** button. No connection yet? Friends still play and react without one.
 
-## Friends & AI <Since v="1.2.0" />
-
-This section lists every AI connection, with how many friends use it and an **Edit** button. No connection yet? Friends still play and react without one.
-
-**Edit**, or **Connect an AI** for a new connection, opens the connection form right here in the section. No window covers Settings. Editing a connection here doesn't move any friend to it.
-
+- **Edit**, or **Connect an AI** for a new connection, opens the connection form right in the section. No window covers Settings.
+- Editing a connection here moves no friend to it.
 - **Esc** folds the form. If you typed something, it says "You have changes here. Save them, or press Cancel to discard them." instead.
 - How to make a connection: [Chat with a friend](./chat.md#making-a-connection).
 
-## Let them chat now and then <Since v="0.1.0" />
+### Switches {#switches}
 
-This switch is in Friends & AI and is off by default. Turn it on and friends with an AI have a short chat every 20 minutes. A round is skipped while the window is hidden or someone is answering.
+| Switch | Default | What it does | Needs an AI |
+|---|---|---|---|
+| **Let them chat now and then** <Since v="0.1.0" /> | Off | Friends with an AI have a short chat every 20 minutes. A round is skipped while the window is hidden or someone is answering | Yes |
+| **Let them dig on their own now and then** <Since v="1.2.0" /> | Off | While the yard is shown, an idle friend digs a spot of its own every few minutes. What it finds is kept, as with any dig | No |
 
-These calls use your subscription allowance or your provider's billing, so turn it on when you want it. Local Ollama models have no hosted inference fee.
+- Chatting uses your subscription allowance or your provider's billing, so turn it on when you want it. Local Ollama models have no hosted inference fee.
+- A friend doesn't dig on its own during a game, while you hold a tool, or in places without soil, such as Garden workshop.
 
-## Let them dig on their own now and then <Since v="1.2.0" />
+## About PlayPets <Since v="0.1.0" /> {#about}
 
-This switch is in Friends & AI too. It's off by default and needs no AI connection. Turn it on and, while the yard is shown, an idle friend digs a spot of its own every few minutes. Whatever it finds is kept, the same as any other dig.
-
-A friend doesn't dig on its own:
-- during a game
-- while you hold a tool
-- in places without soil, such as Garden workshop
-
-## About PlayPets <Since v="0.1.0" />
-
-This section shows the version, then three groups. Links open in your browser. App updates have their own section.
+The version, then three groups. Links open in your browser; updates have their own section.
 
 | Group | Holds |
 |---|---|
@@ -72,7 +79,7 @@ This section shows the version, then three groups. Links open in your browser. A
 | **Project** | The website, release notes, GitHub |
 | **Privacy and license** | The privacy policy, the license |
 
-## App updates <Since v="0.1.0" />
+## App updates <Since v="0.1.0" /> {#app-updates}
 
 How PlayPets updates depends on where you installed it. Test MSIX packages update through their package, as the Store version does.
 
@@ -84,42 +91,37 @@ How PlayPets updates depends on where you installed it. Test MSIX packages updat
 | A new version | Shows in the yard and here. **Open in Microsoft Store** opens its page there | Its entry opens **Friends & settings → Settings → App updates** |
 | While it installs | PlayPets closes for a moment and opens again | PlayPets downloads, verifies and installs it, then restarts |
 
-Storage and network details are in the [privacy policy](../privacy.md).
+| In the section | What it does |
+|---|---|
+| The version row | Shows the current version. Under it, the section says PlayPets checks quietly and installs only when you choose |
+| **Check for updates** | Says "You're up to date" when you are |
+| **What changed in this version** | Opens the release page of the version you use |
+| **What's new** | Opens the new version's release page in your browser |
+| **Install and restart** | Downloads, verifies and installs, all in this section, with no separate update window. Progress, retry after a failure and errors stay here too. With the download size unknown, progress has no percentage |
 
-### Checking
-- The row shows the current version.
-- If you're current, **Check for updates** says "You're up to date".
-- The section says under the row that PlayPets checks quietly and installs only when you choose.
-- **What changed in this version** opens the release page of the version you use.
+- Your friends and settings stay after the restart, and a brief notice confirms the installed version.
+- Storage and network details: [privacy policy](../privacy.md).
 
-### Installing
-- **What's new** opens the release page in your browser.
-- All of these stay in App updates; no separate update window opens:
-  - **Install and restart**
-  - download progress, verification, installation
-  - retry after a failure
-- Download size unknown: progress has no percentage.
-
-Your friends and settings stay after the restart, and a brief notice confirms the installed version.
-
-## Quit PlayPets <Since v="0.1.0" />
+## Quit PlayPets <Since v="0.1.0" /> {#quit}
 
 | In **Friends & settings** | What it does |
 |---|---|
 | **Close window** | Hides the yard in the tray. Desktop friends and agent hooks keep running |
 | **Quit PlayPets** | Exits at once; conversations are not saved. Same as **Quit PlayPets** in the tray and <kbd>⌘</kbd> <kbd>Q</kbd> on macOS |
 
-Neither is a direct item in the scenery's right-click menu. Choose Friends & settings first.
+- Neither is a direct item in the scenery's right-click menu. Choose Friends & settings first.
 
-## Menus and shortcuts <Since v="0.1.0" />
+## Menus and shortcuts <Since v="0.1.0" /> {#menus}
 
-Move the pointer to the top of the yard and buttons appear to reset the window size, minimize and close. **Reset window size** is in the scenery's right-click menu too. If you unplug a monitor and the window no longer fits, it comes back inside the screen that is left on its own.
+- Move the pointer to the top of the yard and buttons appear to reset the window size, minimize and close. **Reset window size** is in the scenery's right-click menu too.
+- If you unplug a monitor and the window no longer fits, it comes back inside the screen that is left on its own.
 
 ### Tray menu
 
-The tray menu opens from the cat in the menu bar or taskbar. Its items, in order:
+It opens from the cat in the menu bar or taskbar. Its items, in order:
+
 1. **Open the yard**, **Friends** (when friends are present), **Invite a Friend…**
-2. **Reset window size** puts the yard back at its usual size in the middle of the screen
+2. **Reset window size**: puts the yard back at its usual size in the middle of the screen
 3. Display switches: **Always on top**, **Show on desktop**, and **Stroll on desktop** while desktop mode is on
 4. **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets**, **Quit PlayPets**
 
@@ -131,14 +133,16 @@ The tray menu opens from the cat in the menu bar or taskbar. Its items, in order
 
 ### macOS menu bar
 
-- **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding, **Quit PlayPets**
-- **Edit**: cut, copy and paste in text fields
-- **View** → **Friends & Settings**, **Friends**, **Invite a Friend…**; **Always on top** and **Show on desktop** with a check mark (the desktop switch is grayed out until a friend is in); **Yard Sounds** with a check mark
-- **Window** → **Reset window size**, minimize and close
+| Menu | Items |
+|---|---|
+| **PlayPets** | **About PlayPets**, **Check for Updates…**, **Settings…**, hiding, **Quit PlayPets** |
+| **Edit** | Cut, copy and paste in text fields |
+| **View** | **Friends & Settings**, **Friends**, **Invite a Friend…**; **Always on top**, **Show on desktop** and **Yard Sounds** with a check mark (the desktop switch is grayed out until a friend is in) |
+| **Window** | **Reset window size**, minimize and close |
 
-### Shortcuts
+### Shortcuts {#shortcuts}
 
-The keys below use <kbd>⌘</kbd> on macOS and <kbd>Ctrl</kbd> on Windows and Linux.
+<kbd>⌘</kbd> on macOS, <kbd>Ctrl</kbd> on Windows and Linux.
 
 | Keys | Does |
 |---|---|
@@ -152,7 +156,7 @@ The keys below use <kbd>⌘</kbd> on macOS and <kbd>Ctrl</kbd> on Windows and Li
 | <kbd>⌘</kbd> <kbd>0</kbd> | Reset window size |
 | <kbd>⌘</kbd> <kbd>Q</kbd> | Quit PlayPets (macOS) |
 
-## Data folder <Since v="0.1.0" />
+## Data folder <Since v="0.1.0" /> {#data-folder}
 
 | Operating system | Location |
 |---|---|
@@ -180,20 +184,19 @@ The keys below use <kbd>⌘</kbd> on macOS and <kbd>Ctrl</kbd> on Windows and Li
   - the file's format number (`schema`)
 - A `state.json` written by a newer version is copied aside, and the parts this version knows are read.
 
-### Startup notices
+### Startup notices {#startup-notices}
 
-If a friend can't load when the app opens, a collapsed **Startup notices** card floats just above the dock. It doesn't take any space from the yard. Open it to read the details.
+If a friend can't load when the app opens, a collapsed **Startup notices** card floats just above the dock, taking no space from the yard. Open it to read the details.
 
-When it says pet files are missing:
-1. Check the original pet folder and its files.
-2. Restore them if needed.
-3. Quit and open PlayPets again.
+| The card says | Do this |
+|---|---|
+| Pet files are missing | 1. Check the original pet folder and its files. 2. Restore them if needed. 3. Quit and open PlayPets again |
+| The yard is at its 12-friend limit | Free a slot, then open the app again |
 
-When the yard is at its 12-friend limit, free a slot before opening the app again.
+- These notices don't delete the saved friend records.
+- Dismissing the card hides it for this session; new notices bring it back.
 
-These notices don't delete the saved friend records. Dismissing the card hides it for this session, and new notices bring it back.
-
-## Environment variables
+## Environment variables {#environment-variables}
 
 | Variable | What it does |
 |---|---|
@@ -205,7 +208,7 @@ These notices don't delete the saved friend records. Dismissing the card hides i
 
 - Set them in the environment the app runs in: start the app from a terminal, or use your operating system's environment variable settings.
 
-## What is saved and what is not <Since v="0.1.0" />
+## What is saved and what is not <Since v="0.1.0" /> {#what-is-saved}
 
 ### Saved
 
@@ -219,9 +222,8 @@ These notices don't delete the saved friend records. Dismissing the card hides i
 
 ### Saved differently
 
-- API keys do not go into `state.json`.
-  - Kept only in this computer's secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service).
-  - Deleting the connection deletes them too.
+- API keys never go into `state.json`. They're kept only in this computer's secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service).
+- Deleting the connection deletes its key too.
 
 ### Not saved
 

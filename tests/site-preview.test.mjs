@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { PREVIEW_STATES, previewSource, validatePreview } from '../scripts/site-preview-lib.mjs';
@@ -161,18 +162,25 @@ test('the motion export plans every official companion, sheet and motion row', a
 test('the site shows its scenes as WebP and a small icon instead of the app originals', async () => {
   const { siteImagePlan } = await import('../scripts/site-images.mjs');
   const plan = siteImagePlan(['assets/art/environments/spring.png', 'assets/art/environments/courtyard-autumn.png']);
+  // Each scene also gets a half-size copy, for the places' cards on the landing.
   assert.deepEqual(plan.scenes, [
     {
       name: 'spring',
       source: 'assets/art/environments/spring.png',
       destination: 'website/public/yard/scenes/spring.webp',
+      small: 'website/public/yard/scenes/768/spring.webp',
     },
     {
       name: 'courtyard-autumn',
       source: 'assets/art/environments/courtyard-autumn.png',
       destination: 'website/public/yard/scenes/courtyard-autumn.webp',
+      small: 'website/public/yard/scenes/768/courtyard-autumn.webp',
     },
   ]);
+  assert.equal(plan.smallWidth, 768);
+  const scenery = readFileSync('website/.vitepress/theme/scenery.ts', 'utf8');
+  assert.match(scenery, /export const sceneSrcset/);
+  assert.match(scenery, /768w, .*1536w/);
   assert.deepEqual(plan.icon, { source: 'assets/icon.svg', destination: 'website/public/icon.png', size: 96 });
 });
 

@@ -16,6 +16,7 @@ import * as ja from './landing-ja';
 import * as ko from './landing-ko';
 import * as zh from './landing-zh-hans';
 import PetGallery from './PetGallery.vue';
+import PlaceCards from './PlaceCards.vue';
 import PlayReel from './PlayReel.vue';
 import SceneChips from './SceneChips.vue';
 import VisibleSprite from './VisibleSprite.vue';
@@ -84,6 +85,12 @@ const sceneWhen = (scene: { before?: string; weather: string; periods: string[];
       </ul>
       <p class="play-more"><a class="more" :href="path('/guide/play')">{{ t.play.link }} →</a><span>v{{ generated.captureVersion }}</span></p>
     </section>
+    <!-- The places the app ships, each in its own art: three outdoors with four seasons, one indoors. -->
+    <section class="places-story" id="places">
+      <header><h2>{{ t.placeCards.title }}</h2><p class="section-lead">{{ t.placeCards.lead }}</p></header>
+      <PlaceCards :names="t.places" :copy="t.placeCards" />
+      <p class="play-more places-more"><a class="more" :href="path('/guide/play#places')">{{ t.placeCards.link }} →</a><a class="more" :href="path('/guide/background-kit')">{{ t.placeCards.own }} →</a></p>
+    </section>
     <!-- What there is to collect, and the times of year the yard changes: each with how to take part. -->
     <section class="album-story" id="album">
       <header><h2>{{ t.album.title }}</h2><p class="section-lead">{{ counted(t.album.lead) }}</p></header>
@@ -93,6 +100,7 @@ const sceneWhen = (scene: { before?: string; weather: string; periods: string[];
     <section class="seasons-story" id="seasons">
       <header><h2>{{ t.year.title }}</h2><p class="section-lead">{{ t.year.lead }}</p></header>
       <YearStory :lang="lang" :seasons="t.seasons" :copy="t.year" :recipe="t.recipe" />
+      <p class="year-south">{{ t.year.gifts }}</p>
       <p class="year-south">{{ t.year.south }}</p>
       <p class="play-more"><a class="more" :href="path('/guide/play#seasonal-events')">{{ t.year.link }} →</a></p>
     </section>

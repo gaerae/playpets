@@ -8,7 +8,7 @@ import { $, aiming, dropLine, game, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
 import { giftKind } from './catalog.js';
-import { EDGE, field, yardZoom } from './field.js';
+import { EDGE, field, fieldToYard, yardToField, yardZoom } from './field.js';
 import { scene } from './world.js';
 
 /** Brings `shown` (id → view) in line with `items`: views of items that went are removed, new ones
@@ -38,12 +38,22 @@ export function setDown(button, x, y, w, h, z) {
   button.style.transform = `translate(${x - w / 2}px,${y - h}px)`;
   button.style.zIndex = String(z);
 }
-/** A new button for a prop in the garden layer. */
-export function propButton(className, kind) {
+// A tree's sway takes 7 s one way (garden.css breeze), so a start this far into it covers the swing.
+const SWAY_SPAN = 7;
+/** Where in the breeze a thing on the field starts, as a CSS delay: from its id, so it keeps its
+ * beat while other things come and go in the layer, and neighbours do not sway together. */
+export function swayDelay(id) {
+  let hash = 0;
+  for (const ch of String(id)) hash = (hash * 31 + ch.codePointAt(0)) >>> 0;
+  return `-${((hash % (SWAY_SPAN * 10)) / 10).toFixed(1)}s`;
+}
+/** A new button for a prop in the garden layer; with an `id`, it sways to its own beat. */
+export function propButton(className, kind, id) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = className;
   button.dataset.kind = kind;
+  if (id !== undefined) button.style.setProperty('--sway', swayDelay(id));
   $('garden-layer').append(button);
   return button;
 }
@@ -110,6 +120,12 @@ export function dragPoint(drag, event, width, height, bottom = 1) {
     dy = event.clientY - drag.startY;
   if (!drag.moved && Math.hypot(dx, dy) < DRAG_SLOP) return null;
   drag.moved = true;
+  // The field begins higher where a path reaches back (field.js topAt), so a drag that knows where
+  // it started in the yard (`foot`) follows the pointer there and takes the place under it.
+  if (drag.toField) {
+    const at = drag.toField(drag.foot.x + dx, drag.foot.y + dy);
+    return { x: at.x, y: clamp(at.y, 0, bottom) };
+  }
   return { x: clamp(drag.x + dx / width), y: clamp(drag.y + dy / height, 0, bottom) };
 }
 /** How far an arrow key moves a flower or a planted tree, as a share of the field: [x, y]. */
@@ -124,7 +140,8 @@ const FIELD_STEPS = Object.freeze({
  * Shift+F10, and Delete take it away. `current()` is the saved thing now, or null once it is gone;
  * `show(point)` draws it at a field point while it is dragged; `save(point)` keeps a new spot;
  * `menu(point)` opens its menu at a window point; `remove()` takes it away; `settle()` draws the
- * field again after a drag; `allowed(point)`, when given, marks a spot it may not stand on;
+ * field again after a drag; `allowed(point, drag)`, when given, marks a spot it may not stand on (it
+ * is asked on every move of one drag with that drag, which may keep what it measured once);
  * `press(event)` is a click, which the click that ends a drop is not. While something is being
  * placed, or in a game, it is left alone. */
 export function movable(view, { current, show, save, menu, remove, settle, allowed, press }) {
@@ -139,6 +156,8 @@ export function movable(view, { current, show, save, menu, remove, settle, allow
       width: Math.max(1, f.width - EDGE * 2),
       height: Math.max(1, f.bottom - f.top),
       world: scene.world,
+      foot: fieldToYard(current()),
+      toField: yardToField,
     });
   });
   button.addEventListener('pointermove', event => {
@@ -148,7 +167,7 @@ export function movable(view, { current, show, save, menu, remove, settle, allow
     if (!at) return;
     drag.at = at;
     button.classList.add('dragging');
-    if (allowed) button.classList.toggle('invalid', !allowed(at));
+    if (allowed) button.classList.toggle('invalid', !allowed(at, drag));
     show(at);
   });
   const drop = async event => {

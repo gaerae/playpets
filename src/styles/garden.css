@@ -40,6 +40,8 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
+  /* Its transform places it (props.js setDown); eased, it would trail the pointer in a drag. */
+  transition: none;
 }
 /* A portable garden sits in ceramic pots on a floor without soil (a room, an agent workspace). */
 .yard[data-soil="false"] .plant::after {
@@ -110,6 +112,7 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
+  transition: none;
 }
 .shoot::before {
   content: "";
@@ -818,20 +821,20 @@
   transform-origin: 50% 100%;
 }
 /* The breeze: outdoors, trees and flowers past the seed lean a little one way and back about their
-   foot, on the compositor; a flower, lighter, more and sooner. Each takes its beat from its place
-   among the garden's things, so they do not sway together. On a floor without soil (indoors) the air is still, and gifts
-   (and what is hung on them) stay put. */
+   foot, on the compositor; a flower, lighter, more and sooner. Each keeps its own beat (--sway,
+   props.js swayDelay), so they do not sway together and none jumps when another comes or goes. On
+   a floor without soil (indoors) the air is still, and gifts (and what is hung on them) stay put. */
 .yard:not([data-soil="false"]) .planted-tree svg {
   animation: breeze 7s ease-in-out var(--sway, 0s) infinite alternate;
 }
 .yard:not([data-soil="false"]) .plant:not([data-stage="seed"]) svg {
   animation: breeze-flower 4.6s ease-in-out var(--sway, 0s) infinite alternate;
 }
-.garden-layer > :nth-child(3n + 1) {
-  --sway: -2.3s;
-}
-.garden-layer > :nth-child(3n + 2) {
-  --sway: -4.1s;
+/* Held in a drag, it stops where it leans rather than wobbling in the hand, and sways on from there
+   once it is put down. */
+.yard:not([data-soil="false"]) .planted-tree.dragging svg,
+.yard:not([data-soil="false"]) .plant.dragging:not([data-stage="seed"]) svg {
+  animation-play-state: paused;
 }
 @keyframes breeze {
   from {

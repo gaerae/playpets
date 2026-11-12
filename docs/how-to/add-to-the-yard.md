@@ -169,7 +169,7 @@ To make a new effect:
 | Key | What it describes |
 |---|---|
 | `curves` | The hills, as cubic curves in fractions of the yard (x across, y down): a start point, then two control points and an end point for each piece |
-| `field`, `fieldTop` | The curve where the field friends stand on starts, and the height of its top (a fraction of the yard's height) |
+| `fieldTop` | Where the field friends stand on starts while the painted land stands in for the picture (a fraction of the yard's height) |
 | `lake` | Where the lake starts and ends across (`from`, `to`), its far shore's height at the middle (`top`) and the curve that hides its near half (`under`) |
 | `layers` | What is painted, from back to front. Each names its painter (`paint`) and that painter's settings |
 
@@ -192,13 +192,14 @@ To make a new effect:
 
    | Field | What it brings |
    |---|---|
+   | `scene` | The scene that calls it up on any day when the season is picked by hand: `seasons`, and `periods` and `weathers` when it asks for them (values from the scene picker). Its look, boost, fish and bugs come then; its gifts keep to `from`–`to` |
    | `boost` | More small life while it is on: `petals`, `butterflies`, `fireflies` (each a multiplier; fireflies stay at 8 or fewer, `fireflyCount` in `scene.js`) |
    | `looks` | Names of looks; each is a class on the yard (`look-<name>`) whose rules go in `src/styles/scenery.css`. The harvest moon's `fullmoon` makes the moon big and golden on the nights around the event's first real full moon, when `sky.js` also sets `moon-full` |
    | `art` | A drawing for its card, if it has no gift (the new year's sunrise) |
 
 2. A fish or a bug that comes only then: add it to the catalogue with `"event": "<id>"`.
 3. Something painted only then: give a layer in `yard.json` `"when": "<id>"` (the winter lights' `fairyLights`).
-4. Add `event.<id>.name`, `event.<id>.about` (the card's words) and `event.<id>.lines` (what friends say) to every string table.
+4. Add `event.<id>.name`, `event.<id>.about` (the card's words), `event.<id>.gift` (the card's line about its gifts, shown only on its dates) and `event.<id>.lines` (what friends say) to every string table.
 
 - While the event is on, the scene label shows it.
 - The first time each year, a card says it has begun.

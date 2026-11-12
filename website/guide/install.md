@@ -4,15 +4,21 @@ description: Microsoft Store, winget, Homebrew or the file for your system, the 
 
 # Install
 
-- The button below offers the way to install for the system you are on. Every other file is in the list under it.
+The button below offers the way to install for the system you are on. Every other file is in the list under it.
 
 <Downloads />
 
-| System | Ways to install |
+::: tip At a glance
+| To | Go to |
 |---|---|
-| Windows | [Microsoft Store](#microsoft-store) (recommended, signed by Microsoft), [winget](#winget), [installer from GitHub](#installer-from-github) |
-| macOS | [Homebrew](#homebrew), [dmg from GitHub](#dmg-from-github) |
-| Linux | [AppImage or deb](#linux) |
+| Install on Windows | [Microsoft Store](#microsoft-store) (recommended, signed by Microsoft), [winget](#winget), [installer from GitHub](#installer-from-github) |
+| Install on macOS | [Homebrew](#homebrew), [dmg from GitHub](#dmg-from-github) |
+| Install on Linux | [AppImage or deb](#linux) |
+| Get past a warning on first launch | [SmartScreen on Windows](#installer-from-github), [macOS 1.2.0 and earlier](#dmg-from-github), [FUSE on Linux](#linux) |
+| Update | [Updates](#updates) |
+| Remove PlayPets | [Uninstall](#uninstall) |
+| Find friends and settings on disk | [Data folder](#data-folder) |
+:::
 
 ## Windows <Since v="0.1.0" /> {#windows}
 
@@ -136,39 +142,47 @@ chmod +x PlayPets_*.AppImage
 
 ## Updates <Since v="0.1.0" />
 
-- Microsoft Store installation: the Store installs updates. When it has a new version, PlayPets shows it in the yard and in Settings, and **Open in Microsoft Store** opens its page there.
+| Installed from | Who installs updates |
+|---|---|
+| Microsoft Store or winget | The Store. A new version shows in the yard and in Settings, and **Open in Microsoft Store** opens its page there. Test MSIX packages also update through their package |
+| Anywhere else | PlayPets itself, only when you choose (below) |
+
 - After any update, the first start says which version PlayPets is now.
-- Test MSIX packages also use package-managed updates.
-- The GitHub installer update flow below is for installations outside MSIX.
 - Storage and network details: [privacy policy](../privacy.md).
 
-**Check now**
-- Any of these opens **Settings → App updates**, where the result and update actions stay together:
-  - **Check for updates** in **Settings → App updates**
-  - **Check for updates…** in the tray menu
-  - **PlayPets → Check for Updates…** in the macOS menu bar
+### Check now
 
-**Install a new version**
+Any of these opens **Settings → App updates**, where the result and the update actions stay together:
+
+- **Check for updates** in **Settings → App updates**
+- **Check for updates…** in the tray menu
+- **PlayPets → Check for Updates…** in the macOS menu bar
+
+### Install a new version
+
 1. When one is out, a quiet version entry opens that same Settings section.
 2. Read the release notes and choose **Install and restart**: it downloads, verifies the signature, installs and restarts.
-3. After restart, a brief notice confirms the installed version.
+3. After the restart, a brief notice confirms the installed version.
 
-- Automatic checks never start installation.
-- You can close Settings and keep playing during download. The progress entry stays reachable, also in small windows.
-- Reopening does not start another download.
-- Errors and Retry stay in Settings → App updates.
+- Automatic checks never start an installation.
+- You can close Settings and keep playing during the download. The progress entry stays reachable, also in small windows.
+- Reopening doesn't start another download.
+- Errors and **Retry** stay in **Settings → App updates**.
 
-**Automatic checks**
-- Silent check 20 seconds after startup, then every 6 hours while the app runs.
-- After a failed check: silent retries after 5 minutes, 15 minutes, 1 hour, then every 6 hours.
-- A successful check restores the 6-hour schedule.
+### Automatic checks
+
+| When | What happens |
+|---|---|
+| 20 seconds after startup | A silent check |
+| While the app runs | A silent check every 6 hours |
+| After a failed check | Silent retries after 5 minutes, 15 minutes and 1 hour, then every 6 hours |
+| After a successful check | Back to every 6 hours |
+
 - Background checks never open Settings or show a notice.
-
-**How versions are found and verified**
 - New versions are found through `latest.json` in GitHub releases.
 - A downloaded file is installed only after it is verified with the update signing key. A file that fails is not installed.
 
-## Uninstall
+## Uninstall {#uninstall}
 
 | Operating system | How |
 |---|---|
@@ -178,10 +192,12 @@ chmod +x PlayPets_*.AppImage
 | Linux deb | Remove it with the package manager you installed it with |
 | Linux AppImage | Delete the file |
 
-- Before you remove the app, press **Disconnect** for each coding agent you connected ([Coding agent hooks](./agents.md)). Its hook stays in files such as `~/.claude/settings.json` and `~/.codex/config.toml`, and once PlayPets is gone the agent reports a failed hook command.
-- API keys stay in this computer's secure storage (Windows Credential Manager, macOS Keychain, Linux Secret Service) after the app is gone. Press **Delete connection** for each AI connection first to remove them.
-- The data folder below stays after you remove the app.
-- Store or winget: Windows removes the package's data together with the app.
+Before you remove the app:
+
+1. Press **Disconnect** for each coding agent you connected ([Coding agent hooks](./agents.md)). Otherwise its hook stays in files such as `~/.claude/settings.json` and `~/.codex/config.toml`, and once PlayPets is gone the agent reports a failed hook command.
+2. Press **Delete connection** for each AI connection. Otherwise its API key stays in this computer's secure storage (Windows Credential Manager, macOS Keychain, Linux Secret Service).
+
+- The data folder below stays after you remove the app. Store or winget: Windows removes the package's data together with the app.
 - To also remove settings and imported pets, delete the data folder too.
 
 ## Data folder <Since v="0.1.0" />
@@ -203,4 +219,4 @@ chmod +x PlayPets_*.AppImage
 | `builtin/` | The four starter pets |
 
 - To keep it somewhere else: put a folder path in the `PLAYPETS_DATA` environment variable, then start the app.
-- Details: [Settings](./settings.md).
+- Details: [Settings](./settings.md#data-folder).

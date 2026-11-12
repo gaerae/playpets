@@ -85,3 +85,43 @@
 ## Follow-up: living room retired (2026-11-12)
 
 - The Garden workshop replaced the living room. The `studio-cozy-*` and `studio-view-*` files above moved to `assets/sources/environments/` with the same pixels; `scripts/creator-skill.mjs` still copies `studio-cozy-day.png` from there as the interior example.
+
+## 2026-11-13 follow-up
+
+- The three outdoor places got a new set of pictures, generated with the Codex image tool from house-style references.
+- The descriptions below are briefs, not verbatim prompts.
+
+| Place | Brief |
+| --- | --- |
+| Hill garden (`woodland`) | The open version of the hillside with a sage-roof cottage |
+| Wild garden (`courtyard`) | An open meadow, a pond with a little waterfall and a big oak, no buildings; it replaced the stone courtyard and keeps its id |
+| Lakeside cottage (`lakeside`) | A calm autumn lakeside |
+
+- The seasons were toned to one lawn and land tone (lightness L, chroma C, hue h):
+
+  | Season | Lawn |
+  | --- | --- |
+  | Summer | L ≈ 67, C ≈ 62, h ≈ 114 |
+  | Spring | Hue h ≈ 120 |
+  | Autumn | L ≈ 64, C ≈ 50, h ≈ 100 |
+  | Winter | Land lightness eased halfway to summer |
+
+- The skies were keyed to transparency by flood fill; winter used tighter thresholds.
+- The field's top follows the new pictures through a traced `geometry.edge` in `src/content/worlds.json`.
+- The previous outdoor files and the retired studio and office sources in `assets/sources/environments/` were removed from the repository. `studio-cozy-day.png` stays as the creator kit's interior example.
+- The hashes in the table above are superseded for the outdoor files. SHA-256 of the 12 runtime PNGs now:
+
+| Runtime file | SHA-256 |
+| --- | --- |
+| `spring.png` | `55156c327af3670095240d546e0c6b9dfd8ab26fdbb84c2293fba6949cf78812` |
+| `green.png` | `ab0c5032fbefb5e20e4d5c94e49e96b6ad5d3038f0788f1dcda686a8f2829bb4` |
+| `autumn.png` | `e6ab0d7bb5dfb1681a131fc7546c474de6326cece4394833a5f116b38bff84c8` |
+| `winter.png` | `6554740736788df13a9add666512ec047e7f3344f49d617a2889befef8ddf0bb` |
+| `courtyard-spring.png` | `0f1b42229b0d6a681ce6dcf3292e088974c02f15338e61a2aa855fc0909936af` |
+| `courtyard-green.png` | `e071f89c0fb4d82fca842a5ccf9c77567557a268e1e41b65ed63f344b96eca02` |
+| `courtyard-autumn.png` | `ee5018778d7e86b04f2f115055f5e22515c0ba06b86040f087e214cef64e8b1f` |
+| `courtyard-winter.png` | `12e621f127cbcdbd4c88f7c78f70eafeaca6309f9ac68f03ab72f28ec6b82282` |
+| `lakeside-spring.png` | `594a9eaa1dd2afe82df3c5c8f9acfd001b3284284bba48db23f329e17a0ab67d` |
+| `lakeside-green.png` | `0df87da0b3d0662abaa448a63d57f9957b6ca2d409fb4d20d1a2435eed6753bf` |
+| `lakeside-autumn.png` | `2303dd2300d88b6b5a8571f5c82fb116bbd080b1fcb6ab6cc46b3bb95ef07398` |
+| `lakeside-winter.png` | `91af1757037287814d23c40081a3763878eb9683029b56b97afda3dba06c2b0a` |

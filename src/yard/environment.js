@@ -127,15 +127,16 @@ export function paintEnvironment(ctx, image, w, h, scene) {
   }
 }
 
-/** The raster pond's water and shore, in the same cropped coordinates as the image. */
+/** The raster pond's water and shore, in the same cropped coordinates as the image; null where the
+ * place has no water of its own (geometry.lake in worlds.json, or an imported background's water). */
 export function environmentLake(w, h, scene = {}) {
-  if (!worldAllows(scene.world, 'fishing')) return null;
-  const lake = worldFor(scene.world).geometry?.lake,
-    frame = environmentFrame(w, h, scene);
-  const x0 = frame.x + frame.width * (lake?.from ?? 0.34),
-    x1 = frame.x + frame.width * (lake?.to ?? 0.79),
-    center = frame.y + frame.height * (lake?.center ?? 0.595),
-    radius = frame.height * (lake?.radius ?? 0.03);
+  const lake = worldFor(scene.world).geometry?.lake;
+  if (!lake || !worldAllows(scene.world, 'fishing')) return null;
+  const frame = environmentFrame(w, h, scene);
+  const x0 = frame.x + frame.width * lake.from,
+    x1 = frame.x + frame.width * lake.to,
+    center = frame.y + frame.height * lake.center,
+    radius = frame.height * lake.radius;
   const arc = x => Math.sqrt(Math.max(0, 1 - ((x - (x0 + x1) / 2) / ((x1 - x0) / 2)) ** 2));
   const shoreAt = x => (x <= x0 || x >= x1 ? Infinity : center - radius * arc(x));
   const ridgeAt = x => center + radius * arc(x);

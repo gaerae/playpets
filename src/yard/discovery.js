@@ -11,7 +11,7 @@ import { showCard } from './card.js';
 import { onAimingChange, setAimingMode } from './care.js';
 import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
-import { field, fieldToYard, petHeight, sizeOf, yardToField } from './field.js';
+import { field, fieldToYard, petHeight, sizeOf, topAt, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
 import { atRainbowEnd, clearRainbowEnd } from './rainbow-end.js';
 import { atTrailEnd, reservedForTrail } from './trails.js';
@@ -141,7 +141,7 @@ function positionAt(event) {
     x = event.clientX - r.left,
     y = event.clientY - r.top,
     f = field();
-  if (x < 14 || x > f.width - 14 || y < f.top || y > f.bottom) return null;
+  if (x < 14 || x > f.width - 14 || y < topAt(x) || y > f.bottom) return null;
   const point = yardToField(x, y);
   return groundAllows(point, groundProfile()) ? point : null;
 }
@@ -327,7 +327,7 @@ export function canDigAt(clientX, clientY) {
     x = clientX - r.left,
     y = clientY - r.top,
     f = field();
-  if (x < 14 || x > f.width - 14 || y < f.top || y > f.bottom) return false;
+  if (x < 14 || x > f.width - 14 || y < topAt(x) || y > f.bottom) return false;
   return groundAllows(yardToField(x, y), groundProfile());
 }
 /** Digs at a right-clicked point at once, leaving the dig tool in hand for the next spot. */

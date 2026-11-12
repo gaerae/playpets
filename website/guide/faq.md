@@ -1,5 +1,7 @@
 # FAQ
 
+Short answers first. If something isn't working, go straight to [the troubleshooting table](#troubleshooting).
+
 ## What is PlayPets?
 
 - PlayPets is a free, open-source desktop pet app for macOS, Windows and Linux. Four friends come with it, any Codex pet can join, and up to 12 play at once.
@@ -26,11 +28,10 @@
 
 ## Does it work without the internet?
 
-- Works offline: inviting, games, desktop mode, time of day and weather.
-- Auto weather does not fetch the real weather either; the clock decides it.
-- Needs the internet: importing community pets, checking for updates, chatting with an AI that uses the internet.
-- A downloaded local Ollama model chats offline and keeps conversations on your computer.
-- An Ollama cloud model needs the internet.
+| Works offline | Needs the internet |
+|---|---|
+| Inviting, games, desktop mode, time of day and weather. Auto weather doesn't fetch the real weather; the clock decides it | Importing community pets, checking for updates |
+| Chatting with a downloaded local Ollama model, which keeps conversations on your computer | Chatting with an AI that uses the internet, including Ollama cloud models |
 
 ## Does my code or my prompt go to the pet?
 
@@ -62,6 +63,7 @@ Something else? Tell us in an [issue](https://github.com/gaerae/playpets/issues)
 
 - Yes. One folder with a `pet.json` and a sprite sheet is a pet, in the same format as Codex pets.
 - Invite it right away with **Import from a folder on this computer** in **Import a pet**.
+- To have an AI tool draw one with you, use the [Character studio](./creator-kit.md).
 - Full rules: [Import a pet](./import.md#make-your-own) and [Pet file format](/dev/standards/pet-files) in the developer docs.
 
 ## What about several monitors?
