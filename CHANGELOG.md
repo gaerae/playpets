@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-11-12
+
 ### Added
 
 - A new place for friends who help a coding agent: the **Garden workshop**, a glass-roofed workshop. A working friend sits at one of two long potting tables, a friend waiting for your approval stands by the bell at the front, and one whose agent is done rests by the tea table. The sky, the time of day and the weather show through its glass.

@@ -73,6 +73,31 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.7.0" date="2026-11-12">
+      <description>
+        <p>Friends who help a coding agent get a glass-roofed garden workshop. The outdoor places have new pictures in one calm tone, and the old courtyard is now a wild garden.</p>
+        <ul>
+          <li>The Garden workshop, under a glass roof, replaces the Cozy living room.</li>
+          <li>In the workshop a working friend sits at a potting table and waits by the bell for your approval.</li>
+          <li>Without an agent, friends in the workshop sit down to read, have tea or rest, then stroll on.</li>
+          <li>A friend shows its agent's state: it stays put, comes forward to ask, then goes back.</li>
+          <li>The agent's state dot sits in the name tag, beside the friend's name.</li>
+          <li>New pictures for the outdoor places, with the same calm lawn in every season.</li>
+          <li>The Stone courtyard is now the Wild garden: an open meadow with a pond and a big oak.</li>
+          <li>Friends, flowers, trees and gifts go wherever the picture shows ground, up to the doors.</li>
+          <li>Pick a season and a fitting scene to call up its festival on any day.</li>
+          <li>Baubles sit on the Christmas tree's branches, and gifts on the ground cast a soft shadow.</li>
+          <li>At night, gifts and plants take on the night's blue, and a lantern lights the ground.</li>
+          <li>Fireflies are fewer and softer, mostly a gentle glow.</li>
+          <li>A friend holds the bug net and the fishing rod in front of it.</li>
+          <li>The fishing float sits in the water with a ripple.</li>
+          <li>On a harvest moon night the moon is whole and round.</li>
+          <li>A flower or a tree you drag stays under the pointer and stops swaying while you hold it.</li>
+          <li>Dragging a planted tree stays smooth in a busy garden.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.7.0</url>
+    </release>
     <release version="1.6.1" date="2026-11-12">
       <description>
         <p>The yard feels more alive: friends bob along as they walk, look smaller farther back, and trees and flowers sway in the breeze.</p>
