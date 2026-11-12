@@ -175,7 +175,7 @@ export function createAmbientArt(
     ctx.globalAlpha = (0.08 + lit * 0.47) * light;
     ctx.drawImage(halo, x - 12 * size, y - 12 * size, 24 * size, 24 * size);
     ctx.globalAlpha = (0.15 + lit * 0.85) * light;
-    ctx.drawImage(core, x - 5 * size, y - 5 * size, 10 * size, 10 * size);
+    ctx.drawImage(core, x - 6.5 * size, y - 6.5 * size, 13 * size, 13 * size);
     return true;
   }
   return { use, bug, bird, star, streak, firefly };

@@ -567,7 +567,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     ctx.fill();
     ctx.globalAlpha = (0.15 + lit * 0.85) * c.light;
     ctx.beginPath();
-    ctx.arc(c.x, c.y, 2.5 * size, 0, TAU);
+    ctx.arc(c.x, c.y, 3.25 * size, 0, TAU);
     ctx.fill();
   }
   function paint(now) {

@@ -101,7 +101,7 @@ test('a firefly is drawn and glows at its own size, so a small kind stays small'
   assert.equal(dx, 50 - 2.25);
   assert.ok(Math.abs(dy - (60 - 9 * 0.82)) < 1e-9, 'its lantern at the light');
   assert.deepEqual(halo.args.slice(1), [50 - 12, 60 - 12, 24, 24], 'a soft halo');
-  assert.deepEqual(core.args.slice(1), [50 - 5, 60 - 5, 10, 10], 'and a core');
+  assert.deepEqual(core.args.slice(1), [50 - 6.5, 60 - 6.5, 13, 13], 'and a core, a clear point');
   // Quieter than a lantern's pool or the moon: the halo is soft even fully lit and the core is the
   // only bright point. The light follows the blink evenly, so with random phases about half of
   // them show at once, and a dark one is nearly gone.
