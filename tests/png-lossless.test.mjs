@@ -84,7 +84,7 @@ test('optimization scope excludes generation sources and unrelated files', () =>
     'website/public/pets/aria/spritesheet.png',
     '../assets/art/x.png',
     'assets/art/sky/cloud.png.optimize-4242.png',
-    'assets/sources/environments/studio.png',
+    'assets/sources/environments/studio-cozy-day.png',
     'src/art/a.svg',
   ])
     assert.equal(eligiblePng(path), false, path);
