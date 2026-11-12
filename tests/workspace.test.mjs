@@ -18,6 +18,7 @@ const { den } = await import('./support/den.mjs');
 const { blocked, frontsIn, stationAt } = await import('../src/yard/workspace.js');
 const { loungeTarget, sitOut } = await import('../src/yard/lounge.js');
 const { forPerson, release, rest } = await import('../src/yard/trips.js');
+const { dutyAfresh } = await import('../src/yard/duty.js');
 
 // A picture of 1536 by 1024 in a yard of the same size: its fractions are the yard's.
 const room = {
@@ -227,6 +228,33 @@ test('an error stays at the desk; waiting goes to the approval spot; done rests 
   agent({ a: 'idle' });
   moveFriends(60050, 50);
   assert.deepEqual(a.target, { x: 0.5, y: 0.3 }, 'idle again, it walks back to its own place');
+});
+
+// A new place is a new look at the friends: one whose agent already works sits down in the room,
+// and leaving the room lets go of the desk, so the friend stands at its own place again.
+test('entering a workspace seats each friend for the state its agent already reported, and leaving lets go of the station', t => {
+  inRoom(t);
+  scene.world = 'woodland';
+  measureYard();
+  const a = friend('a');
+  agent({ a: 'working' });
+  moveFriends(1000, 50);
+  assert.equal(a.target, null, 'outdoors, it works where it stands');
+  // The place changes as app.js worldChanged does it: trips end, the scene moves, each friend afresh.
+  const go = world => {
+    release(a);
+    scene.world = world;
+    measureYard();
+    dutyAfresh(a);
+  };
+  go(room.id);
+  moveFriends(1050, 50);
+  assert.deepEqual(a.target, at(a, 0.3, 0.55), 'in the room, it sits at a desk');
+  assert.equal(a.spot?.kind, 'desk');
+  go('woodland');
+  assert.equal(a.spot, null, 'the desk stays in the room');
+  moveFriends(1100, 50);
+  assert.equal(a.target, null, 'outdoors again, it works where it stands');
 });
 
 test('two waiting friends stand side by side at the approval spot', t => {
