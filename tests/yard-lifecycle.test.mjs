@@ -92,6 +92,15 @@ test('a click on the name tag opens the conversation its tooltip promises', asyn
   assert.deepEqual(calls, [], 'talking is not a pat');
 });
 
+test("the agent's state dot sits in the name tag, beside the name", t => {
+  yard(t);
+  setupViews({ select() {}, patted() {}, openChat() {} });
+  syncViews();
+  const { tag, tagName, dot } = views.get('p');
+  assert.equal(dot.parentNode, tag);
+  assert.equal(tag.children.indexOf(dot), tag.children.indexOf(tagName) + 1, 'right after the name');
+});
+
 test('a double-click on a friend is two pats, and talking is on its menu, not a double-click', async t => {
   const { pet } = yard(t);
   const opened = [];

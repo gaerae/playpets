@@ -241,7 +241,7 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
     ['en', 'ko', 'ja', 'zh-hans'].map(lang => import(`../website/.vitepress/theme/landing-${lang}.ts`)),
   );
   for (const { worldCopy } of locales) {
-    assert.equal(worldCopy.places.length, 4);
+    assert.equal(worldCopy.places.length, 4, 'one name for each place the preview shows');
     assert.equal(worldCopy.seasons.length, 4);
     assert.ok(
       worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel && worldCopy.viewLabel && worldCopy.desktopNote,
@@ -250,15 +250,22 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
     assert.equal(worldCopy.views.length, 2);
     assert.deepEqual(Object.keys(worldCopy.greetings).sort(), ['clover', 'daisy', 'miso', 'pip']);
   }
+  const { PREVIEW_PLACES } = await import('../scripts/site-content.mjs');
+  // Each place the preview shows is a shipped one with its pictures; the garden workshop has one
+  // picture and no season, so the season choices stay in place but cannot be pressed.
+  const shipped = JSON.parse(read('src/content/worlds.json'));
+  assert.deepEqual(PREVIEW_PLACES.map(p => p.id).sort(), shipped.map(w => w.id).sort());
+  for (const shown of PREVIEW_PLACES) {
+    const world = shipped.find(w => w.id === shown.id);
+    assert.equal(!!shown.still, world.capabilities.seasonalEffects === false, `${shown.id}: one picture indoors`);
+    const files = shown.still ? [shown.still] : ['spring', 'green', 'autumn', 'winter'].map(s => shown.seasons + s);
+    for (const file of files) assert.ok(existsSync(`src/art/environments/${file}.webp`), file);
+  }
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /:aria-pressed=/);
-  // The garden workshop has one picture and no season, so the season choices stay in place but
-  // cannot be pressed.
-  assert.match(preview, /place\.value === 3 \? 'workshop' : null/);
-  assert.match(preview, /:disabled="place >= 3"/);
+  assert.match(preview, /:disabled="seasonless"/);
   // The desktop has neither, so its row says why instead of showing dead chips.
   assert.match(preview, /v-if="loose" class="dock-row"><p class="dock-note">\{\{ words.desktopNote \}\}/);
-  assert.doesNotMatch(preview, /v-if="place !== 3"/);
   assert.match(preview, /IntersectionObserver/);
   assert.match(preview, /observer\?\.disconnect/);
   assert.match(preview, /clearTimeout\(greetingTimer\)/);

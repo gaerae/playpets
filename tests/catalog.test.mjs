@@ -1,7 +1,6 @@
 // What bites at the lake and what flies over the yard (src/yard/catalog.js).
 
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import './support/content.mjs';
 import { BUGS, bite, bugChances, FISH, fishHere, weighted } from '../src/yard/catalog.js';
@@ -63,12 +62,8 @@ test('bugs fly by their season and hour: none in winter, fireflies only after da
   assert.deepEqual(new Set(flying('autumn', 'day', 'dragonfly')), new Set(['dragonfly', 'red_dragonfly']));
 });
 
-test('every kind has a name in every language, and a name the album keeps', async () => {
-  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
-    const table = await readFile(`src/core/strings/${lang}.js`, 'utf8');
-    for (const f of FISH) assert.ok(table.includes(`'catch.fish_${f.id}'`), `${lang}: ${f.id}`);
-    for (const b of BUGS) assert.ok(table.includes(`'catch.bug_${b.id}'`), `${lang}: ${b.id}`);
-  }
+// Their names in every language are content.test.mjs's.
+test('every kind has a name the album keeps', () => {
   for (const k of [...FISH, ...BUGS])
     assert.match(k.id, /^[a-z_]{1,24}$/, 'the backend takes lowercase names with underscores');
 });

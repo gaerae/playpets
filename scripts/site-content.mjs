@@ -144,6 +144,16 @@ export const SKY_SCENES = Object.freeze([
 // ones that fit. "Desktop Pet" is not a Steam tag; it stays the plain words people search with.
 export const STEAM_TAGS = Object.freeze(['Desktop Companion', 'Idler', 'Cozy', 'Relaxing']);
 
+/** The places the landing's preview shows, in the order its copy names them (worldCopy.places): an
+ * outdoor place has a picture for each season (`seasons` is the files' prefix), the garden workshop
+ * one picture (`still`) for all of them. */
+export const PREVIEW_PLACES = Object.freeze([
+  { id: 'woodland', seasons: '' },
+  { id: 'courtyard', seasons: 'courtyard-' },
+  { id: 'lakeside', seasons: 'lakeside-' },
+  { id: 'workshop', still: 'workshop' },
+]);
+
 export const LANDING_PETS = Object.freeze([
   { id: 'daisy', displayName: 'Daisy', source: 'assets/pets/daisy/spritesheet.png', kit: 'daisy' },
   { id: 'clover', displayName: 'Clover', source: 'assets/pets/clover/spritesheet.png', kit: 'clover' },

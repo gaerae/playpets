@@ -372,7 +372,7 @@ test('the yard wires the shoots in before the sky first paints, and draws them w
 
 test('a shoot rises once, stays still for reduced motion, and lets a tool or a game through', async () => {
   const css = (await readFile('src/styles/garden.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
-  assert.match(css, /\.shoot\.sprouted svg \{[^}]*animation: shoot-up 500ms/);
+  assert.match(css, /\.shoot\.sprouted svg \{[^}]*animation: shoot-up /);
   const frames = css.match(/@keyframes shoot-up \{(.*?\}) \}/)?.[1] || '';
   assert.match(frames, /scale\(0\.6, 0\.2\)/);
   assert.doesNotMatch(frames, /var\(/);

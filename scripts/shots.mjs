@@ -601,8 +601,6 @@ async function captureAll(lang) {
   const onSite = SITE_LANGS.has(lang);
   const outDir = onSite ? path.join(root, 'website/public/shots', version, lang) : path.join(dataDir, 'shots');
   await mkdir(outDir, { recursive: true });
-  for (const retired of ['realistic-companions.webp', 'friend-appearance.webp'])
-    await rm(path.join(outDir, retired), { force: true });
   // An empty Codex pet folder: the shelf shows only the pets that ship with the app.
   const codexHome = path.join(dataDir, 'codex');
   await mkdir(path.join(codexHome, 'pets'), { recursive: true });
