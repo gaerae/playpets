@@ -21,10 +21,8 @@ export const webpName = name => name.replace(/\.png$/, '.webp');
 // These exports also ship as small lossy copies, PREVIEW_WIDTH wide, beside their full WebP.
 export const PREVIEWS = [
   'environments/green.png',
-  'environments/studio-cozy-day.png',
   'environments/courtyard-green.png',
   'environments/lakeside-green.png',
-  'environments/office.png',
   'environments/workshop.png',
 ];
 export const PREVIEW_WIDTH = 400;

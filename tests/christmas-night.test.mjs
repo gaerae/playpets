@@ -65,9 +65,9 @@ test('Christmas night needs a winter yard, evening or night, snow and the tree, 
     'no snow play in a kept season',
   );
   assert.equal(
-    christmasNight({ ...night, world: 'studio' }, tree, at(2026, 12, 24, 21)),
+    christmasNight({ ...night, world: 'workshop' }, tree, at(2026, 12, 24, 21)),
     false,
-    'the studio has no seasonal effects',
+    'the garden workshop has no seasonal effects',
   );
   assert.equal(christmasNight(night, tree, at(2027, 1, 3, 21)), true, 'the lights are over, the winter night is not');
   assert.equal(christmasNight(night, tree, at(2026, 7, 15, 21)), true, 'a snowy winter night picked in July');

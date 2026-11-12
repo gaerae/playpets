@@ -29,7 +29,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 - 👥 Up to 12 friends at once, in the yard and out on your desktop, one by one, with gifts, flowers and trees from the yard to decorate it. Keep your pet in the ChatGPT desktop app too: both read the same pet files.
 - 💬 They chat with you, and with each other, through the AI you pick.
 - 🧑‍💻 They react to Claude Code, Codex, Gemini CLI, Cursor and other MCP tools.
-- 🏡 A yard of their own: six places or your own backgrounds, gifts like a swing or a pond, four games (one only in winter), a garden, fishing and a 169-entry album.
+- 🏡 A yard of their own: four places or your own backgrounds, gifts like a swing or a pond, four games (one only in winter), a garden, fishing and a 169-entry album.
 - 🌱 The four starter pets also dig, plant, fish and change clothes with the seasons.
 - 🔓 Free and open source (MIT) for macOS, Windows and Linux.
 
@@ -45,7 +45,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 | Relationships | Friend, Partner, Dependable mentor, Playful younger sibling |
 | Conversations | Chat with one friend, bring others in, or let them talk among themselves |
 | AI connections | Signed-in Claude Code or Codex CLI, local Ollama, an OpenAI or Grok (xAI) API key, or an OpenAI-compatible server; one AI per friend |
-| Places | Six places and imported backgrounds; season, time and weather controls |
+| Places | Four places and imported backgrounds; season, time and weather controls |
 | Play | Hide and seek, parade, tag |
 | Garden and album | Dig for seeds, saplings and keepsakes; plant; fish and catch bugs; fill a 169-entry album |
 | Desktop mode | Send friends, gifts, flowers and trees out one by one from their right-click menu; friends stroll and visit them (on macOS, over full-screen apps too) |

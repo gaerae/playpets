@@ -56,7 +56,7 @@ Season and weather are set separately. Choose Snow in summer and snow falls over
 
 | Choice | Options |
 |---|---|
-| Place | Hill garden, Stone courtyard, Lakeside cottage, Cozy living room, Sunny office, Garden workshop |
+| Place | Hill garden, Garden workshop, Stone courtyard, Lakeside cottage |
 | Time of day | Auto time, Morning, Midday, Evening, Night |
 | Weather | Auto weather, Clear, Rain, Snow |
 
@@ -64,13 +64,9 @@ Season and weather are set separately. Choose Snow in summer and snow falls over
 
 The three outdoor places each have their own house, four seasonal landscapes and their own fishing positions.
 
-**Cozy living room** brings the same calm style indoors. Its lighting changes through morning, midday, evening and night, and the windows show spring blossoms, autumn leaves and winter snow. Rain and snow stay beyond the glass.
+**Garden workshop** brings the same calm style indoors, under a glass roof: two long potting tables, a tea corner with a checkers board and a garden bench with a call bell at the front. Friends stroll, sort seeds at a table, have tea together or rest by the bench, and the sky, the time of day and the weather show through the glass. Rain and snow stay beyond it. A friend linked to a coding agent works at the tables and waits by the bell when the agent needs your approval. [What friends do there](./agents.md#where-friends-go).
 
-**Sunny office** and **Garden workshop** are cozy rooms with two long tables, a tea corner with a checkers board and a bench at the front. Friends stroll, read at a table, have tea together or rest by the bench, and the sky, the time of day and the weather show through the glass. A friend linked to a coding agent works at the tables and waits on the bench when the agent needs your approval. [What friends do there](./agents.md#where-friends-go).
-
-You can pet friends, chat, grow flowers and play the games in every place, apart from the winter-only **Snowman**, which needs a yard that shows winter, so not the three rooms. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
-
-<Shot name="studio-night" caption="Cozy living room at night: a quiet village view beyond the glass and warm light indoors." />
+You can pet friends, chat, grow flowers and play the games in every place, apart from the winter-only **Snowman**, which needs a yard that shows winter, so not the workshop. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
 
 With the time of day on **Auto**, the yard follows your computer's clock. The sky and ground change color through morning, midday, evening and night, and the sun crosses the sky from left to right. At night the moon shows tonight's phase.
 
@@ -113,7 +109,7 @@ Flower seeds and saplings both come from digging. Choose **Dig**, send a friend 
 - Keyboard: press **Plant a seed** with Enter or Space, then press it again to plant beside the selected friend, as with the picnic.
 - With a tool in hand, keys 1, 2 and 3 switch to **Dig**, **Plant a tree** and **Plant a seed**. They do nothing while you type in a field.
 
-In Cozy living room, flowers sit in small planters instead of bare soil. Growth and your collection carry over when you change places.
+In the Garden workshop, flowers sit in small pots instead of bare soil. Growth and your collection carry over when you change places.
 
 Plants grow by the clock, even while the app is closed:
 
@@ -238,9 +234,9 @@ South of the equator, judged by your computer's time zone, seasonal events come 
 
 In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. If you say yes, your season comes back on January 8. The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and whenever the yard shows winter. The rest of the time they wait out of sight. They still count toward the 12 decorations, and when you put one away it goes back into the gift box.
 
-On a snowy evening or night, if the yard is showing winter and the little Christmas tree is out, the tree lights up and grows into a grand tree. December brings this on its own, but it works on any day: pick winter, night and snow for the yard. The grand tree stays while the snow falls, with a bulb glinting now and then, and shrinks back when the snow stops. When the snow comes back, it grows again. If the baby reindeer and Santa are out in the yard, they look up at night, and a sleigh crosses the moon each time the tree grows. A tree out on the desktop grows along with the one in the yard. In the Cozy living room the snow stays beyond the glass, so Christmas night happens only in the gardens.
+On a snowy evening or night, if the yard is showing winter and the little Christmas tree is out, the tree lights up and grows into a grand tree. December brings this on its own, but it works on any day: pick winter, night and snow for the yard. The grand tree stays while the snow falls, with a bulb glinting now and then, and shrinks back when the snow stops. When the snow comes back, it grows again. If the baby reindeer and Santa are out in the yard, they look up at night, and a sleigh crosses the moon each time the tree grows. A tree out on the desktop grows along with the one in the yard. In the Garden workshop the snow stays beyond the glass, so Christmas night happens only in the gardens.
 
-Press the Christmas tree to decorate it. Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. They become small ornaments tinted by kind, and pointing at one shows what it is. To change the tree, take an ornament down from its card; the day's three stay used. Aquatic life and bugs stay in the water and the grass. The ornaments stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree. Decorating works in every place, the Cozy living room too.
+Press the Christmas tree to decorate it. Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. They become small ornaments tinted by kind, and pointing at one shows what it is. To change the tree, take an ornament down from its card; the day's three stay used. Aquatic life and bugs stay in the water and the grass. The ornaments stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree. Decorating works in every place, the Garden workshop too.
 
 ### Flower viewing
 
@@ -329,11 +325,11 @@ In a winter yard, faint animal footprints cross the snow. There is one trail a d
 
 Click the prints, and a rested friend follows them, sniffing. With the keyboard, move to the prints with Tab and press Enter. At the end, a tail peeks out from behind a bush and is gone in a whisk. Something small waits there to be dug up, and each animal has finds it likes.
 
-An hour of new snow covers the prints, and the next day they are gone. The Cozy living room has none. **Album → Footprints** shows each print until you have followed it, then the tail and the name.
+An hour of new snow covers the prints, and the next day they are gone. The Garden workshop has none. **Album → Footprints** shows each print until you have followed it, then the tail and the name.
 
 ### Spring shoots
 
-While the yard shows spring outdoors, a few shoots poke up after rain, and one comes up on a fair morning. At most three stand at a time, and each stays for a few hours. The Cozy living room has none.
+While the yard shows spring outdoors, a few shoots poke up after rain, and one comes up on a fair morning. At most three stand at a time, and each stays for a few hours. The Garden workshop has none.
 
 Click a shoot, and the selected friend, or the nearest free one, goes and digs it up. It goes into **Album → Spring shoots**, which holds eight: shepherd's purse, mugwort, fiddlehead, wild garlic, bamboo shoot, horsetail shoot, asparagus and morel. The album is for collecting, not a guide to wild plants.
 
@@ -370,7 +366,7 @@ The other games, **Picnic**, **Plant a seed** and **Plant a tree** stay off for 
 
 ### Snowman
 
-While the yard shows winter, which leaves out the Cozy living room, **Snowman** in the play menu starts it. Now and then a friend suggests building one and starts rolling on its own. Two friends roll a snowball that grows as it goes: press it to help push, or drag it (or use the arrow keys) to roll it yourself, and a soft blue trail fades in the snow behind it. Three balls stack into a snowman with a few sparkles, and you can build one a day; ask again the same day and a friend only says they built one already.
+While the yard shows winter, which leaves out the Garden workshop, **Snowman** in the play menu starts it. Now and then a friend suggests building one and starts rolling on its own. Two friends roll a snowball that grows as it goes: press it to help push, or drag it (or use the arrow keys) to roll it yourself, and a soft blue trail fades in the snow behind it. Three balls stack into a snowman with a few sparkles, and you can build one a day; ask again the same day and a friend only says they built one already.
 
 Then choose its hat, scarf and carrot nose. Press the snowman, or choose **Dress up** from its menu, to change them later.
 

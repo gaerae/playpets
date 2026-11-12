@@ -22,6 +22,7 @@ import { clearOfDock, place } from '../src/yard/views.js';
 import { scene } from '../src/yard/world.js';
 import { worldFor } from '../src/yard/worlds.js';
 import { yard as painted } from './support/content.mjs';
+import { withDen } from './support/den.mjs';
 import { element, installDom } from './support/dom.mjs';
 
 function yardIn(t, environment, world = 'woodland') {
@@ -59,8 +60,9 @@ test('before the land is first drawn the field follows the place', t => {
 
 // A room without a sky has no painted land to line up with (its fallback is a plain floor).
 test('a room keeps its own floor line when its picture is missing', t => {
-  yardIn(t, 'painted', 'studio');
-  assert.equal(fieldTop(), worldFor('studio').geometry.fieldTop);
+  withDen(t);
+  yardIn(t, 'painted', 'den');
+  assert.equal(fieldTop(), worldFor('den').geometry.fieldTop);
 });
 
 // Gifts have no name tag under them, so they reach down to just above the dock (or nearly to the
@@ -159,7 +161,8 @@ test('a friend is drawn in front of a plant it stands in front of, and behind on
   }
 });
 test("gifts stand below the friends' field, drawn in front of every friend above them", t => {
-  yardIn(t, 'illustrated', 'studio');
+  withDen(t);
+  yardIn(t, 'illustrated', 'den');
   const f = field(),
     floor = decorFloor();
   assert.equal(f.bottom, 700 - 76);

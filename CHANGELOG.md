@@ -12,23 +12,20 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- Two new places for friends who help a coding agent: **Sunny office** and **Garden workshop**. A working friend sits at one of two long tables, a friend waiting for your approval stands by the bench at the front, and one whose agent is done rests by the tea table. The sky, the time of day and the weather show through their glass.
-- With or without a coding agent, friends in the Sunny office and the Garden workshop now and then sit down at a table to read, have tea together or rest by the bench, then stroll on.
+- A new place for friends who help a coding agent: the **Garden workshop**, a glass-roofed workshop. A working friend sits at one of two long potting tables, a friend waiting for your approval stands by the bell at the front, and one whose agent is done rests by the tea table. The sky, the time of day and the weather show through its glass.
+- With or without a coding agent, friends in the Garden workshop now and then sit down at a table to read, have tea together or rest by the bench, then stroll on.
 
 ### Changed
 
+- The Garden workshop replaces the Cozy living room, so there are four places. If the living room was your place, the app opens the workshop. Flowers stand in pots there, and rain and snow stay beyond the glass.
 - A friend's agent state dot sits in its name tag, beside its name, instead of by its head.
-- In the Cozy living room, the Sunny office and the Garden workshop, friends grow with the room in a large window, so the furniture no longer looks up to twice as big next to them at full screen.
+- In the Garden workshop, friends grow with the room in a large window, so the furniture never looks up to twice as big next to them at full screen.
 - A friend linked to a coding agent shows what the agent is doing: it stays put while the agent works or hits an error, comes to the front of the yard when the agent waits for your approval, and goes back to its own place and strolls again once that is over.
-
-### Fixed
-
-- In the Sunny office and the Garden workshop, in a window wider than the picture, friends sit at the tables with their faces in view instead of working where they stand.
 
 ### Website and docs
 
-- The guide lists the two new places, says where a friend goes for each state of its agent, and shows the state dot beside the name.
-- The website's place picker shows the Sunny office and the Garden workshop, with a day sky through their glass, and the site counts six places.
+- The guide lists the Garden workshop in place of the Cozy living room, says where a friend goes for each state of its agent, and shows the state dot beside the name. Its living room picture is gone.
+- The website's place picker shows four places, with the Garden workshop's day sky through its glass, and the site and README count four places.
 
 ## [1.6.1] - 2026-11-12
 

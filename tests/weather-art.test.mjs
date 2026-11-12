@@ -159,7 +159,7 @@ test('scenery ignores a late decorative decode after switching indoors or enabli
     );
     scene.resize();
     assert.equal(loads, 1, 'spring textures begin loading at setup, never in a paint frame');
-    if (indoor) scene.set('day', 'clear', 'spring', null, 'studio');
+    if (indoor) scene.set('day', 'clear', 'spring', null, 'workshop');
     else {
       reduced.matches = true;
       scene.frame(10, 10);

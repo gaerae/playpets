@@ -74,7 +74,7 @@ export function sceneEvent(date, south = false, season = seasonFor(date, south))
   return event && (event.fixed || season === seasonFor(date, south)) ? event : null;
 }
 /** The event a gift asks for: the calendar's when it is fixed (the same in every place and season,
- * so the studio or a kept season never costs the winter lights), otherwise the scene's `shown`. */
+ * so a room or a kept season never costs the winter lights), otherwise the scene's `shown`. */
 export function giftEvent(date, south, shown) {
   const event = eventOn(date, south);
   return event?.fixed ? event.id : (shown ?? null);

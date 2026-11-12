@@ -1,7 +1,7 @@
 // Most people keep the yard in its first season, so during the winter lights (December) the yard
 // asks once a year whether to show winter until January 7. A yes keeps the season before beside
 // the answer (state.json `winterAsked`), and the backend brings it back on January 8 unless another
-// season was picked by hand since. Only an outdoor place asks: the studio shows no yard to snow on.
+// season was picked by hand since. Only an outdoor place asks: a room shows no yard to snow on.
 
 import { confirmAction } from '../core/confirm.js';
 import { t } from '../core/i18n.js';

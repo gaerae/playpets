@@ -133,8 +133,8 @@ let observer: IntersectionObserver | undefined;
 let greetingTimer: ReturnType<typeof setTimeout> | undefined;
 const image = computed(() => {
   const suffix = ['spring', 'green', 'autumn', 'winter'][season.value];
-  // The rooms have one picture for every season.
-  const room = ['studio-cozy-day', 'office', 'workshop'][place.value - 3];
+  // The garden workshop has one picture for every season.
+  const room = place.value === 3 ? 'workshop' : null;
   const file = room ?? `${['', 'courtyard-', 'lakeside-'][place.value]}${suffix}`;
   return sceneryUrl(file);
 });

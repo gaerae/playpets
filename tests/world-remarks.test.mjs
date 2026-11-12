@@ -7,6 +7,7 @@ import { MOMENTS } from '../src/yard/sky-moments.js';
 import { scene } from '../src/yard/world.js';
 import { useWorlds } from '../src/yard/worlds.js';
 import { worlds as definitions } from './support/content.mjs';
+import { withDen } from './support/den.mjs';
 
 function pending(t) {
   t.mock.timers.enable({ apis: ['setTimeout'] });
@@ -24,9 +25,9 @@ function pending(t) {
   return friend;
 }
 
-test('a queued outdoor remark cannot arrive after changing to the studio', t => {
+test('a queued outdoor remark cannot arrive after changing to the workshop', t => {
   const friend = pending(t);
-  Object.assign(scene, { world: 'studio', weather: 'clear', period: 'night' });
+  Object.assign(scene, { world: 'workshop', weather: 'clear', period: 'night' });
   t.mock.timers.tick(1600);
   assert.equal(friend.bubble.hidden, true);
 });
@@ -38,7 +39,7 @@ test('queued remarks do not speak through a removed or replaced friend', t => {
   assert.equal(friend.bubble.hidden, true);
 });
 
-test('a new indoor place uses its registered atmosphere instead of studio lines', t => {
+test("a new indoor place uses its registered atmosphere instead of another room's lines", t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const previous = { ...scene },
     before = data;
@@ -82,30 +83,20 @@ test('a friend whose agent finished long ago is quiet again, and chats like one'
   assert.ok(!fresh.bubble.textContent, 'a friend that just finished is still showing it');
 });
 
-test('selectable studio weather never produces outdoor rain or snow remarks', t => {
+test('weather in a room without a sky never produces outdoor rain or snow remarks', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
-  useWorlds(
-    definitions.map(world =>
-      world.id === 'studio'
-        ? {
-            ...world,
-            capabilities: { ...world.capabilities, weather: true },
-          }
-        : world,
-    ),
-  );
+  withDen(t);
   const before = { ...scene };
   views.clear();
   setGame(null);
   const friend = { pet: { id: 'indoors' }, bubble: { hidden: true } };
   views.set('indoors', friend);
   t.after(() => {
-    useWorlds(definitions);
     Object.assign(scene, before);
     views.clear();
   });
   for (const weather of ['rain', 'snow']) {
-    Object.assign(scene, { world: 'studio', weather, period: 'day' });
+    Object.assign(scene, { world: 'den', weather, period: 'day' });
     remark();
     t.mock.timers.tick(1600);
     assert.equal(friend.bubble.hidden, true, 'friends remain indoors instead of asking for outdoor gear');

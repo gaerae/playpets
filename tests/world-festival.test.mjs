@@ -31,10 +31,10 @@ function page(t) {
   return { card, stored, listeners };
 }
 
-test('a pending outdoor festival reveal is cancelled when entering the studio', t => {
+test('a pending outdoor festival reveal is cancelled when entering the garden workshop', t => {
   const { card, stored } = page(t);
   eventChanged({ id: 'harvest' });
-  Object.assign(scene, { world: 'studio', event: null });
+  Object.assign(scene, { world: 'workshop', event: null });
   eventChanged(null);
   t.mock.timers.tick(1800);
   assert.equal(card.hidden, true);

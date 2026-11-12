@@ -157,15 +157,15 @@ test('the yard tells the desktop which kinds are hidden, once per change', ctx =
   assert.equal(hidden.length, sent + 1);
 });
 
-// The studio has no seasons to show (worlds.json seasonalEffects): a snowman waits there out of
+// The garden workshop has no seasons to show (worlds.json seasonalEffects): a snowman waits there out of
 // sight even in winter, while the Christmas gifts keep to their dates.
 test('the yard shows winter only in a place with seasons', ctx => {
   assert.equal(yardSeason({ world: 'woodland', season: 'winter' }), 'winter');
   assert.equal(yardSeason({ world: 'lakeside', season: 'summer' }), 'summer');
-  assert.equal(yardSeason({ world: 'studio', season: 'winter' }), null);
+  assert.equal(yardSeason({ world: 'workshop', season: 'winter' }), null);
   const december = new Date(2026, 11, 24, 12);
-  assert.equal(decorShown('snowman', december, yardSeason({ world: 'studio', season: 'winter' })), false);
-  assert.equal(decorShown('xmas_tree', december, yardSeason({ world: 'studio', season: 'winter' })), true);
+  assert.equal(decorShown('snowman', december, yardSeason({ world: 'workshop', season: 'winter' })), false);
+  assert.equal(decorShown('xmas_tree', december, yardSeason({ world: 'workshop', season: 'winter' })), true);
   const buttons = yard(
     ctx,
     december.getTime(),
@@ -174,7 +174,7 @@ test('the yard shows winter only in a place with seasons', ctx => {
       { id: 's', kind: 'snowman', x: 0.3, y: 0.5 },
       { id: 'x', kind: 'xmas_tree', x: 0.6, y: 0.5 },
     ],
-    'studio',
+    'workshop',
   );
   assert.deepEqual(
     buttons().map(b => b.title),

@@ -189,24 +189,6 @@ export const strings = {
   'world.label': 'Place',
   'world.woodland': 'Hill garden',
   'world.woodland.about': 'Fish by the pond, catch bugs and grow flowers with your friends.',
-  'world.studio': 'Cozy living room',
-  'world.studio.about':
-    'Chat, play and plant indoors while rain or snow passes outside. Visit the gardens for fishing and bugs.',
-  'world.studio.lines': [
-    'This little room feels so cozy.',
-    'Let’s sit by the window for a while.',
-    'That lamp makes everything feel softer.',
-    'I like having you here with me.',
-  ],
-  'world.office': 'Sunny office',
-  'world.office.about':
-    'A cozy, sunlit office where friends read at the long tables, have tea and play checkers. A friend linked to a coding agent works at the tables and comes to the bench at the front when the agent needs you. The sky and the weather show through the windows.',
-  'world.office.lines': [
-    'One small step at a time today.',
-    'That coffee smells good. Break time?',
-    'Look at the sky out there.',
-    'It’s nice working side by side.',
-  ],
   'world.workshop': 'Garden workshop',
   'world.workshop.about':
     'A workshop full of potted plants under a glass roof, where friends sort seeds at the long tables, have tea under the vines and play checkers. A friend linked to a coding agent works at the tables and comes to the garden bench at the front when the agent needs you. The sky and the weather show through the glass.',

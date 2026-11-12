@@ -699,14 +699,14 @@ const scenario = `(async()=>{
     await until(()=>[...st.views.values()].every(v=>!v.away),8000);
     await fishFor();
     const worldSelect=$('world');
-    worldSelect.value='studio';worldSelect.dispatchEvent(new Event('change'));
-    await until(()=>$('yard').classList.contains('world-studio')&&$('yard').dataset.environment==='illustrated');
+    worldSelect.value='workshop';worldSelect.dispatchEvent(new Event('change'));
+    await until(()=>$('yard').classList.contains('world-workshop')&&$('yard').dataset.environment==='illustrated');
     const indoor=(await import('./yard/world.js')).scene;
     $('weather').value='rain';$('weather').dispatchEvent(new Event('change'));await wait(150);
     const {environmentLook,environmentFrame,weatherPanes}=await import('./yard/environment.js'),{worldFor}=await import('./yard/worlds.js');
-    const cityArt=[];for(const period of ['morning','day','evening','night']){$('period').value=period;$('period').dispatchEvent(new Event('change'));cityArt.push(environmentLook(indoor).art);}
-    const roomClean=indoor.world==='studio'&&indoor.weather==='rain'&&indoor.event===null&&!onLake(lx,ly)&&!toLake()&&!document.querySelector('.bobber')&&!document.querySelector('.fishing-line')&&!$('weather').disabled&&weatherPanes(lakeBox.width,lakeBox.height,environmentFrame(lakeBox.width,lakeBox.height,indoor),worldFor(indoor.world).windowPanes).length>0;
-    await L('studioLight='+(cityArt.join(',')==='studio-cozy-morning,studio-cozy-day,studio-cozy-evening,studio-cozy-night'?'four-city-views':'err:'+cityArt));
+    const roomLooks=[];for(const period of ['morning','day','evening','night']){$('period').value=period;$('period').dispatchEvent(new Event('change'));roomLooks.push(environmentLook(indoor));}
+    const roomClean=indoor.world==='workshop'&&indoor.weather==='rain'&&indoor.event===null&&!onLake(lx,ly)&&!toLake()&&!document.querySelector('.bobber')&&!document.querySelector('.fishing-line')&&!$('weather').disabled&&weatherPanes(lakeBox.width,lakeBox.height,environmentFrame(lakeBox.width,lakeBox.height,indoor),worldFor(indoor.world).windowPanes).length>0;
+    await L('roomLight='+(roomLooks.every(look=>look.art==='workshop')&&new Set(roomLooks.map(look=>look.filter+'|'+look.tint)).size>1?'workshop-follows-the-day':'err:'+JSON.stringify(roomLooks)));
     document.querySelector('[data-game=tag]').click();await wait(200);
     const indoorGame=st.game?.kind==='tag';
     worldSelect.value='woodland';worldSelect.dispatchEvent(new Event('change'));
@@ -907,7 +907,7 @@ const scenario = `(async()=>{
         const giftStatus=$('album-dig-status'),giftRule=giftStatus.textContent===localeUi.t('album.gift_rule')&&!giftStatus.hidden&&visibleNode(giftStatus)&&!$('album-odds-button')&&!document.querySelector('.album-chance');
         giftRuleFits&&=giftRule;if(!giftRule)rewardTrace.push(['gift-rule',lang,innerWidth,giftStatus.textContent]);
         $('close-album').click();
-        const outsideWorld=$('world').value;$('world').value='studio';$('world').dispatchEvent(new Event('change'));
+        const outsideWorld=$('world').value;$('world').value='workshop';$('world').dispatchEvent(new Event('change'));
         $('album-button').click();
         for(const book of ['tree','treasure']){const correct=inspectIndoorRewards(book);indoorRewardFits&&=correct;if(!correct)rewardTrace.push([lang,innerWidth,book,'indoor-odds-or-status-failed']);}
         $('close-album').click();$('world').value=outsideWorld;$('world').dispatchEvent(new Event('change'));
@@ -1694,7 +1694,10 @@ const expect = [
     /^worldSwitch=indoor-clean-and-games-outdoor-restored$/,
     'room switching clears fishing and games, disables indoor outdoor activities and restores the woodland',
   ],
-  [/^studioLight=four-city-views$/, 'the city studio uses distinct authored art for all four times of day'],
+  [
+    /^roomLight=workshop-follows-the-day$/,
+    'the garden workshop keeps its picture and takes the light of each time of day',
+  ],
   [
     /^backgroundImport=file-gallery-storage-and-fishing$/,
     'a studio JSON enters the real file input, persists in IndexedDB and supports a small yard and fishing',

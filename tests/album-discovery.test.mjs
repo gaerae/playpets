@@ -72,7 +72,7 @@ test('tree and keepsake books use saved counts, mature artwork and explicit keep
   renderAlbum();
   assert.equal(treasureTab.children[1].textContent, `1/${TREASURES.length}`);
   const previousWorld = scene.world;
-  scene.world = 'studio';
+  scene.world = 'workshop';
   renderAlbum();
   assert.equal(document.getElementById('album-dig-status').textContent, translate('discovery.indoors'));
   assert.ok(

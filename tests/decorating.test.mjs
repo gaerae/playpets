@@ -760,8 +760,8 @@ test('the grand tree opens the view with its own drawing and hooks', async ctx =
   assert.equal(last.style.top, percent(hooks[11][1]));
 });
 
-test('in the Cozy living room the tree is decorated in December too', async ctx => {
-  const v = await decorating(ctx, { scene: { ...DAY, world: 'studio' } });
+test('in the Garden workshop the tree is decorated in December too', async ctx => {
+  const v = await decorating(ctx, { scene: { ...DAY, world: 'workshop' } });
   assert.ok(v.tree(), 'the tree shows');
   await v.press();
   assert.ok(v.dialog.open);

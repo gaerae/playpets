@@ -61,10 +61,10 @@ The pill in the Friend panel shows the agent's state as well. Chat answers go to
 
 A friend also shows its agent's state in what it does.
 
-| State | Gardens and living room | Sunny office and Garden workshop |
+| State | Outdoor places | Garden workshop |
 |---|---|---|
 | Working | Stops where it is and works | Sits at a long table |
-| Waiting | Comes to the front of the yard | Waits by the bench at the front |
+| Waiting | Comes to the front of the yard | Waits by the bell at the front |
 | Done | Strolls again | Rests by the tea table until the agent's next step |
 | Trouble | Stops where it is | Stays in its seat |
 

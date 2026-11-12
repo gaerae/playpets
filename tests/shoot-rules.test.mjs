@@ -29,7 +29,7 @@ const open = { soil: true, bounds: { left: 0, top: 0, right: 1, bottom: 1 }, wat
 test('shoots sprout only in spring, outdoors, on soil', () => {
   assert.equal(shootTime({ season: 'spring', world: 'woodland' }, true), true);
   assert.equal(shootTime({ season: 'summer', world: 'woodland' }, true), false);
-  assert.equal(shootTime({ season: 'spring', world: 'studio' }, true), false);
+  assert.equal(shootTime({ season: 'spring', world: 'workshop' }, true), false);
   assert.equal(shootTime({ season: 'spring', world: 'woodland' }, false), false);
 });
 

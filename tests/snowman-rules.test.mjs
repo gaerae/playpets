@@ -74,7 +74,7 @@ test('building is offered in the winter yard, once a day, with room or a snowman
   const offer = (date, g, season = 'winter') => snowmanOffer({ date, season, garden: g, decorMax: 12 });
   assert.equal(offer(at(15, 10, 0), garden()), null);
   assert.equal(offer(at(15, 10, 0), garden(), 'autumn'), 'not_winter');
-  assert.equal(offer(at(15, 10, 0), garden(), null), 'not_winter', 'not in the living room');
+  assert.equal(offer(at(15, 10, 0), garden(), null), 'not_winter', 'not in a room');
   assert.equal(offer(at(15, 23, 59), garden([], '2026-12-15')), 'built_today');
   assert.equal(offer(at(16, 0, 1), garden([], '2026-12-15')), null, 'a new local day');
   assert.equal(offer(at(14, 10, 0), garden([], '2026-12-15')), 'built_today', 'a clock set back');

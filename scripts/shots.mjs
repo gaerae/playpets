@@ -200,7 +200,7 @@ function scenario(lang) {
       const pip=(await must('addPip',playPets.addPet(full('playpets-pip').id))).data;
       const miso=(await must('addMiso',playPets.addPet(full('playpets-miso').id))).data;
       await positionCast([daisy,clover,pip,miso]);
-      $('world').value='studio';$('world').dispatchEvent(new Event('change'));
+      $('world').value='workshop';$('world').dispatchEvent(new Event('change'));
       $('period').value='day';$('period').dispatchEvent(new Event('change'));
       $('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
       await positionCast([daisy,clover,pip,miso],.68);
@@ -235,7 +235,7 @@ function scenario(lang) {
         for(const item of [
           ['woodland','summer','day','yard-talk'], ['woodland','summer','evening','yard-evening'],
           ['courtyard','spring','day','courtyard'], ['lakeside','summer','day','lakeside'],
-          ['studio','summer','day','studio-day'], ['studio','summer','night','studio-night']
+          ['workshop','summer','day','workshop-day'], ['workshop','summer','night','workshop-night']
         ]) {
           for(const [id,value] of [['world',item[0]],['scene-season',item[1]],['period',item[2]],['weather','clear']]) {
             $(id).value=value;$(id).dispatchEvent(new Event('change'));
@@ -280,10 +280,10 @@ function scenario(lang) {
     $('scene-season').value='spring';$('scene-season').dispatchEvent(new Event('change'));$('period').value='day';$('period').dispatchEvent(new Event('change'));await settledScene();
     document.querySelector('[data-game=hide]').click();await wait(2600);await shot('play-hide-and-seek');
     const playing=document.querySelector('[data-game].playing');if(playing)playing.click();await wait(400);
-    $('world').value='studio';$('world').dispatchEvent(new Event('change'));
+    $('world').value='workshop';$('world').dispatchEvent(new Event('change'));
     $('scene-season').value='summer';$('scene-season').dispatchEvent(new Event('change'));
-    $('period').value='day';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('studio-day');
-    $('period').value='night';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('studio-night');
+    $('period').value='day';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('workshop-day');
+    $('period').value='night';$('period').dispatchEvent(new Event('change'));await settledScene();await shot('workshop-night');
     $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
     $('scene-season').value='spring';$('scene-season').dispatchEvent(new Event('change'));
     $('period').value='day';$('period').dispatchEvent(new Event('change'));

@@ -171,3 +171,11 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 
 - 1.6.1 orders friends by their feet on the field (`field.js depthAt`), as plants and gifts are. A front's layer is now `depthAt` of its foot line too (`workspace.js frontsIn`). With the old walking-range scale, a friend 10px behind a table was drawn over its front.
 - A friend left behind the dock is lifted to stand just above it (`views.js clearOfDock`), on a resize and after a drop. Stations stay clear of the dock (`duty.js inLine`), so a friend at a seat, the bench or the tea table is not moved.
+
+## Follow-up: one workshop (2026-11-12)
+
+- The office is dropped and the garden workshop replaces the living room, so one room carries the workspace.
+- The workshop was redrawn from its own picture. The bench and its bell post moved down to the front, the tables and the tea corner came forward, and the floor between them opened up.
+- Waiting: the approval spot is to the right of the bell post, on the open floor. A waiting friend is not drawn behind the bench, and in a 300×210 window it stands by the bell, fully visible, above the floor's edge.
+- Furniture keeps the friends' size: a seated friend's tag rests on the table top, and the bench is about two friends wide.
+- The bench, the post and its lantern are one front, cut along their outline.

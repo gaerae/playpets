@@ -306,7 +306,7 @@ test('no thanks gift is asked for while another gift is on its way', async t => 
   assert.deepEqual(calls, [['thanks', pet.id, 4]]);
 });
 
-test('during the winter lights the gift asks for them in the studio too', async t => {
+test('during the winter lights the gift asks for them in the garden workshop too', async t => {
   for (const [start, giftDay, expected] of [
     [new Date(2026, 11, 15, 12), '2026-12-01', ['lights']],
     [new Date(2026, 3, 5, 12), '2026-03-20', [null]],
@@ -316,7 +316,7 @@ test('during the winter lights the gift asks for them in the studio too', async 
       const before = { world: scene.world, event: scene.event };
       t.after(() => Object.assign(scene, before));
       state.data.garden.giftDay = giftDay;
-      scene.world = 'studio';
+      scene.world = 'workshop';
       scene.event = null;
       clock.together();
       const decor = await fresh();

@@ -139,7 +139,7 @@ for (const kind of ['bug', 'fish']) {
       try {
         attemptCatch(kind, nodes, view, context.mock.timers);
         assert.equal(catches.length, 1);
-        if (change === 'world') scene.world = 'studio';
+        if (change === 'world') scene.world = 'workshop';
         else setGame({ type: 'tag' });
         catches[0].resolve({ ok: true, data: { first: false, entry: { count: 1 } } });
         await settled();

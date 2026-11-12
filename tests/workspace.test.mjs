@@ -14,13 +14,14 @@ const { DEPTH_FAR, depthScale, EDGE, field, footTarget, geometry, measureYard, y
 const { moveFriends } = await import('../src/yard/motion.js');
 const { scene } = await import('../src/yard/world.js');
 const { useWorlds, worldHasSoil, worlds } = await import('../src/yard/worlds.js');
+const { den } = await import('./support/den.mjs');
 const { blocked, frontsIn, stationAt } = await import('../src/yard/workspace.js');
 const { loungeTarget, sitOut } = await import('../src/yard/lounge.js');
 const { forPerson, release, rest } = await import('../src/yard/trips.js');
 
 // A picture of 1536 by 1024 in a yard of the same size: its fractions are the yard's.
-const office = {
-  id: 'test-office',
+const room = {
+  id: 'test-room',
   fit: 'cover-bottom',
   geometry: {
     fieldTop: 0.4,
@@ -61,12 +62,12 @@ const office = {
   },
 };
 
-function inOffice(t) {
+function inRoom(t) {
   installDom(t, { anyId: true, props: { rect: { width: 1536, height: 1024 } } });
   globalThis.document.querySelector = () => null;
   const before = { list: [...worlds], world: scene.world, reduced: reduced.matches };
-  useWorlds([...shipped, office]);
-  scene.world = office.id;
+  useWorlds([...shipped, room]);
+  scene.world = room.id;
   reduced.matches = false;
   measureYard();
   views.clear();
@@ -95,18 +96,18 @@ const agent = states =>
 const at = (v, x, y) => footTarget(v, 1536 * x, 1024 * y, 0);
 
 test('a floor without soil is told apart from a place without a sky', () => {
-  useWorlds([...shipped, office]);
+  useWorlds([...shipped, room, den]);
   try {
     assert.equal(worldHasSoil('woodland'), true);
-    assert.equal(worldHasSoil('studio'), false, 'no sky and no soil said: none');
-    assert.equal(worldHasSoil(office.id), false, 'a sky through the glass, a paved floor');
+    assert.equal(worldHasSoil(den.id), false, 'no sky and no soil said: none');
+    assert.equal(worldHasSoil(room.id), false, 'a sky through the glass, a paved floor');
   } finally {
     useWorlds(shipped);
   }
 });
 
 test('a place may say how small friends at the back look', t => {
-  inOffice(t);
+  inRoom(t);
   assert.equal(depthScale(0), 0.6);
   assert.equal(depthScale(1), 1);
   scene.world = 'woodland';
@@ -120,7 +121,7 @@ const wide = (width, height) => {
 };
 
 test('in a room, friends grow with the picture past the size it was drawn for, and keep their size in a small window', t => {
-  inOffice(t);
+  inRoom(t);
   const close = (a, b) => Math.abs(a - b) < 0.001;
   // The picture fills a window 850px tall at 850/1024: the size its furniture was drawn for.
   wide(1180, 850);
@@ -130,11 +131,11 @@ test('in a room, friends grow with the picture past the size it was drawn for, a
   assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), `${yardZoom()}`);
   wide(2560, 1440);
   assert.equal(yardZoom(), 2, 'up to twice the friend size');
-  scene.world = 'studio';
+  scene.world = 'workshop';
   wide(1920, 1080);
-  assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), 'the living room is a room too');
+  assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), 'the garden workshop is a room too');
   // Small, friends keep the size that reads, larger than the picture shrinks them to.
-  scene.world = office.id;
+  scene.world = room.id;
   wide(300, 210);
   assert.equal(yardZoom(), 0.375);
   wide(900, 260);
@@ -146,10 +147,10 @@ test('in a room, friends grow with the picture past the size it was drawn for, a
 });
 
 test("in a window wider than the picture, the floor begins where the picture's floor shows, and the back desks are seats", t => {
-  inOffice(t);
+  inRoom(t);
   // 1920 by 1080: the picture is 1920 by 1280 from its foot, so its top 200px are cut off.
   wide(1920, 1080);
-  assert.ok(Math.abs(field().top - stationAt({ x: 0.5, y: office.geometry.fieldTop }).y) < 1e-6);
+  assert.ok(Math.abs(field().top - stationAt({ x: 0.5, y: room.geometry.fieldTop }).y) < 1e-6);
   const a = friend('a'),
     b = friend('b');
   agent({ a: 'working', b: 'working' });
@@ -164,7 +165,7 @@ test("in a window wider than the picture, the floor begins where the picture's f
 });
 
 test('a station is where the picture puts it, and cropped away it lies outside the window', t => {
-  inOffice(t);
+  inRoom(t);
   assert.deepEqual(stationAt({ x: 0.5, y: 0.85 }), { x: 768, y: 1024 * 0.85 });
   wide(3072, 1024);
   assert.deepEqual(stationAt({ x: 0.5, y: 0.85 }), { x: 1536, y: 1024 - 2048 * 0.15 });
@@ -172,7 +173,7 @@ test('a station is where the picture puts it, and cropped away it lies outside t
 });
 
 test('with its station cropped away, a friend is not sent behind the furniture in front of it', t => {
-  inOffice(t);
+  inRoom(t);
   // 3072 by 300: the picture is 3072 by 2048 from its foot, so only its lowest 15% shows.
   wide(3072, 300);
   const a = friend('a'),
@@ -186,7 +187,7 @@ test('with its station cropped away, a friend is not sent behind the furniture i
 });
 
 test('working friends sit at desks in turn, keep theirs, and the extra one stands beside one', t => {
-  inOffice(t);
+  inRoom(t);
   const a = friend('a'),
     b = friend('b'),
     c = friend('c');
@@ -207,7 +208,7 @@ test('working friends sit at desks in turn, keep theirs, and the extra one stand
 });
 
 test('an error stays at the desk; waiting goes to the approval spot; done rests in the corner and stays', t => {
-  inOffice(t);
+  inRoom(t);
   const a = friend('a');
   agent({ a: 'error' });
   moveFriends(1000, 50);
@@ -229,7 +230,7 @@ test('an error stays at the desk; waiting goes to the approval spot; done rests 
 });
 
 test('two waiting friends stand side by side at the approval spot', t => {
-  inOffice(t);
+  inRoom(t);
   const a = friend('a'),
     b = friend('b');
   agent({ a: 'waiting', b: 'waiting' });
@@ -239,7 +240,7 @@ test('two waiting friends stand side by side at the approval spot', t => {
 });
 
 test('furniture blocks the end of a stroll, as a tree does', t => {
-  inOffice(t);
+  inRoom(t);
   assert.equal(blocked(1536 * 0.3, 1024 * 0.58), true);
   assert.equal(blocked(1536 * 0.3 + 1536 * 0.059, 1024 * 0.58), true);
   assert.equal(blocked(1536 * 0.5, 1024 * 0.58), false);
@@ -247,7 +248,7 @@ test('furniture blocks the end of a stroll, as a tree does', t => {
 });
 
 test("a desk's front is drawn over a friend whose feet are behind its foot line", async t => {
-  inOffice(t);
+  inRoom(t);
   const [front] = frontsIn(1536, 1024);
   assert.deepEqual(
     { shape: front.shape, x: front.x, y: front.y, width: front.width, height: front.height },
@@ -280,7 +281,7 @@ test("a desk's front is drawn over a friend whose feet are behind its foot line"
 });
 
 test("a friend wears its tag at its feet, standing or seated at a desk, so a desk's front never puts it over the face", async t => {
-  inOffice(t);
+  inRoom(t);
   const { place } = await import('../src/yard/views.js');
   const { petHeight } = await import('../src/yard/field.js');
   const a = friend('a', { y: 0.2 });
@@ -301,9 +302,9 @@ test('a workspace takes the outdoor light, and its glass is not washed over as a
   for (const period of ['morning', 'day', 'evening', 'night'])
     for (const weather of ['clear', 'rain']) {
       const at = { season: 'summer', period, weather };
-      const { art, ...light } = environmentLook({ ...at, world: 'office' });
+      const { art, ...light } = environmentLook({ ...at, world: 'workshop' });
       const { art: _, ...outdoors } = environmentLook({ ...at, world: 'woodland' });
-      assert.equal(art, 'office');
+      assert.equal(art, 'workshop');
       assert.deepEqual(light, outdoors);
     }
   // Rain over the yard's own sky already greys what the glass shows.
@@ -320,7 +321,7 @@ test('a workspace takes the outdoor light, and its glass is not washed over as a
     },
   };
   paintEnvironment(ctx, { width: 1536, height: 1024 }, 1180, 850, {
-    world: 'office',
+    world: 'workshop',
     season: 'summer',
     period: 'day',
     weather: 'rain',
@@ -344,7 +345,7 @@ function arrive(v, now) {
 }
 
 test('with no agent, an idle friend now and then sits at a free seat, has tea or sits by the bench, then strolls on', t => {
-  inOffice(t);
+  inRoom(t);
   agent({});
   const a = friend('a', { bubble: element() }),
     b = friend('b', { bubble: element() }),
@@ -379,7 +380,7 @@ test('with no agent, an idle friend now and then sits at a free seat, has tea or
 });
 
 test('no two friends share a seat, and one that is only sitting gives way to an agent and to the person', t => {
-  inOffice(t);
+  inRoom(t);
   agent({});
   const a = friend('a', { bubble: element() }),
     b = friend('b', { bubble: element() }),
@@ -417,7 +418,7 @@ test('no two friends share a seat, and one that is only sitting gives way to an 
 });
 
 test('a friend picked up from its seat does not walk straight back to one', t => {
-  inOffice(t);
+  inRoom(t);
   agent({});
   const a = friend('a', { bubble: element() });
   moveFriends(900, 50);
@@ -433,7 +434,7 @@ test('a friend picked up from its seat does not walk straight back to one', t =>
 });
 
 test('a friend whose agent waits takes the bench from a friend only sitting by it', t => {
-  inOffice(t);
+  inRoom(t);
   agent({});
   const a = friend('a', { bubble: element() }),
     b = friend('b', { bubble: element() });
@@ -447,7 +448,7 @@ test('a friend whose agent waits takes the bench from a friend only sitting by i
 });
 
 test('outdoors and in rooms without stations, an idle friend strolls as before', t => {
-  inOffice(t);
+  inRoom(t);
   agent({});
   scene.world = shipped.find(w => !w.geometry?.stations).id;
   const a = friend('a', { bubble: element() });

@@ -120,3 +120,12 @@
   - `office.png`: `b3f793dd6dd9812b2921d870c909a40d46fd0449d14c5c356d1be0825d88520a`
   - `workshop.png`: `c228ffa2a713ebc32cb5b1031119fe7e6c62371f13ef446b267e4d796bc925a2`
 
+
+## Follow-up: one workshop (2026-11-12)
+
+- The office was dropped and the workshop replaced the living room. `office.png` and the `studio-cozy-*` and `studio-view-*` pictures moved to `assets/sources/environments/` and are no longer bundled.
+- `workshop.png` was recomposed from itself with the built-in image generation tool (an edit with the picture as input), so it keeps its camera, glass roof, vines, wall and light.
+- Brief, not the verbatim prompt: move the two potting tables and the tea corner down a little, and the bench with its bell post and lantern down to the front; leave open floor to the right of the post and in the bottom-right quarter; keep the furniture's size; no characters, text or logos.
+- The edit returned the glass without transparency. The rows above 28.5% of the height were copied from the previous picture with its exact alpha, blended into the edit over the next 4%; no pixels were painted.
+- Seats, fronts and blocks were measured again on the new picture (`src/content/worlds.json`).
+- SHA-256 of `workshop.png`: `07c772909e1b901069a2c4831a4de4444722c6b6cba5386cd68402fa65ffd403`

@@ -5,18 +5,21 @@ import { environmentLook, paintEnvironment } from '../src/yard/environment.js';
 import * as sky from '../src/yard/sky.js';
 import { useWorlds } from '../src/yard/worlds.js';
 import { worlds as definitions } from './support/content.mjs';
+import { withDen } from './support/den.mjs';
 
-test('all four authored studio lights retain their artwork without a full-room filter', () => {
+test('all four authored room lights retain their artwork without a full-room filter', t => {
+  withDen(t);
   for (const period of ['morning', 'day', 'evening', 'night'])
     for (const weather of ['clear', 'rain', 'snow']) {
-      const look = environmentLook({ world: 'studio', period, weather });
+      const look = environmentLook({ world: 'den', period, weather });
       assert.equal(look.art, `studio-cozy-${period}`);
       assert.equal(look.filter, 'none');
       assert.equal(look.tint, null);
     }
 });
 
-test('static rainy and snowy overcast paint is clipped to glass while indoor pixels stay authored', () => {
+test('static rainy and snowy overcast paint is clipped to glass while indoor pixels stay authored', t => {
+  withDen(t);
   for (const weather of ['rain', 'snow']) {
     let clipped = false,
       clips = 0,
@@ -41,7 +44,7 @@ test('static rainy and snowy overcast paint is clipped to glass while indoor pix
         fills++;
       },
     };
-    paintEnvironment(ctx, { width: 1536, height: 1024 }, 840, 660, { world: 'studio', period: 'day', weather });
+    paintEnvironment(ctx, { width: 1536, height: 1024 }, 840, 660, { world: 'den', period: 'day', weather });
     assert.equal(clips, 1);
     assert.equal(fills, 1);
   }
@@ -49,20 +52,21 @@ test('static rainy and snowy overcast paint is clipped to glass while indoor pix
 
 // An indoor caption is one sentence per language with the place, the time of day and (where the
 // window shows it) the weather as placeholders, so each language puts them in its own order.
-test('studio caption keeps its place name in every language and weather', () => {
+test('a room with windows keeps its place name in its caption in every language and weather', context => {
+  withDen(context);
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
     setLanguageForTests(lang);
     for (const weather of ['clear', 'rain', 'snow']) {
-      const caption = sky.worldCaption('studio', 'day', weather);
+      const caption = sky.worldCaption('den', 'day', weather);
       assert.equal(
         caption,
         t('caption.indoor_weather', {
-          place: t('world.studio'),
+          place: t('world.workshop'),
           period: t('period.day'),
           weather: t(`weather.${weather}`),
         }),
       );
-      for (const part of [t('world.studio'), t('period.day'), t(`weather.${weather}`)])
+      for (const part of [t('world.workshop'), t('period.day'), t(`weather.${weather}`)])
         assert.ok(caption.includes(part));
       assert.ok(!caption.includes('{'), caption);
     }
@@ -71,13 +75,13 @@ test('studio caption keeps its place name in every language and weather', () => 
 });
 
 test('a room without weather names only the place and the time of day', context => {
-  useWorlds([...definitions, { id: 'den', label: 'world.studio', capabilities: { sky: false, weather: false } }]);
+  useWorlds([...definitions, { id: 'nook', label: 'world.workshop', capabilities: { sky: false, weather: false } }]);
   context.after(() => useWorlds(definitions));
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
     setLanguageForTests(lang);
-    const caption = sky.worldCaption('den', 'night', 'rain');
-    assert.equal(caption, t('caption.indoor', { place: t('world.studio'), period: t('period.night') }));
-    assert.ok(caption.includes(t('world.studio')) && caption.includes(t('period.night')));
+    const caption = sky.worldCaption('nook', 'night', 'rain');
+    assert.equal(caption, t('caption.indoor', { place: t('world.workshop'), period: t('period.night') }));
+    assert.ok(caption.includes(t('world.workshop')) && caption.includes(t('period.night')));
     assert.ok(!caption.includes(t('weather.rain')) && !caption.includes('{'), caption);
   }
   setLanguageForTests('en');
@@ -120,22 +124,24 @@ test('each place has a description of its own', () => {
   setLanguageForTests('en');
 });
 
-test('studio seasons change only the window view independently of snow', async () => {
+test("a room's seasons change only the window view independently of snow", async t => {
+  withDen(t);
   const { environmentWindowLook } = await import('../src/yard/environment.js');
   for (const period of ['morning', 'day', 'evening', 'night']) {
     for (const season of ['spring', 'autumn', 'winter']) {
-      const scene = { world: 'studio', period, season, weather: 'clear' };
+      const scene = { world: 'den', period, season, weather: 'clear' };
       const look = environmentWindowLook(scene);
       assert.equal(look.art, `studio-view-${season}`);
       assert.equal(environmentLook(scene).filter, 'none');
       assert.equal(look.filter === 'none', period === 'day');
     }
-    assert.equal(environmentWindowLook({ world: 'studio', period, season: 'summer', weather: 'clear' }), null);
-    assert.equal(environmentWindowLook({ world: 'studio', period, season: 'summer', weather: 'snow' }), null);
+    assert.equal(environmentWindowLook({ world: 'den', period, season: 'summer', weather: 'clear' }), null);
+    assert.equal(environmentWindowLook({ world: 'den', period, season: 'summer', weather: 'snow' }), null);
   }
 });
 
-test('seasonal view and its night tint cannot paint the room outside glass', () => {
+test('seasonal view and its night tint cannot paint the room outside glass', t => {
+  withDen(t);
   let clipped = false;
   const base = { width: 1536, height: 1024 },
     overlay = { width: 1536, height: 1024 };
@@ -158,13 +164,6 @@ test('seasonal view and its night tint cannot paint the room outside glass', () 
       assert.equal(clipped, true);
     },
   };
-  paintEnvironment(
-    ctx,
-    base,
-    500,
-    350,
-    { world: 'studio', season: 'winter', period: 'night', weather: 'clear' },
-    overlay,
-  );
+  paintEnvironment(ctx, base, 500, 350, { world: 'den', season: 'winter', period: 'night', weather: 'clear' }, overlay);
   assert.deepEqual(draws, [base, overlay]);
 });

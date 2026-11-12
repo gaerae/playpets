@@ -200,12 +200,12 @@ test('every landing makes download a primary destination in the nav and hero', a
   assert.match(read('website/.vitepress/theme/index.ts'), /setupSiteLocale\(\{ base \}\)/);
 });
 
-test('the landing offers six places, outdoor seasons and an explicitly labelled interactive sample', async () => {
+test('the landing offers four places, outdoor seasons and an explicitly labelled interactive sample', async () => {
   const locales = await Promise.all(
     ['en', 'ko', 'ja', 'zh-hans'].map(lang => import(`../website/.vitepress/theme/landing-${lang}.ts`)),
   );
   for (const { worldCopy } of locales) {
-    assert.equal(worldCopy.places.length, 6);
+    assert.equal(worldCopy.places.length, 4);
     assert.equal(worldCopy.seasons.length, 4);
     assert.ok(
       worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel && worldCopy.viewLabel && worldCopy.desktopNote,
@@ -216,9 +216,9 @@ test('the landing offers six places, outdoor seasons and an explicitly labelled 
   }
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /:aria-pressed=/);
-  // The three rooms (the living room, the office, the workshop) have one picture each and no
-  // season, so the season choices stay in place but cannot be pressed.
-  assert.match(preview, /\['studio-cozy-day', 'office', 'workshop'\]\[place\.value - 3\]/);
+  // The garden workshop has one picture and no season, so the season choices stay in place but
+  // cannot be pressed.
+  assert.match(preview, /place\.value === 3 \? 'workshop' : null/);
   assert.match(preview, /:disabled="place >= 3"/);
   // The desktop has neither, so its row says why instead of showing dead chips.
   assert.match(preview, /v-if="loose" class="dock-row"><p class="dock-note">\{\{ words.desktopNote \}\}/);
