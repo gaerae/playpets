@@ -554,21 +554,19 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     paintPlainBug(ctx, c, scale);
   }
   function paintFirefly(c) {
-    const lit = fireflyLit(c.look, c.phase) * c.light;
-    ctx.globalAlpha = (0.15 + lit * 0.3) * c.light;
+    const lit = fireflyLit(c.look, c.phase);
     // Each kind glows in its own light (catalog.json look.glow), so a rare one can be found.
-    if (ambient.glow(ctx, c, scale)) {
-      ctx.globalAlpha = (0.55 + lit * 0.45) * c.light;
-      if (ambient.bug(ctx, c, scale)) return;
-    }
+    if (ambient.firefly(ctx, c, scale, lit)) return;
+    // Without a canvas for its light, the same halo and core as plain dots.
     const size = (c.look.size ?? 1) * scale;
     ctx.fillStyle = c.look.glow || `rgb(${INK.firefly})`;
+    ctx.globalAlpha = (0.25 + lit * 0.55) * c.light * 0.4;
     ctx.beginPath();
-    ctx.arc(c.x, c.y, 6 * size, 0, TAU);
+    ctx.arc(c.x, c.y, 7 * size, 0, TAU);
     ctx.fill();
-    ctx.globalAlpha = (0.4 + lit * 0.6) * c.light;
+    ctx.globalAlpha = (0.2 + lit * 0.8) * c.light;
     ctx.beginPath();
-    ctx.arc(c.x, c.y, 1.7 * size, 0, TAU);
+    ctx.arc(c.x, c.y, 2.5 * size, 0, TAU);
     ctx.fill();
   }
   function paint(now) {

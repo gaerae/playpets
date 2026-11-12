@@ -306,3 +306,19 @@ test("every animal's prints, tail and finds are in the catalogue", () => {
   }
   for (const id of ['bush', 'twigs', 'puff']) assert.ok(trailArt(id), id);
 });
+
+// In the yard a firefly is mostly its light, with a small body under it, drawn from a crop of the
+// bug alone (`yard`): some album crops keep empty margin, which would shrink the bug in the yard.
+test('every firefly has a yard crop of the bug alone, inside its album crop', () => {
+  const collection = JSON.parse(readFileSync(new URL('../src/art/collection.json', import.meta.url), 'utf8'));
+  for (const bug of catalog.bugs.filter(b => b.kind === 'firefly')) {
+    const record = collection.find(r => r.id === bug.id);
+    assert.ok(record?.yard?.length === 4, `${bug.id}: a yard crop`);
+    const [x, y, w, h] = record.yard,
+      [cx, cy, cw, ch] = record.crop;
+    assert.ok(x >= cx && y >= cy && x + w <= cx + cw && y + h <= cy + ch, `${bug.id}: inside the album crop`);
+    assert.ok(w * h < cw * ch, `${bug.id}: tighter than the album crop`);
+  }
+  for (const record of collection.filter(r => r.yard))
+    assert.ok(catalog.bugs.find(b => b.id === record.id)?.kind === 'firefly', `${record.id}: only fireflies have one`);
+});

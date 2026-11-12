@@ -19,6 +19,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A lantern or a campfire at night lights a warm pool on the ground under it, and the snow around it no longer turns grey.
 - The fishing float sits in the water with a ripple at its waterline.
 - With reduced motion, the sleigh over the moon on Christmas night is a dark blue shape against the moon instead of a black sticker.
+- Fireflies in the yard are mostly their light, a soft halo with a warm-white heart, over a small body that shows as the light fades, instead of a long beetle with a faint glow. Each kind keeps its own colour, size and blink.
 - A friend holds the bug net in its paws and leans it out under its face, instead of the handle starting behind its hip. A friend from an imported pet file holds the fishing rod in front of its body too.
 
 ## [1.6.1] - 2026-11-12
