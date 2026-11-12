@@ -13,7 +13,7 @@
    - `geometry.lake` takes `from`, `to`, `center` and `radius`: fractions that describe the same raster water people click.
    - `geometry.fishingSpot` takes normalized `x` and `y`: a separate standing position on the floor.
    - The fishing spot follows the same image transform as the water.
-4. Set each capability on purpose: `sky`, `weather`, `wildlife`, `fishing`, `seasonalEffects` and `ambient`.
+4. Set each capability on purpose: `sky`, `weather`, `soil`, `wildlife`, `fishing`, `seasonalEffects` and `ambient`.
    - An indoor place usually turns off outdoor activities.
    - For weather through windows, enable `weather` and define `windowPanes` as normalized `x`, `y`, `width` and `height` rectangles over the glass.
    - Rain, snow and overcast shading share the background crop and stay inside those panes.
@@ -112,7 +112,7 @@ Ids:
 Built-in places:
 - The courtyard, hillside garden and lakeside each have four seasonal images.
 - The renderer adds time-of-day lighting, a dynamic sky and weather.
-- Snow selects the winter artwork even when another season is selected.
+- Season and weather are separate: snow falls over the selected season's artwork.
 - The garden workshop (`workshop`) has one picture. Its glass shows the live sky and weather, and the renderer lights it for the time of day.
 - A room without a sky, such as a background of your own, shows rain and snow only inside its window panes; `tests/indoor-environment.test.mjs` checks it with a fixture room.
 - Indoor places hide outdoor creatures, fishing and seasonal particles, and keep friends and collections.

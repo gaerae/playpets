@@ -90,7 +90,7 @@ export const sections = {
       flowers:
         'Dig up seeds, then plant them with Play → Plant a seed. They bloom in four hours; each season has its own.',
       fish: 'Click the water and click again when ! shows over the float. Some come only at night, in rain or in one season.',
-      bugs: 'Click one outdoors on a clear day: butterflies and dragonflies by day, fireflies on spring and summer nights, crickets on autumn ones.',
+      bugs: 'Click one outdoors on a clear day: butterflies, dragonflies, beetles and grasshoppers by day, fireflies on spring and summer nights, crickets on autumn ones.',
       gifts:
         'A friend you played with brings one now and then. A few come only during an event, and the snowman you build together.',
       trees:
@@ -111,7 +111,7 @@ export const sections = {
     gives: {
       blossom: 'Petals drift down. Call a flower viewing and friends gather under the cherry tree.',
       shoots: 'A few shoots come up. Click one to dig it up before it goes, six hours later.',
-      fireflies: 'Many more fireflies, a golden one among them. A friend brings a watermelon.',
+      fireflies: 'More fireflies, a golden one among them. A friend brings a watermelon.',
       harvest: 'A big golden moon rises, and moonlight carp come to the lake. A friend brings a pumpkin.',
       lights: 'Lights glow along the trees. Friends bring a little tree, a baby reindeer and Santa.',
       ornaments: 'Click the tree to hang up to three album finds a day.',
@@ -240,7 +240,12 @@ export const sections = {
   togetherLink: 'How chatting together works',
   workTitle: 'Coding agents',
   workBody:
-    'While your coding agent works, a friend tells you what it is doing. In Friends & settings → Settings → Coding tools, press Connect beside the tool you use. Claude Code, Gemini CLI, Grok Build, Qoder and Kimi Code report each step, Cursor when it edits and finishes, and Codex when it finishes a reply. Ask your friend “What were you up to?” and it tells you what just happened.',
+    'While your coding agent works, a friend tells you what it is doing. In Friends & settings → Settings → Coding tools, press Connect beside the tool you use. Ask your friend “What were you up to?” and it tells you what just happened.',
+  workReports: [
+    'Claude Code, Gemini CLI, Grok Build, Qoder and Kimi Code report each step.',
+    'Cursor reports when it edits and when it finishes.',
+    'Codex reports when it finishes a reply.',
+  ],
   workNote:
     'The connection stays on this computer. Hooks leave out your prompts and tool inputs; short status reports can still mention your work.',
   chatPlay: 'Let them chat',

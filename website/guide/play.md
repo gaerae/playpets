@@ -12,13 +12,13 @@ The yard changes with the time of day, the weather and the season, and it grows 
 
 Seasonal events come and go, the yard has its own sounds, and there are four games to play with your friends, one of them only in winter.
 
-**The dock**
+### The dock
 
 The scenery fills the window. The dock at the bottom has **Place & atmosphere**, **Play** and **Friends & settings**. Each one opens a single page split into sections, with no tabs or Back buttons inside, and only one yard panel is open at a time.
 
 Automatic time follows your computer's clock without showing a clock.
 
-**Play**
+### Play
 
 The Play panel is titled for the friend you've selected, such as **Play with Clover**, and has three sections:
 
@@ -30,11 +30,11 @@ The Play panel is titled for the friend you've selected, such as **Play with Clo
 
 Let them chat needs two friends connected to an AI. Everything else works without one.
 
-**Starting yard**
+### Starting yard
 
 A new yard starts on a clear spring day. To let the season, the time or the weather change on its own, choose **Auto** for it. Whatever you choose is saved and stays as you left it.
 
-**Sounds**
+### Sounds
 
 The **Yard sounds** switch and **Volume** are in **Place & atmosphere → Atmosphere**. Sounds start after your first interaction and play only while the yard is visible. Rain, birds, water and the other ambient sounds follow the place, the weather, the season and the time.
 
@@ -60,19 +60,11 @@ Season and weather are set separately. Choose Snow in summer and snow falls over
 | Time of day | Auto time, Morning, Midday, Evening, Night |
 | Weather | Auto weather, Clear, Rain, Snow |
 
-**Places**
-
-The three outdoor places each have their own house, four seasonal landscapes and their own fishing positions.
-
-**Garden workshop** brings the same calm style indoors, under a glass roof: two long potting tables, a tea corner with a checkers board and a garden bench with a call bell at the front. Friends stroll, sort seeds at a table, have tea together or rest by the bench, and the sky, the time of day and the weather show through the glass. Rain and snow stay beyond it. A friend linked to a coding agent works at the tables and waits by the bell when the agent needs your approval. [What friends do there](./agents.md#where-friends-go).
-
-You can pet friends, chat, grow flowers and play the games in every place, apart from the winter-only **Snowman**, which needs a yard that shows winter, so not the workshop. Fishing, wild bugs and the outdoor seasonal effects are only in the three gardens. Your place is remembered separately from your time and weather choices.
-
 With the time of day on **Auto**, the yard follows your computer's clock. The sky and ground change color through morning, midday, evening and night, and the sun crosses the sky from left to right. At night the moon shows tonight's phase.
 
 With the weather on **Auto**, the yard picks new weather once every 20 minutes. It's mostly clear with rain now and then, and snow only in winter. It doesn't fetch the real weather from the internet.
 
-The illustrated outdoor places are composed differently, from a sheltered courtyard to an open hillside and lake. Their colors change with the light. The background is repainted only when the scene or the window size changes.
+If you pick a time of day or weather yourself, it stays fixed, and your choice is still there the next time you open the app.
 
 With the season on **Auto**, the outdoor places follow the date:
 
@@ -85,11 +77,55 @@ With the season on **Auto**, the outdoor places follow the date:
 
 You can also choose a season in **Place & atmosphere → Atmosphere**. If your computer's time zone is south of the equator, the automatic seasons are reversed.
 
-When rain clears in daylight, a rainbow stands over the hills for a few minutes. Where it ends, a patch of ground glimmers: dig there before it fades and you never come up empty-handed. Other turns of the weather bring their own moments: rain from a clear daytime sky falls as a sunshower with the sun still out, mist lies on the field on clear autumn mornings, snow that stops at night glitters under the moon, and shooting stars come often all through clear summer nights. On clear days a flock of birds crosses the sky now and then. Butterflies flutter until autumn, fireflies glow on spring and summer nights, and crickets come out on autumn nights.
-
-If you pick a time of day or weather yourself, it stays fixed, and your choice is still there the next time you open the app.
-
 When the weather changes, one or two friends say a word about it, like "Rain!" or "Snowman time?". Left alone, friends also talk to themselves in ways that fit the time of day.
+
+### Weather moments
+
+Turns of the weather and clear skies bring their own moments:
+
+| Moment | When | What to do |
+|---|---|---|
+| Rainbow | Rain clears in daylight. It stands over the hills for a few minutes | Dig where its end glimmers before it fades, and you never come up empty-handed |
+| Sunshower | Rain falls from a clear daytime sky | Watch the rain come down with the sun still out |
+| Mist | Clear autumn mornings | Watch it lie on the field |
+| Moonlit snow | Snow stops at night | Watch the snow glitter under the moon |
+| Shooting stars | Clear summer nights | Look up: they come often, all night long |
+| Birds | Clear days, now and then | Watch a flock cross the sky |
+| Daytime bugs | Clear mornings and middays, spring to autumn | Catch butterflies and dragonflies, and beetles and grasshoppers in the grass |
+| Fireflies | Clear spring and summer evenings and nights | Catch them as they glow |
+| Crickets | Clear autumn evenings and nights | Catch them in the grass |
+
+### Places
+
+The three outdoor places, Hill garden, Stone courtyard and Lakeside cottage, each have their own house, four seasonal landscapes and their own fishing positions.
+
+They are composed differently, from a sheltered courtyard to an open hillside and lake. Their colors change with the light. The background is repainted only when the scene or the window size changes.
+
+Your place is remembered separately from your time and weather choices.
+
+### Garden workshop <Since v="1.7.0" /> {#garden-workshop}
+
+**Garden workshop** brings the same calm style indoors, under a glass roof: two long potting tables, a tea corner with a checkers board and a garden bench with a call bell at the front.
+
+Friends stroll, sort seeds at a table, have tea together or rest by the bench. The sky, the time of day and the weather show through the glass, and rain and snow stay beyond it.
+
+A friend linked to a coding agent works at the tables and waits by the bell when the agent needs your approval. [What friends do there](./agents.md#where-friends-go).
+
+You can pet friends, chat, grow flowers and play the games in every place. The rest differs:
+
+| Activity | The three gardens | Garden workshop |
+|---|---|---|
+| Flowers | In the ground | In small pots |
+| Digging | Yes | No |
+| Trees | Yes, six per place | No |
+| Fishing | Yes | No |
+| Bugs | In clear weather | No |
+| Seasonal landscapes and effects | Follow the season | No, the room looks the same all year |
+| Snowman | While the yard shows winter | No |
+| Christmas night | On a snowy winter evening or night | No, the snow stays beyond the glass |
+| Footprints in the snow | In winter | No |
+| Spring shoots | In spring | No |
+| Decorating the Christmas tree | Yes | Yes |
 
 ## Let them chat <Since v="0.1.0" />
 
@@ -109,7 +145,7 @@ Flower seeds and saplings both come from digging. Choose **Dig**, send a friend 
 - Keyboard: press **Plant a seed** with Enter or Space, then press it again to plant beside the selected friend, as with the picnic.
 - With a tool in hand, keys 1, 2 and 3 switch to **Dig**, **Plant a tree** and **Plant a seed**. They do nothing while you type in a field.
 
-In the Garden workshop, flowers sit in small pots instead of bare soil. Growth and your collection carry over when you change places.
+Growth and your collection carry over when you change places.
 
 Plants grow by the clock, even while the app is closed:
 
@@ -145,7 +181,11 @@ The same right-click menu has **Show on desktop**, for a plant or a tree, so it 
 
 ### Gifts
 
-Gifts come from friends, not from the clock. On a day you do something with a friend, such as patting it, giving it a treat, talking or fishing together, that friend may bring a gift. The whole yard gets at most one every other day, and time alone in the yard brings none. Once a gift may come, it takes 10 to 20 minutes, or five minutes for the first one.
+Gifts come from friends, not from the clock:
+
+- A friend may bring one on a day you do something with it, such as patting it, giving it a treat, talking or fishing together.
+- The whole yard gets at most one every other day. Time alone in the yard brings none.
+- Once a gift may come, it takes 10 to 20 minutes, or five minutes for the first one.
 
 Friends also bring a gift when they grow closer, one for each new level from **At ease** on, on a day you play with that friend. At **Very close** it's the friend's memento, marked with a small heart. The heart stays for a day after the memento arrives; after that it shows when you point at the memento or select it.
 
@@ -184,21 +224,25 @@ To put one away, right-click it and choose **Put away**, or press **Delete** or 
 
 ## Fishing and bugs <Since v="0.1.0" />
 
-**Fishing**
+### Fishing
 
 Click visible water to fish by hand with the nearest free friend. When the float dips and **!** appears, click it. Too early or too late and the catch gets away.
 
 **Play → Fish** has the selected friend finish the trip on its own. Both ways use that background's fishing spot. Your rod can also bring up freshwater prawns, crayfish, pond snails, mitten crabs, mussels and, now and then, a softshell turtle, and the album keeps them with the fish under **Aquatic life**.
 
-**Bugs**
+### Bugs
 
-Bugs appear only in clear outdoor weather; rain and snow stop them. In the morning and at midday, click butterflies or dragonflies. On spring and summer evenings and nights, click fireflies; on autumn evenings and nights, crickets in the grass. The nearest friend catches the bug.
+Bugs appear only in clear outdoor weather; rain and snow stop them. Click one and the nearest friend catches it.
 
-**Fishing on its own**
+- Morning and midday: butterflies and dragonflies, and beetles and grasshoppers in the grass.
+- Spring and summer evenings and nights: fireflies.
+- Autumn evenings and nights: crickets in the grass.
+
+### Fishing on its own
 
 From closeness level 3, an idle friend may go fishing on its own every 12 to 25 minutes while the yard is visible. Games, another fishing trip or an active placement tool pause it. When a fish bites, the friend calls you; press the float within a few seconds to reel it in together. If no one does, the fish gets away, so the album only keeps what you catch.
 
-**What you find**
+### What you find
 
 What you find depends on the season, the time of day and the weather. Catfish and eels come out after dark, and more of them in the rain. Pond smelt appear only in winter, and a golden carp is very rare. Each fish is a different size every time.
 
@@ -206,8 +250,9 @@ A card shows what was caught and says so when it's new. A card for something the
 
 When something new arrives, **Album** in **Play → Find** and **Play** in the dock carry a small dot until you open the album.
 
-**Album** (in **Play → Find**)
+### Album
 
+- In **Play → Find**.
 - Eight books: Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes, Footprints, Spring shoots.
 - Every kind is listed:
   - caught: how many, and the biggest fish
@@ -232,19 +277,54 @@ An event's gifts come the first times a gift is due during the event, one each t
 
 South of the equator, judged by your computer's time zone, seasonal events come six months later. The winter lights and the new year keep their dates.
 
-In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. If you say yes, your season comes back on January 8. The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and whenever the yard shows winter. The rest of the time they wait out of sight. They still count toward the 12 decorations, and when you put one away it goes back into the gift box.
+In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7.
 
-On a snowy evening or night, if the yard is showing winter and the little Christmas tree is out, the tree lights up and grows into a grand tree. December brings this on its own, but it works on any day: pick winter, night and snow for the yard. The grand tree stays while the snow falls, with a bulb glinting now and then, and shrinks back when the snow stops. When the snow comes back, it grows again. If the baby reindeer and Santa are out in the yard, they look up at night, and a sleigh crosses the moon each time the tree grows. A tree out on the desktop grows along with the one in the yard. In the Garden workshop the snow stays beyond the glass, so Christmas night happens only in the gardens.
+- Say yes, and your own season comes back on January 8.
+- The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and whenever the yard shows winter.
+- The rest of the time they wait out of sight. They still count toward the 12 decorations.
+- Put one away and it goes back into the gift box.
 
-Press the Christmas tree to decorate it. Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. They become small ornaments tinted by kind, and pointing at one shows what it is. To change the tree, take an ornament down from its card; the day's three stay used. Aquatic life and bugs stay in the water and the grass. The ornaments stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree. Decorating works in every place, the Garden workshop too.
+On a snowy evening or night, if the yard is showing winter and the little Christmas tree is out, the tree lights up and grows into a grand tree.
+
+- The grand tree stays while the snow falls, with a bulb glinting now and then.
+- It shrinks back when the snow stops, and grows again when the snow comes back.
+- If the baby reindeer and Santa are out in the yard, they look up at night, and a sleigh crosses the moon each time the tree grows.
+- A tree out on the desktop grows along with the one in the yard.
+
+December brings this night on its own. To have it on any other day:
+
+1. Choose one of the three gardens under **Places**.
+2. Set out the little Christmas tree in the yard.
+3. Under **Atmosphere**, choose **Winter**, **Night** and **Snow**.
+
+Press the Christmas tree to decorate it.
+
+- Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. Aquatic life and bugs stay in the water and the grass.
+- Each becomes a small ornament tinted by kind. Point at one to see what it is.
+- To change the tree, take an ornament down from its card. The day's three stay used.
+- The ornaments stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree.
 
 ### Flower viewing
 
-During the cherry blossom festival, on a clear day from morning to evening, friends gather once a day under a cherry tree you grew. With no cherry tree they use a picnic blanket, or the middle of the yard. They look up and talk for a minute or so, then wander off. They never break into a game, fishing or digging, and the gathering ends early if the yard moves to another place, or night or rain comes.
+During the cherry blossom festival, friends gather under a cherry tree you grew, look up and talk for a minute or so, then wander off.
 
-To call them yourself, choose **Flower viewing** in the play panel. You can do it once an hour, and the button is greyed out while friends are already viewing or a game is on. Friends connected to an AI talk about the blossom in their own words; when friends gather on their own, they do so only with **Let them chat now and then** on.
+- When: once a day, on a clear day from morning to evening.
+- Where: under a cherry tree you grew. With none, on a picnic blanket or in the middle of the yard.
+- They never break into a game, fishing or digging.
+- The gathering ends early if the yard moves to another place, or night or rain comes.
 
-On those clear festival days, from morning to evening, a petal now and then lands on a friend's head. It stays until that friend moves or night or rain comes, and lands more often while friends view the blossom, when petals also fall a little thicker. Click a falling petal to catch it: it twirls into a little glint, and the first one each day brings a wish from a friend. With reduced motion, petals don't fall and can't be caught, but friends still gather and petals still rest on heads.
+To call them yourself, choose **Flower viewing** in the play panel.
+
+- You can call them once an hour.
+- The button is greyed out while friends are already viewing or a game is on.
+- Friends connected to an AI talk about the blossom in their own words. When friends gather on their own, they do so only with **Let them chat now and then** on.
+
+On those clear festival days, from morning to evening, a petal now and then lands on a friend's head.
+
+- It stays until that friend moves, or night or rain comes.
+- While friends view the blossom, petals fall a little thicker and land on heads more often.
+- Click a falling petal to catch it: it twirls into a little glint, and the first one each day brings a wish from a friend.
+- With reduced motion, petals don't fall and can't be caught, but friends still gather and petals still rest on heads.
 
 ### The year-end letter
 
@@ -268,13 +348,18 @@ Levels say how close you are, not what you are to each other. They read the same
 | Very close | It brings you its memento |
 | Dearest | A flower on its name tag, and now and then it says something just for you |
 
-Time together counts every ten minutes the yard is seen, up to an hour's worth a day. Patting, treats, chatting, watering, catching and gifts count more, up to a day's worth, and pats alone fill only a quarter of it. So leaving the window open or a minute of clicking can't rush it: closeness comes from what you do together over days, and nothing is ever lost by being away.
+Closeness comes from what you do together over days:
+
+- Time together counts every ten minutes the yard is seen, up to an hour's worth a day.
+- Patting, treats, chatting, watering, catching and gifts count more, up to a day's worth.
+- Pats alone fill only a quarter of that.
+- So leaving the window open or a minute of clicking can't rush it, and nothing is ever lost by being away.
 
 Closeness is saved as `bonds` in `state.json`.
 
 ## A little digging and tree planting
 
-**Digging**
+### Digging
 
 1. Open **Play** from the dock, or right-click a friend and choose **Play with** and its name.
    - **Ask Clover to dig** in the same menu (with that friend's name) picks up the dig tool, and that friend goes first.
@@ -283,7 +368,7 @@ Closeness is saved as `bonds` in `state.json`.
 
 Water, furniture and roots aren't digging spots. If you take the friend away before it arrives, there's no discovery. To skip the panel, right-click bare ground and choose **Dig here**, and the friend digs that spot.
 
-**The tool in hand**
+### The tool in hand
 
 The dig tool stays in your hand until you put it away. Each spot you choose sends the next free friend, and a friend that just dug rests a moment while another goes.
 
@@ -291,13 +376,13 @@ The strip that takes the dock's place at the bottom switches to **Plant a tree**
 
 A tool in hand never hides the lake or the creatures. Press the water or a flying or crawling creature, and that same press puts the tool away and fishes or catches.
 
-**Motions and outfits**
+### Motions and outfits
 
 Daisy, Clover, Pip and Miso have their own motions in every season for digging, planting, casting, waiting for a bite, reeling in and reacting to a find. Imported pets join the same activities with their original animations.
 
 Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and change into summer and winter outfits. Clover keeps the teal overalls and straw hat through autumn, then changes into a coat, scarf and knitted beanie for winter.
 
-**What a dig finds**
+### What a dig finds
 
 - A flower seed, a sapling, one of twenty-five keepsakes, or nothing. Keepsakes appear in **Album → Keepsakes**.
 - After a rare find, all friends and places wait 24 hours for another rare find.
@@ -306,7 +391,7 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 - Each friend waits eight seconds between digs.
 - Limits: 20 seeds, and 20 saplings per species. A full pocket doesn't turn a reward into something else.
 
-**Planting a tree**
+### Planting a tree
 
 1. Find a sapling by digging first.
 2. Choose **Plant a tree** to see the stock: cherry, maple, pine, oak, birch, willow, ginkgo, persimmon, bamboo, magnolia, crape myrtle and dawn redwood.
@@ -317,7 +402,7 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 - Each place holds six trees, up to twenty-four overall. Trees stay in the place where they were planted.
 - Drag a tree to move it.
 - To remove one at once, right-click it and choose **Remove**, or press **Delete** on it. As with flowers, **Undo** in the notice brings it back for about six seconds. Its album entry stays, but no sapling comes back.
-- Indoor places don't offer digging or tree planting. Imported backgrounds can explicitly allow or turn off soil.
+- Imported backgrounds can explicitly allow or turn off soil.
 
 ### Footprints in the snow
 
@@ -325,11 +410,11 @@ In a winter yard, faint animal footprints cross the snow. There is one trail a d
 
 Click the prints, and a rested friend follows them, sniffing. With the keyboard, move to the prints with Tab and press Enter. At the end, a tail peeks out from behind a bush and is gone in a whisk. Something small waits there to be dug up, and each animal has finds it likes.
 
-An hour of new snow covers the prints, and the next day they are gone. The Garden workshop has none. **Album → Footprints** shows each print until you have followed it, then the tail and the name.
+An hour of new snow covers the prints, and the next day they are gone. **Album → Footprints** shows each print until you have followed it, then the tail and the name.
 
 ### Spring shoots
 
-While the yard shows spring outdoors, a few shoots poke up after rain, and one comes up on a fair morning. At most three stand at a time, and each stays for a few hours. The Garden workshop has none.
+While the yard shows spring outdoors, a few shoots poke up after rain, and one comes up on a fair morning. At most three stand at a time, and each stays for a few hours.
 
 Click a shoot, and the selected friend, or the nearest free one, goes and digs it up. It goes into **Album → Spring shoots**, which holds eight: shepherd's purse, mugwort, fiddlehead, wild garlic, bamboo shoot, horsetail shoot, asparagus and morel. The album is for collecting, not a guide to wild plants.
 
@@ -366,10 +451,12 @@ The other games, **Picnic**, **Plant a seed** and **Plant a tree** stay off for 
 
 ### Snowman
 
-While the yard shows winter, which leaves out the Garden workshop, **Snowman** in the play menu starts it. Now and then a friend suggests building one and starts rolling on its own. Two friends roll a snowball that grows as it goes: press it to help push, or drag it (or use the arrow keys) to roll it yourself, and a soft blue trail fades in the snow behind it. Three balls stack into a snowman with a few sparkles, and you can build one a day; ask again the same day and a friend only says they built one already.
+1. While the yard shows winter, choose **Snowman** in **Play → Group games**. Now and then a friend suggests building one and starts rolling on its own.
+2. Two friends roll a snowball that grows as it goes. Press it to help push, or drag it (or use the arrow keys) to roll it yourself. A soft blue trail fades in the snow behind it.
+3. Three balls stack into a snowman with a few sparkles.
+4. Choose its hat, scarf and carrot nose. To change them later, press the snowman or choose **Dress up** from its menu.
 
-Then choose its hat, scarf and carrot nose. Press the snowman, or choose **Dress up** from its menu, to change them later.
-
+- You can build one a day. Ask again the same day and a friend only says they built one already.
 - A new snowman replaces the old one, which melts away; with company, a friend says goodbye to it.
 - The snowman stays in the yard only while the yard shows winter. **Show on desktop** in its menu takes it out on the desktop, dressed as in the yard, while the yard shows winter. Putting it away melts it.
 - With 12 decorations in the yard and no snowman, a friend says the yard is full, and the game doesn't start.
@@ -378,7 +465,9 @@ Then choose its hat, scarf and carrot nose. Press the snowman, or choose **Dress
 
 Drag any edge or corner to resize the window, down to 300 × 210. To move it, drag the narrow transparent area along the top edge. Position and size are remembered, and at every size the same window keeps friends, chat, Invite, Settings, scene controls and games.
 
-**Small windows** (640 pixels wide or less, or 480 pixels tall or less)
+### Small windows
+
+A window is small when it's 640 pixels wide or less, or 480 pixels tall or less.
 
 The dock hides in a small window. A round button appears in the bottom-right corner while the pointer is over the window, or when you reach it with Tab. It opens the same short menu as a right-click on empty scenery: **Place & atmosphere**, **Play**, **Friends & settings**, **Always on top**.
 
@@ -386,14 +475,14 @@ The dock hides in a small window. A round button appears in the bottom-right cor
 - Each panel shows its actions as tiles whose names may take two lines. Section names are hidden.
 - Longer panels scroll inside the window.
 
-**Getting back**
+### Getting back
 
 - Closing Place & atmosphere or Play returns straight to the scenery.
 - The Friend panel and Invite a friend have a Back action to Friends & settings. **×** returns to the yard.
 - In Settings, Back goes from a section to the list of sections, then to Friends & settings.
 - Invite a friend keeps Import visible in its header.
 
-**Friend menu**
+### Friend menu
 
 Click a friend's name tag to talk to it. Its tooltip says **Talk to** and the friend's name.
 
@@ -401,11 +490,11 @@ Right-click a friend for a short menu with **Talk to**, **Play with** and **Ask 
 
 Close, Escape or a click outside takes you back to the scenery. There's no separate small-window play strip.
 
-**Scenery menu**
+### Scenery menu
 
 Right-click empty scenery for the short action menu beside the pointer; in small windows, the corner button opens it too. It stays inside the window and scrolls when needed, and **Esc** or a click outside closes it. Friends, plants and decorations keep their own right-click actions.
 
-**Fullscreen**
+### Fullscreen
 
 **Friends & settings → Window & desktop → Enter fullscreen** fills the screen. While you're in fullscreen, the same action reads **Return to previous size**, and **Esc** also takes you back. If a panel or menu is open, Esc closes it first.
 
@@ -413,7 +502,7 @@ Returning restores the previous window size, position and Always on top setting.
 
 <Shot name="mini" caption="A small yard window beside your work." />
 
-**Always on top**
+### Always on top
 
 Turn it on in **Friends & settings → Window & desktop → Always on top**, or with the checked action in the short right-click menu. It's also in the tray and the macOS View menu, and **Cmd/Ctrl + Shift + M** toggles it without resizing. It works independently of window size and is remembered.
 
@@ -421,17 +510,17 @@ On Linux, pinning depends on the desktop and window manager. Some Wayland deskto
 
 <Shot name="mini-chat" caption="A conversation stays inside the small yard window, beside your work." />
 
-**Close and quit**
+### Close and quit
 
 **Friends & settings → Close window** hides the yard in the tray, and desktop friends and agent hooks keep running.
 
 **Quit PlayPets** beside it closes PlayPets at once, the same as Quit in the tray and <kbd>⌘</kbd> <kbd>Q</kbd> on macOS. Conversations aren't saved. From the short right-click menu or the corner button, choose Friends & settings to reach these actions.
 
-**Updates in small windows**
+### Updates in small windows
 
 In a small window, an available update shows as a 32-pixel download icon with a dot. Its accessible label names the version, and activating it opens App updates directly. Larger windows keep the version pill.
 
-**Dialogs and confirmations**
+### Dialogs and confirmations
 
 Friend settings, Import and AI connection dialogs keep their headings and actions in place while the form scrolls. The collection and confirmation dialogs scroll their own content.
 
@@ -450,9 +539,11 @@ To use the whole desktop as a yard, turn on [Desktop mode](./desktop.md). It wor
 
 ## Collecting at your own pace
 
-The album has 169 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
+The album has 169 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights.
 
-**How long it takes**
+Grow dandelions, morning glories, red spider lilies and pansies, and plant a ginkgo or a persimmon tree. Dig up a pinecone, a paper boat or, now and then, a four-leaf clover. And make room for a water wheel, a hammock or a crock stand from a friend.
+
+### How long it takes
 
 The full 169-item album isn't a one-day or one-week goal, and there's no guaranteed completion date. The 21 ordinary gifts arrive on different local dates.
 
@@ -460,20 +551,14 @@ The seven event gifts need festivals spread across the calendar, so depending on
 
 Flowers bloom four hours after planting and trees mature after twelve hours. Both count time with the app closed.
 
-**Tips**
+### Tips
 
-- **Fish:** rain makes catfish and eels easier to find. Choose a season and time when they appear, and use the guide to see what you might catch.
-- **Bugs:** look in clear outdoor weather.
-  - Morning and daytime: butterflies and dragonflies.
-  - Spring and summer evenings and nights: fireflies.
-  - Autumn evenings and nights: crickets.
-  - Festivals follow the calendar; changing the season alone doesn't start one.
-- **Digging:** season, weather and outdoor place change which sapling or keepsake is more likely.
-  - Matching conditions favor some finds, but the others stay reachable.
-  - Choose season and weather separately in Atmosphere, unusual combinations included.
-  - Custom outdoor places still reflect season and weather.
-  - The same patch keeps its result for 24 hours.
-  - An unlucky streak doesn't make the next find more likely.
-- **Space:** clearing a received gift keeps its album record and makes room for later gifts. A full seed or sapling pocket doesn't reroll the chosen reward.
+| For | Tip |
+|---|---|
+| Fish | Rain makes catfish and eels easier to find. Choose a season and time when they appear, and use the guide to see what you might catch |
+| Bugs | Look in clear outdoor weather. Morning and midday bring butterflies and dragonflies, and beetles and grasshoppers in the grass; spring and summer evenings and nights, fireflies; autumn evenings and nights, crickets. Festivals follow the calendar, so changing the season alone doesn't start one |
+| Digging | Season, weather and outdoor place change which sapling or keepsake is more likely. Matching conditions favor some finds, but the others stay reachable. Choose season and weather separately in Atmosphere, unusual combinations included; custom outdoor places still reflect them |
+| The same patch | It keeps its result for 24 hours. An unlucky streak doesn't make the next find more likely |
+| Space | Clearing a received gift keeps its album record and makes room for later gifts. A full seed or sapling pocket doesn't reroll the chosen reward |
 
 The guide shows what you might discover under the chosen conditions. Water and obstacles leave fewer usable digging patches than the background's full grid.

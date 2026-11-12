@@ -38,6 +38,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
+- The guide is easier to scan: the Garden workshop compared with the gardens in one table, weather moments in a table, rules as bullets and steps, and the same headings and tables in every language. It says the agent dot sits in the name tag, lists Grok Build, Qoder and Kimi Code, names daytime beetles and grasshoppers, and calls the creator page Character studio everywhere. The landing says more fireflies, not many more.
 - The guide lists the Garden workshop in place of the Cozy living room, says where a friend goes for each state of its agent, and shows the state dot beside the name. Its living room picture is gone.
 - The website's place picker shows four places, with the Garden workshop's day sky through its glass, and the site and README count four places.
 - The landing's seasons and the yard's own moments read as recipes: what has to come together (season, time of day, weather, a gift out in the yard, a Play menu item) as small chips, then what happens in one short line. Christmas night shows its two steps: the tree that grows, then the sleigh.

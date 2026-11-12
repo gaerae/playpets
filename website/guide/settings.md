@@ -74,19 +74,25 @@ This section shows the version, then three groups. Links open in your browser. A
 
 ## App updates <Since v="0.1.0" />
 
-If you installed PlayPets from the Microsoft Store, the Store installs updates. PlayPets asks the Store when it starts and every six hours, and **Check for updates** asks it now. When a new version is waiting, it shows in the yard and here, and **Open in Microsoft Store** opens its page there. While the Store installs it, PlayPets closes for a moment and opens again. Test MSIX packages also use package-managed updates. The GitHub installer update flow below is for installations outside MSIX.
+How PlayPets updates depends on where you installed it. Test MSIX packages update through their package, as the Store version does.
+
+| | Microsoft Store | GitHub installer |
+|---|---|---|
+| Installs updates | The Store | PlayPets, only when you choose |
+| Checks on its own | When PlayPets starts, then every six hours | 20 seconds after startup, then every six hours |
+| **Check for updates** | Asks the Store now | Reads `latest.json` from GitHub releases |
+| A new version | Shows in the yard and here. **Open in Microsoft Store** opens its page there | Its entry opens **Friends & settings → Settings → App updates** |
+| While it installs | PlayPets closes for a moment and opens again | PlayPets downloads, verifies and installs it, then restarts |
 
 Storage and network details are in the [privacy policy](../privacy.md).
 
-**Checking**
+### Checking
 - The row shows the current version.
-- **Check for updates** reads `latest.json` from GitHub releases. If you're current, it says "You're up to date".
-- Quiet check 20 seconds after startup, retried every six hours. The section says so under the row.
-- Installs only when you choose. You can also check manually.
+- If you're current, **Check for updates** says "You're up to date".
+- The section says under the row that PlayPets checks quietly and installs only when you choose.
 - **What changed in this version** opens the release page of the version you use.
-- An available update's entry opens **Friends & settings → Settings → App updates**.
 
-**Installing**
+### Installing
 - **What's new** opens the release page in your browser.
 - All of these stay in App updates; no separate update window opens:
   - **Install and restart**
@@ -109,23 +115,30 @@ Neither is a direct item in the scenery's right-click menu. Choose Friends & set
 
 Move the pointer to the top of the yard and buttons appear to reset the window size, minimize and close. **Reset window size** is in the scenery's right-click menu too. If you unplug a monitor and the window no longer fits, it comes back inside the screen that is left on its own.
 
-- **Tray menu** (the cat in the menu bar or taskbar), in order:
-  - **Open the yard**, **Friends** (when friends are present), **Invite a Friend…**
-  - **Reset window size** puts the yard back at its usual size in the middle of the screen
-  - Display switches: **Always on top**, **Show on desktop**, and **Stroll on desktop** while desktop mode is on
-  - **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets**, **Quit PlayPets**
-- Tray details:
-  - Always on top stays available without friends. Desktop switches appear once a friend is present.
-  - Sound shows a check mark when on.
-  - An available update changes the update label to **Update to v…**.
-  - On Windows, left-click opens the yard; right-click opens the menu.
-  - A small blue or red mark signals an agent waiting for you or reporting trouble. The tooltip names its friend.
-- **macOS menu bar**:
-  - **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding, **Quit PlayPets**
-  - **Edit**: cut, copy and paste in text fields
-  - **View** → **Friends & Settings**, **Friends**, **Invite a Friend…**; **Always on top** and **Show on desktop** with a check mark (the desktop switch is grayed out until a friend is in); **Yard Sounds** with a check mark
-  - **Window** → **Reset window size**, minimize and close
-- **Shortcuts** (<kbd>⌘</kbd> on macOS, <kbd>Ctrl</kbd> on Windows and Linux):
+### Tray menu
+
+The tray menu opens from the cat in the menu bar or taskbar. Its items, in order:
+1. **Open the yard**, **Friends** (when friends are present), **Invite a Friend…**
+2. **Reset window size** puts the yard back at its usual size in the middle of the screen
+3. Display switches: **Always on top**, **Show on desktop**, and **Stroll on desktop** while desktop mode is on
+4. **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets**, **Quit PlayPets**
+
+- Always on top stays available without friends. Desktop switches appear once a friend is present.
+- Sound shows a check mark when on.
+- An available update changes the update label to **Update to v…**.
+- On Windows, left-click opens the yard; right-click opens the menu.
+- A small blue or red mark signals an agent waiting for you or reporting trouble. The tooltip names its friend.
+
+### macOS menu bar
+
+- **PlayPets** → **About PlayPets**, **Check for Updates…**, **Settings…**, hiding, **Quit PlayPets**
+- **Edit**: cut, copy and paste in text fields
+- **View** → **Friends & Settings**, **Friends**, **Invite a Friend…**; **Always on top** and **Show on desktop** with a check mark (the desktop switch is grayed out until a friend is in); **Yard Sounds** with a check mark
+- **Window** → **Reset window size**, minimize and close
+
+### Shortcuts
+
+The keys below use <kbd>⌘</kbd> on macOS and <kbd>Ctrl</kbd> on Windows and Linux.
 
 | Keys | Does |
 |---|---|
@@ -167,7 +180,7 @@ Move the pointer to the top of the yard and buttons appear to reset the window s
   - the file's format number (`schema`)
 - A `state.json` written by a newer version is copied aside, and the parts this version knows are read.
 
-**Startup notices**
+### Startup notices
 
 If a friend can't load when the app opens, a collapsed **Startup notices** card floats just above the dock. It doesn't take any space from the yard. Open it to read the details.
 
@@ -194,7 +207,7 @@ These notices don't delete the saved friend records. Dismissing the card hides i
 
 ## What is saved and what is not <Since v="0.1.0" />
 
-**Saved**
+### Saved
 
 - Each friend's name, personality, relationship, what it calls you, size and position in the yard
 - Each friend's closeness
@@ -204,13 +217,13 @@ These notices don't delete the saved friend records. Dismissing the card hides i
 - Language, desktop mode and strolling, the window position, size and Always on top setting, the chosen time of day, weather and season
 - Imported pet files and where they came from
 
-**Saved differently**
+### Saved differently
 
 - API keys do not go into `state.json`.
   - Kept only in this computer's secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service).
   - Deleting the connection deletes them too.
 
-**Not saved**
+### Not saved
 
 - Conversations with your friends. Only in memory; gone when you quit the app.
 - The memory of a coding agent's recent activity. Gone when you quit the app.

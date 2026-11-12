@@ -110,7 +110,7 @@ const sceneWhen = (scene: { before?: string; weather: string; periods: string[];
       <p class="moments-secret">{{ t.moments.secret }}</p>
     </section>
     <section class="work-story feature">
-      <div class="feature-text"><h2>{{ t.workTitle }}</h2><p>{{ t.workBody }}</p><p class="work-note">{{ t.workNote }}</p><a class="more" :href="path('/guide/agents')">{{ t.agentGuide }} →</a></div>
+      <div class="feature-text"><h2>{{ t.workTitle }}</h2><p>{{ t.workBody }}</p><ul class="work-reports"><li v-for="line in t.workReports" :key="line">{{ line }}</li></ul><p class="work-note">{{ t.workNote }}</p><a class="more" :href="path('/guide/agents')">{{ t.agentGuide }} →</a></div>
       <AgentDemo :words="t" :paused="paused" />
     </section>
     <PetGallery :words="t" :guide="path('/guide/first-friend#companion-stories')" :creator="path('/guide/creator-kit')" />

@@ -84,6 +84,7 @@ flowchart LR
 | The scene and the clock | `sky.js`, `scene.js` |
 | Friends as they stand: each friend is a body among the garden's plants and gifts, ordered by depth, and a label (bubble, name tag, agent dot) in a layer above everything on the field | `views.js` |
 | One frame of a friend's life | `motion.js` |
+| Where a friend goes for its agent's state, and a room's furniture ([design](design/2026-11-11-agent-workspaces.md)): stations per state, furniture that strolls keep off, idle seats, tea and the bench, and desk fronts drawn over a seated friend | `duty.js`, `workspace.js`, `lounge.js`, `fronts.js` |
 | Trips and tasks (below) | `trips.js` |
 | Work on the ground (below) | `work.js` |
 | The hint read to screen readers; the visible one is the tool strip's | `hint.js`; which hint is the pure `hintKey` and `busyLine` |

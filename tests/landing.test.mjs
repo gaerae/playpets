@@ -44,6 +44,8 @@ test('the landing lets visitors play a chat and a coding session instead of look
     assert.equal(sections.heroFacts.length, 3, lang);
     for (const key of ['togetherTitle', 'togetherBody', 'workTitle', 'workBody', 'workNote', 'heroAgents'])
       assert.ok(sections[key]?.length, `${lang}: ${key}`);
+    // Which tool reports what is a short list, not one long sentence.
+    assert.equal(sections.workReports.length, 3, `${lang}: workReports`);
   }
 });
 

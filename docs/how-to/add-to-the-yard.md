@@ -86,7 +86,9 @@
    | `ball` | The drawing a built kind is rolled from |
    | `stack` | `[base ball width ÷ box width, base ball bottom ÷ box height]` |
    | `dress` | `[{id, art, at: [x, y, w]}]`, in drawing order; `at` is the centre and width as fractions of the box, and the backend reads only the ids |
+   | `shade` | `[width, height, y, x?]` of a soft contact shadow under a drawing with no ground of its own, as fractions of its box; `x` only when the foot is off the middle (`src/yard/decor.js`) |
    | `hooks` | Where ornaments hang on this drawing, as fractions of its box; only `xmas_tree` has them, and `ORNAMENT_HOOKS` in `garden.rs` is their count |
+   | `baubles` | Where the drawing's painted baubles are, `[x, y, width]` like a hook; only `xmas_tree` and its `night` have them. `tests/content.test.mjs` keeps each hook on a painted bauble or clear of them all |
    | `night` | The gift's Christmas night look; only `xmas_tree` has one. Read by `src/yard/christmas-night.js` (see below); its `hooks` name the same places on the grand tree |
 
    - At most four kinds use `shown` or `seasons`.

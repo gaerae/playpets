@@ -1,5 +1,5 @@
 ---
-title: "Creator studio"
+title: "Character studio"
 sidebar: false
 outline: false
 aside: false
@@ -14,7 +14,7 @@ description: "Describe your character and download one creation KIT with its SKI
 import CreationStudio from "../.vitepress/theme/CreationStudio.vue";
 </script>
 
-# Creator studio
+# Character studio
 
 <CreationStudio lang="en" kind="pet" />
 

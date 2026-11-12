@@ -4,7 +4,7 @@
 
 - PlayPets 是一款免费开源的桌宠应用，宠物伙伴住在你的桌面上。自带四位伙伴，你的 Codex 宠物也能加入，最多 12 位一起玩。适用于 macOS、Windows、Linux。
 - 伙伴们一起住在小乐园里，也可以跑到桌面上。ChatGPT 桌面应用只显示你选的一只宠物（[OpenAI 指南](https://learn.chatgpt.com/docs/pets)，截至 2026 年 10 月）。
-- 它们会通过你连接的 AI 和你聊天，也会互相聊；Claude Code、Codex、Gemini CLI 或 Cursor 干活时，它们会做出反应。
+- 它们会通过你连接的 AI 和你聊天，也会互相聊；Claude Code、Codex、Gemini CLI、Cursor、Grok Build、Qoder 或 Kimi Code 干活时，它们会做出反应。
 
 ## 能用 Codex 宠物吗？
 
@@ -16,10 +16,13 @@
 ## 要花钱吗？
 
 - 应用免费，是 MIT 许可的开源软件。
-- 用订阅登录的 Claude Code 或 Codex CLI：使用套餐额度，不另付 API 账单；套餐限制和主动购买的额外点数仍然适用。
-- 本地 Ollama 模型：在你的电脑上运行，没有托管推理费用。
-- API 密钥连接、兼容服务器和 Ollama 云端模型：按提供方的计费规则。
-- 详见 [AI 连接的种类](./chat.md#ai-连接的种类)。
+- 聊天花多少钱，取决于你连接的 AI（[AI 连接的种类](./chat.md#ai-连接的种类)）。
+
+| 连接 | 费用 |
+|---|---|
+| 用订阅登录的 Claude Code 或 Codex CLI | 使用套餐额度，不另付 API 账单。套餐限制和主动购买的额外点数仍然适用 |
+| 本地 Ollama 模型 | 在你的电脑上运行，没有托管推理费用 |
+| API 密钥连接、兼容服务器和 Ollama 云端模型 | 按提供方的计费规则 |
 
 ## 没有网络也能用吗？
 
