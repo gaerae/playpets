@@ -12,3 +12,9 @@ const copies = new Set((generated as { sceneImages?: string[] }).sceneImages ?? 
 
 export const sceneryUrl = (name: string) =>
   copies.has(name) ? withBase(`/yard/scenes/${name}.webp`) : originals[`../../../src/art/environments/${name}.png`];
+
+// The half-size copy beside the full one, for a picture drawn at card size; none without copies.
+export const sceneSrcset = (name: string) =>
+  copies.has(name)
+    ? `${withBase(`/yard/scenes/768/${name}.webp`)} 768w, ${withBase(`/yard/scenes/${name}.webp`)} 1536w`
+    : undefined;

@@ -22,6 +22,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the Garden workshop, friends grow with the room in a large window, so the furniture never looks up to twice as big next to them at full screen.
 - Seasonal events come on any day when you pick the season yourself and the scene fits: a clear spring morning or day brings the cherry blossom festival, a clear summer evening or night the firefly nights, a clear autumn night the harvest moon, a winter evening or night the winter lights, and a winter morning the New Year. Their dates still bring them on their own, and the gifts they bring still come only on those dates. The album says which scene calls up the golden firefly and the moonlight carp.
 - A friend linked to a coding agent shows what the agent is doing: it stays put while the agent works or hits an error, comes to the front of the yard when the agent waits for your approval, and goes back to its own place and strolls again once that is over.
+- New pictures for the three outdoor places. The Hill garden's cottage has a sage-green roof and its low wall is gone, so the garden opens toward the lake. The Lakeside cottage gets a stone terrace beside its dock. Spring, summer, autumn and winter now share one calm tone: the lawn stays the same gentle green from season to season instead of turning bright in spring and dark olive in autumn.
+- The Stone courtyard is now the **Wild garden**: an open meadow with a pond, a little waterfall and a big oak, with no buildings or walls. If it was your place, it opens as the Wild garden.
+- Friends walk wherever the picture shows ground: up to the cottage doors and steps and onto the Lakeside cottage's terrace, never into the water. Flowers, trees and gifts can go there too, and a dragged one stays under the pointer there as well.
 
 ### Fixed
 
@@ -36,6 +39,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Fewer, quieter fireflies: a handful on a full yard and one or two in a small window instead of nine whatever the size, up to eight on firefly nights instead of twenty-two. Each glows as a soft halo around one bright point, and about half are lit at any moment, so they no longer wash over friends and gifts. The Firefly nights announcement and the guide now say more fireflies, not many more.
 - A friend holds the bug net in its paws and leans it out under its face, instead of the handle starting behind its hip. A friend from an imported pet file holds the fishing rod in front of its body too.
 - A friend whose agent is already working, waiting or done takes its seat in the Garden workshop as soon as you go there, and lets it go when you leave for another place, instead of waiting for its agent's next report.
+- On a harvest moon night the moon is a whole round moon, instead of tonight's phase drawn large.
+- Dragging a planted tree no longer slows down in a garden with many plants and gifts.
 - A flower you drag stays right under the pointer instead of trailing behind it and jumping to the spot when you let go. A flower or a tree in your hand stops swaying where it leans and sways on once it is put down, and trees and flowers no longer all jump in their sway when something new appears in the yard or goes away.
 
 ### Website and docs
@@ -45,6 +50,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The website's place picker shows four places, with the Garden workshop's day sky through its glass, and the site and README count four places.
 - The landing's seasons and the yard's own moments read as recipes: what has to come together (season, time of day, weather, a gift out in the yard, a Play menu item) as small chips, then what happens in one short line. Christmas night shows its two steps: the tree that grows, then the sleigh.
 - The Korean and Japanese landings also name the app in their own script, the Chinese landing calls it a desktop pet in the words people search with, and each landing says it is a Desktop Companion you leave running, in Steam's own words for that language.
+- The site, the guide, the Studio pages and the README call the third garden the Wild garden, and the share pictures and the macOS installer show the new Hill garden.
+- The landing shows the four places in their new pictures, each with a line about it, and its coding-agent list, closeness and privacy sections have their spacing back.
 - The creator studio shows what the work rows (`working`, `waiting`, `done`, `error`) make a friend do in each place, and the background studio compares the built-in places with your own background in a table. Requirements and steps are short tables and lists.
 
 ## [1.6.1] - 2026-11-12

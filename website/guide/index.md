@@ -2,13 +2,17 @@
 
 PlayPets is a shared yard for companions who talk to you and to each other. Invite a starter or import a compatible community pet file, then give it a name, a personality and a relationship. You don't need Codex itself.
 
-The first yard opens on a sunny spring day. Pick the season, time and weather yourself, or leave them on Auto. Friends stroll, eat treats and play four games (one only in winter), and digging turns up flower seeds and saplings.
+## What you can do
 
-Friends you play with bring gifts: one every other day for the whole yard, and another each time a friend grows closer. Grow flowers, fish and catch bugs to fill the album, and you grow closer over time.
-
-Resize the window to keep the yard beside your work, or switch to desktop mode and let friends roam over your other windows.
-
-To chat, a friend needs a local model, a signed-in CLI or another AI connection. Coding-agent hooks are optional.
+| Thing | In short | Page |
+|---|---|---|
+| Invite friends | Four starter friends come with the app, any Codex pet can join, up to 12 at once | [Your first friend](./first-friend.md) |
+| Chat | A friend needs a local model, a signed-in CLI or another AI connection | [Talking with friends](./chat.md) |
+| Play in the yard | The first yard opens on a sunny spring day. Pick the season, time and weather, or leave them on Auto. Friends stroll, eat treats and play four games (one only in winter) | [The yard and games](./play.md) |
+| Grow and collect | Digging turns up flower seeds and saplings. Grow flowers, fish and catch bugs to fill the album | [The yard and games](./play.md) |
+| Gifts and closeness | Friends you play with bring gifts: one every other day for the whole yard, and another each time a friend grows closer | [Gifts](./play.md#gifts) |
+| Keep it beside your work | Resize the window, or switch to desktop mode and let friends roam over your other windows | [Desktop mode](./desktop.md) |
+| Coding agents | Optional hooks let a friend react while your agent works | [Coding agents](./agents.md) |
 
 ## What you need
 
@@ -23,9 +27,10 @@ PlayPets is built with Tauri, so it uses your operating system's webview instead
 
 ## Two words
 
-A pet is a character file: one folder with a `pet.json` and a sprite sheet is one pet. Pets in Codex's pet folder show up automatically. You can also import pets from community sites or pick a folder on your computer.
-
-A friend is a pet you invited into the yard. Invite the same pet several times and you get several friends, each with its own name, personality, size and AI.
+| Word | Means |
+|---|---|
+| Pet | A character file: one folder with a `pet.json` and a sprite sheet. Pets in Codex's pet folder show up automatically; you can also import pets from community sites or pick a folder on your computer |
+| Friend | A pet you invited into the yard. Invite the same pet several times and you get several friends, each with its own name, personality, size and AI |
 
 ## Get started
 
@@ -38,14 +43,16 @@ Something not working? See [the table in the FAQ](./faq.md#troubleshooting).
 
 ## All pages
 
-1. [Install](./install.md) — picking a file, getting past the first-launch warning, updates, the data folder
-2. [Your first friend](./first-friend.md) — making a friend with Invite a friend, patting them in the yard
-3. [Talking with friends](./chat.md) — kinds of AI connections, personality, chatting with several friends at once
-4. [Coding agents](./agents.md) — letting your friend see what the agent is doing
-5. [Desktop mode](./desktop.md) — sending friends out onto the desktop
-6. [The yard and games](./play.md) — time of day, weather and seasons, garden and gifts, fishing and bugs, album, closeness, events, sounds, four games, resizing the window
-7. [Importing pets](./import.md) — community pets and pet folders on your computer
-8. [Character studio](./creator-kit.md) — a creation kit for making your own friend in your AI tool
-9. [Background studio](./background-kit.md) — a creation kit for making your own place in your AI tool
-10. [Settings](./settings.md) — language, updates, quitting, what is saved and what is not
-11. [FAQ](./faq.md)
+| Page | What you'll find |
+|---|---|
+| [Install](./install.md) | Picking a file, getting past the first-launch warning, updates, the data folder |
+| [Your first friend](./first-friend.md) | The four starter friends, Invite a friend, friend settings, patting and treats |
+| [Talking with friends](./chat.md) | Kinds of AI connections, personality, relationship, chatting with several friends at once |
+| [Coding agents](./agents.md) | Letting your friend see what the agent is doing |
+| [Desktop mode](./desktop.md) | Sending friends, flowers and gifts out onto the desktop |
+| [The yard and games](./play.md) | Places, time of day, weather and seasons, garden and gifts, fishing and bugs, the album, closeness, seasonal events (on their dates, or any day you pick their scene), sounds, four games, resizing the window |
+| [Importing pets](./import.md) | Community pets, pet folders and ZIP files on your computer, making your own |
+| [Character studio](./creator-kit.md) | A creation kit for making your own friend in your AI tool |
+| [Background studio](./background-kit.md) | A creation kit for making your own place in your AI tool |
+| [Settings](./settings.md) | Language, updates, quitting, what is saved and what is not |
+| [FAQ](./faq.md) | Short answers and a troubleshooting table |

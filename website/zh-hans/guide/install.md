@@ -4,15 +4,21 @@ description: 通过 Microsoft Store、winget、Homebrew 或适合你系统的文
 
 # 安装
 
-- 下面的按钮会给出适合你当前系统的安装方式。其他文件都在它下面的列表里。
+下面的按钮会给出适合你当前系统的安装方式。其他文件都在它下面的列表里。
 
 <Downloads />
 
-| 系统 | 安装方式 |
+::: tip 速查
+| 想做什么 | 去哪里 |
 |---|---|
-| Windows | [Microsoft Store](#microsoft-store)（推荐，由 Microsoft 签名）、[winget](#winget)、[GitHub 安装文件](#installer-from-github) |
-| macOS | [Homebrew](#homebrew)、[GitHub dmg](#dmg-from-github) |
-| Linux | [AppImage 或 deb](#linux) |
+| 在 Windows 上安装 | [Microsoft Store](#microsoft-store)（推荐，由 Microsoft 签名）、[winget](#winget)、[GitHub 安装文件](#installer-from-github) |
+| 在 macOS 上安装 | [Homebrew](#homebrew)、[GitHub dmg](#dmg-from-github) |
+| 在 Linux 上安装 | [AppImage 或 deb](#linux) |
+| 越过首次启动时的警告 | [Windows SmartScreen](#installer-from-github)、[macOS 1.2.0 及更早版本](#dmg-from-github)、[Linux FUSE](#linux) |
+| 更新 | [更新](#更新) |
+| 卸载 PlayPets | [卸载](#uninstall) |
+| 找到伙伴和设置的保存位置 | [数据文件夹](#数据文件夹) |
+:::
 
 ## Windows <Since v="0.1.0" /> {#windows}
 
@@ -135,36 +141,47 @@ chmod +x PlayPets_*.AppImage
 
 ## 更新 <Since v="0.1.0" />
 
-- Microsoft Store 安装版由 Store 安装更新。有新版本时，会在乐园和设置里提醒你，点 **在 Microsoft Store 中打开** 即可打开 Store 中的 PlayPets 页面。
+| 从哪里安装 | 谁来安装更新 |
+|---|---|
+| Microsoft Store、winget | Store。有新版本时，会在乐园和设置里提醒你，点**在 Microsoft Store 中打开**即可打开 Store 中的 PlayPets 页面。测试用 MSIX 同样通过安装包更新 |
+| 其他安装方式 | PlayPets 自己，只在你选择时安装（见下文） |
+
 - 更新后第一次启动时，会告诉你现在是哪个版本。
-- 下面通过 GitHub 安装程序更新的说明，适用于非 MSIX 安装版；测试用 MSIX 同样使用包管理更新。
 - 存储与外部通信详情见[隐私政策](../privacy.md)。
 
-立即检查：
+### 立即检查
 
-- **设置 → 应用更新**里的**检查更新**、托盘菜单的**检查更新…**，或 macOS 菜单栏的 **PlayPets → 检查更新…**。
-- 这些入口都会打开设置里的**应用更新**，检查结果和更新操作都显示在这里。
+点下面任何一个，都会打开**设置 → 应用更新**，检查结果和更新操作都显示在这里：
 
-有新版本时：
+- **设置 → 应用更新**里的**检查更新**
+- 托盘菜单的**检查更新…**
+- macOS 菜单栏的 **PlayPets → 检查更新…**
 
-- 会安静地显示版本入口，点击后打开同一个设置区域。
-- 读完更新内容、选**安装并重启**后，应用会下载、验证签名、安装并重启。自动检查不会开始安装。
+### 安装新版本
+
+1. 有新版本时，会安静地显示版本入口，点击后打开同一个设置区域。
+2. 读完更新内容，选**安装并重启**。应用会下载、验证签名、安装并重启。
+3. 重启后会短暂提示已安装的版本。
+
+- 自动检查不会开始安装。
 - 下载时可以关掉设置继续玩，小窗口也会保留进度入口。
-- 重新打开不会重复下载。错误和重试操作都留在**应用更新**里。
-- 重启后会短暂提示已安装的版本。
+- 重新打开不会重复下载。
+- 错误和重试操作都留在**应用更新**里。
 
-自动检查：
+### 自动检查
 
-- 启动 20 秒后静默检查，运行期间每 6 小时再检查一次。
-- 失败后分别在 5 分钟、15 分钟、1 小时后静默重试，之后每 6 小时重试。成功后恢复每 6 小时检查。
+| 什么时候 | 怎么做 |
+|---|---|
+| 启动 20 秒后 | 静默检查 |
+| 运行期间 | 每 6 小时静默检查 |
+| 检查失败后 | 分别在 5 分钟、15 分钟、1 小时后静默重试，之后每 6 小时重试 |
+| 检查成功后 | 恢复每 6 小时检查 |
+
 - 自动检查不会打开设置，也不弹通知。
-
-验证：
-
 - 新版本从 GitHub 发布页的 `latest.json` 查找。
 - 下载的文件只有通过更新签名密钥验证后才会安装。验证失败的文件不会安装。
 
-## 卸载
+## 卸载 {#uninstall}
 
 | 操作系统 | 方法 |
 |---|---|
@@ -174,10 +191,12 @@ chmod +x PlayPets_*.AppImage
 | Linux deb | 用安装时的包管理器卸载 |
 | Linux AppImage | 删除文件 |
 
-- 卸载前，请对每个已连接的编码代理点击**断开连接**（[编码代理联动](./agents.md)）。钩子会留在 `~/.claude/settings.json`、`~/.codex/config.toml` 等文件里，PlayPets 卸载后，代理会提示钩子命令运行失败。
-- 卸载应用后，API 密钥仍会留在这台电脑的安全存储里（Windows 凭据管理器、macOS 钥匙串、Linux Secret Service）。请先对每个 AI 连接点击**删除连接**来删除它们。
-- 删除应用后，下面的数据文件夹仍会留下。
-- 商店、winget：卸载应用时，Windows 会一并删除安装包的数据。
+卸载前先做这两步：
+
+1. 对每个已连接的编码代理点击**断开连接**（[编码代理联动](./agents.md)）。不然钩子会留在 `~/.claude/settings.json`、`~/.codex/config.toml` 等文件里，PlayPets 卸载后，代理会提示钩子命令运行失败。
+2. 对每个 AI 连接点击**删除连接**。不然 API 密钥会留在这台电脑的安全存储里（Windows 凭据管理器、macOS 钥匙串、Linux Secret Service）。
+
+- 删除应用后，下面的数据文件夹仍会留下。商店、winget：卸载应用时，Windows 会一并删除安装包的数据。
 - 想把设置和导入的宠物也删掉，请一并删除数据文件夹。
 
 ## 数据文件夹 <Since v="0.1.0" />
@@ -199,4 +218,4 @@ chmod +x PlayPets_*.AppImage
 | `builtin/` | 自带的四位伙伴 |
 
 - 想放到别处：把文件夹路径填进环境变量 `PLAYPETS_DATA`，再运行应用。
-- 详见[设置](./settings.md)。
+- 详见[设置](./settings.md#data-folder)。

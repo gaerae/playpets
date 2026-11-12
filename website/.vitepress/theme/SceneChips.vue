@@ -1,11 +1,24 @@
 <!-- What has to come together for a scene, as a row of chips named with the app's own words: a
      season, the time of day, the weather or its turn, a gift out in the yard, a Play menu item.
-     Tokens are site-content.mjs's (`type:value`); a gift chip carries the album's picture of it. -->
+     Tokens are site-content.mjs's (`type:value`); a gift chip carries the album's picture of it.
+     With `event`, the chips are the scene that calls that seasonal event up on any day when the
+     season is picked by hand (its "scene" in events.json), for the landing and the guide alike. -->
 <script setup lang="ts">
 import { computed } from 'vue';
+import events from '../../../src/content/events.json';
 import { appWord, kindArt, kindName } from './album-art';
 
-const props = defineProps<{ lang: string; when: string[]; label: string }>();
+const props = defineProps<{ lang: string; when?: string[]; event?: string; label: string }>();
+type Scene = { seasons?: string[]; periods?: string[]; weathers?: string[] };
+function eventScene(id: string) {
+  const asks = (events.events as { id: string; scene?: Scene }[]).find(e => e.id === id)?.scene;
+  if (!asks) return [];
+  return [
+    ...(asks.seasons ?? []).map(s => `season:${s}`),
+    ...(asks.periods?.length ? [`period:${asks.periods.join('|')}`] : []),
+    ...(asks.weathers ?? []).map(w => `weather:${w}`),
+  ];
+}
 const SEASON_KEY: Record<string, string> = {
   spring: 'catch.season_spring',
   summer: 'catch.season_summer',
@@ -30,7 +43,9 @@ function chip(token: string) {
   if (type === 'gift') return { type, art: kindArt('gifts', value), text: kindName(props.lang, 'gifts', value) };
   return { type, icon: 'play', text: `${word('controls.play')} → ${word(value)}` };
 }
-const chips = computed(() => props.when.map(token => ({ token, ...chip(token) })));
+const chips = computed(() =>
+  (props.event ? eventScene(props.event) : (props.when ?? [])).map(token => ({ token, ...chip(token) })),
+);
 </script>
 
 <template>

@@ -23,7 +23,7 @@ export const copy = {
   releaseLabel: 'Version and release notes',
 };
 export const worldCopy = {
-  places: ['Hill garden', 'Stone courtyard', 'Lakeside cottage', 'Garden workshop'],
+  places: ['Hill garden', 'Wild garden', 'Lakeside cottage', 'Garden workshop'],
   seasons: ['Spring', 'Summer', 'Autumn', 'Winter'],
   greetings: {
     daisy: 'There might be something lovely just around the corner.',
@@ -83,6 +83,21 @@ export const sections = {
     ],
     link: 'Read the full play guide',
   },
+  placeCards: {
+    title: 'Four places to play',
+    lead: 'Choose one in Place & atmosphere. The three outdoor places each have their own fishing spots and a landscape for every season. Your album comes with you when you move.',
+    about: {
+      woodland: 'A cottage with a sage-green roof on an open hillside, and a round pond in the lawn.',
+      courtyard: 'A meadow left to nature, with a little waterfall, a lily pond and a big oak. No buildings.',
+      lakeside: 'A cottage on the shore of a wide lake, with a little wooden dock.',
+      workshop:
+        'Potting tables, a tea corner and a garden bench under a glass roof. A friend linked to a coding agent works here.',
+    },
+    seasonal: 'Four seasons',
+    indoor: 'Indoors, the same all year',
+    link: 'What you can do in each place',
+    own: 'Make your own background',
+  },
   album: {
     title: 'Eight books to fill',
     lead: '{count} things to find, each in its own way. Nothing runs out and there is no deadline: a find you missed comes round again with its season.',
@@ -105,7 +120,8 @@ export const sections = {
   recipe: { when: 'What it takes', or: 'or', also: 'Add' },
   year: {
     title: 'Something new every season',
-    lead: 'The yard follows the calendar on your computer. When these come together, this is what happens.',
+    lead: 'Each event comes on its own on its dates. To have one on any other day, pick its season by hand in Atmosphere, with the time and weather it asks for.',
+    pick: 'Any day, pick',
     letter: 'Year-end letter',
     christmas: 'Christmas night',
     gives: {
@@ -124,6 +140,7 @@ export const sections = {
     },
     south:
       'South of the equator, the cherry blossom festival, firefly nights and harvest moon come six months later; the winter lights, the letter and the New Year keep their dates.',
+    gifts: 'An event’s gifts come only on its dates, and a gift you have stays for good.',
     link: 'All about the seasonal events',
   },
   moments: {
@@ -177,7 +194,11 @@ export const sections = {
       ['Garden', '—', 'Dig up seeds and saplings, plant flowers and trees, and set out the gifts friends bring'],
       ['Collecting', '—', 'Fish, catch bugs, dig and follow tracks to fill an album of {count} finds'],
       ['Seasons', '—', 'Cherry blossoms, firefly nights, a harvest moon, winter lights and the New Year'],
-      ['Places', '—', 'Four places or your own backgrounds, with time of day, weather and seasons'],
+      [
+        'Places',
+        '—',
+        'Hill garden, Wild garden, Lakeside cottage, Garden workshop or your own backgrounds, with time of day, weather and seasons',
+      ],
       ['Outfits', '—', 'Starter pets dress for the season; any pet file can add seasonal sheets'],
     ],
     source: 'Codex pet column: OpenAI’s pet guide, October 2026',

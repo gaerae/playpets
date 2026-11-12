@@ -169,7 +169,7 @@ To make a new effect:
 | Key | What it describes |
 |---|---|
 | `curves` | The hills, as cubic curves in fractions of the yard (x across, y down): a start point, then two control points and an end point for each piece |
-| `field`, `fieldTop` | The curve where the field friends stand on starts, and the height of its top (a fraction of the yard's height) |
+| `fieldTop` | Where the field friends stand on starts while the painted land stands in for the picture (a fraction of the yard's height) |
 | `lake` | Where the lake starts and ends across (`from`, `to`), its far shore's height at the middle (`top`) and the curve that hides its near half (`under`) |
 | `layers` | What is painted, from back to front. Each names its painter (`paint`) and that painter's settings |
 

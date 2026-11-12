@@ -167,10 +167,10 @@ export const strings = {
   'controls.group_games': 'Group games',
   'controls.menu': 'Friends & settings',
   'controls.scene': 'Place & atmosphere',
-  'world.courtyard': 'Stone courtyard',
+  'world.courtyard': 'Wild garden',
   'world.lakeside': 'Lakeside cottage',
   'world.courtyard.about':
-    'A courtyard inside stone walls. Fish in the little pond, catch bugs and grow flowers with your friends.',
+    'A garden left to nature, full of wildflowers. Fish in the little pool, catch bugs and grow flowers with your friends.',
   'world.lakeside.about':
     'A cottage by a wide lake. Fish from the shore, catch bugs and grow flowers with your friends.',
   'background.create': 'Background studio',

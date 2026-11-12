@@ -9,6 +9,7 @@
    - Add its `label` and `about` activity-note keys to all four page string tables.
 2. Set `geometry.fieldTop` to the back edge of the walkable floor, as a fraction of the image height.
    - Leave enough open foreground for the full cast and the tools.
+   - Where the picture shows walkable ground reaching back past that line (a path, a gate, a dock), add `geometry.edge` (see [Traced edge](#traced-edge)).
 3. For a fishing place, set the water and the standing position.
    - `geometry.lake` takes `from`, `to`, `center` and `radius`: fractions that describe the same raster water people click.
    - `geometry.fishingSpot` takes normalized `x` and `y`: a separate standing position on the floor.
@@ -42,6 +43,29 @@
   - An unknown saved id falls back to the hillside garden.
 - Before adding a place, run the repository's normal checks: Node and Rust tests, lint, the site build for documentation changes and the real-app E2E for the selector flow.
 - Isolated fixtures make the result reviewable, but they do not replace native interaction checks.
+
+## Traced edge
+
+- `geometry.edge` is a polyline of picture `[x, y]` points, fractions of the image, ordered left to right.
+- Straight lines join the points. At `x`, the field's top is `min(fieldTop, edge(x))`: the edge only raises the field, never lowers it.
+- Left of the first point, right of the last, and wherever the edge lies below `fieldTop`, the `fieldTop` line holds.
+- A friend's saved `y` stays 0 to 1 at every `x`: 0 is the field's top there, 1 its front edge. Saves do not change when an edge is added or moved.
+- The edge shares the picture's transform (`environmentFrame`), so it follows the crop in wide, narrow and mini windows.
+- `yard/field.js` reads it: `topAt(px)` gives the field's top at a yard x, `hasEdge()` says whether the place has one as shown now.
+- It is not used on the painted fallback land or in a `cover-bottom` room.
+
+| Field | Meaning |
+|---|---|
+| `fieldTop` | The flat back line of the walkable floor |
+| `edge` | `[[x, y], …]` from `x` 0 to 1; each `y` is where walkable ground ends at that `x` |
+
+To trace one:
+1. Open the summer picture at full size (1536 × 1024).
+2. Walk the boundary between walkable ground and what is behind it (water, hedges, walls, the sky), left to right.
+3. Put a point at each corner, every 1–3% of the width where the boundary bends; divide pixels by 1536 and 1024.
+4. Keep the edge on the near side of the pond: it stays below `geometry.lake`'s near shore (`center + radius` at its middle).
+5. Check the other seasons; they share the camera, but snow and blossom can move the visible edge.
+6. Check the place in a wide strip, a narrow window and the mini window: friends, plants and gifts on the raised ground stay on the ground.
 
 ## Workspaces for coding agents
 

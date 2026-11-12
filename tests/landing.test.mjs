@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = file => readFileSync(file, 'utf8');
@@ -599,12 +599,19 @@ test('the landing shows every album book and every seasonal event with how to en
       assert.ok(line?.length > 8 && line.length <= (lang === 'en' ? 110 : 60), `${lang}: ${id}`);
     }
     for (const key of chipKeys(tokens)) assert.ok(strings[key], `${lang}: ${key}`);
-    for (const key of ['title', 'lead', 'south', 'link', 'letter', 'christmas'])
+    for (const key of ['title', 'lead', 'south', 'link', 'letter', 'christmas', 'pick', 'gifts'])
       assert.ok(sections.year[key]?.length, `${lang}: year ${key}`);
     for (const key of ['title', 'lead', 'link']) assert.ok(sections.album[key]?.length, `${lang}: album ${key}`);
     for (const key of ['when', 'or', 'also']) assert.ok(sections.recipe[key]?.length, `${lang}: recipe ${key}`);
   }
+  // An event card also shows the scene that calls it up on any day, read from events.json, and the
+  // section says once that gifts keep to the dates.
+  for (const { id, scene } of JSON.parse(read('src/content/events.json')).events)
+    assert.ok(scene?.seasons?.length, `${id}: scene`);
+  assert.match(read('website/.vitepress/theme/YearStory.vue'), /<SceneChips[^>]*:event="item\.id"/);
+  assert.match(read('website/.vitepress/theme/SceneChips.vue'), /events\.json[\s\S]*\?\.scene/);
   const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /t\.year\.gifts/);
   assert.match(landing, /ALBUM_BOOKS/);
   assert.ok(landing.indexOf('class="play-story"') < landing.indexOf('<AlbumBooks'));
   assert.ok(landing.indexOf('<AlbumBooks') < landing.indexOf('<YearStory'));
@@ -649,4 +656,63 @@ test('the landing shows the weather’s moments and every closeness level, in ev
   assert.match(landing, /<SceneChips[^>]*:when="sceneWhen\(scene\)"/);
   assert.match(landing, /bond\.level_\$\{level \+ 1\}/);
   assert.ok(landing.indexOf('<YearStory') < landing.indexOf('class="moments-story"'));
+});
+
+// The places are what the app's new art shows best: each one in its own picture, under the app's
+// own name, with a line about it, light enough to sit in the middle of a long page.
+test('the landing shows each place in its own art, by the app’s own name, in every language', async () => {
+  const { PREVIEW_PLACES } = await import('../scripts/site-content.mjs');
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /<section class="places-story" id="places">/);
+  assert.ok(landing.indexOf('class="play-story"') < landing.indexOf('class="places-story"'));
+  assert.ok(landing.indexOf('class="places-story"') < landing.indexOf('<AlbumBooks'));
+  assert.match(landing, /<PlaceCards /);
+  assert.match(landing, /path\('\/guide\/play#places'\)/);
+  assert.match(landing, /path\('\/guide\/background-kit'\)/);
+  const cards = read('website/.vitepress/theme/PlaceCards.vue');
+  assert.match(cards, /PREVIEW_PLACES/);
+  assert.match(cards, /sceneryUrl\(/);
+  // Lazy, decoded off the main thread, its box held before it arrives, and the smaller copy
+  // wherever it is enough.
+  assert.match(cards, /:srcset="sceneSrcset\(/);
+  for (const attribute of ['loading="lazy"', 'decoding="async"', 'width="1536"', 'height="1024"', 'sizes="'])
+    assert.ok(cards.includes(attribute), attribute);
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { worldCopy, sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const { strings } = await import(`../src/core/strings/${lang}.js`);
+    // The names are the app's, so renaming a place in the app shows up here.
+    assert.deepEqual(
+      worldCopy.places,
+      PREVIEW_PLACES.map(place => strings[`world.${place.id}`]),
+      lang,
+    );
+    const { placeCards } = sections;
+    assert.deepEqual(
+      Object.keys(placeCards.about),
+      PREVIEW_PLACES.map(place => place.id),
+      lang,
+    );
+    for (const line of Object.values(placeCards.about))
+      assert.ok(line.length > 8 && line.length <= (lang === 'en' ? 120 : 60), `${lang}: ${line}`);
+    for (const key of ['title', 'lead', 'seasonal', 'indoor', 'link', 'own'])
+      assert.ok(placeCards[key]?.length, `${lang}: placeCards.${key}`);
+    // The menu the lead sends people to is the app's own.
+    assert.ok(placeCards.lead.includes(strings['controls.scene']), `${lang}: names the menu`);
+  }
+  for (const prefix of ['', 'ko/', 'ja/', 'zh-hans/'])
+    assert.match(read(`website/${prefix}guide/play.md`), /^### .+ \{#places\}$/m, prefix || 'en');
+  const css = read('website/.vitepress/theme/landing.css');
+  assert.match(css, /\.place-cards \{/);
+  assert.match(css, /prefers-reduced-motion[\s\S]*\.place-cards/);
+});
+
+// The stone courtyard became the wild garden; only the dated release notes keep the old name.
+test('no site page outside the dated release notes still names the stone courtyard', () => {
+  const skip = /(^|\/)(dev|releases|dist|cache|node_modules|public)(\/|$)/;
+  const files = readdirSync('website', { recursive: true })
+    .map(String)
+    .filter(file => !skip.test(file) && /\.(md|vue|ts|mts|mjs|js|json)$/.test(file));
+  assert.ok(files.length > 50);
+  for (const file of files)
+    assert.doesNotMatch(read(`website/${file}`), /stone courtyard|돌집 안뜰|石造りの中庭|石屋庭院/i, file);
 });

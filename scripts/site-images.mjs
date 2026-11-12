@@ -1,19 +1,27 @@
 // Smaller copies of the pictures the site shows before anything else: its scenes as WebP (the app
 // keeps the lossless 1536×1024 PNGs, about 3 MB each) and a 96 px icon for the tab, the top bar and
-// search results (assets/icon.svg wraps the whole 1024 px PNG).
+// search results (assets/icon.svg wraps the whole 1024 px PNG). Each scene also gets a half-size
+// copy, for pictures drawn at card size (the landing's places).
 import { readdir, readFile, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { dataUrlBytes } from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 
 const SCENE_QUALITY = 0.82;
+const SMALL_WIDTH = 768;
 
 export function siteImagePlan(sources) {
   return {
     scenes: sources.map(source => {
       const name = path.basename(source, '.png');
-      return { name, source, destination: `website/public/yard/scenes/${name}.webp` };
+      return {
+        name,
+        source,
+        destination: `website/public/yard/scenes/${name}.webp`,
+        small: `website/public/yard/scenes/${SMALL_WIDTH}/${name}.webp`,
+      };
     }),
+    smallWidth: SMALL_WIDTH,
     icon: { source: 'assets/icon.svg', destination: 'website/public/icon.png', size: 96 },
   };
 }
@@ -51,12 +59,18 @@ export async function exportSiteImages(launch = launchBrowser) {
         },
         { source, width, height, type, quality },
       );
-    await mkdir(path.dirname(plan.scenes[0].destination), { recursive: true });
+    await mkdir(path.dirname(plan.scenes[0].small), { recursive: true });
     for (const scene of plan.scenes) {
       const source = `data:image/png;base64,${(await readFile(scene.source)).toString('base64')}`;
       await writeFile(
         scene.destination,
         dataUrlBytes(await encode(source, { type: 'image/webp', quality: SCENE_QUALITY })),
+      );
+      // The scenes are 3:2 (1536 × 1024).
+      const small = { width: plan.smallWidth, height: (plan.smallWidth * 2) / 3 };
+      await writeFile(
+        scene.small,
+        dataUrlBytes(await encode(source, { ...small, type: 'image/webp', quality: SCENE_QUALITY })),
       );
     }
     const icon = `data:image/svg+xml;base64,${(await readFile(plan.icon.source)).toString('base64')}`;

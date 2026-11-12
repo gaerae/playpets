@@ -26,7 +26,7 @@ const copy = {
     season: ['Spring', 'Summer', 'Autumn', 'Winter'],
     none: 'No event',
     calendar:
-      'Event choices preview what you can find during an active event; they do not activate a festival in the app. Dates below use the northern calendar. Southern dates shift six months; New Year and the winter lights keep their dates. The app follows the real date and matching season.',
+      'Choosing an event here only previews what it brings. In the app an event comes on its own on its dates (north of the equator; six months later in the south, except the winter lights and New Year), or on any day you pick its season by hand with the time of day and weather it asks for.',
     event: 'Event',
     item: 'Find',
     when: 'Where to look',
@@ -63,7 +63,7 @@ const copy = {
     season: ['봄', '여름', '가을', '겨울'],
     none: '이벤트 없음',
     calendar:
-      '이벤트를 고르면 축제 중에 만날 수 있는 종류를 미리 볼 수 있어요. 앱에서 축제를 켜는 기능은 아니에요. 아래 날짜는 북반구 기준이고, 남반구는 6개월 뒤로 옮겨져요. 겨울 별빛과 새해는 같은 날짜예요. 앱에서는 실제 날짜와 계절이 맞을 때 열려요.',
+      '여기서 이벤트를 고르면 무엇이 나오는지 미리 보기만 해요. 앱에서는 날짜가 되면 저절로 열리고(북반구 기준, 남반구는 여섯 달 뒤. 겨울 별빛과 새해는 같은 날짜), 다른 날에도 계절을 직접 고르고 이벤트에 맞는 시간대와 날씨로 맞추면 열려요.',
     event: '이벤트',
     item: '발견할 것',
     when: '만나는 조건',
@@ -99,7 +99,7 @@ const copy = {
     season: ['春', '夏', '秋', '冬'],
     none: 'イベントなし',
     calendar:
-      'イベントを選ぶと、開催中に出会える種類を確認できます。アプリ内のお祭りを開始する機能ではありません。日付は北半球の暦で、南半球では6か月ずれます。冬のイルミネーションと新年の日付は共通です。アプリでは実際の日付と季節が合うときに開催されます。',
+      'ここでイベントを選ぶと、出会えるものを確認できるだけです。アプリでは日付が来ると自然に始まり（北半球の暦。南半球では6か月遅れ、冬のイルミネーションとお正月は同じ日付）、ほかの日でも季節を自分で選び、イベントに合う時間帯と天気にすると始まります。',
     event: 'イベント',
     item: '見つかるもの',
     when: '出会える条件',
@@ -135,7 +135,7 @@ const copy = {
     season: ['春', '夏', '秋', '冬'],
     none: '无活动',
     calendar:
-      '选择活动可以预览活动期间会遇到的物种，不会在应用中开启节日。日期以北半球为准，南半球顺延六个月，冬日灯光和新年日期不变。应用按实际日期和对应季节举办活动。',
+      '在这里选择活动只是预览会遇到什么。应用里，活动到了日期会自己开始（以北半球为准，南半球晚六个月，冬日灯光和新年日期不变）；在别的日子手动选择季节，再选好活动需要的时段和天气，也会开始。',
     event: '活动',
     item: '发现',
     when: '相遇条件',

@@ -22,10 +22,10 @@ import CreationStudio from "../.vitepress/theme/CreationStudio.vue";
 
 | | Built-in places | Your background |
 |---|---|---|
-| Places | Hill garden, stone courtyard, lakeside cottage, garden workshop | One for each file you import |
+| Places | Hill garden, Wild garden, Lakeside cottage, Garden workshop | One for each file you import |
 | Live sky | Through a transparent sky outdoors, and through the workshop's glass | Through real transparency above the skyline (outdoors) |
 | Weather indoors | Inside the workshop's glass | Inside up to twelve window rectangles |
-| Fishing | The three outdoor places | A water ellipse and a dry fishing stance |
+| Fishing | Hill garden, Wild garden, Lakeside cottage | A water ellipse and a dry fishing stance |
 | Seasons | Four pictures outdoors, one for the workshop | Optional seasonal pictures |
 | Coding-agent friends | Workshop: tables, a bench with a bell at the front, a tea corner | Work where they stand; a waiting friend comes to the front |
 

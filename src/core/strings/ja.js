@@ -171,9 +171,10 @@ export const strings = {
   'controls.group_games': 'みんなで遊ぶ',
   'controls.menu': '友だちと設定',
   'controls.scene': '場所と雰囲気',
-  'world.courtyard': '石造りの中庭',
+  'world.courtyard': '自然の庭',
   'world.lakeside': '湖畔の家',
-  'world.courtyard.about': '石垣に囲まれた中庭です。小さな池で釣りをしたり、虫をとったり、花を育てたりできます。',
+  'world.courtyard.about':
+    '野の花があふれる、自然のままの庭です。小さな池で釣りをしたり、虫をとったり、花を育てたりできます。',
   'world.lakeside.about': '広い湖のそばの家です。湖畔で釣りをしたり、虫をとったり、花を育てたりできます。',
   'background.create': '背景制作室',
   'background.custom': '自分の背景',
