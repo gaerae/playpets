@@ -710,7 +710,8 @@ test('the landing shows each place in its own art, by the app’s own name, in e
 test('no site page outside the dated release notes still names the stone courtyard', () => {
   const skip = /(^|\/)(dev|releases|dist|cache|node_modules|public)(\/|$)/;
   const files = readdirSync('website', { recursive: true })
-    .map(String)
+    // Windows lists folders with backslashes.
+    .map(file => String(file).replaceAll('\\', '/'))
     .filter(file => !skip.test(file) && /\.(md|vue|ts|mts|mjs|js|json)$/.test(file));
   assert.ok(files.length > 50);
   for (const file of files)
